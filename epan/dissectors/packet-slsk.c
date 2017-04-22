@@ -489,19 +489,17 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               add_new_data_source(pinfo, uncompr_tvb, "Uncompressed SoulSeek data");
               uncompr_tvb_offset = 0;
               if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "i*")) {
-                i=0;
                 proto_tree_add_item_ret_uint(slsk_compr_packet_tree, hf_slsk_num_directories, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN, &j);
                 uncompr_tvb_offset += 4;
-                while (i<j){
+                for (i = 0; i < j; i++) {
                   if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "si*")) {
                     start_offset = uncompr_tvb_offset;
                     subtree = proto_tree_add_subtree_format(slsk_compr_packet_tree, uncompr_tvb, uncompr_tvb_offset, 1, ett_slsk_directory, &ti_subtree, "Directory #%d", i+1);
                     proto_tree_add_item_ret_length(subtree, hf_slsk_directory_name, uncompr_tvb, uncompr_tvb_offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
                     uncompr_tvb_offset += str_len;
-                    i2=0;
                     proto_tree_add_item_ret_uint(subtree, hf_slsk_num_files, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN, &j2);
                     uncompr_tvb_offset += 4;
-                    while (i2<j2){
+                    for (i2 = 0; i2 < j2; i2++) {
                       if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "bsiisi*")) {
                         start_offset2 = uncompr_tvb_offset;
                         subtree2 = proto_tree_add_subtree_format(subtree, uncompr_tvb, uncompr_tvb_offset, 1, ett_slsk_file, &ti_subtree2, "File #%d", i2+1);
@@ -515,26 +513,28 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         uncompr_tvb_offset += 4;
                         proto_tree_add_item_ret_length(subtree2, hf_slsk_filename_ext, uncompr_tvb, uncompr_tvb_offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
                         uncompr_tvb_offset += str_len;
-                        i3=0;
                         proto_tree_add_item_ret_uint(subtree2, hf_slsk_file_num_attributes, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN, &j3);
                         uncompr_tvb_offset += 4;
-                        while (i3<j3){
+                        for (i3 = 0; i3 < j3; i3++) {
                           if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "ii*")) {
                             subtree3 = proto_tree_add_subtree_format(subtree2, uncompr_tvb, uncompr_tvb_offset, 8, ett_slsk_file_attribute, NULL, "Attribute #%d", i3+1);
                             proto_tree_add_item(subtree3, hf_slsk_file_attribute_type, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN);
                             uncompr_tvb_offset += 4;
                             proto_tree_add_item(subtree3, hf_slsk_file_attribute_value, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN);
                             uncompr_tvb_offset += 4;
-                            i3++;
+                          } else {
+                            break; /* invalid format */
                           }
                         }
                         proto_item_set_len(ti_subtree2, uncompr_tvb_offset-start_offset2);
+                      } else {
+                        break; /* invalid format */
                       }
-                      i2++;
                     }
                     proto_item_set_len(ti_subtree, uncompr_tvb_offset-start_offset);
+                  } else {
+                    break; /* invalid format */
                   }
-                  i++;
                 }
               }
             }
@@ -607,10 +607,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 uncompr_tvb_offset += str_len;
                 proto_tree_add_item(slsk_compr_packet_tree, hf_slsk_token, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN);
                 uncompr_tvb_offset += 4;
-                i=0;
                 proto_tree_add_item_ret_uint(slsk_compr_packet_tree, hf_slsk_num_files, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN, &j);
                 uncompr_tvb_offset += 4;
-                while (i<j){
+                for (i = 0; i < j; i++) {
                   if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "bsiisi*")) {
                     start_offset2 = uncompr_tvb_offset;
                     subtree2 = proto_tree_add_subtree_format(slsk_compr_packet_tree, uncompr_tvb, uncompr_tvb_offset, 1, ett_slsk_file, &ti_subtree2, "File #%d", i+1);
@@ -624,22 +623,23 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     uncompr_tvb_offset += 4;
                     proto_tree_add_item_ret_length(subtree2, hf_slsk_filename_ext, uncompr_tvb, uncompr_tvb_offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
                     uncompr_tvb_offset += str_len;
-                    i2=0;
                     proto_tree_add_item_ret_uint(subtree2, hf_slsk_file_num_attributes, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN, &j2);
                     uncompr_tvb_offset += 4;
-                    while (i2<j2){
+                    for (i2 = 0; i2 < j2; i2++) {
                       if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "ii*")) {
                         subtree3 = proto_tree_add_subtree_format(subtree2, uncompr_tvb, uncompr_tvb_offset, 8, ett_slsk_file_attribute, NULL, "Attribute #%d", i2+1);
                         proto_tree_add_item(subtree3, hf_slsk_file_attribute_type, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN);
                         uncompr_tvb_offset += 4;
                         proto_tree_add_item(subtree3, hf_slsk_file_attribute_value, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN);
                         uncompr_tvb_offset += 4;
+                      } else {
+                        break; /* invalid format */
                       }
-                      i2++;
                     }
                     proto_item_set_len(ti_subtree2, uncompr_tvb_offset-start_offset2);
+                  } else {
+                    break; /* invalid format */
                   }
-                  i++;
                 }
 
                 proto_tree_add_item(slsk_compr_packet_tree, hf_slsk_free_upload_slots, uncompr_tvb, uncompr_tvb_offset, 1, ENC_LITTLE_ENDIAN);
@@ -700,39 +700,38 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           offset += 4;
           proto_tree_add_item_ret_length(slsk_tree, hf_slsk_room, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
           offset += str_len;
-          i=0;
           proto_tree_add_item_ret_uint(slsk_tree, hf_slsk_users_in_room, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
           offset += 4;
           if (j > tvb_reported_length_remaining(tvb, offset))
             break;
-          while (i<j){
+          for (i = 0; i < j; i++) {
             if (check_slsk_format(tvb, offset, "s*")) {
               proto_tree_add_item_ret_length(slsk_tree, hf_slsk_user, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
               offset += str_len;
+            } else {
+              break; /* invalid format */
             }
-            i++;
           }
           if (check_slsk_format(tvb, offset, "i*")) {
-            i=0;
             proto_tree_add_item_ret_uint(slsk_tree, hf_slsk_users_in_room, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
             offset += 4;
             if (j > tvb_reported_length_remaining(tvb, offset))
               break;
-            while (i<j){
+            for (i = 0; i < j; i++) {
               if (check_slsk_format(tvb, offset, "i*")) {
                 proto_tree_add_item(slsk_tree, hf_slsk_status_code, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
+              } else {
+                break; /* invalid format */
               }
-              i++;
             }
           }
           if (check_slsk_format(tvb, offset, "i*")) {
-            i=0;
             proto_tree_add_item_ret_uint(slsk_tree, hf_slsk_users_in_room, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
             offset += 4;
             if (j > tvb_reported_length_remaining(tvb, offset))
               break;
-            while (i<j){
+            for (i = 0; i < j; i++) {
               if (check_slsk_format(tvb, offset, "iiiii*")) {
                 subtree = proto_tree_add_subtree_format(slsk_tree, tvb, offset, 20, ett_slsk_user, NULL, "User #%d", i+1);
                 proto_tree_add_item(subtree, hf_slsk_average_speed, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -745,23 +744,24 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset += 4;
                 proto_tree_add_item(subtree, hf_slsk_directories, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
+              } else {
+                break; /* invalid format */
               }
-              i++;
             }
           }
           if (check_slsk_format(tvb, offset, "i*")) {
-            i=0;
             proto_tree_add_item_ret_uint(slsk_tree, hf_slsk_num_slotsfull_records, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
             offset += 4;
             if (j > tvb_reported_length_remaining(tvb, offset))
               break;
-            while (i<j){
+            for (i = 0; i < j; i++) {
               if (check_slsk_format(tvb, offset, "i*")) {
                 subtree = proto_tree_add_subtree_format(slsk_tree, tvb, offset, 4, ett_slsk_user, NULL, "User #%d", i+1);
                 proto_tree_add_item(subtree, hf_slsk_slotsfull, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
+              } else {
+                break; /* invalid format */
               }
-              i++;
             }
           }
         }
@@ -1063,19 +1063,17 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item_ret_uint(slsk_compr_packet_tree, hf_slsk_directory_name, uncompr_tvb, uncompr_tvb_offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &len);
                 uncompr_tvb_offset += 4+len;
 
-                i=0;
                 proto_tree_add_item_ret_uint(slsk_compr_packet_tree, hf_slsk_num_directories, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN, &j);
                 uncompr_tvb_offset += 4;
-                while (i<j){
+                for (i = 0; i < j; i++) {
                   if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "si*")) {
                     start_offset = uncompr_tvb_offset;
                     subtree = proto_tree_add_subtree_format(slsk_compr_packet_tree, uncompr_tvb, uncompr_tvb_offset, 1, ett_slsk_directory, &ti_subtree, "Directory #%d", i+1);
                     proto_tree_add_item_ret_length(subtree, hf_slsk_directory_name, uncompr_tvb, uncompr_tvb_offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
                     uncompr_tvb_offset += str_len;
-                    i2 = 0;
                     proto_tree_add_item_ret_uint(subtree, hf_slsk_num_files, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN, &j2);
                     uncompr_tvb_offset += 4;
-                    while (i2<j2){
+                    for (i2 = 0; i2 < j2; i2++) {
                       if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "bsiisi*")) {
                         start_offset2 = uncompr_tvb_offset;
                         subtree2 = proto_tree_add_subtree_format(subtree, uncompr_tvb, uncompr_tvb_offset, 1, ett_slsk_file, &ti_subtree2, "File #%d", i2+1);
@@ -1089,26 +1087,28 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         uncompr_tvb_offset += 4;
                         proto_tree_add_item_ret_length(subtree2, hf_slsk_filename_ext, uncompr_tvb, uncompr_tvb_offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
                         uncompr_tvb_offset += str_len;
-                        i3=0;
                         proto_tree_add_item_ret_uint(subtree2, hf_slsk_file_num_attributes, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN, &j3);
                         uncompr_tvb_offset += 4;
-                        while (i3<j3){
+                        for (i3 = 0; i3 < j3; i3++) {
                           if (check_slsk_format(uncompr_tvb, uncompr_tvb_offset, "ii*")) {
                             subtree3 = proto_tree_add_subtree_format(subtree2, uncompr_tvb, uncompr_tvb_offset, 8, ett_slsk_file_attribute, NULL, "Attribute #%d", i3+1);
                             proto_tree_add_item(subtree3, hf_slsk_file_attribute_type, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN);
                             uncompr_tvb_offset += 4;
                             proto_tree_add_item(subtree3, hf_slsk_file_attribute_value, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN);
                             uncompr_tvb_offset += 4;
-                            i3++;
+                          } else {
+                            break; /* invalid format */
                           }
                         }
                         proto_item_set_len(ti_subtree2, uncompr_tvb_offset-start_offset2);
+                      } else {
+                        break; /* invalid format */
                       }
-                      i2++;
                     }
                     proto_item_set_len(ti_subtree, uncompr_tvb_offset-start_offset);
+                  } else {
+                    break; /* invalid format */
                   }
-                  i++;
                 }
               }
             }
@@ -1291,12 +1291,11 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Get Recommendations Reply (Code: %02d)", msg_code);
           offset += 4;
-          i=0;
           proto_tree_add_item_ret_uint(slsk_tree, hf_slsk_num_recommendations, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
           offset += 4;
           if (j > tvb_reported_length_remaining(tvb, offset))
             break;
-          while (i<j){
+          for (i = 0; i < j; i++) {
             if (check_slsk_format(tvb, offset, "si*")) {
               start_offset = offset;
               subtree = proto_tree_add_subtree_format(slsk_tree, tvb, offset, 1, ett_slsk_recommendation, &ti_subtree, "Recommendation #%d", i+1);
@@ -1305,8 +1304,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               proto_tree_add_item(subtree, hf_slsk_ranking, tvb, offset, 4, ENC_LITTLE_ENDIAN);
               offset += 4;
               proto_item_set_len(ti_subtree, offset-start_offset);
+            } else {
+              break; /* invalid format */
             }
-            i++;
           }
         }
       break;
@@ -1332,12 +1332,11 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Get Global Rankings Reply (Code: %02d)", msg_code);
           offset += 4;
-          i=0;
           proto_tree_add_item_ret_uint(slsk_tree, hf_slsk_num_recommendations, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
           offset += 4;
           if (j > tvb_reported_length_remaining(tvb, offset))
             break;
-          while (i<j){
+          for (i = 0; i < j; i++) {
             if (check_slsk_format(tvb, offset, "si*")) {
               start_offset = offset;
               subtree = proto_tree_add_subtree_format(slsk_tree, tvb, offset, 1, ett_slsk_recommendation, &ti_subtree, "Recommendation #%d", i+1);
@@ -1346,8 +1345,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               proto_tree_add_item(subtree, hf_slsk_ranking, tvb, offset, 4, ENC_LITTLE_ENDIAN);
               offset += 4;
               proto_item_set_len(ti_subtree, offset-start_offset);
+            } else {
+              break; /* invalid format */
             }
-            i++;
           }
         }
       break;
@@ -1368,20 +1368,20 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           offset += 4;
           proto_tree_add_item_ret_length(slsk_tree, hf_slsk_username, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
           offset += str_len;
-          i=0;
           proto_tree_add_item_ret_uint(slsk_tree, hf_slsk_num_recommendations, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
           offset += 4;
           if (j > tvb_reported_length_remaining(tvb, offset))
             break;
-          while (i<j){
+          for (i = 0; i < j; i++) {
             if (check_slsk_format(tvb, offset, "s*")) {
               start_offset = offset;
               subtree = proto_tree_add_subtree_format(slsk_tree, tvb, offset, 1, ett_slsk_recommendation, &ti_subtree, "Recommendation #%d", i+1);
               proto_tree_add_item_ret_length(subtree, hf_slsk_recommendation, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
               offset += str_len;
               proto_item_set_len(ti_subtree, offset-start_offset);
+            } else {
+              break; /* invalid format */
             }
-            i++;
           }
         }
       break;
@@ -1394,20 +1394,20 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           offset += 4;
           proto_tree_add_item_ret_length(slsk_tree, hf_slsk_string, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
           offset += str_len;
-          i=0; j = tvb_get_letohl(tvb, offset);
           proto_tree_add_item_ret_uint(slsk_tree, hf_slsk_num_strings, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
           offset += 4;
           if (j > tvb_reported_length_remaining(tvb, offset))
             break;
-          while (i<j){
+          for (i = 0; i < j; i++) {
             if (check_slsk_format(tvb, offset, "s*")) {
               start_offset = offset;
               subtree = proto_tree_add_subtree_format(slsk_tree, tvb, offset, 1, ett_slsk_string, &ti_subtree, "String #%d", i+1);
               proto_tree_add_item_ret_length(subtree, hf_slsk_string, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
               offset += str_len;
               proto_item_set_len(ti_subtree, offset-start_offset);
+            } else {
+              break; /* invalid format */
             }
-            i++;
           }
         }
       break;
@@ -1461,32 +1461,32 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Room List (Code: %02d)", msg_code);
           offset += 4;
-          i=0;
           proto_tree_add_item_ret_uint(slsk_tree, hf_slsk_number_of_rooms, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
           offset += 4;
           if (j > tvb_reported_length_remaining(tvb, offset))
             break;
-          while (i<j){
+          for (i = 0; i < j; i++) {
             if (check_slsk_format(tvb, offset, "s*")) {
               start_offset = offset;
               subtree = proto_tree_add_subtree_format(slsk_tree, tvb, offset, 1, ett_slsk_room, &ti_subtree, "Room #%d", i+1);
               proto_tree_add_item_ret_length(subtree, hf_slsk_room, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
               offset += str_len;
               proto_item_set_len(ti_subtree, offset-start_offset);
+            } else {
+              break; /* invalid format */
             }
-            i++;
           }
           if (check_slsk_format(tvb, offset, "i*")) {
-            i=0;
             proto_tree_add_item_ret_uint(slsk_tree, hf_slsk_users_in_room, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
             offset += 4;
-            while (i<j){
+            for (i = 0; i < j; i++) {
               if (check_slsk_format(tvb, offset, "i*")) {
                 subtree = proto_tree_add_subtree_format(slsk_tree, tvb, offset, 4, ett_slsk_room, &ti_subtree, "Room #%d", i+1);
                 proto_tree_add_item(subtree, hf_slsk_users_in_room, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
+              } else {
+                break; /* invalid format */
               }
-              i++;
             }
           }
         }
@@ -1550,37 +1550,36 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           offset += 4;
           proto_tree_add_item_ret_length(slsk_tree, hf_slsk_room, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
           offset += str_len;
-          i=0;
           proto_tree_add_item_ret_uint(slsk_tree, hf_slsk_users_in_room, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
           offset += 4;
           if (j > tvb_reported_length_remaining(tvb, offset))
             break;
-          while (i<j){
+          for (i = 0; i < j; i++) {
             if (check_slsk_format(tvb, offset, "s*")) {
               proto_tree_add_item_ret_length(slsk_tree, hf_slsk_user, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
               offset += str_len;
+            } else {
+              break; /* invalid format */
             }
-            i++;
           }
           if (check_slsk_format(tvb, offset, "i*")) {
-            i=0;
             proto_tree_add_item_ret_uint(slsk_tree, hf_slsk_users_in_room, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
             offset += 4;
-            while (i<j){
+            for (i = 0; i < j; i++) {
               if (check_slsk_format(tvb, offset, "i*")) {
                 proto_tree_add_item(slsk_tree, hf_slsk_status_code, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
+              } else {
+                break; /* invalid format */
               }
-              i++;
             }
           }
           if (check_slsk_format(tvb, offset, "i*")) {
-            i=0;
             proto_tree_add_item_ret_uint(slsk_tree, hf_slsk_users_in_room, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
             offset += 4;
             if (j > tvb_reported_length_remaining(tvb, offset))
               break;
-            while (i<j){
+            for (i = 0; i < j; i++) {
               if (check_slsk_format(tvb, offset, "iiiii*")) {
                 subtree = proto_tree_add_subtree_format(slsk_tree, tvb, offset, 20, ett_slsk_user, NULL, "User #%d", i+1);
                 proto_tree_add_item(subtree, hf_slsk_average_speed, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1593,23 +1592,24 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset += 4;
                 proto_tree_add_item(subtree, hf_slsk_directories, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
+              } else {
+                break; /* invalid format */
               }
-              i++;
             }
           }
           if (check_slsk_format(tvb, offset, "i*")) {
-            i=0;
             proto_tree_add_item_ret_uint(slsk_tree, hf_slsk_num_slotsfull_records, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
             offset += 4;
             if (j > tvb_reported_length_remaining(tvb, offset))
               break;
-            while (i<j){
+            for (i = 0; i < j; i++) {
               if (check_slsk_format(tvb, offset, "i*")) {
                 subtree = proto_tree_add_subtree_format(slsk_tree, tvb, offset, 4, ett_slsk_user, NULL, "User #%d", i+1);
                 proto_tree_add_item(subtree, hf_slsk_slotsfull, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
+              } else {
+                break; /* invalid format */
               }
-              i++;
             }
           }
         }
@@ -1647,17 +1647,17 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Privileged User List (Code: %02d)", msg_code);
           offset += 4;
-          i=0;
           proto_tree_add_item_ret_uint(slsk_tree, hf_slsk_number_of_priv_users, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
           offset += 4;
           if (j > tvb_reported_length_remaining(tvb, offset))
             break;
-          while (i<j){
+          for (i = 0; i < j; i++) {
             if (check_slsk_format(tvb, offset, "s*")) {
               proto_tree_add_item_ret_length(slsk_tree, hf_slsk_user, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
               offset += str_len;
+            } else {
+              break; /* invalid format */
             }
-            i++;
           }
         }
       break;
@@ -1818,12 +1818,11 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Random Parent Addresses (Code: %02d)", msg_code);
           offset += 4;
-          i=0;
           proto_tree_add_item_ret_uint(slsk_tree, hf_slsk_num_parent_address, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
           offset += 4;
           if (j > tvb_reported_length_remaining(tvb, offset))
             break;
-          while (i<j){
+          for (i = 0; i < j; i++) {
             if (check_slsk_format(tvb, offset, "sii*")) {
 
               proto_tree_add_item_ret_length(slsk_tree, hf_slsk_user, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
@@ -1832,8 +1831,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               offset += 4;
               proto_tree_add_item(slsk_tree, hf_slsk_port, tvb, offset, 4, ENC_LITTLE_ENDIAN);
               offset += 4;
+            } else {
+              break; /* invalid format */
             }
-            i++;
           }
         }
       break;
@@ -1874,12 +1874,11 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Get Similar Users Reply (Code: %02d)", msg_code);
           offset += 4;
-          i=0; j = tvb_get_letohl(tvb, offset);
-          proto_tree_add_item(slsk_tree, hf_slsk_number_of_users, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item_ret_uint(slsk_tree, hf_slsk_number_of_users, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
           offset += 4;
           if (j > tvb_reported_length_remaining(tvb, offset))
             break;
-          while (i<j){
+          for (i = 0; i < j; i++) {
             if (check_slsk_format(tvb, offset, "si*")) {
               start_offset = offset;
               subtree = proto_tree_add_subtree_format(slsk_tree, tvb, offset, 4, ett_slsk_user, &ti_subtree, "User #%d", i+1);
@@ -1888,8 +1887,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               proto_tree_add_item(subtree, hf_slsk_same_recommendation, tvb, offset, 4, ENC_LITTLE_ENDIAN);
               offset += 4;
               proto_item_set_len(ti_subtree, offset-start_offset);
+            } else {
+              break; /* invalid format */
             }
-            i++;
           }
         }
       break;
@@ -1910,12 +1910,11 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           offset += 4;
           proto_tree_add_item_ret_length(slsk_tree, hf_slsk_recommendation, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
           offset += str_len;
-          i=0;
           proto_tree_add_item_ret_uint(slsk_tree, hf_slsk_num_recommendations, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
           offset += 4;
           if (j > tvb_reported_length_remaining(tvb, offset))
             break;
-          while (i<j){
+          for (i = 0; i < j; i++) {
             if (check_slsk_format(tvb, offset, "si*")) {
               start_offset = offset;
               subtree = proto_tree_add_subtree_format(slsk_tree, tvb, offset, 1, ett_slsk_recommendation, &ti_subtree, "Recommendation #%d", i+1);
@@ -1924,8 +1923,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               proto_tree_add_item(subtree, hf_slsk_ranking, tvb, offset, 4, ENC_LITTLE_ENDIAN);
               offset += 4;
               proto_item_set_len(ti_subtree, offset-start_offset);
+            } else {
+              break; /* invalid format */
             }
-            i++;
           }
         }
       break;
@@ -1946,17 +1946,17 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           offset += 4;
           proto_tree_add_item_ret_length(slsk_tree, hf_slsk_recommendation, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
           offset += str_len;
-          i=0;
           proto_tree_add_item_ret_uint(slsk_tree, hf_slsk_num_recommendations, tvb, offset, 4, ENC_LITTLE_ENDIAN, &j);
           offset += 4;
           if (j > tvb_reported_length_remaining(tvb, offset))
             break;
-          while (i<j){
+          for (i = 0; i < j; i++) {
             if (check_slsk_format(tvb, offset, "s*")) {
               proto_tree_add_item_ret_length(slsk_tree, hf_slsk_username, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
               offset += str_len;
+            } else {
+              break; /* invalid format */
             }
-            i++;
           }
         }
       break;
