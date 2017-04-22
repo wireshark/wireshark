@@ -1,4 +1,4 @@
-/* packet-fp.h
+/* packet-umts_fp.h
  *
  * Martin Mathieson
  * Wireshark - Network traffic analyzer

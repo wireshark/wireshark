@@ -1,4 +1,4 @@
-/* Routines for UMTS RLC disassembly
+/* packet-rlc.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -27,29 +27,29 @@
 /* Do not change enum order and append only to keep
    backward compatibility with UDP framing format */
 enum rlc_mode {
-	RLC_TM,
-	RLC_UM,
-	RLC_AM,
-	RLC_UNKNOWN_MODE
+    RLC_TM,
+    RLC_UM,
+    RLC_AM,
+    RLC_UNKNOWN_MODE
 };
 
 /* Do not change enum order and append only to keep
    backward compatibility with UDP framing format */
 enum rlc_li_size {
-	RLC_LI_VARIABLE,
-	RLC_LI_7BITS,
-	RLC_LI_15BITS
+    RLC_LI_VARIABLE,
+    RLC_LI_7BITS,
+    RLC_LI_15BITS
 };
 
 #define MAX_RLC_CHANS 64
 typedef struct rlc_info
 {
-	guint32 urnti[MAX_RLC_CHANS];
-	guint8 mode[MAX_RLC_CHANS];
-	guint8 rbid[MAX_RLC_CHANS];
-	enum rlc_li_size li_size[MAX_RLC_CHANS];
-	gboolean ciphered[MAX_RLC_CHANS];
-	gboolean deciphered[MAX_RLC_CHANS];
+    guint32 urnti[MAX_RLC_CHANS];
+    guint8 mode[MAX_RLC_CHANS];
+    guint8 rbid[MAX_RLC_CHANS];
+    enum rlc_li_size li_size[MAX_RLC_CHANS];
+    gboolean ciphered[MAX_RLC_CHANS];
+    gboolean deciphered[MAX_RLC_CHANS];
 } rlc_info;
 
 /* Reset the specified channel's reassembly data, useful for when a sequence

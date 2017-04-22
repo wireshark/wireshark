@@ -1,4 +1,4 @@
-/* Routines for UMTS FP disassembly
+/* packet-umts_mac.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -56,7 +56,7 @@ enum mac_content_type {
 #define MAC_MCCH    6
 #define MAC_MSCH    7
 #define MAC_MTCH    8
-#define	MAC_N_A		9
+#define MAC_N_A     9
 
 #define MAX_MAC_FRAMES 64
 typedef struct umts_mac_info
@@ -73,9 +73,9 @@ typedef struct umts_mac_info
 
 typedef struct
 {
-	guint number_of_mac_is_sdus;
-	guint8 lchid[MAX_MAC_FRAMES];
-	gint sdulength[MAX_MAC_FRAMES];
+    guint number_of_mac_is_sdus;
+    guint8 lchid[MAX_MAC_FRAMES];
+    gint sdulength[MAX_MAC_FRAMES];
 } umts_mac_is_info;
 
 enum enum_mac_tsn_size {
