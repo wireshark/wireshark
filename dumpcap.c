@@ -3368,9 +3368,10 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                (At least you will if g_strerror() doesn't show a local translation
                of the error.)
 
-               On FreeBSD and macOS, if a network adapter disappears while
-               you're capturing on it, you'll get a "read: Device not configured"
-               error (ENXIO).  (See previous parenthetical note.)
+               On FreeBSD, DragonFly BSD, and macOS, if a network adapter
+               disappears while you're capturing on it, you'll get a
+               "read: Device not configured" error (ENXIO).  (See previous
+               parenthetical note.)
 
                On OpenBSD, you get "read: I/O error" (EIO) in the same case.
 
