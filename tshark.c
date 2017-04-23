@@ -2946,12 +2946,13 @@ static gboolean
 process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     gboolean out_file_name_res, int max_packet_count, gint64 max_byte_count)
 {
+  gboolean     success = TRUE;
   gint         linktype;
   int          snapshot_length;
   wtap_dumper *pdh;
   guint32      framenum;
-  int          err;
-  gchar       *err_info = NULL;
+  int          err = 0, err_pass1 = 0;
+  gchar       *err_info = NULL, *err_info_pass1 = NULL;
   gint64       data_offset;
   gboolean     filtering_tap_listeners;
   guint        tap_flags;
@@ -3023,13 +3024,15 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     if (pdh == NULL) {
       /* We couldn't set up to write to the capture file. */
       cfile_dump_open_failure_message("TShark", save_file, err, out_file_type);
+      success = FALSE;
       goto out;
     }
   } else {
+    /* Set up to print packet information. */
     if (print_packet_info) {
       if (!write_preamble(cf)) {
-        err = errno;
-        show_print_file_io_error(err);
+        show_print_file_io_error(errno);
+        success = FALSE;
         goto out;
       }
     }
@@ -3092,6 +3095,20 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
           break;
         }
       }
+    }
+
+    /*
+     * If we got a read error on the first pass, remember the error, so
+     * but do the second pass, so we can at least process the packets we
+     * read, and then report the first-pass error after the second pass
+     * (and before we report any second-pass errors), so all the the
+     * errors show up at the end.
+     */
+    if (err != 0) {
+      err_pass1 = err;
+      err_info_pass1 = err_info;
+      err = 0;
+      err_info = NULL;
     }
 
     if (edt) {
@@ -3214,7 +3231,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
       create_proto_tree =
         (cf->rfcode || cf->dfcode || print_details || filtering_tap_listeners ||
           (tap_flags & TL_REQUIRES_PROTO_TREE) || postdissectors_want_hfids() ||
-          have_custom_cols(&cf->cinfo))
+          have_custom_cols(&cf->cinfo));
 
       tshark_debug("tshark: create_proto_tree = %s", create_proto_tree ? "TRUE" : "FALSE");
 
@@ -3270,7 +3287,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
   wtap_phdr_cleanup(&phdr);
 
-  if (err != 0) {
+  if (err != 0 || err_pass1 != 0) {
     tshark_debug("tshark: something failed along the line (%d)", err);
     /*
      * Print a message noting that the read failed somewhere along the line.
@@ -3296,29 +3313,37 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
       }
     }
 #endif
-    cfile_read_failure_message("TShark", cf->filename, err, err_info);
-    if (save_file != NULL) {
-      /* Now close the capture file. */
-      if (!wtap_dump_close(pdh, &err))
-        cfile_close_failure_message(save_file, err);
+    if (err_pass1 != 0) {
+      /* Error on pass 1 of two-pass processing. */
+      cfile_read_failure_message("TShark", cf->filename, err_pass1,
+                                 err_info_pass1);
+      g_free(err_info_pass1);
+    }
+    if (err != 0) {
+      /* Error on pass 2 of two-pass processing or on the only pass of
+         one-pass processing. */
+      cfile_read_failure_message("TShark", cf->filename, err, err_info);
+      g_free(err_info);
+    }
+    success = FALSE;
+  }
+  if (save_file != NULL) {
+    if (pdh && out_file_name_res) {
+      if (!wtap_dump_set_addrinfo_list(pdh, get_addrinfo_list())) {
+        cmdarg_err("The file format \"%s\" doesn't support name resolution information.",
+                   wtap_file_type_subtype_short_string(out_file_type));
+      }
+    }
+    /* Now close the capture file. */
+    if (!wtap_dump_close(pdh, &err)) {
+      cfile_close_failure_message(save_file, err);
+      success = FALSE;
     }
   } else {
-    if (save_file != NULL) {
-      if (pdh && out_file_name_res) {
-        if (!wtap_dump_set_addrinfo_list(pdh, get_addrinfo_list())) {
-          cmdarg_err("The file format \"%s\" doesn't support name resolution information.",
-                     wtap_file_type_subtype_short_string(out_file_type));
-        }
-      }
-      /* Now close the capture file. */
-      if (!wtap_dump_close(pdh, &err))
-        cfile_close_failure_message(save_file, err);
-    } else {
-      if (print_packet_info) {
-        if (!write_finale()) {
-          err = errno;
-          show_print_file_io_error(err);
-        }
+    if (print_packet_info) {
+      if (!write_finale()) {
+        show_print_file_io_error(errno);
+        success = FALSE;
       }
     }
   }
@@ -3330,7 +3355,7 @@ out:
   wtap_block_array_free(shb_hdrs);
   wtap_block_array_free(nrb_hdrs);
 
-  return (err == 0);
+  return success;
 }
 
 static gboolean
