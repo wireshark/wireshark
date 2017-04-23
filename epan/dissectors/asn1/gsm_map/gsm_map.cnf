@@ -243,31 +243,40 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 
 #.FN_BODY AddressString VAL_PTR = &parameter_tvb
 
- tvbuff_t	*parameter_tvb;
- proto_tree *subtree;
+  tvbuff_t	*parameter_tvb;
+  proto_tree *subtree;
 
 %(DEFAULT_BODY)s
 
- if (!parameter_tvb)
-	return offset;
+  if (!parameter_tvb)
+    return offset;
 
- subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_isdn_address_string);
- dissect_gsm_map_msisdn(parameter_tvb, actx->pinfo , subtree);
+  subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_isdn_address_string);
+  dissect_gsm_map_msisdn(parameter_tvb, actx->pinfo , subtree);
+  actx->private_data = tvb_bytes_to_str(actx->pinfo->pool, parameter_tvb, 0, tvb_captured_length(parameter_tvb));
 
 #.FN_BODY IMSI VAL_PTR = &parameter_tvb
- tvbuff_t	*parameter_tvb;
+  tvbuff_t	*parameter_tvb;
 
-   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &parameter_tvb);
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &parameter_tvb);
 
   if (!parameter_tvb)
-	return offset;
- if(tvb_reported_length(parameter_tvb)==0)
-     return offset;
+    return offset;
+  if(tvb_reported_length(parameter_tvb)==0)
+    return offset;
 
  /* Hide the octet string default printout */
  PROTO_ITEM_SET_HIDDEN(actx->created_item);
- dissect_e212_imsi(parameter_tvb, actx->pinfo, tree,  0, tvb_reported_length(parameter_tvb), FALSE);
+ actx->private_data = wmem_strdup(actx->pinfo->pool,
+                                  dissect_e212_imsi(parameter_tvb, actx->pinfo, tree,
+                                                    0, tvb_reported_length(parameter_tvb), FALSE));
 
+#.FN_BODY LMSI VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->private_data = tvb_bytes_to_str(actx->pinfo->pool, parameter_tvb, 0, tvb_captured_length(parameter_tvb));
+  }
 
 #.FN_BODY TBCD-STRING VAL_PTR = &parameter_tvb
  tvbuff_t	*parameter_tvb;
@@ -344,44 +353,113 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 # Set SENT/RECEIVED depending if ISDN-AddressString or AddressString is used.
 # as it's a CHOICE only one is present.
 #.FN_BODY SM-RP-OAold/serviceCentreAddressOA
-	actx->pinfo->p2p_dir = P2P_DIR_SENT;
+  actx->private_data = NULL;
+  actx->pinfo->p2p_dir = P2P_DIR_SENT;
 %(DEFAULT_BODY)s
+  if (actx->private_data) {
+    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx->pinfo);
+    gsm_map_pi->rp_oa_id = GSM_MAP_RP_OA_SERVICE_CENTER_ADDRESS;
+    gsm_map_pi->rp_oa_str = (const gchar*)actx->private_data;
+    actx->private_data = NULL;
+  }
 
 #.FN_BODY SM-RP-OA/serviceCentreAddressOA
-	actx->pinfo->p2p_dir = P2P_DIR_SENT;
+  actx->private_data = NULL;
+  actx->pinfo->p2p_dir = P2P_DIR_SENT;
 %(DEFAULT_BODY)s
+  if (actx->private_data) {
+    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx->pinfo);
+    gsm_map_pi->rp_oa_id = GSM_MAP_RP_OA_SERVICE_CENTER_ADDRESS;
+    gsm_map_pi->rp_oa_str = (const gchar*)actx->private_data;
+    actx->private_data = NULL;
+  }
 
 #.FN_BODY SM-RP-DAold/imsi
-	actx->pinfo->p2p_dir = P2P_DIR_SENT;
+  actx->private_data = NULL;
+  actx->pinfo->p2p_dir = P2P_DIR_SENT;
 %(DEFAULT_BODY)s
+  if (actx->private_data) {
+    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx->pinfo);
+    gsm_map_pi->rp_da_id = GSM_MAP_RP_DA_IMSI;
+    gsm_map_pi->rp_da_str = (const gchar*)actx->private_data;
+    actx->private_data = NULL;
+  }
 
 #.FN_BODY SM-RP-DAold/lmsi
-	actx->pinfo->p2p_dir = P2P_DIR_SENT;
+  actx->private_data = NULL;
+  actx->pinfo->p2p_dir = P2P_DIR_SENT;
 %(DEFAULT_BODY)s
+  if (actx->private_data) {
+    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx->pinfo);
+    gsm_map_pi->rp_da_id = GSM_MAP_RP_DA_LMSI;
+    gsm_map_pi->rp_da_str = (const gchar*)actx->private_data;
+    actx->private_data = NULL;
+  }
 
 #.FN_BODY SM-RP-DA/imsi
-	actx->pinfo->p2p_dir = P2P_DIR_SENT;
+  actx->private_data = NULL;
+  actx->pinfo->p2p_dir = P2P_DIR_SENT;
 %(DEFAULT_BODY)s
+  if (actx->private_data) {
+    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx->pinfo);
+    gsm_map_pi->rp_da_id = GSM_MAP_RP_DA_IMSI;
+    gsm_map_pi->rp_da_str = (const gchar*)actx->private_data;
+    actx->private_data = NULL;
+  }
 
 #.FN_BODY SM-RP-DA/lmsi
-	actx->pinfo->p2p_dir = P2P_DIR_SENT;
+  actx->private_data = NULL;
+  actx->pinfo->p2p_dir = P2P_DIR_SENT;
 %(DEFAULT_BODY)s
+  if (actx->private_data) {
+    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx->pinfo);
+    gsm_map_pi->rp_da_id = GSM_MAP_RP_DA_LMSI;
+    gsm_map_pi->rp_da_str = (const gchar*)actx->private_data;
+    actx->private_data = NULL;
+  }
 
 #.FN_BODY SM-RP-OAold/msisdn
-actx->pinfo->p2p_dir = P2P_DIR_RECV;
- %(DEFAULT_BODY)s
+  actx->private_data = NULL;
+  actx->pinfo->p2p_dir = P2P_DIR_RECV;
+%(DEFAULT_BODY)s
+  if (actx->private_data) {
+    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx->pinfo);
+    gsm_map_pi->rp_oa_id = GSM_MAP_RP_OA_MSISDN;
+    gsm_map_pi->rp_oa_str = (const gchar*)actx->private_data;
+    actx->private_data = NULL;
+  }
 
 #.FN_BODY SM-RP-OA/msisdn
-actx->pinfo->p2p_dir = P2P_DIR_RECV;
- %(DEFAULT_BODY)s
+  actx->pinfo->p2p_dir = P2P_DIR_RECV;
+%(DEFAULT_BODY)s
+  if (actx->private_data) {
+    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx->pinfo);
+    gsm_map_pi->rp_oa_id = GSM_MAP_RP_OA_MSISDN;
+    gsm_map_pi->rp_oa_str = (const gchar*)actx->private_data;
+    actx->private_data = NULL;
+  }
 
 #.FN_BODY SM-RP-DAold/serviceCentreAddressDA
-	actx->pinfo->p2p_dir = P2P_DIR_RECV;
+  actx->private_data = NULL;
+  actx->pinfo->p2p_dir = P2P_DIR_RECV;
 %(DEFAULT_BODY)s
+  if (actx->private_data) {
+    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx->pinfo);
+    gsm_map_pi->rp_da_id = GSM_MAP_RP_DA_SERVICE_CENTER_ADDRESS;
+    gsm_map_pi->rp_da_str = (const gchar*)actx->private_data;
+    actx->private_data = NULL;
+  }
 
 #.FN_BODY SM-RP-DA/serviceCentreAddressDA
-	actx->pinfo->p2p_dir = P2P_DIR_RECV;
+  actx->private_data = NULL;
+  actx->pinfo->p2p_dir = P2P_DIR_RECV;
 %(DEFAULT_BODY)s
+  if (actx->private_data) {
+    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx->pinfo);
+    gsm_map_pi->rp_da_id = GSM_MAP_RP_DA_SERVICE_CENTER_ADDRESS;
+    gsm_map_pi->rp_da_str = (const gchar*)actx->private_data;
+    actx->private_data = NULL;
+  }
 
 #.FN_BODY SignalInfo VAL_PTR = &parameter_tvb
  tvbuff_t	*parameter_tvb;

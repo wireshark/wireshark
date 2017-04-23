@@ -76,7 +76,7 @@ void proto_register_gsm_map(void);
 void proto_reg_handoff_gsm_map(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_gsm_map = -1;
+int proto_gsm_map = -1;
 static int proto_gsm_map_dialogue = -1;
 static int proto_gsm_map_ms = -1;
 
@@ -231,6 +231,15 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
 static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);
 const gchar* gsm_map_opr_code(guint32 val, proto_item *item);
 
+static gsm_map_packet_info_t *gsm_map_get_packet_info(packet_info *pinfo)
+{
+  gsm_map_packet_info_t *gsm_map_pi = (gsm_map_packet_info_t*)p_get_proto_data(pinfo->pool, pinfo, proto_gsm_map, 0);
+  if (gsm_map_pi)
+    return gsm_map_pi;
+  gsm_map_pi = wmem_new0(pinfo->pool, gsm_map_packet_info_t);
+  p_add_proto_data(pinfo->pool, pinfo, proto_gsm_map, 0, gsm_map_pi);
+  return gsm_map_pi;
+}
 /* Value strings */
 
 const value_string gsm_map_PDP_Type_Organisation_vals[] = {
@@ -274,16 +283,16 @@ static const value_string gsm_map_ericsson_locationInformation_rat_vals[] = {
  */
 /* b) Nature of address indicator */
 static const range_string gsm_map_na_vals[] = {
-    { 0, 0, "spare" },
-    { 1, 1, "reserved for subscriber number (national use)" },
-    { 2, 2, "reserved for unknown (national use)" },
-    { 3, 3, "national (significant) number (national use)" },
-    { 4, 4, "international number" },
-    { 5, 0x6f, "spare" },
-    { 0x70, 0x7e, "spare" },
-    { 0x70, 0x7e, "reserved for national use" },
-    { 0x7f, 0x7f, "spare" },
-    { 0,           0,          NULL                   }
+  { 0, 0, "spare" },
+  { 1, 1, "reserved for subscriber number (national use)" },
+  { 2, 2, "reserved for unknown (national use)" },
+  { 3, 3, "national (significant) number (national use)" },
+  { 4, 4, "international number" },
+  { 5, 0x6f, "spare" },
+  { 0x70, 0x7e, "spare" },
+  { 0x70, 0x7e, "reserved for national use" },
+  { 0x7f, 0x7f, "spare" },
+  { 0, 0, NULL }
 };
 
 /* d) Numbering plan indicator */

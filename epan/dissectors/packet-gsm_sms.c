@@ -42,7 +42,9 @@
 #include <epan/reassemble.h>
 #include <epan/charsets.h>
 #include <epan/proto_data.h>
+#include <epan/asn1.h>
 #include "packet-gsm_sms.h"
+#include "packet-gsm_map.h"
 
 void proto_register_gsm_sms(void);
 
@@ -255,6 +257,7 @@ static expert_field ei_gsm_sms_unexpected_data_length = EI_INIT;
 static expert_field ei_gsm_sms_message_dissector_not_implemented = EI_INIT;
 
 static gboolean reassemble_sms = TRUE;
+static gboolean reassemble_sms_with_lower_layers_info = FALSE;
 static proto_tree *g_tree;
 
 /* 3GPP TS 23.038 version 7.0.0 Release 7
@@ -337,7 +340,7 @@ typedef struct {
 } sm_fragment_params;
 
 typedef struct {
-    const gchar *tp_oa_or_tp_da;
+    const gchar *addr_info; /* TP-OA or TP-DA + optional lower layer info */
     int p2p_dir;
     address src;
     address dst;
@@ -350,7 +353,7 @@ sm_fragment_params_hash(gconstpointer k)
     const sm_fragment_params_key* key = (const sm_fragment_params_key*) k;
     guint hash_val;
 
-    hash_val = (wmem_str_hash(key->tp_oa_or_tp_da) ^ key->id) + key->p2p_dir;
+    hash_val = (wmem_str_hash(key->addr_info) ^ key->id) + key->p2p_dir;
 
     return hash_val;
 }
@@ -363,13 +366,13 @@ sm_fragment_params_equal(gconstpointer v1, gconstpointer v2)
 
     return (key1->id == key2->id) &&
            (key1->p2p_dir == key2->p2p_dir) &&
-           !g_strcmp0(key1->tp_oa_or_tp_da, key2->tp_oa_or_tp_da) &&
+           !g_strcmp0(key1->addr_info, key2->addr_info) &&
            addresses_equal(&key1->src, &key2->src) &&
            addresses_equal(&key1->dst, &key2->dst);
 }
 
 typedef struct {
-    const gchar *tp_oa_or_tp_da;
+    const gchar *addr_info; /* TP-OA or TP-DA + optional lower layer info */
     int p2p_dir;
     address src;
     address dst;
@@ -382,7 +385,7 @@ sm_fragment_hash(gconstpointer k)
     const sm_fragment_key* key = (const sm_fragment_key*) k;
     guint hash_val;
 
-    hash_val = (wmem_str_hash(key->tp_oa_or_tp_da) ^ key->id) + key->p2p_dir;
+    hash_val = (wmem_str_hash(key->addr_info) ^ key->id) + key->p2p_dir;
 
     return hash_val;
 }
@@ -395,7 +398,7 @@ sm_fragment_equal(gconstpointer k1, gconstpointer k2)
 
     return (key1->id == key2->id) &&
            (key1->p2p_dir == key2->p2p_dir) &&
-           !g_strcmp0(key1->tp_oa_or_tp_da, key2->tp_oa_or_tp_da) &&
+           !g_strcmp0(key1->addr_info, key2->addr_info) &&
            addresses_equal(&key1->src, &key2->src) &&
            addresses_equal(&key1->dst, &key2->dst);
 }
@@ -407,7 +410,7 @@ sm_fragment_temporary_key(const packet_info *pinfo,
     const gchar* addr = (const char*)data;
     sm_fragment_key *key = g_slice_new(sm_fragment_key);
 
-    key->tp_oa_or_tp_da = addr;
+    key->addr_info = addr;
     key->p2p_dir = pinfo->p2p_dir;
     copy_address_shallow(&key->src, &pinfo->src);
     copy_address_shallow(&key->dst, &pinfo->dst);
@@ -423,7 +426,7 @@ sm_fragment_persistent_key(const packet_info *pinfo,
     const gchar* addr = (const char*)data;
     sm_fragment_key *key = g_slice_new(sm_fragment_key);
 
-    key->tp_oa_or_tp_da = wmem_strdup(NULL, addr);
+    key->addr_info = wmem_strdup(NULL, addr);
     key->p2p_dir = pinfo->p2p_dir;
     copy_address(&key->src, &pinfo->src);
     copy_address(&key->dst, &pinfo->dst);
@@ -447,7 +450,7 @@ sm_fragment_free_persistent_key(gpointer ptr)
     sm_fragment_key *key = (sm_fragment_key *)ptr;
 
     if(key) {
-        wmem_free(NULL, (void*)key->tp_oa_or_tp_da);
+        wmem_free(NULL, (void*)key->addr_info);
         free_address(&key->src);
         free_address(&key->dst);
         g_slice_free(sm_fragment_key, key);
@@ -1959,14 +1962,31 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 
     sm_fragment_params     *p_frag_params;
     sm_fragment_params_key *p_frag_params_key, frag_params_key;
-    const gchar            *addr;
+    wmem_strbuf_t          *addr_info_strbuf;
+    const gchar            *addr_info, *addr;
+    gsm_map_packet_info_t  *gsm_map_packet_info;
     gsm_sms_udh_fields_t    udh_fields;
 
     memset(&udh_fields, 0, sizeof(udh_fields));
     fill_bits = 0;
+
     addr = (gchar*)p_get_proto_data(pinfo->pool, pinfo, proto_gsm_sms, 0);
     if (addr == NULL)
         addr = "";
+    /* check if lower layers provide additional info */
+    gsm_map_packet_info = (gsm_map_packet_info_t*)p_get_proto_data(pinfo->pool, pinfo, proto_gsm_map, 0);
+    if (gsm_map_packet_info && reassemble_sms_with_lower_layers_info) {
+        addr_info_strbuf = wmem_strbuf_new(wmem_packet_scope(), addr);
+        if (gsm_map_packet_info->rp_oa_id == GSM_MAP_RP_OA_MSISDN)
+            wmem_strbuf_append(addr_info_strbuf, gsm_map_packet_info->rp_oa_str);
+        else if (gsm_map_packet_info->rp_da_id == GSM_MAP_RP_DA_IMSI)
+            wmem_strbuf_append(addr_info_strbuf, gsm_map_packet_info->rp_da_str);
+        else if (gsm_map_packet_info->rp_da_id == GSM_MAP_RP_DA_LMSI)
+            wmem_strbuf_append(addr_info_strbuf, gsm_map_packet_info->rp_da_str);
+        addr_info = wmem_strbuf_finalize(addr_info_strbuf);
+    } else {
+        addr_info = addr;
+    }
 
     subtree =
         proto_tree_add_subtree(tree, tvb,
@@ -2000,7 +2020,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
         fd_sm = fragment_add_seq_check (&g_sm_reassembly_table, tvb, offset,
                                         pinfo,
                                         udh_fields.sm_id, /* guint32 ID for fragments belonging together */
-                                        addr,
+                                        addr_info,
                                         udh_fields.frag-1, /* guint32 fragment sequence number */
                                         length, /* guint32 fragment length */
                                         (udh_fields.frag != udh_fields.frags)); /* More fragments? */
@@ -2030,7 +2050,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
         if (!PINFO_FD_VISITED(pinfo)) {
             /* Store udl and length for later decoding of reassembled SMS */
             p_frag_params_key = wmem_new(wmem_file_scope(), sm_fragment_params_key);
-            p_frag_params_key->tp_oa_or_tp_da = wmem_strdup(wmem_file_scope(), addr);
+            p_frag_params_key->addr_info = wmem_strdup(wmem_file_scope(), addr_info);
             p_frag_params_key->p2p_dir = pinfo->p2p_dir;
             copy_address_wmem(wmem_file_scope(), &p_frag_params_key->src, &pinfo->src);
             copy_address_wmem(wmem_file_scope(), &p_frag_params_key->dst, &pinfo->dst);
@@ -2082,7 +2102,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                 total_sms_len = 0;
                 for(i = 0 ; i < udh_fields.frags; i++)
                 {
-                    frag_params_key.tp_oa_or_tp_da = addr;
+                    frag_params_key.addr_info = addr_info;
                     frag_params_key.p2p_dir = pinfo->p2p_dir;
                     copy_address_shallow(&frag_params_key.src, &pinfo->src);
                     copy_address_shallow(&frag_params_key.dst, &pinfo->dst);
@@ -2115,7 +2135,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                 total_sms_len = 0;
                 for(i = 0 ; i < udh_fields.frags; i++)
                 {
-                    frag_params_key.tp_oa_or_tp_da = addr;
+                    frag_params_key.addr_info = addr_info;
                     frag_params_key.p2p_dir = pinfo->p2p_dir;
                     copy_address_shallow(&frag_params_key.src, &pinfo->src);
                     copy_address_shallow(&frag_params_key.dst, &pinfo->dst);
@@ -2165,7 +2185,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                     total_sms_len = 0;
                     for(i = 0 ; i < udh_fields.frags; i++)
                     {
-                        frag_params_key.tp_oa_or_tp_da = addr;
+                        frag_params_key.addr_info = addr_info;
                         frag_params_key.p2p_dir = pinfo->p2p_dir;
                         copy_address_shallow(&frag_params_key.src, &pinfo->src);
                         copy_address_shallow(&frag_params_key.dst, &pinfo->dst);
@@ -3497,10 +3517,15 @@ proto_register_gsm_sms(void)
 
     prefs_register_obsolete_preference(gsm_sms_module,
                                        "try_dissect_message_fragment");
-    prefs_register_bool_preference (gsm_sms_module, "reassemble",
-                                    "Reassemble fragmented SMS",
-                                    "Whether the dissector should reassemble SMS spanning multiple packets",
+    prefs_register_bool_preference(gsm_sms_module, "reassemble",
+                                   "Reassemble fragmented SMS",
+                                   "Whether the dissector should reassemble SMS spanning multiple packets",
                                     &reassemble_sms);
+    prefs_register_bool_preference(gsm_sms_module, "reassemble_with_lower_layers_info",
+                                   "Use lower layers info for SMS reassembly",
+                                   "Whether the dissector should take into account info coming "
+                                   "from lower layers (like GSM-MAP) to perform SMS reassembly",
+                                    &reassemble_sms_with_lower_layers_info);
 
     register_dissector("gsm_sms", dissect_gsm_sms, proto_gsm_sms);
 
