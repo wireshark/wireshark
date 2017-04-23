@@ -228,7 +228,7 @@ static char *output_file_name;
 
 #endif /* HAVE_LIBPCAP */
 
-static int read_cap_file(capture_file *, char *, int, gboolean, int, gint64);
+static gboolean read_cap_file(capture_file *, char *, int, gboolean, int, gint64);
 static gboolean process_packet_single_pass(capture_file *cf,
     epan_dissect_t *edt, gint64 offset, struct wtap_pkthdr *whdr,
     const guchar *pd, guint tap_flags);
@@ -650,6 +650,7 @@ main(int argc, char *argv[])
 #endif  /* _WIN32 */
 
   int                  err;
+  gboolean             success;
   volatile int         exit_status = EXIT_SUCCESS;
 #ifdef HAVE_LIBPCAP
   gboolean             list_link_layer_types = FALSE;
@@ -1951,11 +1952,11 @@ main(int argc, char *argv[])
     tshark_debug("tshark: invoking read_cap_file() to process the packets");
     TRY {
 #ifdef HAVE_LIBPCAP
-      err = read_cap_file(&cfile, global_capture_opts.save_file, out_file_type, out_file_name_res,
+      success = read_cap_file(&cfile, global_capture_opts.save_file, out_file_type, out_file_name_res,
           global_capture_opts.has_autostop_packets ? global_capture_opts.autostop_packets : 0,
           global_capture_opts.has_autostop_filesize ? global_capture_opts.autostop_filesize : 0);
 #else
-      err = read_cap_file(&cfile, output_file_name, out_file_type, out_file_name_res, 0, 0);
+      success = read_cap_file(&cfile, output_file_name, out_file_type, out_file_name_res, 0, 0);
 #endif
     }
     CATCH(OutOfMemoryError) {
@@ -1966,10 +1967,11 @@ main(int argc, char *argv[])
               "\n"
               "More information and workarounds can be found at\n"
               "https://wiki.wireshark.org/KnownBugs/OutOfMemory\n");
-      err = ENOMEM;
+      success = FALSE;
     }
     ENDTRY;
-    if (err != 0) {
+
+    if (!success) {
       /* We still dump out the results of taps, etc., as we might have
          read some packets; however, we exit with an error status. */
       exit_status = 2;
@@ -2088,8 +2090,7 @@ main(int argc, char *argv[])
 
     if (print_packet_info) {
       if (!write_finale()) {
-        err = errno;
-        show_print_file_io_error(err);
+        show_print_file_io_error(errno);
       }
     }
 #else
@@ -2941,7 +2942,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
   return passed || fdata->flags.dependent_of_displayed;
 }
 
-static int
+static gboolean
 read_cap_file(capture_file *cf, char *save_file, int out_file_type,
     gboolean out_file_name_res, int max_packet_count, gint64 max_byte_count)
 {
@@ -3329,7 +3330,7 @@ out:
   wtap_block_array_free(shb_hdrs);
   wtap_block_array_free(nrb_hdrs);
 
-  return err;
+  return (err == 0);
 }
 
 static gboolean

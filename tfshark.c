@@ -136,7 +136,7 @@ static output_fields_t* output_fields  = NULL;
 /* The line separator used between packets, changeable via the -S option */
 static const char *separator = "";
 
-static int read_file(capture_file *, int, gint64);
+static gboolean read_file(capture_file *, int, gint64);
 static gboolean process_packet_single_pass(capture_file *cf,
     epan_dissect_t *edt, gint64 offset, struct wtap_pkthdr *whdr,
     const guchar *pd, guint tap_flags);
@@ -336,6 +336,7 @@ main(int argc, char *argv[])
   gboolean             arg_error = FALSE;
 
   int                  err;
+  gboolean             success;
   volatile int         exit_status = 0;
   gboolean             quiet = FALSE;
   gchar               *volatile cf_name = NULL;
@@ -981,7 +982,7 @@ main(int argc, char *argv[])
     /* Process the packets in the file */
     TRY {
       /* XXX - for now there is only 1 packet */
-      err = read_file(&cfile, 1, 0);
+      success = read_file(&cfile, 1, 0);
     }
     CATCH(OutOfMemoryError) {
       fprintf(stderr,
@@ -991,11 +992,11 @@ main(int argc, char *argv[])
               "\n"
               "Some infos / workarounds can be found at:\n"
               "https://wiki.wireshark.org/KnownBugs/OutOfMemory\n");
-      err = ENOMEM;
+      success = FALSE;
     }
     ENDTRY;
 
-    if (err != 0) {
+    if (!success) {
       /* We still dump out the results of taps, etc., as we might have
          read some packets; however, we exit with an error status. */
       exit_status = 2;
@@ -1294,7 +1295,7 @@ local_wtap_read(capture_file *cf, struct wtap_pkthdr* file_phdr _U_, int *err, g
     return TRUE; /* success */
 }
 
-static int
+static gboolean
 read_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
 {
   guint32      framenum;
@@ -1423,7 +1424,7 @@ read_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
 #else
       if (!process_packet_second_pass(cf, edt, fdata, &cf->phdr, &buf,
                                        tap_flags))
-        return 2;
+        return FALSE;
 #endif
     }
 
@@ -1479,7 +1480,7 @@ read_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
       if (!process_packet_single_pass(cf, edt, data_offset,
                                       &file_phdr/*wtap_phdr(cf->wth)*/,
                                       raw_data, tap_flags))
-        return 2;
+        return FALSE;
 
       /* Stop reading if we have the maximum number of packets;
       * When the -c option has not been used, max_packet_count
@@ -1580,7 +1581,7 @@ out:
   wtap_close(cf->wth);
   cf->wth = NULL;
 
-  return err;
+  return (err != 0);
 }
 
 static gboolean
