@@ -10553,6 +10553,7 @@ alljoyn          9956/udp # Alljoyn Name Service [Qualcomm_Innovation_Center] [C
 odnsp            9966/tcp # OKI Data Network Setting Protocol [Masato_Sato] [Masato_Sato] 2006-05
 odnsp            9966/udp # OKI Data Network Setting Protocol [Masato_Sato] [Masato_Sato] 2006-05
 xybrid-rt        9978/tcp # XYBRID RT Server [Rx_Networks_Inc] [Drew_Davies] 2013-01-24
+pumpkindb        9981/tcp # Event sourcing database engine with a built-in programming language [Eventsourcing_Inc] [Yurii_Rashkovskii] 2017-04-18
 dsm-scm-target   9987/tcp # DSM/SCM Target Interface [Mike_Dyslin] [Mike_Dyslin] 2006-08
 dsm-scm-target   9987/udp # DSM/SCM Target Interface [Mike_Dyslin] [Mike_Dyslin] 2006-08
 nsesrvr          9988/tcp # Software Essentials Secure HTTP server [Narayanan_Raju] [Narayanan_Raju] 2009-02-05
@@ -11559,3 +11560,5 @@ iqobject        48619/udp # iqobject [Bjorn_de_Bonnenfant] [Bjorn_de_Bonnenfant]
 robotraconteur  48653/tcp # Robot Raconteur transport [Wason_Technology_LLC] [John_Wason] 2014-01-27
 robotraconteur  48653/udp # Robot Raconteur transport [Wason_Technology_LLC] [John_Wason] 2014-01-27
 matahari        49000/tcp # Matahari Broker [Matahari_Project] [Zane_Bitter] 2011-08-31
+nusrp           49001/tcp # Nuance Unity Service Request Protocol [Nuance_Communications_Inc3] [Andrew_Andrews] 2017-04-20
+nusdp-disc      49001/udp # Nuance Unity Service Discovery Protocol [Nuance_Communications_Inc3] [Andrew_Andrews] 2017-04-20
