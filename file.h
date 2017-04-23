@@ -28,7 +28,7 @@
 #include <epan/epan.h>
 
 #include <epan/print.h>
-#include <epan/packet_range.h>
+#include <ui/packet_range.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -416,6 +416,31 @@ cf_read_status_t cf_retap_packets(capture_file *cf);
  * @param cf the capture file
  */
 void cf_timestamp_auto_precision(capture_file *cf);
+
+/* print_range, enum which frames should be printed */
+typedef enum {
+    print_range_selected_only,    /* selected frame(s) only (currently only one) */
+    print_range_marked_only,      /* marked frames only */
+    print_range_all_displayed,    /* all frames currently displayed */
+    print_range_all_captured      /* all frames in capture */
+} print_range_e;
+
+typedef struct {
+    print_stream_t *stream;       /* the stream to which we're printing */
+    print_format_e format;        /* plain text or PostScript */
+    gboolean to_file;             /* TRUE if we're printing to a file */
+    char *file;                   /* file output pathname */
+    char *cmd;                    /* print command string (not win32) */
+    packet_range_t range;
+
+    gboolean print_summary;       /* TRUE if we should print summary line. */
+    gboolean print_col_headings;  /* TRUE if we should print column headings */
+    print_dissections_e print_dissections;
+    gboolean print_hex;           /* TRUE if we should print hex data;
+                                   * FALSE if we should print only if not dissected. */
+    gboolean print_formfeed;      /* TRUE if a formfeed should be printed before
+                                   * each new packet */
+} print_args_t;
 
 /**
  * Print the capture file.

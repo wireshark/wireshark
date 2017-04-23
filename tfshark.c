@@ -1979,8 +1979,6 @@ print_columns(capture_file *cf)
 static gboolean
 print_packet(capture_file *cf, epan_dissect_t *edt)
 {
-  print_args_t print_args;
-
   if (print_summary || output_fields_has_cols(output_fields)) {
     /* Just fill in the columns. */
     epan_dissect_fill_in_columns(edt, FALSE, TRUE);
@@ -2008,19 +2006,8 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
     switch (output_action) {
 
     case WRITE_TEXT:
-      /* Only initialize the fields that are actually used in proto_tree_print.
-       * This is particularly important for .range, as that's heap memory which
-       * we would otherwise have to g_free().
-      print_args.to_file = TRUE;
-      print_args.format = print_format;
-      print_args.print_summary = print_summary;
-      print_args.print_formfeed = FALSE;
-      packet_range_init(&print_args.range, &cfile);
-      */
-      print_args.print_hex = print_hex;
-      print_args.print_dissections = print_details ? print_dissections_expanded : print_dissections_none;
-
-      if (!proto_tree_print(&print_args, edt, output_only_tables, print_stream))
+      if (!proto_tree_print(print_details ? print_dissections_expanded : print_dissections_none,
+                            print_hex, edt, output_only_tables, print_stream))
         return FALSE;
       if (!print_hex) {
         if (!print_line(print_stream, 0, separator))

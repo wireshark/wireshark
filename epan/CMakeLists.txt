@@ -132,7 +132,6 @@ set(LIBWIRESHARK_FILES
 	oids.c
 	osi-utils.c
 	oui.c
-	packet_range.c
 	packet.c
 	print.c
 	print_stream.c

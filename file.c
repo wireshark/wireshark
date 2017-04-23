@@ -2321,7 +2321,9 @@ print_packet(capture_file *cf, frame_data *fdata,
     }
 
     /* Print the information in that tree. */
-    if (!proto_tree_print(args->print_args, &args->edt, NULL, args->print_args->stream))
+    if (!proto_tree_print(args->print_args->print_dissections,
+                          args->print_args->print_hex, &args->edt, NULL,
+                          args->print_args->stream))
       goto fail;
 
     /* Print a blank line if we print anything after this (aka more than one packet). */
@@ -2848,7 +2850,9 @@ write_json_packet(capture_file *cf, frame_data *fdata,
   epan_dissect_run(&args->edt, cf->cd_t, phdr, frame_tvbuff_new(fdata, pd), fdata, NULL);
 
   /* Write out the information in that tree. */
-  write_json_proto_tree(NULL, args->print_args, NULL, PF_NONE, &args->edt, args->fh);
+  write_json_proto_tree(NULL, args->print_args->print_dissections,
+                        args->print_args->print_hex, NULL, PF_NONE,
+                        &args->edt, args->fh);
 
   epan_dissect_reset(&args->edt);
 

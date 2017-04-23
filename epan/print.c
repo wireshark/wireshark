@@ -32,7 +32,7 @@
 #include <epan/epan_dissect.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
-#include <epan/packet_range.h>
+#include <epan/column-info.h>
 #include <epan/prefs.h>
 #include <epan/print.h>
 #include <epan/charsets.h>
@@ -135,8 +135,9 @@ void print_cache_field_handles(void)
 }
 
 gboolean
-proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
-                 GHashTable *output_only_tables, print_stream_t *stream)
+proto_tree_print(print_dissections_e print_dissections, gboolean print_hex_data,
+                 epan_dissect_t *edt, GHashTable *output_only_tables,
+                 print_stream_t *stream)
 {
     print_data data;
 
@@ -146,10 +147,10 @@ proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
     data.success            = TRUE;
     data.src_list           = edt->pi.data_src;
     data.encoding           = (packet_char_enc)edt->pi.fd->flags.encoding;
-    data.print_dissections  = print_args->print_dissections;
+    data.print_dissections  = print_dissections;
     /* If we're printing the entire packet in hex, don't
        print uninterpreted data fields in hex as well. */
-    data.print_hex_for_data = !print_args->print_hex;
+    data.print_hex_for_data = !print_hex_data;
     data.output_only_tables = output_only_tables;
 
     proto_tree_children_foreach(edt->tree, proto_tree_print_node, &data);
@@ -337,7 +338,11 @@ write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, pf_flags 
 }
 
 void
-write_json_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar **protocolfilter, pf_flags protocolfilter_flags, epan_dissect_t *edt, FILE *fh)
+write_json_proto_tree(output_fields_t* fields,
+                      print_dissections_e print_dissections,
+                      gboolean print_hex_data, gchar **protocolfilter,
+                      pf_flags protocolfilter_flags, epan_dissect_t *edt,
+                      FILE *fh)
 {
     write_json_data data;
     char ts[30];
@@ -373,9 +378,9 @@ write_json_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar *
         data.src_list = edt->pi.data_src;
         data.filter   = protocolfilter;
         data.filter_flags = protocolfilter_flags;
-        data.print_hex = print_args->print_hex;
+        data.print_hex = print_hex_data;
         data.print_text = TRUE;
-        if (print_args->print_dissections == print_dissections_none) {
+        if (print_dissections == print_dissections_none) {
             data.print_text = FALSE;
         }
 
@@ -393,7 +398,10 @@ write_json_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar *
 }
 
 void
-write_ek_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar **protocolfilter, pf_flags protocolfilter_flags, epan_dissect_t *edt, FILE *fh)
+write_ek_proto_tree(output_fields_t* fields,
+                    gboolean print_hex_data, gchar **protocolfilter,
+                    pf_flags protocolfilter_flags, epan_dissect_t *edt,
+                    FILE *fh)
 {
     write_json_data data;
     char ts[30];
@@ -421,7 +429,7 @@ write_ek_proto_tree(output_fields_t* fields, print_args_t *print_args, gchar **p
         data.src_list = edt->pi.data_src;
         data.filter   = protocolfilter;
         data.filter_flags = protocolfilter_flags;
-        data.print_hex = print_args->print_hex;
+        data.print_hex = print_hex_data;
 
         proto_tree_children_foreach(edt->tree, proto_tree_write_node_ek,
                                     &data);

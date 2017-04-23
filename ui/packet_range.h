@@ -36,7 +36,6 @@ extern "C" {
 
 #include "cfile.h"
 
-
 extern guint32  curr_selected_frame;
 
 typedef enum {
@@ -94,22 +93,22 @@ typedef enum {
 } range_process_e;
 
 /* init the range structure */
-WS_DLL_PUBLIC void packet_range_init(packet_range_t *range, capture_file *cf);
+extern void packet_range_init(packet_range_t *range, capture_file *cf);
 
 /* check whether the packet range is OK */
-WS_DLL_PUBLIC convert_ret_t packet_range_check(packet_range_t *range);
+extern convert_ret_t packet_range_check(packet_range_t *range);
 
 /* init the processing run */
-WS_DLL_PUBLIC void packet_range_process_init(packet_range_t *range);
+extern void packet_range_process_init(packet_range_t *range);
 
 /* do we have to process all packets? */
-WS_DLL_PUBLIC gboolean packet_range_process_all(packet_range_t *range);
+extern gboolean packet_range_process_all(packet_range_t *range);
 
 /* do we have to process this packet? */
-WS_DLL_PUBLIC range_process_e packet_range_process_packet(packet_range_t *range, frame_data *fdata);
+extern range_process_e packet_range_process_packet(packet_range_t *range, frame_data *fdata);
 
 /* convert user given string to the internal user specified range representation */
-WS_DLL_PUBLIC void packet_range_convert_str(packet_range_t *range, const gchar *es);
+extern void packet_range_convert_str(packet_range_t *range, const gchar *es);
 
 #ifdef __cplusplus
 }

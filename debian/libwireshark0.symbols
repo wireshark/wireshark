@@ -924,12 +924,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  p_add_proto_data@Base 1.9.1
  p_get_proto_data@Base 1.9.1
  p_remove_proto_data@Base 1.12.0~rc1
- packet_range_check@Base 1.12.0~rc1
- packet_range_convert_str@Base 1.12.0~rc1
- packet_range_init@Base 1.12.0~rc1
- packet_range_process_all@Base 1.12.0~rc1
- packet_range_process_init@Base 1.12.0~rc1
- packet_range_process_packet@Base 1.12.0~rc1
  parse_key_string@Base 1.9.1
  pfilter_expression_head@Base 1.9.1
  plugin_if_apply_filter@Base 1.99.8

@@ -95,7 +95,6 @@ LIBWIRESHARK_SRC = \
 	oids.c			\
 	osi-utils.c		\
 	oui.c			\
-	packet_range.c		\
 	packet.c		\
 	prefs.c			\
 	print.c			\
@@ -247,7 +246,6 @@ LIBWIRESHARK_INCLUDES = \
 	oids.h			\
 	osi-utils.h		\
 	oui.h			\
-	packet_range.h		\
 	packet.h		\
 	packet_info.h		\
 	params.h		\

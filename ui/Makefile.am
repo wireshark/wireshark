@@ -66,6 +66,7 @@ WIRESHARK_UI_SRC = \
 	help_url.c		\
 	mcast_stream.c		\
 	packet_list_utils.c	\
+	packet_range.c		\
 	persfilepath_opt.c	\
 	preference_utils.c	\
 	profile.c		\
@@ -113,6 +114,7 @@ WIRESHARK_UI_INCLUDES = \
 	language.h		\
 	mcast_stream.h		\
 	main_statusbar.h	\
+	packet_range.h		\
 	persfilepath_opt.h	\
 	preference_utils.h	\
 	profile.h		\

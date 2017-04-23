@@ -39,6 +39,7 @@ set(COMMON_UI_SRC
 	language.c
 	mcast_stream.c
 	packet_list_utils.c
+	packet_range.c
 	persfilepath_opt.c
 	preference_utils.c
 	profile.c
