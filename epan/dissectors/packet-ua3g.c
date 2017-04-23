@@ -315,8 +315,18 @@ static int hf_ua3g_unsolicited_msg_hardware_config_subtype = -1;
 static int hf_ua3g_unsolicited_msg_hardware_config_hard_config_chip = -1;
 static int hf_ua3g_unsolicited_msg_hardware_config_hard_config_flash = -1;
 static int hf_ua3g_unsolicited_msg_hardware_config_config_ram = -1;
-static int hf_ua3g_unsolicited_msg_hardware_config_hard_config_ip = -1;
+static int hf_ua3g_unsolicited_msg_hardware_config = -1;
+static int hf_ua3g_unsolicited_msg_hardware_config_export_full = -1;
+static int hf_ua3g_unsolicited_msg_hardware_config_ethernet_hardware = -1;
+static int hf_ua3g_unsolicited_msg_hardware_config_extended_edition = -1;
+static int hf_ua3g_unsolicited_msg_hardware_config_wideband = -1;
+static int hf_ua3g_unsolicited_msg_hardware_config_3g_set = -1;
+static int hf_ua3g_unsolicited_msg_hardware_config_8082_set = -1;
+static int hf_ua3g_unsolicited_msg_hardware_config_super_wideband = -1;
 static int hf_ua3g_unsolicited_msg_hook_status = -1;
+static int hf_ua3g_unsolicited_msg_additional_vta_type = -1;
+static int hf_ua3g_unsolicited_msg_capability_info = -1;
+static int hf_ua3g_unsolicited_msg_capability_info_bluetooth_supported = -1;
 static int hf_ua3g_special_key_shift = -1;
 static int hf_ua3g_special_key_ctrl = -1;
 static int hf_ua3g_special_key_alt = -1;
@@ -2851,7 +2861,10 @@ static const value_string str_command_cs_ip_device_routing[] = {
     {0, NULL}
 };
 
-static const value_string str_cs_ip_device_routing_vta_type[] = {
+static const value_string str_vta_type[] = {
+    {0x03, "4035"},
+    {0x04, "4020"},
+    {0x05, "4010"},
     {0x20, "4018"},
     {0x21, "4028/8028/8028S"},
     {0x22, "4038/8038"},
@@ -2859,6 +2872,16 @@ static const value_string str_cs_ip_device_routing_vta_type[] = {
     {0x24, "mipt"},
     {0x25, "4008"},
     {0x32, "8058S"},
+    {0x34, "8078S"},
+    {0x35, "8088"},
+    {0, NULL}
+};
+
+static const value_string str_additional_vta_type[] = {
+    {0x30, "4018"},
+    {0x31, "4028S"},
+    {0x32, "8058S"},
+    {0x33, "4068S"},
     {0x34, "8078S"},
     {0x35, "8088"},
     {0, NULL}
@@ -3290,17 +3313,6 @@ static const value_string str_command_unsolicited_msg[] = {
     {0x07, "UA Device Event"},
     {0, NULL}
 };
-
-static const value_string str_unsolicited_msg_vta_type[] = {
-    {0x03, "4035"},
-    {0x04, "4020"},
-    {0x05, "4010"},
-    {0x20, "NOE A"},
-    {0x21, "NOE B"},
-    {0x22, "NOE C"},
-    {0x23, "NOE D"},
-    {0, NULL}
-};
 static const value_string str_unsolicited_msg_other_info_1[] = {
     {0x00, "Link Is TDM"},
     {0x01, "Link Is IP"},
@@ -3311,10 +3323,17 @@ static const value_string str_unsolicited_msg_other_info_2[] = {
     {0x01, "Download Refused"},
     {0, NULL}
 };
-static const value_string str_unsolicited_msg_hard_config_ip[] = {
-    {0x00, "Export Binary (No Thales)"},
-    {0x01, "Full Binary (Thales)"},
-    {0, NULL}
+static const true_false_string tfs_export_full = {
+    "Full (Thales)",
+    "Export (No Thales)"
+};
+static const true_false_string tfs_fast_gigabit = {
+    "Gigabit",
+    "Fast"
+};
+static const true_false_string tfs_2g_3g = {
+    "3G/80x8",
+    "2G/40x8"
 };
 static const value_string str_unsolicited_msg_hard_config_chip[] = {
     {0x01, "Ivanoe 1"},
@@ -3457,14 +3476,9 @@ decode_unsolicited_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                         proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_hook_status, tvb, offset, 1, ENC_NA);
                         offset++;
                         length--;
-
                     }
                     break;
                 }
-            case 0x20:
-            case 0x21:
-            case 0x22:
-            case 0x23:
             default:
                 {
                     link = tvb_get_guint8(tvb, offset);
@@ -3487,12 +3501,22 @@ decode_unsolicited_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                         offset++;
                         length--;
                     } else {
+                        static const int *hardware_config[] = {
+                            &hf_ua3g_unsolicited_msg_hardware_config_export_full,
+                            &hf_ua3g_unsolicited_msg_hardware_config_ethernet_hardware,
+                            &hf_ua3g_unsolicited_msg_hardware_config_extended_edition,
+                            &hf_ua3g_unsolicited_msg_hardware_config_wideband,
+                            &hf_ua3g_unsolicited_msg_hardware_config_3g_set,
+                            &hf_ua3g_unsolicited_msg_hardware_config_8082_set,
+                            &hf_ua3g_unsolicited_msg_hardware_config_super_wideband,
+                            NULL
+                        };
+
                         proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_other_information_2, tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset++;
                         length--;
 
-                        proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_hardware_config_hard_config_ip,
-                                tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_bitmask(ua3g_body_tree, tvb, offset, hf_ua3g_unsolicited_msg_hardware_config, ett_ua3g_param, hardware_config, ENC_NA);
                         offset++;
                         length--;
                     }
@@ -3513,10 +3537,28 @@ decode_unsolicited_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                                 }
                             } else {
                                 proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_datas_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+                                offset += 2;
+                                length -= 2;
 
-                                if (length > 2) {
+                                if (length >= 4) {
+                                    static const int *capability_info[] = {
+                                        &hf_ua3g_unsolicited_msg_capability_info_bluetooth_supported,
+                                        NULL
+                                    };
+
+
                                     proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_firmware_version_bootloader,
-                                        tvb, offset+2, 2, ENC_BIG_ENDIAN);
+                                            tvb, offset, 2, ENC_BIG_ENDIAN);
+                                    offset += 2;
+                                    length -= 2;
+
+                                    proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_additional_vta_type,
+                                            tvb, offset, 1, ENC_BIG_ENDIAN);
+                                    offset++;
+                                    length--;
+
+
+                                    proto_tree_add_bitmask(ua3g_body_tree, tvb, offset, hf_ua3g_unsolicited_msg_capability_info, ett_ua3g_param, capability_info, ENC_NA);
                                 }
                             }
                         }
@@ -4337,7 +4379,7 @@ proto_register_ua3g(void)
         { &hf_ua3g_subdevice_msg_subdev_address, { "Subdev Address", "ua3g.subdevice_msg.subdev_address", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_subdevice_msg_subdevice_opcode, { "Subdevice Opcode", "ua3g.subdevice_msg.subdevice_opcode", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_subdevice_msg_parameter_bytes, { "Parameter Bytes", "ua3g.subdevice_msg.parameter_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_ua3g_cs_ip_device_routing_cmd00_vta_type, { "VTA Type", "ua3g.ip.cs.cmd00.vta_type", FT_UINT8, BASE_DEC, VALS(str_cs_ip_device_routing_vta_type), 0x0, NULL, HFILL }},
+        { &hf_ua3g_cs_ip_device_routing_cmd00_vta_type, { "VTA Type", "ua3g.ip.cs.cmd00.vta_type", FT_UINT8, BASE_HEX, VALS(str_vta_type), 0x0, NULL, HFILL }},
         { &hf_ua3g_cs_ip_device_routing_cmd00_characteristic_number, { "Characteristic Number", "ua3g.ip.cs.cmd00.characteristic_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_cs_ip_device_routing_cmd01_incident_0, { "Incident 0", "ua3g.ip.cs.cmd01.incident_0", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_cs_ip_device_routing_cmd02_parameter, { "Parameter", "ua3g.ip.cs.cmd02.parameter", FT_UINT8, BASE_HEX, VALS(ip_device_routing_cmd_get_param_req_vals), 0x0, NULL, HFILL }},
@@ -4346,7 +4388,7 @@ proto_register_ua3g(void)
         { &hf_ua3g_cs_ip_device_routing_cmd03_parameter_length, { "Length", "ua3g.ip.cs.cmd03.parameter.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_unsolicited_msg_device_type, { "Device Type", "ua3g.unsolicited_msg.device_type", FT_UINT8, BASE_DEC, VALS(str_device_type), 0x0, NULL, HFILL }},
         { &hf_ua3g_unsolicited_msg_self_test_result, { "Self-Test Result", "ua3g.unsolicited_msg.self_test_result", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_ua3g_unsolicited_msg_vta_type, { "VTA Type", "ua3g.unsolicited_msg.vta_type", FT_UINT8, BASE_DEC, VALS(str_unsolicited_msg_vta_type), 0x0, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_vta_type, { "VTA Type", "ua3g.unsolicited_msg.vta_type", FT_UINT8, BASE_HEX, VALS(str_vta_type), 0x0, NULL, HFILL }},
         { &hf_ua3g_unsolicited_msg_other_information, { "Other Information", "ua3g.unsolicited_msg.other_information", FT_UINT8, BASE_DEC, VALS(str_unsolicited_msg_other_info_2), 0x0, NULL, HFILL }},
         { &hf_ua3g_unsolicited_msg_other_information_1, { "Other Information 1", "ua3g.unsolicited_msg.other_information_1", FT_UINT8, BASE_DEC, VALS(str_unsolicited_msg_other_info_1), 0x0, NULL, HFILL }},
         { &hf_ua3g_unsolicited_msg_hardware_version, { "Hardware Version", "ua3g.unsolicited_msg.hardware_version", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -4453,8 +4495,18 @@ proto_register_ua3g(void)
         { &hf_ua3g_unsolicited_msg_hardware_config_hard_config_chip, { "Chip Id", "ua3g.unsolicited_msg.hardware_config.hard_config_chip", FT_UINT8, BASE_DEC, VALS(str_unsolicited_msg_hard_config_chip), 0x03, NULL, HFILL }},
         { &hf_ua3g_unsolicited_msg_hardware_config_hard_config_flash, { "Flash Size", "ua3g.unsolicited_msg.hardware_config.hard_config_flash", FT_UINT8, BASE_DEC, VALS(str_unsolicited_msg_hard_config_flash), 0x1C, NULL, HFILL }},
         { &hf_ua3g_unsolicited_msg_hardware_config_config_ram, { "External RAM Size", "ua3g.unsolicited_msg.hardware_config.config_ram", FT_UINT8, BASE_DEC, VALS(str_unsolicited_msg_hard_config_ram), 0xE0, NULL, HFILL }},
-        { &hf_ua3g_unsolicited_msg_hardware_config_hard_config_ip, { "Hardware Configuration", "ua3g.unsolicited_msg.hardware_config.ip", FT_UINT8, BASE_DEC, VALS(str_unsolicited_msg_hard_config_ip), 0x01, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_hardware_config, { "Hardware Configuration", "ua3g.unsolicited_msg.hardware_config", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_hardware_config_export_full, { "Binary Type", "ua3g.unsolicited_msg.hardware_config.export_full", FT_BOOLEAN, 8, TFS(&tfs_export_full), 0x01, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_hardware_config_ethernet_hardware, { "Ethernet Hardware", "ua3g.unsolicited_msg.hardware_config.ethernet_hardware", FT_BOOLEAN, 8, TFS(&tfs_fast_gigabit), 0x02, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_hardware_config_extended_edition, { "Extended Hardware", "ua3g.unsolicited_msg.hardware_config.extended_edition", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_hardware_config_wideband, { "Wideband Support", "ua3g.unsolicited_msg.hardware_config.wideband", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_hardware_config_3g_set, { "Hardware Generation", "ua3g.unsolicited_msg.hardware_config.3g_set", FT_BOOLEAN, 8, TFS(&tfs_2g_3g), 0x10, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_hardware_config_8082_set, { "8082 Hardware", "ua3g.unsolicited_msg.hardware_config.8082_set", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_hardware_config_super_wideband, { "Super Wideband Support", "ua3g.unsolicited_msg.hardware_config.super_wideband", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40, NULL, HFILL }},
         { &hf_ua3g_unsolicited_msg_hook_status, { "Hook Status", "ua3g.unsolicited_msg.hook_status", FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x00, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_additional_vta_type, { "Additional VTA Type", "ua3g.unsolicited_msg.additional_vta_type", FT_UINT8, BASE_HEX, VALS(str_additional_vta_type), 0x0, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_capability_info, { "Capability Info", "ua3g.unsolicited_msg.capability_info", FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_capability_info_bluetooth_supported, { "Bluetooth Supported", "ua3g.unsolicited_msg.capability_info.bluetooth_supported", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01, NULL, HFILL }},
         { &hf_ua3g_special_key_shift, { "Shift", "ua3g.special_key.shift", FT_BOOLEAN, 8, TFS(&tfs_released_pressed), 0x01, NULL, HFILL }},
         { &hf_ua3g_special_key_ctrl, { "Ctrl", "ua3g.special_key.ctrl", FT_BOOLEAN, 8, TFS(&tfs_released_pressed), 0x02, NULL, HFILL }},
         { &hf_ua3g_special_key_alt, { "Alt", "ua3g.special_key.alt", FT_BOOLEAN, 8, TFS(&tfs_released_pressed), 0x04, NULL, HFILL }},
