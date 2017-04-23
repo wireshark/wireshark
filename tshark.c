@@ -650,7 +650,7 @@ main(int argc, char *argv[])
 #endif  /* _WIN32 */
 
   int                  err;
-  gboolean             success;
+  volatile gboolean    success;
   volatile int         exit_status = EXIT_SUCCESS;
 #ifdef HAVE_LIBPCAP
   gboolean             list_link_layer_types = FALSE;
