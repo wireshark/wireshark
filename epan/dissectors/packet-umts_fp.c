@@ -3899,7 +3899,7 @@ check_payload_crc_for_heur(tvbuff_t *tvb, guint16 header_length)
 static guint32
 generate_ue_id_for_heur(packet_info *pinfo)
 {
-    if (pinfo->ptype != PT_UDP &&  pinfo->src.type == AT_IPv4 &&  pinfo->dst.type == AT_IPv4) {
+    if (pinfo->ptype == PT_UDP &&  pinfo->src.type == AT_IPv4 &&  pinfo->dst.type == AT_IPv4) {
         /* This logic assumes FP is delivered over IP/UDP*/
         /* Will return the same ID even if the address and ports are reversed */
 
