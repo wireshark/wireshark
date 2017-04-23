@@ -3567,7 +3567,7 @@ for filter files: %2.</source>
 <context>
     <name>IOGraph</name>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1882"/>
+        <location filename="io_graph_dialog.cpp" line="1898"/>
         <source>Unknown</source>
         <translation>未知</translation>
     </message>
@@ -4070,72 +4070,72 @@ for filter files: %2.</source>
         <translation>TCP 错误</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="920"/>
+        <location filename="io_graph_dialog.cpp" line="927"/>
         <source>Hover over the graph for details.</source>
         <translation>悬停在图片上来查看详情。</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="922"/>
+        <location filename="io_graph_dialog.cpp" line="929"/>
         <source>No packets in interval</source>
         <translation>间隔期没有分组</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="927"/>
+        <location filename="io_graph_dialog.cpp" line="934"/>
         <source>Click to select packet</source>
         <translation>点击选取分组</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="927"/>
+        <location filename="io_graph_dialog.cpp" line="934"/>
         <source>Packet</source>
         <translation>分组</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="931"/>
+        <location filename="io_graph_dialog.cpp" line="938"/>
         <source>%1 (%2s%3).</source>
         <translation>%1 (%2s%3).</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="942"/>
+        <location filename="io_graph_dialog.cpp" line="949"/>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
         <translation>释放缩放, x = % 到 %2, y = %3 到 %4</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="948"/>
+        <location filename="io_graph_dialog.cpp" line="955"/>
         <source>Unable to select range.</source>
         <translation>无法选择范围。</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="951"/>
+        <location filename="io_graph_dialog.cpp" line="958"/>
         <source>Click to select a portion of the graph.</source>
         <translation>点击选择图形的一部分.</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1574"/>
+        <location filename="io_graph_dialog.cpp" line="1590"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>便携式文档格式 (*.pdf)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1575"/>
+        <location filename="io_graph_dialog.cpp" line="1591"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>便携式网络图形格式 (*.png)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1576"/>
+        <location filename="io_graph_dialog.cpp" line="1592"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windows 位图 (*.bmp)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1578"/>
+        <location filename="io_graph_dialog.cpp" line="1594"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>JPEG 文件交换格式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1579"/>
+        <location filename="io_graph_dialog.cpp" line="1595"/>
         <source>Comma Separated Values (*.csv)</source>
         <translation>逗号分隔值 (*.csv)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1591"/>
+        <location filename="io_graph_dialog.cpp" line="1607"/>
         <source>Save Graph As</source>
         <translation>图形保存为</translation>
     </message>
@@ -11016,97 +11016,97 @@ text-decoration: underline;
         <translation>窗口大小 (B)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1982"/>
+        <location filename="io_graph_dialog.cpp" line="1998"/>
         <source>Packets</source>
         <translation>分组</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1983"/>
+        <location filename="io_graph_dialog.cpp" line="1999"/>
         <source>Bytes</source>
         <translation>字节</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1984"/>
+        <location filename="io_graph_dialog.cpp" line="2000"/>
         <source>Bits</source>
         <translation>比特</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1985"/>
+        <location filename="io_graph_dialog.cpp" line="2001"/>
         <source>SUM(Y Field)</source>
         <translation>总和 (Y字段)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1986"/>
+        <location filename="io_graph_dialog.cpp" line="2002"/>
         <source>COUNT FRAMES(Y Field)</source>
         <translation>COUNT FRAMES (Y字段)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1987"/>
+        <location filename="io_graph_dialog.cpp" line="2003"/>
         <source>COUNT FIELDS(Y Field)</source>
         <translation>COUNT FIELDS (Y字段)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1988"/>
+        <location filename="io_graph_dialog.cpp" line="2004"/>
         <source>MAX(Y Field)</source>
         <translation>最大值 (Y字段)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1989"/>
+        <location filename="io_graph_dialog.cpp" line="2005"/>
         <source>MIN(Y Field)</source>
         <translation>最小值 (Y字段)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1990"/>
+        <location filename="io_graph_dialog.cpp" line="2006"/>
         <source>AVG(Y Field)</source>
         <translation>平均值 (Y字段)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1991"/>
+        <location filename="io_graph_dialog.cpp" line="2007"/>
         <source>LOAD(Y Field)</source>
         <translation>星形 (Y字段)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2000"/>
+        <location filename="io_graph_dialog.cpp" line="2016"/>
         <source>Line</source>
         <translation>折线</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2001"/>
+        <location filename="io_graph_dialog.cpp" line="2017"/>
         <source>Impulse</source>
         <translation>脉冲</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2002"/>
+        <location filename="io_graph_dialog.cpp" line="2018"/>
         <source>Bar</source>
         <translation>条形</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2003"/>
+        <location filename="io_graph_dialog.cpp" line="2019"/>
         <source>Stacked Bar</source>
         <translation>堆积条形图</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2004"/>
+        <location filename="io_graph_dialog.cpp" line="2020"/>
         <source>Dot</source>
         <translation>点</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2005"/>
+        <location filename="io_graph_dialog.cpp" line="2021"/>
         <source>Square</source>
         <translation>方形</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2006"/>
+        <location filename="io_graph_dialog.cpp" line="2022"/>
         <source>Diamond</source>
         <translation>星形</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2017"/>
+        <location filename="io_graph_dialog.cpp" line="2033"/>
         <source>None</source>
         <translation>无</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2019"/>
+        <location filename="io_graph_dialog.cpp" line="2035"/>
         <source>%1 interval SMA</source>
         <translation>%1 间隔 SMA</translation>
     </message>
@@ -11257,7 +11257,7 @@ text-decoration: underline;
         <translation>编辑</translation>
     </message>
     <message>
-        <location filename="module_preferences_scroll_area.cpp" line="211"/>
+        <location filename="module_preferences_scroll_area.cpp" line="212"/>
         <source>Browse</source>
         <translation>浏览</translation>
     </message>
