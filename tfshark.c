@@ -136,7 +136,7 @@ static output_fields_t* output_fields  = NULL;
 /* The line separator used between packets, changeable via the -S option */
 static const char *separator = "";
 
-static int load_cap_file(capture_file *, int, gint64);
+static int read_file(capture_file *, int, gint64);
 static gboolean process_packet_single_pass(capture_file *cf,
     epan_dissect_t *edt, gint64 offset, struct wtap_pkthdr *whdr,
     const guchar *pd, guint tap_flags);
@@ -981,7 +981,7 @@ main(int argc, char *argv[])
     /* Process the packets in the file */
     TRY {
       /* XXX - for now there is only 1 packet */
-      err = load_cap_file(&cfile, 1, 0);
+      err = read_file(&cfile, 1, 0);
     }
     CATCH(OutOfMemoryError) {
       fprintf(stderr,
@@ -1295,7 +1295,7 @@ local_wtap_read(capture_file *cf, struct wtap_pkthdr* file_phdr _U_, int *err, g
 }
 
 static int
-load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
+read_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
 {
   guint32      framenum;
   int          err;

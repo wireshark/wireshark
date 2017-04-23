@@ -228,7 +228,7 @@ static char *output_file_name;
 
 #endif /* HAVE_LIBPCAP */
 
-static int load_cap_file(capture_file *, char *, int, gboolean, int, gint64);
+static int read_cap_file(capture_file *, char *, int, gboolean, int, gint64);
 static gboolean process_packet_single_pass(capture_file *cf,
     epan_dissect_t *edt, gint64 offset, struct wtap_pkthdr *whdr,
     const guchar *pd, guint tap_flags);
@@ -1948,14 +1948,14 @@ main(int argc, char *argv[])
     }
 
     /* Process the packets in the file */
-    tshark_debug("tshark: invoking load_cap_file() to process the packets");
+    tshark_debug("tshark: invoking read_cap_file() to process the packets");
     TRY {
 #ifdef HAVE_LIBPCAP
-      err = load_cap_file(&cfile, global_capture_opts.save_file, out_file_type, out_file_name_res,
+      err = read_cap_file(&cfile, global_capture_opts.save_file, out_file_type, out_file_name_res,
           global_capture_opts.has_autostop_packets ? global_capture_opts.autostop_packets : 0,
           global_capture_opts.has_autostop_filesize ? global_capture_opts.autostop_filesize : 0);
 #else
-      err = load_cap_file(&cfile, output_file_name, out_file_type, out_file_name_res, 0, 0);
+      err = read_cap_file(&cfile, output_file_name, out_file_type, out_file_name_res, 0, 0);
 #endif
     }
     CATCH(OutOfMemoryError) {
@@ -2942,7 +2942,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
 }
 
 static int
-load_cap_file(capture_file *cf, char *save_file, int out_file_type,
+read_cap_file(capture_file *cf, char *save_file, int out_file_type,
     gboolean out_file_name_res, int max_packet_count, gint64 max_byte_count)
 {
   gint         linktype;
