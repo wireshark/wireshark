@@ -4834,6 +4834,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
     guint8    tfi, c_t;
     int       offset = 0, i=0, j=0, num_tbs, chan, tb_size, tb_bit_off;
     gboolean  is_control_frame;
+    gboolean  is_known_dcch_tf,is_special_case_dch_24;
     umts_mac_info *macinf;
     rlc_info *rlcinf;
     guint8 fake_lchid=0;
@@ -4983,113 +4984,87 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
 
             rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
             macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
-            offset = 2;    /*To correctly read the tfi*/
-            fakes  = 5; /* Reset fake counter. */
-            for (chan=0; chan < fpi->num_chans; chan++) {    /*Iterate over the what channels*/
-                    /*Iterate over the transport blocks*/
-                   /*tfi = tvb_get_guint8(tvb, offset);*/
-                   /*TFI is 5 bits according to 3GPP TS 25.321, paragraph 6.2.4.4*/
-                    tfi = tvb_get_bits8(tvb, 3+offset*8, 5);
+            offset = 2; /* To correctly read the TFI */
+            fakes  = 5; /* Reset fake counter */
+            for (chan=0; chan < fpi->num_chans; chan++) { /* Iterate over the DCH channels in the flow (each given a TFI) */
+                /* Iterate over the transport blocks */
+                /* TFI is 5 bits according to 3GPP TS 25.427, paragraph 6.2.4.4 */
+                tfi = tvb_get_bits8(tvb, 3+offset*8, 5);
 
-                   /*Figure out the number of tbs and size*/
-                   num_tbs = (fpi->is_uplink) ? p_conv_data->fp_dch_channel_info[chan].ul_chan_num_tbs[tfi] : p_conv_data->fp_dch_channel_info[chan].dl_chan_num_tbs[tfi];
-                   tb_size=  (fpi->is_uplink) ? p_conv_data->fp_dch_channel_info[i].ul_chan_tf_size[tfi] :    p_conv_data->fp_dch_channel_info[i].dl_chan_tf_size[tfi];
+                /* Figure out the number of tbs and size */
+                num_tbs = (fpi->is_uplink) ? p_conv_data->fp_dch_channel_info[chan].ul_chan_num_tbs[tfi] : p_conv_data->fp_dch_channel_info[chan].dl_chan_num_tbs[tfi];
+                tb_size =  (fpi->is_uplink) ? p_conv_data->fp_dch_channel_info[i].ul_chan_tf_size[tfi] :    p_conv_data->fp_dch_channel_info[i].dl_chan_tf_size[tfi];
 
-                    /*TODO: This stuff has to be reworked!*/
-                    /*Generates a fake logical channel id for non multiplexed channel*/
-                    if ( p_conv_data->dchs_in_flow_list[chan] != 31 && (p_conv_data->dchs_in_flow_list[chan] == 24 &&
-                     tb_size != 340) ) {
+                tb_bit_off = (2+p_conv_data->num_dch_in_flow)*8; /*Point to the C/T of first TB*/
+                /*Set configuration for individual blocks*/
+                for (j=0; j < num_tbs && j+chan < MAX_MAC_FRAMES; j++) {
+                    /* Set transport channel id (useful for debugging) */
+                    macinf->trchid[j+chan] = p_conv_data->dchs_in_flow_list[chan];
+
+                    /* Checking for the common Transport Format of DCCH over DCH ( See ETSI TR 125.944 / 4.1.1.3.1.1 ) */
+                    is_known_dcch_tf = (tfi == 1 && num_tbs == 1 && tb_size == 148);
+                    /* Checking for DCH ID 24 and tb size of 340 bits */
+                    is_special_case_dch_24 = (p_conv_data->dchs_in_flow_list[chan] == 24 && tb_size == 340);
+
+                    /* In theses cases, the */
+                    if (is_known_dcch_tf || is_special_case_dch_24) {
+                        /* Channel is multiplexed (ie. C/T flag present) */
+                        macinf->ctmux[j+chan] = TRUE;
+
+                        /* Peek at C/T, different RLC params for different logical channels */
+                        /* C/T is 4 bits according to 3GPP TS 25.321, paragraph 9.2.1, from MAC header (not FP) */
+                        c_t = (tvb_get_bits8(tvb, tb_bit_off, 4) + 1) % 0xf;
+                        macinf->lchid[j+chan] = c_t;                     /* Logical Channel ID is the value in C/T */
+                        macinf->content[j+chan] = lchId_type_table[c_t]; /* Base MAC content on logical channel id (Table is in packet-nbap.h) */
+                        rlcinf->mode[j+chan] = lchId_rlc_map[c_t];       /* Base RLC mode on logical channel id */
+                    }
+                    else {
+                        /* Unfamiliar DCH format, faking LCHID */
+                        /* Asuming the channel isn't multiplexed (ie. C/T flag not present) */
+                        macinf->ctmux[j+chan] = FALSE;
+
+                        /* TODO: This stuff has to be reworked! */
+                        /* Generates a fake logical channel id for non multiplexed channel */
                         fake_lchid = make_fake_lchid(pinfo, p_conv_data->dchs_in_flow_list[chan]);
+                        macinf->content[j+chan] = lchId_type_table[fake_lchid];
+                        rlcinf->mode[j+chan] = lchId_rlc_map[fake_lchid];
+
+                        /************************/
+                        /* TODO: Once proper lchid is always set, this has to be removed */
+                        macinf->fake_chid[j+chan] = TRUE;
+                        macinf->lchid[j+chan] = fake_lchid;
+                        /************************/
                     }
-                    tb_bit_off = (2+p_conv_data->num_dch_in_flow)*8;    /*Point to the C/T of first TB*/
-                    /*Set configuration for individual blocks*/
-                    for (j=0; j < num_tbs && j+chan < MAX_MAC_FRAMES; j++) {
-                        /*Set transport channel id (useful for debugging)*/
-                        macinf->trchid[j+chan] = p_conv_data->dchs_in_flow_list[chan];
 
-                        /*Transport Channel m31 and 24 might be multiplexed!*/
-                        if ( p_conv_data->dchs_in_flow_list[chan] == 31 || p_conv_data->dchs_in_flow_list[chan] == 24) {
-
-                            /****** MUST FIGURE OUT IF THIS IS REALLY MULTIPLEXED OR NOT*******/
-                            /*If Trchid == 31 and only on TB, we have no multiplexing*/
-                            if (0/*p_conv_data->dchs_in_flow_list[chan] == 31 && num_tbs == 1*/) {
-                                macinf->ctmux[j+chan] = FALSE;/*Set TRUE if this channel is multiplexed (ie. C/T flag exists)*/
-
-                                macinf->lchid[j+chan] = 1;
-
-                                macinf->content[j+chan] = lchId_type_table[1];    /*Base MAC content on logical channel id (Table is in packet-nbap.h)*/
-                                rlcinf->mode[j+chan] = lchId_rlc_map[1];    /*Based RLC mode on logical channel id*/
-
-                            }
-                            /*Indicate we don't have multiplexing.*/
-                            else if (p_conv_data->dchs_in_flow_list[chan] == 24 && tb_size != 340) {
-                                macinf->ctmux[j+chan] = FALSE;/*Set TRUE if this channel is multiplexed (ie. C/T flag exists)*/
-
-                                /*g_warning("settin this for %d", pinfo->num);*/
-                                macinf->lchid[j+chan] = fake_lchid;
-                                macinf->fake_chid[j+chan] = TRUE;
-                                macinf->content[j+chan] = MAC_CONTENT_PS_DTCH; /*lchId_type_table[fake_lchid];*/    /*Base MAC content on logical channel id (Table is in packet-nbap.h)*/
-                                rlcinf->mode[j+chan] = RLC_AM;/*lchId_rlc_map[fake_lchid];*/    /*Based RLC mode on logical channel id*/
-                            }
-                            /*We have multiplexing*/
-                            else {
-                                macinf->ctmux[j+chan] = TRUE;/*Set TRUE if this channel is multiplexed (ie. C/T flag exists)*/
-
-                                /* Peek at C/T, different RLC params for different logical channels */
-                                /*C/T is 4 bits according to 3GPP TS 25.321, paragraph 9.2.1, from MAC header (not FP)*/
-                                c_t = (tvb_get_bits8(tvb, tb_bit_off/*(2+p_conv_data->num_dch_in_flow)*8*/, 4) + 1) % 0xf;    /* c_t = tvb_get_guint8(tvb, offset);*/
-                                macinf->lchid[j+chan] = c_t;
-
-                                macinf->content[j+chan] = lchId_type_table[c_t];    /*Base MAC content on logical channel id (Table is in packet-nbap.h)*/
-                                rlcinf->mode[j+chan] = lchId_rlc_map[c_t];    /*Based RLC mode on logical channel id*/
-                            }
-                        } else {
-                            fake_lchid = make_fake_lchid(pinfo, p_conv_data->dchs_in_flow_list[chan]);
-                            macinf->ctmux[j+chan] = FALSE;/*Set TRUE if this channel is multiplexed (ie. C/T flag exists)*/
-                            /*macinf->content[j+chan] = MAC_CONTENT_CS_DTCH;*/
-                            macinf->content[j+chan] = lchId_type_table[fake_lchid];
-
-
-                            rlcinf->mode[j+chan] = lchId_rlc_map[fake_lchid];
-
-                            /*Generate virtual logical channel id*/
-                            /************************/
-                            /*TODO: Once proper lchid is always set, this has to be removed*/
-                            macinf->fake_chid[j+chan] = TRUE;
-                            macinf->lchid[j+chan] = fake_lchid;  /*make_fake_lchid(pinfo, p_conv_data->dchs_in_flow_list[chan]);*/
-                            /************************/
+                    /*** Set rlc info ***/
+                    /* Trying to resolve the U-RNTI of the user to be used as RLC 'UE-ID' */
+                    /* Fallback - The RNC's 'Communication Context' for the user as seen in NBAP messages */
+                    user_identity = p_conv_data->com_context_id;
+                    if (p_conv_data->scrambling_code != 0) {
+                        guint32 * mapped_urnti = (guint32 *)g_tree_lookup(rrc_scrambling_code_urnti, GUINT_TO_POINTER(p_conv_data->scrambling_code));
+                        if (mapped_urnti != 0) {
+                            user_identity = GPOINTER_TO_UINT(mapped_urnti);
                         }
-
-                        /*** Set rlc info ***/
-                        /* Trying to resolve the U-RNTI of the user to be used as RLC 'UE-ID' */
-                        /* Fallback - The RNC's 'Communication Context' for the user as seen in NBAP messages */
-                        user_identity = p_conv_data->com_context_id;
-                        if (p_conv_data->scrambling_code != 0) {
-                            guint32 * mapped_urnti = (guint32 *)g_tree_lookup(rrc_scrambling_code_urnti, GUINT_TO_POINTER(p_conv_data->scrambling_code));
-                            if (mapped_urnti != 0) {
-                                user_identity = GPOINTER_TO_UINT(mapped_urnti);
-                            }
-                        }
-                        rlcinf->urnti[j + chan] = user_identity;
-                        rlcinf->li_size[j+chan] = RLC_LI_7BITS;
+                    }
+                    rlcinf->urnti[j + chan] = user_identity;
+                    rlcinf->li_size[j+chan] = RLC_LI_7BITS;
 #if 0
-                        /*If this entry exists, SECRUITY_MODE is completed (signled by RRC)*/
-                        if ( rrc_ciph_inf && g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER((gint)p_conv_data->com_context_id)) != NULL ) {
-                            rlcinf->ciphered[j+chan] = TRUE;
-                        } else {
-                            rlcinf->ciphered[j+chan] = FALSE;
-                        }
-#endif
+                    /*If this entry exists, SECRUITY_MODE is completed (signled by RRC)*/
+                    if ( rrc_ciph_inf && g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER((gint)p_conv_data->com_context_id)) != NULL ) {
+                        rlcinf->ciphered[j+chan] = TRUE;
+                    } else {
                         rlcinf->ciphered[j+chan] = FALSE;
-                        rlcinf->deciphered[j+chan] = FALSE;
-                        rlcinf->rbid[j+chan] = macinf->lchid[j+chan];
-
-
-                        /*Step over this TB and it's C/T flag.*/
-                        tb_bit_off += tb_size+4;
                     }
+#endif
+                    rlcinf->ciphered[j+chan] = FALSE;
+                    rlcinf->deciphered[j+chan] = FALSE;
+                    rlcinf->rbid[j+chan] = macinf->lchid[j+chan];
 
-                    offset++;
+                    /*Step over this TB and it's C/T flag.*/
+                    tb_bit_off += tb_size+4;
+                }
+
+                offset++;
             }
             p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, macinf);
             p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0, rlcinf);
