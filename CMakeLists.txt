@@ -997,6 +997,10 @@ if(SPANDSP_FOUND)
 endif()
 if(LIBXML2_FOUND)
 	set(HAVE_LIBXML2 1)
+else()
+	# The (official) FindLibXml2.cmake file sets this cache variable to a
+	# non-empty value, be sure to clear it when not found.
+	set(LIBXML2_LIBRARIES "")
 endif()
 if(EXTCAP_ANDROIDDUMP_LIBPCAP)
 	set(ANDROIDDUMP_USE_LIBPCAP 1)
