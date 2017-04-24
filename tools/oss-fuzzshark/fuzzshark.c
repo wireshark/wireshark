@@ -40,6 +40,8 @@
 #include <wsutil/report_message.h>
 #include <ws_version_info.h>
 
+#include <wiretap/wtap.h>
+
 #include <epan/timestamp.h>
 #include <epan/prefs.h>
 #include <epan/column.h>
