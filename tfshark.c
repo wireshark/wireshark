@@ -336,7 +336,7 @@ main(int argc, char *argv[])
   gboolean             arg_error = FALSE;
 
   int                  err;
-  gboolean             success;
+  volatile gboolean    success;
   volatile int         exit_status = 0;
   gboolean             quiet = FALSE;
   gchar               *volatile cf_name = NULL;
