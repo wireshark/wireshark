@@ -514,6 +514,17 @@ static const value_string mip6_vsm_subtype_3gpp_value[] = {
     {  18, "PGW Back-Off Time" },                          /* 3GPP TS 29.275 [7] */
     {  19, "Signalling Priority Indication" },             /* 3GPP TS 29.275 [7] */
     {  20, "Additional Protocol Configuration Options" },  /* 3GPP TS 29.275 [7] */
+    {  21, "Static IP Address Allocation Indications" },   /* 3GPP TS 29.275 [7] */
+    {  22, "MME / SGSN Identifier" },                      /* 3GPP TS 29.275 [7] */
+    {  23, "End Marker Notification" },                    /* 3GPP TS 29.275 [7] */
+    {  24, "Trusted WLAN Mode Indication" },               /* 3GPP TS 29.275 [7] */
+    {  25, "UE Time Zone" },                               /* 3GPP TS 29.275 [7] */
+    {  26, "Access Network Identifier Timestamp" },        /* 3GPP TS 29.275 [7] */
+    {  27, "Logical Access ID" },                          /* 3GPP TS 29.275 [7] */
+    {  28, "Origination Time Stamp" },                     /* 3GPP TS 29.275 [7] */
+    {  29, "Maximum Wait Time" },                          /* 3GPP TS 29.275 [7] */
+    {  30, "TWAN Capabilities" },                          /* 3GPP TS 29.275 [7] */
+
     {   0, NULL }
 };
 static value_string_ext mip6_vsm_subtype_3gpp_value_ext = VALUE_STRING_EXT_INIT(mip6_vsm_subtype_3gpp_value);
@@ -1941,7 +1952,7 @@ dissect_mip6_opt_vsm_3gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
      *     Note needs pinfo->link_dir ?
      */
     case 1:
-        /* pinfo->link_dir == P2P_DIR_UNKNOWN */
+        pinfo->link_dir = P2P_DIR_DL;
         de_sm_pco(tvb, tree, pinfo, offset, len, NULL, 0);
         break;
     /*  2, 3GPP Specific PMIPv6 Error Code */
@@ -2237,7 +2248,23 @@ dissect_fmip6_opt_lla(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     return tvb_captured_length(tvb);
 }
 
-/* 8 MN-ID-OPTION-TYPE */
+/* 8 MN-ID-OPTION-TYPE RFC4283 MN-ID
+   https://tools.ietf.org/html/rfc4283
+
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+                                    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                                    |  Option Type  | Option Length |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |  Subtype      |          Identifier ...
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    :
+    Option Length:
+
+    8-bit unsigned integer, representing the length in octets of
+    the Subtype and Identifier fields.
+
+*/
 static int
 dissect_mip6_opt_mnid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -2254,7 +2281,7 @@ dissect_mip6_opt_mnid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     offset++;
 
     if (option_len - offset > 0) {
-        proto_tree_add_item_ret_string(opt_tree, hf_mip6_mnid_identifier, tvb, offset, option_len - offset, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &str);
+        proto_tree_add_item_ret_string(opt_tree, hf_mip6_mnid_identifier, tvb, offset, option_len - 1, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &str);
         proto_item_append_text(ti, ": %s", str);
     }
 
@@ -2509,7 +2536,8 @@ dissect_mip6_opt_ssm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_item* ti;
     int option_len = tvb_reported_length(tvb)-2;
     int offset = 2;
-    const guint8 *str;
+    guint8 *apn = NULL;
+    int     name_len, tmp;
 
     opt_tree = mip6_var_option_header(tree, pinfo, tvb, proto_mip6_option_ssm, ett_mip6_opt_ssm, &ti, option_len, MIP6_SSM_MINLEN);
 
@@ -2527,10 +2555,26 @@ dissect_mip6_opt_ssm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
      */
 
     if (option_len > 0) {
-        proto_tree_add_item_ret_string(opt_tree, hf_mip6_opt_ss_identifier, tvb, offset, option_len, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &str);
-        proto_item_append_text(ti, ": %s", str);
-    }
+        name_len = tvb_get_guint8(tvb, offset);
 
+        if (name_len < 0x20) {
+            apn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, option_len - 1, ENC_ASCII);
+            for (;;) {
+                if (name_len >= option_len - 1)
+                    break;
+                tmp = name_len;
+                name_len = name_len + apn[tmp] + 1;
+                apn[tmp] = '.';
+            }
+        }
+        else {
+            apn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, option_len, ENC_ASCII);
+        }
+        proto_tree_add_string(opt_tree, hf_mip6_opt_ss_identifier, tvb, offset, option_len, apn);
+    }
+    if(apn){
+        proto_item_append_text(ti, ": %s", apn);
+    }
     return tvb_captured_length(tvb);
 }
 
