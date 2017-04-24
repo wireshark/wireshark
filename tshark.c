@@ -162,6 +162,8 @@ static frame_data *prev_cap;
 static frame_data prev_cap_frame;
 
 static gboolean perform_two_pass_analysis;
+static guint32 epan_auto_reset_count = 0;
+static gboolean epan_auto_reset = FALSE;
 
 /*
  * The way the packet decode is to be written.
@@ -228,6 +230,7 @@ static char *output_file_name;
 
 #endif /* HAVE_LIBPCAP */
 
+static void reset_epan_mem(capture_file *cf, epan_dissect_t *edt, gboolean tree, gboolean visual);
 static gboolean process_cap_file(capture_file *, char *, int, gboolean, int, gint64);
 static gboolean process_packet_single_pass(capture_file *cf,
     epan_dissect_t *edt, gint64 offset, struct wtap_pkthdr *whdr,
@@ -356,6 +359,7 @@ print_usage(FILE *output)
   fprintf(output, "\n");
   fprintf(output, "Processing:\n");
   fprintf(output, "  -2                       perform a two-pass analysis\n");
+  fprintf(output, "  -M <packet count>        perform session auto reset\n");
   fprintf(output, "  -R <read filter>         packet Read filter in Wireshark display filter syntax\n");
   fprintf(output, "                           (requires -2)\n");
   fprintf(output, "  -Y <display filter>      packet displaY filter in Wireshark display filter\n");
@@ -703,7 +707,7 @@ main(int argc, char *argv[])
  * We do *not* use a leading - because the behavior of a leading - is
  * platform-dependent.
  */
-#define OPTSTRING "+2" OPTSTRING_CAPTURE_COMMON OPTSTRING_DISSECT_COMMON "C:e:E:F:gG:hH:j:J:lo:O:PqQr:R:S:T:U:vVw:W:xX:Y:z:"
+#define OPTSTRING "+2" OPTSTRING_CAPTURE_COMMON OPTSTRING_DISSECT_COMMON "M:C:e:E:F:gG:hH:j:J:lo:O:PqQr:R:S:T:U:vVw:W:xX:Y:z:"
 
   static const char    optstring[] = OPTSTRING;
 
@@ -1027,7 +1031,19 @@ main(int argc, char *argv[])
   while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
     switch (opt) {
     case '2':        /* Perform two pass analysis */
+      if(epan_auto_reset){
+        cmdarg_err("-2 does not support auto session reset.");
+        arg_error=TRUE;
+      }
       perform_two_pass_analysis = TRUE;
+      break;
+    case 'M':
+      if(perform_two_pass_analysis){
+        cmdarg_err("-M does not support two pass analysis.");
+        arg_error=TRUE;
+      }
+      epan_auto_reset_count = get_positive_int(optarg, "epan reset count");
+      epan_auto_reset = TRUE;
       break;
     case 'a':        /* autostop criteria */
     case 'b':        /* Ringbuffer option */
@@ -2594,6 +2610,7 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
     while (to_read-- && cf->wth) {
       wtap_cleareof(cf->wth);
       ret = wtap_read(cf->wth, &err, &err_info, &data_offset);
+      reset_epan_mem(cf, edt, create_proto_tree, print_packet_info && print_details);
       if (ret == FALSE) {
         /* read from file failed, tell the capture child to stop */
         sync_pipe_stop(cap_session);
@@ -3202,12 +3219,10 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
   else {
     /* !perform_two_pass_analysis */
     framenum = 0;
-
+    gboolean create_proto_tree = FALSE;
     tshark_debug("tshark: perform one pass analysis, do_dissection=%s", do_dissection ? "TRUE" : "FALSE");
 
     if (do_dissection) {
-      gboolean create_proto_tree;
-
       /*
        * Determine whether we need to create a protocol tree.
        * We do if:
@@ -3246,6 +3261,8 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
       framenum++;
 
       tshark_debug("tshark: processing packet #%d", framenum);
+
+      reset_epan_mem(cf, edt, create_proto_tree, print_packet_info && print_details);
 
       if (process_packet_single_pass(cf, edt, data_offset, wtap_phdr(cf->wth),
                                      wtap_buf_ptr(cf->wth), tap_flags)) {
@@ -4017,6 +4034,21 @@ write_failure_message(const char *filename, int err)
 {
   cmdarg_err("An error occurred while writing to the file \"%s\": %s.",
              filename, g_strerror(err));
+}
+
+static void reset_epan_mem(capture_file *cf,epan_dissect_t *edt, gboolean tree, gboolean visual)
+{
+  if (!epan_auto_reset || (cf->count < epan_auto_reset_count))
+    return;
+
+  fprintf(stderr, "resetting session.\n");
+
+  epan_dissect_cleanup(edt);
+  epan_free(cf->epan);
+
+  cf->epan = tshark_epan_new(cf);
+  edt = epan_dissect_init(edt,cf->epan, tree, visual);
+  cf->count = 0;
 }
 
 /*

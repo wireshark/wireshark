@@ -51,6 +51,7 @@ S<[ B<-x> ]>
 S<[ B<-X> E<lt>eXtension optionE<gt>]>
 S<[ B<-y> E<lt>capture link typeE<gt> ]>
 S<[ B<-Y> E<lt>displaY filterE<gt> ]>
+S<[ B<-M> E<lt>auto session resetE<gt> ]>
 S<[ B<-z> E<lt>statisticsE<gt> ]>
 S<[ B<--capture-comment> E<lt>commentE<gt> ]>
 S<[ B<--export-objects> E<lt>protocolE<gt>,E<lt>destdirE<gt> ]>
@@ -903,6 +904,17 @@ than being printed or written.
 Use this instead of -R for filtering using single-pass analysis. If doing
 two-pass analysis (see -2) then only packets matching the read filter (if there
 is one) will be checked against this filter.
+
+=item -M  E<lt>auto session resetE<gt>
+
+Automatically reset internal session when reached to specified number of packets.
+for example,
+
+    -M 100000
+
+will reset session every 100000 packets.
+
+This feature does not support -2 two-pass analysis
 
 =item -z  E<lt>statisticsE<gt>
 
