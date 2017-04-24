@@ -1935,7 +1935,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                 {
                     if (! dissector_try_uint(gsm_sms_dissector_tbl, udh_fields.port_dst,sm_tvb, pinfo, subtree))
                     {
-                        proto_tree_add_item(subtree, hf_gsm_sms_body, tvb, offset, length, ENC_NA);
+                        proto_tree_add_item(subtree, hf_gsm_sms_body, sm_tvb, 0, tvb_reported_length(sm_tvb), ENC_NA);
                     }
                 }
             } else {
