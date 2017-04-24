@@ -257,7 +257,7 @@ static expert_field ei_gsm_sms_unexpected_data_length = EI_INIT;
 static expert_field ei_gsm_sms_message_dissector_not_implemented = EI_INIT;
 
 static gboolean reassemble_sms = TRUE;
-static gboolean reassemble_sms_with_lower_layers_info = FALSE;
+static gboolean reassemble_sms_with_lower_layers_info = TRUE;
 static proto_tree *g_tree;
 
 /* 3GPP TS 23.038 version 7.0.0 Release 7
@@ -1974,15 +1974,24 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
     if (addr == NULL)
         addr = "";
     /* check if lower layers provide additional info */
-    gsm_map_packet_info = (gsm_map_packet_info_t*)p_get_proto_data(pinfo->pool, pinfo, proto_gsm_map, 0);
-    if (gsm_map_packet_info && reassemble_sms_with_lower_layers_info) {
+    if (reassemble_sms_with_lower_layers_info) {
         addr_info_strbuf = wmem_strbuf_new(wmem_packet_scope(), addr);
-        if (gsm_map_packet_info->rp_oa_id == GSM_MAP_RP_OA_MSISDN)
-            wmem_strbuf_append(addr_info_strbuf, gsm_map_packet_info->rp_oa_str);
-        else if (gsm_map_packet_info->rp_da_id == GSM_MAP_RP_DA_IMSI)
-            wmem_strbuf_append(addr_info_strbuf, gsm_map_packet_info->rp_da_str);
-        else if (gsm_map_packet_info->rp_da_id == GSM_MAP_RP_DA_LMSI)
-            wmem_strbuf_append(addr_info_strbuf, gsm_map_packet_info->rp_da_str);
+        if ((gsm_map_packet_info = (gsm_map_packet_info_t*)p_get_proto_data(pinfo->pool, pinfo, proto_gsm_map, 0)) != NULL) {
+            if (gsm_map_packet_info->rp_oa_id == GSM_MAP_RP_OA_MSISDN)
+                wmem_strbuf_append(addr_info_strbuf, gsm_map_packet_info->rp_oa_str);
+            else if (gsm_map_packet_info->rp_da_id == GSM_MAP_RP_DA_IMSI)
+                wmem_strbuf_append(addr_info_strbuf, gsm_map_packet_info->rp_da_str);
+            else if (gsm_map_packet_info->rp_da_id == GSM_MAP_RP_DA_LMSI)
+                wmem_strbuf_append(addr_info_strbuf, gsm_map_packet_info->rp_da_str);
+        } else if (proto_is_frame_protocol(pinfo->layers, "sip")) {
+            wmem_strbuf_append(addr_info_strbuf, "SIP");
+        } else if (proto_is_frame_protocol(pinfo->layers, "gsm_a.rp")) {
+            wmem_strbuf_append(addr_info_strbuf, "RP");
+        } else if (proto_is_frame_protocol(pinfo->layers, "etsi_cat")) {
+            wmem_strbuf_append(addr_info_strbuf, "CAT");
+        } else if (proto_is_frame_protocol(pinfo->layers, "mbim")) {
+            wmem_strbuf_append(addr_info_strbuf, "MBIM");
+        }
         addr_info = wmem_strbuf_finalize(addr_info_strbuf);
     } else {
         addr_info = addr;
