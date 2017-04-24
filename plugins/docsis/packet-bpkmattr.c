@@ -1,5 +1,6 @@
 /* packet-bpkmattr.c
  * Routines for Baseline Privacy Key Management Attributes dissection
+ * Copyright 2017, Adrian Simionov <daniel.simionov@gmail.com>
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
  * Wireshark - Network traffic analyzer
@@ -105,16 +106,17 @@ static gint ett_docsis_bpkmattr_dnld = -1;
 
 
 static const value_string error_code_vals[] = {
-  {0, "no information"},
+  {0, "No Information"},
   {1, "Unauthorized CM"},
   {2, "Unauthorized SAID"},
   {3, "Unsolicited"},
   {4, "Invalid Key Sequence Number"},
-  {5, "Key Request authentication failure"},
+  {5, "Message (Key Request) authentication failure"},
   {6, "Permanent Authorization Failure"},
   {7, "Not authorized for requested downstream traffic flow"},
-  {8, "Downstream traffic flow not mapped to BPI+ SAID"},
+  {8, "Downstream traffic flow not mapped to SAID"},
   {9, "Time of day not acquired"},
+  {10, "EAE Disabled"},
   {0, NULL},
 };
 
