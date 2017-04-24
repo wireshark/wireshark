@@ -12,10 +12,6 @@ if(ENABLE_PDF_GUIDES)
     endif()
 endif()
 
-if(ENABLE_CHM_GUIDES)
-    find_package(SED)
-endif()
-
 find_program(XSLTPROC_EXECUTABLE
   NAMES
     xsltproc
@@ -234,7 +230,7 @@ MACRO(XML2HHP _target_dep _guide _dbk_source)
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/${_gfxdir} ${_basedir}/${_gfxdir}
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/common_graphics ${_basedir}/${_gfxdir}
         # HTML Help doesn't render decimal character entities in the title.
-        COMMAND ${SED_EXECUTABLE}
+        COMMAND ${PERL_EXECUTABLE} -p
             -e "s|er&#8217;s Guide</title>|er's Guide</title>|"
             < ${_dbk_source}
             > ${_docbook_plain_title}
