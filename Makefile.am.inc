@@ -27,8 +27,6 @@ LEMON = $(lemon_builddir)/lemon$(EXEEXT)
 $(LEMON):
 	cd $(lemon_builddir) && $(MAKE)
 
-RUNLEX = $(top_srcdir)/tools/runlex.sh
-
 INCLUDEDIRS = -I$(top_srcdir)
 
 #AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS)
@@ -55,9 +53,9 @@ AM_V_LEMON = $(am__v_LEMON_@AM_V@)
 am__v_LEMON_ = $(am__v_LEMON_@AM_DEFAULT_V@)
 am__v_LEMON_0 = @echo "  LEMON   " $@;
 
-AM_V_RUNLEX = $(am__v_RUNLEX_@AM_V@)
-am__v_RUNLEX_ = $(am__v_RUNLEX_@AM_DEFAULT_V@)
-am__v_RUNLEX_0 = @echo "  RUNLEX  " $@;
+AM_V_LEX = $(am__v_LEX_@AM_V@)
+am__v_LEX_ = $(am__v_LEX_@AM_DEFAULT_V@)
+am__v_LEX_0 = @echo "  LEX     " $@;
 
 AM_V_SED = $(am__v_SED_@AM_V@)
 am__v_SED_ = $(am__v_SED_@AM_DEFAULT_V@)
@@ -77,7 +75,7 @@ am__v_YACC_ = $(am__v_YACC_@AM_DEFAULT_V@)
 am__v_YACC_0 = @echo "  YACC    " $@;
 
 .l.c:
-	$(AM_V_RUNLEX)$(RUNLEX) "$(LEX)" -o$@ $<
+	$(AM_V_LEX)$(LEX) -o$@ --header-file=$(@:.c=_lex.h) $<
 
 # abi-compliance-checker descriptor
 abi_incdirs = $(subst -I,NEWLINE,$(filter -I%,$(AM_CPPFLAGS) -I$(abs_top_srcdir) -I$(abs_srcdir)))

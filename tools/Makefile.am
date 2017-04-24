@@ -84,7 +84,6 @@ EXTRA_DIST = \
 	rdps.py						\
 	rpm_setup.sh 					\
 	runa2x.sh					\
-	runlex.sh					\
 	setuid-root.pl.in				\
 	test-common.sh					\
 	test-captures.sh				\
