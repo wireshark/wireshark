@@ -55,12 +55,15 @@ if (WIN32)
     "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Cygnus Solutions\\Cygwin\\mounts v2\\/;native]"
   )
 
-  if(${CYGWIN_INSTALL_PATH} STREQUAL "CYGWIN_INSTALL_PATH-NOTFOUND")
-    message(FATAL_ERROR "Cygwin installation path was not detected. You can set it with WIRESHARK_CYGWIN_INSTALL_PATH environment variable.")
-  else()
-    mark_as_advanced(
-      CYGWIN_INSTALL_PATH
-    )
+  if(NOT CYGWIN_INSTALL_PATH)
+    if(WIRESHARK_CYGWIN_INSTALL_PATH)
+      message(FATAL_ERROR "WIRESHARK_CYGWIN_INSTALL_PATH was specified, but Cygwin was not found.")
+    else()
+      message(WARNING "Cygwin installation path was not detected. You can set it with WIRESHARK_CYGWIN_INSTALL_PATH environment variable.")
+    endif()
   endif()
 
+  mark_as_advanced(
+    CYGWIN_INSTALL_PATH
+  )
 endif ()

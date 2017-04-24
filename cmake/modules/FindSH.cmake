@@ -20,7 +20,7 @@ include( FindPackageHandleStandardArgs )
 find_package_handle_standard_args( SH DEFAULT_MSG SH_EXECUTABLE )
 
 # Ensure this is Cygwin bash
-if( WIN32 )
+if( WIN32 AND CYGWIN_INSTALL_PATH )
   execute_process( COMMAND ${SH_EXECUTABLE} --version OUTPUT_VARIABLE SH_VERSION )
   string( FIND "${SH_VERSION}" "cygwin" SH_IS_CYGWIN )
   if( ${SH_IS_CYGWIN} LESS 0 )
