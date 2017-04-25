@@ -120,6 +120,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_CDMA2000_A10_UBS,     "CDMA2000 A10 Unstructured byte stream" },
 	{ ETHERTYPE_ATMOE,                "ATM over Ethernet" },
 	{ ETHERTYPE_PROFINET,             "PROFINET" },
+	{ ETHERTYPE_REALTEK,              "Realtek Layer 2 Protocols" },
 	{ ETHERTYPE_AOE,                  "ATA over Ethernet" },
 	{ ETHERTYPE_ECATF,                "EtherCAT frame" },
 	{ ETHERTYPE_TELKONET,             "Telkonet powerline" },

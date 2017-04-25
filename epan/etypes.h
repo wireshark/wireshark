@@ -344,6 +344,10 @@ extern "C" {
 #define ETHERTYPE_PROFINET		0x8892	/* PROFIBUS PROFINET protocol */
 #endif
 
+#ifndef ETHERTYPE_REALTEK
+#define ETHERTYPE_REALTEK		0x8899	/* Realtek Layer 2 Protocols */
+#endif
+
 #ifndef ETHERTYPE_HYPERSCSI
 #define ETHERTYPE_HYPERSCSI		0x889A	/* HyperSCSI */
 #endif
