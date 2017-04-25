@@ -342,6 +342,7 @@ static int hf_ua3g_lcd_line_cmd_lcd_options_call_timer_display = -1;
 static int hf_ua3g_lcd_line_cmd_lcd_options_time_of_day_display = -1;
 static int hf_ua3g_lcd_line_cmd_lcd_options_suspend_display_refresh = -1;
 static int hf_ua3g_cs_ip_device_routing_cmd02_parameter_firmware_version = -1;
+static int hf_ua3g_cs_ip_device_routing_cmd02_parameter_tscip_version = -1;
 static int hf_ua3g_cs_ip_device_routing_cmd02_parameter_ip = -1;
 static int hf_ua3g_cs_ip_device_routing_cmd02_parameter_default_codec_uint = -1;
 static int hf_ua3g_cs_ip_device_routing_cmd02_parameter_default_codec_bytes = -1;
@@ -664,6 +665,17 @@ version_number_computer( gchar *result, guint32 hexa_version )
     vers    = (int)((hexa_version % 10000) / 100);
     fix     = (hexa_version % 10000) % 100;
     g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d.%02d", release, vers, fix);
+}
+
+static void
+version_3bytes_computer(gchar *result, guint32 hexa_version)
+{
+    int release, vers, fix;
+
+    release = (hexa_version >> 16);
+    vers    = ((hexa_version >> 8) & 0xff);
+    fix     = (hexa_version & 0xff);;
+    g_snprintf(result, ITEM_LABEL_LENGTH, "%d.%02d.%02d", release, vers, fix);
 }
 
 
@@ -3090,7 +3102,7 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                 parameter_length = tvb_get_guint8(tvb, offset + 1);
 
                 ua3g_param_item = proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter, tvb, offset,
-                    parameter_id, parameter_length + 2,
+                    parameter_length + 2, parameter_id,
                     "%s", val_to_str_const(parameter_id, ip_device_routing_cmd_get_param_req_vals, "Unknown"));
                 ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
 
@@ -3107,7 +3119,9 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                     case 0x00: /* Firmware Version */
                         proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_firmware_version, tvb, offset, 2, ENC_BIG_ENDIAN);
                         break;
-                    case 0x01: /* Firmware Version */
+                    case 0x01: /* Firmware Version (same as above, different format) */
+                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_tscip_version, tvb, offset, 3, ENC_BIG_ENDIAN);
+                        break;
                     case 0x02: /* DHCP IP Address */
                     case 0x03: /* Local IP Address */
                     case 0x04: /* Subnetwork Mask */
@@ -4529,6 +4543,7 @@ proto_register_ua3g(void)
         { &hf_ua3g_cs_ip_device_routing_cmd02_parameter_default_codec_bytes, { "Default Codec", "ua3g.ip.cs.cmd02.parameter.default_codec.bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_cs_ip_device_routing_cmd02_parameter_default_codec_uint, { "Default Codec", "ua3g.ip.cs.cmd02.parameter.default_codec.uint", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_cs_ip_device_routing_cmd02_parameter_firmware_version, { "Firmware Version", "ua3g.ip.cs.cmd02.parameter.firmware_version", FT_UINT16, BASE_CUSTOM, CF_FUNC(version_number_computer), 0x0, NULL, HFILL }},
+        { &hf_ua3g_cs_ip_device_routing_cmd02_parameter_tscip_version, { "Firmware Version", "ua3g.ip.cs.cmd02.parameter.tscip_version", FT_UINT24, BASE_CUSTOM, CF_FUNC(version_3bytes_computer), 0x0, NULL, HFILL }},
         { &hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_speed, { "Port Lan Speed", "ua3g.ip.cs.cmd02.parameter.eth_driver_config.port_lan_speed", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_duplex, { "Port Lan Duplex", "ua3g.ip.cs.cmd02.parameter.eth_driver_config.port_lan_duplex", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_pc_speed, { "Port PC Speed", "ua3g.ip.cs.cmd02.parameter.eth_driver_config.port_pc_speed", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
