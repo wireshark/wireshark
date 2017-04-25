@@ -1055,7 +1055,7 @@ void MainWindow::pipeTimeout() {
 
 void MainWindow::pipeActivated(int source) {
 #ifdef _WIN32
-    Q_UNUSED(source);
+    Q_UNUSED(source)
 #else
     g_assert(source == pipe_source_);
 

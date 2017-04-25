@@ -247,8 +247,8 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
         }
     }
 #else
-    Q_UNUSED(index);
-    Q_UNUSED(role);
+    Q_UNUSED(index)
+    Q_UNUSED(role)
 #endif
 
     return QVariant();
@@ -389,7 +389,7 @@ QVariant InterfaceTreeModel::toolTipForInterface(int idx) const
 
     return tt_str;
 #else
-    Q_UNUSED(idx);
+    Q_UNUSED(idx)
 
     return QVariant();
 #endif
@@ -446,7 +446,7 @@ void InterfaceTreeModel::updateStatistic(unsigned int idx)
     points[device.name].append(diff);
     emit dataChanged(index(idx, IFTREE_COL_STATS), index(idx, IFTREE_COL_STATS));
 #else
-    Q_UNUSED(idx);
+    Q_UNUSED(idx)
 #endif
 }
 
@@ -460,8 +460,8 @@ void InterfaceTreeModel::getPoints(int idx, PointList *pts)
     if ( points.contains(device.name) )
         pts->append(points[device.name]);
 #else
-    Q_UNUSED(idx);
-    Q_UNUSED(pts);
+    Q_UNUSED(idx)
+    Q_UNUSED(pts)
 #endif
 }
 
@@ -538,7 +538,7 @@ bool InterfaceTreeModel::updateSelectedDevices(QItemSelection sourceSelection)
         }
     }
 #else
-    Q_UNUSED(sourceSelection);
+    Q_UNUSED(sourceSelection)
 #endif
     return selectionHasChanged;
 }

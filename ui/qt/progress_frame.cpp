@@ -296,7 +296,7 @@ void ProgressFrame::show(bool animate, bool terminate_is_stop, gboolean *stop_fl
         QFrame::show();
     }
 #else
-    Q_UNUSED(animate);
+    Q_UNUSED(animate)
     QFrame::show();
 #endif
 
