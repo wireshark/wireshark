@@ -2149,7 +2149,7 @@ void MainWindow::initConversationMenus()
     connect(colorize_action, SIGNAL(triggered()), this, SLOT(colorizeActionTriggered()));
 }
 
-gboolean MainWindow::addExportObjectsMenuItem(const void *key _U_, void *value, void *userdata)
+gboolean MainWindow::addExportObjectsMenuItem(const void *, void *value, void *userdata)
 {
     register_eo_t *eo = (register_eo_t*)value;
     MainWindow *window = (MainWindow*)userdata;

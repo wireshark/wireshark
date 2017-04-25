@@ -164,7 +164,7 @@ void BluetoothDevicesDialog::tableContextMenu(const QPoint &pos)
     context_menu_.exec(ui->tableTreeWidget->viewport()->mapToGlobal(pos));
 }
 
-void BluetoothDevicesDialog::tableItemDoubleClicked(QTreeWidgetItem *item, int column _U_)
+void BluetoothDevicesDialog::tableItemDoubleClicked(QTreeWidgetItem *item, int)
 {
     bluetooth_item_data_t            *item_data;
     BluetoothDeviceDialog  *bluetooth_device_dialog;
