@@ -1023,6 +1023,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  print_finale@Base 1.12.0~rc1
  print_hex_data@Base 1.12.0~rc1
  print_line@Base 1.12.0~rc1
+ print_line_color@Base 2.5.0
  print_preamble@Base 1.12.0~rc1
  print_stream_ps_new@Base 1.12.0~rc1
  print_stream_ps_stdio_new@Base 1.12.0~rc1

@@ -25,6 +25,7 @@
 #include "config.h"
 
 #include <stdio.h>
+#include <string.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -37,6 +38,113 @@
 #include <epan/ps.h>
 
 #include <wsutil/file_util.h>
+
+#define TERM_SGR_RESET "\x1B[0m"  /* SGR - reset */
+#define TERM_CSI_EL    "\x1B[K"   /* EL - Erase in Line (to end of line) */
+
+#ifdef _WIN32
+static void
+print_color_escape(FILE *fh, const color_t *fg, const color_t *bg)
+{
+    /* default to white foreground, black background */
+    WORD win_fg_color = FOREGROUND_RED|FOREGROUND_BLUE|FOREGROUND_GREEN;
+    WORD win_bg_color = 0;
+
+    /* Windows seems to offer 1-bit color, so you can't set the red, green, or blue intensities,
+     * you can only set "{foreground, background} contains {red, green, blue}".
+     * So include red, green or blue if the numeric intensity is high enough
+     */
+    if (fg) {
+        if (((fg->red >> 8) & 0xff) >= 0x80)
+        {
+            win_fg_color |= FOREGROUND_RED;
+        }
+        else
+        {
+            win_fg_color &= (~FOREGROUND_RED);
+        }
+        if (((fg->green >> 8) & 0xff) >= 0x80)
+        {
+            win_fg_color |= FOREGROUND_GREEN;
+        }
+        else
+        {
+            win_fg_color &= (~FOREGROUND_GREEN);
+        }
+        if (((fg->blue >> 8) & 0xff) >= 0x80)
+        {
+            win_fg_color |= FOREGROUND_BLUE;
+        }
+        else
+        {
+            win_fg_color &= (~FOREGROUND_BLUE);
+        }
+    }
+
+    if (bg) {
+        if (((bg->red >> 8) & 0xff) >= 0x80)
+        {
+            win_bg_color |= BACKGROUND_RED;
+        }
+        else
+        {
+            win_bg_color &= (~BACKGROUND_RED);
+        }
+        if (((bg->green >> 8) & 0xff) >= 0x80)
+        {
+            win_bg_color |= BACKGROUND_GREEN;
+        }
+        else
+        {
+            win_bg_color &= (~BACKGROUND_GREEN);
+        }
+        if (((bg->blue >> 8) & 0xff) >= 0x80)
+        {
+            win_bg_color |= BACKGROUND_BLUE;
+        }
+        else
+        {
+            win_bg_color &= (~BACKGROUND_BLUE);
+        }
+    }
+
+    SetConsoleTextAttribute((HANDLE)_get_osfhandle(_fileno(fh)), win_fg_color|win_bg_color);
+}
+#else
+static void
+print_color_escape(FILE *fh, const color_t *fg, const color_t *bg)
+{
+    if (fg) {
+        /*
+         * emit 24-bit "true color" escape sequence if output is going to a
+         * tty, the sequence should be ignored by terminals that aren't capable
+         */
+        fprintf(fh, "\x1B[38;2;%u;%u;%um",
+                (fg->red   >> 8) & 0xff,
+                (fg->green >> 8) & 0xff,
+                (fg->blue  >> 8) & 0xff);
+    }
+
+    if (bg) {
+        fprintf(fh, "\x1B[48;2;%u;%u;%um",
+                (bg->red   >> 8) & 0xff,
+                (bg->green >> 8) & 0xff,
+                (bg->blue  >> 8) & 0xff);
+    }
+}
+#endif
+
+static void
+print_color_eol(FILE *fh)
+{
+    /*
+     * Emit CSI EL to extend current background color all the way to EOL,
+     * otherwise we get a ragged right edge of color wherever the newline
+     * occurs.  It's not perfect in every terminal emulator, but it generally
+     * works.
+     */
+    fprintf(fh, "%s\n%s", TERM_CSI_EL, TERM_SGR_RESET);
+}
 
 static FILE *
 open_print_dest(gboolean to_file, const char *dest)
@@ -75,6 +183,15 @@ print_line(print_stream_t *self, int indent, const char *line)
     return (self->ops->print_line)(self, indent, line);
 }
 
+gboolean
+print_line_color(print_stream_t *self, int indent, const char *line, const color_t *fg, const color_t *bg)
+{
+    if (self->ops->print_line_color)
+        return (self->ops->print_line_color)(self, indent, line, fg, bg);
+    else
+        return (self->ops->print_line)(self, indent, line);
+}
+
 /* Insert bookmark */
 gboolean
 print_bookmark(print_stream_t *self, const gchar *name, const gchar *title)
@@ -108,21 +225,24 @@ typedef struct {
 
 #define MAX_INDENT    160
 
+/* returns TRUE if the print succeeded, FALSE if there was an error */
 static gboolean
-print_line_text(print_stream_t *self, int indent, const char *line)
+print_line_color_text(print_stream_t *self, int indent, const char *line, const color_t *fg, const color_t *bg)
 {
-    static char  spaces[MAX_INDENT];
+    static char spaces[MAX_INDENT];
     size_t ret;
-
     output_text *output = (output_text *)self->data;
     unsigned int num_spaces;
+    gboolean emit_color = self->isatty && (fg != NULL || bg != NULL);
 
     /* should be space, if NUL -> initialize */
-    if (!spaces[0]) {
-        int i;
+    if (!spaces[0])
+        memset(spaces, ' ', sizeof(spaces));
 
-        for (i = 0; i < MAX_INDENT; i++)
-            spaces[i] = ' ';
+    if (emit_color) {
+        print_color_escape(output->fh, fg, bg);
+        if (ferror(output->fh))
+            return FALSE;
     }
 
     /* Prepare the tabs for printing, depending on tree level */
@@ -153,9 +273,20 @@ print_line_text(print_stream_t *self, int indent, const char *line)
         } else {
             fputs(line, output->fh);
         }
-        putc('\n', output->fh);
+
+        if (emit_color)
+            print_color_eol(output->fh);
+        else
+            putc('\n', output->fh);
     }
+
     return !ferror(output->fh);
+}
+
+static gboolean
+print_line_text(print_stream_t *self, int indent, const char *line)
+{
+    return print_line_color_text(self, indent, line, NULL, NULL);
 }
 
 static gboolean
@@ -185,7 +316,8 @@ static const print_stream_ops_t print_text_ops = {
     NULL,            /* bookmark */
     new_page_text,
     NULL,            /* finale */
-    destroy_text
+    destroy_text,
+    print_line_color_text,
 };
 
 static print_stream_t *
@@ -368,7 +500,8 @@ static const print_stream_ops_t print_ps_ops = {
     print_bookmark_ps,
     new_page_ps,
     print_finale_ps,
-    destroy_ps
+    destroy_ps,
+    NULL, /* print_line_color */
 };
 
 static print_stream_t *

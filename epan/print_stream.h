@@ -27,6 +27,8 @@
 
 #include "ws_symbol_export.h"
 
+#include <wsutil/color.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -46,6 +48,7 @@ typedef struct print_stream_ops {
 	gboolean (*new_page)(struct print_stream *self);
 	gboolean (*print_finale)(struct print_stream *self);
 	gboolean (*destroy)(struct print_stream *self);
+	gboolean (*print_line_color)(struct print_stream *self, int indent, const char *line, const color_t *fg, const color_t *bg);
 } print_stream_ops_t;
 
 typedef struct print_stream {
@@ -67,6 +70,15 @@ WS_DLL_PUBLIC gboolean print_bookmark(print_stream_t *self, const gchar *name,
 WS_DLL_PUBLIC gboolean new_page(print_stream_t *self);
 WS_DLL_PUBLIC gboolean print_finale(print_stream_t *self);
 WS_DLL_PUBLIC gboolean destroy_print_stream(print_stream_t *self);
+
+/*
+ * equivalent to print_line(), but if the stream supports text coloring then
+ * the output text will also be colored with the given foreground and
+ * background
+ *
+ * returns TRUE if the print was successful, FALSE otherwise
+ */
+WS_DLL_PUBLIC gboolean print_line_color(print_stream_t *self, int indent, const char *line, const color_t *fg, const color_t *bg);
 
 #ifdef __cplusplus
 }
