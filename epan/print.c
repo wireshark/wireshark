@@ -135,7 +135,7 @@ void print_cache_field_handles(void)
 }
 
 gboolean
-proto_tree_print(print_dissections_e print_dissections, gboolean print_hex_data,
+proto_tree_print(print_dissections_e print_dissections, gboolean print_hex,
                  epan_dissect_t *edt, GHashTable *output_only_tables,
                  print_stream_t *stream)
 {
@@ -150,7 +150,7 @@ proto_tree_print(print_dissections_e print_dissections, gboolean print_hex_data,
     data.print_dissections  = print_dissections;
     /* If we're printing the entire packet in hex, don't
        print uninterpreted data fields in hex as well. */
-    data.print_hex_for_data = !print_hex_data;
+    data.print_hex_for_data = !print_hex;
     data.output_only_tables = output_only_tables;
 
     proto_tree_children_foreach(edt->tree, proto_tree_print_node, &data);
@@ -340,7 +340,7 @@ write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, pf_flags 
 void
 write_json_proto_tree(output_fields_t* fields,
                       print_dissections_e print_dissections,
-                      gboolean print_hex_data, gchar **protocolfilter,
+                      gboolean print_hex, gchar **protocolfilter,
                       pf_flags protocolfilter_flags, epan_dissect_t *edt,
                       FILE *fh)
 {
@@ -378,7 +378,7 @@ write_json_proto_tree(output_fields_t* fields,
         data.src_list = edt->pi.data_src;
         data.filter   = protocolfilter;
         data.filter_flags = protocolfilter_flags;
-        data.print_hex = print_hex_data;
+        data.print_hex = print_hex;
         data.print_text = TRUE;
         if (print_dissections == print_dissections_none) {
             data.print_text = FALSE;
@@ -399,7 +399,7 @@ write_json_proto_tree(output_fields_t* fields,
 
 void
 write_ek_proto_tree(output_fields_t* fields,
-                    gboolean print_hex_data, gchar **protocolfilter,
+                    gboolean print_hex, gchar **protocolfilter,
                     pf_flags protocolfilter_flags, epan_dissect_t *edt,
                     FILE *fh)
 {
@@ -429,7 +429,7 @@ write_ek_proto_tree(output_fields_t* fields,
         data.src_list = edt->pi.data_src;
         data.filter   = protocolfilter;
         data.filter_flags = protocolfilter_flags;
-        data.print_hex = print_hex_data;
+        data.print_hex = print_hex;
 
         proto_tree_children_foreach(edt->tree, proto_tree_write_node_ek,
                                     &data);
