@@ -6340,10 +6340,13 @@ bootp_clear_uat_bootpopt(gpointer data, gpointer user_data _U_)
 static void
 bootp_cleanup_protocol(void)
 {
-	wmem_list_foreach(saved_uat_opts, bootp_clear_uat_bootpopt, NULL);
+	if (saved_uat_opts != NULL) {
+		wmem_list_foreach(saved_uat_opts, bootp_clear_uat_bootpopt,
+		    NULL);
 
-	wmem_destroy_list(saved_uat_opts);
-	saved_uat_opts = NULL;
+		wmem_destroy_list(saved_uat_opts);
+		saved_uat_opts = NULL;
+	}
 }
 
 
