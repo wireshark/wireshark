@@ -151,6 +151,12 @@
 #define INVALID_CAPTURE 2
 #define INIT_FAILED 2
 
+/*
+ * values 128..65535 are capture+dissect options, 65536 is used by
+ * ui/commandline.c, so start tshark-specific options 1000 after this
+ */
+#define LONGOPT_COLOR (65536+1000)
+
 #if 0
 #define tshark_debug(...) g_warning(__VA_ARGS__)
 #else
@@ -191,6 +197,7 @@ static gboolean print_hex;         /* TRUE if we're to print hex/ascci informati
 static gboolean line_buffered;
 static gboolean really_quiet = FALSE;
 static gchar* delimiter_char = " ";
+static gboolean dissect_color = FALSE;
 
 static print_format_e print_format = PR_FMT_TEXT;
 static print_stream_t *print_stream = NULL;
@@ -435,6 +442,8 @@ print_usage(FILE *output)
   fprintf(output, "                           output file (only for pcapng)\n");
   fprintf(output, "  --export-objects <protocol>,<destdir> save exported objects for a protocol to\n");
   fprintf(output, "                           a directory named \"destdir\"\n");
+  fprintf(output, "  --color                  color output text similarly to the Wireshark GUI,\n");
+  fprintf(output, "                           requires a terminal with 24-bit color support\n");
 
   fprintf(output, "\n");
   fprintf(output, "Miscellaneous:\n");
@@ -652,6 +661,7 @@ main(int argc, char *argv[])
     LONGOPT_CAPTURE_COMMON
     LONGOPT_DISSECT_COMMON
     {"export-objects", required_argument, NULL, LONGOPT_EXPORT_OBJECTS},
+    {"color", no_argument, NULL, LONGOPT_COLOR},
     {0, 0, 0, 0 }
   };
   gboolean             arg_error = FALSE;
@@ -1421,6 +1431,9 @@ main(int argc, char *argv[])
         goto clean_exit;
       }
       break;
+    case LONGOPT_COLOR: /* print in color where appropriate */
+      dissect_color = TRUE;
+      break;
     default:
     case '?':        /* Bad flag - print usage message */
       switch(optopt) {
@@ -1448,6 +1461,13 @@ main(int argc, char *argv[])
 
         exit_status = INVALID_OPTION;
         goto clean_exit;
+  }
+
+  if (dissect_color) {
+    if (!color_filters_init(&err_msg, NULL)) {
+      fprintf(stderr, "%s\n", err_msg);
+      g_free(err_msg);
+    }
   }
 
   /* If no capture filter or display filter has been specified, and there are
@@ -1963,7 +1983,7 @@ main(int argc, char *argv[])
 
         we're using any taps that need dissection. */
   do_dissection = print_packet_info || rfcode || dfcode || pdu_export_arg ||
-      tap_listeners_require_dissection();
+      tap_listeners_require_dissection() || dissect_color;
   tshark_debug("tshark: do_dissection = %s", do_dissection ? "TRUE" : "FALSE");
 
   if (cf_name) {
@@ -2615,7 +2635,7 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
     create_proto_tree =
       (cf->rfcode || cf->dfcode || print_details || filtering_tap_listeners ||
         (tap_flags & TL_REQUIRES_PROTO_TREE) || postdissectors_want_hfids() ||
-        have_custom_cols(&cf->cinfo));
+        have_custom_cols(&cf->cinfo) || dissect_color);
 
     /* The protocol tree will be "visible", i.e., printed, only if we're
        printing packet details, which is true if we're printing stuff
@@ -2939,6 +2959,11 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
       ref = &ref_frame;
     }
 
+    if (dissect_color) {
+      color_filters_prime_edt(edt);
+      fdata->flags.need_colorize = 1;
+    }
+
     epan_dissect_run_with_taps(edt, cf->cd_t, phdr, frame_tvbuff_new_buffer(fdata, buf), fdata, cinfo);
 
     /* Run the read/display filter if we have one. */
@@ -3103,7 +3128,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
        *    on the first pass.
        */
       create_proto_tree =
-        (cf->rfcode != NULL || cf->dfcode != NULL || postdissectors_want_hfids());
+        (cf->rfcode != NULL || cf->dfcode != NULL || postdissectors_want_hfids() || dissect_color);
 
       tshark_debug("tshark: create_proto_tree = %s", create_proto_tree ? "TRUE" : "FALSE");
 
@@ -3180,7 +3205,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
        */
       create_proto_tree =
         (cf->dfcode || print_details || filtering_tap_listeners ||
-         (tap_flags & TL_REQUIRES_PROTO_TREE) || have_custom_cols(&cf->cinfo));
+         (tap_flags & TL_REQUIRES_PROTO_TREE) || have_custom_cols(&cf->cinfo) || dissect_color);
 
       tshark_debug("tshark: create_proto_tree = %s", create_proto_tree ? "TRUE" : "FALSE");
 
@@ -3262,7 +3287,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
       create_proto_tree =
         (cf->rfcode || cf->dfcode || print_details || filtering_tap_listeners ||
           (tap_flags & TL_REQUIRES_PROTO_TREE) || postdissectors_want_hfids() ||
-          have_custom_cols(&cf->cinfo));
+          have_custom_cols(&cf->cinfo) || dissect_color);
 
       tshark_debug("tshark: create_proto_tree = %s", create_proto_tree ? "TRUE" : "FALSE");
 
@@ -3449,6 +3474,11 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
       ref = &ref_frame;
     }
 
+    if (dissect_color) {
+      color_filters_prime_edt(edt);
+      fdata.flags.need_colorize = 1;
+    }
+
     epan_dissect_run_with_taps(edt, cf->cd_t, whdr, frame_tvbuff_new(&fdata, pd), &fdata, cinfo);
 
     /* Run the filter if we have it. */
@@ -3578,7 +3608,7 @@ put_string_spaces(char *dest, const char *str, size_t str_len, size_t str_with_s
 }
 
 static gboolean
-print_columns(capture_file *cf)
+print_columns(capture_file *cf, const epan_dissect_t *edt)
 {
   char   *line_bufp;
   int     i;
@@ -3587,10 +3617,15 @@ print_columns(capture_file *cf)
   size_t  col_len;
   col_item_t* col_item;
   gchar str_format[11];
+  const color_filter_t *color_filter = NULL;
 
   line_bufp = get_line_buf(256);
   buf_offset = 0;
   *line_bufp = '\0';
+
+  if (dissect_color)
+    color_filter = edt->pi.fd->color_filter;
+
   for (i = 0; i < cf->cinfo.num_cols; i++) {
     col_item = &cf->cinfo.columns[i];
     /* Skip columns not marked as visible. */
@@ -3804,7 +3839,11 @@ print_columns(capture_file *cf)
       }
     }
   }
-  return print_line(print_stream, 0, line_bufp);
+
+  if (dissect_color)
+    return print_line_color(print_stream, 0, line_bufp, &color_filter->fg_color, &color_filter->bg_color);
+  else
+    return print_line(print_stream, 0, line_bufp);
 }
 
 static gboolean
@@ -3819,7 +3858,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
       switch (output_action) {
 
       case WRITE_TEXT:
-        if (!print_columns(cf))
+        if (!print_columns(cf, edt))
           return FALSE;
         break;
 
