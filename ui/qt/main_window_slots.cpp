@@ -661,6 +661,8 @@ void MainWindow::captureCapturePrepared(capture_session *session) {
 //    /* Don't set up main window for a capture file. */
 //    main_set_for_capture_file(FALSE);
     main_ui_->mainStack->setCurrentWidget(&master_split_);
+#else
+    Q_UNUSED(session);
 #endif // HAVE_LIBPCAP
 }
 
@@ -674,6 +676,8 @@ void MainWindow::captureCaptureUpdateStarted(capture_session *session) {
     setForCaptureInProgress(true, session->capture_opts->ifaces);
 
     setForCapturedPackets(true);
+#else
+    Q_UNUSED(session);
 #endif // HAVE_LIBPCAP
 }
 void MainWindow::captureCaptureUpdateFinished(capture_session *) {

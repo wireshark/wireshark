@@ -23,6 +23,7 @@
 #include "config.h"
 #include <ui_interface_frame.h>
 
+#include "caputils/capture_ifinfo.h"
 #include "ui/qt/interface_frame.h"
 #include "ui/qt/interface_tree_model.h"
 
