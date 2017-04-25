@@ -4987,16 +4987,16 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
             offset = 2; /* To correctly read the TFI */
             fakes  = 5; /* Reset fake counter */
             for (chan=0; chan < fpi->num_chans; chan++) { /* Iterate over the DCH channels in the flow (each given a TFI) */
-                /* Iterate over the transport blocks */
                 /* TFI is 5 bits according to 3GPP TS 25.427, paragraph 6.2.4.4 */
                 tfi = tvb_get_bits8(tvb, 3+offset*8, 5);
 
                 /* Figure out the number of tbs and size */
                 num_tbs = (fpi->is_uplink) ? p_conv_data->fp_dch_channel_info[chan].ul_chan_num_tbs[tfi] : p_conv_data->fp_dch_channel_info[chan].dl_chan_num_tbs[tfi];
-                tb_size =  (fpi->is_uplink) ? p_conv_data->fp_dch_channel_info[i].ul_chan_tf_size[tfi] :    p_conv_data->fp_dch_channel_info[i].dl_chan_tf_size[tfi];
+                tb_size = (fpi->is_uplink) ? p_conv_data->fp_dch_channel_info[i].ul_chan_tf_size[tfi] :    p_conv_data->fp_dch_channel_info[i].dl_chan_tf_size[tfi];
 
                 tb_bit_off = (2+p_conv_data->num_dch_in_flow)*8; /*Point to the C/T of first TB*/
-                /*Set configuration for individual blocks*/
+                /* Iterate over the transport blocks */
+                /* Set configuration for individual blocks */
                 for (j=0; j < num_tbs && j+chan < MAX_MAC_FRAMES; j++) {
                     /* Set transport channel id (useful for debugging) */
                     macinf->trchid[j+chan] = p_conv_data->dchs_in_flow_list[chan];
@@ -5006,7 +5006,6 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                     /* Checking for DCH ID 24 and tb size of 340 bits */
                     is_special_case_dch_24 = (p_conv_data->dchs_in_flow_list[chan] == 24 && tb_size == 340);
 
-                    /* In theses cases, the */
                     if (is_known_dcch_tf || is_special_case_dch_24) {
                         /* Channel is multiplexed (ie. C/T flag present) */
                         macinf->ctmux[j+chan] = TRUE;
@@ -5038,7 +5037,8 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
 
                     /*** Set rlc info ***/
                     /* Trying to resolve the U-RNTI of the user to be used as RLC 'UE-ID' */
-                    /* Fallback - The RNC's 'Communication Context' for the user as seen in NBAP messages */
+                    /* resolving is done based on the 'Uplink Scrambling Code' field found in NBAP */
+                    /* Fallback - Using the RNC's NBAP 'Communication Context' for the user as UE-ID*/
                     user_identity = p_conv_data->com_context_id;
                     if (p_conv_data->scrambling_code != 0) {
                         guint32 * mapped_urnti = (guint32 *)g_tree_lookup(rrc_scrambling_code_urnti, GUINT_TO_POINTER(p_conv_data->scrambling_code));
