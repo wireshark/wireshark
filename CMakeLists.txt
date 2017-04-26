@@ -924,7 +924,10 @@ foreach(PACKAGE ${PACKAGELIST})
 	else()
 		find_package(${PACKAGE})
 	endif()
-	if (${PACKAGE_VAR}_FOUND)
+	# FindPackageHandleStandardArgs before CMake 3.2 always uses uppercase
+	# for the FOUND variables (e.g. GIT_FOUND is set, but not Git_FOUND).
+	string(TOUPPER "${PACKAGE_VAR}" PACKAGE_VAR_UPPER)
+	if (${PACKAGE_VAR}_FOUND OR ${PACKAGE_VAR_UPPER}_FOUND)
 		message(STATUS "${PACKAGE_VAR} FOUND")
 		set(HAVE_LIB${PACKAGE_VAR} 1)
 		if (NOT DEFINED ${PACKAGE_VAR}_INCLUDE_DIRS)
