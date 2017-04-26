@@ -2491,6 +2491,8 @@ void MainWindow::setForCaptureInProgress(bool capture_in_progress, GArray *iface
             toolbar->stopCapture();
         }
     }
+#else
+    Q_UNUSED(ifaces);
 #endif
 }
 
