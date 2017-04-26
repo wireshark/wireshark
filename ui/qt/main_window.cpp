@@ -2492,7 +2492,7 @@ void MainWindow::setForCaptureInProgress(bool capture_in_progress, GArray *iface
         }
     }
 #else
-    Q_UNUSED(ifaces);
+    Q_UNUSED(ifaces)
 #endif
 }
 
