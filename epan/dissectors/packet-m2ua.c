@@ -85,6 +85,7 @@ static gint ett_m2ua =                  -1;
 static gint ett_m2ua_parameter =        -1;
 
 static dissector_handle_t mtp3_handle;
+static dissector_handle_t m2ua_handle;
 
 static void
 dissect_parameters(tvbuff_t *, packet_info *, proto_tree *, proto_tree *);
@@ -1121,6 +1122,7 @@ proto_register_m2ua(void)
 
   /* Register the protocol name and description */
   proto_m2ua = proto_register_protocol("MTP 2 User Adaptation Layer", "M2UA",  "m2ua");
+  m2ua_handle = register_dissector("m2ua", dissect_m2ua, proto_m2ua);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_m2ua, hf, array_length(hf));
@@ -1140,10 +1142,7 @@ proto_register_m2ua(void)
 void
 proto_reg_handoff_m2ua(void)
 {
-  dissector_handle_t m2ua_handle;
-
   mtp3_handle = find_dissector_add_dependency("mtp3", proto_m2ua);
-  m2ua_handle = create_dissector_handle(dissect_m2ua, proto_m2ua);
   dissector_add_uint("sctp.ppi",  M2UA_PAYLOAD_PROTOCOL_ID, m2ua_handle);
   dissector_add_uint("sctp.port", SCTP_PORT_M2UA, m2ua_handle);
 }
