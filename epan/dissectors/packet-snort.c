@@ -109,6 +109,8 @@ static int ett_snort_global_stats = -1;
 static expert_field ei_snort_alert = EI_INIT;
 static expert_field ei_snort_content_not_matched = EI_INIT;
 
+static dissector_handle_t snort_handle;
+
 
 /*****************************************/
 /* Preferences                           */
@@ -1342,6 +1344,14 @@ proto_reg_handoff_snort(void)
      * work as a non-root user (couldn't read stdin)
      * TODO: could run snort just to get the version number and check the config file is readable?
      * TODO: could make snort config parsing less forgiving and use that as a test? */
+
+    /* Add items we want to try to get to find before we get called.
+       For now, just ask for tcp.reassembled_in, which won't be seen
+       on the first pass through the packets. */
+    GArray *wanted_hfids = g_array_new(FALSE, FALSE, (guint)sizeof(int));
+    int id = proto_registrar_get_id_byname("tcp.reassembled_in");
+    g_array_append_val(wanted_hfids, id);
+    set_postdissector_wanted_hfids(snort_handle, wanted_hfids);
 }
 
 void
@@ -1453,8 +1463,6 @@ proto_register_snort(void)
 
     expert_module_t* expert_snort;
 
-
-    dissector_handle_t snort_handle;
     module_t *snort_module;
 
     proto_snort = proto_register_protocol("Snort Alerts", "Snort", "snort");
