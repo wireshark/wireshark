@@ -662,7 +662,7 @@ void MainWindow::captureCapturePrepared(capture_session *session) {
 //    main_set_for_capture_file(FALSE);
     main_ui_->mainStack->setCurrentWidget(&master_split_);
 #else
-    Q_UNUSED(session);
+    Q_UNUSED(session)
 #endif // HAVE_LIBPCAP
 }
 
@@ -677,7 +677,7 @@ void MainWindow::captureCaptureUpdateStarted(capture_session *session) {
 
     setForCapturedPackets(true);
 #else
-    Q_UNUSED(session);
+    Q_UNUSED(session)
 #endif // HAVE_LIBPCAP
 }
 void MainWindow::captureCaptureUpdateFinished(capture_session *) {
