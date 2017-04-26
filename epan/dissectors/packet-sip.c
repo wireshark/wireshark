@@ -3273,8 +3273,10 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
 
     /* Initialise stat info for passing to tap
      * Note: this isn't _only_ for taps - internal code here uses it too
+     * also store stat info in proto_data for subdissectors
      */
-    stat_info = wmem_new0(wmem_packet_scope(), sip_info_value_t);
+    stat_info = wmem_new0(pinfo->pool, sip_info_value_t);
+    p_add_proto_data(pinfo->pool, pinfo, proto_sip, pinfo->curr_layer_num, stat_info);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIP");
 
@@ -3542,7 +3544,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                     break;
 
                     case POS_FROM :
-                        if(hdr_tree) {
+                        /*if(hdr_tree)*/ {
                             proto_item *item;
 
                             sip_element_item = sip_proto_tree_add_string(hdr_tree,

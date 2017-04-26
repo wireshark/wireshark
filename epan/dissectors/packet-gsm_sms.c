@@ -45,6 +45,9 @@
 #include <epan/asn1.h>
 #include "packet-gsm_sms.h"
 #include "packet-gsm_map.h"
+#include "packet-sip.h"
+
+static gint proto_sip = -1;
 
 void proto_register_gsm_sms(void);
 
@@ -1962,9 +1965,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 
     sm_fragment_params     *p_frag_params;
     sm_fragment_params_key *p_frag_params_key, frag_params_key;
-    wmem_strbuf_t          *addr_info_strbuf;
     const gchar            *addr_info, *addr;
-    gsm_map_packet_info_t  *gsm_map_packet_info;
     gsm_sms_udh_fields_t    udh_fields;
 
     memset(&udh_fields, 0, sizeof(udh_fields));
@@ -1975,16 +1976,35 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
         addr = "";
     /* check if lower layers provide additional info */
     if (reassemble_sms_with_lower_layers_info) {
-        addr_info_strbuf = wmem_strbuf_new(wmem_packet_scope(), addr);
-        if ((gsm_map_packet_info = (gsm_map_packet_info_t*)p_get_proto_data(pinfo->pool, pinfo, proto_gsm_map, 0)) != NULL) {
-            if (gsm_map_packet_info->rp_oa_id == GSM_MAP_RP_OA_MSISDN)
-                wmem_strbuf_append(addr_info_strbuf, gsm_map_packet_info->rp_oa_str);
-            else if (gsm_map_packet_info->rp_da_id == GSM_MAP_RP_DA_IMSI)
-                wmem_strbuf_append(addr_info_strbuf, gsm_map_packet_info->rp_da_str);
-            else if (gsm_map_packet_info->rp_da_id == GSM_MAP_RP_DA_LMSI)
-                wmem_strbuf_append(addr_info_strbuf, gsm_map_packet_info->rp_da_str);
+        wmem_strbuf_t *addr_info_strbuf = wmem_strbuf_new(wmem_packet_scope(), addr);
+        if (proto_is_frame_protocol(pinfo->layers, "gsm_map")) {
+            gsm_map_packet_info_t *gsm_map_packet_info;
+            wmem_strbuf_append(addr_info_strbuf, "MAP");
+            if ((gsm_map_packet_info = (gsm_map_packet_info_t*)p_get_proto_data(pinfo->pool, pinfo, proto_gsm_map, 0)) != NULL) {
+                if (gsm_map_packet_info->rp_oa_id == GSM_MAP_RP_OA_MSISDN)
+                    wmem_strbuf_append(addr_info_strbuf, gsm_map_packet_info->rp_oa_str);
+                else if (gsm_map_packet_info->rp_da_id == GSM_MAP_RP_DA_IMSI)
+                    wmem_strbuf_append(addr_info_strbuf, gsm_map_packet_info->rp_da_str);
+                else if (gsm_map_packet_info->rp_da_id == GSM_MAP_RP_DA_LMSI)
+                    wmem_strbuf_append(addr_info_strbuf, gsm_map_packet_info->rp_da_str);
+            }
         } else if (proto_is_frame_protocol(pinfo->layers, "sip")) {
+            sip_info_value_t *sip_info;
+            wmem_list_frame_t *frame;
+            guint8 curr_layer_num;
             wmem_strbuf_append(addr_info_strbuf, "SIP");
+            curr_layer_num = pinfo->curr_layer_num-1;
+            frame = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
+            while (frame && (proto_sip != (gint) GPOINTER_TO_UINT(wmem_list_frame_data(frame)))) {
+                frame = wmem_list_frame_prev(frame);
+                curr_layer_num--;
+            }
+            if ((sip_info = (sip_info_value_t*)p_get_proto_data(pinfo->pool, pinfo, proto_sip, curr_layer_num)) != NULL) {
+                if (sip_info->tap_from_addr)
+                    wmem_strbuf_append(addr_info_strbuf, sip_info->tap_from_addr);
+                if (sip_info->tap_to_addr)
+                    wmem_strbuf_append(addr_info_strbuf, sip_info->tap_to_addr);
+            }
         } else if (proto_is_frame_protocol(pinfo->layers, "gsm_a.rp")) {
             wmem_strbuf_append(addr_info_strbuf, "RP");
         } else if (proto_is_frame_protocol(pinfo->layers, "etsi_cat")) {
@@ -3544,6 +3564,12 @@ proto_register_gsm_sms(void)
     reassembly_table_register(&g_sm_reassembly_table,
                               &sm_reassembly_table_functions);
 
+}
+
+void
+proto_reg_handoff_gsm_sms(void)
+{
+    proto_sip = proto_get_id_by_filter_name( "sip" );
 }
 
 /*
