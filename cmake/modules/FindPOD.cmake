@@ -19,6 +19,7 @@ find_program(POD2MAN_EXECUTABLE
 find_program(POD2HTML_EXECUTABLE
 	NAMES
 		pod2html
+		pod2html.bat
 	PATHS
 		${CYGWIN_INSTALL_PATH}/bin
 		/bin
