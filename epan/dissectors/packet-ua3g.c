@@ -902,26 +902,22 @@ static const value_string ip_device_routing_cmd_start_rtp_vals[] = {
     {0x36, "Integrity checking enabled for this communication"},
     {0x37, "MKI value for SRTP packets in input stream"},
     {0x38, "MKI value for SRTP packets in output stream"},
+    {0x39, "Integrity method of Thales component"},
     {0x50, "MD5 Authentication"},
     {0, NULL}
 };
 static value_string_ext ip_device_routing_cmd_start_rtp_vals_ext = VALUE_STRING_EXT_INIT(ip_device_routing_cmd_start_rtp_vals);
 
-static const val64_string str_start_rtp_compressor[] = {
+static const val64_string str_compressor_vals[] = {
     {0x00, "G.711 A-law"},
     {0x01, "G.711 mu-law"},
     {0x0F, "G.723.1 5.3kbps"},
     {0x10, "G.723.1 6.3kbps"},
-    {0x11, "G.729A 8 kbps"},
-    {0, NULL}
-};
-
-static const value_string str_set_param_req_compressor[] = {
-    {0x00, "G.711 A-law"},
-    {0x01, "G.711 mu-law"},
-    {0x0F, "G.723.1 5.3kbps"},
-    {0x10, "G.723.1 6.3kbps"},
-    {0x11, "G.729A 8 kbps"},
+    {0x11, "G.729A 8kbps"},
+    {0x1B, "G.722 64kbps"},
+    {0x1C, "G.722 56kbps"},
+    {0x1D, "G.722 48kbps"},
+    {0x1E, "Opus"},
     {0, NULL}
 };
 
@@ -1210,6 +1206,7 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                     case 0x36: /* Integrity checking enabled for this communication */
                     case 0x37: /* MKI value for SRTP packets in input stream */
                     case 0x38: /* MKI value for SRTP packets in output stream */
+                    case 0x39: /* Integrity method of Thales component */
                     case 0x50: /* MD5 Authentication */
                     default:
                         if (parameter_length <= 8) {
@@ -4438,7 +4435,7 @@ proto_register_ua3g(void)
         { &hf_ua3g_ip_device_routing_reset_parameter_l10n_name, { "L10N_Name", "ua3g.ip.reset.parameter.l10n_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_start_rtp_parameter_value, { "Value", "ua3g.ip.start_rtp.parameter.value", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_start_rtp_parameter_ip, { "IP", "ua3g.ip.start_rtp.parameter.ip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_ua3g_ip_device_routing_start_rtp_parameter_compressor, { "Compressor", "ua3g.ip.start_rtp.parameter.compressor", FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(str_start_rtp_compressor), 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_start_rtp_parameter_compressor, { "Compressor", "ua3g.ip.start_rtp.parameter.compressor", FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(str_compressor_vals), 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_start_rtp_parameter_enabler, { "Enabler", "ua3g.ip.start_rtp.parameter.enabler", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_start_rtp_parameter_send_qos, { "Must Send QOS Tickets", "ua3g.ip.start_rtp.parameter.enabler", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_start_rtp_parameter_uint, { "Value", "ua3g.ip.start_rtp.parameter.uint", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -4455,7 +4452,7 @@ proto_register_ua3g(void)
         { &hf_ua3g_ip_device_routing_set_param_req_parameter_tftp_backup_ip, { "TFTP Backup IP", "ua3g.ip.set_param_req.parameter.tftp_backup_ip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_set_param_req_parameter_uint, { "Value", "ua3g.ip.set_param_req.parameter.uint", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_set_param_req_parameter_err_string, { "Value", "ua3g.ip.set_param_req.parameter.err_string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_ua3g_ip_device_routing_set_param_req_parameter_compressor, { "Compressor", "ua3g.ip.set_param_req.parameter.compressor", FT_UINT8, BASE_DEC, VALS(str_set_param_req_compressor), 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_set_param_req_parameter_compressor, { "Compressor", "ua3g.ip.set_param_req.parameter.compressor", FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(str_compressor_vals), 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_set_param_req_parameter_set_pc_port_status, { "Set PC Port status", "ua3g.ip.set_param_req.parameter.set_pc_port_status", FT_UINT8, BASE_DEC, VALS(str_set_pc_port_status), 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_set_param_req_parameter_record_rtp_auth, { "Record RTP Authorization", "ua3g.ip.set_param_req.parameter.record_rtp_auth", FT_UINT8, BASE_DEC, VALS(str_enable_feature), 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_set_param_req_parameter_security_flag_filter, { "Filtering", "ua3g.ip.set_param_req.parameter.security_flag.filter", FT_BOOLEAN, 8, TFS(&tfs_active_inactive), 0x01, NULL, HFILL }},
