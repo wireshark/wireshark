@@ -1249,6 +1249,10 @@ protocol or field labels to the proto_tree:
         *retval);
 
     proto_item*
+    proto_tree_add_item_ret_uint64(tree, id, tvb, start, length, encoding,
+        *retval);
+
+    proto_item*
     proto_tree_add_subtree(tree, tvb, start, length, idx, tree_item,
         text);
 

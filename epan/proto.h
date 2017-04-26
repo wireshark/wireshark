@@ -1126,6 +1126,10 @@ WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     const gint start, gint length, const guint encoding, guint32 *retval);
 
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_item_ret_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+    const gint start, gint length, const guint encoding, guint64 *retval);
+
 /** Add an string item to a proto_tree, using the text label registered to
 that item.
 
