@@ -61,6 +61,7 @@
 #include <wsutil/str_util.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/utf8_entities.h>
+#include <wsutil/rsa.h>
 #include "packet-ssl-utils.h"
 #include "packet-dtls.h"
 
@@ -252,7 +253,7 @@ dtls_parse_uat(void)
 
   /* parse private keys string, load available keys and put them in key hash*/
   dtls_key_hash = g_hash_table_new_full(ssl_private_key_hash,
-      ssl_private_key_equal, g_free, ssl_private_key_free);
+      ssl_private_key_equal, g_free, rsa_private_key_free);
 
   ssl_set_debug(dtls_debug_file_name);
 

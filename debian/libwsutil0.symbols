@@ -128,6 +128,11 @@ libwsutil.so.0 libwsutil0 #MINVER#
  report_read_failure@Base 1.12.0~rc1
  report_warning@Base 2.3.0
  report_write_failure@Base 1.12.0~rc1
+ rsa_load_pem_key@Base 2.5.0
+ rsa_load_pkcs12@Base 2.5.0
+ rsa_decrypt_inplace@Base 2.5.0
+ rsa_private_key_free@Base 2.5.0
+ rsa_privkey_to_sexp@Base 2.5.0
  running_in_build_directory@Base 1.12.0~rc1
  running_with_special_privs@Base 1.10.0
  scan_plugins@Base 1.12.0~rc1

@@ -97,6 +97,7 @@
 #include <wsutil/utf8_entities.h>
 #include <wsutil/str_util.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/rsa.h>
 #include "packet-tcp.h"
 #include "packet-x509af.h"
 #include "packet-ocsp.h"
@@ -409,7 +410,7 @@ ssl_parse_uat(void)
     }
     /* parse private keys string, load available keys and put them in key hash*/
     ssl_key_hash = g_hash_table_new_full(ssl_private_key_hash,
-            ssl_private_key_equal, g_free, ssl_private_key_free);
+            ssl_private_key_equal, g_free, rsa_private_key_free);
 
 
     if (nssldecrypt > 0) {

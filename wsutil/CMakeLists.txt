@@ -54,6 +54,7 @@ set(WSUTIL_COMMON_FILES
 	os_version_info.c
 	plugins.c
 	privileges.c
+	rsa.c
 	sober128.c
 	strnatcmp.c
 	str_util.c
@@ -177,6 +178,7 @@ set(wsutil_LIBS
 	${GCRYPT_LIBRARIES}
 	${ZLIB_LIBRARIES}
 	${WIN_WSOCK32_LIBRARY}
+	${GNUTLS_LIBRARIES}
 )
 IF(WIN32)
 	set(wsutil_LIBS ${wsutil_LIBS} "iphlpapi.lib" "ws2_32.lib")

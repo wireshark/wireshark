@@ -49,6 +49,8 @@
 #include <wsutil/report_message.h>
 #include <wsutil/pint.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/wsgcrypt.h>
+#include <wsutil/rsa.h>
 #include <ws_version_info.h>
 #include "packet-ber.h"
 #include "packet-x509af.h"
@@ -2050,103 +2052,6 @@ ssl_cipher_cleanup(gcry_cipher_hd_t *cipher)
         gcry_cipher_close(*cipher);
     *cipher = NULL;
 }
-/* libgcrypt wrappers for Cipher state manipulation }}} */
-
-#ifdef HAVE_LIBGNUTLS
-/* libgcrypt wrapper to decrypt using a RSA private key {{{ */
-/* decrypt data with private key. Store decrypted data directly into input
- * buffer */
-static int
-ssl_private_decrypt(const guint len, guchar* data, gcry_sexp_t pk)
-{
-    gint        rc = 0;
-    size_t      decr_len = 0, i = 0;
-    gcry_sexp_t s_data = NULL, s_plain = NULL;
-    gcry_mpi_t  encr_mpi = NULL, text = NULL;
-
-    /* create mpi representation of encrypted data */
-    rc = gcry_mpi_scan(&encr_mpi, GCRYMPI_FMT_USG, data, len, NULL);
-    if (rc != 0 ) {
-        ssl_debug_printf("pcry_private_decrypt: can't convert data to mpi (size %d):%s\n",
-            len, gcry_strerror(rc));
-        return 0;
-    }
-
-    /* put the data into a simple list */
-    rc = gcry_sexp_build(&s_data, NULL, "(enc-val(rsa(a%m)))", encr_mpi);
-    if (rc != 0) {
-        ssl_debug_printf("pcry_private_decrypt: can't build encr_sexp:%s\n",
-             gcry_strerror(rc));
-        decr_len = 0;
-        goto out;
-    }
-
-    /* pass it to libgcrypt */
-    rc = gcry_pk_decrypt(&s_plain, s_data, pk);
-    if (rc != 0)
-    {
-        ssl_debug_printf("pcry_private_decrypt: can't decrypt key:%s\n",
-            gcry_strerror(rc));
-        decr_len = 0;
-        goto out;
-    }
-
-    /* convert plain text sexp to mpi format */
-    text = gcry_sexp_nth_mpi(s_plain, 0, 0);
-    if (! text) {
-        ssl_debug_printf("pcry_private_decrypt: can't convert sexp to mpi\n");
-        decr_len = 0;
-        goto out;
-    }
-
-    /* compute size requested for plaintext buffer */
-    rc = gcry_mpi_print(GCRYMPI_FMT_USG, NULL, 0, &decr_len, text);
-    if (rc != 0) {
-        ssl_debug_printf("pcry_private_decrypt: can't compute decr size:%s\n",
-            gcry_strerror(rc));
-        decr_len = 0;
-        goto out;
-    }
-
-    /* sanity check on out buffer */
-    if (decr_len > len) {
-        ssl_debug_printf("pcry_private_decrypt: decrypted data is too long ?!? (%" G_GSIZE_MODIFIER "u max %d)\n", decr_len, len);
-        decr_len = 0;
-        goto out;
-    }
-
-    /* write plain text to newly allocated buffer */
-    rc = gcry_mpi_print(GCRYMPI_FMT_USG, data, len, &decr_len, text);
-    if (rc != 0) {
-        ssl_debug_printf("pcry_private_decrypt: can't print decr data to mpi (size %" G_GSIZE_MODIFIER "u):%s\n", decr_len, gcry_strerror(rc));
-        decr_len = 0;
-        goto out;
-    }
-
-    ssl_print_data("decrypted_unstrip_pre_master", data, decr_len);
-
-    /* strip the padding*/
-    rc = 0;
-    for (i = 1; i < decr_len; i++) {
-        if (data[i] == 0) {
-            rc = (gint) i+1;
-            break;
-        }
-    }
-
-    ssl_debug_printf("pcry_private_decrypt: stripping %d bytes, decr_len %" G_GSIZE_MODIFIER "u\n", rc, decr_len);
-    decr_len -= rc;
-    memmove(data, data+rc, decr_len);
-
-out:
-    gcry_sexp_release(s_data);
-    gcry_sexp_release(s_plain);
-    gcry_mpi_release(encr_mpi);
-    gcry_mpi_release(text);
-    return (int) decr_len;
-} /* }}} */
-#endif /* HAVE_LIBGNUTLS */
-
 
 /* Digests, Ciphers and Cipher Suites registry {{{ */
 static const SslDigestAlgo digests[]={
@@ -3626,6 +3531,7 @@ ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
     StringInfo* encrypted_pre_master, gcry_sexp_t pk)
 {
     gint i;
+    char *err;
 
     if (!encrypted_pre_master)
         return FALSE;
@@ -3647,8 +3553,12 @@ ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
     /* with tls key loading will fail if not rsa type, so no need to check*/
     ssl_print_string("pre master encrypted",encrypted_pre_master);
     ssl_debug_printf("%s: RSA_private_decrypt\n", G_STRFUNC);
-    i=ssl_private_decrypt(encrypted_pre_master->data_len,
-        encrypted_pre_master->data, pk);
+    i=rsa_decrypt_inplace(encrypted_pre_master->data_len,
+        encrypted_pre_master->data, pk, TRUE, &err);
+    if (i == 0) {
+        ssl_debug_printf("rsa_decrypt_inplace: %s\n", err);
+        g_free(err);
+    }
 
     if (i!=48) {
         ssl_debug_printf("%s wrong pre_master_secret length (%d, expected "
@@ -4257,307 +4167,8 @@ skip_mac:
 /* Record decryption glue based on security parameters }}} */
 
 
+
 #if defined(HAVE_LIBGNUTLS)
-/* RSA private key file processing {{{ */
-#define RSA_PARS 6
-static gcry_sexp_t
-ssl_privkey_to_sexp(gnutls_x509_privkey_t priv_key)
-{
-    gnutls_datum_t rsa_datum[RSA_PARS]; /* m, e, d, p, q, u */
-    size_t         tmp_size;
-    gcry_error_t   gret;
-    gcry_sexp_t    rsa_priv_key = NULL;
-    gint           i;
-    gcry_mpi_t     rsa_params[RSA_PARS];
-
-    /* RSA get parameter */
-    if (gnutls_x509_privkey_export_rsa_raw(priv_key,
-                                           &rsa_datum[0],
-                                           &rsa_datum[1],
-                                           &rsa_datum[2],
-                                           &rsa_datum[3],
-                                           &rsa_datum[4],
-                                           &rsa_datum[5])  != 0) {
-        ssl_debug_printf("ssl_load_key: can't export rsa param (is a rsa private key file ?!?)\n");
-        return NULL;
-    }
-
-    /* convert each rsa parameter to mpi format*/
-    for(i=0; i<RSA_PARS; i++) {
-      gret = gcry_mpi_scan(&rsa_params[i], GCRYMPI_FMT_USG, rsa_datum[i].data, rsa_datum[i].size,&tmp_size);
-      /* these buffers were allocated by gnutls_x509_privkey_export_rsa_raw() */
-      g_free(rsa_datum[i].data);
-      if (gret != 0) {
-        ssl_debug_printf("ssl_load_key: can't convert m rsa param to int (size %d)\n", rsa_datum[i].size);
-        return NULL;
-      }
-    }
-
-    /* libgcrypt expects p < q, and gnutls might not return it as such, depending on gnutls version and its crypto backend */
-    if (gcry_mpi_cmp(rsa_params[3], rsa_params[4]) > 0)
-    {
-        ssl_debug_printf("ssl_load_key: swapping p and q parameters and recomputing u\n");
-        /* p, q = q, p */
-        gcry_mpi_swap(rsa_params[3], rsa_params[4]);
-        /* due to swapping p and q, u = p^-1 mod p which happens to be needed. */
-    }
-    /* libgcrypt expects u = p^-1 mod q (for OpenPGP), but the u parameter
-     * says u = q^-1 mod p. Recompute u = p^-1 mod q. Do this unconditionally as
-     * at least GnuTLS 2.12.23 computes an invalid value. */
-    gcry_mpi_invm(rsa_params[5], rsa_params[3], rsa_params[4]);
-
-    if  (gcry_sexp_build( &rsa_priv_key, NULL,
-            "(private-key(rsa((n%m)(e%m)(d%m)(p%m)(q%m)(u%m))))", rsa_params[0],
-            rsa_params[1], rsa_params[2], rsa_params[3], rsa_params[4],
-            rsa_params[5]) != 0) {
-        ssl_debug_printf("ssl_load_key: can't build rsa private key s-exp\n");
-        return NULL;
-    }
-
-    for (i=0; i< 6; i++)
-        gcry_mpi_release(rsa_params[i]);
-    return rsa_priv_key;
-}
-
-/** Load an RSA private key from specified file
- @param fp the file that contain the key data
- @return a pointer to the loaded key on success, or NULL */
-static gnutls_x509_privkey_t
-ssl_load_key(FILE* fp)
-{
-    /* gnutls makes our work much harder, since we have to work internally with
-     * s-exp formatted data, but PEM loader exports only in "gnutls_datum_t"
-     * format, and a datum -> s-exp convertion function does not exist.
-     */
-    gnutls_x509_privkey_t priv_key;
-    gnutls_datum_t        key;
-    ws_statb64            statbuf;
-    gint                  ret;
-    guint                 bytes;
-
-    if (ws_fstat64(ws_fileno(fp), &statbuf) == -1) {
-        ssl_debug_printf("ssl_load_key: can't ws_fstat64 file\n");
-        return NULL;
-    }
-    if (S_ISDIR(statbuf.st_mode)) {
-        ssl_debug_printf("ssl_load_key: file is a directory\n");
-        errno = EISDIR;
-        return NULL;
-    }
-    if (S_ISFIFO(statbuf.st_mode)) {
-        ssl_debug_printf("ssl_load_key: file is a named pipe\n");
-        errno = EINVAL;
-        return NULL;
-    }
-    if (!S_ISREG(statbuf.st_mode)) {
-        ssl_debug_printf("ssl_load_key: file is not a regular file\n");
-        errno = EINVAL;
-        return NULL;
-    }
-    /* XXX - check for a too-big size */
-    /* load all file contents into a datum buffer*/
-    key.data = (unsigned char *)g_malloc((size_t)statbuf.st_size);
-    key.size = (int)statbuf.st_size;
-    bytes = (guint) fread(key.data, 1, key.size, fp);
-    if (bytes < key.size) {
-        ssl_debug_printf("ssl_load_key: can't read from file %d bytes, got %d\n",
-            key.size, bytes);
-        g_free(key.data);
-        return NULL;
-    }
-
-    /* init private key data*/
-    gnutls_x509_privkey_init(&priv_key);
-
-    /* import PEM data*/
-    if ((ret = gnutls_x509_privkey_import(priv_key, &key, GNUTLS_X509_FMT_PEM)) != GNUTLS_E_SUCCESS) {
-        ssl_debug_printf("ssl_load_key: can't import pem data: %s\n", gnutls_strerror(ret));
-        g_free(key.data);
-        return NULL;
-    }
-
-    if (gnutls_x509_privkey_get_pk_algorithm(priv_key) != GNUTLS_PK_RSA) {
-        ssl_debug_printf("ssl_load_key: private key public key algorithm isn't RSA\n");
-        g_free(key.data);
-        return NULL;
-    }
-
-    g_free(key.data);
-
-    return priv_key;
-}
-
-static const char *
-BAGTYPE(gnutls_pkcs12_bag_type_t x) {
-    switch (x) {
-        case GNUTLS_BAG_EMPTY:               return "Empty";
-        case GNUTLS_BAG_PKCS8_ENCRYPTED_KEY: return "PKCS#8 Encrypted key";
-        case GNUTLS_BAG_PKCS8_KEY:           return "PKCS#8 Key";
-        case GNUTLS_BAG_CERTIFICATE:         return "Certificate";
-        case GNUTLS_BAG_CRL:                 return "CRL";
-        case GNUTLS_BAG_ENCRYPTED:           return "Encrypted";
-        case GNUTLS_BAG_UNKNOWN:             return "Unknown";
-        default:                             return "<undefined>";
-    }
-}
-
-/**
- * Load a RSA private key from a PKCS#12 file.
- * @param fp the file that contains the key data.
- * @param cert_passwd password to decrypt the PKCS#12 file.
- * @param[out] err error message upon failure; NULL upon success.
- * @return a pointer to the loaded key on success; NULL upon failure.
- */
-static gnutls_x509_privkey_t
-ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd, char** err) {
-
-    int                       i, j, ret;
-    int                       rest;
-    unsigned char            *p;
-    gnutls_datum_t            data;
-    gnutls_pkcs12_bag_t       bag = NULL;
-    gnutls_pkcs12_bag_type_t  bag_type;
-    size_t                    len;
-
-    gnutls_pkcs12_t       ssl_p12  = NULL;
-    gnutls_x509_privkey_t ssl_pkey = NULL;
-
-    gnutls_x509_privkey_t     priv_key = NULL;
-    *err = NULL;
-
-    rest = 4096;
-    data.data = (unsigned char *)g_malloc(rest);
-    data.size = rest;
-    p = data.data;
-    while ((len = fread(p, 1, rest, fp)) > 0) {
-        p += len;
-        rest -= (int) len;
-        if (!rest) {
-            rest = 1024;
-            data.data = (unsigned char *)g_realloc(data.data, data.size + rest);
-            p = data.data + data.size;
-            data.size += rest;
-        }
-    }
-    data.size -= rest;
-    ssl_debug_printf("%d bytes read\n", data.size);
-    if (!feof(fp)) {
-        *err = g_strdup("Error during certificate reading.");
-        ssl_debug_printf("%s\n", *err);
-        g_free(data.data);
-        return 0;
-    }
-
-    ret = gnutls_pkcs12_init(&ssl_p12);
-    if (ret < 0) {
-        *err = g_strdup_printf("gnutls_pkcs12_init(&st_p12) - %s", gnutls_strerror(ret));
-        ssl_debug_printf("%s\n", *err);
-        g_free(data.data);
-        return 0;
-    }
-
-    /* load PKCS#12 in DER or PEM format */
-    ret = gnutls_pkcs12_import(ssl_p12, &data, GNUTLS_X509_FMT_DER, 0);
-    if (ret < 0) {
-        *err = g_strdup_printf("could not load PKCS#12 in DER format: %s", gnutls_strerror(ret));
-        ssl_debug_printf("%s\n", *err);
-        g_free(*err);
-
-        ret = gnutls_pkcs12_import(ssl_p12, &data, GNUTLS_X509_FMT_PEM, 0);
-        if (ret < 0) {
-            *err = g_strdup_printf("could not load PKCS#12 in PEM format: %s", gnutls_strerror(ret));
-            ssl_debug_printf("%s\n", *err);
-        } else {
-            *err = NULL;
-        }
-    }
-    g_free(data.data);
-    if (ret < 0) {
-        return 0;
-    }
-
-    ssl_debug_printf( "PKCS#12 imported\n");
-
-    /* TODO: Use gnutls_pkcs12_simple_parse, since 3.1.0 (August 2012) */
-    for (i=0; ; i++) {
-
-        ret = gnutls_pkcs12_bag_init(&bag);
-        if (ret < 0) break;
-
-        ret = gnutls_pkcs12_get_bag(ssl_p12, i, bag);
-        if (ret < 0) break;
-
-        for (j=0; j<gnutls_pkcs12_bag_get_count(bag); j++) {
-
-            ret = gnutls_pkcs12_bag_get_type(bag, j);
-            if (ret < 0) goto done;
-            bag_type = (gnutls_pkcs12_bag_type_t)ret;
-            if (bag_type >= GNUTLS_BAG_UNKNOWN) goto done;
-            ssl_debug_printf( "Bag %d/%d: %s\n", i, j, BAGTYPE(bag_type));
-            if (bag_type == GNUTLS_BAG_ENCRYPTED) {
-                ret = gnutls_pkcs12_bag_decrypt(bag, cert_passwd);
-                if (ret == 0) {
-                    ret = gnutls_pkcs12_bag_get_type(bag, j);
-                    if (ret < 0) goto done;
-                    bag_type = (gnutls_pkcs12_bag_type_t)ret;
-                    if (bag_type >= GNUTLS_BAG_UNKNOWN) goto done;
-                    ssl_debug_printf( "Bag %d/%d decrypted: %s\n", i, j, BAGTYPE(bag_type));
-                }
-            }
-
-            ret = gnutls_pkcs12_bag_get_data(bag, j, &data);
-            if (ret < 0) goto done;
-
-            switch (bag_type) {
-
-                case GNUTLS_BAG_PKCS8_KEY:
-                case GNUTLS_BAG_PKCS8_ENCRYPTED_KEY:
-
-                    ret = gnutls_x509_privkey_init(&ssl_pkey);
-                    if (ret < 0) {
-                        *err = g_strdup_printf("gnutls_x509_privkey_init(&ssl_pkey) - %s", gnutls_strerror(ret));
-                        ssl_debug_printf("%s\n", *err);
-                        goto done;
-                    }
-                    ret = gnutls_x509_privkey_import_pkcs8(ssl_pkey, &data, GNUTLS_X509_FMT_DER, cert_passwd,
-                                                           (bag_type==GNUTLS_BAG_PKCS8_KEY) ? GNUTLS_PKCS_PLAIN : 0);
-                    if (ret < 0) {
-                        *err = g_strdup_printf("Can not decrypt private key - %s", gnutls_strerror(ret));
-                        ssl_debug_printf("%s\n", *err);
-                        goto done;
-                    }
-
-                    if (gnutls_x509_privkey_get_pk_algorithm(ssl_pkey) != GNUTLS_PK_RSA) {
-                        *err = g_strdup("ssl_load_pkcs12: private key public key algorithm isn't RSA");
-                        ssl_debug_printf("%s\n", *err);
-                        goto done;
-                    }
-
-                    /* Private key found, return it. */
-                    priv_key = ssl_pkey;
-                    goto done;
-
-                default: ;
-            }
-        }  /* j */
-        if (bag) { gnutls_pkcs12_bag_deinit(bag); bag = NULL; }
-    }  /* i */
-
-done:
-    if (!priv_key && ssl_pkey)
-        gnutls_x509_privkey_deinit(ssl_pkey);
-    if (bag)
-        gnutls_pkcs12_bag_deinit(bag);
-
-    return priv_key;
-}
-
-
-void
-ssl_private_key_free(gpointer key)
-{
-    gcry_sexp_release((gcry_sexp_t) key);
-}
 
 static void
 ssl_find_private_key_by_pubkey(SslDecryptSession *ssl, GHashTable *key_hash,
@@ -4604,12 +4215,6 @@ end:
 }
 
 /* RSA private key file processing }}} */
-
-#else /* ! defined(HAVE_LIBGNUTLS) */
-void
-ssl_private_key_free(gpointer key _U_)
-{
-}
 #endif /* ! defined(HAVE_LIBGNUTLS) */
 
 
@@ -5024,6 +4629,7 @@ ssl_parse_key_list(const ssldecrypt_assoc_t *uats, GHashTable *key_hash, const c
     int                ret;
     size_t             key_id_len = 20;
     guchar            *key_id = NULL;
+    char              *err = NULL;
     dissector_handle_t handle;
     /* try to load keys file first */
     fp = ws_fopen(uats->keyfile, "rb");
@@ -5033,10 +4639,13 @@ ssl_parse_key_list(const ssldecrypt_assoc_t *uats, GHashTable *key_hash, const c
     }
 
     if ((gint)strlen(uats->password) == 0) {
-        priv_key = ssl_load_key(fp);
+        priv_key = rsa_load_pem_key(fp, &err);
+        if (err) {
+            ssl_debug_printf("%s\n", err);
+            g_free(err);
+        }
     } else {
-        char *err = NULL;
-        priv_key = ssl_load_pkcs12(fp, uats->password, &err);
+        priv_key = rsa_load_pkcs12(fp, uats->password, &err);
         if (err) {
             report_failure("%s\n", err);
             g_free(err);
@@ -5058,8 +4667,10 @@ ssl_parse_key_list(const ssldecrypt_assoc_t *uats, GHashTable *key_hash, const c
     }
     ssl_print_data("KeyID", key_id, key_id_len);
 
-    private_key = ssl_privkey_to_sexp(priv_key);
+    private_key = rsa_privkey_to_sexp(priv_key, &err);
     if (!private_key) {
+        ssl_debug_printf("%s\n", err);
+        g_free(err);
         report_failure("Can't extract private key parameters for %s", uats->keyfile);
         goto end;
     }
@@ -5742,7 +5353,7 @@ ssldecrypt_uat_fld_password_chk_cb(void *r _U_, const char *p _U_, guint len _U_
         fp = ws_fopen(f->keyfile, "rb");
         if (fp) {
             char *msg = NULL;
-            gnutls_x509_privkey_t priv_key = ssl_load_pkcs12(fp, p, &msg);
+            gnutls_x509_privkey_t priv_key = rsa_load_pkcs12(fp, p, &msg);
             if (!priv_key) {
                 fclose(fp);
                 *err = g_strdup_printf("Could not load PKCS#12 key file: %s", msg);

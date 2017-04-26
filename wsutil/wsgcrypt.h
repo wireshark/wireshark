@@ -51,4 +51,8 @@ WS_DLL_PUBLIC gcry_error_t ws_hmac_buffer(int algo, void *digest, const void *bu
    64 bits as key, encrypted data is returned in OUTPUT which must be at least 8 bytes large */
 WS_DLL_PUBLIC void crypt_des_ecb(guint8 *output, const guint8 *buffer, const guint8 *key56);
 
+/* Convenience function for RSA decryption. Returns decrypted length on success, 0 on failure */
+WS_DLL_PUBLIC size_t rsa_decrypt_inplace(const guint len, guchar* data, gcry_sexp_t pk, gboolean pkcs1_padding, char **err);
+
+
 #endif /* __WSGCRYPT_H__ */

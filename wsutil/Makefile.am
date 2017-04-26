@@ -26,7 +26,8 @@ AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) -DWS_BUILD_DLL \
 	-DEXTCAP_DIR=\"$(extcapdir)\" 		\
 	-DPLUGIN_INSTALL_DIR=\"$(plugindir)\"	\
 	-DJSMN_STRICT				\
-	$(GLIB_CFLAGS) $(LIBGCRYPT_CFLAGS)
+	$(GLIB_CFLAGS) $(LIBGCRYPT_CFLAGS)      \
+	$(LIBGNUTLS_CFLAGS)
 
 # Optional headers for ABI checking
 wsutil_optional_abi_includes =
@@ -144,6 +145,7 @@ libwsutil_la_SOURCES = \
 	plugins.c		\
 	privileges.c		\
 	report_message.c	\
+	rsa.c			\
 	sober128.c		\
 	str_util.c		\
 	strtoi.c		\
@@ -174,6 +176,7 @@ libwsutil_la_LIBADD = \
 	@COREFOUNDATION_FRAMEWORKS@	\
 	@GLIB_LIBS@			\
 	@LIBGCRYPT_LIBS@		\
+	@LIBGNUTLS_LIBS@	        \
 	$(wsutil_optional_objects)
 
 EXTRA_libwsutil_la_DEPENDENCIES = \
@@ -195,6 +198,7 @@ EXTRA_DIST = \
 	inet_pton.c		\
 	popcount.c		\
 	popcount.h		\
+	rsa.h			\
 	strptime.c		\
 	strptime.h		\
 	win32-utils.c		\
