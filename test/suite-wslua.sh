@@ -340,14 +340,25 @@ wslua_step_protofield_test() {
 		return
 	fi
 
-    # Tshark catches lua script failures, so we have to parse the output.
-    $TSHARK -r $CAPTURE_DIR/dns_port.pcap -X lua_script:$TESTS_DIR/lua/protofield.lua -V > testout.txt 2>&1
-    if grep -q "All tests passed!" testout.txt; then
-        test_step_ok
-    else
-        cat testout.txt
-        test_step_failed "didn't find pass marker"
-    fi
+	# Tshark catches lua script failures, so we have to parse the output.
+	# Perform this twice: once with a tree, once without
+
+	# Pass 1 (visible tree)
+	$TSHARK -r $CAPTURE_DIR/dns_port.pcap -X lua_script:$TESTS_DIR/lua/protofield.lua -V -Y "test.filtered==1" > testout.txt 2>&1
+	grep -q "All tests passed!" testout.txt
+	if [ $? -ne 0 ]; then
+		cat testout.txt
+		test_step_failed "protofield_test: didn't find pass marker (pass 1)"
+	fi
+
+	# Pass 2 (invisible tree)
+	$TSHARK -r $CAPTURE_DIR/dns_port.pcap -X lua_script:$TESTS_DIR/lua/protofield.lua -Y "test.filtered==1" > testout.txt 2>&1
+	if grep -q "All tests passed!" testout.txt; then
+		test_step_ok
+	else
+		cat testout.txt
+		test_step_failed "protofield_test: didn't find pass marker (pass 2)"
+	fi
 }
 
 wslua_step_int64_test() {

@@ -30,7 +30,7 @@ local function setFailed(name)
 end
 
 -- expected number of runs
-local taptests = { [OTHER]=28 }
+local taptests = { [OTHER]=32 }
 local function getResults()
     print("\n-----------------------------\n")
     for k,v in pairs(taptests) do
@@ -70,6 +70,7 @@ end
 local test_proto = Proto.new("test", "Test Proto")
 test_proto.fields.time_field = ProtoField.uint16("test.time", "Time", base.UNIT_STRING, {" sec", " secs"})
 test_proto.fields.dist_field = ProtoField.uint16("test.dist", "Distance", base.UNIT_STRING, {" km"})
+test_proto.fields.filtered_field = ProtoField.uint16("test.filtered", "Filtered Field", base.DEC)
 
 -- Field name: empty, illegal, incompatible
 success = pcall(ProtoField.int8, nil, "empty field name 1")
@@ -155,6 +156,19 @@ function test_proto.dissector(tvb, pinfo, tree)
     test("Time: 65535 secs", ti.text == "Time: 65535 secs")
     ti = tree:add(test_proto.fields.dist_field, tvb3())
     test("Distance: 65535 km", ti.text == "Distance: 65535 km")
+
+    ti = tree:add(test_proto.fields.filtered_field, tvb2())
+    -- Note that this file should be loaded in tshark twice. Once with a visible
+    -- tree (-V) and once without a visible tree.
+    if tree.visible then
+        -- Tree is visible so both fields should be referenced
+        test("Visible tree: Time is referenced", tree:referenced(test_proto.fields.time_field) == true)
+        test("Visible tree: Filtered field is referenced", tree:referenced(test_proto.fields.filtered_field) == true)
+    else
+        -- Tree is not visible so only the field that appears in a filter should be referenced
+        test("Invisible tree: Time is NOT referenced", tree:referenced(test_proto.fields.time_field) == false)
+        test("Invisible tree: Filtered field is referenced", tree:referenced(test_proto.fields.filtered_field) == true)
+    end
 end
 
 DissectorTable.get("udp.port"):add(65333, test_proto)

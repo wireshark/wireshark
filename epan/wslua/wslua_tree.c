@@ -866,6 +866,37 @@ WSLUA_METHOD TreeItem_set_len(lua_State *L) {
     WSLUA_RETURN(1); /* The same TreeItem. */
 }
 
+WSLUA_METHOD TreeItem_referenced(lua_State *L) {
+    /* Checks if a ProtoField or Dissector is referenced by a filter/tap/UI.
+
+    If this function returns FALSE, it means that the field (or dissector) does not need to be dissected
+    and can be safely skipped. By skipping a field rather than dissecting it, the dissector will
+    usually run faster since Wireshark will not do extra dissection work when it doesn't need the field.
+
+    You can use this in conjunction with the TreeItem.visible attribute. This function will always return
+    TRUE when the TreeItem is visible. When it is not visible and the field is not referenced, you can
+    speed up the dissection by not dissecting the field as it is not needed for display or filtering.
+
+    This function takes one parameter that can be a ProtoField or a Dissector. The Dissector form is
+    usefull when you need to decide whether to call a sub-dissector.
+
+    @since 2.4
+    */
+#define WSLUA_ARG_TreeItem_referenced_PROTOFIELD 2 /* The ProtoField or Dissector to check if referenced. */
+    TreeItem ti = checkTreeItem(L, 1);
+    if (!ti) return 0;
+    ProtoField f = shiftProtoField(L, WSLUA_ARG_TreeItem_referenced_PROTOFIELD);
+    if (f) {
+        lua_pushboolean(L, proto_field_is_referenced(ti->tree, f->hfid));
+    }
+    else {
+        Dissector d = checkDissector(L, WSLUA_ARG_TreeItem_referenced_PROTOFIELD);
+        if (!d) return 0;
+        lua_pushboolean(L, proto_field_is_referenced(ti->tree, dissector_handle_get_protocol_index(d)));
+    }
+    WSLUA_RETURN(1); /* A boolean indicating if the ProtoField/Dissector is referenced */
+}
+
 WSLUA_METAMETHOD TreeItem__tostring(lua_State* L) {
     /* Returns string debug information about the `TreeItem`.
 
@@ -921,6 +952,7 @@ WSLUA_METHODS TreeItem_methods[] = {
     WSLUA_CLASS_FNREG(TreeItem,set_generated),
     WSLUA_CLASS_FNREG(TreeItem,set_hidden),
     WSLUA_CLASS_FNREG(TreeItem,set_len),
+    WSLUA_CLASS_FNREG(TreeItem,referenced),
     { NULL, NULL }
 };
 
