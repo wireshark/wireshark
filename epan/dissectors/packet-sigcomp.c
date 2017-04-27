@@ -3781,6 +3781,9 @@ execute_next_instruction:
                 proto_tree_add_uint_format(udvm_tree, hf_udvm_bits, bytecode_tvb, offset, (next_operand_address-operand_address), bits_n,
                                     "Addr: %u      bits_n %u", operand_address, bits_n);
             }
+            if (bits_n > 31)
+                break;
+
             offset += (next_operand_address-operand_address);
             operand_address = next_operand_address;
 
