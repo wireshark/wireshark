@@ -138,10 +138,10 @@ static const value_string lcsap_pos_method_vals[] = {
   { 0x19, "Reserved for network specific positioning methods" },
   { 0x1a, "Reserved for network specific positioning methods" },
   { 0x1b, "Reserved for network specific positioning methods" },
-  { 0x1c, "RReserved for network specific positioning methods" },
+  { 0x1c, "Reserved for network specific positioning methods" },
   { 0x1d, "Reserved for network specific positioning methods" },
   { 0x1e, "Reserved for network specific positioning methods" },
-  { 0x0f, "Reserved for network specific positioning methods" },
+  { 0x1f, "Reserved for network specific positioning methods" },
   { 0, NULL }
 };
 
