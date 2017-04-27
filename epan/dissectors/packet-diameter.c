@@ -313,6 +313,7 @@ static gboolean gbl_diameter_desegment = TRUE;
 static dissector_table_t diameter_dissector_table;
 static dissector_table_t diameter_3gpp_avp_dissector_table;
 static dissector_table_t diameter_ericsson_avp_dissector_table;
+static dissector_table_t diameter_verizon_avp_dissector_table;
 static dissector_table_t diameter_expr_result_vnd_table;
 
 static const char *avpflags_str[] = {
@@ -610,6 +611,9 @@ call_avp_subdissector(guint32 vendorid, guint32 code, tvbuff_t *subtvb, packet_i
 			break;
 		case VENDOR_ERICSSON:
 			dissector_try_uint_new(diameter_ericsson_avp_dissector_table, code, subtvb, pinfo, avp_tree, FALSE, diam_sub_dis_inf);
+			break;
+		case VENDOR_VERIZON:
+			dissector_try_uint_new(diameter_verizon_avp_dissector_table, code, subtvb, pinfo, avp_tree, FALSE, diam_sub_dis_inf);
 			break;
 		case VENDOR_THE3GPP:
 			dissector_try_uint_new(diameter_3gpp_avp_dissector_table, code, subtvb, pinfo, avp_tree, FALSE, diam_sub_dis_inf);
@@ -2328,6 +2332,7 @@ proto_register_diameter(void)
 	diameter_dissector_table = register_dissector_table("diameter.base", "DIAMETER_BASE_AVPS", proto_diameter, FT_UINT32, BASE_DEC);
 	diameter_3gpp_avp_dissector_table = register_dissector_table("diameter.3gpp", "DIAMETER_3GPP_AVPS", proto_diameter, FT_UINT32, BASE_DEC);
 	diameter_ericsson_avp_dissector_table = register_dissector_table("diameter.ericsson", "DIAMETER_ERICSSON_AVPS", proto_diameter, FT_UINT32, BASE_DEC);
+	diameter_verizon_avp_dissector_table = register_dissector_table("diameter.verizon", "DIAMETER_VERIZON_AVPS", proto_diameter, FT_UINT32, BASE_DEC);
 
 	diameter_expr_result_vnd_table = register_dissector_table("diameter.vnd_exp_res", "DIAMETER Experimental-Result-Code", proto_diameter, FT_UINT32, BASE_DEC);
 
