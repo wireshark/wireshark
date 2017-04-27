@@ -2527,7 +2527,7 @@ dissect_dut_filter (tvbuff_t * tvb, proto_tree * tree,
 
   dut_tree =
     proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_dut_filter, NULL,
-                                  "Downstream Unencrypted Traffic (Length = %u)", len);
+                                  "45 Downstream Unencrypted Traffic (Length = %u)", len);
 
   while (pos < (start + len))
     {
@@ -5972,6 +5972,7 @@ proto_register_docsis_tlv (void)
     &ett_docsis_tlv_ds_ch_list,
     &ett_docsis_tlv_ds_ch_list_single,
     &ett_docsis_tlv_ds_ch_list_range,
+    &ett_docsis_tlv_dut_filter,
     &ett_docsis_tlv_tcc,
     &ett_docsis_tlv_tcc_ucd,
     &ett_docsis_tlv_tcc_rng_parms,
