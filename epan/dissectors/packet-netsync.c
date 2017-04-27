@@ -467,7 +467,7 @@ dissect_netsync_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
 			size |= (tmp & 0x7F) << shift;
 			shift += 7;
-		} while (tmp & 0x80);
+		} while ((tmp & 0x80) && (shift < 32));
 
 
 		proto_tree_add_uint(netsync_tree, hf_netsync_size, tvb,
