@@ -1286,6 +1286,13 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
             else
             {
                 payloadSize = dataLength - (payloadOffset - db0Offset);
+                if ((gint)dataLength < (payloadOffset - db0Offset))
+                {
+                    if ( global_opensafety_debug_verbose )
+                        expert_add_info_format(pinfo, opensafety_item, &ei_payload_length_not_positive,
+                                                    "Calculation for payload length yielded non-positive result [%d]", (gint)payloadSize );
+                    return;
+                }
 
                 if ( fragmentId != 0 && packet->payload.ssdo->sacmd.segmented )
                 {
