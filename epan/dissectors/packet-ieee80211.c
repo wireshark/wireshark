@@ -2278,7 +2278,6 @@ static const value_string vht_rx_stbc_flag[] = {
   {0x02, "1 to 2 Spatial Stream Supported"},
   {0x03, "1 to 3 Spatial Stream Supported"},
   {0x04, "1 to 4 Spatial Stream Supported"},
-  {0x02, "160MHz and 80+80 Supported"},
   {0x05, "Reserved"},
   {0x06, "Reserved"},
   {0x07, "Reserved"},
