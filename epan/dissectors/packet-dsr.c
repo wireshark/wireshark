@@ -153,7 +153,7 @@ static const value_string dsrrerrtypenames[] ={
         {DSR_RERR_TYPE_FLOWSTATENOTSUPPORTED, "Flow state not supported"},
         {DSR_RERR_TYPE_OPTIONNOTSUPPORTED,    "Option not supported"},
         {DSR_RERR_TYPE_UNKNOWNFLOW,           "Unknown flow"},
-        {DSR_RERR_TYPE_UNKNOWNFLOW,           "Default flow unknown"},
+        {DSR_RERR_TYPE_DEFAULTFLOWUNKNOWN,    "Default flow unknown"},
         {0, NULL}
 };
 
