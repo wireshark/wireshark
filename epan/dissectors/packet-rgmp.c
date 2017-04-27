@@ -70,7 +70,7 @@ dissect_rgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
     guint32 dst = g_htonl(MC_RGMP);
 
     /* Shouldn't be destined for us */
-    if (memcmp(pinfo->dst.data, &dst, 4))
+    if ((pinfo->dst.type != AT_IPv4) || memcmp(pinfo->dst.data, &dst, 4))
         return 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RGMP");
