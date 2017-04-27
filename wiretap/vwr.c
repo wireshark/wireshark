@@ -84,29 +84,60 @@
 
 /* the metadata headers */
 
-/* Size of the IxVeriwave common header */
+/*
+ * IxVeriWave common header:
+ *
+ * 2 octets - port type
+ * 2 octets - length of the common header
+ * 2 octets - MSDU length
+ * 4 octets - flow ID
+ * 2 octets - VC ID
+ * 2 octets - flow sequence number
+ * 4 octets - latency or 0
+ * 4 octets - lower 32 bits of signature time stamp
+ * 8 octets - start time
+ * 8 octets - end time
+ * 4 octets - delta(?) time
+ */
+
+/* Size of the IxVeriWave common header */
 #define STATS_COMMON_FIELDS_LEN (2+2+2+4+2+2+4+4+8+8+4)
+
+/* Port type */
+#define WLAN_PORT               0
+#define ETHERNET_PORT           1
 
 /* For VeriWave WLAN and Ethernet metadata headers vw_flags field */
 #define VW_FLAGS_TXF        0x01                /* frame was transmitted */
 #define VW_FLAGS_FCSERR     0x02                /* FCS error detected */
 
-/* For VeriWave WLAN metadata header vw_flags field */
-#define VW_FLAGS_RETRERR    0x04                /* excess retry error detected */
-#define VW_FLAGS_DCRERR     0x10                /* decrypt error detected (WLAN) */
-#define VW_FLAGS_ENCMSK     0x60                /* encryption type mask */
-                                                /* 0 = none, 1 = WEP, 2 = TKIP, 3 = CCKM */
-#define VW_FLAGS_IS_WEP     0x20                /* WEP */
-#define VW_FLAGS_IS_TKIP    0x40                /* TKIP */
-#define VW_FLAGS_IS_CCMP    0x60                /* CCMP */
+/*
+ * VeriWave WLAN metadata header:
+ *
+ * 2 octets - header length
+ * 2 octets - rflags
+ * 2 octets - channel flags
+ * 2 octets - PHY rate
+ * 1 octet - PLCP type
+ * 1 octet - MCS index
+ * 1 octet - number of spatial streams
+ * 1 octet - RSSI
+ * 1 octet - antenna b signal power, or 100 if missing
+ * 1 octet - antenna c signal power, or 100 if missing
+ * 1 octet - antenna d signal power, or 100 if missing
+ * 1 octet - padding
+ * 2 octets - VeriWave flags
+ * 2 octets - HT len
+ * 2 octets - info
+ * 2 octets - errors
+ *
+ * XXX - last 4 octets?  PLCP?  17 bytes in some cases?
+ */
 
-/* Veriwave WLAN metadata header */
+/* Size of the VeriWave WLAN metadata header */
+#define EXT_WLAN_FIELDS_LEN (2+2+2+2+1+1+1+1+1+1+1+1+2+2+2+4)
 
-/* Channel flags, for chanflags field */
-#define CHAN_CCK            0x0020              /* CCK channel */
-#define CHAN_OFDM           0x0040              /* OFDM channel */
-
-/* Flags, for flags field */
+/* Flags, for rflags field */
 #define FLAGS_SHORTPRE      0x0002              /* sent/received with short preamble */
 #define FLAGS_WEP           0x0004              /* sent/received with WEP encryption */
 #define FLAGS_FCS           0x0010              /* frame includes FCS */
@@ -117,8 +148,31 @@
 #define FLAGS_CHAN_80MHZ    0x0400              /* 80 Mhz channel bandwidth */
 #define FLAGS_CHAN_160MHZ   0x0800              /* 160 Mhz channel bandwidth */
 
-/* Size of the VeriWave WLAN metadata header */
-#define EXT_WLAN_FIELDS_LEN (2+2+2+2+1+1+1+1+1+1+1+1+2+2+2+4)
+/* Channel flags, for channel flags field */
+#define CHAN_CCK            0x0020              /* CCK channel */
+#define CHAN_OFDM           0x0040              /* OFDM channel */
+
+/* For VeriWave WLAN metadata header vw_flags field */
+#define VW_FLAGS_RETRERR    0x04                /* excess retry error detected */
+#define VW_FLAGS_DCRERR     0x10                /* decrypt error detected (WLAN) */
+#define VW_FLAGS_ENCMSK     0x60                /* encryption type mask */
+                                                /* 0 = none, 1 = WEP, 2 = TKIP, 3 = CCKM */
+#define VW_FLAGS_IS_WEP     0x20                /* WEP */
+#define VW_FLAGS_IS_TKIP    0x40                /* TKIP */
+#define VW_FLAGS_IS_CCMP    0x60                /* CCMP */
+
+/*
+ * VeriWave Ethernet metadata header:
+ *
+ * 2 octets - header length
+ * 2 octets - VeriWave flags
+ * 2 octets - info
+ * 4 octets - errors
+ * 4 octets - layer 4 ID
+ * 4 octets - pad
+ *
+ * Ethernet frame follows, beginning with the MAC header
+ */
 
 /* Size of the VeriWave Ethernet metadata header */
 #define EXT_ETHERNET_FIELDS_LEN (2+2+2+4+4+4)
@@ -168,7 +222,7 @@
 
 #define v22_E_FLOW_VALID          0x40              /* flow-is-valid flag (else force to 0) */
 
-#define v22_E_DIFFERENTIATOR_MASK 0X3F              /* mask to differentiate ethernet from */
+#define v22_E_DIFFERENTIATOR_MASK 0x3F              /* mask to differentiate ethernet from */
 
 /* Bits in FRAME_TYPE field */
 #define v22_E_IS_TCP              0x00000040        /* TCP */
@@ -176,9 +230,10 @@
 #define v22_E_IS_ICMP             0x00000020        /* ICMP */
 #define v22_E_IS_IGMP             0x00000080        /* IGMP */
 
+/* Bits in MTYPE field (WLAN only) */
 #define v22_E_IS_QOS              0x80              /* QoS bit in MTYPE field (WLAN only) */
-#define v22_E_IS_VLAN             0x00200000
 
+#define v22_E_IS_VLAN             0x00200000
 
 #define v22_E_RX_DECRYPTS   0x0007                  /* RX-frame-was-decrypted (UNUSED) */
 #define v22_E_TX_DECRYPTS   0x0007                  /* TX-frame-was-decrypted (UNUSED) */
@@ -241,7 +296,7 @@
 
 #define v22_W_FLOW_VALID    0x40                    /* flow-is-valid flag (else force to 0) */
 
-#define v22_W_DIFFERENTIATOR_MASK 0Xf0ff            /* mask to differentiate ethernet from */
+#define v22_W_DIFFERENTIATOR_MASK 0xf0ff            /* mask to differentiate ethernet from */
                                                     /* 802.11 capture */
 
 #define v22_W_RX_DECRYPTS   0x0007                  /* RX-frame-was-decrypted bits */
@@ -354,6 +409,7 @@
  * 1 to it.
  */
 #define vVW510021_W_S3_MCS_INDEX_VHT(l1p_1) ((l1p_1) & 0x0f) /* MCS index */
+/* The nss is zero based from the fpga - increment it here */
 #define vVW510021_W_S3_NSS_VHT(l1p_1)       (((l1p_1) >> 4 & 0x3) + 1) /* NSS */
 
 /*
@@ -384,7 +440,6 @@
 #define vVW510021_W_IS_UDP          0x00100000      /* UDP */
 #define vVW510021_W_IS_ICMP         0x00001000      /* ICMP */
 #define vVW510021_W_IS_IGMP         0x00010000      /* IGMP */
-
 
 #define vVW510021_W_HEADER_VERSION      0x00
 #define vVW510021_W_DEVICE_TYPE         0x15
@@ -1044,7 +1099,7 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
      * We also zero out 16 bytes PLCP header and 1 byte of L1P for user
      * position.
      *
-     * XXX - for S1, do we even have that?  The current Veriwave dissector
+     * XXX - for S1, do we even have that?  The current VeriWave dissector
      * just blindly assumes there's a 17-byte blob before the 802.11
      * header, which is why we fill in those extra zero bytes.
      *
@@ -1073,7 +1128,7 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
      *
      * All values are copied out in little-endian byte order.
      */
-    phtoles(&data_ptr[bytes_written], 0); /* port_type */
+    phtoles(&data_ptr[bytes_written], WLAN_PORT); /* port_type */
     bytes_written += 2;
     phtoles(&data_ptr[bytes_written], STATS_COMMON_FIELDS_LEN); /* it_len */
     bytes_written += 2;
@@ -1480,7 +1535,7 @@ static gboolean vwr_read_s2_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
      * position.
      *
      * XXX - for S2, we don't have 16 bytes of PLCP header; do we have
-     * the 1 byte of L1P?  The current Veriwave dissector just blindly
+     * the 1 byte of L1P?  The current VeriWave dissector just blindly
      * assumes there's a 17-byte blob before the 802.11 header.
      *
      * We include the length of the metadata headers in the packet lengths.
@@ -1516,7 +1571,7 @@ static gboolean vwr_read_s2_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
      * All values are copied out in little-endian byte order.
      */
     /*** msdu_length = msdu_length + 16; ***/
-    phtoles(&data_ptr[bytes_written], 0); /* port_type */
+    phtoles(&data_ptr[bytes_written], WLAN_PORT); /* port_type */
     bytes_written += 2;
     phtoles(&data_ptr[bytes_written], STATS_COMMON_FIELDS_LEN); /* it_len */
     bytes_written += 2;
@@ -1845,7 +1900,7 @@ static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
      *
      * All values are copied out in little-endian byte order.
      */
-    phtoles(&data_ptr[bytes_written], 1);
+    phtoles(&data_ptr[bytes_written], ETHERNET_PORT);
     bytes_written += 2;
     phtoles(&data_ptr[bytes_written], STATS_COMMON_FIELDS_LEN);
     bytes_written += 2;
