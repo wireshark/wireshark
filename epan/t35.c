@@ -247,7 +247,6 @@ const value_string H221ManufacturerCode_vals[] = {
 	{  0x0400008d, "Schneider Rundfunkwerke AG" },                      /* From Ref. 3 */
 	{  0x0400008e, "Digitronic computersysteme GmbH" },                 /* From Ref. 3 */
 	{  0x0400008f, "DeTeWe - Deutsche Telephonwerke AG &Co" },          /* From Ref. 3 */
-	{  0x04000082, "SITK Institut fuer Telekommunikation GmbH & Co KG" },/* From Ref. 3 */
 	{  0x0900003D, "Equivalence (OpenH323)" },                          /* From captures */
 	{  0x20000081, "Mediatrix Telecom" },                               /* From Ref. 1 */
 	{  0x3c000000, "Nokia" },											/* From captures */
