@@ -920,16 +920,12 @@ static const value_string adf_usim_dfs[] = {
 #endif
 	{ 0x5f3a, "DF.PHONEBOOK" },
 	{ 0x5f3b, "DF.GSM-ACCESS" },
-	{ 0x5f3c, "DF.MExE" },
-	{ 0x5f40, "DF.WLAN" },
-	{ 0x5f70, "DF.SoLSA" },
 #if 0
 	{ 0, NULL }
 };
 
 static const value_string adf_usim_efs[] = {
 #endif
-	{ 0x6f05, "EF.LI" },
 	{ 0x6f06, "EF.ARR" },
 	{ 0x6f07, "EF.IMSI" },
 	{ 0x6f08, "EF.Keys" },
@@ -938,26 +934,21 @@ static const value_string adf_usim_efs[] = {
 	{ 0x6f31, "EF.HPPLMN" },
 	{ 0x6f32, "EF.CNL" },
 	{ 0x6f37, "EF.ACMax" },
-	{ 0x6f38, "EF.USI" },
 	{ 0x6f39, "EF.ACM" },
 	{ 0x6f3b, "EF.FDN" },
 	{ 0x6f3c, "EF.SMS" },
 	{ 0x6f3e, "EF.GID1" },
 	{ 0x6f3f, "EF.GID2" },
 	{ 0x6f40, "EF.MSISDN" },
-	{ 0x6f41, "EF.PUCI" },
 	{ 0x6f42, "EF.SMSP" },
 	{ 0x6f43, "EF.SMSS" },
 	{ 0x6f45, "EF.CBMI" },
 	{ 0x6f46, "EF.SPN" },
 	{ 0x6f47, "EF.SMSR" },
 	{ 0x6f48, "EF.CBMID" },
-	{ 0x6f49, "EF.SIN" },
 	{ 0x6f4b, "EF.EXT2" },
 	{ 0x6f4c, "EF.EXT3" },
 	{ 0x6f4d, "EF.BDN" },
-	{ 0x6f4e, "EF.EXT5" },
-	{ 0x6f4f, "EF.CCP2" },
 	{ 0x6f50, "EF.CBMIR" },
 	{ 0x6f55, "EF.EXT4" },
 	{ 0x6f56, "EF.EST" },
