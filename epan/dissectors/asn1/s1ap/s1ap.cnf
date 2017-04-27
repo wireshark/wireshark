@@ -894,7 +894,7 @@ RepetitionPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_MSClassmark);
-    de_ms_cm_2(parameter_tvb, subtree, actx->pinfo, 0, tvb_reported_length(tvb), NULL, 0);
+    de_ms_cm_2(parameter_tvb, subtree, actx->pinfo, 0, tvb_reported_length(parameter_tvb), NULL, 0);
   }
 
 #.FN_BODY MSClassmark3 VAL_PTR = &parameter_tvb
@@ -902,7 +902,7 @@ RepetitionPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_MSClassmark);
-    de_ms_cm_3(parameter_tvb, subtree, actx->pinfo, 0, tvb_reported_length(tvb), NULL, 0);
+    de_ms_cm_3(parameter_tvb, subtree, actx->pinfo, 0, tvb_reported_length(parameter_tvb), NULL, 0);
   }
 
 #.TYPE_ATTR
@@ -1933,7 +1933,7 @@ col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextResumeFailure")
 col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ConnectionEstablishmentIndication");
 #.END
 
-/* Whenever a Cause appears, look up the reason and show it in the Info column */
+# Whenever a Cause appears, look up the reason and show it in the Info column
 
 #.FN_BODY CauseRadioNetwork VAL_PTR=&value
   guint32 value;
