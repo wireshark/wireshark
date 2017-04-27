@@ -176,8 +176,6 @@ static int snort_config_ok = TRUE;   /* N.B. Not running test at the moment... *
 /* An alert.
    Created by parsing alert from snort, hopefully with more details linked from matched_rule. */
 typedef struct Alert_t {
-    /* Time */
-    struct timeval tv;
     /* Rule */
     guint32       sid;             /* Rule identifier */
     guint32       rev;             /* Revision number of rule */
@@ -433,7 +431,7 @@ static void snort_reaper(GPid pid, gint status _U_, gpointer data)
 
 /* Parse timestamp line of output.  This is done in part to get the packet_number back out of usec field...
  * Return value is the input stream moved onto the next field following the timestamp */
-static const char* snort_parse_ts(const char *ts, struct timeval *tv)
+static const char* snort_parse_ts(const char *ts, guint32 *frame_number)
 {
     struct tm tm;
     unsigned int usec;
@@ -448,8 +446,8 @@ static const char* snort_parse_ts(const char *ts, struct timeval *tv)
     tm.tm_mon -= 1;
     tm.tm_year += 100;
 
-    tv->tv_sec = (long)mktime(&tm);
-    tv->tv_usec = usec;
+    /* Store frame number (which was passed into this position when packet was submitted to snort) */
+    *frame_number = usec;
 
     return strchr(ts, ' ');
 }
@@ -463,8 +461,8 @@ static gboolean snort_parse_fast_line(const char *line, Alert_t *alert)
     static const char priority[] = "[Priority: ";
     const char *tmp_msg;
 
-    /* Look for timestamp */
-    if (!(line = snort_parse_ts(line, &(alert->tv)))) {
+    /* Look for timestamp/frame-number */
+    if (!(line = snort_parse_ts(line, &(alert->original_frame)))) {
         return FALSE;
     }
 
@@ -618,8 +616,9 @@ static gboolean snort_fast_output(GIOChannel *source, GIOCondition condition, gp
                 fill_alert_config(g_snort_config, &alert);
 
                 /* Add parsed alert into session->tree */
-                /* Store in tree. pfino->fd->num is hidden in usec time field. */
-                add_alert_to_session_tree((guint)alert.tv.tv_usec, &alert);
+                /* Store in tree. Frame number hidden in fraction of second field, so associate
+                   alert with that frame. */
+                add_alert_to_session_tree((guint)alert.original_frame, &alert);
             }
             else {
                 g_print("snort_fast_output() line: '%s'\n", buf);
