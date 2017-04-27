@@ -59,6 +59,7 @@ static int hf_uaudp_keepalive       = -1;
 static int hf_uaudp_qos_ip_tos      = -1;
 static int hf_uaudp_qos_8021_vlid   = -1;
 static int hf_uaudp_qos_8021_pri    = -1;
+static int hf_uaudp_superfast_connect = -1;
 static int hf_uaudp_expseq          = -1;
 static int hf_uaudp_sntseq          = -1;
 
@@ -171,7 +172,7 @@ static void _dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 "%s",
                 val_to_str_ext(opcode, &uaudp_opcode_str_ext, "unknown (0x%02x)"));
 
-    uaudp_item = proto_tree_add_protocol_format(tree, proto_uaudp, tvb, 0, 5,
+    uaudp_item = proto_tree_add_protocol_format(tree, proto_uaudp, tvb, 0, tvb_reported_length(tvb),
                             "Universal Alcatel/UDP Encapsulation Protocol, %s",
                             val_to_str_ext(opcode, &uaudp_opcode_str_ext, "unknown (0x%02x)"));
 
@@ -219,6 +220,9 @@ static void _dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
             case UAUDP_CONNECT_QOS_8021_PRI:
                 rV(uaudp_tree, &hf_uaudp_qos_8021_pri   , tvb, offset, L);
+                break;
+            case UAUDP_CONNECT_SUPERFAST_CONNECT:
+                rV(uaudp_tree, &hf_uaudp_superfast_connect, tvb, offset, L);
                 break;
             }
             offset += (2 + L);
@@ -500,6 +504,19 @@ void proto_register_uaudp(void)
                 NULL,
                 0x0,
                 "UA/UDP QoS 802.1 PRI",
+                HFILL
+            }
+        },
+        {
+            &hf_uaudp_superfast_connect,
+            {
+                "SuperFast Connect",
+                "uaudp.superfast_connect",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                "UA/UDP SuperFast Connect",
                 HFILL
             }
         },
