@@ -296,6 +296,11 @@ set(WSLUA_MODULES
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_struct.c
 )
 
+if(NOT ASCIIDOC_FOUND)
+	message(WARNING "AsciiDoc not found, cannot build documentation.")
+	return()
+endif()
+
 # Empty file to trigger wsluarm generation.
 ADD_CUSTOM_COMMAND(
 	OUTPUT
