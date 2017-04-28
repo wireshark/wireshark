@@ -3130,7 +3130,6 @@ static const value_string DIS_PDU_Country_Strings[] =
     { 105, "Israel" },
     { 106, "Italy" },
     { 107, "Cote D'Ivoire (aka Ivory Coast)" },
-    { 107, "Ivory Coast (aka Cote D'Ivoire)" },
     { 108, "Jamaica" },
     { 109, "Jan Mayen (Norway)" },
     { 110, "Japan" },
