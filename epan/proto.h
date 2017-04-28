@@ -1107,7 +1107,10 @@ encoding in the tvbuff
 The length argument must
 be set to the appropriate size of the native type as in other proto_add routines.
 
-Integers of 8, 16, 24 and 32 bits can be retrieved with these functions.
+Integers of 8, 16, 24 and 32 bits can be retrieved with the _ret_int and
+ret_uint functions; integers of 40, 48, 56, and 64 bits can be retrieved
+with the _ret_uint64 function; Boolean values of 8, 16, 24, 32, 40, 48,
+56, and 64 bits can be retrieved with the _ret_boolean function.
 
 @param tree the tree to append this item to
 @param hfindex field
@@ -1129,6 +1132,10 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     const gint start, gint length, const guint encoding, guint64 *retval);
+
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_item_ret_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+    const gint start, gint length, const guint encoding, gboolean *retval);
 
 /** Add an string item to a proto_tree, using the text label registered to
 that item.
