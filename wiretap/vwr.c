@@ -1402,7 +1402,7 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     int              bytes_written = 0;                   /* bytes output to buf so far */
     const guint8     *s_start_ptr,*s_trail_ptr, *plcp_ptr, *m_ptr; /* stats & MPDU ptr */
     guint32          msdu_length, actual_octets;          /* octets in frame */
-    guint8           l1p_1,l1p_2, plcp_type, rate_mcs_index, nss;  /* mod (CCK-L/CCK-S/OFDM) */
+    guint8           l1p_1,l1p_2, plcp_type, rate_mcs_index, nss = 0;  /* mod (CCK-L/CCK-S/OFDM) */
     guint            flow_seq;
     guint64          s_time = LL_ZERO, e_time = LL_ZERO;  /* start/end */
                                                           /*  times, nsec */
@@ -1834,7 +1834,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     guint8           flow_seq =0,plcp_hdr_flag = 0,rf_id = 0;    /* indicates plcp hdr info */
     const guint8    *rf_ptr = NULL;
     float            rate;
-    guint16          phyRate;
+    guint16          phyRate = 0;
 
     /*
      * The record data must be large enough to hold the statistics header,
