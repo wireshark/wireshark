@@ -443,7 +443,7 @@ static const value_string cip_event_type_vals[] = {
 #define SC_RUN_INERTIA_TEST         0x51
 #define SC_GET_INERTIA_TEST_DATA    0x52
 #define SC_RUN_HOOKUP_TEST          0x53
-#define SC_GET_HOOKUP_TEST_DATA     0x53
+#define SC_GET_HOOKUP_TEST_DATA     0x54
 
 /* Translate function to string - CIP Service codes */
 static const value_string cip_sc_vals[] = {
