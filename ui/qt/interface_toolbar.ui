@@ -38,6 +38,9 @@
    </item>
    <item>
     <widget class="QComboBox" name="interfacesComboBox">
+     <property name="sizeAdjustPolicy">
+      <enum>QComboBox::AdjustToContents</enum>
+     </property>
      <property name="toolTip">
       <string>Select interface</string>
      </property>

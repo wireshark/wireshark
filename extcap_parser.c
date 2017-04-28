@@ -730,8 +730,8 @@ static iface_toolbar_control *extcap_parse_control_sentence(GList *control_items
                 control->ctrl_role = INTERFACE_ROLE_HELP;
             } else if (g_ascii_strcasecmp(param_value, "logger") == 0) {
                 control->ctrl_role = INTERFACE_ROLE_LOGGER;
-            } else if (g_ascii_strcasecmp(param_value, "reset") == 0) {
-                control->ctrl_role = INTERFACE_ROLE_RESET;
+            } else if (g_ascii_strcasecmp(param_value, "restore") == 0) {
+                control->ctrl_role = INTERFACE_ROLE_RESTORE;
             } else {
                 printf("invalid role %s in CONTROL sentence\n", param_value);
                 control->ctrl_role = INTERFACE_ROLE_UNKNOWN;

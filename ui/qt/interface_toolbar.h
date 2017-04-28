@@ -29,6 +29,7 @@
 #include "interface_toolbar_reader.h"
 
 #include <QFrame>
+#include <QList>
 #include <QMap>
 #include <QString>
 
@@ -42,6 +43,7 @@ struct interface_values
     QThread *reader_thread;
     int out_fd;
     QMap<int, QByteArray> value;
+    QMap<int, bool> value_changed;
     QMap<int, QList<QByteArray> > list;
     FunnelTextDialog *log_dialog;
     QString log_text;
@@ -56,11 +58,12 @@ public:
     explicit InterfaceToolbar(QWidget *parent = 0, const iface_toolbar *toolbar = NULL);
     ~InterfaceToolbar();
 
-    void startCapture(QString ifname, QString control_in, QString control_out);
+    void startCapture(GArray *ifaces);
     void stopCapture();
     bool hasInterface(QString ifname);
 
 public slots:
+    void interfaceListChanged();
     void controlReceived(QString ifname, int num, int command, QByteArray message);
 
 signals:
@@ -70,13 +73,13 @@ private slots:
     void startReaderThread(QString ifname, QString control_in);
     void updateWidgets();
 
-    void onButtonPressed();
+    void onControlButtonPressed();
+    void onLogButtonPressed();
+    void onHelpButtonPressed();
+    void onRestoreButtonPressed();
     void onCheckBoxChanged(int state);
     void onComboBoxChanged(int idx);
     void onLineEditChanged();
-    void onLogButtonPressed();
-    void onHelpButtonPressed();
-    void onResetButtonPressed();
 
     void closeLog();
 

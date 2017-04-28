@@ -238,7 +238,7 @@ TYPE provides the type of control to add to the toolbar and DISPLAY the name in 
 Additionally TOOLTIP and PLACEHOLDER may be provided, which will give the user an
 explanation within the GUI.
 
-All controls, except from the logger, help and reset buttons, may be disabled
+All controls, except from the logger, help and restore buttons, may be disabled
 (and enabled) in GUI by the extcap during capture. This can be because of set-once
 operations, or operations which takes some time to complete.
 
@@ -260,8 +260,9 @@ This TYPEs are defined as controls:
 
  * BUTTON - This provides a button with different ROLEs:
 
-  ** CONTROL - This button will send a signal.
-     This is the default role if nothing is configured.
+  ** CONTROL - This button will send a signal when pressed.
+     This is the default if no role is configured.
+     The button is only enabled when capturing.
 
      The extcap utility can set the button text at startup, and can change (set) the
      button text and receive button press signals while capturing.  The button is
@@ -282,12 +283,13 @@ This TYPEs are defined as controls:
      The Set command will clear the log before adding the entry.
 
   ** HELP - This button opens the help page, if configured.
-     This type has no controls and will not be used in communication.
+     This role has no controls and will not be used in communication.
 
      Valid Commands: NONE.
 
-  ** RESET - This button will restore all control values to default.
-     This type has no controls and will not be used in communication.
+  ** RESTORE - This button will restore all control values to default.
+     This role has no controls and will not be used in communication.
+     The button is only enabled when not capturing.
 
      Valid Commands: NONE.
 
@@ -376,7 +378,7 @@ Control packet:
    The length of the following payload.  Maximum length is 65535 bytes.
 
 The Initialized command will be sent from the GUI to the extcap utility when all
-initial control values are sent after starting a capture. This is an indication
+user changed control values are sent after starting a capture. This is an indication
 that the GUI is ready to receive control values.
 
 The GUI will only send Initialized and Set commands.  The extcap utility shall not

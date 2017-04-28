@@ -855,6 +855,8 @@ void MainWindow::addInterfaceToolbar(const iface_toolbar *toolbar_entry)
     menu->insertAction(before, action);
 
     InterfaceToolbar *interface_toolbar = new InterfaceToolbar(this, toolbar_entry);
+    connect(wsApp, SIGNAL(appInitialized()), interface_toolbar, SLOT(interfaceListChanged()));
+    connect(wsApp, SIGNAL(localInterfaceListChanged()), interface_toolbar, SLOT(interfaceListChanged()));
 
     QToolBar *toolbar = new QToolBar(this);
     toolbar->addWidget(interface_toolbar);
@@ -2483,10 +2485,7 @@ void MainWindow::setForCaptureInProgress(bool capture_in_progress, GArray *iface
     QList<InterfaceToolbar *> toolbars = findChildren<InterfaceToolbar *>();
     foreach (InterfaceToolbar *toolbar, toolbars) {
         if (capture_in_progress && ifaces) {
-            for (guint i = 0; i < ifaces->len; i++) {
-                interface_options interface_opts = g_array_index(ifaces, interface_options, i);
-                toolbar->startCapture(interface_opts.name, interface_opts.extcap_control_in, interface_opts.extcap_control_out);
-            }
+            toolbar->startCapture(ifaces);
         } else {
             toolbar->stopCapture();
         }

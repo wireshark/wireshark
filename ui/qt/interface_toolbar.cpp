@@ -29,6 +29,8 @@
 #include "ui/main_statusbar.h"
 #include <ui_interface_toolbar.h>
 
+#include "capture_opts.h"
+#include "ui/capture_globals.h"
 #include "sync_pipe.h"
 #include "wsutil/file_util.h"
 
@@ -69,16 +71,13 @@ InterfaceToolbar::InterfaceToolbar(QWidget *parent, const iface_toolbar *toolbar
     ui->setupUi(this);
 
     // Fill inn interfaces list and initialize default interface values
-    ui->interfacesComboBox->blockSignals(true);
     for (GList *walker = toolbar->ifnames; walker; walker = walker->next)
     {
         QString ifname((gchar *)walker->data);
-        ui->interfacesComboBox->addItem(ifname);
         interface_[ifname].reader_thread = NULL;
         interface_[ifname].out_fd = -1;
         interface_[ifname].log_dialog = NULL;
     }
-    ui->interfacesComboBox->blockSignals(false);
 
     initializeControls(toolbar);
 
@@ -194,7 +193,7 @@ QWidget *InterfaceToolbar::createButton(iface_toolbar_control *control)
     {
         case INTERFACE_ROLE_CONTROL:
             setDefaultValue(control->num, (gchar *)control->display);
-            connect(button, SIGNAL(pressed()), this, SLOT(onButtonPressed()));
+            connect(button, SIGNAL(pressed()), this, SLOT(onControlButtonPressed()));
             break;
 
         case INTERFACE_ROLE_HELP:
@@ -210,13 +209,12 @@ QWidget *InterfaceToolbar::createButton(iface_toolbar_control *control)
             connect(button, SIGNAL(pressed()), this, SLOT(onLogButtonPressed()));
             break;
 
-        case INTERFACE_ROLE_RESET:
-            button->setText("Reset");
-            button->setToolTip("Restore default values");
-            connect(button, SIGNAL(pressed()), this, SLOT(onResetButtonPressed()));
+        case INTERFACE_ROLE_RESTORE:
+            connect(button, SIGNAL(pressed()), this, SLOT(onRestoreButtonPressed()));
             break;
 
         default:
+            // Not supported
             break;
     }
 
@@ -237,7 +235,7 @@ QWidget *InterfaceToolbar::createSelector(iface_toolbar_control *control)
     {
         iface_toolbar_value *val = (iface_toolbar_value *)walker->data;
         QString value = QString().fromUtf8((gchar *)val->value);
-        if (value.length() == 0)
+        if (value.isEmpty())
         {
             // Invalid value
             continue;
@@ -246,7 +244,7 @@ QWidget *InterfaceToolbar::createSelector(iface_toolbar_control *control)
         QByteArray interface_value;
 
         interface_value.append(value);
-        if (display.length() == 0)
+        if (display.isEmpty())
         {
             display = value;
         }
@@ -422,6 +420,10 @@ void InterfaceToolbar::setInterfaceValue(QString ifname, QWidget *widget, int nu
         switch (command)
         {
             case commandControlSet:
+                if (interface_[ifname].value[num] != payload)
+                {
+                    interface_[ifname].value_changed[num] = false;
+                }
                 foreach (QByteArray entry, interface_[ifname].list[num])
                 {
                     if (entry == payload || entry.startsWith(payload + '\0'))
@@ -462,6 +464,10 @@ void InterfaceToolbar::setInterfaceValue(QString ifname, QWidget *widget, int nu
         switch (command)
         {
             case commandControlSet:
+                if (interface_[ifname].value[num] != payload)
+                {
+                    interface_[ifname].value_changed[num] = false;
+                }
                 interface_[ifname].value[num] = payload;
                 break;
 
@@ -492,10 +498,21 @@ void InterfaceToolbar::setInterfaceValue(QString ifname, QWidget *widget, int nu
     else if (widget->property(interface_role_property).toInt() == INTERFACE_ROLE_CONTROL)
     {
         // QCheckBox or QPushButton
-        interface_[ifname].value[num] = payload;
+        switch (command)
+        {
+            case commandControlSet:
+                if (interface_[ifname].value[num] != payload)
+                {
+                    interface_[ifname].value_changed[num] = false;
+                }
+                interface_[ifname].value[num] = payload;
+                break;
+
+            default:
+                break;
+        }
     }
 }
-
 
 void InterfaceToolbar::controlReceived(QString ifname, int num, int command, QByteArray payload)
 {
@@ -504,8 +521,9 @@ void InterfaceToolbar::controlReceived(QString ifname, int num, int command, QBy
         case commandControlSet:
         case commandControlAdd:
         case commandControlRemove:
-            if (QWidget *widget = control_widget_[num])
+            if (control_widget_.contains(num))
             {
+                QWidget *widget = control_widget_[num];
                 setInterfaceValue(ifname, widget, num, command, payload);
 
                 if (ifname.compare(ui->interfacesComboBox->currentText()) == 0)
@@ -517,8 +535,9 @@ void InterfaceToolbar::controlReceived(QString ifname, int num, int command, QBy
 
         case commandControlEnable:
         case commandControlDisable:
-            if (QWidget *widget = control_widget_[num])
+            if (control_widget_.contains(num))
             {
+                QWidget *widget = control_widget_[num];
                 if (widget->property(interface_role_property).toInt() == INTERFACE_ROLE_CONTROL)
                 {
                     bool enable = (command == commandControlEnable ? true : false);
@@ -566,7 +585,7 @@ void InterfaceToolbar::controlSend(QString ifname, int num, int command, const Q
         return;
     }
 
-    if (interface_[ifname].out_fd == -1)
+    if (ifname.isEmpty() || interface_[ifname].out_fd == -1)
     {
         // Does not have a control out channel
         return;
@@ -595,7 +614,7 @@ void InterfaceToolbar::controlSend(QString ifname, int num, int command, const Q
     }
 }
 
-void InterfaceToolbar::onButtonPressed()
+void InterfaceToolbar::onControlButtonPressed()
 {
     const QString &ifname = ui->interfacesComboBox->currentText();
     QPushButton *button = static_cast<QPushButton *>(sender());
@@ -613,6 +632,7 @@ void InterfaceToolbar::onCheckBoxChanged(int state)
     QByteArray payload(1, state == Qt::Unchecked ? 0 : 1);
     controlSend(ifname, num, commandControlSet, payload);
     interface_[ifname].value[num] = payload;
+    interface_[ifname].value_changed[num] = true;
 }
 
 void InterfaceToolbar::onComboBoxChanged(int idx)
@@ -625,6 +645,7 @@ void InterfaceToolbar::onComboBoxChanged(int idx)
     QByteArray payload(value.toUtf8());
     controlSend(ifname, num, commandControlSet, payload);
     interface_[ifname].value[num] = payload;
+    interface_[ifname].value_changed[num] = true;
 }
 
 void InterfaceToolbar::onLineEditChanged()
@@ -636,6 +657,7 @@ void InterfaceToolbar::onLineEditChanged()
     QByteArray payload(lineedit->text().toUtf8());
     controlSend(ifname, num, commandControlSet, payload);
     interface_[ifname].value[num] = payload;
+    interface_[ifname].value_changed[num] = true;
 }
 
 void InterfaceToolbar::onLogButtonPressed()
@@ -661,7 +683,8 @@ void InterfaceToolbar::onHelpButtonPressed()
 {
     QUrl help_url(help_link_);
 
-    if (help_url.scheme().compare("file") != 0) {
+    if (help_url.scheme().compare("file") != 0)
+    {
         QDesktopServices::openUrl(help_url);
     }
 }
@@ -697,24 +720,48 @@ void InterfaceToolbar::startReaderThread(QString ifname, QString control_in)
     thread->start();
 }
 
-void InterfaceToolbar::startCapture(QString ifname, QString control_in, QString control_out)
+void InterfaceToolbar::startCapture(GArray *ifaces)
 {
-    if (!interface_.contains(ifname) ||      // This interface is not for us
-        interface_[ifname].out_fd != -1)     // Already have control channels for this interface
-    {
+    if (!ifaces || ifaces->len == 0)
         return;
+
+    const QString &selected_ifname = ui->interfacesComboBox->currentText();
+    QString first_capturing_ifname;
+    bool selected_found = false;
+
+    for (guint i = 0; i < ifaces->len; i++)
+    {
+        interface_options interface_opts = g_array_index(ifaces, interface_options, i);
+        QString ifname(interface_opts.name);
+
+        if (!interface_.contains(ifname))
+            // This interface is not for us
+            continue;
+
+        if (first_capturing_ifname.isEmpty())
+            first_capturing_ifname = ifname;
+
+        if (ifname.compare(selected_ifname) == 0)
+            selected_found = true;
+
+        if (interface_[ifname].out_fd != -1)
+            // Already have control channels for this interface
+            continue;
+
+        // The reader thread will open control in channel
+        startReaderThread(ifname, interface_opts.extcap_control_in);
+
+        // Open control out channel
+        interface_[ifname].out_fd = ws_open(interface_opts.extcap_control_out, O_WRONLY | O_BINARY, 0);
+
+        sendChangedValues(ifname);
+        controlSend(ifname, 0, commandControlInitialized);
     }
 
-    // The reader thread will open control in channel
-    startReaderThread(ifname, control_in);
-
-    // Open control out channel
-    interface_[ifname].out_fd = ws_open(control_out.toUtf8(), O_WRONLY | O_BINARY, 0);
-
-    sendChangedValues(ifname);
-    controlSend(ifname, 0, commandControlInitialized);
-
-    updateWidgets();
+    if (!selected_found && !first_capturing_ifname.isEmpty())
+        ui->interfacesComboBox->setCurrentText(first_capturing_ifname);
+    else
+        updateWidgets();
 }
 
 void InterfaceToolbar::stopCapture()
@@ -764,7 +811,7 @@ void InterfaceToolbar::sendChangedValues(QString ifname)
     foreach (int num, control_widget_.keys())
     {
         QWidget *widget = control_widget_[num];
-        if ((interface_[ifname].value[num] != default_value_[num]) &&
+        if ((interface_[ifname].value_changed[num]) &&
             (widget->property(interface_type_property).toInt() != INTERFACE_TYPE_BUTTON) &&
             (widget->property(interface_role_property).toInt() == INTERFACE_ROLE_CONTROL))
         {
@@ -773,7 +820,7 @@ void InterfaceToolbar::sendChangedValues(QString ifname)
     }
 }
 
-void InterfaceToolbar::onResetButtonPressed()
+void InterfaceToolbar::onRestoreButtonPressed()
 {
     const QString &ifname = ui->interfacesComboBox->currentText();
 
@@ -799,6 +846,7 @@ void InterfaceToolbar::onResetButtonPressed()
             case INTERFACE_ROLE_CONTROL:
                 setWidgetValue(widget, commandControlSet, default_value_[num]);
                 interface_[ifname].value[num] = default_value_[num];
+                interface_[ifname].value_changed[num] = false;
                 break;
 
             case INTERFACE_ROLE_LOGGER:
@@ -828,20 +876,29 @@ void InterfaceToolbar::updateWidgets()
     foreach (int num, control_widget_.keys())
     {
         QWidget *widget = control_widget_[num];
-        if (!is_capturing &&
-            (widget->property(interface_type_property).toInt() == INTERFACE_TYPE_BUTTON) &&
-            (widget->property(interface_role_property).toInt() == INTERFACE_ROLE_CONTROL))
+        bool widget_enabled = true;
+
+        if (ifname.isEmpty() &&
+            (widget->property(interface_role_property).toInt() != INTERFACE_ROLE_HELP))
         {
-            widget->setEnabled(false);
+            // No interface selected, disable all but Help button
+            widget_enabled = false;
+        }
+        else if (!is_capturing &&
+                 (widget->property(interface_type_property).toInt() == INTERFACE_TYPE_BUTTON) &&
+                 (widget->property(interface_role_property).toInt() == INTERFACE_ROLE_CONTROL))
+        {
+            widget_enabled = false;
         }
         else if (widget->property(interface_role_property).toInt() == INTERFACE_ROLE_CONTROL)
         {
-            bool widget_enabled = !interface_[ifname].widget_disabled[num];
-            widget->setEnabled(widget_enabled);
-            if (label_widget_.contains(num))
-            {
-                label_widget_[num]->setEnabled(widget_enabled);
-            }
+            widget_enabled = !interface_[ifname].widget_disabled[num];
+        }
+
+        widget->setEnabled(widget_enabled);
+        if (label_widget_.contains(num))
+        {
+            label_widget_[num]->setEnabled(widget_enabled);
         }
     }
 
@@ -849,11 +906,48 @@ void InterfaceToolbar::updateWidgets()
     {
         QWidget *widget = control_widget_[num];
         if ((widget->property(interface_type_property).toInt() == INTERFACE_TYPE_BUTTON) &&
-            (widget->property(interface_role_property).toInt() == INTERFACE_ROLE_RESET))
+            (widget->property(interface_role_property).toInt() == INTERFACE_ROLE_RESTORE))
         {
             widget->setEnabled(!is_capturing);
         }
     }
+}
+
+void InterfaceToolbar::interfaceListChanged()
+{
+    const QString &selected_ifname = ui->interfacesComboBox->currentText();
+    bool keep_selected = false;
+
+    ui->interfacesComboBox->blockSignals(true);
+    ui->interfacesComboBox->clear();
+
+    for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++)
+    {
+        interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        if (device.hidden)
+            continue;
+
+        if (interface_.keys().contains(device.name))
+        {
+            ui->interfacesComboBox->addItem(device.name);
+            if (selected_ifname.compare(device.name) == 0)
+            {
+                // Keep selected interface
+                ui->interfacesComboBox->setCurrentText(device.name);
+                keep_selected = true;
+            }
+        }
+    }
+
+    ui->interfacesComboBox->blockSignals(false);
+
+    if (!keep_selected)
+    {
+        // Select the first interface
+        on_interfacesComboBox_currentIndexChanged(ui->interfacesComboBox->currentText());
+    }
+
+    updateWidgets();
 }
 
 void InterfaceToolbar::on_interfacesComboBox_currentIndexChanged(const QString &ifname)

@@ -73,7 +73,7 @@ CTRL_ARG_DELAY       = 1
 CTRL_ARG_VERIFY      = 2
 CTRL_ARG_BUTTON      = 3
 CTRL_ARG_HELP        = 4
-CTRL_ARG_RESET       = 5
+CTRL_ARG_RESTORE     = 5
 CTRL_ARG_LOGGER      = 6
 CTRL_ARG_NONE        = 255
 
@@ -161,7 +161,7 @@ def extcap_interfaces():
 	print ("control {number=%d}{type=boolean}{display=Verify}{default=true}{tooltip=Verify package content}" % CTRL_ARG_VERIFY)
 	print ("control {number=%d}{type=button}{display=Turn on}{tooltip=Turn on or off}" % CTRL_ARG_BUTTON)
 	print ("control {number=%d}{type=button}{role=help}{display=Help}{tooltip=Show help}" % CTRL_ARG_HELP)
-	print ("control {number=%d}{type=button}{role=reset}{display=Reset}{tooltip=Restore default values}" % CTRL_ARG_RESET)
+	print ("control {number=%d}{type=button}{role=restore}{display=Restore}{tooltip=Restore default values}" % CTRL_ARG_RESTORE)
 	print ("control {number=%d}{type=button}{role=logger}{display=Log}{tooltip=Show capture log}" % CTRL_ARG_LOGGER)
 	print ("value {control=%d}{value=1}{display=1}" % CTRL_ARG_DELAY)
 	print ("value {control=%d}{value=2}{display=2}" % CTRL_ARG_DELAY)
@@ -320,7 +320,7 @@ def control_write_defaults(fn_out):
 
 	# Write startup configuration to Toolbar controls
 	control_write(fn_out, CTRL_ARG_MESSAGE, CTRL_CMD_SET, message)
-	control_write(fn_out, CTRL_ARG_DELAY, CTRL_CMD_SET, str(delay))
+	control_write(fn_out, CTRL_ARG_DELAY, CTRL_CMD_SET, str(int(delay)))
 	control_write(fn_out, CTRL_ARG_VERIFY, CTRL_CMD_SET, struct.pack('B', verify))
 
 	for i in range(1,16):

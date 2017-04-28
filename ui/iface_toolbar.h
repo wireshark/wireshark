@@ -41,7 +41,7 @@ typedef enum {
     INTERFACE_ROLE_CONTROL,
     INTERFACE_ROLE_HELP,
     INTERFACE_ROLE_LOGGER,
-    INTERFACE_ROLE_RESET
+    INTERFACE_ROLE_RESTORE
 } iface_toolbar_ctrl_role;
 
 typedef struct _iface_toolbar_value {
