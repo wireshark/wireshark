@@ -53,6 +53,7 @@
 #include <epan/oids.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+#include <epan/conversation.h>
 #include <wsutil/strtoi.h>
 
 #include <epan/asn1.h>
@@ -76,7 +77,7 @@ void proto_register_gsm_map(void);
 void proto_reg_handoff_gsm_map(void);
 
 /* Initialize the protocol and registered fields */
-int proto_gsm_map = -1;
+static int proto_gsm_map = -1;
 static int proto_gsm_map_dialogue = -1;
 static int proto_gsm_map_ms = -1;
 
@@ -231,15 +232,75 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
 static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);
 const gchar* gsm_map_opr_code(guint32 val, proto_item *item);
 
-static gsm_map_packet_info_t *gsm_map_get_packet_info(packet_info *pinfo)
+typedef struct {
+  struct tcap_private_t * tcap_private;
+  sccp_msg_info_t *sccp_msg_info;
+  tvbuff_t *signal_info_tvb;
+} gsm_map_private_info_t;
+
+typedef struct {
+  wmem_tree_t *packets;
+} gsm_map_conv_info_t;
+
+static gsm_map_packet_info_t *gsm_map_get_packet_info(asn1_ctx_t *actx, gboolean store_conv_info)
 {
-  gsm_map_packet_info_t *gsm_map_pi = (gsm_map_packet_info_t*)p_get_proto_data(pinfo->pool, pinfo, proto_gsm_map, 0);
-  if (gsm_map_pi)
-    return gsm_map_pi;
-  gsm_map_pi = wmem_new0(pinfo->pool, gsm_map_packet_info_t);
-  p_add_proto_data(pinfo->pool, pinfo, proto_gsm_map, 0, gsm_map_pi);
+  gsm_map_packet_info_t *gsm_map_pi = (gsm_map_packet_info_t*)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_gsm_map, 0);
+  if (!gsm_map_pi) {
+    gsm_map_private_info_t *gsm_map_priv = (gsm_map_private_info_t*)actx->value_ptr;
+    gsm_map_pi = wmem_new0(wmem_file_scope(), gsm_map_packet_info_t);
+    p_add_proto_data(wmem_file_scope(), actx->pinfo, proto_gsm_map, 0, gsm_map_pi);
+    if (store_conv_info && gsm_map_priv && gsm_map_priv->tcap_private) {
+      conversation_t *conversation;
+      gsm_map_conv_info_t *gsm_map_info;
+      wmem_tree_key_t key[3];
+      conversation = find_or_create_conversation(actx->pinfo);
+      gsm_map_info = (gsm_map_conv_info_t *)conversation_get_proto_data(conversation, proto_gsm_map);
+      if (!gsm_map_info) {
+        gsm_map_info = wmem_new(wmem_file_scope(), gsm_map_conv_info_t);
+        gsm_map_info->packets = wmem_tree_new(wmem_file_scope());
+        conversation_add_proto_data(conversation, proto_gsm_map, gsm_map_info);
+      }
+      gsm_map_pi->tcap_src_tid = gsm_map_priv->tcap_private->src_tid;
+      key[0].length = 1;
+      key[0].key = &gsm_map_priv->tcap_private->src_tid;
+      key[1].length = 1;
+      key[1].key = &actx->pinfo->num;
+      key[2].length = 0;
+      key[2].key = NULL;
+      wmem_tree_insert32_array(gsm_map_info->packets, key, (void *)gsm_map_pi);
+    }
+  }
   return gsm_map_pi;
 }
+
+static gsm_map_packet_info_t *gsm_map_get_matching_tcap_info(asn1_ctx_t *actx)
+{
+  gsm_map_private_info_t *gsm_map_priv = (gsm_map_private_info_t*)actx->value_ptr;
+  if (gsm_map_priv && gsm_map_priv->tcap_private) {
+    conversation_t *conversation;
+    gsm_map_conv_info_t *gsm_map_info;
+    wmem_tree_key_t key[3];
+    gsm_map_packet_info_t *gsm_map_pi;
+    conversation = find_or_create_conversation(actx->pinfo);
+    gsm_map_info = (gsm_map_conv_info_t *)conversation_get_proto_data(conversation, proto_gsm_map);
+    if (!gsm_map_info) {
+      gsm_map_info = wmem_new(wmem_file_scope(), gsm_map_conv_info_t);
+      gsm_map_info->packets = wmem_tree_new(wmem_file_scope());
+      conversation_add_proto_data(conversation, proto_gsm_map, gsm_map_info);
+    }
+    key[0].length = 1;
+    key[0].key = &gsm_map_priv->tcap_private->src_tid;
+    key[1].length = 1;
+    key[1].key = &actx->pinfo->num;
+    key[2].length = 0;
+    key[2].key = NULL;
+    gsm_map_pi = (gsm_map_packet_info_t*)wmem_tree_lookup32_array_le(gsm_map_info->packets, key);
+    if (gsm_map_pi && gsm_map_pi->tcap_src_tid == gsm_map_priv->tcap_private->src_tid)
+      return gsm_map_pi;
+  }
+  return NULL;
+}
+
 /* Value strings */
 
 const value_string gsm_map_PDP_Type_Organisation_vals[] = {
@@ -2098,17 +2159,18 @@ static int dissect_NokiaMAP_ext_DsdArgExt(tvbuff_t *tvb, packet_info *pinfo, pro
 }
 
 static int
-dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree,
-                          int hf_index _U_, struct tcap_private_t * p_private_tcap) {
+dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
+                          asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) {
 
   char *version_ptr;
 
   opcode = 0;
   if (pref_application_context_version == APPLICATON_CONTEXT_FROM_TRACE) {
+    gsm_map_private_info_t *gsm_map_priv = (gsm_map_private_info_t*)actx->value_ptr;
     application_context_version = 0;
-    if (p_private_tcap != NULL){
-      if (p_private_tcap->acv==TRUE ){
-        version_ptr = strrchr((const char*)p_private_tcap->oid,'.');
+    if (gsm_map_priv && gsm_map_priv->tcap_private != NULL){
+      if (gsm_map_priv->tcap_private->acv==TRUE ){
+        version_ptr = strrchr((const char*)gsm_map_priv->tcap_private->oid,'.');
         if (version_ptr){
           ws_strtoi32(version_ptr + 1, NULL, &application_context_version);
         }
@@ -2141,8 +2203,8 @@ dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
   /* Used for gsm_map TAP */
   static      gsm_map_tap_rec_t tap_rec;
   gint        op_idx;
-  struct tcap_private_t * p_private_tcap = (struct tcap_private_t *)data;
   asn1_ctx_t asn1_ctx;
+  gsm_map_private_info_t *gsm_map_priv;
 
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
@@ -2150,11 +2212,15 @@ dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 
   top_tree = parent_tree;
 
+  gsm_map_priv = wmem_new0(wmem_packet_scope(), gsm_map_private_info_t);
+  gsm_map_priv->tcap_private = (struct tcap_private_t *)data;
+  asn1_ctx.value_ptr = gsm_map_priv;
+
   /* create display subtree for the protocol */
   item = proto_tree_add_item(parent_tree, proto_gsm_map, tvb, 0, -1, ENC_NA);
   tree = proto_item_add_subtree(item, ett_gsm_map);
 
-  dissect_gsm_map_GSMMAPPDU(FALSE, tvb, 0, &asn1_ctx, tree, -1, p_private_tcap);
+  dissect_gsm_map_GSMMAPPDU(FALSE, tvb, 0, &asn1_ctx, tree, -1);
   try_val_to_str_idx(opcode, gsm_map_opr_code_strings, &op_idx);
 
   if (op_idx != -1) {
@@ -2177,6 +2243,7 @@ dissect_gsm_map_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
   static      gsm_map_tap_rec_t tap_rec;
   gint        op_idx;
   asn1_ctx_t asn1_ctx;
+  gsm_map_private_info_t *gsm_map_priv;
 
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
@@ -2184,15 +2251,15 @@ dissect_gsm_map_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
   top_tree = parent_tree;
 
+  gsm_map_priv = wmem_new0(wmem_packet_scope(), gsm_map_private_info_t);
+  gsm_map_priv->sccp_msg_info = (sccp_msg_info_t *)data;
+  asn1_ctx.value_ptr = gsm_map_priv;
+
   /* create display subtree for the protocol */
   item = proto_tree_add_item(parent_tree, proto_gsm_map, tvb, 0, -1, ENC_NA);
   tree = proto_item_add_subtree(item, ett_gsm_map);
 
-  /* Save the sccp_msg_info_t data (if present) because it can't be passed
-     through function calls */
-  p_add_proto_data(pinfo->pool, pinfo, proto_gsm_map, pinfo->curr_layer_num, data);
-
-  dissect_gsm_map_GSMMAPPDU(FALSE, tvb, 0, &asn1_ctx, tree, -1, NULL);
+  dissect_gsm_map_GSMMAPPDU(FALSE, tvb, 0, &asn1_ctx, tree, -1);
   try_val_to_str_idx(opcode, gsm_map_opr_code_strings, &op_idx);
 
   if (op_idx != -1) {

@@ -87,7 +87,6 @@ static struct tcapsrt_info_t tcapsrt_global_info[MAX_TCAP_INSTANCE];
 #define MAX_SSN 254
 static range_t *global_ssn_range;
 static range_t *ssn_range;
-struct tcap_private_t tcap_private;
 
 gboolean gtcap_HandleSRT=FALSE;
 /* These two timeout (in second) are used when some message are lost,
@@ -117,7 +116,6 @@ static proto_tree * tcap_stat_tree=NULL;
 static dissector_handle_t data_handle;
 static dissector_handle_t ansi_tcap_handle;
 
-static void raz_tcap_private(struct tcap_private_t * p_tcap_private);
 static int dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_);
 
@@ -1826,6 +1824,7 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
   gint8 ber_class;
   gboolean pc;
   gint tag;
+  struct tcap_private_t *p_tcap_private;
 
   /* Check if ANSI TCAP and call the ANSI TCAP dissector if that's the case
    * PackageType ::= CHOICE { unidirectional            [PRIVATE 1] IMPLICIT UniTransactionPDU,
@@ -1874,9 +1873,9 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
   }
   cur_oid = NULL;
   tcapext_oid = NULL;
-  raz_tcap_private(&tcap_private);
 
-  asn1_ctx.value_ptr = &tcap_private;
+  p_tcap_private = wmem_new0(wmem_packet_scope(), struct tcap_private_t);
+  asn1_ctx.value_ptr = p_tcap_private;
   gp_tcapsrt_info=tcapsrt_razinfo();
   tcap_subdissector_used=FALSE;
   gp_tcap_context=NULL;
@@ -1884,7 +1883,7 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 
   if (gtcap_HandleSRT && !tcap_subdissector_used ) {
     p_tcap_context=tcapsrt_call_matching(tvb, pinfo, tcap_stat_tree, gp_tcapsrt_info);
-    tcap_private.context=p_tcap_context;
+    p_tcap_private->context=p_tcap_context;
 
     /* If the current message is TCAP only,
      * save the Application Context Name for the next messages
@@ -2191,20 +2190,16 @@ dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset
   return offset;
 }
 
-static void raz_tcap_private(struct tcap_private_t * p_tcap_private)
-{
-  memset(p_tcap_private,0,sizeof(struct tcap_private_t) );
-}
-
 /*
  * Call ITU Subdissector to decode the Tcap Component
  */
 static int
-dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_)
+dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_)
 {
   dissector_handle_t subdissector_handle=NULL;
   gboolean is_subdissector=FALSE;
   struct tcaphash_context_t * p_tcap_context=NULL;
+  struct tcap_private_t *p_tcap_private = (struct tcap_private_t*)actx->value_ptr;
 
   /*
    * ok lets look at the oid and ssn and try and find a dissector, otherwise lets decode it.
@@ -2218,11 +2213,11 @@ dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
       p_tcap_context=tcapsrt_call_matching(tvb, actx->pinfo, tcap_stat_tree, gp_tcapsrt_info);
       tcap_subdissector_used=TRUE;
       gp_tcap_context=p_tcap_context;
-      tcap_private.context=p_tcap_context;
+      p_tcap_private->context=p_tcap_context;
     } else {
       /* Take the last TCAP context */
       p_tcap_context = gp_tcap_context;
-      tcap_private.context=p_tcap_context;
+      p_tcap_private->context=p_tcap_context;
     }
   }
   if (p_tcap_context) {
@@ -2261,8 +2256,8 @@ dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
     } else {
       /* Copy the OID from the TCAP context to the current oid */
       if (p_tcap_context->oid_present) {
-        tcap_private.oid= (void*) p_tcap_context->oid;
-        tcap_private.acv=TRUE;
+        p_tcap_private->oid= (void*) p_tcap_context->oid;
+        p_tcap_private->acv=TRUE;
       }
     } /* no OID */
   } /* no TCAP context */

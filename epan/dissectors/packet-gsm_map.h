@@ -62,27 +62,26 @@ guint8 dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 void dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree);
 
 typedef enum {
-  GSM_MAP_RP_OA_NO_ID = 0,
-  GSM_MAP_RP_OA_MSISDN,
-  GSM_MAP_RP_OA_SERVICE_CENTER_ADDRESS
-} gsm_map_rp_oa_id;
+  GSM_MAP_SM_RP_OA_NO_ID = 0,
+  GSM_MAP_SM_RP_OA_MSISDN,
+  GSM_MAP_SM_RP_OA_SERVICE_CENTER_ADDRESS
+} gsm_map_sm_rp_oa_id;
 
 typedef enum {
-  GSM_MAP_RP_DA_NO_ID = 0,
-  GSM_MAP_RP_DA_IMSI,
-  GSM_MAP_RP_DA_LMSI,
-  GSM_MAP_RP_DA_SERVICE_CENTER_ADDRESS
-} gsm_map_rp_da_id;
+  GSM_MAP_SM_RP_DA_NO_ID = 0,
+  GSM_MAP_SM_RP_DA_IMSI,
+  GSM_MAP_SM_RP_DA_LMSI,
+  GSM_MAP_SM_RP_DA_SERVICE_CENTER_ADDRESS
+} gsm_map_sm_rp_da_id;
 
-/* structure accessible via p_get_proto_data(pinfo->pool, pinfo, proto_gsm_map, 0) */
+/* structure accessible via p_get_proto_data(wmem_file_scope(), pinfo, proto_gsm_map, 0) */
 typedef struct {
-  gsm_map_rp_oa_id rp_oa_id;
-  const gchar *rp_oa_str;
-  gsm_map_rp_da_id rp_da_id;
-  const gchar *rp_da_str;
+  gsm_map_sm_rp_oa_id sm_rp_oa_id;
+  const gchar *sm_rp_oa_str;
+  gsm_map_sm_rp_da_id sm_rp_da_id;
+  const gchar *sm_rp_da_str;
+  guint32 tcap_src_tid;
 } gsm_map_packet_info_t;
-
-extern int proto_gsm_map;
 
 
 /*--- Included file: packet-gsm_map-exp.h ---*/
@@ -298,7 +297,7 @@ int dissect_gsm_ss_LocationMethod(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 int dissect_NokiaMAP_Extensions_ServiceKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-gsm_map-exp.h ---*/
-#line 80 "./asn1/gsm_map/packet-gsm_map-template.h"
+#line 79 "./asn1/gsm_map/packet-gsm_map-template.h"
 
 
 #endif  /* PACKET_GSM_MAP_H */

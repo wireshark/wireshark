@@ -253,10 +253,12 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 
   subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_isdn_address_string);
   dissect_gsm_map_msisdn(parameter_tvb, actx->pinfo , subtree);
-  actx->private_data = tvb_bytes_to_str(actx->pinfo->pool, parameter_tvb, 0, tvb_captured_length(parameter_tvb));
+  if (!PINFO_FD_VISITED(actx->pinfo))
+    actx->private_data = tvb_bytes_to_str(wmem_file_scope(), parameter_tvb, 0, tvb_captured_length(parameter_tvb));
 
 #.FN_BODY IMSI VAL_PTR = &parameter_tvb
-  tvbuff_t	*parameter_tvb;
+  tvbuff_t   *parameter_tvb;
+  const char *imsi_str;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &parameter_tvb);
 
@@ -265,17 +267,18 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
   if(tvb_reported_length(parameter_tvb)==0)
     return offset;
 
- /* Hide the octet string default printout */
- PROTO_ITEM_SET_HIDDEN(actx->created_item);
- actx->private_data = wmem_strdup(actx->pinfo->pool,
-                                  dissect_e212_imsi(parameter_tvb, actx->pinfo, tree,
-                                                    0, tvb_reported_length(parameter_tvb), FALSE));
+  /* Hide the octet string default printout */
+  PROTO_ITEM_SET_HIDDEN(actx->created_item);
+  imsi_str = dissect_e212_imsi(parameter_tvb, actx->pinfo, tree,
+                               0, tvb_reported_length(parameter_tvb), FALSE);
+  if (!PINFO_FD_VISITED(actx->pinfo))
+    actx->private_data = wmem_strdup(wmem_file_scope(), imsi_str);
 
 #.FN_BODY LMSI VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
 %(DEFAULT_BODY)s
-  if (parameter_tvb) {
-    actx->private_data = tvb_bytes_to_str(actx->pinfo->pool, parameter_tvb, 0, tvb_captured_length(parameter_tvb));
+  if (parameter_tvb && !PINFO_FD_VISITED(actx->pinfo)) {
+    actx->private_data = tvb_bytes_to_str(wmem_file_scope(), parameter_tvb, 0, tvb_captured_length(parameter_tvb));
   }
 
 #.FN_BODY TBCD-STRING VAL_PTR = &parameter_tvb
@@ -314,6 +317,8 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
  guint8		octet;
  tvbuff_t	*next_tvb;
  proto_tree *subtree;
+ gsm_map_private_info_t *gsm_map_priv;
+ sccp_msg_info_t *sccp_msg_info;
 
 
 %(DEFAULT_BODY)s
@@ -321,6 +326,8 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
  if (!parameter_tvb)
 	return offset;
 
+ gsm_map_priv = (gsm_map_private_info_t*)actx->value_ptr;
+ sccp_msg_info = gsm_map_priv ? gsm_map_priv->sccp_msg_info : NULL;
  subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_LongSignalInfo);
 
  switch (AccessNetworkProtocolId){
@@ -333,8 +340,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 			/* Strip off discrimination and length */
 			proto_tree_add_item(subtree, hf_gsm_map_len, parameter_tvb, 1,1,ENC_BIG_ENDIAN);
 			next_tvb = tvb_new_subset_remaining(parameter_tvb, 2);
-			call_dissector_with_data(bssap_handle, next_tvb, actx->pinfo, subtree,
-					p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_gsm_map, actx->pinfo->curr_layer_num));
+			call_dissector_with_data(bssap_handle, next_tvb, actx->pinfo, subtree, sccp_msg_info);
 		}else if(octet==1){
 			proto_tree_add_item(subtree, hf_gsm_map_dlci, parameter_tvb, 1,1,ENC_BIG_ENDIAN);
 			proto_tree_add_item(subtree, hf_gsm_map_len, parameter_tvb, 2,1,ENC_BIG_ENDIAN);
@@ -357,9 +363,9 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
   actx->pinfo->p2p_dir = P2P_DIR_SENT;
 %(DEFAULT_BODY)s
   if (actx->private_data) {
-    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx->pinfo);
-    gsm_map_pi->rp_oa_id = GSM_MAP_RP_OA_SERVICE_CENTER_ADDRESS;
-    gsm_map_pi->rp_oa_str = (const gchar*)actx->private_data;
+    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx, TRUE);
+    gsm_map_pi->sm_rp_oa_id = GSM_MAP_SM_RP_OA_SERVICE_CENTER_ADDRESS;
+    gsm_map_pi->sm_rp_oa_str = (const gchar*)actx->private_data;
     actx->private_data = NULL;
   }
 
@@ -368,9 +374,9 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
   actx->pinfo->p2p_dir = P2P_DIR_SENT;
 %(DEFAULT_BODY)s
   if (actx->private_data) {
-    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx->pinfo);
-    gsm_map_pi->rp_oa_id = GSM_MAP_RP_OA_SERVICE_CENTER_ADDRESS;
-    gsm_map_pi->rp_oa_str = (const gchar*)actx->private_data;
+    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx, TRUE);
+    gsm_map_pi->sm_rp_oa_id = GSM_MAP_SM_RP_OA_SERVICE_CENTER_ADDRESS;
+    gsm_map_pi->sm_rp_oa_str = (const gchar*)actx->private_data;
     actx->private_data = NULL;
   }
 
@@ -379,9 +385,9 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
   actx->pinfo->p2p_dir = P2P_DIR_SENT;
 %(DEFAULT_BODY)s
   if (actx->private_data) {
-    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx->pinfo);
-    gsm_map_pi->rp_da_id = GSM_MAP_RP_DA_IMSI;
-    gsm_map_pi->rp_da_str = (const gchar*)actx->private_data;
+    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx, TRUE);
+    gsm_map_pi->sm_rp_da_id = GSM_MAP_SM_RP_DA_IMSI;
+    gsm_map_pi->sm_rp_da_str = (const gchar*)actx->private_data;
     actx->private_data = NULL;
   }
 
@@ -390,9 +396,9 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
   actx->pinfo->p2p_dir = P2P_DIR_SENT;
 %(DEFAULT_BODY)s
   if (actx->private_data) {
-    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx->pinfo);
-    gsm_map_pi->rp_da_id = GSM_MAP_RP_DA_LMSI;
-    gsm_map_pi->rp_da_str = (const gchar*)actx->private_data;
+    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx, TRUE);
+    gsm_map_pi->sm_rp_da_id = GSM_MAP_SM_RP_DA_LMSI;
+    gsm_map_pi->sm_rp_da_str = (const gchar*)actx->private_data;
     actx->private_data = NULL;
   }
 
@@ -401,9 +407,9 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
   actx->pinfo->p2p_dir = P2P_DIR_SENT;
 %(DEFAULT_BODY)s
   if (actx->private_data) {
-    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx->pinfo);
-    gsm_map_pi->rp_da_id = GSM_MAP_RP_DA_IMSI;
-    gsm_map_pi->rp_da_str = (const gchar*)actx->private_data;
+    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx, TRUE);
+    gsm_map_pi->sm_rp_da_id = GSM_MAP_SM_RP_DA_IMSI;
+    gsm_map_pi->sm_rp_da_str = (const gchar*)actx->private_data;
     actx->private_data = NULL;
   }
 
@@ -412,9 +418,9 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
   actx->pinfo->p2p_dir = P2P_DIR_SENT;
 %(DEFAULT_BODY)s
   if (actx->private_data) {
-    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx->pinfo);
-    gsm_map_pi->rp_da_id = GSM_MAP_RP_DA_LMSI;
-    gsm_map_pi->rp_da_str = (const gchar*)actx->private_data;
+    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx, TRUE);
+    gsm_map_pi->sm_rp_da_id = GSM_MAP_SM_RP_DA_LMSI;
+    gsm_map_pi->sm_rp_da_str = (const gchar*)actx->private_data;
     actx->private_data = NULL;
   }
 
@@ -423,9 +429,9 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
   actx->pinfo->p2p_dir = P2P_DIR_RECV;
 %(DEFAULT_BODY)s
   if (actx->private_data) {
-    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx->pinfo);
-    gsm_map_pi->rp_oa_id = GSM_MAP_RP_OA_MSISDN;
-    gsm_map_pi->rp_oa_str = (const gchar*)actx->private_data;
+    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx, TRUE);
+    gsm_map_pi->sm_rp_oa_id = GSM_MAP_SM_RP_OA_MSISDN;
+    gsm_map_pi->sm_rp_oa_str = (const gchar*)actx->private_data;
     actx->private_data = NULL;
   }
 
@@ -433,9 +439,9 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
   actx->pinfo->p2p_dir = P2P_DIR_RECV;
 %(DEFAULT_BODY)s
   if (actx->private_data) {
-    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx->pinfo);
-    gsm_map_pi->rp_oa_id = GSM_MAP_RP_OA_MSISDN;
-    gsm_map_pi->rp_oa_str = (const gchar*)actx->private_data;
+    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx, TRUE);
+    gsm_map_pi->sm_rp_oa_id = GSM_MAP_SM_RP_OA_MSISDN;
+    gsm_map_pi->sm_rp_oa_str = (const gchar*)actx->private_data;
     actx->private_data = NULL;
   }
 
@@ -444,9 +450,9 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
   actx->pinfo->p2p_dir = P2P_DIR_RECV;
 %(DEFAULT_BODY)s
   if (actx->private_data) {
-    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx->pinfo);
-    gsm_map_pi->rp_da_id = GSM_MAP_RP_DA_SERVICE_CENTER_ADDRESS;
-    gsm_map_pi->rp_da_str = (const gchar*)actx->private_data;
+    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx, TRUE);
+    gsm_map_pi->sm_rp_da_id = GSM_MAP_SM_RP_DA_SERVICE_CENTER_ADDRESS;
+    gsm_map_pi->sm_rp_da_str = (const gchar*)actx->private_data;
     actx->private_data = NULL;
   }
 
@@ -455,118 +461,157 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
   actx->pinfo->p2p_dir = P2P_DIR_RECV;
 %(DEFAULT_BODY)s
   if (actx->private_data) {
-    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx->pinfo);
-    gsm_map_pi->rp_da_id = GSM_MAP_RP_DA_SERVICE_CENTER_ADDRESS;
-    gsm_map_pi->rp_da_str = (const gchar*)actx->private_data;
+    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx, TRUE);
+    gsm_map_pi->sm_rp_da_id = GSM_MAP_SM_RP_DA_SERVICE_CENTER_ADDRESS;
+    gsm_map_pi->sm_rp_da_str = (const gchar*)actx->private_data;
     actx->private_data = NULL;
   }
 
-#.FN_BODY SignalInfo VAL_PTR = &parameter_tvb
- tvbuff_t	*parameter_tvb;
+#.FN_BODY SM-RP-OAold/noSM-RP-OA
+  gsm_map_packet_info_t *prev_packet_info = gsm_map_get_matching_tcap_info(actx);
+%(DEFAULT_BODY)s
+  if (prev_packet_info && !PINFO_FD_VISITED(actx->pinfo)) {
+    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx, FALSE);
+    gsm_map_pi->sm_rp_oa_id = prev_packet_info->sm_rp_oa_id;
+    gsm_map_pi->sm_rp_oa_str = wmem_strdup(wmem_file_scope(), prev_packet_info->sm_rp_oa_str);
+  }
 
- %(DEFAULT_BODY)s
-	actx->value_ptr = (void*)parameter_tvb;
+#.FN_BODY SM-RP-OA/noSM-RP-OA
+  gsm_map_packet_info_t *prev_packet_info = gsm_map_get_matching_tcap_info(actx);
+%(DEFAULT_BODY)s
+  if (prev_packet_info && !PINFO_FD_VISITED(actx->pinfo)) {
+    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx, FALSE);
+    gsm_map_pi->sm_rp_oa_id = prev_packet_info->sm_rp_oa_id;
+    gsm_map_pi->sm_rp_oa_str = wmem_strdup(wmem_file_scope(), prev_packet_info->sm_rp_oa_str);
+  }
+
+#.FN_BODY SM-RP-DAold/noSM-RP-DA
+  gsm_map_packet_info_t *prev_packet_info = gsm_map_get_matching_tcap_info(actx);
+%(DEFAULT_BODY)s
+  if (prev_packet_info && !PINFO_FD_VISITED(actx->pinfo)) {
+    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx, FALSE);
+    gsm_map_pi->sm_rp_da_id = prev_packet_info->sm_rp_da_id;
+    gsm_map_pi->sm_rp_da_str = wmem_strdup(wmem_file_scope(), prev_packet_info->sm_rp_da_str);
+  }
+
+#.FN_BODY SM-RP-DA/noSM-RP-DA
+  gsm_map_packet_info_t *prev_packet_info = gsm_map_get_matching_tcap_info(actx);
+%(DEFAULT_BODY)s
+  if (prev_packet_info && !PINFO_FD_VISITED(actx->pinfo)) {
+    gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx, FALSE);
+    gsm_map_pi->sm_rp_da_id = prev_packet_info->sm_rp_da_id;
+    gsm_map_pi->sm_rp_da_str = wmem_strdup(wmem_file_scope(), prev_packet_info->sm_rp_da_str);
+  }
+
+#.FN_BODY SignalInfo VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  gsm_map_private_info_t *gsm_map_priv = (gsm_map_private_info_t*)actx->value_ptr;
+
+%(DEFAULT_BODY)s
+  if (gsm_map_priv)
+	gsm_map_priv->signal_info_tvb = parameter_tvb;
 
 
 #.FN_BODY SM-DeliveryFailureCause
-	/* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+  /* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
   guint8 oct;
+  gsm_map_private_info_t *gsm_map_priv = (gsm_map_private_info_t*)actx->value_ptr;
 %(DEFAULT_BODY)s
 
-  if (!actx->value_ptr)
+  if (!gsm_map_priv || !gsm_map_priv->signal_info_tvb)
     return offset;
   /* Detailed diagnostic information contains either a SMS-SUBMIT-REPORT or a SMS-DELIVERY-REPORT */
-  oct = tvb_get_guint8((tvbuff_t*)actx->value_ptr, 0);
+  oct = tvb_get_guint8(gsm_map_priv->signal_info_tvb, 0);
   actx->pinfo->p2p_dir = ((oct & 0x03) == 0) ? P2P_DIR_RECV : P2P_DIR_SENT;
-  call_dissector_only(gsm_sms_handle, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree, NULL);
+  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, top_tree, NULL);
 
 #.FN_BODY ForwardSM-Arg
-
-	/* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+  /* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+  gsm_map_private_info_t *gsm_map_priv = (gsm_map_private_info_t*)actx->value_ptr;
 %(DEFAULT_BODY)s
 
-	if (!actx->value_ptr)
-		return offset;
-	if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
-		if (gsmmap_pdu_type == 1) {
-			actx->pinfo->p2p_dir = P2P_DIR_SENT;
-		} else {
-			actx->pinfo->p2p_dir = P2P_DIR_RECV;
-		}
-	}
-	call_dissector_only(gsm_sms_handle, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree, NULL);
+  if (!gsm_map_priv || !gsm_map_priv->signal_info_tvb)
+    return offset;
+  if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
+    if (gsmmap_pdu_type == 1) {
+      actx->pinfo->p2p_dir = P2P_DIR_SENT;
+    } else {
+      actx->pinfo->p2p_dir = P2P_DIR_RECV;
+    }
+  }
+  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, top_tree, NULL);
 
 #.FN_BODY MO-ForwardSM-Arg
-
-	/* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+  /* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+  gsm_map_private_info_t *gsm_map_priv = (gsm_map_private_info_t*)actx->value_ptr;
 %(DEFAULT_BODY)s
 
-	if (!actx->value_ptr)
-		return offset;
-	if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
-		actx->pinfo->p2p_dir = P2P_DIR_RECV;
-	}
-	call_dissector_only(gsm_sms_handle, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree, NULL);
+  if (!gsm_map_priv || !gsm_map_priv->signal_info_tvb)
+    return offset;
+  if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
+    actx->pinfo->p2p_dir = P2P_DIR_RECV;
+  }
+  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, top_tree, NULL);
 
 #.FN_BODY MO-ForwardSM-Res
-
-        /* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+  /* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+  gsm_map_private_info_t *gsm_map_priv = (gsm_map_private_info_t*)actx->value_ptr;
 %(DEFAULT_BODY)s
 
-        if (!actx->value_ptr)
-                return offset;
-        if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
-                actx->pinfo->p2p_dir = P2P_DIR_SENT;
-        }
-        call_dissector_only(gsm_sms_handle, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree, NULL);
+  if (!gsm_map_priv || !gsm_map_priv->signal_info_tvb)
+    return offset;
+  if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
+    actx->pinfo->p2p_dir = P2P_DIR_SENT;
+  }
+  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, top_tree, NULL);
 
 #.FN_BODY MT-ForwardSM-Arg
-
-	/* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+  /* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+  gsm_map_private_info_t *gsm_map_priv = (gsm_map_private_info_t*)actx->value_ptr;
 %(DEFAULT_BODY)s
 
-	if (!actx->value_ptr)
-		return offset;
-	if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
-		actx->pinfo->p2p_dir = P2P_DIR_SENT;
-	}
-	call_dissector_only(gsm_sms_handle, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree, NULL);
+  if (!gsm_map_priv || !gsm_map_priv->signal_info_tvb)
+    return offset;
+  if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
+    actx->pinfo->p2p_dir = P2P_DIR_SENT;
+  }
+  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, top_tree, NULL);
 
 #.FN_BODY MT-ForwardSM-Res
-
-        /* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+  /* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+  gsm_map_private_info_t *gsm_map_priv = (gsm_map_private_info_t*)actx->value_ptr;
 %(DEFAULT_BODY)s
 
-        if (!actx->value_ptr)
-                return offset;
-        if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
-                actx->pinfo->p2p_dir = P2P_DIR_RECV;
-        }
-        call_dissector_only(gsm_sms_handle, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree, NULL);
+  if (!gsm_map_priv || !gsm_map_priv->signal_info_tvb)
+    return offset;
+  if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
+    actx->pinfo->p2p_dir = P2P_DIR_RECV;
+  }
+  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, top_tree, NULL);
 
 #.FN_BODY MT-ForwardSM-VGCS-Arg
-
-        /* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+  /* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+  gsm_map_private_info_t *gsm_map_priv = (gsm_map_private_info_t*)actx->value_ptr;
 %(DEFAULT_BODY)s
 
-        if (!actx->value_ptr)
-                return offset;
-        if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
-                actx->pinfo->p2p_dir = P2P_DIR_SENT;
-        }
-        call_dissector_only(gsm_sms_handle, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree, NULL);
+  if (!gsm_map_priv || !gsm_map_priv->signal_info_tvb)
+    return offset;
+  if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
+    actx->pinfo->p2p_dir = P2P_DIR_SENT;
+  }
+  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, top_tree, NULL);
 
 #.FN_BODY MT-ForwardSM-VGCS-Res
-
-        /* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+  /* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+  gsm_map_private_info_t *gsm_map_priv = (gsm_map_private_info_t*)actx->value_ptr;
 %(DEFAULT_BODY)s
 
-        if (!actx->value_ptr)
-                return offset;
-        if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
-                actx->pinfo->p2p_dir = P2P_DIR_RECV;
-        }
-        call_dissector_only(gsm_sms_handle, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree, NULL);
+  if (!gsm_map_priv || !gsm_map_priv->signal_info_tvb)
+    return offset;
+  if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
+    actx->pinfo->p2p_dir = P2P_DIR_RECV;
+  }
+  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, top_tree, NULL);
 
 #.FN_BODY SS-Status VAL_PTR = &parameter_tvb
 
@@ -822,8 +867,10 @@ and GSM 09.10. The Protocol ID indicates that the message or messages are accord
 For the coding of the messages see GSM 08.06 and GSM 08.08.
 */
  ProtocolId = 0xffffffff;
+ gsm_map_private_info_t *gsm_map_priv;
 %(DEFAULT_BODY)s
-if (!actx->value_ptr)
+ gsm_map_priv = (gsm_map_private_info_t*)actx->value_ptr;
+if (!gsm_map_priv || !gsm_map_priv->signal_info_tvb)
 	return offset;
  subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_externalsignalinfo);
  switch (ProtocolId){
@@ -834,56 +881,54 @@ if (!actx->value_ptr)
 		 * function
 		 */
 		 /* Get tag */
-		 octet = tvb_get_guint8((tvbuff_t*)actx->value_ptr,0);
-		 proto_tree_add_item(subtree, hf_gsm_map_ie_tag, (tvbuff_t*)actx->value_ptr, 0,1,ENC_BIG_ENDIAN);
+		 octet = tvb_get_guint8(gsm_map_priv->signal_info_tvb,0);
+		 proto_tree_add_item(subtree, hf_gsm_map_ie_tag, gsm_map_priv->signal_info_tvb, 0,1,ENC_BIG_ENDIAN);
 		 /* get length */
-		 length = tvb_get_guint8((tvbuff_t*)actx->value_ptr,1);
-		 proto_tree_add_item(subtree, hf_gsm_map_len, (tvbuff_t*)actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
+		 length = tvb_get_guint8(gsm_map_priv->signal_info_tvb,1);
+		 proto_tree_add_item(subtree, hf_gsm_map_len, gsm_map_priv->signal_info_tvb, 1,1,ENC_BIG_ENDIAN);
 		 /* Branch on tag */
 		 switch(octet){
 		 case 4:
 			/* Dissect the data part */
-			de_bearer_cap((tvbuff_t*)actx->value_ptr, subtree, actx->pinfo, 2, length, NULL, 0);
+			de_bearer_cap(gsm_map_priv->signal_info_tvb, subtree, actx->pinfo, 2, length, NULL, 0);
 			/* TODO: There may be more than one IE */
 			break;
 		 default:
-			proto_tree_add_expert(subtree, actx->pinfo, &ei_gsm_map_undecoded, (tvbuff_t*)actx->value_ptr, 0, length);
+			proto_tree_add_expert(subtree, actx->pinfo, &ei_gsm_map_undecoded, gsm_map_priv->signal_info_tvb, 0, length);
 			break;
 		}/* switch(octet) */
 		break;
 	case 2:
 		/* gsm-0806 */
-		octet = tvb_get_guint8((tvbuff_t*)actx->value_ptr,0);
+		octet = tvb_get_guint8(gsm_map_priv->signal_info_tvb,0);
 		/* Discrimination parameter */
-		proto_tree_add_item(subtree, hf_gsm_map_disc_par, (tvbuff_t*)actx->value_ptr, 0,1,ENC_BIG_ENDIAN);
+		proto_tree_add_item(subtree, hf_gsm_map_disc_par, gsm_map_priv->signal_info_tvb, 0,1,ENC_BIG_ENDIAN);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006(GSM 08.06 version 5.3.0) */
 			/* Strip off discrimination and length */
-			proto_tree_add_item(subtree, hf_gsm_map_len, (tvbuff_t*)actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
-			next_tvb = tvb_new_subset_remaining((tvbuff_t*)actx->value_ptr, 2);
-			call_dissector_with_data(bssap_handle, next_tvb, actx->pinfo, subtree,
-					p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_gsm_map, actx->pinfo->curr_layer_num));
+			proto_tree_add_item(subtree, hf_gsm_map_len, gsm_map_priv->signal_info_tvb, 1,1,ENC_BIG_ENDIAN);
+			next_tvb = tvb_new_subset_remaining(gsm_map_priv->signal_info_tvb, 2);
+			call_dissector_with_data(bssap_handle, next_tvb, actx->pinfo, subtree, gsm_map_priv->sccp_msg_info);
 		}else if(octet==1){
-			proto_tree_add_item(subtree, hf_gsm_map_dlci, (tvbuff_t*)actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
-			proto_tree_add_item(subtree, hf_gsm_map_len, (tvbuff_t*)actx->value_ptr, 2,1,ENC_BIG_ENDIAN);
-			next_tvb = tvb_new_subset_remaining((tvbuff_t*)actx->value_ptr, 3);
+			proto_tree_add_item(subtree, hf_gsm_map_dlci, gsm_map_priv->signal_info_tvb, 1,1,ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtree, hf_gsm_map_len, gsm_map_priv->signal_info_tvb, 2,1,ENC_BIG_ENDIAN);
+			next_tvb = tvb_new_subset_remaining(gsm_map_priv->signal_info_tvb, 3);
 			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree);
 		}
 		break;
 	case 3:
 	/* gsm-BSSMAP -- Value 3 is reserved and must not be used*/
-		octet = tvb_get_guint8((tvbuff_t*)actx->value_ptr,0);
+		octet = tvb_get_guint8(gsm_map_priv->signal_info_tvb,0);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006 */
-			next_tvb = tvb_new_subset_remaining((tvbuff_t*)actx->value_ptr, 2);
-			call_dissector_with_data(bssap_handle, next_tvb, actx->pinfo, subtree,
-					p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_gsm_map, actx->pinfo->curr_layer_num));
+			next_tvb = tvb_new_subset_remaining(gsm_map_priv->signal_info_tvb, 2);
+			call_dissector_with_data(bssap_handle, next_tvb, actx->pinfo, subtree, gsm_map_priv->sccp_msg_info);
 		}
 		break;
 	/* ets-300102-1 (~Q.931 ) */
 	case 4:
-		octet = tvb_get_guint8((tvbuff_t*)actx->value_ptr,0);
-		length = tvb_get_guint8((tvbuff_t*)actx->value_ptr,1);
+		octet = tvb_get_guint8(gsm_map_priv->signal_info_tvb,0);
+		length = tvb_get_guint8(gsm_map_priv->signal_info_tvb,1);
 		if ( octet == 4 )
-			dissect_q931_bearer_capability_ie((tvbuff_t*)actx->value_ptr, 2, length, subtree);
+			dissect_q931_bearer_capability_ie(gsm_map_priv->signal_info_tvb, 2, length, subtree);
 		break;
 	default:
 		break;
@@ -902,10 +947,12 @@ MAP interfaces
  guint8		length;
  tvbuff_t	*next_tvb;
  proto_tree *subtree;
+ gsm_map_private_info_t *gsm_map_priv;
 
  ProtocolId = 0xffffffff;
 %(DEFAULT_BODY)s
-if (!actx->value_ptr)
+ gsm_map_priv = (gsm_map_private_info_t*)actx->value_ptr;
+ if (!gsm_map_priv || !gsm_map_priv->signal_info_tvb)
 	return offset;
  subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_externalsignalinfo);
  switch (ProtocolId){
@@ -916,56 +963,54 @@ if (!actx->value_ptr)
 		 * function
 		 */
 		 /* Get tag */
-		 octet = tvb_get_guint8((tvbuff_t*)actx->value_ptr,0);
-		 proto_tree_add_item(subtree, hf_gsm_map_ie_tag, (tvbuff_t*)actx->value_ptr, 0,1,ENC_BIG_ENDIAN);
+		 octet = tvb_get_guint8(gsm_map_priv->signal_info_tvb,0);
+		 proto_tree_add_item(subtree, hf_gsm_map_ie_tag, gsm_map_priv->signal_info_tvb, 0,1,ENC_BIG_ENDIAN);
 		 /* get length */
-		 length = tvb_get_guint8((tvbuff_t*)actx->value_ptr,1);
-		 proto_tree_add_item(subtree, hf_gsm_map_len, (tvbuff_t*)actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
+		 length = tvb_get_guint8(gsm_map_priv->signal_info_tvb,1);
+		 proto_tree_add_item(subtree, hf_gsm_map_len, gsm_map_priv->signal_info_tvb, 1,1,ENC_BIG_ENDIAN);
 		 /* Branch on tag */
 		 switch(octet){
 		 case 4:
 			/* Dissect the data part */
-			de_bearer_cap((tvbuff_t*)actx->value_ptr, subtree, actx->pinfo, 2, length, NULL, 0);
+			de_bearer_cap(gsm_map_priv->signal_info_tvb, subtree, actx->pinfo, 2, length, NULL, 0);
 			/* TODO: There may be more than one IE */
 			break;
 		 default:
-			proto_tree_add_expert(subtree, actx->pinfo, &ei_gsm_map_undecoded, (tvbuff_t*)actx->value_ptr, 0, length);
+			proto_tree_add_expert(subtree, actx->pinfo, &ei_gsm_map_undecoded, gsm_map_priv->signal_info_tvb, 0, length);
 			break;
 		}/* switch(octet) */
 		break;
 	case 2:
 		/* gsm-0806 */
-		octet = tvb_get_guint8((tvbuff_t*)actx->value_ptr,0);
+		octet = tvb_get_guint8(gsm_map_priv->signal_info_tvb,0);
 		/* Discrimination parameter */
-		proto_tree_add_item(subtree, hf_gsm_map_disc_par, (tvbuff_t*)actx->value_ptr, 0,1,ENC_BIG_ENDIAN);
+		proto_tree_add_item(subtree, hf_gsm_map_disc_par, gsm_map_priv->signal_info_tvb, 0,1,ENC_BIG_ENDIAN);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006(GSM 08.06 version 5.3.0) */
 			/* Strip off discrimination and length */
-			proto_tree_add_item(subtree, hf_gsm_map_len, (tvbuff_t*)actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
-			next_tvb = tvb_new_subset_remaining((tvbuff_t*)actx->value_ptr, 2);
-			call_dissector_with_data(bssap_handle, next_tvb, actx->pinfo, subtree,
-					p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_gsm_map, actx->pinfo->curr_layer_num));
+			proto_tree_add_item(subtree, hf_gsm_map_len, gsm_map_priv->signal_info_tvb, 1,1,ENC_BIG_ENDIAN);
+			next_tvb = tvb_new_subset_remaining(gsm_map_priv->signal_info_tvb, 2);
+			call_dissector_with_data(bssap_handle, next_tvb, actx->pinfo, subtree, gsm_map_priv->sccp_msg_info);
 		}else if(octet==1){
-			proto_tree_add_item(subtree, hf_gsm_map_dlci, (tvbuff_t*)actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
-			proto_tree_add_item(subtree, hf_gsm_map_len, (tvbuff_t*)actx->value_ptr, 2,1,ENC_BIG_ENDIAN);
-			next_tvb = tvb_new_subset_remaining((tvbuff_t*)actx->value_ptr, 3);
+			proto_tree_add_item(subtree, hf_gsm_map_dlci, gsm_map_priv->signal_info_tvb, 1,1,ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtree, hf_gsm_map_len, gsm_map_priv->signal_info_tvb, 2,1,ENC_BIG_ENDIAN);
+			next_tvb = tvb_new_subset_remaining(gsm_map_priv->signal_info_tvb, 3);
 			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree);
 		}
 		break;
 	case 3:
 	/* gsm-BSSMAP TODO Is it correct to stripp off two first octets here?*/
-		octet = tvb_get_guint8((tvbuff_t*)actx->value_ptr,0);
+		octet = tvb_get_guint8(gsm_map_priv->signal_info_tvb,0);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006 */
-			next_tvb = tvb_new_subset_remaining((tvbuff_t*)actx->value_ptr, 2);
-			call_dissector_with_data(bssap_handle, next_tvb, actx->pinfo, subtree,
-					p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_gsm_map, actx->pinfo->curr_layer_num));
+			next_tvb = tvb_new_subset_remaining(gsm_map_priv->signal_info_tvb, 2);
+			call_dissector_with_data(bssap_handle, next_tvb, actx->pinfo, subtree, gsm_map_priv->sccp_msg_info);
 		}
 		break;
 	/* ets-300102-1 (~Q.931 ) */
 	case 4:
-		octet = tvb_get_guint8((tvbuff_t*)actx->value_ptr,0);
-		length = tvb_get_guint8((tvbuff_t*)actx->value_ptr,1);
+		octet = tvb_get_guint8(gsm_map_priv->signal_info_tvb,0);
+		length = tvb_get_guint8(gsm_map_priv->signal_info_tvb,1);
 		if ( octet == 4 )
-			dissect_q931_bearer_capability_ie((tvbuff_t*)actx->value_ptr, 2, length, subtree);
+			dissect_q931_bearer_capability_ie(gsm_map_priv->signal_info_tvb, 2, length, subtree);
 		break;
 	default:
 		break;

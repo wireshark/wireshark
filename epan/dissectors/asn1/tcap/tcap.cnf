@@ -113,25 +113,29 @@ ABRT-apdu/_untag/user-information abrt_user_information
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY AUDT-apdu/_untag/application-context-name  FN_VARIANT = _str  VAL_PTR = &cur_oid
+  struct tcap_private_t *p_tcap_private = (struct tcap_private_t*)actx->value_ptr;
 %(DEFAULT_BODY)s
-  tcap_private.oid= (const void*) cur_oid;
-  tcap_private.acv=TRUE;
+  p_tcap_private->oid= (const void*) cur_oid;
+  p_tcap_private->acv=TRUE;
 #----------------------------------------------------------------------------------------
 #.FN_BODY AARQ-apdu/_untag/application-context-name  FN_VARIANT = _str  VAL_PTR = &cur_oid
+  struct tcap_private_t *p_tcap_private = (struct tcap_private_t*)actx->value_ptr;
 %(DEFAULT_BODY)s
-  tcap_private.oid= (const void*) cur_oid;
-  tcap_private.acv=TRUE;
+  p_tcap_private->oid= (const void*) cur_oid;
+  p_tcap_private->acv=TRUE;
 #----------------------------------------------------------------------------------------
 #.FN_BODY AARE-apdu/_untag/application-context-name  FN_VARIANT = _str  VAL_PTR = &cur_oid
+  struct tcap_private_t *p_tcap_private = (struct tcap_private_t*)actx->value_ptr;
 %(DEFAULT_BODY)s
-  tcap_private.oid= (const void*) cur_oid;
-  tcap_private.acv=TRUE;
+  p_tcap_private->oid= (const void*) cur_oid;
+  p_tcap_private->acv=TRUE;
 #----------------------------------------------------------------------------------------
 #.FN_BODY OrigTransactionID
   tvbuff_t *parameter_tvb;
   guint8 len, i;
   proto_tree *subtree;
   int saved_offset;
+  struct tcap_private_t *p_tcap_private = (struct tcap_private_t*)actx->value_ptr;
 
   hf_index = hf_tcap_tid;
   saved_offset = offset;
@@ -159,6 +163,7 @@ ABRT-apdu/_untag/user-information abrt_user_information
       gp_tcapsrt_info->src_tid=0;
       break;
     }
+    p_tcap_private->src_tid = gp_tcapsrt_info->src_tid;
 
     if (len) {
       col_append_str(actx->pinfo->cinfo, COL_INFO, "otid(");
@@ -175,6 +180,7 @@ ABRT-apdu/_untag/user-information abrt_user_information
   guint8 len , i;
   proto_tree *subtree;
   int saved_offset;
+  struct tcap_private_t *p_tcap_private = (struct tcap_private_t*)actx->value_ptr;
 
   hf_index = hf_tcap_tid;
   saved_offset = offset;
@@ -202,6 +208,7 @@ ABRT-apdu/_untag/user-information abrt_user_information
       gp_tcapsrt_info->dst_tid=0;
       break;
     }
+    p_tcap_private->dst_tid = gp_tcapsrt_info->dst_tid;
 
     if (len) {
       col_append_str(actx->pinfo->cinfo, COL_INFO, "dtid(");

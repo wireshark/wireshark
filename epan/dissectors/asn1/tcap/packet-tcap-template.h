@@ -66,6 +66,8 @@ struct tcap_private_t {
   guint32 session_id;
   void * context;
   gchar *TransactionID_str;
+  guint32 src_tid;
+  guint32 dst_tid;
 };
 
 /** @file

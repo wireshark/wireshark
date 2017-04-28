@@ -47,7 +47,8 @@
 #include "packet-gsm_map.h"
 #include "packet-sip.h"
 
-static gint proto_sip = -1;
+static gint proto_gsm_map = -1;
+static gint proto_sip     = -1;
 
 void proto_register_gsm_sms(void);
 
@@ -1980,13 +1981,13 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
         if (proto_is_frame_protocol(pinfo->layers, "gsm_map")) {
             gsm_map_packet_info_t *gsm_map_packet_info;
             wmem_strbuf_append(addr_info_strbuf, "MAP");
-            if ((gsm_map_packet_info = (gsm_map_packet_info_t*)p_get_proto_data(pinfo->pool, pinfo, proto_gsm_map, 0)) != NULL) {
-                if (gsm_map_packet_info->rp_oa_id == GSM_MAP_RP_OA_MSISDN)
-                    wmem_strbuf_append(addr_info_strbuf, gsm_map_packet_info->rp_oa_str);
-                else if (gsm_map_packet_info->rp_da_id == GSM_MAP_RP_DA_IMSI)
-                    wmem_strbuf_append(addr_info_strbuf, gsm_map_packet_info->rp_da_str);
-                else if (gsm_map_packet_info->rp_da_id == GSM_MAP_RP_DA_LMSI)
-                    wmem_strbuf_append(addr_info_strbuf, gsm_map_packet_info->rp_da_str);
+            if ((gsm_map_packet_info = (gsm_map_packet_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_gsm_map, 0)) != NULL) {
+                if (gsm_map_packet_info->sm_rp_oa_id == GSM_MAP_SM_RP_OA_MSISDN)
+                    wmem_strbuf_append(addr_info_strbuf, gsm_map_packet_info->sm_rp_oa_str);
+                else if (gsm_map_packet_info->sm_rp_da_id == GSM_MAP_SM_RP_DA_IMSI)
+                    wmem_strbuf_append(addr_info_strbuf, gsm_map_packet_info->sm_rp_da_str);
+                else if (gsm_map_packet_info->sm_rp_da_id == GSM_MAP_SM_RP_DA_LMSI)
+                    wmem_strbuf_append(addr_info_strbuf, gsm_map_packet_info->sm_rp_da_str);
             }
         } else if (proto_is_frame_protocol(pinfo->layers, "sip")) {
             sip_info_value_t *sip_info;
@@ -3569,7 +3570,8 @@ proto_register_gsm_sms(void)
 void
 proto_reg_handoff_gsm_sms(void)
 {
-    proto_sip = proto_get_id_by_filter_name( "sip" );
+    proto_gsm_map = proto_get_id_by_filter_name("gsm_map");
+    proto_sip = proto_get_id_by_filter_name("sip");
 }
 
 /*
