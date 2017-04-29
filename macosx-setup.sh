@@ -2699,7 +2699,9 @@ if [ "$QT_VERSION" ]; then
     pkg_config_path="$pkg_config_path":"$qt_base_path/lib/pkgconfig"
     CMAKE_PREFIX_PATH="$CMAKE_PREFIX_PATH":"$qt_base_path/lib/cmake"
 fi
-pkg_config_path="$pkg_config_path":/usr/X11/lib/pkgconfig
+if [ "$GTK_VERSION" ]; then
+    pkg_config_path="$pkg_config_path":/usr/X11/lib/pkgconfig
+fi
 
 if $no_build; then
     echo "All required dependencies downloaded. Run without -n to install them."
