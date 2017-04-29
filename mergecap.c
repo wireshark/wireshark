@@ -494,8 +494,6 @@ main(int argc, char *argv[])
       break;
   }
 
-  g_free(err_info);
-
 clean_exit:
   wtap_cleanup();
   free_progdirs();

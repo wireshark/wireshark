@@ -3317,13 +3317,11 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
       /* Error on pass 1 of two-pass processing. */
       cfile_read_failure_message("TShark", cf->filename, err_pass1,
                                  err_info_pass1);
-      g_free(err_info_pass1);
     }
     if (err != 0) {
       /* Error on pass 2 of two-pass processing or on the only pass of
          one-pass processing. */
       cfile_read_failure_message("TShark", cf->filename, err, err_info);
-      g_free(err_info);
     }
     success = FALSE;
   }

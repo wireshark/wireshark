@@ -1231,11 +1231,6 @@ process_cap_file(wtap *wth, const char *filename)
         fprintf(stderr,
           "  (will continue anyway, checksums might be incorrect)\n");
     } else {
-        if (err_info != NULL) {
-            fprintf(stderr, "(%s)\n", err_info);
-            g_free(err_info);
-        }
-
         cleanup_capture_info(&cf_info);
         return 1;
     }

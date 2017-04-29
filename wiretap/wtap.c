@@ -1403,6 +1403,8 @@ wtap_seek_read(wtap *wth, gint64 seek_off,
 	phdr->pkt_encap = wth->file_encap;
 	phdr->pkt_tsprec = wth->file_tsprec;
 
+	*err = 0;
+	*err_info = NULL;
 	if (!wth->subtype_seek_read(wth, seek_off, phdr, buf, err, err_info))
 		return FALSE;
 

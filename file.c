@@ -1411,8 +1411,6 @@ cf_merge_files_to_tempfile(gpointer pd_window, char **out_filenamep,
       break;
   }
 
-  g_free(err_info);
-
   cf_callback_invoke(cf_cb_file_merge_finished, NULL);
 
   if (status != MERGE_OK) {
