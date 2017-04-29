@@ -85,7 +85,7 @@ static guint
 get_bzr_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
     int    next_offset;
-    gint   len = 0;
+    gint   len = 0, current_len;
     gint   protocol_version_len;
     guint8 cmd = 0;
 
@@ -98,7 +98,10 @@ get_bzr_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
     len += protocol_version_len + 1;
 
     /* Headers */
+    current_len = len;
     len += get_bzr_prefixed_len(tvb, next_offset);
+    if (current_len > len) /* Make sure we're not going backwards */
+        return -1;
 
     while (tvb_reported_length_remaining(tvb, offset + len) > 0) {
         cmd = tvb_get_guint8(tvb, offset + len);
@@ -107,7 +110,10 @@ get_bzr_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
         switch (cmd) {
         case 's':
         case 'b':
+            current_len = len;
             len += get_bzr_prefixed_len(tvb, offset + len);
+            if (current_len > len) /* Make sure we're not going backwards */
+                return -1;
             break;
         case 'o':
             len += 1;
