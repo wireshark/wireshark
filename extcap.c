@@ -1455,7 +1455,7 @@ gboolean extcap_create_pipe(char **fifo)
 
 
 static void
-extcap_free_interface_info(gpointer data _U_)
+extcap_free_interface_info(gpointer data)
 {
     extcap_info *info = (extcap_info *)data;
 
