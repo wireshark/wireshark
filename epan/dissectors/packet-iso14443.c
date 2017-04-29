@@ -171,6 +171,7 @@ static int ett_iso14443_hdr = -1;
 static int ett_iso14443_msg = -1;
 static int ett_iso14443_app_data = -1;
 static int ett_iso14443_prot_inf = -1;
+static int ett_iso14443_bit_rate = -1;
 static int ett_iso14443_prot_type = -1;
 static int ett_iso14443_ats_t0 = -1;
 static int ett_iso14443_ats_ta1 = -1;
@@ -207,6 +208,13 @@ static int hf_iso14443_num_afi_apps = -1;
 static int hf_iso14443_total_num_apps = -1;
 static int hf_iso14443_prot_inf = -1;
 static int hf_iso14443_bit_rate_cap = -1;
+static int hf_iso14443_same_bit_rate = -1;
+static int hf_iso14443_picc_pcd_847 = -1;
+static int hf_iso14443_picc_pcd_424 = -1;
+static int hf_iso14443_picc_pcd_212 = -1;
+static int hf_iso14443_pcd_picc_847 = -1;
+static int hf_iso14443_pcd_picc_424 = -1;
+static int hf_iso14443_pcd_picc_212 = -1;
 static int hf_iso14443_max_frame_size_code = -1;
 static int hf_iso14443_prot_type = -1;
 static int hf_iso14443_min_tr2 = -1;
@@ -270,6 +278,17 @@ static int hf_iso14443_wtxm = -1;
 static int hf_iso14443_inf = -1;
 static int hf_iso14443_crc = -1;
 static int hf_iso14443_crc_status = -1;
+
+static const int *bit_rate_fields[] = {
+    &hf_iso14443_same_bit_rate,
+    &hf_iso14443_picc_pcd_847,
+    &hf_iso14443_picc_pcd_424,
+    &hf_iso14443_picc_pcd_212,
+    &hf_iso14443_pcd_picc_847,
+    &hf_iso14443_pcd_picc_424,
+    &hf_iso14443_pcd_picc_212,
+    NULL
+};
 
 static const int *ats_ta1_fields[] = {
     &hf_iso14443_same_d,
@@ -396,8 +415,12 @@ static int dissect_iso14443_atqb(tvbuff_t *tvb, gint offset,
             tvb, offset, prot_inf_len, ENC_BIG_ENDIAN);
     prot_inf_tree = proto_item_add_subtree(
             prot_inf_it, ett_iso14443_prot_inf);
-    proto_tree_add_item(prot_inf_tree, hf_iso14443_bit_rate_cap,
-            tvb, offset, 1, ENC_BIG_ENDIAN);
+    /* bit rate info are applicable only if b4 is 0 */
+    if (!(tvb_get_guint8(tvb, offset) & 0x08)) {
+        proto_tree_add_bitmask_with_flags(prot_inf_tree, tvb, offset,
+                hf_iso14443_bit_rate_cap, ett_iso14443_bit_rate,
+                bit_rate_fields, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    }
     offset++;
     max_frame_size_code = (tvb_get_guint8(tvb, offset) & 0xF0) >> 4;
     proto_tree_add_uint_bits_format_value(prot_inf_tree,
@@ -1393,6 +1416,34 @@ proto_register_iso14443(void)
             { "Bit rate capability", "iso14443.bit_rate_cap",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
         },
+        { &hf_iso14443_same_bit_rate,
+            { "Same bit rate in both directions", "iso14443.same_bit_rate",
+                FT_BOOLEAN, 8, TFS(&tfs_required_not_required), 0x80, NULL, HFILL }
+        },
+        { &hf_iso14443_picc_pcd_847,
+            { "PICC to PCD, 847kbit/s", "iso14443.picc_pcd_847", FT_BOOLEAN, 8,
+                TFS(&tfs_supported_not_supported), 0x40, NULL, HFILL }
+        },
+        { &hf_iso14443_picc_pcd_424,
+            { "PICC to PCD, 424kbit/s", "iso14443.picc_pcd_424", FT_BOOLEAN, 8,
+                TFS(&tfs_supported_not_supported), 0x20, NULL, HFILL }
+        },
+        { &hf_iso14443_picc_pcd_212,
+            { "PICC to PCD, 212kbit/s", "iso14443.picc_pcd_212", FT_BOOLEAN, 8,
+                TFS(&tfs_supported_not_supported), 0x10, NULL, HFILL }
+        },
+        { &hf_iso14443_pcd_picc_847,
+            { "PCD to PICC, 847kbit/s", "iso14443.pcd_picc_847", FT_BOOLEAN, 8,
+                TFS(&tfs_supported_not_supported), 0x04, NULL, HFILL }
+        },
+        { &hf_iso14443_pcd_picc_424,
+            { "PCD to PICC, 424kbit/s", "iso14443.pcd_picc_424", FT_BOOLEAN, 8,
+                TFS(&tfs_supported_not_supported), 0x02, NULL, HFILL }
+        },
+        { &hf_iso14443_pcd_picc_212,
+            { "PCD to PICC, 212kbit/s", "iso14443.pcd_picc_212", FT_BOOLEAN, 8,
+                TFS(&tfs_supported_not_supported), 0x01, NULL, HFILL }
+        },
         { &hf_iso14443_max_frame_size_code,
             { "Max frame size code", "iso14443.max_frame_size_code",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
@@ -1657,6 +1708,7 @@ proto_register_iso14443(void)
         &ett_iso14443_msg,
         &ett_iso14443_app_data,
         &ett_iso14443_prot_inf,
+        &ett_iso14443_bit_rate,
         &ett_iso14443_prot_type,
         &ett_iso14443_ats_t0,
         &ett_iso14443_ats_ta1,
