@@ -1007,8 +1007,8 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         if (tree) {
 
             rfid = tvb_get_guint8(tvb, offset);
-            vwrft = proto_tree_add_uint(common_tree, hf_radiotap_rf_info,
-                            tvb, offset, 76, rfid);
+            vwrft = proto_tree_add_item(common_tree, hf_radiotap_rf_info,
+                            tvb, offset, 76, ENC_NA);
             proto_item_append_text(vwrft, " (RFID = %u)",rfid);
             vw_rfinfo_tree = proto_item_add_subtree(vwrft, ett_radiotap_rf);
 
@@ -2068,7 +2068,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         if (plcp_type)
             proto_tree_add_uint(vw_l1info_tree, hf_radiotap_nss, tvb, offset, 1, nss);
 
-        proto_tree_add_uint(vw_l1info_tree, hf_radiotap_vwf_txf, tvb, offset, 1, direction);
+        proto_tree_add_boolean(vw_l1info_tree, hf_radiotap_vwf_txf, tvb, offset, 1, direction);
         offset++;
 
         /* New pieces of lines for
