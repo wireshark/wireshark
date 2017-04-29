@@ -2329,7 +2329,9 @@ if [ "$QT_VERSION" ]; then
     pkg_config_path="$pkg_config_path":"$qt_base_path/lib/pkgconfig"
     CMAKE_PREFIX_PATH="$CMAKE_PREFIX_PATH":"$qt_base_path/lib/cmake"
 fi
-pkg_config_path="$pkg_config_path":/usr/X11/lib/pkgconfig
+if [ "$GTK_VERSION" ]; then
+    pkg_config_path="$pkg_config_path":/usr/X11/lib/pkgconfig
+fi
 
 echo "You are now prepared to build Wireshark."
 echo
