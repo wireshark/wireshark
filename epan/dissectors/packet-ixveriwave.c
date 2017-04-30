@@ -73,21 +73,10 @@ static frame_end_data previous_frame_data = {0,0};
 
 #define VW_RADIOTAP_FPGA_VER_vVW510021      0x000C  /* vVW510021 version detected */
 #define VW_RADIOTAP_FPGA_VER_vVW510021_11n  0x000D
-#define FLAGS_CHAN_SHORTGI                  0x0100  /* short guard interval */
-#define IEEE80211_RADIOTAP_F_CFP            0x0001  /* sent/received  during CFP */
-#define IEEE80211_RADIOTAP_F_DATAPAD        0x0020  /* frame has padding between
-                                                     * 802.11 header and payload
-                                                     * (to 32-bit boundary)
-                                                     */
 
 #define CHAN_CCK                            0x00020 /* CCK channel */
 #define CHAN_OFDM                           0x00040 /* OFDM channel */
-#define IEEE80211_CHAN_2GHZ                 0x00080 /* 2 GHz spectrum channel. */
-#define IEEE80211_CHAN_5GHZ                 0x00100 /* 5 GHz spectrum channel */
-#define IEEE80211_RADIOTAP_F_FRAG           0x0008  /* sent/received
-                                                     * with fragmentation
-                                                     */
-#define IEEE80211_PLCP_RATE_MASK            0x7f    /* parses out the rate or MCS index from the PLCP header(s) */
+
 #define FLAGS_SHORTPRE                      0x0002  /* sent/received
                                                      * with short
                                                      * preamble
@@ -114,18 +103,6 @@ static frame_end_data previous_frame_data = {0,0};
 #define PLCP_TYPE_MIXED         0x01        /* HT, mixed (11n) */
 #define PLCP_TYPE_GREENFIELD    0x02        /* HT, greenfield (11n) */
 #define PLCP_TYPE_VHT_MIXED     0x03        /* VHT (11ac) */
-
-/* For RADIOTAP_FLAGS */
-#define RADIOTAP_F_CFP                      0x001               /* sent/received during CFP */
-#define RADIOTAP_F_SHORTPRE                 0x002               /* sent/received with short preamble */
-#define RADIOTAP_F_WEP                      0x004               /* sent/received with WEP encryption */
-#define RADIOTAP_F_FRAG                     0x008               /* sent/received with fragmentation */
-#define RADIOTAP_F_FCS                      0x010               /* frame includes FCS */
-#define RADIOTAP_F_DATAPAD                  0x020               /* padding between 802.11 hdr & payload */
-#define RADIOTAP_F_CHAN_HT                  0x040               /* In HT mode */
-#define RADIOTAP_F_CHAN_40MHZ               0x080               /* 40 Mhz CBW */
-#define RADIOTAP_F_CHAN_80MHZ               0x100               /* 80 Mhz CBW */
-#define RADIOTAP_F_CHAN_SHORTGI             0x200               /* Short guard interval */
 
 #define ETHERNET_PORT           1
 #define WLAN_PORT               0
@@ -219,12 +196,9 @@ static int hf_radiotap_dbm_tx_antb = -1;
 static int hf_radiotap_dbm_tx_antc = -1;
 static int hf_radiotap_dbm_tx_antd = -1;
 
-static int hf_radiotap_flags_cfp = -1;
 static int hf_radiotap_flags_preamble = -1;
 static int hf_radiotap_flags_wep = -1;
-static int hf_radiotap_flags_frag = -1;
 static int hf_radiotap_flags_fcs = -1;
-static int hf_radiotap_flags_datapad = -1;
 static int hf_radiotap_flags_ht = -1;
 static int hf_radiotap_flags_vht = -1;
 static int hf_radiotap_flags_40mhz = -1;
@@ -1651,12 +1625,9 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 
         ft = proto_tree_add_item(tap_tree, hf_radiotap_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         flags_tree = proto_item_add_subtree(ft, ett_radiotap_flags);
-        proto_tree_add_item(flags_tree, hf_radiotap_flags_cfp, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(flags_tree, hf_radiotap_flags_preamble, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(flags_tree, hf_radiotap_flags_wep, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(flags_tree, hf_radiotap_flags_frag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(flags_tree, hf_radiotap_flags_fcs, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(flags_tree, hf_radiotap_flags_datapad, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         if ( vw_rflags & FLAGS_CHAN_HT ) {
             proto_tree_add_item(flags_tree, hf_radiotap_flags_ht, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(flags_tree, hf_radiotap_flags_40mhz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -3255,11 +3226,6 @@ framing signal deasserted.  this is caused by software setting the drain all reg
         { "Flags", "ixveriwave.flags",
         FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
-    { &hf_radiotap_flags_cfp,
-       { "CFP", "ixveriwave.flags.cfp",
-       FT_BOOLEAN, 12, NULL, IEEE80211_RADIOTAP_F_CFP,
-       "Sent/Received radha CFP", HFILL } },
-
     { &hf_radiotap_flags_preamble,
         { "Preamble", "ixveriwave.flags.preamble",
         FT_BOOLEAN, 12, TFS(&tfs_preamble_type),  FLAGS_SHORTPRE,
@@ -3270,20 +3236,10 @@ framing signal deasserted.  this is caused by software setting the drain all reg
         FT_BOOLEAN, 12, NULL, FLAGS_WEP,
         "Sent/Received with WEP encryption", HFILL } },
 
-    { &hf_radiotap_flags_frag,
-        { "Fragmentation", "ixveriwave.flags.frag",
-        FT_BOOLEAN, 12, NULL, IEEE80211_RADIOTAP_F_FRAG,
-        "Sent/Received with fragmentation", HFILL } },
-
     { &hf_radiotap_flags_fcs,
         { "FCS at end", "ixveriwave.flags.fcs",
         FT_BOOLEAN, 12, NULL, FLAGS_FCS,
         "Frame includes FCS at end", HFILL } },
-
-    { &hf_radiotap_flags_datapad,
-        { "Data Pad", "ixveriwave.flags.datapad",
-        FT_BOOLEAN, 12, NULL, IEEE80211_RADIOTAP_F_DATAPAD,
-        "Frame has padding between 802.11 header and payload", HFILL } },
 
     { &hf_radiotap_flags_ht,
         { "HT frame", "ixveriwave.flags.ht",
