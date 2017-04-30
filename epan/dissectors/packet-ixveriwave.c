@@ -576,6 +576,7 @@ static dissector_handle_t ixveriwave_handle;
 static int
 dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
+    gboolean    is_octo = FALSE;
     proto_tree *common_tree                 = NULL;
     proto_item *ti                          = NULL;
     proto_item *vw_times_ti                 = NULL;
@@ -591,7 +592,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     guint32     vw_msdu_length=0;
     tvbuff_t   *next_tvb;
     ifg_info   *p_ifg_info;
-    guint8      ver_fpga, ixport_type,cmd_type, mgmt_byte;
+    guint8      ixport_type,cmd_type, mgmt_byte;
     guint8      frameformat, rfid, legacy_type;
     gint8       noisevalida, noisevalidb, noisevalidc, noisevalidd, pfevalida, pfevalidb, pfevalidc, pfevalidd;
     guint16     vw_info_ifg;
@@ -670,8 +671,21 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     ixport_type = tvb_get_guint8(tvb, offset);
     cmd_type = (ixport_type & 0xf0) >> 4;
     ixport_type &= 0x0f;
-    mgmt_byte = tvb_get_guint8(tvb, offset+1);
-    ver_fpga = mgmt_byte & 0x0f;
+
+    /*
+     * If the command type is non-zero, this is from an OCTO board.
+     */
+    if (cmd_type != 0)
+        is_octo = TRUE;
+    else {
+        /*
+         * If it's zero, it could *still* be from an octo board, if the
+         * command type is Rx.
+         */
+        mgmt_byte = tvb_get_guint8(tvb, offset+1);
+        if ((mgmt_byte & 0x0f) != 0)
+            is_octo = TRUE;
+    }
 
     length = tvb_get_letohs(tvb, offset + COMMON_LENGTH_OFFSET);
 
@@ -690,19 +704,20 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     common_tree = proto_item_add_subtree(ti, ett_commontap);
 
     //checked for only RF frames should be skipped from the other logging details.
-    if (cmd_type !=3)
+    if (!is_octo)
     {
-        //checked the fpga version in order to support the legacy version and showing the wireshark logs as it is before in case of fpga version 0
-        if (!ver_fpga) {
-            proto_tree_add_uint(common_tree, hf_ixveriwave_frame_length,
-                                tvb, 4, 2, true_length);
-        }
-
+        /*
+         * Common header.
+         */
+        /* common header length */
+        proto_tree_add_uint(common_tree, hf_ixveriwave_frame_length,
+                            tvb, 4, 2, true_length);
         length_remaining = length;
 
         offset              +=4;
         length_remaining    -=4;
 
+        /* MSDU length */
         if (length_remaining >= 2) {
 
             proto_tree_add_item_ret_uint(common_tree, hf_ixveriwave_vw_msdu_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &vw_msdu_length);
@@ -826,6 +841,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
         offset              +=4;
         length_remaining    -=4;
+        /* XXX - not if the command is 3 */
         /*extract latency, 4 bytes*/
         if (length_remaining >= 4) {
             vw_latency = tvb_get_letohl(tvb, offset);
@@ -951,7 +967,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         p_add_proto_data(wmem_file_scope(), pinfo, proto_ixveriwave, 0, p_ifg_info);
     }
 
-    if (ver_fpga) {
+    if (is_octo) {
         p_ifg_info = (struct ifg_info *) p_get_proto_data(wmem_file_scope(), pinfo, proto_ixveriwave, 0);
         switch (cmd_type) {
         case 0:
@@ -1416,7 +1432,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         proto_item_set_len(vw_times_ti, 28);
 
         /* Grab the rest of the frame. */
-        if(!ver_fpga)
+        if(!is_octo)
         {
             next_tvb = tvb_new_subset_remaining(tvb, length);
         }
@@ -1609,6 +1625,9 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 
     if (!ver_fpga)
     {
+        /*
+         * FPGA version is 0, meaning this is pre-OCTO.
+         */
         /* First add the IFG information, need to grab the info bit field here */
         vw_info = tvb_get_letohs(tvb, 20);
         p_ifg_info = (struct ifg_info *) p_get_proto_data(wmem_file_scope(), pinfo, proto_ixveriwave, 0);
@@ -1619,9 +1638,11 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         PROTO_ITEM_SET_GENERATED(ti);
 
         offset      = 0;
+        /* header length */
         length = tvb_get_letohs(tvb, offset);
         offset      += 2;
 
+        /* rflags */
         vw_rflags = tvb_get_letohs(tvb, offset);
         if (vw_rflags & FLAGS_FCS)
             phdr.fcs_len = 4;
@@ -1649,19 +1670,26 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         }
         offset      += 2;
 
-        /* Need to add in 2 more bytes to the offset to account for the channel flags */
+        /* channel flags */
         vw_chanflags = tvb_get_letohs(tvb, offset);
         offset      += 2;
+
+        /* PHY rate */
         phyRate = (float)tvb_get_letohs(tvb, offset) / 10;
         offset      += 2;
+
+        /* PLCP type */
         plcp_type = tvb_get_guint8(tvb,offset) & 0x03;
         vht_ndp_flag = tvb_get_guint8(tvb,offset) & 0x80;
         offset++;
 
         vw_flags = tvb_get_letohs(tvb, 16); /**extract the transmit/rcvd direction flag**/
 
+        /* MCS index */
         mcs_index = tvb_get_guint8(tvb, offset);
         offset++;
+
+        /* number of spatial streams */
         nss = tvb_get_guint8(tvb, offset);
         offset++;
 
@@ -1705,10 +1733,10 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
                                         "%.1f (MCS %d)", phyRate, mcs_index);
         } else {
             /*
-                * XXX - CHAN_OFDM could be 11a or 11g.  Unfortunately, we don't
-                * have the frequency, or anything else, to distinguish between
-                * them.
-                */
+             * XXX - CHAN_OFDM could be 11a or 11g.  Unfortunately, we don't
+             * have the frequency, or anything else, to distinguish between
+             * them.
+             */
             if (vw_chanflags & CHAN_CCK) {
                 phdr.phy = PHDR_802_11_PHY_11B;
             }
@@ -1721,6 +1749,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         }
         col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%.1f", phyRate);
 
+        /* RSSI/antenna A RSSI */
         dbm = (gint8) tvb_get_guint8(tvb, offset);
         phdr.has_signal_dbm = TRUE;
         phdr.signal_dbm = dbm;
@@ -1729,22 +1758,26 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         proto_tree_add_item(tap_tree, hf_radiotap_dbm_anta, tvb, offset, 1, ENC_NA);
         offset++;
 
+        /* Antenna B RSSI, or 100 if absent */
         dbm = (gint8) tvb_get_guint8(tvb, offset);
         if (dbm != 100) {
             proto_tree_add_item(tap_tree, hf_radiotap_dbm_antb, tvb, offset, 1, ENC_NA);
         }
         offset++;
+        /* Antenna C RSSI, or 100 if absent */
         dbm = (gint8) tvb_get_guint8(tvb, offset);
         if (dbm != 100) {
             proto_tree_add_item(tap_tree, hf_radiotap_dbm_antc, tvb, offset, 1, ENC_NA);
         }
         offset++;
+        /* Antenna D RSSI, or 100 if absent */
         dbm = (gint8) tvb_get_guint8(tvb, offset);
         if (dbm != 100) {
             proto_tree_add_item(tap_tree, hf_radiotap_dbm_antd, tvb, offset, 1, ENC_NA);
         }
-        offset+=2;
+        offset+=2;  /* also skips paddng octet */
 
+        /* VeriWave flags */
         vw_flags = tvb_get_letohs(tvb, offset);
 
         if ((vw_rflags & FLAGS_CHAN_HT) || (vw_rflags & FLAGS_CHAN_VHT)) {
@@ -1771,9 +1804,11 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 
         offset      += 2;
 
+        /* XXX - this should do nothing */
         align_offset = ALIGN_OFFSET(offset, 2);
         offset += align_offset;
 
+        /* HT length */
         vw_ht_length = tvb_get_letohs(tvb, offset);
         if ((vw_ht_length != 0)) {
             proto_tree_add_uint_format_value(tap_tree, hf_radiotap_vw_ht_length,
@@ -1785,6 +1820,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         align_offset = ALIGN_OFFSET(offset, 2);
         offset += align_offset;
 
+        /* info */
         if (!(vw_flags & VW_RADIOTAPF_TXF)) {                   /* then it's an rx case */
             /*FPGA_VER_vVW510021 version decodes */
             static const int * vw_info_rx_2_flags[] = {
@@ -1817,6 +1853,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         }
         offset += 2;
 
+        /* errors */
         vw_errors = tvb_get_letohl(tvb, offset);
 
         vweft = proto_tree_add_uint(tap_tree, hf_radiotap_vw_errors,
@@ -2037,7 +2074,11 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         }
     }
     else {
-                //RadioTapHeader New format for L1Info
+        /*
+         * FPGA version is non-zero, meaning this is OCTO.
+         * The first part is a timestamp header.
+         */
+        //RadioTapHeader New format for L1Info
         offset      = 0;
 
         length = tvb_get_letohs(tvb, offset);
