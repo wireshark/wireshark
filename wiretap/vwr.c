@@ -64,6 +64,7 @@
 #define B_SIZE      32768                           /* max var len message = 32 kB */
 #define VT_FRAME    0                               /* varlen msg is a frame */
 #define VT_CPMSG    1                               /* varlen msg is a CP<->PP msg */
+#define VT_UNKNOWN -1                               /* varlen msg is unknown */
 #define MAX_TRACKED_CLIENTS 1024                    /* track 1024 clients */
 #define MAX_TRACKED_FLOWS   65536                   /* and 64K flows */
 
@@ -79,8 +80,11 @@
 #define VW_RECORD_HEADER_LENGTH 16
 
 /* Command byte values */
-#define COMMAND_RX  0x21
-#define COMMAND_TX  0x31
+#define COMMAND_RX   0x21
+#define COMMAND_TX   0x31
+#define COMMAND_RFN  0x30
+#define COMMAND_RF   0x38
+#define COMMAND_RFRX 0x39
 
 /*
  * The data in packet records begins with a sequence of metadata headers.
@@ -356,9 +360,6 @@
 
 #define v22_E_FC_PROT_BIT   0x40                    /* Protected Frame bit in FC1 of frame */
 
-#define v22_E_HEADER_IS_RX  0x21
-#define v22_E_HEADER_IS_TX  0x31
-
 #define v22_E_IS_ETHERNET   0x00700000              /* bits set in frame type if ethernet */
 #define v22_E_IS_80211      0x7F000000              /* bits set in frame type if 802.11 */
 
@@ -441,9 +442,6 @@
      v22_W_FIRST_MSDU_OF_A_MSDU | \
      v22_W_LAST_MSDU_OF_A_MSDU)
 
-#define v22_W_HEADER_IS_RX  0x21
-#define v22_W_HEADER_IS_TX  0x31
-
 #define v22_W_FC_PROT_BIT   0x40                    /* Protected Frame bit in FC1 of frame */
 
 #define v22_W_IS_ETHERNET   0x00100000              /* bits set in frame type if ethernet */
@@ -511,12 +509,6 @@
 #define vVW510024_W_VCID_MASK           0x03ff      /* VC ID is only 10 bits */
 
 #define vVW510021_W_MT_SEL_LEGACY       0x00
-
-#define vVW510021_W_HEADER_IS_RX        0x21
-#define vVW510021_W_HEADER_IS_TX        0x31
-#define vVW510021_W_HEADER_IS_RFN       0x30
-#define vVW510021_W_HEADER_IS_RF        0x38
-#define vVW510021_W_HEADER_IS_RFRX      0x39
 
 #define vVW510021_W_IS_WEP              0x0001
 
@@ -627,9 +619,6 @@
 #define vVW510024_E_CBW_MASK            0xC0
 #define vVW510024_E_VCID_MASK           0x3FFF                  /* VCID is only 14 bits */
 
-#define vVW510024_E_HEADER_IS_RX        0x21
-#define vVW510024_E_HEADER_IS_TX        0x31
-
 #define vVW510024_E_IS_TCP          0x01000000                  /* TCP bit in FRAME_TYPE field */
 #define vVW510024_E_IS_UDP          0x00100000                  /* UDP bit in FRAME_TYPE field */
 #define vVW510024_E_IS_ICMP         0x00001000                  /* ICMP bit in FRAME_TYPE field */
@@ -731,8 +720,6 @@ typedef struct {
     guint32      MT_OFDM;                        /* OFDM modulation */
     guint32      MCS_INDEX_MASK;                 /* mcs index type mask */
     guint32      FPGA_VERSION;
-    guint32      HEADER_IS_RX;
-    guint32      HEADER_IS_TX;
     guint32      WEPTYPE;                        /* frame is WEP */
     guint32      TKIPTYPE;                       /* frame is TKIP */
     guint32      CCMPTYPE;                       /* frame is CCMP */
@@ -743,9 +730,6 @@ typedef struct {
     guint16      IS_QOS;
     guint32      IS_VLAN;
     guint32      MPDU_OFF;
-    guint32      HEADER_IS_RFN;
-    guint32      HEADER_IS_RF;
-    guint32      HEADER_IS_RXRF;
     guint32      OCTO_VERSION;
 } vwr_t;
 
@@ -2707,8 +2691,7 @@ static int decode_msg(vwr_t *vwr, guint8 *rec, int *v_type, int *IS_TX, int *log
 {
     guint8  cmd,fpga_log_mode;          /* components of message */
     guint32 wd2, wd3;
-    int     v_size = 0;                 /* size of var-len message */
-                                        /* assume it's zero */
+    int     v_size;                     /* size of var-len message */
 
     /* break up the message record into its pieces */
     cmd = rec[0];
@@ -2718,39 +2701,36 @@ static int decode_msg(vwr_t *vwr, guint8 *rec, int *v_type, int *IS_TX, int *log
     wd2 = pntoh32(&rec[8]);
     wd3 = pntoh32(&rec[12]);
 
-    if (vwr != NULL) {
-
-        if ((cmd & vwr->HEADER_IS_TX) == vwr->HEADER_IS_TX) {
-            *IS_TX = 1;
-        }
-        else if ((cmd & vwr->HEADER_IS_RX) == vwr->HEADER_IS_RX) {
-            *IS_TX = 0;
-        }
-        else {
-            *IS_TX = 2; /*NULL case*/
-        }
-    }
-
     if (vwr != NULL)
         *log_mode = fpga_log_mode;          /* Log mode = 3, when MPDU data is reduced */
 
     /* now decode based on the command byte */
     switch (cmd) {
         case COMMAND_RX:
+            if (vwr != NULL) {
+                *IS_TX = 0;
+            }
+            v_size  = (int)(wd2 & 0xffff);
+            *v_type = VT_FRAME;
+            break;
+
         case COMMAND_TX:
+            if (vwr != NULL) {
+                *IS_TX = 1;
+            }
             v_size  = (int)(wd2 & 0xffff);
             *v_type = VT_FRAME;
             break;
 /*
-        case 0x30:
+        case COMMAND_RFN:
             if (vwr != NULL) {
-                v_size  = (int)(wd2 & 0xffff);
-                *v_type = VT_FRAME;
                 *IS_TX = 3;
             }
+            v_size  = (int)(wd2 & 0xffff);
+            *v_type = VT_FRAME;
             break;
 */
-        case 0x38:              /* For RF Modified only */
+        case COMMAND_RF:   /* For RF Modified only */
             if (vwr != NULL) {
                 *IS_TX = 3;
             }
@@ -2758,7 +2738,7 @@ static int decode_msg(vwr_t *vwr, guint8 *rec, int *v_type, int *IS_TX, int *log
             *v_type = VT_FRAME;
             break;
 
-        case 0x39:              /* For RF_RX Modified only */
+        case COMMAND_RFRX: /* For RF_RX Modified only */
             if (vwr != NULL) {
                 *IS_TX = 4;
             }
@@ -2769,16 +2749,27 @@ static int decode_msg(vwr_t *vwr, guint8 *rec, int *v_type, int *IS_TX, int *log
         case 0xc1:
         case 0x8b:
         case 0xbb:
+            if (vwr != NULL) {
+                *IS_TX = 2;
+            }
             v_size  = (int)(wd2 & 0xffff);
             *v_type = VT_CPMSG;
             break;
 
         case 0xfe:
+            if (vwr != NULL) {
+                *IS_TX = 2;
+            }
             v_size  = (int)(wd3 & 0xffff);
             *v_type = VT_CPMSG;
             break;
 
         default:
+            if (vwr != NULL) {
+                *IS_TX = 2;
+            }
+            v_size  = 0;
+            *v_type = VT_UNKNOWN;
             break;
     }
 
@@ -2854,8 +2845,6 @@ static void setup_defaults(vwr_t *vwr, guint16 fpga)
             vwr->IPLEN_OFF          = vVW510021_W_IPLEN_OFF;
             vwr->PLCP_LENGTH_OFF    = vVW510021_W_PLCP_LENGTH_OFF;
 
-            vwr->HEADER_IS_RX       = vVW510021_W_HEADER_IS_RX;
-            vwr->HEADER_IS_TX       = vVW510021_W_HEADER_IS_TX;
             vwr->MT_MASK            = vVW510021_W_SEL_MASK;
             vwr->MCS_INDEX_MASK     = vVW510021_W_MCS_MASK;
             vwr->VCID_MASK          = 0xffff;
@@ -2902,12 +2891,6 @@ static void setup_defaults(vwr_t *vwr, guint16 fpga)
             vwr->STATS_LEN       = vVW510021_W_STATS_TRAILER_LEN;
             vwr->PLCP_LENGTH_OFF = 16;
 
-            vwr->HEADER_IS_RX    = vVW510021_W_HEADER_IS_RX;
-            vwr->HEADER_IS_TX    = vVW510021_W_HEADER_IS_TX;
-            vwr->HEADER_IS_RFN      = vVW510021_W_HEADER_IS_RFN;
-            vwr->HEADER_IS_RF       = vVW510021_W_HEADER_IS_RF;
-            vwr->HEADER_IS_RXRF     = vVW510021_W_HEADER_IS_RFRX;
-
             /*
              * The first 16 is from the 16 bytes of stats block that
              * precede the PLCP; the 16 is for 16 bytes of PLCP.
@@ -2933,9 +2916,6 @@ static void setup_defaults(vwr_t *vwr, guint16 fpga)
             vwr->LATVAL_OFF     = v22_E_LATVAL_OFF;
             vwr->INFO_OFF       = v22_E_INFO_OFF;
             vwr->L4ID_OFF       = v22_E_L4ID_OFF;
-
-            vwr->HEADER_IS_RX   = v22_E_HEADER_IS_RX;
-            vwr->HEADER_IS_TX   = v22_E_HEADER_IS_TX;
 
             vwr->IS_RX          = v22_E_IS_RX;
             vwr->MT_MASK        = v22_E_MT_MASK;
@@ -2997,9 +2977,6 @@ static void setup_defaults(vwr_t *vwr, guint16 fpga)
             vwr->VCID_MASK          = v22_W_VCID_MASK;
             vwr->FLOW_VALID         = v22_W_FLOW_VALID;
 
-            vwr->HEADER_IS_RX       = v22_W_HEADER_IS_RX;
-            vwr->HEADER_IS_TX       = v22_W_HEADER_IS_TX;
-
             vwr->RX_DECRYPTS        = v22_W_RX_DECRYPTS;
             vwr->TX_DECRYPTS        = v22_W_TX_DECRYPTS;
             vwr->FC_PROT_BIT        = v22_W_FC_PROT_BIT;
@@ -3047,9 +3024,6 @@ static void setup_defaults(vwr_t *vwr, guint16 fpga)
 
             vwr->FPGA_VERSION_OFF   = vVW510024_E_FPGA_VERSION_OFF;
             vwr->HEADER_VERSION_OFF = vVW510024_E_HEADER_VERSION_OFF;
-
-            vwr->HEADER_IS_RX       = vVW510024_E_HEADER_IS_RX;
-            vwr->HEADER_IS_TX       = vVW510024_E_HEADER_IS_TX;
 
             vwr->VCID_MASK          = vVW510024_E_VCID_MASK;
             vwr->FLOW_VALID         = vVW510024_E_FLOW_VALID;
