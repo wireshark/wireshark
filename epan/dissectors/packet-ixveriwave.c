@@ -38,7 +38,10 @@ void proto_register_ixveriwave(void);
 void proto_reg_handoff_ixveriwave(void);
 
 static void ethernettap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *tap_tree);
-static void wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *tap_tree, guint16 vw_msdu_length, guint8 cmd_type, guint8 mgmt_byte);
+static void wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo,
+                            proto_tree *tree, proto_tree *tap_tree,
+                            guint16 vw_msdu_length, guint8 cmd_type,
+                            int log_mode, gboolean is_octo);
 
 typedef struct {
     guint32 previous_frame_num;
@@ -545,6 +548,7 @@ static int
 dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     gboolean    is_octo = FALSE;
+    int         log_mode;
     proto_tree *common_tree                 = NULL;
     proto_item *ti                          = NULL;
     proto_item *vw_times_ti                 = NULL;
@@ -644,8 +648,20 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
      * If the command type is non-zero, this is from an OCTO board.
      */
     if (cmd_type != 0)
+    {
         is_octo = TRUE;
-    else {
+        if (cmd_type != 3)
+        {
+            mgmt_byte = tvb_get_guint8(tvb, offset+1);
+            log_mode = (mgmt_byte & 0xf0) >> 4;
+        }
+        else
+        {
+            log_mode = 0;
+        }
+    }
+    else
+    {
         /*
          * If it's zero, it could *still* be from an octo board, if the
          * command type is Rx.
@@ -653,6 +669,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         mgmt_byte = tvb_get_guint8(tvb, offset+1);
         if ((mgmt_byte & 0x0f) != 0)
             is_octo = TRUE;
+        log_mode = (mgmt_byte & 0xf0) >> 4;
     }
 
     length = tvb_get_letohs(tvb, offset + COMMON_LENGTH_OFFSET);
@@ -1416,7 +1433,8 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
      if (ixport_type == ETHERNET_PORT)
         ethernettap_dissect(next_tvb, pinfo, tree, common_tree);
      else
-        wlantap_dissect(next_tvb, pinfo, tree, common_tree,vw_msdu_length, cmd_type, mgmt_byte);
+        wlantap_dissect(next_tvb, pinfo, tree, common_tree,vw_msdu_length,
+                        cmd_type, log_mode, is_octo);
     }
 
     return tvb_captured_length(tvb);
@@ -1541,7 +1559,9 @@ ethernettap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
 }
 
 static void
-wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *tap_tree, guint16 vw_msdu_length, guint8 cmd_type, guint8 mgmt_byte)
+wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                proto_tree *tap_tree, guint16 vw_msdu_length, guint8 cmd_type,
+                int log_mode, gboolean is_octo)
 {
     proto_tree *ft, *flags_tree         = NULL;
     int         align_offset, offset;
@@ -1562,7 +1582,6 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     guint8      vht_bw, vht_stbc, vht_txop_ps_notallowd, vht_shortgi, vht_shortginsymdisa, vht_ldpc_ofdmsymbol, vht_su_mcs, vht_crc1, vht_crc2, vht_crc, vht_tail, rfid;
     guint8      vht_mcs1, vht_mcs2, vht_mcs, vht_plcp_length1, vht_plcp_length2, vht_plcp_length3, vht_rate, vht_parity;
     guint8      feccoding, aggregation, notsounding, smoothing, ness, plcp_service, signal, plcp_default;
-    guint8      ver_fpga, log_mode;
 
     ifg_info   *p_ifg_info;
     proto_item *ti;
@@ -1578,21 +1597,13 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     phdr.datapad = FALSE;
     phdr.phy = PHDR_802_11_PHY_UNKNOWN;
 
-    //mgmt_bytes = tvb_get_letohs(tvb, offset);
-    //1st octet are as command type((7..4 bits)which indicates as Tx, Rx or RF frame) & port type((3..0 bits)ethernet or wlantap).
-    //Command type Rx = 0, Tx = 1, RF = 3 , RF_RX = 4
-    //2nd octet are as Reduce logging(7..4 bits) & fpga version(3..0 bits).
+    //cmd_type Rx = 0, Tx = 1, RF = 3 , RF_RX = 4
     //log mode = 0 is normal capture and 1 is reduced capture
-    //FPGA version = 1 for OCTO versions
-    //OCTO version like 48, 61, 83
-    log_mode = (mgmt_byte & 0xf0) >> 4;
-    ver_fpga = mgmt_byte & 0x0f;
+    //is_octo is FALSE for non-OCTO versions and TRUE for OCTO versions
 
-    if (!ver_fpga)
+    if (!is_octo)
     {
-        /*
-         * FPGA version is 0, meaning this is pre-OCTO.
-         */
+        /* Pre-OCTO. */
         /* First add the IFG information, need to grab the info bit field here */
         vw_info = tvb_get_letohs(tvb, 20);
         p_ifg_info = (struct ifg_info *) p_get_proto_data(wmem_file_scope(), pinfo, proto_ixveriwave, 0);
@@ -2857,7 +2868,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
      }
     ***/
 
-    if (!ver_fpga)
+    if (!is_octo)
     {
         /* Grab the rest of the frame. */
         if (plcp_type == 3) {
@@ -2878,7 +2889,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     }
 
     /* dissect the 802.11 radio informaton and header next */
-    if(!ver_fpga || mpdu_length != 0)
+    if(!is_octo || mpdu_length != 0)
         call_dissector_with_data(ieee80211_radio_handle, next_tvb, pinfo, tree, &phdr);
 }
 
