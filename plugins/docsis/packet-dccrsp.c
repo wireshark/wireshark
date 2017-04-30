@@ -65,7 +65,7 @@ dissect_dccrsp_cm_jump_time (tvbuff_t * tvb, proto_tree * tree, int start, guint
 
   pos = start;
   dcc_tree = proto_tree_add_subtree_format( tree, tvb, start, len, ett_docsis_dccrsp_cm_jump_time, NULL,
-                                            "2 DCC-RSP CM Time Jump Encodings (Length = %u)", len);
+                                            "1 CM Jump Time Encodings (Length = %u)", len);
 
   while ( pos < ( start + len) )
     {
@@ -188,7 +188,7 @@ proto_register_docsis_dccrsp (void)
     },
     {&hf_docsis_dccrsp_cm_jump_time_length ,
      {
-       "Jump Time Length",
+       ".1 Length of Jump",
        "docsis_dccrsp.cm_jump_time_length",
        FT_UINT32, BASE_DEC, NULL, 0x0,
        NULL,
@@ -197,7 +197,7 @@ proto_register_docsis_dccrsp (void)
     },
     {&hf_docsis_dccrsp_cm_jump_time_start ,
      {
-       "Jump Time Start",
+       ".2 Start Time of Jump",
        "docsis_dccrsp.cm_jump_time_start",
        FT_UINT64, BASE_DEC, NULL, 0x0,
        NULL,
@@ -206,7 +206,7 @@ proto_register_docsis_dccrsp (void)
     },
     {&hf_docsis_dccrsp_key_seq_num ,
      {
-       "Auth Key Sequence Number",
+       "31 Auth Key Sequence Number",
        "docsis_dccrsp.key_seq_num",
        FT_UINT8, BASE_DEC, NULL, 0x0,
        NULL,
@@ -215,7 +215,7 @@ proto_register_docsis_dccrsp (void)
     },
     {&hf_docsis_dccrsp_hmac_digest ,
      {
-       "HMAC-DigestNumber",
+       "27 HMAC-Digest Number",
        "docsis_dccrsp.hmac_digest",
        FT_BYTES, BASE_NONE, NULL, 0x0,
        NULL,
