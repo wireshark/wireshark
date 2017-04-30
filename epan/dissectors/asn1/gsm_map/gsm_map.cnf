@@ -468,39 +468,47 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
   }
 
 #.FN_BODY SM-RP-OAold/noSM-RP-OA
-  gsm_map_packet_info_t *prev_packet_info = gsm_map_get_matching_tcap_info(actx);
 %(DEFAULT_BODY)s
-  if (prev_packet_info && !PINFO_FD_VISITED(actx->pinfo)) {
+  if (!PINFO_FD_VISITED(actx->pinfo)) {
     gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx, FALSE);
-    gsm_map_pi->sm_rp_oa_id = prev_packet_info->sm_rp_oa_id;
-    gsm_map_pi->sm_rp_oa_str = wmem_strdup(wmem_file_scope(), prev_packet_info->sm_rp_oa_str);
+    gsm_map_packet_info_t *prev_packet_info = gsm_map_get_matching_tcap_info(actx);
+    if (prev_packet_info) {
+      gsm_map_pi->sm_rp_oa_id = prev_packet_info->sm_rp_oa_id;
+      gsm_map_pi->sm_rp_oa_str = wmem_strdup(wmem_file_scope(), prev_packet_info->sm_rp_oa_str);
+    }
   }
 
 #.FN_BODY SM-RP-OA/noSM-RP-OA
-  gsm_map_packet_info_t *prev_packet_info = gsm_map_get_matching_tcap_info(actx);
 %(DEFAULT_BODY)s
-  if (prev_packet_info && !PINFO_FD_VISITED(actx->pinfo)) {
+  if (!PINFO_FD_VISITED(actx->pinfo)) {
     gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx, FALSE);
-    gsm_map_pi->sm_rp_oa_id = prev_packet_info->sm_rp_oa_id;
-    gsm_map_pi->sm_rp_oa_str = wmem_strdup(wmem_file_scope(), prev_packet_info->sm_rp_oa_str);
+    gsm_map_packet_info_t *prev_packet_info = gsm_map_get_matching_tcap_info(actx);
+    if (prev_packet_info) {
+      gsm_map_pi->sm_rp_oa_id = prev_packet_info->sm_rp_oa_id;
+      gsm_map_pi->sm_rp_oa_str = wmem_strdup(wmem_file_scope(), prev_packet_info->sm_rp_oa_str);
+    }
   }
 
 #.FN_BODY SM-RP-DAold/noSM-RP-DA
-  gsm_map_packet_info_t *prev_packet_info = gsm_map_get_matching_tcap_info(actx);
 %(DEFAULT_BODY)s
-  if (prev_packet_info && !PINFO_FD_VISITED(actx->pinfo)) {
+  if (!PINFO_FD_VISITED(actx->pinfo)) {
     gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx, FALSE);
-    gsm_map_pi->sm_rp_da_id = prev_packet_info->sm_rp_da_id;
-    gsm_map_pi->sm_rp_da_str = wmem_strdup(wmem_file_scope(), prev_packet_info->sm_rp_da_str);
+    gsm_map_packet_info_t *prev_packet_info = gsm_map_get_matching_tcap_info(actx);
+    if (prev_packet_info) {
+      gsm_map_pi->sm_rp_da_id = prev_packet_info->sm_rp_da_id;
+      gsm_map_pi->sm_rp_da_str = wmem_strdup(wmem_file_scope(), prev_packet_info->sm_rp_da_str);
+    }
   }
 
 #.FN_BODY SM-RP-DA/noSM-RP-DA
-  gsm_map_packet_info_t *prev_packet_info = gsm_map_get_matching_tcap_info(actx);
 %(DEFAULT_BODY)s
-  if (prev_packet_info && !PINFO_FD_VISITED(actx->pinfo)) {
+  if (!PINFO_FD_VISITED(actx->pinfo)) {
     gsm_map_packet_info_t *gsm_map_pi = gsm_map_get_packet_info(actx, FALSE);
-    gsm_map_pi->sm_rp_da_id = prev_packet_info->sm_rp_da_id;
-    gsm_map_pi->sm_rp_da_str = wmem_strdup(wmem_file_scope(), prev_packet_info->sm_rp_da_str);
+    gsm_map_packet_info_t *prev_packet_info = gsm_map_get_matching_tcap_info(actx);
+    if (prev_packet_info) {
+      gsm_map_pi->sm_rp_da_id = prev_packet_info->sm_rp_da_id;
+      gsm_map_pi->sm_rp_da_str = wmem_strdup(wmem_file_scope(), prev_packet_info->sm_rp_da_str);
+    }
   }
 
 #.FN_BODY SignalInfo VAL_PTR = &parameter_tvb

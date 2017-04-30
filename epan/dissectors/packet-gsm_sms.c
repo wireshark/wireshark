@@ -1988,6 +1988,8 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                     wmem_strbuf_append(addr_info_strbuf, gsm_map_packet_info->sm_rp_da_str);
                 else if (gsm_map_packet_info->sm_rp_da_id == GSM_MAP_SM_RP_DA_LMSI)
                     wmem_strbuf_append(addr_info_strbuf, gsm_map_packet_info->sm_rp_da_str);
+                else /* no identity provided by GSM MAP layer, use TCAP OTID as last resort */
+                    wmem_strbuf_append_printf(addr_info_strbuf, "TCAP%u", gsm_map_packet_info->tcap_src_tid);
             }
         } else if (proto_is_frame_protocol(pinfo->layers, "sip")) {
             sip_info_value_t *sip_info;

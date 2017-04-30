@@ -249,25 +249,27 @@ static gsm_map_packet_info_t *gsm_map_get_packet_info(asn1_ctx_t *actx, gboolean
     gsm_map_private_info_t *gsm_map_priv = (gsm_map_private_info_t*)actx->value_ptr;
     gsm_map_pi = wmem_new0(wmem_file_scope(), gsm_map_packet_info_t);
     p_add_proto_data(wmem_file_scope(), actx->pinfo, proto_gsm_map, 0, gsm_map_pi);
-    if (store_conv_info && gsm_map_priv && gsm_map_priv->tcap_private) {
-      conversation_t *conversation;
-      gsm_map_conv_info_t *gsm_map_info;
-      wmem_tree_key_t key[3];
-      conversation = find_or_create_conversation(actx->pinfo);
-      gsm_map_info = (gsm_map_conv_info_t *)conversation_get_proto_data(conversation, proto_gsm_map);
-      if (!gsm_map_info) {
-        gsm_map_info = wmem_new(wmem_file_scope(), gsm_map_conv_info_t);
-        gsm_map_info->packets = wmem_tree_new(wmem_file_scope());
-        conversation_add_proto_data(conversation, proto_gsm_map, gsm_map_info);
-      }
+    if (gsm_map_priv && gsm_map_priv->tcap_private) {
       gsm_map_pi->tcap_src_tid = gsm_map_priv->tcap_private->src_tid;
-      key[0].length = 1;
-      key[0].key = &gsm_map_priv->tcap_private->src_tid;
-      key[1].length = 1;
-      key[1].key = &actx->pinfo->num;
-      key[2].length = 0;
-      key[2].key = NULL;
-      wmem_tree_insert32_array(gsm_map_info->packets, key, (void *)gsm_map_pi);
+      if (store_conv_info) {
+        conversation_t *conversation;
+        gsm_map_conv_info_t *gsm_map_info;
+        wmem_tree_key_t key[3];
+        conversation = find_or_create_conversation(actx->pinfo);
+        gsm_map_info = (gsm_map_conv_info_t *)conversation_get_proto_data(conversation, proto_gsm_map);
+        if (!gsm_map_info) {
+            gsm_map_info = wmem_new(wmem_file_scope(), gsm_map_conv_info_t);
+            gsm_map_info->packets = wmem_tree_new(wmem_file_scope());
+            conversation_add_proto_data(conversation, proto_gsm_map, gsm_map_info);
+        }
+        key[0].length = 1;
+        key[0].key = &gsm_map_priv->tcap_private->src_tid;
+        key[1].length = 1;
+        key[1].key = &actx->pinfo->num;
+        key[2].length = 0;
+        key[2].key = NULL;
+        wmem_tree_insert32_array(gsm_map_info->packets, key, (void *)gsm_map_pi);
+      }
     }
   }
   return gsm_map_pi;
