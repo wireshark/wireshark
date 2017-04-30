@@ -57,6 +57,9 @@ static expert_field ei_docsis_dccrsp_tlvlen_bad = EI_INIT;
 
 static dissector_handle_t docsis_dccrsp_handle;
 
+/* Defined in packet-tlv.c */
+extern value_string docsis_conf_code[];
+
 /* Dissection */
 static void
 dissect_dccrsp_cm_jump_time (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start, guint16 len)
@@ -181,7 +184,7 @@ proto_register_docsis_dccrsp (void)
      {
        "Confirmation Code",
        "docsis_dccrsp.conf_code",
-       FT_UINT8, BASE_DEC, NULL, 0x0,
+       FT_UINT8, BASE_DEC, VALS (docsis_conf_code), 0x0,
        NULL,
        HFILL
      }
