@@ -45,8 +45,8 @@ ssh                22/udp # The Secure Shell (SSH) Protocol [RFC4251] Defined TX
 ssh                22/sctp # SSH [Randall_Stewart] [Randall_Stewart] [RFC4960] Defined TXT keys: u=<username> p=<password>
 telnet             23/tcp # Telnet [Jon_Postel] [Jon_Postel] [RFC854] Defined TXT keys: u=<username> p=<password>
 telnet             23/udp # Telnet [Jon_Postel] [Jon_Postel] [RFC854] Defined TXT keys: u=<username> p=<password>
-smtp               25/tcp # Simple Mail Transfer [Jon_Postel] [Jon_Postel]
-smtp               25/udp # Simple Mail Transfer [Jon_Postel] [Jon_Postel]
+smtp               25/tcp # Simple Mail Transfer [Jon_Postel] [Jon_Postel] [RFC5321]
+smtp               25/udp # Simple Mail Transfer [Jon_Postel] [Jon_Postel] [RFC5321]
 nsw-fe             27/tcp # NSW User System FE [Robert_Thomas] [Robert_Thomas]
 nsw-fe             27/udp # NSW User System FE [Robert_Thomas] [Robert_Thomas]
 msg-icp            29/tcp # MSG ICP [Robert_Thomas] [Robert_Thomas]
@@ -255,8 +255,8 @@ emfis-cntl        141/tcp # EMFIS Control Service [Gerd_Beling] [Gerd_Beling]
 emfis-cntl        141/udp # EMFIS Control Service [Gerd_Beling] [Gerd_Beling]
 bl-idm            142/tcp # Britton-Lee IDM [Susie_Snitzer] [Susie_Snitzer]
 bl-idm            142/udp # Britton-Lee IDM [Susie_Snitzer] [Susie_Snitzer]
-imap              143/tcp # Internet Message Access Protocol [Mark_Crispin_2] [Mark_Crispin_2]
-imap              143/udp # Internet Message Access Protocol [Mark_Crispin_2] [Mark_Crispin_2]
+imap              143/tcp # Internet Message Access Protocol [Mark_Crispin_2] [Mark_Crispin_2] [RFC3501]
+imap              143/udp # Internet Message Access Protocol [Mark_Crispin_2] [Mark_Crispin_2] [RFC3501]
 uma               144/tcp # Universal Management Architecture [Jay_Whitney] [Jay_Whitney]
 uma               144/udp # Universal Management Architecture [Jay_Whitney] [Jay_Whitney]
 uaac              145/tcp # UAAC Protocol [David_A_Gomberg] [David_A_Gomberg]
@@ -9570,6 +9570,8 @@ talon-webserver  7015/tcp # Talon Webserver [Jim_Thompson] [Jim_Thompson]
 talon-webserver  7015/udp # Talon Webserver [Jim_Thompson] [Jim_Thompson]
 spg              7016/tcp # SPG Controls Carrier [SPG_Controls_Ltd] [Steve_Barton_2] 2017-03-27
 spg              7016/udp # SPG Controls Carrier [SPG_Controls_Ltd] [Steve_Barton_2] 2017-03-27
+grasp            7017/tcp # GeneRic Autonomic Signaling Protocol     (TEMPORARY - registered 2017-04-28, expires 2018-04-28) [IESG] [IETF_Chair] 2017-04-28 [draft-ietf-anima-grasp]
+grasp            7017/udp # GeneRic Autonomic Signaling Protocol     (TEMPORARY - registered 2017-04-28, expires 2018-04-28) [IESG] [IETF_Chair] 2017-04-28 [draft-ietf-anima-grasp]
 fisa-svc         7018/tcp # FISA Service [FAUCONNET_Ingenierie] [FAUCONNET_Ingenierie] 2011-05-19
 doceri-ctl       7019/tcp # doceri drawing service control [Paul_Brown] [Paul_Brown] 2011-04-27
 doceri-view      7019/udp # doceri drawing service screen view [Paul_Brown] [Paul_Brown] 2011-04-27
@@ -11504,9 +11506,9 @@ EtherNet-IP-2   44818/udp # EtherNet/IP messagingIANA assigned this well-formed 
 EtherNet/IP-2   44818/udp # EtherNet/IP messaging [Brian_Batke_2] [Brian_Batke_2] New contact added for port 44818 on 2008-02-01This entry is an alias to "EtherNet-IP-2".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
 m3da            44900/tcp # M3DA is used for efficient machine-to-machine communications [Eclipse_Foundation] [Didier_Lahay] 2013-02-22
 m3da-disc       44900/udp # M3DA Discovery is used for efficient machine-to-machine communications [Eclipse_Foundation] [Didier_Lahay] 2013-02-22
-asmp            45000/tcp # NSi AutoStore Status Monitoring Protocol data transfer [Notable_Solutions_Inc] [Andrew_Andrews] 2011-09-01
-asmp-mon        45000/udp # NSi AutoStore Status Monitoring Protocol device monitoring [Notable_Solutions_Inc] [Andrew_Andrews] 2011-09-01
-asmps           45001/tcp # NSi AutoStore Status Monitoring Protocol secure data transfer [Notable_Solutions_Inc] [Andrew_Andrews] 2011-09-01
+asmp            45000/tcp # Nuance AutoStore Status Monitoring Protocol (data transfer) [Nuance_Communications_Inc4] [Andrew_Andrews] 2011-09-01 2017-04-26
+asmp-mon        45000/udp # Nuance AutoStore Status Monitoring Protocol (device monitoring) [Nuance_Communications_Inc4] [Andrew_Andrews] 2011-09-01 2017-04-26
+asmps           45001/tcp # Nuance AutoStore Status Monitoring Protocol (secure data transfer) [Nuance_Communications_Inc4] [Andrew_Andrews] 2011-09-01 2017-04-26
 rs-status       45002/tcp # Redspeed Status Monitor [Redspeed_International_Ltd] [Simon_Griffiths] 2015-03-10
 synctest        45045/tcp # Remote application control protocol [Eleks_Ltd] [Andriy_Skop] 2013-04-08
 invision-ag     45054/tcp # InVision AG [Matthias_Schroer] [Matthias_Schroer]
