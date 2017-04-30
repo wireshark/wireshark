@@ -512,24 +512,18 @@
 #define vVW510024_W_VCID_MASK           0x03ff      /* VC ID is only 10 bits */
 
 #define vVW510021_W_MT_SEL_LEGACY       0x00
-#define vVW510021_W_PLCP_LEGACY         0x00
-#define vVW510021_W_PLCP_MIXED          0x01
-#define vVW510021_W_PLCP_GREENFIELD     0x02
-#define vVW510021_W_PLCP_VHT_MIXED      0x03
 #define vVW510021_W_HEADER_IS_RX        0x21
 #define vVW510021_W_HEADER_IS_TX        0x31
-#define vVW510021_W_IS_WEP              0x0001
-
-#define vVW510021_W_IS_LONGPREAMBLE     0x40
 #define vVW510021_W_HEADER_IS_RFN       0x30
 #define vVW510021_W_HEADER_IS_RF        0x38
 #define vVW510021_W_HEADER_IS_RFRX      0x39
+#define vVW510021_W_IS_WEP              0x0001
 
-#define vVW510021_W_IS_TCP          0x01000000                  /* TCP bit in FRAME_TYPE field */
-#define vVW510021_W_IS_UDP          0x00100000                  /* UDP bit in FRAME_TYPE field */
-#define vVW510021_W_IS_ICMP         0x00001000                  /* ICMP bit in FRAME_TYPE field */
-#define vVW510021_W_IS_IGMP         0x00010000                  /* IGMP bit in FRAME_TYPE field */
+/* L1p byte 1 info */
 
+/* Common to Series II and Series III */
+
+#define vVW510021_W_IS_LONGPREAMBLE     0x40        /* short/long preamble bit */
 #define vVW510021_W_IS_LONGGI           0x40        /* short/long guard interval bit */
 
 /* Series II */
@@ -1458,6 +1452,7 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
 
     nss = (mcs_index / 8) + 1;
 
+    /* YYY - S2 claims to have 11 bytes of PLCP and 1 byte of pad */
     plcp_ptr = &(rec[8]);
 
     actual_octets = msdu_length;
@@ -1876,12 +1871,12 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         if (plcp_type == vVW510021_W_PLCP_VHT_MIXED)    /* S3 FPGA VHT frames ***/
         {
             mcs_index = vVW510021_W_S3_MCS_INDEX_VHT(l1p_1);
-            nss = vVW510021_W_S3_NSS_VHT(l1p_1); /* The nss is zero based from the fpga - increment it here */
+            nss = vVW510021_W_S3_NSS_VHT(l1p_1);
             plcp_hdr_flag = 1;
         }
         else
         {
-            mcs_index = l1p_1 & 0x3f;
+            mcs_index = vVW510021_W_S3_MCS_INDEX_HT(l1p_1);
             if (plcp_type == vVW510021_W_PLCP_LEGACY)
                 nss = 0;
             else  /*** S3_FPGA HT frames ***/
@@ -1955,20 +1950,20 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         if (plcp_type == vVW510021_W_PLCP_MIXED)
         {
             radioflags |= FLAGS_CHAN_HT | ((plcp_ptr[3] & 0x80) ? FLAGS_CHAN_40MHZ : 0) |
-                               ((l1p_1 & 0x40) ? 0 : FLAGS_CHAN_SHORTGI);
+                               ((l1p_1 & vVW510021_W_IS_LONGGI) ? 0 : FLAGS_CHAN_SHORTGI);
         }
         else
         {
             if (plcp_type == vVW510021_W_PLCP_GREENFIELD)
             {
                 radioflags |= FLAGS_CHAN_HT | ((plcp_ptr[0] & 0x80) ? FLAGS_CHAN_40MHZ : 0) |
-                               ((l1p_1 & 0x40) ?  0 : FLAGS_CHAN_SHORTGI);
+                               ((l1p_1 & vVW510021_W_IS_LONGGI) ?  0 : FLAGS_CHAN_SHORTGI);
             }
             else
             {
                 if (plcp_type == vVW510021_W_PLCP_VHT_MIXED) {
                     guint8 SBW = vVW510021_W_BANDWIDTH_VHT(l1p_2);
-                    radioflags |= FLAGS_CHAN_VHT | ((l1p_1 & 0x40) ?  0 : FLAGS_CHAN_SHORTGI);
+                    radioflags |= FLAGS_CHAN_VHT | ((l1p_1 & vVW510021_W_IS_LONGGI) ?  0 : FLAGS_CHAN_SHORTGI);
                     if (SBW == 3)
                         radioflags |= FLAGS_CHAN_40MHZ;
                     else if (SBW == 4)
@@ -1982,7 +1977,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
             radioflags |= FLAGS_SHORTPRE;
 
         phyRate = (guint16)(getRate(plcp_type, mcs_index, radioflags, nss) * 10);
-        /* Calculatetion of Data rate ends*/
+        /* Calculation of Data rate ends*/
 
         /*
          * The MSDU length includes the FCS.
@@ -2084,12 +2079,13 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
 
     /*
      * Generate and copy out the common metadata headers,
-     * set the port type to 0 (WLAN).
+     * set the port type to port_type (XXX).
      *
      * All values are copied out in little-endian byte order.
      */
     /*** msdu_length = msdu_length + 16; ***/
-    phtole8(&data_ptr[bytes_written], port_type); /* 1st octet of record for Port_type*/
+    /* 1st octet of record for port_type */
+    phtole8(&data_ptr[bytes_written], port_type);
     bytes_written += 1;
 
     if (IS_TX != 3) {
@@ -2454,6 +2450,12 @@ static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
          return FALSE;
      }
 
+    /*
+     * The maximum value of actual_octets is 65535, which, even after
+     * adding the lengths of the metadata headers, is less than
+     * WTAP_MAX_PACKET_SIZE will ever be, so we don't need to check it.
+     */
+
      vc_id = pntoh16(&s_ptr[vwr->VCID_OFF]) & vwr->VCID_MASK;
      flow_seq   = s_ptr[vwr->FLOWSEQ_OFF];
      frame_type = pntoh32(&s_ptr[vwr->FRAME_TYPE_OFF]);
@@ -2589,9 +2591,11 @@ static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
      *
      * All values are copied out in little-endian byte order.
      */
-    phtole8(&data_ptr[bytes_written], ETHERNET_PORT); /* 1st octet of record*/
+    /* 1st octet of record for port_type */
+    phtole8(&data_ptr[bytes_written], ETHERNET_PORT);
     bytes_written += 1;
-    phtole8(&data_ptr[bytes_written], 0); /* 2nd octet of record*/
+    /* 2nd octet of record for fpga version */
+    phtole8(&data_ptr[bytes_written], 0);
     bytes_written += 1;
     phtoles(&data_ptr[bytes_written], STATS_COMMON_FIELDS_LEN);
     bytes_written += 2;
@@ -3159,7 +3163,6 @@ vwr_process_rec_data(FILE_T fh, int rec_size,
     if (!wtap_read_bytes(fh, rec, rec_size, err, err_info))
     {
         g_free(rec);
-        *err = WTAP_ERR_SHORT_READ;
         return FALSE;
     }
 
