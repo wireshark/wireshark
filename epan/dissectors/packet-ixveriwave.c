@@ -2084,10 +2084,10 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         offset++;
 
         /* New pieces of lines for
-            * #802.11 radio information#
-            * Referred from code changes done for old FPGA version
-            * **/
-        phdr.fcs_len = 0;
+         * #802.11 radio information#
+         * Referred from code changes done for old FPGA version
+         * **/
+        phdr.fcs_len = (log_mode == 3) ? 0 : 4;
         switch (plcp_type) //To check 5 types of PLCP(NULL, CCK, OFDM, HT & VHT)
         {
         case 0:

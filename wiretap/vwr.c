@@ -1979,34 +1979,35 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         phyRate = (guint16)(getRate(plcp_type, mcs_index, radioflags, nss) * 10);
         /* Calculation of Data rate ends*/
 
-        /*
-         * The MSDU length includes the FCS.
-         *
-         * The packet data does *not* include the FCS - it's just 4 bytes
-         * of junk - so we have to remove it.
-         *
-         * We'll be stripping off an FCS (?), so make sure we have at
-         * least 4 octets worth of FCS.
-         */
-        if (actual_octets < 4) {
-            *err_info = g_strdup_printf("vwr: Invalid data length %u (too short to include 4 bytes of FCS)",
-                                         actual_octets);
-            *err = WTAP_ERR_BAD_FILE;
-            return FALSE;
-        }
         /* 'ver_fpga' is the 2nd Octet of each frame.
          * msb/lsb nibble indicates log mode/fpga version respectively.
          * where log mode = 0 is normal capture and 1 is reduced capture,
          * lsb nibble is set to 1 always as this function is applicable for only FPGA version >= 48
          */
         if (log_mode == 3) {
+            /*
+             * The MSDU length includes the FCS.
+             *
+             * The packet data does *not* include the FCS - it's just 4 bytes
+             * of junk - so we have to remove it.
+             *
+             * We'll be stripping off an FCS (?), so make sure we have at
+             * least 4 octets worth of FCS.
+             *
+             * XXX - is the FCS actually present here, as it appears to be
+             * if log_mode isn't 3?
+             */
+            if (actual_octets < 4) {
+                *err_info = g_strdup_printf("vwr: Invalid data length %u (too short to include 4 bytes of FCS)",
+                                             actual_octets);
+                *err = WTAP_ERR_BAD_FILE;
+                return FALSE;
+            }
             if (actual_octets > 4 && (frame_size >= (int) msdu_length))
                 actual_octets -=4;
             ver_fpga = 0x11;
         }
         else {
-            if (actual_octets > 4)
-                actual_octets -= 4;
             ver_fpga = 0x01;
         }
 
