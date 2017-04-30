@@ -28,11 +28,8 @@
 
 #include <epan/packet.h>
 #include <epan/proto_data.h>
-#include <epan/expert.h>
-#include <epan/crc32-tvb.h>
 
 #include <wiretap/wtap.h>
-
 
 void proto_register_ixveriwave(void);
 void proto_reg_handoff_ixveriwave(void);
@@ -536,8 +533,6 @@ static int hf_radiotap_rfinfo_datadata = -1;
 static int hf_radiotap_rfinfo_datapilot = -1;
 static int hf_radiotap_plcp_type = -1;
 static int hf_radiotap_vht_ndp_flg = -1;
-
-static expert_field ei_radiotap_fcs_bad = EI_INIT;
 
 static dissector_handle_t ixveriwave_handle;
 
@@ -4232,18 +4227,9 @@ framing signal deasserted.  this is caused by software setting the drain all reg
         &ett_radiotap_contextp,
     };
 
-   static ei_register_info ei[] = {
-      { &ei_radiotap_fcs_bad, { "ixveriwave.fcs_error", PI_CHECKSUM, PI_WARN, "FCS error", EXPFILL } },
-   };
-
-    expert_module_t* expert_ixveriwave;
-
     proto_ixveriwave = proto_register_protocol("ixveriwave", "ixveriwave", "ixveriwave");
     proto_register_field_array(proto_ixveriwave, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    expert_ixveriwave = expert_register_protocol(proto_ixveriwave);
-    expert_register_field_array(expert_ixveriwave, ei, array_length(ei));
-
 
     ixveriwave_handle = register_dissector("ixveriwave", dissect_ixveriwave, proto_ixveriwave);
 }
