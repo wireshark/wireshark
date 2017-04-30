@@ -128,7 +128,7 @@ static int hf_ixveriwave_vw_latency = -1;
 static int hf_ixveriwave_vw_pktdur = -1;
 static int hf_ixveriwave_vw_ifg = -1;
 static int hf_ixveriwave_vw_ifg_neg = -1;
-static int hf_ixveriwave = -1;
+static int hf_ixveriwave_vw_sig_ts = -1;
 static int hf_ixveriwave_vw_startt = -1;
 static int hf_ixveriwave_vw_endt = -1;
 static int hf_ixveriwave_vw_delay = -1;
@@ -139,11 +139,7 @@ static gint ett_ethernettap_info = -1;
 static gint ett_ethernettap_error = -1;
 static gint ett_ethernettap_flags = -1;
 
-/* static gint ett_radiotap = -1;
-static gint ett_radiotap_present = -1;
-*/
 static gint ett_radiotap_flags = -1;
-/* static gint ett_radiotap_channel_flags = -1; */
 
 static dissector_handle_t ieee80211_radio_handle;
 
@@ -756,7 +752,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         /*extract signature timestamp, 4 bytes (32 LSBs only, nsec)*/
         if (length_remaining >= 4) {
             /* TODO: what should this fieldname be? */
-            proto_tree_add_item(vw_times_tree, hf_ixveriwave,
+            proto_tree_add_item(vw_times_tree, hf_ixveriwave_vw_sig_ts,
                             tvb, offset, 4, ENC_BIG_ENDIAN);
             offset              +=4;
             length_remaining    -=4;
@@ -850,7 +846,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         if (length_remaining >= 4) {
             /* TODO: what should this fieldname be? */
                 if (cmd_type != 1)
-                    proto_tree_add_item(vw_times_tree, hf_ixveriwave,
+                    proto_tree_add_item(vw_times_tree, hf_ixveriwave_vw_sig_ts,
                         tvb, offset, 4, ENC_BIG_ENDIAN);
                 else
                     proto_tree_add_item(vw_times_tree, hf_ixveriwave_vw_delay,
@@ -3016,7 +3012,7 @@ void proto_register_ixveriwave(void)
         { "Frame latency", "ixveriwave.latency",
         FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_nanoseconds, 0x0, NULL, HFILL } },
 
-    { &hf_ixveriwave,
+    { &hf_ixveriwave_vw_sig_ts,
         { "Frame Signature Timestamp(32 LSBs)", "ixveriwave.sig_ts",
         FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
@@ -3143,23 +3139,6 @@ framing signal deasserted.  this is caused by software setting the drain all reg
     { &hf_ixveriwave_vw_l4id,
         { "Layer 4 ID", "ixveriwave.layer4id",
         FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-
-    /* Presense flags */
-#define RADIOTAP_MASK_VW_FPGA_VERSION       (1 << VW_RADIOTAP_FPGA_VERSION)
-#define RADIOTAP_MASK_VW_MCID               (1 << VW_RADIOTAP_MCID)
-#define RADIOTAP_MASK_VW_ERRORS             (1 << VW_RADIOTAP_ERRORS)
-#define RADIOTAP_MASK_VW_INFO               (1 << VW_RADIOTAP_INFO)
-#define RADIOTAP_MASK_VW_MSDU_LENGTH        (1 << VW_RADIOTAP_MSDU_LENGTH)
-#define RADIOTAP_MASK_VW_HT_LENGTH          (1 << VW_RADIOTAP_HT_LENGTH)
-#define RADIOTAP_MASK_VW_FLOWID             (1 << VW_RADIOTAP_FLOWID)
-#define RADIOTAP_MASK_VW_SEQNUM             (1 << VW_RADIOTAP_SEQNUM)
-#define RADIOTAP_MASK_VW_LATENCY            (1 << VW_RADIOTAP_LATENCY)
-#define RADIOTAP_MASK_VW_SIG_TS             (1 << VW_RADIOTAP_SIG_TS)
-#define RADIOTAP_MASK_VW_STARTT             (1 << VW_RADIOTAP_STARTT)
-#define RADIOTAP_MASK_VW_ENDT               (1 << VW_RADIOTAP_ENDT)
-#define RADIOTAP_MASK_VW_PKTDUR             (1 << VW_RADIOTAP_PKTDUR)
-#define RADIOTAP_MASK_VW_IFG                (1 << VW_RADIOTAP_IFG)
-    /* end veriwave addition*/
 
     { &hf_radiotap_datarate,
         { "Data rate", "ixveriwave.datarate",
