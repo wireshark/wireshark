@@ -511,11 +511,13 @@
 #define vVW510024_W_VCID_MASK           0x03ff      /* VC ID is only 10 bits */
 
 #define vVW510021_W_MT_SEL_LEGACY       0x00
+
 #define vVW510021_W_HEADER_IS_RX        0x21
 #define vVW510021_W_HEADER_IS_TX        0x31
 #define vVW510021_W_HEADER_IS_RFN       0x30
 #define vVW510021_W_HEADER_IS_RF        0x38
 #define vVW510021_W_HEADER_IS_RFRX      0x39
+
 #define vVW510021_W_IS_WEP              0x0001
 
 /* L1p byte 1 info */
@@ -1774,8 +1776,9 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
 }
 
 static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
-                                 Buffer *buf, const guint8 *rec, int rec_size,
-                                  int IS_TX, int log_mode, int *err, gchar **err_info)
+                                  Buffer *buf, const guint8 *rec, int rec_size,
+                                  int IS_TX, int log_mode, int *err,
+                                  gchar **err_info)
 {
     guint8           *data_ptr;
     int              bytes_written = 0;                   /* bytes output to buf so far */
@@ -1861,25 +1864,31 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         s_start_ptr = &(rec[j]);                        /* point to stats header */
         s_trail_ptr = &(rec[rec_size - vVW510021_W_STATS_TRAILER_LEN] );      /* point to stats trailer */
 
-        /* L1p info is different for series III and for Series II - need to check */
         l1p_1 = s_start_ptr[vVW510021_W_L1P_1_OFF];
         l1p_2 = s_start_ptr[vVW510021_W_L1P_2_OFF];
 
-
         plcp_type = vVW510021_W_S3_PLCP_TYPE(l1p_2);
-        if (plcp_type == vVW510021_W_PLCP_VHT_MIXED)    /* S3 FPGA VHT frames ***/
+        if (plcp_type == vVW510021_W_PLCP_VHT_MIXED)
         {
+            /* S3 FPGA VHT frames */
             mcs_index = vVW510021_W_S3_MCS_INDEX_VHT(l1p_1);
             nss = vVW510021_W_S3_NSS_VHT(l1p_1);
             plcp_hdr_flag = 1;
         }
         else
         {
+            /* S3 FPGA HT or pre-HT frames */
             mcs_index = vVW510021_W_S3_MCS_INDEX_HT(l1p_1);
             if (plcp_type == vVW510021_W_PLCP_LEGACY)
+            {
+                /* pre-HT */
                 nss = 0;
-            else  /*** S3_FPGA HT frames ***/
+            }
+            else
+            {
+                /* HT */
                 nss = (mcs_index / 8) + 1;
+            }
         }
 
         if (IS_TX == 0 || IS_TX == 4){
@@ -1899,6 +1908,9 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
             }
         }
 
+        /*** 16 bytes of PLCP header + 1 byte of L1P for user position ***/
+        /* XXX - S3 claims to have 16 bytes of stats block and 16 bytes of
+           *something*. Are those 16 bytes the PLCP? */
         plcp_ptr = &(rec[j+16]);
 
         /*** Add the PLCP length for S3_W_FPGA version VHT frames for Beamforming decode ***/
@@ -1945,30 +1957,61 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         /*** Calculate Data rate based on
         *  PLCP type, MCS index and number of spatial stream
         *  radioflags is temporarily calculated, which is used in getRate().
+        *
+        * XXX - for S3, can the PLCP type ever be vVW510021_W_PLCP_LEGACY?
         **/
         if (plcp_type == vVW510021_W_PLCP_MIXED)
         {
+            /*
+             * According to section 20.3.2 "PPDU format", the HT-mixed
+             * PLCP header has a "Non-HT SIGNAL field" (L-SIG), which
+             * looks like an 11a SIGNAL field, followed by an HT SIGNAL
+             * field (HT-SIG) described in section 20.3.9.4.3 "HT-SIG
+             * definition".
+             *
+             * This means that the first octet of HT-SIG is at
+             * plcp_ptr[3], skipping the 3 octets of the L-SIG field.
+             *
+             * 0x80 is the CBW 20/40 bit of HT-SIG.
+             */
+            /* set the appropriate flags to indicate HT mode and CB */
             radioflags |= FLAGS_CHAN_HT | ((plcp_ptr[3] & 0x80) ? FLAGS_CHAN_40MHZ : 0) |
                                ((l1p_1 & vVW510021_W_IS_LONGGI) ? 0 : FLAGS_CHAN_SHORTGI);
         }
-        else
+        else if (plcp_type == vVW510021_W_PLCP_GREENFIELD)
         {
-            if (plcp_type == vVW510021_W_PLCP_GREENFIELD)
-            {
-                radioflags |= FLAGS_CHAN_HT | ((plcp_ptr[0] & 0x80) ? FLAGS_CHAN_40MHZ : 0) |
-                               ((l1p_1 & vVW510021_W_IS_LONGGI) ?  0 : FLAGS_CHAN_SHORTGI);
-            }
-            else
-            {
-                if (plcp_type == vVW510021_W_PLCP_VHT_MIXED) {
-                    guint8 SBW = vVW510021_W_BANDWIDTH_VHT(l1p_2);
-                    radioflags |= FLAGS_CHAN_VHT | ((l1p_1 & vVW510021_W_IS_LONGGI) ?  0 : FLAGS_CHAN_SHORTGI);
-                    if (SBW == 3)
-                        radioflags |= FLAGS_CHAN_40MHZ;
-                    else if (SBW == 4)
-                        radioflags |= FLAGS_CHAN_80MHZ;
-                 }
-            }
+            /*
+             * According to section 20.3.2 "PPDU format", the HT-greenfield
+             * PLCP header just has the HT SIGNAL field (HT-SIG) above, with
+             * no L-SIG field.
+             *
+             * This means that the first octet of HT-SIG is at
+             * plcp_ptr[0], as there's no L-SIG field to skip.
+             *
+             * 0x80 is the CBW 20/40 bit of HT-SIG.
+             */
+            /* set the appropriate flags to indicate HT mode and CB */
+            radioflags |= FLAGS_CHAN_HT | ((plcp_ptr[0] & 0x80) ? FLAGS_CHAN_40MHZ : 0) |
+                           ((l1p_1 & vVW510021_W_IS_LONGGI) ?  0 : FLAGS_CHAN_SHORTGI);
+        }
+        else if (plcp_type == vVW510021_W_PLCP_VHT_MIXED)
+        {
+            /*
+             * According to section 22.3.2 "VHTPPDU format" of IEEE Std
+             * 802.11ac-2013, the VHT PLCP header has a "non-HT SIGNAL field"
+             * (L-SIG), which looks like an 11a SIGNAL field, followed by
+             * a VHT Signal A field (VHT-SIG-A) described in section
+             * 22.3.8.3.3 "VHT-SIG-A definition", with training fields
+             * between it and a VHT Signal B field (VHT-SIG-B) described
+             * in section 22.3.8.3.6 "VHT-SIG-B definition", followed by
+             * the PSDU.
+             */
+            guint8 SBW = vVW510021_W_BANDWIDTH_VHT(l1p_2);
+            radioflags |= FLAGS_CHAN_VHT | ((l1p_1 & vVW510021_W_IS_LONGGI) ?  0 : FLAGS_CHAN_SHORTGI);
+            if (SBW == 3)
+                radioflags |= FLAGS_CHAN_40MHZ;
+            else if (SBW == 4)
+                radioflags |= FLAGS_CHAN_80MHZ;
         }
         if (info & vVW510021_W_IS_WEP)
             radioflags |= FLAGS_WEP;
@@ -1998,7 +2041,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
              */
             if (actual_octets < 4) {
                 *err_info = g_strdup_printf("vwr: Invalid data length %u (too short to include 4 bytes of FCS)",
-                                             actual_octets);
+                                            actual_octets);
                 *err = WTAP_ERR_BAD_FILE;
                 return FALSE;
             }
@@ -2084,7 +2127,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
      * All values are copied out in little-endian byte order.
      */
     /*** msdu_length = msdu_length + 16; ***/
-    /* 1st octet of record for port_type */
+    /* 1st octet of record for port_type and other crud */
     phtole8(&data_ptr[bytes_written], port_type);
     bytes_written += 1;
 
@@ -2591,10 +2634,10 @@ static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
      *
      * All values are copied out in little-endian byte order.
      */
-    /* 1st octet of record for port_type */
+    /* 1st octet of record for port_type and command (command is 0, hence RX) */
     phtole8(&data_ptr[bytes_written], ETHERNET_PORT);
     bytes_written += 1;
-    /* 2nd octet of record for fpga version */
+    /* 2nd octet of record for fpga version (Ethernet, hence non-OCTO) */
     phtole8(&data_ptr[bytes_written], 0);
     bytes_written += 1;
     phtoles(&data_ptr[bytes_written], STATS_COMMON_FIELDS_LEN);
