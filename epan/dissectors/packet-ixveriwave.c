@@ -3273,7 +3273,7 @@ framing signal deasserted.  this is caused by software setting the drain all reg
 
     { &hf_radiotap_vwf_enctype,
         { "Encryption type", "ixveriwave.vwflags.encrypt",
-        FT_UINT32, BASE_DEC, VALS(encrypt_type), VW_RADIOTAPF_ENCMSK, NULL, HFILL } },
+        FT_UINT16, BASE_DEC, VALS(encrypt_type), VW_RADIOTAPF_ENCMSK, NULL, HFILL } },
 
     /* start VeriWave-specific radiotap header elements 6-2007 */
     { &hf_radiotap_vw_ht_length,
