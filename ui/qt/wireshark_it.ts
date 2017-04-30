@@ -14203,7 +14203,7 @@ a:hover {
 <context>
     <name>SimpleDialog</name>
     <message>
-        <location filename="simple_dialog.cpp" line="197"/>
+        <location filename="simple_dialog.cpp" line="198"/>
         <source>Multiple problems found</source>
         <translation>Rilevati numerosi problemi</translation>
     </message>
