@@ -1142,10 +1142,10 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     /* Calculate the start of the statistics block in the buffer */
     /* Also get a bunch of fields from the stats block */
     s_ptr    = &(rec[rec_size - v22_W_STATS_LEN]); /* point to it */
-    m_type   = s_ptr[v22_W_MTYPE_OFF] & 0x7;
-    f_tx     = !(s_ptr[v22_W_MTYPE_OFF] & 0x8);
+    m_type   = s_ptr[v22_W_MTYPE_OFF] & v22_E_MT_MASK;
+    f_tx     = !(s_ptr[v22_W_MTYPE_OFF] & v22_E_IS_RX);
     actual_octets   = pntoh16(&s_ptr[v22_W_OCTET_OFF]);
-    vc_id    = pntoh16(&s_ptr[v22_W_VCID_OFF]) & 0x3ff;
+    vc_id    = pntoh16(&s_ptr[v22_W_VCID_OFF]) & v22_E_VCID_MASK;
     flow_seq = s_ptr[v22_W_FLOWSEQ_OFF];
 
     latency = (guint32)pcorey48tohll(&s_ptr[v22_W_LATVAL_OFF]);
