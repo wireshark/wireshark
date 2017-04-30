@@ -501,7 +501,6 @@
 #define vVW510021_W_QOS_VALID           0x4000
 #define vVW510021_W_HT_VALID            0x2000
 #define vVW510021_W_L4ID_VALID          0x1000
-#define vVW510021_W_PREAMBLE_MASK       0x40        /* short/long preamble/guard(ofdm) mask */
 #define vVW510021_W_MCS_MASK            0x3f        /* mcs index (a/b) type mask */
 #define vVW510021_W_MOD_SCHEME_MASK     0x3f        /* modulation type mask */
 #define vVW510021_W_PLCPC_MASK          0x03        /* PLPCP type mask */
@@ -1708,7 +1707,7 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     bytes_written += 2;
     if (info & vVW510021_W_IS_WEP)
         radioflags |= FLAGS_WEP;
-    if ((l1p_1 & vVW510021_W_PREAMBLE_MASK) != vVW510021_W_IS_LONGPREAMBLE && (plcp_type == vVW510021_W_PLCP_LEGACY))
+    if (!(l1p_1 & vVW510021_W_IS_LONGPREAMBLE) && (plcp_type == vVW510021_W_PLCP_LEGACY))
         radioflags |= FLAGS_SHORTPRE;
     phtoles(&data_ptr[bytes_written], radioflags);
     bytes_written += 2;
@@ -1973,7 +1972,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         }
         if (info & vVW510021_W_IS_WEP)
             radioflags |= FLAGS_WEP;
-        if ((l1p_1 & vVW510021_W_PREAMBLE_MASK) != vVW510021_W_IS_LONGPREAMBLE && (plcp_type == vVW510021_W_PLCP_LEGACY))
+        if (!(l1p_1 & vVW510021_W_IS_LONGPREAMBLE) && (plcp_type == vVW510021_W_PLCP_LEGACY))
             radioflags |= FLAGS_SHORTPRE;
 
         phyRate = (guint16)(getRate(plcp_type, mcs_index, radioflags, nss) * 10);
