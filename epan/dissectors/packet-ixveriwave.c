@@ -84,7 +84,6 @@ static frame_end_data previous_frame_data = {0,0};
 #define FLAGS_WEP                           0x0004  /* sent/received
                                                      * with WEP encryption
                                                      */
-#define FLAGS_FCS                           0x0010  /* frame includes FCS */
 #define FLAGS_CHAN_HT                       0x0040  /* HT mode */
 #define FLAGS_CHAN_VHT                      0x0080  /* VHT mode */
 #define FLAGS_CHAN_SHORTGI                  0x0100  /* short guard interval */
@@ -198,7 +197,6 @@ static int hf_radiotap_dbm_tx_antd = -1;
 
 static int hf_radiotap_flags_preamble = -1;
 static int hf_radiotap_flags_wep = -1;
-static int hf_radiotap_flags_fcs = -1;
 static int hf_radiotap_flags_ht = -1;
 static int hf_radiotap_flags_vht = -1;
 static int hf_radiotap_flags_40mhz = -1;
@@ -1550,13 +1548,10 @@ static void
 wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *tap_tree, guint16 vw_msdu_length, guint8 cmd_type, guint8 mgmt_byte)
 {
     proto_tree *ft, *flags_tree         = NULL;
-    proto_item *hdr_fcs_ti              = NULL;
     int         align_offset, offset;
-    guint32     calc_fcs;
     tvbuff_t   *next_tvb;
     guint       length;
     gint8       dbm;
-    guint8      rflags                  = 0;
     guint8      mcs_index, vw_plcp_info, vw_bssid;
     guint8      plcp_type, vht_u3_coding_type = 0, vht_reserved_coding_type=1;
     guint8      vht_ndp_flag,vht_mu_mimo_flg,vht_coding_type,vht_u0_coding_type,vht_u1_coding_type,vht_u2_coding_type;
@@ -1618,16 +1613,12 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 
         /* rflags */
         vw_rflags = tvb_get_letohs(tvb, offset);
-        if (vw_rflags & FLAGS_FCS)
-            phdr.fcs_len = 4;
-        else
-            phdr.fcs_len = 0;
+        phdr.fcs_len = 0;
 
         ft = proto_tree_add_item(tap_tree, hf_radiotap_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         flags_tree = proto_item_add_subtree(ft, ett_radiotap_flags);
         proto_tree_add_item(flags_tree, hf_radiotap_flags_preamble, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(flags_tree, hf_radiotap_flags_wep, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(flags_tree, hf_radiotap_flags_fcs, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         if ( vw_rflags & FLAGS_CHAN_HT ) {
             proto_tree_add_item(flags_tree, hf_radiotap_flags_ht, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(flags_tree, hf_radiotap_flags_40mhz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -2870,12 +2861,6 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
      }
     ***/
 
-    /* This handles the case of an FCS existing at the end of the frame. */
-    if (rflags & FLAGS_FCS)
-        pinfo->pseudo_header->ieee_802_11.fcs_len = 4;
-    else
-        pinfo->pseudo_header->ieee_802_11.fcs_len = 0;
-
     if (!ver_fpga)
     {
         /* Grab the rest of the frame. */
@@ -2896,35 +2881,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         next_tvb = tvb_new_subset_remaining(tvb, length);
     }
 
-    /* If we had an in-header FCS, check it. */
-    if (hdr_fcs_ti) {
-        /* It would be very strange for the header to have an FCS for the
-         * frame *and* the frame to have the FCS at the end, but it's possible, so
-         * take that into account by using the FCS length recorded in pinfo. */
-
-        /* Watch out for [erroneously] short frames */
-        if (tvb_captured_length(next_tvb) > (unsigned int) pinfo->pseudo_header->ieee_802_11.fcs_len) {
-            guint32 sent_fcs = 0;
-            calc_fcs = crc32_802_tvb(next_tvb,
-                                     tvb_captured_length(next_tvb) - pinfo->pseudo_header->ieee_802_11.fcs_len);
-
-            /* By virtue of hdr_fcs_ti being set, we know that 'tree' is set,
-            * so there's no need to check it here. */
-            if (calc_fcs == sent_fcs) {
-                proto_item_append_text(hdr_fcs_ti, " [correct]");
-            }
-            else {
-                proto_item_append_text(hdr_fcs_ti, " [incorrect, should be 0x%08x]", calc_fcs);
-                proto_tree_add_expert(tap_tree, pinfo, &ei_radiotap_fcs_bad,
-                    tvb, 0, 4);
-            }
-        }
-        else {
-            proto_item_append_text(hdr_fcs_ti,
-            " [cannot verify - not enough data]");
-        }
-    }
-    /* dissect the 802.11 header next */
+    /* dissect the 802.11 radio informaton and header next */
     if(!ver_fpga || mpdu_length != 0)
         call_dissector_with_data(ieee80211_radio_handle, next_tvb, pinfo, tree, &phdr);
 }
@@ -3235,11 +3192,6 @@ framing signal deasserted.  this is caused by software setting the drain all reg
         { "WEP", "ixveriwave.flags.wep",
         FT_BOOLEAN, 12, NULL, FLAGS_WEP,
         "Sent/Received with WEP encryption", HFILL } },
-
-    { &hf_radiotap_flags_fcs,
-        { "FCS at end", "ixveriwave.flags.fcs",
-        FT_BOOLEAN, 12, NULL, FLAGS_FCS,
-        "Frame includes FCS at end", HFILL } },
 
     { &hf_radiotap_flags_ht,
         { "HT frame", "ixveriwave.flags.ht",
