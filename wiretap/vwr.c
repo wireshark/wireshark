@@ -222,7 +222,7 @@
  * 4 octets - delta(?) time
  */
 
-/* Size of Timestamp header including 1st 4 Management bytes for OCTO version FPGA*/
+/* Size of Timestamp header */
 #define OCTO_TIMESTAMP_FIELDS_LEN   (4+4+8+8+4+4)
 
 /*
