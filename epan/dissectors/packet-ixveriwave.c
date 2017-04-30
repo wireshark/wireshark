@@ -560,7 +560,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     guint32     vw_msdu_length=0;
     tvbuff_t   *next_tvb;
     ifg_info   *p_ifg_info;
-    guint8      ixport_type,cmd_type, mgmt_byte;
+    guint8      ixport_type,cmd_type, mgmt_byte = 0;
     guint8      frameformat, rfid, legacy_type;
     gint8       noisevalida, noisevalidb, noisevalidc, noisevalidd, pfevalida, pfevalidb, pfevalidc, pfevalidd;
     guint16     vw_info_ifg;
