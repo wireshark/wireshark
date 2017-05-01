@@ -352,6 +352,7 @@ void set_pdcp_lte_up_ciphering_key(guint16 ueid, const char *key)
 static gboolean global_pdcp_decipher_signalling = TRUE;
 static gboolean global_pdcp_decipher_userplane = FALSE;  /* Can be slow, so default to FALSE */
 static gboolean global_pdcp_check_integrity = TRUE;
+static gboolean global_pdcp_ignore_sec = FALSE;  /* ignore Set Security Algo calls */
 
 /* Use these values where we know the keys but may have missed the algorithm,
    e.g. when handing over and RRCReconfigurationRequest goes to target cell only */
@@ -1437,6 +1438,12 @@ void set_pdcp_lte_security_algorithms(guint16 ueid, pdcp_security_info_t *securi
     /* Use for this frame so can check integrity on SecurityCommandRequest frame */
     /* N.B. won't work for internal, non-RRC signalling methods... */
     pdcp_security_info_t *p_frame_security;
+
+    /* Disable this entire sub-routine with the Preference */
+    /* Used when the capture is already deciphered */
+    if (global_pdcp_ignore_sec) {
+        return;
+    }
 
     /* Create or update current settings, by UEID */
     pdcp_security_info_t* ue_security =
@@ -2947,6 +2954,11 @@ void proto_register_pdcp(void)
         "Attempt to check integrity calculation",
         "N.B. only possible if build with algorithm support, and have key available and configured",
         &global_pdcp_check_integrity);
+
+    prefs_register_bool_preference(pdcp_lte_module, "ignore_rrc_sec_params",
+        "Ignore RRC security parameters",
+        "Ignore the LTE RRC security algorithm configuration, to be used when PDCP is already deciphered in the capture",
+        &global_pdcp_ignore_sec);
 
     pdcp_sequence_analysis_channel_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
     pdcp_lte_sequence_analysis_report_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), pdcp_result_hash_func, pdcp_result_hash_equal);
