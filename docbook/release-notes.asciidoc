@@ -94,6 +94,7 @@ NetScaler HA Protocol
 NetScaler Metric Exchange Protocol
 NetScaler RPC Protocol
 DirectPlay 8 protocol
+NM protocol
 --sort-and-group--
 
 === Updated Protocol Support

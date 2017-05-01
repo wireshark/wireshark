@@ -1296,6 +1296,7 @@ set(DISSECTOR_SRC
 	packet-ucp.c
 	packet-udld.c
 	packet-udp.c
+	packet-udp-nm.c
 	packet-uds.c
 	packet-udt.c
 	packet-uftp.c
