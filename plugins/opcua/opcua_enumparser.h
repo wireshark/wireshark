@@ -66,7 +66,8 @@ void parseSecurityTokenRequestType(proto_tree *tree, tvbuff_t *tvb, packet_info 
 void parseNodeAttributesMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
 void parseAttributeWriteMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
 void parseBrowseDirection(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
-void parseBrowseResultMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
+void parseNodeClassMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
+void parseResultMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
 void parseComplianceLevel(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
 void parseFilterOperator(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
 void parseTimestampsToReturn(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);

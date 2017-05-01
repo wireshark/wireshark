@@ -63,6 +63,23 @@
 #define RETURNDIAGNOSTICS_OPERATIONLEVEL_ADDITIONALINFO       0x0080
 #define RETURNDIAGNOSTICS_OPERATIONLEVEL_INNERSTATUSCODE      0x0100
 #define RETURNDIAGNOSTICS_OPERATIONLEVEL_INNERDIAGNOSTICS     0x0200
+#define NODECLASSMASK_ALL                                     0x0000
+#define NODECLASSMASK_OBJECT                                  0x0001
+#define NODECLASSMASK_VARIABLE                                0x0002
+#define NODECLASSMASK_METHOD                                  0x0004
+#define NODECLASSMASK_OBJECTTYPE                              0x0008
+#define NODECLASSMASK_VARIABLETYPE                            0x0010
+#define NODECLASSMASK_REFERENCETYPE                           0x0020
+#define NODECLASSMASK_DATATYPE                                0x0040
+#define NODECLASSMASK_VIEW                                    0x0080
+#define RESULTMASK_REFERENCETYPE                              0x0001
+#define RESULTMASK_ISFORWARD                                  0x0002
+#define RESULTMASK_NODECLASS                                  0x0004
+#define RESULTMASK_BROWSENAME                                 0x0008
+#define RESULTMASK_DISPLAYNAME                                0x0010
+#define RESULTMASK_TYPEDEFINITION                             0x0020
+#define RESULTMASK_ALL                                        0x003F
+
 
 /* Chosen arbitrarily */
 #define MAX_ARRAY_LEN 10000
@@ -134,6 +151,24 @@ int hf_opcua_returnDiag_mask_ol_localizedText = -1;
 int hf_opcua_returnDiag_mask_ol_additionalinfo = -1;
 int hf_opcua_returnDiag_mask_ol_innerstatuscode = -1;
 int hf_opcua_returnDiag_mask_ol_innerdiagnostics = -1;
+int hf_opcua_nodeClassMask = -1;
+int hf_opcua_nodeClassMask_all = -1;
+int hf_opcua_nodeClassMask_object = -1;
+int hf_opcua_nodeClassMask_variable = -1;
+int hf_opcua_nodeClassMask_method = -1;
+int hf_opcua_nodeClassMask_objecttype = -1;
+int hf_opcua_nodeClassMask_variabletype = -1;
+int hf_opcua_nodeClassMask_referencetype = -1;
+int hf_opcua_nodeClassMask_datatype = -1;
+int hf_opcua_nodeClassMask_view = -1;
+int hf_opcua_resultMask = -1;
+int hf_opcua_resultMask_all = -1;
+int hf_opcua_resultMask_referencetype = -1;
+int hf_opcua_resultMask_isforward = -1;
+int hf_opcua_resultMask_nodeclass = -1;
+int hf_opcua_resultMask_browsename = -1;
+int hf_opcua_resultMask_displayname = -1;
+int hf_opcua_resultMask_typedefinition = -1;
 
 static expert_field ei_array_length = EI_INIT;
 
@@ -292,6 +327,18 @@ static const value_string g_VariantTypes[] = {
 #define VARIANT_ARRAYDIMENSIONS 0x40
 #define VARIANT_ARRAYMASK 0x80
 
+/** BrowseRequest's BrowseDescription's NodeClassMaskTable enum table */
+static const value_string g_NodeClassMask[] = {
+  { NODECLASSMASK_ALL, "All" },
+  { 0, NULL }
+};
+
+/* BrowseRequest's BrowseDescription's ResultMaskTable enum table */
+static const value_string g_ResultMask[] = {
+  { RESULTMASK_ALL, "All" },
+  { 0, NULL }
+};
+
 /* trees */
 static gint ett_opcua_diagnosticinfo = -1;
 static gint ett_opcua_diagnosticinfo_encodingmask = -1;
@@ -335,6 +382,9 @@ gint ett_opcua_array_ExtensionObject = -1;
 gint ett_opcua_array_DataValue = -1;
 gint ett_opcua_array_Variant = -1;
 gint ett_opcua_returnDiagnostics = -1;
+gint ett_opcua_nodeClassMask = -1;
+gint ett_opcua_resultMask = -1;
+
 static gint *ett[] =
 {
     &ett_opcua_diagnosticinfo,
@@ -378,7 +428,9 @@ static gint *ett[] =
     &ett_opcua_array_ExtensionObject,
     &ett_opcua_array_DataValue,
     &ett_opcua_array_Variant,
-    &ett_opcua_returnDiagnostics
+    &ett_opcua_returnDiagnostics,
+    &ett_opcua_nodeClassMask,
+    &ett_opcua_resultMask
 };
 
 void registerSimpleTypes(int proto)
@@ -455,7 +507,25 @@ void registerSimpleTypes(int proto)
         {&hf_opcua_returnDiag_mask_ol_additionalinfo,   {"OperationLevel / AdditionalInfo",    "opcua.returndiag.operationlevel.additionalinfo",   FT_BOOLEAN,         16,                     NULL,                      RETURNDIAGNOSTICS_OPERATIONLEVEL_ADDITIONALINFO,        NULL, HFILL}},
         {&hf_opcua_returnDiag_mask_ol_innerstatuscode,  {"OperationLevel / Inner StatusCode",  "opcua.returndiag.operationlevel.innerstatuscode",  FT_BOOLEAN,         16,                     NULL,                      RETURNDIAGNOSTICS_OPERATIONLEVEL_INNERSTATUSCODE,       NULL, HFILL}},
         {&hf_opcua_returnDiag_mask_ol_innerdiagnostics, {"OperationLevel / Inner Diagnostics", "opcua.returndiag.operationlevel.innerdiagnostics", FT_BOOLEAN,         16,                     NULL,                      RETURNDIAGNOSTICS_OPERATIONLEVEL_INNERDIAGNOSTICS,      NULL, HFILL}},
-  };
+        {&hf_opcua_nodeClassMask,                       {"Node Class Mask",                    "opcua.nodeclassmask",                              FT_UINT32,          BASE_HEX,               NULL,                      0x0,                                                    NULL, HFILL}},
+        {&hf_opcua_nodeClassMask_all,                   {"Node Class Mask",                    "opcua.nodeclassmask.all",                          FT_UINT32,          BASE_HEX,               VALS(g_NodeClassMask),     0x0,                                                    NULL, HFILL}},
+        {&hf_opcua_nodeClassMask_object,                {"Object",                             "opcua.nodeclassmask.object",                       FT_BOOLEAN,         16,                     NULL,                      NODECLASSMASK_OBJECT,                                   NULL, HFILL}},
+        {&hf_opcua_nodeClassMask_variable,              {"Variable",                           "opcua.nodeclassmask.variable",                     FT_BOOLEAN,         16,                     NULL,                      NODECLASSMASK_VARIABLE,                                 NULL, HFILL}},
+        {&hf_opcua_nodeClassMask_method,                {"Method",                             "opcua.nodeclassmask.method",                       FT_BOOLEAN,         16,                     NULL,                      NODECLASSMASK_METHOD,                                   NULL, HFILL}},
+        {&hf_opcua_nodeClassMask_objecttype,            {"ObjectType",                         "opcua.nodeclassmask.objecttype",                   FT_BOOLEAN,         16,                     NULL,                      NODECLASSMASK_OBJECTTYPE,                               NULL, HFILL}},
+        {&hf_opcua_nodeClassMask_variabletype,          {"VariableType",                       "opcua.nodeclassmask.variabletype",                 FT_BOOLEAN,         16,                     NULL,                      NODECLASSMASK_VARIABLETYPE,                             NULL, HFILL}},
+        {&hf_opcua_nodeClassMask_referencetype,         {"ReferenceType",                      "opcua.nodeclassmask.referencetype",                FT_BOOLEAN,         16,                     NULL,                      NODECLASSMASK_REFERENCETYPE,                            NULL, HFILL}},
+        {&hf_opcua_nodeClassMask_datatype,              {"DataType",                           "opcua.nodeclassmask.datatype",                     FT_BOOLEAN,         16,                     NULL,                      NODECLASSMASK_DATATYPE,                                 NULL, HFILL}},
+        {&hf_opcua_nodeClassMask_view,                  {"View",                               "opcua.nodeclassmask.view",                         FT_BOOLEAN,         16,                     NULL,                      NODECLASSMASK_VIEW,                                     NULL, HFILL}},
+        {&hf_opcua_resultMask,                          {"Result Mask",                        "opcua.resultmask",                                 FT_UINT32,          BASE_HEX,               NULL,                      0x0,                                                    NULL, HFILL}},
+        {&hf_opcua_resultMask_referencetype,            {"Reference Type",                     "opcua.resultmask.referencetype",                   FT_BOOLEAN,         16,                     NULL,                      RESULTMASK_REFERENCETYPE,                               NULL, HFILL}},
+        {&hf_opcua_resultMask_isforward,                {"Is Forward",                         "opcua.resultmask.isforward",                       FT_BOOLEAN,         16,                     NULL,                      RESULTMASK_ISFORWARD,                                   NULL, HFILL}},
+        {&hf_opcua_resultMask_nodeclass,                {"Node Class",                         "opcua.resultmask.nodeclass",                       FT_BOOLEAN,         16,                     NULL,                      RESULTMASK_NODECLASS,                                   NULL, HFILL}},
+        {&hf_opcua_resultMask_browsename,               {"Browse Name",                        "opcua.resultmask.browsename",                      FT_BOOLEAN,         16,                     NULL,                      RESULTMASK_BROWSENAME,                                  NULL, HFILL}},
+        {&hf_opcua_resultMask_displayname,              {"Display Name",                       "opcua.resultmask.displayname",                     FT_BOOLEAN,         16,                     NULL,                      RESULTMASK_DISPLAYNAME,                                 NULL, HFILL}},
+        {&hf_opcua_resultMask_typedefinition,           {"Type Definiton",                     "opcua.resultmask.typedefinition",                  FT_BOOLEAN,         16,                     NULL,                      RESULTMASK_TYPEDEFINITION,                              NULL, HFILL}},
+        {&hf_opcua_resultMask_all,                      {"Result Mask",                        "opcua.resultmask.all",                             FT_UINT32,          BASE_HEX,               VALS(g_ResultMask),        0x0,                                                    NULL, HFILL}},
+    };
 
     static ei_register_info ei[] = {
         { &ei_array_length, { "opcua.array.length", PI_UNDECODED, PI_ERROR, "Max array length exceeded", EXPFILL }},
@@ -1219,6 +1289,54 @@ guint32 getExtensionObjectType(tvbuff_t *tvb, gint *pOffset)
     };
 
     return Numeric;
+}
+
+void parseNodeClassMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+{
+    static const int *nodeclass_mask[] = {
+      &hf_opcua_nodeClassMask_object,
+      &hf_opcua_nodeClassMask_variable,
+      &hf_opcua_nodeClassMask_method,
+      &hf_opcua_nodeClassMask_objecttype,
+      &hf_opcua_nodeClassMask_variabletype,
+      &hf_opcua_nodeClassMask_referencetype,
+      &hf_opcua_nodeClassMask_datatype,
+      &hf_opcua_nodeClassMask_view,
+      NULL};
+
+    guint8 NodeClassMask = tvb_get_guint8(tvb, *pOffset);
+    if(NodeClassMask == NODECLASSMASK_ALL)
+    {
+        proto_tree_add_item(tree, hf_opcua_nodeClassMask_all, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN);
+    }
+    else
+    {
+        proto_tree_add_bitmask(tree, tvb, *pOffset, hf_opcua_nodeClassMask, ett_opcua_nodeClassMask, nodeclass_mask, ENC_LITTLE_ENDIAN);
+    }
+    *pOffset+=4;
+}
+
+void parseResultMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+{
+    static const int *browseresult_mask[] = {
+      &hf_opcua_resultMask_referencetype,
+      &hf_opcua_resultMask_isforward,
+      &hf_opcua_resultMask_nodeclass,
+      &hf_opcua_resultMask_browsename,
+      &hf_opcua_resultMask_displayname,
+      &hf_opcua_resultMask_typedefinition,
+      NULL};
+
+    guint8 ResultMask = tvb_get_guint8(tvb, *pOffset);
+    if(ResultMask == RESULTMASK_ALL)
+    {
+        proto_tree_add_item(tree, hf_opcua_resultMask_all, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN);
+    }
+    else
+    {
+        proto_tree_add_bitmask(tree, tvb, *pOffset, hf_opcua_resultMask, ett_opcua_resultMask, browseresult_mask, ENC_LITTLE_ENDIAN);
+    }
+    *pOffset+=4;
 }
 
 /*

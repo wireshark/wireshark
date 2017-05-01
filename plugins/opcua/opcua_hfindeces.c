@@ -176,7 +176,6 @@ int hf_opcua_MoreNotifications = -1;
 int hf_opcua_Name = -1;
 int hf_opcua_NamespaceUri = -1;
 int hf_opcua_NextSequenceNumber = -1;
-int hf_opcua_NodeClassMask = -1;
 int hf_opcua_NotificationsCount = -1;
 int hf_opcua_NumValuesPerNode = -1;
 int hf_opcua_Offset = -1;
@@ -219,7 +218,6 @@ int hf_opcua_RequestedMaxKeepAliveCount = -1;
 int hf_opcua_RequestedMaxReferencesPerNode = -1;
 int hf_opcua_RequestedPublishingInterval = -1;
 int hf_opcua_RequestedSessionTimeout = -1;
-int hf_opcua_ResultMask = -1;
 int hf_opcua_Results = -1;
 int hf_opcua_RetransmitSequenceNumber = -1;
 int hf_opcua_ReturnBounds = -1;
@@ -481,7 +479,6 @@ void registerFieldTypes(int proto)
        { &hf_opcua_Name, { "Name", "opcua.Name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
        { &hf_opcua_NamespaceUri, { "NamespaceUri", "opcua.NamespaceUri", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
        { &hf_opcua_NextSequenceNumber, { "NextSequenceNumber", "opcua.NextSequenceNumber", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-       { &hf_opcua_NodeClassMask, { "NodeClassMask", "opcua.NodeClassMask", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
        { &hf_opcua_NotificationsCount, { "NotificationsCount", "opcua.NotificationsCount", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
        { &hf_opcua_NumValuesPerNode, { "NumValuesPerNode", "opcua.NumValuesPerNode", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
        { &hf_opcua_Offset, { "Offset", "opcua.Offset", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -524,7 +521,6 @@ void registerFieldTypes(int proto)
        { &hf_opcua_RequestedMaxReferencesPerNode, { "RequestedMaxReferencesPerNode", "opcua.RequestedMaxReferencesPerNode", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
        { &hf_opcua_RequestedPublishingInterval, { "RequestedPublishingInterval", "opcua.RequestedPublishingInterval", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
        { &hf_opcua_RequestedSessionTimeout, { "RequestedSessionTimeout", "opcua.RequestedSessionTimeout", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-       { &hf_opcua_ResultMask, { "ResultMask", "opcua.ResultMask", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
        { &hf_opcua_Results, { "Results", "opcua.Results", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
        { &hf_opcua_RetransmitSequenceNumber, { "RetransmitSequenceNumber", "opcua.RetransmitSequenceNumber", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
        { &hf_opcua_ReturnBounds, { "ReturnBounds", "opcua.ReturnBounds", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },

@@ -289,26 +289,7 @@ void parseBrowseDirection(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U
 {
     proto_tree_add_item(tree, hf_opcua_BrowseDirection, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
-/** BrowseResultMask enum table */
-static const value_string g_BrowseResultMaskTable[] = {
-  { 0, "None" },
-  { 1, "ReferenceTypeId" },
-  { 2, "IsForward" },
-  { 4, "NodeClass" },
-  { 8, "BrowseName" },
-  { 16, "DisplayName" },
-  { 32, "TypeDefinition" },
-  { 63, "All" },
-  { 3, "ReferenceTypeInfo" },
-  { 60, "TargetInfo" },
-  { 0, NULL }
-};
-static int hf_opcua_BrowseResultMask = -1;
 
-void parseBrowseResultMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
-{
-    proto_tree_add_item(tree, hf_opcua_BrowseResultMask, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
-}
 /** ComplianceLevel enum table */
 static const value_string g_ComplianceLevelTable[] = {
   { 0, "Untested" },
@@ -632,9 +613,6 @@ void registerEnumTypes(int proto)
         },
         { &hf_opcua_BrowseDirection,
         {  "BrowseDirection", "opcua.BrowseDirection", FT_UINT32, BASE_HEX,  VALS(g_BrowseDirectionTable), 0x0, NULL, HFILL }
-        },
-        { &hf_opcua_BrowseResultMask,
-        {  "BrowseResultMask", "opcua.BrowseResultMask", FT_UINT32, BASE_HEX,  VALS(g_BrowseResultMaskTable), 0x0, NULL, HFILL }
         },
         { &hf_opcua_ComplianceLevel,
         {  "ComplianceLevel", "opcua.ComplianceLevel", FT_UINT32, BASE_HEX,  VALS(g_ComplianceLevelTable), 0x0, NULL, HFILL }

@@ -942,8 +942,8 @@ void parseBrowseDescription(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
   parseBrowseDirection(subtree, tvb, pinfo, pOffset);
   parseNodeId(subtree, tvb, pinfo, pOffset, "ReferenceTypeId");
   parseBoolean(subtree, tvb, pinfo, pOffset, hf_opcua_IncludeSubtypes);
-  parseUInt32(subtree, tvb, pinfo, pOffset, hf_opcua_NodeClassMask);
-  parseUInt32(subtree, tvb, pinfo, pOffset, hf_opcua_ResultMask);
+  parseNodeClassMask(subtree, tvb, pinfo, pOffset);
+  parseResultMask(subtree, tvb, pinfo, pOffset);
   proto_item_set_end(ti, tvb, *pOffset);
 }
 void parseReferenceDescription(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
