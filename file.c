@@ -1187,7 +1187,7 @@ read_packet(capture_file *cf, dfilter_t *dfcode, epan_dissect_t *edt,
   frame_data    fdlocal;
   guint32       framenum;
   frame_data   *fdata;
-  gboolean      passed;
+  gboolean      passed = TRUE;
   int           row = -1;
 
   /* Add this packet's link-layer encapsulation type to cf->linktypes, if
@@ -1204,7 +1204,6 @@ read_packet(capture_file *cf, dfilter_t *dfcode, epan_dissect_t *edt,
 
   frame_data_init(&fdlocal, framenum, phdr, offset, cf->cum_bytes);
 
-  passed = TRUE;
   if (cf->rfcode) {
     epan_dissect_t rf_edt;
 
