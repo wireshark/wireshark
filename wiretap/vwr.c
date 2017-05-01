@@ -1765,28 +1765,29 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
                                   gchar **err_info)
 {
     guint8           *data_ptr;
-    int              bytes_written = 0;                   /* bytes output to buf so far */
-    register int     i,j = 0;                                   /* temps */
+    int              bytes_written = 0;                  /* bytes output to buf so far */
+    int              i;
+    int              stats_offset = 0;
     const guint8     *s_start_ptr = NULL,*s_trail_ptr = NULL, *plcp_ptr, *m_ptr; /* stats & MPDU ptr */
-    guint32          msdu_length = 0, actual_octets = 0;          /* octets in frame */
+    guint32          msdu_length = 0, actual_octets = 0; /* octets in frame */
     guint8           l1p_1 = 0,l1p_2 = 0, plcp_type, mcs_index, nss = 0;   /* mod (CCK-L/CCK-S/OFDM) */
-    guint64          s_time = LL_ZERO, e_time = LL_ZERO;  /* start/end */
-                                                          /* times, nsec */
+    guint64          s_time = LL_ZERO, e_time = LL_ZERO; /* start/end */
+                                                         /* times, nsec */
     guint64          latency = LL_ZERO;
     guint64          start_time = 0, s_sec = 0, s_usec = LL_ZERO; /* start time, sec + usec */
-    guint64          end_time = 0;                            /* end time */
-    guint16          info = 0;                                /* INFO/ERRORS fields in stats blk */
+    guint64          end_time = 0;                                /* end time */
+    guint16          info = 0;                           /* INFO/ERRORS fields in stats blk */
     guint32          errors = 0;
-    gint8            info_2nd = 0,rssi[] = {0,0,0,0};         /* RSSI, signed 8-bit number */
-    int              frame_size;                    /* flag: if set, is a TX frame */
-    guint32          d_time = 0, flow_id = 0;                     /* packet duration, Flow Signature ID*/
-    int              sig_off, pay_off;                    /* MAC+SNAP header len, signature offset */
-    guint64          sig_ts = 0, tsid;                        /* 32 LSBs of timestamp in signature */
-    guint64          delta_b;                             /* Used for calculating latency */
+    gint8            info_2nd = 0,rssi[] = {0,0,0,0};    /* RSSI, signed 8-bit number */
+    int              frame_size;
+    guint32          d_time = 0, flow_id = 0;            /* packet duration, Flow Signature ID*/
+    int              sig_off, pay_off;                   /* MAC+SNAP header len, signature offset */
+    guint64          sig_ts = 0, tsid;                   /* 32 LSBs of timestamp in signature */
+    guint64          delta_b;                            /* Used for calculating latency */
     guint8           L1InfoC,port_type,ver_fpga = 0;
     guint8           flow_seq =0,plcp_hdr_flag = 0,rf_id = 0;    /* indicates plcp hdr info */
     const guint8    *rf_ptr = NULL;
-    guint16          phyRate = 0, radioflags = 0;             /* flags for WLAN metadata header */
+    guint16          phyRate = 0, radioflags = 0;        /* flags for WLAN metadata header */
 
     /*
      * The record data must be large enough to hold the statistics header,
@@ -1820,32 +1821,39 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         port_type = IS_TX << 4;
     }
     else {
-        if ((guint)rec_size < vwr->MPDU_OFF + vVW510021_W_STATS_TRAILER_LEN) {
-            *err_info = g_strdup_printf("vwr: Invalid record length %d (must be at least %u)",
-                                        rec_size,
-                                        vwr->MPDU_OFF + vVW510021_W_STATS_TRAILER_LEN);
-            *err = WTAP_ERR_BAD_FILE;
-            return FALSE;
-        }
-
         /* Calculate the start of the statistics blocks in the buffer */
         /* Also get a bunch of fields from the stats blocks */
-        /* 'j' variable is use to locate the exact offset.
+        /* 'stats_offset' variable is use to locate the exact offset.
          * When a RX frame contrains RF,
-         * the postion of Stats, Layer 1-4, PLCP parameters are shifted to + 100 bytes
+         * the postion of Stats, Layer 1-4, PLCP parameters are shifted to
+         * + OCTO_RF_MOD_ACTUAL_LEN bytes
          */
         if (IS_TX == 4)     /*IS_TX =4, i.e., command type is RF-RX Modified*/
         {
-            j = OCTO_RF_MOD_ACTUAL_LEN;
+            stats_offset = OCTO_RF_MOD_ACTUAL_LEN;
+            if ((guint)rec_size < stats_offset + vwr->MPDU_OFF + vVW510021_W_STATS_TRAILER_LEN) {
+                *err_info = g_strdup_printf("vwr: Invalid record length %d (must be at least %u)",
+                                            rec_size,
+                                            stats_offset + vwr->MPDU_OFF + vVW510021_W_STATS_TRAILER_LEN);
+                *err = WTAP_ERR_BAD_FILE;
+                return FALSE;
+            }
             rf_ptr = &(rec[0]);
             rf_id = rf_ptr[0];
         }
         else
         {
-            j = 0;
+            stats_offset = 0;
+            if ((guint)rec_size < vwr->MPDU_OFF + vVW510021_W_STATS_TRAILER_LEN) {
+                *err_info = g_strdup_printf("vwr: Invalid record length %d (must be at least %u)",
+                                            rec_size,
+                                            vwr->MPDU_OFF + vVW510021_W_STATS_TRAILER_LEN);
+                *err = WTAP_ERR_BAD_FILE;
+                return FALSE;
+            }
         }
 
-        s_start_ptr = &(rec[j]);                        /* point to stats header */
+        s_start_ptr = &(rec[stats_offset]);         /* point to stats header */
         s_trail_ptr = &(rec[rec_size - vVW510021_W_STATS_TRAILER_LEN] );      /* point to stats trailer */
 
         l1p_1 = s_start_ptr[vVW510021_W_L1P_1_OFF];
@@ -1893,13 +1901,11 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         }
 
         /*** 16 bytes of PLCP header + 1 byte of L1P for user position ***/
-        /* XXX - S3 claims to have 16 bytes of stats block and 16 bytes of
-           *something*. Are those 16 bytes the PLCP? */
-        plcp_ptr = &(rec[j+16]);
+        plcp_ptr = &(rec[stats_offset+16]);
 
         /*** Add the PLCP length for S3_W_FPGA version VHT frames for Beamforming decode ***/
         if (log_mode == 3) {
-            frame_size = rec_size - 80 -j;
+            frame_size = rec_size - 80 - stats_offset;
             if (frame_size > ((int) msdu_length))
                 actual_octets = msdu_length;
             else
@@ -1917,7 +1923,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
          *
          * Report an error if it is.
          */
-        if (actual_octets > rec_size - (vwr->MPDU_OFF + vVW510021_W_STATS_TRAILER_LEN)) {
+        if (actual_octets > rec_size - (stats_offset + vwr->MPDU_OFF + vVW510021_W_STATS_TRAILER_LEN)) {
             *err_info = g_strdup_printf("vwr: Invalid data length %u (runs past the end of the record)",
                                         actual_octets);
             *err = WTAP_ERR_BAD_FILE;
@@ -2054,7 +2060,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         end_time = e_time / NS_IN_US;                       /* convert to microseconds first */
 
         /* extract the 32 LSBs of the signature timestamp field */
-        m_ptr = &(rec[j+8+12]);
+        m_ptr = &(rec[stats_offset+8+12]);
         pay_off = 42;         /* 24 (MAC) + 8 (SNAP) + IP */
         sig_off = find_signature(m_ptr, rec_size - 20, pay_off, flow_id, flow_seq);
         if ((m_ptr[sig_off] == 0xdd) && (sig_off + 15 <= (rec_size - vVW510021_W_STATS_TRAILER_LEN)))
@@ -2369,7 +2375,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         /*** Layer-1 Collapsible header Ends ***/
 
         /*** PLCP Collapsible header Starts ***/
-        memcpy(&data_ptr[bytes_written], &rec[j+16], 16);
+        memcpy(&data_ptr[bytes_written], &rec[stats_offset+16], 16);
         bytes_written += 16;
         /*** PLCP Collapsible header Ends ***/
 
@@ -2411,7 +2417,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
          * This also does not include the last 4 bytes, as those don't
          * contain an FCS, they just contain junk.
          */
-        memcpy(&data_ptr[bytes_written], &rec[j+(vwr->MPDU_OFF)], actual_octets);
+        memcpy(&data_ptr[bytes_written], &rec[stats_offset+(vwr->MPDU_OFF)], actual_octets);
     }
 
     return TRUE;
@@ -2721,6 +2727,7 @@ static int decode_msg(vwr_t *vwr, guint8 *rec, int *v_type, int *IS_TX, int *log
             v_size  = (int)(wd2 & 0xffff);
             *v_type = VT_FRAME;
             break;
+
 /*
         case COMMAND_RFN:
             if (vwr != NULL) {
@@ -2730,6 +2737,7 @@ static int decode_msg(vwr_t *vwr, guint8 *rec, int *v_type, int *IS_TX, int *log
             *v_type = VT_FRAME;
             break;
 */
+
         case COMMAND_RF:   /* For RF Modified only */
             if (vwr != NULL) {
                 *IS_TX = 3;
@@ -2880,7 +2888,7 @@ static void setup_defaults(vwr_t *vwr, guint16 fpga)
             vwr->IS_QOS             =   vVW510021_W_QOS_VALID;
 
             /*
-             * The 12 is for 11 bytes of PLCP  and 1 byte of pad
+             * The 12 is for 11 bytes of PLCP and 1 byte of pad
              * before the data.
              */
             vwr->MPDU_OFF           = vVW510021_W_STATS_HEADER_LEN + 12;
@@ -2892,10 +2900,10 @@ static void setup_defaults(vwr_t *vwr, guint16 fpga)
             vwr->PLCP_LENGTH_OFF = 16;
 
             /*
-             * The first 16 is from the 16 bytes of stats block that
-             * precede the PLCP; the 16 is for 16 bytes of PLCP.
+             * 4 bytes of something, 4 bytes of layer 2-4 stuff,
+             * 16 bytes of PLCP.
              */
-            vwr->MPDU_OFF        = 16 + 16;
+            vwr->MPDU_OFF        = vVW510021_W_STATS_HEADER_LEN + 4 + 4 + 16;
 
             break;
 
