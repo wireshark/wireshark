@@ -1871,7 +1871,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /*** POPULATE THE AMSDU VHT MIXED MODE CONTAINER FORMAT ***/
         if ((vw_rflags & FLAGS_CHAN_VHT) && vw_ht_length != 0)
         {
-            if (plcp_type == 0x03) //If the frame is VHT type
+            if (plcp_type == PLCP_TYPE_VHT_MIXED) //If the frame is VHT type
             {
                 offset += 4; /*** 4 bytes of ERROR ***/
 
@@ -2081,45 +2081,41 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * Referred from code changes done for old FPGA version
          * **/
         phdr.fcs_len = (log_mode == 3) ? 0 : 4;
+
         switch (plcp_type) //To check 5 types of PLCP(NULL, CCK, OFDM, HT & VHT)
         {
-        case 0:
+        case PLCP_TYPE_LEGACY:     /* Legacy (pre-HT - 11b/11a/11g) */
             /*
-                * XXX - CHAN_OFDM could be 11a or 11g.  Unfortunately, we don't
-                * have the frequency, or anything else, to distinguish between
-                * them.
-                */
+             * XXX - CHAN_OFDM could be 11a or 11g.  Unfortunately, we don't
+             * have the frequency, or anything else, to distinguish between
+             * them.
+             *
+             * XXX - short/long preamble?
+             */
             if (mcs_index < 4)
             {
+                /* CCK */
                 phdr.phy = PHDR_802_11_PHY_11B;
             }
             phdr.has_data_rate = TRUE;
             phdr.data_rate = tvb_get_letohs(tvb, offset) / 5;
             break;
 
-        case 1:
-        case 2:         /* PLCP_TYPE =2 Greenfeild (Not supported)*/
-            /*
-                * XXX - where's the number of extension spatial streams?
-                * The code in wiretap/vwr.c doesn't seem to provide it.
-                */
+        case PLCP_TYPE_MIXED:      /* HT Mixed */
+        case PLCP_TYPE_GREENFIELD: /* HT Greenfield (Not supported) */
             phdr.phy = PHDR_802_11_PHY_11N;
             phdr.phy_info.info_11n.has_mcs_index = TRUE;
             phdr.phy_info.info_11n.mcs_index = mcs_index;
-            phdr.phy_info.info_11n.has_short_gi = TRUE;
-            phdr.phy_info.info_11n.short_gi = preamble;
             phdr.phy_info.info_11n.has_greenfield = TRUE;
             phdr.phy_info.info_11n.greenfield = (plcp_type == PLCP_TYPE_GREENFIELD);
             break;
 
-        case 3:
+        case PLCP_TYPE_VHT_MIXED:  /* VHT Mixed */
             phdr.phy = PHDR_802_11_PHY_11AC;
-            phdr.phy_info.info_11ac.has_short_gi = TRUE;
-            phdr.phy_info.info_11ac.short_gi = preamble;
             /*
-                * XXX - this probably has only one user, so only one MCS index
-                * and only one NSS.
-                */
+             * XXX - this probably has only one user, so only one MCS index
+             * and only one NSS.
+             */
             phdr.phy_info.info_11ac.nss[0] = nss;
             phdr.phy_info.info_11ac.mcs[0] = mcs_index;
             for (i = 1; i < 4; i++)
@@ -2139,11 +2135,15 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_uint(vw_l1info_tree,
                 hf_radiotap_sigbandwidth, tvb, offset, 1, sigbw);
 
-        if (plcp_type)
+        if (plcp_type != PLCP_TYPE_LEGACY)
+        {
+            /* HT or VHT */
             proto_tree_add_uint(vw_l1info_tree,
                 hf_radiotap_modulation, tvb, offset, 1, plcp_type);
+        }
         else
         {
+            /* pre-HT */
             if (mcs_index < 4)
                 proto_tree_add_uint_format_value(vw_l1info_tree, hf_radiotap_modulation,
                     tvb, offset, 1, plcp_type, "CCK (%u)", plcp_type);
@@ -2215,13 +2215,13 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item(vw_l1info_tree, hf_radiotap_tx_antennaselect, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(vw_l1info_tree, hf_radiotap_tx_stbcselect, tvb, offset, 1, ENC_NA);
         }
-        if (plcp_type == 3)
+        if (plcp_type == PLCP_TYPE_VHT_MIXED)
         {
             proto_tree_add_item(vw_l1info_tree, hf_radiotap_mumask, tvb, offset, 1, ENC_NA);
         }
         offset++;
 
-        if (plcp_type == 3)
+        if (plcp_type == PLCP_TYPE_VHT_MIXED)
         {
             // Extract SU/MU MIMO flag from RX L1 Info
             vht_user_pos = tvb_get_guint8(tvb, offset);
@@ -2264,7 +2264,28 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         switch (plcp_type) //To check 5 types of PLCP(NULL, CCK, OFDM, HT & VHT)
         {
-        case 0:
+        case PLCP_TYPE_LEGACY:
+            /*
+             * From IEEE Std 802.11-2012:
+             *
+             * According to section 17.2.2 "PPDU format", the PLCP header
+             * for the High Rate DSSS PHY (11b) has a SIGNAL field that's
+             * 8 bits, followed by a SERVICE field that's 8 bits, followed
+             * by a LENGTH field that's 16 bits, followed by a CRC field
+             * that's 16 bits.  The PSDU follows it.  Section 17.2.3 "PPDU
+             * field definitions" describes those fields.
+             *
+             * According to sections 18.3.2 "PLCP frame format" and 18.3.4
+             * "SIGNAL field", the PLCP for the OFDM PHY (11a) has a SIGNAL
+             * field that's 24 bits, followed by a service field that's
+             * 16 bits, followed by the PSDU.  Section 18.3.5.2 "SERVICE
+             * field" describes the SERVICE field.
+             *
+             * According to section 19.3.2 "PPDU format", the frames for the
+             * Extended Rate PHY (11g) either extend the 11b format, using
+             * additional bits in the SERVICE field, or extend the 11a
+             * format.
+             */
             if (mcs_index < 4)
             {
                 proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_type,
@@ -2321,7 +2342,19 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
             break;
 
-        case 1:
+        case PLCP_TYPE_MIXED:
+            /*
+             * According to section 20.3.2 "PPDU format", the HT-mixed
+             * PLCP header has a "Non-HT SIGNAL field" (L-SIG), which
+             * looks like an 11a SIGNAL field, followed by an HT SIGNAL
+             * field (HT-SIG) described in section 20.3.9.4.3 "HT-SIG
+             * definition".
+             *
+             * This means that the first octet of HT-SIG is at
+             * plcp_ptr[3], skipping the 3 octets of the L-SIG field.
+             *
+             * 0x80 is the CBW 20/40 bit of HT-SIG.
+             */
             proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
                 tvb, offset, 1, plcp_type, "Format: HT ");
             vht_plcp_length1 = tvb_get_guint8(tvb, offset);
@@ -2342,9 +2375,18 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             vht_bw = tvb_get_guint8(tvb, offset) &0x80 >>7;
             //proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_bw,
-              //                      tvb, offset, 1, vht_bw);
+            //                    tvb, offset, 1, vht_bw);
             proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_vht_bw,
                 tvb, offset, 1, vht_bw, "CBW 20/40: %u ",vht_bw);
+            /*
+             * XXX - how to distinguish between 20 MHz, 20+20U, and
+             * 20+20L if the bit is not set?
+             */
+            if (vht_bw)
+            {
+                phdr.phy_info.info_11n.has_bandwidth = TRUE;
+                phdr.phy_info.info_11n.bandwidth = PHDR_802_11_BANDWIDTH_40_MHZ;
+            }
             vht_mcs = (tvb_get_guint8(tvb, offset)&0x7f);
             proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_mcs,
                                     tvb, offset, 1, vht_mcs);
@@ -2358,12 +2400,18 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             vht_shortgi = (tvb_get_guint8(tvb, offset) &0x80) >> 7;
             proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_shortgi,
                                     tvb, offset, 1, vht_shortgi);
+            phdr.phy_info.info_11n.has_short_gi = TRUE;
+            phdr.phy_info.info_11n.short_gi = vht_shortgi;
             feccoding = (tvb_get_guint8(tvb, offset) &0x40) >> 6;
             proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_feccoding,
                                     tvb, offset, 1, feccoding);
+            phdr.phy_info.info_11n.has_fec = TRUE;
+            phdr.phy_info.info_11n.fec = feccoding;
             vht_stbc = (tvb_get_guint8(tvb, offset) &0x30) >> 4;
             proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_stbc,
                                     tvb, offset, 1, vht_stbc);
+            phdr.phy_info.info_11n.has_stbc_streams = TRUE;
+            phdr.phy_info.info_11n.stbc_streams = vht_stbc;
             aggregation = (tvb_get_guint8(tvb, offset) &0x08) >> 3;
             proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_aggregation,
                                     tvb, offset, 1, aggregation);
@@ -2383,6 +2431,8 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             ness = (tvb_get_guint8(tvb, offset) &0x03);
             proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_ness,
                                     tvb, offset, 1, ness);
+            phdr.phy_info.info_11n.has_ness = TRUE;
+            phdr.phy_info.info_11n.ness = ness;
             offset = offset + 1;
             vht_tail = (tvb_get_guint8(tvb, offset) &0xFC) >> 2;
             //proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_tail,
@@ -2400,11 +2450,34 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset = offset + 1;
             break;
 
-        case 2:
-            //PLCP_TYPE =2 Greenfeild (Not supported)
+        case PLCP_TYPE_GREENFIELD:
+            //PLCP_TYPE =2 Greenfield (Not supported)
+            /*
+             * According to section 20.3.2 "PPDU format", the HT-greenfield
+             * PLCP header just has the HT SIGNAL field (HT-SIG) above, with
+             * no L-SIG field.
+             *
+             * This means that the first octet of HT-SIG is at
+             * plcp_ptr[0], as there's no L-SIG field to skip.
+             *
+             * 0x80 is the CBW 20/40 bit of HT-SIG.
+             *
+             * XXX - where's the number of extension spatial streams?
+             * The code in wiretap/vwr.c doesn't seem to provide it.
+             */
             break;
 
-        case 3:
+        case PLCP_TYPE_VHT_MIXED:
+            /*
+             * According to section 22.3.2 "VHTPPDU format" of IEEE Std
+             * 802.11ac-2013, the VHT PLCP header has a "non-HT SIGNAL field"
+             * (L-SIG), which looks like an 11a SIGNAL field, followed by
+             * a VHT Signal A field (VHT-SIG-A) described in section
+             * 22.3.8.3.3 "VHT-SIG-A definition", with training fields
+             * between it and a VHT Signal B field (VHT-SIG-B) described
+             * in section 22.3.8.3.6 "VHT-SIG-B definition", followed by
+             * the PSDU.
+             */
             proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
                 tvb, offset, 1, plcp_type, "Format: VHT ");
             vht_plcp_length1 = tvb_get_guint8(tvb, offset);
@@ -2425,9 +2498,22 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             vht_bw = tvb_get_guint8(tvb, offset) &0x03;
             proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_bw,
                                     tvb, offset, 1, vht_bw);
+            /* XXX - any other values? */
+            if (vht_bw == 3)
+            {
+                phdr.phy_info.info_11ac.has_bandwidth = TRUE;
+                phdr.phy_info.info_11ac.bandwidth = PHDR_802_11_BANDWIDTH_40_MHZ;
+            }
+            else if (vht_bw == 4)
+            {
+                phdr.phy_info.info_11ac.has_bandwidth = TRUE;
+                phdr.phy_info.info_11ac.bandwidth = PHDR_802_11_BANDWIDTH_80_MHZ;
+            }
             vht_stbc = (tvb_get_guint8(tvb, offset) &0x08) >> 3;
             proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_stbc,
                                     tvb, offset, 1, vht_stbc);
+            phdr.phy_info.info_11ac.has_stbc = TRUE;
+            phdr.phy_info.info_11ac.stbc = vht_stbc;
             // vht_grp_id = tvb_get_letohs(tvb, offset);
             vht_grp_id1 = tvb_get_guint8(tvb, offset);
             vht_grp_id2 = tvb_get_guint8(tvb, offset+1);
@@ -2484,14 +2570,20 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             vht_txop_ps_notallowd = (tvb_get_guint8(tvb, offset) &0x40) >> 6;
             proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_txop_ps_notallowd,
                                     tvb, offset, 1, vht_txop_ps_notallowd);
+            phdr.phy_info.info_11ac.has_txop_ps_not_allowed = TRUE;
+            phdr.phy_info.info_11ac.txop_ps_not_allowed = vht_txop_ps_notallowd;
             offset = offset + 1;
 
             vht_shortgi = tvb_get_guint8(tvb, offset) &0x01;
             proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_shortgi,
                                     tvb, offset, 1, vht_shortgi);
+            phdr.phy_info.info_11ac.has_short_gi = TRUE;
+            phdr.phy_info.info_11ac.short_gi = vht_shortgi;
             vht_shortginsymdisa = (tvb_get_guint8(tvb, offset) &0x02) >> 1;
             proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_shortginsymdisa,
                                     tvb, offset, 1, vht_shortginsymdisa);
+            phdr.phy_info.info_11ac.has_short_gi_nsym_disambig = TRUE;
+            phdr.phy_info.info_11ac.short_gi_nsym_disambig = vht_shortginsymdisa;
 /*
             vht_coding_type = (tvb_get_guint8(tvb, offset)& 0x04) >> 2;
             proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_vht_u0_coding_type,
@@ -2500,6 +2592,8 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             vht_ldpc_ofdmsymbol = (tvb_get_guint8(tvb, offset) &0x08) >> 3;
             proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_ldpc_ofdmsymbol,
                                     tvb, offset, 1, vht_ldpc_ofdmsymbol);
+            phdr.phy_info.info_11ac.has_ldpc_extra_ofdm_symbol = TRUE;
+            phdr.phy_info.info_11ac.ldpc_extra_ofdm_symbol = vht_ldpc_ofdmsymbol;
             vht_coding_type = tvb_get_guint8(tvb, offset);
 
             //vht_su_coding_type = vht_u0_coding_type;
@@ -2824,7 +2918,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         vw_ht_length = tvb_get_letohs(tvb, offset);
         if ((tree) && (vw_ht_length != 0))
-            if (plcp_type == 3)
+            if (plcp_type == PLCP_TYPE_VHT_MIXED)
             {
                 proto_tree_add_uint_format(tap_tree, hf_radiotap_vw_ht_length,
                     tvb, offset, 2, vw_ht_length, "VHT length: %u (includes the sum of the pieces of the aggregate and their respective Start_Spacing + Delimiter + MPDU + Padding)",
@@ -2857,7 +2951,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (!is_octo)
     {
         /* Grab the rest of the frame. */
-        if (plcp_type == 3) {
+        if (plcp_type == PLCP_TYPE_VHT_MIXED) {
             length = length + 17; /*** 16 bytes of PLCP + 1 byte of L1InfoC(UserPos) **/
         }
 
