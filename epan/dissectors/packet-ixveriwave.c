@@ -1570,13 +1570,13 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint       i;
 
     proto_tree *vweft, *vw_errorFlags_tree = NULL, *vwict,*vw_infoC_tree = NULL;
-    guint16     vw_info, vw_chanflags, vw_flags, vw_ht_length,  vht_su_partial_id,vw_rflags,vw_vcid, vw_seqnum, mpdu_length, vht_length, crc16, vht_plcp_length, plcp_service_ofdm;
+    guint16     vw_info, vw_chanflags, vw_flags, vw_ht_length,  vht_su_partial_id,vw_rflags,vw_vcid, vw_seqnum, mpdu_length, vht_length, crc16, vht_plcp_length;
     guint32     vw_errors;
     guint8      vht_grp_id, vht_grp_id1, vht_grp_id2, vht_su_nsts,vht_beamformed,vht_user_pos,vht_su_partial_id1,vht_su_partial_id2;
     guint32     vht_u0_nsts,vht_u1_nsts,vht_u2_nsts,vht_u3_nsts;
-    guint8      vht_bw, vht_stbc, vht_txop_ps_notallowd, vht_shortgi, vht_shortginsymdisa, vht_ldpc_ofdmsymbol, vht_su_mcs, vht_crc1, vht_crc2, vht_crc, vht_tail, rfid;
+    guint8      vht_bw, vht_stbc, vht_txop_ps_notallowd, vht_shortgi, vht_shortginsymdisa, vht_ldpc_ofdmsymbol, vht_su_mcs, vht_crc1, vht_crc2, vht_crc, vht_tail;
     guint8      vht_mcs1, vht_mcs2, vht_mcs, vht_plcp_length1, vht_plcp_length2, vht_plcp_length3, vht_rate, vht_parity;
-    guint8      feccoding, aggregation, notsounding, smoothing, ness, plcp_service, signal, plcp_default;
+    guint8      feccoding, aggregation, notsounding, smoothing, ness, plcp_default;
 
     ifg_info   *p_ifg_info;
     proto_item *ti;
@@ -2269,13 +2269,11 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             {
                 proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_type,
                     tvb, offset-10, 1, plcp_type, "Format: Legacy CCK ");
-                signal = tvb_get_guint8(tvb, offset);
-                proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_plcp_signal,
-                                        tvb, offset, 1, signal);
+                proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_plcp_signal,
+                                    tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset = offset + 1;
-                plcp_service = tvb_get_guint8(tvb, offset);
-                proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_plcp_service,
-                                        tvb, offset, 1, plcp_service);
+                proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_plcp_service,
+                                    tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset = offset + 1;
                 vht_plcp_length = tvb_get_letohs(tvb, offset);
                // proto_tree_add_item(vw_plcpinfo_tree,
@@ -2288,9 +2286,8 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     tvb, offset, 2, crc16, "CRC 16: %u ",crc16);
                 offset      += 2;
                 offset = offset + 9;
-                rfid = tvb_get_guint8(tvb, offset);
-                proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_rfid,
-                                        tvb, offset, 1, rfid);
+                proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_rfid,
+                                    tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset = offset + 1;
             }
             else
@@ -2312,15 +2309,13 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_parity,
                                         tvb, offset+2, 1, vht_parity);
                 offset = offset + 3;
-                plcp_service_ofdm = tvb_get_letohs(tvb, offset);
-                proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_plcp_service,
-                                        tvb, offset, 2, plcp_service_ofdm);
+                proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_plcp_service,
+                                    tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
                 offset = offset + 2;
                 offset = offset + 10;
-                rfid = tvb_get_guint8(tvb, offset);
-                proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_rfid,
-                                        tvb, offset, 1, rfid);
+                proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_rfid,
+                                    tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset = offset + 1;
 
             }
@@ -2395,15 +2390,13 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_vht_tail,
                 tvb, offset, 1, vht_tail, "Signal Tail: %u ", vht_tail);
             offset = offset + 1;
-            plcp_service_ofdm = tvb_get_letohs(tvb, offset);
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_plcp_service,
-                                    tvb, offset, 2, plcp_service_ofdm);
+            proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_plcp_service,
+                                tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
             offset = offset + 2;
             offset = offset + 4;
-            rfid = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_rfid,
-                                    tvb, offset, 1, rfid);
+            proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_rfid,
+                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset = offset + 1;
             break;
 
@@ -2574,9 +2567,8 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset = offset + 2;
 
             offset = offset + 2;
-            rfid = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_rfid,
-                                    tvb, offset, 1, rfid);
+            proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_rfid,
+                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset = offset + 1;
             break;
 
@@ -2643,9 +2635,8 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
                 tvb, offset, 1, plcp_default, "PLCP14: %u ", plcp_default);
             offset = offset + 1;
-            rfid = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_rfid,
-                                    tvb, offset, 1, rfid);
+            proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_rfid,
+                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset = offset + 1;
         }
 
