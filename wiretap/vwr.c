@@ -1947,8 +1947,6 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         /*** Calculate Data rate based on
         *  PLCP type, MCS index and number of spatial stream
         *  radioflags is temporarily calculated, which is used in getRate().
-        *
-        * XXX - for S3, can the PLCP type ever be vVW510021_W_PLCP_LEGACY?
         **/
         if (plcp_type == vVW510021_W_PLCP_MIXED)
         {
