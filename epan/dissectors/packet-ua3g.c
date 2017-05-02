@@ -990,6 +990,8 @@ static const value_string ip_device_routing_cmd_record_rtp_vals[] = {
     {0x07   , "Type Of Service"},
     {0x08   , "Master Key For SRTP Session"},
     {0x09   , "Master Salt Key For SRTP Session"},
+    {0x10   , "Integrity checking enabled for this communication"},
+    {0x11   , "Integrity method of Thales component"},
     {0x30   , "MD5 Authentication"},
     {0, NULL}
 };
@@ -1589,6 +1591,8 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                 case 0x07: /* Type Of Service */
                 case 0x08: /* Master Key For SRTP Session */
                 case 0x09: /* Master Salt Key For SRTP Session */
+                case 0x10: /* Integrity checking enabled for this communication */
+                case 0x11: /* Integrity method of Thales component */
                 case 0x30: /* MD5 Authentication */
                 default:
                     if (parameter_length <= 8) {
