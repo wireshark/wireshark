@@ -1516,7 +1516,7 @@ make_basename(char* fullname)
 /* Report an out-of-memory condition and abort.  This function
 ** is used mostly by the "MemoryCheck" macro in struct.h
 */
-void memory_error(void){
+extern void memory_error(void){
   fprintf(stderr,"Out of memory.  Aborting...\n");
   exit(1);
 }
