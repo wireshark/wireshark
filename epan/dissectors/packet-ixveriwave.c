@@ -110,6 +110,14 @@ static frame_end_data previous_frame_data = {0,0};
 #define VW_INFO_OFF                         48
 #define IFG_MAX_VAL                         0xEE6B2800
 
+/*
+ * VHT bandwidth values.
+ */
+#define VHT_BW_20_MHZ  0
+#define VHT_BW_40_MHZ  1
+#define VHT_BW_80_MHZ  2
+#define VHT_BW_160_MHZ 3
+
 static int proto_ixveriwave = -1;
 static dissector_handle_t ethernet_handle;
 
@@ -197,28 +205,12 @@ static int hf_radiotap_flags_ht = -1;
 static int hf_radiotap_flags_vht = -1;
 static int hf_radiotap_flags_40mhz = -1;
 static int hf_radiotap_flags_80mhz = -1;
-static int hf_radiotap_flags_shortgi = -1;
+static int hf_radiotap_flags_short_gi = -1;
 
 /* start VeriWave specific 6-2007*/
 static int hf_radiotap_vw_errors = -1;
 static int hf_radiotap_vw_info = -1;
 static int hf_radiotap_vw_ht_length = -1;
-static int hf_radiotap_vht_grp_id = -1;
-static int hf_radiotap_vht_su_nsts = -1;
-static int hf_radiotap_vht_su_partial_aid = -1;
-static int hf_radiotap_vht_su_coding_type = -1;
-static int hf_radiotap_vht_u0_nsts = -1;
-static int hf_radiotap_vht_u1_nsts = -1;
-static int hf_radiotap_vht_u2_nsts = -1;
-static int hf_radiotap_vht_u3_nsts = -1;
-static int hf_radiotap_vht_beamformed = -1;
-static int hf_radiotap_vht_user_pos = -1;
-static int hf_radiotap_vht_mu_mimo_flg = -1;
-static int hf_radiotap_vht_su_mimo_flg = -1;
-static int hf_radiotap_vht_u0_coding_type = -1;
-static int hf_radiotap_vht_u1_coding_type = -1;
-static int hf_radiotap_vht_u2_coding_type = -1;
-static int hf_radiotap_vht_u3_coding_type = -1;
 
 static int hf_radiotap_vw_info_tx_bit0 = -1;
 static int hf_radiotap_vw_info_tx_bit1 = -1;
@@ -408,33 +400,74 @@ static int hf_radiotap_containshtfield = -1;
 static int hf_radiotap_tid = -1;
 /*static int hf_radiotap_wlantype = -1; */
 static int hf_radiotap_payloaddecode = -1;
+
+static int hf_radiotap_plcp_signal = -1;
+static int hf_radiotap_plcp_locked_clocks = -1;
+static int hf_radiotap_plcp_modulation = -1;
+static int hf_radiotap_plcp_length_extension = -1;
+static int hf_radiotap_plcp_length = -1;
+static int hf_radiotap_plcp_crc16 = -1;
+
+static int hf_radiotap_ofdm_rate = -1;
+static int hf_radiotap_ofdm_length = -1;
+static int hf_radiotap_ofdm_parity = -1;
+static int hf_radiotap_ofdm_tail = -1;
+static int hf_radiotap_ofdm_service = -1;
+
+static int hf_radiotap_ht_mcsindex = -1;
+static int hf_radiotap_ht_bw = -1;
+static int hf_radiotap_ht_length = -1;
+static int hf_radiotap_ht_smoothing = -1;
+static int hf_radiotap_ht_notsounding = -1;
+static int hf_radiotap_ht_aggregation = -1;
+static int hf_radiotap_ht_stbc = -1;
+static int hf_radiotap_ht_feccoding = -1;
+static int hf_radiotap_ht_short_gi = -1;
+static int hf_radiotap_ht_ness = -1;
+static int hf_radiotap_ht_crc = -1;
+static int hf_radiotap_ht_tail = -1;
+
 static int hf_radiotap_vht_bw = -1;
 static int hf_radiotap_vht_stbc = -1;
-static int hf_radiotap_vht_txop_ps_notallowd = -1;
-static int hf_radiotap_vht_shortgi = -1;
-static int hf_radiotap_vht_shortginsymdisa = -1;
+static int hf_radiotap_vht_group_id = -1;
+static int hf_radiotap_vht_su_nsts = -1;
+static int hf_radiotap_vht_su_partial_aid = -1;
+static int hf_radiotap_vht_u0_nsts = -1;
+static int hf_radiotap_vht_u1_nsts = -1;
+static int hf_radiotap_vht_u2_nsts = -1;
+static int hf_radiotap_vht_u3_nsts = -1;
+static int hf_radiotap_vht_txop_ps_not_allowed = -1;
+static int hf_radiotap_vht_short_gi = -1;
+static int hf_radiotap_vht_short_gi_nsym_disambig = -1;
+static int hf_radiotap_vht_su_coding_type = -1;
+static int hf_radiotap_vht_u0_coding_type = -1;
 static int hf_radiotap_vht_ldpc_ofdmsymbol = -1;
 static int hf_radiotap_vht_su_mcs = -1;
+static int hf_radiotap_vht_beamformed = -1;
+static int hf_radiotap_vht_u1_coding_type = -1;
+static int hf_radiotap_vht_u2_coding_type = -1;
+static int hf_radiotap_vht_u3_coding_type = -1;
 static int hf_radiotap_vht_crc = -1;
 static int hf_radiotap_vht_tail = -1;
-static int hf_radiotap_vht_length = -1;
+static int hf_radiotap_vht_su_sig_b_length_20_mhz = -1;
+static int hf_radiotap_vht_su_sig_b_length_40_mhz = -1;
+static int hf_radiotap_vht_su_sig_b_length_80_160_mhz = -1;
+static int hf_radiotap_vht_mu_sig_b_length_20_mhz = -1;
+static int hf_radiotap_vht_mu_mcs_20_mhz = -1;
+static int hf_radiotap_vht_mu_sig_b_length_40_mhz = -1;
+static int hf_radiotap_vht_mu_mcs_40_mhz = -1;
+static int hf_radiotap_vht_mu_sig_b_length_80_160_mhz = -1;
+static int hf_radiotap_vht_mu_mcs_80_160_mhz = -1;
+
+static int hf_radiotap_vht_user_pos = -1;
+static int hf_radiotap_vht_mu_mimo_flg = -1;
+static int hf_radiotap_vht_su_mimo_flg = -1;
+
 static int hf_radiotap_rfid = -1;
-static int hf_radiotap_vht_mcs = -1;
-static int hf_radiotap_parity = -1;
-static int hf_radiotap_rate = -1;
-static int hf_radiotap_plcp_length = -1;
-static int hf_radiotap_feccoding = -1;
-static int hf_radiotap_aggregation = -1;
-static int hf_radiotap_notsounding = -1;
-static int hf_radiotap_smoothing = -1;
-static int hf_radiotap_ness = -1;
-static int hf_radiotap_plcp_service = -1;
-static int hf_radiotap_plcp_signal = -1;
 static int hf_radiotap_plcp_default = -1;
 static int hf_radiotap_tx_antennaselect = -1;
 static int hf_radiotap_tx_stbcselect = -1;
 static int hf_radiotap_ac = -1;
-static int hf_radiotap_crc16 = -1;
 // RF LOGGING
 static int hf_radiotap_rfinfo_pfe = -1;
 /*
@@ -1553,6 +1586,281 @@ ethernettap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
     call_dissector(ethernet_handle, next_tvb, pinfo, tree);
 }
 
+static int
+decode_ofdm_signal(proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+    proto_tree_add_item(tree, hf_radiotap_ofdm_rate,
+                        tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_radiotap_ofdm_length,
+                        tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_radiotap_ofdm_parity,
+                        tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_radiotap_ofdm_tail,
+                        tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    return offset + 3;
+}
+
+static int
+decode_ht_sig(proto_tree *tree, tvbuff_t *tvb, int offset,
+              struct ieee_802_11_phdr *phdr)
+{
+    guint bw;
+    guint stbc_streams;
+    guint feccoding;
+    gboolean short_gi;
+    guint ness;
+
+    /* HT-SIG1 */
+    proto_tree_add_item(tree, hf_radiotap_ht_mcsindex,
+                                tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_radiotap_ht_bw,
+                                 tvb, offset, 3, ENC_LITTLE_ENDIAN,
+                                 &bw);
+
+    /*
+     * XXX - how to distinguish between 20 MHz, 20+20U, and
+     * 20+20L if the bit is not set?
+     *
+     * Or is this something that radiotap only sets for transmitted
+     * packets, so you only get the total bandwidth for received
+     * packets?
+     */
+     if (bw != 0)
+     {
+        phdr->phy_info.info_11n.has_bandwidth = TRUE;
+        phdr->phy_info.info_11n.bandwidth = PHDR_802_11_BANDWIDTH_40_MHZ;
+    }
+    proto_tree_add_item(tree, hf_radiotap_ht_length,
+                        tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    offset += 3;
+
+    /* HT-SIG2 */
+    proto_tree_add_item(tree, hf_radiotap_ht_smoothing,
+                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_radiotap_ht_notsounding,
+                        tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_radiotap_ht_aggregation,
+                        tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_radiotap_ht_stbc,
+                                 tvb, offset, 3, ENC_LITTLE_ENDIAN,
+                                 &stbc_streams);
+    phdr->phy_info.info_11n.has_stbc_streams = TRUE;
+    phdr->phy_info.info_11n.stbc_streams = stbc_streams;
+    proto_tree_add_item_ret_uint(tree, hf_radiotap_ht_feccoding,
+                                 tvb, offset, 3, ENC_LITTLE_ENDIAN,
+                                 &feccoding);
+    phdr->phy_info.info_11n.has_fec = TRUE;
+    phdr->phy_info.info_11n.fec = feccoding;
+    proto_tree_add_item_ret_boolean(tree, hf_radiotap_ht_short_gi,
+                                    tvb, offset, 3, ENC_LITTLE_ENDIAN,
+                                    &short_gi);
+    phdr->phy_info.info_11n.has_short_gi = TRUE;
+    phdr->phy_info.info_11n.short_gi = short_gi;
+    proto_tree_add_item_ret_uint(tree, hf_radiotap_ht_ness,
+                                 tvb, offset, 3, ENC_LITTLE_ENDIAN,
+                                 &ness);
+    phdr->phy_info.info_11n.has_ness = TRUE;
+    phdr->phy_info.info_11n.ness = ness;
+    proto_tree_add_item(tree, hf_radiotap_ht_crc,
+                        tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_radiotap_ht_tail,
+                        tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    offset += 3;
+
+    return offset;
+}
+
+static int
+decode_vht_sig(proto_tree *tree, tvbuff_t *tvb, int offset,
+               struct ieee_802_11_phdr *phdr)
+{
+    guint bw;
+    gboolean stbc;
+    guint group_id;
+    guint partial_aid;
+    gboolean txop_ps_not_allowed;
+    gboolean short_gi;
+    gboolean short_gi_nsym_disambig;
+    gboolean ldpc_ofdmsymbol;
+    gboolean beamformed;
+
+    /* VHT-SIG-A1 */
+    proto_tree_add_item_ret_uint(tree, hf_radiotap_vht_bw,
+                                 tvb, offset, 3, ENC_LITTLE_ENDIAN,
+                                 &bw);
+    switch (bw)
+    {
+    case 0:
+        phdr->phy_info.info_11ac.has_bandwidth = TRUE;
+        phdr->phy_info.info_11ac.bandwidth = PHDR_802_11_BANDWIDTH_20_MHZ;
+        break;
+
+    case 1:
+        phdr->phy_info.info_11ac.has_bandwidth = TRUE;
+        phdr->phy_info.info_11ac.bandwidth = PHDR_802_11_BANDWIDTH_40_MHZ;
+        break;
+
+    case 2:
+        phdr->phy_info.info_11ac.has_bandwidth = TRUE;
+        phdr->phy_info.info_11ac.bandwidth = PHDR_802_11_BANDWIDTH_80_MHZ;
+        break;
+
+    case 3:
+        /* XXX - how to distinguish between 160 MHz and 80+80 MHz? */
+        break;
+    }
+    proto_tree_add_item_ret_boolean(tree, hf_radiotap_vht_stbc,
+                                    tvb, offset, 3, ENC_LITTLE_ENDIAN,
+                                    &stbc);
+    phdr->phy_info.info_11ac.has_stbc = TRUE;
+    phdr->phy_info.info_11ac.stbc = stbc;
+    proto_tree_add_item_ret_uint(tree, hf_radiotap_vht_group_id,
+                                 tvb, offset, 3, ENC_LITTLE_ENDIAN,
+                                 &group_id);
+    phdr->phy_info.info_11ac.has_group_id = TRUE;
+    phdr->phy_info.info_11ac.group_id = group_id;
+    if ((group_id == 0) || (group_id == 63)) // SU VHT type
+    {
+        proto_tree_add_item(tree, hf_radiotap_vht_su_nsts,
+                            tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_uint(tree, hf_radiotap_vht_su_partial_aid,
+                                     tvb, offset, 3, ENC_LITTLE_ENDIAN,
+                                     &partial_aid);
+        phdr->phy_info.info_11ac.has_partial_aid = TRUE;
+        phdr->phy_info.info_11ac.partial_aid = partial_aid;
+    }
+    else
+    {
+        // The below is MU VHT type*
+        proto_tree_add_item(tree, hf_radiotap_vht_u0_nsts,
+                            tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(tree, hf_radiotap_vht_u1_nsts,
+                            tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(tree, hf_radiotap_vht_u2_nsts,
+                            tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(tree, hf_radiotap_vht_u3_nsts,
+                            tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    }
+    proto_tree_add_item_ret_boolean(tree, hf_radiotap_vht_txop_ps_not_allowed,
+                                    tvb, offset, 3, ENC_LITTLE_ENDIAN,
+                                    &txop_ps_not_allowed);
+    phdr->phy_info.info_11ac.has_txop_ps_not_allowed = TRUE;
+    phdr->phy_info.info_11ac.txop_ps_not_allowed = txop_ps_not_allowed;
+    offset += 3;
+
+    /* VHT-SIG-A2 */
+    proto_tree_add_item_ret_boolean(tree, hf_radiotap_vht_short_gi,
+                                    tvb, offset, 3, ENC_LITTLE_ENDIAN,
+                                    &short_gi);
+    phdr->phy_info.info_11ac.has_short_gi = TRUE;
+    phdr->phy_info.info_11ac.short_gi = short_gi;
+    proto_tree_add_item_ret_boolean(tree, hf_radiotap_vht_short_gi_nsym_disambig,
+                                    tvb, offset, 3, ENC_LITTLE_ENDIAN,
+                                    &short_gi_nsym_disambig);
+    phdr->phy_info.info_11ac.has_short_gi_nsym_disambig = TRUE;
+    phdr->phy_info.info_11ac.short_gi_nsym_disambig = short_gi_nsym_disambig;
+    if ((group_id == 0) || (group_id == 63)) // SU VHT type
+    {
+        proto_tree_add_item(tree, hf_radiotap_vht_su_coding_type,
+                            tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    }
+    else
+    {
+        // it is MU MIMO type BCC coding
+        // extract U0 Coding
+        proto_tree_add_item(tree, hf_radiotap_vht_u0_coding_type,
+                            tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    }
+    proto_tree_add_item_ret_boolean(tree, hf_radiotap_vht_ldpc_ofdmsymbol,
+                                    tvb, offset, 3, ENC_LITTLE_ENDIAN,
+                                    &ldpc_ofdmsymbol);
+    phdr->phy_info.info_11ac.has_ldpc_extra_ofdm_symbol = TRUE;
+    phdr->phy_info.info_11ac.ldpc_extra_ofdm_symbol = ldpc_ofdmsymbol;
+    if ((group_id == 0) || (group_id == 63)) // SU VHT type
+    {
+        proto_tree_add_item(tree, hf_radiotap_vht_su_mcs,
+                            tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_boolean(tree, hf_radiotap_vht_beamformed,
+                                        tvb, offset, 3, ENC_LITTLE_ENDIAN,
+                                        &beamformed);
+        phdr->phy_info.info_11ac.has_beamformed = TRUE;
+        phdr->phy_info.info_11ac.beamformed = beamformed;
+    }
+    else
+    {
+        // extract U1 Coding type
+        proto_tree_add_item(tree, hf_radiotap_vht_u1_coding_type,
+                            tvb, offset, 3, ENC_LITTLE_ENDIAN);
+
+        // extract U2 Coding type
+        proto_tree_add_item(tree, hf_radiotap_vht_u2_coding_type,
+                            tvb, offset, 3, ENC_LITTLE_ENDIAN);
+
+        // extract U3 Coding type
+        proto_tree_add_item(tree, hf_radiotap_vht_u3_coding_type,
+                            tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        // reserved
+    }
+    proto_tree_add_item(tree, hf_radiotap_vht_crc,
+                        tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_radiotap_vht_tail,
+                        tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    offset += 3;
+
+    /* VHT-SIG-B */
+    if ((group_id == 0) || (group_id == 63)) // SU VHT type
+    {
+        switch (bw)
+        {
+        case VHT_BW_20_MHZ:
+            proto_tree_add_item(tree, hf_radiotap_vht_su_sig_b_length_20_mhz,
+                                tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            break;
+
+        case VHT_BW_40_MHZ:
+            proto_tree_add_item(tree, hf_radiotap_vht_su_sig_b_length_40_mhz,
+                                tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            break;
+
+        case VHT_BW_80_MHZ:
+        case VHT_BW_160_MHZ:
+            proto_tree_add_item(tree, hf_radiotap_vht_su_sig_b_length_80_160_mhz,
+                                tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            break;
+        }
+    }
+    else
+    {
+        switch (bw)
+        {
+        case VHT_BW_20_MHZ:
+            proto_tree_add_item(tree, hf_radiotap_vht_mu_sig_b_length_20_mhz,
+                                tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_radiotap_vht_mu_mcs_20_mhz,
+                                tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            break;
+
+        case VHT_BW_40_MHZ:
+            proto_tree_add_item(tree, hf_radiotap_vht_mu_sig_b_length_40_mhz,
+                                tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_radiotap_vht_mu_mcs_40_mhz,
+                                tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            break;
+
+        case VHT_BW_80_MHZ:
+        case VHT_BW_160_MHZ:
+            proto_tree_add_item(tree, hf_radiotap_vht_mu_sig_b_length_80_160_mhz,
+                                tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_radiotap_vht_mu_mcs_80_160_mhz,
+                                        tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            break;
+        }
+    }
+    offset += 4;
+
+    return offset;
+}
+
 static void
 wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree *tap_tree, guint16 vw_msdu_length, guint8 cmd_type,
@@ -1564,19 +1872,16 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint       length;
     gint8       dbm;
     guint8      mcs_index, vw_plcp_info, vw_bssid;
-    guint8      plcp_type, vht_u3_coding_type = 0, vht_reserved_coding_type=1;
-    guint8      vht_ndp_flag,vht_mu_mimo_flg,vht_coding_type,vht_u0_coding_type,vht_u1_coding_type,vht_u2_coding_type;
+    guint8      plcp_type;
+    guint8      vht_ndp_flag,vht_mu_mimo_flg;
     float       phyRate;
     guint       i;
 
     proto_tree *vweft, *vw_errorFlags_tree = NULL, *vwict,*vw_infoC_tree = NULL;
-    guint16     vw_info, vw_chanflags, vw_flags, vw_ht_length,  vht_su_partial_id,vw_rflags,vw_vcid, vw_seqnum, mpdu_length, vht_length, crc16, vht_plcp_length;
+    guint16     vw_info, vw_chanflags, vw_flags, vw_ht_length, vw_rflags,vw_vcid, vw_seqnum, mpdu_length;
     guint32     vw_errors;
-    guint8      vht_grp_id, vht_grp_id1, vht_grp_id2, vht_su_nsts,vht_beamformed,vht_user_pos,vht_su_partial_id1,vht_su_partial_id2;
-    guint32     vht_u0_nsts,vht_u1_nsts,vht_u2_nsts,vht_u3_nsts;
-    guint8      vht_bw, vht_stbc, vht_txop_ps_notallowd, vht_shortgi, vht_shortginsymdisa, vht_ldpc_ofdmsymbol, vht_su_mcs, vht_crc1, vht_crc2, vht_crc, vht_tail;
-    guint8      vht_mcs1, vht_mcs2, vht_mcs, vht_plcp_length1, vht_plcp_length2, vht_plcp_length3, vht_rate, vht_parity;
-    guint8      feccoding, aggregation, notsounding, smoothing, ness, plcp_default;
+    guint8      vht_user_pos;
+    guint8      plcp_default;
 
     ifg_info   *p_ifg_info;
     proto_item *ti;
@@ -1624,11 +1929,11 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if ( vw_rflags & FLAGS_CHAN_HT ) {
             proto_tree_add_item(flags_tree, hf_radiotap_flags_ht, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(flags_tree, hf_radiotap_flags_40mhz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(flags_tree, hf_radiotap_flags_shortgi, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(flags_tree, hf_radiotap_flags_short_gi, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         }
         if ( vw_rflags & FLAGS_CHAN_VHT ) {
             proto_tree_add_item(flags_tree, hf_radiotap_flags_vht, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(flags_tree, hf_radiotap_flags_shortgi, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(flags_tree, hf_radiotap_flags_short_gi, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(flags_tree, hf_radiotap_flags_40mhz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(flags_tree, hf_radiotap_flags_80mhz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         }
@@ -1869,6 +2174,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 4;
 
         /*** POPULATE THE AMSDU VHT MIXED MODE CONTAINER FORMAT ***/
+        /* XXX - what about other modes?  PLCP here? */
         if ((vw_rflags & FLAGS_CHAN_VHT) && vw_ht_length != 0)
         {
             if (plcp_type == PLCP_TYPE_VHT_MIXED) //If the frame is VHT type
@@ -1890,150 +2196,12 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
                 offset += 1; /*** skip the RX L1 Info byte ****/
 
-                /*
-                 * XXX - no, 3 bytes are for the L-SIG.
-                 */
-                offset += 3; /** 3 bytes are for HT length ***/
+                /* L-SIG */
+                offset = decode_ofdm_signal(tap_tree, tvb, offset);
 
-                /*
-                 * Beginning of VHT-SIG-A1, 24 bits.
-                 * XXX - get STBC from the 0x08 bit of the first byte
-                 * and BW from the 0x03 bits?
-                 */
-                /* vht_grp_id = tvb_get_letohs(tvb, offset); */
-                vht_grp_id1 = tvb_get_guint8(tvb, offset);
-                vht_grp_id2 = tvb_get_guint8(tvb, offset+1);
-                vht_grp_id = ((vht_grp_id1 &0xF0) >> 4) + ((vht_grp_id2 &0x03) << 4);
-                phdr.phy_info.info_11ac.has_group_id = TRUE;
-                phdr.phy_info.info_11ac.group_id = vht_grp_id;
-                proto_tree_add_uint(tap_tree, hf_radiotap_vht_grp_id, tvb, offset, 2, vht_grp_id);
-
-                if ((vht_grp_id == 0) || (vht_grp_id == 63)) /*** SU VHT type*/
-                {
-                    proto_tree_add_item(tap_tree, hf_radiotap_vht_su_nsts, tvb, offset+1, 1, ENC_NA);
-
-                    /* Skip to second byte of VHT-SIG-A1 */
-                    offset += 1; /*** to decode partial id ***/
-                    vht_su_partial_id1 = tvb_get_guint8(tvb,offset);
-                    vht_su_partial_id2 = tvb_get_guint8(tvb,offset+1);
-                    vht_su_partial_id = ((vht_su_partial_id1 &0xE0) >> 5) + ((vht_su_partial_id2 &0x3f) << 3);
-                    phdr.phy_info.info_11ac.has_partial_aid = TRUE;
-                    phdr.phy_info.info_11ac.partial_aid = vht_su_partial_id;
-                    proto_tree_add_item(tap_tree, hf_radiotap_vht_su_partial_aid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                }
-                else {
-                    /*** The below is MU VHT type**/
-                    proto_tree_add_item_ret_uint(tap_tree, hf_radiotap_vht_u0_nsts, tvb, offset, 2, ENC_LITTLE_ENDIAN, &vht_u0_nsts);
-                    proto_tree_add_item_ret_uint(tap_tree, hf_radiotap_vht_u1_nsts, tvb, offset, 2, ENC_LITTLE_ENDIAN, &vht_u1_nsts);
-                    proto_tree_add_item_ret_uint(tap_tree, hf_radiotap_vht_u2_nsts, tvb, offset, 2, ENC_LITTLE_ENDIAN, &vht_u2_nsts);
-                    proto_tree_add_item_ret_uint(tap_tree, hf_radiotap_vht_u3_nsts, tvb, offset, 2, ENC_LITTLE_ENDIAN, &vht_u3_nsts);
-                }
-
-                /*
-                 * Skip past the other 2 bytes of VHT-SIG-A1.
-                 *
-                 * XXX - extract TXOP_PS_NOT_ALLOWED from the third byte of
-                 * the VHT-SIG-A1 structure?
-                 */
-                 offset += 2;
-
-                /*
-                 * Beginning of VHT-SIG-A2, 24 bits.
-                 *
-                 * XXX - extract Short GI NSYM Disambiguation from the first
-                 * byte?
-                 */
-
-                /*** extract LDPC or BCC coding *****/
-                vht_coding_type = tvb_get_guint8(tvb, offset);
-                vht_u0_coding_type = ((vht_coding_type & 0x04) >> 2);
-                /*vht_su_coding_type = vht_u0_coding_type; */
-                if ((vht_grp_id == 0) || (vht_grp_id == 63)) /*** SU VHT type*/
-                {
-                    if (vht_u0_coding_type == 0) {
-                        proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_u0_coding_type,
-                                tvb, offset, 1, vht_u0_coding_type, "VHT BCC Coding : %u ",vht_u0_coding_type);
-                    }
-                    else {
-                        proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_u0_coding_type,
-                                tvb, offset, 1, vht_u0_coding_type, "VHT LDPC Coding : %u ",vht_u0_coding_type);
-                    }
-                    /*** extract SU-MIMO VHT MCS ******/
-                    /*****
-                        vht_su_mcs = tvb_get_guint8(tvb, offset);
-                        vht_su_mcs = ((vht_su_mcs & 0xF0) >> 4);
-                        proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_su_mcs,
-                            tvb, offset, 1, vht_su_mcs, "VHT SU MCS : %u ",vht_su_mcs);
-                    *******/
-                } else {
-                    /*** it is MU MIMO type BCC coding ****/
-                    /*** extract U0 Coding ***/
-                    if (vht_u0_nsts) {
-                        if (vht_u0_coding_type == 0) {
-                            proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_u0_coding_type,
-                            tvb, offset, 1, vht_u0_coding_type, "VHT U0 BCC Coding : %u ",vht_u0_coding_type);
-                        } else {
-                            proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_u0_coding_type,
-                            tvb, offset, 1, vht_u0_coding_type, "VHT U0 LDPC Coding : %u ",vht_u0_coding_type);
-                        }
-                    } else {
-                        /*** reserved **/
-                        proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_u0_coding_type,
-                        tvb, offset, 1, vht_u0_coding_type, "VHT U0 Reserved Coding : %u ",vht_u0_coding_type);
-                    }
-                    /*** extract U1 Coding type***/
-                    vht_u1_coding_type = ((vht_coding_type & 0x10) >> 4);
-                    if (vht_u1_nsts) {
-                        if (vht_u1_coding_type == 0) {
-                            proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_u1_coding_type,
-                                tvb, offset, 1, vht_u1_coding_type, "VHT U1 BCC Coding : %u ",vht_u1_coding_type);
-                        } else {
-                            proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_u1_coding_type,
-                                tvb, offset, 1, vht_u1_coding_type, "VHT U1 LDPC Coding : %u ",vht_u1_coding_type);
-                        }
-                    } else {
-                        /*** Reserved **/
-                        proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_u1_coding_type,
-                            tvb, offset, 1, vht_u1_coding_type, "VHT U1 Reserved Coding : %u ",vht_u1_coding_type);
-                    }
-
-                    /*** extract U2 Coding type***/
-                    vht_u2_coding_type = ((vht_coding_type & 0x20) >> 5);
-                    if (vht_u2_nsts) {
-                        if (vht_u2_coding_type == 0) {
-                            proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_u2_coding_type,
-                            tvb, offset, 1, vht_u2_coding_type, "VHT U2 BCC Coding : %u ",vht_u2_coding_type);
-                        } else {
-                            proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_u2_coding_type,
-                            tvb, offset, 1, vht_u2_coding_type, "VHT U2 LDPC Coding : %u ",vht_u2_coding_type);
-                        }
-                    } else {
-                        /**** Reserved *******/
-                        proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_u2_coding_type,
-                        tvb, offset, 1, vht_u2_coding_type, "VHT U2 Reserved Coding : %u ",vht_u2_coding_type);
-                    }
-
-                    /*** extract U3 Coding type***/
-                    if (vht_u3_nsts == 1) {
-                        //guint vht_u3_coding_type;
-
-                        vht_u3_coding_type = ((vht_coding_type & 0x40) >> 6);
-                        if (vht_u3_coding_type == 0) {
-                            proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_u3_coding_type,
-                            tvb, offset, 1, vht_u3_coding_type, "VHT U3 BCC Coding : %u ",vht_u3_coding_type);
-                        } else {
-                            proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_u3_coding_type,
-                            tvb, offset, 1, vht_u3_coding_type, "VHT U3 LDPC Coding : %u ",vht_u3_coding_type);
-                        }
-                    }
-                }
-
-                /*** decode Beamformed bit ****/
-                offset += 1;
-                vht_beamformed = tvb_get_guint8(tvb, offset) & 0x01;
-                phdr.phy_info.info_11ac.has_beamformed = TRUE;
-                phdr.phy_info.info_11ac.beamformed = vht_beamformed;
-                proto_tree_add_item(tap_tree, hf_radiotap_vht_beamformed, tvb, offset, 1, ENC_NA);
+                /* VHT-SIG */
+                /* XXX - does this include VHT-SIG-B? */
+                offset = decode_vht_sig(tap_tree, tvb, offset, &phdr);
             }
         }
     }
@@ -2265,211 +2433,150 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         switch (plcp_type) //To check 5 types of PLCP(NULL, CCK, OFDM, HT & VHT)
         {
         case PLCP_TYPE_LEGACY:
-            /*
-             * From IEEE Std 802.11-2012:
-             *
-             * According to section 17.2.2 "PPDU format", the PLCP header
-             * for the High Rate DSSS PHY (11b) has a SIGNAL field that's
-             * 8 bits, followed by a SERVICE field that's 8 bits, followed
-             * by a LENGTH field that's 16 bits, followed by a CRC field
-             * that's 16 bits.  The PSDU follows it.  Section 17.2.3 "PPDU
-             * field definitions" describes those fields.
-             *
-             * According to sections 18.3.2 "PLCP frame format" and 18.3.4
-             * "SIGNAL field", the PLCP for the OFDM PHY (11a) has a SIGNAL
-             * field that's 24 bits, followed by a service field that's
-             * 16 bits, followed by the PSDU.  Section 18.3.5.2 "SERVICE
-             * field" describes the SERVICE field.
-             *
-             * According to section 19.3.2 "PPDU format", the frames for the
-             * Extended Rate PHY (11g) either extend the 11b format, using
-             * additional bits in the SERVICE field, or extend the 11a
-             * format.
-             */
             if (mcs_index < 4)
             {
+                /*
+                 * From IEEE Std 802.11-2012:
+                 *
+                 * According to section 17.2.2 "PPDU format", the PLCP header
+                 * for the High Rate DSSS PHY (11b) has a SIGNAL field that's
+                 * 8 bits, followed by a SERVICE field that's 8 bits, followed
+                 * by a LENGTH field that's 16 bits, followed by a CRC field
+                 * that's 16 bits.  The PSDU follows it.  Section 17.2.3 "PPDU
+                 * field definitions" describes those fields.
+                 *
+                 * According to section 19.3.2 "PPDU format", the frames for the
+                 * Extended Rate PHY (11g) either extend the 11b format, using
+                 * additional bits in the SERVICE field, or extend the 11a
+                 * format.
+                 */
                 proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_type,
                     tvb, offset-10, 1, plcp_type, "Format: Legacy CCK ");
                 proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_plcp_signal,
                                     tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                offset = offset + 1;
-                proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_plcp_service,
+                offset += 1;
+
+                proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_plcp_locked_clocks,
                                     tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                offset = offset + 1;
-                vht_plcp_length = tvb_get_letohs(tvb, offset);
-               // proto_tree_add_item(vw_plcpinfo_tree,
-                 //    hf_radiotap_vht_length, tvb, offset, 2, vht_length);
-                proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_length,
-                    tvb, offset, 2, vht_plcp_length, "PLCP Length: %u ",vht_plcp_length);
-                offset      += 2;
-                crc16 = tvb_get_letohs(tvb, offset);
-                proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_crc16,
-                    tvb, offset, 2, crc16, "CRC 16: %u ",crc16);
-                offset      += 2;
-                offset = offset + 9;
-                proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_rfid,
+                proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_plcp_modulation,
                                     tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                offset = offset + 1;
+                proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_plcp_length_extension,
+                                    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset += 1;
+
+                proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_plcp_length,
+                                    tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_plcp_crc16,
+                                    tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                /* Presumably padding */
+                offset += 9;
             }
             else
             {
+                /*
+                 * From IEEE Std 802.11-2012:
+                 *
+                 * According to sections 18.3.2 "PLCP frame format" and 18.3.4
+                 * "SIGNAL field", the PLCP for the OFDM PHY (11a) has a SIGNAL
+                 * field that's 24 bits, followed by a service field that's
+                 * 16 bits, followed by the PSDU.  Section 18.3.5.2 "SERVICE
+                 * field" describes the SERVICE field.
+                 *
+                 * According to section 19.3.2 "PPDU format", the frames for the
+                 * Extended Rate PHY (11g) either extend the 11b format, using
+                 * additional bits in the SERVICE field, or extend the 11a
+                 * format.
+                 */
                 proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
                     tvb, offset, 1, plcp_type, "Format: Legacy OFDM ");
-                vht_plcp_length1 = tvb_get_guint8(tvb, offset);
-                vht_plcp_length2 = tvb_get_guint8(tvb, offset+1);
-                vht_plcp_length3 = tvb_get_guint8(tvb, offset+2);
-                vht_plcp_length1 = ((vht_plcp_length1 & 0xe0) >> 5);
-                vht_plcp_length3 = ((vht_plcp_length3) & 0x01);
-                vht_plcp_length = (vht_plcp_length1 + (vht_plcp_length2 << 3) + (vht_plcp_length3 << 11));
-                proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_plcp_length,
-                                        tvb, offset, 3, vht_plcp_length);
-                vht_rate = (tvb_get_guint8(tvb, offset) &0x0f);
-                proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_rate,
-                                        tvb, offset, 1, vht_rate);
-                vht_parity = (tvb_get_guint8(tvb, offset+2) &0x02)>>1;
-                proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_parity,
-                                        tvb, offset+2, 1, vht_parity);
-                offset = offset + 3;
-                proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_plcp_service,
+
+                /* SIGNAL */
+                offset = decode_ofdm_signal(vw_plcpinfo_tree, tvb, offset);
+
+                /* SERVICE */
+                proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_ofdm_service,
                                     tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
 
-                offset = offset + 2;
-                offset = offset + 10;
-                proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_rfid,
-                                    tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                offset = offset + 1;
-
+                /* Presumably just padding */
+                offset += 10;
             }
+
+            proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_rfid,
+                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
             break;
 
         case PLCP_TYPE_MIXED:
             /*
+             * From IEEE Std 802.11-2012:
+             *
              * According to section 20.3.2 "PPDU format", the HT-mixed
              * PLCP header has a "Non-HT SIGNAL field" (L-SIG), which
              * looks like an 11a SIGNAL field, followed by an HT SIGNAL
              * field (HT-SIG) described in section 20.3.9.4.3 "HT-SIG
              * definition".
-             *
-             * This means that the first octet of HT-SIG is at
-             * plcp_ptr[3], skipping the 3 octets of the L-SIG field.
-             *
-             * 0x80 is the CBW 20/40 bit of HT-SIG.
              */
             proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
                 tvb, offset, 1, plcp_type, "Format: HT ");
-            vht_plcp_length1 = tvb_get_guint8(tvb, offset);
-            vht_plcp_length2 = tvb_get_guint8(tvb, offset+1);
-            vht_plcp_length3 = tvb_get_guint8(tvb, offset+2);
-            vht_plcp_length1 = ((vht_plcp_length1 & 0xe0) >> 5);
-            vht_plcp_length3 = ((vht_plcp_length3) & 0x01);
-            vht_plcp_length = (vht_plcp_length1 + (vht_plcp_length2 << 3) + (vht_plcp_length3 << 11));
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_plcp_length,
-                                    tvb, offset, 3, vht_plcp_length);
-            vht_rate = (tvb_get_guint8(tvb, offset) &0x0f);
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_rate,
-                                    tvb, offset, 1, vht_rate);
-            vht_parity = (tvb_get_guint8(tvb, offset+2) &0x02)>>1;
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_parity,
-                                    tvb, offset+2, 1, vht_parity);
-            offset = offset + 3;
 
-            vht_bw = tvb_get_guint8(tvb, offset) &0x80 >>7;
-            //proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_bw,
-            //                    tvb, offset, 1, vht_bw);
-            proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_vht_bw,
-                tvb, offset, 1, vht_bw, "CBW 20/40: %u ",vht_bw);
-            /*
-             * XXX - how to distinguish between 20 MHz, 20+20U, and
-             * 20+20L if the bit is not set?
-             */
-            if (vht_bw)
-            {
-                phdr.phy_info.info_11n.has_bandwidth = TRUE;
-                phdr.phy_info.info_11n.bandwidth = PHDR_802_11_BANDWIDTH_40_MHZ;
-            }
-            vht_mcs = (tvb_get_guint8(tvb, offset)&0x7f);
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_mcs,
-                                    tvb, offset, 1, vht_mcs);
-            offset = offset + 1;
-            vht_length = tvb_get_letohs(tvb, offset);
-            //proto_tree_add_item(vw_plcpinfo_tree,
-              //   hf_radiotap_vht_length, tvb, offset, 2, vht_length);
-            proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_vht_length,
-                tvb, offset, 2, vht_length, "HT Length: %u ", vht_length);
-            offset      += 2;
-            vht_shortgi = (tvb_get_guint8(tvb, offset) &0x80) >> 7;
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_shortgi,
-                                    tvb, offset, 1, vht_shortgi);
-            phdr.phy_info.info_11n.has_short_gi = TRUE;
-            phdr.phy_info.info_11n.short_gi = vht_shortgi;
-            feccoding = (tvb_get_guint8(tvb, offset) &0x40) >> 6;
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_feccoding,
-                                    tvb, offset, 1, feccoding);
-            phdr.phy_info.info_11n.has_fec = TRUE;
-            phdr.phy_info.info_11n.fec = feccoding;
-            vht_stbc = (tvb_get_guint8(tvb, offset) &0x30) >> 4;
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_stbc,
-                                    tvb, offset, 1, vht_stbc);
-            phdr.phy_info.info_11n.has_stbc_streams = TRUE;
-            phdr.phy_info.info_11n.stbc_streams = vht_stbc;
-            aggregation = (tvb_get_guint8(tvb, offset) &0x08) >> 3;
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_aggregation,
-                                    tvb, offset, 1, aggregation);
-            notsounding = (tvb_get_guint8(tvb, offset) &0x02) >> 1;
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_notsounding,
-                                    tvb, offset, 1, notsounding);
-            smoothing = (tvb_get_guint8(tvb, offset) &0x01);
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_smoothing,
-                                    tvb, offset, 1, smoothing);
-            offset = offset + 1;
+            /* L-SIG */
+            offset = decode_ofdm_signal(vw_plcpinfo_tree, tvb, offset);
 
-            vht_crc1 = tvb_get_guint8(tvb, offset);
-            vht_crc2 = tvb_get_guint8(tvb, offset+1);
-            vht_crc = ((vht_crc1 &0xFC) >> 2) + ((vht_crc2 &0x03) << 2);
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_crc,
-                                    tvb, offset, 2, vht_crc);
-            ness = (tvb_get_guint8(tvb, offset) &0x03);
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_ness,
-                                    tvb, offset, 1, ness);
-            phdr.phy_info.info_11n.has_ness = TRUE;
-            phdr.phy_info.info_11n.ness = ness;
-            offset = offset + 1;
-            vht_tail = (tvb_get_guint8(tvb, offset) &0xFC) >> 2;
-            //proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_tail,
-            //                        tvb, offset, 1, vht_tail);
-            proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_vht_tail,
-                tvb, offset, 1, vht_tail, "Signal Tail: %u ", vht_tail);
-            offset = offset + 1;
-            proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_plcp_service,
+            /* HT-SIG */
+            offset = decode_ht_sig(vw_plcpinfo_tree, tvb, offset, &phdr);
+
+            proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_ofdm_service,
                                 tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
 
-            offset = offset + 2;
-            offset = offset + 4;
+            /* Are these 4 bytes significant, or are they just padding? */
+            offset += 4;
+
             proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_rfid,
                                 tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            offset = offset + 1;
+            offset += 1;
             break;
 
         case PLCP_TYPE_GREENFIELD:
-            //PLCP_TYPE =2 Greenfield (Not supported)
             /*
+             * From IEEE Std 802.11-2012:
+             *
              * According to section 20.3.2 "PPDU format", the HT-greenfield
              * PLCP header just has the HT SIGNAL field (HT-SIG) above, with
              * no L-SIG field.
-             *
-             * This means that the first octet of HT-SIG is at
-             * plcp_ptr[0], as there's no L-SIG field to skip.
-             *
-             * 0x80 is the CBW 20/40 bit of HT-SIG.
-             *
-             * XXX - where's the number of extension spatial streams?
-             * The code in wiretap/vwr.c doesn't seem to provide it.
              */
+            /* HT-SIG */
+            offset = decode_ht_sig(vw_plcpinfo_tree, tvb, offset, &phdr);
+
+            /*
+             * XXX - does this follow the PLCP header for HT greenfield?
+             * It immediately follows the PLCP header for other PHYs.
+             */
+            proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_ofdm_service,
+                                tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            /*
+             * XXX - is the RFID at the end?  It does, for other PHYs.
+             *
+             * XXX - if so, is this padding, or significant?
+             */
+            offset += 7;
+
+            proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_rfid,
+                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+
             break;
 
         case PLCP_TYPE_VHT_MIXED:
             /*
-             * According to section 22.3.2 "VHTPPDU format" of IEEE Std
+             * According to section 22.3.2 "VHT PPDU format" of IEEE Std
              * 802.11ac-2013, the VHT PLCP header has a "non-HT SIGNAL field"
              * (L-SIG), which looks like an 11a SIGNAL field, followed by
              * a VHT Signal A field (VHT-SIG-A) described in section
@@ -2480,190 +2587,16 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
              */
             proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
                 tvb, offset, 1, plcp_type, "Format: VHT ");
-            vht_plcp_length1 = tvb_get_guint8(tvb, offset);
-            vht_plcp_length2 = tvb_get_guint8(tvb, offset+1);
-            vht_plcp_length3 = tvb_get_guint8(tvb, offset+2);
-            vht_plcp_length1 = ((vht_plcp_length1 & 0xe0) >> 5);
-            vht_plcp_length3 = ((vht_plcp_length3) & 0x01);
-            vht_plcp_length = (vht_plcp_length1 + (vht_plcp_length2 << 3) + (vht_plcp_length3 << 11));
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_plcp_length,
-                                    tvb, offset, 3, vht_plcp_length);
-            vht_rate = (tvb_get_guint8(tvb, offset) &0x0f);
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_rate,
-                                    tvb, offset, 1, vht_rate);
-            vht_parity = (tvb_get_guint8(tvb, offset+2) &0x02) >>1;
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_parity,
-                                    tvb, offset+2, 1, vht_parity);
-            offset = offset + 3; // 3 bytes are for HT length
-            vht_bw = tvb_get_guint8(tvb, offset) &0x03;
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_bw,
-                                    tvb, offset, 1, vht_bw);
-            /* XXX - any other values? */
-            if (vht_bw == 3)
-            {
-                phdr.phy_info.info_11ac.has_bandwidth = TRUE;
-                phdr.phy_info.info_11ac.bandwidth = PHDR_802_11_BANDWIDTH_40_MHZ;
-            }
-            else if (vht_bw == 4)
-            {
-                phdr.phy_info.info_11ac.has_bandwidth = TRUE;
-                phdr.phy_info.info_11ac.bandwidth = PHDR_802_11_BANDWIDTH_80_MHZ;
-            }
-            vht_stbc = (tvb_get_guint8(tvb, offset) &0x08) >> 3;
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_stbc,
-                                    tvb, offset, 1, vht_stbc);
-            phdr.phy_info.info_11ac.has_stbc = TRUE;
-            phdr.phy_info.info_11ac.stbc = vht_stbc;
-            // vht_grp_id = tvb_get_letohs(tvb, offset);
-            vht_grp_id1 = tvb_get_guint8(tvb, offset);
-            vht_grp_id2 = tvb_get_guint8(tvb, offset+1);
-            vht_grp_id = ((vht_grp_id1 &0xF0) >> 4) + ((vht_grp_id2 &0x03) << 4);
 
-            phdr.phy_info.info_11ac.has_group_id = TRUE;
-            phdr.phy_info.info_11ac.group_id = vht_grp_id;
+            /* L-SIG */
+            offset = decode_ofdm_signal(vw_plcpinfo_tree, tvb, offset);
 
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_grp_id,
-                tvb, offset, 2, vht_grp_id);
-            offset = offset + 1;
-            if ((vht_grp_id == 0) || (vht_grp_id == 63)) // SU VHT type
-            {
-                vht_su_nsts = tvb_get_guint8(tvb, offset);
-                vht_su_nsts = ((vht_su_nsts & 0x1c) >> 2);
-                proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_su_nsts,
-                    tvb, offset, 2, vht_su_nsts);
+            /* VHT-SIG */
+            offset = decode_vht_sig(vw_plcpinfo_tree, tvb, offset, &phdr);
 
-                vht_su_partial_id1 = tvb_get_guint8(tvb,offset);
-                vht_su_partial_id2 = tvb_get_guint8(tvb,offset+1);
-                vht_su_partial_id = ((vht_su_partial_id1 &0xE0) >> 5) + ((vht_su_partial_id2 &0x3f) << 3);
-
-                phdr.phy_info.info_11ac.has_partial_aid = TRUE;
-                phdr.phy_info.info_11ac.partial_aid = vht_su_partial_id;
-
-                proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_vht_su_partial_aid,
-                    tvb, offset, 2, vht_su_partial_id, "PARTIAL AID: %u ",vht_su_partial_id);
-                offset = offset + 1;
-            }
-            else {
-                // The below is MU VHT type*
-                vht_u0_nsts = tvb_get_guint8(tvb, offset);
-                vht_u0_nsts = ((vht_u0_nsts & 0x1c) >> 2);
-                proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_vht_u0_nsts,
-                    tvb, offset, 2, vht_u0_nsts, "MU[0] NSTS: %u ",vht_u0_nsts);
-
-                vht_u1_nsts = tvb_get_guint8(tvb, offset);
-                vht_u1_nsts = ((vht_u1_nsts & 0xe0) >> 5);
-                proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_vht_u1_nsts,
-                    tvb, offset, 2, vht_u1_nsts, "MU[1] NSTS: %u ",vht_u1_nsts);
-
-                vht_u2_nsts = tvb_get_guint8(tvb, offset+1);
-                vht_u2_nsts = (vht_u2_nsts & 0x07);
-                proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_vht_u2_nsts,
-                    tvb, offset, 2, vht_u2_nsts, "MU[2] NSTS: %u ",vht_u2_nsts);
-
-                vht_u3_nsts = tvb_get_guint8(tvb, offset+1);
-                vht_u3_nsts = ((vht_u3_nsts & 0x38) >> 3);
-                proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_vht_u3_nsts,
-                    tvb, offset, 2, vht_u3_nsts, "MU[3] NSTS: %u ",vht_u3_nsts);
-                offset = offset + 1;
-            }
-            // extract LDPC or BCC coding
-            vht_txop_ps_notallowd = (tvb_get_guint8(tvb, offset) &0x40) >> 6;
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_txop_ps_notallowd,
-                                    tvb, offset, 1, vht_txop_ps_notallowd);
-            phdr.phy_info.info_11ac.has_txop_ps_not_allowed = TRUE;
-            phdr.phy_info.info_11ac.txop_ps_not_allowed = vht_txop_ps_notallowd;
-            offset = offset + 1;
-
-            vht_shortgi = tvb_get_guint8(tvb, offset) &0x01;
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_shortgi,
-                                    tvb, offset, 1, vht_shortgi);
-            phdr.phy_info.info_11ac.has_short_gi = TRUE;
-            phdr.phy_info.info_11ac.short_gi = vht_shortgi;
-            vht_shortginsymdisa = (tvb_get_guint8(tvb, offset) &0x02) >> 1;
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_shortginsymdisa,
-                                    tvb, offset, 1, vht_shortginsymdisa);
-            phdr.phy_info.info_11ac.has_short_gi_nsym_disambig = TRUE;
-            phdr.phy_info.info_11ac.short_gi_nsym_disambig = vht_shortginsymdisa;
-/*
-            vht_coding_type = (tvb_get_guint8(tvb, offset)& 0x04) >> 2;
-            proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_vht_u0_coding_type,
-                    tvb, offset, 1, vht_coding_type, "SU/MU[0] Coding : %u ",vht_coding_type);
-*/
-            vht_ldpc_ofdmsymbol = (tvb_get_guint8(tvb, offset) &0x08) >> 3;
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_ldpc_ofdmsymbol,
-                                    tvb, offset, 1, vht_ldpc_ofdmsymbol);
-            phdr.phy_info.info_11ac.has_ldpc_extra_ofdm_symbol = TRUE;
-            phdr.phy_info.info_11ac.ldpc_extra_ofdm_symbol = vht_ldpc_ofdmsymbol;
-            vht_coding_type = tvb_get_guint8(tvb, offset);
-
-            //vht_su_coding_type = vht_u0_coding_type;
-            if ((vht_grp_id == 0) || (vht_grp_id == 63)) // SU VHT type
-            {
-                vht_coding_type = (tvb_get_guint8(tvb, offset)& 0x04) >> 2;
-                proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_su_coding_type,
-                        tvb, offset, 1, vht_coding_type);
-                vht_su_mcs = (tvb_get_guint8(tvb, offset) &0xf0) >> 4;
-                proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_su_mcs,
-                                            tvb, offset, 1, vht_su_mcs);
-
-            } else {
-                // it is MU MIMO type BCC coding
-                // extract U0 Coding
-                vht_u0_coding_type = ((vht_coding_type & 0x04) >> 2);
-                proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_u0_coding_type,
-                       tvb, offset, 1, vht_u0_coding_type);
-
-                // extract U1 Coding type
-                vht_u1_coding_type = ((vht_coding_type & 0x10) >> 4);
-                proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_u1_coding_type,
-                       tvb, offset, 1, vht_u1_coding_type);
-
-                // extract U2 Coding type
-                vht_u2_coding_type = ((vht_coding_type & 0x20) >> 5);
-                proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_u2_coding_type,
-                       tvb, offset, 1, vht_u2_coding_type);
-
-                // extract U3 Coding type
-                // reserved
-                proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_vht_u3_coding_type,
-                    tvb, offset, 1, vht_u3_coding_type, "MU[3] Coding Type: Reserved (%u)",vht_reserved_coding_type);
-
-            }
-
-            // decode Beamformed bit
-            offset = offset + 1;
-            vht_beamformed = tvb_get_guint8(tvb, offset);
-            vht_beamformed = (vht_beamformed & 0x01);
-
-            phdr.phy_info.info_11ac.has_beamformed = TRUE;
-            phdr.phy_info.info_11ac.beamformed = vht_beamformed;
-
-            proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_vht_beamformed, tvb, offset, 1, ENC_NA);
-            vht_crc1 = tvb_get_guint8(tvb, offset);
-            vht_crc2 = tvb_get_guint8(tvb, offset+1);
-            vht_crc = ((vht_crc1 &0xFC) >> 2) + ((vht_crc2 &0x03) << 2);
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_crc,
-                                    tvb, offset, 2, vht_crc);
-            offset = offset + 1;
-            vht_tail = (tvb_get_guint8(tvb, offset) &0xFC) >> 2;
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_tail,
-                                    tvb, offset, 1, vht_tail);
-            offset = offset + 1;
-            vht_length = tvb_get_letohs(tvb, offset);
-            proto_tree_add_item(vw_plcpinfo_tree,
-                 hf_radiotap_vht_length, tvb, offset, 2, vht_length);
-            offset      += 2;
-            vht_mcs1 = tvb_get_guint8(tvb, offset);
-            vht_mcs2 = tvb_get_guint8(tvb, offset+1);
-            vht_mcs = ((vht_mcs1 &0xC0) >> 6) + ((vht_mcs2 &0x03) << 2);
-            proto_tree_add_uint(vw_plcpinfo_tree, hf_radiotap_vht_mcs,
-                                    tvb, offset, 2, vht_mcs);
-            offset = offset + 2;
-
-            offset = offset + 2;
             proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_rfid,
                                 tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            offset = offset + 1;
+            offset += 1;
             break;
 
         default:
@@ -2975,40 +2908,50 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 void proto_register_ixveriwave(void)
 {
-    /* value_strings for TX/RX and FCS error flags */
+    /* true_false_strings for TX/RX and FCS error flags */
     static const true_false_string tfs_tx_rx_type = { "Transmitted", "Received" };
     static const true_false_string tfs_fcserr_type = { "Incorrect", "Correct" };
     static const true_false_string tfs_preamble_type = { "Short", "Long", };
 
-    /* Added value_string for decrypt error flag */
+    /* true_false_string for decrypt error flag */
     static const true_false_string tfs_decrypterr_type = { "Decrypt Failed", "Decrypt Succeeded" };
 
-    /* Added value_string for excess retry error flag */
+    /* true_false_string for excess retry error flag */
     static const true_false_string tfs_retryerr_type = {"Excess retry abort", "Retry limit not reached" };
 
     static const true_false_string tfs_legacy_type = {"802.11b LEGACY CCK", "LEGACY OFDM"};
 
-    static const value_string vht_coding_vals[] = {
+    static const value_string signal_vals[] = {
+        { 0x0a, "1 Mb/s" },
+        { 0x14, "2 MB/s" },
+        { 0x37, "5.5 Mb/s" },
+        { 0x6e, "11 Mb/s" },
+        { 0xdc, "22 Mb/s" },
+        { 0x1e, "DSSS-OFDM" },
+        { 0,    NULL }
+    };
+    static const value_string modulation_vals[] = {
+        { 0, "CCK" },
+        { 1, "PBCC" },
+        { 0, NULL }
+    };
+    static const value_string fec_encoding_vals[] = {
         { 0, "BCC" },
         { 1, "LDPC" },
         { 0, NULL },
     };
-
-
     static const value_string l1_preamble_type[] = {
         { 0, "Short" },
         { 1, "Long" },
         { 0, NULL },
     };
-
-   static const value_string modulation_type[] = {
+    static const value_string modulation_type[] = {
         { 0, "LEGACY" },
         { 1, "HT" },
         { 2, "HT-Greenfield" },
         { 3, "VHT" },
         { 0, NULL },
     };
-
     static const value_string sbw_type[] = {
         { 0, "5 MHz" },
         { 1, "10 MHz" },
@@ -3053,10 +2996,10 @@ void proto_register_ixveriwave(void)
     };
 
     static const value_string sbw_evm[] = {
-        { 0, "20 MHz" },
-        { 1, "40 MHz" },
-        { 2, "80 MHz" },
-        { 3, "160 MHz" },
+        { VHT_BW_20_MHZ,  "20 MHz" },
+        { VHT_BW_40_MHZ,  "40 MHz" },
+        { VHT_BW_80_MHZ,  "80 MHz" },
+        { VHT_BW_160_MHZ, "160 MHz" },
         { 0, NULL },
     };
     static const value_string frameformat_type[] = {
@@ -3279,8 +3222,8 @@ framing signal deasserted.  this is caused by software setting the drain all reg
         { "80 MHz channel bandwidth", "ixveriwave.flags.80mhz",
         FT_BOOLEAN, 12, NULL, FLAGS_CHAN_80MHZ, NULL, HFILL } },
 
-    { &hf_radiotap_flags_shortgi,
-        { "Short guard interval", "ixveriwave.flags.shortgi",
+    { &hf_radiotap_flags_short_gi,
+        { "Short guard interval", "ixveriwave.flags.short_gi",
         FT_BOOLEAN, 12, NULL, FLAGS_CHAN_SHORTGI, NULL, HFILL } },
 
     { &hf_radiotap_dbm_anta,
@@ -3350,42 +3293,6 @@ framing signal deasserted.  this is caused by software setting the drain all reg
         { "HT length", "ixveriwave.ht_length",
         FT_UINT16, BASE_DEC, NULL, 0x0, "Total IP length (incl all pieces of an aggregate)", HFILL } },
 
-    { &hf_radiotap_vht_grp_id,
-        { "Group Id", "ixveriwave.GRPID",
-        FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-
-    { &hf_radiotap_vht_su_nsts,
-        { "SU NSTS", "ixveriwave.SU_NSTS",
-        FT_UINT16, BASE_DEC, NULL, 0x1c, NULL, HFILL } },
-
-    { &hf_radiotap_vht_su_partial_aid,
-        { "SU Partial ID", "ixveriwave.VHT_SU_PARTIAL_AID",
-            FT_UINT16, BASE_HEX, NULL, 0x3FE0, NULL, HFILL } },
-
-    { &hf_radiotap_vht_su_coding_type,
-        { "SU Coding Type", "ixveriwave.vht_su_coding_type",
-        FT_UINT16, BASE_DEC, VALS(vht_coding_vals), 0x0, NULL, HFILL } },
-
-    { &hf_radiotap_vht_u0_nsts,
-        { "MU[0] NSTS", "ixveriwave.VHT_U0_NSTS",
-        FT_UINT16, BASE_DEC, NULL, 0x001c, NULL, HFILL } },
-
-    { &hf_radiotap_vht_u1_nsts,
-        { "MU[1] NSTS", "ixveriwave.VHT_U1_NSTS",
-        FT_UINT16, BASE_DEC, NULL, 0x000e, NULL, HFILL } },
-
-    { &hf_radiotap_vht_u2_nsts,
-        { "MU[2] NSTS", "ixveriwave.VHT_U2_NSTS",
-        FT_UINT16, BASE_DEC, NULL, 0x0700, NULL, HFILL } },
-
-    { &hf_radiotap_vht_u3_nsts,
-        { "MU[3] NSTS", "ixveriwave.VHT_U3_NSTS",
-        FT_UINT16, BASE_DEC, NULL, 0x3800, NULL, HFILL } },
-
-    { &hf_radiotap_vht_beamformed,
-        { "Beamformed", "ixveriwave.BEAMFORMED",
-        FT_UINT8, BASE_DEC, NULL, 0x01, NULL, HFILL } },
-
     { &hf_radiotap_vht_user_pos,
         { "VHT User Pos", "ixveriwave.VHT_user_pos",
          FT_UINT8, BASE_DEC, NULL, 0x03, NULL, HFILL } },
@@ -3401,22 +3308,6 @@ framing signal deasserted.  this is caused by software setting the drain all reg
     { &hf_radiotap_vht_su_mimo_flg,
         { "VHT SU MIMO", "ixveriwave.VHT_su_mimo_flg",
         FT_UINT8, BASE_DEC, NULL, 0x04, NULL, HFILL } },
-
-    { &hf_radiotap_vht_u0_coding_type,
-        { "MU[0] Coding Type", "ixveriwave.vht_u0_coding_type",
-        FT_UINT16, BASE_DEC, VALS(vht_coding_vals), 0x0, NULL, HFILL } },
-
-    { &hf_radiotap_vht_u1_coding_type,
-        { "MU[1] Coding Type", "ixveriwave.vht_u1_coding_type",
-        FT_UINT16, BASE_DEC, VALS(vht_coding_vals), 0x0, NULL, HFILL } },
-
-    { &hf_radiotap_vht_u2_coding_type,
-        { "MU[2] Coding Type", "ixveriwave.vht_u2_coding_type",
-        FT_UINT16, BASE_DEC, VALS(vht_coding_vals), 0x0, NULL, HFILL } },
-
-    { &hf_radiotap_vht_u3_coding_type,
-        { "MU[3] Coding Type", "ixveriwave.vht_u3_coding_type",
-        FT_UINT16, BASE_DEC, VALS(vht_coding_vals), 0x0, NULL, HFILL } },
 
     { &hf_radiotap_rf_info,
         { "RF Header", "ixveriwave.RFInfo",
@@ -3511,86 +3402,187 @@ framing signal deasserted.  this is caused by software setting the drain all reg
         { "Payload Decode", "ixveriwave.payloaddecode",
         FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
+    { &hf_radiotap_plcp_signal,
+        { "Signal", "ixveriwave.plcp.signal",
+        FT_UINT8, BASE_HEX, VALS(signal_vals), 0x0, NULL, HFILL } },
+    { &hf_radiotap_plcp_locked_clocks,
+        { "Locked clocks", "ixveriwave.plcp.locked_clocks",
+        FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL } },
+    { &hf_radiotap_plcp_modulation,
+        { "Modulation", "ixveriwave.plcp.modulation",
+        FT_UINT8, BASE_DEC, VALS(modulation_vals), 0x08, NULL, HFILL } },
+    { &hf_radiotap_plcp_length_extension,
+        { "Length extension", "ixveriwave.plcp.length_extension",
+        FT_UINT8, BASE_DEC, NULL, 0xe0, NULL, HFILL } },
+
+    { &hf_radiotap_plcp_length,
+        { "PLCP Length", "ixveriwave.plcp.length",
+        FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+
+    { &hf_radiotap_plcp_crc16,
+        { "PLCP CRC-16", "ixveriwave.plcp.crc16",
+        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
+    /* SIGNAL (11a)/L-SIG (11n, 11ac) */
+    { &hf_radiotap_ofdm_rate,
+        { "Rate", "ixveriwave.ofdm.rate",
+        FT_UINT24, BASE_HEX, NULL, 0x00000f, NULL, HFILL } },
+    { &hf_radiotap_ofdm_length,
+        { "PLCP Length", "ixveriwave.ofdm.length",
+        FT_UINT24, BASE_DEC, NULL, 0x01ffe0, NULL, HFILL } },
+    { &hf_radiotap_ofdm_parity,
+        { "Parity", "ixveriwave.ofdm.parity",
+        FT_UINT24, BASE_DEC, NULL, 0x020000, NULL, HFILL } },
+    { &hf_radiotap_ofdm_tail,
+        { "Tail", "ixveriwave.ofdm.tail",
+        FT_UINT24, BASE_HEX, NULL, 0xfc0000, NULL, HFILL } },
+    { &hf_radiotap_ofdm_service,
+        { "Service", "ixveriwave.ofdm.service",
+        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
+    /* HT-SIG1 */
+    { &hf_radiotap_ht_mcsindex,
+        { "MCS index", "ixveriwave.ht.mcs",
+        FT_UINT24, BASE_DEC, NULL, 0x00007f, NULL, HFILL } },
+    { &hf_radiotap_ht_bw,
+        { "CBW 20/40", "ixveriwave.ht.bw",
+        FT_UINT24, BASE_HEX, NULL, 0x000080, NULL, HFILL } },
+    { &hf_radiotap_ht_length,
+        { "HT Length", "ixveriwave.ht.length",
+        FT_UINT24, BASE_DEC, NULL, 0xffff00, NULL, HFILL } },
+
+    /* HT-SIG2 */
+    { &hf_radiotap_ht_smoothing,
+        { "Smoothing", "ixveriwave.ht.smoothing",
+        FT_BOOLEAN, 24, NULL, 0x000001, NULL, HFILL } },
+    { &hf_radiotap_ht_notsounding,
+        { "Not Sounding", "ixveriwave.ht.notsounding",
+        FT_BOOLEAN, 24, NULL, 0x000002, NULL, HFILL } },
+    { &hf_radiotap_ht_aggregation,
+        { "Aggregation", "ixveriwave.ht.aggregation",
+        FT_BOOLEAN, 24, NULL, 0x000008, NULL, HFILL } },
+    { &hf_radiotap_ht_stbc,
+        { "STBC", "ixveriwave.ht.stbc",
+        FT_UINT24, BASE_DEC, NULL, 0x000030, NULL, HFILL } },
+    { &hf_radiotap_ht_feccoding,
+        { "FEC Coding", "ixveriwave.ht.feccoding",
+        FT_UINT24, BASE_DEC, VALS(fec_encoding_vals), 0x000040, NULL, HFILL } },
+    { &hf_radiotap_ht_short_gi,
+        { "Short GI", "ixveriwave.ht.short_gi",
+        FT_BOOLEAN, 24, NULL, 0x0000080, NULL, HFILL } },
+    { &hf_radiotap_ht_ness,
+        { "Number of Extension Spatial Streams", "ixveriwave.ness",
+        FT_UINT24, BASE_DEC, NULL, 0x000300, NULL, HFILL } },
+    { &hf_radiotap_ht_crc,
+        { "CRC", "ixveriwave.ht.crc",
+        FT_UINT24, BASE_HEX, NULL, 0x03fc00, NULL, HFILL } },
+    { &hf_radiotap_ht_tail,
+        { "Tail Bits", "ixveriwave.ht.tail",
+        FT_UINT24, BASE_HEX, NULL, 0xfc0000, NULL, HFILL } },
+
+    /* VHT-SIG-A1 */
     { &hf_radiotap_vht_bw,
-        { "BW", "ixveriwave.bw",
-        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-
+        { "BW", "ixveriwave.vht.bw",
+        FT_UINT24, BASE_HEX, VALS(sbw_evm), 0x000003, NULL, HFILL } },
     { &hf_radiotap_vht_stbc,
-        { "STBC", "ixveriwave.stbc",
-        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { "STBC", "ixveriwave.vht.stbc",
+        FT_BOOLEAN, 24, NULL, 0x000008, NULL, HFILL } },
+    { &hf_radiotap_vht_group_id,
+        { "Group Id", "ixveriwave.vht.group_id",
+        FT_UINT24, BASE_DEC, NULL, 0x0003f0, NULL, HFILL } },
+    { &hf_radiotap_vht_su_nsts,
+        { "SU NSTS", "ixveriwave.vht.su_nsts",
+        FT_UINT24, BASE_DEC, NULL, 0x001c00, NULL, HFILL } },
+    { &hf_radiotap_vht_su_partial_aid,
+        { "SU Partial AID", "ixveriwave.vht.su_partial_aid",
+        FT_UINT24, BASE_HEX, NULL, 0x3fe000, NULL, HFILL } },
+    { &hf_radiotap_vht_u0_nsts,
+        { "MU[0] NSTS", "ixveriwave.vht.u0_nsts",
+        FT_UINT24, BASE_DEC, NULL, 0x001c00, NULL, HFILL } },
+    { &hf_radiotap_vht_u1_nsts,
+        { "MU[1] NSTS", "ixveriwave.vht.u1_nsts",
+        FT_UINT24, BASE_DEC, NULL, 0x00e000, NULL, HFILL } },
+    { &hf_radiotap_vht_u2_nsts,
+        { "MU[2] NSTS", "ixveriwave.vht.u2_nsts",
+        FT_UINT24, BASE_DEC, NULL, 0x070000, NULL, HFILL } },
+    { &hf_radiotap_vht_u3_nsts,
+        { "MU[3] NSTS", "ixveriwave.vht.u3_nsts",
+        FT_UINT24, BASE_DEC, NULL, 0x380000, NULL, HFILL } },
+    { &hf_radiotap_vht_txop_ps_not_allowed,
+        { "TXOP_PS_NOT_ALLOWED", "ixveriwave.vht.txop_ps_not_allowed",
+        FT_BOOLEAN, 24, NULL, 0x400000, NULL, HFILL } },
 
-    { &hf_radiotap_vht_txop_ps_notallowd,
-        { "TXOP_PS_NOT_ALLOWD", "ixveriwave.txop_ps_notallowd",
-        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-
-    { &hf_radiotap_vht_shortgi,
-        { "Short GI", "ixveriwave.shortgi",
-        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-
-    { &hf_radiotap_vht_shortginsymdisa,
-        { "Short GI NSYM DISA", "ixveriwave.shortginsymdisa",
-        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-
+    /* VHT-SIG-A2 */
+    { &hf_radiotap_vht_short_gi,
+        { "Short GI", "ixveriwave.short_gi",
+        FT_BOOLEAN, 24, NULL, 0x000001, NULL, HFILL } },
+    { &hf_radiotap_vht_short_gi_nsym_disambig,
+        { "Short GI NSYM Disambiguation", "ixveriwave.short_gi_nsym_disambig",
+        FT_BOOLEAN, 24, NULL, 0x000002, NULL, HFILL } },
+    { &hf_radiotap_vht_su_coding_type,
+        { "SU Coding Type", "ixveriwave.vht.su_coding_type",
+        FT_UINT24, BASE_DEC, VALS(fec_encoding_vals), 0x000004, NULL, HFILL } },
+    { &hf_radiotap_vht_u0_coding_type,
+        { "MU[0] Coding Type", "ixveriwave.vht.u0_coding_type",
+        FT_UINT24, BASE_DEC, VALS(fec_encoding_vals), 0x000004, NULL, HFILL } },
     { &hf_radiotap_vht_ldpc_ofdmsymbol,
-        { "LDPC Extra OFDM Symbol", "ixveriwave.ldpc_ofdmsymbol",
-        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-
+        { "LDPC Extra OFDM Symbol", "ixveriwave.vht.ldpc_ofdmsymbol",
+        FT_BOOLEAN, 24, NULL, 0x000008, NULL, HFILL } },
     { &hf_radiotap_vht_su_mcs,
-        { "SU VHT-MCS", "ixveriwave.su_mcs",
-        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-
+        { "VHT MCS", "ixveriwave.vht.su_mcs",
+        FT_UINT24, BASE_DEC, NULL, 0x0000f0, NULL, HFILL } },
+    { &hf_radiotap_vht_u1_coding_type,
+        { "MU[1] Coding Type", "ixveriwave.vht.u1_coding_type",
+        FT_UINT24, BASE_DEC, VALS(fec_encoding_vals), 0x000010, NULL, HFILL } },
+    { &hf_radiotap_vht_u2_coding_type,
+        { "MU[2] Coding Type", "ixveriwave.vht.u2_coding_type",
+        FT_UINT24, BASE_DEC, VALS(fec_encoding_vals), 0x000020, NULL, HFILL } },
+    { &hf_radiotap_vht_u3_coding_type,
+        { "MU[3] Coding Type", "ixveriwave.vht.u3_coding_type",
+        FT_UINT24, BASE_DEC, VALS(fec_encoding_vals), 0x000040, NULL, HFILL } },
+    { &hf_radiotap_vht_beamformed,
+        { "Beamformed", "ixveriwave.vht.beamformed",
+        FT_BOOLEAN, 24, NULL, 0x000100, NULL, HFILL } },
     { &hf_radiotap_vht_crc,
-        { "CRC8", "ixveriwave.crc",
-        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-
+        { "CRC8", "ixveriwave.vht.crc",
+        FT_UINT24, BASE_HEX, NULL, 0x03fc00, NULL, HFILL } },
     { &hf_radiotap_vht_tail,
-        { "Tail", "ixveriwave.tail",
-        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { "Tail", "ixveriwave.vht.tail",
+        FT_UINT24, BASE_HEX, NULL, 0xfc0000, NULL, HFILL } },
 
-    { &hf_radiotap_vht_length,
-        { "VHT Length", "ixveriwave.vht.length",
-        FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    /* VHT-SIG-B */
+    { &hf_radiotap_vht_su_sig_b_length_20_mhz,
+        { "SIG-B Length", "ixveriwave.vht.sig_b_length",
+        FT_UINT32, BASE_DEC, NULL, 0x0001ffff, NULL, HFILL } },
+    { &hf_radiotap_vht_su_sig_b_length_40_mhz,
+        { "SIG-B Length", "ixveriwave.vht.sig_b_length",
+        FT_UINT32, BASE_DEC, NULL, 0x0007ffff, NULL, HFILL } },
+    { &hf_radiotap_vht_su_sig_b_length_80_160_mhz,
+        { "SIG-B Length", "ixveriwave.vht.sig_b_length",
+        FT_UINT32, BASE_DEC, NULL, 0x001fffff, NULL, HFILL } },
+    { &hf_radiotap_vht_mu_sig_b_length_20_mhz,
+        { "SIG-B Length", "ixveriwave.vht.sig_b_length",
+        FT_UINT32, BASE_DEC, NULL, 0x0000ffff, NULL, HFILL } },
+    { &hf_radiotap_vht_mu_mcs_20_mhz,
+        { "MCS index", "ixveriwave.vht.mcs",
+        FT_UINT32, BASE_DEC, NULL, 0x000f0000, NULL, HFILL } },
+    { &hf_radiotap_vht_mu_sig_b_length_40_mhz,
+        { "SIG-B Length", "ixveriwave.vht.sig_b_length",
+        FT_UINT32, BASE_DEC, NULL, 0x0001ffff, NULL, HFILL } },
+    { &hf_radiotap_vht_mu_mcs_40_mhz,
+        { "MCS index", "ixveriwave.vht.mcs",
+        FT_UINT32, BASE_DEC, NULL, 0x001e0000, NULL, HFILL } },
+    { &hf_radiotap_vht_mu_sig_b_length_80_160_mhz,
+        { "SIG-B Length", "ixveriwave.vht.sig_b_length",
+        FT_UINT32, BASE_DEC, NULL, 0x0007ffff, NULL, HFILL } },
+    { &hf_radiotap_vht_mu_mcs_80_160_mhz,
+        { "MCS index", "ixveriwave.vht.mcs",
+        FT_UINT32, BASE_DEC, NULL, 0x00780000, NULL, HFILL } },
 
     { &hf_radiotap_rfid,
         { "RFID", "ixveriwave.rfid",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
-    { &hf_radiotap_vht_mcs,
-        { "VHT MCS", "ixveriwave.vhtmcs",
-        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-
-    { &hf_radiotap_parity,
-        { "Parity", "ixveriwave.parity",
-        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-
-    { &hf_radiotap_rate,
-        { "Rate", "ixveriwave.rate",
-        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-
-    { &hf_radiotap_plcp_length,
-        { "PLCP Length", "ixveriwave.length",
-        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_feccoding,
-        { "FEC Coding", "ixveriwave.feccoding",
-        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_aggregation,
-        { "Aggregation", "ixveriwave.aggregation",
-        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_notsounding,
-        { "Not Sounding", "ixveriwave.notsounding",
-        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_smoothing,
-        { "Smoothing", "ixveriwave.smoothing",
-        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_ness,
-        { "NUMBER of Extension Spatial Streams", "ixveriwave.ness",
-        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_plcp_service,
-        { "Service", "ixveriwave.plcp.service",
-        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_plcp_signal,
-        { "Signal", "ixveriwave.plcp.signal",
-        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_radiotap_plcp_default,
         { "PLCP", "ixveriwave.plcp",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
@@ -3603,9 +3595,7 @@ framing signal deasserted.  this is caused by software setting the drain all reg
     { &hf_radiotap_ac,
         { "AC", "ixveriwave.tx.ac",
         FT_UINT8, BASE_HEX, NULL, 0x0e, NULL, HFILL } },
-    { &hf_radiotap_crc16,
-        { "CRC16", "ixveriwave.crc16",
-        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
     { &hf_radiotap_plcp_type,
         { "PLCP_TYPE", "ixveriwave.plcp.type",
         FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
