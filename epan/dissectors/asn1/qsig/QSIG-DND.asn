@@ -200,7 +200,7 @@ ServiceList  ::= BIT STRING
     -- for other Supplementary Services 
  
 temporarilyUnavailable  ERROR ::= { CODE  local: 1000} 
-notActivated  ERROR ::= { CODE  local: 43} 
+--notActivated  ERROR ::= { CODE  local: 43}
  
 unspecified  ERROR ::= {  
  PARAMETER Extension{{DNDExtSet}} 

@@ -569,7 +569,6 @@ static const value_string qsig_str_error[] = {
 /* --- Module Do-Not-Disturb-Operations-asn1-97 --- --- ---                   */
 
   { 1000, "temporarilyUnavailable" },
-  {   43, "notActivated" },
   { 1008, "unspecified" },
 
 /* --- Module Call-Intrusion-Operations-asn1-97 --- --- ---                   */
@@ -12235,7 +12234,6 @@ static const qsig_err_t qsig_err_tab[] = {
 /* --- Module Do-Not-Disturb-Operations-asn1-97 --- --- ---                   */
 
   /* temporarilyUnavailable   */ { 1000, NULL },
-  /* notActivated             */ {   43, NULL },
   /* unspecified              */ { 1008, dissect_qsig_dnd_Extension_PDU },
 
 /* --- Module Call-Intrusion-Operations-asn1-97 --- --- ---                   */
