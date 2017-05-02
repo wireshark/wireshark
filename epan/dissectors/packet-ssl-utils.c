@@ -7422,23 +7422,31 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
      *     };
      * } Certificate;
      *
-     * draft-ietf-tls-tls13-18:
-     *     opaque ASN1Cert<1..2^24-1>;
-     *     struct {
-     *         ASN1Cert cert_data;
-     *         Extension extensions<0..2^16-1>;
-     *     } CertificateEntry;
-     *     struct {
-     *         opaque certificate_request_context<0..2^8-1>;
-     *         CertificateEntry certificate_list<0..2^24-1>;
-     *     } Certificate;
+     * draft-ietf-tls-tls13-20:
+     *  struct {
+     *      select(certificate_type){
+     *          case RawPublicKey:
+     *            // From RFC 7250 ASN.1_subjectPublicKeyInfo
+     *            opaque ASN1_subjectPublicKeyInfo<1..2^24-1>;
+     *
+     *          case X.509:
+     *            opaque cert_data<1..2^24-1>;
+     *      }
+     *      Extension extensions<0..2^16-1>;
+     *  } CertificateEntry;
+     *  struct {
+     *      opaque certificate_request_context<0..2^8-1>;
+     *      CertificateEntry certificate_list<0..2^24-1>;
+     *  } Certificate;
      */
     enum { CERT_X509, CERT_RPK } cert_type;
     asn1_ctx_t  asn1_ctx;
 #if defined(HAVE_LIBGNUTLS)
     gnutls_datum_t subjectPublicKeyInfo = { NULL, 0 };
 #endif
-    guint32 next_offset;
+    guint32     next_offset, certificate_list_length, cert_length;
+    proto_tree *subtree = tree;
+    guint       certificate_index = 0;
 
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
@@ -7455,94 +7463,93 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
         asn1_ctx.private_data = &subjectPublicKeyInfo;
 #endif
 
-    switch (cert_type) {
-    case CERT_RPK:
-        {
-            guint32 cert_length;
+    /* TLS 1.3: opaque certificate_request_context<0..2^8-1> */
+    if (session->version == TLSV1DOT3_VERSION) {
+        guint32 context_length;
+        if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &context_length,
+                            hf->hf.hs_certificate_request_context_length, 0, G_MAXUINT8)) {
+            return;
+        }
+        offset++;
+        if (context_length > 0) {
+            proto_tree_add_item(tree, hf->hf.hs_certificate_request_context,
+                                tvb, offset, context_length, ENC_NA);
+            offset += context_length;
+        }
+    }
+
+    if (session->version != TLSV1DOT3_VERSION && cert_type == CERT_RPK) {
+        /* For RPK before TLS 1.3, the single RPK is stored directly without
+         * another "certificate_list" field. */
+        certificate_list_length = offset_end - offset;
+        next_offset = offset_end;
+    } else {
+        /* CertificateEntry certificate_list<0..2^24-1> */
+        if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &certificate_list_length,
+                            hf->hf.hs_certificates_len, 0, G_MAXUINT24)) {
+            return;
+        }
+        offset += 3;            /* 24-bit length value */
+        next_offset = offset + certificate_list_length;
+    }
+
+    /* RawPublicKey must have one cert, but X.509 can have multiple. */
+    if (certificate_list_length > 0 && cert_type == CERT_X509) {
+        proto_item *ti;
+
+        ti = proto_tree_add_none_format(tree,
+                                        hf->hf.hs_certificates,
+                                        tvb, offset, certificate_list_length,
+                                        "Certificates (%u bytes)",
+                                        certificate_list_length);
+
+        /* make it a subtree */
+        subtree = proto_item_add_subtree(ti, hf->ett.certificates);
+    }
+
+    while (offset < next_offset) {
+        switch (cert_type) {
+        case CERT_RPK:
+            /* TODO add expert info if there is more than one RPK entry (certificate_index > 0) */
             /* opaque ASN.1_subjectPublicKeyInfo<1..2^24-1> */
-            if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &cert_length,
+            if (!ssl_add_vector(hf, tvb, pinfo, subtree, offset, next_offset, &cert_length,
                                 hf->hf.hs_certificate_len, 1, G_MAXUINT24)) {
                 return;
             }
             offset += 3;
 
-            dissect_x509af_SubjectPublicKeyInfo(FALSE, tvb, offset, &asn1_ctx, tree, hf->hf.hs_certificate);
-
+            dissect_x509af_SubjectPublicKeyInfo(FALSE, tvb, offset, &asn1_ctx, subtree, hf->hf.hs_certificate);
+            offset += cert_length;
             break;
-        }
-    case CERT_X509:
-        {
-            guint32     certificate_list_length;
-            proto_item *ti;
-            proto_tree *subtree;
-
-            /* TLS 1.3: opaque certificate_request_context<0..2^8-1> */
-            if (session->version == TLSV1DOT3_VERSION) {
-                guint32 context_length;
-                if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &context_length,
-                                    hf->hf.hs_certificate_request_context_length, 0, G_MAXUINT8)) {
-                    return;
-                }
-                offset++;
-                if (context_length > 0) {
-                    proto_tree_add_item(tree, hf->hf.hs_certificate_request_context,
-                                        tvb, offset, context_length, ENC_NA);
-                    offset += context_length;
-                }
-            }
-
-            /* CertificateEntry certificate_list<0..2^24-1> */
-            if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &certificate_list_length,
-                                hf->hf.hs_certificates_len, 0, G_MAXUINT24)) {
+        case CERT_X509:
+            /* opaque ASN1Cert<1..2^24-1> */
+            if (!ssl_add_vector(hf, tvb, pinfo, subtree, offset, next_offset, &cert_length,
+                                hf->hf.hs_certificate_len, 1, G_MAXUINT24)) {
                 return;
             }
-            offset += 3;            /* 24-bit length value */
-            next_offset = offset + certificate_list_length;
+            offset += 3;
 
-            if (certificate_list_length > 0) {
-                ti = proto_tree_add_none_format(tree,
-                                                hf->hf.hs_certificates,
-                                                tvb, offset, certificate_list_length,
-                                                "Certificates (%u bytes)",
-                                                certificate_list_length);
-
-                /* make it a subtree */
-                subtree = proto_item_add_subtree(ti, hf->ett.certificates);
-
-                /* iterate through each certificate */
-                while (offset < next_offset) {
-                    guint32 cert_length;
-                    /* opaque ASN1Cert<1..2^24-1> */
-                    if (!ssl_add_vector(hf, tvb, pinfo, subtree, offset, next_offset, &cert_length,
-                                        hf->hf.hs_certificate_len, 1, G_MAXUINT24)) {
-                        return;
-                    }
-                    offset += 3;
-
-                    dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, subtree, hf->hf.hs_certificate);
+            dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, subtree, hf->hf.hs_certificate);
 #if defined(HAVE_LIBGNUTLS)
-                    /* Only attempt to get the RSA modulus for the first cert. */
-                    asn1_ctx.private_data = NULL;
-#endif
-
-                    offset += cert_length;
-
-                    /* TLS 1.3: Extension extensions<0..2^16-1> */
-                    if (session->version == TLSV1DOT3_VERSION) {
-                        offset = ssl_dissect_hnd_extension(hf, tvb, subtree, pinfo, offset,
-                                                           next_offset, SSL_HND_CERTIFICATE,
-                                                           session, ssl, is_dtls);
-                    }
-                }
+            if (is_from_server && ssl && certificate_index == 0) {
+                ssl_find_private_key_by_pubkey(ssl, key_hash, &subjectPublicKeyInfo);
+                /* Only attempt to get the RSA modulus for the first cert. */
+                asn1_ctx.private_data = NULL;
             }
+#endif
+            offset += cert_length;
             break;
         }
-    }
 
-#if defined(HAVE_LIBGNUTLS)
-    if (is_from_server && ssl)
-        ssl_find_private_key_by_pubkey(ssl, key_hash, &subjectPublicKeyInfo);
-#endif
+        /* TLS 1.3: Extension extensions<0..2^16-1> */
+        if (session->version == TLSV1DOT3_VERSION) {
+            offset = ssl_dissect_hnd_extension(hf, tvb, subtree, pinfo, offset,
+                                               next_offset, SSL_HND_CERTIFICATE,
+                                               session, ssl, is_dtls);
+        }
+
+        certificate_index++;
+    }
 }
 
 void
