@@ -2749,15 +2749,16 @@ static gint tls12_handshake_hash(SslDecryptSession* ssl, gint md, StringInfo* ou
 }
 
 static gboolean
-tls13_hkdf_expand_label(int md, const StringInfo *secret, const char *label, const char *hash_value,
+tls13_hkdf_expand_label(guchar draft_version,
+                        int md, const StringInfo *secret, const char *label, const char *hash_value,
                         guint16 out_len, guchar **out)
 {
-    /* draft-ietf-tls-tls13-18:
+    /* draft-ietf-tls-tls13-20:
      * HKDF-Expand-Label(Secret, Label, HashValue, Length) =
      *      HKDF-Expand(Secret, HkdfLabel, Length)
      * struct {
      *     uint16 length = Length;
-     *     opaque label<9..255> = "TLS 1.3, " + Label;
+     *     opaque label<7..255> = "tls13 " + Label;
      *     opaque hash_value<0..255> = HashValue;
      * } HkdfLabel;
      *
@@ -2773,7 +2774,7 @@ tls13_hkdf_expand_label(int md, const StringInfo *secret, const char *label, con
 
     /* Some sanity checks */
     DISSECTOR_ASSERT(out_len > 0 && out_len <= 255 * hash_len);
-    DISSECTOR_ASSERT(label_length <= 255 - 9);
+    DISSECTOR_ASSERT(label_length > 0 && label_length <= 255 - 6);
     DISSECTOR_ASSERT(hash_value_length <= 255);
     DISSECTOR_ASSERT(hash_len > 0 && hash_len <= DIGEST_MAX_SIZE);
 
@@ -2796,8 +2797,15 @@ tls13_hkdf_expand_label(int md, const StringInfo *secret, const char *label, con
         /* info = HkdfLabel { length, label, hash_value } */
         gcry_md_putc(h, out_len >> 8);                      /* length */
         gcry_md_putc(h, (guint8) out_len);
-        gcry_md_putc(h, 9 + label_length);                  /* label */
-        gcry_md_write(h, "TLS 1.3, ", 9);
+        if (draft_version && draft_version < 20) {
+            /* Draft -19 and before use a different prefix.
+             * TODO remove this once implementations are updated for D20. */
+            gcry_md_putc(h, 9 + label_length);              /* label */
+            gcry_md_write(h, "TLS 1.3, ", 9);
+        } else {
+            gcry_md_putc(h, 6 + label_length);              /* label */
+            gcry_md_write(h, "tls13 ", 6);
+        }
         gcry_md_write(h, label, label_length);
         gcry_md_putc(h, hash_value_length);                 /* hash_value */
         gcry_md_write(h, hash_value, hash_value_length);
@@ -3515,11 +3523,11 @@ tls13_generate_keys(SslDecryptSession *ssl_session, const StringInfo *secret, gb
     iv_length = 12;
     ssl_debug_printf("%s key_length %u iv_length %u\n", G_STRFUNC, key_length, iv_length);
 
-    if (!tls13_hkdf_expand_label(hash_algo, secret, "key", "", key_length, &write_key)) {
+    if (!tls13_hkdf_expand_label(ssl_session->session.tls13_draft_version, hash_algo, secret, "key", "", key_length, &write_key)) {
         ssl_debug_printf("%s write_key expansion failed\n", G_STRFUNC);
         return FALSE;
     }
-    if (!tls13_hkdf_expand_label(hash_algo, secret, "iv", "", iv_length, &write_iv)) {
+    if (!tls13_hkdf_expand_label(ssl_session->session.tls13_draft_version, hash_algo, secret, "iv", "", iv_length, &write_iv)) {
         ssl_debug_printf("%s write_iv expansion failed\n", G_STRFUNC);
         goto end;
     }
@@ -5271,7 +5279,8 @@ tls13_key_update(SslDecryptSession *ssl, gboolean is_from_server)
     int hash_algo = ssl_get_digest_by_name(hash_name);
     const guint hash_len = app_secret->data_len;
     guchar *new_secret;
-    if (!tls13_hkdf_expand_label(hash_algo, app_secret, "application traffic secret", "",
+    if (!tls13_hkdf_expand_label(ssl->session.tls13_draft_version,
+                                 hash_algo, app_secret, "application traffic secret", "",
                                  hash_len, &new_secret)) {
         ssl_debug_printf("%s traffic_secret_N+1 expansion failed\n", G_STRFUNC);
         return;
@@ -7232,7 +7241,10 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     /* This version is always better than the guess at the Record Layer */
     server_version = tvb_get_ntohs(tvb, offset);
     if((server_version & 0xFF00) == 0x7f00) { /* if server_version start with 0x7f, it is (and force) TLS 1.3 */
+        session->tls13_draft_version = server_version & 0xff;
         server_version = TLSV1DOT3_VERSION;
+    } else {
+        session->tls13_draft_version = 0;
     }
     ssl_try_set_version(session, ssl, SSL_ID_HANDSHAKE, SSL_HND_SERVER_HELLO,
             is_dtls, server_version);

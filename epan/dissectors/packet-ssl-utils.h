@@ -386,6 +386,7 @@ typedef struct _SslSession {
     gint cipher;
     gint compression;
     guint16 version;
+    guchar tls13_draft_version;
     gint8 client_cert_type;
     gint8 server_cert_type;
 
