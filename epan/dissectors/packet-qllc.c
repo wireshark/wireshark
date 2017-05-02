@@ -65,8 +65,7 @@ static const value_string qllc_control_vals[] = {
     { QXID,         "QXID" },
     { QRR,          "QRR" },
     { QTEST,        "QTEST" },
-    { QDISC,        QDISC_TEXT },
-    { QRD,          QRD_TEXT },
+    { QDISC,        "QDISC / QRD" }, /* Same value for QDISC and QRD (following it is a COMMAND or RESPONSE) */
     { 0x00, NULL },
 };
 
