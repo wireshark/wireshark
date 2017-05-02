@@ -262,6 +262,13 @@ static int hf_ua3g_ip_device_routing_set_param_req_parameter_tftp_backup_ip = -1
 static int hf_ua3g_ip_device_routing_set_param_req_parameter_set_pc_port_status = -1;
 static int hf_ua3g_ip_device_routing_set_param_req_parameter_record_rtp_auth = -1;
 static int hf_ua3g_ip_device_routing_set_param_req_parameter_security_flag_filter = -1;
+static int hf_ua3g_ip_device_routing_set_param_req_parameter_stable_mode = -1;
+static int hf_ua3g_ip_device_routing_set_param_req_parameter_skin_id = -1;
+static int hf_ua3g_ip_device_routing_set_param_req_parameter_language_id = -1;
+static int hf_ua3g_ip_device_routing_set_param_req_parameter_usb_boost = -1;
+static int hf_ua3g_ip_device_routing_set_param_req_parameter_als_device = -1;
+static int hf_ua3g_ip_device_routing_set_param_req_parameter_busy_light = -1;
+static int hf_ua3g_ip_device_routing_set_param_req_parameter_audio_env = -1;
 static int hf_ua3g_ip_device_routing_set_param_req_parameter_uint = -1;
 static int hf_ua3g_ip_device_routing_set_param_req_parameter_value = -1;
 static int hf_ua3g_ip_device_routing_pause_restart_rtp_parameter_uint = -1;
@@ -969,10 +976,65 @@ static const value_string ip_device_routing_cmd_set_param_req_vals[] = {
     {0x13   , "Security Flags"},
     {0x14   , "ARP Spoofing"},
     {0x15   , "Session Param"},
+    {0x16   , "Stable Mode"},
+    {0x17   , "DTMF Level"},
+    {0x18   , "Keep Talking"},
+    {0x19   , "BT Radio"},
+    {0x1A   , "Transparent Reboot"},
+    {0x1B   , "Set Skin Identifier"},
+    {0x1C   , "Set Language Identifier"},
+    {0x1D   , "Set Dialpad Rotation"},
+    {0x1E   , "Set USB Boost Charging"},
+    {0x1F   , "Set SSH Password"},
+    {0x20   , "DHCP Survivability"},
+    {0x21   , "USB Devices"},
+    {0x22   , "ALS Device"},
+    {0x23   , "Busy Light"},
+    {0x24   , "Audio Environment"},
+    {0x25   , "EEE Configuration"},
+    {0x26   , "LLDP Configuration"},
     {0x30   , "MD5 Authentication"},
     {0, NULL}
 };
 static value_string_ext ip_device_routing_cmd_set_param_req_vals_ext = VALUE_STRING_EXT_INIT(ip_device_routing_cmd_set_param_req_vals);
+
+static const value_string set_param_req_stable_mode[] = {
+    {0x00   , "Full-Duplex Preference"},
+    {0x01   , "Echo Robustness Preference"},
+    {0, NULL}
+};
+
+static const value_string set_param_req_skin_id[] = {
+    {0x00   , "Managed By Terminal"},
+    {0x01   , "Classical"},
+    {0x02   , "Rainbow"},
+    {0x03   , "Crystal"},
+    {0x04   , "Luxury"},
+    {0, NULL}
+};
+
+static const value_string set_param_req_usb_boost[] = {
+    {0x00   , "Disable"},
+    {0x01   , "Enable"},
+    {0x02   , "Auto-Negociation"},
+    {0, NULL}
+};
+
+static const value_string set_param_req_local_device[] = {
+    {0x00   , "Managed By Terminal"},
+    {0x01   , "Enable"},
+    {0x02   , "Disable"},
+    {0, NULL}
+};
+
+static const value_string set_param_req_audio_env[] = {
+    {0x00   , "Managed By Terminal"},
+    {0x01   , "Standard"},
+    {0x02   , "Open Space"},
+    {0x02   , "Meeting Room"},
+    {0x02   , "Noisy"},
+    {0, NULL}
+};
 
 static const value_string ip_device_routing_cmd_pause_restart_vals[] = {
     {0x14, "Canal Identifier"},
@@ -1285,6 +1347,7 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
             offset++;
             length--;
 
+
             if (parameter_length > 0) {
                 switch (parameter_id) {
                 case 0x00: /* Remote MainCPU Server IP Address */
@@ -1495,6 +1558,27 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                     case 0x13: /* Security Flags */
                         proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_set_param_req_parameter_security_flag_filter, tvb, offset, 1, ENC_NA);
                         break;
+                    case 0x16: /* Stable Mode */
+                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_set_param_req_parameter_stable_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        break;
+                    case 0x1B: /* Set Skin Identifier */
+                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_set_param_req_parameter_skin_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        break;
+                    case 0x1C: /* Set Language Identifier */
+                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_set_param_req_parameter_language_id, tvb, offset, 2, ENC_NA|ENC_ASCII);
+                        break;
+                    case 0x1E: /* USB Boost */
+                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_set_param_req_parameter_usb_boost, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        break;
+                    case 0x22: /* ALS Device */
+                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_set_param_req_parameter_als_device, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        break;
+                    case 0x23: /* Busy Light */
+                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_set_param_req_parameter_busy_light, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        break;
+                    case 0x24: /* Audio Environment */
+                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_set_param_req_parameter_audio_env, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        break;
                     case 0x00: /* QOS IP TOS */
                     case 0x01: /* QOS 8021 VLID */
                     case 0x02: /* QOS 8021 PRI */
@@ -1506,6 +1590,16 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                     case 0x10: /* SET MMI PASSWORD */
                     case 0x14: /* ARP Spoofing */
                     case 0x15: /* Session Param */
+                    case 0x17: /* DTMF Level */
+                    case 0x18: /* Keep Talking */
+                    case 0x19: /* BT Radio */
+                    case 0x1A: /* Transparent Reboot */
+                    case 0x1D: /* Dialpad Rotation */
+                    case 0x1F: /* Set SSH Password */
+                    case 0x20: /* DHCP Survivability */
+                    case 0x21: /* USB Devices */
+                    case 0x25: /* EEE Configuration */
+                    case 0x26: /* LLDP Configuration */
                     case 0x30: /* MD5 Authentication */
                     default:
                         if ((parameter_length > 0) && (parameter_length <= 8)) {
@@ -4475,6 +4569,13 @@ proto_register_ua3g(void)
         { &hf_ua3g_ip_device_routing_set_param_req_parameter_set_pc_port_status, { "Set PC Port status", "ua3g.ip.set_param_req.parameter.set_pc_port_status", FT_UINT8, BASE_DEC, VALS(str_set_pc_port_status), 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_set_param_req_parameter_record_rtp_auth, { "Record RTP Authorization", "ua3g.ip.set_param_req.parameter.record_rtp_auth", FT_UINT8, BASE_DEC, VALS(str_enable_feature), 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_set_param_req_parameter_security_flag_filter, { "Filtering", "ua3g.ip.set_param_req.parameter.security_flag.filter", FT_BOOLEAN, 8, TFS(&tfs_active_inactive), 0x01, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_set_param_req_parameter_stable_mode, { "Stable Mode", "ua3g.ip.set_param_req.parameter.stable_mode", FT_UINT8, BASE_DEC, VALS(set_param_req_stable_mode), 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_set_param_req_parameter_skin_id, { "Skin Identifier", "ua3g.ip.set_param_req.parameter.skin_id", FT_UINT8, BASE_DEC, VALS(set_param_req_skin_id), 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_set_param_req_parameter_language_id, { "Language Identifier", "ua3g.ip.set_param_req.parameter.language_id", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_set_param_req_parameter_usb_boost, { "USB Boost", "ua3g.ip.set_param_req.parameter.usb_boost", FT_UINT8, BASE_DEC, VALS(set_param_req_usb_boost), 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_set_param_req_parameter_als_device, { "ALS Device", "ua3g.ip.set_param_req.parameter.als_device", FT_UINT8, BASE_DEC, VALS(set_param_req_local_device), 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_set_param_req_parameter_busy_light, { "Busy Light", "ua3g.ip.set_param_req.parameter.busy_light", FT_UINT8, BASE_DEC, VALS(set_param_req_local_device), 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_set_param_req_parameter_audio_env, { "Audio Env.", "ua3g.ip.set_param_req.parameter.audio_env", FT_UINT8, BASE_DEC, VALS(set_param_req_audio_env), 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_pause_restart_rtp_parameter_uint, { "Value", "ua3g.ip.pause_restart_rtp.parameter.uint", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_start_stop_record_rtp_parameter_value, { "Value", "ua3g.ip.start_stop_record_rtp.parameter.value", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_start_stop_record_rtp_parameter_remote_ip, { "Remote IP", "ua3g.ip.start_stop_record_rtp.parameter.remote_ip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
