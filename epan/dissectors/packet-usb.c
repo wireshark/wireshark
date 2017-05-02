@@ -1355,7 +1355,8 @@ static const guint32 darwin_endpoint_to_linux[] =
     URB_CONTROL,
     URB_ISOCHRONOUS,
     URB_BULK,
-    URB_INTERRUPT
+    URB_INTERRUPT,
+    URB_UNKNOWN
 };
 
 static value_string_ext usb_darwin_status_vals_ext = VALUE_STRING_EXT_INIT(darwin_usb_status_vals);
@@ -3666,11 +3667,11 @@ dissect_darwin_buffer_packet_header(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     proto_tree_add_uint(tree, hf_usb_darwin_endpoint_address, tvb, 30, 1, endpoint_byte);
     proto_tree_add_bitmask(tree, tvb, 30, hf_usb_endpoint_number, ett_usb_endpoint, usb_endpoint_fields, ENC_LITTLE_ENDIAN);
 
-    transfer_type = tvb_get_guint8(tvb, 31);
+    transfer_type = MIN(tvb_get_guint8(tvb, 31), G_N_ELEMENTS(darwin_endpoint_to_linux) - 1);
     usb_conv_info->transfer_type = darwin_endpoint_to_linux[transfer_type];
     proto_tree_add_uint(tree, hf_usb_darwin_endpoint_type, tvb, 31, 1, transfer_type);
 
-    transfer_type_and_direction = darwin_endpoint_to_linux[transfer_type] | (endpoint_byte & 0x80);
+    transfer_type_and_direction = (darwin_endpoint_to_linux[transfer_type] & 0x7F) | (endpoint_byte & 0x80);
     col_append_str(pinfo->cinfo, COL_INFO,
                    val_to_str(transfer_type_and_direction, usb_transfer_type_and_direction_vals, "Unknown type %x"));
     col_append_str(pinfo->cinfo, COL_INFO, usb_conv_info->is_request == TRUE ? " (submitted)" : " (completed)");
