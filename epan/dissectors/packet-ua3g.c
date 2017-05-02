@@ -1271,10 +1271,10 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
             offset++;
             length--;
 
-
             if (parameter_length > 0) {
                 switch (parameter_id) {
                 case 0x00: /* Remote MainCPU Server IP Address */
+                case 0x02: /* Remote Redundant MainCPU Server IP Address */
                     proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_redirect_parameter_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
                     break;
                 case 0x01: /* Remote MainCPU Server Port */
