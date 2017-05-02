@@ -853,7 +853,6 @@ static const value_string scsi_spc_vals[] = {
     /* 0x7F */    {SCSI_SPC_VARLENCDB          , "Variable Length CDB"},
     /* 0x83 */    {SCSI_SPC_EXTCOPY            , "Extended Copy"},
     /* 0x84 */    {SCSI_SPC_RECVCOPY           , "Receive Copy"},
-    /* 0x84 */    {SCSI_SPC_RCVCOPYRESULTS     , "Receive Copy Results"},
     /* 0x86 */    {SCSI_SPC_ACCESS_CONTROL_IN  , "Access Control In"},
     /* 0x87 */    {SCSI_SPC_ACCESS_CONTROL_OUT , "Access Control Out"},
     /* 0xA0 */    {SCSI_SPC_REPORTLUNS         , "Report LUNs"},

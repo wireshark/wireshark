@@ -125,7 +125,6 @@ typedef struct _scsi_cdb_table_t {
 #define SCSI_SPC_PERSRESVOUT             0x5F
 #define SCSI_SPC_PREVMEDREMOVAL          0x1E
 #define SCSI_SPC_READBUFFER              0x3C
-#define SCSI_SPC_RCVCOPYRESULTS          0x84
 #define SCSI_SPC_RCVDIAGRESULTS          0x1C
 #define SCSI_SPC_RELEASE6                0x17
 #define SCSI_SPC_RELEASE10               0x57
