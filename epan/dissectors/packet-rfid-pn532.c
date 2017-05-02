@@ -496,7 +496,7 @@ static const value_string pn532_sam_modes[] = {
     {0x01,  "Normal Mode"},
     {0x02,  "Virtual Card Mode"},
     {0x03,  "Wired Card Mode"},
-    {0x03,  "Dual Card Mode"},
+    {0x04,  "Dual Card Mode"},
     {0x00, NULL}
 };
 
