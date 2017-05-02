@@ -238,6 +238,9 @@ static int hf_ua3g_ip_device_routing_reset_parameter_value = -1;
 static int hf_ua3g_ip_device_routing_reset_parameter_bad_sec_mode = -1;
 static int hf_ua3g_ip_device_routing_reset_parameter_cust_name = -1;
 static int hf_ua3g_ip_device_routing_reset_parameter_l10n_name = -1;
+static int hf_ua3g_ip_device_routing_reset_parameter_appl_mode = -1;
+static int hf_ua3g_ip_device_routing_reset_parameter_sip_name = -1;
+static int hf_ua3g_ip_device_routing_reset_parameter_reset_mac = -1;
 static int hf_ua3g_ip_device_routing_start_rtp_parameter_ip = -1;
 static int hf_ua3g_ip_device_routing_start_rtp_parameter_compressor = -1;
 static int hf_ua3g_ip_device_routing_start_rtp_parameter_value = -1;
@@ -1097,6 +1100,15 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                         break;
                     case 0x03: /* L10N_Name */
                         proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_reset_parameter_l10n_name, tvb, offset, parameter_length, ENC_NA|ENC_ASCII);
+                        break;
+                    case 0x04: /* Appl_Mode */
+                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_reset_parameter_appl_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        break;
+                    case 0x05: /* SIP_Name */
+                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_reset_parameter_sip_name, tvb, offset, parameter_length, ENC_NA|ENC_ASCII);
+                        break;
+                    case 0x06: /* Appl_Mode */
+                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_reset_parameter_reset_mac, tvb, offset, 1, ENC_BIG_ENDIAN);
                         break;
                     default:
                         proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_reset_parameter_value, tvb, offset, parameter_length, ENC_NA);
@@ -4433,6 +4445,9 @@ proto_register_ua3g(void)
         { &hf_ua3g_ip_device_routing_reset_parameter_value, { "Value", "ua3g.ip.reset.parameter.value", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_reset_parameter_cust_name, { "Cust_Name", "ua3g.ip.reset.parameter.cust_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_reset_parameter_l10n_name, { "L10N_Name", "ua3g.ip.reset.parameter.l10n_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_reset_parameter_appl_mode, { "Appl_Mode", "ua3g.ip.reset.parameter.appl_mode", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_reset_parameter_sip_name, { "SIP_Name", "ua3g.ip.reset.parameter.sip_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_reset_parameter_reset_mac, { "Reset Mac", "ua3g.ip.reset.parameter.reset_mac", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_start_rtp_parameter_value, { "Value", "ua3g.ip.start_rtp.parameter.value", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_start_rtp_parameter_ip, { "IP", "ua3g.ip.start_rtp.parameter.ip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_start_rtp_parameter_compressor, { "Compressor", "ua3g.ip.start_rtp.parameter.compressor", FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(str_compressor_vals), 0x0, NULL, HFILL }},
