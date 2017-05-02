@@ -174,6 +174,7 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_PSK_KEY_EXCHANGE_MODES        45
 #define SSL_HND_HELLO_EXT_CERTIFICATE_AUTHORITIES       47
 #define SSL_HND_HELLO_EXT_OID_FILTERS                   48
+#define SSL_HND_HELLO_EXT_POST_HANDSHAKE_AUTH           49
 #define SSL_HND_HELLO_EXT_NPN                           13172 /* 0x3374 */
 #define SSL_HND_HELLO_EXT_CHANNEL_ID_OLD                30031 /* 0x754f */
 #define SSL_HND_HELLO_EXT_CHANNEL_ID                    30032 /* 0x7550 */

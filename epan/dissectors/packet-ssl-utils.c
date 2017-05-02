@@ -1191,6 +1191,7 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_PSK_KEY_EXCHANGE_MODES, "psk_key_exchange_modes" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
     { SSL_HND_HELLO_EXT_CERTIFICATE_AUTHORITIES, "certificate_authorities" }, /* https://tools.ietf.org/html/draft-ietf-tls-tls13-19#section-4.2.3.1 */
     { SSL_HND_HELLO_EXT_OID_FILTERS, "oid_filters" }, /* https://tools.ietf.org/html/draft-ietf-tls-tls13-19#section-4.3.2.1 */
+    { SSL_HND_HELLO_EXT_POST_HANDSHAKE_AUTH, "post_handshake_auth" }, /* https://tools.ietf.org/html/draft-ietf-tls-tls13-20#section-4.2.5 */
     { SSL_HND_HELLO_EXT_NPN, "next_protocol_negotiation"}, /* https://tools.ietf.org/id/draft-agl-tls-nextprotoneg-03.html */
     { SSL_HND_HELLO_EXT_CHANNEL_ID_OLD, "channel_id_old" }, /* http://tools.ietf.org/html/draft-balfanz-tls-channelid-00
        https://twitter.com/ericlaw/status/274237352531083264 */
@@ -7929,6 +7930,8 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             break;
         case SSL_HND_HELLO_EXT_OID_FILTERS:
             offset = ssl_dissect_hnd_hello_ext_oid_filters(hf, tvb, pinfo, ext_tree, offset, next_offset);
+            break;
+        case SSL_HND_HELLO_EXT_POST_HANDSHAKE_AUTH:
             break;
         case SSL_HND_HELLO_EXT_NPN:
             offset = ssl_dissect_hnd_hello_ext_npn(hf, tvb, pinfo, ext_tree, offset, next_offset);
