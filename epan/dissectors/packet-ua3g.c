@@ -275,6 +275,12 @@ static int hf_ua3g_ip_device_routing_pause_restart_rtp_parameter_uint = -1;
 static int hf_ua3g_ip_device_routing_start_stop_record_rtp_parameter_remote_ip = -1;
 static int hf_ua3g_ip_device_routing_start_stop_record_rtp_parameter_uint = -1;
 static int hf_ua3g_ip_device_routing_start_stop_record_rtp_parameter_value = -1;
+static int hf_ua3g_ip_device_routing_freeseating_parameter = -1;
+static int hf_ua3g_ip_device_routing_freeseating_parameter_length = -1;
+static int hf_ua3g_ip_device_routing_freeseating_parameter_mac = -1;
+static int hf_ua3g_ip_device_routing_freeseating_parameter_ip = -1;
+static int hf_ua3g_ip_device_routing_freeseating_parameter_uint = -1;
+static int hf_ua3g_ip_device_routing_freeseating_parameter_value = -1;
 static int hf_ua3g_main_voice_mode_handset_level = -1;
 static int hf_ua3g_main_voice_mode_headset_level = -1;
 static int hf_ua3g_main_voice_mode_handsfree_level = -1;
@@ -855,6 +861,8 @@ static const value_string str_command_ip_device_routing[] = {
     {0x0D, "Restart RTP"},
     {0x0E, "Start Record RTP"},
     {0x0F, "Stop Record RTP"},
+    {0x10, "Set SIP Parameters"},
+    {0x11, "Free Seating"},
     {0, NULL}
 };
 
@@ -1055,6 +1063,13 @@ static const value_string ip_device_routing_cmd_record_rtp_vals[] = {
     {0x10   , "Integrity checking enabled for this communication"},
     {0x11   , "Integrity method of Thales component"},
     {0x30   , "MD5 Authentication"},
+    {0, NULL}
+};
+
+static const value_string ip_device_routing_cmd_freeseating_vals[] = {
+    {0x00   , "Pseudo MAC Address"},
+    {0x01   , "Maincpu1"},
+    {0x02   , "Maincpu2"},
     {0, NULL}
 };
 
@@ -1697,6 +1712,48 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                     break;
                 }
 
+                offset += parameter_length;
+                length -= parameter_length;
+            }
+        }
+        break;
+    case 0x10: /* Set SIP Parameters */
+        break;
+    case 0x11: /* Free Seating */
+        while (length > 0) {
+            parameter_id     = tvb_get_guint8(tvb, offset);
+            parameter_length = tvb_get_guint8(tvb, offset + 1);
+
+            ua3g_param_item = proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_ip_device_routing_freeseating_parameter, tvb, offset,
+                parameter_length + 2, parameter_id, "%s",
+                val_to_str_const(parameter_id, ip_device_routing_cmd_freeseating_vals, "Unknown"));
+            ua3g_param_tree = proto_item_add_subtree(ua3g_param_item, ett_ua3g_param);
+
+            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_freeseating_parameter, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            length--;
+
+            proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_freeseating_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            length--;
+
+            if (parameter_length > 0) {
+                switch (parameter_id) {
+                case 0x00: /* Pseudo Mac Address */
+                    proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_freeseating_parameter_mac, tvb, offset, 6, ENC_NA);
+                    break;
+                case 0x01: /* Maincpu1 */
+                case 0x02: /* Maincpu2 */
+                    proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_freeseating_parameter_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    break;
+                default:
+                    if (parameter_length <= 8) {
+                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_freeseating_parameter_uint, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
+                    } else {
+                        proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_freeseating_parameter_value, tvb, offset, parameter_length, ENC_NA);
+                    }
+                    break;
+                }
                 offset += parameter_length;
                 length -= parameter_length;
             }
@@ -4580,6 +4637,12 @@ proto_register_ua3g(void)
         { &hf_ua3g_ip_device_routing_start_stop_record_rtp_parameter_value, { "Value", "ua3g.ip.start_stop_record_rtp.parameter.value", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_start_stop_record_rtp_parameter_remote_ip, { "Remote IP", "ua3g.ip.start_stop_record_rtp.parameter.remote_ip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_start_stop_record_rtp_parameter_uint, { "Value", "ua3g.ip.start_stop_record_rtp.parameter.uint", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_freeseating_parameter, { "Parameter", "ua3g.ip.freeseating.parameter", FT_UINT8, BASE_HEX, VALS(ip_device_routing_cmd_freeseating_vals), 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_freeseating_parameter_length, { "Length", "ua3g.ip.freeseating.parameter.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_freeseating_parameter_value, { "Value", "ua3g.ip.freeseating.parameter.value", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_freeseating_parameter_uint, { "Value", "ua3g.ip.freeseating.parameter.uint", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_freeseating_parameter_mac, { "Value", "ua3g.ip.freeseating.parameter.mac", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_freeseating_parameter_ip, { "Value", "ua3g.ip.freeseating.parameter.ip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_audio_config_dpi_chan_ua_tx1, { "UA Channel UA-TX1", "ua3g.command.audio_config.dpi_chan.ua_tx1", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_audio_config_dpi_chan_ua_tx2, { "UA Channel UA-TX2", "ua3g.command.audio_config.dpi_chan.ua_tx2", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_audio_config_dpi_chan_gci_tx1, { "GCI Channel GCI-TX1", "ua3g.command.audio_config.dpi_chan.gci_tx1", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
