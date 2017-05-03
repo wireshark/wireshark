@@ -51,6 +51,7 @@ static gint proto_gsm_map = -1;
 static gint proto_sip     = -1;
 
 void proto_register_gsm_sms(void);
+void proto_reg_handoff_gsm_sms(void);
 
 #define MAX_SMS_FRAG_LEN      134
 
