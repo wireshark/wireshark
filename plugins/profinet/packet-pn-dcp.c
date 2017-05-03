@@ -182,7 +182,7 @@ static const value_string pn_dcp_BlockQualifier[] = {
     { 0x000B, "Reset engineering parameter" },
     { 0x000C, "Reserved" },
     { 0x000D, "Reserved" },
-    { 0x0009, "Reserved" },
+    { 0x000E, "Reserved" },
     { 0x0010, "Resets all stored data in the IOD or IOC to its factory values" },
     { 0x0011, "Resets all stored data in the IOD or IOC to its factory values" },
     { 0x0012, "Reset and restore data" },
