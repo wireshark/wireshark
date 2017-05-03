@@ -7505,6 +7505,7 @@ proto_reg_handoff_tcp(void)
     capture_dissector_handle_t tcp_cap_handle;
 
     dissector_add_uint("ip.proto", IP_PROTO_TCP, tcp_handle);
+    dissector_add_for_decode_as_with_preference("udp.port", tcp_handle);
     data_handle = find_dissector("data");
     sport_handle = find_dissector("sport");
     tcp_tap = register_tap("tcp");
