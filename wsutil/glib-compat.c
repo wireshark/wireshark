@@ -62,6 +62,20 @@ g_list_free_full(GList          *list,
     g_list_free(list);
 }
 
+/**
+* g_get_monotonic_time:
+*
+* Queries the system monotonic time.  Returns value in microseconds.
+*
+* Since: 2.28
+*/
+gint64 g_get_monotonic_time (void)
+{
+    GTimeVal result;
+    g_get_current_time(&result);
+    return result.tv_sec*1000000 + result.tv_usec;
+}
+
 #endif
 /*
 * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

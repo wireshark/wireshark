@@ -37,6 +37,10 @@
 #include "wsutil/wsgetopt.h"
 #endif
 
+#ifndef _WIN32
+#include <wsutil/glib-compat.h>
+#endif
+
 #include <wsutil/clopts_common.h>
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/crash_info.h>
