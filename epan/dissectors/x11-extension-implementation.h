@@ -9937,6 +9937,7 @@ static void struct_randr_ModeInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root,
                 &hf_x11_struct_randr_ModeInfo_mode_flags_mask_PixelMultiplex,
                 &hf_x11_struct_randr_ModeInfo_mode_flags_mask_DoubleClock,
                 &hf_x11_struct_randr_ModeInfo_mode_flags_mask_HalveClock,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_randr_ModeInfo_mode_flags, ett_x11_rectangle, mode_flags_bits, byte_order);
         }
@@ -9969,6 +9970,7 @@ static void struct_randr_CrtcChange(tvbuff_t *tvb, int *offsetp, proto_tree *roo
                 &hf_x11_struct_randr_CrtcChange_rotation_mask_Rotate_270,
                 &hf_x11_struct_randr_CrtcChange_rotation_mask_Reflect_X,
                 &hf_x11_struct_randr_CrtcChange_rotation_mask_Reflect_Y,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_randr_CrtcChange_rotation, ett_x11_rectangle, rotation_bits, byte_order);
         }
@@ -10015,6 +10017,7 @@ static void struct_randr_OutputChange(tvbuff_t *tvb, int *offsetp, proto_tree *r
                 &hf_x11_struct_randr_OutputChange_rotation_mask_Rotate_270,
                 &hf_x11_struct_randr_OutputChange_rotation_mask_Reflect_X,
                 &hf_x11_struct_randr_OutputChange_rotation_mask_Reflect_Y,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_randr_OutputChange_rotation, ett_x11_rectangle, rotation_bits, byte_order);
         }
@@ -10341,6 +10344,7 @@ static void presentSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
         &hf_x11_present_SelectInput_event_mask_mask_CompleteNotify,
         &hf_x11_present_SelectInput_event_mask_mask_IdleNotify,
         &hf_x11_present_SelectInput_event_mask_mask_RedirectNotify,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_present_SelectInput_event_mask, ett_x11_rectangle, event_mask_bits, byte_order);
     }
@@ -10563,6 +10567,7 @@ static void randrSetScreenConfig(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
         &hf_x11_randr_SetScreenConfig_rotation_mask_Rotate_270,
         &hf_x11_randr_SetScreenConfig_rotation_mask_Reflect_X,
         &hf_x11_randr_SetScreenConfig_rotation_mask_Reflect_Y,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_randr_SetScreenConfig_rotation, ett_x11_rectangle, rotation_bits, byte_order);
     }
@@ -10610,6 +10615,7 @@ static void randrSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
         &hf_x11_randr_SelectInput_enable_mask_ProviderChange,
         &hf_x11_randr_SelectInput_enable_mask_ProviderProperty,
         &hf_x11_randr_SelectInput_enable_mask_ResourceChange,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_randr_SelectInput_enable, ett_x11_rectangle, enable_bits, byte_order);
     }
@@ -10640,6 +10646,7 @@ static void randrGetScreenInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
         &hf_x11_randr_GetScreenInfo_reply_rotations_mask_Rotate_270,
         &hf_x11_randr_GetScreenInfo_reply_rotations_mask_Reflect_X,
         &hf_x11_randr_GetScreenInfo_reply_rotations_mask_Reflect_Y,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_randr_GetScreenInfo_reply_rotations, ett_x11_rectangle, rotations_bits, byte_order);
     }
@@ -10669,6 +10676,7 @@ static void randrGetScreenInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
         &hf_x11_randr_GetScreenInfo_reply_rotation_mask_Rotate_270,
         &hf_x11_randr_GetScreenInfo_reply_rotation_mask_Reflect_X,
         &hf_x11_randr_GetScreenInfo_reply_rotation_mask_Reflect_Y,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_randr_GetScreenInfo_reply_rotation, ett_x11_rectangle, rotation_bits, byte_order);
     }
@@ -11083,6 +11091,7 @@ static void randrGetCrtcInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
         &hf_x11_randr_GetCrtcInfo_reply_rotation_mask_Rotate_270,
         &hf_x11_randr_GetCrtcInfo_reply_rotation_mask_Reflect_X,
         &hf_x11_randr_GetCrtcInfo_reply_rotation_mask_Reflect_Y,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_randr_GetCrtcInfo_reply_rotation, ett_x11_rectangle, rotation_bits, byte_order);
     }
@@ -11095,6 +11104,7 @@ static void randrGetCrtcInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
         &hf_x11_randr_GetCrtcInfo_reply_rotations_mask_Rotate_270,
         &hf_x11_randr_GetCrtcInfo_reply_rotations_mask_Reflect_X,
         &hf_x11_randr_GetCrtcInfo_reply_rotations_mask_Reflect_Y,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_randr_GetCrtcInfo_reply_rotations, ett_x11_rectangle, rotations_bits, byte_order);
     }
@@ -11131,6 +11141,7 @@ static void randrSetCrtcConfig(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
         &hf_x11_randr_SetCrtcConfig_rotation_mask_Rotate_270,
         &hf_x11_randr_SetCrtcConfig_rotation_mask_Reflect_X,
         &hf_x11_randr_SetCrtcConfig_rotation_mask_Reflect_Y,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_randr_SetCrtcConfig_rotation, ett_x11_rectangle, rotation_bits, byte_order);
     }
@@ -11554,6 +11565,7 @@ static void randrGetProviderInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
         &hf_x11_randr_GetProviderInfo_reply_capabilities_mask_SinkOutput,
         &hf_x11_randr_GetProviderInfo_reply_capabilities_mask_SourceOffload,
         &hf_x11_randr_GetProviderInfo_reply_capabilities_mask_SinkOffload,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_randr_GetProviderInfo_reply_capabilities, ett_x11_rectangle, capabilities_bits, byte_order);
     }
@@ -12525,6 +12537,7 @@ static void renderCreatePicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
         &hf_x11_render_CreatePicture_value_mask_mask_PolyMode,
         &hf_x11_render_CreatePicture_value_mask_mask_Dither,
         &hf_x11_render_CreatePicture_value_mask_mask_ComponentAlpha,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_render_CreatePicture_value_mask, ett_x11_rectangle, value_mask_bits, byte_order);
     }
@@ -12600,6 +12613,7 @@ static void renderChangePicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
         &hf_x11_render_ChangePicture_value_mask_mask_PolyMode,
         &hf_x11_render_ChangePicture_value_mask_mask_Dither,
         &hf_x11_render_ChangePicture_value_mask_mask_ComponentAlpha,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_render_ChangePicture_value_mask, ett_x11_rectangle, value_mask_bits, byte_order);
     }
@@ -13241,6 +13255,7 @@ static void struct_res_ClientIdSpec(tvbuff_t *tvb, int *offsetp, proto_tree *roo
             const int* mask_bits [] = {
                 &hf_x11_struct_res_ClientIdSpec_mask_mask_ClientXID,
                 &hf_x11_struct_res_ClientIdSpec_mask_mask_LocalClientPID,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_res_ClientIdSpec_mask, ett_x11_rectangle, mask_bits, byte_order);
         }
@@ -13647,6 +13662,7 @@ static void screensaverSelectInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
         const int* event_mask_bits [] = {
         &hf_x11_screensaver_SelectInput_event_mask_mask_NotifyMask,
         &hf_x11_screensaver_SelectInput_event_mask_mask_CycleMask,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_screensaver_SelectInput_event_mask, ett_x11_rectangle, event_mask_bits, byte_order);
     }
@@ -13691,6 +13707,7 @@ static void screensaverSetAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int 
         &hf_x11_screensaver_SetAttributes_value_mask_mask_DontPropagate,
         &hf_x11_screensaver_SetAttributes_value_mask_mask_Colormap,
         &hf_x11_screensaver_SetAttributes_value_mask_mask_Cursor,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_screensaver_SetAttributes_value_mask, ett_x11_rectangle, value_mask_bits, byte_order);
     }
@@ -13762,6 +13779,7 @@ static void screensaverSetAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int 
                 &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_PropertyChange,
                 &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_ColorMapChange,
                 &hf_x11_screensaver_SetAttributes_EventMask_event_mask_mask_OwnerGrabButton,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_screensaver_SetAttributes_EventMask_event_mask, ett_x11_rectangle, event_mask_bits, byte_order);
         }
@@ -13795,6 +13813,7 @@ static void screensaverSetAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int 
                 &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_PropertyChange,
                 &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_ColorMapChange,
                 &hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask_mask_OwnerGrabButton,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask, ett_x11_rectangle, do_not_propogate_mask_bits, byte_order);
         }
@@ -14518,6 +14537,7 @@ static void syncCreateAlarm(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         &hf_x11_sync_CreateAlarm_value_mask_mask_TestType,
         &hf_x11_sync_CreateAlarm_value_mask_mask_Delta,
         &hf_x11_sync_CreateAlarm_value_mask_mask_Events,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_sync_CreateAlarm_value_mask, ett_x11_rectangle, value_mask_bits, byte_order);
     }
@@ -14558,6 +14578,7 @@ static void syncChangeAlarm(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         &hf_x11_sync_ChangeAlarm_value_mask_mask_TestType,
         &hf_x11_sync_ChangeAlarm_value_mask_mask_Delta,
         &hf_x11_sync_ChangeAlarm_value_mask_mask_Events,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_sync_ChangeAlarm_value_mask, ett_x11_rectangle, value_mask_bits, byte_order);
     }
@@ -15624,6 +15645,7 @@ static void struct_xf86vidmode_ModeInfo(tvbuff_t *tvb, int *offsetp, proto_tree 
                 &hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Pixmux,
                 &hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Double_Clock,
                 &hf_x11_struct_xf86vidmode_ModeInfo_flags_mask_Half_Clock,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xf86vidmode_ModeInfo_flags, ett_x11_rectangle, flags_bits, byte_order);
         }
@@ -15719,6 +15741,7 @@ static void xf86vidmodeGetModeLine_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
         &hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Pixmux,
         &hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Double_Clock,
         &hf_x11_xf86vidmode_GetModeLine_reply_flags_mask_Half_Clock,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_GetModeLine_reply_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
@@ -15771,6 +15794,7 @@ static void xf86vidmodeModModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
         &hf_x11_xf86vidmode_ModModeLine_flags_mask_Pixmux,
         &hf_x11_xf86vidmode_ModModeLine_flags_mask_Double_Clock,
         &hf_x11_xf86vidmode_ModModeLine_flags_mask_Half_Clock,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_ModModeLine_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
@@ -15920,6 +15944,7 @@ static void xf86vidmodeAddModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
         &hf_x11_xf86vidmode_AddModeLine_flags_mask_Pixmux,
         &hf_x11_xf86vidmode_AddModeLine_flags_mask_Double_Clock,
         &hf_x11_xf86vidmode_AddModeLine_flags_mask_Half_Clock,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_AddModeLine_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
@@ -15966,6 +15991,7 @@ static void xf86vidmodeAddModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
         &hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Pixmux,
         &hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Double_Clock,
         &hf_x11_xf86vidmode_AddModeLine_after_flags_mask_Half_Clock,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_AddModeLine_after_flags, ett_x11_rectangle, after_flags_bits, byte_order);
     }
@@ -16018,6 +16044,7 @@ static void xf86vidmodeDeleteModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int
         &hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Pixmux,
         &hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Double_Clock,
         &hf_x11_xf86vidmode_DeleteModeLine_flags_mask_Half_Clock,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_DeleteModeLine_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
@@ -16073,6 +16100,7 @@ static void xf86vidmodeValidateModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, i
         &hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Pixmux,
         &hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Double_Clock,
         &hf_x11_xf86vidmode_ValidateModeLine_flags_mask_Half_Clock,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_ValidateModeLine_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
@@ -16148,6 +16176,7 @@ static void xf86vidmodeSwitchToMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *
         &hf_x11_xf86vidmode_SwitchToMode_flags_mask_Pixmux,
         &hf_x11_xf86vidmode_SwitchToMode_flags_mask_Double_Clock,
         &hf_x11_xf86vidmode_SwitchToMode_flags_mask_Half_Clock,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_SwitchToMode_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
@@ -16231,6 +16260,7 @@ static void xf86vidmodeGetDotClocks_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     {
         const int* flags_bits [] = {
         &hf_x11_xf86vidmode_GetDotClocks_reply_flags_mask_Programable,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_GetDotClocks_reply_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
@@ -16404,6 +16434,7 @@ static void xf86vidmodeGetPermissions_Reply(tvbuff_t *tvb, packet_info *pinfo, i
         const int* permissions_bits [] = {
         &hf_x11_xf86vidmode_GetPermissions_reply_permissions_mask_Read,
         &hf_x11_xf86vidmode_GetPermissions_reply_permissions_mask_Write,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_GetPermissions_reply_permissions, ett_x11_rectangle, permissions_bits, byte_order);
     }
@@ -16588,6 +16619,7 @@ static void xfixesSelectSelectionInput(tvbuff_t *tvb, packet_info *pinfo _U_, in
         &hf_x11_xfixes_SelectSelectionInput_event_mask_mask_SetSelectionOwner,
         &hf_x11_xfixes_SelectSelectionInput_event_mask_mask_SelectionWindowDestroy,
         &hf_x11_xfixes_SelectSelectionInput_event_mask_mask_SelectionClientClose,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xfixes_SelectSelectionInput_event_mask, ett_x11_rectangle, event_mask_bits, byte_order);
     }
@@ -16617,6 +16649,7 @@ static void xfixesSelectCursorInput(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     {
         const int* event_mask_bits [] = {
         &hf_x11_xfixes_SelectCursorInput_event_mask_mask_DisplayCursor,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xfixes_SelectCursorInput_event_mask, ett_x11_rectangle, event_mask_bits, byte_order);
     }
@@ -17010,6 +17043,7 @@ static void xfixesCreatePointerBarrier(tvbuff_t *tvb, packet_info *pinfo _U_, in
         &hf_x11_xfixes_CreatePointerBarrier_directions_mask_PositiveY,
         &hf_x11_xfixes_CreatePointerBarrier_directions_mask_NegativeX,
         &hf_x11_xfixes_CreatePointerBarrier_directions_mask_NegativeY,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xfixes_CreatePointerBarrier_directions, ett_x11_rectangle, directions_bits, byte_order);
     }
@@ -17968,6 +18002,7 @@ static void xinputGrabDeviceKey(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
         &hf_x11_xinput_GrabDeviceKey_modifiers_mask_4,
         &hf_x11_xinput_GrabDeviceKey_modifiers_mask_5,
         &hf_x11_xinput_GrabDeviceKey_modifiers_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_GrabDeviceKey_modifiers, ett_x11_rectangle, modifiers_bits, byte_order);
     }
@@ -18001,6 +18036,7 @@ static void xinputUngrabDeviceKey(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
         &hf_x11_xinput_UngrabDeviceKey_modifiers_mask_4,
         &hf_x11_xinput_UngrabDeviceKey_modifiers_mask_5,
         &hf_x11_xinput_UngrabDeviceKey_modifiers_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_UngrabDeviceKey_modifiers, ett_x11_rectangle, modifiers_bits, byte_order);
     }
@@ -18033,6 +18069,7 @@ static void xinputGrabDeviceButton(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
         &hf_x11_xinput_GrabDeviceButton_modifiers_mask_4,
         &hf_x11_xinput_GrabDeviceButton_modifiers_mask_5,
         &hf_x11_xinput_GrabDeviceButton_modifiers_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_GrabDeviceButton_modifiers, ett_x11_rectangle, modifiers_bits, byte_order);
     }
@@ -18063,6 +18100,7 @@ static void xinputUngrabDeviceButton(tvbuff_t *tvb, packet_info *pinfo _U_, int 
         &hf_x11_xinput_UngrabDeviceButton_modifiers_mask_4,
         &hf_x11_xinput_UngrabDeviceButton_modifiers_mask_5,
         &hf_x11_xinput_UngrabDeviceButton_modifiers_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_UngrabDeviceButton_modifiers, ett_x11_rectangle, modifiers_bits, byte_order);
     }
@@ -18336,6 +18374,7 @@ static void xinputChangeFeedbackControl(tvbuff_t *tvb, packet_info *pinfo _U_, i
         &hf_x11_xinput_ChangeFeedbackControl_mask_mask_LedMode,
         &hf_x11_xinput_ChangeFeedbackControl_mask_mask_Key,
         &hf_x11_xinput_ChangeFeedbackControl_mask_mask_AutoRepeatMode,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_ChangeFeedbackControl_mask, ett_x11_rectangle, mask_bits, byte_order);
     }
@@ -18576,6 +18615,7 @@ static void struct_xinput_InputState(tvbuff_t *tvb, int *offsetp, proto_tree *ro
                 const int* mode_bits [] = {
                         &hf_x11_struct_xinput_InputState_Valuator_mode_mask_DeviceModeAbsolute,
                         &hf_x11_struct_xinput_InputState_Valuator_mode_mask_OutOfProximity,
+                        NULL
                 };
                 proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xinput_InputState_Valuator_mode, ett_x11_rectangle, mode_bits, byte_order);
             }
@@ -19379,6 +19419,7 @@ static void struct_xinput_DeviceClass(tvbuff_t *tvb, int *offsetp, proto_tree *r
                 const int* flags_bits [] = {
                         &hf_x11_struct_xinput_DeviceClass_Scroll_flags_mask_NoEmulation,
                         &hf_x11_struct_xinput_DeviceClass_Scroll_flags_mask_Preferred,
+                        NULL
                 };
                 proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xinput_DeviceClass_Scroll_flags, ett_x11_rectangle, flags_bits, byte_order);
             }
@@ -19891,6 +19932,7 @@ static void xinputDeviceKeyPress(tvbuff_t *tvb, int *offsetp, proto_tree *t, gui
         &hf_x11_xinput_DeviceKeyPress_state_mask_Button3,
         &hf_x11_xinput_DeviceKeyPress_state_mask_Button4,
         &hf_x11_xinput_DeviceKeyPress_state_mask_Button5,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_DeviceKeyPress_state, ett_x11_rectangle, state_bits, byte_order);
     }
@@ -19938,6 +19980,7 @@ static void xinputDeviceStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
         &hf_x11_xinput_DeviceStateNotify_classes_reported_mask_ReportingValuators,
         &hf_x11_xinput_DeviceStateNotify_classes_reported_mask_DeviceModeAbsolute,
         &hf_x11_xinput_DeviceStateNotify_classes_reported_mask_OutOfProximity,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_DeviceStateNotify_classes_reported, ett_x11_rectangle, classes_reported_bits, byte_order);
     }
@@ -20085,6 +20128,7 @@ static void xinputKeyPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tr
     {
         const int* flags_bits [] = {
         &hf_x11_xinput_KeyPress_flags_mask_KeyRepeat,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_KeyPress_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
@@ -20140,6 +20184,7 @@ static void xinputButtonPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto
     {
         const int* flags_bits [] = {
         &hf_x11_xinput_ButtonPress_flags_mask_PointerEmulated,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_ButtonPress_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
@@ -20221,6 +20266,7 @@ static void struct_xinput_HierarchyInfo(tvbuff_t *tvb, int *offsetp, proto_tree 
                 &hf_x11_struct_xinput_HierarchyInfo_flags_mask_SlaveDetached,
                 &hf_x11_struct_xinput_HierarchyInfo_flags_mask_DeviceEnabled,
                 &hf_x11_struct_xinput_HierarchyInfo_flags_mask_DeviceDisabled,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xinput_HierarchyInfo_flags, ett_x11_rectangle, flags_bits, byte_order);
         }
@@ -20245,6 +20291,7 @@ static void xinputHierarchy(tvbuff_t *tvb, int length _U_, int *offsetp, proto_t
         &hf_x11_xinput_Hierarchy_flags_mask_SlaveDetached,
         &hf_x11_xinput_Hierarchy_flags_mask_DeviceEnabled,
         &hf_x11_xinput_Hierarchy_flags_mask_DeviceDisabled,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_Hierarchy_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
@@ -20290,6 +20337,7 @@ static void xinputRawKeyPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto
     {
         const int* flags_bits [] = {
         &hf_x11_xinput_RawKeyPress_flags_mask_KeyRepeat,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_RawKeyPress_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
@@ -20326,6 +20374,7 @@ static void xinputRawButtonPress(tvbuff_t *tvb, int length _U_, int *offsetp, pr
     {
         const int* flags_bits [] = {
         &hf_x11_xinput_RawButtonPress_flags_mask_PointerEmulated,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_RawButtonPress_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
@@ -20382,6 +20431,7 @@ static void xinputTouchBegin(tvbuff_t *tvb, int length _U_, int *offsetp, proto_
         const int* flags_bits [] = {
         &hf_x11_xinput_TouchBegin_flags_mask_TouchPendingEnd,
         &hf_x11_xinput_TouchBegin_flags_mask_TouchEmulatingPointer,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_TouchBegin_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
@@ -20442,6 +20492,7 @@ static void xinputRawTouchBegin(tvbuff_t *tvb, int length _U_, int *offsetp, pro
         const int* flags_bits [] = {
         &hf_x11_xinput_RawTouchBegin_flags_mask_TouchPendingEnd,
         &hf_x11_xinput_RawTouchBegin_flags_mask_TouchEmulatingPointer,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_RawTouchBegin_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
@@ -20480,6 +20531,7 @@ static void xinputBarrierHit(tvbuff_t *tvb, int length _U_, int *offsetp, proto_
         const int* flags_bits [] = {
         &hf_x11_xinput_BarrierHit_flags_mask_PointerReleased,
         &hf_x11_xinput_BarrierHit_flags_mask_DeviceIsGrabbed,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_BarrierHit_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
@@ -20874,6 +20926,7 @@ static void struct_xkb_IndicatorMap(tvbuff_t *tvb, int *offsetp, proto_tree *roo
                 &hf_x11_struct_xkb_IndicatorMap_mods_mask_4,
                 &hf_x11_struct_xkb_IndicatorMap_mods_mask_5,
                 &hf_x11_struct_xkb_IndicatorMap_mods_mask_Any,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_IndicatorMap_mods, ett_x11_rectangle, mods_bits, byte_order);
         }
@@ -20889,6 +20942,7 @@ static void struct_xkb_IndicatorMap(tvbuff_t *tvb, int *offsetp, proto_tree *roo
                 &hf_x11_struct_xkb_IndicatorMap_realMods_mask_4,
                 &hf_x11_struct_xkb_IndicatorMap_realMods_mask_5,
                 &hf_x11_struct_xkb_IndicatorMap_realMods_mask_Any,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_IndicatorMap_realMods, ett_x11_rectangle, realMods_bits, byte_order);
         }
@@ -20911,6 +20965,7 @@ static void struct_xkb_IndicatorMap(tvbuff_t *tvb, int *offsetp, proto_tree *roo
                 &hf_x11_struct_xkb_IndicatorMap_vmods_mask_13,
                 &hf_x11_struct_xkb_IndicatorMap_vmods_mask_14,
                 &hf_x11_struct_xkb_IndicatorMap_vmods_mask_15,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_IndicatorMap_vmods, ett_x11_rectangle, vmods_bits, byte_order);
         }
@@ -20930,6 +20985,7 @@ static void struct_xkb_IndicatorMap(tvbuff_t *tvb, int *offsetp, proto_tree *roo
                 &hf_x11_struct_xkb_IndicatorMap_ctrls_mask_Overlay1Mask,
                 &hf_x11_struct_xkb_IndicatorMap_ctrls_mask_Overlay2Mask,
                 &hf_x11_struct_xkb_IndicatorMap_ctrls_mask_IgnoreGroupLockMask,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_IndicatorMap_ctrls, ett_x11_rectangle, ctrls_bits, byte_order);
         }
@@ -20957,6 +21013,7 @@ static void struct_xkb_ModDef(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
                 &hf_x11_struct_xkb_ModDef_mask_mask_4,
                 &hf_x11_struct_xkb_ModDef_mask_mask_5,
                 &hf_x11_struct_xkb_ModDef_mask_mask_Any,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_ModDef_mask, ett_x11_rectangle, mask_bits, byte_order);
         }
@@ -20972,6 +21029,7 @@ static void struct_xkb_ModDef(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
                 &hf_x11_struct_xkb_ModDef_realMods_mask_4,
                 &hf_x11_struct_xkb_ModDef_realMods_mask_5,
                 &hf_x11_struct_xkb_ModDef_realMods_mask_Any,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_ModDef_realMods, ett_x11_rectangle, realMods_bits, byte_order);
         }
@@ -20994,6 +21052,7 @@ static void struct_xkb_ModDef(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
                 &hf_x11_struct_xkb_ModDef_vmods_mask_13,
                 &hf_x11_struct_xkb_ModDef_vmods_mask_14,
                 &hf_x11_struct_xkb_ModDef_vmods_mask_15,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_ModDef_vmods, ett_x11_rectangle, vmods_bits, byte_order);
         }
@@ -21078,6 +21137,7 @@ static void struct_xkb_KTMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *root,
                 &hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_4,
                 &hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_5,
                 &hf_x11_struct_xkb_KTMapEntry_mods_mask_mask_Any,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_KTMapEntry_mods_mask, ett_x11_rectangle, mods_mask_bits, byte_order);
         }
@@ -21095,6 +21155,7 @@ static void struct_xkb_KTMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *root,
                 &hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_4,
                 &hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_5,
                 &hf_x11_struct_xkb_KTMapEntry_mods_mods_mask_Any,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_KTMapEntry_mods_mods, ett_x11_rectangle, mods_mods_bits, byte_order);
         }
@@ -21117,6 +21178,7 @@ static void struct_xkb_KTMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *root,
                 &hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_13,
                 &hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_14,
                 &hf_x11_struct_xkb_KTMapEntry_mods_vmods_mask_15,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_KTMapEntry_mods_vmods, ett_x11_rectangle, mods_vmods_bits, byte_order);
         }
@@ -21160,6 +21222,7 @@ static void struct_xkb_KeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
                 &hf_x11_struct_xkb_KeyType_mods_mask_mask_4,
                 &hf_x11_struct_xkb_KeyType_mods_mask_mask_5,
                 &hf_x11_struct_xkb_KeyType_mods_mask_mask_Any,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_KeyType_mods_mask, ett_x11_rectangle, mods_mask_bits, byte_order);
         }
@@ -21175,6 +21238,7 @@ static void struct_xkb_KeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
                 &hf_x11_struct_xkb_KeyType_mods_mods_mask_4,
                 &hf_x11_struct_xkb_KeyType_mods_mods_mask_5,
                 &hf_x11_struct_xkb_KeyType_mods_mods_mask_Any,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_KeyType_mods_mods, ett_x11_rectangle, mods_mods_bits, byte_order);
         }
@@ -21197,6 +21261,7 @@ static void struct_xkb_KeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
                 &hf_x11_struct_xkb_KeyType_mods_vmods_mask_13,
                 &hf_x11_struct_xkb_KeyType_mods_vmods_mask_14,
                 &hf_x11_struct_xkb_KeyType_mods_vmods_mask_15,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_KeyType_mods_vmods, ett_x11_rectangle, mods_vmods_bits, byte_order);
         }
@@ -21387,6 +21452,7 @@ static void struct_xkb_SetExplicit(tvbuff_t *tvb, int *offsetp, proto_tree *root
                 &hf_x11_struct_xkb_SetExplicit_explicit_mask_AutoRepeat,
                 &hf_x11_struct_xkb_SetExplicit_explicit_mask_Behavior,
                 &hf_x11_struct_xkb_SetExplicit_explicit_mask_VModMap,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SetExplicit_explicit, ett_x11_rectangle, explicit_bits, byte_order);
         }
@@ -21416,6 +21482,7 @@ static void struct_xkb_KeyModMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
                 &hf_x11_struct_xkb_KeyModMap_mods_mask_4,
                 &hf_x11_struct_xkb_KeyModMap_mods_mask_5,
                 &hf_x11_struct_xkb_KeyModMap_mods_mask_Any,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_KeyModMap_mods, ett_x11_rectangle, mods_bits, byte_order);
         }
@@ -21454,6 +21521,7 @@ static void struct_xkb_KeyVModMap(tvbuff_t *tvb, int *offsetp, proto_tree *root,
                 &hf_x11_struct_xkb_KeyVModMap_vmods_mask_13,
                 &hf_x11_struct_xkb_KeyVModMap_vmods_mask_14,
                 &hf_x11_struct_xkb_KeyVModMap_vmods_mask_15,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_KeyVModMap_vmods, ett_x11_rectangle, vmods_bits, byte_order);
         }
@@ -21483,6 +21551,7 @@ static void struct_xkb_KTSetMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *ro
                 &hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_4,
                 &hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_5,
                 &hf_x11_struct_xkb_KTSetMapEntry_realMods_mask_Any,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_KTSetMapEntry_realMods, ett_x11_rectangle, realMods_bits, byte_order);
         }
@@ -21505,6 +21574,7 @@ static void struct_xkb_KTSetMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *ro
                 &hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_13,
                 &hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_14,
                 &hf_x11_struct_xkb_KTSetMapEntry_virtualMods_mask_15,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_KTSetMapEntry_virtualMods, ett_x11_rectangle, virtualMods_bits, byte_order);
         }
@@ -21546,6 +21616,7 @@ static void struct_xkb_SetKeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root,
                 &hf_x11_struct_xkb_SetKeyType_mask_mask_4,
                 &hf_x11_struct_xkb_SetKeyType_mask_mask_5,
                 &hf_x11_struct_xkb_SetKeyType_mask_mask_Any,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SetKeyType_mask, ett_x11_rectangle, mask_bits, byte_order);
         }
@@ -21561,6 +21632,7 @@ static void struct_xkb_SetKeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root,
                 &hf_x11_struct_xkb_SetKeyType_realMods_mask_4,
                 &hf_x11_struct_xkb_SetKeyType_realMods_mask_5,
                 &hf_x11_struct_xkb_SetKeyType_realMods_mask_Any,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SetKeyType_realMods, ett_x11_rectangle, realMods_bits, byte_order);
         }
@@ -21583,6 +21655,7 @@ static void struct_xkb_SetKeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root,
                 &hf_x11_struct_xkb_SetKeyType_virtualMods_mask_13,
                 &hf_x11_struct_xkb_SetKeyType_virtualMods_mask_14,
                 &hf_x11_struct_xkb_SetKeyType_virtualMods_mask_15,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SetKeyType_virtualMods, ett_x11_rectangle, virtualMods_bits, byte_order);
         }
@@ -21705,6 +21778,7 @@ static void struct_xkb_SASetMods(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
                 &hf_x11_struct_xkb_SASetMods_flags_mask_ClearLocks,
                 &hf_x11_struct_xkb_SASetMods_flags_mask_LatchToLock,
                 &hf_x11_struct_xkb_SASetMods_flags_mask_GroupAbsolute,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SASetMods_flags, ett_x11_rectangle, flags_bits, byte_order);
         }
@@ -21720,6 +21794,7 @@ static void struct_xkb_SASetMods(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
                 &hf_x11_struct_xkb_SASetMods_mask_mask_4,
                 &hf_x11_struct_xkb_SASetMods_mask_mask_5,
                 &hf_x11_struct_xkb_SASetMods_mask_mask_Any,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SASetMods_mask, ett_x11_rectangle, mask_bits, byte_order);
         }
@@ -21735,6 +21810,7 @@ static void struct_xkb_SASetMods(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
                 &hf_x11_struct_xkb_SASetMods_realMods_mask_4,
                 &hf_x11_struct_xkb_SASetMods_realMods_mask_5,
                 &hf_x11_struct_xkb_SASetMods_realMods_mask_Any,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SASetMods_realMods, ett_x11_rectangle, realMods_bits, byte_order);
         }
@@ -21749,6 +21825,7 @@ static void struct_xkb_SASetMods(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
                 &hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_13,
                 &hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_14,
                 &hf_x11_struct_xkb_SASetMods_vmodsHigh_mask_15,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SASetMods_vmodsHigh, ett_x11_rectangle, vmodsHigh_bits, byte_order);
         }
@@ -21763,6 +21840,7 @@ static void struct_xkb_SASetMods(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
                 &hf_x11_struct_xkb_SASetMods_vmodsLow_mask_5,
                 &hf_x11_struct_xkb_SASetMods_vmodsLow_mask_6,
                 &hf_x11_struct_xkb_SASetMods_vmodsLow_mask_7,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SASetMods_vmodsLow, ett_x11_rectangle, vmodsLow_bits, byte_order);
         }
@@ -21787,6 +21865,7 @@ static void struct_xkb_SASetGroup(tvbuff_t *tvb, int *offsetp, proto_tree *root,
                 &hf_x11_struct_xkb_SASetGroup_flags_mask_ClearLocks,
                 &hf_x11_struct_xkb_SASetGroup_flags_mask_LatchToLock,
                 &hf_x11_struct_xkb_SASetGroup_flags_mask_GroupAbsolute,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SASetGroup_flags, ett_x11_rectangle, flags_bits, byte_order);
         }
@@ -21813,6 +21892,7 @@ static void struct_xkb_SAMovePtr(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
                 &hf_x11_struct_xkb_SAMovePtr_flags_mask_NoAcceleration,
                 &hf_x11_struct_xkb_SAMovePtr_flags_mask_MoveAbsoluteX,
                 &hf_x11_struct_xkb_SAMovePtr_flags_mask_MoveAbsoluteY,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SAMovePtr_flags, ett_x11_rectangle, flags_bits, byte_order);
         }
@@ -21886,6 +21966,7 @@ static void struct_xkb_SASetPtrDflt(tvbuff_t *tvb, int *offsetp, proto_tree *roo
             const int* flags_bits [] = {
                 &hf_x11_struct_xkb_SASetPtrDflt_flags_mask_AffectDfltButton,
                 &hf_x11_struct_xkb_SASetPtrDflt_flags_mask_DfltBtnAbsolute,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SASetPtrDflt_flags, ett_x11_rectangle, flags_bits, byte_order);
         }
@@ -21894,6 +21975,7 @@ static void struct_xkb_SASetPtrDflt(tvbuff_t *tvb, int *offsetp, proto_tree *roo
             const int* affect_bits [] = {
                 &hf_x11_struct_xkb_SASetPtrDflt_affect_mask_AffectDfltButton,
                 &hf_x11_struct_xkb_SASetPtrDflt_affect_mask_DfltBtnAbsolute,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SASetPtrDflt_affect, ett_x11_rectangle, affect_bits, byte_order);
         }
@@ -21921,6 +22003,7 @@ static void struct_xkb_SAIsoLock(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
                 &hf_x11_struct_xkb_SAIsoLock_flags_mask_NoUnlock,
                 &hf_x11_struct_xkb_SAIsoLock_flags_mask_GroupAbsolute,
                 &hf_x11_struct_xkb_SAIsoLock_flags_mask_ISODfltIsGroup,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SAIsoLock_flags, ett_x11_rectangle, flags_bits, byte_order);
         }
@@ -21936,6 +22019,7 @@ static void struct_xkb_SAIsoLock(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
                 &hf_x11_struct_xkb_SAIsoLock_mask_mask_4,
                 &hf_x11_struct_xkb_SAIsoLock_mask_mask_5,
                 &hf_x11_struct_xkb_SAIsoLock_mask_mask_Any,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SAIsoLock_mask, ett_x11_rectangle, mask_bits, byte_order);
         }
@@ -21951,6 +22035,7 @@ static void struct_xkb_SAIsoLock(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
                 &hf_x11_struct_xkb_SAIsoLock_realMods_mask_4,
                 &hf_x11_struct_xkb_SAIsoLock_realMods_mask_5,
                 &hf_x11_struct_xkb_SAIsoLock_realMods_mask_Any,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SAIsoLock_realMods, ett_x11_rectangle, realMods_bits, byte_order);
         }
@@ -21963,6 +22048,7 @@ static void struct_xkb_SAIsoLock(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
                 &hf_x11_struct_xkb_SAIsoLock_affect_mask_Ptr,
                 &hf_x11_struct_xkb_SAIsoLock_affect_mask_Group,
                 &hf_x11_struct_xkb_SAIsoLock_affect_mask_Mods,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SAIsoLock_affect, ett_x11_rectangle, affect_bits, byte_order);
         }
@@ -21977,6 +22063,7 @@ static void struct_xkb_SAIsoLock(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
                 &hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_13,
                 &hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_14,
                 &hf_x11_struct_xkb_SAIsoLock_vmodsHigh_mask_15,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SAIsoLock_vmodsHigh, ett_x11_rectangle, vmodsHigh_bits, byte_order);
         }
@@ -21991,6 +22078,7 @@ static void struct_xkb_SAIsoLock(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
                 &hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_5,
                 &hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_6,
                 &hf_x11_struct_xkb_SAIsoLock_vmodsLow_mask_7,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SAIsoLock_vmodsLow, ett_x11_rectangle, vmodsLow_bits, byte_order);
         }
@@ -22051,6 +22139,7 @@ static void struct_xkb_SASetControls(tvbuff_t *tvb, int *offsetp, proto_tree *ro
                 &hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_Overlay1,
                 &hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_Overlay2,
                 &hf_x11_struct_xkb_SASetControls_boolCtrlsHigh_mask_IgnoreGroupLock,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SASetControls_boolCtrlsHigh, ett_x11_rectangle, boolCtrlsHigh_bits, byte_order);
         }
@@ -22065,6 +22154,7 @@ static void struct_xkb_SASetControls(tvbuff_t *tvb, int *offsetp, proto_tree *ro
                 &hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_MouseKeysAccel,
                 &hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_AccessXKeys,
                 &hf_x11_struct_xkb_SASetControls_boolCtrlsLow_mask_AccessXTimeout,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SASetControls_boolCtrlsLow, ett_x11_rectangle, boolCtrlsLow_bits, byte_order);
         }
@@ -22089,6 +22179,7 @@ static void struct_xkb_SAActionMessage(tvbuff_t *tvb, int *offsetp, proto_tree *
                 &hf_x11_struct_xkb_SAActionMessage_flags_mask_OnPress,
                 &hf_x11_struct_xkb_SAActionMessage_flags_mask_OnRelease,
                 &hf_x11_struct_xkb_SAActionMessage_flags_mask_GenKeyEvent,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SAActionMessage_flags, ett_x11_rectangle, flags_bits, byte_order);
         }
@@ -22120,6 +22211,7 @@ static void struct_xkb_SARedirectKey(tvbuff_t *tvb, int *offsetp, proto_tree *ro
                 &hf_x11_struct_xkb_SARedirectKey_mask_mask_4,
                 &hf_x11_struct_xkb_SARedirectKey_mask_mask_5,
                 &hf_x11_struct_xkb_SARedirectKey_mask_mask_Any,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SARedirectKey_mask, ett_x11_rectangle, mask_bits, byte_order);
         }
@@ -22135,6 +22227,7 @@ static void struct_xkb_SARedirectKey(tvbuff_t *tvb, int *offsetp, proto_tree *ro
                 &hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_4,
                 &hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_5,
                 &hf_x11_struct_xkb_SARedirectKey_realModifiers_mask_Any,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SARedirectKey_realModifiers, ett_x11_rectangle, realModifiers_bits, byte_order);
         }
@@ -22149,6 +22242,7 @@ static void struct_xkb_SARedirectKey(tvbuff_t *tvb, int *offsetp, proto_tree *ro
                 &hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_13,
                 &hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_14,
                 &hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh_mask_15,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SARedirectKey_vmodsMaskHigh, ett_x11_rectangle, vmodsMaskHigh_bits, byte_order);
         }
@@ -22163,6 +22257,7 @@ static void struct_xkb_SARedirectKey(tvbuff_t *tvb, int *offsetp, proto_tree *ro
                 &hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_5,
                 &hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_6,
                 &hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow_mask_7,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SARedirectKey_vmodsMaskLow, ett_x11_rectangle, vmodsMaskLow_bits, byte_order);
         }
@@ -22177,6 +22272,7 @@ static void struct_xkb_SARedirectKey(tvbuff_t *tvb, int *offsetp, proto_tree *ro
                 &hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_13,
                 &hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_14,
                 &hf_x11_struct_xkb_SARedirectKey_vmodsHigh_mask_15,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SARedirectKey_vmodsHigh, ett_x11_rectangle, vmodsHigh_bits, byte_order);
         }
@@ -22191,6 +22287,7 @@ static void struct_xkb_SARedirectKey(tvbuff_t *tvb, int *offsetp, proto_tree *ro
                 &hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_5,
                 &hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_6,
                 &hf_x11_struct_xkb_SARedirectKey_vmodsLow_mask_7,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SARedirectKey_vmodsLow, ett_x11_rectangle, vmodsLow_bits, byte_order);
         }
@@ -22235,6 +22332,7 @@ static void struct_xkb_SALockDeviceBtn(tvbuff_t *tvb, int *offsetp, proto_tree *
             const int* flags_bits [] = {
                 &hf_x11_struct_xkb_SALockDeviceBtn_flags_mask_NoLock,
                 &hf_x11_struct_xkb_SALockDeviceBtn_flags_mask_NoUnlock,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SALockDeviceBtn_flags, ett_x11_rectangle, flags_bits, byte_order);
         }
@@ -22311,6 +22409,7 @@ static void struct_xkb_SymInterpret(tvbuff_t *tvb, int *offsetp, proto_tree *roo
                 &hf_x11_struct_xkb_SymInterpret_mods_mask_4,
                 &hf_x11_struct_xkb_SymInterpret_mods_mask_5,
                 &hf_x11_struct_xkb_SymInterpret_mods_mask_Any,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SymInterpret_mods, ett_x11_rectangle, mods_bits, byte_order);
         }
@@ -22326,6 +22425,7 @@ static void struct_xkb_SymInterpret(tvbuff_t *tvb, int *offsetp, proto_tree *roo
                 &hf_x11_struct_xkb_SymInterpret_virtualMod_mask_5,
                 &hf_x11_struct_xkb_SymInterpret_virtualMod_mask_6,
                 &hf_x11_struct_xkb_SymInterpret_virtualMod_mask_7,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xkb_SymInterpret_virtualMod, ett_x11_rectangle, virtualMod_bits, byte_order);
         }
@@ -22447,6 +22547,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         &hf_x11_xkb_SelectEvents_affectWhich_mask_ActionMessage,
         &hf_x11_xkb_SelectEvents_affectWhich_mask_AccessXNotify,
         &hf_x11_xkb_SelectEvents_affectWhich_mask_ExtensionDeviceNotify,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_affectWhich, ett_x11_rectangle, affectWhich_bits, byte_order);
     }
@@ -22466,6 +22567,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         &hf_x11_xkb_SelectEvents_clear_mask_ActionMessage,
         &hf_x11_xkb_SelectEvents_clear_mask_AccessXNotify,
         &hf_x11_xkb_SelectEvents_clear_mask_ExtensionDeviceNotify,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_clear, ett_x11_rectangle, clear_bits, byte_order);
     }
@@ -22485,6 +22587,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         &hf_x11_xkb_SelectEvents_selectAll_mask_ActionMessage,
         &hf_x11_xkb_SelectEvents_selectAll_mask_AccessXNotify,
         &hf_x11_xkb_SelectEvents_selectAll_mask_ExtensionDeviceNotify,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_selectAll, ett_x11_rectangle, selectAll_bits, byte_order);
     }
@@ -22499,6 +22602,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         &hf_x11_xkb_SelectEvents_affectMap_mask_KeyBehaviors,
         &hf_x11_xkb_SelectEvents_affectMap_mask_VirtualMods,
         &hf_x11_xkb_SelectEvents_affectMap_mask_VirtualModMap,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_affectMap, ett_x11_rectangle, affectMap_bits, byte_order);
     }
@@ -22513,6 +22617,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         &hf_x11_xkb_SelectEvents_map_mask_KeyBehaviors,
         &hf_x11_xkb_SelectEvents_map_mask_VirtualMods,
         &hf_x11_xkb_SelectEvents_map_mask_VirtualModMap,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_map, ett_x11_rectangle, map_bits, byte_order);
     }
@@ -22523,6 +22628,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
                 &hf_x11_xkb_SelectEvents_NewKeyboardNotify_affectNewKeyboard_mask_Keycodes,
                 &hf_x11_xkb_SelectEvents_NewKeyboardNotify_affectNewKeyboard_mask_Geometry,
                 &hf_x11_xkb_SelectEvents_NewKeyboardNotify_affectNewKeyboard_mask_DeviceID,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_NewKeyboardNotify_affectNewKeyboard, ett_x11_rectangle, affectNewKeyboard_bits, byte_order);
         }
@@ -22532,6 +22638,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
                 &hf_x11_xkb_SelectEvents_NewKeyboardNotify_newKeyboardDetails_mask_Keycodes,
                 &hf_x11_xkb_SelectEvents_NewKeyboardNotify_newKeyboardDetails_mask_Geometry,
                 &hf_x11_xkb_SelectEvents_NewKeyboardNotify_newKeyboardDetails_mask_DeviceID,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_NewKeyboardNotify_newKeyboardDetails, ett_x11_rectangle, newKeyboardDetails_bits, byte_order);
         }
@@ -22554,6 +22661,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
                 &hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_LookupMods,
                 &hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_CompatLookupMods,
                 &hf_x11_xkb_SelectEvents_StateNotify_affectState_mask_PointerButtons,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_StateNotify_affectState, ett_x11_rectangle, affectState_bits, byte_order);
         }
@@ -22574,6 +22682,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
                 &hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_LookupMods,
                 &hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_CompatLookupMods,
                 &hf_x11_xkb_SelectEvents_StateNotify_stateDetails_mask_PointerButtons,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_StateNotify_stateDetails, ett_x11_rectangle, stateDetails_bits, byte_order);
         }
@@ -22587,6 +22696,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
                 &hf_x11_xkb_SelectEvents_ControlsNotify_affectCtrls_mask_IgnoreLockMods,
                 &hf_x11_xkb_SelectEvents_ControlsNotify_affectCtrls_mask_PerKeyRepeat,
                 &hf_x11_xkb_SelectEvents_ControlsNotify_affectCtrls_mask_ControlsEnabled,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_ControlsNotify_affectCtrls, ett_x11_rectangle, affectCtrls_bits, byte_order);
         }
@@ -22598,6 +22708,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
                 &hf_x11_xkb_SelectEvents_ControlsNotify_ctrlDetails_mask_IgnoreLockMods,
                 &hf_x11_xkb_SelectEvents_ControlsNotify_ctrlDetails_mask_PerKeyRepeat,
                 &hf_x11_xkb_SelectEvents_ControlsNotify_ctrlDetails_mask_ControlsEnabled,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_ControlsNotify_ctrlDetails, ett_x11_rectangle, ctrlDetails_bits, byte_order);
         }
@@ -22632,6 +22743,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
                 &hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_VirtualModNames,
                 &hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_GroupNames,
                 &hf_x11_xkb_SelectEvents_NamesNotify_affectNames_mask_RGNames,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_NamesNotify_affectNames, ett_x11_rectangle, affectNames_bits, byte_order);
         }
@@ -22652,6 +22764,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
                 &hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_VirtualModNames,
                 &hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_GroupNames,
                 &hf_x11_xkb_SelectEvents_NamesNotify_namesDetails_mask_RGNames,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_NamesNotify_namesDetails, ett_x11_rectangle, namesDetails_bits, byte_order);
         }
@@ -22662,6 +22775,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
             const int* affectCompat_bits [] = {
                 &hf_x11_xkb_SelectEvents_CompatMapNotify_affectCompat_mask_SymInterp,
                 &hf_x11_xkb_SelectEvents_CompatMapNotify_affectCompat_mask_GroupCompat,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_CompatMapNotify_affectCompat, ett_x11_rectangle, affectCompat_bits, byte_order);
         }
@@ -22670,6 +22784,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
             const int* compatDetails_bits [] = {
                 &hf_x11_xkb_SelectEvents_CompatMapNotify_compatDetails_mask_SymInterp,
                 &hf_x11_xkb_SelectEvents_CompatMapNotify_compatDetails_mask_GroupCompat,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_CompatMapNotify_compatDetails, ett_x11_rectangle, compatDetails_bits, byte_order);
         }
@@ -22697,6 +22812,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
                 &hf_x11_xkb_SelectEvents_AccessXNotify_affectAccessX_mask_BKAccept,
                 &hf_x11_xkb_SelectEvents_AccessXNotify_affectAccessX_mask_BKReject,
                 &hf_x11_xkb_SelectEvents_AccessXNotify_affectAccessX_mask_AXKWarning,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_AccessXNotify_affectAccessX, ett_x11_rectangle, affectAccessX_bits, byte_order);
         }
@@ -22710,6 +22826,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
                 &hf_x11_xkb_SelectEvents_AccessXNotify_accessXDetails_mask_BKAccept,
                 &hf_x11_xkb_SelectEvents_AccessXNotify_accessXDetails_mask_BKReject,
                 &hf_x11_xkb_SelectEvents_AccessXNotify_accessXDetails_mask_AXKWarning,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_AccessXNotify_accessXDetails, ett_x11_rectangle, accessXDetails_bits, byte_order);
         }
@@ -22723,6 +22840,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
                 &hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_affectExtDev_mask_IndicatorNames,
                 &hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_affectExtDev_mask_IndicatorMaps,
                 &hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_affectExtDev_mask_IndicatorState,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_affectExtDev, ett_x11_rectangle, affectExtDev_bits, byte_order);
         }
@@ -22734,6 +22852,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
                 &hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_extdevDetails_mask_IndicatorNames,
                 &hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_extdevDetails_mask_IndicatorMaps,
                 &hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_extdevDetails_mask_IndicatorState,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_extdevDetails, ett_x11_rectangle, extdevDetails_bits, byte_order);
         }
@@ -22802,6 +22921,7 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
         &hf_x11_xkb_GetState_reply_mods_mask_4,
         &hf_x11_xkb_GetState_reply_mods_mask_5,
         &hf_x11_xkb_GetState_reply_mods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetState_reply_mods, ett_x11_rectangle, mods_bits, byte_order);
     }
@@ -22817,6 +22937,7 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
         &hf_x11_xkb_GetState_reply_baseMods_mask_4,
         &hf_x11_xkb_GetState_reply_baseMods_mask_5,
         &hf_x11_xkb_GetState_reply_baseMods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetState_reply_baseMods, ett_x11_rectangle, baseMods_bits, byte_order);
     }
@@ -22832,6 +22953,7 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
         &hf_x11_xkb_GetState_reply_latchedMods_mask_4,
         &hf_x11_xkb_GetState_reply_latchedMods_mask_5,
         &hf_x11_xkb_GetState_reply_latchedMods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetState_reply_latchedMods, ett_x11_rectangle, latchedMods_bits, byte_order);
     }
@@ -22847,6 +22969,7 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
         &hf_x11_xkb_GetState_reply_lockedMods_mask_4,
         &hf_x11_xkb_GetState_reply_lockedMods_mask_5,
         &hf_x11_xkb_GetState_reply_lockedMods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetState_reply_lockedMods, ett_x11_rectangle, lockedMods_bits, byte_order);
     }
@@ -22868,6 +22991,7 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
         &hf_x11_xkb_GetState_reply_compatState_mask_4,
         &hf_x11_xkb_GetState_reply_compatState_mask_5,
         &hf_x11_xkb_GetState_reply_compatState_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetState_reply_compatState, ett_x11_rectangle, compatState_bits, byte_order);
     }
@@ -22883,6 +23007,7 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
         &hf_x11_xkb_GetState_reply_grabMods_mask_4,
         &hf_x11_xkb_GetState_reply_grabMods_mask_5,
         &hf_x11_xkb_GetState_reply_grabMods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetState_reply_grabMods, ett_x11_rectangle, grabMods_bits, byte_order);
     }
@@ -22898,6 +23023,7 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
         &hf_x11_xkb_GetState_reply_compatGrabMods_mask_4,
         &hf_x11_xkb_GetState_reply_compatGrabMods_mask_5,
         &hf_x11_xkb_GetState_reply_compatGrabMods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetState_reply_compatGrabMods, ett_x11_rectangle, compatGrabMods_bits, byte_order);
     }
@@ -22913,6 +23039,7 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
         &hf_x11_xkb_GetState_reply_lookupMods_mask_4,
         &hf_x11_xkb_GetState_reply_lookupMods_mask_5,
         &hf_x11_xkb_GetState_reply_lookupMods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetState_reply_lookupMods, ett_x11_rectangle, lookupMods_bits, byte_order);
     }
@@ -22928,6 +23055,7 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
         &hf_x11_xkb_GetState_reply_compatLookupMods_mask_4,
         &hf_x11_xkb_GetState_reply_compatLookupMods_mask_5,
         &hf_x11_xkb_GetState_reply_compatLookupMods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetState_reply_compatLookupMods, ett_x11_rectangle, compatLookupMods_bits, byte_order);
     }
@@ -22949,6 +23077,7 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
         &hf_x11_xkb_GetState_reply_ptrBtnState_mask_Button3,
         &hf_x11_xkb_GetState_reply_ptrBtnState_mask_Button4,
         &hf_x11_xkb_GetState_reply_ptrBtnState_mask_Button5,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetState_reply_ptrBtnState, ett_x11_rectangle, ptrBtnState_bits, byte_order);
     }
@@ -22972,6 +23101,7 @@ static void xkbLatchLockState(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
         &hf_x11_xkb_LatchLockState_affectModLocks_mask_4,
         &hf_x11_xkb_LatchLockState_affectModLocks_mask_5,
         &hf_x11_xkb_LatchLockState_affectModLocks_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_LatchLockState_affectModLocks, ett_x11_rectangle, affectModLocks_bits, byte_order);
     }
@@ -22987,6 +23117,7 @@ static void xkbLatchLockState(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
         &hf_x11_xkb_LatchLockState_modLocks_mask_4,
         &hf_x11_xkb_LatchLockState_modLocks_mask_5,
         &hf_x11_xkb_LatchLockState_modLocks_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_LatchLockState_modLocks, ett_x11_rectangle, modLocks_bits, byte_order);
     }
@@ -23005,6 +23136,7 @@ static void xkbLatchLockState(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
         &hf_x11_xkb_LatchLockState_affectModLatches_mask_4,
         &hf_x11_xkb_LatchLockState_affectModLatches_mask_5,
         &hf_x11_xkb_LatchLockState_affectModLatches_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_LatchLockState_affectModLatches, ett_x11_rectangle, affectModLatches_bits, byte_order);
     }
@@ -23058,6 +23190,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
         &hf_x11_xkb_GetControls_reply_internalModsMask_mask_4,
         &hf_x11_xkb_GetControls_reply_internalModsMask_mask_5,
         &hf_x11_xkb_GetControls_reply_internalModsMask_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_internalModsMask, ett_x11_rectangle, internalModsMask_bits, byte_order);
     }
@@ -23073,6 +23206,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
         &hf_x11_xkb_GetControls_reply_ignoreLockModsMask_mask_4,
         &hf_x11_xkb_GetControls_reply_ignoreLockModsMask_mask_5,
         &hf_x11_xkb_GetControls_reply_ignoreLockModsMask_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_ignoreLockModsMask, ett_x11_rectangle, ignoreLockModsMask_bits, byte_order);
     }
@@ -23088,6 +23222,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
         &hf_x11_xkb_GetControls_reply_internalModsRealMods_mask_4,
         &hf_x11_xkb_GetControls_reply_internalModsRealMods_mask_5,
         &hf_x11_xkb_GetControls_reply_internalModsRealMods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_internalModsRealMods, ett_x11_rectangle, internalModsRealMods_bits, byte_order);
     }
@@ -23103,6 +23238,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
         &hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods_mask_4,
         &hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods_mask_5,
         &hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_ignoreLockModsRealMods, ett_x11_rectangle, ignoreLockModsRealMods_bits, byte_order);
     }
@@ -23127,6 +23263,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
         &hf_x11_xkb_GetControls_reply_internalModsVmods_mask_13,
         &hf_x11_xkb_GetControls_reply_internalModsVmods_mask_14,
         &hf_x11_xkb_GetControls_reply_internalModsVmods_mask_15,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_internalModsVmods, ett_x11_rectangle, internalModsVmods_bits, byte_order);
     }
@@ -23149,6 +23286,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
         &hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_13,
         &hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_14,
         &hf_x11_xkb_GetControls_reply_ignoreLockModsVmods_mask_15,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_ignoreLockModsVmods, ett_x11_rectangle, ignoreLockModsVmods_bits, byte_order);
     }
@@ -23185,6 +23323,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
         &hf_x11_xkb_GetControls_reply_accessXOption_mask_SKRejectFB,
         &hf_x11_xkb_GetControls_reply_accessXOption_mask_BKRejectFB,
         &hf_x11_xkb_GetControls_reply_accessXOption_mask_DumbBell,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_accessXOption, ett_x11_rectangle, accessXOption_bits, byte_order);
     }
@@ -23205,6 +23344,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
         &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_SKRejectFB,
         &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_BKRejectFB,
         &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask_mask_DumbBell,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsMask, ett_x11_rectangle, accessXTimeoutOptionsMask_bits, byte_order);
     }
@@ -23223,6 +23363,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
         &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_SKRejectFB,
         &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_BKRejectFB,
         &hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues_mask_DumbBell,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_accessXTimeoutOptionsValues, ett_x11_rectangle, accessXTimeoutOptionsValues_bits, byte_order);
     }
@@ -23244,6 +23385,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
         &hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_Overlay1Mask,
         &hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_Overlay2Mask,
         &hf_x11_xkb_GetControls_reply_accessXTimeoutMask_mask_IgnoreGroupLockMask,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_accessXTimeoutMask, ett_x11_rectangle, accessXTimeoutMask_bits, byte_order);
     }
@@ -23263,6 +23405,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
         &hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_Overlay1Mask,
         &hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_Overlay2Mask,
         &hf_x11_xkb_GetControls_reply_accessXTimeoutValues_mask_IgnoreGroupLockMask,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_accessXTimeoutValues, ett_x11_rectangle, accessXTimeoutValues_bits, byte_order);
     }
@@ -23282,6 +23425,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
         &hf_x11_xkb_GetControls_reply_enabledControls_mask_Overlay1Mask,
         &hf_x11_xkb_GetControls_reply_enabledControls_mask_Overlay2Mask,
         &hf_x11_xkb_GetControls_reply_enabledControls_mask_IgnoreGroupLockMask,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetControls_reply_enabledControls, ett_x11_rectangle, enabledControls_bits, byte_order);
     }
@@ -23304,6 +23448,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
         &hf_x11_xkb_SetControls_affectInternalRealMods_mask_4,
         &hf_x11_xkb_SetControls_affectInternalRealMods_mask_5,
         &hf_x11_xkb_SetControls_affectInternalRealMods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_affectInternalRealMods, ett_x11_rectangle, affectInternalRealMods_bits, byte_order);
     }
@@ -23319,6 +23464,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
         &hf_x11_xkb_SetControls_internalRealMods_mask_4,
         &hf_x11_xkb_SetControls_internalRealMods_mask_5,
         &hf_x11_xkb_SetControls_internalRealMods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_internalRealMods, ett_x11_rectangle, internalRealMods_bits, byte_order);
     }
@@ -23334,6 +23480,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
         &hf_x11_xkb_SetControls_affectIgnoreLockRealMods_mask_4,
         &hf_x11_xkb_SetControls_affectIgnoreLockRealMods_mask_5,
         &hf_x11_xkb_SetControls_affectIgnoreLockRealMods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_affectIgnoreLockRealMods, ett_x11_rectangle, affectIgnoreLockRealMods_bits, byte_order);
     }
@@ -23349,6 +23496,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
         &hf_x11_xkb_SetControls_ignoreLockRealMods_mask_4,
         &hf_x11_xkb_SetControls_ignoreLockRealMods_mask_5,
         &hf_x11_xkb_SetControls_ignoreLockRealMods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_ignoreLockRealMods, ett_x11_rectangle, ignoreLockRealMods_bits, byte_order);
     }
@@ -23371,6 +23519,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
         &hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_13,
         &hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_14,
         &hf_x11_xkb_SetControls_affectInternalVirtualMods_mask_15,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_affectInternalVirtualMods, ett_x11_rectangle, affectInternalVirtualMods_bits, byte_order);
     }
@@ -23393,6 +23542,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
         &hf_x11_xkb_SetControls_internalVirtualMods_mask_13,
         &hf_x11_xkb_SetControls_internalVirtualMods_mask_14,
         &hf_x11_xkb_SetControls_internalVirtualMods_mask_15,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_internalVirtualMods, ett_x11_rectangle, internalVirtualMods_bits, byte_order);
     }
@@ -23415,6 +23565,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
         &hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_13,
         &hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_14,
         &hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods_mask_15,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_affectIgnoreLockVirtualMods, ett_x11_rectangle, affectIgnoreLockVirtualMods_bits, byte_order);
     }
@@ -23437,6 +23588,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
         &hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_13,
         &hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_14,
         &hf_x11_xkb_SetControls_ignoreLockVirtualMods_mask_15,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_ignoreLockVirtualMods, ett_x11_rectangle, ignoreLockVirtualMods_bits, byte_order);
     }
@@ -23459,6 +23611,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
         &hf_x11_xkb_SetControls_accessXOptions_mask_SKRejectFB,
         &hf_x11_xkb_SetControls_accessXOptions_mask_BKRejectFB,
         &hf_x11_xkb_SetControls_accessXOptions_mask_DumbBell,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_accessXOptions, ett_x11_rectangle, accessXOptions_bits, byte_order);
     }
@@ -23480,6 +23633,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
         &hf_x11_xkb_SetControls_affectEnabledControls_mask_Overlay1Mask,
         &hf_x11_xkb_SetControls_affectEnabledControls_mask_Overlay2Mask,
         &hf_x11_xkb_SetControls_affectEnabledControls_mask_IgnoreGroupLockMask,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_affectEnabledControls, ett_x11_rectangle, affectEnabledControls_bits, byte_order);
     }
@@ -23499,6 +23653,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
         &hf_x11_xkb_SetControls_enabledControls_mask_Overlay1Mask,
         &hf_x11_xkb_SetControls_enabledControls_mask_Overlay2Mask,
         &hf_x11_xkb_SetControls_enabledControls_mask_IgnoreGroupLockMask,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_enabledControls, ett_x11_rectangle, enabledControls_bits, byte_order);
     }
@@ -23510,6 +23665,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
         &hf_x11_xkb_SetControls_changeControls_mask_IgnoreLockMods,
         &hf_x11_xkb_SetControls_changeControls_mask_PerKeyRepeat,
         &hf_x11_xkb_SetControls_changeControls_mask_ControlsEnabled,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_changeControls, ett_x11_rectangle, changeControls_bits, byte_order);
     }
@@ -23549,6 +23705,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
         &hf_x11_xkb_SetControls_accessXTimeoutMask_mask_Overlay1Mask,
         &hf_x11_xkb_SetControls_accessXTimeoutMask_mask_Overlay2Mask,
         &hf_x11_xkb_SetControls_accessXTimeoutMask_mask_IgnoreGroupLockMask,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_accessXTimeoutMask, ett_x11_rectangle, accessXTimeoutMask_bits, byte_order);
     }
@@ -23568,6 +23725,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
         &hf_x11_xkb_SetControls_accessXTimeoutValues_mask_Overlay1Mask,
         &hf_x11_xkb_SetControls_accessXTimeoutValues_mask_Overlay2Mask,
         &hf_x11_xkb_SetControls_accessXTimeoutValues_mask_IgnoreGroupLockMask,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_accessXTimeoutValues, ett_x11_rectangle, accessXTimeoutValues_bits, byte_order);
     }
@@ -23586,6 +23744,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
         &hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_SKRejectFB,
         &hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_BKRejectFB,
         &hf_x11_xkb_SetControls_accessXTimeoutOptionsMask_mask_DumbBell,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_accessXTimeoutOptionsMask, ett_x11_rectangle, accessXTimeoutOptionsMask_bits, byte_order);
     }
@@ -23604,6 +23763,7 @@ static void xkbSetControls(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
         &hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_SKRejectFB,
         &hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_BKRejectFB,
         &hf_x11_xkb_SetControls_accessXTimeoutOptionsValues_mask_DumbBell,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetControls_accessXTimeoutOptionsValues, ett_x11_rectangle, accessXTimeoutOptionsValues_bits, byte_order);
     }
@@ -23626,6 +23786,7 @@ static void xkbGetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
         &hf_x11_xkb_GetMap_full_mask_KeyBehaviors,
         &hf_x11_xkb_GetMap_full_mask_VirtualMods,
         &hf_x11_xkb_GetMap_full_mask_VirtualModMap,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetMap_full, ett_x11_rectangle, full_bits, byte_order);
     }
@@ -23640,6 +23801,7 @@ static void xkbGetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
         &hf_x11_xkb_GetMap_partial_mask_KeyBehaviors,
         &hf_x11_xkb_GetMap_partial_mask_VirtualMods,
         &hf_x11_xkb_GetMap_partial_mask_VirtualModMap,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetMap_partial, ett_x11_rectangle, partial_bits, byte_order);
     }
@@ -23678,6 +23840,7 @@ static void xkbGetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
         &hf_x11_xkb_GetMap_virtualMods_mask_13,
         &hf_x11_xkb_GetMap_virtualMods_mask_14,
         &hf_x11_xkb_GetMap_virtualMods_mask_15,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetMap_virtualMods, ett_x11_rectangle, virtualMods_bits, byte_order);
     }
@@ -23739,6 +23902,7 @@ static void xkbGetMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
         &hf_x11_xkb_GetMap_reply_present_mask_KeyBehaviors,
         &hf_x11_xkb_GetMap_reply_present_mask_VirtualMods,
         &hf_x11_xkb_GetMap_reply_present_mask_VirtualModMap,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetMap_reply_present, ett_x11_rectangle, present_bits, byte_order);
     }
@@ -23814,6 +23978,7 @@ static void xkbGetMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
         &hf_x11_xkb_GetMap_reply_virtualMods_mask_13,
         &hf_x11_xkb_GetMap_reply_virtualMods_mask_14,
         &hf_x11_xkb_GetMap_reply_virtualMods_mask_15,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetMap_reply_virtualMods, ett_x11_rectangle, virtualMods_bits, byte_order);
     }
@@ -23886,6 +24051,7 @@ static void xkbSetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
         &hf_x11_xkb_SetMap_present_mask_KeyBehaviors,
         &hf_x11_xkb_SetMap_present_mask_VirtualMods,
         &hf_x11_xkb_SetMap_present_mask_VirtualModMap,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetMap_present, ett_x11_rectangle, present_bits, byte_order);
     }
@@ -23894,6 +24060,7 @@ static void xkbSetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
         const int* flags_bits [] = {
         &hf_x11_xkb_SetMap_flags_mask_ResizeTypes,
         &hf_x11_xkb_SetMap_flags_mask_RecomputeActions,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetMap_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
@@ -23969,6 +24136,7 @@ static void xkbSetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
         &hf_x11_xkb_SetMap_virtualMods_mask_13,
         &hf_x11_xkb_SetMap_virtualMods_mask_14,
         &hf_x11_xkb_SetMap_virtualMods_mask_15,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetMap_virtualMods, ett_x11_rectangle, virtualMods_bits, byte_order);
     }
@@ -24029,6 +24197,7 @@ static void xkbGetCompatMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         &hf_x11_xkb_GetCompatMap_groups_mask_Group2,
         &hf_x11_xkb_GetCompatMap_groups_mask_Group3,
         &hf_x11_xkb_GetCompatMap_groups_mask_Group4,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetCompatMap_groups, ett_x11_rectangle, groups_bits, byte_order);
     }
@@ -24064,6 +24233,7 @@ static void xkbGetCompatMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         &hf_x11_xkb_GetCompatMap_reply_groupsRtrn_mask_Group2,
         &hf_x11_xkb_GetCompatMap_reply_groupsRtrn_mask_Group3,
         &hf_x11_xkb_GetCompatMap_reply_groupsRtrn_mask_Group4,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetCompatMap_reply_groupsRtrn, ett_x11_rectangle, groupsRtrn_bits, byte_order);
     }
@@ -24102,6 +24272,7 @@ static void xkbSetCompatMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         &hf_x11_xkb_SetCompatMap_groups_mask_Group2,
         &hf_x11_xkb_SetCompatMap_groups_mask_Group3,
         &hf_x11_xkb_SetCompatMap_groups_mask_Group4,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetCompatMap_groups, ett_x11_rectangle, groups_bits, byte_order);
     }
@@ -24239,6 +24410,7 @@ static void xkbGetNamedIndicator_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
         &hf_x11_xkb_GetNamedIndicator_reply_map_flags_mask_LEDDrivesKB,
         &hf_x11_xkb_GetNamedIndicator_reply_map_flags_mask_NoAutomatic,
         &hf_x11_xkb_GetNamedIndicator_reply_map_flags_mask_NoExplicit,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetNamedIndicator_reply_map_flags, ett_x11_rectangle, map_flags_bits, byte_order);
     }
@@ -24250,6 +24422,7 @@ static void xkbGetNamedIndicator_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
         &hf_x11_xkb_GetNamedIndicator_reply_map_whichGroups_mask_UseLocked,
         &hf_x11_xkb_GetNamedIndicator_reply_map_whichGroups_mask_UseEffective,
         &hf_x11_xkb_GetNamedIndicator_reply_map_whichGroups_mask_UseCompat,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetNamedIndicator_reply_map_whichGroups, ett_x11_rectangle, map_whichGroups_bits, byte_order);
     }
@@ -24257,6 +24430,7 @@ static void xkbGetNamedIndicator_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     {
         const int* map_groups_bits [] = {
         &hf_x11_xkb_GetNamedIndicator_reply_map_groups_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetNamedIndicator_reply_map_groups, ett_x11_rectangle, map_groups_bits, byte_order);
     }
@@ -24268,6 +24442,7 @@ static void xkbGetNamedIndicator_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
         &hf_x11_xkb_GetNamedIndicator_reply_map_whichMods_mask_UseLocked,
         &hf_x11_xkb_GetNamedIndicator_reply_map_whichMods_mask_UseEffective,
         &hf_x11_xkb_GetNamedIndicator_reply_map_whichMods_mask_UseCompat,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetNamedIndicator_reply_map_whichMods, ett_x11_rectangle, map_whichMods_bits, byte_order);
     }
@@ -24283,6 +24458,7 @@ static void xkbGetNamedIndicator_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
         &hf_x11_xkb_GetNamedIndicator_reply_map_mods_mask_4,
         &hf_x11_xkb_GetNamedIndicator_reply_map_mods_mask_5,
         &hf_x11_xkb_GetNamedIndicator_reply_map_mods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetNamedIndicator_reply_map_mods, ett_x11_rectangle, map_mods_bits, byte_order);
     }
@@ -24298,6 +24474,7 @@ static void xkbGetNamedIndicator_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
         &hf_x11_xkb_GetNamedIndicator_reply_map_realMods_mask_4,
         &hf_x11_xkb_GetNamedIndicator_reply_map_realMods_mask_5,
         &hf_x11_xkb_GetNamedIndicator_reply_map_realMods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetNamedIndicator_reply_map_realMods, ett_x11_rectangle, map_realMods_bits, byte_order);
     }
@@ -24320,6 +24497,7 @@ static void xkbGetNamedIndicator_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
         &hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_13,
         &hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_14,
         &hf_x11_xkb_GetNamedIndicator_reply_map_vmod_mask_15,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetNamedIndicator_reply_map_vmod, ett_x11_rectangle, map_vmod_bits, byte_order);
     }
@@ -24339,6 +24517,7 @@ static void xkbGetNamedIndicator_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
         &hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_Overlay1Mask,
         &hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_Overlay2Mask,
         &hf_x11_xkb_GetNamedIndicator_reply_map_ctrls_mask_IgnoreGroupLockMask,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetNamedIndicator_reply_map_ctrls, ett_x11_rectangle, map_ctrls_bits, byte_order);
     }
@@ -24374,6 +24553,7 @@ static void xkbSetNamedIndicator(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
         &hf_x11_xkb_SetNamedIndicator_map_flags_mask_LEDDrivesKB,
         &hf_x11_xkb_SetNamedIndicator_map_flags_mask_NoAutomatic,
         &hf_x11_xkb_SetNamedIndicator_map_flags_mask_NoExplicit,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetNamedIndicator_map_flags, ett_x11_rectangle, map_flags_bits, byte_order);
     }
@@ -24385,6 +24565,7 @@ static void xkbSetNamedIndicator(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
         &hf_x11_xkb_SetNamedIndicator_map_whichGroups_mask_UseLocked,
         &hf_x11_xkb_SetNamedIndicator_map_whichGroups_mask_UseEffective,
         &hf_x11_xkb_SetNamedIndicator_map_whichGroups_mask_UseCompat,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetNamedIndicator_map_whichGroups, ett_x11_rectangle, map_whichGroups_bits, byte_order);
     }
@@ -24392,6 +24573,7 @@ static void xkbSetNamedIndicator(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     {
         const int* map_groups_bits [] = {
         &hf_x11_xkb_SetNamedIndicator_map_groups_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetNamedIndicator_map_groups, ett_x11_rectangle, map_groups_bits, byte_order);
     }
@@ -24403,6 +24585,7 @@ static void xkbSetNamedIndicator(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
         &hf_x11_xkb_SetNamedIndicator_map_whichMods_mask_UseLocked,
         &hf_x11_xkb_SetNamedIndicator_map_whichMods_mask_UseEffective,
         &hf_x11_xkb_SetNamedIndicator_map_whichMods_mask_UseCompat,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetNamedIndicator_map_whichMods, ett_x11_rectangle, map_whichMods_bits, byte_order);
     }
@@ -24418,6 +24601,7 @@ static void xkbSetNamedIndicator(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
         &hf_x11_xkb_SetNamedIndicator_map_realMods_mask_4,
         &hf_x11_xkb_SetNamedIndicator_map_realMods_mask_5,
         &hf_x11_xkb_SetNamedIndicator_map_realMods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetNamedIndicator_map_realMods, ett_x11_rectangle, map_realMods_bits, byte_order);
     }
@@ -24440,6 +24624,7 @@ static void xkbSetNamedIndicator(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
         &hf_x11_xkb_SetNamedIndicator_map_vmods_mask_13,
         &hf_x11_xkb_SetNamedIndicator_map_vmods_mask_14,
         &hf_x11_xkb_SetNamedIndicator_map_vmods_mask_15,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetNamedIndicator_map_vmods, ett_x11_rectangle, map_vmods_bits, byte_order);
     }
@@ -24459,6 +24644,7 @@ static void xkbSetNamedIndicator(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
         &hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_Overlay1Mask,
         &hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_Overlay2Mask,
         &hf_x11_xkb_SetNamedIndicator_map_ctrls_mask_IgnoreGroupLockMask,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetNamedIndicator_map_ctrls, ett_x11_rectangle, map_ctrls_bits, byte_order);
     }
@@ -24487,6 +24673,7 @@ static void xkbGetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
         &hf_x11_xkb_GetNames_which_mask_VirtualModNames,
         &hf_x11_xkb_GetNames_which_mask_GroupNames,
         &hf_x11_xkb_GetNames_which_mask_RGNames,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetNames_which, ett_x11_rectangle, which_bits, byte_order);
     }
@@ -24532,6 +24719,7 @@ static void xkbGetNames_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
         &hf_x11_xkb_GetNames_reply_which_mask_VirtualModNames,
         &hf_x11_xkb_GetNames_reply_which_mask_GroupNames,
         &hf_x11_xkb_GetNames_reply_which_mask_RGNames,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetNames_reply_which, ett_x11_rectangle, which_bits, byte_order);
     }
@@ -24550,6 +24738,7 @@ static void xkbGetNames_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
         &hf_x11_xkb_GetNames_reply_groupNames_mask_Group2,
         &hf_x11_xkb_GetNames_reply_groupNames_mask_Group3,
         &hf_x11_xkb_GetNames_reply_groupNames_mask_Group4,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetNames_reply_groupNames, ett_x11_rectangle, groupNames_bits, byte_order);
     }
@@ -24573,6 +24762,7 @@ static void xkbGetNames_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
         &hf_x11_xkb_GetNames_reply_virtualMods_mask_13,
         &hf_x11_xkb_GetNames_reply_virtualMods_mask_14,
         &hf_x11_xkb_GetNames_reply_virtualMods_mask_15,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetNames_reply_virtualMods, ett_x11_rectangle, virtualMods_bits, byte_order);
     }
@@ -24688,6 +24878,7 @@ static void xkbSetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
         &hf_x11_xkb_SetNames_virtualMods_mask_13,
         &hf_x11_xkb_SetNames_virtualMods_mask_14,
         &hf_x11_xkb_SetNames_virtualMods_mask_15,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetNames_virtualMods, ett_x11_rectangle, virtualMods_bits, byte_order);
     }
@@ -24709,6 +24900,7 @@ static void xkbSetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
         &hf_x11_xkb_SetNames_which_mask_VirtualModNames,
         &hf_x11_xkb_SetNames_which_mask_GroupNames,
         &hf_x11_xkb_SetNames_which_mask_RGNames,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetNames_which, ett_x11_rectangle, which_bits, byte_order);
     }
@@ -24732,6 +24924,7 @@ static void xkbSetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
         &hf_x11_xkb_SetNames_groupNames_mask_Group2,
         &hf_x11_xkb_SetNames_groupNames_mask_Group3,
         &hf_x11_xkb_SetNames_groupNames_mask_Group4,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetNames_groupNames, ett_x11_rectangle, groupNames_bits, byte_order);
     }
@@ -24836,6 +25029,7 @@ static void xkbPerClientFlags(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
         &hf_x11_xkb_PerClientFlags_change_mask_AutoResetControls,
         &hf_x11_xkb_PerClientFlags_change_mask_LookupStateWhenGrabbed,
         &hf_x11_xkb_PerClientFlags_change_mask_SendEventUsesXKBState,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_PerClientFlags_change, ett_x11_rectangle, change_bits, byte_order);
     }
@@ -24847,6 +25041,7 @@ static void xkbPerClientFlags(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
         &hf_x11_xkb_PerClientFlags_value_mask_AutoResetControls,
         &hf_x11_xkb_PerClientFlags_value_mask_LookupStateWhenGrabbed,
         &hf_x11_xkb_PerClientFlags_value_mask_SendEventUsesXKBState,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_PerClientFlags_value, ett_x11_rectangle, value_bits, byte_order);
     }
@@ -24866,6 +25061,7 @@ static void xkbPerClientFlags(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
         &hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_Overlay1Mask,
         &hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_Overlay2Mask,
         &hf_x11_xkb_PerClientFlags_ctrlsToChange_mask_IgnoreGroupLockMask,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_PerClientFlags_ctrlsToChange, ett_x11_rectangle, ctrlsToChange_bits, byte_order);
     }
@@ -24885,6 +25081,7 @@ static void xkbPerClientFlags(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
         &hf_x11_xkb_PerClientFlags_autoCtrls_mask_Overlay1Mask,
         &hf_x11_xkb_PerClientFlags_autoCtrls_mask_Overlay2Mask,
         &hf_x11_xkb_PerClientFlags_autoCtrls_mask_IgnoreGroupLockMask,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_PerClientFlags_autoCtrls, ett_x11_rectangle, autoCtrls_bits, byte_order);
     }
@@ -24904,6 +25101,7 @@ static void xkbPerClientFlags(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
         &hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_Overlay1Mask,
         &hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_Overlay2Mask,
         &hf_x11_xkb_PerClientFlags_autoCtrlsValues_mask_IgnoreGroupLockMask,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_PerClientFlags_autoCtrlsValues, ett_x11_rectangle, autoCtrlsValues_bits, byte_order);
     }
@@ -24931,6 +25129,7 @@ static void xkbPerClientFlags_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
         &hf_x11_xkb_PerClientFlags_reply_supported_mask_AutoResetControls,
         &hf_x11_xkb_PerClientFlags_reply_supported_mask_LookupStateWhenGrabbed,
         &hf_x11_xkb_PerClientFlags_reply_supported_mask_SendEventUsesXKBState,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_PerClientFlags_reply_supported, ett_x11_rectangle, supported_bits, byte_order);
     }
@@ -24942,6 +25141,7 @@ static void xkbPerClientFlags_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
         &hf_x11_xkb_PerClientFlags_reply_value_mask_AutoResetControls,
         &hf_x11_xkb_PerClientFlags_reply_value_mask_LookupStateWhenGrabbed,
         &hf_x11_xkb_PerClientFlags_reply_value_mask_SendEventUsesXKBState,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_PerClientFlags_reply_value, ett_x11_rectangle, value_bits, byte_order);
     }
@@ -24961,6 +25161,7 @@ static void xkbPerClientFlags_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
         &hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_Overlay1Mask,
         &hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_Overlay2Mask,
         &hf_x11_xkb_PerClientFlags_reply_autoCtrls_mask_IgnoreGroupLockMask,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_PerClientFlags_reply_autoCtrls, ett_x11_rectangle, autoCtrls_bits, byte_order);
     }
@@ -24980,6 +25181,7 @@ static void xkbPerClientFlags_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
         &hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_Overlay1Mask,
         &hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_Overlay2Mask,
         &hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues_mask_IgnoreGroupLockMask,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_PerClientFlags_reply_autoCtrlsValues, ett_x11_rectangle, autoCtrlsValues_bits, byte_order);
     }
@@ -25060,6 +25262,7 @@ static void xkbGetKbdByName(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         &hf_x11_xkb_GetKbdByName_need_mask_KeyNames,
         &hf_x11_xkb_GetKbdByName_need_mask_Geometry,
         &hf_x11_xkb_GetKbdByName_need_mask_OtherNames,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetKbdByName_need, ett_x11_rectangle, need_bits, byte_order);
     }
@@ -25074,6 +25277,7 @@ static void xkbGetKbdByName(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         &hf_x11_xkb_GetKbdByName_want_mask_KeyNames,
         &hf_x11_xkb_GetKbdByName_want_mask_Geometry,
         &hf_x11_xkb_GetKbdByName_want_mask_OtherNames,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetKbdByName_want, ett_x11_rectangle, want_bits, byte_order);
     }
@@ -25117,6 +25321,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         &hf_x11_xkb_GetKbdByName_reply_found_mask_KeyNames,
         &hf_x11_xkb_GetKbdByName_reply_found_mask_Geometry,
         &hf_x11_xkb_GetKbdByName_reply_found_mask_OtherNames,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetKbdByName_reply_found, ett_x11_rectangle, found_bits, byte_order);
     }
@@ -25132,6 +25337,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         &hf_x11_xkb_GetKbdByName_reply_reported_mask_KeyNames,
         &hf_x11_xkb_GetKbdByName_reply_reported_mask_Geometry,
         &hf_x11_xkb_GetKbdByName_reply_reported_mask_OtherNames,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetKbdByName_reply_reported, ett_x11_rectangle, reported_bits, byte_order);
     }
@@ -25174,6 +25380,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
                 &hf_x11_xkb_GetKbdByName_reply_Types_present_mask_KeyBehaviors,
                 &hf_x11_xkb_GetKbdByName_reply_Types_present_mask_VirtualMods,
                 &hf_x11_xkb_GetKbdByName_reply_Types_present_mask_VirtualModMap,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetKbdByName_reply_Types_present, ett_x11_rectangle, present_bits, byte_order);
         }
@@ -25249,6 +25456,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
                 &hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_13,
                 &hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_14,
                 &hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_15,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetKbdByName_reply_Types_virtualMods, ett_x11_rectangle, virtualMods_bits, byte_order);
         }
@@ -25313,6 +25521,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
                 &hf_x11_xkb_GetKbdByName_reply_CompatMap_groupsRtrn_mask_Group2,
                 &hf_x11_xkb_GetKbdByName_reply_CompatMap_groupsRtrn_mask_Group3,
                 &hf_x11_xkb_GetKbdByName_reply_CompatMap_groupsRtrn_mask_Group4,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetKbdByName_reply_CompatMap_groupsRtrn, ett_x11_rectangle, groupsRtrn_bits, byte_order);
         }
@@ -25386,6 +25595,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
                 &hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_VirtualModNames,
                 &hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_GroupNames,
                 &hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_RGNames,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetKbdByName_reply_KeyNames_which, ett_x11_rectangle, which_bits, byte_order);
         }
@@ -25404,6 +25614,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
                 &hf_x11_xkb_GetKbdByName_reply_KeyNames_groupNames_mask_Group2,
                 &hf_x11_xkb_GetKbdByName_reply_KeyNames_groupNames_mask_Group3,
                 &hf_x11_xkb_GetKbdByName_reply_KeyNames_groupNames_mask_Group4,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetKbdByName_reply_KeyNames_groupNames, ett_x11_rectangle, groupNames_bits, byte_order);
         }
@@ -25427,6 +25638,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
                 &hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_13,
                 &hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_14,
                 &hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_15,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods, ett_x11_rectangle, virtualMods_bits, byte_order);
         }
@@ -25560,6 +25772,7 @@ static void xkbGetDeviceInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
         &hf_x11_xkb_GetDeviceInfo_wanted_mask_IndicatorNames,
         &hf_x11_xkb_GetDeviceInfo_wanted_mask_IndicatorMaps,
         &hf_x11_xkb_GetDeviceInfo_wanted_mask_IndicatorState,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetDeviceInfo_wanted, ett_x11_rectangle, wanted_bits, byte_order);
     }
@@ -25600,6 +25813,7 @@ static void xkbGetDeviceInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
         &hf_x11_xkb_GetDeviceInfo_reply_present_mask_IndicatorNames,
         &hf_x11_xkb_GetDeviceInfo_reply_present_mask_IndicatorMaps,
         &hf_x11_xkb_GetDeviceInfo_reply_present_mask_IndicatorState,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetDeviceInfo_reply_present, ett_x11_rectangle, present_bits, byte_order);
     }
@@ -25611,6 +25825,7 @@ static void xkbGetDeviceInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
         &hf_x11_xkb_GetDeviceInfo_reply_supported_mask_IndicatorNames,
         &hf_x11_xkb_GetDeviceInfo_reply_supported_mask_IndicatorMaps,
         &hf_x11_xkb_GetDeviceInfo_reply_supported_mask_IndicatorState,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetDeviceInfo_reply_supported, ett_x11_rectangle, supported_bits, byte_order);
     }
@@ -25622,6 +25837,7 @@ static void xkbGetDeviceInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
         &hf_x11_xkb_GetDeviceInfo_reply_unsupported_mask_IndicatorNames,
         &hf_x11_xkb_GetDeviceInfo_reply_unsupported_mask_IndicatorMaps,
         &hf_x11_xkb_GetDeviceInfo_reply_unsupported_mask_IndicatorState,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetDeviceInfo_reply_unsupported, ett_x11_rectangle, unsupported_bits, byte_order);
     }
@@ -25678,6 +25894,7 @@ static void xkbSetDeviceInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
         &hf_x11_xkb_SetDeviceInfo_change_mask_IndicatorNames,
         &hf_x11_xkb_SetDeviceInfo_change_mask_IndicatorMaps,
         &hf_x11_xkb_SetDeviceInfo_change_mask_IndicatorState,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetDeviceInfo_change, ett_x11_rectangle, change_bits, byte_order);
     }
@@ -25758,6 +25975,7 @@ static void xkbMapNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_
         &hf_x11_xkb_MapNotify_changed_mask_KeyBehaviors,
         &hf_x11_xkb_MapNotify_changed_mask_VirtualMods,
         &hf_x11_xkb_MapNotify_changed_mask_VirtualModMap,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_MapNotify_changed, ett_x11_rectangle, changed_bits, byte_order);
     }
@@ -25812,6 +26030,7 @@ static void xkbMapNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_
         &hf_x11_xkb_MapNotify_virtualMods_mask_13,
         &hf_x11_xkb_MapNotify_virtualMods_mask_14,
         &hf_x11_xkb_MapNotify_virtualMods_mask_15,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_MapNotify_virtualMods, ett_x11_rectangle, virtualMods_bits, byte_order);
     }
@@ -25841,6 +26060,7 @@ static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
         &hf_x11_xkb_StateNotify_mods_mask_4,
         &hf_x11_xkb_StateNotify_mods_mask_5,
         &hf_x11_xkb_StateNotify_mods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_StateNotify_mods, ett_x11_rectangle, mods_bits, byte_order);
     }
@@ -25856,6 +26076,7 @@ static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
         &hf_x11_xkb_StateNotify_baseMods_mask_4,
         &hf_x11_xkb_StateNotify_baseMods_mask_5,
         &hf_x11_xkb_StateNotify_baseMods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_StateNotify_baseMods, ett_x11_rectangle, baseMods_bits, byte_order);
     }
@@ -25871,6 +26092,7 @@ static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
         &hf_x11_xkb_StateNotify_latchedMods_mask_4,
         &hf_x11_xkb_StateNotify_latchedMods_mask_5,
         &hf_x11_xkb_StateNotify_latchedMods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_StateNotify_latchedMods, ett_x11_rectangle, latchedMods_bits, byte_order);
     }
@@ -25886,6 +26108,7 @@ static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
         &hf_x11_xkb_StateNotify_lockedMods_mask_4,
         &hf_x11_xkb_StateNotify_lockedMods_mask_5,
         &hf_x11_xkb_StateNotify_lockedMods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_StateNotify_lockedMods, ett_x11_rectangle, lockedMods_bits, byte_order);
     }
@@ -25907,6 +26130,7 @@ static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
         &hf_x11_xkb_StateNotify_compatState_mask_4,
         &hf_x11_xkb_StateNotify_compatState_mask_5,
         &hf_x11_xkb_StateNotify_compatState_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_StateNotify_compatState, ett_x11_rectangle, compatState_bits, byte_order);
     }
@@ -25922,6 +26146,7 @@ static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
         &hf_x11_xkb_StateNotify_grabMods_mask_4,
         &hf_x11_xkb_StateNotify_grabMods_mask_5,
         &hf_x11_xkb_StateNotify_grabMods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_StateNotify_grabMods, ett_x11_rectangle, grabMods_bits, byte_order);
     }
@@ -25937,6 +26162,7 @@ static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
         &hf_x11_xkb_StateNotify_compatGrabMods_mask_4,
         &hf_x11_xkb_StateNotify_compatGrabMods_mask_5,
         &hf_x11_xkb_StateNotify_compatGrabMods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_StateNotify_compatGrabMods, ett_x11_rectangle, compatGrabMods_bits, byte_order);
     }
@@ -25952,6 +26178,7 @@ static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
         &hf_x11_xkb_StateNotify_lookupMods_mask_4,
         &hf_x11_xkb_StateNotify_lookupMods_mask_5,
         &hf_x11_xkb_StateNotify_lookupMods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_StateNotify_lookupMods, ett_x11_rectangle, lookupMods_bits, byte_order);
     }
@@ -25967,6 +26194,7 @@ static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
         &hf_x11_xkb_StateNotify_compatLoockupMods_mask_4,
         &hf_x11_xkb_StateNotify_compatLoockupMods_mask_5,
         &hf_x11_xkb_StateNotify_compatLoockupMods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_StateNotify_compatLoockupMods, ett_x11_rectangle, compatLoockupMods_bits, byte_order);
     }
@@ -25986,6 +26214,7 @@ static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
         &hf_x11_xkb_StateNotify_ptrBtnState_mask_Button3,
         &hf_x11_xkb_StateNotify_ptrBtnState_mask_Button4,
         &hf_x11_xkb_StateNotify_ptrBtnState_mask_Button5,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_StateNotify_ptrBtnState, ett_x11_rectangle, ptrBtnState_bits, byte_order);
     }
@@ -26006,6 +26235,7 @@ static void xkbStateNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
         &hf_x11_xkb_StateNotify_changed_mask_LookupMods,
         &hf_x11_xkb_StateNotify_changed_mask_CompatLookupMods,
         &hf_x11_xkb_StateNotify_changed_mask_PointerButtons,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_StateNotify_changed, ett_x11_rectangle, changed_bits, byte_order);
     }
@@ -26041,6 +26271,7 @@ static void xkbControlsNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint 
         &hf_x11_xkb_ControlsNotify_changedControls_mask_IgnoreLockMods,
         &hf_x11_xkb_ControlsNotify_changedControls_mask_PerKeyRepeat,
         &hf_x11_xkb_ControlsNotify_changedControls_mask_ControlsEnabled,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_ControlsNotify_changedControls, ett_x11_rectangle, changedControls_bits, byte_order);
     }
@@ -26060,6 +26291,7 @@ static void xkbControlsNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint 
         &hf_x11_xkb_ControlsNotify_enabledControls_mask_Overlay1Mask,
         &hf_x11_xkb_ControlsNotify_enabledControls_mask_Overlay2Mask,
         &hf_x11_xkb_ControlsNotify_enabledControls_mask_IgnoreGroupLockMask,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_ControlsNotify_enabledControls, ett_x11_rectangle, enabledControls_bits, byte_order);
     }
@@ -26079,6 +26311,7 @@ static void xkbControlsNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint 
         &hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_Overlay1Mask,
         &hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_Overlay2Mask,
         &hf_x11_xkb_ControlsNotify_enabledControlChanges_mask_IgnoreGroupLockMask,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_ControlsNotify_enabledControlChanges, ett_x11_rectangle, enabledControlChanges_bits, byte_order);
     }
@@ -26163,6 +26396,7 @@ static void xkbNamesNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
         &hf_x11_xkb_NamesNotify_changed_mask_VirtualModNames,
         &hf_x11_xkb_NamesNotify_changed_mask_GroupNames,
         &hf_x11_xkb_NamesNotify_changed_mask_RGNames,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_NamesNotify_changed, ett_x11_rectangle, changed_bits, byte_order);
     }
@@ -26187,6 +26421,7 @@ static void xkbNamesNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
         &hf_x11_xkb_NamesNotify_changedGroupNames_mask_Group2,
         &hf_x11_xkb_NamesNotify_changedGroupNames_mask_Group3,
         &hf_x11_xkb_NamesNotify_changedGroupNames_mask_Group4,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_NamesNotify_changedGroupNames, ett_x11_rectangle, changedGroupNames_bits, byte_order);
     }
@@ -26209,6 +26444,7 @@ static void xkbNamesNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byt
         &hf_x11_xkb_NamesNotify_changedVirtualMods_mask_13,
         &hf_x11_xkb_NamesNotify_changedVirtualMods_mask_14,
         &hf_x11_xkb_NamesNotify_changedVirtualMods_mask_15,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_NamesNotify_changedVirtualMods, ett_x11_rectangle, changedVirtualMods_bits, byte_order);
     }
@@ -26239,6 +26475,7 @@ static void xkbCompatMapNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint
         &hf_x11_xkb_CompatMapNotify_changedGroups_mask_Group2,
         &hf_x11_xkb_CompatMapNotify_changedGroups_mask_Group3,
         &hf_x11_xkb_CompatMapNotify_changedGroups_mask_Group4,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_CompatMapNotify_changedGroups, ett_x11_rectangle, changedGroups_bits, byte_order);
     }
@@ -26309,6 +26546,7 @@ static void xkbActionMessage(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint b
         &hf_x11_xkb_ActionMessage_mods_mask_4,
         &hf_x11_xkb_ActionMessage_mods_mask_5,
         &hf_x11_xkb_ActionMessage_mods_mask_Any,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_ActionMessage_mods, ett_x11_rectangle, mods_bits, byte_order);
     }
@@ -26340,6 +26578,7 @@ static void xkbAccessXNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint b
         &hf_x11_xkb_AccessXNotify_detailt_mask_BKAccept,
         &hf_x11_xkb_AccessXNotify_detailt_mask_BKReject,
         &hf_x11_xkb_AccessXNotify_detailt_mask_AXKWarning,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_AccessXNotify_detailt, ett_x11_rectangle, detailt_bits, byte_order);
     }
@@ -26371,6 +26610,7 @@ static void xkbExtensionDeviceNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t,
         &hf_x11_xkb_ExtensionDeviceNotify_reason_mask_IndicatorNames,
         &hf_x11_xkb_ExtensionDeviceNotify_reason_mask_IndicatorMaps,
         &hf_x11_xkb_ExtensionDeviceNotify_reason_mask_IndicatorState,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_ExtensionDeviceNotify_reason, ett_x11_rectangle, reason_bits, byte_order);
     }
@@ -26393,6 +26633,7 @@ static void xkbExtensionDeviceNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t,
         &hf_x11_xkb_ExtensionDeviceNotify_supported_mask_IndicatorNames,
         &hf_x11_xkb_ExtensionDeviceNotify_supported_mask_IndicatorMaps,
         &hf_x11_xkb_ExtensionDeviceNotify_supported_mask_IndicatorState,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_ExtensionDeviceNotify_supported, ett_x11_rectangle, supported_bits, byte_order);
     }
@@ -26404,6 +26645,7 @@ static void xkbExtensionDeviceNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t,
         &hf_x11_xkb_ExtensionDeviceNotify_unsupported_mask_IndicatorNames,
         &hf_x11_xkb_ExtensionDeviceNotify_unsupported_mask_IndicatorMaps,
         &hf_x11_xkb_ExtensionDeviceNotify_unsupported_mask_IndicatorState,
+        NULL
         };
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_ExtensionDeviceNotify_unsupported, ett_x11_rectangle, unsupported_bits, byte_order);
     }
@@ -28143,6 +28385,7 @@ static void struct_xv_AdaptorInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root,
                 &hf_x11_struct_xv_AdaptorInfo_type_mask_VideoMask,
                 &hf_x11_struct_xv_AdaptorInfo_type_mask_StillMask,
                 &hf_x11_struct_xv_AdaptorInfo_type_mask_ImageMask,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xv_AdaptorInfo_type, ett_x11_rectangle, type_bits, byte_order);
         }
@@ -28222,6 +28465,7 @@ static void struct_xv_AttributeInfo(tvbuff_t *tvb, int *offsetp, proto_tree *roo
             const int* flags_bits [] = {
                 &hf_x11_struct_xv_AttributeInfo_flags_mask_Gettable,
                 &hf_x11_struct_xv_AttributeInfo_flags_mask_Settable,
+                NULL
             };
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_struct_xv_AttributeInfo_flags, ett_x11_rectangle, flags_bits, byte_order);
         }

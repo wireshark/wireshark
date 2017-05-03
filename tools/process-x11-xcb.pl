@@ -822,6 +822,7 @@ sub dissect_element($$$$$;$$)
                         my $item = $regname . '_mask_' . $$bit{$val};
                         say $impl "$indent$indent&$item,";
                     }
+                    say $impl "$indent$indent" . "NULL";
                     say $impl $indent."    };";
 
                     say $impl $indent."    proto_tree_add_bitmask(t,  tvb, *offsetp, $regname, ett_x11_rectangle, $bitmask_field, $encoding);";
