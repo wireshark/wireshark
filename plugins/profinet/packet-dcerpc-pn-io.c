@@ -2088,7 +2088,7 @@ static const value_string pn_io_index[] = {
     { 0xB01E, "reserved for profiles" },
     { 0xB01F, "reserved for profiles" },
     { 0xB020, "reserved for profiles" },
-    { 0xB001, "reserved for profiles" },
+    { 0xB021, "reserved for profiles" },
     { 0xB022, "reserved for profiles" },
     { 0xB023, "reserved for profiles" },
     { 0xB024, "reserved for profiles" },
