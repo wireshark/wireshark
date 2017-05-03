@@ -184,7 +184,7 @@ fill_fp_info(fp_info* p_fp_info, guchar* extra_info, guint32 length)
 static int
 dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree, void* data _U_)
 {
-	static dissector_handle_t data_handles[] = {NULL, NULL};
+	static dissector_handle_t data_handles[2] = {NULL, NULL};
 	proto_item* k12_item;
 	proto_tree* k12_tree;
 	proto_item* stack_item;
@@ -312,17 +312,20 @@ k12_update_cb(void* r, char** err)
 		g_strstrip(protos[num_protos]);
 
 	g_free(h->handles);
-	h->handles = (dissector_handle_t *)g_malloc0(sizeof(dissector_handle_t)*(num_protos < 2 ? 2 : num_protos));
+	/* Allocate extra space for NULL marker */
+	h->handles = (dissector_handle_t *)g_malloc0(sizeof(dissector_handle_t)*(num_protos+1));
 
 	for (i = 0; i < num_protos; i++) {
 		if ( ! (h->handles[i] = find_dissector(protos[i])) ) {
 			h->handles[i] = data_handle;
+			h->handles[i+1] = NULL;
 			g_strfreev(protos);
 			*err = g_strdup_printf("Could not find dissector for: '%s'",protos[i]);
 			return FALSE;
 		}
 	}
 
+	h->handles[i] = NULL;
 	g_strfreev(protos);
 	*err = NULL;
 	return TRUE;
