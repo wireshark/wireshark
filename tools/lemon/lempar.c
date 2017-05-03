@@ -318,7 +318,7 @@ static int yyGrowStack(yyParser *p){
 
 /* Initialize a new parser that has already been allocated.
 */
-void ParseInit(void *yypParser){
+static void ParseInit(void *yypParser){
   yyParser *pParser = (yyParser*)yypParser;
 #ifdef YYTRACKMAXSTACKDEPTH
   pParser->yyhwm = 0;
@@ -417,7 +417,7 @@ static void yy_pop_parser_stack(yyParser *pParser){
 /*
 ** Clear all secondary memory allocations from the parser
 */
-void ParseFinalize(void *p){
+static void ParseFinalize(void *p){
   yyParser *pParser = (yyParser*)p;
   while( pParser->yytos>pParser->yystack ) yy_pop_parser_stack(pParser);
 #if YYSTACKDEPTH<=0
