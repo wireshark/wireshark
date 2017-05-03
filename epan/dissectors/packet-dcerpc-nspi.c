@@ -3727,7 +3727,6 @@ const value_string nspi_property_types_vals[] = {
 	{ PT_MV_APPTIME, "PT_MV_APPTIME" },
 	{ PT_MV_I8, "PT_MV_I8" },
 	{ PT_MV_STRING8, "PT_MV_STRING8" },
-	{ PT_MV_TSTRING, "PT_MV_TSTRING" },
 	{ PT_MV_UNICODE, "PT_MV_UNICODE" },
 	{ PT_MV_SYSTIME, "PT_MV_SYSTIME" },
 	{ PT_MV_CLSID, "PT_MV_CLSID" },
@@ -8275,7 +8274,6 @@ nspi_dissect_struct_NAME_STRING(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 /* IDL: 	PT_MV_APPTIME=0x1007, */
 /* IDL: 	PT_MV_I8=0x1014, */
 /* IDL: 	PT_MV_STRING8=0x101e, */
-/* IDL: 	PT_MV_TSTRING=0x101e, */
 /* IDL: 	PT_MV_UNICODE=0x101f, */
 /* IDL: 	PT_MV_SYSTIME=0x1040, */
 /* IDL: 	PT_MV_CLSID=0x1048, */
