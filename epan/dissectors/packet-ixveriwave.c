@@ -1437,7 +1437,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
             }
 
             proto_tree_add_item(rfinfo_contextp_tree, hf_radiotap_rfinfo_sigbwevmD, tvb, offset, 1, ENC_NA);
-            offset += 2;
+            /*offset += 2;*/
         }
     }
     if (cmd_type !=3) //only RF
@@ -1570,7 +1570,6 @@ ethernettap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
     if (length_remaining >= 4) {
         proto_tree_add_item(tap_tree, hf_ixveriwave_vw_l4id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
-        offset              +=4;
         length_remaining    -=4;
     }
 
@@ -1952,8 +1951,6 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         vht_ndp_flag = tvb_get_guint8(tvb,offset) & 0x80;
         offset++;
 
-        vw_flags = tvb_get_letohs(tvb, 16); /**extract the transmit/rcvd direction flag**/
-
         /* MCS index */
         mcs_index = tvb_get_guint8(tvb, offset);
         offset++;
@@ -2202,7 +2199,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                 /* VHT-SIG */
                 /* XXX - does this include VHT-SIG-B? */
-                offset = decode_vht_sig(tap_tree, tvb, offset, &phdr);
+                decode_vht_sig(tap_tree, tvb, offset, &phdr);
             }
         }
     }
@@ -2704,7 +2701,6 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset +=2;
 
             proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_clientidvalid, tvb, offset, 1, ENC_NA);
-            bssidv = ((tvb_get_guint8(tvb, offset)& 0x40) >> 6);
             proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_bssidvalid, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_unicastormulticast, tvb, offset, 1, ENC_NA);
             offset++;
@@ -2785,7 +2781,6 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         offset      +=3;
-        vw_errors = tvb_get_letohl(tvb, offset);
 
         /* build the individual subtrees for the various types of error flags */
         /* NOTE: as the upper 16 bits aren't used at the moment, we pretend that */
@@ -2843,7 +2838,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_vw_tx_retrycount, tvb, offset+2, 1, ENC_NA);
             proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_vw_tx_factorydebug, tvb, offset+2, 2, ENC_LITTLE_ENDIAN);
         }
-        offset      +=4;
+        /*offset      +=4;*/
 
         if (vwl2l4t && log_mode)
             proto_item_append_text(vwl2l4t, " (Reduced)");
