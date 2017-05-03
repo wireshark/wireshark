@@ -29,6 +29,9 @@
 #include <epan/packet.h>
 #include "packet-netlink.h"
 
+void proto_register_netlink_nl80211(void);
+void proto_reg_handoff_netlink_nl80211(void);
+
 /* Extracted using tools/make-nl80211-fields.py */
 /* Definitions from linux/nl80211.h {{{ */
 enum ws_nl80211_commands {
