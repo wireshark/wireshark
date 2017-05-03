@@ -24,7 +24,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
+#include <epan/expert.h>
 
 void proto_register_docsis_dccack(void);
 void proto_reg_handoff_docsis_dccack(void);
@@ -42,6 +42,8 @@ static int hf_docsis_dccack_hmac_digest = -1;
 /* Initialize the subtree pointers */
 static gint ett_docsis_dccack = -1;
 
+static expert_field ei_docsis_dccack_tlvlen_bad = EI_INIT;
+
 static dissector_handle_t docsis_dccack_handle;
 
 /* Dissection */
@@ -58,47 +60,45 @@ dissect_dccack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 
   col_set_str(pinfo->cinfo, COL_INFO, "DCC-ACK Message: ");
 
-  if (tree)
-    {
-      dcc_item =
+  dcc_item =
         proto_tree_add_protocol_format (tree, proto_docsis_dccack, tvb, 0,
                                         -1, "DCC-ACK Message");
-      dcc_tree = proto_item_add_subtree (dcc_item, ett_docsis_dccack);
-      proto_tree_add_item (dcc_tree, hf_docsis_dccack_tran_id, tvb, 0, 2, ENC_BIG_ENDIAN);
+  dcc_tree = proto_item_add_subtree (dcc_item, ett_docsis_dccack);
+  proto_tree_add_item (dcc_tree, hf_docsis_dccack_tran_id, tvb, 0, 2, ENC_BIG_ENDIAN);
 
-      pos = 2;
-      while (pos < len)
+  pos = 2;
+  while (pos < len)
+    {
+        type = tvb_get_guint8 (tvb, pos++);
+        length = tvb_get_guint8 (tvb, pos++);
+        switch (type)
         {
-          type = tvb_get_guint8 (tvb, pos++);
-          length = tvb_get_guint8 (tvb, pos++);
-          switch (type)
+        case DCCACK_KEY_SEQ_NUM:
+            if (length == 1)
             {
-            case DCCACK_KEY_SEQ_NUM:
-              if (length == 1)
-                {
-                  proto_tree_add_item (dcc_tree, hf_docsis_dccack_key_seq_num, tvb,
-                                       pos, length, ENC_BIG_ENDIAN);
-                }
-              else
-                {
-                  THROW (ReportedBoundsError);
-                }
-              break;
-            case DCCACK_HMAC_DIGEST:
-              if (length == 20)
-                {
-                  proto_tree_add_item (dcc_tree, hf_docsis_dccack_hmac_digest, tvb,
-                                       pos, length, ENC_NA);
-                }
-              else
-                {
-                  THROW (ReportedBoundsError);
-                }
-              break;
-            }                   /* switch(type) */
-          pos = pos + length;
-        }                       /* while (pos < len) */
-    }                           /* if (tree) */
+                proto_tree_add_item (dcc_tree, hf_docsis_dccack_key_seq_num, tvb,
+                                    pos, length, ENC_BIG_ENDIAN);
+            }
+            else
+            {
+                expert_add_info_format(pinfo, dcc_item, &ei_docsis_dccack_tlvlen_bad, "Wrong TLV length: %u", length);
+            }
+            break;
+        case DCCACK_HMAC_DIGEST:
+            if (length == 20)
+            {
+                proto_tree_add_item (dcc_tree, hf_docsis_dccack_hmac_digest, tvb,
+                                    pos, length, ENC_NA);
+            }
+            else
+            {
+                expert_add_info_format(pinfo, dcc_item, &ei_docsis_dccack_tlvlen_bad, "Wrong TLV length: %u", length);
+            }
+            break;
+        }                   /* switch(type) */
+        pos = pos + length;
+    }                       /* while (pos < len) */
+
     return tvb_captured_length(tvb);
 }
 
@@ -141,12 +141,20 @@ proto_register_docsis_dccack (void)
     &ett_docsis_dccack,
   };
 
+  static ei_register_info ei[] = {
+    {&ei_docsis_dccack_tlvlen_bad, { "docsis_dccack.tlvlenbad", PI_MALFORMED, PI_ERROR, "Bad TLV length", EXPFILL}},
+  };
+
+  expert_module_t* expert_docsis_dccack;
+
   proto_docsis_dccack =
     proto_register_protocol ("DOCSIS Downstream Channel Change Acknowledge",
                              "DOCSIS DCC-ACK", "docsis_dccack");
 
   proto_register_field_array (proto_docsis_dccack, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
+  expert_docsis_dccack = expert_register_protocol(proto_docsis_dccack);
+  expert_register_field_array(expert_docsis_dccack, ei, array_length(ei));
 
   docsis_dccack_handle = register_dissector ("docsis_dccack", dissect_dccack, proto_docsis_dccack);
 }

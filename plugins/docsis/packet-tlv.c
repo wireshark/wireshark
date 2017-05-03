@@ -26,7 +26,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
+#include <epan/expert.h>
 
 #include "packet-tlv.h"
 
@@ -434,6 +434,8 @@ static gint ett_docsis_tlv_sec_assoc = -1;
 static gint ett_docsis_tlv_ch_asgn = -1;
 static gint ett_docsis_cmts_mc_sess_enc = -1;
 
+static expert_field ei_docsis_tlv_tlvlen_bad = EI_INIT;
+
 static const true_false_string on_off_tfs = {
   "On",
   "Off"
@@ -714,15 +716,15 @@ static const value_string fctype_fwd_vals[] = {
 
 /* Dissection */
 static void
-dissect_phs_err (tvbuff_t * tvb, proto_tree * tree, int start,
-                 guint16 len)
+dissect_phs_err (tvbuff_t * tvb, packet_info *pinfo, proto_tree * tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *err_tree;
+  proto_item *err_item;
   int pos = start;
 
   err_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_sflow_err, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_sflow_err, &err_item,
                                   "5 Service Flow Error Encodings (Length = %u)", len);
 
   while (pos < (start + len))
@@ -739,7 +741,7 @@ dissect_phs_err (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, err_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case PHS_ERR_CODE:
@@ -750,7 +752,7 @@ dissect_phs_err (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, err_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case PHS_ERR_MSG:
@@ -764,14 +766,15 @@ dissect_phs_err (tvbuff_t * tvb, proto_tree * tree, int start,
 }
 
 static void
-dissect_phs (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
+dissect_phs (tvbuff_t * tvb, packet_info *pinfo, proto_tree * tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *phs_tree;
+  proto_item *phs_item;
   int pos = start;
 
   phs_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_phs, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_phs, &phs_item,
                                   "26 PHS Encodings (Length = %u)", len);
 
   while (pos < (start + len))
@@ -788,7 +791,7 @@ dissect_phs (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, phs_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case PHS_CLSFR_ID:
@@ -799,7 +802,7 @@ dissect_phs (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, phs_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case PHS_SFLOW_REF:
@@ -810,7 +813,7 @@ dissect_phs (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, phs_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case PHS_SFLOW_ID:
@@ -821,7 +824,7 @@ dissect_phs (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, phs_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case PHS_DSC_ACTION:
@@ -832,11 +835,11 @@ dissect_phs (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, phs_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case PHS_ERRORS:
-            dissect_phs_err (tvb, phs_tree, pos, length);
+            dissect_phs_err (tvb, pinfo, phs_tree, pos, length);
             break;
           case PHS_FIELD:
             proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_phsf, tvb, pos,
@@ -850,7 +853,7 @@ dissect_phs (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, phs_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case PHS_MASK:
@@ -865,7 +868,7 @@ dissect_phs (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, phs_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case PHS_VERIFICATION:
@@ -876,7 +879,7 @@ dissect_phs (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, phs_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case PHS_VENDOR_SPEC:
@@ -912,15 +915,16 @@ dissect_reqxmit_policy (tvbuff_t * tvb, proto_tree * tree, int start)
 }
 
 static void
-dissect_sflow_err (tvbuff_t * tvb, proto_tree * tree, int start,
+dissect_sflow_err (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start,
                    guint16 len)
 {
   guint8 type, length;
   proto_tree *err_tree;
+  proto_item *err_item;
   int pos = start;
 
   err_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_sflow_err, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_sflow_err, &err_item,
                                   "5 Service Flow Error Encodings (Length = %u)", len);
 
   while (pos < (start + len))
@@ -937,7 +941,7 @@ dissect_sflow_err (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, err_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SFW_ERR_CODE:
@@ -948,7 +952,7 @@ dissect_sflow_err (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, err_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SFW_ERR_MSG:
@@ -962,8 +966,8 @@ dissect_sflow_err (tvbuff_t * tvb, proto_tree * tree, int start,
 }
 
 static void
-dissect_downstream_sflow (tvbuff_t * tvb, proto_tree * sflow_tree,
-                          int start, guint16 len)
+dissect_downstream_sflow (tvbuff_t * tvb, packet_info* pinfo, proto_tree * sflow_tree,
+                          proto_item* sflow_item, int start, guint16 len)
 {
   guint8 type, length;
   int pos = start;
@@ -983,8 +987,7 @@ dissect_downstream_sflow (tvbuff_t * tvb, proto_tree * sflow_tree,
             }
           else
             {
-              THROW (ReportedBoundsError);
-
+              expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
             }
           break;
         }                       /* switch */
@@ -994,8 +997,8 @@ dissect_downstream_sflow (tvbuff_t * tvb, proto_tree * sflow_tree,
 }
 
 static void
-dissect_upstream_sflow (tvbuff_t * tvb, proto_tree * sflow_tree,
-                        int start, guint16 len)
+dissect_upstream_sflow (tvbuff_t * tvb, packet_info* pinfo, proto_tree * sflow_tree,
+                        proto_item* sflow_item, int start, guint16 len)
 {
   guint8 type, length;
   int pos = start;
@@ -1015,8 +1018,7 @@ dissect_upstream_sflow (tvbuff_t * tvb, proto_tree * sflow_tree,
               }
             else
               {
-                THROW (ReportedBoundsError);
-
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SFW_SCHEDULING_TYPE:
@@ -1027,7 +1029,7 @@ dissect_upstream_sflow (tvbuff_t * tvb, proto_tree * sflow_tree,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SFW_REQ_XMIT_POL:
@@ -1042,7 +1044,7 @@ dissect_upstream_sflow (tvbuff_t * tvb, proto_tree * sflow_tree,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SFW_POLL_JTTR_TOL:
@@ -1054,7 +1056,7 @@ dissect_upstream_sflow (tvbuff_t * tvb, proto_tree * sflow_tree,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SFW_UG_SIZE:
@@ -1065,7 +1067,7 @@ dissect_upstream_sflow (tvbuff_t * tvb, proto_tree * sflow_tree,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SFW_NOM_GRNT_INTV:
@@ -1077,7 +1079,7 @@ dissect_upstream_sflow (tvbuff_t * tvb, proto_tree * sflow_tree,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SFW_GRNT_JTTR_TOL:
@@ -1089,7 +1091,7 @@ dissect_upstream_sflow (tvbuff_t * tvb, proto_tree * sflow_tree,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SFW_GRNTS_PER_INTV:
@@ -1101,7 +1103,7 @@ dissect_upstream_sflow (tvbuff_t * tvb, proto_tree * sflow_tree,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SFW_IP_TOS_OVERWRITE:
@@ -1113,7 +1115,7 @@ dissect_upstream_sflow (tvbuff_t * tvb, proto_tree * sflow_tree,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SFW_UG_TIME_REF:
@@ -1125,7 +1127,7 @@ dissect_upstream_sflow (tvbuff_t * tvb, proto_tree * sflow_tree,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
 
@@ -1136,20 +1138,21 @@ dissect_upstream_sflow (tvbuff_t * tvb, proto_tree * sflow_tree,
 }
 
 static void
-dissect_sflow (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len,
+dissect_sflow (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start, guint16 len,
                guint8 direction)
 {
   guint8 type, length;
   proto_tree *sflow_tree;
+  proto_item *sflow_item;
   int pos = start;
 
   if (direction == 24)
     sflow_tree =
-      proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_clsfr, NULL,
+      proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_clsfr, &sflow_item,
                                     "24 Upstream Service Flow (Length = %u)", len);
   else if (direction == 25)
     sflow_tree =
-      proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_clsfr, NULL,
+      proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_clsfr, &sflow_item,
                                     "25 Downstream Service Flow (Length = %u)", len);
   else
     return;
@@ -1168,7 +1171,7 @@ dissect_sflow (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SFW_ID:
@@ -1179,7 +1182,7 @@ dissect_sflow (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SFW_SID:
@@ -1190,7 +1193,7 @@ dissect_sflow (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SFW_SERVICE_CLASS_NAME:
@@ -1198,7 +1201,7 @@ dissect_sflow (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len,
                                  pos, length, ENC_ASCII|ENC_NA);
             break;
           case SFW_ERRORS:
-            dissect_sflow_err (tvb, sflow_tree, pos, length);
+            dissect_sflow_err (tvb, pinfo, sflow_tree, pos, length);
             break;
           case SFW_QOS_SET_TYPE:
             if (length == 1)
@@ -1208,7 +1211,7 @@ dissect_sflow (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SFW_TRAF_PRI:
@@ -1219,7 +1222,7 @@ dissect_sflow (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SFW_MAX_SUSTAINED:
@@ -1230,7 +1233,7 @@ dissect_sflow (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SFW_MAX_BURST:
@@ -1241,7 +1244,7 @@ dissect_sflow (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SFW_MIN_RSVD_TRAF:
@@ -1252,7 +1255,7 @@ dissect_sflow (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SFW_MIN_RSVD_PACKETSIZE:
@@ -1264,7 +1267,7 @@ dissect_sflow (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SFW_ACTIVE_QOS_TIMEOUT:
@@ -1276,7 +1279,7 @@ dissect_sflow (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SFW_ADMITT_QOS_TIMEOUT:
@@ -1288,7 +1291,7 @@ dissect_sflow (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SFW_VENDOR_SPEC:
@@ -1297,9 +1300,9 @@ dissect_sflow (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len,
             break;
           default:
             if (direction == 24)
-              dissect_upstream_sflow (tvb, sflow_tree, pos - 2, length);
+              dissect_upstream_sflow (tvb, pinfo, sflow_tree, sflow_item, pos - 2, length);
             else
-              dissect_downstream_sflow (tvb, sflow_tree, pos - 2, length);
+              dissect_downstream_sflow (tvb, pinfo, sflow_tree, sflow_item, pos - 2, length);
             break;
 
         }                       /* switch (type) */
@@ -1309,15 +1312,16 @@ dissect_sflow (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len,
 }
 
 static void
-dissect_dot1q_clsfr (tvbuff_t * tvb, proto_tree * tree, int start,
+dissect_dot1q_clsfr (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start,
                      guint16 len)
 {
   guint8 type, length;
   proto_tree *dot1qclsfr_tree;
+  proto_item *dot1qclsfr_item;
   int pos = start;
 
   dot1qclsfr_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_cos, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_cos, &dot1qclsfr_item,
                                   "11 801.1P/Q Classifiers (Length = %u)", len);
 
   while (pos < (start + len))
@@ -1335,7 +1339,7 @@ dissect_dot1q_clsfr (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dot1qclsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CFR_D1Q_VLAN_ID:
@@ -1347,7 +1351,7 @@ dissect_dot1q_clsfr (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dot1qclsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CFR_D1Q_VENDOR_SPEC:
@@ -1362,15 +1366,16 @@ dissect_dot1q_clsfr (tvbuff_t * tvb, proto_tree * tree, int start,
 }
 
 static void
-dissect_eth_clsfr (tvbuff_t * tvb, proto_tree * tree, int start,
+dissect_eth_clsfr (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start,
                    guint16 len)
 {
   guint8 type, length;
   proto_tree *ethclsfr_tree;
+  proto_item *ethclsfr_item;
   int pos = start;
 
   ethclsfr_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_clsfr_eth, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_clsfr_eth, &ethclsfr_item,
                                   "10 Ethernet Classifiers (Length = %u)", len);
 
   while (pos < (start + len))
@@ -1387,7 +1392,7 @@ dissect_eth_clsfr (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, ethclsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CFR_ETH_SRC_MAC:
@@ -1398,7 +1403,7 @@ dissect_eth_clsfr (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, ethclsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CFR_ETH_DSAP:
@@ -1410,7 +1415,7 @@ dissect_eth_clsfr (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, ethclsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
         }                       /* switch */
@@ -1420,15 +1425,16 @@ dissect_eth_clsfr (tvbuff_t * tvb, proto_tree * tree, int start,
 }
 
 static void
-dissect_clsfr_err (tvbuff_t * tvb, proto_tree * tree, int start,
+dissect_clsfr_err (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start,
                    guint16 len)
 {
   guint8 type, length;
   proto_tree *err_tree;
+  proto_tree *err_item;
   int pos = start;
 
   err_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_clsfr_err, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_clsfr_err, &err_item,
                                   "8 Classifier Error Encodings (Length = %u)", len);
 
   while (pos < (start + len))
@@ -1450,7 +1456,7 @@ dissect_clsfr_err (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, err_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CFR_ERR_CODE:
@@ -1461,7 +1467,7 @@ dissect_clsfr_err (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, err_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CFR_ERR_MSG:
@@ -1475,15 +1481,16 @@ dissect_clsfr_err (tvbuff_t * tvb, proto_tree * tree, int start,
 }
 
 static void
-dissect_ip_classifier (tvbuff_t * tvb, proto_tree * tree, int start,
+dissect_ip_classifier (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start,
                        guint16 len)
 {
   guint8 type, length;
   proto_tree *ipclsfr_tree;
+  proto_tree *ipclsfr_item;
   int pos = start;
 
   ipclsfr_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_clsfr_ip, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_clsfr_ip, &ipclsfr_item,
                                   "9 IP Classifier (Length = %u)", len);
 
   while (pos < (start + len))
@@ -1501,7 +1508,7 @@ dissect_ip_classifier (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, ipclsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CFR_IP_PROTO:
@@ -1513,7 +1520,7 @@ dissect_ip_classifier (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, ipclsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CFR_IP_SOURCE_ADDR:
@@ -1524,7 +1531,7 @@ dissect_ip_classifier (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, ipclsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CFR_IP_SOURCE_MASK:
@@ -1536,7 +1543,7 @@ dissect_ip_classifier (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, ipclsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CFR_IP_DEST_ADDR:
@@ -1547,7 +1554,7 @@ dissect_ip_classifier (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, ipclsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CFR_IP_DEST_MASK:
@@ -1559,7 +1566,7 @@ dissect_ip_classifier (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, ipclsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CFR_IP_SRCPORT_START:
@@ -1571,7 +1578,7 @@ dissect_ip_classifier (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, ipclsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CFR_IP_SRCPORT_END:
@@ -1583,7 +1590,7 @@ dissect_ip_classifier (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, ipclsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CFR_IP_DSTPORT_START:
@@ -1595,7 +1602,7 @@ dissect_ip_classifier (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, ipclsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CFR_IP_DSTPORT_END:
@@ -1607,7 +1614,7 @@ dissect_ip_classifier (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, ipclsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
         }                       /* switch */
@@ -1617,21 +1624,22 @@ dissect_ip_classifier (tvbuff_t * tvb, proto_tree * tree, int start,
 }
 
 static void
-dissect_classifiers (tvbuff_t * tvb, proto_tree * tree, int start,
+dissect_classifiers (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start,
                      guint16 len, guint8 direction)
 {
   guint8 type, length;
   proto_tree *clsfr_tree;
+  proto_item *clsfr_item;
   int pos = start;
 
   if (direction == 22)
     clsfr_tree =
-      proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_clsfr, NULL,
+      proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_clsfr, &clsfr_item,
                                     "22 Upstream Packet Classifier (Length = %u)",
                                     len);
   else if (direction == 23)
     clsfr_tree =
-      proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_clsfr, NULL,
+      proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_clsfr, &clsfr_item,
                                     "23 Downstream Packet Classifier (Length = %u)",
                                     len);
   else
@@ -1651,7 +1659,7 @@ dissect_classifiers (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, clsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CFR_ID:
@@ -1662,7 +1670,7 @@ dissect_classifiers (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, clsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CFR_SFLOW_REF:
@@ -1673,7 +1681,7 @@ dissect_classifiers (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, clsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CFR_SFLOW_ID:
@@ -1684,7 +1692,7 @@ dissect_classifiers (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, clsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CFR_RULE_PRI:
@@ -1695,7 +1703,7 @@ dissect_classifiers (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, clsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CFR_ACT_STATE:
@@ -1706,7 +1714,7 @@ dissect_classifiers (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, clsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CFR_DSA_ACTION:
@@ -1717,20 +1725,20 @@ dissect_classifiers (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, clsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CFR_ERROR:
-            dissect_clsfr_err (tvb, clsfr_tree, pos, length);
+            dissect_clsfr_err (tvb, pinfo, clsfr_tree, pos, length);
             break;
           case CFR_IP_CLASSIFIER:
-            dissect_ip_classifier (tvb, clsfr_tree, pos, length);
+            dissect_ip_classifier (tvb, pinfo, clsfr_tree, pos, length);
             break;
           case CFR_ETH_CLASSIFIER:
-            dissect_eth_clsfr (tvb, clsfr_tree, pos, length);
+            dissect_eth_clsfr (tvb, pinfo, clsfr_tree, pos, length);
             break;
           case CFR_8021Q_CLASSIFIER:
-            dissect_dot1q_clsfr (tvb, clsfr_tree, pos, length);
+            dissect_dot1q_clsfr (tvb, pinfo, clsfr_tree, pos, length);
             break;
           case CFR_VENDOR_SPEC:
             proto_tree_add_item (clsfr_tree, hf_docsis_tlv_clsfr_vendor_spc,
@@ -1743,15 +1751,16 @@ dissect_classifiers (tvbuff_t * tvb, proto_tree * tree, int start,
 }
 
 static void
-dissect_doc10cos (tvbuff_t * tvb, proto_tree * tree, int start,
+dissect_doc10cos (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start,
                   guint16 len)
 {
   guint8 type, length;
   proto_tree *doc10cos_tree;
+  proto_tree *doc10cos_item;
   int pos = start;
 
   doc10cos_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_cos, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_cos, &doc10cos_item,
                                   "1 Docsis 1.0 Class of Service (Length = %u)", len);
 
   while (pos < (start + len))
@@ -1768,7 +1777,7 @@ dissect_doc10cos (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, doc10cos_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case 2:
@@ -1779,7 +1788,7 @@ dissect_doc10cos (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, doc10cos_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
         }                       /* switch */
@@ -1789,15 +1798,16 @@ dissect_doc10cos (tvbuff_t * tvb, proto_tree * tree, int start,
 }
 
 static void
-dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
+dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start,
                   guint16 len)
 {
   guint8 type, length;
   proto_tree *mcap_tree;
+  proto_tree *mcap_item;
   int pos = start;
 
   mcap_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_mcap, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_mcap, &mcap_item,
                                   "5 Modem Capabilities Type (Length = %u)", len);
 
   while (pos < (start + len))
@@ -1814,7 +1824,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_DOCSIS_VER:
@@ -1825,7 +1835,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_FRAG:
@@ -1836,7 +1846,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_PHS:
@@ -1847,7 +1857,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_IGMP:
@@ -1858,7 +1868,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_PRIVACY:
@@ -1869,7 +1879,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_DOWN_SAID:
@@ -1880,7 +1890,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_UP_SID:
@@ -1891,7 +1901,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_OPT_FILT:
@@ -1904,7 +1914,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_XMIT_EQPERSYM:
@@ -1916,7 +1926,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_NUM_XMIT_EQ_TAPS:
@@ -1927,7 +1937,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_DCC:
@@ -1938,7 +1948,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_IP_FILTERS:
@@ -1949,7 +1959,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_LLC_FILTERS:
@@ -1960,7 +1970,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_EXP_UNICAST_SID:
@@ -1971,7 +1981,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_RNG_HOFF:
@@ -1988,7 +1998,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_L2VPN:
@@ -2011,7 +2021,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_US_SRATE:
@@ -2032,7 +2042,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_SAC:
@@ -2043,7 +2053,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_CODE_HOP_M2:
@@ -2054,7 +2064,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_MTC:
@@ -2065,7 +2075,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_512_MSPS_UTC:
@@ -2076,7 +2086,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_256_MSPS_UTC:
@@ -2087,7 +2097,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_TOTAL_SID_CLUST:
@@ -2098,7 +2108,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_SID_PER_SF:
@@ -2109,7 +2119,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_MRC:
@@ -2120,7 +2130,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_TOTAL_DSID:
@@ -2131,7 +2141,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_RESEQ_DSID:
@@ -2142,7 +2152,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_MC_DSID:
@@ -2153,7 +2163,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_MC_DSID_FWD:
@@ -2164,7 +2174,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_FCTYPE_FWD:
@@ -2175,7 +2185,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_DPV:
@@ -2188,7 +2198,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_UGS:
@@ -2199,7 +2209,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_MAP_UCD:
@@ -2210,7 +2220,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_UDC:
@@ -2221,7 +2231,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_IPV6:
@@ -2232,7 +2242,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CAP_EXT_US_TRNS_PWR:
@@ -2243,7 +2253,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
         }                       /* switch (type) */
@@ -2252,14 +2262,15 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
 }
 
 static void
-dissect_cos (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
+dissect_cos (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *cos_tree;
+  proto_tree *cos_item;
   int pos = start;
 
   cos_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_cos, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_cos, &cos_item,
                                   "4 Class of Service Type (Length = %u)", len);
 
   while (pos < (start + len))
@@ -2276,7 +2287,7 @@ dissect_cos (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, cos_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case COS_MAX_DOWN:
@@ -2287,7 +2298,7 @@ dissect_cos (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, cos_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case COS_MAX_UP:
@@ -2298,7 +2309,7 @@ dissect_cos (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, cos_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case COS_UP_CH_PRIO:
@@ -2309,7 +2320,7 @@ dissect_cos (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, cos_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case COS_MIN_UP_RATE:
@@ -2320,7 +2331,7 @@ dissect_cos (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, cos_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case COS_MAX_UP_BURST:
@@ -2331,7 +2342,7 @@ dissect_cos (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, cos_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case COS_BP_ENABLE:
@@ -2342,8 +2353,7 @@ dissect_cos (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
-
+                expert_add_info_format(pinfo, cos_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
         }                       /* switch (type) */
@@ -2406,15 +2416,16 @@ dissect_snmpv3_kickstart(tvbuff_t * tvb, proto_tree *tree, int start, guint16 le
 }
 
 static void
-dissect_ds_ch_list_single (tvbuff_t * tvb, proto_tree * tree,
+dissect_ds_ch_list_single (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree,
                            int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *single_tree;
+  proto_item *single_item;
   int pos = start;
 
   single_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_ds_ch_list_single, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_ds_ch_list_single, &single_item,
                                   "1 Single Downstream Channel (Length = %u)", len);
 
   while (pos < (start + len))
@@ -2431,7 +2442,7 @@ dissect_ds_ch_list_single (tvbuff_t * tvb, proto_tree * tree,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, single_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SINGLE_CH_FREQ:
@@ -2442,7 +2453,7 @@ dissect_ds_ch_list_single (tvbuff_t * tvb, proto_tree * tree,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, single_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
         }  /* switch */
@@ -2451,15 +2462,16 @@ dissect_ds_ch_list_single (tvbuff_t * tvb, proto_tree * tree,
 }
 
 static void
-dissect_ds_ch_list_range (tvbuff_t * tvb, proto_tree * tree,
+dissect_ds_ch_list_range (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree,
                           int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *range_tree;
+  proto_item *range_item;
   int pos = start;
 
   range_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_ds_ch_list_range, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_ds_ch_list_range, &range_item,
                                   "2 Downstream Frequency Range (Length = %u)", len);
 
   while (pos < (start + len))
@@ -2476,7 +2488,7 @@ dissect_ds_ch_list_range (tvbuff_t * tvb, proto_tree * tree,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, range_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case FREQ_RNG_START:
@@ -2487,7 +2499,7 @@ dissect_ds_ch_list_range (tvbuff_t * tvb, proto_tree * tree,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, range_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case FREQ_RNG_END:
@@ -2498,7 +2510,7 @@ dissect_ds_ch_list_range (tvbuff_t * tvb, proto_tree * tree,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, range_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case FREQ_RNG_STEP:
@@ -2509,7 +2521,7 @@ dissect_ds_ch_list_range (tvbuff_t * tvb, proto_tree * tree,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, range_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
         }                           /* switch */
@@ -2518,15 +2530,16 @@ dissect_ds_ch_list_range (tvbuff_t * tvb, proto_tree * tree,
 }
 
 static void
-dissect_dut_filter (tvbuff_t * tvb, proto_tree * tree,
+dissect_dut_filter (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree,
                     int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *dut_tree;
+  proto_item *dut_item;
   int pos = start;
 
   dut_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_dut_filter, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_dut_filter, &dut_item,
                                   "45 Downstream Unencrypted Traffic (Length = %u)", len);
 
   while (pos < (start + len))
@@ -2543,7 +2556,7 @@ dissect_dut_filter (tvbuff_t * tvb, proto_tree * tree,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dut_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DUT_CMIM:
@@ -2556,14 +2569,15 @@ dissect_dut_filter (tvbuff_t * tvb, proto_tree * tree,
 }
 
 static void
-dissect_ds_ch_list(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_ds_ch_list(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *dschlst_tree;
+  proto_item *dschlst_item;
   int pos = start;
 
   dschlst_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_ds_ch_list, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_ds_ch_list, &dschlst_item,
                                   "41 Downstream Channel List (Length = %u)", len);
 
   while (pos < (start + len))
@@ -2573,10 +2587,10 @@ dissect_ds_ch_list(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       switch (type)
         {
           case DS_CH_LIST_SINGLE:
-            dissect_ds_ch_list_single(tvb, dschlst_tree, pos, length);
+            dissect_ds_ch_list_single(tvb, pinfo, dschlst_tree, pos, length);
             break;
           case DS_CH_LIST_RANGE:
-            dissect_ds_ch_list_range(tvb, dschlst_tree, pos, length);
+            dissect_ds_ch_list_range(tvb, pinfo, dschlst_tree, pos, length);
             break;
           case DS_CH_LIST_DEFAULT_TIMEOUT:
             if (length == 2)
@@ -2587,7 +2601,7 @@ dissect_ds_ch_list(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dschlst_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
         }                       /* switch */
@@ -2596,14 +2610,15 @@ dissect_ds_ch_list(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 }
 
 static void
-dissect_tcc_err(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_tcc_err(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *tccerr_tree;
+  proto_tree *tccerr_item;
   int pos = start;
 
   tccerr_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_tcc_err, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_tcc_err, &tccerr_item,
                                   "TCC Error Encodings (Length = %u)", len);
 
   while (pos < (start + len))
@@ -2626,7 +2641,7 @@ dissect_tcc_err(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, tccerr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case TCC_ERR_MSG:
@@ -2640,14 +2655,15 @@ dissect_tcc_err(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 }
 
 static void
-dissect_tcc_rng_parms(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_tcc_rng_parms(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *rngparm_tree;
+  proto_item *rngparm_item;
   int pos = start;
 
   rngparm_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_tcc_rng_parms, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_tcc_rng_parms, &rngparm_item,
                                   "Ranging Parameters (Length = %u)", len);
 
   while (pos < (start + len))
@@ -2665,7 +2681,7 @@ dissect_tcc_rng_parms(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, rngparm_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case RNG_PARMS_TIME_OFF_INT:
@@ -2677,7 +2693,7 @@ dissect_tcc_rng_parms(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, rngparm_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case RNG_PARMS_TIME_OFF_FRAC:
@@ -2689,7 +2705,7 @@ dissect_tcc_rng_parms(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, rngparm_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case RNG_PARMS_POWER_OFF:
@@ -2701,7 +2717,7 @@ dissect_tcc_rng_parms(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, rngparm_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case RNG_PARMS_FREQ_OFF:
@@ -2713,7 +2729,7 @@ dissect_tcc_rng_parms(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, rngparm_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
         }                       /* switch */
@@ -2722,14 +2738,15 @@ dissect_tcc_rng_parms(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 }
 
 static void
-dissect_sid_cl_so_crit(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_sid_cl_so_crit(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *crit_tree;
+  proto_item *crit_item;
   int pos = start;
 
   crit_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_sid_cl_so, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_sid_cl_so, &crit_item,
                                   "SID Cluster Switchover Criteria (Length = %u)", len);
 
   while (pos < (start + len))
@@ -2747,7 +2764,7 @@ dissect_sid_cl_so_crit(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, crit_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SID_CL_SO_MAX_OUT_BYTES:
@@ -2759,7 +2776,7 @@ dissect_sid_cl_so_crit(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, crit_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SID_CL_SO_MAX_REQ_BYTES:
@@ -2771,7 +2788,7 @@ dissect_sid_cl_so_crit(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, crit_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SID_CL_SO_MAX_TIME:
@@ -2783,7 +2800,7 @@ dissect_sid_cl_so_crit(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, crit_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
         }                       /* switch */
@@ -2792,14 +2809,15 @@ dissect_sid_cl_so_crit(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 }
 
 static void
-dissect_sid_cl_enc_map(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_sid_cl_enc_map(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *map_tree;
+  proto_item *map_item;
   int pos = start;
 
   map_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_sid_cl_enc_map, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_sid_cl_enc_map, &map_item,
                                   "SID-to-Channel Mapping (Length = %u)", len);
 
   while (pos < (start + len))
@@ -2817,7 +2835,7 @@ dissect_sid_cl_enc_map(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, map_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SID_CL_MAP_SID:
@@ -2829,7 +2847,7 @@ dissect_sid_cl_enc_map(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, map_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SID_CL_MAP_ACTION:
@@ -2841,7 +2859,7 @@ dissect_sid_cl_enc_map(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, map_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
         }                       /* switch */
@@ -2850,14 +2868,15 @@ dissect_sid_cl_enc_map(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 }
 
 static void
-dissect_sid_cl_enc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_sid_cl_enc(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *enc_tree;
+  proto_item *enc_item;
   int pos = start;
 
   enc_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_sid_cl_enc, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_sid_cl_enc, &enc_item,
                                   "SID Cluster Encoding (Length = %u)", len);
 
   while (pos < (start + len))
@@ -2875,14 +2894,14 @@ dissect_sid_cl_enc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, enc_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SID_CL_ENC_MAP:
             if (length == 10)
-              dissect_sid_cl_enc_map(tvb, enc_tree, pos, length);
+              dissect_sid_cl_enc_map(tvb, pinfo, enc_tree, pos, length);
             else
-              THROW (ReportedBoundsError);
+              expert_add_info_format(pinfo, enc_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
             break;
         }                       /* switch */
       pos = pos + length;
@@ -2890,14 +2909,15 @@ dissect_sid_cl_enc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 }
 
 static void
-dissect_sid_cl(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_sid_cl(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *sid_tree;
+  proto_item *sid_item;
   int pos = start;
 
   sid_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_sid_cl, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_sid_cl, &sid_item,
                                   "47 Service Flow SID Cluster Assignments (Length = %u)", len);
 
   while (pos < (start + len))
@@ -2915,14 +2935,14 @@ dissect_sid_cl(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, sid_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case SID_CL_ENC:
-            dissect_sid_cl_enc(tvb, sid_tree, pos, length);
+            dissect_sid_cl_enc(tvb, pinfo, sid_tree, pos, length);
             break;
           case SID_CL_SO_CRIT:
-            dissect_sid_cl_so_crit(tvb, sid_tree, pos, length);
+            dissect_sid_cl_so_crit(tvb, pinfo, sid_tree, pos, length);
             break;
         }                       /* switch */
       pos = pos + length;
@@ -2930,16 +2950,17 @@ dissect_sid_cl(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 }
 
 static void
-dissect_tcc(tvbuff_t * tvb, packet_info * pinfo _U_,
+dissect_tcc(tvbuff_t * tvb, packet_info * pinfo,
             proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *tcc_tree;
+  proto_item *tcc_item;
   int pos = start;
   tvbuff_t *ucd_tvb;
 
   tcc_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_tcc, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_tcc, &tcc_item,
                                   "46 Transmit Channel Configuration (Length = %u)", len);
 
   while (pos < (start + len))
@@ -2957,7 +2978,7 @@ dissect_tcc(tvbuff_t * tvb, packet_info * pinfo _U_,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, tcc_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case TLV_TCC_US_CH_ACTION:
@@ -2969,7 +2990,7 @@ dissect_tcc(tvbuff_t * tvb, packet_info * pinfo _U_,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, tcc_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case TLV_TCC_US_CH_ID:
@@ -2981,7 +3002,7 @@ dissect_tcc(tvbuff_t * tvb, packet_info * pinfo _U_,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, tcc_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case TLV_TCC_NEW_US_CH_ID:
@@ -2993,7 +3014,7 @@ dissect_tcc(tvbuff_t * tvb, packet_info * pinfo _U_,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, tcc_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case TLV_TCC_UCD:
@@ -3009,7 +3030,7 @@ dissect_tcc(tvbuff_t * tvb, packet_info * pinfo _U_,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, tcc_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case TLV_TCC_INIT_TECH:
@@ -3021,11 +3042,11 @@ dissect_tcc(tvbuff_t * tvb, packet_info * pinfo _U_,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, tcc_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case TLV_TCC_RNG_PARMS:
-            dissect_tcc_rng_parms(tvb, tcc_tree, pos, length);
+            dissect_tcc_rng_parms(tvb, pinfo, tcc_tree, pos, length);
             break;
           case TLV_TCC_DYN_RNG_WIN:
             if (length == 1)
@@ -3036,11 +3057,11 @@ dissect_tcc(tvbuff_t * tvb, packet_info * pinfo _U_,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, tcc_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case TLV_TCC_ERR:
-            dissect_tcc_err(tvb, tcc_tree, pos, length);
+            dissect_tcc_err(tvb, pinfo, tcc_tree, pos, length);
             break;
         }                       /* switch */
       pos = pos + length;
@@ -3048,14 +3069,15 @@ dissect_tcc(tvbuff_t * tvb, packet_info * pinfo _U_,
 }
 
 static void
-dissect_ch_bl_rng(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_ch_bl_rng(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *chblrng_tree;
+  proto_item *chblrng_item;
   int pos = start;
 
   chblrng_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcp_ch_bl_rng, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcp_ch_bl_rng, &chblrng_item,
                                   "Receive Module Channel Block Range (Length = %u)", len);
 
   while (pos < (start + len))
@@ -3073,7 +3095,7 @@ dissect_ch_bl_rng(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, chblrng_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CH_BL_RNG_MAX_CTR_FREQ:
@@ -3085,7 +3107,7 @@ dissect_ch_bl_rng(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, chblrng_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
         }                       /* switch */
@@ -3094,14 +3116,15 @@ dissect_ch_bl_rng(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 }
 
 static void
-dissect_rcp_rcv_mod(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_rcp_rcv_mod(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *rcvmod_tree;
+  proto_item *rcvmod_item;
   int pos = start;
 
   rcvmod_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcp_rcv_mod_enc, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcp_rcv_mod_enc, &rcvmod_item,
                                   "Receive Module Capability (Length = %u)", len);
 
   while (pos < (start + len))
@@ -3119,11 +3142,11 @@ dissect_rcp_rcv_mod(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, rcvmod_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case RCV_MOD_ENC_CH_BL_RNG:
-            dissect_ch_bl_rng(tvb, rcvmod_tree, pos, length);
+            dissect_ch_bl_rng(tvb, pinfo, rcvmod_tree, pos, length);
             break;
           case RCV_MOD_ENC_CTR_FREQ_ASGN:
             if (length == 4)
@@ -3134,7 +3157,7 @@ dissect_rcp_rcv_mod(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, rcvmod_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case RCV_MOD_ENC_RSQ_CH_SUBS_CAP:
@@ -3158,14 +3181,15 @@ dissect_rcp_rcv_mod(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 }
 
 static void
-dissect_rcp_rcv_ch(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_rcp_rcv_ch(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *rcvch_tree;
+  proto_item *rcvch_item;
   int pos = start;
 
   rcvch_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcp_rcv_ch, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcp_rcv_ch, &rcvch_item,
                                   "Receive Channels (Length = %u)", len);
 
   while (pos < (start + len))
@@ -3183,7 +3207,7 @@ dissect_rcp_rcv_ch(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, rcvch_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case RCV_CH_CONN:
@@ -3200,7 +3224,7 @@ dissect_rcp_rcv_ch(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, rcvch_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case RCV_CH_PRIM_DS_CH_IND:
@@ -3212,7 +3236,7 @@ dissect_rcp_rcv_ch(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, rcvch_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
         }                       /* switch */
@@ -3222,16 +3246,17 @@ dissect_rcp_rcv_ch(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 
 
 static void
-dissect_rcp(tvbuff_t * tvb, packet_info * pinfo _U_,
+dissect_rcp(tvbuff_t * tvb, packet_info * pinfo,
             proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *rcp_tree;
+  proto_item *rcp_item;
   int pos = start;
   tvbuff_t *vsif_tvb;
 
   rcp_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcp, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcp, &rcp_item,
                                   "48 Receive Channel Profile (Length = %u)", len);
 
   while (pos < (start + len))
@@ -3249,7 +3274,7 @@ dissect_rcp(tvbuff_t * tvb, packet_info * pinfo _U_,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, rcp_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case TLV_RCP_NAME:
@@ -3261,7 +3286,7 @@ dissect_rcp(tvbuff_t * tvb, packet_info * pinfo _U_,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, rcp_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case TLV_RCP_FREQ_SPC:
@@ -3273,14 +3298,14 @@ dissect_rcp(tvbuff_t * tvb, packet_info * pinfo _U_,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, rcp_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case TLV_RCP_RCV_MOD_ENC:
-            dissect_rcp_rcv_mod(tvb, rcp_tree, pos, length);
+            dissect_rcp_rcv_mod(tvb, pinfo, rcp_tree, pos, length);
             break;
           case TLV_RCP_RCV_CH:
-            dissect_rcp_rcv_ch(tvb, rcp_tree, pos, length);
+            dissect_rcp_rcv_ch(tvb, pinfo, rcp_tree, pos, length);
             break;
           case TLV_RCP_VEN_SPEC:
             vsif_tvb = tvb_new_subset_length (tvb, pos, length);
@@ -3292,14 +3317,15 @@ dissect_rcp(tvbuff_t * tvb, packet_info * pinfo _U_,
 }
 
 static void
-dissect_rcc_rcv_mod(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_rcc_rcv_mod(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *rcvmod_tree;
+  proto_item *rcvmod_item;
   int pos = start;
 
   rcvmod_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcc_rcv_mod_enc, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcc_rcv_mod_enc, &rcvmod_item,
                                   "Receive Module Assignment (Length = %u)", len);
 
   while (pos < (start + len))
@@ -3317,7 +3343,7 @@ dissect_rcc_rcv_mod(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, rcvmod_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case RCV_MOD_ENC_CTR_FREQ_ASGN:
@@ -3329,7 +3355,7 @@ dissect_rcc_rcv_mod(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, rcvmod_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case RCV_MOD_ENC_CONN:
@@ -3343,14 +3369,15 @@ dissect_rcc_rcv_mod(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 }
 
 static void
-dissect_rcc_rcv_ch(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_rcc_rcv_ch(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *rcvch_tree;
+  proto_item *rcvch_item;
   int pos = start;
 
   rcvch_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcc_rcv_ch, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcc_rcv_ch, &rcvch_item,
                                   "Receive Channels (Length = %u)", len);
 
   while (pos < (start + len))
@@ -3368,7 +3395,7 @@ dissect_rcc_rcv_ch(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, rcvch_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case RCV_CH_CONN:
@@ -3385,7 +3412,7 @@ dissect_rcc_rcv_ch(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, rcvch_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case RCV_CH_PRIM_DS_CH_IND:
@@ -3397,7 +3424,7 @@ dissect_rcc_rcv_ch(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, rcvch_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
         }                       /* switch */
@@ -3406,14 +3433,15 @@ dissect_rcc_rcv_ch(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 }
 
 static void
-dissect_rcc_err(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_rcc_err(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *err_tree;
+  proto_item *err_item;
   int pos = start;
 
   err_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcc_rcv_ch, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcc_rcv_ch, &err_item,
                                   "RCC Error Encodings (Length = %u)", len);
 
   while (pos < (start + len))
@@ -3431,7 +3459,7 @@ dissect_rcc_err(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, err_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case RCC_ERR_IDX:
@@ -3443,7 +3471,7 @@ dissect_rcc_err(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, err_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case RCC_ERR_PARAM:
@@ -3455,7 +3483,7 @@ dissect_rcc_err(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, err_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case RCC_ERR_CODE:
@@ -3467,7 +3495,7 @@ dissect_rcc_err(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, err_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case RCC_ERR_MSG:
@@ -3481,16 +3509,17 @@ dissect_rcc_err(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 }
 
 static void
-dissect_rcc(tvbuff_t * tvb, packet_info * pinfo _U_,
+dissect_rcc(tvbuff_t * tvb, packet_info * pinfo,
             proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *rcc_tree;
+  proto_item *rcc_item;
   int pos = start;
   tvbuff_t *vsif_tvb;
 
   rcc_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcc, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcc, &rcc_item,
                                   "49 Receive Channel Configuration (Length = %u)", len);
 
   while (pos < (start + len))
@@ -3508,21 +3537,21 @@ dissect_rcc(tvbuff_t * tvb, packet_info * pinfo _U_,
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, rcc_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case TLV_RCP_RCV_MOD_ENC:
-            dissect_rcc_rcv_mod(tvb, rcc_tree, pos, length);
+            dissect_rcc_rcv_mod(tvb, pinfo, rcc_tree, pos, length);
             break;
           case TLV_RCP_RCV_CH:
-            dissect_rcc_rcv_ch(tvb, rcc_tree, pos, length);
+            dissect_rcc_rcv_ch(tvb, pinfo, rcc_tree, pos, length);
             break;
           case TLV_RCP_VEN_SPEC:
             vsif_tvb = tvb_new_subset_length (tvb, pos, length);
             call_dissector (docsis_vsif_handle, vsif_tvb, pinfo, rcc_tree);
             break;
           case TLV_RCC_ERR:
-            dissect_rcc_err(tvb, rcc_tree, pos, length);
+            dissect_rcc_err(tvb, pinfo, rcc_tree, pos, length);
             break;
         }                       /* switch */
       pos = pos + length;
@@ -3530,14 +3559,15 @@ dissect_rcc(tvbuff_t * tvb, packet_info * pinfo _U_,
 }
 
 static void
-dissect_dsid_ds_reseq(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_dsid_ds_reseq(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *dsid_tree;
+  proto_item *dsid_item;
   int pos = start;
 
   dsid_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_dsid_ds_reseq, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_dsid_ds_reseq, &dsid_item,
                                   "Resequencing DSID (Length = %u)", len);
 
   while (pos < (start + len))
@@ -3555,7 +3585,7 @@ dissect_dsid_ds_reseq(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dsid_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DS_RESEQ_CH_LST:
@@ -3572,7 +3602,7 @@ dissect_dsid_ds_reseq(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dsid_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DS_RESEQ_WARN_THRESH:
@@ -3584,7 +3614,7 @@ dissect_dsid_ds_reseq(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dsid_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DS_RESEQ_HO_TIMER:
@@ -3596,7 +3626,7 @@ dissect_dsid_ds_reseq(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dsid_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
         }                       /* switch */
@@ -3605,14 +3635,15 @@ dissect_dsid_ds_reseq(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 }
 
 static void
-dissect_dsid_mc_addr(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_dsid_mc_addr(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *dsid_tree;
+  proto_item *dsid_item;
   int pos = start;
 
   dsid_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_dsid_mc_addr, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_dsid_mc_addr, &dsid_item,
                                   "Client MAC Address Encodings (Length = %u)", len);
 
   while (pos < (start + len))
@@ -3630,7 +3661,7 @@ dissect_dsid_mc_addr(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dsid_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case MC_ADDR_ADDR:
@@ -3642,7 +3673,7 @@ dissect_dsid_mc_addr(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dsid_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
         }                       /* switch */
@@ -3651,7 +3682,7 @@ dissect_dsid_mc_addr(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 }
 
 static void
-dissect_dsid_mc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_dsid_mc(tvbuff_t * tvb, packet_info *pinfo, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *dsid_tree;
@@ -3668,7 +3699,7 @@ dissect_dsid_mc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       switch (type)
         {
           case TLV_DSID_MC_ADDR:
-            dissect_dsid_mc_addr(tvb, dsid_tree, pos, length);
+            dissect_dsid_mc_addr(tvb, pinfo, dsid_tree, pos, length);
             break;
           case TLV_DSID_MC_CMIM:
             proto_tree_add_item (dsid_tree,
@@ -3681,7 +3712,7 @@ dissect_dsid_mc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
                                  length, ENC_NA);
             break;
           case TLV_DSID_MC_PHS:
-            dissect_phs(tvb, dsid_tree, pos, length);
+            dissect_phs(tvb, pinfo, dsid_tree, pos, length);
             break;
         }                       /* switch */
       pos = pos + length;
@@ -3689,14 +3720,15 @@ dissect_dsid_mc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 }
 
 static void
-dissect_dsid(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_dsid(tvbuff_t * tvb, packet_info *pinfo, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *dsid_tree;
+  proto_item *dsid_item;
   int pos = start;
 
   dsid_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_dsid, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_dsid, &dsid_item,
                                   "50 DSID Encodings (Length = %u)", len);
 
   while (pos < (start + len))
@@ -3714,7 +3746,7 @@ dissect_dsid(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+               expert_add_info_format(pinfo, dsid_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case TLV_DSID_ACTION:
@@ -3726,14 +3758,14 @@ dissect_dsid(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+               expert_add_info_format(pinfo, dsid_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case TLV_DSID_DS_RESEQ:
-            dissect_dsid_ds_reseq(tvb, dsid_tree, pos, length);
+            dissect_dsid_ds_reseq(tvb, pinfo, dsid_tree, pos, length);
             break;
           case TLV_DSID_MC:
-            dissect_dsid_mc(tvb, dsid_tree, pos, length);
+            dissect_dsid_mc(tvb, pinfo, dsid_tree, pos, length);
             break;
         }                       /* switch */
       pos = pos + length;
@@ -3741,14 +3773,15 @@ dissect_dsid(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 }
 
 static void
-dissect_sec_assoc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_sec_assoc(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *sec_tree;
+  proto_item *sec_item;
   int pos = start;
 
   sec_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_dsid, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_dsid, &sec_item,
                                   "51 Security Association Encodings (Length = %u)", len);
 
   while (pos < (start + len))
@@ -3766,7 +3799,7 @@ dissect_sec_assoc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, sec_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case TLV_SEC_ASSOC_DESC:
@@ -3778,7 +3811,7 @@ dissect_sec_assoc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, sec_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
         }                       /* switch */
@@ -3787,14 +3820,15 @@ dissect_sec_assoc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 }
 
 static void
-dissect_ch_asgn(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_ch_asgn(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *asgn_tree;
+  proto_item *asgn_item;
   int pos = start;
 
   asgn_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_ch_asgn, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_ch_asgn, &asgn_item,
                                   "56 Channel Assignment Configuration Settings (Length = %u)", len);
 
   while (pos < (start + len))
@@ -3812,7 +3846,7 @@ dissect_ch_asgn(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, asgn_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case TLV_CH_ASGN_RX_FREQ:
@@ -3824,7 +3858,7 @@ dissect_ch_asgn(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, asgn_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
         }                       /* switch */
@@ -3833,14 +3867,15 @@ dissect_ch_asgn(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 }
 
 static void
-dissect_cmts_mc_sess_enc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_cmts_mc_sess_enc(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *mc_tree;
+  proto_item *mc_item;
   int pos = start;
 
   mc_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_cmts_mc_sess_enc, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_cmts_mc_sess_enc, &mc_item,
                                   "64 CMTS Static Multicast Session Encoding (Length = %u)", len);
 
   while (pos < (start + len))
@@ -3858,7 +3893,7 @@ dissect_cmts_mc_sess_enc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 le
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mc_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case CMTS_MC_SESS_ENC_SRC:
@@ -3870,7 +3905,7 @@ dissect_cmts_mc_sess_enc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 le
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, mc_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
         }                       /* switch */
@@ -3880,9 +3915,8 @@ dissect_cmts_mc_sess_enc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 le
 
 
 static int
-dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* data _U_)
+dissect_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
-
   proto_item *it;
   proto_tree *tlv_tree;
   int pos = 0;
@@ -3915,7 +3949,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 proto_tree_add_item (tlv_tree, hf_docsis_tlv_rng_tech, tvb,
                                      pos, length, ENC_BIG_ENDIAN);
               else
-                dissect_doc10cos (tvb, tlv_tree, pos, length);
+                dissect_doc10cos (tvb, pinfo, tlv_tree, pos, length);
               break;
             case TLV_CHNL_ID:
               if (length == 1)
@@ -3925,7 +3959,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 }
               else
                 {
-                  THROW (ReportedBoundsError);
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
             case TLV_NET_ACCESS:
@@ -3936,14 +3970,14 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 }
               else
                 {
-                  THROW (ReportedBoundsError);
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
             case TLV_COS:
-              dissect_cos (tvb, tlv_tree, pos, length);
+              dissect_cos (tvb, pinfo, tlv_tree, pos, length);
               break;
             case TLV_MODEM_CAP:
-              dissect_modemcap (tvb, tlv_tree, pos, length);
+              dissect_modemcap (tvb, pinfo, tlv_tree, pos, length);
               break;
             case TLV_CM_MIC:
               if (length == 16)
@@ -3953,7 +3987,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 }
               else
                 {
-                  THROW (ReportedBoundsError);
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
             case TLV_CMTS_MIC:
@@ -3964,7 +3998,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 }
               else
                 {
-                  THROW (ReportedBoundsError);
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
             case TLV_VENDOR_ID:
@@ -3975,7 +4009,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 }
               else
                 {
-                  THROW (ReportedBoundsError);
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
             case TLV_SW_UPG_FILE:
@@ -3998,7 +4032,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 }
               else
                 {
-                  THROW (ReportedBoundsError);
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
             case TLV_SVC_UNAVAIL:
@@ -4008,7 +4042,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 }
               else
                 {
-                  THROW (ReportedBoundsError);
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
             case TLV_ETHERNET_MAC:
@@ -4019,7 +4053,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 }
               else
                 {
-                  THROW (ReportedBoundsError);
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
             case TLV_TEL_SETTINGS:
@@ -4036,7 +4070,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 }
               else
                 {
-                  THROW (ReportedBoundsError);
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
             case TLV_TFTP_TIME:
@@ -4048,7 +4082,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 }
               else
                 {
-                  THROW (ReportedBoundsError);
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
             case TLV_TFTP_MODEM_ADDRESS:
@@ -4060,7 +4094,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 }
               else
                 {
-                  THROW (ReportedBoundsError);
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
             case TLV_SW_UPG_SRVR:
@@ -4071,19 +4105,19 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 }
               else
                 {
-                  THROW (ReportedBoundsError);
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
             case TLV_UPSTREAM_CLASSIFIER:
             case TLV_DOWN_CLASSIFIER:
-              dissect_classifiers (tvb, tlv_tree, pos, length, type);
+              dissect_classifiers (tvb, pinfo, tlv_tree, pos, length, type);
               break;
             case TLV_UPSTREAM_SERVICE_FLOW:
             case TLV_DOWN_SERVICE_FLOW:
-              dissect_sflow (tvb, tlv_tree, pos, length, type);
+              dissect_sflow (tvb, pinfo, tlv_tree, pos, length, type);
               break;
             case TLV_PHS:
-              dissect_phs (tvb, tlv_tree, pos, length);
+              dissect_phs (tvb, pinfo, tlv_tree, pos, length);
               break;
             case TLV_HMAC_DIGEST:
               if (length == 20)
@@ -4094,7 +4128,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 }
               else
                 {
-                  THROW (ReportedBoundsError);
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
             case TLV_MAX_CLASSIFIERS:
@@ -4106,7 +4140,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 }
               else
                 {
-                  THROW (ReportedBoundsError);
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
             case TLV_PRIVACY_ENABLE:
@@ -4117,7 +4151,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 }
               else
                 {
-                  THROW (ReportedBoundsError);
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
             case TLV_AUTH_BLOCK:
@@ -4132,7 +4166,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 }
               else
                 {
-                  THROW (ReportedBoundsError);
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
             case TLV_MFGR_CVC:
@@ -4164,7 +4198,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 }
               else
                 {
-                  THROW (ReportedBoundsError);
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
             case TLV_SUBS_MGMT_FLTR:
@@ -4185,7 +4219,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 }
               else
                 {
-                  THROW (ReportedBoundsError);
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
             case TLV_ENABLE_TEST_MODES:
@@ -4196,11 +4230,11 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 }
               else
                 {
-                  THROW (ReportedBoundsError);
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
             case TLV_DS_CH_LIST:
-              dissect_ds_ch_list(tvb, tlv_tree, pos, length);
+              dissect_ds_ch_list(tvb, pinfo, tlv_tree, pos, length);
               break;
             case TLV_MC_MAC_ADDRESS:
               if (length == 6)
@@ -4210,7 +4244,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 }
               else
                 {
-                  THROW (ReportedBoundsError);
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
             case TLV_VENDOR_SPEC:
@@ -4218,13 +4252,13 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
               call_dissector (docsis_vsif_handle, vsif_tvb, pinfo, tlv_tree);
               break;
             case TLV_DUT_FILTER:
-              dissect_dut_filter(tvb, tlv_tree, pos, length);
+              dissect_dut_filter(tvb, pinfo, tlv_tree, pos, length);
               break;
             case TLV_TCC:
               dissect_tcc(tvb, pinfo, tlv_tree, pos, length);
               break;
             case TLV_SID_CL:
-              dissect_sid_cl(tvb, tlv_tree, pos, length);
+              dissect_sid_cl(tvb, pinfo, tlv_tree, pos, length);
               break;
             case TLV_RCP:
               dissect_rcp(tvb, pinfo, tlv_tree, pos, length);
@@ -4233,10 +4267,10 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
               dissect_rcc(tvb, pinfo, tlv_tree, pos, length);
               break;
             case TLV_DSID:
-              dissect_dsid(tvb, tlv_tree, pos, length);
+              dissect_dsid(tvb, pinfo, tlv_tree, pos, length);
               break;
             case TLV_SEC_ASSOC:
-              dissect_sec_assoc(tvb, tlv_tree, pos, length);
+              dissect_sec_assoc(tvb, pinfo, tlv_tree, pos, length);
               break;
             case TLV_INIT_CH_TIMEOUT:
               if (length == 2)
@@ -4246,11 +4280,11 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 }
               else
                 {
-                  THROW (ReportedBoundsError);
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
             case TLV_CH_ASGN:
-              dissect_ch_asgn(tvb, tlv_tree, pos, length);
+              dissect_ch_asgn(tvb, pinfo, tlv_tree, pos, length);
               break;
             case TLV_CM_INIT_REASON:
               if (length == 1)
@@ -4260,7 +4294,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 }
               else
                 {
-                  THROW (ReportedBoundsError);
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
             case TLV_SW_UPG_SRVR_IPV6:
@@ -4271,7 +4305,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 }
               else
                 {
-                  THROW (ReportedBoundsError);
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
             case TLV_TFTP_PROV_CM_IPV6_ADDR:
@@ -4282,7 +4316,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 }
               else
                 {
-                  THROW (ReportedBoundsError);
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
             case TLV_US_DROP_CLFY:
@@ -4305,11 +4339,11 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* d
                 }
               else
                 {
-                  THROW (ReportedBoundsError);
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
             case TLV_CMTS_MC_SESS_ENC:
-              dissect_cmts_mc_sess_enc(tvb, tlv_tree, pos, length);
+              dissect_cmts_mc_sess_enc(tvb, pinfo, tlv_tree, pos, length);
               break;
             case TLV_END:
               break;
@@ -5998,11 +6032,18 @@ proto_register_docsis_tlv (void)
     &ett_docsis_cmts_mc_sess_enc,
   };
 
-  proto_docsis_tlv = proto_register_protocol ("DOCSIS Appendix C TLV's",
-                                              "DOCSIS TLVs", "docsis_tlv");
+  static ei_register_info ei[] = {
+    {&ei_docsis_tlv_tlvlen_bad, { "docsis_tlv.tlvlenbad", PI_MALFORMED, PI_ERROR, "Bad TLV length", EXPFILL}},
+  };
+
+  expert_module_t* expert_docsis_tlv;
+
+  proto_docsis_tlv = proto_register_protocol ("DOCSIS Appendix C TLV's", "DOCSIS TLVs", "docsis_tlv");
 
   proto_register_field_array (proto_docsis_tlv, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
+  expert_docsis_tlv = expert_register_protocol(proto_docsis_tlv);
+  expert_register_field_array(expert_docsis_tlv, ei, array_length(ei));
 
   register_dissector ("docsis_tlv", dissect_tlv, proto_docsis_tlv);
 }

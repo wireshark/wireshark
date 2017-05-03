@@ -42,7 +42,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
+#include <epan/expert.h>
 
 /* Define Vendor ID's here */
 #define VENDOR_CISCO 0x00000C
@@ -64,72 +64,13 @@ static int hf_docsis_vsif_cisco_config_file = -1;
 static gint ett_docsis_vsif = -1;
 static gint ett_docsis_vsif_ipprec = -1;
 
+static expert_field ei_docsis_vsif_tlvlen_bad = EI_INIT;
+static expert_field ei_docsis_vsif_tlvtype_unknown = EI_INIT;
+
 static const value_string vendorid_vals[] = {
   {VENDOR_CISCO, "Cisco Systems, Inc."},
   {0, NULL},
 };
-
-/* Forward Declarations for vendor specific dissectors */
-static void dissect_cisco (tvbuff_t * tvb, proto_tree * tree,
-                           gint vsif_len);
-
-/* Dissection */
-static int
-dissect_vsif (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* data _U_)
-{
-  proto_item *it;
-  proto_tree *vsif_tree;
-  guint8 type;
-  guint8 length;
-  guint32 value;
-  gint vsif_len;
-
-  /* get the reported length of the VSIF TLV */
-  vsif_len = tvb_reported_length_remaining (tvb, 0);
-
-  /* The first TLV in the VSIF encodings must be type 0x08 (Vendor ID) and
-   * length 3.
-   */
-  type = tvb_get_guint8 (tvb, 0);
-  if (type != 0x08)
-    {
-      THROW (ReportedBoundsError);
-    }
-
-  length = tvb_get_guint8 (tvb, 1);
-  if (length != 3)
-    {
-      THROW (ReportedBoundsError);
-    }
-
-  /* Extract the Value of the Vendor ID */
-  value = tvb_get_ntoh24 (tvb, 2);
-  if (tree)
-    {
-      it =
-        proto_tree_add_protocol_format (tree, proto_docsis_vsif, tvb, 0, -1,
-                                        "VSIF Encodings");
-      vsif_tree = proto_item_add_subtree (it, ett_docsis_vsif);
-      proto_tree_add_item (vsif_tree, hf_docsis_vsif_vendorid, tvb, 2, 3, ENC_BIG_ENDIAN);
-
-      /* switch on the Vendor ID */
-      switch (value)
-        {
-          case VENDOR_CISCO:
-            proto_item_append_text (it, " (Cisco)");
-            dissect_cisco (tvb, vsif_tree, vsif_len);
-            break;
-          default:
-            proto_item_append_text (it, " (Unknown)");
-            proto_tree_add_item (vsif_tree, hf_docsis_vsif_vendor_unknown, tvb,
-                                 0, -1, ENC_NA);
-            break;
-        }
-
-    }                           /* if(tree) */
-
-    return tvb_captured_length(tvb);
-}
 
 /* Dissector for Cisco Vendor Specific TLV's */
 
@@ -140,12 +81,13 @@ dissect_vsif (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* 
 #define IP_PREC_BW      0x02
 
 static void
-dissect_cisco (tvbuff_t * tvb, proto_tree * tree, gint vsif_len)
+dissect_cisco (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint vsif_len)
 {
   /* Start at pos = 5, since tvb includes the Vendor ID field */
   int pos = 5;
   guint8 type, length;
   proto_tree *ipprec_tree;
+  proto_item *ipprec_item;
   int templen;
 
   while (pos < vsif_len)
@@ -161,7 +103,7 @@ dissect_cisco (tvbuff_t * tvb, proto_tree * tree, gint vsif_len)
             break;
           case IP_PREC:
             ipprec_tree =
-              proto_tree_add_subtree(tree, tvb, pos, length, ett_docsis_vsif_ipprec, NULL, "IP Precedence");
+              proto_tree_add_subtree(tree, tvb, pos, length, ett_docsis_vsif_ipprec, &ipprec_item, "IP Precedence");
             /* Handle Sub-TLVs in IP Precedence */
             templen = pos + length;
             while (pos < templen)
@@ -171,21 +113,31 @@ dissect_cisco (tvbuff_t * tvb, proto_tree * tree, gint vsif_len)
                 switch (type)
                   {
                     case IP_PREC_VAL:
-                      if (length != 1)
-                        THROW (ReportedBoundsError);
-                      proto_tree_add_item (ipprec_tree,
+                      if (length == 1)
+                      {
+                        proto_tree_add_item (ipprec_tree,
                                            hf_docsis_vsif_cisco_ipprec_val, tvb,
                                            pos, length, ENC_BIG_ENDIAN);
+                      }
+                      else
+                      {
+                        expert_add_info_format(pinfo, ipprec_item, &ei_docsis_vsif_tlvlen_bad, "Wrong TLV length: %u", length);
+                      }
                       break;
                     case IP_PREC_BW:
                       if (length != 4)
-                        THROW (ReportedBoundsError);
-                      proto_tree_add_item (ipprec_tree,
+                      {
+                        proto_tree_add_item (ipprec_tree,
                                            hf_docsis_vsif_cisco_ipprec_bw, tvb,
                                            pos, length, ENC_BIG_ENDIAN);
+                      }
+                      else
+                      {
+                        expert_add_info_format(pinfo, ipprec_item, &ei_docsis_vsif_tlvlen_bad, "Wrong TLV length: %u", length);
+                      }
                       break;
                     default:
-                      THROW (ReportedBoundsError);
+                        expert_add_info_format(pinfo, ipprec_item, &ei_docsis_vsif_tlvtype_unknown, "Unknown TLV: %u", type);
                   }
                 pos += length;
               }
@@ -196,6 +148,53 @@ dissect_cisco (tvbuff_t * tvb, proto_tree * tree, gint vsif_len)
         }
       pos += length;
     }
+}
+
+/* Dissection */
+static int
+dissect_vsif (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
+{
+  proto_item *it;
+  proto_tree *vsif_tree;
+  guint8 type;
+  guint8 length;
+  guint32 value;
+  gint vsif_len;
+
+  /* get the reported length of the VSIF TLV */
+  vsif_len = tvb_reported_length_remaining (tvb, 0);
+
+  it = proto_tree_add_protocol_format (tree, proto_docsis_vsif, tvb, 0, -1,
+                                        "VSIF Encodings");
+  vsif_tree = proto_item_add_subtree (it, ett_docsis_vsif);
+  proto_tree_add_item_ret_uint(vsif_tree, hf_docsis_vsif_vendorid, tvb, 2, 3, ENC_BIG_ENDIAN, &value);
+
+  /* The first TLV in the VSIF encodings must be type 0x08 (Vendor ID) and
+   * length 3.
+   */
+  type = tvb_get_guint8 (tvb, 0);
+  if (type != 0x08)
+     expert_add_info_format(pinfo, it, &ei_docsis_vsif_tlvtype_unknown, "Unknown TLV: %u", type);
+
+  length = tvb_get_guint8 (tvb, 1);
+  if (length != 3)
+     expert_add_info_format(pinfo, it, &ei_docsis_vsif_tlvlen_bad, "Wrong TLV length: %u", length);
+
+  /* switch on the Vendor ID */
+  switch (value)
+  {
+    case VENDOR_CISCO:
+    proto_item_append_text (it, " (Cisco)");
+    dissect_cisco (tvb, pinfo, vsif_tree, vsif_len);
+    break;
+    default:
+    proto_item_append_text (it, " (Unknown)");
+    proto_tree_add_item (vsif_tree, hf_docsis_vsif_vendor_unknown, tvb,
+                            0, -1, ENC_NA);
+    break;
+  }
+
+  return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -247,12 +246,21 @@ proto_register_docsis_vsif (void)
     &ett_docsis_vsif_ipprec,
   };
 
+  expert_module_t* expert_docsis_vsif;
+
+  static ei_register_info ei[] = {
+    {&ei_docsis_vsif_tlvlen_bad, { "docsis_vsif.tlvlenbad", PI_MALFORMED, PI_ERROR, "Bad TLV length", EXPFILL}},
+    {&ei_docsis_vsif_tlvtype_unknown, { "docsis_vsif.tlvtypeunknown", PI_PROTOCOL, PI_WARN, "Unknown TLV type", EXPFILL}},
+  };
+
   proto_docsis_vsif =
     proto_register_protocol ("DOCSIS Vendor Specific Encodings",
                              "DOCSIS VSIF", "docsis_vsif");
 
   proto_register_field_array (proto_docsis_vsif, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
+  expert_docsis_vsif = expert_register_protocol(proto_docsis_vsif);
+  expert_register_field_array(expert_docsis_vsif, ei, array_length(ei));
 
   register_dissector ("docsis_vsif", dissect_vsif, proto_docsis_vsif);
 }

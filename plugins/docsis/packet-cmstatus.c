@@ -24,7 +24,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
+#include <epan/expert.h>
 
 #define SEC_CH_MDD_TIMEOUT      1
 #define QAM_FEC_LOCK_FAILURE    2
@@ -67,12 +67,14 @@ static int hf_docsis_cmstatus_descr = -1;
 static gint ett_docsis_cmstatus = -1;
 static gint ett_docsis_cmstatus_tlv = -1;
 
+static expert_field ei_docsis_cmstatus_tlvlen_bad = EI_INIT;
+
 static dissector_handle_t docsis_cmstatus_handle;
 
 /* Dissection */
 /* See Table 6-52 in CM-SP-MULPIv3.0-I14-101008 */
 static void
-dissect_cmstatus_tlv (tvbuff_t * tvb, proto_tree * tree, guint8 start, guint16 len)
+dissect_cmstatus_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, guint8 start, guint16 len)
 {
   proto_item *it;
   proto_tree *tlv_tree;
@@ -95,7 +97,7 @@ dissect_cmstatus_tlv (tvbuff_t * tvb, proto_tree * tree, guint8 start, guint16 l
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, it, &ei_docsis_cmstatus_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
 
@@ -106,7 +108,7 @@ dissect_cmstatus_tlv (tvbuff_t * tvb, proto_tree * tree, guint8 start, guint16 l
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, it, &ei_docsis_cmstatus_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
 
@@ -117,7 +119,7 @@ dissect_cmstatus_tlv (tvbuff_t * tvb, proto_tree * tree, guint8 start, guint16 l
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, it, &ei_docsis_cmstatus_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
 
@@ -128,7 +130,7 @@ dissect_cmstatus_tlv (tvbuff_t * tvb, proto_tree * tree, guint8 start, guint16 l
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, it, &ei_docsis_cmstatus_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
         } /* switch */
@@ -200,7 +202,7 @@ dissect_cmstatus (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
 
     }
   /* Call Dissector TLV's */
-  dissect_cmstatus_tlv(tvb, cmstatus_tree, 3, len);
+  dissect_cmstatus_tlv(tvb, pinfo, cmstatus_tree, 3, len);
   return tvb_captured_length(tvb);
 }
 
@@ -258,15 +260,24 @@ proto_register_docsis_cmstatus (void)
     }
   };
 
-static gint *ett[] = {
-  &ett_docsis_cmstatus,
-  &ett_docsis_cmstatus_tlv
-};
+  static gint *ett[] = {
+    &ett_docsis_cmstatus,
+    &ett_docsis_cmstatus_tlv
+  };
+
+  static ei_register_info ei[] = {
+    {&ei_docsis_cmstatus_tlvlen_bad, { "docsis_cmstatus.tlvlenbad", PI_MALFORMED, PI_ERROR, "Bad TLV length", EXPFILL}},
+  };
+
+  expert_module_t* expert_docsis_cmstatus;
 
   proto_docsis_cmstatus = proto_register_protocol ("DOCSIS CM-STATUS Report", "DOCSIS CM-STATUS", "docsis_cmstatus");
 
   proto_register_field_array (proto_docsis_cmstatus, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
+  expert_docsis_cmstatus = expert_register_protocol(proto_docsis_cmstatus);
+  expert_register_field_array(expert_docsis_cmstatus, ei, array_length(ei));
+
   docsis_cmstatus_handle = register_dissector ("docsis_cmstatus", dissect_cmstatus, proto_docsis_cmstatus);
 }
 

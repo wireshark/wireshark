@@ -24,7 +24,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
+#include <epan/expert.h>
 
 void proto_register_docsis_dccrsp(void);
 void proto_reg_handoff_docsis_dccrsp(void);
@@ -53,18 +53,21 @@ static int hf_docsis_dccrsp_hmac_digest = -1;
 static gint ett_docsis_dccrsp = -1;
 static gint ett_docsis_dccrsp_cm_jump_time = -1;
 
+static expert_field ei_docsis_dccrsp_tlvlen_bad = EI_INIT;
+
 static dissector_handle_t docsis_dccrsp_handle;
 
 /* Dissection */
 static void
-dissect_dccrsp_cm_jump_time (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
+dissect_dccrsp_cm_jump_time (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *dcc_tree;
+  proto_item *dcc_item;
   int pos;
 
   pos = start;
-  dcc_tree = proto_tree_add_subtree_format( tree, tvb, start, len, ett_docsis_dccrsp_cm_jump_time, NULL,
+  dcc_tree = proto_tree_add_subtree_format( tree, tvb, start, len, ett_docsis_dccrsp_cm_jump_time, &dcc_item,
                                             "1 CM Jump Time Encodings (Length = %u)", len);
 
   while ( pos < ( start + len) )
@@ -82,7 +85,7 @@ dissect_dccrsp_cm_jump_time (tvbuff_t * tvb, proto_tree * tree, int start, guint
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dcc_item, &ei_docsis_dccrsp_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DCCRSP_CM_JUMP_TIME_START:
@@ -93,7 +96,7 @@ dissect_dccrsp_cm_jump_time (tvbuff_t * tvb, proto_tree * tree, int start, guint
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dcc_item, &ei_docsis_dccrsp_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
         }
@@ -114,53 +117,50 @@ dissect_dccrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 
   col_set_str(pinfo->cinfo, COL_INFO, "DCC-RSP Message: ");
 
-  if (tree)
-    {
-      dcc_item =
+  dcc_item =
         proto_tree_add_protocol_format (tree, proto_docsis_dccrsp, tvb, 0,
                                         -1, "DCC-RSP Message");
-      dcc_tree = proto_item_add_subtree (dcc_item, ett_docsis_dccrsp);
-      proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_tran_id, tvb, 0, 2, ENC_BIG_ENDIAN);
-      proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_conf_code, tvb, 2, 1, ENC_BIG_ENDIAN);
+  dcc_tree = proto_item_add_subtree (dcc_item, ett_docsis_dccrsp);
+  proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_tran_id, tvb, 0, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_conf_code, tvb, 2, 1, ENC_BIG_ENDIAN);
 
-      pos = 3;
-      while (pos < len)
+  pos = 3;
+  while (pos < len)
+    {
+        type = tvb_get_guint8 (tvb, pos++);
+        length = tvb_get_guint8 (tvb, pos++);
+        switch (type)
         {
-          type = tvb_get_guint8 (tvb, pos++);
-          length = tvb_get_guint8 (tvb, pos++);
-          switch (type)
-            {
-              case DCCRSP_CM_JUMP_TIME:
-                dissect_dccrsp_cm_jump_time (tvb , dcc_tree , pos , length );
-                break;
-              case DCCRSP_KEY_SEQ_NUM:
-                if (length == 1)
-                  {
-                    proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_key_seq_num, tvb,
-                                         pos, length, ENC_BIG_ENDIAN);
-                  }
-                else
-                  {
-                    THROW (ReportedBoundsError);
-                  }
-                break;
-              case DCCRSP_HMAC_DIGEST:
-                if (length == 20)
-                  {
-                    proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_hmac_digest, tvb,
-                                         pos, length, ENC_NA);
-                  }
-                else
-                  {
-                    THROW (ReportedBoundsError);
-                  }
-                break;
-            }                   /* switch(type) */
-          pos = pos + length;
-        }                       /* while (pos < len) */
-    }                           /* if (tree) */
+            case DCCRSP_CM_JUMP_TIME:
+            dissect_dccrsp_cm_jump_time (tvb , pinfo, dcc_tree , pos , length );
+            break;
+            case DCCRSP_KEY_SEQ_NUM:
+            if (length == 1)
+                {
+                proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_key_seq_num, tvb,
+                                        pos, length, ENC_BIG_ENDIAN);
+                }
+            else
+                {
+                expert_add_info_format(pinfo, dcc_item, &ei_docsis_dccrsp_tlvlen_bad, "Wrong TLV length: %u", length);
+                }
+            break;
+            case DCCRSP_HMAC_DIGEST:
+            if (length == 20)
+                {
+                proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_hmac_digest, tvb,
+                                        pos, length, ENC_NA);
+                }
+            else
+                {
+                expert_add_info_format(pinfo, dcc_item, &ei_docsis_dccrsp_tlvlen_bad, "Wrong TLV length: %u", length);
+                }
+            break;
+        }                   /* switch(type) */
+        pos = pos + length;
+    }                       /* while (pos < len) */
 
-    return tvb_captured_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -230,12 +230,20 @@ proto_register_docsis_dccrsp (void)
     &ett_docsis_dccrsp_cm_jump_time,
   };
 
+  static ei_register_info ei[] = {
+    {&ei_docsis_dccrsp_tlvlen_bad, { "docsis_dccrsp.tlvlenbad", PI_MALFORMED, PI_ERROR, "Bad TLV length", EXPFILL}},
+  };
+
+  expert_module_t* expert_docsis_dccrsp;
+
   proto_docsis_dccrsp =
     proto_register_protocol ("DOCSIS Downstream Channel Change Response",
                              "DOCSIS DCC-RSP", "docsis_dccrsp");
 
   proto_register_field_array (proto_docsis_dccrsp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
+  expert_docsis_dccrsp = expert_register_protocol(proto_docsis_dccrsp);
+  expert_register_field_array(expert_docsis_dccrsp, ei, array_length(ei));
 
   docsis_dccrsp_handle = register_dissector ("docsis_dccrsp", dissect_dccrsp, proto_docsis_dccrsp);
 }

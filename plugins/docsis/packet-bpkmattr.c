@@ -25,7 +25,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
+#include <epan/expert.h>
 
 /* BPKM Attributes defined in:
  * http://www.cablemodem.com/downloads/specs/SP-BPI+_I10-030730.pdf
@@ -104,6 +104,7 @@ static gint ett_docsis_bpkmattr_sadsc = -1;
 static gint ett_docsis_bpkmattr_saqry = -1;
 static gint ett_docsis_bpkmattr_dnld = -1;
 
+static expert_field ei_docsis_bpkmattr_tlvlen_bad = EI_INIT;
 
 static const value_string error_code_vals[] = {
   {0, "No Information"},
@@ -137,7 +138,7 @@ static const value_string bpi_ver_vals[] = {
  * attributes.  It's called recursively, to dissect embedded attributes
  */
 static void
-dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, proto_item* item)
 {
   guint8 type;
   guint16 length;
@@ -145,6 +146,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   gint total_len;
   proto_tree *cmid_tree, *tekp_tree, *scap_tree;
   proto_tree *saqry_tree, *dnld_tree, *sadsc_tree;
+  proto_item *ti;
   tvbuff_t *cmid_tvb, *tekp_tvb, *scap_tvb;
   tvbuff_t *saqry_tvb, *dnld_tvb, *sadsc_tvb;
 
@@ -167,14 +169,14 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
               proto_tree_add_item (tree, hf_docsis_bpkmattr_manf_id, tvb, pos,
                                    length, ENC_NA);
             else
-              THROW (ReportedBoundsError);
+              expert_add_info_format(pinfo, item, &ei_docsis_bpkmattr_tlvlen_bad, "Wrong TLV length: %u", length);
             break;
           case BPKM_MAC_ADDR:
             if (length == 6)
               proto_tree_add_item (tree, hf_docsis_bpkmattr_mac_addr, tvb, pos,
                                    length, ENC_NA);
             else
-              THROW (ReportedBoundsError);
+              expert_add_info_format(pinfo, item, &ei_docsis_bpkmattr_tlvlen_bad, "Wrong TLV length: %u", length);
             break;
           case BPKM_RSA_PUB_KEY:
             proto_tree_add_item (tree, hf_docsis_bpkmattr_rsa_pub_key, tvb, pos,
@@ -183,9 +185,9 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
           case BPKM_CM_ID:
             cmid_tree =
               proto_tree_add_subtree(tree, tvb, pos, length,
-                                     ett_docsis_bpkmattr_cmid, NULL, "5 CM Identification");
+                                     ett_docsis_bpkmattr_cmid, &ti, "5 CM Identification");
             cmid_tvb = tvb_new_subset_length (tvb, pos, length);
-            dissect_attrs (cmid_tvb, pinfo, cmid_tree);
+            dissect_attrs (cmid_tvb, pinfo, cmid_tree, ti);
             break;
           case BPKM_DISPLAY_STR:
             proto_tree_add_item (tree, hf_docsis_bpkmattr_display_str, tvb, pos,
@@ -196,48 +198,48 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
               proto_tree_add_item (tree, hf_docsis_bpkmattr_auth_key, tvb, pos,
                                    length, ENC_NA);
             else
-              THROW (ReportedBoundsError);
+              expert_add_info_format(pinfo, item, &ei_docsis_bpkmattr_tlvlen_bad, "Wrong TLV length: %u", length);
             break;
           case BPKM_TEK:
             if (length == 8 || length == 16)
               proto_tree_add_item (tree, hf_docsis_bpkmattr_tek, tvb, pos,
                                    length, ENC_NA);
             else
-              THROW (ReportedBoundsError);
+              expert_add_info_format(pinfo, item, &ei_docsis_bpkmattr_tlvlen_bad, "Wrong TLV length: %u", length);
             break;
           case BPKM_KEY_LIFETIME:
             if (length == 4)
               proto_tree_add_item (tree, hf_docsis_bpkmattr_key_life, tvb, pos,
                                    length, ENC_BIG_ENDIAN);
             else
-              THROW (ReportedBoundsError);
+              expert_add_info_format(pinfo, item, &ei_docsis_bpkmattr_tlvlen_bad, "Wrong TLV length: %u", length);
             break;
           case BPKM_KEY_SEQ_NUM:
             if (length == 1)
               proto_tree_add_item (tree, hf_docsis_bpkmattr_key_seq, tvb, pos,
                                    length, ENC_BIG_ENDIAN);
             else
-              THROW (ReportedBoundsError);
+              expert_add_info_format(pinfo, item, &ei_docsis_bpkmattr_tlvlen_bad, "Wrong TLV length: %u", length);
             break;
           case BPKM_HMAC_DIGEST:
             if (length == 20)
               proto_tree_add_item (tree, hf_docsis_bpkmattr_hmac_digest, tvb,
                                    pos, length, ENC_NA);
             else
-              THROW (ReportedBoundsError);
+              expert_add_info_format(pinfo, item, &ei_docsis_bpkmattr_tlvlen_bad, "Wrong TLV length: %u", length);
             break;
           case BPKM_SAID:
             if (length == 2)
               proto_tree_add_item (tree, hf_docsis_bpkmattr_said, tvb, pos,
                                    length, ENC_BIG_ENDIAN);
             else
-              THROW (ReportedBoundsError);
+              expert_add_info_format(pinfo, item, &ei_docsis_bpkmattr_tlvlen_bad, "Wrong TLV length: %u", length);
             break;
           case BPKM_TEK_PARAM:
             tekp_tree =
-              proto_tree_add_subtree(tree, tvb, pos, length, ett_docsis_bpkmattr_tekp, NULL, "13 TEK Parameters");
+              proto_tree_add_subtree(tree, tvb, pos, length, ett_docsis_bpkmattr_tekp, &ti, "13 TEK Parameters");
             tekp_tvb = tvb_new_subset_length (tvb, pos, length);
-            dissect_attrs (tekp_tvb, pinfo, tekp_tree);
+            dissect_attrs (tekp_tvb, pinfo, tekp_tree, ti);
             break;
           case BPKM_OBSOLETED:
             break;
@@ -246,14 +248,14 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
               proto_tree_add_item (tree, hf_docsis_bpkmattr_cbc_iv, tvb, pos,
                                    length, ENC_NA);
             else
-              THROW (ReportedBoundsError);
+              expert_add_info_format(pinfo, item, &ei_docsis_bpkmattr_tlvlen_bad, "Wrong TLV length: %u", length);
             break;
           case BPKM_ERROR_CODE:
             if (length == 1)
               proto_tree_add_item (tree, hf_docsis_bpkmattr_error_code, tvb,
                                    pos, length, ENC_BIG_ENDIAN);
             else
-              THROW (ReportedBoundsError);
+              expert_add_info_format(pinfo, item, &ei_docsis_bpkmattr_tlvlen_bad, "Wrong TLV length: %u", length);
             break;
           case BPKM_CA_CERT:
             proto_tree_add_item (tree, hf_docsis_bpkmattr_ca_cert, tvb, pos,
@@ -266,16 +268,16 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
           case BPKM_SEC_CAPABILITIES:
             scap_tree =
               proto_tree_add_subtree(tree, tvb, pos, length,
-                                     ett_docsis_bpkmattr_scap, NULL, "19 Security Capabilities");
+                                     ett_docsis_bpkmattr_scap, &ti, "19 Security Capabilities");
             scap_tvb = tvb_new_subset_length (tvb, pos, length);
-            dissect_attrs (scap_tvb, pinfo, scap_tree);
+            dissect_attrs (scap_tvb, pinfo, scap_tree, ti);
             break;
           case BPKM_CRYPTO_SUITE:
             if (length == 2)
               proto_tree_add_item (tree, hf_docsis_bpkmattr_crypto_suite, tvb,
                                    pos, length, ENC_BIG_ENDIAN);
             else
-              THROW (ReportedBoundsError);
+              expert_add_info_format(pinfo, item, &ei_docsis_bpkmattr_tlvlen_bad, "Wrong TLV length: %u", length);
             break;
           case BPKM_CRYPTO_SUITE_LIST:
             proto_tree_add_item (tree, hf_docsis_bpkmattr_crypto_suite_list,
@@ -286,40 +288,40 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
               proto_tree_add_item (tree, hf_docsis_bpkmattr_bpi_version, tvb,
                                    pos, length, ENC_BIG_ENDIAN);
             else
-              THROW (ReportedBoundsError);
+              expert_add_info_format(pinfo, item, &ei_docsis_bpkmattr_tlvlen_bad, "Wrong TLV length: %u", length);
             break;
           case BPKM_SA_DESCRIPTOR:
             sadsc_tree =
-              proto_tree_add_subtree(tree, tvb, pos, length, ett_docsis_bpkmattr_sadsc, NULL, "23 SA Descriptor");
+              proto_tree_add_subtree(tree, tvb, pos, length, ett_docsis_bpkmattr_sadsc, &ti, "23 SA Descriptor");
             sadsc_tvb = tvb_new_subset_length (tvb, pos, length);
-            dissect_attrs (sadsc_tvb, pinfo, sadsc_tree);
+            dissect_attrs (sadsc_tvb, pinfo, sadsc_tree, ti);
             break;
           case BPKM_SA_TYPE:
             if (length == 1)
               proto_tree_add_item (tree, hf_docsis_bpkmattr_sa_type, tvb, pos,
                                    length, ENC_BIG_ENDIAN);
             else
-              THROW (ReportedBoundsError);
+              expert_add_info_format(pinfo, item, &ei_docsis_bpkmattr_tlvlen_bad, "Wrong TLV length: %u", length);
             break;
           case BPKM_SA_QUERY:
             saqry_tree =
-              proto_tree_add_subtree(tree, tvb, pos, length, ett_docsis_bpkmattr_saqry, NULL, "25 SA Query");
+              proto_tree_add_subtree(tree, tvb, pos, length, ett_docsis_bpkmattr_saqry, &ti, "25 SA Query");
             saqry_tvb = tvb_new_subset_length (tvb, pos, length);
-            dissect_attrs (saqry_tvb, pinfo, saqry_tree);
+            dissect_attrs (saqry_tvb, pinfo, saqry_tree, ti);
             break;
           case BPKM_SA_QUERY_TYPE:
             if (length == 1)
               proto_tree_add_item (tree, hf_docsis_bpkmattr_sa_query_type, tvb,
                                    pos, length, ENC_BIG_ENDIAN);
             else
-              THROW (ReportedBoundsError);
+              expert_add_info_format(pinfo, item, &ei_docsis_bpkmattr_tlvlen_bad, "Wrong TLV length: %u", length);
             break;
           case BPKM_IP_ADDRESS:
             if (length == 4)
               proto_tree_add_item (tree, hf_docsis_bpkmattr_ip_address, tvb,
                                    pos, length, ENC_BIG_ENDIAN);
             else
-              THROW (ReportedBoundsError);
+              expert_add_info_format(pinfo, item, &ei_docsis_bpkmattr_tlvlen_bad, "Wrong TLV length: %u", length);
             break;
           case BPKM_VENDOR_DEFINED:
             proto_tree_add_item (tree, hf_docsis_bpkmattr_vendor_def, tvb, pos,
@@ -328,9 +330,9 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
           case BPKM_DNLD_PARAMS:
             dnld_tree =
               proto_tree_add_subtree(tree, tvb, pos, length,
-                                     ett_docsis_bpkmattr_dnld, NULL, "28 Download Parameters");
+                                     ett_docsis_bpkmattr_dnld, &ti, "28 Download Parameters");
             dnld_tvb = tvb_new_subset_length (tvb, pos, length);
-            dissect_attrs (dnld_tvb, pinfo, dnld_tree);
+            dissect_attrs (dnld_tvb, pinfo, dnld_tree, ti);
             break;
           default:
             proto_tree_add_item (tree, hf_docsis_bpkmattr_vendor_def, tvb, pos,
@@ -348,14 +350,11 @@ dissect_bpkmattr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
   proto_item *it;
   proto_tree *bpkmattr_tree;
 
-  if (tree)
-    {
-      it =
-        proto_tree_add_protocol_format (tree, proto_docsis_bpkmattr, tvb, 0, -1,
+  it = proto_tree_add_protocol_format (tree, proto_docsis_bpkmattr, tvb, 0, -1,
                                         "BPKM Attributes");
-      bpkmattr_tree = proto_item_add_subtree (it, ett_docsis_bpkmattr);
-      dissect_attrs (tvb, pinfo, bpkmattr_tree);
-    }
+  bpkmattr_tree = proto_item_add_subtree (it, ett_docsis_bpkmattr);
+  dissect_attrs (tvb, pinfo, bpkmattr_tree, it);
+
   return tvb_captured_length(tvb);
 }
 
@@ -528,6 +527,12 @@ proto_register_docsis_bpkmattr (void)
     &ett_docsis_bpkmattr_dnld
   };
 
+  static ei_register_info ei[] = {
+    {&ei_docsis_bpkmattr_tlvlen_bad, { "docsis_bpkmattr.tlvlenbad", PI_MALFORMED, PI_ERROR, "Bad TLV length", EXPFILL}},
+  };
+
+  expert_module_t* expert_docsis_bpkmattr;
+
   proto_docsis_bpkmattr =
     proto_register_protocol
     ("DOCSIS Baseline Privacy Key Management Attributes", "DOCSIS BPKM-ATTR",
@@ -535,6 +540,8 @@ proto_register_docsis_bpkmattr (void)
 
   proto_register_field_array (proto_docsis_bpkmattr, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
+  expert_docsis_bpkmattr = expert_register_protocol(proto_docsis_bpkmattr);
+  expert_register_field_array(expert_docsis_bpkmattr, ei, array_length(ei));
 
   register_dissector ("docsis_bpkmattr", dissect_bpkmattr,
                       proto_docsis_bpkmattr);

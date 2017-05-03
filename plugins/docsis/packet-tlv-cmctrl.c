@@ -24,7 +24,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
+#include <epan/expert.h>
 
 #define CM_CTRL_MUTE 1
 #define CM_CTRL_MUTE_TIMEOUT 2
@@ -64,16 +64,19 @@ static gint ett_cmctrl_tlv = -1;
 static gint ett_cmctrl_tlv_ds_event = -1;
 static gint ett_cmctrl_tlv_us_event = -1;
 
+static expert_field ei_docsis_cmctrl_tlv_tlvlen_bad = EI_INIT;
+
 /* Dissection */
 static void
-dissect_ds_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_ds_event(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *event_tree;
+  proto_item *event_item;
   int pos = start;
 
   event_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_cmctrl_tlv_ds_event, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_cmctrl_tlv_ds_event, &event_item,
                          "Override Downstream Status Event Event Mask (Length = %u)", len);
 
   while (pos < (start + len))
@@ -90,7 +93,7 @@ dissect_ds_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
         }
       else
         {
-          THROW (ReportedBoundsError);
+          expert_add_info_format(pinfo, event_item, &ei_docsis_cmctrl_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
         }
           break;
         case DS_EVENT_MASK:
@@ -101,7 +104,7 @@ dissect_ds_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
         }
       else
         {
-          THROW (ReportedBoundsError);
+          expert_add_info_format(pinfo, event_item, &ei_docsis_cmctrl_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
         }
           break;
         }                       /* switch */
@@ -110,14 +113,15 @@ dissect_ds_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 }
 
 static void
-dissect_us_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+dissect_us_event(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *event_tree;
+  proto_item *event_item;
   int pos = start;
 
   event_tree =
-    proto_tree_add_subtree_format(tree, tvb, start, len, ett_cmctrl_tlv_us_event, NULL,
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_cmctrl_tlv_us_event, &event_item,
                          "Override Upstream Status Enable Event Mask (Length = %u)", len);
 
   while (pos < (start + len))
@@ -134,7 +138,7 @@ dissect_us_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
         }
       else
         {
-          THROW (ReportedBoundsError);
+          expert_add_info_format(pinfo, event_item, &ei_docsis_cmctrl_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
         }
           break;
         case US_EVENT_MASK:
@@ -145,7 +149,7 @@ dissect_us_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
         }
       else
         {
-          THROW (ReportedBoundsError);
+          expert_add_info_format(pinfo, event_item, &ei_docsis_cmctrl_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
         }
           break;
         }                       /* switch */
@@ -154,7 +158,7 @@ dissect_us_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
 }
 
 static int
-dissect_cmctrl_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* data _U_)
+dissect_cmctrl_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   proto_item *it;
   proto_tree *tlv_tree;
@@ -183,7 +187,7 @@ dissect_cmctrl_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, 
             }
           else
             {
-              THROW (ReportedBoundsError);
+              expert_add_info_format(pinfo, it, &ei_docsis_cmctrl_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
             }
           break;
         case CM_CTRL_MUTE_TIMEOUT:
@@ -194,7 +198,7 @@ dissect_cmctrl_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, 
             }
           else
             {
-              THROW (ReportedBoundsError);
+              expert_add_info_format(pinfo, it, &ei_docsis_cmctrl_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
             }
           break;
         case CM_CTRL_REINIT:
@@ -205,7 +209,7 @@ dissect_cmctrl_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, 
             }
           else
             {
-              THROW (ReportedBoundsError);
+               expert_add_info_format(pinfo, it, &ei_docsis_cmctrl_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
             }
           break;
         case CM_CTRL_DISABLE_FWD:
@@ -216,7 +220,7 @@ dissect_cmctrl_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, 
             }
           else
             {
-              THROW (ReportedBoundsError);
+               expert_add_info_format(pinfo, it, &ei_docsis_cmctrl_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
             }
           break;
         case CM_CTRL_DS_EVENT:
@@ -224,14 +228,14 @@ dissect_cmctrl_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, 
             proto_tree_add_item (tlv_tree, hf_cmctrl_tlv_ds_event,
                                  tvb, pos, length, ENC_NA);
           else
-            dissect_ds_event(tvb, tlv_tree, pos, length);
+            dissect_ds_event(tvb, pinfo, tlv_tree, pos, length);
           break;
         case CM_CTRL_US_EVENT:
           if (length == 1)
             proto_tree_add_item (tlv_tree, hf_cmctrl_tlv_ds_event,
                                  tvb, pos, length, ENC_NA);
           else
-            dissect_us_event(tvb, tlv_tree, pos, length);
+            dissect_us_event(tvb, pinfo, tlv_tree, pos, length);
           break;
         case CM_CTRL_EVENT:
           if (length == 2 || length == 1) /* response TLV always with len 1 */
@@ -241,7 +245,7 @@ dissect_cmctrl_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, 
             }
           else
             {
-              THROW (ReportedBoundsError);
+               expert_add_info_format(pinfo, it, &ei_docsis_cmctrl_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
             }
           break;
 
@@ -321,11 +325,19 @@ proto_register_cmctrl_tlv (void)
     &ett_cmctrl_tlv_us_event,
   };
 
+  static ei_register_info ei[] = {
+    {&ei_docsis_cmctrl_tlv_tlvlen_bad, { "cmctrl_tlv.tlvlenbad", PI_MALFORMED, PI_ERROR, "Bad TLV length", EXPFILL}},
+  };
+
+  expert_module_t* expert_docsis_cmctrl_tlv;
+
   proto_cmctrl_tlv = proto_register_protocol ("DOCSIS CM-CTRL TLV's",
                                               "DOCSIS CM-CTRL TLVs", "cmctrl_tlv");
 
   proto_register_field_array (proto_cmctrl_tlv, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
+  expert_docsis_cmctrl_tlv = expert_register_protocol(proto_cmctrl_tlv);
+  expert_register_field_array(expert_docsis_cmctrl_tlv, ei, array_length(ei));
 
   register_dissector ("cmctrl_tlv", dissect_cmctrl_tlv, proto_cmctrl_tlv);
 }

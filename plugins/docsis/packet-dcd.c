@@ -24,7 +24,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
+#include <epan/expert.h>
 
 void proto_register_docsis_dcd(void);
 void proto_reg_handoff_docsis_dcd(void);
@@ -124,19 +124,22 @@ static gint ett_docsis_dcd_rule = -1;
 static gint ett_docsis_dcd_clid = -1;
 static gint ett_docsis_dcd_cfg = -1;
 
+static expert_field ei_docsis_dcd_tlvlen_bad = EI_INIT;
+
 static dissector_handle_t docsis_dcd_handle;
 
 /* Dissection */
 static void
-dissect_dcd_dsg_cfg (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
+dissect_dcd_dsg_cfg (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *dcd_tree;
+  proto_item *dcd_item;
   int pos;
 
   pos = start;
   dcd_tree = proto_tree_add_subtree_format( tree, tvb, start, len,
-                                            ett_docsis_dcd_cfg, NULL, "51 DCD DSG Config Encodings (Length = %u)", len);
+                                            ett_docsis_dcd_cfg, &dcd_item, "51 DCD DSG Config Encodings (Length = %u)", len);
 
   while ( pos < ( start + len) )
     {
@@ -153,7 +156,7 @@ dissect_dcd_dsg_cfg (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dcd_item, &ei_docsis_dcd_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DCD_CFG_TDSG1:
@@ -164,7 +167,7 @@ dissect_dcd_dsg_cfg (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dcd_item, &ei_docsis_dcd_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DCD_CFG_TDSG2:
@@ -175,7 +178,7 @@ dissect_dcd_dsg_cfg (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dcd_item, &ei_docsis_dcd_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DCD_CFG_TDSG3:
@@ -186,7 +189,7 @@ dissect_dcd_dsg_cfg (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dcd_item, &ei_docsis_dcd_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DCD_CFG_TDSG4:
@@ -197,7 +200,7 @@ dissect_dcd_dsg_cfg (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dcd_item, &ei_docsis_dcd_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DCD_CFG_VENDOR_SPEC:
@@ -211,14 +214,15 @@ dissect_dcd_dsg_cfg (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 }
 
 static void
-dissect_dcd_down_classifier_ip (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
+dissect_dcd_down_classifier_ip (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *dcd_tree;
+  proto_item *dcd_item;
   int pos;
 
   pos = start;
-  dcd_tree = proto_tree_add_subtree_format( tree, tvb, start, len, ett_docsis_dcd_cfr_ip, NULL, "23.9 DCD_CFR_IP Encodings (Length = %u)", len);
+  dcd_tree = proto_tree_add_subtree_format( tree, tvb, start, len, ett_docsis_dcd_cfr_ip, &dcd_item, "23.9 DCD_CFR_IP Encodings (Length = %u)", len);
 
   while ( pos < ( start + len) )
     {
@@ -235,7 +239,7 @@ dissect_dcd_down_classifier_ip (tvbuff_t * tvb, proto_tree * tree, int start, gu
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dcd_item, &ei_docsis_dcd_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DCD_CFR_IP_SOURCE_MASK:
@@ -246,7 +250,7 @@ dissect_dcd_down_classifier_ip (tvbuff_t * tvb, proto_tree * tree, int start, gu
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dcd_item, &ei_docsis_dcd_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DCD_CFR_IP_DEST_ADDR:
@@ -257,7 +261,7 @@ dissect_dcd_down_classifier_ip (tvbuff_t * tvb, proto_tree * tree, int start, gu
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dcd_item, &ei_docsis_dcd_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DCD_CFR_IP_DEST_MASK:
@@ -268,7 +272,7 @@ dissect_dcd_down_classifier_ip (tvbuff_t * tvb, proto_tree * tree, int start, gu
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dcd_item, &ei_docsis_dcd_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DCD_CFR_TCPUDP_SRCPORT_START:
@@ -279,7 +283,7 @@ dissect_dcd_down_classifier_ip (tvbuff_t * tvb, proto_tree * tree, int start, gu
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dcd_item, &ei_docsis_dcd_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DCD_CFR_TCPUDP_SRCPORT_END:
@@ -290,7 +294,7 @@ dissect_dcd_down_classifier_ip (tvbuff_t * tvb, proto_tree * tree, int start, gu
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dcd_item, &ei_docsis_dcd_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DCD_CFR_TCPUDP_DSTPORT_START:
@@ -301,7 +305,7 @@ dissect_dcd_down_classifier_ip (tvbuff_t * tvb, proto_tree * tree, int start, gu
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dcd_item, &ei_docsis_dcd_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DCD_CFR_TCPUDP_DSTPORT_END:
@@ -312,7 +316,7 @@ dissect_dcd_down_classifier_ip (tvbuff_t * tvb, proto_tree * tree, int start, gu
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dcd_item, &ei_docsis_dcd_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
         }
@@ -321,14 +325,15 @@ dissect_dcd_down_classifier_ip (tvbuff_t * tvb, proto_tree * tree, int start, gu
 }
 
 static void
-dissect_dcd_clid (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
+dissect_dcd_clid (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *dcd_tree;
+  proto_item *dcd_item;
   int pos;
 
   pos = start;
-  dcd_tree = proto_tree_add_subtree_format( tree, tvb, start, len, ett_docsis_dcd_clid, NULL, "50.4 DCD Rule ClientID Encodings (Length = %u)", len);
+  dcd_tree = proto_tree_add_subtree_format( tree, tvb, start, len, ett_docsis_dcd_clid, &dcd_item, "50.4 DCD Rule ClientID Encodings (Length = %u)", len);
 
   while ( pos < ( start + len) )
     {
@@ -344,7 +349,7 @@ dissect_dcd_clid (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dcd_item, &ei_docsis_dcd_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DCD_CLID_KNOWN_MAC_ADDR:
@@ -355,7 +360,7 @@ dissect_dcd_clid (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dcd_item, &ei_docsis_dcd_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DCD_CLID_CA_SYS_ID:
@@ -366,7 +371,7 @@ dissect_dcd_clid (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dcd_item, &ei_docsis_dcd_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DCD_CLID_APP_ID:
@@ -377,7 +382,7 @@ dissect_dcd_clid (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dcd_item, &ei_docsis_dcd_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
         }
@@ -386,14 +391,15 @@ dissect_dcd_clid (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 }
 
 static void
-dissect_dcd_dsg_rule (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
+dissect_dcd_dsg_rule (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *dcd_tree;
+  proto_item *dcd_item;
   int pos;
 
   pos = start;
-  dcd_tree = proto_tree_add_subtree_format( tree, tvb, start, len, ett_docsis_dcd_rule, NULL, "50 DCD DSG Rule Encodings (Length = %u)", len);
+  dcd_tree = proto_tree_add_subtree_format( tree, tvb, start, len, ett_docsis_dcd_rule, &dcd_item, "50 DCD DSG Rule Encodings (Length = %u)", len);
 
   while ( pos < ( start + len) )
     {
@@ -410,7 +416,7 @@ dissect_dcd_dsg_rule (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dcd_item, &ei_docsis_dcd_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DCD_RULE_PRI:
@@ -421,7 +427,7 @@ dissect_dcd_dsg_rule (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dcd_item, &ei_docsis_dcd_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DCD_RULE_UCID_RNG:
@@ -429,7 +435,7 @@ dissect_dcd_dsg_rule (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
                                  pos, length, ENC_NA);
             break;
           case DCD_RULE_CLIENT_ID:
-            dissect_dcd_clid (tvb , dcd_tree , pos , length );
+            dissect_dcd_clid (tvb , pinfo , dcd_tree , pos , length );
             break;
           case DCD_RULE_TUNL_ADDR:
             if (length == 6)
@@ -439,7 +445,7 @@ dissect_dcd_dsg_rule (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dcd_item, &ei_docsis_dcd_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DCD_RULE_CFR_ID:
@@ -450,7 +456,7 @@ dissect_dcd_dsg_rule (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dcd_item, &ei_docsis_dcd_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DCD_RULE_VENDOR_SPEC:
@@ -464,14 +470,15 @@ dissect_dcd_dsg_rule (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 }
 
 static void
-dissect_dcd_down_classifier (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
+dissect_dcd_down_classifier (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start, guint16 len)
 {
   guint8 type, length;
   proto_tree *dcd_tree;
+  proto_tree *dcd_item;
   int pos;
 
   pos = start;
-  dcd_tree = proto_tree_add_subtree_format( tree, tvb, start, len, ett_docsis_dcd_cfr, NULL, "23 DCD_CFR Encodings (Length = %u)", len);
+  dcd_tree = proto_tree_add_subtree_format( tree, tvb, start, len, ett_docsis_dcd_cfr, &dcd_item, "23 DCD_CFR Encodings (Length = %u)", len);
 
   while ( pos < ( start + len) )
     {
@@ -488,7 +495,7 @@ dissect_dcd_down_classifier (tvbuff_t * tvb, proto_tree * tree, int start, guint
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dcd_item, &ei_docsis_dcd_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DCD_CFR_RULE_PRI:
@@ -499,11 +506,11 @@ dissect_dcd_down_classifier (tvbuff_t * tvb, proto_tree * tree, int start, guint
               }
             else
               {
-                THROW (ReportedBoundsError);
+                expert_add_info_format(pinfo, dcd_item, &ei_docsis_dcd_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
           case DCD_CFR_IP_CLASSIFIER:
-            dissect_dcd_down_classifier_ip (tvb , dcd_tree , pos , length );
+            dissect_dcd_down_classifier_ip (tvb , pinfo , dcd_tree , pos , length );
             break;
 
         }
@@ -524,39 +531,36 @@ dissect_dcd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
 
   col_set_str(pinfo->cinfo, COL_INFO, "DCD Message: ");
 
-  if (tree)
-    {
-      dcd_item =
+  dcd_item =
         proto_tree_add_protocol_format (tree, proto_docsis_dcd, tvb, 0,
                                         tvb_captured_length(tvb),
                                         "DCD Message");
-      dcd_tree = proto_item_add_subtree (dcd_item, ett_docsis_dcd);
-      proto_tree_add_item (dcd_tree, hf_docsis_dcd_config_ch_cnt, tvb, 0, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item (dcd_tree, hf_docsis_dcd_num_of_frag, tvb, 1, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item (dcd_tree, hf_docsis_dcd_frag_sequence_num, tvb, 2, 1, ENC_BIG_ENDIAN);
+  dcd_tree = proto_item_add_subtree (dcd_item, ett_docsis_dcd);
+  proto_tree_add_item (dcd_tree, hf_docsis_dcd_config_ch_cnt, tvb, 0, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (dcd_tree, hf_docsis_dcd_num_of_frag, tvb, 1, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (dcd_tree, hf_docsis_dcd_frag_sequence_num, tvb, 2, 1, ENC_BIG_ENDIAN);
 
-      pos = 3;
-      while (pos < len)
+  pos = 3;
+  while (pos < len)
+  {
+        type = tvb_get_guint8 (tvb, pos++);
+        length = tvb_get_guint8 (tvb, pos++);
+        switch (type)
         {
-          type = tvb_get_guint8 (tvb, pos++);
-          length = tvb_get_guint8 (tvb, pos++);
-          switch (type)
-            {
-              case DCD_DOWN_CLASSIFIER:
-                dissect_dcd_down_classifier (tvb , dcd_tree , pos , length );
-                break;
-              case DCD_DSG_RULE:
-                dissect_dcd_dsg_rule (tvb , dcd_tree , pos , length );
-                break;
-              case DCD_DSG_CONFIG:
-                dissect_dcd_dsg_cfg (tvb , dcd_tree , pos , length );
-                break;
-            }                   /* switch(type) */
-          pos = pos + length;
-        }                       /* while (pos < len) */
-    }                           /* if (tree) */
+            case DCD_DOWN_CLASSIFIER:
+            dissect_dcd_down_classifier (tvb , pinfo , dcd_tree , pos , length );
+            break;
+            case DCD_DSG_RULE:
+            dissect_dcd_dsg_rule (tvb , pinfo , dcd_tree , pos , length );
+            break;
+            case DCD_DSG_CONFIG:
+            dissect_dcd_dsg_cfg (tvb , pinfo , dcd_tree , pos , length );
+            break;
+        }                   /* switch(type) */
+        pos = pos + length;
+  }                       /* while (pos < len) */
 
-    return tvb_captured_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -838,12 +842,20 @@ proto_register_docsis_dcd (void)
     &ett_docsis_dcd_cfg,
   };
 
+  static ei_register_info ei[] = {
+    {&ei_docsis_dcd_tlvlen_bad, { "docsis_dcd.tlvlenbad", PI_MALFORMED, PI_ERROR, "Bad TLV length", EXPFILL}},
+  };
+
+  expert_module_t* expert_docsis_dcd;
+
   proto_docsis_dcd =
     proto_register_protocol ("DOCSIS Downstream Channel Descriptor",
                              "DOCSIS DCD", "docsis_dcd");
 
   proto_register_field_array (proto_docsis_dcd, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
+  expert_docsis_dcd = expert_register_protocol(proto_docsis_dcd);
+  expert_register_field_array(expert_docsis_dcd, ei, array_length(ei));
 
   docsis_dcd_handle = register_dissector ("docsis_dcd", dissect_dcd, proto_docsis_dcd);
 }
