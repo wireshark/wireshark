@@ -2453,14 +2453,15 @@ dissect_ieee802154_header_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
         /* until the Header IEs are finalized, just use the data dissector */
         if (length > 0) {
 
+            subtree = proto_item_add_subtree(header_item, ett_ieee802154_header);
+            proto_item_append_text(subtree, ", Element ID: %s, Length: %d", val_to_str_const(id, ieee802154_header_ie_names, "Unknown IE"), length);
+            proto_tree_add_bitmask(subtree, tvb, *offset, hf_ieee802154_header_ie_tlv, ett_ieee802154_header_ie, fields, ENC_LITTLE_ENDIAN);
+            *offset += 2;
+
             switch(id){
 
                 case IEEE802154_HEADER_IE_TIME_CORR:
                     // 7.4.2.7 Time Correction IE
-                    subtree = proto_item_add_subtree(header_item, ett_ieee802154_header);
-                    proto_item_append_text(subtree, ", Element ID: %s, Length: %d", val_to_str_const(id, ieee802154_header_ie_names, "Unknown IE"), length);
-                    proto_tree_add_bitmask(subtree, tvb, *offset, hf_ieee802154_header_ie_tlv, ett_ieee802154_header_ie, fields, ENC_LITTLE_ENDIAN);
-                    *offset += 2;
                     dissect_802154_h_ie_time_correction(tvb, subtree, offset, pinfo);
                     break;
 
@@ -2553,11 +2554,15 @@ dissect_ieee802154_header_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
                     break;
 
                 default:
+                    subtree = proto_item_add_subtree(header_item, ett_ieee802154_header);
+                    proto_item_append_text(subtree, ", Element ID: %s, Length: %d", val_to_str_const(id, ieee802154_header_ie_names, "Unknown IE"), length);
+                    proto_tree_add_bitmask(subtree, tvb, *offset, hf_ieee802154_header_ie_tlv, ett_ieee802154_header_ie, fields, ENC_LITTLE_ENDIAN);
+                    *offset += 2;
                     expert_add_info(pinfo, header_item, &ei_ieee802154_unsupported_element_id);
                     break;
             }
         }
-    } while ((tvb_reported_length_remaining(tvb, *offset) - IEEE802154_FCS_LEN > 1) &&
+    } while ((tvb_reported_length_remaining(tvb, *offset) > IEEE802154_FCS_LEN + 1) &&
              (id != IEEE802154_HEADER_IE_EID_TERM1) &&
              (id != IEEE802154_HEADER_IE_EID_TERM2));
 
@@ -4029,7 +4034,7 @@ void proto_register_ieee802154(void)
                 IEEE802154_HEADER_IE_LENGTH_MASK, NULL, HFILL }},
 
         { &hf_ieee802154_header_ie_tlv,
-          { "Header Termination",        "wpan.header_ie_tlv", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+          { "IE Header",                    "wpan.header_ie_tlv", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
         { &hf_ieee802154_header_termination,
         { "Header Termination",        "wpan.header_ie_termination", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
