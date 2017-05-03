@@ -3601,7 +3601,6 @@ int mapi_dissect_struct_LPSTR(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 #define PT_MV_APPTIME (0x1007)
 #define PT_MV_I8 (0x1014)
 #define PT_MV_STRING8 (0x101e)
-#define PT_MV_TSTRING (0x101e)
 #define PT_MV_UNICODE (0x101f)
 #define PT_MV_SYSTIME (0x1040)
 #define PT_MV_CLSID (0x1048)
