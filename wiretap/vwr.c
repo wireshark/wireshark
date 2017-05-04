@@ -170,8 +170,6 @@
  * 2 octets - HT len
  * 2 octets - info
  * 2 octets - errors
- *
- * XXX - last 4 octets?  PLCP?  17 bytes in some cases?
  */
 
 /* Size of the VeriWave WLAN metadata header */
@@ -1223,13 +1221,6 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
 
     /*
      * Fill up the per-packet header.
-     *
-     * We also zero out 16 bytes PLCP header and 1 byte of L1P for user
-     * position.
-     *
-     * XXX - for S1, do we even have that?  The current VeriWave dissector
-     * just blindly assumes there's a 17-byte blob before the 802.11
-     * header, which is why we fill in those extra zero bytes.
      *
      * We include the length of the metadata headers in the packet lengths.
      *
