@@ -2887,6 +2887,14 @@ static void setup_defaults(vwr_t *vwr, guint16 fpga)
             vwr->IS_QOS             =   vVW510021_W_QOS_VALID;
 
             /*
+             * vVW510021_W_STATS_HEADER_LEN = 8 is:
+             *
+             *    2 bytes of l1p_1/l1p_2;
+             *    1 byte of RSSI;
+             *    2 bytes of MSDU length + other bits
+             *    1 byte of XXX;
+             *    2 bytes of VCID.
+             *  
              * The 12 is for 11 bytes of PLCP and 1 byte of pad
              * before the data.
              */
