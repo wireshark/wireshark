@@ -1883,11 +1883,6 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
             }
         }
 
-        if (IS_TX == 0 || IS_TX == 4){
-            L1InfoC = s_start_ptr[8];
-        }
-
-        msdu_length = pntoh24(&s_start_ptr[9]);
         for (i = 0; i < 4; i++)
         {
             if (IS_TX == 1)
@@ -1899,6 +1894,12 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
                 rssi[i] = (s_start_ptr[4+i] >= 128) ? (s_start_ptr[4+i] - 256) : s_start_ptr[4+i];
             }
         }
+
+        if (IS_TX == 0 || IS_TX == 4){
+            L1InfoC = s_start_ptr[8];
+        }
+
+        msdu_length = pntoh24(&s_start_ptr[9]);
 
         /*** 16 bytes of PLCP header + 1 byte of L1P for user position ***/
         plcp_ptr = &(rec[stats_offset+16]);
@@ -1985,7 +1986,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         else if (plcp_type == vVW510021_W_PLCP_VHT_MIXED)
         {
             /*
-             * According to section 22.3.2 "VHTPPDU format" of IEEE Std
+             * According to section 22.3.2 "VHT PPDU format" of IEEE Std
              * 802.11ac-2013, the VHT PLCP header has a "non-HT SIGNAL field"
              * (L-SIG), which looks like an 11a SIGNAL field, followed by
              * a VHT Signal A field (VHT-SIG-A) described in section
@@ -2426,9 +2427,9 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
 /* The packet is constructed as a 38-byte VeriWave-extended Radiotap header plus the raw */
 /*  MAC octets.                                                                          */
 static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
-                                            Buffer *buf, const guint8 *rec,
-                                            int rec_size, int IS_TX, int *err,
-                                            gchar **err_info)
+                                           Buffer *buf, const guint8 *rec,
+                                           int rec_size, int IS_TX, int *err,
+                                           gchar **err_info)
 {
      guint8           *data_ptr;
      int              bytes_written = 0;                   /* bytes output to buf so far */
@@ -2898,10 +2899,18 @@ static void setup_defaults(vwr_t *vwr, guint16 fpga)
             vwr->PLCP_LENGTH_OFF = 16;
 
             /*
-             * 4 bytes of something, 4 bytes of layer 2-4 stuff,
-             * 16 bytes of PLCP.
+             * The 16 + 16 is:
+             *
+             *    2 bytes of l1p_1/l1p_2;
+             *    1 byte of signal bandwidth mask;
+             *    1 byte of antenna port energy;
+             *    4 bytes of per-antenna RSSI;
+             *    1 byte of L1InfoC;
+             *    3 bytes of MSDU length;
+             *    4 bytes of something;
+             *   16 bytes of PLCP.
              */
-            vwr->MPDU_OFF        = vVW510021_W_STATS_HEADER_LEN + 4 + 4 + 16;
+            vwr->MPDU_OFF        = 16 + 16;
 
             break;
 
