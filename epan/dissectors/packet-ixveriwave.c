@@ -593,7 +593,8 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     tvbuff_t   *next_tvb;
     ifg_info   *p_ifg_info;
     guint8      ixport_type,cmd_type, mgmt_byte = 0;
-    guint8      frameformat, rfid, legacy_type;
+    guint8      frameformat, legacy_type;
+    guint       rfid;
     gint8       noisevalida, noisevalidb, noisevalidc, noisevalidd, pfevalida, pfevalidb, pfevalidc, pfevalidd;
     guint16     vw_info_ifg;
     int         ifg_flag = 0;
@@ -1034,10 +1035,8 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
         // Only RF header implementation
         if (tree) {
-
-            rfid = tvb_get_guint8(tvb, offset);
-            vwrft = proto_tree_add_item(common_tree, hf_radiotap_rf_info,
-                            tvb, offset, 76, ENC_NA);
+            vwrft = proto_tree_add_item_ret_uint(common_tree, hf_radiotap_rf_info,
+                            tvb, offset, 76, ENC_NA, &rfid);
             proto_item_append_text(vwrft, " (RFID = %u)",rfid);
             vw_rfinfo_tree = proto_item_add_subtree(vwrft, ett_radiotap_rf);
 
@@ -1461,7 +1460,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
      if (ixport_type == ETHERNET_PORT)
         ethernettap_dissect(next_tvb, pinfo, tree, common_tree);
      else
-        wlantap_dissect(next_tvb, pinfo, tree, common_tree,vw_msdu_length,
+        wlantap_dissect(next_tvb, pinfo, tree, common_tree, vw_msdu_length,
                         cmd_type, log_mode, is_octo);
     }
 
@@ -1873,12 +1872,12 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gint8       dbm;
     guint8      mcs_index, vw_plcp_info, vw_bssid;
     guint8      plcp_type;
-    guint8      vht_ndp_flag,vht_mu_mimo_flg;
+    guint8      vht_ndp_flag, vht_mu_mimo_flg;
     float       phyRate;
     guint       i;
 
-    proto_tree *vweft, *vw_errorFlags_tree = NULL, *vwict,*vw_infoC_tree = NULL;
-    guint16     vw_info, vw_chanflags, vw_flags, vw_ht_length, vw_rflags,vw_vcid, vw_seqnum, mpdu_length;
+    proto_tree *vweft, *vw_errorFlags_tree = NULL, *vwict, *vw_infoC_tree = NULL;
+    guint16     vw_info, vw_chanflags, vw_flags, vw_ht_length, vw_rflags, vw_vcid, vw_seqnum, mpdu_length;
     guint32     vw_errors;
     guint8      vht_user_pos;
     guint8      plcp_default;
@@ -1897,7 +1896,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     phdr.datapad = FALSE;
     phdr.phy = PHDR_802_11_PHY_UNKNOWN;
 
-    //cmd_type Rx = 0, Tx = 1, RF = 3 , RF_RX = 4
+    //Command type Rx = 0, Tx = 1, RF = 3, RF_RX = 4
     //log mode = 0 is normal capture and 1 is reduced capture
     //is_octo is FALSE for non-OCTO versions and TRUE for OCTO versions
 
@@ -2023,7 +2022,6 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         phdr.has_signal_dbm = TRUE;
         phdr.signal_dbm = dbm;
         col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", dbm);
-
         proto_tree_add_item(tap_tree, hf_radiotap_dbm_anta, tvb, offset, 1, ENC_NA);
         offset++;
 
@@ -2033,12 +2031,14 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item(tap_tree, hf_radiotap_dbm_antb, tvb, offset, 1, ENC_NA);
         }
         offset++;
+
         /* Antenna C RSSI, or 100 if absent */
         dbm = (gint8) tvb_get_guint8(tvb, offset);
         if (dbm != 100) {
             proto_tree_add_item(tap_tree, hf_radiotap_dbm_antc, tvb, offset, 1, ENC_NA);
         }
         offset++;
+
         /* Antenna D RSSI, or 100 if absent */
         dbm = (gint8) tvb_get_guint8(tvb, offset);
         if (dbm != 100) {
