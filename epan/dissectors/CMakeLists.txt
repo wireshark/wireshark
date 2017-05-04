@@ -1378,6 +1378,7 @@ set(DISSECTOR_SRC
 	packet-nvme-rdma.c
 	packet-nwmtp.c
 	packet-nwp.c
+	packet-nfapi.c
 	packet-oampdu.c
 	packet-obd-ii.c
 	packet-obex.c

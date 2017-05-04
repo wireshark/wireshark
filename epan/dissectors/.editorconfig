@@ -1476,6 +1476,10 @@ indent_size = tab
 indent_style = tab
 indent_size = tab
 
+[packet-nfapi.c]
+indent_style = tab
+indent_size = tab
+
 [packet-nfs.[ch]]
 indent_style = tab
 indent_size = tab
