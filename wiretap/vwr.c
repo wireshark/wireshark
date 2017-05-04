@@ -26,8 +26,8 @@
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "vwr.h"
 
+#include "vwr.h"
 
 /* platform-specific definitions for portability */
 
@@ -384,7 +384,6 @@
 
 #define v22_W_PLCP_LENGTH_OFF     4                 /* LENGTH field in the plcp header */
 
-
 /* Modulation types */
 #define v22_W_MT_CCKL       0                       /* CCK modulation, long preamble */
 #define v22_W_MT_CCKS       1                       /* CCK modulation, short preamble */
@@ -621,7 +620,7 @@
 #define vVW510024_E_IS_UDP          0x00100000                  /* UDP bit in FRAME_TYPE field */
 #define vVW510024_E_IS_ICMP         0x00001000                  /* ICMP bit in FRAME_TYPE field */
 #define vVW510024_E_IS_IGMP         0x00010000
-#define vVW510024_E_IS_VLAN         0x4000
+#define vVW510024_E_IS_VLAN         0x00004000
 
 #define vVW510024_E_HEADER_VERSION      0x00
 #define vVW510024_E_DEVICE_TYPE         0x18
@@ -761,6 +760,7 @@ static gboolean     vwr_read_s3_W_rec(vwr_t *, struct wtap_pkthdr *, Buffer *,
 static gboolean     vwr_read_rec_data_ethernet(vwr_t *, struct wtap_pkthdr *,
                                                Buffer *, const guint8 *, int,
                                                int, int *, gchar **);
+
 static int          find_signature(const guint8 *, int, int, register guint32, register guint8);
 static guint64      get_signature_ts(const guint8 *, int);
 static float        getRate( guint8 plcpType, guint8 mcsIndex, guint16 rflags, guint8 nss );
@@ -925,7 +925,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
     guint8  *s_510006_ptr = NULL;
     guint8  *s_510024_ptr = NULL;
     guint8  *s_510012_ptr = NULL; /* stats pointers */
-    gint64   filePos = -1;
+    gint64   filePos      = -1;
     guint32  frame_type   = 0;
     int      f_len, v_type;
     guint16  data_length  = 0;
@@ -977,7 +977,6 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
                         return UNKNOWN_FPGA; /* short read - not a vwr file */
                     return -1;
                 }
-
 
                 /*  I'll grab the bytes where the Ethernet "octets" field should be and the bytes where */
                 /*   the 802.11 "octets" field should be. Then if I do rec_size - octets -              */
@@ -1047,6 +1046,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
                     if (rec_size == (data_length + vVW510024_E_STATS_LEN + i))
                         fpga_version = vVW510024_E_FPGA;
                 }
+
                 if (fpga_version != 1000)
                 {
                     /* reset the file position offset */
@@ -1253,6 +1253,7 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     /* 2nd octet of record for fpga version (0, hence pre-OCTO) */
     phtole8(&data_ptr[bytes_written], 0);
     bytes_written += 1;
+
     phtoles(&data_ptr[bytes_written], STATS_COMMON_FIELDS_LEN); /* it_len */
     bytes_written += 2;
     phtoles(&data_ptr[bytes_written], msdu_length);
@@ -1649,6 +1650,7 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     /* 2nd octet of record for fpga version (0, hence pre-OCTO) */
     phtole8(&data_ptr[bytes_written], 0);
     bytes_written += 1;
+
     phtoles(&data_ptr[bytes_written], STATS_COMMON_FIELDS_LEN); /* it_len */
     bytes_written += 2;
     phtoles(&data_ptr[bytes_written], msdu_length);
@@ -1791,7 +1793,6 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
             *err = WTAP_ERR_BAD_FILE;
             return FALSE;
         }
-
         rf_ptr = &(rec[0]);
         rf_id = rf_ptr[0];
 
@@ -2075,6 +2076,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         nss = nss << 4;
         nss |= IS_TX;
         port_type = IS_TX << 4;
+
         /*
          * Fill up the per-packet header.
          *
@@ -2106,6 +2108,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
      * All values are copied out in little-endian byte order.
      */
     /*** msdu_length = msdu_length + 16; ***/
+
     /* 1st octet of record for port_type and other crud */
     phtole8(&data_ptr[bytes_written], port_type);
     bytes_written += 1;
@@ -2117,7 +2120,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         phtoles(&data_ptr[bytes_written], OCTO_TIMESTAMP_FIELDS_LEN); /* it_len */
         bytes_written += 2;
 
-        /*** Time Collapsible header started***/
+    /*** Time Collapsible header started***/
         if (IS_TX == 1 && sig_ts != 0) {
             phtolel(&data_ptr[bytes_written], latency);
         } else {
@@ -2132,7 +2135,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         bytes_written += 8;
         phtolel(&data_ptr[bytes_written], d_time);
         bytes_written += 4;
-        /*** Time Collapsible header ends ***/
+    /*** Time Collapsible header ends ***/
     }
 
     /*** RF Collapsable header starts***/
@@ -2421,56 +2424,56 @@ static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
                                            int rec_size, int IS_TX, int *err,
                                            gchar **err_info)
 {
-     guint8           *data_ptr;
-     int              bytes_written = 0;                   /* bytes output to buf so far */
-     const guint8 *s_ptr, *m_ptr;                          /* stats and MPDU pointers */
-     guint16          msdu_length, actual_octets;          /* octets in frame */
-     guint            flow_seq;                            /* seqnum */
-     guint64          s_time = LL_ZERO, e_time = LL_ZERO;  /* start/end */
-                                                           /* times, nsec */
-     guint32          latency = 0;
-     guint64          start_time, s_sec = LL_ZERO, s_usec = LL_ZERO; /* start time, sec + usec */
-     guint64          end_time;                            /* end time */
-     guint            l4id;
-     guint16          info, validityBits;                  /* INFO/ERRORS fields in stats */
-     guint32          errors;
-     guint16          vc_id;                               /* VC ID, total (incl of aggregates) */
-     guint32          flow_id, d_time;                     /* packet duration */
-     int              f_flow;                              /* flags: flow valid */
-     guint32          frame_type;                          /* frame type field */
-     int              mac_len, sig_off, pay_off;           /* MAC header len, signature offset */
-     /* XXX - the code here fetched tsid, but never used it! */
-     guint64          sig_ts/*, tsid*/;                    /* 32 LSBs of timestamp in signature */
-     guint64          delta_b;                             /* Used for calculating latency */
-     guint16          vw_flags;                            /* VeriWave-specific packet flags */
+    guint8           *data_ptr;
+    int              bytes_written = 0;                   /* bytes output to buf so far */
+    const guint8 *s_ptr, *m_ptr;                          /* stats and MPDU pointers */
+    guint16          msdu_length, actual_octets;          /* octets in frame */
+    guint            flow_seq;                            /* seqnum */
+    guint64          s_time = LL_ZERO, e_time = LL_ZERO;  /* start/end */
+                                                          /* times, nsec */
+    guint32          latency = 0;
+    guint64          start_time, s_sec = LL_ZERO, s_usec = LL_ZERO; /* start time, sec + usec */
+    guint64          end_time;                            /* end time */
+    guint            l4id;
+    guint16          info, validityBits;                  /* INFO/ERRORS fields in stats */
+    guint32          errors;
+    guint16          vc_id;                               /* VC ID, total (incl of aggregates) */
+    guint32          flow_id, d_time;                     /* packet duration */
+    int              f_flow;                              /* flags: flow valid */
+    guint32          frame_type;                          /* frame type field */
+    int              mac_len, sig_off, pay_off;           /* MAC header len, signature offset */
+    /* XXX - the code here fetched tsid, but never used it! */
+    guint64          sig_ts/*, tsid*/;                    /* 32 LSBs of timestamp in signature */
+    guint64          delta_b;                             /* Used for calculating latency */
+    guint16          vw_flags;                            /* VeriWave-specific packet flags */
 
-     if ((guint)rec_size < vwr->STATS_LEN) {
-         *err_info = g_strdup_printf("vwr: Invalid record length %d (must be at least %u)", rec_size, vwr->STATS_LEN);
-         *err = WTAP_ERR_BAD_FILE;
-         return FALSE;
-     }
+    if ((guint)rec_size < vwr->STATS_LEN) {
+        *err_info = g_strdup_printf("vwr: Invalid record length %d (must be at least %u)", rec_size, vwr->STATS_LEN);
+        *err = WTAP_ERR_BAD_FILE;
+        return FALSE;
+    }
 
-     /* Calculate the start of the statistics block in the buffer. */
-     /* Also get a bunch of fields from the stats block.           */
-     m_ptr = &(rec[0]);                              /* point to the data block */
-     s_ptr = &(rec[rec_size - vwr->STATS_LEN]);      /* point to the stats block */
+    /* Calculate the start of the statistics block in the buffer. */
+    /* Also get a bunch of fields from the stats block.           */
+    m_ptr = &(rec[0]);                              /* point to the data block */
+    s_ptr = &(rec[rec_size - vwr->STATS_LEN]);      /* point to the stats block */
 
-     msdu_length = pntoh16(&s_ptr[vwr->OCTET_OFF]);
-     actual_octets = msdu_length;
+    msdu_length = pntoh16(&s_ptr[vwr->OCTET_OFF]);
+    actual_octets = msdu_length;
 
-     /*
-      * Sanity check the octets field to determine if it's greater than
-      * the packet data available in the record - i.e., the record size
-      * minus the length of the statistics block.
-      *
-      * Report an error if it is.
-      */
-     if (actual_octets > rec_size - vwr->STATS_LEN) {
-         *err_info = g_strdup_printf("vwr: Invalid data length %u (runs past the end of the record)",
-                                     actual_octets);
-         *err = WTAP_ERR_BAD_FILE;
-         return FALSE;
-     }
+    /*
+     * Sanity check the octets field to determine if it's greater than
+     * the packet data available in the record - i.e., the record size
+     * minus the length of the statistics block.
+     *
+     * Report an error if it is.
+     */
+    if (actual_octets > rec_size - vwr->STATS_LEN) {
+        *err_info = g_strdup_printf("vwr: Invalid data length %u (runs past the end of the record)",
+                                    actual_octets);
+        *err = WTAP_ERR_BAD_FILE;
+        return FALSE;
+    }
 
     /*
      * The maximum value of actual_octets is 65535, which, even after
@@ -2478,36 +2481,35 @@ static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
      * WTAP_MAX_PACKET_SIZE will ever be, so we don't need to check it.
      */
 
-     vc_id = pntoh16(&s_ptr[vwr->VCID_OFF]) & vwr->VCID_MASK;
-     flow_seq   = s_ptr[vwr->FLOWSEQ_OFF];
-     frame_type = pntoh32(&s_ptr[vwr->FRAME_TYPE_OFF]);
+    vc_id = pntoh16(&s_ptr[vwr->VCID_OFF]) & vwr->VCID_MASK;
+    flow_seq   = s_ptr[vwr->FLOWSEQ_OFF];
+    frame_type = pntoh32(&s_ptr[vwr->FRAME_TYPE_OFF]);
 
-     if (vwr->FPGA_VERSION == vVW510024_E_FPGA) {
-         validityBits = pntoh16(&s_ptr[vwr->VALID_OFF]);
-         f_flow = validityBits & vwr->FLOW_VALID;
+    if (vwr->FPGA_VERSION == vVW510024_E_FPGA) {
+        validityBits = pntoh16(&s_ptr[vwr->VALID_OFF]);
+        f_flow = validityBits & vwr->FLOW_VALID;
 
-         mac_len = (validityBits & vwr->IS_VLAN) ? 16 : 14;           /* MAC hdr length based on VLAN tag */
-
-
-         errors = pntoh16(&s_ptr[vwr->ERRORS_OFF]);
-     }
-     else {
-         f_flow  = s_ptr[vwr->VALID_OFF] & vwr->FLOW_VALID;
-         mac_len = (frame_type & vwr->IS_VLAN) ? 16 : 14;             /* MAC hdr length based on VLAN tag */
+        mac_len = (validityBits & vwr->IS_VLAN) ? 16 : 14;           /* MAC hdr length based on VLAN tag */
 
 
-         /* for older fpga errors is only represented by 16 bits) */
-         errors = pntoh16(&s_ptr[vwr->ERRORS_OFF]);
-     }
+        errors = pntoh16(&s_ptr[vwr->ERRORS_OFF]);
+    }
+    else {
+        f_flow  = s_ptr[vwr->VALID_OFF] & vwr->FLOW_VALID;
+        mac_len = (frame_type & vwr->IS_VLAN) ? 16 : 14;             /* MAC hdr length based on VLAN tag */
 
-     info = pntoh16(&s_ptr[vwr->INFO_OFF]);
-     /*  24 LSBs */
-     flow_id = pntoh24(&s_ptr[vwr->FLOWID_OFF]);
+        /* for older fpga errors is only represented by 16 bits) */
+        errors = pntoh16(&s_ptr[vwr->ERRORS_OFF]);
+    }
+
+    info = pntoh16(&s_ptr[vwr->INFO_OFF]);
+    /*  24 LSBs */
+    flow_id = pntoh24(&s_ptr[vwr->FLOWID_OFF]);
 
 #if 0
-     /* For tx latency is duration, for rx latency is timestamp. */
-     /* Get 64-bit latency value. */
-     tsid = pcorey48tohll(&s_ptr[vwr->LATVAL_OFF]);
+    /* For tx latency is duration, for rx latency is timestamp. */
+    /* Get 64-bit latency value. */
+    tsid = pcorey48tohll(&s_ptr[vwr->LATVAL_OFF]);
 #endif
 
     l4id = pntoh16(&s_ptr[vwr->L4ID_OFF]);
@@ -2619,6 +2621,7 @@ static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
     /* 2nd octet of record for fpga version (Ethernet, hence non-OCTO) */
     phtole8(&data_ptr[bytes_written], 0);
     bytes_written += 1;
+
     phtoles(&data_ptr[bytes_written], STATS_COMMON_FIELDS_LEN);
     bytes_written += 2;
     phtoles(&data_ptr[bytes_written], msdu_length);
