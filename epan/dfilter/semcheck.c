@@ -717,6 +717,15 @@ check_relation_LHS_FIELD(dfwork_t *dfw, const char *relation_string,
 			if (!fvalue && type2 != STTYPE_CHARCONST) {
 				/* check value_string */
 				fvalue = mk_fvalue_from_val_string(dfw, hfinfo1, s);
+
+				/*
+				 * Ignore previous errors if this can be mapped
+				 * to an item from value_string.
+				 */
+				if (fvalue && dfw->error_message) {
+					g_free(dfw->error_message);
+					dfw->error_message = NULL;
+				}
 			}
 		}
 
