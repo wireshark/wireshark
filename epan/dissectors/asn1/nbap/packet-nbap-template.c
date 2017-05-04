@@ -71,6 +71,9 @@ static guint32	ul_scrambling_code;
 static guint32	com_context_id;
 static int cfn;
 
+wmem_tree_t *nbap_scrambling_code_crncc_map = NULL;
+wmem_tree_t *nbap_crncc_urnti_map = NULL;
+
 #include "packet-nbap-val.h"
 
 /* Initialize the protocol and registered fields */
@@ -430,6 +433,10 @@ static void nbap_init(void){
 
     /*Initialize structure for muxed flow indication*/
     edch_flow_port_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+
+    /*Initializing Scrambling Code to C-RNC Context & C-RNC Context to U-RNTI maps*/
+    nbap_scrambling_code_crncc_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    nbap_crncc_urnti_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     for (i = 0; i < 15; i++) {
         lchId_type_table[i+1] = lch_contents[i];

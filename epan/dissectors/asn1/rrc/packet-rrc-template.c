@@ -43,6 +43,7 @@
 #include "packet-per.h"
 #include "packet-rrc.h"
 #include "packet-gsm_a_common.h"
+#include "packet-nbap.h"
 #include "packet-umts_fp.h"
 
 #ifdef _MSC_VER
@@ -60,7 +61,6 @@ extern int proto_fp;    /*Handler to FP*/
 
 GTree * hsdsch_muxed_flows = NULL;
 GTree * rrc_ciph_inf = NULL;
-GTree * rrc_scrambling_code_urnti = NULL;
 static int msg_type _U_;
 
 /*****************************************************************************/
@@ -351,12 +351,6 @@ rrc_init(void) {
                        NULL,      /* data pointer, optional */
                        NULL,
                        rrc_free_value);
-
-    /*Initialize Scrambling code to U-RNTI dictionary*/
-    rrc_scrambling_code_urnti = g_tree_new_full(rrc_key_cmp,
-                       NULL,
-                       NULL,
-                       NULL);
 }
 
 static void
@@ -364,7 +358,6 @@ rrc_cleanup(void) {
     /*Cleanup*/
     g_tree_destroy(hsdsch_muxed_flows);
     g_tree_destroy(rrc_ciph_inf);
-    g_tree_destroy(rrc_scrambling_code_urnti);
 }
 
 /*--- proto_register_rrc -------------------------------------------*/

@@ -393,16 +393,18 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 %(DEFAULT_BODY)s
 
 #.FN_BODY RRCConnectionSetup
-  guint32 scrambling_code, new_u_rnti;
+  guint32 scrambling_code, new_u_rnti, crnc_context;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetup");
 %(DEFAULT_BODY)s
   /* Mapping the U-RNTI assigned to the user to its Uplink Scrambling Code*/
   scrambling_code = private_data_get_scrambling_code(actx);
   new_u_rnti = private_data_get_new_u_rnti(actx);
   if (new_u_rnti != 0 && scrambling_code != 0 && !actx->pinfo->fd->flags.visited) {
-    /* Check if a U-RNTI is already mapped to this scrambling code */
-    if ((guint32 *)g_tree_lookup(rrc_scrambling_code_urnti, GUINT_TO_POINTER(scrambling_code)) == NULL) {
-        g_tree_insert(rrc_scrambling_code_urnti, GUINT_TO_POINTER(scrambling_code), GUINT_TO_POINTER(new_u_rnti));
+    /* Looking for the C-RNC Context mapped to this Scrambling Code */
+    crnc_context = GPOINTER_TO_UINT(wmem_tree_lookup32(nbap_scrambling_code_crncc_map,scrambling_code));
+    if (crnc_context != 0) {
+      /* Mapping the U-RNTI found in this message to the C-RNC context*/
+      wmem_tree_insert32(nbap_crncc_urnti_map,crnc_context,GUINT_TO_POINTER(new_u_rnti));
     }
   }
 

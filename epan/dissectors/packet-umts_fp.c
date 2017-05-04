@@ -5036,15 +5036,20 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                     }
 
                     /*** Set rlc info ***/
-                    /* Trying to resolve the U-RNTI of the user to be used as RLC 'UE-ID' */
-                    /* resolving is done based on the 'Uplink Scrambling Code' field found in NBAP */
-                    /* Fallback - Using the RNC's NBAP 'Communication Context' for the user as UE-ID*/
-                    user_identity = p_conv_data->com_context_id;
-                    if (p_conv_data->scrambling_code != 0) {
-                        guint32 * mapped_urnti = (guint32 *)g_tree_lookup(rrc_scrambling_code_urnti, GUINT_TO_POINTER(p_conv_data->scrambling_code));
+                    /* Trying to resolve the U-RNTI of the user if missing */
+                    /* Resolving based on the 'C-RNC Communication Context' field found in NBAP */
+                    if (!p_conv_data->urnti && p_conv_data->com_context_id != 0) {
+                        guint32 * mapped_urnti = (guint32 *)(wmem_tree_lookup32(nbap_crncc_urnti_map,p_conv_data->com_context_id));
                         if (mapped_urnti != 0) {
-                            user_identity = GPOINTER_TO_UINT(mapped_urnti);
+                            p_conv_data->urnti = GPOINTER_TO_UINT(mapped_urnti);
                         }
+                    }
+                    /* Choosing RLC 'UE-ID': */
+                    /* 1. Preferring the U-RNTI if attached */
+                    /* 2. Fallback - Using the 'C-RNC Communication Context' used in NBAP for the user */
+                    user_identity = p_conv_data->com_context_id;
+                    if(p_conv_data->urnti) {
+                        user_identity = p_conv_data->urnti;
                     }
                     rlcinf->urnti[j + chan] = user_identity;
                     rlcinf->li_size[j+chan] = RLC_LI_7BITS;

@@ -741,6 +741,9 @@ hsdsch_macdflow_ids[num_items-1] = hsdsch_macdflow_id;
 
 #.FN_BODY UL-ScramblingCodeNumber VAL_PTR = &ul_scrambling_code
 %(DEFAULT_BODY)s
+  if(ul_scrambling_code != 0 && com_context_id != 0) {
+    wmem_tree_insert32(nbap_scrambling_code_crncc_map,ul_scrambling_code,GUINT_TO_POINTER(com_context_id));
+  }
 
 #.FN_BODY RACH-ParametersItem-CTCH-SetupRqstFDD
 address     dst_addr, null_addr;
