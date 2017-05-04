@@ -78,6 +78,9 @@ static int hf_nvme_cmd_dsm_access_lat = -1;
 static int hf_nvme_cmd_dsm_seq_req = -1;
 static int hf_nvme_cmd_dsm_incompressible = -1;
 static int hf_nvme_cmd_rsvd3 = -1;
+static int hf_nvme_identify_cntid = -1;
+static int hf_nvme_identify_rsvd = -1;
+static int hf_nvme_identify_cns = -1;
 
 /* NVMe CQE fields */
 static int hf_nvme_cqe_sts = -1;
@@ -483,6 +486,16 @@ dissect_nvme_rwc_common_word_10_11_12_14_15(tvbuff_t *cmd_tvb, proto_tree *cmd_t
                         62, 2, ENC_LITTLE_ENDIAN);
 }
 
+static void dissect_nvme_identify_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree)
+{
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_cns, cmd_tvb,
+                        40, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_rsvd, cmd_tvb,
+                        42, 2, ENC_NA);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_cntid, cmd_tvb,
+                        44, 4, ENC_NA);
+}
+
 static void dissect_nvme_rw_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree)
 {
     proto_item *ti, *dsm_tree, *item;
@@ -557,13 +570,23 @@ dissect_nvme_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
 
     dissect_nvme_cmd_sgl(nvme_tvb, cmd_tree, hf_nvme_cmd_sgl);
 
-    switch (opcode) {
-    case NVME_IOQ_OPC_READ:
-    case NVME_IOQ_OPC_WRITE:
-        dissect_nvme_rw_cmd(nvme_tvb, cmd_tree);
-        break;
-    default:
-        break;
+    if (q_ctx->qid) {
+        switch (opcode) {
+        case NVME_IOQ_OPC_READ:
+        case NVME_IOQ_OPC_WRITE:
+            dissect_nvme_rw_cmd(nvme_tvb, cmd_tree);
+            break;
+        default:
+            break;
+        }
+    } else {
+        switch (opcode) {
+        case NVME_AQ_OPC_IDENTIFY:
+            dissect_nvme_identify_cmd(nvme_tvb, cmd_tree);
+            break;
+        default:
+            break;
+        }
     }
 }
 
@@ -746,6 +769,18 @@ proto_register_nvme(void)
         { &hf_nvme_cmd_rsvd3 ,
             { "Reserved", "nvme.cmd.rsvd3",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_cntid,
+            { "Controller Identifier (CNTID)", "nvme.cmd.identify.cntid",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_rsvd,
+            { "Reserved", "nvme.cmd.identify.rsvd",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_cns,
+            { "Controller or Namespace Structure (CNS)", "nvme.cmd.identify.cns",
+               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
 
         /* NVMe Response fields */
