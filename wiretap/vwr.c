@@ -1437,7 +1437,6 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
 
     nss = (mcs_index / 8) + 1;
 
-    /* YYY - S2 claims to have 11 bytes of PLCP and 1 byte of pad */
     plcp_ptr = &(rec[8]);
 
     actual_octets = msdu_length;
@@ -1540,7 +1539,7 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     }
     else if (plcp_type == vVW510021_W_PLCP_VHT_MIXED) {
         /*
-         * According to section 22.3.2 "VHTPPDU format" of IEEE Std
+         * According to section 22.3.2 "VHT PPDU format" of IEEE Std
          * 802.11ac-2013, the VHT PLCP header has a "non-HT SIGNAL field"
          * (L-SIG), which looks like an 11a SIGNAL field, followed by
          * a VHT Signal A field (VHT-SIG-A) described in section
