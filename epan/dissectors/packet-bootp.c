@@ -1866,7 +1866,8 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 
 			case 60:
 				*vendor_class_id_p =
-				    tvb_get_ptr(tvb, voff+2, consumed-2);
+					tvb_get_string_enc(wmem_packet_scope(),
+					tvb, voff+2, consumed-2, ENC_ASCII);
 				break;
 			case 119:
 				rfc3396_dns_domain_search_list.total_number_of_block++;
