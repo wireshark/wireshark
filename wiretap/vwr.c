@@ -2894,7 +2894,7 @@ static void setup_defaults(vwr_t *vwr, guint16 fpga)
              *    2 bytes of MSDU length + other bits
              *    1 byte of XXX;
              *    2 bytes of VCID.
-             *  
+             *
              * The 12 is for 11 bytes of PLCP and 1 byte of pad
              * before the data.
              */
