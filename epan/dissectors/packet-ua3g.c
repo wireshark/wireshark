@@ -1092,6 +1092,7 @@ static const value_string ip_device_routing_cmd_get_param_req_vals[] = {
     {0x08   , "Default Codec"},
     {0x09   , "Ethernet Drivers Config"},
     {0x0A   , "MAC Address"},
+    {0x0B   , "Pseudo MAC Address"},
     {0, NULL}
 };
 
@@ -1106,6 +1107,16 @@ static const value_string str_enable_feature[] = {
     {0x00, "Disable Feature"},
     {0x01, "Enable Feature"},
     {0, NULL}
+};
+
+static const value_string str_ethernet_speed_vals[] = {
+    {0   , "No Link"},
+    {1   , "10 Mbps"},
+    {2   , "100 Mbps"},
+    {3   , "1000 Mbps"},
+    {10  , "10 Mbps"},
+    {100 , "100 Mbps"},
+    {0   , NULL}
 };
 
 static void
@@ -3307,18 +3318,19 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                         {
                             if (parameter_length == 2) {
                                 proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_speed, tvb, offset, 1, ENC_BIG_ENDIAN);
-                                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_duplex, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_duplex, tvb, offset+1, 1, ENC_NA|ENC_ASCII);
                             } else if (parameter_length == 4) {
                                 proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_speed, tvb, offset, 1, ENC_BIG_ENDIAN);
-                                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_duplex, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_duplex, tvb, offset+1, 1, ENC_NA|ENC_ASCII);
                                 proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_pc_speed, tvb, offset+2, 1, ENC_BIG_ENDIAN);
-                                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_pc_duplex, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_pc_duplex, tvb, offset+3, 1, ENC_NA|ENC_ASCII);
                             } else {
                                 proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_value, tvb, offset, parameter_length, ENC_NA);
                             }
                             break;
                         }
                     case 0x0A: /* MAC Address */
+                    case 0x0B: /* Pseudo MAC Address */
                         proto_tree_add_item(ua3g_param_tree, hf_ua3g_cs_ip_device_routing_cmd02_parameter_mac_address, tvb, offset, 6, ENC_NA);
                         break;
                     default:
@@ -4724,10 +4736,10 @@ proto_register_ua3g(void)
         { &hf_ua3g_cs_ip_device_routing_cmd02_parameter_default_codec_uint, { "Default Codec", "ua3g.ip.cs.cmd02.parameter.default_codec.uint", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_cs_ip_device_routing_cmd02_parameter_firmware_version, { "Firmware Version", "ua3g.ip.cs.cmd02.parameter.firmware_version", FT_UINT16, BASE_CUSTOM, CF_FUNC(version_number_computer), 0x0, NULL, HFILL }},
         { &hf_ua3g_cs_ip_device_routing_cmd02_parameter_tscip_version, { "Firmware Version", "ua3g.ip.cs.cmd02.parameter.tscip_version", FT_UINT24, BASE_CUSTOM, CF_FUNC(version_3bytes_computer), 0x0, NULL, HFILL }},
-        { &hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_speed, { "Port Lan Speed", "ua3g.ip.cs.cmd02.parameter.eth_driver_config.port_lan_speed", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_duplex, { "Port Lan Duplex", "ua3g.ip.cs.cmd02.parameter.eth_driver_config.port_lan_duplex", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_pc_speed, { "Port PC Speed", "ua3g.ip.cs.cmd02.parameter.eth_driver_config.port_pc_speed", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_pc_duplex, { "Port PC Duplex", "ua3g.ip.cs.cmd02.parameter.eth_driver_config.port_pc_duplex", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_speed, { "Port Lan Speed", "ua3g.ip.cs.cmd02.parameter.eth_driver_config.port_lan_speed", FT_UINT8, BASE_DEC, VALS(str_ethernet_speed_vals), 0x0, NULL, HFILL }},
+        { &hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_lan_duplex, { "Port Lan Duplex", "ua3g.ip.cs.cmd02.parameter.eth_driver_config.port_lan_duplex", FT_CHAR, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_pc_speed, { "Port PC Speed", "ua3g.ip.cs.cmd02.parameter.eth_driver_config.port_pc_speed", FT_UINT8, BASE_DEC, VALS(str_ethernet_speed_vals), 0x0, NULL, HFILL }},
+        { &hf_ua3g_cs_ip_device_routing_cmd02_parameter_eth_driver_config_port_pc_duplex, { "Port PC Duplex", "ua3g.ip.cs.cmd02.parameter.eth_driver_config.port_pc_duplex", FT_CHAR, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_cs_ip_device_routing_cmd03_parameter_ip, { "IP", "ua3g.ip.cs.cmd03.parameter.ip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_cs_ip_device_routing_cmd03_parameter_string, { "IP", "ua3g.ip.cs.cmd03.parameter.string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_cs_ip_device_routing_cmd03_parameter_type_of_equip1, { "Type Of Equipment (first byte)", "ua3g.ip.cs.cmd03.parameter.type_of_equip1", FT_UINT8, BASE_DEC, VALS(cs_ip_device_routing_cmd03_first_byte_vals), 0x0, NULL, HFILL }},
