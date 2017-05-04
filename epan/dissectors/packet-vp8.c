@@ -179,7 +179,6 @@ dissect_vp8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     gboolean hasHeader = FALSE;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VP8");
-    col_clear(pinfo->cinfo, COL_INFO);
 
     item = proto_tree_add_item(tree, proto_vp8, tvb, 0, -1, ENC_NA);
     vp8_tree = proto_item_add_subtree(item, ett_vp8);
