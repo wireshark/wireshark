@@ -1792,6 +1792,14 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         rf_ptr = &(rec[0]);
         rf_id = rf_ptr[0];
 
+        /*
+         * Fill up the per-packet header.
+         *
+         * We include the length of the metadata headers in the packet lengths.
+         *
+         * OCTO_MODIFIED_RF_LEN + 1 is less than WTAP_MAX_PACKET_SIZE will
+         * ever be, so we don't need to check it.
+         */
         phdr->len = OCTO_MODIFIED_RF_LEN + 1;       /* 1st octet is reserved for detecting type of frame while displaying in wireshark */
         phdr->caplen = OCTO_MODIFIED_RF_LEN + 1;
 
