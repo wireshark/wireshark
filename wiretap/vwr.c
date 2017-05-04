@@ -1074,6 +1074,9 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
         return UNKNOWN_FPGA; /* short read - not a vwr file */
     }
 
+    /*
+     * Read error.
+     */
     g_free(rec);
     return -1;
 }
