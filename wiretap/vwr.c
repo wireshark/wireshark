@@ -1156,7 +1156,7 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
 
     /* Decode OFDM or CCK PLCP header and determine rate and short preamble flag. */
     /* The SIGNAL byte is always the first byte of the PLCP header in the frame.  */
-    plcp_type = 0;
+    plcp_type = vVW510021_W_PLCP_LEGACY;
     nss = 1;
     if (m_type == vwr->MT_OFDM)
         mcs_index = get_ofdm_rate(rec);
