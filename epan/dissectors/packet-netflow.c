@@ -302,10 +302,11 @@ typedef enum {
     TF_IXIA,
     TF_NETSCALER,
     TF_BARRACUDA,
+    TF_GIGAMON,
     TF_NO_VENDOR_INFO
 } v9_v10_tmplt_fields_type_t;
 #define TF_NUM 2
-#define TF_NUM_EXT 8   /* includes vendor fields */
+#define TF_NUM_EXT TF_NO_VENDOR_INFO+1   /* includes vendor fields */
 
 typedef struct _v9_v10_tmplt {
     /* For linking back to show where fields were defined */
@@ -1116,6 +1117,60 @@ static const value_string v10_template_types_netscaler[] = {
 };
 static value_string_ext v10_template_types_netscaler_ext = VALUE_STRING_EXT_INIT(v10_template_types_netscaler);
 
+static const value_string v10_template_types_gigamon[] = {
+    { 1, "HttpReqUrl" },
+    { 2, "HttpRspStatus" },
+    { 101, "SslCertificateIssuerCommonName" },
+    { 102, "SslCertificateSubjectCommonName" },
+    { 103, "SslCertificateIssuer" },
+    { 104, "SslCertificateSubject" },
+    { 105, "SslCertificateValidNotBefore" },
+    { 106, "SslCertificateValidNotAfter" },
+    { 107, "SslCetificateSerialNumber" },
+    { 108, "SslCertificateSignatureAlgorithm" },
+    { 109, "SslCertificateSubjectPubAlgorithm" },
+    { 110, "SslCertificateSubjectPubKeySize" },
+    { 111, "SslCertificateSubjectAltName" },
+    { 112, "SslServerNameIndication" },
+    { 113, "SslServerVersion" },
+    { 114, "SslServerCipher" },
+    { 115, "SslServerCompressionMethod" },
+    { 116, "SslServerSessionId" },
+    { 201, "DnsIdentifier" },
+    { 202, "DnsOpCode" },
+    { 203, "DnsResponseCode" },
+    { 204, "DnsQueryName" },
+    { 205, "DnsResponseName" },
+    { 206, "DnsResponseTTL" },
+    { 207, "DnsResponseIPv4Address" },
+    { 208, "DnsResponseIPv6Address" },
+    { 209, "DnsBits" },
+    { 210, "DnsQdCount" },
+    { 211, "DnsAnCount" },
+    { 212, "DnsNsCount" },
+    { 213, "DnsArCount" },
+    { 214, "DnsQueryType" },
+    { 215, "DnsQueryClass" },
+    { 216, "DnsResponseType" },
+    { 217, "DnsResponseClass" },
+    { 218, "DnsResponseRdLength" },
+    { 219, "DnsResponseRdata" },
+    { 220, "DnsAuthorityName" },
+    { 221, "DnsAuthorityType" },
+    { 222, "DnsAuthorityClass" },
+    { 223, "DnsAuthorityTTL" },
+    { 224, "DnsAuthorityRdLength" },
+    { 225, "DnsAuthorityRdata" },
+    { 226, "DnsAdditionalName" },
+    { 227, "DnsAdditionalType" },
+    { 228, "DnsAdditionalClass" },
+    { 229, "DnsAdditionalTTL" },
+    { 230, "DnsAdditionalRdLength" },
+    { 231, "DnsAdditionalRdata" },
+    { 0, NULL }
+};
+static value_string_ext v10_template_types_gigamon_ext = VALUE_STRING_EXT_INIT(v10_template_types_gigamon);
+
 /* Barracuda NGFirewall IPFIX */
 static const value_string v10_template_types_barracuda[] = {
     {  1, "Timestamp" },
@@ -1416,6 +1471,7 @@ static int      hf_cflow_template_ntop_field_type                   = -1;
 static int      hf_cflow_template_ixia_field_type                   = -1;
 static int      hf_cflow_template_netscaler_field_type              = -1;
 static int      hf_cflow_template_barracuda_field_type              = -1;
+static int      hf_cflow_template_gigamon_field_type                = -1;
 
 
 /*
@@ -2171,6 +2227,57 @@ static int      hf_pie_barracuda_connipv4address                         = -1;
 static int      hf_pie_barracuda_conntransportport                       = -1;
 static int      hf_pie_barracuda_auditcounter                            = -1;
 
+static int      hf_pie_gigamon                                   = -1;
+static int      hf_pie_gigamon_httprequrl                        = -1;
+static int      hf_pie_gigamon_httprspstatus                     = -1;
+static int      hf_pie_gigamon_sslcertificateissuercommonname    = -1;
+static int      hf_pie_gigamon_sslcertificatesubjectcommonname   = -1;
+static int      hf_pie_gigamon_sslcertificateissuer              = -1;
+static int      hf_pie_gigamon_sslcertificatesubject             = -1;
+static int      hf_pie_gigamon_sslcertificatevalidnotbefore      = -1;
+static int      hf_pie_gigamon_sslcertificatevalidnotafter       = -1;
+static int      hf_pie_gigamon_sslcetificateserialnumber         = -1;
+static int      hf_pie_gigamon_sslcertificatesignaturealgorithm  = -1;
+static int      hf_pie_gigamon_sslcertificatesubjectpubalgorithm = -1;
+static int      hf_pie_gigamon_sslcertificatesubjectpubkeysize   = -1;
+static int      hf_pie_gigamon_sslcertificatesubjectaltname      = -1;
+static int      hf_pie_gigamon_sslservernameindication           = -1;
+static int      hf_pie_gigamon_sslserverversion                  = -1;
+static int      hf_pie_gigamon_sslservercipher                   = -1;
+static int      hf_pie_gigamon_sslservercompressionmethod        = -1;
+static int      hf_pie_gigamon_sslserversessionid                = -1;
+static int      hf_pie_gigamon_dnsidentifier                     = -1;
+static int      hf_pie_gigamon_dnsopcode                         = -1;
+static int      hf_pie_gigamon_dnsresponsecode                   = -1;
+static int      hf_pie_gigamon_dnsqueryname                      = -1;
+static int      hf_pie_gigamon_dnsresponsename                   = -1;
+static int      hf_pie_gigamon_dnsresponsettl                    = -1;
+static int      hf_pie_gigamon_dnsresponseipv4address            = -1;
+static int      hf_pie_gigamon_dnsresponseipv6address            = -1;
+static int      hf_pie_gigamon_dnsbits                           = -1;
+static int      hf_pie_gigamon_dnsqdcount                        = -1;
+static int      hf_pie_gigamon_dnsancount                        = -1;
+static int      hf_pie_gigamon_dnsnscount                        = -1;
+static int      hf_pie_gigamon_dnsarcount                        = -1;
+static int      hf_pie_gigamon_dnsquerytype                      = -1;
+static int      hf_pie_gigamon_dnsqueryclass                     = -1;
+static int      hf_pie_gigamon_dnsresponsetype                   = -1;
+static int      hf_pie_gigamon_dnsresponseclass                  = -1;
+static int      hf_pie_gigamon_dnsresponserdlength               = -1;
+static int      hf_pie_gigamon_dnsresponserdata                  = -1;
+static int      hf_pie_gigamon_dnsauthorityname                  = -1;
+static int      hf_pie_gigamon_dnsauthoritytype                  = -1;
+static int      hf_pie_gigamon_dnsauthorityclass                 = -1;
+static int      hf_pie_gigamon_dnsauthorityttl                   = -1;
+static int      hf_pie_gigamon_dnsauthorityrdlength              = -1;
+static int      hf_pie_gigamon_dnsauthorityrdata                 = -1;
+static int      hf_pie_gigamon_dnsadditionalname                 = -1;
+static int      hf_pie_gigamon_dnsadditionaltype                 = -1;
+static int      hf_pie_gigamon_dnsadditionalclass                = -1;
+static int      hf_pie_gigamon_dnsadditionalttl                  = -1;
+static int      hf_pie_gigamon_dnsadditionalrdlength             = -1;
+static int      hf_pie_gigamon_dnsadditionalrdata                = -1;
+
 static int      hf_string_len_short = -1;
 static int      hf_string_len_long  = -1;
 
@@ -2327,6 +2434,8 @@ pen_to_type_hf_list(guint32 pen) {
         return TF_NETSCALER;
     case VENDOR_BARRACUDA:
         return TF_BARRACUDA;
+    case VENDOR_GIGAMON:
+        return TF_GIGAMON;
     default:
         return TF_NO_VENDOR_INFO;
     }
@@ -3297,7 +3406,8 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                          ntop_pie_seen = FALSE,
                          ixia_pie_seen = FALSE,
                          netscaler_pie_seen = FALSE,
-                         barracuda_pie_seen = FALSE;
+                         barracuda_pie_seen = FALSE,
+                         gigamon_pie_seen = FALSE;
 
 
     guint8       ip_protocol = 0;
@@ -3422,6 +3532,13 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                     proto_item *pie_barracuda_ti = proto_tree_add_item(pdutree, hf_pie_barracuda, tvb, 0, 0, ENC_NA);
                     PROTO_ITEM_SET_HIDDEN(pie_barracuda_ti);
                     barracuda_pie_seen = TRUE;
+                }
+                break;
+            case VENDOR_GIGAMON:
+                if (!gigamon_pie_seen) {
+                    proto_item *pie_gigamon_ti = proto_tree_add_item(pdutree, hf_pie_gigamon, tvb, 0, 0, ENC_NA);
+                    PROTO_ITEM_SET_HIDDEN(pie_gigamon_ti);
+                    gigamon_pie_seen = TRUE;
                 }
                 break;
 
@@ -7096,6 +7213,254 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
             /* END Barracuda Communications */
 
+            /* START Gigamon */
+        case ((VENDOR_GIGAMON << 16) | 1):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_httprequrl,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 2):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_httprspstatus,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 101):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslcertificateissuercommonname,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 102):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslcertificatesubjectcommonname,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 103):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslcertificateissuer,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 104):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslcertificatesubject,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 105):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslcertificatevalidnotbefore,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 106):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslcertificatevalidnotafter,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 107):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslcetificateserialnumber,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 108):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslcertificatesignaturealgorithm,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 109):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslcertificatesubjectpubalgorithm,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 110):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslcertificatesubjectpubkeysize,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 111):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslcertificatesubjectaltname,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 112):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslservernameindication,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 113):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslserverversion,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 114):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslservercipher,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 115):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslservercompressionmethod,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 116):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslserversessionid,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 201):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsidentifier,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 202):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsopcode,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 203):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsresponsecode,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 204):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsqueryname,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 205):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsresponsename,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 206):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsresponsettl,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 207):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsresponseipv4address,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 208):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsresponseipv6address,
+                                     tvb, offset, length, ENC_NA);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 209):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsbits,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 210):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsqdcount,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 211):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsancount,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 212):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsnscount,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 213):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsarcount,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 214):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsquerytype,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 215):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsqueryclass,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 216):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsresponsetype,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 217):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsresponseclass,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 218):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsresponserdlength,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 219):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsresponserdata,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 220):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsauthorityname,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 221):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsauthoritytype,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 222):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsauthorityclass,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 223):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsauthorityttl,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 224):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsauthorityrdlength,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 225):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsauthorityrdata,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 226):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsadditionalname,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 227):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsadditionaltype,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 228):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsadditionalclass,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 229):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsadditionalttl,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 230):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsadditionalrdlength,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case ((VENDOR_GIGAMON << 16) | 231):
+            ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsadditionalrdata,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+
+            /* END Gigamon */
+
         default:  /* Unknown Field ID */
             if ((hdrinfo_p->vspec == 9) || (pen == REVPEN)) {
                 ti = proto_tree_add_bytes_format_value(pdutree, hf_cflow_unknown_field_type,
@@ -7187,6 +7552,7 @@ static const int *v10_template_type_hf_list[TF_NUM_EXT] = {
     &hf_cflow_template_ixia_field_type,
     &hf_cflow_template_netscaler_field_type,
     &hf_cflow_template_barracuda_field_type,
+    &hf_cflow_template_gigamon_field_type,
     NULL};
 
 static value_string_ext *v9_template_type_vse_list[TF_NUM] = {
@@ -7200,6 +7566,7 @@ static value_string_ext *v10_template_type_vse_list[TF_NUM_EXT] = {
     &v10_template_types_ixia_ext,
     &v10_template_types_netscaler_ext,
     &v10_template_types_barracuda_ext,
+    &v10_template_types_gigamon_ext,
     NULL};
 
 static int
@@ -9973,6 +10340,11 @@ proto_register_netflow(void)
           FT_UINT16, BASE_DEC|BASE_EXT_STRING, &v10_template_types_barracuda_ext, 0x7FFF,
           "Template field type", HFILL}
         },
+        {&hf_cflow_template_gigamon_field_type,
+         {"Type", "cflow.template_gigamon_field_type",
+          FT_UINT16, BASE_DEC|BASE_EXT_STRING, &v10_template_types_gigamon_ext, 0x7FFF,
+          "Template field type", HFILL}
+        },
         {&hf_cflow_template_ipfix_field_type_enterprise,
          {"Type", "cflow.template_ipfix_field_type_enterprise",
           FT_UINT16, BASE_DEC, NULL, 0x7FFF,
@@ -11927,6 +12299,308 @@ proto_register_netflow(void)
          {"Audit Counter", "cflow.pie.barracuda.auditcounter",
           FT_UINT32, BASE_DEC, NULL, 0x0,
           "Internal Data Counter", HFILL}
+        },
+
+        /* Gigamon root (a hidden item to allow filtering) */
+        {&hf_pie_gigamon,
+         {"Gigamon", "cflow.pie.gigamon",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 1 */
+        {&hf_pie_gigamon_httprequrl,
+         {"HttpReqUrl", "cflow.pie.gigamon.httprequrl",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 2 */
+        {&hf_pie_gigamon_httprspstatus,
+         {"HttpRspStatus", "cflow.pie.gigamon.httprspstatus",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 101 */
+        {&hf_pie_gigamon_sslcertificateissuercommonname,
+         {"SslCertificateIssuerCommonName", "cflow.pie.gigamon.sslcertificateissuercommonname",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 102 */
+        {&hf_pie_gigamon_sslcertificatesubjectcommonname,
+         {"SslCertificateSubjectCommonName", "cflow.pie.gigamon.sslcertificatesubjectcommonname",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 103 */
+        {&hf_pie_gigamon_sslcertificateissuer,
+         {"SslCertificateIssuer", "cflow.pie.gigamon.sslcertificateissuer",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 104 */
+        {&hf_pie_gigamon_sslcertificatesubject,
+         {"SslCertificateSubject", "cflow.pie.gigamon.sslcertificatesubject",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 105 */
+        {&hf_pie_gigamon_sslcertificatevalidnotbefore,
+         {"SslCertificateValidNotBefore", "cflow.pie.gigamon.sslcertificatevalidnotbefore",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 106 */
+        {&hf_pie_gigamon_sslcertificatevalidnotafter,
+         {"SslCertificateValidNotAfter", "cflow.pie.gigamon.sslcertificatevalidnotafter",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 107 */
+        {&hf_pie_gigamon_sslcetificateserialnumber,
+         {"SslCetificateSerialNumber", "cflow.pie.gigamon.sslcetificateserialnumber",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 108 */
+        {&hf_pie_gigamon_sslcertificatesignaturealgorithm,
+         {"SslCertificateSignatureAlgorithm", "cflow.pie.gigamon.sslcertificatesignaturealgorithm",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 109 */
+        {&hf_pie_gigamon_sslcertificatesubjectpubalgorithm,
+         {"SslCertificateSubjectPubAlgorithm", "cflow.pie.gigamon.sslcertificatesubjectpubalgorithm",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+
+        /* gigamon, 26866 / 110 */
+        {&hf_pie_gigamon_sslcertificatesubjectpubkeysize,
+         {"SslCertificateSubjectPubKeySize", "cflow.pie.gigamon.sslcertificatesubjectpubkeysize",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 111 */
+        {&hf_pie_gigamon_sslcertificatesubjectaltname,
+         {"SslCertificateSubjectAltName", "cflow.pie.gigamon.sslcertificatesubjectaltname",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 112 */
+        {&hf_pie_gigamon_sslservernameindication,
+         {"SslServerNameIndication", "cflow.pie.gigamon.sslservernameindication",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 113 */
+        {&hf_pie_gigamon_sslserverversion,
+         {"SslServerVersion", "cflow.pie.gigamon.sslserverversion",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 114 */
+        {&hf_pie_gigamon_sslservercipher,
+         {"SslServerCipher", "cflow.pie.gigamon.sslservercipher",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 115 */
+        {&hf_pie_gigamon_sslservercompressionmethod,
+         {"SslServerCompressionMethod", "cflow.pie.gigamon.sslservercompressionmethod",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 116 */
+        {&hf_pie_gigamon_sslserversessionid,
+         {"SslServerSessionId", "cflow.pie.gigamon.sslserversessionid",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 201 */
+        {&hf_pie_gigamon_dnsidentifier,
+         {"DnsIdentifier", "cflow.pie.gigamon.dnsidentifier",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 202 */
+        {&hf_pie_gigamon_dnsopcode,
+         {"DnsOpCode", "cflow.pie.gigamon.dnsopcode",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 203 */
+        {&hf_pie_gigamon_dnsresponsecode,
+         {"DnsResponseCode", "cflow.pie.gigamon.dnsresponsecode",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 204 */
+        {&hf_pie_gigamon_dnsqueryname,
+         {"DnsQueryName", "cflow.pie.gigamon.dnsqueryname",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 205 */
+        {&hf_pie_gigamon_dnsresponsename,
+         {"DnsResponseName", "cflow.pie.gigamon.dnsresponsename",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 206 */
+        {&hf_pie_gigamon_dnsresponsettl,
+         {"DnsResponseTTL", "cflow.pie.gigamon.dnsresponsettl",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 207 */
+        {&hf_pie_gigamon_dnsresponseipv4address,
+         {"DnsResponseIPv4Address", "cflow.pie.gigamon.dnsresponseipv4address",
+          FT_IPv4, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 208 */
+        {&hf_pie_gigamon_dnsresponseipv6address,
+         {"DnsResponseIPv6Address", "cflow.pie.gigamon.dnsresponseipv6address",
+          FT_IPv6, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 209 */
+        {&hf_pie_gigamon_dnsbits,
+         {"DnsBits", "cflow.pie.gigamon.dnsbits",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 210 */
+        {&hf_pie_gigamon_dnsqdcount,
+         {"DnsQdCount", "cflow.pie.gigamon.dnsqdcount",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 211 */
+        {&hf_pie_gigamon_dnsancount,
+         {"DnsAnCount", "cflow.pie.gigamon.dnsancount",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 212 */
+        {&hf_pie_gigamon_dnsnscount,
+         {"DnsNsCount", "cflow.pie.gigamon.dnsnscount",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 213 */
+        {&hf_pie_gigamon_dnsarcount,
+         {"DnsArCount", "cflow.pie.gigamon.dnsarcount",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 214 */
+        {&hf_pie_gigamon_dnsquerytype,
+         {"DnsQueryType", "cflow.pie.gigamon.dnsquerytype",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 215 */
+        {&hf_pie_gigamon_dnsqueryclass,
+         {"DnsQueryClass", "cflow.pie.gigamon.dnsqueryclass",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 216 */
+        {&hf_pie_gigamon_dnsresponsetype,
+         {"DnsResponseType", "cflow.pie.gigamon.dnsresponsetype",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 217 */
+        {&hf_pie_gigamon_dnsresponseclass,
+         {"DnsResponseClass", "cflow.pie.gigamon.dnsresponseclass",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 218 */
+        {&hf_pie_gigamon_dnsresponserdlength,
+         {"DnsResponseRdLength", "cflow.pie.gigamon.dnsresponserdlength",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 219 */
+        {&hf_pie_gigamon_dnsresponserdata,
+         {"DnsResponseRdata", "cflow.pie.gigamon.dnsresponserdata",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 220 */
+        {&hf_pie_gigamon_dnsauthorityname,
+         {"DnsAuthorityName", "cflow.pie.gigamon.dnsauthorityname",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 221 */
+        {&hf_pie_gigamon_dnsauthoritytype,
+         {"DnsAuthorityType", "cflow.pie.gigamon.dnsauthoritytype",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 222 */
+        {&hf_pie_gigamon_dnsauthorityclass,
+         {"DnsAuthorityClass", "cflow.pie.gigamon.dnsauthorityclass",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 223 */
+        {&hf_pie_gigamon_dnsauthorityttl,
+         {"DnsAuthorityTTL", "cflow.pie.gigamon.dnsauthorityttl",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 224 */
+        {&hf_pie_gigamon_dnsauthorityrdlength,
+         {"DnsAuthorityRdLength", "cflow.pie.gigamon.dnsauthorityrdlength",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 225 */
+        {&hf_pie_gigamon_dnsauthorityrdata,
+         {"DnsAuthorityRdata", "cflow.pie.gigamon.dnsauthorityrdata",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 226 */
+        {&hf_pie_gigamon_dnsadditionalname,
+         {"DnsAdditionalName", "cflow.pie.gigamon.dnsadditionalname",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 227 */
+        {&hf_pie_gigamon_dnsadditionaltype,
+         {"DnsAdditionalType", "cflow.pie.gigamon.dnsadditionaltype",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 228 */
+        {&hf_pie_gigamon_dnsadditionalclass,
+         {"DnsAdditionalClass", "cflow.pie.gigamon.dnsadditionalclass",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 229 */
+        {&hf_pie_gigamon_dnsadditionalttl,
+         {"DnsAdditionalTTL", "cflow.pie.gigamon.dnsadditionalttl",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 230 */
+        {&hf_pie_gigamon_dnsadditionalrdlength,
+         {"DnsAdditionalRdLength", "cflow.pie.gigamon.dnsadditionalrdlength",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* gigamon, 26866 / 231 */
+        {&hf_pie_gigamon_dnsadditionalrdata,
+         {"DnsAdditionalRdata", "cflow.pie.gigamon.dnsadditionalrdata",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
         },
 
         {&hf_string_len_short,
