@@ -518,7 +518,7 @@
 
 /* Series II */
 
-#define vVW510021_W_S2_MCS_INDEX(l1p_1) ((l1p_1) & 0x3f) /* MCS index */
+#define vVW510021_W_S2_RATE_MCS_INDEX(l1p_1) ((l1p_1) & 0x3f) /* rate/MCS index */
 
 /* Series III */
 
@@ -763,7 +763,9 @@ static gboolean     vwr_read_rec_data_ethernet(vwr_t *, struct wtap_pkthdr *,
 
 static int          find_signature(const guint8 *, int, int, register guint32, register guint8);
 static guint64      get_signature_ts(const guint8 *, int);
-static float        getRate( guint8 plcpType, guint8 mcsIndex, guint16 rflags, guint8 nss );
+static float        get_legacy_rate(guint8);
+static float        get_ht_rate(guint8, guint16);
+static float        get_vht_rate(guint8, guint16, guint8);
 
 /* Open a .vwr file for reading */
 /* This does very little, except setting the wiretap header for a VWR file type */
@@ -1105,7 +1107,7 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     guint32          info;                                /* INFO/ERRORS fields in stats blk */
     gint8            rssi;                                /* RSSI, signed 8-bit number */
     int              f_tx;                                /* flag: if set, is a TX frame */
-    guint8           plcp_type, mcs_index, nss;           /* PLCP type 0: Legacy, 1: Mixed, 2: Green field, 3: VHT Mixed */
+    guint8           plcp_type, rate_mcs_index, nss;      /* PLCP type 0: Legacy, 1: Mixed, 2: Green field, 3: VHT Mixed */
     guint16          vc_id, ht_len=0;                     /* VC ID, total ip length */
     guint            flow_id;                             /* flow ID */
     guint32          d_time, errors;                      /* packet duration & errors */
@@ -1160,11 +1162,11 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     plcp_type = vVW510021_W_PLCP_LEGACY;
     nss = 1;
     if (m_type == vwr->MT_OFDM)
-        mcs_index = get_ofdm_rate(rec);
+        rate_mcs_index = get_ofdm_rate(rec);
     else if ((m_type == vwr->MT_CCKL) || (m_type == vwr->MT_CCKS))
-        mcs_index = get_cck_rate(rec);
+        rate_mcs_index = get_cck_rate(rec);
     else
-        mcs_index = 1;
+        rate_mcs_index = 1;
     rflags  = (m_type == vwr->MT_CCKS) ? FLAGS_SHORTPRE : 0;
     /* Calculate the MPDU size/ptr stuff; MPDU starts at 4 or 6 depending on OFDM/CCK. */
     /* Note that the number of octets in the frame also varies depending on OFDM/CCK,  */
@@ -1297,12 +1299,12 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         phtoles(&data_ptr[bytes_written], CHAN_CCK);
     }
     bytes_written += 2;
-    phyRate = (guint16)(getRate(plcp_type, mcs_index, rflags, nss) * 10);
+    phyRate = (guint16)(get_legacy_rate(rate_mcs_index) * 10);
     phtoles(&data_ptr[bytes_written], phyRate);
     bytes_written += 2;
     data_ptr[bytes_written] = plcp_type;
     bytes_written += 1;
-    data_ptr[bytes_written] = mcs_index;
+    data_ptr[bytes_written] = rate_mcs_index;
     bytes_written += 1;
     data_ptr[bytes_written] = nss;
     bytes_written += 1;
@@ -1366,7 +1368,7 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     int              bytes_written = 0;                   /* bytes output to buf so far */
     const guint8     *s_start_ptr,*s_trail_ptr, *plcp_ptr, *m_ptr; /* stats & MPDU ptr */
     guint32          msdu_length, actual_octets;          /* octets in frame */
-    guint8           l1p_1,l1p_2, plcp_type, mcs_index, nss;   /* mod (CCK-L/CCK-S/OFDM) */
+    guint8           l1p_1,l1p_2, plcp_type, rate_mcs_index, nss;  /* mod (CCK-L/CCK-S/OFDM) */
     guint            flow_seq;
     guint64          s_time = LL_ZERO, e_time = LL_ZERO;  /* start/end */
                                                           /*  times, nsec */
@@ -1384,6 +1386,7 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     guint16          chanflags = 0;                       /* channel flags for WLAN metadata header */
     guint16          radioflags = 0;                      /* flags for WLAN metadata header */
     guint64          delta_b;                             /* Used for calculating latency */
+    float            rate;
     guint16          phyRate;
     guint16          vw_flags;                            /* VeriWave-specific packet flags */
 
@@ -1406,7 +1409,7 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
 
     l1p_1 = s_start_ptr[vVW510021_W_L1P_1_OFF];
     l1p_2 = s_start_ptr[vVW510021_W_L1P_2_OFF];
-    mcs_index = vVW510021_W_S2_MCS_INDEX(l1p_1);
+    rate_mcs_index = vVW510021_W_S2_RATE_MCS_INDEX(l1p_1);
     plcp_type = vVW510021_W_S2_PLCP_TYPE(l1p_2);
     /* we do the range checks at the end before copying the values
        into the wtap header */
@@ -1430,7 +1433,7 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     rssi[2] = 100;
     rssi[3] = 100;
 
-    nss = (mcs_index / 8) + 1;
+    nss = (rate_mcs_index / 8) + 1;
 
     plcp_ptr = &(rec[8]);
 
@@ -1469,7 +1472,9 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
 
     /* decode OFDM or CCK PLCP header and determine rate and short preamble flag */
     /* the SIGNAL byte is always the first byte of the PLCP header in the frame */
-    if (plcp_type == vVW510021_W_PLCP_LEGACY){
+    switch (plcp_type)
+    {
+    case vVW510021_W_PLCP_LEGACY:
         /*
          * From IEEE Std 802.11-2012:
          *
@@ -1491,14 +1496,16 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
          * additional bits in the SERVICE field, or extend the 11a
          * format.
          */
-        if (mcs_index < 4) {
+        if (rate_mcs_index < 4) {
             chanflags |= CHAN_CCK;
         }
         else {
             chanflags |= CHAN_OFDM;
         }
-    }
-    else if (plcp_type == vVW510021_W_PLCP_MIXED) {
+        rate = get_legacy_rate(rate_mcs_index);
+        break;
+
+    case vVW510021_W_PLCP_MIXED:
         /*
          * According to section 20.3.2 "PPDU format", the HT-mixed
          * PLCP header has a "Non-HT SIGNAL field" (L-SIG), which
@@ -1515,8 +1522,10 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         radioflags |= FLAGS_CHAN_HT | ((plcp_ptr[3] & 0x80) ? FLAGS_CHAN_40MHZ : 0) |
                       ((l1p_1 & vVW510021_W_IS_LONGGI) ? 0 : FLAGS_CHAN_SHORTGI);
         chanflags  |= CHAN_OFDM;
-    }
-    else if (plcp_type == vVW510021_W_PLCP_GREENFIELD) {
+        rate = get_ht_rate(rate_mcs_index, radioflags);
+        break;
+
+    case vVW510021_W_PLCP_GREENFIELD:
         /*
          * According to section 20.3.2 "PPDU format", the HT-greenfield
          * PLCP header just has the HT SIGNAL field (HT-SIG) above, with
@@ -1531,8 +1540,10 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         radioflags |= FLAGS_CHAN_HT | ((plcp_ptr[0] & 0x80) ? FLAGS_CHAN_40MHZ : 0) |
                       ((l1p_1 & vVW510021_W_IS_LONGGI) ?  0 : FLAGS_CHAN_SHORTGI);
         chanflags  |= CHAN_OFDM;
-    }
-    else if (plcp_type == vVW510021_W_PLCP_VHT_MIXED) {
+        rate = get_ht_rate(rate_mcs_index, radioflags);
+        break;
+
+    case vVW510021_W_PLCP_VHT_MIXED:
         /*
          * According to section 22.3.2 "VHT PPDU format" of IEEE Std
          * 802.11ac-2013, the VHT PLCP header has a "non-HT SIGNAL field"
@@ -1543,13 +1554,21 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
          * in section 22.3.8.3.6 "VHT-SIG-B definition", followed by
          * the PSDU.
          */
-        guint8 SBW = vVW510021_W_BANDWIDTH_VHT(l1p_2);
-        radioflags |= FLAGS_CHAN_VHT | ((l1p_1 & vVW510021_W_IS_LONGGI) ?  0 : FLAGS_CHAN_SHORTGI);
-        chanflags |= CHAN_OFDM;
-        if (SBW == 3)
-            radioflags |= FLAGS_CHAN_40MHZ;
-        else if (SBW == 4)
-            radioflags |= FLAGS_CHAN_80MHZ;
+        {
+            guint8 SBW = vVW510021_W_BANDWIDTH_VHT(l1p_2);
+            radioflags |= FLAGS_CHAN_VHT | ((l1p_1 & vVW510021_W_IS_LONGGI) ?  0 : FLAGS_CHAN_SHORTGI);
+            chanflags |= CHAN_OFDM;
+            if (SBW == 3)
+                radioflags |= FLAGS_CHAN_40MHZ;
+            else if (SBW == 4)
+                radioflags |= FLAGS_CHAN_80MHZ;
+            rate = get_vht_rate(rate_mcs_index, radioflags, nss);
+        }
+        break;
+
+    default:
+        rate = 0.0f;
+        break;
     }
 
     /*
@@ -1687,14 +1706,14 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     bytes_written += 2;
     phtoles(&data_ptr[bytes_written], chanflags);
     bytes_written += 2;
-    phyRate = (guint16)(getRate(plcp_type, mcs_index, radioflags, nss) * 10);
+    phyRate = (guint16)(rate * 10);
     phtoles(&data_ptr[bytes_written], phyRate);
     bytes_written += 2;
 
     data_ptr[bytes_written] = plcp_type;
     bytes_written += 1;
 
-    data_ptr[bytes_written] = mcs_index;
+    data_ptr[bytes_written] = rate_mcs_index;
     bytes_written += 1;
 
     data_ptr[bytes_written] = nss;
@@ -1758,7 +1777,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     int              stats_offset = 0;
     const guint8     *s_start_ptr = NULL,*s_trail_ptr = NULL, *plcp_ptr, *m_ptr; /* stats & MPDU ptr */
     guint32          msdu_length = 0, actual_octets = 0; /* octets in frame */
-    guint8           l1p_1 = 0,l1p_2 = 0, plcp_type, mcs_index, nss = 0;   /* mod (CCK-L/CCK-S/OFDM) */
+    guint8           l1p_1 = 0,l1p_2 = 0, plcp_type, rate_mcs_index, nss = 0;   /* mod (CCK-L/CCK-S/OFDM) */
     guint64          s_time = LL_ZERO, e_time = LL_ZERO; /* start/end */
                                                          /* times, nsec */
     guint64          latency = LL_ZERO;
@@ -1775,7 +1794,8 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     guint8           L1InfoC,port_type,ver_fpga = 0;
     guint8           flow_seq =0,plcp_hdr_flag = 0,rf_id = 0;    /* indicates plcp hdr info */
     const guint8    *rf_ptr = NULL;
-    guint16          phyRate = 0, radioflags = 0;        /* flags for WLAN metadata header */
+    float            rate;
+    guint16          phyRate;
 
     /*
      * The record data must be large enough to hold the statistics header,
@@ -1858,14 +1878,14 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         if (plcp_type == vVW510021_W_PLCP_VHT_MIXED)
         {
             /* S3 FPGA VHT frames */
-            mcs_index = vVW510021_W_S3_MCS_INDEX_VHT(l1p_1);
+            rate_mcs_index = vVW510021_W_S3_MCS_INDEX_VHT(l1p_1);
             nss = vVW510021_W_S3_NSS_VHT(l1p_1);
             plcp_hdr_flag = 1;
         }
         else
         {
             /* S3 FPGA HT or pre-HT frames */
-            mcs_index = vVW510021_W_S3_MCS_INDEX_HT(l1p_1);
+            rate_mcs_index = vVW510021_W_S3_MCS_INDEX_HT(l1p_1);
             if (plcp_type == vVW510021_W_PLCP_LEGACY)
             {
                 /* pre-HT */
@@ -1874,7 +1894,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
             else
             {
                 /* HT */
-                nss = (mcs_index / 8) + 1;
+                nss = (rate_mcs_index / 8) + 1;
             }
         }
 
@@ -1942,10 +1962,16 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
 
         /*** Calculate Data rate based on
         *  PLCP type, MCS index and number of spatial stream
-        *  radioflags is temporarily calculated, which is used in getRate().
+        *  radioflags is temporarily calculated, which is used in
+        *  get_ht_rate() and get_vht_rate().
         **/
-        if (plcp_type == vVW510021_W_PLCP_MIXED)
+        switch (plcp_type)
         {
+        case vVW510021_W_PLCP_LEGACY:
+            rate = get_legacy_rate(rate_mcs_index);
+            break;
+
+        case vVW510021_W_PLCP_MIXED:
             /*
              * According to section 20.3.2 "PPDU format", the HT-mixed
              * PLCP header has a "Non-HT SIGNAL field" (L-SIG), which
@@ -1958,12 +1984,15 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
              *
              * 0x80 is the CBW 20/40 bit of HT-SIG.
              */
-            /* set the appropriate flags to indicate HT mode and CB */
-            radioflags |= FLAGS_CHAN_HT | ((plcp_ptr[3] & 0x80) ? FLAGS_CHAN_40MHZ : 0) |
-                               ((l1p_1 & vVW510021_W_IS_LONGGI) ? 0 : FLAGS_CHAN_SHORTGI);
-        }
-        else if (plcp_type == vVW510021_W_PLCP_GREENFIELD)
-        {
+            {
+                /* set the appropriate flags to indicate HT mode and CB */
+                guint16 radioflags = FLAGS_CHAN_HT | ((plcp_ptr[3] & 0x80) ? FLAGS_CHAN_40MHZ : 0) |
+                                   ((l1p_1 & vVW510021_W_IS_LONGGI) ? 0 : FLAGS_CHAN_SHORTGI);
+                rate = get_ht_rate(rate_mcs_index, radioflags);
+            }
+            break;
+
+        case vVW510021_W_PLCP_GREENFIELD:
             /*
              * According to section 20.3.2 "PPDU format", the HT-greenfield
              * PLCP header just has the HT SIGNAL field (HT-SIG) above, with
@@ -1974,12 +2003,15 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
              *
              * 0x80 is the CBW 20/40 bit of HT-SIG.
              */
-            /* set the appropriate flags to indicate HT mode and CB */
-            radioflags |= FLAGS_CHAN_HT | ((plcp_ptr[0] & 0x80) ? FLAGS_CHAN_40MHZ : 0) |
-                           ((l1p_1 & vVW510021_W_IS_LONGGI) ?  0 : FLAGS_CHAN_SHORTGI);
-        }
-        else if (plcp_type == vVW510021_W_PLCP_VHT_MIXED)
-        {
+            {
+                /* set the appropriate flags to indicate HT mode and CB */
+                guint16 radioflags = FLAGS_CHAN_HT | ((plcp_ptr[0] & 0x80) ? FLAGS_CHAN_40MHZ : 0) |
+                                   ((l1p_1 & vVW510021_W_IS_LONGGI) ?  0 : FLAGS_CHAN_SHORTGI);
+                rate = get_ht_rate(rate_mcs_index, radioflags);
+            }
+            break;
+
+        case vVW510021_W_PLCP_VHT_MIXED:
             /*
              * According to section 22.3.2 "VHT PPDU format" of IEEE Std
              * 802.11ac-2013, the VHT PLCP header has a "non-HT SIGNAL field"
@@ -1990,19 +2022,22 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
              * in section 22.3.8.3.6 "VHT-SIG-B definition", followed by
              * the PSDU.
              */
-            guint8 SBW = vVW510021_W_BANDWIDTH_VHT(l1p_2);
-            radioflags |= FLAGS_CHAN_VHT | ((l1p_1 & vVW510021_W_IS_LONGGI) ?  0 : FLAGS_CHAN_SHORTGI);
-            if (SBW == 3)
-                radioflags |= FLAGS_CHAN_40MHZ;
-            else if (SBW == 4)
-                radioflags |= FLAGS_CHAN_80MHZ;
-        }
-        if (info & vVW510021_W_IS_WEP)
-            radioflags |= FLAGS_WEP;
-        if (!(l1p_1 & vVW510021_W_IS_LONGPREAMBLE) && (plcp_type == vVW510021_W_PLCP_LEGACY))
-            radioflags |= FLAGS_SHORTPRE;
+            {
+                guint8 SBW = vVW510021_W_BANDWIDTH_VHT(l1p_2);
+                guint16 radioflags = FLAGS_CHAN_VHT | ((l1p_1 & vVW510021_W_IS_LONGGI) ?  0 : FLAGS_CHAN_SHORTGI);
+                if (SBW == 3)
+                    radioflags |= FLAGS_CHAN_40MHZ;
+                else if (SBW == 4)
+                    radioflags |= FLAGS_CHAN_80MHZ;
+                rate = get_vht_rate(rate_mcs_index, radioflags, nss);
+            }
+            break;
 
-        phyRate = (guint16)(getRate(plcp_type, mcs_index, radioflags, nss) * 10);
+        default:
+            rate = 0.0f;
+            break;
+        }
+        phyRate = (guint16)(rate * 10);
         /* Calculation of Data rate ends*/
 
         /* 'ver_fpga' is the 2nd Octet of each frame.
@@ -3134,61 +3169,77 @@ guint64 get_signature_ts(const guint8 *m_ptr,int sig_off)
     return (sig_ts & 0xffffffff);
 }
 
-static float getRate( guint8 plcpType, guint8 mcsIndex, guint16 rflags, guint8 nss )
+static float
+get_legacy_rate(guint8 rate_index)
 {
     /* Rate conversion data */
     static const float canonical_rate_legacy[]  = {1.0f, 2.0f, 5.5f, 11.0f, 6.0f, 9.0f, 12.0f, 18.0f, 24.0f, 36.0f, 48.0f, 54.0f};
 
+    float bitrate  = 0.0f;
+
+    if (rate_index < G_N_ELEMENTS(canonical_rate_legacy))
+        bitrate =  canonical_rate_legacy[rate_index];
+
+    return bitrate;
+}
+
+static float
+get_ht_rate(guint8 mcs_index, guint16 rflags)
+{
+    /* Rate conversion data */
     static const int   canonical_ndbps_20_ht[8]  = {26, 52, 78, 104, 156, 208, 234, 260};
     static const int   canonical_ndbps_40_ht[8]  = {54, 108, 162, 216, 324, 432, 486, 540};
 
+    float symbol_tx_time, bitrate;
+    int   ndbps;
+
+    if (rflags & FLAGS_CHAN_SHORTGI)
+        symbol_tx_time = 3.6f;
+    else
+        symbol_tx_time = 4.0f;
+
+    if (rflags & FLAGS_CHAN_40MHZ)
+        ndbps = canonical_ndbps_40_ht[mcs_index - 8*(int)(mcs_index/8)];
+    else
+        ndbps = canonical_ndbps_20_ht[mcs_index - 8*(int)(mcs_index/8)];
+
+    bitrate = (ndbps * (((int)(mcs_index >> 3) + 1))) / symbol_tx_time;
+
+    return bitrate;
+}
+
+static float
+get_vht_rate(guint8 mcs_index, guint16 rflags, guint8 nss)
+{
+    /* Rate conversion data */
     static const int   canonical_ndbps_20_vht[] = {26, 52, 78, 104, 156, 208, 234, 260, 312};
     static const int   canonical_ndbps_40_vht[] = {54, 108, 162, 216, 324, 432, 486, 540, 648, 720};
     static const int   canonical_ndbps_80_vht[] = {117, 234, 351, 468, 702, 936, 1053, 1170, 1404, 1560};
 
-    float symbol_tx_time, bitrate  = 0.0f;
+    float symbol_tx_time, bitrate;
 
-    if (plcpType == 0)
-    {
-        if (mcsIndex < G_N_ELEMENTS(canonical_rate_legacy))
-            bitrate =  canonical_rate_legacy[mcsIndex];
-    }
-    else if (plcpType == 1 || plcpType == 2)
-    {
-        int   ndbps;
+    if (rflags & FLAGS_CHAN_SHORTGI)
+        symbol_tx_time = 3.6f;
+    else
+        symbol_tx_time = 4.0f;
 
-        if ( rflags & FLAGS_CHAN_SHORTGI)
-            symbol_tx_time = 3.6f;
-        else
-            symbol_tx_time = 4.0f;
-
-        if ( rflags & FLAGS_CHAN_40MHZ )
-            ndbps = canonical_ndbps_40_ht[mcsIndex - 8*(int)(mcsIndex/8)];
-        else
-            ndbps = canonical_ndbps_20_ht[mcsIndex - 8*(int)(mcsIndex/8)];
-
-        bitrate = ( ndbps * (((int)(mcsIndex >> 3) + 1) )) / symbol_tx_time;
-    }
+    /*
+     * Check for the out of range mcs_index.
+     * Should never happen, but if mcs index is greater than 9 assume 9
+     * is the value.
+     * XXX - just return 0.0f?
+     */
+    if (mcs_index > 9) mcs_index = 9;
+    if (rflags & FLAGS_CHAN_40MHZ)
+        bitrate = (canonical_ndbps_40_vht[mcs_index] * nss) / symbol_tx_time;
+    else if (rflags & FLAGS_CHAN_80MHZ )
+        bitrate = (canonical_ndbps_80_vht[mcs_index] * nss) / symbol_tx_time;
     else
     {
-        if ( rflags & FLAGS_CHAN_SHORTGI)
-            symbol_tx_time = 3.6f;
+        if (mcs_index == 9 && nss == 3)
+            bitrate = 1040 / symbol_tx_time;
         else
-            symbol_tx_time = 4.0f;
-
-        /* Check for the out of range mcsIndex.  Should never happen, but if mcs index is greater than 9 assume 9 is the value */
-        if (mcsIndex > 9) mcsIndex = 9;
-        if ( rflags & FLAGS_CHAN_40MHZ )
-            bitrate = (canonical_ndbps_40_vht[ mcsIndex ] * nss) / symbol_tx_time;
-        else if (rflags & FLAGS_CHAN_80MHZ )
-            bitrate = (canonical_ndbps_80_vht[ mcsIndex ] * nss) / symbol_tx_time;
-        else
-        {
-            if (mcsIndex == 9 && nss == 3)
-                bitrate = 1040 / symbol_tx_time;
-            else if (mcsIndex < 9)
-                bitrate = (canonical_ndbps_20_vht[ mcsIndex ] * nss) / symbol_tx_time;
-        }
+            bitrate = (canonical_ndbps_20_vht[mcs_index] * nss) / symbol_tx_time;
     }
 
     return bitrate;
