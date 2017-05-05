@@ -1169,8 +1169,8 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 {
                     guint8 iid_type, i;
                     guint8 entries = 0;
-                    guint8 check_len = tlv_len;
-                    guint8 check_offset = offset;
+                    gint16 check_len = tlv_len;
+                    guint check_offset = offset;
 
                     /* Check consistency of entries */
                     while (check_len > 0) {
