@@ -3108,9 +3108,9 @@ dissect_pcep_obj_overload(proto_tree *pcep_object_tree, packet_info *pinfo, tvbu
 static void
 dissect_pcep_obj_unreach_destination(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t *tvb, int offset2, int obj_length, int type)
 {
-    guint address_length = 4;
+    int address_length = 4;
 
-    guint body_obj_len = obj_length-OBJ_HDR_LEN;
+    int body_obj_len = obj_length-OBJ_HDR_LEN;
 
     switch (type)
     {
@@ -3122,7 +3122,7 @@ dissect_pcep_obj_unreach_destination(proto_tree *pcep_object_tree, packet_info *
             break;
     }
 
-    while (body_obj_len) {
+    while (body_obj_len > 0) {
         switch (type) {
             case IPv4:
                 if (body_obj_len < address_length) {
