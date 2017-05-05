@@ -1107,7 +1107,7 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     guint32          info;                                /* INFO/ERRORS fields in stats blk */
     gint8            rssi;                                /* RSSI, signed 8-bit number */
     int              f_tx;                                /* flag: if set, is a TX frame */
-    guint8           plcp_type, rate_mcs_index, nss;      /* PLCP type 0: Legacy, 1: Mixed, 2: Green field, 3: VHT Mixed */
+    guint8           rate_index;                          /* pre-HT only */
     guint16          vc_id, ht_len=0;                     /* VC ID, total ip length */
     guint            flow_id;                             /* flow ID */
     guint32          d_time, errors;                      /* packet duration & errors */
@@ -1159,14 +1159,12 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
 
     /* Decode OFDM or CCK PLCP header and determine rate and short preamble flag. */
     /* The SIGNAL byte is always the first byte of the PLCP header in the frame.  */
-    plcp_type = vVW510021_W_PLCP_LEGACY;
-    nss = 1;
     if (m_type == vwr->MT_OFDM)
-        rate_mcs_index = get_ofdm_rate(rec);
+        rate_index = get_ofdm_rate(rec);
     else if ((m_type == vwr->MT_CCKL) || (m_type == vwr->MT_CCKS))
-        rate_mcs_index = get_cck_rate(rec);
+        rate_index = get_cck_rate(rec);
     else
-        rate_mcs_index = 1;
+        rate_index = 1;
     rflags  = (m_type == vwr->MT_CCKS) ? FLAGS_SHORTPRE : 0;
     /* Calculate the MPDU size/ptr stuff; MPDU starts at 4 or 6 depending on OFDM/CCK. */
     /* Note that the number of octets in the frame also varies depending on OFDM/CCK,  */
@@ -1299,14 +1297,14 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         phtoles(&data_ptr[bytes_written], CHAN_CCK);
     }
     bytes_written += 2;
-    phyRate = (guint16)(get_legacy_rate(rate_mcs_index) * 10);
+    phyRate = (guint16)(get_legacy_rate(rate_index) * 10);
     phtoles(&data_ptr[bytes_written], phyRate);
     bytes_written += 2;
-    data_ptr[bytes_written] = plcp_type;
+    data_ptr[bytes_written] = vVW510021_W_PLCP_LEGACY; /* pre-HT */
     bytes_written += 1;
-    data_ptr[bytes_written] = rate_mcs_index;
+    data_ptr[bytes_written] = rate_index;
     bytes_written += 1;
-    data_ptr[bytes_written] = nss;
+    data_ptr[bytes_written] = 1; /* pre-VHT, so NSS = 1 */
     bytes_written += 1;
     data_ptr[bytes_written] = rssi;
     bytes_written += 1;
