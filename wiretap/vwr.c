@@ -554,7 +554,7 @@
  * 1 to it.
  */
 #define vVW510021_W_S3_MCS_INDEX_VHT(l1p_1) ((l1p_1) & 0x0f) /* MCS index */
-#define vVW510021_W_S3_NSS_VHT(l1p_1)       (((l1p_1) >> 4 & 0x3) + 1) /* NSS */
+#define vVW510021_W_S3_NSS_VHT(l1p_1)       ((((l1p_1) >> 4) & 0x03) + 1) /* NSS */
 
 /* L1p byte 2 info */
 
@@ -2155,8 +2155,6 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
             }
         }
 
-        nss = nss << 4;
-        nss |= IS_TX;
         port_type = IS_TX << 4;
 
         /*
@@ -2423,7 +2421,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         data_ptr[bytes_written] = l1p_1;
         bytes_written += 1;
 
-        data_ptr[bytes_written] = nss;
+        data_ptr[bytes_written] = (nss << 4) | IS_TX;
         bytes_written += 1;
 
         phtoles(&data_ptr[bytes_written], phyRate);     /* To dosplay Data rate based on the PLCP type & MCS*/
