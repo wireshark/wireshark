@@ -6822,7 +6822,7 @@ dissect_dcm_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         pdvlen_item = proto_tree_add_item(pdv_ptree, hf_dcm_pdv_len, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        if (pdv_len + 4 > pdu_len) {
+        if ((pdv_len + 4 > pdu_len)  || (pdv_len + 4 < pdv_len)) {
             expert_add_info_format(pinfo, pdvlen_item, &ei_dcm_pdv_len, "Invalid PDV length (too large)");
             return endpos;
         }
