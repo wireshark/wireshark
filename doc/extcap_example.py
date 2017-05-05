@@ -415,8 +415,8 @@ if __name__ == '__main__':
 	parser.add_argument("--extcap-config", help="Provide a list of configurations for the given interface", action="store_true")
 	parser.add_argument("--extcap-capture-filter", help="Used together with capture to provide a capture filter")
 	parser.add_argument("--fifo", help="Use together with capture to provide the fifo to dump data to")
-	parser.add_argument("--extcap-control-in", help="Use together with capture to provide the fifo to dump data to")
-	parser.add_argument("--extcap-control-out", help="Use together with capture to provide the fifo to dump data to")
+	parser.add_argument("--extcap-control-in", help="Used to get control messages from toolbar")
+	parser.add_argument("--extcap-control-out", help="Used to send control messages to toolbar")
 
 	# Interface Arguments
 	parser.add_argument("--verify", help="Demonstrates a verification bool flag", action="store_true" )
