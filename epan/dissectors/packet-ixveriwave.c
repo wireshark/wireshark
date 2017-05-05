@@ -1035,13 +1035,14 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
         // Only RF header implementation
         if (tree) {
-            vwrft = proto_tree_add_item_ret_uint(common_tree, hf_radiotap_rf_info,
-                            tvb, offset, 76, ENC_NA, &rfid);
-            proto_item_append_text(vwrft, " (RFID = %u)",rfid);
+            vwrft = proto_tree_add_item(common_tree, hf_radiotap_rf_info,
+                            tvb, offset, 76, ENC_NA);
             vw_rfinfo_tree = proto_item_add_subtree(vwrft, ett_radiotap_rf);
 
-            proto_tree_add_uint(vw_rfinfo_tree,
-                hf_radiotap_rfinfo_rfid, tvb, offset, 1, rfid);
+            proto_tree_add_item_ret_uint(vw_rfinfo_tree,
+                                         hf_radiotap_rfinfo_rfid, tvb, offset,
+                                         1, ENC_LITTLE_ENDIAN, &rfid);
+            proto_item_append_text(vwrft, " (RFID = %u)", rfid);
             offset += 4;
             //Section for Noise
             noisevalida = tvb_get_guint8(tvb, offset+65)& 0x01;
