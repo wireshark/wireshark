@@ -1137,8 +1137,7 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
   int     start_offset    = offset;
   guchar *np;
   int     len             = -1;
-  int     chars_processed = 0;
-  int     data_size       = tvb_reported_length_remaining(tvb, dns_data_offset);
+  int     pointers_count  = 0;
   int     component_len;
   int     indir_offset;
   int     maxname;
@@ -1162,7 +1161,6 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
     if (component_len == 0) {
       break;
     }
-    chars_processed++;
     switch (component_len & 0xc0) {
 
       case 0x00:
@@ -1184,7 +1182,6 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
           }
           component_len--;
           offset++;
-          chars_processed++;
         }
         break;
 
@@ -1264,7 +1261,7 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
         indir_offset = dns_data_offset +
           (((component_len & ~0xc0) << 8) | tvb_get_guint8(tvb, offset));
         offset++;
-        chars_processed++;
+        pointers_count++;
 
         /* If "len" is negative, we are still working on the original name,
            not something pointed to by a pointer, and so we should set "len"
@@ -1272,10 +1269,11 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
         if (len < 0) {
           len = offset - start_offset;
         }
-        /* If we've looked at every character in the message, this pointer
-           will make us look at some character again, which means we're
-           looping. */
-        if (chars_processed >= data_size) {
+        /*
+         * If we find a pointer to itself, it is a trivial loop. Otherwise if we
+         * processed a large number of pointers, assume an indirect loop.
+         */
+        if (indir_offset == offset + 2 || pointers_count > MAXDNAME/4) {
           *name="<Name contains a pointer that loops>";
           if (len < min_len) {
             THROW(ReportedBoundsError);
