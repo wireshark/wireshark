@@ -518,9 +518,37 @@
 
 /* Series II */
 
-#define vVW510021_W_S2_RATE_MCS_INDEX(l1p_1) ((l1p_1) & 0x3f) /* rate/MCS index */
+/*
+ * Pre-HT - contains rate index.
+ */
+#define vVW510021_W_S2_RATE_INDEX(l1p_1) ((l1p_1) & 0x3f) /* rate index for pre-HT */
+
+/*
+ * HT - contains MCS index.
+ */
+#define vVW510021_W_S2_MCS_INDEX_HT(l1p_1) ((l1p_1) & 0x3f) /* MCS index for HT */
+
+/*
+ * VHT - contains MCS index and number of spatial streams.
+ * The number of spatial streams from the FPGA is zero-based, so we add
+ * 1 to it.
+ *
+ * XXX - the MCS index can go up to 9, so it overlaps with the NSS.
+ */
+#define vVW510021_W_S2_MCS_INDEX_VHT(l1p_1) ((l1p_1) & 0x0f) /* MCS index for VHT */
+#define vVW510021_W_S2_NSS_VHT(l1p_1)       (((l1p_1) >> 3) + 1) /* NSS */
 
 /* Series III */
+
+/*
+ * Pre-HT - contains rate index.
+ */
+#define vVW510021_W_S3_RATE_INDEX(l1p_1)  ((l1p_1) & 0x3f)
+
+/*
+ * HT - contains MCS index.
+ */
+#define vVW510021_W_S3_MCS_INDEX_HT(l1p_1)  ((l1p_1) & 0x3f)
 
 /*
  * VHT - contains MCS index and number of spatial streams.
@@ -528,13 +556,7 @@
  * 1 to it.
  */
 #define vVW510021_W_S3_MCS_INDEX_VHT(l1p_1) ((l1p_1) & 0x0f) /* MCS index */
-/* The nss is zero based from the fpga - increment it here */
 #define vVW510021_W_S3_NSS_VHT(l1p_1)       (((l1p_1) >> 4 & 0x3) + 1) /* NSS */
-
-/*
- * HT - contains MCS index
- */
-#define vVW510021_W_S3_MCS_INDEX_HT(l1p_1)  ((l1p_1) & 0x3f)
 
 /* L1p byte 2 info */
 
@@ -729,6 +751,22 @@ typedef struct {
     guint32      MPDU_OFF;
     guint32      OCTO_VERSION;
 } vwr_t;
+
+/*
+ * NSS for various MCS values.
+ */
+#define MAX_HT_MCS 76
+static guint nss_for_mcs[MAX_HT_MCS+1] = {
+	1, 1, 1, 1, 1, 1, 1, 1,                               /* 0-7 */
+	2, 2, 2, 2, 2, 2, 2, 2,                               /* 8-15 */
+	3, 3, 3, 3, 3, 3, 3, 3,                               /* 16-23 */
+	4, 4, 4, 4, 4, 4, 4, 4,                               /* 24-31 */
+	1,                                                    /* 32 */
+	2, 2, 2, 2, 2, 2,                                     /* 33-38 */
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,             /* 39-52 */
+	4, 4, 4, 4, 4, 4,                                     /* 53-58 */
+	4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4  /* 59-76 */
+};
 
 /* internal utility functions */
 static int          decode_msg(vwr_t *vwr, register guint8 *, int *, int *, int *);
@@ -1407,7 +1445,6 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
 
     l1p_1 = s_start_ptr[vVW510021_W_L1P_1_OFF];
     l1p_2 = s_start_ptr[vVW510021_W_L1P_2_OFF];
-    rate_mcs_index = vVW510021_W_S2_RATE_MCS_INDEX(l1p_1);
     plcp_type = vVW510021_W_S2_PLCP_TYPE(l1p_2);
     /* we do the range checks at the end before copying the values
        into the wtap header */
@@ -1430,8 +1467,6 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     rssi[1] = 100;
     rssi[2] = 100;
     rssi[3] = 100;
-
-    nss = (rate_mcs_index / 8) + 1;
 
     plcp_ptr = &(rec[8]);
 
@@ -1494,6 +1529,7 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
          * additional bits in the SERVICE field, or extend the 11a
          * format.
          */
+        rate_mcs_index = vVW510021_W_S2_RATE_INDEX(l1p_1);
         if (rate_mcs_index < 4) {
             chanflags |= CHAN_CCK;
         }
@@ -1517,10 +1553,12 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
          * 0x80 is the CBW 20/40 bit of HT-SIG.
          */
         /* set the appropriate flags to indicate HT mode and CB */
+        rate_mcs_index = vVW510021_W_S2_MCS_INDEX_HT(l1p_1);
         radioflags |= FLAGS_CHAN_HT | ((plcp_ptr[3] & 0x80) ? FLAGS_CHAN_40MHZ : 0) |
                       ((l1p_1 & vVW510021_W_IS_LONGGI) ? 0 : FLAGS_CHAN_SHORTGI);
         chanflags  |= CHAN_OFDM;
         rate = get_ht_rate(rate_mcs_index, radioflags);
+        nss = 0;
         break;
 
     case vVW510021_W_PLCP_GREENFIELD:
@@ -1535,9 +1573,11 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
          * 0x80 is the CBW 20/40 bit of HT-SIG.
          */
         /* set the appropriate flags to indicate HT mode and CB */
+        rate_mcs_index = vVW510021_W_S2_MCS_INDEX_HT(l1p_1);
         radioflags |= FLAGS_CHAN_HT | ((plcp_ptr[0] & 0x80) ? FLAGS_CHAN_40MHZ : 0) |
                       ((l1p_1 & vVW510021_W_IS_LONGGI) ?  0 : FLAGS_CHAN_SHORTGI);
         chanflags  |= CHAN_OFDM;
+        nss = (rate_mcs_index < MAX_HT_MCS) ? nss_for_mcs[rate_mcs_index] : 0;
         rate = get_ht_rate(rate_mcs_index, radioflags);
         break;
 
@@ -1554,17 +1594,20 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
          */
         {
             guint8 SBW = vVW510021_W_BANDWIDTH_VHT(l1p_2);
+            rate_mcs_index = vVW510021_W_S2_MCS_INDEX_VHT(l1p_1);
             radioflags |= FLAGS_CHAN_VHT | ((l1p_1 & vVW510021_W_IS_LONGGI) ?  0 : FLAGS_CHAN_SHORTGI);
             chanflags |= CHAN_OFDM;
             if (SBW == 3)
                 radioflags |= FLAGS_CHAN_40MHZ;
             else if (SBW == 4)
                 radioflags |= FLAGS_CHAN_80MHZ;
+            nss = vVW510021_W_S2_NSS_VHT(l1p_1);
             rate = get_vht_rate(rate_mcs_index, radioflags, nss);
         }
         break;
 
     default:
+        nss = 0;
         rate = 0.0f;
         break;
     }
@@ -1873,27 +1916,31 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         l1p_2 = s_start_ptr[vVW510021_W_L1P_2_OFF];
 
         plcp_type = vVW510021_W_S3_PLCP_TYPE(l1p_2);
-        if (plcp_type == vVW510021_W_PLCP_VHT_MIXED)
+        switch (plcp_type)
         {
-            /* S3 FPGA VHT frames */
+        case vVW510021_W_PLCP_LEGACY:
+            /* pre-HT */
+            rate_mcs_index = vVW510021_W_S3_RATE_INDEX(l1p_1);
+            nss = 0;
+            break;
+
+        case vVW510021_W_PLCP_MIXED:
+        case vVW510021_W_PLCP_GREENFIELD:
+            rate_mcs_index = vVW510021_W_S3_MCS_INDEX_HT(l1p_1);
+            nss = (rate_mcs_index < MAX_HT_MCS) ? nss_for_mcs[rate_mcs_index] : 0;
+            break;
+
+        case vVW510021_W_PLCP_VHT_MIXED:
             rate_mcs_index = vVW510021_W_S3_MCS_INDEX_VHT(l1p_1);
             nss = vVW510021_W_S3_NSS_VHT(l1p_1);
             plcp_hdr_flag = 1;
-        }
-        else
-        {
-            /* S3 FPGA HT or pre-HT frames */
-            rate_mcs_index = vVW510021_W_S3_MCS_INDEX_HT(l1p_1);
-            if (plcp_type == vVW510021_W_PLCP_LEGACY)
-            {
-                /* pre-HT */
-                nss = 0;
-            }
-            else
-            {
-                /* HT */
-                nss = (rate_mcs_index / 8) + 1;
-            }
+            break;
+
+        default:
+            rate_mcs_index = 0;
+            nss = 0;
+            plcp_hdr_flag = 0;
+            break;
         }
 
         for (i = 0; i < 4; i++)
