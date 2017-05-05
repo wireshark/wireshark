@@ -943,6 +943,10 @@ dissect_routing6_rpl(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
     wmem_array_t *rpl_addr_vector = NULL;
     guint i;
 
+    /* Must be IPv6 addresses */
+    if ((pinfo->dst.type != AT_IPv6) || (pinfo->src.type != AT_IPv6))
+        return;
+
     /* IPv6 destination address used for elided bytes */
     ip6_dst_addr = (const struct e_in6_addr *)pinfo->dst.data;
     /* IPv6 source address used for strict checking */
