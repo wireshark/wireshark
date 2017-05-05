@@ -532,11 +532,9 @@
  * VHT - contains MCS index and number of spatial streams.
  * The number of spatial streams from the FPGA is zero-based, so we add
  * 1 to it.
- *
- * XXX - the MCS index can go up to 9, so it overlaps with the NSS.
  */
 #define vVW510021_W_S2_MCS_INDEX_VHT(l1p_1) ((l1p_1) & 0x0f) /* MCS index for VHT */
-#define vVW510021_W_S2_NSS_VHT(l1p_1)       (((l1p_1) >> 3) + 1) /* NSS */
+#define vVW510021_W_S2_NSS_VHT(l1p_1)       (((l1p_1) >> 4) + 1) /* NSS */
 
 /* Series III */
 
