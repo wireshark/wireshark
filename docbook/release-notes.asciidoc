@@ -95,6 +95,7 @@ NetScaler Metric Exchange Protocol
 NetScaler RPC Protocol
 DirectPlay 8 protocol
 NM protocol
+Netgear Ensemble Protocol
 --sort-and-group--
 
 === Updated Protocol Support
