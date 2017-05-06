@@ -308,29 +308,27 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     guint8 color_resolution;
     guint8 image_bpp;
     guint tvb_len = tvb_reported_length(tvb);
-    char *str;
-
-    guint8 version = 0;
+    char *ver_str;
+    guint8 version;
 
     if (tvb_len < 20)
         return 0;
 
-    str = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, 6, ENC_ASCII|ENC_NA);
     /* Check whether we're processing a GIF object */
     /* see http://www.w3.org/Graphics/GIF/spec-gif89a.txt section 17 */
-    if (strcmp(str, "GIF87a") == 0) {
+    if (!tvb_strneql(tvb, 0, "GIF87a", 6) == 0) {
         version = GIF_87a;
-    } else if (strcmp(str, "GIF89a") == 0) {
+    } else if (!tvb_strneql(tvb, 0, "GIF89a", 6) == 0) {
         version = GIF_89a;
     } else {
         /* Not a GIF image! */
         return 0;
     }
 
-    DISSECTOR_ASSERT(version);
+    ver_str = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, 6, ENC_ASCII|ENC_NA);
 
     /* Add summary to INFO column if it is enabled */
-    col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", str);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", ver_str);
 
     /* In order to speed up dissection, do not add items to the protocol tree
      * if it is not visible. However, compute the values that are needed for
@@ -339,7 +337,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
      */
     if (tree) {
         ti = proto_tree_add_item(tree, hfi_gif, tvb, 0, -1, ENC_NA);
-        proto_item_append_text(ti, ", Version: %s", str);
+        proto_item_append_text(ti, ", Version: %s", ver_str);
         gif_tree = proto_item_add_subtree(ti, ett_gif);
         /* GIF signature */
         proto_tree_add_item(gif_tree, &hfi_version, tvb, 0, 6, ENC_ASCII|ENC_NA);
