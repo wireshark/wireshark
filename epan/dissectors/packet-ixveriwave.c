@@ -2230,12 +2230,14 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         else
             mcs_index = tvb_get_guint8(tvb, offset) & 0x3f;
 
+        /* l1p_1 byte */
         proto_tree_add_uint(vw_l1info_tree, hf_radiotap_preamble,
             tvb, offset, 1, preamble);
         proto_tree_add_uint(vw_l1info_tree, hf_radiotap_mcsindex,
                 tvb, offset, 1, mcs_index);
         offset++;
 
+        /* NSS and direction octet */
         nss = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
         direction = tvb_get_guint8(tvb, offset) & 0x01;
 
