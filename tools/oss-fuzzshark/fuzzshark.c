@@ -146,6 +146,9 @@ fuzz_init(int argc _U_, char **argv)
 	dissector_handle_t fuzz_handle = NULL;
 #endif
 
+	setenv("WIRESHARK_DEBUG_WMEM_OVERRIDE", "simple", 0);
+	setenv("G_SLICE", "always-malloc", 0);
+
 	cmdarg_err_init(failure_warning_message, failure_message_cont);
 
 	/*
