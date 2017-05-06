@@ -307,11 +307,10 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     gboolean color_map_present;
     guint8 color_resolution;
     guint8 image_bpp;
-    guint tvb_len = tvb_reported_length(tvb);
-    char *ver_str;
+    const guint8 *ver_str;
     guint8 version;
 
-    if (tvb_len < 20)
+    if (tvb_reported_length(tvb) < 20)
         return 0;
 
     /* Check whether we're processing a GIF object */
@@ -325,257 +324,248 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         return 0;
     }
 
-    ver_str = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, 6, ENC_ASCII|ENC_NA);
-
-    /* Add summary to INFO column if it is enabled */
+    ti = proto_tree_add_item(tree, hfi_gif, tvb, 0, -1, ENC_NA);
+    gif_tree = proto_item_add_subtree(ti, ett_gif);
+    /* GIF signature */
+    proto_tree_add_item_ret_string(gif_tree, hfi_version.id,
+            tvb, 0, 6, ENC_ASCII|ENC_NA, wmem_packet_scope(), &ver_str);
+    proto_item_append_text(ti, ", Version: %s", ver_str);
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", ver_str);
+    /* Screen descriptor */
+    proto_tree_add_item(gif_tree, &hfi_screen_width, tvb, 6, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(gif_tree, &hfi_screen_height, tvb, 8, 2, ENC_LITTLE_ENDIAN);
 
-    /* In order to speed up dissection, do not add items to the protocol tree
-     * if it is not visible. However, compute the values that are needed for
-     * correct protocol dissection if they have more meaning than just adding
-     * items to the protocol tree.
+    peek = tvb_get_guint8(tvb, 10);
+    /* Bitfield gccc 0ppp
+     *          g... .... : global color map present
+     *          .ccc .... : color resolution in bits (add one)
+     *          .... 0... : GIF87a - reserved (no use)
+     *                      GIF89a - ordered (most important color 1st)
+     *          .... .ppp : bits per pixel in image (add one)
      */
-    if (tree) {
-        ti = proto_tree_add_item(tree, hfi_gif, tvb, 0, -1, ENC_NA);
-        proto_item_append_text(ti, ", Version: %s", ver_str);
-        gif_tree = proto_item_add_subtree(ti, ett_gif);
-        /* GIF signature */
-        proto_tree_add_item(gif_tree, &hfi_version, tvb, 0, 6, ENC_ASCII|ENC_NA);
-        /* Screen descriptor */
-        proto_tree_add_item(gif_tree, &hfi_screen_width, tvb, 6, 2, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(gif_tree, &hfi_screen_height, tvb, 8, 2, ENC_LITTLE_ENDIAN);
+    color_map_present = peek & 0x80;
+    color_resolution = 1 + ((peek & 0x60) >> 4);
+    image_bpp = 1 + (peek & 0x07);
 
-        peek = tvb_get_guint8(tvb, 10);
-        /* Bitfield gccc 0ppp
-         *          g... .... : global color map present
-         *          .ccc .... : color resolution in bits (add one)
-         *          .... 0... : GIF87a - reserved (no use)
-         *                      GIF89a - ordered (most important color 1st)
-         *          .... .ppp : bits per pixel in image (add one)
-         */
-        color_map_present = peek & 0x80;
-        color_resolution = 1 + ((peek & 0x60) >> 4);
-        image_bpp = 1 + (peek & 0x07);
-
-        subtree = proto_tree_add_subtree(gif_tree, tvb, 10, 1, ett_global_flags, &ti,
-                "Global settings:");
-        if (color_map_present)
-            proto_item_append_text(ti, " (Global color table present)");
-        proto_item_append_text(ti,
-                " (%u bit%s per color) (%u bit%s per pixel)",
-                color_resolution, plurality(color_resolution, "", "s"),
-                image_bpp, plurality(image_bpp, "", "s"));
-        proto_tree_add_item(subtree, &hfi_global_color_map_present,
+    subtree = proto_tree_add_subtree(gif_tree, tvb, 10, 1, ett_global_flags, &ti,
+            "Global settings:");
+    if (color_map_present)
+        proto_item_append_text(ti, " (Global color table present)");
+    proto_item_append_text(ti,
+            " (%u bit%s per color) (%u bit%s per pixel)",
+            color_resolution, plurality(color_resolution, "", "s"),
+            image_bpp, plurality(image_bpp, "", "s"));
+    proto_tree_add_item(subtree, &hfi_global_color_map_present,
+            tvb, 10, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(subtree, &hfi_global_color_resolution,
+            tvb, 10, 1, ENC_LITTLE_ENDIAN);
+    if (version == GIF_89a) {
+        proto_tree_add_item(subtree, &hfi_global_color_map_ordered,
                 tvb, 10, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(subtree, &hfi_global_color_resolution,
-                tvb, 10, 1, ENC_LITTLE_ENDIAN);
-        if (version == GIF_89a) {
-            proto_tree_add_item(subtree, &hfi_global_color_map_ordered,
-                    tvb, 10, 1, ENC_LITTLE_ENDIAN);
-        }
-        proto_tree_add_item(subtree, &hfi_global_image_bpp,
-                tvb, 10, 1, ENC_LITTLE_ENDIAN);
-
-        /* Background color */
-        proto_tree_add_item(gif_tree, &hfi_background_color,
-                tvb, 11, 1, ENC_LITTLE_ENDIAN);
-
-        /* byte at offset 12 is 0x00 - reserved in GIF87a but encodes the
-         * pixel aspect ratio in GIF89a as:
-         *      aspect-ratio = (15 + pixel-aspect-ratio) / 64
-         * where the aspect-ratio is not computed if pixel-aspect-ratio == 0
-         */
-        if (version == GIF_89a) {
-            peek = tvb_get_guint8(tvb, 12);
-            if (peek) {
-                /* Only display if different from 0 */
-                proto_tree_add_uint_format(gif_tree, hfi_pixel_aspect_ratio.id,
-                        tvb, 12, 1, peek,
-                        "%u, yields an aspect ratio of (15 + %u) / 64 = %.2f",
-                        peek, peek, (float)(15 + peek) / 64.0);
-            }
-        }
-
-        /* Global color map
-         * If present, it takes 2 ^ (image_bpp) byte tuples (R, G, B)
-         * that contain the Red, Green and Blue intensity of the colors
-         * in the Global Color Map */
-        if (color_map_present) {
-            len = 3 * (1 << image_bpp);
-            proto_tree_add_item(gif_tree, &hfi_global_color_map,
-                    tvb, 13, len, ENC_NA);
-        } else {
-            len = 0;
-        }
-        offset = 13 + len;
-        /* From now on, a set of images prefixed with the image separator
-         * character 0x2C (',') will appear in the byte stream. Each image
-         * hence consists of:
-         * - The image separator character 0x2C
-         * - Image left (16 bits LSB first): pixels from left border
-         * - Image top (16 bits LSB first): pixels from to border
-         * - Image width (16 bits LSB first)
-         * - Image height (16 bits LSB first)
-         * - A bitfield MI00 0ppp
-         *              M... .... : Use global color map if unset (ignore ppp);
-         *                          if set a local color map will be defined.
-         *              .I.. .... : Image formatted in interlaced order if set;
-         *                          otherwise it is plain sequential order
-         *              ..0. .... : GIF87a - Reserved
-         *              ..s. ....   GIF89a - Set if local color map is ordered
-         *              ...0 0... : Reserved
-         *              .... .ppp : bits per pixel in image (add one)
-         * - If the local color map bit is set, then a local color table follows
-         *   with length = 3 x 2 ^ (1 + bits per pixel)
-         * - The raster data
-         *
-         * NOTE that the GIF specification only requires that:
-         *      image left + image width  <= screen width
-         *      image top  + image height <= screen height
-         *
-         * The Raster Data is encoded as follows:
-         * - Code size (1 byte)
-         * - Blocks consisting of
-         *      o Byte count (1 byte): number of bytes in the block
-         *      o Data bytes: as many as specified in the byte count
-         *   End of data is given with an empty block (byte count == 0).
-         *
-         *
-         * GIF terminator
-         * This is a synchronization method, based on the final character 0x3B
-         * (';') at the end of an image
-         *
-         *
-         * GIF extension
-         * This is a block of data encoded as:
-         * - The GIF extension block introducer 0x21 ('!')
-         * - The extension function code (1 byte)
-         * - Blocks consisting of
-         *      o Byte count (1 byte): number of bytes in the block
-         *      o Data bytes: as many as specified in the byte count
-         *   End of data is given with an empty block (byte count == 0).
-         *
-         * NOTE that the GIF extension block can only appear at the following
-         * locations:
-         * - Immediately before an Image Descriptor
-         * - Before the GIF termination character
-         */
-        while (offset < tvb_len) {
-            peek = tvb_get_guint8(tvb, offset);
-            if (peek == 0x21) { /* GIF extension block */
-                guint32 item_len = 2;   /* Fixed header consisting of:
-                                         *  1 byte : 0x21
-                                         *  1 byte : extension_label
-                                         */
-
-                ti = proto_tree_add_item(gif_tree, &hfi_extension,
-                        tvb, offset, 1, ENC_NA);
-                subtree = proto_item_add_subtree(ti, ett_extension);
-                offset++;
-                proto_tree_add_item(subtree, &hfi_extension_label,
-                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                peek = tvb_get_guint8(tvb, offset);
-                proto_item_append_text(ti, ": %s",
-                        val_to_str(peek, vals_extensions,
-                            "<Warning: Unknown extension 0x%02X>"));
-                offset++;
-                do {
-                    /* Read length of data block */
-                    len = tvb_get_guint8(tvb, offset);
-                    proto_tree_add_bytes_format(subtree, hfi_data_block.id, tvb,
-                            offset+1, len, NULL,
-                            "Data block (length = %u)", len);
-                    offset += (1 + len);
-                    item_len += (1 + len);
-                } while (len > 0);
-                proto_item_set_len(ti, item_len);
-            } else if (peek == 0x2C) { /* Image separator */
-                proto_tree *subtree2;
-                proto_item *ti2;
-                guint32 item_len = 11;  /* Fixed header consisting of:
-                                         *  1 byte : 0x2C
-                                         *  2 bytes: image_left
-                                         *  2 bytes: image_top
-                                         *  2 bytes: image_width
-                                         *  2 bytes: image height
-                                         *  1 byte : packed bit field
-                                         *  1 byte : image code size
-                                         */
-
-                ti = proto_tree_add_item(gif_tree, &hfi_image,
-                        tvb, offset, 1, ENC_NA);
-                subtree = proto_item_add_subtree(ti, ett_image);
-                offset++;
-                /* Screen descriptor */
-                proto_tree_add_item(subtree, &hfi_image_left,
-                        tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
-                proto_tree_add_item(subtree, &hfi_image_top,
-                        tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
-                proto_tree_add_item(subtree, &hfi_image_width,
-                        tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
-                proto_tree_add_item(subtree, &hfi_image_height,
-                        tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
-                /* bit field */
-                peek = tvb_get_guint8(tvb, offset);
-                color_map_present = peek & 0x80;
-                color_resolution = 1 + ((peek & 0x60) >> 4);
-                image_bpp = 1 + (peek & 0x07);
-
-                subtree2 = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_local_flags, &ti2,
-                        "Local settings:");
-                if (color_map_present)
-                    proto_item_append_text(ti2, " (Local color table present)");
-                proto_item_append_text(ti2,
-                        " (%u bit%s per color) (%u bit%s per pixel)",
-                        color_resolution, plurality(color_resolution, "", "s"),
-                        image_bpp, plurality(image_bpp, "", "s"));
-                proto_tree_add_item(subtree2, &hfi_local_color_map_present,
-                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(subtree2, &hfi_local_color_resolution,
-                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                if (version == GIF_89a) {
-                    proto_tree_add_item(subtree2, &hfi_local_color_map_ordered,
-                            tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                }
-                proto_tree_add_item(subtree2, &hfi_global_image_bpp,
-                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                offset++;
-
-                /* Local color map
-                 * If present, it takes 2 ^ (image_bpp) byte tuples (R, G, B)
-                 * that contain the Red, Green and Blue intensity of the colors
-                 * in the Local Color Map */
-                if (color_map_present) {
-                    len = 3 * (1 << image_bpp);
-                    proto_tree_add_item(subtree, &hfi_local_color_map,
-                            tvb, offset, len, ENC_NA);
-                } else {
-                    len = 0;
-                }
-                offset += len;
-                item_len += len;
-
-                proto_tree_add_item(subtree, &hfi_image_code_size,
-                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                offset++;
-                do {
-                    /* Read length of data block */
-                    len = tvb_get_guint8(tvb, offset);
-                    proto_tree_add_bytes_format(subtree, hfi_data_block.id, tvb,
-                            offset + 1, len, NULL,
-                            "Data block (length = %u)", len);
-                    offset += 1 + len;
-                    item_len += (1 + len);
-                } while (len > 0);
-                proto_item_set_len(ti, item_len);
-            } else {
-                /* GIF processing stops at this very byte */
-                proto_tree_add_item(gif_tree, &hfi_trailer,
-                        tvb, offset, 1, ENC_NA);
-                break;
-            }
-        } /* while */
     }
+    proto_tree_add_item(subtree, &hfi_global_image_bpp,
+            tvb, 10, 1, ENC_LITTLE_ENDIAN);
+
+    /* Background color */
+    proto_tree_add_item(gif_tree, &hfi_background_color,
+            tvb, 11, 1, ENC_LITTLE_ENDIAN);
+
+    /* byte at offset 12 is 0x00 - reserved in GIF87a but encodes the
+     * pixel aspect ratio in GIF89a as:
+     *      aspect-ratio = (15 + pixel-aspect-ratio) / 64
+     * where the aspect-ratio is not computed if pixel-aspect-ratio == 0
+     */
+    if (version == GIF_89a) {
+        peek = tvb_get_guint8(tvb, 12);
+        if (peek) {
+            /* Only display if different from 0 */
+            proto_tree_add_uint_format(gif_tree, hfi_pixel_aspect_ratio.id,
+                    tvb, 12, 1, peek,
+                    "%u, yields an aspect ratio of (15 + %u) / 64 = %.2f",
+                    peek, peek, (float)(15 + peek) / 64.0);
+        }
+    }
+
+    /* Global color map
+     * If present, it takes 2 ^ (image_bpp) byte tuples (R, G, B)
+     * that contain the Red, Green and Blue intensity of the colors
+     * in the Global Color Map */
+    if (color_map_present) {
+        len = 3 * (1 << image_bpp);
+        proto_tree_add_item(gif_tree, &hfi_global_color_map,
+                tvb, 13, len, ENC_NA);
+    } else {
+        len = 0;
+    }
+    offset = 13 + len;
+    /* From now on, a set of images prefixed with the image separator
+     * character 0x2C (',') will appear in the byte stream. Each image
+     * hence consists of:
+     * - The image separator character 0x2C
+     * - Image left (16 bits LSB first): pixels from left border
+     * - Image top (16 bits LSB first): pixels from to border
+     * - Image width (16 bits LSB first)
+     * - Image height (16 bits LSB first)
+     * - A bitfield MI00 0ppp
+     *              M... .... : Use global color map if unset (ignore ppp);
+     *                          if set a local color map will be defined.
+     *              .I.. .... : Image formatted in interlaced order if set;
+     *                          otherwise it is plain sequential order
+     *              ..0. .... : GIF87a - Reserved
+     *              ..s. ....   GIF89a - Set if local color map is ordered
+     *              ...0 0... : Reserved
+     *              .... .ppp : bits per pixel in image (add one)
+     * - If the local color map bit is set, then a local color table follows
+     *   with length = 3 x 2 ^ (1 + bits per pixel)
+     * - The raster data
+     *
+     * NOTE that the GIF specification only requires that:
+     *      image left + image width  <= screen width
+     *      image top  + image height <= screen height
+     *
+     * The Raster Data is encoded as follows:
+     * - Code size (1 byte)
+     * - Blocks consisting of
+     *      o Byte count (1 byte): number of bytes in the block
+     *      o Data bytes: as many as specified in the byte count
+     *   End of data is given with an empty block (byte count == 0).
+     *
+     *
+     * GIF terminator
+     * This is a synchronization method, based on the final character 0x3B
+     * (';') at the end of an image
+     *
+     *
+     * GIF extension
+     * This is a block of data encoded as:
+     * - The GIF extension block introducer 0x21 ('!')
+     * - The extension function code (1 byte)
+     * - Blocks consisting of
+     *      o Byte count (1 byte): number of bytes in the block
+     *      o Data bytes: as many as specified in the byte count
+     *   End of data is given with an empty block (byte count == 0).
+     *
+     * NOTE that the GIF extension block can only appear at the following
+     * locations:
+     * - Immediately before an Image Descriptor
+     * - Before the GIF termination character
+     */
+    while (tvb_reported_length_remaining(tvb, offset)) {
+        peek = tvb_get_guint8(tvb, offset);
+        if (peek == 0x21) { /* GIF extension block */
+            guint32 item_len = 2;   /* Fixed header consisting of:
+                                     *  1 byte : 0x21
+                                     *  1 byte : extension_label
+                                     */
+
+            ti = proto_tree_add_item(gif_tree, &hfi_extension,
+                    tvb, offset, 1, ENC_NA);
+            subtree = proto_item_add_subtree(ti, ett_extension);
+            offset++;
+            proto_tree_add_item(subtree, &hfi_extension_label,
+                    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            peek = tvb_get_guint8(tvb, offset);
+            proto_item_append_text(ti, ": %s",
+                    val_to_str(peek, vals_extensions,
+                        "<Warning: Unknown extension 0x%02X>"));
+            offset++;
+            do {
+                /* Read length of data block */
+                len = tvb_get_guint8(tvb, offset);
+                proto_tree_add_bytes_format(subtree, hfi_data_block.id, tvb,
+                        offset+1, len, NULL,
+                        "Data block (length = %u)", len);
+                offset += (1 + len);
+                item_len += (1 + len);
+            } while (len > 0);
+            proto_item_set_len(ti, item_len);
+        } else if (peek == 0x2C) { /* Image separator */
+            proto_tree *subtree2;
+            proto_item *ti2;
+            guint32 item_len = 11;  /* Fixed header consisting of:
+                                     *  1 byte : 0x2C
+                                     *  2 bytes: image_left
+                                     *  2 bytes: image_top
+                                     *  2 bytes: image_width
+                                     *  2 bytes: image height
+                                     *  1 byte : packed bit field
+                                     *  1 byte : image code size
+                                     */
+
+            ti = proto_tree_add_item(gif_tree, &hfi_image,
+                    tvb, offset, 1, ENC_NA);
+            subtree = proto_item_add_subtree(ti, ett_image);
+            offset++;
+            /* Screen descriptor */
+            proto_tree_add_item(subtree, &hfi_image_left,
+                    tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
+            proto_tree_add_item(subtree, &hfi_image_top,
+                    tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
+            proto_tree_add_item(subtree, &hfi_image_width,
+                    tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
+            proto_tree_add_item(subtree, &hfi_image_height,
+                    tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
+            /* bit field */
+            peek = tvb_get_guint8(tvb, offset);
+            color_map_present = peek & 0x80;
+            color_resolution = 1 + ((peek & 0x60) >> 4);
+            image_bpp = 1 + (peek & 0x07);
+
+            subtree2 = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_local_flags, &ti2,
+                    "Local settings:");
+            if (color_map_present)
+                proto_item_append_text(ti2, " (Local color table present)");
+            proto_item_append_text(ti2,
+                    " (%u bit%s per color) (%u bit%s per pixel)",
+                    color_resolution, plurality(color_resolution, "", "s"),
+                    image_bpp, plurality(image_bpp, "", "s"));
+            proto_tree_add_item(subtree2, &hfi_local_color_map_present,
+                    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(subtree2, &hfi_local_color_resolution,
+                    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            if (version == GIF_89a) {
+                proto_tree_add_item(subtree2, &hfi_local_color_map_ordered,
+                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            }
+            proto_tree_add_item(subtree2, &hfi_global_image_bpp,
+                    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+
+            /* Local color map
+             * If present, it takes 2 ^ (image_bpp) byte tuples (R, G, B)
+             * that contain the Red, Green and Blue intensity of the colors
+             * in the Local Color Map */
+            if (color_map_present) {
+                len = 3 * (1 << image_bpp);
+                proto_tree_add_item(subtree, &hfi_local_color_map,
+                        tvb, offset, len, ENC_NA);
+            } else {
+                len = 0;
+            }
+            offset += len;
+            item_len += len;
+
+            proto_tree_add_item(subtree, &hfi_image_code_size,
+                    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            do {
+                /* Read length of data block */
+                len = tvb_get_guint8(tvb, offset);
+                proto_tree_add_bytes_format(subtree, hfi_data_block.id, tvb,
+                        offset + 1, len, NULL,
+                        "Data block (length = %u)", len);
+                offset += 1 + len;
+                item_len += (1 + len);
+            } while (len > 0);
+            proto_item_set_len(ti, item_len);
+        } else {
+            /* GIF processing stops at this very byte */
+            proto_tree_add_item(gif_tree, &hfi_trailer,
+                    tvb, offset, 1, ENC_NA);
+            break;
+        }
+    } /* while */
+
     return offset;
 }
 
