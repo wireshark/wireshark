@@ -51,7 +51,7 @@ static gint ett_nge_ensemble = -1;
 
 
 static void
-dissect_nge_esemble(tvbuff_t *tvb,proto_tree *tree _U_, int offset)
+dissect_nge_esemble(tvbuff_t *tvb,proto_tree *tree, int offset)
 {
     guint strLen=0;
 
