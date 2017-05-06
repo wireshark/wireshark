@@ -33,6 +33,7 @@
 #include <wiretap/wtap.h>
 
 #include "packet-sll.h"
+#include "packet-socketcan.h"
 
 /* controller area network (CAN) kernel definitions
  * These masks are usually defined within <linux/can.h> but are not
@@ -80,15 +81,6 @@ static gboolean byte_swap = FALSE;
 
 #define CANFD_BRS 0x01 /* bit rate switch (second bitrate for payload data) */
 #define CANFD_ESI 0x02 /* error state indicator of the transmitting node */
-
-/* Structure that gets passed between dissectors.  Since it's just a simple 32-bit
-   value, no sense in creating a header file for it.  Just expect subdissectors
-   to provide their own.
- */
-struct can_identifier
-{
-	guint32 id;
-};
 
 static dissector_table_t subdissector_table;
 static dissector_handle_t socketcan_bigendian_handle;

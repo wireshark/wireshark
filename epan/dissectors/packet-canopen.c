@@ -25,6 +25,8 @@
 
 #include <epan/packet.h>
 
+#include "packet-socketcan.h"
+
 void proto_register_canopen(void);
 void proto_reg_handoff_canopen(void);
 
@@ -725,12 +727,6 @@ canopen_detect_msg_type(guint function_code, guint node_id)
             break;
     }
 }
-
-struct can_identifier
-{
-    guint32 id;
-};
-
 
 static void
 dissect_sdo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, guint function_code)

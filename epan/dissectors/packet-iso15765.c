@@ -30,6 +30,8 @@
 #include <epan/proto_data.h>
 #include <wsutil/bits_ctz.h>
 
+#include "packet-socketcan.h"
+
 void proto_register_iso15765(void);
 void proto_reg_handoff_iso15765(void);
 
@@ -53,13 +55,6 @@ void proto_reg_handoff_iso15765(void);
 #define ISO15765_FC_BS_LEN 1
 #define ISO15765_FC_STMIN_OFFSET (ISO15765_FC_BS_OFFSET + ISO15765_FC_BS_LEN)
 #define ISO15765_FC_STMIN_LEN 1
-
-struct can_identifier
-{
-    guint32 id;
-};
-
-typedef struct can_identifier can_identifier_t;
 
 struct iso15765_identifier
 {

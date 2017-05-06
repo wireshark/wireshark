@@ -1749,6 +1749,7 @@ DISSECTOR_INCLUDES = \
 	packet-smpp.h		\
 	packet-smrse.h		\
 	packet-snmp.h		\
+	packet-socketcan.h	\
 	packet-spice.h		\
 	packet-spray.h		\
 	packet-sprt.h		\

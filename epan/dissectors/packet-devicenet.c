@@ -32,7 +32,9 @@
 #include <epan/expert.h>
 #include <epan/address_types.h>
 #include <epan/to_str.h>
+
 #include "packet-cip.h"
+#include "packet-socketcan.h"
 
 void proto_register_devicenet(void);
 void proto_reg_handoff_devicenet(void);
@@ -406,11 +408,6 @@ static gint body_type_16_over_16_dissection(guint8 data_length, proto_tree *devi
 
     return offset;
 }
-
-struct can_identifier
-{
-    guint32 id;
-};
 
 static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
