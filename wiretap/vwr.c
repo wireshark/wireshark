@@ -1816,7 +1816,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     int              stats_offset = 0;
     const guint8     *s_start_ptr = NULL,*s_trail_ptr = NULL, *plcp_ptr, *m_ptr; /* stats & MPDU ptr */
     guint32          msdu_length = 0, actual_octets = 0; /* octets in frame */
-    guint8           l1p_1 = 0,l1p_2 = 0, plcp_type, rate_mcs_index, nss = 0;   /* mod (CCK-L/CCK-S/OFDM) */
+    guint8           l1p_1 = 0,l1p_2 = 0, plcp_type, rate_mcs_index, nss;   /* mod (CCK-L/CCK-S/OFDM) */
     guint64          s_time = LL_ZERO, e_time = LL_ZERO; /* start/end */
                                                          /* times, nsec */
     guint64          latency = LL_ZERO;
@@ -1834,7 +1834,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     guint8           flow_seq =0,plcp_hdr_flag = 0,rf_id = 0;    /* indicates plcp hdr info */
     const guint8    *rf_ptr = NULL;
     float            rate;
-    guint16          phyRate = 0;
+    guint16          phyRate;
 
     /*
      * The record data must be large enough to hold the statistics header,
@@ -1873,6 +1873,9 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         data_ptr = ws_buffer_start_ptr(buf);
 
         port_type = IS_TX << 4;
+
+        nss = 0;
+        phyRate = 0;
     }
     else {
         /* Calculate the start of the statistics blocks in the buffer */
