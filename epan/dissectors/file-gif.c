@@ -460,7 +460,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
          *
          *
          * GIF terminator
-         * This is a synchronization method, based on the final character 0xB3
+         * This is a synchronization method, based on the final character 0x3B
          * (';') at the end of an image
          *
          *
