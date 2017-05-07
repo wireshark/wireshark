@@ -156,7 +156,8 @@ static void parse_IMMDT(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_ATOMICACKETH(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_AETH(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_ATOMICETH(proto_tree *, tvbuff_t *, gint *offset);
-static void parse_RETH(proto_tree *, tvbuff_t *, gint *offset);
+static void parse_RETH(proto_tree *, tvbuff_t *, gint *offset,
+                       struct infinibandinfo *info);
 static void parse_DETH(proto_tree *, packet_info *, tvbuff_t *, gint *offset);
 static void parse_RDETH(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_IPvSix(proto_tree *, tvbuff_t *, gint *offset, packet_info *);
@@ -1610,7 +1611,7 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
     /* General Variables */
     gboolean bthFollows = FALSE;    /* Tracks if we are parsing a BTH.  This is a significant decision point */
-    struct infinibandinfo info = { 0, FALSE, 0, NULL};
+    struct infinibandinfo info = { 0, FALSE, 0, NULL, 0};
     gint32 nextHeaderSequence = -1; /* defined by this dissector. #define which indicates the upcoming header sequence from OpCode */
     guint8 nxtHdr = 0;              /* Keyed off for header dissection order */
     guint16 packetLength = 0;       /* Packet Length.  We track this as tvb_length - offset.   */
@@ -1840,7 +1841,7 @@ skip_lrh:
             case RDETH_DETH_RETH_PAYLD:
                 parse_RDETH(all_headers_tree, tvb, &offset);
                 parse_DETH(all_headers_tree, pinfo, tvb, &offset);
-                parse_RETH(all_headers_tree, tvb, &offset);
+                parse_RETH(all_headers_tree, tvb, &offset, &info);
 
                 packetLength -= 4; /* RDETH */
                 packetLength -= 8; /* DETH */
@@ -1862,7 +1863,7 @@ skip_lrh:
             case RDETH_DETH_RETH_IMMDT_PAYLD:
                 parse_RDETH(all_headers_tree, tvb, &offset);
                 parse_DETH(all_headers_tree, pinfo, tvb, &offset);
-                parse_RETH(all_headers_tree, tvb, &offset);
+                parse_RETH(all_headers_tree, tvb, &offset, &info);
                 parse_IMMDT(all_headers_tree, tvb, &offset);
 
                 packetLength -= 4;  /* RDETH */
@@ -1875,7 +1876,7 @@ skip_lrh:
             case RDETH_DETH_RETH:
                 parse_RDETH(all_headers_tree, tvb, &offset);
                 parse_DETH(all_headers_tree, pinfo, tvb, &offset);
-                parse_RETH(all_headers_tree, tvb, &offset);
+                parse_RETH(all_headers_tree, tvb, &offset, &info);
 
                 /*packetLength -= 4;*/  /* RDETH */
                 /*packetLength -= 8;*/  /* DETH */
@@ -1954,7 +1955,7 @@ skip_lrh:
                 parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, crclen, tree);
                 break;
             case RETH_IMMDT_PAYLD:
-                parse_RETH(all_headers_tree, tvb, &offset);
+                parse_RETH(all_headers_tree, tvb, &offset, &info);
                 parse_IMMDT(all_headers_tree, tvb, &offset);
 
                 packetLength -= 16; /* RETH */
@@ -1963,14 +1964,14 @@ skip_lrh:
                 parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, crclen, tree);
                 break;
             case RETH_PAYLD:
-                parse_RETH(all_headers_tree, tvb, &offset);
+                parse_RETH(all_headers_tree, tvb, &offset, &info);
 
                 packetLength -= 16; /* RETH */
 
                 parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, crclen, tree);
                 break;
             case RETH:
-                parse_RETH(all_headers_tree, tvb, &offset);
+                parse_RETH(all_headers_tree, tvb, &offset, &info);
 
                 packetLength -= 16; /* RETH */
                 parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength, crclen, tree);
@@ -2266,9 +2267,11 @@ parse_DCCETH(proto_tree *parentTree _U_, tvbuff_t *tvb _U_, gint *offset)
 /* Parse RETH - RDMA Extended Transport Header
 * IN: parentTree to add the dissection to - in this code the all_headers_tree
 * IN: tvb - the data buffer from wireshark
-* IN/OUT: The current and updated offset */
+* IN/OUT: The current and updated offset
+* OUT: Updated info->reth_remote_key */
 static void
-parse_RETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
+parse_RETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset,
+           struct infinibandinfo *info)
 {
     gint        local_offset = *offset;
     /* RETH - RDMA Extended Transport Header */
@@ -2279,9 +2282,9 @@ parse_RETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
     proto_item_set_text(RETH_header_item, "%s", "RETH - RDMA Extended Transport Header");
     RETH_header_tree = proto_item_add_subtree(RETH_header_item, ett_reth);
 
-    proto_tree_add_item(RETH_header_tree, hf_infiniband_virtual_address,                tvb, local_offset, 8, ENC_BIG_ENDIAN); local_offset += 8;
-    proto_tree_add_item(RETH_header_tree, hf_infiniband_remote_key,                     tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
-    proto_tree_add_item(RETH_header_tree, hf_infiniband_dma_length,                     tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
+    proto_tree_add_item(RETH_header_tree, hf_infiniband_virtual_address,     tvb, local_offset, 8, ENC_BIG_ENDIAN); local_offset += 8;
+    proto_tree_add_item_ret_uint(RETH_header_tree, hf_infiniband_remote_key, tvb, local_offset, 4, ENC_BIG_ENDIAN, &info->reth_remote_key); local_offset += 4;
+    proto_tree_add_item(RETH_header_tree, hf_infiniband_dma_length,          tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
 
     *offset = local_offset;
 }
@@ -3512,7 +3515,7 @@ static void parse_CM_DRsp(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tv
 static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset, proto_tree* top_tree)
 {
     MAD_Data    MadData;
-    struct infinibandinfo info = { 0, FALSE, 0, NULL};
+    struct infinibandinfo info = { 0, FALSE, 0, NULL, 0};
     gint        local_offset;
     const char *label;
     proto_item *CM_header_item;
@@ -5320,7 +5323,7 @@ static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     MAD_Data          MadData;
 
     /* BTH - Base Trasport Header */
-    struct infinibandinfo info = { 0, FALSE, 0, NULL};
+    struct infinibandinfo info = { 0, FALSE, 0, NULL, 0};
     gint bthSize = 12;
     void *src_addr,                 /* the address to be displayed in the source/destination columns */
          *dst_addr;                 /* (lid/gid number) will be stored here */
