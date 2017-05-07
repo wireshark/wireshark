@@ -291,6 +291,25 @@ static gint ett_image = -1;
 
 /****************** GIF protocol dissection functions ******************/
 
+static gint
+dissect_gif_data_block_seq(tvbuff_t *tvb, gint offset, proto_tree *tree)
+{
+    gint offset_start = offset;
+    guint8 len;
+    proto_item *db_ti;
+
+    do {
+        /* Read length of data block */
+        len = tvb_get_guint8(tvb, offset);
+        db_ti = proto_tree_add_item(tree, &hfi_data_block,
+                tvb, offset, 1, ENC_NA);
+        proto_item_append_text(db_ti, " (length = %u)", len);
+        offset += (1 + len);
+    } while (len > 0);
+
+    return offset - offset_start;
+}
+
 /* There are two Compuserve GIF standards: GIF87a and GIF89a. GIF image files
  * always convey their version in the first 6 bytes, written as an US-ASCII
  * string representation of the version: "GIF87a" or "GIF89a".
@@ -324,18 +343,23 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         return 0;
     }
 
-    ti = proto_tree_add_item(tree, hfi_gif, tvb, 0, -1, ENC_NA);
+    ti = proto_tree_add_item(tree, hfi_gif, tvb, offset, -1, ENC_NA);
     gif_tree = proto_item_add_subtree(ti, ett_gif);
+
     /* GIF signature */
     proto_tree_add_item_ret_string(gif_tree, hfi_version.id,
-            tvb, 0, 6, ENC_ASCII|ENC_NA, wmem_packet_scope(), &ver_str);
+            tvb, offset, 6, ENC_ASCII|ENC_NA, wmem_packet_scope(), &ver_str);
     proto_item_append_text(ti, ", Version: %s", ver_str);
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", ver_str);
-    /* Screen descriptor */
-    proto_tree_add_item(gif_tree, &hfi_screen_width, tvb, 6, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(gif_tree, &hfi_screen_height, tvb, 8, 2, ENC_LITTLE_ENDIAN);
+    offset += 6;
 
-    peek = tvb_get_guint8(tvb, 10);
+    /* Screen descriptor */
+    proto_tree_add_item(gif_tree, &hfi_screen_width, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(gif_tree, &hfi_screen_height, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    peek = tvb_get_guint8(tvb, offset);
     /* Bitfield gccc 0ppp
      *          g... .... : global color map present
      *          .ccc .... : color resolution in bits (add one)
@@ -347,7 +371,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     color_resolution = 1 + ((peek & 0x60) >> 4);
     image_bpp = 1 + (peek & 0x07);
 
-    subtree = proto_tree_add_subtree(gif_tree, tvb, 10, 1, ett_global_flags, &ti,
+    subtree = proto_tree_add_subtree(gif_tree, tvb, offset, 1, ett_global_flags, &ti,
             "Global settings:");
     if (color_map_present)
         proto_item_append_text(ti, " (Global color table present)");
@@ -356,19 +380,21 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             color_resolution, plurality(color_resolution, "", "s"),
             image_bpp, plurality(image_bpp, "", "s"));
     proto_tree_add_item(subtree, &hfi_global_color_map_present,
-            tvb, 10, 1, ENC_LITTLE_ENDIAN);
+            tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, &hfi_global_color_resolution,
-            tvb, 10, 1, ENC_LITTLE_ENDIAN);
+            tvb, offset, 1, ENC_LITTLE_ENDIAN);
     if (version == GIF_89a) {
         proto_tree_add_item(subtree, &hfi_global_color_map_ordered,
-                tvb, 10, 1, ENC_LITTLE_ENDIAN);
+                tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
     proto_tree_add_item(subtree, &hfi_global_image_bpp,
-            tvb, 10, 1, ENC_LITTLE_ENDIAN);
+            tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
 
     /* Background color */
     proto_tree_add_item(gif_tree, &hfi_background_color,
-            tvb, 11, 1, ENC_LITTLE_ENDIAN);
+            tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
 
     /* byte at offset 12 is 0x00 - reserved in GIF87a but encodes the
      * pixel aspect ratio in GIF89a as:
@@ -376,15 +402,16 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
      * where the aspect-ratio is not computed if pixel-aspect-ratio == 0
      */
     if (version == GIF_89a) {
-        peek = tvb_get_guint8(tvb, 12);
+        peek = tvb_get_guint8(tvb, offset);
         if (peek) {
             /* Only display if different from 0 */
             proto_tree_add_uint_format(gif_tree, hfi_pixel_aspect_ratio.id,
-                    tvb, 12, 1, peek,
+                    tvb, offset, 1, peek,
                     "%u, yields an aspect ratio of (15 + %u) / 64 = %.2f",
                     peek, peek, (float)(15 + peek) / 64.0);
         }
     }
+    offset++;
 
     /* Global color map
      * If present, it takes 2 ^ (image_bpp) byte tuples (R, G, B)
@@ -393,11 +420,11 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     if (color_map_present) {
         len = 3 * (1 << image_bpp);
         proto_tree_add_item(gif_tree, &hfi_global_color_map,
-                tvb, 13, len, ENC_NA);
-    } else {
-        len = 0;
+                tvb, offset, len, ENC_NA);
+        offset += len;
     }
-    offset = 13 + len;
+
+
     /* From now on, a set of images prefixed with the image separator
      * character 0x2C (',') will appear in the byte stream. Each image
      * hence consists of:
@@ -451,14 +478,11 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
      * - Before the GIF termination character
      */
     while (tvb_reported_length_remaining(tvb, offset)) {
-        proto_item *db_ti;
+        gint ret;
+        gint offset_start = offset;
+
         peek = tvb_get_guint8(tvb, offset);
         if (peek == 0x21) { /* GIF extension block */
-            guint32 item_len = 2;   /* Fixed header consisting of:
-                                     *  1 byte : 0x21
-                                     *  1 byte : extension_label
-                                     */
-
             ti = proto_tree_add_item(gif_tree, &hfi_extension,
                     tvb, offset, 1, ENC_NA);
             subtree = proto_item_add_subtree(ti, ett_extension);
@@ -470,28 +494,13 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     val_to_str(peek, vals_extensions,
                         "<Warning: Unknown extension 0x%02X>"));
             offset++;
-            do {
-                /* Read length of data block */
-                len = tvb_get_guint8(tvb, offset);
-                db_ti = proto_tree_add_item(subtree, &hfi_data_block,
-                        tvb, offset, 1, ENC_NA);
-                proto_item_append_text(db_ti, " (length = %u)", len);
-                offset += (1 + len);
-                item_len += (1 + len);
-            } while (len > 0);
-            proto_item_set_len(ti, item_len);
+            ret = dissect_gif_data_block_seq(tvb, offset, subtree);
+            if (ret <= 0)
+                break;
+            offset += ret;
         } else if (peek == 0x2C) { /* Image separator */
             proto_tree *subtree2;
             proto_item *ti2;
-            guint32 item_len = 11;  /* Fixed header consisting of:
-                                     *  1 byte : 0x2C
-                                     *  2 bytes: image_left
-                                     *  2 bytes: image_top
-                                     *  2 bytes: image_width
-                                     *  2 bytes: image height
-                                     *  1 byte : packed bit field
-                                     *  1 byte : image code size
-                                     */
 
             ti = proto_tree_add_item(gif_tree, &hfi_image,
                     tvb, offset, 1, ENC_NA);
@@ -540,31 +549,23 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 len = 3 * (1 << image_bpp);
                 proto_tree_add_item(subtree, &hfi_local_color_map,
                         tvb, offset, len, ENC_NA);
-            } else {
-                len = 0;
+                offset += len;
             }
-            offset += len;
-            item_len += len;
 
             proto_tree_add_item(subtree, &hfi_image_code_size,
                     tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
-            do {
-                /* Read length of data block */
-                len = tvb_get_guint8(tvb, offset);
-                db_ti = proto_tree_add_item(subtree, &hfi_data_block,
-                        tvb, offset, 1, ENC_NA);
-                proto_item_append_text(db_ti, " (length = %u)", len);
-                offset += 1 + len;
-                item_len += (1 + len);
-            } while (len > 0);
-            proto_item_set_len(ti, item_len);
+            ret = dissect_gif_data_block_seq(tvb, offset, subtree);
+            if (ret <= 0)
+                break;
+            offset += ret;
         } else {
             /* GIF processing stops at this very byte */
             proto_tree_add_item(gif_tree, &hfi_trailer,
                     tvb, offset, 1, ENC_NA);
             break;
         }
+        proto_item_set_len(ti, offset-offset_start);
     } /* while */
 
     return offset;
