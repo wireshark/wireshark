@@ -86,6 +86,7 @@
 #include <QEvent>
 #include <QFileOpenEvent>
 #include <QFontMetrics>
+#include <QFontInfo>
 #include <QLibraryInfo>
 #include <QLocale>
 #include <QMutableListIterator>
@@ -274,7 +275,11 @@ void WiresharkApplication::setMonospaceFont(const char *font_string) {
 
     if (font_string && strlen(font_string) > 0) {
         mono_font_.fromString(font_string);
-        return;
+
+        // Only accept the font name if it actually exists.
+        if (mono_font_.family() == QFontInfo(mono_font_).family()) {
+            return;
+        }
     }
 
     // http://en.wikipedia.org/wiki/Category:Monospaced_typefaces
@@ -312,6 +317,9 @@ void WiresharkApplication::setMonospaceFont(const char *font_string) {
     mono_font_.insertSubstitutions(default_font, substitutes);
     mono_font_.setPointSize(wsApp->font().pointSize() + font_size_adjust);
     mono_font_.setBold(false);
+
+    // Retrieve the effective font and apply it.
+    mono_font_.setFamily(QFontInfo(mono_font_).family());
 
     g_free(prefs.gui_qt_font_name);
     prefs.gui_qt_font_name = qstring_strdup(mono_font_.toString());
