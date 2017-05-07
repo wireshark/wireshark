@@ -1001,6 +1001,7 @@ set(DISSECTOR_SRC
 	packet-nwmtp.c
 	packet-nwp.c
 	packet-oampdu.c
+	packet-obd-ii.c
 	packet-obex.c
 	packet-ocfs2.c
 	packet-oicq.c
