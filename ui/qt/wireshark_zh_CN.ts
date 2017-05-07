@@ -10555,12 +10555,12 @@ text-decoration: underline;
         <translation>禁用 %1</translation>
     </message>
     <message>
-        <location filename="protocol_preferences_menu.cpp" line="208"/>
+        <location filename="protocol_preferences_menu.cpp" line="209"/>
         <source>%1 has no preferences</source>
         <translation>%1 没有首选项</translation>
     </message>
     <message>
-        <location filename="protocol_preferences_menu.cpp" line="217"/>
+        <location filename="protocol_preferences_menu.cpp" line="218"/>
         <source>Open %1 preferences</source>
         <translation>打开 %1 首选项</translation>
     </message>

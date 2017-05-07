@@ -10567,12 +10567,12 @@ a:hover {
         <translation>Disabilita %1</translation>
     </message>
     <message>
-        <location filename="protocol_preferences_menu.cpp" line="208"/>
+        <location filename="protocol_preferences_menu.cpp" line="209"/>
         <source>%1 has no preferences</source>
         <translation>%1 non ha preferenze</translation>
     </message>
     <message>
-        <location filename="protocol_preferences_menu.cpp" line="217"/>
+        <location filename="protocol_preferences_menu.cpp" line="218"/>
         <source>Open %1 preferences</source>
         <translation>Apri le preferenze di %1</translation>
     </message>

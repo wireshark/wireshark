@@ -10523,12 +10523,12 @@ a:hover {
         <translation>%1を無効化する</translation>
     </message>
     <message>
-        <location filename="protocol_preferences_menu.cpp" line="208"/>
+        <location filename="protocol_preferences_menu.cpp" line="209"/>
         <source>%1 has no preferences</source>
         <translation>%1には設定がありません</translation>
     </message>
     <message>
-        <location filename="protocol_preferences_menu.cpp" line="217"/>
+        <location filename="protocol_preferences_menu.cpp" line="218"/>
         <source>Open %1 preferences</source>
         <translation>%1 設定を開く</translation>
     </message>
