@@ -31,6 +31,8 @@
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/wmem/wmem.h>
 #include <epan/expert.h>
+#include <epan/to_str.h>
+#include <epan/addr_resolv.h>
 #ifdef HAVE_LZ4
 #include <lz4.h>
 #endif
@@ -86,11 +88,28 @@ static int hf_cql_value_count = -1;
 static int hf_cql_short_bytes_length = -1;
 static int hf_cql_bytes_length = -1;
 static int hf_cql_bytes = -1;
+static int hf_cql_bigint = -1;
+static int hf_cql_scale = -1;
+static int hf_cql_boolean = -1;
+static int hf_cql_ascii = - 1;
+static int hf_cql_double = -1;
+static int hf_cql_float = -1;
+static int hf_cql_custom = -1;
+static int hf_cql_int = -1;
+static int hf_cql_uuid = -1;
+static int hf_cql_port = -1;
+static int hf_cql_timeuuid = -1;
+static int hf_cql_varchar = -1;
+static int hf_cql_varint_count8 = -1;
+static int hf_cql_varint_count16 = -1;
+static int hf_cql_varint_count32 = -1;
+static int hf_cql_varint_count64 = -1;
 static int hf_cql_raw_compressed_bytes = -1;
 static int hf_cql_paging_state = -1;
 static int hf_cql_page_size = -1;
 static int hf_cql_timestamp = -1;
 static int hf_cql_query_id = -1;
+static int hf_cql_result_timestamp = -1;
 static int hf_cql_string_list_size = -1;
 static int hf_cql_batch_type = -1;
 static int hf_cql_batch_query_type = -1;
@@ -114,6 +133,7 @@ static int hf_cql_result_rows_flag_global_tables_spec = -1;
 static int hf_cql_result_rows_flag_has_more_pages = -1;
 static int hf_cql_result_rows_flag_no_metadata = -1;
 static int hf_cql_result_rows_column_count = -1;
+static int hf_cql_result_rows_tuple_size = -1;
 
 static int hf_cql_string_result_rows_global_table_spec_ksname = -1;
 static int hf_cql_string_result_rows_global_table_spec_table_name = -1;
@@ -121,6 +141,12 @@ static int hf_cql_string_result_rows_table_name = -1;
 static int hf_cql_string_result_rows_keyspace_name = -1;
 static int hf_cql_string_result_rows_column_name = -1;
 static int hf_cql_result_rows_row_count = -1;
+static int hf_cql_string_result_rows_udt_name = -1;
+static int hf_cql_string_result_rows_udt_size = -1;
+static int hf_cql_string_result_rows_udt_field_name = -1;
+static int hf_cql_string_result_rows_list_size = -1;
+static int hf_cql_string_result_rows_map_size = -1;
+static int hf_cql_string_result_rows_set_size = -1;
 
 static int ett_cql_protocol = -1;
 static int ett_cql_version = -1;
@@ -134,6 +160,9 @@ static int ett_cql_query_flags_bitmap = -1;
 static int hf_cql_response_in = -1;
 static int hf_cql_response_to = -1;
 static int hf_cql_response_time = -1;
+
+static int hf_cql_ipv4 = -1;
+static int hf_cql_ipv6 = -1;
 
 /* desegmentation of CQL */
 static gboolean cql_desegment = TRUE;
@@ -543,6 +572,361 @@ typedef enum {
 	CQL_DECOMPRESSION_ATTEMPTED = 3,
 } cql_compression_level;
 
+
+static int parse_option(proto_tree* metadata_subtree, tvbuff_t* tvb, gint offset)
+{
+	guint32 data_type = 0;
+	guint32 string_length = 0;
+	guint32 tuple_size = 0;
+	guint32 udt_size = 0;
+	guint32 i = 0;
+
+	proto_tree_add_item_ret_uint(metadata_subtree, hf_cql_result_rows_data_type, tvb, offset, 2, ENC_BIG_ENDIAN, &data_type);
+	offset += 2;
+	switch (data_type) {
+		case CQL_RESULT_ROW_TYPE_LIST:
+			offset = parse_option(metadata_subtree, tvb, offset);
+			break;
+		case CQL_RESULT_ROW_TYPE_MAP:
+			offset = parse_option(metadata_subtree, tvb, offset);
+			offset = parse_option(metadata_subtree, tvb, offset);
+			break;
+		case CQL_RESULT_ROW_TYPE_SET:
+			offset = parse_option(metadata_subtree, tvb, offset);
+			break;
+		case CQL_RESULT_ROW_TYPE_UDT:
+			/* keyspace */
+			proto_tree_add_item_ret_uint(metadata_subtree, hf_cql_string_length, tvb, offset, 2, ENC_BIG_ENDIAN, &string_length);
+			offset += 2;
+			proto_tree_add_item(metadata_subtree, hf_cql_string_result_rows_keyspace_name, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
+			offset += string_length;
+
+			/* UDT name */
+			proto_tree_add_item_ret_uint(metadata_subtree, hf_cql_string_length, tvb, offset, 2, ENC_BIG_ENDIAN, &string_length);
+			offset += 2;
+			proto_tree_add_item(metadata_subtree, hf_cql_string_result_rows_udt_name, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
+			offset += string_length;
+
+			/* UDT size */
+			proto_tree_add_item_ret_uint(metadata_subtree, hf_cql_string_result_rows_udt_size, tvb, offset, 2, ENC_BIG_ENDIAN, &udt_size);
+			offset += 2;
+
+			for (i = 0; i < udt_size; i++) {
+				/* UDT field name */
+				proto_tree_add_item_ret_uint(metadata_subtree, hf_cql_string_length, tvb, offset, 2, ENC_BIG_ENDIAN, &string_length);
+				offset += 2;
+				proto_tree_add_item(metadata_subtree, hf_cql_string_result_rows_udt_field_name, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
+				offset += string_length;
+
+				/* UDT field option */
+				offset = parse_option(metadata_subtree, tvb, offset);
+			}
+			break;
+		case CQL_RESULT_ROW_TYPE_TUPLE:
+			proto_tree_add_item_ret_uint(metadata_subtree, hf_cql_result_rows_tuple_size, tvb, offset, 2, ENC_BIG_ENDIAN, &tuple_size);
+			offset += 2;
+			for (i = 0; i < tuple_size; i++) {
+				offset = parse_option(metadata_subtree, tvb, offset);
+			}
+			break;
+		default:
+			break;
+	}
+
+	return offset;
+}
+
+static void add_varint_item(proto_tree *tree, tvbuff_t *tvb, const gint offset, gint length)
+{
+	switch (length)
+	{
+	case 1:
+		proto_tree_add_item(tree, hf_cql_varint_count8,  tvb, offset, 1, ENC_BIG_ENDIAN);
+		break;
+	case 2:
+		proto_tree_add_item(tree, hf_cql_varint_count16, tvb, offset, 2, ENC_BIG_ENDIAN);
+		break;
+	case 3:
+		proto_tree_add_item(tree, hf_cql_varint_count32, tvb, offset, 3, ENC_BIG_ENDIAN);
+		break;
+	case 4:
+		proto_tree_add_item(tree, hf_cql_varint_count32, tvb, offset, 4, ENC_BIG_ENDIAN);
+		break;
+	case 5:
+		proto_tree_add_item(tree, hf_cql_varint_count64, tvb, offset, 5, ENC_BIG_ENDIAN);
+		break;
+	case 6:
+		proto_tree_add_item(tree, hf_cql_varint_count64, tvb, offset, 6, ENC_BIG_ENDIAN);
+		break;
+	case 7:
+		proto_tree_add_item(tree, hf_cql_varint_count64, tvb, offset, 7, ENC_BIG_ENDIAN);
+		break;
+	case 8:
+		proto_tree_add_item(tree, hf_cql_varint_count64, tvb, offset, 8, ENC_BIG_ENDIAN);
+		break;
+	}
+}
+
+static void add_cql_uuid(proto_tree* tree, int hf_uuid, tvbuff_t* tvb, gint offset)
+{
+	e_guid_t guid;
+	int i;
+
+	guid.data1 = tvb_get_letohl(tvb, offset+12);
+	guid.data2 = tvb_get_letohl(tvb, offset+10);
+	guid.data3 = tvb_get_letohl(tvb, offset+8);
+
+	for (i = 0; i < 8; i++)
+	{
+		guid.data4[i] = tvb_get_guint8(tvb, offset+(7-i));
+	}
+
+	proto_tree_add_guid(tree, hf_uuid, tvb, offset, 16, &guid);
+}
+
+
+static int parse_value(proto_tree* columns_subtree, tvbuff_t* tvb, gint* offset_metadata, gint offset)
+{
+	guint32 data_type = 0;
+	guint32 string_length = 0;
+	gint32 bytes_length = 0;
+	guint32 tuple_size = 0;
+	gint32 list_size = 0;
+	gint32 map_size = 0;
+	gint32 set_size = 0;
+	guint32 udt_size = 0;
+	proto_item *item;
+	proto_item *sub_item;
+	guint32 i = 0;
+	gint32 j = 0;
+	gint offset_metadata_backup = 0;
+	guint32 addr4;
+	struct e_in6_addr addr6;
+	guint32 port_number;
+
+	proto_tree_add_item_ret_int(columns_subtree, hf_cql_bytes_length, tvb, offset, 4, ENC_BIG_ENDIAN, &bytes_length);
+	offset += 4;
+
+	item = proto_tree_add_item_ret_uint(columns_subtree, hf_cql_result_rows_data_type, tvb, *offset_metadata, 2, ENC_BIG_ENDIAN, &data_type);
+	PROTO_ITEM_SET_HIDDEN(item);
+	*offset_metadata += 2;
+
+	if (bytes_length == -1) {
+		return offset;
+	}
+
+	switch (data_type) {
+		case CQL_RESULT_ROW_TYPE_CUSTOM:
+			proto_tree_add_item(columns_subtree, hf_cql_custom, tvb, offset, bytes_length, ENC_UTF_8 | ENC_NA);
+			offset += bytes_length;
+			break;
+		case CQL_RESULT_ROW_TYPE_ASCII:
+			proto_tree_add_item(columns_subtree, hf_cql_ascii, tvb, offset, bytes_length, ENC_ASCII | ENC_NA);
+			offset += bytes_length;
+			break;
+		case CQL_RESULT_ROW_TYPE_BIGINT:
+			proto_tree_add_item(columns_subtree, hf_cql_bigint, tvb, offset, 8, ENC_BIG_ENDIAN);
+			offset += 8;
+			break;
+		case CQL_RESULT_ROW_TYPE_BLOB:
+			proto_tree_add_item(columns_subtree, hf_cql_bytes, tvb, offset, bytes_length, ENC_NA);
+			offset += bytes_length;
+			break;
+		case CQL_RESULT_ROW_TYPE_BOOLEAN:
+			proto_tree_add_boolean(columns_subtree, hf_cql_boolean, tvb, offset, 1, TRUE);
+			offset += 1;
+			break;
+		case CQL_RESULT_ROW_TYPE_COUNTER:
+			break;
+		case CQL_RESULT_ROW_TYPE_DECIMAL:
+			proto_tree_add_item(columns_subtree, hf_cql_scale, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			add_varint_item(columns_subtree, tvb, offset, bytes_length - 4);
+			offset += bytes_length - 4;
+			break;
+		case CQL_RESULT_ROW_TYPE_DOUBLE:
+			proto_tree_add_item(columns_subtree, hf_cql_double, tvb, offset, 8, ENC_BIG_ENDIAN);
+			offset += 8;
+			break;
+		case CQL_RESULT_ROW_TYPE_FLOAT:
+			proto_tree_add_item(columns_subtree, hf_cql_float, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			break;
+		case CQL_RESULT_ROW_TYPE_INT:
+			proto_tree_add_item(columns_subtree, hf_cql_int, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			break;
+		case CQL_RESULT_ROW_TYPE_TIMESTAMP:
+			proto_tree_add_item(columns_subtree, hf_cql_result_timestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
+			offset += 8;
+			break;
+		case CQL_RESULT_ROW_TYPE_UUID:
+			add_cql_uuid(columns_subtree, hf_cql_uuid, tvb, offset);
+			offset += 16;
+			break;
+		case CQL_RESULT_ROW_TYPE_VARCHAR:
+			proto_tree_add_item(columns_subtree, hf_cql_varchar, tvb, offset, bytes_length, ENC_ASCII|ENC_NA);
+			offset += bytes_length;
+			break;
+		case CQL_RESULT_ROW_TYPE_VARINT:
+			add_varint_item(columns_subtree, tvb, offset, bytes_length);
+			offset += bytes_length;
+			break;
+		case CQL_RESULT_ROW_TYPE_TIMEUUID:
+			add_cql_uuid(columns_subtree, hf_cql_timeuuid, tvb, offset);
+			offset += 16;
+			break;
+		case CQL_RESULT_ROW_TYPE_INET:
+			switch (bytes_length) {
+				case 4:
+				case 8:
+					addr4 = tvb_get_ipv4(tvb, offset);
+					proto_tree_add_ipv4_format_value(columns_subtree, hf_cql_ipv4, tvb, offset, 4, addr4, "%s", get_hostname(addr4));
+					offset += 4;
+				break;
+				case 16:
+				case 20:
+					tvb_get_ipv6(tvb, offset, &addr6);
+					proto_tree_add_ipv6_format_value(columns_subtree, hf_cql_ipv6, tvb, offset, 16, &addr6, "%s", get_hostname6(&addr6));
+					offset += 16;
+					break;
+				default:
+					break;
+			}
+			/* port number is optional */
+			if (bytes_length == 16 || bytes_length == 20) {
+				sub_item = proto_tree_add_item_ret_uint(columns_subtree, hf_cql_port, tvb, offset, 4, ENC_BIG_ENDIAN, &port_number);
+				proto_item_append_text(sub_item, " (%u)", port_number);
+				offset += 4;
+			}
+			break;
+		case CQL_RESULT_ROW_TYPE_DATE:
+			break;
+		case CQL_RESULT_ROW_TYPE_TIME:
+			break;
+		case CQL_RESULT_ROW_TYPE_SMALLINT:
+			break;
+		case CQL_RESULT_ROW_TYPE_TINYINT:
+			break;
+		case CQL_RESULT_ROW_TYPE_LIST:
+			proto_tree_add_item_ret_int(columns_subtree, hf_cql_string_result_rows_list_size, tvb, offset, 4, ENC_BIG_ENDIAN, &list_size);
+			offset += 4;
+			offset_metadata_backup = *offset_metadata;
+			for (j = 0; j < list_size; j++) {
+				*offset_metadata = offset_metadata_backup;
+				offset = parse_value(columns_subtree, tvb, offset_metadata, offset);
+			}
+			break;
+		case CQL_RESULT_ROW_TYPE_MAP:
+			proto_tree_add_item_ret_int(columns_subtree, hf_cql_string_result_rows_map_size, tvb, offset, 4, ENC_BIG_ENDIAN, &map_size);
+			offset += 4;
+			offset_metadata_backup = *offset_metadata;
+			for (j = 0; j < map_size; j++) {
+				*offset_metadata = offset_metadata_backup;
+				offset = parse_value(columns_subtree, tvb, offset_metadata, offset);
+				offset = parse_value(columns_subtree, tvb, offset_metadata, offset);
+			}
+			break;
+		case CQL_RESULT_ROW_TYPE_SET:
+			proto_tree_add_item_ret_int(columns_subtree, hf_cql_string_result_rows_set_size, tvb, offset, 4, ENC_BIG_ENDIAN, &set_size);
+			offset += 4;
+			offset_metadata_backup = *offset_metadata;
+			for (j = 0; j < set_size; j++) {
+				*offset_metadata = offset_metadata_backup;
+				offset = parse_value(columns_subtree, tvb, offset_metadata, offset);
+			}
+			break;
+		case CQL_RESULT_ROW_TYPE_UDT:
+			/* keyspace */
+			item = proto_tree_add_item_ret_uint(columns_subtree, hf_cql_string_length, tvb, *offset_metadata, 2, ENC_BIG_ENDIAN, &string_length);
+			PROTO_ITEM_SET_HIDDEN(item);
+			*offset_metadata += 2;
+			item = proto_tree_add_item(columns_subtree, hf_cql_string_result_rows_keyspace_name, tvb, *offset_metadata, string_length, ENC_UTF_8 | ENC_NA);
+			PROTO_ITEM_SET_HIDDEN(item);
+			*offset_metadata += string_length;
+
+			/* UDT name */
+			item = proto_tree_add_item_ret_uint(columns_subtree, hf_cql_string_length, tvb, *offset_metadata, 2, ENC_BIG_ENDIAN, &string_length);
+			PROTO_ITEM_SET_HIDDEN(item);
+			*offset_metadata += 2;
+			item = proto_tree_add_item(columns_subtree, hf_cql_string_result_rows_udt_name, tvb, *offset_metadata, string_length, ENC_UTF_8 | ENC_NA);
+			PROTO_ITEM_SET_HIDDEN(item);
+			*offset_metadata += string_length;
+
+			/* UDT size */
+			item = proto_tree_add_item_ret_uint(columns_subtree, hf_cql_string_result_rows_udt_size, tvb, *offset_metadata, 2, ENC_BIG_ENDIAN, &udt_size);
+			PROTO_ITEM_SET_HIDDEN(item);
+			*offset_metadata += 2;
+
+			for (i = 0; i < udt_size; i++) {
+				/* UDT field name */
+				item = proto_tree_add_item_ret_uint(columns_subtree, hf_cql_string_length, tvb, *offset_metadata, 2, ENC_BIG_ENDIAN, &string_length);
+				PROTO_ITEM_SET_HIDDEN(item);
+				*offset_metadata += 2;
+				item = proto_tree_add_item(columns_subtree, hf_cql_string_result_rows_udt_field_name, tvb, *offset_metadata, string_length, ENC_UTF_8 | ENC_NA);
+				PROTO_ITEM_SET_HIDDEN(item);
+				*offset_metadata += string_length;
+
+				/* UDT field option */
+				offset = parse_value(columns_subtree, tvb, offset_metadata, offset);
+			}
+			break;
+		case CQL_RESULT_ROW_TYPE_TUPLE:
+			item = proto_tree_add_item_ret_uint(columns_subtree, hf_cql_result_rows_tuple_size, tvb, *offset_metadata, 2, ENC_BIG_ENDIAN, &tuple_size);
+			PROTO_ITEM_SET_HIDDEN(item);
+			*offset_metadata += 2;
+			for (i = 0; i < tuple_size; i++) {
+				offset = parse_value(columns_subtree, tvb, offset_metadata, offset);
+			}
+			break;
+		default:
+			break;
+	}
+
+	return offset;
+}
+
+static int parse_row(proto_tree* columns_subtree, tvbuff_t* tvb, gint offset_metadata, gint offset,
+					 gint result_rows_columns_count)
+{
+	gint32 result_rows_flags = 0;
+	gint string_length;
+	gint shadow_offset;
+	proto_item *item;
+	gint j;
+
+	shadow_offset = offset_metadata;
+	for (j = 0; j < result_rows_columns_count; ++j) {
+		if (!(result_rows_flags & CQL_RESULT_ROWS_FLAG_GLOBAL_TABLES_SPEC)) {
+			/* ksname and tablename */
+			item = proto_tree_add_item_ret_uint(columns_subtree, hf_cql_string_length, tvb, shadow_offset, 2, ENC_BIG_ENDIAN, &string_length);
+			PROTO_ITEM_SET_HIDDEN(item);
+			shadow_offset += 2;
+			item = proto_tree_add_item(columns_subtree, hf_cql_string_result_rows_keyspace_name, tvb, shadow_offset, string_length, ENC_UTF_8 | ENC_NA);
+			PROTO_ITEM_SET_HIDDEN(item);
+			shadow_offset += string_length;
+			item = proto_tree_add_item_ret_uint(columns_subtree, hf_cql_string_length, tvb, shadow_offset, 2, ENC_BIG_ENDIAN, &string_length);
+			PROTO_ITEM_SET_HIDDEN(item);
+			shadow_offset += 2;
+			item = proto_tree_add_item(columns_subtree, hf_cql_string_result_rows_table_name, tvb, shadow_offset, string_length, ENC_UTF_8 | ENC_NA);
+			PROTO_ITEM_SET_HIDDEN(item);
+			shadow_offset += string_length;
+		}
+
+		/* column name */
+		item = proto_tree_add_item_ret_uint(columns_subtree, hf_cql_string_length, tvb, shadow_offset, 2, ENC_BIG_ENDIAN, &string_length);
+		PROTO_ITEM_SET_HIDDEN(item);
+		shadow_offset += 2;
+		item = proto_tree_add_item(columns_subtree, hf_cql_string_result_rows_column_name, tvb, shadow_offset, string_length, ENC_UTF_8 | ENC_NA);
+		PROTO_ITEM_SET_HIDDEN(item);
+		shadow_offset += string_length;
+
+		offset = parse_value(columns_subtree, tvb, &shadow_offset, offset);
+	}
+
+	return offset;
+}
+
 static int
 dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
@@ -552,9 +936,11 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 	proto_tree* version_tree;
 	proto_tree* cql_subtree = NULL;
 	proto_tree* rows_subtree = NULL;
+	proto_tree* columns_subtree = NULL;
 	proto_tree* metadata_subtree = NULL;
 
 	gint offset = 0;
+	gint offset_row_metadata = 0;
 	guint8 flags = 0;
 	guint8 first_byte = 0;
 	guint8 cql_version = 0;
@@ -571,8 +957,8 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 	gint32 result_rows_flags = 0;
 	gint32 result_rows_columns_count = 0;
 	gint64 j = 0;
+	gint64 k = 0;
 	gint32 bytes_length = 0;
-	guint32 result_rows_data_type = 0;
 	guint32 result_rows_row_count = 0;
 
 	conversation_t* conversation;
@@ -769,7 +1155,7 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 		tvb = tvb_new_subset_remaining(raw_tvb, offset);
 	} else if (compression_level == CQL_DECOMPRESSION_ATTEMPTED) {
 		proto_tree_add_item(cql_tree, hf_cql_raw_compressed_bytes, raw_tvb, offset,
-				    tvb_captured_length_remaining(raw_tvb, offset), ENC_NA);
+					tvb_captured_length_remaining(raw_tvb, offset), ENC_NA);
 		return tvb_captured_length(raw_tvb);
 	}
 	offset = 0;
@@ -868,7 +1254,6 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 						/* Query parameters */
 						offset = dissect_cql_query_parameters(cql_subtree, tvb, offset, 0);
 					} else if (batch_query_type == 1) {
-						guint64 k;
 						guint32 value_count = 0;
 						guint32 query_id_bytes_length;
 
@@ -987,6 +1372,10 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 						if (result_rows_flags & CQL_RESULT_ROWS_FLAG_NO_METADATA) {
 							/* There will be no col_spec elements. */
 						} else {
+							/* Instead of bloating everything by creating a duplicate structure hierarchy in memory
+							 * simply remember the offset of the row metadata for later parsing of the actual rows.
+							 **/
+							offset_row_metadata = offset;
 
 							for (j = 0; j < result_rows_columns_count; ++j) {
 								if (!(result_rows_flags & CQL_RESULT_ROWS_FLAG_GLOBAL_TABLES_SPEC)) {
@@ -1009,52 +1398,28 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 
 
 								/* type "option" */
-								proto_tree_add_item_ret_uint(metadata_subtree, hf_cql_result_rows_data_type, tvb, offset, 2, ENC_BIG_ENDIAN, &result_rows_data_type);
-								offset += 2;
-								switch (result_rows_data_type) {
-									case CQL_RESULT_ROW_TYPE_CUSTOM:
-										proto_tree_add_item(metadata_subtree, hf_cql_string, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
-										offset += string_length;
-										break;
-
-									case CQL_RESULT_ROW_TYPE_LIST:
-										/* TODO Handle nested types */
-										return 12;
-									case CQL_RESULT_ROW_TYPE_MAP:
-										/* TODO Handle nested types */
-										return 13;
-
-									case CQL_RESULT_ROW_TYPE_SET:
-										proto_tree_add_item_ret_uint(metadata_subtree, hf_cql_result_rows_data_type, tvb, offset, 2, ENC_BIG_ENDIAN, &result_rows_data_type);
-										offset += 2;
-										/* TODO Handle nested types */
-										break;
-
-									case CQL_RESULT_ROW_TYPE_UDT:
-										/* TODO Handle nested types */
-										return 16;
-									default:
-										break;
-								}
+								offset = parse_option(metadata_subtree, tvb, offset);
 							}
 						}
 
 						rows_subtree = proto_tree_add_subtree(cql_subtree, tvb, offset, 0, ett_cql_result_rows, &ti, "Rows");
-						proto_tree_add_item_ret_uint(rows_subtree, hf_cql_result_rows_row_count, tvb, offset, 4, ENC_BIG_ENDIAN, &result_rows_row_count);
+						proto_tree_add_item_ret_int(rows_subtree, hf_cql_result_rows_row_count, tvb, offset, 4, ENC_BIG_ENDIAN, &result_rows_row_count);
+						offset += 4;
 
-						/*
 						for (j = 0; j < result_rows_row_count; ++j) {
 							columns_subtree = proto_tree_add_subtree(rows_subtree, tvb, offset, 0, ett_cql_result_columns, &ti, "Data (Columns)");
 
-							for (k = 0; k < result_rows_columns_count; ++k) {
-								proto_tree_add_item_ret_uint(columns_subtree, hf_cql_bytes_length, tvb, offset, 4, ENC_BIG_ENDIAN, &bytes_length);
-								offset += 4;
-								proto_tree_add_item(columns_subtree, hf_cql_bytes, tvb, offset, bytes_length, ENC_NA);
-								offset += bytes_length;
+							if (offset_row_metadata) {
+								offset = parse_row(columns_subtree, tvb, offset_row_metadata, offset, result_rows_columns_count);
+							} else {
+								for (k = 0; k < result_rows_columns_count; ++k) {
+									proto_tree_add_item_ret_int(columns_subtree, hf_cql_bytes_length, tvb, offset, 4, ENC_BIG_ENDIAN, &bytes_length);
+									offset += 4;
+									proto_tree_add_item(columns_subtree, hf_cql_bytes, tvb, offset, bytes_length, ENC_NA);
+									offset += bytes_length;
+								}
 							}
 						}
-						*/
-
 
 						break;
 
@@ -1410,7 +1775,7 @@ proto_register_cql(void)
 				"Batch type", "cql.batch_type",
 				FT_UINT8, BASE_DEC,
 				VALS(cql_batch_type_names), 0x0,
-				"CQL batch type", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1419,7 +1784,7 @@ proto_register_cql(void)
 				"Batch query type", "cql.batch_query_type",
 				FT_UINT8, BASE_DEC,
 				VALS(cql_batch_query_type_names), 0x00,
-				"CQL batch query type", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1464,7 +1829,7 @@ proto_register_cql(void)
 				"Global Spec Keyspace Name", "cql.result.rows.keyspace_name",
 				FT_STRING, STR_UNICODE,
 				NULL, 0x0,
-				"UTF-8 string value", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1473,7 +1838,7 @@ proto_register_cql(void)
 				"Global Spec Table Name", "cql.result.rows.table_name",
 				FT_STRING, STR_UNICODE,
 				NULL, 0x0,
-				"UTF-8 string value", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1482,7 +1847,61 @@ proto_register_cql(void)
 				"Table Name", "cql.result.rows.table_name",
 				FT_STRING, STR_UNICODE,
 				NULL, 0x0,
-				"UTF-8 string value", HFILL
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_string_result_rows_udt_name,
+			{
+				"User Defined Type Name", "cql.result.rows.udt_name",
+				FT_STRING, STR_UNICODE,
+				NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_string_result_rows_udt_field_name,
+			{
+				"User Defined Type field Name", "cql.result.rows.udt_field_name",
+				FT_STRING, STR_UNICODE,
+				NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_string_result_rows_udt_size,
+			{
+				"User Defined Type Size", "cql.result.rows.udt_size",
+				FT_UINT16, BASE_DEC,
+				NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_string_result_rows_list_size,
+			{
+				"List Size", "cql.result.rows.list_size",
+				FT_INT32, BASE_DEC,
+				NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_string_result_rows_map_size,
+			{
+				"Map Size", "cql.result.rows.map_size",
+				FT_INT32, BASE_DEC,
+				NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_string_result_rows_set_size,
+			{
+				"Set Size", "cql.result.rows.set_size",
+				FT_INT32, BASE_DEC,
+				NULL, 0x0,
+				NULL, HFILL
 			}
 		},
 		{
@@ -1491,7 +1910,7 @@ proto_register_cql(void)
 				"Keyspace Name", "cql.result.rows.keyspace_name",
 				FT_STRING, STR_UNICODE,
 				NULL, 0x0,
-				"UTF-8 string value", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1500,7 +1919,7 @@ proto_register_cql(void)
 				"Column Name", "cql.result.rows.column_name",
 				FT_STRING, STR_UNICODE,
 				NULL, 0x0,
-				"UTF-8 string value", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1554,6 +1973,123 @@ proto_register_cql(void)
 				FT_BYTES, BASE_NONE,
 				NULL, 0x0,
 				"Raw byte array", HFILL
+			}
+		},
+		{
+			&hf_cql_bigint,
+			{
+				"Bigint", "cql.bigint",
+				FT_INT64, BASE_DEC,
+				NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_scale,
+			{
+				"Scale", "cql.scale",
+				FT_INT32, BASE_DEC,
+				NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_ascii,
+			{
+				"Ascii", "cql.ascii",
+				FT_STRING, STR_ASCII,
+				NULL, 0x0,
+				"An Ascii string", HFILL
+			}
+		},
+		{
+			&hf_cql_double,
+			{
+				"Double float", "cql.double",
+				FT_DOUBLE, BASE_NONE,
+				NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_float,
+			{
+				"Float", "cql.float",
+				FT_FLOAT, BASE_NONE,
+				NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_int,
+			{
+				"Int", "cql.int",
+				FT_INT32, BASE_DEC,
+				NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_varint_count8,
+			{
+				"Varint", "cql.varint",
+				FT_UINT8, BASE_DEC,
+				NULL, 0x0,
+				NULL, HFILL
+			},
+		},
+		{
+			&hf_cql_varint_count16,
+			{
+				"Varint", "cql.varint",
+				FT_UINT16, BASE_DEC,
+				NULL, 0x0,
+				NULL, HFILL
+			},
+		},
+		{
+			&hf_cql_varint_count32,
+			{
+				"Varint", "cql.varint",
+				FT_UINT32, BASE_DEC,
+				NULL, 0x0,
+				NULL, HFILL
+			},
+		},
+		{
+			&hf_cql_varint_count64,
+			{
+				"Varint", "cql.varint64",
+				FT_UINT64, BASE_DEC,
+				NULL, 0x0,
+				NULL, HFILL
+			},
+		},
+		{
+			&hf_cql_varchar,
+			{
+				"Varchar", "cql.varchar",
+				FT_STRING, STR_UNICODE,
+				NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_timeuuid,
+			{
+				"Time Uuid", "cql.timeuuid",
+				FT_GUID, STR_ASCII,
+				NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_custom,
+			{
+				"Custom", "cql.custom",
+				FT_STRING, STR_UNICODE,
+				NULL, 0x0,
+				"A custom field", HFILL
 			}
 		},
 		{
@@ -1617,7 +2153,7 @@ proto_register_cql(void)
 				"Timestamp", "cql.timestamp",
 				FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 				NULL, 0x0,
-				"CQL timestamp", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1666,23 +2202,86 @@ proto_register_cql(void)
 			}
 		},
 		{
+			&hf_cql_result_rows_tuple_size,
+			{
+				"Tuple Size", "cql.result.rows.tuple_size",
+				FT_UINT16, BASE_DEC,
+				NULL, 0x0,
+				"Size of a tuple rows result from CQL server", HFILL
+			}
+		},
+		{
+			&hf_cql_result_timestamp,
+			{
+				"Timestamp (Epoch Time)", "cql.result.timestamp",
+				FT_INT64, BASE_DEC,
+				NULL, 0x0,
+				"Timestamp result", HFILL
+			}
+		},
+		{
 			&hf_cql_result_rows_data_type,
 			{
 				"CQL Data Type", "cql.data_type",
 				FT_UINT16, BASE_DEC,
 				VALS(cql_result_row_type_names), 0x0,
-				"CQL data type name", HFILL
+				NULL, HFILL
 			}
 		},
 		{
 			&hf_cql_result_rows_row_count,
 			{
 				"CQL Result Rows Count", "cql.result.rows.row_count",
-				FT_UINT16, BASE_DEC,
+				FT_INT32, BASE_DEC,
 				NULL, 0x0,
 				"Number of rows returned in CQL result", HFILL
 			}
-		}
+		},
+		{
+			&hf_cql_uuid,
+			{
+				"UUID", "cql.uuid",
+				FT_GUID, BASE_NONE,
+				NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_port,
+			{
+				"Port", "cql.port",
+				FT_UINT32, BASE_DEC,
+				NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_boolean,
+			{
+				"Boolean", "cql.boolean",
+				FT_BOOLEAN, BASE_NONE,
+				NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_ipv4,
+			{
+				"IPV4", "cql.ipv4",
+				FT_IPv4, BASE_NONE,
+				NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_cql_ipv6,
+			{
+				"IPV6", "cql.ipv6",
+				FT_IPv6, BASE_NONE,
+				NULL, 0x0,
+				NULL, HFILL
+			}
+		},
 	};
 
 	static ei_register_info ei[] = {
