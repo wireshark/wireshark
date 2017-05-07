@@ -126,54 +126,151 @@ static int hf_ixveriwave_frame_length = -1;
 
 /* static int hf_ixveriwave_fcs = -1; */
 
-static int hf_ixveriwave_vw_vcid = -1;
 static int hf_ixveriwave_vw_msdu_length = -1;
-static int hf_ixveriwave_vw_seqnum = -1;
 static int hf_ixveriwave_vw_flowid = -1;
+static int hf_ixveriwave_vw_vcid = -1;
+static int hf_ixveriwave_vw_seqnum = -1;
 
 static int hf_ixveriwave_vw_mslatency = -1;
 static int hf_ixveriwave_vw_latency = -1;
+static int hf_ixveriwave_vw_sig_ts = -1;
+static int hf_ixveriwave_vw_delay = -1;
+static int hf_ixveriwave_vw_startt = -1;
+static int hf_ixveriwave_vw_endt = -1;
 static int hf_ixveriwave_vw_pktdur = -1;
 static int hf_ixveriwave_vw_ifg = -1;
 static int hf_ixveriwave_vw_ifg_neg = -1;
-static int hf_ixveriwave_vw_sig_ts = -1;
-static int hf_ixveriwave_vw_startt = -1;
-static int hf_ixveriwave_vw_endt = -1;
-static int hf_ixveriwave_vw_delay = -1;
 
-static gint ett_commontap = -1;
-static gint ett_commontap_times = -1;
-static gint ett_ethernettap_info = -1;
-static gint ett_ethernettap_error = -1;
-static gint ett_ethernettap_flags = -1;
+// RF LOGGING
+static int hf_radiotap_rf_info = -1;
+static int hf_radiotap_rfinfo_rfid = -1;
 
-static gint ett_radiotap_flags = -1;
+/*
+static int hf_radiotap_rfinfo_noise = -1;
+static int hf_radiotap_rfinfo_noise_anta = -1;
+static int hf_radiotap_rfinfo_noise_antb = -1;
+static int hf_radiotap_rfinfo_noise_antc = -1;
+static int hf_radiotap_rfinfo_noise_antd = -1;
+*/
 
-static dissector_handle_t ieee80211_radio_handle;
+static int hf_radiotap_rfinfo_snr = -1;
+static int hf_radiotap_rfinfo_snr_anta = -1;
+static int hf_radiotap_rfinfo_snr_antb = -1;
+static int hf_radiotap_rfinfo_snr_antc = -1;
+static int hf_radiotap_rfinfo_snr_antd = -1;
+
+static int hf_radiotap_rfinfo_pfe = -1;
+static int hf_radiotap_rfinfo_pfe_anta = -1;
+static int hf_radiotap_rfinfo_pfe_antb = -1;
+static int hf_radiotap_rfinfo_pfe_antc = -1;
+static int hf_radiotap_rfinfo_pfe_antd = -1;
+
+static int hf_radiotap_rfinfo_sigdata = -1;
+static int hf_radiotap_rfinfo_avg_evm_sd_siga = -1;
+static int hf_radiotap_rfinfo_avg_evm_sd_sigb = -1;
+static int hf_radiotap_rfinfo_avg_evm_sd_sigc = -1;
+static int hf_radiotap_rfinfo_avg_evm_sd_sigd = -1;
+
+static int hf_radiotap_rfinfo_sigpilot = -1;
+static int hf_radiotap_rfinfo_avg_evm_sp_siga = -1;
+static int hf_radiotap_rfinfo_avg_evm_sp_sigb = -1;
+static int hf_radiotap_rfinfo_avg_evm_sp_sigc = -1;
+static int hf_radiotap_rfinfo_avg_evm_sp_sigd = -1;
+
+static int hf_radiotap_rfinfo_datadata = -1;
+static int hf_radiotap_rfinfo_avg_evm_dd_siga = -1;
+static int hf_radiotap_rfinfo_avg_evm_dd_sigb = -1;
+static int hf_radiotap_rfinfo_avg_evm_dd_sigc = -1;
+static int hf_radiotap_rfinfo_avg_evm_dd_sigd = -1;
+
+static int hf_radiotap_rfinfo_datapilot = -1;
+static int hf_radiotap_rfinfo_avg_evm_dp_siga = -1;
+static int hf_radiotap_rfinfo_avg_evm_dp_sigb = -1;
+static int hf_radiotap_rfinfo_avg_evm_dp_sigc = -1;
+static int hf_radiotap_rfinfo_avg_evm_dp_sigd = -1;
+
+static int hf_radiotap_rfinfo_avg_ws_symbol = -1;
+static int hf_radiotap_rfinfo_avg_evm_ws_siga = -1;
+static int hf_radiotap_rfinfo_avg_evm_ws_sigb = -1;
+static int hf_radiotap_rfinfo_avg_evm_ws_sigc = -1;
+static int hf_radiotap_rfinfo_avg_evm_ws_sigd = -1;
+
+static int hf_radiotap_rfinfo_contextpa = -1;
+static int hf_radiotap_rfinfo_contextpA_bit0 = -1;
+static int hf_radiotap_rfinfo_contextpA_bit1 = -1;
+static int hf_radiotap_rfinfo_contextpA_bit2 = -1;
+/* static int hf_radiotap_rfinfo_contextp_bits3 = -1; */
+static int hf_radiotap_rfinfo_contextpA_bit3 = -1;
+static int hf_radiotap_rfinfo_contextpA_bit4 = -1;
+static int hf_radiotap_rfinfo_contextpA_bit5 = -1;
+/* static int hf_radiotap_rfinfo_contextpA_bit8 = -1; */
+/* static int hf_radiotap_rfinfo_contextpA_bit10 = -1; */
+/* static int hf_radiotap_rfinfo_contextpA_bit11 = -1; */
+static int hf_radiotap_rfinfo_contextpA_bit13 = -1;
+
+static int hf_radiotap_rfinfo_frameformatA = -1;
+static int hf_radiotap_rfinfo_sigbwevmA = -1;
+static int hf_radiotap_rfinfo_legacytypeA = -1;
+
+static int hf_radiotap_rfinfo_contextpb = -1;
+static int hf_radiotap_rfinfo_contextpB_bit0 = -1;
+static int hf_radiotap_rfinfo_contextpB_bit1 = -1;
+static int hf_radiotap_rfinfo_contextpB_bit2 = -1;
+static int hf_radiotap_rfinfo_contextpB_bit3 = -1;
+static int hf_radiotap_rfinfo_contextpB_bit4 = -1;
+static int hf_radiotap_rfinfo_contextpB_bit5 = -1;
+static int hf_radiotap_rfinfo_contextpB_bit13 = -1;
+
+static int hf_radiotap_rfinfo_frameformatB = -1;
+static int hf_radiotap_rfinfo_sigbwevmB = -1;
+static int hf_radiotap_rfinfo_legacytypeB = -1;
+
+static int hf_radiotap_rfinfo_contextpc = -1;
+static int hf_radiotap_rfinfo_contextpC_bit0 = -1;
+static int hf_radiotap_rfinfo_contextpC_bit1 = -1;
+static int hf_radiotap_rfinfo_contextpC_bit2 = -1;
+static int hf_radiotap_rfinfo_contextpC_bit3 = -1;
+static int hf_radiotap_rfinfo_contextpC_bit4 = -1;
+static int hf_radiotap_rfinfo_contextpC_bit5 = -1;
+static int hf_radiotap_rfinfo_contextpC_bit13 = -1;
+
+static int hf_radiotap_rfinfo_frameformatC = -1;
+static int hf_radiotap_rfinfo_sigbwevmC = -1;
+static int hf_radiotap_rfinfo_legacytypeC = -1;
+
+static int hf_radiotap_rfinfo_contextpd = -1;
+static int hf_radiotap_rfinfo_contextpD_bit0 = -1;
+static int hf_radiotap_rfinfo_contextpD_bit1 = -1;
+static int hf_radiotap_rfinfo_contextpD_bit2 = -1;
+static int hf_radiotap_rfinfo_contextpD_bit3 = -1;
+static int hf_radiotap_rfinfo_contextpD_bit4 = -1;
+static int hf_radiotap_rfinfo_contextpD_bit5 = -1;
+static int hf_radiotap_rfinfo_contextpD_bit13 = -1;
+
+static int hf_radiotap_rfinfo_frameformatD = -1;
+static int hf_radiotap_rfinfo_sigbwevmD = -1;
+static int hf_radiotap_rfinfo_legacytypeD = -1;
+
+/* static int hf_radiotap_rfinfo_tbd = -1; */
+
+/* Fields for both Ethernet and WLAN */
+static int hf_ixveriwave_vw_l4id = -1;
 
 /* Ethernet fields */
-static int hf_ixveriwave_vw_info = -1;
-static int hf_ixveriwave_vw_error = -1;
-
 static int hf_ixveriwave_vwf_txf = -1;
 static int hf_ixveriwave_vwf_fcserr = -1;
 
-static int hf_ixveriwave_vw_l4id = -1;
+static int hf_ixveriwave_vw_info = -1;
+static int hf_ixveriwave_vw_info_rx_1_bit8 = -1;
+static int hf_ixveriwave_vw_info_rx_1_bit9 = -1;
 
 /*veriwave note:  i know the below method seems clunky, but
 they didn't have a item_format at the time to dynamically add the appropriate decode text*/
 static int hf_ixveriwave_vw_info_retryCount = -1;
 
-static int hf_ixveriwave_vw_info_rx_1_bit8 = -1;
-static int hf_ixveriwave_vw_info_rx_1_bit9 = -1;
+static int hf_ixveriwave_vw_error = -1;
 
 /*error flags*/
-static int hf_ixveriwave_vw_error_tx_bit1 = -1;
-static int hf_ixveriwave_vw_error_tx_bit5 = -1;
-static int hf_ixveriwave_vw_error_tx_bit9 = -1;
-static int hf_ixveriwave_vw_error_tx_bit10 = -1;
-static int hf_ixveriwave_vw_error_tx_bit11 = -1;
-
 static int hf_ixveriwave_vw_error_rx_1_bit0 = -1;
 static int hf_ixveriwave_vw_error_rx_1_bit1 = -1;
 static int hf_ixveriwave_vw_error_rx_1_bit2 = -1;
@@ -185,68 +282,201 @@ static int hf_ixveriwave_vw_error_rx_1_bit7 = -1;
 static int hf_ixveriwave_vw_error_rx_1_bit8 = -1;
 static int hf_ixveriwave_vw_error_rx_1_bit9 = -1;
 
+static int hf_ixveriwave_vw_error_tx_bit1 = -1;
+static int hf_ixveriwave_vw_error_tx_bit5 = -1;
+static int hf_ixveriwave_vw_error_tx_bit9 = -1;
+static int hf_ixveriwave_vw_error_tx_bit10 = -1;
+static int hf_ixveriwave_vw_error_tx_bit11 = -1;
+
+/* WLAN fields */
 static int hf_radiotap_flags = -1;
+static int hf_radiotap_flags_preamble = -1;
+static int hf_radiotap_flags_wep = -1;
+static int hf_radiotap_flags_ht = -1;
+static int hf_radiotap_flags_vht = -1;
+static int hf_radiotap_flags_short_gi = -1;
+static int hf_radiotap_flags_40mhz = -1;
+static int hf_radiotap_flags_80mhz = -1;
+
 static int hf_radiotap_datarate = -1;
 static int hf_radiotap_mcsindex = -1;
-static int hf_radiotap_plcptype = -1;
 static int hf_radiotap_nss = -1;
+
 static int hf_radiotap_dbm_anta = -1;
 static int hf_radiotap_dbm_antb = -1;
 static int hf_radiotap_dbm_antc = -1;
 static int hf_radiotap_dbm_antd = -1;
+
+static int hf_radiotap_plcptype = -1;
+
+static int hf_radiotap_vwf_txf = -1;
+static int hf_radiotap_vwf_fcserr = -1;
+static int hf_radiotap_vwf_dcrerr = -1;
+static int hf_radiotap_vwf_retrerr = -1;
+static int hf_radiotap_vwf_enctype = -1;
+
+static int hf_radiotap_vw_ht_length = -1;
+
+static int hf_radiotap_vw_info = -1;
+
+static int hf_radiotap_vw_info_tx_2_bit10 = -1;
+static int hf_radiotap_vw_info_tx_2_bit11 = -1;
+static int hf_radiotap_vw_info_tx_2_bit12 = -1;
+static int hf_radiotap_vw_info_tx_2_bit13 = -1;
+static int hf_radiotap_vw_info_tx_2_bit14 = -1;
+static int hf_radiotap_vw_info_tx_2_bit15 = -1;
+
+static int hf_radiotap_vw_info_rx_2_bit8 = -1;
+static int hf_radiotap_vw_info_rx_2_bit9 = -1;
+static int hf_radiotap_vw_info_rx_2_bit10 = -1;
+static int hf_radiotap_vw_info_rx_2_bit11 = -1;
+static int hf_radiotap_vw_info_rx_2_bit12 = -1;
+static int hf_radiotap_vw_info_rx_2_bit13 = -1;
+static int hf_radiotap_vw_info_rx_2_bit14 = -1;
+static int hf_radiotap_vw_info_rx_2_bit15 = -1;
+
+static int hf_radiotap_vw_errors = -1;
+
+static int hf_radiotap_vw_errors_rx_2_bit0 = -1;
+static int hf_radiotap_vw_errors_rx_2_bit1 = -1;
+static int hf_radiotap_vw_errors_rx_2_bit2 = -1;
+static int hf_radiotap_vw_errors_rx_2_bit4 = -1;
+static int hf_radiotap_vw_errors_rx_2_bit5 = -1;
+static int hf_radiotap_vw_errors_rx_2_bit6 = -1;
+static int hf_radiotap_vw_errors_rx_2_bit7 = -1;
+static int hf_radiotap_vw_errors_rx_2_bit8 = -1;
+static int hf_radiotap_vw_errors_rx_2_bit10 = -1;
+static int hf_radiotap_vw_errors_rx_2_bit11 = -1;
+
+static int hf_radiotap_vw_errors_tx_bit01 = -1;
+static int hf_radiotap_vw_errors_tx_bit05 = -1;
+static int hf_radiotap_vw_errors_tx_bit8 = -1;
+static int hf_radiotap_vw_errors_tx_bit9 = -1;
+static int hf_radiotap_vw_errors_tx_bit10 = -1;
+static int hf_radiotap_vw_errors_tx_bit31 = -1;
+
+static int hf_radiotap_vht_mu_mimo_flg = -1;
+static int hf_radiotap_vht_user_pos = -1;
+static int hf_radiotap_vht_su_mimo_flg = -1;
+
+static int hf_radiotap_l1info = -1;
+static int hf_radiotap_l1info_preamble = -1;
+static int hf_radiotap_l1info_rateindex = -1;
+static int hf_radiotap_l1info_ht_mcsindex = -1;
+static int hf_radiotap_l1info_vht_mcsindex = -1;
+static int hf_radiotap_l1info_nss = -1;
+static int hf_radiotap_l1info_transmitted = -1;
+
+static int hf_radiotap_sigbandwidth = -1;
+/* static int hf_radiotap_rssi = -1; */
+static int hf_radiotap_modulation = -1;
+
 static int hf_radiotap_dbm_tx_anta = -1;
 static int hf_radiotap_dbm_tx_antb = -1;
 static int hf_radiotap_dbm_tx_antc = -1;
 static int hf_radiotap_dbm_tx_antd = -1;
 
-static int hf_radiotap_flags_preamble = -1;
-static int hf_radiotap_flags_wep = -1;
-static int hf_radiotap_flags_ht = -1;
-static int hf_radiotap_flags_vht = -1;
-static int hf_radiotap_flags_40mhz = -1;
-static int hf_radiotap_flags_80mhz = -1;
-static int hf_radiotap_flags_short_gi = -1;
+static int hf_radiotap_sigbandwidthmask = -1;
+static int hf_radiotap_antennaportenergydetect = -1;
+static int hf_radiotap_tx_antennaselect = -1;
+static int hf_radiotap_tx_stbcselect = -1;
+static int hf_radiotap_mumask = -1;
 
-/* start VeriWave specific 6-2007*/
-static int hf_radiotap_vw_errors = -1;
-static int hf_radiotap_vw_info = -1;
-static int hf_radiotap_vw_ht_length = -1;
+static int hf_radiotap_l1infoc = -1;
+static int hf_radiotap_vht_ndp_flg = -1;
 
-static int hf_radiotap_vw_info_tx_bit0 = -1;
-static int hf_radiotap_vw_info_tx_bit1 = -1;
-static int hf_radiotap_vw_info_tx_bit3 = -1;
-static int hf_radiotap_vw_info_tx_bit4 = -1;
-static int hf_radiotap_vw_info_tx_bit5 = -1;
-static int hf_radiotap_vw_info_tx_bit6 = -1;
-static int hf_radiotap_vw_info_tx_bit7 = -1;
-static int hf_radiotap_vw_info_tx_bit8 = -1;
-static int hf_radiotap_vw_info_tx_bit9 = -1;
-static int hf_radiotap_vw_info_tx_bit10 = -1;
-static int hf_radiotap_vw_info_tx_bit11 = -1;
-static int hf_radiotap_vw_info_tx_bit12 = -1;
-static int hf_radiotap_vw_info_tx_bit13 = -1;
-static int hf_radiotap_vw_info_tx_bit14 = -1;
-static int hf_radiotap_vw_info_tx_bit15 = -1;
-static const int *radiotap_info_tx_fields[] = {
-    &hf_radiotap_vw_info_tx_bit0,
-    &hf_radiotap_vw_info_tx_bit1,
-    &hf_radiotap_vw_info_tx_bit3,
-    &hf_radiotap_vw_info_tx_bit4,
-    &hf_radiotap_vw_info_tx_bit5,
-    &hf_radiotap_vw_info_tx_bit6,
-    &hf_radiotap_vw_info_tx_bit7,
-    &hf_radiotap_vw_info_tx_bit8,
-    &hf_radiotap_vw_info_tx_bit9,
-    &hf_radiotap_vw_info_tx_bit10,
-    &hf_radiotap_vw_info_tx_bit11,
-    &hf_radiotap_vw_info_tx_bit12,
-    &hf_radiotap_vw_info_tx_bit13,
-    &hf_radiotap_vw_info_tx_bit14,
-    &hf_radiotap_vw_info_tx_bit15,
-    NULL,
-};
+static int hf_radiotap_plcp_info = -1;
+static int hf_radiotap_plcp_type = -1;
+static int hf_radiotap_plcp_default = -1;
 
-static int hf_radiotap_vw_info_tx = -1;
+static int hf_radiotap_plcp_signal = -1;
+static int hf_radiotap_plcp_locked_clocks = -1;
+static int hf_radiotap_plcp_modulation = -1;
+static int hf_radiotap_plcp_length_extension = -1;
+static int hf_radiotap_plcp_length = -1;
+static int hf_radiotap_plcp_crc16 = -1;
+
+static int hf_radiotap_ofdm_service = -1;
+
+static int hf_radiotap_ofdm_rate = -1;
+static int hf_radiotap_ofdm_length = -1;
+static int hf_radiotap_ofdm_parity = -1;
+static int hf_radiotap_ofdm_tail = -1;
+
+/* HT-SIG1 */
+static int hf_radiotap_ht_mcsindex = -1;
+static int hf_radiotap_ht_bw = -1;
+static int hf_radiotap_ht_length = -1;
+
+/* HT-SIG2 */
+static int hf_radiotap_ht_smoothing = -1;
+static int hf_radiotap_ht_notsounding = -1;
+static int hf_radiotap_ht_aggregation = -1;
+static int hf_radiotap_ht_stbc = -1;
+static int hf_radiotap_ht_feccoding = -1;
+static int hf_radiotap_ht_short_gi = -1;
+static int hf_radiotap_ht_ness = -1;
+static int hf_radiotap_ht_crc = -1;
+static int hf_radiotap_ht_tail = -1;
+
+/* VHT-SIG-A1 */
+static int hf_radiotap_vht_bw = -1;
+static int hf_radiotap_vht_stbc = -1;
+static int hf_radiotap_vht_group_id = -1;
+static int hf_radiotap_vht_su_nsts = -1;
+static int hf_radiotap_vht_su_partial_aid = -1;
+static int hf_radiotap_vht_u0_nsts = -1;
+static int hf_radiotap_vht_u1_nsts = -1;
+static int hf_radiotap_vht_u2_nsts = -1;
+static int hf_radiotap_vht_u3_nsts = -1;
+static int hf_radiotap_vht_txop_ps_not_allowed = -1;
+
+/* VHT-SIG-A2 */
+static int hf_radiotap_vht_short_gi = -1;
+static int hf_radiotap_vht_short_gi_nsym_disambig = -1;
+static int hf_radiotap_vht_su_coding_type = -1;
+static int hf_radiotap_vht_u0_coding_type = -1;
+static int hf_radiotap_vht_ldpc_ofdmsymbol = -1;
+static int hf_radiotap_vht_su_mcs = -1;
+static int hf_radiotap_vht_beamformed = -1;
+static int hf_radiotap_vht_u1_coding_type = -1;
+static int hf_radiotap_vht_u2_coding_type = -1;
+static int hf_radiotap_vht_u3_coding_type = -1;
+static int hf_radiotap_vht_crc = -1;
+static int hf_radiotap_vht_tail = -1;
+
+/* VHT-SIG-B */
+static int hf_radiotap_vht_su_sig_b_length_20_mhz = -1;
+static int hf_radiotap_vht_su_sig_b_length_40_mhz = -1;
+static int hf_radiotap_vht_su_sig_b_length_80_160_mhz = -1;
+static int hf_radiotap_vht_mu_sig_b_length_20_mhz = -1;
+static int hf_radiotap_vht_mu_mcs_20_mhz = -1;
+static int hf_radiotap_vht_mu_sig_b_length_40_mhz = -1;
+static int hf_radiotap_vht_mu_mcs_40_mhz = -1;
+static int hf_radiotap_vht_mu_sig_b_length_80_160_mhz = -1;
+static int hf_radiotap_vht_mu_mcs_80_160_mhz = -1;
+
+static int hf_radiotap_rfid = -1;
+
+static int hf_radiotap_l2_l4_info = -1;
+
+static int hf_radiotap_bssid = -1;
+
+static int hf_radiotap_clientidvalid = -1;
+static int hf_radiotap_bssidvalid = -1;
+static int hf_radiotap_unicastormulticast = -1;
+
+/*static int hf_radiotap_wlantype = -1; */
+
+static int hf_radiotap_tid = -1;
+static int hf_radiotap_ac = -1;
+static int hf_radiotap_l4idvalid = -1;
+static int hf_radiotap_containshtfield = -1;
+static int hf_radiotap_istypeqos = -1;
+static int hf_radiotap_flowvalid = -1;
+
+static int hf_radiotap_payloaddecode = -1;
+
 static int hf_radiotap_vw_info_rx = -1;
 static int hf_radiotap_vw_info_rx_bit0 = -1;
 static int hf_radiotap_vw_info_rx_bit1 = -1;
@@ -292,33 +522,40 @@ static const int *radiotap_info_rx_fields[] = {
     NULL,
 };
 
-static int hf_radiotap_vw_info_tx_2_bit10 = -1;
-static int hf_radiotap_vw_info_tx_2_bit11 = -1;
-static int hf_radiotap_vw_info_tx_2_bit12 = -1;
-static int hf_radiotap_vw_info_tx_2_bit13 = -1;
-static int hf_radiotap_vw_info_tx_2_bit14 = -1;
-static int hf_radiotap_vw_info_tx_2_bit15 = -1;
-
-static int hf_radiotap_vw_info_rx_2_bit8 = -1;
-static int hf_radiotap_vw_info_rx_2_bit9 = -1;
-static int hf_radiotap_vw_info_rx_2_bit10 = -1;
-static int hf_radiotap_vw_info_rx_2_bit11 = -1;
-static int hf_radiotap_vw_info_rx_2_bit12 = -1;
-static int hf_radiotap_vw_info_rx_2_bit13 = -1;
-static int hf_radiotap_vw_info_rx_2_bit14 = -1;
-static int hf_radiotap_vw_info_rx_2_bit15 = -1;
-
-static int hf_radiotap_vw_errors_tx_bit01 = -1;
-static int hf_radiotap_vw_errors_tx_bit05 = -1;
-static int hf_radiotap_vw_errors_tx_bit8 = -1;
-static int hf_radiotap_vw_errors_tx_bit9 = -1;
-static int hf_radiotap_vw_errors_tx_bit10 = -1;
-static int hf_radiotap_vw_errors_tx_bit31 = -1;
-static int hf_radiotap_vw_tx_retrycount = -1;
-static int hf_radiotap_vw_tx_factorydebug = -1;
-
-static int hf_radiotap_vw_errors_tx_bit1 = -1;
-static int hf_radiotap_vw_errors_tx_bit5 = -1;
+static int hf_radiotap_vw_info_tx = -1;
+static int hf_radiotap_vw_info_tx_bit0 = -1;
+static int hf_radiotap_vw_info_tx_bit1 = -1;
+static int hf_radiotap_vw_info_tx_bit3 = -1;
+static int hf_radiotap_vw_info_tx_bit4 = -1;
+static int hf_radiotap_vw_info_tx_bit5 = -1;
+static int hf_radiotap_vw_info_tx_bit6 = -1;
+static int hf_radiotap_vw_info_tx_bit7 = -1;
+static int hf_radiotap_vw_info_tx_bit8 = -1;
+static int hf_radiotap_vw_info_tx_bit9 = -1;
+static int hf_radiotap_vw_info_tx_bit10 = -1;
+static int hf_radiotap_vw_info_tx_bit11 = -1;
+static int hf_radiotap_vw_info_tx_bit12 = -1;
+static int hf_radiotap_vw_info_tx_bit13 = -1;
+static int hf_radiotap_vw_info_tx_bit14 = -1;
+static int hf_radiotap_vw_info_tx_bit15 = -1;
+static const int *radiotap_info_tx_fields[] = {
+    &hf_radiotap_vw_info_tx_bit0,
+    &hf_radiotap_vw_info_tx_bit1,
+    &hf_radiotap_vw_info_tx_bit3,
+    &hf_radiotap_vw_info_tx_bit4,
+    &hf_radiotap_vw_info_tx_bit5,
+    &hf_radiotap_vw_info_tx_bit6,
+    &hf_radiotap_vw_info_tx_bit7,
+    &hf_radiotap_vw_info_tx_bit8,
+    &hf_radiotap_vw_info_tx_bit9,
+    &hf_radiotap_vw_info_tx_bit10,
+    &hf_radiotap_vw_info_tx_bit11,
+    &hf_radiotap_vw_info_tx_bit12,
+    &hf_radiotap_vw_info_tx_bit13,
+    &hf_radiotap_vw_info_tx_bit14,
+    &hf_radiotap_vw_info_tx_bit15,
+    NULL,
+};
 
 static int hf_radiotap_vw_errors_rx_bit0 = -1;
 static int hf_radiotap_vw_errors_rx_bit1 = -1;
@@ -346,22 +583,11 @@ static int hf_radiotap_vw_errors_rx_bit23 = -1;
 static int hf_radiotap_vw_errors_rx_bit24 = -1;
 static int hf_radiotap_vw_errors_rx_bit31 = -1;
 
-static int hf_radiotap_vw_errors_rx_2_bit0 = -1;
-static int hf_radiotap_vw_errors_rx_2_bit1 = -1;
-static int hf_radiotap_vw_errors_rx_2_bit2 = -1;
-static int hf_radiotap_vw_errors_rx_2_bit4 = -1;
-static int hf_radiotap_vw_errors_rx_2_bit5 = -1;
-static int hf_radiotap_vw_errors_rx_2_bit6 = -1;
-static int hf_radiotap_vw_errors_rx_2_bit7 = -1;
-static int hf_radiotap_vw_errors_rx_2_bit8 = -1;
-static int hf_radiotap_vw_errors_rx_2_bit10 = -1;
-static int hf_radiotap_vw_errors_rx_2_bit11 = -1;
+static int hf_radiotap_vw_errors_tx_bit1 = -1;
+static int hf_radiotap_vw_errors_tx_bit5 = -1;
 
-static int hf_radiotap_vwf_txf = -1;
-static int hf_radiotap_vwf_fcserr = -1;
-static int hf_radiotap_vwf_dcrerr = -1;
-static int hf_radiotap_vwf_retrerr = -1;
-static int hf_radiotap_vwf_enctype = -1;
+static int hf_radiotap_vw_tx_retrycount = -1;
+static int hf_radiotap_vw_tx_factorydebug = -1;
 
 static gint ett_radiotap_info = -1;
 static gint ett_radiotap_errors = -1;
@@ -374,198 +600,15 @@ static gint ett_radiotap_infoc = -1;
 static gint ett_radiotap_contextp = -1;
 static gint ett_rf_info = -1;
 
-static int hf_radiotap_rf_info = -1;
-static int hf_radiotap_rx = -1;
-static int hf_radiotap_tx = -1;
-static int hf_radiotap_modulation = -1;
-static int hf_radiotap_preamble = -1;
-static int hf_radiotap_sigbandwidth = -1;
-/* static int hf_radiotap_rssi = -1; */
-static int hf_radiotap_l1infoc = -1;
-static int hf_radiotap_sigbandwidthmask = -1;
-static int hf_radiotap_antennaportenergydetect = -1;
-static int hf_radiotap_mumask = -1;
-static int hf_radiotap_plcp_info = -1;
-static int hf_radiotap_l2_l4_info = -1;
-/* static int hf_radiotap_rfinfo_tbd = -1; */
-static int hf_radiotap_rfinfo_rfid = -1;
-static int hf_radiotap_bssid = -1;
-static int hf_radiotap_unicastormulticast = -1;
-static int hf_radiotap_clientidvalid = -1;
-static int hf_radiotap_bssidvalid = -1;
-static int hf_radiotap_flowvalid = -1;
-static int hf_radiotap_l4idvalid = -1;
-static int hf_radiotap_istypeqos = -1;
-static int hf_radiotap_containshtfield = -1;
-static int hf_radiotap_tid = -1;
-/*static int hf_radiotap_wlantype = -1; */
-static int hf_radiotap_payloaddecode = -1;
+static gint ett_commontap = -1;
+static gint ett_commontap_times = -1;
+static gint ett_ethernettap_info = -1;
+static gint ett_ethernettap_error = -1;
+static gint ett_ethernettap_flags = -1;
 
-static int hf_radiotap_plcp_signal = -1;
-static int hf_radiotap_plcp_locked_clocks = -1;
-static int hf_radiotap_plcp_modulation = -1;
-static int hf_radiotap_plcp_length_extension = -1;
-static int hf_radiotap_plcp_length = -1;
-static int hf_radiotap_plcp_crc16 = -1;
+static gint ett_radiotap_flags = -1;
 
-static int hf_radiotap_ofdm_rate = -1;
-static int hf_radiotap_ofdm_length = -1;
-static int hf_radiotap_ofdm_parity = -1;
-static int hf_radiotap_ofdm_tail = -1;
-static int hf_radiotap_ofdm_service = -1;
-
-static int hf_radiotap_ht_mcsindex = -1;
-static int hf_radiotap_ht_bw = -1;
-static int hf_radiotap_ht_length = -1;
-static int hf_radiotap_ht_smoothing = -1;
-static int hf_radiotap_ht_notsounding = -1;
-static int hf_radiotap_ht_aggregation = -1;
-static int hf_radiotap_ht_stbc = -1;
-static int hf_radiotap_ht_feccoding = -1;
-static int hf_radiotap_ht_short_gi = -1;
-static int hf_radiotap_ht_ness = -1;
-static int hf_radiotap_ht_crc = -1;
-static int hf_radiotap_ht_tail = -1;
-
-static int hf_radiotap_vht_bw = -1;
-static int hf_radiotap_vht_stbc = -1;
-static int hf_radiotap_vht_group_id = -1;
-static int hf_radiotap_vht_su_nsts = -1;
-static int hf_radiotap_vht_su_partial_aid = -1;
-static int hf_radiotap_vht_u0_nsts = -1;
-static int hf_radiotap_vht_u1_nsts = -1;
-static int hf_radiotap_vht_u2_nsts = -1;
-static int hf_radiotap_vht_u3_nsts = -1;
-static int hf_radiotap_vht_txop_ps_not_allowed = -1;
-static int hf_radiotap_vht_short_gi = -1;
-static int hf_radiotap_vht_short_gi_nsym_disambig = -1;
-static int hf_radiotap_vht_su_coding_type = -1;
-static int hf_radiotap_vht_u0_coding_type = -1;
-static int hf_radiotap_vht_ldpc_ofdmsymbol = -1;
-static int hf_radiotap_vht_su_mcs = -1;
-static int hf_radiotap_vht_beamformed = -1;
-static int hf_radiotap_vht_u1_coding_type = -1;
-static int hf_radiotap_vht_u2_coding_type = -1;
-static int hf_radiotap_vht_u3_coding_type = -1;
-static int hf_radiotap_vht_crc = -1;
-static int hf_radiotap_vht_tail = -1;
-static int hf_radiotap_vht_su_sig_b_length_20_mhz = -1;
-static int hf_radiotap_vht_su_sig_b_length_40_mhz = -1;
-static int hf_radiotap_vht_su_sig_b_length_80_160_mhz = -1;
-static int hf_radiotap_vht_mu_sig_b_length_20_mhz = -1;
-static int hf_radiotap_vht_mu_mcs_20_mhz = -1;
-static int hf_radiotap_vht_mu_sig_b_length_40_mhz = -1;
-static int hf_radiotap_vht_mu_mcs_40_mhz = -1;
-static int hf_radiotap_vht_mu_sig_b_length_80_160_mhz = -1;
-static int hf_radiotap_vht_mu_mcs_80_160_mhz = -1;
-
-static int hf_radiotap_vht_user_pos = -1;
-static int hf_radiotap_vht_mu_mimo_flg = -1;
-static int hf_radiotap_vht_su_mimo_flg = -1;
-
-static int hf_radiotap_rfid = -1;
-static int hf_radiotap_plcp_default = -1;
-static int hf_radiotap_tx_antennaselect = -1;
-static int hf_radiotap_tx_stbcselect = -1;
-static int hf_radiotap_ac = -1;
-// RF LOGGING
-static int hf_radiotap_rfinfo_pfe = -1;
-/*
-static int hf_radiotap_rfinfo_noise = -1;
-static int hf_radiotap_rfinfo_noise_anta = -1;
-static int hf_radiotap_rfinfo_noise_antb = -1;
-static int hf_radiotap_rfinfo_noise_antc = -1;
-static int hf_radiotap_rfinfo_noise_antd = -1;
-*/
-static int hf_radiotap_rfinfo_snr = -1;
-static int hf_radiotap_rfinfo_snr_anta = -1;
-static int hf_radiotap_rfinfo_snr_antb = -1;
-static int hf_radiotap_rfinfo_snr_antc = -1;
-static int hf_radiotap_rfinfo_snr_antd = -1;
-static int hf_radiotap_rfinfo_pfe_anta = -1;
-static int hf_radiotap_rfinfo_pfe_antb = -1;
-static int hf_radiotap_rfinfo_pfe_antc = -1;
-static int hf_radiotap_rfinfo_pfe_antd = -1;
-static int hf_radiotap_rfinfo_contextpa = -1;
-static int hf_radiotap_rfinfo_contextpb = -1;
-static int hf_radiotap_rfinfo_contextpc = -1;
-static int hf_radiotap_rfinfo_contextpd = -1;
-static int hf_radiotap_rfinfo_contextpA_bit0 = -1;
-static int hf_radiotap_rfinfo_contextpA_bit1 = -1;
-static int hf_radiotap_rfinfo_contextpA_bit2 = -1;
-static int hf_radiotap_rfinfo_contextpA_bit3 = -1;
-static int hf_radiotap_rfinfo_contextpA_bit4 = -1;
-static int hf_radiotap_rfinfo_contextpA_bit5 = -1;
-/* static int hf_radiotap_rfinfo_contextpA_bit8 = -1; */
-/* static int hf_radiotap_rfinfo_contextpA_bit10 = -1; */
-/* static int hf_radiotap_rfinfo_contextpA_bit11 = -1; */
-static int hf_radiotap_rfinfo_contextpA_bit13 = -1;
-
-static int hf_radiotap_rfinfo_contextpB_bit0 = -1;
-static int hf_radiotap_rfinfo_contextpB_bit1 = -1;
-static int hf_radiotap_rfinfo_contextpB_bit2 = -1;
-static int hf_radiotap_rfinfo_contextpB_bit3 = -1;
-static int hf_radiotap_rfinfo_contextpB_bit4 = -1;
-static int hf_radiotap_rfinfo_contextpB_bit5 = -1;
-static int hf_radiotap_rfinfo_contextpB_bit13 = -1;
-
-static int hf_radiotap_rfinfo_contextpC_bit0 = -1;
-static int hf_radiotap_rfinfo_contextpC_bit1 = -1;
-static int hf_radiotap_rfinfo_contextpC_bit2 = -1;
-static int hf_radiotap_rfinfo_contextpC_bit3 = -1;
-static int hf_radiotap_rfinfo_contextpC_bit4 = -1;
-static int hf_radiotap_rfinfo_contextpC_bit5 = -1;
-static int hf_radiotap_rfinfo_contextpC_bit13 = -1;
-
-static int hf_radiotap_rfinfo_contextpD_bit0 = -1;
-static int hf_radiotap_rfinfo_contextpD_bit1 = -1;
-static int hf_radiotap_rfinfo_contextpD_bit2 = -1;
-static int hf_radiotap_rfinfo_contextpD_bit3 = -1;
-static int hf_radiotap_rfinfo_contextpD_bit4 = -1;
-static int hf_radiotap_rfinfo_contextpD_bit5 = -1;
-static int hf_radiotap_rfinfo_contextpD_bit13 = -1;
-
-static int hf_radiotap_rfinfo_avg_evm_sd_siga = -1;
-static int hf_radiotap_rfinfo_avg_evm_sd_sigb = -1;
-static int hf_radiotap_rfinfo_avg_evm_sd_sigc = -1;
-static int hf_radiotap_rfinfo_avg_evm_sd_sigd = -1;
-static int hf_radiotap_rfinfo_avg_evm_sp_siga = -1;
-static int hf_radiotap_rfinfo_avg_evm_sp_sigb = -1;
-static int hf_radiotap_rfinfo_avg_evm_sp_sigc = -1;
-static int hf_radiotap_rfinfo_avg_evm_sp_sigd = -1;
-static int hf_radiotap_rfinfo_avg_evm_dd_siga = -1;
-static int hf_radiotap_rfinfo_avg_evm_dd_sigb = -1;
-static int hf_radiotap_rfinfo_avg_evm_dd_sigc = -1;
-static int hf_radiotap_rfinfo_avg_evm_dd_sigd = -1;
-static int hf_radiotap_rfinfo_avg_evm_dp_siga = -1;
-static int hf_radiotap_rfinfo_avg_evm_dp_sigb = -1;
-static int hf_radiotap_rfinfo_avg_evm_dp_sigc = -1;
-static int hf_radiotap_rfinfo_avg_evm_dp_sigd = -1;
-static int hf_radiotap_rfinfo_avg_evm_ws_siga = -1;
-static int hf_radiotap_rfinfo_avg_evm_ws_sigb = -1;
-static int hf_radiotap_rfinfo_avg_evm_ws_sigc = -1;
-static int hf_radiotap_rfinfo_avg_evm_ws_sigd = -1;
-/* static int hf_radiotap_rfinfo_contextp_bits3 = -1; */
-static int hf_radiotap_rfinfo_frameformatA = -1;
-static int hf_radiotap_rfinfo_frameformatB = -1;
-static int hf_radiotap_rfinfo_frameformatC = -1;
-static int hf_radiotap_rfinfo_frameformatD = -1;
-static int hf_radiotap_rfinfo_sigbwevmA = -1;
-static int hf_radiotap_rfinfo_sigbwevmB = -1;
-static int hf_radiotap_rfinfo_sigbwevmC = -1;
-static int hf_radiotap_rfinfo_sigbwevmD = -1;
-static int hf_radiotap_rfinfo_legacytypeA = -1;
-static int hf_radiotap_rfinfo_legacytypeB = -1;
-static int hf_radiotap_rfinfo_legacytypeC = -1;
-static int hf_radiotap_rfinfo_legacytypeD = -1;
-
-static int hf_radiotap_rfinfo_avg_ws_symbol = -1;
-static int hf_radiotap_rfinfo_sigdata = -1;
-static int hf_radiotap_rfinfo_sigpilot = -1;
-static int hf_radiotap_rfinfo_datadata = -1;
-static int hf_radiotap_rfinfo_datapilot = -1;
-static int hf_radiotap_plcp_type = -1;
-static int hf_radiotap_vht_ndp_flg = -1;
+static dissector_handle_t ieee80211_radio_handle;
 
 static dissector_handle_t ixveriwave_handle;
 
@@ -721,7 +764,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     if (!is_octo)
     {
         /*
-         * Common header.
+         * Pre-OCTO common header.
          */
         /* common header length */
         proto_tree_add_uint(common_tree, hf_ixveriwave_frame_length,
@@ -851,6 +894,9 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         }
 
     } else { //Rather then the legacy it takes care to show the Time Header for RadioTapHeader in new format
+        /*
+         * OCTO time header.
+         */
         length_remaining = length;
 
         offset              +=4;
@@ -1870,11 +1916,10 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tvbuff_t   *next_tvb;
     guint       length;
     gint8       dbm;
-    guint8      mcs_index, vw_plcp_info, vw_bssid;
+    guint8      rate_mcs_index, vw_plcp_info, vw_bssid;
     guint8      plcp_type;
     guint8      vht_ndp_flag, vht_mu_mimo_flg;
     float       phyRate;
-    guint       i;
 
     proto_tree *vweft, *vw_errorFlags_tree = NULL, *vwict, *vw_infoC_tree = NULL;
     guint16     vw_info, vw_chanflags, vw_flags, vw_ht_length, vw_rflags, vw_vcid, vw_seqnum, mpdu_length;
@@ -1883,9 +1928,10 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8      plcp_default;
 
     ifg_info   *p_ifg_info;
-    proto_item *ti;
-    proto_tree 	*vwl1t,*vw_l1info_tree = NULL, *vwl2l4t,*vw_l2l4info_tree = NULL, *vwplt,*vw_plcpinfo_tree = NULL;
-    guint8      preamble, nss, direction, sigbw, cidv, bssidv, flowv, l4idv;
+    proto_item *vwl1i, *ti;
+    proto_tree *vw_l1info_tree = NULL, *vwl2l4t,*vw_l2l4info_tree = NULL, *vwplt,*vw_plcpinfo_tree = NULL;
+    gboolean    direction, short_preamble;
+    guint8      nss, sigbw, cidv, bssidv, flowv, l4idv;
 
     struct ieee_802_11_phdr phdr;
 
@@ -1923,7 +1969,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         ft = proto_tree_add_item(tap_tree, hf_radiotap_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         flags_tree = proto_item_add_subtree(ft, ett_radiotap_flags);
-        proto_tree_add_item(flags_tree, hf_radiotap_flags_preamble, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_boolean(flags_tree, hf_radiotap_flags_preamble, tvb, offset, 2, ENC_LITTLE_ENDIAN, &short_preamble);
         proto_tree_add_item(flags_tree, hf_radiotap_flags_wep, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         if ( vw_rflags & FLAGS_CHAN_HT ) {
             proto_tree_add_item(flags_tree, hf_radiotap_flags_ht, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1951,8 +1997,8 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         vht_ndp_flag = tvb_get_guint8(tvb,offset) & 0x80;
         offset++;
 
-        /* MCS index */
-        mcs_index = tvb_get_guint8(tvb, offset);
+        /* Rate/MCS index */
+        rate_mcs_index = tvb_get_guint8(tvb, offset);
         offset++;
 
         /* number of spatial streams */
@@ -1969,17 +2015,16 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  * and only one NSS.
                  */
                 phdr.phy_info.info_11ac.nss[0] = nss;
-                phdr.phy_info.info_11ac.mcs[0] = mcs_index;
-                for (i = 1; i < 4; i++)
-                    phdr.phy_info.info_11ac.nss[i] = 0;
+                phdr.phy_info.info_11ac.mcs[0] = rate_mcs_index;
             } else {
                 /*
                  * XXX - where's the number of extension spatial streams?
                  * The code in wiretap/vwr.c doesn't seem to provide it.
+                 * It could dig it out of the HT PLCP header in HT-SIG.
                  */
                 phdr.phy = PHDR_802_11_PHY_11N;
                 phdr.phy_info.info_11n.has_mcs_index = TRUE;
-                phdr.phy_info.info_11n.mcs_index = mcs_index;
+                phdr.phy_info.info_11n.mcs_index = rate_mcs_index;
 
                 phdr.phy_info.info_11n.has_short_gi = TRUE;
                 phdr.phy_info.info_11n.short_gi = ((vw_rflags & FLAGS_CHAN_SHORTGI) != 0);
@@ -1996,7 +2041,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             proto_tree_add_uint_format_value(tap_tree, hf_radiotap_datarate,
                                         tvb, offset - 5, 2, tvb_get_letohs(tvb, offset-5),
-                                        "%.1f (MCS %d)", phyRate, mcs_index);
+                                        "%.1f (MCS %d)", phyRate, rate_mcs_index);
         } else {
             /*
              * XXX - CHAN_OFDM could be 11a or 11g.  Unfortunately, we don't
@@ -2005,6 +2050,8 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
              */
             if (vw_chanflags & CHAN_CCK) {
                 phdr.phy = PHDR_802_11_PHY_11B;
+                phdr.phy_info.info_11b.has_short_preamble = TRUE;
+                phdr.phy_info.info_11b.short_preamble = short_preamble;
             }
             phdr.has_data_rate = TRUE;
             phdr.data_rate = tvb_get_letohs(tvb, offset-5) / 5;
@@ -2214,34 +2261,87 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         length = tvb_get_letohs(tvb, offset);
         offset      += 2;
 
-        if (tvb_get_guint8(tvb, offset+1) & 0x01)
-            vwl1t = proto_tree_add_item(tap_tree, hf_radiotap_tx, tvb, offset, 12, ENC_NA);
-        else
-            vwl1t = proto_tree_add_item(tap_tree, hf_radiotap_rx, tvb, offset, 12, ENC_NA);
-        vw_l1info_tree = proto_item_add_subtree(vwl1t, ett_radiotap_layer1);
+        vwl1i = proto_tree_add_item(tap_tree, hf_radiotap_l1info, tvb, offset, 12, ENC_NA);
+        vw_l1info_tree = proto_item_add_subtree(vwl1i, ett_radiotap_layer1);
 
-        preamble = (tvb_get_guint8(tvb, offset) & 0x40) >> 6;
         plcp_type = tvb_get_guint8(tvb, offset+4) & 0x0f;
-        if (plcp_type == 3)
-            mcs_index = tvb_get_guint8(tvb, offset) & 0x0f;
-        else
-            mcs_index = tvb_get_guint8(tvb, offset) & 0x3f;
 
         /* l1p_1 byte */
-        proto_tree_add_uint(vw_l1info_tree, hf_radiotap_preamble,
-            tvb, offset, 1, preamble);
-        proto_tree_add_uint(vw_l1info_tree, hf_radiotap_mcsindex,
-                tvb, offset, 1, mcs_index);
+        switch (plcp_type)
+        {
+        case PLCP_TYPE_LEGACY:     /* Legacy (pre-HT - 11b/11a/11g) */
+            /*
+             * XXX - CHAN_OFDM could be 11a or 11g.  Unfortunately, we don't
+             * have the frequency, or anything else, to distinguish between
+             * them.
+             */
+            short_preamble = !(tvb_get_guint8(tvb, offset) & 0x40);
+            proto_tree_add_boolean(vw_l1info_tree, hf_radiotap_l1info_preamble,
+                                   tvb, offset, 1, short_preamble);
+            rate_mcs_index = tvb_get_guint8(tvb, offset) & 0x3f;
+            proto_tree_add_uint(vw_l1info_tree, hf_radiotap_l1info_rateindex,
+                                tvb, offset, 1, rate_mcs_index);
+            if (rate_mcs_index < 4)
+            {
+                /* CCK */
+                phdr.phy = PHDR_802_11_PHY_11B;
+                phdr.phy_info.info_11b.has_short_preamble = TRUE;
+                phdr.phy_info.info_11b.short_preamble = short_preamble;
+            }
+            break;
+
+        case PLCP_TYPE_MIXED:      /* HT Mixed */
+        case PLCP_TYPE_GREENFIELD: /* HT Greenfield */
+            rate_mcs_index = tvb_get_guint8(tvb, offset) & 0x3f;
+            proto_tree_add_uint(vw_l1info_tree, hf_radiotap_l1info_ht_mcsindex,
+                                tvb, offset, 1, rate_mcs_index);
+            phdr.phy = PHDR_802_11_PHY_11N;
+            phdr.phy_info.info_11n.has_mcs_index = TRUE;
+            phdr.phy_info.info_11n.mcs_index = rate_mcs_index;
+            phdr.phy_info.info_11n.has_greenfield = TRUE;
+            phdr.phy_info.info_11n.greenfield = (plcp_type == PLCP_TYPE_GREENFIELD);
+            break;
+
+        case PLCP_TYPE_VHT_MIXED:  /* VHT Mixed */
+            rate_mcs_index = tvb_get_guint8(tvb, offset) & 0x0f;
+            proto_tree_add_uint(vw_l1info_tree, hf_radiotap_l1info_vht_mcsindex,
+                                tvb, offset, 1, rate_mcs_index);
+            phdr.phy = PHDR_802_11_PHY_11AC;
+            /*
+             * XXX - this probably has only one user, so only one MCS index.
+             */
+            phdr.phy_info.info_11ac.mcs[0] = rate_mcs_index;
+        }
         offset++;
 
         /* NSS and direction octet */
-        nss = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
-        direction = tvb_get_guint8(tvb, offset) & 0x01;
+        switch (plcp_type)
+        {
+        case PLCP_TYPE_LEGACY:     /* Legacy (pre-HT - 11b/11a/11g) */
+            break;
 
-        if (plcp_type)
-            proto_tree_add_uint(vw_l1info_tree, hf_radiotap_nss, tvb, offset, 1, nss);
+        case PLCP_TYPE_MIXED:      /* HT Mixed */
+        case PLCP_TYPE_GREENFIELD: /* HT Greenfield (Not supported) */
+            nss = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
+            proto_tree_add_uint(vw_l1info_tree, hf_radiotap_l1info_nss,
+                                tvb, offset, 1, nss);
+            break;
 
-        proto_tree_add_boolean(vw_l1info_tree, hf_radiotap_vwf_txf, tvb, offset, 1, direction);
+        case PLCP_TYPE_VHT_MIXED:  /* VHT Mixed */
+            nss = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
+            proto_tree_add_uint(vw_l1info_tree, hf_radiotap_l1info_nss,
+                                tvb, offset, 1, nss);
+            /*
+             * XXX - this probably has only one user, so only one NSS.
+             */
+            phdr.phy_info.info_11ac.nss[0] = nss;
+            break;
+        }
+        direction = ((tvb_get_guint8(tvb, offset) & 0x01) != 0);
+        proto_tree_add_boolean(vw_l1info_tree, hf_radiotap_l1info_transmitted,
+                               tvb, offset, 1, direction);
+        proto_item_append_text(vwl1i, " (Direction=%s)",
+                               direction ? "Transmit" : "Receive");
         offset++;
 
         /* New pieces of lines for
@@ -2250,44 +2350,16 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * **/
         phdr.fcs_len = (log_mode == 3) ? 0 : 4;
 
-        switch (plcp_type) //To check 5 types of PLCP(NULL, CCK, OFDM, HT & VHT)
+        switch (plcp_type)
         {
         case PLCP_TYPE_LEGACY:     /* Legacy (pre-HT - 11b/11a/11g) */
-            /*
-             * XXX - CHAN_OFDM could be 11a or 11g.  Unfortunately, we don't
-             * have the frequency, or anything else, to distinguish between
-             * them.
-             *
-             * XXX - short/long preamble?
-             */
-            if (mcs_index < 4)
-            {
-                /* CCK */
-                phdr.phy = PHDR_802_11_PHY_11B;
-            }
             phdr.has_data_rate = TRUE;
             phdr.data_rate = tvb_get_letohs(tvb, offset) / 5;
             break;
 
         case PLCP_TYPE_MIXED:      /* HT Mixed */
         case PLCP_TYPE_GREENFIELD: /* HT Greenfield (Not supported) */
-            phdr.phy = PHDR_802_11_PHY_11N;
-            phdr.phy_info.info_11n.has_mcs_index = TRUE;
-            phdr.phy_info.info_11n.mcs_index = mcs_index;
-            phdr.phy_info.info_11n.has_greenfield = TRUE;
-            phdr.phy_info.info_11n.greenfield = (plcp_type == PLCP_TYPE_GREENFIELD);
-            break;
-
         case PLCP_TYPE_VHT_MIXED:  /* VHT Mixed */
-            phdr.phy = PHDR_802_11_PHY_11AC;
-            /*
-             * XXX - this probably has only one user, so only one MCS index
-             * and only one NSS.
-             */
-            phdr.phy_info.info_11ac.nss[0] = nss;
-            phdr.phy_info.info_11ac.mcs[0] = mcs_index;
-            for (i = 1; i < 4; i++)
-                phdr.phy_info.info_11ac.nss[i] = 0;
             break;
         }
 
@@ -2312,7 +2384,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         else
         {
             /* pre-HT */
-            if (mcs_index < 4)
+            if (rate_mcs_index < 4)
                 proto_tree_add_uint_format_value(vw_l1info_tree, hf_radiotap_modulation,
                     tvb, offset, 1, plcp_type, "CCK (%u)", plcp_type);
             else
@@ -2329,20 +2401,20 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", dbm);
 
         if (cmd_type != 1)
-            proto_tree_add_item(vwl1t, hf_radiotap_dbm_anta,
+            proto_tree_add_item(vw_l1info_tree, hf_radiotap_dbm_anta,
                                     tvb, offset, 1, ENC_NA);
         else
-            proto_tree_add_item(vwl1t, hf_radiotap_dbm_tx_anta,
+            proto_tree_add_item(vw_l1info_tree, hf_radiotap_dbm_tx_anta,
                                     tvb, offset, 1, ENC_NA);
         offset++;
 
         dbm = (gint8) tvb_get_guint8(tvb, offset);
         if (dbm != 100) {
             if (cmd_type != 1)
-                proto_tree_add_item(vwl1t, hf_radiotap_dbm_antb,
+                proto_tree_add_item(vw_l1info_tree, hf_radiotap_dbm_antb,
                                             tvb, offset, 1, ENC_NA);
             else
-                proto_tree_add_item(vwl1t,
+                proto_tree_add_item(vw_l1info_tree,
                                         hf_radiotap_dbm_tx_antb,
                                         tvb, offset, 1, ENC_NA);
         }
@@ -2351,10 +2423,10 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         dbm = (gint8) tvb_get_guint8(tvb, offset);
         if (dbm != 100) {
             if (cmd_type != 1)
-                proto_tree_add_item(vwl1t, hf_radiotap_dbm_antc,
+                proto_tree_add_item(vw_l1info_tree, hf_radiotap_dbm_antc,
                                         tvb, offset, 1, ENC_NA);
             else
-                proto_tree_add_item(vwl1t, hf_radiotap_dbm_tx_antc,
+                proto_tree_add_item(vw_l1info_tree, hf_radiotap_dbm_tx_antc,
                                         tvb, offset, 1, ENC_NA);
         }
         offset++;
@@ -2362,10 +2434,10 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         dbm = (gint8) tvb_get_guint8(tvb, offset);
         if (dbm != 100) {
             if (cmd_type != 1)
-                proto_tree_add_item(vwl1t, hf_radiotap_dbm_antd,
+                proto_tree_add_item(vw_l1info_tree, hf_radiotap_dbm_antd,
                                         tvb, offset, 1, ENC_NA);
             else
-                proto_tree_add_item(vwl1t,
+                proto_tree_add_item(vw_l1info_tree,
                                         hf_radiotap_dbm_tx_antd,
                                         tvb, offset, 1, ENC_NA);
         }
@@ -2430,10 +2502,10 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         vwplt = proto_tree_add_item(tap_tree, hf_radiotap_plcp_info, tvb, offset, 16, vw_plcp_info);
         vw_plcpinfo_tree = proto_item_add_subtree(vwplt, ett_radiotap_plcp);
 
-        switch (plcp_type) //To check 5 types of PLCP(NULL, CCK, OFDM, HT & VHT)
+        switch (plcp_type)
         {
         case PLCP_TYPE_LEGACY:
-            if (mcs_index < 4)
+            if (rate_mcs_index < 4)
             {
                 /*
                  * From IEEE Std 802.11-2012:
@@ -2505,10 +2577,6 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 /* Presumably just padding */
                 offset += 10;
             }
-
-            proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_rfid,
-                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            offset += 1;
             break;
 
         case PLCP_TYPE_MIXED:
@@ -2536,10 +2604,6 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             /* Are these 4 bytes significant, or are they just padding? */
             offset += 4;
-
-            proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_rfid,
-                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            offset += 1;
             break;
 
         case PLCP_TYPE_GREENFIELD:
@@ -2562,16 +2626,9 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset += 2;
 
             /*
-             * XXX - is the RFID at the end?  It does, for other PHYs.
-             *
              * XXX - if so, is this padding, or significant?
              */
             offset += 7;
-
-            proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_rfid,
-                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            offset += 1;
-
             break;
 
         case PLCP_TYPE_VHT_MIXED:
@@ -2593,10 +2650,6 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             /* VHT-SIG */
             offset = decode_vht_sig(vw_plcpinfo_tree, tvb, offset, &phdr);
-
-            proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_rfid,
-                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            offset += 1;
             break;
 
         default:
@@ -2662,10 +2715,11 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
                 tvb, offset, 1, plcp_default, "PLCP14: %u ", plcp_default);
             offset = offset + 1;
-            proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_rfid,
-                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            offset = offset + 1;
         }
+
+        proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_rfid,
+                            tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
 
         //RadioTapHeader New format for L2-L4_Info
         vwl2l4t = proto_tree_add_item(tap_tree, hf_radiotap_l2_l4_info,
@@ -2773,7 +2827,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         if (cmd_type != 1) {                   /* then it's an rx case */
             /*FPGA_VER_vVW510021 version decodes */
-            proto_tree_add_bitmask(vw_l2l4info_tree, tvb, offset, hf_radiotap_vw_info_rx, ett_radiotap_info, radiotap_info_rx_fields, ENC_LITTLE_ENDIAN);
+	    proto_tree_add_bitmask(vw_l2l4info_tree, tvb, offset, hf_radiotap_vw_info_rx, ett_radiotap_info, radiotap_info_rx_fields, ENC_LITTLE_ENDIAN);
 
         } else {                                    /* it's a tx case */
             /* FPGA_VER_vVW510021 and VW_FPGA_VER_vVW510006 tx info decodes same*/
@@ -2855,7 +2909,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     tvb, offset, 2, vw_ht_length, "VHT length: %u (includes the sum of the pieces of the aggregate and their respective Start_Spacing + Delimiter + MPDU + Padding)",
                     vw_ht_length);
             }
-        else
+            else
             {
                 proto_tree_add_uint_format(tap_tree, hf_radiotap_vw_ht_length,
                     tvb, offset, 2, vw_ht_length, "HT length: %u (includes the sum of the pieces of the aggregate and their respective Start_Spacing + Delimiter + MPDU + Padding)",
@@ -2936,11 +2990,6 @@ void proto_register_ixveriwave(void)
     static const value_string fec_encoding_vals[] = {
         { 0, "BCC" },
         { 1, "LDPC" },
-        { 0, NULL },
-    };
-    static const value_string l1_preamble_type[] = {
-        { 0, "Short" },
-        { 1, "Long" },
         { 0, NULL },
     };
     static const value_string modulation_type[] = {
@@ -3024,13 +3073,13 @@ void proto_register_ixveriwave(void)
         { "MSDU length", "ixveriwave.msdu_length",
         FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
-    { &hf_ixveriwave_vw_vcid,
-        { "Client ID", "ixveriwave.clientid",
-        FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-
     { &hf_ixveriwave_vw_flowid,
         { "Flow ID", "ixveriwave.flowid",
         FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+
+    { &hf_ixveriwave_vw_vcid,
+        { "Client ID", "ixveriwave.clientid",
+        FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
     { &hf_ixveriwave_vw_seqnum,
         { "Sequence number", "ixveriwave.seqnum",
@@ -3072,6 +3121,312 @@ void proto_register_ixveriwave(void)
         { "Inter-frame gap (usecs)", "ixveriwave.ifg",
         FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
 
+    // RF LOGGING
+    { &hf_radiotap_rf_info,
+        { "RF Header", "ixveriwave.RFInfo",
+        FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
+
+    { &hf_radiotap_rfinfo_rfid,
+        { "RF_ID", "ixveriwave.rfinfo.rfid",
+        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+
+#if 0
+    { &hf_radiotap_rfinfo_noise,
+        { "Noise", "ixveriwave.rfinfo.noise",
+        FT_FLOAT, 0, NULL, 0x0, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_noise_anta,
+        { "Noise Antenna A", "ixveriwave.noise_anta",
+        FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_noise_antb,
+        { "Noise Antenna B", "ixveriwave.noise_antb",
+        FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_noise_antc,
+        { "Noise Antenna C", "ixveriwave.noise_antc",
+        FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_noise_antd,
+        { "Noise Antenna D", "ixveriwave.noise_antd",
+        FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+#endif
+
+    { &hf_radiotap_rfinfo_snr,
+        { "SNR", "ixveriwave.snr",
+        FT_NONE, BASE_NONE, NULL, 0x0, "Signal-to-noise ratio", HFILL } },
+    { &hf_radiotap_rfinfo_snr_anta,
+        { "SNR Antenna A", "ixveriwave.snr_anta",
+        FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_decibels, 0x0, "Signal-to-noise ratio", HFILL } },
+    { &hf_radiotap_rfinfo_snr_antb,
+        { "SNR Antenna B", "ixveriwave.snr_antb",
+        FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_decibels, 0x0, "Signal-to-noise ratio", HFILL } },
+    { &hf_radiotap_rfinfo_snr_antc,
+        { "SNR Antenna C", "ixveriwave.snr_antc",
+        FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_decibels, 0x0, "Signal-to-noise ratio", HFILL } },
+    { &hf_radiotap_rfinfo_snr_antd,
+        { "SNR Antenna D", "ixveriwave.snr_antd",
+        FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_decibels, 0x0, "Signal-to-noise ratio", HFILL } },
+
+    { &hf_radiotap_rfinfo_pfe,
+        { "PFE", "ixveriwave.rfinfo.pfe",
+        FT_NONE, BASE_NONE, NULL, 0x0, "Preamble Frequency Error metric", HFILL } },
+    { &hf_radiotap_rfinfo_pfe_anta,
+        { "PFE SS#1", "ixveriwave.pfe_anta",
+        FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_hz, 0x0, "Preamble Frequency Error metric", HFILL } },
+    { &hf_radiotap_rfinfo_pfe_antb,
+        { "PFE SS#2", "ixveriwave.pfe_antb",
+        FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_hz, 0x0, "Preamble Frequency Error metric", HFILL } },
+    { &hf_radiotap_rfinfo_pfe_antc,
+        { "PFE SS#3", "ixveriwave.pfe_antc",
+        FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_hz, 0x0, "Preamble Frequency Error metric", HFILL } },
+    { &hf_radiotap_rfinfo_pfe_antd,
+        { "PFE SS#4", "ixveriwave.pfe_antd",
+        FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_hz, 0x0, "Preamble Frequency Error metric", HFILL } },
+
+    { &hf_radiotap_rfinfo_sigdata,
+        { "AVG EVM SIG Data", "ixveriwave.rfinfo.sigdata",
+        FT_NONE, BASE_NONE, NULL, 0x0, "Average EVM for DATA SUBCARRIERS for all SIG symbols of the frame", HFILL } },
+    { &hf_radiotap_rfinfo_avg_evm_sd_siga,
+        { "AVG EVM SIG Data SS#1", "ixveriwave.avg_evm_sda",
+        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_avg_evm_sd_sigb,
+        { "AVG EVM SIG Data SS#2", "ixveriwave.avg_evm_sdb",
+        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_avg_evm_sd_sigc,
+        { "AVG EVM SIG Data SS#3", "ixveriwave.avg_evm_sdc",
+        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_avg_evm_sd_sigd,
+        { "AVG EVM SIG Data SS#4", "ixveriwave.avg_evm_sdd",
+        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+
+    { &hf_radiotap_rfinfo_sigpilot,
+        { "AVG EVM SIG Pilot", "ixveriwave.rfinfo.sigpilot",
+        FT_NONE, BASE_NONE, NULL, 0x0, "Average EVM for  PILOT SUBCARRIERS for all SIG symbols of the frame", HFILL } },
+    { &hf_radiotap_rfinfo_avg_evm_sp_siga,
+        { "AVG EVM SIG Pilot SS#1", "ixveriwave.avg_evm_spa",
+        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_avg_evm_sp_sigb,
+        { "AVG EVM SIG Pilot SS#2", "ixveriwave.avg_evm_spb",
+        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_avg_evm_sp_sigc,
+        { "AVG EVM SIG Pilot SS#3", "ixveriwave.avg_evm_spc",
+        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_avg_evm_sp_sigd,
+        { "AVG EVM SIG Pilot SS#4", "ixveriwave.avg_evm_spd",
+        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+
+    { &hf_radiotap_rfinfo_datadata,
+        { "AVG EVM DATA Data", "ixveriwave.rfinfo.datadata",
+        FT_NONE, BASE_NONE, NULL, 0x0, "Average EVM for  DATA SUBCARRIERS for all DATA symbols of the frame", HFILL } },
+    { &hf_radiotap_rfinfo_avg_evm_dd_siga,
+        { "AVG EVM DATA Data SS#1", "ixveriwave.avg_evm_dda",
+        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_avg_evm_dd_sigb,
+        { "AVG EVM DATA Data SS#2", "ixveriwave.avg_evm_ddb",
+        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_avg_evm_dd_sigc,
+        { "AVG EVM DATA Data SS#3", "ixveriwave.avg_evm_ddc",
+        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_avg_evm_dd_sigd,
+        { "AVG EVM DATA Data SS#4", "ixveriwave.avg_evm_ddd",
+        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+
+    { &hf_radiotap_rfinfo_datapilot,
+        { "AVG EVM DATA Pilot", "ixveriwave.rfinfo.datapilot",
+        FT_NONE, BASE_NONE, NULL, 0x0, "Average EVM for  PILOT SUBCARRIERS for all DATA symbols of the frame", HFILL } },
+    { &hf_radiotap_rfinfo_avg_evm_dp_siga,
+        { "AVG EVM DATA Pilot SSI-1", "ixveriwave.avg_evm_dpa",
+        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_avg_evm_dp_sigb,
+        { "AVG EVM DATA Pilot SSI-2", "ixveriwave.avg_evm_dpb",
+        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_avg_evm_dp_sigc,
+        { "AVG EVM DATA Pilot SSI-3", "ixveriwave.avg_evm_dpc",
+        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_avg_evm_dp_sigd,
+        { "AVG EVM DATA Pilot SSI-4", "ixveriwave.avg_evm_dpd",
+        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+
+    { &hf_radiotap_rfinfo_avg_ws_symbol,
+        { "EVM Worst Symbol", "ixveriwave.wssymbol",
+        FT_NONE, BASE_NONE, NULL, 0, "WORST-CASE SYMBOL", HFILL } },
+    { &hf_radiotap_rfinfo_avg_evm_ws_siga,
+        { "EVM Worst Symbol SS#1", "ixveriwave.avg_evm_wsa",
+        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_percent, 0, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_avg_evm_ws_sigb,
+        { "EVM Worst Symbol SS#2", "ixveriwave.avg_evm_wsb",
+        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_percent, 0, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_avg_evm_ws_sigc,
+        { "EVM Worst Symbol SS#3", "ixveriwave.avg_evm_wsc",
+        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_percent, 0, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_avg_evm_ws_sigd,
+        { "EVM Worst Symbol SS#4", "ixveriwave.avg_evm_wsd",
+        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_percent, 0, NULL, HFILL } },
+
+    { &hf_radiotap_rfinfo_contextpa,
+        { "CONTEXT_A", "ixveriwave.contextpa",
+        FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_contextpA_bit0,
+        { "SNR_NOISE_valid", "ixveriwave.contextpA.bit0",
+        FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_contextpA_bit1,
+        { "PFE_valid", "ixveriwave.contextpA.bit1",
+        FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_contextpA_bit2,
+        { "PFE_is_CCK", "ixveriwave.contextpA.bit2",
+        FT_BOOLEAN, 16, NULL, 0x0004, NULL, HFILL } },
+#if 0
+    { &hf_radiotap_rfinfo_contextp_bits3,
+        { "AGC", "ixveriwave.contextp.bits3",
+        FT_BOOLEAN, 16, NULL, 0x0038, "Automatic Gain Control", HFILL } },
+#endif
+    { &hf_radiotap_rfinfo_contextpA_bit3,
+        { "AGC 3", "ixveriwave.contextpA.bit3",
+        FT_BOOLEAN, 16, NULL, 0x0008, "Automatic Gain Control-[3] agc_idle2iqrdy_no_gain_change", HFILL } },
+    { &hf_radiotap_rfinfo_contextpA_bit4,
+        { "AGC 4", "ixveriwave.contextpA.bit4",
+        FT_BOOLEAN, 16, NULL, 0x0010, "Automatic Gain Control-[4] agc_high_pwr_terminated", HFILL } },
+    { &hf_radiotap_rfinfo_contextpA_bit5,
+        { "AGC 5", "ixveriwave.contextpA.bit5",
+        FT_BOOLEAN, 16, NULL, 0x0020, "Automatic Gain Control-[5] agc_high_pwr_terminator", HFILL } },
+#if 0
+    { &hf_radiotap_rfinfo_contextpA_bit8,
+        { "Frame format", "ixveriwave.contextp.bits8",
+        FT_UINT16, BASE_DEC, VALS(frameformat_type), 0x0300, "0: LEGACY.   1:HT.   3:-VHT.", HFILL } },
+    { &hf_radiotap_rfinfo_contextpA_bit10,
+        { "OFDM or CCK", "ixveriwave.contextp.bit10",
+        FT_BOOLEAN, 16, TFS(&tfs_legacy_type), 0x0400, "0: LEGACY OFDM      1: 802.11b LEGACY CCK", HFILL } },
+    { &hf_radiotap_rfinfo_contextpA_bit11,
+        { "SigBandWidth of EVM", "ixveriwave.contextp.bits11",
+        FT_UINT16, BASE_DEC, VALS(sbw_evm), 0x1800, "Signal Bandwidth of EVM measurement", HFILL } },
+#endif
+    { &hf_radiotap_rfinfo_contextpA_bit13,
+        { "QAM modulation", "ixveriwave.contextpA.bits13",
+        FT_BOOLEAN, 16, NULL, 0xe000, NULL, HFILL } },
+
+    { &hf_radiotap_rfinfo_contextpb,
+        { "CONTEXT_B", "ixveriwave.contextpb",
+        FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_contextpc,
+        { "CONTEXT_C", "ixveriwave.contextpc",
+        FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_contextpd,
+        { "CONTEXT_D", "ixveriwave.contextpd",
+        FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
+
+    { &hf_radiotap_rfinfo_contextpB_bit0,
+        { "SNR_NOISE_valid", "ixveriwave.contextpB.bit0",
+        FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_contextpB_bit1,
+        { "PFE_valid", "ixveriwave.contextpB.bit1",
+        FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_contextpB_bit2,
+        { "PFE_is_CCK", "ixveriwave.contextpB.bit2",
+        FT_BOOLEAN, 16, NULL, 0x0004, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_contextpB_bit3,
+        { "AGC 3", "ixveriwave.contextpB.bit3",
+        FT_BOOLEAN, 16, NULL, 0x0008, "Automatic Gain Control-[3] agc_idle2iqrdy_no_gain_change", HFILL } },
+    { &hf_radiotap_rfinfo_contextpB_bit4,
+        { "AGC 4", "ixveriwave.contextpB.bit4",
+        FT_BOOLEAN, 16, NULL, 0x0010, "Automatic Gain Control-[4] agc_high_pwr_terminated", HFILL } },
+    { &hf_radiotap_rfinfo_contextpB_bit5,
+        { "AGC 5", "ixveriwave.contextpB.bit5",
+        FT_BOOLEAN, 16, NULL, 0x0020, "Automatic Gain Control-[5] agc_high_pwr_terminator", HFILL } },
+    { &hf_radiotap_rfinfo_contextpB_bit13,
+        { "QAM modulation", "ixveriwave.contextpB.bits13",
+        FT_BOOLEAN, 16, NULL, 0xe000, NULL, HFILL } },
+
+    { &hf_radiotap_rfinfo_contextpC_bit0,
+        { "SNR_NOISE_valid", "ixveriwave.contextpC.bit0",
+        FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_contextpC_bit1,
+        { "PFE_valid", "ixveriwave.contextpC.bit1",
+        FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_contextpC_bit2,
+        { "PFE_is_CCK", "ixveriwave.contextpC.bit2",
+        FT_BOOLEAN, 16, NULL, 0x0004, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_contextpC_bit3,
+        { "AGC 3", "ixveriwave.contextpC.bit3",
+        FT_BOOLEAN, 16, NULL, 0x0008, "Automatic Gain Control-[3] agc_idle2iqrdy_no_gain_change", HFILL } },
+    { &hf_radiotap_rfinfo_contextpC_bit4,
+        { "AGC 4", "ixveriwave.contextpC.bit4",
+        FT_BOOLEAN, 16, NULL, 0x0010, "Automatic Gain Control-[4] agc_high_pwr_terminated", HFILL } },
+    { &hf_radiotap_rfinfo_contextpC_bit5,
+        { "AGC 5", "ixveriwave.contextpC.bit5",
+        FT_BOOLEAN, 16, NULL, 0x0020, "Automatic Gain Control-[5] agc_high_pwr_terminator", HFILL } },
+    { &hf_radiotap_rfinfo_contextpC_bit13,
+        { "QAM modulation", "ixveriwave.contextpC.bits13",
+        FT_BOOLEAN, 16, NULL, 0xe000, NULL, HFILL } },
+
+    { &hf_radiotap_rfinfo_contextpD_bit0,
+        { "SNR_NOISE_valid", "ixveriwave.contextpD.bit0",
+        FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_contextpD_bit1,
+        { "PFE_valid", "ixveriwave.contextpD.bit1",
+        FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_contextpD_bit2,
+        { "PFE_is_CCK", "ixveriwave.contextpD.bit2",
+        FT_BOOLEAN, 16, NULL, 0x0004, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_contextpD_bit3,
+        { "AGC 3", "ixveriwave.contextpD.bit3",
+        FT_BOOLEAN, 16, NULL, 0x0008, "Automatic Gain Control-[3] agc_idle2iqrdy_no_gain_change", HFILL } },
+    { &hf_radiotap_rfinfo_contextpD_bit4,
+        { "AGC 4", "ixveriwave.contextpD.bit4",
+        FT_BOOLEAN, 16, NULL, 0x0010, "Automatic Gain Control-[4] agc_high_pwr_terminated", HFILL } },
+    { &hf_radiotap_rfinfo_contextpD_bit5,
+        { "AGC 5", "ixveriwave.contextpD.bit5",
+        FT_BOOLEAN, 16, NULL, 0x0020, "Automatic Gain Control-[5] agc_high_pwr_terminator", HFILL } },
+    { &hf_radiotap_rfinfo_contextpD_bit13,
+        { "QAM modulation", "ixveriwave.contextpD.bits13",
+        FT_BOOLEAN, 16, NULL, 0xe000, NULL, HFILL } },
+
+    { &hf_radiotap_rfinfo_frameformatA,
+        { "Frame format", "ixveriwave.rfinfo.frameformatA",
+        FT_UINT8, BASE_DEC, VALS(frameformat_type), 0x03, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_frameformatB,
+        { "Frame format", "ixveriwave.rfinfo.frameformatB",
+        FT_UINT8, BASE_DEC, VALS(frameformat_type), 0x03, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_frameformatC,
+        { "Frame format", "ixveriwave.rfinfo.frameformatC",
+        FT_UINT8, BASE_DEC, VALS(frameformat_type), 0x03, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_frameformatD,
+        { "Frame format", "ixveriwave.rfinfo.frameformatD",
+        FT_UINT8, BASE_DEC, VALS(frameformat_type), 0x03, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_legacytypeA,
+        { "Frame format", "ixveriwave.rfinfo.legacytypeA",
+        FT_BOOLEAN, 8, TFS(&tfs_legacy_type), 0x04, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_legacytypeB,
+        { "Frame format", "ixveriwave.rfinfo.legacytypeB",
+        FT_BOOLEAN, 8, TFS(&tfs_legacy_type), 0x04, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_legacytypeC,
+        { "Frame format", "ixveriwave.rfinfo.legacytypeC",
+        FT_BOOLEAN, 8, TFS(&tfs_legacy_type), 0x04, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_legacytypeD,
+        { "Frame format", "ixveriwave.rfinfo.legacytypeD",
+        FT_BOOLEAN, 8, TFS(&tfs_legacy_type), 0x04, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_sigbwevmA,
+        { "SigBandWidth of EVM", "ixveriwave.rfinfo.sigbwevmA",
+        FT_UINT8, BASE_DEC, VALS(sbw_evm), 0x18, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_sigbwevmB,
+        { "SigBandWidth of EVM", "ixveriwave.rfinfo.sigbwevmB",
+        FT_UINT8, BASE_DEC, VALS(sbw_evm), 0x18, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_sigbwevmC,
+        { "SigBandWidth of EVM", "ixveriwave.rfinfo.sigbwevmC",
+        FT_UINT8, BASE_DEC, VALS(sbw_evm), 0x18, NULL, HFILL } },
+    { &hf_radiotap_rfinfo_sigbwevmD,
+        { "SigBandWidth of EVM", "ixveriwave.rfinfo.sigbwevmD",
+        FT_UINT8, BASE_DEC, VALS(sbw_evm), 0x18, NULL, HFILL } },
+#if 0
+    { &hf_radiotap_rfinfo_tbd,
+        { "RF_TBD", "ixveriwave.rfinfo.tbd",
+        FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+#endif
+
+    /* Fields for both Ethernet and WLAN */
+
+    { &hf_ixveriwave_vw_l4id,
+        { "Layer 4 ID", "ixveriwave.layer4id",
+        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
+    /* Ethernet fields */
+
     { &hf_ixveriwave_vwf_txf,
         { "Frame direction", "ixveriwave.vwflags.txframe",
         FT_BOOLEAN, 8, TFS(&tfs_tx_rx_type), ETHERNETTAP_VWF_TXF, NULL, HFILL } },
@@ -3084,16 +3439,6 @@ void proto_register_ixveriwave(void)
         { "Info field", "ixveriwave.info",
         FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
-    { &hf_ixveriwave_vw_info_retryCount,
-        { "Retry count", "ixveriwave.info.retry_count",
-        FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-
-/* tx info decodes for VW510024 and 510012 */
-/* we don't need to enumerate through these, basically for both,
-info is the retry count.  for 510024, the 15th bit indicates if
-the frame was impressed on the enet tx media with one or more octets having tx_en
-framing signal deasserted.  this is caused by software setting the drain all register bit.
-*/
     /* rx info decodes for fpga ver VW510024 */
     /*all are reserved*/
 
@@ -3105,28 +3450,19 @@ framing signal deasserted.  this is caused by software setting the drain all reg
         { "Go with flow", "ixveriwave.info.bit9",
         FT_BOOLEAN, 16, NULL, 0x0200, NULL, HFILL } },
 
+/* tx info decodes for VW510024 and 510012 */
+/* we don't need to enumerate through these, basically for both,
+info is the retry count.  for 510024, the 15th bit indicates if
+the frame was impressed on the enet tx media with one or more octets having tx_en
+framing signal deasserted.  this is caused by software setting the drain all register bit.
+*/
+    { &hf_ixveriwave_vw_info_retryCount,
+        { "Retry count", "ixveriwave.info.retry_count",
+        FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+
     { &hf_ixveriwave_vw_error,
         { "Errors", "ixveriwave.error",
         FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-    /* tx error decodes for VW510024 and previous versions */
-
-    { &hf_ixveriwave_vw_error_tx_bit1,
-        { "Packet FCS error", "ixveriwave.error.bit1",
-        FT_BOOLEAN, 12, NULL, 0x0002, NULL, HFILL } },
-    { &hf_ixveriwave_vw_error_tx_bit5,
-        { "IP checksum error", "ixveriwave.error.bit5",
-        FT_BOOLEAN, 12, NULL, 0x0020, NULL, HFILL } },
-    /*bit 6 is actually reserved in 500012, but i thought it would be okay to leave it here*/
-    { &hf_ixveriwave_vw_error_tx_bit9,
-        { "Underflow error", "ixveriwave.error.bit9",
-        FT_BOOLEAN, 12, NULL, 0x0200, NULL, HFILL } },
-    { &hf_ixveriwave_vw_error_tx_bit10,
-        { "Late collision error", "ixveriwave.error.bit10",
-        FT_BOOLEAN, 12, NULL, 0x0400, NULL, HFILL } },
-    { &hf_ixveriwave_vw_error_tx_bit11,
-        { "Excessive collisions error", "ixveriwave.error.bit11",
-        FT_BOOLEAN, 12, NULL, 0x0800, NULL, HFILL } },
-    /*all other bits are reserved */
 
     /* rx error decodes for fpga ver VW510012 and VW510024 */
     { &hf_ixveriwave_vw_error_rx_1_bit0,
@@ -3159,27 +3495,59 @@ framing signal deasserted.  this is caused by software setting the drain all reg
     { &hf_ixveriwave_vw_error_rx_1_bit9,
         { "Underflow", "ixveriwave.error.bit9",
         FT_BOOLEAN, 12, NULL, 0x0200, NULL, HFILL } },
-    { &hf_radiotap_vw_errors_tx_bit1,
-        { "Packet FCS error", "ixveriwave.errors.bit1",
-        FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL } },
-    { &hf_radiotap_vw_errors_tx_bit5,
-        { "IP checksum error", "ixveriwave.errors.bit5",
-        FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL } },
 
-    /* All other enumerations are reserved.*/
+    /* tx error decodes for VW510024 and previous versions */
+    { &hf_ixveriwave_vw_error_tx_bit1,
+        { "Packet FCS error", "ixveriwave.error.bit1",
+        FT_BOOLEAN, 12, NULL, 0x0002, NULL, HFILL } },
+    { &hf_ixveriwave_vw_error_tx_bit5,
+        { "IP checksum error", "ixveriwave.error.bit5",
+        FT_BOOLEAN, 12, NULL, 0x0020, NULL, HFILL } },
+    /*bit 6 is actually reserved in 500012, but i thought it would be okay to leave it here*/
+    { &hf_ixveriwave_vw_error_tx_bit9,
+        { "Underflow error", "ixveriwave.error.bit9",
+        FT_BOOLEAN, 12, NULL, 0x0200, NULL, HFILL } },
+    { &hf_ixveriwave_vw_error_tx_bit10,
+        { "Late collision error", "ixveriwave.error.bit10",
+        FT_BOOLEAN, 12, NULL, 0x0400, NULL, HFILL } },
+    { &hf_ixveriwave_vw_error_tx_bit11,
+        { "Excessive collisions error", "ixveriwave.error.bit11",
+        FT_BOOLEAN, 12, NULL, 0x0800, NULL, HFILL } },
+    /*all other bits are reserved */
 
-    { &hf_ixveriwave_vw_l4id,
-        { "Layer 4 ID", "ixveriwave.layer4id",
+    /* WLAN fields */
+    { &hf_radiotap_flags,
+        { "Flags", "ixveriwave.flags",
         FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
+    { &hf_radiotap_flags_preamble,
+        { "Preamble", "ixveriwave.flags.preamble",
+        FT_BOOLEAN, 12, TFS(&tfs_preamble_type), FLAGS_SHORTPRE,
+        "Sent/Received with short preamble", HFILL } },
+    { &hf_radiotap_flags_wep,
+        { "WEP", "ixveriwave.flags.wep",
+        FT_BOOLEAN, 12, NULL, FLAGS_WEP,
+        "Sent/Received with WEP encryption", HFILL } },
+    { &hf_radiotap_flags_ht,
+        { "HT frame", "ixveriwave.flags.ht",
+        FT_BOOLEAN, 12, NULL, FLAGS_CHAN_HT, NULL, HFILL } },
+    { &hf_radiotap_flags_vht,
+        { "VHT frame", "ixveriwave.flags.vht",
+        FT_BOOLEAN, 12, NULL, FLAGS_CHAN_VHT, NULL, HFILL } },
+    { &hf_radiotap_flags_short_gi,
+        { "Short guard interval", "ixveriwave.flags.short_gi",
+        FT_BOOLEAN, 12, NULL, FLAGS_CHAN_SHORTGI, NULL, HFILL } },
+    { &hf_radiotap_flags_40mhz,
+        { "40 MHz channel bandwidth", "ixveriwave.flags.40mhz",
+        FT_BOOLEAN, 12, NULL, FLAGS_CHAN_40MHZ, NULL, HFILL } },
+    { &hf_radiotap_flags_80mhz,
+        { "80 MHz channel bandwidth", "ixveriwave.flags.80mhz",
+        FT_BOOLEAN, 12, NULL, FLAGS_CHAN_80MHZ, NULL, HFILL } },
 
     { &hf_radiotap_datarate,
         { "Data rate", "ixveriwave.datarate",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         "Speed this frame was sent/received at", HFILL } },
-
-    { &hf_radiotap_plcptype,
-        { "VHT_NDP", "ixveriwave.vhtmixedmode",
-        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
     { &hf_radiotap_mcsindex,
         { "MCS index", "ixveriwave.mcs",
@@ -3189,142 +3557,192 @@ framing signal deasserted.  this is caused by software setting the drain all reg
         { "Number of spatial streams", "ixveriwave.nss",
         FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
-    /* Boolean 'present.flags' flags */
-    { &hf_radiotap_flags,
-        { "Flags", "ixveriwave.flags",
-        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-
-    { &hf_radiotap_flags_preamble,
-        { "Preamble", "ixveriwave.flags.preamble",
-        FT_BOOLEAN, 12, TFS(&tfs_preamble_type),  FLAGS_SHORTPRE,
-        "Sent/Received with short preamble", HFILL } },
-
-    { &hf_radiotap_flags_wep,
-        { "WEP", "ixveriwave.flags.wep",
-        FT_BOOLEAN, 12, NULL, FLAGS_WEP,
-        "Sent/Received with WEP encryption", HFILL } },
-
-    { &hf_radiotap_flags_ht,
-        { "HT frame", "ixveriwave.flags.ht",
-        FT_BOOLEAN, 12, NULL, FLAGS_CHAN_HT, NULL, HFILL } },
-
-    { &hf_radiotap_flags_vht,
-        { "VHT frame", "ixveriwave.flags.vht",
-        FT_BOOLEAN, 12, NULL, FLAGS_CHAN_VHT, NULL, HFILL } },
-
-    { &hf_radiotap_flags_40mhz,
-        { "40 MHz channel bandwidth", "ixveriwave.flags.40mhz",
-        FT_BOOLEAN, 12, NULL, FLAGS_CHAN_40MHZ, NULL, HFILL } },
-
-    { &hf_radiotap_flags_80mhz,
-        { "80 MHz channel bandwidth", "ixveriwave.flags.80mhz",
-        FT_BOOLEAN, 12, NULL, FLAGS_CHAN_80MHZ, NULL, HFILL } },
-
-    { &hf_radiotap_flags_short_gi,
-        { "Short guard interval", "ixveriwave.flags.short_gi",
-        FT_BOOLEAN, 12, NULL, FLAGS_CHAN_SHORTGI, NULL, HFILL } },
-
     { &hf_radiotap_dbm_anta,
         { "SSI Signal for Antenna A", "ixveriwave.dbm_anta",
         FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0x0,
         "RF signal power at the antenna from a fixed, arbitrary value in decibels from one milliwatt", HFILL } },
-
     { &hf_radiotap_dbm_antb,
         { "SSI Signal for Antenna B", "ixveriwave.dbm_antb",
         FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0x0,
         "RF signal power at the antenna from a fixed, arbitrary value in decibels from one milliwatt", HFILL } },
-
     { &hf_radiotap_dbm_antc,
         { "SSI Signal for Antenna C", "ixveriwave.dbm_antc",
         FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0x0,
         "RF signal power at the antenna from a fixed, arbitrary value in decibels from one milliwatt", HFILL } },
-
     { &hf_radiotap_dbm_antd,
         { "SSI Signal for Antenna D", "ixveriwave.dbm_antd",
         FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0x0,
         "RF signal power at the antenna from a fixed, arbitrary value in decibels from one milliwatt", HFILL } },
 
-    { &hf_radiotap_dbm_tx_anta,
-        { "TX Power for Antenna A", "ixveriwave.dbm_anta",
-        FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0x0,
-        "RF signal power at the antenna from a fixed, arbitrary value in decibels from one milliwatt", HFILL } },
+    /* All other enumerations are reserved.*/
 
-    { &hf_radiotap_dbm_tx_antb,
-        { "TX Power for Antenna B", "ixveriwave.dbm_antb",
-        FT_INT32, BASE_DEC, NULL, 0x0,
-        "RF signal power at the antenna from a fixed, arbitrary value in decibels from one milliwatt", HFILL } },
+    { &hf_radiotap_plcptype,
+        { "VHT_NDP", "ixveriwave.plcptype",
+        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
-    { &hf_radiotap_dbm_tx_antc,
-        { "TX Power for Antenna C", "ixveriwave.dbm_antc",
-        FT_INT32, BASE_DEC, NULL, 0x0,
-        "RF signal power at the antenna from a fixed, arbitrary value in decibels from one milliwatt", HFILL } },
-
-    { &hf_radiotap_dbm_tx_antd,
-        { "TX Power for Antenna D", "ixveriwave.dbm_antd",
-        FT_INT32, BASE_DEC, NULL, 0x0,
-        "RF signal power at the antenna from a fixed, arbitrary value in decibels from one milliwatt", HFILL } },
-
-    /* Boolean 'present' flags */
     /* VeriWave-specific flags */
     { &hf_radiotap_vwf_txf,
         { "Frame direction", "ixveriwave.vwflags.txframe",
         FT_BOOLEAN, 16, TFS(&tfs_tx_rx_type), VW_RADIOTAPF_TXF, NULL, HFILL } },
-
     { &hf_radiotap_vwf_fcserr,
         { "MAC FCS check", "ixveriwave.vwflags.fcserr",
         FT_BOOLEAN, 16, TFS(&tfs_fcserr_type), VW_RADIOTAPF_FCSERR, NULL, HFILL } },
-
     { &hf_radiotap_vwf_dcrerr,
         { "Decryption error", "ixveriwave.vwflags.decrypterr",
         FT_BOOLEAN, 16, TFS(&tfs_decrypterr_type), VW_RADIOTAPF_DCRERR, NULL, HFILL } },
-
     { &hf_radiotap_vwf_retrerr,
         { "TX retry limit", "ixveriwave.vwflags.retryerr",
         FT_BOOLEAN, 16, TFS(&tfs_retryerr_type), VW_RADIOTAPF_RETRERR, NULL, HFILL } },
-
     { &hf_radiotap_vwf_enctype,
         { "Encryption type", "ixveriwave.vwflags.encrypt",
         FT_UINT16, BASE_DEC, VALS(encrypt_type), VW_RADIOTAPF_ENCMSK, NULL, HFILL } },
 
-    /* start VeriWave-specific radiotap header elements 6-2007 */
     { &hf_radiotap_vw_ht_length,
         { "HT length", "ixveriwave.ht_length",
         FT_UINT16, BASE_DEC, NULL, 0x0, "Total IP length (incl all pieces of an aggregate)", HFILL } },
 
-    { &hf_radiotap_vht_user_pos,
-        { "VHT User Pos", "ixveriwave.VHT_user_pos",
-         FT_UINT8, BASE_DEC, NULL, 0x03, NULL, HFILL } },
+    { &hf_radiotap_vw_info,
+        { "Info field", "ixveriwave.info",
+        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
-    { &hf_radiotap_vht_ndp_flg,
-        { "NDP", "ixveriwave.VHT_ndp_flg",
-        FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_2_bit10,
+        { "MPDU of A-MPDU", "ixveriwave.info.bit10",
+        FT_BOOLEAN, 16, NULL, INFO_MPDU_OF_A_MPDU, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_2_bit11,
+        { "First MPDU of A-MPDU", "ixveriwave.info.bit11",
+        FT_BOOLEAN, 16, NULL, INFO_FIRST_MPDU_OF_A_MPDU, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_2_bit12,
+        { "Last MPDU of A-MPDU", "ixveriwave.info.bit12",
+        FT_BOOLEAN, 16, NULL, INFO_LAST_MPDU_OF_A_MPDU, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_2_bit13,
+        { "MSDU of A-MSDU", "ixveriwave.info.bit13",
+        FT_BOOLEAN, 16, NULL, INFO_MSDU_OF_A_MSDU, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_2_bit14,
+        { "First MSDU of A-MSDU", "ixveriwave.info.bit14",
+        FT_BOOLEAN, 16, NULL, INFO_FIRST_MSDU_OF_A_MSDU, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_2_bit15,
+        { "Last MSDU of A-MSDU", "ixveriwave.info.bit15",
+        FT_BOOLEAN, 16, NULL, INFO_LAST_MSDU_OF_A_MSDU, NULL, HFILL } },
+    /*v510006 uses bits */
+
+    { &hf_radiotap_vw_info_rx_2_bit8,
+        { "ACK withheld from frame", "ixveriwave.info.bit8",
+        FT_BOOLEAN, 16, NULL, 0x0100, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_2_bit9,
+        { "Sent CTS to self before data", "ixveriwave.info.bit9",
+        FT_BOOLEAN, 16, NULL, 0x0200, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_2_bit10,
+        { "MPDU of an A-MPDU", "ixveriwave.info.bit10",
+        FT_BOOLEAN, 16, NULL, INFO_MPDU_OF_A_MPDU, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_2_bit11,
+        { "First MPDU of A-MPDU", "ixveriwave.info.bit11",
+        FT_BOOLEAN, 16, NULL, INFO_FIRST_MPDU_OF_A_MPDU, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_2_bit12,
+        { "Last MPDU of A-MPDU", "ixveriwave.info.bit12",
+        FT_BOOLEAN, 16, NULL, INFO_LAST_MPDU_OF_A_MPDU, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_2_bit13,
+        { "MSDU of A-MSDU", "ixveriwave.info.bit13",
+        FT_BOOLEAN, 16, NULL, INFO_MSDU_OF_A_MSDU, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_2_bit14,
+        { "First MSDU of A-MSDU", "ixveriwave.info.bit14",
+        FT_BOOLEAN, 16, NULL, INFO_FIRST_MSDU_OF_A_MSDU, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_2_bit15,
+        { "Last MSDU of A-MSDU", "ixveriwave.info.bit15",
+        FT_BOOLEAN, 16, NULL, INFO_LAST_MSDU_OF_A_MSDU, NULL, HFILL } },
+
+    { &hf_radiotap_vw_errors,
+        { "Errors", "ixveriwave.errors",
+        FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
+    /* rx error decodes for fpga ver VW510021 */
+    { &hf_radiotap_vw_errors_rx_2_bit0,
+        { "CRC16 or parity error", "ixveriwave.errors.bit0",
+        FT_BOOLEAN, 16, NULL, 0x0001, "error bit 0", HFILL } },
+    { &hf_radiotap_vw_errors_rx_2_bit1,
+        { "Non-supported rate or service field", "ixveriwave.errors.bit1",
+        FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL } },
+    { &hf_radiotap_vw_errors_rx_2_bit2,
+        { "Short frame error.  Frame is shorter than length.", "ixveriwave.errors.bit2",
+        FT_BOOLEAN, 16, NULL, 0x0004, NULL, HFILL } },
+    { &hf_radiotap_vw_errors_rx_2_bit4,
+        { "FCS_Error", "ixveriwave.errors.bit4",
+        FT_BOOLEAN, 16, NULL, 0x0010, NULL, HFILL } },
+    { &hf_radiotap_vw_errors_rx_2_bit5,
+        { "L2 de-aggregation error", "ixveriwave.errors.bit5",
+        FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL } },
+    { &hf_radiotap_vw_errors_rx_2_bit6,
+        { "Duplicate MPDU", "ixveriwave.errors.bit6",
+        FT_BOOLEAN, 16, NULL, 0x0040, NULL, HFILL } },
+    { &hf_radiotap_vw_errors_rx_2_bit7,
+        { "Bad_Sig:  Bad flow magic number (includes bad flow crc16)", "ixveriwave.errors.bit7",
+        FT_BOOLEAN, 16, NULL, 0x0080, NULL, HFILL } },
+    { &hf_radiotap_vw_errors_rx_2_bit8,
+        { "Bad flow payload checksum", "ixveriwave.errors.bit8",
+        FT_BOOLEAN, 16, NULL, 0x0100, NULL, HFILL } },
+    { &hf_radiotap_vw_errors_rx_2_bit10,
+        { "Bad IP checksum error", "ixveriwave.errors.bit10",
+        FT_BOOLEAN, 16, NULL, 0x0400, NULL, HFILL } },
+    { &hf_radiotap_vw_errors_rx_2_bit11,
+        { "L4(TCP/ICMP/IGMP/UDP) checksum error", "ixveriwave.errors.bit11",
+        FT_BOOLEAN, 16, NULL, 0x0800, NULL, HFILL } },
+
+    { &hf_radiotap_vw_errors_tx_bit01,
+        { "CRC32 Error", "ixveriwave.errors.bit1",
+        FT_BOOLEAN, 32, NULL, 0x00000002, NULL, HFILL } },
+    { &hf_radiotap_vw_errors_tx_bit05,
+        { "IP Checksum Error", "ixveriwave.errors.bit5",
+        FT_BOOLEAN, 32, NULL, 0x00000020, NULL, HFILL } },
+    { &hf_radiotap_vw_errors_tx_bit8,
+        { "ACK Timeout", "ixveriwave.errors.bit8",
+        FT_BOOLEAN, 32, NULL, 0x00000100, NULL, HFILL } },
+    { &hf_radiotap_vw_errors_tx_bit9,
+        { "CTS Timeout", "ixveriwave.errors.bit9",
+        FT_BOOLEAN, 32, NULL, 0x00000200, NULL, HFILL } },
+    { &hf_radiotap_vw_errors_tx_bit10,
+        { "Last Retry Attempt for this MPDU", "ixveriwave.errors.bit10",
+        FT_BOOLEAN, 32, NULL, 0x00000400, NULL, HFILL } },
+    { &hf_radiotap_vw_errors_tx_bit31,
+        { "Internal Error", "ixveriwave.errors.bit31",
+        FT_BOOLEAN, 32, NULL, 0x80000000, NULL, HFILL } },
 
     { &hf_radiotap_vht_mu_mimo_flg,
         { "VHT MU MIMO", "ixveriwave.VHT_mu_mimo_flg",
         FT_UINT8, BASE_DEC, NULL, 0x08, NULL, HFILL } },
-
+    { &hf_radiotap_vht_user_pos,
+        { "VHT User Pos", "ixveriwave.VHT_user_pos",
+         FT_UINT8, BASE_DEC, NULL, 0x03, NULL, HFILL } },
     { &hf_radiotap_vht_su_mimo_flg,
         { "VHT SU MIMO", "ixveriwave.VHT_su_mimo_flg",
         FT_UINT8, BASE_DEC, NULL, 0x04, NULL, HFILL } },
 
-    { &hf_radiotap_rf_info,
-        { "RF Header", "ixveriwave.RFInfo",
+    { &hf_radiotap_l1info,
+        { "Layer 1 Header", "ixveriwave.l1info",
         FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
 
-    { &hf_radiotap_tx,
-        { "Layer 1 Header (Direction=Transmit)", "ixveriwave.l1info",
-        FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
-    { &hf_radiotap_rx,
-        { "Layer 1 Header (Direction=Receive)", "ixveriwave.l1info",
-        FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
+    { &hf_radiotap_l1info_preamble,
+        { "Preamble", "ixveriwave.l1info.preamble",
+        FT_BOOLEAN, 12, TFS(&tfs_preamble_type), 0x0,
+        "Sent/Received with short preamble", HFILL } },
 
-    { &hf_radiotap_modulation,
-        { "Modulation", "ixveriwave.Modulation",
-        FT_UINT8, BASE_DEC, VALS(modulation_type), 0x0, NULL, HFILL } },
+    { &hf_radiotap_l1info_rateindex,
+        { "Rate index", "ixveriwave.l1info.rate",
+        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
-    { &hf_radiotap_preamble,
-        { "Preamble", "ixveriwave.preamble",
-        FT_UINT8, BASE_DEC, VALS(l1_preamble_type), 0x0, NULL, HFILL } },
+    { &hf_radiotap_l1info_ht_mcsindex,
+        { "MCS index", "ixveriwave.mcs",
+        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+
+    { &hf_radiotap_l1info_vht_mcsindex,
+        { "MCS index", "ixveriwave.mcs",
+        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+
+    { &hf_radiotap_l1info_nss,
+        { "Number of spatial streams", "ixveriwave.nss",
+        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+
+    { &hf_radiotap_l1info_transmitted,
+        { "Frame direction", "ixveriwave.txframe",
+        FT_BOOLEAN, 16, TFS(&tfs_tx_rx_type), 0x0, NULL, HFILL } },
 
     { &hf_radiotap_sigbandwidth,
         { "Signaling Band Width", "ixveriwave.sigbandwidth",
@@ -3334,71 +3752,59 @@ framing signal deasserted.  this is caused by software setting the drain all reg
         { "RSSI", "ixveriwave.rssi",
         FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 #endif
-    {&hf_radiotap_l1infoc,
-        {"L1InfoC", "ixveriwave.l1InfoC",
-            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_radiotap_modulation,
+        { "Modulation", "ixveriwave.Modulation",
+        FT_UINT8, BASE_DEC, VALS(modulation_type), 0x0, NULL, HFILL } },
+
+    { &hf_radiotap_dbm_tx_anta,
+        { "TX Power for Antenna A", "ixveriwave.dbm_anta",
+        FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0x0,
+        "RF signal power at the antenna from a fixed, arbitrary value in decibels from one milliwatt", HFILL } },
+    { &hf_radiotap_dbm_tx_antb,
+        { "TX Power for Antenna B", "ixveriwave.dbm_antb",
+        FT_INT32, BASE_DEC, NULL, 0x0,
+        "RF signal power at the antenna from a fixed, arbitrary value in decibels from one milliwatt", HFILL } },
+    { &hf_radiotap_dbm_tx_antc,
+        { "TX Power for Antenna C", "ixveriwave.dbm_antc",
+        FT_INT32, BASE_DEC, NULL, 0x0,
+        "RF signal power at the antenna from a fixed, arbitrary value in decibels from one milliwatt", HFILL } },
+    { &hf_radiotap_dbm_tx_antd,
+        { "TX Power for Antenna D", "ixveriwave.dbm_antd",
+        FT_INT32, BASE_DEC, NULL, 0x0,
+        "RF signal power at the antenna from a fixed, arbitrary value in decibels from one milliwatt", HFILL } },
 
     { &hf_radiotap_sigbandwidthmask,
         { "Signaling Band Width Mask", "ixveriwave.sigbandwidthmask",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-
     { &hf_radiotap_antennaportenergydetect,
         { "Antenna Port Energy Detect", "ixveriwave.antennaportenergydetect",
         FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL } },
-
+    { &hf_radiotap_tx_antennaselect,
+        { "Antenna Select", "ixveriwave.tx.antennaselect",
+        FT_UINT8, BASE_HEX, NULL, 0x07, NULL, HFILL } },
+    { &hf_radiotap_tx_stbcselect,
+        { "STBC Select", "ixveriwave.tx.stbcselect",
+        FT_UINT8, BASE_HEX, NULL, 0x18, NULL, HFILL } },
     { &hf_radiotap_mumask,
         { "MU_MASK", "ixveriwave.mumask",
         FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL } },
 
+    {&hf_radiotap_l1infoc,
+        {"L1InfoC", "ixveriwave.l1InfoC",
+            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_radiotap_vht_ndp_flg,
+        { "NDP", "ixveriwave.VHT_ndp_flg",
+        FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL } },
+
     { &hf_radiotap_plcp_info,
         {"PLCP Header", "ixveriwave.plcp_info",
             FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
-    { &hf_radiotap_l2_l4_info,
-        {"Layer 2-4 Header", "ixveriwave.l2_l4info",
-            FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
-    { &hf_radiotap_bssid,
-        {"BSS ID", "ixveriwave.bssid",
-            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-
-    { &hf_radiotap_unicastormulticast,
-        { "Unicast/Multicast", "ixveriwave.unicastormulticast",
-        FT_UINT8, BASE_DEC, VALS(bmbit), 0x80, NULL, HFILL } },
-
-    { &hf_radiotap_clientidvalid,
-        { "Client Id Valid", "ixveriwave.clientidvalid",
-        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20, NULL, HFILL } },
-
-    { &hf_radiotap_bssidvalid,
-        { "BSS ID Valid", "ixveriwave.bssidvalid",
-        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40, NULL, HFILL } },
-
-    { &hf_radiotap_flowvalid,
-        { "Flow Id Valid", "ixveriwave.flowvalid",
-        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80, NULL, HFILL } },
-
-    { &hf_radiotap_l4idvalid,
-        { "Layer 4 Id Valid", "ixveriwave.l4idvalid",
-        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10, NULL, HFILL } },
-
-    { &hf_radiotap_istypeqos,
-        { "Is Type QOS", "ixveriwave.istypeqos",
-        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40, NULL, HFILL } },
-
-    { &hf_radiotap_containshtfield,
-        { "Contains HT Field", "ixveriwave.containshtfield",
-        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20, NULL, HFILL } },
-
-    { &hf_radiotap_tid,
-        { "TID", "ixveriwave.tid",
-        FT_UINT16, BASE_HEX, NULL, 0x01c0, NULL, HFILL } },
-#if 0
-    { &hf_radiotap_wlantype,
-        { "WLAN Type", "ixveriwave.wlantype",
+    { &hf_radiotap_plcp_type,
+        { "PLCP_TYPE", "ixveriwave.plcp.type",
         FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-#endif
-    { &hf_radiotap_payloaddecode,
-        { "Payload Decode", "ixveriwave.payloaddecode",
-        FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+    { &hf_radiotap_plcp_default,
+        { "PLCP", "ixveriwave.plcp",
+        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
     { &hf_radiotap_plcp_signal,
         { "Signal", "ixveriwave.plcp.signal",
@@ -3412,13 +3818,15 @@ framing signal deasserted.  this is caused by software setting the drain all reg
     { &hf_radiotap_plcp_length_extension,
         { "Length extension", "ixveriwave.plcp.length_extension",
         FT_UINT8, BASE_DEC, NULL, 0xe0, NULL, HFILL } },
-
     { &hf_radiotap_plcp_length,
         { "PLCP Length", "ixveriwave.plcp.length",
         FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-
     { &hf_radiotap_plcp_crc16,
         { "PLCP CRC-16", "ixveriwave.plcp.crc16",
+        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
+    { &hf_radiotap_ofdm_service,
+        { "Service", "ixveriwave.ofdm.service",
         FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
     /* SIGNAL (11a)/L-SIG (11n, 11ac) */
@@ -3434,9 +3842,6 @@ framing signal deasserted.  this is caused by software setting the drain all reg
     { &hf_radiotap_ofdm_tail,
         { "Tail", "ixveriwave.ofdm.tail",
         FT_UINT24, BASE_HEX, NULL, 0xfc0000, NULL, HFILL } },
-    { &hf_radiotap_ofdm_service,
-        { "Service", "ixveriwave.ofdm.service",
-        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
     /* HT-SIG1 */
     { &hf_radiotap_ht_mcsindex,
@@ -3581,383 +3986,217 @@ framing signal deasserted.  this is caused by software setting the drain all reg
         { "RFID", "ixveriwave.rfid",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
-    { &hf_radiotap_plcp_default,
-        { "PLCP", "ixveriwave.plcp",
-        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_tx_antennaselect,
-        { "Antenna Select", "ixveriwave.tx.antennaselect",
-        FT_UINT8, BASE_HEX, NULL, 0x07, NULL, HFILL } },
-    { &hf_radiotap_tx_stbcselect,
-        { "STBC Select", "ixveriwave.tx.stbcselect",
-        FT_UINT8, BASE_HEX, NULL, 0x18, NULL, HFILL } },
+    { &hf_radiotap_l2_l4_info,
+        {"Layer 2-4 Header", "ixveriwave.l2_l4info",
+        FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
+
+    { &hf_radiotap_bssid,
+        {"BSS ID", "ixveriwave.bssid",
+        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+
+    { &hf_radiotap_clientidvalid,
+        { "Client Id Valid", "ixveriwave.clientidvalid",
+        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20, NULL, HFILL } },
+    { &hf_radiotap_bssidvalid,
+        { "BSS ID Valid", "ixveriwave.bssidvalid",
+        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40, NULL, HFILL } },
+    { &hf_radiotap_unicastormulticast,
+        { "Unicast/Multicast", "ixveriwave.unicastormulticast",
+        FT_UINT8, BASE_DEC, VALS(bmbit), 0x80, NULL, HFILL } },
+
+#if 0
+    { &hf_radiotap_wlantype,
+        { "WLAN Type", "ixveriwave.wlantype",
+        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+#endif
+
+    { &hf_radiotap_tid,
+        { "TID", "ixveriwave.tid",
+        FT_UINT16, BASE_HEX, NULL, 0x01c0, NULL, HFILL } },
     { &hf_radiotap_ac,
         { "AC", "ixveriwave.tx.ac",
         FT_UINT8, BASE_HEX, NULL, 0x0e, NULL, HFILL } },
+    { &hf_radiotap_l4idvalid,
+        { "Layer 4 Id Valid", "ixveriwave.l4idvalid",
+        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10, NULL, HFILL } },
+    { &hf_radiotap_containshtfield,
+        { "Contains HT Field", "ixveriwave.containshtfield",
+        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20, NULL, HFILL } },
+    { &hf_radiotap_istypeqos,
+        { "Is Type QOS", "ixveriwave.istypeqos",
+        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40, NULL, HFILL } },
+    { &hf_radiotap_flowvalid,
+        { "Flow Id Valid", "ixveriwave.flowvalid",
+        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80, NULL, HFILL } },
 
-    { &hf_radiotap_plcp_type,
-        { "PLCP_TYPE", "ixveriwave.plcp.type",
-        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-
-    // RF LOGGING
-#if 0
-    { &hf_radiotap_rfinfo_noise,
-        { "Noise", "ixveriwave.rfinfo.noise",
-        FT_FLOAT, 0, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_noise_anta,
-        { "Noise Antenna A", "ixveriwave.noise_anta",
-        FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_noise_antb,
-        { "Noise Antenna B", "ixveriwave.noise_antb",
-        FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_noise_antc,
-        { "Noise Antenna C", "ixveriwave.noise_antc",
-        FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_noise_antd,
-        { "Noise Antenna D", "ixveriwave.noise_antd",
-        FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-#endif
-    { &hf_radiotap_rfinfo_snr,
-        { "SNR", "ixveriwave.snr",
-        FT_NONE, BASE_NONE, NULL, 0x0, "Signal-to-noise ratio", HFILL } },
-    { &hf_radiotap_rfinfo_snr_anta,
-        { "SNR Antenna A", "ixveriwave.snr_anta",
-        FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_decibels, 0x0, "Signal-to-noise ratio", HFILL } },
-    { &hf_radiotap_rfinfo_snr_antb,
-        { "SNR Antenna B", "ixveriwave.snr_antb",
-        FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_decibels, 0x0, "Signal-to-noise ratio", HFILL } },
-    { &hf_radiotap_rfinfo_snr_antc,
-        { "SNR Antenna C", "ixveriwave.snr_antc",
-        FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_decibels, 0x0, "Signal-to-noise ratio", HFILL } },
-    { &hf_radiotap_rfinfo_snr_antd,
-        { "SNR Antenna D", "ixveriwave.snr_antd",
-        FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_decibels, 0x0, "Signal-to-noise ratio", HFILL } },
-
-    { &hf_radiotap_rfinfo_pfe,
-        { "PFE", "ixveriwave.rfinfo.pfe",
-        FT_NONE, BASE_NONE, NULL, 0x0, "Preamble Frequency Error metric", HFILL } },
-    { &hf_radiotap_rfinfo_pfe_anta,
-        { "PFE SS#1", "ixveriwave.pfe_anta",
-        FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_hz, 0x0, "Preamble Frequency Error metric", HFILL } },
-    { &hf_radiotap_rfinfo_pfe_antb,
-        { "PFE SS#2", "ixveriwave.pfe_antb",
-        FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_hz, 0x0, "Preamble Frequency Error metric", HFILL } },
-    { &hf_radiotap_rfinfo_pfe_antc,
-        { "PFE SS#3", "ixveriwave.pfe_antc",
-        FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_hz, 0x0, "Preamble Frequency Error metric", HFILL } },
-    { &hf_radiotap_rfinfo_pfe_antd,
-        { "PFE SS#4", "ixveriwave.pfe_antd",
-        FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, &units_hz, 0x0, "Preamble Frequency Error metric", HFILL } },
-
-    { &hf_radiotap_rfinfo_contextpa,
-        { "CONTEXT_A", "ixveriwave.contextpa",
-        FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_contextpb,
-        { "CONTEXT_B", "ixveriwave.contextpb",
-        FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_contextpc,
-        { "CONTEXT_C", "ixveriwave.contextpc",
-        FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_contextpd,
-        { "CONTEXT_D", "ixveriwave.contextpd",
-        FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_contextpA_bit0,
-        { "SNR_NOISE_valid", "ixveriwave.contextpA.bit0",
-        FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_contextpA_bit1,
-        { "PFE_valid", "ixveriwave.contextpA.bit1",
-        FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_contextpA_bit2,
-        { "PFE_is_CCK", "ixveriwave.contextpA.bit2",
-        FT_BOOLEAN, 16, NULL, 0x0004, NULL, HFILL } },
-#if 0
-    { &hf_radiotap_rfinfo_contextp_bits3,
-        { "AGC", "ixveriwave.contextp.bits3",
-        FT_BOOLEAN, 16, NULL, 0x0038, "Automatic Gain Control", HFILL } },
-#endif
-    { &hf_radiotap_rfinfo_contextpA_bit3,
-        { "AGC 3", "ixveriwave.contextpA.bit3",
-        FT_BOOLEAN, 16, NULL, 0x0008, "Automatic Gain Control-[3] agc_idle2iqrdy_no_gain_change", HFILL } },
-    { &hf_radiotap_rfinfo_contextpA_bit4,
-        { "AGC 4", "ixveriwave.contextpA.bit4",
-        FT_BOOLEAN, 16, NULL, 0x0010, "Automatic Gain Control-[4] agc_high_pwr_terminated", HFILL } },
-    { &hf_radiotap_rfinfo_contextpA_bit5,
-        { "AGC 5", "ixveriwave.contextpA.bit5",
-        FT_BOOLEAN, 16, NULL, 0x0020, "Automatic Gain Control-[5] agc_high_pwr_terminator", HFILL } },
-#if 0
-    { &hf_radiotap_rfinfo_contextpA_bit8,
-        { "Frame format", "ixveriwave.contextp.bits8",
-        FT_UINT16, BASE_DEC, VALS(frameformat_type), 0x0300, "0: LEGACY.   1:HT.   3:-VHT.", HFILL } },
-    { &hf_radiotap_rfinfo_contextpA_bit10,
-        { "OFDM or CCK", "ixveriwave.contextp.bit10",
-        FT_BOOLEAN, 16, TFS(&tfs_legacy_type), 0x0400, "0: LEGACY OFDM      1: 802.11b LEGACY CCK", HFILL } },
-    { &hf_radiotap_rfinfo_contextpA_bit11,
-        { "SigBandWidth of EVM", "ixveriwave.contextp.bits11",
-        FT_UINT16, BASE_DEC, VALS(sbw_evm), 0x1800, "Signal Bandwidth of EVM measurement", HFILL } },
-#endif
-    { &hf_radiotap_rfinfo_contextpA_bit13,
-        { "QAM modulation", "ixveriwave.contextpA.bits13",
-        FT_BOOLEAN, 16, NULL, 0xe000, NULL, HFILL } },
-
-    { &hf_radiotap_rfinfo_contextpB_bit0,
-        { "SNR_NOISE_valid", "ixveriwave.contextpB.bit0",
-        FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_contextpB_bit1,
-        { "PFE_valid", "ixveriwave.contextpB.bit1",
-        FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_contextpB_bit2,
-        { "PFE_is_CCK", "ixveriwave.contextpB.bit2",
-        FT_BOOLEAN, 16, NULL, 0x0004, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_contextpB_bit3,
-        { "AGC 3", "ixveriwave.contextpB.bit3",
-        FT_BOOLEAN, 16, NULL, 0x0008, "Automatic Gain Control-[3] agc_idle2iqrdy_no_gain_change", HFILL } },
-    { &hf_radiotap_rfinfo_contextpB_bit4,
-        { "AGC 4", "ixveriwave.contextpB.bit4",
-        FT_BOOLEAN, 16, NULL, 0x0010, "Automatic Gain Control-[4] agc_high_pwr_terminated", HFILL } },
-    { &hf_radiotap_rfinfo_contextpB_bit5,
-        { "AGC 5", "ixveriwave.contextpB.bit5",
-        FT_BOOLEAN, 16, NULL, 0x0020, "Automatic Gain Control-[5] agc_high_pwr_terminator", HFILL } },
-    { &hf_radiotap_rfinfo_contextpB_bit13,
-        { "QAM modulation", "ixveriwave.contextpB.bits13",
-        FT_BOOLEAN, 16, NULL, 0xe000, NULL, HFILL } },
-
-    { &hf_radiotap_rfinfo_contextpC_bit0,
-        { "SNR_NOISE_valid", "ixveriwave.contextpC.bit0",
-        FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_contextpC_bit1,
-        { "PFE_valid", "ixveriwave.contextpC.bit1",
-        FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_contextpC_bit2,
-        { "PFE_is_CCK", "ixveriwave.contextpC.bit2",
-        FT_BOOLEAN, 16, NULL, 0x0004, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_contextpC_bit3,
-        { "AGC 3", "ixveriwave.contextpC.bit3",
-        FT_BOOLEAN, 16, NULL, 0x0008, "Automatic Gain Control-[3] agc_idle2iqrdy_no_gain_change", HFILL } },
-    { &hf_radiotap_rfinfo_contextpC_bit4,
-        { "AGC 4", "ixveriwave.contextpC.bit4",
-        FT_BOOLEAN, 16, NULL, 0x0010, "Automatic Gain Control-[4] agc_high_pwr_terminated", HFILL } },
-    { &hf_radiotap_rfinfo_contextpC_bit5,
-        { "AGC 5", "ixveriwave.contextpC.bit5",
-        FT_BOOLEAN, 16, NULL, 0x0020, "Automatic Gain Control-[5] agc_high_pwr_terminator", HFILL } },
-    { &hf_radiotap_rfinfo_contextpC_bit13,
-        { "QAM modulation", "ixveriwave.contextpC.bits13",
-        FT_BOOLEAN, 16, NULL, 0xe000, NULL, HFILL } },
-
-    { &hf_radiotap_rfinfo_contextpD_bit0,
-        { "SNR_NOISE_valid", "ixveriwave.contextpD.bit0",
-        FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_contextpD_bit1,
-        { "PFE_valid", "ixveriwave.contextpD.bit1",
-        FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_contextpD_bit2,
-        { "PFE_is_CCK", "ixveriwave.contextpD.bit2",
-        FT_BOOLEAN, 16, NULL, 0x0004, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_contextpD_bit3,
-        { "AGC 3", "ixveriwave.contextpD.bit3",
-        FT_BOOLEAN, 16, NULL, 0x0008, "Automatic Gain Control-[3] agc_idle2iqrdy_no_gain_change", HFILL } },
-    { &hf_radiotap_rfinfo_contextpD_bit4,
-        { "AGC 4", "ixveriwave.contextpD.bit4",
-        FT_BOOLEAN, 16, NULL, 0x0010, "Automatic Gain Control-[4] agc_high_pwr_terminated", HFILL } },
-    { &hf_radiotap_rfinfo_contextpD_bit5,
-        { "AGC 5", "ixveriwave.contextpD.bit5",
-        FT_BOOLEAN, 16, NULL, 0x0020, "Automatic Gain Control-[5] agc_high_pwr_terminator", HFILL } },
-    { &hf_radiotap_rfinfo_contextpD_bit13,
-        { "QAM modulation", "ixveriwave.contextpD.bits13",
-        FT_BOOLEAN, 16, NULL, 0xe000, NULL, HFILL } },
-
-    { &hf_radiotap_rfinfo_frameformatA,
-        { "Frame format", "ixveriwave.rfinfo.frameformatA",
-        FT_UINT8, BASE_DEC, VALS(frameformat_type), 0x03, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_frameformatB,
-        { "Frame format", "ixveriwave.rfinfo.frameformatB",
-        FT_UINT8, BASE_DEC, VALS(frameformat_type), 0x03, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_frameformatC,
-        { "Frame format", "ixveriwave.rfinfo.frameformatC",
-        FT_UINT8, BASE_DEC, VALS(frameformat_type), 0x03, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_frameformatD,
-        { "Frame format", "ixveriwave.rfinfo.frameformatD",
-        FT_UINT8, BASE_DEC, VALS(frameformat_type), 0x03, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_legacytypeA,
-        { "Frame format", "ixveriwave.rfinfo.legacytypeA",
-        FT_BOOLEAN, 8, TFS(&tfs_legacy_type), 0x04, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_legacytypeB,
-        { "Frame format", "ixveriwave.rfinfo.legacytypeB",
-        FT_BOOLEAN, 8, TFS(&tfs_legacy_type), 0x04, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_legacytypeC,
-        { "Frame format", "ixveriwave.rfinfo.legacytypeC",
-        FT_BOOLEAN, 8, TFS(&tfs_legacy_type), 0x04, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_legacytypeD,
-        { "Frame format", "ixveriwave.rfinfo.legacytypeD",
-        FT_BOOLEAN, 8, TFS(&tfs_legacy_type), 0x04, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_sigbwevmA,
-        { "SigBandWidth of EVM", "ixveriwave.rfinfo.sigbwevmA",
-        FT_UINT8, BASE_DEC, VALS(sbw_evm), 0x18, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_sigbwevmB,
-        { "SigBandWidth of EVM", "ixveriwave.rfinfo.sigbwevmB",
-        FT_UINT8, BASE_DEC, VALS(sbw_evm), 0x18, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_sigbwevmC,
-        { "SigBandWidth of EVM", "ixveriwave.rfinfo.sigbwevmC",
-        FT_UINT8, BASE_DEC, VALS(sbw_evm), 0x18, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_sigbwevmD,
-        { "SigBandWidth of EVM", "ixveriwave.rfinfo.sigbwevmD",
-        FT_UINT8, BASE_DEC, VALS(sbw_evm), 0x18, NULL, HFILL } },
-
-    { &hf_radiotap_rfinfo_sigdata,
-        { "AVG EVM SIG Data", "ixveriwave.rfinfo.sigdata",
-        FT_NONE, BASE_NONE, NULL, 0x0, "Average EVM for DATA SUBCARRIERS for all SIG symbols of the frame", HFILL } },
-    { &hf_radiotap_rfinfo_avg_evm_sd_siga,
-        { "AVG EVM SIG Data SS#1", "ixveriwave.avg_evm_sda",
-        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_avg_evm_sd_sigb,
-        { "AVG EVM SIG Data SS#2", "ixveriwave.avg_evm_sdb",
-        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_avg_evm_sd_sigc,
-        { "AVG EVM SIG Data SS#3", "ixveriwave.avg_evm_sdc",
-        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_avg_evm_sd_sigd,
-        { "AVG EVM SIG Data SS#4", "ixveriwave.avg_evm_sdd",
-        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-
-    { &hf_radiotap_rfinfo_sigpilot,
-        { "AVG EVM SIG Pilot", "ixveriwave.rfinfo.sigpilot",
-        FT_NONE, BASE_NONE, NULL, 0x0, "Average EVM for  PILOT SUBCARRIERS for all SIG symbols of the frame", HFILL } },
-    { &hf_radiotap_rfinfo_avg_evm_sp_siga,
-        { "AVG EVM SIG Pilot SS#1", "ixveriwave.avg_evm_spa",
-        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_avg_evm_sp_sigb,
-        { "AVG EVM SIG Pilot SS#2", "ixveriwave.avg_evm_spb",
-        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_avg_evm_sp_sigc,
-        { "AVG EVM SIG Pilot SS#3", "ixveriwave.avg_evm_spc",
-        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_avg_evm_sp_sigd,
-        { "AVG EVM SIG Pilot SS#4", "ixveriwave.avg_evm_spd",
-        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-
-    { &hf_radiotap_rfinfo_datadata,
-        { "AVG EVM DATA Data", "ixveriwave.rfinfo.datadata",
-        FT_NONE, BASE_NONE, NULL, 0x0, "Average EVM for  DATA SUBCARRIERS for all DATA symbols of the frame", HFILL } },
-    { &hf_radiotap_rfinfo_avg_evm_dd_siga,
-        { "AVG EVM DATA Data SS#1", "ixveriwave.avg_evm_dda",
-        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_avg_evm_dd_sigb,
-        { "AVG EVM DATA Data SS#2", "ixveriwave.avg_evm_ddb",
-        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_avg_evm_dd_sigc,
-        { "AVG EVM DATA Data SS#3", "ixveriwave.avg_evm_ddc",
-        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_avg_evm_dd_sigd,
-        { "AVG EVM DATA Data SS#4", "ixveriwave.avg_evm_ddd",
-        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-
-    { &hf_radiotap_rfinfo_datapilot,
-        { "AVG EVM DATA Pilot", "ixveriwave.rfinfo.datapilot",
-        FT_NONE, BASE_NONE, NULL, 0x0, "Average EVM for  PILOT SUBCARRIERS for all DATA symbols of the frame", HFILL } },
-    { &hf_radiotap_rfinfo_avg_evm_dp_siga,
-        { "AVG EVM DATA Pilot SSI-1", "ixveriwave.avg_evm_dpa",
-        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_avg_evm_dp_sigb,
-        { "AVG EVM DATA Pilot SSI-2", "ixveriwave.avg_evm_dpb",
-        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_avg_evm_dp_sigc,
-        { "AVG EVM DATA Pilot SSI-3", "ixveriwave.avg_evm_dpc",
-        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_avg_evm_dp_sigd,
-        { "AVG EVM DATA Pilot SSI-4", "ixveriwave.avg_evm_dpd",
-        FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-
-    { &hf_radiotap_rfinfo_avg_ws_symbol,
-        { "EVM Worst Symbol", "ixveriwave.wssymbol",
-        FT_NONE, BASE_NONE, NULL, 0, "WORST-CASE SYMBOL", HFILL } },
-    { &hf_radiotap_rfinfo_avg_evm_ws_siga,
-        { "EVM Worst Symbol SS#1", "ixveriwave.avg_evm_wsa",
-        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_percent, 0, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_avg_evm_ws_sigb,
-        { "EVM Worst Symbol SS#2", "ixveriwave.avg_evm_wsb",
-        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_percent, 0, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_avg_evm_ws_sigc,
-        { "EVM Worst Symbol SS#3", "ixveriwave.avg_evm_wsc",
-        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_percent, 0, NULL, HFILL } },
-    { &hf_radiotap_rfinfo_avg_evm_ws_sigd,
-        { "EVM Worst Symbol SS#4", "ixveriwave.avg_evm_wsd",
-        FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_percent, 0, NULL, HFILL } },
-
-    { &hf_radiotap_rfinfo_rfid,
-        { "RF_ID", "ixveriwave.rfinfo.rfid",
-        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-#if 0
-    { &hf_radiotap_rfinfo_tbd,
-        { "RF_TBD", "ixveriwave.rfinfo.tbd",
-        FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-#endif
-    { &hf_radiotap_vw_errors,
-        { "Errors", "ixveriwave.errors",
+    { &hf_radiotap_payloaddecode,
+        { "Payload Decode", "ixveriwave.payloaddecode",
         FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
-    /* rx error decodes for fpga ver VW510021 */
-    { &hf_radiotap_vw_errors_rx_2_bit0,
-        { "CRC16 or parity error", "ixveriwave.errors.bit0",
-        FT_BOOLEAN, 16, NULL, 0x0001, "error bit 0", HFILL } },
+    { &hf_radiotap_vw_info_rx,
+        { "Info field", "ixveriwave.info",
+        FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
-    { &hf_radiotap_vw_errors_rx_2_bit1,
-        { "Non-supported rate or service field", "ixveriwave.errors.bit1",
-        FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL } },
+    /* rx info decodes for fpga ver VW510021 */
+    { &hf_radiotap_vw_info_rx_bit0,
+        { "Crypto WEP Encoded", "ixveriwave.info.bit0",
+        FT_UINT24, BASE_DEC, NULL, 0x000001, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_bit1,
+        { "Crypto TKIP Encoded", "ixveriwave.info.bit1",
+        FT_UINT24, BASE_DEC, VALS(crypto_TKIP_type), 0x000006, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_bit3,
+        { "Crypto RX TKIP TSC SEQSKIP", "ixveriwave.info.bit3",
+        FT_UINT24, BASE_DEC, NULL, 0x000008, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_bit4,
+        { "Crypto RX CCMP PN SEQSKIP", "ixveriwave.info.bit4",
+        FT_UINT24, BASE_DEC, NULL, 0x000010, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_bit5,
+        { "TKIP not full MSDU", "ixveriwave.info.bit5",
+        FT_UINT24, BASE_DEC, NULL, 0x000020, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_bit6,
+        { "MPDU Length field is greater than MPDU octets", "ixveriwave.info.bit6",
+        FT_UINT24, BASE_DEC, NULL, 0x000040, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_bit7,
+        { "RX TKIP / CCMP TSC SEQERR", "ixveriwave.info.bit7",
+        FT_UINT24, BASE_DEC, NULL, 0x000080, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_bit8,
+        { "ACK withheld from frame", "ixveriwave.info.bit8",
+        FT_UINT24, BASE_DEC, NULL, 0x000100, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_bit9,
+        { "Client BSSID matched", "ixveriwave.info.bit9",
+        FT_UINT24, BASE_DEC, NULL, 0x000200, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_bit10,
+        { "MPDU of an A-MPDU", "ixveriwave.info.bit10",
+        FT_UINT24, BASE_DEC, NULL, 0x000400, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_bit11,
+        { "First MPDU of A-MPDU", "ixveriwave.info.bit11",
+        FT_UINT24, BASE_DEC, NULL, 0x000800, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_bit12,
+        { "Last MPDU of A-MPDU", "ixveriwave.info.bit12",
+        FT_UINT24, BASE_DEC, NULL, 0x001000, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_bit13,
+        { "MSDU of A-MSDU", "ixveriwave.info.bit13",
+        FT_UINT24, BASE_DEC, NULL, 0x002000, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_bit14,
+        { "First MSDU of A-MSDU", "ixveriwave.info.bit14",
+        FT_UINT24, BASE_DEC, NULL, 0x004000, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_bit15,
+        { "Last MSDU of A-MSDU", "ixveriwave.info.bit15",
+        FT_UINT24, BASE_DEC, NULL, 0x008000, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_bit16,
+        { "Layer 1 Info[0]", "ixveriwave.info.bit16",
+        FT_UINT24, BASE_DEC, NULL, 0x010000, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_bit17,
+        { "Layer 1 Info[1]", "ixveriwave.info.bit17",
+        FT_UINT24, BASE_DEC, NULL, 0x020000, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_bit18,
+        { "VHT frame received with the use of the VHT_SIG_B.LENGTH", "ixveriwave.info.bit18",
+        FT_UINT24, BASE_DEC, NULL, 0x040000, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_bit19,
+        { "VHT frame received without the use of VHT_SIG_B.LENGTH", "ixveriwave.info.bit19",
+        FT_UINT24, BASE_DEC, NULL, 0x080000, NULL, HFILL } },
+    { &hf_radiotap_vw_info_rx_bit20,
+        { "Factory Internal", "ixveriwave.info.bit20",
+        FT_UINT24, BASE_DEC, NULL, 0xf00000, NULL, HFILL } },
 
-    { &hf_radiotap_vw_errors_rx_2_bit2,
-        { "Short frame error.  Frame is shorter than length.", "ixveriwave.errors.bit2",
-        FT_BOOLEAN, 16, NULL, 0x0004, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx,
+        { "Info field", "ixveriwave.info",
+        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
-    { &hf_radiotap_vw_errors_rx_2_bit4,
-        { "FCS_Error", "ixveriwave.errors.bit4",
+    /* tx info decodes for VW510021 and previous versions */
+    /*
+    { &hf_radiotap_vw_info_tx_bit0,
+        { "Crypto WEP Encoded", "ixveriwave.info.bit0",
+        FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_bit1,
+        { "Crypto TKIP Encoded", "ixveriwave.info.bit1",
+        FT_BOOLEAN, 16, NULL, 0x0006, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_bit3,
+        { "Crypto C bit Error", "ixveriwave.info.bit3",
+        FT_BOOLEAN, 16, NULL, 0x0008, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_bit4,
+        { "Crypto TKIP not full MSDU", "ixveriwave.info.bit4",
         FT_BOOLEAN, 16, NULL, 0x0010, NULL, HFILL } },
-
-    { &hf_radiotap_vw_errors_rx_2_bit5,
-        { "L2 de-aggregation error", "ixveriwave.errors.bit5",
+    { &hf_radiotap_vw_info_tx_bit5,
+        { "Crypto Software Error", "ixveriwave.info.bit5",
         FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL } },
-
-    { &hf_radiotap_vw_errors_rx_2_bit6,
-        { "Duplicate MPDU", "ixveriwave.errors.bit6",
+    { &hf_radiotap_vw_info_tx_bit6,
+        { "Crypto Short Fault", "ixveriwave.info.bit6",
         FT_BOOLEAN, 16, NULL, 0x0040, NULL, HFILL } },
-
-    { &hf_radiotap_vw_errors_rx_2_bit7,
-        { "Bad_Sig:  Bad flow magic number (includes bad flow crc16)", "ixveriwave.errors.bit7",
+    { &hf_radiotap_vw_info_tx_bit7,
+        { "Crypto Payload Length Fault", "ixveriwave.info.bit7",
         FT_BOOLEAN, 16, NULL, 0x0080, NULL, HFILL } },
-
-    { &hf_radiotap_vw_errors_rx_2_bit8,
-        { "Bad flow payload checksum", "ixveriwave.errors.bit8",
+    { &hf_radiotap_vw_info_tx_bit8,
+        { "Sent RTS before Data", "ixveriwave.info.bit8",
         FT_BOOLEAN, 16, NULL, 0x0100, NULL, HFILL } },
-
-    { &hf_radiotap_vw_errors_rx_2_bit10,
-        { "Bad IP checksum error", "ixveriwave.errors.bit10",
-        FT_BOOLEAN, 16, NULL, 0x0400, NULL, HFILL } },
-
-    { &hf_radiotap_vw_errors_rx_2_bit11,
-        { "L4(TCP/ICMP/IGMP/UDP) checksum error", "ixveriwave.errors.bit11",
-        FT_BOOLEAN, 16, NULL, 0x0800, NULL, HFILL } },
-
-    { &hf_radiotap_vw_errors_tx_bit01,
-        { "CRC32 Error", "ixveriwave.errors.bit1",
-        FT_BOOLEAN, 32, NULL, 0x00000002, NULL, HFILL } },
-    { &hf_radiotap_vw_errors_tx_bit05,
-        { "IP Checksum Error", "ixveriwave.errors.bit5",
-        FT_BOOLEAN, 32, NULL, 0x00000020, NULL, HFILL } },
-    { &hf_radiotap_vw_errors_tx_bit8,
-        { "ACK Timeout", "ixveriwave.errors.bit8",
-        FT_BOOLEAN, 32, NULL, 0x00000100, NULL, HFILL } },
-    { &hf_radiotap_vw_errors_tx_bit9,
-        { "CTS Timeout", "ixveriwave.errors.bit9",
-        FT_BOOLEAN, 32, NULL, 0x00000200, NULL, HFILL } },
-    { &hf_radiotap_vw_errors_tx_bit10,
-        { "Last Retry Attempt for this MPDU", "ixveriwave.errors.bit10",
-        FT_BOOLEAN, 32, NULL, 0x00000400, NULL, HFILL } },
-    { &hf_radiotap_vw_errors_tx_bit31,
-        { "Internal Error", "ixveriwave.errors.bit31",
-        FT_BOOLEAN, 32, NULL, 0x80000000, NULL, HFILL } },
-    { &hf_radiotap_vw_tx_retrycount,
-        { "Retry Count", "ixveriwave.tx.retrycount",
-        FT_UINT8, BASE_DEC, NULL, 0x1f, NULL, HFILL } },
-    { &hf_radiotap_vw_tx_factorydebug,
-        { "Factory Debug", "ixveriwave.tx.factorydebug",
-        FT_UINT8, BASE_HEX, NULL, 0x7f80, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_bit9,
+        { "Sent CTS to Self before Data", "ixveriwave.info.bit9",
+        FT_BOOLEAN, 16, NULL, 0x0200, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_bit10,
+        { "MPDU of A-MPDU", "ixveriwave.info.bit10",
+        FT_BOOLEAN, 16, NULL, INFO_MPDU_OF_A_MPDU, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_bit11,
+        { "First MPDU of A-MPDU", "ixveriwave.info.bit11",
+        FT_BOOLEAN, 16, NULL, INFO_FIRST_MPDU_OF_A_MPDU, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_bit12,
+        { "Last MPDU of A-MPDU", "ixveriwave.info.bit12",
+        FT_BOOLEAN, 16, NULL, INFO_LAST_MPDU_OF_A_MPDU, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_bit13,
+        { "MSDU of A-MSDU", "ixveriwave.info.bit13",
+        FT_BOOLEAN, 16, NULL, INFO_MSDU_OF_A_MSDU, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_bit14,
+        { "First MSDU of A-MSDU", "ixveriwave.info.bit14",
+        FT_BOOLEAN, 16, NULL, INFO_FIRST_MSDU_OF_A_MSDU, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_bit15,
+        { "Last MSDU of A-MSDU", "ixveriwave.info.bit15",
+        FT_BOOLEAN, 16, NULL, INFO_LAST_MSDU_OF_A_MSDU, NULL, HFILL } },
+    */
+    /* tx info decodes for VW510021 and previous versions */
+    { &hf_radiotap_vw_info_tx_bit0,
+        { "Crypto WEP Encoded", "ixveriwave.info.bit0",
+        FT_UINT16, BASE_DEC, NULL, 0x0001, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_bit1,
+        { "Crypto TKIP Encoded", "ixveriwave.info.bit1",
+        FT_UINT16, BASE_DEC, VALS(crypto_TKIP_type), 0x0006, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_bit3,
+        { "Crypto C bit Error", "ixveriwave.info.bit3",
+        FT_UINT16, BASE_DEC, NULL, 0x0008, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_bit4,
+        { "Crypto TKIP not full MSDU", "ixveriwave.info.bit4",
+        FT_UINT16, BASE_DEC, NULL, 0x0010, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_bit5,
+        { "Crypto Software Error", "ixveriwave.info.bit5",
+        FT_UINT16, BASE_DEC, NULL, 0x0020, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_bit6,
+        { "Crypto Short Fault", "ixveriwave.info.bit6",
+        FT_UINT16, BASE_DEC, NULL, 0x0040, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_bit7,
+        { "Crypto Payload Length Fault", "ixveriwave.info.bit7",
+        FT_UINT16, BASE_DEC, NULL, 0x0080, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_bit8,
+        { "Sent RTS before Data", "ixveriwave.info.bit8",
+        FT_UINT16, BASE_DEC, NULL, 0x0100, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_bit9,
+        { "Sent CTS to Self before Data", "ixveriwave.info.bit9",
+        FT_UINT16, BASE_DEC, NULL, 0x0200, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_bit10,
+        { "MPDU of A-MPDU", "ixveriwave.info.bit10",
+        FT_UINT16, BASE_DEC, NULL, INFO_MPDU_OF_A_MPDU, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_bit11,
+        { "First MPDU of A-MPDU", "ixveriwave.info.bit11",
+        FT_UINT16, BASE_DEC, NULL, INFO_FIRST_MPDU_OF_A_MPDU, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_bit12,
+        { "Last MPDU of A-MPDU", "ixveriwave.info.bit12",
+        FT_UINT16, BASE_DEC, NULL, INFO_LAST_MPDU_OF_A_MPDU, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_bit13,
+        { "MSDU of A-MSDU", "ixveriwave.info.bit13",
+        FT_UINT16, BASE_DEC, NULL, INFO_MSDU_OF_A_MSDU, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_bit14,
+        { "First MSDU of A-MSDU", "ixveriwave.info.bit14",
+        FT_UINT16, BASE_DEC, NULL, INFO_FIRST_MSDU_OF_A_MSDU, NULL, HFILL } },
+    { &hf_radiotap_vw_info_tx_bit15,
+        { "Last MSDU of A-MSDU", "ixveriwave.info.bit15",
+        FT_UINT16, BASE_DEC, NULL, INFO_LAST_MSDU_OF_A_MSDU, NULL, HFILL } },
 
     { &hf_radiotap_vw_errors_rx_bit0,
         { "SIG Field CRC/Parity Error", "ixveriwave.errors.bit0",
@@ -4035,250 +4274,19 @@ framing signal deasserted.  this is caused by software setting the drain all reg
         { "Internal Error", "ixveriwave.errors.bit31",
         FT_BOOLEAN, 32, NULL, 0x80000000, NULL, HFILL } },
 
-    { &hf_radiotap_vw_info,
-        { "Info field", "ixveriwave.info",
-        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_vw_info_tx,
-        { "Info field", "ixveriwave.info",
-        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-    { &hf_radiotap_vw_info_rx,
-            { "Info field", "ixveriwave.info",
-            FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-
-    /* tx info decodes for VW510021 and previous versions */
-
-    /*
-    { &hf_radiotap_vw_info_tx_bit0,
-        { "Crypto WEP Encoded", "ixveriwave.info.bit0",
-        FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL } },
-    { &hf_radiotap_vw_info_tx_bit1,
-        { "Crypto TKIP Encoded", "ixveriwave.info.bit1",
-        FT_BOOLEAN, 16, NULL, 0x0006, NULL, HFILL } },
-    { &hf_radiotap_vw_info_tx_bit3,
-        { "Crypto C bit Error", "ixveriwave.info.bit3",
-        FT_BOOLEAN, 16, NULL, 0x0008, NULL, HFILL } },
-    { &hf_radiotap_vw_info_tx_bit4,
-        { "Crypto TKIP not full MSDU", "ixveriwave.info.bit4",
-        FT_BOOLEAN, 16, NULL, 0x0010, NULL, HFILL } },
-    { &hf_radiotap_vw_info_tx_bit5,
-        { "Crypto Software Error", "ixveriwave.info.bit5",
+    { &hf_radiotap_vw_errors_tx_bit1,
+        { "Packet FCS error", "ixveriwave.errors.bit1",
+        FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL } },
+    { &hf_radiotap_vw_errors_tx_bit5,
+        { "IP checksum error", "ixveriwave.errors.bit5",
         FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL } },
-    { &hf_radiotap_vw_info_tx_bit6,
-        { "Crypto Short Fault", "ixveriwave.info.bit6",
-        FT_BOOLEAN, 16, NULL, 0x0040, NULL, HFILL } },
-    { &hf_radiotap_vw_info_tx_bit7,
-        { "Crypto Payload Length Fault", "ixveriwave.info.bit7",
-        FT_BOOLEAN, 16, NULL, 0x0080, NULL, HFILL } },
-    { &hf_radiotap_vw_info_tx_bit8,
-        { "Sent RTS before Data", "ixveriwave.info.bit8",
-        FT_BOOLEAN, 16, NULL, 0x0100, NULL, HFILL } },
-    { &hf_radiotap_vw_info_tx_bit9,
-        { "Sent CTS to Self before Data", "ixveriwave.info.bit9",
-        FT_BOOLEAN, 16, NULL, 0x0200, NULL, HFILL } },
 
-    { &hf_radiotap_vw_info_tx_bit10,
-        { "MPDU of A-MPDU", "ixveriwave.info.bit10",
-        FT_BOOLEAN, 16, NULL, INFO_MPDU_OF_A_MPDU, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_tx_bit11,
-        { "First MPDU of A-MPDU", "ixveriwave.info.bit11",
-        FT_BOOLEAN, 16, NULL, INFO_FIRST_MPDU_OF_A_MPDU, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_tx_bit12,
-        { "Last MPDU of A-MPDU", "ixveriwave.info.bit12",
-        FT_BOOLEAN, 16, NULL, INFO_LAST_MPDU_OF_A_MPDU, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_tx_bit13,
-        { "MSDU of A-MSDU", "ixveriwave.info.bit13",
-        FT_BOOLEAN, 16, NULL, INFO_MSDU_OF_A_MSDU, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_tx_bit14,
-        { "First MSDU of A-MSDU", "ixveriwave.info.bit14",
-        FT_BOOLEAN, 16, NULL, INFO_FIRST_MSDU_OF_A_MSDU, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_tx_bit15,
-        { "Last MSDU of A-MSDU", "ixveriwave.info.bit15",
-        FT_BOOLEAN, 16, NULL, INFO_LAST_MSDU_OF_A_MSDU, NULL, HFILL } },
-    */
-    /* tx info decodes for VW510021 and previous versions */
-    { &hf_radiotap_vw_info_tx_bit0,
-        { "Crypto WEP Encoded", "ixveriwave.info.bit0",
-        FT_UINT16, BASE_DEC, NULL, 0x0001, NULL, HFILL } },
-    { &hf_radiotap_vw_info_tx_bit1,
-        { "Crypto TKIP Encoded", "ixveriwave.info.bit1",
-        FT_UINT16, BASE_DEC, VALS(crypto_TKIP_type), 0x0006, NULL, HFILL } },
-    { &hf_radiotap_vw_info_tx_bit3,
-        { "Crypto C bit Error", "ixveriwave.info.bit3",
-        FT_UINT16, BASE_DEC, NULL, 0x0008, NULL, HFILL } },
-    { &hf_radiotap_vw_info_tx_bit4,
-        { "Crypto TKIP not full MSDU", "ixveriwave.info.bit4",
-        FT_UINT16, BASE_DEC, NULL, 0x0010, NULL, HFILL } },
-    { &hf_radiotap_vw_info_tx_bit5,
-        { "Crypto Software Error", "ixveriwave.info.bit5",
-        FT_UINT16, BASE_DEC, NULL, 0x0020, NULL, HFILL } },
-    { &hf_radiotap_vw_info_tx_bit6,
-        { "Crypto Short Fault", "ixveriwave.info.bit6",
-        FT_UINT16, BASE_DEC, NULL, 0x0040, NULL, HFILL } },
-    { &hf_radiotap_vw_info_tx_bit7,
-        { "Crypto Payload Length Fault", "ixveriwave.info.bit7",
-        FT_UINT16, BASE_DEC, NULL, 0x0080, NULL, HFILL } },
-    { &hf_radiotap_vw_info_tx_bit8,
-        { "Sent RTS before Data", "ixveriwave.info.bit8",
-        FT_UINT16, BASE_DEC, NULL, 0x0100, NULL, HFILL } },
-    { &hf_radiotap_vw_info_tx_bit9,
-        { "Sent CTS to Self before Data", "ixveriwave.info.bit9",
-        FT_UINT16, BASE_DEC, NULL, 0x0200, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_tx_bit10,
-        { "MPDU of A-MPDU", "ixveriwave.info.bit10",
-        FT_UINT16, BASE_DEC, NULL, INFO_MPDU_OF_A_MPDU, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_tx_bit11,
-        { "First MPDU of A-MPDU", "ixveriwave.info.bit11",
-        FT_UINT16, BASE_DEC, NULL, INFO_FIRST_MPDU_OF_A_MPDU, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_tx_bit12,
-        { "Last MPDU of A-MPDU", "ixveriwave.info.bit12",
-        FT_UINT16, BASE_DEC, NULL, INFO_LAST_MPDU_OF_A_MPDU, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_tx_bit13,
-        { "MSDU of A-MSDU", "ixveriwave.info.bit13",
-        FT_UINT16, BASE_DEC, NULL, INFO_MSDU_OF_A_MSDU, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_tx_bit14,
-        { "First MSDU of A-MSDU", "ixveriwave.info.bit14",
-        FT_UINT16, BASE_DEC, NULL, INFO_FIRST_MSDU_OF_A_MSDU, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_tx_bit15,
-        { "Last MSDU of A-MSDU", "ixveriwave.info.bit15",
-        FT_UINT16, BASE_DEC, NULL, INFO_LAST_MSDU_OF_A_MSDU, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_tx_2_bit10,
-        { "MPDU of A-MPDU", "ixveriwave.info.bit10",
-        FT_BOOLEAN, 16, NULL, INFO_MPDU_OF_A_MPDU, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_tx_2_bit11,
-        { "First MPDU of A-MPDU", "ixveriwave.info.bit11",
-        FT_BOOLEAN, 16, NULL, INFO_FIRST_MPDU_OF_A_MPDU, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_tx_2_bit12,
-        { "Last MPDU of A-MPDU", "ixveriwave.info.bit12",
-        FT_BOOLEAN, 16, NULL, INFO_LAST_MPDU_OF_A_MPDU, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_tx_2_bit13,
-        { "MSDU of A-MSDU", "ixveriwave.info.bit13",
-        FT_BOOLEAN, 16, NULL, INFO_MSDU_OF_A_MSDU, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_tx_2_bit14,
-        { "First MSDU of A-MSDU", "ixveriwave.info.bit14",
-        FT_BOOLEAN, 16, NULL, INFO_FIRST_MSDU_OF_A_MSDU, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_tx_2_bit15,
-        { "Last MSDU of A-MSDU", "ixveriwave.info.bit15",
-        FT_BOOLEAN, 16, NULL, INFO_LAST_MSDU_OF_A_MSDU, NULL, HFILL } },
-    /*v510006 uses bits */
-
-    /* rx info decodes for fpga ver VW510021 */
-    { &hf_radiotap_vw_info_rx_bit0,
-        { "Crypto WEP Encoded", "ixveriwave.info.bit0",
-        FT_UINT24, BASE_DEC, NULL, 0x000001, NULL, HFILL } },
-    { &hf_radiotap_vw_info_rx_bit1,
-        { "Crypto TKIP Encoded", "ixveriwave.info.bit1",
-        FT_UINT24, BASE_DEC, VALS(crypto_TKIP_type), 0x000006, NULL, HFILL } },
-    { &hf_radiotap_vw_info_rx_bit3,
-        { "Crypto RX TKIP TSC SEQSKIP", "ixveriwave.info.bit3",
-        FT_UINT24, BASE_DEC, NULL, 0x000008, NULL, HFILL } },
-    { &hf_radiotap_vw_info_rx_bit4,
-        { "Crypto RX CCMP PN SEQSKIP", "ixveriwave.info.bit4",
-        FT_UINT24, BASE_DEC, NULL, 0x000010, NULL, HFILL } },
-    { &hf_radiotap_vw_info_rx_bit5,
-        { "TKIP not full MSDU", "ixveriwave.info.bit5",
-        FT_UINT24, BASE_DEC, NULL, 0x000020, NULL, HFILL } },
-    { &hf_radiotap_vw_info_rx_bit6,
-        { "MPDU Length field is greater than MPDU octets", "ixveriwave.info.bit6",
-        FT_UINT24, BASE_DEC, NULL, 0x000040, NULL, HFILL } },
-    { &hf_radiotap_vw_info_rx_bit7,
-        { "RX TKIP / CCMP TSC SEQERR", "ixveriwave.info.bit7",
-        FT_UINT24, BASE_DEC, NULL, 0x000080, NULL, HFILL } },
-    { &hf_radiotap_vw_info_rx_bit8,
-        { "ACK withheld from frame", "ixveriwave.info.bit8",
-        FT_UINT24, BASE_DEC, NULL, 0x000100, NULL, HFILL } },
-    { &hf_radiotap_vw_info_rx_bit9,
-        { "Client BSSID matched", "ixveriwave.info.bit9",
-        FT_UINT24, BASE_DEC, NULL, 0x000200, NULL, HFILL } },
-    { &hf_radiotap_vw_info_rx_bit10,
-        { "MPDU of an A-MPDU", "ixveriwave.info.bit10",
-        FT_UINT24, BASE_DEC, NULL, 0x000400, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_rx_bit11,
-        { "First MPDU of A-MPDU", "ixveriwave.info.bit11",
-        FT_UINT24, BASE_DEC, NULL, 0x000800, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_rx_bit12,
-        { "Last MPDU of A-MPDU", "ixveriwave.info.bit12",
-        FT_UINT24, BASE_DEC, NULL, 0x001000, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_rx_bit13,
-        { "MSDU of A-MSDU", "ixveriwave.info.bit13",
-        FT_UINT24, BASE_DEC, NULL, 0x002000, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_rx_bit14,
-        { "First MSDU of A-MSDU", "ixveriwave.info.bit14",
-        FT_UINT24, BASE_DEC, NULL, 0x004000, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_rx_bit15,
-        { "Last MSDU of A-MSDU", "ixveriwave.info.bit15",
-        FT_UINT24, BASE_DEC, NULL, 0x008000, NULL, HFILL } },
-    { &hf_radiotap_vw_info_rx_bit16,
-        { "Layer 1 Info[0]", "ixveriwave.info.bit16",
-        FT_UINT24, BASE_DEC, NULL, 0x010000, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_rx_bit17,
-        { "Layer 1 Info[1]", "ixveriwave.info.bit17",
-        FT_UINT24, BASE_DEC, NULL, 0x020000, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_rx_bit18,
-        { "VHT frame received with the use of the VHT_SIG_B.LENGTH", "ixveriwave.info.bit18",
-        FT_UINT24, BASE_DEC, NULL, 0x040000, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_rx_bit19,
-        { "VHT frame received without the use of VHT_SIG_B.LENGTH", "ixveriwave.info.bit19",
-        FT_UINT24, BASE_DEC, NULL, 0x080000, NULL, HFILL } },
-    { &hf_radiotap_vw_info_rx_bit20,
-        { "Factory Internal", "ixveriwave.info.bit20",
-        FT_UINT24, BASE_DEC, NULL, 0xf00000, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_rx_2_bit8,
-        { "ACK withheld from frame", "ixveriwave.info.bit8",
-        FT_BOOLEAN, 16, NULL, 0x0100, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_rx_2_bit9,
-        { "Sent CTS to self before data", "ixveriwave.info.bit9",
-        FT_BOOLEAN, 16, NULL, 0x0200, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_rx_2_bit10,
-        { "MPDU of an A-MPDU", "ixveriwave.info.bit10",
-        FT_BOOLEAN, 16, NULL, INFO_MPDU_OF_A_MPDU, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_rx_2_bit11,
-        { "First MPDU of A-MPDU", "ixveriwave.info.bit11",
-        FT_BOOLEAN, 16, NULL, INFO_FIRST_MPDU_OF_A_MPDU, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_rx_2_bit12,
-        { "Last MPDU of A-MPDU", "ixveriwave.info.bit12",
-        FT_BOOLEAN, 16, NULL, INFO_LAST_MPDU_OF_A_MPDU, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_rx_2_bit13,
-        { "MSDU of A-MSDU", "ixveriwave.info.bit13",
-        FT_BOOLEAN, 16, NULL, INFO_MSDU_OF_A_MSDU, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_rx_2_bit14,
-        { "First MSDU of A-MSDU", "ixveriwave.info.bit14",
-        FT_BOOLEAN, 16, NULL, INFO_FIRST_MSDU_OF_A_MSDU, NULL, HFILL } },
-
-    { &hf_radiotap_vw_info_rx_2_bit15,
-        { "Last MSDU of A-MSDU", "ixveriwave.info.bit15",
-        FT_BOOLEAN, 16, NULL, INFO_LAST_MSDU_OF_A_MSDU, NULL, HFILL } },
+    { &hf_radiotap_vw_tx_retrycount,
+        { "Retry Count", "ixveriwave.tx.retrycount",
+        FT_UINT8, BASE_DEC, NULL, 0x1f, NULL, HFILL } },
+    { &hf_radiotap_vw_tx_factorydebug,
+        { "Factory Debug", "ixveriwave.tx.factorydebug",
+        FT_UINT8, BASE_HEX, NULL, 0x7f80, NULL, HFILL } },
     };
 
     static gint *ett[] = {
