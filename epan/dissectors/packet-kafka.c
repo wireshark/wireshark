@@ -621,7 +621,7 @@ dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int s
                 /* Unzip message and add payload to new data tab */
                 payload = tvb_child_uncompress(tvb, raw, 0, compressed_size);
                 if (payload) {
-                    show_compression_reduction(tvb, subtree, compressed_size, tvb_captured_length(payload));
+                    show_compression_reduction(tvb, subtree, compressed_size, (guint)tvb_captured_length(payload));
 
                     add_new_data_source(pinfo, payload, "Uncompressed Message");
                     dissect_kafka_message_set(payload, pinfo, subtree, 0, FALSE, codec);
@@ -693,7 +693,7 @@ dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int s
                     }
                 }
                 if (ret == SNAPPY_OK) {
-                    show_compression_reduction(tvb, subtree, compressed_size, uncompressed_size);
+                    show_compression_reduction(tvb, subtree, compressed_size, (guint)uncompressed_size);
 
                     add_new_data_source(pinfo, payload, "Uncompressed Message");
                     dissect_kafka_message_set(payload, pinfo, subtree, 0, FALSE, codec);
