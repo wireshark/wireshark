@@ -31,8 +31,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* Edit this file with 4-space indentation */
-
 #define NEW_PROTO_TREE_API
 
 #include "config.h"
@@ -43,20 +41,6 @@
 
 void proto_register_gif(void);
 void proto_reg_handoff_gif(void);
-
-/* General-purpose debug logger.
- * Requires double parentheses because of variable arguments of printf().
- *
- * Enable debug logging for GIF by defining AM_CFLAGS
- * so that it contains "-DDEBUG_image_gif" or "-DDEBUG_image"
- */
-#if (defined(DEBUG_image_gif) || defined(DEBUG_image))
-#define DebugLog(x) \
-    g_print("%s:%u: ", __FILE__, __LINE__); \
-    g_print x
-#else
-#define DebugLog(x) ;
-#endif
 
 #define IMG_GIF "image-gif"
 
@@ -317,7 +301,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti;
     proto_tree *gif_tree; /* Main GIF tree */
-    proto_tree *subtree; /* Main GIF tree */
+    proto_tree *subtree;
     guint offset = 0, len = 0;
     guint8 peek;
     gboolean color_map_present;
