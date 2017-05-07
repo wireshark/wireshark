@@ -315,9 +315,9 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     /* Check whether we're processing a GIF object */
     /* see http://www.w3.org/Graphics/GIF/spec-gif89a.txt section 17 */
-    if (!tvb_strneql(tvb, 0, "GIF87a", 6) == 0) {
+    if (tvb_strneql(tvb, 0, "GIF87a", 6) == 0) {
         version = GIF_87a;
-    } else if (!tvb_strneql(tvb, 0, "GIF89a", 6) == 0) {
+    } else if (tvb_strneql(tvb, 0, "GIF89a", 6) == 0) {
         version = GIF_89a;
     } else {
         /* Not a GIF image! */
