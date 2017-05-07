@@ -46,9 +46,9 @@ extern guint8 lchId_type_table[];
 extern guint8 lchId_rlc_map[];
 
 /* Mapping Scrambling Codes to C-RNC Contexts */
-wmem_tree_t *nbap_scrambling_code_crncc_map;
+extern wmem_tree_t *nbap_scrambling_code_crncc_map;
 /* Mapping C-RNC Contexts to U-RNTIs */
-wmem_tree_t *nbap_crncc_urnti_map;
+extern wmem_tree_t *nbap_crncc_urnti_map;
 
 #if 0
 static const value_string lchid_name_resolve[] = {
