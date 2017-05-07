@@ -3256,9 +3256,9 @@ static float
 get_vht_rate(guint8 mcs_index, guint16 rflags, guint8 nss)
 {
     /* Rate conversion data */
-    static const int   canonical_ndbps_20_vht[] = {26, 52, 78, 104, 156, 208, 234, 260, 312};
-    static const int   canonical_ndbps_40_vht[] = {54, 108, 162, 216, 324, 432, 486, 540, 648, 720};
-    static const int   canonical_ndbps_80_vht[] = {117, 234, 351, 468, 702, 936, 1053, 1170, 1404, 1560};
+    static const int   canonical_ndbps_20_vht[9] = {26, 52, 78, 104, 156, 208, 234, 260, 312};
+    static const int   canonical_ndbps_40_vht[10] = {54, 108, 162, 216, 324, 432, 486, 540, 648, 720};
+    static const int   canonical_ndbps_80_vht[10] = {117, 234, 351, 468, 702, 936, 1053, 1170, 1404, 1560};
 
     float symbol_tx_time, bitrate;
 
@@ -3269,19 +3269,27 @@ get_vht_rate(guint8 mcs_index, guint16 rflags, guint8 nss)
 
     /*
      * Check for the out of range mcs_index.
-     * Should never happen, but if mcs index is greater than 9 assume 9
-     * is the value.
-     * XXX - just return 0.0f?
+     * Should never happen, but if mcs index is greater than 9 just
+     * return 0.
      */
-    if (mcs_index > 9) mcs_index = 9;
+    if (mcs_index > 9)
+        return 0.0f;
     if (rflags & FLAGS_CHAN_40MHZ)
         bitrate = (canonical_ndbps_40_vht[mcs_index] * nss) / symbol_tx_time;
-    else if (rflags & FLAGS_CHAN_80MHZ )
+    else if (rflags & FLAGS_CHAN_80MHZ)
         bitrate = (canonical_ndbps_80_vht[mcs_index] * nss) / symbol_tx_time;
     else
     {
-        if (mcs_index == 9 && nss == 3)
-            bitrate = 1040 / symbol_tx_time;
+        if (mcs_index == 9)
+        {
+            /* This is a special case for 20 MHz. */
+            if (nss == 3)
+                bitrate = 1040 / symbol_tx_time;
+            else if (nss == 6)
+                bitrate = 2080 / symbol_tx_time;
+            else
+                bitrate = 0.0f;
+        }
         else
             bitrate = (canonical_ndbps_20_vht[mcs_index] * nss) / symbol_tx_time;
     }
