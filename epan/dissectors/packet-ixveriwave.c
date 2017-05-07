@@ -1916,7 +1916,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tvbuff_t   *next_tvb;
     guint       length;
     gint8       dbm;
-    guint8      rate_mcs_index, vw_plcp_info, vw_bssid;
+    guint8      rate_mcs_index = 0, vw_plcp_info, vw_bssid;
     guint8      plcp_type;
     guint8      vht_ndp_flag, vht_mu_mimo_flg;
     float       phyRate;
