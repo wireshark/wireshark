@@ -277,7 +277,7 @@ static header_field_info hfi_trailer GIF_HFI_INIT = {
 static header_field_info hfi_data_block GIF_HFI_INIT = {
     "Data block",
     IMG_GIF ".data_block",
-    FT_BYTES, BASE_NONE, NULL, 0x00,
+    FT_UINT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0x00,
     NULL, HFILL };
 
 
@@ -451,6 +451,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
      * - Before the GIF termination character
      */
     while (tvb_reported_length_remaining(tvb, offset)) {
+        proto_item *db_ti;
         peek = tvb_get_guint8(tvb, offset);
         if (peek == 0x21) { /* GIF extension block */
             guint32 item_len = 2;   /* Fixed header consisting of:
@@ -472,9 +473,9 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             do {
                 /* Read length of data block */
                 len = tvb_get_guint8(tvb, offset);
-                proto_tree_add_bytes_format(subtree, hfi_data_block.id, tvb,
-                        offset+1, len, NULL,
-                        "Data block (length = %u)", len);
+                db_ti = proto_tree_add_item(subtree, &hfi_data_block,
+                        tvb, offset, 1, ENC_NA);
+                proto_item_append_text(db_ti, " (length = %u)", len);
                 offset += (1 + len);
                 item_len += (1 + len);
             } while (len > 0);
@@ -551,9 +552,9 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             do {
                 /* Read length of data block */
                 len = tvb_get_guint8(tvb, offset);
-                proto_tree_add_bytes_format(subtree, hfi_data_block.id, tvb,
-                        offset + 1, len, NULL,
-                        "Data block (length = %u)", len);
+                db_ti = proto_tree_add_item(subtree, &hfi_data_block,
+                        tvb, offset, 1, ENC_NA);
+                proto_item_append_text(db_ti, " (length = %u)", len);
                 offset += 1 + len;
                 item_len += (1 + len);
             } while (len > 0);
