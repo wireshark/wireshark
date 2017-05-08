@@ -525,8 +525,13 @@
 
 /*
  * HT - contains MCS index.
+ *
+ * XXX - MCS indices for HT go up to 76, which doesn't fit in 6 bits;
+ * either the mask is wrong, or the hardware can't receive packets
+ * with an MCS of 64 through 76, or the hardware can but misreports
+ * the MCS.
  */
-#define vVW510021_W_S2_MCS_INDEX_HT(l1p_1) ((l1p_1) & 0x3f) /* MCS index for HT */
+#define vVW510021_W_S2_MCS_INDEX_HT(l1p_1) ((l1p_1) & 0x3f)
 
 /*
  * VHT - contains MCS index and number of spatial streams.
@@ -545,6 +550,11 @@
 
 /*
  * HT - contains MCS index.
+ *
+ * XXX - MCS indices for HT go up to 76, which doesn't fit in 6 bits;
+ * either the mask is wrong, or the hardware can't receive packets
+ * with an MCS of 64 through 76, or the hardware can but misreports
+ * the MCS.
  */
 #define vVW510021_W_S3_MCS_INDEX_HT(l1p_1)  ((l1p_1) & 0x3f)
 
