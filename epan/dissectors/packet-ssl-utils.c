@@ -4873,10 +4873,12 @@ ssl_add_record_info(gint proto, packet_info *pinfo, const guchar *data, gint dat
     SslRecordInfo* rec, **prec;
     SslPacketInfo* pi;
 
-    pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto, 0);
+    pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto, pinfo->curr_layer_num);
     if (!pi)
     {
         pi = wmem_new0(wmem_file_scope(), SslPacketInfo);
+        pi->srcport = pinfo->srcport;
+        pi->destport = pinfo->destport;
         p_add_proto_data(wmem_file_scope(), pinfo, proto, 0, pi);
     }
 
@@ -4910,7 +4912,7 @@ ssl_get_record_info(tvbuff_t *parent_tvb, int proto, packet_info *pinfo, gint re
 {
     SslRecordInfo* rec;
     SslPacketInfo* pi;
-    pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto, 0);
+    pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto, pinfo->curr_layer_num);
 
     if (!pi)
         return NULL;

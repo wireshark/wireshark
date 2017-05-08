@@ -396,6 +396,8 @@ typedef struct _SslRecordInfo {
 
 typedef struct {
     SslRecordInfo *records; /**< Decrypted records within this frame. */
+    guint32 srcport;        /**< Used for Decode As */
+    guint32 destport;
 } SslPacketInfo;
 
 typedef struct _SslSession {
