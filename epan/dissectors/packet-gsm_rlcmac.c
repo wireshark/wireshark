@@ -523,6 +523,52 @@ static int hf_ms_radio_access_capability_exist = -1;
 static int hf_packet_resource_request_change_mark_exist = -1;
 static int hf_packet_resource_request_sign_var_exist = -1;
 static int hf_additionsr99_exist = -1;
+static int hf_egprs_prr_additionsr5_g_rnti_exist = -1;
+static int hf_egprs_prr_additionsr5_g_rnti_extension = -1;
+static int hf_egprs_prr_additionsr5_rb_id = -1;
+static int hf_egprs_prr_additionsr5_radio_priority = -1;
+static int hf_egprs_prr_additionsr5_rlc_block_count_exist = -1;
+static int hf_egprs_prr_additionsr5_rlc_block_count = -1;
+static int hf_iu_mode_chrequest_exist = -1;
+static int hf_egprs_prr_additionsr6_lcc_pdu_exist = -1;
+static int hf_egprs_prr_additionsr6_lcc_pdu = -1;
+static int hf_Ext_Channel_Request_desc_exist = -1;
+static int hf_egprs_prr_additionsr7_gmsk_mean_bep_exist = -1;
+static int hf_egprs_prr_additionsr7_gmsk_mean_bep = -1;
+static int hf_egprs_prr_additionsr7_gmsk_cv_bep = -1;
+static int hf_egprs_prr_additionsr7_8psk_mean_bep_exist = -1;
+static int hf_egprs_prr_additionsr7_8psk_mean_bep = -1;
+static int hf_egprs_prr_additionsr7_8psk_cv_bep = -1;
+static int hf_egprs_prr_additionsr7_qpsk_mean_bep_exist = -1;
+static int hf_egprs_prr_additionsr7_qpsk_mean_bep = -1;
+static int hf_egprs_prr_additionsr7_qpsk_cv_bep = -1;
+static int hf_egprs_prr_additionsr7_16qam_nsr_mean_bep_exist = -1;
+static int hf_egprs_prr_additionsr7_16qam_nsr_mean_bep = -1;
+static int hf_egprs_prr_additionsr7_16qam_nsr_cv_bep = -1;
+static int hf_egprs_prr_additionsr7_32qam_nsr_mean_bep_exist = -1;
+static int hf_egprs_prr_additionsr7_32qam_nsr_mean_bep = -1;
+static int hf_egprs_prr_additionsr7_32qam_nsr_cv_bep = -1;
+static int hf_egprs_prr_additionsr7_16qam_hsr_mean_bep_exist = -1;
+static int hf_egprs_prr_additionsr7_16qam_hsr_mean_bep = -1;
+static int hf_egprs_prr_additionsr7_16qam_hsr_cv_bep = -1;
+static int hf_egprs_prr_additionsr7_32qam_hsr_mean_bep_exist = -1;
+static int hf_egprs_prr_additionsr7_32qam_hsr_mean_bep = -1;
+static int hf_egprs_prr_additionsr7_32qam_hsr_cv_bep = -1;
+static int hf_bep_measurementreport_reported_modulation = -1;
+static int hf_bep_measurementreport_mean_bep_tn = -1;
+static int hf_prr_additionsr99_additionsr5_exist = -1;
+static int hf_egprs_prr_additionsr5_hfn_lsb_exist = -1;
+static int hf_egprs_prr_additionsr5_hfn_lsb = -1;
+static int hf_prr_additionsr5_additionsr6_exist = -1;
+static int hf_prr_additionsr6_additionsr7_exist = -1;
+static int hf_prr_additionsr7_early_tbf_establishment = -1;
+static int hf_egprs_bep_measurements_type2_exist = -1;
+static int hf_egprs_timeslotlinkquality_measurements_type2_exist = -1;
+static int hf_prr_additionsr7_additionsr10_exist = -1;
+static int hf_prr_additionsr10_low_access_priority_signalling = -1;
+static int hf_prr_additionsr10_additionsr12_exist = -1;
+static int hf_egprs_downlink_etfi_exist = -1;
+static int hf_prr_additionsr12_downlink_etfi = -1;
 
 /* < Packet Mobile TBF Status message content > */
 static int hf_packet_mobile_tbf_status_tbf_cause = -1;
@@ -2973,6 +3019,152 @@ CSN_DESCR_BEGIN(EGPRS_BEP_LinkQualityMeasurements_t)
 CSN_DESCR_END  (EGPRS_BEP_LinkQualityMeasurements_t)
 
 static const
+CSN_DESCR_BEGIN(IU_Mode_Channel_Request_Desk_t)
+
+  M_UINT       (IU_Mode_Channel_Request_Desk_t,  RB_ID,  5, &hf_egprs_prr_additionsr5_rb_id),
+  M_UINT       (IU_Mode_Channel_Request_Desk_t,  RADIO_PRIORITY,  2, &hf_egprs_prr_additionsr5_radio_priority),
+
+  M_NEXT_EXIST (IU_Mode_Channel_Request_Desk_t, Exist_RLC_BLOCK_COUNT, 1, &hf_egprs_prr_additionsr5_rlc_block_count_exist),
+  M_UINT       (IU_Mode_Channel_Request_Desk_t,  RLC_BLOCK_COUNT,  8, &hf_egprs_prr_additionsr5_rlc_block_count),
+
+  M_NEXT_EXIST (IU_Mode_Channel_Request_Desk_t, Exist_Iu_Mode_ChRequestDesk, 1, &hf_iu_mode_chrequest_exist), /* Don't use M_REC_TARRAY as we don't support multiple TBFs */
+
+CSN_DESCR_END  (IU_Mode_Channel_Request_Desk_t)
+
+static const
+CSN_DESCR_BEGIN(IU_Mode_Channel_Request_Desk_RNTI_t)
+
+  M_NEXT_EXIST (IU_Mode_Channel_Request_Desk_RNTI_t, Exist_G_RNTI_Extension, 1, &hf_egprs_prr_additionsr5_g_rnti_exist),
+  M_UINT       (IU_Mode_Channel_Request_Desk_RNTI_t,  G_RNTI_Extension,  4, &hf_egprs_prr_additionsr5_g_rnti_extension),
+
+  M_TYPE       (IU_Mode_Channel_Request_Desk_RNTI_t, IU_Mode_Channel_Request_Desk, IU_Mode_Channel_Request_Desk_t),
+
+CSN_DESCR_END  (IU_Mode_Channel_Request_Desk_RNTI_t)
+
+
+static const
+CSN_DESCR_BEGIN(Ext_Channel_Request_desc_t)
+
+  M_UINT       (Ext_Channel_Request_desc_t,  PFI, 7, &hf_pfi),
+  M_UINT       (Ext_Channel_Request_desc_t,  RADIO_PRIORITY,  2, &hf_egprs_prr_additionsr5_radio_priority),
+  M_UINT       (Ext_Channel_Request_desc_t,  RLC_Mode, 1, &hf_rlc_mode),
+
+  M_NEXT_EXIST (Ext_Channel_Request_desc_t, Exist_LCC_PDU, 1, &hf_egprs_prr_additionsr6_lcc_pdu_exist),
+  M_UINT       (Ext_Channel_Request_desc_t,  LCC_PDU,  1, &hf_egprs_prr_additionsr6_lcc_pdu),
+
+  M_NEXT_EXIST (Ext_Channel_Request_desc_t, Exist_Ext_Channel_Request_desc, 1, &hf_Ext_Channel_Request_desc_exist), /* Don't use M_REC_TARRAY as we don't support multiple TBFs */
+
+CSN_DESCR_END  (Ext_Channel_Request_desc_t)
+
+static const
+CSN_DESCR_BEGIN(EGPRS_BEP_LinkQualityMeasurements_type2_t)
+
+  M_NEXT_EXIST (EGPRS_BEP_LinkQualityMeasurements_type2_t, Exist_GMSK_MEAN_BEP, 1, &hf_egprs_prr_additionsr7_gmsk_mean_bep_exist),
+  M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  GMSK_MEAN_BEP,  5, &hf_egprs_prr_additionsr7_gmsk_mean_bep),
+  M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  GMSK_CV_BEP, 3, &hf_egprs_prr_additionsr7_gmsk_cv_bep),
+
+  M_NEXT_EXIST (EGPRS_BEP_LinkQualityMeasurements_type2_t, Exist_8PSK_MEAN_BEP, 1, &hf_egprs_prr_additionsr7_8psk_mean_bep_exist),
+  M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  p8PSK_MEAN_BEP,  5, &hf_egprs_prr_additionsr7_8psk_mean_bep),
+  M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  p8PSK_CV_BEP, 3, &hf_egprs_prr_additionsr7_8psk_cv_bep),
+
+  M_NEXT_EXIST (EGPRS_BEP_LinkQualityMeasurements_type2_t, Exist_QPSK_MEAN_BEP, 1, &hf_egprs_prr_additionsr7_qpsk_mean_bep_exist),
+  M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  QPSK_MEAN_BEP,  5, &hf_egprs_prr_additionsr7_qpsk_mean_bep),
+  M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  QPSK_CV_BEP, 3, &hf_egprs_prr_additionsr7_qpsk_cv_bep),
+
+  M_NEXT_EXIST (EGPRS_BEP_LinkQualityMeasurements_type2_t, Exist_16QAM_NSR_MEAN_BEP, 1, &hf_egprs_prr_additionsr7_16qam_nsr_mean_bep_exist),
+  M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  p16QAM_NSR_MEAN_BEP,  5, &hf_egprs_prr_additionsr7_16qam_nsr_mean_bep),
+  M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  p16QAM_NSR_CV_BEP, 3, &hf_egprs_prr_additionsr7_16qam_nsr_cv_bep),
+
+  M_NEXT_EXIST (EGPRS_BEP_LinkQualityMeasurements_type2_t, Exist_32QAM_NSR_MEAN_BEP, 1, &hf_egprs_prr_additionsr7_32qam_nsr_mean_bep_exist),
+  M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  p32QAM_NSR_MEAN_BEP,  5, &hf_egprs_prr_additionsr7_32qam_nsr_mean_bep),
+  M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  p32QAM_NSR_CV_BEP, 3, &hf_egprs_prr_additionsr7_32qam_nsr_cv_bep),
+
+  M_NEXT_EXIST (EGPRS_BEP_LinkQualityMeasurements_type2_t, Exist_16QAM_HSR_MEAN_BEP, 1, &hf_egprs_prr_additionsr7_16qam_hsr_mean_bep_exist),
+  M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  p16QAM_HSR_MEAN_BEP,  5, &hf_egprs_prr_additionsr7_16qam_hsr_mean_bep),
+  M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  p16QAM_HSR_CV_BEP, 3, &hf_egprs_prr_additionsr7_16qam_hsr_cv_bep),
+
+  M_NEXT_EXIST (EGPRS_BEP_LinkQualityMeasurements_type2_t, Exist_32QAM_HSR_MEAN_BEP, 1, &hf_egprs_prr_additionsr7_32qam_hsr_mean_bep_exist),
+  M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  p32QAM_HSR_MEAN_BEP,  5, &hf_egprs_prr_additionsr7_32qam_hsr_mean_bep),
+  M_UINT       (EGPRS_BEP_LinkQualityMeasurements_type2_t,  p32QAM_HSR_CV_BEP, 3, &hf_egprs_prr_additionsr7_32qam_hsr_cv_bep),
+
+CSN_DESCR_END  (EGPRS_BEP_LinkQualityMeasurements_type2_t)
+
+static const
+CSN_DESCR_BEGIN(BEP_MeasurementReport_type2_t)
+  M_NEXT_EXIST (BEP_MeasurementReport_type2_t, Exist, 1, &hf_bep_measurementreport_mean_bep_exist),
+  M_UINT       (BEP_MeasurementReport_type2_t,  REPORTED_MODULATION,  2, &hf_bep_measurementreport_reported_modulation),
+  M_UINT       (BEP_MeasurementReport_type2_t,  MEAN_BEP_TN,  4, &hf_bep_measurementreport_mean_bep_tn),
+CSN_DESCR_END  (BEP_MeasurementReport_type2_t)
+
+static const
+CSN_DESCR_BEGIN(InterferenceMeasurementReport_type2_t)
+  M_NEXT_EXIST (InterferenceMeasurementReport_type2_t, Exist, 1, &hf_interferencemeasurementreport_i_level_exist),
+  M_UINT       (InterferenceMeasurementReport_type2_t,  I_LEVEL,  4, &hf_interferencemeasurementreport_i_level),
+CSN_DESCR_END  (InterferenceMeasurementReport_type2_t)
+static const
+CSN_DESCR_BEGIN(EGPRS_TimeslotLinkQualityMeasurements_type2_t)
+  M_NEXT_EXIST (EGPRS_TimeslotLinkQualityMeasurements_type2_t, Exist_BEP_MEASUREMENTS, 1, &hf_bep_measurements_exist),
+  M_TYPE_ARRAY (EGPRS_TimeslotLinkQualityMeasurements_type2_t, BEP_MEASUREMENTS, BEP_MeasurementReport_type2_t, 8),
+
+  M_NEXT_EXIST (EGPRS_TimeslotLinkQualityMeasurements_type2_t, Exist_INTERFERENCE_MEASUREMENTS, 1, &hf_interference_measurements_exist),
+  M_TYPE_ARRAY (EGPRS_TimeslotLinkQualityMeasurements_type2_t, INTERFERENCE_MEASUREMENTS, InterferenceMeasurementReport_type2_t, 8),
+CSN_DESCR_END  (EGPRS_TimeslotLinkQualityMeasurements_type2_t)
+
+static const
+CSN_DESCR_BEGIN(PRR_AdditionsR12_t)
+
+  M_NEXT_EXIST (PRR_AdditionsR12_t, Exist_Downlink_eTFI, 1, &hf_egprs_downlink_etfi_exist),
+  M_UINT       (PRR_AdditionsR12_t,  DOWNLINK_ETFI,  3, &hf_prr_additionsr12_downlink_etfi),
+
+CSN_DESCR_END  (PRR_AdditionsR12_t)
+
+static const
+CSN_DESCR_BEGIN(PRR_AdditionsR10_t)
+  M_UINT       (PRR_AdditionsR10_t,  LOW_ACCESS_PRIORITY_SIGNALLING,  1, &hf_prr_additionsr10_low_access_priority_signalling),
+
+  M_NEXT_EXIST_OR_NULL(PRR_AdditionsR10_t, Exist_AdditionsR12, 1, &hf_prr_additionsr10_additionsr12_exist),
+  M_TYPE       (PRR_AdditionsR10_t, AdditionsR12, PRR_AdditionsR12_t),
+
+CSN_DESCR_END  (PRR_AdditionsR10_t)
+
+static const
+CSN_DESCR_BEGIN(PRR_AdditionsR7_t)
+  M_UINT       (PRR_AdditionsR7_t,  EARLY_TBF_ESTABLISHMENT,  1, &hf_prr_additionsr7_early_tbf_establishment),
+
+  M_NEXT_EXIST (PRR_AdditionsR7_t, Exist_EGPRS_BEP_LinkQualityMeasurements_type2, 1, &hf_egprs_bep_measurements_type2_exist),
+  M_TYPE       (PRR_AdditionsR7_t, EGPRS_BEP_LinkQualityMeasurements_type2, EGPRS_BEP_LinkQualityMeasurements_type2_t),
+
+  M_NEXT_EXIST (PRR_AdditionsR7_t, Exist_EGPRS_TimeslotLinkQualityMeasurements_type2, 1, &hf_egprs_timeslotlinkquality_measurements_type2_exist),
+  M_TYPE       (PRR_AdditionsR7_t, EGPRS_TimeslotLinkQualityMeasurements_type2, EGPRS_TimeslotLinkQualityMeasurements_type2_t),
+
+  M_NEXT_EXIST_OR_NULL(PRR_AdditionsR7_t, Exist_AdditionsR10, 1, &hf_prr_additionsr7_additionsr10_exist),
+  M_TYPE       (PRR_AdditionsR7_t, AdditionsR10, PRR_AdditionsR10_t),
+
+CSN_DESCR_END  (PRR_AdditionsR7_t)
+
+static const
+CSN_DESCR_BEGIN(PRR_AdditionsR6_t)
+  M_NEXT_EXIST (PRR_AdditionsR6_t, Exist_Ext_Channel_Request_desc, 1, &hf_Ext_Channel_Request_desc_exist),
+  M_TYPE       (PRR_AdditionsR6_t, Ext_Channel_Request_desc, Ext_Channel_Request_desc_t),
+
+  M_NEXT_EXIST_OR_NULL(PRR_AdditionsR6_t, Exist_AdditionsR7, 1, &hf_prr_additionsr6_additionsr7_exist),
+  M_TYPE       (PRR_AdditionsR6_t, AdditionsR7, PRR_AdditionsR7_t),
+
+CSN_DESCR_END  (PRR_AdditionsR6_t)
+
+static const
+CSN_DESCR_BEGIN(PRR_AdditionsR5_t)
+  M_NEXT_EXIST (PRR_AdditionsR5_t, Exist_Iu_Mode_ChRequestDesk, 1, &hf_iu_mode_chrequest_exist),
+  M_TYPE       (PRR_AdditionsR5_t, IU_Mode_Channel_Request_Desk_RNTI, IU_Mode_Channel_Request_Desk_RNTI_t),
+
+  M_NEXT_EXIST (PRR_AdditionsR5_t, Exist_HFN_LSB, 1, &hf_egprs_prr_additionsr5_hfn_lsb_exist),
+  M_UINT       (PRR_AdditionsR5_t,  HFN_LSb, 7, &hf_egprs_prr_additionsr5_hfn_lsb),
+
+  M_NEXT_EXIST_OR_NULL(PRR_AdditionsR5_t, Exist_AdditionsR6, 1, &hf_prr_additionsr5_additionsr6_exist),
+  M_TYPE       (PRR_AdditionsR5_t, AdditionsR6, PRR_AdditionsR6_t),
+CSN_DESCR_END  (PRR_AdditionsR5_t)
+
+static const
 CSN_DESCR_BEGIN(PRR_AdditionsR99_t)
   M_NEXT_EXIST (PRR_AdditionsR99_t, Exist_EGPRS_BEP_LinkQualityMeasurements, 1, &hf_egprs_bep_measurements_exist),
   M_TYPE       (PRR_AdditionsR99_t, EGPRS_BEP_LinkQualityMeasurements, EGPRS_BEP_LinkQualityMeasurements_t),
@@ -2985,6 +3177,10 @@ CSN_DESCR_BEGIN(PRR_AdditionsR99_t)
 
   M_UINT       (PRR_AdditionsR99_t,  MS_RAC_AdditionalInformationAvailable,  1, &hf_prr_additionsr99_ms_rac_additionalinformationavailable),
   M_UINT       (PRR_AdditionsR99_t,  RetransmissionOfPRR,  1, &hf_prr_additionsr99_retransmissionofprr),
+
+  M_NEXT_EXIST_OR_NULL(PRR_AdditionsR99_t, Exist_AdditionsR5, 1, &hf_prr_additionsr99_additionsr5_exist),
+  M_TYPE       (PRR_AdditionsR99_t, AdditionsR5, PRR_AdditionsR5_t),
+
 CSN_DESCR_END  (PRR_AdditionsR99_t)
 
 static const
@@ -11255,7 +11451,7 @@ proto_register_gsm_rlcmac(void)
         NULL, HFILL
       }
     },
-	{ &hf_additional_accessechnologies_struct_t_access_technology_type,
+    { &hf_additional_accessechnologies_struct_t_access_technology_type,
       { "Access_Technology_Type",        "gsm_rlcmac.ul.access_technology_type",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
@@ -11721,6 +11917,282 @@ proto_register_gsm_rlcmac(void)
     },
     { &hf_egprs_bep_linkqualitymeasurements_cv_bep_8psk,
       { "CV_BEP_8PSK",        "gsm_rlcmac.ul.prr_cv_bep_8psk",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr5_g_rnti_exist,
+      { "Exist_G_RNTI",        "gsm_rlcmac.ul.prr_g_rnti_exist",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr5_g_rnti_extension,
+      { "G_RNTI_Extension",        "gsm_rlcmac.ul.prr_g_rnti_extension",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr5_rb_id,
+      { "RB_ID",        "gsm_rlcmac.ul.prr_rb_id",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr5_radio_priority,
+      { "Radio_Priority",        "gsm_rlcmac.ul.prr_radio_priority",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr5_rlc_block_count_exist,
+      { "Exist_RLC_Block_Count",        "gsm_rlcmac.ul.prr_exist_rlc_block_count",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr5_rlc_block_count,
+      { "RLC_Block_Count",        "gsm_rlcmac.ul.prr_rlc_block_count",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_iu_mode_chrequest_exist,
+      { "Iu_Mode_ChRequestDesk",        "gsm_rlcmac.ul.prr_iu_mode_chrequestdesk",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr6_lcc_pdu_exist,
+      { "Exist_LCC_PDU",        "gsm_rlcmac.ul.prr_exist_lcc_pdu",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr6_lcc_pdu,
+      { "LCC_PDU",        "gsm_rlcmac.ul.prr_lcc_pdu",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_Ext_Channel_Request_desc_exist,
+      { "Exist_Channel_request_desc",        "gsm_rlcmac.ul.prr_channel_request_desc",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr7_gmsk_mean_bep_exist,
+      { "Exist_GMSK_MEAN_BEP",        "gsm_rlcmac.ul.prr_exist_gmsk_mean_bep",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr7_gmsk_mean_bep,
+      { "GMSK_MEAN_BEP",        "gsm_rlcmac.ul.prr_gmsk_bep",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr7_gmsk_cv_bep,
+      { "GMSK_CV_BEP",        "gsm_rlcmac.ul.prr_gmsk_cv_bep",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr7_8psk_mean_bep_exist,
+      { "Exist_8PSK_MEAN_BEP",        "gsm_rlcmac.ul.prr_exist_8psk_mean_bep",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr7_8psk_mean_bep,
+      { "p8PSK_MEAN_BEP",        "gsm_rlcmac.ul.prr_8psk_mean_bep",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr7_8psk_cv_bep,
+      { "p8PSK_CV_BEP",        "gsm_rlcmac.ul.prr_8psk_cv_bep",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr7_qpsk_mean_bep_exist,
+      { "Exist_QPSK_MEAN_BEP",        "gsm_rlcmac.ul.prr_exist_qpsk_mean_bep",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr7_qpsk_mean_bep,
+      { "QPSK_MEAN_BEP",        "gsm_rlcmac.ul.prr_qpsk_mean_bep",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr7_qpsk_cv_bep,
+      { "QPSK_CV_BEP",        "gsm_rlcmac.ul.prr_qpsk_cv_bep",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr7_16qam_nsr_mean_bep_exist,
+      { "Exist_16QAM_NSR_MEAN_BEP",        "gsm_rlcmac.ul.prr_exist_16qam__nsr_mean_bep",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr7_16qam_nsr_mean_bep,
+      { "p16QAM_NSR_MEAN_BEP",        "gsm_rlcmac.ul.prr_16qam_nsr_mean_bep",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr7_16qam_nsr_cv_bep,
+      { "p16QAM_NSR_CV_BEP",        "gsm_rlcmac.ul.prr_16qam_nsr_cv_bep",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr7_32qam_nsr_mean_bep_exist,
+      { "Exist_32QAM_NSR_MEAN_BEP",        "gsm_rlcmac.ul.prr_exist_32qam_nsr_mean_bep",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr7_32qam_nsr_mean_bep,
+      { "p32QAM_NSR_MEAN_BEP",        "gsm_rlcmac.ul.prr_32qam_nsr_mean_bep",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr7_32qam_nsr_cv_bep,
+      { "p32QAM_NSR_CV_BEP",        "gsm_rlcmac.ul.prr_32qam_nsr_cv_bep",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr7_16qam_hsr_mean_bep_exist,
+      { "Exist_16QAM_HSR_MEAN_BEP",        "gsm_rlcmac.ul.prr_esixt_16qam_hsr_mean_bep",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr7_16qam_hsr_mean_bep,
+      { "p16QAM_HSR_MEAN_BEP",        "gsm_rlcmac.ul.prr_16qam_hsr_mean_bep",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr7_16qam_hsr_cv_bep,
+      { "p16QAM_HSR_CV_BEP",        "gsm_rlcmac.ul.prr_16qam_hsr_cv_bep",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr7_32qam_hsr_mean_bep_exist,
+      { "Exist_32QAM_HSR_MEAN_BEP",        "gsm_rlcmac.ul.prr_exist_32qam_hsr_mean_bep",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr7_32qam_hsr_mean_bep,
+      { "p32QAM_HSR_MEAN_BEP",        "gsm_rlcmac.ul.prr_32qam_hsr_mean_bep",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr7_32qam_hsr_cv_bep,
+      { "p32QAM_HSR_CV_BEP",        "gsm_rlcmac.ul.prr_32qam_hsr_cv_bep",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_bep_measurementreport_reported_modulation,
+      { "REPORTED_MODULATION",        "gsm_rlcmac.ul.prr_reported_modulation",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_bep_measurementreport_mean_bep_tn,
+      { "MEAN_BEP_TN",        "gsm_rlcmac.ul.prr_mean_bep_tn",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_prr_additionsr99_additionsr5_exist,
+      { "Exist_AdditionsR5",        "gsm_rlcmac.ul.prr_exist_r5",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr5_hfn_lsb_exist,
+      { "Exist_HFN_LSB",        "gsm_rlcmac.ul.prr_exist_hfn_lsb",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_prr_additionsr5_hfn_lsb,
+      { "HFN_LSB",        "gsm_rlcmac.ul.prr_hfn_lsb",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_prr_additionsr5_additionsr6_exist,
+      { "Exist_AdditionsR6",        "gsm_rlcmac.ul.prr_exist_r6",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_prr_additionsr6_additionsr7_exist,
+      { "Exist_AdditionsR7",        "gsm_rlcmac.ul.prr_exsit_r7",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_prr_additionsr7_early_tbf_establishment,
+      { "EARLY_TBF_ESTABLISHMENT",        "gsm_rlcmac.ul.prr_early_tbf_establishment",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_bep_measurements_type2_exist,
+      { "Exist_EGPRS_BEP_LinkQualityMeasurements_type2",        "gsm_rlcmac.ul.prr_exist_egprs_bep_measurements_type2",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_timeslotlinkquality_measurements_type2_exist,
+      { "Exist_EGPRS_TimeslotLinkQualityMeasurements_type2",        "gsm_rlcmac.ul.prr_exist_egprs_temeslotquality_meas_type2",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_prr_additionsr7_additionsr10_exist,
+      { "Exist_AdditionsR10",        "gsm_rlcmac.ul.prr_exist_r10",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_prr_additionsr10_low_access_priority_signalling,
+      { "LOW_ACCESS_PRIORITY_SIGNALLING",        "gsm_rlcmac.ul.prr_low_access_signalling",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_prr_additionsr10_additionsr12_exist,
+      { "Exist_AdditionsR12",        "gsm_rlcmac.ul.prr_exist_r12",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_egprs_downlink_etfi_exist,
+      { "Exist_Downlink_eTFI",        "gsm_rlcmac.ul.prr_exist_downlink_etfi",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_prr_additionsr12_downlink_etfi,
+      { "DOWNLINK_ETFI",        "gsm_rlcmac.ul.prr_downlink_etfi",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }

@@ -1432,6 +1432,148 @@ typedef struct
   guint8   CV_BEP_8PSK;
 } EGPRS_BEP_LinkQualityMeasurements_t;
 
+typedef struct{
+guint8  RB_ID;
+guint8  RADIO_PRIORITY;
+
+gboolean  Exist_RLC_BLOCK_COUNT;
+guint8   RLC_BLOCK_COUNT;
+
+gboolean  Exist_Iu_Mode_ChRequestDesk;
+//IU_Mode_Channel_Request_Desk_t IU_Mode_Channel_Request_Desk1;
+
+}IU_Mode_Channel_Request_Desk_t;
+
+typedef struct{
+    gboolean   Exist_G_RNTI_Extension;
+    guint8    G_RNTI_Extension;
+    IU_Mode_Channel_Request_Desk_t  IU_Mode_Channel_Request_Desk;
+
+}IU_Mode_Channel_Request_Desk_RNTI_t;
+
+typedef struct{
+    guint8  PFI;
+    guint8  RADIO_PRIORITY;
+    guint8  RLC_Mode;
+
+    gboolean  Exist_LCC_PDU;
+    guint8  LCC_PDU;
+
+    gboolean Exist_Ext_Channel_Request_desc;
+
+}Ext_Channel_Request_desc_t;
+
+
+typedef struct{
+    gboolean Exist_GMSK_MEAN_BEP;
+    guint8 GMSK_MEAN_BEP;
+    guint8 GMSK_CV_BEP;
+
+    gboolean Exist_8PSK_MEAN_BEP;
+    guint8 p8PSK_MEAN_BEP;
+    guint8 p8PSK_CV_BEP;
+
+    gboolean Exist_QPSK_MEAN_BEP;
+    guint8 QPSK_MEAN_BEP;
+    guint8 QPSK_CV_BEP;
+
+    gboolean Exist_16QAM_NSR_MEAN_BEP;
+    guint8 p16QAM_NSR_MEAN_BEP;
+    guint8 p16QAM_NSR_CV_BEP;
+
+    gboolean Exist_32QAM_NSR_MEAN_BEP;
+    guint8 p32QAM_NSR_MEAN_BEP;
+    guint8 p32QAM_NSR_CV_BEP;
+
+    gboolean Exist_16QAM_HSR_MEAN_BEP;
+    guint8 p16QAM_HSR_MEAN_BEP;
+    guint8 p16QAM_HSR_CV_BEP;
+
+    gboolean Exist_32QAM_HSR_MEAN_BEP;
+    guint8 p32QAM_HSR_MEAN_BEP;
+    guint8 p32QAM_HSR_CV_BEP;
+
+    }EGPRS_BEP_LinkQualityMeasurements_type2_t;
+
+typedef struct
+{
+    gboolean Exist;
+    guint8 REPORTED_MODULATION;
+    guint8 MEAN_BEP_TN;
+
+}BEP_MeasurementReport_type2_t;
+
+typedef struct
+{
+    gboolean Exist;
+    guint8 I_LEVEL;
+}InterferenceMeasurementReport_type2_t;
+
+typedef struct
+{
+    gboolean Exist_BEP_MEASUREMENTS;
+    BEP_MeasurementReport_type2_t BEP_MEASUREMENTS[8];
+
+    gboolean Exist_INTERFERENCE_MEASUREMENTS;
+    InterferenceMeasurementReport_type2_t INTERFERENCE_MEASUREMENTS[8];
+
+}EGPRS_TimeslotLinkQualityMeasurements_type2_t;
+
+
+typedef struct
+{
+    gboolean Exist_Downlink_eTFI;
+    guint8 DOWNLINK_ETFI;
+
+}PRR_AdditionsR12_t;
+
+typedef struct
+{
+    guint8 LOW_ACCESS_PRIORITY_SIGNALLING;
+
+    gboolean Exist_AdditionsR12;
+    PRR_AdditionsR12_t  AdditionsR12;
+
+}PRR_AdditionsR10_t;
+
+typedef struct
+{
+    guint8  EARLY_TBF_ESTABLISHMENT;
+
+    gboolean Exist_EGPRS_BEP_LinkQualityMeasurements_type2;
+    EGPRS_BEP_LinkQualityMeasurements_type2_t EGPRS_BEP_LinkQualityMeasurements_type2;
+
+    gboolean Exist_EGPRS_TimeslotLinkQualityMeasurements_type2;
+    EGPRS_TimeslotLinkQualityMeasurements_type2_t EGPRS_TimeslotLinkQualityMeasurements_type2;
+
+    gboolean Exist_AdditionsR10;
+    PRR_AdditionsR10_t AdditionsR10;
+
+}PRR_AdditionsR7_t;
+
+typedef struct
+{
+    gboolean Exist_Ext_Channel_Request_desc;
+    Ext_Channel_Request_desc_t  Ext_Channel_Request_desc;
+
+    guint8 Exist_AdditionsR7;
+    PRR_AdditionsR7_t  AdditionsR7;
+
+} PRR_AdditionsR6_t;
+
+typedef struct
+{
+    guint8  Exist_Iu_Mode_ChRequestDesk;
+    IU_Mode_Channel_Request_Desk_RNTI_t  IU_Mode_Channel_Request_Desk_RNTI;
+
+    guint8  Exist_HFN_LSB;
+    guint8    HFN_LSb;
+
+    guint8  Exist_AdditionsR6;
+    PRR_AdditionsR6_t AdditionsR6;
+
+}PRR_AdditionsR5_t;
+
 typedef struct
 {
   gboolean                                 Exist_EGPRS_BEP_LinkQualityMeasurements;
@@ -1445,6 +1587,9 @@ typedef struct
 
   guint8                                   MS_RAC_AdditionalInformationAvailable;
   guint8                                   RetransmissionOfPRR;
+
+  guint8                                   Exist_AdditionsR5;
+  PRR_AdditionsR5_t                        AdditionsR5;
 } PRR_AdditionsR99_t;
 
 typedef struct
