@@ -50,6 +50,7 @@ static int proto_osmux = -1;
 static int osmux_tap = -1;
 
 static int hf_osmux_ft_ctr = -1;
+static int hf_osmux_rtp_m = -1;
 static int hf_osmux_ft = -1;
 static int hf_osmux_ctr = -1;
 static int hf_osmux_amr_f = -1;
@@ -72,6 +73,7 @@ static gint
 dissect_osmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     static const gint *ft_ctr_fields[] = {
+        &hf_osmux_rtp_m,
         &hf_osmux_ft,
         &hf_osmux_ctr,
         &hf_osmux_amr_f,
@@ -100,7 +102,8 @@ dissect_osmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     ft_ctr = tvb_get_guint8(tvb, offset);
 
-    osmuxh->ft = ft_ctr >> 5;
+    osmuxh->rtp_m = ft_ctr >> 7;
+    osmuxh->ft = (ft_ctr >> 5) & 0x3;
     osmuxh->ctr = (ft_ctr >> 2) & 0x7;
     osmuxh->amr_q = !!(ft_ctr & 0x02);
     osmuxh->amr_f = !!(ft_ctr & 0x01);
@@ -122,6 +125,9 @@ dissect_osmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
                     val_to_str(osmuxh->ft, osmux_ft_vals,
                                "unknown 0x%02x"));
+
+   if (osmuxh->rtp_m)
+       col_append_fstr(pinfo->cinfo, COL_INFO, "(M)");
 
     proto_tree_add_bitmask(osmux_tree, tvb, offset, hf_osmux_ft_ctr,
             ett_osmux_ft_ctr, ft_ctr_fields, ENC_BIG_ENDIAN);
@@ -153,6 +159,7 @@ static const gchar *st_str_pkts_by_ctr = "Osmux Packets by AMR frame count";
 static const gchar *st_str_pkts_by_src = "Osmux Packets by src Addr";
 static const gchar *st_str_pkts_by_dst = "Osmux Packets by dst Addr";
 static const gchar *st_str_pkts_by_conn = "Osmux Packets by stream";
+static const gchar *st_str_pkts_by_rtp_m = "Osmux Packets by RTP Marker";
 
 static int st_osmux_stats = -1;
 static int st_osmux_stats_cid = -1;
@@ -160,6 +167,7 @@ static int st_osmux_stats_ctr = -1;
 static int st_osmux_stats_src = -1;
 static int st_osmux_stats_dst = -1;
 static int st_osmux_stats_conn = -1;
+static int st_osmux_stats_rtp_m = -1;
 
 static void osmux_stats_tree_init(stats_tree *st)
 {
@@ -169,6 +177,7 @@ static void osmux_stats_tree_init(stats_tree *st)
     st_osmux_stats_src = stats_tree_create_node(st, st_str_pkts_by_src, st_osmux_stats, TRUE);
     st_osmux_stats_dst = stats_tree_create_node(st, st_str_pkts_by_dst, st_osmux_stats, TRUE);
     st_osmux_stats_conn = stats_tree_create_node(st, st_str_pkts_by_conn, st_osmux_stats, TRUE);
+    st_osmux_stats_rtp_m = stats_tree_create_node(st, st_str_pkts_by_rtp_m, st_osmux_stats, TRUE);
 }
 
 static int osmux_stats_tree_packet(stats_tree *st, packet_info *pinfo,
@@ -201,6 +210,10 @@ static int osmux_stats_tree_packet(stats_tree *st, packet_info *pinfo,
     g_snprintf(temp, 40, "%s->%s:%i", ip_str, ip2_str, osmuxh->circuit_id);
     tick_stat_node(st, temp, st_osmux_stats_conn, TRUE);
 
+    tick_stat_node(st, st_str_pkts_by_rtp_m, 0, FALSE);
+    g_snprintf(temp, 30, "%s", (osmuxh->rtp_m ? "Yes" : "No"));
+    tick_stat_node(st, temp, st_osmux_stats_rtp_m, TRUE);
+
     wmem_free(NULL, ip_str);
     wmem_free(NULL, ip2_str);
 
@@ -215,9 +228,14 @@ void proto_register_osmux(void)
           FT_UINT8, BASE_DEC, NULL, 0x00,
           "Byte with Fieldtype, Counter", HFILL}
         },
+        {&hf_osmux_rtp_m,
+         {"RTP Marker", "osmux.rtp_m",
+          FT_BOOLEAN, 8, NULL, 0x80,
+          "Type of data in packet", HFILL}
+         },
         {&hf_osmux_ft,
          {"FieldType", "osmux.ft",
-          FT_UINT8, BASE_DEC, VALS(osmux_ft_vals), 0xe0,
+          FT_UINT8, BASE_DEC, VALS(osmux_ft_vals), 0x60,
           "Type of data in packet", HFILL}
          },
         {&hf_osmux_ctr,

@@ -24,6 +24,7 @@
 
 /* Tap structure of Osmux header */
 struct osmux_hdr {
+    guint32 rtp_m;
     guint32 ft;
     guint32 ctr;
     guint32 amr_f;
