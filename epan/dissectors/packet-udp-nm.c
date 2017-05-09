@@ -356,7 +356,7 @@ dissect_udp_nm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *da
   guint32 length = 0;
   guint32 msg_length = 0;
   guint32 ctrl_bit_vector;
-  guint32 src_node_id;
+  guint32 src_node_id = 0;
   guint i = 0;
   int* hf_id;
   int ett_id;
