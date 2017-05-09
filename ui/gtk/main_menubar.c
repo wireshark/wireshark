@@ -1096,6 +1096,9 @@ static const char *ui_desc_menubar =
 "      <menu name= 'MTP3menu' action='/Telephony/MTP3'>\n"
 "        <menuitem name='MSUSummary' action='/Telephony/MTP3/MSUSummary'/>\n"
 "      </menu>\n"
+"      <menu name= 'Osmuxmenu' action='/Telephony/Osmux'>\n"
+"        <menuitem name='osmux' action='/Telephony/Osmux/osmux'/>\n"
+"      </menu>\n"
 "      <menu name= 'RTPmenu' action='/Telephony/RTP'>\n"
 "        <menuitem name='ShowAllStreams' action='/Telephony/RTP/ShowAllStreams'/>\n"
 "        <menuitem name='StreamAnalysis' action='/Telephony/RTP/StreamAnalysis'/>\n"
@@ -1516,6 +1519,8 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Telephony/LTE/RLCGraph",         NULL,                       "RLC _Graph...",            NULL,                       NULL,               G_CALLBACK(rlc_lte_graph_cb) },
    { "/Telephony/MTP3",                 NULL,                       "_MTP3",                    NULL, NULL, NULL },
    { "/Telephony/MTP3/MSUSummary",      NULL,                       "MSU Summary",              NULL,                       NULL,               G_CALLBACK(mtp3_sum_gtk_sum_cb) },
+   { "/Telephony/Osmux",                NULL,                       "Osmux",                    NULL, NULL, NULL },
+   { "/Telephony/Osmux/osmux",          NULL,                       "Packet Counter",           NULL,                       NULL,               G_CALLBACK(gtk_stats_tree_cb) },
    { "/Telephony/RTP",                  NULL,                       "_RTP",                     NULL, NULL, NULL },
    { "/Telephony/RTP/StreamAnalysis",   NULL,                       "Stream Analysis...",       NULL,                       NULL,               G_CALLBACK(rtp_analysis_cb) },
    { "/Telephony/RTP/ShowAllStreams",   NULL,                       "Show All Streams",         NULL,                       NULL,               G_CALLBACK(rtpstream_launch) },

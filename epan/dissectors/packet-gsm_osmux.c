@@ -352,7 +352,7 @@ void proto_reg_handoff_osmux(void)
 
     osmux_tap = register_tap("osmux");
 
-    stats_tree_register("osmux", "osmux", "Osmux/Packets", 0,
+    stats_tree_register("osmux", "osmux", "Osmux/osmux", 0,
             osmux_stats_tree_packet, osmux_stats_tree_init,
             NULL);
 }

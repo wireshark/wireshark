@@ -595,6 +595,12 @@
      </property>
      <addaction name="actionTelephonyMTP3Placeholder"/>
     </widget>
+    <widget class="QMenu" name="menuOsmux">
+     <property name="title">
+      <string>Osmux</string>
+     </property>
+     <addaction name="actionTelephonyOsmuxPacketCounter"/>
+    </widget>
     <addaction name="actionTelephonyVoipCalls"/>
     <addaction name="menuANSI"/>
     <addaction name="menuGSM"/>
@@ -602,6 +608,7 @@
     <addaction name="actionTelephonyISUPMessages"/>
     <addaction name="menuLTE"/>
     <addaction name="menuMTP3"/>
+    <addaction name="menuOsmux"/>
     <addaction name="menuRTP"/>
     <addaction name="menuRTSP"/>
     <addaction name="menuTelephonySCTP"/>
@@ -1914,6 +1921,14 @@
    </property>
    <property name="toolTip">
     <string>ISUP message statistics</string>
+   </property>
+  </action>
+  <action name="actionTelephonyOsmuxPacketCounter">
+   <property name="text">
+    <string>Packet Counter</string>
+   </property>
+   <property name="toolTip">
+    <string>Osmux packet counts</string>
    </property>
   </action>
   <action name="actionTelephonyRTSPPacketCounter">

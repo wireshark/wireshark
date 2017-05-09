@@ -620,6 +620,7 @@ private slots:
     void on_actionTelephonyIax2StreamAnalysis_triggered();
     void on_actionTelephonyISUPMessages_triggered();
     void on_actionTelephonyMtp3Summary_triggered();
+    void on_actionTelephonyOsmuxPacketCounter_triggered();
     void on_actionTelephonyRTPStreams_triggered();
     void on_actionTelephonyRTPStreamAnalysis_triggered();
     void on_actionTelephonyRTSPPacketCounter_triggered();

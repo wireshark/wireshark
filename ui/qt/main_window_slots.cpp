@@ -3390,6 +3390,11 @@ void MainWindow::on_actionTelephonyMtp3Summary_triggered()
     mtp3s_dialog->show();
 }
 
+void MainWindow::on_actionTelephonyOsmuxPacketCounter_triggered()
+{
+    openStatisticsTreeDialog("osmux");
+}
+
 void MainWindow::on_actionTelephonyRTPStreams_triggered()
 {
     RtpStreamDialog *rtp_stream_dialog = new  RtpStreamDialog(*this, capture_file_);
