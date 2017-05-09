@@ -1412,7 +1412,7 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     int              bytes_written = 0;                   /* bytes output to buf so far */
     const guint8     *s_start_ptr,*s_trail_ptr, *plcp_ptr, *m_ptr; /* stats & MPDU ptr */
     guint32          msdu_length, actual_octets;          /* octets in frame */
-    guint8           l1p_1,l1p_2, plcp_type, rate_mcs_index = 0, nss = 0;  /* mod (CCK-L/CCK-S/OFDM) */
+    guint8           l1p_1, l1p_2, plcp_type, rate_mcs_index, nss;  /* mod (CCK-L/CCK-S/OFDM) */
     guint            flow_seq;
     guint64          s_time = LL_ZERO, e_time = LL_ZERO;  /* start/end */
                                                           /*  times, nsec */
@@ -1545,6 +1545,7 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
             chanflags |= CHAN_OFDM;
         }
         rate = get_legacy_rate(rate_mcs_index);
+        nss = 0;
         break;
 
     case vVW510021_W_PLCP_MIXED:
@@ -1565,8 +1566,8 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         radioflags |= FLAGS_CHAN_HT | ((plcp_ptr[3] & 0x80) ? FLAGS_CHAN_40MHZ : 0) |
                       ((l1p_1 & vVW510021_W_IS_LONGGI) ? 0 : FLAGS_CHAN_SHORTGI);
         chanflags  |= CHAN_OFDM;
+        nss = (rate_mcs_index < MAX_HT_MCS) ? nss_for_mcs[rate_mcs_index] : 0;
         rate = get_ht_rate(rate_mcs_index, radioflags);
-        nss = 0;
         break;
 
     case vVW510021_W_PLCP_GREENFIELD:
@@ -1615,6 +1616,7 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         break;
 
     default:
+        rate_mcs_index = 0;
         nss = 0;
         rate = 0.0f;
         break;
