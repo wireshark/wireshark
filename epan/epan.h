@@ -172,7 +172,7 @@ void epan_set_always_visible(gboolean force);
 
 /** initialize an existing single packet dissection */
 WS_DLL_PUBLIC
-epan_dissect_t*
+void
 epan_dissect_init(epan_dissect_t *edt, epan_t *session, const gboolean create_proto_tree, const gboolean proto_tree_visible);
 
 /** get a new single packet dissection

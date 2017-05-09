@@ -373,7 +373,7 @@ epan_set_always_visible(gboolean force)
 		always_visible_refcount--;
 }
 
-epan_dissect_t*
+void
 epan_dissect_init(epan_dissect_t *edt, epan_t *session, const gboolean create_proto_tree, const gboolean proto_tree_visible)
 {
 	g_assert(edt);
@@ -398,8 +398,6 @@ epan_dissect_init(epan_dissect_t *edt, epan_t *session, const gboolean create_pr
 	}
 
 	edt->tvb = NULL;
-
-	return edt;
 }
 
 void
@@ -439,7 +437,8 @@ epan_dissect_new(epan_t *session, const gboolean create_proto_tree, const gboole
 
 	edt = g_new0(epan_dissect_t, 1);
 
-	return epan_dissect_init(edt, session, create_proto_tree, proto_tree_visible);
+	epan_dissect_init(edt, session, create_proto_tree, proto_tree_visible);
+	return edt;
 }
 
 void
