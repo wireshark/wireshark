@@ -3665,7 +3665,7 @@ framing signal deasserted.  this is caused by software setting the drain all reg
         { "Short frame error.  Frame is shorter than length.", "ixveriwave.errors.bit2",
         FT_BOOLEAN, 16, NULL, 0x0004, NULL, HFILL } },
     { &hf_radiotap_vw_errors_rx_2_bit4,
-        { "FCS Error", "ixveriwave.errors.bit4",
+        { "FCS error", "ixveriwave.errors.bit4",
         FT_BOOLEAN, 16, NULL, 0x0010, NULL, HFILL } },
     { &hf_radiotap_vw_errors_rx_2_bit5,
         { "L2 de-aggregation error", "ixveriwave.errors.bit5",
