@@ -45,6 +45,7 @@ ATTRIBUTE	ZTE-TCP-Limit-Num			95	integer
 ATTRIBUTE	ZTE-TCP-Limit-Mode			96	integer
 ATTRIBUTE	ZTE-IGMP-Service-Profile-Num		97	integer
 ATTRIBUTE	ZTE-PPP-Sservice-Type			101	integer
+ATTRIBUTE	ZTE-SW-Privilege			104	integer
 ATTRIBUTE	ZTE-Access-Domain			151	string
 ATTRIBUTE	ZTE-VPN-ID				190	string
 
