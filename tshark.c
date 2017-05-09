@@ -4047,7 +4047,7 @@ static void reset_epan_mem(capture_file *cf,epan_dissect_t *edt, gboolean tree, 
   epan_free(cf->epan);
 
   cf->epan = tshark_epan_new(cf);
-  edt = epan_dissect_init(edt,cf->epan, tree, visual);
+  epan_dissect_init(edt, cf->epan, tree, visual);
   cf->count = 0;
 }
 
