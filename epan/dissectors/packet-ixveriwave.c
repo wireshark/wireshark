@@ -139,7 +139,6 @@ static int hf_ixveriwave_vw_startt = -1;
 static int hf_ixveriwave_vw_endt = -1;
 static int hf_ixveriwave_vw_pktdur = -1;
 static int hf_ixveriwave_vw_ifg = -1;
-static int hf_ixveriwave_vw_ifg_neg = -1;
 
 // RF LOGGING
 static int hf_radiotap_rf_info = -1;
@@ -1053,7 +1052,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
             if ((gint32) p_ifg_info->ifg >= 0)
                 ti = proto_tree_add_uint(common_tree, hf_ixveriwave_vw_ifg, tvb, 18, 0, p_ifg_info->ifg);
             else
-                ti = proto_tree_add_string(common_tree, hf_ixveriwave_vw_ifg_neg, tvb, 18, 0, "Cannot be determined");
+                ti = proto_tree_add_uint_format_value(common_tree, hf_ixveriwave_vw_ifg, tvb, 18, 0, p_ifg_info->ifg, "Cannot be determined");
         }
 
         PROTO_ITEM_SET_GENERATED(ti);
@@ -3105,10 +3104,6 @@ void proto_register_ixveriwave(void)
     { &hf_ixveriwave_vw_ifg,
         { "Inter-frame gap (usecs)", "ixveriwave.ifg",
         FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-
-    { &hf_ixveriwave_vw_ifg_neg,
-        { "Inter-frame gap (usecs)", "ixveriwave.ifg",
-        FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
 
     // RF LOGGING
     { &hf_radiotap_rf_info,
