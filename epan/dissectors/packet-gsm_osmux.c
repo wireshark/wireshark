@@ -44,6 +44,35 @@ static const value_string osmux_ft_vals[] =
     {0, NULL}
 };
 
+#define AMR_FT_0    0
+#define AMR_FT_1    1
+#define AMR_FT_2    2
+#define AMR_FT_3    3
+#define AMR_FT_4    4
+#define AMR_FT_5    5
+#define AMR_FT_6    6
+#define AMR_FT_7    7
+#define AMR_FT_SID  8
+#define AMR_FT_MAX  9
+
+static const value_string amr_ft_names[] =
+{
+    {AMR_FT_0, "AMR 4.75"},
+    {AMR_FT_1, "AMR 5.15"},
+    {AMR_FT_2, "AMR 5.90"},
+    {AMR_FT_3, "AMR 6.70"},
+    {AMR_FT_4, "AMR 7.40"},
+    {AMR_FT_5, "AMR 7.95"},
+    {AMR_FT_6, "AMR 10.2"},
+    {AMR_FT_7, "AMR 12.2"},
+    {AMR_FT_SID, "AMR SID"},
+    {0, NULL}
+};
+
+static guint8 amr_ft_bytes[AMR_FT_MAX] = {12, 13, 15, 17, 19, 20, 26, 31, 6};
+
+#define OSMUX_AMR_HEADER_LEN 4
+
 /* Initialize the protocol and registered fields */
 static dissector_handle_t osmux_handle;
 static int proto_osmux = -1;
@@ -67,6 +96,14 @@ static gint ett_osmux = -1;
 static gint ett_osmux_ft_ctr = -1;
 static gint ett_osmux_amr_ft_cmr = -1;
 
+/* Code to calculate AMR payload size */
+static guint8
+amr_ft_to_bytes(guint32 amr_ft)
+{
+    if (amr_ft >= AMR_FT_MAX) /* malformed packet ? */
+        return 0;
+    return amr_ft_bytes[amr_ft];
+}
 
 /* Code to actually dissect the packets */
 static gint
@@ -88,66 +125,76 @@ dissect_osmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     int offset = 0;
 
-    struct osmux_hdr *osmuxh;
-    proto_item *ti;
-    proto_tree *osmux_tree = NULL;
-    guint8 ft_ctr;
-    guint32 cid;
-    guint64 amr_ft_cmr;
-
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Osmux");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    osmuxh = wmem_new0(wmem_packet_scope(), struct osmux_hdr);
+    while (tvb_reported_length_remaining(tvb, offset) >= 2) {
 
-    ft_ctr = tvb_get_guint8(tvb, offset);
+        struct osmux_hdr *osmuxh;
+        proto_item *ti;
+        proto_tree *osmux_tree = NULL;
+        guint8 ft_ctr;
+        guint64 amr_ft_cmr;
+        guint i;
+        guint32 cid, size;
 
-    osmuxh->rtp_m = ft_ctr >> 7;
-    osmuxh->ft = (ft_ctr >> 5) & 0x3;
-    osmuxh->ctr = (ft_ctr >> 2) & 0x7;
-    osmuxh->amr_q = !!(ft_ctr & 0x02);
-    osmuxh->amr_f = !!(ft_ctr & 0x01);
+        osmuxh = wmem_new0(wmem_packet_scope(), struct osmux_hdr);
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Osmux ");
+        ft_ctr = tvb_get_guint8(tvb, offset);
 
-    ti = proto_tree_add_protocol_format(tree, proto_osmux, tvb, offset, -1,
-            "Osmux type %s frame",
-            val_to_str(osmuxh->ft, osmux_ft_vals, "unknown 0x%02x"));
-    osmux_tree = proto_item_add_subtree(ti, ett_osmux);
+        osmuxh->rtp_m = ft_ctr >> 7;
+        osmuxh->ft = (ft_ctr >> 5) & 0x3;
+        osmuxh->ctr = (ft_ctr >> 2) & 0x7;
+        osmuxh->amr_q = !!(ft_ctr & 0x02);
+        osmuxh->amr_f = !!(ft_ctr & 0x01);
 
-    /* Two-byte dummy packets for firewalls (starts with 0x23) */
-    if (ft_ctr == 0x23 && tvb_reported_length(tvb) >= 2) {
-        proto_tree_add_item_ret_uint(osmux_tree, hf_osmux_circuit_id, tvb, offset+1, 1, ENC_BIG_ENDIAN, &cid);
-        col_append_fstr(pinfo->cinfo, COL_INFO, "Dummy frame (CID %u)", cid);
-        return 2;
+        col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "Osmux ");
+
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+                        val_to_str(osmuxh->ft, osmux_ft_vals,
+                                   "unknown 0x%02x"));
+
+        if (osmuxh->rtp_m)
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(M) ");
+
+        ti = proto_tree_add_protocol_format(tree, proto_osmux, tvb, offset, -1,
+                "Osmux type %s frame",
+                val_to_str(osmuxh->ft, osmux_ft_vals, "unknown 0x%02x"));
+
+        osmux_tree = proto_item_add_subtree(ti, ett_osmux);
+
+        proto_tree_add_bitmask(osmux_tree, tvb, offset, hf_osmux_ft_ctr,
+               ett_osmux_ft_ctr, ft_ctr_fields, ENC_BIG_ENDIAN);
+         offset++;
+
+        /* Old versions of the protocol used to send dummy packets of only 2 bytes (control + cid):_*/
+        if (ft_ctr == 0x23 && tvb_reported_length_remaining(tvb, offset - 1) == 2) {
+            proto_tree_add_item_ret_uint(osmux_tree, hf_osmux_circuit_id, tvb, offset, 1, ENC_BIG_ENDIAN, &cid);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Old Dummy (CID %u)", cid);
+            tap_queue_packet(osmux_tap, pinfo, osmuxh);
+            return tvb_reported_length(tvb);
+        }
+
+        proto_tree_add_item_ret_uint(osmux_tree, hf_osmux_seq, tvb, offset, 1, ENC_BIG_ENDIAN, &osmuxh->seq);
+        offset++;
+
+        proto_tree_add_item_ret_uint(osmux_tree, hf_osmux_circuit_id, tvb, offset, 1, ENC_BIG_ENDIAN, &osmuxh->circuit_id);
+        offset++;
+        col_append_fstr(pinfo->cinfo, COL_INFO, "(CID %u) ", osmuxh->circuit_id);
+
+        proto_tree_add_bitmask_ret_uint64(osmux_tree, tvb, offset, hf_osmux_amr_ft_cmr,
+                ett_osmux_amr_ft_cmr, amr_ft_cmr_fields, ENC_BIG_ENDIAN, &amr_ft_cmr);
+        offset++;
+        osmuxh->amr_ft = (guint32)(amr_ft_cmr & 0xf0) >> 4;
+        osmuxh->amr_cmr = (guint32)amr_ft_cmr & 0x0f;
+        size = amr_ft_to_bytes(osmuxh->amr_ft);
+        for (i = 0; i < osmuxh->ctr + 1; i++) {
+            proto_tree_add_item(osmux_tree, hf_osmux_amr_data, tvb, offset, size, ENC_NA);
+            offset += size;
+        }
+
+        tap_queue_packet(osmux_tap, pinfo, osmuxh);
     }
-
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-                    val_to_str(osmuxh->ft, osmux_ft_vals,
-                               "unknown 0x%02x"));
-
-   if (osmuxh->rtp_m)
-       col_append_fstr(pinfo->cinfo, COL_INFO, "(M)");
-
-    proto_tree_add_bitmask(osmux_tree, tvb, offset, hf_osmux_ft_ctr,
-            ett_osmux_ft_ctr, ft_ctr_fields, ENC_BIG_ENDIAN);
-    offset++;
-
-    proto_tree_add_item_ret_uint(osmux_tree, hf_osmux_seq, tvb, offset, 1, ENC_BIG_ENDIAN, &osmuxh->seq);
-    offset++;
-    proto_tree_add_item_ret_uint(osmux_tree, hf_osmux_circuit_id, tvb, offset, 1, ENC_BIG_ENDIAN, &osmuxh->circuit_id);
-    offset++;
-
-    proto_tree_add_bitmask_ret_uint64(osmux_tree, tvb, offset, hf_osmux_amr_ft_cmr,
-            ett_osmux_amr_ft_cmr, amr_ft_cmr_fields, ENC_BIG_ENDIAN, &amr_ft_cmr);
-    offset++;
-    osmuxh->amr_ft = (guint32)(amr_ft_cmr & 0xf0) >> 4;
-    osmuxh->amr_cmr = (guint32)amr_ft_cmr & 0x0f;
-
-
-    proto_tree_add_item(osmux_tree, hf_osmux_amr_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
-
-    tap_queue_packet(osmux_tap, pinfo, osmuxh);
 
     return tvb_reported_length(tvb);
 }
@@ -270,7 +317,7 @@ void proto_register_osmux(void)
         },
         {&hf_osmux_amr_ft,
          {"AMR ft", "osmux.amr_ft",
-          FT_UINT8, BASE_HEX, NULL, 0xf0,
+          FT_UINT8, BASE_HEX,VALS(amr_ft_names), 0xf0,
           "AMR parameter ft", HFILL}
          },
         {&hf_osmux_amr_cmr,
