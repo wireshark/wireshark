@@ -49,6 +49,7 @@ void proto_reg_handoff_docsis_dccreq(void);
 #define DCCREQ_DS_INTLV_DEPTH 4
 #define DCCREQ_DS_CHAN_ID 5
 #define DCCREQ_DS_SYNC_SUB 6
+#define DCCREQ_DS_OFDM_BLOCK_FREQ 7
 
 /* Define Service Flow Substitution subtypes
  * These are subtypes of DCCREQ_SF_SUB (7)
@@ -73,6 +74,7 @@ static int hf_docsis_dccreq_ds_intlv_depth_i = -1;
 static int hf_docsis_dccreq_ds_intlv_depth_j = -1;
 static int hf_docsis_dccreq_ds_chan_id = -1;
 static int hf_docsis_dccreq_ds_sync_sub = -1;
+static int hf_docsis_dccreq_ds_ofdm_block_freq = -1;
 static int hf_docsis_dccreq_init_tech = -1;
 static int hf_docsis_dccreq_ucd_sub = -1;
 static int hf_docsis_dccreq_said_sub_cur = -1;
@@ -139,6 +141,7 @@ static const value_string ds_param_subtlv_vals[] = {
   {DCCREQ_DS_INTLV_DEPTH, "Interleaver Depth"},
   {DCCREQ_DS_CHAN_ID, "Downstream Channel ID"},
   {DCCREQ_DS_SYNC_SUB, "SYNC Substitution"},
+  {DCCREQ_DS_OFDM_BLOCK_FREQ, "OFDM Block Frequency"},
   {0, NULL}
 };
 
@@ -149,6 +152,7 @@ static const value_string sf_sub_subtlv_vals[] = {
   {0, NULL}
 };
 
+static const unit_name_string local_units_hz = { "Hz", NULL };
 
 /* Dissection */
 static void
@@ -231,6 +235,16 @@ dissect_dccreq_ds_params (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree,
       if (length == 1)
       {
         proto_tree_add_item (dcc_tree, hf_docsis_dccreq_ds_sync_sub, tvb, pos, length, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case DCCREQ_DS_OFDM_BLOCK_FREQ:
+      if (length == 4)
+      {
+        proto_tree_add_item (dcc_tree, hf_docsis_dccreq_ds_ofdm_block_freq, tvb, pos, length, ENC_BIG_ENDIAN);
       }
       else
       {
@@ -532,6 +546,15 @@ proto_register_docsis_dccreq (void)
        "SYNC Substitution",
        "docsis_dccreq.ds_sync_sub",
        FT_UINT8, BASE_DEC, NULL, 0x0,
+       NULL,
+       HFILL
+     }
+    },
+    {&hf_docsis_dccreq_ds_ofdm_block_freq ,
+     {
+       "OFDM Block Frequency",
+       "docsis_dccreq.ds_ofdm_block_freq",
+       FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &local_units_hz, 0x0,
        NULL,
        HFILL
      }
