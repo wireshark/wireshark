@@ -421,7 +421,7 @@ dissect_udp_nm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *da
       }
       else {
         if (udp_nm_subtree != NULL) {
-          ti = proto_tree_add_item(udp_nm_subtree, *hf_id, tvb, offset, length, ENC_BIG_ENDIAN);
+          proto_tree_add_item(udp_nm_subtree, *hf_id, tvb, offset, length, ENC_BIG_ENDIAN);
         }
       }
     }
