@@ -1039,8 +1039,8 @@ static const value_string set_param_req_audio_env[] = {
     {0x00   , "Managed By Terminal"},
     {0x01   , "Standard"},
     {0x02   , "Open Space"},
-    {0x02   , "Meeting Room"},
-    {0x02   , "Noisy"},
+    {0x03   , "Meeting Room"},
+    {0x04   , "Noisy"},
     {0, NULL}
 };
 
