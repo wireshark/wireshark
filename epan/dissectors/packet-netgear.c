@@ -26,6 +26,9 @@
 
 #include <epan/packet.h>
 
+void proto_register_nge(void);
+void proto_reg_handoff_nge(void);
+
 #define NETGEAR_ENSEMBLE_PORT 4554
 
 static int proto_nge = -1;
