@@ -9289,6 +9289,12 @@ dissect_ul_pacch_access_burst(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                                       "GPRS UL PACCH ACCESS BURST");
   rlcmac_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac);
 
+  /* Table 11.2.2.1: PACKET CONTROL ACKNOWLEDGEMENT */
+  /* < Packet Control Acknowledgement 11 bit message > ::=  -- 11-bit access burst format
+   *
+   * < MESSAGE_TYPE : bit (9) == 1111 1100 1 >
+   * |    {    < MESSAGE_TYPE : bit (6) == 110111 >
+   */
   if ((bit_length > 8) && (tvb_get_bits16(tvb, 0, 9, ENC_BIG_ENDIAN) == 0x1F9))
   {
     csnStreamInit(&ar, 0, bit_length, pinfo);
@@ -9299,6 +9305,10 @@ dissect_ul_pacch_access_burst(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     csnStreamInit(&ar, 0, bit_length, pinfo);
     csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(UL_Packet_Control_Ack_TN_RRBP_11_t), tvb, &data->u.UL_Packet_Control_Ack_TN_RRBP_11, ett_gsm_rlcmac);
   }
+  /* < Packet Control Acknowledgement 8 bit message > ::=    -- 8-bit access burst format
+  * < MESSAGE_TYPE : bit (6) == 0111 11 >
+  * |    {    < MESSAGE_TYPE : bit (3) == 000>
+  */
   else if (tvb_get_bits8(tvb, 0, 6) == 0x1F)
   {
     csnStreamInit(&ar, 0, bit_length, pinfo);
