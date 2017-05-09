@@ -380,4 +380,10 @@ extern gchar* add_ranges(gchar* range, GPtrArray* range_ptr_arr);
 /* from mate_parser.l */
 extern gboolean mate_load_config(const gchar* filename, mate_config* mc);
 
+/* Constructor/Destructor prototypes for Lemon Parser */
+void *MateParserAlloc(void* (*)(gsize));
+
+void MateParserFree(void*, void (*)(void *));
+void MateParser(void*, int, gchar*,  mate_config*);
+
 #endif
