@@ -47,14 +47,11 @@ dissect_sync (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
 
   col_set_str(pinfo->cinfo, COL_INFO, "Sync Message");
 
-  if (tree)
-    {
-      it = proto_tree_add_protocol_format (tree, proto_docsis_sync, tvb, 0, -1,"SYNC Message");
-      sync_tree = proto_item_add_subtree (it, ett_docsis_sync);
+  it = proto_tree_add_item(tree, proto_docsis_sync, tvb, 0, -1, ENC_NA);
+  sync_tree = proto_item_add_subtree (it, ett_docsis_sync);
 
-      proto_tree_add_item (sync_tree, hf_docsis_sync_cmts_timestamp, tvb, 0, 4,
-                           ENC_BIG_ENDIAN);
-    } /* if(tree) */
+  proto_tree_add_item (sync_tree, hf_docsis_sync_cmts_timestamp, tvb, 0, 4, ENC_BIG_ENDIAN);
+
   return tvb_captured_length(tvb);
 }
 
@@ -76,8 +73,7 @@ proto_register_docsis_sync (void)
   };
 
   proto_docsis_sync =
-    proto_register_protocol ("DOCSIS Synchronisation Message",
-                             "DOCSIS Sync", "docsis_sync");
+    proto_register_protocol ("DOCSIS Synchronisation Message", "SYNC Message", "docsis_sync");
 
   proto_register_field_array (proto_docsis_sync, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));

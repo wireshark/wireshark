@@ -44,28 +44,21 @@ static int
 dissect_regreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   proto_item *it;
-  proto_tree *regreq_tree = NULL;
-  guint16 sid;
+  proto_tree *regreq_tree;
+  guint32 sid;
   tvbuff_t *next_tvb;
 
-  sid = tvb_get_ntohs (tvb, 0);
+  it = proto_tree_add_item(tree, proto_docsis_regreq, tvb, 0, -1, ENC_NA);
+  regreq_tree = proto_item_add_subtree (it, ett_docsis_regreq);
 
-  col_add_fstr (pinfo->cinfo, COL_INFO, "Registration Request SID = %u",
-                sid);
+  proto_tree_add_item_ret_uint (regreq_tree, hf_docsis_regreq_sid, tvb, 0, 2, ENC_BIG_ENDIAN, &sid);
 
-  if (tree)
-    {
-      it =
-        proto_tree_add_protocol_format (tree, proto_docsis_regreq, tvb, 0, -1,
-                                        "Registration Request");
-      regreq_tree = proto_item_add_subtree (it, ett_docsis_regreq);
-      proto_tree_add_item (regreq_tree, hf_docsis_regreq_sid, tvb, 0, 2,
-                           ENC_BIG_ENDIAN);
-    }
-    /* Call Dissector for Appendix C TlV's */
-    next_tvb = tvb_new_subset_remaining (tvb, 2);
-    call_dissector (docsis_tlv_handle, next_tvb, pinfo, regreq_tree);
-    return tvb_captured_length(tvb);
+  col_add_fstr (pinfo->cinfo, COL_INFO, "Registration Request SID = %u", sid);
+
+  /* Call Dissector for Appendix C TlV's */
+  next_tvb = tvb_new_subset_remaining (tvb, 2);
+  call_dissector (docsis_tlv_handle, next_tvb, pinfo, regreq_tree);
+  return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */

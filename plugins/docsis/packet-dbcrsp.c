@@ -46,29 +46,19 @@ static int
 dissect_dbcrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   proto_item *dbcrsp_item;
-  proto_tree *dbcrsp_tree = NULL;
-  guint16 transid;
-  guint8 confcode;
+  proto_tree *dbcrsp_tree;
+  guint32 transid, confcode;
   tvbuff_t *next_tvb;
 
-  transid = tvb_get_ntohs (tvb, 0);
-  confcode = tvb_get_guint8 (tvb, 2);
+  dbcrsp_item = proto_tree_add_item(tree, proto_docsis_dbcrsp, tvb, 0, -1, ENC_NA);
+  dbcrsp_tree = proto_item_add_subtree (dbcrsp_item, ett_docsis_dbcrsp);
+  proto_tree_add_item_ret_uint(dbcrsp_tree, hf_docsis_dbcrsp_tranid, tvb, 0, 2, ENC_BIG_ENDIAN, &transid);
+  proto_tree_add_item_ret_uint( dbcrsp_tree, hf_docsis_dbcrsp_conf_code, tvb, 2, 1, ENC_BIG_ENDIAN, &confcode);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
                 "Dynamic Bonding Change Response: Tran-Id = %u (%s)", transid,
                 val_to_str (confcode, docsis_conf_code, "%d"));
 
-  if (tree)
-    {
-      dbcrsp_item = proto_tree_add_protocol_format (tree, proto_docsis_dbcrsp,
-                                                    tvb, 0, -1,
-                                                    "Dynamic Bonding Change Response");
-      dbcrsp_tree = proto_item_add_subtree (dbcrsp_item, ett_docsis_dbcrsp);
-      proto_tree_add_item (dbcrsp_tree, hf_docsis_dbcrsp_tranid,
-                           tvb, 0, 2, ENC_BIG_ENDIAN);
-      proto_tree_add_item( dbcrsp_tree, hf_docsis_dbcrsp_conf_code,
-                           tvb, 2, 1, ENC_BIG_ENDIAN );
-    }
   /* Call Dissector for Appendix C TLV's */
   next_tvb = tvb_new_subset_remaining (tvb, 3);
   call_dissector (docsis_tlv_handle, next_tvb, pinfo, dbcrsp_tree);

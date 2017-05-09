@@ -50,43 +50,27 @@ static int
 dissect_dpvreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   proto_item *it;
-  proto_tree *dpvreq_tree = NULL;
-  guint16 transid;
-  guint8 dschan;
+  proto_tree *dpvreq_tree;
+  guint32 transid, dschan;
 
-  transid = tvb_get_ntohs (tvb, 0);
-  dschan = tvb_get_guint8 (tvb, 2);
+  it = proto_tree_add_item(tree, proto_docsis_dpvreq, tvb, 0, -1, ENC_NA);
+  dpvreq_tree = proto_item_add_subtree (it, ett_docsis_dpvreq);
+  proto_tree_add_item_ret_uint (dpvreq_tree, hf_docsis_dpvreq_tranid, tvb, 0, 2, ENC_BIG_ENDIAN, &transid);
+  proto_tree_add_item_ret_uint (dpvreq_tree, hf_docsis_dpvreq_dschan, tvb, 2, 1, ENC_BIG_ENDIAN, &dschan);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
                 "DOCSIS Path Verify Request: Transaction-Id = %u DS-Ch %d",
                 transid, dschan);
 
-  if (tree)
-    {
-      it =
-        proto_tree_add_protocol_format (tree, proto_docsis_dpvreq, tvb, 0, -1,
-                                        "DPV Request");
-      dpvreq_tree = proto_item_add_subtree (it, ett_docsis_dpvreq);
-      proto_tree_add_item (dpvreq_tree, hf_docsis_dpvreq_tranid, tvb,
-                           0, 2, ENC_BIG_ENDIAN);
-      proto_tree_add_item (dpvreq_tree, hf_docsis_dpvreq_dschan, tvb,
-                           2, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item (dpvreq_tree, hf_docsis_dpvreq_flags, tvb,
-                           3, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item (dpvreq_tree, hf_docsis_dpvreq_us_sf, tvb,
-                           4, 4, ENC_BIG_ENDIAN);
-      proto_tree_add_item (dpvreq_tree, hf_docsis_dpvreq_n, tvb,
-                           8, 2, ENC_BIG_ENDIAN);
-      proto_tree_add_item (dpvreq_tree, hf_docsis_dpvreq_start, tvb,
-                           10, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item (dpvreq_tree, hf_docsis_dpvreq_end, tvb,
-                           11, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item (dpvreq_tree, hf_docsis_dpvreq_ts_start, tvb,
-                           12, 4, ENC_BIG_ENDIAN);
-      proto_tree_add_item (dpvreq_tree, hf_docsis_dpvreq_ts_end, tvb,
-                           16, 4, ENC_BIG_ENDIAN);
-    }
-    return tvb_captured_length(tvb);
+  proto_tree_add_item (dpvreq_tree, hf_docsis_dpvreq_flags, tvb, 3, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (dpvreq_tree, hf_docsis_dpvreq_us_sf, tvb, 4, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item (dpvreq_tree, hf_docsis_dpvreq_n, tvb, 8, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item (dpvreq_tree, hf_docsis_dpvreq_start, tvb, 10, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (dpvreq_tree, hf_docsis_dpvreq_end, tvb, 11, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (dpvreq_tree, hf_docsis_dpvreq_ts_start, tvb, 12, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item (dpvreq_tree, hf_docsis_dpvreq_ts_end, tvb, 16, 4, ENC_BIG_ENDIAN);
+
+  return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */

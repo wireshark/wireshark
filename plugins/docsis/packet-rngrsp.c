@@ -83,14 +83,16 @@ dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_tree *rngrsp_tree;
   proto_item *rngrsptlv_item;
   proto_tree *rngrsptlv_tree;
-  guint8 tlvtype, tlvlen;
+  guint8 tlvtype;
   int pos;
-  gint length;
-  guint8 upchid;
-  guint16 sid;
+  guint tlvlen;
+  guint32 sid, upchid;
 
-  sid = tvb_get_ntohs (tvb, 0);
-  upchid = tvb_get_guint8 (tvb, 2);
+  it = proto_tree_add_item(tree, proto_docsis_rngrsp, tvb, 0, -1, ENC_NA);
+  rngrsp_tree = proto_item_add_subtree (it, ett_docsis_rngrsp);
+
+  proto_tree_add_item_ret_uint (rngrsp_tree, hf_docsis_rngrsp_sid, tvb, 0, 2, ENC_BIG_ENDIAN, &sid);
+  proto_tree_add_item_ret_uint (rngrsp_tree, hf_docsis_rngrsp_upstream_chid, tvb, 2, 1, ENC_BIG_ENDIAN, &upchid);
 
   if (upchid > 0)
     col_add_fstr (pinfo->cinfo, COL_INFO,
@@ -99,88 +101,68 @@ dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   else
     col_add_fstr (pinfo->cinfo, COL_INFO,
                   "Ranging Response: SID = %u, Telephony Return", sid);
-  it = proto_tree_add_protocol_format (tree, proto_docsis_rngrsp, tvb, 0, -1,
-                                       "Ranging Response");
-  rngrsp_tree = proto_item_add_subtree (it, ett_docsis_rngrsp);
-  proto_tree_add_item (rngrsp_tree, hf_docsis_rngrsp_sid, tvb, 0, 2,
-                       ENC_BIG_ENDIAN);
-  proto_tree_add_item (rngrsp_tree, hf_docsis_rngrsp_upstream_chid, tvb,
-                       2, 1, ENC_BIG_ENDIAN);
-  length = tvb_reported_length (tvb);
+
   pos = 3;
-  while (pos < length)
-    {
-      tlvtype = tvb_get_guint8 (tvb, pos);
-      rngrsptlv_tree = proto_tree_add_subtree(rngrsp_tree, tvb, pos, -1,
+  while (tvb_reported_length_remaining(tvb, pos) > 0)
+  {
+    tlvtype = tvb_get_guint8 (tvb, pos);
+    rngrsptlv_tree = proto_tree_add_subtree(rngrsp_tree, tvb, pos, -1,
                                   ett_docsis_rngrsptlv, &rngrsptlv_item,
                                   val_to_str(tlvtype, rngrsp_tlv_vals,
                                   "Unknown TLV (%u)"));
-      proto_tree_add_uint (rngrsptlv_tree, hf_docsis_rngrsp_type,
-                          tvb, pos, 1, tlvtype);
-      pos++;
-      tlvlen = tvb_get_guint8 (tvb, pos);
-      proto_tree_add_uint (rngrsptlv_tree, hf_docsis_rngrsp_length,
-                           tvb, pos, 1, tlvlen);
-      pos++;
-      proto_item_set_len(rngrsptlv_item, tlvlen + 2);
-      switch (tlvtype)
-        {
-          case RNGRSP_TIMING:
-            if (tlvlen == 4)
-              {
-                proto_tree_add_item (rngrsptlv_tree,
-                                    hf_docsis_rngrsp_timing_adj, tvb, pos,
-                                    tlvlen, ENC_BIG_ENDIAN);
-              }
-            pos = pos + tlvlen;
-            break;
-          case RNGRSP_PWR_LEVEL_ADJ:
-            if (tlvlen == 1)
-              {
-                proto_tree_add_item (rngrsptlv_tree, hf_docsis_rngrsp_power_adj,
-                                    tvb, pos, tlvlen, ENC_NA);
-              }
-            pos = pos + tlvlen;
-            break;
-          case RNGRSP_OFFSET_FREQ_ADJ:
-            if (tlvlen == 2)
-              {
-                proto_tree_add_item (rngrsptlv_tree, hf_docsis_rngrsp_freq_adj,
-                                     tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-              }
-            pos = pos + tlvlen;
-            break;
-          case RNGRSP_TRANSMIT_EQ_ADJ:
-            proto_tree_add_item (rngrsptlv_tree, hf_docsis_rngrsp_xmit_eq_adj,
-                                 tvb, pos, tlvlen, ENC_NA);
-            pos = pos + tlvlen;
-            break;
-          case RNGRSP_RANGING_STATUS:
-            if (tlvlen == 1)
-              proto_tree_add_item (rngrsptlv_tree,
-                                   hf_docsis_rngrsp_ranging_status, tvb,
-                                   pos, tlvlen, ENC_BIG_ENDIAN);
-            pos = pos + tlvlen;
-            break;
-          case RNGRSP_DOWN_FREQ_OVER:
-            if (tlvlen == 4)
-              proto_tree_add_item (rngrsptlv_tree,
-                                   hf_docsis_rngrsp_down_freq_over, tvb,
-                                   pos, tlvlen, ENC_BIG_ENDIAN);
-            pos = pos + tlvlen;
-            break;
-          case RNGRSP_UP_CHID_OVER:
-            if (tlvlen == 1)
-              proto_tree_add_item (rngrsptlv_tree,
-                                   hf_docsis_rngrsp_upstream_ch_over, tvb,
-                                   pos, tlvlen, ENC_BIG_ENDIAN);
-            pos = pos + tlvlen;
-            break;
-          default:
-            pos = pos + tlvlen;
-        }                   /* switch(tlvtype) */
-    }                       /* while (pos < length) */
-  return length;
+    proto_tree_add_uint (rngrsptlv_tree, hf_docsis_rngrsp_type, tvb, pos, 1, tlvtype);
+    pos++;
+    proto_tree_add_item_ret_uint (rngrsptlv_tree, hf_docsis_rngrsp_length,
+                           tvb, pos, 1, ENC_NA, &tlvlen);
+    pos++;
+    proto_item_set_len(rngrsptlv_item, tlvlen + 2);
+    switch (tlvtype)
+    {
+    case RNGRSP_TIMING:
+      if (tlvlen == 4)
+      {
+        proto_tree_add_item (rngrsptlv_tree, hf_docsis_rngrsp_timing_adj, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      }
+      break;
+    case RNGRSP_PWR_LEVEL_ADJ:
+      if (tlvlen == 1)
+      {
+        proto_tree_add_item (rngrsptlv_tree, hf_docsis_rngrsp_power_adj, tvb, pos, tlvlen, ENC_NA);
+      }
+      break;
+    case RNGRSP_OFFSET_FREQ_ADJ:
+      if (tlvlen == 2)
+      {
+        proto_tree_add_item (rngrsptlv_tree, hf_docsis_rngrsp_freq_adj, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      }
+      break;
+    case RNGRSP_TRANSMIT_EQ_ADJ:
+      proto_tree_add_item (rngrsptlv_tree, hf_docsis_rngrsp_xmit_eq_adj, tvb, pos, tlvlen, ENC_NA);
+      break;
+    case RNGRSP_RANGING_STATUS:
+      if (tlvlen == 1)
+      {
+        proto_tree_add_item (rngrsptlv_tree, hf_docsis_rngrsp_ranging_status, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      }
+      break;
+    case RNGRSP_DOWN_FREQ_OVER:
+      if (tlvlen == 4)
+      {
+        proto_tree_add_item (rngrsptlv_tree, hf_docsis_rngrsp_down_freq_over, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      }
+      break;
+    case RNGRSP_UP_CHID_OVER:
+      if (tlvlen == 1)
+      {
+        proto_tree_add_item (rngrsptlv_tree, hf_docsis_rngrsp_upstream_ch_over, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      }
+      break;
+    default:
+      ;
+    }                   /* switch(tlvtype) */
+    pos += tlvlen;
+  }                       /* while (tvb_reported_length_remaining(tvb, pos) > 0) */
+  return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */

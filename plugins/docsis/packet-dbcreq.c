@@ -45,28 +45,19 @@ static int
 dissect_dbcreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   proto_item *dbcreq_item;
-  proto_tree *dbcreq_tree = NULL;
-  guint16 transid;
+  proto_tree *dbcreq_tree;
+  guint32 transid;
   tvbuff_t *next_tvb;
 
-  transid = tvb_get_ntohs (tvb, 0);
+  dbcreq_item = proto_tree_add_item(tree, proto_docsis_dbcreq, tvb, 0, -1, ENC_NA);
+  dbcreq_tree = proto_item_add_subtree (dbcreq_item, ett_docsis_dbcreq);
+  proto_tree_add_item_ret_uint(dbcreq_tree, hf_docsis_dbcreq_tranid, tvb, 0, 2, ENC_BIG_ENDIAN, &transid);
+  proto_tree_add_item( dbcreq_tree, hf_docsis_dbcreq_number_of_fragments, tvb, 2, 1, ENC_BIG_ENDIAN );
+  proto_tree_add_item( dbcreq_tree, hf_docsis_dbcreq_fragment_sequence_number, tvb, 3, 1, ENC_BIG_ENDIAN );
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
                 "Dynamic Bonding Change Request: Tran-Id = %u", transid);
 
-  if (tree)
-    {
-      dbcreq_item = proto_tree_add_protocol_format (tree, proto_docsis_dbcreq,
-                                                    tvb, 0, -1,
-                                                    "Dynamic Bonding Change Request");
-      dbcreq_tree = proto_item_add_subtree (dbcreq_item, ett_docsis_dbcreq);
-      proto_tree_add_item (dbcreq_tree, hf_docsis_dbcreq_tranid,
-                           tvb, 0, 2, ENC_BIG_ENDIAN);
-      proto_tree_add_item( dbcreq_tree, hf_docsis_dbcreq_number_of_fragments,
-                           tvb, 2, 1, ENC_BIG_ENDIAN );
-      proto_tree_add_item( dbcreq_tree, hf_docsis_dbcreq_fragment_sequence_number ,
-                           tvb, 3, 1, ENC_BIG_ENDIAN );
-    }
   /* Call Dissector for Appendix C TLV's */
   next_tvb = tvb_new_subset_remaining (tvb, 4);
   call_dissector (docsis_tlv_handle, next_tvb, pinfo, dbcreq_tree);

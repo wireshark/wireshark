@@ -52,22 +52,19 @@ static int
 dissect_regrspmp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   proto_item *it;
-  proto_tree *regrspmp_tree = NULL;
+  proto_tree *regrspmp_tree;
   tvbuff_t *next_tvb;
 
   col_set_str(pinfo->cinfo, COL_INFO, "REG-RSP-MP Message:");
 
-  if (tree)
-    {
-      it = proto_tree_add_protocol_format (tree, proto_docsis_regrspmp, tvb, 0, -1,"REG-RSP-MP Message");
-      regrspmp_tree = proto_item_add_subtree (it, ett_docsis_regrspmp);
+  it = proto_tree_add_item(tree, proto_docsis_regrspmp, tvb, 0, -1, ENC_NA);
+  regrspmp_tree = proto_item_add_subtree (it, ett_docsis_regrspmp);
 
-      proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_sid, tvb, 0, 2, ENC_BIG_ENDIAN);
-      proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_response, tvb, 2, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_number_of_fragments, tvb, 3, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_fragment_sequence_number, tvb, 4, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_sid, tvb, 0, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_response, tvb, 2, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_number_of_fragments, tvb, 3, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_fragment_sequence_number, tvb, 4, 1, ENC_BIG_ENDIAN);
 
-    }
   /* Call Dissector for Appendix C TLV's */
   next_tvb = tvb_new_subset_remaining (tvb, 5);
   call_dissector (docsis_tlv_handle, next_tvb, pinfo, regrspmp_tree);

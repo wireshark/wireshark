@@ -47,33 +47,23 @@ static int
 dissect_regrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   proto_item *it;
-  proto_tree *regrsp_tree = NULL;
-  guint16 sid;
-  guint8 response;
+  proto_tree *regrsp_tree;
+  guint32 sid, response;
   tvbuff_t *next_tvb;
 
-  sid = tvb_get_ntohs (tvb, 0);
-  response = tvb_get_guint8 (tvb, 2);
+  it = proto_tree_add_item(tree, proto_docsis_regrsp, tvb, 0, -1, ENC_NA);
+  regrsp_tree = proto_item_add_subtree (it, ett_docsis_regrsp);
+  proto_tree_add_item_ret_uint (regrsp_tree, hf_docsis_regrsp_sid, tvb, 0, 2, ENC_BIG_ENDIAN, &sid);
+  proto_tree_add_item_ret_uint (regrsp_tree, hf_docsis_regrsp_response, tvb, 2, 1, ENC_BIG_ENDIAN, &response);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
                 "Registration Response SID = %u (%s)", sid,
                 val_to_str (response, docsis_conf_code, "%d"));
 
-  if (tree)
-    {
-      it =
-        proto_tree_add_protocol_format (tree, proto_docsis_regrsp, tvb, 0, -1,
-                                        "Registration Response");
-      regrsp_tree = proto_item_add_subtree (it, ett_docsis_regrsp);
-      proto_tree_add_item (regrsp_tree, hf_docsis_regrsp_sid, tvb, 0, 2,
-                           ENC_BIG_ENDIAN);
-      proto_tree_add_item (regrsp_tree, hf_docsis_regrsp_response, tvb, 2, 1,
-                           ENC_BIG_ENDIAN);
-    }
-    /* Call Dissector for Appendix C TLV's */
-    next_tvb = tvb_new_subset_remaining (tvb, 3);
-    call_dissector (docsis_tlv_handle, next_tvb, pinfo, regrsp_tree);
-    return tvb_captured_length(tvb);
+  /* Call Dissector for Appendix C TLV's */
+  next_tvb = tvb_new_subset_remaining (tvb, 3);
+  call_dissector (docsis_tlv_handle, next_tvb, pinfo, regrsp_tree);
+  return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */

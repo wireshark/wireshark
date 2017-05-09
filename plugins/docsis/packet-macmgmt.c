@@ -156,11 +156,10 @@ static const value_string mgmt_type_vals[] = {
 static int
 dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
-  guint16 msg_len;
+  guint32 type, msg_len;
   proto_item *mgt_hdr_it;
   proto_tree *mgt_hdr_tree;
   tvbuff_t *payload_tvb;
-  guint8 type;
 
   col_set_str (pinfo->cinfo, COL_PROTOCOL, "DOCSIS MGMT");
 
@@ -171,35 +170,20 @@ dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* d
   set_address_tvb (&pinfo->dl_dst, AT_ETHER, 6, tvb, 0);
   copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
 
-  if (tree)
-    {
-      mgt_hdr_it =
-        proto_tree_add_protocol_format (tree, proto_docsis_mgmt, tvb, 0, 20,
-                                        "Mac Management");
-      mgt_hdr_tree = proto_item_add_subtree (mgt_hdr_it, ett_docsis_mgmt);
-      proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_dst_addr, tvb, 0, 6,
-                           ENC_NA);
-      proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_src_addr, tvb, 6, 6,
-                           ENC_NA);
-      proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_msg_len, tvb, 12, 2,
-                           ENC_BIG_ENDIAN);
-      proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_dsap, tvb, 14, 1,
-                           ENC_BIG_ENDIAN);
-      proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_ssap, tvb, 15, 1,
-                           ENC_BIG_ENDIAN);
-      proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_control, tvb, 16, 1,
-                           ENC_BIG_ENDIAN);
-      proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_version, tvb, 17, 1,
-                           ENC_BIG_ENDIAN);
-      proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_type, tvb, 18, 1,
-                           ENC_BIG_ENDIAN);
-      proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_rsvd, tvb, 19, 1,
-                           ENC_BIG_ENDIAN);
-    }
+  mgt_hdr_it = proto_tree_add_protocol_format (tree, proto_docsis_mgmt, tvb, 0, 20, "Mac Management");
+  mgt_hdr_tree = proto_item_add_subtree (mgt_hdr_it, ett_docsis_mgmt);
+  proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_dst_addr, tvb, 0, 6, ENC_NA);
+  proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_src_addr, tvb, 6, 6, ENC_NA);
+  proto_tree_add_item_ret_uint (mgt_hdr_tree, hf_docsis_mgt_msg_len, tvb, 12, 2, ENC_BIG_ENDIAN, &msg_len);
+  proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_dsap, tvb, 14, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_ssap, tvb, 15, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_control, tvb, 16, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_version, tvb, 17, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint (mgt_hdr_tree, hf_docsis_mgt_type, tvb, 18, 1, ENC_BIG_ENDIAN, &type);
+  proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_rsvd, tvb, 19, 1, ENC_BIG_ENDIAN);
+
   /* Code to Call subdissector */
   /* sub-dissectors are based on the type field */
-  type = tvb_get_guint8 (tvb, 18);
-  msg_len = tvb_get_ntohs (tvb, 12);
   payload_tvb = tvb_new_subset_length (tvb, 20, msg_len - 6);
 
   if (!dissector_try_uint(docsis_mgmt_dissector_table, type, payload_tvb, pinfo, tree))

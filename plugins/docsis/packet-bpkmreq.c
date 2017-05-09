@@ -66,27 +66,19 @@ dissect_bpkmreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* d
 {
   proto_item *it;
   proto_tree *bpkmreq_tree;
-  guint8 code;
+  guint32 code;
   tvbuff_t *attrs_tvb;
 
-  code = tvb_get_guint8 (tvb, 0);
+  it = proto_tree_add_item(tree, proto_docsis_bpkmreq, tvb, 0, -1, ENC_NA);
+  bpkmreq_tree = proto_item_add_subtree (it, ett_docsis_bpkmreq);
+  proto_tree_add_item_ret_uint (bpkmreq_tree, hf_docsis_bpkmreq_code, tvb, 0, 1,
+                           ENC_BIG_ENDIAN, &code);
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "BPKM Request (%s)",
                 val_to_str (code, code_field_vals, "%d"));
 
-  if (tree)
-    {
-      it =
-        proto_tree_add_protocol_format (tree, proto_docsis_bpkmreq, tvb, 0, -1,
-                                        "BPKM Request Message");
-      bpkmreq_tree = proto_item_add_subtree (it, ett_docsis_bpkmreq);
-      proto_tree_add_item (bpkmreq_tree, hf_docsis_bpkmreq_code, tvb, 0, 1,
-                           ENC_BIG_ENDIAN);
-      proto_tree_add_item (bpkmreq_tree, hf_docsis_bpkmreq_ident, tvb, 1, 1,
-                           ENC_BIG_ENDIAN);
-      proto_tree_add_item (bpkmreq_tree, hf_docsis_bpkmreq_length, tvb, 2, 2,
-                           ENC_BIG_ENDIAN);
-    }
+  proto_tree_add_item (bpkmreq_tree, hf_docsis_bpkmreq_ident, tvb, 1, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (bpkmreq_tree, hf_docsis_bpkmreq_length, tvb, 2, 2, ENC_BIG_ENDIAN);
 
   attrs_tvb = tvb_new_subset_remaining (tvb, 4);
   call_dissector (attrs_handle, attrs_tvb, pinfo, tree);

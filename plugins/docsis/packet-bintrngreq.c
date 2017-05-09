@@ -49,35 +49,25 @@ dissect_bintrngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
   proto_item *bintrngreq_item;
   proto_tree *bintrngreq_tree;
   guint16 md_ds_sg_id;
+  guint16 offset = 0;
 
   md_ds_sg_id = tvb_get_ntohs (tvb, 0);
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "Bonded Ranging Request: MD-DS-SG-ID = %u (0x%X)",
                 md_ds_sg_id, md_ds_sg_id );
 
-  if (tree)
-  {
-    guint16 offset = 0;
-    bintrngreq_item = proto_tree_add_protocol_format (tree, proto_docsis_bintrngreq,
-                                                      tvb, offset, tvb_captured_length(tvb),
-                                                      "Bonded Initial Ranging Request");
-    bintrngreq_tree = proto_item_add_subtree (bintrngreq_item, ett_docsis_bintrngreq);
-    proto_tree_add_item (bintrngreq_tree, hf_docsis_bintrngreq_capflags,
-                         tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item( bintrngreq_tree, hf_docsis_bintrngreq_capflags_frag,
-                         tvb, offset, 1, ENC_BIG_ENDIAN );
-    proto_tree_add_item( bintrngreq_tree, hf_docsis_bintrngreq_capflags_encrypt,
-                         tvb, offset, 1, ENC_BIG_ENDIAN );
-    offset++;
-    proto_tree_add_item (bintrngreq_tree, hf_docsis_bintrngreq_mddsgid,
-                         tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
-    proto_tree_add_item (bintrngreq_tree, hf_docsis_bintrngreq_down_chid,
-                         tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
-    proto_tree_add_item (bintrngreq_tree, hf_docsis_bintrngreq_up_chid,
-                         tvb, offset, 1, ENC_BIG_ENDIAN);
-  }
+  bintrngreq_item = proto_tree_add_item(tree, proto_docsis_bintrngreq, tvb, offset, -1, ENC_NA);
+  bintrngreq_tree = proto_item_add_subtree (bintrngreq_item, ett_docsis_bintrngreq);
+  proto_tree_add_item (bintrngreq_tree, hf_docsis_bintrngreq_capflags, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item( bintrngreq_tree, hf_docsis_bintrngreq_capflags_frag, tvb, offset, 1, ENC_BIG_ENDIAN );
+  proto_tree_add_item( bintrngreq_tree, hf_docsis_bintrngreq_capflags_encrypt, tvb, offset, 1, ENC_BIG_ENDIAN );
+  offset++;
+  proto_tree_add_item (bintrngreq_tree, hf_docsis_bintrngreq_mddsgid, tvb, offset, 1, ENC_BIG_ENDIAN);
+  offset++;
+  proto_tree_add_item (bintrngreq_tree, hf_docsis_bintrngreq_down_chid, tvb, offset, 1, ENC_BIG_ENDIAN);
+  offset++;
+  proto_tree_add_item (bintrngreq_tree, hf_docsis_bintrngreq_up_chid, tvb, offset, 1, ENC_BIG_ENDIAN);
+
   return tvb_captured_length(tvb);
 }
 

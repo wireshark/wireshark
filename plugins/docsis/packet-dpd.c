@@ -57,6 +57,10 @@ static int hf_docsis_dpd_tlv_subc_assign_vector_reserved = -1;
 static int hf_docsis_dpd_tlv_subc_assign_vector_subc_start = -1;
 static int hf_docsis_dpd_tlv_subc_assign_vector_modulation_odd = -1;
 static int hf_docsis_dpd_tlv_subc_assign_vector_modulation_even = -1;
+static int hf_docsis_dpd_tlv_data = -1;
+static int hf_docsis_dpd_type = -1;
+static int hf_docsis_dpd_length = -1;
+
 
 
 static expert_field ei_docsis_dpd_tlvlen_bad = EI_INIT;
@@ -66,6 +70,7 @@ static expert_field ei_docsis_dpd_value_unknown = EI_INIT;
 /* Initialize the subtree pointers */
 static gint ett_docsis_dpd = -1;
 static gint ett_docsis_dpd_tlv = -1;
+static gint ett_docsis_dpd_tlvtlv = -1;
 static gint ett_docsis_dpd_tlv_subcarrier_assignment = -1;
 static gint ett_docsis_dpd_tlv_subcarrier_assignment_vector = -1;
 
@@ -142,40 +147,40 @@ static const value_string docsis_dpd_tlv_subc_assign_vector_modulation_str[] = {
   {0, NULL}
 };
 
+static const value_string dpd_tlv_vals[] = {
+  {SUBCARRIER_ASSIGNMENT_RANGE_LIST, "Subcarrier Assignment Range/List"},
+  {SUBCARRIER_ASSIGNMENT_VECTOR, "Subcarrier Assignment Vector"},
+  {0, NULL}
+};
+
 
 /* Dissection */
 static void
-dissect_dpd_subcarrier_assignment_range_list(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint start, guint len)
+dissect_dpd_subcarrier_assignment_range_list(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint pos, guint len)
 {
-  proto_item *it;
-  proto_tree *subcarrier_assignment_tree;
-  guint8 subcarrier_assignment_type;
-  guint16 subcarrier_assignment_index;
+  guint32 i, subcarrier_assignment_type;
+  proto_item* type_item;
 
-  it = proto_tree_add_protocol_format (tree, proto_docsis_dpd, tvb, start-2, len+2, ".5 Subcarrier Assignment Range/List");
-  subcarrier_assignment_tree = proto_item_add_subtree (it, ett_docsis_dpd_tlv_subcarrier_assignment);
-
-  proto_tree_add_item (subcarrier_assignment_tree, hf_docsis_dpd_tlv_subc_assign_type, tvb, start, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item (subcarrier_assignment_tree, hf_docsis_dpd_tlv_subc_assign_value, tvb, start, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item (subcarrier_assignment_tree, hf_docsis_dpd_tlv_subc_assign_reserved, tvb, start, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item (subcarrier_assignment_tree, hf_docsis_dpd_tlv_subc_assign_modulation, tvb, start, 1, ENC_BIG_ENDIAN);
-
-
-  subcarrier_assignment_type = (tvb_get_guint8 (tvb, start) >> 6);
+  type_item = proto_tree_add_item_ret_uint (tree, hf_docsis_dpd_tlv_subc_assign_type, tvb, pos, 1, ENC_BIG_ENDIAN, &subcarrier_assignment_type);
+  proto_tree_add_item (tree, hf_docsis_dpd_tlv_subc_assign_value, tvb, pos, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (tree, hf_docsis_dpd_tlv_subc_assign_reserved, tvb, pos, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (tree, hf_docsis_dpd_tlv_subc_assign_modulation, tvb, pos, 1, ENC_BIG_ENDIAN);
+  pos++;
 
   switch (subcarrier_assignment_type)
   {
     case SUBCARRIER_ASSIGNMENT_RANGE_CONT:
     case SUBCARRIER_ASSIGNMENT_RANGE_SKIPBY1:
-      proto_tree_add_item (subcarrier_assignment_tree, hf_docsis_dpd_subc_assign_range, tvb, start + 1, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item (tree, hf_docsis_dpd_subc_assign_range, tvb, pos, 4, ENC_BIG_ENDIAN);
       break;
     case SUBCARRIER_ASSIGNMENT_LIST:
-      for (subcarrier_assignment_index = 0; subcarrier_assignment_index < len/2; ++subcarrier_assignment_index) {
-        proto_tree_add_item (subcarrier_assignment_tree, hf_docsis_dpd_subc_assign_index, tvb, start + 1 + 2*subcarrier_assignment_index, 2, ENC_BIG_ENDIAN);
+      for (i = 0; i < len/2; ++i) {
+        proto_tree_add_item (tree, hf_docsis_dpd_subc_assign_index, tvb, pos, 2, ENC_BIG_ENDIAN);
+        pos += 2;
       }
       break;
     default:
-      expert_add_info_format(pinfo, subcarrier_assignment_tree, &ei_docsis_dpd_value_unknown, "Unknown subcarrier assignment type: %u", subcarrier_assignment_type);
+      expert_add_info_format(pinfo, type_item, &ei_docsis_dpd_value_unknown, "Unknown subcarrier assignment type: %u", subcarrier_assignment_type);
       break;
   }
 }
@@ -183,83 +188,84 @@ dissect_dpd_subcarrier_assignment_range_list(tvbuff_t * tvb, packet_info * pinfo
 static void
 dissect_dpd_subcarrier_assignment_vector(tvbuff_t * tvb, proto_tree * tree, guint start, guint len)
 {
-  proto_item *it;
-  proto_tree *subcarrier_assignment_vector_tree;
-  guint8 subcarrier_assignment_vector_oddness;
+  guint32 subcarrier_assignment_vector_oddness;
   guint vector_index;
 
-  it = proto_tree_add_protocol_format (tree, proto_docsis_dpd, tvb, start-3, len+3, ".6 Subcarrier Assignment Vector");
-  subcarrier_assignment_vector_tree = proto_item_add_subtree (it, ett_docsis_dpd_tlv_subcarrier_assignment_vector);
-
-  proto_tree_add_item (subcarrier_assignment_vector_tree, hf_docsis_dpd_tlv_subc_assign_vector_oddness, tvb, start, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item (subcarrier_assignment_vector_tree, hf_docsis_dpd_tlv_subc_assign_vector_reserved, tvb, start, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item (subcarrier_assignment_vector_tree, hf_docsis_dpd_tlv_subc_assign_vector_subc_start, tvb, start, 2, ENC_BIG_ENDIAN);
-
-
-  subcarrier_assignment_vector_oddness = (tvb_get_guint8(tvb, start) >> 7);
+  proto_tree_add_item_ret_uint (tree, hf_docsis_dpd_tlv_subc_assign_vector_oddness, tvb, start, 1, ENC_BIG_ENDIAN, &subcarrier_assignment_vector_oddness);
+  proto_tree_add_item (tree, hf_docsis_dpd_tlv_subc_assign_vector_reserved, tvb, start, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (tree, hf_docsis_dpd_tlv_subc_assign_vector_subc_start, tvb, start, 2, ENC_BIG_ENDIAN);
 
   for(vector_index = 0; vector_index < len; ++vector_index)
   {
-    proto_tree_add_item (subcarrier_assignment_vector_tree, hf_docsis_dpd_tlv_subc_assign_vector_modulation_odd, tvb, start + 2 + vector_index, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (tree, hf_docsis_dpd_tlv_subc_assign_vector_modulation_odd, tvb, start + 2 + vector_index, 1, ENC_BIG_ENDIAN);
     if (!((vector_index == len -1) && subcarrier_assignment_vector_oddness))
     {
-      proto_tree_add_item (subcarrier_assignment_vector_tree, hf_docsis_dpd_tlv_subc_assign_vector_modulation_even, tvb, start + 2 + vector_index, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item (tree, hf_docsis_dpd_tlv_subc_assign_vector_modulation_even, tvb, start + 2 + vector_index, 1, ENC_BIG_ENDIAN);
     }
   }
 }
 
 
 static void
-dissect_dpd_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint start, guint len)
+dissect_dpd_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  proto_item *it;
+  proto_item *it, *tlv_item, *tlv_len_item;
   proto_tree *tlv_tree;
-  guint pos = start;
+  guint pos = 0;
   guint length;
   guint8 type;
 
-  it = proto_tree_add_protocol_format (tree, proto_docsis_dpd, tvb, 0, len, "TLV Data");
+  it = proto_tree_add_item(tree, hf_docsis_dpd_tlv_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
   tlv_tree = proto_item_add_subtree (it, ett_docsis_dpd_tlv);
 
-  while (pos < (len + start))
+  while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
-    type = tvb_get_guint8 (tvb, pos++);
-    length = tvb_get_guint8 (tvb, pos++);
-    if(pos + length > start + len)
+    type = tvb_get_guint8 (tvb, pos);
+    tlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, -1,
+                                            ett_docsis_dpd_tlvtlv, &tlv_item,
+                                            val_to_str(type, dpd_tlv_vals,
+                                                       "Unknown TLV (%u)"));
+    proto_tree_add_uint (tlv_tree, hf_docsis_dpd_type, tvb, pos, 1, type);
+    pos++;
+    if (type != SUBCARRIER_ASSIGNMENT_VECTOR)
     {
-      expert_add_info_format(pinfo, tlv_tree, &ei_docsis_dpd_tlvlen_bad, "Wrong TLV length: %u", length);
+      tlv_len_item = proto_tree_add_item_ret_uint (tlv_tree, hf_docsis_dpd_length, tvb, pos, 1, ENC_NA, &length);
+      pos++;
+      proto_item_set_len(tlv_item, length + 2);
     }
 
     switch (type)
     {
-      case SUBCARRIER_ASSIGNMENT_RANGE_LIST:
-        if (length >= 5)
-        {
-          dissect_dpd_subcarrier_assignment_range_list(tvb, pinfo, tlv_tree, pos, length);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, tlv_tree, &ei_docsis_dpd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case SUBCARRIER_ASSIGNMENT_VECTOR:
-        /*FOR THIS TYPE, LENGTH IS 2 BYTES INSTEAD OF 1 */
-        length = tvb_get_ntohs (tvb, pos-1);
-        ++pos;
-        if (length >=2)
-        {
-          dissect_dpd_subcarrier_assignment_vector(tvb, tlv_tree, pos, length);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, tlv_tree, &ei_docsis_dpd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      default: proto_tree_add_item (tlv_tree, hf_docsis_dpd_tlv_unknown, tvb, pos - 2, length+2, ENC_NA);
-               expert_add_info_format(pinfo, tlv_tree, &ei_docsis_dpd_value_unknown, "Unknown TLV: %u", type);
-               break;
+    case SUBCARRIER_ASSIGNMENT_RANGE_LIST:
+      if (length >= 5)
+      {
+        dissect_dpd_subcarrier_assignment_range_list(tvb, pinfo, tlv_tree, pos, length);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_dpd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case SUBCARRIER_ASSIGNMENT_VECTOR:
+      /*FOR THIS TYPE, LENGTH IS 2 BYTES INSTEAD OF 1 */
+      tlv_len_item = proto_tree_add_item_ret_uint (tlv_tree, hf_docsis_dpd_length, tvb, pos, 2, ENC_BIG_ENDIAN, &length);
+      pos += 2;
+      proto_item_set_len(tlv_item, length + 2);
+      if (length >=2)
+      {
+        dissect_dpd_subcarrier_assignment_vector(tvb, tlv_tree, pos, length);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_dpd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    default:
+      proto_tree_add_item (tlv_tree, hf_docsis_dpd_tlv_unknown, tvb, pos - 2, length+2, ENC_NA);
+      expert_add_info_format(pinfo, tlv_item, &ei_docsis_dpd_value_unknown, "Unknown TLV: %u", type);
+      break;
     } /* switch */
-    pos = pos + length;
+    pos += length;
   } /* while */
 }
 
@@ -267,29 +273,22 @@ static int
 dissect_dpd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data  _U_)
 {
   proto_item *it;
-  proto_tree *dpd_tree = NULL;
+  proto_tree *dpd_tree;
+  tvbuff_t *next_tvb;
 
-  guint8 downstream_channel_id;
-  guint8 profile_identifier;
-  guint8 configuration_change_count;
-  guint len;
-  downstream_channel_id = tvb_get_guint8 (tvb, 0);
-  profile_identifier = tvb_get_guint8 (tvb, 1);
-  configuration_change_count = tvb_get_guint8 (tvb, 2);
-  len = tvb_captured_length_remaining (tvb, 3);
+  guint32 downstream_channel_id, profile_identifier, configuration_change_count;
+
+  it = proto_tree_add_item(tree, proto_docsis_dpd, tvb, 0, -1, ENC_NA);
+  dpd_tree = proto_item_add_subtree (it, ett_docsis_dpd);
+  proto_tree_add_item_ret_uint (dpd_tree, hf_docsis_dpd_dschid, tvb, 0, 1, ENC_BIG_ENDIAN, &downstream_channel_id);
+  proto_tree_add_item_ret_uint (dpd_tree, hf_docsis_dpd_prof_id, tvb, 1, 1, ENC_BIG_ENDIAN, &profile_identifier);
+  proto_tree_add_item_ret_uint (dpd_tree, hf_docsis_dpd_ccc, tvb, 2, 1, ENC_BIG_ENDIAN, &configuration_change_count);
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "DPD: DS CH ID: %u, Profile ID: %u, CCC: %u", downstream_channel_id, profile_identifier, configuration_change_count);
 
-  if (tree)
-  {
-    it = proto_tree_add_protocol_format (tree, proto_docsis_dpd, tvb, 0, -1, "Downstream Profile Descriptor");
-    dpd_tree = proto_item_add_subtree (it, ett_docsis_dpd);
-    proto_tree_add_item (dpd_tree, hf_docsis_dpd_dschid, tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item (dpd_tree, hf_docsis_dpd_prof_id, tvb, 1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item (dpd_tree, hf_docsis_dpd_ccc, tvb, 2, 1, ENC_BIG_ENDIAN);
-  }
   /* Call Dissector TLV's */
-  dissect_dpd_tlv(tvb, pinfo, dpd_tree, 3, len);
+  next_tvb = tvb_new_subset_remaining(tvb, 3);
+  dissect_dpd_tlv(next_tvb, pinfo, dpd_tree);
 
   return tvb_captured_length(tvb);
 }
@@ -346,6 +345,15 @@ proto_register_docsis_dpd(void)
     {&hf_docsis_dpd_tlv_subc_assign_vector_modulation_even,
      {"Modulation", "docsis_dpd.tlv.subc_assign_vect.modulation", FT_UINT8, BASE_DEC, VALS(docsis_dpd_tlv_subc_assign_vector_modulation_str), 0x0F, NULL, HFILL}
     },
+    {&hf_docsis_dpd_tlv_data,
+     {"TLV Data", "docsis_dpd.tlv_data", FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_dpd_type,
+     {"Type", "docsis_dpd.type",FT_UINT8, BASE_DEC, VALS(dpd_tlv_vals), 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_dpd_length,
+     {"Length", "docsis_dpd.length",FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
   };
 
   static ei_register_info ei[] = {
@@ -356,6 +364,7 @@ proto_register_docsis_dpd(void)
   static gint *ett[] = {
     &ett_docsis_dpd,
     &ett_docsis_dpd_tlv,
+    &ett_docsis_dpd_tlvtlv,
     &ett_docsis_dpd_tlv_subcarrier_assignment,
     &ett_docsis_dpd_tlv_subcarrier_assignment_vector
   };

@@ -44,6 +44,10 @@ static int proto_docsis_dccrsp = -1;
 
 static int hf_docsis_dccrsp_tran_id = -1;
 static int hf_docsis_dccrsp_conf_code = -1;
+static int hf_docsis_dcc_type = -1;
+static int hf_docsis_dcc_length = -1;
+static int hf_docsis_dcc_cm_jump_subtype = -1;
+static int hf_docsis_dcc_cm_jump_length = -1;
 static int hf_docsis_dccrsp_cm_jump_time_length = -1;
 static int hf_docsis_dccrsp_cm_jump_time_start = -1;
 static int hf_docsis_dccrsp_key_seq_num = -1;
@@ -52,6 +56,7 @@ static int hf_docsis_dccrsp_hmac_digest = -1;
 /* Initialize the subtree pointers */
 static gint ett_docsis_dccrsp = -1;
 static gint ett_docsis_dccrsp_cm_jump_time = -1;
+static gint ett_docsis_dccrsp_tlv = -1;
 
 static expert_field ei_docsis_dccrsp_tlvlen_bad = EI_INIT;
 
@@ -60,108 +65,130 @@ static dissector_handle_t docsis_dccrsp_handle;
 /* Defined in packet-tlv.c */
 extern value_string docsis_conf_code[];
 
+static const value_string dccrsp_tlv_vals[] = {
+  {DCCRSP_CM_JUMP_TIME, "CM Jump Time Encodings"},
+  {DCCRSP_KEY_SEQ_NUM, "Auth Key Sequence Number"},
+  {DCCRSP_HMAC_DIGEST, "HMAC-Digest Number"},
+  {0, NULL}
+};
+
+static const value_string cm_jump_subtlv_vals[] = {
+  {DCCRSP_CM_JUMP_TIME_LENGTH, "Length of Jump"},
+  {DCCRSP_CM_JUMP_TIME_START, "Start Time of Jump"},
+  {0, NULL}
+};
+
 /* Dissection */
 static void
 dissect_dccrsp_cm_jump_time (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start, guint16 len)
 {
-  guint8 type, length;
+  guint8 type;
+  guint32 length;
   proto_tree *dcc_tree;
-  proto_item *dcc_item;
+  proto_item *dcc_item, *tlv_len_item;
   int pos;
 
   pos = start;
-  dcc_tree = proto_tree_add_subtree_format( tree, tvb, start, len, ett_docsis_dccrsp_cm_jump_time, &dcc_item,
-                                            "1 CM Jump Time Encodings (Length = %u)", len);
-
   while ( pos < ( start + len) )
-    {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+  {
+    type = tvb_get_guint8 (tvb, pos);
+    dcc_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
+                                            ett_docsis_dccrsp_cm_jump_time, &dcc_item,
+                                            val_to_str(type, cm_jump_subtlv_vals,
+                                                       "Unknown TLV (%u)"));
+    proto_tree_add_uint (dcc_tree, hf_docsis_dcc_cm_jump_subtype, tvb, pos, 1, type);
+    pos++;
+    tlv_len_item = proto_tree_add_item_ret_uint (dcc_tree, hf_docsis_dcc_cm_jump_length, tvb, pos, 1, ENC_NA, &length);
+    pos++;
+    proto_item_set_len(dcc_item, length + 2);
 
-      switch (type)
-        {
-          case DCCRSP_CM_JUMP_TIME_LENGTH:
-            if (length == 4)
-              {
-                proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_cm_jump_time_length, tvb,
-                                     pos, length, ENC_BIG_ENDIAN);
-              }
-            else
-              {
-                expert_add_info_format(pinfo, dcc_item, &ei_docsis_dccrsp_tlvlen_bad, "Wrong TLV length: %u", length);
-              }
-            break;
-          case DCCRSP_CM_JUMP_TIME_START:
-            if (length == 8)
-              {
-                proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_cm_jump_time_start, tvb,
-                                     pos, length, ENC_BIG_ENDIAN);
-              }
-            else
-              {
-                expert_add_info_format(pinfo, dcc_item, &ei_docsis_dccrsp_tlvlen_bad, "Wrong TLV length: %u", length);
-              }
-            break;
-        }
-      pos = pos + length;
+    switch (type)
+    {
+    case DCCRSP_CM_JUMP_TIME_LENGTH:
+      if (length == 4)
+      {
+        proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_cm_jump_time_length, tvb, pos, length, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_dccrsp_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case DCCRSP_CM_JUMP_TIME_START:
+      if (length == 8)
+      {
+        proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_cm_jump_time_start, tvb, pos, length, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_dccrsp_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
     }
+
+    pos += length;
+  }
 }
 
 static int
 dissect_dccrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   guint16 pos;
-  guint8 type, length;
-  proto_tree *dcc_tree;
-  proto_item *dcc_item;
-  guint16 len;
+  guint8 type;
+  guint32 length;
+  proto_tree *dcc_tree, *tlv_tree;
+  proto_item *dcc_item, *tlv_item, *tlv_len_item;
 
-  len = tvb_reported_length(tvb);
+  col_set_str(pinfo->cinfo, COL_INFO, "DCC-RSP Message");
 
-  col_set_str(pinfo->cinfo, COL_INFO, "DCC-RSP Message: ");
-
-  dcc_item =
-        proto_tree_add_protocol_format (tree, proto_docsis_dccrsp, tvb, 0,
-                                        -1, "DCC-RSP Message");
+  dcc_item = proto_tree_add_item (tree, proto_docsis_dccrsp, tvb, 0, -1, ENC_NA);
   dcc_tree = proto_item_add_subtree (dcc_item, ett_docsis_dccrsp);
   proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_tran_id, tvb, 0, 2, ENC_BIG_ENDIAN);
   proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_conf_code, tvb, 2, 1, ENC_BIG_ENDIAN);
 
   pos = 3;
-  while (pos < len)
+  while (tvb_reported_length_remaining(tvb, pos) > 0)
+  {
+    type = tvb_get_guint8 (tvb, pos);
+    tlv_tree = proto_tree_add_subtree(dcc_tree, tvb, pos, -1,
+                                            ett_docsis_dccrsp_tlv, &tlv_item,
+                                            val_to_str(type, dccrsp_tlv_vals,
+                                                       "Unknown TLV (%u)"));
+    proto_tree_add_uint (tlv_tree, hf_docsis_dcc_type, tvb, pos, 1, type);
+    pos++;
+    tlv_len_item = proto_tree_add_item_ret_uint (tlv_tree, hf_docsis_dcc_length, tvb, pos, 1, ENC_NA, &length);
+    pos++;
+    proto_item_set_len(tlv_item, length + 2);
+
+    switch (type)
     {
-        type = tvb_get_guint8 (tvb, pos++);
-        length = tvb_get_guint8 (tvb, pos++);
-        switch (type)
-        {
-            case DCCRSP_CM_JUMP_TIME:
-            dissect_dccrsp_cm_jump_time (tvb , pinfo, dcc_tree , pos , length );
-            break;
-            case DCCRSP_KEY_SEQ_NUM:
-            if (length == 1)
-                {
-                proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_key_seq_num, tvb,
-                                        pos, length, ENC_BIG_ENDIAN);
-                }
-            else
-                {
-                expert_add_info_format(pinfo, dcc_item, &ei_docsis_dccrsp_tlvlen_bad, "Wrong TLV length: %u", length);
-                }
-            break;
-            case DCCRSP_HMAC_DIGEST:
-            if (length == 20)
-                {
-                proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_hmac_digest, tvb,
-                                        pos, length, ENC_NA);
-                }
-            else
-                {
-                expert_add_info_format(pinfo, dcc_item, &ei_docsis_dccrsp_tlvlen_bad, "Wrong TLV length: %u", length);
-                }
-            break;
-        }                   /* switch(type) */
-        pos = pos + length;
-    }                       /* while (pos < len) */
+    case DCCRSP_CM_JUMP_TIME:
+      dissect_dccrsp_cm_jump_time (tvb, pinfo, tlv_tree, pos, length );
+      break;
+    case DCCRSP_KEY_SEQ_NUM:
+      if (length == 1)
+      {
+        proto_tree_add_item (tlv_tree, hf_docsis_dccrsp_key_seq_num, tvb, pos, length, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_dccrsp_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case DCCRSP_HMAC_DIGEST:
+      if (length == 20)
+      {
+        proto_tree_add_item (tlv_tree, hf_docsis_dccrsp_hmac_digest, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_dccrsp_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    }      /* switch(type) */
+
+    pos += length;
+  }       /* while (tvb_reported_length_remaining(tvb, pos) > 0) */
 
   return tvb_captured_length(tvb);
 }
@@ -189,9 +216,45 @@ proto_register_docsis_dccrsp (void)
        HFILL
      }
     },
+    {&hf_docsis_dcc_type,
+     {
+      "Type",
+      "docsis_dccrsp.tlvtype",
+      FT_UINT8, BASE_DEC, VALS(dccrsp_tlv_vals), 0x0,
+      NULL,
+      HFILL
+     }
+    },
+    {&hf_docsis_dcc_length,
+     {
+      "Length",
+      "docsis_dccrsp.tlvlen",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL,
+      HFILL
+     }
+    },
+    {&hf_docsis_dcc_cm_jump_subtype,
+     {
+      "Type",
+      "docsis_dccrsp.cm_jump_tlvtype",
+      FT_UINT8, BASE_DEC, VALS(cm_jump_subtlv_vals), 0x0,
+      NULL,
+      HFILL
+     }
+    },
+    {&hf_docsis_dcc_cm_jump_length,
+     {
+      "Length",
+      "docsis_dccrsp.cm_jump_tlvlen",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL,
+      HFILL
+     }
+    },
     {&hf_docsis_dccrsp_cm_jump_time_length ,
      {
-       ".1 Length of Jump",
+       "Length of Jump",
        "docsis_dccrsp.cm_jump_time_length",
        FT_UINT32, BASE_DEC, NULL, 0x0,
        NULL,
@@ -200,7 +263,7 @@ proto_register_docsis_dccrsp (void)
     },
     {&hf_docsis_dccrsp_cm_jump_time_start ,
      {
-       ".2 Start Time of Jump",
+       "Start Time of Jump",
        "docsis_dccrsp.cm_jump_time_start",
        FT_UINT64, BASE_DEC, NULL, 0x0,
        NULL,
@@ -209,7 +272,7 @@ proto_register_docsis_dccrsp (void)
     },
     {&hf_docsis_dccrsp_key_seq_num ,
      {
-       "31 Auth Key Sequence Number",
+       "Auth Key Sequence Number",
        "docsis_dccrsp.key_seq_num",
        FT_UINT8, BASE_DEC, NULL, 0x0,
        NULL,
@@ -218,7 +281,7 @@ proto_register_docsis_dccrsp (void)
     },
     {&hf_docsis_dccrsp_hmac_digest ,
      {
-       "27 HMAC-Digest Number",
+       "HMAC-Digest Number",
        "docsis_dccrsp.hmac_digest",
        FT_BYTES, BASE_NONE, NULL, 0x0,
        NULL,
@@ -231,6 +294,7 @@ proto_register_docsis_dccrsp (void)
   static gint *ett[] = {
     &ett_docsis_dccrsp,
     &ett_docsis_dccrsp_cm_jump_time,
+    &ett_docsis_dccrsp_tlv,
   };
 
   static ei_register_info ei[] = {

@@ -45,27 +45,18 @@ dissect_intrngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void*
 {
   proto_item *intrngreq_item;
   proto_tree *intrngreq_tree;
-  guint16 sid;
+  guint32 sid;
 
-  sid = tvb_get_ntohs (tvb, 0);
+  intrngreq_item = proto_tree_add_item(tree, proto_docsis_intrngreq, tvb, 0, -1, ENC_NA);
+  intrngreq_tree = proto_item_add_subtree (intrngreq_item, ett_docsis_intrngreq);
 
+  proto_tree_add_item_ret_uint (intrngreq_tree, hf_docsis_intrngreq_sid, tvb, 0, 2, ENC_BIG_ENDIAN, &sid);
   col_add_fstr (pinfo->cinfo, COL_INFO, "Initial Ranging Request: SID = %u",sid);
 
-  if (tree)
-    {
-      intrngreq_item =
-        proto_tree_add_protocol_format (tree, proto_docsis_intrngreq, tvb, 0,
-                                        tvb_captured_length(tvb),
-                                        "Initial Ranging Request");
-      intrngreq_tree = proto_item_add_subtree (intrngreq_item, ett_docsis_intrngreq);
-      proto_tree_add_item (intrngreq_tree, hf_docsis_intrngreq_sid, tvb, 0, 2,
-                           ENC_BIG_ENDIAN);
-      proto_tree_add_item (intrngreq_tree, hf_docsis_intrngreq_down_chid, tvb, 2, 1,
-                           ENC_BIG_ENDIAN);
-      proto_tree_add_item (intrngreq_tree, hf_docsis_intrngreq_up_chid, tvb, 3,
-                           1, ENC_BIG_ENDIAN);
-    }
-    return tvb_captured_length(tvb);
+  proto_tree_add_item (intrngreq_tree, hf_docsis_intrngreq_down_chid, tvb, 2, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (intrngreq_tree, hf_docsis_intrngreq_up_chid, tvb, 3, 1, ENC_BIG_ENDIAN);
+
+  return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */

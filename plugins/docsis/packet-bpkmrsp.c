@@ -66,27 +66,19 @@ dissect_bpkmrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* d
 {
   proto_item *it;
   proto_tree *bpkmrsp_tree;
-  guint8 code;
+  guint32 code;
   tvbuff_t *attrs_tvb;
 
-  code = tvb_get_guint8 (tvb, 0);
+  it = proto_tree_add_item(tree, proto_docsis_bpkmrsp, tvb, 0, -1, ENC_NA);
+  bpkmrsp_tree = proto_item_add_subtree (it, ett_docsis_bpkmrsp);
+
+  proto_tree_add_item_ret_uint (bpkmrsp_tree, hf_docsis_bpkmrsp_code, tvb, 0, 1, ENC_BIG_ENDIAN, &code);
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "BPKM Response (%s)",
                 val_to_str (code, code_field_vals, "Unknown code %u"));
 
-  if (tree)
-    {
-      it =
-        proto_tree_add_protocol_format (tree, proto_docsis_bpkmrsp, tvb, 0, -1,
-                                        "BPKM Response Message");
-      bpkmrsp_tree = proto_item_add_subtree (it, ett_docsis_bpkmrsp);
-      proto_tree_add_item (bpkmrsp_tree, hf_docsis_bpkmrsp_code, tvb, 0, 1,
-                           ENC_BIG_ENDIAN);
-      proto_tree_add_item (bpkmrsp_tree, hf_docsis_bpkmrsp_ident, tvb, 1, 1,
-                           ENC_BIG_ENDIAN);
-      proto_tree_add_item (bpkmrsp_tree, hf_docsis_bpkmrsp_length, tvb, 2, 2,
-                           ENC_BIG_ENDIAN);
-    }
+  proto_tree_add_item (bpkmrsp_tree, hf_docsis_bpkmrsp_ident, tvb, 1, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (bpkmrsp_tree, hf_docsis_bpkmrsp_length, tvb, 2, 2, ENC_BIG_ENDIAN);
 
   /* Code to Call subdissector */
   attrs_tvb = tvb_new_subset_remaining (tvb, 4);

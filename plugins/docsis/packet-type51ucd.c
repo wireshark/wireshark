@@ -339,8 +339,8 @@ static const value_string last_cw_len_vals[] = {
 };
 
 static const value_string max_scheduled_codes_vals[] = {
-  {1, "Enabled."},
-  {2, "Disabled."},
+  {1, "Enabled"},
+  {2, "Disabled"},
   {0, NULL}
 };
 
@@ -426,16 +426,15 @@ subcarrier_range (
 static void
 dissect_type51ucd_burstdescriptor(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint16 start, guint16 length)
 {
-  guint16 endtlvpos, pos;
+  guint16 endtlvpos, pos = start;
   guint16 i;
   proto_tree *type51ucd_burst_tree;
-  proto_item *type51ucd_burst_item;
-  guint8 tlvlen, tlvtype;
+  proto_item *type51ucd_burst_item, *type51ucd_burst_len_item;
+  guint32 tlvlen, tlvtype;
 
-  pos = start;
+  endtlvpos = pos + length;
   proto_tree_add_item (tree, hf_docsis_type51ucd_iuc, tvb, pos++, 1, ENC_BIG_ENDIAN);
 
-  endtlvpos = pos + length - 1;
   while (pos < endtlvpos)
   {
     tlvtype = tvb_get_guint8 (tvb, pos);
@@ -444,282 +443,240 @@ dissect_type51ucd_burstdescriptor(tvbuff_t * tvb, packet_info * pinfo, proto_tre
                                                    val_to_str(tlvtype, burst_tlv_vals,
                                                    "Unknown TLV (%u)"));
     proto_tree_add_uint (type51ucd_burst_tree, hf_docsis_type51ucd_burst_type, tvb, pos++, 1, tlvtype);
-    tlvlen = tvb_get_guint8 (tvb, pos);
-    proto_tree_add_uint (type51ucd_burst_tree, hf_docsis_type51ucd_burst_length, tvb, pos++, 1, tlvlen);
+    type51ucd_burst_len_item = proto_tree_add_item_ret_uint (type51ucd_burst_tree, hf_docsis_type51ucd_burst_length, tvb, pos++, 1, ENC_NA, &tlvlen);
     proto_item_set_len(type51ucd_burst_item, tlvlen + 2);
     switch (tlvtype)
     {
-      case type51ucd_MODULATION:
-        if (tlvlen == 1)
-        {
-          proto_tree_add_item (type51ucd_burst_tree,
-                                 hf_docsis_burst_mod_type, tvb,
-                                 pos, tlvlen, ENC_BIG_ENDIAN);
+    case type51ucd_MODULATION:
+      if (tlvlen == 1)
+      {
+        proto_tree_add_item (type51ucd_burst_tree, hf_docsis_burst_mod_type, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51ucd_burst_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_DIFF_ENCODING:
+      if (tlvlen == 1)
+      {
+        proto_tree_add_item (type51ucd_burst_tree, hf_docsis_burst_diff_encoding, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51ucd_burst_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_PREAMBLE_LEN:
+      if (tlvlen == 2)
+      {
+        proto_tree_add_item (type51ucd_burst_tree, hf_docsis_burst_preamble_len, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51ucd_burst_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_PREAMBLE_VAL_OFF:
+      if (tlvlen == 2)
+      {
+        proto_tree_add_item (type51ucd_burst_tree, hf_docsis_burst_preamble_val_off, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51ucd_burst_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_FEC:
+      if (tlvlen == 1)
+      {
+        proto_tree_add_item (type51ucd_burst_tree, hf_docsis_burst_fec, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51ucd_burst_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_FEC_CODEWORD:
+      if (tlvlen == 1)
+      {
+        proto_tree_add_item (type51ucd_burst_tree, hf_docsis_burst_fec_codeword, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51ucd_burst_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_SCRAMBLER_SEED:
+      if (tlvlen == 2)
+      {
+        proto_tree_add_item (type51ucd_burst_tree, hf_docsis_burst_scrambler_seed, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51ucd_burst_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_MAX_BURST:
+      if (tlvlen == 1)
+      {
+        proto_tree_add_item (type51ucd_burst_tree, hf_docsis_burst_max_burst, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51ucd_burst_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_GUARD_TIME:
+      if (tlvlen == 1)
+      {
+        proto_tree_add_item (type51ucd_burst_tree, hf_docsis_burst_guard_time, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51ucd_burst_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_LAST_CW_LEN:
+      if (tlvlen == 1)
+      {
+        proto_tree_add_item (type51ucd_burst_tree, hf_docsis_burst_last_cw_len, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51ucd_burst_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_SCRAMBLER_ONOFF:
+      if (tlvlen == 1)
+      {
+        proto_tree_add_item (type51ucd_burst_tree, hf_docsis_burst_scrambler_onoff, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51ucd_burst_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_RS_INT_DEPTH:
+      if (tlvlen == 1)
+      {
+        proto_tree_add_item (type51ucd_burst_tree, hf_docsis_rs_int_depth, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51ucd_burst_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_RS_INT_BLOCK:
+      if (tlvlen == 2)
+      {
+        proto_tree_add_item (type51ucd_burst_tree, hf_docsis_rs_int_block, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51ucd_burst_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_PREAMBLE_TYPE:
+      if (tlvlen == 1)
+      {
+        proto_tree_add_item (type51ucd_burst_tree, hf_docsis_preamble_type, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51ucd_burst_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_SCMDA_SCRAMBLER_ONOFF:
+      if (tlvlen == 1)
+      {
+        proto_tree_add_item (type51ucd_burst_tree, hf_docsis_scdma_scrambler_onoff, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51ucd_burst_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_SCDMA_CODES_PER_SUBFRAME:
+      if (tlvlen == 1)
+      {
+        proto_tree_add_item (type51ucd_burst_tree, hf_docsis_scdma_codes_per_subframe, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51ucd_burst_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_SCDMA_FRAMER_INT_STEP_SIZE:
+      if (tlvlen == 1)
+      {
+        proto_tree_add_item (type51ucd_burst_tree, hf_docsis_scdma_framer_int_step_size, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51ucd_burst_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_TCM_ENABLED:
+      if (tlvlen == 1)
+      {
+        proto_tree_add_item (type51ucd_burst_tree, hf_docsis_tcm_enabled, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51ucd_burst_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_SUBC_INIT_RANG:
+      if (tlvlen == 2)
+      {
+        proto_tree_add_item (type51ucd_burst_tree, hf_docsis_subc_init_rang, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51ucd_burst_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_SUBC_FINE_RANG:
+      if (tlvlen == 2)
+      {
+        proto_tree_add_item (type51ucd_burst_tree, hf_docsis_subc_fine_rang, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51ucd_burst_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_OFDMA_PROFILE:
+      if ((tlvlen % 2) == 0)
+      {
+        for(i =0; i < tlvlen; i+=2) {
+          proto_tree_add_item (type51ucd_burst_tree, hf_docsis_type51ucd_ofdma_prof_mod_order, tvb, pos + i, 1, ENC_BIG_ENDIAN);
+          proto_tree_add_item (type51ucd_burst_tree, hf_docsis_type51ucd_ofdma_prof_pilot_pattern, tvb, pos + i, 1, ENC_BIG_ENDIAN);
+          proto_tree_add_item (type51ucd_burst_tree, hf_docsis_type51ucd_ofdma_prof_num_add_minislots, tvb, pos + i + 1, 1, ENC_BIG_ENDIAN);
         }
-        else
-        {
-          expert_add_info_format(pinfo, type51ucd_burst_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_DIFF_ENCODING:
-        if (tlvlen == 1)
-        {
-          proto_tree_add_item (type51ucd_burst_tree,
-                                 hf_docsis_burst_diff_encoding,
-                                 tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51ucd_burst_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_PREAMBLE_LEN:
-        if (tlvlen == 2)
-        {
-          proto_tree_add_item (type51ucd_burst_tree,
-                                hf_docsis_burst_preamble_len,
-                               tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51ucd_burst_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_PREAMBLE_VAL_OFF:
-        if (tlvlen == 2)
-        {
-          proto_tree_add_item (type51ucd_burst_tree,
-                                hf_docsis_burst_preamble_val_off,
-                                tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51ucd_burst_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_FEC:
-        if (tlvlen == 1)
-        {
-          proto_tree_add_item (type51ucd_burst_tree,
-                                hf_docsis_burst_fec, tvb, pos,
-                                tlvlen, ENC_BIG_ENDIAN);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51ucd_burst_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_FEC_CODEWORD:
-        if (tlvlen == 1)
-        {
-          proto_tree_add_item (type51ucd_burst_tree,
-                                 hf_docsis_burst_fec_codeword,
-                                 tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51ucd_burst_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_SCRAMBLER_SEED:
-        if (tlvlen == 2)
-        {
-          proto_tree_add_item (type51ucd_burst_tree,
-                                 hf_docsis_burst_scrambler_seed,
-                                 tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51ucd_burst_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_MAX_BURST:
-        if (tlvlen == 1)
-        {
-          proto_tree_add_item (type51ucd_burst_tree,
-                                 hf_docsis_burst_max_burst, tvb,
-                                 pos, tlvlen, ENC_BIG_ENDIAN);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51ucd_burst_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_GUARD_TIME:
-        if (tlvlen == 1)
-        {
-          proto_tree_add_item (type51ucd_burst_tree,
-                                 hf_docsis_burst_guard_time,
-                                 tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51ucd_burst_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_LAST_CW_LEN:
-        if (tlvlen == 1)
-        {
-          proto_tree_add_item (type51ucd_burst_tree,
-                                 hf_docsis_burst_last_cw_len,
-                                 tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51ucd_burst_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_SCRAMBLER_ONOFF:
-        if (tlvlen == 1)
-        {
-          proto_tree_add_item (type51ucd_burst_tree,
-                                 hf_docsis_burst_scrambler_onoff,
-                                 tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51ucd_burst_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_RS_INT_DEPTH:
-        if (tlvlen == 1)
-        {
-          proto_tree_add_item (type51ucd_burst_tree,
-                                 hf_docsis_rs_int_depth,
-                                 tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51ucd_burst_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_RS_INT_BLOCK:
-        if (tlvlen == 2)
-        {
-          proto_tree_add_item (type51ucd_burst_tree,
-                                hf_docsis_rs_int_block,
-                                tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51ucd_burst_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_PREAMBLE_TYPE:
-        if (tlvlen == 1)
-        {
-          proto_tree_add_item (type51ucd_burst_tree,
-                                 hf_docsis_preamble_type,
-                                 tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51ucd_burst_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_SCMDA_SCRAMBLER_ONOFF:
-        if (tlvlen == 1)
-        {
-          proto_tree_add_item (type51ucd_burst_tree,
-                                 hf_docsis_scdma_scrambler_onoff,
-                                 tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51ucd_burst_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_SCDMA_CODES_PER_SUBFRAME:
-        if (tlvlen == 1)
-        {
-          proto_tree_add_item (type51ucd_burst_tree,
-                                 hf_docsis_scdma_codes_per_subframe,
-                                 tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51ucd_burst_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_SCDMA_FRAMER_INT_STEP_SIZE:
-        if (tlvlen == 1)
-        {
-          proto_tree_add_item (type51ucd_burst_tree,
-                                 hf_docsis_scdma_framer_int_step_size,
-                                 tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51ucd_burst_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_TCM_ENABLED:
-        if (tlvlen == 1)
-        {
-          proto_tree_add_item (type51ucd_burst_tree,
-                                 hf_docsis_tcm_enabled,
-                                 tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51ucd_burst_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_SUBC_INIT_RANG:
-        if (tlvlen == 2)
-        {
-          proto_tree_add_item (type51ucd_burst_tree,
-                                 hf_docsis_subc_init_rang,
-                                 tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-        }
-        else
-        {
-            expert_add_info_format(pinfo, type51ucd_burst_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_SUBC_FINE_RANG:
-        if (tlvlen == 2)
-        {
-          proto_tree_add_item (type51ucd_burst_tree,
-                                hf_docsis_subc_fine_rang,
-                                tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51ucd_burst_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_OFDMA_PROFILE:
-        if ((tlvlen % 2) == 0)
-        {
-          for(i =0; i < tlvlen; i+=2) {
-            proto_tree_add_item (type51ucd_burst_tree, hf_docsis_type51ucd_ofdma_prof_mod_order, tvb, pos + i, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item (type51ucd_burst_tree, hf_docsis_type51ucd_ofdma_prof_pilot_pattern, tvb, pos + i, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item (type51ucd_burst_tree, hf_docsis_type51ucd_ofdma_prof_num_add_minislots, tvb, pos + i + 1, 1, ENC_BIG_ENDIAN);
-          }
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51ucd_burst_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u (even length expected)", length);
-        }
-        break;
-      case type51ucd_OFDMA_IR_POWER_CONTROL:
-        if (tlvlen == 2)
-        {
-          proto_tree_add_item (type51ucd_burst_tree, hf_docsis_ofdma_ir_pow_ctrl_start_pow, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-          proto_tree_add_item (type51ucd_burst_tree, hf_docsis_ofdma_ir_pow_ctrl_step_size, tvb, pos + 1, tlvlen, ENC_BIG_ENDIAN);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51ucd_burst_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u (even length expected)", length);
-        }
-        break;
-      default:
-        expert_add_info_format(pinfo, type51ucd_burst_item, &ei_docsis_type51ucd_tlvtype_bad, "Unknown TLV type: %u", tlvtype);
-
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51ucd_burst_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u (even length expected)", length);
+      }
+      break;
+    case type51ucd_OFDMA_IR_POWER_CONTROL:
+      if (tlvlen == 2)
+      {
+        proto_tree_add_item (type51ucd_burst_tree, hf_docsis_ofdma_ir_pow_ctrl_start_pow, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+        proto_tree_add_item (type51ucd_burst_tree, hf_docsis_ofdma_ir_pow_ctrl_step_size, tvb, pos + 1, tlvlen, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51ucd_burst_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    default:
+      expert_add_info_format(pinfo, type51ucd_burst_item, &ei_docsis_type51ucd_tlvtype_bad, "Unknown TLV type: %u", tlvtype);
     }
-    pos = pos + tlvlen;
+
+    pos += tlvlen;
   } /*while*/
 }
 
@@ -728,18 +685,16 @@ static int
 dissect_type51ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   guint16 pos;
-  guint8 type, length;
+  guint8 type, symrate;
   guint16 i;
 
-  proto_tree *type51ucd_tree;
-  proto_item *type51ucd_item;
-  proto_tree *type51tlv_tree;
-  proto_item *type51tlv_item;
-  guint16 len;
-  guint8 upchid, symrate;
+  proto_tree *type51ucd_tree, *type51tlv_tree;
+  proto_item *type51ucd_item, *type51tlv_item, *type51tlv_len_item;
+  guint32 upchid, length;
 
-  len = tvb_reported_length(tvb);
-  upchid = tvb_get_guint8 (tvb, 0);
+  type51ucd_item = proto_tree_add_item(tree, proto_docsis_type51ucd, tvb, 0, -1, ENC_NA);
+  type51ucd_tree = proto_item_add_subtree (type51ucd_item, ett_docsis_type51ucd);
+  proto_tree_add_item_ret_uint (type51ucd_tree, hf_docsis_type51ucd_upstream_chid, tvb, 0, 1, ENC_BIG_ENDIAN, &upchid);
 
   /* if the upstream Channel ID is 0 then this is for Telephony Return) */
   if (upchid > 0)
@@ -751,22 +706,12 @@ dissect_type51ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void*
                   "Type 51 UCD Message: Channel ID = %u (Telephony Return)",
                   upchid);
 
-  type51ucd_item =
-    proto_tree_add_protocol_format (tree, proto_docsis_type51ucd, tvb, 0,
-                                    tvb_captured_length(tvb),
-                                    "UCD Message (Type 51)");
-  type51ucd_tree = proto_item_add_subtree (type51ucd_item, ett_docsis_type51ucd);
-  proto_tree_add_item (type51ucd_tree, hf_docsis_type51ucd_upstream_chid, tvb, 0, 1,
-                       ENC_BIG_ENDIAN);
-  proto_tree_add_item (type51ucd_tree, hf_docsis_type51ucd_config_ch_cnt, tvb, 1, 1,
-                       ENC_BIG_ENDIAN);
-  proto_tree_add_item (type51ucd_tree, hf_docsis_type51ucd_mini_slot_size, tvb, 2, 1,
-                       ENC_BIG_ENDIAN);
-  proto_tree_add_item (type51ucd_tree, hf_docsis_type51ucd_down_chid, tvb, 3, 1,
-                       ENC_BIG_ENDIAN);
+  proto_tree_add_item (type51ucd_tree, hf_docsis_type51ucd_config_ch_cnt, tvb, 1, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (type51ucd_tree, hf_docsis_type51ucd_mini_slot_size, tvb, 2, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (type51ucd_tree, hf_docsis_type51ucd_down_chid, tvb, 3, 1, ENC_BIG_ENDIAN);
 
   pos = 4;
-  while (pos < len)
+  while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
     type = tvb_get_guint8 (tvb, pos);
     type51tlv_tree = proto_tree_add_subtree(type51ucd_tree, tvb, pos, -1,
@@ -776,385 +721,344 @@ dissect_type51ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void*
     proto_tree_add_uint (type51tlv_tree, hf_docsis_type51ucd_type,
                            tvb, pos, 1, type);
     pos++;
-    length = tvb_get_guint8 (tvb, pos);
-    proto_tree_add_uint (type51tlv_tree, hf_docsis_type51ucd_length,
-                           tvb, pos, 1, length);
+    type51tlv_len_item = proto_tree_add_item_ret_uint (type51tlv_tree, hf_docsis_type51ucd_length,
+                           tvb, pos, 1, ENC_NA, &length);
     pos++;
     proto_item_set_len(type51tlv_item, length + 2);
     switch (type)
     {
-      case type51ucd_SYMBOL_RATE:
-        if (length == 1)
-        {
-          symrate = tvb_get_guint8 (tvb, pos);
-          proto_tree_add_uint (type51tlv_tree, hf_docsis_type51ucd_symbol_rate,
-                                     tvb, pos, length, symrate * 160);
+    case type51ucd_SYMBOL_RATE:
+      if (length == 1)
+      {
+        symrate = tvb_get_guint8 (tvb, pos);
+        proto_tree_add_uint (type51tlv_tree, hf_docsis_type51ucd_symbol_rate, tvb, pos, length, symrate * 160);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_FREQUENCY:
+      if (length == 4)
+      {
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_frequency, tvb, pos, length, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_PREAMBLE:
+      proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_preamble_pat, tvb, pos, length, ENC_NA);
+      break;
+    case type51ucd_EXT_PREAMBLE:
+      proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ext_preamble, tvb, pos, length, ENC_NA);
+      break;
+    case type51ucd_SCDMA_MODE_ENABLE:
+      if (length == 1)
+      {
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_scdma_mode_enable, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_SCDMA_SPREADING_INTERVAL:
+      if (length == 1)
+      {
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_scdma_spreading_interval, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_SCDMA_CODES_PER_MINI_SLOT:
+      if (length == 1)
+      {
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_scdma_codes_per_mini_slot, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_SCDMA_ACTIVE_CODES:
+      if (length == 1)
+      {
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_scdma_active_codes, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_SCDMA_CODE_HOPPING_SEED:
+      if (length == 2)
+      {
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_scdma_code_hopping_seed, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_SCDMA_US_RATIO_NUM:
+      if (length == 2)
+      {
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_scdma_us_ratio_num, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_SCDMA_US_RATIO_DENOM:
+      if (length == 2)
+      {
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_scdma_us_ratio_denom, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_SCDMA_TIMESTAMP_SNAPSHOT:
+      if (length == 9)
+      {
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_scdma_timestamp_snapshot, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_MAINTAIN_POWER_SPECTRAL_DENSITY:
+      if (length == 1)
+      {
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_maintain_power_spectral_density, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_RANGING_REQUIRED:
+      if (length == 1)
+      {
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ranging_required, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_MAX_SCHEDULED_CODES:
+      if (length == 1)
+      {
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_max_scheduled_codes, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_RANGING_HOLD_OFF_PRIORITY_FIELD:
+      if (length == 4)
+      {
+        static const int * ucd_rnghoff[] = {
+          &hf_docsis_type51ucd_rnghoff_cm,
+          &hf_docsis_type51ucd_rnghoff_erouter,
+          &hf_docsis_type51ucd_rnghoff_emta,
+          &hf_docsis_type51ucd_rnghoff_estb,
+          &hf_docsis_type51ucd_rnghoff_rsvd,
+          &hf_docsis_type51ucd_rnghoff_id_ext,
+          NULL
+        };
+
+        proto_tree_add_bitmask_list(type51tlv_tree, tvb, pos, length, ucd_rnghoff, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_RANGING_CHANNEL_CLASS_ID:
+      if (length == 4)
+      {
+        static const int * ucd_chan_class_id[] = {
+          &hf_docsis_type51ucd_chan_class_id_cm,
+          &hf_docsis_type51ucd_chan_class_id_erouter,
+          &hf_docsis_type51ucd_chan_class_id_emta,
+          &hf_docsis_type51ucd_chan_class_id_estb,
+          &hf_docsis_type51ucd_chan_class_id_rsvd,
+          &hf_docsis_type51ucd_chan_class_id_id_ext,
+          NULL
+        };
+
+        proto_tree_add_bitmask_list(type51tlv_tree, tvb, pos, length, ucd_chan_class_id, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_SCDMA_SELECTION_ACTIVE_CODES_AND_CODE_HOPPING:
+      if (length == 1)
+      {
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_active_code_hopping, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_SCDMA_SELECTION_STRING_FOR_ACTIVE_CODES:
+      if (length == 16)
+      {
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_scdma_selection_active_codes, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_HIGHER_UCD_FOR_SAME_UCID:
+      if (length == 1)
+      {
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_higher_ucd_for_same_ucid, tvb, pos, length, ENC_NA);
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_higher_ucd_for_same_ucid_resv, tvb, pos, length, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_UCD_CHANGE_IND_BITMASK:
+      if (length == 2)
+      {
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ucd_change_ind_bitmask_subc_excl_band, tvb, pos + 1, 1, ENC_NA);
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ucd_change_ind_bitmask_unused_subc, tvb, pos + 1, 1, ENC_NA);
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ucd_change_ind_bitmask_other_subc, tvb, pos + 1, 1, ENC_NA);
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ucd_change_ind_bitmask_burst_attr_iuc5, tvb, pos + 1, 1, ENC_NA);
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ucd_change_ind_bitmask_burst_attr_iuc6, tvb, pos + 1, 1, ENC_NA);
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ucd_change_ind_bitmask_burst_attr_iuc9, tvb, pos + 1, 1, ENC_NA);
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ucd_change_ind_bitmask_burst_attr_iuc10, tvb, pos + 1, 1, ENC_NA);
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ucd_change_ind_bitmask_burst_attr_iuc11, tvb, pos + 1, 1, ENC_NA);
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ucd_change_ind_bitmask_burst_attr_iuc12, tvb, pos, 1, ENC_NA);
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ucd_change_ind_bitmask_burst_attr_iuc13, tvb, pos, 1, ENC_NA);
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ucd_change_ind_bitmask_burst_attr_iuc3_or_4, tvb, pos, 1, ENC_NA);
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ucd_change_ind_bitmask_reserved, tvb, pos, 1, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_OFDMA_TIMESTAMP_SNAPSHOT:
+      if (length == 9)
+      {
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ofdma_timestamp_snapshot, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_OFDMA_CYCLIC_PREFIX_SIZE:
+      if (length == 1)
+      {
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ofdma_cyclic_prefix_size, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_OFDMA_ROLLOFF_PERIOD_SIZE:
+      if (length == 1)
+      {
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ofdma_rolloff_period_size, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_SUBCARRIER_SPACING:
+      if (length == 1)
+      {
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_subc_spacing, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_CENTER_FREQ_SUBC_0:
+      if (length == 4)
+      {
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_cent_freq_subc0, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_SUBC_EXCL_BAND:
+      if ((length % 4) == 0)
+      {
+        for(i = 0; i < length; i+=4) {
+          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_subcarrier_range, tvb, pos+i, 4, ENC_NA);
         }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_UNUSED_SUBC_SPEC:
+      if ((length % 4) == 0)
+      {
+        for(i = 0; i < length; i+=4) {
+          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_subcarrier_range, tvb, pos+i, 4, ENC_NA);
         }
-        break;
-      case type51ucd_FREQUENCY:
-        if (length == 4)
-        {
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_frequency, tvb,
-                                   pos, length, ENC_BIG_ENDIAN);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_PREAMBLE:
-        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_preamble_pat, tvb,
-                             pos, length, ENC_NA);
-        break;
-      case type51ucd_EXT_PREAMBLE:
-        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ext_preamble, tvb,
-                             pos, length, ENC_NA);
-        break;
-      case type51ucd_SCDMA_MODE_ENABLE:
-        if (length == 1)
-        {
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_scdma_mode_enable,
-                                 tvb, pos, length, ENC_NA);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_SCDMA_SPREADING_INTERVAL:
-        if (length == 1)
-        {
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_scdma_spreading_interval,
-                                 tvb, pos, length, ENC_NA);
-        }
-        else
-        {
-            expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_SCDMA_CODES_PER_MINI_SLOT:
-        if (length == 1)
-        {
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_scdma_codes_per_mini_slot,
-                                 tvb, pos, length, ENC_NA);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_SCDMA_ACTIVE_CODES:
-        if (length == 1)
-        {
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_scdma_active_codes,
-                                 tvb, pos, length, ENC_NA);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_SCDMA_CODE_HOPPING_SEED:
-        if (length == 2)
-        {
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_scdma_code_hopping_seed,
-                               tvb, pos, length, ENC_NA);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_SCDMA_US_RATIO_NUM:
-        if (length == 2)
-        {
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_scdma_us_ratio_num,
-                                 tvb, pos, length, ENC_NA);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_SCDMA_US_RATIO_DENOM:
-        if (length == 2)
-        {
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_scdma_us_ratio_denom,
-                               tvb, pos, length, ENC_NA);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_SCDMA_TIMESTAMP_SNAPSHOT:
-        if (length == 9)
-        {
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_scdma_timestamp_snapshot,
-                               tvb, pos, length, ENC_NA);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_MAINTAIN_POWER_SPECTRAL_DENSITY:
-        if (length == 1)
-        {
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_maintain_power_spectral_density,
-                               tvb, pos, length, ENC_NA);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_RANGING_REQUIRED:
-        if (length == 1)
-        {
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ranging_required,
-                                 tvb, pos, length, ENC_NA);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_MAX_SCHEDULED_CODES:
-        if (length == 1)
-        {
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_max_scheduled_codes,
-                               tvb, pos, length, ENC_NA);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_RANGING_HOLD_OFF_PRIORITY_FIELD:
-        if (length == 4)
-        {
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_rnghoff_cm, tvb,
-                                 pos, length, ENC_BIG_ENDIAN);
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_rnghoff_erouter, tvb,
-                                 pos, length, ENC_BIG_ENDIAN);
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_rnghoff_emta, tvb,
-                                 pos, length, ENC_BIG_ENDIAN);
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_rnghoff_estb, tvb,
-                                 pos, length, ENC_BIG_ENDIAN);
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_rnghoff_rsvd, tvb,
-                                 pos, length, ENC_BIG_ENDIAN);
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_rnghoff_id_ext, tvb,
-                               pos, length, ENC_BIG_ENDIAN);
-        }
-        else
-        {
-            expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_RANGING_CHANNEL_CLASS_ID:
-        if (length == 4)
-        {
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_chan_class_id_cm, tvb,
-                                 pos, length, ENC_BIG_ENDIAN);
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_chan_class_id_erouter, tvb,
-                                 pos, length, ENC_BIG_ENDIAN);
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_chan_class_id_emta, tvb,
-                                 pos, length, ENC_BIG_ENDIAN);
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_chan_class_id_estb, tvb,
-                                 pos, length, ENC_BIG_ENDIAN);
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_chan_class_id_rsvd, tvb,
-                                 pos, length, ENC_BIG_ENDIAN);
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_chan_class_id_id_ext, tvb,
-                                 pos, length, ENC_BIG_ENDIAN);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_SCDMA_SELECTION_ACTIVE_CODES_AND_CODE_HOPPING:
-        if (length == 1)
-        {
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_active_code_hopping,
-                                 tvb, pos, length, ENC_NA);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_SCDMA_SELECTION_STRING_FOR_ACTIVE_CODES:
-        if (length == 16)
-        {
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_scdma_selection_active_codes,
-                                 tvb, pos, length, ENC_NA);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_HIGHER_UCD_FOR_SAME_UCID:
-        if (length == 1)
-        {
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_higher_ucd_for_same_ucid,
-                                tvb, pos, length, ENC_NA);
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_higher_ucd_for_same_ucid_resv, tvb,
-                                pos, length, ENC_BIG_ENDIAN);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_UCD_CHANGE_IND_BITMASK:
-        if (length == 2)
-        {
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ucd_change_ind_bitmask_subc_excl_band,
-                                    tvb, pos + 1, 1, ENC_NA);
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ucd_change_ind_bitmask_unused_subc,
-                                    tvb, pos + 1, 1, ENC_NA);
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ucd_change_ind_bitmask_other_subc,
-                                    tvb, pos + 1, 1, ENC_NA);
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ucd_change_ind_bitmask_burst_attr_iuc5,
-                                    tvb, pos + 1, 1, ENC_NA);
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ucd_change_ind_bitmask_burst_attr_iuc6,
-                                    tvb, pos + 1, 1, ENC_NA);
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ucd_change_ind_bitmask_burst_attr_iuc9,
-                                    tvb, pos + 1, 1, ENC_NA);
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ucd_change_ind_bitmask_burst_attr_iuc10,
-                                    tvb, pos + 1, 1, ENC_NA);
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ucd_change_ind_bitmask_burst_attr_iuc11,
-                                    tvb, pos + 1, 1, ENC_NA);
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ucd_change_ind_bitmask_burst_attr_iuc12,
-                                    tvb, pos, 1, ENC_NA);
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ucd_change_ind_bitmask_burst_attr_iuc13,
-                                    tvb, pos, 1, ENC_NA);
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ucd_change_ind_bitmask_burst_attr_iuc3_or_4,
-                                    tvb, pos, 1, ENC_NA);
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ucd_change_ind_bitmask_reserved,
-                                    tvb, pos, 1, ENC_NA);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_OFDMA_TIMESTAMP_SNAPSHOT:
-        if (length == 9)
-        {
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ofdma_timestamp_snapshot,
-                                tvb, pos, length, ENC_NA);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_OFDMA_CYCLIC_PREFIX_SIZE:
-        if (length == 1)
-        {
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ofdma_cyclic_prefix_size,
-                                tvb, pos, length, ENC_NA);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_OFDMA_ROLLOFF_PERIOD_SIZE:
-        if (length == 1)
-        {
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_ofdma_rolloff_period_size,
-                                tvb, pos, length, ENC_NA);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_SUBCARRIER_SPACING:
-        if (length == 1)
-        {
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_subc_spacing,
-                                tvb, pos, length, ENC_NA);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_CENTER_FREQ_SUBC_0:
-        if (length == 4)
-        {
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_cent_freq_subc0,
-                                   tvb, pos, length, ENC_NA);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_SUBC_EXCL_BAND:
-        if ((length % 4) == 0)
-        {
-          for(i = 0; i < length; i+=4) {
-            proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_subcarrier_range, tvb, pos+i, 4, ENC_NA);
-          }
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_UNUSED_SUBC_SPEC:
-        if ((length % 4) == 0)
-        {
-          for(i = 0; i < length; i+=4) {
-            proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_subcarrier_range, tvb, pos+i, 4, ENC_NA);
-          }
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_SYMB_IN_OFDMA_FRAME:
-        if (length == 1)
-        {
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_symb_ofdma_frame,
-                                 tvb, pos, length, ENC_NA);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_RAND_SEED:
-        if (length == 3)
-        {
-          proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_rand_seed,
-                                tvb, pos, length, ENC_NA);
-        }
-        else
-        {
-          expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
-        }
-        break;
-      case type51ucd_BURST_DESCR23:
-        dissect_type51ucd_burstdescriptor(tvb, pinfo, type51tlv_tree, pos, length);
-        break;
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_SYMB_IN_OFDMA_FRAME:
+      if (length == 1)
+      {
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_symb_ofdma_frame, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_RAND_SEED:
+      if (length == 3)
+      {
+        proto_tree_add_item (type51tlv_tree, hf_docsis_type51ucd_rand_seed, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, type51tlv_len_item, &ei_docsis_type51ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case type51ucd_BURST_DESCR23:
+      dissect_type51ucd_burstdescriptor(tvb, pinfo, type51tlv_tree, pos, length);
+      break;
     default:
       expert_add_info_format(pinfo, type51tlv_item, &ei_docsis_type51ucd_tlvtype_bad, "Unknown TLV type: %u", type);
-    }                   /* switch(type) */
-    pos = pos + length;
-  }                       /* while (pos < len) */
-  return len;
+    }        /* switch(type) */
+    pos += length;
+  }          /* while (tvb_reported_length_remaining(tvb, pos) > 0) */
+  return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */

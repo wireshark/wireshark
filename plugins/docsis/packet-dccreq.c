@@ -60,8 +60,12 @@ void proto_reg_handoff_docsis_dccreq(void);
 /* Initialize the protocol and registered fields */
 static int proto_docsis_dccreq = -1;
 
+static int hf_docsis_dcc_type = -1;
+static int hf_docsis_dcc_length = -1;
 static int hf_docsis_dccreq_tran_id = -1;
 static int hf_docsis_dccreq_up_chan_id = -1;
+static int hf_docsis_dcc_ds_params_subtype = -1;
+static int hf_docsis_dcc_ds_params_length = -1;
 static int hf_docsis_dccreq_ds_freq = -1;
 static int hf_docsis_dccreq_ds_mod_type = -1;
 static int hf_docsis_dccreq_ds_sym_rate = -1;
@@ -73,6 +77,8 @@ static int hf_docsis_dccreq_init_tech = -1;
 static int hf_docsis_dccreq_ucd_sub = -1;
 static int hf_docsis_dccreq_said_sub_cur = -1;
 static int hf_docsis_dccreq_said_sub_new = -1;
+static int hf_docsis_dcc_sf_sub_subtype = -1;
+static int hf_docsis_dcc_sf_sub_length = -1;
 static int hf_docsis_dccreq_sf_sfid_cur = -1;
 static int hf_docsis_dccreq_sf_sfid_new = -1;
 static int hf_docsis_dccreq_sf_sid_cur = -1;
@@ -84,6 +90,7 @@ static int hf_docsis_dccreq_hmac_digest = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_docsis_dccreq = -1;
+static gint ett_docsis_dccreq_tlv = -1;
 static gint ett_docsis_dccreq_ds_params = -1;
 static gint ett_docsis_dccreq_sf_sub = -1;
 
@@ -91,19 +98,19 @@ static expert_field ei_docsis_dccreq_tlvlen_bad = EI_INIT;
 
 static dissector_handle_t docsis_dccreq_handle;
 
-value_string ds_mod_type_vals[] = {
+static const value_string ds_mod_type_vals[] = {
   {0 , "64 QAM"},
   {1 , "256 QAM"},
   {0, NULL}
 };
 
-value_string ds_sym_rate_vals[] = {
+static const value_string ds_sym_rate_vals[] = {
   {0 , "5.056941 Msym/sec"},
   {1 , "5.360537 Msym/sec"},
   {2 , "6.952 Msym/sec"},
   {0, NULL}
 };
-value_string init_tech_vals[] = {
+static const value_string init_tech_vals[] = {
   {0 , "Reinitialize MAC"},
   {1 , "Broadcast Init RNG on new chanbefore normal op"},
   {2 , "Unicast RNG on new chan before normal op"},
@@ -112,261 +119,298 @@ value_string init_tech_vals[] = {
   {0, NULL}
 };
 
+static const value_string dcc_tlv_vals[] = {
+  {DCCREQ_UP_CHAN_ID, "Up Channel ID"},
+  {DCCREQ_DS_PARAMS, "Downstream Params Encodings"},
+  {DCCREQ_INIT_TECH, "Initialization Technique"},
+  {DCCREQ_UCD_SUB, "UCD Substitution"},
+  {DCCREQ_SAID_SUB, "SAID Sub"},
+  {DCCREQ_SF_SUB, "Service Flow Substitution Encodings"},
+  {DCCREQ_CMTS_MAC_ADDR, "CMTS Mac Address"},
+  {DCCREQ_KEY_SEQ_NUM, "Auth Key Sequence Number"},
+  {DCCREQ_HMAC_DIGEST, "HMAC-DigestNumber"},
+  {0, NULL}
+};
+
+static const value_string ds_param_subtlv_vals[] = {
+  {DCCREQ_DS_FREQ, "Frequency"},
+  {DCCREQ_DS_MOD_TYPE, "Modulation Type"},
+  {DCCREQ_DS_SYM_RATE, "Symbol Rate"},
+  {DCCREQ_DS_INTLV_DEPTH, "Interleaver Depth"},
+  {DCCREQ_DS_CHAN_ID, "Downstream Channel ID"},
+  {DCCREQ_DS_SYNC_SUB, "SYNC Substitution"},
+  {0, NULL}
+};
+
+static const value_string sf_sub_subtlv_vals[] = {
+  {DCCREQ_SF_SFID, "SFID"},
+  {DCCREQ_SF_SID, "SID"},
+  {DCCREQ_SF_UNSOL_GRANT_TREF, "Unsolicited Grant Time Reference"},
+  {0, NULL}
+};
+
+
 /* Dissection */
 static void
 dissect_dccreq_ds_params (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start, guint16 len)
 {
-  guint8 type, length;
+  guint8 type;
+  guint32 length;
   proto_tree *dcc_tree;
-  proto_item *dcc_item;
+  proto_item *dcc_item, *tlv_len_item;
   int pos;
 
   pos = start;
-  dcc_tree = proto_tree_add_subtree_format( tree, tvb, start, len, ett_docsis_dccreq_ds_params, &dcc_item,
-                                            "2 DCC-REQ Downstream Params Encodings (Length = %u)", len);
-
   while ( pos < ( start + len) )
+  {
+    type = tvb_get_guint8 (tvb, pos);
+    dcc_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
+                                            ett_docsis_dccreq_ds_params, &dcc_item,
+                                            val_to_str(type, ds_param_subtlv_vals,
+                                                       "Unknown TLV (%u)"));
+    proto_tree_add_uint (dcc_tree, hf_docsis_dcc_ds_params_subtype, tvb, pos, 1, type);
+    pos++;
+    tlv_len_item = proto_tree_add_item_ret_uint (dcc_tree, hf_docsis_dcc_ds_params_length, tvb, pos, 1, ENC_NA, &length);
+    pos++;
+    proto_item_set_len(dcc_item, length + 2);
+
+    switch (type)
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
-
-      switch (type)
-        {
-          case DCCREQ_DS_FREQ:
-            if (length == 4)
-              {
-                proto_tree_add_item (dcc_tree, hf_docsis_dccreq_ds_freq, tvb,
-                                     pos, length, ENC_BIG_ENDIAN);
-              }
-            else
-              {
-                expert_add_info_format(pinfo, dcc_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
-              }
-            break;
-          case DCCREQ_DS_MOD_TYPE:
-            if (length == 1)
-              {
-                proto_tree_add_item (dcc_tree, hf_docsis_dccreq_ds_mod_type, tvb,
-                                     pos, length, ENC_BIG_ENDIAN);
-              }
-            else
-              {
-                expert_add_info_format(pinfo, dcc_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
-              }
-            break;
-          case DCCREQ_DS_SYM_RATE:
-            if (length == 1)
-              {
-                proto_tree_add_item (dcc_tree, hf_docsis_dccreq_ds_sym_rate, tvb,
-                                     pos, length, ENC_BIG_ENDIAN);
-              }
-            else
-              {
-                expert_add_info_format(pinfo, dcc_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
-              }
-            break;
-          case DCCREQ_DS_INTLV_DEPTH:
-            if (length == 2)
-              {
-                proto_tree_add_item (dcc_tree, hf_docsis_dccreq_ds_intlv_depth_i, tvb,
-                                     pos, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item (dcc_tree, hf_docsis_dccreq_ds_intlv_depth_j, tvb,
-                                     pos + 1, 1, ENC_BIG_ENDIAN);
-              }
-            else
-              {
-                expert_add_info_format(pinfo, dcc_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
-              }
-            break;
-          case DCCREQ_DS_CHAN_ID:
-            if (length == 1)
-              {
-                proto_tree_add_item (dcc_tree, hf_docsis_dccreq_ds_chan_id, tvb,
-                                     pos, length, ENC_BIG_ENDIAN);
-              }
-            else
-              {
-                expert_add_info_format(pinfo, dcc_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
-              }
-            break;
-          case DCCREQ_DS_SYNC_SUB:
-            proto_tree_add_item (dcc_tree, hf_docsis_dccreq_ds_sync_sub, tvb,
-                                 pos, length, ENC_BIG_ENDIAN);
-            break;
-
-        }
-      pos = pos + length;
+    case DCCREQ_DS_FREQ:
+      if (length == 4)
+      {
+        proto_tree_add_item (dcc_tree, hf_docsis_dccreq_ds_freq, tvb, pos, length, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case DCCREQ_DS_MOD_TYPE:
+      if (length == 1)
+      {
+        proto_tree_add_item (dcc_tree, hf_docsis_dccreq_ds_mod_type, tvb, pos, length, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case DCCREQ_DS_SYM_RATE:
+      if (length == 1)
+      {
+        proto_tree_add_item (dcc_tree, hf_docsis_dccreq_ds_sym_rate, tvb, pos, length, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case DCCREQ_DS_INTLV_DEPTH:
+      if (length == 2)
+      {
+        proto_tree_add_item (dcc_tree, hf_docsis_dccreq_ds_intlv_depth_i, tvb, pos, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (dcc_tree, hf_docsis_dccreq_ds_intlv_depth_j, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case DCCREQ_DS_CHAN_ID:
+      if (length == 1)
+      {
+        proto_tree_add_item (dcc_tree, hf_docsis_dccreq_ds_chan_id, tvb, pos, length, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case DCCREQ_DS_SYNC_SUB:
+      if (length == 1)
+      {
+        proto_tree_add_item (dcc_tree, hf_docsis_dccreq_ds_sync_sub, tvb, pos, length, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
     }
+
+    pos += length;
+  }
 }
 
 static void
 dissect_dccreq_sf_sub (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start, guint16 len)
 {
-  guint8 type, length;
+  guint8 type;
+  guint32 length;
   proto_tree *dcc_tree;
-  proto_item *dcc_item;
+  proto_item *dcc_item, *tlv_len_item;
   int pos;
 
   pos = start;
-  dcc_tree = proto_tree_add_subtree_format( tree, tvb, start, len, ett_docsis_dccreq_sf_sub, &dcc_item, "7 DCC-REQ Service Flow Substitution Encodings (Length = %u)", len);
-
   while ( pos < ( start + len) )
-    {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+  {
+    type = tvb_get_guint8 (tvb, pos);
+    dcc_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
+                                            ett_docsis_dccreq_sf_sub, &dcc_item,
+                                            val_to_str(type, sf_sub_subtlv_vals,
+                                                       "Unknown TLV (%u)"));
+    proto_tree_add_uint (dcc_tree, hf_docsis_dcc_sf_sub_subtype, tvb, pos, 1, type);
+    pos++;
+    tlv_len_item = proto_tree_add_item_ret_uint (dcc_tree, hf_docsis_dcc_sf_sub_length, tvb, pos, 1, ENC_NA, &length);
+    pos++;
+    proto_item_set_len(dcc_item, length + 2);
 
-      switch (type)
-        {
-          case DCCREQ_SF_SFID:
-            if (length == 8)
-              {
-                proto_tree_add_item (dcc_tree, hf_docsis_dccreq_sf_sfid_cur, tvb,
-                                     pos, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item (dcc_tree, hf_docsis_dccreq_sf_sfid_new, tvb,
-                                     pos + 4, 4, ENC_BIG_ENDIAN);
-              }
-            else
-              {
-                expert_add_info_format(pinfo, dcc_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
-              }
-            break;
-          case DCCREQ_SF_SID:
-            if (length == 4)
-              {
-                proto_tree_add_item (dcc_tree, hf_docsis_dccreq_sf_sid_cur, tvb,
-                                     pos, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item (dcc_tree, hf_docsis_dccreq_sf_sid_new, tvb,
-                                     pos + 2, 2, ENC_BIG_ENDIAN);
-              }
-            else
-              {
-                expert_add_info_format(pinfo, dcc_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
-              }
-            break;
-          case DCCREQ_SF_UNSOL_GRANT_TREF:
-            if (length == 4)
-              {
-                proto_tree_add_item (dcc_tree, hf_docsis_dccreq_sf_unsol_grant_tref, tvb,
-                                     pos, length, ENC_BIG_ENDIAN);
-              }
-            else
-              {
-                expert_add_info_format(pinfo, dcc_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
-              }
-            break;
-        }
-      pos = pos + length;
+    switch (type)
+    {
+    case DCCREQ_SF_SFID:
+      if (length == 8)
+      {
+        proto_tree_add_item (dcc_tree, hf_docsis_dccreq_sf_sfid_cur, tvb, pos, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item (dcc_tree, hf_docsis_dccreq_sf_sfid_new, tvb, pos + 4, 4, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case DCCREQ_SF_SID:
+      if (length == 4)
+      {
+        proto_tree_add_item (dcc_tree, hf_docsis_dccreq_sf_sid_cur, tvb, pos, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item (dcc_tree, hf_docsis_dccreq_sf_sid_new, tvb, pos + 2, 2, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case DCCREQ_SF_UNSOL_GRANT_TREF:
+      if (length == 4)
+      {
+        proto_tree_add_item (dcc_tree, hf_docsis_dccreq_sf_unsol_grant_tref, tvb, pos, length, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
     }
+
+    pos += length;
+  }
 }
 
 static int
 dissect_dccreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   guint16 pos;
-  guint8 type, length;
-  proto_tree *dcc_tree;
-  proto_item *dcc_item;
-  guint16 len;
+  guint8 type;
+  guint32 length;
+  proto_tree *dcc_tree, *tlv_tree;
+  proto_item *dcc_item, *tlv_item, *tlv_len_item;
 
-  len = tvb_reported_length(tvb);
+  col_set_str(pinfo->cinfo, COL_INFO, "DCC-REQ Message");
 
-  col_set_str(pinfo->cinfo, COL_INFO, "DCC-REQ Message: ");
-
-  dcc_item =
-  proto_tree_add_protocol_format (tree, proto_docsis_dccreq, tvb, 0,
-                                    -1, "DCC-REQ Message");
+  dcc_item = proto_tree_add_item (tree, proto_docsis_dccreq, tvb, 0, -1, ENC_NA);
   dcc_tree = proto_item_add_subtree (dcc_item, ett_docsis_dccreq);
+
   proto_tree_add_item (dcc_tree, hf_docsis_dccreq_tran_id, tvb, 0, 2, ENC_BIG_ENDIAN);
 
   pos = 2;
-  while (pos < len)
+  while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
-        type = tvb_get_guint8 (tvb, pos++);
-        length = tvb_get_guint8 (tvb, pos++);
+    type = tvb_get_guint8 (tvb, pos);
+    tlv_tree = proto_tree_add_subtree(dcc_tree, tvb, pos, -1,
+                                            ett_docsis_dccreq_tlv, &tlv_item,
+                                            val_to_str(type, dcc_tlv_vals,
+                                                       "Unknown TLV (%u)"));
+    proto_tree_add_uint (tlv_tree, hf_docsis_dcc_type, tvb, pos, 1, type);
+    pos++;
+    tlv_len_item = proto_tree_add_item_ret_uint (tlv_tree, hf_docsis_dcc_length, tvb, pos, 1, ENC_NA, &length);
+    pos++;
+    proto_item_set_len(tlv_item, length + 2);
 
-        switch (type)
-        {
-            case DCCREQ_UP_CHAN_ID:
-            if (length == 1)
-                {
-                proto_tree_add_item (dcc_tree, hf_docsis_dccreq_up_chan_id, tvb,
-                                        pos, length, ENC_BIG_ENDIAN);
-                }
-            else
-                {
-                 expert_add_info_format(pinfo, dcc_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
-               }
-            break;
-            case DCCREQ_DS_PARAMS:
-            dissect_dccreq_ds_params (tvb , pinfo, dcc_tree , pos , length );
-            break;
-            case DCCREQ_INIT_TECH:
-            if (length == 1)
-                {
-                proto_tree_add_item (dcc_tree, hf_docsis_dccreq_init_tech, tvb,
-                                        pos, length, ENC_BIG_ENDIAN);
-                }
-            else
-                {
-                 expert_add_info_format(pinfo, dcc_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
-                }
-            break;
-            case DCCREQ_UCD_SUB:
-            proto_tree_add_item (dcc_tree, hf_docsis_dccreq_ucd_sub, tvb,
-                                    pos, length, ENC_NA);
-            break;
-            case DCCREQ_SAID_SUB:
-            if (length == 4)
-                {
-                proto_tree_add_item (dcc_tree, hf_docsis_dccreq_said_sub_cur, tvb,
-                                        pos, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item (dcc_tree, hf_docsis_dccreq_said_sub_new, tvb,
-                                        pos + 2, 2, ENC_BIG_ENDIAN);
-                }
-            else
-                {
-                 expert_add_info_format(pinfo, dcc_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
-                }
-            break;
-            case DCCREQ_SF_SUB:
-            dissect_dccreq_sf_sub (tvb , pinfo, dcc_tree , pos , length );
-            break;
-            case DCCREQ_CMTS_MAC_ADDR:
-            if (length == 6)
-                {
-                proto_tree_add_item (dcc_tree, hf_docsis_dccreq_cmts_mac_addr, tvb,
-                                        pos, length, ENC_NA);
-                }
-            else
-                {
-                 expert_add_info_format(pinfo, dcc_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
-                }
-            break;
-            case DCCREQ_KEY_SEQ_NUM:
-            if (length == 1)
-                {
-                proto_tree_add_item (dcc_tree, hf_docsis_dccreq_key_seq_num, tvb,
-                                        pos, length, ENC_BIG_ENDIAN);
-                }
-            else
-                {
-                 expert_add_info_format(pinfo, dcc_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
-                }
-            break;
-            case DCCREQ_HMAC_DIGEST:
-            if (length == 20)
-                {
-                proto_tree_add_item (dcc_tree, hf_docsis_dccreq_hmac_digest, tvb,
-                                        pos, length, ENC_NA);
-                }
-            else
-                {
-                 expert_add_info_format(pinfo, dcc_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
-                }
-            break;
-        }                   /* switch(type) */
-        pos = pos + length;
-  }                       /* while (pos < len) */
+    switch (type)
+    {
+    case DCCREQ_UP_CHAN_ID:
+      if (length == 1)
+      {
+        proto_tree_add_item (tlv_tree, hf_docsis_dccreq_up_chan_id, tvb, pos, length, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case DCCREQ_DS_PARAMS:
+      dissect_dccreq_ds_params (tvb, pinfo, tlv_tree, pos, length);
+      break;
+    case DCCREQ_INIT_TECH:
+      if (length == 1)
+      {
+        proto_tree_add_item (tlv_tree, hf_docsis_dccreq_init_tech, tvb, pos, length, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case DCCREQ_UCD_SUB:
+      proto_tree_add_item (tlv_tree, hf_docsis_dccreq_ucd_sub, tvb, pos, length, ENC_NA);
+      break;
+    case DCCREQ_SAID_SUB:
+      if (length == 4)
+      {
+        proto_tree_add_item (tlv_tree, hf_docsis_dccreq_said_sub_cur, tvb, pos, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tlv_tree, hf_docsis_dccreq_said_sub_new, tvb, pos + 2, 2, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case DCCREQ_SF_SUB:
+      dissect_dccreq_sf_sub (tvb, pinfo, tlv_tree, pos, length );
+      break;
+    case DCCREQ_CMTS_MAC_ADDR:
+      if (length == 6)
+      {
+        proto_tree_add_item (tlv_tree, hf_docsis_dccreq_cmts_mac_addr, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case DCCREQ_KEY_SEQ_NUM:
+      if (length == 1)
+      {
+        proto_tree_add_item (tlv_tree, hf_docsis_dccreq_key_seq_num, tvb, pos, length, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case DCCREQ_HMAC_DIGEST:
+      if (length == 20)
+      {
+        proto_tree_add_item (tlv_tree, hf_docsis_dccreq_hmac_digest, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_dccreq_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    }       /* switch(type) */
+    pos += length;
+  }         /* (tvb_reported_length_remaining(tvb, pos) > 0) */
   return tvb_captured_length(tvb);
 }
 
@@ -375,6 +419,24 @@ void
 proto_register_docsis_dccreq (void)
 {
   static hf_register_info hf[] = {
+    {&hf_docsis_dcc_type,
+     {
+      "Type",
+      "docsis_dccreq.tlvtype",
+      FT_UINT8, BASE_DEC, VALS(dcc_tlv_vals), 0x0,
+      NULL,
+      HFILL
+     }
+    },
+    {&hf_docsis_dcc_length,
+     {
+      "Length",
+      "docsis_dccreq.tlvlen",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL,
+      HFILL
+     }
+    },
     {&hf_docsis_dccreq_tran_id ,
      {
        "Transaction ID",
@@ -391,6 +453,24 @@ proto_register_docsis_dccreq (void)
        FT_UINT8, BASE_DEC, NULL, 0x0,
        NULL,
        HFILL
+     }
+    },
+    {&hf_docsis_dcc_ds_params_subtype,
+     {
+      "Type",
+      "docsis_dccreq.ds_tlvtype",
+      FT_UINT8, BASE_DEC, VALS(ds_param_subtlv_vals), 0x0,
+      NULL,
+      HFILL
+     }
+    },
+    {&hf_docsis_dcc_ds_params_length,
+     {
+      "Length",
+      "docsis_dccreq.ds_tlvlen",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL,
+      HFILL
      }
     },
     {&hf_docsis_dccreq_ds_freq ,
@@ -492,6 +572,24 @@ proto_register_docsis_dccreq (void)
        HFILL
      }
     },
+    {&hf_docsis_dcc_sf_sub_subtype,
+     {
+      "Type",
+      "docsis_dccreq.sf_tlvtype",
+      FT_UINT8, BASE_DEC, VALS(sf_sub_subtlv_vals), 0x0,
+      NULL,
+      HFILL
+     }
+    },
+    {&hf_docsis_dcc_sf_sub_length,
+     {
+      "Length",
+      "docsis_dccreq.sf_tlvlen",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL,
+      HFILL
+     }
+    },
     {&hf_docsis_dccreq_sf_sfid_cur ,
      {
        "SF Sub - SFID Current Value",
@@ -571,6 +669,7 @@ proto_register_docsis_dccreq (void)
     &ett_docsis_dccreq,
     &ett_docsis_dccreq_sf_sub,
     &ett_docsis_dccreq_ds_params,
+    &ett_docsis_dccreq_tlv,
   };
 
   static ei_register_info ei[] = {

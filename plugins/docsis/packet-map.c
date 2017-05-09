@@ -62,6 +62,7 @@ static int hf_docsis_map_offset = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_docsis_map = -1;
+static gint ett_docsis_map_ie = -1;
 
 static dissector_handle_t docsis_map_handle;
 
@@ -88,20 +89,23 @@ static const value_string iuc_vals[] = {
 static int
 dissect_map (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
-  guint8 i, numie;
+  guint32 i, numie, upchid, ucd_count;
   int pos;
-  guint16 sid;
-  guint8 iuc;
-  guint16 offset;
-  guint32 ie, temp, mask;
-  proto_item *it, *item;
+  proto_item *it;
   proto_tree *map_tree;
-  guint8 upchid, ucd_count;
+  static const int * ies[] = {
+    &hf_docsis_map_sid,
+    &hf_docsis_map_iuc,
+    &hf_docsis_map_offset,
+    NULL
+  };
 
+  it = proto_tree_add_item(tree, proto_docsis_map, tvb, 0, -1, ENC_NA);
+  map_tree = proto_item_add_subtree (it, ett_docsis_map);
 
-  numie = tvb_get_guint8 (tvb, 2);
-  upchid = tvb_get_guint8 (tvb, 0);
-  ucd_count = tvb_get_guint8 (tvb, 1);
+  proto_tree_add_item_ret_uint (map_tree, hf_docsis_map_upstream_chid, tvb, 0, 1, ENC_BIG_ENDIAN, &upchid);
+  proto_tree_add_item_ret_uint (map_tree, hf_docsis_map_ucd_count, tvb, 1, 1, ENC_BIG_ENDIAN, &ucd_count);
+  proto_tree_add_item_ret_uint (map_tree, hf_docsis_map_numie, tvb, 2, 1, ENC_BIG_ENDIAN, &numie);
 
   if (upchid > 0)
     col_add_fstr (pinfo->cinfo, COL_INFO,
@@ -112,66 +116,22 @@ dissect_map (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                   "Map Message:  Channel ID = %u (Telephony Return), UCD Count = %u, # IE's = %u",
                   upchid, ucd_count, numie);
 
-  if (tree)
-    {
-      it =
-        proto_tree_add_protocol_format (tree, proto_docsis_map, tvb, 0, -1,
-                                        "MAP Message");
-      map_tree = proto_item_add_subtree (it, ett_docsis_map);
+  proto_tree_add_item (map_tree, hf_docsis_map_rsvd, tvb, 3, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (map_tree, hf_docsis_map_alloc_start, tvb, 4, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item (map_tree, hf_docsis_map_ack_time, tvb, 8, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item (map_tree, hf_docsis_map_rng_start, tvb, 12, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (map_tree, hf_docsis_map_rng_end, tvb, 13, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (map_tree, hf_docsis_map_data_start, tvb, 14, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (map_tree, hf_docsis_map_data_end, tvb, 15, 1, ENC_BIG_ENDIAN);
 
-      proto_tree_add_item (map_tree, hf_docsis_map_upstream_chid, tvb, 0, 1,
-                           ENC_BIG_ENDIAN);
-      proto_tree_add_item (map_tree, hf_docsis_map_ucd_count, tvb, 1, 1,
-                           ENC_BIG_ENDIAN);
-      proto_tree_add_item (map_tree, hf_docsis_map_numie, tvb, 2, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item (map_tree, hf_docsis_map_rsvd, tvb, 3, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item (map_tree, hf_docsis_map_alloc_start, tvb, 4, 4,
-                           ENC_BIG_ENDIAN);
-      proto_tree_add_item (map_tree, hf_docsis_map_ack_time, tvb, 8, 4,
-                           ENC_BIG_ENDIAN);
-      proto_tree_add_item (map_tree, hf_docsis_map_rng_start, tvb, 12, 1,
-                           ENC_BIG_ENDIAN);
-      proto_tree_add_item (map_tree, hf_docsis_map_rng_end, tvb, 13, 1,
-                           ENC_BIG_ENDIAN);
-      proto_tree_add_item (map_tree, hf_docsis_map_data_start, tvb, 14, 1,
-                           ENC_BIG_ENDIAN);
-      proto_tree_add_item (map_tree, hf_docsis_map_data_end, tvb, 15, 1,
-                           ENC_BIG_ENDIAN);
+  pos = 16;
+  for (i = 0; i < numie; i++)
+  {
+    proto_tree_add_bitmask_with_flags(map_tree, tvb, pos, hf_docsis_map_ie, ett_docsis_map_ie, ies, ENC_BIG_ENDIAN, BMT_NO_FLAGS);
+    pos = pos + 4;
+  }
 
-      pos = 16;
-      for (i = 0; i < numie; i++)
-        {
-          ie = tvb_get_ntohl (tvb, pos);
-          mask = 0xFFFC0000;
-          temp = (ie & mask);
-          temp = temp >> 18;
-          sid = (guint16) (temp & 0x3FFF);
-          mask = 0x3C000;
-          temp = (ie & mask);
-          temp = temp >> 14;
-          iuc = (guint8) (temp & 0x0F);
-          mask = 0x3FFF;
-          offset = (guint16) (ie & mask);
-          item = proto_tree_add_item(map_tree, hf_docsis_map_sid, tvb, pos, 4, ENC_BIG_ENDIAN);
-          PROTO_ITEM_SET_HIDDEN(item);
-          item = proto_tree_add_item(map_tree, hf_docsis_map_iuc, tvb, pos, 4, ENC_BIG_ENDIAN);
-          PROTO_ITEM_SET_HIDDEN(item);
-          item = proto_tree_add_item(map_tree, hf_docsis_map_offset, tvb, pos, 4, ENC_BIG_ENDIAN);
-          PROTO_ITEM_SET_HIDDEN(item);
-          if (sid == 0x3FFF)
-            proto_tree_add_uint_format (map_tree, hf_docsis_map_ie, tvb, pos, 4,
-                                        ie, "SID = 0x%x (All CM's), IUC = %s, Offset = %u",
-                                        sid, val_to_str (iuc, iuc_vals, "%d"),
-                                        offset);
-          else
-            proto_tree_add_uint_format (map_tree, hf_docsis_map_ie, tvb, pos, 4,
-                                        ie, "SID = %u, IUC = %s, Offset = %u",
-                                        sid, val_to_str (iuc, iuc_vals, "%d"),
-                                        offset);
-          pos = pos + 4;
-        }                       /* for... */
-    }                           /* if(tree) */
-    return tvb_captured_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -230,7 +190,7 @@ proto_register_docsis_map (void)
       NULL, HFILL}
     },
     {&hf_docsis_map_rsvd,
-     {"Reserved [0x00]", "docsis_map.rsvd",
+     {"Reserved", "docsis_map.rsvd",
       FT_UINT8, BASE_HEX, NULL, 0x0,
       "Reserved Byte", HFILL}
     },
@@ -254,11 +214,11 @@ proto_register_docsis_map (void)
 
   static gint *ett[] = {
     &ett_docsis_map,
+    &ett_docsis_map_ie,
   };
 
   proto_docsis_map =
-    proto_register_protocol ("DOCSIS Upstream Bandwidth Allocation",
-                             "DOCSIS MAP", "docsis_map");
+    proto_register_protocol ("DOCSIS Upstream Bandwidth Allocation", "DOCSIS MAP", "docsis_map");
 
   proto_register_field_array (proto_docsis_map, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));

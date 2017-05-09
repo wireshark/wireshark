@@ -46,32 +46,25 @@ static int
 dissect_dsdreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   proto_item *it;
-  proto_tree *dsdreq_tree = NULL;
-  guint16 transid;
+  proto_tree *dsdreq_tree;
+  guint32 transid;
   tvbuff_t *next_tvb;
 
-  transid = tvb_get_ntohs (tvb, 0);
+  it = proto_tree_add_item (tree, proto_docsis_dsdreq, tvb, 0, -1, ENC_NA);
+  dsdreq_tree = proto_item_add_subtree (it, ett_docsis_dsdreq);
+
+  proto_tree_add_item_ret_uint (dsdreq_tree, hf_docsis_dsdreq_tranid, tvb, 0, 2, ENC_BIG_ENDIAN, &transid);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
                 "Dynamic Service Delete Request Tran-id = %u", transid);
-  if (tree)
-    {
-      it =
-        proto_tree_add_protocol_format (tree, proto_docsis_dsdreq, tvb, 0, -1,
-                                        "DSD Request");
-      dsdreq_tree = proto_item_add_subtree (it, ett_docsis_dsdreq);
-      proto_tree_add_item (dsdreq_tree, hf_docsis_dsdreq_tranid, tvb, 0, 2,
-                           ENC_BIG_ENDIAN);
-      proto_tree_add_item (dsdreq_tree, hf_docsis_dsdreq_rsvd, tvb, 2, 2,
-                           ENC_BIG_ENDIAN);
-      proto_tree_add_item (dsdreq_tree, hf_docsis_dsdreq_sfid, tvb, 4, 4,
-                           ENC_BIG_ENDIAN);
-    }
 
-    /* Call Dissector for Appendix C TLV's */
-    next_tvb = tvb_new_subset_remaining (tvb, 8);
-    call_dissector (docsis_tlv_handle, next_tvb, pinfo, dsdreq_tree);
-    return tvb_captured_length(tvb);
+  proto_tree_add_item (dsdreq_tree, hf_docsis_dsdreq_rsvd, tvb, 2, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item (dsdreq_tree, hf_docsis_dsdreq_sfid, tvb, 4, 4, ENC_BIG_ENDIAN);
+
+  /* Call Dissector for Appendix C TLV's */
+  next_tvb = tvb_new_subset_remaining (tvb, 8);
+  call_dissector (docsis_tlv_handle, next_tvb, pinfo, dsdreq_tree);
+  return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */

@@ -46,29 +46,18 @@ static int
 dissect_dsaack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   proto_item *it;
-  proto_tree *dsaack_tree = NULL;
-  guint16 transid;
-  guint8 response;
+  proto_tree *dsaack_tree;
+  guint32 transid, response;
   tvbuff_t *next_tvb;
 
-  transid = tvb_get_ntohs (tvb, 0);
-  response = tvb_get_guint8 (tvb, 2);
+  it = proto_tree_add_item (tree, proto_docsis_dsaack, tvb, 0, -1, ENC_NA);
+  dsaack_tree = proto_item_add_subtree (it, ett_docsis_dsaack);
+  proto_tree_add_item_ret_uint (dsaack_tree, hf_docsis_dsaack_tranid, tvb, 0, 2, ENC_BIG_ENDIAN, &transid);
+  proto_tree_add_item_ret_uint (dsaack_tree, hf_docsis_dsaack_response, tvb, 2, 1, ENC_BIG_ENDIAN, &response);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
                 "Dynamic Service Add Ack ID = %u (%s)", transid,
                 val_to_str (response, docsis_conf_code, "%d"));
-
-  if (tree)
-    {
-      it =
-        proto_tree_add_protocol_format (tree, proto_docsis_dsaack, tvb, 0, -1,
-                                        "DSA Acknowledge");
-      dsaack_tree = proto_item_add_subtree (it, ett_docsis_dsaack);
-      proto_tree_add_item (dsaack_tree, hf_docsis_dsaack_tranid, tvb, 0, 2,
-                           ENC_BIG_ENDIAN);
-      proto_tree_add_item (dsaack_tree, hf_docsis_dsaack_response, tvb, 2, 1,
-                           ENC_BIG_ENDIAN);
-    }
 
   /* Call Dissector for Appendix C TLV's */
   next_tvb = tvb_new_subset_remaining (tvb, 3);

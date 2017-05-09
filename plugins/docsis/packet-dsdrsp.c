@@ -47,31 +47,19 @@ dissect_dsdrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 {
   proto_item *it;
   proto_tree *dsdrsp_tree;
-  guint16 tranid;
-  guint8 confcode;
+  guint32 tranid, confcode;
 
-  tranid = tvb_get_ntohs (tvb, 0);
-  confcode = tvb_get_guint8 (tvb, 2);
+  it = proto_tree_add_item(tree, proto_docsis_dsdrsp, tvb, 0, -1, ENC_NA);
+  dsdrsp_tree = proto_item_add_subtree (it, ett_docsis_dsdrsp);
+  proto_tree_add_item_ret_uint (dsdrsp_tree, hf_docsis_dsdrsp_tranid, tvb, 0, 2, ENC_BIG_ENDIAN, &tranid);
+  proto_tree_add_item_ret_uint (dsdrsp_tree, hf_docsis_dsdrsp_confcode, tvb, 2, 1, ENC_BIG_ENDIAN, &confcode);
+  proto_tree_add_item (dsdrsp_tree, hf_docsis_dsdrsp_rsvd, tvb, 3, 1, ENC_BIG_ENDIAN);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
                 "Dynamic Service Delete Response Tran id = %u (%s)",
                 tranid, val_to_str (confcode, docsis_conf_code, "%d"));
 
-  if (tree)
-    {
-      it =
-        proto_tree_add_protocol_format (tree, proto_docsis_dsdrsp, tvb, 0, -1,
-                                        "DSD Response");
-      dsdrsp_tree = proto_item_add_subtree (it, ett_docsis_dsdrsp);
-      proto_tree_add_item (dsdrsp_tree, hf_docsis_dsdrsp_tranid, tvb, 0, 2,
-                           ENC_BIG_ENDIAN);
-      proto_tree_add_item (dsdrsp_tree, hf_docsis_dsdrsp_confcode, tvb, 2, 1,
-                           ENC_BIG_ENDIAN);
-      proto_tree_add_item (dsdrsp_tree, hf_docsis_dsdrsp_rsvd, tvb, 3, 1,
-                           ENC_BIG_ENDIAN);
-    }
-
-    return tvb_captured_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
