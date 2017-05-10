@@ -38,7 +38,7 @@
 void proto_register_aim(void);
 void proto_reg_handoff_aim(void);
 
-#define TCP_PORT_AIM 5190
+#define TCP_PORTS_AIM_DEFAULT "5190"
 
 #define STRIP_TAGS 1
 
@@ -4548,6 +4548,7 @@ proto_register_aim(void)
 
 	aim_module = prefs_register_protocol(proto_aim, NULL);
 
+
 	prefs_register_bool_preference(aim_module, "desegment",
 				       "Reassemble AIM messages spanning multiple TCP segments",
 				       "Whether the AIM dissector should reassemble messages spanning multiple TCP segments."
@@ -4560,7 +4561,9 @@ proto_register_aim(void)
 void
 proto_reg_handoff_aim(void)
 {
-	dissector_add_uint_with_preference("tcp.port", TCP_PORT_AIM, aim_handle);
+	/* TCP ports preference */
+	dissector_add_uint_range_with_preference("tcp.port", TCP_PORTS_AIM_DEFAULT, aim_handle);
+
 	ssl_dissector_add(0, aim_handle);
 	/* Heuristics disabled by default, it is really weak... */
 	heur_dissector_add("ssl", dissect_aim_ssl_heur, "AIM over SSL", "aim_ssl", proto_aim, HEURISTIC_DISABLE);
