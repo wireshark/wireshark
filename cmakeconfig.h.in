@@ -266,8 +266,7 @@
 /* Define to 1 if you have the `pcap_open_dead' function. */
 #cmakedefine HAVE_PCAP_OPEN_DEAD 1
 
-/* Define to 1 if you have WinPcap remote capturing support and prefer to use
-   these new API features. */
+/* Define to 1 if you have libpcap/WinPcap remote capturing support. */
 #cmakedefine HAVE_PCAP_REMOTE 1
 
 /* Define to 1 if you have the `pcap_set_datalink' function. */
@@ -290,9 +289,6 @@
 
 /* Define to 1 if you have the optreset variable */
 #cmakedefine HAVE_OPTRESET 1
-
-/* Define to 1 to enable remote capturing feature in WinPcap library */
-#cmakedefine HAVE_REMOTE 1
 
 /* Define if sa_len field exists in struct sockaddr */
 #cmakedefine HAVE_STRUCT_SOCKADDR_SA_LEN 1
