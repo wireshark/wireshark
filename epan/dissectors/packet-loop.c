@@ -1,9 +1,17 @@
 /* packet-loop.c
- * Routines for Ethernet loopback/Configuration Test Protocol dissection
+ * Routines for Ethernet loopback/Configuration Test Protocol dissection,
+ * as documented in section 8 "Ethernet Configuration Testing Protocol" of
+ * the v2.0 DIX Ethernet specification.
  *
  * See
  *
+ *    http://decnet.ipv7.net/docs/dundas/aa-k759b-tk.pdf
+ *
+ * for a copy of the DIX spec and
+ *
  *    http://stuff.mit.edu/people/jhawk/ctp.html
+ *
+ * for section 8.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
