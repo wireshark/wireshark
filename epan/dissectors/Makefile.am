@@ -1574,7 +1574,6 @@ DISSECTOR_INCLUDES = \
 	packet-gsm_a_common.h	\
 	packet-gsm_a_rr.h	\
 	packet-gsm_map.h	\
-	packet-gsm_osmux.h	\
 	packet-gsm_rlcmac.h	\
 	packet-gsm_sms.h	\
 	packet-gsmtap.h		\
