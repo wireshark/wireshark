@@ -3027,7 +3027,10 @@ CSN_DESCR_BEGIN(IU_Mode_Channel_Request_Desk_t)
   M_NEXT_EXIST (IU_Mode_Channel_Request_Desk_t, Exist_RLC_BLOCK_COUNT, 1, &hf_egprs_prr_additionsr5_rlc_block_count_exist),
   M_UINT       (IU_Mode_Channel_Request_Desk_t,  RLC_BLOCK_COUNT,  8, &hf_egprs_prr_additionsr5_rlc_block_count),
 
-  M_NEXT_EXIST (IU_Mode_Channel_Request_Desk_t, Exist_Iu_Mode_ChRequestDesk, 1, &hf_iu_mode_chrequest_exist), /* Don't use M_REC_TARRAY as we don't support multiple TBFs */
+  /* Don't use M_REC_TARRAY as we don't support multiple TBFs
+  M_NEXT_EXIST (IU_Mode_Channel_Request_Desk_t, Exist_Iu_Mode_ChRequestDesk, 1, &hf_iu_mode_chrequest_exist),
+  M_TYPE       (IU_Mode_Channel_Request_Desk1, IU_Mode_Channel_Request_Desk_t),*/
+  M_UINT       (IU_Mode_Channel_Request_Desk_t, Exist_Iu_Mode_ChRequestDesk, 1, &hf_iu_mode_chrequest_exist),
 
 CSN_DESCR_END  (IU_Mode_Channel_Request_Desk_t)
 
