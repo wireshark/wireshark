@@ -622,6 +622,8 @@ const value_string docsis_conf_code[] = {
   {0, NULL}
 };
 
+value_string_ext docsis_conf_code_ext = VALUE_STRING_EXT_INIT(docsis_conf_code);
+
 static const value_string us_ch_action_vals[] = {
   {0, "No Action"},
   {1, "Add"},
@@ -4751,7 +4753,7 @@ proto_register_docsis_tlv (void)
     },
     {&hf_docsis_tlv_svc_unavail_code,
      {"Service Not Available (Code)", "docsis_tlv.svcunavail.code",
-      FT_UINT8, BASE_DEC, VALS(docsis_conf_code), 0x0,
+      FT_UINT8, BASE_DEC|BASE_EXT_STRING, &docsis_conf_code_ext, 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_tlv_cpe_ethernet,
@@ -4845,7 +4847,7 @@ proto_register_docsis_tlv (void)
     },
     {&hf_docsis_tlv_clsfr_err_code,
      {"..2 Error Code", "docsis_tlv.clsfr.err.code",
-      FT_UINT8, BASE_DEC, VALS(docsis_conf_code), 0x0,
+      FT_UINT8, BASE_DEC|BASE_EXT_STRING, &docsis_conf_code_ext, 0x0,
       "TCP/UDP Destination Port End", HFILL}
     },
     {&hf_docsis_tlv_clsfr_err_msg,
@@ -5005,7 +5007,7 @@ proto_register_docsis_tlv (void)
     },
     {&hf_docsis_tlv_sflow_err_code,
      {"..2 Error Code", "docsis_tlv.sflow.err.code",
-      FT_UINT8, BASE_DEC, VALS(docsis_conf_code), 0x0,
+      FT_UINT8, BASE_DEC|BASE_EXT_STRING, &docsis_conf_code_ext, 0x0,
       "Error Code", HFILL}
     },
     {&hf_docsis_tlv_sflow_err_msg,
@@ -5517,7 +5519,7 @@ proto_register_docsis_tlv (void)
     },
     {&hf_docsis_tcc_err_code,
      {"..2 Error Code", "docsis_tlv.tcc.err.code",
-      FT_UINT8, BASE_DEC, VALS(docsis_conf_code), 0x0,
+      FT_UINT8, BASE_DEC|BASE_EXT_STRING, &docsis_conf_code_ext, 0x0,
       "Error Code", HFILL}
     },
     {&hf_docsis_tcc_err_msg,
@@ -5801,7 +5803,7 @@ proto_register_docsis_tlv (void)
     },
     {&hf_docsis_tlv_rcc_err_code,
      {".4 Error Code", "docsis_tlv.rcc.err.code",
-      FT_UINT8, BASE_DEC, VALS (docsis_conf_code), 0x0,
+      FT_UINT8, BASE_DEC|BASE_EXT_STRING, &docsis_conf_code_ext, 0x0,
       "Error Code", HFILL}
     },
     {&hf_docsis_tlv_rcc_err_msg,

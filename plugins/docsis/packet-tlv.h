@@ -462,4 +462,6 @@
 #define CMTS_MC_SESS_ENC_GRP 1
 #define CMTS_MC_SESS_ENC_SRC 2
 
+extern value_string_ext docsis_conf_code_ext;
+
 #endif
