@@ -7239,6 +7239,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 			}
 			break;
 		case FT_BYTES:
+		case FT_UINT_BYTES:
 			/*  Require bytes to have a "display type" that could
 			 *  add a character between displayed bytes.
 			 */
