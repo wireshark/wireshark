@@ -89,6 +89,7 @@ if( PCAP_FOUND )
   check_function_exists( "pcap_open" HAVE_PCAP_OPEN )
   if( HAVE_PCAP_OPEN )
     set( HAVE_PCAP_REMOTE 1 )
+    set( HAVE_REMOTE 1 )
   endif()
 
   cmake_pop_check_state()
