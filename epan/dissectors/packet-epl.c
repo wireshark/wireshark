@@ -3633,7 +3633,7 @@ dissect_epl_sdo_command_read_multiple_by_index(proto_tree *epl_tree, tvbuff_t *t
 	guint8 subindex = 0x00,  padding = 0x00;
 	guint16 idx = 0x00, sod_index = 0x00, nosub = 0x00 ,error = 0xFF, entries = 0x00, sub_val = 0x00;
 	guint32 size, offsetincrement, datalength, remlength, objectcnt, abort_code;
-	gboolean lastentry = FALSE, abort = FALSE;
+	gboolean lastentry = FALSE, is_abort = FALSE;
 	const gchar *index_str, *sub_str, *sub_index_str;
 	proto_item *psf_item, *psf_od_item;
 	proto_tree *psf_tree, *psf_od_tree;
@@ -3666,7 +3666,7 @@ dissect_epl_sdo_command_read_multiple_by_index(proto_tree *epl_tree, tvbuff_t *t
 			padding = tvb_get_guint8 ( tvb, offset + 7 ) & 0x03;
 
 			if ((tvb_get_guint8 ( tvb, offset + 7 ) & 0x80) == 0x80)
-				abort = TRUE;
+				is_abort = TRUE;
 
 			datalength = offsetincrement - ( offset - EPL_SOA_EPLV_OFFSET );
 			/* An offset increment of zero usually indicates, that we are at the end
@@ -3825,7 +3825,7 @@ dissect_epl_sdo_command_read_multiple_by_index(proto_tree *epl_tree, tvbuff_t *t
 			}
 
 
-			if (abort)
+			if (is_abort)
 			{
 				proto_tree_add_item(psf_od_tree, hf_epl_asnd_sdo_cmd_sub_abort, tvb, dataoffset - 1, 1, ENC_LITTLE_ENDIAN);
 
@@ -3836,7 +3836,7 @@ dissect_epl_sdo_command_read_multiple_by_index(proto_tree *epl_tree, tvbuff_t *t
 				psf_item = proto_tree_add_item(psf_od_tree, hf_epl_sdo_multi_param_sub_abort, tvb, dataoffset, 4, ENC_LITTLE_ENDIAN);
 				proto_item_append_text(psf_item," (%s)", val_to_str_ext_const(abort_code, &sdo_cmd_abort_code_ext, "Unknown"));
 
-				abort = FALSE;
+				is_abort = FALSE;
 			}
 			else
 			{
