@@ -423,12 +423,10 @@ AC_DEFUN([AC_WIRESHARK_PCAP_REMOTE_CHECK],
 [
     ac_save_LIBS="$LIBS"
     LIBS="$PCAP_LIBS $LIBS"
-    AC_DEFINE(HAVE_REMOTE, 1, [Define to 1 to enable remote
-              capturing feature in WinPcap library])
     AC_CHECK_FUNCS(pcap_open)
     if test $ac_cv_func_pcap_open = "yes" ; then
         AC_DEFINE(HAVE_PCAP_REMOTE, 1,
-            [Define to 1 if you have WinPcap remote capturing support and prefer to use these new API features.])
+            [Define to 1 if you have libpcap/WinPcap remote capturing support and prefer to use these new API features.])
     fi
     AC_CHECK_FUNCS(pcap_setsampling)
     LIBS="$ac_save_LIBS"
