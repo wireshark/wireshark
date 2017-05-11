@@ -787,15 +787,87 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
   s_rnti = private_data_get_s_rnti(actx);
   if(s_rnc_id != 0 && s_rnti != 0) {
       u_rnti_value = (s_rnc_id << 20) | s_rnti;
-      /* We are looking for new allocated U-RNTIs, not previously used ones */
+      /* Distinguishing between new allocated U-RNTIs and previously used ones */
       if (is_new_urnti) {
           private_data_set_new_u_rnti(actx, u_rnti_value);
+      }
+      else {
+          private_data_set_current_u_rnti(actx, u_rnti_value);
       }
       /* Adding U-RNTI value to it's tree item */
       proto_item_append_text(actx->created_item,": %%08x", u_rnti_value);
   }
   private_data_set_s_rnc_id(actx, 0);
   private_data_set_s_rnti(actx, 0);
+
+#.FN_BODY C-RNTI VAL_PTR = &c_rnti_tvb
+  fp_info *fpinf = NULL;
+  umts_mac_info *macinf = NULL;
+  rlc_info *rlcinf = NULL;
+  conversation_t   *p_conv;
+  umts_fp_conversation_info_t *umts_fp_conversation_info = NULL;
+  fp_fach_channel_info_t *fp_fach_channel_info = NULL;
+  tvbuff_t * c_rnti_tvb = NULL;
+  guint16 c_rnti = 0;
+  guint32 u_rnti = 0;
+  fp_crnti_allocation_info_t *fp_crnti_allocation_info = NULL;
+%(DEFAULT_BODY)s
+  if (!c_rnti_tvb)
+    return offset;
+
+  if(tvb_reported_length(c_rnti_tvb)>=2){
+    c_rnti = tvb_get_ntohs(c_rnti_tvb,0);
+  }
+
+  if(actx->pinfo->fd->flags.visited) /* Frame was already checked*/
+    return offset;
+
+  /* Trying to figure where to get the U-RNTI from Either from an ASN.1 field (if this is CCCH) or RLC's attached info (if this is DCCH) */
+  fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
+  macinf = (umts_mac_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_umts_mac, 0);
+  rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_rlc, 0);
+  if (fpinf && macinf && rlcinf) {
+    switch(macinf->content[fpinf->cur_tb]){
+      case MAC_DCCH:
+        u_rnti = rlcinf->urnti[fpinf->cur_tb];
+        break;
+      case MAC_CCCH:
+      default:
+        u_rnti = private_data_get_current_u_rnti(actx);
+        break;
+    }
+  }
+  else {
+    /* Either FP, MAC or RLC info is missing - looking for ASN.1 field as last resort*/
+    u_rnti = private_data_get_current_u_rnti(actx);
+  }
+
+  if(u_rnti == 0 || c_rnti == 0) /* U-RNTI missing or failed to parse C-RNTI */
+    return offset;
+
+  /* Both U-RNTI and C-RNTI present - storing the match*/
+  fp_crnti_allocation_info = wmem_new0(wmem_file_scope(), fp_crnti_allocation_info_t);
+  fp_crnti_allocation_info->urnti = u_rnti;
+  fp_crnti_allocation_info->alloc_frame_number = actx->pinfo->num;
+
+  /* Finding FP conversation info */
+  p_conv = (conversation_t *)find_conversation(actx->pinfo->num, &actx->pinfo->net_dst, &actx->pinfo->net_src,
+      actx->pinfo->ptype,
+      actx->pinfo->destport, actx->pinfo->srcport, NO_ADDR_B);
+
+  /* If the current FP channel is FACH, Adding the C-RNTI / U-RNTI match to the FACH's RNTIs map*/
+  if (p_conv != NULL) {
+      umts_fp_conversation_info = (umts_fp_conversation_info_t *)conversation_get_proto_data(p_conv, proto_fp);
+      if (umts_fp_conversation_info && umts_fp_conversation_info->channel == CHANNEL_FACH_FDD) {
+          fp_fach_channel_info = (fp_fach_channel_info_t *)umts_fp_conversation_info->channel_specific_info;
+          if(fp_fach_channel_info) {
+              wmem_tree_insert32(fp_fach_channel_info->crnti_to_urnti_map, c_rnti, (void *)fp_crnti_allocation_info);
+          }
+      }
+  }
+
+  /* Also adding the C-RNTI / U-RNTI match to the global RNTIs map for the RACH channel */
+  wmem_tree_insert32(rrc_rach_urnti_crnti_map, c_rnti, (void *)fp_crnti_allocation_info);
 
 #.FN_BODY UL-ScramblingCode VAL_PTR = &scrambling_code
 guint32 scrambling_code;

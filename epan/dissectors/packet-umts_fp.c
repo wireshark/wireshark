@@ -4112,6 +4112,7 @@ static gboolean
 heur_dissect_fp_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     conversation_t   *p_conv;
+    fp_fach_channel_info_t* fp_fach_channel_info;
     umts_fp_conversation_info_t* umts_fp_conversation_info;
     struct fp_info *p_fp_info;
     int length;
@@ -4202,6 +4203,11 @@ heur_dissect_fp_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[1] = 168;
     umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_num_tbs[2] = 2;
     umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[2] = 168;
+    /* Adding the 'channel specific info' for FACH */
+    fp_fach_channel_info = wmem_new0(wmem_file_scope(), fp_fach_channel_info_t);
+    fp_fach_channel_info->crnti_to_urnti_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    umts_fp_conversation_info->channel_specific_info = (void*)fp_fach_channel_info;
+
     set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
     conversation_set_dissector(find_or_create_conversation(pinfo), fp_handle);
     dissect_fp(tvb, pinfo, tree, data);
@@ -4211,6 +4217,7 @@ static gboolean
 heur_dissect_fp_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     conversation_t   *p_conv;
+    fp_rach_channel_info_t* fp_rach_channel_info;
     umts_fp_conversation_info_t* umts_fp_conversation_info;
     struct fp_info *p_fp_info;
     int length;
@@ -4292,6 +4299,12 @@ heur_dissect_fp_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     umts_fp_conversation_info->fp_dch_channel_info[0].num_ul_chans = 0;
     umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_num_tbs[0] = 1;
     umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_tf_size[0] = 168;
+
+    /* Adding the 'channel specific info' for RACH */
+    fp_rach_channel_info = wmem_new0(wmem_file_scope(), fp_rach_channel_info_t);
+    fp_rach_channel_info->crnti_to_urnti_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    umts_fp_conversation_info->channel_specific_info = (void*)fp_rach_channel_info;
+
     set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
     conversation_set_dissector(find_or_create_conversation(pinfo), fp_handle);
     dissect_fp(tvb, pinfo, tree, data);

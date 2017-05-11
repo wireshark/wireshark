@@ -137,6 +137,28 @@ typedef struct
 
 } fp_dch_channel_info_t;
 
+typedef struct fp_crnti_allocation_info_t
+{
+    guint32 alloc_frame_number; /* Frame where C-RNTI was allocated */
+    guint32 urnti; /* The U-RNTI to which the C-RNTI was allocated*/
+} fp_crnti_allocation_info_t;
+
+/* Used in the 'channel_specific_info' field for FACH channels */
+typedef struct fp_fach_channel_info_t
+{
+    /* Key: (guint32) C-RNTI */
+    /* Value: (fp_crnti_allocation_info_t) U-RNTI allocation info */
+    wmem_tree_t* crnti_to_urnti_map; /* Mapping between C-RNTIs and U-RNTIs using them in this FACH */
+} fp_fach_channel_info_t;
+
+/* Used in the 'channel_specific_info' field for RACH channels */
+typedef struct fp_rach_channel_info_t
+{
+    /* Key: (guint32) C-RNTI */
+    /* Value: (fp_crnti_allocation_info_t) U-RNTI allocation info */
+    wmem_tree_t* crnti_to_urnti_map; /* Mapping between C-RNTIs and U-RNTIs using them in this RACH */
+} fp_rach_channel_info_t;
+
 
 typedef struct
 {
@@ -149,6 +171,8 @@ typedef struct
     guint16 crnc_port;
     gint com_context_id;        /* Identifies a single UE in all NBAP messages */
     guint32 scrambling_code;    /* Identifies a single UE's radio transmissions in the UTRAN */
+
+    void* channel_specific_info; /* Extended channel info based on the channel type */
 
     /* For PCH channel */
     gint paging_indications;
