@@ -99,8 +99,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2017-04-18"
-$Win32CurrentTag = "2017-04-18"
+$Win64CurrentTag = "2017-05-11"
+$Win32CurrentTag = "2017-05-11"
 
 # Archive file / subdir.
 $Win64Archives = @{
@@ -115,7 +115,7 @@ $Win64Archives = @{
     "libssh-0.7.3-1-win64ws.zip" = "";
     "libxml2-2.9.4-win64ws.zip" = "";
     "lua-5.2.4_Win64_dllw4_lib.zip" = "lua5.2.4";
-    "lz4-r131-1-win64ws.zip" = "";
+    "lz4-1.7.5-win64ws.zip" = "";
     "nasm-2.09.08-win32.zip" = "";
     "nghttp2-1.14.0-1-win64ws.zip" = "";
     "portaudio_v19_2.zip" = "";
@@ -140,7 +140,7 @@ $Win32Archives = @{
     "libssh-0.7.3-1-win32ws.zip" = "";
     "libxml2-2.9.4-win32ws.zip" = "";
     "lua-5.2.4_Win32_dllw4_lib.zip" = "lua5.2.4";
-    "lz4-r131-1-win32ws.zip" = "";
+    "lz4-1.7.5-win32ws.zip" = "";
     "nasm-2.09.08-win32.zip" = "";
     "nghttp2-1.14.0-1-win32ws.zip" = "";
     "portaudio_v19_2.zip" = "";
@@ -157,12 +157,12 @@ $Win32Archives = @{
 
 $Win32Files = @(
     "WinPcap_4_1_3.exe";
-    "USBPcapSetup-1.1.0.0-g794bf26-5.exe";
+    "USBPcapSetup-1.2.0.1.exe";
 )
 
 $Win64Files = @(
     "WinPcap_4_1_3.exe";
-    "USBPcapSetup-1.1.0.0-g794bf26-5.exe";
+    "USBPcapSetup-1.2.0.1.exe";
 )
 
 $Archives = $Win64Archives;
@@ -193,7 +193,7 @@ $CleanupItems = @(
     "libxml2-*-win??ws"
     "lua5.1.4"
     "lua5.2.?"
-    "lz4-r131-win??ws"
+    "lz4-*-win??ws"
     "nasm-2.09.08"
     "nghttp2-*-win??ws"
     "portaudio_v19"

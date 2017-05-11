@@ -41,7 +41,7 @@ if( LZ4_FOUND )
       CACHE PATH "Path to LZ4 DLL"
     )
     file( GLOB _lz4_dll RELATIVE "${LZ4_DLL_DIR}"
-      "${LZ4_DLL_DIR}/liblz4-*.dll"
+      "${LZ4_DLL_DIR}/liblz4*.dll"
     )
     set ( LZ4_DLL ${_lz4_dll}
       # We're storing filenames only. Should we use STRING instead?
