@@ -200,7 +200,8 @@ EXTRA_DIST = \
 	win32-utils.h		\
 	ws_mempbrk_sse42.c	\
 	wsgcrypt.h		\
-	wsgetopt.h
+	wsgetopt.h		\
+	wspcap.h
 
 CLEANFILES = \
 	libwsutil.a	\
