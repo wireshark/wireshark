@@ -23,6 +23,18 @@
 #include <ui_compiled_filter_output.h>
 #include "compiled_filter_output.h"
 
+#ifdef HAVE_PCAP_REMOTE
+/*
+ * Force the WinPcap header files to define things required for remote
+ * capture.  (Yes, this is q WinPcap bug; if your project has a public
+ * header file that checks or otherwise uses a #define that's defined
+ * by your project's configuration process, and don't ensure that
+ * it's always defined appropriately when that header file is included,
+ * before its first use, you have made a mistake.)
+ */
+#define HAVE_REMOTE
+#endif
+
 #include <pcap.h>
 
 #include "capture_opts.h"
