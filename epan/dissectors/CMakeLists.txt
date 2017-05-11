@@ -787,6 +787,8 @@ set(DISSECTOR_SRC
 	packet-iso15765.c
 	packet-iso7816.c
 	packet-iso8583.c
+	packet-isobus.c
+	packet-isobus-vt.c
 	packet-isup.c
 	packet-itdm.c
 	packet-iua.c
