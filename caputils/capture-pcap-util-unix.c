@@ -488,6 +488,12 @@ get_compiled_caplibs_version(GString *str)
 	 * of libpcap with which we were compiled.
 	 */
 	g_string_append(str, "with libpcap");
+#ifdef HAVE_PCAP_REMOTE
+	/*
+	 * We have remote pcap support in libpcap.
+	 */
+	g_string_append(str, " (including remote capture support)");
+#endif
 
 	/*
 	 * XXX - these libraries are actually used only by dumpcap,
