@@ -5238,15 +5238,15 @@ smbext20_timeout_msecs_to_str(gint32 timeout)
 #define SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN 60
 
 	if (timeout <= 0) {
-	        buf = (gchar *)wmem_alloc(wmem_packet_scope(), SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1);
+		buf = (gchar *)wmem_alloc(wmem_packet_scope(), SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1);
 		if (timeout == 0) {
-		        g_snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Return immediately (0)");
+			g_snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Return immediately (0)");
 		} else if (timeout == -1) {
-		        g_snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Wait indefinitely (-1)");
+			g_snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Wait indefinitely (-1)");
 		} else if (timeout == -2) {
-		        g_snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Use default timeout (-2)");
+			g_snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Use default timeout (-2)");
 		} else {
-		        g_snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Unknown reserved value (%d)", timeout);
+			g_snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Unknown reserved value (%d)", timeout);
 		}
 		return buf;
 	}
@@ -6340,9 +6340,9 @@ const value_string oa_open_vals[] = {
 	{ 1,		"The file existed and was opened"},
 	{ 2,		"The file did not exist but was created"},
 	{ 3,		"The file existed and was truncated"},
-	{ 0x8001,       "The file existed and was opened, and an OpLock was granted"},
-	{ 0x8002,       "The file did not exist but was created, and an OpLock was granted"},
-	{ 0x8003,       "The file existed and was truncated, and an OpLock was granted"},
+	{ 0x8001,	"The file existed and was opened, and an OpLock was granted"},
+	{ 0x8002,	"The file did not exist but was created, and an OpLock was granted"},
+	{ 0x8003,	"The file existed and was truncated, and an OpLock was granted"},
 	{0,	NULL}
 };
 static const true_false_string tfs_oa_lock = {
@@ -10649,7 +10649,7 @@ static const value_string trans2_cmd_vals[] = {
 	{ 0x0C,		"FIND_NOTIFY_NEXT" },
 	{ 0x0D,		"CREATE_DIRECTORY" },
 	{ 0x0E,		"SESSION_SETUP" },
-	{ 0x0F,         "Unknown (0x0f)" },  /* dummy so val_to_str_ext can do indexed lookup */
+	{ 0x0F,		"Unknown (0x0f)" },  /* dummy so val_to_str_ext can do indexed lookup */
 	{ 0x10,		"GET_DFS_REFERRAL" },
 	{ 0x11,		"REPORT_DFS_INCONSISTENCY" },
 	{ 0,    NULL }
