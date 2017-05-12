@@ -30,6 +30,11 @@
 
 #include <stdio.h>
 #include <glib.h>
+
+gboolean has_wpcap = FALSE;
+
+#ifdef HAVE_LIBPCAP
+
 #include <gmodule.h>
 
 #include <epan/strutil.h>
@@ -45,11 +50,6 @@
 #include "tools/lemon/cppmagic.h"
 
 #define MAX_WIN_IF_NAME_LEN 511
-
-
-gboolean has_wpcap = FALSE;
-
-#ifdef HAVE_LIBPCAP
 
 /*
  * XXX - should we require at least WinPcap 3.1 both for building an
