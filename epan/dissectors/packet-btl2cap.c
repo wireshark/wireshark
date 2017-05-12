@@ -1361,7 +1361,8 @@ dissect_connparamrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
     proto_item_append_text(item, " LL Connection Events");
     slave_latency = tvb_get_letohs(tvb, offset);
 
-    if(slave_latency >= 500 || slave_latency > 10.0 * tvb_get_letohs(tvb, offset + 2) / (max_interval *1.25))
+    if(slave_latency >= 500 || max_interval == 0 ||
+       slave_latency > 10.0 * tvb_get_letohs(tvb, offset + 2) / (max_interval *1.25))
         expert_add_info(pinfo, item, &ei_btl2cap_parameter_mismatch);
 
     offset += 2;
@@ -2806,7 +2807,7 @@ proto_register_btl2cap(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_btl2cap_parameter_mismatch, { "btl2cap.parameter_mismatch", PI_PROTOCOL, PI_WARN, "Unexpected frame", EXPFILL }},
+        { &ei_btl2cap_parameter_mismatch, { "btl2cap.parameter_mismatch", PI_PROTOCOL, PI_WARN, "Parameter mismatch", EXPFILL }},
         { &ei_btl2cap_sdulength_bad, { "btl2cap.sdulength.bad", PI_MALFORMED, PI_WARN, "SDU length bad", EXPFILL }},
         { &ei_btl2cap_length_bad, { "btl2cap.length.bad", PI_MALFORMED, PI_WARN, "Length too short", EXPFILL }},
         { &ei_btl2cap_unknown_command_code, { "btl2cap.unknown_command_code", PI_PROTOCOL, PI_WARN, "Unknown Command Code", EXPFILL }},
