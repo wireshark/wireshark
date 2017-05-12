@@ -599,7 +599,8 @@ while (<>) {
 	}
 
 	until ($more_tokens == 0) {
-		if ($restofline =~ /proto_register_protocol\s*\((.*)/) {
+		if (($restofline =~ /proto_register_protocol\s*\((.*)/) ||
+			($restofline =~ /proto_register_protocol_in_name_only\s*\((.*)/)) {
 			$noregprotocol = 0;
 			$restofline = $1;
 			$state = "s_proto_start";
