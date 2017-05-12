@@ -19,6 +19,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "config.h"
+
+#ifdef HAVE_LIBPCAP
 
 #include <ui_compiled_filter_output.h>
 #include "compiled_filter_output.h"
@@ -123,6 +126,8 @@ void CompiledFilterOutput::copyFilterText()
 {
     wsApp->clipboard()->setText(ui->filterList->toPlainText());
 }
+
+#endif /* HAVE_LIBPCAP */
 
 //
 // Editor modelines  -  http://www.wireshark.org/tools/modelines.html
