@@ -137,22 +137,22 @@ struct osmux_stream {
 
 /* Tap structure of Osmux header */
 struct osmux_hdr {
-    guint32 rtp_m;
-    guint32 ft;
-    guint32 ctr;
-    guint32 amr_f;
-    guint32 amr_q;
-    guint32 seq;
-    guint32 circuit_id;
-    guint32 amr_cmr;
-    guint32 amr_ft;
+    gboolean rtp_m;
+    guint8 ft;
+    guint8 ctr;
+    gboolean amr_f;
+    gboolean amr_q;
+    guint8 seq;
+    guint8 circuit_id;
+    guint8 amr_cmr;
+    guint8 amr_ft;
     gboolean is_old_dummy;
     struct osmux_stream *stream;
 };
 
 /* Code to calculate AMR payload size */
 static guint8
-amr_ft_to_bytes(guint32 amr_ft)
+amr_ft_to_bytes(guint8 amr_ft)
 {
     if (amr_ft >= AMR_FT_MAX) /* malformed packet ? */
         return 0;
@@ -298,8 +298,8 @@ dissect_osmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         proto_tree *osmux_tree = NULL;
         guint8 ft_ctr;
         guint64 amr_ft_cmr;
-        guint i;
-        guint32 size;
+        guint8 i;
+        guint32 size, temp;
 
         osmuxh = wmem_new0(wmem_packet_scope(), struct osmux_hdr);
 
@@ -333,16 +333,19 @@ dissect_osmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         /* Old versions of the protocol used to send dummy packets of only 2 bytes (control + cid):_*/
         if (ft_ctr == 0x23 && tvb_reported_length_remaining(tvb, offset - 1) == 2) {
             osmuxh->is_old_dummy = TRUE;
-            proto_tree_add_item_ret_uint(osmux_tree, hf_osmux_circuit_id, tvb, offset, 1, ENC_BIG_ENDIAN, &osmuxh->circuit_id);
+            proto_tree_add_item_ret_uint(osmux_tree, hf_osmux_circuit_id, tvb, offset, 1, ENC_BIG_ENDIAN, &temp);
+            osmuxh->circuit_id = (guint8)temp;
             col_append_fstr(pinfo->cinfo, COL_INFO, "Old Dummy (CID %u)", osmuxh->circuit_id);
             finish_process_pkt(tvb,  pinfo, tree, osmuxh);
             return tvb_reported_length(tvb);
         }
 
-        proto_tree_add_item_ret_uint(osmux_tree, hf_osmux_seq, tvb, offset, 1, ENC_BIG_ENDIAN, &osmuxh->seq);
+        proto_tree_add_item_ret_uint(osmux_tree, hf_osmux_seq, tvb, offset, 1, ENC_BIG_ENDIAN, &temp);
+        osmuxh->seq = (guint8)temp;
         offset++;
 
-        proto_tree_add_item_ret_uint(osmux_tree, hf_osmux_circuit_id, tvb, offset, 1, ENC_BIG_ENDIAN, &osmuxh->circuit_id);
+        proto_tree_add_item_ret_uint(osmux_tree, hf_osmux_circuit_id, tvb, offset, 1, ENC_BIG_ENDIAN, &temp);
+        osmuxh->circuit_id = (guint8)temp;
         offset++;
         col_append_fstr(pinfo->cinfo, COL_INFO, "(CID %u) ", osmuxh->circuit_id);
 
