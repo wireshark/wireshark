@@ -31,6 +31,8 @@
 #include <stdio.h>
 #include <glib.h>
 
+#include "caputils/capture-wpcap.h"
+
 gboolean has_wpcap = FALSE;
 
 #ifdef HAVE_LIBPCAP
@@ -42,7 +44,6 @@ gboolean has_wpcap = FALSE;
 #include "caputils/capture_ifinfo.h"
 #include "caputils/capture-pcap-util.h"
 #include "caputils/capture-pcap-util-int.h"
-#include "caputils/capture-wpcap.h"
 
 #include <wsutil/file_util.h>
 
