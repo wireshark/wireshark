@@ -36,6 +36,10 @@
 
 #include <errno.h>
 
+#ifdef HAVE_WINSOCK2_H
+# include <winsock2.h>
+#endif
+
 #ifndef _WIN32
 #include <signal.h>
 #endif
@@ -753,6 +757,7 @@ main(int argc, char *argv[])
 
 #ifdef _WIN32
   ws_init_dll_search_path();
+#ifdef HAVE_LIBPCAP
   /* Load wpcap if possible. Do this before collecting the run-time version information */
   load_wpcap();
 
@@ -761,7 +766,8 @@ main(int argc, char *argv[])
     fprintf(stderr, "The NPF driver isn't running.  You may have trouble "
       "capturing or\nlisting interfaces.\n");
   }
-#endif
+#endif /* HAVE_LIBPCAP */
+#endif /* _WIN32 */
 
   /* Get the compile-time version information string */
   comp_info_str = get_compiled_version_info(get_tshark_compiled_version_info,
