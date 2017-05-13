@@ -882,7 +882,7 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     frame_length += 4;
   }
 
-  if (have_data_rate) {
+  if (have_data_rate && data_rate > 0) {
     /* duration calculations */
     gboolean assumed_short_preamble = FALSE;
     gboolean assumed_non_greenfield = FALSE;
