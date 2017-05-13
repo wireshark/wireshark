@@ -155,6 +155,11 @@ void register_stat_tap_table_ui(stat_tap_table_ui *ui)
     wmem_tree_insert_string(registered_stat_tables, ui->cli_string, ui, 0);
 }
 
+stat_tap_table_ui *new_stat_tap_by_name(const char *name)
+{
+    return (stat_tap_table_ui *) wmem_tree_lookup_string(registered_stat_tables, name, 0);
+}
+
 void new_stat_tap_iterate_tables(wmem_foreach_func func, gpointer user_data)
 {
     wmem_tree_foreach(registered_stat_tables, func, user_data);

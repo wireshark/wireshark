@@ -285,6 +285,21 @@ sharkd_rtp_match_check(const struct sharkd_rtp_match *req, const packet_info *pi
 }
 
 static gboolean
+sharkd_session_process_info_nstat_cb(const void *key, void *value, void *userdata)
+{
+	stat_tap_table_ui *new_stat_tap = (stat_tap_table_ui *) value;
+	int *pi = (int *) userdata;
+
+	printf("%s{", (*pi) ? "," : "");
+		printf("\"name\":\"%s\"", new_stat_tap->title);
+		printf(",\"tap\":\"nstat:%s\"", (const char *) key);
+	printf("}");
+
+	*pi = *pi + 1;
+	return FALSE;
+}
+
+static gboolean
 sharkd_session_process_info_conv_cb(const void* key, void* value, void* userdata)
 {
 	struct register_ct *table = (struct register_ct *) value;
@@ -480,6 +495,11 @@ sharkd_session_process_info(void)
 
 	printf(",\"version\":");
 	json_puts_string(sharkd_version());
+
+	printf(",\"nstat\":[");
+	i = 0;
+	new_stat_tap_iterate_tables(sharkd_session_process_info_nstat_cb, &i);
+	printf("]");
 
 	printf(",\"convs\":[");
 	i = 0;
@@ -1431,6 +1451,121 @@ sharkd_session_free_tap_conv_cb(void *arg)
 }
 
 /**
+ * sharkd_session_process_tap_nstat_cb()
+ *
+ * Output nstat tap:
+ *   (m) tap        - tap name
+ *   (m) type       - tap output type
+ *   (m) fields: array of objects with attributes:
+ *                  (m) c - name
+ *
+ *   (m) tables: array of object with attributes:
+ *                  (m) t - table title
+ *                  (m) i - array of items
+ */
+static void
+sharkd_session_process_tap_nstat_cb(void *arg)
+{
+	new_stat_data_t *stat_data = (new_stat_data_t *) arg;
+	guint i, j, k;
+
+	printf("{\"tap\":\"nstat:%s\",\"type\":\"nstat\"", stat_data->stat_tap_data->cli_string);
+
+	printf(",\"fields\":[");
+	for (i = 0; i < stat_data->stat_tap_data->nfields; i++)
+	{
+		stat_tap_table_item *field = &(stat_data->stat_tap_data->fields[i]);
+
+		if (i)
+			printf(",");
+
+		printf("{");
+
+		printf("\"c\":");
+		json_puts_string(field->column_name);
+
+		printf("}");
+	}
+	printf("]");
+
+	printf(",\"tables\":[");
+	for (i = 0; i < stat_data->stat_tap_data->tables->len; i++)
+	{
+		stat_tap_table *table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table *, i);
+		const char *sepa = "";
+
+		if (i)
+			printf(",");
+
+		printf("{");
+
+		printf("\"t\":");
+		printf("\"%s\"", table->title);
+
+		printf(",\"i\":[");
+		for (j = 0; j < table->num_elements; j++)
+		{
+			stat_tap_table_item_type *field_data;
+
+			field_data = new_stat_tap_get_field_data(table, j, 0);
+			if (field_data == NULL || field_data->type == TABLE_ITEM_NONE) /* Nothing for us here */
+				continue;
+
+			printf("%s[", sepa);
+			for (k = 0; k < table->num_fields; k++)
+			{
+				field_data = new_stat_tap_get_field_data(table, j, k);
+
+				if (k)
+					printf(",");
+
+				switch (field_data->type)
+				{
+					case TABLE_ITEM_UINT:
+						printf("%u", field_data->value.uint_value);
+						break;
+
+					case TABLE_ITEM_INT:
+						printf("%d", field_data->value.uint_value);
+						break;
+
+					case TABLE_ITEM_STRING:
+						json_puts_string(field_data->value.string_value);
+						break;
+
+					case TABLE_ITEM_FLOAT:
+						printf("%f", field_data->value.float_value);
+						break;
+
+					case TABLE_ITEM_ENUM:
+						printf("%d", field_data->value.enum_value);
+						break;
+
+					case TABLE_ITEM_NONE:
+						printf("null");
+						break;
+				}
+			}
+
+			printf("]");
+			sepa = ",";
+		}
+		printf("]");
+		printf("}");
+	}
+
+	printf("]},");
+}
+
+static void
+sharkd_session_free_tap_nstat_cb(void *arg)
+{
+	new_stat_data_t *stat_data = (new_stat_data_t *) arg;
+
+	free_stat_tables(stat_data->stat_tap_data, NULL, NULL);
+}
+
+/**
  * sharkd_session_process_tap_rtd_cb()
  *
  * Output rtd tap:
@@ -1833,6 +1968,7 @@ sharkd_session_process_tap_rtp_cb(void *arg)
  *                  (m) type - tap output type
  *                  ...
  *                  for type:stats see sharkd_session_process_tap_stats_cb()
+ *                  for type:nstat see sharkd_session_process_tap_nstat_cb()
  *                  for type:conv see sharkd_session_process_tap_conv_cb()
  *                  for type:host see sharkd_session_process_tap_conv_cb()
  *                  for type:rtp-streams see sharkd_session_process_tap_rtp_cb()
@@ -1950,6 +2086,28 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 
 			tap_data = &ct_data->hash;
 			tap_free = sharkd_session_free_tap_conv_cb;
+		}
+		else if (!strncmp(tok_tap, "nstat:", 6))
+		{
+			stat_tap_table_ui *stat = new_stat_tap_by_name(tok_tap + 6);
+			new_stat_data_t *stat_data;
+
+			if (!stat)
+			{
+				fprintf(stderr, "sharkd_session_process_tap() nstat=%s not found\n", tok_tap + 6);
+				continue;
+			}
+
+			stat->stat_tap_init_cb(stat, NULL, NULL);
+
+			stat_data = g_new0(new_stat_data_t, 1);
+			stat_data->stat_tap_data = stat;
+			stat_data->user_data = NULL;
+
+			tap_error = register_tap_listener(stat->tap_name, stat_data, tap_filter, 0, NULL, stat->packet_func, sharkd_session_process_tap_nstat_cb);
+
+			tap_data = stat_data;
+			tap_free = sharkd_session_free_tap_nstat_cb;
 		}
 		else if (!strncmp(tok_tap, "rtd:", 4))
 		{

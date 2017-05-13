@@ -181,6 +181,8 @@ WS_DLL_PUBLIC stat_tap_table_item_type* new_stat_tap_get_field_data(const stat_t
 WS_DLL_PUBLIC void new_stat_tap_set_field_data(stat_tap_table *stat_table, guint table_index, guint field_index, stat_tap_table_item_type* field_data);
 WS_DLL_PUBLIC void reset_stat_table(stat_tap_table_ui* new_stat, new_stat_tap_gui_reset_cb gui_callback, void *callback_data);
 
+WS_DLL_PUBLIC stat_tap_table_ui *new_stat_tap_by_name(const char *name);
+
 /** Free all of the tables associated with a stat_tap_table_ui.
  *
  * Frees data created by stat_tap_ui.stat_tap_init_cb.
