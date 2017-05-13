@@ -825,8 +825,6 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     }
   case SSL_ID_HANDSHAKE:
     {
-      ssl_calculate_handshake_hash(ssl, tvb, offset, record_length);
-
       /* try to retrieve and use decrypted handshake record, if any. */
       if (decrypted) {
         dissect_dtls_handshake(decrypted, pinfo, dtls_record_tree, 0,
@@ -1055,6 +1053,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
       tvbuff_t      *new_tvb  = NULL;
       const gchar   *frag_str = NULL;
       gboolean       fragmented;
+      guint32        hs_offset = offset;
 
       /* add a subtree for the handshake protocol */
       ti = proto_tree_add_item(tree, hf_dtls_handshake_protocol, tvb, offset, -1, ENC_NA);
@@ -1246,6 +1245,29 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
           sub_tvb = tvb_new_subset_length(tvb, offset, fragment_length);
         }
 
+        /*
+         * Add handshake message (including type, length, etc.) to hash (for
+         * Extended Master Secret). The computation must however happen as if
+         * the message was sent in a single fragment (RFC 6347, section 4.2.6).
+         */
+        if (fragment_offset == 0) {
+          /* Unfragmented packet. */
+          ssl_calculate_handshake_hash(ssl, tvb, hs_offset, 12 + fragment_length);
+        } else {
+          /*
+           * Handshake message was fragmented over multiple messages, fake a
+           * single fragment and add reassembled data.
+           */
+          /* msg_type (1), length (3), message_seq (2) */
+          ssl_calculate_handshake_hash(ssl, tvb, hs_offset, 6);
+          /* fragment_offset (3) equals to zero. */
+          ssl_calculate_handshake_hash(ssl, NULL, 0, 3);
+          /* fragment_length (3) equals to length. */
+          ssl_calculate_handshake_hash(ssl, tvb, hs_offset + 1, 3);
+          /* actual handshake data */
+          ssl_calculate_handshake_hash(ssl, sub_tvb, 0, length);
+        }
+
         /* now dissect the handshake message, if necessary */
         switch ((HandshakeType) msg_type) {
           case SSL_HND_HELLO_REQUEST:
@@ -1268,6 +1290,18 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
           case SSL_HND_HELLO_VERIFY_REQUEST:
+            /*
+             * The initial ClientHello and HelloVerifyRequest are not included
+             * in the calculation of the handshake_messages
+             * (https://tools.ietf.org/html/rfc6347#page-18). This is also
+             * important for correct calculation of Extended Master Secret.
+             */
+            if (ssl && ssl->handshake_data.data_len) {
+              ssl_debug_printf("%s erasing previous handshake_messages: %d\n", G_STRFUNC, ssl->handshake_data.data_len);
+              wmem_free(wmem_file_scope(), ssl->handshake_data.data);
+              ssl->handshake_data.data = NULL;
+              ssl->handshake_data.data_len = 0;
+            }
             dissect_dtls_hnd_hello_verify_request(&dissect_dtls_hf, sub_tvb, pinfo,
                                                   ssl_hand_tree, 0, length);
             break;

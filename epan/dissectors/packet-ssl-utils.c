@@ -8496,7 +8496,11 @@ ssl_calculate_handshake_hash(SslDecryptSession *ssl_session, tvbuff_t *tvb, guin
         guint32 old_length = ssl_session->handshake_data.data_len;
         ssl_debug_printf("Calculating hash with offset %d %d\n", offset, length);
         ssl_session->handshake_data.data = (guchar *)wmem_realloc(wmem_file_scope(), ssl_session->handshake_data.data, old_length + length);
-        tvb_memcpy(tvb, ssl_session->handshake_data.data + old_length, offset, length);
+        if (tvb) {
+            tvb_memcpy(tvb, ssl_session->handshake_data.data + old_length, offset, length);
+        } else {
+            memset(ssl_session->handshake_data.data + old_length, 0, length);
+        }
         ssl_session->handshake_data.data_len += length;
     }
 }

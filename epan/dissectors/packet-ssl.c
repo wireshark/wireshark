@@ -1728,7 +1728,6 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         }
         break;
     case SSL_ID_HANDSHAKE:
-        ssl_calculate_handshake_hash(ssl, tvb, offset, record_length);
         if (decrypted) {
             dissect_ssl3_handshake(decrypted, pinfo, ssl_record_tree, 0,
                                    tvb_reported_length(decrypted), FALSE, session,
@@ -1941,6 +1940,8 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
     record_length += offset;
     while (offset < record_length)
     {
+        guint32 hs_offset = offset;
+
         msg_type = tvb_get_guint8(tvb, offset);
         length   = tvb_get_ntoh24(tvb, offset + 1);
 
@@ -2010,6 +2011,12 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_uint(ssl_hand_tree, hf_ssl_handshake_length,
                 tvb, offset, 3, length);
         offset += 3;
+
+        /*
+         * Add handshake message (including type, length, etc.) to hash (for
+         * Extended Master Secret).
+         */
+        ssl_calculate_handshake_hash(ssl, tvb, hs_offset, 4 + length);
 
         /* now dissect the handshake message, if necessary */
         switch ((HandshakeType) msg_type) {
