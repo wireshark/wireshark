@@ -1934,12 +1934,12 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="compiled_filter_output.cpp" line="48"/>
+        <location filename="compiled_filter_output.cpp" line="51"/>
         <source>Copy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="compiled_filter_output.cpp" line="49"/>
+        <location filename="compiled_filter_output.cpp" line="52"/>
         <source>Copy filter text to the clipboard.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -15594,22 +15594,22 @@ a:hover {
 <context>
     <name>WiresharkApplication</name>
     <message>
-        <location filename="wireshark_application.cpp" line="576"/>
+        <location filename="wireshark_application.cpp" line="584"/>
         <source>Dell Backup and Recovery Found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="577"/>
+        <location filename="wireshark_application.cpp" line="585"/>
         <source>You appear to be running Dell Backup and Recovery 1.8.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="578"/>
+        <location filename="wireshark_application.cpp" line="586"/>
         <source>DBAR can make many applications crash &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;including Wireshark&lt;/a&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="582"/>
+        <location filename="wireshark_application.cpp" line="590"/>
         <source>Offending DLL: %1</source>
         <translation type="unfinished"></translation>
     </message>

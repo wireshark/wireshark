@@ -7798,8 +7798,8 @@ batman           4305/tcp # better approach to mobile ad-hoc networking [Simon_W
 batman           4305/udp # better approach to mobile ad-hoc networking [Simon_Wunderlich] [Simon_Wunderlich] 2007-08-30
 pinghgl          4306/tcp # Hellgate London [David_Berk] [David_Berk] 2007-08-30
 pinghgl          4306/udp # Hellgate London [David_Berk] [David_Berk] 2007-08-30
-visicron-vs      4307/tcp # Visicron Videoconference Service [Alexey_Vlaskin] [Alexey_Vlaskin] 2007-10-22
-visicron-vs      4307/udp # Visicron Videoconference Service [Alexey_Vlaskin] [Alexey_Vlaskin] 2007-10-22
+trueconf         4307/tcp # TrueConf Videoconference Service [Dmitry_Odintsov] [Lev_Yakupov] 2007-10-22 2017-05-12
+trueconf         4307/udp # TrueConf Videoconference Service [Dmitry_Odintsov] [Lev_Yakupov] 2007-10-22 2017-05-12
 compx-lockview   4308/tcp # CompX-LockView [John_Payson] [John_Payson] 2007-10-22
 compx-lockview   4308/udp # CompX-LockView [John_Payson] [John_Payson] 2007-10-22
 dserver          4309/tcp # Exsequi Appliance Discovery [Angelo_Masci] [Angelo_Masci] 2007-01
@@ -10196,6 +10196,7 @@ sunwebadmin      8800/tcp # Sun Web Server Admin Service [Jyri_J_Virkki] [Jyri_J
 sunwebadmin      8800/udp # Sun Web Server Admin Service [Jyri_J_Virkki] [Jyri_J_Virkki] 2005-12
 truecm           8804/tcp # truecm [Scott_Kramer] [Scott_Kramer]
 truecm           8804/udp # truecm [Scott_Kramer] [Scott_Kramer]
+pfcp             8805/udp # Destination Port number for PFCP [Kimmo_Kymalainen] [Kimmo_Kymalainen] 2017-05-08
 ssports-bcast    8808/udp # STATSports Broadcast Service [Statsports_International] [Catalin_Caranfil] 2016-12-22
 dxspider         8873/tcp # dxspider linking protocol [Dirk_Koopman] [Dirk_Koopman] 2005-08
 dxspider         8873/udp # dxspider linking protocol [Dirk_Koopman] [Dirk_Koopman] 2005-08
@@ -10555,6 +10556,7 @@ alljoyn          9956/udp # Alljoyn Name Service [Qualcomm_Innovation_Center] [C
 odnsp            9966/tcp # OKI Data Network Setting Protocol [Masato_Sato] [Masato_Sato] 2006-05
 odnsp            9966/udp # OKI Data Network Setting Protocol [Masato_Sato] [Masato_Sato] 2006-05
 xybrid-rt        9978/tcp # XYBRID RT Server [Rx_Networks_Inc] [Drew_Davies] 2013-01-24
+visweather       9979/tcp # Valley Information Systems Weather station data [Valley_Information_Systems_Inc] [Michael_Walsh_2] 2017-05-12
 pumpkindb        9981/tcp # Event sourcing database engine with a built-in programming language [Eventsourcing_Inc] [Yurii_Rashkovskii] 2017-04-18
 dsm-scm-target   9987/tcp # DSM/SCM Target Interface [Mike_Dyslin] [Mike_Dyslin] 2006-08
 dsm-scm-target   9987/udp # DSM/SCM Target Interface [Mike_Dyslin] [Mike_Dyslin] 2006-08
@@ -11446,7 +11448,7 @@ turbonote-1     39681/tcp # TurboNote Default Port [Peter_Hyde] [Peter_Hyde]
 turbonote-1     39681/udp # TurboNote Default Port [Peter_Hyde] [Peter_Hyde]
 safetynetp      40000/tcp # SafetyNET p [Roland_Rupp] [Roland_Rupp] 2006-11
 safetynetp      40000/udp # SafetyNET p [Roland_Rupp] [Roland_Rupp] 2006-11
-k-patentssensor 40023/udp # K-PatentsSensorInformation [K-Patents_Oy] [Arttu_Leinonen] 2015-12-02
+k-patentssensor 40023/udp # K-PatentsSensorInformation [K-Patents_Oy] [Saku_Lahteenmaki] 2015-12-02 2017-05-12
 sptx            40404/tcp # Simplify Printing TX [Tricerat] [Eric_Musgrave] 2013-12-09
 cscp            40841/tcp # CSCP [Michael_Dodge] [Michael_Dodge]
 cscp            40841/udp # CSCP [Michael_Dodge] [Michael_Dodge]

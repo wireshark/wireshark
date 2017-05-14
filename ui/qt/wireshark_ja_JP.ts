@@ -800,10 +800,6 @@
         <translation>16進数でバイト列を表示</translation>
     </message>
     <message>
-        <source>Show bytes as bits</source>
-        <translation type="vanished">ビットでバイト列を表示</translation>
-    </message>
-    <message>
         <location filename="byte_view_text.cpp" line="300"/>
         <source>Byte %1</source>
         <translation>バイト %1</translation>
@@ -909,18 +905,6 @@
         </translation>
     </message>
     <message>
-        <source>Packets:</source>
-        <translation type="vanished">パケット:</translation>
-    </message>
-    <message>
-        <source>First Packet:</source>
-        <translation type="vanished">最初のパケット</translation>
-    </message>
-    <message>
-        <source>Elapsed Time:</source>
-        <translation type="vanished">経過時間:</translation>
-    </message>
-    <message>
         <location filename="capture_file_dialog.cpp" line="455"/>
         <source>Prepend packets</source>
         <translation>前にパケットを挿入</translation>
@@ -954,26 +938,6 @@
         <location filename="capture_file_dialog.cpp" line="480"/>
         <source>Read filter:</source>
         <translation>読込フィルタ:</translation>
-    </message>
-    <message>
-        <source>Automatic</source>
-        <translation type="vanished">自動</translation>
-    </message>
-    <message>
-        <source>&amp;MAC name resolution</source>
-        <translation type="vanished">MACアドレスの名前解決(&amp;M)</translation>
-    </message>
-    <message>
-        <source>&amp;Transport name resolution</source>
-        <translation type="vanished">トランスポート層の名前解決(&amp;T)</translation>
-    </message>
-    <message>
-        <source>&amp;Network name resolution</source>
-        <translation type="vanished">ネットワーク層の名前解決(&amp;N)</translation>
-    </message>
-    <message>
-        <source>&amp;External name resolver</source>
-        <translation type="vanished">外部の名前解決(&amp;E)</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="498"/>
@@ -1015,10 +979,6 @@
         <translation>キャプチャファイルを結合</translation>
     </message>
     <message>
-        <source>-</source>
-        <translation type="vanished">-</translation>
-    </message>
-    <message>
         <location filename="capture_file_dialog.cpp" line="733"/>
         <source>directory</source>
         <translation>ディレクトリ</translation>
@@ -1032,22 +992,6 @@
         <location filename="capture_file_dialog.cpp" line="742"/>
         <source>error opening file</source>
         <translation>ファイルオープンエラー</translation>
-    </message>
-    <message>
-        <source>%1 bytes</source>
-        <translation type="vanished">%1 バイト</translation>
-    </message>
-    <message>
-        <source>error after reading %1 packets</source>
-        <translation type="vanished">%1 個のパケットを読み込み後にエラー</translation>
-    </message>
-    <message>
-        <source>more than %1 (preview timeout)</source>
-        <translation type="vanished">%1 超過(プレビュータイムアウト)</translation>
-    </message>
-    <message>
-        <source>?</source>
-        <translation type="vanished">？</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="821"/>
@@ -1233,10 +1177,6 @@
         <translation>マーク済</translation>
     </message>
     <message>
-        <source>N/A</source>
-        <translation type="vanished">N/A</translation>
-    </message>
-    <message>
         <location filename="capture_file_properties_dialog.cpp" line="378"/>
         <source>Packets</source>
         <translation>パケット数</translation>
@@ -1349,15 +1289,6 @@
         <location filename="capture_filter_edit.cpp" line="382"/>
         <source>Manage Capture Filters</source>
         <translation>キャプチャフィルタ管理</translation>
-    </message>
-    <message>
-        <source>Unable to save capture filter settings.</source>
-        <translation type="vanished">キャプチャフィルタ設定を保存できません</translation>
-    </message>
-    <message>
-        <source>Could not save to your capture filter file
-&quot;%1&quot;: %2.</source>
-        <translation type="obsolete">キャプチャフィルタファイルを保存できません &quot;%1&quot;: %2.</translation>
     </message>
 </context>
 <context>
@@ -1738,13 +1669,13 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="capture_interfaces_dialog.cpp" line="923"/>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
         <oldsource>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</oldsource>
-        <translation type="unfinished">複数ファイル:要求したファイルサイズが大きすぎます! ファイルサイズは2GBより大きくできません</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="898"/>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
         <oldsource>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</oldsource>
-        <translation type="unfinished">複数ファイル:キャプチャファイル名が指定されていません! 複数ファイルを利用したい場合にはファイル名を指定しなければなりません</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="902"/>
@@ -1752,7 +1683,7 @@ PLEASE NOTE: One option MUST be selected.</source>
  if you want to use multiple files.</source>
         <oldsource>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</oldsource>
-        <translation type="unfinished">複数ファイル:ファイルの限界が指定されていません 次のキャプチャファイルへ切り替えるためのファイルサイズか間隔を指定する必要があります。</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1921,11 +1852,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will disable them.</source>
-        <oldsource>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</oldsource>
-        <translation type="obsolete">Wiresharkはひとつかそれ以上の色付けルールを認識できません。保存は破棄されます。</translation>
-    </message>
-    <message>
         <location filename="coloring_rules_dialog.cpp" line="378"/>
         <source>Unable to save coloring rules: %s</source>
         <translation>色付けルール %s を保存できません</translation>
@@ -2006,12 +1932,12 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>コンパイル済フィルタ出力</translation>
     </message>
     <message>
-        <location filename="compiled_filter_output.cpp" line="48"/>
+        <location filename="compiled_filter_output.cpp" line="51"/>
         <source>Copy</source>
         <translation>コピー</translation>
     </message>
     <message>
-        <location filename="compiled_filter_output.cpp" line="49"/>
+        <location filename="compiled_filter_output.cpp" line="52"/>
         <source>Copy filter text to the clipboard.</source>
         <translation>フィルタテキストをクリップボードにコピーします</translation>
     </message>
@@ -2198,15 +2124,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>フィルタ表示式を管理</translation>
     </message>
     <message>
-        <source>Unable to save display filter settings.</source>
-        <translation type="vanished">表示フィルタ設定を保存できません</translation>
-    </message>
-    <message>
-        <source>Could not save to your display filter file
-&quot;%1&quot;: %2.</source>
-        <translation type="obsolete">表示フィルタファイルへ保存できません。&quot;%1&quot;: %2</translation>
-    </message>
-    <message>
         <location filename="display_filter_edit.cpp" line="363"/>
         <source>Remove this filter</source>
         <translation>このフィルタを削除</translation>
@@ -2244,22 +2161,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="display_filter_expression_dialog.ui" line="54"/>
         <source>Search:</source>
         <translation>検索:</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Relations can be used to restrict fields to specific values. Each relation does the following:&lt;/p&gt;
-&lt;table&gt;&lt;tbody&gt;
-&lt;tr&gt;&lt;th&gt;is present&lt;/th&gt;&lt;td&gt;Match any packet that contains this field&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;th&gt;==, !=, etc.&lt;/th&gt;&lt;td&gt;Compare the field to a specific value.&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;th&gt;contains, matches&lt;/th&gt;&lt;td&gt;Check the field against a string (contains) or a regular expression (matches)&lt;/td&gt;&lt;/tr&gt;
-&lt;/tbody&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;リレーションは特定の値へフィールドを制限するために用いられます。それぞれのリレーションは以下になります:&lt;/p&gt;
-&lt;table&gt;&lt;tbody&gt;
-&lt;tr&gt;&lt;th&gt;is present&lt;/th&gt;&lt;td&gt;Match any packet that contains this field&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;th&gt;==, !=, etc.&lt;/th&gt;&lt;td&gt;Compare the field to a specific value.&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;th&gt;contains, matches&lt;/th&gt;&lt;td&gt;Check the field against a string (contains) or a regular expression (matches)&lt;/td&gt;&lt;/tr&gt;
-&lt;/tbody&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="72"/>
@@ -2776,7 +2677,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="extcap_options_dialog.cpp" line="111"/>
         <source>Interface Options</source>
         <oldsource>Extcap Interface Options</oldsource>
-        <translation type="unfinished">Extcapインターフェースオプション</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="extcap_options_dialog.cpp" line="81"/>
@@ -2933,34 +2834,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>New display filter</source>
         <extracomment>This text is automatically filled in when a new filter is created</extracomment>
         <translation>新規表示フィルタ</translation>
-    </message>
-    <message>
-        <source>Unable to create profile directory.</source>
-        <translation type="vanished">プロファイルのディレクトリを作成できません</translation>
-    </message>
-    <message>
-        <source>Unable to create directory
-&quot;%1&quot;
-for filter files: %2.</source>
-        <translation type="vanished">ディレクトリを作成できません。&quot;%1&quot; フィルタファイル: %2</translation>
-    </message>
-    <message>
-        <source>Unable to save capture filter settings.</source>
-        <translation type="vanished">キャプチャフィルタ設定を保存できません。</translation>
-    </message>
-    <message>
-        <source>Could not save to your capture filter file
-&quot;%1&quot;: %2.</source>
-        <translation type="vanished">キャプチャフィルタファイルを保存できません &quot;%1&quot;: %2.</translation>
-    </message>
-    <message>
-        <source>Unable to save display filter settings.</source>
-        <translation type="vanished">表示フィルタ設定を保存できません</translation>
-    </message>
-    <message>
-        <source>Could not save to your display filter file
-&quot;%1&quot;: %2.</source>
-        <translation type="vanished">表示フィルタファイルへ保存できません。&quot;%1&quot;: %2</translation>
     </message>
 </context>
 <context>
@@ -3476,10 +3349,6 @@ for filter files: %2.</source>
         <location filename="gsm_map_summary_dialog.cpp" line="183"/>
         <source>Packets</source>
         <translation>パケット</translation>
-    </message>
-    <message>
-        <source>N/A</source>
-        <translation type="vanished">N/A</translation>
     </message>
     <message>
         <location filename="gsm_map_summary_dialog.cpp" line="240"/>
@@ -4346,10 +4215,6 @@ for filter files: %2.</source>
         <translation>RTPデータを保存できません。</translation>
     </message>
     <message>
-        <source>Please select an IAX2 packet</source>
-        <translation type="vanished">IAX2パケットを選んでください</translation>
-    </message>
-    <message>
         <location filename="iax2_analysis_dialog.cpp" line="323"/>
         <location filename="iax2_analysis_dialog.cpp" line="344"/>
         <source>Please select an IAX2 packet.</source>
@@ -4852,41 +4717,6 @@ for filter files: %2.</source>
     </message>
 </context>
 <context>
-    <name>InterfaceTree</name>
-    <message>
-        <source>Welcome screen list</source>
-        <translation type="vanished">ようこそ画面一覧</translation>
-    </message>
-    <message>
-        <source>Waiting for startup%1</source>
-        <translation type="vanished">開始までお待ちください%1</translation>
-    </message>
-    <message>
-        <source>Interface information not available</source>
-        <translation type="vanished">インターフェース情報が利用できません</translation>
-    </message>
-    <message>
-        <source>Addresses</source>
-        <translation type="vanished">アドレス</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="vanished">アドレス</translation>
-    </message>
-    <message>
-        <source>No addresses</source>
-        <translation type="vanished">アドレスなし</translation>
-    </message>
-    <message>
-        <source>No capture filter</source>
-        <translation type="vanished">キャプチャフィルタなし</translation>
-    </message>
-    <message>
-        <source>Capture filter</source>
-        <translation type="vanished">キャプチャフィルタ</translation>
-    </message>
-</context>
-<context>
     <name>InterfaceTreeModel</name>
     <message>
         <location filename="interface_tree_model.cpp" line="81"/>
@@ -4902,12 +4732,12 @@ for filter files: %2.</source>
     <message>
         <location filename="interface_tree_model.cpp" line="269"/>
         <source>Friendly Name</source>
-        <translation type="unfinished">フレンドリ名</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="273"/>
         <source>Interface Name</source>
-        <translation type="unfinished">インターフェース名</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="277"/>
@@ -4967,12 +4797,12 @@ for filter files: %2.</source>
     <message>
         <location filename="interface_tree_model.cpp" line="373"/>
         <source>No addresses</source>
-        <translation type="unfinished">アドレスなし</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="380"/>
         <source>No capture filter</source>
-        <translation type="unfinished">キャプチャフィルタなし</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="385"/>
@@ -6989,7 +6819,7 @@ for filter files: %2.</source>
         <location filename="main_status_bar.cpp" line="427"/>
         <source>Packets: %1 %4 Displayed: %2 (%3%)</source>
         <oldsource>Packets: %1 %4 Displayed: %2 %4 Marked: %3</oldsource>
-        <translation type="unfinished">パケット数: %1 %4 表示: %2 (%3%)</translation>
+        <translation>パケット数: %1 %4 表示: %2 (%3%)</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="433"/>
@@ -7154,12 +6984,12 @@ a:hover {
     <message>
         <location filename="main_welcome.cpp" line="67"/>
         <source>Show in Finder</source>
-        <translation type="unfinished">ファインダーで表示</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="main_welcome.cpp" line="69"/>
         <source>Show in Folder</source>
-        <translation type="unfinished">フォルダで表示</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="main_welcome.cpp" line="230"/>
@@ -7169,6 +6999,7 @@ a:hover {
     <message numerus="yes">
         <location filename="main_welcome.cpp" line="232"/>
         <source>%n interface(s) shown, %1 hidden</source>
+        <oldsource>%Ln interface(s) shown</oldsource>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
@@ -8689,18 +8520,6 @@ a:hover {
         <translation>PDML XMLとして…</translation>
     </message>
     <message>
-        <source>&amp;HTTP…</source>
-        <translation type="vanished">HTTP…(&amp;H)</translation>
-    </message>
-    <message>
-        <source>&amp;DICOM…</source>
-        <translation type="vanished">DICOM…(&amp;H)</translation>
-    </message>
-    <message>
-        <source>&amp;SMB…</source>
-        <translation type="vanished">SMB…(&amp;S)</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1293"/>
         <source>All Visible Items</source>
         <translation>すべての見えている項目</translation>
@@ -8857,10 +8676,6 @@ a:hover {
         <location filename="main_window.ui" line="2088"/>
         <source>Show or hide the display filter toolbar</source>
         <translation>表示フィルタツールバーを表示もしくは非表示にします</translation>
-    </message>
-    <message>
-        <source>&amp;TFTP</source>
-        <translation type="vanished">TFTP(&amp;T)</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2093"/>
@@ -9921,18 +9736,6 @@ a:hover {
         <translation>表示</translation>
     </message>
     <message>
-        <source>Friendly Name</source>
-        <translation type="vanished">フレンドリ名</translation>
-    </message>
-    <message>
-        <source>Interface Name</source>
-        <translation type="vanished">インターフェース名</translation>
-    </message>
-    <message>
-        <source>Comment</source>
-        <translation type="vanished">コメント</translation>
-    </message>
-    <message>
         <location filename="manage_interfaces_dialog.ui" line="59"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a pipe to capture from or remove an existing pipe from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;一覧からキャプチャするパイプを追加したり、既存のパイプを削除します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -9941,10 +9744,6 @@ a:hover {
         <location filename="manage_interfaces_dialog.ui" line="62"/>
         <source>Pipes</source>
         <translation>パイプ</translation>
-    </message>
-    <message>
-        <source>Named Pipe Path</source>
-        <translation type="vanished">名前付きパイプパス</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.ui" line="101"/>
@@ -10004,15 +9803,7 @@ a:hover {
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="227"/>
         <source>New Pipe</source>
-        <translation type="unfinished">新規パイプ</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="vanished">エラー</translation>
-    </message>
-    <message>
-        <source>Default interface cannot be hidden.</source>
-        <translation type="vanished">デフォルトのインターフェースは非表示にできません</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10089,10 +9880,6 @@ a:hover {
         <location filename="mtp3_summary_dialog.cpp" line="188"/>
         <source>Packets</source>
         <translation>パケット</translation>
-    </message>
-    <message>
-        <source>N/A</source>
-        <translation type="vanished">N/A</translation>
     </message>
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="200"/>
@@ -10633,18 +10420,6 @@ a:hover {
         <source>Preferences</source>
         <translation>設定</translation>
     </message>
-    <message>
-        <source>Unknown</source>
-        <translation type="vanished">不明</translation>
-    </message>
-    <message>
-        <source>Default</source>
-        <translation type="vanished">デフォルト</translation>
-    </message>
-    <message>
-        <source>Changed</source>
-        <translation type="vanished">変更された</translation>
-    </message>
 </context>
 <context>
     <name>PrintDialog</name>
@@ -10720,7 +10495,7 @@ a:hover {
         <location filename="profile_dialog.ui" line="60"/>
         <source>Remove this profile. System provided profiles cannot be removed.</source>
         <oldsource>Remove this profile. The Default profile and system provided profiles cannot be removed.</oldsource>
-        <translation type="unfinished">このプロファイルを削除します デフォルトプロファイルとシステム提供プロファイルは削除できません</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="profile_dialog.ui" line="71"/>
@@ -10965,7 +10740,7 @@ a:hover {
     <message>
         <location filename="preferences_dialog.cpp" line="125"/>
         <source>Changed</source>
-        <translation type="unfinished">変更された</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="preferences_dialog.cpp" line="143"/>
@@ -10976,11 +10751,6 @@ a:hover {
         <location filename="preferences_dialog.cpp" line="153"/>
         <source>Default value is empty</source>
         <translation>デフォルト値は空です</translation>
-    </message>
-    <message>
-        <source>Average Througput (bits/s)</source>
-        <oldsource>Avgerage Througput (bits/s)</oldsource>
-        <translation type="vanished">平均スループット(ビット毎秒)</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.cpp" line="81"/>
@@ -11128,10 +10898,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>N/A</source>
-        <translation type="vanished">未指定</translation>
-    </message>
-    <message>
         <location filename="endpoint_dialog.cpp" line="47"/>
         <source>Endpoint</source>
         <translation>終端</translation>
@@ -11150,10 +10916,6 @@ a:hover {
         <location filename="filter_action.cpp" line="71"/>
         <source>Find</source>
         <translation>検索</translation>
-    </message>
-    <message>
-        <source>Conversation Filter</source>
-        <translation type="vanished">対話フィルタ</translation>
     </message>
     <message>
         <location filename="filter_action.cpp" line="74"/>
@@ -11214,29 +10976,9 @@ a:hover {
         <translation>このメッセージは再度表示されません</translation>
     </message>
     <message>
-        <source>New Pipe</source>
-        <translation type="vanished">新規パイプ</translation>
-    </message>
-    <message>
         <location filename="rtp_stream_dialog.cpp" line="128"/>
         <source>%1 (%L2%)</source>
         <translation>1 (%L2%)</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="vanished">エラー</translation>
-    </message>
-    <message>
-        <source>On</source>
-        <translation type="vanished">On</translation>
-    </message>
-    <message>
-        <source>Off</source>
-        <translation type="vanished">Off</translation>
-    </message>
-    <message>
-        <source>Tunneling: %1  Fast Start: %2</source>
-        <translation type="vanished">トンネリング: %1  高速開始: %2</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.cpp" line="171"/>
@@ -11528,14 +11270,6 @@ a:hover {
         <location filename="lte_rlc_statistics_dialog.cpp" line="632"/>
         <source>Priority</source>
         <translation>優先度</translation>
-    </message>
-    <message>
-        <source>Show in Finder</source>
-        <translation type="vanished">ファインダーで表示</translation>
-    </message>
-    <message>
-        <source>Show in Folder</source>
-        <translation type="vanished">フォルダで表示</translation>
     </message>
     <message>
         <location filename="filter_expressions_preferences_frame.cpp" line="279"/>
@@ -12196,38 +11930,34 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Audio</source>
-        <translation type="vanished">音声</translation>
-    </message>
-    <message>
         <location filename="rtp_analysis_dialog.ui" line="336"/>
         <source>Save the unsynchronized audio data for both channels.</source>
         <oldsource>Save the audio data for both channels.</oldsource>
-        <translation type="unfinished">両チャンネルの音声データを保存します</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="341"/>
         <source>Unsynchronized Forward Stream Audio</source>
         <oldsource>Forward Stream Audio</oldsource>
-        <translation type="unfinished">順方向のストリーム音声</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="344"/>
         <source>Save the unsynchronized forward stream audio data.</source>
         <oldsource>Save the forward stream audio data.</oldsource>
-        <translation type="unfinished">順方向のストリーム音声データを保存します</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="349"/>
         <source>Unsynchronized Reverse Stream Audio</source>
         <oldsource>Reverse Stream Audio</oldsource>
-        <translation type="unfinished">逆方向のストリーム音声</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="352"/>
         <source>Save the unsynchronized reverse stream audio data.</source>
         <oldsource>Save the reverse stream audio data.</oldsource>
-        <translation type="unfinished">逆方向のストリーム音声データを保存します</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="357"/>
@@ -12406,17 +12136,9 @@ a:hover {
         <translation>逆方向ストリーム音声を保存</translation>
     </message>
     <message>
-        <source>Save audio</source>
-        <translation type="vanished">音声を保存</translation>
-    </message>
-    <message>
         <location filename="rtp_analysis_dialog.cpp" line="1412"/>
         <source>Sun Audio (*.au)</source>
         <translation>Sun音声形式 (*.au)</translation>
-    </message>
-    <message>
-        <source>;;Raw (*.raw)</source>
-        <translation type="vanished">;;Raw(無加工)形式 (*.raw)</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1272"/>
@@ -12430,10 +12152,6 @@ a:hover {
         <location filename="rtp_analysis_dialog.cpp" line="1434"/>
         <source>Unable to save in that format</source>
         <translation>その形式では保存できません</translation>
-    </message>
-    <message>
-        <source>Can&apos;t save in a file: saving in au format supported only for alaw/ulaw streams</source>
-        <translation type="vanished">ファイルに保存できません: AU形式での保存はalaw/ulawストリームのみサポートされています</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1446"/>
@@ -14737,10 +14455,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Loading configuration files</source>
-        <translation type="vanished">設定ファイルを読込中</translation>
-    </message>
-    <message>
         <location filename="splash_overlay.cpp" line="178"/>
         <source>(Unknown action)</source>
         <translation>(不明な動作)</translation>
@@ -15457,10 +15171,6 @@ a:hover {
         <translation>シーケンス番号 (tcptrace)</translation>
     </message>
     <message>
-        <source> (1s MA)</source>
-        <translation type="vanished"> (1s MA)</translation>
-    </message>
-    <message>
         <location filename="tcp_stream_dialog.cpp" line="1090"/>
         <source> (MA)</source>
         <translation type="unfinished"></translation>
@@ -15783,53 +15493,9 @@ a:hover {
         <source>Open </source>
         <translation>開く </translation>
     </message>
-    <message>
-        <source>Uneven number of chars hex string (%1)</source>
-        <translation type="vanished">奇数番号の16進数文字(%1)</translation>
-    </message>
-    <message>
-        <source>Error parsing hex string</source>
-        <translation type="vanished">16進数文字列の解釈エラー</translation>
-    </message>
 </context>
 <context>
     <name>VoipCallsDialog</name>
-    <message>
-        <source>Start Time</source>
-        <translation type="vanished">開始時間</translation>
-    </message>
-    <message>
-        <source>Stop Time</source>
-        <translation type="vanished">停止時間</translation>
-    </message>
-    <message>
-        <source>Initial Speaker</source>
-        <translation type="vanished">初期話者</translation>
-    </message>
-    <message>
-        <source>From</source>
-        <translation type="vanished">送信元</translation>
-    </message>
-    <message>
-        <source>To</source>
-        <translation type="vanished">宛先</translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="vanished">プロトコル</translation>
-    </message>
-    <message>
-        <source>Packets</source>
-        <translation type="vanished">パケット</translation>
-    </message>
-    <message>
-        <source>State</source>
-        <translation type="vanished">状態</translation>
-    </message>
-    <message>
-        <source>Comments</source>
-        <translation type="vanished">コメント</translation>
-    </message>
     <message>
         <location filename="voip_calls_dialog.ui" line="39"/>
         <source>&lt;small&gt;&lt;/small&gt;</source>
@@ -15917,42 +15583,42 @@ a:hover {
     <message>
         <location filename="voip_calls_info_model.cpp" line="97"/>
         <source>On</source>
-        <translation type="unfinished">On</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="98"/>
         <source>Off</source>
-        <translation type="unfinished">Off</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="106"/>
         <source>Tunneling: %1  Fast Start: %2</source>
-        <translation type="unfinished">トンネリング: %1  高速開始: %2</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="126"/>
         <source>Start Time</source>
-        <translation type="unfinished">開始時間</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="128"/>
         <source>Stop Time</source>
-        <translation type="unfinished">停止時間</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="130"/>
         <source>Initial Speaker</source>
-        <translation type="unfinished">初期話者</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="132"/>
         <source>From</source>
-        <translation type="unfinished">送信元</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="134"/>
         <source>To</source>
-        <translation type="unfinished">宛先</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="136"/>
@@ -15972,12 +15638,12 @@ a:hover {
     <message>
         <location filename="voip_calls_info_model.cpp" line="142"/>
         <source>State</source>
-        <translation type="unfinished">状態</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="144"/>
         <source>Comments</source>
-        <translation type="unfinished">コメント</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -16072,22 +15738,22 @@ a:hover {
 <context>
     <name>WiresharkApplication</name>
     <message>
-        <location filename="wireshark_application.cpp" line="576"/>
+        <location filename="wireshark_application.cpp" line="584"/>
         <source>Dell Backup and Recovery Found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="577"/>
+        <location filename="wireshark_application.cpp" line="585"/>
         <source>You appear to be running Dell Backup and Recovery 1.8.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="578"/>
+        <location filename="wireshark_application.cpp" line="586"/>
         <source>DBAR can make many applications crash &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;including Wireshark&lt;/a&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="582"/>
+        <location filename="wireshark_application.cpp" line="590"/>
         <source>Offending DLL: %1</source>
         <translation type="unfinished"></translation>
     </message>

@@ -800,10 +800,6 @@
         <translation>以十六进制显示字节</translation>
     </message>
     <message>
-        <source>Show bytes as bits</source>
-        <translation type="vanished">以二进制显示字节</translation>
-    </message>
-    <message>
         <location filename="byte_view_text.cpp" line="300"/>
         <source>Byte %1</source>
         <translation>字节 %1</translation>
@@ -909,18 +905,6 @@
         </translation>
     </message>
     <message>
-        <source>Packets:</source>
-        <translation type="vanished">分组数目:</translation>
-    </message>
-    <message>
-        <source>First Packet:</source>
-        <translation type="vanished">首个分组:</translation>
-    </message>
-    <message>
-        <source>Elapsed Time:</source>
-        <translation type="vanished">已用时间:</translation>
-    </message>
-    <message>
         <location filename="capture_file_dialog.cpp" line="455"/>
         <source>Prepend packets</source>
         <translation>前置分组</translation>
@@ -954,26 +938,6 @@
         <location filename="capture_file_dialog.cpp" line="480"/>
         <source>Read filter:</source>
         <translation>读取过滤器:</translation>
-    </message>
-    <message>
-        <source>Automatic</source>
-        <translation type="vanished">自动</translation>
-    </message>
-    <message>
-        <source>&amp;MAC name resolution</source>
-        <translation type="vanished">MAC地址解析(&amp;M)</translation>
-    </message>
-    <message>
-        <source>&amp;Transport name resolution</source>
-        <translation type="vanished">传输层名称解析(&amp;T)</translation>
-    </message>
-    <message>
-        <source>&amp;Network name resolution</source>
-        <translation type="vanished">网络层名称解析(&amp;N)</translation>
-    </message>
-    <message>
-        <source>&amp;External name resolver</source>
-        <translation type="vanished">使用外部解析服务(&amp;E)</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="498"/>
@@ -1015,10 +979,6 @@
         <translation>合并捕获文件</translation>
     </message>
     <message>
-        <source>-</source>
-        <translation type="vanished">-</translation>
-    </message>
-    <message>
         <location filename="capture_file_dialog.cpp" line="733"/>
         <source>directory</source>
         <translation>目录</translation>
@@ -1032,22 +992,6 @@
         <location filename="capture_file_dialog.cpp" line="742"/>
         <source>error opening file</source>
         <translation>打开文件出错</translation>
-    </message>
-    <message>
-        <source>%1 bytes</source>
-        <translation type="vanished">%1 字节</translation>
-    </message>
-    <message>
-        <source>error after reading %1 packets</source>
-        <translation type="vanished">读取 %1 分组后出错</translation>
-    </message>
-    <message>
-        <source>more than %1 (preview timeout)</source>
-        <translation type="vanished">大于 %1 (预览超时)</translation>
-    </message>
-    <message>
-        <source>?</source>
-        <translation type="vanished">?</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="821"/>
@@ -1233,10 +1177,6 @@
         <translation>标记</translation>
     </message>
     <message>
-        <source>N/A</source>
-        <translation type="vanished">N/A</translation>
-    </message>
-    <message>
         <location filename="capture_file_properties_dialog.cpp" line="378"/>
         <source>Packets</source>
         <translation>分组</translation>
@@ -1349,16 +1289,6 @@
         <location filename="capture_filter_edit.cpp" line="382"/>
         <source>Manage Capture Filters</source>
         <translation>管理捕获筛选器</translation>
-    </message>
-    <message>
-        <source>Unable to save capture filter settings.</source>
-        <translation type="vanished">无法保存捕获筛选器设置。</translation>
-    </message>
-    <message>
-        <source>Could not save to your capture filter file
-&quot;%1&quot;: %2.</source>
-        <translation type="vanished">未能保存您的捕获过滤器文件
-“%1”：%2。</translation>
     </message>
 </context>
 <context>
@@ -1740,13 +1670,13 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="capture_interfaces_dialog.cpp" line="923"/>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
         <oldsource>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</oldsource>
-        <translation type="unfinished">多文件：请求的文件尺寸太大！文件尺寸不能超过2GiB。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="898"/>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
         <oldsource>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</oldsource>
-        <translation type="unfinished">多个文件：没有给出捕获文件名！如果您想使用多个文件，必须指定一个文件名。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="902"/>
@@ -1754,7 +1684,7 @@ PLEASE NOTE: One option MUST be selected.</source>
  if you want to use multiple files.</source>
         <oldsource>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</oldsource>
-        <translation type="unfinished">多个文件：未给出文件大小限制！如果您想使用多个文件，必须指定切换到下一个捕获文件的文件大小或者时长。</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1923,11 +1853,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will disable them.</source>
-        <oldsource>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</oldsource>
-        <translation type="obsolete">Wireshark 无法识别您的一个或多个着色规则。保存将会丢弃它们。</translation>
-    </message>
-    <message>
         <location filename="coloring_rules_dialog.cpp" line="378"/>
         <source>Unable to save coloring rules: %s</source>
         <translation>无法保存着色规则: %s</translation>
@@ -2008,12 +1933,12 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>编译的过滤器输出</translation>
     </message>
     <message>
-        <location filename="compiled_filter_output.cpp" line="48"/>
+        <location filename="compiled_filter_output.cpp" line="51"/>
         <source>Copy</source>
         <translation>复制</translation>
     </message>
     <message>
-        <location filename="compiled_filter_output.cpp" line="49"/>
+        <location filename="compiled_filter_output.cpp" line="52"/>
         <source>Copy filter text to the clipboard.</source>
         <translation>复制过滤器文本到剪贴板。</translation>
     </message>
@@ -2200,16 +2125,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>管理过滤器表达式</translation>
     </message>
     <message>
-        <source>Unable to save display filter settings.</source>
-        <translation type="vanished">无法保存显示过滤器设置。</translation>
-    </message>
-    <message>
-        <source>Could not save to your display filter file
-&quot;%1&quot;: %2.</source>
-        <translation type="vanished">未能保存您的显示过滤器文件
-“%1”：%2。</translation>
-    </message>
-    <message>
         <location filename="display_filter_edit.cpp" line="363"/>
         <source>Remove this filter</source>
         <translation>删除该过滤器</translation>
@@ -2247,22 +2162,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="display_filter_expression_dialog.ui" line="54"/>
         <source>Search:</source>
         <translation>搜索:</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Relations can be used to restrict fields to specific values. Each relation does the following:&lt;/p&gt;
-&lt;table&gt;&lt;tbody&gt;
-&lt;tr&gt;&lt;th&gt;is present&lt;/th&gt;&lt;td&gt;Match any packet that contains this field&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;th&gt;==, !=, etc.&lt;/th&gt;&lt;td&gt;Compare the field to a specific value.&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;th&gt;contains, matches&lt;/th&gt;&lt;td&gt;Check the field against a string (contains) or a regular expression (matches)&lt;/td&gt;&lt;/tr&gt;
-&lt;/tbody&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;“关系”可用于限定字段为指定的值。每项关系将执行下列操作：&lt;/p&gt;
-&lt;table&gt;&lt;tbody&gt;
-&lt;tr&gt;&lt;th&gt;目前在&lt;/th&gt;&lt;td&gt;匹配包含此字段的任何分组&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;th&gt;==、!= 等&lt;/th&gt;&lt;td&gt;在字段与指定值之间进行比较&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;th&gt;包含、匹配&lt;/th&gt;&lt;td&gt;检查该字段是否对应一个字符串（包含）或者正则表达式（匹配）&lt;/td&gt;&lt;/tr&gt;
-&lt;/tbody&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="72"/>
@@ -2670,7 +2569,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="export_dissection_dialog.cpp" line="99"/>
         <source>JSON (*.json)</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON (*.json)</translation>
     </message>
     <message>
         <location filename="export_dissection_dialog.cpp" line="100"/>
@@ -2779,7 +2678,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="extcap_options_dialog.cpp" line="111"/>
         <source>Interface Options</source>
         <oldsource>Extcap Interface Options</oldsource>
-        <translation type="unfinished">Extcap 接口选项</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="extcap_options_dialog.cpp" line="81"/>
@@ -2936,38 +2835,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>New display filter</source>
         <extracomment>This text is automatically filled in when a new filter is created</extracomment>
         <translation>新建显示过滤器</translation>
-    </message>
-    <message>
-        <source>Unable to create profile directory.</source>
-        <translation type="vanished">无法创建配置文件目录。</translation>
-    </message>
-    <message>
-        <source>Unable to create directory
-&quot;%1&quot;
-for filter files: %2.</source>
-        <translation type="vanished">无法创建目录
-“%1”
-为过滤器文件: %2。</translation>
-    </message>
-    <message>
-        <source>Unable to save capture filter settings.</source>
-        <translation type="vanished">无法保存捕获过滤器设置。</translation>
-    </message>
-    <message>
-        <source>Could not save to your capture filter file
-&quot;%1&quot;: %2.</source>
-        <translation type="vanished">未能保存您的捕获过滤器文件
-“%1”：%2。</translation>
-    </message>
-    <message>
-        <source>Unable to save display filter settings.</source>
-        <translation type="vanished">无法保存显示过滤器设置。</translation>
-    </message>
-    <message>
-        <source>Could not save to your display filter file
-&quot;%1&quot;: %2.</source>
-        <translation type="vanished">未能保存您的显示过滤器文件
-“%1”：%2。</translation>
     </message>
 </context>
 <context>
@@ -3197,7 +3064,7 @@ for filter files: %2.</source>
     <message>
         <location filename="follow_stream_dialog.cpp" line="137"/>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>返回</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="181"/>
@@ -3483,10 +3350,6 @@ for filter files: %2.</source>
         <location filename="gsm_map_summary_dialog.cpp" line="183"/>
         <source>Packets</source>
         <translation>分组</translation>
-    </message>
-    <message>
-        <source>N/A</source>
-        <translation type="vanished">不可用</translation>
     </message>
     <message>
         <location filename="gsm_map_summary_dialog.cpp" line="240"/>
@@ -4353,10 +4216,6 @@ for filter files: %2.</source>
         <translation>无法保存 RTP 数据。</translation>
     </message>
     <message>
-        <source>Please select an IAX2 packet</source>
-        <translation type="vanished">请选择一个 IAX2 分组</translation>
-    </message>
-    <message>
         <location filename="iax2_analysis_dialog.cpp" line="323"/>
         <location filename="iax2_analysis_dialog.cpp" line="344"/>
         <source>Please select an IAX2 packet.</source>
@@ -4859,46 +4718,7 @@ for filter files: %2.</source>
     </message>
 </context>
 <context>
-    <name>InterfaceTree</name>
-    <message>
-        <source>Welcome screen list</source>
-        <translation type="vanished">欢迎屏幕列表</translation>
-    </message>
-    <message>
-        <source>Waiting for startup%1</source>
-        <translation type="vanished">正在等待启动%1</translation>
-    </message>
-    <message>
-        <source>Interface information not available</source>
-        <translation type="vanished">接口信息不可用</translation>
-    </message>
-    <message>
-        <source>Addresses</source>
-        <translation type="vanished">地址</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="vanished">地址</translation>
-    </message>
-    <message>
-        <source>No addresses</source>
-        <translation type="vanished">无地址</translation>
-    </message>
-    <message>
-        <source>No capture filter</source>
-        <translation type="vanished">无捕获过滤器</translation>
-    </message>
-    <message>
-        <source>Capture filter</source>
-        <translation type="vanished">捕获过滤器</translation>
-    </message>
-</context>
-<context>
     <name>InterfaceTreeModel</name>
-    <message>
-        <source>default</source>
-        <translation type="obsolete">默认</translation>
-    </message>
     <message>
         <location filename="interface_tree_model.cpp" line="81"/>
         <source>No Interfaces found.</source>
@@ -4913,12 +4733,12 @@ for filter files: %2.</source>
     <message>
         <location filename="interface_tree_model.cpp" line="269"/>
         <source>Friendly Name</source>
-        <translation type="unfinished">友好名称</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="273"/>
         <source>Interface Name</source>
-        <translation type="unfinished">接口名</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="277"/>
@@ -4978,12 +4798,12 @@ for filter files: %2.</source>
     <message>
         <location filename="interface_tree_model.cpp" line="373"/>
         <source>No addresses</source>
-        <translation type="unfinished">无地址</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="380"/>
         <source>No capture filter</source>
-        <translation type="unfinished">无捕获过滤器</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="385"/>
@@ -6996,7 +6816,7 @@ for filter files: %2.</source>
         <location filename="main_status_bar.cpp" line="427"/>
         <source>Packets: %1 %4 Displayed: %2 (%3%)</source>
         <oldsource>Packets: %1 %4 Displayed: %2 %4 Marked: %3</oldsource>
-        <translation type="unfinished">分组: %1 %4 已显示: %2 (%3%)</translation>
+        <translation>分组: %1 %4 已显示: %2 (%3%)</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="433"/>
@@ -7191,12 +7011,12 @@ text-decoration: underline;
     <message>
         <location filename="main_welcome.cpp" line="67"/>
         <source>Show in Finder</source>
-        <translation type="unfinished">在 Finder 中显示</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="main_welcome.cpp" line="69"/>
         <source>Show in Folder</source>
-        <translation type="unfinished">在 Finder 中显示</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="main_welcome.cpp" line="230"/>
@@ -7206,6 +7026,7 @@ text-decoration: underline;
     <message numerus="yes">
         <location filename="main_welcome.cpp" line="232"/>
         <source>%n interface(s) shown, %1 hidden</source>
+        <oldsource>%Ln interface(s) shown</oldsource>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
@@ -7928,7 +7749,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1277"/>
         <source>As JSON…</source>
-        <translation type="unfinished"></translation>
+        <translation>为 JSON…</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1285"/>
@@ -8726,18 +8547,6 @@ text-decoration: underline;
         <translation>为 PDML XML…</translation>
     </message>
     <message>
-        <source>&amp;HTTP…</source>
-        <translation type="vanished">&amp;HTTP…</translation>
-    </message>
-    <message>
-        <source>&amp;DICOM…</source>
-        <translation type="vanished">&amp;DICOM…</translation>
-    </message>
-    <message>
-        <source>&amp;SMB…</source>
-        <translation type="vanished">&amp;SMB…</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1293"/>
         <source>All Visible Items</source>
         <translation>所有可见项目</translation>
@@ -8894,10 +8703,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="2088"/>
         <source>Show or hide the display filter toolbar</source>
         <translation>显示或隐藏显示过滤器工具栏</translation>
-    </message>
-    <message>
-        <source>&amp;TFTP</source>
-        <translation type="vanished">&amp;TFTP</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2093"/>
@@ -9958,18 +9763,6 @@ text-decoration: underline;
         <translation>显示</translation>
     </message>
     <message>
-        <source>Friendly Name</source>
-        <translation type="vanished">友好名称</translation>
-    </message>
-    <message>
-        <source>Interface Name</source>
-        <translation type="vanished">接口名</translation>
-    </message>
-    <message>
-        <source>Comment</source>
-        <translation type="vanished">注释</translation>
-    </message>
-    <message>
         <location filename="manage_interfaces_dialog.ui" line="59"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a pipe to capture from or remove an existing pipe from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -9978,10 +9771,6 @@ text-decoration: underline;
         <location filename="manage_interfaces_dialog.ui" line="62"/>
         <source>Pipes</source>
         <translation>管道</translation>
-    </message>
-    <message>
-        <source>Named Pipe Path</source>
-        <translation type="vanished">命名的管道路径</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.ui" line="101"/>
@@ -10041,15 +9830,7 @@ text-decoration: underline;
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="227"/>
         <source>New Pipe</source>
-        <translation type="unfinished">新管道</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="vanished">错误</translation>
-    </message>
-    <message>
-        <source>Default interface cannot be hidden.</source>
-        <translation type="vanished">默认接口不能被隐藏。</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10126,10 +9907,6 @@ text-decoration: underline;
         <location filename="mtp3_summary_dialog.cpp" line="188"/>
         <source>Packets</source>
         <translation>分组</translation>
-    </message>
-    <message>
-        <source>N/A</source>
-        <translation type="vanished">不可用</translation>
     </message>
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="200"/>
@@ -10669,18 +10446,6 @@ text-decoration: underline;
         <source>Preferences</source>
         <translation>首选项</translation>
     </message>
-    <message>
-        <source>Unknown</source>
-        <translation type="vanished">未知</translation>
-    </message>
-    <message>
-        <source>Default</source>
-        <translation type="vanished">默认</translation>
-    </message>
-    <message>
-        <source>Changed</source>
-        <translation type="vanished">已更改</translation>
-    </message>
 </context>
 <context>
     <name>PrintDialog</name>
@@ -10756,7 +10521,7 @@ text-decoration: underline;
         <location filename="profile_dialog.ui" line="60"/>
         <source>Remove this profile. System provided profiles cannot be removed.</source>
         <oldsource>Remove this profile. The Default profile and system provided profiles cannot be removed.</oldsource>
-        <translation type="unfinished">移除此配置文件。默认配置和系统提供的配置不能移除。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="profile_dialog.ui" line="71"/>
@@ -10996,12 +10761,12 @@ text-decoration: underline;
     <message>
         <location filename="preferences_dialog.cpp" line="123"/>
         <source>Default</source>
-        <translation type="unfinished">默认</translation>
+        <translation>默认</translation>
     </message>
     <message>
         <location filename="preferences_dialog.cpp" line="125"/>
         <source>Changed</source>
-        <translation type="unfinished">已更改</translation>
+        <translation>已更改</translation>
     </message>
     <message>
         <location filename="preferences_dialog.cpp" line="143"/>
@@ -11012,11 +10777,6 @@ text-decoration: underline;
         <location filename="preferences_dialog.cpp" line="153"/>
         <source>Default value is empty</source>
         <translation>默认值为空</translation>
-    </message>
-    <message>
-        <source>Average Througput (bits/s)</source>
-        <oldsource>Avgerage Througput (bits/s)</oldsource>
-        <translation type="vanished">平均吞吐量 (比特/秒)</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.cpp" line="81"/>
@@ -11164,10 +10924,6 @@ text-decoration: underline;
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>N/A</source>
-        <translation type="vanished">N/A</translation>
-    </message>
-    <message>
         <location filename="endpoint_dialog.cpp" line="47"/>
         <source>Endpoint</source>
         <translation>端点</translation>
@@ -11186,10 +10942,6 @@ text-decoration: underline;
         <location filename="filter_action.cpp" line="71"/>
         <source>Find</source>
         <translation>查找</translation>
-    </message>
-    <message>
-        <source>Conversation Filter</source>
-        <translation type="vanished">对话过滤器</translation>
     </message>
     <message>
         <location filename="filter_action.cpp" line="74"/>
@@ -11250,29 +11002,9 @@ text-decoration: underline;
         <translation>不再显示此消息。</translation>
     </message>
     <message>
-        <source>New Pipe</source>
-        <translation type="vanished">新管道</translation>
-    </message>
-    <message>
         <location filename="rtp_stream_dialog.cpp" line="128"/>
         <source>%1 (%L2%)</source>
         <translation>%1 (%L2%)</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="vanished">错误</translation>
-    </message>
-    <message>
-        <source>On</source>
-        <translation type="vanished">打开</translation>
-    </message>
-    <message>
-        <source>Off</source>
-        <translation type="vanished">关闭</translation>
-    </message>
-    <message>
-        <source>Tunneling: %1  Fast Start: %2</source>
-        <translation type="vanished">隧道: %1  快速启动: %2</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.cpp" line="171"/>
@@ -11566,14 +11298,6 @@ text-decoration: underline;
         <translation>优先级</translation>
     </message>
     <message>
-        <source>Show in Finder</source>
-        <translation type="vanished">在 Finder 中显示</translation>
-    </message>
-    <message>
-        <source>Show in Folder</source>
-        <translation type="vanished">在 Finder 中显示</translation>
-    </message>
-    <message>
         <location filename="filter_expressions_preferences_frame.cpp" line="279"/>
         <source>My Filter</source>
         <translation>我的过滤器</translation>
@@ -11593,12 +11317,12 @@ text-decoration: underline;
     <message>
         <location filename="../../wireshark-qt.cpp" line="853"/>
         <source>Invalid Display Filter</source>
-        <translation type="unfinished">无效显示过滤器</translation>
+        <translation>无效显示过滤器</translation>
     </message>
     <message>
         <location filename="../../wireshark-qt.cpp" line="854"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>筛选器表达式 %1 不是有效的显示筛选器 (%2)。</translation>
     </message>
 </context>
 <context>
@@ -12232,38 +11956,34 @@ text-decoration: underline;
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Audio</source>
-        <translation type="vanished">音频</translation>
-    </message>
-    <message>
         <location filename="rtp_analysis_dialog.ui" line="336"/>
         <source>Save the unsynchronized audio data for both channels.</source>
         <oldsource>Save the audio data for both channels.</oldsource>
-        <translation type="unfinished">保存两个频道的音频数据。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="341"/>
         <source>Unsynchronized Forward Stream Audio</source>
         <oldsource>Forward Stream Audio</oldsource>
-        <translation type="unfinished">正向音频流</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="344"/>
         <source>Save the unsynchronized forward stream audio data.</source>
         <oldsource>Save the forward stream audio data.</oldsource>
-        <translation type="unfinished">保存正向音频流数据。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="349"/>
         <source>Unsynchronized Reverse Stream Audio</source>
         <oldsource>Reverse Stream Audio</oldsource>
-        <translation type="unfinished">反向音频流</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="352"/>
         <source>Save the unsynchronized reverse stream audio data.</source>
         <oldsource>Save the reverse stream audio data.</oldsource>
-        <translation type="unfinished">保存反向音频流数据。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="357"/>
@@ -12442,17 +12162,9 @@ text-decoration: underline;
         <translation>保存反向音频流</translation>
     </message>
     <message>
-        <source>Save audio</source>
-        <translation type="vanished">保存音频</translation>
-    </message>
-    <message>
         <location filename="rtp_analysis_dialog.cpp" line="1412"/>
         <source>Sun Audio (*.au)</source>
         <translation>Sun 音频 (*.au)</translation>
-    </message>
-    <message>
-        <source>;;Raw (*.raw)</source>
-        <translation type="vanished">;;原始数据 (*.raw)</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1272"/>
@@ -12466,10 +12178,6 @@ text-decoration: underline;
         <location filename="rtp_analysis_dialog.cpp" line="1434"/>
         <source>Unable to save in that format</source>
         <translation>无法保存到该格式</translation>
-    </message>
-    <message>
-        <source>Can&apos;t save in a file: saving in au format supported only for alaw/ulaw streams</source>
-        <translation type="vanished">无法保存到文件：alaw/ulaw 流只支持保存到 au 格式。</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1446"/>
@@ -14287,7 +13995,30 @@ text-decoration: underline;
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;有价值的和惊人的时间节省键盘快捷方式&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;图形重置为初始状态&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;右移 10 个像素&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;左移 10 个像素&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;上移 10 个像素&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;下移 10 个像素&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;右移 1 个像素&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;左移 1 个像素&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;上移 1 个像素&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;下移 1 个像素&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;转到光标下的数据包&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;n&lt;/th&gt;&lt;td&gt;转到下一个数据包&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;p&lt;/th&gt;&lt;td&gt;转到上一个数据包&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="74"/>
@@ -14770,11 +14501,7 @@ text-decoration: underline;
     <message>
         <location filename="splash_overlay.cpp" line="175"/>
         <source>Finding local interfaces</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Loading configuration files</source>
-        <translation type="vanished">正在加载配置文件</translation>
+        <translation>正在查找本地接口</translation>
     </message>
     <message>
         <location filename="splash_overlay.cpp" line="178"/>
@@ -15489,10 +15216,6 @@ text-decoration: underline;
         <translation>序列号 (tcptrace)</translation>
     </message>
     <message>
-        <source> (1s MA)</source>
-        <translation type="vanished">(1s MA)</translation>
-    </message>
-    <message>
         <location filename="tcp_stream_dialog.cpp" line="1090"/>
         <source> (MA)</source>
         <translation type="unfinished"></translation>
@@ -15815,53 +15538,9 @@ text-decoration: underline;
         <source>Open </source>
         <translation>打开</translation>
     </message>
-    <message>
-        <source>Uneven number of chars hex string (%1)</source>
-        <translation type="vanished">字符十六进制字符串 (%1) 的奇数</translation>
-    </message>
-    <message>
-        <source>Error parsing hex string</source>
-        <translation type="vanished">解析十六进制字符串出错</translation>
-    </message>
 </context>
 <context>
     <name>VoipCallsDialog</name>
-    <message>
-        <source>Start Time</source>
-        <translation type="vanished">开始时间</translation>
-    </message>
-    <message>
-        <source>Stop Time</source>
-        <translation type="vanished">结束时间</translation>
-    </message>
-    <message>
-        <source>Initial Speaker</source>
-        <translation type="vanished">呼叫发起方</translation>
-    </message>
-    <message>
-        <source>From</source>
-        <translation type="vanished">从</translation>
-    </message>
-    <message>
-        <source>To</source>
-        <translation type="vanished">到</translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="vanished">协议</translation>
-    </message>
-    <message>
-        <source>Packets</source>
-        <translation type="vanished">分组</translation>
-    </message>
-    <message>
-        <source>State</source>
-        <translation type="vanished">状态</translation>
-    </message>
-    <message>
-        <source>Comments</source>
-        <translation type="vanished">注释</translation>
-    </message>
     <message>
         <location filename="voip_calls_dialog.ui" line="39"/>
         <source>&lt;small&gt;&lt;/small&gt;</source>
@@ -15949,42 +15628,42 @@ text-decoration: underline;
     <message>
         <location filename="voip_calls_info_model.cpp" line="97"/>
         <source>On</source>
-        <translation type="unfinished">打开</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="98"/>
         <source>Off</source>
-        <translation type="unfinished">关闭</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="106"/>
         <source>Tunneling: %1  Fast Start: %2</source>
-        <translation type="unfinished">隧道: %1  快速启动: %2</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="126"/>
         <source>Start Time</source>
-        <translation type="unfinished">开始时间</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="128"/>
         <source>Stop Time</source>
-        <translation type="unfinished">结束时间</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="130"/>
         <source>Initial Speaker</source>
-        <translation type="unfinished">呼叫发起方</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="132"/>
         <source>From</source>
-        <translation type="unfinished">从</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="134"/>
         <source>To</source>
-        <translation type="unfinished">到</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="136"/>
@@ -16004,12 +15683,12 @@ text-decoration: underline;
     <message>
         <location filename="voip_calls_info_model.cpp" line="142"/>
         <source>State</source>
-        <translation type="unfinished">状态</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="144"/>
         <source>Comments</source>
-        <translation type="unfinished">注释</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -16104,22 +15783,22 @@ text-decoration: underline;
 <context>
     <name>WiresharkApplication</name>
     <message>
-        <location filename="wireshark_application.cpp" line="576"/>
+        <location filename="wireshark_application.cpp" line="584"/>
         <source>Dell Backup and Recovery Found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="577"/>
+        <location filename="wireshark_application.cpp" line="585"/>
         <source>You appear to be running Dell Backup and Recovery 1.8.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="578"/>
+        <location filename="wireshark_application.cpp" line="586"/>
         <source>DBAR can make many applications crash &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;including Wireshark&lt;/a&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="582"/>
+        <location filename="wireshark_application.cpp" line="590"/>
         <source>Offending DLL: %1</source>
         <translation type="unfinished"></translation>
     </message>

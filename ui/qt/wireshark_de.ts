@@ -35,7 +35,7 @@
     <message>
         <location filename="about_dialog.ui" line="162"/>
         <source>Search Authors</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche nach Autoren</translation>
     </message>
     <message>
         <location filename="about_dialog.ui" line="177"/>
@@ -92,7 +92,7 @@
     <message>
         <location filename="apply_line_edit.cpp" line="42"/>
         <source>Apply changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Änderungen anwenden</translation>
     </message>
 </context>
 <context>
@@ -156,17 +156,17 @@
         <location filename="bluetooth_att_server_attributes_dialog.ui" line="200"/>
         <location filename="bluetooth_att_server_attributes_dialog.ui" line="203"/>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeile markieren / Markierung aufheben</translation>
     </message>
     <message>
         <location filename="bluetooth_att_server_attributes_dialog.ui" line="206"/>
         <source>CtrlM</source>
-        <translation type="unfinished"></translation>
+        <translation>CtrlM</translation>
     </message>
     <message>
         <location filename="bluetooth_att_server_attributes_dialog.ui" line="211"/>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Zelle markieren / Markierung aufheben</translation>
     </message>
     <message>
         <location filename="bluetooth_att_server_attributes_dialog.cpp" line="368"/>
@@ -336,17 +336,17 @@
         <location filename="bluetooth_device_dialog.ui" line="243"/>
         <location filename="bluetooth_device_dialog.ui" line="246"/>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeile markieren / Markierung aufheben</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="249"/>
         <source>CtrlM</source>
-        <translation type="unfinished"></translation>
+        <translation>CtrlM</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="254"/>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Zelle markieren / Markierung aufheben</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.cpp" line="180"/>
@@ -476,17 +476,17 @@
         <location filename="bluetooth_devices_dialog.ui" line="183"/>
         <location filename="bluetooth_devices_dialog.ui" line="186"/>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeile markieren / Markierung aufheben</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="189"/>
         <source>CtrlM</source>
-        <translation type="unfinished"></translation>
+        <translation>CtrlM</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="194"/>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Zelle markieren / Markierung aufheben</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.cpp" line="341"/>
@@ -540,7 +540,7 @@
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="112"/>
         <source>Subevent</source>
-        <translation type="unfinished"></translation>
+        <translation>Unterereignis</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="117"/>
@@ -562,7 +562,7 @@
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="132"/>
         <source>Occurrence</source>
-        <translation>Auftreten</translation>
+        <translation>Auftrittsreihenfolge</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="137"/>
@@ -690,12 +690,12 @@
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="593"/>
         <source>Results filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ergebnisfilter:</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="616"/>
         <source>Display filter:</source>
-        <translation type="unfinished">Anzeigefilter:</translation>
+        <translation>Anzeigefilter:</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="639"/>
@@ -731,17 +731,17 @@
         <location filename="bluetooth_hci_summary_dialog.ui" line="701"/>
         <location filename="bluetooth_hci_summary_dialog.ui" line="704"/>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeile markieren / Markierung aufheben</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="707"/>
         <source>Ctrl+M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="712"/>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Zelle markieren / Markierung aufheben</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.cpp" line="362"/>
@@ -798,10 +798,6 @@
         <location filename="byte_view_text.cpp" line="80"/>
         <source>Show bytes as hexadecimal</source>
         <translation>Bytes in Hexadezimal anzeigen</translation>
-    </message>
-    <message>
-        <source>Show bytes as bits</source>
-        <translation type="vanished">Bytes in Bits anzeigen</translation>
     </message>
     <message>
         <location filename="byte_view_text.cpp" line="300"/>
@@ -878,20 +874,20 @@
     <message>
         <location filename="capture_file_dialog.cpp" line="443"/>
         <source>Start / elapsed:</source>
-        <translation type="unfinished"></translation>
+        <translation>Start / vergangen:</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="489"/>
         <source>Automatically detect file type</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateityp automatisch erkennen</translation>
     </message>
     <message numerus="yes">
         <location filename="capture_file_dialog.cpp" line="787"/>
         <source>%1, error after %Ln packet(s)</source>
         <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1, Fehler nach %Ln Paket</numerusform>
+            <numerusform>%1, Fehler nach %Ln Paketen</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -906,22 +902,10 @@
     <message numerus="yes">
         <location filename="capture_file_dialog.cpp" line="797"/>
         <source>%1, %Ln packet(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1, %Ln Paket</numerusform>
+            <numerusform>%1, %Ln Pakete</numerusform>
         </translation>
-    </message>
-    <message>
-        <source>Packets:</source>
-        <translation type="vanished">Pakete:</translation>
-    </message>
-    <message>
-        <source>First Packet:</source>
-        <translation type="vanished">Erstes Paket:</translation>
-    </message>
-    <message>
-        <source>Elapsed Time:</source>
-        <translation type="vanished">Verstrichene Zeit:</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="455"/>
@@ -957,26 +941,6 @@
         <location filename="capture_file_dialog.cpp" line="480"/>
         <source>Read filter:</source>
         <translation>Lesefilter:</translation>
-    </message>
-    <message>
-        <source>Automatic</source>
-        <translation type="vanished">Automatisch</translation>
-    </message>
-    <message>
-        <source>&amp;MAC name resolution</source>
-        <translation type="vanished">&amp;MAC-Namensauflösung</translation>
-    </message>
-    <message>
-        <source>&amp;Transport name resolution</source>
-        <translation type="vanished">&amp;Transportschicht-Namensauflösung</translation>
-    </message>
-    <message>
-        <source>&amp;Network name resolution</source>
-        <translation type="vanished">&amp;Netzwerk-Namensauflösung</translation>
-    </message>
-    <message>
-        <source>&amp;External name resolver</source>
-        <translation type="vanished">&amp;Externe Namensauflösung</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="498"/>
@@ -1018,10 +982,6 @@
         <translation>Mitschnittdatei zusammenführen</translation>
     </message>
     <message>
-        <source>-</source>
-        <translation type="vanished">-</translation>
-    </message>
-    <message>
         <location filename="capture_file_dialog.cpp" line="733"/>
         <source>directory</source>
         <translation>Verzeichnis</translation>
@@ -1035,22 +995,6 @@
         <location filename="capture_file_dialog.cpp" line="742"/>
         <source>error opening file</source>
         <translation>Fehler beim Öffnen der Datei</translation>
-    </message>
-    <message>
-        <source>%1 bytes</source>
-        <translation type="vanished">%1 Byte</translation>
-    </message>
-    <message>
-        <source>error after reading %1 packets</source>
-        <translation type="vanished">Fehler nach dem Lesen von %1 Paketen</translation>
-    </message>
-    <message>
-        <source>more than %1 (preview timeout)</source>
-        <translation type="vanished">mehr als %1 (Vorschauzeitüberschreitung)</translation>
-    </message>
-    <message>
-        <source>?</source>
-        <translation type="vanished">?</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="821"/>
@@ -1236,10 +1180,6 @@
         <translation>Markiert</translation>
     </message>
     <message>
-        <source>N/A</source>
-        <translation type="vanished">N/V</translation>
-    </message>
-    <message>
         <location filename="capture_file_properties_dialog.cpp" line="378"/>
         <source>Packets</source>
         <translation>Pakete</translation>
@@ -1354,16 +1294,6 @@
         <location filename="capture_filter_edit.cpp" line="382"/>
         <source>Manage Capture Filters</source>
         <translation>Mitschnittfilter verwalten</translation>
-    </message>
-    <message>
-        <source>Unable to save capture filter settings.</source>
-        <translation type="vanished">Mitschnittfiltereinstellungen können nicht gespeichert werden.</translation>
-    </message>
-    <message>
-        <source>Could not save to your capture filter file
-&quot;%1&quot;: %2.</source>
-        <translation type="vanished">Mitschnittfilterdatei kann nicht gespeichert werden
-&quot;%1&quot;: %2.</translation>
     </message>
 </context>
 <context>
@@ -1744,13 +1674,13 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <location filename="capture_interfaces_dialog.cpp" line="923"/>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
         <oldsource>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</oldsource>
-        <translation type="unfinished">Dateisatz: Angeforderte Dateigröße zu groß! Die Dateigröße kann nicht größer als 2 GiB sein.</translation>
+        <translation>Dateisatz: Angeforderte Dateigröße zu groß. Die Dateigröße kann nicht größer als 2 GiB sein.</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="898"/>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
         <oldsource>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</oldsource>
-        <translation type="unfinished">Dateisatz: Keinen Dateinamen angeben! Wenn ein Dateisatz genutzt werden soll, muss ein Dateiname angegeben werden.</translation>
+        <translation>Dateisatz: Keinen Dateinamen angeben. Wenn ein Dateisatz genutzt werden soll, muss ein Dateiname angegeben werden.</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="902"/>
@@ -1758,7 +1688,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
  if you want to use multiple files.</source>
         <oldsource>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</oldsource>
-        <translation type="unfinished">Dateisatz: Kein Limit angegeben! Wenn ein Dateisatz genutzt werden soll, muss eine Dateigröße oder eine Laufzeit angegeben werden, bei der zur nächsten Datei gewechselt wird</translation>
+        <translation>Dateisatz: Kein Limit angegeben. Wenn ein Dateisatz genutzt werden soll, muss eine Dateigröße oder eine Laufzeit angegeben werden, bei der zur nächsten Datei gewechselt wird</translation>
     </message>
 </context>
 <context>
@@ -1924,12 +1854,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="366"/>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will disable them.</source>
-        <oldsource>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</oldsource>
-        <translation type="obsolete">Wireshark erkennt eine oder mehrere der Einfärbungsregeln nicht. Speichern verwirft diese.</translation>
+        <translation>Wireshark erkennt eine oder mehrere der Einfärbungsregeln nicht. Diese wurden deaktiviert.</translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="378"/>
@@ -1960,13 +1885,13 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <location filename="column_editor_frame.ui" line="78"/>
         <source>Fields:</source>
         <oldsource>Fields</oldsource>
-        <translation>Felder:</translation>
+        <translation>Feldname:</translation>
     </message>
     <message>
         <location filename="column_editor_frame.ui" line="101"/>
         <source>Occurrence:</source>
         <oldsource>Occurrence</oldsource>
-        <translation>Auftreten:</translation>
+        <translation>Auftrittsreihenfolge:</translation>
     </message>
 </context>
 <context>
@@ -1995,7 +1920,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <location filename="column_preferences_frame.ui" line="45"/>
         <source>Fields</source>
         <oldsource>Field Name</oldsource>
-        <translation>Felder</translation>
+        <translation>Feldname</translation>
     </message>
     <message>
         <location filename="column_preferences_frame.ui" line="50"/>
@@ -2012,12 +1937,12 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Kompilierter Filter</translation>
     </message>
     <message>
-        <location filename="compiled_filter_output.cpp" line="48"/>
+        <location filename="compiled_filter_output.cpp" line="51"/>
         <source>Copy</source>
         <translation>Kopieren</translation>
     </message>
     <message>
-        <location filename="compiled_filter_output.cpp" line="49"/>
+        <location filename="compiled_filter_output.cpp" line="52"/>
         <source>Copy filter text to the clipboard.</source>
         <translation>Filter text in die Zwischenablage kopieren.</translation>
     </message>
@@ -2204,16 +2129,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Filterausdrücke verwalten</translation>
     </message>
     <message>
-        <source>Unable to save display filter settings.</source>
-        <translation type="vanished">Anzeigefiltereinstellungen können nicht gespeichert werden.</translation>
-    </message>
-    <message>
-        <source>Could not save to your display filter file
-&quot;%1&quot;: %2.</source>
-        <translation type="vanished">Anzeigefilterdatei kann nicht gespeichert werden
-&quot;%1&quot;: %2.</translation>
-    </message>
-    <message>
         <location filename="display_filter_edit.cpp" line="363"/>
         <source>Remove this filter</source>
         <translation>Diesen Filter entfernen</translation>
@@ -2251,22 +2166,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <location filename="display_filter_expression_dialog.ui" line="54"/>
         <source>Search:</source>
         <translation>Suchen:</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Relations can be used to restrict fields to specific values. Each relation does the following:&lt;/p&gt;
-&lt;table&gt;&lt;tbody&gt;
-&lt;tr&gt;&lt;th&gt;is present&lt;/th&gt;&lt;td&gt;Match any packet that contains this field&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;th&gt;==, !=, etc.&lt;/th&gt;&lt;td&gt;Compare the field to a specific value.&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;th&gt;contains, matches&lt;/th&gt;&lt;td&gt;Check the field against a string (contains) or a regular expression (matches)&lt;/td&gt;&lt;/tr&gt;
-&lt;/tbody&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Relations können genutzt werden um Felder auf bestimmte Werte einzugrenzen. Folgende Relationen können verwendet werden:&lt;/p&gt;
-&lt;table&gt;&lt;tbody&gt;
-&lt;tr&gt;&lt;th&gt;is present&lt;/th&gt;&lt;td&gt;Jedes Paket das dieses Feld enthält &lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;th&gt;==, !=, etc.&lt;/th&gt;&lt;td&gt;Vergleicht das Feld auf einen bestimmten Wert&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;th&gt;contains, matches&lt;/th&gt;&lt;td&gt;Überprüft das Feld auf eine bestimmte Zeichenkette (contains) oder einen regulären Ausdruck (matches)&lt;/td&gt;&lt;/tr&gt;
-&lt;/tbody&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="72"/>
@@ -2674,7 +2573,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <location filename="export_dissection_dialog.cpp" line="99"/>
         <source>JSON (*.json)</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON (*.json)</translation>
     </message>
     <message>
         <location filename="export_dissection_dialog.cpp" line="100"/>
@@ -2783,7 +2682,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <location filename="extcap_options_dialog.cpp" line="111"/>
         <source>Interface Options</source>
         <oldsource>Extcap Interface Options</oldsource>
-        <translation type="unfinished">Extcap-Schnittstellenoptionen</translation>
+        <translation>Schnittstellenoptionen</translation>
     </message>
     <message>
         <location filename="extcap_options_dialog.cpp" line="81"/>
@@ -2793,12 +2692,12 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <location filename="extcap_options_dialog.cpp" line="344"/>
         <source>Extcap Help cannot be found</source>
-        <translation type="unfinished"></translation>
+        <translation>Hilfe für Extcap kann nicht gefunden werden</translation>
     </message>
     <message>
         <location filename="extcap_options_dialog.cpp" line="345"/>
         <source>The help for the extcap interface %1 cannot be found. Given file: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Hifle für Extcap-Schnittstelle %1 kann nicht gefunden werden. Angegebene Datei: %2</translation>
     </message>
     <message>
         <location filename="extcap_options_dialog.ui" line="33"/>
@@ -2941,39 +2840,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <source>New display filter</source>
         <extracomment>This text is automatically filled in when a new filter is created</extracomment>
         <translation>Neuer Anzeigefilter</translation>
-    </message>
-    <message>
-        <source>Unable to create profile directory.</source>
-        <translation type="vanished">Profilverzeichnis kann nicht erstellt werden.</translation>
-    </message>
-    <message>
-        <source>Unable to create directory
-&quot;%1&quot;
-for filter files: %2.</source>
-        <translation type="vanished">Verzeichnis
-&quot;%1&quot;
-für die Filterdateien kann nicht erstellt werden:
-%2.</translation>
-    </message>
-    <message>
-        <source>Unable to save capture filter settings.</source>
-        <translation type="vanished">Einstellungen für die Mitschnittfilter konnten nicht gespeichert werden.</translation>
-    </message>
-    <message>
-        <source>Could not save to your capture filter file
-&quot;%1&quot;: %2.</source>
-        <translation type="vanished">Ihre Mitschnittfilterdatei konnte nicht gespeichert werden
-&quot;%1&quot;: %2.</translation>
-    </message>
-    <message>
-        <source>Unable to save display filter settings.</source>
-        <translation type="vanished">Einstellungen für die Anzeigenfilter konnten nicht gespeichert werden.</translation>
-    </message>
-    <message>
-        <source>Could not save to your display filter file
-&quot;%1&quot;: %2.</source>
-        <translation type="vanished">Ihre Anzeigefilterdatei konnte nicht gespeichert werden
-&quot;%1&quot;: %2.</translation>
     </message>
 </context>
 <context>
@@ -3205,7 +3071,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="follow_stream_dialog.cpp" line="137"/>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>Zurück</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="181"/>
@@ -3496,10 +3362,6 @@ für die Filterdateien kann nicht erstellt werden:
         <location filename="gsm_map_summary_dialog.cpp" line="183"/>
         <source>Packets</source>
         <translation>Pakete</translation>
-    </message>
-    <message>
-        <source>N/A</source>
-        <translation type="vanished">-</translation>
     </message>
     <message>
         <location filename="gsm_map_summary_dialog.cpp" line="240"/>
@@ -4366,14 +4228,10 @@ für die Filterdateien kann nicht erstellt werden:
         <translation>RTP Daten können nicht gesichert werden.</translation>
     </message>
     <message>
-        <source>Please select an IAX2 packet</source>
-        <translation type="vanished">Bitte ein IAX2 Paket auswählen</translation>
-    </message>
-    <message>
         <location filename="iax2_analysis_dialog.cpp" line="323"/>
         <location filename="iax2_analysis_dialog.cpp" line="344"/>
         <source>Please select an IAX2 packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitte ein IAX2 Paket auswählen.</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="453"/>
@@ -4768,72 +4626,72 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="interface_frame.ui" line="20"/>
         <source>Frame</source>
-        <translation type="unfinished">Frame</translation>
+        <translation>Frame</translation>
     </message>
     <message>
         <location filename="interface_frame.ui" line="50"/>
         <source>No interfaces found</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Schnittstellen gefunden</translation>
     </message>
     <message>
         <location filename="interface_frame.cpp" line="72"/>
         <source>Wired</source>
-        <translation type="unfinished"></translation>
+        <translation>Kabelgebunden</translation>
     </message>
     <message>
         <location filename="interface_frame.cpp" line="73"/>
         <source>AirPCAP</source>
-        <translation type="unfinished"></translation>
+        <translation>AirPCAP</translation>
     </message>
     <message>
         <location filename="interface_frame.cpp" line="74"/>
         <source>Pipe</source>
-        <translation type="unfinished"></translation>
+        <translation>Pipe</translation>
     </message>
     <message>
         <location filename="interface_frame.cpp" line="75"/>
         <source>STDIN</source>
-        <translation type="unfinished"></translation>
+        <translation>STDIN</translation>
     </message>
     <message>
         <location filename="interface_frame.cpp" line="76"/>
         <source>Bluetooth</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetooth</translation>
     </message>
     <message>
         <location filename="interface_frame.cpp" line="77"/>
         <source>Wireless</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireless</translation>
     </message>
     <message>
         <location filename="interface_frame.cpp" line="78"/>
         <source>Dial-Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Einwahl</translation>
     </message>
     <message>
         <location filename="interface_frame.cpp" line="79"/>
         <source>USB</source>
-        <translation type="unfinished"></translation>
+        <translation>USB</translation>
     </message>
     <message>
         <location filename="interface_frame.cpp" line="81"/>
         <source>External Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Externer Mitschnitt</translation>
     </message>
     <message>
         <location filename="interface_frame.cpp" line="83"/>
         <source>Virtual</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuell</translation>
     </message>
     <message>
         <location filename="interface_frame.cpp" line="140"/>
         <source>Remote interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernte Schnittstellen</translation>
     </message>
     <message>
         <location filename="interface_frame.cpp" line="151"/>
         <source>Show hidden interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Versteckte Schnittstellen anzeigen</translation>
     </message>
 </context>
 <context>
@@ -4841,7 +4699,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="interface_sort_filter_model.cpp" line="380"/>
         <source>No interfaces to be displayed. %1 interfaces filtered.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Schnittstelle zum Anzeigen. %1 Schnittstellen gefiltert.</translation>
     </message>
 </context>
 <context>
@@ -4849,18 +4707,18 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="interface_toolbar.ui" line="14"/>
         <source>Frame</source>
-        <translation type="unfinished">Frame</translation>
+        <translation>Frame</translation>
     </message>
     <message>
         <location filename="interface_toolbar.ui" line="32"/>
         <location filename="interface_toolbar.ui" line="45"/>
         <source>Select interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Schnittstelle auswählen</translation>
     </message>
     <message>
         <location filename="interface_toolbar.ui" line="35"/>
         <source>Interface</source>
-        <translation type="unfinished">Schnittstelle</translation>
+        <translation>Schnittstelle</translation>
     </message>
 </context>
 <context>
@@ -4868,140 +4726,101 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="interface_toolbar_lineedit.cpp" line="43"/>
         <source>Apply changes</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>InterfaceTree</name>
-    <message>
-        <source>Welcome screen list</source>
-        <translation type="vanished">Willkommensbildschirm</translation>
-    </message>
-    <message>
-        <source>Waiting for startup%1</source>
-        <translation type="vanished">Warten auf den Programmstart%1 </translation>
-    </message>
-    <message>
-        <source>Interface information not available</source>
-        <translation type="vanished">Schnittstelleninformation nicht verfügbar</translation>
-    </message>
-    <message>
-        <source>Addresses</source>
-        <translation type="vanished">Adressen</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="vanished">Adresse</translation>
-    </message>
-    <message>
-        <source>No addresses</source>
-        <translation type="vanished">Keine Adressen</translation>
-    </message>
-    <message>
-        <source>No capture filter</source>
-        <translation type="vanished">Kein Mitschnittfilter</translation>
-    </message>
-    <message>
-        <source>Capture filter</source>
-        <translation type="vanished">Mitschnittfilter</translation>
+        <translation>Änderungen anwenden</translation>
     </message>
 </context>
 <context>
     <name>InterfaceTreeModel</name>
     <message>
-        <source>default</source>
-        <translation type="obsolete">Standard</translation>
-    </message>
-    <message>
         <location filename="interface_tree_model.cpp" line="81"/>
         <source>No Interfaces found.</source>
         <oldsource>No Interfaces found!</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Keine Schnittstellen gefunden.</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="265"/>
         <source>Show</source>
-        <translation type="unfinished"></translation>
+        <translation>Anzeigen</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="269"/>
         <source>Friendly Name</source>
-        <translation type="unfinished">Kurzname</translation>
+        <translation>Kurzname</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="273"/>
         <source>Interface Name</source>
-        <translation type="unfinished">Schnittstellenname</translation>
+        <translation>Schnittstellenname</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="277"/>
         <source>Local Pipe Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad lokale Pipe</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="281"/>
         <source>Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommentar</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="285"/>
         <source>Link-Layer Header</source>
-        <translation type="unfinished"></translation>
+        <translation>Link-Layer Header</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="289"/>
         <source>Promiscuous</source>
-        <translation type="unfinished">Promiskuitiv</translation>
+        <translation>Promiskuitiv</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="293"/>
         <source>Snaplen (B)</source>
-        <translation type="unfinished">Mitschnittlänge (B)</translation>
+        <translation>Mitschnittlänge (B)</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="298"/>
         <source>Buffer (MB)</source>
-        <translation type="unfinished">Puffer (MB)</translation>
+        <translation>Puffer (MB)</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="304"/>
         <source>Monitor Mode</source>
-        <translation type="unfinished">Überwachungsmodus</translation>
+        <translation>Überwachungsmodus</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="309"/>
         <source>Capture Filter</source>
-        <translation type="unfinished">Mitschnittfilter</translation>
+        <translation>Mitschnittfilter</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="361"/>
         <source>Addresses</source>
-        <translation type="unfinished">Adressen</translation>
+        <translation>Adressen</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="361"/>
         <source>Address</source>
-        <translation type="unfinished">Adresse</translation>
+        <translation>Adresse</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="368"/>
         <source>Extcap interface: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Extcap Schnittstelle: %1</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="373"/>
         <source>No addresses</source>
-        <translation type="unfinished">Keine Adressen</translation>
+        <translation>Keine Adressen</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="380"/>
         <source>No capture filter</source>
-        <translation type="unfinished">Kein Mitschnittfilter</translation>
+        <translation>Kein Mitschnittfilter</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="385"/>
         <source>Capture filter</source>
-        <translation type="unfinished">Mitschnittfilter</translation>
+        <translation>Mitschnittfilter</translation>
     </message>
 </context>
 <context>
@@ -7011,7 +6830,7 @@ für die Filterdateien kann nicht erstellt werden:
         <location filename="main_status_bar.cpp" line="427"/>
         <source>Packets: %1 %4 Displayed: %2 (%3%)</source>
         <oldsource>Packets: %1 %4 Displayed: %2 %4 Marked: %3</oldsource>
-        <translation type="unfinished">Pakete: %1 %4 Angezeigt: %2 (%3%)</translation>
+        <translation>Pakete: %1 %4 Angezeigt: %2 (%3%)</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="433"/>
@@ -7060,7 +6879,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="main_welcome.ui" line="129"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open a file on your file system&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Eine Datei vom Dateisystem öffnen&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="main_welcome.ui" line="132"/>
@@ -7206,24 +7025,25 @@ text-decoration: underline;
     <message>
         <location filename="main_welcome.cpp" line="67"/>
         <source>Show in Finder</source>
-        <translation type="unfinished">Im Finder anzeigen</translation>
+        <translation>Im Finder anzeigen</translation>
     </message>
     <message>
         <location filename="main_welcome.cpp" line="69"/>
         <source>Show in Folder</source>
-        <translation type="unfinished">Im Ordner anzeigen</translation>
+        <translation>Im Ordner anzeigen</translation>
     </message>
     <message>
         <location filename="main_welcome.cpp" line="230"/>
         <source>All interfaces shown</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Schnittstellen angezeigt</translation>
     </message>
     <message numerus="yes">
         <location filename="main_welcome.cpp" line="232"/>
         <source>%n interface(s) shown, %1 hidden</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <oldsource>%Ln interface(s) shown</oldsource>
+        <translation>
+            <numerusform>%n Schnittstelle anzeigt, %1 versteckt</numerusform>
+            <numerusform>%n Schnittstellen anzeigt, %1 versteckt</numerusform>
         </translation>
     </message>
     <message>
@@ -7259,7 +7079,7 @@ text-decoration: underline;
     <message>
         <location filename="main_welcome.cpp" line="470"/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernen</translation>
     </message>
 </context>
 <context>
@@ -7705,7 +7525,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1211"/>
         <source>Capture options</source>
-        <translation>Auzeichnungsoptionen</translation>
+        <translation>Aufzeichnungsoptionen</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1225"/>
@@ -7783,7 +7603,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="273"/>
         <source>Interface Toolbars</source>
-        <translation type="unfinished"></translation>
+        <translation>Schnittstellen Werkzeugleiste</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="321"/>
@@ -7798,7 +7618,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="347"/>
         <source>Additional Toolbars</source>
-        <translation type="unfinished"></translation>
+        <translation>Zusätzliche Leiste</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="429"/>
@@ -7869,22 +7689,22 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1004"/>
         <source>Next Packet In History</source>
-        <translation type="unfinished"></translation>
+        <translation>Nächstes Paket in der Historie</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1007"/>
         <source>Go to the next packet in your selection history</source>
-        <translation type="unfinished"></translation>
+        <translation>Gehe zum nächsten Paket in der ausgewählten Historie</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1015"/>
         <source>Previous Packet In History</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorheriges Paket in der Historie</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1018"/>
         <source>Go to the previous packet in your selection history</source>
-        <translation type="unfinished"></translation>
+        <translation>Gehe zum vorherigen Paket in der ausgewählten Historie</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1087"/>
@@ -7944,7 +7764,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1277"/>
         <source>As JSON…</source>
-        <translation type="unfinished"></translation>
+        <translation>Als JSON...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1285"/>
@@ -8528,12 +8348,12 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2153"/>
         <source>Reset Layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Ansicht zurücksetzen</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2156"/>
         <source>Reset appearance layout to default size</source>
-        <translation type="unfinished"></translation>
+        <translation>Anzeige auf Ausgangsgröße zurücksetzen</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2479"/>
@@ -8699,7 +8519,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2967"/>
         <source>&amp;Full Screen</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Vollbild</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1205"/>
@@ -8740,18 +8560,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="1272"/>
         <source>As PDML XML…</source>
         <translation>Als PDML XML...</translation>
-    </message>
-    <message>
-        <source>&amp;HTTP…</source>
-        <translation type="vanished">&amp;HTTP...</translation>
-    </message>
-    <message>
-        <source>&amp;DICOM…</source>
-        <translation type="vanished">&amp;DICOM...</translation>
-    </message>
-    <message>
-        <source>&amp;SMB…</source>
-        <translation type="vanished">&amp;SMB...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1293"/>
@@ -8910,10 +8718,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="2088"/>
         <source>Show or hide the display filter toolbar</source>
         <translation>Anzeigefilter-Werkzeugleiste anzeigen oder verstecken</translation>
-    </message>
-    <message>
-        <source>&amp;TFTP</source>
-        <translation type="vanished">&amp;TFTP</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2093"/>
@@ -9617,7 +9421,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.cpp" line="1034"/>
         <source>Unable to drop files during capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien können während dem Mitschnitt nicht verworfen werden.</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1801"/>
@@ -9655,7 +9459,7 @@ text-decoration: underline;
         <location filename="main_window.cpp" line="845"/>
         <location filename="main_window.cpp" line="2792"/>
         <source>Show or hide the toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Werkzeugleise anzeigen oder verstecken</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1850"/>
@@ -9757,7 +9561,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window_slots.cpp" line="827"/>
         <source>Merging files</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien zusammenfügen</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="1939"/>
@@ -9975,18 +9779,6 @@ text-decoration: underline;
         <translation>Anzeigen</translation>
     </message>
     <message>
-        <source>Friendly Name</source>
-        <translation type="vanished">Kurzname</translation>
-    </message>
-    <message>
-        <source>Interface Name</source>
-        <translation type="vanished">Schnittstellenname</translation>
-    </message>
-    <message>
-        <source>Comment</source>
-        <translation type="vanished">Kommentar</translation>
-    </message>
-    <message>
         <location filename="manage_interfaces_dialog.ui" line="59"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a pipe to capture from or remove an existing pipe from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Eine Pipe hinzufügen um daraus aufzuzeichnen oder eine existierende Pipe aus der Liste zu löschen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -9995,10 +9787,6 @@ text-decoration: underline;
         <location filename="manage_interfaces_dialog.ui" line="62"/>
         <source>Pipes</source>
         <translation>Pipes</translation>
-    </message>
-    <message>
-        <source>Named Pipe Path</source>
-        <translation type="vanished">Pfad Benannte Pipe</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.ui" line="101"/>
@@ -10058,15 +9846,7 @@ text-decoration: underline;
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="227"/>
         <source>New Pipe</source>
-        <translation type="unfinished">Neue Pipe</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="vanished">Fehler</translation>
-    </message>
-    <message>
-        <source>Default interface cannot be hidden.</source>
-        <translation type="vanished">Standardschnittstelle kann nicht ausgeblendet werden.</translation>
+        <translation>Neue Pipe</translation>
     </message>
 </context>
 <context>
@@ -10143,10 +9923,6 @@ text-decoration: underline;
         <location filename="mtp3_summary_dialog.cpp" line="188"/>
         <source>Packets</source>
         <translation>Pakete</translation>
-    </message>
-    <message>
-        <source>N/A</source>
-        <translation type="vanished">-</translation>
     </message>
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="200"/>
@@ -10687,18 +10463,6 @@ text-decoration: underline;
         <source>Preferences</source>
         <translation>Einstellungen</translation>
     </message>
-    <message>
-        <source>Unknown</source>
-        <translation type="vanished">Unbekannt</translation>
-    </message>
-    <message>
-        <source>Default</source>
-        <translation type="vanished">Standard</translation>
-    </message>
-    <message>
-        <source>Changed</source>
-        <translation type="vanished">Geändert</translation>
-    </message>
 </context>
 <context>
     <name>PrintDialog</name>
@@ -10774,7 +10538,7 @@ text-decoration: underline;
         <location filename="profile_dialog.ui" line="60"/>
         <source>Remove this profile. System provided profiles cannot be removed.</source>
         <oldsource>Remove this profile. The Default profile and system provided profiles cannot be removed.</oldsource>
-        <translation type="unfinished">Dieses Profil entfernen. Das Standardprofil und vorgegebene Profile können nicht entfernt werden.</translation>
+        <translation>Dieses Profil entfernen. Das Standardprofil und vorgegebene Profile können nicht entfernt werden.</translation>
     </message>
     <message>
         <location filename="profile_dialog.ui" line="71"/>
@@ -10789,7 +10553,7 @@ text-decoration: underline;
     <message>
         <location filename="profile_dialog.cpp" line="163"/>
         <source>Will be reset to default values</source>
-        <translation type="unfinished"></translation>
+        <translation>Auf Ausgangswerte zurücksetzen</translation>
     </message>
     <message>
         <location filename="profile_dialog.cpp" line="179"/>
@@ -10799,7 +10563,7 @@ text-decoration: underline;
     <message>
         <location filename="profile_dialog.cpp" line="181"/>
         <source>(system provided)</source>
-        <translation type="unfinished"></translation>
+        <translation>(vom System vorgegeben)</translation>
     </message>
     <message>
         <location filename="profile_dialog.cpp" line="187"/>
@@ -10834,7 +10598,7 @@ text-decoration: underline;
     <message>
         <location filename="profile_dialog.cpp" line="234"/>
         <source>The profile will be reset to default values.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Profil wird auf den Ausgangswert zurückgesetzt.</translation>
     </message>
     <message>
         <location filename="profile_dialog.cpp" line="355"/>
@@ -11014,12 +10778,12 @@ text-decoration: underline;
     <message>
         <location filename="preferences_dialog.cpp" line="123"/>
         <source>Default</source>
-        <translation type="unfinished">Standard</translation>
+        <translation>Standard</translation>
     </message>
     <message>
         <location filename="preferences_dialog.cpp" line="125"/>
         <source>Changed</source>
-        <translation type="unfinished">Geändert</translation>
+        <translation>Geändert</translation>
     </message>
     <message>
         <location filename="preferences_dialog.cpp" line="143"/>
@@ -11032,14 +10796,9 @@ text-decoration: underline;
         <translation>Standardwert ist leer</translation>
     </message>
     <message>
-        <source>Average Througput (bits/s)</source>
-        <oldsource>Avgerage Througput (bits/s)</oldsource>
-        <translation type="vanished">Durchschnittlicher Durchsatz (Bits/s)</translation>
-    </message>
-    <message>
         <location filename="tcp_stream_dialog.cpp" line="81"/>
         <source>Average Throughput (bits/s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Durchschnittlicher Durchsatz (Bits/s)</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.cpp" line="82"/>
@@ -11182,10 +10941,6 @@ text-decoration: underline;
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>N/A</source>
-        <translation type="vanished">Entfällt</translation>
-    </message>
-    <message>
         <location filename="endpoint_dialog.cpp" line="47"/>
         <source>Endpoint</source>
         <translation>Endpunkt</translation>
@@ -11204,10 +10959,6 @@ text-decoration: underline;
         <location filename="filter_action.cpp" line="71"/>
         <source>Find</source>
         <translation>Finden</translation>
-    </message>
-    <message>
-        <source>Conversation Filter</source>
-        <translation type="vanished">Verbindungsfilter</translation>
     </message>
     <message>
         <location filename="filter_action.cpp" line="74"/>
@@ -11268,29 +11019,9 @@ text-decoration: underline;
         <translation>Diese Mitteilung nicht mehr anzeigen.</translation>
     </message>
     <message>
-        <source>New Pipe</source>
-        <translation type="vanished">Neue Pipe</translation>
-    </message>
-    <message>
         <location filename="rtp_stream_dialog.cpp" line="128"/>
         <source>%1 (%L2%)</source>
         <translation>%1 (%L2%)</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="vanished">Fehler</translation>
-    </message>
-    <message>
-        <source>On</source>
-        <translation type="vanished">An</translation>
-    </message>
-    <message>
-        <source>Off</source>
-        <translation type="vanished">Aus</translation>
-    </message>
-    <message>
-        <source>Tunneling: %1  Fast Start: %2</source>
-        <translation type="vanished">Tunneling: %1  Fast Start: %2</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.cpp" line="171"/>
@@ -11584,14 +11315,6 @@ text-decoration: underline;
         <translation>Priorität</translation>
     </message>
     <message>
-        <source>Show in Finder</source>
-        <translation type="vanished">Im Finder anzeigen</translation>
-    </message>
-    <message>
-        <source>Show in Folder</source>
-        <translation type="vanished">Im Ordner anzeigen</translation>
-    </message>
-    <message>
         <location filename="filter_expressions_preferences_frame.cpp" line="279"/>
         <source>My Filter</source>
         <translation>Mein Filter</translation>
@@ -11611,12 +11334,12 @@ text-decoration: underline;
     <message>
         <location filename="../../wireshark-qt.cpp" line="853"/>
         <source>Invalid Display Filter</source>
-        <translation type="unfinished">Ungültiger Anzeigefilter</translation>
+        <translation>Ungültiger Anzeigefilter</translation>
     </message>
     <message>
         <location filename="../../wireshark-qt.cpp" line="854"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Filterausdruck %1 ist kein gültiger Anzeigefilter. (%2).</translation>
     </message>
 </context>
 <context>
@@ -12250,38 +11973,34 @@ text-decoration: underline;
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Audio</source>
-        <translation type="vanished">Audio</translation>
-    </message>
-    <message>
         <location filename="rtp_analysis_dialog.ui" line="336"/>
         <source>Save the unsynchronized audio data for both channels.</source>
         <oldsource>Save the audio data for both channels.</oldsource>
-        <translation type="unfinished">Audiodaten von beiden Kanälen speichern.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="341"/>
         <source>Unsynchronized Forward Stream Audio</source>
         <oldsource>Forward Stream Audio</oldsource>
-        <translation type="unfinished">Hinweg Audio Stream</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="344"/>
         <source>Save the unsynchronized forward stream audio data.</source>
         <oldsource>Save the forward stream audio data.</oldsource>
-        <translation type="unfinished">Speichern der Audiodaten des Hinwegstreams</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="349"/>
         <source>Unsynchronized Reverse Stream Audio</source>
         <oldsource>Reverse Stream Audio</oldsource>
-        <translation type="unfinished">Audiostream Rückweg</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="352"/>
         <source>Save the unsynchronized reverse stream audio data.</source>
         <oldsource>Save the reverse stream audio data.</oldsource>
-        <translation type="unfinished">Speichern der Audiodaten des Rückwegstreams</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="357"/>
@@ -12376,7 +12095,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1413"/>
         <source>Raw (*.raw)</source>
-        <translation type="unfinished"></translation>
+        <translation>Raw (*.raw)</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1643"/>
@@ -12460,17 +12179,9 @@ text-decoration: underline;
         <translation>Audiostream des Rückweges speichern</translation>
     </message>
     <message>
-        <source>Save audio</source>
-        <translation type="vanished">Audio speichern</translation>
-    </message>
-    <message>
         <location filename="rtp_analysis_dialog.cpp" line="1412"/>
         <source>Sun Audio (*.au)</source>
         <translation>Sun Audio (*.au)</translation>
-    </message>
-    <message>
-        <source>;;Raw (*.raw)</source>
-        <translation type="vanished">;;Raw (*.raw)</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1272"/>
@@ -12486,10 +12197,6 @@ text-decoration: underline;
         <translation>Dieses Format kann nicht gespeichert werden</translation>
     </message>
     <message>
-        <source>Can&apos;t save in a file: saving in au format supported only for alaw/ulaw streams</source>
-        <translation type="vanished">Speichern nicht möglich: In das au Format können nur alaw/ulaw Streams gespeichert werden</translation>
-    </message>
-    <message>
         <location filename="rtp_analysis_dialog.cpp" line="1446"/>
         <source>Unable to save %1</source>
         <translation>Kann %1 nicht sichern</translation>
@@ -12502,7 +12209,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1457"/>
         <source>Can save audio with 8000 Hz clock rate only</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio kann nur mit 8000 Hz gespeichert werden</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1482"/>
@@ -12540,12 +12247,12 @@ text-decoration: underline;
     <message>
         <location filename="rtp_audio_stream.cpp" line="553"/>
         <source>RTP stream is empty or codec is unsupported.</source>
-        <translation type="unfinished"></translation>
+        <translation>RTP Stream is leer oder der Codec wird nicht unterstützt.</translation>
     </message>
     <message>
         <location filename="rtp_audio_stream.cpp" line="577"/>
         <source>%1 does not support PCM at %2. Preferred format is %3</source>
-        <translation type="unfinished"></translation>
+        <translation>% unterstützt nicht PCM bei %2. Bevorzugtes Format ist %3</translation>
     </message>
 </context>
 <context>
@@ -12661,7 +12368,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_player_dialog.ui" line="165"/>
         <source>Output Device:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabegerät:</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="192"/>
@@ -12870,7 +12577,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_player_dialog.cpp" line="170"/>
         <source>No devices available</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Geräte gefunden</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.cpp" line="190"/>
@@ -14774,7 +14481,7 @@ text-decoration: underline;
     <message>
         <location filename="splash_overlay.cpp" line="151"/>
         <source>Initializing extcap</source>
-        <translation type="unfinished"></translation>
+        <translation>Extcap initialisieren</translation>
     </message>
     <message>
         <location filename="splash_overlay.cpp" line="154"/>
@@ -14815,11 +14522,7 @@ text-decoration: underline;
     <message>
         <location filename="splash_overlay.cpp" line="175"/>
         <source>Finding local interfaces</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Loading configuration files</source>
-        <translation type="vanished">Konfigurationsdateien laden</translation>
+        <translation>Lokale Schnittstellen finden</translation>
     </message>
     <message>
         <location filename="splash_overlay.cpp" line="178"/>
@@ -15050,7 +14753,7 @@ text-decoration: underline;
     <message>
         <location filename="tcp_stream_dialog.ui" line="130"/>
         <source>select SACKs</source>
-        <translation type="unfinished"></translation>
+        <translation>SACKs auswählen</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="153"/>
@@ -15096,22 +14799,22 @@ text-decoration: underline;
     <message>
         <location filename="tcp_stream_dialog.ui" line="235"/>
         <source>Display graph of Segment Length vs Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Graph Segmentlänge zu Zeit anzeigen</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="238"/>
         <source>Segment Length</source>
-        <translation type="unfinished"></translation>
+        <translation>Segmentlänge</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="248"/>
         <source>Display graph of Mean Transmitted Bytes vs Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Graph durchschnittliche übertragene Bytes zu Zeit anzeigen</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="261"/>
         <source>Display graph of Mean ACKed Bytes vs Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Graph durchschnittliche bestätigte Bytes (ACK) zu Zeit anzeigen</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="264"/>
@@ -15538,13 +15241,9 @@ text-decoration: underline;
         <translation>Sequenznummern (tcptrace)</translation>
     </message>
     <message>
-        <source> (1s MA)</source>
-        <translation type="vanished"> (1s MA)</translation>
-    </message>
-    <message>
         <location filename="tcp_stream_dialog.cpp" line="1090"/>
         <source> (MA)</source>
-        <translation type="unfinished"></translation>
+        <translation> (MA)</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.cpp" line="1092"/>
@@ -15787,12 +15486,12 @@ text-decoration: underline;
     <message>
         <location filename="traffic_table_dialog.ui" line="68"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show absolute times in the start time column.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Absolute Zeit in der Spalte Startzeit anzeigen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.ui" line="71"/>
         <source>Absolute start time</source>
-        <translation type="unfinished"></translation>
+        <translation>Absolute Startzeit</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.ui" line="91"/>
@@ -15864,53 +15563,9 @@ text-decoration: underline;
         <source>Open </source>
         <translation>Öffnen</translation>
     </message>
-    <message>
-        <source>Uneven number of chars hex string (%1)</source>
-        <translation type="vanished">Ungerade Anzahl an Hexzeichen (%1)</translation>
-    </message>
-    <message>
-        <source>Error parsing hex string</source>
-        <translation type="vanished">Fehler beim Parsen der Hex Zeichenkette</translation>
-    </message>
 </context>
 <context>
     <name>VoipCallsDialog</name>
-    <message>
-        <source>Start Time</source>
-        <translation type="vanished">Startzeitpunkt</translation>
-    </message>
-    <message>
-        <source>Stop Time</source>
-        <translation type="vanished">Endzeitpunkt</translation>
-    </message>
-    <message>
-        <source>Initial Speaker</source>
-        <translation type="vanished">Initiierender Sprecher</translation>
-    </message>
-    <message>
-        <source>From</source>
-        <translation type="vanished">Von</translation>
-    </message>
-    <message>
-        <source>To</source>
-        <translation type="vanished">Nach</translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="vanished">Protokoll</translation>
-    </message>
-    <message>
-        <source>Packets</source>
-        <translation type="vanished">Pakete</translation>
-    </message>
-    <message>
-        <source>State</source>
-        <translation type="vanished">Zustand</translation>
-    </message>
-    <message>
-        <source>Comments</source>
-        <translation type="vanished">Kommentare</translation>
-    </message>
     <message>
         <location filename="voip_calls_dialog.ui" line="39"/>
         <source>&lt;small&gt;&lt;/small&gt;</source>
@@ -15919,7 +15574,7 @@ text-decoration: underline;
     <message>
         <location filename="voip_calls_dialog.ui" line="61"/>
         <source>Time of Day</source>
-        <translation type="unfinished">Uhrzeit</translation>
+        <translation>Uhrzeit</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.ui" line="80"/>
@@ -15998,67 +15653,67 @@ text-decoration: underline;
     <message>
         <location filename="voip_calls_info_model.cpp" line="97"/>
         <source>On</source>
-        <translation type="unfinished">An</translation>
+        <translation>An</translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="98"/>
         <source>Off</source>
-        <translation type="unfinished">Aus</translation>
+        <translation>Aus</translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="106"/>
         <source>Tunneling: %1  Fast Start: %2</source>
-        <translation type="unfinished">Tunneling: %1  Fast Start: %2</translation>
+        <translation>Tunneling: %1  Fast Start: %2</translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="126"/>
         <source>Start Time</source>
-        <translation type="unfinished">Startzeitpunkt</translation>
+        <translation>Startzeitpunkt</translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="128"/>
         <source>Stop Time</source>
-        <translation type="unfinished">Endzeitpunkt</translation>
+        <translation>Endzeitpunkt</translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="130"/>
         <source>Initial Speaker</source>
-        <translation type="unfinished">Initiierender Sprecher</translation>
+        <translation>Initiierender Sprecher</translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="132"/>
         <source>From</source>
-        <translation type="unfinished">Von</translation>
+        <translation>Von</translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="134"/>
         <source>To</source>
-        <translation type="unfinished">Nach</translation>
+        <translation>Nach</translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="136"/>
         <source>Protocol</source>
-        <translation type="unfinished">Protokoll</translation>
+        <translation>Protokoll</translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="138"/>
         <source>Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Dauer</translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="140"/>
         <source>Packets</source>
-        <translation type="unfinished">Pakete</translation>
+        <translation>Pakete</translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="142"/>
         <source>State</source>
-        <translation type="unfinished">Zustand</translation>
+        <translation>Zustand</translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="144"/>
         <source>Comments</source>
-        <translation type="unfinished">Kommentare</translation>
+        <translation>Kommentare</translation>
     </message>
 </context>
 <context>
@@ -16153,22 +15808,22 @@ text-decoration: underline;
 <context>
     <name>WiresharkApplication</name>
     <message>
-        <location filename="wireshark_application.cpp" line="576"/>
+        <location filename="wireshark_application.cpp" line="584"/>
         <source>Dell Backup and Recovery Found</source>
-        <translation type="unfinished"></translation>
+        <translation>Dell Backup and Recovery gefunden</translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="577"/>
+        <location filename="wireshark_application.cpp" line="585"/>
         <source>You appear to be running Dell Backup and Recovery 1.8.</source>
-        <translation type="unfinished"></translation>
+        <translation>Offensichtlich wurde Dell Backup and Recovery 1.8 gestartet.</translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="578"/>
+        <location filename="wireshark_application.cpp" line="586"/>
         <source>DBAR can make many applications crash &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;including Wireshark&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>DBAR kann zum Absturz von vielen Applikationen führen (&lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;inklusive Wireshark)&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="582"/>
+        <location filename="wireshark_application.cpp" line="590"/>
         <source>Offending DLL: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16226,7 +15881,7 @@ text-decoration: underline;
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="512"/>
         <source>Retry</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiederholung</translation>
     </message>
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="513"/>
