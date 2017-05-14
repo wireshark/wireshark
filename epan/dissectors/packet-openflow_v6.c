@@ -1073,6 +1073,9 @@ static const value_string openflow_v6_oxm_class_values[] = {
 #define OFPXMT_OFB_TUNNEL_ID       38
 #define OFPXMT_OFB_IPV6_EXTHDR     39
 #define OFPXMT_OFB_PBB_UCA         41
+#define OFPXMT_OFB_TCP_FLAGS       42
+#define OFPXMT_OFB_ACTSET_OUTPUT   43
+#define OFPXMT_OFB_PACKET_TYPE     44
 static const value_string openflow_v6_oxm_basic_field_values[] = {
     {  0, "OFPXMT_OFB_IN_PORT" },
     {  1, "OFPXMT_OFB_IN_PHY_PORT" },
@@ -1115,6 +1118,9 @@ static const value_string openflow_v6_oxm_basic_field_values[] = {
     { 38, "OFPXMT_OFB_TUNNEL_ID" },
     { 39, "OFPXMT_OFB_IPV6_EXTHDR" },
     { 41, "OFPXMT_OFB_PBB_UCA" },
+    { 42, "OFPXMT_OFB_TCP_FLAGS" },
+    { 43, "OFPXMT_OFB_ACTSET_OUTPUT" },
+    { 44, "OFPXMT_OFB_PACKET_TYPE" },
     {  0, NULL }
 };
 static value_string_ext openflow_v6_oxm_basic_field_values_ext = VALUE_STRING_EXT_INIT(openflow_v6_oxm_basic_field_values);
