@@ -333,6 +333,8 @@ static int hf_openflow_v6_groupmod_type = -1;
 static int hf_openflow_v6_groupmod_pad = -1;
 static int hf_openflow_v6_groupmod_group_id = -1;
 static int hf_openflow_v6_groupmod_group_id_reserved = -1;
+static int hf_openflow_v6_groupmod_bucket_array_len = -1;
+static int hf_openflow_v6_groupmod_command_bucket_id = -1;
 static int hf_openflow_v6_portmod_prop_type = -1;
 static int hf_openflow_v6_portmod_prop_length = -1;
 static int hf_openflow_v6_portmod_prop_ethernet_advertise = -1;
@@ -3195,6 +3197,8 @@ static const value_string openflow_v6_groupmod_command_values[] = {
     { 0, "OFPGC_ADD" },
     { 1, "OFPGC_MODIFY" },
     { 2, "OFPGC_DELETE" },
+    { 3, "OFPGC_INSERT_BUCKET" },
+    { 5, "OFPGC_DELETE_BUCKET" },
     { 0, NULL }
 };
 
@@ -3231,6 +3235,18 @@ dissect_openflow_groupmod_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     } else {
         proto_tree_add_item(tree, hf_openflow_v6_groupmod_group_id_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
     }
+    offset+=4;
+
+    /* uint16_t bucket_array_len; */
+    proto_tree_add_item(tree, hf_openflow_v6_groupmod_bucket_array_len, tvb, offset, 2, ENC_NA);
+    offset+=2;
+
+    /* uint8_t pad2[2]; */
+    proto_tree_add_item(tree, hf_openflow_v6_groupmod_pad, tvb, offset, 2, ENC_NA);
+    offset+=2;
+
+    /* uint32_t command_bucket_id;  */
+    proto_tree_add_item(tree, hf_openflow_v6_groupmod_command_bucket_id, tvb, offset, 4, ENC_NA);
     offset+=4;
 
     /* struct ofp_bucket buckets[0]; */
@@ -7562,6 +7578,16 @@ proto_register_openflow_v6(void)
         { &hf_openflow_v6_groupmod_group_id_reserved,
             { "Group ID", "openflow_v6.groupmod.group_id",
                FT_UINT32, BASE_HEX, VALS(openflow_v6_group_reserved_values), 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v6_groupmod_bucket_array_len,
+            { "Bucket Array Len", "openflow_v6.groupmod.bucket_array_len",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v6_groupmod_command_bucket_id,
+            { "Command Bucket id", "openflow_v6.groupmod.command_bucket_id",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v6_portmod_prop_type,
