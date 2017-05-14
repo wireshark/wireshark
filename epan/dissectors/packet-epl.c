@@ -1462,7 +1462,6 @@ static gint hf_epl_fragment_count                            = -1;
 static gint hf_epl_reassembled_in                            = -1;
 static gint hf_epl_reassembled_length                        = -1;
 static gint hf_epl_reassembled_data                          = -1;
-static gint hf_epl_sdo_od_field                              = -1;
 static gint hf_epl_sdo_multi_param_sub_abort                 = -1;
 
 static gint ett_epl_fragment                                 = -1;
@@ -4877,10 +4876,6 @@ proto_register_epl(void)
 		{ &hf_epl_reassembled_data,
 			{ "Reassembled Data", "epl.asnd.sdo.cmd.reassembled.data",
 				FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
-		},
-		{ &hf_epl_sdo_od_field,
-			{ "OD", "epl.asnd.sdo.od.field",
-				FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_sdo_multi_param_sub_abort,
 			{ "Sub Abort Code", "epl.asnd.sdo.od.multiparam.abort",
