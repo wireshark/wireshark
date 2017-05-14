@@ -3578,11 +3578,6 @@ dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *
 				proto_item_append_text(psf_od_tree, " SubIdx: 0x%02X", subindex);
 				proto_tree_add_uint_format(psf_od_tree, hf_epl_asnd_sdo_cmd_data_mapping_subindex, tvb, dataoffset, 1, idx,"SubIndex: 0x%02X", subindex);
 
-				/* get subindex string */
-				sub_str = val_to_str_ext_const(idx, &sod_cmd_sub_str, "unknown");
-				/* get string value */
-				sub_val = str_to_val(sub_str, sod_cmd_sub_str_val,error);
-
 				/* info text */
 				if (objectcnt < 8)
 				{
@@ -3920,11 +3915,6 @@ dissect_epl_sdo_command_read_multiple_by_index(proto_tree *epl_tree, tvbuff_t *t
 				subindex = tvb_get_guint8(tvb, dataoffset);
 				proto_item_append_text(psf_od_item, " SubIdx: 0x%02X", subindex);
 				proto_tree_add_uint_format(psf_od_item, hf_epl_asnd_sdo_cmd_data_mapping_subindex, tvb, dataoffset, 1, subindex,"SubIndex: 0x%02X", subindex);
-
-				/* get subindex string */
-				sub_str = val_to_str_ext_const(idx, &sod_cmd_sub_str, "unknown");
-				/* get string value */
-				sub_val = str_to_val(sub_str, sod_cmd_sub_str_val,error);
 
 				/* info text */
 				if (objectcnt < 8)
