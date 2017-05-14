@@ -4134,7 +4134,7 @@ void proto_register_mq(void)
         { &hf_mq_tsh_tcf2_HdrComp  , {"HDR Comp", "mq.tsh.tcf2.hdrcomp", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_TCF2_HDRCOMP      , "TSH TCF2 Header Compressed", HFILL }},
         { &hf_mq_tsh_tcf2_MsgComp  , {"MSG Comp", "mq.tsh.tcf2.msgcomp", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_TCF2_MSGCOMP      , "TSH TCF2 Message Compressed", HFILL }},
         { &hf_mq_tsh_tcf2_CSH      , {"CSH", "mq.tsh.tcf2.csh"    , FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_TCF2_CSH          , "TSH TCF2 CSH", HFILL }},
-        { &hf_mq_tsh_tcf2_CmitIntv , {"ComitIntvl", "mq.tsh.tcf.cmitintv", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_TCF2_CMIT_INTERVAL, "TSH TCF2 Commit Interval", HFILL }},
+        { &hf_mq_tsh_tcf2_CmitIntv , {"CommitIntvl", "mq.tsh.tcf.cmitintv", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_TCF2_CMIT_INTERVAL, "TSH TCF2 Commit Interval", HFILL }},
 
         { &hf_mq_api_replylen , {"Reply len..", "mq.api.replylength", FT_UINT32, BASE_DEC, NULL, 0x0, "API Reply length", HFILL }},
         { &hf_mq_api_compcode , {"Compl Code.", "mq.api.completioncode", FT_UINT32, BASE_DEC, VALS(GET_VALSV(mqcc)), 0x0, "API Completion code", HFILL }},
