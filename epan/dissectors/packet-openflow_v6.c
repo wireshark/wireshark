@@ -1623,6 +1623,8 @@ static const value_string openflow_v6_error_bad_action_code_values[] =  {
     { 13, "OFPBAC_BAD_SET_TYPE" },
     { 14, "OFPBAC_BAD_SET_LEN" },
     { 15, "OFPBAC_BAD_SET_ARGUMENT" },
+    { 16, "OFPBAC_BAD_SET_MASK" },
+    { 17, "OFPBAC_BAD_SET_METER" },
     {  0, NULL }
 };
 
