@@ -157,7 +157,7 @@ proto_register_nge(void)
             { "Unknown", "nge.unknown", FT_BYTES, BASE_NONE,
                 NULL, 0x0,NULL, HFILL }},
         { &hf_nge_unknown_int32,
-            { "Unknown", "nge.unknown", FT_UINT32, BASE_DEC,
+            { "Unknown", "nge.unknown.int32", FT_UINT32, BASE_DEC,
                 NULL, 0x0, NULL, HFILL }},
         { &hf_nge_sequence,
             { "Sequence", "nge.sequence", FT_UINT32, BASE_DEC,
