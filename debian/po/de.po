@@ -1,22 +1,19 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
-# Translators:
-# Dominik Eismann <dorlamm@gmx.de>, 2016
-# uhei, 2015
-# Uli Heilmeier, 2015
-# uhei, 2015
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Wireshark\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: wireshark@packages.debian.org\n"
 "POT-Creation-Date: 2010-06-20 16:35+0200\n"
-"PO-Revision-Date: 2016-01-23 00:36+0000\n"
-"Last-Translator: Dominik Eismann <dorlamm@gmx.de>\n"
-"Language-Team: German (http://www.transifex.com/wireshark/wireshark/language/de/)\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Gerald Combs <gerald@wireshark.org>, 2016\n"
+"Language-Team: German (https://www.transifex.com/wireshark/teams/36457/de/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: de\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -35,7 +32,11 @@ msgid ""
 "system group to capture packets. This is recommended over the alternative of"
 " running Wireshark/Tshark directly as root, because less of the code will "
 "run with elevated privileges."
-msgstr "Dumpcap kann so installiert werden, dass es Mitgliedern der Systemgruppe \"wireshark\" erlaubt ist Pakete aufzuzeichnen. Da hier weniger Programmcode mit erhöhten Rechten ausgeführt wird ist diese Option eher zu empfehlen anstatt Wireshark/Tshark direkt als root-Benutzer zu starten."
+msgstr ""
+"Dumpcap kann so installiert werden, dass es Mitgliedern der Systemgruppe "
+"\"wireshark\" erlaubt ist Pakete aufzuzeichnen. Da hier weniger Programmcode"
+" mit erhöhten Rechten ausgeführt wird ist diese Option eher zu empfehlen "
+"anstatt Wireshark/Tshark direkt als root-Benutzer zu starten."
 
 #. Type: boolean
 #. Description
@@ -43,7 +44,9 @@ msgstr "Dumpcap kann so installiert werden, dass es Mitgliedern der Systemgruppe
 msgid ""
 "For more detailed information please see /usr/share/doc/wireshark-"
 "common/README.Debian."
-msgstr "Weitere detaillierte Informationen sind unter /usr/share/doc/wireshark-common/README.Debian zu finden."
+msgstr ""
+"Weitere detaillierte Informationen sind unter /usr/share/doc/wireshark-"
+"common/README.Debian zu finden."
 
 #. Type: boolean
 #. Description
@@ -51,4 +54,7 @@ msgstr "Weitere detaillierte Informationen sind unter /usr/share/doc/wireshark-c
 msgid ""
 "Enabling this feature may be a security risk, so it is disabled by default. "
 "If in doubt, it is suggested to leave it disabled."
-msgstr "Da das Aktivieren dieser Funktion ein Sicherheitsrisiko darstellen kann, ist es standardmäßig deaktiviert. Es wird Empfohlen dies im Zweifelsfall deaktiviert zu lassen."
+msgstr ""
+"Da das Aktivieren dieser Funktion ein Sicherheitsrisiko darstellen kann, ist"
+" es standardmäßig deaktiviert. Es wird Empfohlen dies im Zweifelsfall "
+"deaktiviert zu lassen."

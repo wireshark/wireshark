@@ -703,10 +703,6 @@
         <translation>Afficher les octets en hexadécimal</translation>
     </message>
     <message>
-        <source>Show bytes as bits</source>
-        <translation type="vanished">Afficher les octets en bits</translation>
-    </message>
-    <message>
         <location filename="byte_view_text.cpp" line="286"/>
         <source>Byte %1</source>
         <translation>Octets %1</translation>
@@ -1809,11 +1805,6 @@ si vous voulez utiliser des fichiers multiples.</translation>
         <location filename="coloring_rules_dialog.cpp" line="366"/>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will disable them.</source>
-        <oldsource>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</oldsource>
-        <translation type="obsolete">Wireshark ne reconnaît pas une ou plusieurs de vos règles de coloriage. Sauvegarder les supprimera.</translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="378"/>
@@ -3023,20 +3014,6 @@ pour fichiers de filtre : %2.</translation>
         <oldsource>Save as...</oldsource>
         <translation>Enregistrer sous</translation>
     </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%n client paquet, </numerusform>
-            <numerusform>%n client paquet(s), </numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%n serveur paquet</numerusform>
-            <numerusform>%n serveur paquet(s)</numerusform>
-        </translation>
-    </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="118"/>
         <source>ASCII</source>
@@ -4242,10 +4219,6 @@ pour fichiers de filtre : %2.</translation>
         <location filename="iax2_analysis_dialog.cpp" line="282"/>
         <source>Unable to save RTP data.</source>
         <translation>Impossible de sauvegarder les données RTP.</translation>
-    </message>
-    <message>
-        <source>Please select an IAX2 packet</source>
-        <translation type="vanished">Sélectionnez un paquet IAX2 </translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="323"/>
@@ -10242,18 +10215,6 @@ a:hover {
         <source>Preferences</source>
         <translation>Préférences</translation>
     </message>
-    <message>
-        <source>Unknown</source>
-        <translation type="vanished">Inconnu</translation>
-    </message>
-    <message>
-        <source>Default</source>
-        <translation type="vanished">Défaut</translation>
-    </message>
-    <message>
-        <source>Changed</source>
-        <translation type="vanished">Modifier</translation>
-    </message>
 </context>
 <context>
     <name>PrintDialog</name>
@@ -10563,7 +10524,7 @@ a:hover {
     <message>
         <location filename="preferences_dialog.cpp" line="112"/>
         <source>Changed</source>
-        <translation type="unfinished">Modifier</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="preferences_dialog.cpp" line="130"/>
@@ -10717,10 +10678,6 @@ a:hover {
         <translation>Conversation</translation>
     </message>
     <message>
-        <source>N/A</source>
-        <translation type="vanished">N/A</translation>
-    </message>
-    <message>
         <location filename="endpoint_dialog.cpp" line="47"/>
         <source>Endpoint</source>
         <translation>Terminal</translation>
@@ -10739,10 +10696,6 @@ a:hover {
         <location filename="filter_action.cpp" line="71"/>
         <source>Find</source>
         <translation>Chercher</translation>
-    </message>
-    <message>
-        <source>Conversation Filter</source>
-        <translation type="vanished">Filtre de Conversation</translation>
     </message>
     <message>
         <location filename="filter_action.cpp" line="74"/>

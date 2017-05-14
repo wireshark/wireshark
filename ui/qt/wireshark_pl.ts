@@ -405,7 +405,7 @@
         <location filename="bluetooth_devices_dialog.ui" line="146"/>
         <location filename="bluetooth_devices_dialog.cpp" line="329"/>
         <source>%1 items; Right click for more option; Double click for device details</source>
-        <translation>%1 urzędzeń; Kliknij prawy przycisk myszy by zobaczyć więcej opcji; Podwójnie kliknij by przejść do szczegółów urządzenia</translation>
+        <translation>%1 urządzeń; Kliknij prawy przycisk myszy by zobaczyć więcej opcji; Podwójnie kliknij by przejść do szczegółów urządzenia</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="163"/>
@@ -701,10 +701,6 @@
         <location filename="byte_view_text.cpp" line="77"/>
         <source>Show bytes as hexadecimal</source>
         <translation>Pokaż szesnastkowo</translation>
-    </message>
-    <message>
-        <source>Show bytes as bits</source>
-        <translation type="vanished">Pokaż bitowo</translation>
     </message>
     <message>
         <location filename="byte_view_text.cpp" line="286"/>
@@ -1809,11 +1805,6 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will disable them.</source>
-        <oldsource>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</oldsource>
-        <translation type="obsolete">Wireshark nie rozpoznał jednej lub wększej ilości twoich reguł kolorowania.Zapis spowoduje usunięcie ich.</translation>
-    </message>
-    <message>
         <location filename="coloring_rules_dialog.cpp" line="378"/>
         <source>Unable to save coloring rules: %s</source>
         <translation>Nie można zapisać reguł kolorowania: %s</translation>
@@ -2552,7 +2543,7 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     <message>
         <location filename="export_dissection_dialog.cpp" line="99"/>
         <source>JSON (*.json)</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON (*.json)</translation>
     </message>
     <message>
         <location filename="export_dissection_dialog.cpp" line="100"/>
@@ -3032,8 +3023,8 @@ dla plików filtrów: %2.</translation>
     <message numerus="yes">
         <source>%Ln server pkt(s), </source>
         <translation type="vanished">
-            <numerusform>%Ln pakiet serwera</numerusform>
-            <numerusform>%Ln pakietów serwera</numerusform>
+            <numerusform>%Ln pakiet serwera,</numerusform>
+            <numerusform>%Ln pakietów serwera,</numerusform>
             <numerusform>%Ln pakiety serwera,</numerusform>
         </translation>
     </message>
@@ -3080,7 +3071,7 @@ dla plików filtrów: %2.</translation>
     <message>
         <location filename="follow_stream_dialog.cpp" line="137"/>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>Wróć</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="181"/>
@@ -4236,10 +4227,6 @@ dla plików filtrów: %2.</translation>
         <location filename="iax2_analysis_dialog.cpp" line="282"/>
         <source>Unable to save RTP data.</source>
         <translation>Nie można zapisać danych RTP.</translation>
-    </message>
-    <message>
-        <source>Please select an IAX2 packet</source>
-        <translation type="vanished">Proszę wybrać pakiet IAX2</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="323"/>
@@ -7558,7 +7545,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1242"/>
         <source>As JSON…</source>
-        <translation type="unfinished"></translation>
+        <translation>Jako JSON…</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1265"/>
@@ -10267,18 +10254,6 @@ text-decoration: underline;
         <source>Preferences</source>
         <translation>Preferencje</translation>
     </message>
-    <message>
-        <source>Unknown</source>
-        <translation type="vanished">Nieznane</translation>
-    </message>
-    <message>
-        <source>Default</source>
-        <translation type="vanished">Domyślne</translation>
-    </message>
-    <message>
-        <source>Changed</source>
-        <translation type="vanished">Zmienione</translation>
-    </message>
 </context>
 <context>
     <name>PrintDialog</name>
@@ -10583,12 +10558,12 @@ text-decoration: underline;
     <message>
         <location filename="preferences_dialog.cpp" line="110"/>
         <source>Default</source>
-        <translation type="unfinished">Domyślne</translation>
+        <translation>Domyślne</translation>
     </message>
     <message>
         <location filename="preferences_dialog.cpp" line="112"/>
         <source>Changed</source>
-        <translation type="unfinished">Zmienione</translation>
+        <translation>Zmienione</translation>
     </message>
     <message>
         <location filename="preferences_dialog.cpp" line="130"/>
@@ -10742,10 +10717,6 @@ text-decoration: underline;
         <translation>Konwersacja</translation>
     </message>
     <message>
-        <source>N/A</source>
-        <translation type="vanished">N/A</translation>
-    </message>
-    <message>
         <location filename="endpoint_dialog.cpp" line="47"/>
         <source>Endpoint</source>
         <translation>Punkt krańcowy</translation>
@@ -10764,10 +10735,6 @@ text-decoration: underline;
         <location filename="filter_action.cpp" line="71"/>
         <source>Find</source>
         <translation>Znajdź</translation>
-    </message>
-    <message>
-        <source>Conversation Filter</source>
-        <translation type="vanished">Filtr Konwersacji</translation>
     </message>
     <message>
         <location filename="filter_action.cpp" line="74"/>
@@ -11176,12 +11143,12 @@ text-decoration: underline;
     <message>
         <location filename="../../wireshark-qt.cpp" line="801"/>
         <source>Invalid Display Filter</source>
-        <translation type="unfinished">Niepoprawny filtr</translation>
+        <translation>Niepoprawny filtr wyświetlania</translation>
     </message>
     <message>
         <location filename="../../wireshark-qt.cpp" line="802"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Postać filtru wyświetlania %1 nie jest poprawna. (%2).</translation>
     </message>
 </context>
 <context>
@@ -14269,7 +14236,7 @@ text-decoration: underline;
     <message>
         <location filename="splash_overlay.cpp" line="164"/>
         <source>Finding local interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Szukanie lokalnych interfejsów</translation>
     </message>
     <message>
         <location filename="splash_overlay.cpp" line="167"/>
@@ -15172,12 +15139,12 @@ text-decoration: underline;
     <message>
         <location filename="traffic_table_dialog.ui" line="68"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show absolute times in the start time column.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokazuj czas absolutny w kolumnie Start Czasu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.ui" line="71"/>
         <source>Absolute start time</source>
-        <translation type="unfinished"></translation>
+        <translation>Absolutny czas startu</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.ui" line="91"/>
@@ -15265,7 +15232,7 @@ text-decoration: underline;
     <message>
         <location filename="voip_calls_dialog.ui" line="36"/>
         <source>Start Time</source>
-        <translation>Czas start</translation>
+        <translation>Czas startu</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.ui" line="41"/>

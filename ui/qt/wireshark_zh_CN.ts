@@ -703,10 +703,6 @@
         <translation>以十六进制显示字节</translation>
     </message>
     <message>
-        <source>Show bytes as bits</source>
-        <translation type="vanished">以二进制显示字节</translation>
-    </message>
-    <message>
         <location filename="byte_view_text.cpp" line="286"/>
         <source>Byte %1</source>
         <translation>字节 %1</translation>
@@ -1809,11 +1805,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will disable them.</source>
-        <oldsource>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</oldsource>
-        <translation type="obsolete">Wireshark 无法识别您的一个或多个着色规则。保存将会丢弃它们。</translation>
-    </message>
-    <message>
         <location filename="coloring_rules_dialog.cpp" line="378"/>
         <source>Unable to save coloring rules: %s</source>
         <translation>无法保存着色规则: %s</translation>
@@ -2552,7 +2543,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="export_dissection_dialog.cpp" line="99"/>
         <source>JSON (*.json)</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON (*.json)</translation>
     </message>
     <message>
         <location filename="export_dissection_dialog.cpp" line="100"/>
@@ -3022,13 +3013,13 @@ for filter files: %2.</source>
     <message numerus="yes">
         <source>%Ln client pkt(s), </source>
         <translation type="vanished">
-            <numerusform>%Ln 客户端分组数,</numerusform>
+            <numerusform>%Ln 个客户端包，</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln server pkt(s), </source>
         <translation type="vanished">
-            <numerusform>%Ln 服务器分组数,</numerusform>
+            <numerusform>%Ln 个服务器包，</numerusform>
         </translation>
     </message>
     <message>
@@ -3074,7 +3065,7 @@ for filter files: %2.</source>
     <message>
         <location filename="follow_stream_dialog.cpp" line="137"/>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>返回</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="181"/>
@@ -4229,10 +4220,6 @@ for filter files: %2.</source>
         <location filename="iax2_analysis_dialog.cpp" line="282"/>
         <source>Unable to save RTP data.</source>
         <translation>无法保存 RTP 数据。</translation>
-    </message>
-    <message>
-        <source>Please select an IAX2 packet</source>
-        <translation type="vanished">请选择一个 IAX2 分组</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="323"/>
@@ -7547,7 +7534,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1242"/>
         <source>As JSON…</source>
-        <translation type="unfinished"></translation>
+        <translation>为 JSON…</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1265"/>
@@ -10254,18 +10241,6 @@ text-decoration: underline;
         <source>Preferences</source>
         <translation>首选项</translation>
     </message>
-    <message>
-        <source>Unknown</source>
-        <translation type="vanished">未知</translation>
-    </message>
-    <message>
-        <source>Default</source>
-        <translation type="vanished">默认</translation>
-    </message>
-    <message>
-        <source>Changed</source>
-        <translation type="vanished">已更改</translation>
-    </message>
 </context>
 <context>
     <name>PrintDialog</name>
@@ -10570,12 +10545,12 @@ text-decoration: underline;
     <message>
         <location filename="preferences_dialog.cpp" line="110"/>
         <source>Default</source>
-        <translation type="unfinished">默认</translation>
+        <translation>默认</translation>
     </message>
     <message>
         <location filename="preferences_dialog.cpp" line="112"/>
         <source>Changed</source>
-        <translation type="unfinished">已更改</translation>
+        <translation>已更改</translation>
     </message>
     <message>
         <location filename="preferences_dialog.cpp" line="130"/>
@@ -10729,10 +10704,6 @@ text-decoration: underline;
         <translation>对话</translation>
     </message>
     <message>
-        <source>N/A</source>
-        <translation type="vanished">N/A</translation>
-    </message>
-    <message>
         <location filename="endpoint_dialog.cpp" line="47"/>
         <source>Endpoint</source>
         <translation>端点</translation>
@@ -10751,10 +10722,6 @@ text-decoration: underline;
         <location filename="filter_action.cpp" line="71"/>
         <source>Find</source>
         <translation>查找</translation>
-    </message>
-    <message>
-        <source>Conversation Filter</source>
-        <translation type="vanished">对话过滤器</translation>
     </message>
     <message>
         <location filename="filter_action.cpp" line="74"/>
@@ -11163,12 +11130,12 @@ text-decoration: underline;
     <message>
         <location filename="../../wireshark-qt.cpp" line="801"/>
         <source>Invalid Display Filter</source>
-        <translation type="unfinished">无效显示过滤器</translation>
+        <translation>无效的显示筛选器</translation>
     </message>
     <message>
         <location filename="../../wireshark-qt.cpp" line="802"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>筛选器表达式 %1 不是有效的显示筛选器 (%2)。</translation>
     </message>
 </context>
 <context>
@@ -13747,7 +13714,32 @@ text-decoration: underline;
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;有价值的和惊人的时间节省键盘快捷方式&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;放大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;缩小&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;图形重置为初始状态&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;右移 10 个像素&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;左移 10 个像素&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;上移 10 个像素&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;下移 10 个像素&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;右移 1 个像素&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;左移 1 个像素&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;上移 1 个像素&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;下移 1 个像素&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;转到光标下的数据包&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;n&lt;/th&gt;&lt;td&gt;转到下一个数据包&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;p&lt;/th&gt;&lt;td&gt;转到上一个数据包&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="74"/>
@@ -14225,7 +14217,7 @@ text-decoration: underline;
     <message>
         <location filename="splash_overlay.cpp" line="164"/>
         <source>Finding local interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>正在查找本地接口</translation>
     </message>
     <message>
         <location filename="splash_overlay.cpp" line="167"/>
@@ -15129,12 +15121,12 @@ text-decoration: underline;
     <message>
         <location filename="traffic_table_dialog.ui" line="68"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show absolute times in the start time column.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在开始时间列显示绝对时间。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.ui" line="71"/>
         <source>Absolute start time</source>
-        <translation type="unfinished"></translation>
+        <translation>绝对开始时间</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.ui" line="91"/>

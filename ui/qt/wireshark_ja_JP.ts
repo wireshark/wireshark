@@ -703,10 +703,6 @@
         <translation>16進数でバイト列を表示</translation>
     </message>
     <message>
-        <source>Show bytes as bits</source>
-        <translation type="vanished">ビットでバイト列を表示</translation>
-    </message>
-    <message>
         <location filename="byte_view_text.cpp" line="286"/>
         <source>Byte %1</source>
         <translation>バイト %1</translation>
@@ -1805,11 +1801,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="coloring_rules_dialog.cpp" line="366"/>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will disable them.</source>
-        <oldsource>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</oldsource>
-        <translation type="obsolete">Wiresharkはひとつかそれ以上の色付けルールを認識できません。保存は破棄されます。</translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="378"/>
@@ -3012,18 +3003,6 @@ for filter files: %2.</source>
         <oldsource>Save as...</oldsource>
         <translation>として保存</translation>
     </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln クライアントパケット, </numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln サーバーパケット, </numerusform>
-        </translation>
-    </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="118"/>
         <source>ASCII</source>
@@ -4222,10 +4201,6 @@ for filter files: %2.</source>
         <location filename="iax2_analysis_dialog.cpp" line="282"/>
         <source>Unable to save RTP data.</source>
         <translation>RTPデータを保存できません。</translation>
-    </message>
-    <message>
-        <source>Please select an IAX2 packet</source>
-        <translation type="vanished">IAX2パケットを選んでください</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="323"/>
@@ -10222,18 +10197,6 @@ a:hover {
         <source>Preferences</source>
         <translation>設定</translation>
     </message>
-    <message>
-        <source>Unknown</source>
-        <translation type="vanished">不明</translation>
-    </message>
-    <message>
-        <source>Default</source>
-        <translation type="vanished">デフォルト</translation>
-    </message>
-    <message>
-        <source>Changed</source>
-        <translation type="vanished">変更された</translation>
-    </message>
 </context>
 <context>
     <name>PrintDialog</name>
@@ -10543,7 +10506,7 @@ a:hover {
     <message>
         <location filename="preferences_dialog.cpp" line="112"/>
         <source>Changed</source>
-        <translation type="unfinished">変更された</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="preferences_dialog.cpp" line="130"/>
@@ -10697,10 +10660,6 @@ a:hover {
         <translation>対話</translation>
     </message>
     <message>
-        <source>N/A</source>
-        <translation type="vanished">未指定</translation>
-    </message>
-    <message>
         <location filename="endpoint_dialog.cpp" line="47"/>
         <source>Endpoint</source>
         <translation>終端</translation>
@@ -10719,10 +10678,6 @@ a:hover {
         <location filename="filter_action.cpp" line="71"/>
         <source>Find</source>
         <translation>検索</translation>
-    </message>
-    <message>
-        <source>Conversation Filter</source>
-        <translation type="vanished">対話フィルタ</translation>
     </message>
     <message>
         <location filename="filter_action.cpp" line="74"/>

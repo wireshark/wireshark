@@ -496,7 +496,7 @@
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="127"/>
         <source>Occurrence</source>
-        <translation>Auftreten</translation>
+        <translation>Auftrittsreihenfolge</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="132"/>
@@ -701,10 +701,6 @@
         <location filename="byte_view_text.cpp" line="77"/>
         <source>Show bytes as hexadecimal</source>
         <translation>Bytes in Hexadezimal anzeigen</translation>
-    </message>
-    <message>
-        <source>Show bytes as bits</source>
-        <translation type="vanished">Bytes in Bits anzeigen</translation>
     </message>
     <message>
         <location filename="byte_view_text.cpp" line="286"/>
@@ -1807,12 +1803,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="366"/>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will disable them.</source>
-        <oldsource>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</oldsource>
-        <translation type="obsolete">Wireshark erkennt eine oder mehrere der Einfärbungsregeln nicht. Speichern verwirft diese.</translation>
+        <translation>Wireshark erkennt eine oder mehrere der Einfärbungsregeln nicht. Diese wurden deaktiviert.</translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="378"/>
@@ -1843,13 +1834,13 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <location filename="column_editor_frame.ui" line="78"/>
         <source>Fields:</source>
         <oldsource>Fields</oldsource>
-        <translation>Felder:</translation>
+        <translation>Feldname:</translation>
     </message>
     <message>
         <location filename="column_editor_frame.ui" line="101"/>
         <source>Occurrence:</source>
         <oldsource>Occurrence</oldsource>
-        <translation>Auftreten:</translation>
+        <translation>Auftrittsreihenfolge:</translation>
     </message>
 </context>
 <context>
@@ -1878,7 +1869,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <location filename="column_preferences_frame.ui" line="45"/>
         <source>Fields</source>
         <oldsource>Field Name</oldsource>
-        <translation>Felder</translation>
+        <translation>Feldname</translation>
     </message>
     <message>
         <location filename="column_preferences_frame.ui" line="50"/>
@@ -2553,7 +2544,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <location filename="export_dissection_dialog.cpp" line="99"/>
         <source>JSON (*.json)</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON (*.json)</translation>
     </message>
     <message>
         <location filename="export_dissection_dialog.cpp" line="100"/>
@@ -3079,7 +3070,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="follow_stream_dialog.cpp" line="137"/>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>Zurück</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="181"/>
@@ -4241,14 +4232,10 @@ für die Filterdateien kann nicht erstellt werden:
         <translation>RTP Daten können nicht gesichert werden.</translation>
     </message>
     <message>
-        <source>Please select an IAX2 packet</source>
-        <translation type="vanished">Bitte ein IAX2 Paket auswählen</translation>
-    </message>
-    <message>
         <location filename="iax2_analysis_dialog.cpp" line="323"/>
         <location filename="iax2_analysis_dialog.cpp" line="344"/>
         <source>Please select an IAX2 packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitte ein IAX2 Paket auswählen.</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="453"/>
@@ -7350,7 +7337,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1176"/>
         <source>Capture options</source>
-        <translation>Auzeichnungsoptionen</translation>
+        <translation>Aufzeichnungsoptionen</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1190"/>
@@ -7559,7 +7546,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1242"/>
         <source>As JSON…</source>
-        <translation type="unfinished"></translation>
+        <translation>Als JSON...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1265"/>
@@ -10268,18 +10255,6 @@ text-decoration: underline;
         <source>Preferences</source>
         <translation>Einstellungen</translation>
     </message>
-    <message>
-        <source>Unknown</source>
-        <translation type="vanished">Unbekannt</translation>
-    </message>
-    <message>
-        <source>Default</source>
-        <translation type="vanished">Standard</translation>
-    </message>
-    <message>
-        <source>Changed</source>
-        <translation type="vanished">Geändert</translation>
-    </message>
 </context>
 <context>
     <name>PrintDialog</name>
@@ -10374,7 +10349,7 @@ text-decoration: underline;
     <message>
         <location filename="profile_dialog.cpp" line="172"/>
         <source>(system provided)</source>
-        <translation type="unfinished"></translation>
+        <translation>(vom System vorgegeben)</translation>
     </message>
     <message>
         <location filename="profile_dialog.cpp" line="178"/>
@@ -10584,12 +10559,12 @@ text-decoration: underline;
     <message>
         <location filename="preferences_dialog.cpp" line="110"/>
         <source>Default</source>
-        <translation type="unfinished">Standard</translation>
+        <translation>Standard</translation>
     </message>
     <message>
         <location filename="preferences_dialog.cpp" line="112"/>
         <source>Changed</source>
-        <translation type="unfinished">Geändert</translation>
+        <translation>Geändert</translation>
     </message>
     <message>
         <location filename="preferences_dialog.cpp" line="130"/>
@@ -10743,10 +10718,6 @@ text-decoration: underline;
         <translation>Verbindungen</translation>
     </message>
     <message>
-        <source>N/A</source>
-        <translation type="vanished">Entfällt</translation>
-    </message>
-    <message>
         <location filename="endpoint_dialog.cpp" line="47"/>
         <source>Endpoint</source>
         <translation>Endpunkt</translation>
@@ -10765,10 +10736,6 @@ text-decoration: underline;
         <location filename="filter_action.cpp" line="71"/>
         <source>Find</source>
         <translation>Finden</translation>
-    </message>
-    <message>
-        <source>Conversation Filter</source>
-        <translation type="vanished">Verbindungsfilter</translation>
     </message>
     <message>
         <location filename="filter_action.cpp" line="74"/>
@@ -11177,12 +11144,12 @@ text-decoration: underline;
     <message>
         <location filename="../../wireshark-qt.cpp" line="801"/>
         <source>Invalid Display Filter</source>
-        <translation type="unfinished">Ungültiger Anzeigefilter</translation>
+        <translation>Ungültiger Anzeigefilter</translation>
     </message>
     <message>
         <location filename="../../wireshark-qt.cpp" line="802"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Filterausdruck %1 ist kein gültiger Anzeigefilter. (%2).</translation>
     </message>
 </context>
 <context>
@@ -14266,7 +14233,7 @@ text-decoration: underline;
     <message>
         <location filename="splash_overlay.cpp" line="164"/>
         <source>Finding local interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokale Schnittstellen finden</translation>
     </message>
     <message>
         <location filename="splash_overlay.cpp" line="167"/>
@@ -15174,12 +15141,12 @@ text-decoration: underline;
     <message>
         <location filename="traffic_table_dialog.ui" line="68"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show absolute times in the start time column.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Absolute Zeit in der Spalte Startzeit anzeigen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.ui" line="71"/>
         <source>Absolute start time</source>
-        <translation type="unfinished"></translation>
+        <translation>Absolute Startzeit</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.ui" line="91"/>
@@ -15480,22 +15447,22 @@ text-decoration: underline;
     <message>
         <location filename="wireshark_application.cpp" line="555"/>
         <source>Dell Backup and Recovery Found</source>
-        <translation type="unfinished"></translation>
+        <translation>Dell Backup and Recovery gefunden</translation>
     </message>
     <message>
         <location filename="wireshark_application.cpp" line="556"/>
         <source>You appear to be running Dell Backup and Recovery 1.8.</source>
-        <translation type="unfinished"></translation>
+        <translation>Offensichtlich wurde Dell Backup and Recovery 1.8 gestartet.</translation>
     </message>
     <message>
         <location filename="wireshark_application.cpp" line="557"/>
         <source>DBAR can make many applications crash &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;including Wireshark&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>DBAR kann zum Absturz von vielen Applikationen führen (&lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;inklusive Wireshark)&lt;/a&gt;.</translation>
     </message>
     <message>
         <location filename="wireshark_application.cpp" line="561"/>
         <source>Offending DLL: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Problematische DLL: %1</translation>
     </message>
 </context>
 <context>
