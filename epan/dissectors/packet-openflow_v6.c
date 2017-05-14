@@ -448,9 +448,9 @@ static int hf_openflow_v6_group_stats_request_pad = -1;
 static int hf_openflow_v6_meter_stats_request_meter_id = -1;
 static int hf_openflow_v6_meter_stats_request_meter_id_reserved = -1;
 static int hf_openflow_v6_meter_stats_request_pad = -1;
-static int hf_openflow_v6_meter_config_request_meter_id = -1;
-static int hf_openflow_v6_meter_config_request_meter_id_reserved = -1;
-static int hf_openflow_v6_meter_config_request_pad = -1;
+static int hf_openflow_v6_meter_desc_request_meter_id = -1;
+static int hf_openflow_v6_meter_desc_request_meter_id_reserved = -1;
+static int hf_openflow_v6_meter_desc_request_pad = -1;
 static int hf_openflow_v6_queue_desc_request_port_no = -1;
 static int hf_openflow_v6_queue_desc_request_port_no_reserved = -1;
 static int hf_openflow_v6_queue_desc_request_queue_id = -1;
@@ -659,14 +659,14 @@ static int hf_openflow_v6_meter_stats_packet_in_count = -1;
 static int hf_openflow_v6_meter_stats_byte_in_count = -1;
 static int hf_openflow_v6_meter_stats_duration_sec = -1;
 static int hf_openflow_v6_meter_stats_duration_nsec = -1;
-static int hf_openflow_v6_meter_config_len = -1;
-static int hf_openflow_v6_meter_config_flags = -1;
-static int hf_openflow_v6_meter_config_flags_kbps = -1;
-static int hf_openflow_v6_meter_config_flags_pktps = -1;
-static int hf_openflow_v6_meter_config_flags_burst = -1;
-static int hf_openflow_v6_meter_config_flags_stats = -1;
-static int hf_openflow_v6_meter_config_meter_id = -1;
-static int hf_openflow_v6_meter_config_meter_id_reserved = -1;
+static int hf_openflow_v6_meter_desc_len = -1;
+static int hf_openflow_v6_meter_desc_flags = -1;
+static int hf_openflow_v6_meter_desc_flags_kbps = -1;
+static int hf_openflow_v6_meter_desc_flags_pktps = -1;
+static int hf_openflow_v6_meter_desc_flags_burst = -1;
+static int hf_openflow_v6_meter_desc_flags_stats = -1;
+static int hf_openflow_v6_meter_desc_meter_id = -1;
+static int hf_openflow_v6_meter_desc_meter_id_reserved = -1;
 static int hf_openflow_v6_meter_features_max_meter = -1;
 static int hf_openflow_v6_meter_features_band_types = -1;
 static int hf_openflow_v6_meter_features_band_types_drop = -1;
@@ -845,8 +845,8 @@ static gint ett_openflow_v6_group_features_actions_indirect = -1;
 static gint ett_openflow_v6_group_features_actions_ff = -1;
 static gint ett_openflow_v6_meter_band_stats = -1;
 static gint ett_openflow_v6_meter_stats = -1;
-static gint ett_openflow_v6_meter_config = -1;
-static gint ett_openflow_v6_meter_config_flags = -1;
+static gint ett_openflow_v6_meter_desc = -1;
+static gint ett_openflow_v6_meter_desc_flags = -1;
 static gint ett_openflow_v6_meter_features_band_types = -1;
 static gint ett_openflow_v6_meter_features_capabilities = -1;
 static gint ett_openflow_v6_flow_update = -1;
@@ -3964,18 +3964,18 @@ dissect_openflow_meter_stats_request_v6(tvbuff_t *tvb, packet_info *pinfo _U_, p
 
 
 static void
-dissect_openflow_meter_config_request_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
+dissect_openflow_meter_desc_request_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
     /* uint32_t meter_id; */
     if (tvb_get_ntohl(tvb, offset) <= OFPM_MAX) {
-        proto_tree_add_item(tree, hf_openflow_v6_meter_config_request_meter_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_openflow_v6_meter_desc_request_meter_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     } else {
-        proto_tree_add_item(tree, hf_openflow_v6_meter_config_request_meter_id_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_openflow_v6_meter_desc_request_meter_id_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
     }
     offset+=4;
 
     /* uint8_t pad[4]; */
-    proto_tree_add_item(tree, hf_openflow_v6_meter_config_request_pad, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(tree, hf_openflow_v6_meter_desc_request_pad, tvb, offset, 4, ENC_NA);
     /*offset+=4;*/
 }
 
@@ -4085,7 +4085,7 @@ dissect_openflow_flow_monitor_request_v6(tvbuff_t *tvb, packet_info *pinfo _U_, 
 #define OFPMP_GROUP_DESC       7
 #define OFPMP_GROUP_FEATURES   8
 #define OFPMP_METER            9
-#define OFPMP_METER_CONFIG    10
+#define OFPMP_METER_DESC      10
 #define OFPMP_METER_FEATURES  11
 #define OFPMP_TABLE_FEATURES  12
 #define OFPMP_PORT_DESC       13
@@ -4104,7 +4104,7 @@ static const value_string openflow_v6_multipart_type_values[] = {
     { OFPMP_GROUP_DESC,     "OFPMP_GROUP_DESC" },
     { OFPMP_GROUP_FEATURES, "OFPMP_GROUP_FEATURES" },
     { OFPMP_METER,          "OFPMP_METER" },
-    { OFPMP_METER_CONFIG,   "OFPMP_METER_CONFIG" },
+    { OFPMP_METER_DESC,     "OFPMP_METER_DESC" },
     { OFPMP_METER_FEATURES, "OFPMP_METER_FEATURES" },
     { OFPMP_TABLE_FEATURES, "OFPMP_TABLE_FEATURES" },
     { OFPMP_PORT_DESC,      "OFPMP_PORT_DESC" },
@@ -4171,8 +4171,8 @@ dissect_openflow_multipart_request_v6(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     case OFPMP_METER:
         dissect_openflow_meter_stats_request_v6(tvb, pinfo, tree, offset, length);
         break;
-    case OFPMP_METER_CONFIG:
-        dissect_openflow_meter_config_request_v6(tvb, pinfo, tree, offset, length);
+    case OFPMP_METER_DESC:
+        dissect_openflow_meter_desc_request_v6(tvb, pinfo, tree, offset, length);
         break;
     case OFPMP_METER_FEATURES:
         /* The request body is empty. */
@@ -4971,37 +4971,37 @@ dissect_openflow_meter_stats_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 
 static int
-dissect_openflow_meter_config_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
+dissect_openflow_meter_desc_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
     proto_item *ti;
     proto_tree *conf_tree, *flags_tree;
     guint16 config_len;
     gint32 config_end;
 
-    conf_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v6_meter_config, &ti, "Meter config");
+    conf_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v6_meter_desc, &ti, "Meter desc");
 
     /* uint16_t len; */
     config_len = tvb_get_ntohs(tvb, offset);
     config_end = offset + config_len;
     proto_item_set_len(ti, config_len);
-    proto_tree_add_item(conf_tree, hf_openflow_v6_meter_config_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(conf_tree, hf_openflow_v6_meter_desc_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
     /* uint16_t flags; */
-    ti = proto_tree_add_item(conf_tree, hf_openflow_v6_meter_config_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
-    flags_tree = proto_item_add_subtree(ti, ett_openflow_v6_meter_config_flags);
+    ti = proto_tree_add_item(conf_tree, hf_openflow_v6_meter_desc_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
+    flags_tree = proto_item_add_subtree(ti, ett_openflow_v6_meter_desc_flags);
 
-    proto_tree_add_item(flags_tree, hf_openflow_v6_meter_config_flags_kbps,  tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(flags_tree, hf_openflow_v6_meter_config_flags_pktps, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(flags_tree, hf_openflow_v6_meter_config_flags_burst, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(flags_tree, hf_openflow_v6_meter_config_flags_stats, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(flags_tree, hf_openflow_v6_meter_desc_flags_kbps,  tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(flags_tree, hf_openflow_v6_meter_desc_flags_pktps, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(flags_tree, hf_openflow_v6_meter_desc_flags_burst, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(flags_tree, hf_openflow_v6_meter_desc_flags_stats, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
     /* uint32_t meter_id; */
     if (tvb_get_ntohl(tvb, offset) <= OFPM_MAX) {
-        proto_tree_add_item(conf_tree, hf_openflow_v6_meter_config_meter_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(conf_tree, hf_openflow_v6_meter_desc_meter_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     } else {
-        proto_tree_add_item(conf_tree, hf_openflow_v6_meter_config_meter_id_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(conf_tree, hf_openflow_v6_meter_desc_meter_id_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
     }
     offset+=4;
 
@@ -5412,9 +5412,9 @@ dissect_openflow_multipart_reply_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto
             offset = dissect_openflow_meter_stats_v6(tvb, pinfo, tree, offset, length);
         }
         break;
-    case OFPMP_METER_CONFIG:
+    case OFPMP_METER_DESC:
         while (offset < length) {
-            offset = dissect_openflow_meter_config_v6(tvb, pinfo, tree, offset, length);
+            offset = dissect_openflow_meter_desc_v6(tvb, pinfo, tree, offset, length);
         }
         break;
     case OFPMP_METER_FEATURES:
@@ -8155,18 +8155,18 @@ proto_register_openflow_v6(void)
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
-        { &hf_openflow_v6_meter_config_request_meter_id,
-            { "Meter ID", "openflow_v6.meter_config_request.meter_id",
+        { &hf_openflow_v6_meter_desc_request_meter_id,
+            { "Meter ID", "openflow_v6.meter_desc_request.meter_id",
                FT_UINT32, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
-        { &hf_openflow_v6_meter_config_request_meter_id_reserved,
-            { "Meter ID", "openflow_v6.meter_config_request.meter_id",
+        { &hf_openflow_v6_meter_desc_request_meter_id_reserved,
+            { "Meter ID", "openflow_v6.meter_desc_request.meter_id",
                FT_UINT32, BASE_HEX, VALS(openflow_v6_meter_id_reserved_values), 0x0,
                NULL, HFILL }
         },
-        { &hf_openflow_v6_meter_config_request_pad,
-            { "Pad", "openflow_v6.aggregate_config_request.pad",
+        { &hf_openflow_v6_meter_desc_request_pad,
+            { "Pad", "openflow_v6.meter_desc.request.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -9210,43 +9210,43 @@ proto_register_openflow_v6(void)
                FT_UINT32, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
-        { &hf_openflow_v6_meter_config_len,
-            { "Length", "openflow_v6.meter_stats.len",
+        { &hf_openflow_v6_meter_desc_len,
+            { "Length", "openflow_v6.meter_desc.len",
                FT_UINT16, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
-        { &hf_openflow_v6_meter_config_flags,
-            { "Flags", "openflow_v6.meter_config.flags",
+        { &hf_openflow_v6_meter_desc_flags,
+            { "Flags", "openflow_v6.meter_desc.flags",
                FT_UINT32, BASE_HEX, NULL, 0x0,
                NULL, HFILL }
         },
-        { &hf_openflow_v6_meter_config_flags_kbps,
-            { "OFPMF_KBPS", "openflow_v6.meter_config.flags.kbps",
+        { &hf_openflow_v6_meter_desc_flags_kbps,
+            { "OFPMF_KBPS", "openflow_v6.meter_desc.flags.kbps",
                FT_BOOLEAN, 32, NULL, OFPMF_KBPS,
                NULL, HFILL }
         },
-        { &hf_openflow_v6_meter_config_flags_pktps,
-            { "OFPMF_PKTPS", "openflow_v6.meter_config.flags.ptkps",
+        { &hf_openflow_v6_meter_desc_flags_pktps,
+            { "OFPMF_PKTPS", "openflow_v6.meter_desc.flags.ptkps",
                FT_BOOLEAN, 32, NULL, OFPMF_PKTPS,
                NULL, HFILL }
         },
-        { &hf_openflow_v6_meter_config_flags_burst,
-            { "OFPMF_BURST", "openflow_v6.meter_config.flags.burst",
+        { &hf_openflow_v6_meter_desc_flags_burst,
+            { "OFPMF_BURST", "openflow_v6.meter_desc.flags.burst",
                FT_BOOLEAN, 32, NULL, OFPMF_BURST,
                NULL, HFILL }
         },
-        { &hf_openflow_v6_meter_config_flags_stats,
-            { "OFPMF_STATS", "openflow_v6.meter_config.flags.stats",
+        { &hf_openflow_v6_meter_desc_flags_stats,
+            { "OFPMF_STATS", "openflow_v6.meter_desc.flags.stats",
                FT_BOOLEAN, 32, NULL, OFPMF_STATS,
                NULL, HFILL }
         },
-        { &hf_openflow_v6_meter_config_meter_id,
-            { "Meter ID", "openflow_v6.meter_config.meter_id",
+        { &hf_openflow_v6_meter_desc_meter_id,
+            { "Meter ID", "openflow_v6.meter_desc.meter_id",
                FT_UINT32, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
-        { &hf_openflow_v6_meter_config_meter_id_reserved,
-            { "Meter ID", "openflow_v6.meter_config.meter_id",
+        { &hf_openflow_v6_meter_desc_meter_id_reserved,
+            { "Meter ID", "openflow_v6.meter_desc.meter_id",
                FT_UINT32, BASE_HEX, VALS(openflow_v6_meter_id_reserved_values), 0x0,
                NULL, HFILL }
         },
@@ -9915,8 +9915,8 @@ proto_register_openflow_v6(void)
         &ett_openflow_v6_group_features_actions_ff,
         &ett_openflow_v6_meter_band_stats,
         &ett_openflow_v6_meter_stats,
-        &ett_openflow_v6_meter_config,
-        &ett_openflow_v6_meter_config_flags,
+        &ett_openflow_v6_meter_desc,
+        &ett_openflow_v6_meter_desc_flags,
         &ett_openflow_v6_meter_features_band_types,
         &ett_openflow_v6_meter_features_capabilities,
         &ett_openflow_v6_flow_update,
