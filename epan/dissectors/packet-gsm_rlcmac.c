@@ -3055,7 +3055,10 @@ CSN_DESCR_BEGIN(Ext_Channel_Request_desc_t)
   M_NEXT_EXIST (Ext_Channel_Request_desc_t, Exist_LCC_PDU, 1, &hf_egprs_prr_additionsr6_lcc_pdu_exist),
   M_UINT       (Ext_Channel_Request_desc_t,  LCC_PDU,  1, &hf_egprs_prr_additionsr6_lcc_pdu),
 
-  M_NEXT_EXIST (Ext_Channel_Request_desc_t, Exist_Ext_Channel_Request_desc, 1, &hf_Ext_Channel_Request_desc_exist), /* Don't use M_REC_TARRAY as we don't support multiple TBFs */
+ /* Don't use M_REC_TARRAY as we don't support multiple TBFs
+  M_NEXT_EXIST (Ext_Channel_Request_desc_t, Exist_Ext_Channel_Request_desc, 1, &hf_Ext_Channel_Request_desc_exist),
+  M_TYPE       (Ext_Channel_Request_desc_t, Ext_Channel_Request_desc, Ext_Channel_Request_desc_t),*/
+  M_UINT       (Ext_Channel_Request_desc_t, Exist_Ext_Channel_Request_desc, 1, &hf_Ext_Channel_Request_desc_exist),
 
 CSN_DESCR_END  (Ext_Channel_Request_desc_t)
 
