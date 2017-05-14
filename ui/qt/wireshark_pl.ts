@@ -1649,7 +1649,7 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
         <location filename="coloring_rules_dialog.cpp" line="361"/>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will disable them.</source>
         <oldsource>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</oldsource>
-        <translation type="unfinished">Wireshark nie rozpoznał jednej lub wększej ilości twoich reguł kolorowania.Zapis spowoduje usunięcie ich.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="371"/>
@@ -10286,10 +10286,6 @@ text-decoration: underline;
         <translation>Konwersacja</translation>
     </message>
     <message>
-        <source>N/A</source>
-        <translation type="vanished">N/A</translation>
-    </message>
-    <message>
         <location filename="endpoint_dialog.cpp" line="45"/>
         <source>Endpoint</source>
         <translation>Punkt krańcowy</translation>
@@ -10308,10 +10304,6 @@ text-decoration: underline;
         <location filename="filter_action.cpp" line="71"/>
         <source>Find</source>
         <translation>Znajdź</translation>
-    </message>
-    <message>
-        <source>Conversation Filter</source>
-        <translation type="vanished">Filtr Konwersacji</translation>
     </message>
     <message>
         <location filename="filter_action.cpp" line="74"/>

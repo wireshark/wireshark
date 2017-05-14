@@ -1649,7 +1649,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="coloring_rules_dialog.cpp" line="361"/>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will disable them.</source>
         <oldsource>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</oldsource>
-        <translation type="unfinished">Wireshark 无法识别您的一个或多个着色规则。保存将会丢弃它们。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="371"/>
@@ -10277,10 +10277,6 @@ text-decoration: underline;
         <translation>对话</translation>
     </message>
     <message>
-        <source>N/A</source>
-        <translation type="vanished">N/A</translation>
-    </message>
-    <message>
         <location filename="endpoint_dialog.cpp" line="45"/>
         <source>Endpoint</source>
         <translation>端点</translation>
@@ -10299,10 +10295,6 @@ text-decoration: underline;
         <location filename="filter_action.cpp" line="71"/>
         <source>Find</source>
         <translation>查找</translation>
-    </message>
-    <message>
-        <source>Conversation Filter</source>
-        <translation type="vanished">对话过滤器</translation>
     </message>
     <message>
         <location filename="filter_action.cpp" line="74"/>

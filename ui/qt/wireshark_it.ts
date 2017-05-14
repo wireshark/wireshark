@@ -1650,7 +1650,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <location filename="coloring_rules_dialog.cpp" line="361"/>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will disable them.</source>
         <oldsource>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</oldsource>
-        <translation type="unfinished">Wireshark non riconosce una o più delle tue regole di colorazione. Il salvataggio le rimuoverà.</translation>
+        <translation>Wireshark non riconosce una o più delle tue regole di colorazione. Il salvataggio le rimuoverà.</translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="371"/>
@@ -10287,10 +10287,6 @@ a:hover {
         <translation>Conversazione</translation>
     </message>
     <message>
-        <source>N/A</source>
-        <translation type="vanished">N/D</translation>
-    </message>
-    <message>
         <location filename="endpoint_dialog.cpp" line="45"/>
         <source>Endpoint</source>
         <translation>Terminatore</translation>
@@ -10309,10 +10305,6 @@ a:hover {
         <location filename="filter_action.cpp" line="71"/>
         <source>Find</source>
         <translation>Trova</translation>
-    </message>
-    <message>
-        <source>Conversation Filter</source>
-        <translation type="vanished">Filtro di conversazione</translation>
     </message>
     <message>
         <location filename="filter_action.cpp" line="74"/>
@@ -14683,22 +14675,22 @@ a:hover {
     <message>
         <location filename="wireshark_application.cpp" line="538"/>
         <source>Dell Backup and Recovery Found</source>
-        <translation type="unfinished"></translation>
+        <translation>Trovato Dell Backup and Recovery</translation>
     </message>
     <message>
         <location filename="wireshark_application.cpp" line="539"/>
         <source>You appear to be running Dell Backup and Recovery 1.8.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sembra che tu stia eseguendo Dell Backup and Recovery 1.8.</translation>
     </message>
     <message>
         <location filename="wireshark_application.cpp" line="540"/>
         <source>DBAR can make many applications crash &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;including Wireshark&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>DBAR può causare chiusure inattese di molte applicazioni &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;Wireshark incluso&lt;/a&gt;.</translation>
     </message>
     <message>
         <location filename="wireshark_application.cpp" line="544"/>
         <source>Offending DLL: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>DLL in conflitto: %1</translation>
     </message>
 </context>
 <context>

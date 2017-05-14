@@ -301,7 +301,7 @@
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="127"/>
         <source>Occurrence</source>
-        <translation>Auftreten</translation>
+        <translation>Auftrittsreihenfolge</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="132"/>
@@ -1650,7 +1650,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <location filename="coloring_rules_dialog.cpp" line="361"/>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will disable them.</source>
         <oldsource>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</oldsource>
-        <translation type="unfinished">Wireshark erkennt eine oder mehrere der Einfärbungsregeln nicht. Speichern verwirft diese.</translation>
+        <translation>Wireshark erkennt eine oder mehrere der Einfärbungsregeln nicht. Speichern verwirft diese.</translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="371"/>
@@ -1687,7 +1687,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <location filename="column_editor_frame.ui" line="101"/>
         <source>Occurrence:</source>
         <oldsource>Occurrence</oldsource>
-        <translation>Auftreten:</translation>
+        <translation>Auftrittsreihenfolge:</translation>
     </message>
 </context>
 <context>
@@ -6956,7 +6956,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1165"/>
         <source>Capture options</source>
-        <translation>Auzeichnungsoptionen</translation>
+        <translation>Aufzeichnungsoptionen</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1179"/>
@@ -10289,10 +10289,6 @@ text-decoration: underline;
         <translation>Verbindungen</translation>
     </message>
     <message>
-        <source>N/A</source>
-        <translation type="vanished">Entfällt</translation>
-    </message>
-    <message>
         <location filename="endpoint_dialog.cpp" line="45"/>
         <source>Endpoint</source>
         <translation>Endpunkt</translation>
@@ -10311,10 +10307,6 @@ text-decoration: underline;
         <location filename="filter_action.cpp" line="71"/>
         <source>Find</source>
         <translation>Finden</translation>
-    </message>
-    <message>
-        <source>Conversation Filter</source>
-        <translation type="vanished">Verbindungsfilter</translation>
     </message>
     <message>
         <location filename="filter_action.cpp" line="74"/>
@@ -14690,22 +14682,22 @@ text-decoration: underline;
     <message>
         <location filename="wireshark_application.cpp" line="538"/>
         <source>Dell Backup and Recovery Found</source>
-        <translation type="unfinished"></translation>
+        <translation>Dell Backup and Recovery gefunden</translation>
     </message>
     <message>
         <location filename="wireshark_application.cpp" line="539"/>
         <source>You appear to be running Dell Backup and Recovery 1.8.</source>
-        <translation type="unfinished"></translation>
+        <translation>Offensichtlich wurde Dell Backup and Recovery 1.8 gestartet.</translation>
     </message>
     <message>
         <location filename="wireshark_application.cpp" line="540"/>
         <source>DBAR can make many applications crash &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;including Wireshark&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>DBAR kann zum Absturz von vielen Applikationen führen (&lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;inklusive Wireshark)&lt;/a&gt;.</translation>
     </message>
     <message>
         <location filename="wireshark_application.cpp" line="544"/>
         <source>Offending DLL: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Problematische DLL: %1</translation>
     </message>
 </context>
 <context>

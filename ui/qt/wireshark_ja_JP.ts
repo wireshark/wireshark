@@ -1647,7 +1647,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="coloring_rules_dialog.cpp" line="361"/>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will disable them.</source>
         <oldsource>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</oldsource>
-        <translation type="unfinished">Wiresharkはひとつかそれ以上の色付けルールを認識できません。保存は破棄されます。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="371"/>
@@ -10233,10 +10233,6 @@ a:hover {
         <translation>対話</translation>
     </message>
     <message>
-        <source>N/A</source>
-        <translation type="vanished">未指定</translation>
-    </message>
-    <message>
         <location filename="endpoint_dialog.cpp" line="45"/>
         <source>Endpoint</source>
         <translation>終端</translation>
@@ -10255,10 +10251,6 @@ a:hover {
         <location filename="filter_action.cpp" line="71"/>
         <source>Find</source>
         <translation>検索</translation>
-    </message>
-    <message>
-        <source>Conversation Filter</source>
-        <translation type="vanished">対話フィルタ</translation>
     </message>
     <message>
         <location filename="filter_action.cpp" line="74"/>

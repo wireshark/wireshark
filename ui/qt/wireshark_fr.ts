@@ -1651,7 +1651,7 @@ si vous voulez utiliser des fichiers multiples.</translation>
         <location filename="coloring_rules_dialog.cpp" line="361"/>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will disable them.</source>
         <oldsource>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</oldsource>
-        <translation type="unfinished">Wireshark ne reconnaît pas une ou plusieurs de vos règles de coloriage. Sauvegarder les supprimera.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="371"/>
@@ -10265,10 +10265,6 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
         <translation>Conversation</translation>
     </message>
     <message>
-        <source>N/A</source>
-        <translation type="vanished">N/A</translation>
-    </message>
-    <message>
         <location filename="endpoint_dialog.cpp" line="45"/>
         <source>Endpoint</source>
         <translation>Terminal</translation>
@@ -10287,10 +10283,6 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
         <location filename="filter_action.cpp" line="71"/>
         <source>Find</source>
         <translation>Chercher</translation>
-    </message>
-    <message>
-        <source>Conversation Filter</source>
-        <translation type="vanished">Filtre de Conversation</translation>
     </message>
     <message>
         <location filename="filter_action.cpp" line="74"/>
