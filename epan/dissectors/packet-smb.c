@@ -13915,23 +13915,23 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* it is not a secondary request */
 
 		/* total param count , only a 16 bit integer here*/
-		proto_tree_add_uint(tree, hf_smb_total_param_count, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		proto_tree_add_item(tree, hf_smb_total_param_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* total data count , only 16bit integer here*/
-		proto_tree_add_uint(tree, hf_smb_total_data_count, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		proto_tree_add_item(tree, hf_smb_total_data_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* max param count , only 16bit integer here*/
-		proto_tree_add_uint(tree, hf_smb_max_param_count, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		proto_tree_add_item(tree, hf_smb_max_param_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* max data count, only 16bit integer here*/
-		proto_tree_add_uint(tree, hf_smb_max_data_count, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		proto_tree_add_item(tree, hf_smb_max_data_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* max setup count, only 16bit integer here*/
-		proto_tree_add_uint(tree, hf_smb_max_setup_count, tvb, offset, 1, tvb_get_guint8(tvb, offset));
+		proto_tree_add_item(tree, hf_smb_max_setup_count, tvb, offset, 1, ENC_NA);
 		offset += 1;
 
 		/* reserved byte */
@@ -15739,7 +15739,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 		/* volume label length, only one byte here */
 		CHECK_BYTE_COUNT_TRANS_SUBR(1);
-		proto_tree_add_uint(tree, hf_smb_volume_label_len, tvb, offset, 1, tvb_get_guint8(tvb, offset));
+		proto_tree_add_item(tree, hf_smb_volume_label_len, tvb, offset, 1, ENC_NA);
 		COUNT_BYTES_TRANS_SUBR(1);
 
 		/* label - not aligned! */
