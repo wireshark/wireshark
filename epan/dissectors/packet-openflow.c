@@ -44,6 +44,7 @@ static dissector_handle_t openflow_handle;
 static dissector_handle_t openflow_v1_handle;
 static dissector_handle_t openflow_v4_handle;
 static dissector_handle_t openflow_v5_handle;
+static dissector_handle_t openflow_v6_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_openflow = -1;
@@ -58,6 +59,7 @@ static gboolean openflow_desegment = TRUE;
 #define OFP_VERSION_1_2 3
 #define OFP_VERSION_1_3 4
 #define OFP_VERSION_1_4 5
+#define OFP_VERSION_1_5 6
 
 static const value_string openflow_version_values[] = {
     { 0x01, "1.0" },
@@ -96,6 +98,9 @@ dissect_openflow_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         break;
     case OFP_VERSION_1_4:
         call_dissector(openflow_v5_handle, tvb, pinfo, tree);
+        break;
+    case OFP_VERSION_1_5:
+        call_dissector(openflow_v6_handle, tvb, pinfo, tree);
         break;
     default:
         ti = proto_tree_add_item(tree, hf_openflow_version, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -196,6 +201,7 @@ proto_reg_handoff_openflow(void)
     openflow_v1_handle = find_dissector_add_dependency("openflow_v1", proto_openflow);
     openflow_v4_handle = find_dissector_add_dependency("openflow_v4", proto_openflow);
     openflow_v5_handle = find_dissector_add_dependency("openflow_v5", proto_openflow);
+    openflow_v6_handle = find_dissector_add_dependency("openflow_v6", proto_openflow);
 }
 
 /*

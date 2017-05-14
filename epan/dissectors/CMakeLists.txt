@@ -1017,6 +1017,7 @@ set(DISSECTOR_SRC
 	packet-openflow_v1.c
 	packet-openflow_v4.c
 	packet-openflow_v5.c
+	packet-openflow_v6.c
 	packet-opensafety.c
 	packet-openthread.c
 	packet-openvpn.c
