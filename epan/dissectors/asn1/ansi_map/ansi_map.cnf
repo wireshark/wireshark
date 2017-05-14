@@ -461,7 +461,7 @@ ReturnData
 	}
 
 #.TYPE_ATTR
-# Dont't put the bytes after the name in the display
+# Don't put the bytes after the name in the display
 CDMA2000HandoffInvokeIOSData TYPE = FT_NONE DISPLAY = BASE_NONE STRINGS = NULL
 CDMA2000HandoffResponseIOSData TYPE = FT_NONE DISPLAY = BASE_NONE STRINGS = NULL
 InterMSCCircuitID TYPE = FT_NONE DISPLAY = BASE_NONE STRINGS = NULL
