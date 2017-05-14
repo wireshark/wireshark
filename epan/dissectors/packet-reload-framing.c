@@ -23,6 +23,8 @@
  *
  * Please refer to the following specs for protocol detail:
  * - draft-ietf-p2psip-base-15
+ * - RFC 6940 (does this incorporate all changes between
+ *   draft-ietf-p2psip-base-15 and RFC 6940, if any?)
  */
 
 #include "config.h"
