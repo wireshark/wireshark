@@ -102,6 +102,7 @@ static int hf_openflow_v6_action_copy_field_n_bits = -1;
 static int hf_openflow_v6_action_copy_field_src_offset = -1;
 static int hf_openflow_v6_action_copy_field_dst_offset = -1;
 static int hf_openflow_v6_action_copy_field_pad = -1;
+static int hf_openflow_v6_action_meter_id = -1;
 static int hf_openflow_v6_instruction_type = -1;
 static int hf_openflow_v6_instruction_length = -1;
 static int hf_openflow_v6_instruction_experimenter_experimenter = -1;
@@ -587,6 +588,7 @@ static int hf_openflow_v6_group_features_actions_all_set_field = -1;
 static int hf_openflow_v6_group_features_actions_all_push_pbb = -1;
 static int hf_openflow_v6_group_features_actions_all_pop_pbb = -1;
 static int hf_openflow_v6_group_features_actions_all_copy_field = -1;
+static int hf_openflow_v6_group_features_actions_all_meter = -1;
 static int hf_openflow_v6_group_features_actions_select = -1;
 static int hf_openflow_v6_group_features_actions_select_output = -1;
 static int hf_openflow_v6_group_features_actions_select_copy_ttl_out = -1;
@@ -605,6 +607,7 @@ static int hf_openflow_v6_group_features_actions_select_set_field = -1;
 static int hf_openflow_v6_group_features_actions_select_push_pbb = -1;
 static int hf_openflow_v6_group_features_actions_select_pop_pbb = -1;
 static int hf_openflow_v6_group_features_actions_select_copy_field = -1;
+static int hf_openflow_v6_group_features_actions_select_meter = -1;
 static int hf_openflow_v6_group_features_actions_indirect = -1;
 static int hf_openflow_v6_group_features_actions_indirect_output = -1;
 static int hf_openflow_v6_group_features_actions_indirect_copy_ttl_out = -1;
@@ -623,6 +626,7 @@ static int hf_openflow_v6_group_features_actions_indirect_set_field = -1;
 static int hf_openflow_v6_group_features_actions_indirect_push_pbb = -1;
 static int hf_openflow_v6_group_features_actions_indirect_pop_pbb = -1;
 static int hf_openflow_v6_group_features_actions_indirect_copy_field = -1;
+static int hf_openflow_v6_group_features_actions_indirect_meter = -1;
 static int hf_openflow_v6_group_features_actions_ff = -1;
 static int hf_openflow_v6_group_features_actions_ff_output = -1;
 static int hf_openflow_v6_group_features_actions_ff_copy_ttl_out = -1;
@@ -641,6 +645,7 @@ static int hf_openflow_v6_group_features_actions_ff_set_field = -1;
 static int hf_openflow_v6_group_features_actions_ff_push_pbb = -1;
 static int hf_openflow_v6_group_features_actions_ff_pop_pbb = -1;
 static int hf_openflow_v6_group_features_actions_ff_copy_field = -1;
+static int hf_openflow_v6_group_features_actions_ff_meter = -1;
 static int hf_openflow_v6_meter_band_stats_packet_band_count = -1;
 static int hf_openflow_v6_meter_band_stats_byte_band_count = -1;
 static int hf_openflow_v6_meter_stats_meter_id = -1;
@@ -2211,6 +2216,7 @@ dissect_openflow_flow_removed_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 #define OFPAT_PUSH_PBB      26  /* Push a new PBB service tag (I-TAG) */
 #define OFPAT_POP_PBB       27  /* Pop the outer PBB service tag (I-TAG) */
 #define OFPAT_COPY_FIELD    28  /* Copy value between header and register. */
+#define OFPAT_METER         29  /* Apply meter (rate limiter) */
 #define OFPAT_EXPERIMENTER  0xffff
 
 static const value_string openflow_v6_action_type_values[] = {
@@ -2231,6 +2237,7 @@ static const value_string openflow_v6_action_type_values[] = {
     {     26, "OFPAT_PUSH_PBB" },
     {     27, "OFPAT_POP_PBB" },
     {     28, "OFPAT_COPY_FIELD" },
+    {     29, "OFPAT_METER" },
     { 0xffff, "OFPAT_EXPERIMENTER" },
     { 0,      NULL}
 };
@@ -2437,6 +2444,13 @@ dissect_openflow_action_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
         proto_tree_add_item(act_tree, hf_openflow_v6_action_copy_field_pad, tvb, offset, 2, ENC_NA);
         offset+=2;
         break;
+
+    case OFPAT_METER:
+        /* uint32_t meter_id; */
+        proto_tree_add_item(act_tree, hf_openflow_v6_action_meter_id, tvb, offset, 4, ENC_NA);
+        offset+=4;
+        break;
+
 
     case OFPAT_EXPERIMENTER:
         proto_tree_add_expert_format(act_tree, pinfo, &ei_openflow_v6_action_undecoded,
@@ -4781,6 +4795,7 @@ dissect_openflow_group_features_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     proto_tree_add_item(acts_tree, hf_openflow_v6_group_features_actions_all_push_pbb,     tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(acts_tree, hf_openflow_v6_group_features_actions_all_pop_pbb,      tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(acts_tree, hf_openflow_v6_group_features_actions_all_copy_field,   tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(acts_tree, hf_openflow_v6_group_features_actions_all_meter,        tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
     ti = proto_tree_add_item(tree, hf_openflow_v6_group_features_actions_select, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -4803,6 +4818,7 @@ dissect_openflow_group_features_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     proto_tree_add_item(acts_tree, hf_openflow_v6_group_features_actions_select_push_pbb,     tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(acts_tree, hf_openflow_v6_group_features_actions_select_pop_pbb,      tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(acts_tree, hf_openflow_v6_group_features_actions_select_copy_field,   tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(acts_tree, hf_openflow_v6_group_features_actions_select_meter,        tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
     ti = proto_tree_add_item(tree, hf_openflow_v6_group_features_actions_indirect, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -4825,6 +4841,7 @@ dissect_openflow_group_features_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     proto_tree_add_item(acts_tree, hf_openflow_v6_group_features_actions_indirect_push_pbb,     tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(acts_tree, hf_openflow_v6_group_features_actions_indirect_pop_pbb,      tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(acts_tree, hf_openflow_v6_group_features_actions_indirect_copy_field,   tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(acts_tree, hf_openflow_v6_group_features_actions_indirect_meter,        tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
     ti = proto_tree_add_item(tree, hf_openflow_v6_group_features_actions_ff, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -4847,6 +4864,7 @@ dissect_openflow_group_features_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     proto_tree_add_item(acts_tree, hf_openflow_v6_group_features_actions_ff_push_pbb,     tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(acts_tree, hf_openflow_v6_group_features_actions_ff_pop_pbb,      tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(acts_tree, hf_openflow_v6_group_features_actions_ff_copy_field,   tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(acts_tree, hf_openflow_v6_group_features_actions_ff_meter,        tvb, offset, 4, ENC_BIG_ENDIAN);
     /*offset+=4;*/
 }
 
@@ -6381,6 +6399,11 @@ proto_register_openflow_v6(void)
         { &hf_openflow_v6_action_copy_field_pad,
             { "Pad", "openflow_v6.action.copy_field.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v6_action_meter_id,
+            { "Meter instance", "openflow_v6.action.meter.id",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v6_instruction_type,
@@ -8808,6 +8831,11 @@ proto_register_openflow_v6(void)
                FT_BOOLEAN, 32, NULL, 1 << OFPAT_COPY_FIELD,
                NULL, HFILL }
         },
+        { &hf_openflow_v6_group_features_actions_all_meter,
+            { "OFPAT_METER", "openflow_v6.group_features.actions.all.meter",
+               FT_BOOLEAN, 32, NULL, 1 << OFPAT_METER,
+               NULL, HFILL }
+        },
         { &hf_openflow_v6_group_features_actions_select,
             { "Actions (select)", "openflow_v6.group_features.actions.select",
                FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -8896,6 +8924,11 @@ proto_register_openflow_v6(void)
         { &hf_openflow_v6_group_features_actions_select_copy_field,
             { "OFPAT_COPY_FIELD", "openflow_v6.group_features.actions.select.copy_field",
                FT_BOOLEAN, 32, NULL, 1 << OFPAT_COPY_FIELD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v6_group_features_actions_select_meter,
+            { "OFPAT_METER", "openflow_v6.group_features.actions.select.meter",
+               FT_BOOLEAN, 32, NULL, 1 << OFPAT_METER,
                NULL, HFILL }
         },
         { &hf_openflow_v6_group_features_actions_indirect,
@@ -8988,6 +9021,11 @@ proto_register_openflow_v6(void)
                FT_BOOLEAN, 32, NULL, 1 << OFPAT_COPY_FIELD,
                NULL, HFILL }
         },
+        { &hf_openflow_v6_group_features_actions_indirect_meter,
+            { "OFPAT_METER", "openflow_v6.group_features.actions.indirect.meter",
+               FT_BOOLEAN, 32, NULL, 1 << OFPAT_METER,
+               NULL, HFILL }
+        },
         { &hf_openflow_v6_group_features_actions_ff,
             { "Actions (ff)", "openflow_v6.group_features.actions.ff",
                FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -9076,6 +9114,11 @@ proto_register_openflow_v6(void)
         { &hf_openflow_v6_group_features_actions_ff_copy_field,
             { "OFPAT_COPY_FIELD", "openflow_v6.group_features.actions.ff.copy_field",
                FT_BOOLEAN, 32, NULL, 1 << OFPAT_COPY_FIELD,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v6_group_features_actions_ff_meter,
+            { "OFPAT_METER", "openflow_v6.group_features.actions.ff.meter",
+               FT_BOOLEAN, 32, NULL, 1 << OFPAT_METER,
                NULL, HFILL }
         },
         { &hf_openflow_v6_meter_band_stats_packet_band_count,
