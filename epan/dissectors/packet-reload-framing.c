@@ -385,7 +385,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
               continue;
             }
             else {
-              /* 1st acked in a serie */
+              /* 1st acked in a series */
               if (last_received<0) {
                 /* 1st acked ever */
                 received_tree = proto_item_add_subtree(ti_received, ett_reload_framing_received);
