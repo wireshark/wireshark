@@ -2907,6 +2907,7 @@ dissect_openflow_packet_out_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 #define OFPIT_APPLY_ACTIONS   4       /* Applies the action(s) immediately */
 #define OFPIT_CLEAR_ACTIONS   5       /* Clears all actions from the datapath */
 #define OFPIT_METER           6       /* Apply meter (rate limiter) */
+#define OFPIT_STAT_TRIGGER    7       /* Statistics triggers */
 #define OFPIT_EXPERIMENTER    0xFFFF  /* Experimenter instruction */
 static const value_string openflow_v6_instruction_type_values[] = {
     { 0x0001, "OFPIT_GOTO_TABLE" },
@@ -2914,7 +2915,8 @@ static const value_string openflow_v6_instruction_type_values[] = {
     { 0x0003, "OFPIT_WRITE_ACTIONS" },
     { 0x0004, "OFPIT_APPLY_ACTIONS" },
     { 0x0005, "OFPIT_CLEAR_ACTIONS" },
-    { 0x0006, "OFPIT_METER" },
+    { 0x0006, "OFPIT_METER (Deprecated)" },
+    { 0x0007, "OFPIT_STAT_TRIGGER" },
     { 0xffff, "OFPIT_EXPERIMENTER = 0xFFFF" },
     { 0,      NULL }
 };
