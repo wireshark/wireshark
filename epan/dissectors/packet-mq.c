@@ -48,7 +48,14 @@
  *   MQ is popular on mainframes because it was available before TCP/IP.
  *   MQ supports both ASCII-based and EBCDIC-based character sets.
  *
- *   MQ API documentation is called "WebSphere MQ Application Programming Reference"
+ *   MQ API documentation is called "WebSphere MQ Application Programming
+ *   Reference"
+ *
+ *   See:
+ *
+ *       http://www-01.ibm.com/support/docview.wss?uid=pub1sc34606203
+ *
+ *       http://www-01.ibm.com/support/docview.wss?uid=pub1sc34694001
  *
  *   Possible structures combinations :
  *   TSH [ ID ^ UID ^ CONN ^ INQ ^ OD ]
