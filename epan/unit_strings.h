@@ -41,6 +41,7 @@ typedef struct unit_name_string {
 
 WS_DLL_PUBLIC char* unit_name_string_get_value(guint32 value, unit_name_string* units);
 WS_DLL_PUBLIC char* unit_name_string_get_value64(guint64 value, unit_name_string* units);
+WS_DLL_PUBLIC char* unit_name_string_get_double(double value, unit_name_string* units);
 
 /*
  * A default set of unit strings that dissectors can use for

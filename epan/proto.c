@@ -5626,7 +5626,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 							double d_value = fvalue_get_floating(&finfo->value);
 							g_snprintf(result+offset_r, size-offset_r,
 									"%." G_STRINGIFY(FLT_DIG) "g%s", d_value,
-									unit_name_string_get_value64((guint64)d_value, (unit_name_string*)hfinfo->strings));
+									unit_name_string_get_double(d_value, (unit_name_string*)hfinfo->strings));
 						} else {
 							g_snprintf(result+offset_r, size-offset_r,
 									"%." G_STRINGIFY(FLT_DIG) "g", fvalue_get_floating(&finfo->value));
@@ -5639,7 +5639,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 							double d_value = fvalue_get_floating(&finfo->value);
 							g_snprintf(result+offset_r, size-offset_r,
 									"%." G_STRINGIFY(DBL_DIG) "g%s", d_value,
-									unit_name_string_get_value64((guint64)d_value, (unit_name_string*)hfinfo->strings));
+									unit_name_string_get_double(d_value, (unit_name_string*)hfinfo->strings));
 						} else {
 							g_snprintf(result+offset_r, size-offset_r,
 									"%." G_STRINGIFY(DBL_DIG) "g", fvalue_get_floating(&finfo->value));
@@ -7854,7 +7854,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 				g_snprintf(label_str, ITEM_LABEL_LENGTH,
 					   "%s: %." G_STRINGIFY(FLT_DIG) "g%s",
 					   hfinfo->name, d_value,
-					   unit_name_string_get_value64((guint64)d_value, (unit_name_string*)hfinfo->strings));
+					   unit_name_string_get_double(d_value, (unit_name_string*)hfinfo->strings));
 			} else {
 				g_snprintf(label_str, ITEM_LABEL_LENGTH,
 					   "%s: %." G_STRINGIFY(FLT_DIG) "g",
@@ -7869,7 +7869,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 				g_snprintf(label_str, ITEM_LABEL_LENGTH,
 					   "%s: %." G_STRINGIFY(DBL_DIG) "g%s",
 					   hfinfo->name, d_value,
-					   unit_name_string_get_value64((guint64)d_value, (unit_name_string*)hfinfo->strings));
+					   unit_name_string_get_double(d_value, (unit_name_string*)hfinfo->strings));
 			} else {
 				g_snprintf(label_str, ITEM_LABEL_LENGTH,
 					   "%s: %." G_STRINGIFY(DBL_DIG) "g",
