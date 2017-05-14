@@ -13857,7 +13857,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	WORD_COUNT;
 
-	if (wc == 8) {
+	if (wc == 8 || (wc == 9 && si->cmd == SMB_COM_TRANSACTION2_SECONDARY)) {
 		/*secondary client request*/
 
 		/* total param count, only a 16bit integer here*/
@@ -13898,7 +13898,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_uint(tree, hf_smb_data_disp16, tvb, offset, 2, dd);
 		offset += 2;
 
-		if (si->cmd == SMB_COM_TRANSACTION2) {
+		if (si->cmd == SMB_COM_TRANSACTION2 || si->cmd == SMB_COM_TRANSACTION2_SECONDARY) {
 			guint16 fid;
 
 			/* fid */
