@@ -875,7 +875,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  new_frame_data_sequence@Base 1.12.0~rc1
  new_page@Base 1.12.0~rc1
  new_stat_tap_add_table@Base 1.99.8
- new_stat_tap_by_name@@Base 2.3.0
+ new_stat_tap_by_name@Base 2.3.0
  new_stat_tap_get_field_data@Base 1.99.8
  new_stat_tap_get_filter@Base 1.99.8
  new_stat_tap_init_table@Base 1.99.8
@@ -1707,10 +1707,12 @@ libwireshark.so.0 libwireshark0 #MINVER#
  units_dbi@Base 2.3.0
  units_dbm@Base 2.3.0
  units_decibels@Base 2.3.0
+ units_degree_celsius@Base 2.3.0
  units_degree_degrees@Base 2.3.0
  units_foot_feet@Base 2.3.0
  units_frame_frames@Base 2.3.0
  units_ghz@Base 2.3.0
+ units_grams_per_second@Base 2.3.0
  units_hour_hours@Base 2.3.0
  units_hours@Base 2.3.0
  units_hz@Base 2.3.0
@@ -1719,7 +1721,10 @@ libwireshark.so.0 libwireshark0 #MINVER#
  units_kbps@Base 2.3.0
  units_khz@Base 2.3.0
  units_kibps@Base 2.3.0
+ units_kilopascal@Base 2.3.0
+ units_km@Base 2.3.0
  units_kmh@Base 2.3.0
+ units_liter_per_hour@Base 2.3.0
  units_mbm@Base 2.3.0
  units_meter_meters@Base 2.3.0
  units_meter_sec@Base 2.3.0
@@ -1731,17 +1736,21 @@ libwireshark.so.0 libwireshark0 #MINVER#
  units_millisecond_milliseconds@Base 2.3.0
  units_milliseconds@Base 2.3.0
  units_microwatts@Base 2.3.0
+ units_milliamps@Base 2.3.0
  units_minute_minutes@Base 2.3.0
  units_minutes@Base 2.3.0
  units_nanometers@Base 2.3.0
  units_nanosecond_nanoseconds@Base 2.3.0
  units_nanoseconds@Base 2.3.0
+ units_newton_metre@Base 2.3.0
  units_octet_octets@Base 2.3.0
  units_percent@Base 2.3.0
+ units_revolutions_per_minute@Base 2.3.0
  units_second_seconds@Base 2.3.0
  units_seconds@Base 2.3.0
  units_segment_remaining@Base 2.3.0
  units_tick_ticks@Base 2.3.0
+ units_volt@Base 2.3.0
  units_week_weeks@Base 2.3.0
  units_word_words@Base 2.3.0
  unsigned_time_secs_to_str@Base 2.1.0
