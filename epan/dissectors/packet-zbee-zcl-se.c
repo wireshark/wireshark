@@ -317,7 +317,7 @@ dissect_zbee_zcl_met(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             zcl->tran_seqno);
 
         /* Add the command ID. */
-        proto_tree_add_item(tree, hf_zbee_zcl_met_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+        proto_tree_add_uint(tree, hf_zbee_zcl_met_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
 
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
@@ -355,7 +355,7 @@ dissect_zbee_zcl_met(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             zcl->tran_seqno);
 
         /* Add the command ID. */
-        proto_tree_add_item(tree, hf_zbee_zcl_met_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+        proto_tree_add_uint(tree, hf_zbee_zcl_met_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
 
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
@@ -645,7 +645,7 @@ dissect_zbee_zcl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             zcl->tran_seqno);
 
         /* Add the command ID. */
-        proto_tree_add_item(tree, hf_zbee_zcl_msg_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+        proto_tree_add_uint(tree, hf_zbee_zcl_msg_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
 
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
@@ -679,7 +679,7 @@ dissect_zbee_zcl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             zcl->tran_seqno);
 
         /* Add the command ID. */
-        proto_tree_add_item(tree, hf_zbee_zcl_msg_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+        proto_tree_add_uint(tree, hf_zbee_zcl_msg_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
 
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
@@ -1448,7 +1448,7 @@ dissect_zbee_zcl_tun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             zcl->tran_seqno);
 
         /* Add the command ID. */
-        proto_tree_add_item(tree, hf_zbee_zcl_tun_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+        proto_tree_add_uint(tree, hf_zbee_zcl_tun_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
 
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
@@ -1498,7 +1498,7 @@ dissect_zbee_zcl_tun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             zcl->tran_seqno);
 
         /* Add the command ID. */
-        proto_tree_add_item(tree, hf_zbee_zcl_tun_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+        proto_tree_add_uint(tree, hf_zbee_zcl_tun_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
 
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
@@ -1843,7 +1843,7 @@ dissect_zbee_zcl_pp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             zcl->tran_seqno);
 
         /* Add the command ID. */
-        proto_tree_add_item(tree, hf_zbee_zcl_pp_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+        proto_tree_add_uint(tree, hf_zbee_zcl_pp_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
 
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
@@ -1885,7 +1885,7 @@ dissect_zbee_zcl_pp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             zcl->tran_seqno);
 
         /* Add the command ID. */
-        proto_tree_add_item(tree, hf_zbee_zcl_pp_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+        proto_tree_add_uint(tree, hf_zbee_zcl_pp_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
 
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
@@ -2344,7 +2344,7 @@ dissect_zbee_zcl_ke(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             zcl->tran_seqno);
 
         /* Add the command ID. */
-        proto_tree_add_item(tree, hf_zbee_zcl_ke_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+        proto_tree_add_uint(tree, hf_zbee_zcl_ke_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
 
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, offset);
@@ -2379,7 +2379,7 @@ dissect_zbee_zcl_ke(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             zcl->tran_seqno);
 
         /* Add the command ID. */
-        proto_tree_add_item(tree, hf_zbee_zcl_ke_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+        proto_tree_add_uint(tree, hf_zbee_zcl_ke_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
 
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
