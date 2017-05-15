@@ -835,12 +835,10 @@ dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int s
                 LZ4F_decompressionContext_t lz4_ctxt;
                 LZ4F_frameInfo_t lz4_info;
                 LZ4F_errorCode_t ret;
-                LZ4F_decompressOptions_t dec_opts;
                 size_t src_offset, src_size, dst_size;
                 guchar *decompressed_buffer = NULL;
 
                 /* Prepare compressed data buffer */
-                dec_opts.stableDst = 0;
                 guint compressed_size = tvb_reported_length(raw);
                 guint8 *data = (guint8*)tvb_memdup(wmem_packet_scope(), raw, 0, compressed_size);
                 /* Override header checksum to workaround buggy Kafka implementations */
@@ -893,7 +891,7 @@ dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int s
                 /* Attempt the decompression. */
                 src_size = compressed_size - src_offset;
                 ret = LZ4F_decompress(lz4_ctxt, decompressed_buffer, &dst_size,
-                                      &data[src_offset], &src_size, &dec_opts);
+                                      &data[src_offset], &src_size, NULL);
                 LZ4F_freeDecompressionContext(lz4_ctxt);
                 if (ret == 0) {
                     size_t uncompressed_size = dst_size;
