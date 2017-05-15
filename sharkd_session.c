@@ -3128,6 +3128,38 @@ sharkd_session_process_dumpconf_cb(pref_t *pref, gpointer d)
 		}
 
 		case PREF_UAT:
+		{
+			uat_t *uat = prefs_get_uat_value(pref);
+			guint idx;
+
+			printf("\"t\":[");
+			for (idx = 0; idx < uat->raw_data->len; idx++)
+			{
+				void *rec = UAT_INDEX_PTR(uat, idx);
+				guint colnum;
+
+				if (idx)
+					printf(",");
+
+				printf("[");
+				for (colnum = 0; colnum < uat->ncols; colnum++)
+				{
+					char *str = uat_fld_tostr(rec, &(uat->fields[colnum]));
+
+					if (colnum)
+						printf(",");
+
+					json_puts_string(str);
+					g_free(str);
+				}
+
+				printf("]");
+			}
+
+			printf("]");
+			break;
+		}
+
 		case PREF_COLOR:
 		case PREF_CUSTOM:
 		case PREF_STATIC_TEXT:

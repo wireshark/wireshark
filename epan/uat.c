@@ -262,6 +262,42 @@ uat_t* uat_get_table_by_name(const char* name) {
     return NULL;
 }
 
+char *uat_fld_tostr(void *rec, uat_field_t *f) {
+    guint        len;
+    char       *ptr;
+    char       *out;
+
+    f->cb.tostr(rec, &ptr, &len, f->cbdata.tostr, f->fld_data);
+
+    switch(f->mode) {
+        case PT_TXTMOD_NONE:
+        case PT_TXTMOD_STRING:
+        case PT_TXTMOD_ENUM:
+        case PT_TXTMOD_FILENAME:
+        case PT_TXTMOD_DIRECTORYNAME:
+            out = g_strndup(ptr, len);
+            break;
+        case PT_TXTMOD_HEXBYTES: {
+            GString *s = g_string_sized_new( len*2 + 1 );
+            guint i;
+
+            for (i=0; i<len;i++) g_string_append_printf(s, "%.2X", ((const guint8*)ptr)[i]);
+
+            out = g_strdup(s->str);
+
+            g_string_free(s, TRUE);
+            break;
+        }
+        default:
+            g_assert_not_reached();
+            out = NULL;
+            break;
+    }
+
+    g_free(ptr);
+    return out;
+}
+
 static void putfld(FILE* fp, void* rec, uat_field_t* f) {
     guint fld_len;
     char* fld_ptr;
