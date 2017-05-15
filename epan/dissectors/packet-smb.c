@@ -4390,7 +4390,7 @@ dissect_nt_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	/* search attributes */
 	offset = dissect_search_attributes(tvb, tree, offset);
 
-	proto_tree_add_uint(tree, hf_smb_nt_rename_level, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+	proto_tree_add_item(tree, hf_smb_nt_rename_level, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	proto_tree_add_item(tree, hf_smb_cluster_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -13861,11 +13861,11 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/*secondary client request*/
 
 		/* total param count, only a 16bit integer here*/
-		proto_tree_add_uint(tree, hf_smb_total_param_count, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		proto_tree_add_item(tree, hf_smb_total_param_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* total data count , only 16bit integer here*/
-		proto_tree_add_uint(tree, hf_smb_total_data_count, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		proto_tree_add_item(tree, hf_smb_total_data_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* param count */
@@ -15727,7 +15727,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 		/* bytes per sector, only 16bit integer here */
 		CHECK_BYTE_COUNT_TRANS_SUBR(2);
-		proto_tree_add_uint(tree, hf_smb_fs_sector, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		proto_tree_add_item(tree, hf_smb_fs_sector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS_SUBR(2);
 
 		break;
@@ -16291,7 +16291,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		offset += 4;
 
 		/* ea error offset, only a 16 bit integer here */
-		proto_tree_add_uint(tree, hf_smb_ea_error_offset, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		proto_tree_add_item(tree, hf_smb_ea_error_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* ea length */
@@ -16317,7 +16317,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		offset += 2;
 
 		/* ea error offset, only a 16 bit integer here */
-		proto_tree_add_uint(tree, hf_smb_ea_error_offset, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		proto_tree_add_item(tree, hf_smb_ea_error_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* last name offset */
@@ -16337,7 +16337,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		offset += 2;
 
 		/* ea_error_offset, only a 16 bit integer here*/
-		proto_tree_add_uint(tree, hf_smb_ea_error_offset, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		proto_tree_add_item(tree, hf_smb_ea_error_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* last name offset */
@@ -16351,25 +16351,25 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		break;
 	case 0x05:	/*TRANS2_QUERY_PATH_INFORMATION*/
 		/* ea_error_offset, only a 16 bit integer here*/
-		proto_tree_add_uint(tree, hf_smb_ea_error_offset, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		proto_tree_add_item(tree, hf_smb_ea_error_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		break;
 	case 0x06:	/*TRANS2_SET_PATH_INFORMATION*/
 		/* ea_error_offset, only a 16 bit integer here*/
-		proto_tree_add_uint(tree, hf_smb_ea_error_offset, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		proto_tree_add_item(tree, hf_smb_ea_error_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		break;
 	case 0x07:	/*TRANS2_QUERY_FILE_INFORMATION*/
 		/* ea_error_offset, only a 16 bit integer here*/
-		proto_tree_add_uint(tree, hf_smb_ea_error_offset, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		proto_tree_add_item(tree, hf_smb_ea_error_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		break;
 	case 0x08:	/*TRANS2_SET_FILE_INFORMATION*/
 		/* ea_error_offset, only a 16 bit integer here*/
-		proto_tree_add_uint(tree, hf_smb_ea_error_offset, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		proto_tree_add_item(tree, hf_smb_ea_error_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		break;
@@ -16411,7 +16411,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		offset += 2;
 
 		/* ea_error_offset, only a 16 bit integer here*/
-		proto_tree_add_uint(tree, hf_smb_ea_error_offset, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		proto_tree_add_item(tree, hf_smb_ea_error_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		break;
@@ -16425,13 +16425,13 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		offset += 2;
 
 		/* ea_error_offset, only a 16 bit integer here*/
-		proto_tree_add_uint(tree, hf_smb_ea_error_offset, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		proto_tree_add_item(tree, hf_smb_ea_error_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		break;
 	case 0x0d:	/*TRANS2_CREATE_DIRECTORY*/
 		/* ea error offset, only a 16 bit integer here */
-		proto_tree_add_uint(tree, hf_smb_ea_error_offset, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		proto_tree_add_item(tree, hf_smb_ea_error_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		break;
