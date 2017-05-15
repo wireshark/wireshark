@@ -541,7 +541,8 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
         /* go back to the first frame in the aggregate,
          * and mark it as part of this aggregate */
-        previous_frame.radio_info->aggregate = current_aggregate;
+        if (previous_frame.radio_info != NULL)
+          previous_frame.radio_info->aggregate = current_aggregate;
       }
       wlan_radio_info->aggregate = current_aggregate;
 
@@ -569,7 +570,7 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     previous_frame.tsf_timestamp = phdr->tsf_timestamp;
     previous_frame.phy = phdr->phy;
   } else {
-    /* this frame has already been seen, so get it's info structure */
+    /* this frame has already been seen, so get its info structure */
     wlan_radio_info = (struct wlan_radio *) p_get_proto_data(wmem_file_scope(), pinfo, proto_wlan_radio, 0);
 
     if (wlan_radio_info->aggregate) {
