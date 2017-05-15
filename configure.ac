@@ -786,6 +786,20 @@ AC_ARG_ENABLE(asan,
 AC_SUBST(NO_SANITIZE_CFLAGS)
 AC_SUBST(NO_SANITIZE_LDFLAGS)
 
+# Try to enable UndefinedBehaviorSanitizer.
+#
+AC_ARG_ENABLE(ubsan,
+  AC_HELP_STRING( [--enable-ubsan],
+		  [Enable UndefinedBehaviorSanitizer (UBSan) for debugging@<:@default=no@:>@]),
+[
+	#
+	# Available since Clang >= 3.3 and GCC >= 4.9
+	#
+	# XXX shouldn't this also be added to LDFLAGS?
+	AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fsanitize=undefined)
+
+])
+
 # Add check hf conflict..
 #
 AC_ARG_ENABLE(checkhf-conflict,
