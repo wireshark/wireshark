@@ -42,7 +42,7 @@
 #include "packet-ssl-utils.h"
 
 /* RFC 2821 */
-#define TCP_PORT_SMTP      25
+#define TCP_PORT_SMTP      "25"
 #define TCP_PORT_SSL_SMTP 465
 
 /* RFC 4409 */
@@ -1306,7 +1306,7 @@ proto_register_smtp(void)
 void
 proto_reg_handoff_smtp(void)
 {
-  dissector_add_uint_with_preference("tcp.port", TCP_PORT_SMTP, smtp_handle);
+  dissector_add_uint_range_with_preference("tcp.port", TCP_PORT_SMTP, smtp_handle);
   ssl_dissector_add(TCP_PORT_SSL_SMTP, smtp_handle);
   /* No "auto" preference since handle is shared with SMTP */
   dissector_add_uint("tcp.port", TCP_PORT_SUBMISSION, smtp_handle);
