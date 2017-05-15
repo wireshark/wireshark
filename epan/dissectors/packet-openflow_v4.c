@@ -6484,7 +6484,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_meter_config_request_pad,
-            { "Pad", "openflow_v4.aggregate_config_request.pad",
+            { "Pad", "openflow_v4.meter_config_request.pad",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
@@ -7354,7 +7354,7 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_meter_config_len,
-            { "Length", "openflow_v4.meter_stats.len",
+            { "Length", "openflow_v4.meter_config.len",
                FT_UINT16, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
