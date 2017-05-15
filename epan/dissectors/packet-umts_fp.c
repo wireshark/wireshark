@@ -4066,6 +4066,7 @@ heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     }
 
     /* Expecting specific lengths: 24 for downlink frames, 26 for uplink frames */
+    /* This is the common Transport Format of DCCH over DCH ( See 3GPP TR 25.944 / 4.1.1.3.1.1 ) */
     length = tvb_reported_length(tvb);
     if (length != 24 /* DL */ && length != 26 /* UL */) {
         return FALSE;
@@ -4141,6 +4142,7 @@ heur_dissect_fp_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     }
 
     /* Expecting specific lengths: 27 for frames with 1 TB, 48 for frames with 2 TBs */
+    /* This is the common Transport Format of FACH ( See 3GPP TR 25.944 / 4.1.1.2 'FACH2' ) */
     length = tvb_reported_length(tvb);
     if (length != 27 && length != 48) {
         return FALSE;
@@ -4246,8 +4248,9 @@ heur_dissect_fp_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     }
 
     /* Expecting specific lengths: all rach frames are 28 bytes long */
+    /* This is the common Transport Formats of RACH ( See 3GPP TR 25.944 / 4.1.2.1 ) */
     length = tvb_reported_length(tvb);
-    if (length != 28) {
+    if (length != 28 && length != 52) {
         return FALSE;
     }
 
@@ -4298,7 +4301,12 @@ heur_dissect_fp_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     umts_fp_conversation_info->num_dch_in_flow = 1;
     umts_fp_conversation_info->fp_dch_channel_info[0].num_ul_chans = 0;
     umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_num_tbs[0] = 1;
-    umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_tf_size[0] = 168;
+    if (length == 28) {
+        umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_tf_size[0] = 168;
+    }
+    else { /* length is 52 */
+        umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_tf_size[0] = 360;
+    }
 
     /* Adding the 'channel specific info' for RACH */
     fp_rach_channel_info = wmem_new0(wmem_file_scope(), fp_rach_channel_info_t);
@@ -4321,6 +4329,7 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     guint8 reserved_bits;
     guint8 tfi;
     guint8 pi_byte_length;
+    guint16 tb_byte_length;
     gboolean pi_present;
     gboolean tb_size_found;
     gboolean pi_length_found;
@@ -4434,10 +4443,20 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 fill_pch_coversation_info_for_heur(umts_fp_conversation_info, pinfo);
             }
-            umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[1] = (length - (pi_byte_length + 6)) * 8; /* Removing header length (4), footer length (2) and PI bitmap length*/
-            set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
-            tb_size_found = TRUE;
+            tb_byte_length = (length - (pi_byte_length + 6)) * 8; /* Removing header length (4), footer length (2) and PI bitmap length*/
+            /* Possible TB lengths for PCH is 10 or 30 bytes ( See 3GPP TR 25.944 / 4.1.1.2 ) */
+            if (tb_byte_length == 10 || tb_byte_length == 30) {
+                umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[1] = tb_byte_length;
+                set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
+                tb_size_found = TRUE;
+            }
         }
+        /* TODO: It should be possible to figure both PI & TB sizes if both are present in a frame and neither is known */
+        /* Since the total size of the frame should be unique */
+        /* e.g. 19 bytes = header (4) + PI 18bits (3) + TB (10) + footer (2)*/
+        /*      21 bytes = header (4) + PI 36bits (5) + TB (10) + footer (2)*/
+        /*      etc... */
+        /* This could mostly help dissect 'busy' PCHs where most of the frames have both PI & TB*/
     }
     else {
         if (tfi == 0x01 && !tb_size_found) {
@@ -4446,9 +4465,13 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 fill_pch_coversation_info_for_heur(umts_fp_conversation_info, pinfo);
             }
-            umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[1] = (length - 6) * 8; /* Removing header length (4), footer length (2) */
-            set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
-            tb_size_found = TRUE;
+            tb_byte_length = (length - 6) * 8; /* Removing header length (4), footer length (2) */
+            /* Possible TB lengths for PCH is 10 or 30 bytes ( See 3GPP TR 25.944 / 4.1.1.2 ) */
+            if (tb_byte_length == 10 || tb_byte_length == 30) {
+                umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[1] = tb_byte_length;
+                set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
+                tb_size_found = TRUE;
+            }
         }
     }
 
@@ -5014,7 +5037,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                     /* Set transport channel id (useful for debugging) */
                     macinf->trchid[j+chan] = p_conv_data->dchs_in_flow_list[chan];
 
-                    /* Checking for the common Transport Format of DCCH over DCH ( See ETSI TR 125.944 / 4.1.1.3.1.1 ) */
+                    /* Checking for the common Transport Format of DCCH over DCH ( See 3GPP TR 25.944 / 4.1.1.3.1.1 ) */
                     is_known_dcch_tf = (tfi == 1 && num_tbs == 1 && tb_size == 148);
                     /* Checking for DCH ID 24 and tb size of 340 bits */
                     is_special_case_dch_24 = (p_conv_data->dchs_in_flow_list[chan] == 24 && tb_size == 340);
