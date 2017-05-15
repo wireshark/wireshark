@@ -1439,54 +1439,29 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         }
     case 0x05: /* START TONE */
         {
-            guint8 ii, tone_nb_entries, tone_id;
-#if 0
-            guint8 tone_direction, tone_id, tone_duration tone_silence;
-#endif
-            int tone_duration;
-
-            tone_nb_entries = tvb_get_guint8(tvb, offset);
+            guint8 ii;
+            guint8 tone_nb_entries = tvb_get_guint8(tvb, offset);
 
             proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip_device_routing_start_tone_direction, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(ua3g_body_tree, hf_ua3g_ip_device_routing_start_tone_num_entries, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             length--;
 
-            while (length > 0 && tone_nb_entries) {
-                for (ii = 0; ii < tone_nb_entries; ii++) {
-                    tone_id = tvb_get_guint8(tvb, offset);
-                    tone_duration = tvb_get_ntohs(tvb, offset + 1);
-#if 0
-                    tone_duration = tvb_get_guint8(tvb, offset + 1);
-                    tone_silence = tvb_get_guint8(tvb, offset + 2);
-#endif
+            for (ii = 0; ii < tone_nb_entries; ii++) {
+                guint8 tone_id = tvb_get_guint8(tvb, offset);
+                gint tone_duration = tvb_get_ntohs(tvb, offset + 1);
 
-                    ua3g_param_tree = proto_tree_add_subtree_format(ua3g_body_tree, tvb, offset, 3,
-#if 0
-                        ett_ua3g_param, NULL, "Tone Pair %d: Id: %d, Duration: %d ms, Silence: %d ms",
-                        ii+1, tone_id, tone_duration, tone_silence);
-#endif
-                        ett_ua3g_param, NULL, "Tone Pair %d: Id: %d, Duration: %d ms",
-                        ii+1, tone_id, tone_duration);
+                ua3g_param_tree = proto_tree_add_subtree_format(ua3g_body_tree, tvb, offset, 3,
+                    ett_ua3g_param, NULL, "Tone Pair %d: Id: %d, Duration: %d ms",
+                    ii+1, tone_id, tone_duration);
 
-                    proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_tone_identification, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset++;
-                    length--;
+                proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_tone_identification, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset++;
+                length--;
 
-                    proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_tone_duration, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    offset += 2;
-                    length -= 2;
-
-#if 0
-                    proto_tree_add_uint(ua3g_param_tree, hf_ua3g_feedback_duration, tvb, offset, 1, tone_duration);
-                    offset++;
-                    length--;
-
-                    proto_tree_add_uint(ua3g_param_tree, hf_ua3g_silence, tvb, offset, 1, tone_silence);
-                    offset++;
-                    length--;
-#endif
-                }
+                proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_tone_duration, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                length -= 2;
             }
             break;
         }
