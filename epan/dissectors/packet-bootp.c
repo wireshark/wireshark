@@ -491,7 +491,6 @@ static int hf_bootp_option_sip_server_refer_last_option = -1;			/* 120 */
 static int hf_bootp_option_sip_server_enc = -1;				/* 120 */
 static int hf_bootp_option_sip_server_name = -1;				/* 120 */
 static int hf_bootp_option_sip_server_address = -1;				/* 120 */
-static int hf_bootp_option_sip_server_address_stringz = -1;		/* 120 */
 static int hf_bootp_option_classless_static_route = -1;			/* 120 */
 static int hf_bootp_option_rfc3825_error = -1;					/* 123 */
 static int hf_bootp_option_rfc3825_latitude = -1;				/* 123 */
@@ -2706,18 +2705,9 @@ dissect_bootpopt_sip_servers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					/* RFC 3396 is not used, so we can easily link the fqdn with v_tree. */
 					proto_tree_add_item(tree, hf_bootp_option_sip_server_address, rfc3396_sip_server.tvb_composite, composite_offset, 4, ENC_BIG_ENDIAN);
 				} else {
+					guint32 sip_server = tvb_get_ntohl(rfc3396_sip_server.tvb_composite, composite_offset);
 					/* RFC 3396 is used, so the option is split into several option 120. We don't link fqdn with v_tree. */
-					/* Since we don't use the "numbered argument" as described by README.developer, we have to repeat the arguments :( */
-					proto_tree_add_string(tree, hf_bootp_option_sip_server_address_stringz, tvb, 0, 0,
-											wmem_strdup_printf(wmem_packet_scope(), "%u.%u.%u.%u (%u.%u.%u.%u)",
-												tvb_get_guint8(rfc3396_sip_server.tvb_composite, composite_offset),
-												tvb_get_guint8(rfc3396_sip_server.tvb_composite, composite_offset + 1),
-												tvb_get_guint8(rfc3396_sip_server.tvb_composite, composite_offset + 2),
-												tvb_get_guint8(rfc3396_sip_server.tvb_composite, composite_offset + 3),
-												tvb_get_guint8(rfc3396_sip_server.tvb_composite, composite_offset),
-												tvb_get_guint8(rfc3396_sip_server.tvb_composite, composite_offset + 1),
-												tvb_get_guint8(rfc3396_sip_server.tvb_composite, composite_offset + 2),
-												tvb_get_guint8(rfc3396_sip_server.tvb_composite, composite_offset + 3)));
+					proto_tree_add_uint(tree, hf_bootp_option_sip_server_address, tvb, 0, 0, sip_server);
 				}
 				composite_offset += 4;
 			}
@@ -8405,11 +8395,6 @@ proto_register_bootp(void)
 		{ &hf_bootp_option_sip_server_address,
 		  { "SIP Server Address", "bootp.option.sip_server.address",
 		    FT_IPv4, BASE_NONE, NULL, 0x0,
-		    "Option 120: SIP Server Address", HFILL }},
-
-		{ &hf_bootp_option_sip_server_address_stringz,
-		  { "SIP Server Address", "bootp.option.sip_server.address.stringz",
-		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
 		    "Option 120: SIP Server Address", HFILL }},
 
 		{ &hf_bootp_option_classless_static_route,
