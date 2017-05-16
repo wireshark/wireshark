@@ -11,6 +11,8 @@ GROUP_BY_PROT
 #.EXPORTS  EXTERN VALS_WITH_TABLE WS_DLL
 
 Name
+PSS1InformationElement
+Extension
 
 #.MODULE
 Addressing-Data-Elements-asn1-97                         qsig

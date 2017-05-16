@@ -8,16 +8,16 @@ InterpretationComponent
 NetworkFacilityExtension
 NetworkProtocolProfile
 
-#.EXPORTS EXTERN
+#.EXPORTS EXTERN WS_DLL
 
 # Addressing-Data-Elements
 PresentedAddressScreened
 PresentedAddressUnscreened
-PresentedNumberScreened WS_DLL
-PresentedNumberUnscreened WS_DLL
+PresentedNumberScreened
+PresentedNumberUnscreened
 Address
-PartyNumber WS_DLL
-PartySubaddress WS_DLL
+PartyNumber
+PartySubaddress
 ScreeningIndicator
 PresentationAllowedIndicator
 

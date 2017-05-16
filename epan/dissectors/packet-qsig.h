@@ -41,6 +41,8 @@
 
 /* --- Modules Manufacturer-specific-service-extension-class-asn1-97 PSS1-generic-parameters-definition-asn1-97 Addressing-Data-Elements-asn1-97 --- --- --- */
 
+WS_DLL_PUBLIC int dissect_qsig_Extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+WS_DLL_PUBLIC int dissect_qsig_PSS1InformationElement(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /* --- Module Name-Operations-asn1-97 --- --- ---                             */
 

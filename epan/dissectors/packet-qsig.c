@@ -2074,7 +2074,7 @@ dissect_qsig_T_extensionId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_qsig_T_extensionArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 144 "./asn1/qsig/qsig.cnf"
+#line 146 "./asn1/qsig/qsig.cnf"
     tvbuff_t *next_tvb;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -2100,9 +2100,9 @@ static const ber_sequence_t qsig_Extension_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_qsig_Extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 141 "./asn1/qsig/qsig.cnf"
+#line 143 "./asn1/qsig/qsig.cnf"
   extension_oid = NULL;
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -2115,7 +2115,7 @@ dissect_qsig_Extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_qsig_PSS1InformationElement_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 164 "./asn1/qsig/qsig.cnf"
+#line 166 "./asn1/qsig/qsig.cnf"
   tvbuff_t *out_tvb = NULL;
   proto_tree *data_tree;
 
@@ -2132,7 +2132,7 @@ dissect_qsig_PSS1InformationElement_U(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
 
 
-static int
+int
 dissect_qsig_PSS1InformationElement(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 0, TRUE, dissect_qsig_PSS1InformationElement_U);
@@ -9203,7 +9203,7 @@ dissect_qsig_wtmau_DefinedIDs(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_qsig_wtmau_T_param(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 160 "./asn1/qsig/qsig.cnf"
+#line 162 "./asn1/qsig/qsig.cnf"
 
 
 
