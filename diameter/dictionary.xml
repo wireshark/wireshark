@@ -7439,6 +7439,15 @@
 		<avp name="Rate-Control-Time-Unit" code="3939" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
+		<avp name="SCS-AS-Address" code="3940" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<grouped>
+				<gavp name="SCS-Realm"/>
+				<gavp name="SCS-Address"/>
+			</grouped>
+		</avp>
+		<avp name="SCS-Address" code="3941" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<type type-name="Address"/>
+		</avp>
 		<!--
 		Note: The AVP codes from 3900 to 3999 are reserved for TS 32.299
 		-->
@@ -7447,6 +7456,30 @@
 			<type type-name="Enumerated"/>
 			<enum name="Inactive" code="0"/>
 			<enum name="Active" code="1"/>
+		</avp>
+		<avp name="Access-Network-Info-Change" code="4401" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Access-Network-Information"/>
+				<gavp name="Cellular-Network-Information"/>
+				<gavp name="Change-Time"/>
+			</grouped>
+		</avp>
+		<avp name="Discoveree-UE-HPLMN-Identifier" code="4402" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Discoveree-UE-VPLMN-Identifier" code="4403" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Discoverer-UE-HPLMN-Identifier" code="4404" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Discoverer-UE-VPLMN-Identifier" code="4405" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="3GPP-PS-Data-Off-Status" code="4406" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="Active" code="0"/>
+			<enum name="Inactive" code="1"/>
 		</avp>
 		<!--
 		Note: The AVP codes from 4400 to 4499 are reserved for TS 32.299
