@@ -1250,7 +1250,7 @@ dissect_obdii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	guint8 mode;
 
 	/* validate */
-	if (!can_id && !(can_id->id == ODBII_CAN_QUERY_ID || (can_id->id >= ODBII_CAN_RESPONSE_ID_MIN && can_id->id <= ODBII_CAN_RESPONSE_ID_MAX)))
+	if (!can_id || !(can_id->id == ODBII_CAN_QUERY_ID || (can_id->id >= ODBII_CAN_RESPONSE_ID_MIN && can_id->id <= ODBII_CAN_RESPONSE_ID_MAX)))
 		return 0;
 
 	if (tvb_reported_length(tvb) != 8)
