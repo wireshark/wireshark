@@ -846,6 +846,7 @@ guint32 PICH_Mode = 0;
 address     dst_addr, null_addr;
 conversation_t *conversation;
 
+fp_pch_channel_info_t *fp_pch_channel_info;
 umts_fp_conversation_info_t *umts_fp_conversation_info;
 int i, j, num_tf;
 
@@ -887,8 +888,11 @@ num_items = 1;
                 umts_fp_conversation_info->ul_frame_number    = actx->pinfo->num;
                 copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &dst_addr);
                 umts_fp_conversation_info->crnc_port          = BindingID_port;
-                umts_fp_conversation_info->paging_indications = paging_indications;
                 umts_fp_conversation_info->rlc_mode           = FP_RLC_MODE_UNKNOWN;
+
+                fp_pch_channel_info = wmem_new0(wmem_file_scope(), fp_pch_channel_info_t);
+                fp_pch_channel_info->paging_indications = paging_indications;
+                umts_fp_conversation_info->channel_specific_info = (void*)fp_pch_channel_info;
 
                 /* DCH's in this flow */
                 umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;

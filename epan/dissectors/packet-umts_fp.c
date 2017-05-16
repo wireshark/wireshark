@@ -94,6 +94,7 @@ static int hf_fp_pch_tfi = -1;
 static int hf_fp_fach_tfi = -1;
 static int hf_fp_transmit_power_level = -1;
 static int hf_fp_paging_indication_bitmap = -1;
+static int hf_fp_relevant_paging_indication_bitmap = -1;
 static int hf_fp_pdsch_set_id = -1;
 static int hf_fp_rx_timing_deviation = -1;
 static int hf_fp_dch_e_rucch_flag = -1;
@@ -200,6 +201,7 @@ static int hf_fp_extended_bits = -1;
 static int hf_fp_spare_extension = -1;
 static int hf_fp_ul_setup_frame = -1;
 static int hf_fp_dl_setup_frame = -1;
+static int hf_fp_relevant_pi_frame = -1;
 
 /* Subtrees. */
 static int ett_fp = -1;
@@ -214,6 +216,7 @@ static int ett_fp_edch_macis_descriptors = -1;
 static int ett_fp_hsdsch_new_ie_flags = -1;
 static int ett_fp_rach_new_ie_flags = -1;
 static int ett_fp_hsdsch_pdu_block_header = -1;
+static int ett_fp_pch_relevant_pi = -1;
 
 static expert_field ei_fp_hsdsch_common_experimental_support = EI_INIT;
 static expert_field ei_fp_hsdsch_common_t3_not_implemented = EI_INIT;
@@ -253,6 +256,7 @@ static gboolean preferences_call_mac_dissectors = TRUE;
 static gboolean preferences_show_release_info = TRUE;
 static gboolean preferences_payload_checksum = TRUE;
 static gboolean preferences_header_checksum = TRUE;
+static gboolean preferences_track_paging_indications = TRUE;
 
 #define UMTS_FP_USE_UAT 1
 
@@ -2045,7 +2049,37 @@ dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                      (p_fp_info->paging_indications+7) / 8,
                                      ENC_NA);
             proto_item_append_text(ti, " (%u bits)", p_fp_info->paging_indications);
+
+            if(preferences_track_paging_indications && !pinfo->fd->flags.visited){
+                paging_indications_info_t* current_pi_info;
+                current_pi_info = wmem_new0(wmem_file_scope(), paging_indications_info_t);
+                current_pi_info->frame_number = pinfo->num;
+                current_pi_info->paging_indications_bitmap = (guint8*)tvb_memdup(wmem_file_scope(), tvb, offset, (p_fp_info->paging_indications+7) / 8);
+                p_fp_info->current_paging_indications = current_pi_info;
+            }
+
             offset += ((p_fp_info->paging_indications+7) / 8);
+        }
+        if(preferences_track_paging_indications && p_fp_info->relevant_paging_indications) {
+            /*If tracking PI is enabled and PI info (from the last packet) is attached, show on tree*/
+            proto_tree *relevant_pi_tree;
+            proto_item *ti;
+            tvbuff_t *pi_tvb;
+            pi_tvb = tvb_new_child_real_data(tvb,
+                                             p_fp_info->relevant_paging_indications->paging_indications_bitmap,
+                                             (p_fp_info->paging_indications+7) / 8,
+                                             (p_fp_info->paging_indications+7) / 8);
+            add_new_data_source(pinfo, pi_tvb, "Relevant Paging Indication");
+            ti = proto_tree_add_item(tree, hf_fp_relevant_paging_indication_bitmap, pi_tvb,
+                                     0,
+                                     (p_fp_info->paging_indications+7) / 8,
+                                     ENC_NA);
+            proto_item_append_text(ti, " (%u bits)", p_fp_info->paging_indications);
+            PROTO_ITEM_SET_GENERATED(ti);
+            relevant_pi_tree = proto_item_add_subtree(ti, ett_fp_pch_relevant_pi);
+            ti = proto_tree_add_uint(relevant_pi_tree, hf_fp_relevant_pi_frame,
+                                                       tvb, 0, 0, p_fp_info->relevant_paging_indications->frame_number);
+            PROTO_ITEM_SET_GENERATED(ti);
         }
 
         /* TB data */
@@ -3942,6 +3976,7 @@ fill_pch_coversation_info_for_heur(umts_fp_conversation_info_t* umts_fp_conversa
     umts_fp_conversation_info->num_dch_in_flow = 1;
     umts_fp_conversation_info->fp_dch_channel_info[0].num_dl_chans = 1;
     umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_num_tbs[1] = 1;
+    umts_fp_conversation_info->channel_specific_info = (void*)wmem_new0(wmem_file_scope(), fp_pch_channel_info_t);
 }
 /* Attaches conversation info to both the downlink and uplink 'conversations' (streams) */
 /* (Required since only one of them is checked in every dissected FP packet) */
@@ -4325,6 +4360,7 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 {
     conversation_t   *p_conv;
     umts_fp_conversation_info_t* umts_fp_conversation_info = NULL;
+    fp_pch_channel_info_t* fp_pch_channel_info = NULL;
     struct fp_info *p_fp_info;
     int length;
     guint8 frame_type;
@@ -4352,8 +4388,10 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         /* Checking if the conversation was already framed */
         umts_fp_conversation_info = (umts_fp_conversation_info_t *)conversation_get_proto_data(p_conv, proto_fp);
         if (umts_fp_conversation_info) {
-            if (umts_fp_conversation_info->channel == CHANNEL_PCH) {
-                pi_length_found = umts_fp_conversation_info->paging_indications != 0;
+            fp_pch_channel_info = (fp_pch_channel_info_t*)umts_fp_conversation_info->channel_specific_info;
+            /* Making sure this conversation type is "PCH" and the PCH channel info is present */
+            if (umts_fp_conversation_info->channel == CHANNEL_PCH && fp_pch_channel_info != NULL) {
+                pi_length_found = fp_pch_channel_info->paging_indications != 0;
                 tb_size_found = umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[1] != 0;
                 if (pi_length_found && tb_size_found) {
                     /* Stream already framed - contains both PI length and TB size */
@@ -4433,17 +4471,19 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             if (!umts_fp_conversation_info) {
                 umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 fill_pch_coversation_info_for_heur(umts_fp_conversation_info, pinfo);
+                fp_pch_channel_info = (fp_pch_channel_info_t*)umts_fp_conversation_info->channel_specific_info;
             }
-            umts_fp_conversation_info->paging_indications = pi_bit_length;
+            fp_pch_channel_info->paging_indications = pi_bit_length;
             set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
             pi_length_found = TRUE;
         }
         else if (tfi == 0x01 && !tb_size_found && pi_length_found) {
             /* TB present and PI bitmap length is known. Can calculate TB length.*/
-            pi_byte_length = (umts_fp_conversation_info->paging_indications + 7) / 8;
+            pi_byte_length = (fp_pch_channel_info->paging_indications + 7) / 8;
             if (!umts_fp_conversation_info) {
                 umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 fill_pch_coversation_info_for_heur(umts_fp_conversation_info, pinfo);
+                fp_pch_channel_info = (fp_pch_channel_info_t*)umts_fp_conversation_info->channel_specific_info;
             }
             tb_byte_length = (length - (pi_byte_length + 6)) * 8; /* Removing header length (4), footer length (2) and PI bitmap length*/
             /* Possible TB lengths for PCH is 10 or 30 bytes ( See 3GPP TR 25.944 / 4.1.1.2 ) */
@@ -4878,6 +4918,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
     guint8 fake_lchid=0;
     gint *cur_val=NULL;
     guint32 user_identity;
+    fp_pch_channel_info_t *fp_pch_channel_info;
 
     fpi = wmem_new0(wmem_file_scope(), fp_info);
     p_add_proto_data(wmem_file_scope(), pinfo, proto_fp, 0, fpi);
@@ -5002,14 +5043,18 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
             return fpi;
 
         case CHANNEL_PCH:
-            fpi->paging_indications = p_conv_data->paging_indications;
+            fp_pch_channel_info = (fp_pch_channel_info_t*)p_conv_data->channel_specific_info;
+            fpi->paging_indications = fp_pch_channel_info->paging_indications;
             fpi->num_chans = p_conv_data->num_dch_in_flow;
-            /* Set offset to point to first TFI
-             */
+
             if (is_control_frame) {
                 /* control frame, we're done */
                 return fpi;
             }
+            /* Inesrting Paging Indication Info extracted from the previous packet */
+            fpi->relevant_paging_indications = fp_pch_channel_info->last_paging_indication_info;
+            fp_pch_channel_info->last_paging_indication_info = NULL;
+
             /* Set offset to TFI */
             offset = 3;
             break;
@@ -5197,6 +5242,24 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
 
 
     return fpi;
+}
+
+/* Updates the conversation info of a PCH stream based on information parsed in the current frame*/
+static void
+update_pch_coversation_info(umts_fp_conversation_info_t *p_conv_data, packet_info *pinfo, struct fp_info *p_fp_info)
+{
+    fp_pch_channel_info_t* fp_pch_channel_info;
+    /* The channel type MUST be set to PCH */
+    DISSECTOR_ASSERT(p_conv_data->channel == CHANNEL_PCH);
+
+    fp_pch_channel_info = (fp_pch_channel_info_t*)p_conv_data->channel_specific_info;
+    if(p_fp_info->current_paging_indications && !pinfo->fd->flags.visited)
+    {
+        /* Saving the PI info for the next packet to find */
+        fp_pch_channel_info->last_paging_indication_info = p_fp_info->current_paging_indications;
+        /* Resetting this field so we don't add it again to the conversation next time the packet is parsed */
+        p_fp_info->current_paging_indications = NULL;
+    }
 }
 
 /*****************************/
@@ -5404,6 +5467,7 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         case CHANNEL_PCH:
             dissect_pch_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info,
                                      data);
+            update_pch_coversation_info(p_conv_data, pinfo, p_fp_info);
             break;
         case CHANNEL_CPCH:
             dissect_cpch_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info);
@@ -5856,8 +5920,14 @@ void proto_register_fp(void)
             },
             { &hf_fp_paging_indication_bitmap,
               { "Paging Indications bitmap",
-                "fp.pch.pi-bitmap", FT_NONE, BASE_NONE, NULL, 0x0,
+                "fp.pch.pi-bitmap", FT_BYTES , BASE_NONE, NULL, 0x0,
                 "Paging Indication bitmap", HFILL
+              }
+            },
+            { &hf_fp_relevant_paging_indication_bitmap,
+              { "Relevant Paging Indications bitmap",
+                "fp.pch.relevant-pi-bitmap", FT_BYTES , BASE_NONE, NULL, 0x0,
+                "The Paging Indication bitmap used to inform users about the current frame", HFILL
               }
             },
             { &hf_fp_rx_timing_deviation,
@@ -6520,6 +6590,13 @@ void proto_register_fp(void)
                 NULL, HFILL
               }
             },
+            { &hf_fp_relevant_pi_frame,
+              { "Paging Indications frame number",
+                "fp.pch.relevant-pi-frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+                "The frame where this Paging Indication bitmap was found",
+                HFILL
+              }
+            },
             { &hf_fp_hsdsch_physical_layer_category,
               { "HS-DSCH physical layer category",
                 "fp.hsdsch.physical_layer_category", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -6542,6 +6619,7 @@ void proto_register_fp(void)
         &ett_fp_hsdsch_new_ie_flags,
         &ett_fp_rach_new_ie_flags,
         &ett_fp_hsdsch_pdu_block_header,
+        &ett_fp_pch_relevant_pi,
         &ett_fp_release
     };
 
@@ -6644,6 +6722,11 @@ void proto_register_fp(void)
                                     "Validate FP header checksums",
                                     "Validate FP header checksums",
                                     &preferences_header_checksum);
+     /* Determines whether or not to validate FP header checksums */
+     prefs_register_bool_preference(fp_module, "track_paging_indications",
+                                    "Track Paging Indications in PCH channels",
+                                    "For each PCH data frame, Try to show the paging indications bitmap found in the previous frame",
+                                    &preferences_track_paging_indications);
      /* Determines whether or not to validate FP header checksums */
     prefs_register_obsolete_preference(fp_module, "udp_heur");
 #ifdef UMTS_FP_USE_UAT

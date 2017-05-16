@@ -81,6 +81,14 @@ enum fp_rlc_mode {
     FP_RLC_AM
 };
 
+
+/* Information about the Paging Indication Bitmap seen in a specific PCH frame*/
+typedef struct paging_indications_info_t
+{
+    guint32 frame_number;
+    guint8* paging_indications_bitmap;
+} paging_indications_info_t;
+
 /* Info attached to each FP packet */
 typedef struct fp_info
 {
@@ -92,7 +100,6 @@ typedef struct fp_info
     gboolean is_uplink;
     gint channel;                       /* see Channel types definitions above */
     guint8  dch_crc_present;            /* 0=No, 1=Yes, 2=Unknown */
-    gint paging_indications;
     gint num_chans;
 #define MAX_FP_CHANS  64
     gint chan_tf_size[MAX_FP_CHANS];
@@ -111,6 +118,12 @@ typedef struct fp_info
     gint cur_chan;          /* current channel, required to retrieve the correct channel configuration for UMTS MAC */
     gint com_context_id;    /* Identifies a single UE in the network */
     guint16 srcport, destport;
+
+    /* PCH Related data*/
+    gint paging_indications;
+    paging_indications_info_t* relevant_paging_indications; /* Info from previous frame */
+    /* Info from the current frame. Used to carry information from this frame to the converstaion info */
+    paging_indications_info_t* current_paging_indications;
 
     /* HSDSCH Related data */
     enum   fp_hsdsch_entity hsdsch_entity;
@@ -159,6 +172,14 @@ typedef struct fp_rach_channel_info_t
     wmem_tree_t* crnti_to_urnti_map; /* Mapping between C-RNTIs and U-RNTIs using them in this RACH */
 } fp_rach_channel_info_t;
 
+/* Used in the 'channel_specific_info' field for PCH channels */
+typedef struct fp_pch_channel_info_t
+{
+    /*Size of the Paging Indication field in this PCH*/
+    gint paging_indications;
+    /* Information from the previous frame in this field which contained the paging indication field*/
+    paging_indications_info_t* last_paging_indication_info;
+} fp_pch_channel_info_t;
 
 typedef struct
 {
@@ -173,9 +194,6 @@ typedef struct
     guint32 scrambling_code;    /* Identifies a single UE's radio transmissions in the UTRAN */
 
     void* channel_specific_info; /* Extended channel info based on the channel type */
-
-    /* For PCH channel */
-    gint paging_indications;
 
     /* DCH's in this flow */
     gint num_dch_in_flow;
