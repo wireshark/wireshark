@@ -1384,7 +1384,19 @@ static const value_string gtpv2_cause_vals[] = {
     {114, "Bearer handling not supported"},
     {115, "UE already re-attached"},
     {116, "Multiple PDN connections for a given APN not allowed"},
-    /* 117-239 Spare. For future use in a triggered/response message  */
+    {117, "Target access restricted for the subscriber"},
+    {118, "Shall not be used. See NOTE 2 and NOTE 3."},
+    {119, "MME/SGSN refuses due to VPLMN Policy"},
+    {120, "GTP-C Entity Congestion"},
+    {121, "Late Overlapping Request"},
+    {122, "Timed out Request"},
+    {123, "UE is temporarily not reachable due to power saving"},
+    {124, "Relocation failure due to NAS message redirection"},
+    {125, "UE not authorised by OCS or external AAA Server"},
+    {126, "Multiple accesses to a PDN connection not allowed"},
+    {127, "Request rejected due to UE capability"},
+
+    /* 128-239 Spare. For future use in a triggered/response message  */
     /* 240-255 Spare. For future use in an initial/request message */
     {0, NULL}
 };
