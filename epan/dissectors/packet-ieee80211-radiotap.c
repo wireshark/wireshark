@@ -1833,7 +1833,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 									tvb, offset, 12, rate,
 									"Data Rate: %.1f Mb/s", rate);
 							PROTO_ITEM_SET_GENERATED(rate_ti);
-							if (ieee80211_vhtvalid[mcs].valid[bandwidth][nss] == FALSE)
+							if (ieee80211_vhtvalid[mcs].valid[bandwidth][nss-1] == FALSE)
 								expert_add_info(pinfo, rate_ti, &ei_radiotap_invalid_data_rate);
 
 						}
