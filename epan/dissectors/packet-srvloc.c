@@ -1046,15 +1046,12 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             NULL
         };
 
-        length = tvb_get_ntoh24(tvb, offset + 2);
-        proto_tree_add_uint(srvloc_tree, hf_srvloc_pktlen, tvb, offset + 2, 3, length);
+        proto_tree_add_item_ret_uint(srvloc_tree, hf_srvloc_pktlen, tvb, offset + 2, 3, ENC_BIG_ENDIAN, &length);
         proto_tree_add_bitmask(srvloc_tree, tvb, offset + 5, hf_srvloc_flags_v2, ett_srvloc_flags, v2_flags, ENC_BIG_ENDIAN);
 
-        next_ext_off = tvb_get_ntoh24(tvb, offset + 7);
-        proto_tree_add_uint(srvloc_tree, hf_srvloc_nextextoff, tvb, offset + 7, 3,
-                            next_ext_off);
-        proto_tree_add_uint(srvloc_tree, hf_srvloc_xid, tvb, offset + 10, 2,
-                            tvb_get_ntohs(tvb, offset + 10));
+        proto_tree_add_item_ret_uint(srvloc_tree, hf_srvloc_nextextoff, tvb, offset + 7, 3,
+                            ENC_BIG_ENDIAN, &next_ext_off);
+        proto_tree_add_item(srvloc_tree, hf_srvloc_xid, tvb, offset + 10, 2, ENC_BIG_ENDIAN);
         col_append_fstr(pinfo->cinfo, COL_INFO, ", V2 XID - %u", tvb_get_ntohs(tvb, offset + 10));
         lang_tag_len = tvb_get_ntohs(tvb, offset + 12);
         proto_tree_add_uint(srvloc_tree, hf_srvloc_langtaglen, tvb, offset + 12, 2, lang_tag_len);

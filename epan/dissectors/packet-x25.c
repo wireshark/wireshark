@@ -1831,12 +1831,10 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             localoffset, 1, pkt_type);
                     proto_tree_add_uint(x25_tree, hf_x25_type_data, tvb,
                             localoffset, 1, pkt_type);
-                    proto_tree_add_uint(x25_tree, hf_x25_p_s_mod128, tvb,
-                            localoffset+1, 1,
-                            tvb_get_guint8(tvb, localoffset+1));
-                    proto_tree_add_boolean(x25_tree, hf_x25_mbit_mod128, tvb,
-                            localoffset+1, 1,
-                            tvb_get_guint8(tvb, localoffset+1));
+                    proto_tree_add_item(x25_tree, hf_x25_p_s_mod128, tvb,
+                            localoffset+1, 1, ENC_NA);
+                    proto_tree_add_item(x25_tree, hf_x25_mbit_mod128, tvb,
+                            localoffset+1, 1, ENC_NA);
                 }
             }
             if (modulo == 8) {

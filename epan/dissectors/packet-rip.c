@@ -201,8 +201,8 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     proto_tree_add_uint(rip_tree, &hfi_rip_command, tvb, 0, 1, command);
     proto_tree_add_uint(rip_tree, &hfi_rip_version, tvb, 1, 1, version);
     if (version == RIPv2 && pref_display_routing_domain == TRUE)
-        proto_tree_add_uint(rip_tree, &hfi_rip_routing_domain, tvb, 2, 2,
-                    tvb_get_ntohs(tvb, 2));
+        proto_tree_add_item(rip_tree, &hfi_rip_routing_domain, tvb, 2, 2,
+                    ENC_BIG_ENDIAN);
 
     /* skip header */
     offset = RIP_HEADER_LENGTH;

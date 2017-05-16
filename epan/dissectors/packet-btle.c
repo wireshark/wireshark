@@ -47,7 +47,8 @@ static int hf_access_address = -1;
 static int hf_crc = -1;
 static int hf_master_bd_addr = -1;
 static int hf_slave_bd_addr = -1;
-static int hf_length = -1;
+static int hf_length_1f = -1;
+static int hf_length_3f = -1;
 static int hf_advertising_header = -1;
 static int hf_advertising_header_pdu_type = -1;
 static int hf_advertising_header_rfu_1 = -1;
@@ -381,8 +382,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item           *sub_item;
     proto_tree           *sub_tree;
     gint                  offset = 0;
-    guint32               access_address;
-    guint8                length;
+    guint32               access_address, length;
     tvbuff_t              *next_tvb;
     guint8                *dst_bd_addr;
     guint8                *src_bd_addr;
@@ -515,9 +515,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(advertising_header_tree, hf_advertising_header_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        item = proto_tree_add_uint(btle_tree, hf_length, tvb, offset, 1, tvb_get_guint8(tvb, offset) & 0x3F);
+        item = proto_tree_add_item_ret_uint(btle_tree, hf_length_3f, tvb, offset, 1, ENC_LITTLE_ENDIAN, &length);
         PROTO_ITEM_SET_HIDDEN(item);
-        length = tvb_get_guint8(tvb, offset) & 0x3f;
         offset += 1;
 
         switch (pdu_type) {
@@ -863,9 +862,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         proto_tree_add_item(data_header_tree, hf_data_header_rfu, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(data_header_tree, hf_data_header_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        item = proto_tree_add_uint(btle_tree, hf_length, tvb, offset, 1, tvb_get_guint8(tvb, offset) & 0x1F);
+        item = proto_tree_add_item_ret_uint(btle_tree, hf_length_1f, tvb, offset, 1, ENC_LITTLE_ENDIAN, &length);
         PROTO_ITEM_SET_HIDDEN(item);
-        length = tvb_get_guint8(tvb, offset) & 0x1f;
         offset += 1;
 
         switch (llid) {
@@ -938,7 +936,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
         case 0x02: /* Start of an L2CAP message or a complete L2CAP message with no fragmentation */
             if (length > 0) {
-                gint le_frame_len = tvb_get_letohs(tvb, offset);
+                guint le_frame_len = tvb_get_letohs(tvb, offset);
                 if (le_frame_len > length) {
 /* TODO: Try reassemble cases 0x01 and 0x02 */
                     pinfo->fragmented = TRUE;
@@ -1236,9 +1234,14 @@ proto_register_btle(void)
             FT_ETHER, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_length,
+        { &hf_length_1f,
             { "Length",                          "btle.length",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_DEC, NULL, 0x1F,
+            NULL, HFILL }
+        },
+        { &hf_length_3f,
+            { "Length",                          "btle.length",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
             NULL, HFILL }
         },
         { &hf_advertising_header,

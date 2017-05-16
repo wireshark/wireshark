@@ -142,11 +142,11 @@ dissect_msnip_is(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	offset += 2;
 
 	/* 16 bit holdtime */
-	proto_tree_add_uint(parent_tree, hf_holdtime16, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
+	proto_tree_add_item(parent_tree, hf_holdtime16, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	/* Generation ID */
-	proto_tree_add_uint(parent_tree, hf_genid, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
+	proto_tree_add_item(parent_tree, hf_genid, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	return offset;

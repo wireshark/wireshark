@@ -1216,13 +1216,9 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			break;
 
 		case IEEE80211_RADIOTAP_LOCK_QUALITY:
-			if (tree) {
-				proto_tree_add_uint(radiotap_tree,
+			proto_tree_add_item(radiotap_tree,
 						    hf_radiotap_quality, tvb,
-						    offset, 2,
-						    tvb_get_letohs(tvb,
-								   offset));
-			}
+						    offset, 2, ENC_LITTLE_ENDIAN);
 			break;
 
 		case IEEE80211_RADIOTAP_TX_ATTENUATION:
@@ -1238,22 +1234,15 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			break;
 
 		case IEEE80211_RADIOTAP_DBM_TX_POWER:
-			if (tree) {
-				proto_tree_add_int(radiotap_tree,
+			proto_tree_add_item(radiotap_tree,
 						   hf_radiotap_txpower, tvb,
-						   offset, 1,
-						   tvb_get_guint8(tvb, offset));
-			}
+						   offset, 1, ENC_NA);
 			break;
 
 		case IEEE80211_RADIOTAP_ANTENNA:
-			if (tree) {
-				proto_tree_add_uint(radiotap_tree,
+			proto_tree_add_item(radiotap_tree,
 						    hf_radiotap_antenna, tvb,
-						    offset, 1,
-						    tvb_get_guint8(tvb,
-								   offset));
-			}
+						    offset, 1, ENC_NA);
 			break;
 
 		case IEEE80211_RADIOTAP_DB_ANTSIGNAL:

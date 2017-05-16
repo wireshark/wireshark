@@ -826,15 +826,15 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             case 1:
                 l = LMPF_VAL_LOCAL_CCID;
                 proto_item_append_text(ti, ": %d", tvb_get_ntohl(tvb, offset2));
-                proto_tree_add_uint(lmp_object_tree, hf_lmp_filter[l], tvb,
-                                    offset2, 4, tvb_get_ntohl(tvb, offset2));
+                proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb,
+                                    offset2, 4, ENC_BIG_ENDIAN);
                 break;
 
             case 2:
                 l = LMPF_VAL_REMOTE_CCID;
                 proto_item_append_text(ti, ": %d", tvb_get_ntohl(tvb, offset2));
-                proto_tree_add_uint(lmp_object_tree, hf_lmp_filter[l], tvb,
-                                    offset2, 4, tvb_get_ntohl(tvb, offset2));
+                proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb,
+                                    offset2, 4, ENC_BIG_ENDIAN);
                 break;
             default:
                 proto_tree_add_item(lmp_object_tree, hf_lmp_data, tvb, offset2, mylen, ENC_NA);
@@ -948,15 +948,15 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
                 l = LMPF_VAL_MESSAGE_ID;
                 proto_item_append_text(ti, ": %d", tvb_get_ntohl(tvb, offset2));
-                proto_tree_add_uint(lmp_object_tree, hf_lmp_filter[l], tvb,
-                                    offset2, 4, tvb_get_ntohl(tvb, offset2));
+                proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb,
+                                    offset2, 4, ENC_BIG_ENDIAN);
                 break;
 
             case 2:
                 l = LMPF_VAL_MESSAGE_ID_ACK;
                 proto_item_append_text(ti, ": %d", tvb_get_ntohl(tvb, offset2));
-                proto_tree_add_uint(lmp_object_tree, hf_lmp_filter[l], tvb,
-                                    offset2, 4, tvb_get_ntohl(tvb, offset2));
+                proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb,
+                                    offset2, 4, ENC_BIG_ENDIAN);
                 break;
 
             default:
@@ -973,13 +973,12 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 proto_item_append_text(ti, ": HelloInterval: %d, HelloDeadInterval: %d",
                                        tvb_get_ntohs(tvb, offset2),
                                        tvb_get_ntohs(tvb, offset2+2));
-                proto_tree_add_uint(lmp_object_tree,
+                proto_tree_add_item(lmp_object_tree,
                                     hf_lmp_filter[LMPF_VAL_CONFIG_HELLO],
-                                    tvb, offset2, 2, tvb_get_ntohs(tvb, offset2));
-                proto_tree_add_uint(lmp_object_tree,
+                                    tvb, offset2, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(lmp_object_tree,
                                     hf_lmp_filter[LMPF_VAL_CONFIG_HELLO_DEAD],
-                                    tvb, offset2+2, 2,
-                                    tvb_get_ntohs(tvb, offset2+2));
+                                    tvb, offset2+2, 2, ENC_BIG_ENDIAN);
                 break;
 
             default:
@@ -996,14 +995,12 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 proto_item_append_text(ti, ": TxSeq %d, RxSeq: %d",
                                        tvb_get_ntohl(tvb, offset2),
                                        tvb_get_ntohl(tvb, offset2+4));
-                proto_tree_add_uint(lmp_object_tree,
+                proto_tree_add_item(lmp_object_tree,
                                     hf_lmp_filter[LMPF_VAL_HELLO_TXSEQ],
-                                    tvb, offset2, 4,
-                                    tvb_get_ntohl(tvb, offset2));
-                proto_tree_add_uint(lmp_object_tree,
+                                    tvb, offset2, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(lmp_object_tree,
                                     hf_lmp_filter[LMPF_VAL_HELLO_RXSEQ],
-                                    tvb, offset2+4, 4,
-                                    tvb_get_ntohl(tvb, offset2+4));
+                                    tvb, offset2+4, 4, ENC_BIG_ENDIAN);
                 break;
 
             default:
@@ -1071,10 +1068,10 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             case 1:
                 proto_item_append_text(ti, ": %d",
                                        tvb_get_ntohl(tvb, offset2));
-                proto_tree_add_uint(lmp_object_tree,
+                proto_tree_add_item(lmp_object_tree,
                                     hf_lmp_filter[LMPF_VAL_VERIFY_ID],
                                     tvb, offset2, 4,
-                                    tvb_get_ntohl(tvb, offset2));
+                                    ENC_BIG_ENDIAN);
                 break;
             default:
                 proto_tree_add_item(lmp_object_tree, hf_lmp_data, tvb, offset2, mylen, ENC_NA);
@@ -1620,15 +1617,13 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                        tvb_get_ntohs(tvb, offset2+4),
                                        tvb_get_ntohs(tvb, offset2+6));
 
-                proto_tree_add_uint(lmp_object_tree,
+                proto_tree_add_item(lmp_object_tree,
                                     hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_MIN_NCC],
-                                    tvb, offset2+4, 2,
-                                    tvb_get_ntohs(tvb, offset2+4));
+                                    tvb, offset2+4, 2, ENC_BIG_ENDIAN);
 
-                proto_tree_add_uint(lmp_object_tree,
+                proto_tree_add_item(lmp_object_tree,
                                     hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_MAX_NCC],
-                                    tvb, offset2+6, 2,
-                                    tvb_get_ntohs(tvb, offset2+6));
+                                    tvb, offset2+6, 2, ENC_BIG_ENDIAN);
 
                 /* Min and Max NVC */
                 proto_item_append_text(ti, ": Minimum NVC: %d, Maximum NVC: %d",

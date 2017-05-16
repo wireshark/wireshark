@@ -169,8 +169,8 @@ again:
 
     switch (type) {
     case AODV_EXT_INT:
-        proto_tree_add_uint(ext_tree, hf_aodv_ext_interval,
-                            tvb, offset, 4, tvb_get_ntohl(tvb, offset));
+        proto_tree_add_item(ext_tree, hf_aodv_ext_interval,
+                            tvb, offset, 4, ENC_BIG_ENDIAN);
         break;
     case AODV_EXT_NTP:
         proto_tree_add_item(ext_tree, hf_aodv_ext_timestamp,

@@ -495,11 +495,11 @@ dissect_pktc_mtafqdn_krbsafeuserdata(packet_info *pinfo, tvbuff_t *tvb, proto_tr
                    val_to_str(msgtype, pktc_mtafqdn_msgtype_vals, "MsgType %u"));
 
     /* enterprise */
-    proto_tree_add_uint(tree, hf_pktc_mtafqdn_enterprise, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
+    proto_tree_add_item(tree, hf_pktc_mtafqdn_enterprise, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
     /* protocol version */
-    proto_tree_add_uint(tree, hf_pktc_mtafqdn_version, tvb, offset, 1, tvb_get_guint8(tvb, offset));
+    proto_tree_add_item(tree, hf_pktc_mtafqdn_version, tvb, offset, 1, ENC_NA);
     offset+=1;
 
     switch(msgtype) {

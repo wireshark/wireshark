@@ -1938,7 +1938,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
             length = (guint8)sizeof(struct ip6_frag);
             ext_len = length - ext_hlen;
 
-            proto_tree_add_uint(nhc_tree, hf_6lowpan_nhc_ext_reserved, tvb, offset, 1, tvb_get_guint8(tvb, offset));
+            proto_tree_add_item(nhc_tree, hf_6lowpan_nhc_ext_reserved, tvb, offset, 1, ENC_NA);
 
         } else {
             /* Get and display the extension header length. */

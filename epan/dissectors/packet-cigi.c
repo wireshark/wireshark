@@ -142,9 +142,6 @@ static gint cigi3_3_add_symbol_clone(tvbuff_t*, proto_tree*, gint);
 static gint cigi3_3_add_symbol_control(tvbuff_t*, proto_tree*, gint);
 static gint cigi3_3_add_short_symbol_control(tvbuff_t*, proto_tree*, gint);
 
-
-static gfloat tvb_get_fixed_point(tvbuff_t*, int, gint);
-
 /* CIGI Handle */
 static dissector_handle_t cigi_handle;
 
@@ -2433,6 +2430,16 @@ static gint cigi_minor_version = 0;
 static gint cigi_byte_order = ENC_BIG_ENDIAN;
 
 /*
+ * Extract a 16-bit fixed-point value and convert it to a float.
+ */
+static gfloat
+cigi_get_fixed_point(tvbuff_t *tvb, int offset, const guint encoding)
+{
+    gint16 fixed = tvb_get_guint16(tvb, offset, encoding);
+    return fixed / 128.0F;
+}
+
+/*
  * Check whether this looks like a CIGI packet or not.
  */
 static gboolean
@@ -3758,16 +3765,16 @@ cigi2_add_special_effect_definition(tvbuff_t *tvb, proto_tree *tree, gint offset
     proto_tree_add_item(tree, hf_cigi2_special_effect_definition_blue, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_float(tree, hf_cigi2_special_effect_definition_x_scale, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_special_effect_definition_x_scale, tvb, offset, 2, cigi_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_special_effect_definition_y_scale, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_special_effect_definition_y_scale, tvb, offset, 2, cigi_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_special_effect_definition_z_scale, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_special_effect_definition_z_scale, tvb, offset, 2, cigi_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_special_effect_definition_time_scale, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_special_effect_definition_time_scale, tvb, offset, 2, cigi_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
     proto_tree_add_item(tree, hf_cigi2_special_effect_definition_spare, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -3845,22 +3852,22 @@ cigi2_add_collision_detection_segment_definition(tvbuff_t *tvb, proto_tree *tree
     proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_definition_collision_mask, tvb, offset, 4, ENC_NA);
     offset += 4;
 
-    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_x_start, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_x_start, tvb, offset, 2, cigi_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_y_start, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_y_start, tvb, offset, 2, cigi_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_z_start, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_z_start, tvb, offset, 2, cigi_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_x_end, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_x_end, tvb, offset, 2, cigi_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_y_end, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_y_end, tvb, offset, 2, cigi_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_z_end, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_z_end, tvb, offset, 2, cigi_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
     return offset;
@@ -3877,22 +3884,22 @@ cigi2_add_collision_detection_volume_definition(tvbuff_t *tvb, proto_tree *tree,
     proto_tree_add_item(tree, hf_cigi2_collision_detection_volume_definition_volume_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_x_offset, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_x_offset, tvb, offset, 2, cigi_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_y_offset, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_y_offset, tvb, offset, 2, cigi_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_z_offset, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_z_offset, tvb, offset, 2, cigi_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_height, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_height, tvb, offset, 2, cigi_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_width, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_width, tvb, offset, 2, cigi_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
-    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_depth, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
+    proto_tree_add_float(tree, hf_cigi2_collision_detection_volume_definition_depth, tvb, offset, 2, cigi_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));
     offset += 2;
 
     return offset;
@@ -6400,21 +6407,6 @@ cigi3_add_image_generator_message(tvbuff_t *tvb, proto_tree *tree, gint offset)
     offset += packet_size-4;
 
     return offset;
-}
-
-/*
- * Extract a 16-bit fixed-point value and convert it to a float.
- */
-static gfloat
-tvb_get_fixed_point(tvbuff_t *tvb, int offset, gint rep)
-{
-    gint16 fixed;
-
-    if (rep & ENC_LITTLE_ENDIAN)
-        fixed = tvb_get_letohs(tvb, offset);
-    else
-        fixed = tvb_get_ntohs(tvb, offset);
-    return fixed / 128.0F;
 }
 
 /* Register the protocol with Wireshark */

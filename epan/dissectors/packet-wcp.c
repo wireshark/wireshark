@@ -337,8 +337,7 @@ static int dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 	proto_tree_add_item(wcp_tree, hf_wcp_cmd, tvb, 0, 1, ENC_NA);
 	if ( cmd == 0xf){
-		proto_tree_add_uint(wcp_tree, hf_wcp_ext_cmd, tvb, 1, 1,
-				tvb_get_guint8( tvb, 0));
+		proto_tree_add_item(wcp_tree, hf_wcp_ext_cmd, tvb, 1, 1, ENC_NA);
 		switch (ext_cmd){
 		case CONNECT_REQ:
 			dissect_wcp_con_req( tvb, 1, wcp_tree);

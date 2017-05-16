@@ -49,47 +49,28 @@ dissect_ax4000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	proto_item *ti;
 	proto_tree *ax4000_tree;
 
-	guint8  ax_port;
-	guint8  ax_chassis;
-	guint16 ax_index;
-	guint32 ax_seq;
-	guint32 ax_timestamp;
+	guint32 ax_port, ax_chassis, ax_index, ax_seq, ax_timestamp;
 
 	/* Make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AX4000");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	ax_port = tvb_get_guint8(tvb, 0);
-	ax_chassis = tvb_get_guint8(tvb, 1);
-	ax_index = tvb_get_ntohs(tvb, 2) & 0x0FFF;
-	ax_timestamp = tvb_get_letohl(tvb, 6);
-	ax_seq = tvb_get_letohl(tvb, 10);
+	/* create display subtree for the protocol */
+	ti = proto_tree_add_item(tree, proto_ax4000, tvb, 0, -1, ENC_NA);
+
+	ax4000_tree = proto_item_add_subtree(ti, ett_ax4000);
+
+	proto_tree_add_item_ret_uint(ax4000_tree, hf_ax4000_port, tvb, 0, 1, ENC_LITTLE_ENDIAN, &ax_port);
+	proto_tree_add_item_ret_uint(ax4000_tree, hf_ax4000_chassis, tvb, 1, 1, ENC_LITTLE_ENDIAN, &ax_chassis);
+	proto_tree_add_item(ax4000_tree, hf_ax4000_fill, tvb, 2, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(ax4000_tree, hf_ax4000_index, tvb, 2, 2, ENC_BIG_ENDIAN, &ax_index);
+	proto_tree_add_item_ret_uint(ax4000_tree, hf_ax4000_timestamp, tvb, 6, 4, ENC_LITTLE_ENDIAN, &ax_timestamp);
+	proto_tree_add_item_ret_uint(ax4000_tree, hf_ax4000_seq, tvb, 10, 4, ENC_LITTLE_ENDIAN, &ax_seq);
+	proto_tree_add_item(ax4000_tree, hf_ax4000_crc, tvb, 14, 2, ENC_LITTLE_ENDIAN);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO,
 			"Chss:%u Prt:%u Idx:%u Seq:0x%08x TS:%.6f[msec]",
 			ax_chassis, ax_port, ax_index, ax_seq, ax_timestamp*1e-5);
-
-	if (tree) {
-		/* create display subtree for the protocol */
-		ti = proto_tree_add_item(tree, proto_ax4000, tvb, 0, -1, ENC_NA);
-
-		ax4000_tree = proto_item_add_subtree(ti, ett_ax4000);
-
-		proto_tree_add_uint(ax4000_tree,
-		    hf_ax4000_port, tvb, 0, 1, ax_port);
-		proto_tree_add_uint(ax4000_tree,
-		    hf_ax4000_chassis, tvb, 1, 1, ax_chassis);
-		proto_tree_add_item(ax4000_tree,
-		    hf_ax4000_fill, tvb, 2, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_uint(ax4000_tree,
-		    hf_ax4000_index, tvb, 2, 2, ax_index);
-		proto_tree_add_uint(ax4000_tree,
-		    hf_ax4000_timestamp, tvb, 6, 4, ax_timestamp);
-		proto_tree_add_uint(ax4000_tree,
-		    hf_ax4000_seq, tvb, 10, 4, ax_seq);
-		proto_tree_add_uint(ax4000_tree,
-		    hf_ax4000_crc, tvb, 14, 2, tvb_get_letohs(tvb, 14));
-	}
 
 	return tvb_captured_length(tvb);
 }

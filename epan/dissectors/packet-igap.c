@@ -165,16 +165,14 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
     proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_uint(tree, hf_version, tvb, offset, 1,
-        tvb_get_guint8(tvb, offset));
+    proto_tree_add_item(tree, hf_version, tvb, offset, 1, ENC_NA);
     offset += 1;
 
     subtype = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(tree, hf_subtype, tvb, offset, 1, subtype);
     offset += 2;
 
-    proto_tree_add_uint(tree, hf_challengeid, tvb, offset, 1,
-        tvb_get_guint8(tvb, offset));
+    proto_tree_add_item(tree, hf_challengeid, tvb, offset, 1, ENC_NA);
     offset += 1;
 
     asize = tvb_get_guint8(tvb, offset);

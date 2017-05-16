@@ -454,38 +454,36 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dtpt_queryset_tree = proto_tree_add_subtree(dtpt_tree, tvb, 4, 60,
 			ett_dtpt_queryset, NULL, "QuerySet raw");
 
-		if (dtpt_queryset_tree) {
-			proto_tree_add_uint(dtpt_queryset_tree, hf_dtpt_queryset_size,
-				tvb, offset+4+0,  4, queryset_size);
-			proto_tree_add_uint(dtpt_queryset_tree, hf_dtpt_queryset_service_instance_name_pointer,
-				tvb, offset+4+4,  4, tvb_get_letohl(tvb, offset+4+ 4));
-			proto_tree_add_uint(dtpt_queryset_tree, hf_dtpt_queryset_service_class_id_pointer,
-				tvb, offset+4+8,  4, tvb_get_letohl(tvb, offset+4+ 8));
-			proto_tree_add_uint(dtpt_queryset_tree, hf_dtpt_queryset_version,
-				tvb, offset+4+12, 4, tvb_get_letohl(tvb, offset+4+12));
-			proto_tree_add_uint(dtpt_queryset_tree, hf_dtpt_queryset_comment_pointer,
-				tvb, offset+4+16, 4, tvb_get_letohl(tvb, offset+4+16));
-			proto_tree_add_uint(dtpt_queryset_tree, hf_dtpt_queryset_namespace,
-				tvb, offset+4+20, 4, tvb_get_letohl(tvb, offset+4+20));
-			proto_tree_add_uint(dtpt_queryset_tree, hf_dtpt_queryset_provider_id_pointer,
-				tvb, offset+4+24, 4, tvb_get_letohl(tvb, offset+4+24));
-			proto_tree_add_uint(dtpt_queryset_tree, hf_dtpt_queryset_context_pointer,
-				tvb, offset+4+28, 4, tvb_get_letohl(tvb, offset+4+28));
-			proto_tree_add_uint(dtpt_queryset_tree, hf_dtpt_queryset_protocols_number,
-				tvb, offset+4+32, 4, tvb_get_letohl(tvb, offset+4+32));
-			proto_tree_add_uint(dtpt_queryset_tree, hf_dtpt_queryset_protocols_pointer,
-				tvb, offset+4+36, 4, tvb_get_letohl(tvb, offset+4+36));
-			proto_tree_add_uint(dtpt_queryset_tree, hf_dtpt_queryset_query_string_pointer,
-				tvb, offset+4+40, 4, tvb_get_letohl(tvb, offset+4+40));
-			proto_tree_add_uint(dtpt_queryset_tree, hf_dtpt_queryset_cs_addrs_number,
-				tvb, offset+4+44, 4, tvb_get_letohl(tvb, offset+4+44));
-			proto_tree_add_uint(dtpt_queryset_tree, hf_dtpt_queryset_cs_addrs_pointer,
-				tvb, offset+4+48, 4, tvb_get_letohl(tvb, offset+4+48));
-			proto_tree_add_uint(dtpt_queryset_tree, hf_dtpt_queryset_output_flags,
-				tvb, offset+4+52, 4, tvb_get_letohl(tvb, offset+4+52));
-			proto_tree_add_uint(dtpt_queryset_tree, hf_dtpt_queryset_blob_pointer,
-				tvb, offset+4+56, 4, tvb_get_letohl(tvb, offset+4+56));
-		}
+		proto_tree_add_item(dtpt_queryset_tree, hf_dtpt_queryset_size,
+			tvb, offset+4+0,  4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(dtpt_queryset_tree, hf_dtpt_queryset_service_instance_name_pointer,
+			tvb, offset+4+4,  4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(dtpt_queryset_tree, hf_dtpt_queryset_service_class_id_pointer,
+			tvb, offset+4+8,  4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(dtpt_queryset_tree, hf_dtpt_queryset_version,
+			tvb, offset+4+12, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(dtpt_queryset_tree, hf_dtpt_queryset_comment_pointer,
+			tvb, offset+4+16, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(dtpt_queryset_tree, hf_dtpt_queryset_namespace,
+			tvb, offset+4+20, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(dtpt_queryset_tree, hf_dtpt_queryset_provider_id_pointer,
+			tvb, offset+4+24, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(dtpt_queryset_tree, hf_dtpt_queryset_context_pointer,
+			tvb, offset+4+28, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(dtpt_queryset_tree, hf_dtpt_queryset_protocols_number,
+			tvb, offset+4+32, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(dtpt_queryset_tree, hf_dtpt_queryset_protocols_pointer,
+			tvb, offset+4+36, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(dtpt_queryset_tree, hf_dtpt_queryset_query_string_pointer,
+			tvb, offset+4+40, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(dtpt_queryset_tree, hf_dtpt_queryset_cs_addrs_number,
+			tvb, offset+4+44, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(dtpt_queryset_tree, hf_dtpt_queryset_cs_addrs_pointer,
+			tvb, offset+4+48, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(dtpt_queryset_tree, hf_dtpt_queryset_output_flags,
+			tvb, offset+4+52, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(dtpt_queryset_tree, hf_dtpt_queryset_blob_pointer,
+			tvb, offset+4+56, 4, ENC_LITTLE_ENDIAN);
 	}
 
 	offset += 4;
@@ -520,12 +518,10 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				dtpt_protocol_tree = proto_tree_add_subtree_format(dtpt_protocols_tree,
 						tvb, offset+4+4+i*8, 8, ett_dtpt_protocol, NULL, "Protocol[%d]", i+1);
 
-				if (dtpt_protocol_tree) {
-					proto_tree_add_uint(dtpt_protocol_tree, hf_dtpt_protocol_family,
-					tvb, offset+4+4+i*8, 4, tvb_get_letohl(tvb, offset+4+4+i*8));
-					proto_tree_add_uint(dtpt_protocol_tree, hf_dtpt_protocol_protocol,
-					tvb, offset+4+4+i*8+4, 4, tvb_get_letohl(tvb, offset+4+4+i*8+4));
-				}
+				proto_tree_add_item(dtpt_protocol_tree, hf_dtpt_protocol_family,
+					tvb, offset+4+4+i*8, 4, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(dtpt_protocol_tree, hf_dtpt_protocol_protocol,
+					tvb, offset+4+4+i*8+4, 4, ENC_LITTLE_ENDIAN);
 			}
 		}
 	}
@@ -566,20 +562,18 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				dtpt_addr1_tree = proto_tree_add_subtree_format(dtpt_addrs_tree,
 					tvb, offset, 24, ett_dtpt_cs_addr1, NULL, "Address[%u] Part 1", i+1);
 
-				if (dtpt_addr1_tree) {
-					proto_tree_add_uint(dtpt_addr1_tree, hf_dtpt_cs_addr_local_pointer,
-						tvb, offset+ 0, 4, tvb_get_letohl(tvb, offset+ 0));
-					proto_tree_add_uint(dtpt_addr1_tree, hf_dtpt_cs_addr_local_length,
-						tvb, offset+ 4, 4, tvb_get_letohl(tvb, offset+ 4));
-					proto_tree_add_uint(dtpt_addr1_tree, hf_dtpt_cs_addr_remote_pointer,
-						tvb, offset+ 8, 4, tvb_get_letohl(tvb, offset+ 8));
-					proto_tree_add_uint(dtpt_addr1_tree, hf_dtpt_cs_addr_remote_length,
-						tvb, offset+12, 4, tvb_get_letohl(tvb, offset+12));
-					proto_tree_add_uint(dtpt_addr1_tree, hf_dtpt_cs_addr_socket_type,
-						tvb, offset+16, 4, tvb_get_letohl(tvb, offset+16));
-					proto_tree_add_uint(dtpt_addr1_tree, hf_dtpt_cs_addr_protocol,
-						tvb, offset+20, 4, tvb_get_letohl(tvb, offset+20));
-				}
+				proto_tree_add_item(dtpt_addr1_tree, hf_dtpt_cs_addr_local_pointer,
+					tvb, offset+ 0, 4, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(dtpt_addr1_tree, hf_dtpt_cs_addr_local_length,
+					tvb, offset+ 4, 4, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(dtpt_addr1_tree, hf_dtpt_cs_addr_remote_pointer,
+					tvb, offset+ 8, 4, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(dtpt_addr1_tree, hf_dtpt_cs_addr_remote_length,
+					tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(dtpt_addr1_tree, hf_dtpt_cs_addr_socket_type,
+					tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(dtpt_addr1_tree, hf_dtpt_cs_addr_protocol,
+					tvb, offset+20, 4, ENC_LITTLE_ENDIAN);
 
 				dtpt_addr2_tree = proto_tree_add_subtree_format(dtpt_addrs_tree,
 					tvb, offset2, -1, ett_dtpt_cs_addr2, &dtpt_addr2_item, "Address[%u] Part 2", i+1);
@@ -616,8 +610,8 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (dtpt_blobraw_tree) {
 				proto_tree_add_uint(dtpt_blobraw_tree, hf_dtpt_blob_size,
 					tvb, offset+4+0, 4, blob_size);
-				proto_tree_add_uint(dtpt_blobraw_tree, hf_dtpt_blob_data_pointer,
-					tvb, offset+4+4, 4, tvb_get_letohl(tvb,offset+4+4));
+				proto_tree_add_item(dtpt_blobraw_tree, hf_dtpt_blob_data_pointer,
+					tvb, offset+4+4, 4, ENC_LITTLE_ENDIAN);
 			}
 		}
 	}

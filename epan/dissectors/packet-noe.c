@@ -983,15 +983,13 @@ static void decode_tlv(proto_tree *tree,
         {
             property_length = tvb_get_ntohs(tvb, offset);
             property_length &= 0x7fff;
-            proto_tree_add_uint(property_tree, hf_noe_psize, tvb, offset, 2,
-                tvb_get_guint8(tvb, offset) * 256 + tvb_get_guint8(tvb, offset+1));
+            proto_tree_add_item(property_tree, hf_noe_psize, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             length -= 2;
         }
         else
         {
-            proto_tree_add_uint(property_tree, hf_noe_psize, tvb, offset, 1,
-                tvb_get_guint8(tvb, offset));
+            proto_tree_add_item(property_tree, hf_noe_psize, tvb, offset, 1, ENC_NA);
             offset += 1;
             length -= 1;
         }

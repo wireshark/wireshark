@@ -1870,9 +1870,9 @@ static int
 dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int	    offset     = 0;
-	proto_tree *q2931_tree = NULL;
+	proto_tree *q2931_tree;
 	proto_item *ti;
-	guint8	    call_ref_len;
+	guint32	    call_ref_len;
 	guint8	    call_ref[16];
 	guint8	    message_type;
 	guint8	    message_type_ext;
@@ -1896,17 +1896,13 @@ dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Q.2931");
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_q2931, tvb, offset, -1,
-		    ENC_NA);
-		q2931_tree = proto_item_add_subtree(ti, ett_q2931);
+	ti = proto_tree_add_item(tree, proto_q2931, tvb, offset, -1, ENC_NA);
+	q2931_tree = proto_item_add_subtree(ti, ett_q2931);
 
-		proto_tree_add_uint(q2931_tree, hf_q2931_discriminator, tvb, offset, 1, tvb_get_guint8(tvb, offset));
-	}
+	proto_tree_add_item(q2931_tree, hf_q2931_discriminator, tvb, offset, 1, ENC_NA);
 	offset += 1;
-	call_ref_len = tvb_get_guint8(tvb, offset) & 0xF;	/* XXX - do as a bit field? */
-	if (q2931_tree != NULL)
-		proto_tree_add_uint(q2931_tree, hf_q2931_call_ref_len, tvb, offset, 1, call_ref_len);
+
+	proto_tree_add_item_ret_uint(q2931_tree, hf_q2931_call_ref_len, tvb, offset, 1, ENC_NA, &call_ref_len);
 	offset += 1;
 	if (call_ref_len != 0) {
 		tvb_memcpy(tvb, call_ref, offset, call_ref_len);
@@ -1992,7 +1988,7 @@ proto_register_q2931(void)
 
 		{ &hf_q2931_call_ref_len,
 		  { "Call reference value length", "q2931.call_ref_len",
-		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    FT_UINT8, BASE_DEC, NULL, 0x0F,
 		    NULL, HFILL }
 		},
 

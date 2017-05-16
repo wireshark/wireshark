@@ -267,8 +267,7 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	}
 	if (bacnet_control & BAC_CONTROL_SRC) { /* SNET, SLEN, SADR */
 		/* SNET */
-		proto_tree_add_uint(bacnet_tree, hf_bacnet_snet,
-			tvb, offset, 2, tvb_get_ntohs(tvb, offset));
+		proto_tree_add_item(bacnet_tree, hf_bacnet_snet, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		bacnet_slen = tvb_get_guint8(tvb, offset);
 		if( bacnet_slen == 0) { /* SLEN = 0 invalid */

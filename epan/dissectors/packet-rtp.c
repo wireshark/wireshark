@@ -2306,7 +2306,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
                     hdrext_offset = offset;
                     for ( i = 0; i < hdr_extension_len; i++ ) {
-                        proto_tree_add_uint( rtp_hext_tree, hf_rtp_hdr_ext, tvb, hdrext_offset, 4, tvb_get_ntohl( tvb, hdrext_offset ) );
+                        proto_tree_add_item( rtp_hext_tree, hf_rtp_hdr_ext, tvb, hdrext_offset, 4, ENC_BIG_ENDIAN );
                         hdrext_offset += 4;
                     }
                 }

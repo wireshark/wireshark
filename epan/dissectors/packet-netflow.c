@@ -6902,8 +6902,8 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                                      tvb, offset, length, ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_NETSCALER << 16) | 203):
-            ti = proto_tree_add_ipv4(pdutree, hf_pie_netscaler_icaclientip,
-                                     tvb, offset, 4, tvb_get_ipv4(tvb, offset));
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaclientip,
+                                     tvb, offset, 4, ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_NETSCALER << 16) | 204):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaclienthostname,
@@ -7192,16 +7192,16 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                                      tvb, offset, length, ENC_UTF_8|ENC_NA);
             break;
         case ((VENDOR_BARRACUDA << 16) | 8):
-            ti = proto_tree_add_ipv4(pdutree, hf_pie_barracuda_bindipv4address,
-                                     tvb, offset, 4, tvb_get_ipv4(tvb, offset));
+            ti = proto_tree_add_item(pdutree, hf_pie_barracuda_bindipv4address,
+                                     tvb, offset, 4, ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_BARRACUDA << 16) | 9):
             ti = proto_tree_add_item(pdutree, hf_pie_barracuda_bindtransportport,
                                      tvb, offset, length, ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_BARRACUDA << 16) | 10):
-            ti = proto_tree_add_ipv4(pdutree, hf_pie_barracuda_connipv4address,
-                                     tvb, offset, 4, tvb_get_ipv4(tvb, offset));
+            ti = proto_tree_add_item(pdutree, hf_pie_barracuda_connipv4address,
+                                     tvb, offset, 4, ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_BARRACUDA << 16) | 11):
             ti = proto_tree_add_item(pdutree, hf_pie_barracuda_conntransportport,

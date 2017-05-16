@@ -476,43 +476,43 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_trmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	proto_tree	*mac_tree = NULL;
+	proto_tree	*mac_tree;
 	proto_item	*ti;
-	int		mv_length, sv_offset, sv_additional;
-	guint8		mv_val;
+	int		sv_additional;
+	guint32		mv_val, mv_length, sv_offset;
+
+	if (tvb_captured_length(tvb) < 3)
+		return 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TR MAC");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	mv_val = tvb_get_guint8(tvb, 3);
+	ti = proto_tree_add_item(tree, proto_trmac, tvb, 0, -1, ENC_NA);
+	mac_tree = proto_item_add_subtree(ti, ett_tr_mac);
+
+	proto_tree_add_item_ret_uint(mac_tree, hf_trmac_mv, tvb, 3, 1, ENC_NA, &mv_val);
+	proto_tree_add_item_ret_uint(mac_tree, hf_trmac_length, tvb, 0, 2, ENC_BIG_ENDIAN, &mv_length);
+	proto_item_set_len(ti, mv_length);
+	proto_tree_add_item(mac_tree, hf_trmac_srcclass, tvb, 2, 1, ENC_NA);
+	proto_tree_add_item(mac_tree, hf_trmac_dstclass, tvb, 2, 1, ENC_NA);
 
 	/* Interpret the major vector */
 	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str_ext(mv_val, &major_vector_vs_ext, "Unknown Major Vector: %u"));
 
-	if (tree) {
-		mv_length = tvb_get_ntohs(tvb, 0);
-		ti = proto_tree_add_item(tree, proto_trmac, tvb, 0, mv_length, ENC_NA);
-		mac_tree = proto_item_add_subtree(ti, ett_tr_mac);
+	/* interpret the subvectors */
+	sv_offset = 4;
+	while (sv_offset < mv_length) {
+		sv_additional = sv_text(tvb, sv_offset, pinfo, mac_tree);
 
-		proto_tree_add_uint(mac_tree, hf_trmac_mv, tvb, 3, 1, mv_val);
-		proto_tree_add_uint(mac_tree, hf_trmac_length, tvb, 0, 2, mv_length);
-		proto_tree_add_uint(mac_tree, hf_trmac_srcclass, tvb, 2, 1, tvb_get_guint8(tvb, 2) & 0x0f);
-		proto_tree_add_uint(mac_tree, hf_trmac_dstclass, tvb, 2, 1, tvb_get_guint8(tvb, 2) >> 4 );
-
-		/* interpret the subvectors */
-		sv_offset = 4;
-		while (sv_offset < mv_length) {
-			sv_additional = sv_text(tvb, sv_offset, pinfo, mac_tree);
-
-			/* if this is a bad packet, we could get a 0-length added here,
-			 * looping forever */
-			if (sv_additional > 0)
-				sv_offset += sv_additional;
-			else
-				break;
-		}
+		/* if this is a bad packet, we could get a 0-length added here,
+			* looping forever */
+		if (sv_additional > 0)
+			sv_offset += sv_additional;
+		else
+			break;
 	}
+
 	return tvb_captured_length(tvb);
 }
 
@@ -529,11 +529,11 @@ proto_register_trmac(void)
 			NULL, HFILL }},
 
 		{ &hf_trmac_srcclass,
-		{ "Source Class",			"trmac.srcclass", FT_UINT8, BASE_HEX, VALS(classes_vs), 0x0,
+		{ "Source Class",			"trmac.srcclass", FT_UINT8, BASE_HEX, VALS(classes_vs), 0x0F,
 			NULL, HFILL }},
 
 		{ &hf_trmac_dstclass,
-		{ "Destination Class",			"trmac.dstclass", FT_UINT8, BASE_HEX, VALS(classes_vs), 0x0,
+		{ "Destination Class",			"trmac.dstclass", FT_UINT8, BASE_HEX, VALS(classes_vs), 0xF0,
 			NULL, HFILL }},
 
 		{ &hf_trmac_sv_len,

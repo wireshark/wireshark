@@ -2313,7 +2313,7 @@ static int dissect_aim_generic_rateinfoack(tvbuff_t *tvb, packet_info *pinfo _U_
 {
 	int offset = 0;
 	while(tvb_reported_length_remaining(tvb, offset) > 0) {
-		proto_tree_add_uint(gen_tree, hf_generic_rateinfoack_group, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
+		proto_tree_add_item(gen_tree, hf_generic_rateinfoack_group, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset+=2;
 	}
 	return offset;
@@ -2322,7 +2322,7 @@ static int dissect_aim_generic_rateinfoack(tvbuff_t *tvb, packet_info *pinfo _U_
 static int dissect_aim_generic_ratechange(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gen_tree)
 {
 	int offset = 0;
-	proto_tree_add_uint(gen_tree, hf_generic_ratechange_msg, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
+	proto_tree_add_item(gen_tree, hf_generic_ratechange_msg, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
 	offset = dissect_rate_class(tvb, pinfo, offset, gen_tree);
 	return offset;

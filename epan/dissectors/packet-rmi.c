@@ -170,8 +170,8 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         switch(rmitype) {
         case RMI_OUTPUTSTREAM:
             /* XXX - uint, or string? */
-            proto_tree_add_uint(rmi_tree, hf_rmi_magic,
-                                tvb, offset,     4, tvb_get_ntohl(tvb,0));
+            proto_tree_add_item(rmi_tree, hf_rmi_magic,
+                                tvb, offset,     4, ENC_BIG_ENDIAN);
             proto_tree_add_item(rmi_tree, hf_rmi_version,
                                 tvb, offset + 4, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(rmi_tree, hf_rmi_protocol,
