@@ -584,12 +584,34 @@ sharkd_session_process_load(const char *buf, const jsmntok_t *tokens, int count)
  * Process status request
  *
  * Output object with attributes:
- *   (m) frames  - count of currently loaded frames
+ *   (m) frames   - count of currently loaded frames
+ *   (m) duration - time difference between time of first frame, and last loaded frame
+ *   (o) filename - capture filename
+ *   (o) filesize - capture filesize
  */
 static void
 sharkd_session_process_status(void)
 {
 	printf("{\"frames\":%u", cfile.count);
+
+	printf(",\"duration\":%.9f", nstime_to_sec(&cfile.elapsed_time));
+
+	if (cfile.filename)
+	{
+		char *name = g_path_get_basename(cfile.filename);
+
+		printf(",\"filename\":");
+		json_puts_string(name);
+		g_free(name);
+	}
+
+	if (cfile.wth)
+	{
+		gint64 file_size = wtap_file_size(cfile.wth, NULL);
+
+		if (file_size > 0)
+			printf(",\"filesize\":%" G_GINT64_FORMAT, file_size);
+	}
 
 	printf("}\n");
 }
