@@ -1590,7 +1590,7 @@ sub check_included_files($$)
 }
 
 
-sub check_proto_tree_add_XXX_encoding($$)
+sub check_proto_tree_add_XXX($$)
 {
         my ($fileContentsRef, $filename) = @_;
         my @items;
@@ -1604,12 +1604,29 @@ sub check_proto_tree_add_XXX_encoding($$)
                 my ($args) = @items;
                 shift @items;
 
+                #Check to make sure tvb_get* isn't used to pass into a proto_tree_add_<datatype>, when
+                #proto_tree_add_item could just be used instead
+                if ($args =~ /,\s*tvb_get_/xos) {
+                        if (($func =~ m/^proto_tree_add_(time|bytes|ipxnet|ipv4|ipv6|ether|guid|oid|string|boolean|float|double|uint|uint64|int|int64|eui64|bitmask_list_value)$/)
+                           ) {
+                                print STDERR "Error: ".$filename." uses $func with tvb_get_*. Use proto_tree_add_item instead\n";
+                                $errorCount++;
+
+                                # Print out the function args to make it easier
+                                # to find the offending code.  But first make
+                                # it readable by eliminating extra white space.
+                                $args =~ s/\s+/ /g;
+                                print STDERR "\tArgs: " . $args . "\n";
+                        }
+                }
+
                 # Remove anything inside parenthesis in the arguments so we
                 # don't get false positives when someone calls
                 # proto_tree_add_XXX(..., tvb_YYY(..., ENC_ZZZ))
                 # and allow there to be newlines inside
                 $args =~ s/\(.*\)//sg;
 
+                #Check for accidental usage of ENC_ parameter
                 if ($args =~ /,\s*ENC_/xos) {
                         if (!($func =~ /proto_tree_add_(time|item|bitmask|bits_item|bits_ret_val|item_ret_int|item_ret_uint|bytes_item|checksum)/xos)
                            ) {
@@ -2185,7 +2202,7 @@ while ($_ = pop @filelist)
 
         check_snprintf_plus_strlen(\$fileContents, $filename);
 
-        $errorCount += check_proto_tree_add_XXX_encoding(\$fileContents, $filename);
+        $errorCount += check_proto_tree_add_XXX(\$fileContents, $filename);
 
 
         # Check and count APIs
