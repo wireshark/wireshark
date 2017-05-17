@@ -8,7 +8,7 @@ InterpretationComponent
 NetworkFacilityExtension
 NetworkProtocolProfile
 
-#.EXPORTS EXTERN WS_DLL
+#.EXPORTS EXTERN VALS_WITH_TABLE WS_DLL
 
 # Addressing-Data-Elements
 PresentedAddressScreened

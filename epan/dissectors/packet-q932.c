@@ -302,17 +302,6 @@ dissect_q932_PrivatePartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 }
 
 
-const value_string q932_PartyNumber_vals[] = {
-  {   0, "unknownPartyNumber" },
-  {   1, "publicPartyNumber" },
-  {   2, "nsapEncodedNumber" },
-  {   3, "dataPartyNumber" },
-  {   4, "telexPartyNumber" },
-  {   5, "privatePartyNumber" },
-  {   8, "nationalStandardPartyNumber" },
-  { 0, NULL }
-};
-
 static const ber_choice_t PartyNumber_choice[] = {
   {   0, &hf_q932_unknownPartyNumber, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_q932_NumberDigits },
   {   1, &hf_q932_publicPartyNumber, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_q932_PublicPartyNumber },
@@ -333,14 +322,6 @@ dissect_q932_PartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
   return offset;
 }
 
-
-const value_string q932_ScreeningIndicator_vals[] = {
-  {   0, "userProvidedNotScreened" },
-  {   1, "userProvidedVerifiedAndPassed" },
-  {   2, "userProvidedVerifiedAndFailed" },
-  {   3, "networkProvided" },
-  { 0, NULL }
-};
 
 
 int
@@ -396,12 +377,6 @@ dissect_q932_NSAPSubaddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-const value_string q932_PartySubaddress_vals[] = {
-  {   0, "userSpecifiedSubaddress" },
-  {   1, "nSAPSubaddress" },
-  { 0, NULL }
-};
-
 static const ber_choice_t PartySubaddress_choice[] = {
   {   0, &hf_q932_userSpecifiedSubaddress, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_q932_UserSpecifiedSubaddress },
   {   1, &hf_q932_nSAPSubaddress , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_q932_NSAPSubaddress },
@@ -443,14 +418,6 @@ dissect_q932_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 
-const value_string q932_PresentedAddressScreened_vals[] = {
-  {   0, "presentationAlIowedAddress" },
-  {   1, "presentationRestricted" },
-  {   2, "numberNotAvailableDueTolnterworking" },
-  {   3, "presentationRestrictedAddress" },
-  { 0, NULL }
-};
-
 static const ber_choice_t PresentedAddressScreened_choice[] = {
   {   0, &hf_q932_presentationAlIowedAddress, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_q932_AddressScreened },
   {   1, &hf_q932_presentationRestricted, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_q932_NULL },
@@ -483,14 +450,6 @@ dissect_q932_Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
   return offset;
 }
 
-
-const value_string q932_PresentedAddressUnscreened_vals[] = {
-  {   0, "presentationAllowedAddress" },
-  {   1, "presentationRestricted" },
-  {   2, "numberNotAvailableDueTolnterworking" },
-  {   3, "presentationRestrictedAddress" },
-  { 0, NULL }
-};
 
 static const ber_choice_t PresentedAddressUnscreened_choice[] = {
   {   0, &hf_q932_presentationAllowedAddress, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_q932_Address },
@@ -525,14 +484,6 @@ dissect_q932_NumberScreened(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-const value_string q932_PresentedNumberScreened_vals[] = {
-  {   0, "presentationAllowedNumber" },
-  {   1, "presentationRestricted" },
-  {   2, "numberNotAvailableDueToInterworking" },
-  {   3, "presentationRestrictedNumber" },
-  { 0, NULL }
-};
-
 static const ber_choice_t PresentedNumberScreened_choice[] = {
   {   0, &hf_q932_presentationAllowedNumberScreened, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_q932_NumberScreened },
   {   1, &hf_q932_presentationRestricted, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_q932_NULL },
@@ -550,14 +501,6 @@ dissect_q932_PresentedNumberScreened(gboolean implicit_tag _U_, tvbuff_t *tvb _U
   return offset;
 }
 
-
-const value_string q932_PresentedNumberUnscreened_vals[] = {
-  {   0, "presentationAllowedNumber" },
-  {   1, "presentationRestricted" },
-  {   2, "numberNotAvailableDueToInterworking" },
-  {   3, "presentationRestrictedNumber" },
-  { 0, NULL }
-};
 
 static const ber_choice_t PresentedNumberUnscreened_choice[] = {
   {   0, &hf_q932_presentationAllowedNumber, BER_CLASS_CON, 0, 0, dissect_q932_PartyNumber },
