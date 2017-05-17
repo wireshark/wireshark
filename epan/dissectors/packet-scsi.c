@@ -4000,10 +4000,13 @@ dissect_scsi_spc_modepage(tvbuff_t *tvb, packet_info *pinfo _U_,
                           proto_tree *tree, guint offset, guint8 pcode, guint8 spf, guint8 subpcode)
 {
     guint8 flags, proto;
+    guint32 burst_size, condition_timer;
 
     switch (pcode) {
     case SCSI_SPC_MODEPAGE_CTL:
         if (!spf) {
+            guint32 timeout_period;
+
             /* standard page for control */
             proto_tree_add_item(tree, hf_scsi_modesns_tst, tvb, offset+2, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_scsi_spc_modepage_gltsd, tvb, offset+2, 1, ENC_BIG_ENDIAN);
@@ -4016,8 +4019,8 @@ dissect_scsi_spc_modepage(tvbuff_t *tvb, packet_info *pinfo _U_,
             proto_tree_add_item(tree, hf_scsi_spc_modepage_swp, tvb, offset+4, 1, ENC_NA);
             proto_tree_add_item(tree, hf_scsi_spc_modepage_autoload_mode, tvb, offset+5, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_scsi_spc_modepage_ready_aer_holdoff_period, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_uint(tree, hf_scsi_spc_modepage_busy_timeout_period, tvb, offset+8, 2,
-                                tvb_get_ntohs(tvb, offset+8)*100);
+            timeout_period = tvb_get_ntohs(tvb, offset+8)*100;
+            proto_tree_add_uint(tree, hf_scsi_spc_modepage_busy_timeout_period, tvb, offset+8, 2, timeout_period);
             proto_tree_add_item(tree, hf_scsi_spc_modepage_extended_self_test_completion_time, tvb, offset+10, 2, ENC_BIG_ENDIAN);
         } else {
             switch (subpcode) {
@@ -4046,14 +4049,14 @@ dissect_scsi_spc_modepage(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree_add_item(tree, hf_scsi_spc_modepage_bus_inactivity_limit, tvb, offset+4, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_scsi_spc_modepage_disconnect_time_limit, tvb, offset+6, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_scsi_spc_modepage_connect_time_limit, tvb, offset+8, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_uint(tree, hf_scsi_spc_modepage_maximum_burst_size, tvb, offset+10, 2,
-                            tvb_get_ntohs(tvb, offset+10)*512);
+        burst_size = tvb_get_ntohs(tvb, offset+10)*512;
+        proto_tree_add_uint(tree, hf_scsi_spc_modepage_maximum_burst_size, tvb, offset+10, 2, burst_size);
         proto_tree_add_item(tree, hf_scsi_spc_modepage_emdp, tvb, offset+12, 1, ENC_NA);
         proto_tree_add_item(tree, hf_scsi_spc_modepage_faa, tvb, offset+12, 1, ENC_NA);
         proto_tree_add_item(tree, hf_scsi_spc_modepage_fab, tvb, offset+12, 1, ENC_NA);
         proto_tree_add_item(tree, hf_scsi_spc_modepage_fac, tvb, offset+12, 1, ENC_NA);
-        proto_tree_add_uint(tree, hf_scsi_spc_modepage_first_burst_size, tvb, offset+14, 2,
-                            tvb_get_ntohs(tvb, offset+14)*512);
+        burst_size = tvb_get_ntohs(tvb, offset+14)*512;
+        proto_tree_add_uint(tree, hf_scsi_spc_modepage_first_burst_size, tvb, offset+14, 2, burst_size);
         break;
     case SCSI_SPC_MODEPAGE_INFOEXCP:
         flags = tvb_get_guint8(tvb, offset+2);
@@ -4078,10 +4081,10 @@ dissect_scsi_spc_modepage(tvbuff_t *tvb, packet_info *pinfo _U_,
     case SCSI_SPC_MODEPAGE_PWR:
         proto_tree_add_item(tree, hf_scsi_spc_modepage_idle, tvb, offset+3, 1, ENC_NA);
         proto_tree_add_item(tree, hf_scsi_spc_modepage_standby, tvb, offset+3, 1, ENC_NA);
-        proto_tree_add_uint(tree, hf_scsi_spc_modepage_idle_condition_timer, tvb, offset+4, 2,
-                            tvb_get_ntohs(tvb, offset+4) * 100);
-        proto_tree_add_uint(tree, hf_scsi_spc_modepage_standby_condition_timer, tvb, offset+6, 2,
-                            tvb_get_ntohs(tvb, offset+6) * 100);
+        condition_timer = tvb_get_ntohs(tvb, offset+4) * 100;
+        proto_tree_add_uint(tree, hf_scsi_spc_modepage_idle_condition_timer, tvb, offset+4, 2, condition_timer);
+        condition_timer = tvb_get_ntohs(tvb, offset+6) * 100;
+        proto_tree_add_uint(tree, hf_scsi_spc_modepage_standby_condition_timer, tvb, offset+6, 2, condition_timer);
         break;
     case SCSI_SPC_MODEPAGE_LUN:
         return FALSE;

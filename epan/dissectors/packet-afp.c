@@ -4228,6 +4228,7 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	guint byte_order;
 	gboolean mark_exists;
 	tvbuff_t *spotlight_tvb;
+    guint8 *str_tmp;
 
 	proto_item *item_query;
 	proto_tree *sub_tree;
@@ -4367,8 +4368,8 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		case SQ_TYPE_DATA:
 			switch (cpx_query_type) {
 			case SQ_CPX_TYPE_STRING:
-				proto_tree_add_string(tree, hf_afp_string, tvb, offset, query_length,
-								tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 8, query_length - 8, ENC_UTF_8|ENC_NA));
+				str_tmp = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 8, query_length - 8, ENC_UTF_8|ENC_NA);
+				proto_tree_add_string(tree, hf_afp_string, tvb, offset, query_length, str_tmp);
 				break;
 			case SQ_CPX_TYPE_UTF16_STRING: {
 				/* description see above */
@@ -4379,9 +4380,9 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				} else
 					mark_exists = TRUE;
 
-				proto_tree_add_string(tree, hf_afp_utf_16_string, tvb, offset, query_length,
-						    tvb_get_string_enc(wmem_packet_scope(), tvb, offset + (mark_exists ? 10 : 8),
-								query_length - (mark_exists? 10 : 8), ENC_UTF_16 | byte_order));
+				str_tmp = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + (mark_exists ? 10 : 8),
+								query_length - (mark_exists? 10 : 8), ENC_UTF_16 | byte_order);
+				proto_tree_add_string(tree, hf_afp_utf_16_string, tvb, offset, query_length, str_tmp);
 				break;
 			}
 			case SQ_CPX_TYPE_FILEMETA:

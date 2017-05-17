@@ -2084,6 +2084,8 @@ dissect_cpch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     else {
         guint cfn;
         guint header_length = 0;
+        guint32 propagation_delay = 0;
+
         /* DATA */
 
         /* CFN */
@@ -2098,8 +2100,8 @@ dissect_cpch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset++;
 
         /* Propagation delay */
-        proto_tree_add_uint(tree, hf_fp_propagation_delay, tvb, offset, 1,
-                            tvb_get_guint8(tvb, offset) * 3);
+        propagation_delay = tvb_get_guint8(tvb, offset) *3;
+        proto_tree_add_uint(tree, hf_fp_propagation_delay, tvb, offset, 1, propagation_delay);
         offset++;
         header_length = offset; /* XXX this might be wrong */
         /* TB data */

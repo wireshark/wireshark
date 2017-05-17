@@ -152,6 +152,7 @@ int lct_ext_decode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint of
                 start_offset = offset;
     proto_item *ti;
     proto_tree *hec_tree, *ext_tree;
+    double      cc_loss;
 
     /* Figure out the extention count */
     while (tmp_offset < offset_max)
@@ -213,7 +214,8 @@ int lct_ext_decode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint of
                 proto_tree_add_item(ext_tree, hf_cc_sequence, tvb, offset+2, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(ext_tree, hf_cc_flags, tvb, offset+4, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(ext_tree, hf_cc_rtt, tvb, offset+5, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_double(ext_tree, hf_cc_loss, tvb, offset+6, 2, tvb_get_ntohs(tvb, offset+6)/65535.0);
+                cc_loss = tvb_get_ntohs(tvb, offset+6)/65535.0;
+                proto_tree_add_double(ext_tree, hf_cc_loss, tvb, offset+6, 2, cc_loss);
                 proto_tree_add_item(ext_tree, hf_cc_rate, tvb, offset+8, 2, ENC_BIG_ENDIAN);
                 break;
 

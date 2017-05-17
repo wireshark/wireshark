@@ -2797,7 +2797,7 @@ static void
 dissect_pct_msg_client_hello(tvbuff_t *tvb, packet_info *pinfo,
                              proto_tree *tree, guint32 offset)
 {
-    guint16 CH_CLIENT_VERSION, CH_OFFSET, CH_CIPHER_SPECS_LENGTH, CH_HASH_SPECS_LENGTH, CH_CERT_SPECS_LENGTH, CH_EXCH_SPECS_LENGTH, CH_KEY_ARG_LENGTH;
+    guint16 CH_CLIENT_VERSION, CH_OFFSET, CH_CIPHER_SPECS_LENGTH, CH_HASH_SPECS_LENGTH, CH_CERT_SPECS_LENGTH, CH_EXCH_SPECS_LENGTH, CH_KEY_ARG_LENGTH, mac_key_length;
     proto_item *CH_CIPHER_SPECS_ti, *CH_HASH_SPECS_ti, *CH_CERT_SPECS_ti, *CH_EXCH_SPECS_ti, *ti;
     proto_tree *CH_CIPHER_SPECS_tree, *CH_HASH_SPECS_tree, *CH_CERT_SPECS_tree, *CH_EXCH_SPECS_tree;
     gint i;
@@ -2852,7 +2852,8 @@ dissect_pct_msg_client_hello(tvbuff_t *tvb, packet_info *pinfo,
             offset += 2;
             proto_tree_add_item(CH_CIPHER_SPECS_tree, hf_ssl_pct_encryption_key_length, tvb, offset, 1, ENC_NA);
             offset += 1;
-            proto_tree_add_uint(CH_CIPHER_SPECS_tree, hf_ssl_pct_mac_key_length_in_bits, tvb, offset, 1, tvb_get_guint8(tvb, offset) + 64);
+            mac_key_length = tvb_get_guint8(tvb, offset) + 64;
+            proto_tree_add_uint(CH_CIPHER_SPECS_tree, hf_ssl_pct_mac_key_length_in_bits, tvb, offset, 1, mac_key_length);
             offset += 1;
         }
     }
@@ -2922,7 +2923,7 @@ dissect_pct_msg_server_hello(tvbuff_t *tvb, proto_tree *tree, guint32 offset, pa
 
 */
 
-    guint16 SH_SERVER_VERSION, SH_CERT_LENGTH, SH_CERT_SPECS_LENGTH, SH_CLIENT_SIG_LENGTH, SH_RESPONSE_LENGTH;
+    guint16 SH_SERVER_VERSION, SH_CERT_LENGTH, SH_CERT_SPECS_LENGTH, SH_CLIENT_SIG_LENGTH, SH_RESPONSE_LENGTH, mac_key_length;
     proto_item* ti;
     asn1_ctx_t asn1_ctx;
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -2946,7 +2947,8 @@ dissect_pct_msg_server_hello(tvbuff_t *tvb, proto_tree *tree, guint32 offset, pa
     offset += 2;
     proto_tree_add_item(tree, hf_ssl_pct_encryption_key_length, tvb, offset, 1, ENC_NA);
     offset += 1;
-    proto_tree_add_uint(tree, hf_ssl_pct_mac_key_length_in_bits, tvb, offset, 1, tvb_get_guint8(tvb, offset) + 64);
+    mac_key_length = tvb_get_guint8(tvb, offset) + 64;
+    proto_tree_add_uint(tree, hf_ssl_pct_mac_key_length_in_bits, tvb, offset, 1, mac_key_length);
     offset += 1;
 
     proto_tree_add_item(tree, hf_pct_handshake_hash, tvb, offset, 2, ENC_BIG_ENDIAN);
