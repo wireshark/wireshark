@@ -25,6 +25,7 @@
 
 #include "epan/packet.h"
 #include "epan/prefs.h"
+#include "epan/expert.h"
 #include "wsutil/report_message.h"
 #include "wsutil/inet_addr.h"
 
@@ -62,8 +63,14 @@ static int hf_uaudp_qos_8021_pri    = -1;
 static int hf_uaudp_superfast_connect = -1;
 static int hf_uaudp_expseq          = -1;
 static int hf_uaudp_sntseq          = -1;
+static int hf_uaudp_type            = -1;
+static int hf_uaudp_length          = -1;
+
 
 static gint ett_uaudp               = -1;
+static gint ett_uaudp_tlv           = -1;
+
+static expert_field ei_uaudp_tlv_length = EI_INIT;
 
 /* pref */
 #define UAUDP_PORT_RANGE "32000,32512" /* Not IANA registered */
@@ -87,7 +94,6 @@ static const value_string uaudp_opcode_str[] =
 };
 value_string_ext uaudp_opcode_str_ext = VALUE_STRING_EXT_INIT(uaudp_opcode_str);
 
-#if 0 /* XXX: Unused ? */
 static const value_string uaudp_connect_vals[] =
 {
     { UAUDP_CONNECT_VERSION,        "Version" },
@@ -102,59 +108,19 @@ static const value_string uaudp_connect_vals[] =
     { 0, NULL }
 };
 value_string_ext uaudp_connect_vals_ext = VALUE_STRING_EXT_INIT(uaudp_connect_vals);
-#endif
 
 static dissector_handle_t ua_sys_to_term_handle;
 static dissector_handle_t ua_term_to_sys_handle;
-
-static void rV(proto_tree *tree, int *V, tvbuff_t *tvb, gint offset, gint8 L)
-{
-    switch(L)
-    {
-    case 1:
-        proto_tree_add_uint(tree,
-                    *V,
-                    tvb,
-                    offset,
-                    L+2,
-                    tvb_get_guint8(tvb, offset+2));
-        break;
-    case 2:
-        proto_tree_add_uint(tree,
-                    *V,
-                    tvb,
-                    offset,
-                    L+2,
-                    tvb_get_ntohs(tvb, offset+2));
-        break;
-    case 3:
-        proto_tree_add_uint(tree,
-                    *V,
-                    tvb,
-                    offset,
-                    L+2,
-                    tvb_get_ntoh24(tvb, offset+2));
-        break;
-    case 4:
-        proto_tree_add_uint(tree,
-                    *V,
-                    tvb,
-                    offset,
-                    L+2,
-                    tvb_get_ntohl(tvb, offset+2));
-        break;
-    }
-}
-
 
 /* UA/UDP DISSECTOR */
 static void _dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                            e_ua_direction direction)
 {
     gint        offset = 0;
+    guint32     type, length;
     guint8      opcode;
-    proto_item *uaudp_item;
-    proto_tree *uaudp_tree;
+    proto_item *uaudp_item, *tlv_item, *tlv_len_item;
+    proto_tree *uaudp_tree, *connect_tree;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "UAUDP");
 
@@ -185,59 +151,133 @@ static void _dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     {
     case UAUDP_CONNECT:
     {
-        if (!tree)
-            break;
-        while (tvb_offset_exists(tvb, offset))
+        while(tvb_reported_length_remaining(tvb, offset) > 0)
         {
-            guint8 T = tvb_get_guint8(tvb, offset+0);
-            guint8 L = tvb_get_guint8(tvb, offset+1);
+            type = tvb_get_guint8(tvb, offset+0);
+            connect_tree = proto_tree_add_subtree(uaudp_tree, tvb, offset, 0, ett_uaudp_tlv, &tlv_item,
+                                                    val_to_str_ext(type, &uaudp_connect_vals_ext, "Unknown %d"));
+            proto_tree_add_uint(connect_tree, hf_uaudp_type, tvb, offset, 1, type);
+            offset++;
+            tlv_len_item = proto_tree_add_item_ret_uint(connect_tree, hf_uaudp_length, tvb, offset, 1, ENC_NA, &length);
+            proto_item_set_len(tlv_item, length+2);
+            offset++;
 
-            switch(T)
+            switch(type)
             {
             case UAUDP_CONNECT_VERSION:
-                rV(uaudp_tree, &hf_uaudp_version        , tvb, offset, L);
+                if ((length >= 1) && (length <= 4))
+                {
+                    proto_tree_add_item(connect_tree, hf_uaudp_version, tvb, offset, length, ENC_BIG_ENDIAN);
+                }
+                else
+                {
+                    expert_add_info_format(pinfo, tlv_len_item, &ei_uaudp_tlv_length, "Invalid length %d", length);
+                }
                 break;
             case UAUDP_CONNECT_WINDOW_SIZE:
-                rV(uaudp_tree, &hf_uaudp_window_size    , tvb, offset, L);
+                if ((length >= 1) && (length <= 4))
+                {
+                    proto_tree_add_item(connect_tree, hf_uaudp_window_size, tvb, offset, length, ENC_BIG_ENDIAN);
+                }
+                else
+                {
+                    expert_add_info_format(pinfo, tlv_len_item, &ei_uaudp_tlv_length, "Invalid length %d", length);
+                }
                 break;
             case UAUDP_CONNECT_MTU:
-                rV(uaudp_tree, &hf_uaudp_mtu            , tvb, offset, L);
+                if ((length >= 1) && (length <= 4))
+                {
+                    proto_tree_add_item(connect_tree, hf_uaudp_mtu, tvb, offset, length, ENC_BIG_ENDIAN);
+                }
+                else
+                {
+                    expert_add_info_format(pinfo, tlv_len_item, &ei_uaudp_tlv_length, "Invalid length %d", length);
+                }
                 break;
             case UAUDP_CONNECT_UDP_LOST:
-                rV(uaudp_tree, &hf_uaudp_udp_lost       , tvb, offset, L);
+                if ((length >= 1) && (length <= 4))
+                {
+                    proto_tree_add_item(connect_tree, hf_uaudp_udp_lost, tvb, offset, length, ENC_BIG_ENDIAN);
+                }
+                else
+                {
+                    expert_add_info_format(pinfo, tlv_len_item, &ei_uaudp_tlv_length, "Invalid length %d", length);
+                }
                 break;
             case UAUDP_CONNECT_UDP_LOST_REINIT:
-                rV(uaudp_tree, &hf_uaudp_udp_lost_reinit, tvb, offset, L);
+                if ((length >= 1) && (length <= 4))
+                {
+                    proto_tree_add_item(connect_tree, hf_uaudp_udp_lost_reinit, tvb, offset, length, ENC_BIG_ENDIAN);
+                }
+                else
+                {
+                    expert_add_info_format(pinfo, tlv_len_item, &ei_uaudp_tlv_length, "Invalid length %d", length);
+                }
                 break;
             case UAUDP_CONNECT_KEEPALIVE:
-                rV(uaudp_tree, &hf_uaudp_keepalive      , tvb, offset, L);
+                if ((length >= 1) && (length <= 4))
+                {
+                    proto_tree_add_item(connect_tree, hf_uaudp_keepalive, tvb, offset, length, ENC_BIG_ENDIAN);
+                }
+                else
+                {
+                    expert_add_info_format(pinfo, tlv_len_item, &ei_uaudp_tlv_length, "Invalid length %d", length);
+                }
                 break;
             case UAUDP_CONNECT_QOS_IP_TOS:
-                rV(uaudp_tree, &hf_uaudp_qos_ip_tos     , tvb, offset, L);
+                if ((length >= 1) && (length <= 4))
+                {
+                    proto_tree_add_item(connect_tree, hf_uaudp_qos_ip_tos, tvb, offset, length, ENC_BIG_ENDIAN);
+                }
+                else
+                {
+                    expert_add_info_format(pinfo, tlv_len_item, &ei_uaudp_tlv_length, "Invalid length %d", length);
+                }
                 break;
             case UAUDP_CONNECT_QOS_8021_VLID:
-                rV(uaudp_tree, &hf_uaudp_qos_8021_vlid  , tvb, offset, L);
+                if ((length >= 1) && (length <= 4))
+                {
+                    proto_tree_add_item(connect_tree, hf_uaudp_qos_8021_vlid, tvb, offset, length, ENC_BIG_ENDIAN);
+                }
+                else
+                {
+                    expert_add_info_format(pinfo, tlv_len_item, &ei_uaudp_tlv_length, "Invalid length %d", length);
+                }
                 break;
             case UAUDP_CONNECT_QOS_8021_PRI:
-                rV(uaudp_tree, &hf_uaudp_qos_8021_pri   , tvb, offset, L);
+                if ((length >= 1) && (length <= 4))
+                {
+                    proto_tree_add_item(connect_tree, hf_uaudp_qos_8021_pri, tvb, offset, length, ENC_BIG_ENDIAN);
+                }
+                else
+                {
+                    expert_add_info_format(pinfo, tlv_len_item, &ei_uaudp_tlv_length, "Invalid length %d", length);
+                }
                 break;
             case UAUDP_CONNECT_SUPERFAST_CONNECT:
-                rV(uaudp_tree, &hf_uaudp_superfast_connect, tvb, offset, L);
+                if ((length >= 1) && (length <= 4))
+                {
+                    proto_tree_add_item(connect_tree, hf_uaudp_superfast_connect, tvb, offset, length, ENC_BIG_ENDIAN);
+                }
+                else
+                {
+                    expert_add_info_format(pinfo, tlv_len_item, &ei_uaudp_tlv_length, "Invalid length %d", length);
+                }
                 break;
             }
-            offset += (2 + L);
+            offset += length;
         }
         break;
     }
 
     case UAUDP_NACK:
     {
-        proto_tree_add_uint(uaudp_tree,
+        proto_tree_add_item(uaudp_tree,
                     hf_uaudp_expseq,
                     tvb,
                     offset,
                     2,
-                    tvb_get_ntohs(tvb, offset));
+                    ENC_BIG_ENDIAN);
         break;
     }
 
@@ -245,22 +285,21 @@ static void _dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     {
         int datalen;
 
-        proto_tree_add_uint(uaudp_tree,
+        proto_tree_add_item_ret_uint(uaudp_tree,
                     hf_uaudp_expseq,
                     tvb,
                     offset+0,
                     2,
-                    tvb_get_ntohs(tvb, offset+0));
+                    ENC_BIG_ENDIAN,
+                    &ua_tap_info.expseq);
 
-        proto_tree_add_uint(uaudp_tree,
+        proto_tree_add_item_ret_uint(uaudp_tree,
                     hf_uaudp_sntseq,
                     tvb,
                     offset+2,
                     2,
-                    tvb_get_ntohs(tvb, offset+2));
-
-        ua_tap_info.expseq = hf_uaudp_expseq;
-        ua_tap_info.sntseq = hf_uaudp_sntseq;
+                    ENC_BIG_ENDIAN,
+                    &ua_tap_info.sntseq);
 
         offset  += 4;
         datalen  = tvb_reported_length(tvb) - offset;
@@ -546,13 +585,45 @@ void proto_register_uaudp(void)
                 HFILL
             }
         },
+        {
+            &hf_uaudp_type,
+            {
+                "Type",
+                "uaudp.type",
+                FT_UINT8,
+                BASE_DEC|BASE_EXT_STRING,
+                &uaudp_connect_vals_ext,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_uaudp_length,
+            {
+                "Length",
+                "uaudp.length",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
     };
 
     /* Setup protocol subtree array */
     static gint *ett[] =
         {
             &ett_uaudp,
+            &ett_uaudp_tlv,
         };
+
+    static ei_register_info ei[] = {
+        { &ei_uaudp_tlv_length, { "uaudp.tlv_length_invalid", PI_PROTOCOL, PI_WARN, "Invalid length", EXPFILL }},
+    };
+    expert_module_t* expert_uaudp;
 
     /* Register the protocol name and description */
     proto_uaudp = proto_register_protocol("UA/UDP Encapsulation Protocol", "UAUDP", "uaudp");
@@ -566,6 +637,8 @@ void proto_register_uaudp(void)
 
     proto_register_field_array(proto_uaudp, hf_uaudp, array_length(hf_uaudp));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_uaudp = expert_register_protocol(proto_uaudp);
+    expert_register_field_array(expert_uaudp, ei, array_length(ei));
 
 #if 0
     uaudp_opcode_dissector_table =
