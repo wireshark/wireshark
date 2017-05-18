@@ -109,7 +109,7 @@ extern void isis_dissect_mt_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
 extern void isis_dissect_hostname_clv(tvbuff_t *tvb, proto_tree *tree,
         int offset, int length, int tree_id);
 extern void isis_dissect_authentication_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
-        int hf_auth_bytes, expert_field* auth_expert, int offset, int length);
+        int hf_auth_bytes, int hf_key_id, expert_field* auth_expert, int offset, int length);
 extern void isis_dissect_area_address_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
         expert_field* expert, int hf_area, int offset, int length);
 extern void isis_dissect_instance_identifier_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,

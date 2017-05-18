@@ -54,6 +54,8 @@ typedef struct isis_data {
     guint8 system_id_len;
 } isis_data_t;
 
+extern int hf_isis_clv_key_id;
+
 #endif /* _PACKET_ISIS_H */
 
 /*

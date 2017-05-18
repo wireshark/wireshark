@@ -29,6 +29,15 @@
 #include "packet-isis-clv.h"
 #include <epan/nlpid.h>
 
+static const value_string algorithm_vals[] = {
+    { 20, "hmac-sha1" },
+    { 28, "hmac-sha224" },
+    { 32, "hmac-sha256" },
+    { 48, "hmac-sha384" },
+    { 64, "hmac-sha512" },
+    { 0,  NULL }
+};
+
 /*
  * Name: isis_dissect_area_address_clv()
  *
@@ -138,8 +147,9 @@ isis_dissect_instance_identifier_clv(proto_tree *tree, packet_info* pinfo, tvbuf
  *    Take apart the CLV that hold authentication information.  This
  *    is currently 1 octet auth type.
  *      the two defined authentication types
- *      are 1 for a clear text password and
- *           54 for a HMAC-MD5 digest
+ *      are 1 for a clear text password,
+ *           54 for a HMAC-MD5 digest and
+ *           3 for CRYPTO_AUTH (rfc5310)
  *
  * Input:
  *    tvbuff_t * : tvbuffer for packet data
@@ -152,10 +162,11 @@ isis_dissect_instance_identifier_clv(proto_tree *tree, packet_info* pinfo, tvbuf
  */
 void
 isis_dissect_authentication_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
-        int hf_auth_bytes, expert_field* auth_expert, int offset, int length)
+        int hf_auth_bytes, int hf_key_id, expert_field* auth_expert, int offset, int length)
 {
     guchar pw_type;
     int auth_unsupported;
+    const gchar *algorithm = NULL;
 
     if ( length <= 0 ) {
         return;
@@ -179,10 +190,24 @@ isis_dissect_authentication_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *
     case 54:
         if ( length == 16 ) {
             proto_tree_add_bytes_format( tree, hf_auth_bytes, tvb, offset, length,
-                NULL, "hmac-md5 (54), password (length %d) = %s", length, tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, length));
+                NULL, "hmac-md5 (54), message digest (length %d) = %s", length, tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, length));
         } else {
             proto_tree_add_bytes_format( tree, hf_auth_bytes, tvb, offset, length,
                 NULL, "hmac-md5 (54), illegal hmac-md5 digest format (must be 16 bytes)");
+        }
+        break;
+    case 3:
+        proto_tree_add_item(tree, hf_key_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        length -= 2;
+        algorithm = try_val_to_str(length, algorithm_vals);
+        if ( algorithm ) {
+            proto_tree_add_bytes_format( tree, hf_auth_bytes, tvb, offset, length,
+                NULL, "CRYPTO_AUTH %s (3), message digest (length %d) = %s", algorithm,
+                length, tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, length));
+        } else {
+            proto_tree_add_bytes_format( tree, hf_auth_bytes, tvb, offset, length,
+                NULL, "CRYPTO_AUTH (3) illegal message digest format");
         }
         break;
     default:

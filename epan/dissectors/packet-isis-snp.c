@@ -96,7 +96,7 @@ static void
 dissect_snp_authentication_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
     int id_length _U_, int length)
 {
-    isis_dissect_authentication_clv(tree, pinfo, tvb, hf_isis_csnp_authentication, &ei_isis_csnp_authentication, offset, length);
+    isis_dissect_authentication_clv(tree, pinfo, tvb, hf_isis_csnp_authentication, hf_isis_clv_key_id, &ei_isis_csnp_authentication, offset, length);
 }
 
 static void

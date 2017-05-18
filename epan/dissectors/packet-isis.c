@@ -49,6 +49,7 @@ static int hf_isis_type_reserved    = -1;
 static int hf_isis_version2         = -1;
 static int hf_isis_reserved         = -1;
 static int hf_isis_max_area_adr     = -1;
+int hf_isis_clv_key_id              = -1;
 
 static gint ett_isis                = -1;
 
@@ -194,6 +195,9 @@ proto_register_isis(void)
       { "Maximum Area Addresses", "isis.max_area_adr", FT_UINT8, BASE_DEC, NULL,
         0x0, "Maximum Area Addresses, 0 means 3", HFILL }},
 
+    { &hf_isis_clv_key_id,
+      { "Key ID", "isis.clv.key_id", FT_UINT16, BASE_DEC, NULL,
+        0x0, NULL, HFILL }},
   };
     /*
      * Note, we pull in the unknown CLV handler here, since it
