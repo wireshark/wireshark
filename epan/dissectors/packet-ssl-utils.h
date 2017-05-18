@@ -175,9 +175,25 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_CERTIFICATE_AUTHORITIES       47
 #define SSL_HND_HELLO_EXT_OID_FILTERS                   48
 #define SSL_HND_HELLO_EXT_POST_HANDSHAKE_AUTH           49
+#define SSL_HND_HELLO_EXT_GREASE_0A0A                   2570
+#define SSL_HND_HELLO_EXT_GREASE_1A1A                   6682
+#define SSL_HND_HELLO_EXT_GREASE_2A2A                   10794
 #define SSL_HND_HELLO_EXT_NPN                           13172 /* 0x3374 */
+#define SSL_HND_HELLO_EXT_GREASE_3A3A                   14906
+#define SSL_HND_HELLO_EXT_GREASE_4A4A                   19018
+#define SSL_HND_HELLO_EXT_GREASE_5A5A                   23130
+#define SSL_HND_HELLO_EXT_GREASE_6A6A                   27242
 #define SSL_HND_HELLO_EXT_CHANNEL_ID_OLD                30031 /* 0x754f */
 #define SSL_HND_HELLO_EXT_CHANNEL_ID                    30032 /* 0x7550 */
+#define SSL_HND_HELLO_EXT_GREASE_7A7A                   31354
+#define SSL_HND_HELLO_EXT_GREASE_8A8A                   35466
+#define SSL_HND_HELLO_EXT_GREASE_9A9A                   39578
+#define SSL_HND_HELLO_EXT_GREASE_AAAA                   43690
+#define SSL_HND_HELLO_EXT_GREASE_BABA                   47802
+#define SSL_HND_HELLO_EXT_GREASE_CACA                   51914
+#define SSL_HND_HELLO_EXT_GREASE_DADA                   56026
+#define SSL_HND_HELLO_EXT_GREASE_EAEA                   60138
+#define SSL_HND_HELLO_EXT_GREASE_FAFA                   64250
 #define SSL_HND_HELLO_EXT_RENEGOTIATION_INFO            65281 /* 0xFF01 */
 #define SSL_HND_HELLO_EXT_DRAFT_VERSION_TLS13           65282 /* 0xFF02 */
 
