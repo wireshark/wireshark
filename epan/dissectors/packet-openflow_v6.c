@@ -30,6 +30,7 @@
 #include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/ipproto.h>
+#include <epan/addr_resolv.h>
 
 void proto_register_openflow_v6(void);
 void proto_reg_handoff_openflow_v6(void);
@@ -2536,6 +2537,7 @@ dissect_openflow_port_desc_prop_ethernet_v6(tvbuff_t *tvb, packet_info *pinfo _U
 
     /* uint32_t curr_speed; */
     proto_tree_add_item(tree, hf_openflow_v6_port_desc_prop_ethernet_curr_speed, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_item_append_text(tree, " Speed: %u Mb", tvb_get_ntohl(tvb, offset)/1000);
     offset+=4;
 
     /* uint32_t max_speed; */
@@ -2707,6 +2709,7 @@ dissect_openflow_port_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
     /* uint8_t hw_addr[OFP_ETH_ALEN]; */
     proto_tree_add_item(port_tree, hf_openflow_v6_port_hw_addr, tvb, offset, OFP_ETH_ALEN, ENC_NA);
+    proto_item_append_text(port_tree, ": %s", tvb_ether_to_str(tvb, offset));
     offset+=OFP_ETH_ALEN;
 
     /* uint8_t pad2[2]; */
@@ -2715,6 +2718,8 @@ dissect_openflow_port_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
     /* char name[OFP_MAX_PORT_NAME_LEN]; Null-terminated */
     proto_tree_add_item(port_tree, hf_openflow_v6_port_name, tvb, offset, OFP_MAX_PORT_NAME_LEN, ENC_ASCII|ENC_NA);
+
+    proto_item_append_text(port_tree, " (%s)", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, OFP_ETH_ALEN, ENC_ASCII));
     offset+=OFP_MAX_PORT_NAME_LEN;
 
     /* uint32_t config; */
