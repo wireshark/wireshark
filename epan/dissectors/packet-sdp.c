@@ -1607,9 +1607,9 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 
     /* Attribute field name is token before ':' */
     tokenlen = colon_offset - offset;
-    proto_tree_add_item(sdp_media_attribute_tree,
-                        hf_media_attribute_field,
-                        tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
+    pi = proto_tree_add_item(sdp_media_attribute_tree,
+                             hf_media_attribute_field,
+                             tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
     /*??field_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_ASCII);*/
     sdp_media_attrbute_code = find_sdp_media_attribute_names(tvb, offset, tokenlen);
 
@@ -1619,9 +1619,13 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
     offset = tvb_skip_wsp(tvb, offset, tvb_captured_length_remaining(tvb, offset));
 
     /* Value is the remainder of the line */
-    attribute_value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8|ENC_NA);
-
-
+    if (tvb_captured_length_remaining(tvb, offset) > 0)
+        attribute_value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_UTF_8|ENC_NA);
+    else
+    {
+        expert_add_info(pinfo, pi, &ei_sdp_invalid_line_fields);
+        return;
+    }
 
     /*********************************************/
     /* Special parsing for some field name types */
