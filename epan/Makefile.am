@@ -462,43 +462,85 @@ if HAVE_PLUGINS
 if ENABLE_STATIC
 -include ../plugins/Custom.make
 plugin_src = \
-	../plugins/asn1/packet-asn1.c \
-	../plugins/docsis/packet-bintrngreq.c \
-	../plugins/docsis/packet-bpkmattr.c \
-	../plugins/docsis/packet-bpkmreq.c \
-	../plugins/docsis/packet-bpkmrsp.c \
 	../plugins/docsis/packet-docsis.c \
-	../plugins/docsis/packet-dsaack.c \
-	../plugins/docsis/packet-dsareq.c \
-	../plugins/docsis/packet-dsarsp.c \
-	../plugins/docsis/packet-dscack.c \
-	../plugins/docsis/packet-dscreq.c \
-	../plugins/docsis/packet-dscrsp.c \
-	../plugins/docsis/packet-dsdreq.c \
-	../plugins/docsis/packet-dsdrsp.c \
-	../plugins/docsis/packet-intrngreq.c \
 	../plugins/docsis/packet-macmgmt.c \
-	../plugins/docsis/packet-map.c \
-	../plugins/docsis/packet-regack.c \
-	../plugins/docsis/packet-regreq.c \
-	../plugins/docsis/packet-regrsp.c \
-	../plugins/docsis/packet-rngreq.c \
-	../plugins/docsis/packet-rngrsp.c \
 	../plugins/docsis/packet-tlv.c \
-	../plugins/docsis/packet-type29ucd.c \
-	../plugins/docsis/packet-uccreq.c \
-	../plugins/docsis/packet-uccrsp.c \
-	../plugins/docsis/packet-ucd.c \
+	../plugins/docsis/packet-vendor.c \
+	../plugins/docsis/plugin.c \
+	../plugins/easy_codec/codec-g722.c \
+	../plugins/easy_codec/codec-g7231.c \
+	../plugins/easy_codec/codec-g729a.c \
+	../plugins/easy_codec/easy_codec_plugin.c \
+	../plugins/ethercat/packet-ams.c \
+	../plugins/ethercat/packet-ecatmb.c \
+	../plugins/ethercat/packet-esl.c \
+	../plugins/ethercat/packet-ethercat-datagram.c \
+	../plugins/ethercat/packet-ethercat-frame.c \
+	../plugins/ethercat/packet-ioraw.c \
+	../plugins/ethercat/packet-nv.c \
+	../plugins/ethercat/plugin.c \
 	../plugins/gryphon/packet-gryphon.c \
+	../plugins/gryphon/plugin.c \
+	../plugins/irda/packet-ircomm.c \
 	../plugins/irda/packet-irda.c \
+	../plugins/irda/packet-sir.c \
+	../plugins/irda/plugin.c \
 	../plugins/m2m/packet-m2m.c \
+	../plugins/m2m/plugin.c \
 	../plugins/m2m/wimax_tlv.c \
+	../plugins/Makefile.am.inc \
+	../plugins/mate/mate_grammar.c \
+	../plugins/mate/mate_parser.c \
+	../plugins/mate/mate_runtime.c \
+	../plugins/mate/mate_setup.c \
+	../plugins/mate/mate_util.c \
+	../plugins/mate/packet-mate.c \
+	../plugins/mate/plugin.c \
+	../plugins/opcua/opcua_application_layer.c \
+	../plugins/opcua/opcua.c \
+	../plugins/opcua/opcua_complextypeparser.c \
+	../plugins/opcua/opcua_enumparser.c \
+	../plugins/opcua/opcua_extensionobjecttable.c \
+	../plugins/opcua/opcua_hfindeces.c \
+	../plugins/opcua/opcua_security_layer.c \
+	../plugins/opcua/opcua_serviceparser.c \
+	../plugins/opcua/opcua_servicetable.c \
+	../plugins/opcua/opcua_simpletypes.c \
+	../plugins/opcua/opcua_statuscode.c \
+	../plugins/opcua/opcua_transport_layer.c \
+	../plugins/opcua/plugin.c \
+	../plugins/pluginifdemo/pluginifdemo.c \
+	../plugins/profinet/packet-dcerpc-pn-io.c \
+	../plugins/profinet/packet-dcom-cba-acco.c \
+	../plugins/profinet/packet-dcom-cba.c \
+	../plugins/profinet/packet-pn.c \
+	../plugins/profinet/packet-pn-dcp.c \
+	../plugins/profinet/packet-pn-mrp.c \
+	../plugins/profinet/packet-pn-mrrt.c \
+	../plugins/profinet/packet-pn-ptcp.c \
+	../plugins/profinet/packet-pn-rt.c \
+	../plugins/profinet/packet-pn-rtc-one.c \
+	../plugins/profinet/plugin.c \
+	../plugins/stats_tree/pinfo_stats_tree.c \
+	../plugins/stats_tree/stats_tree_plugin.c \
+	../plugins/tpg/packet-http.c \
+	../plugins/transum/decoders.c \
+	../plugins/transum/extractors.c \
+	../plugins/transum/packet-transum.c \
+	../plugins/transum/plugin.c \
+	../plugins/unistim/packet-unistim.c \
+	../plugins/unistim/plugin.c \
+	../plugins/wimaxasncp/packet-wimaxasncp.c \
+	../plugins/wimaxasncp/plugin.c \
+	../plugins/wimaxasncp/wimaxasncp_dict.c \
 	../plugins/wimax/crc.c \
 	../plugins/wimax/crc_data.c \
 	../plugins/wimax/mac_hd_generic_decoder.c \
 	../plugins/wimax/mac_hd_type1_decoder.c \
 	../plugins/wimax/mac_hd_type2_decoder.c \
 	../plugins/wimax/mac_mgmt_msg_decoder.c \
+	../plugins/wimaxmacphy/packet-wimaxmacphy.c \
+	../plugins/wimaxmacphy/plugin.c \
 	../plugins/wimax/msg_aas_beam.c \
 	../plugins/wimax/msg_aas_fbck.c \
 	../plugins/wimax/msg_arq.c \
@@ -524,6 +566,7 @@ plugin_src = \
 	../plugins/wimax/msg_ucd.c \
 	../plugins/wimax/msg_ulmap.c \
 	../plugins/wimax/packet-wmx.c \
+	../plugins/wimax/plugin.c \
 	../plugins/wimax/wimax_cdma_code_decoder.c \
 	../plugins/wimax/wimax_compact_dlmap_ie_decoder.c \
 	../plugins/wimax/wimax_compact_ulmap_ie_decoder.c \
@@ -535,7 +578,6 @@ plugin_src = \
 	../plugins/wimax/wimax_phy_attributes_decoder.c \
 	../plugins/wimax/wimax_tlv.c \
 	../plugins/wimax/wimax_utils.c
-
 
 else		# ENABLE_STATIC
 
