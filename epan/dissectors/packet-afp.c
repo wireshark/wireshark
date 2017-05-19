@@ -4228,7 +4228,7 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	guint byte_order;
 	gboolean mark_exists;
 	tvbuff_t *spotlight_tvb;
-    guint8 *str_tmp;
+	guint8 *str_tmp;
 
 	proto_item *item_query;
 	proto_tree *sub_tree;
