@@ -1283,6 +1283,7 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
     bool have_field_info = false;
     bool have_subtree = false;
     bool can_open_url = false;
+    bool have_packet_bytes = false;
     QByteArray field_filter;
     int field_id = -1;
 
@@ -1291,6 +1292,10 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
 
         if (fi && fi->tree_type != -1) {
             have_subtree = true;
+        }
+
+        if (fi && fi->ds_tvb) {
+            have_packet_bytes = true;
         }
     }
 
@@ -1340,6 +1345,9 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
     main_ui_->actionEditCopyFieldName->setEnabled(can_match_selected);
     main_ui_->actionEditCopyValue->setEnabled(can_match_selected);
     main_ui_->actionEditCopyAsFilter->setEnabled(can_match_selected);
+
+    main_ui_->actionContextShowPacketBytes->setEnabled(have_packet_bytes);
+    main_ui_->actionFileExportPacketBytes->setEnabled(have_packet_bytes);
 
     main_ui_->actionViewExpandSubtrees->setEnabled(have_subtree);
 
