@@ -78,6 +78,24 @@
  */
 #define RADIUS_ATTR_TYPE_VENDOR_SPECIFIC			26
 #define RADIUS_ATTR_TYPE_EAP_MESSAGE				79
+#define RADIUS_ATTR_TYPE_EXTENDED_1				241
+#define RADIUS_ATTR_TYPE_EXTENDED_2				242
+#define RADIUS_ATTR_TYPE_EXTENDED_3				243
+#define RADIUS_ATTR_TYPE_EXTENDED_4				244
+#define RADIUS_ATTR_TYPE_EXTENDED_5				245
+#define RADIUS_ATTR_TYPE_EXTENDED_6				246
+
+#define RADIUS_ATTR_TYPE_IS_EXTENDED(avp_type)			\
+	((avp_type) == RADIUS_ATTR_TYPE_EXTENDED_1 ||		\
+		(avp_type) == RADIUS_ATTR_TYPE_EXTENDED_2 ||	\
+		(avp_type) == RADIUS_ATTR_TYPE_EXTENDED_3 ||	\
+		(avp_type) == RADIUS_ATTR_TYPE_EXTENDED_4 ||	\
+		(avp_type) == RADIUS_ATTR_TYPE_EXTENDED_5 ||	\
+		(avp_type) == RADIUS_ATTR_TYPE_EXTENDED_6)
+
+#define RADIUS_ATTR_TYPE_IS_EXTENDED_LONG(avp_type)		\
+	((avp_type) == RADIUS_ATTR_TYPE_EXTENDED_5 ||		\
+		(avp_type) == RADIUS_ATTR_TYPE_EXTENDED_6)
 
 
 typedef struct _radius_vendor_info_t {
@@ -95,9 +113,14 @@ typedef void (radius_attr_dissector_t)(radius_attr_info_t*, proto_tree*, packet_
 
 typedef const gchar* (radius_avp_dissector_t)(proto_tree*,tvbuff_t*, packet_info*);
 
+typedef union _radius_attr_type_t {
+	guint8 u8_code[2];
+	guint  value;
+} radius_attr_type_t;
+
 struct _radius_attr_info_t {
 	gchar *name;
-	guint code;
+	radius_attr_type_t code;
 	guint encrypt;  /* 0 or value for "encrypt=" option */
 	gboolean tagged;
 	radius_attr_dissector_t* type;

@@ -271,7 +271,7 @@ static void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, c
 }
 
 <ATTR>[0-9a-z_/.-]+			{ yyextra->attr_name = g_strdup(yytext); yyextra->encrypted = 0; yyextra->has_tag = FALSE; BEGIN ATTR_W_NAME; }
-<ATTR_W_NAME>[0-9]+			{ yyextra->attr_id = g_strdup(yytext);  BEGIN ATTR_W_ID;}
+<ATTR_W_NAME>[0-9.]+			{ yyextra->attr_id = g_strdup(yytext);  BEGIN ATTR_W_ID;}
 <ATTR_W_NAME>0x[0-9a-f]+		{ yyextra->attr_id = g_strdup_printf("%u",(int)strtoul(yytext,NULL,16)); BEGIN ATTR_W_ID;}
 <ATTR_W_ID>integer			{ yyextra->attr_type = radius_integer;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>string			{ yyextra->attr_type = radius_string;  BEGIN ATTR_W_TYPE; }
@@ -449,7 +449,8 @@ static void add_vendor(Radius_scanner_state_t* state, const gchar* name, guint32
 static gboolean add_attribute(Radius_scanner_state_t* state, const gchar* name, const  gchar* codestr, radius_attr_dissector_t type, const  gchar* vendor, guint encrypted_flag, gboolean tagged, const gchar* attr) {
 	radius_attr_info_t* a;
 	GHashTable* by_id;
-	guint32 code;
+	radius_attr_type_t code;
+	gchar *dot, *extcodestr = NULL;
 
 	if (attr){
 		return add_tlv(state, name, codestr, type, attr);
@@ -470,9 +471,18 @@ static gboolean add_attribute(Radius_scanner_state_t* state, const gchar* name, 
 		by_id = state->dict->attrs_by_id;
 	}
 
-	code= (guint32) strtoul(codestr, NULL, 10);
+	memset(&code, 0, sizeof(code));
+	dot = strchr(codestr, '.');
+	if (dot) {
+		*dot = '\0';
+		extcodestr = dot + 1;
+	}
+	code.u8_code[0] = (guint8) strtoul(codestr, NULL, 10);
+	if (extcodestr) {
+		code.u8_code[1] = (guint8) strtoul(extcodestr, NULL, 10);
+	}
 
-	a=(radius_attr_info_t*)g_hash_table_lookup(by_id, GUINT_TO_POINTER(code));
+	a=(radius_attr_info_t*)g_hash_table_lookup(by_id, GUINT_TO_POINTER(code.value));
 
 	if (!a) {
 		/*
@@ -494,7 +504,7 @@ static gboolean add_attribute(Radius_scanner_state_t* state, const gchar* name, 
 		a->hf_len = -1;
 		a->ett = -1;
 		a->tlvs_by_id = NULL;
-		g_hash_table_insert(by_id, GUINT_TO_POINTER(code),a);
+		g_hash_table_insert(by_id, GUINT_TO_POINTER(code.value),a);
 		g_hash_table_insert(state->dict->attrs_by_name,(gpointer) (a->name),a);
 	} else {
 		/*
@@ -537,7 +547,7 @@ static gboolean add_attribute(Radius_scanner_state_t* state, const gchar* name, 
 static gboolean add_tlv(Radius_scanner_state_t* state, const gchar* name, const  gchar* codestr, radius_attr_dissector_t type, const gchar* attr) {
 	radius_attr_info_t* a;
 	radius_attr_info_t* s;
-	guint32 code;
+	radius_attr_type_t code;
 
 	a = (radius_attr_info_t*)g_hash_table_lookup(state->dict->attrs_by_name, attr);
 
@@ -556,9 +566,10 @@ static gboolean add_tlv(Radius_scanner_state_t* state, const gchar* name, const 
 		a->tlvs_by_id = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, free_radius_attr_info);
 	}
 
-	code = (guint32) strtoul(codestr, NULL, 10);
+	memset(&code, 0, sizeof(code));
+	code.u8_code[0] = (guint8) strtoul(codestr, NULL, 10);
 
-	s = (radius_attr_info_t*)g_hash_table_lookup(a->tlvs_by_id, GUINT_TO_POINTER(code));
+	s = (radius_attr_info_t*)g_hash_table_lookup(a->tlvs_by_id, GUINT_TO_POINTER(code.value));
 
 	if (!s) {
 		/*
@@ -581,7 +592,7 @@ static gboolean add_tlv(Radius_scanner_state_t* state, const gchar* name, const 
 		s->ett = -1;
 		s->tlvs_by_id = NULL;
 
-		g_hash_table_insert(a->tlvs_by_id,GUINT_TO_POINTER(s->code),s);
+		g_hash_table_insert(a->tlvs_by_id,GUINT_TO_POINTER(s->code.value),s);
 		g_hash_table_insert(state->dict->tlvs_by_name,(gpointer) (s->name),s);
 	}
 
