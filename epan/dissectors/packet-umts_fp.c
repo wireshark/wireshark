@@ -4134,7 +4134,7 @@ heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     }
     umts_fp_conversation_info->channel = CHANNEL_DCH;
     umts_fp_conversation_info->num_dch_in_flow = 1;
-    umts_fp_conversation_info->dchs_in_flow_list[0] = 31;
+    umts_fp_conversation_info->dch_ids_in_flow_list[0] = 31;
     umts_fp_conversation_info->fp_dch_channel_info[0].num_dl_chans = 1;
     umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_num_tbs[1] = 1;
     umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[1] = 148;
@@ -4533,6 +4533,7 @@ heur_dissect_fp_hsdsch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 {
     conversation_t   *p_conv;
     umts_fp_conversation_info_t* umts_fp_conversation_info;
+    fp_hsdsch_channel_info_t* fp_hsdsch_channel_info;
     struct fp_info *p_fp_info;
     guint32 length;
     guint8 frame_type;
@@ -4552,7 +4553,8 @@ heur_dissect_fp_hsdsch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         /* Checking if the conversation was already framed */
         umts_fp_conversation_info = (umts_fp_conversation_info_t *)conversation_get_proto_data(p_conv, proto_fp);
         if (umts_fp_conversation_info) {
-            if (umts_fp_conversation_info->channel == CHANNEL_HSDSCH && umts_fp_conversation_info->hsdsch_entity == hs) {
+            fp_hsdsch_channel_info = (fp_hsdsch_channel_info_t*)umts_fp_conversation_info->channel_specific_info;
+            if (umts_fp_conversation_info->channel == CHANNEL_HSDSCH && fp_hsdsch_channel_info->hsdsch_entity == hs) {
                 conversation_set_dissector(p_conv, fp_handle);
                 dissect_fp(tvb, pinfo, tree, data);
                 return TRUE;
@@ -4646,8 +4648,10 @@ heur_dissect_fp_hsdsch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &pinfo->src);
     umts_fp_conversation_info->crnc_port = pinfo->srcport;
     umts_fp_conversation_info->channel = CHANNEL_HSDSCH;
-    umts_fp_conversation_info->hsdsch_entity = hs;
-    umts_fp_conversation_info->hsdsch_macdflow_id = 0;
+    fp_hsdsch_channel_info = wmem_new0(wmem_file_scope(), fp_hsdsch_channel_info_t);
+    fp_hsdsch_channel_info->hsdsch_entity = hs;
+    fp_hsdsch_channel_info->hsdsch_macdflow_id = 0;
+    umts_fp_conversation_info->channel_specific_info = (void*)fp_hsdsch_channel_info;
     set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
     conversation_set_dissector(find_or_create_conversation(pinfo), fp_handle);
     dissect_fp(tvb, pinfo, tree, data);
@@ -4658,6 +4662,7 @@ heur_dissect_fp_hsdsch_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 {
     conversation_t   *p_conv;
     umts_fp_conversation_info_t* umts_fp_conversation_info;
+    fp_hsdsch_channel_info_t* fp_hsdsch_channel_info;
     struct fp_info *p_fp_info;
     guint32 length;
     guint8 frame_type;
@@ -4680,7 +4685,8 @@ heur_dissect_fp_hsdsch_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         /* Checking if the conversation was already framed */
         umts_fp_conversation_info = (umts_fp_conversation_info_t *)conversation_get_proto_data(p_conv, proto_fp);
         if (umts_fp_conversation_info) {
-            if (umts_fp_conversation_info->channel == CHANNEL_HSDSCH && umts_fp_conversation_info->hsdsch_entity == ehs) {
+            fp_hsdsch_channel_info = (fp_hsdsch_channel_info_t*)umts_fp_conversation_info->channel_specific_info;
+            if (umts_fp_conversation_info->channel == CHANNEL_HSDSCH && fp_hsdsch_channel_info->hsdsch_entity == ehs) {
                 conversation_set_dissector(p_conv, fp_handle);
                 dissect_fp(tvb, pinfo, tree, data);
                 return TRUE;
@@ -4814,8 +4820,10 @@ heur_dissect_fp_hsdsch_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &pinfo->src);
     umts_fp_conversation_info->crnc_port = pinfo->srcport;
     umts_fp_conversation_info->channel = CHANNEL_HSDSCH;
-    umts_fp_conversation_info->hsdsch_entity = ehs;
-    umts_fp_conversation_info->hsdsch_macdflow_id = 1;
+    fp_hsdsch_channel_info = wmem_new0(wmem_file_scope(), fp_hsdsch_channel_info_t);
+    fp_hsdsch_channel_info->hsdsch_entity = ehs;
+    fp_hsdsch_channel_info->hsdsch_macdflow_id = 1;
+    umts_fp_conversation_info->channel_specific_info = (void*)fp_hsdsch_channel_info;
     set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
     conversation_set_dissector(find_or_create_conversation(pinfo), fp_handle);
     dissect_fp(tvb, pinfo, tree, data);
@@ -4918,7 +4926,9 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
     guint8 fake_lchid=0;
     gint *cur_val=NULL;
     guint32 user_identity;
-    fp_pch_channel_info_t *fp_pch_channel_info;
+    fp_hsdsch_channel_info_t* fp_hsdsch_channel_info = NULL;
+    fp_edch_channel_info_t* fp_edch_channel_info = NULL;
+    fp_pch_channel_info_t *fp_pch_channel_info = NULL;
 
     fpi = wmem_new0(wmem_file_scope(), fp_info);
     p_add_proto_data(wmem_file_scope(), pinfo, proto_fp, 0, fpi);
@@ -4957,23 +4967,23 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
 
     switch (fpi->channel) {
         case CHANNEL_HSDSCH: /* HS-DSCH - High Speed Downlink Shared Channel */
-            fpi->hsdsch_entity = p_conv_data->hsdsch_entity;
+            fp_hsdsch_channel_info = (fp_hsdsch_channel_info_t*)p_conv_data->channel_specific_info;
+            fpi->hsdsch_entity = fp_hsdsch_channel_info->hsdsch_entity;
             macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
-            fpi->hsdsch_macflowd_id = p_conv_data->hsdsch_macdflow_id;
-           macinf->content[0] = hsdsch_macdflow_id_mac_content_map[p_conv_data->hsdsch_macdflow_id]; /*MAC_CONTENT_PS_DTCH;*/
-            macinf->lchid[0] = p_conv_data->hsdsch_macdflow_id;
-            /*macinf->content[0] = lchId_type_table[p_conv_data->edch_lchId[0]];*/
+            fpi->hsdsch_macflowd_id = fp_hsdsch_channel_info->hsdsch_macdflow_id;
+            macinf->content[0] = hsdsch_macdflow_id_mac_content_map[fp_hsdsch_channel_info->hsdsch_macdflow_id]; /*MAC_CONTENT_PS_DTCH;*/
+            macinf->lchid[0] = fp_hsdsch_channel_info->hsdsch_macdflow_id;
             p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, macinf);
 
             rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
 
             /*Figure out RLC_MODE based on MACd-flow-ID, basically MACd-flow-ID = 0 then it's SRB0 == UM else AM*/
-            rlcinf->mode[0] = hsdsch_macdflow_id_rlc_map[p_conv_data->hsdsch_macdflow_id];
+            rlcinf->mode[0] = hsdsch_macdflow_id_rlc_map[fp_hsdsch_channel_info->hsdsch_macdflow_id];
 
             if (fpi->hsdsch_entity == hs /*&& !rlc_is_ciphered(pinfo)*/) {
                 for (i=0; i<MAX_NUM_HSDHSCH_MACDFLOW; i++) {
                     /*Figure out if this channel is multiplexed (signaled from RRC)*/
-                    if ((cur_val=(gint *)g_tree_lookup(hsdsch_muxed_flows, GINT_TO_POINTER((gint)p_conv_data->hrnti))) != NULL) {
+                    if ((cur_val=(gint *)g_tree_lookup(hsdsch_muxed_flows, GINT_TO_POINTER((gint)fp_hsdsch_channel_info->hrnti))) != NULL) {
                         j = 1 << i;
                         fpi->hsdhsch_macfdlow_is_mux[i] = j & *cur_val;
                     } else {
@@ -5012,19 +5022,20 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
             return fpi;
 
         case CHANNEL_EDCH:
+            fp_edch_channel_info = (fp_edch_channel_info_t*)p_conv_data->channel_specific_info;
             /*Most configuration is now done in the actual dissecting function*/
             macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
             rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
-            fpi->no_ddi_entries = p_conv_data->no_ddi_entries;
+            fpi->no_ddi_entries = fp_edch_channel_info->no_ddi_entries;
             for (i=0; i<fpi->no_ddi_entries; i++) {
-                fpi->edch_ddi[i] = p_conv_data->edch_ddi[i];    /*Set the DDI value*/
-                fpi->edch_macd_pdu_size[i] = p_conv_data->edch_macd_pdu_size[i];    /*Set the size*/
-                fpi->edch_lchId[i] = p_conv_data->edch_lchId[i];    /*Set the channel id for this entry*/
-                /*macinf->content[i] = lchId_type_table[p_conv_data->edch_lchId[i]]; */    /*Set the proper Content type for the mac layer.*/
-            /*    rlcinf->mode[i] = lchId_rlc_map[p_conv_data->edch_lchId[i]];*/ /* Set RLC mode by lchid to RLC_MODE map in nbap.h */
+                fpi->edch_ddi[i] = fp_edch_channel_info->edch_ddi[i];    /*Set the DDI value*/
+                fpi->edch_macd_pdu_size[i] = fp_edch_channel_info->edch_macd_pdu_size[i];    /*Set the size*/
+                fpi->edch_lchId[i] = fp_edch_channel_info->edch_lchId[i];    /*Set the channel id for this entry*/
+                /*macinf->content[i] = lchId_type_table[fp_edch_channel_info->edch_lchId[i]]; */    /*Set the proper Content type for the mac layer.*/
+            /*    rlcinf->mode[i] = lchId_rlc_map[fp_edch_channel_info->edch_lchId[i]];*/ /* Set RLC mode by lchid to RLC_MODE map in nbap.h */
 
             }
-            fpi->edch_type = p_conv_data->edch_type;
+            fpi->edch_type = fp_edch_channel_info->edch_type;
 
            /* macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
             macinf->content[0] = MAC_CONTENT_PS_DTCH;*/
@@ -5082,12 +5093,12 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                 /* Set configuration for individual blocks */
                 for (j=0; j < num_tbs && j+chan < MAX_MAC_FRAMES; j++) {
                     /* Set transport channel id (useful for debugging) */
-                    macinf->trchid[j+chan] = p_conv_data->dchs_in_flow_list[chan];
+                    macinf->trchid[j+chan] = p_conv_data->dch_ids_in_flow_list[chan];
 
                     /* Checking for the common Transport Format of DCCH over DCH ( See 3GPP TR 25.944 / 4.1.1.3.1.1 ) */
                     is_known_dcch_tf = (tfi == 1 && num_tbs == 1 && tb_size == 148);
                     /* Checking for DCH ID 24 and tb size of 340 bits */
-                    is_special_case_dch_24 = (p_conv_data->dchs_in_flow_list[chan] == 24 && tb_size == 340);
+                    is_special_case_dch_24 = (p_conv_data->dch_ids_in_flow_list[chan] == 24 && tb_size == 340);
 
                     if (is_known_dcch_tf || is_special_case_dch_24) {
                         /* Channel is multiplexed (ie. C/T flag present) */
@@ -5107,7 +5118,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
 
                         /* TODO: This stuff has to be reworked! */
                         /* Generates a fake logical channel id for non multiplexed channel */
-                        fake_lchid = make_fake_lchid(pinfo, p_conv_data->dchs_in_flow_list[chan]);
+                        fake_lchid = make_fake_lchid(pinfo, p_conv_data->dch_ids_in_flow_list[chan]);
                         macinf->content[j+chan] = lchId_type_table[fake_lchid];
                         rlcinf->mode[j+chan] = lchId_rlc_map[fake_lchid];
 
@@ -5380,9 +5391,9 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                                  "Unknown channel type"));
     if (p_conv_data) {
         int i;
-        col_append_fstr(pinfo->cinfo, COL_INFO, "(%u", p_conv_data->dchs_in_flow_list[0]);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "(%u", p_conv_data->dch_ids_in_flow_list[0]);
         for (i=1; i < p_conv_data->num_dch_in_flow; i++) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ",%u", p_conv_data->dchs_in_flow_list[i]);
+            col_append_fstr(pinfo->cinfo, COL_INFO, ",%u", p_conv_data->dch_ids_in_flow_list[i]);
         }
         col_append_fstr(pinfo->cinfo, COL_INFO, ") ");
     }
@@ -5647,7 +5658,7 @@ umts_fp_init_protocol(void)
                     umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_num_tbs[j] = 1;
                 }
 
-                umts_fp_conversation_info->dchs_in_flow_list[0] = 1;
+                umts_fp_conversation_info->dch_ids_in_flow_list[0] = 1;
                 umts_fp_conversation_info->num_dch_in_flow=1;
                 set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
             default:

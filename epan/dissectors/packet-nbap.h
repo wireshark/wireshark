@@ -5,7 +5,7 @@
 
 /* Input file: packet-nbap-template.h */
 
-#line 1 "./asn1/nbap/packet-nbap-template.h"
+#line 1 "./asn1/Nbap/packet-nbap-template.h"
 /* packet-nbap-template.h
  *
  * Wireshark - Network traffic analyzer

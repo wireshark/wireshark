@@ -46,6 +46,13 @@
 #define CHANNEL_HSDSCH_COMMON_T3 20
 #define CHANNEL_EDCH_COMMON      21
 
+
+/* Constants */
+#define MAX_FP_CHANS  64
+#define MAX_EDCH_DDIS 16
+#define MAX_NUM_HSDHSCH_MACDFLOW 8
+#define FP_maxNrOfTFs 32 /* From NBAC-Constants.asn */
+
 enum fp_interface_type
 {
     IuB_Interface,
@@ -82,6 +89,54 @@ enum fp_rlc_mode {
 };
 
 
+typedef struct
+{
+    gint num_ul_chans;
+    gint ul_chan_tf_size[MAX_FP_CHANS];
+    gint ul_chan_num_tbs[MAX_FP_CHANS];
+    gint num_dl_chans;
+    gint dl_chan_tf_size[MAX_FP_CHANS];
+    gint dl_chan_num_tbs[MAX_FP_CHANS];
+
+} fp_dch_channel_info_t;
+
+
+/****************************************/
+/* Channel Specific Information Structs */
+
+/****************/
+/* FACH Structs */
+
+typedef struct fp_crnti_allocation_info_t
+{
+    guint32 alloc_frame_number; /* Frame where C-RNTI was allocated */
+    guint32 urnti; /* The U-RNTI to which the C-RNTI was allocated*/
+} fp_crnti_allocation_info_t;
+
+/* Used in the 'channel_specific_info' field for FACH channels */
+typedef struct fp_fach_channel_info_t
+{
+    /* Key: (guint32) C-RNTI */
+    /* Value: (fp_crnti_allocation_info_t) U-RNTI allocation info */
+    wmem_tree_t* crnti_to_urnti_map; /* Mapping between C-RNTIs and U-RNTIs using them in this FACH */
+} fp_fach_channel_info_t;
+
+
+/****************/
+/* RACH Structs */
+
+/* Used in the 'channel_specific_info' field for RACH channels */
+typedef struct fp_rach_channel_info_t
+{
+    /* Key: (guint32) C-RNTI */
+    /* Value: (fp_crnti_allocation_info_t) U-RNTI allocation info */
+    wmem_tree_t* crnti_to_urnti_map; /* Mapping between C-RNTIs and U-RNTIs using them in this RACH */
+} fp_rach_channel_info_t;
+
+
+/****************/
+/* PCH Structs  */
+
 /* Information about the Paging Indication Bitmap seen in a specific PCH frame*/
 typedef struct paging_indications_info_t
 {
@@ -89,7 +144,80 @@ typedef struct paging_indications_info_t
     guint8* paging_indications_bitmap;
 } paging_indications_info_t;
 
-/* Info attached to each FP packet */
+/* Used in the 'channel_specific_info' field for PCH channels */
+typedef struct fp_pch_channel_info_t
+{
+    /*Size of the Paging Indication field in this PCH*/
+    gint paging_indications;
+    /* Information from the previous frame in this field which contained the paging indication field*/
+    paging_indications_info_t* last_paging_indication_info;
+} fp_pch_channel_info_t;
+
+
+/*****************/
+/* E-DCH Structs */
+
+/* Used in the 'channel_specific_info' field for E-DCH channels */
+typedef struct fp_edch_channel_info_t
+{
+    gint   no_ddi_entries;
+    guint8 edch_ddi[MAX_EDCH_DDIS];
+    guint  edch_macd_pdu_size[MAX_EDCH_DDIS];
+    guint8 edch_lchId[MAX_EDCH_DDIS];
+    guint8 edch_type;  /* 1 means T2 */
+} fp_edch_channel_info_t;
+
+
+/*******************/
+/* HS-DSCH Structs */
+
+/* Used in the 'channel_specific_info' field for HS-DSCH channels */
+typedef struct fp_hsdsch_channel_info_t
+{
+    enum fp_hsdsch_entity hsdsch_entity;
+    guint8 common_macdflow_id;
+    guint8 hsdsch_macdflow_id;
+    guint hrnti;          /*Used for tracking a HS-DSCH flow*/
+} fp_hsdsch_channel_info_t;
+
+
+/************************/
+/* FP Conversation Data */
+
+typedef struct
+{
+    enum fp_interface_type iface_type;
+    enum division_type     division;
+    gint channel;               /* see Channel types definitions above */
+    enum fp_rlc_mode rlc_mode;
+    guint32 dl_frame_number;    /* the frame where this conversation is started from CRNC */
+    guint32 ul_frame_number;    /* the frame where this conversation is started from Node B */
+    address crnc_address;
+    guint16 crnc_port;
+
+    guint urnti;                /* Identifies a single UE in the UTRAN. Used for tracking it's RLC session across different transport channels */
+    gint com_context_id;        /* Identifies a single UE in all NBAP messages */
+    guint32 scrambling_code;    /* Identifies a single UE's radio transmissions in the UTRAN */
+
+    void* channel_specific_info; /* Extended channel info based on the channel type */
+
+    /* DCH's in this flow */
+    gint num_dch_in_flow;
+    gint dch_ids_in_flow_list[FP_maxNrOfTFs];
+    /* DCH type channel data */
+    fp_dch_channel_info_t fp_dch_channel_info[FP_maxNrOfTFs];
+    guint8 dch_crc_present;    /* 0=No, 1=Yes, 2=Unknown */
+
+    gboolean reset_frag;  /*Used to indicate that a stream has been reconfigured, hence we need to reset the fragtable*/
+    guint32 cfn;
+    guint32 cfn_index;
+
+} umts_fp_conversation_info_t;
+
+
+/********************************/
+/* FP Packet Data               */
+/* (attached to each FP packet) */
 typedef struct fp_info
 {
     enum fp_interface_type iface_type;
@@ -101,11 +229,9 @@ typedef struct fp_info
     gint channel;                       /* see Channel types definitions above */
     guint8  dch_crc_present;            /* 0=No, 1=Yes, 2=Unknown */
     gint num_chans;
-#define MAX_FP_CHANS  64
     gint chan_tf_size[MAX_FP_CHANS];
     gint chan_num_tbs[MAX_FP_CHANS];
 
-#define MAX_EDCH_DDIS 16
     gint   no_ddi_entries;
     guint8 edch_ddi[MAX_EDCH_DDIS];
     guint  edch_macd_pdu_size[MAX_EDCH_DDIS];
@@ -128,105 +254,12 @@ typedef struct fp_info
     /* HSDSCH Related data */
     enum   fp_hsdsch_entity hsdsch_entity;
     gint        hsdsch_macflowd_id;
-#define MAX_NUM_HSDHSCH_MACDFLOW        8
     gboolean hsdhsch_macfdlow_is_mux[MAX_NUM_HSDHSCH_MACDFLOW];
     enum   fp_link_type link_type;
     guint urnti;         /*Used for tracking a "sequence" over diffrent transport channels*/
 
     gboolean reset_frag; /*Used to indicate that a stream has been reconfigured, hence we need to reset the fragtable*/
 } fp_info;
-
-/* From NBAC-Constants.asn */
-#define FP_maxNrOfTFs           32
-
-typedef struct
-{
-    gint num_ul_chans;
-    gint ul_chan_tf_size[MAX_FP_CHANS];
-    gint ul_chan_num_tbs[MAX_FP_CHANS];
-    gint num_dl_chans;
-    gint dl_chan_tf_size[MAX_FP_CHANS];
-    gint dl_chan_num_tbs[MAX_FP_CHANS];
-
-} fp_dch_channel_info_t;
-
-typedef struct fp_crnti_allocation_info_t
-{
-    guint32 alloc_frame_number; /* Frame where C-RNTI was allocated */
-    guint32 urnti; /* The U-RNTI to which the C-RNTI was allocated*/
-} fp_crnti_allocation_info_t;
-
-/* Used in the 'channel_specific_info' field for FACH channels */
-typedef struct fp_fach_channel_info_t
-{
-    /* Key: (guint32) C-RNTI */
-    /* Value: (fp_crnti_allocation_info_t) U-RNTI allocation info */
-    wmem_tree_t* crnti_to_urnti_map; /* Mapping between C-RNTIs and U-RNTIs using them in this FACH */
-} fp_fach_channel_info_t;
-
-/* Used in the 'channel_specific_info' field for RACH channels */
-typedef struct fp_rach_channel_info_t
-{
-    /* Key: (guint32) C-RNTI */
-    /* Value: (fp_crnti_allocation_info_t) U-RNTI allocation info */
-    wmem_tree_t* crnti_to_urnti_map; /* Mapping between C-RNTIs and U-RNTIs using them in this RACH */
-} fp_rach_channel_info_t;
-
-/* Used in the 'channel_specific_info' field for PCH channels */
-typedef struct fp_pch_channel_info_t
-{
-    /*Size of the Paging Indication field in this PCH*/
-    gint paging_indications;
-    /* Information from the previous frame in this field which contained the paging indication field*/
-    paging_indications_info_t* last_paging_indication_info;
-} fp_pch_channel_info_t;
-
-typedef struct
-{
-    enum fp_interface_type iface_type;
-    enum division_type     division;
-    gint channel;               /* see Channel types definitions above */
-    guint32 dl_frame_number;    /* the frame where this conversation is started from CRNC */
-    guint32 ul_frame_number;    /* the frame where this conversation is started from Node B */
-    address crnc_address;
-    guint16 crnc_port;
-    gint com_context_id;        /* Identifies a single UE in all NBAP messages */
-    guint32 scrambling_code;    /* Identifies a single UE's radio transmissions in the UTRAN */
-
-    void* channel_specific_info; /* Extended channel info based on the channel type */
-
-    /* DCH's in this flow */
-    gint num_dch_in_flow;
-    gint dchs_in_flow_list[FP_maxNrOfTFs];
-
-    guint8  dch_crc_present;    /* 0=No, 1=Yes, 2=Unknown */
-    enum fp_rlc_mode rlc_mode;
-
-    /* DCH type channel data */
-    fp_dch_channel_info_t fp_dch_channel_info[FP_maxNrOfTFs];
-
-    /* E-DCH related data */
-    gint   no_ddi_entries;
-    guint8 edch_ddi[MAX_EDCH_DDIS];
-    guint  edch_macd_pdu_size[MAX_EDCH_DDIS];
-    guint8 edch_lchId[MAX_EDCH_DDIS];
-    guint8 edch_type;  /* 1 means T2 */
-
-    /* HSDSCH Related data */
-    enum   fp_hsdsch_entity hsdsch_entity;
-    guint8 hsdsch_macdflow_id;
-
-    guint8 hsdsch_num_chans_per_flow[MAX_NUM_HSDHSCH_MACDFLOW];
-
-    /*HSDSCH Common related data*/
-    guint8 common_macdflow_id;
-
-    guint urnti;          /*Used for tracking a "sequence" over diffrent transport channels*/
-    guint hrnti;          /*Used for tracking a HS-DSCH flow*/
-    gboolean reset_frag;  /*Used to indicate that a stream has been reconfigured, hence we need to reset the fragtable*/
-    guint32 cfn;
-    guint32 cfn_index;
-} umts_fp_conversation_info_t;
 
 void set_umts_fp_conv_data(conversation_t *conversation, umts_fp_conversation_info_t *umts_fp_conversation_info);
 
