@@ -130,6 +130,7 @@ static int hf_openflow_v6_port_desc_prop_ethernet_current_fiber = -1;
 static int hf_openflow_v6_port_desc_prop_ethernet_current_autoneg = -1;
 static int hf_openflow_v6_port_desc_prop_ethernet_current_pause = -1;
 static int hf_openflow_v6_port_desc_prop_ethernet_current_pause_asym = -1;
+static int hf_openflow_v6_port_desc_prop_ethernet_current_reserved = -1;
 static int hf_openflow_v6_port_desc_prop_ethernet_advertised = -1;
 static int hf_openflow_v6_port_desc_prop_ethernet_advertised_10mb_hd = -1;
 static int hf_openflow_v6_port_desc_prop_ethernet_advertised_10mb_fd = -1;
@@ -147,6 +148,7 @@ static int hf_openflow_v6_port_desc_prop_ethernet_advertised_fiber = -1;
 static int hf_openflow_v6_port_desc_prop_ethernet_advertised_autoneg = -1;
 static int hf_openflow_v6_port_desc_prop_ethernet_advertised_pause = -1;
 static int hf_openflow_v6_port_desc_prop_ethernet_advertised_pause_asym = -1;
+static int hf_openflow_v6_port_desc_prop_ethernet_advertised_reserved = -1;
 static int hf_openflow_v6_port_desc_prop_ethernet_supported = -1;
 static int hf_openflow_v6_port_desc_prop_ethernet_supported_10mb_hd = -1;
 static int hf_openflow_v6_port_desc_prop_ethernet_supported_10mb_fd = -1;
@@ -164,6 +166,7 @@ static int hf_openflow_v6_port_desc_prop_ethernet_supported_fiber = -1;
 static int hf_openflow_v6_port_desc_prop_ethernet_supported_autoneg = -1;
 static int hf_openflow_v6_port_desc_prop_ethernet_supported_pause = -1;
 static int hf_openflow_v6_port_desc_prop_ethernet_supported_pause_asym = -1;
+static int hf_openflow_v6_port_desc_prop_ethernet_supported_reserved = -1;
 static int hf_openflow_v6_port_desc_prop_optical_pad = -1;
 static int hf_openflow_v6_port_desc_prop_optical_supported = -1;
 static int hf_openflow_v6_port_desc_prop_optical_supported_rx_tune = -1;
@@ -197,6 +200,7 @@ static int hf_openflow_v6_port_desc_prop_ethernet_peer_fiber = -1;
 static int hf_openflow_v6_port_desc_prop_ethernet_peer_autoneg = -1;
 static int hf_openflow_v6_port_desc_prop_ethernet_peer_pause = -1;
 static int hf_openflow_v6_port_desc_prop_ethernet_peer_pause_asym = -1;
+static int hf_openflow_v6_port_desc_prop_ethernet_peer_reserved = -1;
 static int hf_openflow_v6_port_desc_prop_ethernet_curr_speed = -1;
 static int hf_openflow_v6_port_desc_prop_ethernet_max_speed = -1;
 static int hf_openflow_v6_port_port_no = -1;
@@ -2426,6 +2430,8 @@ dissect_openflow_action_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 #define OFPPF_AUTONEG     1 << 13
 #define OFPPF_PAUSE       1 << 14
 #define OFPPF_PAUSE_ASYM  1 << 15
+#define OFPPF_RESERVED    0xFFFF0000
+
 static int
 dissect_openflow_port_desc_prop_ethernet_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
@@ -2456,6 +2462,7 @@ dissect_openflow_port_desc_prop_ethernet_v6(tvbuff_t *tvb, packet_info *pinfo _U
     proto_tree_add_item(curr_tree, hf_openflow_v6_port_desc_prop_ethernet_current_autoneg,    tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(curr_tree, hf_openflow_v6_port_desc_prop_ethernet_current_pause,      tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(curr_tree, hf_openflow_v6_port_desc_prop_ethernet_current_pause_asym, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(curr_tree, hf_openflow_v6_port_desc_prop_ethernet_current_reserved,   tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
     /* uint32_t advertised; */
@@ -2478,6 +2485,7 @@ dissect_openflow_port_desc_prop_ethernet_v6(tvbuff_t *tvb, packet_info *pinfo _U
     proto_tree_add_item(adv_tree, hf_openflow_v6_port_desc_prop_ethernet_advertised_autoneg,    tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(adv_tree, hf_openflow_v6_port_desc_prop_ethernet_advertised_pause,      tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(adv_tree, hf_openflow_v6_port_desc_prop_ethernet_advertised_pause_asym, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(adv_tree, hf_openflow_v6_port_desc_prop_ethernet_advertised_reserved,   tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
     /* uint32_t supported; */
@@ -2500,6 +2508,7 @@ dissect_openflow_port_desc_prop_ethernet_v6(tvbuff_t *tvb, packet_info *pinfo _U
     proto_tree_add_item(supp_tree, hf_openflow_v6_port_desc_prop_ethernet_supported_autoneg,    tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(supp_tree, hf_openflow_v6_port_desc_prop_ethernet_supported_pause,      tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(supp_tree, hf_openflow_v6_port_desc_prop_ethernet_supported_pause_asym, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(supp_tree, hf_openflow_v6_port_desc_prop_ethernet_supported_reserved,   tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
     /* uint32_t peer; */
@@ -2522,6 +2531,7 @@ dissect_openflow_port_desc_prop_ethernet_v6(tvbuff_t *tvb, packet_info *pinfo _U
     proto_tree_add_item(peer_tree, hf_openflow_v6_port_desc_prop_ethernet_peer_autoneg,    tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(peer_tree, hf_openflow_v6_port_desc_prop_ethernet_peer_pause,      tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(peer_tree, hf_openflow_v6_port_desc_prop_ethernet_peer_pause_asym, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(peer_tree, hf_openflow_v6_port_desc_prop_ethernet_peer_reserved,   tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
     /* uint32_t curr_speed; */
@@ -6314,6 +6324,11 @@ proto_register_openflow_v6(void)
                FT_BOOLEAN, 32, NULL, OFPPF_PAUSE_ASYM,
                NULL, HFILL }
         },
+        { &hf_openflow_v6_port_desc_prop_ethernet_current_reserved,
+            { "Reserved", "openflow_v6.port.desc_prop.ethernet.current.reserved",
+               FT_UINT32, BASE_HEX, NULL, OFPPF_RESERVED,
+               NULL, HFILL }
+        },
         { &hf_openflow_v6_port_desc_prop_ethernet_advertised,
             { "Advertised", "openflow_v6.port.desc_prop.ethernet.advertised",
                FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -6397,6 +6412,11 @@ proto_register_openflow_v6(void)
         { &hf_openflow_v6_port_desc_prop_ethernet_advertised_pause_asym,
             { "OFPPF_PAUSE_ASYM", "openflow_v6.port.desc_prop.ethernet.advertised.pause_asym",
                FT_BOOLEAN, 32, NULL, OFPPF_PAUSE_ASYM,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v6_port_desc_prop_ethernet_advertised_reserved,
+            { "Reserved", "openflow_v6.port.desc_prop.ethernet.advertised.reserved",
+               FT_UINT32, BASE_HEX, NULL, OFPPF_RESERVED,
                NULL, HFILL }
         },
         { &hf_openflow_v6_port_desc_prop_ethernet_supported,
@@ -6484,6 +6504,11 @@ proto_register_openflow_v6(void)
                FT_BOOLEAN, 32, NULL, OFPPF_PAUSE_ASYM,
                NULL, HFILL }
         },
+        { &hf_openflow_v6_port_desc_prop_ethernet_supported_reserved,
+            { "Reserved", "openflow_v6.port.desc_prop.ethernet.supported.reserved",
+               FT_UINT32, BASE_HEX, NULL, OFPPF_RESERVED,
+               NULL, HFILL }
+        },
         { &hf_openflow_v6_port_desc_prop_ethernet_peer,
             { "Peer", "openflow_v6.port.desc_prop.ethernet.peer",
                FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -6567,6 +6592,11 @@ proto_register_openflow_v6(void)
         { &hf_openflow_v6_port_desc_prop_ethernet_peer_pause_asym,
             { "OFPPF_PAUSE_ASYM", "openflow_v6.port.desc_prop.ethernet.peer.pause_asym",
                FT_BOOLEAN, 32, NULL, OFPPF_PAUSE_ASYM,
+               NULL, HFILL }
+        },
+        { &hf_openflow_v6_port_desc_prop_ethernet_peer_reserved,
+            { "Reserved", "openflow_v6.port.desc_prop.ethernet.peer.reserved",
+               FT_UINT32, BASE_HEX, NULL, OFPPF_RESERVED,
                NULL, HFILL }
         },
         { &hf_openflow_v6_port_desc_prop_ethernet_curr_speed,
