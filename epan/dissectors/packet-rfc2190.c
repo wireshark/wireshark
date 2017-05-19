@@ -53,16 +53,21 @@ static int hf_rfc2190_pbframes = -1;
 static int hf_rfc2190_sbit = -1;
 static int hf_rfc2190_ebit = -1;
 static int hf_rfc2190_srcformat = -1;
-static int hf_rfc2190_picture_coding_type = -1;
-static int hf_rfc2190_unrestricted_motion_vector = -1;
-static int hf_rfc2190_syntax_based_arithmetic = -1;
-static int hf_rfc2190_advanced_prediction = -1;
-static int hf_rfc2190_r = -1;
+static int hf_rfc2190_picture_coding_type_modeA = -1;
+static int hf_rfc2190_unrestricted_motion_vector_modeA = -1;
+static int hf_rfc2190_syntax_based_arithmetic_modeA = -1;
+static int hf_rfc2190_advanced_prediction_modeA = -1;
+static int hf_rfc2190_r_modeA = -1;
 static int hf_rfc2190_rr = -1;
 static int hf_rfc2190_dbq = -1;
 static int hf_rfc2190_trb = -1;
 static int hf_rfc2190_tr = -1;
 /* Additional fields for Mode B or C header */
+static int hf_rfc2190_picture_coding_type_modeB = -1;
+static int hf_rfc2190_unrestricted_motion_vector_modeB = -1;
+static int hf_rfc2190_syntax_based_arithmetic_modeB = -1;
+static int hf_rfc2190_advanced_prediction_modeB = -1;
+static int hf_rfc2190_r_modeB = -1;
 static int hf_rfc2190_quant = -1;
 static int hf_rfc2190_gobn = -1;
 static int hf_rfc2190_mba = -1;
@@ -131,16 +136,16 @@ dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
         if(rfc2190_version == 0x00) { /* MODE A */
             /* I flag, 1 bit */
-            proto_tree_add_bits_item(rfc2190_tree, hf_rfc2190_picture_coding_type, tvb, (offset<<3)+3, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rfc2190_tree, hf_rfc2190_picture_coding_type_modeA, tvb, offset, 1, ENC_BIG_ENDIAN);
             /* U flag, 1 bit */
-            proto_tree_add_bits_item(rfc2190_tree, hf_rfc2190_unrestricted_motion_vector, tvb, (offset<<3)+4, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rfc2190_tree, hf_rfc2190_unrestricted_motion_vector_modeA, tvb, offset, 1, ENC_BIG_ENDIAN);
             /* S flag, 1 bit */
-            proto_tree_add_bits_item(rfc2190_tree, hf_rfc2190_syntax_based_arithmetic, tvb, (offset<<3)+5, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rfc2190_tree, hf_rfc2190_syntax_based_arithmetic_modeA, tvb, offset, 1, ENC_BIG_ENDIAN);
             /* A flag, 1 bit */
-            proto_tree_add_bits_item(rfc2190_tree, hf_rfc2190_advanced_prediction, tvb, (offset<<3)+6, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rfc2190_tree, hf_rfc2190_advanced_prediction_modeA, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             /* Reserved 2nd octet, 1 bit + 3rd octet 3 bits */
-            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_r, tvb, offset, 2, ( ( tvb_get_guint8( tvb, offset ) & 0x1 ) << 3 ) + ( ( tvb_get_guint8( tvb, offset + 1 ) & 0xe0 ) >> 5 ) );
+            proto_tree_add_item( rfc2190_tree, hf_rfc2190_r_modeA, tvb, offset, 2, ENC_BIG_ENDIAN);
 
             offset++;
 
@@ -164,36 +169,36 @@ dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             /* GOBN 3 octet, 5 bits */
             proto_tree_add_item( rfc2190_tree, hf_rfc2190_gobn, tvb, offset, 1, ENC_NA);
             /* MBA 3 octet, 3 bits + 4 octet 6 bits */
-            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_mba, tvb, offset, 2, ( ( tvb_get_guint8( tvb, offset ) & 0x7 ) << 6 ) + ( ( tvb_get_guint8( tvb, offset + 1 ) & 0xfc ) >> 2 ) );
+            proto_tree_add_item( rfc2190_tree, hf_rfc2190_mba, tvb, offset, 2, ENC_BIG_ENDIAN );
 
             offset++;
 
             /* Reserved 4th octet, 2 bits */
-            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_r, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x3 ) );
+            proto_tree_add_item( rfc2190_tree, hf_rfc2190_r_modeB, tvb, offset, 1, ENC_NA);
 
             offset++;
 
             /* I flag, 1 bit */
-            proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_picture_coding_type, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x80 );
+            proto_tree_add_item( rfc2190_tree, hf_rfc2190_picture_coding_type_modeB, tvb, offset, 1, ENC_BIG_ENDIAN);
             /* U flag, 1 bit */
-            proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_unrestricted_motion_vector, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x40 );
+            proto_tree_add_item( rfc2190_tree, hf_rfc2190_unrestricted_motion_vector_modeB, tvb, offset, 1, ENC_BIG_ENDIAN);
             /* S flag, 1 bit */
-            proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_syntax_based_arithmetic, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x20 );
+            proto_tree_add_item( rfc2190_tree, hf_rfc2190_syntax_based_arithmetic_modeB, tvb, offset, 1, ENC_BIG_ENDIAN);
             /* A flag, 1 bit */
-            proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_advanced_prediction, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x10 );
+            proto_tree_add_item( rfc2190_tree, hf_rfc2190_advanced_prediction_modeB, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             /* HMV1 5th octet, 4 bits + 6th octet 3 bits*/
-            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_hmv1, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0xf ) << 3 ) + ( ( tvb_get_guint8( tvb, offset+1 ) & 0xe0 ) >> 5) );
+            proto_tree_add_item( rfc2190_tree, hf_rfc2190_hmv1, tvb, offset, 2, ENC_BIG_ENDIAN);
 
             offset++;
 
             /* VMV1 6th octet, 5 bits + 7th octet 2 bits*/
-            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_vmv1, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0x1f ) << 2 ) + ( ( tvb_get_guint8( tvb, offset+1 ) & 0xc0 ) >> 6) );
+            proto_tree_add_item( rfc2190_tree, hf_rfc2190_vmv1, tvb, offset, 2, ENC_BIG_ENDIAN);
 
             offset++;
 
             /* HMV2 7th octet, 6 bits + 8th octet 1 bit*/
-            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_hmv2, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0x3f ) << 1 ) + ( ( tvb_get_guint8( tvb, offset+1 ) & 0xf0 ) >> 7) );
+            proto_tree_add_item( rfc2190_tree, hf_rfc2190_hmv2, tvb, offset, 2, ENC_BIG_ENDIAN);
 
             offset++;
 
@@ -204,7 +209,7 @@ dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
             if(rfc2190_version == 0x03) { /* MODE C */
                 /* Reserved 9th to 11th octet, 8 + 8 + 3 bits */
-                proto_tree_add_uint( rfc2190_tree, hf_rfc2190_rr, tvb, offset, 3, ( tvb_get_guint8( tvb, offset ) << 11 ) + ( tvb_get_guint8( tvb, offset + 1 ) << 3 ) + ( ( tvb_get_guint8( tvb, offset + 2 ) & 0xe0 ) >> 5 ) );
+                proto_tree_add_item( rfc2190_tree, hf_rfc2190_rr, tvb, offset, 3, ENC_BIG_ENDIAN);
 
                 offset+=2;
 
@@ -216,7 +221,7 @@ dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 offset++;
 
                 /* TR 12th octet, 8 bits */
-                proto_tree_add_uint( rfc2190_tree, hf_rfc2190_tr, tvb, offset, 1, tvb_get_guint8( tvb, offset ) );
+                proto_tree_add_item( rfc2190_tree, hf_rfc2190_tr, tvb, offset, 1, ENC_NA );
 
                 offset++;
             } /* end mode c */
@@ -317,50 +322,98 @@ proto_register_rfc2190(void)
             }
         },
         {
-            &hf_rfc2190_picture_coding_type,
+            &hf_rfc2190_picture_coding_type_modeA,
             {
                 "Inter-coded frame",
                 "rfc2190.picture_coding_type",
                 FT_BOOLEAN,
                 8,
                 NULL,
-                0x0,
+                0x08,
                 "Picture coding type, intra-coded (false) or inter-coded (true)", HFILL
             }
         },
         {
-            &hf_rfc2190_unrestricted_motion_vector,
+            &hf_rfc2190_unrestricted_motion_vector_modeA,
             {
                 "Motion vector",
                 "rfc2190.unrestricted_motion_vector",
                 FT_BOOLEAN,
                 8,
                 NULL,
-                0x0,
+                0x10,
                 "Unrestricted Motion Vector option for current picture", HFILL
             }
         },
         {
-            &hf_rfc2190_syntax_based_arithmetic,
+            &hf_rfc2190_syntax_based_arithmetic_modeA,
             {
                 "Syntax-based arithmetic coding",
                 "rfc2190.syntax_based_arithmetic",
                 FT_BOOLEAN,
                 8,
                 NULL,
-                0x0,
+                0x20,
                 "Syntax-based Arithmetic Coding option for current picture", HFILL
             }
         },
         {
-            &hf_rfc2190_advanced_prediction,
+            &hf_rfc2190_advanced_prediction_modeA,
             {
                 "Advanced prediction option",
                 "rfc2190.advanced_prediction",
                 FT_BOOLEAN,
                 8,
                 NULL,
-                0x0,
+                0x40,
+                "Advanced Prediction option for current picture", HFILL
+            }
+        },
+        {
+            &hf_rfc2190_picture_coding_type_modeB,
+            {
+                "Inter-coded frame",
+                "rfc2190.picture_coding_type",
+                FT_BOOLEAN,
+                8,
+                NULL,
+                0x80,
+                "Picture coding type, intra-coded (false) or inter-coded (true)", HFILL
+            }
+        },
+        {
+            &hf_rfc2190_unrestricted_motion_vector_modeB,
+            {
+                "Motion vector",
+                "rfc2190.unrestricted_motion_vector",
+                FT_BOOLEAN,
+                8,
+                NULL,
+                0x40,
+                "Unrestricted Motion Vector option for current picture", HFILL
+            }
+        },
+        {
+            &hf_rfc2190_syntax_based_arithmetic_modeB,
+            {
+                "Syntax-based arithmetic coding",
+                "rfc2190.syntax_based_arithmetic",
+                FT_BOOLEAN,
+                8,
+                NULL,
+                0x20,
+                "Syntax-based Arithmetic Coding option for current picture", HFILL
+            }
+        },
+        {
+            &hf_rfc2190_advanced_prediction_modeB,
+            {
+                "Advanced prediction option",
+                "rfc2190.advanced_prediction",
+                FT_BOOLEAN,
+                8,
+                NULL,
+                0x10,
                 "Advanced Prediction option for current picture", HFILL
             }
         },
@@ -432,7 +485,7 @@ proto_register_rfc2190(void)
                 FT_UINT16,
                 BASE_DEC,
                 NULL,
-                0x0,
+                0x3FE0,
                 "The address within the GOB of the first MB in the packet, counting from zero in scan order.", HFILL
             }
         },
@@ -441,10 +494,10 @@ proto_register_rfc2190(void)
             {
                 "Horizontal motion vector 1",
                 "rfc2190.hmv1",
-                FT_UINT8,
+                FT_UINT16,
                 BASE_DEC,
                 NULL,
-                0x0,
+                0x07F0,
                 "Horizontal motion vector predictor for the first MB in this packet", HFILL
             }
         },
@@ -456,7 +509,7 @@ proto_register_rfc2190(void)
                 FT_UINT8,
                 BASE_DEC,
                 NULL,
-                0x0,
+                0x03F8,
                 "Vertical motion vector predictor for the first MB in this packet", HFILL
             }
         },
@@ -468,7 +521,7 @@ proto_register_rfc2190(void)
                 FT_UINT8,
                 BASE_DEC,
                 NULL,
-                0x0,
+                0x01FC,
                 "Horizontal motion vector predictor for block number 3 in the first MB in this packet when four motion vectors are used with the advanced prediction option.", HFILL
             }
         },
@@ -485,14 +538,26 @@ proto_register_rfc2190(void)
             }
         },
         {
-            &hf_rfc2190_r,
+            &hf_rfc2190_r_modeA,
+            {
+                "Reserved field",
+                "rfc2190.r",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0380,
+                "Reserved field that should contain zeroes", HFILL
+            }
+        },
+        {
+            &hf_rfc2190_r_modeB,
             {
                 "Reserved field",
                 "rfc2190.r",
                 FT_UINT8,
                 BASE_DEC,
                 NULL,
-                0x0,
+                0x03,
                 "Reserved field that should contain zeroes", HFILL
             }
         },
@@ -501,10 +566,10 @@ proto_register_rfc2190(void)
             {
                 "Reserved field 2",
                 "rfc2190.rr",
-                FT_UINT16,
+                FT_UINT24,
                 BASE_DEC,
                 NULL,
-                0x0,
+                0x07FFFF,
                 "Reserved field that should contain zeroes", HFILL
             }
         },
