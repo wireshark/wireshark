@@ -496,6 +496,9 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
     int length = end_ - start_;
     const guint8 *bytes;
 
+    if (!finfo_->ds_tvb)
+        return;
+
     switch (decode_as_) {
 
     case DecodeAsNone:
