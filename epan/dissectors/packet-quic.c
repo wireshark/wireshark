@@ -1456,10 +1456,10 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
                 tag_len -= tag_len;
             break;
             case TAG_PUBS:
-                    /*TODO FIX: 24 Length + Pubs key?.. ! */
-                    proto_tree_add_item(tag_tree, hf_quic_tag_pubs, tvb, tag_offset_start + tag_offset, 2, ENC_LITTLE_ENDIAN);
-                    tag_offset += 2;
-                    tag_len -= 2;
+                /*TODO FIX: 24 Length + Pubs key?.. ! */
+                proto_tree_add_item(tag_tree, hf_quic_tag_pubs, tvb, tag_offset_start + tag_offset, 2, ENC_LITTLE_ENDIAN);
+                tag_offset += 2;
+                tag_len -= 2;
                 while(tag_len > 0){
                     proto_tree_add_item(tag_tree, hf_quic_tag_pubs, tvb, tag_offset_start + tag_offset, 3, ENC_LITTLE_ENDIAN);
                     tag_offset += 3;
@@ -1648,7 +1648,7 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
                 tag_offset += tag_len;
                 tag_len -= tag_len;
             break;
-            }
+        }
         if(tag_len){
             /* Wrong Tag len... */
             proto_tree_add_expert(tag_tree, pinfo, &ei_quic_tag_unknown, tvb, tag_offset_start + tag_offset, tag_len);
