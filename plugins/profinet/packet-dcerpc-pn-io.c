@@ -8210,6 +8210,7 @@ dissect_ARBlockReq_block(tvbuff_t *tvb, int offset,
 {
     guint16    u16ARType;
     guint32    u32ARProperties;
+    gboolean   have_aruuid = FALSE;
     e_guid_t   aruuid;
     e_guid_t   uuid;
     guint16    u16SessionKey;
@@ -8302,6 +8303,7 @@ dissect_ARBlockReq_block(tvbuff_t *tvb, int offset,
     {
         offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
             hf_pn_io_ar_uuid, &aruuid);
+        have_aruuid = TRUE;
     }
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_sessionkey, &u16SessionKey);
@@ -8333,16 +8335,20 @@ dissect_ARBlockReq_block(tvbuff_t *tvb, int offset,
         u16UDPRTPort,
         pStationName);
 
-    par = pnio_ar_find_by_aruuid(pinfo, &aruuid);
-    if (par == NULL) {
-        par = pnio_ar_new(&aruuid);
-        memcpy( (void *) (&par->controllermac), mac, sizeof(par->controllermac));
-        par->arType = u16ARType; /* store AR-type for filter generation */
-        /*strncpy( (char *) (&par->controllername), pStationName, sizeof(par->controllername));*/
+    if (have_aruuid) {
+        par = pnio_ar_find_by_aruuid(pinfo, &aruuid);
+        if (par == NULL) {
+            par = pnio_ar_new(&aruuid);
+            memcpy( (void *) (&par->controllermac), mac, sizeof(par->controllermac));
+            par->arType = u16ARType; /* store AR-type for filter generation */
+            /*strncpy( (char *) (&par->controllername), pStationName, sizeof(par->controllername));*/
+        } else {
+            /*expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "ARBlockReq: AR already existing!");*/
+        }
+        *ar = par;
     } else {
-        /*expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "ARBlockReq: AR already existing!");*/
+        *ar = NULL;
     }
-    *ar = par;
 
     return offset;
 }
