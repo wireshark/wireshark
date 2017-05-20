@@ -1215,6 +1215,10 @@ libwireshark.so.0 libwireshark0 #MINVER#
  q850_cause_code_vals_ext@Base 1.9.1
  q931_cause_code_vals_ext@Base 1.9.1
  q931_message_type_vals@Base 1.9.1
+ q932_PartyNumber_vals@Base 2.1.0
+ q932_PartySubaddress_vals@Base 2.1.0
+ q932_PresentedNumberScreened_vals@Base 2.1.0
+ q932_PresentedNumberUnscreened_vals@Base 2.1.0
  qs_func_vals@Base 1.9.1
  qs_rate_vals_ext@Base 1.9.1
  raknet_add_udp_dissector@Base 2.3.0
