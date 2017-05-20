@@ -34,6 +34,7 @@ XXX  Fixme : shouldn't show [malformed frame] for long packets
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/to_str.h>
+#include <epan/strutil.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>
 #include "packet-smb.h"
@@ -109,6 +110,7 @@ static int hf_data_no_descriptor = -1;
 static int hf_data_no_recv_buffer = -1;
 static int hf_ecount = -1;
 static int hf_acount = -1;
+static int hf_share = -1;
 static int hf_share_name = -1;
 static int hf_share_type = -1;
 static int hf_share_comment = -1;
@@ -117,6 +119,7 @@ static int hf_share_max_uses = -1;
 static int hf_share_current_uses = -1;
 static int hf_share_path = -1;
 static int hf_share_password = -1;
+static int hf_server = -1;
 static int hf_server_name = -1;
 static int hf_server_major = -1;
 static int hf_server_minor = -1;
@@ -177,8 +180,6 @@ static int hf_code_page = -1;
 static int hf_new_password = -1;
 static int hf_old_password = -1;
 static int hf_reserved = -1;
-static int hf_share = -1;
-static int hf_server = -1;
 static int hf_aux_data_struct_count  = -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
@@ -313,6 +314,24 @@ add_bytes_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
 			proto_tree_add_item(tree, hf_smb_pipe_bytes_param, tvb, offset, count, ENC_NA);
 		}
 	}
+	offset += count;
+	return offset;
+}
+
+static int
+add_string_param_update_parent(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
+    proto_tree *tree, int convert _U_, int hf_index, smb_info_t *smb_info _U_)
+{
+	proto_item *ti, *parent_ti;
+	const guint8 *str;
+
+	DISSECTOR_ASSERT(hf_index != -1);
+	ti = proto_tree_add_item_ret_string(tree, hf_index, tvb, offset,
+	    count, ENC_ASCII|ENC_NA, wmem_packet_scope(), &str);
+	    /* XXX - code page? */
+	parent_ti = proto_item_get_parent(ti);
+	proto_item_append_text(parent_ti, ": %s",
+	    format_text(wmem_packet_scope(), str, strlen(str)));
 	offset += count;
 	return offset;
 }
@@ -793,8 +812,7 @@ static const item_t lm_params_resp_netshareenum[] = {
 static proto_item *
 netshareenum_share_entry(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-	guint8 * share_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 13, ENC_ASCII);
-	return proto_tree_add_string(tree, hf_share, tvb, offset, -1, share_str);
+	return proto_tree_add_item(tree, hf_share, tvb, offset, -1, ENC_NA);
 }
 
 static const item_t lm_null[] = {
@@ -806,7 +824,7 @@ static const item_list_t lm_null_list[] = {
 };
 
 static const item_t lm_data_resp_netshareenum_1[] = {
-	{ &hf_share_name, add_bytes_param, PARAM_BYTES },
+	{ &hf_share_name, add_string_param_update_parent, PARAM_BYTES },
 	{ &no_hf, add_pad_param, PARAM_BYTES },
 	{ &hf_share_type, add_word_param, PARAM_WORD },
 	{ &hf_share_comment, add_stringz_pointer_param, PARAM_STRINGZ },
@@ -873,12 +891,12 @@ static const item_t lm_params_resp_netservergetinfo[] = {
 };
 
 static const item_t lm_data_serverinfo_0[] = {
-	{ &hf_server_name, add_bytes_param, PARAM_BYTES },
+	{ &hf_server_name, add_string_param_update_parent, PARAM_BYTES },
 	{ NULL, NULL, PARAM_NONE }
 };
 
 static const item_t lm_data_serverinfo_1[] = {
-	{ &hf_server_name, add_bytes_param, PARAM_BYTES },
+	{ &hf_server_name, add_string_param_update_parent, PARAM_BYTES },
 	{ &hf_server_major, add_bytes_param, PARAM_BYTES },
 	{ &hf_server_minor, add_bytes_param, PARAM_BYTES },
 	{ &no_hf, add_server_type, PARAM_DWORD },
@@ -990,8 +1008,7 @@ static const item_t lm_params_req_netserverenum2[] = {
 static proto_item *
 netserverenum2_server_entry(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-	guint8 * server_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 16, ENC_ASCII);
-	return proto_tree_add_string(tree, hf_server, tvb, offset, -1, server_str);
+	return proto_tree_add_item(tree, hf_server, tvb, offset, -1, ENC_NA);
 }
 
 static const item_t lm_params_resp_netserverenum2[] = {
@@ -2921,6 +2938,10 @@ proto_register_pipe_lanman(void)
 			{ "Available Entries", "lanman.available_count", FT_UINT16, BASE_DEC,
 			NULL, 0, "LANMAN Number of Available Entries", HFILL }},
 
+		{ &hf_share,
+			{ "Share", "lanman.share", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+
 		{ &hf_share_name,
 			{ "Share Name", "lanman.share.name", FT_STRING, BASE_NONE,
 			NULL, 0, "LANMAN Name of Share", HFILL }},
@@ -2952,6 +2973,10 @@ proto_register_pipe_lanman(void)
 		{ &hf_share_password,
 			{ "Share Password", "lanman.share.password", FT_STRING, BASE_NONE,
 			NULL, 0, "LANMAN Share Password", HFILL }},
+
+		{ &hf_server,
+			{ "Server", "lanman.server", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_server_name,
 			{ "Server Name", "lanman.server.name", FT_STRING, BASE_NONE,
@@ -3193,14 +3218,6 @@ proto_register_pipe_lanman(void)
 		{ &hf_reserved,
 			{ "Reserved", "lanman.reserved", FT_UINT32, BASE_HEX,
 			NULL, 0, "LANMAN Reserved", HFILL }},
-
-		{ &hf_share,
-			{ "Share", "lanman.share", FT_STRING, BASE_NONE,
-			NULL, 0, NULL, HFILL }},
-
-		{ &hf_server,
-			{ "Server", "lanman.server", FT_STRING, BASE_NONE,
-			NULL, 0, NULL, HFILL }},
 
 		{ &hf_aux_data_struct_count,
 			{ "Auxiliary data structure count", "lanman.aux_data_struct_count", FT_UINT16, BASE_DEC_HEX,
