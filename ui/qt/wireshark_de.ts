@@ -894,9 +894,9 @@
         <location filename="capture_file_dialog.cpp" line="794"/>
         <source>%1, timed out at %Ln packet(s)</source>
         <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1, Zeitüberschreitung nach %Ln Paket</numerusform>
+            <numerusform>%1, Zeitüberschreitung nach %Ln Paketen</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2172,7 +2172,9 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Relations can be used to restrict fields to specific values. Each relation does the following:&lt;/p&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;is present&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Match any packet that contains this field&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;==, !=, etc.&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Compare the field to a specific value.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;contains, matches&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Check the field against a string (contains) or a regular expression (matches)&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;in&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Compare the field to a specific set of values&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Relations können genutzt werden um Felder auf bestimmte Werte einzugrenzen. Folgende Relationen können verwendet werden:&lt;/p&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;is present&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Jedes Paket, dass dieses Feld enthält&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;==, !=, etc.&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Vergleicht das Feld auf einen bestimmten Wert..&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;contains, matches&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Überprüft das Feld auf eine bestimmte Zeichenkette (contains) oder einen rugulären Ausdruck (matches)&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;in&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Vergleicht das Feld auf eine bestimmte Reihe von Werten&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;
+
+</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="77"/>
@@ -8509,12 +8511,12 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2956"/>
         <source>…as Escaped String</source>
-        <translation type="unfinished"></translation>
+        <translation>...als Zeichenkette mit Escape-Sequenzen</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2959"/>
         <source>Copy packet bytes as a Escaped string</source>
-        <translation type="unfinished"></translation>
+        <translation>Paketbytes als Zeichenkette mit Escape-Sequezen kopieren</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2967"/>
@@ -9520,32 +9522,32 @@ text-decoration: underline;
         <translation>Menüeinträge löschen</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1676"/>
+        <location filename="main_window_slots.cpp" line="1684"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Bitte Warten während Wireshark initialisiert wird</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1780"/>
+        <location filename="main_window_slots.cpp" line="1788"/>
         <source> before closing the file</source>
         <translation> vor dem Schließen der Datei</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1862"/>
+        <location filename="main_window_slots.cpp" line="1870"/>
         <source>Export Selected Packet Bytes</source>
         <translation>Ausgewählte Paketbytes exportieren</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1928"/>
+        <location filename="main_window_slots.cpp" line="1936"/>
         <source>No Keys</source>
         <translation>Keine Schlüssel</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1929"/>
+        <location filename="main_window_slots.cpp" line="1937"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>Es sind keine SSL Sitzungsschlüssel zum Speichern vorhanden.</translation>
     </message>
     <message numerus="yes">
-        <location filename="main_window_slots.cpp" line="1935"/>
+        <location filename="main_window_slots.cpp" line="1943"/>
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
         <translation>
@@ -9554,7 +9556,7 @@ text-decoration: underline;
         </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1864"/>
+        <location filename="main_window_slots.cpp" line="1872"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Rohdaten (*.bin *.dat *.raw);; Alle Dateien (</translation>
     </message>
@@ -9564,64 +9566,64 @@ text-decoration: underline;
         <translation>Dateien zusammenfügen</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1939"/>
+        <location filename="main_window_slots.cpp" line="1947"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>SSL Sitzungsschlüssel (*.keys *.txt);; Alle Dateien (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2057"/>
+        <location filename="main_window_slots.cpp" line="2065"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Text konnte nicht kopiert werden. Probieren sie einen anderen Eintrag.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2499"/>
-        <location filename="main_window_slots.cpp" line="3618"/>
+        <location filename="main_window_slots.cpp" line="2507"/>
+        <location filename="main_window_slots.cpp" line="3626"/>
         <source>Unable to build conversation filter.</source>
         <translation>Verbindungsfilter kann nicht erstellt werden.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2657"/>
-        <location filename="main_window_slots.cpp" line="2670"/>
+        <location filename="main_window_slots.cpp" line="2665"/>
+        <location filename="main_window_slots.cpp" line="2678"/>
         <source> before reloading the file</source>
         <translation> vor dem Neuladen der Datei</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2704"/>
+        <location filename="main_window_slots.cpp" line="2712"/>
         <source>No filter available. Try another </source>
         <translation>Kein Filter verfügbar. Probieren Sie einen anderen.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3625"/>
+        <location filename="main_window_slots.cpp" line="3633"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>Fehler beim Erstellen eines Filters für diese Verbindung.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3634"/>
+        <location filename="main_window_slots.cpp" line="3642"/>
         <source>No previous/next packet in conversation.</source>
         <translation>Kein vorheriges/nächstes Paket in dieser Verbindung.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3711"/>
+        <location filename="main_window_slots.cpp" line="3719"/>
         <source>No Interface Selected</source>
         <translation>Keine Schnittstelle ausgewählt</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3718"/>
+        <location filename="main_window_slots.cpp" line="3726"/>
         <source> before starting a new capture</source>
         <translation> vor dem Starten einer neuen Aufzeichnung</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3736"/>
+        <location filename="main_window_slots.cpp" line="3744"/>
         <source> before restarting the capture</source>
         <translation> vor dem Neustart der Aufzeichnung</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3947"/>
+        <location filename="main_window_slots.cpp" line="3955"/>
         <source>Wiki Page for %1</source>
         <translation>Wikiseite für &amp;1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3948"/>
+        <location filename="main_window_slots.cpp" line="3956"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Das Wireshark Wiki wird durch die Community gepflegt.&lt;/p&gt;&lt;p&gt;Die Seite, die aufgerufen werden soll, kann wundervoll, unvollständig, falsch oder gar nicht vorhanden sein.&lt;/p&gt;&lt;p&gt;Zum Wiki gehen?&lt;/p&gt;</translation>
     </message>
@@ -10938,7 +10940,7 @@ text-decoration: underline;
     <message>
         <location filename="conversation_dialog.cpp" line="343"/>
         <source>Bars show the relative timeline for each conversation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Balken zeigen relative Zeitlinie für jede Verbindung.</translation>
     </message>
     <message>
         <location filename="endpoint_dialog.cpp" line="47"/>
@@ -11910,7 +11912,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.ui" line="333"/>
         <source>Unsynchronized Forward and Reverse Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Asynchrones Audio zwischen Hinweg und Rückweg</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="411"/>
@@ -11920,7 +11922,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.ui" line="414"/>
         <source>Save the audio data for both channels synchronized to start of earlier stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Audiodaten von beiden Kanälen, synchronisiert zum Startzeitpunkt des früheren Streams speichern.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="419"/>
@@ -11930,7 +11932,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.ui" line="422"/>
         <source>Save the forward stream audio data synchronized to start of earlier stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Audiodaten des Hinwegstreams synchronisiert zum Startzeitpunkt des früheren Streams speichern.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="427"/>
@@ -11940,7 +11942,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.ui" line="430"/>
         <source>Save the reverse stream audio data synchronized to start of earlier stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Audiodaten des Rückwegstreams synchronisiert zum Startzeitpunkt des früheren Streams speichern.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="435"/>
@@ -11950,7 +11952,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.ui" line="438"/>
         <source>Save the audio data for both channels synchronized to start of file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Audiodaten von beiden Kanälen, synchronisiert zum Startzeitpunkt der Datei speichern.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="443"/>
@@ -11960,7 +11962,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.ui" line="446"/>
         <source>Save the forward stream audio data synchronized to start of file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Audiodaten des Hinwegstreams synchronisiert zum Startzeitpunkt der Datei speichern.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="451"/>
@@ -11970,37 +11972,37 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.ui" line="454"/>
         <source>Save the reverse stream audio data synchronized to start of file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Audiodaten des Rückwegstreams synchronisiert zum Startzeitpunkt der Datei speichern.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="336"/>
         <source>Save the unsynchronized audio data for both channels.</source>
         <oldsource>Save the audio data for both channels.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Asynchrone Audiodaten beider Kanäle speichern.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="341"/>
         <source>Unsynchronized Forward Stream Audio</source>
         <oldsource>Forward Stream Audio</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Asynchroner Audiostream des Hinweges</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="344"/>
         <source>Save the unsynchronized forward stream audio data.</source>
         <oldsource>Save the forward stream audio data.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Asynchroner Audiostream des Hinweges speichern.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="349"/>
         <source>Unsynchronized Reverse Stream Audio</source>
         <oldsource>Reverse Stream Audio</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Asynchroner Audiostream des Rückweges</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="352"/>
         <source>Save the unsynchronized reverse stream audio data.</source>
         <oldsource>Save the reverse stream audio data.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Asynchroner Audiostream des Rückweges speichern.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="357"/>
@@ -12085,12 +12087,12 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1272"/>
         <source>Can&apos;t synchronize when only one channel is selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn nur ein Kanal ausgewählt ist, kann nicht synchronisiert werden</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1407"/>
         <source>Save forward and reverse stream audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Audiostream des Hin- und Rückweges speichern</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1413"/>
@@ -14443,12 +14445,12 @@ text-decoration: underline;
 <context>
     <name>ShowPacketBytesTextEdit</name>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="765"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="768"/>
         <source>Show Selected</source>
         <translation>Ausgewählte anzeigen</translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="769"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="772"/>
         <source>Show All</source>
         <translation>Alle anzeigen</translation>
     </message>
@@ -14743,12 +14745,12 @@ text-decoration: underline;
     <message>
         <location filename="tcp_stream_dialog.ui" line="117"/>
         <source>MA Window (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>MA Fenster (s)</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="127"/>
         <source>Allow SACK segments as well as data packets to be selected by clicking on the graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Sowohl SACK Segmente wie auf Datenpakete bei einem Klick auf den Graphen auswählen</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="130"/>
@@ -14819,27 +14821,27 @@ text-decoration: underline;
     <message>
         <location filename="tcp_stream_dialog.ui" line="264"/>
         <source>Goodput</source>
-        <translation type="unfinished"></translation>
+        <translation>Goodput</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="274"/>
         <source>Display graph of Receive Window Size vs Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Graph Empfange Bytes zu Zeit anzeigen</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="277"/>
         <source>Rcv Win</source>
-        <translation type="unfinished"></translation>
+        <translation>Empfangsfenster</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="287"/>
         <source>Display graph of Outstanding Bytes vs Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeige Graph für ausstehende Bytes zu Zeit</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="290"/>
         <source>Bytes Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgehende Bytes</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="313"/>
@@ -15825,7 +15827,7 @@ text-decoration: underline;
     <message>
         <location filename="wireshark_application.cpp" line="590"/>
         <source>Offending DLL: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Problematische DLL: %1</translation>
     </message>
 </context>
 <context>
@@ -15861,7 +15863,7 @@ text-decoration: underline;
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="511"/>
         <source>Percent Retry</source>
-        <translation type="unfinished"></translation>
+        <translation>Prozentsatz Wiederholungen</translation>
     </message>
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="512"/>

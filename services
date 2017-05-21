@@ -75,8 +75,6 @@ mpm                45/tcp # Message Processing Module [recv]
 mpm                45/udp # Message Processing Module [recv]
 mpm-snd            46/tcp # MPM [default send] [Jon_Postel] [Jon_Postel]
 mpm-snd            46/udp # MPM [default send] [Jon_Postel] [Jon_Postel]
-ni-ftp             47/tcp # NI FTP [Steve_Kille] [Steve_Kille]
-ni-ftp             47/udp # NI FTP [Steve_Kille] [Steve_Kille]
 auditd             48/tcp # Digital Audit Daemon [Larry_Scott] [Larry_Scott]
 auditd             48/udp # Digital Audit Daemon [Larry_Scott] [Larry_Scott]
 tacacs             49/tcp # Login Host Protocol (TACACS) [Pieter_Ditmars] [Pieter_Ditmars]
@@ -95,8 +93,6 @@ xns-auth           56/tcp # XNS Authentication [Susie_Armstrong] [Susie_Armstron
 xns-auth           56/udp # XNS Authentication [Susie_Armstrong] [Susie_Armstrong]
 xns-mail           58/tcp # XNS Mail [Susie_Armstrong] [Susie_Armstrong]
 xns-mail           58/udp # XNS Mail [Susie_Armstrong] [Susie_Armstrong]
-ni-mail            61/tcp # NI MAIL [Steve_Kille] [Steve_Kille]
-ni-mail            61/udp # NI MAIL [Steve_Kille] [Steve_Kille]
 acas               62/tcp # ACA Services [E_Wald] [E_Wald]
 acas               62/udp # ACA Services [E_Wald] [E_Wald]
 whoispp            63/tcp # whois++IANA assigned this well-formed service name as a replacement for "whois++". [Rickard_Schoultz] [Rickard_Schoultz]
@@ -9643,7 +9639,7 @@ fodms            7200/tcp # FODMS FLIP [David_Anthony] [David_Anthony]
 fodms            7200/udp # FODMS FLIP [David_Anthony] [David_Anthony]
 dlip             7201/tcp # DLIP [Albert_Manfredi] [Albert_Manfredi]
 dlip             7201/udp # DLIP [Albert_Manfredi] [Albert_Manfredi]
-pon-ictp         7202/tcp # Inter-Channel Termination Protocol (ICTP) for multi-wavelength PON    (Passive Optical Network) systems [Broadband_Forum_2] [William_Lupton] 2017-02-22 [TR352][Inter-Channel-Termination protocol (ICTP) is a peer-to-peer protocol with      a binary message format that is used by a set of optical line terminal (OLT) channel terminations (CT)       comprising a 40-Gigabit-capable next-generation passive optical network (NG-PON2) system to      exchange channel profile configuration and status information and to coordinate the operation of tunable       optical network units (ONUs) in a multi-wavelength channel environment.]
+pon-ictp         7202/tcp # Inter-Channel Termination Protocol (ICTP) for multi-wavelength PON    (Passive Optical Network) systems [Broadband_Forum_2] [William_Lupton] 2017-02-22 [TR-352][Inter-Channel-Termination protocol (ICTP) is a peer-to-peer protocol with      a binary message format that is used by a set of optical line terminal (OLT) channel terminations (CT)       comprising a 40-Gigabit-capable next-generation passive optical network (NG-PON2) system to      exchange channel profile configuration and status information and to coordinate the operation of tunable       optical network units (ONUs) in a multi-wavelength channel environment.]
 PS-Server        7215/tcp # Communication ports for PaperStream Server services [PFU_Systems_Inc.] [Hari_Asuri] 2016-02-26
 PS-Capture-Pro   7216/tcp # PaperStream Capture Professional [PFU_Systems_Inc.] [Hari_Asuri] 2016-02-26
 ramp             7227/tcp # Registry A & M Protocol [John_Havard] [John_Havard] 2003-11
@@ -11442,6 +11438,8 @@ fairview        38202/tcp # Fairview Message Service [Jim_Lyle] [Jim_Lyle] 2005-
 fairview        38202/udp # Fairview Message Service [Jim_Lyle] [Jim_Lyle] 2005-11 Defined TXT keys: DevID=<device id>, DevType=<device type>, DevStat=<device status>
 agpolicy        38203/tcp # AppGate Policy Server [Martin_Forssen] [Martin_Forssen] 2004-11
 agpolicy        38203/udp # AppGate Policy Server [Martin_Forssen] [Martin_Forssen] 2004-11
+ng-control      38412/sctp # NG Control Plane (3GPP) [Luis_Lopes] [Luis_Lopes] 2017-05-18 2017-05-19
+xn-control      38422/sctp # Xn Control Plane (3GPP) [Luis_Lopes] [Luis_Lopes] 2017-05-18 2017-05-19
 sruth           38800/tcp # Sruth is a service for the distribution of routinely-      generated but arbitrary files based on a publish/subscribe      distribution model and implemented using a peer-to-peer transport      mechanism [University_Corporation_for_Atmospheric_Research] [Steven_Emmerson] 2012-05-07
 secrmmsafecopya 38865/tcp # Security approval process for use of the secRMM SafeCopy program [Squadra_Technologies] [Anthony_LaMark] 2012-03-14
 turbonote-1     39681/tcp # TurboNote Default Port [Peter_Hyde] [Peter_Hyde]

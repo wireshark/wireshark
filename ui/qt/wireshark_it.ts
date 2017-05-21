@@ -9521,32 +9521,32 @@ a:hover {
         <translation>Pulisci menu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1676"/>
+        <location filename="main_window_slots.cpp" line="1684"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Attendi l&apos;inizializzazione di Wireshark</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1780"/>
+        <location filename="main_window_slots.cpp" line="1788"/>
         <source> before closing the file</source>
         <translation>prima della chiusura del file</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1862"/>
+        <location filename="main_window_slots.cpp" line="1870"/>
         <source>Export Selected Packet Bytes</source>
         <translation>Esporta i byte del pacchetto selezionato</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1928"/>
+        <location filename="main_window_slots.cpp" line="1936"/>
         <source>No Keys</source>
         <translation>Nessuna chiave</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1929"/>
+        <location filename="main_window_slots.cpp" line="1937"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>Non ci sono chiavi di sessione SSL da salvare.</translation>
     </message>
     <message numerus="yes">
-        <location filename="main_window_slots.cpp" line="1935"/>
+        <location filename="main_window_slots.cpp" line="1943"/>
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
         <translation>
@@ -9555,7 +9555,7 @@ a:hover {
         </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1864"/>
+        <location filename="main_window_slots.cpp" line="1872"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Dati grezzi (*.bin *.dat *.raw);;Tutti i file (</translation>
     </message>
@@ -9565,64 +9565,64 @@ a:hover {
         <translation>Unisci i file</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1939"/>
+        <location filename="main_window_slots.cpp" line="1947"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>Chiavi di sessione SSL (*.keys *.txt);;Any File (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2057"/>
+        <location filename="main_window_slots.cpp" line="2065"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Non riesco a copiare il testo. Prova un&apos;altra voce.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2499"/>
-        <location filename="main_window_slots.cpp" line="3618"/>
+        <location filename="main_window_slots.cpp" line="2507"/>
+        <location filename="main_window_slots.cpp" line="3626"/>
         <source>Unable to build conversation filter.</source>
         <translation>Impossibile creare il filtro di conversazione.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2657"/>
-        <location filename="main_window_slots.cpp" line="2670"/>
+        <location filename="main_window_slots.cpp" line="2665"/>
+        <location filename="main_window_slots.cpp" line="2678"/>
         <source> before reloading the file</source>
         <translation>prima di ricaricare il file</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2704"/>
+        <location filename="main_window_slots.cpp" line="2712"/>
         <source>No filter available. Try another </source>
         <translation>Nessun filtro disponibile. Provane un altro </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3625"/>
+        <location filename="main_window_slots.cpp" line="3633"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>Errore durante la compilazione del filtro per questa conversazione.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3634"/>
+        <location filename="main_window_slots.cpp" line="3642"/>
         <source>No previous/next packet in conversation.</source>
         <translation>Nessun pacchetto precedente/successivo in conversazione.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3711"/>
+        <location filename="main_window_slots.cpp" line="3719"/>
         <source>No Interface Selected</source>
         <translation>Nessuna interfaccia selezionata</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3718"/>
+        <location filename="main_window_slots.cpp" line="3726"/>
         <source> before starting a new capture</source>
         <translation>prima di iniziare una nuova cattura</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3736"/>
+        <location filename="main_window_slots.cpp" line="3744"/>
         <source> before restarting the capture</source>
         <translation>prima di riavviare la cattura</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3947"/>
+        <location filename="main_window_slots.cpp" line="3955"/>
         <source>Wiki Page for %1</source>
         <translation>Pagina wiki per %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3948"/>
+        <location filename="main_window_slots.cpp" line="3956"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Il Wiki di Wireshark è gestito dalla comunità.&lt;/p&gt;&lt;p&gt;La pagina che stai per caricare potrebbe essere perfetta, incompleta, errata o inesistente.&lt;/p&gt;&lt;p&gt;Vuoi proseguire?&lt;/p&gt;</translation>
     </message>
@@ -14444,12 +14444,12 @@ a:hover {
 <context>
     <name>ShowPacketBytesTextEdit</name>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="765"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="768"/>
         <source>Show Selected</source>
         <translation>Mostra selezionati</translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="769"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="772"/>
         <source>Show All</source>
         <translation>Mostra tutto</translation>
     </message>
