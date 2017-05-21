@@ -86,24 +86,20 @@ dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 		offset++;
 
 		/* GOBN 2nd octet, 4 bits */
-		proto_tree_add_uint( h261_tree, hf_h261_gobn, tvb, offset, 1, tvb_get_guint8( tvb, offset ) >> 4 );
+		proto_tree_add_item( h261_tree, hf_h261_gobn, tvb, offset, 1, ENC_NA);
 		/* MBAP 2nd octet, 4 bits, 3rd octet 1 bit */
-		proto_tree_add_uint( h261_tree, hf_h261_mbap, tvb, offset, 1,
-		    ( tvb_get_guint8( tvb, offset ) & 15 )
-		    + ( tvb_get_guint8( tvb, offset + 1 ) >> 7 ) );
+		proto_tree_add_item( h261_tree, hf_h261_mbap, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 
 		/* QUANT 3rd octet, 5 bits (starting at bit 2!) */
-		proto_tree_add_uint( h261_tree, hf_h261_quant, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 124 );
+		proto_tree_add_item( h261_tree, hf_h261_quant, tvb, offset, 1, ENC_NA );
 
 		/* HMVD 3rd octet 2 bits, 4th octet 3 bits */
-		proto_tree_add_uint( h261_tree, hf_h261_hmvd, tvb, offset, 2,
-		    ( ( tvb_get_guint8( tvb, offset ) & 0x03 ) << 3 )
-		     + ( tvb_get_guint8( tvb, offset+1 ) >> 5 ) );
+		proto_tree_add_item( h261_tree, hf_h261_hmvd, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset++;
 
 		/* VMVD 4th octet, last 5 bits */
-		proto_tree_add_uint( h261_tree, hf_h261_vmvd, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 31 );
+		proto_tree_add_item( h261_tree, hf_h261_vmvd, tvb, offset, 1, 0x1F );
 		offset++;
 
 		/* The rest of the packet is the H.261 stream */
@@ -173,7 +169,7 @@ proto_register_h261(void)
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
-				0x0,
+				0xF0,
 				NULL, HFILL
 			}
 		},
@@ -185,7 +181,7 @@ proto_register_h261(void)
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
-				0x0,
+				0x0E80,
 				NULL, HFILL
 			}
 		},
@@ -197,7 +193,7 @@ proto_register_h261(void)
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
-				0x0,
+				0x7C,
 				NULL, HFILL
 			}
 		},
@@ -209,7 +205,7 @@ proto_register_h261(void)
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
-				0x0,
+				0x03E0,
 				NULL, HFILL
 			}
 		},
