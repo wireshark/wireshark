@@ -54,6 +54,7 @@
  * draft-ietf-idr-custom-decision-07 BGP Custom Decision Process
  * draft-rabadan-l2vpn-evpn-prefix-advertisement IP Prefix Advertisement
  *     in EVPN
+ * draft-ietf-idr-bgp-prefix-sid-05
  * http://www.iana.org/assignments/bgp-parameters/ (last updated 2012-04-26)
 
  * TODO:
@@ -746,6 +747,16 @@ static dissector_handle_t bgp_handle;
 #define BGP_LS_SR_CAPABILITY_FLAG_I 0x80
 #define BGP_LS_SR_CAPABILITY_FLAG_V 0x40
 #define BGP_LS_SR_CAPABILITY_FLAG_H 0x20
+
+/* draft-ietf-idr-bgp-prefix-sid */
+#define BGP_PREFIX_SID_TLV_LABEL_INDEX     1
+#define BGP_PREFIX_SID_TLV_IPV6_SID        2
+#define BGP_PREFIX_SID_TLV_ORIGINATOR_SRGB 3
+
+/* BGP_PREFIX_SID TLV lengths   */
+#define BGP_PREFIX_SID_TLV_LEN_LABEL_INDEX 7
+#define BGP_PREFIX_SID_TLV_LEN_IPV6_SID    19
+
 
 static const value_string bgptypevals[] = {
     { BGP_OPEN,                "OPEN Message" },
@@ -1837,6 +1848,22 @@ static int hf_bgp_ls_node_flag_bits_attached = -1;
 static int hf_bgp_ls_node_flag_bits_external = -1;
 static int hf_bgp_ls_node_flag_bits_abr = -1;
 
+/* draft-ietf-idr-bgp-prefix-sid-05 */
+static int hf_bgp_prefix_sid_label_index = -1;
+static int hf_bgp_prefix_sid_label_index_value = -1;
+static int hf_bgp_prefix_sid_label_index_flags = -1;
+static int hf_bgp_prefix_sid_originator_srgb = -1;
+static int hf_bgp_prefix_sid_originator_srgb_blocks = -1;
+static int hf_bgp_prefix_sid_originator_srgb_block = -1;
+static int hf_bgp_prefix_sid_originator_srgb_flags = -1;
+static int hf_bgp_prefix_sid_originator_srgb_base = -1;
+static int hf_bgp_prefix_sid_originator_srgb_range = -1;
+static int hf_bgp_prefix_sid_ipv6 = -1;
+static int hf_bgp_prefix_sid_ipv6_value = -1;
+static int hf_bgp_prefix_sid_type = -1;
+static int hf_bgp_prefix_sid_length = -1;
+static int hf_bgp_prefix_sid_reserved = -1;
+
 /* BGP flow spec nlri header field */
 
 static int hf_bgp_flowspec_nlri_t = -1;
@@ -2053,6 +2080,11 @@ static gint ett_bgp_mpls_labels = -1;
 static gint ett_bgp_pmsi_tunnel_id = -1;
 static gint ett_bgp_aigp_attr = -1;
 static gint ett_bgp_large_communities = -1;
+static gint ett_bgp_prefix_sid_originator_srgb = -1;
+static gint ett_bgp_prefix_sid_originator_srgb_block = -1;
+static gint ett_bgp_prefix_sid_originator_srgb_blocks = -1;
+static gint ett_bgp_prefix_sid_label_index = -1;
+static gint ett_bgp_prefix_sid_ipv6 = -1;
 
 static expert_field ei_bgp_cap_len_bad = EI_INIT;
 static expert_field ei_bgp_cap_gr_helper_mode_only = EI_INIT;
@@ -2072,6 +2104,7 @@ static expert_field ei_bgp_attr_pmsi_tunnel_type = EI_INIT;
 static expert_field ei_bgp_prefix_length_err = EI_INIT;
 static expert_field ei_bgp_attr_aigp_type = EI_INIT;
 static expert_field ei_bgp_attr_as_path_as_len_err = EI_INIT;
+static expert_field ei_bgp_prefix_sid_type_err = EI_INIT;
 
 static expert_field ei_bgp_evpn_nlri_rt_type_err = EI_INIT;
 static expert_field ei_bgp_evpn_nlri_rt_len_err = EI_INIT;
@@ -6794,6 +6827,10 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
     guint8        encaps_tunnel_subtype;      /* Encapsulation Tunnel Sub-TLV Type */
     guint8        encaps_tunnel_sublen;       /* Encapsulation TLV Sub-TLV Length */
     guint8        aigp_type;                  /* AIGP TLV type from AIGP attribute */
+    guint8        prefix_sid_subtype;         /* BGP Prefix-SID TLV Type */
+    guint16       prefix_sid_sublen;          /* BGP Prefix-SID TLV Length */
+    gint          prefix_sid_sub_tlv_offset;  /* BGP Prefix-SID SRGB Length */
+    gint          check_srgb;                 /* BGP Prefix-SID SRGB counter */
 
     o = tvb_off;
     junk_emstr = wmem_strbuf_new_label(wmem_packet_scope());
@@ -7447,6 +7484,86 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
 
                 proto_item_append_text(ti_pa, ":%s", wmem_strbuf_get_str(comm_strbuf));
 
+                break;
+            case BGPTYPE_BGP_PREFIX_SID:
+                q = o + i + aoff;
+                end = q + tlen;
+                proto_item    *tlv_item;
+                proto_tree    *tlv_tree;
+                proto_item    *srgb_tlv_item;
+                proto_tree    *srgb_tlv_tree;
+                while (q < end) {
+                    prefix_sid_subtype = tvb_get_guint8(tvb, q);
+                    prefix_sid_sublen = tvb_get_ntohs(tvb, q + 1);
+                    switch (prefix_sid_subtype) {
+                        case BGP_PREFIX_SID_TLV_LABEL_INDEX:
+                            tlv_item = proto_tree_add_item(subtree2, hf_bgp_prefix_sid_label_index, tvb, q , prefix_sid_sublen + 3, ENC_NA);
+                            tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_prefix_sid_label_index);
+                            proto_tree_add_item(tlv_tree, hf_bgp_prefix_sid_type, tvb, q, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(tlv_tree, hf_bgp_prefix_sid_length, tvb, q + 1, 2, ENC_BIG_ENDIAN);
+                            if (prefix_sid_sublen != BGP_PREFIX_SID_TLV_LEN_LABEL_INDEX){
+                                proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, alen,
+                                    "Invalid BGP Prefix-SID Label Index length: %u bytes", prefix_sid_sublen);
+                                q += 3 + prefix_sid_sublen;
+                                break;
+                            }
+                            proto_tree_add_item(tlv_tree, hf_bgp_prefix_sid_reserved, tvb, q + 3, 1, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_bgp_prefix_sid_label_index_flags, tvb, q + 4, 2, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(tlv_tree, hf_bgp_prefix_sid_label_index_value, tvb, q + 6, 4, ENC_BIG_ENDIAN);
+                            proto_item_append_text(tlv_tree, ": %u ", tvb_get_ntohl(tvb, q + 6));
+                            q += 10;
+                            break;
+                        case BGP_PREFIX_SID_TLV_IPV6_SID:
+                            tlv_item = proto_tree_add_item(subtree2, hf_bgp_prefix_sid_ipv6, tvb, q , prefix_sid_sublen + 3, ENC_NA);
+                            tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_prefix_sid_ipv6);
+                            proto_tree_add_item(tlv_tree, hf_bgp_prefix_sid_type, tvb, q, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(tlv_tree, hf_bgp_prefix_sid_length, tvb, q + 1, 2, ENC_BIG_ENDIAN);
+                            if (prefix_sid_sublen != BGP_PREFIX_SID_TLV_LEN_IPV6_SID){
+                                proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, alen,
+                                    "Invalid BGP IPv6 Prefix-SID length: %u bytes", prefix_sid_sublen);
+                                q += 3 + prefix_sid_sublen;
+                                break;
+                            }
+                            proto_tree_add_item(tlv_tree, hf_bgp_prefix_sid_reserved, tvb, q + 3, 3, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_bgp_prefix_sid_ipv6_value, tvb, q + 6, 16, ENC_NA);
+                            q += 22;
+                            break;
+                        case BGP_PREFIX_SID_TLV_ORIGINATOR_SRGB:
+                            check_srgb = prefix_sid_sublen - 2;
+                            prefix_sid_sub_tlv_offset = 0;
+                            tlv_item = proto_tree_add_item(subtree2, hf_bgp_prefix_sid_originator_srgb, tvb, q , prefix_sid_sublen + 3, ENC_NA);
+                            tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_prefix_sid_originator_srgb);
+                            proto_tree_add_item(tlv_tree, hf_bgp_prefix_sid_type, tvb, q, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(tlv_tree, hf_bgp_prefix_sid_length, tvb, q + 1, 2, ENC_BIG_ENDIAN);
+                            if(check_srgb % 3 || check_srgb % 2){
+                                proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, alen,
+                                    "Invalid BGP Prefix-SID SRGB Originator length: %u bytes", prefix_sid_sublen);
+                                q += 3 + prefix_sid_sublen;
+                                break;
+                            }
+                            proto_tree_add_item(tlv_tree, hf_bgp_prefix_sid_originator_srgb_flags, tvb, q + 3, 2, ENC_BIG_ENDIAN);
+                            q += 2;
+                            tlv_item = proto_tree_add_item(tlv_tree, hf_bgp_prefix_sid_originator_srgb_blocks, tvb, q , prefix_sid_sublen - 2, ENC_NA);
+                            tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_prefix_sid_originator_srgb_blocks);
+                            while (prefix_sid_sublen > prefix_sid_sub_tlv_offset + 2) {
+                                srgb_tlv_item = proto_tree_add_item(tlv_tree, hf_bgp_prefix_sid_originator_srgb_block, tvb, q , prefix_sid_sublen - 2, ENC_NA);
+                                srgb_tlv_tree = proto_item_add_subtree(srgb_tlv_item, ett_bgp_prefix_sid_originator_srgb_block);
+                                prefix_sid_sub_tlv_offset += 3;
+                                proto_tree_add_item(srgb_tlv_tree, hf_bgp_prefix_sid_originator_srgb_base, tvb, q + prefix_sid_sub_tlv_offset, 3, ENC_BIG_ENDIAN);
+                                prefix_sid_sub_tlv_offset += 3;
+                                proto_tree_add_item(srgb_tlv_tree, hf_bgp_prefix_sid_originator_srgb_range, tvb, q + prefix_sid_sub_tlv_offset, 3, ENC_BIG_ENDIAN);
+                                proto_item_append_text(srgb_tlv_tree, "(%u:%u)", tvb_get_ntoh24(tvb, q + prefix_sid_sub_tlv_offset - 3),
+                                    tvb_get_ntoh24(tvb, q + prefix_sid_sub_tlv_offset));
+                            }
+                            q += 3 + prefix_sid_sublen;
+                            break;
+                    default:
+                        proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_prefix_sid_type_err, tvb, o + i + aoff, alen,
+                            "Unknwon BGP Prefix-SID TLV type: %u", prefix_sid_subtype);
+                        q += 3 + prefix_sid_sublen;
+                        break;
+                    }
+                }
                 break;
             case BGPTYPE_PMSI_TUNNEL_ATTR:
                 dissect_bgp_update_pmsi_attr(pinfo, subtree2, tvb, tlen, o+i+aoff);
@@ -8577,6 +8694,7 @@ proto_register_bgp(void)
       { &hf_bgp_large_communities_ldp2,
         { "Local Data Part 2", "bgp.large_communities.ldp2", FT_UINT32, BASE_DEC,
           NULL, 0x0, "A four-octet operator-defined value", HFILL }},
+
         /* RFC4456 */
        { &hf_bgp_update_path_attribute_originator_id,
         { "Originator identifier", "bgp.update.path_attribute.originator_id", FT_IPv4, BASE_NONE,
@@ -8587,6 +8705,50 @@ proto_register_bgp(void)
       { &hf_bgp_update_path_attribute_cluster_id,
         { "Cluster ID", "bgp.path_attribute.cluster_id", FT_IPv4, BASE_NONE,
           NULL, 0x0, NULL, HFILL}},
+
+        /* draft-ietf-idr-bgp-prefix-sid-05 */
+      { &hf_bgp_prefix_sid_label_index,
+        { "Label-Index", "bgp.prefix_sid.label_index", FT_NONE, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_prefix_sid_label_index_value,
+        { "Label-Index Value", "bgp.prefix_sid.label_index.value", FT_UINT32, BASE_DEC,
+          NULL, 0x0, "4-octet label index value", HFILL }},
+      { &hf_bgp_prefix_sid_label_index_flags,
+        { "Label-Index Flags", "bgp.prefix_sid.label_index.flags", FT_UINT16, BASE_HEX,
+          NULL, 0x0, "2-octet flags, None is defined", HFILL }},
+      { &hf_bgp_prefix_sid_originator_srgb_flags,
+        { "Originator SRGB Flags", "bgp.prefix_sid.originator_srgb.flags", FT_UINT16, BASE_HEX,
+          NULL, 0x0, "2-octet flags, None is defined", HFILL }},
+      { &hf_bgp_prefix_sid_originator_srgb,
+        { "Originator SRGB", "bgp.prefix_sid.originator_srgb", FT_NONE, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_prefix_sid_originator_srgb_blocks,
+        { "SRGB Blocks", "bgp.prefix_sid.originator_srgb_blocks", FT_NONE, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_prefix_sid_originator_srgb_block,
+        { "SRGB Block", "bgp.prefix_sid.originator_srgb_block", FT_NONE, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_prefix_sid_originator_srgb_base,
+        { "SRGB Base", "bgp.prefix_sid.originator_srgb_base", FT_UINT24, BASE_DEC,
+          NULL, 0x0, "A three-octet value", HFILL }},
+      { &hf_bgp_prefix_sid_originator_srgb_range,
+        { "SRGB Range", "bgp.prefix_sid.originator_srgb_range", FT_UINT24, BASE_DEC,
+          NULL, 0x0, "A three-octet value", HFILL }},
+      { &hf_bgp_prefix_sid_type,
+        { "Type", "bgp.prefix_sid.type", FT_UINT8, BASE_DEC,
+          NULL, 0x0, "BGP Prefix-SID message type", HFILL }},
+      { &hf_bgp_prefix_sid_length,
+        { "Length", "bgp.prefix_sid.length", FT_UINT16, BASE_DEC,
+          NULL, 0x0, "BGP Prefix-SID message payload", HFILL }},
+      { &hf_bgp_prefix_sid_ipv6,
+        { "IPv6-SID", "bgp.prefix_sid.ipv6", FT_NONE,
+          BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_prefix_sid_ipv6_value,
+        { "IPv6-SID Value", "bgp.prefix_sid.ipv6_value", FT_IPv6,
+          BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_prefix_sid_reserved,
+        { "Reserved", "bgp.prefix_sid.reserved", FT_BYTES,
+          BASE_NONE, NULL, 0x0, "Unused (must be clear)", HFILL }},
 
         /* RFC5512 : BGP Encapsulation SAFI and the BGP Tunnel Encapsulation Attribute  */
       { &hf_bgp_update_encaps_tunnel_tlv_len,
@@ -9733,6 +9895,11 @@ proto_register_bgp(void)
       &ett_bgp_pmsi_tunnel_id,
       &ett_bgp_aigp_attr,
       &ett_bgp_large_communities,
+      &ett_bgp_prefix_sid_label_index,
+      &ett_bgp_prefix_sid_ipv6,
+      &ett_bgp_prefix_sid_originator_srgb,
+      &ett_bgp_prefix_sid_originator_srgb_block,
+      &ett_bgp_prefix_sid_originator_srgb_blocks,
     };
     static ei_register_info ei[] = {
         { &ei_bgp_cap_len_bad, { "bgp.cap.length.bad", PI_MALFORMED, PI_ERROR, "Capability length is wrong", EXPFILL }},
@@ -9756,7 +9923,8 @@ proto_register_bgp(void)
         { &ei_bgp_attr_pmsi_opaque_type, { "bgp.attr.pmsi.opaque_type", PI_PROTOCOL, PI_ERROR, "Unvalid pmsi opaque type", EXPFILL }},
         { &ei_bgp_attr_aigp_type, { "bgp.attr.aigp.type", PI_MALFORMED, PI_NOTE, "Unknown AIGP attribute type", EXPFILL}},
         { &ei_bgp_prefix_length_err, { "bgp.prefix.length", PI_MALFORMED, PI_ERROR, "Unvalid IPv6 prefix length", EXPFILL}},
-        { &ei_bgp_attr_as_path_as_len_err, { "bgp.attr.as_path.as_len", PI_UNDECODED, PI_ERROR, "unable to determine 4 or 2 bytes ASN", EXPFILL}}
+        { &ei_bgp_attr_as_path_as_len_err, { "bgp.attr.as_path.as_len", PI_UNDECODED, PI_ERROR, "unable to determine 4 or 2 bytes ASN", EXPFILL}},
+        { &ei_bgp_prefix_sid_type_err, { "bgp.prefix_sid.type_err", PI_PROTOCOL, PI_ERROR, "BGP Prefix-SID unknown TLV type", EXPFILL }}
     };
 
     module_t *bgp_module;
