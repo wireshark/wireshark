@@ -1649,7 +1649,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="coloring_rules_dialog.cpp" line="361"/>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will disable them.</source>
         <oldsource>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark 无法识别您的一个或多个着色规则。保存将会丢弃它们。</translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="371"/>
@@ -14664,22 +14664,22 @@ text-decoration: underline;
     <message>
         <location filename="wireshark_application.cpp" line="538"/>
         <source>Dell Backup and Recovery Found</source>
-        <translation type="unfinished"></translation>
+        <translation>发现 Dell Backup and Recovery</translation>
     </message>
     <message>
         <location filename="wireshark_application.cpp" line="539"/>
         <source>You appear to be running Dell Backup and Recovery 1.8.</source>
-        <translation type="unfinished"></translation>
+        <translation>您似乎正在运行 Dell Backup and Recovery 1.8。</translation>
     </message>
     <message>
         <location filename="wireshark_application.cpp" line="540"/>
         <source>DBAR can make many applications crash &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;including Wireshark&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>DBAR 可能使许多应用程序崩溃，&lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;包括 Wireshark&lt;/a&gt;。</translation>
     </message>
     <message>
         <location filename="wireshark_application.cpp" line="544"/>
         <source>Offending DLL: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>违规 DLL：%1</translation>
     </message>
 </context>
 <context>
