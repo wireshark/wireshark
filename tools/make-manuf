@@ -40,6 +40,7 @@ $wkatmpl  = "wka.tmpl";
 $outfile  = "manuf";
 $inheader = 1;
 $oui_url  = "http://standards.ieee.org/develop/regauth/oui/oui.txt";
+$cid_url  = "http://standards.ieee.org/develop/regauth/cid/cid.txt";
 $iab_url  = "http://standards.ieee.org/develop/regauth/iab/iab.txt";
 $oui28_url = "http://standards.ieee.org/develop/regauth/oui28/oui28.txt";
 $oui36_url = "http://standards.ieee.org/develop/regauth/oui36/oui36.txt";
@@ -49,6 +50,7 @@ $oui_re   = "$hp:$hp:$hp";
 $ieee_re  = "$hp-$hp-$hp";
 
 $min_entries = 1000;
+$min_cid_entries = 30;
 $min_total   = 27000; # 27196 as of 2016-10-02
 
 $tmpl_added    = 0;
@@ -64,6 +66,8 @@ $oui28_total   = 0;
 $oui36_added   = 0;
 $oui36_skipped = 0;
 $oui36_total   = 0;
+$cid_skipped = 0;
+$cid_total   = 0;
 
 sub shorten
 {
@@ -210,6 +214,28 @@ foreach $line (split(/[\r\n]+/, $ieee_list)) {
 
 if ($oui36_total < $min_entries) { die "Too few OUI-36 entries ($oui36_total)\n"; }
 
+# Add IEEE entries for CIDs.
+
+$ieee_list = fetch($cid_url);
+
+foreach $line (split(/[\r\n]+/, $ieee_list)) {
+  if (($cid, $manuf) = ($line =~ /^\s*($ieee_re)\s+\(hex\)\s+(\S.*)$/)) {
+    $cid =~ tr /-/:/;  # The IEEE bytes are separated by dashes.
+    # Ensure OUI is all upper-case
+    $cid =~ tr/a-f/A-F/;
+    if (exists $oui_list{$cid}) {
+      printf "$cid - Skipping IEEE \"$manuf\" in favor of \"$oui_list{$cid}\"\n";
+      $cid_skipped++;
+    } else {
+      $oui_list{$cid} = &shorten($manuf);
+      $cid_added++;
+    }
+  }
+  $cid_total++;
+}
+
+if ($cid_total < $min_cid_entries) { die "Too few CID entries ($cid_total)\n"; }
+
 # Add IEEE entries for OUIs not yet known.
 
 $ieee_list = fetch($oui_url);
@@ -232,7 +258,7 @@ foreach $line (split(/[\r\n]+/, $ieee_list)) {
 
 if ($oui_total < $min_entries) { die "Too few OUI entries ($oui_total)\n"; }
 
-$total_added = $tmpl_added + $oui_added + $iab_added;
+$total_added = $tmpl_added + $oui_added + $iab_added + $oui36_added + $cid_added;
 if ($total_added < $min_total) { die "Too few total entries ($total_added)\n"; }
 
 # Write output file
@@ -270,15 +296,18 @@ IEEE OUI added     : $oui_added
 IEEE IAB added     : $iab_added
 IEEE OUI28 added   : $oui28_added
 IEEE OUI36 added   : $oui36_added
+IEEE CID added     : $cid_added
 Total added        : $total_added
 
 IEEE OUI total     : $oui_total
 IEEE IAB total     : $iab_total
 IEEE OUI28 total   : $oui28_total
-IEEE OUI36 total   : $oui36_added
+IEEE OUI36 total   : $oui36_total
+IEEE CID total     : $cid_total
 
 IEEE OUI skipped   : $oui_skipped
 IEEE IAB skipped   : $iab_skipped
-IEEE OUI28 skipd   : $oui28_skipped
+IEEE OUI28 skipped : $oui28_skipped
 IEEE OUI36 skipped : $oui36_skipped
+IEEE CID skipped   : $cid_skipped
 Fin
