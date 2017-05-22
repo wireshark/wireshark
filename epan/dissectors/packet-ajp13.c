@@ -694,7 +694,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
     guint8 aid;
     const gchar* aname = NULL;
     const gchar* aval;
-    guint16 aval_len, aname_len;
+    guint16 aval_len, aname_len, key_len;
 
     int apos = pos;
 
@@ -722,10 +722,9 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
                                      "%s: %s", aname, aval);
     } else if (aid == 0x0B ) {
       /* ssl_key_length */
-      if (ajp13_tree) {
-        proto_tree_add_uint(ajp13_tree, hf_ajp13_ssl_key_size,
-                            tvb, apos, 1+2, tvb_get_ntohs(tvb, pos));
-      }
+      key_len = tvb_get_ntohs(tvb, pos);
+      proto_tree_add_uint(ajp13_tree, hf_ajp13_ssl_key_size,
+                            tvb, apos, 1+2, key_len);
       pos+=2;
     } else {
 

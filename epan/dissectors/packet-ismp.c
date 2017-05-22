@@ -249,6 +249,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 	guint16 num_tuples = 0;
 	guint16 tuple_type = 0;
 	guint16 tuple_length = 0;
+	gchar* ipx_addr_str;
 
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *edp_ti, *ti;
@@ -467,9 +468,9 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 							proto_tree_add_item(edp_tuples_leaf_tree, hf_ismp_system_description, tvb, offset, tuple_length, ENC_NA|ENC_ASCII);
 							break;
 						case EDP_TUPLE_IPX_ADDR:
-							proto_tree_add_string(edp_tuples_leaf_tree, hf_ismp_interface_ipx_address ,tvb, offset, tuple_length,
-								ipx_addr_to_str(tvb_get_ntohl(tvb, offset),
-								tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, tuple_length-4, ENC_ASCII)));
+							ipx_addr_str = ipx_addr_to_str(tvb_get_ntohl(tvb, offset),
+								tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, tuple_length-4, ENC_ASCII));
+							proto_tree_add_string(edp_tuples_leaf_tree, hf_ismp_interface_ipx_address ,tvb, offset, tuple_length, ipx_addr_str);
 							break;
 						case EDP_TUPLE_UNKNOWN:
 						default:
