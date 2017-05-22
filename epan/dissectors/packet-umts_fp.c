@@ -4284,7 +4284,7 @@ heur_dissect_fp_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         }
     }
 
-    /* Expecting specific lengths: all rach frames are 28 bytes long */
+    /* Expecting specific lengths: rach frames are either 28 or 52 bytes long */
     /* This is the common Transport Formats of RACH ( See 3GPP TR 25.944 / 4.1.2.1 ) */
     length = tvb_reported_length(tvb);
     if (length != 28 && length != 52) {
@@ -4305,7 +4305,10 @@ heur_dissect_fp_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     }
 
     tfi = tvb_get_guint8(tvb, 2) & 0x1f;
-    if (tfi != 0x00) {
+    if (length == 28 && tfi != 0x00) {
+        return FALSE;
+    }
+    if (length == 52 && tfi != 0x01) {
         return FALSE;
     }
 
@@ -4338,12 +4341,9 @@ heur_dissect_fp_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     umts_fp_conversation_info->num_dch_in_flow = 1;
     umts_fp_conversation_info->fp_dch_channel_info[0].num_ul_chans = 0;
     umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_num_tbs[0] = 1;
-    if (length == 28) {
-        umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_tf_size[0] = 168;
-    }
-    else { /* length is 52 */
-        umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_tf_size[0] = 360;
-    }
+    umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_num_tbs[1] = 1;
+    umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_tf_size[0] = 168;
+    umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_tf_size[1] = 360;
 
     /* Adding the 'channel specific info' for RACH */
     fp_rach_channel_info = wmem_new0(wmem_file_scope(), fp_rach_channel_info_t);
