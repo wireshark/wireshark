@@ -538,7 +538,7 @@ static gint find_megaco_messageBody_names(tvbuff_t *tvb, int offset, guint heade
 }
 
 static proto_item *
-my_proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+megaco_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb,
              gint start, gint length, const char *value)
 {
     proto_item *pi;
@@ -709,7 +709,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         return tvb_captured_length(tvb);
     }
 
-    my_proto_tree_add_string(megaco_tree, hf_megaco_start, tvb, 0, tvb_previous_offset+1,
+    megaco_tree_add_string(megaco_tree, hf_megaco_start, tvb, 0, tvb_previous_offset+1,
                     tvb_get_string_enc(wmem_packet_scope(), tvb, 0, tvb_previous_offset, ENC_UTF_8|ENC_NA));
 
     /* skip / */
@@ -723,7 +723,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         tvb_current_offset++;
     }
 
-    my_proto_tree_add_string(megaco_tree, hf_megaco_version, tvb, tvb_previous_offset, tvb_current_offset - tvb_previous_offset,
+    megaco_tree_add_string(megaco_tree, hf_megaco_version, tvb, tvb_previous_offset, tvb_current_offset - tvb_previous_offset,
                     tvb_get_string_enc(wmem_packet_scope(), tvb, tvb_previous_offset, tvb_current_offset - tvb_previous_offset, ENC_UTF_8|ENC_NA));
 
     tvb_previous_offset = tvb_current_offset;
@@ -759,7 +759,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
    /* At this point we should point to the "\n" ending the mId element
     * or to the next character after white space SEP
     */
-    my_proto_tree_add_string(megaco_tree, hf_megaco_mId, tvb, tvb_previous_offset, tvb_current_offset - tvb_previous_offset,
+    megaco_tree_add_string(megaco_tree, hf_megaco_mId, tvb, tvb_previous_offset, tvb_current_offset - tvb_previous_offset,
                     tvb_get_string_enc(wmem_packet_scope(), tvb, tvb_previous_offset, tvb_current_offset - tvb_previous_offset, ENC_UTF_8|ENC_NA));
 
     col_clear(pinfo->cinfo, COL_INFO);
@@ -817,7 +817,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             message_body_tree = proto_item_add_subtree(ti, ett_megaco_message_body);
 
             if (tree) {
-                my_proto_tree_add_string(message_body_tree, hf_megaco_transaction, tvb,
+                megaco_tree_add_string(message_body_tree, hf_megaco_transaction, tvb,
                 tvb_previous_offset, tokenlen,
                 "Error" );
 
@@ -836,7 +836,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             save_offset = tvb_previous_offset;
             save_length = tvb_current_offset-tvb_previous_offset;
 
-            my_proto_tree_add_string(megaco_tree, hf_megaco_transaction, tvb,
+            megaco_tree_add_string(megaco_tree, hf_megaco_transaction, tvb,
                     save_offset, save_length, "TransactionResponseAck" );
 
             tvb_previous_offset = megaco_tvb_skip_wsp(tvb, tvb_offset+1);
@@ -864,7 +864,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             save_offset = tvb_previous_offset;
             save_length = tvb_current_offset-tvb_previous_offset;
 
-            my_proto_tree_add_string(megaco_tree, hf_megaco_transaction, tvb,
+            megaco_tree_add_string(megaco_tree, hf_megaco_transaction, tvb,
                     save_offset, save_length, "Reply" );
 
             tvb_current_offset  = megaco_tvb_skip_wsp_return(tvb, tvb_current_offset-1);
@@ -883,7 +883,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             save_offset = tvb_previous_offset;
             save_length = tvb_LBRKT-tvb_previous_offset;
 
-            my_proto_tree_add_string(megaco_tree, hf_megaco_transaction, tvb,
+            megaco_tree_add_string(megaco_tree, hf_megaco_transaction, tvb,
                     save_offset, save_length, "Reply" );
 
             tvb_offset  = tvb_find_guint8(tvb, tvb_previous_offset, tvb_transaction_end_offset, '=')+1;
@@ -911,7 +911,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             trx_type = GCP_TRX_REQUEST;
             save_offset = tvb_previous_offset;
             save_length = tvb_current_offset-tvb_previous_offset;
-            my_proto_tree_add_string(megaco_tree, hf_megaco_transaction, tvb,
+            megaco_tree_add_string(megaco_tree, hf_megaco_transaction, tvb,
                     save_offset, save_length, "Request" );
 
             tvb_offset  = tvb_find_guint8(tvb, tvb_offset, tvb_transaction_end_offset, '=')+1;
