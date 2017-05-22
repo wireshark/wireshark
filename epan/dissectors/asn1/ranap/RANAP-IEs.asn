@@ -1,6 +1,6 @@
 -- RANAP-IEs.asn
 --
--- 3GPP TS 25.413 V13.2.0 (2016-06)
+-- 3GPP TS 25.413 V14.0.0 (2017-03)
 -- http://www.3gpp.org/ftp/Specs/html-info/25413.htm
 --
 -- 9.3.4	Information Element Definitions
@@ -53,6 +53,7 @@ IMPORTS
 	maxSizeOfIMSInfo,
 	maxnoofMDTPLMNs,
 	maxAddPosSet,
+	maxnoofPLMNs,
 
 	id-CN-DomainIndicator,
 	id-MessageStructure,
@@ -290,8 +291,31 @@ AlternativeRABConfigurationRequest ::= ENUMERATED{
 	...
 }
 
+UE-Application-Layer-Measurement-Configuration	::= SEQUENCE {
+		applicationLayerContainerForMeasurementConfiguration		OCTET STRING ( SIZE (1..1000)),
+		areaScopeForUEApplicationLayerMeasurementConfiguration					AreaScopeForUEApplicationLayerMeasurementConfiguration,
+		...
+}
+
+UE-Application-Layer-Measurement-Configuration-For-Relocation	::= SEQUENCE {
+		areaScopeForUEApplicationLayerMeasurementConfiguration					AreaScopeForUEApplicationLayerMeasurementConfiguration,
+		traceReference						TraceReference,
+		tracePropagationParameters			TracePropagationParameters OPTIONAL,
+		traceCollectionEntityIPAddress		TransportLayerAddress			OPTIONAL,
+		...
+}
+
+
 APN	::= OCTET STRING (SIZE (1..255))
 -- Reference: 23.003
+
+AreaScopeForUEApplicationLayerMeasurementConfiguration ::=	CHOICE {
+	cellbased			CellBased,
+	labased				LABased,
+	rabased				RABased,
+	plmn-area-based		PLMNBased,
+	...
+}
 
 AreaIdentity ::= CHOICE {
 	sAI				SAI,
@@ -661,6 +685,9 @@ DataVolumeReportingIndication ::= ENUMERATED {
 
 DCH-ID ::= INTEGER (0..255)
 
+DCN-ID ::= INTEGER (0..65535)
+
+
 DeliveryOfErroneousSDU ::= ENUMERATED {
 	yes,
 	no,
@@ -717,7 +744,10 @@ E-DCH-MAC-d-Flow-ID		::= INTEGER (0.. maxNrOfEDCHMACdFlows-1)
 ENB-ID ::= CHOICE {
 	macroENB-ID			BIT STRING (SIZE(20)),
 	homeENB-ID			BIT STRING (SIZE(28)),
-	...
+	...,
+	short-macroENB-ID		BIT STRING (SIZE(18)),
+	long-macroENB-ID		BIT STRING (SIZE(21))
+
 }
 
 EncryptionAlgorithm 			::= INTEGER { no-encryption (0), standard-UMTS-encryption-algorith-UEA1 (1), standard-UMTS-encryption-algorithm-UEA2 (2) } (0..15)
@@ -1574,6 +1604,21 @@ LoggingDuration	::=	ENUMERATED {
 		min90,
 		min120,
 ...}
+
+
+
+PLMNBased::= SEQUENCE {
+	plmnList				PLMNList,
+	iE-Extensions		ProtocolExtensionContainer { {PLMNBased-ExtIEs} } OPTIONAL,
+	...
+}
+
+PLMNBased-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+PLMNList ::= SEQUENCE (SIZE (1.. maxnoofPLMNs)) OF
+	PLMNidentity
 
 
 

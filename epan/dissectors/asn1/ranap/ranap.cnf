@@ -762,6 +762,9 @@ id-P-TMSI                                       ProtocolIE-ID
 id-RANAP-Message                                ProtocolIE-ID
 id-PowerSavingIndicator                         ProtocolIE-ID
 id-UE-Usage-Type                                ProtocolIE-ID
+id-DCN-ID                                                           ProtocolIE-ID
+id-UE-Application-Layer-Measurement-Configuration                   ProtocolIE-ID
+id-UE-Application-Layer-Measurement-Configuration-For-Relocation    ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -1062,7 +1065,9 @@ BarometricPressure                                        N ranap.extension id-B
 Additional-PositioningDataSet                             N ranap.extension id-Additional-PositioningDataSet
 CivicAddress                                              N ranap.extension id-CivicAddress
 PowerSavingIndicator                                      N ranap.extension id-PowerSavingIndicator
-
+DCN-ID                                                    N ranap.extension id-DCN-ID
+UE-Application-Layer-Measurement-Configuration                   N ranap.extension id-UE-Application-Layer-Measurement-Configuration
+UE-Application-Layer-Measurement-Configuration-For-Relocation    N ranap.extension id-UE-Application-Layer-Measurement-Configuration-For-Relocation
 
 #RANAP-ELEMENTARY-PROCEDURE
 Iu-ReleaseCommand                             N ranap.proc.imsg id-Iu-Release

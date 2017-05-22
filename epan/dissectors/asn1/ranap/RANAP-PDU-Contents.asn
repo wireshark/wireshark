@@ -1,6 +1,6 @@
 -- RANAP-PDU-Contents.asn
 --
--- 3GPP TS 25.413 V13.2.0 (2016-06)
+-- 3GPP TS 25.413 V14.0.0 (2017-03)
 -- http://www.3gpp.org/ftp/Specs/html-info/25413.htm
 --
 -- 9.3.3	PDU Definitions
@@ -28,6 +28,8 @@ BEGIN
 
 IMPORTS
 	AccuracyFulfilmentIndicator,
+	UE-Application-Layer-Measurement-Configuration,
+	UE-Application-Layer-Measurement-Configuration-For-Relocation,
 	APN,
 	BroadcastAssistanceDataDecipheringKeys,
 	LocationRelatedDataRequestType,
@@ -190,7 +192,8 @@ IMPORTS
 	P-TMSI,
 	BarometricPressure,
 	CivicAddress,
-	UE-Usage-Type
+	UE-Usage-Type,
+	DCN-ID
 
 FROM RANAP-IEs
 
@@ -214,6 +217,8 @@ FROM RANAP-Containers
 	maxnoofMulticastServicesPerUE,
 
 	id-AccuracyFulfilmentIndicator,
+	id-UE-Application-Layer-Measurement-Configuration,
+	id-UE-Application-Layer-Measurement-Configuration-For-Relocation,
 	id-APN,
 	id-AreaIdentity,
 	id-Alt-RAB-Parameters,
@@ -441,7 +446,8 @@ FROM RANAP-Containers
 	id-PowerSavingIndicator,
 	id-BarometricPressure,
 	id-CivicAddress,
-	id-UE-Usage-Type
+	id-UE-Usage-Type,
+	id-DCN-ID
 
 FROM RANAP-Constants;
 
@@ -595,7 +601,10 @@ RelocationRequiredExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 9 to communicate to the CN the hybrid access status of the target cell --
 	{ ID id-Cell-Access-Mode							CRITICALITY reject	EXTENSION Cell-Access-Mode										PRESENCE optional} |
 -- Extension for Release 11 for rSRVCC operation --
-	{ ID id-RSRVCC-HO-Indication						CRITICALITY reject	EXTENSION RSRVCC-HO-Indication									PRESENCE optional},
+	{ ID id-RSRVCC-HO-Indication						CRITICALITY reject	EXTENSION RSRVCC-HO-Indication									PRESENCE optional}|
+-- Extension for Release 14 to support QoE function --
+	{ID id-UE-Application-Layer-Measurement-Configuration-For-Relocation CRITICALITY ignore	EXTENSION UE-Application-Layer-Measurement-Configuration-For-Relocation	PRESENCE optional},
+
 	...
 }
 
@@ -795,7 +804,10 @@ RelocationRequestExtensions RANAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-MSISDN							CRITICALITY ignore	EXTENSION MSISDN						PRESENCE optional}|
 -- Extension for Release 11 to support rSRVCC in case of network sharing –
 	{ ID id-AnchorPLMN-ID					CRITICALITY ignore	EXTENSION PLMNidentity					PRESENCE optional}|
-	{ ID id-PowerSavingIndicator			CRITICALITY ignore	EXTENSION PowerSavingIndicator			PRESENCE optional},
+	{ ID id-PowerSavingIndicator			CRITICALITY ignore	EXTENSION PowerSavingIndicator			PRESENCE optional}|
+-- Extension for Release 14 to support QoE function --
+	{ID id-UE-Application-Layer-Measurement-Configuration-For-Relocation CRITICALITY ignore	EXTENSION UE-Application-Layer-Measurement-Configuration-For-Relocation	PRESENCE optional},
+
 	...
 }
 
@@ -1824,7 +1836,9 @@ CN-InvokeTraceExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 10 to support MDT--
 	{ ID id-MDT-Configuration					CRITICALITY ignore	EXTENSION MDT-Configuration						PRESENCE optional}|
 -- Extension for Release 10 to support MDT--
-	{ ID id-Trace-Collection-Entity-IP-Addess	CRITICALITY ignore	EXTENSION TransportLayerAddress				PRESENCE optional},
+	{ ID id-Trace-Collection-Entity-IP-Addess	CRITICALITY ignore	EXTENSION TransportLayerAddress				PRESENCE optional}|
+-- Extension for Release 14 to support QoE function --
+	{ID id-UE-Application-Layer-Measurement-Configuration CRITICALITY ignore	EXTENSION UE-Application-Layer-Measurement-Configuration	PRESENCE optional},
 	...
 }
 
@@ -1999,7 +2013,9 @@ InitialUE-MessageExtensions RANAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-LHN-ID							CRITICALITY ignore	EXTENSION LHN-ID							PRESENCE optional}|
 -- Extension for Release 13 to support DCN --
 	{ ID id-SGSN-Group-Identity				CRITICALITY ignore	EXTENSION SGSN-Group-Identity				PRESENCE optional}|
-	{ ID id-UE-Usage-Type					CRITICALITY ignore	EXTENSION UE-Usage-Type						PRESENCE optional},
+	{ ID id-UE-Usage-Type					CRITICALITY ignore	EXTENSION UE-Usage-Type						PRESENCE optional}|
+	{ ID id-DCN-ID							CRITICALITY ignore	EXTENSION DCN-ID							PRESENCE optional},
+
 	...
 }
 
