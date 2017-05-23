@@ -411,6 +411,347 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
     call_dissector_only(bssgp_handle, value_tvb, %(ACTX)s->pinfo, tree, NULL);
   }
 
+#------ Pretify info column -----
+# Iu-ReleaseCommand
+#.FN_HDR Iu-ReleaseCommand
+col_set_str(actx->pinfo->cinfo, COL_INFO,"Iu-ReleaseCommand ");
+
+# Iu-ReleaseComplete
+#.FN_HDR Iu-ReleaseComplete
+col_set_str(actx->pinfo->cinfo, COL_INFO,"Iu-ReleaseComplete ");
+
+# RelocationRequired
+#.FN_HDR RelocationRequired
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RelocationRequired ");
+
+# RelocationCommand
+#.FN_HDR RelocationCommand
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RelocationCommand ");
+
+# RelocationPreparationFailure
+#.FN_HDR RelocationPreparationFailure
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RelocationPreparationFailure ");
+
+# RelocationRequest
+#.FN_HDR RelocationRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RelocationRequest ");
+
+# RelocationRequestAcknowledge
+#.FN_HDR RelocationRequestAcknowledge
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RelocationRequestAcknowledge ");
+
+# RelocationFailure
+#.FN_HDR RelocationFailure
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RelocationFailure ");
+
+# RelocationCancel
+#.FN_HDR RelocationCancel
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RelocationCancel ");
+
+# RelocationCancelAcknowledge
+#.FN_HDR RelocationCancelAcknowledge
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RelocationCancelAcknowledge ");
+
+# SRNS-ContextRequest
+#.FN_HDR SRNS-ContextRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"SRNS-ContextRequest ");
+
+# SRNS-ContextResponse
+#.FN_HDR SRNS-ContextResponse
+col_set_str(actx->pinfo->cinfo, COL_INFO,"SRNS-ContextResponse ");
+
+# SecurityModeCommand
+#.FN_HDR SecurityModeCommand
+col_set_str(actx->pinfo->cinfo, COL_INFO,"SecurityModeCommand ");
+
+# SecurityModeComplete
+#.FN_HDR SecurityModeComplete
+col_set_str(actx->pinfo->cinfo, COL_INFO,"SecurityModeComplete ");
+
+# SecurityModeReject
+#.FN_HDR SecurityModeReject
+col_set_str(actx->pinfo->cinfo, COL_INFO,"SecurityModeReject ");
+
+# DataVolumeReportRequest
+#.FN_HDR DataVolumeReportRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"DataVolumeReportRequest ");
+
+# DataVolumeReport
+#.FN_HDR DataVolumeReport
+col_set_str(actx->pinfo->cinfo, COL_INFO,"DataVolumeReport ");
+
+# Reset
+#.FN_HDR Reset
+col_set_str(actx->pinfo->cinfo, COL_INFO,"Reset ");
+
+# ResetAcknowledge
+#.FN_HDR ResetAcknowledge
+col_set_str(actx->pinfo->cinfo, COL_INFO,"ResetAcknowledge ");
+
+# RAB-ReleaseRequest
+#.FN_HDR RAB-ReleaseRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RAB-ReleaseRequest ");
+
+# Iu-ReleaseRequest
+#.FN_HDR Iu-ReleaseRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"Iu-ReleaseRequest ");
+
+# RelocationDetect
+#.FN_HDR RelocationDetect
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RelocationDetect ");
+
+# RelocationComplete
+#.FN_HDR RelocationComplete
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RelocationComplete ");
+
+# Paging
+#.FN_HDR Paging
+col_set_str(actx->pinfo->cinfo, COL_INFO,"Paging ");
+
+# CommonID
+#.FN_HDR CommonID
+col_set_str(actx->pinfo->cinfo, COL_INFO,"CommonID ");
+
+# CN-InvokeTrace
+#.FN_HDR CN-InvokeTrace
+col_set_str(actx->pinfo->cinfo, COL_INFO,"CN-InvokeTrace ");
+
+# CN-DeactivateTrace
+#.FN_HDR CN-DeactivateTrace
+col_set_str(actx->pinfo->cinfo, COL_INFO,"CN-DeactivateTrace ");
+
+# LocationReportingControl
+#.FN_HDR LocationReportingControl
+col_set_str(actx->pinfo->cinfo, COL_INFO,"LocationReportingControl ");
+
+# LocationReport
+#.FN_HDR LocationReport
+col_set_str(actx->pinfo->cinfo, COL_INFO,"LocationReport ");
+
+# InitialUE-Message
+#.FN_HDR InitialUE-Message
+col_set_str(actx->pinfo->cinfo, COL_INFO,"InitialUE-Message ");
+
+# DirectTransfer
+#.FN_HDR DirectTransfer
+col_set_str(actx->pinfo->cinfo, COL_INFO,"DirectTransfer ");
+
+# Overload
+#.FN_HDR Overload
+col_set_str(actx->pinfo->cinfo, COL_INFO,"Overload ");
+
+# ErrorIndication
+#.FN_HDR ErrorIndication
+col_set_str(actx->pinfo->cinfo, COL_INFO,"ErrorIndication ");
+
+# SRNS-DataForwardCommand
+#.FN_HDR SRNS-DataForwardCommand
+col_set_str(actx->pinfo->cinfo, COL_INFO,"SRNS-DataForwardCommand ");
+
+# ForwardSRNS-Context
+#.FN_HDR ForwardSRNS-Context
+col_set_str(actx->pinfo->cinfo, COL_INFO,"ForwardSRNS-Context ");
+
+# RAB-AssignmentRequest
+#.FN_HDR RAB-AssignmentRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RAB-AssignmentRequest ");
+
+# RAB-AssignmentResponse
+#.FN_HDR RAB-AssignmentResponse
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RAB-AssignmentResponse ");
+
+# PrivateMessage
+#.FN_HDR PrivateMessage
+col_set_str(actx->pinfo->cinfo, COL_INFO,"PrivateMessage ");
+
+# ResetResource
+#.FN_HDR ResetResource
+col_set_str(actx->pinfo->cinfo, COL_INFO,"ResetResource ");
+
+# ResetResourceAcknowledge
+#.FN_HDR ResetResourceAcknowledge
+col_set_str(actx->pinfo->cinfo, COL_INFO,"ResetResourceAcknowledge ");
+
+# RANAP-RelocationInformation
+#.FN_HDR RANAP-RelocationInformation
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RANAP-RelocationInformation ");
+
+# RAB-ModifyRequest
+#.FN_HDR RAB-ModifyRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RAB-ModifyRequest ");
+
+# LocationRelatedDataRequest
+#.FN_HDR LocationRelatedDataRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"LocationRelatedDataRequest ");
+
+# LocationRelatedDataResponse
+#.FN_HDR LocationRelatedDataResponse
+col_set_str(actx->pinfo->cinfo, COL_INFO,"LocationRelatedDataResponse ");
+
+# LocationRelatedDataFailure
+#.FN_HDR LocationRelatedDataFailure
+col_set_str(actx->pinfo->cinfo, COL_INFO,"LocationRelatedDataFailure ");
+
+# InformationTransferIndication
+#.FN_HDR InformationTransferIndication
+col_set_str(actx->pinfo->cinfo, COL_INFO,"InformationTransferIndication ");
+
+# InformationTransferConfirmation
+#.FN_HDR InformationTransferConfirmation
+col_set_str(actx->pinfo->cinfo, COL_INFO,"InformationTransferConfirmation ");
+
+# InformationTransferFailure
+#.FN_HDR InformationTransferFailure
+col_set_str(actx->pinfo->cinfo, COL_INFO,"InformationTransferFailure ");
+
+# UESpecificInformationIndication
+#.FN_HDR UESpecificInformationIndication
+col_set_str(actx->pinfo->cinfo, COL_INFO,"UESpecificInformationIndication ");
+
+# DirectInformationTransfer
+#.FN_HDR DirectInformationTransfer
+col_set_str(actx->pinfo->cinfo, COL_INFO,"DirectInformationTransfer ");
+
+# UplinkInformationExchangeRequest
+#.FN_HDR UplinkInformationExchangeRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"UplinkInformationExchangeRequest ");
+
+# UplinkInformationExchangeResponse
+#.FN_HDR UplinkInformationExchangeResponse
+col_set_str(actx->pinfo->cinfo, COL_INFO,"UplinkInformationExchangeResponse ");
+
+# UplinkInformationExchangeFailure
+#.FN_HDR UplinkInformationExchangeFailure
+col_set_str(actx->pinfo->cinfo, COL_INFO,"UplinkInformationExchangeFailure ");
+
+# MBMSSessionStart
+#.FN_HDR MBMSSessionStart
+col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMSSessionStart ");
+
+# MBMSSessionStartResponse
+#.FN_HDR MBMSSessionStartResponse
+col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMSSessionStartResponse ");
+
+# MBMSSessionStartFailure
+#.FN_HDR MBMSSessionStartFailure
+col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMSSessionStartFailure ");
+
+# MBMSSessionUpdate
+#.FN_HDR MBMSSessionUpdate
+col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMSSessionUpdate ");
+
+# MBMSSessionUpdateResponse
+#.FN_HDR MBMSSessionUpdateResponse
+col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMSSessionUpdateResponse ");
+
+# MBMSSessionUpdateFailure
+#.FN_HDR MBMSSessionUpdateFailure
+col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMSSessionUpdateFailure ");
+
+# MBMSSessionStop
+#.FN_HDR MBMSSessionStop
+col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMSSessionStop ");
+
+# MBMSSessionStopResponse
+#.FN_HDR MBMSSessionStopResponse
+col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMSSessionStopResponse ");
+
+# MBMSUELinkingRequest
+#.FN_HDR MBMSUELinkingRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMSUELinkingRequest ");
+
+# MBMSUELinkingResponse
+#.FN_HDR MBMSUELinkingResponse
+col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMSUELinkingResponse ");
+
+# MBMSRegistrationRequest
+#.FN_HDR MBMSRegistrationRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMSRegistrationRequest ");
+
+# MBMSRegistrationResponse
+#.FN_HDR MBMSRegistrationResponse
+col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMSRegistrationResponse ");
+
+# MBMSRegistrationFailure
+#.FN_HDR MBMSRegistrationFailure
+col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMSRegistrationFailure ");
+
+# MBMSCNDe-RegistrationRequest
+#.FN_HDR MBMSCNDe-RegistrationRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMSCNDe-RegistrationRequest ");
+
+# MBMSCNDe-RegistrationResponse
+#.FN_HDR MBMSCNDe-RegistrationResponse
+col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMSCNDe-RegistrationResponse ");
+
+# MBMSRABEstablishmentIndication
+#.FN_HDR MBMSRABEstablishmentIndication
+col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMSRABEstablishmentIndication ");
+
+# MBMSRABReleaseRequest
+#.FN_HDR MBMSRABReleaseRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMSRABReleaseRequest ");
+
+# MBMSRABRelease
+#.FN_HDR MBMSRABRelease
+col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMSRABRelease ");
+
+# MBMSRABReleaseFailure
+#.FN_HDR MBMSRABReleaseFailure
+col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMSRABReleaseFailure ");
+
+# EnhancedRelocationCompleteRequest
+#.FN_HDR EnhancedRelocationCompleteRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"EnhancedRelocationCompleteRequest ");
+
+# EnhancedRelocationCompleteResponse
+#.FN_HDR EnhancedRelocationCompleteResponse
+col_set_str(actx->pinfo->cinfo, COL_INFO,"EnhancedRelocationCompleteResponse ");
+
+# EnhancedRelocationCompleteFailure
+#.FN_HDR EnhancedRelocationCompleteFailure
+col_set_str(actx->pinfo->cinfo, COL_INFO,"EnhancedRelocationCompleteFailure ");
+
+# EnhancedRelocationCompleteConfirm
+#.FN_HDR EnhancedRelocationCompleteConfirm
+col_set_str(actx->pinfo->cinfo, COL_INFO,"EnhancedRelocationCompleteConfirm ");
+
+# RANAP-EnhancedRelocationInformationRequest
+#.FN_HDR RANAP-EnhancedRelocationInformationRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RANAP-EnhancedRelocationInformationRequest ");
+
+# RANAP-EnhancedRelocationInformationResponse
+#.FN_HDR RANAP-EnhancedRelocationInformationResponse
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RANAP-EnhancedRelocationInformationResponse ");
+
+# SRVCC-CSKeysRequest
+#.FN_HDR SRVCC-CSKeysRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"SRVCC-CSKeysRequest ");
+
+# SRVCC-CSKeysResponse
+#.FN_HDR SRVCC-CSKeysResponse
+col_set_str(actx->pinfo->cinfo, COL_INFO,"SRVCC-CSKeysResponse ");
+
+# UeRadioCapabilityMatchRequest
+#.FN_HDR UeRadioCapabilityMatchRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"UeRadioCapabilityMatchRequest ");
+
+# UeRadioCapabilityMatchResponse
+#.FN_HDR UeRadioCapabilityMatchResponse
+col_set_str(actx->pinfo->cinfo, COL_INFO,"UeRadioCapabilityMatchResponse ");
+
+# UeRegistrationQueryRequest
+#.FN_HDR UeRegistrationQueryRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"UeRegistrationQueryRequest ");
+
+# UeRegistrationQueryResponse
+#.FN_HDR UeRegistrationQueryResponse
+col_set_str(actx->pinfo->cinfo, COL_INFO,"UeRegistrationQueryResponse ");
+
+# RerouteNASRequest
+#.FN_HDR RerouteNASRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RerouteNASRequest ");
+
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = &ranap_ProtocolIE_ID_vals_ext
 GTP-TEI TYPE = FT_UINT32  DISPLAY = BASE_HEX_DEC STRINGS = NULL
