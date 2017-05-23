@@ -40,6 +40,7 @@
 #include <epan/to_str.h>
 #include <epan/asn1.h>
 #include <epan/reassemble.h>
+#include <epan/uat.h>
 
 #include "packet-smb2.h"
 #include "packet-ntlmssp.h"
@@ -873,8 +874,80 @@ smb2stat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 	return 1;
 }
 
+/* Structure for SessionID <=> SessionKey mapping for decryption. */
+typedef struct _smb2_seskey_field_t {
+	guchar *id;
+	guint id_len;
+	guchar *key;
+	guint key_len;
+} smb2_seskey_field_t;
+
+static smb2_seskey_field_t *seskey_list = NULL;
+static guint num_seskey_list = 0;
 
 static const gint8 zeros[NTLMSSP_KEY_LEN] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
+/* Callbacks for SessionID <=> SessionKey mapping. */
+UAT_BUFFER_CB_DEF(seskey_list, id, smb2_seskey_field_t, id, id_len)
+UAT_BUFFER_CB_DEF(seskey_list, key, smb2_seskey_field_t, key, key_len)
+
+#define SMB_SESSION_ID_SIZE 8
+
+static gboolean seskey_list_update_cb(void *r, char **err)
+{
+	smb2_seskey_field_t *rec = (smb2_seskey_field_t *)r;
+
+	*err = NULL;
+
+	if (rec->id_len != SMB_SESSION_ID_SIZE) {
+		*err = g_strdup("Session ID must be " G_STRINGIFY(SMB_SESSION_ID_SIZE) " bytes long and in hexadecimal");
+		return FALSE;
+	}
+
+	if (rec->key_len == 0 || rec->key_len > NTLMSSP_KEY_LEN) {
+		*err = g_strdup("Session Key must be a non-empty hexadecimal string representing at most " G_STRINGIFY(NTLMSSP_KEY_LEN) " bytes");
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+static void* seskey_list_copy_cb(void *n, const void *o, size_t siz _U_)
+{
+	smb2_seskey_field_t *new_rec = (smb2_seskey_field_t *)n;
+	const smb2_seskey_field_t *old_rec = (const smb2_seskey_field_t *)o;
+
+	new_rec->id_len = old_rec->id_len;
+	new_rec->id = old_rec->id ? (guchar *)g_memdup(old_rec->id, old_rec->id_len) : NULL;
+	new_rec->key_len = old_rec->key_len;
+	new_rec->key = old_rec->key ? (guchar *)g_memdup(old_rec->key, old_rec->key_len) : NULL;
+
+	return new_rec;
+}
+
+static void seskey_list_free_cb(void *r)
+{
+	smb2_seskey_field_t *rec = (smb2_seskey_field_t *)r;
+
+	g_free(rec->id);
+	g_free(rec->key);
+}
+
+static gboolean seskey_find_sid_key(guint64 sesid, guint8 *out_key)
+{
+	guint i;
+
+	for (i = 0; i < num_seskey_list; i++) {
+		const smb2_seskey_field_t *p = &seskey_list[i];
+		if (memcmp(&sesid, p->id, SMB_SESSION_ID_SIZE) == 0) {
+			memset(out_key, 0, NTLMSSP_KEY_LEN);
+			memcpy(out_key, p->key, p->key_len);
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
 
 /* ExportObject preferences variable */
 gboolean eosmb2_take_name_as_fid = FALSE ;
@@ -2950,6 +3023,31 @@ dissect_smb2_secblob(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_i
 	}
 }
 
+/*
+ * Derive client and server decryption keys from the secret session key
+ * and set them in the session object.
+ */
+static void smb2_set_session_keys(smb2_sesid_info_t *sesid, const guint8 *session_key)
+{
+	if (memcmp(session_key, zeros, NTLMSSP_KEY_LEN) != 0) {
+		smb2_key_derivation(session_key,
+				    NTLMSSP_KEY_LEN,
+				    "SMB2AESCCM", 11,
+				    "ServerIn ", 10,
+				    sesid->server_decryption_key);
+		smb2_key_derivation(session_key,
+				    NTLMSSP_KEY_LEN,
+				    "SMB2AESCCM", 11,
+				    "ServerOut", 10,
+				    sesid->client_decryption_key);
+	} else {
+		memset(sesid->server_decryption_key, 0,
+		       sizeof(sesid->server_decryption_key));
+		memset(sesid->client_decryption_key, 0,
+		       sizeof(sesid->client_decryption_key));
+	}
+}
+
 static int
 dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
@@ -3011,28 +3109,24 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		while ((ntlmssph = (const ntlmssp_header_t *)fetch_tapped_data(ntlmssp_tap_id, idx++)) != NULL) {
 			if (ntlmssph && ntlmssph->type == NTLMSSP_AUTH) {
 				smb2_sesid_info_t *sesid;
+				guint8 custom_seskey[NTLMSSP_KEY_LEN];
+				const guint8 *session_key;
+
 				sesid = wmem_new(wmem_file_scope(), smb2_sesid_info_t);
 				sesid->sesid = si->sesid;
 				sesid->acct_name = wmem_strdup(wmem_file_scope(), ntlmssph->acct_name);
 				sesid->domain_name = wmem_strdup(wmem_file_scope(), ntlmssph->domain_name);
 				sesid->host_name = wmem_strdup(wmem_file_scope(), ntlmssph->host_name);
-				if (memcmp(ntlmssph->session_key, zeros, NTLMSSP_KEY_LEN) != 0) {
-					smb2_key_derivation(ntlmssph->session_key,
-							    NTLMSSP_KEY_LEN,
-							    "SMB2AESCCM", 11,
-							    "ServerIn ", 10,
-							    sesid->server_decryption_key);
-					smb2_key_derivation(ntlmssph->session_key,
-							    NTLMSSP_KEY_LEN,
-							    "SMB2AESCCM", 11,
-							    "ServerOut", 10,
-							    sesid->client_decryption_key);
+
+				/* Try to see first if we have a
+				 * session key set in the pref for
+				 * this particular session id */
+				if (seskey_find_sid_key(si->sesid, custom_seskey)) {
+					session_key = custom_seskey;
 				} else {
-					memset(sesid->server_decryption_key, 0,
-					       sizeof(sesid->server_decryption_key));
-					memset(sesid->client_decryption_key, 0,
-					       sizeof(sesid->client_decryption_key));
+					session_key = ntlmssph->session_key;
 				}
+				smb2_set_session_keys(sesid, session_key);
 				sesid->server_port = pinfo->destport;
 				sesid->auth_frame = pinfo->num;
 				sesid->tids = g_hash_table_new(smb2_tid_info_hash, smb2_tid_info_equal);
@@ -3206,9 +3300,8 @@ dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 		if (ek != NULL) {
 			smb2_sesid_info_t *sesid;
-			guint8 session_key[16] = { 0, };
-
-			memcpy(session_key, ek->keyvalue, MIN(ek->keylength, 16));
+			guint8 custom_seskey[NTLMSSP_KEY_LEN] = { 0, };
+			const guint8 *session_key;
 
 			sesid = wmem_new(wmem_file_scope(), smb2_sesid_info_t);
 			sesid->sesid = si->sesid;
@@ -3216,14 +3309,13 @@ dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 			sesid->acct_name = NULL;
 			sesid->domain_name = NULL;
 			sesid->host_name = NULL;
-			smb2_key_derivation(session_key, sizeof(session_key),
-					    "SMB2AESCCM", 11,
-					    "ServerIn ", 10,
-					    sesid->server_decryption_key);
-			smb2_key_derivation(session_key, sizeof(session_key),
-					    "SMB2AESCCM", 11,
-					    "ServerOut", 10,
-					    sesid->client_decryption_key);
+
+			if (seskey_find_sid_key(si->sesid, custom_seskey)) {
+				session_key = custom_seskey;
+			} else {
+				session_key = ek->keyvalue;
+			}
+			smb2_set_session_keys(sesid, session_key);
 			sesid->server_port = pinfo->srcport;
 			sesid->auth_frame = pinfo->num;
 			sesid->tids = g_hash_table_new(smb2_tid_info_hash, smb2_tid_info_equal);
@@ -8883,14 +8975,14 @@ dissect_smb2_transform_header(packet_info *pinfo, proto_tree *tree,
 			decryption_key = sti->session->client_decryption_key;
 		}
 
-		if (memcmp(decryption_key, zeros, 16) == 0) {
+		if (memcmp(decryption_key, zeros, NTLMSSP_KEY_LEN) == 0) {
 			decryption_key = NULL;
 		}
 	}
 
 	if (decryption_key != NULL) {
 		gcry_cipher_hd_t cipher_hd = NULL;
-		guint8 A_1[16] = {
+		guint8 A_1[NTLMSSP_KEY_LEN] = {
 			3, 0, 0, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 0, 1
 		};
@@ -8907,13 +8999,13 @@ dissect_smb2_transform_header(packet_info *pinfo, proto_tree *tree,
 		}
 
 		/* Set the key and initial value. */
-		if (gcry_cipher_setkey(cipher_hd, decryption_key, 16)) {
+		if (gcry_cipher_setkey(cipher_hd, decryption_key, NTLMSSP_KEY_LEN)) {
 			gcry_cipher_close(cipher_hd);
 			wmem_free(pinfo->pool, plain_data);
 			plain_data = NULL;
 			goto done_decryption;
 		}
-		if (gcry_cipher_setctr(cipher_hd, A_1, 16)) {
+		if (gcry_cipher_setctr(cipher_hd, A_1, NTLMSSP_KEY_LEN)) {
 			gcry_cipher_close(cipher_hd);
 			wmem_free(pinfo->pool, plain_data);
 			plain_data = NULL;
@@ -9012,7 +9104,11 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 	sesid_key.sesid = si->sesid;
 	si->session = (smb2_sesid_info_t *)g_hash_table_lookup(si->conv->sesids, &sesid_key);
 	if (!si->session) {
-		if (si->opcode != 0x03) return offset;
+		guint8 seskey[NTLMSSP_KEY_LEN] = {0, };
+
+		if (si->opcode != 0x03)
+			return offset;
+
 
 		/* if we come to a session that is unknown, and the operation is
 		 * a tree connect, we create a dummy sessison, so we can hang the
@@ -9027,6 +9123,10 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 		} else {
 			si->session->server_port = pinfo->destport;
 		}
+		if (seskey_find_sid_key(si->sesid, seskey)) {
+			smb2_set_session_keys(si->session, seskey);
+		}
+
 		g_hash_table_insert(si->conv->sesids, si->session, si->session);
 
 		return offset;
@@ -11721,6 +11821,15 @@ proto_register_smb2(void)
 
 	expert_module_t* expert_smb2;
 
+	/* SessionID <=> SessionKey mappings for decryption */
+	uat_t *seskey_uat;
+
+	static uat_field_t seskey_uat_fields[] = {
+		UAT_FLD_BUFFER(seskey_list, id, "Session ID", "The session ID buffer, coded as hex string, as it appears on the wire (LE)."),
+		UAT_FLD_BUFFER(seskey_list, key, "Session Key", "The secret session key buffer, coded as 16-byte hex string as it appears on the wire (LE)."),
+		UAT_END_FIELDS
+	};
+
 	proto_smb2 = proto_register_protocol("SMB2 (Server Message Block Protocol version 2)",
 					     "SMB2", "smb2");
 	proto_register_subtree_array(ett, array_length(ett));
@@ -11738,6 +11847,28 @@ proto_register_smb2(void)
 		"Reassemble Named Pipes over SMB2",
 		"Whether the dissector should reassemble Named Pipes over SMB2 commands",
 		&smb2_pipe_reassembly);
+
+	seskey_uat = uat_new("Secret session key to use for decryption",
+			     sizeof(smb2_seskey_field_t),
+			     "smb2_seskey_list",
+			     TRUE,
+			     &seskey_list,
+			     &num_seskey_list,
+			     (UAT_AFFECTS_DISSECTION | UAT_AFFECTS_FIELDS),
+			     NULL,
+			     seskey_list_copy_cb,
+			     seskey_list_update_cb,
+			     seskey_list_free_cb,
+			     NULL,
+			     NULL,
+			     seskey_uat_fields);
+
+	prefs_register_uat_preference(smb2_module,
+				      "seskey_list",
+				      "Secret session keys for decryption",
+				      "A table of Session ID to Session key mappings used to derive decryption keys.",
+				      seskey_uat);
+
 	smb2_pipe_subdissector_list = register_heur_dissector_list("smb2_pipe_subdissectors", proto_smb2);
 	/*
 	 * XXX - addresses_ports_reassembly_table_functions?
