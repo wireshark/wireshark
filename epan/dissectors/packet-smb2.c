@@ -8873,6 +8873,11 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 		si->session->sesid      = si->sesid;
 		si->session->auth_frame = (guint32)-1;
 		si->session->tids       = g_hash_table_new(smb2_tid_info_hash, smb2_tid_info_equal);
+		if (si->flags & SMB2_FLAGS_RESPONSE) {
+			si->session->server_port = pinfo->srcport;
+		} else {
+			si->session->server_port = pinfo->destport;
+		}
 		g_hash_table_insert(si->conv->sesids, si->session, si->session);
 
 		return offset;
