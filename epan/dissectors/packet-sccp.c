@@ -2887,8 +2887,8 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
                                      offset, SEGMENTING_REASSEMBLING_LENGTH, &sccp_info);
     VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH);
 
-    /* Reassemble (only if there are fragments involved) */
-    if ((!sccp_reassemble) || (!more && (fragment_get_reassembled(&sccp_xudt_msg_reassembly_table, source_local_ref) == NULL))) {
+    /* Reassemble */
+    if (!sccp_reassemble) {
       proto_tree_add_item(sccp_tree, hf_sccp_segmented_data, tvb, variable_pointer1,
                           tvb_get_guint8(tvb, variable_pointer1)+1, ENC_NA);
       dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
