@@ -29,10 +29,12 @@ Tools menu (or use the context menu in the packet list). Wireshark will set an
 appropriate display filter and pop up a dialog box with all the data from the
 TCP stream laid out in order, as shown in <<ChAdvFollowStream>>.
 
-[NOTE]
+[TIP]
 ====
-Opening the ``Follow TCP Stream'' installs a display filter to
-select all the packets in the TCP stream you have selected.
+Opening the ``Follow TCP Stream'' applies a display filter which selects
+all the packets in the TCP stream you have selected. Some people open the
+``Follow TCP Stream'' dialog and immediately close it as a quick way to
+isolate a particular stream.
 ====
 
 ==== The ``Follow TCP Stream'' dialog box
@@ -330,6 +332,194 @@ An optional ``Expert Info Severity'' packet list column is available that
 displays the most significant severity of a packet or stays empty if everything
 seems OK. This column is not displayed by default but can be easily added using
 the Preferences Columns page described in <<ChCustPreferencesSection>>.
+
+[[ChAdvTCPAnalysis]]
+
+=== TCP Analysis
+
+By default, Wireshark's TCP dissector tracks the state of each TCP
+session and provides additional information when problems or potential
+problems are detected. Analysis is done once for each TCP packet when a
+capture file is first opened. Packets are processed in the order in
+which they appear in the packet list. You can enable or disable this
+feature via the ``Analyze TCP sequence numbers'' TCP dissector preference.
+
+.``TCP Analysis'' packet detail items
+image::wsug_graphics/ws-tcp-analysis.png[{screenshot-attrs}]
+
+TCP Analysis flags are added to the TCP protocol tree under ``SEQ/ACK
+analysis''. Each flag is described below. The terms ``next expected
+sequence number'' and ``next expected acknowledgement number'' refer to
+the following'':
+
+// tcp_analyze_seq_info->nextseq
+Next expected sequence number:: The last-seen sequence number plus
+segment length. Set when there are no analysis flags and and for zero
+window probes.
+
+// tcp_analyze_seq_info->maxseqtobeacked
+Next expected acknowledgement number:: The last-seen sequence number for
+segments. Set when there are no analysis flags and for zero window probes.
+
+// tcp_analyze_seq_info->lastack
+Last-seen acknowledgment number:: Always set. Note that this is not the
+same as the next expected acknowledgment number.
+
+// tcp_analyze_seq_info->lastack
+Last-seen acknowledgment number:: Always updated for each packet. Note
+that this is not the same as the next expected acknowledgment number.
+
+// TCP_A_ACK_LOST_PACKET
+[float]
+==== TCP ACKed unseen segment
+
+Set when the expected next acknowledgement number is set for the reverse
+direction and it's less than the current acknowledgement number.
+
+// TCP_A_DUPLICATE_ACK
+[float]
+==== TCP Dup ACK __<frame>__#__<acknowledgement number>__
+
+Set when all of the following are true:
+
+- The segment size is zero.
+- The window size is non-zero and hasn't changed.
+- The next expected sequence number and last-seen acknowledgment number are non-zero (i.e. the connection has been established).
+- SYN, FIN, and RST are not set.
+
+// TCP_A_FAST_RETRANSMISSION
+[float]
+==== TCP Fast Retransmission
+
+Set when all of the following are true:
+
+- In the forward direction, the segment size is greater than zero or the SYN or FIN is set.
+- The next expected sequence number is greater than the current sequence number.
+- We have more than two duplicate ACKs in the reverse direction.
+- The current sequence number equals the next expected acknowledgement number.
+- We saw the last acknowledgement less than 20ms ago.
+
+Supersedes ``Out-Of-Order'', ``Spurious Retransmission'', and ``Retransmission''.
+
+// TCP_A_KEEP_ALIVE
+[float]
+==== TCP Keep-Alive
+
+Set when the segment size is zero or one, the current sequence number
+is one byte less than the next expected sequence number, and any of SYN,
+FIN, or RST are set.
+
+Supersedes ``Fast Retransmission'', ``Out-Of-Order'', ``Spurious
+Retransmission'', and ``Retransmission''.
+
+// TCP_A_KEEP_ALIVE_ACK
+[float]
+==== TCP Keep-Alive ACK
+
+Set when all of the following are true:
+
+- The segment size is zero.
+- The window size is non-zero and hasn't changed.
+- The current sequence number is the same as the next expected sequence number.
+- The current acknowledgement number is the same as the last-seen acknowledgement number.
+- The most recently seen packet in the reverse direction was a keepalive.
+- The packet is not a SYN, FIN, or RST.
+
+Supersedes ``Dup ACK'' and ``ZeroWindowProbeAck''.
+
+// TCP_A_OUT_OF_ORDER
+[float]
+==== TCP Out-Of-Order
+
+Set when all of the following are true:
+
+- In the forward direction, the segment length is greater than zero or the SYN or FIN is set.
+- The next expected sequence number is greater than the current sequence number.
+- The next expected sequence number and the next sequence number differ.
+- The last segment arrived within the calculated RTT (3ms by default).
+
+Supersedes ``Spurious Retransmission'' and ``Retransmission''.
+
+// TCP_A_REUSED_PORTS
+[float]
+==== TCP Port numbers reused
+
+Set when the SYN flag is set (not SYN+ACK), we have an existing conversation using the same addresses and ports, and the sequencue number is different than the existing conversation's initial sequence number.
+
+// TCP_A_LOST_PACKET
+[float]
+==== TCP Previous segment not captured
+
+Set when the current sequence number is greater than the next expected sequence number.
+
+// TCP_A_SPURIOUS_RETRANSMISSION
+[float]
+==== TCP Spurious Retransmission
+
+Set when all of the following are true:
+
+- In the forward direction, the segment length is greater than zero or the SYN or FIN is set.
+- The next expected sequence number is greater than the current sequence number.
+- The next sequence number is less than or equal to the last-seen acknowledgement number.
+
+Supersedes ``Retransmission''.
+
+// TCP_A_RETRANSMISSION
+[float]
+==== TCP Retransmission
+
+Set when all of the following are true:
+
+- In the forward direction, the segment length is greater than zero or the SYN or FIN is set.
+- The next expected sequence number is greater than the current sequence number.
+
+// TCP_A_WINDOW_FULL
+[float]
+==== TCP Window Full
+
+Set when the segment size is non-zero, we know the window size in the
+reverse direction, and our segment size exceeds the window size in the
+reverse direction.
+
+// TCP_A_WINDOW_UPDATE
+[float]
+==== TCP Window Update
+
+Set when the all of the following are true:
+
+- The segment size is zero.
+- The window size is non-zero and not equal to the last-seen window size.
+- The sequence number is equal to the next expected sequence number.
+- The acknowledgement number is equal to the last-seen acknowledgement number.
+- None of SYN, FIN, or RST are set.
+
+// TCP_A_ZERO_WINDOW
+[float]
+==== TCP ZeroWindow
+
+Set when the window size is zero and non of SYN, FIN, or RST are set.
+
+// TCP_A_ZERO_WINDOW_PROBE
+[float]
+==== TCP ZeroWindowProbe
+
+Set when the sequence number is equal to the next expected sequence
+number, the segment size is one, and last-seen window size in the
+reverse direction was zero.
+
+// TCP_A_ZERO_WINDOW_PROBE_ACK
+[float]
+==== TCP ZeroWindowProbeAck
+
+Set when the all of the following are true:
+
+- The segment size is zero.
+- The window size is zero.
+- The sequence number is equal to the next expected sequence number.
+- The acknowledgement number is equal to the last-seen acknowledgement number.
+- The last-seen packet in the reverse direction was a zero window probe.
+
+Supersedes ``TCP Dup ACK''.
 
 [[ChAdvTimestamps]]
 

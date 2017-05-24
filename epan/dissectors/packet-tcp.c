@@ -1746,11 +1746,11 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 
 #if 0
     printf("\nanalyze_sequence numbers   frame:%u\n",pinfo->num);
-    printf("FWD list lastflags:0x%04x base_seq:%u:\n",tcpd->fwd->lastsegmentflags,tcpd->fwd->base_seq);
-    for(ual=tcpd->fwd->segments; ual; ual=ual->next)
+    printf("FWD list lastflags:0x%04x base_seq:%u: nextseq:%u\n",tcpd->fwd->lastsegmentflags,tcpd->fwd->base_seq,tcpd->fwd->tcp_analyze_seq_info->nextseq);
+    for(ual=tcpd->fwd->tcp_analyze_seq_info->segments; ual; ual=ual->next)
             printf("Frame:%d Seq:%u Nextseq:%u\n",ual->frame,ual->seq,ual->nextseq);
-    printf("REV list lastflags:0x%04x base_seq:%u:\n",tcpd->rev->lastsegmentflags,tcpd->rev->base_seq);
-    for(ual=tcpd->rev->segments; ual; ual=ual->next)
+    printf("REV list lastflags:0x%04x base_seq:%u nextseq:%u\n",tcpd->rev->lastsegmentflags,tcpd->rev->base_seq,tcpd->rev->tcp_analyze_seq_info->nextseq);
+    for(ual=tcpd->rev->tcp_analyze_seq_info->segments; ual; ual=ual->next)
             printf("Frame:%d Seq:%u Nextseq:%u\n",ual->frame,ual->seq,ual->nextseq);
 #endif
 
