@@ -1774,8 +1774,9 @@ typedef struct _mq_parm_t
 #define MQ_MQCMDL_LEVEL_801               801
 #define MQ_MQCMDL_LEVEL_802               802
 #define MQ_MQCMDL_LEVEL_900               900
-#define MQ_MQCMDL_CURRENT_LEVEL           900
-
+#define MQ_MQCMDL_LEVEL_901               901
+#define MQ_MQCMDL_LEVEL_902               902
+#define MQ_MQCMDL_CURRENT_LEVEL           902
 
 /* Key reuse count */
 #define MQ_MQKEY_REUSE_DISABLED           0
@@ -1927,6 +1928,23 @@ typedef struct _mq_parm_t
 #define MQ_MQCAP_NOT_SUPPORTED            0
 #define MQ_MQCAP_SUPPORTED                1
 #define MQ_MQCAP_EXPIRED                  2
+
+/* Media Image Scheduling */
+#define MQ_MQMEDIMGSCHED_MANUAL           0
+#define MQ_MQMEDIMGSCHED_AUTO             1
+
+/* Automatic Media Image Interval */
+#define MQ_MQMEDIMGINTVL_OFF              0
+
+/* Automatic Media Image Log Length */
+#define MQ_MQMEDIMGLOGLN_OFF              0
+
+/* Media Image Recoverability */
+#define MQ_MQIMGRCOV_NO                   0
+#define MQ_MQIMGRCOV_YES                  1
+#define MQ_MQIMGRCOV_AS_Q_MGR             2
+
+
 /****************************************************************/
 /* Values Related to Topic Attributes                           */
 /****************************************************************/
@@ -2345,7 +2363,7 @@ typedef struct _mq_parm_t
 #define MQ_MQIA_IP_ADDRESS_VERSION        93
 #define MQ_MQIA_KEY_REUSE_COUNT           267
 #define MQ_MQIA_LAST                      2000
-#define MQ_MQIA_LAST_USED                 266
+#define MQ_MQIA_LAST_USED                 272
 #define MQ_MQIA_LDAP_AUTHORMD             263
 #define MQ_MQIA_LDAP_NESTGRP              264
 #define MQ_MQIA_LDAP_SECURE_COMM          261
@@ -2370,6 +2388,11 @@ typedef struct _mq_parm_t
 #define MQ_MQIA_MAX_RESPONSES             230
 #define MQ_MQIA_MAX_UNCOMMITTED_MSGS      33
 #define MQ_MQIA_MCAST_BRIDGE              233
+#define MQ_MQIA_MEDIA_IMAGE_INTERVAL      269
+#define MQ_MQIA_MEDIA_IMAGE_LOG_LENGTH    270
+#define MQ_MQIA_MEDIA_IMAGE_RECOVER_OBJ   271
+#define MQ_MQIA_MEDIA_IMAGE_RECOVER_Q     272
+#define MQ_MQIA_MEDIA_IMAGE_SCHEDULING    268
 #define MQ_MQIA_MONITORING_AUTO_CLUSSDR   124
 #define MQ_MQIA_MONITORING_CHANNEL        122
 #define MQ_MQIA_MONITORING_Q              123
@@ -3052,6 +3075,10 @@ typedef struct _mq_parm_t
 #define MQ_MQRCCF_SERVICE_NAME_ERROR      3375
 #define MQ_MQRCCF_REMOTE_CHL_TYPE_ERROR   3376
 #define MQ_MQRCCF_TOPIC_RESTRICTED        3377
+#define MQ_MQRCCF_CURRENT_LOG_EXTENT      3378
+#define MQ_MQRCCF_LOG_EXTENT_NOT_FOUND    3379
+#define MQ_MQRCCF_LOG_NOT_REDUCED         3380
+#define MQ_MQRCCF_LOG_EXTENT_ERROR        3381
 #define MQ_MQRCCF_OBJECT_ALREADY_EXISTS   4001
 #define MQ_MQRCCF_OBJECT_WRONG_TYPE       4002
 #define MQ_MQRCCF_LIKE_OBJECT_WRONG_TYPE  4003
@@ -3745,11 +3772,18 @@ typedef struct _mq_parm_t
 #define MQ_MQIACF_LDAP_CONNECTION_STATUS  1409
 #define MQ_MQIACF_SYSP_MAX_ACE_POOL       1410
 #define MQ_MQIACF_PAGECLAS                1411
-#define MQ_MQIACF_AUTH_REC_TYPE           1412 /*MQV8*/
-#define MQ_MQIACF_SYSP_MAX_CONC_OFFLOADS  1413 /*MQV9*/
-#define MQ_MQIACF_SYSP_ZHYPERWRITE        1414 /*MQV9*/
-
-#define MQ_MQIACF_LAST_USED               1414
+#define MQ_MQIACF_AUTH_REC_TYPE           1412
+#define MQ_MQIACF_SYSP_MAX_CONC_OFFLOADS  1413
+#define MQ_MQIACF_SYSP_ZHYPERWRITE        1414
+#define MQ_MQIACF_Q_MGR_STATUS_LOG        1415
+#define MQ_MQIACF_ARCHIVE_LOG_SIZE        1416
+#define MQ_MQIACF_MEDIA_LOG_SIZE          1417
+#define MQ_MQIACF_RESTART_LOG_SIZE        1418
+#define MQ_MQIACF_REUSABLE_LOG_SIZE       1419
+#define MQ_MQIACF_LOG_IN_USE              1420
+#define MQ_MQIACF_LOG_UTILIZATION         1421
+#define MQ_MQIACF_LOG_REDUCTION           1422
+#define MQ_MQIACF_LAST_USED               1422
 
 /* Access Options */
 #define MQ_MQCFACCESS_ENABLED             0
@@ -4145,7 +4179,8 @@ typedef struct _mq_parm_t
 #define MQ_MQCACF_EXCL_OPERATOR_MESSAGES  3205
 #define MQ_MQCACF_CSP_USER_IDENTIFIER     3206
 #define MQ_MQCACF_AMQP_CLIENT_ID          3207
-#define MQ_MQCACF_LAST_USED               3207
+#define MQ_MQCACF_ARCHIVE_LOG_EXTENT_NAME 3208
+#define MQ_MQCACF_LAST_USED               3208
 
 /* Character Channel Parameter Types */
 #define MQ_MQCACH_FIRST                   3501
@@ -4249,6 +4284,8 @@ typedef struct _mq_parm_t
 #define MQ_MQACT_REMOVE                   7
 #define MQ_MQACT_REMOVEALL                8
 #define MQ_MQACT_FAIL                     9
+#define MQ_MQACT_REDUCE_LOG               10
+#define MQ_MQACT_ARCHIVE_LOG              11
 
 /* Asynchronous State Values */
 #define MQ_MQAS_NONE                      0
@@ -4449,6 +4486,7 @@ typedef struct _mq_parm_t
 #define MQ_MQEVO_INTERNAL                 5
 #define MQ_MQEVO_MQSUB                    6
 #define MQ_MQEVO_CTLMSG                   7
+#define MQ_MQEVO_REST                     8
 
 /* Event Recording */
 #define MQ_MQEVR_DISABLED                 0
@@ -4821,6 +4859,11 @@ typedef struct _mq_parm_t
 /* Multicast New Subscriber History Options */
 #define MQ_MQNSH_NONE                     0
 #define MQ_MQNSH_ALL                      (-1)
+
+/* Reduce Log Options */
+#define MQ_MQLR_ONE                       1
+#define MQ_MQLR_AUTO                      (-1)
+#define MQ_MQLR_MAX                       (-2)
 
 /* Activity Operations */
 #define MQ_MQOPER_UNKNOWN                 0
