@@ -565,7 +565,8 @@ NeighCellConfig TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(lte_rrc_neighCellCon
 
 #.FN_FTR NeighCellConfig
   if (neigh_cell_config_tvb) {
-    actx->created_item = proto_tree_add_uint(tree, hf_index, neigh_cell_config_tvb, 0, 1, tvb_get_bits8(neigh_cell_config_tvb, 0, 2));
+    guint bitvalue = tvb_get_bits8(neigh_cell_config_tvb, 0, 2);
+    actx->created_item = proto_tree_add_uint(tree, hf_index, neigh_cell_config_tvb, 0, 1, bitvalue);
   }
 
 #.FN_BODY LocationInfo-r10/locationCoordinates-r10/ellipsoid-Point-r10 VAL_PTR = &ellipsoid_point_tvb
@@ -862,7 +863,8 @@ SystemInformationBlockType16-r11/timeInfo-r11/dayLightSavingTime-r11 TYPE=FT_UIN
 
 #.FN_FTR SystemInformationBlockType16-r11/timeInfo-r11/dayLightSavingTime-r11
   if (daylight_saving_time_tvb) {
-    actx->created_item = proto_tree_add_uint(tree, hf_index, daylight_saving_time_tvb, 0, 1, tvb_get_bits8(daylight_saving_time_tvb, 0, 2));
+    guint bitvalue = tvb_get_bits8(daylight_saving_time_tvb, 0, 2);
+    actx->created_item = proto_tree_add_uint(tree, hf_index, daylight_saving_time_tvb, 0, 1, bitvalue);
   }
 
 #.TYPE_ATTR
@@ -925,7 +927,8 @@ LogMeasInfo-r10/relativeTimeStamp-r10 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=
   tvbuff_t *n_r12_tvb = NULL;
 %(DEFAULT_BODY)s
   if (n_r12_tvb) {
-    actx->created_item = proto_tree_add_uint(tree, hf_index, n_r12_tvb, 0, 1, tvb_get_bits8(n_r12_tvb, 0, 3));
+    guint bitvalue = tvb_get_bits8(n_r12_tvb, 0, 3);
+    actx->created_item = proto_tree_add_uint(tree, hf_index, n_r12_tvb, 0, 1, bitvalue);
   }
 
 #.TYPE_ATTR

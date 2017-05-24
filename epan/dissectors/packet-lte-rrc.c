@@ -10127,7 +10127,8 @@ dissect_lte_rrc_NeighCellConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 
   if (neigh_cell_config_tvb) {
-    actx->created_item = proto_tree_add_uint(tree, hf_index, neigh_cell_config_tvb, 0, 1, tvb_get_bits8(neigh_cell_config_tvb, 0, 2));
+    guint bitvalue = tvb_get_bits8(neigh_cell_config_tvb, 0, 2);
+    actx->created_item = proto_tree_add_uint(tree, hf_index, neigh_cell_config_tvb, 0, 1, bitvalue);
   }
 
   return offset;
@@ -39223,7 +39224,8 @@ dissect_lte_rrc_T_dayLightSavingTime_r11(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 
   if (daylight_saving_time_tvb) {
-    actx->created_item = proto_tree_add_uint(tree, hf_index, daylight_saving_time_tvb, 0, 1, tvb_get_bits8(daylight_saving_time_tvb, 0, 2));
+    guint bitvalue = tvb_get_bits8(daylight_saving_time_tvb, 0, 2);
+    actx->created_item = proto_tree_add_uint(tree, hf_index, daylight_saving_time_tvb, 0, 1, bitvalue);
   }
 
   return offset;
@@ -51348,7 +51350,8 @@ dissect_lte_rrc_T_n_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
                                      3, 3, FALSE, &n_r12_tvb, NULL);
 
   if (n_r12_tvb) {
-    actx->created_item = proto_tree_add_uint(tree, hf_index, n_r12_tvb, 0, 1, tvb_get_bits8(n_r12_tvb, 0, 3));
+    guint bitvalue = tvb_get_bits8(n_r12_tvb, 0, 3);
+    actx->created_item = proto_tree_add_uint(tree, hf_index, n_r12_tvb, 0, 1, bitvalue);
   }
 
 
