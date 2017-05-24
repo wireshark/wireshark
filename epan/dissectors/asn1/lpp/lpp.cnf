@@ -345,7 +345,8 @@ NeighbourMeasurementElement/rstd DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_rstd_fm
 
 #.FN_FTR OTDOA-MeasQuality/error-Resolution
   if (error_Resolution_tvb) {
-    actx->created_item = proto_tree_add_uint(tree, hf_index, error_Resolution_tvb, 0, 1, tvb_get_bits8(error_Resolution_tvb, 0, 2));
+    guint bitvalue = tvb_get_bits8(error_Resolution_tvb, 0, 2);
+    actx->created_item = proto_tree_add_uint(tree, hf_index, error_Resolution_tvb, 0, 1, bitvalue);
   }
 
 #.TYPE_ATTR
@@ -357,7 +358,8 @@ OTDOA-MeasQuality/error-Resolution TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(l
 
 #.FN_FTR OTDOA-MeasQuality/error-Value
   if (error_Value_tvb) {
-    actx->created_item = proto_tree_add_uint(tree, hf_index, error_Value_tvb, 0, 1, tvb_get_bits8(error_Value_tvb, 0, 5));
+    guint bitvalue = tvb_get_bits8(error_Value_tvb, 0, 5);
+    actx->created_item = proto_tree_add_uint(tree, hf_index, error_Value_tvb, 0, 1, bitvalue);
   }
 
 #.TYPE_ATTR
@@ -369,7 +371,8 @@ OTDOA-MeasQuality/error-Value TYPE=FT_UINT8 DISPLAY=BASE_DEC|BASE_EXT_STRING STR
 
 #.FN_FTR OTDOA-MeasQuality/error-NumSamples
   if (error_NumSamples_tvb) {
-    actx->created_item = proto_tree_add_uint(tree, hf_index, error_NumSamples_tvb, 0, 1, tvb_get_bits8(error_NumSamples_tvb, 0, 3));
+    guint bitvalue = tvb_get_bits8(error_NumSamples_tvb, 0, 3);
+    actx->created_item = proto_tree_add_uint(tree, hf_index, error_NumSamples_tvb, 0, 1, bitvalue);
   }
 
 #.TYPE_ATTR
@@ -401,7 +404,8 @@ GNSS-ReferenceTimeForOneCell/referenceTimeUnc DISPLAY=BASE_CUSTOM STRINGS=CF_FUN
 
 #.FN_FTR GNSS-SystemTime/notificationOfLeapSecond
   if (notificationOfLeapSecond_tvb) {
-    actx->created_item = proto_tree_add_uint(tree, hf_index, notificationOfLeapSecond_tvb, 0, 1, tvb_get_bits8(notificationOfLeapSecond_tvb, 0, 2));
+    guint bitvalue = tvb_get_bits8(notificationOfLeapSecond_tvb, 0, 2);
+    actx->created_item = proto_tree_add_uint(tree, hf_index, notificationOfLeapSecond_tvb, 0, 1, bitvalue);
   }
 
 #.TYPE_ATTR
@@ -419,7 +423,8 @@ NetworkTime/frameDrift DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_frameDrift_fmt)
 
 #.FN_FTR KlobucharModelParameter/dataID
   if (dataID_tvb) {
-    actx->created_item = proto_tree_add_uint(tree, hf_index, dataID_tvb, 0, 1, tvb_get_bits8(dataID_tvb, 0, 2));
+    guint bitvalue = tvb_get_bits8(dataID_tvb, 0, 2);
+    actx->created_item = proto_tree_add_uint(tree, hf_index, dataID_tvb, 0, 1, bitvalue);
   }
 
 #.TYPE_ATTR
@@ -837,7 +842,8 @@ NavModel-GLONASS-ECEF/gloEn DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_day
 
 #.FN_FTR NavModel-GLONASS-ECEF/gloP1
   if (gloP1_tvb) {
-    actx->created_item = proto_tree_add_uint(tree, hf_index, gloP1_tvb, 0, 1, tvb_get_bits8(gloP1_tvb, 0, 2));
+    guint bitvalue = tvb_get_bits8(gloP1_tvb, 0, 2);
+    actx->created_item = proto_tree_add_uint(tree, hf_index, gloP1_tvb, 0, 1, bitvalue);
   }
 
 #.TYPE_ATTR
@@ -1274,7 +1280,8 @@ UTC-ModelSet2/utcWNlsf DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_week_wee
 
 #.FN_FTR UTC-ModelSet2/utcDN
   if (utcDN_tvb) {
-    actx->created_item = proto_tree_add_uint(tree, hf_index, utcDN_tvb, 0, 1, tvb_get_bits8(utcDN_tvb, 0, 4));
+    guint bitvalue = tvb_get_bits8(utcDN_tvb, 0, 4);
+    actx->created_item = proto_tree_add_uint(tree, hf_index, utcDN_tvb, 0, 1, bitvalue);
   }
 
 #.TYPE_ATTR
@@ -1301,7 +1308,8 @@ UTC-ModelSet3/b2 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_b2_fmt)
 
 #.FN_FTR UTC-ModelSet3/kp
   if (kp_tvb) {
-    actx->created_item = proto_tree_add_uint(tree, hf_index, kp_tvb, 0, 1, tvb_get_bits8(kp_tvb, 0, 2));
+    guint bitvalue = tvb_get_bits8(kp_tvb, 0, 2);
+    actx->created_item = proto_tree_add_uint(tree, hf_index, kp_tvb, 0, 1, bitvalue);
   }
 
 #.TYPE_ATTR
