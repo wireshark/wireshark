@@ -94,6 +94,10 @@ static int hf_icq_nickname = -1;
 static int hf_icq_first_name = -1;
 static int hf_icq_last_name = -1;
 static int hf_icq_email = -1;
+static int hf_icq_nickname_uint_string = -1;
+static int hf_icq_first_name_uint_string = -1;
+static int hf_icq_last_name_uint_string = -1;
+static int hf_icq_email_uint_string = -1;
 static int hf_icq_primary_email = -1;
 static int hf_icq_secondary_email = -1;
 static int hf_icq_old_email = -1;
@@ -480,29 +484,6 @@ decrypt_v5(guchar *bfr, guint32 size,guint32 key)
     }
 }
 
-/*
- * The packet has, at offset "offset" a (len, string) pair.
- * Display the length and string in the tree.
- *
- * If anything is wrong, return -1, since -1 is not a valid string
- * length. Else, return the number of chars processed.
- */
-static guint16
-proto_add_icq_attr(proto_tree *tree, /* The tree to add to */
-            tvbuff_t *tvb,    /* Tvbuff with packet */
-            const int offset, /* Offset from the start of packet of field */
-            const int* hf)  /* The description to use in the tree */
-{
-    guint16 len;
-
-    len = tvb_get_letohs(tvb, offset);
-    if (len > tvb_reported_length_remaining(tvb, offset))
-        return -1;  /* length goes past end of packet */
-    proto_tree_add_string(tree, *hf, tvb, offset, len+2,
-            tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 2, len, ENC_ASCII));
-    return len + 2;
-}
-
 static void
 icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
              packet_info *pinfo)
@@ -881,14 +862,6 @@ icqv5_srv_meta_user(proto_tree *tree, /* Tree to put the data in */
          * They are used to "implement" a poorman's exception handling
          */
         int len = 0;
-        static const int *hf_descr[] = {
-            &hf_icq_nickname,
-            &hf_icq_first_name,
-            &hf_icq_last_name,
-            &hf_icq_email,
-            NULL
-        };
-        const int **hf = hf_descr;
         unsigned char auth;
         /*
          * Read UIN
@@ -896,12 +869,15 @@ icqv5_srv_meta_user(proto_tree *tree, /* Tree to put the data in */
         proto_tree_add_item(sstree, hf_icq_uin, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset+=4;
 
-        for ( ; *hf!=NULL; hf++) {
-            len = proto_add_icq_attr(sstree, tvb, offset, *hf);
-            if (len == -1)
-                return;
-            offset += len;
-        }
+        proto_tree_add_item_ret_length(sstree, hf_icq_nickname_uint_string, tvb, offset, 2, ENC_LITTLE_ENDIAN|ENC_ASCII, &len);
+        offset += len;
+        proto_tree_add_item_ret_length(sstree, hf_icq_first_name_uint_string, tvb, offset, 2, ENC_LITTLE_ENDIAN|ENC_ASCII, &len);
+        offset += len;
+        proto_tree_add_item_ret_length(sstree, hf_icq_last_name_uint_string, tvb, offset, 2, ENC_LITTLE_ENDIAN|ENC_ASCII, &len);
+        offset += len;
+        proto_tree_add_item_ret_length(sstree, hf_icq_email_uint_string, tvb, offset, 2, ENC_LITTLE_ENDIAN|ENC_ASCII, &len);
+        offset += len;
+
         /* Get the authorize setting */
         auth = tvb_get_guint8(tvb, offset);
         proto_tree_add_uint_format_value(sstree, hf_icq_meta_user_found_authorization, tvb, offset, 1,
@@ -919,36 +895,13 @@ icqv5_srv_meta_user(proto_tree *tree, /* Tree to put the data in */
         int len;
 
         /* Get the about information */
-        len = tvb_get_letohs(tvb, offset);
-        offset+=2;
-        proto_tree_add_string(sstree, hf_icq_meta_user_about, tvb, offset - 2,
-                len+2, tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII));
+        proto_tree_add_item_ret_length(sstree, hf_icq_meta_user_about, tvb, offset,
+                2, ENC_LITTLE_ENDIAN|ENC_ASCII, &len);
+        offset += len;
         break;
     }
     case META_USER_INFO:
     {
-        /* The goto mentioned in this block should be local to this
-         * block if C'd allow it.
-         *
-         * They are used to "implement" a poorman's exception handling
-         */
-        static const int *hf_descr[] = {
-            &hf_icq_nickname,
-            &hf_icq_first_name,
-            &hf_icq_last_name,
-            &hf_icq_primary_email,
-            &hf_icq_secondary_email,
-            &hf_icq_old_email,
-            &hf_icq_city,
-            &hf_icq_state,
-            &hf_icq_phone,
-            &hf_icq_fax,
-            &hf_icq_street,
-            &hf_icq_cellphone,
-            &hf_icq_zip,
-            NULL
-        };
-        const int **hf = hf_descr;
         int len = 0;
 #if 0
         /* Get the uin */
@@ -959,14 +912,33 @@ icqv5_srv_meta_user(proto_tree *tree, /* Tree to put the data in */
         /*
          * Get every field from the description
          */
-        for ( ; *hf!=NULL; hf++) {
-            len = proto_add_icq_attr(sstree, tvb, offset, *hf);
-            if (len < 0) {
-                offset+=2;
-                continue;
-            }
-            offset+=len;
-        }
+        proto_tree_add_item_ret_length(sstree, hf_icq_nickname_uint_string, tvb, offset, 2, ENC_LITTLE_ENDIAN|ENC_ASCII, &len);
+        offset+=len;
+        proto_tree_add_item_ret_length(sstree, hf_icq_first_name_uint_string, tvb, offset, 2, ENC_LITTLE_ENDIAN|ENC_ASCII, &len);
+        offset+=len;
+        proto_tree_add_item_ret_length(sstree, hf_icq_last_name_uint_string, tvb, offset, 2, ENC_LITTLE_ENDIAN|ENC_ASCII, &len);
+        offset+=len;
+        proto_tree_add_item_ret_length(sstree, hf_icq_primary_email, tvb, offset, 2, ENC_LITTLE_ENDIAN|ENC_ASCII, &len);
+        offset+=len;
+        proto_tree_add_item_ret_length(sstree, hf_icq_secondary_email, tvb, offset, 2, ENC_LITTLE_ENDIAN|ENC_ASCII, &len);
+        offset+=len;
+        proto_tree_add_item_ret_length(sstree, hf_icq_old_email, tvb, offset, 2, ENC_LITTLE_ENDIAN|ENC_ASCII, &len);
+        offset+=len;
+        proto_tree_add_item_ret_length(sstree, hf_icq_city, tvb, offset, 2, ENC_LITTLE_ENDIAN|ENC_ASCII, &len);
+        offset+=len;
+        proto_tree_add_item_ret_length(sstree, hf_icq_state, tvb, offset, 2, ENC_LITTLE_ENDIAN|ENC_ASCII, &len);
+        offset+=len;
+        proto_tree_add_item_ret_length(sstree, hf_icq_phone, tvb, offset, 2, ENC_LITTLE_ENDIAN|ENC_ASCII, &len);
+        offset+=len;
+        proto_tree_add_item_ret_length(sstree, hf_icq_fax, tvb, offset, 2, ENC_LITTLE_ENDIAN|ENC_ASCII, &len);
+        offset+=len;
+        proto_tree_add_item_ret_length(sstree, hf_icq_street, tvb, offset, 2, ENC_LITTLE_ENDIAN|ENC_ASCII, &len);
+        offset+=len;
+        proto_tree_add_item_ret_length(sstree, hf_icq_cellphone, tvb, offset, 2, ENC_LITTLE_ENDIAN|ENC_ASCII, &len);
+        offset+=len;
+        proto_tree_add_item_ret_length(sstree, hf_icq_zip, tvb, offset, 2, ENC_LITTLE_ENDIAN|ENC_ASCII, &len);
+        offset+=len;
+
         /* Get country code */
         proto_tree_add_item(sstree, hf_icq_meta_user_countrycode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset+=2;
@@ -1336,7 +1308,7 @@ proto_register_icq(void)
         { &hf_icq_meta_user_found_authorization, { "Authorization", "icq.meta_user.found_authorization", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_icq_meta_user_x2, { "x2", "icq.meta_user.x2", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_icq_meta_user_x3, { "x3", "icq.meta_user.x3", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        { &hf_icq_meta_user_about, { "About", "icq.meta_user.about", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_meta_user_about, { "About", "icq.meta_user.about", FT_UINT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_icq_meta_user_countrycode, { "Countrycode", "icq.meta_user.countrycode", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_icq_meta_user_timezone, { "Timezone", "icq.meta_user.timezone", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_icq_meta_user_info_authorization, { "Authorization", "icq.meta_user.info_authorization", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
@@ -1353,16 +1325,20 @@ proto_register_icq(void)
         { &hf_icq_first_name, { "First name", "icq.first_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_icq_last_name, { "Last name", "icq.last_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_icq_email, { "Email", "icq.email", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_icq_primary_email, { "Primary email", "icq.primary_email", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_icq_secondary_email, { "Secondary email", "icq.secondary_email", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_icq_old_email, { "Old email", "icq.old_email", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_icq_city, { "City", "icq.city", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_icq_state, { "State", "icq.state", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_icq_phone, { "Phone", "icq.phone", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_icq_fax, { "Fax", "icq.fax", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_icq_street, { "Street", "icq.street", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_icq_cellphone, { "Cellphone", "icq.cellphone", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_icq_zip, { "Zip", "icq.zip", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_nickname_uint_string, { "Nickname", "icq.nickname", FT_UINT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_first_name_uint_string, { "First name", "icq.first_name", FT_UINT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_last_name_uint_string, { "Last name", "icq.last_name", FT_UINT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_email_uint_string, { "Email", "icq.email", FT_UINT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_primary_email, { "Primary email", "icq.primary_email", FT_UINT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_secondary_email, { "Secondary email", "icq.secondary_email", FT_UINT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_old_email, { "Old email", "icq.old_email", FT_UINT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_city, { "City", "icq.city", FT_UINT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_state, { "State", "icq.state", FT_UINT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_phone, { "Phone", "icq.phone", FT_UINT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_fax, { "Fax", "icq.fax", FT_UINT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_street, { "Street", "icq.street", FT_UINT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_cellphone, { "Cellphone", "icq.cellphone", FT_UINT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_icq_zip, { "Zip", "icq.zip", FT_UINT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_icq_description, { "Description", "icq.description", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_icq_url, { "URL", "icq.url", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_icq_text, { "Text", "icq.text", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
