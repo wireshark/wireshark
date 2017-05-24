@@ -1282,6 +1282,7 @@ dch_id = 0xFFFFFFFF;
 address     dst_addr, null_addr;
 conversation_t *conversation;
 umts_fp_conversation_info_t *umts_fp_conversation_info = NULL;
+fp_edch_channel_info_t* fp_edch_channel_info;
 nbap_edch_port_info_t *old_info = NULL;
 
 transportLayerAddress_ipv4 = 0;
@@ -1333,6 +1334,8 @@ BindingID_port = 0;
 
                 umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
 
+                fp_edch_channel_info = wmem_new0(wmem_file_scope(), fp_edch_channel_info_t);
+                umts_fp_conversation_info->channel_specific_info = (void*)fp_edch_channel_info;
 
                 if(crcn_context_present){
                     umts_fp_conversation_info->com_context_id = com_context_id;
@@ -1454,6 +1457,7 @@ guint32 no_ddi_entries, i;
 address     dst_addr, null_addr;
 conversation_t *conversation,*old_conversation = NULL;
 umts_fp_conversation_info_t *umts_fp_conversation_info _U_;
+fp_edch_channel_info_t* fp_edch_channel_info;
 void *conv_proto_data = NULL;
 
 transportLayerAddress_ipv4 = 0;
@@ -1516,6 +1520,8 @@ BindingID_port = 0;
 
                 umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
 
+                fp_edch_channel_info = wmem_new0(wmem_file_scope(), fp_edch_channel_info_t);
+                umts_fp_conversation_info->channel_specific_info = (void*)fp_edch_channel_info;
 
                 if(crcn_context_present){
                     umts_fp_conversation_info->com_context_id = com_context_id;
