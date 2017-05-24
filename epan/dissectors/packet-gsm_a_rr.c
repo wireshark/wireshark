@@ -4071,7 +4071,7 @@ de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gu
             {
                 /* two '0' bits */
                 bit_offset += 2;
-                proto_tree_add_uint(subtree, hf_gsm_a_rr_maio, tvb, bit_offset>>3, 1, tvb_get_bits8(tvb,bit_offset,6));
+                proto_tree_add_bits_item(subtree, hf_gsm_a_rr_maio, tvb, bit_offset, 6, ENC_BIG_ENDIAN);
                 bit_offset += 6;
                 length = (gint)ma_length;
                 item = proto_tree_add_bytes_format(subtree, hf_gsm_a_rr_ma_bitmap, tvb, bit_offset>>3, (length>>3)-1, NULL, "MA Bitmap: ");
@@ -5886,7 +5886,7 @@ de_rr_bsic_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset, rr_rest_octets
     subtree = proto_tree_add_subtree(tree, tvb, curr_bit_offset>>3, -1, ett_gsm_rr_rest_octets_elem[id], &item, gsm_rr_rest_octets_elem_strings[id].strptr);
     if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, hf_gsm_a_rr_ba_index_start_bsic_present))
     {
-        proto_tree_add_uint(subtree, hf_gsm_a_rr_ba_index_start_bsic, tvb, curr_bit_offset>>3, 1, tvb_get_bits8(tvb,curr_bit_offset,5));
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ba_index_start_bsic, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
         curr_bit_offset += 5;
     }
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_bsic, tvb, curr_bit_offset, 6, ENC_BIG_ENDIAN);
@@ -7596,7 +7596,7 @@ de_rr_si3_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
     gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, hf_gsm_a_rr_early_classmark_sending);
     if (gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, hf_gsm_a_rr_scheduling_if_and_where))
     { /* Scheduling if and where */
-        proto_tree_add_uint(subtree, hf_gsm_a_rr_where, tvb, bit_offset>>3, 1, tvb_get_bits8(tvb,bit_offset,3));
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_where, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
         bit_offset += 3;
     }
     gprs_indicator = gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, hf_gsm_a_rr_gprs_indicator);
@@ -7696,9 +7696,9 @@ de_rr_si4_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
             bit_offset += 3;
             if (gsm_rr_csn_flag(tvb,subtree3, bit_offset++, hf_gsm_a_rr_mcc_mnc_parameters))
             {
-                proto_tree_add_uint(subtree3, hf_gsm_a_rr_mcc, tvb, bit_offset>>3, 2, tvb_get_bits16(tvb,bit_offset,12,ENC_BIG_ENDIAN));
+                proto_tree_add_bits_item(subtree3, hf_gsm_a_rr_mcc, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
                 bit_offset += 12;
-                proto_tree_add_uint(subtree3, hf_gsm_a_rr_mnc, tvb, bit_offset>>3, 2, tvb_get_bits16(tvb,bit_offset,12,ENC_BIG_ENDIAN));
+                proto_tree_add_bits_item(subtree3, hf_gsm_a_rr_mnc, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
                 bit_offset += 12;
             }
             proto_item_set_len(item2, (bit_offset>>3) - (bit_offset_sav>>3)+1);
@@ -7718,12 +7718,12 @@ de_rr_si4_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
             {
                 if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, hf_gsm_a_rr_lsa_id_type))
                 {
-                    proto_tree_add_uint(subtree3, hf_gsm_a_rr_short_lsa_id, tvb, bit_offset>>3, 3, tvb_get_bits16(tvb,bit_offset,10,ENC_BIG_ENDIAN));
+                    proto_tree_add_bits_item(subtree3, hf_gsm_a_rr_short_lsa_id, tvb, bit_offset, 10, ENC_BIG_ENDIAN);
                     bit_offset += 10;
                 }
                 else
                 {
-                    proto_tree_add_uint(subtree3, hf_gsm_a_rr_lsa_id, tvb, bit_offset>>3, 3, tvb_get_bits32(tvb,bit_offset,24,ENC_BIG_ENDIAN));
+                    proto_tree_add_bits_item(subtree3, hf_gsm_a_rr_lsa_id, tvb, bit_offset, 24, ENC_BIG_ENDIAN);
                     bit_offset += 24;
                 }
             } while (gsm_rr_csn_flag(tvb, subtree, bit_offset++, hf_gsm_a_rr_additional_lsa_id));
@@ -8336,7 +8336,7 @@ de_rr_si13_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, 
             bit_offset += 3;
             if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, hf_gsm_a_rr_maio_present))
             {
-                proto_tree_add_uint(subtree2, hf_gsm_a_rr_maio, tvb, bit_offset>>3, 1, tvb_get_bits8(tvb,bit_offset,6));
+                proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_maio, tvb, bit_offset, 6, ENC_BIG_ENDIAN);
                 bit_offset += 6;
             }
             else
