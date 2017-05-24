@@ -575,14 +575,8 @@ extern e_prefs *read_prefs(void);
    into "*pf_path_return", and return the errno. */
 WS_DLL_PUBLIC int write_prefs(char **);
 
-/*
- * Given a string of the form "<pref name>:<pref value>", as might appear
- * as an argument to a "-o" option, parse it and set the preference in
- * question.  Return an indication of whether it succeeded or failed
- * in some fashion.
- *
- * XXX - should supply, for syntax errors, a detailed explanation of
- * the syntax error.
+/**
+ * Result of setting a preference.
  */
 typedef enum {
     PREFS_SET_OK,               /* succeeded */
@@ -591,7 +585,16 @@ typedef enum {
     PREFS_SET_OBSOLETE          /* preference used to exist but no longer does */
 } prefs_set_pref_e;
 
-WS_DLL_PUBLIC prefs_set_pref_e prefs_set_pref(char *prefarg);
+/*
+ * Given a string of the form "<pref name>:<pref value>", as might appear
+ * as an argument to a "-o" option, parse it and set the preference in
+ * question.  Return an indication of whether it succeeded or failed
+ * in some fashion.
+ *
+ * For syntax errors (return value PREFS_SET_SYNTAX_ERR), details (when
+ * available) are written into "errmsg" which must be freed with g_free.
+ */
+WS_DLL_PUBLIC prefs_set_pref_e prefs_set_pref(char *prefarg, char **errmsg);
 
 /*
  * Get or set a preference's obsolete status. These can be used to make a

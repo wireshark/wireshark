@@ -4510,10 +4510,9 @@ read_prefs_file(const char *pf_path, FILE *pf,
  * a valid uat entry.
  */
 static gboolean
-prefs_set_uat_pref(char *uat_entry) {
+prefs_set_uat_pref(char *uat_entry, char **errmsg) {
     gchar *p, *colonp;
     uat_t *uat;
-    gchar *err = NULL;
     gboolean ret;
 
     colonp = strchr(uat_entry, ':');
@@ -4543,11 +4542,11 @@ prefs_set_uat_pref(char *uat_entry) {
     uat = uat_find(uat_entry);
     *colonp = ':';
     if (uat == NULL) {
+        *errmsg = g_strdup("Unknown preference");
         return FALSE;
     }
 
-    ret = uat_load_str(uat, p, &err);
-    g_free(err);
+    ret = uat_load_str(uat, p, errmsg);
     return ret;
 }
 
@@ -4558,7 +4557,7 @@ prefs_set_uat_pref(char *uat_entry) {
  * in some fashion.
  */
 prefs_set_pref_e
-prefs_set_pref(char *prefarg)
+prefs_set_pref(char *prefarg, char **errmsg)
 {
     gchar *p, *colonp;
     prefs_set_pref_e ret;
@@ -4572,6 +4571,8 @@ prefs_set_pref(char *prefarg)
      */
     mgcp_tcp_port_count = -1;
     mgcp_udp_port_count = -1;
+
+    *errmsg = NULL;
 
     colonp = strchr(prefarg, ':');
     if (colonp == NULL)
@@ -4599,7 +4600,7 @@ prefs_set_pref(char *prefarg)
     if (strcmp(prefarg, "uat")) {
         ret = set_pref(prefarg, p, NULL, TRUE);
     } else {
-        ret = prefs_set_uat_pref(p) ? PREFS_SET_OK : PREFS_SET_SYNTAX_ERR;
+        ret = prefs_set_uat_pref(p, errmsg) ? PREFS_SET_OK : PREFS_SET_SYNTAX_ERR;
     }
     *colonp = ':';    /* put the colon back */
     return ret;

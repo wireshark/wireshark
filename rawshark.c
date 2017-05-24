@@ -370,6 +370,7 @@ set_link_type(const char *lt_arg) {
     long val;
     dissector_handle_t dhandle;
     GString *pref_str;
+    char *errmsg = NULL;
 
     if (!spec_ptr)
         return FALSE;
@@ -410,8 +411,9 @@ set_link_type(const char *lt_arg) {
             g_string_append_printf(pref_str,
                                    "\"User 0 (DLT=147)\",\"%s\",\"0\",\"\",\"0\",\"\"",
                                    spec_ptr);
-            if (prefs_set_pref(pref_str->str) != PREFS_SET_OK) {
+            if (prefs_set_pref(pref_str->str, &errmsg) != PREFS_SET_OK) {
                 g_string_free(pref_str, TRUE);
+                g_free(errmsg);
                 return FALSE;
             }
             g_string_free(pref_str, TRUE);
@@ -620,13 +622,18 @@ main(int argc, char *argv[])
                 }
                 break;
             case 'o':        /* Override preference from command line */
-                switch (prefs_set_pref(optarg)) {
+            {
+                char *errmsg = NULL;
+
+                switch (prefs_set_pref(optarg, &errmsg)) {
 
                     case PREFS_SET_OK:
                         break;
 
                     case PREFS_SET_SYNTAX_ERR:
-                        cmdarg_err("Invalid -o flag \"%s\"", optarg);
+                        cmdarg_err("Invalid -o flag \"%s\"%s%s", optarg,
+                                errmsg ? ": " : "", errmsg ? errmsg : "");
+                        g_free(errmsg);
                         ret = INVALID_OPTION;
                         goto clean_exit;
                         break;
@@ -639,6 +646,7 @@ main(int argc, char *argv[])
                         break;
                 }
                 break;
+            }
             case 'p':        /* Expect pcap_pkthdr packet headers, which may have 64-bit timestamps */
                 want_pcap_pkthdr = TRUE;
                 break;

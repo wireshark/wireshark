@@ -471,11 +471,16 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
 #endif
                 break;
             case 'o':        /* Override preference from command line */
-                switch (prefs_set_pref(optarg)) {
+            {
+                char *errmsg = NULL;
+
+                switch (prefs_set_pref(optarg, &errmsg)) {
                     case PREFS_SET_OK:
                         break;
                     case PREFS_SET_SYNTAX_ERR:
-                        cmdarg_err("Invalid -o flag \"%s\"", optarg);
+                        cmdarg_err("Invalid -o flag \"%s\"%s%s", optarg,
+                                errmsg ? ": " : "", errmsg ? errmsg : "");
+                        g_free(errmsg);
                         exit(1);
                         break;
                     case PREFS_SET_NO_SUCH_PREF:
@@ -507,6 +512,7 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
                         g_assert_not_reached();
                 }
                 break;
+            }
             case 'P':
                 /* Path settings were already processed just ignore them this time*/
                 break;

@@ -1208,13 +1208,18 @@ main(int argc, char *argv[])
 #endif
       break;
     case 'o':        /* Override preference from command line */
-      switch (prefs_set_pref(optarg)) {
+    {
+      char *errmsg = NULL;
+
+      switch (prefs_set_pref(optarg, &errmsg)) {
 
       case PREFS_SET_OK:
         break;
 
       case PREFS_SET_SYNTAX_ERR:
-        cmdarg_err("Invalid -o flag \"%s\"", optarg);
+        cmdarg_err("Invalid -o flag \"%s\"%s%s", optarg,
+            errmsg ? ": " : "", errmsg ? errmsg : "");
+        g_free(errmsg);
         exit_status = INVALID_OPTION;
         goto clean_exit;
         break;
@@ -1227,6 +1232,7 @@ main(int argc, char *argv[])
         break;
       }
       break;
+    }
     case 'q':        /* Quiet */
       quiet = TRUE;
       break;

@@ -3073,6 +3073,7 @@ sharkd_session_process_setconf(char *buf, const jsmntok_t *tokens, int count)
 	const char *tok_name = json_find_attr(buf, tokens, count, "name");
 	const char *tok_value = json_find_attr(buf, tokens, count, "value");
 	char pref[4096];
+	char *errmsg = NULL;
 
 	prefs_set_pref_e ret;
 
@@ -3081,8 +3082,15 @@ sharkd_session_process_setconf(char *buf, const jsmntok_t *tokens, int count)
 
 	ws_snprintf(pref, sizeof(pref), "%s:%s", tok_name, tok_value);
 
-	ret = prefs_set_pref(pref);
-	printf("{\"err\":%d}\n", ret);
+	ret = prefs_set_pref(pref, &errmsg);
+	printf("{\"err\":%d", ret);
+	if (errmsg) {
+		/* Add error message for some syntax errors. */
+		printf(",\"errmsg\":");
+		json_puts_string(errmsg);
+	}
+	printf("}\n");
+	g_free(errmsg);
 }
 
 struct sharkd_session_process_dumpconf_data
