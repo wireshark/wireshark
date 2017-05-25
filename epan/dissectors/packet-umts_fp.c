@@ -5260,6 +5260,7 @@ update_pch_coversation_info(umts_fp_conversation_info_t *p_conv_data, packet_inf
 {
     fp_pch_channel_info_t* fp_pch_channel_info;
     /* The channel type MUST be set to PCH */
+    DISSECTOR_ASSERT(p_conv_data);
     DISSECTOR_ASSERT(p_conv_data->channel == CHANNEL_PCH);
 
     fp_pch_channel_info = (fp_pch_channel_info_t*)p_conv_data->channel_specific_info;
