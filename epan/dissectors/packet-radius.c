@@ -187,6 +187,9 @@ static int hf_radius_eap_fragment = -1;
 static int hf_radius_avp = -1;
 static int hf_radius_avp_length = -1;
 static int hf_radius_avp_type = -1;
+static int hf_radius_avp_vendor_id = -1;
+static int hf_radius_avp_vendor_type = -1;
+static int hf_radius_avp_vendor_len = -1;
 static int hf_radius_avp_extended_type = -1;
 static int hf_radius_avp_extended_more = -1;
 static int hf_radius_3gpp_ms_tmime_zone = -1;
@@ -1475,6 +1478,7 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 			proto_tree *vendor_tree;
 			gint max_offset = offset + avp_length;
 			const gchar *vendor_str;
+			int vendor_offset;
 
 			/* XXX TODO: handle 2 byte codes for USR */
 
@@ -1498,14 +1502,20 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 
 			vendor_tree = proto_item_add_subtree(avp_item, vendor->ett);
 
-			proto_tree_add_item(vendor_tree, hf_radius_avp_type, tvb, avp_offset_start, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(vendor_tree, hf_radius_avp_length, tvb, avp_offset_start+1, 1, ENC_BIG_ENDIAN);
+			vendor_offset = avp_offset_start;
+			proto_tree_add_item(vendor_tree, hf_radius_avp_type, tvb, vendor_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(vendor_tree, hf_radius_avp_length, tvb, vendor_offset+1, 1, ENC_BIG_ENDIAN);
+			vendor_offset += 2;
 			if (avp_is_extended) {
-				proto_tree_add_item(vendor_tree, hf_radius_avp_extended_type, tvb, avp_offset_start+2, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(vendor_tree, hf_radius_avp_extended_type, tvb, vendor_offset, 1, ENC_BIG_ENDIAN);
+				vendor_offset += 1;
 			}
 			if (RADIUS_ATTR_TYPE_IS_EXTENDED_LONG(avp_type0)) {
-				proto_tree_add_item(vendor_tree, hf_radius_avp_extended_more, tvb, avp_offset_start+3, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(vendor_tree, hf_radius_avp_extended_more, tvb, vendor_offset, 1, ENC_BIG_ENDIAN);
+				vendor_offset += 1;
 			}
+			proto_tree_add_uint_format_value(vendor_tree, hf_radius_avp_vendor_id, tvb, vendor_offset, 4, vendor_id, "%s (%u)", vendor_str, vendor_id);
+			vendor_offset += 4;
 
 			while (offset < max_offset) {
 				guint32 avp_vsa_type;
@@ -1580,6 +1590,13 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 					avp_tree = proto_tree_add_subtree_format(vendor_tree, tvb, offset-avp_vsa_header_len, avp_vsa_len+avp_vsa_header_len,
 								       dictionary_entry->ett, &avp_item, "VSA: l=%u t=%s(%u)",
 								       avp_vsa_len+avp_vsa_header_len, dictionary_entry->name, avp_vsa_type);
+				}
+
+				proto_tree_add_item(avp_tree, hf_radius_avp_vendor_type, tvb, vendor_offset, 1, ENC_BIG_ENDIAN);
+				vendor_offset += 1;
+				if (!avp_is_extended) {
+					proto_tree_add_item(avp_tree, hf_radius_avp_vendor_len, tvb, vendor_offset, 1, ENC_BIG_ENDIAN);
+					/* vendor_offset += 1; */
 				}
 
 				if (show_length) {
@@ -2635,6 +2652,15 @@ register_radius_fields(const char *unused _U_)
 			NULL, HFILL }},
 		{ &hf_radius_avp_type,
 		{ "AVP Type", "radius.avp.type", FT_UINT8, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }},
+		{ &hf_radius_avp_vendor_id,
+		{ "AVP Vendor ID", "radius.avp.vendor_id", FT_UINT32, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }},
+		{ &hf_radius_avp_vendor_type,
+		{ "VSA Type", "radius.avp.vendor_type", FT_UINT8, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }},
+		{ &hf_radius_avp_vendor_len,
+		{ "VSA Length", "radius.avp.vendor_len", FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_radius_avp_extended_type,
 		{ "AVP Extended Type", "radius.avp.extended_type", FT_UINT8, BASE_DEC, NULL, 0x0,
