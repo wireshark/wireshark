@@ -86,6 +86,8 @@ void CompiledFilterOutput::compileFilter()
                 continue;
             } else {
                 pcap_t *pd = pcap_open_dead(device.active_dlt, WTAP_MAX_PACKET_SIZE);
+                if (pd == NULL)
+                    break;
                 g_mutex_lock(pcap_compile_mtx);
                 if (pcap_compile(pd, &fcode, compile_filter_.toUtf8().constData(), 1, 0) < 0) {
                     compile_results.insert(interfaces, QString("%1").arg(g_strdup(pcap_geterr(pd))));
