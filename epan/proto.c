@@ -3317,23 +3317,11 @@ proto_tree_add_bytes_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-	gint		  item_length;
 
-	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
-	get_hfi_length(hfinfo, tvb, start, &length, &item_length);
-	test_length(hfinfo, tvb, start, item_length);
+	if (start_ptr == NULL)
+		start_ptr = tvb_get_ptr(tvb, start, length);
 
-	CHECK_FOR_NULL_TREE(tree);
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
-
-	if (start_ptr)
-		pi = proto_tree_add_bytes(tree, hfindex, tvb, start, length,
-					  start_ptr);
-	else
-		pi = proto_tree_add_bytes(tree, hfindex, tvb, start, length,
-					  tvb_get_ptr(tvb, start, length));
+	pi = proto_tree_add_bytes(tree, hfindex, tvb, start, length, start_ptr);
 
 	va_start(ap, format);
 	proto_tree_set_representation_value(pi, format, ap);
@@ -3349,23 +3337,11 @@ proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-	gint		  item_length;
 
-	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
-	get_hfi_length(hfinfo, tvb, start, &length, &item_length);
-	test_length(hfinfo, tvb, start, item_length);
+	if (start_ptr == NULL)
+		start_ptr = tvb_get_ptr(tvb, start, length);
 
-	CHECK_FOR_NULL_TREE(tree);
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
-
-	if (start_ptr)
-		pi = proto_tree_add_bytes(tree, hfindex, tvb, start, length,
-					  start_ptr);
-	else
-		pi = proto_tree_add_bytes(tree, hfindex, tvb, start, length,
-					  tvb_get_ptr(tvb, start, length));
+	pi = proto_tree_add_bytes(tree, hfindex, tvb, start, length, start_ptr);
 
 	TRY_TO_FAKE_THIS_REPR(pi);
 
