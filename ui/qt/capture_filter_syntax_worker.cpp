@@ -87,19 +87,35 @@ void CaptureFilterSyntaxWorker::start() {
 
             device = g_array_index(global_capture_opts.all_ifaces, interface_t, if_idx);
             if (!device.locked && device.selected) {
-                if (device.active_dlt >= DLT_USER0 && device.active_dlt <= DLT_USER15) {
-                    // Capture filter for DLT_USER is unknown
-                    state = SyntaxLineEdit::Deprecated;
-                    err_str = "Unable to check capture filter";
-                } else {
-                    active_dlts.insert(device.active_dlt);
+#ifdef HAVE_EXTCAP
+                if (device.if_info.extcap == NULL)
+                {
+#endif
+                    if (device.active_dlt >= DLT_USER0 && device.active_dlt <= DLT_USER15) {
+                        // Capture filter for DLT_USER is unknown
+                        state = SyntaxLineEdit::Deprecated;
+                        err_str = "Unable to check capture filter";
+                    } else {
+                        active_dlts.insert(device.active_dlt);
+                    }
+#ifdef HAVE_EXTCAP
                 }
+                else
+                {
+                    //TODO: Verify extcap capture file (bug 11668)
+                }
+#endif
             }
         }
 
         foreach (gint dlt, active_dlts.toList()) {
             pcap_compile_mtx_.lock();
             pd = pcap_open_dead(dlt, DUMMY_SNAPLENGTH);
+            if (pd == NULL)
+            {
+                //don't have ability to verify capture filter
+                break;
+            }
 #ifdef PCAP_NETMASK_UNKNOWN
             pc_err = pcap_compile(pd, &fcode, filter.toUtf8().constData(), 1 /* Do optimize */, PCAP_NETMASK_UNKNOWN);
 #else
