@@ -4483,7 +4483,6 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             if (!umts_fp_conversation_info) {
                 umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 fill_pch_coversation_info_for_heur(umts_fp_conversation_info, pinfo);
-                fp_pch_channel_info = (fp_pch_channel_info_t*)umts_fp_conversation_info->channel_specific_info;
             }
             tb_byte_length = (length - (pi_byte_length + 6)) * 8; /* Removing header length (4), footer length (2) and PI bitmap length*/
             /* Possible TB lengths for PCH is 10 or 30 bytes ( See 3GPP TR 25.944 / 4.1.1.2 ) */
