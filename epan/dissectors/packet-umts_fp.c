@@ -4484,10 +4484,10 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 fill_pch_coversation_info_for_heur(umts_fp_conversation_info, pinfo);
             }
-            tb_byte_length = (length - (pi_byte_length + 6)) * 8; /* Removing header length (4), footer length (2) and PI bitmap length*/
+            tb_byte_length = (length - (pi_byte_length + 6)); /* Removing header length (4), footer length (2) and PI bitmap length*/
             /* Possible TB lengths for PCH is 10 or 30 bytes ( See 3GPP TR 25.944 / 4.1.1.2 ) */
             if (tb_byte_length == 10 || tb_byte_length == 30) {
-                umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[1] = tb_byte_length;
+                umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[1] = tb_byte_length * 8;
                 set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
                 tb_size_found = TRUE;
             }
@@ -4506,10 +4506,10 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 fill_pch_coversation_info_for_heur(umts_fp_conversation_info, pinfo);
             }
-            tb_byte_length = (length - 6) * 8; /* Removing header length (4), footer length (2) */
+            tb_byte_length = (length - 6); /* Removing header length (4), footer length (2) */
             /* Possible TB lengths for PCH is 10 or 30 bytes ( See 3GPP TR 25.944 / 4.1.1.2 ) */
             if (tb_byte_length == 10 || tb_byte_length == 30) {
-                umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[1] = tb_byte_length;
+                umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[1] = tb_byte_length * 8;
                 set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
                 tb_size_found = TRUE;
             }
