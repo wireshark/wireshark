@@ -892,12 +892,9 @@ icqv5_srv_meta_user(proto_tree *tree, /* Tree to put the data in */
     }
     case META_ABOUT:
     {
-        int len;
-
         /* Get the about information */
-        proto_tree_add_item_ret_length(sstree, hf_icq_meta_user_about, tvb, offset,
-                2, ENC_LITTLE_ENDIAN|ENC_ASCII, &len);
-        offset += len;
+        proto_tree_add_item(sstree, hf_icq_meta_user_about, tvb, offset,
+                2, ENC_LITTLE_ENDIAN|ENC_ASCII);
         break;
     }
     case META_USER_INFO:
