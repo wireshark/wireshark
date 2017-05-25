@@ -764,6 +764,11 @@ capture_all_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The link type of interface %s was not specified.", device.name);
         continue;  /* Programming error: somehow managed to select an "unsupported" entry */
       }
+#ifdef HAVE_EXTCAP
+      /* Can't verify extcap capture filters */
+      if (device.if_info.extcap != NULL)
+        continue;
+#endif
       filter_text = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(filter_cm));
       if (strlen(filter_text) == 0) {
         colorize_filter_te_as_empty(filter_te);
