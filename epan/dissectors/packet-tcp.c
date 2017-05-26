@@ -1752,10 +1752,10 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 
 #if 0
     printf("\nanalyze_sequence numbers   frame:%u\n",pinfo->num);
-    printf("FWD list lastflags:0x%04x base_seq:%u: nextseq:%u\n",tcpd->fwd->lastsegmentflags,tcpd->fwd->base_seq,tcpd->fwd->tcp_analyze_seq_info->nextseq);
+    printf("FWD list lastflags:0x%04x base_seq:%u: nextseq:%u lastack:%u\n",tcpd->fwd->lastsegmentflags,tcpd->fwd->base_seq,tcpd->fwd->tcp_analyze_seq_info->nextseq,tcpd->rev->tcp_analyze_seq_info->lastack);
     for(ual=tcpd->fwd->tcp_analyze_seq_info->segments; ual; ual=ual->next)
             printf("Frame:%d Seq:%u Nextseq:%u\n",ual->frame,ual->seq,ual->nextseq);
-    printf("REV list lastflags:0x%04x base_seq:%u nextseq:%u\n",tcpd->rev->lastsegmentflags,tcpd->rev->base_seq,tcpd->rev->tcp_analyze_seq_info->nextseq);
+    printf("REV list lastflags:0x%04x base_seq:%u nextseq:%u lastack:%u\n",tcpd->rev->lastsegmentflags,tcpd->rev->base_seq,tcpd->rev->tcp_analyze_seq_info->nextseq,tcpd->fwd->tcp_analyze_seq_info->lastack);
     for(ual=tcpd->rev->tcp_analyze_seq_info->segments; ual; ual=ual->next)
             printf("Frame:%d Seq:%u Nextseq:%u\n",ual->frame,ual->seq,ual->nextseq);
 #endif
@@ -2003,15 +2003,12 @@ finished_fwd:
      *
      * Note that a simple KeepAlive is not a retransmission
      */
-    if( (seglen>0 || flags&(TH_SYN|TH_FIN))
-    &&  tcpd->fwd->tcp_analyze_seq_info->nextseq
-    &&  (LT_SEQ(seq, tcpd->fwd->tcp_analyze_seq_info->nextseq)) ) {
+    if (seglen>0 || flags&(TH_SYN|TH_FIN)) {
+        gboolean seq_not_advanced = tcpd->fwd->tcp_analyze_seq_info->nextseq
+                && (LT_SEQ(seq, tcpd->fwd->tcp_analyze_seq_info->nextseq));
+
         guint64 t;
         guint64 ooo_thres;
-        if (tcpd->ts_first_rtt.nsecs == 0 && tcpd->ts_first_rtt.secs == 0)
-                ooo_thres = 3000000;
-        else
-                ooo_thres = tcpd->ts_first_rtt.nsecs + tcpd->ts_first_rtt.secs*1000000000;
 
         if(tcpd->ta && (tcpd->ta->flags&TCP_A_KEEP_ALIVE) ) {
             goto finished_checking_retransmission_type;
@@ -2026,7 +2023,8 @@ finished_fwd:
          */
         t=(pinfo->abs_ts.secs-tcpd->rev->tcp_analyze_seq_info->lastacktime.secs)*1000000000;
         t=t+(pinfo->abs_ts.nsecs)-tcpd->rev->tcp_analyze_seq_info->lastacktime.nsecs;
-        if( tcpd->rev->tcp_analyze_seq_info->dupacknum>=2
+        if( seq_not_advanced
+        &&  tcpd->rev->tcp_analyze_seq_info->dupacknum>=2
         &&  tcpd->rev->tcp_analyze_seq_info->lastack==seq
         &&  t<20000000 ) {
             if(!tcpd->ta) {
@@ -2042,7 +2040,14 @@ finished_fwd:
          */
         t=(pinfo->abs_ts.secs-tcpd->fwd->tcp_analyze_seq_info->nextseqtime.secs)*1000000000;
         t=t+(pinfo->abs_ts.nsecs)-tcpd->fwd->tcp_analyze_seq_info->nextseqtime.nsecs;
-        if( t < ooo_thres
+        if (tcpd->ts_first_rtt.nsecs == 0 && tcpd->ts_first_rtt.secs == 0) {
+            ooo_thres = 3000000;
+        } else {
+            ooo_thres = tcpd->ts_first_rtt.nsecs + tcpd->ts_first_rtt.secs*1000000000;
+        }
+
+        if( seq_not_advanced // XXX is this neccessary?
+        && t < ooo_thres
         && tcpd->fwd->tcp_analyze_seq_info->nextseq != seq + seglen ) {
             if(!tcpd->ta) {
                 tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
@@ -2052,10 +2057,12 @@ finished_fwd:
         }
 
         /* Check for spurious retransmission. If the current seq + segment length
-         * is less than or equal to the receiver's lastack, the packet contains
+         * is less than or equal to the current lastack, the packet contains
          * duplicate data and may be considered spurious.
          */
-        if ( seq + seglen <= tcpd->rev->tcp_analyze_seq_info->lastack ) {
+        if ( seglen > 0
+        && tcpd->rev->tcp_analyze_seq_info->lastack
+        && LE_SEQ(seq + seglen, tcpd->rev->tcp_analyze_seq_info->lastack) ) {
             if(!tcpd->ta){
                 tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
             }
@@ -2063,13 +2070,15 @@ finished_fwd:
             goto finished_checking_retransmission_type;
         }
 
-        /* Then it has to be a generic retransmission */
-        if(!tcpd->ta) {
-            tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
+        if (seq_not_advanced) {
+            /* Then it has to be a generic retransmission */
+            if(!tcpd->ta) {
+                tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
+            }
+            tcpd->ta->flags|=TCP_A_RETRANSMISSION;
+            nstime_delta(&tcpd->ta->rto_ts, &pinfo->abs_ts, &tcpd->fwd->tcp_analyze_seq_info->nextseqtime);
+            tcpd->ta->rto_frame=tcpd->fwd->tcp_analyze_seq_info->nextseqframe;
         }
-        tcpd->ta->flags|=TCP_A_RETRANSMISSION;
-        nstime_delta(&tcpd->ta->rto_ts, &pinfo->abs_ts, &tcpd->fwd->tcp_analyze_seq_info->nextseqtime);
-        tcpd->ta->rto_frame=tcpd->fwd->tcp_analyze_seq_info->nextseqframe;
     }
 
 finished_checking_retransmission_type:

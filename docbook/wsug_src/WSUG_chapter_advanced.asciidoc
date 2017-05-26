@@ -348,7 +348,7 @@ feature via the ``Analyze TCP sequence numbers'' TCP dissector preference.
 image::wsug_graphics/ws-tcp-analysis.png[{screenshot-attrs}]
 
 TCP Analysis flags are added to the TCP protocol tree under ``SEQ/ACK
-analysis''. Each flag is described below. The terms ``next expected
+analysis''. Each flag is described below. Terms such as ``next expected
 sequence number'' and ``next expected acknowledgement number'' refer to
 the following'':
 
@@ -393,6 +393,7 @@ Set when all of the following are true:
 
 Set when all of the following are true:
 
+- This is not a keepalive packet.
 - In the forward direction, the segment size is greater than zero or the SYN or FIN is set.
 - The next expected sequence number is greater than the current sequence number.
 - We have more than two duplicate ACKs in the reverse direction.
@@ -433,6 +434,7 @@ Supersedes ``Dup ACK'' and ``ZeroWindowProbeAck''.
 
 Set when all of the following are true:
 
+- This is not a keepalive packet.
 - In the forward direction, the segment length is greater than zero or the SYN or FIN is set.
 - The next expected sequence number is greater than the current sequence number.
 - The next expected sequence number and the next sequence number differ.
@@ -459,7 +461,9 @@ Set when the current sequence number is greater than the next expected sequence 
 Set when all of the following are true:
 
 - In the forward direction, the segment length is greater than zero or the SYN or FIN is set.
-- The next expected sequence number is greater than the current sequence number.
+- This is not a keepalive packet.
+- The segment length is greater than zero.
+- Data for this flow has been acknowledged. That is, the last-seen acknowledgement number has been set.
 - The next sequence number is less than or equal to the last-seen acknowledgement number.
 
 Supersedes ``Retransmission''.
@@ -470,6 +474,7 @@ Supersedes ``Retransmission''.
 
 Set when all of the following are true:
 
+- This is not a keepalive packet.
 - In the forward direction, the segment length is greater than zero or the SYN or FIN is set.
 - The next expected sequence number is greater than the current sequence number.
 

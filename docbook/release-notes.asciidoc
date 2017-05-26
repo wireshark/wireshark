@@ -29,6 +29,7 @@ used for troubleshooting, analysis, development and education.
 The following features are new (or have been significantly updated)
 since version 2.4.0:
  * Add color support for TShark with --color option (non-Windows only)
+* TCP Analysis will detect and flag more spurious retransmissions.
 
 //=== Removed Dissectors
 
