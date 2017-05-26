@@ -177,6 +177,10 @@ def extcap_dlts(interface):
 	elif ( interface == '2' ):
 		print ("dlt {number=148}{name=USER1}{display=Demo Implementation for Extcap}")
 
+def validate_capture_filter(capture_filter):
+	if capture_filter != "filter" and capture_filter != "valid":
+		print("Illegal capture filter")
+
 """
 
 ### FAKE DATA GENERATOR
@@ -446,6 +450,9 @@ if __name__ == '__main__':
 
 	if ( args.extcap_interfaces == False and args.extcap_interface == None ):
 		parser.exit("An interface must be provided or the selection must be displayed")
+	if ( args.extcap_capture_filter and not args.capture ):
+		validate_capture_filter(args.extcap_capture_filter)
+		sys.exit(0)
 
 	if ( args.extcap_interfaces == True or args.extcap_interface == None ):
 		extcap_interfaces()

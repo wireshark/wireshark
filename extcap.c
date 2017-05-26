@@ -893,6 +893,55 @@ extcap_has_configuration(const char *ifname, gboolean is_required)
     return found;
 }
 
+static gboolean cb_verify_filter(extcap_callback_info_t cb_info)
+{
+    extcap_filter_status *status = (extcap_filter_status *)cb_info.data;
+    size_t output_size, i;
+
+    output_size = strlen(cb_info.output);
+    if (output_size == 0) {
+        *status = EXTCAP_FILTER_VALID;
+    } else {
+        *status = EXTCAP_FILTER_INVALID;
+        for (i = 0; i < output_size; i++) {
+            if (cb_info.output[i] == '\n' || cb_info.output[i] == '\r') {
+                cb_info.output[i] = '\0';
+                break;
+            }
+        }
+        *cb_info.err_str = g_strdup(cb_info.output);
+    }
+
+    return TRUE;
+}
+
+extcap_filter_status
+extcap_verify_capture_filter(const char *ifname, const char *filter, gchar **err_str)
+{
+    gchar *argv[4];
+    extcap_filter_status status = EXTCAP_FILTER_UNKNOWN;
+
+    if (extcap_if_exists(ifname))
+    {
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Extcap path %s",
+              get_extcap_dir());
+
+        argv[0] = EXTCAP_ARGUMENT_CAPTURE_FILTER;
+        argv[1] = (gchar*)filter;
+        argv[2] = EXTCAP_ARGUMENT_INTERFACE;
+        argv[3] = (gchar*)ifname;
+
+        extcap_callback_info_t cb_info;
+        cb_info.data = &status;
+        cb_info.err_str = err_str;
+        cb_info.ifname = ifname;
+
+        extcap_foreach(4, argv, cb_verify_filter, cb_info);
+    }
+
+    return status;
+}
+
 gboolean
 extcap_has_toolbar(const char *ifname)
 {

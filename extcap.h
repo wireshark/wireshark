@@ -62,6 +62,12 @@ typedef struct _extcap_info {
     GList * interfaces;
 } extcap_info;
 
+typedef enum {
+    EXTCAP_FILTER_UNKNOWN,
+    EXTCAP_FILTER_VALID,
+    EXTCAP_FILTER_INVALID
+} extcap_filter_status;
+
 struct _extcap_arg;
 
 #ifdef __cplusplus
@@ -106,6 +112,16 @@ extcap_clear_interfaces(void);
  * empty list, if no configuration has been found */
 GList *
 extcap_get_if_configuration(const char * ifname);
+
+/**
+ * Check if the capture filter for the given interface name is valid.
+ * @param ifname Interface to check
+ * @param filter Capture filter to check
+ * @param err_str Error string returned if filter is invalid
+ * @return Filter check status.
+ */
+extcap_filter_status
+extcap_verify_capture_filter(const char *ifname, const char *filter, gchar **err_str);
 
 /**
  * Frees the memory from extcap_get_if_configuration.
