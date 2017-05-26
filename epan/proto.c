@@ -170,6 +170,13 @@ struct ptvcursor {
 		 * items string representation */ \
 		return; \
 	}
+/* Similar to above, but allows a NULL tree */
+#define TRY_TO_FAKE_THIS_REPR_NESTED(pi)	\
+	if ((pi == NULL) || (!(PTREE_DATA(pi)->visible))) { \
+		/* If the tree (GUI) isn't visible it's pointless for us to generate the protocol \
+		 * items string representation */ \
+		return pi; \
+	}
 
 static const char *hf_try_val_to_str(guint32 value, const header_field_info *hfinfo);
 static const char *hf_try_val64_to_str(guint64 value, const header_field_info *hfinfo);
@@ -3323,6 +3330,8 @@ proto_tree_add_bytes_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	pi = proto_tree_add_bytes(tree, hfindex, tvb, start, length, start_ptr);
 
+	TRY_TO_FAKE_THIS_REPR_NESTED(pi);
+
 	va_start(ap, format);
 	proto_tree_set_representation_value(pi, format, ap);
 	va_end(ap);
@@ -3343,7 +3352,7 @@ proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	pi = proto_tree_add_bytes(tree, hfindex, tvb, start, length, start_ptr);
 
-	TRY_TO_FAKE_THIS_REPR(pi);
+	TRY_TO_FAKE_THIS_REPR_NESTED(pi);
 
 	va_start(ap, format);
 	proto_tree_set_representation(pi, format, ap);
