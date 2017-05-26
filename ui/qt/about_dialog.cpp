@@ -84,6 +84,7 @@ const QString AboutDialog::about_folders_row(const char *name, const QString dir
             .arg(typ_file);
 }
 
+#if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
 static void plugins_add_description(const char *name, const char *version,
                                     const char *types, const char *filename,
                                     void *user_data)
@@ -92,7 +93,7 @@ static void plugins_add_description(const char *name, const char *version,
     QStringList plugin_row = QStringList() << name << version << types << filename;
     *plugin_data << plugin_row;
 }
-
+#endif
 
 const QString AboutDialog::plugins_scan()
 {
@@ -278,7 +279,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
 
     /* Plugins */
-
+#if defined(HAVE_PLUGINS) || defined(HAVE_LUA) || defined(HAVE_EXTCAP)
     message = QString("<table cellpadding=\"%1\">\n").arg(one_em / 4);
     message += "<tr><th align=\"left\">Name</th><th align=\"left\">Version</th><th align=\"left\">Type</th><th align=\"left\">Path</th></tr>\n";
 
@@ -286,6 +287,9 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
     message += "</table>";
     ui->te_plugins->setHtml(message);
+#else
+    ui->te_plugins->setVisible(false);
+#endif
 
     /* Shortcuts */
     bool have_shortcuts = false;
