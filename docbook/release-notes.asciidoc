@@ -59,6 +59,7 @@ since version 2.2.0:
 * The RSA keys dialog for SSL keys has improved feedback for invalid settings
   and no longer requires the IP address, Port or Protocol fields to be set in
   addition to the Key File.
+* TCP Analysis will detect and flag more spurious retransmissions.
 
 //=== Removed Dissectors
 
