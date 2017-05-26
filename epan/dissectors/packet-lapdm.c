@@ -50,6 +50,7 @@
  */
 
 #include "config.h"
+#include "packet-lapdm.h"
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
@@ -130,6 +131,7 @@ static gboolean reassemble_lapdm = TRUE;
 #define LAPDM_LEN_SHIFT         2
 
 #define LAPDM_HEADER_LEN 3
+#define LAPDM_HEADER_LEN_B4 2
 
 #define LAPDM_SAPI_RR_CC_MM     0
 #define LAPDM_SAPI_SMS          3
@@ -201,27 +203,57 @@ static const fragment_items lapdm_frag_items = {
     "fragments"
 };
 
+static gboolean hdr_has_length(enum lapdm_hdr_type hdr_type)
+{
+    switch (hdr_type) {
+    case LAPDM_HDR_FMT_A:
+    case LAPDM_HDR_FMT_B:
+        return TRUE;
+    default:
+        return FALSE;
+    }
+}
+
 
 static int
-dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_tree *lapdm_tree, *addr_tree, *length_tree;
     proto_item *lapdm_ti, *addr_ti, *length_ti;
-    guint8 addr, length, cr, sapi, len, n_s;
+    guint8 addr, length, header_len, cr, sapi, len, n_s;
     int control;
     gboolean m;
     tvbuff_t *payload;
     int available_length;
     gboolean is_response = FALSE;
+    enum lapdm_hdr_type hdr_type = LAPDM_HDR_FMT_B;
+
+    if (data) {
+        lapdm_data_t *ld = (lapdm_data_t *) data;
+        hdr_type = ld->hdr_type;
+    }
+
+    switch (hdr_type) {
+    case LAPDM_HDR_FMT_A:
+    case LAPDM_HDR_FMT_B:
+        length = tvb_get_guint8(tvb, 2);
+        header_len = LAPDM_HEADER_LEN;
+        break;
+    case LAPDM_HDR_FMT_B4:
+        length = 0;
+        header_len = LAPDM_HEADER_LEN_B4;
+        break;
+    default:
+        return 0;
+    }
 
     /* Check that there's enough data */
-    if (tvb_captured_length(tvb) < LAPDM_HEADER_LEN)
+    if (tvb_captured_length(tvb) < header_len)
         return 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LAPDm");
 
     addr = tvb_get_guint8(tvb, 0);
-    length = tvb_get_guint8(tvb, 2);
 
     cr = addr & LAPDM_CR;
     if (pinfo->p2p_dir == P2P_DIR_RECV) {
@@ -232,7 +264,7 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     }
 
     if (tree) {
-        lapdm_ti = proto_tree_add_item(tree, proto_lapdm, tvb, 0, LAPDM_HEADER_LEN, ENC_NA);
+        lapdm_ti = proto_tree_add_item(tree, proto_lapdm, tvb, 0, header_len, ENC_NA);
         lapdm_tree = proto_item_add_subtree(lapdm_ti, ett_lapdm);
 
         addr_ti = proto_tree_add_uint(lapdm_tree, hf_lapdm_address, tvb, 0, 1, addr);
@@ -252,7 +284,8 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                                    ett_lapdm_control, &lapdm_cf_items, NULL /* LAPDm doesn't support extended */, NULL, NULL,
                                    is_response, FALSE, FALSE);
 
-    if (tree) {
+    /* dissect length field (if present) */
+    if (tree && hdr_has_length(hdr_type)) {
         length_ti = proto_tree_add_uint(lapdm_tree, hf_lapdm_length, tvb,
                                         2, 1, length);
         length_tree = proto_item_add_subtree(length_ti, ett_lapdm_length);
@@ -262,18 +295,24 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         proto_tree_add_uint(length_tree, hf_lapdm_el, tvb, 2, 1, length);
     }
 
+    if (hdr_has_length(hdr_type)) {
+        len = (length & LAPDM_LEN) >> LAPDM_LEN_SHIFT;
+        m = (length & LAPDM_M) >> LAPDM_M_SHIFT;
+    } else {
+        len = tvb_captured_length(tvb) - header_len;
+        m = 0;
+    }
+
     sapi = (addr & LAPDM_SAPI) >> LAPDM_SAPI_SHIFT;
-    len = (length & LAPDM_LEN) >> LAPDM_LEN_SHIFT;
     n_s = (control & XDLC_N_S_MASK) >> XDLC_N_S_SHIFT;
-    m = (length & LAPDM_M) >> LAPDM_M_SHIFT;
-    available_length = tvb_captured_length(tvb) - LAPDM_HEADER_LEN;
+    available_length = tvb_captured_length(tvb) - header_len;
 
     /* No point in doing anything if no payload
      */
     if( !MIN(len, available_length) )
         return 2;
 
-    payload = tvb_new_subset_length_caplen(tvb, LAPDM_HEADER_LEN, MIN(len,available_length), len);
+    payload = tvb_new_subset_length_caplen(tvb, header_len, MIN(len,available_length), len);
 
     /* Potentially segmented I frame
      */

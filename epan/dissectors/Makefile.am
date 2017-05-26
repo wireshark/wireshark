@@ -1621,6 +1621,7 @@ DISSECTOR_INCLUDES = \
 	packet-kerberos.h	\
 	packet-klm.h		\
 	packet-l2tp.h		\
+	packet-lapdm.h		\
 	packet-lbm.h		\
 	packet-lbtrm.h		\
 	packet-lbtru.h		\

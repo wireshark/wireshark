@@ -43,6 +43,7 @@
 #include <epan/packet.h>
 
 #include "packet-gsmtap.h"
+#include "packet-lapdm.h"
 #include "packet-tetra.h"
 
 void proto_register_gsmtap(void);
@@ -318,6 +319,17 @@ dissect_sacch_l1h(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(l1h_tree, hf_sacch_l1h_ta, tvb, 1, 1, ENC_BIG_ENDIAN);
 }
 
+static void
+handle_lapdm(guint8 sub_type, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	lapdm_data_t ld;
+
+	ld.hdr_type = LAPDM_HDR_FMT_B;
+	/* only downlink SACCH frames use B4 header format */
+	if (sub_type & GSMTAP_CHANNEL_ACCH && pinfo->p2p_dir == P2P_DIR_RECV)
+		ld.hdr_type = LAPDM_HDR_FMT_B4;
+	call_dissector_with_data(sub_handles[GSMTAP_SUB_UM_LAPDM], tvb, pinfo, tree, &ld);
+}
 
 static void
 handle_tetra(int channel _U_, tvbuff_t *payload_tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
@@ -489,8 +501,8 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		case GSMTAP_CHANNEL_SDCCH8:
 		case GSMTAP_CHANNEL_TCH_F:
 		case GSMTAP_CHANNEL_TCH_H:
-			sub_handle = GSMTAP_SUB_UM_LAPDM;
-			break;
+			handle_lapdm(sub_type, payload_tvb, pinfo, tree);
+			return tvb_captured_length(tvb);
 		case GSMTAP_CHANNEL_PACCH:
 			if (pinfo->p2p_dir == P2P_DIR_SENT) {
 				sub_handle = GSMTAP_SUB_UM_RLC_MAC_UL;
