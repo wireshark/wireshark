@@ -36,6 +36,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 #include <wsutil/str_util.h>
 
@@ -288,6 +289,7 @@ static gint ett_local_flags = -1;
 static gint ett_extension = -1;
 static gint ett_image = -1;
 
+static expert_field ei_gif_unknown_data_block_type = EI_INIT;
 
 /****************** GIF protocol dissection functions ******************/
 
@@ -559,11 +561,17 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             if (ret <= 0)
                 break;
             offset += ret;
-        } else {
+        } else if (peek == 0x3B) { /* Trailer byte */
             /* GIF processing stops at this very byte */
             proto_tree_add_item(gif_tree, &hfi_trailer,
                     tvb, offset, 1, ENC_NA);
+            offset++;
             break;
+        } else {
+            proto_tree_add_expert(gif_tree, pinfo,
+                    &ei_gif_unknown_data_block_type,
+                    tvb, offset, 1);
+            offset++;
         }
         proto_item_set_len(ti, offset-offset_start);
     } /* while */
@@ -652,7 +660,16 @@ proto_register_gif(void)
         &ett_image,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_gif_unknown_data_block_type,
+            { "gif.data_block_type.unknown", PI_PROTOCOL, PI_WARN,
+                "Unknown GIF data block type", EXPFILL }
+        }
+    };
+
     int proto_gif;
+
+    expert_module_t* expert_gif;
 
     /* Register the protocol name and description */
     proto_gif = proto_register_protocol(
@@ -667,6 +684,8 @@ proto_register_gif(void)
      * and subtrees used */
     proto_register_fields(proto_gif, hfi, array_length(hfi));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_gif = expert_register_protocol(proto_gif);
+    expert_register_field_array(expert_gif, ei, array_length(ei));
 
     gif_handle = register_dissector(IMG_GIF, dissect_gif, proto_gif);
 }
