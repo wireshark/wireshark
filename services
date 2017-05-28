@@ -8239,14 +8239,14 @@ varadero-1       4838/tcp # Varadero-1
 varadero-1       4838/udp # Varadero-1
 varadero-2       4839/tcp # Varadero-2 [Carlos_Arteaga] [Carlos_Arteaga]
 varadero-2       4839/udp # Varadero-2 [Carlos_Arteaga] [Carlos_Arteaga]
-opcua-tcp        4840/tcp # OPC UA TCP Protocol
-opcua-udp        4840/udp # OPC UA TCP Protocol [Randy_Armstrong] [Randy_Armstrong] 2006-09
+opcua-tcp        4840/tcp # OPC UA TCP Protocol [OPC_Foundation] [Randy_Armstrong] 2017-05-23
+opcua-udp        4840/udp # OPC UA TCP Protocol [OPC_Foundation] [Randy_Armstrong] 2006-09 2017-05-23
 quosa            4841/tcp # QUOSA Virtual Library Service [Uri_Blank] [Uri_Blank] 2006-09
 quosa            4841/udp # QUOSA Virtual Library Service [Uri_Blank] [Uri_Blank] 2006-09
 gw-asv           4842/tcp # nCode ICE-flow Library AppServer [Ross_Swithenbank] [Ross_Swithenbank] 2006-09
-gw-asv           4842/udp # nCode ICE-flow Library AppServer [Ross_Swithenbank] [Ross_Swithenbank] 2006-09
-opcua-tls        4843/tcp # OPC UA TCP Protocol over TLS/SSL [Randy_Armstrong] [Randy_Armstrong] 2006-09
-opcua-tls        4843/udp # OPC UA TCP Protocol over TLS/SSL [Randy_Armstrong] [Randy_Armstrong] 2006-09
+gw-asv           4842/udp # nCode ICE-flow Library AppServer [Ross_Swithenbank] [Ross_Swithenbank] 2006-09 2017-05-23
+opcua-tls        4843/tcp # OPC UA TCP Protocol over TLS/SSL [OPC_Foundation] [Randy_Armstrong] 2006-09 2017-05-23
+opcua-tls        4843/udp # OPC UA TCP Protocol over TLS/SSL [OPC_Foundation] [Randy_Armstrong] 2006-09
 gw-log           4844/tcp # nCode ICE-flow Library LogServer [Ross_Swithenbank] [Ross_Swithenbank] 2006-09
 gw-log           4844/udp # nCode ICE-flow Library LogServer [Ross_Swithenbank] [Ross_Swithenbank] 2006-09
 wcr-remlib       4845/tcp # WordCruncher Remote Library Service [Jason_Dzubak] [Jason_Dzubak] 2008-03-17
@@ -9374,9 +9374,9 @@ xdsxdm           6558/tcp # [Brian_Tackett] [Brian_Tackett] possible contact
 xdsxdm           6558/udp # [Brian_Tackett] [Brian_Tackett] possible contact
 sane-port        6566/tcp # SANE Control Port [Henning_Meier_Geinit] [Henning_Meier_Geinit] 2002-10
 sane-port        6566/udp # SANE Control Port [Henning_Meier_Geinit] [Henning_Meier_Geinit] 2002-10
-canit-store      6568/tcp # CanIt Storage ManagerIANA assigned this well-formed service name as a replacement for "canit_store". [David_F_Skoll] [David_F_Skoll] 2009-04-22
-canit_store      6568/tcp # CanIt Storage Manager [David_F_Skoll] [David_F_Skoll] 2009-04-22 This entry is an alias to "canit-store".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
-rp-reputation    6568/udp # Roaring Penguin IP Address Reputation Collection [David_F_Skoll] [David_F_Skoll] 2010-02-05
+canit-store      6568/tcp # CanIt Storage ManagerIANA assigned this well-formed service name as a replacement for "canit_store". [Dianne_Skoll] [Dianne_Skoll] 2009-04-22 2017-05-25
+canit_store      6568/tcp # CanIt Storage Manager [Dianne_Skoll] [Dianne_Skoll] 2009-04-22 2017-05-25 This entry is an alias to "canit-store".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
+rp-reputation    6568/udp # Roaring Penguin IP Address Reputation Collection [Dianne_Skoll] [Dianne_Skoll] 2010-02-05 2017-05-25
 affiliate        6579/tcp # Affiliate [David_Catmull] [David_Catmull] 2006-01
 affiliate        6579/udp # Affiliate [David_Catmull] [David_Catmull] 2006-01
 parsec-master    6580/tcp # Parsec Masterserver [Andreas_Varga] [Andreas_Varga]
