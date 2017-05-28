@@ -87,11 +87,21 @@ df_func_len(GList* arg1list, GList *arg2junk _U_, GList **retval)
     arg1 = arg1list;
     while (arg1) {
         arg_fvalue = (fvalue_t *)arg1->data;
-        /* XXX - it would be nice to handle other types */
-        if (IS_FT_STRING(fvalue_type_ftenum(arg_fvalue))) {
+        /* This should be a list of all of the types that make sense to have a length */
+        switch (fvalue_type_ftenum(arg_fvalue))
+        {
+        case FT_STRING:
+        case FT_STRINGZ:
+        case FT_STRINGZPAD:
+        case FT_UINT_STRING:
+        case FT_BYTES:
+        case FT_UINT_BYTES:
             ft_len = fvalue_new(FT_UINT32);
-            fvalue_set_uinteger(ft_len, (guint) strlen((char *)fvalue_get(arg_fvalue)));
+            fvalue_set_uinteger(ft_len, fvalue_length(arg_fvalue));
             *retval = g_list_append(*retval, ft_len);
+            break;
+        default:
+            break;
         }
         arg1 = arg1->next;
     }
@@ -138,7 +148,7 @@ df_func_count(GList* arg1list, GList *arg2junk _U_, GList **retval)
 }
 
 
-/* For upper(), lower() and len(), checks that the parameter passed to
+/* For upper() and lower() checks that the parameter passed to
  * it is an FT_STRING */
 static void
 ul_semcheck_params(dfwork_t *dfw, int param_num, stnode_t *st_node)
@@ -161,6 +171,46 @@ ul_semcheck_params(dfwork_t *dfw, int param_num, stnode_t *st_node)
                 break;
             default:
                 dfilter_fail(dfw, "Only string-type fields can be used in upper() or lower() or len()");
+                THROW(TypeError);
+        }
+    }
+    else {
+        g_assert_not_reached();
+    }
+}
+
+/* For len() checks that the parameter passed to it is an string or byte type */
+static void
+ul_semcheck_len_params(dfwork_t *dfw, int param_num, stnode_t *st_node)
+{
+    sttype_id_t type;
+    ftenum_t    ftype;
+    header_field_info *hfinfo;
+
+    type = stnode_type_id(st_node);
+
+    if (param_num == 0) {
+        switch(type) {
+            case STTYPE_FIELD:
+                hfinfo = (header_field_info *)stnode_data(st_node);
+                ftype = hfinfo->type;
+                switch (ftype)
+                {
+                case FT_STRING:
+                case FT_STRINGZ:
+                case FT_STRINGZPAD:
+                case FT_UINT_STRING:
+                case FT_BYTES:
+                case FT_UINT_BYTES:
+                    break;
+                default:
+                    dfilter_fail(dfw, "Only string and byte type fields can be used in len()");
+                    THROW(TypeError);
+                    break;
+                }
+                break;
+            default:
+                dfilter_fail(dfw, "Only string and byte type fields can be used in len()");
                 THROW(TypeError);
         }
     }
@@ -196,7 +246,7 @@ static df_func_def_t
 df_functions[] = {
     { "lower", df_func_lower, FT_STRING, 1, 1, ul_semcheck_params },
     { "upper", df_func_upper, FT_STRING, 1, 1, ul_semcheck_params },
-    { "len",   df_func_len,   FT_UINT32, 1, 1, ul_semcheck_params },
+    { "len",   df_func_len,   FT_UINT32, 1, 1, ul_semcheck_len_params },
     { "size",  df_func_size,  FT_UINT32, 1, 1, ul_semcheck_field_param },
     { "count", df_func_count, FT_UINT32, 1, 1, ul_semcheck_field_param },
     { NULL, NULL, FT_NONE, 0, 0, NULL }

@@ -50,6 +50,7 @@ since version 2.2.0:
   decryption key preference has been obsoleted.
 * Extcap utilities can now provide configuration for a GUI interface toolbar to
   control the extcap utility while capturing.
+* Display filter function len() can now be used on all string and byte fields.
 
 //=== Removed Dissectors
 
