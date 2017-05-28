@@ -5457,8 +5457,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 								offset_r += protoo_strlcpy(result+offset_r, number_out, size-offset_r);
 								hf_str_val = hf_try_val_to_str(number, hfinfo);
 								offset_r += protoo_strlcpy(result+offset_r, hf_str_val, size-offset_r);
-							}
-							else {
+							} else {
 								number_out = hf_str_val = hf_try_val_to_str(number, hfinfo);
 
 								if (!number_out)
