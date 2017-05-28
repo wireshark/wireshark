@@ -5512,13 +5512,19 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 							fmtfunc64(tmp, number64);
 							offset_r += protoo_strlcpy(result+offset_r, tmp, size-offset_r);
 						} else if (hfinfo->strings) {
-							number_out = hf_str_val = hf_try_val64_to_str(number64, hfinfo);
+							if (hfinfo->display & BASE_UNIT_STRING) {
+								number_out = hfinfo_numeric_value_format64(hfinfo, number_buf, number64);
+								offset_r += protoo_strlcpy(result+offset_r, number_out, size-offset_r);
+								hf_str_val = hf_try_val64_to_str(number64, hfinfo);
+								offset_r += protoo_strlcpy(result+offset_r, hf_str_val, size-offset_r);
+							} else {
+								number_out = hf_str_val = hf_try_val64_to_str(number64, hfinfo);
 
-							if (!number_out)
-								number_out = hfinfo_number_value_format_display64(hfinfo, hfinfo->display, number_buf, number64);
+								if (!number_out)
+									number_out = hfinfo_number_value_format_display64(hfinfo, hfinfo->display, number_buf, number64);
 
-							offset_r += protoo_strlcpy(result+offset_r, number_out, size-offset_r);
-
+								offset_r += protoo_strlcpy(result+offset_r, number_out, size-offset_r);
+							}
 						} else {
 							number_out = hfinfo_number_value_format64(hfinfo, number_buf, number64);
 
