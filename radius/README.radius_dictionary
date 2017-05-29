@@ -40,10 +40,6 @@ with the following changes:
       ATTRIBUTE MS-MPPE-Encryption-Policy  and
       ATTRIBUTE MS-MPPE-Encryption-Types.
 
-6. dictionary.nortel
-   - FreeRadius v 2.1.6 dictionary.nortel plus addition per:
-     2009-07-01 commit in the FreeRadius repository.
-
 7. dictionary.cisco.vpn3000
    - FreeRadius 2.1.6 dictionary.cisco.vpn3000 plus additions:
      a. VALUEs as defined in the previous Wireshark version of dictionary.cisco.vpn3000;
