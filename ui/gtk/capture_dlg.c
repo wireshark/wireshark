@@ -763,7 +763,7 @@ capture_all_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
       }
 #ifdef HAVE_EXTCAP
       /* Can't verify extcap capture filters */
-      if (device.if_info.extcap != NULL)
+      if (device.if_info.extcap != NULL && strlen(device.if_info.extcap) > 0)
         continue;
 #endif
       filter_text = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(filter_cm));
