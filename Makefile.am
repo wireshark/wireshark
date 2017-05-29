@@ -180,6 +180,7 @@ dist_radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/dictionary.compat \
 	radius/dictionary.cosine \
 	radius/dictionary.dante \
+	radius/dictionary.dellemc \
 	radius/dictionary.dhcp \
 	radius/dictionary.dlink \
 	radius/dictionary.digium \

@@ -179,6 +179,7 @@ $INCLUDE dictionary.colubris
 $INCLUDE dictionary.compatible
 $INCLUDE dictionary.cosine
 $INCLUDE dictionary.dante
+$INCLUDE dictionary.dellemc
 #$INCLUDE dictionary.dhcp
 $INCLUDE dictionary.dlink
 $INCLUDE dictionary.digium
