@@ -12,6 +12,7 @@ VENDOR		Patton				1768
 
 BEGIN-VENDOR	Patton
 
+ATTRIBUTE	Patton-Protocol				16	string
 ATTRIBUTE	Patton-Setup-Time			32	string
 ATTRIBUTE	Patton-Connect-Time			33	string
 ATTRIBUTE	Patton-Disconnect-Time			34	string
@@ -22,6 +23,7 @@ ATTRIBUTE	Patton-Called-IP-Address		49	ipaddr
 ATTRIBUTE	Patton-Called-Numbering-Plan		50	string
 ATTRIBUTE	Patton-Called-Type-Of-Number		51	string
 ATTRIBUTE	Patton-Called-Name			52	string
+ATTRIBUTE	Patton-Called-Station-Id		53	string
 ATTRIBUTE	Patton-Called-Rx-Octets			64	integer
 ATTRIBUTE	Patton-Called-Tx-Octets			65	integer
 ATTRIBUTE	Patton-Called-Rx-Packets		66	integer
@@ -31,6 +33,10 @@ ATTRIBUTE	Patton-Called-Tx-Lost-Packets		69	integer
 ATTRIBUTE	Patton-Called-Rx-Jitter			70	integer
 ATTRIBUTE	Patton-Called-Tx-Jitter			71	integer
 ATTRIBUTE	Patton-Called-Codec			72	string
+ATTRIBUTE	Patton-Called-Remote-Ip			73	integer
+ATTRIBUTE	Patton-Called-Remote-Udp-Port		74	integer
+ATTRIBUTE	Patton-Called-Local-Udp-Port		75	integer
+ATTRIBUTE	Patton-Called-Qos			76	integer
 ATTRIBUTE	Patton-Called-MOS			77	integer
 ATTRIBUTE	Patton-Called-Round-Trip-Time		78	integer
 ATTRIBUTE	Patton-Calling-Unique-Id		80	string
@@ -40,6 +46,7 @@ ATTRIBUTE	Patton-Calling-Type-Of-Number		83	string
 ATTRIBUTE	Patton-Calling-Presentation-Indicator	88	string
 ATTRIBUTE	Patton-Calling-Screening-Indicator	89	string
 ATTRIBUTE	Patton-Calling-Name			84	string
+ATTRIBUTE	Patton-Calling-Station-Id		85	string
 ATTRIBUTE	Patton-Calling-Rx-Octets		96	integer
 ATTRIBUTE	Patton-Calling-Tx-Octets		97	integer
 ATTRIBUTE	Patton-Calling-Rx-Packets		98	integer
@@ -49,6 +56,10 @@ ATTRIBUTE	Patton-Calling-Lost-Rx-Packets		101	integer
 ATTRIBUTE	Patton-Calling-Rx-Jitter		102	integer
 ATTRIBUTE	Patton-Calling-Tx-Jitter		103	integer
 ATTRIBUTE	Patton-Calling-Codec			104	string
+ATTRIBUTE	Patton-Calling-Remote-Ip		105	integer
+ATTRIBUTE	Patton-Calling-Remote-Udp-Port		106	integer
+ATTRIBUTE	Patton-Calling-Local-Udp-Port		107	integer
+ATTRIBUTE	Patton-Calling-Qos			108	integer
 ATTRIBUTE	Patton-Calling-MOS			109	integer
 ATTRIBUTE	Patton-Calling-Round-Trip-Time		110	integer
 
