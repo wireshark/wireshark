@@ -1,4 +1,5 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 # dictionary.acc
 #		Dictionary for Acc/Newbridge, models Tigris, Amazon, etc.
@@ -7,8 +8,7 @@
 #
 # Version:	@(#)dictionary.acc  1.00  smarzloff  21-Jun-1999
 #
-#		$Id$
-#
+
 VENDOR		Acc				5
 
 #
@@ -70,8 +70,8 @@ VALUE	Acc-Reason-Code			No-reason-No-Failure	0
 VALUE	Acc-Reason-Code			Resource-shortage	1
 VALUE	Acc-Reason-Code			Session-already-open	2
 VALUE	Acc-Reason-Code			Too-many-RADIUS-users	3
-VALUE	Acc-Reason-Code			No-authentification-server 4
-VALUE	Acc-Reason-Code			No-authentification-response 5
+VALUE	Acc-Reason-Code			No-authentication-server 4
+VALUE	Acc-Reason-Code			No-authentication-response 5
 VALUE	Acc-Reason-Code			No-accounting-server	6
 VALUE	Acc-Reason-Code			No-accounting-response	7
 VALUE	Acc-Reason-Code			Access-Denied		8
@@ -201,8 +201,8 @@ VALUE	Acc-Clearing-Location		Beyond-interworking-point 10
 
 VALUE	Acc-Request-Type		Ring-Indication		1
 VALUE	Acc-Request-Type		Dial-Request		2
-VALUE	Acc-Request-Type		User-Authentification	3
-VALUE	Acc-Request-Type		Tunnel-Authentification	4
+VALUE	Acc-Request-Type		User-Authentication	3
+VALUE	Acc-Request-Type		Tunnel-Authentication	4
 
 VALUE	Acc-Bridging-Support		Disabled		1
 VALUE	Acc-Bridging-Support		Enabled			2
