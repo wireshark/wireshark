@@ -28,6 +28,7 @@
 	<!ENTITY CiscoSystems			SYSTEM "CiscoSystems.xml">
 	<!ENTITY Oracle			SYSTEM "Oracle.xml">
 	<!ENTITY Juniper		SYSTEM "Juniper.xml">
+	<!ENTITY Inovar			SYSTEM "Inovar.xml">
 	<!ENTITY Custom			SYSTEM "Custom.xml">
 ]>
 <dictionary>
@@ -7684,5 +7685,6 @@
 	&Oracle;
 	&CiscoSystems;
 	&Juniper;
+	&Inovar;
 	&Custom;
 </dictionary>
