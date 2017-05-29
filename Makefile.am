@@ -587,6 +587,10 @@ sharkd_SOURCES = \
 
 sharkd_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
+if HAVE_SPEEXDSP
+sharkd_CPPFLAGS += $(SPEEXDSP_CFLAGS)
+endif
+
 sharkd_LDFLAGS = $(AM_LDFLAGS) $(EXTRALINKFLAGS)
 
 # Libraries and plugin flags with which to link sharkd.
@@ -603,6 +607,10 @@ sharkd_LDADD = \
 	${EPAN_EXTRA_LIBS}	\
 	@SYSTEMCONFIGURATION_FRAMEWORKS@	\
 	@COREFOUNDATION_FRAMEWORKS@
+
+if HAVE_SPEEXDSP
+sharkd_LDADD += $(SPEEXDSP_LIBS)
+endif
 
 text2pcap_SOURCES = \
 	text2pcap.c		\
