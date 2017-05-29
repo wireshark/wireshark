@@ -1,16 +1,19 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 ##############################################################################
 #
 #	Nortel Passport 8600 VSA's.
 #
 #	http://www142.nortelnetworks.com/bvdoc/setips/july04/engineeringtipstricksv12.pdf
 #
-#	$Id$
+#	$Id: 922991260cb7c3fc61b0f41b59503c05fc2cf370 $
 #
 ##############################################################################
 
 VENDOR		Nortel				562
 BEGIN-VENDOR	Nortel
+
+ATTRIBUTE	Nortel-User-Role			110	string
 
 ATTRIBUTE	Nortel-Privilege-Level			166	integer
 
