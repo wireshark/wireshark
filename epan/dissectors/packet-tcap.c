@@ -784,6 +784,9 @@ dissect_tcap_OrigTransactionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
     case 2:
       gp_tcapsrt_info->src_tid=tvb_get_ntohs(parameter_tvb, 0);
       break;
+    case 3:
+      gp_tcapsrt_info->src_tid=tvb_get_ntoh24(parameter_tvb, 0);
+      break;
     case 4:
       gp_tcapsrt_info->src_tid=tvb_get_ntohl(parameter_tvb, 0);
       break;
@@ -816,7 +819,7 @@ static const ber_sequence_t Begin_sequence[] = {
 
 static int
 dissect_tcap_Begin(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 215 "./asn1/tcap/tcap.cnf"
+#line 221 "./asn1/tcap/tcap.cnf"
 gp_tcapsrt_info->ope=TC_BEGIN;
 
 /*  Do not change col_add_str() to col_append_str() here: we _want_ this call
@@ -838,7 +841,7 @@ gp_tcapsrt_info->ope=TC_BEGIN;
 
 static int
 dissect_tcap_DestTransactionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 174 "./asn1/tcap/tcap.cnf"
+#line 177 "./asn1/tcap/tcap.cnf"
   tvbuff_t *parameter_tvb;
   guint8 len , i;
   proto_tree *subtree;
@@ -864,6 +867,9 @@ dissect_tcap_DestTransactionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
       break;
     case 2:
       gp_tcapsrt_info->dst_tid=tvb_get_ntohs(parameter_tvb, 0);
+      break;
+    case 3:
+      gp_tcapsrt_info->dst_tid=tvb_get_ntoh24(parameter_tvb, 0);
       break;
     case 4:
       gp_tcapsrt_info->dst_tid=tvb_get_ntohl(parameter_tvb, 0);
@@ -896,7 +902,7 @@ static const ber_sequence_t End_sequence[] = {
 
 static int
 dissect_tcap_End(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 229 "./asn1/tcap/tcap.cnf"
+#line 235 "./asn1/tcap/tcap.cnf"
 gp_tcapsrt_info->ope=TC_END;
 
   col_set_str(actx->pinfo->cinfo, COL_INFO, "End ");
@@ -918,7 +924,7 @@ static const ber_sequence_t Continue_sequence[] = {
 
 static int
 dissect_tcap_Continue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 236 "./asn1/tcap/tcap.cnf"
+#line 242 "./asn1/tcap/tcap.cnf"
 gp_tcapsrt_info->ope=TC_CONT;
 
   col_set_str(actx->pinfo->cinfo, COL_INFO, "Continue ");
@@ -989,7 +995,7 @@ static const ber_sequence_t Abort_sequence[] = {
 
 static int
 dissect_tcap_Abort(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 243 "./asn1/tcap/tcap.cnf"
+#line 249 "./asn1/tcap/tcap.cnf"
 gp_tcapsrt_info->ope=TC_ABORT;
 
   col_set_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
@@ -2370,6 +2376,7 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_item *pi;
   proto_item *stat_item=NULL;
   proto_tree *stat_tree=NULL;
+  gboolean use_dst = TRUE;
 
 #ifdef DEBUG_TCAPSRT
   dbg(51,"src %s srcTid %lx dst %s dstTid %lx ", address_to_str(wmem_packet_scope(), &pinfo->src), p_tcapsrt_info->src_tid, address_to_str(wmem_packet_scope(), &pinfo->dst), p_tcapsrt_info->dst_tid);
@@ -2425,11 +2432,13 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #endif
     p_tcaphash_begincall = find_tcaphash_begin(&tcaphash_begin_key, pinfo, FALSE);
     if(!p_tcaphash_begincall){
+      try_src:
 /* can this actually happen? */
 #ifdef DEBUG_TCAPSRT
         dbg(12,"BNotFound trying stid,src");
 #endif
         /* Do we have a continue from the same source? (stid,src) */
+        use_dst = FALSE;
         tcaphash_begin_key.tid = p_tcapsrt_info->src_tid;
         if (pinfo->src.type == ss7pc_address_type && pinfo->dst.type == ss7pc_address_type)
         {
@@ -2462,21 +2471,21 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       create_tcaphash_cont(&tcaphash_cont_key,
                            p_tcaphash_begincall->context);
 
-      /* Create END for (stid,src) */
-      tcaphash_end_key.tid = p_tcapsrt_info->src_tid;
+      /* Create END for (dtid,dst) or (stid,src) */
+      tcaphash_end_key.tid = use_dst ? p_tcapsrt_info->dst_tid : p_tcapsrt_info->src_tid;
       if (pinfo->src.type == ss7pc_address_type && pinfo->dst.type == ss7pc_address_type)
       {
         /* We have MTP3 PCs (so we can safely do this cast) */
-        tcaphash_end_key.pc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
+        tcaphash_end_key.pc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)(use_dst ? pinfo->dst.data : pinfo->src.data));
       } else {
         /* Don't have MTP3 PCs (have SCCP GT ?) */
-        tcaphash_end_key.pc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->src));
+        tcaphash_end_key.pc_hash = g_str_hash(address_to_str(wmem_packet_scope(), use_dst ? &pinfo->dst : &pinfo->src));
       }
       tcaphash_end_key.hashKey=tcaphash_end_calchash(&tcaphash_end_key);
 
 #ifdef DEBUG_TCAPSRT
       dbg(10,"New Ekey %lx ",tcaphash_end_key.hashKey);
-      dbg(51,"addr %s ", address_to_str(wmem_packet_scope(), &pinfo->src));
+      dbg(51,"addr %s ", address_to_str(wmem_packet_scope(), use_dst ? &pinfo->dst : &pinfo->src));
       dbg(51,"Tid %lx ",tcaphash_end_key.tid);
       dbg(11,"Frame reqlink #%u ", pinfo->num);
 #endif
@@ -2487,6 +2496,10 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #ifdef DEBUG_TCAPSRT
       dbg(12,"BnotFound ");
 #endif
+      if (use_dst) {
+        /* make another try with src tid / address */
+        goto try_src;
+      }
     } /* begin found */
   } /* cont found */
     /* display tcap session, if available */
@@ -3256,7 +3269,7 @@ proto_reg_handoff_tcap(void)
 
 
 /*--- End of included file: packet-tcap-dis-tab.c ---*/
-#line 1982 "./asn1/tcap/packet-tcap-template.c"
+#line 1989 "./asn1/tcap/packet-tcap-template.c"
 }
 
 static void init_tcap(void);
@@ -3598,7 +3611,7 @@ proto_register_tcap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-tcap-hfarr.c ---*/
-#line 2055 "./asn1/tcap/packet-tcap-template.c"
+#line 2062 "./asn1/tcap/packet-tcap-template.c"
   };
 
 /* Setup protocol subtree array */
@@ -3646,7 +3659,7 @@ proto_register_tcap(void)
     &ett_tcap_Associate_source_diagnostic,
 
 /*--- End of included file: packet-tcap-ettarr.c ---*/
-#line 2065 "./asn1/tcap/packet-tcap-template.c"
+#line 2072 "./asn1/tcap/packet-tcap-template.c"
   };
 
   /*static enum_val_t tcap_options[] = {
