@@ -1,9 +1,10 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 ##############################################################################
 #
 #	Prosoft, as posted to the list.
 #
-#	$Id$
+#	$Id: 781a0cd32c589544853af7fa71cb9e7d7929ad36 $
 #
 ##############################################################################
 
@@ -37,6 +38,5 @@ VALUE	Prosoft-Auth-Role		Read-Config		1
 VALUE	Prosoft-Auth-Role		Read-Write		2
 VALUE	Prosoft-Auth-Role		Admin			3
 VALUE	Prosoft-Auth-Role		Super-user		4
-
 
 END-VENDOR	Prosoft

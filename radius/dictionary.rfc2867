@@ -1,9 +1,10 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #	Attributes and values defined in RFC 2867.
 #	http://www.ietf.org/rfc/rfc2867.txt
 #
-#	$Id$
+#	$Id: eb80d3c3f20d596758b768dd2c09cf0420ff71fb $
 #
 ATTRIBUTE	Acct-Tunnel-Connection			68	string
 ATTRIBUTE	Acct-Tunnel-Packets-Lost		86	integer

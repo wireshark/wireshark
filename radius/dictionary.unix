@@ -1,8 +1,9 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #	Allegedly for ProFTPd.
 #
-#	$Id$
+#	$Id: 06d3634eba2d4830db1597c193c7b804852ef1be $
 #
 
 VENDOR		Unix				4

@@ -1,7 +1,5 @@
 # -*- text -*-
-#
-#	$Id$
-#
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 VENDOR		NTUA				969
 
 BEGIN-VENDOR	NTUA

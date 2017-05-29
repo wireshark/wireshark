@@ -1,8 +1,9 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #	Attributes and values defined in RFC 4849.
 #	http://www.ietf.org/rfc/rfc4849.txt
 #
-#	$Id$
+#	$Id: 1b762855b6cfbcce6dee475eb74c6219b4cfa287 $
 #
 ATTRIBUTE	NAS-Filter-Rule				92	string

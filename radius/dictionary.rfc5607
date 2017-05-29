@@ -1,9 +1,10 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #	Attributes and values defined in RFC 5607.
 #	http://www.ietf.org/rfc/rfc5607.txt
 #
-#	$Id$
+#	$Id: 4e621567b7ddbe7136ba6640a2dd9a1c47933aec $
 #
 
 VALUE	Service-Type			Framed-Management	18

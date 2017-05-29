@@ -1,9 +1,10 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #	Attributes and values defined in RFC 6572.
 #	http://www.ietf.org/rfc/rfc6572.txt
 #
-#	$Id$
+#	$Id: 7ec81e55e034a3a823350f02eeed9d407665d927 $
 #
 
 ATTRIBUTE	Mobile-Node-Identifier			145	octets

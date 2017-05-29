@@ -1,11 +1,11 @@
 # -*- text -*-
-# Copyright (C) 2011 The FreeRADIUS Server project and contributors
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #	SG-1 System by Runcom Technologies Ltd.
 #
 #	ftp://ftp.3gpp.org/specs/2002-06/R1999/29_series/29061-3a0.zip
 #
-#	$Id: 1102f6bc50eac7beb85635d4cf1dd14a4a6347fa $
+#	$Id: 9cfd6cdde7ce8692a691cbe4232997d7c486502b $
 #
 VENDOR		SG				2454
 

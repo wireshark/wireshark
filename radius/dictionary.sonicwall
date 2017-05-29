@@ -1,8 +1,9 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #	Sonicwall Firewall dictionary
 #
-#	$Id$
+#	$Id: c2cf40b83991aa7024ca9ce66e0c94f09eda9da3 $
 #
 
 VENDOR		SonicWall			8741

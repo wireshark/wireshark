@@ -1,9 +1,10 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #	Attributes and values defined in RFC 4675.
 #	http://www.ietf.org/rfc/rfc4675.txt
 #
-#	$Id$
+#	$Id: d615722b7d763b344558eac17b12a6a607014b0e $
 #
 
 #

@@ -1,4 +1,5 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 ##############################################################################
 #
 #       Digium's Asterisk specific radius attributes
@@ -6,7 +7,7 @@
 #
 #	http://bugs.digium.com/file_download.php\?file_id=9688\&type=bug
 #
-#	$Id$
+#	$Id: 98f9d9591478577b88861ef0ea4a99f6d453cd8d $
 #
 ##############################################################################
 

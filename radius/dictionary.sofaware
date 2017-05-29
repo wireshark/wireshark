@@ -1,4 +1,5 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 ##############################################################################
 #
 #	Sofaware VPN-1 Edge from Sofaware (Check Point appliance).
@@ -20,7 +21,7 @@
 #	SofaWare-UFP      :   "true" / "false"
 #		The user can /cannot overwrite the URL Filtering policy
 #
-#	$Id$
+#	$Id: 0c4f2369af125270e60fb160c820f669fc4f74f2 $
 #
 ##############################################################################
 

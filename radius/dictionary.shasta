@@ -1,11 +1,10 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 # dictionary.shasta
 #
 #           Nortel Shasta VSAs
 #           Andre Gustavo de C. Albuquerque <gustavoa@nortelnetworks.com>
-#
-#	$Id$
 #
 
 VENDOR		Shasta				3199

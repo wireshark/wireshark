@@ -1,6 +1,7 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
-# Version:	$Id$
+# Version:	$Id: 9f90097e3c640a1e4aad2b0cb5ff91a59d890704 $
 #
 VENDOR		Nomadix				3309
 #

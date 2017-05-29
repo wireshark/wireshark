@@ -1,10 +1,9 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 # Gemtek Systems VSA's
 # Version: dictionary.gemtek, v1.2 2004/07/13
-#
-#	$Id$
-#
+
 VENDOR		Gemtek				10529
 
 BEGIN-VENDOR	Gemtek

@@ -1,9 +1,10 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #       Valemount Networks Corporation specific radius attributes
 #       networks@valemount.com
 #
-#	$Id$
+#	$Id: 471d81cdcd882fde3a99b1ae3e1886e9a8936ccb $
 #
 
 VENDOR		ValemountNetworks		16313

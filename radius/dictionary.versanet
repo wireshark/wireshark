@@ -1,4 +1,5 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 # dictionary.versanet Vendor specfic attributes for versanet
 #
@@ -20,8 +21,6 @@
 #save as "Vendor Specific=Terminate Cause".
 #
 # Version:   @(#)dictionary.versanet 1.00 22-Jul-1999 support@versanetcomm.com
-#
-#	$Id$
 #
 
 VENDOR		Versanet			2180

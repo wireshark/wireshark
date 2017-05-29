@@ -1,9 +1,10 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #	Attributes and values defined in RFC 3580.
 #	http://www.ietf.org/rfc/rfc3580.txt
 #
-#	$Id$
+#	$Id: e20df23cf3c81662ed2a0dbf194b42170e88e742 $
 #
 VALUE	Acct-Terminate-Cause		Supplicant-Restart	19
 VALUE	Acct-Terminate-Cause		Reauthentication-Failure 20

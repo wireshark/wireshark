@@ -1,9 +1,10 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #	Attributes and values defined in RFC 5090.
 #	http://www.ietf.org/rfc/rfc5090.txt
 #
-#	$Id$
+#	$Id: a5a71d9160084d5febd09387d6bcc25d6a86435b $
 #
 ATTRIBUTE	Digest-Response				103	string
 ATTRIBUTE	Digest-Realm				104	string

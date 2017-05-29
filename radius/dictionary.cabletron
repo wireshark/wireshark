@@ -1,7 +1,8 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #	http://www.cabletron.com (now http://www.enterasys.com)
-#	$Id$
+#	$Id: 8acb8109cd1fb4bd0da4cbc075160c1470c66046 $
 #
 
 VENDOR		Cabletron			52

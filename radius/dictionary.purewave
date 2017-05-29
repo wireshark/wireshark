@@ -1,9 +1,9 @@
 # -*- text -*-
-# Copyright (C) 2011 The FreeRADIUS Server project and contributors
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #	Purewave Networks Base Station
 #
-#	$Id: f5798a1ff359a5eceff019b6150698313a611cde $
+#	$Id: 0ed5730e582e7f7106fb9c5db5dbb6c0b1e1e296 $
 #
 VENDOR		Purewave			21074
 

@@ -1,9 +1,8 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #	From:
 #	http://www.netscreen.com/support/downloads/4.0_configuring_screenOS_for_NTdomain_v11.pdf
-#
-#	$Id$
 #
 
 VENDOR		Netscreen			3224

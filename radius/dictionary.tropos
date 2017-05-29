@@ -1,9 +1,10 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 ##############################################################################
 #
 #	See support@tropos.com
 #
-#	$Id$
+#	$Id: 48341843dc855336bc811b8cb4bdca2f693934bf $
 #
 ##############################################################################
 VENDOR		Tropos				14529

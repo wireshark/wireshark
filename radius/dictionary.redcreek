@@ -1,7 +1,8 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #	http://www.redcreek.com
-#	$Id$
+#	$Id: a5e286770d6c10293f0a8c22ebfb6c04a4ca9da9 $
 #
 
 VENDOR		RedCreek			1958

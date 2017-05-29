@@ -1,10 +1,10 @@
 # -*- text -*-
-# Copyright (C) 2014 The FreeRADIUS Server project and contributors
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #        Attributes and values defined in RFC 7268
 #        http://www.ietf.org/rfc/rfc7268.txt
 #
-#	$Id: f190ae023a462d5a8b66bf231e5ea51f8a4c6f50 $
+#	$Id: e01186a235cde7d51fe1e271c5096da01faa5f2e $
 #
 
 ATTRIBUTE	Allowed-Called-Station-Id		174	string
@@ -66,3 +66,4 @@ ATTRIBUTE	WLAN-Group-Mgmt-Cipher			189	integer
 # by the IEEE 802.11 Band ID field (Table 8-53a of [IEEE-802.11ad])
 
 ATTRIBUTE	WLAN-RF-Band				190	integer
+

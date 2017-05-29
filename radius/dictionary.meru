@@ -1,9 +1,9 @@
 # -*- text -*-
-# Copyright (C) 2013 The FreeRADIUS Server project and contributors
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #	dictionary.meru
 #
-#	$Id: af690865cade8c204b571c144fb5be5fcb2655e8 $
+#	$Id: 2f223558db7cf93db5b7ece6d24fa4206b0a64e3 $
 #
 #
 VENDOR		Meru				15983
@@ -14,3 +14,4 @@ ATTRIBUTE	Meru-Access-Point-Id			1	integer
 ATTRIBUTE	Meru-Access-Point-Name			2	string
 
 END-VENDOR      Meru
+

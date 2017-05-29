@@ -1,11 +1,12 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 # dictionary.wispr
 #
 #	VSAs originally by
 #	"James Underwood" <underwood@comcast.net>
 #
-# Version:    $Id$
+# Version:    $Id: 2296e60a3912ca078f19f81457d20658950bc63d $
 #
 #	For documentation on WISPr RADIUS attributes, see:
 #

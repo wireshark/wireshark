@@ -1,7 +1,8 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #	http://www.digieurope.com/
-#	$Id$
+#	$Id: 555ea3d7d02fc32a3367dff8e038c9da56cef47d $
 #
 VENDOR		ITK				1195
 

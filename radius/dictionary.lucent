@@ -1,9 +1,10 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 ##############################################################################
 #
 #	Lucent VSAs, in their own "magic" 16-bit format.
 #
-#	$Id$
+#	$Id: 09b923ffdee8e1e1a2b05a0c28c456e7531b9448 $
 #
 ##############################################################################
 

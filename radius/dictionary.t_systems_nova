@@ -1,9 +1,10 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 ##############################################################################
 #
 #	T-Systems-Nova
 #
-#	$Id$
+#	$Id: e78c33d89264af9b9c459e40343025b4e5c483ed $
 #
 ##############################################################################
 VENDOR		T-Systems-Nova			16787

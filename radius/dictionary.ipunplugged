@@ -1,10 +1,11 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 ##############################################################################
 #
 #	ipUnplugged
 #	http://www.ipunplugged.com/
 #
-#	$Id$
+#	$Id: 978bbba43480739a2d716fd526fbcf50b0539f21 $
 #
 ##############################################################################
 

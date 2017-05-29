@@ -1,9 +1,10 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 ##############################################################################
 #
 #	UTStarcom Issanni DSL router.
 #
-#	$Id$
+#	$Id: a7813e48ee3ccd7825a06f0a84f03ac7c6890adc $
 #
 ##############################################################################
 

@@ -1,9 +1,10 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #	3com SuperStack Firewall dictionary
 #	Bought from Sonicwall, apparently, from Enterprise number 8741.
 #
-#		$Id$
+#		$Id: 2898ff656afb26c302ec2c613f29223689f03859 $
 #
 
 VENDOR		3com				43

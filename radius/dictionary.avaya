@@ -1,7 +1,8 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #	Avaya P330 dictionary file
-#	$Id$
+#	$Id: 48927946b2a5e41ee154c9f8c801217dfbd11df6 $
 #
 #	http://support.avaya.com/elmodocs2/p330/P330/Configuring%20FreeRadius.pdf
 #

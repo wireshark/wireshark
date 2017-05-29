@@ -1,12 +1,12 @@
 # -*- text -*-
-# Copyright (C) 2013 The FreeRADIUS Server project and contributors
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 ##############################################################################
 #
 #   D-Link Vendor Specific Attributes Dictionary
 #
 #   Created by Sylph Lin <sylph.lin@gmail.com>
 #
-#   Version $Id: 56b34b149c249c7298e74548ce25d7f9cc3fa26b $
+#   Version $Id: fcbfce088111094e6bd9dc9b4ae72215b181e141 $
 #
 ##############################################################################
 
@@ -32,3 +32,4 @@ VALUE	Dlink-User-Level		Power-User		6
 VALUE	Dlink-User-Level		Admin-Legacy		15
 
 END-VENDOR      Dlink
+

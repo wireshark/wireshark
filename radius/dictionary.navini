@@ -1,11 +1,12 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 # dictionary.navini
 #
 #               By
 #               "Paul Shields" <pshields@navini.com>
 #
-# Version:      $Id$
+# Version:      $Id: 63c127d7ef1b468b23ae8a729aceae5299209b2a $
 #
 
 VENDOR		Navini				6504
