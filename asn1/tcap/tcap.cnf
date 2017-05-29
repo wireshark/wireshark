@@ -142,6 +142,9 @@ if (parameter_tvb){
 	case 2:
 		gp_tcapsrt_info->src_tid=tvb_get_ntohs(parameter_tvb, 0);
 		break;
+	case 3:
+		gp_tcapsrt_info->src_tid=tvb_get_ntoh24(parameter_tvb, 0);
+		break;
 	case 4:
 		gp_tcapsrt_info->src_tid=tvb_get_ntohl(parameter_tvb, 0);
 		break;
@@ -180,6 +183,9 @@ if (parameter_tvb){
 		break;
 	case 2:
 		gp_tcapsrt_info->dst_tid=tvb_get_ntohs(parameter_tvb, 0);
+		break;
+	case 3:
+		gp_tcapsrt_info->dst_tid=tvb_get_ntoh24(parameter_tvb, 0);
 		break;
 	case 4:
 		gp_tcapsrt_info->dst_tid=tvb_get_ntohl(parameter_tvb, 0);
