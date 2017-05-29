@@ -88,7 +88,7 @@ void CaptureFilterSyntaxWorker::start() {
             device = g_array_index(global_capture_opts.all_ifaces, interface_t, if_idx);
             if (!device.locked && device.selected) {
 #ifdef HAVE_EXTCAP
-                if (device.if_info.extcap == NULL)
+                if (device.if_info.extcap == NULL || strlen(device.if_info.extcap) == 0)
                 {
 #endif
                     if (device.active_dlt >= DLT_USER0 && device.active_dlt <= DLT_USER15) {
