@@ -2,8 +2,6 @@
 #
 # Version $Id$
 # 2014-11-03 Comment out
-# dictionary.rfc6929
-# dictionary.rfc6930
 # dictionary.rfc7155
 # dictionary.rfc7268
 # As they give errors in the test, something may have changed in the free rasdius syntax
@@ -43,7 +41,7 @@
 #	This file contains dictionary translations for parsing
 #	requests and generating responses.  All transactions are
 #	composed of Attribute/Value Pairs.  The value of each attribute
-#	is specified as one of 4 data types.  Valid data types are:
+#	is specified as one of a few data types.  Valid data types are:
 #
 #	text       - printable, generally UTF-8 encoded (subset of 'string')
 #	string     - 0-253 octets
@@ -55,15 +53,19 @@
 #	ifid       - 8 octets in network byte order
 #	ipv6addr   - 16 octets in network byte order
 #	ipv6prefix - 18 octets in network byte order
-#	ether      - 6 octets of hh:hh:hh:hh:hh:hh
-#		     where 'h' is hex digits, upper or lowercase.
 #
-#	FreeRADIUS includes extended data types which are not defined
+#	FreeRADIUS includes data types which are not defined
 #	in the RFC's.  These data types are:
 #
 #	abinary - Ascend's binary filter format.
+#	ether      - 6 octets of hh:hh:hh:hh:hh:hh
+#		     where 'h' is hex digits, upper or lowercase.
 #	octets  - raw octets, printed and input as hex strings.
 #		  e.g.: 0x123456789abcdef
+#
+# 	FreeRADIUS uses a number of data types which are defined in
+#	RFC 6929.  These data types should NEVER be used in any other
+#	dictionary.  We won't even list them here.
 #
 #
 #	Enumerated values are stored in the user file with dictionary
@@ -80,12 +82,13 @@
 #
 #	Include compatibility dictionary for older users file. Move
 #	this directive to the end of this file if you want to see the
-#	old names in the logfiles, INSTEAD OF the new names.
+#	old names in the logfiles, instead of the new names.
 #
 $INCLUDE dictionary.compat
 
 #
-#	Include the RFC dictionaries next.
+#	IETF allocated attributes and values.  Split out into
+#	the RFC which defined them.
 #
 #	For a complete list of the standard attributes and values,
 #	see:
@@ -123,7 +126,6 @@ $INCLUDE dictionary.rfc7055
 $INCLUDE dictionary.rfc7499
 $INCLUDE dictionary.rfc7930
 
-
 #
 #	Mostly values which have been allocated by IANA under
 #	"expert review", but which don't have an RFC associated with them.
@@ -131,7 +133,7 @@ $INCLUDE dictionary.rfc7930
 $INCLUDE dictionary.iana
 
 #
-#	Include vendor dictionaries after the standard ones.
+#	Vendor dictionaries are listed after the standard ones.
 #
 $INCLUDE dictionary.3com
 $INCLUDE dictionary.3gpp
