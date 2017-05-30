@@ -1,18 +1,25 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #	GSS-EAP VSAs
 #
-#	$Id$
+#	$Id: 54f7d3ed88459d8927039976ad6879a4713fa38b $
 #
 
-VENDOR	UKERNA				25622
+VENDOR		UKERNA				25622
 
-BEGIN-VENDOR UKERNA
+BEGIN-VENDOR	UKERNA
 
-ATTRIBUTE	GSS-Acceptor-Service-Name	128	string
-ATTRIBUTE	GSS-Acceptor-Host-Name		129	string
-ATTRIBUTE	GSS-Acceptor-Service-Specific	130	string
-ATTRIBUTE	GSS-Acceptor-Realm-Name		131	string
-ATTRIBUTE	SAML-AAA-Assertion		132	string
+ATTRIBUTE	UKERNA-GSS-Acceptor-Service-Name	128	string
+ATTRIBUTE	UKERNA-GSS-Acceptor-Host-Name		129	string
+ATTRIBUTE	UKERNA-GSS-Acceptor-Service-Specific	130	string
+ATTRIBUTE	UKERNA-GSS-Acceptor-Realm-Name		131	string
+ATTRIBUTE	SAML-AAA-Assertion			132	string
+ATTRIBUTE	EAP-Channel-Binding-Message		135	octets
+ATTRIBUTE	Trust-Router-COI			136	string
+ATTRIBUTE	Trust-Router-APC			137	string
+ATTRIBUTE	Moonshot-Host-TargetedId		138	string
+ATTRIBUTE	Moonshot-Realm-TargetedId		139	string
+ATTRIBUTE	Moonshot-TR-COI-TargetedId		140	string
 
 END-VENDOR UKERNA
