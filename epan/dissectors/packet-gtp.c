@@ -261,6 +261,7 @@ static int hf_gtp_earp_pl = -1;
 static int hf_gtp_ext_comm_flags_uasi = -1;
 static int hf_gtp_ext_comm_flags_II_dtci = -1;
 static int hf_gtp_ext_comm_flags_II_pnsi = -1;
+static int hf_gtp_ext_comm_flags_II_pmtsmi = -1;
 static int hf_gtp_ext_comm_flags_II_spare = -1;
 static int hf_gtp_earp_pci = -1;
 static int hf_gtp_cdr_app = -1;
@@ -1283,7 +1284,9 @@ static const value_string cause_type[] = {
     {228, "Collision with network initiated request"},
     {229, "APN Congestion"},
     {230, "Bearer handling not supported"},
-    {232, "UE is temporarily not reachable due to power saving"},
+    {231, "Target access restricted for the subscriber" },
+    {232, "UE is temporarily not reachable due to power saving" },
+    {233, "Relocation failure due to NAS message redirection"},
     /* For future use -240 */
     /* Cause values reserved for GPRS charging
      * protocol use (see GTP' in 3GPP TS 32.295 [33])
@@ -8068,7 +8071,10 @@ decode_gtp_extended_common_flgs_II(tvbuff_t * tvb, int offset, packet_info * pin
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
 
+    proto_tree_add_item(ext_tree, hf_gtp_ext_comm_flags_II_pnsi, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ext_tree, hf_gtp_ext_comm_flags_II_dtci, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_ext_comm_flags_II_pmtsmi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_ext_comm_flags_II_spare, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
 
@@ -9740,9 +9746,14 @@ proto_register_gtp(void)
            FT_UINT8, BASE_DEC, NULL, 0x01,
            NULL, HFILL}
         },
+        {&hf_gtp_ext_comm_flags_II_pmtsmi,
+         { "PMTSMI", "gtp.ext_comm_flags_II_pmtsmi",
+           FT_UINT8, BASE_DEC, NULL, 0x02,
+           NULL, HFILL}
+        },
         {&hf_gtp_ext_comm_flags_II_spare,
          { "SPARE", "gtp.ext_comm_flags_II_spare",
-           FT_UINT8, BASE_HEX, NULL, 0xFC,
+           FT_UINT8, BASE_HEX, NULL, 0xF8,
            NULL, HFILL}
         },
         {&hf_gtp_earp_pci,
