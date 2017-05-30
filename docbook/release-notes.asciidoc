@@ -21,6 +21,49 @@ A dissector went awry.
 // Fixed in master-2.2: xxxx
 // Fixed in master-2.0: xxxx
 
+Bazaar dissector infinite loop
+* libfuzzer: BZR dissector loop (get_bzr_pdu_len). (ws-buglink:13599[])
+
+DOF dissector read overflow
+* [oss-fuzz] ASAN: heap-buffer-overflow epan/dissectors/packet-dof.c:3899:32 in OALMarshal_UncompressValue. (ws-buglink:13608[])
+
+DHCP dissector read overflow
+* [oss-fuzz] ASAN: heap-buffer-overflow (run/tshark+0xf751e) in __interceptor_strncmp.part.68. (ws-buglink:13609[])
+
+DHCP dissector read overflow
+* [oss-fuzz] ASAN: heap-buffer-overflow (run/tshark+0x100447) in __interceptor_strncmp.part.74. (ws-buglink:13628[])
+
+SoulSeek dissector infinite loop
+* [oss-fuzz] timeout: check_slsk_format epan/dissectors/packet-slsk.c:280:11. (ws-buglink:13631[])
+
+DNS infinite loop
+* [oss-fuzz] timeout: expand_dns_name epan/dissectors/packet-dns.c:1158:21. (ws-buglink:13633[])
+
+IEEE 802.11 dissector crash // stack-use-after-return
+* [oss-fuzz] ASAN: stack-use-after-return epan/dissectors/packet-ieee80211.c:14341:23 in add_tagged_field. (ws-buglink:13662[])
+
+DICOM infinite loop
+* [oss-fuzz] ==20063==AddressSanitizer: hard rss limit exhausted (2048Mb vs 2056Mb). (ws-buglink:13685[])
+
+openSAFETY memory exhaustion
+* [oss-fuzz] Allocation too large: 4294967295 > 2147483648 (0xffffffff > 0x80000000). (ws-buglink:13649[])
+
+BT L2CAP divide by zero
+* [oss-fuzz] UBSAN: division by zero in packet-btl2cap.c:1687:87. (ws-buglink:13701[])
+
+MSNIP dissector crash // NPE
+* [oss-fuzz] UBSAN: null pointer passed as argument 1, which is declared to never be null in packet-msnip.c:220:13. (ws-buglink:13725[])
+
+ROS dissector crash // NPE via g_str_hash
+* [oss-fuzz] UBSAN: null pointer passed as argument 1, which is declared to never be null in wmem_map.c:419:57. (ws-buglink:13637[])
+
+RGMP dissector crash // NPE, same as MSNIP
+* [oss-fuzz] UBSAN: null pointer passed as argument 1, which is declared to never be null in packet-rgmp.c:73:16. (ws-buglink:13646[])
+
+IPv6 dissector crasth // NPE, similar to NSIP
+* [oss-fuzz] UBSAN: member access within null pointer of type 'const struct e_in6_addr' in inet_ipv6.h:111:15. (ws-buglink:13675[])
+
+
 The following bugs have been fixed:
 
 //* ws-buglink:5000[]
@@ -28,6 +71,67 @@ The following bugs have been fixed:
 //* cve-idlink:2014-2486[]
 //* Wireshark accepted your prom invitation then cancelled at the last minute. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.2.7rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+// Left off at 498392f
+
+* DICOM dissection error. (ws-buglink:13164[])
+
+* Qt: drag & drop of one column header in PacketList moves other columns. (ws-buglink:13183[])
+
+* Can not export captured DICOM objects in version 2.2.5. (ws-buglink:13570[])
+
+* False complain about bad checksum of ICMP extension header. (ws-buglink:13586[])
+
+// No CVE
+* libfuzzer: isup dissector bug (isup.number_different_meaning). (ws-buglink:13588[])
+
+* Dissector Bug, protocol BT ATT. (ws-buglink:13590[])
+
+* Wireshark dispalys RRCConnectionReestablishmentRejectRRCConnectionReestablishmentReject in Info column. (ws-buglink:13595[])
+
+// No CVE
+* [oss-fuzz] UBSAN: shift exponent 105 is too large for 32-bit type 'int' in packet-ositp.c:551:79. (ws-buglink:13606[])
+
+// No CVE
+* [oss-fuzz] UBSAN: shift exponent -77 is negative in packet-netflow.c:7717:23. (ws-buglink:13607[])
+
+// No CVE
+* [oss-fuzz] UBSAN: shift exponent 1959 is too large for 32-bit type 'int' in packet-sigcomp.c:2128:28. (ws-buglink:13610[])
+
+// No CVE
+* [oss-fuzz] UBSAN: shift exponent 63 is too large for 32-bit type 'guint32' (aka 'unsigned int') in packet-rtcp.c:917:24. (ws-buglink:13611[])
+
+// No CVE
+* [oss-fuzz] UBSAN: shift exponent 70 is too large for 64-bit type 'guint64' (aka 'unsigned long') in dwarf.c:42:43. (ws-buglink:13616[])
+
+// No CVE
+* [oss-fuzz] UBSAN: shift exponent 32 is too large for 32-bit type 'int' in packet-xot.c:260:23. (ws-buglink:13618[])
+
+// No CVE
+* [oss-fuzz] UBSAN: shift exponent -5 is negative in packet-sigcomp.c:1722:36. (ws-buglink:13619[])
+
+// No CVE despite buffer read?
+* [oss-fuzz] UBSAN: index 2049 out of bounds for type 'char [2049]' in packet-quakeworld.c:134:5. (ws-buglink:13624[])
+
+// No CVE
+* [oss-fuzz] UBSAN: shift exponent 35 is too large for 32-bit type 'int' in packet-netsync.c:467:25. (ws-buglink:13639[])
+
+// No CVE
+* [oss-fuzz] UBSAN: shift exponent 32 is too large for 32-bit type 'int' in packet-sigcomp.c:3857:24. (ws-buglink:13641[])
+
+* Welcome screen invalid capture filter wihtout WinPcap installed causes runtime error. (ws-buglink:13672[])
+
+* SMB protocol parser does not parse SMB_COM_TRANSACTION2_SECONDARY (0x33) command correctly. (ws-buglink:13690[])
+
+* SIP packets with SDP marked as malformed. (ws-buglink:13698[])
+
+// No CVE despite buffer read?
+* [oss-fuzz] UBSAN: index 8 out of bounds for type 'gboolean const[8]' in packet-ieee80211-radiotap.c:1836:12. (ws-buglink:13713[])
+
+* Crash on "Show packet bytes..." context menu item click. (ws-buglink:13723[])
+
+* DNP3 dissector does not properly decode packed variations with prefixed qualifiers. (ws-buglink:13733[])
+
 
 === New and Updated Features
 
