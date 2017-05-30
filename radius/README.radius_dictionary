@@ -28,10 +28,11 @@ with the following changes:
      has an attribute type of "integer".
 
 4. dictionary.cablelabs
-   - FreeRadius v 2.1.6 dictionary.cablelabs plus additions based upon:
-      PacketCable(TM) 1.5 Specification: Event Messages [PKT-SP-EM1.5-I03-070412]
-      PacketCable(TM) Specification: Multimedia Specification [PKT-SP-MM-I04-080522]
-   - Added additional comments and changes related to Wireshark use of this file.
+   - FreeRADIUS version plus additions based upon:
+      PacketCable(TM) 1.5 Specification: Event Messages
+      PacketCable(TM) Specification: Multimedia Specification
+   - Added additional comments and changes related to Wireshark use
+     of this file.
 
 5. dictionary.microsoft
    - FreeRadius v 2.1.6 dictionary.microsoft plus additions based upon

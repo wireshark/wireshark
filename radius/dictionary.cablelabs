@@ -1,25 +1,32 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 ##############################################################################
 #
 #	CableLabs
 #
-#	$Id$
+#	$Id: 62bac6d3b84783b55c4350487377d72a0d1daf69 $
 #
 ##############################################################################
 
-
-##wireshark: See packet-radius_packetcable.c for custom dissection of certain
-##            of the below attributes.
-##
-## 2009/07/07: dictionary.cablelabs from FreeRadius v 2.1.6 updated based upon:
-##       PacketCable(TM) 1.5 Specification: Event Messages [PKT-SP-EM1.5-I03-070412]
-##       PacketCable(TM) Specification: Multimedia Specification [PKT-SP-MM-I04-080522]
+#wireshark: See packet-radius_packetcable.c for custom dissection of certain
+#            of the below attributes.
 
 VENDOR		CableLabs			4491
 
 BEGIN-VENDOR	CableLabs
 
 ATTRIBUTE	CableLabs-Reserved			0	octets
+
+#
+#  https://apps.cablelabs.com/specification/packetcable-event-messages-specification
+#    See section 10 PACKETCABLE EVENT MESSAGE ATTRIBUTES
+#
+#  https://apps.cablelabs.com/specification/packetcable-1-5-event-messages-specification
+#    See section 9 PACKETCABLE EVENT MESSAGE ATTRIBUTES
+#
+#  https://apps.cablelabs.com/specification/packetcable-multimedia-specification
+#    See section 7.5 Event Messaging Attributes for PacketCable Multimedia
+#
 ATTRIBUTE	CableLabs-Event-Message			1	octets
 ATTRIBUTE	CableLabs-MTA-Endpoint-Name		3	string
 ATTRIBUTE	CableLabs-Calling-Party-Number		4	string
@@ -114,30 +121,34 @@ ATTRIBUTE	Surveillance-Stop-Type                  96	integer
 ATTRIBUTE	Surveillance-Stop-Destination           97	integer
 ATTRIBUTE	Related_ICID                            98	string
 
-## [wireshark: The following values are actualy handled by packet-radius_packetcable.c]
-##VALUE	CableLabs-Event-Message		Reserved		0
-##VALUE	CableLabs-Event-Message		Signaling-Start		1
-##VALUE	CableLabs-Event-Message		Signaling-Stop		2
-##VALUE	CableLabs-Event-Message		Database-Query		3
-##VALUE	CableLabs-Event-Message		Intelligent-Peripheral-Usage-Start 4
-##VALUE	CableLabs-Event-Message		Intelligent-Peripheral-Usage-Stop 5
-##VALUE	CableLabs-Event-Message		Service-Instance	6
-##VALUE	CableLabs-Event-Message		QoS-Reserve		7
-##VALUE	CableLabs-Event-Message		QoS-Release		8
-##VALUE	CableLabs-Event-Message		Service-Activation	9
-##VALUE	CableLabs-Event-Message		Service-Deactivation	10
-##VALUE	CableLabs-Event-Message		Media-Report		11
-##VALUE	CableLabs-Event-Message		Signal-Instance		12
-##VALUE	CableLabs-Event-Message		Interconnect-Signaling-Start 13
-##VALUE	CableLabs-Event-Message		Interconnect-Signaling-Stop 14
-##VALUE	CableLabs-Event-Message		Call-Answer		15
-##VALUE	CableLabs-Event-Message		Call-Disconnect		16
-##VALUE	CableLabs-Event-Message		Time-Change		17
-##VALUE	CableLabs-Event-Message		QoS-Commit		19
-##VALUE	CableLabs-Event-Message		Media-Alive		20
-##VALUE	CableLabs-Event-Message		Policy-Request		31
-##VALUE	CableLabs-Event-Message		Policy-Delete		32
-##VALUE	CableLabs-Event-Message		Policy-Update		33
+#
+#  Commented out because they cannot be used.
+#  [wireshark: The following values are actualy handled by
+#  packet-radius_packetcable.c]
+#
+#VALUE	CableLabs-Event-Message		Reserved		0
+#VALUE	CableLabs-Event-Message		Signaling-Start		1
+#VALUE	CableLabs-Event-Message		Signaling-Stop		2
+#VALUE	CableLabs-Event-Message		Database-Query		3
+#VALUE	CableLabs-Event-Message		Intelligent-Peripheral-Usage-Start 4
+#VALUE	CableLabs-Event-Message		Intelligent-Peripheral-Usage-Stop 5
+#VALUE	CableLabs-Event-Message		Service-Instance	6
+#VALUE	CableLabs-Event-Message		QoS-Reserve		7
+#VALUE	CableLabs-Event-Message		QoS-Release		8
+#VALUE	CableLabs-Event-Message		Service-Activation	9
+#VALUE	CableLabs-Event-Message		Service-Deactivation	10
+#VALUE	CableLabs-Event-Message		Media-Report		11
+#VALUE	CableLabs-Event-Message		Signal-Instance		12
+#VALUE	CableLabs-Event-Message		Interconnect-Signaling-Start 13
+#VALUE	CableLabs-Event-Message		Interconnect-Signaling-Stop 14
+#VALUE	CableLabs-Event-Message		Call-Answer		15
+#VALUE	CableLabs-Event-Message		Call-Disconnect		16
+#VALUE	CableLabs-Event-Message		Time-Change		17
+#VALUE	CableLabs-Event-Message		QoS-Commit		19
+#VALUE	CableLabs-Event-Message		Media-Alive		20
+#VALUE	CableLabs-Event-Message		Policy-Request		31
+#VALUE	CableLabs-Event-Message		Policy-Delete		32
+#VALUE	CableLabs-Event-Message		Policy-Update		33
 
 VALUE	CableLabs-Query-Type		Reserved		0
 VALUE	CableLabs-Query-Type		Toll-Free-Number-Looukp	1
