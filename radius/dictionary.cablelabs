@@ -99,27 +99,27 @@ ATTRIBUTE	CableLabs-Application-Manager-ID	71	integer
 ATTRIBUTE	CableLabs-Time-Usage-Limit		72	integer
 ATTRIBUTE	CableLabs-Gate-Time-Info		73	integer
 ATTRIBUTE	CableLabs-IPv6-Subscriber-ID		74	ipv6addr
-ATTRIBUTE	CableLabs-User-ID       		75	string
+ATTRIBUTE	CableLabs-User-ID			75	string
 ATTRIBUTE	CableLabs-Account-Code			80	string
 ATTRIBUTE	CableLabs-Authorization-Code		81	string
 #ATTRIBUTE	CableLabs-Jurisdiction-Information-Parameter 82 string
-ATTRIBUTE	CableLabs-Jurisdiction-Info-Parameter   82	string
-ATTRIBUTE	CableLabs-Called-Party-NP-Source        83	integer
-ATTRIBUTE	CableLabs-Calling-Party-NP-Source       84	integer
-ATTRIBUTE	CableLabs-Ported-In-Calling-Number      85	integer
-ATTRIBUTE	CableLabs-Ported-In-Called-Number       86	integer
-ATTRIBUTE	CableLabs-Billing-Type                  87	integer
-ATTRIBUTE	CableLabs-Signaled-To-Number            88	string
-ATTRIBUTE	CableLabs-Signaled-From-Number          89	string
-ATTRIBUTE	CableLabs-Communicating-Party           90	octets
-ATTRIBUTE	CableLabs-Joined-Party                  91	octets
-ATTRIBUTE	CableLabs-Removed-Party                 92	octets
-ATTRIBUTE	CableLabs-RTCP-Data                     93	string
-ATTRIBUTE	CableLabs-Local-XR-Block                94	string
-ATTRIBUTE	CableLabs-Remote-XR-Block               95	string
-ATTRIBUTE	Surveillance-Stop-Type                  96	integer
-ATTRIBUTE	Surveillance-Stop-Destination           97	integer
-ATTRIBUTE	Related_ICID                            98	string
+ATTRIBUTE	CableLabs-Jurisdiction-Info-Parameter	82	string
+ATTRIBUTE	CableLabs-Called-Party-NP-Source	83	integer
+ATTRIBUTE	CableLabs-Calling-Party-NP-Source	84	integer
+ATTRIBUTE	CableLabs-Ported-In-Calling-Number	85	integer
+ATTRIBUTE	CableLabs-Ported-In-Called-Number	86	integer
+ATTRIBUTE	CableLabs-Billing-Type			87	integer
+ATTRIBUTE	CableLabs-Signaled-To-Number		88	string
+ATTRIBUTE	CableLabs-Signaled-From-Number		89	string
+ATTRIBUTE	CableLabs-Communicating-Party		90	octets
+ATTRIBUTE	CableLabs-Joined-Party			91	octets
+ATTRIBUTE	CableLabs-Removed-Party			92	octets
+ATTRIBUTE	CableLabs-RTCP-Data			93	string
+ATTRIBUTE	CableLabs-Local-XR-Block		94	string
+ATTRIBUTE	CableLabs-Remote-XR-Block		95	string
+ATTRIBUTE	Surveillance-Stop-Type			96	integer
+ATTRIBUTE	Surveillance-Stop-Destination		97	integer
+ATTRIBUTE	Related_ICID				98	string
 
 #
 #  Commented out because they cannot be used.
