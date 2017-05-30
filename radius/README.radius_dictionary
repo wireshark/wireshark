@@ -49,9 +49,7 @@ with the following changes:
         Additions from the FreeRadius version are marked with "## [wireshark]".
 
 8. dictionary.aruba
-   - FreeRadius 2.1.6 dictionary.aruba plus additions:
-     See Wireshark Bug #3104 and SVN #26945;
-     See also: https://airheads.arubanetworks.com/vBulletin/showthread.php?t=910
+   - FreeRADIUS version, but with one attribute they removed left in.
 
 9. dictionary.3gpp2
    - FreeRadius 2.1.6 dictionary.3gpp2 plus updates based upon
