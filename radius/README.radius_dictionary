@@ -16,7 +16,6 @@ with the following changes:
 
 2. Added <return> to the end of several of the files;
    - dictionary.airespace
-   - dictionary.h3c
 
 3. dictionary.wimax
    - Freeradius 2.1.6 dictionary.wimax plus:
