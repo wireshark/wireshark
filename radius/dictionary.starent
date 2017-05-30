@@ -1,4 +1,5 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 ##############################################################################
 #
 #	Starent dictionary
@@ -227,7 +228,7 @@ ATTRIBUTE	SN-Firewall-Policy			239	octets
 ATTRIBUTE	SN-Transparent-Data			247	octets
 ATTRIBUTE	SN-MS-ISDN				248	octets
 ATTRIBUTE	SN-Routing-Area-Id			249	string
-#ATTRIBUTE	SN-Rulebase				249	string
+ATTRIBUTE	SN-Rulebase				250	string
 ATTRIBUTE	SN-Call-Id				251	integer
 ATTRIBUTE	SN-IMSI					252	octets
 ATTRIBUTE	SN-Long-Duration-Notification		253	integer
@@ -283,7 +284,7 @@ ATTRIBUTE	SN-CBB-Policy				302	string
 ATTRIBUTE	SN-QOS-HLR-Profile			303	octets
 ATTRIBUTE	SN-Fast-Reauth-Username			304	octets
 ATTRIBUTE	SN-Pseudonym-Username			305	octets
-ATTRIBUTE	SN-WiMAX-Auth-Only			206	integer
+ATTRIBUTE	SN-WiMAX-Auth-Only			306	integer
 ATTRIBUTE	SN-TrafficSelector-Class		307	integer
 ATTRIBUTE	SN-DHCP-Options				309	octets
 ATTRIBUTE	SN-Handoff-Indicator			310	integer
@@ -953,9 +954,9 @@ VALUE	SN-GGSN-MIP-Required		Enabled			1
 VALUE	SN-Gratuitous-ARP-Aggressive	Disabled		0
 VALUE	SN-Gratuitous-ARP-Aggressive	Enabled			1
 
-VALUE	SN-GTP-Version			GTP_VERSION_0			0
-VALUE	SN-GTP-Version			GTP_VERSION_1			1
-VALUE	SN-GTP-Version			GTP_VERSION_2			2
+VALUE	SN-GTP-Version			GTP_VERSION_0		0
+VALUE	SN-GTP-Version			GTP_VERSION_1		1
+VALUE	SN-GTP-Version			GTP_VERSION_2		2
 
 VALUE	SN-HA-Send-DNS-ADDRESS		Disabled		0
 VALUE	SN-HA-Send-DNS-ADDRESS		Enabled			1
