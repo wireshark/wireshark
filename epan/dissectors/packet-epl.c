@@ -1928,21 +1928,19 @@ decode_epl_address (guchar adr)
 static gint
 dissect_epl_payload ( proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, gint len, guint8 msgType )
 {
-	gint off = 0, rem_len = 0, pld_rem_len = 0;
+	gint rem_len = 0, payload_len = 0;
 	tvbuff_t * payload_tvb = NULL;
 	heur_dtbl_entry_t *hdtbl_entry = NULL;
 	proto_item * item = NULL;
 
-	off = offset;
-
 	if (len > 0)
 	{
-		rem_len = tvb_captured_length_remaining(tvb, 0);
-		payload_tvb = tvb_new_subset_length(tvb, off, len > rem_len ? rem_len : len);
-		pld_rem_len = tvb_captured_length_remaining(payload_tvb, 0);
-		if ( pld_rem_len < len )
+		rem_len = tvb_captured_length_remaining(tvb, offset);
+		payload_tvb = tvb_new_subset_length(tvb, offset, MIN(len, rem_len));
+		payload_len = tvb_captured_length_remaining(payload_tvb, 0);
+		if ( payload_len < len )
 		{
-			item = proto_tree_add_uint(epl_tree, hf_epl_payload_real, tvb, off, pld_rem_len, pld_rem_len);
+			item = proto_tree_add_uint(epl_tree, hf_epl_payload_real, tvb, offset, payload_len, payload_len);
 			PROTO_ITEM_SET_GENERATED(item);
 			expert_add_info(pinfo, item, &ei_real_length_differs );
 		}
@@ -1950,10 +1948,10 @@ dissect_epl_payload ( proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
 		if ( ! dissector_try_heuristic(heur_epl_data_subdissector_list, payload_tvb, pinfo, epl_tree, &hdtbl_entry, &msgType))
 			call_data_dissector(payload_tvb, pinfo, epl_tree);
 
-		off += len;
+		offset += payload_len;
 	}
 
-	return off;
+	return offset;
 }
 
 gint
