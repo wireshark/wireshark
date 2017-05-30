@@ -1,15 +1,19 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 # dictionary.cisco
 #
 #		Accounting VSAs originally by
 #		"Marcelo M. Sosa Lugones" <marcelo@sosa.com.ar>
 #
-# Version:	$Id$
+# Version:	$Id: 52cbe9c8f9d24d17eaf91faae5084ac832a509d1 $
 #
 #  For documentation on Cisco RADIUS attributes, see:
 #
-# http://www.cisco.com/en/US/docs/ios/sec_user_services/configuration/guide/sec_vsa_rad_discnct_ps11280_TSD_Products_Configuration_Guide_Chapter.html
+# http://wayback.archive.org/web/20090614232619/http://www.cisco.com/en/US/docs/net_mgmt/cisco_secure_access_control_server_for_windows/4.1/user/A_RADAtr.html
+# http://www.cisco.com/c/en/us/td/docs/ios/12_2/security/configuration/guide/fsecur_c/scfrdat3.html#wpxref30314
+# http://www.cisco.com/c/en/us/td/docs/ios-xml/ios/sec_usr_radatt/configuration/xe-16/sec-usr-radatt-xe-16-book.html
+# http://www.cisco.com/en/US/docs/net_mgmt/cisco_secure_access_control_server_for_windows/4.1/user/A_RADAtr.html
 #
 #  For general documentation on Cisco RADIUS configuration, see:
 #
@@ -97,6 +101,7 @@ ATTRIBUTE	outgoing-req-uri			147	string
 ATTRIBUTE	next-hop-ip				148	string
 ATTRIBUTE	next-hop-dn				149	string
 ATTRIBUTE	sip-hdr					150	string
+ATTRIBUTE	dsp-id					151	string
 
 #
 #	Extra attributes sent by the Cisco, if you configure
@@ -104,7 +109,7 @@ ATTRIBUTE	sip-hdr					150	string
 #
 #	According to
 #
-#		http://www.cisco.com/en/US/products/hw/iad/ps4349/products_installation_guide_chapter09186a008007e511.html
+#		http://wayback.archive.org/web/20021219025345/http://www.cisco.com/en/US/products/hw/iad/ps4349/products_installation_guide_chapter09186a008007e511.html
 #
 #	the first byte Command-Code value is a binary command code
 #	and the other bytes after it are an string argument to the
@@ -151,8 +156,12 @@ ATTRIBUTE	Cisco-Command-Code			252	string
 ATTRIBUTE	Cisco-Control-Info			253	string
 ATTRIBUTE	Cisco-Xmit-Rate				255	integer
 
+VALUE	Cisco-Disconnect-Cause		No-Reason		0
+VALUE	Cisco-Disconnect-Cause		No-Disconnect		1
 VALUE	Cisco-Disconnect-Cause		Unknown			2
+VALUE	Cisco-Disconnect-Cause		Call-Disconnect		3
 VALUE	Cisco-Disconnect-Cause		CLID-Authentication-Failure 4
+VALUE	Cisco-Disconnect-Cause		No-Modem-Available	9
 VALUE	Cisco-Disconnect-Cause		No-Carrier		10
 VALUE	Cisco-Disconnect-Cause		Lost-Carrier		11
 VALUE	Cisco-Disconnect-Cause		No-Detected-Result-Codes 12
@@ -165,6 +174,11 @@ VALUE	Cisco-Disconnect-Cause		Password-Fail		25
 VALUE	Cisco-Disconnect-Cause		Raw-TCP-Disabled	26
 VALUE	Cisco-Disconnect-Cause		Control-C-Detected	27
 VALUE	Cisco-Disconnect-Cause		EXEC-Program-Destroyed	28
+VALUE	Cisco-Disconnect-Cause		Close-Virtual-Connection 29
+VALUE	Cisco-Disconnect-Cause		End-Virtual-Connection	30
+VALUE	Cisco-Disconnect-Cause		Exit-Rlogin		31
+VALUE	Cisco-Disconnect-Cause		Invalid-Rlogin-Option	32
+VALUE	Cisco-Disconnect-Cause		Insufficient-Resources	33
 VALUE	Cisco-Disconnect-Cause		Timeout-PPP-LCP		40
 VALUE	Cisco-Disconnect-Cause		Failed-PPP-LCP-Negotiation 41
 VALUE	Cisco-Disconnect-Cause		Failed-PPP-PAP-Auth-Fail 42
@@ -172,9 +186,43 @@ VALUE	Cisco-Disconnect-Cause		Failed-PPP-CHAP-Auth	43
 VALUE	Cisco-Disconnect-Cause		Failed-PPP-Remote-Auth	44
 VALUE	Cisco-Disconnect-Cause		PPP-Remote-Terminate	45
 VALUE	Cisco-Disconnect-Cause		PPP-Closed-Event	46
+VALUE	Cisco-Disconnect-Cause		NCP-Closed-PPP		47
+VALUE	Cisco-Disconnect-Cause		MP-Error-PPP		48
+VALUE	Cisco-Disconnect-Cause		PPP-Maximum-Channels	49
+VALUE	Cisco-Disconnect-Cause		Tables-Full		50
+VALUE	Cisco-Disconnect-Cause		Resources-Full		51
+VALUE	Cisco-Disconnect-Cause		Invalid-IP-Address	52
+VALUE	Cisco-Disconnect-Cause		Bad-Hostname		53
+VALUE	Cisco-Disconnect-Cause		Bad-Port		54
+VALUE	Cisco-Disconnect-Cause		Reset-TCP		60
+VALUE	Cisco-Disconnect-Cause		TCP-Connection-Refused	61
+VALUE	Cisco-Disconnect-Cause		Timeout-TCP		62
+VALUE	Cisco-Disconnect-Cause		Foreign-Host-Close-TCP	63
+VALUE	Cisco-Disconnect-Cause		TCP-Network-Unreachable	64
+VALUE	Cisco-Disconnect-Cause		TCP-Host-Unreachable	65
+VALUE	Cisco-Disconnect-Cause		TCP-Network-Admin-Unreachable 66
+VALUE	Cisco-Disconnect-Cause		TCP-Port-Unreachable	67
 VALUE	Cisco-Disconnect-Cause		Session-Timeout		100
 VALUE	Cisco-Disconnect-Cause		Session-Failed-Security	101
 VALUE	Cisco-Disconnect-Cause		Session-End-Callback	102
 VALUE	Cisco-Disconnect-Cause		Invalid-Protocol	120
+VALUE	Cisco-Disconnect-Cause		RADIUS-Disconnect	150
+VALUE	Cisco-Disconnect-Cause		Local-Admin-Disconnect	151
+VALUE	Cisco-Disconnect-Cause		SNMP-Disconnect		152
+VALUE	Cisco-Disconnect-Cause		V110-Retries		160
+VALUE	Cisco-Disconnect-Cause		PPP-Authentication-Timeout 170
+VALUE	Cisco-Disconnect-Cause		Local-Hangup		180
+VALUE	Cisco-Disconnect-Cause		Remote-Hangup		185
+VALUE	Cisco-Disconnect-Cause		T1-Quiesced		190
+VALUE	Cisco-Disconnect-Cause		Call-Duration		195
+VALUE	Cisco-Disconnect-Cause		VPN-User-Disconnect	600
+VALUE	Cisco-Disconnect-Cause		VPN-Carrier-Loss	601
+VALUE	Cisco-Disconnect-Cause		VPN-No-Resources	602
+VALUE	Cisco-Disconnect-Cause		VPN-Bad-Control-Packet	603
+VALUE	Cisco-Disconnect-Cause		VPN-Admin-Disconnect	604
+VALUE	Cisco-Disconnect-Cause		VPN-Tunnel-Shut		605
+VALUE	Cisco-Disconnect-Cause		VPN-Local-Disconnect	606
+VALUE	Cisco-Disconnect-Cause		VPN-Session-Limit	607
+VALUE	Cisco-Disconnect-Cause		VPN-Call-Redirect	608
 
 END-VENDOR	Cisco
