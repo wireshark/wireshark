@@ -64,3 +64,7 @@ with the following changes:
    - FreeRadius 2.1.6 dictionary.3gpp plus updates based upon:
 	http://pda.etsi.org/exchangefolder/ts_129061v080300p.pdf
  	 (ETSI TS 129 061 V8.3.0 (2009-06))
+
+11. dictionary.iea
+   - FreeRADIUS version, with some additional attributes supplied in
+     a Wireshark bug report.
