@@ -78,6 +78,7 @@ static void try_convert_to_custom_column(gpointer *el_data);
 static gboolean prefs_initialized = FALSE;
 static gchar *gpf_path = NULL;
 static gchar *cols_hidden_list = NULL;
+static gboolean gui_theme_is_dark = FALSE;
 
 /*
  * XXX - variables to allow us to attempt to interpret the first
@@ -411,6 +412,11 @@ prefs_cleanup(void)
     g_free(prefs.saved_at_version);
     g_free(gpf_path);
     gpf_path = NULL;
+}
+
+void prefs_set_gui_theme_is_dark(gboolean is_dark)
+{
+    gui_theme_is_dark = is_dark;
 }
 
 /*
@@ -3959,15 +3965,31 @@ pre_init_prefs(void)
     prefs.st_server_bg.red           = 60909;
     prefs.st_server_bg.green         = 60909;
     prefs.st_server_bg.blue          = 64507;
-    prefs.gui_text_valid.red         = 0xAFFF; /* light green */
-    prefs.gui_text_valid.green       = 0xFFFF;
-    prefs.gui_text_valid.blue        = 0xAFFF;
-    prefs.gui_text_invalid.red       = 0xFFFF; /* light red */
-    prefs.gui_text_invalid.green     = 0xAFFF;
-    prefs.gui_text_invalid.blue      = 0xAFFF;
-    prefs.gui_text_deprecated.red    = 0xFFFF; /* light yellow */
-    prefs.gui_text_deprecated.green  = 0xFFFF;
-    prefs.gui_text_deprecated.blue   = 0xAFFF;
+
+    if (gui_theme_is_dark) {
+        // Green, red and yellow with HSV V = 84
+        prefs.gui_text_valid.red         = 0x0000; /* dark green */
+        prefs.gui_text_valid.green       = 0x66ff;
+        prefs.gui_text_valid.blue        = 0x0000;
+        prefs.gui_text_invalid.red       = 0x66FF; /* dark red */
+        prefs.gui_text_invalid.green     = 0x0000;
+        prefs.gui_text_invalid.blue      = 0x0000;
+        prefs.gui_text_deprecated.red    = 0x66FF; /* dark yellow / olive */
+        prefs.gui_text_deprecated.green  = 0x66FF;
+        prefs.gui_text_deprecated.blue   = 0x0000;
+    } else {
+        // Green, red and yellow with HSV V = 20
+        prefs.gui_text_valid.red         = 0xAFFF; /* light green */
+        prefs.gui_text_valid.green       = 0xFFFF;
+        prefs.gui_text_valid.blue        = 0xAFFF;
+        prefs.gui_text_invalid.red       = 0xFFFF; /* light red */
+        prefs.gui_text_invalid.green     = 0xAFFF;
+        prefs.gui_text_invalid.blue      = 0xAFFF;
+        prefs.gui_text_deprecated.red    = 0xFFFF; /* light yellow */
+        prefs.gui_text_deprecated.green  = 0xFFFF;
+        prefs.gui_text_deprecated.blue   = 0xAFFF;
+    }
+
     prefs.gui_geometry_save_position = TRUE;
     prefs.gui_geometry_save_size     = TRUE;
     prefs.gui_geometry_save_maximized= TRUE;

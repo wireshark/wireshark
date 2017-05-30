@@ -833,6 +833,10 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
 #endif
     qApp->setStyleSheet(app_style_sheet);
 
+    // If our window text is lighter than the window background, assume the theme is dark.
+    QPalette gui_pal = QGuiApplication::palette();
+    prefs_set_gui_theme_is_dark(gui_pal.windowText().color().value() > gui_pal.window().color().value());
+
 #ifdef HAVE_SOFTWARE_UPDATE
     connect(this, SIGNAL(softwareUpdateQuit()), this, SLOT(quit()), Qt::QueuedConnection);
 #endif

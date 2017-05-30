@@ -151,7 +151,7 @@ typedef struct _e_prefs {
   gint         num_cols;
   color_t      st_client_fg, st_client_bg, st_server_fg, st_server_bg;
   color_t      gui_text_valid, gui_text_invalid, gui_text_deprecated;
-  gboolean     gui_altern_colors;
+  gboolean     gui_altern_colors; /* GTK only */
   gboolean     gui_expert_composite_eyecandy;
   gboolean     filter_toolbar_show_in_statusbar;
   gint         gui_ptree_line_style;
@@ -170,7 +170,7 @@ typedef struct _e_prefs {
   gboolean     gui_geometry_save_position;
   gboolean     gui_geometry_save_size;
   gboolean     gui_geometry_save_maximized;
-  gboolean     gui_macosx_style;
+  gboolean     gui_macosx_style; /* GTK only */
   console_open_e gui_console_open;
   guint        gui_recent_df_entries_max;
   guint        gui_recent_files_count_max;
@@ -268,6 +268,9 @@ WS_DLL_PUBLIC void prefs_reset(void);
 
 /** Frees memory used by proto routines. Called at program shutdown */
 void prefs_cleanup(void);
+
+/** Provide a hint about the darkness of the current UI theme so that we can adjust colors when needed */
+WS_DLL_PUBLIC void prefs_set_gui_theme_is_dark(gboolean is_dark);
 
 /*
  * Register that a protocol has preferences.
