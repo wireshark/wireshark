@@ -1,8 +1,9 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #	The FreeRADIUS Vendor-Specific dictionary.
 #
-# Version:	$Id$
+# Version:	$Id: 5de613e4ef863872ea86de2d31b2afabef485756 $
 #
 #	For a complete list of Private Enterprise Codes, see:
 #
@@ -15,7 +16,6 @@ BEGIN-VENDOR	FreeRADIUS
 
 ATTRIBUTE	FreeRADIUS-Proxied-To			1	ipaddr
 ATTRIBUTE	FreeRADIUS-Acct-Session-Start-Time	2	date
-
 
 #
 #  This attribute is really a bitmask.
@@ -103,12 +103,13 @@ ATTRIBUTE	FreeRADIUS-Stats-Client-Netmask		169	integer
 ATTRIBUTE	FreeRADIUS-Stats-Server-IP-Address	170	ipaddr
 ATTRIBUTE	FreeRADIUS-Stats-Server-Port		171	integer
 
-ATTRIBUTE	FreeRADIUS-Stats-Server-Outstanding-Requests	172	integer
+ATTRIBUTE	FreeRADIUS-Stats-Server-Outstanding-Requests 172	integer
 ATTRIBUTE	FreeRADIUS-Stats-Server-State		173	integer
 
-VALUE	FreeRADIUS-Stats-Server-State	Alive	0
-VALUE	FreeRADIUS-Stats-Server-State	Zombie	1
-VALUE	FreeRADIUS-Stats-Server-State	Dead	2
+VALUE	FreeRADIUS-Stats-Server-State	Alive			0
+VALUE	FreeRADIUS-Stats-Server-State	Zombie			1
+VALUE	FreeRADIUS-Stats-Server-State	Dead			2
+VALUE	FreeRADIUS-Stats-Server-State	Idle			3
 
 #
 #  When a home server is marked "dead" or "alive"
@@ -134,5 +135,12 @@ ATTRIBUTE	FreeRADIUS-Stats-HUP-Time		177	date
 ATTRIBUTE	FreeRADIUS-Server-EMA-Window		178	integer
 ATTRIBUTE	FreeRADIUS-Server-EMA-USEC-Window-1	179	integer
 ATTRIBUTE	FreeRADIUS-Server-EMA-USEC-Window-10	180	integer
+
+ATTRIBUTE	FreeRADIUS-Queue-PPS-In			181	integer
+ATTRIBUTE	FreeRADIUS-Queue-PPS-Out		182	integer
+ATTRIBUTE	FreeRADIUS-Queue-Use-Percentage		183	integer
+
+ATTRIBUTE	FreeRADIUS-Stats-Last-Packet-Recv	184	date
+ATTRIBUTE	FreeRADIUS-Stats-Last-Packet-Sent	185	date
 
 END-VENDOR FreeRADIUS
