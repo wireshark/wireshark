@@ -14,8 +14,10 @@ with the following changes:
    - added    include: dictionary.chillispot: as per the 2009-06-11 commit in the FreeRadius repository.
    - added: Comment re Wireshark usage of the integer data type.
 
-2. Added <return> to the end of several of the files;
-   - dictionary.airespace
+2. dictionary.airespace
+   - FreeRADIUS version plus:
+      Added additional attributes from later Cisco documentation and
+      support forum post.
 
 3. dictionary.wimax
    - Freeradius 2.1.6 dictionary.wimax plus:
