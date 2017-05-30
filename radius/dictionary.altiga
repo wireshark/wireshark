@@ -1,41 +1,58 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+#
 #	Altiga vendor attributes
 #
-#	$Id$
+#	Altiga networks was acquired by Cisco in 2000.
+#
+#	$Id: 66c75d2dd2b8f5f439a6ddca7513db17b9eeff0d $
 #
 
 VENDOR		Altiga				3076
 
 BEGIN-VENDOR	Altiga
-ATTRIBUTE Altiga-Access-Hours-G/U                 1	string
-ATTRIBUTE Altiga-Simultaneous-Logins-G/U          2     integer
+ATTRIBUTE	Altiga-Access-Hours-G/U                 1	string
+ATTRIBUTE	Altiga-Simultaneous-Logins-G/U          2	integer
 ATTRIBUTE	Altiga-Min-Password-Length-G		3	integer
 ATTRIBUTE	Altiga-Allow-Alpha-Only-Passwords-G	4	integer
 ATTRIBUTE	Altiga-Primary-DNS-G			5	ipaddr
 ATTRIBUTE	Altiga-Secondary-DNS-G			6	ipaddr
 ATTRIBUTE	Altiga-Primary-WINS-G			7	ipaddr
 ATTRIBUTE	Altiga-Secondary-WINS-G			8	ipaddr
-ATTRIBUTE Altiga-SEP-Card-Assignment-G/U          9     integer
-ATTRIBUTE Altiga-Priority-on-SEP-G/U              10    integer
-ATTRIBUTE Altiga-Tunneling-Protocols-G/U          11    integer
-ATTRIBUTE Altiga-IPSec-Sec-Association-G/U        12    string
+ATTRIBUTE	Altiga-SEP-Card-Assignment-G/U          9	integer
+ATTRIBUTE	Altiga-Priority-on-SEP-G/U              10	integer
+ATTRIBUTE	Altiga-Tunneling-Protocols-G/U          11	integer
+ATTRIBUTE	Altiga-IPSec-Sec-Association-G/U        12	string
 ATTRIBUTE	Altiga-IPSec-Authentication-G		13	integer
 ATTRIBUTE	Altiga-IPSec-Banner-G			15	string
-ATTRIBUTE Altiga-IPSec-Allow-Passwd-Store-G/U     16    integer
-ATTRIBUTE Altiga-Use-Client-Address-G/U           17    integer
-ATTRIBUTE Altiga-PPTP-Min-Authentication-G/U      18    integer
-ATTRIBUTE Altiga-L2TP-Min-Authentication-G/U      19    integer
+ATTRIBUTE	Altiga-IPSec-Allow-Passwd-Store-G/U     16	integer
+ATTRIBUTE	Altiga-Use-Client-Address-G/U           17	integer
+ATTRIBUTE	Altiga-PPTP-Min-Authentication-G/U      18	integer
+ATTRIBUTE	Altiga-L2TP-Min-Authentication-G/U      19	integer
 ATTRIBUTE	Altiga-PPTP-Encryption-G		20	integer
 ATTRIBUTE	Altiga-L2TP-Encryption-G		21	integer
+ATTRIBUTE	Altiga-Argument-Authentication-Server-Type 22	integer
 ATTRIBUTE	Altiga-IPSec-L2L-Keepalives-G		25	integer
+ATTRIBUTE	Altiga-Argument-IPSec-Group-Name	26	integer
 ATTRIBUTE	Altiga-IPSec-Split-Tunnel-List-G	27	string
 ATTRIBUTE	Altiga-IPSec-Default-Domain-G		28	string
 ATTRIBUTE	Altiga-IPSec-Secondary-Domains-G	29	string
 ATTRIBUTE	Altiga-IPSec-Tunnel-Type-G		30	integer
 ATTRIBUTE	Altiga-IPSec-Mode-Config-G		31	integer
+ATTRIBUTE	Altiga-Argument-Authentication-Server-Priority 32	integer
 ATTRIBUTE	Altiga-IPSec-User-Group-Lock-G		33	integer
 ATTRIBUTE	Altiga-IPSec-Over-NAT-G			34	integer
 ATTRIBUTE	Altiga-IPSec-Over-NAT-Port-Num-G	35	integer
+ATTRIBUTE	Altiga-Partitioning-Primary-DHCP	128	ipaddr
+ATTRIBUTE	Altiga-Partitioning-Secondary-DHCP	129	ipaddr
+ATTRIBUTE	Altiga-Partitioning-Premise-Rout	131	ipaddr
+ATTRIBUTE	Altiga-Partitioning-Partition-Max-Sessions 132	string
+ATTRIBUTE	Altiga-Partitioning-Mobile-IP-Key	133	string
+ATTRIBUTE	Altiga-Partitioning-Mobile-IP-Address	134	ipaddr
+ATTRIBUTE	Altiga-Partitioning-Mobile-IP-SPI	135	ipaddr
+ATTRIBUTE	Altiga-Partitioning-Strip-Realm		136	integer
+ATTRIBUTE	Altiga-Partitioning-Group		137	integer
+ATTRIBUTE	Altiga-Group-Name			250	string
 
 #  Altiga value
 VALUE	Altiga-Allow-Alpha-Only-Passwords-G Allow		1
@@ -117,6 +134,13 @@ VALUE	Altiga-L2TP-Encryption-G	L2TP-128-Enc/Stateless-Req 13
 VALUE	Altiga-L2TP-Encryption-G	L2TP-40/128-Stateless-Req 14
 VALUE	Altiga-L2TP-Encryption-G	L2TP-40/128-Enc/Statls-Req 15
 
+VALUE	Altiga-Argument-Authentication-Server-Type FirstActiveServer 1
+VALUE	Altiga-Argument-Authentication-Server-Type RADIUS	1
+VALUE	Altiga-Argument-Authentication-Server-Type LDAP		2
+VALUE	Altiga-Argument-Authentication-Server-Type NT		3
+VALUE	Altiga-Argument-Authentication-Server-Type SDI		4
+VALUE	Altiga-Argument-Authentication-Server-Type Internal	5
+
 VALUE	Altiga-IPSec-L2L-Keepalives-G	ON			1
 VALUE	Altiga-IPSec-L2L-Keepalives-G	OFF			0
 
@@ -131,5 +155,8 @@ VALUE	Altiga-IPSec-User-Group-Lock-G	OFF			0
 
 VALUE	Altiga-IPSec-Over-NAT-G		ON			1
 VALUE	Altiga-IPSec-Over-NAT-G		OFF			0
+
+VALUE	Altiga-Partitioning-Strip-Realm	ON			1
+VALUE	Altiga-Partitioning-Strip-Realm	OFF			0
 
 END-VENDOR Altiga
