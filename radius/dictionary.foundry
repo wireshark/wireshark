@@ -1,10 +1,11 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #  dictionary.foundry
 #
 #	As posted to the list by Thomas Keitel <tkeitel@arc.nasa.gov>
 #
-# Version:	$Id$
+# Version:	$Id: 341ae94a3fa1af08d995bcbaa9f883c09429ffe3 $
 #
 
 VENDOR		Foundry				1991
@@ -20,6 +21,8 @@ ATTRIBUTE	Foundry-MAC-Authent-needs-802.1x	6	integer
 ATTRIBUTE	Foundry-802.1x-Valid-Lookup		7	integer
 ATTRIBUTE	Foundry-MAC-Based-Vlan-QoS		8	integer
 ATTRIBUTE	Foundry-INM-Role-Aor-List		9	string
+ATTRIBUTE	Foundry-SI-Context-Role			10	string
+ATTRIBUTE	Foundry-SI-Role-Template		11	string
 
 VALUE	Foundry-INM-Privilege		AAA_pri_0		0
 VALUE	Foundry-INM-Privilege		AAA_pri_1		1
