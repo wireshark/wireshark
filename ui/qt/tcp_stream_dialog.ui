@@ -127,7 +127,7 @@
         <string>Allow SACK segments as well as data packets to be selected by clicking on the graph</string>
        </property>
        <property name="text">
-        <string>select SACKs</string>
+        <string>Select SACKs</string>
        </property>
        <property name="focusPolicy">
         <enum>Qt::TabFocus</enum>
