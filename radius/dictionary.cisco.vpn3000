@@ -1,12 +1,25 @@
 # -*- text -*-
+# Copyright (C) 2017 The FreeRADIUS Server project and contributors
 #
 #	 Cisco VPN 3000 Concentrator Dictionary
 #
+#	These documents are no longer available at those URLs:
+#
 #	http://www.cisco.com/univercd/cc/td/doc/product/access/acs_soft/csacs4nt/csnt30/user/ad.htm
 #	http://www.cisco.com/univercd/cc/td/doc/product/access/acs_soft/csacs4nt/acs31/acsuser/ad.htm
-#	http://www.cisco.com/en/US/docs/security/vpn3000/vpn3000_47/configuration/guide/ldapapp.html#wp1564468  ## [wireshark]
 #
-#	$Id$
+#	but
+#
+#	http://www.cisco.com/en/US/products/sw/secursw/ps2086/products_user_guide_chapter09186a0080102172.html
+#
+#	might have similar information.
+#
+#       http://wayback.archive.org/web/20070822094619/http://www.cisco.com/en/US/docs/security/vpn3000/vpn3000_47/configuration/guide/ldapapp.html#wp1564452 ## [wireshark]
+#
+# http://wayback.archive.org/web/20071011133320/http://www.cisco.com/en/US/docs/security/asa/asa80/configuration/guide/extsvr.html#wp1583736
+# https://communities.cisco.com/docs/DOC-67894#jive_content_id_Cisco
+#
+#	$Id: 1d9dfbf0dcbe08d7eedf07ff3663b86343f2f4a2 $
 #
 VENDOR		Cisco-VPN3000			3076
 
@@ -83,28 +96,32 @@ ATTRIBUTE	CVPN3000-LEAP-Bypass			75	integer
 ATTRIBUTE	CVPN3000-WebVPN-Exchange-NETBIOS-name	78	string
 ATTRIBUTE	CVPN3000-Port-Forwarding-Name		79	string
 ATTRIBUTE	CVPN3000-IE-Proxy-Server		80	ipaddr	## [wireshark]
-ATTRIBUTE	CVPN3000-IE-Proxy-Server-Policy		81	integer	## [wireshark]
-ATTRIBUTE	CVPN3000-IE-Proxy-Exception-List	82	string	## [wireshark]
-ATTRIBUTE	CVPN3000-IE-Proxy-Bypass-Local		83	integer	## [wireshark]
-ATTRIBUTE	CVPN3000-IKE-Keepalive-Retry-Interval 	84	integer	## [wireshark]
-ATTRIBUTE	CVPN3000-Perfect-Forward-Secrecy-Enable	88	integer	## [wireshark]
-ATTRIBUTE	CVPN3000-NAC-Enable 			89	integer	## [wireshark]
-ATTRIBUTE	CVPN3000-NAC-Status-Query-Timer		90	integer	## [wireshark]
-ATTRIBUTE	CVPN3000-NAC-Revalidation-Timer 	91	integer	## [wireshark]
-ATTRIBUTE	CVPN3000-NAC-Default-ACL 		92	string	## [wireshark]
-ATTRIBUTE	CVPN3000-WebVPN-URL-Entry-Enable	93	integer	## [wireshark]
-ATTRIBUTE	CVPN3000-WebVPN-File-Access-Enable 	94	integer	## [wireshark]
-ATTRIBUTE	CVPN3000-WebVPN-File-Svr-Entry-Enable   95	integer	## [wireshark]
-ATTRIBUTE	CVPN3000-WebVPN-File-Svr-Brwsing-Enable 96	integer	## [wireshark]
-ATTRIBUTE	CVPN3000-WebVPN-Port-Forwarding-Enable 	97	integer	## [wireshark]
-ATTRIBUTE	CVPN3000-WebVPN-Outlook-Exch-Proxy-Enb  98	integer	## [wireshark]
-ATTRIBUTE	CVPN3000-WebVPN-Port-Fwding-HTTP-Proxy  99	integer	## [wireshark]
-ATTRIBUTE	CVPN3000-WebVPN-Auto-Applet-Downld-Enb	100	integer	## [wireshark]
-ATTRIBUTE	CVPN3000-WebVPN-Citrix-Metaframe-Enable 101	integer	## [wireshark]
-ATTRIBUTE	CVPN3000-WebVPN-Apply-ACL 	 	102	integer	## [wireshark]
-ATTRIBUTE	CVPN3000-WebVPN-SSL-VPN-Client-Enable  	103	integer	## [wireshark]
-ATTRIBUTE	CVPN3000-WebVPN-SSL-VPN-Client-Required 104	integer	## [wireshark]
-ATTRIBUTE	CVPN3000-WebVPN-SSL-VPN-Client-Keep-Ins	105	integer	## [wireshark]
+ATTRIBUTE	CVPN3000-IE-Proxy-Server-Policy		81	integer
+ATTRIBUTE	CVPN3000-IE-Proxy-Exception-List	82	string
+ATTRIBUTE	CVPN3000-IE-Proxy-Bypass-Local		83	integer
+ATTRIBUTE	CVPN3000-IKE-Keepalive-Retry-Interval	84	integer
+ATTRIBUTE	CVPN3000-Tunnel-Group-Lock		85	string
+ATTRIBUTE	Cisco-VPN3000-Access-List-Inbound	86	string
+ATTRIBUTE	Cisco-VPN3000-Access-List-Outbound	87	string
+ATTRIBUTE	Cisco-VPN3000-Perfect-Forward-Secrecy-Enable 88	integer
+ATTRIBUTE	Cisco-VPN3000-NAC-Enable		89	integer
+ATTRIBUTE	Cisco-VPN3000-NAC-Status-Query-Timer	90	integer
+ATTRIBUTE	Cisco-VPN3000-NAC-Revalidation-Timer	91	integer
+ATTRIBUTE	Cisco-VPN3000-NAC-Default-ACL		92	string	## [wireshark]
+ATTRIBUTE	Cisco-VPN3000-WebVPN-URL-Entry-Enable	93	integer
+ATTRIBUTE	Cisco-VPN3000-WebVPN-File-Access-Enable	94	integer
+ATTRIBUTE	Cisco-VPN3000-WebVPN-File-Server-Entry-Enable 95	integer
+ATTRIBUTE	Cisco-VPN3000-WebVPN-File-Server-Browsing-Enable 96	integer
+ATTRIBUTE	Cisco-VPN3000-WebVPN-Port-Forwarding-Enable 97	integer
+ATTRIBUTE	Cisco-VPN3000-WebVPN-Outlook-Exchange-Proxy-Enable 98	integer
+ATTRIBUTE	Cisco-VPN3000-WebVPN-Port-Forwarding-HTTP-Proxy 99	integer	## [wireshark]
+ATTRIBUTE	Cisco-VPN3000-WebVPN-Auto-Applet-Download-Enable 100	integer
+ATTRIBUTE	Cisco-VPN3000-WebVPN-Citrix-MetaFrame-Enable 101	integer
+ATTRIBUTE	Cisco-VPN3000-WebVPN-Apply-ACL		102	integer
+ATTRIBUTE	Cisco-VPN3000-WebVPN-SSL-VPN-Client-Enable 103	integer
+ATTRIBUTE	Cisco-VPN3000-WebVPN-SSL-VPN-Client-Required 104	integer
+ATTRIBUTE	Cisco-VPN3000-WebVPN-SSL-VPN-Client-Keep-Installation 105	integer
+
 ATTRIBUTE	CVPN3000-Partition-Primary-DHCP		128	ipaddr
 ATTRIBUTE	CVPN3000-Partition-Secondary-DHCP	129	ipaddr
 ATTRIBUTE	CVPN3000-Partition-Premise-Router	131	ipaddr
@@ -114,6 +131,16 @@ ATTRIBUTE	CVPN3000-Partition-Mobile-IP-Address	134	ipaddr
 ATTRIBUTE	CVPN3000-Partition-Mobile-IP-SPI	135	integer
 ATTRIBUTE	CVPN3000-Strip-Realm			136	integer
 ATTRIBUTE	CVPN3000-Group-Name			137	integer
+ATTRIBUTE	CVPN3000-Smart-Tunnel-Auto		138	integer
+ATTRIBUTE	CVPN3000-VLAN				140	integer
+ATTRIBUTE	CVPN3000-NAC-Settings			141	string
+ATTRIBUTE	CVPN3000-Member-Of			145	string
+ATTRIBUTE	CVPN3000-Address-Pools			217	string
+ATTRIBUTE	CVPN3000-IPv6-Address-Pools		218	string
+ATTRIBUTE	CVPN3000-IPv6-VPN-Filter		219	string
+ATTRIBUTE	CVPN3000-Privilege-Level		220	integer
+ATTRIBUTE	CVPN3000-WebVPN-Macro-Value1		223	string
+ATTRIBUTE	CVPN3000-WebVPN-Macro-Value2		224	string
 
 VALUE	CVPN3000-Allow-Alpha-Only-Passwords Disallow		0
 VALUE	CVPN3000-Allow-Alpha-Only-Passwords Allow		1
@@ -141,8 +168,8 @@ VALUE	CVPN3000-Tunneling-Protocols	PPTP-And-L2TP		3    ## [wireshark]
 VALUE	CVPN3000-Tunneling-Protocols	PPTP-and-IPSec		5
 VALUE	CVPN3000-Tunneling-Protocols	L2TP-And-IPSec		6    ## [wireshark]
 VALUE	CVPN3000-Tunneling-Protocols	PPTP-L2TP-IPSec		7    ## [wireshark]
-VALUE	CVPN3000-Tunneling-Protocols	PPTP-And-L2TP-over-IPSec   9 ## [wireshark]
-VALUE	CVPN3000-Tunneling-Protocols	L2TP-And-L2TP-over-IPSec  10 ## [wireshark]
+VALUE	CVPN3000-Tunneling-Protocols	PPTP-And-L2TP-over-IPSec 9 ## [wireshark]
+VALUE	CVPN3000-Tunneling-Protocols	L2TP-And-L2TP-over-IPSec 10 ## [wireshark]
 VALUE	CVPN3000-Tunneling-Protocols	PPTP-L2TP-L2TP-OVER-IPSec 11 ## [wireshark]
 
 VALUE	CVPN3000-IPSec-Authentication	None			0
@@ -186,12 +213,12 @@ VALUE	CVPN3000-PPTP-Encryption	PPTP-40-Encryption-Req	3
 VALUE	CVPN3000-PPTP-Encryption	PPTP-128-Encryption-Req	5
 VALUE	CVPN3000-PPTP-Encryption	PPTP-40-or-128		6
 VALUE	CVPN3000-PPTP-Encryption	PPTP-40-or-128-Encry-Req 7
-VALUE	CVPN3000-PPTP-Encryption	PPTP-Enc-Stateless-Req	 9  ## [wireshark]
-VALUE	CVPN3000-PPTP-Encryption	PPTP-40-Stateless-Req	   10
-VALUE	CVPN3000-PPTP-Encryption	PPTP-40-Enc/Stateless-Req  11
-VALUE	CVPN3000-PPTP-Encryption	PPTP-128-Stateless-Req	   12
+VALUE	CVPN3000-PPTP-Encryption	PPTP-Enc-Stateless-Req	9  ## [wireshark]
+VALUE	CVPN3000-PPTP-Encryption	PPTP-40-Stateless-Req	10
+VALUE	CVPN3000-PPTP-Encryption	PPTP-40-Enc/Stateless-Req 11
+VALUE	CVPN3000-PPTP-Encryption	PPTP-128-Stateless-Req	12
 VALUE	CVPN3000-PPTP-Encryption	PPTP-128-Enc/Stateless-Req 13
-VALUE	CVPN3000-PPTP-Encryption	PPTP-40/128-Stateless-Req  14
+VALUE	CVPN3000-PPTP-Encryption	PPTP-40/128-Stateless-Req 14
 VALUE	CVPN3000-PPTP-Encryption	PPTP-40/128-Enc/Statls-Req 15
 
 ## [wireshark] This field is a bitmap
@@ -204,12 +231,12 @@ VALUE	CVPN3000-L2TP-Encryption	L2TP-40-Encryption-Req	3
 VALUE	CVPN3000-L2TP-Encryption	L2TP-128-Encryption-Req	5
 VALUE	CVPN3000-L2TP-Encryption	L2TP-40-or-128		6
 VALUE	CVPN3000-L2TP-Encryption	L2TP-40-or-128-Encry-Req 7
-VALUE	CVPN3000-L2TP-Encryption	L2TP-Enc-Stateless-Req	 9  ## [wireshark]
-VALUE	CVPN3000-L2TP-Encryption	L2TP-40-Stateless-Req	   10
-VALUE	CVPN3000-L2TP-Encryption	L2TP-40-Enc/Stateless-Req  11
-VALUE	CVPN3000-L2TP-Encryption	L2TP-128-Stateless-Req	   12
+VALUE	CVPN3000-L2TP-Encryption	L2TP-Enc-Stateless-Req	9  ## [wireshark]
+VALUE	CVPN3000-L2TP-Encryption	L2TP-40-Stateless-Req	10
+VALUE	CVPN3000-L2TP-Encryption	L2TP-40-Enc/Stateless-Req 11
+VALUE	CVPN3000-L2TP-Encryption	L2TP-128-Stateless-Req	12
 VALUE	CVPN3000-L2TP-Encryption	L2TP-128-Enc/Stateless-Req 13
-VALUE	CVPN3000-L2TP-Encryption	L2TP-40/128-Stateless-Req  14
+VALUE	CVPN3000-L2TP-Encryption	L2TP-40/128-Stateless-Req 14
 VALUE	CVPN3000-L2TP-Encryption	L2TP-40/128-Enc/Statls-Req 15
 
 VALUE	CVPN3000-Auth-Server-Type	First-Active-Server	0
@@ -247,9 +274,9 @@ VALUE	CVPN3000-IPSec-IP-Compression	On			1
 VALUE	CVPN3000-IPSec-IP-Compression	None			0
 VALUE	CVPN3000-IPSec-IP-Compression	LZS			1
 
-VALUE	CVPN3000-IPSec-IKE-Peer-IDCheck	Required		   1
+VALUE	CVPN3000-IPSec-IKE-Peer-IDCheck	Required		1
 VALUE	CVPN3000-IPSec-IKE-Peer-IDCheck	If-Supported-By-Certifiate 2
-VALUE	CVPN3000-IPSec-IKE-Peer-IDCheck	Do-Not-Check		   3
+VALUE	CVPN3000-IPSec-IKE-Peer-IDCheck	Do-Not-Check		3
 
 VALUE	CVPN3000-IKE-Keep-Alives	Off			0
 VALUE	CVPN3000-IKE-Keep-Alives	On			1
@@ -257,60 +284,65 @@ VALUE	CVPN3000-IKE-Keep-Alives	On			1
 VALUE	CVPN3000-IPSec-Auth-On-Rekey	Off			0
 VALUE	CVPN3000-IPSec-Auth-On-Rekey	On			1
 
-VALUE	CVPN3000-Reqrd-Client-Fw-Vendor-Code	Cisco-With-CIC	1
-VALUE	CVPN3000-Reqrd-Client-Fw-Vendor-Code	Zone-Labs	2
-VALUE	CVPN3000-Reqrd-Client-Fw-Vendor-Code	Network-ICE	3
-VALUE	CVPN3000-Reqrd-Client-Fw-Vendor-Code	Sygate		4
-VALUE	CVPN3000-Reqrd-Client-Fw-Vendor-Code	Cisco-With-CSA	5
+VALUE	CVPN3000-Reqrd-Client-Fw-Vendor-Code Cisco-With-CIC	1
+VALUE	CVPN3000-Reqrd-Client-Fw-Vendor-Code Zone-Labs		2
+VALUE	CVPN3000-Reqrd-Client-Fw-Vendor-Code Network-ICE	3
+VALUE	CVPN3000-Reqrd-Client-Fw-Vendor-Code Sygate		4
+VALUE	CVPN3000-Reqrd-Client-Fw-Vendor-Code Cisco-With-CSA	5
 
 VALUE	CVPN3000-Require-HW-Client-Auth	No			0
 VALUE	CVPN3000-Require-HW-Client-Auth	Yes			1
 
-VALUE	CVPN3000-Require-Individual-User-Auth	No		0
-VALUE	CVPN3000-Require-Individual-User-Auth	Yes		1
+VALUE	CVPN3000-Require-Individual-User-Auth No		0
+VALUE	CVPN3000-Require-Individual-User-Auth Yes		1
 
 VALUE	CVPN3000-Cisco-IP-Phone-Bypass	No			0
 VALUE	CVPN3000-Cisco-IP-Phone-Bypass	Yes			1
 
-VALUE	CVPN3000-IPSec-Split-Tunneling-Policy	Tunnel-Everything		0
-VALUE	CVPN3000-IPSec-Split-Tunneling-Policy	Only-Tunnel-Listed-Networks	1
+VALUE	CVPN3000-IPSec-Split-Tunneling-Policy Tunnel-Everything	0
+VALUE	CVPN3000-IPSec-Split-Tunneling-Policy Only-Tunnel-Listed-Networks 1
 
-VALUE	CVPN3000-IPSec-Reqrd-Client-Fw-Cap	None		0
-VALUE 	CVPN3000-IPSec-Reqrd-Client-Fw-Cap	Policy-Defined-By-Remote-FW-AYT 1
-VALUE 	CVPN3000-IPSec-Reqrd-Client-Fw-Cap	Policy-Pushed-CPP  2
-VALUE 	CVPN3000-IPSec-Reqrd-Client-Fw-Cap	Policy-From-Server 4
+VALUE	CVPN3000-IPSec-Reqrd-Client-Fw-Cap None			0
+VALUE	CVPN3000-IPSec-Reqrd-Client-Fw-Cap Policy-Defined-By-Remote-FW-AYT 1
+VALUE	CVPN3000-IPSec-Reqrd-Client-Fw-Cap Policy-Pushed-CPP	2
+VALUE	CVPN3000-IPSec-Reqrd-Client-Fw-Cap Policy-From-Server	4
 
-VALUE	CVPN3000-IPSec-Client-Fw-Filter-Opt	Required	0
-VALUE	CVPN3000-IPSec-Client-Fw-Filter-Opt	Optional	1
+VALUE	CVPN3000-IPSec-Client-Fw-Filter-Opt Required		0
+VALUE	CVPN3000-IPSec-Client-Fw-Filter-Opt Optional		1
 
-VALUE	CVPN3000-IPSec-Backup-Servers		User-Client-Configured-List   1
-VALUE	CVPN3000-IPSec-Backup-Servers		Disable-And-Clear-Client-List 2
-VALUE	CVPN3000-IPSec-Backup-Servers		Use-Backup-Server-List        3
+VALUE	CVPN3000-IPSec-Backup-Servers	User-Client-Configured-List 1
+VALUE	CVPN3000-IPSec-Backup-Servers	Disable-And-Clear-Client-List 2
+VALUE	CVPN3000-IPSec-Backup-Servers	Use-Backup-Server-List	3
 
-VALUE	CVPN3000-MS-Client-Icpt-DHCP-Conf-Msg	No		0
-VALUE	CVPN3000-MS-Client-Icpt-DHCP-Conf-Msg	Yes		1
+VALUE	CVPN3000-MS-Client-Icpt-DHCP-Conf-Msg No		0
+VALUE	CVPN3000-MS-Client-Icpt-DHCP-Conf-Msg Yes		1
 
-VALUE	CVPN3000-Allow-Network-Extension-Mode	No		0
-VALUE	CVPN3000-Allow-Network-Extension-Mode	Yes		1
+VALUE	CVPN3000-Allow-Network-Extension-Mode No		0
+VALUE	CVPN3000-Allow-Network-Extension-Mode Yes		1
 
-VALUE	CVPN3000-WebVPN-Content-Filter-Parameters	JavaAndActiveX			1
-VALUE	CVPN3000-WebVPN-Content-Filter-Parameters	JavaScript			2
-VALUE	CVPN3000-WebVPN-Content-Filter-Parameters	JavaAndActiveX-Javascript	3
-VALUE	CVPN3000-WebVPN-Content-Filter-Parameters	Images				4
-VALUE	CVPN3000-WebVPN-Content-Filter-Parameters	Images-JavaAndActiveX		5
-VALUE	CVPN3000-WebVPN-Content-Filter-Parameters	Images-Javascript		6
-VALUE	CVPN3000-WebVPN-Content-Filter-Parameters	Images-Javascript-JavaAndActiveX 7
-VALUE	CVPN3000-WebVPN-Content-Filter-Parameters	Cookies				8
-VALUE	CVPN3000-WebVPN-Content-Filter-Parameters	Cookies-JavaAndActiveX		9
-VALUE	CVPN3000-WebVPN-Content-Filter-Parameters	Cookies-Javascript		10
-VALUE	CVPN3000-WebVPN-Content-Filter-Parameters	Cookies-Javascript-JavaAndActiveX 11
-VALUE	CVPN3000-WebVPN-Content-Filter-Parameters	Cookies-Images			12
-VALUE	CVPN3000-WebVPN-Content-Filter-Parameters	Cookies-Images-JavaAndActiveX	13
-VALUE	CVPN3000-WebVPN-Content-Filter-Parameters	Cookies-Images-Javascript	14
-VALUE	CVPN3000-WebVPN-Content-Filter-Parameters	Cookies-Images-Javascript-JavaAndActiveX 15
+# Another bitmap
+VALUE	CVPN3000-WebVPN-Content-Filter-Parameters JavaAndActiveX 1
+VALUE	CVPN3000-WebVPN-Content-Filter-Parameters JavaScript	2
+VALUE	CVPN3000-WebVPN-Content-Filter-Parameters JavaAndActiveX-Javascript 3
+VALUE	CVPN3000-WebVPN-Content-Filter-Parameters Images	4
+VALUE	CVPN3000-WebVPN-Content-Filter-Parameters Images-JavaAndActiveX 5
+VALUE	CVPN3000-WebVPN-Content-Filter-Parameters Images-Javascript 6
+VALUE	CVPN3000-WebVPN-Content-Filter-Parameters Images-Javascript-JavaAndActiveX 7
+VALUE	CVPN3000-WebVPN-Content-Filter-Parameters Cookies	8
+VALUE	CVPN3000-WebVPN-Content-Filter-Parameters Cookies-JavaAndActiveX 9
+VALUE	CVPN3000-WebVPN-Content-Filter-Parameters Cookies-Javascript 10
+VALUE	CVPN3000-WebVPN-Content-Filter-Parameters Cookies-Javascript-JavaAndActiveX 11
+VALUE	CVPN3000-WebVPN-Content-Filter-Parameters Cookies-Images 12
+VALUE	CVPN3000-WebVPN-Content-Filter-Parameters Cookies-Images-JavaAndActiveX 13
+VALUE	CVPN3000-WebVPN-Content-Filter-Parameters Cookies-Images-Javascript 14
+VALUE	CVPN3000-WebVPN-Content-Filter-Parameters Cookies-Images-Javascript-JavaAndActiveX 15
 ## [\wireshark]
 
 VALUE	CVPN3000-Strip-Realm		FALSE			0
 VALUE	CVPN3000-Strip-Realm		TRUE			1
+
+VALUE	CVPN3000-Smart-Tunnel-Auto	Disabled		0
+VALUE	CVPN3000-Smart-Tunnel-Auto	Enabled			1
+VALUE	CVPN3000-Smart-Tunnel-Auto	Auto			2
 
 END-VENDOR	Cisco-VPN3000
