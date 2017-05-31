@@ -1,4 +1,5 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 ##############################################################################
 #
 #	Cisco's VLAN Query Protocol
@@ -8,7 +9,7 @@
 #
 #	The default destination port is 1589.
 #
-#	$Id$
+#	$Id: 78fa95cf475798736674cbba97d8653a3ba78408 $
 #
 ##############################################################################
 
@@ -55,6 +56,8 @@ VALUE	VQP-Packet-Type			VQP-Join-Request	1
 VALUE	VQP-Packet-Type			VQP-Join-Response	2
 VALUE	VQP-Packet-Type			VQP-Reconfirm-Request	3
 VALUE	VQP-Packet-Type			VQP-Reconfirm-Response	4
+
+VALUE	VQP-Packet-Type			Do-Not-Respond		256
 
 VALUE	VQP-Error-Code			VQP-No-Error		0
 VALUE	VQP-Error-Code			VQP-Wrong-Version	1
