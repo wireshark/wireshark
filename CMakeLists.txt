@@ -430,8 +430,6 @@ else()
 		-Wlogical-op
 		-Wjump-misses-init
 		-Wunused-const-variable
-		# The Qt headers generate a ton of shortening errors on 64-bit systems
-		# so only enable this for C for now.
 		-Wshorten-64-to-32
 
 		#
@@ -444,6 +442,15 @@ else()
 
 	set(CXX_WARN_FLAGS
 	)
+
+	find_package(Qt5Core)  # Needed to check for Qt version
+	if (Qt5Core_VERSION VERSION_GREATER 5.8)
+		# The Qt headers in version 5.8 and older generate a ton of shortening
+		# errors on 64-bit systems so only enable this for version 5.9 and greater.
+		set(CXX_WARN_FLAGS ${CXX_WARN_FLAGS}
+			-Wshorten-64-to-32
+		)
+	endif()
 
 	set(COMMON_EXTRA_WARN_FLAGS
 		# The following are for C and C++
