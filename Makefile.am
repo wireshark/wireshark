@@ -193,7 +193,6 @@ dist_radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/dictionary.ericsson \
 	radius/dictionary.ericsson.ab \
 	radius/dictionary.ericsson.packet.core.networks \
-	radius/dictionary.erx \
 	radius/dictionary.extreme \
 	radius/dictionary.f5 \
 	radius/dictionary.fdxtended \
@@ -312,6 +311,7 @@ dist_radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/dictionary.travelping \
 	radius/dictionary.tropos \
 	radius/dictionary.ukerna \
+	radius/dictionary.unisphere \
 	radius/dictionary.unix \
 	radius/dictionary.usr \
 	radius/dictionary.utstarcom \

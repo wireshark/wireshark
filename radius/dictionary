@@ -187,7 +187,6 @@ $INCLUDE dictionary.dragonwave
 $INCLUDE dictionary.efficientip
 $INCLUDE dictionary.eltex
 $INCLUDE dictionary.epygi
-$INCLUDE dictionary.erx
 $INCLUDE dictionary.equallogic
 $INCLUDE dictionary.ericsson
 $INCLUDE dictionary.ericsson.ab
@@ -277,6 +276,7 @@ $INCLUDE dictionary.travelping
 $INCLUDE dictionary.tropos
 $INCLUDE dictionary.t_systems_nova
 $INCLUDE dictionary.ukerna
+$INCLUDE dictionary.unisphere
 $INCLUDE dictionary.unix
 $INCLUDE dictionary.usr
 $INCLUDE dictionary.utstarcom
