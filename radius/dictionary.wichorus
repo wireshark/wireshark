@@ -1,9 +1,10 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #	Dictionary for WiChorus Inc. VSA's.
 # 	http://www.wichorus.com/
 #
-# Version: 	$Id$
+# Version: 	$Id: 4cfa70cbf64f40aa6d6677940a3bfaa6b7096221 $
 #
 
 VENDOR		Wichorus			27030
@@ -12,5 +13,13 @@ BEGIN-VENDOR	Wichorus
 
 ATTRIBUTE	Wichorus-Policy-Name			1	string
 ATTRIBUTE	Wichorus-User-Privilege			2	string
+
+#
+#  Some versions of the Wichorus equipment use the following attribute.
+#  instead of Wichorus-User-Privilege.  This is considered to be
+#  bad practice.
+#
+
+#ATTRIBUTE	Wichorus-Host-IP			2	ipaddr
 
 END-VENDOR 	Wichorus
