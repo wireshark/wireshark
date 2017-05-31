@@ -1,5 +1,5 @@
-#
-#	$Id$
+# -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 VENDOR		Manzara				19382
 
@@ -14,6 +14,11 @@ ATTRIBUTE	Manzara-Full-Login-String		6	string
 ATTRIBUTE	Manzara-Tariff-Units			7	integer
 ATTRIBUTE	Manzara-Tariff-Type			8	integer
 ATTRIBUTE	Manzara-ECP-Session-Key			9	octets
+ATTRIBUTE	Manzara-Map-Name			10	string
+ATTRIBUTE	Manzara-Map-Key				11	string
+ATTRIBUTE	Manzara-Map-Value			12	string
+ATTRIBUTE	Manzara-Map-Error			13	string
+ATTRIBUTE	Manzara-Service-Type			14	string
 
 VALUE	Manzara-Tariff-Type		MMS-Picture		1
 VALUE	Manzara-Tariff-Type		Unused			2
