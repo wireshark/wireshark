@@ -1,12 +1,13 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #	Obsolete names for backwards compatibility with older users files.
 #	Move the $INCLUDE in the main dictionary file to the end if you want
 #	these names to be used in the "details" logfile.
 #
-#	$Id$
-#
-ATTRIBUTE	Password				2	string	encrypt=1
+
+#  This has been removed.  Too many people get it wrong.
+#ATTRIBUTE	Password				2	string	encrypt=1
 ATTRIBUTE	Client-Id				4	ipaddr
 ATTRIBUTE	Client-Port-Id				5	integer
 ATTRIBUTE	User-Service-Type			6	integer
