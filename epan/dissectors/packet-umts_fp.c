@@ -627,7 +627,7 @@ static void dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 /* Dissect dedicated channels */
 static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                        int offset, struct fp_info *p_fp_info,
-                                       gboolean is_common, rlc_info  *rlcinf,
+                                       gboolean is_common,
                                        void *data);
 
 static void dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -2617,7 +2617,7 @@ dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                            int offset, struct fp_info *p_fp_info,
-                           gboolean is_common, rlc_info  *rlcinf,
+                           gboolean is_common,
                            void *data)
 {
     gboolean is_control_frame;
@@ -2628,6 +2628,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint16 header_crc = 0;
     proto_item * header_crc_pi = NULL;
     guint header_length = 0;
+    rlc_info * rlcinf;
 
     if (p_fp_info->edch_type == 1) {
         col_append_str(pinfo->cinfo, COL_INFO, " (T2)");
@@ -2663,6 +2664,11 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint  total_pdus = 0;
         guint  total_bits = 0;
         gboolean dissected = FALSE;
+
+        rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
+        if (!rlcinf) {
+            rlcinf = wmem_new0(wmem_packet_scope(), rlc_info);
+        }
 
         header_crc_pi = proto_tree_add_uint_format(tree, hf_fp_edch_header_crc, tvb,
                 offset, 2, header_crc,
@@ -5327,7 +5333,6 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_item       *ti;
     gint              offset = 0;
     struct fp_info   *p_fp_info;
-    rlc_info         *rlcinf;
     conversation_t   *p_conv;
     umts_fp_conversation_info_t *p_conv_data = NULL;
 
@@ -5400,11 +5405,6 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (p_fp_info == NULL) {
         proto_tree_add_expert(fp_tree, pinfo, &ei_fp_no_per_frame_info, tvb, offset, -1);
         return 1;
-    }
-
-    rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
-    if (!rlcinf) {
-        rlcinf = wmem_new0(wmem_packet_scope(), rlc_info);
     }
 
     /* Show release information */
@@ -5580,7 +5580,7 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         case CHANNEL_EDCH_COMMON:
             dissect_e_dch_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info,
                                        p_fp_info->channel == CHANNEL_EDCH_COMMON,
-                                       rlcinf, data);
+                                       data);
             break;
 
         default:
