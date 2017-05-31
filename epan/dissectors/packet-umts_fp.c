@@ -4921,8 +4921,8 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
     int       offset = 0, i=0, j=0, num_tbs, chan, tb_size, tb_bit_off;
     gboolean  is_control_frame;
     gboolean  is_known_dcch_tf,is_special_case_dch_24;
-    umts_mac_info *macinf = NULL;
-    rlc_info *rlcinf = NULL;
+    umts_mac_info *macinf;
+    rlc_info *rlcinf;
     guint8 fake_lchid=0;
     gint *cur_val=NULL;
     guint32 user_identity;
@@ -4934,6 +4934,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
     gboolean info_missing = FALSE;
 
     fpi = wmem_new0(wmem_file_scope(), fp_info);
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_fp, 0, fpi);
 
     fpi->iface_type = p_conv_data->iface_type;
     fpi->division = p_conv_data->division;
@@ -4976,12 +4977,14 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                 info_missing = TRUE;
                 break;
             }
-            rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
-            macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
             fpi->hsdsch_entity = fp_hsdsch_channel_info->hsdsch_entity;
+            macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
             fpi->hsdsch_macflowd_id = fp_hsdsch_channel_info->hsdsch_macdflow_id;
             macinf->content[0] = hsdsch_macdflow_id_mac_content_map[fp_hsdsch_channel_info->hsdsch_macdflow_id]; /*MAC_CONTENT_PS_DTCH;*/
             macinf->lchid[0] = fp_hsdsch_channel_info->hsdsch_macdflow_id;
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, macinf);
+
+            rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
 
             /*Figure out RLC_MODE based on MACd-flow-ID, basically MACd-flow-ID = 0 then it's SRB0 == UM else AM*/
             rlcinf->mode[0] = hsdsch_macdflow_id_rlc_map[fp_hsdsch_channel_info->hsdsch_macdflow_id];
@@ -5022,6 +5025,8 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
             rlcinf->li_size[0] = RLC_LI_7BITS;
             rlcinf->ciphered[0] = FALSE;
             rlcinf->deciphered[0] = FALSE;
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0, rlcinf);
+
 
             return fpi;
 
@@ -5033,9 +5038,9 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                 info_missing = TRUE;
                 break;
             }
-            rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
-            macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
             /*Most configuration is now done in the actual dissecting function*/
+            macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
+            rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
             fpi->no_ddi_entries = fp_edch_channel_info->no_ddi_entries;
             for (i=0; i<fpi->no_ddi_entries; i++) {
                 fpi->edch_ddi[i] = fp_edch_channel_info->edch_ddi[i];    /*Set the DDI value*/
@@ -5047,12 +5052,19 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
             }
             fpi->edch_type = fp_edch_channel_info->edch_type;
 
+           /* macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
+            macinf->content[0] = MAC_CONTENT_PS_DTCH;*/
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, macinf);
+
+
             /* For RLC re-assembly to work we need a urnti signaled from NBAP */
             rlcinf->urnti[0] = fpi->com_context_id;
             /* rlcinf->mode[0] = RLC_AM;*/
             rlcinf->li_size[0] = RLC_LI_7BITS;
             rlcinf->ciphered[0] = FALSE;
             rlcinf->deciphered[0] = FALSE;
+
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0, rlcinf);
 
             return fpi;
 
@@ -5084,9 +5096,9 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                 /* control frame, we're done */
                 return fpi;
             }
+
             rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
             macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
-
             offset = 2; /* To correctly read the TFI */
             fakes  = 5; /* Reset fake counter */
             for (chan=0; chan < fpi->num_chans; chan++) { /* Iterate over the DCH channels in the flow (each given a TFI) */
@@ -5174,6 +5186,8 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
 
                 offset++;
             }
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, macinf);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0, rlcinf);
             /* Set offset to point to first TFI
              * the Number of TFI's = number of DCH's in the flow
              */
@@ -5199,10 +5213,12 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
              */
             offset = 2;
             /* Set MAC data */
+            macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
             macinf->ctmux[0]   = 1;
             macinf->content[0] = MAC_CONTENT_DCCH;
-
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, macinf);
             /* Set RLC data */
+            rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
             /* Make configurable ?(avaliable in NBAP?) */
             /* For RLC re-assembly to work we need to fake urnti: using the conversation's ID and the prefix of 0xFFF */
             rlcinf->urnti[0] = (p_conv->conv_index | 0xFFF00000);
@@ -5211,6 +5227,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
             rlcinf->li_size[0] = RLC_LI_7BITS;
             rlcinf->ciphered[0] = FALSE;
             rlcinf->deciphered[0] = FALSE;
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0, rlcinf);
             break;
 
         case CHANNEL_RACH_FDD:
@@ -5233,15 +5250,21 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
              */
             offset = 2;
             /* set MAC data */
+            macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
+            rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
             for ( chan = 0; chan < fpi->num_chans; chan++ ) {
                     macinf->ctmux[chan]   = 1;
                     macinf->content[chan] = MAC_CONTENT_DCCH;
                     rlcinf->urnti[chan] = fpi->com_context_id;    /*Note that MAC probably will change this*/
             }
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, macinf);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0, rlcinf);
             break;
         case CHANNEL_HSDSCH_COMMON:
             rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
             macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, macinf);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0, rlcinf);
             break;
         default:
             expert_add_info(pinfo, NULL, &ei_fp_transport_channel_type_unknown);
@@ -5251,18 +5274,9 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
 
     if(info_missing) {
         /* Some information was missing in the conversation struct and the FP info isn't complete */
-        wmem_free(wmem_file_scope(),fpi);
+        p_remove_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
+        wmem_free(wmem_file_scope(), fpi);
         return NULL;
-    }
-
-    // Attach FP info
-    p_add_proto_data(wmem_file_scope(), pinfo, proto_fp, 0, fpi);
-    // Attach MAC & RLC info only if created
-    if(macinf) {
-        p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, macinf);
-    }
-    if(rlcinf) {
-        p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0, rlcinf);
     }
 
     /* Peek at the packet as the per packet info seems not to take the tfi into account */
