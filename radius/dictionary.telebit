@@ -1,7 +1,11 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #	Telebit dictionary
-#	$Id$
+#
+#	Telebit was acquired by Cisco in 1996.
+#
+#	$Id: f5d82ecb9ecbdc01f7ad770aa838782919238443 $
 #
 VENDOR		Telebit				117
 
@@ -11,5 +15,6 @@ ATTRIBUTE	Telebit-Login-Command			1	string
 ATTRIBUTE	Telebit-Port-Name			2	string
 ATTRIBUTE	Telebit-Activate-Command		3	string
 ATTRIBUTE	Telebit-Accounting-Info			4	string
+ATTRIBUTE	Telebit-Login-Option			5	string
 
 END-VENDOR	Telebit
