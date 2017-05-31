@@ -43,6 +43,7 @@
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/to_str.h>
+#include <epan/expert.h>
 
 /* Forward declarations */
 void proto_register_acn(void);
@@ -451,8 +452,8 @@ static int hf_magic_reply_default_name = -1;
 static int hf_magic_reply_user_name = -1;
 static int hf_magic_reply_cid = -1;
 static int hf_magic_reply_dcid = -1;
-static int hf_magic_reply_invalid_type = -1;
 
+static expert_field ei_magic_reply_invalid_type = EI_INIT;
 
 static const value_string acn_protocol_id_vals[] = {
   { ACN_PROTOCOL_ID_SDT,   "SDT Protocol" },
@@ -2311,7 +2312,7 @@ dissect_magic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8 pdu_subtype;
   guint offset = 0;
   const char *pdu_subtype_string;
-  proto_tree *ti;
+  proto_tree *ti, *subtype_item;
   proto_tree *magic_tree;
   guint32 command;
   guint32 str_len;
@@ -2340,7 +2341,7 @@ dissect_magic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Append subtype description */
   proto_item_append_text(ti, ": %s", pdu_subtype_string);
 
-  proto_tree_add_item(magic_tree, hf_magic_pdu_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+  subtype_item = proto_tree_add_item(magic_tree, hf_magic_pdu_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
   proto_tree_add_item(magic_tree, hf_magic_major_version, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
@@ -2492,7 +2493,7 @@ dissect_magic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
 
     default:
-      proto_tree_add_int(magic_tree, hf_magic_reply_invalid_type, tvb, offset, -1, pdu_subtype);
+      expert_add_info(pinfo, subtype_item, &ei_magic_reply_invalid_type);
       offset = tvb_captured_length(tvb);
   }
   return offset;
@@ -6284,13 +6285,6 @@ proto_register_acn(void)
         FT_GUID, BASE_NONE, NULL, 0x0,
         "Reply DCID", HFILL }
     },
-
-    /* Invalid Reply Type */
-    { &hf_magic_reply_invalid_type,
-      { "Invalid type", "magic.reply.dcid",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
-        "Invalid Reply Type", HFILL }
-    }
   };
 
   /* Setup protocol subtree array */
@@ -6319,7 +6313,13 @@ proto_register_acn(void)
     &ett_magic
   };
 
+  static ei_register_info ei[] = {
+    { &ei_magic_reply_invalid_type, { "magic.reply.invalid_type", PI_PROTOCOL, PI_WARN, "Invalid type", EXPFILL }},
+  };
+
   module_t *acn_module;
+  expert_module_t* expert_acn;
+
   proto_acn = proto_register_protocol (
     "Architecture for Control Networks", /* name */
     "ACN",                               /* short name */
@@ -6369,6 +6369,8 @@ proto_register_acn(void)
 
   proto_register_field_array(proto_magic, magic_hf, array_length(magic_hf));
   proto_register_subtree_array(magic_ett, array_length(magic_ett));
+  expert_acn = expert_register_protocol(proto_magic);
+  expert_register_field_array(expert_acn, ei, array_length(ei));
 }
 
 
