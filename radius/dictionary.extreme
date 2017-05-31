@@ -1,8 +1,11 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #	Dictionary for Extreme Networks VSA's.
 #	http://www.extremenetworks.com/
-#	See ExtremeXOS Concepts guide for 15.4 (Ch 7: Universal Port)
+#	http://documentation.extremenetworks.com/exos/EXOS_21_1/Security/c_supported-radius-attributes.shtml
+#
+#	$Id: 896860cd614f277baf7e79e38a7f53c1b3865868 $
 #
 VENDOR		Extreme				1916
 
@@ -18,7 +21,11 @@ ATTRIBUTE	Extreme-User-Location			208	string
 ATTRIBUTE	Extreme-Netlogin-Vlan-Tag		209	integer
 ATTRIBUTE	Extreme-Netlogin-Extended-Vlan		211	string
 ATTRIBUTE	Extreme-Security-Profile		212	string
-ATTRIBUTE	Extreme-CLI-Profile			213	string
+ATTRIBUTE	Extreme-VM-Name				213	string
+ATTRIBUTE	Extreme-VM-VPP-Name			214	string
+ATTRIBUTE	Extreme-VM-IP-Addr			215	ipaddr
+ATTRIBUTE	Extreme-VM-VLAN-ID			216	integer
+ATTRIBUTE	Extreme-VM-VR-Name			217	string
 
 VALUE	Extreme-CLI-Authorization	Disabled		0
 VALUE	Extreme-CLI-Authorization	Enabled			1
