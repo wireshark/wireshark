@@ -135,13 +135,13 @@ dist_radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/dictionary.3gpp2 \
 	radius/dictionary.acc \
 	radius/dictionary.acme \
-	radius/dictionary.airespace \
 	radius/dictionary.actelis \
 	radius/dictionary.aerohive \
+	radius/dictionary.airespace \
 	radius/dictionary.alcatel \
+	radius/dictionary.alcatel-lucent.aaa \
 	radius/dictionary.alcatel.esam \
 	radius/dictionary.alcatel.sr \
-	radius/dictionary.alcatel-lucent.aaa \
 	radius/dictionary.alteon \
 	radius/dictionary.altiga \
 	radius/dictionary.alvarion \
@@ -156,16 +156,16 @@ dist_radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/dictionary.avaya \
 	radius/dictionary.azaire \
 	radius/dictionary.bay \
-	radius/dictionary.bluecoat \
 	radius/dictionary.bintec \
+	radius/dictionary.bluecoat \
+	radius/dictionary.bristol \
 	radius/dictionary.broadsoft \
 	radius/dictionary.brocade \
 	radius/dictionary.bskyb \
-	radius/dictionary.bristol \
 	radius/dictionary.bt \
-	radius/dictionary.camiant \
 	radius/dictionary.cablelabs \
 	radius/dictionary.cabletron \
+	radius/dictionary.camiant \
 	radius/dictionary.chillispot \
 	radius/dictionary.cisco \
 	radius/dictionary.cisco.asa \
@@ -177,14 +177,14 @@ dist_radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/dictionary.cnergee \
 	radius/dictionary.colubris \
 	radius/dictionary.columbia_university \
-	radius/dictionary.compatible \
 	radius/dictionary.compat \
+	radius/dictionary.compatible \
 	radius/dictionary.cosine \
 	radius/dictionary.dante \
 	radius/dictionary.dellemc \
 	radius/dictionary.dhcp \
-	radius/dictionary.dlink \
 	radius/dictionary.digium \
+	radius/dictionary.dlink \
 	radius/dictionary.dragonwave \
 	radius/dictionary.efficientip \
 	radius/dictionary.eltex \
@@ -217,8 +217,8 @@ dist_radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/dictionary.itk \
 	radius/dictionary.jradius \
 	radius/dictionary.juniper \
-	radius/dictionary.kineto \
 	radius/dictionary.karlnet \
+	radius/dictionary.kineto \
 	radius/dictionary.lancom \
 	radius/dictionary.livingston \
 	radius/dictionary.localweb \
