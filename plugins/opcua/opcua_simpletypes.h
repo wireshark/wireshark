@@ -101,6 +101,8 @@ void parseArrayEnum(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *p
 void parseArrayComplex(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName, const char *szTypeName, fctComplexTypeParser pParserFunction, const gint idx);
 void registerSimpleTypes(int proto);
 guint32 getExtensionObjectType(tvbuff_t *tvb, gint *pOffset);
+void parseNodeClassMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
+void parseResultMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
 
 void dispatchExtensionObjectType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, int TypeId);
 
