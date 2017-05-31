@@ -90,7 +90,7 @@ void InterfaceToolbarReader::loop()
             unsigned char low_nibble = header[3] & 0xFF;
             ssize_t payload_len = (ssize_t)((high_nibble << 16) + (mid_nibble << 8) + low_nibble) - 2;
 
-            payload.resize(payload_len);
+            payload.resize((int)payload_len);
             if (payload_len > 0)
             {
                 ssize_t total_len = 0;
