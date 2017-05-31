@@ -101,8 +101,6 @@
  *
  * XXX - features not currently supported:
  *
- *	dotted number values for the oid field;
- *
  *	integer64, ipv4prefix, combo-prefix, bool, size, decimal,
  *	timeval, struct, extended, long-extended, vsa, evs, vendor,
  *	cidr, uint{8,16,32,64}, int{8,16,32,64} as attribute types
@@ -111,7 +109,8 @@
  *	octets[N], where N is an integer, as an attribute type
  *	(not documented in the man page);
  *
- *	internal, array, concat, and virtual as attribute flags;
+ *	internal, array, concat, and virtual as attribute flags (not
+ *	documented in the man page);
  *
  *	format= for BEGIN-VENDOR.
  *
