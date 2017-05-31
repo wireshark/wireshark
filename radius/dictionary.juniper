@@ -1,10 +1,11 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #  dictionary.juniper
 #
 #	As posted to the list by Eric Kilfoil <ekilfoil@uslec.net>
 #
-# Version:	$Id$
+# Version:	$Id: d294e4bdf7957f51d95584bb9b85a65737a74592 $
 #
 
 VENDOR		Juniper				2636
@@ -16,8 +17,47 @@ ATTRIBUTE	Juniper-Allow-Commands			2	string
 ATTRIBUTE	Juniper-Deny-Commands			3	string
 ATTRIBUTE	Juniper-Allow-Configuration		4	string
 ATTRIBUTE	Juniper-Deny-Configuration		5	string
+
 ATTRIBUTE	Juniper-Interactive-Command		8	string
 ATTRIBUTE	Juniper-Configuration-Change		9	string
 ATTRIBUTE	Juniper-User-Permissions		10	string
+ATTRIBUTE	Juniper-Junosspace-Profile		11	String
+
+ATTRIBUTE	Juniper-CTP-Group			21	integer
+ATTRIBUTE	Juniper-CTPView-APP-Group		22	integer
+ATTRIBUTE	Juniper-CTPView-OS-Group		23	integer
+
+ATTRIBUTE	Juniper-Primary-Dns			31	ipaddr
+ATTRIBUTE	Juniper-Primary-Wins			32	ipaddr
+ATTRIBUTE	Juniper-Secondary-Dns			33	ipaddr
+ATTRIBUTE	Juniper-Secondary-Wins			34	ipaddr
+ATTRIBUTE	Juniper-Interface-id			35	string
+ATTRIBUTE	Juniper-Ip-Pool-Name			36	string
+ATTRIBUTE	Juniper-Keep-Alive			37	integer
+ATTRIBUTE	Juniper-CoS-Traffic-Control-Profile	38	string
+ATTRIBUTE	Juniper-CoS-Parameter			39	string
+ATTRIBUTE	Juniper-encapsulation-overhead		40	integer
+ATTRIBUTE	Juniper-cell-overhead			41	integer
+ATTRIBUTE	Juniper-tx-connect-speed		42	integer
+ATTRIBUTE	Juniper-rx-connect-speed		43	integer
+ATTRIBUTE	Juniper-Firewall-filter-name		44	string
+ATTRIBUTE	Juniper-Policer-Parameter		45	string
+ATTRIBUTE	Juniper-Local-Group-Name		46	string
+ATTRIBUTE	Juniper-Local-Interface			47	string
+ATTRIBUTE	Juniper-Switching-Filter		48	string
+ATTRIBUTE	Juniper-VoIP-Vlan			49	string
+
+VALUE	Juniper-CTPView-APP-Group	Net_View		1
+VALUE	Juniper-CTPView-APP-Group	Net_Admin		2
+VALUE	Juniper-CTPView-APP-Group	Global_Admin		3
+
+VALUE	Juniper-CTP-Group		Read_Only		1
+VALUE	Juniper-CTP-Group		Admin			2
+VALUE	Juniper-CTP-Group		Privileged_Admin	3
+VALUE	Juniper-CTP-Group		Auditor			4
+
+VALUE	Juniper-CTPView-OS-Group	Web_Manager		1
+VALUE	Juniper-CTPView-OS-Group	System_Admin		2
+VALUE	Juniper-CTPView-OS-Group	Auditor			3
 
 END-VENDOR	Juniper
