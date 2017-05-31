@@ -295,8 +295,13 @@ static void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, c
 <ATTR_W_TYPE>[0-9a-z_-]+=([^\n]*)	;
 <ATTR_W_TYPE>[0-9a-z_-]+		{
     /*
-     * Support for "ATTRIBUTE name  number  type [vendor|options]", it marks
-     * this as vendor-specific attribute (VSA), but this notation is deprecated
+     * Support for "ATTRIBUTE name oid type vendor", where the token
+     * following the type matches neither has_tag nor encrypt={1,2,3},
+     * but is a sequence of digits, lower-case letters, underscores,
+     * and hyphens.
+     *
+     * We mark this as a vendor-specific attribute (VSA), with the token
+     * following the type being the vendor name; this notation is deprecated
      * in favor of BEGIN-VENDOR/END-VENDOR blocks.
      */
     gboolean attribute_ok;
