@@ -422,8 +422,8 @@ struct lemon {
 };
 
 #define MemoryCheck(X) if((X)==0){ \
-  extern void memory_error(void); \
-  memory_error(); \
+  fprintf(stderr,"Out of memory.  Aborting...\n"); \
+  exit(1); \
 }
 
 /**************** From the file "table.h" *********************************/
@@ -1516,10 +1516,6 @@ make_basename(char* fullname)
 /* Report an out-of-memory condition and abort.  This function
 ** is used mostly by the "MemoryCheck" macro in struct.h
 */
-extern void memory_error(void){
-  fprintf(stderr,"Out of memory.  Aborting...\n");
-  exit(1);
-}
 
 static int nDefine = 0;      /* Number of -D options on the command line */
 static char **azDefine = 0;  /* Name of the -D macros */
