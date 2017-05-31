@@ -1,13 +1,14 @@
 # -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 ##############################################################################
 #
 #	ALU-AAA AAA dictionary
 #
-#	$Id$
+#	$Id: 53980abe0eeaa5ce33283eff30d572dc620605e7 $
 #
 ##############################################################################
 
-VENDOR		ALU-AAA 831
+VENDOR		ALU-AAA				831
 
 BEGIN-VENDOR	ALU-AAA
 
@@ -46,10 +47,10 @@ ATTRIBUTE	ALU-AAA-Value-0				112	octets
 ATTRIBUTE	ALU-AAA-Value-1				113	octets
 ATTRIBUTE	ALU-AAA-Value-2				114	octets
 ATTRIBUTE	ALU-AAA-Value-3				115	octets
-ATTRIBUTE	ALU-AAA-Key-0				116	octets,encrypt=2
-ATTRIBUTE	ALU-AAA-Key-1				117	octets,encrypt=2
-ATTRIBUTE	ALU-AAA-Key-2				118	octets,encrypt=2
-ATTRIBUTE	ALU-AAA-Key-3				119	octets,encrypt=2
+ATTRIBUTE	ALU-AAA-Key-0				116	octets	encrypt=2
+ATTRIBUTE	ALU-AAA-Key-1				117	octets	encrypt=2
+ATTRIBUTE	ALU-AAA-Key-2				118	octets	encrypt=2
+ATTRIBUTE	ALU-AAA-Key-3				119	octets	encrypt=2
 ATTRIBUTE	ALU-AAA-Opaque-0			120	octets
 ATTRIBUTE	ALU-AAA-Opaque-1			121	octets
 ATTRIBUTE	ALU-AAA-Opaque-2			122	octets
@@ -76,9 +77,10 @@ ATTRIBUTE	ALU-AAA-Delta-Session			210	integer
 ATTRIBUTE	ALU-AAA-Civic-Location			211	octets
 ATTRIBUTE	ALU-AAA-Geospatial-Location		212	octets
 
-VALUE	ALU-AAA-Client-Error-Action	Ignore		1
-VALUE	ALU-AAA-Client-Error-Action	Disconnect	2
-VALUE	ALU-AAA-Delta-Session		False		0
-VALUE	ALU-AAA-Delta-Session		True		1
+VALUE	ALU-AAA-Client-Error-Action	Ignore			1
+VALUE	ALU-AAA-Client-Error-Action	Disconnect		2
+
+VALUE	ALU-AAA-Delta-Session		False			0
+VALUE	ALU-AAA-Delta-Session		True			1
 
 END-VENDOR	ALU-AAA
