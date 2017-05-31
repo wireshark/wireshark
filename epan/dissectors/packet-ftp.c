@@ -69,6 +69,7 @@ static expert_field ei_ftp_response_code_invalid = EI_INIT;
 
 static dissector_handle_t ftpdata_handle;
 static dissector_handle_t ftp_handle;
+static dissector_handle_t data_text_lines_handle;
 
 #define TCP_PORT_FTPDATA        20
 #define TCP_PORT_FTP            21
@@ -923,13 +924,11 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
         }
     }
 
+    /* Show the number of bytes */
+    proto_item_append_text(ti, " (%u bytes data)", data_length);
+
     if (is_text) {
-        /* Show as string, but don't format more text than will be displayed */
-        proto_item_append_text(ti, " (%s)", tvb_format_text(tvb, 0, MIN(data_length, ITEM_LABEL_LENGTH)));
-    }
-    else {
-        /* Assume binary, just show the number of bytes */
-        proto_item_append_text(ti, " (%u bytes data)", data_length);
+        call_dissector(data_text_lines_handle, tvb, pinfo, tree);
     }
 
     return tvb_captured_length(tvb);
@@ -1064,6 +1063,9 @@ proto_reg_handoff_ftp(void)
 {
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_FTPDATA, ftpdata_handle);
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_FTP, ftp_handle);
+
+    data_text_lines_handle = find_dissector_add_dependency("data-text-lines", proto_ftp_data);
+
 }
 
 /*
