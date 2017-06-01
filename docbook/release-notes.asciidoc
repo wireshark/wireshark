@@ -12,117 +12,14 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed:
 
-* ws-salink:2017-22[]
+* ws-salink:2017-34[]
 +
-Bazaar dissector infinite loop
-(ws-buglink:13599[])
-cve-idlink:2017-9352[]
-// Fixed in master: afb4de3
-// Fixed in master-2.2: d8d7690
-// Fixed in master-2.0: 8c5e0ce
-
-* ws-salink:2017-23[]
-+
-DOF dissector read overflow
-(ws-buglink:13608[])
-cve-idlink:2017-9348[]
-// Fixed in master: 6fdf8eb
-// Fixed in master-2.2: 7fe55f9
-// Fixed in master-2.0: n/a
-
-* ws-salink:2017-24[]
-+
-DHCP dissector read overflow
-(ws-buglink:13609[], ws-buglink:13628[])
-cve-idlink:2017-9351[]
-// Fixed in master: 508bec7
-// Fixed in master-2.2: 5673298
-// Fixed in master-2.0: a6e033c
-
-* ws-salink:2017-25[]
-+
-SoulSeek dissector infinite loop
-(ws-buglink:13631[])
-cve-idlink:2017-9346[]
-// Fixed in master: 7eab596
-// Fixed in master-2.2: 8525318
-// Fixed in master-2.0: 6c0bd15
-
-* ws-salink:2017-26[]
-+
-DNS dissector infinite loop
-(ws-buglink:13633[])
-cve-idlink:2017-9345[]
-// Fixed in master: 129bdb5
-// Fixed in master-2.2: f6408d6
-// Fixed in master-2.0: e280c9b
-
-* ws-salink:2017-27[]
-+
-DICOM dissector infinite loop
-(ws-buglink:13685[])
-cve-idlink:2017-9349[]
-// Fixed in master: 538abdf
-// Fixed in master-2.2: cb1b649
-// Fixed in master-2.0: 3af3aca
-
-* ws-salink:2017-28[]
-+
-openSAFETY dissector memory exhaustion
-(ws-buglink:13649[])
-cve-idlink:2017-9350[]
-// Fixed in master: f643169
-// Fixed in master-2.2: 3ce1ba9
-// Fixed in master-2.0: dbc7cb0
-
-* ws-salink:2017-29[]
-+
-BT L2CAP dissector divide by zero
-(ws-buglink:13701[])
-cve-idlink:2017-9344[]
-// Fixed in master: d566531
-// Fixed in master-2.2: 330bcb5
-// Fixed in master-2.0: 6308ae0
-
-// NPE
-* ws-salink:2017-30[]
-+
-MSNIP dissector crash
-(ws-buglink:13725[])
-cve-idlink:2017-9343[]
-// Fixed in master: b2923e9
-// Fixed in master-2.2: 2755632
-// Fixed in master-2.0: 7c39a77
-
-// NPE via g_str_hash
-* ws-salink:2017-31[]
-+
-ROS dissector crash
-(ws-buglink:13637[])
-cve-idlink:2017-9347[]
-// Fixed in master: c70d2ec
-// Fixed in master-2.2: 278e52f
-// Fixed in master-2.0: n/a
-
-// NPE, same as MSNIP
-* ws-salink:2017-32[]
-+
-RGMP dissector crash
-(ws-buglink:13646[])
-cve-idlink:2017-9354[]
-// Fixed in master: 3f7f131
-// Fixed in master-2.2: 5debcf5
-// Fixed in master-2.0: 3a77395
-
-// NPE, similar to NSIP
-* ws-salink:2017-33[]
-+
-IPv6 dissector crash
-(ws-buglink:13675[])
-cve-idlink:2017-9353[]
-// Fixed in master: 0e53c85
-// Fixed in master-2.2: 40b2d47
-// Fixed in master-2.0: n/a
+A dissector went awry.
+(ws-buglink:XXXX[])
+// cve-idlink:2017-XXXX[]
+// Fixed in master: XXXX
+// Fixed in master-2.2: XXXX
+// Fixed in master-2.0: XXXX
 
 
 The following bugs have been fixed:
@@ -131,68 +28,7 @@ The following bugs have been fixed:
 //* ws-buglink:6000[Wireshark bug]
 //* cve-idlink:2014-2486[]
 //* Wireshark accepted your prom invitation then cancelled at the last minute. (ws-buglink:0000[])
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.2.7rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* DICOM dissection error. (ws-buglink:13164[])
-
-* Qt: drag & drop of one column header in PacketList moves other columns. (ws-buglink:13183[])
-
-* Can not export captured DICOM objects in version 2.2.5. (ws-buglink:13570[])
-
-* False complain about bad checksum of ICMP extension header. (ws-buglink:13586[])
-
-// No CVE
-* LibFuzzer: ISUP dissector bug (isup.number_different_meaning). (ws-buglink:13588[])
-
-* Dissector Bug, protocol BT ATT. (ws-buglink:13590[])
-
-* Wireshark dispalys RRCConnectionReestablishmentRejectRRCConnectionReestablishmentReject in Info column. (ws-buglink:13595[])
-
-// No CVE
-* [oss-fuzz] UBSAN: shift exponent 105 is too large for 32-bit type 'int' in packet-ositp.c:551:79. (ws-buglink:13606[])
-
-// No CVE
-* [oss-fuzz] UBSAN: shift exponent -77 is negative in packet-netflow.c:7717:23. (ws-buglink:13607[])
-
-// No CVE
-* [oss-fuzz] UBSAN: shift exponent 1959 is too large for 32-bit type 'int' in packet-sigcomp.c:2128:28. (ws-buglink:13610[])
-
-// No CVE
-* [oss-fuzz] UBSAN: shift exponent 63 is too large for 32-bit type 'guint32' (aka 'unsigned int') in packet-rtcp.c:917:24. (ws-buglink:13611[])
-
-// No CVE
-* [oss-fuzz] UBSAN: shift exponent 70 is too large for 64-bit type 'guint64' (aka 'unsigned long') in dwarf.c:42:43. (ws-buglink:13616[])
-
-// No CVE
-* [oss-fuzz] UBSAN: shift exponent 32 is too large for 32-bit type 'int' in packet-xot.c:260:23. (ws-buglink:13618[])
-
-// No CVE
-* [oss-fuzz] UBSAN: shift exponent -5 is negative in packet-sigcomp.c:1722:36. (ws-buglink:13619[])
-
-// No CVE despite buffer read?
-* [oss-fuzz] UBSAN: index 2049 out of bounds for type 'char [2049]' in packet-quakeworld.c:134:5. (ws-buglink:13624[])
-
-// No CVE
-* [oss-fuzz] UBSAN: shift exponent 35 is too large for 32-bit type 'int' in packet-netsync.c:467:25. (ws-buglink:13639[])
-
-// No CVE
-* [oss-fuzz] UBSAN: shift exponent 32 is too large for 32-bit type 'int' in packet-sigcomp.c:3857:24. (ws-buglink:13641[])
-
-// No CVE despite stack read
-* [oss-fuzz] ASAN: stack-use-after-return epan/dissectors/packet-ieee80211.c:14341:23 in add_tagged_field. (ws-buglink:13662[])
-
-* Welcome screen invalid capture filter wihtout WinPcap installed causes runtime error. (ws-buglink:13672[])
-
-* SMB protocol parser does not parse SMB_COM_TRANSACTION2_SECONDARY (0x33) command correctly. (ws-buglink:13690[])
-
-* SIP packets with SDP marked as malformed. (ws-buglink:13698[])
-
-// No CVE despite buffer read
-* [oss-fuzz] UBSAN: index 8 out of bounds for type 'gboolean const[8]' in packet-ieee80211-radiotap.c:1836:12. (ws-buglink:13713[])
-
-* Crash on "Show packet bytes..." context menu item click. (ws-buglink:13723[])
-
-* DNP3 dissector does not properly decode packed variations with prefixed qualifiers. (ws-buglink:13733[])
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.2.8rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
 
 === New and Updated Features
@@ -212,34 +48,6 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
-Bazaar
-BT ATT
-BT L2CAP
-DHCP
-DICOM
-DNP3
-DNS
-DOF
-DWARF
-ICMP
-IEEE 802.11
-IPv6
-ISUP
-LTE RRC
-MSNIP
-Netflow
-Netsync
-openSAFETY
-OSITP
-QUAKEWORLD
-Radiotap
-RGMP
-ROS
-RTCP
-SIGCOMP
-SMB
-SoulSeek
-XOT
 --sort-and-group--
 
 === New and Updated Capture File Support
