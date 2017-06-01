@@ -16,7 +16,7 @@ The following vulnerabilities have been fixed:
 +
 Bazaar dissector infinite loop
 (ws-buglink:13599[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-9352[]
 // Fixed in master: afb4de3
 // Fixed in master-2.2: d8d7690
 // Fixed in master-2.0: 8c5e0ce
@@ -25,7 +25,7 @@ Bazaar dissector infinite loop
 +
 DOF dissector read overflow
 (ws-buglink:13608[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-9348[]
 // Fixed in master: 6fdf8eb
 // Fixed in master-2.2: 7fe55f9
 // Fixed in master-2.0: n/a
@@ -34,7 +34,7 @@ DOF dissector read overflow
 +
 DHCP dissector read overflow
 (ws-buglink:13609[], ws-buglink:13628[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-9351[]
 // Fixed in master: 508bec7
 // Fixed in master-2.2: 5673298
 // Fixed in master-2.0: a6e033c
@@ -43,7 +43,7 @@ DHCP dissector read overflow
 +
 SoulSeek dissector infinite loop
 (ws-buglink:13631[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-9346[]
 // Fixed in master: 7eab596
 // Fixed in master-2.2: 8525318
 // Fixed in master-2.0: 6c0bd15
@@ -52,7 +52,7 @@ SoulSeek dissector infinite loop
 +
 DNS dissector infinite loop
 (ws-buglink:13633[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-9345[]
 // Fixed in master: 129bdb5
 // Fixed in master-2.2: f6408d6
 // Fixed in master-2.0: e280c9b
@@ -61,7 +61,7 @@ DNS dissector infinite loop
 +
 DICOM dissector infinite loop
 (ws-buglink:13685[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-9349[]
 // Fixed in master: 538abdf
 // Fixed in master-2.2: cb1b649
 // Fixed in master-2.0: 3af3aca
@@ -70,7 +70,7 @@ DICOM dissector infinite loop
 +
 openSAFETY dissector memory exhaustion
 (ws-buglink:13649[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-9350[]
 // Fixed in master: f643169
 // Fixed in master-2.2: 3ce1ba9
 // Fixed in master-2.0: dbc7cb0
@@ -79,7 +79,7 @@ openSAFETY dissector memory exhaustion
 +
 BT L2CAP dissector divide by zero
 (ws-buglink:13701[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-9344[]
 // Fixed in master: d566531
 // Fixed in master-2.2: 330bcb5
 // Fixed in master-2.0: 6308ae0
@@ -89,7 +89,7 @@ BT L2CAP dissector divide by zero
 +
 MSNIP dissector crash
 (ws-buglink:13725[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-9343[]
 // Fixed in master: b2923e9
 // Fixed in master-2.2: 2755632
 // Fixed in master-2.0: 7c39a77
@@ -99,7 +99,7 @@ MSNIP dissector crash
 +
 ROS dissector crash
 (ws-buglink:13637[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-9347[]
 // Fixed in master: c70d2ec
 // Fixed in master-2.2: 278e52f
 // Fixed in master-2.0: n/a
@@ -109,7 +109,7 @@ ROS dissector crash
 +
 RGMP dissector crash
 (ws-buglink:13646[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-9354[]
 // Fixed in master: 3f7f131
 // Fixed in master-2.2: 5debcf5
 // Fixed in master-2.0: 3a77395
@@ -119,7 +119,7 @@ RGMP dissector crash
 +
 IPv6 dissector crash
 (ws-buglink:13675[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-9353[]
 // Fixed in master: 0e53c85
 // Fixed in master-2.2: 40b2d47
 // Fixed in master-2.0: n/a
@@ -132,8 +132,6 @@ The following bugs have been fixed:
 //* cve-idlink:2014-2486[]
 //* Wireshark accepted your prom invitation then cancelled at the last minute. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.2.7rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-// Left off at ba35a81
 
 * DICOM dissection error. (ws-buglink:13164[])
 
@@ -189,7 +187,7 @@ The following bugs have been fixed:
 
 * SIP packets with SDP marked as malformed. (ws-buglink:13698[])
 
-// No CVE despite buffer read?
+// No CVE despite buffer read
 * [oss-fuzz] UBSAN: index 8 out of bounds for type 'gboolean const[8]' in packet-ieee80211-radiotap.c:1836:12. (ws-buglink:13713[])
 
 * Crash on "Show packet bytes..." context menu item click. (ws-buglink:13723[])
