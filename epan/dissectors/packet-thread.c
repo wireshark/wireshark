@@ -1821,7 +1821,7 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                     proto_tree *it_tree;
                     int i;
 
-                    if ((chancount != THREAD_MC_INVALID_CHAN_COUNT) && ((tlv_len % chancount) == 0)) {
+                    if ((chancount != THREAD_MC_INVALID_CHAN_COUNT) && (chancount != 0) && ((tlv_len % chancount) == 0)) {
                         /* Go through the number of el_counts of scan */
                         for (i = 0; i < (int)(tlv_len / (guint16)chancount); i++) {
                             pi = proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_el_count, tvb, offset, 1, ENC_NA);
