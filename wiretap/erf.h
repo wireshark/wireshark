@@ -103,14 +103,23 @@
 #define ERF_EXT_HDR_TYPE_SIGNATURE      14
 #define ERF_EXT_HDR_TYPE_FLOW_ID        16
 #define ERF_EXT_HDR_TYPE_HOST_ID        17
+#define ERF_EXT_HDR_TYPE_ANCHOR_ID      18
 
-/* Host ID */
+/* Host ID and Anchor ID*/
 #define ERF_EHDR_HOST_ID_MASK G_GUINT64_CONSTANT(0xffffffffffff)
+#define ERF_EHDR_ANCHOR_ID_MASK G_GUINT64_CONSTANT(0xffffffffffff)
+#define ERF_EHDR_MORE_EXTHDR_MASK G_GUINT64_CONSTANT(0x8000000000000000)
+#define ERF_EHDR_ANCHOR_ID_DEFINITION_MASK G_GUINT64_CONSTANT(0x80000000000000)
 
-/* ERF Meta */
+#define ERF_EHDR_FLOW_ID_STACK_TYPE_MASK G_GUINT64_CONSTANT(0xff00000000)
+#define ERF_EHDR_FLOW_ID_SOURCE_ID_MASK  G_GUINT64_CONSTANT(0xff000000000000)
+
+/* ERF Provenance metadata */
 #define ERF_META_SECTION_MASK 0xFF00
 #define ERF_META_IS_SECTION(type) (type > 0 && (type & ERF_META_SECTION_MASK) == ERF_META_SECTION_MASK)
 #define ERF_META_HOST_ID_IMPLICIT G_MAXUINT64
+#define ERF_ANCHOR_ID_IS_DEFINITION(anchor_id) ((guint64)anchor_id & ERF_EHDR_ANCHOR_ID_DEFINITION_MASK)
+#define ERF_EHDR_SET_MORE_EXTHDR(ext_hdr) ((guint64)ext_hdr | ERF_EHDR_MORE_EXTHDR_MASK)
 
 #define ERF_META_SECTION_CAPTURE     0xFF00
 #define ERF_META_SECTION_HOST        0xFF01
@@ -299,6 +308,12 @@
 #define ERF_META_TAG_ptp_delay_mechanism    413
 #define ERF_META_TAG_clk_port_proto         414
 
+#define ERF_POPULATE_SUCCESS 1
+#define ERF_POPULATE_ALREADY_POPULATED 0
+#define ERF_POPULATE_FAILED -1
+
+#define ERF_MAX_INTERFACES 4
+
  /*
   * The timestamp is 64bit unsigned fixed point little-endian value with
   * 32 bits for second and 32 bits for fraction.
@@ -335,14 +350,17 @@ union erf_subhdr {
 
 typedef struct {
   GHashTable* if_map;
+  GHashTable* anchor_map;
   guint64 implicit_host_id;
-  gboolean capture_metadata;
-  gboolean host_metadata;
+  guint64 capture_gentime;
+  guint64 host_gentime;
 } erf_t;
 
 #define MIN_RECORDS_FOR_ERF_CHECK 3
 #define RECORDS_FOR_ERF_CHECK 20
 #define FCS_BITS	32
+/*Configurable through ERF_HOST_ID environment variable */
+#define ERF_WS_DEFAULT_HOST_ID 0
 
 wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info);
 int erf_dump_can_write_encap(int encap);

@@ -959,7 +959,7 @@ struct erf_ehdr {
  * (Multichannel or Ethernet)
  */
 
-#define MAX_ERF_EHDR 8
+#define MAX_ERF_EHDR 16
 
 struct wtap_erf_eth_hdr {
     guint8 offset;
@@ -1233,6 +1233,8 @@ struct wtap_pkthdr {
     guint32   interface_id;     /* identifier of the interface. */
                                 /* options */
     gchar     *opt_comment;     /* NULL if not available */
+    gboolean  has_comment_changed; /* TRUE if the comment has been changed. Currently only valid while dumping. */
+
     guint64   drop_count;       /* number of packets lost (by the interface and the
                                    operating system) between this packet and the preceding one. */
     guint32   pack_flags;       /* XXX - 0 for now (any value for "we don't have it"?) */
@@ -1896,6 +1898,8 @@ void wtap_set_bytes_dumped(wtap_dumper *wdh, gint64 bytes_dumped);
 struct addrinfo;
 WS_DLL_PUBLIC
 gboolean wtap_dump_set_addrinfo_list(wtap_dumper *wdh, addrinfo_lists_t *addrinfo_lists);
+WS_DLL_PUBLIC
+gboolean wtap_dump_get_needs_reload(wtap_dumper *wdh);
 
 /**
  * Closes open file handles and frees memory associated with wdh. Note that

@@ -1312,7 +1312,7 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 
 	/* WTAP_FILE_TYPE_SUBTYPE_ERF */
 	{ "Endace ERF capture", "erf", "erf", NULL,
-	  FALSE, FALSE, 0,
+	  FALSE, TRUE, WTAP_COMMENT_PER_SECTION|WTAP_COMMENT_PER_INTERFACE|WTAP_COMMENT_PER_PACKET,
 	  erf_dump_can_write_encap, erf_dump_open, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_EYESDN */
@@ -2617,6 +2617,10 @@ wtap_dump_set_addrinfo_list(wtap_dumper *wdh, addrinfo_lists_t *addrinfo_lists)
 			return FALSE;
 	wdh->addrinfo_lists = addrinfo_lists;
 	return TRUE;
+}
+
+gboolean wtap_dump_get_needs_reload(wtap_dumper *wdh) {
+        return wdh->needs_reload;
 }
 
 /* internally open a file for writing (compressed or not) */
