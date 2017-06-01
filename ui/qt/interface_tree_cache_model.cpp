@@ -154,6 +154,8 @@ void InterfaceTreeCacheModel::save()
 
     QMap<char**, QStringList> prefStorage;
 
+    /* No devices are hidden until checking "Show" state */
+    prefStorage[&prefs.capture_devices_hide] = QStringList();
 
     /* Storing new devices first including their changed values */
     saveNewDevices();
@@ -235,7 +237,7 @@ void InterfaceTreeCacheModel::save()
 
         QVariant content = getColumnContent(idx, IFTREE_COL_HIDDEN, Qt::CheckStateRole);
         if ( content.isValid() && static_cast<Qt::CheckState>(content.toInt()) == Qt::Unchecked )
-                prefStorage[&prefs.capture_devices_hide] << QString(device.name);
+            prefStorage[&prefs.capture_devices_hide] << QString(device.name);
 
         content = getColumnContent(idx, IFTREE_COL_INTERFACE_COMMENT);
         if ( content.isValid() && content.toString().size() > 0 )
