@@ -16,7 +16,7 @@ The following vulnerabilities have been fixed:
 +
 Bazaar dissector infinite loop
 (ws-buglink:13599[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-9352[]
 // Fixed in master: afb4de3
 // Fixed in master-2.2: d8d7690
 // Fixed in master-2.0: 8c5e0ce
@@ -25,7 +25,7 @@ Bazaar dissector infinite loop
 +
 DHCP dissector read overflow
 (ws-buglink:13609[], ws-buglink:13628[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-9351[]
 // Fixed in master: 508bec7
 // Fixed in master-2.2: 5673298
 // Fixed in master-2.0: a6e033c
@@ -34,7 +34,7 @@ DHCP dissector read overflow
 +
 SoulSeek dissector infinite loop
 (ws-buglink:13631[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-9346[]
 // Fixed in master: 7eab596
 // Fixed in master-2.2: 8525318
 // Fixed in master-2.0: 6c0bd15
@@ -43,7 +43,7 @@ SoulSeek dissector infinite loop
 +
 DNS dissector infinite loop
 (ws-buglink:13633[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-9345[]
 // Fixed in master: 129bdb5
 // Fixed in master-2.2: f6408d6
 // Fixed in master-2.0: e280c9b
@@ -52,7 +52,7 @@ DNS dissector infinite loop
 +
 DICOM dissector infinite loop
 (ws-buglink:13685[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-9349[]
 // Fixed in master: 538abdf
 // Fixed in master-2.2: cb1b649
 // Fixed in master-2.0: 3af3aca
@@ -61,7 +61,7 @@ DICOM dissector infinite loop
 +
 openSAFETY dissector memory exhaustion
 (ws-buglink:13649[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-9350[]
 // Fixed in master: f643169
 // Fixed in master-2.2: 3ce1ba9
 // Fixed in master-2.0: dbc7cb0
@@ -70,7 +70,7 @@ openSAFETY dissector memory exhaustion
 +
 BT L2CAP dissector divide by zero
 (ws-buglink:13701[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-9344[]
 // Fixed in master: d566531
 // Fixed in master-2.2: 330bcb5
 // Fixed in master-2.0: 6308ae0
@@ -80,7 +80,7 @@ BT L2CAP dissector divide by zero
 +
 MSNIP dissector crash
 (ws-buglink:13725[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-9343[]
 // Fixed in master: b2923e9
 // Fixed in master-2.2: 2755632
 // Fixed in master-2.0: 7c39a77
@@ -90,7 +90,7 @@ MSNIP dissector crash
 +
 RGMP dissector crash
 (ws-buglink:13646[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-9354[]
 // Fixed in master: 3f7f131
 // Fixed in master-2.2: 5debcf5
 // Fixed in master-2.0: 3a77395
@@ -102,8 +102,6 @@ The following bugs have been fixed:
 //* cve-idlink:2016-7000[]
 //* Wireshark insists on calling you on your land line which is keeping you from abandoning it for cellular. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.0.13rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-// Left off at bf1e99e
 
 * DICOM dissection error. (ws-buglink:13164[])
 
