@@ -561,6 +561,9 @@ static int hf_gtpv2_twan_relay_id_ipv6 = -1;
 static int hf_gtpv2_twan_circuit_id_len = -1;
 static int hf_gtpv2_twan_circuit_id = -1;
 static int hf_gtpv2_integer_number_val = -1;
+static int hf_gtpv2_maximum_wait_time = -1;
+static int hf_gtpv2_dl_buf_sug_pkt_cnt = -1;
+static int hf_gtpv2_ue_usage_type = -1;
 static int hf_gtpv2_ran_nas_protocol_type = -1;
 static int hf_gtpv2_ran_nas_cause_type = -1;
 static int hf_gtpv2_ran_nas_cause_value = -1;
@@ -684,11 +687,13 @@ static expert_field ei_gtpv2_int_size_not_handled = EI_INIT;
 #define GTPV2_UPDATE_BEARER_RESPONSE     98
 #define GTPV2_DELETE_BEARER_REQUEST      99
 #define GTPV2_DELETE_BEARER_RESPONSE    100
+#define GTPV2_IDENTIFICATION_RESPONSE   129
 #define GTPV2_CONTEXT_RESPONSE          131
 #define GTPV2_FORWARD_RELOCATION_REQ    133
 #define GTPV2_FORWARD_RELOCATION_RESP   134
 #define GTPV2_FORWARD_CTX_NOTIFICATION  137
 #define GTPV2_RAN_INFORMATION_RELAY     152
+#define GTPV2_DL_DATA_NOTIF_ACK        177
 
 static void dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, gint offset, guint8 message_type, session_args_t * args);
 
@@ -5631,8 +5636,13 @@ static const value_string gtpv2_timer_unit_vals[] = {
 };
 
 void
-dissect_gtpv2_epc_timer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+dissect_gtpv2_epc_timer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type, guint8 instance _U_, session_args_t * args _U_)
 {
+    switch (message_type) {
+    case GTPV2_DL_DATA_NOTIF_ACK:
+        proto_item_append_text(item, "DL Buffering Duration");
+        break;
+    }
     proto_tree_add_item(tree, hf_gtpv2_timer_unit, tvb, 0, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gtpv2_timer_value, tvb, 0, 1, ENC_BIG_ENDIAN);
 
@@ -6466,7 +6476,7 @@ dissect_gtpv2_paging_and_service_inf(tvbuff_t *tvb, packet_info *pinfo _U_, prot
  * 8.118        Integer Number
  */
 static void
-dissect_gtpv2_integer_number(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+dissect_gtpv2_integer_number(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, guint8 instance _U_, session_args_t * args _U_)
 {
     int offset = 0;
     /* The Integer Number value shall be encoded as further described below for the following information elements:
@@ -6476,7 +6486,25 @@ dissect_gtpv2_integer_number(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
      */
     if (length <= 4) {
         /* Only handle up to 32 bits for now */
-        proto_tree_add_item(tree, hf_gtpv2_integer_number_val, tvb, offset, length, ENC_BIG_ENDIAN);
+        switch (message_type) {
+        case GTPV2_CREATE_SESSION_REQUEST:
+            proto_item_append_text(item, "Maximum Wait Time");
+            proto_tree_add_item(tree, hf_gtpv2_maximum_wait_time, tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case GTPV2_DL_DATA_NOTIF_ACK:
+            proto_item_append_text(item, "DL Buffering Suggested Packet Count");
+            proto_tree_add_item(tree, hf_gtpv2_dl_buf_sug_pkt_cnt, tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case GTPV2_FORWARD_RELOCATION_REQ:
+        case GTPV2_CONTEXT_RESPONSE:
+        case GTPV2_IDENTIFICATION_RESPONSE:
+            proto_item_append_text(item, "UE Usage Type");
+            proto_tree_add_item(tree, hf_gtpv2_ue_usage_type, tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        default:
+            proto_tree_add_item(tree, hf_gtpv2_integer_number_val, tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        }
     } else {
         /* value not handled, yet*/
         proto_tree_add_expert(tree, pinfo, &ei_gtpv2_int_size_not_handled, tvb, offset, length);
@@ -9200,6 +9228,9 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_twan_circuit_id_len,{ "Relay Identity Type Length", "gtpv2.twan_id.relay_id_type_len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
       { &hf_gtpv2_twan_circuit_id,{ "Circuit-ID", "gtpv2.twan_id.circuit_id", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
       { &hf_gtpv2_integer_number_val,{ "Value", "gtpv2.integer_number_val", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+      { &hf_gtpv2_maximum_wait_time,{ "Maximum Wait Time", "gtpv2.maximum_wait_time", FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL } },
+      { &hf_gtpv2_dl_buf_sug_pkt_cnt,{ "DL Buffering Suggested Packet Count", "gtpv2.dl_buf_sug_pkt_cnt", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+      { &hf_gtpv2_ue_usage_type,{ "UE Usage Type", "gtpv2.ue_usage_type", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
       { &hf_gtpv2_ran_nas_protocol_type, {"RAN/NAS Protocol Type", "gtpv2.ran_nas.protocol_type", FT_UINT8, BASE_DEC, VALS(ran_nas_prot_type_vals), 0xF0, NULL, HFILL} },
       { &hf_gtpv2_ran_nas_cause_type, {"RAN/NAS S1AP Cause Type", "gtpv2.ran_nas.s1ap_type", FT_UINT8, BASE_DEC, VALS(s1ap_Cause_vals), 0x0F, NULL, HFILL} },
       { &hf_gtpv2_ran_nas_cause_value, {"RAN/NAS Cause Value", "gtpv2.ran_nas.cause_value", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL} },
