@@ -2760,6 +2760,7 @@ dissect_ieee802154_payload_mlme_sub_ie(tvbuff_t *tvb, packet_info *pinfo _U_, pr
             // TODO
 
         default:
+            offset += 2;
             if (psie_remaining) {
                 proto_tree_add_item(tree, hf_ieee802154_mlme_ie_data, tvb, offset, psie_remaining, ENC_NA);
                 expert_add_info(pinfo, tree, &ei_ieee802154_unsupported_element_id);
