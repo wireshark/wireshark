@@ -68,10 +68,12 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
 
     pkthdr.pkt_encap = exp_pdu_tap_data->pkt_encap;
 
-    if (pinfo->fd->flags.has_user_comment)
+    if (pinfo->fd->flags.has_user_comment) {
         pkthdr.opt_comment = g_strdup(epan_get_user_comment(edt->session, pinfo->fd));
-    else if (pinfo->fd->flags.has_phdr_comment)
+        pkthdr.has_comment_changed = TRUE;
+    } else if (pinfo->fd->flags.has_phdr_comment) {
         pkthdr.opt_comment = g_strdup(pinfo->phdr->opt_comment);
+    }
 
     pkthdr.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS|WTAP_HAS_PACK_FLAGS;
 

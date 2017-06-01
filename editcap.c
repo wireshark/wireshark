@@ -1766,10 +1766,16 @@ main(int argc, char *argv[])
                 if (frames_user_comments) {
                     const char *comment =
                         (const char*)g_tree_lookup(frames_user_comments, GUINT_TO_POINTER(read_count));
+                    /* XXX: What about comment changed to no comment? */
                     if (comment != NULL) {
                         /* Copy and change rather than modify returned phdr */
                         temp_phdr = *phdr;
                         temp_phdr.opt_comment = g_strdup(comment);
+                        temp_phdr.has_comment_changed = TRUE;
+                        phdr = &temp_phdr;
+                    } else {
+                        temp_phdr = *phdr;
+                        temp_phdr.has_comment_changed = FALSE;
                         phdr = &temp_phdr;
                     }
                 }

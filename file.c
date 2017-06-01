@@ -4080,6 +4080,7 @@ save_record(capture_file *cf, frame_data *fdata,
   /* options */
   hdr.pack_flags   = phdr->pack_flags;
   hdr.opt_comment  = g_strdup(pkt_comment);
+  hdr.has_comment_changed = fdata->flags.has_user_comment ? TRUE : FALSE;
 
   /* pseudo */
   hdr.pseudo_header = phdr->pseudo_header;
@@ -4384,6 +4385,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
      SAVE_WITH_WTAP
   }                    how_to_save;
   save_callback_args_t callback_args;
+  gboolean needs_reload = FALSE;
 
   cf_callback_invoke(cf_cb_file_save_started, (gpointer)fname);
 
@@ -4541,6 +4543,8 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
       goto fail;
     }
 
+    needs_reload = wtap_dump_get_needs_reload(pdh);
+
     if (!wtap_dump_close(pdh, &err)) {
       cfile_close_failure_alert_box(fname, err);
       goto fail;
@@ -4637,12 +4641,29 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
       /* rescan_file will cause us to try all open_routines, so
          reset cfile's open_type */
       cf->open_type = WTAP_TYPE_AUTO;
-      if (rescan_file(cf, fname, FALSE) != CF_READ_OK) {
-        /* The rescan failed; just close the file.  Either
-           a dialog was popped up for the failure, so the
-           user knows what happened, or they stopped the
-           rescan, in which case they know what happened. */
-        cf_close(cf);
+      /* There are cases when SAVE_WITH_WTAP can result in new packets
+         being written to the file, e.g ERF records
+         In that case, we need to reload the whole file */
+      if(needs_reload) {
+        if (cf_open(cf, fname, WTAP_TYPE_AUTO, FALSE, &err) == CF_OK) {
+          if (cf_read(cf, TRUE) != CF_READ_OK) {
+             /* The rescan failed; just close the file.  Either
+               a dialog was popped up for the failure, so the
+               user knows what happened, or they stopped the
+               rescan, in which case they know what happened.  */
+            /* XXX: This is inconsistent with normal open/reload behaviour. */
+            cf_close(cf);
+          }
+        }
+      }
+      else {
+        if (rescan_file(cf, fname, FALSE) != CF_READ_OK) {
+           /* The rescan failed; just close the file.  Either
+             a dialog was popped up for the failure, so the
+             user knows what happened, or they stopped the
+             rescan, in which case they know what happened.  */
+          cf_close(cf);
+        }
       }
       break;
     }

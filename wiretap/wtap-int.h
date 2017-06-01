@@ -101,6 +101,7 @@ struct wtap_dumper {
     int                     snaplen;
     int                     encap;
     gboolean                compressed;
+    gboolean                needs_reload;   /* TRUE if the file requires re-loading after saving with wtap */
     gint64                  bytes_dumped;
 
     void                    *priv;          /* this one holds per-file state and is free'd automatically by wtap_dump_close() */
