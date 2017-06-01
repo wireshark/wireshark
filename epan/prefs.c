@@ -3612,7 +3612,8 @@ prefs_get_string_list(const gchar *str)
                 return NULL;
             }
             slstr[j] = '\0';
-            sl = g_list_append(sl, slstr);
+            if (j > 0)
+                sl = g_list_append(sl, slstr);
             break;
         }
         if (cur_c == '"' && ! backslash) {
@@ -3648,7 +3649,8 @@ prefs_get_string_list(const gchar *str)
                and it wasn't preceded by a backslash; it's the end of
                the string we were working on...  */
             slstr[j] = '\0';
-            sl = g_list_append(sl, slstr);
+            if (j > 0)
+                sl = g_list_append(sl, slstr);
 
             /* ...and the beginning of a new string.  */
             state = PRE_STRING;
