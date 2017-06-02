@@ -106,19 +106,31 @@ export WIRESHARK_QUIT_AFTER_CAPTURE="True"
 
 CAPTURE_DIR="$TESTS_DIR/captures/"
 
+TSHARK_VERSION=$($TSHARK -v | tr '\n' ' ')
+
 # Figure out if we were built with lua or not so we can skip the lua tests if we
 # don't have it.
-$TSHARK -v | grep -q "with Lua"
+echo "$TSHARK_VERSION" | grep -q "with Lua"
 HAVE_LUA=$?
 
 # Check whether we need to skip the HTTP2/HPACK decryption test.
-$TSHARK -v | tr '\n' ' '| grep -q "with nghttp2"
+echo "$TSHARK_VERSION" | grep -q "with nghttp2"
 HAVE_NGHTTP2=$?
 
 # Check whether we need to skip a certain decryption test.
 # XXX What do we print for Nettle?
-$TSHARK -v | tr '\n' ' '| egrep -q "with MIT Kerberos|with Heimdal Kerberos"
+echo "$TSHARK_VERSION" | egrep -q "with MIT Kerberos|with Heimdal Kerberos"
 HAVE_KERBEROS=$?
+
+# first version is "compiled with", second is "running on" version.
+GCRY_VERSION=$(echo "$TSHARK_VERSION" | grep -oE 'Gcrypt [1-9]+(\.[1-9]+)?' | sed -n '1s/Gcrypt //p')
+if [ -n "$GCRY_VERSION" ] && ! echo "$GCRY_VERSION" | grep -q '1\.[456]'; then
+	# Current minimum Gcrypt version is 1.4.2,
+	# assume 1.7 or newer if not 1,4, 1.5 or 1.6.
+	HAVE_LIBGCRYPT17=true
+else
+	HAVE_LIBGCRYPT17=false
+fi
 
 HAVE_ICONV="False"
 hash iconv 2>/dev/null && HAVE_ICONV="True"

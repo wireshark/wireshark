@@ -302,6 +302,65 @@ decryption_step_tls_psk_aes256gcm() {
 	test_step_ok
 }
 
+# TLS 1.2 with ChaCha20-Poly1305
+decryption_step_tls12_chacha20poly1305() {
+	if ! $HAVE_LIBGCRYPT17; then
+		test_step_skipped
+		return
+	fi
+	TEST_KEYS_FILE="$TESTS_DIR/keys/tls12-chacha20poly1305.keys"
+	if [ "$WS_SYSTEM" == "Windows" ] ; then
+		TEST_KEYS_FILE="`cygpath -w $TEST_KEYS_FILE`"
+	fi
+	ciphers='
+		ECDHE-ECDSA-CHACHA20-POLY1305
+		ECDHE-RSA-CHACHA20-POLY1305
+		DHE-RSA-CHACHA20-POLY1305
+		RSA-PSK-CHACHA20-POLY1305
+		DHE-PSK-CHACHA20-POLY1305
+		ECDHE-PSK-CHACHA20-POLY1305
+		PSK-CHACHA20-POLY1305
+	'
+	local stream=0
+	for cipher in $ciphers; do
+		$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS -q \
+			-r "$CAPTURE_DIR/tls12-chacha20poly1305.pcap" \
+			-o "ssl.keylog_file: $TEST_KEYS_FILE" \
+			-z follow,ssl,ascii,$stream \
+			| grep -q "$cipher"
+		RETURNVALUE=$?
+		if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+			test_step_failed "Failed to decrypt TLS 1.2 ($cipher)"
+			return
+		fi
+		((stream++))
+	done
+	test_step_ok
+}
+
+# TLS 1.3 with ChaCha20-Poly1305
+decryption_step_tls13_chacha20poly1305() {
+	if ! $HAVE_LIBGCRYPT17; then
+		test_step_skipped
+		return
+	fi
+	TEST_KEYS_FILE="$TESTS_DIR/keys/tls13-20-chacha20poly1305.keys"
+	if [ "$WS_SYSTEM" == "Windows" ] ; then
+		TEST_KEYS_FILE="`cygpath -w $TEST_KEYS_FILE`"
+	fi
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS -q \
+		-r "$CAPTURE_DIR/tls13-20-chacha20poly1305.pcap" \
+		-o "ssl.keylog_file: $TEST_KEYS_FILE" \
+		-z follow,ssl,ascii,0 \
+		| grep -q TLS13-CHACHA20-POLY1305-SHA256
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Failed to decrypt TLS 1.3 (ChaCha20-Poly1305)"
+		return
+	fi
+	test_step_ok
+}
+
 # ZigBee
 # https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7022
 decryption_step_zigbee() {
@@ -582,6 +641,8 @@ tshark_decryption_suite() {
 	test_step_add "SSL Decryption (renegotiation)" decryption_step_ssl_renegotiation
 	test_step_add "TLS 1.2 Decryption (PSK AES-128-CCM)" decryption_step_tls_psk_aes128ccm
 	test_step_add "TLS 1.2 Decryption (PSK AES-256-GCM)" decryption_step_tls_psk_aes256gcm
+	test_step_add "TLS 1.2 Decryption (ChaCha20-Poly1305)" decryption_step_tls12_chacha20poly1305
+	test_step_add "TLS 1.3 Decryption (ChaCha20-Poly1305)" decryption_step_tls13_chacha20poly1305
 	test_step_add "ZigBee Decryption" decryption_step_zigbee
 	test_step_add "ANSI C12.22 Decryption" decryption_step_c1222
 	test_step_add "DVB-CI Decryption" decryption_step_dvb_ci

@@ -63,6 +63,10 @@
 /* Whether to provide support for authentication in addition to decryption. */
 #define HAVE_LIBGCRYPT_AEAD
 #endif
+#if GCRYPT_VERSION_NUMBER >= 0x010700 /* 1.7.0 */
+/* Whether AEAD_CHACHA20_POLY1305 can be supported. */
+#define HAVE_LIBGCRYPT_CHACHA20_POLY1305
+#endif
 
 /* Lookup tables {{{ */
 const value_string ssl_version_short_names[] = {
@@ -1500,6 +1504,7 @@ gint ssl_get_keyex_alg(gint cipher)
     case 0xc0a7:
     case 0xc0aa:
     case 0xc0ab:
+    case 0xccad:
     case 0xe41c:
     case 0xe41d:
         return KEX_DHE_PSK;
@@ -1523,6 +1528,7 @@ gint ssl_get_keyex_alg(gint cipher)
     case 0xc09f:
     case 0xc0a2:
     case 0xc0a3:
+    case 0xccaa:
     case 0xe41e:
     case 0xe41f:
         return KEX_DHE_RSA;
@@ -1577,6 +1583,7 @@ gint ssl_get_keyex_alg(gint cipher)
     case 0xc0ad:
     case 0xc0ae:
     case 0xc0af:
+    case 0xcca9:
     case 0xe414:
     case 0xe415:
         return KEX_ECDHE_ECDSA;
@@ -1591,6 +1598,7 @@ gint ssl_get_keyex_alg(gint cipher)
     case 0xc03b:
     case 0xc09a:
     case 0xc09b:
+    case 0xccac:
     case 0xe418:
     case 0xe419:
         return KEX_ECDHE_PSK;
@@ -1607,6 +1615,7 @@ gint ssl_get_keyex_alg(gint cipher)
     case 0xc077:
     case 0xc08a:
     case 0xc08b:
+    case 0xcca8:
     case 0xe412:
     case 0xe413:
         return KEX_ECDHE_RSA;
@@ -1646,6 +1655,7 @@ gint ssl_get_keyex_alg(gint cipher)
     case 0xc0a5:
     case 0xc0a8:
     case 0xc0a9:
+    case 0xccab:
     case 0xe416:
     case 0xe417:
         return KEX_PSK;
@@ -1703,6 +1713,7 @@ gint ssl_get_keyex_alg(gint cipher)
     case 0xc093:
     case 0xc098:
     case 0xc099:
+    case 0xccae:
     case 0xe41a:
     case 0xe41b:
         return KEX_RSA_PSK;
@@ -1977,11 +1988,16 @@ ssl_cipher_init(gcry_cipher_hd_t *cipher, gint algo, guchar* sk,
 #ifdef HAVE_LIBGCRYPT_AEAD
         GCRY_CIPHER_MODE_GCM,
         GCRY_CIPHER_MODE_CCM,
-        GCRY_CIPHER_MODE_CCM
+        GCRY_CIPHER_MODE_CCM,
 #else
         GCRY_CIPHER_MODE_CTR,
         GCRY_CIPHER_MODE_CTR,
         GCRY_CIPHER_MODE_CTR,
+#endif
+#ifdef HAVE_LIBGCRYPT_CHACHA20_POLY1305
+        GCRY_CIPHER_MODE_POLY1305,
+#else
+        -1,                         /* AEAD_CHACHA20_POLY1305 is unsupported. */
 #endif
     };
     gint err;
@@ -2160,6 +2176,7 @@ static const gchar *ciphers[]={
     "CAMELLIA128",
     "CAMELLIA256",
     "SEED",
+    "CHACHA20", /* since Libgcrypt 1.7.0 */
     "*UNKNOWN*"
 };
 
@@ -2302,7 +2319,7 @@ static const SslCipherSuite cipher_suites[]={
     /* NOTE: TLS 1.3 cipher suites are incompatible with TLS 1.2. */
     {0x1301,KEX_TLS13,          ENC_AES,        DIG_SHA256, MODE_GCM   },   /* TLS_AES_128_GCM_SHA256 */
     {0x1302,KEX_TLS13,          ENC_AES256,     DIG_SHA384, MODE_GCM   },   /* TLS_AES_256_GCM_SHA384 */
-    /* TODO TLS_CHACHA20_POLY1305_SHA256 */
+    {0x1303,KEX_TLS13,          ENC_CHACHA20,   DIG_SHA256, MODE_POLY1305 }, /* TLS_CHACHA20_POLY1305_SHA256 */
     {0x1304,KEX_TLS13,          ENC_AES,        DIG_SHA256, MODE_CCM   },   /* TLS_AES_128_CCM_SHA256 */
     {0x1305,KEX_TLS13,          ENC_AES,        DIG_SHA256, MODE_CCM_8 },   /* TLS_AES_128_CCM_8_SHA256 */
 
@@ -2418,6 +2435,13 @@ static const SslCipherSuite cipher_suites[]={
     {0xC0AD,KEX_ECDHE_ECDSA,    ENC_AES256,     DIG_NA,     MODE_CCM   },   /* TLS_ECDHE_ECDSA_WITH_AES_256_CCM */
     {0xC0AE,KEX_ECDHE_ECDSA,    ENC_AES,        DIG_NA,     MODE_CCM_8 },   /* TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8 */
     {0xC0AF,KEX_ECDHE_ECDSA,    ENC_AES256,     DIG_NA,     MODE_CCM_8 },   /* TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8 */
+    {0xCCA8,KEX_ECDHE_RSA,      ENC_CHACHA20,   DIG_SHA256, MODE_POLY1305 }, /* TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256 */
+    {0xCCA9,KEX_ECDHE_ECDSA,    ENC_CHACHA20,   DIG_SHA256, MODE_POLY1305 }, /* TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256 */
+    {0xCCAA,KEX_DHE_RSA,        ENC_CHACHA20,   DIG_SHA256, MODE_POLY1305 }, /* TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256 */
+    {0xCCAB,KEX_PSK,            ENC_CHACHA20,   DIG_SHA256, MODE_POLY1305 }, /* TLS_PSK_WITH_CHACHA20_POLY1305_SHA256 */
+    {0xCCAC,KEX_ECDHE_PSK,      ENC_CHACHA20,   DIG_SHA256, MODE_POLY1305 }, /* TLS_ECDHE_PSK_WITH_CHACHA20_POLY1305_SHA256 */
+    {0xCCAD,KEX_DHE_PSK,        ENC_CHACHA20,   DIG_SHA256, MODE_POLY1305 }, /* TLS_DHE_PSK_WITH_CHACHA20_POLY1305_SHA256 */
+    {0xCCAE,KEX_RSA_PSK,        ENC_CHACHA20,   DIG_SHA256, MODE_POLY1305 }, /* TLS_RSA_PSK_WITH_CHACHA20_POLY1305_SHA256 */
     {-1,    0,                  0,              0,          MODE_STREAM}
 };
 
@@ -2998,7 +3022,7 @@ ssl_create_decoder(const SslCipherSuite *cipher_suite, gint cipher_algo,
         // decoders since "decryption" is easy for such ciphers.
         dec->mac_key.data = dec->_mac_key_or_write_iv;
         ssl_data_set(&dec->mac_key, mk, ssl_cipher_suite_dig(cipher_suite)->len);
-    } else if (mode == MODE_GCM || mode == MODE_CCM || mode == MODE_CCM_8) {
+    } else if (mode == MODE_GCM || mode == MODE_CCM || mode == MODE_CCM_8 || mode == MODE_POLY1305) {
         // Input for the nonce, to be used with AEAD ciphers.
         DISSECTOR_ASSERT(iv_length <= sizeof(dec->_mac_key_or_write_iv));
         dec->write_iv.data = dec->_mac_key_or_write_iv;
@@ -3321,6 +3345,9 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
         /* account for a four-byte salt for client and server side (from
          * client_write_IV and server_write_IV), see GCMNonce (RFC 5288) */
         write_iv_len = 4;
+    } else if (cipher_suite->mode == MODE_POLY1305) {
+        /* RFC 7905: SecurityParameters.fixed_iv_length is twelve bytes */
+        write_iv_len = 12;
     }
 
     /* Compute the key block. First figure out how much data we need */
@@ -3831,6 +3858,7 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
     const guchar   *explicit_nonce = NULL, *ciphertext;
     guint           ciphertext_len, auth_tag_len;
     guchar          nonce[12];
+    const ssl_cipher_mode_t cipher_mode = decoder->cipher_suite->mode;
 #ifdef HAVE_LIBGCRYPT_AEAD
     const guchar   *auth_tag_wire;
     guchar          auth_tag_calc[16];
@@ -3838,9 +3866,10 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
     guchar          nonce_with_counter[16] = { 0 };
 #endif
 
-    switch (decoder->cipher_suite->mode) {
+    switch (cipher_mode) {
     case MODE_GCM:
     case MODE_CCM:
+    case MODE_POLY1305:
         auth_tag_len = 16;
         break;
     case MODE_CCM_8:
@@ -3852,7 +3881,7 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
     }
 
     /* Parse input into explicit nonce (TLS 1.2 only), ciphertext and tag. */
-    if (is_v12) {
+    if (is_v12 && cipher_mode != MODE_POLY1305) {
         if (inl < EXPLICIT_NONCE_LEN + auth_tag_len) {
             ssl_debug_printf("%s input %d is too small for explicit nonce %d and auth tag %d\n",
                     G_STRFUNC, inl, EXPLICIT_NONCE_LEN, auth_tag_len);
@@ -3861,7 +3890,7 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
         explicit_nonce = in;
         ciphertext = explicit_nonce + EXPLICIT_NONCE_LEN;
         ciphertext_len = inl - EXPLICIT_NONCE_LEN - auth_tag_len;
-    } else if (version == TLSV1DOT3_VERSION) {
+    } else if (version == TLSV1DOT3_VERSION || cipher_mode == MODE_POLY1305) {
         if (inl < auth_tag_len) {
             ssl_debug_printf("%s input %d has no space for auth tag %d\n", G_STRFUNC, inl, auth_tag_len);
             return FALSE;
@@ -3876,20 +3905,23 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
     auth_tag_wire = ciphertext + ciphertext_len;
 #endif
 
-    /* Nonce construction is version-specific. */
-    if (is_v12) {
+    /*
+     * Nonce construction is version-specific. Note that AEAD_CHACHA20_POLY1305
+     * (RFC 7905) uses a nonce construction similar to TLS 1.3.
+     */
+    if (is_v12 && cipher_mode != MODE_POLY1305) {
         DISSECTOR_ASSERT(decoder->write_iv.data_len == IMPLICIT_NONCE_LEN);
         /* Implicit (4) and explicit (8) part of nonce. */
         memcpy(nonce, decoder->write_iv.data, IMPLICIT_NONCE_LEN);
         memcpy(nonce + IMPLICIT_NONCE_LEN, explicit_nonce, EXPLICIT_NONCE_LEN);
 
 #ifndef HAVE_LIBGCRYPT_AEAD
-        if (decoder->cipher_suite->mode == MODE_GCM) {
+        if (cipher_mode == MODE_GCM) {
             /* NIST SP 800-38D, sect. 7.2 says that the 32-bit counter part starts
              * at 1, and gets incremented before passing to the block cipher. */
             memcpy(nonce_with_counter, nonce, IMPLICIT_NONCE_LEN + EXPLICIT_NONCE_LEN);
             nonce_with_counter[IMPLICIT_NONCE_LEN + EXPLICIT_NONCE_LEN + 3] = 2;
-        } else { /* MODE_CCM and MODE_CCM_8 */
+        } else if (cipher_mode == MODE_CCM || cipher_mode == MODE_CCM_8) {
             /* The nonce for CCM and GCM are the same, but the nonce is used as input
              * in the CCM algorithm described in RFC 3610. The nonce generated here is
              * the one from RFC 3610 sect 2.3. Encryption. */
@@ -3898,9 +3930,11 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
             memcpy(nonce_with_counter + 1, nonce, IMPLICIT_NONCE_LEN + EXPLICIT_NONCE_LEN);
             /* struct { opaque salt[4]; opaque nonce_explicit[8] } CCMNonce (RFC 6655) */
             nonce_with_counter[IMPLICIT_NONCE_LEN + EXPLICIT_NONCE_LEN + 3] = 1;
+        } else {
+            g_assert_not_reached();
         }
 #endif
-    } else if (version == TLSV1DOT3_VERSION) {
+    } else if (version == TLSV1DOT3_VERSION || cipher_mode == MODE_POLY1305) {
         /*
          * Technically the nonce length must be at least 8 bytes, but for
          * AES-GCM, AES-CCM and Poly1305-ChaCha20 the nonce length is exact 12.
@@ -3911,7 +3945,10 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
         /* Sequence number is left-padded with zeroes and XORed with write_iv */
         phton64(nonce + nonce_len - 8, pntoh64(nonce + nonce_len - 8) ^ decoder->seq);
         ssl_debug_printf("%s seq %" G_GUINT64_FORMAT "\n", G_STRFUNC, decoder->seq);
-        decoder->seq++;             /* Implicit sequence number for TLS 1.3. */
+        /* sequence number for TLS 1.2 is incremented when calculating AAD. */
+        if (!is_v12) {
+            decoder->seq++;         /* Implicit sequence number for TLS 1.3. */
+        }
     }
 
     /* Set nonce and additional authentication data */
@@ -4023,6 +4060,7 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
     if (decoder->cipher_suite->mode == MODE_GCM ||
         decoder->cipher_suite->mode == MODE_CCM ||
         decoder->cipher_suite->mode == MODE_CCM_8 ||
+        decoder->cipher_suite->mode == MODE_POLY1305 ||
         ssl->session.version == TLSV1DOT3_VERSION) {
 
         if (!tls_decrypt_aead_record(ssl, decoder, ct, record_version, in, inl, out_str, &worklen)) {

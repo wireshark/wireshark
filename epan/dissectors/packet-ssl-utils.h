@@ -286,7 +286,8 @@ typedef enum {
     MODE_CBC,       /* GenericBlockCipher */
     MODE_GCM,       /* GenericAEADCipher */
     MODE_CCM,       /* AEAD_AES_{128,256}_CCM with 16 byte auth tag */
-    MODE_CCM_8      /* AEAD_AES_{128,256}_CCM with 8 byte auth tag */
+    MODE_CCM_8,     /* AEAD_AES_{128,256}_CCM with 8 byte auth tag */
+    MODE_POLY1305,  /* AEAD_CHACHA20_POLY1305 with 16 byte auth tag (RFC 7905) */
 } ssl_cipher_mode_t;
 
 /* Explicit and implicit nonce length (RFC 5116 - Section 3.2.1) */
@@ -359,6 +360,7 @@ typedef struct _SslDecoder {
 #define KEX_IS_DH(n)    ((n) >= KEX_DHE_DSS && (n) <= KEX_ECDH_RSA)
 #define KEX_TLS13       0x23
 
+/* Order is significant, must match "ciphers" array in packet-ssl-utils.c */
 #define ENC_DES         0x30
 #define ENC_3DES        0x31
 #define ENC_RC4         0x32
@@ -369,7 +371,8 @@ typedef struct _SslDecoder {
 #define ENC_CAMELLIA128 0x37
 #define ENC_CAMELLIA256 0x38
 #define ENC_SEED        0x39
-#define ENC_NULL        0x3A
+#define ENC_CHACHA20    0x3A
+#define ENC_NULL        0x3B
 
 #define DIG_MD5         0x40
 #define DIG_SHA         0x41
