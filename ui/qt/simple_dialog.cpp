@@ -90,7 +90,9 @@ SimpleDialog::SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const
     g_free(vmessage);
 
     setTextFormat(Qt::PlainText);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
     setTextInteractionFlags(Qt::TextSelectableByMouse);
+#endif
 
     MessagePair msg_pair = splitMessage(message);
     // Remove leading and trailing whitespace along with excessive newline runs.
