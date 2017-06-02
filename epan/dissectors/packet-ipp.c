@@ -50,6 +50,14 @@ static int hf_ipp_outofband_value = -1;
 static int hf_ipp_charstring_value = -1;
 static int hf_ipp_boolean_value = -1;
 static int hf_ipp_enum_value = -1;
+static int hf_ipp_enum_value_printer_state = -1;
+static int hf_ipp_enum_value_job_state = -1;
+static int hf_ipp_enum_value_document_state = -1;
+static int hf_ipp_enum_value_operations_supported = -1;
+static int hf_ipp_enum_value_finishings = -1;
+static int hf_ipp_enum_value_orientation = -1;
+static int hf_ipp_enum_value_print_quality = -1;
+static int hf_ipp_enum_value_transmission_status = -1;
 static int hf_ipp_integer_value = -1;
 static int hf_ipp_octetstring_value = -1;
 static int hf_ipp_datetime_value = -1;
@@ -966,31 +974,29 @@ add_integer_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
 
         case TAG_ENUM:
             if (value_length == 4) {
-                int value = tvb_get_ntohl(tvb, valoffset);
-
                 if (!strncmp(name, "printer-state", 13)) {
-                    proto_tree_add_int_format_value(tree, hf_ipp_enum_value, tvb, valoffset, value_length, 0, "%s (%d)", val_to_str_const(value, printer_state_vals, "unknown"), value);
+                    proto_tree_add_item(tree, hf_ipp_enum_value_printer_state, tvb, valoffset, value_length, ENC_BIG_ENDIAN);
                 }
                 else if (!strncmp(name, "job-state", 9)) {
-                    proto_tree_add_int_format_value(tree, hf_ipp_enum_value, tvb, valoffset, value_length, 0, "%s (%d)", val_to_str_const(value, job_state_vals, "unknown"), value);
+                    proto_tree_add_item(tree, hf_ipp_enum_value_job_state, tvb, valoffset, value_length, ENC_BIG_ENDIAN);
                 }
                 else if (!strncmp(name, "document-state", 14)) {
-                    proto_tree_add_int_format_value(tree, hf_ipp_enum_value, tvb, valoffset, value_length, 0, "%s (%d)", val_to_str_const(value, document_state_vals, "unknown"), value);
+                    proto_tree_add_item(tree, hf_ipp_enum_value_document_state, tvb, valoffset, value_length, ENC_BIG_ENDIAN);
                 }
                 else if (!strncmp(name, "operations-supported", 20)) {
-                    proto_tree_add_int_format_value(tree, hf_ipp_enum_value, tvb, valoffset, value_length, 0, "%s (0x%04x)", val_to_str_const(value, operation_vals, "unknown"), value);
+                    proto_tree_add_item(tree, hf_ipp_enum_value_operations_supported, tvb, valoffset, value_length, ENC_BIG_ENDIAN);
                 }
                 else if (!strncmp(name, "finishings", 10)) {
-                    proto_tree_add_int_format_value(tree, hf_ipp_enum_value, tvb, valoffset, value_length, 0, "%s (%d)", val_to_str_const(value, finishings_vals, "unknown"), value);
+                    proto_tree_add_item(tree, hf_ipp_enum_value_finishings, tvb, valoffset, value_length, ENC_BIG_ENDIAN);
                 }
                 else if (!strncmp(name, "orientation-requested", 21) || !strncmp(name, "media-feed-orientation", 22)) {
-                    proto_tree_add_int_format_value(tree, hf_ipp_enum_value, tvb, valoffset, value_length, 0, "%s (%d)", val_to_str_const(value, orientation_vals, "unknown"), value);
+                    proto_tree_add_item(tree, hf_ipp_enum_value_orientation, tvb, valoffset, value_length, ENC_BIG_ENDIAN);
                 }
                 else if (!strncmp(name, "print-quality", 13)) {
-                    proto_tree_add_int_format_value(tree, hf_ipp_enum_value, tvb, valoffset, value_length, 0, "%s (%d)", val_to_str_const(value, quality_vals, "unknown"), value);
+                    proto_tree_add_item(tree, hf_ipp_enum_value_print_quality, tvb, valoffset, value_length, ENC_BIG_ENDIAN);
                 }
                 else if (!strncmp(name, "transmission-status", 19)) {
-                    proto_tree_add_int_format_value(tree, hf_ipp_enum_value, tvb, valoffset, value_length, 0, "%s (%d)", val_to_str_const(value, transmission_status_vals, "unknown"), value);
+                    proto_tree_add_item(tree, hf_ipp_enum_value_transmission_status, tvb, valoffset, value_length, ENC_BIG_ENDIAN);
                 }
                 else {
                     proto_tree_add_item(tree, hf_ipp_enum_value, tvb, valoffset, value_length, ENC_BIG_ENDIAN);
@@ -1522,6 +1528,14 @@ proto_register_ipp(void)
       { &hf_ipp_boolean_value, { "boolean value", "ipp.boolean_value", FT_UINT8, BASE_HEX, VALS(boolean_vals), 0x0, NULL, HFILL }},
       { &hf_ipp_integer_value, { "integer value", "ipp.integer_value", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_ipp_enum_value, { "enum value", "ipp.enum_value", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_ipp_enum_value_printer_state, { "printer-state", "ipp.enum_value", FT_INT32, BASE_DEC, VALS(printer_state_vals), 0x0, NULL, HFILL }},
+      { &hf_ipp_enum_value_job_state, { "job-state", "ipp.enum_value", FT_INT32, BASE_DEC, VALS(job_state_vals), 0x0, NULL, HFILL }},
+      { &hf_ipp_enum_value_document_state, { "document-state", "ipp.enum_value", FT_INT32, BASE_DEC, VALS(document_state_vals), 0x0, NULL, HFILL }},
+      { &hf_ipp_enum_value_operations_supported, { "operations-supported", "ipp.enum_value", FT_INT32, BASE_DEC, VALS(operation_vals), 0x0, NULL, HFILL }},
+      { &hf_ipp_enum_value_finishings, { "finishings", "ipp.enum_value", FT_INT32, BASE_DEC, VALS(finishings_vals), 0x0, NULL, HFILL }},
+      { &hf_ipp_enum_value_orientation, { "orientation", "ipp.enum_value", FT_INT32, BASE_DEC, VALS(orientation_vals), 0x0, NULL, HFILL }},
+      { &hf_ipp_enum_value_print_quality, { "print-quality", "ipp.enum_value", FT_INT32, BASE_DEC, VALS(quality_vals), 0x0, NULL, HFILL }},
+      { &hf_ipp_enum_value_transmission_status, { "transmission-status", "ipp.enum_value", FT_INT32, BASE_DEC, VALS(transmission_status_vals), 0x0, NULL, HFILL }},
       { &hf_ipp_outofband_value, { "out-of-band value", "ipp.outofband_value", FT_UINT8, BASE_HEX, VALS(tag_vals), 0x0, NULL, HFILL }},
       { &hf_ipp_charstring_value, { "string value", "ipp.charstring_value", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ipp_octetstring_value, { "octetString value", "ipp.octetstring_value", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
