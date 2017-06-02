@@ -105,6 +105,7 @@ static const value_string uaudp_connect_vals[] =
     { UAUDP_CONNECT_QOS_IP_TOS,     "QoS IP TOS" },
     { UAUDP_CONNECT_QOS_8021_VLID,  "QoS 802.1 VLID" },
     { UAUDP_CONNECT_QOS_8021_PRI,   "QoS 802.1 PRI"},
+    { UAUDP_CONNECT_SUPERFAST_CONNECT, "SuperFast Connect"},
     { 0, NULL }
 };
 value_string_ext uaudp_connect_vals_ext = VALUE_STRING_EXT_INIT(uaudp_connect_vals);
