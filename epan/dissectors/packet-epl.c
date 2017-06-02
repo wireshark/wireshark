@@ -2149,20 +2149,26 @@ epl_get_convo(packet_info *pinfo, int opts)
 	struct epl_convo *convo;
 	conversation_t * epan_convo;
 	guint32 node_port;
-	address *node_addr;
-	address *node_dl_addr;
+	address *node_addr = &epl_placeholder_mac;
+	address *node_dl_addr = &epl_placeholder_mac;
 
 	if (opts & CONVO_FOR_REQUEST)
 	{
 		node_port = pinfo->destport;
-		node_addr = &pinfo->dst;
-		node_dl_addr = &pinfo->dl_dst;
+
+		if (pinfo->dst.type == AT_IPv4 || pinfo->dst.type == AT_ETHER)
+			node_addr = &pinfo->dst;
+		if (pinfo->dl_dst.type == AT_ETHER)
+			node_dl_addr = &pinfo->dl_dst;
 	}
 	else
 	{
 		node_port = pinfo->srcport;
-		node_addr = &pinfo->src;
-		node_dl_addr = &pinfo->dl_src;
+
+		if (pinfo->src.type == AT_IPv4 || pinfo->src.type == AT_ETHER)
+			node_addr = &pinfo->src;
+		if (pinfo->dl_src.type == AT_ETHER)
+			node_dl_addr = &pinfo->dl_src;
 	}
 	/* It'd be better to consult the Ethernet or IP address when matching conversations,
 	 * but an ASnd request is targeted at a Multicast MAC address, so we'll use
@@ -2504,15 +2510,26 @@ dissect_eplpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean udp
 
 	pinfo->ptype = PT_NONE;
 
-	/* Get Destination */
-	pinfo->destport = !udpencap ? tvb_get_guint8(tvb, EPL_DEST_OFFSET)
-	                            : ((guint8*)pinfo->net_dst.data)[3];
+	/* Get Destination and Source */
+	if (udpencap)
+	{
+		/* The dissector may be invoked without an IP layer,
+		 * so we need to check we can actually index into the buffer
+		 */
+		if (pinfo->net_dst.type == AT_IPv4)
+			pinfo->destport = ((guint8*)pinfo->net_dst.data)[3];
+		if (pinfo->net_src.type == AT_IPv4)
+			pinfo->srcport  = ((guint8*)pinfo->net_src.data)[3];
+	}
+	else
+	{
+		pinfo->destport = tvb_get_guint8(tvb, EPL_DEST_OFFSET);
+		pinfo->srcport  = tvb_get_guint8(tvb, EPL_SRC_OFFSET);
+	}
+
 	epl_segmentation.dest = pinfo->destport;
 	dest_str = decode_epl_address(pinfo->destport);
 
-	/* Get Source */
-	pinfo->srcport = !udpencap ? tvb_get_guint8(tvb, EPL_SRC_OFFSET)
-	                           : ((guint8*)pinfo->net_src.data)[3];
 	epl_segmentation.src = pinfo->srcport;
 	src_str = decode_epl_address(pinfo->srcport);
 
