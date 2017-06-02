@@ -962,7 +962,7 @@ set(DISSECTOR_SRC
 	packet-netanalyzer.c
 	packet-netbios.c
 	packet-netdump.c
-	packet-netgear.c
+	packet-netgear-ensemble.c
 	packet-netflow.c
 	packet-netlink-generic.c
 	packet-netlink-netfilter.c

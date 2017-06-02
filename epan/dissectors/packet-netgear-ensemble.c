@@ -1,4 +1,4 @@
-/* packet-netgear.c
+/* packet-netgear-ensemble.c
  *
  * Routines for Netgear AP Ensemble Protocol
  * Charlie Lenahan <clenahan@sonicbison.com>
