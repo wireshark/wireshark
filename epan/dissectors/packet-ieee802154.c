@@ -2470,10 +2470,10 @@ dissect_ieee802154_header_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
         header_ie =  tvb_get_letohs(tvb, *offset);
         id        = (guint16) ((header_ie & IEEE802154_HEADER_IE_ID_MASK) >> 7);
         length    = (guint16) (header_ie & IEEE802154_HEADER_IE_LENGTH_MASK);
+        header_length += 2 + length;
 
         /* until the Header IEs are finalized, just use the data dissector */
         if (length > 0) {
-            header_length += length;
             subtree = proto_item_add_subtree(header_item, ett_ieee802154_header);
             proto_item_append_text(subtree, ", Element ID: %s, Length: %d", val_to_str_const(id, ieee802154_header_ie_names, "Unknown IE"), length);
             proto_tree_add_bitmask(subtree, tvb, *offset, hf_ieee802154_header_ie_tlv, ett_ieee802154_header_ie, fields, ENC_LITTLE_ENDIAN);
@@ -2549,6 +2549,7 @@ dissect_ieee802154_header_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
                     expert_add_info(pinfo, header_item, &ei_ieee802154_unsupported_element_id);
                     break;
             }
+            *offset += length;
         } else {
             // Header IE of empty length
             switch(id){
