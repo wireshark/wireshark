@@ -659,6 +659,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     SslDecryptSession *ssl_session;
     SslSession        *session;
     gint               is_from_server;
+    guint8             curr_layer_num_ssl = pinfo->curr_layer_num;
 
     ti = NULL;
     ssl_tree   = NULL;
@@ -840,8 +841,8 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         if (need_desegmentation) {
           ssl_debug_printf("  need_desegmentation: offset = %d, reported_length_remaining = %d\n",
                            offset, tvb_reported_length_remaining(tvb, offset));
-          /* XXX: this seems unused due to new "Follow SSL" method, remove? */
-          tap_queue_packet(ssl_tap, pinfo, p_get_proto_data(wmem_file_scope(), pinfo, proto_ssl, 0));
+          /* Make data available to ssl_follow_tap_listener */
+          tap_queue_packet(ssl_tap, pinfo, p_get_proto_data(wmem_file_scope(), pinfo, proto_ssl, curr_layer_num_ssl));
           return tvb_captured_length(tvb);
         }
     }
@@ -850,8 +851,8 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     ssl_debug_flush();
 
-    /* XXX: this seems unused due to new "Follow SSL" method, remove? */
-    tap_queue_packet(ssl_tap, pinfo, p_get_proto_data(wmem_file_scope(), pinfo, proto_ssl, 0));
+    /* Make data available to ssl_follow_tap_listener */
+    tap_queue_packet(ssl_tap, pinfo, p_get_proto_data(wmem_file_scope(), pinfo, proto_ssl, curr_layer_num_ssl));
 
     return tvb_captured_length(tvb);
 }

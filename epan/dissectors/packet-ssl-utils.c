@@ -4879,7 +4879,7 @@ ssl_add_record_info(gint proto, packet_info *pinfo, const guchar *data, gint dat
         pi = wmem_new0(wmem_file_scope(), SslPacketInfo);
         pi->srcport = pinfo->srcport;
         pi->destport = pinfo->destport;
-        p_add_proto_data(wmem_file_scope(), pinfo, proto, 0, pi);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto, pinfo->curr_layer_num, pi);
     }
 
     rec = wmem_new(wmem_file_scope(), SslRecordInfo);
