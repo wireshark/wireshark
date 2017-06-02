@@ -48,6 +48,7 @@ typedef struct range_admin_tag {
     guint32 low;
     guint32 high;
 } range_admin_t;
+#define RANGE_ADMIN_T_INITIALIZER { 0, 0 }
 
 /** user specified range(s) */
 typedef struct epan_range {

@@ -282,9 +282,7 @@ epl_eds_load(struct profile *profile, const char *eds_file)
 		}
 		else
 		{ /* Object already there, let's add subindices */
-			struct subobject subobj;
-
-			memset(&subobj, 0, sizeof subobj);
+			struct subobject subobj = SUBOBJECT_INITIALIZER;
 
 			if (!obj->subindices)
 			{
@@ -555,9 +553,7 @@ populate_object_list(xmlNodeSetPtr nodes, void *_profile)
 			if (tmpobj.type_class == OD_ENTRY_ARRAY || tmpobj.type_class == OD_ENTRY_RECORD)
 			{
 				xmlNode *subcur;
-				struct subobject subobj;
-
-				memset(&subobj, 0, sizeof subobj);
+				struct subobject subobj = SUBOBJECT_INITIALIZER;
 
 				obj->subindices = epl_wmem_iarray_new(profile->scope, sizeof (struct subobject), subobject_equal);
 

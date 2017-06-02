@@ -77,6 +77,7 @@ struct subobject {
 	range_admin_t range;
 	struct od_entry info;
 };
+#define SUBOBJECT_INITIALIZER { RANGE_ADMIN_T_INITIALIZER, OD_ENTRY_INITIALIZER }
 
 typedef struct epl_wmem_iarray epl_wmem_iarray_t;
 

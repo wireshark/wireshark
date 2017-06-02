@@ -1333,7 +1333,6 @@ struct object_mapping {
 	const char *index_name;
 	const char *title;
 };
-/* XXX hopefully temporary till -Wmissing-field-initializers and -Wmissing-braces are ignored */
 #define OBJECT_MAPPING_INITIALIZER { { 0, 0 }, { 0, 0 }, 0, 0, 0, { 0, 0 }, 0, 0, 0 }
 
 #define CONVO_FOR_RESPONSE  1
