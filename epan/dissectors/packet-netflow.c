@@ -15331,7 +15331,7 @@ proto_register_netflow(void)
         /* ixia, 3054 / 180 */
         {&hf_pie_ixia_encryption_keylen,
          {"Encryption Key Length", "cflow.pie.ixia.encryption-keylen",
-          FT_UINT16, BASE_DEC, NULL, 0x0,
+          FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
           "Length of the encryption key in bytes", HFILL}
         },
 
@@ -15400,7 +15400,7 @@ proto_register_netflow(void)
         /* netscaler, 5951 / 128 */
         {&hf_pie_netscaler_roundtriptime,
          {"Round Trip Time", "cflow.pie.netscaler.round-trip-time",
-          FT_UINT32, BASE_DEC, NULL, 0x0,
+          FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
           "TCP RTT of the flow in milliseconds", HFILL}
         },
         /* netscaler, 5951 / 129 */
@@ -15448,8 +15448,8 @@ proto_register_netflow(void)
         /* netscaler, 5951 / 136 */
         {&hf_pie_netscaler_syslogtimestamp,
          {"Syslog Timestamp", "cflow.pie.netscaler.syslog-timestamp",
-          FT_UINT64, BASE_DEC, NULL, 0x0,
-          "Timestamp of syslog message (ms)", HFILL}
+          FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0x0,
+          NULL, HFILL}
         },
         /* netscaler, 5951 / 140 */
         {&hf_pie_netscaler_httpreqreferer,
@@ -15490,13 +15490,13 @@ proto_register_netflow(void)
         /* netscaler, 5951 / 146 */
         {&hf_pie_netscaler_serverttfb,
          {"Server TTFB", "cflow.pie.netscaler.server-ttfb",
-          FT_UINT64, BASE_DEC, NULL, 0x0,
+          FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
           "Time till First Byte (microseconds)", HFILL}
         },
         /* netscaler, 5951 / 147 */
         {&hf_pie_netscaler_serverttlb,
          {"Server TTLB", "cflow.pie.netscaler.server-ttlb",
-          FT_UINT64, BASE_DEC, NULL, 0x0,
+          FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
           "Time till Last Byte (microseconds)", HFILL}
         },
         /* netscaler, 5951 / 150 */
@@ -15520,37 +15520,37 @@ proto_register_netflow(void)
         /* netscaler, 5951 / 153 */
         {&hf_pie_netscaler_httpreqrcvfb,
          {"HTTP Request Received FB", "cflow.pie.netscaler.http-req-rcv-fb",
-          FT_UINT64, BASE_DEC, NULL, 0x0,
+          FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
           "Timestamp of first byte received from client (microseconds)", HFILL}
         },
         /* netscaler, 5951 / 156 */
         {&hf_pie_netscaler_httpreqforwfb,
          {"HTTP Request Forwarded FB", "cflow.pie.netscaler.http-req-forw-fb",
-          FT_UINT64, BASE_DEC, NULL, 0x0,
+          FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
           "Timestamp of first byte forwarded to server (microseconds)", HFILL}
         },
         /* netscaler, 5951 / 157 */
         {&hf_pie_netscaler_httpresrcvfb,
          {"HTTP Response Received FB", "cflow.pie.netscaler.http-res-rcv-fb",
-          FT_UINT64, BASE_DEC, NULL, 0x0,
+          FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
           "Timestamp of first byte received from server (microseconds)", HFILL}
         },
         /* netscaler, 5951 / 158 */
         {&hf_pie_netscaler_httpresforwfb,
          {"HTTP Response Forwarded FB", "cflow.pie.netscaler.http-res-forw-fb",
-          FT_UINT64, BASE_DEC, NULL, 0x0,
+          FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
           "Timestamp of first byte forwarded to client (microseconds)", HFILL}
         },
         /* netscaler, 5951 / 159 */
         {&hf_pie_netscaler_httpreqrcvlb,
          {"HTTP Request Received LB", "cflow.pie.netscaler.http-req-rcv-lb",
-          FT_UINT64, BASE_DEC, NULL, 0x0,
+          FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
           "Timestamp of last byte received from client (microseconds)", HFILL}
         },
         /* netscaler, 5951 / 160 */
         {&hf_pie_netscaler_httpreqforwlb,
          {"HTTP Request Forwarded LB", "cflow.pie.netscaler.http-req-forw-lb",
-          FT_UINT64, BASE_DEC, NULL, 0x0,
+          FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
           "Timestamp of last byte forwarded to server (microseconds)", HFILL}
         },
         /* netscaler, 5951 / 161 */
@@ -15598,13 +15598,13 @@ proto_register_netflow(void)
         /* netscaler, 5951 / 169 */
         {&hf_pie_netscaler_httpresrcvlb,
          {"HTTP Response Received LB", "cflow.pie.netscaler.http-res-rcv-lb",
-          FT_UINT64, BASE_DEC, NULL, 0x0,
+          FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
           "Timestamp of last byte received from server (microseconds)", HFILL}
         },
         /* netscaler, 5951 / 170 */
         {&hf_pie_netscaler_httpresforwlb,
          {"HTTP Response Forwarded LB", "cflow.pie.netscaler.http-res-forw-lb",
-          FT_UINT64, BASE_DEC, NULL, 0x0,
+          FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
           "Timestamp of last byte of forwarded to client (microseconds)", HFILL}
         },
         /* netscaler, 5951 / 171 */
@@ -15635,7 +15635,7 @@ proto_register_netflow(void)
         {&hf_pie_netscaler_dbusername,
          {"DB User Name", "cflow.pie.netscaler.db-user-name",
           FT_STRING, STR_UNICODE, NULL, 0x0,
-          "Database username", HFILL}
+          NULL, HFILL}
         },
         /* netscaler, 5951 / 176 */
         {&hf_pie_netscaler_dbdatabasename,
@@ -15784,8 +15784,8 @@ proto_register_netflow(void)
         /* netscaler, 5951 / 209 */
         {&hf_pie_netscaler_icasessionsetuptime,
          {"ICA Session Setup Time", "cflow.pie.netscaler.ica-session-setuptime",
-          FT_UINT64, BASE_DEC, NULL, 0x0,
-          "ICA Session Setup Time (s)", HFILL}
+          FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+          NULL, HFILL}
         },
         /* netscaler, 5951 / 210 */
         {&hf_pie_netscaler_icaservername,
@@ -15952,14 +15952,14 @@ proto_register_netflow(void)
         /* netscaler, 5951 / 241 */
         {&hf_pie_netscaler_icaapplicationterminationtime,
          {"ICA Application Termination Time", "cflow.pie.netscaler.ica-application-termination-time",
-          FT_UINT64, BASE_DEC, NULL, 0x0,
-          "ICA Application Termination Time (s)", HFILL}
+          FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+          NULL, HFILL}
         },
         /* netscaler, 5951 / 242 */
         {&hf_pie_netscaler_icasessionendtime,
          {"ICA Session End Time", "cflow.pie.netscaler.ica-session-end-time",
-          FT_UINT64, BASE_DEC, NULL, 0x0,
-          "ICA Session End Time (s)", HFILL}
+          FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+          NULL, HFILL}
         },
         /* netscaler, 5951 / 243 */
         {&hf_pie_netscaler_icaclientsidejitter,
@@ -16043,7 +16043,7 @@ proto_register_netflow(void)
         {&hf_pie_netscaler_icaclientsidesrtt,
          {"ICA Clientside SRTT", "cflow.pie.netscaler.ica-clientside-srtt",
           FT_UINT32, BASE_DEC, NULL, 0x0,
-          "ICA Clientside smooothed RTT", HFILL}
+          "ICA Clientside smoothed RTT", HFILL}
         },
         /* netscaler, 5951 / 257 */
         {&hf_pie_netscaler_icaserversidesrtt,
@@ -16158,7 +16158,7 @@ proto_register_netflow(void)
         {&hf_pie_barracuda_servicename,
          {"Service Name", "cflow.pie.barracuda.servicename",
           FT_STRING, STR_UNICODE, NULL, 0x0,
-          "Name of Service", HFILL}
+          NULL, HFILL}
         },
         /* Barracuda, 10704 / 6 */
         {&hf_pie_barracuda_reason,
