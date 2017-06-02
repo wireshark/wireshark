@@ -234,7 +234,7 @@ epl_eds_load(struct profile *profile, const char *eds_file)
 		const char *endptr;
 		guint16 idx = 0, datatype;
 		struct object *obj = NULL;
-		struct od_entry tmpobj = {0};
+		struct od_entry tmpobj = OD_ENTRY_INITIALIZER;
 		gboolean is_object = TRUE;
 
 		if (!g_ascii_isxdigit(**group))
@@ -282,7 +282,10 @@ epl_eds_load(struct profile *profile, const char *eds_file)
 		}
 		else
 		{ /* Object already there, let's add subindices */
-			struct subobject subobj = {0};
+			struct subobject subobj;
+
+			memset(&subobj, 0, sizeof subobj);
+
 			if (!obj->subindices)
 			{
 				obj->subindices = epl_wmem_iarray_new(
@@ -537,7 +540,7 @@ populate_object_list(xmlNodeSetPtr nodes, void *_profile)
 	for(i = 0; i < nodes->nodeNr; ++i)
 	{
 		xmlNodePtr cur = nodes->nodeTab[i];
-		struct od_entry tmpobj = {0};
+		struct od_entry tmpobj = OD_ENTRY_INITIALIZER;
 
 		if (!nodes->nodeTab[i] || nodes->nodeTab[i]->type != XML_ELEMENT_NODE)
 			continue;
@@ -552,7 +555,9 @@ populate_object_list(xmlNodeSetPtr nodes, void *_profile)
 			if (tmpobj.type_class == OD_ENTRY_ARRAY || tmpobj.type_class == OD_ENTRY_RECORD)
 			{
 				xmlNode *subcur;
-				struct subobject subobj = {0};
+				struct subobject subobj;
+
+				memset(&subobj, 0, sizeof subobj);
 
 				obj->subindices = epl_wmem_iarray_new(profile->scope, sizeof (struct subobject), subobject_equal);
 

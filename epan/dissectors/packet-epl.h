@@ -30,11 +30,6 @@
 #include <epan/wmem/wmem.h>
 #include <epan/range.h>
 
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-#pragma GCC diagnostic ignored "-Wmissing-braces"
-#endif
-
 struct epl_datatype;
 
 struct profile {
@@ -76,6 +71,7 @@ struct od_entry {
 	const struct epl_datatype *type;
 	guint64 value;
 };
+#define OD_ENTRY_INITIALIZER { 0, 0, { 0 }, 0, 0 }
 
 struct subobject {
 	range_admin_t range;
@@ -121,7 +117,7 @@ range_admin_t * epl_wmem_iarray_find(epl_wmem_iarray_t *arr, guint32 value);
 gboolean epl_wmem_iarray_is_empty(epl_wmem_iarray_t *iarr);
 gboolean epl_wmem_iarray_is_sorted(epl_wmem_iarray_t *iarr);
 
-#define EPL_OBJECT_MAPPING_SIZE sizeof (guint64)
+#define EPL_OBJECT_MAPPING_SIZE ((guint)sizeof (guint64))
 
 #define CHECK_OVERLAP_ENDS(x1, x2, y1, y2) ((x1) < (y2) && (y1) < (x2))
 #define CHECK_OVERLAP_LENGTH(x, x_len, y, y_len) \

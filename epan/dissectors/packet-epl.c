@@ -1333,6 +1333,8 @@ struct object_mapping {
 	const char *index_name;
 	const char *title;
 };
+/* XXX hopefully temporary till -Wmissing-field-initializers and -Wmissing-braces are ignored */
+#define OBJECT_MAPPING_INITIALIZER { { 0, 0 }, { 0, 0 }, 0, 0, 0, { 0, 0 }, 0, 0, 0 }
 
 #define CONVO_FOR_RESPONSE  1
 #define CONVO_FOR_REQUEST   2
@@ -1708,7 +1710,7 @@ static const struct epl_datatype {
 #endif
 	{ "NETTIME",        &hf_epl_od_time, ENC_TIME_TIMESPEC, 8 },
 
-	{ NULL, NULL }
+	{ 0, 0, 0, 0 }
 };
 
 
@@ -4130,7 +4132,7 @@ dissect_object_mapping(struct profile *profile, wmem_array_t *mappings, proto_tr
 {
 	proto_item *ti_obj, *ti_subobj, *psf_item;
 	proto_tree *psf_tree;
-	struct object_mapping map = {0};
+	struct object_mapping map = OBJECT_MAPPING_INITIALIZER;
 	struct object *mapping_obj;
 	int *ett;
 	struct subobject *mapping_subobj;
