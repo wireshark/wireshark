@@ -1698,7 +1698,7 @@ static const struct epl_datatype {
 	{ "Real64",         &hf_epl_od_real,    ENC_LITTLE_ENDIAN, 8 },
 	{ "Visible_String", &hf_epl_od_string,  ENC_ASCII, 0 },
 	{ "Octet_String",   &hf_epl_od_octet_string,    ENC_NA, 0 },
-	{ "Unicode_String", &hf_epl_od_string,  ENC_UCS_2, 0 },
+	{ "Unicode_String", &hf_epl_od_string,  ENC_UCS_2 | ENC_LITTLE_ENDIAN, 0 },
 
 	{ "MAC_ADDRESS",    &hf_epl_od_mac,    ENC_BIG_ENDIAN, 6 },
 	{ "IP_ADDRESS",     &hf_epl_od_ipv4,   ENC_BIG_ENDIAN, 4 },
@@ -6052,7 +6052,7 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_od_string,
 			{ "Data", "epl.od.data.string",
-				FT_STRING, STR_ASCII, NULL, 0x00, NULL, HFILL }
+				FT_STRING, STR_UNICODE, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_od_octet_string,
 			{ "Data", "epl.od.data.bytestring",
