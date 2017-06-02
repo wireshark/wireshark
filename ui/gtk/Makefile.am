@@ -443,7 +443,7 @@ pixbuf_csource_data = \
 	wsiconcap_64_pb_data				\
 	$(imagedir)/wsiconcap64.png			\
 	wssplash_pb_data				\
-	$(imagedir)/wssplash_dev.png
+	$(imagedir)/wssplash.png
 
 pixbuf-csource:
 	$(PERL) $(top_srcdir)/tools/make-pixbuf-csource.pl $@ $(pixbuf_csource_data)

@@ -24,7 +24,7 @@ project(Wireshark C CXX)
 # Updated by make-version.pl
 set(GIT_REVISION 0)
 set(PROJECT_MAJOR_VERSION 2)
-set(PROJECT_MINOR_VERSION 3)
+set(PROJECT_MINOR_VERSION 4)
 set(PROJECT_PATCH_VERSION 0)
 set(PROJECT_BUILD_VERSION ${GIT_REVISION})
 set(PROJECT_VERSION_EXTENSION "")
@@ -191,8 +191,8 @@ include(CMakeInstallDirs)
 # Banner shown at top right of Qt welcome screen.
 if(DEFINED ENV{WIRESHARK_VERSION_FLAVOR})
 	set(VERSION_FLAVOR "$ENV{WIRESHARK_VERSION_FLAVOR}")
-else()
-	set(VERSION_FLAVOR "Development Build")
+#else()
+#	set(VERSION_FLAVOR "Development Build")
 endif()
 
 # These are required in .rc files and manifests

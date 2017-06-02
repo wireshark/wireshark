@@ -89,7 +89,7 @@ about_wireshark(GtkWidget *parent _U_, GtkWidget *main_vb)
 
   /*icon = xpm_to_widget_from_parent(parent, wssplash_xpm);*/
 #ifdef HAVE_GDK_GRESOURCE
-  icon = pixbuf_to_widget("/org/wireshark/image/wssplash_dev.png");
+  icon = pixbuf_to_widget("/org/wireshark/image/wssplash.png");
 #else
   icon = pixbuf_to_widget(wssplash_pb_data);
 #endif

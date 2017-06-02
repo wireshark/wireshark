@@ -185,7 +185,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
 /* Check if it is a dev release... (VERSION_MINOR is odd in dev release) */
 #if VERSION_MINOR & 1
-        ui->label_logo->setPixmap(QPixmap(":/about/wssplash_dev.png"));
+        ui->label_logo->setPixmap(QPixmap(":/about/wssplash.png"));
 #endif
 
     /* Authors */

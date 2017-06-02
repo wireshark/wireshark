@@ -21,7 +21,7 @@ option(BUILD_randpktdump   "Build randpktdump" ON)
 option(BUILD_udpdump       "Build udpdump" ON)
 option(BUILD_sharkd        "Build sharkd" ON)
 
-option(DISABLE_WERROR    "Do not treat warnings as errors" OFF)
+option(DISABLE_WERROR    "Do not treat warnings as errors" ON)
 option(EXTCAP_ANDROIDDUMP_LIBPCAP    "Build androiddump using libpcap" OFF)
 option(ENABLE_EXTRA_COMPILER_WARNINGS "Do additional compiler warnings (disables -Werror)" OFF)
 option(ENABLE_CODE_ANALYSIS "Enable the compiler's static analyzer if possible" OFF)
