@@ -6200,7 +6200,7 @@ proto_register_epl(void)
 
 	device_profile_uat = uat_new("Device-Specific Profiles",
 			sizeof (struct device_profile_uat_assoc),
-			"device_profiles",         /* filename */
+			"epl_device_profiles",     /* filename */
 			TRUE,                      /* from_profile */
 			&device_profile_list_uats, /* data_ptr */
 			&ndevice_profile_uat,      /* numitems_ptr */
@@ -6222,7 +6222,7 @@ proto_register_epl(void)
 
 	nodeid_profile_uat = uat_new("NodeID-Specific Profiles",
 			sizeof (struct nodeid_profile_uat_assoc),
-			"nodeid_profiles",         /* filename */
+			"epl_nodeid_profiles",     /* filename */
 			TRUE,                      /* from_profile */
 			&nodeid_profile_list_uats, /* data_ptr */
 			&nnodeid_profile_uat,      /* numitems_ptr */
