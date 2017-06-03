@@ -1105,10 +1105,12 @@ open_capture_device_pcap_create(capture_options *capture_opts
 	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
 	    "pcap_create() returned %p.", (void *)pcap_h);
 	if (pcap_h != NULL) {
-		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-		    "Calling pcap_set_snaplen() with snaplen %d.",
-		    interface_opts->snaplen);
-		pcap_set_snaplen(pcap_h, interface_opts->snaplen);
+		if (interface_opts->has_snaplen) {
+			g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
+			    "Calling pcap_set_snaplen() with snaplen %d.",
+			    interface_opts->snaplen);
+			pcap_set_snaplen(pcap_h, interface_opts->snaplen);
+		}
 		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
 		    "Calling pcap_set_promisc() with promisc_mode %d.",
 		    interface_opts->promisc_mode);
@@ -1205,12 +1207,24 @@ open_capture_device_pcap_open_live(interface_options *interface_opts,
     int timeout, char (*open_err_str)[PCAP_ERRBUF_SIZE])
 {
 	pcap_t *pcap_h;
+	int snaplen;
 
+	if (interface_opts->have_snaplen)
+		snaplen = interface_opts->snaplen;
+	else {
+		/*
+		 * Default - use the old maximum snapshot length, which
+		 * should be big enough (libpcap didn't get D-Bus support
+		 * until after it goet pcap_create()/pcap_activate(), so
+		 * we don't have D-Bus support and don't have to worry
+		 * about really huge packets).
+		 */
+		snaplen = 262144;
+	}
 	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
 	    "pcap_open_live() calling using name %s, snaplen %d, promisc_mode %d.",
-	    interface_opts->name, interface_opts->snaplen,
-	    interface_opts->promisc_mode);
-	pcap_h = pcap_open_live(interface_opts->name, interface_opts->snaplen,
+	    interface_opts->name, snaplen, interface_opts->promisc_mode);
+	pcap_h = pcap_open_live(interface_opts->name, snaplen,
 	    interface_opts->promisc_mode, timeout, *open_err_str);
 	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
 	    "pcap_open_live() returned %p.", (void *)pcap_h);
@@ -1319,17 +1333,28 @@ open_capture_device(capture_options *capture_opts,
 	 * the only open routine that supports remote devices.
 	 */
 	if (strncmp (interface_opts->name, "rpcap://", 8) == 0) {
+		int snaplen;
+
 		auth.type = interface_opts->auth_type == CAPTURE_AUTH_PWD ?
 		    RPCAP_RMTAUTH_PWD : RPCAP_RMTAUTH_NULL;
 		auth.username = interface_opts->auth_username;
 		auth.password = interface_opts->auth_password;
 
+		if (interface_opts->have_snaplen)
+			snaplen = interface_opts->snaplen;
+		else {
+			/*
+			 * Default - use the old maximum snapshot length,
+			 * which should be big enough, except for D-Bus.
+			 */
+			snaplen = 262144;
+		}
 		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
 		    "Calling pcap_open() using name %s, snaplen %d, promisc_mode %d, datatx_udp %d, nocap_rpcap %d.",
-		    interface_opts->name, interface_opts->snaplen,
+		    interface_opts->name, snaplen,
 		    interface_opts->promisc_mode, interface_opts->datatx_udp,
 		    interface_opts->nocap_rpcap);
-		pcap_h = pcap_open(interface_opts->name, interface_opts->snaplen,
+		pcap_h = pcap_open(interface_opts->name, snaplen,
 		    /* flags */
 		    (interface_opts->promisc_mode ? PCAP_OPENFLAG_PROMISCUOUS : 0) |
 		    (interface_opts->datatx_udp ? PCAP_OPENFLAG_DATATX_UDP : 0) |

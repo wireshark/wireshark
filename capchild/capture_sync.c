@@ -343,7 +343,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
             argv = sync_pipe_add_arg(argv, &argc, "-f");
             argv = sync_pipe_add_arg(argv, &argc, interface_opts.cfilter);
         }
-        if (interface_opts.snaplen != WTAP_MAX_PACKET_SIZE) {
+        if (interface_opts.has_snaplen) {
             argv = sync_pipe_add_arg(argv, &argc, "-s");
             g_snprintf(ssnap, ARGV_NUMBER_LEN, "%d", interface_opts.snaplen);
             argv = sync_pipe_add_arg(argv, &argc, ssnap);
