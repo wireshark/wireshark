@@ -61,9 +61,7 @@ dissect_pn_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     guint8 data;
 
     data = tvb_get_guint8 (tvb, offset);
-    if (tree) {
-        proto_tree_add_uint(tree, hfindex, tvb, offset, 1, data);
-    }
+    proto_tree_add_uint(tree, hfindex, tvb, offset, 1, data);
     if (pdata)
         *pdata = data;
     return offset + 1;
@@ -79,9 +77,7 @@ dissect_pn_uint16_ret_item(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
     data = tvb_get_ntohs (tvb, offset);
 
-    if (tree) {
-        item = proto_tree_add_uint(tree, hfindex, tvb, offset, 2, data);
-    }
+    item = proto_tree_add_uint(tree, hfindex, tvb, offset, 2, data);
     if (pdata)
         *pdata = data;
     if (new_item)
@@ -98,9 +94,7 @@ dissect_pn_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
     data = tvb_get_ntohs (tvb, offset);
 
-    if (tree) {
-        proto_tree_add_uint(tree, hfindex, tvb, offset, 2, data);
-    }
+    proto_tree_add_uint(tree, hfindex, tvb, offset, 2, data);
     if (pdata)
         *pdata = data;
     return offset + 2;
@@ -115,9 +109,7 @@ dissect_pn_uint32(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
     data = tvb_get_ntohl (tvb, offset);
 
-    if (tree) {
-        proto_tree_add_uint(tree, hfindex, tvb, offset, 4, data);
-    }
+    proto_tree_add_uint(tree, hfindex, tvb, offset, 4, data);
     if (pdata)
         *pdata = data;
     return offset+4;
@@ -132,9 +124,7 @@ dissect_pn_int16(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
     data = tvb_get_ntohs (tvb, offset);
 
-    if (tree) {
-        proto_tree_add_int(tree, hfindex, tvb, offset, 2, data);
-    }
+    proto_tree_add_int(tree, hfindex, tvb, offset, 2, data);
     if (pdata)
         *pdata = data;
     return offset + 2;
@@ -149,9 +139,7 @@ dissect_pn_int32(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
     data = tvb_get_ntohl (tvb, offset);
 
-    if (tree) {
-        proto_tree_add_int(tree, hfindex, tvb, offset, 4, data);
-    }
+    proto_tree_add_int(tree, hfindex, tvb, offset, 4, data);
     if (pdata)
         *pdata = data;
     return offset + 4;
@@ -166,9 +154,7 @@ dissect_pn_oid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
     data = tvb_get_ntoh24(tvb, offset);
 
-    if (tree) {
-        proto_tree_add_uint(tree, hfindex, tvb, offset, 3, data);
-    }
+    proto_tree_add_uint(tree, hfindex, tvb, offset, 3, data);
     if (pdata)
         *pdata = data;
     return offset + 3;
@@ -182,8 +168,7 @@ dissect_pn_mac(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     guint8 data[6];
 
     tvb_memcpy(tvb, data, offset, 6);
-    if(tree)
-        proto_tree_add_ether(tree, hfindex, tvb, offset, 6, data);
+    proto_tree_add_ether(tree, hfindex, tvb, offset, 6, data);
 
     if (pdata)
         memcpy(pdata, data, 6);
@@ -199,8 +184,7 @@ dissect_pn_ipv4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     guint32 data;
 
     data = tvb_get_ipv4(tvb, offset);
-    if(tree)
-        proto_tree_add_ipv4(tree, hfindex, tvb, offset, 4, data);
+    proto_tree_add_ipv4(tree, hfindex, tvb, offset, 4, data);
 
     if (pdata)
         *pdata = data;
@@ -243,12 +227,11 @@ int
 dissect_pn_user_data_bytes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                     proto_tree *tree, guint32 length, int iSelect)
 {
-    if (tree) {
-        if(iSelect == FRAG_DATA)
-            proto_tree_add_item(tree, hf_pn_frag_bytes, tvb, offset, length, ENC_NA);
-        else
-            proto_tree_add_item(tree, hf_pn_user_bytes, tvb, offset, length, ENC_NA);
-    }
+    if(iSelect == FRAG_DATA)
+        proto_tree_add_item(tree, hf_pn_frag_bytes, tvb, offset, length, ENC_NA);
+    else
+        proto_tree_add_item(tree, hf_pn_user_bytes, tvb, offset, length, ENC_NA);
+
     return offset + length;
 }
 
@@ -256,7 +239,7 @@ int
 dissect_pn_user_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                     proto_tree *tree, guint32 length, const char *text)
 {
-    if (tree && length != 0) {
+    if (length != 0) {
         proto_tree_add_string_format(tree, hf_pn_user_data, tvb, offset, length, "data",
             "%s: %d bytes", text, length);
     }
