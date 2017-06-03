@@ -1125,7 +1125,6 @@ success:
 			/* No need to add an option, this is the default */
 			descr_mand->tsprecision = WTAP_TSPREC_USEC;
 		}
-		descr_mand->link_type = wtap_wtap_encap_to_pcap_encap(wth->file_encap);
 		descr_mand->snap_len = wth->snapshot_length;
 
 		descr_mand->num_stat_entries = 0;          /* Number of ISB:s */
@@ -2221,7 +2220,6 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 			if ((encap != WTAP_ENCAP_PER_PACKET) && (encap != file_int_data_mand->wtap_encap)) {
 				descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(descr);
 				descr_mand->wtap_encap = encap;
-				descr_mand->link_type = wtap_wtap_encap_to_pcap_encap(encap);
 			}
 			g_array_append_val(wdh->interface_data, descr);
 		}
@@ -2230,7 +2228,6 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 		descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(descr);
 		descr_mand->wtap_encap = encap;
 		descr_mand->time_units_per_second = 1000000; /* default microsecond resolution */
-		descr_mand->link_type = wtap_wtap_encap_to_pcap_encap(encap);
 		descr_mand->snap_len = snaplen;
 		descr_mand->num_stat_entries = 0;          /* Number of ISB:s */
 		descr_mand->interface_statistics = NULL;

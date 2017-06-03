@@ -501,7 +501,6 @@ file_import_open(text_import_info_t *info)
     int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
     int_data_mand->wtap_encap            = info->encapsulation;
     int_data_mand->time_units_per_second = 1000000; /* default microsecond resolution */
-    int_data_mand->link_type             = wtap_wtap_encap_to_pcap_encap(info->encapsulation);
     int_data_mand->snap_len              = WTAP_MAX_PACKET_SIZE;
     wtap_block_add_string_option(int_data, OPT_IDB_NAME, "Fake IF File->Import", strlen("Fake IF File->Import"));
 

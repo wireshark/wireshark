@@ -1286,7 +1286,6 @@ typedef struct wtapng_if_descr_mandatory_s {
     guint64                time_units_per_second;
     int                    tsprecision;           /**< WTAP_TSPREC_ value for this interface */
 
-    guint16                link_type;
     guint32                snap_len;
 
     guint8                 num_stat_entries;

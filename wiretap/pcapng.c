@@ -677,6 +677,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
     guint to_read, opt_cont_buf_len;
     pcapng_interface_description_block_t idb;
     wtapng_if_descr_mandatory_t* if_descr_mand;
+    guint   link_type;
     pcapng_option_header_t oh;
     guint8 *option_content = NULL; /* Allocate as large as the options block */
     gchar* tmp_content;
@@ -720,19 +721,19 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
     wblock->block = wtap_block_create(WTAP_BLOCK_IF_DESCR);
     if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(wblock->block);
     if (pn->byte_swapped) {
-        if_descr_mand->link_type = GUINT16_SWAP_LE_BE(idb.linktype);
+        link_type = GUINT16_SWAP_LE_BE(idb.linktype);
         if_descr_mand->snap_len  = GUINT32_SWAP_LE_BE(idb.snaplen);
     } else {
-        if_descr_mand->link_type = idb.linktype;
+        link_type = idb.linktype;
         if_descr_mand->snap_len  = idb.snaplen;
     }
 
-    if_descr_mand->wtap_encap = wtap_pcap_encap_to_wtap_encap(if_descr_mand->link_type);
+    if_descr_mand->wtap_encap = wtap_pcap_encap_to_wtap_encap(link_type);
     if_descr_mand->time_units_per_second = time_units_per_second;
     if_descr_mand->tsprecision = tsprecision;
 
     pcapng_debug("pcapng_read_if_descr_block: IDB link_type %u (%s), snap %u",
-                  if_descr_mand->link_type,
+                  link_type,
                   wtap_encap_string(if_descr_mand->wtap_encap),
                   if_descr_mand->snap_len);
 
@@ -3970,13 +3971,15 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtap_block_t int_data, int *err)
     pcapng_write_block_t block_data;
     struct pcapng_option_header option_hdr;
     wtapng_if_descr_mandatory_t* mand_data = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
+    int link_type;
 
     pcapng_debug("pcapng_write_if_descr_block: encap = %d (%s), snaplen = %d",
-                  mand_data->link_type,
-                  wtap_encap_string(wtap_pcap_encap_to_wtap_encap(mand_data->link_type)),
+                  mand_data->wtap_encap,
+                  wtap_encap_string(mand_data->wtap_encap),
                   mand_data->snap_len);
 
-    if (mand_data->link_type == (guint16)-1) {
+    link_type = wtap_wtap_encap_to_pcap_encap(mand_data->wtap_encap);
+    if (link_type == -1) {
         *err = WTAP_ERR_UNWRITABLE_ENCAP;
         return FALSE;
     }
@@ -4000,7 +4003,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtap_block_t int_data, int *err)
     wdh->bytes_dumped += sizeof bh;
 
     /* write block fixed content */
-    idb.linktype    = mand_data->link_type;
+    idb.linktype    = link_type;
     idb.reserved    = 0;
     idb.snaplen     = mand_data->snap_len;
 

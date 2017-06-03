@@ -460,14 +460,6 @@ is_duplicate_idb(const wtap_block_t idb1, const wtap_block_t idb2)
         return FALSE;
     }
 
-    merge_debug("idb1_mand->link_type == idb2_mand->link_type: %s",
-                 (idb1_mand->link_type == idb2_mand->link_type) ? "TRUE":"FALSE");
-    if (idb1_mand->link_type != idb2_mand->link_type) {
-        /* Clearly not the same interface. */
-        merge_debug("merge::is_duplicate_idb() returning FALSE");
-        return FALSE;
-    }
-
     merge_debug("idb1_mand->time_units_per_second == idb2_mand->time_units_per_second: %s",
                  (idb1_mand->time_units_per_second == idb2_mand->time_units_per_second) ? "TRUE":"FALSE");
     if (idb1_mand->time_units_per_second != idb2_mand->time_units_per_second) {
