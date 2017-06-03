@@ -1424,7 +1424,8 @@ main(int argc, char *argv[])
 
                 if (pdh == NULL) {
                     cfile_dump_open_failure_message("editcap", filename,
-                                                    write_err, out_frame_type);
+                                                    write_err,
+                                                    out_file_type_subtype);
                     ret = INVALID_FILE;
                     goto clean_exit;
                 }
@@ -1466,7 +1467,7 @@ main(int argc, char *argv[])
                         if (pdh == NULL) {
                             cfile_dump_open_failure_message("editcap", filename,
                                                             write_err,
-                                                            out_frame_type);
+                                                            out_file_type_subtype);
                             ret = INVALID_FILE;
                             goto clean_exit;
                         }
@@ -1496,7 +1497,7 @@ main(int argc, char *argv[])
                     if (pdh == NULL) {
                         cfile_dump_open_failure_message("editcap", filename,
                                                         write_err,
-                                                        out_frame_type);
+                                                        out_file_type_subtype);
                         ret = INVALID_FILE;
                         goto clean_exit;
                     }
@@ -1810,7 +1811,7 @@ main(int argc, char *argv[])
             if (pdh == NULL) {
                 cfile_dump_open_failure_message("editcap", filename,
                                                 write_err,
-                                                out_frame_type);
+                                                out_file_type_subtype);
                 ret = INVALID_FILE;
                 goto clean_exit;
             }
