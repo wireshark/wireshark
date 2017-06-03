@@ -29,10 +29,6 @@
 #include <epan/packet.h>
 #include "cfile.h"
 #include "summary.h"
-#if 0
-#include "ui/capture_ui_utils.h"
-#endif
-
 
 static void
 tally_frame_data(frame_data *cur_frame, summary_tally *sum_tally)
