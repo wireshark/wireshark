@@ -254,10 +254,9 @@ wtap_get_debug_if_descr(const wtap_block_t if_descr,
 	}
 
 	g_string_append_printf(info,
-			"%*cEncapsulation = %s (%d/%u - %s)%s", indent, ' ',
+			"%*cEncapsulation = %s (%d - %s)%s", indent, ' ',
 			wtap_encap_string(if_descr_mand->wtap_encap),
 			if_descr_mand->wtap_encap,
-			if_descr_mand->link_type,
 			wtap_encap_short_string(if_descr_mand->wtap_encap),
 			line_end);
 

@@ -788,7 +788,6 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
 	int_data_mand->wtap_encap = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
 	int_data_mand->time_units_per_second = 1000000; /* default microsecond resolution */
-	int_data_mand->link_type = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_WIRESHARK_UPPER_PDU);
 	int_data_mand->snap_len = WTAP_MAX_PACKET_SIZE;
 	wtap_block_add_string_option(int_data, OPT_IDB_NAME, "Fake IF", strlen("Fake IF"));
 	int_data_mand->num_stat_entries = 0;          /* Number of ISB:s */
