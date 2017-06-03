@@ -1,7 +1,7 @@
 [main]
 host = https://www.transifex.com
 
-[wireshark.master]
+[wireshark.master-24]
 file_filter = ui/qt/wireshark_<lang>.ts
 source_file = ui/qt/wireshark_en.ts
 source_lang = en
@@ -13,7 +13,7 @@ trans.ja_JP = ui/qt/wireshark_ja_JP.ts
 trans.pl = ui/qt/wireshark_pl.ts
 trans.zh_CN = ui/qt/wireshark_zh_CN.ts
 
-[wireshark.debian]
+[wireshark.debian-24]
 file_filter = debian/po/<lang>.po
 source_file = debian/po/templates.pot
 source_lang = en
