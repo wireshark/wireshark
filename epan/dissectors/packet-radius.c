@@ -1572,7 +1572,7 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 
 				avp_vsa_len -= avp_vsa_header_len;
 
-				if (vendor->attrs_by_id) {
+				if (vendor->attrs_by_id && !avp_is_extended) {
 					dictionary_entry = (radius_attr_info_t *)g_hash_table_lookup(vendor->attrs_by_id, GUINT_TO_POINTER(avp_vsa_type));
 				} else {
 					dictionary_entry = NULL;
