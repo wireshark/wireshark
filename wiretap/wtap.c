@@ -920,6 +920,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_USB_DARWIN */
 	{ "Darwin USB", "darwin-usb" },
+
+	/* WTAP_ENCAP_LORATAP */
+	{ "LoRaTap", "loratap"},
 };
 
 WS_DLL_LOCAL

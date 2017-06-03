@@ -875,6 +875,7 @@ DISSECTOR_SRC = \
 	packet-logcat-text.c	\
 	packet-lon.c		\
 	packet-loop.c		\
+	packet-loratap.c	\
 	packet-lpd.c		\
 	packet-lsc.c		\
 	packet-lsd.c		\

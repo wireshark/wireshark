@@ -443,6 +443,9 @@ static const struct {
 	/* IBM SDLC frames containing SNA PDUs */
 	{ 268,		WTAP_ENCAP_SDLC },
 
+	/* LoRaTap */
+	{ 270,		WTAP_ENCAP_LORATAP },
+
 	/*
 	 * To repeat:
 	 *

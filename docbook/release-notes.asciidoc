@@ -37,6 +37,7 @@ since version 2.4.0:
 
 // Add one protocol per line between the --sort-and-group-- delimiters.
 --sort-and-group--
+LoRaTap
 --sort-and-group--
 
 === Updated Protocol Support
@@ -54,6 +55,7 @@ _Non-empty section placeholder._
 
 _Non-empty section placeholder._
 --sort-and-group--
+LoRaTap
 --sort-and-group--
 
 //=== Major API Changes
