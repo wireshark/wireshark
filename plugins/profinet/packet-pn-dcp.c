@@ -951,19 +951,14 @@ dissect_PNDCP_Suboption_Manuf(tvbuff_t *tvb, int offset, packet_info *pinfo,
                             proto_tree *tree, proto_item *block_item, proto_item *dcp_item,
                             guint8 service_id _U_, gboolean is_response _U_)
 {
-    guint8  suboption;
     guint16 block_length;
 
-
-    offset = dissect_pn_uint8( tvb, offset, pinfo, tree, hf_pn_dcp_suboption_manuf, &suboption);
+    offset = dissect_pn_uint8( tvb, offset, pinfo, tree, hf_pn_dcp_suboption_manuf, NULL);
     offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_length,    &block_length);
 
-    switch (suboption) {
-    default:
-        pn_append_info(pinfo, dcp_item, ", Manufacturer Specific");
-        proto_item_append_text(block_item, "Manufacturer Specific");
-        offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, block_length);
-    }
+    pn_append_info(pinfo, dcp_item, ", Manufacturer Specific");
+    proto_item_append_text(block_item, "Manufacturer Specific");
+    offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, block_length);
 
     return offset;
 }
