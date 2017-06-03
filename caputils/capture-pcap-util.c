@@ -1340,7 +1340,7 @@ open_capture_device(capture_options *capture_opts,
 		auth.username = interface_opts->auth_username;
 		auth.password = interface_opts->auth_password;
 
-		if (interface_opts->have_snaplen)
+		if (interface_opts->has_snaplen)
 			snaplen = interface_opts->snaplen;
 		else {
 			/*
