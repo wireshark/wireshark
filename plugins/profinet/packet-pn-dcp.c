@@ -112,6 +112,7 @@ static int hf_pn_dcp_suboption_manuf = -1;
 static gint ett_pn_dcp = -1;
 static gint ett_pn_dcp_block = -1;
 
+static expert_field ei_pn_dcp_block_parse_error = EI_INIT;
 static expert_field ei_pn_dcp_block_error_unknown = EI_INIT;
 static expert_field ei_pn_dcp_ip_conflict = EI_INIT;
 
@@ -1101,7 +1102,9 @@ dissect_PNDCP_PDU(tvbuff_t *tvb,
         }
         /* prevent an infinite loop */
         if (offset <= ori_offset || data_length < (offset - ori_offset)) {
-            THROW(ReportedBoundsError);
+            proto_tree_add_expert(tree, pinfo, &ei_pn_dcp_block_parse_error,
+                            tvb, ori_offset, tvb_captured_length_remaining(tvb, ori_offset));
+            break;
         }
         data_length -= (offset - ori_offset);
     }
@@ -1354,6 +1357,7 @@ proto_register_pn_dcp (void)
     };
 
     static ei_register_info ei[] = {
+        { &ei_pn_dcp_block_parse_error, { "pn_dcp.block_error.parse", PI_PROTOCOL, PI_ERROR, "parse error", EXPFILL }},
         { &ei_pn_dcp_block_error_unknown, { "pn_dcp.block_error.unknown", PI_RESPONSE_CODE, PI_CHAT, "Unknown", EXPFILL }},
         { &ei_pn_dcp_ip_conflict, { "pn_dcp.ip_conflict", PI_RESPONSE_CODE, PI_NOTE, "IP address conflict detected!", EXPFILL }},
     };
