@@ -4,7 +4,7 @@ include::attributes.asciidoc[]
 // AsciiDoc quick reference: http://powerman.name/doc/asciidoc
 
 This is a semi-experimental release intended to test new features for
-Wireshark 2.4.
+Wireshark 2.6.
 
 == What is Wireshark?
 
@@ -27,31 +27,7 @@ used for troubleshooting, analysis, development and education.
 === New and Updated Features
 
 The following features are new (or have been significantly updated)
-since version 2.2.0:
-
-* Experimental 32-bit and 64-bit Windows Installer (.msi) packages are available.
-  It is recommended that you use these independently of the NSIS (.exe) installers.
-  That is, you should make sure the NSIS package is completely uninstalled before
-  installing the Windows Installer package and vice-versa.
-* Source packages are now compressed using xz instead of bzip2.
-* The legacy (GTK+) UI is disabled by default in the Windows installer.
-* The legacy (GTK+) UI is disabled by default in Autotools and CMake.
-* SS7 Point Codes can now be resolved into names with a hosts-like file.
-* Wireshark can now go fullscreen to have more room for packets.
-* TShark can now export objects like the other GUI interfaces.
-* Support for G.722 and G.726 codecs in the RTP Player (via the SpanDSP library).
-* You can now choose the output device when playing RTP streams.
-* Added support for dissectors to include a unit name natively in their hf field.
-  A field can now automatically append "seconds" or "ms" to its value without
-  additional printf-style APIs.
-* The Default profile can now be reset to default values.
-* You can move back and forth in the selection history in the Qt UI.
-* IEEE 802.15.4 dissector now uses an UAT for decryption keys. The original
-  decryption key preference has been obsoleted.
-* Extcap utilities can now provide configuration for a GUI interface toolbar to
-  control the extcap utility while capturing.
-* Extcap utilities can now validate the capture filter.
-* Display filter function len() can now be used on all string and byte fields.
+since version 2.4.0:
 
 //=== Removed Dissectors
 
@@ -61,45 +37,6 @@ since version 2.2.0:
 
 // Add one protocol per line between the --sort-and-group-- delimiters.
 --sort-and-group--
-Bluetooth HCI Vendor Intel
-CAN FD
-Ericsson A-bis P-GSL
-Ericsson A-bis TFP (Traffic Forwarding Protocol)
-Fc00/cjdns Protocol
-Generic Netlink (genl)
-GSM Osmux
-Health Level 7 (HL7)
-High-speed SECS message service (HSMS)
-iPerf2
-ISO 15765
-Linux 802.11 Netlink (nl80211)
-Local Service Discovery (LSD)
-M2 Application Protocol
-Mesh Link Establishment (MLE)
-Nordic BLE Sniffer
-NVMe Fabrics RDMA
-NVMe
-OpenThread simulator
-RFTap Protocol
-SCTE-35 Digital Program Insertion Messages
-Snort Post-dissector
-Thread CoAP
-Unified Diagnostic Services (UDS)
-vSocket
-Windows Cluster Management API (clusapi)
-GSMTAP based logging
-HomePNA
-X-Rite i1 Display Pro (and derivatives) USB protocol
-IndigoCare iCall protocol
-IndigoCare Netrix protocol
-NetScaler HA Protocol
-NetScaler Metric Exchange Protocol
-NetScaler RPC Protocol
-DirectPlay 8 protocol
-NM protocol
-Netgear Ensemble Protocol
-OBD-II PIDs
-(Facebook) Zero
 --sort-and-group--
 
 === Updated Protocol Support
@@ -120,8 +57,6 @@ _Non-empty section placeholder._
 --sort-and-group--
 
 //=== Major API Changes
-IEEE802.11: wlan_mgt display filter element got renamed to wlan.
-Libgcrypt is now a required dependency.
 
 == Getting Wireshark
 
