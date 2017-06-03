@@ -1209,7 +1209,7 @@ open_capture_device_pcap_open_live(interface_options *interface_opts,
 	pcap_t *pcap_h;
 	int snaplen;
 
-	if (interface_opts->have_snaplen)
+	if (interface_opts->has_snaplen)
 		snaplen = interface_opts->snaplen;
 	else {
 		/*
