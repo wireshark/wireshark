@@ -312,6 +312,8 @@ find_add_q_ctx(packet_info *pinfo, conversation_t *conv)
         q_ctx = wmem_new(wmem_file_scope(), struct nvme_rdma_q_ctx);
         q_ctx->n_q_ctx.pending_cmds = wmem_tree_new(wmem_file_scope());
         q_ctx->n_q_ctx.done_cmds = wmem_tree_new(wmem_file_scope());
+        q_ctx->n_q_ctx.data_requests = wmem_tree_new(wmem_file_scope());
+        q_ctx->n_q_ctx.data_responses = wmem_tree_new(wmem_file_scope());
         q_ctx->n_q_ctx.qid = qid;
         conversation_add_proto_data(conv, proto_nvme_rdma, q_ctx);
     }
@@ -431,7 +433,7 @@ static void dissect_nvme_fabric_connect_cmd(proto_tree *cmd_tree, tvbuff_t *cmd_
 {
     proto_tree_add_item(cmd_tree, hf_nvme_rdma_cmd_connect_rsvd1, cmd_tvb,
                         5, 19, ENC_NA);
-    dissect_nvme_cmd_sgl(cmd_tvb, cmd_tree, hf_nvme_rdma_cmd_connect_sgl1);
+    dissect_nvme_cmd_sgl(cmd_tvb, cmd_tree, hf_nvme_rdma_cmd_connect_sgl1, NULL);
     proto_tree_add_item(cmd_tree, hf_nvme_rdma_cmd_connect_recfmt, cmd_tvb,
                         40, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cmd_tree, hf_nvme_rdma_cmd_connect_qid, cmd_tvb,
@@ -645,6 +647,10 @@ dissect_nvme_rdma_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_t
         cmd_ctx->n_cmd_ctx.fabric = FALSE;
         dissect_nvme_cmd(nvme_tvb, pinfo, root_tree, &q_ctx->n_q_ctx,
                          &cmd_ctx->n_cmd_ctx);
+        if (cmd_ctx->n_cmd_ctx.remote_key) {
+            nvme_add_data_request(pinfo, &q_ctx->n_q_ctx,
+                                  &cmd_ctx->n_cmd_ctx, (void*)cmd_ctx);
+        }
     }
 }
 
@@ -783,6 +789,8 @@ dissect_nvme_to_host(tvbuff_t *nvme_tvb, packet_info *pinfo,
                      struct infinibandinfo *info,
                      struct nvme_rdma_q_ctx *q_ctx, guint len)
 {
+    struct nvme_rdma_cmd_ctx *cmd_ctx;
+
     switch (info->opCode) {
     case RC_SEND_ONLY:
     case RC_SEND_ONLY_INVAL:
@@ -791,6 +799,26 @@ dissect_nvme_to_host(tvbuff_t *nvme_tvb, packet_info *pinfo,
         else
             proto_tree_add_item(nvme_tree, hf_nvme_rdma_to_host_unknown_data, nvme_tvb,
                     0, len, ENC_NA);
+        break;
+    case RC_RDMA_WRITE_ONLY:
+    case RC_RDMA_WRITE_FIRST:
+        if (!PINFO_FD_VISITED(pinfo)) {
+            cmd_ctx = (struct nvme_rdma_cmd_ctx*)
+                       nvme_lookup_data_request(&q_ctx->n_q_ctx,
+                                                info->reth_remote_key);
+            if (cmd_ctx) {
+                cmd_ctx->n_cmd_ctx.data_resp_pkt_num = pinfo->num;
+                nvme_add_data_response(&q_ctx->n_q_ctx, &cmd_ctx->n_cmd_ctx,
+                                       info->reth_remote_key);
+            }
+        } else {
+            cmd_ctx = (struct nvme_rdma_cmd_ctx*)
+                       nvme_lookup_data_response(pinfo, &q_ctx->n_q_ctx,
+                                                 info->reth_remote_key);
+        }
+        if (cmd_ctx)
+            dissect_nvme_data_response(nvme_tvb, pinfo, root_tree, &q_ctx->n_q_ctx,
+                                       &cmd_ctx->n_cmd_ctx, len);
         break;
     default:
         proto_tree_add_item(nvme_tree, hf_nvme_rdma_to_host_unknown_data, nvme_tvb,
