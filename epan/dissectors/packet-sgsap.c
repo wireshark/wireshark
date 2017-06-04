@@ -1348,7 +1348,7 @@ sgsap_release_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     /* IMSI IMSI 9.4.6  M   TLV 6-10 */
     ELEM_MAND_TLV(0x01, GSM_A_PDU_TYPE_BSSMAP, BE_IMSI, NULL, ei_sgsap_missing_mandatory_element);
     /* SGs cause    SGs cause 9.4.18    O   TLV 3 */
-    ELEM_MAND_TLV(0x08, SGSAP_PDU_TYPE, DE_SGSAP_SGS_CAUSE, NULL, ei_sgsap_missing_mandatory_element);
+    ELEM_OPT_TLV(0x08, SGSAP_PDU_TYPE, DE_SGSAP_SGS_CAUSE, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_sgsap_extraneous_data);
 }
