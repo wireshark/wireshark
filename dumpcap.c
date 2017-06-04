@@ -294,8 +294,9 @@ typedef struct _capture_src {
     int                          cap_pipe_fd;            /**< the file descriptor of the capture pipe */
     gboolean                     cap_pipe_modified;      /**< TRUE if data in the pipe uses modified pcap headers */
     gboolean                     cap_pipe_byte_swapped;  /**< TRUE if data in the pipe is byte swapped */
+    char *                       cap_pipe_databuf;       /**< Pointer to the data buffer we've allocated */
 #if defined(_WIN32)
-    char *                       cap_pipe_buf;           /**< Pointer to the data buffer we read into */
+    char *                       cap_pipe_buf;           /**< Pointer to the buffer we read into */
     DWORD                        cap_pipe_bytes_to_read; /**< Used by cap_pipe_dispatch */
     DWORD                        cap_pipe_bytes_read;    /**< Used by cap_pipe_dispatch */
 #else
@@ -1676,6 +1677,7 @@ cap_pipe_open_live(char *pipename,
     }
 
     pcap_src->from_cap_pipe = TRUE;
+    pcap_src->cap_pipe_databuf = (guchar*)g_malloc(WTAP_MAX_PACKET_SIZE);
 
 #ifdef _WIN32
     if (pcap_src->from_cap_socket)
@@ -1878,7 +1880,6 @@ cap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errmsg
     wchar_t  *err_str;
 #endif
     ssize_t   b;
-    guchar   *data = (guchar*)g_malloc(WTAP_MAX_PACKET_SIZE);
 
 #ifdef LOG_CAPTURE_VERBOSE
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "cap_pipe_dispatch");
@@ -1937,15 +1938,12 @@ cap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errmsg
                 break;
             }
             if (!q_status) {
-                g_free(data);
                 return 0;
             }
         }
 #endif
-        if (pcap_src->cap_pipe_bytes_read < pcap_src->cap_pipe_bytes_to_read) {
-            g_free(data);
+        if (pcap_src->cap_pipe_bytes_read < pcap_src->cap_pipe_bytes_to_read)
             return 0;
-        }
         result = PD_REC_HDR_READ;
         break;
 
@@ -1959,7 +1957,7 @@ cap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errmsg
             pcap_src->cap_pipe_bytes_read = 0;
 
 #ifdef _WIN32
-            pcap_src->cap_pipe_buf = (char *) data;
+            pcap_src->cap_pipe_buf = pcap_src->cap_pipe_databuf;
             g_async_queue_push(pcap_src->cap_pipe_pending_q, pcap_src->cap_pipe_buf);
             g_mutex_unlock(pcap_src->cap_pipe_read_mtx);
         }
@@ -1972,7 +1970,7 @@ cap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errmsg
 #endif
         {
             b = cap_pipe_read(pcap_src->cap_pipe_fd,
-                              data+pcap_src->cap_pipe_bytes_read,
+                              pcap_src->cap_pipe_databuf+pcap_src->cap_pipe_bytes_read,
                               pcap_src->cap_pipe_bytes_to_read - pcap_src->cap_pipe_bytes_read,
                               pcap_src->from_cap_socket);
             if (b <= 0) {
@@ -2002,15 +2000,12 @@ cap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errmsg
                 break;
             }
             if (!q_status) {
-                g_free(data);
                 return 0;
             }
         }
 #endif /* _WIN32 */
-        if (pcap_src->cap_pipe_bytes_read < pcap_src->cap_pipe_bytes_to_read) {
-            g_free(data);
+        if (pcap_src->cap_pipe_bytes_read < pcap_src->cap_pipe_bytes_to_read)
             return 0;
-        }
         result = PD_DATA_READ;
         break;
 
@@ -2037,7 +2032,6 @@ cap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errmsg
 
         if (pcap_src->cap_pipe_rechdr.hdr.incl_len) {
             pcap_src->cap_pipe_state = STATE_EXPECT_DATA;
-            g_free(data);
             return 0;
         }
         /* no data to read? */
@@ -2050,17 +2044,15 @@ cap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errmsg
         phdr.len = pcap_src->cap_pipe_rechdr.hdr.orig_len;
 
         if (use_threads) {
-            capture_loop_queue_packet_cb((u_char *)pcap_src, &phdr, data);
+            capture_loop_queue_packet_cb((u_char *)pcap_src, &phdr, pcap_src->cap_pipe_databuf);
         } else {
-            capture_loop_write_packet_cb((u_char *)pcap_src, &phdr, data);
+            capture_loop_write_packet_cb((u_char *)pcap_src, &phdr, pcap_src->cap_pipe_databuf);
         }
         pcap_src->cap_pipe_state = STATE_EXPECT_REC_HDR;
-        g_free(data);
         return 1;
 
     case PD_PIPE_EOF:
         pcap_src->cap_pipe_err = PIPEOF;
-        g_free(data);
         return -1;
 
     case PD_PIPE_ERR:
@@ -2082,7 +2074,6 @@ cap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errmsg
 
     pcap_src->cap_pipe_err = PIPERR;
     /* Return here rather than inside the switch to prevent GCC warning */
-    g_free(data);
     return -1;
 }
 
@@ -2341,23 +2332,31 @@ static void capture_loop_close_input(loop_data *ld)
 
     for (i = 0; i < ld->pcaps->len; i++) {
         pcap_src = g_array_index(ld->pcaps, capture_src *, i);
-        /* if open, close the capture pipe "input file" */
-        if (pcap_src->cap_pipe_fd >= 0) {
-            g_assert(pcap_src->from_cap_pipe);
-            cap_pipe_close(pcap_src->cap_pipe_fd, pcap_src->from_cap_socket);
-            pcap_src->cap_pipe_fd = -1;
-        }
+        /* Pipe, or capture device? */
+        if (pcap_src->from_cap_pipe) {
+            /* Pipe. If open, close the capture pipe "input file". */
+            if (pcap_src->cap_pipe_fd >= 0) {
+                cap_pipe_close(pcap_src->cap_pipe_fd, pcap_src->from_cap_socket);
+                pcap_src->cap_pipe_fd = -1;
+            }
 #ifdef _WIN32
-        if (pcap_src->cap_pipe_h != INVALID_HANDLE_VALUE) {
-            CloseHandle(pcap_src->cap_pipe_h);
-            pcap_src->cap_pipe_h = INVALID_HANDLE_VALUE;
-        }
+            if (pcap_src->cap_pipe_h != INVALID_HANDLE_VALUE) {
+                CloseHandle(pcap_src->cap_pipe_h);
+                pcap_src->cap_pipe_h = INVALID_HANDLE_VALUE;
+            }
 #endif
-        /* if open, close the pcap "input file" */
-        if (pcap_src->pcap_h != NULL) {
-            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_close_input: closing %p", (void *)pcap_src->pcap_h);
-            pcap_close(pcap_src->pcap_h);
-            pcap_src->pcap_h = NULL;
+            if (pcap_src->cap_pipe_databuf != NULL) {
+                /* Free the buffer. */
+                g_free(pcap_src->cap_pipe_databuf);
+                pcap_src->cap_pipe_databuf = NULL;
+            }
+	} else {
+	    /* Capture device.  If open, close the pcap_t. */
+            if (pcap_src->pcap_h != NULL) {
+                g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_close_input: closing %p", (void *)pcap_src->pcap_h);
+                pcap_close(pcap_src->pcap_h);
+                pcap_src->pcap_h = NULL;
+            }
         }
     }
 
