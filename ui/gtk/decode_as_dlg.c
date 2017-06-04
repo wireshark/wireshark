@@ -1265,11 +1265,11 @@ decode_add_simple_page (decode_as_t *entry)
     g_object_set_data(G_OBJECT(page), E_PAGE_ACTION, decode_simple);
     g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, (gchar *) entry->table_name);
     g_object_set_data(G_OBJECT(page), E_PAGE_DECODE_AS_DATA, (gchar *)entry);
+    g_object_set_data(G_OBJECT(page), E_PAGE_CURR_LAYER_NUM, GUINT_TO_POINTER((guint)cfile.edt->pi.curr_layer_num));
 
     if (entry->num_items == 1)
     {
         g_object_set_data(G_OBJECT(page), E_PAGE_VALUE, entry->values[0].build_values[0](&cfile.edt->pi));
-        g_object_set_data(G_OBJECT(page), E_PAGE_CURR_LAYER_NUM, GUINT_TO_POINTER((guint)cfile.edt->pi.curr_layer_num));
 
         /* Always enabled */
         entry->values->label_func(&cfile.edt->pi, prompt);
