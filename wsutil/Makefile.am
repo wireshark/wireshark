@@ -154,7 +154,8 @@ libwsutil_la_SOURCES = \
 	unicode-utils.c		\
 	ws_mempbrk.c		\
 	wsgcrypt.c		\
-	wsjsmn.c
+	wsjsmn.c		\
+	xtea.c
 
 if HAVE_OS_X_FRAMEWORKS
 libwsutil_la_SOURCES += cfutils.c cfutils.h
@@ -201,7 +202,8 @@ EXTRA_DIST = \
 	ws_mempbrk_sse42.c	\
 	wsgcrypt.h		\
 	wsgetopt.h		\
-	wspcap.h
+	wspcap.h		\
+	xtea.h
 
 CLEANFILES = \
 	libwsutil.a	\
