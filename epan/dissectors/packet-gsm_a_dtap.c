@@ -6974,14 +6974,15 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     if (msg_str == NULL) return len;
 
-    if (offset >= len) return len;
-
     /*
      * decode elements
      */
     if (dtap_msg_fcn == NULL)
     {
-        proto_tree_add_item(dtap_tree, hf_gsm_a_dtap_message_elements, tvb, offset, len - offset, ENC_NA);
+        if (offset < len)
+        {
+            proto_tree_add_item(dtap_tree, hf_gsm_a_dtap_message_elements, tvb, offset, len - offset, ENC_NA);
+        }
     }
     else
     {
