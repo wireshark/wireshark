@@ -2839,10 +2839,6 @@ dissect_enip_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 static int
 dissect_enip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-   /* An ENIP packet is at least 4 bytes long. */
-   if (tvb_captured_length(tvb) < 4)
-      return 0;
-
    tcp_dissect_pdus(tvb, pinfo, tree, enip_desegment, 4, get_enip_pdu_len, dissect_enip_pdu, data);
    return tvb_captured_length(tvb);
 }

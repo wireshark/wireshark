@@ -361,10 +361,6 @@ dissect_hpfeeds_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 static int
 dissect_hpfeeds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    /* At lease header is needed */
-    if (tvb_reported_length(tvb) < HPFEEDS_HDR_LEN)
-        return 0;
-
     tcp_dissect_pdus(tvb, pinfo, tree, hpfeeds_desegment, HPFEEDS_HDR_LEN,
         get_hpfeeds_pdu_len, dissect_hpfeeds_pdu, data);
     return tvb_captured_length(tvb);

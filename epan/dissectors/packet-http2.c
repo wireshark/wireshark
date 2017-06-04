@@ -1514,10 +1514,6 @@ dissect_http2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti;
     proto_tree *http2_tree;
 
-    /* Check that there's enough data */
-    if (tvb_captured_length(tvb) < FRAME_HEADER_LENGTH)
-        return 0;
-
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HTTP2");
     col_clear(pinfo->cinfo, COL_INFO);
 

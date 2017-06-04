@@ -822,12 +822,6 @@ get_usbip_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
 static int
 dissect_usbip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    /* Check that there's enough data */
-    if (tvb_reported_length(tvb) < 4) {
-        /* usbip's smallest packet size is 4 */
-        return 0;
-    }
-
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FRAME_HEADER_LEN,
                      get_usbip_message_len, dissect_usbip_common, data);
 

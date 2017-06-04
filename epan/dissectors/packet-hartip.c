@@ -1385,9 +1385,6 @@ static int
 dissect_hartip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                    void *data)
 {
-  if (!tvb_bytes_exist(tvb, 0, HARTIP_HEADER_LENGTH))
-    return 0;
-
   tcp_dissect_pdus(tvb, pinfo, tree, hartip_desegment, HARTIP_HEADER_LENGTH,
                    get_dissect_hartip_len, dissect_hartip_pdu, data);
   return tvb_reported_length(tvb);
