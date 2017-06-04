@@ -1865,7 +1865,7 @@ error:
 /* We read one record from the pipe, take care of byte order in the record
  * header, write the record to the capture file, and update capture statistics. */
 static int
-cap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, guchar *data, char *errmsg, int errmsgl)
+cap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errmsgl)
 {
     struct pcap_pkthdr  phdr;
     enum { PD_REC_HDR_READ, PD_DATA_READ, PD_PIPE_EOF, PD_PIPE_ERR,
@@ -1878,6 +1878,7 @@ cap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, guchar *data, char *errm
     wchar_t  *err_str;
 #endif
     ssize_t   b;
+    guchar   *data = (guchar*)g_malloc(WTAP_MAX_PACKET_SIZE);
 
 #ifdef LOG_CAPTURE_VERBOSE
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "cap_pipe_dispatch");
@@ -1936,12 +1937,15 @@ cap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, guchar *data, char *errm
                 break;
             }
             if (!q_status) {
+                g_free(data);
                 return 0;
             }
         }
 #endif
-        if (pcap_src->cap_pipe_bytes_read < pcap_src->cap_pipe_bytes_to_read)
+        if (pcap_src->cap_pipe_bytes_read < pcap_src->cap_pipe_bytes_to_read) {
+            g_free(data);
             return 0;
+        }
         result = PD_REC_HDR_READ;
         break;
 
@@ -1998,12 +2002,15 @@ cap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, guchar *data, char *errm
                 break;
             }
             if (!q_status) {
+                g_free(data);
                 return 0;
             }
         }
 #endif /* _WIN32 */
-        if (pcap_src->cap_pipe_bytes_read < pcap_src->cap_pipe_bytes_to_read)
+        if (pcap_src->cap_pipe_bytes_read < pcap_src->cap_pipe_bytes_to_read) {
+            g_free(data);
             return 0;
+        }
         result = PD_DATA_READ;
         break;
 
@@ -2030,6 +2037,7 @@ cap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, guchar *data, char *errm
 
         if (pcap_src->cap_pipe_rechdr.hdr.incl_len) {
             pcap_src->cap_pipe_state = STATE_EXPECT_DATA;
+            g_free(data);
             return 0;
         }
         /* no data to read? */
@@ -2047,10 +2055,12 @@ cap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, guchar *data, char *errm
             capture_loop_write_packet_cb((u_char *)pcap_src, &phdr, data);
         }
         pcap_src->cap_pipe_state = STATE_EXPECT_REC_HDR;
+        g_free(data);
         return 1;
 
     case PD_PIPE_EOF:
         pcap_src->cap_pipe_err = PIPEOF;
+        g_free(data);
         return -1;
 
     case PD_PIPE_ERR:
@@ -2072,6 +2082,7 @@ cap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, guchar *data, char *errm
 
     pcap_src->cap_pipe_err = PIPERR;
     /* Return here rather than inside the switch to prevent GCC warning */
+    g_free(data);
     return -1;
 }
 
@@ -2575,12 +2586,10 @@ capture_loop_dispatch(loop_data *ld,
 {
     int    inpkts;
     gint   packet_count_before;
-    guchar *pcap_data;
 #ifndef _WIN32
     int    sel_ret;
 #endif
 
-    pcap_data = (guchar*)g_malloc(WTAP_MAX_PACKET_SIZE);
     packet_count_before = ld->packet_count;
     if (pcap_src->from_cap_pipe) {
         /* dispatch from capture pipe */
@@ -2601,7 +2610,7 @@ capture_loop_dispatch(loop_data *ld,
              * "select()" says we can read from the pipe without blocking
              */
 #endif
-            inpkts = cap_pipe_dispatch(ld, pcap_src, pcap_data, errmsg, errmsg_len);
+            inpkts = cap_pipe_dispatch(ld, pcap_src, errmsg, errmsg_len);
             if (inpkts < 0) {
                 ld->go = FALSE;
             }
@@ -2740,7 +2749,6 @@ capture_loop_dispatch(loop_data *ld,
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: %d new packet%s", inpkts, plurality(inpkts, "", "s"));
 #endif
 
-    g_free(pcap_data);
     return ld->packet_count - packet_count_before;
 }
 
