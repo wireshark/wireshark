@@ -659,22 +659,16 @@ static const value_string drda_dsstyp_abbr[] = {
     { 0,          NULL }
 };
 
-static guint iPreviousFrameNumber = 0;
-
-static void
-drda_init(void)
-{
-    iPreviousFrameNumber = 0;
-}
-
 static int
-dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_drda_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
+    proto_tree  *drda_tree;
+    proto_tree  *drdaroot_tree;
+    proto_tree  *drda_tree_sub;
+    proto_item  *ti, *ddm_ti, *ti_length;
     gint offset = 0;
 
-    guint16 iCommand;
-    guint16 iLength;
-    guint16 iCommandEnd = 0;
+    guint32 iLength, iCommand;
 
     guint16 iParameterCP;
     gint iLengthParam;
@@ -688,92 +682,57 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         NULL
     };
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DRDA");
-    /* This is a trick to know whether this is the first PDU in this packet or not */
-    if (iPreviousFrameNumber != pinfo->num)
-        col_clear(pinfo->cinfo, COL_INFO);
-    else
-        col_append_str(pinfo->cinfo, COL_INFO, " | ");
+    ti = proto_tree_add_item(tree, proto_drda, tvb, 0, -1, ENC_NA);
+    drdaroot_tree = proto_item_add_subtree(ti, ett_drda);
 
-    iPreviousFrameNumber = pinfo->num;
-    /* There may be multiple DRDA commands in one frame */
-    while ((guint) (offset + 10) <= tvb_reported_length(tvb))
+    drda_tree = proto_tree_add_subtree(drdaroot_tree, tvb, 0, 10, ett_drda_ddm, &ddm_ti, DRDA_TEXT_DDM);
+
+    ti_length = proto_tree_add_item_ret_uint(drda_tree, hf_drda_ddm_length, tvb, 0, 2, ENC_BIG_ENDIAN, &iLength);
+    if (iLength < 10) {
+        expert_add_info_format(pinfo, ti_length, &ei_drda_opcode_invalid_length, "Invalid length detected (%u): should be at least 10 bytes long", iLength);
+        return 2;
+    }
+
+    proto_tree_add_item(drda_tree, hf_drda_ddm_magic, tvb, 2, 1, ENC_BIG_ENDIAN);
+
+    proto_tree_add_bitmask(drda_tree, tvb, 3, hf_drda_ddm_format, ett_drda_ddm_format, format_flags, ENC_BIG_ENDIAN);
+    proto_tree_add_item(drda_tree, hf_drda_ddm_rc, tvb, 4, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(drda_tree, hf_drda_ddm_length2, tvb, 6, 2, ENC_BIG_ENDIAN);
+
+    proto_tree_add_item_ret_uint(drda_tree, hf_drda_ddm_codepoint, tvb, 8, 2, ENC_BIG_ENDIAN, &iCommand);
+    proto_item_append_text(ti, " (%s)", val_to_str_ext(iCommand, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
+    proto_item_append_text(ddm_ti, " (%s)", val_to_str_ext(iCommand, &drda_opcode_abbr_ext, "Unknown (0x%02x)"));
+    col_append_sep_str(pinfo->cinfo, COL_INFO, " | ", val_to_str_ext(iCommand, &drda_opcode_abbr_ext, "Unknown (0x%02x)"));
+    col_set_fence(pinfo->cinfo, COL_INFO);
+
+    /* The number of attributes is variable */
+    offset = 10;
+    while (tvb_reported_length_remaining(tvb, offset) >= 2)
     {
-        iCommand = tvb_get_ntohs(tvb, offset + 8);
-        iLength = tvb_get_ntohs(tvb, offset + 0);
-        if (iLength < 10) {
-            expert_add_info_format(pinfo, NULL, &ei_drda_opcode_invalid_length, "Invalid length detected (%u): should be at least 10 bytes long", iLength);
-            break;
-        }
-        /* iCommandEnd is the length of the packet up to the end of the current command */
-        iCommandEnd += iLength;
-
-        if (offset > 0)
-            col_append_str(pinfo->cinfo, COL_INFO, " | ");
-        col_append_str(pinfo->cinfo, COL_INFO, val_to_str_ext(iCommand, &drda_opcode_abbr_ext, "Unknown (0x%02x)"));
-
-        if (tree)
+        iLengthParam = tvb_get_ntohs(tvb, offset + 0);
+        if (iLengthParam == 0 || iLengthParam == 1)
+            iLengthParam = iLength - 10;
+        if (tvb_reported_length_remaining(tvb, offset) >= iLengthParam)
         {
-            proto_tree  *drda_tree;
-            proto_tree  *drdaroot_tree;
-            proto_tree  *drda_tree_sub;
-            proto_item  *ti;
-
-            ti = proto_tree_add_item(tree, proto_drda, tvb, offset, -1, ENC_NA);
-            proto_item_append_text(ti, " (%s)", val_to_str_ext(iCommand, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
-            drdaroot_tree = proto_item_add_subtree(ti, ett_drda);
-
-            drda_tree = proto_tree_add_subtree(drdaroot_tree, tvb, offset, 10, ett_drda_ddm, &ti, DRDA_TEXT_DDM);
-            proto_item_append_text(ti, " (%s)", val_to_str_ext(iCommand, &drda_opcode_abbr_ext, "Unknown (0x%02x)"));
-
-            proto_tree_add_item(drda_tree, hf_drda_ddm_length, tvb, offset + 0, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(drda_tree, hf_drda_ddm_magic, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
-
-            proto_tree_add_bitmask(drda_tree, tvb, offset + 3, hf_drda_ddm_format, ett_drda_ddm_format, format_flags, ENC_BIG_ENDIAN);
-            proto_tree_add_item(drda_tree, hf_drda_ddm_rc, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(drda_tree, hf_drda_ddm_length2, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(drda_tree, hf_drda_ddm_codepoint, tvb, offset + 8, 2, ENC_BIG_ENDIAN);
-
-            /* The number of attributes is variable */
-            for (offset += 10; offset < iCommandEnd; )
+            iParameterCP = tvb_get_ntohs(tvb, offset + 2);
+            drda_tree_sub = proto_tree_add_subtree(drdaroot_tree, tvb, offset, iLengthParam,
+                            ett_drda_param, &ti, DRDA_TEXT_PARAM);
+            proto_item_append_text(ti, " (%s)", val_to_str_ext(iParameterCP, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
+            proto_tree_add_item(drda_tree_sub, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(drda_tree_sub, hf_drda_param_codepoint, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(drda_tree_sub, hf_drda_param_data, tvb, offset + 4, iLengthParam - 4, ENC_UTF_8|ENC_NA);
+            proto_tree_add_item(drda_tree_sub, hf_drda_param_data_ebcdic, tvb, offset + 4, iLengthParam - 4, ENC_EBCDIC|ENC_NA);
+            if (iCommand == DRDA_CP_SQLSTT)
             {
-                if (tvb_reported_length_remaining(tvb, offset) >= 2)
-                {
-                    iLengthParam = tvb_get_ntohs(tvb, offset + 0);
-                    if (iLengthParam == 0 || iLengthParam == 1) iLengthParam = iLength - 10;
-                    if (tvb_reported_length_remaining(tvb, offset) >= iLengthParam)
-                    {
-                        iParameterCP = tvb_get_ntohs(tvb, offset + 2);
-                        drda_tree_sub = proto_tree_add_subtree(drdaroot_tree, tvb, offset, iLengthParam,
-                                     ett_drda_param, &ti, DRDA_TEXT_PARAM);
-                        proto_item_append_text(ti, " (%s)", val_to_str_ext(iParameterCP, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
-                        proto_tree_add_item(drda_tree_sub, hf_drda_param_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-                        proto_tree_add_item(drda_tree_sub, hf_drda_param_codepoint, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-                        proto_tree_add_item(drda_tree_sub, hf_drda_param_data, tvb, offset + 4, iLengthParam - 4, ENC_UTF_8|ENC_NA);
-                        proto_tree_add_item(drda_tree_sub, hf_drda_param_data_ebcdic, tvb, offset + 4, iLengthParam - 4, ENC_EBCDIC|ENC_NA);
-                        if (iCommand == DRDA_CP_SQLSTT)
-                        {
-                            /* Extract SQL statement from packet */
-                            tvbuff_t* next_tvb = NULL;
-                            next_tvb = tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4);
-                            add_new_data_source(pinfo, next_tvb, "SQL statement");
-                            proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement, next_tvb, 0, iLengthParam - 5, ENC_UTF_8|ENC_NA);
-                            proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement_ebcdic, next_tvb, 0, iLengthParam - 4, ENC_EBCDIC|ENC_NA);
-                        }
-                    }
-                    offset += iLengthParam;
-                }
-                else
-                {
-                    break;
-                }
+                /* Extract SQL statement from packet */
+                tvbuff_t* next_tvb = NULL;
+                next_tvb = tvb_new_subset_length(tvb, offset + 4, iLengthParam - 4);
+                add_new_data_source(pinfo, next_tvb, "SQL statement");
+                proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement, next_tvb, 0, iLengthParam - 5, ENC_UTF_8|ENC_NA);
+                proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement_ebcdic, next_tvb, 0, iLengthParam - 4, ENC_EBCDIC|ENC_NA);
             }
         }
-        else
-        {
-            /* No tree, advance directly to next command */
-            offset += iLength;
-        }
+        offset += iLengthParam;
     }
 
     return tvb_captured_length(tvb);
@@ -788,7 +747,11 @@ get_drda_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _
 static int
 dissect_drda_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    tcp_dissect_pdus(tvb, pinfo, tree, drda_desegment, 10, get_drda_pdu_len, dissect_drda, data);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DRDA");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    /* There may be multiple DRDA commands in one frame */
+    tcp_dissect_pdus(tvb, pinfo, tree, drda_desegment, 10, get_drda_pdu_len, dissect_drda_pdu, data);
     return tvb_captured_length(tvb);
 }
 
@@ -810,7 +773,7 @@ dissect_drda_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             conversation_set_dissector(conversation, drda_tcp_handle);
 
             /* Dissect the packet */
-            dissect_drda(tvb, pinfo, tree, data);
+            dissect_drda_tcp(tvb, pinfo, tree, data);
             return TRUE;
         }
     }
@@ -936,7 +899,6 @@ proto_register_drda(void)
                        " \"Allow subdissectors to reassemble TCP streams\""
                        " in the TCP protocol settings.",
                        &drda_desegment);
-    register_init_routine(&drda_init);
 }
 
 void
