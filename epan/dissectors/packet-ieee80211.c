@@ -18880,7 +18880,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
         mpdu_tree = proto_item_add_subtree(parent_item, ett_msdu_aggregation_parent_tree);
 
         do {
-          tvbuff_t *volatile  msdu_tvb;
+          tvbuff_t           *msdu_tvb;
           guint16             msdu_length;
           proto_tree         *subframe_tree;
           const gchar *resolve_name;

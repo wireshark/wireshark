@@ -13669,7 +13669,7 @@ dissect_zbee_zcl_gp_attr_gps_secur_lvl(tvbuff_t *tvb, proto_tree *tree, guint of
  *      @param offset    - pointer to buffer offset
  */
 static void
-dissect_zcl_gp_proxy_sink_table_request(proto_tree *tree, tvbuff_t *tvb, volatile guint *offset)
+dissect_zcl_gp_proxy_sink_table_request(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 {
     /* get Options field */
     guint8 options = tvb_get_guint8(tvb, *offset);
@@ -13721,7 +13721,7 @@ dissect_zcl_gp_proxy_sink_table_request(proto_tree *tree, tvbuff_t *tvb, volatil
  *                         ZBEE_ZCL_ATTR_GPP_PROXY_TABLE) that will be reported
  */
 static void
-dissect_zcl_gp_proxy_sink_table_response(proto_tree *tree, tvbuff_t *tvb, volatile guint *offset, guint16 attr_id)
+dissect_zcl_gp_proxy_sink_table_response(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id)
 {
     guint8 entries_count, start_index;
     guint i, stop;
@@ -13764,7 +13764,7 @@ dissect_zcl_gp_proxy_sink_table_response(proto_tree *tree, tvbuff_t *tvb, volati
  *      @param offset    - pointer to buffer offset
  */
 static void
-dissect_zcl_gp_sink_comm_mode(proto_tree *tree, tvbuff_t *tvb, volatile guint *offset)
+dissect_zcl_gp_sink_comm_mode(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 {
     static const int * n_options[] = {
         &hf_zbee_zcl_gp_cmd_sink_comm_mode_options_fld_action,
@@ -13807,7 +13807,7 @@ dissect_zbee_zcl_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     };
 
     zbee_zcl_packet   *zcl;
-    volatile guint             offset = 0;
+    guint             offset = 0;
     guint8            cmd_id;
 
     /* Reject the packet if data is NULL */
