@@ -105,13 +105,9 @@ int
 dissect_pn_uint32(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
                        proto_tree *tree, int hfindex, guint32 *pdata)
 {
-    guint32 data;
+    proto_tree_add_item_ret_uint(tree, hfindex,
+            tvb, offset, 4, ENC_BIG_ENDIAN, pdata);
 
-    data = tvb_get_ntohl (tvb, offset);
-
-    proto_tree_add_uint(tree, hfindex, tvb, offset, 4, data);
-    if (pdata)
-        *pdata = data;
     return offset+4;
 }
 
@@ -135,13 +131,9 @@ int
 dissect_pn_int32(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
                        proto_tree *tree, int hfindex, gint32 *pdata)
 {
-    gint32 data;
+    proto_tree_add_item_ret_int(tree, hfindex,
+            tvb, offset, 4, ENC_BIG_ENDIAN, pdata);
 
-    data = tvb_get_ntohl (tvb, offset);
-
-    proto_tree_add_int(tree, hfindex, tvb, offset, 4, data);
-    if (pdata)
-        *pdata = data;
     return offset + 4;
 }
 
