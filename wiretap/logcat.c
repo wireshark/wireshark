@@ -189,7 +189,7 @@ static gboolean logcat_read_packet(struct logcat_phdr *logcat, FILE_T fh,
     /*
      * The maximum value of payload_length is 65535, which, even after
      * the size of the logger entry structure is added to it, is less
-     * than WTAP_MAX_PACKET_SIZE will ever be, so we don't need to check
+     * than WTAP_MAX_PACKET_SIZE_STANDARD will ever be, so we don't need to check
      * it.
      */
 

@@ -342,12 +342,6 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   cf->drops_known = FALSE;
   cf->drops     = 0;
   cf->snap      = wtap_snapshot_length(cf->wth);
-  if (cf->snap == 0) {
-    /* Snapshot length not known. */
-    cf->has_snap = FALSE;
-    cf->snap = WTAP_MAX_PACKET_SIZE;
-  } else
-    cf->has_snap = TRUE;
 
   /* Allocate a frame_data_sequence for the frames in this file */
   cf->frames = new_frame_data_sequence();
@@ -4236,12 +4230,6 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile)
   cf->linktypes = g_array_sized_new(FALSE, FALSE, (guint) sizeof(int), 1);
 
   cf->snap      = wtap_snapshot_length(cf->wth);
-  if (cf->snap == 0) {
-    /* Snapshot length not known. */
-    cf->has_snap = FALSE;
-    cf->snap = WTAP_MAX_PACKET_SIZE;
-  } else
-    cf->has_snap = TRUE;
 
   name_ptr = g_filename_display_basename(cf->filename);
 

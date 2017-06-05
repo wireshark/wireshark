@@ -501,7 +501,7 @@ file_import_open(text_import_info_t *info)
     int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
     int_data_mand->wtap_encap            = info->encapsulation;
     int_data_mand->time_units_per_second = 1000000; /* default microsecond resolution */
-    int_data_mand->snap_len              = WTAP_MAX_PACKET_SIZE;
+    int_data_mand->snap_len              = WTAP_MAX_PACKET_SIZE_STANDARD;
     wtap_block_add_string_option(int_data, OPT_IDB_NAME, "Fake IF File->Import", strlen("Fake IF File->Import"));
 
     g_array_append_val(idb_inf->interface_data, int_data);
@@ -1155,7 +1155,7 @@ file_import_dlg_new(void)
 
     framelen_te = gtk_entry_new();
     maxsize_msg = g_strdup_printf("The maximum size of the frames to write to the import capture file (max %u)",
-                                  WTAP_MAX_PACKET_SIZE);
+                                  WTAP_MAX_PACKET_SIZE_STANDARD);
     gtk_widget_set_tooltip_text(framelen_te, maxsize_msg);
     g_free(maxsize_msg);
     gtk_box_pack_start(GTK_BOX(framelen_hb), framelen_te, FALSE, FALSE, 0);

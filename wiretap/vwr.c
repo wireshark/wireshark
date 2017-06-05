@@ -1275,7 +1275,7 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
      *
      * The maximum value of actual_octets is 8191, which, even after
      * adding the lengths of the metadata headers, is less than
-     * WTAP_MAX_PACKET_SIZE will ever be, so we don't need to check it.
+     * WTAP_MAX_PACKET_SIZE_STANDARD will ever be, so we don't need to check it.
      */
     phdr->len = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + actual_octets;
     phdr->caplen = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + actual_octets;
@@ -1688,7 +1688,7 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
      *
      * The maximum value of actual_octets is 8191, which, even after
      * adding the lengths of the metadata headers, is less than
-     * WTAP_MAX_PACKET_SIZE will ever be, so we don't need to check it.
+     * WTAP_MAX_PACKET_SIZE_STANDARD will ever be, so we don't need to check it.
      */
     phdr->len = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + actual_octets;
     phdr->caplen = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + actual_octets;
@@ -1868,7 +1868,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
          *
          * We include the length of the metadata headers in the packet lengths.
          *
-         * OCTO_MODIFIED_RF_LEN + 1 is less than WTAP_MAX_PACKET_SIZE will
+         * OCTO_MODIFIED_RF_LEN + 1 is less than WTAP_MAX_PACKET_SIZE_STANDARD will
          * ever be, so we don't need to check it.
          */
         phdr->len = OCTO_MODIFIED_RF_LEN + 1;       /* 1st octet is reserved for detecting type of frame while displaying in wireshark */
@@ -2184,14 +2184,14 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
             phdr->len = OCTO_TIMESTAMP_FIELDS_LEN + OCTO_LAYER1TO4_LEN + actual_octets;
             phdr->caplen = OCTO_TIMESTAMP_FIELDS_LEN + OCTO_LAYER1TO4_LEN + actual_octets;
         }
-        if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {
+        if (phdr->caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
             /*
              * Probably a corrupt capture file; return an error,
              * so that our caller doesn't blow up trying to allocate
              * space for an immensely-large packet.
              */
             *err_info = g_strdup_printf("vwr: File has %u-byte packet, bigger than maximum of %u",
-                                        phdr->caplen, WTAP_MAX_PACKET_SIZE);
+                                        phdr->caplen, WTAP_MAX_PACKET_SIZE_STANDARD);
             *err = WTAP_ERR_BAD_FILE;
             return FALSE;
         }
@@ -2696,7 +2696,7 @@ static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
      *
      * The maximum value of actual_octets is 65535, which, even after
      * adding the lengths of the metadata headers, is less than
-     * WTAP_MAX_PACKET_SIZE will ever be, so we don't need to check it.
+     * WTAP_MAX_PACKET_SIZE_STANDARD will ever be, so we don't need to check it.
      */
     phdr->len = STATS_COMMON_FIELDS_LEN + EXT_ETHERNET_FIELDS_LEN + actual_octets;
     phdr->caplen = STATS_COMMON_FIELDS_LEN + EXT_ETHERNET_FIELDS_LEN + actual_octets;

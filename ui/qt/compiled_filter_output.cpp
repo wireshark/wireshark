@@ -88,7 +88,7 @@ void CompiledFilterOutput::compileFilter()
             if (interfaces.compare(device.display_name)) {
                 continue;
             } else {
-                pcap_t *pd = pcap_open_dead(device.active_dlt, WTAP_MAX_PACKET_SIZE);
+                pcap_t *pd = pcap_open_dead(device.active_dlt, WTAP_MAX_PACKET_SIZE_STANDARD);
                 if (pd == NULL)
                     break;
                 g_mutex_lock(pcap_compile_mtx);

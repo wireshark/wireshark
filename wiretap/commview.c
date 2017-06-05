@@ -148,7 +148,7 @@ commview_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		return FALSE;
 	/*
 	 * The maximum value of cv_hdr.data_len is 65535, which is less
-	 * than WTAP_MAX_PACKET_SIZE will ever be, so we don't need to
+	 * than WTAP_MAX_PACKET_SIZE_STANDARD will ever be, so we don't need to
 	 * check it.
 	 */
 

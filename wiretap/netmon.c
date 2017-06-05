@@ -494,14 +494,14 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		packet_size = pletoh32(&hdr.hdr_2_x.incl_len);
 		break;
 	}
-	if (packet_size > WTAP_MAX_PACKET_SIZE) {
+	if (packet_size > WTAP_MAX_PACKET_SIZE_STANDARD) {
 		/*
 		 * Probably a corrupt capture file; don't blow up trying
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("netmon: File has %u-byte packet, bigger than maximum of %u",
-		    packet_size, WTAP_MAX_PACKET_SIZE);
+		    packet_size, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return FAILURE;
 	}
 
@@ -998,7 +998,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
 	case WTAP_FILE_TYPE_SUBTYPE_NETMON_2_x:
 		/* Don't write anything we're not willing to read. */
-		if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {
+		if (phdr->caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
 			*err = WTAP_ERR_PACKET_TOO_LARGE;
 			return FALSE;
 		}

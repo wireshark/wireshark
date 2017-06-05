@@ -317,7 +317,7 @@ camins_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
     /*
      * The maximum value of length is 65535, which, even after
      * DVB_CI_PSEUDO_HDR_LEN is added to it, is less than
-     * WTAP_MAX_PACKET_SIZE will ever be, so we don't need to check
+     * WTAP_MAX_PACKET_SIZE_STANDARD will ever be, so we don't need to check
      * it.
      */
 

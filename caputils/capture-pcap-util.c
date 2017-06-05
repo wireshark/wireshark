@@ -1213,13 +1213,13 @@ open_capture_device_pcap_open_live(interface_options *interface_opts,
 		snaplen = interface_opts->snaplen;
 	else {
 		/*
-		 * Default - use the old maximum snapshot length, which
-		 * should be big enough (libpcap didn't get D-Bus support
-		 * until after it goet pcap_create()/pcap_activate(), so
-		 * we don't have D-Bus support and don't have to worry
-		 * about really huge packets).
+		 * Default - use the non-D-Bus maximum snapshot length of
+		 * 256KB, which should be big enough (libpcap didn't get
+		 * D-Bus support until after it goet pcap_create() and
+		 * pcap_activate(), so we don't have D-Bus support and
+		 * don't have to worry about really huge packets).
 		 */
-		snaplen = 262144;
+		snaplen = 256*1024;
 	}
 	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
 	    "pcap_open_live() calling using name %s, snaplen %d, promisc_mode %d.",
@@ -1344,10 +1344,10 @@ open_capture_device(capture_options *capture_opts,
 			snaplen = interface_opts->snaplen;
 		else {
 			/*
-			 * Default - use the old maximum snapshot length,
+			 * Default - use the non-D-Bus maximum snapshot length,
 			 * which should be big enough, except for D-Bus.
 			 */
-			snaplen = 262144;
+			snaplen = 256*1024;
 		}
 		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
 		    "Calling pcap_open() using name %s, snaplen %d, promisc_mode %d, datatx_udp %d, nocap_rpcap %d.",

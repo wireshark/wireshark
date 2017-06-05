@@ -715,14 +715,14 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     if (sliceLength == 0)
         sliceLength = length;
 
-    if (sliceLength > WTAP_MAX_PACKET_SIZE) {
+    if (sliceLength > WTAP_MAX_PACKET_SIZE_STANDARD) {
         /*
          * Probably a corrupt capture file; don't blow up trying
          * to allocate space for an immensely-large packet.
          */
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("peektagged: File has %u-byte packet, bigger than maximum of %u",
-            sliceLength, WTAP_MAX_PACKET_SIZE);
+            sliceLength, WTAP_MAX_PACKET_SIZE_STANDARD);
         return -1;
     }
 

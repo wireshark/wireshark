@@ -24,7 +24,7 @@
 #include <glib.h>
 
 /*
- * ASCEND_MAX_PKT_LEN is < WTAP_MAX_PACKET_SIZE, so we don't need to
+ * ASCEND_MAX_PKT_LEN is < WTAP_MAX_PACKET_SIZE_STANDARD, so we don't need to
  * check the packet length.
  */
 #define ASCEND_MAX_DATA_ROWS 8

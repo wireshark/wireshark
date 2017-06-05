@@ -569,14 +569,14 @@ nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
     pseudo_header->nettl.pid      = pntoh32(&rec_hdr.pid);
     pseudo_header->nettl.uid      = pntoh16(&rec_hdr.uid);
 
-    if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {
+    if (phdr->caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
         /*
          * Probably a corrupt capture file; don't blow up trying
          * to allocate space for an immensely-large packet.
          */
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("nettl: File has %u-byte packet, bigger than maximum of %u",
-            phdr->caplen, WTAP_MAX_PACKET_SIZE);
+            phdr->caplen, WTAP_MAX_PACKET_SIZE_STANDARD);
         return FALSE;
     }
 
@@ -695,7 +695,7 @@ static gboolean nettl_dump(wtap_dumper *wdh,
     }
 
     /* Don't write anything we're not willing to read. */
-    if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {
+    if (phdr->caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
         *err = WTAP_ERR_PACKET_TOO_LARGE;
         return FALSE;
     }

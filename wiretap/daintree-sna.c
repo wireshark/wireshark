@@ -194,7 +194,7 @@ daintree_sna_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	phdr->ts.nsecs = useconds * 1000; /* convert mS to nS */
 
 	/*
-	 * READDATA_BUF_SIZE is < WTAP_MAX_PACKET_SIZE, and is the maximum
+	 * READDATA_BUF_SIZE is < WTAP_MAX_PACKET_SIZE_STANDARD, and is the maximum
 	 * number of bytes of packet data we can generate, so we don't
 	 * need to check the packet length.
 	 */

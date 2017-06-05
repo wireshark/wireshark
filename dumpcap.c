@@ -295,6 +295,8 @@ typedef struct _capture_src {
     gboolean                     cap_pipe_modified;      /**< TRUE if data in the pipe uses modified pcap headers */
     gboolean                     cap_pipe_byte_swapped;  /**< TRUE if data in the pipe is byte swapped */
     char *                       cap_pipe_databuf;       /**< Pointer to the data buffer we've allocated */
+    size_t                       cap_pipe_databuf_size;  /**< Current size of the data buffer */
+    guint                        cap_pipe_max_pkt_size;  /**< Maximum packet size allowed */
 #if defined(_WIN32)
     char *                       cap_pipe_buf;           /**< Pointer to the buffer we read into */
     DWORD                        cap_pipe_bytes_to_read; /**< Used by cap_pipe_dispatch */
@@ -478,7 +480,11 @@ print_usage(FILE *output)
                     "                               rpcap://<host>/<interface>\n"
                     "                               TCP@<host>:<port>\n");
     fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
-    fprintf(output, "  -s <snaplen>             packet snapshot length (def: %u)\n", WTAP_MAX_PACKET_SIZE);
+#ifdef HAVE_PCAP_CREATE
+    fprintf(output, "  -s <snaplen>             packet snapshot length (def: appropriate maximum)\n");
+#else
+    fprintf(output, "  -s <snaplen>             packet snapshot length (def: %u)\n", WTAP_MAX_PACKET_SIZE_STANDARD);
+#endif
     fprintf(output, "  -p                       don't capture in promiscuous mode\n");
 #ifdef HAVE_PCAP_CREATE
     fprintf(output, "  -I                       capture in monitor mode, if available\n");
@@ -1677,7 +1683,14 @@ cap_pipe_open_live(char *pipename,
     }
 
     pcap_src->from_cap_pipe = TRUE;
-    pcap_src->cap_pipe_databuf = (guchar*)g_malloc(WTAP_MAX_PACKET_SIZE);
+
+    /*
+     * We start with a 2KB buffer for packet data, which should be
+     * large enough for most regular network packets.  We increase it,
+     * up to the maximum size we allow, as necessary.
+     */
+    pcap_src->cap_pipe_databuf = (guchar*)g_malloc(2048);
+    pcap_src->cap_pipe_databuf_size = 2048;
 
 #ifdef _WIN32
     if (pcap_src->from_cap_socket)
@@ -1842,6 +1855,16 @@ cap_pipe_open_live(char *pipename,
         hdr->network = GUINT32_SWAP_LE_BE(hdr->network);
     }
     pcap_src->linktype = hdr->network;
+#ifdef DLT_DBUS
+    if (pcap_src->linktype == DLT_DBUS) {
+        /*
+         * The maximum D-Bus message size is 128MB, so allow packets up
+         * to that size.
+         */
+        pcap_src->cap_pipe_max_pkt_size = WTAP_MAX_PACKET_SIZE_DBUS;
+    } else
+#endif
+        pcap_src->cap_pipe_max_pkt_size = WTAP_MAX_PACKET_SIZE_STANDARD;
 
     if (hdr->version_major < 2) {
         g_snprintf(errmsg, errmsgl, "Unable to read old libpcap format");
@@ -1880,6 +1903,7 @@ cap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errmsg
     wchar_t  *err_str;
 #endif
     ssize_t   b;
+    guint new_bufsize;
 
 #ifdef LOG_CAPTURE_VERBOSE
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "cap_pipe_dispatch");
@@ -2024,7 +2048,7 @@ cap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errmsg
         /* We've read the header. Take care of byte order. */
         cap_pipe_adjust_header(pcap_src->cap_pipe_byte_swapped, &pcap_src->cap_pipe_hdr,
                                &pcap_src->cap_pipe_rechdr.hdr);
-        if (pcap_src->cap_pipe_rechdr.hdr.incl_len > WTAP_MAX_PACKET_SIZE) {
+        if (pcap_src->cap_pipe_rechdr.hdr.incl_len > pcap_src->cap_pipe_max_pkt_size) {
             g_snprintf(errmsg, errmsgl, "Frame %u too long (%d bytes)",
                        ld->packet_count+1, pcap_src->cap_pipe_rechdr.hdr.incl_len);
             break;
@@ -2033,6 +2057,26 @@ cap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errmsg
         if (pcap_src->cap_pipe_rechdr.hdr.incl_len) {
             pcap_src->cap_pipe_state = STATE_EXPECT_DATA;
             return 0;
+        }
+
+        if (pcap_src->cap_pipe_rechdr.hdr.incl_len > pcap_src->cap_pipe_databuf_size) {
+            /*
+             * Grow the buffer to the packet size, rounded up to a power of
+             * 2.
+             */
+            new_bufsize = pcap_src->cap_pipe_rechdr.hdr.incl_len;
+            /*
+             * http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
+             */
+            new_bufsize--;
+            new_bufsize |= new_bufsize >> 1;
+            new_bufsize |= new_bufsize >> 2;
+            new_bufsize |= new_bufsize >> 4;
+            new_bufsize |= new_bufsize >> 8;
+            new_bufsize |= new_bufsize >> 16;
+            new_bufsize++;
+            pcap_src->cap_pipe_databuf = (guchar*)g_realloc(pcap_src->cap_pipe_databuf, new_bufsize);
+            pcap_src->cap_pipe_databuf_size = new_bufsize;
         }
         /* no data to read? */
         /* FALLTHROUGH */

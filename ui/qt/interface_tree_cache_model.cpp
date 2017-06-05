@@ -210,7 +210,7 @@ void InterfaceTreeCacheModel::save()
                 else if ( col == IFTREE_COL_SNAPLEN )
                 {
                     int iVal = saveValue.toInt();
-                    if ( iVal != WTAP_MAX_PACKET_SIZE )
+                    if ( iVal != WTAP_MAX_PACKET_SIZE_STANDARD )
                     {
                         device.has_snaplen = true;
                         device.snaplen = iVal;
@@ -218,7 +218,7 @@ void InterfaceTreeCacheModel::save()
                     else
                     {
                         device.has_snaplen = false;
-                        device.snaplen = WTAP_MAX_PACKET_SIZE;
+                        device.snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
                     }
                 }
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
@@ -270,7 +270,7 @@ void InterfaceTreeCacheModel::save()
                 prefStorage[&prefs.capture_devices_snaplen]  <<
                         QString("%1:%2(%3)").arg(device.name).
                         arg(device.has_snaplen ? 1 : 0).
-                        arg(device.has_snaplen ? value : WTAP_MAX_PACKET_SIZE);
+                        arg(device.has_snaplen ? value : WTAP_MAX_PACKET_SIZE_STANDARD);
             }
 
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE

@@ -93,7 +93,11 @@ commandline_print_usage(gboolean for_help_option) {
     fprintf(output, "Capture interface:\n");
     fprintf(output, "  -i <interface>           name or idx of interface (def: first non-loopback)\n");
     fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
-    fprintf(output, "  -s <snaplen>             packet snapshot length (def: %u)\n", WTAP_MAX_PACKET_SIZE);
+#ifdef HAVE_PCAP_CREATE
+    fprintf(output, "  -s <snaplen>             packet snapshot length (def: appropriate maximum)\n");
+#else
+    fprintf(output, "  -s <snaplen>             packet snapshot length (def: %u)\n", WTAP_MAX_PACKET_SIZE_STANDARD);
+#endif
     fprintf(output, "  -p                       don't capture in promiscuous mode\n");
     fprintf(output, "  -k                       start capturing immediately (def: do nothing)\n");
     fprintf(output, "  -S                       update packet display when new packets are captured\n");

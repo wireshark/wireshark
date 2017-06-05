@@ -959,7 +959,7 @@ merge_files(const gchar* out_filename, const int file_type,
 
     if (snaplen == 0) {
         /* Snapshot length not specified - default to the maximum. */
-        snaplen = WTAP_MAX_PACKET_SIZE;
+        snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
     }
 
     /*
@@ -1062,7 +1062,7 @@ merge_files_to_tempfile(gchar **out_filenamep, const char *pfx,
 
     if (snaplen == 0) {
         /* Snapshot length not specified - default to the maximum. */
-        snaplen = WTAP_MAX_PACKET_SIZE;
+        snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
     }
 
     /*
@@ -1161,7 +1161,7 @@ merge_files_to_stdout(const int file_type, const char *const *in_filenames,
 
     if (snaplen == 0) {
         /* Snapshot length not specified - default to the maximum. */
-        snaplen = WTAP_MAX_PACKET_SIZE;
+        snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
     }
 
     /*

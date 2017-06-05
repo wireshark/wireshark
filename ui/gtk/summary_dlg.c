@@ -268,7 +268,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     g_snprintf(string_buff, SUM_STR_MAX, "%s", wtap_encap_string(summary.file_encap_type));
     add_string_to_grid(grid, &row, "Encapsulation:", string_buff);
   }
-  if (summary.has_snap) {
+  if (summary.snap != 0) {
     /* snapshot length */
     g_snprintf(string_buff, SUM_STR_MAX, "%u bytes", summary.snap);
     add_string_to_grid(grid, &row, "Packet size limit:", string_buff);
@@ -708,7 +708,7 @@ summary_to_texbuff(GtkTextBuffer *buffer)
     g_snprintf(string_buff, SUM_STR_MAX, INDENT "Encapsulation: %s\n", wtap_encap_string(summary.file_encap_type));
     gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
   }
-  if (summary.has_snap) {
+  if (summary.snap != 0) {
     /* snapshot length */
     g_snprintf(string_buff, SUM_STR_MAX, INDENT "Packet size limit: %u bytes\n", summary.snap);
     gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);

@@ -493,7 +493,7 @@ process_packet_header(wtap *wth, packet_entry_header *packet_header,
     }
     /*
      * The maximum value of packet_header->captured_size is 65535, which
-     * is less than WTAP_MAX_PACKET_SIZE will ever be, so we don't need
+     * is less than WTAP_MAX_PACKET_SIZE_STANDARD will ever be, so we don't need
      * to check it.
      */
 

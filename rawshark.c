@@ -940,7 +940,7 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, gchar **err_info,
     printf("caplen: %d (%04x)\n", phdr->caplen, phdr->caplen);
     printf("len: %d (%04x)\n", phdr->len, phdr->len);
 #endif
-    if (bytes_needed > WTAP_MAX_PACKET_SIZE) {
+    if (bytes_needed > WTAP_MAX_PACKET_SIZE_STANDARD) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("Bad packet length: %lu\n",
                    (unsigned long) bytes_needed);
@@ -981,7 +981,7 @@ load_cap_file(capture_file *cf)
 
     epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
 
-    pd = (guchar*)g_malloc(WTAP_MAX_PACKET_SIZE);
+    pd = (guchar*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
     while (raw_pipe_read(&phdr, pd, &err, &err_info, &data_offset)) {
         process_packet(cf, &edt, data_offset, &phdr, pd);
     }
@@ -1537,8 +1537,7 @@ raw_cf_open(capture_file *cf, const char *fname)
     cf->count     = 0;
     cf->drops_known = FALSE;
     cf->drops     = 0;
-    cf->has_snap = FALSE;
-    cf->snap = WTAP_MAX_PACKET_SIZE;
+    cf->snap      = 0;
     nstime_set_zero(&cf->elapsed_time);
     ref = NULL;
     prev_dis = NULL;

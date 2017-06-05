@@ -511,13 +511,13 @@ visual_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     phdr->caplen = packet_size;
 
     /* Check for too-large packet. */
-    if (packet_size > WTAP_MAX_PACKET_SIZE)
+    if (packet_size > WTAP_MAX_PACKET_SIZE_STANDARD)
     {
         /* Probably a corrupt capture file; don't blow up trying
           to allocate space for an immensely-large packet. */
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("visual: File has %u-byte packet, bigger than maximum of %u",
-            packet_size, WTAP_MAX_PACKET_SIZE);
+            packet_size, WTAP_MAX_PACKET_SIZE_STANDARD);
         return FALSE;
     }
 
@@ -652,7 +652,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     }
 
     /* Don't write anything we're not willing to read. */
-    if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {
+    if (phdr->caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
         *err = WTAP_ERR_PACKET_TOO_LARGE;
         return FALSE;
     }

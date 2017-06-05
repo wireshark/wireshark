@@ -87,8 +87,7 @@ typedef struct _capture_file {
   gboolean     drops_known;          /* TRUE if we know how many packets were dropped */
   guint32      drops;                /* Dropped packets */
   nstime_t     elapsed_time;         /* Elapsed time */
-  gboolean     has_snap;             /* TRUE if maximum capture packet length is known */
-  int          snap;                 /* Maximum captured packet length */
+  int          snap;                 /* Maximum captured packet length; 0 if unknown */
   wtap        *wth;                  /* Wiretap session */
   dfilter_t   *rfcode;               /* Compiled read filter program */
   dfilter_t   *dfcode;               /* Compiled display filter program */

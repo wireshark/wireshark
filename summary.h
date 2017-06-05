@@ -38,8 +38,7 @@ typedef struct iface_options_tag {
   char     *isb_comment;
   guint64   drops;                 /**< number of packet drops */
   gboolean  drops_known;           /**< TRUE if number of packet drops is known */
-  gboolean  has_snap;              /**< TRUE if maximum capture packet length is known */
-  int       snap;                  /**< Maximum captured packet length */
+  int       snap;                  /**< Maximum captured packet length; 0 if not known */
   int       encap_type;            /**< wiretap encapsulation type */
 } iface_options;
 
@@ -69,8 +68,7 @@ typedef struct _summary_tally {
   int          iscompressed;       /**< TRUE if file is compressed */
   int          file_encap_type;    /**< wiretap encapsulation type for file */
   GArray      *packet_encap_types; /**< wiretap encapsulation types for packets */
-  gboolean     has_snap;           /**< TRUE if maximum capture packet length is known */
-  int          snap;               /**< Maximum captured packet length */
+  int          snap;               /**< Maximum captured packet length; 0 if not known */
   gboolean     drops_known;        /**< TRUE if number of packet drops is known */
   guint64      drops;              /**< number of packet drops */
   const char  *dfilter;            /**< display filter */

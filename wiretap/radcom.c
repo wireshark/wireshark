@@ -316,7 +316,7 @@ radcom_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	real_length = pletoh16(&hdr.real_length);
 	/*
 	 * The maximum value of length is 65535, which is less than
-	 * WTAP_MAX_PACKET_SIZE will ever be, so we don't need to check
+	 * WTAP_MAX_PACKET_SIZE_STANDARD will ever be, so we don't need to check
 	 * it.
 	 */
 

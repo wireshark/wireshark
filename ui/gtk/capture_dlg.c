@@ -2476,7 +2476,7 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
     if (device.snaplen < MIN_PACKET_SIZE)
       device.snaplen = MIN_PACKET_SIZE;
   } else {
-    device.snaplen = WTAP_MAX_PACKET_SIZE;
+    device.snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
   }
   filter_text = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(filter_cm));
   if (device.cfilter)
@@ -2527,8 +2527,8 @@ adjust_snap_sensitivity(GtkWidget *tb _U_, gpointer parent_w _U_)
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(snap_cb)));
   device.has_snaplen = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(snap_cb));
   if (!device.has_snaplen) {
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON (snap_sb), WTAP_MAX_PACKET_SIZE);
-    device.snaplen = WTAP_MAX_PACKET_SIZE;
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON (snap_sb), WTAP_MAX_PACKET_SIZE_STANDARD);
+    device.snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
   }
   g_array_insert_val(global_capture_opts.all_ifaces, marked_interface, device);
 }
@@ -2654,7 +2654,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   device.monitor_mode_supported = FALSE;
 #endif
   device.has_snaplen = FALSE;
-  device.snaplen = WTAP_MAX_PACKET_SIZE;
+  device.snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
   device.cfilter = NULL;
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
   device.buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
@@ -2897,7 +2897,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   gtk_box_pack_start(GTK_BOX(snap_hb), snap_cb, FALSE, FALSE, 0);
 
   snap_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat) device.snaplen,
-    MIN_PACKET_SIZE, WTAP_MAX_PACKET_SIZE, 1.0, 10.0, 0.0);
+    MIN_PACKET_SIZE, WTAP_MAX_PACKET_SIZE_STANDARD, 1.0, 10.0, 0.0);
   snap_sb = gtk_spin_button_new (snap_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (snap_sb), TRUE);
   gtk_widget_set_size_request(snap_sb, 80, -1);
@@ -2979,7 +2979,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   gtk_box_pack_start (GTK_BOX(buffer_size_hb), buffer_size_lb, FALSE, FALSE, 0);
 
   buffer_size_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat) device.buffer,
-    1, WTAP_MAX_PACKET_SIZE, 1.0, 10.0, 0.0);
+    1, WTAP_MAX_PACKET_SIZE_STANDARD, 1.0, 10.0, 0.0);
   buffer_size_sb = gtk_spin_button_new (buffer_size_adj, 0, 0);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON (buffer_size_sb), (gfloat) device.buffer);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (buffer_size_sb), TRUE);
@@ -5752,7 +5752,7 @@ create_and_fill_model(GtkTreeView *view)
         device.has_snaplen = hassnap;
       } else {
         /* No preferences set yet, use default values */
-        device.snaplen = WTAP_MAX_PACKET_SIZE;
+        device.snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
         device.has_snaplen = FALSE;
       }
 

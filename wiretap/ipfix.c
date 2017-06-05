@@ -161,7 +161,7 @@ ipfix_read_message(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err, g
         return FALSE;
     /*
      * The maximum value of msg_hdr.message_length is 65535, which is
-     * less than WTAP_MAX_PACKET_SIZE will ever be, so we don't need
+     * less than WTAP_MAX_PACKET_SIZE_STANDARD will ever be, so we don't need
      * to check it.
      */
 

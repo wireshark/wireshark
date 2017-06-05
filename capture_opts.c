@@ -58,7 +58,7 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->default_options.descr           = NULL;
     capture_opts->default_options.cfilter         = NULL;
     capture_opts->default_options.has_snaplen     = FALSE;
-    capture_opts->default_options.snaplen         = WTAP_MAX_PACKET_SIZE;
+    capture_opts->default_options.snaplen         = WTAP_MAX_PACKET_SIZE_STANDARD;
     capture_opts->default_options.linktype        = -1; /* use interface default */
     capture_opts->default_options.promisc_mode    = TRUE;
     capture_opts->default_options.if_type         = IF_WIRED;
@@ -865,7 +865,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
          * length, mirroring what tcpdump does.
          */
         if (snaplen == 0)
-            snaplen = WTAP_MAX_PACKET_SIZE;
+            snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
         if (capture_opts->ifaces->len > 0) {
             interface_options interface_opts;
 
@@ -994,14 +994,14 @@ capture_opts_trim_snaplen(capture_options *capture_opts, int snaplen_min)
             interface_opts = g_array_index(capture_opts->ifaces, interface_options, 0);
             capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, 0);
             if (interface_opts.snaplen < 1)
-                interface_opts.snaplen = WTAP_MAX_PACKET_SIZE;
+                interface_opts.snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
             else if (interface_opts.snaplen < snaplen_min)
                 interface_opts.snaplen = snaplen_min;
             g_array_append_val(capture_opts->ifaces, interface_opts);
         }
     } else {
         if (capture_opts->default_options.snaplen < 1)
-            capture_opts->default_options.snaplen = WTAP_MAX_PACKET_SIZE;
+            capture_opts->default_options.snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
         else if (capture_opts->default_options.snaplen < snaplen_min)
             capture_opts->default_options.snaplen = snaplen_min;
     }

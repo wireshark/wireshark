@@ -35,14 +35,14 @@ static gboolean tnef_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
   if ((file_size = wtap_file_size(wth, err)) == -1)
     return FALSE;
 
-  if (file_size > WTAP_MAX_PACKET_SIZE) {
+  if (file_size > WTAP_MAX_PACKET_SIZE_STANDARD) {
     /*
      * Probably a corrupt capture file; don't blow up trying
      * to allocate space for an immensely-large packet.
      */
     *err = WTAP_ERR_BAD_FILE;
     *err_info = g_strdup_printf("tnef: File has %" G_GINT64_MODIFIER "d-byte packet, bigger than maximum of %u",
-                                file_size, WTAP_MAX_PACKET_SIZE);
+                                file_size, WTAP_MAX_PACKET_SIZE_STANDARD);
     return FALSE;
   }
   packet_size = (int)file_size;

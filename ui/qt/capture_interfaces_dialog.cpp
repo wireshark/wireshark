@@ -704,10 +704,10 @@ void CaptureInterfacesDialog::updateInterfaces()
             if (capture_dev_user_snaplen_find(device->name, &hassnap, &snaplen)) {
                 /* Default snap length set in preferences */
                 device->snaplen = snaplen;
-                device->has_snaplen = snaplen == WTAP_MAX_PACKET_SIZE ? FALSE : hassnap;
+                device->has_snaplen = snaplen == WTAP_MAX_PACKET_SIZE_STANDARD ? FALSE : hassnap;
             } else {
                 /* No preferences set yet, use default values */
-                device->snaplen = WTAP_MAX_PACKET_SIZE;
+                device->snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
                 device->has_snaplen = FALSE;
             }
 
@@ -1009,7 +1009,7 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
                 snaplen_list << QString("%1:%2(%3)")
                                 .arg(device->name)
                                 .arg(device->has_snaplen)
-                                .arg(device->has_snaplen ? device->snaplen : WTAP_MAX_PACKET_SIZE);
+                                .arg(device->has_snaplen ? device->snaplen : WTAP_MAX_PACKET_SIZE_STANDARD);
             }
             g_free(prefs.capture_devices_snaplen);
             prefs.capture_devices_snaplen = qstring_strdup(snaplen_list.join(","));
@@ -1197,7 +1197,7 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
 #ifdef SHOW_BUFFER_COLUMN
     gint buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
 #endif
-    guint snap = WTAP_MAX_PACKET_SIZE;
+    guint snap = WTAP_MAX_PACKET_SIZE_STANDARD;
     GList *links = NULL;
 
     if (idx.column() > 1 && idx.data().toString().compare(UTF8_EM_DASH)) {
@@ -1247,7 +1247,7 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
         case col_snaplen_:
         {
             QSpinBox *sb = new QSpinBox(parent);
-            sb->setRange(1, WTAP_MAX_PACKET_SIZE);
+            sb->setRange(1, WTAP_MAX_PACKET_SIZE_STANDARD);
             sb->setValue(snap);
             sb->setWrapping(true);
             connect(sb, SIGNAL(valueChanged(int)), this, SLOT(snapshotLengthChanged(int)));
@@ -1258,7 +1258,7 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
         case col_buffer_:
         {
             QSpinBox *sb = new QSpinBox(parent);
-            sb->setRange(1, WTAP_MAX_PACKET_SIZE);
+            sb->setRange(1, WTAP_MAX_PACKET_SIZE_STANDARD);
             sb->setValue(buffer);
             sb->setWrapping(true);
             connect(sb, SIGNAL(valueChanged(int)), this, SLOT(bufferSizeChanged(int)));
@@ -1332,12 +1332,12 @@ void InterfaceTreeDelegate::snapshotLengthChanged(int value)
     if (!device) {
         return;
     }
-    if (value != WTAP_MAX_PACKET_SIZE) {
+    if (value != WTAP_MAX_PACKET_SIZE_STANDARD) {
         device->has_snaplen = true;
         device->snaplen = value;
     } else {
         device->has_snaplen = false;
-        device->snaplen = WTAP_MAX_PACKET_SIZE;
+        device->snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
     }
 }
 

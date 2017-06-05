@@ -737,14 +737,14 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                   wtap_encap_string(if_descr_mand->wtap_encap),
                   if_descr_mand->snap_len);
 
-    if (if_descr_mand->snap_len > WTAP_MAX_PACKET_SIZE) {
-        /* This is unrealistic, but text2pcap currently uses 102400.
+    if (if_descr_mand->snap_len > wtap_max_snaplen_for_encap(if_descr_mand->wtap_encap)) {
+        /*
          * We do not use this value, maybe we should check the
          * snap_len of the packets against it. For now, only warn.
          */
         pcapng_debug("pcapng_read_if_descr_block: snapshot length %u unrealistic.",
                       if_descr_mand->snap_len);
-        /*if_descr_mand->snap_len = WTAP_MAX_PACKET_SIZE;*/
+        /*if_descr_mand->snap_len = WTAP_MAX_PACKET_SIZE_STANDARD;*/
     }
 
     /* Options */
@@ -1164,12 +1164,6 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
         }
     }
 
-    if (packet.cap_len > WTAP_MAX_PACKET_SIZE) {
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng_read_packet_block: cap_len %u is larger than WTAP_MAX_PACKET_SIZE %u",
-                                    packet.cap_len, WTAP_MAX_PACKET_SIZE);
-        return FALSE;
-    }
     pcapng_debug("pcapng_read_packet_block: packet data: packet_len %u captured_len %u interface_id %u",
                   packet.packet_len,
                   packet.cap_len,
@@ -1183,6 +1177,14 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
     }
     iface_info = g_array_index(pn->interfaces, interface_info_t,
                                packet.interface_id);
+
+    if (packet.cap_len > wtap_max_snaplen_for_encap(iface_info.wtap_encap)) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup_printf("pcapng_read_packet_block: cap_len %u is larger than %u",
+                                    packet.cap_len,
+                                    wtap_max_snaplen_for_encap(iface_info.wtap_encap));
+        return FALSE;
+    }
 
     wblock->packet_header->rec_type = REC_TYPE_PACKET;
     wblock->packet_header->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID;
@@ -1466,10 +1468,11 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
         return FALSE;
     }
 
-    if (simple_packet.cap_len > WTAP_MAX_PACKET_SIZE) {
+    if (simple_packet.cap_len > wtap_max_snaplen_for_encap(iface_info.wtap_encap)) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng_read_simple_packet_block: cap_len %u is larger than WTAP_MAX_PACKET_SIZE %u",
-                                    simple_packet.cap_len, WTAP_MAX_PACKET_SIZE);
+        *err_info = g_strdup_printf("pcapng_read_simple_packet_block: cap_len %u is larger than %u",
+                                    simple_packet.cap_len,
+                                    wtap_max_snaplen_for_encap(iface_info.wtap_encap));
         return FALSE;
     }
     pcapng_debug("pcapng_read_simple_packet_block: packet data: packet_len %u",
@@ -2951,7 +2954,7 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh,
     wtapng_if_descr_mandatory_t *int_data_mand;
 
     /* Don't write anything we're not willing to read. */
-    if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {
+    if (phdr->caplen > wtap_max_snaplen_for_encap(wdh->encap)) {
         *err = WTAP_ERR_PACKET_TOO_LARGE;
         return FALSE;
     }
@@ -3140,7 +3143,7 @@ pcapng_write_sysdig_event_block(wtap_dumper *wdh,
     guint16 event_type;
 
     /* Don't write anything we're not willing to read. */
-    if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {
+    if (phdr->caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
         *err = WTAP_ERR_PACKET_TOO_LARGE;
         return FALSE;
     }

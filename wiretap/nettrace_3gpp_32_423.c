@@ -788,7 +788,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
 	int_data_mand->wtap_encap = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
 	int_data_mand->time_units_per_second = 1000000; /* default microsecond resolution */
-	int_data_mand->snap_len = WTAP_MAX_PACKET_SIZE;
+	int_data_mand->snap_len = WTAP_MAX_PACKET_SIZE_STANDARD;
 	wtap_block_add_string_option(int_data, OPT_IDB_NAME, "Fake IF", strlen("Fake IF"));
 	int_data_mand->num_stat_entries = 0;          /* Number of ISB:s */
 	int_data_mand->interface_statistics = NULL;
@@ -796,7 +796,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	g_array_append_val(idb_inf->interface_data, int_data);
 
 	wdh_exp_pdu = wtap_dump_fdopen_ng(import_file_fd, WTAP_FILE_TYPE_SUBTYPE_PCAPNG, WTAP_ENCAP_WIRESHARK_UPPER_PDU,
-					  WTAP_MAX_PACKET_SIZE, FALSE, shb_hdrs, idb_inf, NULL, &exp_pdu_file_err);
+					  WTAP_MAX_PACKET_SIZE_STANDARD, FALSE, shb_hdrs, idb_inf, NULL, &exp_pdu_file_err);
 	if (wdh_exp_pdu == NULL) {
 		result = WTAP_OPEN_ERROR;
 		goto end;

@@ -146,7 +146,7 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, char *comment)
     int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
     int_data_mand->wtap_encap      = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
     int_data_mand->time_units_per_second = 1000000000; /* default nanosecond resolution */
-    int_data_mand->snap_len        = WTAP_MAX_PACKET_SIZE;
+    int_data_mand->snap_len        = WTAP_MAX_PACKET_SIZE_STANDARD;
 
     wtap_block_add_string_option(int_data, OPT_IDB_NAME, "Fake IF, PDU->Export", strlen("Fake IF, PDU->Export"));
     wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 9);
@@ -156,7 +156,7 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, char *comment)
     g_array_append_val(shb_hdrs, shb_hdr);
 
     /* Use a random name for the temporary import buffer */
-    exp_pdu_tap_data->wdh = wtap_dump_fdopen_ng(fd, WTAP_FILE_TYPE_SUBTYPE_PCAPNG, WTAP_ENCAP_WIRESHARK_UPPER_PDU, WTAP_MAX_PACKET_SIZE, FALSE,
+    exp_pdu_tap_data->wdh = wtap_dump_fdopen_ng(fd, WTAP_FILE_TYPE_SUBTYPE_PCAPNG, WTAP_ENCAP_WIRESHARK_UPPER_PDU, WTAP_MAX_PACKET_SIZE_STANDARD, FALSE,
         shb_hdrs, idb_inf, NULL, &err);
     if (exp_pdu_tap_data->wdh == NULL) {
         g_assert(err != 0);
