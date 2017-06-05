@@ -2561,8 +2561,13 @@ static guint32 requestLength(tvbuff_t *tvb, int *offsetp, proto_tree *t,
                              guint byte_order)
 {
       guint32 res;
-      proto_tree_add_item_ret_uint(t, hf_x11_request_length, tvb, *offsetp, 2, byte_order, &res);
+      proto_item *ti = proto_tree_add_item_ret_uint(t, hf_x11_request_length, tvb, *offsetp, 2, byte_order, &res);
       *offsetp += 2;
+      if (res == 0) {
+            proto_item_append_text(ti, " (extended length flag)");
+            proto_tree_add_item_ret_uint(t, hf_x11_request_length, tvb, *offsetp, 4, byte_order, &res);
+            *offsetp += 4;
+      }
       return res * 4;
 }
 
@@ -3480,6 +3485,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 {
       int offset = 0;
       int *offsetp = &offset;
+      int query_ext_offset;
       int next_offset;
       proto_item *ti;
       proto_tree *t;
@@ -3490,7 +3496,16 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
       gint left;
       gchar *name;
 
-      length = tvb_get_guint16(tvb, 2, byte_order) * 4;
+      query_ext_offset = 2; /* "opcode" and "unused" */
+
+      length = tvb_get_guint16(tvb, query_ext_offset, byte_order) * 4;
+      query_ext_offset += 2;
+
+      if (length == 0) {
+            /* BIG-REQUESTS extension */
+            length = tvb_get_guint32(tvb, query_ext_offset, byte_order) * 4;
+            query_ext_offset += 4;
+      }
 
       if (length < 4) {
             /* Bogus message length? */
@@ -3524,8 +3539,11 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
                   /* necessary processing even if tree == NULL */
 
-                  v16 = tvb_get_guint16(tvb, 4, byte_order);
-                  name = tvb_get_string_enc(wmem_file_scope(), tvb, 8, v16, ENC_ASCII);
+                  v16 = tvb_get_guint16(tvb, query_ext_offset, byte_order);
+                  query_ext_offset += 2;
+                  /* Some unused bytes */
+                  query_ext_offset += 2;
+                  name = tvb_get_string_enc(wmem_file_scope(), tvb, query_ext_offset, v16, ENC_ASCII);
 
                   /* store string of extension, opcode will be set at reply */
                   i = 0;
@@ -4892,6 +4910,14 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
              */
             opcode = tvb_get_guint8(tvb, 0);
             plen = tvb_get_guint16(tvb, offset + 2, byte_order);
+
+            if (plen == 0) {
+                  /*
+                   * A length field of 0 indicates that the BIG-REQUESTS
+                   * extension is used: The next four bytes are the real length.
+                   */
+                  plen = tvb_get_guint32(tvb, offset + 4, byte_order);
+            }
 
             if (plen == 0) {
                   /*
