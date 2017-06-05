@@ -39,6 +39,7 @@ since version 2.4.0:
 // Add one protocol per line between the --sort-and-group-- delimiters.
 --sort-and-group--
 LoRaTap
+LoRaWAN
 --sort-and-group--
 
 === Updated Protocol Support
