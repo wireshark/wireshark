@@ -187,7 +187,7 @@ void WirelessTimeline::packetSelectionChanged()
 
         guint left_margin = 0.9 * start_tsf + 0.1 * end_tsf;
         guint right_margin = 0.1 * start_tsf + 0.9 * end_tsf;
-        guint half_window = (end_tsf - start_tsf)/2;
+        guint64 half_window = (end_tsf - start_tsf)/2;
 
         if (wr) {
             // are we to the left of the left margin?
