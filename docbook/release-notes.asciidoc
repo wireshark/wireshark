@@ -51,6 +51,7 @@ since version 2.2.0:
   control the extcap utility while capturing.
 * Extcap utilities can now validate the capture filter.
 * Display filter function len() can now be used on all string and byte fields.
+* Added timeline view for 802.11 wireless packet data.
 
 //=== Removed Dissectors
 
