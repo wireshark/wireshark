@@ -21,6 +21,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*
+ * ASTERIX (All-purpose structured EUROCONTROL surveillances
+ * information exchange) is a protocol related to air traffic control.
+ *
+ * The specifications can be downloaded from
+ * http://www.eurocontrol.int/services/asterix
+ */
+
 #include <config.h>
 
 #include <epan/packet.h>
