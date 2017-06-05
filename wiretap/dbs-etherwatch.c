@@ -449,7 +449,7 @@ parse_dbs_etherwatch_packet(struct wtap_pkthdr *phdr, FILE_T fh, Buffer* buf,
     phdr->caplen = eth_hdr_len + pkt_len;
     phdr->len = eth_hdr_len + pkt_len;
 
-    if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {
+    if (phdr->caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
         /*
          * Probably a corrupt capture file; return an error,
          * so that our caller doesn't blow up trying to allocate
@@ -457,7 +457,7 @@ parse_dbs_etherwatch_packet(struct wtap_pkthdr *phdr, FILE_T fh, Buffer* buf,
          */
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("dbs_etherwatch: File has %u-byte packet, bigger than maximum of %u",
-                                    phdr->caplen, WTAP_MAX_PACKET_SIZE);
+                                    phdr->caplen, WTAP_MAX_PACKET_SIZE_STANDARD);
         return FALSE;
     }
 

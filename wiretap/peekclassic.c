@@ -437,7 +437,7 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 	}
 	/*
 	 * The maximum value of sliceLength and length are 65535, which
-	 * are less than WTAP_MAX_PACKET_SIZE will ever be, so we don't
+	 * are less than WTAP_MAX_PACKET_SIZE_STANDARD will ever be, so we don't
 	 * need to check them.
 	 */
 
@@ -621,7 +621,7 @@ static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
 	}
 	/*
 	 * The maximum value of sliceLength and length are 65535, which
-	 * are less than WTAP_MAX_PACKET_SIZE will ever be, so we don't
+	 * are less than WTAP_MAX_PACKET_SIZE_STANDARD will ever be, so we don't
 	 * need to check them.
 	 */
 

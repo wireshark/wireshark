@@ -181,7 +181,7 @@ csids_read_packet(FILE_T fh, csids_t *csids, struct wtap_pkthdr *phdr,
   hdr.caplen = pntoh16(&hdr.caplen);
   /*
    * The maximum value of hdr.caplen is 65535, which is less than
-   * WTAP_MAX_PACKET_SIZE will ever be, so we don't need to check
+   * WTAP_MAX_PACKET_SIZE_STANDARD will ever be, so we don't need to check
    * it.
    */
 

@@ -376,11 +376,15 @@ extern "C" {
 /* if you add to the above, update wtap_tsprec_string() */
 
 /*
- * Maximum packet size we'll support.
- * 262144 is the largest snapshot length that libpcap supports, so we
- * use that.
+ * We support one maximum packet size for most link-layer header types
+ * and another for D-Bus, because the maximum packet size for D-Bus
+ * is 128MB, and that's a lot bigger than the 256KB that we use elsewhere.
+ * We don't want to write out files that specify a maximum packet size of
+ * 128MB if we don't have to, as software reading those files might
+ * allocate a buffer much larger than necessary, wasting memory.
  */
-#define WTAP_MAX_PACKET_SIZE    262144
+#define WTAP_MAX_PACKET_SIZE_STANDARD    262144
+#define WTAP_MAX_PACKET_SIZE_DBUS        (128*1024*1024)
 
 /*
  * "Pseudo-headers" are used to supply to the clients of wiretap

@@ -2101,12 +2101,6 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   cf->drops_known = FALSE;
   cf->drops     = 0;
   cf->snap      = 0; /**** XXX - DOESN'T WORK RIGHT NOW!!!! */
-  if (cf->snap == 0) {
-    /* Snapshot length not known. */
-    cf->has_snap = FALSE;
-    cf->snap = 0;
-  } else
-    cf->has_snap = TRUE;
   nstime_set_zero(&cf->elapsed_time);
   ref = NULL;
   prev_dis = NULL;

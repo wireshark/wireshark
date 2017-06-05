@@ -85,7 +85,7 @@ Daniel Thompson (STMicroelectronics) <daniel.thompson@st.com>
  * sizeof(lcp_header) + sizeof(ipcp_header).  PPPD_MTU is *very* rarely
  * larger than 1500 so this value is fine.
  *
- * It's less than WTAP_MAX_PACKET_SIZE, so we don't have to worry about
+ * It's less than WTAP_MAX_PACKET_SIZE_STANDARD, so we don't have to worry about
  * too-large packets.
  */
 #define PPPD_BUF_SIZE		8192

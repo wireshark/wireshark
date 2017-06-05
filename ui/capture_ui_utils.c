@@ -202,10 +202,10 @@ capture_dev_user_snaplen_find(const gchar *if_name, gboolean *hassnap, int *snap
     if (strcmp(if_tokens[i], if_name) == 0) {
       /* OK, this matches. */
       if (*(colonp + 1) == '0') {
-        /* {hassnap} is false, so just set the snaplen to WTAP_MAX_PACKET_SIZE. */
+        /* {hassnap} is false, so just set the snaplen to WTAP_MAX_PACKET_SIZE_STANDARD. */
         found = TRUE;
         *hassnap = FALSE;
-        *snaplen = WTAP_MAX_PACKET_SIZE;
+        *snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
       } else if (*(colonp + 1) == '1') {
         /* {hassnap} is true, so extract {snaplen} */
         if (*(colonp + 2) != '(') {

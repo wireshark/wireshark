@@ -76,14 +76,14 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *p
 
   /* The next 4 bytes are the packet length */
   packet_size = pntoh32(&stanag_pkt_hdr[2]);
-  if (packet_size > WTAP_MAX_PACKET_SIZE) {
+  if (packet_size > WTAP_MAX_PACKET_SIZE_STANDARD) {
     /*
      * Probably a corrupt capture file; don't blow up trying
      * to allocate space for an immensely-large packet.
      */
     *err = WTAP_ERR_BAD_FILE;
     *err_info = g_strdup_printf("stanag4607: File has %" G_GUINT32_FORMAT "d-byte packet, "
-      "bigger than maximum of %u", packet_size, WTAP_MAX_PACKET_SIZE);
+      "bigger than maximum of %u", packet_size, WTAP_MAX_PACKET_SIZE_STANDARD);
     return FALSE;
   }
   if (packet_size < PKT_HDR_SIZE+SEG_HDR_SIZE) {

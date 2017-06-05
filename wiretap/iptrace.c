@@ -181,14 +181,14 @@ iptrace_read_rec_1_0(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		if (!wtap_read_bytes(fh, NULL, 3, err, err_info))
 			return FALSE;
 	}
-	if (packet_size > WTAP_MAX_PACKET_SIZE) {
+	if (packet_size > WTAP_MAX_PACKET_SIZE_STANDARD) {
 		/*
 		 * Probably a corrupt capture file; don't blow up trying
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("iptrace: File has %u-byte packet, bigger than maximum of %u",
-		    packet_size, WTAP_MAX_PACKET_SIZE);
+		    packet_size, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return FALSE;
 	}
 
@@ -374,14 +374,14 @@ iptrace_read_rec_2_0(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		if (!wtap_read_bytes(fh, NULL, 3, err, err_info))
 			return FALSE;
 	}
-	if (packet_size > WTAP_MAX_PACKET_SIZE) {
+	if (packet_size > WTAP_MAX_PACKET_SIZE_STANDARD) {
 		/*
 		 * Probably a corrupt capture file; don't blow up trying
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("iptrace: File has %u-byte packet, bigger than maximum of %u",
-		    packet_size, WTAP_MAX_PACKET_SIZE);
+		    packet_size, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return FALSE;
 	}
 

@@ -558,7 +558,7 @@ static int libpcap_try_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
 			ret++;
 		break;
 	}
-	if (hdr->hdr.incl_len > WTAP_MAX_PACKET_SIZE) {
+	if (hdr->hdr.incl_len > wtap_max_snaplen_for_encap(wth->file_encap)) {
 		/*
 		 * Probably either a corrupt capture file or a file
 		 * of a type different from the one we're trying.
@@ -566,18 +566,19 @@ static int libpcap_try_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
 		ret++;
 	}
 
-	if (hdr->hdr.orig_len > 64*1024*1024) {
+	if (hdr->hdr.orig_len > 128*1024*1024) {
 		/*
 		 * In theory I guess the on-the-wire packet size can be
 		 * arbitrarily large, and it can certainly be larger than the
 		 * maximum snapshot length which bounds the snapshot size,
-		 * but any file claiming 64MB in a single packet is *probably*
+		 * but any file claiming 128MB in a single packet is *probably*
 		 * corrupt, and treating them as such makes the heuristics
 		 * much more reliable. See, for example,
 		 *
 		 *    https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9634
 		 *
-		 * (64MB is an arbitrary size at this point).
+		 * (128MB is an arbitrary size at this point, chosen to be
+		 * large enough for the largest D-Bus packet).
 		 */
 		ret++;
 	}
@@ -652,7 +653,7 @@ libpcap_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	if (!libpcap_read_header(wth, fh, err, err_info, &hdr))
 		return FALSE;
 
-	if (hdr.hdr.incl_len > WTAP_MAX_PACKET_SIZE) {
+	if (hdr.hdr.incl_len > wtap_max_snaplen_for_encap(wth->file_encap)) {
 		/*
 		 * Probably a corrupt capture file; return an error,
 		 * so that our caller doesn't blow up trying to allocate
@@ -661,7 +662,8 @@ libpcap_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		*err = WTAP_ERR_BAD_FILE;
 		if (err_info != NULL) {
 			*err_info = g_strdup_printf("pcap: File has %u-byte packet, bigger than maximum of %u",
-			    hdr.hdr.incl_len, WTAP_MAX_PACKET_SIZE);
+			    hdr.hdr.incl_len,
+			    wtap_max_snaplen_for_encap(wth->file_encap));
 		}
 		return FALSE;
 	}
@@ -874,10 +876,11 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
 	 *
 	 * A snapshot length of 0, inside Wiretap, means "snapshot length
 	 * unknown"; if the snapshot length supplied to us is 0, we make
-	 * the snapshot length in the header file WTAP_MAX_PACKET_SIZE.
+	 * the snapshot length in the header file the maximum for the
+	 * link-layer type we'll be writing.
 	 */
-	file_hdr.snaplen = (wdh->snaplen != 0) ? wdh->snaplen :
-						 WTAP_MAX_PACKET_SIZE;
+	file_hdr.snaplen = (wdh->snaplen != 0) ? (guint)wdh->snaplen :
+						 wtap_max_snaplen_for_encap(wdh->encap);
 	file_hdr.network = wtap_wtap_encap_to_pcap_encap(wdh->encap);
 	if (!wtap_dump_file_write(wdh, &file_hdr, sizeof file_hdr, err))
 		return FALSE;
@@ -905,19 +908,17 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		return FALSE;
 	}
 
-	/* Don't write anything we're not willing to read. */
-	if (phdr->caplen + phdrsize > WTAP_MAX_PACKET_SIZE) {
+	/*
+	 * Don't write anything we're not willing to read.
+	 * (The cast is to prevent an overflow.)
+	 */
+	if ((guint64)phdr->caplen + phdrsize > wtap_max_snaplen_for_encap(wdh->encap)) {
 		*err = WTAP_ERR_PACKET_TOO_LARGE;
 		return FALSE;
 	}
 
 	rec_hdr.hdr.incl_len = phdr->caplen + phdrsize;
 	rec_hdr.hdr.orig_len = phdr->len + phdrsize;
-
-	if (rec_hdr.hdr.incl_len > WTAP_MAX_PACKET_SIZE) {
-		*err = WTAP_ERR_BAD_FILE;
-		return FALSE;
-	}
 
 	switch (wdh->file_type_subtype) {
 

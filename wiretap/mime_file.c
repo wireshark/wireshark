@@ -4,9 +4,9 @@
  *
  * This is for use with Wireshark dissectors that handle file
  * formats (e.g., because they handle a particular MIME media type).
- * It breaks the file into chunks of at most WTAP_MAX_PACKET_SIZE,
+ * It breaks the file into chunks of at most WTAP_MAX_PACKET_SIZE_STANDARD,
  * each of which is reported as a packet, so that files larger than
- * WTAP_MAX_PACKET_SIZE can be handled by reassembly.
+ * WTAP_MAX_PACKET_SIZE_STANDARD can be handled by reassembly.
  *
  * The "MIME file" dissector does the reassembly, and hands the result
  * off to heuristic dissectors to try to identify the file's contents.

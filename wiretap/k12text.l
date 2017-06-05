@@ -145,7 +145,7 @@ typedef struct {
 #define SET_SECONDS(text) yyextra->g_s = (guint) strtoul(text,NULL,10)
 #define SET_MS(text) yyextra->g_ms = (guint) strtoul(text,NULL,10)
 #define SET_NS(text) yyextra->g_ns = (guint) strtoul(text,NULL,10)
-#define ADD_BYTE(text) do {if (yyextra->ii >= WTAP_MAX_PACKET_SIZE) {KERROR("frame too large");} yyextra->bb[yyextra->ii++] = (guint8)strtoul(text,NULL,16); } while(0)
+#define ADD_BYTE(text) do {if (yyextra->ii >= WTAP_MAX_PACKET_SIZE_STANDARD) {KERROR("frame too large");} yyextra->bb[yyextra->ii++] = (guint8)strtoul(text,NULL,16); } while(0)
 #define FINALIZE_FRAME() do { yyextra->ok_frame = TRUE; } while (0)
 /*~ #define ECHO*/
 #define YY_USER_ACTION yyextra->file_bytes_read += yyleng;
@@ -359,7 +359,7 @@ k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset)
 	if ( file_seek(wth->fh, k12text->next_frame_offset, SEEK_SET, err) == -1) {
 		return FALSE;
 	}
-	state.bb = (guint8*)g_malloc(WTAP_MAX_PACKET_SIZE);
+	state.bb = (guint8*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
 
 	if (!k12text_run_scanner(&state, wth->fh, NEXT_FRAME, err, err_info)) {
 		g_free(state.bb);
@@ -400,7 +400,7 @@ k12text_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *
 	if ( file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
 		return FALSE;
 	}
-	state.bb = (guint8*)g_malloc(WTAP_MAX_PACKET_SIZE);
+	state.bb = (guint8*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
 
 	if (!k12text_run_scanner(&state, wth->random_fh, NEXT_FRAME, err, err_info)) {
 		return FALSE;
@@ -435,7 +435,7 @@ k12text_open(wtap *wth, int *err, gchar **err_info _U_)
 	k12text_t *k12text;
 	k12text_state_t state;
 
-	state.bb = (guint8*)g_malloc(WTAP_MAX_PACKET_SIZE);
+	state.bb = (guint8*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
 	if (!k12text_run_scanner(&state, wth->fh, MAGIC, err, err_info)) {
 		g_free(state.bb);
 		return WTAP_OPEN_ERROR;
@@ -494,7 +494,7 @@ k12text_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	struct tm *tmp;
 
 	/* Don't write anything bigger than we're willing to read. */
-	if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {
+	if (phdr->caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
 		*err = WTAP_ERR_PACKET_TOO_LARGE;
 		return FALSE;
 	}

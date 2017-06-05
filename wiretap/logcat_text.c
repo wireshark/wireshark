@@ -188,9 +188,9 @@ static gboolean logcat_text_read_packet(FILE_T fh, struct wtap_pkthdr *phdr,
     gchar *cbuff;
     gchar *ret = NULL;
 
-    cbuff = (gchar*)g_malloc(WTAP_MAX_PACKET_SIZE);
+    cbuff = (gchar*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
     do {
-        ret = file_gets(cbuff, WTAP_MAX_PACKET_SIZE, fh);
+        ret = file_gets(cbuff, WTAP_MAX_PACKET_SIZE_STANDARD, fh);
     } while (NULL != ret && 3 > strlen(cbuff) && !file_eof(fh));
 
     if (NULL == ret || 3 > strlen(cbuff)) {
@@ -205,13 +205,13 @@ static gboolean logcat_text_read_packet(FILE_T fh, struct wtap_pkthdr *phdr,
         int err;
         gchar *ret2 = NULL;
 
-        lbuff = (gchar*)g_malloc(WTAP_MAX_PACKET_SIZE);
+        lbuff = (gchar*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
         file_off = file_tell(fh);
-        ret2 = file_gets(lbuff,WTAP_MAX_PACKET_SIZE, fh);
+        ret2 = file_gets(lbuff,WTAP_MAX_PACKET_SIZE_STANDARD, fh);
         while (NULL != ret2 && 2 < strlen(lbuff) && !file_eof(fh)) {
-            g_strlcat(cbuff,lbuff,WTAP_MAX_PACKET_SIZE);
+            g_strlcat(cbuff,lbuff,WTAP_MAX_PACKET_SIZE_STANDARD);
             file_off = file_tell(fh);
-            ret2 = file_gets(lbuff,WTAP_MAX_PACKET_SIZE, fh);
+            ret2 = file_gets(lbuff,WTAP_MAX_PACKET_SIZE_STANDARD, fh);
         }
 
         if(NULL == ret2 || 2 < strlen(lbuff)) {
@@ -278,9 +278,9 @@ wtap_open_return_val logcat_text_open(wtap *wth, int *err, gchar **err_info _U_)
     if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
         return WTAP_OPEN_ERROR;
 
-    cbuff = (gchar*)g_malloc(WTAP_MAX_PACKET_SIZE);
+    cbuff = (gchar*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
     do {
-        ret = file_gets(cbuff, WTAP_MAX_PACKET_SIZE, wth->fh);
+        ret = file_gets(cbuff, WTAP_MAX_PACKET_SIZE_STANDARD, wth->fh);
     } while (NULL != ret && !file_eof(wth->fh)
             && ((3 > strlen(cbuff))
                     || g_regex_match_simple(SPECIAL_STRING, cbuff, (GRegexCompileFlags)((gint) G_REGEX_ANCHORED | (gint) G_REGEX_RAW),

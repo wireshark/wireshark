@@ -371,24 +371,24 @@ capsa_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		*err = WTAP_ERR_INTERNAL;
 		return -1;
 	}
-	if (orig_size > WTAP_MAX_PACKET_SIZE) {
+	if (orig_size > WTAP_MAX_PACKET_SIZE_STANDARD) {
 		/*
 		 * Probably a corrupt capture file; don't blow up trying
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("capsa: File has %u-byte original length, bigger than maximum of %u",
-		    orig_size, WTAP_MAX_PACKET_SIZE);
+		    orig_size, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return -1;
 	}
-	if (packet_size > WTAP_MAX_PACKET_SIZE) {
+	if (packet_size > WTAP_MAX_PACKET_SIZE_STANDARD) {
 		/*
 		 * Probably a corrupt capture file; don't blow up trying
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("capsa: File has %u-byte packet, bigger than maximum of %u",
-		    packet_size, WTAP_MAX_PACKET_SIZE);
+		    packet_size, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return -1;
 	}
 	if (header_size + packet_size > rec_size) {

@@ -329,7 +329,11 @@ print_usage(FILE *output)
   fprintf(output, "Capture interface:\n");
   fprintf(output, "  -i <interface>           name or idx of interface (def: first non-loopback)\n");
   fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
-  fprintf(output, "  -s <snaplen>             packet snapshot length (def: %u)\n", WTAP_MAX_PACKET_SIZE);
+#ifdef HAVE_PCAP_CREATE
+  fprintf(output, "  -s <snaplen>             packet snapshot length (def: appropriate maximum)\n");
+#else
+  fprintf(output, "  -s <snaplen>             packet snapshot length (def: %u)\n", WTAP_MAX_PACKET_SIZE_STANDARD);
+#endif
   fprintf(output, "  -p                       don't capture in promiscuous mode\n");
 #ifdef HAVE_PCAP_CREATE
   fprintf(output, "  -I                       capture in monitor mode, if available\n");
@@ -3010,7 +3014,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     snapshot_length = wtap_snapshot_length(cf->wth);
     if (snapshot_length == 0) {
       /* Snapshot length of input file not known. */
-      snapshot_length = WTAP_MAX_PACKET_SIZE;
+      snapshot_length = WTAP_MAX_PACKET_SIZE_STANDARD;
     }
     tshark_debug("tshark: snapshot_length = %d", snapshot_length);
 
@@ -3958,12 +3962,6 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   cf->drops_known = FALSE;
   cf->drops     = 0;
   cf->snap      = wtap_snapshot_length(cf->wth);
-  if (cf->snap == 0) {
-    /* Snapshot length not known. */
-    cf->has_snap = FALSE;
-    cf->snap = WTAP_MAX_PACKET_SIZE;
-  } else
-    cf->has_snap = TRUE;
   nstime_set_zero(&cf->elapsed_time);
   ref = NULL;
   prev_dis = NULL;

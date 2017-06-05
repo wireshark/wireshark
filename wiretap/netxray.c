@@ -1925,7 +1925,7 @@ netxray_dump_2_0(wtap_dumper *wdh,
 	}
 
 	/* Don't write anything we're not willing to read. */
-	if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {
+	if (phdr->caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
 		*err = WTAP_ERR_PACKET_TOO_LARGE;
 		return FALSE;
 	}

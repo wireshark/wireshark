@@ -192,7 +192,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
         << table_data_tmpl.arg(encaps_str)
         << table_row_end;
 
-    if (summary.has_snap) {
+    if (summary.snap != 0) {
         out << table_row_begin
             << table_vheader_tmpl.arg(tr("Snapshot length"))
             << table_data_tmpl.arg(summary.snap)

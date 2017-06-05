@@ -278,7 +278,7 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
     }
 
     packet_size = rlen - (guint32)sizeof(header);
-    if (packet_size > WTAP_MAX_PACKET_SIZE) {
+    if (packet_size > WTAP_MAX_PACKET_SIZE_STANDARD) {
       /*
        * Probably a corrupt capture file or a file that's not an ERF file
        * but that passed earlier tests.
@@ -373,7 +373,7 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
         break;
     }
 
-    if (packet_size > WTAP_MAX_PACKET_SIZE) {
+    if (packet_size > WTAP_MAX_PACKET_SIZE_STANDARD) {
       /*
        * Probably a corrupt capture file or a file that's not an ERF file
        * but that passed earlier tests.
@@ -506,14 +506,14 @@ static gboolean erf_read_header(wtap *wth, FILE_T fh,
 
   *packet_size =  g_ntohs(erf_header->rlen) - (guint32)sizeof(*erf_header);
 
-  if (*packet_size > WTAP_MAX_PACKET_SIZE) {
+  if (*packet_size > WTAP_MAX_PACKET_SIZE_STANDARD) {
     /*
      * Probably a corrupt capture file; don't blow up trying
      * to allocate space for an immensely-large packet.
      */
     *err = WTAP_ERR_BAD_FILE;
     *err_info = g_strdup_printf("erf: File has %u-byte packet, bigger than maximum of %u",
-                                *packet_size, WTAP_MAX_PACKET_SIZE);
+                                *packet_size, WTAP_MAX_PACKET_SIZE_STANDARD);
     return FALSE;
   }
 
@@ -691,14 +691,14 @@ static gboolean erf_read_header(wtap *wth, FILE_T fh,
                         g_ntohs(erf_header->rlen) - (guint32)sizeof(*erf_header) - skiplen );
   }
 
-  if (*packet_size > WTAP_MAX_PACKET_SIZE) {
+  if (*packet_size > WTAP_MAX_PACKET_SIZE_STANDARD) {
     /*
      * Probably a corrupt capture file; don't blow up trying
      * to allocate space for an immensely-large packet.
      */
     *err = WTAP_ERR_BAD_FILE;
     *err_info = g_strdup_printf("erf: File has %u-byte packet, bigger than maximum of %u",
-                                *packet_size, WTAP_MAX_PACKET_SIZE);
+                                *packet_size, WTAP_MAX_PACKET_SIZE_STANDARD);
     return FALSE;
   }
 
@@ -808,7 +808,7 @@ static gboolean erf_dump(
   guint32  crc32        = 0x00000000;
 
   /* Don't write anything bigger than we're willing to read. */
-  if(phdr->caplen > WTAP_MAX_PACKET_SIZE) {
+  if(phdr->caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
     *err = WTAP_ERR_PACKET_TOO_LARGE;
     return FALSE;
   }

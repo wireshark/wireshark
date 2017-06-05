@@ -209,11 +209,11 @@ static guint32 direction = 0;
 /*--- Local date -----------------------------------------------------------------*/
 
 /* This is where we store the packet currently being built */
-static guint8  packet_buf[WTAP_MAX_PACKET_SIZE];
+static guint8  packet_buf[WTAP_MAX_PACKET_SIZE_STANDARD];
 static guint32 header_length;
 static guint32 ip_offset;
 static guint32 curr_offset;
-static guint32 max_offset = WTAP_MAX_PACKET_SIZE;
+static guint32 max_offset = WTAP_MAX_PACKET_SIZE_STANDARD;
 static guint32 packet_start = 0;
 
 static int start_new_packet(gboolean);
@@ -460,7 +460,7 @@ write_bytes (const char bytes[], guint32 nbytes)
 {
     guint32 i;
 
-    if (curr_offset + nbytes < WTAP_MAX_PACKET_SIZE) {
+    if (curr_offset + nbytes < WTAP_MAX_PACKET_SIZE_STANDARD) {
         for (i = 0; i < nbytes; i++) {
             packet_buf[curr_offset] = bytes[i];
             curr_offset++;
@@ -1451,7 +1451,7 @@ print_usage (FILE *output)
             "  -q                     generate no output at all (automatically disables -d).\n"
             "  -n                     use PCAP-NG instead of PCAP as output format.\n"
             "",
-            WTAP_MAX_PACKET_SIZE);
+            WTAP_MAX_PACKET_SIZE_STANDARD);
 }
 
 /*----------------------------------------------------------------------

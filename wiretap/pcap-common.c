@@ -702,6 +702,27 @@ wtap_wtap_encap_to_pcap_encap(int encap)
 	return -1;
 }
 
+/*
+ * For most encapsulations, we use WTAP_MAX_PACKET_SIZE_STANDARD, as
+ * that should be enough for most link-layer types, and shouldn't be
+ * too big.
+ *
+ * For D-Bus, we use WTAP_MAX_PACKET_SIZE_DBUS, because the maximum
+ * D-Bus message size is 128MB, which is bigger than we'd want for
+ * all link-layer types - files with that snapshot length might cause
+ * some programs reading them to allocate a huge and wasteful buffer
+ * and, at least on 32-bit platforms, run the risk of running out of
+ * memory.
+ */
+guint
+wtap_max_snaplen_for_encap(int wtap_encap)
+{
+	if (wtap_encap == WTAP_ENCAP_DBUS)
+		return WTAP_MAX_PACKET_SIZE_DBUS;
+	else
+		return WTAP_MAX_PACKET_SIZE_STANDARD;
+}
+
 gboolean
 wtap_encap_requires_phdr(int wtap_encap)
 {

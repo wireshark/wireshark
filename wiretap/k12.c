@@ -486,7 +486,7 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
      * Record length must be at least large enough for the length
      * and type, hence 8 bytes.
      *
-     * XXX - is WTAP_MAX_PACKET_SIZE the right check for a maximum
+     * XXX - is WTAP_MAX_PACKET_SIZE_STANDARD the right check for a maximum
      * record size?  Should we report this error differently?
      */
     if (left < 8) {
@@ -494,9 +494,9 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
         *err_info = g_strdup_printf("k12: Record length %u is less than 8 bytes long",left);
         return -1;
     }
-    if (left > WTAP_MAX_PACKET_SIZE) {
+    if (left > WTAP_MAX_PACKET_SIZE_STANDARD) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("k12: Record length %u is greater than the maximum %u",left,WTAP_MAX_PACKET_SIZE);
+        *err_info = g_strdup_printf("k12: Record length %u is greater than the maximum %u",left,WTAP_MAX_PACKET_SIZE_STANDARD);
         return -1;
     }
 

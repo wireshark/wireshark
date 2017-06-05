@@ -164,14 +164,14 @@ i4b_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		return FALSE;
 	}
 	length = hdr.length - (guint32)sizeof(hdr);
-	if (length > WTAP_MAX_PACKET_SIZE) {
+	if (length > WTAP_MAX_PACKET_SIZE_STANDARD) {
 		/*
 		 * Probably a corrupt capture file; don't blow up trying
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("i4btrace: File has %u-byte packet, bigger than maximum of %u",
-		    length, WTAP_MAX_PACKET_SIZE);
+		    length, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return FALSE;
 	}
 

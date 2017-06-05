@@ -300,10 +300,10 @@ read_eyesdn_rec(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err,
 		break;
 	}
 
-	if(pkt_len > WTAP_MAX_PACKET_SIZE) {
+	if(pkt_len > WTAP_MAX_PACKET_SIZE_STANDARD) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("eyesdn: File has %u-byte packet, bigger than maximum of %u",
-		    pkt_len, WTAP_MAX_PACKET_SIZE);
+		    pkt_len, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return FALSE;
 	}
 

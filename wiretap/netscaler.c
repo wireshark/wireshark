@@ -974,7 +974,7 @@ static gboolean nstrace_set_start_time(wtap *wth, int *err, gchar **err_info)
 ** Netscaler trace format read routines.
 **
 ** The maximum value of the record data size is 65535, which is less than
-** WTAP_MAX_PACKET_SIZE will ever be, so we don't need to check it.
+** WTAP_MAX_PACKET_SIZE_STANDARD will ever be, so we don't need to check it.
 */
 #define TIMEDEFV10(phdr,fp,type) \
     do {\
@@ -1146,7 +1146,7 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
 
 /*
 ** The maximum value of the record data size is 65535, which is less than
-** WTAP_MAX_PACKET_SIZE will ever be, so we don't need to check it.
+** WTAP_MAX_PACKET_SIZE_STANDARD will ever be, so we don't need to check it.
 */
 #define PARTSIZEDEFV20(phdr,pp,ver) \
     do {\
@@ -1351,7 +1351,7 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
 
 /*
 ** The maximum value of the record data size is 65535, which is less than
-** WTAP_MAX_PACKET_SIZE will ever be, so we don't need to check it.
+** WTAP_MAX_PACKET_SIZE_STANDARD will ever be, so we don't need to check it.
 */
 #define FULLSIZEDEFV30(phdr,fp,ver)\
     do {\
@@ -1804,7 +1804,7 @@ static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
     /*
     ** Get the record length.
     ** The maximum value of the record data size is 65535, which is less
-    ** than WTAP_MAX_PACKET_SIZE will ever be, so we don't need to check it.
+    ** than WTAP_MAX_PACKET_SIZE_STANDARD will ever be, so we don't need to check it.
     */
     record_length = nspr_getv20recordsize(&hdr);
 

@@ -2228,6 +2228,25 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 		descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(descr);
 		descr_mand->wtap_encap = encap;
 		descr_mand->time_units_per_second = 1000000; /* default microsecond resolution */
+		if (snaplen == 0) {
+			/*
+			 * No snapshot length was specified.  Pick an
+			 * appropriate snapshot length for this
+			 * link-layer type.
+			 *
+			 * We use WTAP_MAX_PACKET_SIZE_STANDARD for everything except
+			 * D-Bus, which has a maximum packet size of 128MB,
+			 * which is more than we want to put into files
+			 * with other link-layer header types, as that
+			 * might cause some software reading those files
+			 * to allocate an unnecessarily huge chunk of
+			 * memory for a packet buffer.
+			 */
+			if (encap == WTAP_ENCAP_DBUS)
+				snaplen = 128*1024*1024;
+			else
+				snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
+		}
 		descr_mand->snap_len = snaplen;
 		descr_mand->num_stat_entries = 0;          /* Number of ISB:s */
 		descr_mand->interface_statistics = NULL;

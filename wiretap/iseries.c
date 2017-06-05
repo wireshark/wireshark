@@ -720,7 +720,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
            * Check the length first, just in case it's *so* big that, after
            * adding the Ethernet header length, it overflows.
            */
-          if (pkt_len > WTAP_MAX_PACKET_SIZE - 14)
+          if (pkt_len > WTAP_MAX_PACKET_SIZE_STANDARD - 14)
             {
               /*
                * Probably a corrupt capture file; don't blow up trying
@@ -732,7 +732,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
               *err = WTAP_ERR_BAD_FILE;
               *err_info = g_strdup_printf("iseries: File has %" G_GUINT64_FORMAT "-byte packet, bigger than maximum of %u",
                                           (guint64)pkt_len + 14,
-                                          WTAP_MAX_PACKET_SIZE);
+                                          WTAP_MAX_PACKET_SIZE_STANDARD);
               return FALSE;
             }
           pkt_len += 14;

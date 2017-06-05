@@ -1149,7 +1149,7 @@ snort_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 current_session.pdh = wtap_dump_fdopen(current_session.in,
                                                        WTAP_FILE_TYPE_SUBTYPE_PCAP,
                                                        pinfo->pkt_encap,
-                                                       WTAP_MAX_PACKET_SIZE,
+                                                       WTAP_MAX_PACKET_SIZE_STANDARD,
                                                        FALSE,                 /* compressed */
                                                        &open_err);
                 if (!current_session.pdh) {

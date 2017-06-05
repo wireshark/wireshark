@@ -43,14 +43,14 @@ static gboolean hcidump_read_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 		return FALSE;
 
 	packet_size = GUINT16_FROM_LE(dh.len);
-	if (packet_size > WTAP_MAX_PACKET_SIZE) {
+	if (packet_size > WTAP_MAX_PACKET_SIZE_STANDARD) {
 		/*
 		 * Probably a corrupt capture file; don't blow up trying
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("hcidump: File has %u-byte packet, bigger than maximum of %u",
-			packet_size, WTAP_MAX_PACKET_SIZE);
+			packet_size, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return FALSE;
 	}
 

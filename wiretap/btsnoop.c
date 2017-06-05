@@ -183,14 +183,14 @@ static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
     packet_size = g_ntohl(hdr.incl_len);
     orig_size = g_ntohl(hdr.orig_len);
     flags = g_ntohl(hdr.flags);
-    if (packet_size > WTAP_MAX_PACKET_SIZE) {
+    if (packet_size > WTAP_MAX_PACKET_SIZE_STANDARD) {
         /*
          * Probably a corrupt capture file; don't blow up trying
          * to allocate space for an immensely-large packet.
          */
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("btsnoop: File has %u-byte packet, bigger than maximum of %u",
-                                    packet_size, WTAP_MAX_PACKET_SIZE);
+                                    packet_size, WTAP_MAX_PACKET_SIZE_STANDARD);
         return FALSE;
     }
 
@@ -326,7 +326,7 @@ static gboolean btsnoop_dump_h1(wtap_dumper *wdh,
      * Don't write out anything bigger than we can read.
      * (This will also fail on a caplen of 0, as it should.)
      */
-    if (phdr->caplen-1 > WTAP_MAX_PACKET_SIZE) {
+    if (phdr->caplen-1 > WTAP_MAX_PACKET_SIZE_STANDARD) {
         *err = WTAP_ERR_PACKET_TOO_LARGE;
         return FALSE;
     }
@@ -368,7 +368,7 @@ static gboolean btsnoop_dump_h4(wtap_dumper *wdh,
     }
 
     /* Don't write out anything bigger than we can read. */
-    if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {
+    if (phdr->caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
         *err = WTAP_ERR_PACKET_TOO_LARGE;
         return FALSE;
     }
