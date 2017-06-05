@@ -3082,7 +3082,6 @@ be_seg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
 /*
  * 3.2.2.75 Service Handover
  */
-#if 0
 static const value_string gsm_a_bssmap_serv_ho_inf_vals[] = {
     { 0,    "Handover to UTRAN or cdma2000 should be performed - Handover to UTRAN or cdma2000 is preferred" },
     { 1,    "Handover to UTRAN or cdma2000 should not be performed - Handover to GSM is preferred" },
@@ -3094,7 +3093,6 @@ static const value_string gsm_a_bssmap_serv_ho_inf_vals[] = {
     { 7,    "no information available for service based handover" },
     { 0, NULL }
 };
-#endif
 static guint16
 be_serv_ho(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -3104,7 +3102,7 @@ be_serv_ho(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
 
     /* Service Handover information */
     proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, curr_offset<<3, 5, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gsm_a_bssmap_serv_ho_inf, tvb, curr_offset+1, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_a_bssmap_serv_ho_inf, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
     return(len);
 }
@@ -6388,7 +6386,7 @@ bssmap_uplink_rel_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
     curr_len = len;
 
     /* Cause    3.2.2.5 MSC-BSS M   3-4 */
-    ELEM_OPT_TLV(BE_CAUSE, GSM_A_PDU_TYPE_BSSMAP, BE_CAUSE, NULL);
+    ELEM_MAND_TLV(BE_CAUSE, GSM_A_PDU_TYPE_BSSMAP, BE_CAUSE, NULL, ei_gsm_a_bssmap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
@@ -6570,7 +6568,7 @@ bssmap_perf_loc_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     /* Location Type 3.2.2.63 M 3-n */
     ELEM_MAND_TLV(BE_LOC_TYPE, GSM_A_PDU_TYPE_BSSMAP, BE_LOC_TYPE, NULL, ei_gsm_a_bssmap_missing_mandatory_element);
     /* Cell Identifier 3.2.2.17 O 5-10 */
-    ELEM_MAND_TLV(BE_CELL_ID, GSM_A_PDU_TYPE_BSSMAP, BE_CELL_ID, NULL, ei_gsm_a_bssmap_missing_mandatory_element);
+    ELEM_OPT_TLV(BE_CELL_ID, GSM_A_PDU_TYPE_BSSMAP, BE_CELL_ID, NULL);
     /* Classmark Information Type 3 3.2.2.20 O 3-14 */
     ELEM_OPT_TLV(BE_CM_INFO_3, GSM_A_PDU_TYPE_BSSMAP, BE_CM_INFO_3, NULL);
     /* LCS Client Type 3.2.2.67 C (note 3) 3-n */
@@ -7555,7 +7553,7 @@ proto_register_gsm_a_bssmap(void)
     },
     { &hf_gsm_a_bssmap_serv_ho_inf,
         { "Service Handover information", "gsm_a.bssmap.serv_ho_inf",
-        FT_UINT8, BASE_HEX, NULL, 0x07,
+        FT_UINT8, BASE_DEC, VALS(gsm_a_bssmap_serv_ho_inf_vals), 0x07,
         NULL, HFILL }
     },
     { &hf_gsm_a_bssmap_max_nb_traffic_chan,
