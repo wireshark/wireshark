@@ -232,6 +232,7 @@ static expert_field ei_fp_timing_adjustmentment_reported = EI_INIT;
 static expert_field ei_fp_mac_is_sdus_miscount = EI_INIT;
 static expert_field ei_fp_maybe_srb = EI_INIT;
 static expert_field ei_fp_transport_channel_type_unknown = EI_INIT;
+static expert_field ei_fp_pch_lost_relevant_pi_frame = EI_INIT;
 static expert_field ei_fp_unable_to_locate_ddi_entry = EI_INIT;
 static expert_field ei_fp_e_rnti_first_entry = EI_INIT;
 static expert_field ei_fp_bad_header_checksum = EI_INIT;
@@ -1999,6 +2000,7 @@ dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     gboolean is_control_frame;
     guint16  pch_cfn;
+    guint32  tfi;
     gboolean paging_indication;
     guint16 header_crc = 0;
     proto_item * header_crc_pi = NULL;
@@ -2039,7 +2041,7 @@ dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset++;
 
         /* 5-bit TFI */
-        proto_tree_add_item(tree, hf_fp_pch_tfi, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(tree, hf_fp_pch_tfi, tvb, offset, 1, ENC_BIG_ENDIAN, &tfi);
         offset++;
         header_length = offset;
         /* Optional paging indications */
@@ -2061,26 +2063,37 @@ dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             offset += ((p_fp_info->paging_indications+7) / 8);
         }
-        if(preferences_track_paging_indications && p_fp_info->relevant_paging_indications) {
-            /*If tracking PI is enabled and PI info (from the last packet) is attached, show on tree*/
-            proto_tree *relevant_pi_tree;
-            proto_item *ti;
-            tvbuff_t *pi_tvb;
-            pi_tvb = tvb_new_child_real_data(tvb,
-                                             p_fp_info->relevant_paging_indications->paging_indications_bitmap,
-                                             (p_fp_info->paging_indications+7) / 8,
-                                             (p_fp_info->paging_indications+7) / 8);
-            add_new_data_source(pinfo, pi_tvb, "Relevant Paging Indication");
-            ti = proto_tree_add_item(tree, hf_fp_relevant_paging_indication_bitmap, pi_tvb,
-                                     0,
-                                     (p_fp_info->paging_indications+7) / 8,
-                                     ENC_NA);
-            proto_item_append_text(ti, " (%u bits)", p_fp_info->paging_indications);
-            PROTO_ITEM_SET_GENERATED(ti);
-            relevant_pi_tree = proto_item_add_subtree(ti, ett_fp_pch_relevant_pi);
-            ti = proto_tree_add_uint(relevant_pi_tree, hf_fp_relevant_pi_frame,
-                                                       tvb, 0, 0, p_fp_info->relevant_paging_indications->frame_number);
-            PROTO_ITEM_SET_GENERATED(ti);
+        if(preferences_track_paging_indications) {
+            if(p_fp_info->relevant_paging_indications) {
+                /*If tracking PI is enabled and PI info (from the last packet) is attached, show on tree*/
+                proto_item *ti;
+                proto_tree *relevant_pi_tree;
+
+                tvbuff_t *pi_tvb;
+                pi_tvb = tvb_new_child_real_data(tvb,
+                                                 p_fp_info->relevant_paging_indications->paging_indications_bitmap,
+                                                 (p_fp_info->paging_indications+7) / 8,
+                                                 (p_fp_info->paging_indications+7) / 8);
+                add_new_data_source(pinfo, pi_tvb, "Relevant Paging Indication");
+                ti = proto_tree_add_item(tree, hf_fp_relevant_paging_indication_bitmap, pi_tvb,
+                                         0,
+                                         (p_fp_info->paging_indications+7) / 8,
+                                         ENC_NA);
+                proto_item_append_text(ti, " (%u bits)", p_fp_info->paging_indications);
+                PROTO_ITEM_SET_GENERATED(ti);
+                relevant_pi_tree = proto_item_add_subtree(ti, ett_fp_pch_relevant_pi);
+                ti = proto_tree_add_uint(relevant_pi_tree, hf_fp_relevant_pi_frame,
+                                                           tvb, 0, 0, p_fp_info->relevant_paging_indications->frame_number);
+                PROTO_ITEM_SET_GENERATED(ti);
+            }
+            else {
+                /* PI info not attached. Check if this frame has any Transport Blocks (i.e. RRC payloads) */
+                if(tfi > 0)
+                {
+                    /* This frame has RRC payload(s) but the PI info is missing, report to the user*/
+                    proto_tree_add_expert(tree, pinfo, &ei_fp_pch_lost_relevant_pi_frame, tvb, offset, -1);
+                }
+            }
         }
 
         /* TB data */
@@ -6660,6 +6673,7 @@ void proto_register_fp(void)
         { &ei_fp_e_rnti_first_entry, { "fp.e_rnti.first_entry", PI_MALFORMED, PI_ERROR, "E-RNTI must be first entry among descriptors", EXPFILL }},
         { &ei_fp_maybe_srb, { "fp.maybe_srb", PI_PROTOCOL, PI_NOTE, "Found MACd-Flow = 0 and not MUX detected. (This might be SRB)", EXPFILL }},
         { &ei_fp_transport_channel_type_unknown, { "fp.transport_channel_type.unknown", PI_UNDECODED, PI_WARN, "Unknown transport channel type", EXPFILL }},
+        { &ei_fp_pch_lost_relevant_pi_frame, { "fp.pch_lost_relevant_pi_frame", PI_SEQUENCE, PI_WARN, "Previous PCH frame containing PI bitmap not captured (common at capture start)", EXPFILL }},
         { &ei_fp_hsdsch_entity_not_specified, { "fp.hsdsch_entity_not_specified", PI_MALFORMED, PI_ERROR, "HSDSCH Entity not specified", EXPFILL }},
         { &ei_fp_hsdsch_common_experimental_support, { "fp.hsdsch_common.experimental_support", PI_DEBUG, PI_WARN, "HSDSCH COMMON - Experimental support!", EXPFILL }},
         { &ei_fp_hsdsch_common_t3_not_implemented, { "fp.hsdsch_common_t3.not_implemented", PI_DEBUG, PI_ERROR, "HSDSCH COMMON T3 - Not implemeneted!", EXPFILL }},
