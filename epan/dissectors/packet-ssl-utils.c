@@ -3530,7 +3530,7 @@ static gboolean
 ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
     StringInfo* encrypted_pre_master, gcry_sexp_t pk)
 {
-    gint i;
+    size_t i;
     char *err;
 
     if (!encrypted_pre_master)
@@ -3561,7 +3561,7 @@ ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
     }
 
     if (i!=48) {
-        ssl_debug_printf("%s wrong pre_master_secret length (%d, expected "
+        ssl_debug_printf("%s wrong pre_master_secret length (%zd, expected "
                          "%d)\n", G_STRFUNC, i, 48);
         return FALSE;
     }
