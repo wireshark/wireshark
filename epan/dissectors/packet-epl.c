@@ -5113,7 +5113,7 @@ dissect_epl_sdo_command_read_by_index(struct epl_convo *convo, proto_tree *epl_t
 
 static gboolean epl_profile_uat_fld_fileopen_check_cb(void *, const char *path, guint len, const void *, const void *, char **err);
 
-struct profile *profile_load(wmem_allocator_t *allocator, const char *path)
+static struct profile *profile_load(wmem_allocator_t *allocator, const char *path)
 {
 	struct profile *profile = NULL;
 	char *err;
