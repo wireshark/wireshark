@@ -124,6 +124,11 @@ static int hf_mip_nvse_3gpp2_type17_subtype2 = -1;
 static int hf_mip_nvse_3gpp2_type17_length = -1;
 static int hf_mip_nvse_3gpp2_type17_prim_dns = -1;
 static int hf_mip_nvse_3gpp2_type17_sec_dns = -1;
+static int hf_mip_mne_sub_type = -1;
+static int hf_mip_mne_code = -1;
+static int hf_mip_mne_prefix_length = -1;
+static int hf_mip_mne_prefix = -1;
+static int hf_mip_mne_reserved = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_mip = -1;
@@ -259,6 +264,7 @@ typedef enum {
   UDP_TUN_REQ_EXT = 144,  /* RFC 3519 */
   MSG_STR_EXT = 145,
   PMIPv4_SKIP_EXT = 147,  /* draft-leung-mip4-proxy-mode */
+  MNE_EXT = 148,          /* RFC 5177 */
   SKIP_EXP_EXT = 255,      /* RFC 4064 */
   GRE_KEY_EXT = 0x0401
 } MIP_EXTS;
@@ -291,7 +297,7 @@ static const value_string mip_ext_types[]= {
   {UDP_TUN_REQ_EXT,     "UDP Tunnel Request Extension"},
   {MSG_STR_EXT,         "Message String Extension"},
   {PMIPv4_SKIP_EXT,     "Proxy Mobile IPv4 Skippable Extension"},
-  {148,                 "Mobile Network Extension"},                                /*[RFC5177]*/
+  {MNE_EXT,             "Mobile Network Extension"},                                /*[RFC5177]*/
   {149,                 "Trusted Networks Configured (TNC) Extension"},             /*[RFC5265]*/
   {150,                 "Reserved"},
   {151,                 "Service Selection Extension"},                             /*[RFC5446]*/
@@ -449,6 +455,21 @@ static const value_string mip_nvse_3gpp2_type17_vals[]= {
   {0, NULL}
 };
 
+static const value_string mip_mne_stypes[]= {
+  {0, "Mobile Network Request"},
+  {1, "Explicit Mode Acknowledgement"},
+  {2, "Implicit Mode Acknowledgement"},
+  {0, NULL}
+};
+
+static const value_string mip_mne_codes[]= {
+  {0, "Success"},
+  {1, "Invalid prefix (MOBNET_INVALID_PREFIX_LEN)"},
+  {2, "Mobile Router is not authorized for prefix (MOBNET_UNAUTHORIZED)"},
+  {3, "Forwarding setup failed (MOBNET_FWDING_SETUP_FAILED)"},
+  {0, NULL}
+};
+
 static dissector_handle_t ip_handle;
 
 /* Code to dissect 3GPP2 extensions */
@@ -514,6 +535,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
   guint16       cvse_3gpp2_type;
   int           cvse_local_offset= 0;
   int           nvse_local_offset= 0;
+  int           mne_local_offset= 0;
 
   /* Add our tree, if we have extensions */
   exts_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_mip_exts, NULL, "Extensions");
@@ -763,6 +785,35 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
               /* Vendor-NVSE-Value */
               proto_tree_add_item(ext_tree, hf_mip_nvse_vendor_nvse_value, tvb, nvse_local_offset, ext_len - 8, ENC_NA);
           }
+      }
+      break;
+
+    case MNE_EXT:          /* RFC 5177 */
+      {
+        guint8 sub_type;
+
+        sub_type = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(ext_tree, hf_mip_mne_sub_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        mne_local_offset = offset+1;
+        switch (sub_type) {
+        case 0:
+          proto_tree_add_item(ext_tree, hf_mip_mne_prefix_length, tvb, mne_local_offset, 1, ENC_BIG_ENDIAN);
+          mne_local_offset++;
+          break;
+        case 1:
+        case 2:
+          proto_tree_add_item(ext_tree, hf_mip_mne_code, tvb, mne_local_offset, 1, ENC_BIG_ENDIAN);
+          mne_local_offset++;
+          proto_tree_add_item(ext_tree, hf_mip_mne_prefix_length, tvb, mne_local_offset, 1, ENC_BIG_ENDIAN);
+          mne_local_offset++;
+          proto_tree_add_item(ext_tree, hf_mip_mne_reserved, tvb, mne_local_offset, 1, ENC_BIG_ENDIAN);
+          mne_local_offset++;
+          break;
+        default:
+          proto_tree_add_expert_format(ext_tree, pinfo, &ei_mip_data_not_dissected, tvb, offset, -1, "Unable to decode (Unknown Sub-Type)");
+          return;
+        }
+        proto_tree_add_item(ext_tree, hf_mip_mne_prefix, tvb, mne_local_offset, 4, ENC_BIG_ENDIAN);
       }
       break;
 
@@ -1443,6 +1494,31 @@ void proto_register_mip(void)
         FT_IPv4, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },
+    { &hf_mip_mne_sub_type,
+      { "Sub-Type", "mip.ext.mne.subtype",
+        FT_UINT8, BASE_DEC, VALS(mip_mne_stypes), 0,
+        NULL, HFILL }
+    },
+    { &hf_mip_mne_code,
+      { "Code", "mip.ext.mne.code",
+        FT_UINT8, BASE_DEC, VALS(mip_mne_codes), 0,
+        NULL, HFILL }
+    },
+    { &hf_mip_mne_prefix_length,
+      { "Prefix Length", "mip.ext.mne.prefix_length",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_mip_mne_reserved,
+      { "Reserved", "mip.ext.mne.reserved",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_mip_mne_prefix,
+      { "Prefix", "mip.ext.mne.prefix",
+        FT_IPv4, BASE_NETMASK, NULL, 0,
+        NULL, HFILL }
+    }
   };
 
   /* Setup protocol subtree array */
