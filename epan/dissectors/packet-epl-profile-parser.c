@@ -613,9 +613,9 @@ free_garray(wmem_allocator_t *scope _U_, wmem_cb_event_t event _U_, void *data)
 }
 
 /**
- * \param allocator wmem pool to use
+ * \param scope wmem pool to use
  * \param elem_size size of elements to add into the iarray
- * \param cmp establishes whether two adjacent elements are equal and thus
+ * \param equal establishes whether two adjacent elements are equal and thus
  *            shall be combined at sort-time
  *
  * \returns a new interval array or NULL on failure
