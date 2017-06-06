@@ -14607,7 +14607,7 @@ proto_register_netflow(void)
         },
         /* ntop, 35632 / 397 */
         {&hf_pie_ntop_untunneled_ipv6_dst_addr,
-         {"Untunneled IPv6 destination address", "cflow.pie.ntop.retransmitted_out_bytes",
+         {"Untunneled IPv6 destination address", "cflow.pie.ntop.untunneled_ipv6_dst_addr",
           FT_IPv6, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
