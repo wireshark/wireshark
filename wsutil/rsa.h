@@ -28,6 +28,7 @@
 #include "wsgcrypt.h"
 
 #ifdef HAVE_LIBGNUTLS
+#include <stdio.h>
 #include <gnutls/abstract.h>
 WS_DLL_PUBLIC gcry_sexp_t rsa_privkey_to_sexp(gnutls_x509_privkey_t priv_key, char **err);
 
