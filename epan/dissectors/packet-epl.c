@@ -2477,6 +2477,7 @@ dissect_eplpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean udp
 	proto_tree *epl_tree = NULL, *epl_src_item, *epl_dest_item;
 	gint offset = 0, size = 0;
 	heur_dtbl_entry_t *hdtbl_entry;
+	struct epl_convo *convo;
 
 	if (tvb_reported_length(tvb) < 3)
 	{
@@ -2603,7 +2604,6 @@ dissect_eplpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean udp
 	/* The rest of the EPL dissector depends on the message type  */
 	switch (epl_mtyp)
 	{
-		struct epl_convo *convo;
 		case EPL_SOC:
 			offset = dissect_epl_soc(epl_tree, tvb, pinfo, offset);
 			break;
@@ -3017,6 +3017,7 @@ dissect_epl_asnd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint o
 	tvbuff_t *next_tvb;
 	proto_item *item;
 	proto_tree *subtree;
+	struct epl_convo *convo;
 
 	/* get ServiceID of payload */
 	svid = tvb_get_guint8(tvb, offset);
@@ -3029,7 +3030,6 @@ dissect_epl_asnd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint o
 
 	switch (svid)
 	{
-		struct epl_convo *convo;
 		case EPL_ASND_IDENTRESPONSE:
 			convo = epl_get_convo(pinfo, CONVO_FOR_RESPONSE);
 			offset = dissect_epl_asnd_ires(convo, epl_tree, tvb, pinfo, offset);
@@ -3077,6 +3077,7 @@ dissect_epl_ainv(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint o
 	guint8 svid;
 	proto_item *item;
 	proto_tree *subtree;
+	struct epl_convo *convo;
 
 	if (pinfo->srcport != EPL_MN_NODEID)   /* check if CN or MN */
 	{
@@ -3102,7 +3103,6 @@ dissect_epl_ainv(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint o
 
 	switch (svid)
 	{
-		struct epl_convo *convo;
 		case EPL_ASND_IDENTRESPONSE:
 			convo = epl_get_convo(pinfo, CONVO_FOR_RESPONSE);
 			offset = dissect_epl_asnd_ires(convo, epl_tree, tvb, pinfo, offset);
