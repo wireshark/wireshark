@@ -92,7 +92,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  capture_dissector_add_uint@Base 2.3.0
  capture_dissector_get_count@Base 2.1.0
  capture_dissector_increment_count@Base 2.1.0
- check_xdlc_control@Base 1.9.1
  chunk_type_values@Base 2.1.0
  circuit_add_proto_data@Base 1.9.1
  circuit_get_proto_data@Base 1.9.1

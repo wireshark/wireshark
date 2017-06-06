@@ -569,28 +569,6 @@ dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean 
 		call_data_dissector(next_tvb, pinfo, tree);
 }
 
-static gboolean
-dissect_udp_lapd(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void *data _U_)
-{
-	if (pinfo->srcport < 3001 || pinfo->srcport > 3015
-		|| pinfo->destport < 3001 || pinfo->destport > 3015
-		|| pinfo->destport != pinfo->srcport)
-			return FALSE;
-
-	/*
-	 * XXX - check for a valid LAPD address field.
-	 */
-
-	/*
-	 * OK, check whether the control field looks valid.
-	 */
-	if (!check_xdlc_control(tvb, 2, NULL, NULL, FALSE, FALSE))
-		return FALSE;
-
-    dissect_lapd(tvb, pinfo, tree, data);
-	return TRUE;
-}
-
 void
 proto_register_lapd(void)
 {
@@ -748,10 +726,10 @@ proto_reg_handoff_lapd(void)
 		dissector_add_uint("wtap_encap", WTAP_ENCAP_LINUX_LAPD, lapd_handle);
 		dissector_add_uint("wtap_encap", WTAP_ENCAP_LAPD, lapd_handle);
 		dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_LAPD, lapd_handle);
-		heur_dissector_add("udp", dissect_udp_lapd, "LAPD over UDP", "lapd_udp", proto_lapd, HEURISTIC_ENABLE);
 
 		dissector_add_for_decode_as("sctp.ppi", lapd_handle);
 		dissector_add_for_decode_as("sctp.port", lapd_handle);
+		dissector_add_uint_range_with_preference("udp.port", "", lapd_handle);
 
 		init = TRUE;
 	} else {
@@ -769,6 +747,7 @@ proto_reg_handoff_lapd(void)
 	lapd_sctp_ppi = pref_lapd_sctp_ppi;
 	if (lapd_sctp_ppi > 0)
 		dissector_add_uint("sctp.ppi", lapd_sctp_ppi, lapd_handle);
+
 }
 
 /*

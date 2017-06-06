@@ -166,64 +166,6 @@ get_xdlc_control(const guchar *pd, int offset, gboolean is_extended)
     return control;
 }
 
-/*
- * Check whether the control field of the packet looks valid.
- */
-gboolean
-check_xdlc_control(tvbuff_t *tvb, int offset,
-  const value_string *u_modifier_short_vals_cmd,
-  const value_string *u_modifier_short_vals_resp, gboolean is_response,
-  gboolean is_extended _U_)
-{
-    guint16 control;
-
-    if (!tvb_bytes_exist(tvb, offset, 1))
-        return FALSE;   /* not enough data to check */
-    switch (tvb_get_guint8(tvb, offset) & 0x03) {
-
-    case XDLC_S:
-        /*
-         * Supervisory frame.
-         * No fields to check for validity here.
-         */
-        return TRUE;
-
-    case XDLC_U:
-        /*
-         * Unnumbered frame.
-         *
-         * XXX - is this two octets, with a P/F bit, in HDLC extended
-         * operation?  It's one octet in LLC, even though the control
-         * field of I and S frames is a 2-byte extended-operation field
-         * in LLC.  Given that there are no sequence numbers in the
-         * control field of a U frame, there doesn't appear to be any
-         * need for it to be 2 bytes in extended operation.
-         */
-        if (u_modifier_short_vals_cmd == NULL)
-                u_modifier_short_vals_cmd = modifier_short_vals_cmd;
-        if (u_modifier_short_vals_resp == NULL)
-                u_modifier_short_vals_resp = modifier_short_vals_resp;
-        control = tvb_get_guint8(tvb, offset);
-        if (is_response) {
-                if (try_val_to_str(control & XDLC_U_MODIFIER_MASK,
-                    u_modifier_short_vals_resp) == NULL)
-                        return FALSE;   /* unknown modifier */
-        } else {
-                if (try_val_to_str(control & XDLC_U_MODIFIER_MASK,
-                    u_modifier_short_vals_cmd) == NULL)
-                        return FALSE;   /* unknown modifier */
-        }
-        return TRUE;
-
-    default:
-        /*
-         * Information frame.
-         * No fields to check for validity here.
-         */
-        return TRUE;
-    }
-}
-
 int
 dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
   proto_tree *xdlc_tree, int hf_xdlc_control, gint ett_xdlc_control,
