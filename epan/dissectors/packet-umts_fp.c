@@ -4910,12 +4910,6 @@ make_fake_lchid(packet_info *pinfo _U_, gint trchld)
     return fake_map[trchld];
 }
 
-/*
- * july 2012:
- * Alot of configuration has been move into the actual dissecting functions
- * since most of the configuration/signalign has to be set per tb (pdu) rather
- * for the channel!
- */
 static fp_info *
 fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                                 umts_fp_conversation_info_t *p_conv_data,
@@ -4949,7 +4943,6 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
     fpi->release_month = 12;
     fpi->channel = p_conv_data->channel;
     fpi->dch_crc_present = p_conv_data->dch_crc_present;
-    /*fpi->paging_indications;*/
     fpi->link_type = FP_Link_Ethernet;
 
 #if 0
@@ -5008,7 +5001,6 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                 }
             }
             /* Make configurable ?(available in NBAP?) */
-            /* urnti[MAX_RLC_CHANS] */
             /*
             switch (p_conv_data->rlc_mode) {
                 case FP_RLC_TM:
@@ -5025,8 +5017,6 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                     rlcinf->mode[0] = RLC_UNKNOWN_MODE;
                     break;
             }*/
-            /* rbid[MAX_RLC_CHANS] */
-            /* For RLC re-assembly to work we urnti signaled from NBAP */
             rlcinf->urnti[0] = fpi->com_context_id;
             rlcinf->li_size[0] = RLC_LI_7BITS;
             rlcinf->ciphered[0] = FALSE;
@@ -5044,32 +5034,22 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                 info_missing = TRUE;
                 break;
             }
-            /*Most configuration is now done in the actual dissecting function*/
             macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
             rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
             fpi->no_ddi_entries = fp_edch_channel_info->no_ddi_entries;
             for (i=0; i<fpi->no_ddi_entries; i++) {
                 fpi->edch_ddi[i] = fp_edch_channel_info->edch_ddi[i];    /*Set the DDI value*/
-                fpi->edch_macd_pdu_size[i] = fp_edch_channel_info->edch_macd_pdu_size[i];    /*Set the size*/
+                fpi->edch_macd_pdu_size[i] = fp_edch_channel_info->edch_macd_pdu_size[i];    /*Set the PDU size*/
                 fpi->edch_lchId[i] = fp_edch_channel_info->edch_lchId[i];    /*Set the channel id for this entry*/
-                /*macinf->content[i] = lchId_type_table[fp_edch_channel_info->edch_lchId[i]]; */    /*Set the proper Content type for the mac layer.*/
-            /*    rlcinf->mode[i] = lchId_rlc_map[fp_edch_channel_info->edch_lchId[i]];*/ /* Set RLC mode by lchid to RLC_MODE map in nbap.h */
-
             }
             fpi->edch_type = fp_edch_channel_info->edch_type;
 
-           /* macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
-            macinf->content[0] = MAC_CONTENT_PS_DTCH;*/
-            p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, macinf);
-
-
-            /* For RLC re-assembly to work we need a urnti signaled from NBAP */
             rlcinf->urnti[0] = fpi->com_context_id;
-            /* rlcinf->mode[0] = RLC_AM;*/
             rlcinf->li_size[0] = RLC_LI_7BITS;
             rlcinf->ciphered[0] = FALSE;
             rlcinf->deciphered[0] = FALSE;
 
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, macinf);
             p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0, rlcinf);
 
             return fpi;
@@ -5105,19 +5085,19 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
 
             rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
             macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
-            offset = 2; /* To correctly read the TFI */
+            offset = 2; /* Set offset to TFI */
             fakes  = 5; /* Reset fake counter */
             for (chan=0; chan < fpi->num_chans; chan++) { /* Iterate over the DCH channels in the flow (each given a TFI) */
                 /* TFI is 5 bits according to 3GPP TS 25.427, paragraph 6.2.4.4 */
                 tfi = tvb_get_bits8(tvb, 3+offset*8, 5);
 
-                /* Figure out the number of tbs and size */
+                /* Figure out the number of TBs and size */
                 num_tbs = (fpi->is_uplink) ? p_conv_data->fp_dch_channel_info[chan].ul_chan_num_tbs[tfi] : p_conv_data->fp_dch_channel_info[chan].dl_chan_num_tbs[tfi];
                 tb_size = (fpi->is_uplink) ? p_conv_data->fp_dch_channel_info[i].ul_chan_tf_size[tfi] :    p_conv_data->fp_dch_channel_info[i].dl_chan_tf_size[tfi];
 
                 tb_bit_off = (2+p_conv_data->num_dch_in_flow)*8; /*Point to the C/T of first TB*/
-                /* Iterate over the transport blocks */
-                /* Set configuration for individual blocks */
+                /* Iterate over the Transport Blocks */
+                /* Set configuration for each individual block */
                 for (j=0; j < num_tbs && j+chan < MAX_MAC_FRAMES; j++) {
                     /* Set transport channel id (useful for debugging) */
                     macinf->trchid[j+chan] = p_conv_data->dch_ids_in_flow_list[chan];
@@ -5194,9 +5174,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
             }
             p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, macinf);
             p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0, rlcinf);
-            /* Set offset to point to first TFI
-             * the Number of TFI's = number of DCH's in the flow
-             */
+            /* Set offset to point to first TFI */
             offset = 2;
             break;
         case CHANNEL_FACH_FDD:
@@ -5214,9 +5192,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
             }
             rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
             macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
-            /* Set offset to point to first TFI
-             * the Number of TFI's = number of DCH's in the flow
-             */
+            /* Set offset to TFI */
             offset = 2;
             /* Set MAC data */
             macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
@@ -5225,11 +5201,10 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
             p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, macinf);
             /* Set RLC data */
             rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
-            /* Make configurable ?(avaliable in NBAP?) */
-            /* For RLC re-assembly to work we need to fake urnti: using the conversation's ID and the prefix of 0xFFF */
+            /* For RLC re-assembly to work we need to fake a "U-RNTI" as an identifier of this stream.*/
+            /* Using the (UDP) conversation's ID and the prefix of 0xFFF */
             rlcinf->urnti[0] = (p_conv->conv_index | 0xFFF00000);
             rlcinf->mode[0] = RLC_AM;
-            /* rbid[MAX_RLC_CHANS] */
             rlcinf->li_size[0] = RLC_LI_7BITS;
             rlcinf->ciphered[0] = FALSE;
             rlcinf->deciphered[0] = FALSE;
@@ -5251,17 +5226,15 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
             }
             rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
             macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
-            /* Set offset to point to first TFI
-             * the Number of TFI's = number of DCH's in the flow
-             */
+            /* Set offset to TFI */
             offset = 2;
             /* set MAC data */
             macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
             rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
             for ( chan = 0; chan < fpi->num_chans; chan++ ) {
-                    macinf->ctmux[chan]   = 1;
-                    macinf->content[chan] = MAC_CONTENT_DCCH;
-                    rlcinf->urnti[chan] = fpi->com_context_id;    /*Note that MAC probably will change this*/
+                macinf->ctmux[chan]   = 1;
+                macinf->content[chan] = MAC_CONTENT_DCCH;
+                rlcinf->urnti[chan] = fpi->com_context_id;    /*Note: For DCCH, MAC dissector will override this with C-RNTI/U-RNTI*/
             }
             p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, macinf);
             p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0, rlcinf);
@@ -5355,15 +5328,7 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 
     if (p_conv) {
-         /*Find correct conversation, basically find the one that's closest to this frame*/
-#if 0
-         while (p_conv->next != NULL && p_conv->next->setup_frame < pinfo->num) {
-            p_conv = p_conv->next;
-         }
-#endif
-
         p_conv_data = (umts_fp_conversation_info_t *)conversation_get_proto_data(p_conv, proto_fp);
-
         if (p_conv_data) {
             /*Figure out the direction of the link*/
             if (addresses_equal(&(pinfo->net_dst), (&p_conv_data->crnc_address))) {
