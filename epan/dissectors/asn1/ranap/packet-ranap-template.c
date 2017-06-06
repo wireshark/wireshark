@@ -54,7 +54,7 @@
 #define PFNAME "ranap"
 
 /* Highest Ranap_ProcedureCode_value, use in heuristics */
-#define RANAP_MAX_PC  45 /* id_RANAPenhancedRelocation =  45 */
+#define RANAP_MAX_PC  49 /* id_RerouteNASRequest =  49 */
 
 #include "packet-ranap-val.h"
 

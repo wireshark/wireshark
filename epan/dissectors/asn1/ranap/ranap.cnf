@@ -808,6 +808,7 @@ id-SRVCCPreparation                   ProcedureCode
 id-UeRadioCapabilityMatch             ProcedureCode
 id-UeRegistrationQuery                ProcedureCode
 id-RerouteNASRequest                  ProcedureCode
+# When adding a new ProcedureCode, update RANAP_MAX_PC value in packet-ranap-template.c too
 
 # ProtocolIE-ID
 id-AreaIdentity                                 ProtocolIE-ID
