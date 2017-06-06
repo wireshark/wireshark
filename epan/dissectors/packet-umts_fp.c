@@ -5273,10 +5273,8 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
 
     /* Peek at the packet as the per packet info seems not to take the tfi into account */
     for (i=0; i<fpi->num_chans; i++) {
-        tfi = tvb_get_guint8(tvb, offset);
-
-        /*TFI is 5 bits according to 3GPP TS 25.321, paragraph 6.2.4.4*/
-        /*tfi = tvb_get_bits8(tvb, offset*8, 5);*/
+        /*TFI is 5 bits according to 3GPP TS 25.427, paragraph 6.2.4.4*/
+        tfi = tvb_get_guint8(tvb, offset) & 0x1f;
         if (pinfo->link_dir == P2P_DIR_UL) {
             fpi->chan_tf_size[i] = p_conv_data->fp_dch_channel_info[i].ul_chan_tf_size[tfi];
             fpi->chan_num_tbs[i] = p_conv_data->fp_dch_channel_info[i].ul_chan_num_tbs[tfi];
