@@ -5209,8 +5209,6 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                 /* control frame, we're done */
                 return fpi;
             }
-            rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
-            macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
             /* Set offset to TFI */
             offset = 2;
             /* Set MAC data */
@@ -5243,8 +5241,6 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                 /* control frame, we're done */
                 return fpi;
             }
-            rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
-            macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
             /* Set offset to TFI */
             offset = 2;
             /* set MAC data */
