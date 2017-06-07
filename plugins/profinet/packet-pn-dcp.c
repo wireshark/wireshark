@@ -1036,7 +1036,8 @@ dissect_PNDCP_PDU(tvbuff_t *tvb,
 
     offset = dissect_pn_uint8 (tvb, offset, pinfo, tree, hf_pn_dcp_service_id, &service_id);
     offset = dissect_pn_uint8 (tvb, offset, pinfo, tree, hf_pn_dcp_service_type, &service_type);
-    offset = dissect_pn_uint32(tvb, offset, pinfo, tree, hf_pn_dcp_xid, &xid);
+    proto_tree_add_item_ret_uint(tree, hf_pn_dcp_xid, tvb, offset, 4, ENC_BIG_ENDIAN, &xid);
+    offset += 4;
     if (service_id == PNDCP_SERVICE_ID_IDENTIFY && service_type == PNDCP_SERVICE_TYPE_REQUEST) {
         /* multicast header */
         offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_response_delay, &response_delay);

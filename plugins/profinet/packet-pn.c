@@ -100,17 +100,6 @@ dissect_pn_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     return offset + 2;
 }
 
-/* dissect a 32 bit unsigned integer */
-int
-dissect_pn_uint32(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-                       proto_tree *tree, int hfindex, guint32 *pdata)
-{
-    proto_tree_add_item_ret_uint(tree, hfindex,
-            tvb, offset, 4, ENC_BIG_ENDIAN, pdata);
-
-    return offset+4;
-}
-
 /* dissect a 16 bit signed integer */
 int
 dissect_pn_int16(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
@@ -124,17 +113,6 @@ dissect_pn_int16(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     if (pdata)
         *pdata = data;
     return offset + 2;
-}
-
-/* dissect a 32 bit signed integer */
-int
-dissect_pn_int32(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-                       proto_tree *tree, int hfindex, gint32 *pdata)
-{
-    proto_tree_add_item_ret_int(tree, hfindex,
-            tvb, offset, 4, ENC_BIG_ENDIAN, pdata);
-
-    return offset + 4;
 }
 
 /* dissect a 24bit OUI (IEC organizational unique id) */

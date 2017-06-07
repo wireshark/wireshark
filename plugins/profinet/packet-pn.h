@@ -125,14 +125,8 @@ extern int dissect_pn_uint16_ret_item(tvbuff_t *tvb, gint offset, packet_info *p
 extern int dissect_pn_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                        proto_tree *tree, int hfindex, guint16 *pdata);
 
-extern int dissect_pn_uint32(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, int hfindex, guint32 *pdata);
-
 extern int dissect_pn_int16(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                        proto_tree *tree, int hfindex, gint16 *pdata);
-
-extern int dissect_pn_int32(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, int hfindex, gint32 *pdata);
 
 extern int dissect_pn_oid(tvbuff_t *tvb, int offset, packet_info *pinfo,
                     proto_tree *tree, int hfindex, guint32 *pdata);

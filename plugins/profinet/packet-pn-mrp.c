@@ -249,7 +249,8 @@ dissect_PNMRP_Test(tvbuff_t *tvb, int offset,
     offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_transition, &transition);
 
     /* MRP_TimeStamp */
-    offset = dissect_pn_uint32(tvb, offset, pinfo, tree, hf_pn_mrp_time_stamp, &time_stamp);
+    proto_tree_add_item_ret_uint(tree, hf_pn_mrp_time_stamp, tvb, offset, 4, ENC_BIG_ENDIAN, &time_stamp);
+    offset += 4;
 
     /* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);

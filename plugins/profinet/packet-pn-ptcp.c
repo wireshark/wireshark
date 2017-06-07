@@ -257,10 +257,12 @@ dissect_PNPTCP_Time(tvbuff_t *tvb, int offset,
     offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_ptcp_epoch_number, &EpochNumber);
 
     /* Seconds */
-    offset = dissect_pn_uint32(tvb, offset, pinfo, tree, hf_pn_ptcp_seconds, &Seconds);
+    proto_tree_add_item_ret_uint(tree, hf_pn_ptcp_seconds, tvb, offset, 4, ENC_BIG_ENDIAN, &Seconds);
+    offset += 4;
 
     /* NanoSeconds */
-    offset = dissect_pn_uint32(tvb, offset, pinfo, tree, hf_pn_ptcp_nanoseconds, &NanoSeconds);
+    proto_tree_add_item_ret_uint(tree, hf_pn_ptcp_nanoseconds, tvb, offset, 4, ENC_BIG_ENDIAN, &NanoSeconds);
+    offset += 4;
 
     proto_item_append_text(item, ": Seconds=%u NanoSeconds=%u EpochNumber=%u",
         Seconds, NanoSeconds, EpochNumber);
@@ -369,10 +371,12 @@ dissect_PNPTCP_PortParameter(tvbuff_t *tvb, int offset,
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* T2PortRxDelay */
-    offset = dissect_pn_uint32(tvb, offset, pinfo, tree, hf_pn_ptcp_t2portrxdelay, &t2portrxdelay);
+    proto_tree_add_item_ret_uint(tree, hf_pn_ptcp_t2portrxdelay, tvb, offset, 4, ENC_BIG_ENDIAN, &t2portrxdelay);
+    offset += 4;
 
     /* T3PortTxDelay */
-    offset = dissect_pn_uint32(tvb, offset, pinfo, tree, hf_pn_ptcp_t3porttxdelay, &t3porttxdelay);
+    proto_tree_add_item_ret_uint(tree, hf_pn_ptcp_t3porttxdelay, tvb, offset, 4, ENC_BIG_ENDIAN, &t3porttxdelay);
+    offset += 4;
 
     proto_item_append_text(item, ": T2PortRxDelay=%uns, T3PortTxDelay=%uns",
         t2portrxdelay, t3porttxdelay);
@@ -419,7 +423,8 @@ dissect_PNPTCP_PortTime(tvbuff_t *tvb, int offset,
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* T2TimeStamp */
-    offset = dissect_pn_uint32(tvb, offset, pinfo, tree, hf_pn_ptcp_t2timestamp, &t2timestamp);
+    proto_tree_add_item_ret_uint(tree, hf_pn_ptcp_t2timestamp, tvb, offset, 4, ENC_BIG_ENDIAN, &t2timestamp);
+    offset += 4;
 
     proto_item_append_text(item, ": T2TimeStamp=%uns", t2timestamp);
 
@@ -613,7 +618,8 @@ dissect_PNPTCP_FollowUpPDU(tvbuff_t *tvb, int offset,
     offset = dissect_pn_align4(tvb, offset, pinfo, header_tree);
 
     /* Delay1ns_FUP */
-    offset = dissect_pn_int32(tvb, offset, pinfo, header_tree, hf_pn_ptcp_delay1ns_fup, &delay1ns_fup);
+    proto_tree_add_item_ret_int(header_tree, hf_pn_ptcp_delay1ns_fup, tvb, offset, 4, ENC_BIG_ENDIAN, &delay1ns_fup);
+    offset += 4;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq=%3u, Delay=%11dns", name, seq_id, delay1ns_fup);
     proto_item_append_text(item, "%s: Sequence=%u, Delay=%dns", name_short, seq_id, delay1ns_fup);
@@ -634,8 +640,6 @@ dissect_PNPTCP_RTSyncPDU(tvbuff_t *tvb, int offset,
 {
     proto_item *header_item;
     proto_tree *header_tree;
-    guint32     res_1;
-    guint32     res_2;
     guint32     delay10ns;
     guint16     seq_id;
     guint8      delay1ns_8;
@@ -648,13 +652,16 @@ dissect_PNPTCP_RTSyncPDU(tvbuff_t *tvb, int offset,
     header_tree = proto_item_add_subtree(header_item, ett_pn_ptcp_header);
 
     /* Reserved_1 */
-    offset = dissect_pn_uint32(tvb, offset, pinfo, header_tree, hf_pn_ptcp_res1, &res_1);
+    proto_tree_add_item(tree, hf_pn_ptcp_res1, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
 
     /* Reserved_2 */
-    offset = dissect_pn_uint32(tvb, offset, pinfo, header_tree, hf_pn_ptcp_res2, &res_2);
+    proto_tree_add_item(tree, hf_pn_ptcp_res2, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
 
     /* Delay10ns */
-    offset = dissect_pn_uint32(tvb, offset, pinfo, header_tree, hf_pn_ptcp_delay10ns, &delay10ns);
+    proto_tree_add_item_ret_uint(tree, hf_pn_ptcp_delay10ns, tvb, offset, 4, ENC_BIG_ENDIAN, &delay10ns);
+    offset += 4;
 
     /* SequenceID */
     offset = dissect_pn_uint16(tvb, offset, pinfo, header_tree, hf_pn_ptcp_seq_id, &seq_id);
@@ -666,7 +673,8 @@ dissect_PNPTCP_RTSyncPDU(tvbuff_t *tvb, int offset,
     offset = dissect_pn_align4(tvb, offset, pinfo, header_tree);
 
     /* Delay1ns */
-    offset = dissect_pn_uint32(tvb, offset, pinfo, header_tree, hf_pn_ptcp_delay1ns, &delay1ns_32);
+    proto_tree_add_item_ret_uint(tree, hf_pn_ptcp_delay1ns, tvb, offset, 4, ENC_BIG_ENDIAN, &delay1ns_32);
+    offset += 4;
 
     /* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
@@ -756,7 +764,8 @@ dissect_PNPTCP_DelayPDU(tvbuff_t *tvb, int offset,
     offset = dissect_pn_align4(tvb, offset, pinfo, header_tree);
 
     /* Delay1ns_FUP */
-    offset = dissect_pn_uint32(tvb, offset, pinfo, header_tree, hf_pn_ptcp_delay1ns, &delay1ns);
+    proto_tree_add_item_ret_uint(tree, hf_pn_ptcp_delay1ns, tvb, offset, 4, ENC_BIG_ENDIAN, &delay1ns);
+    offset += 4;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq=%3u, Delay=%11uns", name, seq_id, delay1ns);
     proto_item_append_text(item, "%s: Sequence=%u, Delay=%uns", name_short, seq_id, delay1ns);
