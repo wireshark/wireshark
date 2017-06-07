@@ -253,6 +253,7 @@ static const value_string vals_ctype[] = {
 	{ 50, "application/json" },
 	{ 60, "application/cbor" },
 	{ 1542, "application/vnd.oma.lwm2m+tlv" },
+	{ 11542, "application/vnd.oma.lwm2m+tlv" },
 	{ 0, NULL },
 };
 
