@@ -7,7 +7,7 @@
   <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
   <?endif?>
 
-  <?define VCRedist.Version = "VC120" ?>
+  <?define VCRedist.Version = "VC140" ?>
   <?define VCRedist.Dir ="C:\Program Files (x86)\Common Files\Merge Modules\" ?>
 
   <?define Staging.Dir ="$(var.BuildOutputDir)" ?>
