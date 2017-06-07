@@ -161,7 +161,7 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                         hf_wsmp_WAVEid, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    wsmlength = tvb_get_letohs( tvb, offset);
+    wsmlength = tvb_get_ntohs( tvb, offset);
     proto_tree_add_item(wsmp_tree,
                         hf_wsmp_wsmlength, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
