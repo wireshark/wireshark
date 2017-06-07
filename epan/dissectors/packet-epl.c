@@ -4490,7 +4490,7 @@ dissect_epl_sdo_command_write_multiple_by_index(struct epl_convo *convo, proto_t
 		 * we start the loop. */
 		while ( remlength > 0 )
 		{
-			guint16 sod_index = error;
+			guint16 sod_index;
 			if ((tvb_get_guint8 ( tvb, offset + 3 ) & 0x80) == 0x80)
 				is_abort = TRUE;
 
