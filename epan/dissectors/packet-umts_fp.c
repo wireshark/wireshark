@@ -2825,6 +2825,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             guint bits_in_subframe = 0;
             guint mac_d_pdus_in_subframe = 0;
             guint    lchid=0;    /*Logcial channel id*/
+            guint32 user_identity;
             umts_mac_info *macinf;
             bit_offset = 0;
 
@@ -2895,6 +2896,11 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                            send_size, n);
                     maces_tree = proto_item_add_subtree(ti, ett_fp_edch_maces);
                 }
+                /* Determine the UE ID to use in RLC */
+                user_identity = p_fp_info->com_context_id;
+                if(p_fp_info->urnti) {
+                    user_identity = p_fp_info->urnti;
+                }
                 for (macd_idx = 0; macd_idx < subframes[n].number_of_mac_d_pdus[i]; macd_idx++) {
 
                     if (preferences_call_mac_dissectors /*&& !rlc_is_ciphered(pinfo)*/) {
@@ -2912,7 +2918,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         rlcinf->mode[macd_idx] = lchId_rlc_map[lchid]; /* Set RLC mode by lchid to RLC_MODE map in nbap.h */
 
                         /* Set U-RNTI to ComuncationContext signaled from nbap*/
-                        rlcinf->urnti[macd_idx] = p_fp_info->com_context_id;
+                        rlcinf->urnti[macd_idx] = user_identity;
                         rlcinf->rbid[macd_idx] = lchid; /*subframes[n].ddi[i];*/    /*Save the DDI value for RLC*/
                         /*g_warning("========Setting RBID:%d for lchid:%d", subframes[n].ddi[i], lchid);*/
                         /* rlcinf->mode[0] = RLC_AM;*/
@@ -3225,6 +3231,7 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         int i;
         umts_mac_info *macinf;
         rlc_info *rlcinf;
+        guint32 user_identity;
 
         rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
         if (!rlcinf) {
@@ -3282,6 +3289,11 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         header_length = offset;
 
 
+        /* Determine the UE ID to use in RLC */
+        user_identity = p_fp_info->com_context_id;
+        if(p_fp_info->urnti) {
+            user_identity = p_fp_info->urnti;
+        }
         /************************/
         /*Configure the pdus*/
         for (i=0;i<number_of_pdus && i<MIN(MAX_MAC_FRAMES, MAX_RLC_CHANS); i++) {
@@ -3301,7 +3313,7 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             } else {
                     macinf->ctmux[i] = FALSE;    /*Either it's multiplexed and not signled or it's not MUX*/
             }
-            rlcinf->urnti[i] = p_fp_info->com_context_id;
+            rlcinf->urnti[i] = user_identity;
             rlcinf->li_size[i] = RLC_LI_7BITS;
             rlcinf->deciphered[i] = FALSE;
             rlcinf->ciphered[i] = FALSE;
@@ -3434,6 +3446,7 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         umts_mac_info *macinf;
         rlc_info *rlcinf;
+        guint32 user_identity;
 
         rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
         if (!rlcinf) {
@@ -3581,6 +3594,11 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         }
 
 
+        /* Determine the UE ID to use in RLC */
+        user_identity = p_fp_info->com_context_id;
+        if(p_fp_info->urnti) {
+            user_identity = p_fp_info->urnti;
+        }
         /********************************************************************/
         /* Now read the MAC-d/c PDUs for each block using info from headers */
         for (n=0; n < number_of_pdu_blocks; n++) {
@@ -3610,7 +3628,7 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 rlcinf->deciphered[j] = FALSE;
                 rlcinf->rbid[j] = (guint8)lchid[n]+1;
 
-                rlcinf->urnti[j] = p_fp_info->com_context_id;    /*Set URNIT to comuncation context id*/
+                rlcinf->urnti[j] = user_identity;
             }
 
             /* Add PDU block header subtree */
@@ -4992,6 +5010,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
     fpi->destport = pinfo->destport;
 
     fpi->com_context_id = p_conv_data->com_context_id;
+    fpi->urnti = p_conv_data->urnti;
 
     if (pinfo->link_dir == P2P_DIR_UL) {
         fpi->is_uplink = TRUE;
