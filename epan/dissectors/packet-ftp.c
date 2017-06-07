@@ -915,10 +915,11 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
     ti = proto_tree_add_item(tree, proto_ftp_data, tvb, 0, -1, ENC_NA);
 
-    /* Check the first few chars to see whether it looks like a text file or not */
+    /* Check the first few chars to see whether it looks like a text file or output */
     check_chars = MIN(10, data_length);
     for (i=0; i < check_chars; i++) {
-        if (!g_ascii_isprint(tvb_get_guint8(tvb, i))) {
+        guint8 c = tvb_get_guint8(tvb, i);
+        if (c!='\r' && c!='\n' && !g_ascii_isprint(c)) {
             is_text = FALSE;
             break;
         }

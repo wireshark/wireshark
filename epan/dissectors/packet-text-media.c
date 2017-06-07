@@ -102,6 +102,7 @@ dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 				data_name);
 
 	if (tree) {
+		guint lines_read = 0;
 		ti = proto_tree_add_item(tree, proto_text_lines,
 				tvb, 0, -1, ENC_NA);
 		if (data_name)
@@ -127,8 +128,10 @@ dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			 * line terminator(s) (\r and/or \n) in the display.
 			 */
 			proto_tree_add_format_text(subtree, tvb, offset, next_offset - offset);
+			lines_read++;
 			offset = next_offset;
 		}
+		proto_item_append_text(subtree, " (%u lines)", lines_read);
 	}
 
 	return length;
