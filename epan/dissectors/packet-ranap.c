@@ -14987,11 +14987,8 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 {
   guint8 temp;
   guint16 word;
-  asn1_ctx_t asn1_ctx;
   guint length;
   int offset;
-
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
 
   /* Is it a ranap packet?
    *
@@ -15005,9 +15002,21 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   #define LENGTH_OFFSET 3
   #define MSG_TYPE_OFFSET 1
   if (tvb_captured_length(tvb) < RANAP_MSG_MIN_LENGTH) { return FALSE; }
-  /* Read the length NOTE offset in bits */
-  offset = dissect_per_length_determinant(tvb, LENGTH_OFFSET<<3, &asn1_ctx, tree, -1, &length, NULL);
-  offset = offset>>3;
+  /* compute PER aligned length determinant without calling dissect_per_length_determinant()
+     to avoid exceptions and info added to tree, info column and expert info */
+  offset = LENGTH_OFFSET;
+  length = tvb_get_guint8(tvb, offset);
+  offset += 1;
+  if ((length & 0x80) == 0x80) {
+    if ((length & 0xc0) == 0x80) {
+      length &= 0x3f;
+      length <<= 8;
+      length += tvb_get_guint8(tvb, offset);
+      offset += 1;
+    } else {
+      length = 0;
+    }
+  }
   if (length!= (tvb_reported_length(tvb) - offset)){
     return FALSE;
   }
@@ -18217,7 +18226,7 @@ void proto_register_ranap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 332 "./asn1/ranap/packet-ranap-template.c"
+#line 341 "./asn1/ranap/packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -18581,7 +18590,7 @@ void proto_register_ranap(void) {
     &ett_ranap_Outcome,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 340 "./asn1/ranap/packet-ranap-template.c"
+#line 349 "./asn1/ranap/packet-ranap-template.c"
   };
 
 
@@ -19008,7 +19017,7 @@ proto_reg_handoff_ranap(void)
 
 
 /*--- End of included file: packet-ranap-dis-tab.c ---*/
-#line 389 "./asn1/ranap/packet-ranap-template.c"
+#line 398 "./asn1/ranap/packet-ranap-template.c"
   } else {
     dissector_delete_uint("sccp.ssn", local_ranap_sccp_ssn, ranap_handle);
   }
