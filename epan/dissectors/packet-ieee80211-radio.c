@@ -514,7 +514,7 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
         phdr->has_tsf_timestamp && previous_frame.has_tsf_timestamp &&
         (phdr->tsf_timestamp == previous_frame.tsf_timestamp || /* find matching TSFs */
          (!current_aggregate && previous_frame.tsf_timestamp && phdr->tsf_timestamp == 0) || /* Intel detect second frame */
-         (previous_frame.tsf_timestamp == 0xFFFFFFFFFFFFFFFF) /* QCA, detect last frame */
+         (previous_frame.tsf_timestamp == G_MAXUINT64) /* QCA, detect last frame */
         )) {
       /* we're in an aggregate */
       if (!current_aggregate) {
@@ -1075,7 +1075,7 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
         if (previous_frame.radio_info && previous_frame.radio_info->aggregate == current_aggregate)
           previous_frame.radio_info->nav = 0; // don't display NAV except for last frame in an aggregate
       }
-      if (phdr->tsf_timestamp == 0xFFFFFFFFFFFFFFFF) {
+      if (phdr->tsf_timestamp == G_MAXUINT64) {
         /* QCA aggregate, we don't know tsf yet */
         wlan_radio_info->start_tsf = prior_duration + (current_aggregate ? agg_preamble : 0);
         wlan_radio_info->end_tsf = prior_duration + duration + (current_aggregate ? agg_preamble : 0);
@@ -1083,7 +1083,7 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
           agg_tracker_list = wmem_list_new(NULL);
         }
         wmem_list_append(agg_tracker_list, wlan_radio_info);
-      } else if (current_aggregate && wlan_radio_tsf_at_end && phdr->tsf_timestamp != 0xFFFFFFFFFFFFFFFF) {
+      } else if (current_aggregate && wlan_radio_tsf_at_end && phdr->tsf_timestamp != G_MAXUINT64) {
         /* QCA aggregate, last frame */
         wlan_radio_info->start_tsf = phdr->tsf_timestamp - duration;
         wlan_radio_info->end_tsf = phdr->tsf_timestamp;
@@ -1366,7 +1366,7 @@ void proto_register_ieee80211_radio(void)
 
     {&hf_wlan_radio_timestamp,
      {"TSF timestamp", "wlan_radio.timestamp", FT_UINT64, BASE_DEC, NULL, 0,
-      NULL, HFILL }},
+      "Timing Synchronization Function timestamp", HFILL }},
 
     {&hf_wlan_last_part_of_a_mpdu,
      {"Last part of an A-MPDU", "wlan_radio.last_part_of_an_ampdu", FT_BOOLEAN, 32, NULL, PHDR_802_11_LAST_PART_OF_A_MPDU,
