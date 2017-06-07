@@ -47,9 +47,9 @@
  * TODO:
  *  - IUR interface-specific formats
  *  - do CRC verification before further parsing
- *    - Set the logical channel properly for non multiplexed, channels
- *     for channels that doesn't have the C/T flag! This should be based
- * on the RRC message RadioBearerSetup.
+ *  - Set the logical channel properly for non multiplexed, channels
+ *    for channels that doesn't have the C/T flag! This should be based
+ *    on the RRC message RadioBearerSetup.
  */
 void proto_register_fp(void);
 void proto_reg_handoff_fp(void);
@@ -4756,7 +4756,7 @@ heur_dissect_fp_hsdsch_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         return FALSE;
     }
 
-    // Getting 3 rightmost bits in the FACH Indicator's byte, which are reserved and should be 0
+    /* Getting 3 rightmost bits in the FACH Indicator's byte, which are reserved and should be 0 */
     reserved_fach_ind_bits = tvb_get_guint8(tvb, 3) & 0x03;
     if (reserved_fach_ind_bits != 0x00) {
         return FALSE;
@@ -6758,12 +6758,11 @@ void proto_register_fp(void)
                                     "Validate FP header checksums",
                                     "Validate FP header checksums",
                                     &preferences_header_checksum);
-     /* Determines whether or not to validate FP header checksums */
+     /* Determines whether or not to track Paging Indications between PCH frames*/
      prefs_register_bool_preference(fp_module, "track_paging_indications",
                                     "Track Paging Indications in PCH channels",
                                     "For each PCH data frame, Try to show the paging indications bitmap found in the previous frame",
                                     &preferences_track_paging_indications);
-     /* Determines whether or not to validate FP header checksums */
     prefs_register_obsolete_preference(fp_module, "udp_heur");
 #ifdef UMTS_FP_USE_UAT
 
