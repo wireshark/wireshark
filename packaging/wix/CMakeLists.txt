@@ -101,9 +101,9 @@ set(PRODUCT_VERSION ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_
 set (VERSION "${PROJECT_VERSION}")
 set (PRODUCT_VERSION=${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}.${VERSION_BUILD})
 
-# Use the merge module that comes with Visual Studio (From MSVC 2013?)
-# This is currently hardcoded for MSVC 2013
-set (MSVC_CRT_VERSION "VC120")
+# Use the merge module that comes with Visual Studio (From MSVC 2015?)
+# This is currently hardcoded for MSVC 2015
+set (MSVC_CRT_VERSION "VC140")
 set (MSVC_REDIST_DIR "$ENV{PROGRAMFILES}/Common Files/Merge Modules")
 message(STATUS "Using ${MSVC_REDIST_DIR}/Microsoft_${MSVC_CRT_VERSION}_CRT_${TARGET_MACHINE}.msm for the installer")
 
