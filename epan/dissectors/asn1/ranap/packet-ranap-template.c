@@ -266,11 +266,8 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 {
     guint8 temp;
 	guint16 word;
-	asn1_ctx_t asn1_ctx;
 	guint length;
 	int offset;
-
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
 
     /* Is it a ranap packet?
      *
@@ -284,12 +281,24 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     #define LENGTH_OFFSET 3
     #define MSG_TYPE_OFFSET 1
     if (tvb_captured_length(tvb) < RANAP_MSG_MIN_LENGTH) { return FALSE; }
-	/* Read the length NOTE offset in bits */
-	offset = dissect_per_length_determinant(tvb, LENGTH_OFFSET<<3, &asn1_ctx, tree, -1, &length);
-	offset = offset>>3;
-	if (length!= (tvb_reported_length(tvb) - offset)){
-		return FALSE;
-	}
+    /* compute aligned PER length determinant without calling dissect_per_length_determinant()
+       to avoid exceptions and info added to tree, info column and expert info */
+    offset = LENGTH_OFFSET;
+    length = tvb_get_guint8(tvb, offset);
+    offset += 1;
+    if ((length & 0x80) == 0x80) {
+        if ((length & 0xc0) == 0x80) {
+            length &= 0x3f;
+            length <<= 8;
+            length += tvb_get_guint8(tvb, offset);
+            offset += 1;
+        } else {
+            length = 0;
+        }
+    }
+    if (length!= (tvb_reported_length(tvb) - offset)){
+        return FALSE;
+    }
 
     temp = tvb_get_guint8(tvb, MSG_TYPE_OFFSET);
     if (temp > RANAP_MAX_PC) { return FALSE; }
