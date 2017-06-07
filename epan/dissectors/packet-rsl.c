@@ -3165,8 +3165,6 @@ dissect_rsl_paging_package(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     guint8     i, length, paging_type;
     gboolean increse_offset = TRUE;
 
-    length = 0;
-    paging_type = 0;
     for(i = 1; i <= package_number; i++){
        /* Calculating whole length of Paging Package Info */
         length = (tvb_get_guint8(tvb, offset+2) + 3);
