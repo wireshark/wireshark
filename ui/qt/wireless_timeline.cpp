@@ -45,6 +45,7 @@
 #include "color_utils.h"
 #include "qt_ui_utils.h"
 #include "wireshark_application.h"
+#include "wsutil/utf8_entities.h"
 
 #ifdef Q_OS_WIN
 #include "wsutil/file_util.h"
@@ -76,14 +77,14 @@ public:
 static void reset_rgb(float rgb[TIMELINE_HEIGHT][3])
 {
     int i;
-    for(i = 0; i < TIMELINE_HEIGHT; i++)
+    for (i = 0; i < TIMELINE_HEIGHT; i++)
         rgb[i][0] = rgb[i][1] = rgb[i][2] = 1.0;
 }
 
 static void render_pixels(QPainter &p, gint x, gint width, float rgb[TIMELINE_HEIGHT][3], float ratio)
 {
     int previous = 0, i;
-    for(i = 1; i <= TIMELINE_HEIGHT; i++) {
+    for (i = 1; i <= TIMELINE_HEIGHT; i++) {
         if (i != TIMELINE_HEIGHT &&
                 rgb[previous][0] == rgb[i][0] &&
                 rgb[previous][1] == rgb[i][1] &&
@@ -105,7 +106,7 @@ static void render_rectangle(QPainter &p, gint x, gint width, guint height, int 
 static void accumulate_rgb(float rgb[TIMELINE_HEIGHT][3], int height, int dfilter, float width, float red, float green, float blue)
 {
     int i;
-    for(i = TIMELINE_HEIGHT/2-height; i < (TIMELINE_HEIGHT/2 + (dfilter ? height : 0)); i++) {
+    for (i = TIMELINE_HEIGHT/2-height; i < (TIMELINE_HEIGHT/2 + (dfilter ? height : 0)); i++) {
         rgb[i][0] = rgb[i][0] - width + width * red;
         rgb[i][1] = rgb[i][1] - width + width * green;
         rgb[i][2] = rgb[i][2] - width + width * blue;
@@ -301,7 +302,7 @@ int WirelessTimeline::position(guint64 tsf, float ratio)
 {
     int position = -100;
 
-    if (tsf != 0xffffffffffffffff) {
+    if (tsf != G_MAXUINT64) {
         position = ((double) tsf - start_tsf)*width()*ratio/(end_tsf-start_tsf);
     }
     return position;
@@ -357,10 +358,10 @@ struct wlan_radio* WirelessTimeline::get_wlan_radio(guint32 packet_num)
 void WirelessTimeline::doToolTip(struct wlan_radio *wr, QPoint pos, int x)
 {
     if (x < position(wr->start_tsf, 1.0)) {
-        QToolTip::showText(pos, QString("inter frame space %1 us").arg(wr->ifs));
+        QToolTip::showText(pos, QString("Inter frame space %1 " UTF8_MICRO_SIGN "s").arg(wr->ifs));
     } else {
-        QToolTip::showText(pos, QString("total duration %1 us\nNAV %2 us").arg(wr->end_tsf-wr->start_tsf)
-                                                                          .arg(wr->nav));
+        QToolTip::showText(pos, QString("Total duration %1 " UTF8_MICRO_SIGN "s\nNAV %2 " UTF8_MICRO_SIGN "s")
+                           .arg(wr->end_tsf-wr->start_tsf).arg(wr->nav));
     }
 }
 
@@ -464,7 +465,7 @@ int WirelessTimeline::find_packet_tsf(guint64 tsf)
     guint64 min_tsf = get_wlan_radio(min_count)->end_tsf;
     guint64 max_tsf = get_wlan_radio(max_count)->end_tsf;
 
-    for(;;) {
+    for (;;) {
         if (tsf >= max_tsf)
             return max_count+1;
 
@@ -527,15 +528,16 @@ WirelessTimeline::paintEvent(QPaintEvent *qpe)
     }
 
     QGraphicsScene qs;
-    for(packet = find_packet_tsf(start_tsf + left/zoom - 40000); packet <= cfile.count; packet++) {
+    for (packet = find_packet_tsf(start_tsf + left/zoom - 40000); packet <= cfile.count; packet++) {
         frame_data *fdata = frame_data_sequence_find(cfile.frames, packet);
         struct wlan_radio *ri = get_wlan_radio(fdata->num);
-        float x, width, red,green,blue;
+        float x, width, red, green, blue;
+
+        if (ri == NULL) continue;
+
         gint8 rssi = ri->aggregate ? ri->aggregate->rssi : ri->rssi;
         guint height = (rssi+100)/2;
         gint end_nav;
-
-        if (ri == NULL) continue;
 
         /* leave a margin above the packets so the selected packet can be seen */
         if (height > TIMELINE_HEIGHT/2-6)
