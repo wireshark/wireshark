@@ -5212,8 +5212,6 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                 /* control frame, we're done */
                 return fpi;
             }
-            rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
-            macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
             /* Set offset to point to first TFI
              * the Number of TFI's = number of DCH's in the flow
              */
@@ -5249,8 +5247,6 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                 /* control frame, we're done */
                 return fpi;
             }
-            rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
-            macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
             /* Set offset to point to first TFI
              * the Number of TFI's = number of DCH's in the flow
              */
