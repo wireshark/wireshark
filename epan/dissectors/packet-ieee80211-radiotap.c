@@ -1878,7 +1878,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 		}
 	}
 
-	if (err != -ENOENT && tree) {
+	if (err != -ENOENT) {
 		expert_add_info(pinfo, present_item,
 		    &ei_radiotap_data_past_header);
  malformed:
