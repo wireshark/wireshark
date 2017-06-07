@@ -581,7 +581,7 @@ static const value_string tlv_type[] = {
     { LLRP_TLV_UHF_CAPABILITIES,        "UHF Capabilities"                               },
     { LLRP_TLV_XMIT_POWER_LEVEL_ENTRY,  "Transmit Power Level Entry"                     },
     { LLRP_TLV_FREQ_INFORMATION,        "Frequency Information"                          },
-    { LLRP_TLV_FREQ_HOP_TABLE,          "Frequenct Hop Table"                            },
+    { LLRP_TLV_FREQ_HOP_TABLE,          "Frequency Hop Table"                            },
     { LLRP_TLV_FIXED_FREQ_TABLE,        "Fixed Frequency Table"                          },
     { LLRP_TLV_ANTENNA_RCV_SENSE_RANGE, "Antenna RCV Sensitivity Range"                  },
     { LLRP_TLV_RO_SPEC,                 "RO Spec"                                        },
