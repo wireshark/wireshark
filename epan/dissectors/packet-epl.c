@@ -2156,8 +2156,10 @@ epl_get_convo(packet_info *pinfo, int opts)
 	{
 		node_port = pinfo->destport;
 
+#if 0
 		if (pinfo->dst.type == AT_IPv4 || pinfo->dst.type == AT_ETHER)
 			node_addr = &pinfo->dst;
+#endif
 		if (pinfo->dl_dst.type == AT_ETHER)
 			node_dl_addr = &pinfo->dl_dst;
 	}
@@ -2165,8 +2167,10 @@ epl_get_convo(packet_info *pinfo, int opts)
 	{
 		node_port = pinfo->srcport;
 
+#if 0
 		if (pinfo->src.type == AT_IPv4 || pinfo->src.type == AT_ETHER)
 			node_addr = &pinfo->src;
+#endif
 		if (pinfo->dl_src.type == AT_ETHER)
 			node_dl_addr = &pinfo->dl_src;
 	}
