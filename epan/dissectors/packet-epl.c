@@ -2106,12 +2106,12 @@ dissect_epl_pdo(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, pa
 			proto_item *meta_item = proto_tree_add_item(pdo_tree, hf_epl_od_meta, tvb, offset, 0, ENC_NA);
 			meta_tree = proto_item_add_subtree(meta_item, ett_epl_pdo_meta);
 
-			item = proto_tree_add_uint(meta_tree, hf_epl_od_meta_mapping_index, tvb, 0, 0, map->param.idx);
-			item = proto_tree_add_uint(meta_tree, hf_epl_od_meta_mapping_subindex, tvb, 0, 0, map->param.subindex);
-			item = proto_tree_add_uint(meta_tree, hf_epl_od_meta_lifetime_start, tvb, 0, 0, map->frame.first);
+			proto_tree_add_uint(meta_tree, hf_epl_od_meta_mapping_index, tvb, 0, 0, map->param.idx);
+			proto_tree_add_uint(meta_tree, hf_epl_od_meta_mapping_subindex, tvb, 0, 0, map->param.subindex);
+			proto_tree_add_uint(meta_tree, hf_epl_od_meta_lifetime_start, tvb, 0, 0, map->frame.first);
 
 			if (map->frame.last != G_MAXUINT32)
-				item = proto_tree_add_uint(meta_tree, hf_epl_od_meta_lifetime_end, tvb, 0, 0, map->frame.last);
+				proto_tree_add_uint(meta_tree, hf_epl_od_meta_lifetime_end, tvb, 0, 0, map->frame.last);
 
 			item = proto_tree_add_uint(meta_tree, hf_epl_od_meta_offset, tvb, 0, 0, map->bit_offset);
 			proto_item_append_text (item, " bits");
