@@ -1399,11 +1399,11 @@ void proto_register_ieee80211_radio(void)
 
     {&hf_wlan_radio_start_tsf,
      {"Start", "wlan_radio.start_tsf", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0,
-      "Duration of the PLCP or preamble in microseconds, calculated from PHY data", HFILL }},
+      "Calculated start time of the frame", HFILL }},
 
     {&hf_wlan_radio_end_tsf,
      {"End", "wlan_radio.end_tsf", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0,
-      "Duration of the PLCP or preamble in microseconds, calculated from PHY data", HFILL }},
+      "Calculated end time of the frame", HFILL }},
 
     {&hf_wlan_radio_aggregate_duration,
      {"Duration", "wlan_radio.aggregate.duration", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0,
