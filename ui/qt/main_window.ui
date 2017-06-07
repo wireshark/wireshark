@@ -2994,7 +2994,7 @@
     <string>Zoom in on the wireless timeline</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+I</string>
+    <string>Ctrl+Shift+I</string>
    </property>
   </action>
   <action name="actionWirelessTimelineZoomOut">
@@ -3005,7 +3005,7 @@
     <string>Zoom out on the wireless timeline</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+O</string>
+    <string>Ctrl+Shift+O</string>
    </property>
   </action>
   <action name="actionWirelessTimelineZoomFullOut">
@@ -3016,7 +3016,7 @@
     <string>Fully zoom out on the wireless timeline</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+U</string>
+    <string>Ctrl+Shift+U</string>
    </property>
   </action>
  </widget>
