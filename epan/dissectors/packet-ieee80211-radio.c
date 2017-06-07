@@ -1095,7 +1095,7 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
           agg_tracker_list = NULL;
         };
       } else if (wlan_radio_tsf_at_end) {
-        wlan_radio_info->start_tsf = phdr->tsf_timestamp - duration - preamble;
+        wlan_radio_info->start_tsf = phdr->tsf_timestamp - duration;
         wlan_radio_info->end_tsf = phdr->tsf_timestamp;
       } else {
         wlan_radio_info->start_tsf = phdr->tsf_timestamp + prior_duration - preamble;
