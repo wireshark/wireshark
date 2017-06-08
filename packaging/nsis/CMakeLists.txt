@@ -94,17 +94,35 @@ endif()
 # - _PROJECT_LIB_DIR
 # - _PROJECT_LIB_DIR/vcredist_MSVCxx
 # - %VCINSTALLDIR%
-# - %VCINSTALLDIR%/redist/1033
+# - %VCINSTALLDIR%/redist/1033 (<= Visual Studio 2015)
+# - %VCINSTALLDIR%/Redist/MSVC/* (>= Visual Studio 2017)
+# MSVC_VERSION
+# 1200 = VS  6.0
+# 1300 = VS  7.0
+# 1310 = VS  7.1
+# 1400 = VS  8.0
+# 1500 = VS  9.0
+# 1600 = VS 10.0
+# 1700 = VS 11.0
+# 1800 = VS 12.0
+# 1900 = VS 14.0
+# 1910 = VS 15.0
 set(_vcredist_name "vcredist_${TARGET_MACHINE}.exe")
-if(MSVC14)
-	set(_vcredist_subdir "vcredist_MSVC2015")
-elseif(MSVC12)
-	set(_vcredist_subdir "vcredist_MSVC2013")
+if(MSVC_VERSION GREATER_EQUAL 1910)
+	set(_ws_vcredist_subdir "vcredist_MSVC2017")
+	set(_ms_vcredist_subdir "Redist/MSVC/14.10.25008")
+elseif(MSVC_VERSION GREATER_EQUAL 1900)
+	set(_ws_vcredist_subdir "vcredist_MSVC2015")
+	set(_ms_vcredist_subdir "redist/1033")
+elseif(MSVC_VERSION GREATER_EQUAL 1800)
+	set(_ws_vcredist_subdir "vcredist_MSVC2013")
+	set(_ms_vcredist_subdir "redist/1033")
 endif()
 
 find_program(VCREDIST_EXE "${_vcredist_name}"
 	PATHS "${_PROJECT_LIB_DIR}" ENV "VCINSTALLDIR"
-	PATH_SUFFIXES ${_vcredist_subdir} "redist/1033"
+	PATH_SUFFIXES ${_ws_vcredist_subdir} ${_ms_vcredist_subdir}
+	NO_DEFAULT_PATH
 )
 if(VCREDIST_EXE)
 	file(TO_NATIVE_PATH "${VCREDIST_EXE}" VCREDIST_EXE)
