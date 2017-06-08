@@ -950,14 +950,26 @@ BLER-Range-r12 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_BLER_Range_r12_
 #.TYPE_ATTR
 TimeSinceFailure-r11 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
+#.FIELD_ATTR
+CarrierFreqUTRA-FDD/q-RxLevMin ABBREV=utra_q_RxLevMin
+
 #.TYPE_ATTR
 CarrierFreqUTRA-FDD/q-RxLevMin DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_utra_q_RxLevMin_vals_ext
+
+#.FIELD_ATTR
+CarrierFreqUTRA-FDD-Ext-r12/q-RxLevMin-r12 ABBREV=utra_q_RxLevMin_r12
 
 #.TYPE_ATTR
 CarrierFreqUTRA-FDD-Ext-r12/q-RxLevMin-r12 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_utra_q_RxLevMin_vals_ext
 
+#.FIELD_ATTR
+CarrierFreqUTRA-TDD/q-RxLevMin ABBREV=utra_q_RxLevMin
+
 #.TYPE_ATTR
 CarrierFreqUTRA-TDD/q-RxLevMin DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_utra_q_RxLevMin_vals_ext
+
+#.FIELD_ATTR
+CarrierFreqUTRA-TDD-r12/q-RxLevMin-r12 ABBREV=utra_q_RxLevMin_r12
 
 #.TYPE_ATTR
 CarrierFreqUTRA-TDD-r12/q-RxLevMin-r12 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_utra_q_RxLevMin_vals_ext
@@ -979,6 +991,9 @@ CarrierFreqUTRA-FDD/q-QualMin DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_d
 
 #.TYPE_ATTR
 CarrierFreqUTRA-FDD-Ext-r12/q-QualMin-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+
+#.FIELD_ATTR
+CarrierFreqsInfoGERAN/commonInfo/q-RxLevMin ABBREV=geran_q_RxLevMin
 
 #.TYPE_ATTR
 CarrierFreqsInfoGERAN/commonInfo/q-RxLevMin DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_geran_q_RxLevMin_vals_ext
