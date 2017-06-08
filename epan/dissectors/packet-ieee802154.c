@@ -395,9 +395,10 @@ static int hf_ieee802154_6top_slot_offset = -1;
 static int hf_ieee802154_6top_channel_offset = -1;
 
 static int proto_zboss = -1;
-static int zboss_direction = -1;
-static int zboss_channel = -1;
-static int zboss_trace_number = -1;
+static int hf_zboss_direction = -1;
+static int hf_zboss_page = -1;
+static int hf_zboss_channel = -1;
+static int hf_zboss_trace_number = -1;
 
 static int hf_ieee802154_seqno = -1;
 static int hf_ieee802154_dst_panID = -1;
@@ -721,11 +722,21 @@ static const value_string ieee802154_psie_names[] = {
     { 0, NULL }
 };
 
+static const value_string zboss_page_names[] = {
+	{ 0, "2.4 GHz" },
+	{ 28, "863-868 MHz band"},
+	{ 29, "868-870, 870-876 MHz band" },
+	{ 30, "870-876 MHz band" },
+	{ 31, "915-921 MHz band" },
+    { 0, NULL }
+};
+
 static const value_string zboss_direction_names[] = {
     { 0, "IN" },
     { 1, "OUT" },
     { 0, NULL }
 };
+
 
 static const value_string ietf_6top_types[] = {
     { IETF_6TOP_TYPE_REQUEST, "Request" },
@@ -1114,31 +1125,35 @@ dissect_ieee802154_nofcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 static tvbuff_t *
 dissect_zboss_specific(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
+    proto_tree *zboss_tree;
+    proto_item *proto_root;
+    guint off = 0;
+    guint32 direction_byte, page_byte, channel;
+
     if (tvb_captured_length(tvb) > 5)
     {
-        guint off = 0;
         if (tvb_get_guint8(tvb, off++) == 'Z'
             && tvb_get_guint8(tvb, off++) == 'B'
             && tvb_get_guint8(tvb, off++) == 'O'
             && tvb_get_guint8(tvb, off++) == 'S'
             && tvb_get_guint8(tvb, off++) == 'S')
         {
-            proto_tree *zboss_tree = NULL;
-            proto_item *proto_root = NULL;
-
             /* Create the protocol tree. */
-            if (tree) {
-                proto_root = proto_tree_add_protocol_format(tree, proto_zboss, tvb, 0, tvb_captured_length(tvb), "ZBOSS dump");
-                zboss_tree = proto_item_add_subtree(proto_root, ett_ieee802154_zboss);
-            }
+            proto_root = proto_tree_add_protocol_format(tree, proto_zboss, tvb, 0, tvb_captured_length(tvb), "ZBOSS dump");
+            zboss_tree = proto_item_add_subtree(proto_root, ett_ieee802154_zboss);
 
-            proto_tree_add_item(zboss_tree, zboss_direction, tvb, off, 1, ENC_NA);
-            proto_item_append_text(proto_root, ", %s", tvb_get_guint8(tvb, off) ? "OUT" : "IN");
+            proto_tree_add_item_ret_uint(zboss_tree, hf_zboss_direction, tvb, off, 1, ENC_NA, &direction_byte);
+            proto_item_append_text(proto_root, ", %s", direction_byte ? "OUT" : "IN");
+
+            proto_tree_add_item_ret_uint(zboss_tree, hf_zboss_page, tvb, off, 1, ENC_NA, &page_byte);
+            proto_item_append_text(proto_root, ", page %u", page_byte);
             off++;
-            proto_tree_add_item(zboss_tree, zboss_channel, tvb, off, 1, ENC_NA);
-            proto_item_append_text(proto_root, ", channel %u", tvb_get_guint8(tvb, off));
+
+            proto_tree_add_item_ret_uint(zboss_tree, hf_zboss_channel, tvb, off, 1, ENC_NA, &channel);
+            proto_item_append_text(proto_root, ", channel %u", channel);
             off++;
-            proto_tree_add_item(zboss_tree, zboss_trace_number, tvb, off, 4, ENC_LITTLE_ENDIAN);
+
+            proto_tree_add_item(zboss_tree, hf_zboss_trace_number, tvb, off, 4, ENC_LITTLE_ENDIAN);
             off += 4;
 
             return tvb_new_subset_length_caplen(tvb, off, tvb_captured_length(tvb) - off, tvb_captured_length(tvb) - off);
@@ -4545,15 +4560,19 @@ void proto_register_ieee802154(void)
 
         /* ZBOSS dump */
 
-        { &zboss_channel,
+        { &hf_zboss_page,
+        { "Page", "wpan.zboss.page", FT_UINT8, BASE_DEC_HEX, VALS(zboss_page_names), 0xFE,
+            "IEEE802.15.4 page number", HFILL } },
+
+        { &hf_zboss_channel,
         { "Channel", "wpan.zboss.channel", FT_UINT8, BASE_DEC, NULL, 0x0,
             "Channel number", HFILL }},
 
-        { &zboss_direction,
-        { "ZBOSS Direction", "wpan.zboss.direction", FT_UINT8, BASE_HEX, VALS(zboss_direction_names), 0x0,
+        { &hf_zboss_direction,
+        { "ZBOSS Direction", "wpan.zboss.direction", FT_UINT8, BASE_HEX, VALS(zboss_direction_names), 0x01,
             "ZBOSS Packet Direction", HFILL }},
 
-        { &zboss_trace_number,
+        { &hf_zboss_trace_number,
         { "Trace number", "wpan.zboss.trace", FT_UINT32, BASE_DEC, NULL, 0x0,
             "Trace item number", HFILL }},
     };
