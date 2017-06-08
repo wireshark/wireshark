@@ -277,7 +277,7 @@ static void dissect_ieee802154_header_ie       (tvbuff_t *, packet_info *, proto
 static int  dissect_ieee802154_payload_mlme_sub_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset);
 static int  dissect_ieee802154_payload_ie      (tvbuff_t *, packet_info *, proto_tree *, int offset);
 static int  dissect_ieee802154_vendor_ie (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset, gint pie_length);
-static void dissect_802154_enhanced_beacon_filter(tvbuff_t *tvb, proto_tree *subtree, gint offset, const int ** fields_eb_filter);
+static void dissect_802154_enhanced_beacon_filter(tvbuff_t *tvb, proto_tree *subtree, guint16 psie_remaining, gint *offset);
 static void dissect_802154_h_ie_time_correction(tvbuff_t *, proto_tree *, guint *, packet_info *pinfo);
 static void dissect_802154_tsch_time_sync(tvbuff_t *, proto_tree *, int *, guint);
 static void dissect_802154_tsch_timeslot(tvbuff_t *, proto_tree *, guint, guint16, gint*);
@@ -336,6 +336,7 @@ static int hf_ieee802154_payload_ie_length = -1;
 static int hf_ieee802154_payload_ie_data = -1;
 static int hf_ieee802154_payload_ie_vendor_oui = -1;
 static int hf_ieee802154_timeslot_ie = -1;
+static int hf_ieee802154_enhanced_beacon_filter_ie = -1;
 static int hf_ieee802154_mlme_ie_data = -1;
 static int hf_ieee802154_psie_short = -1;
 static int hf_ieee802154_psie_type_short = -1;
@@ -2616,15 +2617,6 @@ dissect_ieee802154_payload_mlme_sub_ie(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     guint       psie_remaining = 0;
     int         orig_offset = offset;
 
-    static const int * fields_eb_filter[] = {
-        &hf_ieee802154_psie_eb_filter_pjoin,
-        &hf_ieee802154_psie_eb_filter_lqi,
-        &hf_ieee802154_psie_eb_filter_percent,
-        &hf_ieee802154_psie_eb_filter_attr_id,
-        /* reserved 5-7 */
-        NULL
-    };
-
     psie_ie    =  tvb_get_letohs(tvb, offset);
     if (psie_ie & IEEE802154_PSIE_TYPE_MASK) {
         /* long format: Table 7-17-Sub-ID allocation for long format */
@@ -2656,7 +2648,7 @@ dissect_ieee802154_payload_mlme_sub_ie(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 
         case IEEE802154_MLME_SUBIE_ENHANCED_BEACON_FILTER:
             // 7.4.4.6 Enhanced Beacon Filter IE
-            dissect_802154_enhanced_beacon_filter(tvb, tree, offset, fields_eb_filter);
+            dissect_802154_enhanced_beacon_filter(tvb, tree, psie_remaining, &offset);
             break;
 
         case IEEE802154_MLME_SUBIE_CHANNEL_HOPPING:
@@ -2784,7 +2776,8 @@ dissect_802154_tsch_timeslot(tvbuff_t *tvb, proto_tree *tree, guint psie_remaini
 
     timeslot_item = proto_tree_add_item(tree, hf_ieee802154_timeslot_ie, tvb, *offset, 2 + psie_remaining, ENC_NA);
     timeslot_tree = proto_item_add_subtree(timeslot_item, ett_ieee802154_tsch_timeslot);
-    proto_tree_add_bitmask(timeslot_tree, tvb, *offset, hf_ieee802154_payload_ie_tlv, ett_ieee802154_psie_short_bitmap, header_short_format_nested_ie, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(timeslot_tree, tvb, *offset, hf_ieee802154_payload_ie_tlv, ett_ieee802154_psie_short_bitmap,
+                           header_short_format_nested_ie, ENC_LITTLE_ENDIAN);
 
     proto_item_set_text(timeslot_tree, "%s", val_to_str_const(psie_id, ieee802154_psie_names, "Unknown IE"));
     *offset += 2;
@@ -2796,32 +2789,50 @@ dissect_802154_tsch_timeslot(tvbuff_t *tvb, proto_tree *tree, guint psie_remaini
 }
 
 static void
-dissect_802154_enhanced_beacon_filter(tvbuff_t *tvb, proto_tree *subtree, gint offset, const int ** fields_eb_filter){
+dissect_802154_enhanced_beacon_filter(tvbuff_t *tvb, proto_tree *tree, guint16 psie_remaining, gint *offset){
 
     guint8  filter;
     guint8  attr_len;
     guint32 attr_bitmap = 0;
+    proto_item *item;
+    proto_tree *subtree;
 
-    filter = tvb_get_guint8(tvb, offset);
-    proto_tree_add_bitmask(subtree, tvb, (const guint) offset, hf_ieee802154_psie_eb_filter,
+    static const int * fields_eb_filter[] = {
+        &hf_ieee802154_psie_eb_filter_pjoin,
+        &hf_ieee802154_psie_eb_filter_lqi,
+        &hf_ieee802154_psie_eb_filter_percent,
+        &hf_ieee802154_psie_eb_filter_attr_id,
+        /* reserved 5-7 */
+        NULL
+    };
+
+    item = proto_tree_add_item(tree, hf_ieee802154_enhanced_beacon_filter_ie, tvb, *offset, 2 + psie_remaining, ENC_NA);
+    subtree = proto_item_add_subtree(item, ett_ieee802154_tsch_synch);
+
+    proto_tree_add_bitmask(subtree, tvb, *offset, hf_ieee802154_psie_short, ett_ieee802154_psie_short_bitmap, header_short_format_nested_ie, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    filter = tvb_get_guint8(tvb, *offset);
+    proto_tree_add_bitmask(subtree, tvb, (const guint) *offset, hf_ieee802154_psie_eb_filter,
                            ett_ieee802154_psie_enh_beacon_flt_bitmap, fields_eb_filter,
                            ENC_NA);
-    offset += 1;
+    *offset += 1;
 
     if (filter & IEEE802154_MLME_PSIE_EB_FLT_LQI) {
-        proto_tree_add_item(subtree, hf_ieee802154_psie_eb_filter_lqi_min, tvb, offset, 1, ENC_NA);
-        offset += 1;
+        proto_tree_add_item(subtree, hf_ieee802154_psie_eb_filter_lqi_min, tvb, *offset, 1, ENC_NA);
+        *offset += 1;
     }
 
     if (filter & IEEE802154_MLME_PSIE_EB_FLT_PERCENT) {
-        proto_tree_add_item(subtree, hf_ieee802154_psie_eb_filter_percent_prob, tvb, offset, 1, ENC_NA);
-        offset += 1;
+        proto_tree_add_item(subtree, hf_ieee802154_psie_eb_filter_percent_prob, tvb, *offset, 1, ENC_NA);
+        *offset += 1;
     }
 
     attr_len = (guint8) ((filter & IEEE802154_MLME_PSIE_EB_FLT_ATTR_LEN) >> 3);
     if (attr_len) {
         /* just display in hex until we know how to decode */
-        proto_tree_add_item(subtree, hf_ieee802154_psie_eb_filter_attr_id_bitmap, tvb, offset, attr_len, attr_bitmap);
+        proto_tree_add_item(subtree, hf_ieee802154_psie_eb_filter_attr_id_bitmap, tvb, *offset, attr_len, attr_bitmap);
+        *offset += attr_len;
     }
 }
 
@@ -4105,9 +4116,11 @@ void proto_register_ieee802154(void)
         { &hf_ieee802154_mlme,
         { "MLME IE",                        "wpan.mlme", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-
         { &hf_ieee802154_timeslot_ie,
         { "Timeslot IE",                    "wpan.timeslot", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee802154_enhanced_beacon_filter_ie,
+        { "Enhanced Beacon Filter IE",      "wpan.enhanced_beacon_filter", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_ieee802154_payload_ie_tlv,
         { "Payload IE TLV",                         "wpan.payload_ie_tlv", FT_UINT16, BASE_HEX, NULL,
