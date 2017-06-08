@@ -2115,22 +2115,22 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 		}
 		else if (!strncmp(tok_tap, "nstat:", 6))
 		{
-			stat_tap_table_ui *stat = new_stat_tap_by_name(tok_tap + 6);
+			stat_tap_table_ui *stat_tap = new_stat_tap_by_name(tok_tap + 6);
 			new_stat_data_t *stat_data;
 
-			if (!stat)
+			if (!stat_tap)
 			{
 				fprintf(stderr, "sharkd_session_process_tap() nstat=%s not found\n", tok_tap + 6);
 				continue;
 			}
 
-			stat->stat_tap_init_cb(stat, NULL, NULL);
+			stat_tap->stat_tap_init_cb(stat_tap, NULL, NULL);
 
 			stat_data = g_new0(new_stat_data_t, 1);
-			stat_data->stat_tap_data = stat;
+			stat_data->stat_tap_data = stat_tap;
 			stat_data->user_data = NULL;
 
-			tap_error = register_tap_listener(stat->tap_name, stat_data, tap_filter, 0, NULL, stat->packet_func, sharkd_session_process_tap_nstat_cb);
+			tap_error = register_tap_listener(stat_tap->tap_name, stat_data, tap_filter, 0, NULL, stat_tap->packet_func, sharkd_session_process_tap_nstat_cb);
 
 			tap_data = stat_data;
 			tap_free = sharkd_session_free_tap_nstat_cb;
