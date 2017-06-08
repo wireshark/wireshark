@@ -585,6 +585,10 @@ static int hf_gtpv2_node_name = -1;
 static int hf_gtpv2_length_of_node_realm = -1;
 static int hf_gtpv2_node_realm = -1;
 static int hf_gtpv2_ms_ts = -1;
+static int hf_gtpv2_uplink_rate_limit = -1;
+static int hf_gtpv2_downlink_rate_limit = -1;
+static int hf_gtpv2_timestamp_value = -1;
+static int hf_gtpv2_counter_value = -1;
 
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
@@ -986,9 +990,9 @@ static value_string_ext gtpv2_message_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv
 196	Header Compression Configuration
 */
 #define GTPV2_IE_EXTENDED_PCO           197
+#define GTPV2_IE_SERV_PLMN_RATE_CONTROL 198
+#define GTPV2_IE_COUNTER                199
 /*
-198	Serving PLMN Rate Control
-199	Counter
 200 to 253	Spare. For future use.
 254	Special IE type for IE Type Extension
 255	Private Extension
@@ -6560,6 +6564,38 @@ dissect_gtpv2_ciot_opt_support_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree
    }
 }
 
+/*
+ * 8.129 Serving PLMN Rate Control
+ */
+static void
+dissect_gtpv2_serv_plmn_rate_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+{
+    int offset = 0;
+    proto_tree_add_item(tree, hf_gtpv2_uplink_rate_limit, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(tree, hf_gtpv2_downlink_rate_limit, tvb, offset, 2, ENC_BIG_ENDIAN);
+}
+
+/*
+ * 8.130 Counter
+ */
+static void
+dissect_gtpv2_counter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+{
+    const gchar *time_str;
+    int offset = 0;
+
+    /* Timestamp value */
+    /* Octets 5 to 8 shall be encoded in the same format as the first four octets of the 64-bit timestamp
+     *format as defined in section 6 of IETF RFC 5905
+     */
+
+    time_str = tvb_ntp_fmt_ts_sec(tvb, 0);
+    proto_tree_add_string(tree, hf_gtpv2_timestamp_value, tvb, offset, 4, time_str);
+    offset += 4;
+    proto_tree_add_item(tree, hf_gtpv2_counter_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+}
+
 
 typedef struct _gtpv2_ie {
     int ie_type;
@@ -6713,7 +6749,8 @@ static const gtpv2_ie_t gtpv2_ies[] = {
                                                                              /* 195, 8.126 SCEF PDN Connection */
                                                                              /* 196, 8.127 Header Compression Configuration */
     {GTPV2_IE_EXTENDED_PCO, dissect_gtpv2_pco},                              /* 197, 8.128 Extended Protocol Configuration Options (ePCO) */
-                                                                             /* 198, 8.129 Serving PLMN Rate Control */
+    {GTPV2_IE_SERV_PLMN_RATE_CONTROL, dissect_gtpv2_serv_plmn_rate_control}, /* 198, 8.129 Serving PLMN Rate Control */
+    {GTPV2_IE_COUNTER, dissect_gtpv2_counter},                               /* 199, 8.130 Counter */
 
     {GTPV2_IE_PRIVATE_EXT, dissect_gtpv2_private_ext},
 
@@ -9299,6 +9336,26 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_ms_ts,
       { "Millisecond Time Stamp", "gtpv2.ms_ts",
           FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_uplink_rate_limit,
+      { "Uplink Rate Limit", "gtpv2.uplink_rate_limit",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_downlink_rate_limit,
+      { "Downlink Rate Limit", "gtpv2.downlink_rate_limit",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_timestamp_value,
+      { "Timestamp value", "gtpv2.timestamp_value",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_counter_value,
+      { "Counter value", "gtpv2.counter_value",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
     };
