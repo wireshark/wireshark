@@ -455,6 +455,7 @@ static int hf_gtpv2_ldn = -1;
 static int hf_gtpv2_node_features_prn = -1;
 static int hf_gtpv2_node_features_mabr =-1;
 static int hf_gtpv2_node_features_ntsr = -1;
+static int hf_gtpv2_node_features_ciot = -1;
 static int hf_gtpv2_time_to_data_xfer = -1;
 static int hf_gtpv2_arp_pvi = -1;
 static int hf_gtpv2_arp_pl = -1;
@@ -5546,9 +5547,15 @@ static void
 dissect_gtpv2_node_features(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
     int offset = 0;
-    proto_tree_add_item(tree, hf_gtpv2_node_features_prn, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_node_features_mabr, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_node_features_ntsr, tvb, offset, 1, ENC_BIG_ENDIAN);
+    static const int * features[] = {
+        &hf_gtpv2_node_features_prn,
+        &hf_gtpv2_node_features_mabr,
+        &hf_gtpv2_node_features_ntsr,
+        &hf_gtpv2_node_features_ciot,
+        NULL
+    };
+
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, features, ENC_BIG_ENDIAN);
     offset+=1;
     if (length > 1)
         proto_tree_add_item(tree, hf_gtpv2_spare_bytes, tvb, offset, length-1, ENC_NA);
@@ -8990,6 +8997,11 @@ void proto_register_gtpv2(void)
         { &hf_gtpv2_node_features_ntsr,
           {"Network Triggered Service Restoration (NTSR)", "gtpv2.node_features_ntsr",
            FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_node_features_ciot,
+          {"Cellular Internet Of Things (CIOT)", "gtpv2.node_features_ciot",
+           FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
            NULL, HFILL}
         },
         { &hf_gtpv2_time_to_data_xfer,
