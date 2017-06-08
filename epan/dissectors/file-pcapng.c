@@ -780,8 +780,15 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
 
                 break;
             case 0x000B:
-                proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_interface_filter, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
-                offset += option_length;
+                if (option_length == 0) {
+                    proto_tree_add_expert(option_tree, pinfo, &ei_invalid_option_length, tvb, offset, option_length);
+                    break;
+                }
+
+                /* Skip over filter type (0 is libpcap, others are unspecified.) */
+                offset++;
+                proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_interface_filter, tvb, offset, option_length - 1, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                offset += option_length - 1;
 
                 break;
             case 0x000C:
