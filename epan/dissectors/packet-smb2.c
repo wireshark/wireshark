@@ -5350,6 +5350,8 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		break;
 	}
 
+	data_tvb_len=(guint32)tvb_captured_length_remaining(tvb, offset);
+
 	/* data or namedpipe ?*/
 	if (length) {
 		int oldoffset = offset;
@@ -5357,19 +5359,18 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		offset = dissect_file_data_smb2_pipe(tvb, pinfo, tree, offset, length, si->top_tree, si);
 		if (offset != oldoffset) {
 			/* managed to dissect pipe data */
-			return offset;
+			goto out;
 		}
 	}
 
 	/* just ordinary data */
 	proto_tree_add_item(tree, hf_smb2_write_data, tvb, offset, length, ENC_NA);
 
-	data_tvb_len=(guint32)tvb_captured_length_remaining(tvb, offset);
-
 	offset += MIN(length,(guint32)tvb_captured_length_remaining(tvb, offset));
 
 	offset = dissect_smb2_olb_tvb_max_offset(offset, &c_olb);
 
+out:
 	if (have_tap_listener(smb2_eo_tap) && (data_tvb_len == length)) {
 		if (si->saved && si->eo_file_info) { /* without this data we don't know wich file this belongs to */
 			feed_eo_smb2(tvb,pinfo,si,dataoffset,length,off);
@@ -6767,6 +6768,8 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
 	offset += 4;
 
+	data_tvb_len=(guint32)tvb_captured_length_remaining(tvb, offset);
+
 	/* data or namedpipe ?*/
 	if (length) {
 		int oldoffset = offset;
@@ -6774,17 +6777,16 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		offset = dissect_file_data_smb2_pipe(tvb, pinfo, tree, offset, length, si->top_tree, si);
 		if (offset != oldoffset) {
 			/* managed to dissect pipe data */
-			return offset;
+			goto out;
 		}
 	}
 
 	/* data */
 	proto_tree_add_item(tree, hf_smb2_read_data, tvb, offset, length, ENC_NA);
 
-	data_tvb_len=(guint32)tvb_captured_length_remaining(tvb, offset);
-
 	offset += MIN(length,data_tvb_len);
 
+out:
 	if (have_tap_listener(smb2_eo_tap) && (data_tvb_len == length)) {
 		if (si->saved && si->eo_file_info) { /* without this data we don't know wich file this belongs to */
 			feed_eo_smb2(tvb,pinfo,si,dataoffset,length,si->saved->file_offset);
