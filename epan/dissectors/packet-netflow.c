@@ -14433,7 +14433,7 @@ proto_register_netflow(void)
         },
         /* ntop, 35632 / 362 */
         {&hf_pie_ntop_sip_c_ip,
-         {"SIP C IP adresses", "cflow.pie.ntop.sip_c_ip",
+         {"SIP C IP addresses", "cflow.pie.ntop.sip_c_ip",
           FT_STRING, STR_ASCII, NULL, 0x0,
           NULL, HFILL}
         },
