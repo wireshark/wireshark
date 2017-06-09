@@ -50,7 +50,7 @@ ipv4_hash_table_resolved_to_qstringlist(gpointer, gpointer value, gpointer sl_pt
     QStringList *string_list = (QStringList *) sl_ptr;
     hashipv4_t *ipv4_hash_table_entry = (hashipv4_t *) value;
 
-    if((ipv4_hash_table_entry->flags & DUMMY_ADDRESS_ENTRY) == 0) {
+    if((ipv4_hash_table_entry->flags & NAME_RESOLVED)) {
         QString entry = QString("%1\t%2")
                 .arg(ipv4_hash_table_entry->ip)
                 .arg(ipv4_hash_table_entry->name);
@@ -64,7 +64,7 @@ ipv6_hash_table_resolved_to_qstringlist(gpointer, gpointer value, gpointer sl_pt
     QStringList *string_list = (QStringList *) sl_ptr;
     hashipv6_t *ipv6_hash_table_entry = (hashipv6_t *) value;
 
-    if((ipv6_hash_table_entry->flags & DUMMY_ADDRESS_ENTRY) == 0) {
+    if((ipv6_hash_table_entry->flags & NAME_RESOLVED)) {
         QString entry = QString("%1\t%2")
                 .arg(ipv6_hash_table_entry->ip6)
                 .arg(ipv6_hash_table_entry->name);

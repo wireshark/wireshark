@@ -133,7 +133,7 @@ ipv4_hash_table_resolved_to_texbuff(gpointer key _U_, gpointer value, gpointer u
     GtkTextBuffer *buffer = (GtkTextBuffer*)user_data;
     hashipv4_t *ipv4_hash_table_entry = (hashipv4_t *)value;
 
-    if((ipv4_hash_table_entry->flags & DUMMY_ADDRESS_ENTRY)== 0){
+    if((ipv4_hash_table_entry->flags & NAME_RESOLVED)){
         g_snprintf(string_buff, ADDRESS_STR_MAX, "%s\t%s\n",
                    ipv4_hash_table_entry->ip,
                    ipv4_hash_table_entry->name);
@@ -167,7 +167,7 @@ ipv6_hash_table_resolved_to_texbuff(gpointer key _U_, gpointer value, gpointer u
     GtkTextBuffer *buffer = (GtkTextBuffer*)user_data;
     hashipv6_t *ipv6_hash_table_entry = (hashipv6_t *)value;
 
-    if((ipv6_hash_table_entry->flags & DUMMY_ADDRESS_ENTRY)== 0){
+    if((ipv6_hash_table_entry->flags & NAME_RESOLVED)){
         g_snprintf(string_buff, ADDRESS_STR_MAX, "%s\t%s\n",
                    ipv6_hash_table_entry->ip6,
                    ipv6_hash_table_entry->name);

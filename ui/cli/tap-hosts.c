@@ -48,7 +48,7 @@ ipv4_hash_table_print_resolved(gpointer key _U_, gpointer value, gpointer user_d
 {
 	hashipv4_t *ipv4_hash_table_entry = (hashipv4_t *)value;
 
-	if (!(ipv4_hash_table_entry->flags & DUMMY_ADDRESS_ENTRY)) {
+	if ((ipv4_hash_table_entry->flags & NAME_RESOLVED)) {
 		printf("%s\t%s\n",
 		       ipv4_hash_table_entry->ip,
 		       ipv4_hash_table_entry->name);
@@ -60,7 +60,7 @@ ipv6_hash_table_print_resolved(gpointer key _U_, gpointer value, gpointer user_d
 {
 	hashipv6_t *ipv6_hash_table_entry = (hashipv6_t *)value;
 
-	if (!(ipv6_hash_table_entry->flags & DUMMY_ADDRESS_ENTRY)) {
+	if ((ipv6_hash_table_entry->flags & NAME_RESOLVED)) {
 		printf("%s\t%s\n",
 		       ipv6_hash_table_entry->ip6,
 		       ipv6_hash_table_entry->name);

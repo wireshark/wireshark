@@ -131,6 +131,7 @@
 
 typedef struct sub_net_hashipv4 {
     guint             addr;
+    /* XXX: No longer needed?*/
     guint8            flags;          /* B0 dummy_entry, B1 resolve, B2 If the address is used in the trace */
     struct sub_net_hashipv4   *next;
     gchar             name[MAXNAMELEN];
@@ -688,10 +689,7 @@ fill_dummy_ip4(const guint addr, hashipv4_t* volatile tp)
 {
     subnet_entry_t subnet_entry;
 
-    if (tp->flags & DUMMY_ADDRESS_ENTRY)
-        return; /* already done */
-
-    tp->flags |= DUMMY_ADDRESS_ENTRY; /* Overwrite if we get async DNS reply */
+    /* Overwrite if we get async DNS reply */
 
     /* Do we have a subnet for this address? */
     subnet_entry = subnet_lookup(addr);
@@ -723,6 +721,7 @@ fill_dummy_ip4(const guint addr, hashipv4_t* volatile tp)
          */
         g_snprintf(tp->name, MAXNAMELEN, "%s%s", subnet_entry.name, paddr);
     } else {
+        /* XXX: This means we end up printing "1.2.3.4 (1.2.3.4)" in many cases */
         ip_to_str_buf((const guint8 *)&addr, tp->name, MAXNAMELEN);
     }
 }
@@ -733,10 +732,7 @@ fill_dummy_ip4(const guint addr, hashipv4_t* volatile tp)
 static void
 fill_dummy_ip6(hashipv6_t* volatile tp)
 {
-    if (tp->flags & DUMMY_ADDRESS_ENTRY)
-        return; /* already done */
-
-    tp->flags |= DUMMY_ADDRESS_ENTRY; /* Overwrite if we get async DNS reply */
+    /* Overwrite if we get async DNS reply */
     g_strlcpy(tp->name, tp->ip6, MAXNAMELEN);
 }
 
@@ -805,8 +801,9 @@ host_lookup(const guint addr)
          * and then try to resolve it.
          */
         tp = new_ipv4(addr);
+        fill_dummy_ip4(addr, tp);
         wmem_map_insert(ipv4_hash_table, GUINT_TO_POINTER(addr), tp);
-    } else if ((tp->flags & DUMMY_AND_RESOLVE_FLGS) != DUMMY_ADDRESS_ENTRY) {
+    } else if (tp->flags & TRIED_OR_RESOLVED_MASK) {
         return tp;
     }
 
@@ -815,7 +812,6 @@ host_lookup(const guint addr)
      * resolve it already.
      */
 
-    fill_dummy_ip4(addr, tp);
     if (!gbl_resolv_flags.network_name)
         return tp;
 
@@ -865,8 +861,9 @@ host_lookup6(const struct e_in6_addr *addr)
         addr_key = wmem_new(wmem_epan_scope(), struct e_in6_addr);
         tp = new_ipv6(addr);
         memcpy(addr_key, addr, 16);
+        fill_dummy_ip6(tp);
         wmem_map_insert(ipv6_hash_table, addr_key, tp);
-    } else if ((tp->flags & DUMMY_AND_RESOLVE_FLGS) != DUMMY_ADDRESS_ENTRY) {
+    } else if (tp->flags & TRIED_OR_RESOLVED_MASK) {
         return tp;
     }
 
@@ -875,7 +872,6 @@ host_lookup6(const struct e_in6_addr *addr)
      * resolve it already.
      */
 
-    fill_dummy_ip6(tp);
     if (!gbl_resolv_flags.network_name)
         return tp;
 
@@ -2102,7 +2098,7 @@ ipv4_hash_table_resolved_to_list(gpointer key _U_, gpointer value, gpointer user
     addrinfo_lists_t *lists = (addrinfo_lists_t*)user_data;
     hashipv4_t *ipv4_hash_table_entry = (hashipv4_t *)value;
 
-    if ((ipv4_hash_table_entry->flags & USED_AND_RESOLVED_MASK) == RESOLVED_ADDRESS_USED) {
+    if ((ipv4_hash_table_entry->flags & USED_AND_RESOLVED_MASK) == USED_AND_RESOLVED_MASK) {
         lists->ipv4_addr_list = g_list_prepend(lists->ipv4_addr_list, ipv4_hash_table_entry);
     }
 
@@ -2118,7 +2114,7 @@ ipv6_hash_table_resolved_to_list(gpointer key _U_, gpointer value, gpointer user
     addrinfo_lists_t *lists = (addrinfo_lists_t*)user_data;
     hashipv6_t *ipv6_hash_table_entry = (hashipv6_t *)value;
 
-    if ((ipv6_hash_table_entry->flags & USED_AND_RESOLVED_MASK) == RESOLVED_ADDRESS_USED) {
+    if ((ipv6_hash_table_entry->flags & USED_AND_RESOLVED_MASK) == USED_AND_RESOLVED_MASK) {
         lists->ipv6_addr_list = g_list_prepend (lists->ipv6_addr_list, ipv6_hash_table_entry);
     }
 
@@ -2293,8 +2289,6 @@ subnet_entry_set(guint32 subnet_addr, const guint8 mask_length, const gchar* nam
 
     tp->next = NULL;
     tp->addr = subnet_addr;
-    /* Clear DUMMY_ADDRESS_ENTRY */
-    tp->flags &= ~DUMMY_ADDRESS_ENTRY; /*Never used again...*/
     g_strlcpy(tp->name, name, MAXNAMELEN); /* This is longer than subnet names can actually be */
     have_subnet_entry = TRUE;
 }
@@ -2711,8 +2705,6 @@ add_ipv4_name(const guint addr, const gchar *name)
         new_resolved_objects = TRUE;
     }
     tp->flags |= TRIED_RESOLVE_ADDRESS|NAME_RESOLVED;
-    /* Clear DUMMY_ADDRESS_ENTRY */
-    tp->flags &= ~DUMMY_ADDRESS_ENTRY;
 } /* add_ipv4_name */
 
 /* -------------------------- */
@@ -2743,8 +2735,6 @@ add_ipv6_name(const struct e_in6_addr *addrp, const gchar *name)
         new_resolved_objects = TRUE;
     }
     tp->flags |= TRIED_RESOLVE_ADDRESS|NAME_RESOLVED;
-    /* Clear DUMMY_ADDRESS_ENTRY */
-    tp->flags &= ~DUMMY_ADDRESS_ENTRY;
 } /* add_ipv6_name */
 
 static void
