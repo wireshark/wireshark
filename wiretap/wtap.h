@@ -378,7 +378,12 @@ extern "C" {
 /*
  * We support one maximum packet size for most link-layer header types
  * and another for D-Bus, because the maximum packet size for D-Bus
- * is 128MB, and that's a lot bigger than the 256KB that we use elsewhere.
+ * is 128MB, as per
+ *
+ *    https://dbus.freedesktop.org/doc/dbus-specification.html#message-protocol-messages
+ *
+ * and that's a lot bigger than the 256KB that we use elsewhere.
+ *
  * We don't want to write out files that specify a maximum packet size of
  * 128MB if we don't have to, as software reading those files might
  * allocate a buffer much larger than necessary, wasting memory.
