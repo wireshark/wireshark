@@ -217,7 +217,7 @@ fuzz_init(int argc _U_, char **argv)
 
 	if (!color_filters_init(&err_msg, NULL))
 	{
-		fprintf(stderr, "color_filters_init() failed %s\n", err_msg);
+		fprintf(stderr, "%s\n", err_msg);
 		g_free(err_msg);
 	}
 

@@ -209,7 +209,7 @@ main(int argc, char *argv[])
   read_filter_list(CFILTER_LIST);
 
   if (!color_filters_init(&err_msg, NULL)) {
-     fprintf(stderr, "color_filters_init() failed %s\n", err_msg);
+     fprintf(stderr, "%s\n", err_msg);
      g_free(err_msg);
   }
 
