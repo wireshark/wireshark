@@ -96,6 +96,16 @@ void proto_reg_handoff_pkcs1(void) {
 	register_ber_oid_dissector("1.2.840.113549.1.1.13", dissect_ber_oid_NULL_callback, proto_pkcs1, "sha512WithRSAEncryption");
 	register_ber_oid_dissector("1.2.840.113549.1.1.14", dissect_ber_oid_NULL_callback, proto_pkcs1, "sha224WithRSAEncryption");
 
+	/* ECDSA SHA2 algorithms from X9.62, RFC5480, RFC 5758, RFC 5912 */
+	register_ber_oid_dissector("1.2.840.10045.4.3.1", dissect_ber_oid_NULL_callback, proto_pkcs1, "ecdsa-with-SHA224");
+	register_ber_oid_dissector("1.2.840.10045.4.3.2", dissect_ber_oid_NULL_callback, proto_pkcs1, "ecdsa-with-SHA256");
+	register_ber_oid_dissector("1.2.840.10045.4.3.3", dissect_ber_oid_NULL_callback, proto_pkcs1, "ecdsa-with-SHA384");
+	register_ber_oid_dissector("1.2.840.10045.4.3.4", dissect_ber_oid_NULL_callback, proto_pkcs1, "ecdsa-with-SHA512");
+
+	/* DSA SHA2 algorithms from FIPS186-3, RFC5480, RFC 5758, RFC 5912 */
+	register_ber_oid_dissector("2.16.840.1.101.3.4.3.1", dissect_ber_oid_NULL_callback, proto_pkcs1, "id-dsa-with-sha224");
+	register_ber_oid_dissector("2.16.840.1.101.3.4.3.2", dissect_ber_oid_NULL_callback, proto_pkcs1, "id-dsa-with-sha256");
+
 	oid_add_from_string("secp192r1","1.2.840.10045.3.1.1");
 	oid_add_from_string("sect163k1","1.3.132.0.1");
 	oid_add_from_string("sect163r2","1.3.132.0.15");
