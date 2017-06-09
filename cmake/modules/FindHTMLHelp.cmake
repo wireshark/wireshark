@@ -15,39 +15,31 @@
 #    HTML_HELP_INCLUDE_PATH : include path to the API (htmlhelp.h)
 #    HTML_HELP_LIBRARY      : full path to the library (htmlhelp.lib)
 
-set(_PF86 "PROGRAMFILES(x86)")
-
 if(WIN32)
 
   find_program(HTML_HELP_COMPILER
-    hhc
-    "[HKEY_CURRENT_USER\\Software\\Microsoft\\HTML Help Workshop;InstallDir]"
-    "$ENV{ProgramFiles}/HTML Help Workshop"
-    "$ENV{_PF86}/HTML Help Workshop"
-    "C:/Program Files/HTML Help Workshop"
-    "C:/Program Files (x86)/HTML Help Workshop"
+    NAMES hhc
+    PATHS
+      "[HKEY_CURRENT_USER\\Software\\Microsoft\\HTML Help Workshop;InstallDir]"
+    PATH_SUFFIXES "HTML Help Workshop"
     )
 
   get_filename_component(HTML_HELP_COMPILER_PATH "${HTML_HELP_COMPILER}" PATH)
 
   find_path(HTML_HELP_INCLUDE_PATH
-    htmlhelp.h
-    "${HTML_HELP_COMPILER_PATH}/include"
-    "[HKEY_CURRENT_USER\\Software\\Microsoft\\HTML Help Workshop;InstallDir]/include"
-    "$ENV{ProgramFiles}/HTML Help Workshop/include"
-    "$ENV{_PF86}/HTML Help Workshop/include"
-    "C:/Program Files/HTML Help Workshop/include"
-    "C:/Program Files (x86)/HTML Help Workshop/include"
+    NAMES htmlhelp.h
+    PATHS
+      "${HTML_HELP_COMPILER_PATH}/include"
+      "[HKEY_CURRENT_USER\\Software\\Microsoft\\HTML Help Workshop;InstallDir]/include"
+    PATH_SUFFIXES "HTML Help Workshop/include"
     )
 
   find_library(HTML_HELP_LIBRARY
-    htmlhelp
-    "${HTML_HELP_COMPILER_PATH}/lib"
-    "[HKEY_CURRENT_USER\\Software\\Microsoft\\HTML Help Workshop;InstallDir]/lib"
-    "$ENV{ProgramFiles}/HTML Help Workshop/lib"
-    "$ENV{_PF86}/HTML Help Workshop/lib"
-    "C:/Program Files/HTML Help Workshop/lib"
-    "C:/Program Files (x86)/HTML Help Workshop/lib"
+    NAMES htmlhelp
+    PATHS
+      "${HTML_HELP_COMPILER_PATH}/lib"
+      "[HKEY_CURRENT_USER\\Software\\Microsoft\\HTML Help Workshop;InstallDir]/lib"
+    PATH_SUFFIXES "HTML Help Workshop/lib"
     )
 
   mark_as_advanced(
