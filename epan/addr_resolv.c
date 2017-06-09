@@ -2711,6 +2711,8 @@ add_ipv4_name(const guint addr, const gchar *name)
         new_resolved_objects = TRUE;
     }
     tp->flags |= TRIED_RESOLVE_ADDRESS|NAME_RESOLVED;
+    /* Clear DUMMY_ADDRESS_ENTRY */
+    tp->flags &= ~DUMMY_ADDRESS_ENTRY;
 } /* add_ipv4_name */
 
 /* -------------------------- */
@@ -2741,6 +2743,8 @@ add_ipv6_name(const struct e_in6_addr *addrp, const gchar *name)
         new_resolved_objects = TRUE;
     }
     tp->flags |= TRIED_RESOLVE_ADDRESS|NAME_RESOLVED;
+    /* Clear DUMMY_ADDRESS_ENTRY */
+    tp->flags &= ~DUMMY_ADDRESS_ENTRY;
 } /* add_ipv6_name */
 
 static void
