@@ -15002,7 +15002,7 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   #define LENGTH_OFFSET 3
   #define MSG_TYPE_OFFSET 1
   if (tvb_captured_length(tvb) < RANAP_MSG_MIN_LENGTH) { return FALSE; }
-  /* compute PER aligned length determinant without calling dissect_per_length_determinant()
+  /* compute aligned PER length determinant without calling dissect_per_length_determinant()
      to avoid exceptions and info added to tree, info column and expert info */
   offset = LENGTH_OFFSET;
   length = tvb_get_guint8(tvb, offset);
