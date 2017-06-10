@@ -28,16 +28,9 @@
 extern "C" {
 #endif /* __cplusplus */
 
-struct epan_dissect;
+#include <wsutil/color.h>
 
-/*
- * Data structure holding RGB value for a color.
- */
-typedef struct {
-	guint16 red;
-	guint16 green;
-	guint16 blue;
-} color_t;
+struct epan_dissect;
 
 #define CONVERSATION_COLOR_PREFIX       "___conversation_color_filter___"
 /** @file
@@ -59,13 +52,6 @@ typedef struct _color_filter {
                                     /* only used outside of color_filters.c (beside init) */
     void      *color_edit_dlg_info; /* if filter is being edited, ptr to req'd info. GTK+ only. */
 } color_filter_t;
-
-inline static unsigned int
-color_t_to_rgb(const color_t *color) {
-    return (((color->red >> 8) << 16)
-        | ((color->green >> 8) << 8)
-        | (color->blue >> 8));
-}
 
 /** A color filter was added (while importing).
  * (color_filters.c calls this for every filter coming in)

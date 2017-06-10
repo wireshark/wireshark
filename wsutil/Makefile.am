@@ -48,6 +48,7 @@ libwsutil_nonrepl_INCLUDES = \
 	buffer.h		\
 	clopts_common.h		\
 	cmdarg_err.h		\
+	color.h			\
 	copyright_info.h	\
 	cpu_info.h		\
 	crash_info.h		\
