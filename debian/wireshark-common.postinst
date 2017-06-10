@@ -15,19 +15,20 @@ if ! dpkg-statoverride --list $PROGRAM > /dev/null; then
 	else
 	    if ! addgroup --quiet --system $GROUP; then
 	        if ! getent group wireshark > /dev/null; then
-		    echo "Error: $GROUP group does not exist and executing \"addgroup --quiet --system $GROUP\" failed which prevents configuring Wireshark for capturing traffic as an unprivileged user."
-                    echo "Please create the $GROUP system (or user) group and try configuring wireshark-common again."
+                    db_input high wireshark-common/addgroup-failed || true
+                    db_go
                     exit 1
                 else
-                    echo "Note: $GROUP is a user group, but the preferred configuration is setting it up as a system group. Purging wireshark-common will not remove the $GROUP group as a result, but otherwise everything should work properly."
+                    db_input high wireshark-common/group-is-user-group || true
+                    db_go
                 fi
 	    fi
 	    chown root:$GROUP $PROGRAM
 	    if which setcap > /dev/null ; then
                 chmod u=rwx,g=rx,o=r $PROGRAM
                 if ! setcap cap_net_raw,cap_net_admin=eip $PROGRAM; then
-		    echo "Error: Setting capabilities for dumpcap using Linux Capabilities failed."
-		    echo "Falling back to setting set-user-id bit."
+                    db_input high wireshark-common/setcap-failed || true
+                    db_go
 		    chmod u=rwxs,g=rx,o=r $PROGRAM
                 fi
 	    else
@@ -36,7 +37,6 @@ if ! dpkg-statoverride --list $PROGRAM > /dev/null; then
         fi
     fi
 else
-    echo "Preserving owner and mode for $PROGRAM set by dpkg-statoverride:"
     dpkg-statoverride --list $PROGRAM
 fi
 

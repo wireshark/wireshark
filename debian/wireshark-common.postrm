@@ -4,11 +4,15 @@ set -e
 
 GROUP=wireshark
 
+. /usr/share/debconf/confmodule
+
 if [ "$1" = "purge" ] ; then
       if getent group $GROUP >/dev/null; then
                 if [ -x /usr/sbin/delgroup ]; then
-                        echo "Removing wireshark group..."
-                        delgroup --system $GROUP || echo "Could not remove wireshark group."
+                    if ! delgroup --quiet --system $GROUP; then
+                        db_input high wireshark-common/group-removal-failed || true
+                        db_go
+                    fi
                 fi
         fi
 fi
