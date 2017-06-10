@@ -233,7 +233,8 @@ read_filter_list(filter_list_type_t list_type)
       }
 
       /*
-       * Try to open the global "cfilters/dfilters" file */
+       * Try to open the global "cfilters/dfilters" file.
+       */
       g_free(ff_path);
       ff_path = get_datafile_path(ff_name);
       if ((ff = ws_fopen(ff_path, "r")) == NULL) {
