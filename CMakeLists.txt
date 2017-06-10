@@ -37,10 +37,8 @@ set(PROJECT_VERSION "${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT
 
 message(STATUS "Generating build using CMake ${CMAKE_VERSION}")
 if(WIN32)
-	# Needed for proper Qt linking. See
-	# http://www.cmake.org/cmake/help/v3.0/policy/CMP0020.html
-	# 3.1.3 is the currently supported version
-	cmake_minimum_required(VERSION 3.1.3)
+	# Needed for GREATER_EQUAL operator
+	cmake_minimum_required(VERSION 3.7)
 else()
 	cmake_minimum_required(VERSION 2.8.8)
 endif()
