@@ -24,7 +24,7 @@
 #define  __COLOR_UTILS_H__
 
 #include "ui/gtk/gui_utils.h"
-#include <epan/color_filters.h>
+#include <wsutil/color.h>
 
 /** @file
  *  Definitions for color structures and routines

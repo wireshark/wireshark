@@ -29,10 +29,10 @@ extern "C" {
 
 #include <glib.h>
 
-#include "color_filters.h"
-
 #include <epan/params.h>
 #include <epan/range.h>
+
+#include <wsutil/color.h>
 
 #include "ws_symbol_export.h"
 
