@@ -42,10 +42,10 @@
 #define TERM_SGR_RESET "\x1B[0m"  /* SGR - reset */
 #define TERM_CSI_EL    "\x1B[K"   /* EL - Erase in Line (to end of line) */
 
-#ifdef _WIN32
 static void
 print_color_escape(FILE *fh, const color_t *fg, const color_t *bg)
 {
+#ifdef _WIN32
     /* default to white foreground, black background */
     WORD win_fg_color = FOREGROUND_RED|FOREGROUND_BLUE|FOREGROUND_GREEN;
     WORD win_bg_color = 0;
@@ -109,16 +109,38 @@ print_color_escape(FILE *fh, const color_t *fg, const color_t *bg)
     }
 
     SetConsoleTextAttribute((HANDLE)_get_osfhandle(_fileno(fh)), win_fg_color|win_bg_color);
-}
 #else
-static void
-print_color_escape(FILE *fh, const color_t *fg, const color_t *bg)
-{
+    /*
+     * UN*X.
+     *
+     * Use the "select character foreground colour" and "select character
+     * background colour" options to the Select Graphic Rendition control
+     * sequence; those are reserved in ECMA-48, and are specified in ISO
+     * standard 8613-6/ITU-T Recommendation T.416, "Open Document Architecture
+     * (ODA) and Interchange Format: Chararcter Content Architectures",
+     * section 13.1.8 "Select Graphic Rendition (SGR)".  We use the
+     * "direct colour in RGB space" option, with a parameter value of 2.
+     *
+     * Those sequences are supported by some UN*X terminal emulators; some
+     * support either : or ; as a separator, others require a ;.
+     *
+     * For more than you ever wanted to know about all of this, see
+     *
+     *    https://gist.github.com/XVilka/8346728
+     *
+     * including the discussion following it.
+     *
+     * XXX - this isn't always treated correctly; macOS Terminal currently
+     * doesn't handle this correctly - it gives weird colors.  Sadly, as
+     * per various other discussions mentioned in the discussion cited above,
+     * there's nothing in terminfo to indicate the presence of 24-bit color
+     * support, so there's no good way to decide whether to use this or not.
+     *
+     * XXX - fall back on 8-color or 256-color support if we can somehow
+     * determine that 24-bit color support isn't available but 8-color or
+     * 256-color support is?
+     */
     if (fg) {
-        /*
-         * emit 24-bit "true color" escape sequence if output is going to a
-         * tty, the sequence should be ignored by terminals that aren't capable
-         */
         fprintf(fh, "\x1B[38;2;%u;%u;%um",
                 (fg->red   >> 8) & 0xff,
                 (fg->green >> 8) & 0xff,
