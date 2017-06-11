@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2017-06-03)
+(last updated 2017-06-09)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -41666,9 +41666,9 @@ Decimal
     Homayoun Zariv
       hzariv&embracenetworks.com
 10428
-  Furukawa Industrial S.A. - Curitiba
-    Thomas Becker
-      thomas&furukawa.com.br
+  Furukawa Electric LatAm S.A (formerly 'Furukawa Industrial S.A. - Curitiba')
+    Juvenal Costa
+      juvenalc&furukawa.com.br
 10429
   Gelwarg.Net
     Adam Gelwarg
@@ -81115,9 +81115,9 @@ Nancy - FRANCE
     Seamus Donohue
       seamus.donohue&capeclear.com
 20390
-  OT Energy Services a.s. (formerly 'I & C Energo a.s.')
+  I&C Energo a.s. (formerly 'OT Energy Services a.s.')
     Milan Beneš
-      mbenes&otenergy.eu
+      mbenes&ic-energo.eu
 20391
   FAKUS Elektronik GmbH
     Martin Bischoff
@@ -108760,8 +108760,8 @@ de l'Ouest(RESAO)
       paolo.garuti&axeltechnology.com
 27296
   Blizzard Entertainment
-    Greg Faltersack
-      gfaltersack&blizzard.com
+    Mike Cramer
+      mcramer&blizzard.com
 27297
   SchechterTech LLC
     Harry Schechter
@@ -128003,9 +128003,9 @@ Decentralization / Helenic Public Administra
     Fernando Cardoso
       noc&cso.pt
 32106
-  Hadiko e.V.
-    Karl-Heinz Withum
-      netze&hadiko.de
+  HaDiKo e.V.
+    Noël Weidenhammer
+      vorstand&hadiko.de
 32107
   SOH Systems
     Scott O'Hare
@@ -132417,7 +132417,7 @@ Decentralization / Helenic Public Administra
 33209
   Dich Networks Co.
     Andrew Wan
-      andreww&dich.com.tw
+      andrew&dich.com.tw
 33210
   Qvantel
     Malyadri Beegala
@@ -161817,8 +161817,8 @@ Decentralization / Helenic Public Administra
       elecmor&elecmor.lv
 40559
   BPCE
-    Alain Mazieras
-      alain.mazieras&bpce.fr
+    Philippe Sarafoglou
+      philippe.sarafoglou&bpce.fr
 40560
   Norsat International Inc.
     Michael Schefter
@@ -171452,9 +171452,9 @@ Decentralization / Helenic Public Administra
     David Liedloff
       david&liedloff.org
 42968
-  ME Engineering M2M GmbH
+  Wertschütz GmbH i.Gr. (formerly 'ME Engineering M2M GmbH')
     Matthias Wimmer
-      mwi&me-industries.de
+      mw&wertschuetz.de
 42969
   Iorga Group
     Frédéric PREVOST
@@ -182376,9 +182376,9 @@ Decentralization / Helenic Public Administra
     Huseyin Erdem Oguz
       erdem.oguz&e-kent.com.tr
 45699
-  Hireku, Inc.
+  JazzHR (formerly 'Hireku, Inc.')
     Sean McAfee
-      sean.mcafee&hireku.com
+      sean.mcafee&jazzhr.com
 45700
   Transylvania University
     Stephen Poynter
@@ -182461,8 +182461,8 @@ Decentralization / Helenic Public Administra
       zamborsky&inqool.cz
 45720
   Chaos Computer Club Mainz e.V.
-    Christian Felsing
-      kernelpanic&cccmz.de
+    Tobias Hachmer
+      admin&lists.cccmz.de
 45721
   Shenzhen SONTU Medical Imaging Equipment Co.,LTD
     qiuhongfa
@@ -199987,6 +199987,142 @@ Decentralization / Helenic Public Administra
   NEOCHROM, ltd
     Oleksii Serikov
       ceo&neochrom.company
+50102
+  FATH Mechatronics GmbH
+    Frank Schütz
+      frank.schuetz&fath-mechatronics.de
+50103
+  TSYS
+    EU UNIX
+      euunix&tsys.com
+50104
+  ActivIntel Inc.
+    Nate Groendyk
+      nate&activintel.com
+50105
+  Candela Innovations, LC
+    Ryan Walker
+      ryan&candelainnovations.com
+50106
+  delgiacco medical, llc
+    elizabeth delgiacco
+      drelliesmith&gmail.com
+50107
+  Karlour LLC
+    Karl Wang
+      karl&karlour.com
+50108
+  Gebhardt Bauzentrum GmbH & Co. KG
+    Philip May
+      may&gebhardt-bauzentrum.de
+50109
+  Open Banking Limited
+    Ralph Bragg
+      ralph.bragg&openbanking.org.uk
+50110
+  Cybraics, Inc.
+    Robert Sanders
+      rsanders&cybraics.com
+50111
+  Samsung SDI America
+    Xajuan Smith
+      Xajuan.smith&samsung.com
+50112
+  Otomatica
+    Mert Cingöz
+      mert.cingoz&otomatica.com
+50113
+  AI Prime
+    Michael Sullivan
+      mike&ai-prime.com
+50114
+  CloudGenix
+    Aaron Edwards
+      arin-poc&cloudgenix.com
+50115
+  Genesis Medical Group
+    Vicky Titus
+      billing&genesisdoctors.com
+50116
+  Rivian Automotive, Inc.
+    Timothy Tickel
+      ttickel&rivian.com
+50117
+  Eversource Energy
+    PAULO SILVA
+      PAULO.SILVA&EVERSOURCE.COM
+50118
+  NZ FIBRE COMMUNICATIONS LIMITED trading as Stuff Fibre
+    Sam Chan
+      sam.chan&stuff-fibre.co.nz
+50119
+  Seoul National University Hospital
+    Youngho Kim
+      argonaise&snu.ac.kr
+50120
+  Sofco Pty Ltd
+    Andrew Hughes
+      ahughes&sofco.com.au
+50121
+  Root
+    Ervin Remus Radosavlevici
+      admin&root-cloud.com
+50122
+  ISiT OOO
+    Andrey Kolegov
+      alko&istperm.ru
+50123
+  Rutronik Elektronische Bauelemente GmbH
+    Alexander Schnitzer
+      alexander.schnitzer&rutronik.com
+50124
+  Howco
+    Scott McKinnie
+      scott.mckinnie&howcogroup.com
+50125
+  SERVICIOS DE RADIO WAVENET
+    MANUEL HERAS
+      mheras&wavenetradio.com
+50126
+  Elecard
+    Nikolay Milovanov
+      sales&elecard.com
+50127
+  Changchun Vocational Institute Of Technology
+    Yu Pan
+      dev&cvit.com.cn
+50128
+  Digiroam LLC
+    Grant Browne
+      grant.browne&digiroam.com
+50129
+  DEM Manufacturing
+    Simon Heyward
+      simon.heyward&alpha3manufacturing.com
+50130
+  Perfoware Corp.
+    George Maroulis
+      gmaroulis&gmail.com
+50131
+  Blacktree Technology Pty Ltd.
+    Joe Nevin
+      info&blacktree.com.au
+50132
+  Sonic Automotive
+    Scott Jernigan
+      bt.servers&sonicautomotive.com
+50133
+  GPI RAS
+    Alexander Samarin
+      sasha&lt.gpi.ru
+50134
+  Enika LLC
+    Alexander Samarin
+      sasha&enikasoft.ru
+50135
+  Markon Cooperative Inc
+    John Eldredge
+      johne&markon.com
 
 
 End of Document
