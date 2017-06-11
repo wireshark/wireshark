@@ -444,6 +444,8 @@ print_usage(FILE *output)
   fprintf(output, "                           a directory named \"destdir\"\n");
   fprintf(output, "  --color                  color output text similarly to the Wireshark GUI,\n");
   fprintf(output, "                           requires a terminal with 24-bit color support\n");
+  fprintf(output, "                           Also supplies color attributes to pdml and psml formats\n");
+  fprintf(output, "                           (Note that attributes are nonstandard)\n");
 
   fprintf(output, "\n");
   fprintf(output, "Miscellaneous:\n");
@@ -3863,7 +3865,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
         break;
 
       case WRITE_XML:
-        write_psml_columns(edt, stdout);
+        write_psml_columns(edt, stdout, dissect_color);
         return !ferror(stdout);
       case WRITE_FIELDS: /*No non-verbose "fields" format */
       case WRITE_JSON:
@@ -3889,7 +3891,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
       break;
 
     case WRITE_XML:
-      write_pdml_proto_tree(output_fields, protocolfilter, protocolfilter_flags, edt, stdout);
+      write_pdml_proto_tree(output_fields, protocolfilter, protocolfilter_flags, edt, stdout, dissect_color);
       printf("\n");
       return !ferror(stdout);
     case WRITE_FIELDS:

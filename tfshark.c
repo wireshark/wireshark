@@ -1999,7 +1999,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
         break;
 
       case WRITE_XML:
-        write_psml_columns(edt, stdout);
+        write_psml_columns(edt, stdout, FALSE);
         return !ferror(stdout);
       case WRITE_FIELDS: /*No non-verbose "fields" format */
         g_assert_not_reached();
@@ -2022,7 +2022,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
       break;
 
     case WRITE_XML:
-      write_pdml_proto_tree(NULL, NULL, PF_NONE, edt, stdout);
+      write_pdml_proto_tree(NULL, NULL, PF_NONE, edt, stdout, FALSE);
       printf("\n");
       return !ferror(stdout);
     case WRITE_FIELDS:

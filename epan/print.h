@@ -92,7 +92,7 @@ WS_DLL_PUBLIC gboolean proto_tree_print(print_dissections_e print_dissections,
 WS_DLL_PUBLIC gboolean print_hex_data(print_stream_t *stream, epan_dissect_t *edt);
 
 WS_DLL_PUBLIC void write_pdml_preamble(FILE *fh, const gchar* filename);
-WS_DLL_PUBLIC void write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, pf_flags protocolfilter_flags, epan_dissect_t *edt, FILE *fh);
+WS_DLL_PUBLIC void write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, pf_flags protocolfilter_flags, epan_dissect_t *edt, FILE *fh, gboolean use_color);
 WS_DLL_PUBLIC void write_pdml_finale(FILE *fh);
 
 WS_DLL_PUBLIC void write_json_preamble(FILE *fh);
@@ -111,7 +111,7 @@ WS_DLL_PUBLIC void write_ek_proto_tree(output_fields_t* fields,
                                        epan_dissect_t *edt, FILE *fh);
 
 WS_DLL_PUBLIC void write_psml_preamble(column_info *cinfo, FILE *fh);
-WS_DLL_PUBLIC void write_psml_columns(epan_dissect_t *edt, FILE *fh);
+WS_DLL_PUBLIC void write_psml_columns(epan_dissect_t *edt, FILE *fh, gboolean use_color);
 WS_DLL_PUBLIC void write_psml_finale(FILE *fh);
 
 WS_DLL_PUBLIC void write_csv_column_titles(column_info *cinfo, FILE *fh);

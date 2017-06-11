@@ -33,6 +33,7 @@
 #include <epan/to_str.h>
 #include <epan/expert.h>
 #include <epan/column-info.h>
+#include <epan/color_filters.h>
 #include <epan/prefs.h>
 #include <epan/print.h>
 #include <epan/charsets.h>
@@ -298,15 +299,23 @@ static gboolean check_protocolfilter(gchar **protocolfilter, const char *str)
 }
 
 void
-write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, pf_flags protocolfilter_flags, epan_dissect_t *edt, FILE *fh)
+write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, pf_flags protocolfilter_flags, epan_dissect_t *edt, FILE *fh, gboolean use_color)
 {
     write_pdml_data data;
+    const color_filter_t *cfp = edt->pi.fd->color_filter;
 
     g_assert(edt);
     g_assert(fh);
 
     /* Create the output */
-    fprintf(fh, "<packet>\n");
+    if (use_color && (cfp != NULL)) {
+        fprintf(fh, "<packet foreground='#%02x%02x%02x' background='#%02x%02x%02x'>\n",
+            cfp->fg_color.red, cfp->fg_color.green, cfp->fg_color.blue,
+            cfp->bg_color.red, cfp->bg_color.green, cfp->bg_color.blue);
+    }
+    else {
+        fprintf(fh, "<packet>\n");
+    }
 
     /* Print a "geninfo" protocol as required by PDML */
     print_pdml_geninfo(edt, fh);
@@ -1287,11 +1296,19 @@ write_psml_preamble(column_info *cinfo, FILE *fh)
 }
 
 void
-write_psml_columns(epan_dissect_t *edt, FILE *fh)
+write_psml_columns(epan_dissect_t *edt, FILE *fh, gboolean use_color)
 {
     gint i;
+    const color_filter_t *cfp = edt->pi.fd->color_filter;
 
-    fprintf(fh, "<packet>\n");
+    if (use_color && (cfp != NULL)) {
+        fprintf(fh, "<packet foreground='#%02x%02x%02x' background='#%02x%02x%02x'>\n",
+            cfp->fg_color.red, cfp->fg_color.green, cfp->fg_color.blue,
+            cfp->bg_color.red, cfp->bg_color.green, cfp->bg_color.blue);
+    }
+    else {
+        fprintf(fh, "<packet>\n");
+    }
 
     for (i = 0; i < edt->pi.cinfo->num_cols; i++) {
         fprintf(fh, "<section>");

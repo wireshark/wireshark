@@ -143,6 +143,8 @@ In PDML, the "Data" protocol would become another field under HTTP:
 	</proto>
 </packet>
 
+Note that packet tag may have nonstandard color attributes, "foreground" and "background"
+
 tools/WiresharkXML.py
 ====================
 This is a python module which provides some infrastructure for

@@ -792,6 +792,8 @@ Example of usage:
 B<pdml> Packet Details Markup Language, an XML-based format for the details of
 a decoded packet.  This information is equivalent to the packet details
 printed with the B<-V> flag.
+Using the --color option will add color attributes to B<pdml> output. These
+attributes are nonstandard.
 
 B<ps> PostScript for a human-readable one-line summary of each of the packets,
 or a multi-line view of the details of each of the packets, depending on
@@ -800,6 +802,8 @@ whether the B<-V> flag was specified.
 B<psml> Packet Summary Markup Language, an XML-based format for the summary
 information of a decoded packet.  This information is equivalent to the
 information shown in the one-line summary printed by default.
+Using the --color option will add color attributes to B<pdml> output. These
+attributes are nonstandard.
 
 B<tabs> Similar to the default B<text> report except the human-readable one-line
 summary of each packet will include an ASCII horizontal tab (0x09) character
