@@ -45,8 +45,8 @@ ssh                22/udp # The Secure Shell (SSH) Protocol [RFC4251] Defined TX
 ssh                22/sctp # SSH [Randall_Stewart] [Randall_Stewart] [RFC4960] Defined TXT keys: u=<username> p=<password>
 telnet             23/tcp # Telnet [Jon_Postel] [Jon_Postel] [RFC854] Defined TXT keys: u=<username> p=<password>
 telnet             23/udp # Telnet [Jon_Postel] [Jon_Postel] [RFC854] Defined TXT keys: u=<username> p=<password>
-smtp               25/tcp # Simple Mail Transfer [Jon_Postel] [Jon_Postel] [RFC5321]
-smtp               25/udp # Simple Mail Transfer [Jon_Postel] [Jon_Postel] [RFC5321]
+smtp               25/tcp # Simple Mail Transfer [IESG] [IETF_Chair] 2017-06-05 [RFC5321]
+smtp               25/udp # Simple Mail Transfer [IESG] [IETF_Chair] 2017-06-05 [RFC5321]
 nsw-fe             27/tcp # NSW User System FE [Robert_Thomas] [Robert_Thomas]
 nsw-fe             27/udp # NSW User System FE [Robert_Thomas] [Robert_Thomas]
 msg-icp            29/tcp # MSG ICP [Robert_Thomas] [Robert_Thomas]
@@ -251,8 +251,8 @@ emfis-cntl        141/tcp # EMFIS Control Service [Gerd_Beling] [Gerd_Beling]
 emfis-cntl        141/udp # EMFIS Control Service [Gerd_Beling] [Gerd_Beling]
 bl-idm            142/tcp # Britton-Lee IDM [Susie_Snitzer] [Susie_Snitzer]
 bl-idm            142/udp # Britton-Lee IDM [Susie_Snitzer] [Susie_Snitzer]
-imap              143/tcp # Internet Message Access Protocol [Mark_Crispin_2] [Mark_Crispin_2] [RFC3501]
-imap              143/udp # Internet Message Access Protocol [Mark_Crispin_2] [Mark_Crispin_2] [RFC3501]
+imap              143/tcp # Internet Message Access Protocol [IESG] [IETF_Chair] 2017-06-05 [RFC3501]
+imap              143/udp # Internet Message Access Protocol [IESG] [IETF_Chair] 2017-06-05 [RFC3501]
 uma               144/tcp # Universal Management Architecture [Jay_Whitney] [Jay_Whitney]
 uma               144/udp # Universal Management Architecture [Jay_Whitney] [Jay_Whitney]
 uaac              145/tcp # UAAC Protocol [David_A_Gomberg] [David_A_Gomberg]
@@ -1401,6 +1401,7 @@ apex-mesh         912/tcp # APEX relay-relay service
 apex-mesh         912/udp # APEX relay-relay service
 apex-edge         913/tcp # APEX endpoint-relay service [RFC3340]
 apex-edge         913/udp # APEX endpoint-relay service [RFC3340]
+rndc              953/tcp # BIND9 remote name daemon controller [Internet_Systems_Consortium_Inc] [Ray_Bellis] 2017-06-08
 ftps-data         989/tcp # ftp protocol, data, over TLS/SSL
 ftps-data         989/udp # ftp protocol, data, over TLS/SSL
 ftps              990/tcp # ftp protocol, control, over TLS/SSL [Christopher_Allen] [Christopher_Allen]
