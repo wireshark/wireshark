@@ -858,6 +858,53 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     return tvb_captured_length(tvb);
 }
 
+static int
+dissect_ssl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    guint8              content_type;
+    guint16             protocol_version, record_length;
+    conversation_t     *conversation;
+
+    /*
+     * Heuristics should match a non-empty TLS record:
+     * ContentType (1), ProtocolVersion (2), Length (2), fragment (...)
+     */
+    if (tvb_captured_length(tvb) < 6) {
+        return 0;
+    }
+
+    content_type = tvb_get_guint8(tvb, 0);
+    protocol_version = tvb_get_ntohs(tvb, 1);
+    record_length = tvb_get_ntohs(tvb, 3);
+
+    /* These are the common types. */
+    if (content_type != SSL_ID_HANDSHAKE && content_type != SSL_ID_APP_DATA) {
+        return 0;
+    }
+
+    /*
+     * Match SSLv3, TLS 1.0/1.1/1.2 (TLS 1.3 uses same value as TLS 1.0). Most
+     * likely you'll see 0x300 (SSLv3) or 0x301 (TLS 1.1) for interoperability
+     * reasons. Per RFC 5246 we should accept any 0x3xx value, but this is just
+     * a heuristic that catches common/likely cases.
+     */
+    if (protocol_version != SSLV3_VERSION &&
+        protocol_version != TLSV1_VERSION &&
+        protocol_version != TLSV1DOT1_VERSION &&
+        protocol_version != TLSV1DOT2_VERSION) {
+        return 0;
+    }
+
+    /* Check for sane length, see also ssl_check_record_length in packet-ssl-utils.c */
+    if (record_length == 0 || record_length >= TLS_MAX_RECORD_LENGTH + 2048) {
+        return 0;
+    }
+
+    conversation = find_or_create_conversation(pinfo);
+    conversation_set_dissector(conversation, ssl_handle);
+    return dissect_ssl(tvb, pinfo, tree, data);
+}
+
 /**
  * Try to decrypt the record and update the internal cipher state.
  * On success, the decrypted data will be available in "ssl_decrypted_data" of
@@ -4361,6 +4408,8 @@ proto_reg_handoff_ssl(void)
     /* Certificate Transparency extensions: 2 (Certificate), 5 (OCSP Response) */
     register_ber_oid_dissector("1.3.6.1.4.1.11129.2.4.2", dissect_tls_sct_ber, proto_ssl, "SignedCertificateTimestampList");
     register_ber_oid_dissector("1.3.6.1.4.1.11129.2.4.5", dissect_tls_sct_ber, proto_ssl, "SignedCertificateTimestampList");
+
+    heur_dissector_add("tcp", dissect_ssl_heur, "SSL/TLS over TCP", "ssl_tcp", proto_ssl, HEURISTIC_ENABLE);
 }
 
 void
