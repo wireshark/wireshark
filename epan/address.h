@@ -215,7 +215,7 @@ cmp_address(const address *addr1, const address *addr2) {
  *
  * @param addr1 [in] The first address to compare.
  * @param addr2 [in] The second address to compare.
- * @return TRUE if the adresses are equal, FALSE otherwise.
+ * @return TRUE if the addresses are equal, FALSE otherwise.
  */
 static inline gboolean
 addresses_equal(const address *addr1, const address *addr2) {
@@ -241,7 +241,7 @@ addresses_equal(const address *addr1, const address *addr2) {
  *
  * @param addr1 [in] The first address to compare.
  * @param addr2 [in] The second address to compare.
- * @return TRUE if the adresses are equal, FALSE otherwise.
+ * @return TRUE if the addresses are equal, FALSE otherwise.
  */
 static inline gboolean
 addresses_data_equal(const address *addr1, const address *addr2) {
