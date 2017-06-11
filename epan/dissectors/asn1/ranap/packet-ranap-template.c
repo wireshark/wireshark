@@ -273,15 +273,29 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   /* Is it a ranap packet?
    *
    * 4th octet should be the length of the rest of the message.
+   * 3th octed is the Criticality field
    * 2nd octet is the message-type e Z[0, 28]
+   * 1st octet is the PDU type (with the extension bit)
    * (obviously there must be at least four octets)
    *
-   * If both hold true we'll assume it's RANAP
+   * If all of them hold true we'll assume it's RANAP
    */
 
   #define LENGTH_OFFSET 3
+  #define CRIT_OFFSET 2
   #define MSG_TYPE_OFFSET 1
   if (tvb_captured_length(tvb) < RANAP_MSG_MIN_LENGTH) { return FALSE; }
+
+  temp = tvb_get_guint8(tvb, 0) & 0x7f;
+  if (temp != 0x00 && temp != 0x20 &&temp != 0x40 && temp != 0x60) {
+    return FALSE;
+  }
+
+  temp = tvb_get_guint8(tvb, CRIT_OFFSET);
+  if (temp != 0x00 && temp != 0x40 && temp != 0x80) {
+    return FALSE;
+  }
+
   /* compute aligned PER length determinant without calling dissect_per_length_determinant()
      to avoid exceptions and info added to tree, info column and expert info */
   offset = LENGTH_OFFSET;
