@@ -91,6 +91,10 @@ typedef guchar	UCHAR;
 #include <winsock2.h>  /* ntohs() */
 #endif
 
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h> /* ntohs() */
+#endif
+
 #ifndef	ntohs
 #undef     ntohs
 #define	ntohs(value)	g_ntohs(value)
