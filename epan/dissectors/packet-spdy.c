@@ -258,6 +258,7 @@ static gboolean spdy_decompress_body = FALSE;
 static gboolean spdy_decompress_headers = FALSE;
 #endif
 
+#ifdef HAVE_ZLIB
 static const char spdy_dictionary[] = {
   0x00, 0x00, 0x00, 0x07, 0x6f, 0x70, 0x74, 0x69,  /* - - - - o p t i */
   0x6f, 0x6e, 0x73, 0x00, 0x00, 0x00, 0x04, 0x68,  /* o n s - - - - h */
@@ -439,7 +440,6 @@ static const char spdy_dictionary[] = {
   0x2c, 0x65, 0x6e, 0x71, 0x3d, 0x30, 0x2e         /* - e n q - 0 -   */
 };
 
-#ifdef HAVE_ZLIB
 /* callback function used at the end of file-scope to cleanup zlib's inflate
  * streams to avoid memory leaks.
  * XXX: can we be more aggressive and call this sooner for finished streams?
