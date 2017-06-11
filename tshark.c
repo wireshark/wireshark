@@ -3840,7 +3840,7 @@ print_columns(capture_file *cf, const epan_dissect_t *edt)
     }
   }
 
-  if (dissect_color)
+  if (dissect_color && color_filter != NULL)
     return print_line_color(print_stream, 0, line_bufp, &color_filter->fg_color, &color_filter->bg_color);
   else
     return print_line(print_stream, 0, line_bufp);
