@@ -14993,16 +14993,30 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   /* Is it a ranap packet?
    *
    * 4th octet should be the length of the rest of the message.
+   * 3th octed is the Criticality field
    * 2nd octet is the message-type e Z[0, 28]
+   * 1st octet is the PDU type (with the extension bit)
    * (obviously there must be at least four octets)
    *
-   * If both hold true we'll assume it's RANAP
+   * If all of them hold true we'll assume it's RANAP
    */
 
   #define LENGTH_OFFSET 3
+  #define CRIT_OFFSET 2
   #define MSG_TYPE_OFFSET 1
   if (tvb_captured_length(tvb) < RANAP_MSG_MIN_LENGTH) { return FALSE; }
-  /* compute PER aligned length determinant without calling dissect_per_length_determinant()
+
+  temp = tvb_get_guint8(tvb, 0) & 0x7f;
+  if (temp != 0x00 && temp != 0x20 &&temp != 0x40 && temp != 0x60) {
+    return FALSE;
+  }
+
+  temp = tvb_get_guint8(tvb, CRIT_OFFSET);
+  if (temp != 0x00 && temp != 0x40 && temp != 0x80) {
+    return FALSE;
+  }
+
+  /* compute aligned PER length determinant without calling dissect_per_length_determinant()
      to avoid exceptions and info added to tree, info column and expert info */
   offset = LENGTH_OFFSET;
   length = tvb_get_guint8(tvb, offset);
@@ -18226,7 +18240,7 @@ void proto_register_ranap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 341 "./asn1/ranap/packet-ranap-template.c"
+#line 358 "./asn1/ranap/packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -18590,7 +18604,7 @@ void proto_register_ranap(void) {
     &ett_ranap_Outcome,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 349 "./asn1/ranap/packet-ranap-template.c"
+#line 366 "./asn1/ranap/packet-ranap-template.c"
   };
 
 
@@ -19017,7 +19031,7 @@ proto_reg_handoff_ranap(void)
 
 
 /*--- End of included file: packet-ranap-dis-tab.c ---*/
-#line 398 "./asn1/ranap/packet-ranap-template.c"
+#line 415 "./asn1/ranap/packet-ranap-template.c"
   } else {
     dissector_delete_uint("sccp.ssn", local_ranap_sccp_ssn, ranap_handle);
   }
