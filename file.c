@@ -541,6 +541,7 @@ cf_read(capture_file *cf, gboolean reloading)
   volatile gboolean    create_proto_tree;
   guint                tap_flags;
   gboolean             compiled;
+  volatile gboolean    is_read_aborted = FALSE;
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
@@ -642,6 +643,13 @@ cf_read(capture_file *cf, gboolean reloading)
         }
       }
 
+      if (cf->state == FILE_READ_ABORTED) {
+        /* Well, the user decided to exit Wireshark.  Break out of the
+           loop, and let the code below (which is called even if there
+           aren't any packets left to read) exit. */
+        is_read_aborted = TRUE;
+        break;
+      }
       if (cf->stop_flag) {
         /* Well, the user decided to abort the read. He/She will be warned and
            it might be enough for him/her to work with the already loaded
@@ -715,6 +723,16 @@ cf_read(capture_file *cf, gboolean reloading)
      packets by making the first row the selected row. */
   if (cf->first_displayed != 0) {
     packet_list_select_first_row();
+  }
+
+  if (is_read_aborted) {
+    /*
+     * Well, the user decided to exit Wireshark while reading this *offline*
+     * capture file (Live captures are handled by something like
+     * cf_continue_tail). Clean up accordingly.
+     */
+    cf_close(cf);
+    return CF_READ_ABORTED;
   }
 
   if (cf->stop_flag) {
