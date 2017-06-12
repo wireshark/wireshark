@@ -4403,6 +4403,18 @@ proto_reg_handoff_ssl(void)
     /* parse key list */
     ssl_parse_uat();
     ssl_parse_old_keys();
+
+    /*
+     * XXX the port preferences should probably be removed in favor of Decode
+     * As. Then proto_reg_handoff_ssl can be removed from
+     * prefs_register_protocol.
+     */
+    static gboolean initialized = FALSE;
+    if (initialized) {
+        return;
+    }
+    initialized = TRUE;
+
     exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 
     /* Certificate Transparency extensions: 2 (Certificate), 5 (OCSP Response) */
