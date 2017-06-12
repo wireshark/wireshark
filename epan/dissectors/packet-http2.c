@@ -1055,8 +1055,10 @@ dissect_http2_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree
     proto_tree_add_item(http2_tree, hf_http2_data_data, tvb, offset, datalen, ENC_NA);
     offset += datalen;
 
-    proto_tree_add_item(http2_tree, hf_http2_data_padding, tvb, offset, padding, ENC_NA);
-    offset += padding;
+    if (padding) {
+        proto_tree_add_item(http2_tree, hf_http2_data_padding, tvb, offset, padding, ENC_NA);
+        offset += padding;
+    }
 
     return offset;
 }
@@ -1092,8 +1094,11 @@ dissect_http2_headers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_t
 
     offset += headlen;
 
-    proto_tree_add_item(http2_tree, hf_http2_headers_padding, tvb, offset, padding, ENC_NA);
-    offset += padding;
+    if (padding) {
+        proto_tree_add_item(http2_tree, hf_http2_headers_padding, tvb, offset, padding, ENC_NA);
+        offset += padding;
+    }
+
     return offset;
 }
 
@@ -1242,8 +1247,10 @@ dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
 
     offset += headlen;
 
-    proto_tree_add_item(http2_tree, hf_http2_push_promise_padding, tvb,
-                        offset, padding, ENC_NA);
+    if (padding) {
+        proto_tree_add_item(http2_tree, hf_http2_push_promise_padding, tvb,
+                            offset, padding, ENC_NA);
+    }
 
     offset +=  tvb_reported_length_remaining(tvb, offset);
 
@@ -1320,9 +1327,10 @@ dissect_http2_continuation(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
 
     offset +=  headlen;
 
-    proto_tree_add_item(http2_tree, hf_http2_continuation_padding, tvb, offset, padding, ENC_NA);
-
-    offset += padding;
+    if (padding) {
+        proto_tree_add_item(http2_tree, hf_http2_continuation_padding, tvb, offset, padding, ENC_NA);
+        offset += padding;
+    }
 
     return offset;
 }
