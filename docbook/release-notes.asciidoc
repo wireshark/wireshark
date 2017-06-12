@@ -40,6 +40,7 @@ since version 2.4.0:
 --sort-and-group--
 LoRaTap
 LoRaWAN
+ISOBUS
 --sort-and-group--
 
 === Updated Protocol Support
