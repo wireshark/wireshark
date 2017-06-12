@@ -2056,7 +2056,7 @@ dissect_802154_tsch_time_sync(tvbuff_t *tvb, proto_tree *tree, int *offset, guin
  *Subdissector command for the Payload Information Element MLME TSCH Slotframe and Link
  *
  *@param tvb pointer to buffer containing raw packet.
- *@param p_inf_elem_tree_mlme pointer to data tree wireshark uses to display packet.
+ *@param tree pointer to data tree wireshark uses to display packet.
  *@param psie_remaining size of the Information Element.
  *@param offset offset into the tvbuff to begin dissection.
  */
