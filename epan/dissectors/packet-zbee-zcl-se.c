@@ -816,7 +816,7 @@ dissect_zcl_msg_cancel_all(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     nstime_t impl_time;
 
     /* Retrieve "Confirmation Time" field */
-    impl_time.secs = tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    impl_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
     impl_time.nsecs = 0;
     proto_tree_add_time(tree, hf_zbee_zcl_msg_implementation_time, tvb, *offset, 4, &impl_time);
     *offset += 4;
@@ -836,7 +836,7 @@ dissect_zcl_msg_get_cancel(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     nstime_t impl_time;
 
     /* Earliest Implementation Time */
-    impl_time.secs = tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    impl_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
     impl_time.nsecs = 0;
     proto_tree_add_time(tree, hf_zbee_zcl_msg_earliest_time, tvb, *offset, 4, &impl_time);
     *offset += 4;
@@ -863,7 +863,7 @@ dissect_zcl_msg_confirm(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 4;
 
     /* Retrieve "Confirmation Time" field */
-    confirm_time.secs = tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    confirm_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
     confirm_time.nsecs = 0;
     proto_tree_add_time(tree, hf_zbee_zcl_msg_confirm_time, tvb, *offset, 4, &confirm_time);
     *offset += 4;
@@ -915,8 +915,8 @@ decode_zcl_msg_start_time(gchar *s, guint32 value)
         g_snprintf(s, ITEM_LABEL_LENGTH, "Now");
     else {
         gchar *start_time;
-        value += ZBEE_ZCL_NSTIME_UTC_OFFSET;
-        start_time = abs_time_secs_to_str (NULL, value, ABSOLUTE_TIME_LOCAL, TRUE);
+        time_t time = (time_t)value + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+        start_time = abs_time_secs_to_str (NULL, time, ABSOLUTE_TIME_LOCAL, TRUE);
         g_snprintf(s, ITEM_LABEL_LENGTH, "%s", start_time);
         wmem_free(NULL, start_time);
     }
