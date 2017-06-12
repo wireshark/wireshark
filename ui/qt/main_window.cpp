@@ -1030,6 +1030,10 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         exit(0);
     }
     wsApp->quit();
+    // When the main loop is not yet running (i.e. when openCaptureFile is
+    // executing in wireshark-qt.cpp), the above quit action has no effect.
+    // Schedule a quit action for the next execution of the main loop.
+    QMetaObject::invokeMethod(wsApp, "quit", Qt::QueuedConnection);
 }
 
 // XXX On windows the drag description is "Copy". It should be "Open" or
@@ -1783,19 +1787,17 @@ bool MainWindow::testCaptureFileClose(QString before_what, FileCloseContext cont
 
 #ifdef HAVE_LIBPCAP
     if (capture_file_.capFile()->state == FILE_READ_IN_PROGRESS) {
-        /* This is true if we're reading a capture file *or* if we're doing
-         a live capture.  If we're reading a capture file, the main loop
-         is busy reading packets, and only accepting input from the
-         progress dialog, so we can't get here, so this means we're
-         doing a capture. */
-        capture_in_progress = true;
+        /*
+         * This (FILE_READ_IN_PROGRESS) is true if we're reading a capture file
+         * *or* if we're doing a live capture. From the capture file itself we
+         * cannot differentiate the cases, so check the current capture session.
+         */
+        capture_in_progress = captureSession()->state != CAPTURE_STOPPED;
     }
 #endif
 
     if (prefs.gui_ask_unsaved) {
-        if (cf_has_unsaved_data(capture_file_.capFile()) ||
-            (capture_in_progress && capture_file_.capFile()->count > 0))
-        {
+        if (cf_has_unsaved_data(capture_file_.capFile())) {
             QMessageBox msg_dialog;
             QString question;
             QString infotext;
@@ -1893,7 +1895,9 @@ bool MainWindow::testCaptureFileClose(QString before_what, FileCloseContext cont
                     captureStop();
 #endif
                 /* Save the file and close it */
-                if (saveCaptureFile(capture_file_.capFile(), true) == false)
+                // XXX if no packets were captured, any unsaved comments set by
+                // the user are silently discarded because capFile() is null.
+                if (capture_file_.capFile() && saveCaptureFile(capture_file_.capFile(), true) == false)
                     return false;
                 do_close_file = true;
             } else if(msg_dialog.clickedButton() == discard_button) {
@@ -1913,12 +1917,27 @@ bool MainWindow::testCaptureFileClose(QString before_what, FileCloseContext cont
         do_close_file = true;
     }
 
+    /*
+     * Are we done with this file and should we close the file?
+     */
     if (do_close_file) {
 #ifdef HAVE_LIBPCAP
         /* If there's a capture in progress, we have to stop the capture
            and then do the close. */
         if (capture_in_progress)
             captureStop();
+        else if (capture_file_.capFile() && capture_file_.capFile()->state == FILE_READ_IN_PROGRESS) {
+            /*
+             * When an offline capture is being read, mark it as aborted.
+             * cf_read will be responsible for actually closing the capture.
+             *
+             * We cannot just invoke cf_close here since cf_read is up in the
+             * call chain. (update_progress_dlg can end up processing the Quit
+             * event from the user which then ends up here.)
+             */
+            capture_file_.capFile()->state = FILE_READ_ABORTED;
+            return true;
+        }
 #endif
         /* captureStop() will close the file if not having any packets */
         if (capture_file_.capFile() && context != Restart && context != Reload)
