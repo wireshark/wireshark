@@ -143,8 +143,6 @@ struct epl_wmem_iarray {
 };
 
 static epl_wmem_iarray_t *epl_wmem_iarray_new(wmem_allocator_t *allocator, const guint elem_size, GEqualFunc cmp) G_GNUC_MALLOC;
-gboolean epl_wmem_iarray_is_empty(epl_wmem_iarray_t *iarr);
-gboolean epl_wmem_iarray_is_sorted(epl_wmem_iarray_t *iarr);
 static void epl_wmem_iarray_insert(epl_wmem_iarray_t *iarr, guint32 where, range_admin_t *data);
 static void epl_wmem_iarray_sort_and_compact(epl_wmem_iarray_t *iarr);
 
