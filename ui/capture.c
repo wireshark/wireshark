@@ -396,12 +396,6 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
     capture_callback_invoke(capture_cb_capture_fixed_continue, cap_session);
   }
 
-  /* update the main window so we get events (e.g. from the stop toolbar button) */
-  /* This causes a hang on Windows (see bug 7305). Do we need this on any platform? */
-#ifndef _WIN32
-  main_window_update();
-#endif
-
   if(capture_opts->show_info)
     capture_info_new_packets(to_read, cap_session->cap_data_info);
 }
