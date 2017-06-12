@@ -3902,12 +3902,10 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
       write_json_proto_tree(output_fields, print_dissections_expanded,
                             print_hex, protocolfilter, protocolfilter_flags,
                             edt, stdout);
-      printf("\n");
       return !ferror(stdout);
     case WRITE_JSON_RAW:
       write_json_proto_tree(output_fields, print_dissections_none, TRUE,
                             protocolfilter, protocolfilter_flags, edt, stdout);
-      printf("\n");
       return !ferror(stdout);
     case WRITE_EK:
       write_ek_proto_tree(output_fields, print_hex, protocolfilter,
