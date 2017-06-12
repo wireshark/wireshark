@@ -153,8 +153,8 @@ print_color_escape(FILE *fh, const color_t *fg, const color_t *bg)
                 (bg->green >> 8) & 0xff,
                 (bg->blue  >> 8) & 0xff);
     }
-}
 #endif
+}
 
 static void
 print_color_eol(FILE *fh)
