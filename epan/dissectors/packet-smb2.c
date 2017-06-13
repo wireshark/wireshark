@@ -212,6 +212,15 @@ static int hf_smb2_ea_name_len = -1;
 static int hf_smb2_ea_data_len = -1;
 static int hf_smb2_ea_name = -1;
 static int hf_smb2_ea_data = -1;
+static int hf_smb2_position_information = -1;
+static int hf_smb2_mode_information = -1;
+static int hf_smb2_mode_file_write_through = -1;
+static int hf_smb2_mode_file_sequential_only = -1;
+static int hf_smb2_mode_file_no_intermediate_buffering = -1;
+static int hf_smb2_mode_file_synchronous_io_alert = -1;
+static int hf_smb2_mode_file_synchronous_io_nonalert = -1;
+static int hf_smb2_mode_file_delete_on_close = -1;
+static int hf_smb2_alignment_information = -1;
 static int hf_smb2_buffer_code = -1;
 static int hf_smb2_buffer_code_len = -1;
 static int hf_smb2_buffer_code_flags_dyn = -1;
@@ -629,6 +638,30 @@ static const fragment_items smb2_pipe_frag_items = {
 	&hf_smb2_pipe_reassembled_data,
 	"Fragments"
 };
+
+#define FILE_BYTE_ALIGNMENT 0x00
+#define FILE_WORD_ALIGNMENT 0x01
+#define FILE_LONG_ALIGNMENT 0x03
+#define FILE_QUAD_ALIGNMENT 0x07
+#define FILE_OCTA_ALIGNMENT 0x0f
+#define FILE_32_BYTE_ALIGNMENT 0x1f
+#define FILE_64_BYTE_ALIGNMENT 0x3f
+#define FILE_128_BYTE_ALIGNMENT 0x7f
+#define FILE_256_BYTE_ALIGNMENT 0xff
+#define FILE_512_BYTE_ALIGNMENT 0x1ff
+static const value_string smb2_alignment_vals[] = {
+	{ FILE_BYTE_ALIGNMENT,     "FILE_BYTE_ALIGNMENT" },
+	{ FILE_WORD_ALIGNMENT,     "FILE_WORD_ALIGNMENT" },
+	{ FILE_LONG_ALIGNMENT,     "FILE_LONG_ALIGNMENT" },
+	{ FILE_OCTA_ALIGNMENT,     "FILE_OCTA_ALIGNMENT" },
+	{ FILE_32_BYTE_ALIGNMENT,  "FILE_32_BYTE_ALIGNMENT" },
+	{ FILE_64_BYTE_ALIGNMENT,  "FILE_64_BYTE_ALIGNMENT" },
+	{ FILE_128_BYTE_ALIGNMENT, "FILE_128_BYTE_ALIGNMENT" },
+	{ FILE_256_BYTE_ALIGNMENT, "FILE_256_BYTE_ALIGNMENT" },
+	{ FILE_512_BYTE_ALIGNMENT, "FILE_512_BYTE_ALIGNMENT" },
+	{ 0, NULL }
+};
+
 
 #define SMB2_CLASS_FILE_INFO	0x01
 #define SMB2_CLASS_FS_INFO	0x02
@@ -1959,6 +1992,15 @@ dissect_smb2_file_all_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pa
 	int         length;
 	const char *name = "";
 	guint16     bc;
+	static const int *mode_fields[] = {
+		&hf_smb2_mode_file_write_through,
+		&hf_smb2_mode_file_sequential_only,
+		&hf_smb2_mode_file_no_intermediate_buffering,
+		&hf_smb2_mode_file_synchronous_io_alert,
+		&hf_smb2_mode_file_synchronous_io_nonalert,
+		&hf_smb2_mode_file_delete_on_close,
+		NULL,
+	};
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_smb2_file_all_info, tvb, offset, -1, ENC_NA);
@@ -2018,9 +2060,17 @@ dissect_smb2_file_all_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pa
 	/* access mask */
 	offset = dissect_smb_access_mask(tvb, tree, offset);
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, ENC_NA);
-	offset += 16;
+	/* Position Information */
+	proto_tree_add_item(tree, hf_smb2_position_information, tvb, offset, 8, ENC_NA);
+	offset += 8;
+
+	/* Mode Information */
+	proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_mode_information, ett_smb2_file_mode_info, mode_fields, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	/* Alignment Information */
+	proto_tree_add_item(tree, hf_smb2_alignment_information, tvb, offset, 4, ENC_NA);
+	offset +=4;
 
 	/* file name length */
 	length = tvb_get_letohs(tvb, offset);
@@ -9576,6 +9626,51 @@ proto_register_smb2(void)
 		{ &hf_smb2_ea_size,
 			{ "EA Size", "smb2.ea_size", FT_UINT32, BASE_DEC,
 			NULL, 0, "Size of EA data", HFILL }
+		},
+
+		{ &hf_smb2_position_information,
+			{ "Position Information", "smb2.position_info", FT_UINT64, BASE_DEC,
+			NULL, 0, "Current file position", HFILL }
+		},
+
+		{ &hf_smb2_mode_information,
+			{ "Mode Information", "smb2.mode_info", FT_UINT32, BASE_HEX,
+			NULL, 0, "File mode informatino", HFILL }
+		},
+
+		{ &hf_smb2_mode_file_write_through,
+			{ "FILE_WRITE_THROUGH", "smb2.mode.file_write_through", FT_UINT32, BASE_HEX,
+			NULL, 0x02, NULL, HFILL }
+		},
+
+		{ &hf_smb2_mode_file_sequential_only,
+			{ "FILE_SEQUENTIAL_ONLY", "smb2.mode.file_sequential_only", FT_UINT32, BASE_HEX,
+			NULL, 0x04, NULL, HFILL }
+		},
+
+		{ &hf_smb2_mode_file_no_intermediate_buffering,
+			{ "FILE_NO_INTERMEDIATE_BUFFERING", "smb2.mode.file_no_intermediate_buffering", FT_UINT32, BASE_HEX,
+			NULL, 0x08, NULL, HFILL }
+		},
+
+		{ &hf_smb2_mode_file_synchronous_io_alert,
+			{ "FILE_SYNCHRONOUS_IO_ALERT", "smb2.mode.file_synchronous_io_alert", FT_UINT32, BASE_HEX,
+			NULL, 0x10, NULL, HFILL }
+		},
+
+		{ &hf_smb2_mode_file_synchronous_io_nonalert,
+			{ "FILE_SYNCHRONOUS_IO_NONALERT", "smb2.mode.file_synchronous_io_nonalert", FT_UINT32, BASE_HEX,
+			NULL, 0x20, NULL, HFILL }
+		},
+
+		{ &hf_smb2_mode_file_delete_on_close,
+			{ "FILE_DELETE_ON_CLOSE", "smb2.mode.file_delete_on_close", FT_UINT32, BASE_HEX,
+			NULL, 0x1000, NULL, HFILL }
+		},
+
+		{ &hf_smb2_alignment_information,
+			{ "Alignment Information", "smb2.alignment_info", FT_UINT32, BASE_HEX,
+			VALS(smb2_alignment_vals), 0, "File alignment", HFILL}
 		},
 
 		{ &hf_smb2_class,
