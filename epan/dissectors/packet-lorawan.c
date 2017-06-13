@@ -105,9 +105,10 @@ static int hf_lorawan_frame_header_frame_control_foptslen_type = -1;
 static int hf_lorawan_frame_header_frame_control_type = -1;
 static int hf_lorawan_frame_header_frame_counter_type = -1;
 static int hf_lorawan_frame_fport_type = -1;
-static int hf_lorawan_frame_payload = -1;
-static int hf_lorawan_frame_payload_decrypted = -1;
+static int hf_lorawan_frame_payload_type = -1;
+static int hf_lorawan_frame_payload_decrypted_type = -1;
 static int hf_lorawan_mic_type = -1;
+static int hf_lorawan_mic_status_type = -1;
 
 static gint ett_lorawan = -1;
 static gint ett_lorawan_mac_header = -1;
@@ -198,9 +199,9 @@ static gint ett_lorawan_frame_payload_decrypted = -1;
 #define LORAWAN_AES_BLOCK_LENGTH					16
 #define LORAWAN_AES_PADDEDSIZE(length)					(length + (16 - (length % 16)))
 
-static expert_field ei_lorawan_invalid_crc = EI_INIT;
-static expert_field ei_lorawan_unverified_crc = EI_INIT;
+static expert_field ei_lorawan_unverified_mic = EI_INIT;
 static expert_field ei_lorawan_decrypting_error = EI_INIT;
+static expert_field ei_lorawan_mic = EI_INIT;
 
 static const value_string lorawan_mtypenames[] = {
 	{ LORAWAN_MAC_MTYPE_JOINREQUEST,		"Join Request" },
@@ -654,6 +655,9 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 	guint8 fport;
 	guint32 dev_address;
 	guint32 fcnt;
+#if GCRYPT_VERSION_NUMBER >= 0x010600
+	proto_item *checksum_item;
+#endif
 	gboolean uplink = TRUE;
 	device_encryption_keys_t *encryption_keys = NULL;
 
@@ -688,18 +692,20 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 		 * cmac = aes128_cmac(AppKey, msg)
 		 * MIC = cmac[0..3]
 		 */
+#if GCRYPT_VERSION_NUMBER >= 0x010600
 		encryption_keys = get_encryption_keys_app_eui(tvb_get_ptr(tvb, current_offset - 18, 8));
-#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 		if (encryption_keys) {
-			if (calculate_mic(tvb_get_ptr(tvb, 0, current_offset), current_offset, encryption_keys->appskey->data) != tvb_get_guint32(tvb, current_offset, ENC_LITTLE_ENDIAN)) {
-				proto_tree_add_expert_format(lorawan_tree, pinfo, &ei_lorawan_invalid_crc, tvb, current_offset, 4, "Invalid CRC");
-			}
-		} else
-#endif
-		{
-			proto_tree_add_expert_format(lorawan_tree, pinfo, &ei_lorawan_unverified_crc, tvb, current_offset, 4, "Unverified CRC");
+			proto_tree_add_checksum(lorawan_tree, tvb, current_offset, hf_lorawan_mic_type, hf_lorawan_mic_status_type, &ei_lorawan_mic, pinfo,
+								calculate_mic(tvb_get_ptr(tvb, 0, current_offset), current_offset, encryption_keys->appskey->data), ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+		} else {
+			checksum_item = proto_tree_add_checksum(lorawan_tree, tvb, current_offset, hf_lorawan_mic_type, hf_lorawan_mic_status_type, NULL, pinfo,
+								0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+			expert_add_info(pinfo, checksum_item, &ei_lorawan_unverified_mic);
 		}
-		proto_tree_add_item(lorawan_tree, hf_lorawan_mic_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
+#else
+		proto_tree_add_checksum(lorawan_tree, tvb, current_offset, hf_lorawan_mic_type, hf_lorawan_mic_status_type, NULL, pinfo,
+								0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+#endif
 		return tvb_captured_length(tvb);
 	} else if (mac_mtype == LORAWAN_MAC_MTYPE_JOINACCEPT) {
 		field_tree = proto_item_add_subtree(tf, ett_lorawan_join_accept);
@@ -723,18 +729,19 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 		 * cmac = aes128_cmac(AppKey, msg)
 		 * MIC = cmac[0..3]
 		 */
+#if GCRYPT_VERSION_NUMBER >= 0x010600
 		encryption_keys = get_encryption_keys_dev_address(dev_address);
-#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 		if (encryption_keys) {
-			if (calculate_mic(tvb_get_ptr(tvb, 0, current_offset), current_offset, encryption_keys->appskey->data) != tvb_get_guint32(tvb, current_offset, ENC_LITTLE_ENDIAN)) {
-				proto_tree_add_expert_format(lorawan_tree, pinfo, &ei_lorawan_invalid_crc, tvb, current_offset, 4, "Invalid CRC");
-			}
-		} else
-#endif
-		{
-			proto_tree_add_expert_format(lorawan_tree, pinfo, &ei_lorawan_unverified_crc, tvb, current_offset, 4, "Unverified CRC");
+			proto_tree_add_checksum(lorawan_tree, tvb, current_offset, hf_lorawan_mic_type, hf_lorawan_mic_status_type, &ei_lorawan_mic, pinfo, calculate_mic(tvb_get_ptr(tvb, 0, current_offset), current_offset, encryption_keys->appskey->data), ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+		} else {
+			checksum_item = proto_tree_add_checksum(lorawan_tree, tvb, current_offset, hf_lorawan_mic_type, hf_lorawan_mic_status_type, NULL, pinfo,
+								0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+			expert_add_info(pinfo, checksum_item, &ei_lorawan_unverified_mic);
 		}
-		proto_tree_add_item(lorawan_tree, hf_lorawan_mic_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
+#else
+		proto_tree_add_checksum(lorawan_tree, tvb, current_offset, hf_lorawan_mic_type, hf_lorawan_mic_status_type, NULL, pinfo,
+								0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+#endif
 		return tvb_captured_length(tvb);
 	} else if ((mac_mtype >= LORAWAN_MAC_MTYPE_UNCONFIRMEDDATAUP) && (mac_mtype <= LORAWAN_MAC_MTYPE_CONFIRMEDDATADOWN)) {
 		if (mac_mtype & 1) {
@@ -778,7 +785,7 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 		}
 
 		frmpayload_length = tvb_captured_length_remaining(tvb, current_offset) - 4;
-		ti = proto_tree_add_item(lorawan_tree, hf_lorawan_frame_payload, tvb, current_offset, frmpayload_length, ENC_NA);
+		ti = proto_tree_add_item(lorawan_tree, hf_lorawan_frame_payload_type, tvb, current_offset, frmpayload_length, ENC_NA);
 		encryption_keys = get_encryption_keys_dev_address(dev_address);
 		if (encryption_keys) {
 			guint8 padded_length = LORAWAN_AES_PADDEDSIZE(frmpayload_length);
@@ -796,7 +803,7 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 					 * fport values 0x01 - 0xDF are application specific
 					 * fport values 0xE0 - 0xFF are reserved for future extensions
 					 */
-					proto_tree_add_bytes(frame_payload_decrypted_tree, hf_lorawan_frame_payload_decrypted, next_tvb, 0, frmpayload_length, decrypted_buffer);
+					proto_tree_add_bytes(frame_payload_decrypted_tree, hf_lorawan_frame_payload_decrypted_type, next_tvb, 0, frmpayload_length, decrypted_buffer);
 					current_offset += frmpayload_length;
 				}
 			} else {
@@ -829,15 +836,16 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 		memcpy(msg + 10, &fcnt, 4);
 		msg[15] = frame_length;
 		memcpy(msg + 16, tvb_get_ptr(tvb, 0, frame_length), frame_length);
-		if (calculate_mic(msg, frame_length + 16, encryption_keys->nwkskey->data) != tvb_get_guint32(tvb, current_offset, ENC_LITTLE_ENDIAN)) {
-			proto_tree_add_expert_format(lorawan_tree, pinfo, &ei_lorawan_invalid_crc, tvb, current_offset, 4, "Invalid CRC");
-		}
-	} else
-#endif
-	{
-		proto_tree_add_expert_format(lorawan_tree, pinfo, &ei_lorawan_unverified_crc, tvb, current_offset, 4, "Unverified CRC");
+		proto_tree_add_checksum(lorawan_tree, tvb, current_offset, hf_lorawan_mic_type, hf_lorawan_mic_status_type, &ei_lorawan_mic, pinfo, calculate_mic(msg, frame_length + 16, encryption_keys->nwkskey->data), ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+	} else {
+		checksum_item = proto_tree_add_checksum(lorawan_tree, tvb, current_offset, hf_lorawan_mic_type, hf_lorawan_mic_status_type, NULL, pinfo,
+							0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+		expert_add_info(pinfo, checksum_item, &ei_lorawan_unverified_mic);
 	}
-	proto_tree_add_item(lorawan_tree, hf_lorawan_mic_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
+#else
+	proto_tree_add_checksum(lorawan_tree, tvb, current_offset, hf_lorawan_mic_type, hf_lorawan_mic_status_type, NULL, pinfo,
+							0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+#endif
 	return tvb_captured_length(tvb);
 }
 
@@ -1271,13 +1279,13 @@ proto_register_lorawan(void)
 		NULL, 0x0,
 		NULL, HFILL }
 	},
-	{ &hf_lorawan_frame_payload,
+	{ &hf_lorawan_frame_payload_type,
 		{ "Frame Payload", "lorawan.frmpayload",
 		FT_BYTES, BASE_NONE,
 		NULL, 0x0,
 		NULL, HFILL }
 	},
-	{ &hf_lorawan_frame_payload_decrypted,
+	{ &hf_lorawan_frame_payload_decrypted_type,
 		{ "Decrypted Frame Payload", "lorawan.frmpayload_decrypted",
 		FT_BYTES, BASE_NONE,
 		NULL, 0x0,
@@ -1287,6 +1295,12 @@ proto_register_lorawan(void)
 		{ "Message Integrity Code", "lorawan.mic",
 		FT_UINT32, BASE_HEX,
 		NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_lorawan_mic_status_type,
+		{ "Message Integrity Code Status", "lorawan.mic.status",
+		FT_UINT8, BASE_NONE,
+		VALS(proto_checksum_vals), 0x0,
 		NULL, HFILL }
 	}
 	};
@@ -1309,9 +1323,9 @@ proto_register_lorawan(void)
 	};
 
 	static ei_register_info ei[] = {
-		{ &ei_lorawan_invalid_crc, { "lorawan.invalid_crc", PI_MALFORMED, PI_WARN, "CRC does not match data", EXPFILL }},
-		{ &ei_lorawan_unverified_crc, { "lorawan.unverified_crc", PI_MALFORMED, PI_WARN, "CRC could not be verified because of missing encryption keys", EXPFILL }},
-		{ &ei_lorawan_decrypting_error, { "lorawan.decrypting_error", PI_MALFORMED, PI_WARN, "Error decrypting payload", EXPFILL }},
+		{ &ei_lorawan_unverified_mic, { "lorawan.mic_unverified", PI_PROTOCOL, PI_NOTE, "MIC could not be verified because of missing encryption keys", EXPFILL }},
+		{ &ei_lorawan_decrypting_error, { "lorawan.decrypting_error", PI_DECRYPTION, PI_ERROR, "Error decrypting payload", EXPFILL }},
+		{ &ei_lorawan_mic, { "lorawan.mic_bad.expert", PI_CHECKSUM, PI_WARN, "Bad MIC", EXPFILL }}
 	};
 
 	expert_module_t* expert_lorawan;
