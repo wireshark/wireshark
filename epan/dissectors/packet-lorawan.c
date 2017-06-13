@@ -425,6 +425,7 @@ static device_encryption_keys_t *get_encryption_keys_app_eui(const guint8 *appeu
 	return NULL;
 }
 
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 static guint32
 calculate_mic(const guint8 *in, guint8 length, const guint8 *key)
 {
@@ -457,6 +458,7 @@ calculate_mic(const guint8 *in, guint8 length, const guint8 *key)
 	gcry_mac_close(mac_hd);
 	return mac;
 }
+#endif
 
 /* length should be a multiple of 16, in should be padded to get to a multiple of 16 */
 static gboolean
@@ -688,11 +690,14 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 		 * MIC = cmac[0..3]
 		 */
 		encryption_keys = get_encryption_keys_app_eui(tvb_get_ptr(tvb, current_offset - 18, 8));
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 		if (encryption_keys) {
 			if (calculate_mic(tvb_get_ptr(tvb, 0, current_offset), current_offset, encryption_keys->appskey->data) != tvb_get_guint32(tvb, current_offset, ENC_LITTLE_ENDIAN)) {
 				proto_tree_add_expert_format(lorawan_tree, pinfo, &ei_lorawan_invalid_crc, tvb, current_offset, 4, "Invalid CRC");
 			}
-		} else {
+		} else
+#endif
+		{
 			proto_tree_add_expert_format(lorawan_tree, pinfo, &ei_lorawan_unverified_crc, tvb, current_offset, 4, "Unverified CRC");
 		}
 		proto_tree_add_item(lorawan_tree, hf_lorawan_mic_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
@@ -720,11 +725,14 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 		 * MIC = cmac[0..3]
 		 */
 		encryption_keys = get_encryption_keys_dev_address(dev_address);
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 		if (encryption_keys) {
 			if (calculate_mic(tvb_get_ptr(tvb, 0, current_offset), current_offset, encryption_keys->appskey->data) != tvb_get_guint32(tvb, current_offset, ENC_LITTLE_ENDIAN)) {
 				proto_tree_add_expert_format(lorawan_tree, pinfo, &ei_lorawan_invalid_crc, tvb, current_offset, 4, "Invalid CRC");
 			}
-		} else {
+		} else
+#endif
+		{
 			proto_tree_add_expert_format(lorawan_tree, pinfo, &ei_lorawan_unverified_crc, tvb, current_offset, 4, "Unverified CRC");
 		}
 		proto_tree_add_item(lorawan_tree, hf_lorawan_mic_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
@@ -813,6 +821,7 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 	 * B0 = 0x49 | 0x00 | 0x00 | 0x00 | 0x00 | dir | devAddr | fcntup/fcntdown | len(msg)
 	 */
 	frame_length = current_offset;
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 	if (encryption_keys) {
 		guint8 *msg = (guint8 *)wmem_alloc0(wmem_packet_scope(), frame_length + 16);
 		msg[0] = 0x49;
@@ -824,7 +833,9 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 		if (calculate_mic(msg, frame_length + 16, encryption_keys->nwkskey->data) != tvb_get_guint32(tvb, current_offset, ENC_LITTLE_ENDIAN)) {
 			proto_tree_add_expert_format(lorawan_tree, pinfo, &ei_lorawan_invalid_crc, tvb, current_offset, 4, "Invalid CRC");
 		}
-	} else {
+	} else
+#endif
+	{
 		proto_tree_add_expert_format(lorawan_tree, pinfo, &ei_lorawan_unverified_crc, tvb, current_offset, 4, "Unverified CRC");
 	}
 	proto_tree_add_item(lorawan_tree, hf_lorawan_mic_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
