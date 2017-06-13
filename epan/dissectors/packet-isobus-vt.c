@@ -4405,7 +4405,7 @@ proto_register_isobus_vt(void)
     static hf_register_info hf[] = {
         { &hf_isobus_vt,
           { "VT",                       "isobus.vt",
-            FT_NONE, BASE_NONE, NULL, 0x0,
+            FT_PROTOCOL, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_command,
