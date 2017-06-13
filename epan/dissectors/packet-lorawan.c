@@ -654,7 +654,6 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 	guint8 fport;
 	guint32 dev_address;
 	guint32 fcnt;
-	gint frame_length;
 	gboolean uplink = TRUE;
 	device_encryption_keys_t *encryption_keys = NULL;
 
@@ -820,9 +819,9 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 	 * MIC = cmac[0..3]
 	 * B0 = 0x49 | 0x00 | 0x00 | 0x00 | 0x00 | dir | devAddr | fcntup/fcntdown | len(msg)
 	 */
-	frame_length = current_offset;
 #if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 	if (encryption_keys) {
+		gint frame_length = current_offset;
 		guint8 *msg = (guint8 *)wmem_alloc0(wmem_packet_scope(), frame_length + 16);
 		msg[0] = 0x49;
 		msg[5] = uplink ? 0 : 1;
