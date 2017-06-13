@@ -58,6 +58,7 @@ char* unit_name_string_get_double(double value, unit_name_string* units)
 const unit_name_string units_foot_feet = { " foot", " feet" };
 const unit_name_string units_bit_bits = { " bit", " bits" };
 const unit_name_string units_byte_bytes = { " byte", " bytes" };
+const unit_name_string units_byte_bytespsecond = { " byte/s", " bytes/s" };
 const unit_name_string units_octet_octets = { " octet", " octets" };
 const unit_name_string units_word_words = { " word", " words" };
 const unit_name_string units_tick_ticks = { " tick", " ticks" };

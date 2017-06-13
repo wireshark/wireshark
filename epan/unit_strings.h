@@ -50,6 +50,7 @@ WS_DLL_PUBLIC char* unit_name_string_get_double(double value, unit_name_string* 
 WS_DLL_PUBLIC const unit_name_string units_foot_feet;
 WS_DLL_PUBLIC const unit_name_string units_bit_bits;
 WS_DLL_PUBLIC const unit_name_string units_byte_bytes;
+WS_DLL_PUBLIC const unit_name_string units_byte_bytespsecond;
 WS_DLL_PUBLIC const unit_name_string units_octet_octets;
 WS_DLL_PUBLIC const unit_name_string units_word_words;
 WS_DLL_PUBLIC const unit_name_string units_tick_ticks;

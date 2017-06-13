@@ -166,6 +166,7 @@ static expert_field ei_megaco_audit_descriptor = EI_INIT;
 static expert_field ei_megaco_signal_descriptor = EI_INIT;
 static expert_field ei_megaco_reason_invalid = EI_INIT;
 static expert_field ei_megaco_error_code_invalid = EI_INIT;
+static expert_field ei_megaco_invalid_sdr = EI_INIT;
 
 static dissector_handle_t megaco_text_handle;
 
@@ -3289,9 +3290,20 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset +1);
             break;
         case MEGACO_TMAN_SDR:
-            proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_tman_sdr, tvb,
-                tvb_help_offset, tvb_offset-tvb_help_offset, tvb_format_text(tvb, tvb_current_offset, tokenlen));
-            tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset +1);
+        {
+            gint32 sdr;
+            gboolean sdr_valid;
+            proto_item* pi;
+
+            sdr_valid = ws_strtoi32(tvb_format_text(tvb, tvb_current_offset, tokenlen), NULL, &sdr);
+            pi =proto_tree_add_int(megaco_LocalControl_tree, hf_megaco_tman_sdr, tvb, tvb_help_offset,
+                tvb_offset - tvb_help_offset, sdr);
+            proto_item_append_text(pi, " [%i b/s]", sdr*8);
+            if (!sdr_valid) {
+                expert_add_info(pinfo, pi, &ei_megaco_invalid_sdr);
+            }
+            tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset + 1);
+        }
             break;
         case MEGACO_TMAN_MBS:
             proto_tree_add_string(megaco_LocalControl_tree, hf_megaco_tman_mbs, tvb,
@@ -3668,7 +3680,7 @@ proto_register_megaco(void)
           { "RTCP Allocation Specific Behaviour", "megaco.gm_rsb", FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_megaco_tman_sdr,
-          { "Sustainable Data Rate", "megaco.tman_sdr", FT_STRING, BASE_NONE, NULL, 0x0,
+          { "Sustainable Data Rate", "megaco.tman_sdr", FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytespsecond, 0x0,
             NULL, HFILL }},
         { &hf_megaco_tman_mbs,
           { "Maximum Burst Rate", "megaco.tman_mbs", FT_STRING, BASE_NONE, NULL, 0x0,
@@ -3779,7 +3791,8 @@ proto_register_megaco(void)
         { &ei_megaco_no_command, { "megaco.no_command", PI_PROTOCOL, PI_WARN, "No Command detectable", EXPFILL }},
         { &ei_megaco_no_descriptor, { "megaco.no_descriptor", PI_PROTOCOL, PI_WARN, "No Descriptor detectable", EXPFILL }},
         { &ei_megaco_reason_invalid, { "megaco.change_reason.invalid", PI_MALFORMED, PI_ERROR, "Invalid Service Change Reason", EXPFILL }},
-        { &ei_megaco_error_code_invalid, { "megaco.error_code.invalid", PI_MALFORMED, PI_ERROR, "Invalid error code", EXPFILL }}
+        { &ei_megaco_error_code_invalid,{ "megaco.error_code.invalid", PI_MALFORMED, PI_ERROR, "Invalid error code", EXPFILL } },
+        { &ei_megaco_invalid_sdr, { "megaco.sdr.invalid", PI_MALFORMED, PI_ERROR, "Invalid Sustainable Data Rate", EXPFILL }}
     };
 
     module_t *megaco_module;
