@@ -77,7 +77,7 @@ ipv4_hash_table_to_qstringlist(gpointer key, gpointer value, gpointer sl_ptr)
 {
     QStringList *string_list = (QStringList *) sl_ptr;
     hashipv4_t *ipv4_hash_table_entry = (hashipv4_t *)value;
-    int addr = GPOINTER_TO_UINT(key);
+    guint addr = GPOINTER_TO_UINT(key);
 
     QString entry = QString("Key: 0x%1 IPv4: %2, Name: %3")
             .arg(QString::number(addr, 16))
@@ -92,7 +92,7 @@ ipv6_hash_table_to_qstringlist(gpointer key, gpointer value, gpointer sl_ptr)
 {
     QStringList *string_list = (QStringList *) sl_ptr;
     hashipv6_t *ipv6_hash_table_entry = (hashipv6_t *)value;
-    int addr = GPOINTER_TO_UINT(key);
+    guint addr = GPOINTER_TO_UINT(key);
 
     QString entry = QString("Key: 0x%1 IPv4: %2, Name: %3")
             .arg(QString::number(addr, 16))
