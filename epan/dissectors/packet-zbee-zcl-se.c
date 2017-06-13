@@ -903,10 +903,11 @@ decode_zcl_msg_duration(gchar *s, guint16 value)
 } /*decode_zcl_msg_duration*/
 
 /**
- *This function decodes start time, with peculiarity case for
+ * This function decodes start time, with a special case for
+ * ZBEE_ZCL_MSG_START_TIME_NOW.
  *
- *@param s string to display
- *@param value value to decode
+ * @param s string to display
+ * @param value value to decode
 */
 static void
 decode_zcl_msg_start_time(gchar *s, guint32 value)
@@ -915,8 +916,8 @@ decode_zcl_msg_start_time(gchar *s, guint32 value)
         g_snprintf(s, ITEM_LABEL_LENGTH, "Now");
     else {
         gchar *start_time;
-        time_t time = (time_t)value + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-        start_time = abs_time_secs_to_str (NULL, time, ABSOLUTE_TIME_LOCAL, TRUE);
+        time_t epoch_time = (time_t)value + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+        start_time = abs_time_secs_to_str (NULL, epoch_time, ABSOLUTE_TIME_LOCAL, TRUE);
         g_snprintf(s, ITEM_LABEL_LENGTH, "%s", start_time);
         wmem_free(NULL, start_time);
     }
