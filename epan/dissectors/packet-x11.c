@@ -4919,15 +4919,15 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
                   plen = tvb_get_guint32(tvb, offset + 4, byte_order);
             }
 
-            if (plen == 0) {
+            if (plen <= 0) {
                   /*
-                   * This can't be 0, as it includes the header length.
+                   * This can't be less then 0, as it includes the header length.
                    * A different choice of byte order wouldn't have
                    * helped.
                    * Give up.
                    */
                   ti = proto_tree_add_item(tree, proto_x11, tvb, offset, -1, ENC_NA);
-                  expert_add_info_format(pinfo, ti, &ei_x11_request_length, "Bogus request length (0)");
+                  expert_add_info_format(pinfo, ti, &ei_x11_request_length, "Bogus request length (%d)", plen);
                   return;
             }
 
