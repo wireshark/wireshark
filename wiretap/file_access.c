@@ -1505,7 +1505,7 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	  FALSE, FALSE, 0,
 	  NULL, NULL, NULL },
 
-	/* WTAP_ENCAP_MIME */
+	/* WTAP_FILE_TYPE_SUBTYPE_MIME */
 	{ "MIME File Format", "mime", NULL, NULL,
 	   FALSE, FALSE, 0,
 	   NULL, NULL, NULL },
@@ -1610,7 +1610,7 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	  FALSE, FALSE, 0,
 	  NULL, NULL, NULL },
 
-	/* WTAP_FILE_TYPE_MPLOG */
+	/* WTAP_FILE_TYPE_SUBTYPE_MPLOG */
 	{ "Micropross mplog file", "mplog", "mplog", NULL,
 	  FALSE, FALSE, 0,
 	  NULL, NULL, NULL }
