@@ -7228,7 +7228,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 					}
 				} else {
 					idx = tvb_get_guintvar (tvb, off+1, &len, pinfo, &ei_wbxml_oversized_uintvar);
-					if (len <= tvb_len) {
+					if ((len <= tvb_len) && (idx < tvb_len)) {
 						proto_tree_add_bytes_format(tree, hf_wbxml_opaque_data, tvb, off, 1 + len + idx, NULL,
 							     "  %3d |  Attr | A %3d    | OPAQUE (Opaque data)            |       %s(%u bytes of opaque data)",
 							     level, *codepage_attr, Indent (level), idx);
@@ -7492,10 +7492,16 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gu
 					off += 1 + len;
 				} else {
 					idx = tvb_get_guintvar (tvb, off+1, &len, pinfo, &ei_wbxml_oversized_uintvar);
-					proto_tree_add_bytes_format(tree, hf_wbxml_opaque_data, tvb, off, 1 + len + idx, NULL,
-						     "  %3d | Tag   | T %3d    | OPAQUE (Opaque data)            | %s(%u bytes of opaque data)",
-						     *level, *codepage_stag, Indent (*level), idx);
-					off += 1+len+idx;
+					if ((len <= tvb_len) && (idx < tvb_len))
+					{
+						proto_tree_add_bytes_format(tree, hf_wbxml_opaque_data, tvb, off, 1 + len + idx, NULL,
+						         "  %3d | Tag   | T %3d    | OPAQUE (Opaque data)            | %s(%u bytes of opaque data)",
+						         *level, *codepage_stag, Indent (*level), idx);
+						off += 1+len+idx;
+					} else {
+						/* Stop processing as it is impossible to parse now */
+						off = tvb_len;
+					}
 				}
 			} else { /* WBXML 1.0 - RESERVED_2 token (invalid) */
 				proto_tree_add_none_format(tree, hf_wbxml_reserved_2, tvb, off, 1,
