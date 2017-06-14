@@ -612,7 +612,11 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
               concatpos = 0;
               col_set_str(pinfo->cinfo, COL_INFO, "Concatenated Frame");
               break;
-          }
+            default:
+              /* Unknown parameter, stop dissection */
+              concatlen = 0;
+              break;
+          } /* switch fcparm */
         break;
     }
     return tvb_captured_length(tvb);
