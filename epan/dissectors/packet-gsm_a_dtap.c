@@ -4396,9 +4396,9 @@ dtap_gcc_imm_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     curr_offset++;
     curr_len--;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL);
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_GCC_CALL_REF, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL, ei_gsm_a_dtap_missing_mandatory_element);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL, ei_gsm_a_dtap_missing_mandatory_element);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_GCC_CALL_REF, NULL, ei_gsm_a_dtap_missing_mandatory_element);
     ELEM_OPT_TLV(0x7e, GSM_A_PDU_TYPE_DTAP, DE_USER_USER, NULL);
 }
 
@@ -4415,7 +4415,7 @@ dtap_gcc_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_GCC_CALL_REF, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_GCC_CALL_REF, NULL, ei_gsm_a_dtap_missing_mandatory_element);
     ELEM_OPT_TLV(0x7e, GSM_A_PDU_TYPE_DTAP, DE_USER_USER, NULL);
 }
 
@@ -4432,11 +4432,11 @@ dtap_gcc_connect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_GCC_CALL_REF, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_GCC_CALL_REF, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 4, ENC_NA);
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_GCC_ORIG_IND, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_GCC_ORIG_IND, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 }
 
 /*
@@ -4452,7 +4452,7 @@ dtap_gcc_term(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_GCC_CAUSE, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_GCC_CAUSE, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 }
 
 /*
@@ -4468,7 +4468,7 @@ dtap_gcc_term_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_GCC_CALL_REF, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_GCC_CALL_REF, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 }
 
 /*
@@ -4484,7 +4484,7 @@ dtap_gcc_term_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_GCC_CAUSE, "(Reject Cause)");
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_GCC_CAUSE, "(Reject Cause)", ei_gsm_a_dtap_missing_mandatory_element);
 }
 
 /*
@@ -4500,7 +4500,7 @@ dtap_gcc_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_GCC_CAUSE, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_GCC_CAUSE, NULL, ei_gsm_a_dtap_missing_mandatory_element);
     ELEM_OPT_TV_SHORT(0xa0, GSM_A_PDU_TYPE_DTAP, DE_GCC_CALL_STATE, NULL);
     ELEM_OPT_TV_SHORT(0xb0, GSM_A_PDU_TYPE_DTAP, DE_GCC_STATE_ATTR, NULL);
 }
@@ -4536,7 +4536,7 @@ dtap_gcc_set_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     curr_len = len;
 
     proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 4, ENC_NA);
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_GCC_STATE_ATTR, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_GCC_STATE_ATTR, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
 }
 
@@ -4553,11 +4553,11 @@ dtap_bcc_connect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_BCC_CALL_REF, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_BCC_CALL_REF, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 4, ENC_NA);
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_BCC_ORIG_IND, "(Broadcast call reference)");
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_BCC_ORIG_IND, "(Broadcast call reference)", ei_gsm_a_dtap_missing_mandatory_element);
 }
 
 /*
@@ -4621,9 +4621,9 @@ dtap_bcc_imm_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     curr_offset++;
     curr_len--;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL);
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_BCC_CALL_REF, "(Broadcast identity)");
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL, ei_gsm_a_dtap_missing_mandatory_element);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL, ei_gsm_a_dtap_missing_mandatory_element);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_BCC_CALL_REF, "(Broadcast identity)", ei_gsm_a_dtap_missing_mandatory_element);
 }
 
 /*
@@ -4670,10 +4670,10 @@ dtap_bcc_imm_setup2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     curr_offset++;
     curr_len--;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL);
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_TMSI_STAT, NULL)
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_BCC_CALL_REF, "(Group identity)");
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_BCC_COMPR_OTDI, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL, ei_gsm_a_dtap_missing_mandatory_element);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_TMSI_STAT, NULL, ei_gsm_a_dtap_missing_mandatory_element)
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_BCC_CALL_REF, "(Group identity)", ei_gsm_a_dtap_missing_mandatory_element);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_BCC_COMPR_OTDI, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 }
 
 /*
@@ -4690,7 +4690,7 @@ dtap_bcc_set_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     curr_len = len;
 
     proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 4, ENC_NA);
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_BCC_STATE_ATTR, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_BCC_STATE_ATTR, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
 }
 
@@ -4707,7 +4707,7 @@ dtap_bcc_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_BCC_CALL_REF, "(Broadcast identity)");
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_BCC_CALL_REF, "(Broadcast identity)", ei_gsm_a_dtap_missing_mandatory_element);
     ELEM_OPT_TLV(0x7e, GSM_A_PDU_TYPE_DTAP, DE_USER_USER, "(Originator-to-dispatcher information)");
 }
 
@@ -4724,7 +4724,7 @@ dtap_bcc_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_BCC_CAUSE, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_BCC_CAUSE, NULL, ei_gsm_a_dtap_missing_mandatory_element);
     ELEM_OPT_TV_SHORT(0xa0, GSM_A_PDU_TYPE_DTAP, DE_BCC_CALL_STATE, NULL);
     ELEM_OPT_TV_SHORT(0xb0, GSM_A_PDU_TYPE_DTAP, DE_BCC_STATE_ATTR, NULL);
 }
@@ -4742,7 +4742,7 @@ dtap_bcc_term(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_BCC_CAUSE, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_BCC_CAUSE, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 }
 
 /*
@@ -4758,7 +4758,7 @@ dtap_bcc_term_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_BCC_CAUSE, "(Reject Cause)");
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_BCC_CAUSE, "(Reject Cause)", ei_gsm_a_dtap_missing_mandatory_element);
 }
 
 /*
@@ -4774,7 +4774,7 @@ dtap_bcc_term_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_BCC_CALL_REF, "(Broadcast call reference)");
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_BCC_CALL_REF, "(Broadcast call reference)", ei_gsm_a_dtap_missing_mandatory_element);
 }
 
 /*
@@ -4823,7 +4823,7 @@ dtap_mm_auth_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
     curr_offset++;
     curr_len--;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_RAND, " - UMTS challenge or GSM challenge");
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_RAND, " - UMTS challenge or GSM challenge", ei_gsm_a_dtap_missing_mandatory_element);
 
     ELEM_OPT_TLV(0x20, GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_AUTN, NULL);
 
@@ -4845,7 +4845,7 @@ dtap_mm_auth_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
     is_uplink = IS_UPLINK_TRUE;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_AUTH_RESP_PARAM, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_AUTH_RESP_PARAM, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     ELEM_OPT_TLV(0x21, GSM_A_PDU_TYPE_DTAP, DE_AUTH_RESP_PARAM_EXT, NULL);
 
@@ -4867,7 +4867,7 @@ dtap_mm_auth_fail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
     is_uplink = IS_UPLINK_TRUE;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_REJ_CAUSE, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_REJ_CAUSE, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     ELEM_OPT_TLV(0x22, GSM_A_PDU_TYPE_DTAP, DE_AUTH_FAIL_PARAM, NULL);
 
@@ -4920,9 +4920,9 @@ dtap_mm_cm_reestab_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
     curr_offset++;
     curr_len--;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     ELEM_OPT_TV(0x13, GSM_A_PDU_TYPE_COMMON, DE_LAI, NULL);
 
@@ -4947,7 +4947,7 @@ dtap_mm_cm_srvc_prompt(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 
     is_uplink = IS_UPLINK_FALSE;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_PD_SAPI, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_PD_SAPI, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -4967,7 +4967,7 @@ dtap_mm_cm_srvc_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 
     is_uplink = IS_UPLINK_FALSE;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_REJ_CAUSE, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_REJ_CAUSE, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     ELEM_OPT_TLV(0x36, GSM_A_PDU_TYPE_DTAP, DE_MM_TIMER, " - T3246 value");
 
@@ -4989,7 +4989,7 @@ dtap_mm_abort(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 
     is_uplink = IS_UPLINK_FALSE;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_REJ_CAUSE, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_REJ_CAUSE, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -5065,9 +5065,9 @@ dtap_mm_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     curr_offset++;
     curr_len--;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     ELEM_OPT_TV_SHORT(0x80, GSM_A_PDU_TYPE_COMMON, DE_PRIO, NULL);
 
@@ -5139,7 +5139,7 @@ dtap_mm_id_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 
     is_uplink = IS_UPLINK_TRUE;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     ELEM_OPT_TV_SHORT(0xE0, GSM_A_PDU_TYPE_GM, DE_PTMSI_TYPE, NULL);
 
@@ -5165,9 +5165,9 @@ dtap_mm_imsi_det_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 
     is_uplink = IS_UPLINK_TRUE;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_1, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_1, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -5187,7 +5187,7 @@ dtap_mm_loc_upd_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 
     is_uplink = IS_UPLINK_FALSE;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_LAI, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_LAI, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     ELEM_OPT_TLV(0x17, GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
 
@@ -5222,7 +5222,7 @@ dtap_mm_loc_upd_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 
     is_uplink = IS_UPLINK_FALSE;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_REJ_CAUSE, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_REJ_CAUSE, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     ELEM_OPT_TLV(0x36, GSM_A_PDU_TYPE_DTAP, DE_MM_TIMER, " - T3246 value");
 
@@ -5300,11 +5300,11 @@ dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     curr_offset++;
     curr_len--;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_LAI, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_LAI, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_1, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_1, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, " - Mobile station classmark for UMTS");
 
@@ -5363,7 +5363,7 @@ dtap_mm_mm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
     is_uplink = IS_UPLINK_TRUE;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_REJ_CAUSE, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_REJ_CAUSE, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -5383,9 +5383,9 @@ dtap_mm_tmsi_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 
     is_uplink = IS_UPLINK_FALSE;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_LAI, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_LAI, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -5586,7 +5586,7 @@ dtap_cc_disconnect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 
     is_uplink = IS_UPLINK_TRUE;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_CAUSE, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_CAUSE, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     ELEM_OPT_TLV(0x1c, GSM_A_PDU_TYPE_DTAP, DE_FACILITY, NULL);
 
@@ -5644,7 +5644,7 @@ dtap_cc_facility(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 
     is_uplink = IS_UPLINK_TRUE;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_FACILITY, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_FACILITY, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     /* uplink only */
 
@@ -5674,7 +5674,7 @@ dtap_cc_hold_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 
     is_uplink = IS_UPLINK_FALSE;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_CAUSE, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_CAUSE, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -5694,7 +5694,7 @@ dtap_cc_modify(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 
     is_uplink = IS_UPLINK_TRUE;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_BEARER_CAP, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_BEARER_CAP, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     ELEM_OPT_TLV(0x7c, GSM_A_PDU_TYPE_DTAP, DE_LLC, NULL);
 
@@ -5722,7 +5722,7 @@ dtap_cc_modify_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
     is_uplink = IS_UPLINK_TRUE;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_BEARER_CAP, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_BEARER_CAP, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     ELEM_OPT_TLV(0x7c, GSM_A_PDU_TYPE_DTAP, DE_LLC, NULL);
 
@@ -5748,9 +5748,9 @@ dtap_cc_modify_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 
     is_uplink = IS_UPLINK_FALSE;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_BEARER_CAP, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_BEARER_CAP, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_CAUSE, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_CAUSE, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     ELEM_OPT_TLV(0x7c, GSM_A_PDU_TYPE_DTAP, DE_LLC, NULL);
 
@@ -5774,7 +5774,7 @@ dtap_cc_notify(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 
     is_uplink = IS_UPLINK_FALSE;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_NOT_IND, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_NOT_IND, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -5794,7 +5794,7 @@ dtap_cc_progress(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 
     is_uplink = IS_UPLINK_FALSE;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_PROG_IND, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_PROG_IND, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     ELEM_OPT_TLV(0x7e, GSM_A_PDU_TYPE_DTAP, DE_USER_USER, NULL);
 
@@ -5816,7 +5816,7 @@ dtap_cc_cc_est(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 
     is_uplink = IS_UPLINK_FALSE;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_SETUP_CONTAINER, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_SETUP_CONTAINER, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -5894,9 +5894,9 @@ dtap_cc_recall(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 
     is_uplink = IS_UPLINK_FALSE;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_RECALL_TYPE, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_RECALL_TYPE, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_FACILITY, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_FACILITY, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -5944,7 +5944,7 @@ dtap_cc_retrieve_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 
     is_uplink = IS_UPLINK_FALSE;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_CAUSE, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_CAUSE, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -6123,7 +6123,7 @@ dtap_cc_start_dtmf_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 
     is_uplink = IS_UPLINK_FALSE;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_CAUSE, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_CAUSE, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -6143,9 +6143,9 @@ dtap_cc_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 
     is_uplink = IS_UPLINK_FALSE;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_CAUSE, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_CAUSE, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_CALL_STATE, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_CALL_STATE, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     ELEM_OPT_TLV(0x24, GSM_A_PDU_TYPE_DTAP, DE_AUX_STATES, NULL);
 
@@ -6178,7 +6178,7 @@ dtap_cc_user_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
     is_uplink = IS_UPLINK_TRUE;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_USER_USER, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_USER_USER, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     ELEM_OPT_T(0xa0, GSM_A_PDU_TYPE_DTAP, DE_MORE_DATA, NULL);
 
@@ -6224,7 +6224,7 @@ dtap_sms_cp_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 
     is_uplink = IS_UPLINK_TRUE;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_CP_USER_DATA, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_CP_USER_DATA, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -6244,7 +6244,7 @@ dtap_sms_cp_error(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
     is_uplink = IS_UPLINK_TRUE;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_CP_CAUSE, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_CP_CAUSE, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -6259,7 +6259,7 @@ dtap_tp_close_tch_loop_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     curr_len = len;
     curr_offset = offset;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_SUB_CHANNEL, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_SUB_CHANNEL, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -6275,7 +6275,7 @@ dtap_tp_open_loop_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
     curr_offset = offset;
 
     if (curr_len)
-        ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_ACK, NULL);
+        ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_ACK, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -6290,7 +6290,7 @@ dtap_tp_multi_slot_loop_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
     curr_len = len;
     curr_offset = offset;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_LOOP_TYPE, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_LOOP_TYPE, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -6305,7 +6305,7 @@ dtap_tp_multi_slot_loop_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
     curr_len = len;
     curr_offset = offset;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_LOOP_ACK, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_LOOP_ACK, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -6320,7 +6320,7 @@ dtap_tp_test_interface(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
     curr_len = len;
     curr_offset = offset;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_TESTED_DEVICE, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_TESTED_DEVICE, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -6335,9 +6335,9 @@ dtap_tp_gprs_test_mode_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     curr_len = len;
     curr_offset = offset;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_PDU_DESCRIPTION, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_PDU_DESCRIPTION, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_MODE_FLAG, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_MODE_FLAG, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -6352,7 +6352,7 @@ dtap_tp_egprs_start_radio_block_loopback_cmd(tvbuff_t *tvb, proto_tree *tree, pa
     curr_len = len;
     curr_offset = offset;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EGPRS_MODE_FLAG, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EGPRS_MODE_FLAG, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -6367,7 +6367,7 @@ dtap_tp_reset_ms_positioning_stored_information(tvbuff_t *tvb, proto_tree *tree,
     curr_len = len;
     curr_offset = offset;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_MS_POSITIONING_TECHNOLOGY, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_MS_POSITIONING_TECHNOLOGY, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -6382,7 +6382,7 @@ dtap_tp_close_ue_test_loop(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     curr_len = len;
     curr_offset = offset;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_UE_TEST_LOOP_MODE, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_UE_TEST_LOOP_MODE, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -6397,7 +6397,7 @@ dtap_tp_reset_ue_positioning_stored_information(tvbuff_t *tvb, proto_tree *tree,
     curr_len = len;
     curr_offset = offset;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_UE_POSITIONING_TECHNOLOGY, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_UE_POSITIONING_TECHNOLOGY, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -6412,7 +6412,7 @@ dtap_tp_ue_test_loop_mode_3_rlc_sdu_counter_response(tvbuff_t *tvb, proto_tree *
     curr_len = len;
     curr_offset = offset;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_RLC_SDU_COUNTER_VALUE, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_RLC_SDU_COUNTER_VALUE, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -6427,18 +6427,18 @@ dtap_tp_epc_close_ue_test_loop(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     curr_len = len;
     curr_offset = offset;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_UE_TEST_LOOP_MODE, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_UE_TEST_LOOP_MODE, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     switch (epc_test_loop_mode)
     {
     case 0:
-        ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_UE_TL_A_LB_SETUP, NULL);
+        ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_UE_TL_A_LB_SETUP, NULL, ei_gsm_a_dtap_missing_mandatory_element);
         break;
     case 1:
-        ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_UE_TL_B_LB_SETUP, NULL);
+        ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_UE_TL_B_LB_SETUP, NULL, ei_gsm_a_dtap_missing_mandatory_element);
         break;
     case 2:
-        ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_UE_TL_C_SETUP, NULL);
+        ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_UE_TL_C_SETUP, NULL, ei_gsm_a_dtap_missing_mandatory_element);
         break;
     default:
         break;
@@ -6457,7 +6457,7 @@ dtap_tp_epc_activate_test_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     curr_len = len;
     curr_offset = offset;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_UE_TEST_LOOP_MODE, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_UE_TEST_LOOP_MODE, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -6472,7 +6472,7 @@ dtap_tp_epc_reset_ue_positioning_stored_information(tvbuff_t *tvb, proto_tree *t
     curr_len = len;
     curr_offset = offset;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_UE_POSITIONING_TECHNOLOGY, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_UE_POSITIONING_TECHNOLOGY, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -6487,7 +6487,7 @@ dtap_tp_epc_test_loop_mode_c_mbms_packet_counter_response(tvbuff_t *tvb, proto_t
     curr_len = len;
     curr_offset = offset;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_MBMS_PACKET_COUNTER_VALUE, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_MBMS_PACKET_COUNTER_VALUE, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -6501,11 +6501,11 @@ dtap_tp_epc_update_ue_location_information(tvbuff_t *tvb, proto_tree *tree, pack
     curr_len = len;
     curr_offset = offset;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_ELLIPSOID_POINT_WITH_ALT, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_ELLIPSOID_POINT_WITH_ALT, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_HORIZONTAL_VELOCITY, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_HORIZONTAL_VELOCITY, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_GNSS_TOD_MSEC, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_GNSS_TOD_MSEC, NULL, ei_gsm_a_dtap_missing_mandatory_element);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
 }
@@ -8222,7 +8222,7 @@ proto_register_gsm_a_dtap(void)
         { &ei_gsm_a_dtap_invalid_ia5_character, { "gsm_a.dtap.invalid_ia5_character", PI_MALFORMED, PI_WARN, "Invalid IA5 character(s) in string (value > 127)", EXPFILL }},
         { &ei_gsm_a_dtap_keypad_info_not_dtmf_digit, { "gsm_a.dtap.keypad_info_not_dtmf_digit", PI_MALFORMED, PI_WARN, "Keypad information contains character that is not a DTMF digit", EXPFILL }},
         { &ei_gsm_a_dtap_extraneous_data, { "gsm_a.dtap.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec(report to wireshark.org)", EXPFILL }},
-        { &ei_gsm_a_dtap_missing_mandatory_element, { "gsm_a.dtap.missing_mandatory_element", PI_PROTOCOL, PI_WARN, "Missing Mandatory element, rest of dissection is suspect", EXPFILL }},
+        { &ei_gsm_a_dtap_missing_mandatory_element, { "gsm_a.dtap.missing_mandatory_element", PI_PROTOCOL, PI_ERROR, "Missing Mandatory element, rest of dissection is suspect", EXPFILL }},
         { &ei_gsm_a_dtap_coding_scheme, { "gsm_a.dtap.coding_scheme.unknown", PI_PROTOCOL, PI_WARN, "Text string encoded according to an unknown Coding Scheme", EXPFILL } },
         { &ei_gsm_a_dtap_ti_not_valid,{ "gsm_a.dtap.ti_not_valid", PI_PROTOCOL, PI_ERROR, "If TI bits = 7, length must be > 2", EXPFILL } },
     };

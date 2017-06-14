@@ -4217,9 +4217,9 @@ bssgp_dl_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
     pinfo->link_dir = P2P_DIR_DL;
 
     /* TLLI (current) TLLI/11.3.35 M V 4 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TLLI, " - current");
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TLLI, " - current", ei_bssgp_missing_mandatory_element);
     /* QoS Profile (note 1) QoS Profile/11.3.28 M V 3 */
-    ELEM_MAND_V(BSSGP_PDU_TYPE, DE_BSSGP_QOS_PROFILE, NULL);
+    ELEM_MAND_V(BSSGP_PDU_TYPE, DE_BSSGP_QOS_PROFILE, NULL, ei_bssgp_missing_mandatory_element);
 
     /* PDU Lifetime PDU Lifetime/11.3.25 M TLV 4 */
     ELEM_MAND_TELV(0x16, BSSGP_PDU_TYPE, DE_BSSGP_PDU_LIFETIME, NULL, ei_bssgp_missing_mandatory_element);
@@ -4295,9 +4295,9 @@ bssgp_ul_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
      */
     pinfo->link_dir = P2P_DIR_UL;
     /* TLLI TLLI/11.3.35 M V 4 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TLLI, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TLLI, NULL, ei_bssgp_missing_mandatory_element);
     /* QoS Profile QoS Profile/11.3.28 M V 3 */
-    ELEM_MAND_V(BSSGP_PDU_TYPE, DE_BSSGP_QOS_PROFILE, NULL);
+    ELEM_MAND_V(BSSGP_PDU_TYPE, DE_BSSGP_QOS_PROFILE, NULL, ei_bssgp_missing_mandatory_element);
     /* Cell Identifier Cell Identifier/11.3.9 M TLV 10 */
     ELEM_OPT_TELV(BSSGP_IEI_CELL_IDENTIFIER, BSSGP_PDU_TYPE, DE_BSSGP_CELL_ID , NULL);
     /* PFI PFI/11.3.42 O TLV 3 */
@@ -7469,7 +7469,7 @@ proto_register_bssgp(void)
 
     static ei_register_info ei[] = {
         { &ei_bssgp_extraneous_data, { "bssgp.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec(report to wireshark.org)", EXPFILL }},
-        { &ei_bssgp_missing_mandatory_element, { "bssgp.missing_mandatory_element", PI_PROTOCOL, PI_WARN, "Missing Mandatory element, rest of dissection is suspect", EXPFILL }},
+        { &ei_bssgp_missing_mandatory_element, { "bssgp.missing_mandatory_element", PI_PROTOCOL, PI_ERROR, "Missing Mandatory element, rest of dissection is suspect", EXPFILL }},
         { &ei_bssgp_not_dissected_yet, { "bssgp.not_dissected_yet", PI_UNDECODED, PI_WARN, "Not dissected yet", EXPFILL }},
         { &ei_bssgp_erroneous_app_container, { "bssgp.erroneous_app_container", PI_PROTOCOL, PI_WARN, "Erroneous Application Container including IEI and LI", EXPFILL }},
         { &ei_bssgp_si_item, { "bssgp.erroneous_app_container", PI_PROTOCOL, PI_WARN, "Unknown SI message", EXPFILL }},

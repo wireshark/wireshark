@@ -552,6 +552,7 @@ static expert_field ei_gsm_a_gm_extraneous_data = EI_INIT;
 static expert_field ei_gsm_a_gm_not_enough_data = EI_INIT;
 static expert_field ei_gsm_a_gm_undecoded = EI_INIT;
 static expert_field ei_gsm_a_gm_apn_too_long = EI_INIT;
+static expert_field ei_gsm_a_gm_missing_mandatory_element = EI_INIT;
 
 static dissector_handle_t rrc_irat_ho_info_handle;
 static dissector_handle_t lte_rrc_ue_eutra_cap_handle;
@@ -5999,17 +6000,17 @@ dtap_gmm_attach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	pinfo->p2p_dir = P2P_DIR_RECV;
 
-	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_MS_NET_CAP, NULL);
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_MS_NET_CAP, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_ATTACH_TYPE, GSM_A_PDU_TYPE_COMMON, DE_CIPH_KEY_SEQ_NUM);
+	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_ATTACH_TYPE, GSM_A_PDU_TYPE_COMMON, DE_CIPH_KEY_SEQ_NUM, ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_DRX_PARAM, NULL);
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_DRX_PARAM, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_LV( GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_COMMON, DE_MID, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_RAI, " - Old routing area identification");
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_RAI, " - Old routing area identification", ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP, NULL);
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TV( 0x19, GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG, " - Old P-TMSI Signature");
 
@@ -6069,17 +6070,17 @@ dtap_gmm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_ATTACH_RES, GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND_H);
+	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_ATTACH_RES, GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND_H, ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, NULL);
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_RAD_PRIO_2, " - Radio priority for TOM8");
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_RAD_PRIO_2, " - Radio priority for TOM8", ei_gsm_a_gm_missing_mandatory_element);
 	curr_len++;
 	curr_offset--;
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_RAD_PRIO, " - Radio priority for SMS");
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_RAD_PRIO, " - Radio priority for SMS", ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_RAI, NULL);
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_RAI, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TV( 0x19, GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG, NULL);
 
@@ -6162,7 +6163,7 @@ dtap_gmm_attach_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE, NULL);
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TLV( 0x2A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3302 value" );
 
@@ -6186,7 +6187,7 @@ dtap_gmm_detach_req_MT(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guin
 
 	pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_DETACH_TYPE, GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND_H);
+	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_DETACH_TYPE, GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND_H, ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TV( 0x25, GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE, NULL);
 
@@ -6205,7 +6206,7 @@ dtap_gmm_detach_req_MO(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guin
 
 	pinfo->p2p_dir = P2P_DIR_RECV;
 
-	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_DETACH_TYPE, GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE);
+	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_DETACH_TYPE, GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE, ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TLV( 0x18, GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
 
@@ -6251,7 +6252,7 @@ dtap_gmm_detach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 		return;
 	}
 
-	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND, GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE);
+	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND, GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE, ei_gsm_a_gm_missing_mandatory_element);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -6271,11 +6272,11 @@ dtap_gmm_ptmsi_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
 
 	pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_MAND_LV( GSM_A_PDU_TYPE_COMMON, DE_MID, " - Allocated P-TMSI" );
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_COMMON, DE_MID, " - Allocated P-TMSI", ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_RAI, NULL);
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_RAI, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND, GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE);
+	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND, GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE, ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TV( 0x19, GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG, " - P-TMSI Signature" );
 
@@ -6315,9 +6316,9 @@ dtap_gmm_auth_ciph_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guin
 
 	pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_CIPH_ALG, GSM_A_PDU_TYPE_GM, DE_IMEISV_REQ);
+	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_CIPH_ALG, GSM_A_PDU_TYPE_GM, DE_IMEISV_REQ, ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND, GSM_A_PDU_TYPE_GM, DE_AC_REF_NUM_H);
+	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND, GSM_A_PDU_TYPE_GM, DE_AC_REF_NUM_H, ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TV(0x21, GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_RAND, NULL);
 
@@ -6351,7 +6352,7 @@ dtap_gmm_auth_ciph_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 	pinfo->p2p_dir = P2P_DIR_RECV;
 
-	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_AC_REF_NUM, GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE);
+	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_AC_REF_NUM, GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE, ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TV(0x22, GSM_A_PDU_TYPE_DTAP, DE_AUTH_RESP_PARAM, NULL);
 
@@ -6396,7 +6397,7 @@ dtap_gmm_auth_ciph_fail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 	pinfo->p2p_dir = P2P_DIR_RECV;
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE, NULL);
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TLV( 0x30, GSM_A_PDU_TYPE_DTAP, DE_AUTH_FAIL_PARAM, NULL);
 
@@ -6417,7 +6418,7 @@ dtap_gmm_ident_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
 
 	pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_ID_TYPE_2, GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND_H);
+	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_ID_TYPE_2, GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND_H, ei_gsm_a_gm_missing_mandatory_element);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -6437,7 +6438,7 @@ dtap_gmm_ident_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
 
 	pinfo->p2p_dir = P2P_DIR_RECV;
 
-	ELEM_MAND_LV( GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_COMMON, DE_MID, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -6457,11 +6458,11 @@ dtap_gmm_rau_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 	pinfo->p2p_dir = P2P_DIR_RECV;
 
-	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_UPD_TYPE, GSM_A_PDU_TYPE_COMMON, DE_CIPH_KEY_SEQ_NUM);
+	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_UPD_TYPE, GSM_A_PDU_TYPE_COMMON, DE_CIPH_KEY_SEQ_NUM, ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_RAI, " - Old routing area identification");
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_RAI, " - Old routing area identification", ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP, NULL);
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TV( 0x19, GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG, " - Old P-TMSI Signature" );
 
@@ -6531,11 +6532,11 @@ dtap_gmm_rau_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 	pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND, GSM_A_PDU_TYPE_GM, DE_UPD_RES);
+	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND, GSM_A_PDU_TYPE_GM, DE_UPD_RES, ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, " - Periodic RA update timer");
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, " - Periodic RA update timer", ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_RAI, NULL);
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_RAI, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TV( 0x19, GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG, NULL);
 
@@ -6625,9 +6626,9 @@ dtap_gmm_rau_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 	pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE, NULL);
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND, GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE);
+	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND, GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE, ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TLV(0x2A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3302 value");
 
@@ -6651,7 +6652,7 @@ dtap_gmm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
 
 	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE, NULL);
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -6701,10 +6702,10 @@ dtap_gmm_service_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 
 	pinfo->p2p_dir = P2P_DIR_RECV;
 
-	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_COMMON, DE_CIPH_KEY_SEQ_NUM, GSM_A_PDU_TYPE_GM, DE_SRVC_TYPE);
+	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_COMMON, DE_CIPH_KEY_SEQ_NUM, GSM_A_PDU_TYPE_GM, DE_SRVC_TYPE, ei_gsm_a_gm_missing_mandatory_element);
 
 	/* P-TMSI Mobile station identity 10.5.1.4 M LV 6 */
-	ELEM_MAND_LV( GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_COMMON, DE_MID, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TLV( 0x32, GSM_A_PDU_TYPE_GM, DE_PDP_CONTEXT_STAT, NULL);
 
@@ -6756,7 +6757,7 @@ dtap_gmm_service_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 
 	pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE, NULL);
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TLV(0x3A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3346 value");
 
@@ -6781,13 +6782,13 @@ dtap_sm_act_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 	/* MS to network */
 	pinfo->link_dir = P2P_DIR_UL;
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_NET_SAPI, " - Requested NSAPI");
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_NET_SAPI, " - Requested NSAPI", ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_LLC_SAPI, " - Requested LLC SAPI");
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_LLC_SAPI, " - Requested LLC SAPI", ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_QOS, " - Requested QoS" );
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_QOS, " - Requested QoS", ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR, " - Requested PDP address" );
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR, " - Requested PDP address", ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TLV( 0x28, GSM_A_PDU_TYPE_GM, DE_ACC_POINT_NAME, NULL);
 
@@ -6820,18 +6821,18 @@ dtap_sm_act_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 	/* Network to MS*/
 	pinfo->link_dir = P2P_DIR_DL;
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_LLC_SAPI, " - Negotiated LLC SAPI");
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_LLC_SAPI, " - Negotiated LLC SAPI", ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_QOS, " - Negotiated QoS" );
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_QOS, " - Negotiated QoS", ei_gsm_a_gm_missing_mandatory_element);
 
 #if 0
 	/* This is done automatically */
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SPARE, NULL);
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SPARE, NULL, ei_gsm_a_gm_missing_mandatory_element);
 	curr_offset--;
 	curr_len++;
 #endif
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_RAD_PRIO, NULL);
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_RAD_PRIO, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TLV( 0x2B, GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR, " - PDP address");
 
@@ -6868,7 +6869,7 @@ dtap_sm_act_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 	/* Network to MS*/
 	pinfo->link_dir = P2P_DIR_DL;
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
@@ -6899,13 +6900,13 @@ dtap_sm_act_sec_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 	/* MS to Network */
 	pinfo->link_dir = P2P_DIR_UL;
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_NET_SAPI, " - Requested NSAPI");
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_NET_SAPI, " - Requested NSAPI", ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_LLC_SAPI, " - Requested LLC SAPI");
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_LLC_SAPI, " - Requested LLC SAPI", ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_QOS, " - Requested QoS" );
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_QOS, " - Requested QoS", ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_LINKED_TI, NULL);
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_LINKED_TI, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	/* 3GPP TS 24.008 version 6.8.0 Release 6, 36 TFT Traffic Flow Template 10.5.6.12 O TLV 3-257 */
 	ELEM_OPT_TLV( 0x36, GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE, NULL);
@@ -6937,15 +6938,15 @@ dtap_sm_act_sec_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 	/* Network to MS*/
 	pinfo->link_dir = P2P_DIR_DL;
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_LLC_SAPI, " - Negotiated LLC SAPI");
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_LLC_SAPI, " - Negotiated LLC SAPI", ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_QOS, " - Negotiated QoS" );
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_QOS, " - Negotiated QoS", ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_RAD_PRIO, NULL);
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_RAD_PRIO, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 #if 0
 	/* This is done automatically */
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SPARE, NULL);
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SPARE, NULL, ei_gsm_a_gm_missing_mandatory_element);
 	curr_offset--;
 	curr_len++;
 #endif
@@ -6979,7 +6980,7 @@ dtap_sm_act_sec_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 	/* Network to MS*/
 	pinfo->link_dir = P2P_DIR_DL;
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
@@ -7010,7 +7011,7 @@ dtap_sm_req_pdp_act(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 	/* Network to MS*/
 	pinfo->link_dir = P2P_DIR_DL;
 
-	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR, " - Offered PDP address" );
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR, " - Offered PDP address", ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TLV( 0x28, GSM_A_PDU_TYPE_GM, DE_ACC_POINT_NAME, NULL);
 
@@ -7039,7 +7040,7 @@ dtap_sm_req_pdp_act_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 	/* MS to  Network */
 	pinfo->link_dir = P2P_DIR_UL;
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
@@ -7066,17 +7067,17 @@ dtap_sm_mod_pdp_req_net(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 	/* Network to MS */
 	pinfo->link_dir = P2P_DIR_DL;
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_RAD_PRIO, NULL);
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_RAD_PRIO, NULL, ei_gsm_a_gm_missing_mandatory_element);
 #if 0
 	/* This is done automatically */
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SPARE, NULL);
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SPARE, NULL, ei_gsm_a_gm_missing_mandatory_element);
 	curr_offset--;
 	curr_len++;
 #endif
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_LLC_SAPI, " - Requested LLC SAPI");
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_LLC_SAPI, " - Requested LLC SAPI", ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_QOS, " - New QoS" );
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_QOS, " - New QoS", ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TLV( 0x2B, GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR, " - PDP address");
 
@@ -7205,7 +7206,7 @@ dtap_sm_mod_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 	/* pinfo->link_dir = LINK_DIR_UNKNOWN; */
 
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
@@ -7235,7 +7236,7 @@ dtap_sm_deact_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 	pinfo->link_dir = LINK_DIR_UNKNOWN;
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TV_SHORT( 0x90, GSM_A_PDU_TYPE_GM, DE_TEAR_DOWN_IND, NULL);
 
@@ -7292,10 +7293,10 @@ dtap_sm_req_sec_pdp_act(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 	pinfo->link_dir = P2P_DIR_DL;
 
 	/* Required QoS Quality of service 10.5.6.5 M LV 13-17 */
-	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_QOS, " - Required QoS");
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_QOS, " - Required QoS", ei_gsm_a_gm_missing_mandatory_element);
 
 	/* Linked TI Linked TI 10.5.6.7 M LV 2-3 */
-	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_LINKED_TI, NULL);
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_LINKED_TI, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	/* 36 TFT Traffic Flow Template 10.5.6.12 O TLV 3-257 */
 	ELEM_OPT_TLV( 0x36, GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE, NULL);
@@ -7329,7 +7330,7 @@ dtap_sm_req_sec_pdp_act_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 	pinfo->link_dir = P2P_DIR_UL;
 
 	/* SM cause SM cause 10.5.6.6 M V 1 */
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	/* 27 Protocol configuration options Protocol configuration options 10.5.6.3 O TLV 3 - 253 */
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
@@ -7356,7 +7357,7 @@ dtap_sm_notif(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offse
 	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 	pinfo->link_dir = P2P_DIR_DL;
 
-	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_SM_NOTIF_IND, NULL);
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_SM_NOTIF_IND, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -7378,7 +7379,7 @@ dtap_sm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
 	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 	pinfo->link_dir = LINK_DIR_UNKNOWN;
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -7400,19 +7401,19 @@ dtap_sm_act_mbms_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 	pinfo->p2p_dir = P2P_DIR_RECV;
 
 	/* Requested MBMS NSAPI Enhanced Network service access point identifier 10.5.6.16 M V */
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_ENH_NSAPI, " - Requested MBMS NSAPI");
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_ENH_NSAPI, " - Requested MBMS NSAPI", ei_gsm_a_gm_missing_mandatory_element);
 
 	/* Requested LLC SAPI LLC service access point identifier 10.5.6.9 M V 1 */
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_LLC_SAPI, " - Requested LLC SAPI");
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_LLC_SAPI, " - Requested LLC SAPI", ei_gsm_a_gm_missing_mandatory_element);
 
 	/* Supported MBMS bearer capabilities MBMS bearer capabilities 10.5.6.14 M LV 2 - 3 */
-	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_MBMS_BEARER_CAP, NULL );
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_MBMS_BEARER_CAP, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	/* Requested multicast address Packet data protocol address 10.5.6.4 M LV 3 - 19 */
-	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR, " - Requested multicast address" );
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR, " - Requested multicast address", ei_gsm_a_gm_missing_mandatory_element);
 
 	/* Access point name Access point name 10.5.6.1 M LV 2 - 101 */
-	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_ACC_POINT_NAME, NULL );
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_ACC_POINT_NAME, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	/* 35 MBMS protocol configuration options MBMS protocol configuration options 10.5.6.15 O TLV 3 - 253 */
 	ELEM_OPT_TLV( 0x35, GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT, NULL);
@@ -7438,9 +7439,9 @@ dtap_sm_act_mbms_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 
 	pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_MAND_LV(  GSM_A_PDU_TYPE_GM, DE_TMGI, NULL);
+	ELEM_MAND_LV(  GSM_A_PDU_TYPE_GM, DE_TMGI, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_V(  GSM_A_PDU_TYPE_GM, DE_LLC_SAPI, " - Negotiated LLC SAPI");
+	ELEM_MAND_V(  GSM_A_PDU_TYPE_GM, DE_LLC_SAPI, " - Negotiated LLC SAPI", ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TLV( 0x35, GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT, NULL);
 
@@ -7463,7 +7464,7 @@ dtap_sm_act_mbms_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 
 	pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TLV( 0x35, GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT, NULL);
 
@@ -7490,11 +7491,11 @@ dtap_sm_req_mbms_act(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 
 	pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_NET_SAPI, " - Linked NSAPI");
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_NET_SAPI, " - Linked NSAPI", ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR, " - Offered multicast address" );
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR, " - Offered multicast address", ei_gsm_a_gm_missing_mandatory_element);
 
-	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_ACC_POINT_NAME, NULL );
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_ACC_POINT_NAME, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TLV( 0x35, GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT, NULL);
 
@@ -7517,7 +7518,7 @@ dtap_sm_req_mbms_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 
 	pinfo->p2p_dir = P2P_DIR_RECV;
 
-	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
+	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL, ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TLV( 0x35, GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT, NULL);
 
@@ -8901,7 +8902,8 @@ proto_register_gsm_a_gm(void)
 		{ &ei_gsm_a_gm_extraneous_data, { "gsm_a.gm.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec (report to wireshark.org)", EXPFILL }},
 		{ &ei_gsm_a_gm_not_enough_data, { "gsm_a.gm.not_enough_data", PI_PROTOCOL, PI_WARN, "Not enough data", EXPFILL }},
 		{ &ei_gsm_a_gm_undecoded, { "gsm_a.gm.undecoded", PI_UNDECODED, PI_WARN, "Not decoded", EXPFILL }},
-		{ &ei_gsm_a_gm_apn_too_long, { "gsm_a.gm.apn_to_long", PI_PROTOCOL, PI_ERROR, "APN encoding has more than 100 octets", EXPFILL }}
+		{ &ei_gsm_a_gm_apn_too_long, { "gsm_a.gm.apn_to_long", PI_PROTOCOL, PI_ERROR, "APN encoding has more than 100 octets", EXPFILL }},
+		{ &ei_gsm_a_gm_missing_mandatory_element, { "gsm_a.gm.missing_mandatory_element", PI_PROTOCOL, PI_ERROR, "Missing Mandatory element, rest of dissection is suspect", EXPFILL }},
 	};
 
 	expert_module_t* expert_gsm_a_gm;

@@ -33,6 +33,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 #include "packet-gmr1_common.h"
 
@@ -50,6 +51,7 @@ static gint ett_msg_ccch = -1;
 
 static gint ett_rr_pd = -1;
 
+static expert_field ei_gmr1_missing_mandatory_element = EI_INIT;
 
 
 /* ------------------------------------------------------------------------ */
@@ -1227,54 +1229,54 @@ GMR1_MSG_FUNC(gmr1_rr_msg_imm_ass)
 	/* MES Information Flag			[1] 11.5.2.44	- M V 1 */
 	mif = tvb_get_guint8(tvb, curr_offset);
 
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_MES_INFO_FLG, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_MES_INFO_FLG, NULL, ei_gmr1_missing_mandatory_element);
 
 	/* Request Reference 1 (MES1)		[1] 11.5.2.30	- M V 2 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_REQ_REF, " - MES1");
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_REQ_REF, " - MES1", ei_gmr1_missing_mandatory_element);
 
 	/* GPS Discriminator			[1] 11.5.2.101	- C V 2 */
 	if ((mif & 0x03) != 0x02) {
-		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_GPS_DISCR, " - MES1");
+		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_GPS_DISCR, " - MES1", ei_gmr1_missing_mandatory_element);
 	}
 
 	/* Channel Description			[1] 11.5.2.5	- C V 4 */
 	if ((mif & 0x03) != 0x03) {
-		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_CHAN_DESC, " - MES1");
+		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_CHAN_DESC, " - MES1", ei_gmr1_missing_mandatory_element);
 	}
 
 	/* Timing Offset			[1] 11.5.2.40	- C V 2 */
 	if ((mif & 0x03) != 0x03) {
-		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_TIMING_OFS, " - MES1");
+		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_TIMING_OFS, " - MES1", ei_gmr1_missing_mandatory_element);
 	}
 
 	/* Frequency Offset			[1] 11.5.2.49	- C V 2 */
 	if ((mif & 0x03) != 0x03) {
-		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_FREQ_OFS, " - MES1");
+		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_FREQ_OFS, " - MES1", ei_gmr1_missing_mandatory_element);
 	}
 
 	/* Idle Mode Pos. Upd. Info.		[1] 11.5.2.54	- C V 2 */
 	if (mif & 0x04) {
-		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_POS_UPD_INFO, " - Idle Mode");
+		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_POS_UPD_INFO, " - Idle Mode", ei_gmr1_missing_mandatory_element);
 	}
 
 	/* Ded. Mode Pos. Upd. Info.		[1] 11.5.2.54	- C V 2 */
 	if (mif & 0x08) {
-		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_POS_UPD_INFO, " - Dedicated Mode");
+		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_POS_UPD_INFO, " - Dedicated Mode", ei_gmr1_missing_mandatory_element);
 	}
 
 	/* Request Reference 2 (MES2)		[1] 11.5.2.30	- C V 2 */
 	if (mif & 0x10) {
-		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_REQ_REF, " - MES2");
+		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_REQ_REF, " - MES2", ei_gmr1_missing_mandatory_element);
 	}
 
 	/* Request Reference 3 (MES3)		[1] 11.5.2.30	- C V 2 */
 	if (mif & 0x20) {
-		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_REQ_REF, " - MES3");
+		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_REQ_REF, " - MES3", ei_gmr1_missing_mandatory_element);
 	}
 
 	/* Request Reference 4 (MES4)		[1] 11.5.2.30	- C V 2 */
 	if (mif & 0x40) {
-		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_REQ_REF, " - MES4");
+		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_REQ_REF, " - MES4", ei_gmr1_missing_mandatory_element);
 	}
 
 	/* IA Rest Octets			[1] 11.5.2.16	- M V 0..18 */
@@ -1291,50 +1293,50 @@ GMR1_MSG_FUNC(gmr1_rr_msg_imm_ass_rej_1)
 	GMR1_MSG_FUNC_BEGIN
 
 	/* Request Reference 1 (MES1) 		[1] 11.5.2.30	- M V 2 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_REQ_REF, " - MES1");
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_REQ_REF, " - MES1", ei_gmr1_missing_mandatory_element);
 
 	/* GPS Discriminator			[1] 11.5.2.101	- M V 2 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_GPS_DISCR, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_GPS_DISCR, NULL, ei_gmr1_missing_mandatory_element);
 
 	/* Reject Cause				[1] 11.5.2.56	- M V 1 */
 	rej_cause = tvb_get_guint8(tvb, curr_offset);
 
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_REJECT_CAUSE, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_REJECT_CAUSE, NULL, ei_gmr1_missing_mandatory_element);
 
 	/* Wait Indication 1 (MES1)		[4] 10.5.2.43	- C V 1 */
 	if ((rej_cause & 0xfc) == 0x00) {
-		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_WAIT_IND, " - MES1");
+		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_WAIT_IND, " - MES1", ei_gmr1_missing_mandatory_element);
 	}
 
 	/* Request Reference 2 (MES2) 		[1] 11.5.2.30	- M V 2 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_REQ_REF, " - MES2");
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_REQ_REF, " - MES2", ei_gmr1_missing_mandatory_element);
 
 	/* Wait Indication 2 (MES2)		[4] 10.5.2.43	- M V 1 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_WAIT_IND, " - MES2");
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_WAIT_IND, " - MES2", ei_gmr1_missing_mandatory_element);
 
 	/* Request Reference 3 (MES3)		[1] 11.5.2.30	- M V 2 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_REQ_REF, " - MES3");
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_REQ_REF, " - MES3", ei_gmr1_missing_mandatory_element);
 
 	/* Wait Indication 3 (MES3)		[4] 10.5.2.43	- M V 1 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_WAIT_IND, " - MES3");
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_WAIT_IND, " - MES3", ei_gmr1_missing_mandatory_element);
 
 	/* Request Reference 4 (MES4)		[1] 11.5.2.30	- M V 2 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_REQ_REF, " - MES4");
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_REQ_REF, " - MES4", ei_gmr1_missing_mandatory_element);
 
 	/* Wait Indication 4 (MES4)		[4] 10.5.2.43	- M V 1 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_WAIT_IND, " - MES4");
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_WAIT_IND, " - MES4", ei_gmr1_missing_mandatory_element);
 
 	/* Idle Mode Position Update Info.	[1] 11.5.2.54	- M V 2 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_POS_UPD_INFO, " - Idle Mode");
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_POS_UPD_INFO, " - Idle Mode", ei_gmr1_missing_mandatory_element);
 
 	/* BCCH Carrier Specification		[1] 11.5.2.55	- C V 2 */
 	if (rej_cause & 1) {
-		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_BCCH_CARRIER, NULL);
+		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_BCCH_CARRIER, NULL, ei_gmr1_missing_mandatory_element);
 	}
 
 	/* MSC ID				[1] 11.5.2.100	- C V 1 */
 	if ((rej_cause & 0xfc) == 0x5c) {
-		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_MSC_ID, NULL);
+		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_MSC_ID, NULL, ei_gmr1_missing_mandatory_element);
 	}
 
 	/* IAR Rest Octets			[1] 11.5.2.17	- M V 1..4 */
@@ -1349,13 +1351,13 @@ GMR1_MSG_FUNC(gmr1_rr_msg_pos_verif_notify)
 	GMR1_MSG_FUNC_BEGIN
 
 	/* Request Reference 			[1] 11.5.2.30	- M V 2 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_REQ_REF, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_REQ_REF, NULL, ei_gmr1_missing_mandatory_element);
 
 	/* GPS Discriminator			[1] 11.5.2.101	- M V 2 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_GPS_DISCR, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_GPS_DISCR, NULL, ei_gmr1_missing_mandatory_element);
 
 	/* Position Display 			[1] 11.5.2.52	- M V 11 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_POS_DISPLAY, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_POS_DISPLAY, NULL, ei_gmr1_missing_mandatory_element);
 
 	/* 78 Idle Mode Position Update Info.	[1] 11.5.2.54	- O TV 3 */
 	ELEM_OPT_TV(0x78, GMR1_IE_RR, GMR1_IE_RR_POS_UPD_INFO, NULL);
@@ -1372,28 +1374,28 @@ GMR1_MSG_FUNC(gmr1_rr_msg_imm_ass_2)
 	GMR1_MSG_FUNC_BEGIN
 
 	/* USF					[3] 11.5.2.110	- M V 3 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_USF, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_USF, NULL, ei_gmr1_missing_mandatory_element);
 
 	/* Timing Advance Index			[3] 10.1.18.3.4	- M V 1 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_TIMING_ADV_IDX, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_TIMING_ADV_IDX, NULL, ei_gmr1_missing_mandatory_element);
 
 	/* TLLI					[5] 12.16	- M V 4 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_TLLI, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_TLLI, NULL, ei_gmr1_missing_mandatory_element);
 
 	/* Timing Offset			[1] 11.5.2.40	- M V 2 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_TIMING_OFS, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_TIMING_OFS, NULL, ei_gmr1_missing_mandatory_element);
 
 	/* Frequency Offset			[1] 11.5.2.49	- M V 2 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_FREQ_OFS, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_FREQ_OFS, NULL, ei_gmr1_missing_mandatory_element);
 
 	/* Packet Imm. Ass. Type 2 Params.	[3] 11.5.2.107	- M V 5 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_PKT_IMM_ASS_2_PRM, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_PKT_IMM_ASS_2_PRM, NULL, ei_gmr1_missing_mandatory_element);
 
 	/* Packet Frequency Parameters		[3] 11.5.2.106	- M V 3 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_PKT_FREQ_PRM, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_PKT_FREQ_PRM, NULL, ei_gmr1_missing_mandatory_element);
 
 	/* Packet Power Control Parameters	[3] 10.1.18.3.3	- M V 1 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_PKT_PWR_CTRL_PRM, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_PKT_PWR_CTRL_PRM, NULL, ei_gmr1_missing_mandatory_element);
 
 	GMR1_MSG_FUNC_END
 }
@@ -1406,25 +1408,25 @@ GMR1_MSG_FUNC(gmr1_rr_msg_imm_ass_3)
 	/* Page Mode				[1] 11.5.2.26	- M V 1/2 */
 	/* Spare Half Octet			[1] 11.5.1.8	- M V 1/2 */
 	ELEM_MAND_VV_SHORT(GMR1_IE_RR, GMR1_IE_RR_PAGE_MODE,
-	                   GMR1_IE_COMMON, GMR1_IE_COM_SPARE_NIBBLE);
+	                   GMR1_IE_COMMON, GMR1_IE_COM_SPARE_NIBBLE, ei_gmr1_missing_mandatory_element);
 
 	/* Persistence Level			[3] 10.1.18.4.2	- M V 2 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_PERSISTENCE_LVL, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_PERSISTENCE_LVL, NULL, ei_gmr1_missing_mandatory_element);
 
 	/* Timing Advance Index			[3] 10.1.18.3.4	- M V 1 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_TIMING_ADV_IDX, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_TIMING_ADV_IDX, NULL, ei_gmr1_missing_mandatory_element);
 
 	/* TLLI					[5] 12.16	- M V 4 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_TLLI, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_TLLI, NULL, ei_gmr1_missing_mandatory_element);
 
 	/* Packet Imm. Ass. Type 3 Params	[3] 11.5.2.105	- M V 3 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_PKT_IMM_ASS_3_PRM, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_PKT_IMM_ASS_3_PRM, NULL, ei_gmr1_missing_mandatory_element);
 
 	/* Packet Frequency Parameters		[3] 11.5.2.106	- M V 3 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_PKT_FREQ_PRM, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_PKT_FREQ_PRM, NULL, ei_gmr1_missing_mandatory_element);
 
 	/* Packet Power Control Parameters	[3] 10.1.18.3.3	- M V 1 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_PKT_PWR_CTRL_PRM, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_PKT_PWR_CTRL_PRM, NULL, ei_gmr1_missing_mandatory_element);
 
 	/* P1 Rest Octets			[1] 11.5.2.23	- M V 6 */
 		/* FIXME */
@@ -1440,7 +1442,7 @@ GMR1_MSG_FUNC(gmr1_rr_msg_ciph_mode_cmd)
 	/* Cipher Mode Setting			[4] 10.5.2.9	- M V 1/2 */
 	/* Cipher Response			[4] 10.5.2.10	- M V 1/2 */
 	ELEM_MAND_VV_SHORT(GMR1_IE_RR, GMR1_IE_RR_CIPH_MODE_SETTING,
-	                   GMR1_IE_RR, GMR1_IE_RR_CIPH_RESP);
+	                   GMR1_IE_RR, GMR1_IE_RR_CIPH_RESP, ei_gmr1_missing_mandatory_element);
 
 	/* 75  Position Display			[1] 11.5.2.52	- O TV 12 */
 	ELEM_OPT_TV(0x75, GMR1_IE_RR, GMR1_IE_RR_POS_DISPLAY, NULL);
@@ -1468,7 +1470,7 @@ GMR1_MSG_FUNC(gmr1_rr_msg_ass_cmd_1)
 	GMR1_MSG_FUNC_BEGIN
 
 	/* Channel Description			[1] 11.5.2.5	- M V 4 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_CHAN_DESC, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_CHAN_DESC, NULL, ei_gmr1_missing_mandatory_element);
 
 	/* 7D  Timing Offset			[1] 11.5.2.40	- O TV 3 */
 	ELEM_OPT_TV(0x7D, GMR1_IE_RR, GMR1_IE_RR_TIMING_OFS, NULL);
@@ -1494,7 +1496,7 @@ GMR1_MSG_FUNC(gmr1_rr_msg_chan_release)
 	GMR1_MSG_FUNC_BEGIN
 
 	/* RR Cause				[1] 11.5.2.31	- M V 1 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_CAUSE, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_CAUSE, NULL, ei_gmr1_missing_mandatory_element);
 
 	GMR1_MSG_FUNC_END
 }
@@ -1511,66 +1513,66 @@ GMR1_MSG_FUNC(gmr1_rr_msg_pag_req_3)
 	tam = (tvb_get_guint8(tvb, curr_offset) & 0xf0) >> 4;
 
 	ELEM_MAND_VV_SHORT(GMR1_IE_RR, GMR1_IE_RR_PAGE_MODE,
-	                   GMR1_IE_RR, GMR1_IE_RR_TMSI_AVAIL_MSK);
+	                   GMR1_IE_RR, GMR1_IE_RR_TMSI_AVAIL_MSK, ei_gmr1_missing_mandatory_element);
 
 	/* Mobile Identity 1 (TMSI)		[4] 10.5.2.42	- C V 4 */
 	if (tam & 0x01) {
-		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_TMSI_PTMSI, " - 1");
+		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_TMSI_PTMSI, " - 1", ei_gmr1_missing_mandatory_element);
 	}
 
 	/* GPS Almanac Data 1			[1] 11.5.2.63	- C V 5 */
 	if (!(tam & 0x01)) {
-		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_GPS_ALMANAC, " - 1");
+		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_GPS_ALMANAC, " - 1", ei_gmr1_missing_mandatory_element);
 	}
 
 	/* Mobile Identity 2 (TMSI)		[4] 10.5.2.42	- C V 4 */
 	if (tam & 0x02) {
-		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_TMSI_PTMSI, " - 2");
+		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_TMSI_PTMSI, " - 2", ei_gmr1_missing_mandatory_element);
 	}
 
 	/* GPS Almanac Data 2			[1] 11.5.2.63	- C V 5 */
 	if (!(tam & 0x02)) {
-		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_GPS_ALMANAC, " - 2");
+		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_GPS_ALMANAC, " - 2", ei_gmr1_missing_mandatory_element);
 	}
 
 	/* Mobile Identity 3 (TMSI)		[4] 10.5.2.42	- C V 4 */
 	if (tam & 0x04) {
-		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_TMSI_PTMSI, " - 3");
+		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_TMSI_PTMSI, " - 3", ei_gmr1_missing_mandatory_element);
 	}
 
 	/* GPS Almanac Data 3			[1] 11.5.2.63	- C V 5 */
 	if (!(tam & 0x04)) {
-		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_GPS_ALMANAC, " - 3");
+		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_GPS_ALMANAC, " - 3", ei_gmr1_missing_mandatory_element);
 	}
 
 	/* Mobile Identity 4 (TMSI)		[4] 10.5.2.42	- C V 4 */
 	if (tam & 0x08) {
-		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_TMSI_PTMSI, " - 4");
+		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_TMSI_PTMSI, " - 4", ei_gmr1_missing_mandatory_element);
 	}
 
 	/* GPS Almanac Data 4			[1] 11.5.2.63	- C V 5 */
 	if (!(tam & 0x08)) {
-		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_GPS_ALMANAC, " - 4");
+		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_GPS_ALMANAC, " - 4", ei_gmr1_missing_mandatory_element);
 	}
 
 	/* Paging Information 1			[1] 11.5.2.51	- C V 1 */
 	if (tam & 0x01) {
-		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_PAGE_INFO, " - 1");
+		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_PAGE_INFO, " - 1", ei_gmr1_missing_mandatory_element);
 	}
 
 	/* Paging Information 2			[1] 11.5.2.51	- C V 1 */
 	if (tam & 0x02) {
-		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_PAGE_INFO, " - 2");
+		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_PAGE_INFO, " - 2", ei_gmr1_missing_mandatory_element);
 	}
 
 	/* Paging Information 3			[1] 11.5.2.51	- C V 1 */
 	if (tam & 0x04) {
-		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_PAGE_INFO, " - 3");
+		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_PAGE_INFO, " - 3", ei_gmr1_missing_mandatory_element);
 	}
 
 	/* Paging Information 4			[1] 11.5.2.51	- C V 1 */
 	if (tam & 0x08) {
-		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_PAGE_INFO, " - 4");
+		ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_PAGE_INFO, " - 4", ei_gmr1_missing_mandatory_element);
 	}
 
 	GMR1_MSG_FUNC_END
@@ -1584,13 +1586,13 @@ GMR1_MSG_FUNC(gmr1_rr_msg_pag_resp)
 	/* Ciphering Key Sequence Number	[4] 10.5.1.2	- M V 1/2 */
 	/* Spare Half Octet			[1] 11.5.1.8	- M V 1/2 */
 	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_COMMON, DE_CIPH_KEY_SEQ_NUM,
-	                   GMR1_IE_COMMON, GMR1_IE_COM_SPARE_NIBBLE);
+	                   GMR1_IE_COMMON, GMR1_IE_COM_SPARE_NIBBLE, ei_gmr1_missing_mandatory_element);
 
 	/* Mobile Earth Station Classmark 2	[1] 11.5.1.6	- M L V 4 */
-	ELEM_MAND_LV(GMR1_IE_COMMON, GMR1_IE_COM_CM2, NULL);
+	ELEM_MAND_LV(GMR1_IE_COMMON, GMR1_IE_COM_CM2, NULL, ei_gmr1_missing_mandatory_element);
 
 	/* Mobile Identity			[4] 10.5.1.4	- M L V 2-9 */
-	ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
+	ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL, ei_gmr1_missing_mandatory_element);
 
 	GMR1_MSG_FUNC_END
 }
@@ -1601,10 +1603,10 @@ GMR1_MSG_FUNC(gmr1_rr_msg_chan_mode_modify)
 	GMR1_MSG_FUNC_BEGIN
 
 	/* Channel Description			[1] 11.5.2.5	- M V 4 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_CHAN_DESC, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_CHAN_DESC, NULL, ei_gmr1_missing_mandatory_element);
 
 	/* Channel Mode				[1] 11.5.2.6	- M V 1 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_CHAN_MODE, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_CHAN_MODE, NULL, ei_gmr1_missing_mandatory_element);
 
 	GMR1_MSG_FUNC_END
 }
@@ -1615,10 +1617,10 @@ GMR1_MSG_FUNC(gmr1_rr_msg_chan_mode_mod_ack)
 	GMR1_MSG_FUNC_BEGIN
 
 	/* Channel Description			[1] 11.5.2.5	- M V 4 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_CHAN_DESC, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_CHAN_DESC, NULL, ei_gmr1_missing_mandatory_element);
 
 	/* Channel Mode				[1] 11.5.2.6	- M V 1 */
-	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_CHAN_MODE, NULL);
+	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_CHAN_MODE, NULL, ei_gmr1_missing_mandatory_element);
 
 	GMR1_MSG_FUNC_END
 }
@@ -2419,6 +2421,12 @@ proto_register_gmr1_rr(void)
 		},
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_gmr1_missing_mandatory_element, { "gmr1.rr.missing_mandatory_element", PI_PROTOCOL, PI_ERROR, "Missing Mandatory element, rest of dissection is suspect", EXPFILL }},
+	};
+
+	expert_module_t* expert_gmr1_rr;
+
 #define NUM_INDIVIDUAL_ELEMS 2
 	static gint *ett[NUM_INDIVIDUAL_ELEMS +
 	                 NUM_GMR1_IE_RR +
@@ -2448,6 +2456,9 @@ proto_register_gmr1_rr(void)
 	proto_gmr1_rr = proto_register_protocol("GEO-Mobile Radio (1) RR", "GMR-1 RR", "gmr1.rr");
 
 	proto_register_field_array(proto_gmr1_rr, hf, array_length(hf));
+
+	expert_gmr1_rr = expert_register_protocol(proto_gmr1_rr);
+	expert_register_field_array(expert_gmr1_rr, ei, array_length(ei));
 
 	/* Register the protocol name and field description */
 	proto_gmr1_ccch = proto_register_protocol("GEO-Mobile Radio (1) CCCH", "GMR-1 CCCH", "gmr1.ccch");

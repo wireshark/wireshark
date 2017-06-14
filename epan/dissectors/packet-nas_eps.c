@@ -301,6 +301,7 @@ static expert_field ei_nas_eps_wrong_nb_of_elems = EI_INIT;
 static expert_field ei_nas_eps_unknown_msg_type = EI_INIT;
 static expert_field ei_nas_eps_unknown_pd = EI_INIT;
 static expert_field ei_nas_eps_esm_tp_not_integ_prot = EI_INIT;
+static expert_field ei_nas_eps_missing_mandatory_elemen = EI_INIT;
 
 /* Global variables */
 static gboolean g_nas_eps_dissect_plain = FALSE;
@@ -3479,11 +3480,11 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     curr_len--;
     curr_offset++;
     /*  T3412 value GPRS timer 9.9.3.16 M   V   1 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, " - T3412 value");
+    ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, " - T3412 value", ei_nas_eps_missing_mandatory_elemen);
     /*  Tracking area identity list 9.9.3.33    M   LV  7-97 */
-    ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - TAI list");
+    ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - TAI list", ei_nas_eps_missing_mandatory_elemen);
     /*  ESM message container 9.9.3.15  M   LV-E    2-n */
-    ELEM_MAND_LV_E(NAS_PDU_TYPE_EMM, DE_EMM_ESM_MSG_CONT, NULL);
+    ELEM_MAND_LV_E(NAS_PDU_TYPE_EMM, DE_EMM_ESM_MSG_CONT, NULL, ei_nas_eps_missing_mandatory_elemen);
     /* 50   GUTI    EPS mobile identity 9.9.3.12    O   TLV 13 */
     ELEM_OPT_TLV(0x50, NAS_PDU_TYPE_EMM, DE_EMM_EPS_MID, " - GUTI");
     /* 13   Location area identification    Location area identification 9.9.2.2    O   TV  6 */
@@ -3529,7 +3530,7 @@ nas_emm_attach_comp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
     pinfo->link_dir = P2P_DIR_UL;
 
     /* ESM message container    ESM message container 9.9.3.15  M   LV-E    2-n */
-    ELEM_MAND_LV_E(NAS_PDU_TYPE_EMM, DE_EMM_ESM_MSG_CONT, NULL);
+    ELEM_MAND_LV_E(NAS_PDU_TYPE_EMM, DE_EMM_ESM_MSG_CONT, NULL, ei_nas_eps_missing_mandatory_elemen);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 
@@ -3551,7 +3552,7 @@ nas_emm_attach_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     pinfo->link_dir = P2P_DIR_DL;
 
     /* * EMM cause  EMM cause 9.9.3.9   M   V   1 */
-    ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE, NULL);
+    ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE, NULL, ei_nas_eps_missing_mandatory_elemen);
     /* 78 ESM message container ESM message container 9.9.3.15  O   TLV-E   4-n */
     ELEM_OPT_TLV_E(0x78, NAS_PDU_TYPE_EMM, DE_EMM_ESM_MSG_CONT, NULL);
     /* 5F   T3346 value GPRS timer 2 9.9.3.16A O   TLV  3 */
@@ -3597,11 +3598,11 @@ nas_emm_attach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     curr_len--;
     curr_offset++;
     /* Old GUTI or IMSI EPS mobile identity 9.9.3.12    M   LV  5-12 */
-    ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_EPS_MID, NULL);
+    ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_EPS_MID, NULL, ei_nas_eps_missing_mandatory_elemen);
     /* UE network capability    UE network capability 9.9.3.34  M   LV  3-14 */
-    ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_UE_NET_CAP, NULL);
+    ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_UE_NET_CAP, NULL, ei_nas_eps_missing_mandatory_elemen);
     /* ESM message container    ESM message container 9.9.3.15  M   LV-E    2-n */
-    ELEM_MAND_LV_E(NAS_PDU_TYPE_EMM, DE_EMM_ESM_MSG_CONT, NULL);
+    ELEM_MAND_LV_E(NAS_PDU_TYPE_EMM, DE_EMM_ESM_MSG_CONT, NULL, ei_nas_eps_missing_mandatory_elemen);
     /* 19   Old P-TMSI signature    P-TMSI signature 10.5.5.8   O   TV  4 */
     ELEM_OPT_TV( 0x19 , GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG, " - Old P-TMSI Signature");
     /* 50   Additional GUTI EPS mobile identity 9.9.3.12    O   TLV 13 */
@@ -3659,7 +3660,7 @@ nas_emm_auth_fail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
     pinfo->link_dir = P2P_DIR_UL;
 
     /* EMM cause   EMM cause 9.9.3.9   M   V   1 */
-    ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE, NULL);
+    ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE, NULL, ei_nas_eps_missing_mandatory_elemen);
     /* 30 Authentication failure parameter  Authentication failure parameter 9.9.3.1    O   TLV 1 */
     ELEM_OPT_TLV(0x30, GSM_A_PDU_TYPE_DTAP, DE_AUTH_FAIL_PARAM, NULL);
 
@@ -3704,11 +3705,11 @@ nas_emm_auth_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
     /*
      * Authentication parameter RAND (EPS challenge) 9.9.3.3    M   V   16
      */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_RAND, " - EPS challenge");
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_RAND, " - EPS challenge", ei_nas_eps_missing_mandatory_elemen);
     /*
      * Authentication parameter AUTN (EPS challenge) 9.9.3.2    M   LV  17
      */
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_AUTN, " - EPS challenge");
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_AUTN, " - EPS challenge", ei_nas_eps_missing_mandatory_elemen);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 
@@ -3731,7 +3732,7 @@ nas_emm_auth_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
     /*
      * Authentication response parameter 9.9.3.4    M   LV  5-17
      */
-    ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_AUTH_RESP_PAR, NULL);
+    ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_AUTH_RESP_PAR, NULL, ei_nas_eps_missing_mandatory_elemen);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -3753,7 +3754,7 @@ nas_emm_cs_serv_not(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
     pinfo->link_dir = P2P_DIR_DL;
 
     /* Paging identity  Paging identity 9.9.3.25A   M   V   1 */
-    ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_PAGING_ID, NULL);
+    ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_PAGING_ID, NULL, ei_nas_eps_missing_mandatory_elemen);
     /* 60   CLI CLI 9.9.3.38    O   TLV 3-12 */
     ELEM_OPT_TLV(0x60, GSM_A_PDU_TYPE_DTAP, DE_CLG_PARTY_BCD_NUM, " - CLI");
     /* 61   SS Code SS Code 9.9.3.39    O   TV  2 */
@@ -3809,7 +3810,7 @@ nas_emm_detach_req_UL(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
     curr_offset++;
 
     /* GUTI or IMSI EPS mobile identity 9.9.3.12    M   LV  5-12 */
-    ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_EPS_MID, NULL);
+    ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_EPS_MID, NULL, ei_nas_eps_missing_mandatory_elemen);
 }
 /*
  * 8.2.11.2 Detach request (UE terminated detach)
@@ -3883,7 +3884,7 @@ nas_emm_dl_nas_trans(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
     pinfo->link_dir = P2P_DIR_DL;
 
     /* NAS message container    NAS message container 9.9.3.22  M   LV  3-252 */
-    ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_NAS_MSG_CONT, NULL);
+    ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_NAS_MSG_CONT, NULL, ei_nas_eps_missing_mandatory_elemen);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -3931,7 +3932,7 @@ nas_emm_emm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     curr_len    = len;
 
     /* EMM cause    EMM cause 9.9.3.9   M   V   1 */
-    ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE, NULL);
+    ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE, NULL, ei_nas_eps_missing_mandatory_elemen);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -3964,7 +3965,7 @@ nas_emm_ext_serv_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
     curr_offset++;
 
     /* M-TMSI   Mobile identity 9.9.2.3 M   LV  6 */
-    ELEM_MAND_LV(NAS_PDU_TYPE_COMMON, DE_EPS_CMN_MOB_ID, " - M-TMSI");
+    ELEM_MAND_LV(NAS_PDU_TYPE_COMMON, DE_EPS_CMN_MOB_ID, " - M-TMSI", ei_nas_eps_missing_mandatory_elemen);
     /* B-   CSFB response   CSFB response 9.9.3.5   C   TV  1 */
     ELEM_OPT_TV_SHORT(0xb0, NAS_PDU_TYPE_EMM, DE_EMM_CSFB_RESP, NULL);
     /* 57   EPS bearer context status   EPS bearer context status 9.9.2.1   O   TLV 4 */
@@ -3990,7 +3991,7 @@ nas_emm_guti_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
     pinfo->link_dir = P2P_DIR_DL;
 
     /* GUTI EPS mobile identity 9.9.3.12    M   LV  12 */
-    ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_EPS_MID, " - GUTI");
+    ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_EPS_MID, " - GUTI", ei_nas_eps_missing_mandatory_elemen);
 
     /* 54   TAI list    Tracking area identity list 9.9.3.33    O   TLV 8-98 */
     ELEM_OPT_TLV(0x54, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, NULL);
@@ -4052,7 +4053,7 @@ nas_emm_id_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
     pinfo->link_dir = P2P_DIR_UL;
 
     /* Mobile identity  Mobile identity 9.9.2.3 M   LV  4-10 */
-    ELEM_MAND_LV(NAS_PDU_TYPE_COMMON, DE_EPS_CMN_MOB_ID, NULL);
+    ELEM_MAND_LV(NAS_PDU_TYPE_COMMON, DE_EPS_CMN_MOB_ID, NULL, ei_nas_eps_missing_mandatory_elemen);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4075,7 +4076,7 @@ nas_emm_sec_mode_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
     pinfo->link_dir = P2P_DIR_DL;
 
     /*  Selected NAS security algorithms    NAS security algorithms 9.9.3.23    M   V   1  */
-    ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_NAS_SEC_ALGS, " - Selected NAS security algorithms");
+    ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_NAS_SEC_ALGS, " - Selected NAS security algorithms", ei_nas_eps_missing_mandatory_elemen);
 
     bit_offset = curr_offset<<3;
     /* Spare half octet Spare half octet 9.9.2.7    M   V   1/2 */
@@ -4090,7 +4091,7 @@ nas_emm_sec_mode_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
     curr_offset++;
 
     /*  Replayed UE security capabilities   UE security capability 9.9.3.36 M   LV  3-6 */
-    ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_UE_SEC_CAP, " - Replayed UE security capabilities");
+    ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_UE_SEC_CAP, " - Replayed UE security capabilities", ei_nas_eps_missing_mandatory_elemen);
     /* C-   IMEISV request  IMEISV request 9.9.3.18 O   TV  1 */
     ELEM_OPT_TV_SHORT( 0xC0 , NAS_PDU_TYPE_EMM, DE_EMM_IMEISV_REQ , NULL );
     /* 55   Replayed NonceUE    Nonce 9.9.3.25  O   TV  5 */
@@ -4136,7 +4137,7 @@ nas_emm_sec_mode_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
     pinfo->link_dir = P2P_DIR_UL;
 
     /* EMM cause    EMM cause 9.9.3.9   M   V   1 */
-    ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE, NULL);
+    ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE, NULL, ei_nas_eps_missing_mandatory_elemen);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4156,7 +4157,7 @@ nas_emm_serv_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
     pinfo->link_dir = P2P_DIR_DL;
 
     /* EMM cause    EMM cause 9.9.3.9   M   V   1 */
-    ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE, NULL);
+    ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE, NULL, ei_nas_eps_missing_mandatory_elemen);
     /* 5B   T3442 value GPRS timer 9.9.3.16 C   TV  2 */
     ELEM_OPT_TV(0x5b, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, " - T3442 value");
     /* 5F   T3346 value GPRS timer 2 9.9.3.16A O   TLV  3 */
@@ -4189,10 +4190,10 @@ nas_emm_service_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
     pinfo->link_dir = P2P_DIR_UL;
 
     /* KSI and sequence number 9.9.3.19 M V 1   */
-    ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_KSI_AND_SEQ_NO, NULL);
+    ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_KSI_AND_SEQ_NO, NULL, ei_nas_eps_missing_mandatory_elemen);
 
     /* Short MAC 9.9.3.28 M V 2 */
-    ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_SHORT_MAC, " - Message authentication code (short)");
+    ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_SHORT_MAC, " - Message authentication code (short)", ei_nas_eps_missing_mandatory_elemen);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4282,7 +4283,7 @@ nas_emm_trac_area_upd_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     pinfo->link_dir = P2P_DIR_DL;
 
     /* EMM cause    EMM cause 9.9.3.9   M   V   1 */
-    ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE, NULL);
+    ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE, NULL, ei_nas_eps_missing_mandatory_elemen);
     /* 5F   T3346 value GPRS timer 2 9.9.3.16A O   TLV  3 */
     ELEM_OPT_TLV(0x5F, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3346 value");
     /* A-   Extended EMM cause   Extended EMM cause 9.9.3.26A  O   TV  1 */
@@ -4322,7 +4323,7 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     curr_len--;
     curr_offset++;
     /*  Old GUTI    EPS mobile identity 9.9.3.12    M   LV  12 */
-    ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_EPS_MID, " - Old GUTI");
+    ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_EPS_MID, " - Old GUTI", ei_nas_eps_missing_mandatory_elemen);
     /* No more Mandatory elements */
 
     /*  B-  NAS key set identifier  Non-current native NAS key set identifier 9.9.3.21  O   TV  1 */
@@ -4395,7 +4396,7 @@ nas_emm_ul_nas_trans(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
     pinfo->link_dir = P2P_DIR_UL;
 
     /* NAS message container    NAS message container 9.9.3.22  M   LV  3-252*/
-    ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_NAS_MSG_CONT, NULL);
+    ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_NAS_MSG_CONT, NULL, ei_nas_eps_missing_mandatory_elemen);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4416,9 +4417,9 @@ nas_emm_dl_gen_nas_trans(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
     pinfo->link_dir = P2P_DIR_DL;
 
     /* Generic message container type Generic message container type 9.9.3.42 M V 1 */
-    ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_GEN_MSG_CONT_TYPE, NULL);
+    ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_GEN_MSG_CONT_TYPE, NULL, ei_nas_eps_missing_mandatory_elemen);
     /* Generic message container Generic message container 9.9.3.43 M LV-E 3-n */
-    ELEM_MAND_LV_E(NAS_PDU_TYPE_EMM, DE_EMM_GEN_MSG_CONT, NULL)
+    ELEM_MAND_LV_E(NAS_PDU_TYPE_EMM, DE_EMM_GEN_MSG_CONT, NULL, ei_nas_eps_missing_mandatory_elemen)
     /* 65 Additional information Additional information 9.9.2.0 O TLV 3-n */
     ELEM_OPT_TLV(0x65, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_ADD_INFO, NULL);
 
@@ -4443,9 +4444,9 @@ nas_emm_ul_gen_nas_trans(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
     pinfo->link_dir = P2P_DIR_UL;
 
     /* Generic message container type Generic message container type 9.9.3.42 M V 1 */
-    ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_GEN_MSG_CONT_TYPE, NULL);
+    ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_GEN_MSG_CONT_TYPE, NULL, ei_nas_eps_missing_mandatory_elemen);
     /* Generic message container Generic message container 9.9.3.43 M LV-E 3-n */
-    ELEM_MAND_LV_E(NAS_PDU_TYPE_EMM, DE_EMM_GEN_MSG_CONT, NULL)
+    ELEM_MAND_LV_E(NAS_PDU_TYPE_EMM, DE_EMM_GEN_MSG_CONT, NULL, ei_nas_eps_missing_mandatory_elemen)
     /* 65 Additional information Additional information 9.9.2.0 O TLV 3-n */
     ELEM_OPT_TLV(0x65, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_ADD_INFO, NULL);
 
@@ -4568,7 +4569,7 @@ nas_esm_act_ded_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, packet_info 
     pinfo->link_dir = P2P_DIR_UL;
 
     /* ESM cause    ESM cause 9.9.4.2   M   V   1 */
-    ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
+    ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL, ei_nas_eps_missing_mandatory_elemen);
     /* 27   Protocol configuration options  Protocol configuration options 9.9.4.11 O   TLV 3-253 */
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
     /* 33   NBIFOM container  NBIFOM container 9.9.4.19 O   TLV 3-257 */
@@ -4607,9 +4608,9 @@ nas_esm_act_ded_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info 
     curr_offset++;
 
     /* EPS QoS  EPS quality of service 9.9.4.3  M   LV  2-10 */
-    ELEM_MAND_LV(NAS_PDU_TYPE_ESM, DE_ESM_EPS_QOS, NULL);
+    ELEM_MAND_LV(NAS_PDU_TYPE_ESM, DE_ESM_EPS_QOS, NULL, ei_nas_eps_missing_mandatory_elemen);
     /* TFT  Traffic flow template 9.9.4.16  M   LV  2-256 */
-    ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE , NULL );
+    ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE , NULL, ei_nas_eps_missing_mandatory_elemen);
     /* 5D   Transaction identifier  Transaction identifier 9.9.4.17 O   TLV 3-4 */
     ELEM_OPT_TLV( 0x5d , GSM_A_PDU_TYPE_GM, DE_LINKED_TI , " - Transaction identifier" );
     /* 30   Negotiated QoS  Quality of service 9.9.4.12 O   TLV 14-18 */
@@ -4673,7 +4674,7 @@ nas_esm_act_def_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, packet_info 
     pinfo->link_dir = P2P_DIR_UL;
 
     /*  ESM cause   ESM cause 9.9.4.4   M   V   1 */
-    ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
+    ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL, ei_nas_eps_missing_mandatory_elemen);
     /* 27   Protocol configuration options  Protocol configuration options 9.9.4.11 O   TLV 3-253 */
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
     /* 7B   Extended protocol configuration options Extended protocol configuration options 9.9.4.26 O  TLV-E  4-65538 */
@@ -4699,11 +4700,11 @@ nas_esm_act_def_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info 
     pinfo->link_dir = P2P_DIR_DL;
 
     /*  EPS QoS EPS quality of service 9.9.4.3  M   LV  2-10 */
-    ELEM_MAND_LV(NAS_PDU_TYPE_ESM, DE_ESM_EPS_QOS, NULL);
+    ELEM_MAND_LV(NAS_PDU_TYPE_ESM, DE_ESM_EPS_QOS, NULL, ei_nas_eps_missing_mandatory_elemen);
     /*  Access point name   Access point name 9.9.4.1   M   LV  2-101 */
-    ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_ACC_POINT_NAME , NULL );
+    ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_ACC_POINT_NAME , NULL, ei_nas_eps_missing_mandatory_elemen);
     /*  PDN address PDN address 9.9.4.9 M   LV  6-14 DE_ESM_PDN_ADDR*/
-    ELEM_MAND_LV( NAS_PDU_TYPE_ESM, DE_ESM_PDN_ADDR , NULL );
+    ELEM_MAND_LV( NAS_PDU_TYPE_ESM, DE_ESM_PDN_ADDR , NULL, ei_nas_eps_missing_mandatory_elemen);
     /* 5D   Transaction identifier  Transaction identifier 9.9.4.17 O   TLV 3-4 */
     ELEM_OPT_TLV( 0x5d , GSM_A_PDU_TYPE_GM, DE_LINKED_TI , " - Transaction identifier" );
     /* 30   Negotiated QoS  Quality of service 9.9.4.12 O   TLV 14-18 */
@@ -4755,7 +4756,7 @@ nas_esm_bearer_res_all_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     pinfo->link_dir = P2P_DIR_DL;
 
     /*  ESM cause   ESM cause 9.9.4.4   M   V   1 */
-    ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
+    ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL, ei_nas_eps_missing_mandatory_elemen);
     /* 27   Protocol configuration options  Protocol configuration options 9.9.4.11 O   TLV 3-253 */
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
     /* 37   Back-off timer value GPRS timer 3 9.9.3.16B O   TLV  3 */
@@ -4798,9 +4799,9 @@ nas_esm_bearer_res_all_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     curr_offset++;
 
     /*  Traffic flow aggregate  Traffic flow aggregate description 9.9.4.15 M   LV  2-256 */
-    ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE , " - Traffic flow aggregate" );
+    ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE , " - Traffic flow aggregate", ei_nas_eps_missing_mandatory_elemen);
     /*  Required traffic flow QoS   EPS quality of service 9.9.4.3  M   LV  2-10 */
-    ELEM_MAND_LV(NAS_PDU_TYPE_ESM, DE_ESM_EPS_QOS, " - Required traffic flow QoS");
+    ELEM_MAND_LV(NAS_PDU_TYPE_ESM, DE_ESM_EPS_QOS, " - Required traffic flow QoS", ei_nas_eps_missing_mandatory_elemen);
     /* 27   Protocol configuration options  Protocol configuration options 9.9.4.11 O   TLV 3-253 */
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
     /* C-   Device properties  Device properties 9.9.2.0A O   TV  1 */
@@ -4829,7 +4830,7 @@ nas_esm_bearer_res_mod_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     pinfo->link_dir = P2P_DIR_DL;
 
     /*  ESM cause   ESM cause 9.9.4.4   M   V   1 */
-    ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
+    ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL, ei_nas_eps_missing_mandatory_elemen);
     /* 27   Protocol configuration options  Protocol configuration options 9.9.4.11 O   TLV 3-253 */
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
     /* 37   Back-off timer value GPRS timer 3 9.9.3.16B O   TLV  3 */
@@ -4870,7 +4871,7 @@ nas_esm_bearer_res_mod_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     curr_len--;
     curr_offset++;
     /* Traffic flow aggregate   Traffic flow aggregate description 9.9.4.15 M   LV  2-256 */
-    ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE , " - Traffic flow aggregate" );
+    ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE , " - Traffic flow aggregate", ei_nas_eps_missing_mandatory_elemen);
     /* 5B   Required traffic flow QoS   EPS quality of service 9.9.4.3  O   TLV 3-11 */
     ELEM_OPT_TLV( 0x5B , NAS_PDU_TYPE_ESM, DE_ESM_EPS_QOS , " - Required traffic flow QoS" );
     /* 58   ESM cause   ESM cause 9.9.4.4   O   TV  2 */
@@ -4928,7 +4929,7 @@ nas_esm_deact_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     pinfo->link_dir = P2P_DIR_DL;
 
     /*  ESM cause   ESM cause 9.9.4.4   M   V   1 */
-    ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
+    ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL, ei_nas_eps_missing_mandatory_elemen);
     /* 27   Protocol configuration options  Protocol configuration options 9.9.4.11 O   TLV */
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
     /* 37   T3396 value GPRS timer 3 9.9.3.16B O   TLV  3 */
@@ -5013,7 +5014,7 @@ nas_esm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
     curr_len    = len;
 
     /* ESM cause    ESM cause 9.9.4.4   M   V   1 */
-    ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
+    ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL, ei_nas_eps_missing_mandatory_elemen);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -5059,7 +5060,7 @@ nas_esm_mod_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     pinfo->link_dir = P2P_DIR_UL;
 
     /* ESM cause    ESM cause 9.9.4.4   M   V   1 */
-    ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
+    ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL, ei_nas_eps_missing_mandatory_elemen);
     /* 27   Protocol configuration options  Protocol configuration options 9.9.4.11 O   TLV 3-253 */
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
     /* 33   NBIFOM container  NBIFOM container 9.9.4.19 O   TLV 3-257 */
@@ -5128,7 +5129,7 @@ nas_esm_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
     pinfo->link_dir = P2P_DIR_DL;
 
     /* Notification indicator Notification indicator 9.9.4.7A M LV 2 */
-    ELEM_MAND_LV(NAS_PDU_TYPE_ESM, DE_ESM_NOTIF_IND, NULL);
+    ELEM_MAND_LV(NAS_PDU_TYPE_ESM, DE_ESM_NOTIF_IND, NULL, ei_nas_eps_missing_mandatory_elemen);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -5150,7 +5151,7 @@ nas_esm_pdn_con_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
     pinfo->link_dir = P2P_DIR_DL;
 
     /* ESM cause    ESM cause 9.9.4.4   M   V   1 */
-    ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
+    ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL, ei_nas_eps_missing_mandatory_elemen);
     /* 27   Protocol configuration options  Protocol configuration options 9.9.4.11 O   TLV 3-253 */
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
     /* 37   Back-off timer value GPRS timer 3 9.9.3.16B O   TLV  3 */
@@ -5228,7 +5229,7 @@ nas_esm_pdn_disc_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
     pinfo->link_dir = P2P_DIR_DL;
 
     /* ESM cause    ESM cause 9.9.4.4   M   V   1 */
-    ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
+    ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL, ei_nas_eps_missing_mandatory_elemen);
     /* 27   Protocol configuration options  Protocol configuration options 9.9.4.11 O   TLV 3-253 */
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
     /* 7B   Extended protocol configuration options Extended protocol configuration options 9.9.4.26 O  TLV-E  4-65538 */
@@ -5325,7 +5326,7 @@ nas_esm_data_transport(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guin
     curr_len    = len;
 
     /* User data container  User data container 9.9.4.24 M  LV-E  2-n */
-    ELEM_MAND_LV_E(NAS_PDU_TYPE_ESM, DE_ESM_USER_DATA_CONT, NULL);
+    ELEM_MAND_LV_E(NAS_PDU_TYPE_ESM, DE_ESM_USER_DATA_CONT, NULL, ei_nas_eps_missing_mandatory_elemen);
     /* F-  Release assistance indication  Release assistance indication 9.9.4.25 O  TV  1 */
     ELEM_OPT_TV_SHORT(0xF0, NAS_PDU_TYPE_ESM, DE_ESM_REL_ASSIST_IND, NULL);
 
@@ -6936,7 +6937,8 @@ proto_register_nas_eps(void)
         { &ei_nas_eps_wrong_nb_of_elems, { "nas_eps.emm.tai_wrong_number_of_elems", PI_PROTOCOL, PI_ERROR, "[Wrong number of elements?]", EXPFILL }},
         { &ei_nas_eps_unknown_msg_type, { "nas_eps.unknown_msg_type", PI_PROTOCOL, PI_WARN, "Unknown Message Type", EXPFILL }},
         { &ei_nas_eps_unknown_pd, { "nas_eps.unknown_pd", PI_PROTOCOL, PI_ERROR, "Unknown protocol discriminator", EXPFILL }},
-        { &ei_nas_eps_esm_tp_not_integ_prot, { "nas_eps.esm_tp_not_integrity_protected", PI_PROTOCOL, PI_ERROR, "All ESM / Test Procedures messages should be integrity protected", EXPFILL }}
+        { &ei_nas_eps_esm_tp_not_integ_prot, { "nas_eps.esm_tp_not_integrity_protected", PI_PROTOCOL, PI_ERROR, "All ESM / Test Procedures messages should be integrity protected", EXPFILL }},
+        { &ei_nas_eps_missing_mandatory_elemen, { "nas_eps.missing_mandatory_element", PI_PROTOCOL, PI_ERROR, "Missing Mandatory element, rest of dissection is suspect", EXPFILL }},
     };
 
     expert_module_t* expert_nas_eps;

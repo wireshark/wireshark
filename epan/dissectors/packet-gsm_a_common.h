@@ -395,7 +395,8 @@ WS_DLL_PUBLIC guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info 
 
 #define ELEM_MAND_TLV(EMT_iei, EMT_pdu_type, EMT_elem_idx, EMT_elem_name_addition, ei_mandatory) \
 {\
-    if ((consumed = elem_tlv(tvb, tree, pinfo, (guint8) EMT_iei, EMT_pdu_type, EMT_elem_idx, curr_offset, curr_len, EMT_elem_name_addition)) > 0) \
+    if (((signed)curr_len > 0) && \
+        ((consumed = elem_tlv(tvb, tree, pinfo, (guint8) EMT_iei, EMT_pdu_type, EMT_elem_idx, curr_offset, curr_len, EMT_elem_name_addition)) > 0)) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
@@ -420,7 +421,8 @@ WS_DLL_PUBLIC guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info 
  */
 #define ELEM_MAND_TELV(EMT_iei, EMT_pdu_type, EMT_elem_idx, EMT_elem_name_addition, ei_mandatory) \
 {\
-    if ((consumed = elem_telv(tvb, tree, pinfo, (guint8) EMT_iei, EMT_pdu_type, EMT_elem_idx, curr_offset, curr_len, EMT_elem_name_addition)) > 0) \
+    if (((signed)curr_len > 0) && \
+        ((consumed = elem_telv(tvb, tree, pinfo, (guint8) EMT_iei, EMT_pdu_type, EMT_elem_idx, curr_offset, curr_len, EMT_elem_name_addition)) > 0)) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
@@ -440,7 +442,8 @@ WS_DLL_PUBLIC guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info 
 
 #define ELEM_MAND_TLV_E(EMT_iei, EMT_pdu_type, EMT_elem_idx, EMT_elem_name_addition, ei_mandatory) \
 {\
-    if ((consumed = elem_tlv_e(tvb, tree, pinfo, (guint8) EMT_iei, EMT_pdu_type, EMT_elem_idx, curr_offset, curr_len, EMT_elem_name_addition)) > 0) \
+    if (((signed)curr_len > 0) && \
+        ((consumed = elem_tlv_e(tvb, tree, pinfo, (guint8) EMT_iei, EMT_pdu_type, EMT_elem_idx, curr_offset, curr_len, EMT_elem_name_addition)) > 0)) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
@@ -489,7 +492,8 @@ WS_DLL_PUBLIC guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info 
 
 #define ELEM_MAND_TV(EMT_iei, EMT_pdu_type, EMT_elem_idx, EMT_elem_name_addition, ei_mandatory) \
 {\
-    if ((consumed = elem_tv(tvb, tree, pinfo, (guint8) EMT_iei, EMT_pdu_type, EMT_elem_idx, curr_offset, EMT_elem_name_addition)) > 0) \
+    if (((signed)curr_len > 0) && \
+        ((consumed = elem_tv(tvb, tree, pinfo, (guint8) EMT_iei, EMT_pdu_type, EMT_elem_idx, curr_offset, EMT_elem_name_addition)) > 0)) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
@@ -537,51 +541,85 @@ WS_DLL_PUBLIC guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info 
     } \
 }
 
-#define ELEM_MAND_LV(EML_pdu_type, EML_elem_idx, EML_elem_name_addition) \
+#define ELEM_MAND_LV(EML_pdu_type, EML_elem_idx, EML_elem_name_addition, ei_mandatory) \
 {\
-    if ((consumed = elem_lv(tvb, tree, pinfo, EML_pdu_type, EML_elem_idx, curr_offset, curr_len, EML_elem_name_addition)) > 0) \
+    if (((signed)curr_len > 0) && \
+        ((consumed = elem_lv(tvb, tree, pinfo, EML_pdu_type, EML_elem_idx, curr_offset, curr_len, EML_elem_name_addition)) > 0)) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
     } \
     else \
     { \
-        /* Mandatory, but nothing we can do */ \
+        proto_tree_add_expert_format(tree, pinfo, &ei_mandatory,\
+            tvb, curr_offset, 0, \
+            "Missing Mandatory element %s%s, rest of dissection is suspect", \
+            get_gsm_a_msg_string(EML_pdu_type, EML_elem_idx), \
+            /* coverity[array_null] */ \
+            (EML_elem_name_addition == NULL) ? "" : EML_elem_name_addition \
+        ); \
     } \
 }
 
-#define ELEM_MAND_LV_E(EML_pdu_type, EML_elem_idx, EML_elem_name_addition) \
+#define ELEM_MAND_LV_E(EML_pdu_type, EML_elem_idx, EML_elem_name_addition, ei_mandatory) \
 {\
-    if ((consumed = elem_lv_e(tvb, tree, pinfo, EML_pdu_type, EML_elem_idx, curr_offset, curr_len, EML_elem_name_addition)) > 0) \
+    if (((signed)curr_len > 0) && \
+        ((consumed = elem_lv_e(tvb, tree, pinfo, EML_pdu_type, EML_elem_idx, curr_offset, curr_len, EML_elem_name_addition)) > 0)) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
     } \
     else \
     { \
-        /* Mandatory, but nothing we can do */ \
+        proto_tree_add_expert_format(tree, pinfo, &ei_mandatory,\
+            tvb, curr_offset, 0, \
+            "Missing Mandatory element %s%s, rest of dissection is suspect", \
+            get_gsm_a_msg_string(EML_pdu_type, EML_elem_idx), \
+            /* coverity[array_null] */ \
+            (EML_elem_name_addition == NULL) ? "" : EML_elem_name_addition \
+        ); \
     } \
 }
 
-#define ELEM_MAND_V(EMV_pdu_type, EMV_elem_idx, EMV_elem_name_addition) \
+#define ELEM_MAND_V(EMV_pdu_type, EMV_elem_idx, EMV_elem_name_addition, ei_mandatory) \
 {\
-    if ((consumed = elem_v(tvb, tree, pinfo, EMV_pdu_type, EMV_elem_idx, curr_offset, EMV_elem_name_addition)) > 0) \
+    if (((signed)curr_len > 0) && \
+        ((consumed = elem_v(tvb, tree, pinfo, EMV_pdu_type, EMV_elem_idx, curr_offset, EMV_elem_name_addition)) > 0)) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
     } \
     else \
     { \
-        /* Mandatory, but nothing we can do */ \
+        proto_tree_add_expert_format(tree, pinfo, &ei_mandatory,\
+            tvb, curr_offset, 0, \
+            "Missing Mandatory element %s%s, rest of dissection is suspect", \
+            get_gsm_a_msg_string(EMV_pdu_type, EMV_elem_idx), \
+            /* coverity[array_null] */ \
+            (EMV_elem_name_addition == NULL) ? "" : EMV_elem_name_addition \
+        ); \
     } \
 }
 
-#define ELEM_MAND_VV_SHORT(EMV_pdu_type1, EMV_elem_idx1, EMV_pdu_type2, EMV_elem_idx2) \
+#define ELEM_MAND_VV_SHORT(EMV_pdu_type1, EMV_elem_idx1, EMV_pdu_type2, EMV_elem_idx2, ei_mandatory) \
 {\
-    elem_v_short(tvb, tree, pinfo, EMV_pdu_type1, EMV_elem_idx1, curr_offset, RIGHT_NIBBLE); \
-    elem_v_short(tvb, tree, pinfo, EMV_pdu_type2, EMV_elem_idx2, curr_offset, LEFT_NIBBLE); \
-    curr_offset ++ ; /* consumed length is 1, regardless of contents */ \
-    curr_len -- ; \
+    if ((signed)curr_len > 0) \
+    { \
+        elem_v_short(tvb, tree, pinfo, EMV_pdu_type1, EMV_elem_idx1, curr_offset, RIGHT_NIBBLE); \
+        elem_v_short(tvb, tree, pinfo, EMV_pdu_type2, EMV_elem_idx2, curr_offset, LEFT_NIBBLE); \
+        curr_offset ++ ; /* consumed length is 1, regardless of contents */ \
+        curr_len -- ; \
+    } \
+    else \
+    { \
+        proto_tree_add_expert_format(tree, pinfo, &ei_mandatory,\
+            tvb, curr_offset, 0, \
+            "Missing Mandatory elements %s %s, rest of dissection is suspect", \
+            get_gsm_a_msg_string(EMV_pdu_type1, EMV_elem_idx1), \
+            get_gsm_a_msg_string(EMV_pdu_type2, EMV_elem_idx2) \
+            /* coverity[array_null] */ \
+        ); \
+    } \
 }
 
 /*
