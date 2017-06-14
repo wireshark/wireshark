@@ -413,6 +413,7 @@ static device_encryption_keys_t *get_encryption_keys_dev_address(guint32 dev_add
 	return NULL;
 }
 
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 static device_encryption_keys_t *get_encryption_keys_app_eui(const guint8 *appeui)
 {
 	guint i;
@@ -426,7 +427,6 @@ static device_encryption_keys_t *get_encryption_keys_app_eui(const guint8 *appeu
 	return NULL;
 }
 
-#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 static guint32
 calculate_mic(const guint8 *in, guint8 length, const guint8 *key)
 {
