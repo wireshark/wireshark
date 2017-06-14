@@ -312,7 +312,7 @@ get_le_multi_byte_value(tvbuff_t *tvb, int offset, proto_tree *tree, guint32 *va
         byte = tvb_get_guint8(tvb, offset);
         offset += 1;
         val |= ((byte >> 1) & 0xff) << (bc++ * 7);
-    } while ((byte & 0x1) == 0);
+    } while (((byte & 0x1) == 0) && (bc <= 4));
 
     *val_ptr = val;
 
