@@ -1536,7 +1536,9 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 						offset += 4;
 						break;
 					default:
-						avp_vsa_type = tvb_get_guint8(tvb, offset++);
+						/* vendor->type_octets = 1; */
+						DISSECTOR_ASSERT_NOT_REACHED();
+						break;
 				}
 
 				if (!avp_is_extended) {
@@ -1552,7 +1554,9 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 							offset += 2;
 							break;
 						default:
-							avp_vsa_len = tvb_get_guint8(tvb, offset++);
+							/* vendor->length_octets = 1; */
+							DISSECTOR_ASSERT_NOT_REACHED();
+							break;
 					}
 					avp_vsa_header_len = vendor->type_octets + vendor->length_octets + (vendor->has_flags ? 1 : 0);
 				} else {
@@ -1592,11 +1596,11 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 								       avp_vsa_len+avp_vsa_header_len, dictionary_entry->name, avp_vsa_type);
 				}
 
-				proto_tree_add_item(avp_tree, hf_radius_avp_vendor_type, tvb, vendor_offset, 1, ENC_BIG_ENDIAN);
-				vendor_offset += 1;
-				if (!avp_is_extended) {
-					proto_tree_add_item(avp_tree, hf_radius_avp_vendor_len, tvb, vendor_offset, 1, ENC_BIG_ENDIAN);
-					/* vendor_offset += 1; */
+				proto_tree_add_item(avp_tree, hf_radius_avp_vendor_type, tvb, vendor_offset, vendor->type_octets, ENC_BIG_ENDIAN);
+				vendor_offset += vendor->type_octets;
+				if (!avp_is_extended && vendor->length_octets) {
+					proto_tree_add_item(avp_tree, hf_radius_avp_vendor_len, tvb, vendor_offset, vendor->length_octets, ENC_BIG_ENDIAN);
+					/* vendor_offset += vendor->length_octets; */
 				}
 
 				if (show_length) {
