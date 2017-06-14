@@ -1687,7 +1687,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     }
     else {
         if (packet->ie_present) {
-                dissect_ieee802154_header_ie(tvb, pinfo, ieee802154_tree, &offset, packet);
+            dissect_ieee802154_header_ie(tvb, pinfo, ieee802154_tree, &offset, packet);
         }
     }
 
@@ -1722,11 +1722,10 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
         /* Get the unencrypted data if decryption failed.  */
         if (!payload_tvb) {
-            /* Deal with possible truncation and the FCS field at the end. */
-            gint            reported_len = tvb_reported_length(tvb)-offset-IEEE802154_FCS_LEN;
-            gint            captured_len = tvb_captured_length(tvb)-offset;
-            if (reported_len < captured_len) captured_len = reported_len;
-            payload_tvb = tvb_new_subset_length_caplen(tvb, offset, captured_len, reported_len);
+            /* Deal with possible truncation and the MIC and FCS fields at the end. */
+            gint reported_len = tvb_reported_length(tvb)-offset-rx_mic_len-IEEE802154_FCS_LEN;
+            gint captured_len = tvb_captured_length(tvb)-offset;
+            payload_tvb = tvb_new_subset_length_caplen(tvb, offset, MIN(captured_len, reported_len), reported_len);
         }
 
         /* Display the MIC. */
@@ -2592,7 +2591,7 @@ dissect_ieee802154_header_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
                     break;
             }
         }
-    } while ((tvb_reported_length_remaining(tvb, *offset) > IEEE802154_FCS_LEN + 1) &&
+    } while ((tvb_reported_length_remaining(tvb, *offset) > IEEE802154_MIC_LENGTH(packet->security_level) + IEEE802154_FCS_LEN + 1) &&
              (id != IEEE802154_HEADER_IE_EID_TERM1) &&
              (id != IEEE802154_HEADER_IE_EID_TERM2));
 
