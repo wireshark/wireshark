@@ -825,6 +825,10 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
           concatpos = 0;
           break;
         }
+        default:
+            /* Unknown parameter, stop dissection */
+          concatlen = 0;
+          break;
       } /* switch fcparm */
       break;
     }
