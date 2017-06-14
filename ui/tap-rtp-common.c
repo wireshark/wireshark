@@ -372,6 +372,7 @@ static const mimetype_and_clock mimetype_and_clock_map[] = {
 	{"EVRCWB",	16000},			/* [RFC5188] */
 	{"EVRCWB0",	16000},			/* [RFC5188] */
 	{"EVRCWB1",	16000},			/* [RFC5188] */
+	{"EVS",		16000},			/* [3GPP TS 26.445] */
 	{"G7221",	16000},			/* [RFC3047] */
 	{"G726-16",	8000},			/* [RFC3551][RFC4856] */
 	{"G726-24",	8000},			/* [RFC3551][RFC4856] */
