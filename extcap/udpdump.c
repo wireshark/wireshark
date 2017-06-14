@@ -52,9 +52,6 @@
 
 #include <writecap/pcapio.h>
 #include <wiretap/wtap.h>
-#include <epan/tvbuff.h>
-#include <epan/packet_info.h>
-#include <epan/exported_pdu.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/inet_addr.h>
 #include <wsutil/filesystem.h>
