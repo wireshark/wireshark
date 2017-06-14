@@ -1607,6 +1607,20 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 				}
 
 				if (vendor->has_flags) {
+					/*
+					 *       WiMAX VSA's have a non-standard format:
+					 *
+					 *               type            1 octet
+					 *               length          1 octet
+					 *               continuation    1 octet      0bcrrrrrrr
+					 *               value           1+ octets
+					 *
+					 *       If the high bit of the "continuation" field is set, then
+					 *       the next attribute of the same WiMAX type should have it's
+					 *       value concatenated to this one.
+					 *
+					 *       See "dictionary.wimax" from FreeRADIUS for details and references.
+					 */
 					radius_vsa_buffer_key key;
 					radius_vsa_buffer *vsa_buffer = NULL;
 					key.vendor_id = vendor_id;
