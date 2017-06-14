@@ -69,6 +69,11 @@ Note 1:
   # particularly for MSBuild.
   -DCMAKE_TRY_COMPILE_CONFIGURATION=Release
 
+  You can list all build variables (with help) using
+  cmake -LH [options] ../<Name_of_WS_source_dir>
+  This lists the cache of build variables after the cmake run.
+  To only view the current cache, add option -N.
+
 Note 2:
   After running cmake, you can always run "make help" to see
   a list of all possible make targets.

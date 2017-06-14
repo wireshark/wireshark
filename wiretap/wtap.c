@@ -649,7 +649,7 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_JUNIPER_VP */
 	{ "Juniper Voice PIC", "juniper-vp" },
 
-	/* WTAP_ENCAP_USB */
+	/* WTAP_ENCAP_USB_FREEBSD */
 	{ "Raw USB packets", "usb" },
 
 	/* WTAP_ENCAP_IEEE802_16_MAC_CPS */
