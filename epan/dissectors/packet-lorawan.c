@@ -655,7 +655,7 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 	guint8 fport;
 	guint32 dev_address;
 	guint32 fcnt;
-#if GCRYPT_VERSION_NUMBER >= 0x010600
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 	proto_item *checksum_item;
 #endif
 	gboolean uplink = TRUE;
@@ -692,7 +692,7 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 		 * cmac = aes128_cmac(AppKey, msg)
 		 * MIC = cmac[0..3]
 		 */
-#if GCRYPT_VERSION_NUMBER >= 0x010600
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 		encryption_keys = get_encryption_keys_app_eui(tvb_get_ptr(tvb, current_offset - 18, 8));
 		if (encryption_keys) {
 			proto_tree_add_checksum(lorawan_tree, tvb, current_offset, hf_lorawan_mic_type, hf_lorawan_mic_status_type, &ei_lorawan_mic, pinfo,
@@ -729,7 +729,7 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 		 * cmac = aes128_cmac(AppKey, msg)
 		 * MIC = cmac[0..3]
 		 */
-#if GCRYPT_VERSION_NUMBER >= 0x010600
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 		encryption_keys = get_encryption_keys_dev_address(dev_address);
 		if (encryption_keys) {
 			proto_tree_add_checksum(lorawan_tree, tvb, current_offset, hf_lorawan_mic_type, hf_lorawan_mic_status_type, &ei_lorawan_mic, pinfo, calculate_mic(tvb_get_ptr(tvb, 0, current_offset), current_offset, encryption_keys->appskey->data), ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
