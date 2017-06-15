@@ -1518,6 +1518,7 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 			vendor_offset += 4;
 
 			while (offset < max_offset) {
+				radius_attr_type_t vendor_type;
 				guint32 avp_vsa_type;
 				guint32 avp_vsa_len;
 				guint8 avp_vsa_flags = 0;
@@ -1576,8 +1577,15 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 
 				avp_vsa_len -= avp_vsa_header_len;
 
-				if (vendor->attrs_by_id && !avp_is_extended) {
-					dictionary_entry = (radius_attr_info_t *)g_hash_table_lookup(vendor->attrs_by_id, GUINT_TO_POINTER(avp_vsa_type));
+				if (avp_is_extended) {
+					vendor_type.u8_code[0] = avp_type.u8_code[0];
+					vendor_type.u8_code[1] = avp_vsa_type;
+				} else {
+					vendor_type.u8_code[0] = avp_vsa_type;
+					vendor_type.u8_code[1] = 0;
+				}
+				if (vendor->attrs_by_id) {
+					dictionary_entry = (radius_attr_info_t *)g_hash_table_lookup(vendor->attrs_by_id, GUINT_TO_POINTER(vendor_type.value));
 				} else {
 					dictionary_entry = NULL;
 				}
@@ -1590,6 +1598,10 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 					avp_tree = proto_tree_add_subtree_format(vendor_tree, tvb, offset-avp_vsa_header_len, avp_vsa_len+avp_vsa_header_len,
 								       dictionary_entry->ett, &avp_item, "VSA: l=%u t=%s(%u) C=0x%02x",
 								       avp_vsa_len+avp_vsa_header_len, dictionary_entry->name, avp_vsa_type, avp_vsa_flags);
+				} else if (avp_is_extended) {
+					avp_tree = proto_tree_add_subtree_format(vendor_tree, tvb, offset-avp_vsa_header_len, avp_vsa_len+avp_vsa_header_len,
+								       dictionary_entry->ett, &avp_item, "EVS: l=%u t=%s(%u)",
+								       avp_vsa_len+avp_vsa_header_len, dictionary_entry->name, avp_vsa_type);
 				} else {
 					avp_tree = proto_tree_add_subtree_format(vendor_tree, tvb, offset-avp_vsa_header_len, avp_vsa_len+avp_vsa_header_len,
 								       dictionary_entry->ett, &avp_item, "VSA: l=%u t=%s(%u)",
@@ -2666,25 +2678,25 @@ register_radius_fields(const char *unused _U_)
 		{ "AVP", "radius.avp", FT_BYTES, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_radius_avp_length,
-		{ "AVP Length", "radius.avp.length", FT_UINT8, BASE_DEC, NULL, 0x0,
+		{ "Length", "radius.avp.length", FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_radius_avp_type,
-		{ "AVP Type", "radius.avp.type", FT_UINT8, BASE_DEC, NULL, 0x0,
+		{ "Type", "radius.avp.type", FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_radius_avp_vendor_id,
-		{ "AVP Vendor ID", "radius.avp.vendor_id", FT_UINT32, BASE_DEC, NULL, 0x0,
+		{ "Vendor ID", "radius.avp.vendor_id", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_radius_avp_vendor_type,
-		{ "VSA Type", "radius.avp.vendor_type", FT_UINT8, BASE_DEC, NULL, 0x0,
+		{ "Type", "radius.avp.vendor_type", FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_radius_avp_vendor_len,
-		{ "VSA Length", "radius.avp.vendor_len", FT_UINT8, BASE_DEC, NULL, 0x0,
+		{ "Length", "radius.avp.vendor_len", FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_radius_avp_extended_type,
-		{ "AVP Extended Type", "radius.avp.extended_type", FT_UINT8, BASE_DEC, NULL, 0x0,
+		{ "Extended Type", "radius.avp.extended_type", FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_radius_avp_extended_more,
-		{ "AVP Extended More", "radius.avp.extended_more", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x80,
+		{ "Extended More", "radius.avp.extended_more", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x80,
 			NULL, HFILL }},
 		{ &hf_radius_egress_vlanid_tag,
 		{ "Tag", "radius.egress_vlanid_tag", FT_UINT32, BASE_HEX, VALS(egress_vlan_tag_vals), 0xFF000000,
