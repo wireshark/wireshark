@@ -649,7 +649,7 @@ static struct encap_type_info encap_table_base[] = {
 	{ "Juniper Voice PIC", "juniper-vp" },
 
 	/* WTAP_ENCAP_USB_FREEBSD */
-	{ "Raw USB packets", "usb" },
+	{ "USB packets with FreeBSD header", "usb" },
 
 	/* WTAP_ENCAP_IEEE802_16_MAC_CPS */
 	{ "IEEE 802.16 MAC Common Part Sublayer", "ieee-802-16-mac-cps" },
@@ -919,7 +919,7 @@ static struct encap_type_info encap_table_base[] = {
 	{ "Juniper VN", "juniper-vn" },
 
 	/* WTAP_ENCAP_USB_DARWIN */
-	{ "Darwin USB", "darwin-usb" },
+	{ "USB packets with Darwin (macOS, etc.) headers", "darwin-usb" },
 };
 
 WS_DLL_LOCAL
