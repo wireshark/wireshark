@@ -2929,6 +2929,9 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         next_tvb = tvb_new_subset_remaining(tvb, length);
+
+        /* dissect the 802.11 radio informaton and header next */
+        call_dissector_with_data(ieee80211_radio_handle, next_tvb, pinfo, tree, &phdr);
     }
     else
     {
@@ -2937,13 +2940,14 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         else
             proto_item_set_len(tap_tree, length + OCTO_TIMESTAMP_FIELDS_LEN + OCTO_MODIFIED_RF_LEN);
 
-        /* Grab the rest of the frame. */
-        next_tvb = tvb_new_subset_remaining(tvb, length);
-    }
+        if (mpdu_length != 0) {
+            /* There's data to dissect; grab the rest of the frame. */
+            next_tvb = tvb_new_subset_remaining(tvb, length);
 
-    /* dissect the 802.11 radio informaton and header next */
-    if(!is_octo || mpdu_length != 0)
-        call_dissector_with_data(ieee80211_radio_handle, next_tvb, pinfo, tree, &phdr);
+            /* dissect the 802.11 radio informaton and header next */
+            call_dissector_with_data(ieee80211_radio_handle, next_tvb, pinfo, tree, &phdr);
+        }
+    }
 }
 
 void proto_register_ixveriwave(void)
