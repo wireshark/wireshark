@@ -242,6 +242,16 @@ void proto_reg_handoff_zbee_zcl_met(void);
 /* Attribute Dissector Helpers */
 static void dissect_zcl_met_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
 
+/* Command Dissector Helpers */
+static void dissect_zcl_met_request_mirror_rsp      (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_met_get_snapshot            (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_met_get_sampled_data        (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_met_local_change_supply     (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_met_publish_snapshot        (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_met_get_sampled_data_rsp    (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_met_configure_mirror        (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_met_get_notified_msg        (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+
 /*************************/
 /* Global Variables      */
 /*************************/
@@ -255,6 +265,37 @@ static int hf_zbee_zcl_met_srv_tx_cmd_id = -1;
 static int hf_zbee_zcl_met_srv_rx_cmd_id = -1;
 static int hf_zbee_zcl_met_attr_id = -1;
 static int hf_zbee_zcl_met_attr_reporting_status = -1;
+static int hf_zbee_zcl_met_request_mirror_rsp_endpoint_id = -1;
+static int hf_zbee_zcl_met_get_snapshot_start_time = -1;
+static int hf_zbee_zcl_met_get_snapshot_end_time = -1;
+static int hf_zbee_zcl_met_get_snapshot_snapshot_offset = -1;
+static int hf_zbee_zcl_met_get_snapshot_snapshot_cause = -1;
+static int hf_zbee_zcl_met_get_sampled_data_sample_id = -1;
+static int hf_zbee_zcl_met_get_sampled_data_sample_start_time = -1;
+static int hf_zbee_zcl_met_get_sampled_data_sample_type = -1;
+static int hf_zbee_zcl_met_get_sampled_data_number_of_samples = -1;
+static int hf_zbee_zcl_met_local_change_supply_supply_status = -1;
+static int hf_zbee_zcl_met_publish_snapshot_snapshot_id = -1;
+static int hf_zbee_zcl_met_publish_snapshot_snapshot_time = -1;
+static int hf_zbee_zcl_met_publish_snapshot_snapshots_found = -1;
+static int hf_zbee_zcl_met_publish_snapshot_cmd_index = -1;
+static int hf_zbee_zcl_met_publish_snapshot_total_commands = -1;
+static int hf_zbee_zcl_met_publish_snapshot_snapshot_cause = -1;
+static int hf_zbee_zcl_met_publish_snapshot_snapshot_payload_type = -1;
+static int hf_zbee_zcl_met_publish_snapshot_snapshot_sub_payload = -1;
+static int hf_zbee_zcl_met_get_sampled_data_rsp_sample_id = -1;
+static int hf_zbee_zcl_met_get_sampled_data_rsp_sample_start_time = -1;
+static int hf_zbee_zcl_met_get_sampled_data_rsp_sample_type = -1;
+static int hf_zbee_zcl_met_get_sampled_data_rsp_sample_request_interval = -1;
+static int hf_zbee_zcl_met_get_sampled_data_rsp_sample_number_of_samples = -1;
+static int hf_zbee_zcl_met_get_sampled_data_rsp_sample_samples = -1;
+static int hf_zbee_zcl_met_configure_mirror_issuer_event_id = -1;
+static int hf_zbee_zcl_met_configure_mirror_reporting_interval = -1;
+static int hf_zbee_zcl_met_configure_mirror_mirror_notification_reporting = -1;
+static int hf_zbee_zcl_met_configure_mirror_notification_scheme = -1;
+static int hf_zbee_zcl_met_get_notified_msg_notification_scheme = -1;
+static int hf_zbee_zcl_met_get_notified_msg_notification_flag_attribute_id = -1;
+static int hf_zbee_zcl_met_get_notified_msg_notification_flags = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_zbee_zcl_met = -1;
@@ -298,6 +339,7 @@ dissect_zcl_met_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint1
 static int
 dissect_zbee_zcl_met(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
+    proto_tree        *payload_tree;
     zbee_zcl_packet   *zcl;
     guint             offset = 0;
     guint8            cmd_id;
@@ -322,25 +364,25 @@ dissect_zbee_zcl_met(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
         if (rem_len > 0) {
-            proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_met, NULL, "Payload");
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_met, NULL, "Payload");
 
             /* Call the appropriate command dissector */
             switch (cmd_id) {
 
                 case ZBEE_ZCL_CMD_ID_MET_REQUEST_MIRROR_RSP:
-                    /* Add function to dissect payload */
+                    dissect_zcl_met_request_mirror_rsp(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_MET_GET_SNAPSHOT:
-                    /* Add function to dissect payload */
+                    dissect_zcl_met_get_snapshot(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_MET_GET_SAMPLED_DATA:
-                    /* Add function to dissect payload */
+                    dissect_zcl_met_get_sampled_data(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_MET_LOCAL_CHANGE_SUPPLY:
-                    /* Add function to dissect payload */
+                    dissect_zcl_met_local_change_supply(tvb, payload_tree, &offset);
                     break;
 
                 default:
@@ -360,7 +402,7 @@ dissect_zbee_zcl_met(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
         if (rem_len > 0) {
-            proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_met, NULL, "Payload");
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_met, NULL, "Payload");
 
             /* Call the appropriate command dissector */
             switch (cmd_id) {
@@ -370,19 +412,19 @@ dissect_zbee_zcl_met(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                     break;
 
                 case ZBEE_ZCL_CMD_ID_MET_PUBLISH_SNAPSHOT:
-                    /* Add function to dissect payload */
+                    dissect_zcl_met_publish_snapshot(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_MET_GET_SAMPLED_DATA_RSP:
-                    /* Add function to dissect payload */
+                    dissect_zcl_met_get_sampled_data_rsp(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_MET_CONFIGURE_MIRROR:
-                    /* Add function to dissect payload */
+                    dissect_zcl_met_configure_mirror(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_MET_GET_NOTIFIED_MESSAGE:
-                    /* Add function to dissect payload */
+                    dissect_zcl_met_get_notified_msg(tvb, payload_tree, &offset);
                     break;
 
                 default:
@@ -393,6 +435,248 @@ dissect_zbee_zcl_met(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
     return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_met*/
+
+/**
+ *This function manages the Request Mirror Response payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_met_request_mirror_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* EndPoint ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_request_mirror_rsp_endpoint_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+} /*dissect_zcl_met_get_snapshot*/
+
+/**
+ *This function manages the Get Snapshot payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_met_get_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t start_time;
+    nstime_t end_time;
+    gint rem_len = tvb_reported_length_remaining(tvb, *offset);
+
+    /* Start Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_met_get_snapshot_start_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    if (rem_len > 9) {
+        /* End Time - not part of SE 1.1b specification */
+        end_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+        end_time.nsecs = 0;
+        proto_tree_add_time(tree, hf_zbee_zcl_met_get_snapshot_end_time, tvb, *offset, 4, &end_time);
+        *offset += 4;
+    }
+
+    /* Snapshot Offset */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_snapshot_snapshot_offset, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Snapshot Cause */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_snapshot_snapshot_cause, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+} /*dissect_zcl_met_get_snapshot*/
+
+/**
+ *This function manages the Get Sampled Data payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_met_get_sampled_data(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t sample_time;
+
+    /* Sample ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_sampled_data_sample_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Sample Start Time */
+    sample_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    sample_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_met_get_sampled_data_sample_start_time, tvb, *offset, 4, &sample_time);
+    *offset += 4;
+
+    /* Sample Type */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_sampled_data_sample_type, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Number of Samples */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_sampled_data_number_of_samples, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+} /*dissect_zcl_met_get_sampled_data*/
+
+/**
+ *This function manages the Local Change Supply payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_met_local_change_supply(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Proposed Supply Status */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_local_change_supply_supply_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+} /*dissect_zcl_met_local_change_supply*/
+
+/**
+ *This function manages the Publish Snapshot payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_met_publish_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t snapshot_time;
+    gint rem_len;
+
+    /* Snapshot ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_publish_snapshot_snapshot_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Snapshot Time */
+    snapshot_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    snapshot_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_met_publish_snapshot_snapshot_time, tvb, *offset, 4, &snapshot_time);
+    *offset += 4;
+
+    /* Total Snapshots Found */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_publish_snapshot_snapshots_found, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Command Index */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_publish_snapshot_cmd_index, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Total Number of Commands */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_publish_snapshot_total_commands, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Snapshot Cause */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_publish_snapshot_snapshot_cause, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Snapshot Payload Type */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_publish_snapshot_snapshot_payload_type, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Snapshot Sub-Payload */
+    rem_len = tvb_reported_length_remaining(tvb, *offset);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_publish_snapshot_snapshot_sub_payload, tvb, *offset, rem_len, ENC_NA);
+    *offset += rem_len;
+} /*dissect_zcl_met_publish_snapshot*/
+
+/**
+ *This function manages the Get Sampled Data Response payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_met_get_sampled_data_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t sample_start_time;
+    gint rem_len;
+
+    /* Snapshot ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_sampled_data_rsp_sample_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Sample Start Time */
+    sample_start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    sample_start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_met_get_sampled_data_rsp_sample_start_time, tvb, *offset, 4, &sample_start_time);
+    *offset += 4;
+
+    /* Sample Type */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_sampled_data_rsp_sample_type, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Sample Request Interval */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_sampled_data_rsp_sample_request_interval, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Number of Samples */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_sampled_data_rsp_sample_number_of_samples, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Samples */
+    rem_len = tvb_reported_length_remaining(tvb, *offset);
+    while (rem_len >= 3) {
+        guint32 val = tvb_get_guint24(tvb, *offset, ENC_LITTLE_ENDIAN);
+        proto_tree_add_uint(tree, hf_zbee_zcl_met_get_sampled_data_rsp_sample_samples, tvb, *offset, 3, val);
+        *offset += 3;
+        rem_len -= 3;
+    }
+} /*dissect_zcl_met_get_sampled_data_rsp*/
+
+/**
+ *This function manages the Configure Mirror payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_met_configure_mirror(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_configure_mirror_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Reporting Interval */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_configure_mirror_reporting_interval, tvb, *offset, 3, ENC_LITTLE_ENDIAN);
+    *offset += 3;
+
+    /* Mirror Notification Reporting */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_configure_mirror_mirror_notification_reporting, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Notification Scheme */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_configure_mirror_notification_scheme, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+} /*dissect_zcl_met_configure_mirror*/
+
+/**
+ *This function manages the Get Notified Message payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_met_get_notified_msg(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Notification Scheme */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_notified_msg_notification_scheme, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Notification Flag attribute ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_notified_msg_notification_flag_attribute_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Notification Flags #N */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_notified_msg_notification_flags, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+} /*dissect_zcl_met_get_notified_msg*/
 
 /**
  *This function registers the ZCL Metering dissector
@@ -419,6 +703,129 @@ proto_register_zbee_zcl_met(void)
             { "Command", "zbee_zcl_se.met.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_met_srv_rx_cmd_names),
             0x00, NULL, HFILL } },
 
+        { &hf_zbee_zcl_met_request_mirror_rsp_endpoint_id,
+            { "EndPoint ID", "zbee_zcl_se.met.request_mirror_rsp.endpoint_id", FT_UINT16, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_get_snapshot_start_time,
+            { "Start Time", "zbee_zcl_se.met.get_snapshot.start_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_get_snapshot_end_time,
+            { "End Time", "zbee_zcl_se.met.get_snapshot.end_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_get_snapshot_snapshot_offset,
+            { "Snapshot Offset", "zbee_zcl_se.met.get_snapshot.snapshot_offset", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_get_snapshot_snapshot_cause,
+            { "Snapshot Cause", "zbee_zcl_se.met.get_snapshot.snapshot_cause", FT_UINT32, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_get_sampled_data_sample_id,
+            { "Sample ID", "zbee_zcl_se.met.get_sampled_data.sample_id", FT_UINT16, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_get_sampled_data_sample_start_time,
+            { "Sample Start Time", "zbee_zcl_se.met.get_sampled_data.sample_start_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_get_sampled_data_sample_type,
+            { "Sample Type", "zbee_zcl_se.met.get_sampled_data.sample_type", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_get_sampled_data_number_of_samples,
+            { "Number of Samples", "zbee_zcl_se.met.get_sampled_data.number_of_samples", FT_UINT16, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_local_change_supply_supply_status,
+            { "Proposed Supply Status", "zbee_zcl_se.met.local_change_supply.supply_status", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_publish_snapshot_snapshot_id,
+            { "Snapshot ID", "zbee_zcl_se.met.publish_snapshot.snapshot_id", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_publish_snapshot_snapshot_time,
+            { "Snapshot Time", "zbee_zcl_se.met.publish_snapshot.snapshot_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_publish_snapshot_snapshots_found,
+            { "Total Snapshots Found", "zbee_zcl_se.met.publish_snapshot.snapshots_found", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_publish_snapshot_cmd_index,
+            { "Command Index", "zbee_zcl_se.met.publish_snapshot.command_index", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_publish_snapshot_total_commands,
+            { "Total Number of Commands", "zbee_zcl_se.met.publish_snapshot.total_commands", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_publish_snapshot_snapshot_cause,
+            { "Snapshot Cause", "zbee_zcl_se.met.publish_snapshot.snapshot_cause", FT_UINT32, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_publish_snapshot_snapshot_payload_type,
+            { "Snapshot Payload Type", "zbee_zcl_se.met.publish_snapshot.payload_type", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_publish_snapshot_snapshot_sub_payload,
+            { "Snapshot Sub-Payload", "zbee_zcl_se.met.publish_snapshot.payload_type", FT_BYTES, BASE_NONE, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_get_sampled_data_rsp_sample_id,
+            { "Sample ID", "zbee_zcl_se.met.get_sampled_data_rsp.sample_id", FT_UINT16, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_get_sampled_data_rsp_sample_start_time,
+            { "Sample Start Time", "zbee_zcl_se.met.get_sampled_data_rsp.sample_start_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_get_sampled_data_rsp_sample_type,
+            { "Sample Type", "zbee_zcl_se.met.get_sampled_data_rsp.sample_type", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_get_sampled_data_rsp_sample_request_interval,
+            { "Sample Request Interval", "zbee_zcl_se.met.get_sampled_data_rsp.sample_request_interval", FT_UINT16, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_get_sampled_data_rsp_sample_number_of_samples,
+            { "Number of Samples", "zbee_zcl_se.met.get_sampled_data_rsp.number_of_samples", FT_UINT16, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_get_sampled_data_rsp_sample_samples,
+            { "Samples", "zbee_zcl_se.met.get_sampled_data_rsp.samples", FT_UINT24, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_configure_mirror_issuer_event_id,
+            { "Issuer Event ID", "zbee_zcl_se.met.configure_mirror.issuer_event_id", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_configure_mirror_reporting_interval,
+            { "Reporting Interval", "zbee_zcl_se.met.configure_mirror.reporting_interval", FT_UINT24, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_configure_mirror_mirror_notification_reporting,
+            { "Mirror Notification Reporting", "zbee_zcl_se.met.configure_mirror.mirror_notification_reporting", FT_BOOLEAN, BASE_NONE, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_configure_mirror_notification_scheme,
+            { "Notification Scheme", "zbee_zcl_se.met.configure_mirror.notification_scheme", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_get_notified_msg_notification_scheme,
+            { "Notification Scheme", "zbee_zcl_se.met.get_notified_msg.notification_scheme", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_get_notified_msg_notification_flag_attribute_id,
+            { "Notification Flag attribute ID", "zbee_zcl_se.met.get_notified_msg.notification_flag_attribute_id", FT_UINT16, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_get_notified_msg_notification_flags,
+            { "Notification Flags", "zbee_zcl_se.met.get_notified_msg.notification_flags", FT_UINT32, BASE_HEX, NULL,
+            0x00, NULL, HFILL } }
     };
 
     /* ZCL Metering subtrees */
