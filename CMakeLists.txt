@@ -1155,7 +1155,7 @@ if(APPLE)
 	# We assume that APPLE means macOS so that we have the macOS
 	# frameworks.
 	#
-	set(HAVE_OS_X_FRAMEWORKS 1)
+	set(HAVE_MACOS_FRAMEWORKS 1)
 	FIND_LIBRARY (APPLE_APPLICATION_SERVICES_LIBRARY ApplicationServices)
 	FIND_LIBRARY (APPLE_CORE_FOUNDATION_LIBRARY CoreFoundation)
 	FIND_LIBRARY (APPLE_SYSTEM_CONFIGURATION_LIBRARY SystemConfiguration)

@@ -80,7 +80,7 @@ if(WIN32)
 ENDIF(WIN32)
 
 
-if(HAVE_OS_X_FRAMEWORKS)
+if(HAVE_MACOS_FRAMEWORKS)
 	list(APPEND WSUTIL_FILES cfutils.c)
 endif()
 

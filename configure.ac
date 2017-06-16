@@ -517,7 +517,7 @@ AC_SUBST(HAVE_OSX_PACKAGING)
 # don't look for Darwin).
 #
 AC_CHECK_PROG(have_sw_vers, sw_vers, "yes", "no")
-AM_CONDITIONAL(NOT_OS_X, test "x$have_sw_vers" = "xno")
+AM_CONDITIONAL(NOT_MACOS, test "x$have_sw_vers" = "xno")
 
 # Shellcheck
 AC_CHECK_PROG(HAVE_SHELLCHECK, shellcheck, "yes", "no")
@@ -1130,11 +1130,11 @@ AC_SUBST(LDFLAGS_SHAREDLIB)
 # get version information from plists and thus need Core Foundation
 # to process those plists.
 #
-have_os_x_frameworks=no
+have_macos_frameworks=no
 case "$host_os" in
 darwin*)
-	have_os_x_frameworks=yes
-	AC_DEFINE(HAVE_OS_X_FRAMEWORKS, 1, [Define to 1 if you have macOS frameworks])
+	have_macos_frameworks=yes
+	AC_DEFINE(HAVE_MACOS_FRAMEWORKS, 1, [Define to 1 if you have macOS frameworks])
 	APPLICATIONSERVICES_FRAMEWORKS="-framework ApplicationServices"
 	SYSTEMCONFIGURATION_FRAMEWORKS="-framework SystemConfiguration"
 	COREFOUNDATION_FRAMEWORKS="-framework CoreFoundation"
@@ -1157,7 +1157,7 @@ esac
 AC_SUBST(APPLICATIONSERVICES_FRAMEWORKS)
 AC_SUBST(SYSTEMCONFIGURATION_FRAMEWORKS)
 AC_SUBST(COREFOUNDATION_FRAMEWORKS)
-AM_CONDITIONAL(HAVE_OS_X_FRAMEWORKS, [test "x$have_os_x_frameworks" = "xyes"])
+AM_CONDITIONAL(HAVE_MACOS_FRAMEWORKS, [test "x$have_macos_frameworks" = "xyes"])
 
 #
 # If we're running Solaris, and LD_LIBRARY_PATH is defined, add it as a

@@ -988,7 +988,7 @@ libtool: $(LIBTOOL_DEPS)
 #
 install-data-local:
 if BUILDING_WIRESHARK
-if NOT_OS_X
+if NOT_MACOS
 	mkdir -p $(DESTDIR)$(datadir)/mime/packages
 	install -m 644 $(srcdir)/wireshark-mime-package.xml $(DESTDIR)$(datadir)/mime/packages/wireshark.xml
 	mkdir -p $(DESTDIR)$(datadir)/appdata
@@ -1013,7 +1013,7 @@ endif
 
 uninstall-local:
 if BUILDING_WIRESHARK
-if NOT_OS_X
+if NOT_MACOS
 	rm -f $(DESTDIR)$(datadir)/appdata/wireshark.appdata.xml
 	rm -f $(DESTDIR)$(datadir)/applications/wireshark.desktop
 	rm -f $(DESTDIR)$(datadir)/applications/wireshark-gtk.desktop
@@ -1059,7 +1059,7 @@ uninstall-hook: update-databases-and-caches-uninstall
 #
 update-databases-and-caches-common:
 if BUILDING_WIRESHARK
-if NOT_OS_X
+if NOT_MACOS
 	@echo "You may need to run \"ldconfig\" as root"
 	@echo "You may need to run \"update-desktop-database $(datadir)/applications\""
 	@echo "You may need to run \"update-mime-database $(datadir)/mime\""
