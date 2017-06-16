@@ -2116,6 +2116,20 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_uint_format_value(tap_tree, hf_radiotap_vw_ht_length,
                 tvb, offset, 2, vw_ht_length, "%u (includes the sum of the pieces of the aggregate and their respective Start_Spacing + Delimiter + MPDU + Padding)",
                 vw_ht_length);
+#if 0
+            if (plcp_type == PLCP_TYPE_VHT_MIXED)
+            {
+                proto_tree_add_uint_format(tap_tree, hf_radiotap_vw_ht_length,
+                    tvb, offset, 2, vw_ht_length, "VHT length: %u (includes the sum of the pieces of the aggregate and their respective Start_Spacing + Delimiter + MPDU + Padding)",
+                    vw_ht_length);
+            }
+            else
+            {
+                proto_tree_add_uint_format(tap_tree, hf_radiotap_vw_ht_length,
+                    tvb, offset, 2, vw_ht_length, "HT length: %u (includes the sum of the pieces of the aggregate and their respective Start_Spacing + Delimiter + MPDU + Padding)",
+                    vw_ht_length);
+            }
+#endif
         }
         offset      += 2;
 
@@ -2237,6 +2251,16 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 decode_vht_sig(tap_tree, tvb, offset, &phdr);
             }
         }
+
+        /* Grab the rest of the frame. */
+        if (plcp_type == PLCP_TYPE_VHT_MIXED) {
+            length = length + 17; /*** 16 bytes of PLCP + 1 byte of L1InfoC(UserPos) **/
+        }
+
+        next_tvb = tvb_new_subset_remaining(tvb, length);
+
+        /* dissect the 802.11 radio informaton and header next */
+        call_dissector_with_data(ieee80211_radio_handle, next_tvb, pinfo, tree, &phdr);
     }
     else {
         /*
@@ -2884,57 +2908,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         if (vwl2l4t && log_mode)
             proto_item_append_text(vwl2l4t, " (Reduced)");
-    }
-/*
-        align_offset = ALIGN_OFFSET(offset, 2);
-        offset += align_offset;
 
-        vw_ht_length = tvb_get_letohs(tvb, offset);
-        if ((tree) && (vw_ht_length != 0))
-            if (plcp_type == PLCP_TYPE_VHT_MIXED)
-            {
-                proto_tree_add_uint_format(tap_tree, hf_radiotap_vw_ht_length,
-                    tvb, offset, 2, vw_ht_length, "VHT length: %u (includes the sum of the pieces of the aggregate and their respective Start_Spacing + Delimiter + MPDU + Padding)",
-                    vw_ht_length);
-            }
-            else
-            {
-                proto_tree_add_uint_format(tap_tree, hf_radiotap_vw_ht_length,
-                    tvb, offset, 2, vw_ht_length, "HT length: %u (includes the sum of the pieces of the aggregate and their respective Start_Spacing + Delimiter + MPDU + Padding)",
-                    vw_ht_length);
-            }
-        offset      +=2;
-
-        align_offset = ALIGN_OFFSET(offset, 2);
-        offset += align_offset;*/
-
-        /* vw_info grabbed in the beginning of the dissector */
-
-
-        /*** POPULATE THE AMSDU VHT MIXED MODE CONTAINER FORMAT ***/
-        /****
-        if (vw_ht_length != 0)
-        ***/
-    /***
-    else {
-        offset = offset + 17;
-     }
-    ***/
-
-    if (!is_octo)
-    {
-        /* Grab the rest of the frame. */
-        if (plcp_type == PLCP_TYPE_VHT_MIXED) {
-            length = length + 17; /*** 16 bytes of PLCP + 1 byte of L1InfoC(UserPos) **/
-        }
-
-        next_tvb = tvb_new_subset_remaining(tvb, length);
-
-        /* dissect the 802.11 radio informaton and header next */
-        call_dissector_with_data(ieee80211_radio_handle, next_tvb, pinfo, tree, &phdr);
-    }
-    else
-    {
         if (cmd_type != 4)
             proto_item_set_len(tap_tree, length + OCTO_TIMESTAMP_FIELDS_LEN);
         else
