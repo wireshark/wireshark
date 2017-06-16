@@ -72,6 +72,14 @@ CMAKE_VERSION=${CMAKE_VERSION-2.8.12.2}
 GETTEXT_VERSION=0.18.2
 GLIB_VERSION=2.36.0
 PKG_CONFIG_VERSION=0.28
+#
+# libgpg-error is required for libgcrypt.
+#
+LIBGPG_ERROR_VERSION=1.27
+#
+# libgcrypt is required.
+#
+LIBGCRYPT_VERSION=1.7.7
 
 #
 # One or more of the following libraries are required to build Wireshark.
@@ -120,17 +128,6 @@ fi
 # the optional libraries are required by other optional libraries.
 #
 LIBSMI_VERSION=0.4.8
-#
-# libgpg-error is required for libgcrypt.
-#
-LIBGPG_ERROR_VERSION=1.27
-#
-# libgcrypt is required.
-#
-LIBGCRYPT_VERSION=1.7.7
-#
-# GnuTLS is optional.
-#
 GNUTLS_VERSION=3.4.17
 if [ "$GNUTLS_VERSION" ]; then
     #
