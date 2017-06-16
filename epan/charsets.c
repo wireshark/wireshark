@@ -548,6 +548,8 @@ get_ucs_2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const 
  * referred to by the pointer and length as a UTF-16 encoded string, and
  * return a pointer to a UTF-8 string, allocated with the wmem scope.
  *
+ * See RFC 2781 section 2.2.
+ *
  * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN.
  *
  * Specify length in bytes.
