@@ -1131,6 +1131,10 @@ typedef enum
     DE_TP_EPC_UE_TL_A_LB_SETUP,         /* UE Test Loop Mode A LB Setup */
     DE_TP_EPC_UE_TL_B_LB_SETUP,         /* UE Test Loop Mode B LB Setup */
     DE_TP_EPC_UE_TL_C_SETUP,            /* UE Test Loop Mode C Setup */
+    DE_TP_EPC_UE_TL_D_SETUP,            /* UE Test Loop Mode D Setup */
+    DE_TP_EPC_UE_TL_E_SETUP,            /* UE Test Loop Mode E Setup */
+    DE_TP_EPC_UE_TL_F_SETUP,            /* UE Test Loop Mode F Setup */
+    DE_TP_EPC_UE_TL_GH_SETUP,           /* UE Test Loop Mode GH Setup */
     DE_TP_EPC_UE_POSITIONING_TECHNOLOGY,/* UE Positioning Technology */
     DE_TP_EPC_MBMS_PACKET_COUNTER_VALUE,/* MBMS Packet Counter Value */
     DE_TP_EPC_ELLIPSOID_POINT_WITH_ALT, /* ellipsoidPointWithAltitude */
