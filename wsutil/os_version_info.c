@@ -73,9 +73,12 @@ get_string_from_dictionary(CFPropertyListRef dict, CFStringRef key)
 /*
  * Get the macOS version information, and append it to the GString.
  * Return TRUE if we succeed, FALSE if we fail.
+ *
+ * XXX - this gives the OS name as "Mac OS X" even if Apple called/calls
+ * it "OS X" or "macOS".
  */
 static gboolean
-get_os_x_version_info(GString *str)
+get_macos_version_info(GString *str)
 {
 	static const UInt8 server_version_plist_path[] =
 	    "/System/Library/CoreServices/ServerVersion.plist";
@@ -440,7 +443,7 @@ get_os_version_info(GString *str)
 		 * version if we can, and put the Darwin information
 		 * in parentheses.
 		 */
-		if (get_os_x_version_info(str)) {
+		if (get_macos_version_info(str)) {
 			/* Success - append the Darwin information. */
 			g_string_append_printf(str, " (%s %s)", name.sysname, name.release);
 		} else {
