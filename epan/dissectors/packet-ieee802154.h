@@ -189,10 +189,13 @@
 #define IEEE802154_PHY_LENGTH_MASK          0x7F
 
 /* Auxiliary Security Header */
-#define IEEE802154_AUX_SEC_LEVEL_MASK       0x07  /* Security Level */
-#define IEEE802154_AUX_KEY_ID_MODE_MASK     0x18  /* Key Identifier Mode */
-#define IEEE802154_AUX_KEY_ID_MODE_SHIFT    3
-#define IEEE802154_AUX_KEY_RESERVED_MASK    0xE0  /* Reserved */
+#define IEEE802154_AUX_SEC_LEVEL_MASK                 0x07  /* Security Level */
+#define IEEE802154_AUX_KEY_ID_MODE_MASK               0x18  /* Key Identifier Mode */
+#define IEEE802154_AUX_KEY_ID_MODE_SHIFT              3
+#define IEEE802154_AUX_FRAME_COUNTER_SUPPRESSION_MASK 0x20  /* 802.15.4-2015 */
+#define IEEE802154_AUX_ASN_IN_NONCE_MASK              0x40  /* 802.15.4-2015 */
+/* Note: 802.15.4-2015 specifies bits 6-7 as reserved, but 6 is used for ASN */
+#define IEEE802154_AUX_CTRL_RESERVED_MASK             0x80  /* Reserved */
 
 /* Thread-specific well-known key support */
 #define IEEE802154_THR_WELL_KNOWN_KEY_INDEX 0xff
@@ -367,6 +370,7 @@ typedef struct {
     /* Security Info. */
     ieee802154_security_level   security_level;
     ieee802154_key_id_mode      key_id_mode;
+    gboolean    frame_counter_suppression; /* 802.15.4-2015 */
     guint32     frame_counter;
     guint8      key_sequence_counter;    /* Only for 802.15.4-2003 security suite with encryption */
 
@@ -420,7 +424,7 @@ typedef struct {
 typedef enum {
     DECRYPT_PACKET_SUCCEEDED,
     DECRYPT_NOT_ENCRYPTED,
-    DECRYPT_VERSION_UNSUPPORTED,
+    DECRYPT_FRAME_COUNTER_SUPPRESSION_UNSUPPORTED,
     DECRYPT_PACKET_TOO_SMALL,
     DECRYPT_PACKET_NO_EXT_SRC_ADDR,
     DECRYPT_PACKET_NO_KEY,

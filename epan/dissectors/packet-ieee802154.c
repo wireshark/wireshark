@@ -448,9 +448,11 @@ static int hf_ieee802154_pending64 = -1;
 
 /*  Registered fields for Auxiliary Security Header */
 static int hf_ieee802154_aux_security_header = -1;
-static int hf_ieee802154_security_control_field = -1;
-static int hf_ieee802154_security_level = -1;
-static int hf_ieee802154_key_id_mode = -1;
+static int hf_ieee802154_aux_sec_security_control = -1;
+static int hf_ieee802154_aux_sec_security_level = -1;
+static int hf_ieee802154_aux_sec_key_id_mode = -1;
+static int hf_ieee802154_aux_sec_frame_counter_suppression = -1;
+static int hf_ieee802154_aux_sec_asn_in_nonce = -1;
 static int hf_ieee802154_aux_sec_reserved = -1;
 static int hf_ieee802154_aux_sec_frame_counter = -1;
 static int hf_ieee802154_aux_sec_key_source = -1;
@@ -909,65 +911,73 @@ void register_ieee802154_mac_key_hash_handler(guint hash_identifier, ieee802154_
 
 void dissect_ieee802154_aux_sec_header_and_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, ieee802154_packet *packet, guint *offset)
 {
-     proto_tree *field_tree, *header_tree;
-     proto_item *ti, *hidden_item;
-     guint8     security_control;
-     guint      aux_length = 5; /* Minimum length of the auxiliary header. */
-     static const int * security_fields[] = {
-                    &hf_ieee802154_security_level,
-                    &hf_ieee802154_key_id_mode,
-                    &hf_ieee802154_aux_sec_reserved,
-                    NULL
-                };
+    proto_tree *field_tree, *header_tree;
+    proto_item *ti, *hidden_item;
+    guint8     security_control;
+    guint      aux_length = 1; /* Minimum length of the auxiliary header. */
+    static const int * security_fields[] = {
+            &hf_ieee802154_aux_sec_security_level,
+            &hf_ieee802154_aux_sec_key_id_mode,
+            &hf_ieee802154_aux_sec_frame_counter_suppression,
+            &hf_ieee802154_aux_sec_asn_in_nonce,
+            &hf_ieee802154_aux_sec_reserved,
+            NULL
+    };
 
-     /* Parse the security control field. */
-     security_control = tvb_get_guint8(tvb, *offset);
-     packet->security_level = (ieee802154_security_level)(security_control & IEEE802154_AUX_SEC_LEVEL_MASK);
-     packet->key_id_mode = (ieee802154_key_id_mode)((security_control & IEEE802154_AUX_KEY_ID_MODE_MASK) >> IEEE802154_AUX_KEY_ID_MODE_SHIFT);
+    /* Parse the security control field. */
+    security_control = tvb_get_guint8(tvb, *offset);
+    packet->security_level = (ieee802154_security_level)(security_control & IEEE802154_AUX_SEC_LEVEL_MASK);
+    packet->key_id_mode = (ieee802154_key_id_mode)((security_control & IEEE802154_AUX_KEY_ID_MODE_MASK) >> IEEE802154_AUX_KEY_ID_MODE_SHIFT);
+    if (packet->version == IEEE802154_VERSION_2015) {
+        packet->frame_counter_suppression = security_control & IEEE802154_AUX_FRAME_COUNTER_SUPPRESSION_MASK ? TRUE : FALSE;
+    }
 
-     /* Compute the length of the auxiliary header and create a subtree.  */
-     if (packet->key_id_mode != KEY_ID_MODE_IMPLICIT) aux_length++;
-     if (packet->key_id_mode == KEY_ID_MODE_KEY_EXPLICIT_4) aux_length += 4;
-     if (packet->key_id_mode == KEY_ID_MODE_KEY_EXPLICIT_8) aux_length += 8;
+    /* Compute the length of the auxiliary header and create a subtree.  */
+    if (!packet->frame_counter_suppression) aux_length += 4;
+    if (packet->key_id_mode != KEY_ID_MODE_IMPLICIT) aux_length++;
+    if (packet->key_id_mode == KEY_ID_MODE_KEY_EXPLICIT_4) aux_length += 4;
+    if (packet->key_id_mode == KEY_ID_MODE_KEY_EXPLICIT_8) aux_length += 8;
 
-     ti = proto_tree_add_item(tree, hf_ieee802154_aux_security_header, tvb, *offset, aux_length, ENC_NA);
-     header_tree = proto_item_add_subtree(ti, ett_ieee802154_auxiliary_security);
+    ti = proto_tree_add_item(tree, hf_ieee802154_aux_security_header, tvb, *offset, aux_length, ENC_NA);
+    header_tree = proto_item_add_subtree(ti, ett_ieee802154_auxiliary_security);
 
-     /* Security Control Field */
-     proto_tree_add_bitmask(header_tree, tvb, *offset, hf_ieee802154_security_control_field, ett_ieee802154_aux_sec_control, security_fields, ENC_NA);
-     (*offset)++;
+    /* Security Control Field */
+    proto_tree_add_bitmask(header_tree, tvb, *offset, hf_ieee802154_aux_sec_security_control, ett_ieee802154_aux_sec_control, security_fields, ENC_NA);
+    (*offset)++;
 
-     /* Frame Counter Field */
-     proto_tree_add_item_ret_uint(header_tree, hf_ieee802154_aux_sec_frame_counter, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &packet->frame_counter);
-     (*offset) +=4;
+    /* Frame Counter Field */
+    if (!packet->frame_counter_suppression) {
+        proto_tree_add_item_ret_uint(header_tree, hf_ieee802154_aux_sec_frame_counter, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &packet->frame_counter);
+        (*offset) += 4;
+    }
 
-     /* Key identifier field(s). */
-     if (packet->key_id_mode != KEY_ID_MODE_IMPLICIT) {
+    /* Key identifier field(s). */
+    if (packet->key_id_mode != KEY_ID_MODE_IMPLICIT) {
         /* Create a subtree. */
         field_tree = proto_tree_add_subtree(header_tree, tvb, *offset, 1,
-                    ett_ieee802154_aux_sec_key_id, &ti, "Key Identifier Field"); /* Will fix length later. */
+                ett_ieee802154_aux_sec_key_id, &ti, "Key Identifier Field"); /* Will fix length later. */
         /* Add key source, if it exists. */
         if (packet->key_id_mode == KEY_ID_MODE_KEY_EXPLICIT_4) {
-          packet->key_source.addr32 = tvb_get_ntohl(tvb, *offset);
-          proto_tree_add_uint64(field_tree, hf_ieee802154_aux_sec_key_source, tvb, *offset, 4, packet->key_source.addr32);
-          hidden_item = proto_tree_add_item(field_tree, hf_ieee802154_aux_sec_key_source_bytes, tvb, *offset, 4, ENC_NA);
-          PROTO_ITEM_SET_HIDDEN(hidden_item);
-          proto_item_set_len(ti, 1 + 4);
-          (*offset) += 4;
+            packet->key_source.addr32 = tvb_get_ntohl(tvb, *offset);
+            proto_tree_add_uint64(field_tree, hf_ieee802154_aux_sec_key_source, tvb, *offset, 4, packet->key_source.addr32);
+            hidden_item = proto_tree_add_item(field_tree, hf_ieee802154_aux_sec_key_source_bytes, tvb, *offset, 4, ENC_NA);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            proto_item_set_len(ti, 1 + 4);
+            (*offset) += 4;
         }
         if (packet->key_id_mode == KEY_ID_MODE_KEY_EXPLICIT_8) {
-          packet->key_source.addr64 = tvb_get_ntoh64(tvb, *offset);
-          proto_tree_add_uint64(field_tree, hf_ieee802154_aux_sec_key_source, tvb, *offset, 8, packet->key_source.addr64);
-          hidden_item = proto_tree_add_item(field_tree, hf_ieee802154_aux_sec_key_source_bytes, tvb, *offset, 8, ENC_NA);
-          PROTO_ITEM_SET_HIDDEN(hidden_item);
-          proto_item_set_len(ti, 1 + 8);
-          (*offset) += 8;
+            packet->key_source.addr64 = tvb_get_ntoh64(tvb, *offset);
+            proto_tree_add_uint64(field_tree, hf_ieee802154_aux_sec_key_source, tvb, *offset, 8, packet->key_source.addr64);
+            hidden_item = proto_tree_add_item(field_tree, hf_ieee802154_aux_sec_key_source_bytes, tvb, *offset, 8, ENC_NA);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            proto_item_set_len(ti, 1 + 8);
+            (*offset) += 8;
         }
         /* Add key identifier. */
         packet->key_index = tvb_get_guint8(tvb, *offset);
-        proto_tree_add_uint(field_tree, hf_ieee802154_aux_sec_key_index, tvb, *offset,1, packet->key_index);
+        proto_tree_add_uint(field_tree, hf_ieee802154_aux_sec_key_index, tvb, *offset, 1, packet->key_index);
         (*offset)++;
-     }
+    }
 }
 
 tvbuff_t *dissect_ieee802154_payload(tvbuff_t * tvb, guint offset, packet_info * pinfo, proto_tree* key_tree,
@@ -1742,9 +1752,8 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             proto_item_append_text(mic_item, " [correct (key no. %d)]", payload_info.key_number);
             break;
 
-        case DECRYPT_VERSION_UNSUPPORTED:
-            /* We don't support decryption with that version of the protocol */
-            expert_add_info_format(pinfo, proto_root, &ei_ieee802154_decrypt_error, "We don't support decryption with protocol version %u", packet->version);
+        case DECRYPT_FRAME_COUNTER_SUPPRESSION_UNSUPPORTED:
+            expert_add_info_format(pinfo, proto_root, &ei_ieee802154_decrypt_error, "Decryption of 802.15.4-2015 with frame counter suppression is not supported");
             call_data_dissector(payload_tvb, pinfo, tree);
             goto dissect_ieee802154_fcs;
 
@@ -3399,15 +3408,9 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
     gint                reported_len;
     ieee802154_hints_t *ieee_hints;
 
-    /*
-     * Check the version; we only support IEEE 802.15.4-2003 and IEEE 802.15.4-2006.
-     * We must do this first, as, if this isn't IEEE 802.15.4-2003 or IEEE 802.15.4-2006,
-     * we don't have the Auxiliary Security Header, and haven't
-     * filled in the information for it, and none of the stuff
-     * we do afterwards, which uses that information, is doable.
-     */
-    if ((packet->version != IEEE802154_VERSION_2006) && (packet->version != IEEE802154_VERSION_2003)) {
-        *payload_info->status = DECRYPT_VERSION_UNSUPPORTED;
+    /* 802.15.4-2015 TSCH mode with frame counter suppression is not supported yet */
+    if (packet->frame_counter_suppression) {
+        *payload_info->status = DECRYPT_FRAME_COUNTER_SUPPRESSION_UNSUPPORTED;
         return NULL;
     }
 
@@ -4503,21 +4506,31 @@ void proto_register_ieee802154(void)
         { "Auxiliary Security Header", "wpan.aux_sec.hdr", FT_NONE, BASE_NONE, NULL,
             0x0, "The Auxiliary Security Header of the frame", HFILL }},
 
-        { &hf_ieee802154_security_level,
+        { &hf_ieee802154_aux_sec_security_level,
         { "Security Level", "wpan.aux_sec.sec_level", FT_UINT8, BASE_HEX, VALS(ieee802154_sec_level_names),
             IEEE802154_AUX_SEC_LEVEL_MASK, "The Security Level of the frame", HFILL }},
 
-        { &hf_ieee802154_security_control_field,
+        { &hf_ieee802154_aux_sec_security_control,
         { "Security Control Field", "wpan.aux_sec.security_control_field", FT_UINT8, BASE_HEX, NULL,
             0x0, NULL, HFILL }},
 
-        { &hf_ieee802154_key_id_mode,
+        { &hf_ieee802154_aux_sec_key_id_mode,
         { "Key Identifier Mode", "wpan.aux_sec.key_id_mode", FT_UINT8, BASE_HEX, VALS(ieee802154_key_id_mode_names),
             IEEE802154_AUX_KEY_ID_MODE_MASK,
             "The scheme to use by the recipient to lookup the key in its key table", HFILL }},
 
+        { &hf_ieee802154_aux_sec_frame_counter_suppression,
+        { "Frame Counter Suppression", "wpan.aux_sec.frame_counter_suppression", FT_BOOLEAN, 8, NULL,
+            IEEE802154_AUX_FRAME_COUNTER_SUPPRESSION_MASK,
+            "Whether the frame counter is omitted from the Auxiliary Security Header", HFILL }},
+
+        { &hf_ieee802154_aux_sec_asn_in_nonce,
+        { "ASN in Nonce", "wpan.aux_sec.asn_in_nonce", FT_BOOLEAN, 8, NULL,
+            IEEE802154_AUX_ASN_IN_NONCE_MASK,
+            "Whether the ASN is used to generate the nonce instead of the frame counter", HFILL }},
+
         { &hf_ieee802154_aux_sec_reserved,
-        { "Reserved", "wpan.aux_sec.reserved", FT_UINT8, BASE_HEX, NULL, IEEE802154_AUX_KEY_RESERVED_MASK,
+        { "Reserved", "wpan.aux_sec.reserved", FT_UINT8, BASE_HEX, NULL, IEEE802154_AUX_CTRL_RESERVED_MASK,
             NULL, HFILL }},
 
         { &hf_ieee802154_aux_sec_frame_counter,
