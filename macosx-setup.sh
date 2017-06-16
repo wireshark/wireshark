@@ -57,6 +57,11 @@ TARGET_PLATFORM=macx-clang
 XZ_VERSION=5.0.8
 
 #
+# Some packages need lzip to unpack their current source.
+#
+LZIP_VERSION=1.19
+
+#
 # In case we want to build with cmake.
 #
 CMAKE_VERSION=${CMAKE_VERSION-2.8.12.2}
@@ -118,17 +123,31 @@ LIBSMI_VERSION=0.4.8
 #
 # libgpg-error is required for libgcrypt.
 #
-LIBGPG_ERROR_VERSION=1.10
+LIBGPG_ERROR_VERSION=1.27
 #
 # libgcrypt is required.
 #
-LIBGCRYPT_VERSION=1.5.0
+LIBGCRYPT_VERSION=1.7.7
 #
 # GnuTLS is optional.
-# Note that since GnuTLS 3.0.8, Libgcrypt can no longer be used and nettle is
-# needed (which is not yet installed by this script).
 #
-GNUTLS_VERSION=2.12.19
+GNUTLS_VERSION=3.4.17
+if [ "$GNUTLS_VERSION" ]; then
+    #
+    # We'll be building GnuTLS, so we may need some additional libraries.
+    # We assume GnuTLS can work with Nettle; newer versions *only* use
+    # Nettle, not libgcrypt.
+    #
+    GNUTLS_MAJOR_VERSION="`expr $GNUTLS_VERSION : '\([0-9][0-9]*\).*'`"
+    GNUTLS_MINOR_VERSION="`expr $GNUTLS_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+    GNUTLS_DOTDOT_VERSION="`expr $GNUTLS_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+    NETTLE_VERSION=3.3
+
+    #
+    # And, in turn, Nettle requires GMP.
+    #
+    GMP_VERSION=6.1.2
+fi
 # Use 5.2.4, not 5.3, for now; lua_bitop.c hasn't been ported to 5.3
 # yet, and we need to check for compatibility issues (we'd want Lua
 # scripts to work with 5.1, 5.2, and 5.3, as long as they only use Lua
@@ -191,6 +210,42 @@ uninstall_xz() {
         fi
 
         installed_xz_version=""
+    fi
+}
+
+install_lzip() {
+    if [ "$LZIP_VERSION" -a ! -f lzip-$LZIP_VERSION-done ] ; then
+        echo "Downloading, building, and installing lzip:"
+        [ -f lzip-$LZIP_VERSION.tar.gz ] || curl -L -O http://download.savannah.gnu.org/releases/lzip/lzip-$LZIP_VERSION.tar.gz || exit 1
+        $no_build && echo "Skipping installation" && return
+        gzcat lzip-$LZIP_VERSION.tar.gz | tar xf - || exit 1
+        cd lzip-$LZIP_VERSION
+        ./configure || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch lzip-$LZIP_VERSION-done
+    fi
+}
+
+uninstall_lzip() {
+    if [ ! -z "$installed_lzip_version" ] ; then
+        echo "Uninstalling lzip:"
+        cd lzip-$installed_lzip_version
+        $DO_MAKE_UNINSTALL || exit 1
+        make distclean || exit 1
+        cd ..
+        rm lzip-$installed_lzip_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf lzip-$installed_lzip_version
+            rm -rf lzip-$installed_lzip_version.tar.gz
+        fi
+
+        installed_lzip_version=""
     fi
 }
 
@@ -664,8 +719,8 @@ install_glib() {
         GLIB_MINOR_VERSION="`expr $GLIB_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
         GLIB_DOTDOT_VERSION="`expr $GLIB_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
         if [[ $GLIB_MAJOR_VERSION -gt 2 ||
-              $GLIB_MINOR_VERSION -gt 28 ||
-              ($GLIB_MINOR_VERSION -eq 28 && $GLIB_DOTDOT_VERSION -ge 8) ]]
+             ($GLIB_MAJOR_VERSION -eq 2 && $GLIB_MINOR_VERSION -gt 28) ||
+             ($GLIB_MAJOR_VERSION -eq 2 && $GLIB_MINOR_VERSION -eq 28 && $GLIB_DOTDOT_VERSION -ge 8) ]]
         then
             #
             # Starting with GLib 2.28.8, xz-compressed tarballs are available.
@@ -926,8 +981,8 @@ install_cairo() {
         CAIRO_MINOR_VERSION="`expr $CAIRO_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
         CAIRO_DOTDOT_VERSION="`expr $CAIRO_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
         if [[ $CAIRO_MAJOR_VERSION -gt 1 ||
-              $CAIRO_MINOR_VERSION -gt 12 ||
-              ($CAIRO_MINOR_VERSION -eq 12 && $CAIRO_DOTDOT_VERSION -ge 2) ]]
+             ($CAIRO_MAJOR_VERSION -eq 2 && $CAIRO_MINOR_VERSION -gt 12) ||
+             ($CAIRO_MAJOR_VERSION -eq 2 && $CAIRO_MINOR_VERSION -eq 12 && $CAIRO_DOTDOT_VERSION -ge 2) ]]
         then
             #
             # Starting with Cairo 1.12.2, the tarballs are compressed with
@@ -993,8 +1048,8 @@ install_atk() {
         ATK_MINOR_VERSION="`expr $ATK_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
         ATK_DOTDOT_VERSION="`expr $ATK_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
         if [[ $ATK_MAJOR_VERSION -gt 2 ||
-              ($ATK_MAJOR_VERSION -eq 2 && $ATK_MINOR_VERSION -gt 0) ||
-              ($ATK_MANOR_VERSION -eq 2 && $ATK_MINOR_VERSION -eq 0 && $ATK_DOTDOT_VERSION -ge 1) ]]
+             ($ATK_MAJOR_VERSION -eq 2 && $ATK_MINOR_VERSION -gt 0) ||
+             ($ATK_MAJOR_VERSION -eq 2 && $ATK_MINOR_VERSION -eq 0 && $ATK_DOTDOT_VERSION -ge 1) ]]
         then
             #
             # Starting with ATK 2.0.1, xz-compressed tarballs are available.
@@ -1160,8 +1215,8 @@ install_gtk() {
         echo "Downloading, building, and installing GTK+:"
         gtk_dir=`expr $GTK_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
         if [[ $GTK_MAJOR_VERSION -gt 2 ||
-              $GTK_MINOR_VERSION -gt 24 ||
-             ($GTK_MINOR_VERSION -eq 24 && $GTK_DOTDOT_VERSION -ge 5) ]]
+             ($GTK_MAJOR_VERSION -eq 2 && $GTK_MINOR_VERSION -gt 24) ||
+             ($GTK_MAJOR_VERSION -eq 2 && $GTK_MINOR_VERSION -eq 24 && $GTK_DOTDOT_VERSION -ge 5) ]]
         then
             #
             # Starting with GTK+ 2.24.5, the tarballs are compressed with
@@ -1336,11 +1391,6 @@ install_libgcrypt() {
 
 uninstall_libgcrypt() {
     if [ ! -z "$installed_libgcrypt_version" ] ; then
-        #
-        # GnuTLS depends on this, so uninstall it.
-        #
-        uninstall_gnutls "$@"
-
         echo "Uninstalling libgcrypt:"
         cd libgcrypt-$installed_libgcrypt_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -1360,39 +1410,117 @@ uninstall_libgcrypt() {
     fi
 }
 
+install_gmp() {
+    if [ "$GMP_VERSION" -a ! -f gmp-$GMP_VERSION-done ] ; then
+        echo "Downloading, building, and installing GMP:"
+        [ -f gmp-$GMP_VERSION.tar.gz ] || curl -L -O https://gmplib.org/download/gmp/gmp-$GMP_VERSION.tar.lz || exit 1
+        $no_build && echo "Skipping installation" && return
+        lzip -c -d gmp-$GMP_VERSION.tar.lz | tar xf - || exit 1
+        cd gmp-$GMP_VERSION
+        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --with-libgcrypt --without-p11-kit || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch gmp-$GMP_VERSION-done
+    fi
+}
+
+uninstall_gmp() {
+    if [ ! -z "$installed_gmp_version" ] ; then
+        #
+        # Nettle depends on this, so uninstall it.
+        #
+        uninstall_nettle "$@"
+
+        echo "Uninstalling GMP:"
+        cd gmp-$installed_gmp_version
+        $DO_MAKE_UNINSTALL || exit 1
+        make distclean || exit 1
+        cd ..
+        rm gmp-$installed_gmp_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf gmp-$installed_gmp_version
+            rm -rf gmp-$installed_gmp_version.tar.lz
+        fi
+
+        installed_gmp_version=""
+    fi
+}
+
+install_nettle() {
+    if [ "$NETTLE_VERSION" -a ! -f nettle-$NETTLE_VERSION-done ] ; then
+        echo "Downloading, building, and installing Nettle:"
+        [ -f nettle-$NETTLE_VERSION.tar.gz ] || curl -L -O https://ftp.gnu.org/gnu/nettle/nettle-$NETTLE_VERSION.tar.gz || exit 1
+        $no_build && echo "Skipping installation" && return
+        gzcat nettle-$NETTLE_VERSION.tar.gz | tar xf - || exit 1
+        cd nettle-$NETTLE_VERSION
+        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --with-libgcrypt --without-p11-kit || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch nettle-$NETTLE_VERSION-done
+    fi
+}
+
+uninstall_nettle() {
+    if [ ! -z "$installed_nettle_version" ] ; then
+        #
+        # GnuTLS depends on this, so uninstall it.
+        #
+        uninstall_gnutls "$@"
+
+        echo "Uninstalling Nettle:"
+        cd nettle-$installed_nettle_version
+        $DO_MAKE_UNINSTALL || exit 1
+        make distclean || exit 1
+        cd ..
+        rm nettle-$installed_nettle_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf nettle-$installed_nettle_version
+            rm -rf nettle-$installed_nettle_version.tar.gz
+        fi
+
+        installed_nettle_version=""
+    fi
+}
+
 install_gnutls() {
     if [ "$GNUTLS_VERSION" -a ! -f gnutls-$GNUTLS_VERSION-done ] ; then
         #
-        # GnuTLS requires libgcrypt (or nettle, in newer versions).
+        # GnuTLS requires Nettle.
         #
-        if [ -z $LIBGCRYPT_VERSION ]
+        if [ -z $NETTLE_VERSION ]
         then
-            echo "GnuTLS requires libgcrypt, but you didn't install libgcrypt" 1>&2
+            echo "GnuTLS requires Nettle, but you didn't install Nettle" 1>&2
             exit 1
         fi
 
         echo "Downloading, building, and installing GnuTLS:"
-        [ -f gnutls-$GNUTLS_VERSION.tar.bz2 ] || curl -L -O http://ftp.gnu.org/gnu/gnutls/gnutls-$GNUTLS_VERSION.tar.bz2 || exit 1
-        $no_build && echo "Skipping installation" && return
-        bzcat gnutls-$GNUTLS_VERSION.tar.bz2 | tar xf - || exit 1
+        if [[ $GNUTLS_MAJOR_VERSION -ge 3 ]]
+        then
+            #
+            # Starting with GnuTLS 3.x, the tarballs are compressed with
+            # xz rather than bzip2.
+            #
+            [ -f gnutls-$GNUTLS_VERSION.tar.xz ] || curl -L -O https://www.gnupg.org/ftp/gcrypt/gnutls/v$GNUTLS_MAJOR_VERSION.$GNUTLS_MINOR_VERSION/gnutls-$GNUTLS_VERSION.tar.xz || exit 1
+            $no_build && echo "Skipping installation" && return
+            xzcat gnutls-$GNUTLS_VERSION.tar.xz | tar xf - || exit 1
+        else
+            [ -f gnutls-$GNUTLS_VERSION.tar.bz2 ] || curl -L -O https://www.gnupg.org/ftp/gcrypt/gnutls/v$GNUTLS_MAJOR_VERSION.$GNUTLS_MINOR_VERSION/gnutls-$GNUTLS_VERSION.tar.bz2 || exit 1
+            $no_build && echo "Skipping installation" && return
+            bzcat gnutls-$GNUTLS_VERSION.tar.bz2 | tar xf - || exit 1
+        fi
         cd gnutls-$GNUTLS_VERSION
-        #
-        # Use libgcrypt instead of nettle since it is already required by
-        # Wireshark.
-        #
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --with-libgcrypt --without-p11-kit || exit 1
+        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --with-included-libtasn1 --with-included-unistring --without-p11-kit || exit 1
         make $MAKE_BUILD_OPTS || exit 1
-        #
-        # The pkgconfig file for GnuTLS says "requires zlib", but macOS,
-        # while it supplies zlib, doesn't supply a pkgconfig file for
-        # it.
-        #
-        # Patch the GnuTLS pkgconfig file not to require zlib.
-        # (If the capabilities of GnuTLS that Wireshark uses don't
-        # depend on building GnuTLS with zlib, an alternative would be
-        # to configure it not to use zlib.)
-        #
-        patch -p0 lib/gnutls.pc.in <../../macosx-support-lib-patches/gnutls-pkgconfig.patch || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ..
         touch gnutls-$GNUTLS_VERSION-done
@@ -1534,8 +1662,8 @@ install_geoip() {
         GEOIP_MINOR_VERSION="`expr $GEOIP_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
         GEOIP_DOTDOT_VERSION="`expr $GEOIP_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
         if [[ $GEOIP_MAJOR_VERSION -gt 1 ||
-              $GEOIP_MINOR_VERSION -gt 6 ||
-              ($GEOIP_MINOR_VERSION -eq 6 && $GEOIP_DOTDOT_VERSION -ge 1) ]]
+             ($GEOIP_MAJOR_VERSION -eq 1 && $GEOIP_MINOR_VERSION -gt 6) ||
+             ($GEOIP_MAJOR_VERSION -eq 1 && $GEOIP_MINOR_VERSION -eq 6 && $GEOIP_DOTDOT_VERSION -ge 1) ]]
         then
             #
             # Starting with GeoIP 1.6.1, the tarballs are on GitHub.
@@ -1813,6 +1941,28 @@ install_all() {
         uninstall_gnutls -r
     fi
 
+    if [ ! -z "$installed_nettle_version" -a \
+              "$installed_nettle_version" != "$NETTLE_VERSION" ] ; then
+        echo "Installed Nettle version is $installed_nettle_version"
+        if [ -z "$NETTLE_VERSION" ] ; then
+            echo "Nettle is not requested"
+        else
+            echo "Requested Nettle version is $NETTLE_VERSION"
+        fi
+        uninstall_nettle -r
+    fi
+
+    if [ ! -z "$installed_gmp_version" -a \
+              "$installed_gmp_version" != "$GMP_VERSION" ] ; then
+        echo "Installed GMP version is $installed_gmp_version"
+        if [ -z "$GMP_VERSION" ] ; then
+            echo "GMP is not requested"
+        else
+            echo "Requested GMP version is $GMP_VERSION"
+        fi
+        uninstall_gmp -r
+    fi
+
     if [ ! -z "$installed_libgcrypt_version" -a \
               "$installed_libgcrypt_version" != "$LIBGCRYPT_VERSION" ] ; then
         echo "Installed libgcrypt version is $installed_libgcrypt_version"
@@ -2016,6 +2166,17 @@ install_all() {
         uninstall_autoconf -r
     fi
 
+    if [ ! -z "$installed_lzip_version" -a \
+              "$installed_lzip_version" != "$LZIP_VERSION" ] ; then
+        echo "Installed lzip version is $installed_lzip_version"
+        if [ -z "$LZIP_VERSION" ] ; then
+            echo "lzip is not requested"
+        else
+            echo "Requested lzip version is $LZIP_VERSION"
+        fi
+        uninstall_lzip -r
+    fi
+
     if [ ! -z "$installed_xz_version" -a \
               "$installed_xz_version" != "$XZ_VERSION" ] ; then
         echo "Installed xz version is $installed_xz_version"
@@ -2031,6 +2192,8 @@ install_all() {
     # Start with xz: It is the sole download format of glib later than 2.31.2
     #
     install_xz
+
+    install_lzip
 
     install_autoconf
 
@@ -2136,6 +2299,10 @@ install_all() {
 
     install_libgcrypt
 
+    install_gmp
+
+    install_nettle
+
     install_gnutls
 
     install_lua
@@ -2195,6 +2362,10 @@ uninstall_all() {
 
         uninstall_gnutls
 
+        uninstall_nettle
+
+        uninstall_gmp
+
         uninstall_libgcrypt
 
         uninstall_libgpg_error
@@ -2235,6 +2406,8 @@ uninstall_all() {
         uninstall_automake
 
         uninstall_autoconf
+
+        uninstall_lzip
 
         uninstall_xz
     fi
@@ -2323,6 +2496,7 @@ then
     cd macosx-support-libs
 
     installed_xz_version=`ls xz-*-done 2>/dev/null | sed 's/xz-\(.*\)-done/\1/'`
+    installed_lzip_version=`ls lzip-*-done 2>/dev/null | sed 's/lzip-\(.*\)-done/\1/'`
     installed_autoconf_version=`ls autoconf-*-done 2>/dev/null | sed 's/autoconf-\(.*\)-done/\1/'`
     installed_automake_version=`ls automake-*-done 2>/dev/null | sed 's/automake-\(.*\)-done/\1/'`
     installed_libtool_version=`ls libtool-*-done 2>/dev/null | sed 's/libtool-\(.*\)-done/\1/'`
@@ -2341,6 +2515,8 @@ then
     installed_libsmi_version=`ls libsmi-*-done 2>/dev/null | sed 's/libsmi-\(.*\)-done/\1/'`
     installed_libgpg_error_version=`ls libgpg-error-*-done 2>/dev/null | sed 's/libgpg-error-\(.*\)-done/\1/'`
     installed_libgcrypt_version=`ls libgcrypt-*-done 2>/dev/null | sed 's/libgcrypt-\(.*\)-done/\1/'`
+    installed_gmp_version=`ls gmp-*-done 2>/dev/null | sed 's/gmp-\(.*\)-done/\1/'`
+    installed_nettle_version=`ls nettle-*-done 2>/dev/null | sed 's/nettle-\(.*\)-done/\1/'`
     installed_gnutls_version=`ls gnutls-*-done 2>/dev/null | sed 's/gnutls-\(.*\)-done/\1/'`
     installed_lua_version=`ls lua-*-done 2>/dev/null | sed 's/lua-\(.*\)-done/\1/'`
     installed_portaudio_version=`ls portaudio-*-done 2>/dev/null | sed 's/portaudio-\(.*\)-done/\1/'`
