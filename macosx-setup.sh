@@ -246,150 +246,6 @@ uninstall_lzip() {
     fi
 }
 
-install_snappy() {
-    if [ "$SNAPPY_VERSION" -a ! -f snappy-$SNAPPY_VERSION-done ] ; then
-        echo "Downloading, building, and installing snappy:"
-        [ -f snappy-$SNAPPY_VERSION.tar.gz ] || curl -L -O https://github.com/google/snappy/releases/download/$SNAPPY_VERSION/snappy-$SNAPPY_VERSION.tar.gz || exit 1
-        $no_build && echo "Skipping installation" && return
-        gzcat snappy-$SNAPPY_VERSION.tar.gz | tar xf - || exit 1
-        cd snappy-$SNAPPY_VERSION
-        CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure || exit 1
-        make $MAKE_BUILD_OPTS || exit 1
-        $DO_MAKE_INSTALL || exit 1
-        cd ..
-        touch snappy-$SNAPPY_VERSION-done
-    fi
-}
-
-uninstall_snappy() {
-    if [ ! -z "$installed_snappy_version" ] ; then
-        echo "Uninstalling snappy:"
-        cd snappy-$installed_snappy_version
-        $DO_MAKE_UNINSTALL || exit 1
-        make distclean || exit 1
-        cd ..
-        rm snappy-$installed_snappy_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf snappy-$installed_snappy_version
-            rm -rf snappy-$installed_snappy_version.tar.gz
-        fi
-
-        installed_snappy_version=""
-    fi
-}
-
-install_libxml2() {
-    if [ "$LIBXML2_VERSION" -a ! -f libxml2-$LIBXML2_VERSION-done ] ; then
-        echo "Downloading, building, and installing libxml2:"
-        [ -f libxml2-$LIBXML2_VERSION.tar.gz ] || curl -L -O ftp://xmlsoft.org/libxml2/libxml2-$LIBXML2_VERSION.tar.gz || exit 1
-        $no_build && echo "Skipping installation" && return
-        gzcat libxml2-$LIBXML2_VERSION.tar.gz | tar xf - || exit 1
-        cd libxml2-$LIBXML2_VERSION
-        CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure || exit 1
-        make $MAKE_BUILD_OPTS || exit 1
-        $DO_MAKE_INSTALL || exit 1
-        cd ..
-        touch libxml2-$LIBXML2_VERSION-done
-    fi
-}
-
-uninstall_libxml2() {
-    if [ ! -z "$installed_libxml2_version" ] ; then
-        echo "Uninstalling libxml2:"
-        cd libxml2-$installed_libxml2_version
-        $DO_MAKE_UNINSTALL || exit 1
-        make distclean || exit 1
-        cd ..
-        rm libxml2-$installed_libxml2_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf libxml2-$installed_libxml2_version
-            rm -rf libxml2-$installed_libxml2_version.tar.gz
-        fi
-
-        installed_libxml2_version=""
-    fi
-}
-
-install_lz4() {
-    if [ "$LZ4_VERSION" -a ! -f lz4-$LZ4_VERSION-done ] ; then
-        echo "Downloading, building, and installing lz4:"
-        [ -f lz4-$LZ4_VERSION.tar.gz ] || curl -L -o lz4-$LZ4_VERSION.tar.gz https://github.com/lz4/lz4/archive/$LZ4_VERSION.tar.gz  || exit 1
-        $no_build && echo "Skipping installation" && return
-        gzcat lz4-$LZ4_VERSION.tar.gz | tar xf - || exit 1
-        cd lz4-$LZ4_VERSION
-        # CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure || exit 1
-        make $MAKE_BUILD_OPTS || exit 1
-        $DO_MAKE_INSTALL || exit 1
-        cd ..
-        touch lz4-$LZ4_VERSION-done
-    fi
-}
-
-uninstall_lz4() {
-    if [ ! -z "$installed_lz4_version" ] ; then
-        echo "Uninstalling lz4:"
-        cd lz4-$installed_lz4_version
-        $DO_MAKE_UNINSTALL || exit 1
-        make distclean || exit 1
-        cd ..
-        rm lz4-$installed_lz4_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf lz4-$installed_lz4_version
-            rm -rf lz4-$installed_lz4_version.tar.gz
-        fi
-
-        installed_lz4_version=""
-    fi
-}
-
-install_sbc() {
-    if [ "$SBC_VERSION" -a ! -f sbc-$SBC_VERSION-done ] ; then
-        echo "Downloading, building, and installing sbc:"
-        [ -f sbc-$SBC_VERSION.tar.gz ] || curl -L -O https://www.kernel.org/pub/linux/bluetooth/sbc-$SBC_VERSION.tar.gz || exit 1
-        $no_build && echo "Skipping installation" && return
-        gzcat sbc-$SBC_VERSION.tar.gz | tar xf - || exit 1
-        cd sbc-$SBC_VERSION
-        CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure --disable-tools --disable-tester --disable-shared || exit 1
-        make $MAKE_BUILD_OPTS || exit 1
-        $DO_MAKE_INSTALL || exit 1
-        cd ..
-        touch sbc-$SBC_VERSION-done
-    fi
-}
-
-uninstall_sbc() {
-    if [ ! -z "$installed_sbc_version" ] ; then
-        echo "Uninstalling sbc:"
-        cd sbc-$installed_sbc_version
-        $DO_MAKE_UNINSTALL || exit 1
-        make distclean || exit 1
-        cd ..
-        rm sbc-$installed_sbc_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf sbc-$installed_sbc_version
-            rm -rf sbc-$installed_sbc_version.tar.gz
-        fi
-
-        installed_sbc_version=""
-    fi
-}
-
 install_autoconf() {
     if [ "$AUTOCONF_VERSION" -a ! -f autoconf-$AUTOCONF_VERSION-done ] ; then
         echo "Downloading, building and installing GNU autoconf..."
@@ -1652,6 +1508,150 @@ uninstall_portaudio() {
     fi
 }
 
+install_snappy() {
+    if [ "$SNAPPY_VERSION" -a ! -f snappy-$SNAPPY_VERSION-done ] ; then
+        echo "Downloading, building, and installing snappy:"
+        [ -f snappy-$SNAPPY_VERSION.tar.gz ] || curl -L -O https://github.com/google/snappy/releases/download/$SNAPPY_VERSION/snappy-$SNAPPY_VERSION.tar.gz || exit 1
+        $no_build && echo "Skipping installation" && return
+        gzcat snappy-$SNAPPY_VERSION.tar.gz | tar xf - || exit 1
+        cd snappy-$SNAPPY_VERSION
+        CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch snappy-$SNAPPY_VERSION-done
+    fi
+}
+
+uninstall_snappy() {
+    if [ ! -z "$installed_snappy_version" ] ; then
+        echo "Uninstalling snappy:"
+        cd snappy-$installed_snappy_version
+        $DO_MAKE_UNINSTALL || exit 1
+        make distclean || exit 1
+        cd ..
+        rm snappy-$installed_snappy_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf snappy-$installed_snappy_version
+            rm -rf snappy-$installed_snappy_version.tar.gz
+        fi
+
+        installed_snappy_version=""
+    fi
+}
+
+install_libxml2() {
+    if [ "$LIBXML2_VERSION" -a ! -f libxml2-$LIBXML2_VERSION-done ] ; then
+        echo "Downloading, building, and installing libxml2:"
+        [ -f libxml2-$LIBXML2_VERSION.tar.gz ] || curl -L -O ftp://xmlsoft.org/libxml2/libxml2-$LIBXML2_VERSION.tar.gz || exit 1
+        $no_build && echo "Skipping installation" && return
+        gzcat libxml2-$LIBXML2_VERSION.tar.gz | tar xf - || exit 1
+        cd libxml2-$LIBXML2_VERSION
+        CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch libxml2-$LIBXML2_VERSION-done
+    fi
+}
+
+uninstall_libxml2() {
+    if [ ! -z "$installed_libxml2_version" ] ; then
+        echo "Uninstalling libxml2:"
+        cd libxml2-$installed_libxml2_version
+        $DO_MAKE_UNINSTALL || exit 1
+        make distclean || exit 1
+        cd ..
+        rm libxml2-$installed_libxml2_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf libxml2-$installed_libxml2_version
+            rm -rf libxml2-$installed_libxml2_version.tar.gz
+        fi
+
+        installed_libxml2_version=""
+    fi
+}
+
+install_lz4() {
+    if [ "$LZ4_VERSION" -a ! -f lz4-$LZ4_VERSION-done ] ; then
+        echo "Downloading, building, and installing lz4:"
+        [ -f lz4-$LZ4_VERSION.tar.gz ] || curl -L -o lz4-$LZ4_VERSION.tar.gz https://github.com/lz4/lz4/archive/$LZ4_VERSION.tar.gz  || exit 1
+        $no_build && echo "Skipping installation" && return
+        gzcat lz4-$LZ4_VERSION.tar.gz | tar xf - || exit 1
+        cd lz4-$LZ4_VERSION
+        # CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch lz4-$LZ4_VERSION-done
+    fi
+}
+
+uninstall_lz4() {
+    if [ ! -z "$installed_lz4_version" ] ; then
+        echo "Uninstalling lz4:"
+        cd lz4-$installed_lz4_version
+        $DO_MAKE_UNINSTALL || exit 1
+        make distclean || exit 1
+        cd ..
+        rm lz4-$installed_lz4_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf lz4-$installed_lz4_version
+            rm -rf lz4-$installed_lz4_version.tar.gz
+        fi
+
+        installed_lz4_version=""
+    fi
+}
+
+install_sbc() {
+    if [ "$SBC_VERSION" -a ! -f sbc-$SBC_VERSION-done ] ; then
+        echo "Downloading, building, and installing sbc:"
+        [ -f sbc-$SBC_VERSION.tar.gz ] || curl -L -O https://www.kernel.org/pub/linux/bluetooth/sbc-$SBC_VERSION.tar.gz || exit 1
+        $no_build && echo "Skipping installation" && return
+        gzcat sbc-$SBC_VERSION.tar.gz | tar xf - || exit 1
+        cd sbc-$SBC_VERSION
+        CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure --disable-tools --disable-tester --disable-shared || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch sbc-$SBC_VERSION-done
+    fi
+}
+
+uninstall_sbc() {
+    if [ ! -z "$installed_sbc_version" ] ; then
+        echo "Uninstalling sbc:"
+        cd sbc-$installed_sbc_version
+        $DO_MAKE_UNINSTALL || exit 1
+        make distclean || exit 1
+        cd ..
+        rm sbc-$installed_sbc_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf sbc-$installed_sbc_version
+            rm -rf sbc-$installed_sbc_version.tar.gz
+        fi
+
+        installed_sbc_version=""
+    fi
+}
+
 install_geoip() {
     if [ "$GEOIP_VERSION" -a ! -f geoip-$GEOIP_VERSION-done ] ; then
         echo "Downloading, building, and installing GeoIP API:"
@@ -1860,6 +1860,17 @@ install_all() {
         uninstall_geoip -r
     fi
 
+    if [ ! -z "$installed_sbc_version" -a \
+              "$installed_sbc_version" != "$SBC_VERSION" ] ; then
+        echo "Installed SBC version is $installed_sbc_version"
+        if [ -z "$SBC_VERSION" ] ; then
+            echo "SBC is not requested"
+        else
+            echo "Requested SBC version is $SBC_VERSION"
+        fi
+        uninstall_sbc -r
+    fi
+
     if [ ! -z "$installed_lz4_version" -a \
               "$installed_lz4_version" != "$LZ4_VERSION" ] ; then
         echo "Installed LZ4 version is $installed_lz4_version"
@@ -1869,17 +1880,6 @@ install_all() {
             echo "Requested LZ4 version is $LZ4_VERSION"
         fi
         uninstall_lz4 -r
-    fi
-
-    if [ ! -z "$installed_snappy_version" -a \
-              "$installed_snappy_version" != "$SNAPPY_VERSION" ] ; then
-        echo "Installed SNAPPY version is $installed_snappy_version"
-        if [ -z "$SNAPPY_VERSION" ] ; then
-            echo "SNAPPY is not requested"
-        else
-            echo "Requested SNAPPY version is $SNAPPY_VERSION"
-        fi
-        uninstall_snappy -r
     fi
 
     if [ ! -z "$installed_libxml2_version" -a \
@@ -1893,16 +1893,15 @@ install_all() {
         uninstall_libxml2 -r
     fi
 
-
-    if [ ! -z "$installed_sbc_version" -a \
-              "$installed_sbc_version" != "$SBC_VERSION" ] ; then
-        echo "Installed SBC version is $installed_sbc_version"
-        if [ -z "$SBC_VERSION" ] ; then
-            echo "SBC is not requested"
+    if [ ! -z "$installed_snappy_version" -a \
+              "$installed_snappy_version" != "$SNAPPY_VERSION" ] ; then
+        echo "Installed SNAPPY version is $installed_snappy_version"
+        if [ -z "$SNAPPY_VERSION" ] ; then
+            echo "SNAPPY is not requested"
         else
-            echo "Requested SBC version is $SBC_VERSION"
+            echo "Requested SNAPPY version is $SNAPPY_VERSION"
         fi
-        uninstall_sbc -r
+        uninstall_snappy -r
     fi
 
     if [ ! -z "$installed_portaudio_version" -a \
