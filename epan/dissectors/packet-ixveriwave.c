@@ -37,8 +37,10 @@ void proto_reg_handoff_ixveriwave(void);
 static void ethernettap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *tap_tree);
 static void wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo,
                             proto_tree *tree, proto_tree *tap_tree,
-                            guint16 vw_msdu_length, guint8 cmd_type,
-                            int log_mode, gboolean is_octo);
+                            guint16 vw_msdu_length);
+static void wlantap_dissect_octo(tvbuff_t *tvb, packet_info *pinfo,
+                                 proto_tree *tree, proto_tree *tap_tree,
+                                 guint8 cmd_type, int log_mode);
 
 typedef struct {
     guint32 previous_frame_num;
@@ -1491,12 +1493,17 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                 next_tvb = tvb_new_subset_remaining(tvb, 32);
         }
 
-     /* dissect the ethernet or wlan header next */
-     if (ixport_type == ETHERNET_PORT)
-        ethernettap_dissect(next_tvb, pinfo, tree, common_tree);
-     else
-        wlantap_dissect(next_tvb, pinfo, tree, common_tree, vw_msdu_length,
-                        cmd_type, log_mode, is_octo);
+        /* dissect the ethernet or wlan header next */
+        if (ixport_type == ETHERNET_PORT)
+            ethernettap_dissect(next_tvb, pinfo, tree, common_tree);
+        else {
+            if (is_octo)
+                wlantap_dissect_octo(next_tvb, pinfo, tree, common_tree,
+                                     cmd_type, log_mode);
+            else
+                wlantap_dissect(next_tvb, pinfo, tree, common_tree,
+                                vw_msdu_length);
+        }
     }
 
     return tvb_captured_length(tvb);
@@ -1896,11 +1903,373 @@ decode_vht_sig(proto_tree *tree, tvbuff_t *tvb, int offset,
 
 static void
 wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                proto_tree *tap_tree, guint16 vw_msdu_length, guint8 cmd_type,
-                int log_mode, gboolean is_octo)
+                proto_tree *tap_tree, guint16 vw_msdu_length)
 {
     proto_tree *ft, *flags_tree         = NULL;
     int         align_offset, offset;
+    tvbuff_t   *next_tvb;
+    guint       length;
+    gint8       dbm;
+    guint8      rate_mcs_index = 0;
+    guint8      plcp_type;
+    guint8      vht_ndp_flag, vht_mu_mimo_flg;
+    float       phyRate;
+
+    proto_tree *vweft, *vw_errorFlags_tree = NULL;
+    guint16     vw_info, vw_chanflags, vw_flags, vw_ht_length, vw_rflags;
+    guint32     vw_errors;
+    guint8      vht_user_pos;
+
+    ifg_info   *p_ifg_info;
+    proto_item *ti;
+    gboolean    short_preamble;
+    guint8      nss;
+
+    struct ieee_802_11_phdr phdr;
+
+    /* We don't have any 802.11 metadata yet. */
+    memset(&phdr, 0, sizeof(phdr));
+    phdr.fcs_len = -1;
+    phdr.decrypted = FALSE;
+    phdr.datapad = FALSE;
+    phdr.phy = PHDR_802_11_PHY_UNKNOWN;
+
+    //Command type Rx = 0, Tx = 1, RF = 3, RF_RX = 4
+    //log mode = 0 is normal capture and 1 is reduced capture
+
+    /* Pre-OCTO. */
+    /* First add the IFG information, need to grab the info bit field here */
+    vw_info = tvb_get_letohs(tvb, 20);
+    p_ifg_info = (struct ifg_info *) p_get_proto_data(wmem_file_scope(), pinfo, proto_ixveriwave, 0);
+    if ((vw_info & INFO_MPDU_OF_A_MPDU) && !(vw_info & INFO_FIRST_MPDU_OF_A_MPDU))  /* If the packet is part of an A-MPDU but not the first MPDU */
+        ti = proto_tree_add_uint(tap_tree, hf_ixveriwave_vw_ifg, tvb, 18, 0, 0);
+    else
+        ti = proto_tree_add_uint(tap_tree, hf_ixveriwave_vw_ifg, tvb, 18, 0, p_ifg_info->ifg);
+    PROTO_ITEM_SET_GENERATED(ti);
+
+    offset      = 0;
+    /* header length */
+    length = tvb_get_letohs(tvb, offset);
+    offset      += 2;
+
+    /* rflags */
+    vw_rflags = tvb_get_letohs(tvb, offset);
+    phdr.fcs_len = 0;
+
+    ft = proto_tree_add_item(tap_tree, hf_radiotap_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    flags_tree = proto_item_add_subtree(ft, ett_radiotap_flags);
+    proto_tree_add_item_ret_boolean(flags_tree, hf_radiotap_flags_preamble, tvb, offset, 2, ENC_LITTLE_ENDIAN, &short_preamble);
+    proto_tree_add_item(flags_tree, hf_radiotap_flags_wep, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    if ( vw_rflags & FLAGS_CHAN_HT ) {
+        proto_tree_add_item(flags_tree, hf_radiotap_flags_ht, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_radiotap_flags_40mhz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_radiotap_flags_short_gi, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    }
+    if ( vw_rflags & FLAGS_CHAN_VHT ) {
+        proto_tree_add_item(flags_tree, hf_radiotap_flags_vht, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_radiotap_flags_short_gi, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_radiotap_flags_40mhz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_radiotap_flags_80mhz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    }
+    offset      += 2;
+
+    /* channel flags */
+    vw_chanflags = tvb_get_letohs(tvb, offset);
+    offset      += 2;
+
+    /* PHY rate */
+    phyRate = (float)tvb_get_letohs(tvb, offset) / 10;
+    offset      += 2;
+
+    /* PLCP type */
+    plcp_type = tvb_get_guint8(tvb,offset) & 0x03;
+    vht_ndp_flag = tvb_get_guint8(tvb,offset) & 0x80;
+    offset++;
+
+    /* Rate/MCS index */
+    rate_mcs_index = tvb_get_guint8(tvb, offset);
+    offset++;
+
+    /* number of spatial streams */
+    nss = tvb_get_guint8(tvb, offset);
+    offset++;
+
+    if ((vw_rflags & FLAGS_CHAN_HT) || (vw_rflags & FLAGS_CHAN_VHT)) {
+        if (vw_rflags & FLAGS_CHAN_VHT) {
+            phdr.phy = PHDR_802_11_PHY_11AC;
+            phdr.phy_info.info_11ac.has_short_gi = TRUE;
+            phdr.phy_info.info_11ac.short_gi = ((vw_rflags & FLAGS_CHAN_SHORTGI) != 0);
+            /*
+             * XXX - this probably has only one user, so only one MCS index
+             * and only one NSS.
+             */
+            phdr.phy_info.info_11ac.nss[0] = nss;
+            phdr.phy_info.info_11ac.mcs[0] = rate_mcs_index;
+        } else {
+            /*
+             * XXX - where's the number of extension spatial streams?
+             * The code in wiretap/vwr.c doesn't seem to provide it.
+             * It could dig it out of the HT PLCP header in HT-SIG.
+             */
+            phdr.phy = PHDR_802_11_PHY_11N;
+            phdr.phy_info.info_11n.has_mcs_index = TRUE;
+            phdr.phy_info.info_11n.mcs_index = rate_mcs_index;
+
+            phdr.phy_info.info_11n.has_short_gi = TRUE;
+            phdr.phy_info.info_11n.short_gi = ((vw_rflags & FLAGS_CHAN_SHORTGI) != 0);
+
+            phdr.phy_info.info_11n.has_greenfield = TRUE;
+            phdr.phy_info.info_11n.greenfield = (plcp_type == PLCP_TYPE_GREENFIELD);
+        }
+
+        proto_tree_add_item(tap_tree, hf_radiotap_mcsindex,
+                            tvb, offset - 2, 1, ENC_BIG_ENDIAN);
+
+        proto_tree_add_item(tap_tree, hf_radiotap_nss,
+                            tvb, offset - 1, 1, ENC_BIG_ENDIAN);
+
+        proto_tree_add_uint_format_value(tap_tree, hf_radiotap_datarate,
+                                    tvb, offset - 5, 2, tvb_get_letohs(tvb, offset-5),
+                                    "%.1f (MCS %d)", phyRate, rate_mcs_index);
+    } else {
+        /*
+         * XXX - CHAN_OFDM could be 11a or 11g.  Unfortunately, we don't
+         * have the frequency, or anything else, to distinguish between
+         * them.
+         */
+        if (vw_chanflags & CHAN_CCK) {
+            phdr.phy = PHDR_802_11_PHY_11B;
+            phdr.phy_info.info_11b.has_short_preamble = TRUE;
+            phdr.phy_info.info_11b.short_preamble = short_preamble;
+        }
+        phdr.has_data_rate = TRUE;
+        phdr.data_rate = tvb_get_letohs(tvb, offset-5) / 5;
+
+        proto_tree_add_uint_format_value(tap_tree, hf_radiotap_datarate,
+            tvb, offset - 5, 2, tvb_get_letohs(tvb, offset-5),
+            "%.1f Mb/s", phyRate);
+    }
+    col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%.1f", phyRate);
+
+    /* RSSI/antenna A RSSI */
+    dbm = (gint8) tvb_get_guint8(tvb, offset);
+    phdr.has_signal_dbm = TRUE;
+    phdr.signal_dbm = dbm;
+    col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", dbm);
+    proto_tree_add_item(tap_tree, hf_radiotap_dbm_anta, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    /* Antenna B RSSI, or 100 if absent */
+    dbm = (gint8) tvb_get_guint8(tvb, offset);
+    if (dbm != 100) {
+        proto_tree_add_item(tap_tree, hf_radiotap_dbm_antb, tvb, offset, 1, ENC_NA);
+    }
+    offset++;
+
+    /* Antenna C RSSI, or 100 if absent */
+    dbm = (gint8) tvb_get_guint8(tvb, offset);
+    if (dbm != 100) {
+        proto_tree_add_item(tap_tree, hf_radiotap_dbm_antc, tvb, offset, 1, ENC_NA);
+    }
+    offset++;
+
+    /* Antenna D RSSI, or 100 if absent */
+    dbm = (gint8) tvb_get_guint8(tvb, offset);
+    if (dbm != 100) {
+        proto_tree_add_item(tap_tree, hf_radiotap_dbm_antd, tvb, offset, 1, ENC_NA);
+    }
+    offset+=2;  /* also skips paddng octet */
+
+    /* VeriWave flags */
+    vw_flags = tvb_get_letohs(tvb, offset);
+
+    if ((vw_rflags & FLAGS_CHAN_HT) || (vw_rflags & FLAGS_CHAN_VHT)) {
+        if (plcp_type == PLCP_TYPE_VHT_MIXED) {
+            if (!(vw_flags & VW_RADIOTAPF_TXF) && (vht_ndp_flag == 0x80)) {
+                /*** VHT-NDP rx frame and ndp_flag is set***/
+                proto_tree_add_uint(tap_tree, hf_radiotap_plcptype,
+                                            tvb, offset-3, 1, plcp_type);
+            } else {
+                /*** VHT-NDP transmitted frame ***/
+                if (vw_msdu_length == 4) { /*** Transmit frame and msdu_length = 4***/
+                    proto_tree_add_uint(tap_tree, hf_radiotap_plcptype,
+                                     tvb, offset-3, 1, plcp_type);
+                }
+            }
+        }
+    }
+
+    proto_tree_add_item(tap_tree, hf_radiotap_vwf_txf, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tap_tree, hf_radiotap_vwf_fcserr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tap_tree, hf_radiotap_vwf_dcrerr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tap_tree, hf_radiotap_vwf_retrerr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tap_tree, hf_radiotap_vwf_enctype, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+    offset      += 2;
+
+    /* XXX - this should do nothing */
+    align_offset = ALIGN_OFFSET(offset, 2);
+    offset += align_offset;
+
+    /* HT length */
+    vw_ht_length = tvb_get_letohs(tvb, offset);
+    if ((vw_ht_length != 0)) {
+        proto_tree_add_uint_format_value(tap_tree, hf_radiotap_vw_ht_length,
+            tvb, offset, 2, vw_ht_length, "%u (includes the sum of the pieces of the aggregate and their respective Start_Spacing + Delimiter + MPDU + Padding)",
+            vw_ht_length);
+#if 0
+        if (plcp_type == PLCP_TYPE_VHT_MIXED)
+        {
+            proto_tree_add_uint_format(tap_tree, hf_radiotap_vw_ht_length,
+                tvb, offset, 2, vw_ht_length, "VHT length: %u (includes the sum of the pieces of the aggregate and their respective Start_Spacing + Delimiter + MPDU + Padding)",
+                vw_ht_length);
+        }
+        else
+        {
+            proto_tree_add_uint_format(tap_tree, hf_radiotap_vw_ht_length,
+                tvb, offset, 2, vw_ht_length, "HT length: %u (includes the sum of the pieces of the aggregate and their respective Start_Spacing + Delimiter + MPDU + Padding)",
+                vw_ht_length);
+        }
+#endif
+    }
+    offset      += 2;
+
+    align_offset = ALIGN_OFFSET(offset, 2);
+    offset += align_offset;
+
+    /* info */
+    if (!(vw_flags & VW_RADIOTAPF_TXF)) {                   /* then it's an rx case */
+        /*FPGA_VER_vVW510021 version decodes */
+        static const int * vw_info_rx_2_flags[] = {
+            &hf_radiotap_vw_info_2_ack_withheld_from_frame,
+            &hf_radiotap_vw_info_2_sent_cts_to_self_before_data,
+            &hf_radiotap_vw_info_2_mpdu_of_a_mpdu,
+            &hf_radiotap_vw_info_2_first_mpdu_of_a_mpdu,
+            &hf_radiotap_vw_info_2_last_pdu_of_a_mpdu,
+            &hf_radiotap_vw_info_2_msdu_of_a_msdu,
+            &hf_radiotap_vw_info_2_first_msdu_of_a_msdu,
+            &hf_radiotap_vw_info_2_last_msdu_of_a_msdu,
+            NULL
+        };
+
+        proto_tree_add_bitmask(tap_tree, tvb, offset, hf_radiotap_vw_info, ett_radiotap_info, vw_info_rx_2_flags, ENC_LITTLE_ENDIAN);
+
+    } else {                                    /* it's a tx case */
+        static const int * vw_info_tx_2_flags[] = {
+            &hf_radiotap_vw_info_2_mpdu_of_a_mpdu,
+            &hf_radiotap_vw_info_2_first_mpdu_of_a_mpdu,
+            &hf_radiotap_vw_info_2_last_pdu_of_a_mpdu,
+            &hf_radiotap_vw_info_2_msdu_of_a_msdu,
+            &hf_radiotap_vw_info_2_first_msdu_of_a_msdu,
+            &hf_radiotap_vw_info_2_last_msdu_of_a_msdu,
+            NULL
+        };
+
+        /* FPGA_VER_vVW510021 and VW_FPGA_VER_vVW510006 tx info decodes same*/
+        proto_tree_add_bitmask(tap_tree, tvb, offset, hf_radiotap_vw_info, ett_radiotap_info, vw_info_tx_2_flags, ENC_LITTLE_ENDIAN);
+    }
+    offset += 2;
+
+    /* errors */
+    vw_errors = tvb_get_letohl(tvb, offset);
+
+    vweft = proto_tree_add_uint(tap_tree, hf_radiotap_vw_errors,
+                                tvb, offset, 4, vw_errors);
+    vw_errorFlags_tree = proto_item_add_subtree(vweft, ett_radiotap_errors);
+
+    /* build the individual subtrees for the various types of error flags */
+    /* NOTE: as the upper 16 bits aren't used at the moment, we pretend that */
+    /* the error flags field is only 16 bits (instead of 32) to save space */
+    if (!(vw_flags & VW_RADIOTAPF_TXF)) {
+        /* then it's an rx case */
+
+        /*FPGA_VER_vVW510021 version decodes */
+        proto_tree_add_item(vw_errorFlags_tree,
+            hf_radiotap_vw_errors_rx_2_crc16_or_parity_error, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(vw_errorFlags_tree,
+            hf_radiotap_vw_errors_rx_2_non_supported_rate_or_service_field, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(vw_errorFlags_tree,
+            hf_radiotap_vw_errors_rx_2_short_frame, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+        /* veriwave removed 8-2007, don't display reserved bit*/
+
+        proto_tree_add_item(vw_errorFlags_tree,
+            hf_radiotap_vw_errors_rx_2_fcs_error, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(vw_errorFlags_tree,
+            hf_radiotap_vw_errors_rx_2_l2_de_aggregation_error, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(vw_errorFlags_tree,
+            hf_radiotap_vw_errors_rx_2_duplicate_mpdu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(vw_errorFlags_tree,
+            hf_radiotap_vw_errors_rx_2_bad_flow_magic_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(vw_errorFlags_tree,
+            hf_radiotap_vw_errors_rx_2_flow_payload_checksum_error, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+        proto_tree_add_item(vw_errorFlags_tree,
+        hf_radiotap_vw_errors_rx_2_ip_checksum_error, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(vw_errorFlags_tree,
+        hf_radiotap_vw_errors_rx_2_l4_checksum_error, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+    } else {                                  /* it's a tx case */
+        /* FPGA_VER_vVW510021 and VW_FPGA_VER_vVW510006 tx error decodes same*/
+
+        proto_tree_add_item(vw_errorFlags_tree,
+                            hf_radiotap_vw_errors_tx_packet_fcs_error, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+        proto_tree_add_item(vw_errorFlags_tree,
+                            hf_radiotap_vw_errors_tx_ip_checksum_error, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+    }
+    offset += 4;
+
+    /*** POPULATE THE AMSDU VHT MIXED MODE CONTAINER FORMAT ***/
+    /* XXX - what about other modes?  PLCP here? */
+    if ((vw_rflags & FLAGS_CHAN_VHT) && vw_ht_length != 0)
+    {
+        if (plcp_type == PLCP_TYPE_VHT_MIXED) //If the frame is VHT type
+        {
+            offset += 4; /*** 4 bytes of ERROR ***/
+
+            /*** Extract SU/MU MIMO flag from RX L1 Info ***/
+            vht_user_pos = tvb_get_guint8(tvb, offset);
+            vht_mu_mimo_flg = (vht_user_pos & 0x08) >> 3;
+
+            if (vht_mu_mimo_flg == 1) {
+                proto_tree_add_item(tap_tree, hf_radiotap_vht_mu_mimo_flg, tvb, offset, 1, ENC_NA);
+
+                /*** extract user Position in case of mu-mimo ***/
+                proto_tree_add_item(tap_tree, hf_radiotap_vht_user_pos, tvb, offset, 1, ENC_NA);
+
+            } else {
+                proto_tree_add_item(tap_tree, hf_radiotap_vht_su_mimo_flg, tvb, offset, 1, ENC_NA);
+            }
+            offset += 1; /*** skip the RX L1 Info byte ****/
+
+            /* L-SIG */
+            offset = decode_ofdm_signal(tap_tree, tvb, offset);
+
+            /* VHT-SIG */
+            /* XXX - does this include VHT-SIG-B? */
+            decode_vht_sig(tap_tree, tvb, offset, &phdr);
+        }
+    }
+
+    /* Grab the rest of the frame. */
+    if (plcp_type == PLCP_TYPE_VHT_MIXED) {
+        length = length + 17; /*** 16 bytes of PLCP + 1 byte of L1InfoC(UserPos) **/
+    }
+
+    next_tvb = tvb_new_subset_remaining(tvb, length);
+
+    /* dissect the 802.11 radio informaton and header next */
+    call_dissector_with_data(ieee80211_radio_handle, next_tvb, pinfo, tree, &phdr);
+}
+
+
+static void
+wlantap_dissect_octo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                     proto_tree *tap_tree, guint8 cmd_type, int log_mode)
+{
+    int         offset;
     tvbuff_t   *next_tvb;
     guint       length;
     gint8       dbm;
@@ -1909,14 +2278,12 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8      vht_ndp_flag, vht_mu_mimo_flg;
     float       phyRate;
 
-    proto_tree *vweft, *vw_errorFlags_tree = NULL, *vwict, *vw_infoC_tree = NULL;
-    guint16     vw_info, vw_chanflags, vw_flags, vw_ht_length, vw_rflags, vw_vcid, vw_seqnum, mpdu_length;
-    guint32     vw_errors;
+    proto_tree *vwict, *vw_infoC_tree = NULL;
+    guint16     vw_vcid, vw_seqnum, mpdu_length;
     guint8      vht_user_pos;
     guint8      plcp_default;
 
-    ifg_info   *p_ifg_info;
-    proto_item *vwl1i, *ti;
+    proto_item *vwl1i;
     proto_tree *vw_l1info_tree = NULL, *vwl2l4t,*vw_l2l4info_tree = NULL, *vwplt,*vw_plcpinfo_tree = NULL;
     gboolean    direction, short_preamble;
     guint8      nss, sigbw, cidv, bssidv, flowv, l4idv;
@@ -1932,995 +2299,664 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     //Command type Rx = 0, Tx = 1, RF = 3, RF_RX = 4
     //log mode = 0 is normal capture and 1 is reduced capture
-    //is_octo is FALSE for non-OCTO versions and TRUE for OCTO versions
 
-    if (!is_octo)
+    /*
+     * FPGA version is non-zero, meaning this is OCTO.
+     * The first part is a timestamp header.
+     */
+    //RadioTapHeader New format for L1Info
+    offset      = 0;
+
+    length = tvb_get_letohs(tvb, offset);
+    offset      += 2;
+
+    vwl1i = proto_tree_add_item(tap_tree, hf_radiotap_l1info, tvb, offset, 12, ENC_NA);
+    vw_l1info_tree = proto_item_add_subtree(vwl1i, ett_radiotap_layer1);
+
+    plcp_type = tvb_get_guint8(tvb, offset+4) & 0x0f;
+
+    /* l1p_1 byte */
+    switch (plcp_type)
     {
-        /* Pre-OCTO. */
-        /* First add the IFG information, need to grab the info bit field here */
-        vw_info = tvb_get_letohs(tvb, 20);
-        p_ifg_info = (struct ifg_info *) p_get_proto_data(wmem_file_scope(), pinfo, proto_ixveriwave, 0);
-        if ((vw_info & INFO_MPDU_OF_A_MPDU) && !(vw_info & INFO_FIRST_MPDU_OF_A_MPDU))  /* If the packet is part of an A-MPDU but not the first MPDU */
-            ti = proto_tree_add_uint(tap_tree, hf_ixveriwave_vw_ifg, tvb, 18, 0, 0);
-        else
-            ti = proto_tree_add_uint(tap_tree, hf_ixveriwave_vw_ifg, tvb, 18, 0, p_ifg_info->ifg);
-        PROTO_ITEM_SET_GENERATED(ti);
-
-        offset      = 0;
-        /* header length */
-        length = tvb_get_letohs(tvb, offset);
-        offset      += 2;
-
-        /* rflags */
-        vw_rflags = tvb_get_letohs(tvb, offset);
-        phdr.fcs_len = 0;
-
-        ft = proto_tree_add_item(tap_tree, hf_radiotap_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        flags_tree = proto_item_add_subtree(ft, ett_radiotap_flags);
-        proto_tree_add_item_ret_boolean(flags_tree, hf_radiotap_flags_preamble, tvb, offset, 2, ENC_LITTLE_ENDIAN, &short_preamble);
-        proto_tree_add_item(flags_tree, hf_radiotap_flags_wep, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        if ( vw_rflags & FLAGS_CHAN_HT ) {
-            proto_tree_add_item(flags_tree, hf_radiotap_flags_ht, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(flags_tree, hf_radiotap_flags_40mhz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(flags_tree, hf_radiotap_flags_short_gi, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    case PLCP_TYPE_LEGACY:     /* Legacy (pre-HT - 11b/11a/11g) */
+        /*
+         * XXX - CHAN_OFDM could be 11a or 11g.  Unfortunately, we don't
+         * have the frequency, or anything else, to distinguish between
+         * them.
+         */
+        short_preamble = !(tvb_get_guint8(tvb, offset) & 0x40);
+        proto_tree_add_boolean(vw_l1info_tree, hf_radiotap_l1info_preamble,
+                               tvb, offset, 1, short_preamble);
+        rate_mcs_index = tvb_get_guint8(tvb, offset) & 0x3f;
+        proto_tree_add_uint(vw_l1info_tree, hf_radiotap_l1info_rateindex,
+                            tvb, offset, 1, rate_mcs_index);
+        if (rate_mcs_index < 4)
+        {
+            /* CCK */
+            phdr.phy = PHDR_802_11_PHY_11B;
+            phdr.phy_info.info_11b.has_short_preamble = TRUE;
+            phdr.phy_info.info_11b.short_preamble = short_preamble;
         }
-        if ( vw_rflags & FLAGS_CHAN_VHT ) {
-            proto_tree_add_item(flags_tree, hf_radiotap_flags_vht, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(flags_tree, hf_radiotap_flags_short_gi, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(flags_tree, hf_radiotap_flags_40mhz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(flags_tree, hf_radiotap_flags_80mhz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        }
-        offset      += 2;
+        break;
 
-        /* channel flags */
-        vw_chanflags = tvb_get_letohs(tvb, offset);
-        offset      += 2;
+    case PLCP_TYPE_MIXED:      /* HT Mixed */
+    case PLCP_TYPE_GREENFIELD: /* HT Greenfield */
+        rate_mcs_index = tvb_get_guint8(tvb, offset) & 0x3f;
+        proto_tree_add_uint(vw_l1info_tree, hf_radiotap_l1info_ht_mcsindex,
+                            tvb, offset, 1, rate_mcs_index);
+        phdr.phy = PHDR_802_11_PHY_11N;
+        phdr.phy_info.info_11n.has_mcs_index = TRUE;
+        phdr.phy_info.info_11n.mcs_index = rate_mcs_index;
+        phdr.phy_info.info_11n.has_greenfield = TRUE;
+        phdr.phy_info.info_11n.greenfield = (plcp_type == PLCP_TYPE_GREENFIELD);
+        break;
 
-        /* PHY rate */
-        phyRate = (float)tvb_get_letohs(tvb, offset) / 10;
-        offset      += 2;
+    case PLCP_TYPE_VHT_MIXED:  /* VHT Mixed */
+        rate_mcs_index = tvb_get_guint8(tvb, offset) & 0x0f;
+        proto_tree_add_uint(vw_l1info_tree, hf_radiotap_l1info_vht_mcsindex,
+                            tvb, offset, 1, rate_mcs_index);
+        phdr.phy = PHDR_802_11_PHY_11AC;
+        /*
+         * XXX - this probably has only one user, so only one MCS index.
+         */
+        phdr.phy_info.info_11ac.mcs[0] = rate_mcs_index;
+    }
+    offset++;
 
-        /* PLCP type */
-        plcp_type = tvb_get_guint8(tvb,offset) & 0x03;
-        vht_ndp_flag = tvb_get_guint8(tvb,offset) & 0x80;
-        offset++;
+    /* NSS and direction octet */
+    switch (plcp_type)
+    {
+    case PLCP_TYPE_LEGACY:     /* Legacy (pre-HT - 11b/11a/11g) */
+        break;
 
-        /* Rate/MCS index */
-        rate_mcs_index = tvb_get_guint8(tvb, offset);
-        offset++;
+    case PLCP_TYPE_MIXED:      /* HT Mixed */
+    case PLCP_TYPE_GREENFIELD: /* HT Greenfield (Not supported) */
+        nss = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
+        proto_tree_add_uint(vw_l1info_tree, hf_radiotap_l1info_nss,
+                            tvb, offset, 1, nss);
+        break;
 
-        /* number of spatial streams */
-        nss = tvb_get_guint8(tvb, offset);
-        offset++;
+    case PLCP_TYPE_VHT_MIXED:  /* VHT Mixed */
+        nss = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
+        proto_tree_add_uint(vw_l1info_tree, hf_radiotap_l1info_nss,
+                            tvb, offset, 1, nss);
+        /*
+         * XXX - this probably has only one user, so only one NSS.
+         */
+        phdr.phy_info.info_11ac.nss[0] = nss;
+        break;
+    }
+    direction = ((tvb_get_guint8(tvb, offset) & 0x01) != 0);
+    proto_tree_add_boolean(vw_l1info_tree, hf_radiotap_l1info_transmitted,
+                           tvb, offset, 1, direction);
+    proto_item_append_text(vwl1i, " (Direction=%s)",
+                           direction ? "Transmit" : "Receive");
+    offset++;
 
-        if ((vw_rflags & FLAGS_CHAN_HT) || (vw_rflags & FLAGS_CHAN_VHT)) {
-            if (vw_rflags & FLAGS_CHAN_VHT) {
-                phdr.phy = PHDR_802_11_PHY_11AC;
-                phdr.phy_info.info_11ac.has_short_gi = TRUE;
-                phdr.phy_info.info_11ac.short_gi = ((vw_rflags & FLAGS_CHAN_SHORTGI) != 0);
-                /*
-                 * XXX - this probably has only one user, so only one MCS index
-                 * and only one NSS.
-                 */
-                phdr.phy_info.info_11ac.nss[0] = nss;
-                phdr.phy_info.info_11ac.mcs[0] = rate_mcs_index;
-            } else {
-                /*
-                 * XXX - where's the number of extension spatial streams?
-                 * The code in wiretap/vwr.c doesn't seem to provide it.
-                 * It could dig it out of the HT PLCP header in HT-SIG.
-                 */
-                phdr.phy = PHDR_802_11_PHY_11N;
-                phdr.phy_info.info_11n.has_mcs_index = TRUE;
-                phdr.phy_info.info_11n.mcs_index = rate_mcs_index;
+    /* New pieces of lines for
+     * #802.11 radio information#
+     * Referred from code changes done for old FPGA version
+     * **/
+    phdr.fcs_len = (log_mode == 3) ? 0 : 4;
 
-                phdr.phy_info.info_11n.has_short_gi = TRUE;
-                phdr.phy_info.info_11n.short_gi = ((vw_rflags & FLAGS_CHAN_SHORTGI) != 0);
+    switch (plcp_type)
+    {
+    case PLCP_TYPE_LEGACY:     /* Legacy (pre-HT - 11b/11a/11g) */
+        phdr.has_data_rate = TRUE;
+        phdr.data_rate = tvb_get_letohs(tvb, offset) / 5;
+        break;
 
-                phdr.phy_info.info_11n.has_greenfield = TRUE;
-                phdr.phy_info.info_11n.greenfield = (plcp_type == PLCP_TYPE_GREENFIELD);
-            }
+    case PLCP_TYPE_MIXED:      /* HT Mixed */
+    case PLCP_TYPE_GREENFIELD: /* HT Greenfield (Not supported) */
+    case PLCP_TYPE_VHT_MIXED:  /* VHT Mixed */
+        break;
+    }
 
-            proto_tree_add_item(tap_tree, hf_radiotap_mcsindex,
-                                tvb, offset - 2, 1, ENC_BIG_ENDIAN);
-
-            proto_tree_add_item(tap_tree, hf_radiotap_nss,
-                                tvb, offset - 1, 1, ENC_BIG_ENDIAN);
-
-            proto_tree_add_uint_format_value(tap_tree, hf_radiotap_datarate,
-                                        tvb, offset - 5, 2, tvb_get_letohs(tvb, offset-5),
-                                        "%.1f (MCS %d)", phyRate, rate_mcs_index);
-        } else {
-            /*
-             * XXX - CHAN_OFDM could be 11a or 11g.  Unfortunately, we don't
-             * have the frequency, or anything else, to distinguish between
-             * them.
-             */
-            if (vw_chanflags & CHAN_CCK) {
-                phdr.phy = PHDR_802_11_PHY_11B;
-                phdr.phy_info.info_11b.has_short_preamble = TRUE;
-                phdr.phy_info.info_11b.short_preamble = short_preamble;
-            }
-            phdr.has_data_rate = TRUE;
-            phdr.data_rate = tvb_get_letohs(tvb, offset-5) / 5;
-
-            proto_tree_add_uint_format_value(tap_tree, hf_radiotap_datarate,
-                tvb, offset - 5, 2, tvb_get_letohs(tvb, offset-5),
+    phyRate = (float)tvb_get_letohs(tvb, offset) / 10;
+    proto_tree_add_uint_format_value(vw_l1info_tree, hf_radiotap_datarate,
+                tvb, offset, 2, tvb_get_letohs(tvb, offset),
                 "%.1f Mb/s", phyRate);
-        }
-        col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%.1f", phyRate);
+    offset = offset + 2;
+    col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%.1f", phyRate);
 
-        /* RSSI/antenna A RSSI */
-        dbm = (gint8) tvb_get_guint8(tvb, offset);
-        phdr.has_signal_dbm = TRUE;
-        phdr.signal_dbm = dbm;
-        col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", dbm);
-        proto_tree_add_item(tap_tree, hf_radiotap_dbm_anta, tvb, offset, 1, ENC_NA);
-        offset++;
+    sigbw = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
+    plcp_type = tvb_get_guint8(tvb, offset) & 0x0f;
+    proto_tree_add_uint(vw_l1info_tree,
+            hf_radiotap_sigbandwidth, tvb, offset, 1, sigbw);
 
-        /* Antenna B RSSI, or 100 if absent */
-        dbm = (gint8) tvb_get_guint8(tvb, offset);
-        if (dbm != 100) {
-            proto_tree_add_item(tap_tree, hf_radiotap_dbm_antb, tvb, offset, 1, ENC_NA);
-        }
-        offset++;
+    if (plcp_type != PLCP_TYPE_LEGACY)
+    {
+        /* HT or VHT */
+        proto_tree_add_uint(vw_l1info_tree,
+            hf_radiotap_modulation, tvb, offset, 1, plcp_type);
+    }
+    else
+    {
+        /* pre-HT */
+        if (rate_mcs_index < 4)
+            proto_tree_add_uint_format_value(vw_l1info_tree, hf_radiotap_modulation,
+                tvb, offset, 1, plcp_type, "CCK (%u)", plcp_type);
+        else
+            proto_tree_add_uint_format_value(vw_l1info_tree, hf_radiotap_modulation,
+                tvb, offset, 1, plcp_type, "OFDM (%u)", plcp_type);
+    }
+    offset++;
 
-        /* Antenna C RSSI, or 100 if absent */
-        dbm = (gint8) tvb_get_guint8(tvb, offset);
-        if (dbm != 100) {
-            proto_tree_add_item(tap_tree, hf_radiotap_dbm_antc, tvb, offset, 1, ENC_NA);
-        }
-        offset++;
+    dbm = (gint8) tvb_get_guint8(tvb, offset);
 
-        /* Antenna D RSSI, or 100 if absent */
-        dbm = (gint8) tvb_get_guint8(tvb, offset);
-        if (dbm != 100) {
-            proto_tree_add_item(tap_tree, hf_radiotap_dbm_antd, tvb, offset, 1, ENC_NA);
-        }
-        offset+=2;  /* also skips paddng octet */
+    phdr.has_signal_dbm = TRUE;
+    phdr.signal_dbm = dbm;
 
-        /* VeriWave flags */
-        vw_flags = tvb_get_letohs(tvb, offset);
+    col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", dbm);
 
-        if ((vw_rflags & FLAGS_CHAN_HT) || (vw_rflags & FLAGS_CHAN_VHT)) {
-            if (plcp_type == PLCP_TYPE_VHT_MIXED) {
-                if (!(vw_flags & VW_RADIOTAPF_TXF) && (vht_ndp_flag == 0x80)) {
-                    /*** VHT-NDP rx frame and ndp_flag is set***/
-                    proto_tree_add_uint(tap_tree, hf_radiotap_plcptype,
-                                                tvb, offset-3, 1, plcp_type);
-                } else {
-                    /*** VHT-NDP transmitted frame ***/
-                    if (vw_msdu_length == 4) { /*** Transmit frame and msdu_length = 4***/
-                        proto_tree_add_uint(tap_tree, hf_radiotap_plcptype,
-                                         tvb, offset-3, 1, plcp_type);
-                    }
-                }
+    if (cmd_type != 1)
+        proto_tree_add_item(vw_l1info_tree, hf_radiotap_dbm_anta,
+                                tvb, offset, 1, ENC_NA);
+    else
+        proto_tree_add_item(vw_l1info_tree, hf_radiotap_dbm_tx_anta,
+                                tvb, offset, 1, ENC_NA);
+    offset++;
+
+    dbm = (gint8) tvb_get_guint8(tvb, offset);
+    if (dbm != 100) {
+        if (cmd_type != 1)
+            proto_tree_add_item(vw_l1info_tree, hf_radiotap_dbm_antb,
+                                        tvb, offset, 1, ENC_NA);
+        else
+            proto_tree_add_item(vw_l1info_tree,
+                                    hf_radiotap_dbm_tx_antb,
+                                    tvb, offset, 1, ENC_NA);
+    }
+    offset++;
+
+    dbm = (gint8) tvb_get_guint8(tvb, offset);
+    if (dbm != 100) {
+        if (cmd_type != 1)
+            proto_tree_add_item(vw_l1info_tree, hf_radiotap_dbm_antc,
+                                    tvb, offset, 1, ENC_NA);
+        else
+            proto_tree_add_item(vw_l1info_tree, hf_radiotap_dbm_tx_antc,
+                                    tvb, offset, 1, ENC_NA);
+    }
+    offset++;
+
+    dbm = (gint8) tvb_get_guint8(tvb, offset);
+    if (dbm != 100) {
+        if (cmd_type != 1)
+            proto_tree_add_item(vw_l1info_tree, hf_radiotap_dbm_antd,
+                                    tvb, offset, 1, ENC_NA);
+        else
+            proto_tree_add_item(vw_l1info_tree,
+                                    hf_radiotap_dbm_tx_antd,
+                                    tvb, offset, 1, ENC_NA);
+    }
+    offset++;
+
+    proto_tree_add_item(vw_l1info_tree, hf_radiotap_sigbandwidthmask, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    if (cmd_type != 1)
+    {
+        proto_tree_add_item(vw_l1info_tree, hf_radiotap_antennaportenergydetect, tvb, offset, 1, ENC_NA);
+    }
+    else
+    {
+        proto_tree_add_item(vw_l1info_tree, hf_radiotap_tx_antennaselect, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(vw_l1info_tree, hf_radiotap_tx_stbcselect, tvb, offset, 1, ENC_NA);
+    }
+    if (plcp_type == PLCP_TYPE_VHT_MIXED)
+    {
+        proto_tree_add_item(vw_l1info_tree, hf_radiotap_mumask, tvb, offset, 1, ENC_NA);
+    }
+    offset++;
+
+    if (plcp_type == PLCP_TYPE_VHT_MIXED)
+    {
+        // Extract SU/MU MIMO flag from RX L1 Info
+        vht_user_pos = tvb_get_guint8(tvb, offset);
+
+        vwict = proto_tree_add_item(vw_l1info_tree,
+                hf_radiotap_l1infoc, tvb, offset, 1, vht_user_pos);
+        vw_infoC_tree = proto_item_add_subtree(vwict, ett_radiotap_infoc);
+
+        vht_ndp_flag = (vht_user_pos & 0x80) >> 7;
+        vht_mu_mimo_flg = (vht_user_pos & 0x08) >> 3;
+        proto_tree_add_item(vw_infoC_tree, hf_radiotap_vht_ndp_flg, tvb, offset, 1, ENC_NA);
+        if (vht_ndp_flag == 0)
+        {
+            if (vht_mu_mimo_flg == 1) {
+                proto_tree_add_uint(vw_infoC_tree, hf_radiotap_vht_mu_mimo_flg,
+                    tvb, offset, 1, vht_mu_mimo_flg);
+
+                // extract user Postiion in case of mu-mimo
+                proto_tree_add_item(vw_infoC_tree, hf_radiotap_vht_user_pos, tvb, offset, 1, ENC_NA);
+
+            } else {
+                proto_tree_add_item(vw_infoC_tree, hf_radiotap_vht_su_mimo_flg, tvb, offset, 1, ENC_NA);
             }
         }
+    }
+    offset++;
 
-        proto_tree_add_item(tap_tree, hf_radiotap_vwf_txf, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(tap_tree, hf_radiotap_vwf_fcserr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(tap_tree, hf_radiotap_vwf_dcrerr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(tap_tree, hf_radiotap_vwf_retrerr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(tap_tree, hf_radiotap_vwf_enctype, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    mpdu_length = tvb_get_letohs(tvb, offset);
+    if (cmd_type != 1) //Checking for Rx and Tx
+    {
+        proto_tree_add_item(vw_l1info_tree, hf_ixveriwave_frame_length, tvb, offset, 2, mpdu_length);
+    }
+    offset      += 2;
 
-        offset      += 2;
+    //RadioTapHeader New format for PLCP section
+    vw_plcp_info = tvb_get_guint8(tvb, offset);
 
-        /* XXX - this should do nothing */
-        align_offset = ALIGN_OFFSET(offset, 2);
-        offset += align_offset;
+    vwplt = proto_tree_add_item(tap_tree, hf_radiotap_plcp_info, tvb, offset, 16, vw_plcp_info);
+    vw_plcpinfo_tree = proto_item_add_subtree(vwplt, ett_radiotap_plcp);
 
-        /* HT length */
-        vw_ht_length = tvb_get_letohs(tvb, offset);
-        if ((vw_ht_length != 0)) {
-            proto_tree_add_uint_format_value(tap_tree, hf_radiotap_vw_ht_length,
-                tvb, offset, 2, vw_ht_length, "%u (includes the sum of the pieces of the aggregate and their respective Start_Spacing + Delimiter + MPDU + Padding)",
-                vw_ht_length);
-#if 0
-            if (plcp_type == PLCP_TYPE_VHT_MIXED)
-            {
-                proto_tree_add_uint_format(tap_tree, hf_radiotap_vw_ht_length,
-                    tvb, offset, 2, vw_ht_length, "VHT length: %u (includes the sum of the pieces of the aggregate and their respective Start_Spacing + Delimiter + MPDU + Padding)",
-                    vw_ht_length);
-            }
-            else
-            {
-                proto_tree_add_uint_format(tap_tree, hf_radiotap_vw_ht_length,
-                    tvb, offset, 2, vw_ht_length, "HT length: %u (includes the sum of the pieces of the aggregate and their respective Start_Spacing + Delimiter + MPDU + Padding)",
-                    vw_ht_length);
-            }
-#endif
+    switch (plcp_type)
+    {
+    case PLCP_TYPE_LEGACY:
+        if (rate_mcs_index < 4)
+        {
+            /*
+             * From IEEE Std 802.11-2012:
+             *
+             * According to section 17.2.2 "PPDU format", the PLCP header
+             * for the High Rate DSSS PHY (11b) has a SIGNAL field that's
+             * 8 bits, followed by a SERVICE field that's 8 bits, followed
+             * by a LENGTH field that's 16 bits, followed by a CRC field
+             * that's 16 bits.  The PSDU follows it.  Section 17.2.3 "PPDU
+             * field definitions" describes those fields.
+             *
+             * According to section 19.3.2 "PPDU format", the frames for the
+             * Extended Rate PHY (11g) either extend the 11b format, using
+             * additional bits in the SERVICE field, or extend the 11a
+             * format.
+             */
+            proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_type,
+                tvb, offset-10, 1, plcp_type, "Format: Legacy CCK ");
+            proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_plcp_signal,
+                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+
+            proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_plcp_locked_clocks,
+                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_plcp_modulation,
+                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_plcp_length_extension,
+                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+
+            proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_plcp_length,
+                                tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_plcp_crc16,
+                                tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            /* Presumably padding */
+            offset += 9;
         }
-        offset      += 2;
+        else
+        {
+            /*
+             * From IEEE Std 802.11-2012:
+             *
+             * According to sections 18.3.2 "PLCP frame format" and 18.3.4
+             * "SIGNAL field", the PLCP for the OFDM PHY (11a) has a SIGNAL
+             * field that's 24 bits, followed by a service field that's
+             * 16 bits, followed by the PSDU.  Section 18.3.5.2 "SERVICE
+             * field" describes the SERVICE field.
+             *
+             * According to section 19.3.2 "PPDU format", the frames for the
+             * Extended Rate PHY (11g) either extend the 11b format, using
+             * additional bits in the SERVICE field, or extend the 11a
+             * format.
+             */
+            proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
+                tvb, offset, 1, plcp_type, "Format: Legacy OFDM ");
 
-        align_offset = ALIGN_OFFSET(offset, 2);
-        offset += align_offset;
+            /* SIGNAL */
+            offset = decode_ofdm_signal(vw_plcpinfo_tree, tvb, offset);
 
-        /* info */
-        if (!(vw_flags & VW_RADIOTAPF_TXF)) {                   /* then it's an rx case */
-            /*FPGA_VER_vVW510021 version decodes */
-            static const int * vw_info_rx_2_flags[] = {
-                &hf_radiotap_vw_info_2_ack_withheld_from_frame,
-                &hf_radiotap_vw_info_2_sent_cts_to_self_before_data,
-                &hf_radiotap_vw_info_2_mpdu_of_a_mpdu,
-                &hf_radiotap_vw_info_2_first_mpdu_of_a_mpdu,
-                &hf_radiotap_vw_info_2_last_pdu_of_a_mpdu,
-                &hf_radiotap_vw_info_2_msdu_of_a_msdu,
-                &hf_radiotap_vw_info_2_first_msdu_of_a_msdu,
-                &hf_radiotap_vw_info_2_last_msdu_of_a_msdu,
-                NULL
-            };
+            /* SERVICE */
+            proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_ofdm_service,
+                                tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
 
-            proto_tree_add_bitmask(tap_tree, tvb, offset, hf_radiotap_vw_info, ett_radiotap_info, vw_info_rx_2_flags, ENC_LITTLE_ENDIAN);
-
-        } else {                                    /* it's a tx case */
-            static const int * vw_info_tx_2_flags[] = {
-                &hf_radiotap_vw_info_2_mpdu_of_a_mpdu,
-                &hf_radiotap_vw_info_2_first_mpdu_of_a_mpdu,
-                &hf_radiotap_vw_info_2_last_pdu_of_a_mpdu,
-                &hf_radiotap_vw_info_2_msdu_of_a_msdu,
-                &hf_radiotap_vw_info_2_first_msdu_of_a_msdu,
-                &hf_radiotap_vw_info_2_last_msdu_of_a_msdu,
-                NULL
-            };
-
-            /* FPGA_VER_vVW510021 and VW_FPGA_VER_vVW510006 tx info decodes same*/
-            proto_tree_add_bitmask(tap_tree, tvb, offset, hf_radiotap_vw_info, ett_radiotap_info, vw_info_tx_2_flags, ENC_LITTLE_ENDIAN);
+            /* Presumably just padding */
+            offset += 10;
         }
+        break;
+
+    case PLCP_TYPE_MIXED:
+        /*
+         * From IEEE Std 802.11-2012:
+         *
+         * According to section 20.3.2 "PPDU format", the HT-mixed
+         * PLCP header has a "Non-HT SIGNAL field" (L-SIG), which
+         * looks like an 11a SIGNAL field, followed by an HT SIGNAL
+         * field (HT-SIG) described in section 20.3.9.4.3 "HT-SIG
+         * definition".
+         */
+        proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
+            tvb, offset, 1, plcp_type, "Format: HT ");
+
+        /* L-SIG */
+        offset = decode_ofdm_signal(vw_plcpinfo_tree, tvb, offset);
+
+        /* HT-SIG */
+        offset = decode_ht_sig(vw_plcpinfo_tree, tvb, offset, &phdr);
+
+        proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_ofdm_service,
+                            tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
 
-        /* errors */
-        vw_errors = tvb_get_letohl(tvb, offset);
-
-        vweft = proto_tree_add_uint(tap_tree, hf_radiotap_vw_errors,
-                                    tvb, offset, 4, vw_errors);
-        vw_errorFlags_tree = proto_item_add_subtree(vweft, ett_radiotap_errors);
-
-        /* build the individual subtrees for the various types of error flags */
-        /* NOTE: as the upper 16 bits aren't used at the moment, we pretend that */
-        /* the error flags field is only 16 bits (instead of 32) to save space */
-        if (!(vw_flags & VW_RADIOTAPF_TXF)) {
-            /* then it's an rx case */
-
-            /*FPGA_VER_vVW510021 version decodes */
-            proto_tree_add_item(vw_errorFlags_tree,
-                hf_radiotap_vw_errors_rx_2_crc16_or_parity_error, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(vw_errorFlags_tree,
-                hf_radiotap_vw_errors_rx_2_non_supported_rate_or_service_field, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(vw_errorFlags_tree,
-                hf_radiotap_vw_errors_rx_2_short_frame, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-
-            /* veriwave removed 8-2007, don't display reserved bit*/
-
-            proto_tree_add_item(vw_errorFlags_tree,
-                hf_radiotap_vw_errors_rx_2_fcs_error, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(vw_errorFlags_tree,
-                hf_radiotap_vw_errors_rx_2_l2_de_aggregation_error, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(vw_errorFlags_tree,
-                hf_radiotap_vw_errors_rx_2_duplicate_mpdu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(vw_errorFlags_tree,
-                hf_radiotap_vw_errors_rx_2_bad_flow_magic_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(vw_errorFlags_tree,
-                hf_radiotap_vw_errors_rx_2_flow_payload_checksum_error, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-
-            proto_tree_add_item(vw_errorFlags_tree,
-            hf_radiotap_vw_errors_rx_2_ip_checksum_error, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(vw_errorFlags_tree,
-            hf_radiotap_vw_errors_rx_2_l4_checksum_error, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-
-        } else {                                  /* it's a tx case */
-            /* FPGA_VER_vVW510021 and VW_FPGA_VER_vVW510006 tx error decodes same*/
-
-            proto_tree_add_item(vw_errorFlags_tree,
-                                hf_radiotap_vw_errors_tx_packet_fcs_error, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-
-            proto_tree_add_item(vw_errorFlags_tree,
-                                hf_radiotap_vw_errors_tx_ip_checksum_error, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-
-        }
+        /* Are these 4 bytes significant, or are they just padding? */
         offset += 4;
+        break;
 
-        /*** POPULATE THE AMSDU VHT MIXED MODE CONTAINER FORMAT ***/
-        /* XXX - what about other modes?  PLCP here? */
-        if ((vw_rflags & FLAGS_CHAN_VHT) && vw_ht_length != 0)
+    case PLCP_TYPE_GREENFIELD:
+        /*
+         * From IEEE Std 802.11-2012:
+         *
+         * According to section 20.3.2 "PPDU format", the HT-greenfield
+         * PLCP header just has the HT SIGNAL field (HT-SIG) above, with
+         * no L-SIG field.
+         */
+        /* HT-SIG */
+        offset = decode_ht_sig(vw_plcpinfo_tree, tvb, offset, &phdr);
+
+        /*
+         * XXX - does this follow the PLCP header for HT greenfield?
+         * It immediately follows the PLCP header for other PHYs.
+         */
+        proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_ofdm_service,
+                            tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        /*
+         * XXX - if so, is this padding, or significant?
+         */
+        offset += 7;
+        break;
+
+    case PLCP_TYPE_VHT_MIXED:
+        /*
+         * According to section 22.3.2 "VHT PPDU format" of IEEE Std
+         * 802.11ac-2013, the VHT PLCP header has a "non-HT SIGNAL field"
+         * (L-SIG), which looks like an 11a SIGNAL field, followed by
+         * a VHT Signal A field (VHT-SIG-A) described in section
+         * 22.3.8.3.3 "VHT-SIG-A definition", with training fields
+         * between it and a VHT Signal B field (VHT-SIG-B) described
+         * in section 22.3.8.3.6 "VHT-SIG-B definition", followed by
+         * the PSDU.
+         */
+        proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
+            tvb, offset, 1, plcp_type, "Format: VHT ");
+
+        /* L-SIG */
+        offset = decode_ofdm_signal(vw_plcpinfo_tree, tvb, offset);
+
+        /* VHT-SIG */
+        offset = decode_vht_sig(vw_plcpinfo_tree, tvb, offset, &phdr);
+        break;
+
+    default:
+        proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
+            tvb, offset, 1, plcp_type, "Format: Null ");
+        plcp_default = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
+            tvb, offset, 1, plcp_default, "PLCP0: %u ", plcp_default);
+        offset = offset + 1;
+        plcp_default = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
+            tvb, offset, 1, plcp_default, "PLCP1: %u ", plcp_default);
+        offset = offset + 1;
+        plcp_default = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
+            tvb, offset, 1, plcp_default, "PLCP2: %u ", plcp_default);
+        offset = offset + 1;
+        plcp_default = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
+            tvb, offset, 1, plcp_default, "PLCP3: %u ", plcp_default);
+        offset = offset + 1;
+        plcp_default = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
+            tvb, offset, 1, plcp_default, "PLCP4: %u ", plcp_default);
+        offset = offset + 1;
+        plcp_default = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
+            tvb, offset, 1, plcp_default, "PLCP5: %u ", plcp_default);
+        offset = offset + 1;
+        plcp_default = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
+            tvb, offset, 1, plcp_default, "PLCP6: %u ", plcp_default);
+        offset = offset + 1;
+        plcp_default = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
+            tvb, offset, 1, plcp_default, "PLCP7: %u ", plcp_default);
+        offset = offset + 1;
+        plcp_default = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
+            tvb, offset, 1, plcp_default, "PLCP8: %u ", plcp_default);
+        offset = offset + 1;
+        plcp_default = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
+            tvb, offset, 1, plcp_default, "PLCP9: %u ", plcp_default);
+        offset = offset + 1;
+        plcp_default = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
+            tvb, offset, 1, plcp_default, "PLCP10: %u ", plcp_default);
+        offset = offset + 1;
+        plcp_default = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
+            tvb, offset, 1, plcp_default, "PLCP11: %u ", plcp_default);
+        offset = offset + 1;
+        plcp_default = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
+            tvb, offset, 1, plcp_default, "PLCP12: %u ", plcp_default);
+        offset = offset + 1;
+        plcp_default = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
+            tvb, offset, 1, plcp_default, "PLCP13: %u ", plcp_default);
+        offset = offset + 1;
+        plcp_default = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
+            tvb, offset, 1, plcp_default, "PLCP14: %u ", plcp_default);
+        offset = offset + 1;
+    }
+
+    proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_rfid,
+                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    //RadioTapHeader New format for L2-L4_Info
+    vwl2l4t = proto_tree_add_item(tap_tree, hf_radiotap_l2_l4_info,
+                        tvb, offset, 23, ENC_NA);
+    vw_l2l4info_tree = proto_item_add_subtree(vwl2l4t, ett_radiotap_layer2to4);
+    cidv = ((tvb_get_guint8(tvb, offset+3)& 0x20) >> 5);
+    bssidv = ((tvb_get_guint8(tvb, offset+3)& 0x40) >> 6);
+    if (cmd_type != 1)
+    {
+        vw_vcid = (tvb_get_letohs(tvb, offset)) &0x0fff;
+        if (cidv == 1)
         {
-            if (plcp_type == PLCP_TYPE_VHT_MIXED) //If the frame is VHT type
-            {
-                offset += 4; /*** 4 bytes of ERROR ***/
-
-                /*** Extract SU/MU MIMO flag from RX L1 Info ***/
-                vht_user_pos = tvb_get_guint8(tvb, offset);
-                vht_mu_mimo_flg = (vht_user_pos & 0x08) >> 3;
-
-                if (vht_mu_mimo_flg == 1) {
-                    proto_tree_add_item(tap_tree, hf_radiotap_vht_mu_mimo_flg, tvb, offset, 1, ENC_NA);
-
-                    /*** extract user Position in case of mu-mimo ***/
-                    proto_tree_add_item(tap_tree, hf_radiotap_vht_user_pos, tvb, offset, 1, ENC_NA);
-
-                } else {
-                    proto_tree_add_item(tap_tree, hf_radiotap_vht_su_mimo_flg, tvb, offset, 1, ENC_NA);
-                }
-                offset += 1; /*** skip the RX L1 Info byte ****/
-
-                /* L-SIG */
-                offset = decode_ofdm_signal(tap_tree, tvb, offset);
-
-                /* VHT-SIG */
-                /* XXX - does this include VHT-SIG-B? */
-                decode_vht_sig(tap_tree, tvb, offset, &phdr);
-            }
+            proto_tree_add_uint(vw_l2l4info_tree, hf_ixveriwave_vw_vcid, tvb, offset, 2, vw_vcid);
+        }
+        else
+        {
+            proto_tree_add_uint_format_value(vw_l2l4info_tree, hf_ixveriwave_vw_vcid,
+                                tvb, offset, 2, vw_vcid, "Invalid");
         }
 
-        /* Grab the rest of the frame. */
-        if (plcp_type == PLCP_TYPE_VHT_MIXED) {
-            length = length + 17; /*** 16 bytes of PLCP + 1 byte of L1InfoC(UserPos) **/
+        offset++;
+        vw_bssid = ((tvb_get_letohs(tvb, offset)) &0x0ff0)>>4;
+        if (bssidv == 1)
+        {
+            proto_tree_add_uint(vw_l2l4info_tree, hf_radiotap_bssid,
+                                tvb, offset, 2, vw_bssid);
         }
+        else
+        {
+                proto_tree_add_uint_format_value(vw_l2l4info_tree, hf_radiotap_bssid,
+                                    tvb, offset, 2, vw_bssid, "Invalid");
+        }
+        offset +=2;
 
+        proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_clientidvalid, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_bssidvalid, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_unicastormulticast, tvb, offset, 1, ENC_NA);
+        offset++;
+    }
+    else
+    {
+        if (cidv == 1)
+        {
+            proto_tree_add_item(vw_l2l4info_tree, hf_ixveriwave_vw_vcid,
+                                    tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        }
+        else
+        {
+            vw_vcid = tvb_get_letohs(tvb, offset);
+            proto_tree_add_uint_format_value(vw_l2l4info_tree, hf_ixveriwave_vw_vcid,
+                                    tvb, offset, 2, vw_vcid, "Invalid");
+        }
+        offset +=3;
+
+        proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_clientidvalid, tvb, offset, 1, ENC_NA);
+        offset++;
+    }
+    /*
+    wlantype = tvb_get_guint8(tvb, offset)& 0x3f;
+    proto_tree_add_uint(vw_l2l4info_tree, hf_radiotap_wlantype,
+                            tvb, offset, 1, wlantype);
+    */
+    proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_tid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset++;
+    if (cmd_type == 1)
+    {
+        proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_ac, tvb, offset, 1, ENC_NA);
+    }
+    l4idv = (tvb_get_guint8(tvb, offset)& 0x10) >> 4;
+    proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_l4idvalid, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_containshtfield, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_istypeqos, tvb, offset, 1, ENC_NA);
+    flowv = (tvb_get_guint8(tvb, offset)& 0x80) >> 7;
+    proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_flowvalid, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    vw_seqnum = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(vw_l2l4info_tree, hf_ixveriwave_vw_seqnum,
+                            tvb, offset, 1, vw_seqnum);
+    offset++;
+    if (flowv == 1)
+    {
+        proto_tree_add_item(vw_l2l4info_tree, hf_ixveriwave_vw_flowid,
+                    tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    }
+    else
+    {
+        proto_tree_add_uint_format_value(vw_l2l4info_tree, hf_ixveriwave_vw_flowid,
+                                tvb, offset, 2, tvb_get_letohl(tvb, offset) & 0xffffff, "Invalid");
+    }
+    offset +=3;
+    if (l4idv == 1)
+    {
+        proto_tree_add_item(vw_l2l4info_tree, hf_ixveriwave_vw_l4id,
+                    tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    }
+    else
+    {
+        proto_tree_add_uint_format_value(vw_l2l4info_tree, hf_ixveriwave_vw_l4id,
+                        tvb, offset, 2, tvb_get_letohs(tvb, offset), "Invalid");
+    }
+    offset +=2;
+    proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_payloaddecode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset +=4;
+
+    if (cmd_type != 1) {                   /* then it's an rx case */
+        /*FPGA_VER_vVW510021 version decodes */
+	    proto_tree_add_bitmask(vw_l2l4info_tree, tvb, offset, hf_radiotap_vw_info_rx, ett_radiotap_info, radiotap_info_rx_fields, ENC_LITTLE_ENDIAN);
+
+    } else {                                    /* it's a tx case */
+        /* FPGA_VER_vVW510021 and VW_FPGA_VER_vVW510006 tx info decodes same*/
+        proto_tree_add_bitmask(vw_l2l4info_tree, tvb, offset, hf_radiotap_vw_info_tx, ett_radiotap_info, radiotap_info_tx_fields, ENC_LITTLE_ENDIAN);
+    }
+
+    offset      +=3;
+
+    /* build the individual subtrees for the various types of error flags */
+    /* NOTE: as the upper 16 bits aren't used at the moment, we pretend that */
+    /* the error flags field is only 16 bits (instead of 32) to save space */
+    if (cmd_type != 1) {
+        /* then it's an rx case */
+        static const int * vw_errors_rx_flags[] = {
+            &hf_radiotap_vw_errors_rx_sig_field_crc_parity_error,
+            &hf_radiotap_vw_errors_rx_non_supported_service_field,
+            &hf_radiotap_vw_errors_rx_frame_length_error,
+            &hf_radiotap_vw_errors_rx_vht_sig_ab_crc_error,
+            &hf_radiotap_vw_errors_rx_crc32_error,
+            &hf_radiotap_vw_errors_rx_l2_de_aggregation_error,
+            &hf_radiotap_vw_errors_rx_duplicate_mpdu,
+            &hf_radiotap_vw_errors_rx_bad_flow_magic_number,
+            &hf_radiotap_vw_errors_rx_bad_flow_payload_checksum,
+            &hf_radiotap_vw_errors_rx_illegal_vht_sig_value,
+            &hf_radiotap_vw_errors_rx_ip_checksum_error,
+            &hf_radiotap_vw_errors_rx_l4_checksum_error,
+            &hf_radiotap_vw_errors_rx_l1_unsupported_faature,
+            &hf_radiotap_vw_errors_rx_l1_packet_termination,
+            &hf_radiotap_vw_errors_rx_internal_error_bit15,
+            &hf_radiotap_vw_errors_rx_wep_mic_miscompare,
+            &hf_radiotap_vw_errors_rx_wep_tkip_rate_exceeded,
+            &hf_radiotap_vw_errors_rx_crypto_short_error,
+            &hf_radiotap_vw_errors_rx_extiv_fault_a,
+            &hf_radiotap_vw_errors_rx_extiv_fault_b,
+            &hf_radiotap_vw_errors_rx_internal_error_bit21,
+            &hf_radiotap_vw_errors_rx_protected_fault_a,
+            &hf_radiotap_vw_errors_rx_rx_mac_crypto_incompatibility,
+            &hf_radiotap_vw_errors_rx_factory_debug,
+            &hf_radiotap_vw_errors_rx_internal_error_bit32,
+            NULL
+        };
+
+        proto_tree_add_bitmask(vw_l2l4info_tree, tvb, offset, hf_radiotap_vw_errors, ett_radiotap_errors, vw_errors_rx_flags, ENC_LITTLE_ENDIAN);
+
+    } else {                                  /* it's a tx case */
+        static const int * vw_errors_tx_flags[] = {
+            &hf_radiotap_vw_errors_tx_2_crc32_error,
+            &hf_radiotap_vw_errors_tx_2_ip_checksum_error,
+            &hf_radiotap_vw_errors_tx_2_ack_timeout,
+            &hf_radiotap_vw_errors_tx_2_cts_timeout,
+            &hf_radiotap_vw_errors_tx_2_last_retry_attempt,
+            &hf_radiotap_vw_errors_tx_2_internal_error,
+            NULL
+        };
+
+        /* FPGA_VER_vVW510021 and VW_FPGA_VER_vVW510006 tx error decodes same*/
+        proto_tree_add_bitmask(vw_l2l4info_tree, tvb, offset, hf_radiotap_vw_errors, ett_radiotap_errors, vw_errors_tx_flags, ENC_LITTLE_ENDIAN);
+
+        // proto_tree_add_item(vw_l2l4info_tree, hf_ixveriwave_vw_seqnum,
+        //                       tvb, offset, 1, vw_seqnum);
+        //offset++;
+        proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_vw_tx_retrycount, tvb, offset+2, 1, ENC_NA);
+        proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_vw_tx_factorydebug, tvb, offset+2, 2, ENC_LITTLE_ENDIAN);
+    }
+    /*offset      +=4;*/
+
+    if (vwl2l4t && log_mode)
+        proto_item_append_text(vwl2l4t, " (Reduced)");
+
+    if (cmd_type != 4)
+        proto_item_set_len(tap_tree, length + OCTO_TIMESTAMP_FIELDS_LEN);
+    else
+        proto_item_set_len(tap_tree, length + OCTO_TIMESTAMP_FIELDS_LEN + OCTO_MODIFIED_RF_LEN);
+
+    if (mpdu_length != 0) {
+        /* There's data to dissect; grab the rest of the frame. */
         next_tvb = tvb_new_subset_remaining(tvb, length);
 
         /* dissect the 802.11 radio informaton and header next */
         call_dissector_with_data(ieee80211_radio_handle, next_tvb, pinfo, tree, &phdr);
-    }
-    else {
-        /*
-         * FPGA version is non-zero, meaning this is OCTO.
-         * The first part is a timestamp header.
-         */
-        //RadioTapHeader New format for L1Info
-        offset      = 0;
-
-        length = tvb_get_letohs(tvb, offset);
-        offset      += 2;
-
-        vwl1i = proto_tree_add_item(tap_tree, hf_radiotap_l1info, tvb, offset, 12, ENC_NA);
-        vw_l1info_tree = proto_item_add_subtree(vwl1i, ett_radiotap_layer1);
-
-        plcp_type = tvb_get_guint8(tvb, offset+4) & 0x0f;
-
-        /* l1p_1 byte */
-        switch (plcp_type)
-        {
-        case PLCP_TYPE_LEGACY:     /* Legacy (pre-HT - 11b/11a/11g) */
-            /*
-             * XXX - CHAN_OFDM could be 11a or 11g.  Unfortunately, we don't
-             * have the frequency, or anything else, to distinguish between
-             * them.
-             */
-            short_preamble = !(tvb_get_guint8(tvb, offset) & 0x40);
-            proto_tree_add_boolean(vw_l1info_tree, hf_radiotap_l1info_preamble,
-                                   tvb, offset, 1, short_preamble);
-            rate_mcs_index = tvb_get_guint8(tvb, offset) & 0x3f;
-            proto_tree_add_uint(vw_l1info_tree, hf_radiotap_l1info_rateindex,
-                                tvb, offset, 1, rate_mcs_index);
-            if (rate_mcs_index < 4)
-            {
-                /* CCK */
-                phdr.phy = PHDR_802_11_PHY_11B;
-                phdr.phy_info.info_11b.has_short_preamble = TRUE;
-                phdr.phy_info.info_11b.short_preamble = short_preamble;
-            }
-            break;
-
-        case PLCP_TYPE_MIXED:      /* HT Mixed */
-        case PLCP_TYPE_GREENFIELD: /* HT Greenfield */
-            rate_mcs_index = tvb_get_guint8(tvb, offset) & 0x3f;
-            proto_tree_add_uint(vw_l1info_tree, hf_radiotap_l1info_ht_mcsindex,
-                                tvb, offset, 1, rate_mcs_index);
-            phdr.phy = PHDR_802_11_PHY_11N;
-            phdr.phy_info.info_11n.has_mcs_index = TRUE;
-            phdr.phy_info.info_11n.mcs_index = rate_mcs_index;
-            phdr.phy_info.info_11n.has_greenfield = TRUE;
-            phdr.phy_info.info_11n.greenfield = (plcp_type == PLCP_TYPE_GREENFIELD);
-            break;
-
-        case PLCP_TYPE_VHT_MIXED:  /* VHT Mixed */
-            rate_mcs_index = tvb_get_guint8(tvb, offset) & 0x0f;
-            proto_tree_add_uint(vw_l1info_tree, hf_radiotap_l1info_vht_mcsindex,
-                                tvb, offset, 1, rate_mcs_index);
-            phdr.phy = PHDR_802_11_PHY_11AC;
-            /*
-             * XXX - this probably has only one user, so only one MCS index.
-             */
-            phdr.phy_info.info_11ac.mcs[0] = rate_mcs_index;
-        }
-        offset++;
-
-        /* NSS and direction octet */
-        switch (plcp_type)
-        {
-        case PLCP_TYPE_LEGACY:     /* Legacy (pre-HT - 11b/11a/11g) */
-            break;
-
-        case PLCP_TYPE_MIXED:      /* HT Mixed */
-        case PLCP_TYPE_GREENFIELD: /* HT Greenfield (Not supported) */
-            nss = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
-            proto_tree_add_uint(vw_l1info_tree, hf_radiotap_l1info_nss,
-                                tvb, offset, 1, nss);
-            break;
-
-        case PLCP_TYPE_VHT_MIXED:  /* VHT Mixed */
-            nss = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
-            proto_tree_add_uint(vw_l1info_tree, hf_radiotap_l1info_nss,
-                                tvb, offset, 1, nss);
-            /*
-             * XXX - this probably has only one user, so only one NSS.
-             */
-            phdr.phy_info.info_11ac.nss[0] = nss;
-            break;
-        }
-        direction = ((tvb_get_guint8(tvb, offset) & 0x01) != 0);
-        proto_tree_add_boolean(vw_l1info_tree, hf_radiotap_l1info_transmitted,
-                               tvb, offset, 1, direction);
-        proto_item_append_text(vwl1i, " (Direction=%s)",
-                               direction ? "Transmit" : "Receive");
-        offset++;
-
-        /* New pieces of lines for
-         * #802.11 radio information#
-         * Referred from code changes done for old FPGA version
-         * **/
-        phdr.fcs_len = (log_mode == 3) ? 0 : 4;
-
-        switch (plcp_type)
-        {
-        case PLCP_TYPE_LEGACY:     /* Legacy (pre-HT - 11b/11a/11g) */
-            phdr.has_data_rate = TRUE;
-            phdr.data_rate = tvb_get_letohs(tvb, offset) / 5;
-            break;
-
-        case PLCP_TYPE_MIXED:      /* HT Mixed */
-        case PLCP_TYPE_GREENFIELD: /* HT Greenfield (Not supported) */
-        case PLCP_TYPE_VHT_MIXED:  /* VHT Mixed */
-            break;
-        }
-
-        phyRate = (float)tvb_get_letohs(tvb, offset) / 10;
-        proto_tree_add_uint_format_value(vw_l1info_tree, hf_radiotap_datarate,
-                    tvb, offset, 2, tvb_get_letohs(tvb, offset),
-                    "%.1f Mb/s", phyRate);
-        offset = offset + 2;
-        col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%.1f", phyRate);
-
-        sigbw = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
-        plcp_type = tvb_get_guint8(tvb, offset) & 0x0f;
-        proto_tree_add_uint(vw_l1info_tree,
-                hf_radiotap_sigbandwidth, tvb, offset, 1, sigbw);
-
-        if (plcp_type != PLCP_TYPE_LEGACY)
-        {
-            /* HT or VHT */
-            proto_tree_add_uint(vw_l1info_tree,
-                hf_radiotap_modulation, tvb, offset, 1, plcp_type);
-        }
-        else
-        {
-            /* pre-HT */
-            if (rate_mcs_index < 4)
-                proto_tree_add_uint_format_value(vw_l1info_tree, hf_radiotap_modulation,
-                    tvb, offset, 1, plcp_type, "CCK (%u)", plcp_type);
-            else
-                proto_tree_add_uint_format_value(vw_l1info_tree, hf_radiotap_modulation,
-                    tvb, offset, 1, plcp_type, "OFDM (%u)", plcp_type);
-        }
-        offset++;
-
-        dbm = (gint8) tvb_get_guint8(tvb, offset);
-
-        phdr.has_signal_dbm = TRUE;
-        phdr.signal_dbm = dbm;
-
-        col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", dbm);
-
-        if (cmd_type != 1)
-            proto_tree_add_item(vw_l1info_tree, hf_radiotap_dbm_anta,
-                                    tvb, offset, 1, ENC_NA);
-        else
-            proto_tree_add_item(vw_l1info_tree, hf_radiotap_dbm_tx_anta,
-                                    tvb, offset, 1, ENC_NA);
-        offset++;
-
-        dbm = (gint8) tvb_get_guint8(tvb, offset);
-        if (dbm != 100) {
-            if (cmd_type != 1)
-                proto_tree_add_item(vw_l1info_tree, hf_radiotap_dbm_antb,
-                                            tvb, offset, 1, ENC_NA);
-            else
-                proto_tree_add_item(vw_l1info_tree,
-                                        hf_radiotap_dbm_tx_antb,
-                                        tvb, offset, 1, ENC_NA);
-        }
-        offset++;
-
-        dbm = (gint8) tvb_get_guint8(tvb, offset);
-        if (dbm != 100) {
-            if (cmd_type != 1)
-                proto_tree_add_item(vw_l1info_tree, hf_radiotap_dbm_antc,
-                                        tvb, offset, 1, ENC_NA);
-            else
-                proto_tree_add_item(vw_l1info_tree, hf_radiotap_dbm_tx_antc,
-                                        tvb, offset, 1, ENC_NA);
-        }
-        offset++;
-
-        dbm = (gint8) tvb_get_guint8(tvb, offset);
-        if (dbm != 100) {
-            if (cmd_type != 1)
-                proto_tree_add_item(vw_l1info_tree, hf_radiotap_dbm_antd,
-                                        tvb, offset, 1, ENC_NA);
-            else
-                proto_tree_add_item(vw_l1info_tree,
-                                        hf_radiotap_dbm_tx_antd,
-                                        tvb, offset, 1, ENC_NA);
-        }
-        offset++;
-
-        proto_tree_add_item(vw_l1info_tree, hf_radiotap_sigbandwidthmask, tvb, offset, 1, ENC_NA);
-        offset++;
-
-        if (cmd_type != 1)
-        {
-            proto_tree_add_item(vw_l1info_tree, hf_radiotap_antennaportenergydetect, tvb, offset, 1, ENC_NA);
-        }
-        else
-        {
-            proto_tree_add_item(vw_l1info_tree, hf_radiotap_tx_antennaselect, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(vw_l1info_tree, hf_radiotap_tx_stbcselect, tvb, offset, 1, ENC_NA);
-        }
-        if (plcp_type == PLCP_TYPE_VHT_MIXED)
-        {
-            proto_tree_add_item(vw_l1info_tree, hf_radiotap_mumask, tvb, offset, 1, ENC_NA);
-        }
-        offset++;
-
-        if (plcp_type == PLCP_TYPE_VHT_MIXED)
-        {
-            // Extract SU/MU MIMO flag from RX L1 Info
-            vht_user_pos = tvb_get_guint8(tvb, offset);
-
-            vwict = proto_tree_add_item(vw_l1info_tree,
-                    hf_radiotap_l1infoc, tvb, offset, 1, vht_user_pos);
-            vw_infoC_tree = proto_item_add_subtree(vwict, ett_radiotap_infoc);
-
-            vht_ndp_flag = (vht_user_pos & 0x80) >> 7;
-            vht_mu_mimo_flg = (vht_user_pos & 0x08) >> 3;
-            proto_tree_add_item(vw_infoC_tree, hf_radiotap_vht_ndp_flg, tvb, offset, 1, ENC_NA);
-            if (vht_ndp_flag == 0)
-            {
-                if (vht_mu_mimo_flg == 1) {
-                    proto_tree_add_uint(vw_infoC_tree, hf_radiotap_vht_mu_mimo_flg,
-                        tvb, offset, 1, vht_mu_mimo_flg);
-
-                    // extract user Postiion in case of mu-mimo
-                    proto_tree_add_item(vw_infoC_tree, hf_radiotap_vht_user_pos, tvb, offset, 1, ENC_NA);
-
-                } else {
-                    proto_tree_add_item(vw_infoC_tree, hf_radiotap_vht_su_mimo_flg, tvb, offset, 1, ENC_NA);
-                }
-            }
-        }
-        offset++;
-
-        mpdu_length = tvb_get_letohs(tvb, offset);
-        if (cmd_type != 1) //Checking for Rx and Tx
-        {
-            proto_tree_add_item(vw_l1info_tree, hf_ixveriwave_frame_length, tvb, offset, 2, mpdu_length);
-        }
-        offset      += 2;
-
-        //RadioTapHeader New format for PLCP section
-        vw_plcp_info = tvb_get_guint8(tvb, offset);
-
-        vwplt = proto_tree_add_item(tap_tree, hf_radiotap_plcp_info, tvb, offset, 16, vw_plcp_info);
-        vw_plcpinfo_tree = proto_item_add_subtree(vwplt, ett_radiotap_plcp);
-
-        switch (plcp_type)
-        {
-        case PLCP_TYPE_LEGACY:
-            if (rate_mcs_index < 4)
-            {
-                /*
-                 * From IEEE Std 802.11-2012:
-                 *
-                 * According to section 17.2.2 "PPDU format", the PLCP header
-                 * for the High Rate DSSS PHY (11b) has a SIGNAL field that's
-                 * 8 bits, followed by a SERVICE field that's 8 bits, followed
-                 * by a LENGTH field that's 16 bits, followed by a CRC field
-                 * that's 16 bits.  The PSDU follows it.  Section 17.2.3 "PPDU
-                 * field definitions" describes those fields.
-                 *
-                 * According to section 19.3.2 "PPDU format", the frames for the
-                 * Extended Rate PHY (11g) either extend the 11b format, using
-                 * additional bits in the SERVICE field, or extend the 11a
-                 * format.
-                 */
-                proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_type,
-                    tvb, offset-10, 1, plcp_type, "Format: Legacy CCK ");
-                proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_plcp_signal,
-                                    tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                offset += 1;
-
-                proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_plcp_locked_clocks,
-                                    tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_plcp_modulation,
-                                    tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_plcp_length_extension,
-                                    tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                offset += 1;
-
-                proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_plcp_length,
-                                    tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                offset += 2;
-
-                proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_plcp_crc16,
-                                    tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                offset += 2;
-
-                /* Presumably padding */
-                offset += 9;
-            }
-            else
-            {
-                /*
-                 * From IEEE Std 802.11-2012:
-                 *
-                 * According to sections 18.3.2 "PLCP frame format" and 18.3.4
-                 * "SIGNAL field", the PLCP for the OFDM PHY (11a) has a SIGNAL
-                 * field that's 24 bits, followed by a service field that's
-                 * 16 bits, followed by the PSDU.  Section 18.3.5.2 "SERVICE
-                 * field" describes the SERVICE field.
-                 *
-                 * According to section 19.3.2 "PPDU format", the frames for the
-                 * Extended Rate PHY (11g) either extend the 11b format, using
-                 * additional bits in the SERVICE field, or extend the 11a
-                 * format.
-                 */
-                proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
-                    tvb, offset, 1, plcp_type, "Format: Legacy OFDM ");
-
-                /* SIGNAL */
-                offset = decode_ofdm_signal(vw_plcpinfo_tree, tvb, offset);
-
-                /* SERVICE */
-                proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_ofdm_service,
-                                    tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                offset += 2;
-
-                /* Presumably just padding */
-                offset += 10;
-            }
-            break;
-
-        case PLCP_TYPE_MIXED:
-            /*
-             * From IEEE Std 802.11-2012:
-             *
-             * According to section 20.3.2 "PPDU format", the HT-mixed
-             * PLCP header has a "Non-HT SIGNAL field" (L-SIG), which
-             * looks like an 11a SIGNAL field, followed by an HT SIGNAL
-             * field (HT-SIG) described in section 20.3.9.4.3 "HT-SIG
-             * definition".
-             */
-            proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
-                tvb, offset, 1, plcp_type, "Format: HT ");
-
-            /* L-SIG */
-            offset = decode_ofdm_signal(vw_plcpinfo_tree, tvb, offset);
-
-            /* HT-SIG */
-            offset = decode_ht_sig(vw_plcpinfo_tree, tvb, offset, &phdr);
-
-            proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_ofdm_service,
-                                tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            offset += 2;
-
-            /* Are these 4 bytes significant, or are they just padding? */
-            offset += 4;
-            break;
-
-        case PLCP_TYPE_GREENFIELD:
-            /*
-             * From IEEE Std 802.11-2012:
-             *
-             * According to section 20.3.2 "PPDU format", the HT-greenfield
-             * PLCP header just has the HT SIGNAL field (HT-SIG) above, with
-             * no L-SIG field.
-             */
-            /* HT-SIG */
-            offset = decode_ht_sig(vw_plcpinfo_tree, tvb, offset, &phdr);
-
-            /*
-             * XXX - does this follow the PLCP header for HT greenfield?
-             * It immediately follows the PLCP header for other PHYs.
-             */
-            proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_ofdm_service,
-                                tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            offset += 2;
-
-            /*
-             * XXX - if so, is this padding, or significant?
-             */
-            offset += 7;
-            break;
-
-        case PLCP_TYPE_VHT_MIXED:
-            /*
-             * According to section 22.3.2 "VHT PPDU format" of IEEE Std
-             * 802.11ac-2013, the VHT PLCP header has a "non-HT SIGNAL field"
-             * (L-SIG), which looks like an 11a SIGNAL field, followed by
-             * a VHT Signal A field (VHT-SIG-A) described in section
-             * 22.3.8.3.3 "VHT-SIG-A definition", with training fields
-             * between it and a VHT Signal B field (VHT-SIG-B) described
-             * in section 22.3.8.3.6 "VHT-SIG-B definition", followed by
-             * the PSDU.
-             */
-            proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
-                tvb, offset, 1, plcp_type, "Format: VHT ");
-
-            /* L-SIG */
-            offset = decode_ofdm_signal(vw_plcpinfo_tree, tvb, offset);
-
-            /* VHT-SIG */
-            offset = decode_vht_sig(vw_plcpinfo_tree, tvb, offset, &phdr);
-            break;
-
-        default:
-            proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
-                tvb, offset, 1, plcp_type, "Format: Null ");
-            plcp_default = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
-                tvb, offset, 1, plcp_default, "PLCP0: %u ", plcp_default);
-            offset = offset + 1;
-            plcp_default = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
-                tvb, offset, 1, plcp_default, "PLCP1: %u ", plcp_default);
-            offset = offset + 1;
-            plcp_default = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
-                tvb, offset, 1, plcp_default, "PLCP2: %u ", plcp_default);
-            offset = offset + 1;
-            plcp_default = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
-                tvb, offset, 1, plcp_default, "PLCP3: %u ", plcp_default);
-            offset = offset + 1;
-            plcp_default = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
-                tvb, offset, 1, plcp_default, "PLCP4: %u ", plcp_default);
-            offset = offset + 1;
-            plcp_default = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
-                tvb, offset, 1, plcp_default, "PLCP5: %u ", plcp_default);
-            offset = offset + 1;
-            plcp_default = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
-                tvb, offset, 1, plcp_default, "PLCP6: %u ", plcp_default);
-            offset = offset + 1;
-            plcp_default = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
-                tvb, offset, 1, plcp_default, "PLCP7: %u ", plcp_default);
-            offset = offset + 1;
-            plcp_default = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
-                tvb, offset, 1, plcp_default, "PLCP8: %u ", plcp_default);
-            offset = offset + 1;
-            plcp_default = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
-                tvb, offset, 1, plcp_default, "PLCP9: %u ", plcp_default);
-            offset = offset + 1;
-            plcp_default = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
-                tvb, offset, 1, plcp_default, "PLCP10: %u ", plcp_default);
-            offset = offset + 1;
-            plcp_default = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
-                tvb, offset, 1, plcp_default, "PLCP11: %u ", plcp_default);
-            offset = offset + 1;
-            plcp_default = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
-                tvb, offset, 1, plcp_default, "PLCP12: %u ", plcp_default);
-            offset = offset + 1;
-            plcp_default = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
-                tvb, offset, 1, plcp_default, "PLCP13: %u ", plcp_default);
-            offset = offset + 1;
-            plcp_default = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint_format(vw_plcpinfo_tree, hf_radiotap_plcp_default,
-                tvb, offset, 1, plcp_default, "PLCP14: %u ", plcp_default);
-            offset = offset + 1;
-        }
-
-        proto_tree_add_item(vw_plcpinfo_tree, hf_radiotap_rfid,
-                            tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        offset += 1;
-
-        //RadioTapHeader New format for L2-L4_Info
-        vwl2l4t = proto_tree_add_item(tap_tree, hf_radiotap_l2_l4_info,
-                            tvb, offset, 23, ENC_NA);
-        vw_l2l4info_tree = proto_item_add_subtree(vwl2l4t, ett_radiotap_layer2to4);
-        cidv = ((tvb_get_guint8(tvb, offset+3)& 0x20) >> 5);
-        bssidv = ((tvb_get_guint8(tvb, offset+3)& 0x40) >> 6);
-        if (cmd_type != 1)
-        {
-            vw_vcid = (tvb_get_letohs(tvb, offset)) &0x0fff;
-            if (cidv == 1)
-            {
-                proto_tree_add_uint(vw_l2l4info_tree, hf_ixveriwave_vw_vcid, tvb, offset, 2, vw_vcid);
-            }
-            else
-            {
-                proto_tree_add_uint_format_value(vw_l2l4info_tree, hf_ixveriwave_vw_vcid,
-                                    tvb, offset, 2, vw_vcid, "Invalid");
-            }
-
-            offset++;
-            vw_bssid = ((tvb_get_letohs(tvb, offset)) &0x0ff0)>>4;
-            if (bssidv == 1)
-            {
-                proto_tree_add_uint(vw_l2l4info_tree, hf_radiotap_bssid,
-                                    tvb, offset, 2, vw_bssid);
-            }
-            else
-            {
-                    proto_tree_add_uint_format_value(vw_l2l4info_tree, hf_radiotap_bssid,
-                                        tvb, offset, 2, vw_bssid, "Invalid");
-            }
-            offset +=2;
-
-            proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_clientidvalid, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_bssidvalid, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_unicastormulticast, tvb, offset, 1, ENC_NA);
-            offset++;
-        }
-        else
-        {
-            if (cidv == 1)
-            {
-                proto_tree_add_item(vw_l2l4info_tree, hf_ixveriwave_vw_vcid,
-                                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            }
-            else
-            {
-                vw_vcid = tvb_get_letohs(tvb, offset);
-                proto_tree_add_uint_format_value(vw_l2l4info_tree, hf_ixveriwave_vw_vcid,
-                                        tvb, offset, 2, vw_vcid, "Invalid");
-            }
-            offset +=3;
-
-            proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_clientidvalid, tvb, offset, 1, ENC_NA);
-            offset++;
-        }
-        /*
-        wlantype = tvb_get_guint8(tvb, offset)& 0x3f;
-        proto_tree_add_uint(vw_l2l4info_tree, hf_radiotap_wlantype,
-                                tvb, offset, 1, wlantype);
-        */
-        proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_tid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        offset++;
-        if (cmd_type == 1)
-        {
-            proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_ac, tvb, offset, 1, ENC_NA);
-        }
-        l4idv = (tvb_get_guint8(tvb, offset)& 0x10) >> 4;
-        proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_l4idvalid, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_containshtfield, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_istypeqos, tvb, offset, 1, ENC_NA);
-        flowv = (tvb_get_guint8(tvb, offset)& 0x80) >> 7;
-        proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_flowvalid, tvb, offset, 1, ENC_NA);
-        offset++;
-
-        vw_seqnum = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(vw_l2l4info_tree, hf_ixveriwave_vw_seqnum,
-                                tvb, offset, 1, vw_seqnum);
-        offset++;
-        if (flowv == 1)
-        {
-            proto_tree_add_item(vw_l2l4info_tree, hf_ixveriwave_vw_flowid,
-                        tvb, offset, 3, ENC_LITTLE_ENDIAN);
-        }
-        else
-        {
-            proto_tree_add_uint_format_value(vw_l2l4info_tree, hf_ixveriwave_vw_flowid,
-                                    tvb, offset, 2, tvb_get_letohl(tvb, offset) & 0xffffff, "Invalid");
-        }
-        offset +=3;
-        if (l4idv == 1)
-        {
-            proto_tree_add_item(vw_l2l4info_tree, hf_ixveriwave_vw_l4id,
-                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        }
-        else
-        {
-            proto_tree_add_uint_format_value(vw_l2l4info_tree, hf_ixveriwave_vw_l4id,
-                            tvb, offset, 2, tvb_get_letohs(tvb, offset), "Invalid");
-        }
-        offset +=2;
-        proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_payloaddecode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        offset +=4;
-
-        if (cmd_type != 1) {                   /* then it's an rx case */
-            /*FPGA_VER_vVW510021 version decodes */
-	    proto_tree_add_bitmask(vw_l2l4info_tree, tvb, offset, hf_radiotap_vw_info_rx, ett_radiotap_info, radiotap_info_rx_fields, ENC_LITTLE_ENDIAN);
-
-        } else {                                    /* it's a tx case */
-            /* FPGA_VER_vVW510021 and VW_FPGA_VER_vVW510006 tx info decodes same*/
-            proto_tree_add_bitmask(vw_l2l4info_tree, tvb, offset, hf_radiotap_vw_info_tx, ett_radiotap_info, radiotap_info_tx_fields, ENC_LITTLE_ENDIAN);
-        }
-
-        offset      +=3;
-
-        /* build the individual subtrees for the various types of error flags */
-        /* NOTE: as the upper 16 bits aren't used at the moment, we pretend that */
-        /* the error flags field is only 16 bits (instead of 32) to save space */
-        if (cmd_type != 1) {
-            /* then it's an rx case */
-            static const int * vw_errors_rx_flags[] = {
-                &hf_radiotap_vw_errors_rx_sig_field_crc_parity_error,
-                &hf_radiotap_vw_errors_rx_non_supported_service_field,
-                &hf_radiotap_vw_errors_rx_frame_length_error,
-                &hf_radiotap_vw_errors_rx_vht_sig_ab_crc_error,
-                &hf_radiotap_vw_errors_rx_crc32_error,
-                &hf_radiotap_vw_errors_rx_l2_de_aggregation_error,
-                &hf_radiotap_vw_errors_rx_duplicate_mpdu,
-                &hf_radiotap_vw_errors_rx_bad_flow_magic_number,
-                &hf_radiotap_vw_errors_rx_bad_flow_payload_checksum,
-                &hf_radiotap_vw_errors_rx_illegal_vht_sig_value,
-                &hf_radiotap_vw_errors_rx_ip_checksum_error,
-                &hf_radiotap_vw_errors_rx_l4_checksum_error,
-                &hf_radiotap_vw_errors_rx_l1_unsupported_faature,
-                &hf_radiotap_vw_errors_rx_l1_packet_termination,
-                &hf_radiotap_vw_errors_rx_internal_error_bit15,
-                &hf_radiotap_vw_errors_rx_wep_mic_miscompare,
-                &hf_radiotap_vw_errors_rx_wep_tkip_rate_exceeded,
-                &hf_radiotap_vw_errors_rx_crypto_short_error,
-                &hf_radiotap_vw_errors_rx_extiv_fault_a,
-                &hf_radiotap_vw_errors_rx_extiv_fault_b,
-                &hf_radiotap_vw_errors_rx_internal_error_bit21,
-                &hf_radiotap_vw_errors_rx_protected_fault_a,
-                &hf_radiotap_vw_errors_rx_rx_mac_crypto_incompatibility,
-                &hf_radiotap_vw_errors_rx_factory_debug,
-                &hf_radiotap_vw_errors_rx_internal_error_bit32,
-                NULL
-            };
-
-            proto_tree_add_bitmask(vw_l2l4info_tree, tvb, offset, hf_radiotap_vw_errors, ett_radiotap_errors, vw_errors_rx_flags, ENC_LITTLE_ENDIAN);
-
-        } else {                                  /* it's a tx case */
-            static const int * vw_errors_tx_flags[] = {
-                &hf_radiotap_vw_errors_tx_2_crc32_error,
-                &hf_radiotap_vw_errors_tx_2_ip_checksum_error,
-                &hf_radiotap_vw_errors_tx_2_ack_timeout,
-                &hf_radiotap_vw_errors_tx_2_cts_timeout,
-                &hf_radiotap_vw_errors_tx_2_last_retry_attempt,
-                &hf_radiotap_vw_errors_tx_2_internal_error,
-                NULL
-            };
-
-            /* FPGA_VER_vVW510021 and VW_FPGA_VER_vVW510006 tx error decodes same*/
-            proto_tree_add_bitmask(vw_l2l4info_tree, tvb, offset, hf_radiotap_vw_errors, ett_radiotap_errors, vw_errors_tx_flags, ENC_LITTLE_ENDIAN);
-
-            // proto_tree_add_item(vw_l2l4info_tree, hf_ixveriwave_vw_seqnum,
-            //                       tvb, offset, 1, vw_seqnum);
-            //offset++;
-            proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_vw_tx_retrycount, tvb, offset+2, 1, ENC_NA);
-            proto_tree_add_item(vw_l2l4info_tree, hf_radiotap_vw_tx_factorydebug, tvb, offset+2, 2, ENC_LITTLE_ENDIAN);
-        }
-        /*offset      +=4;*/
-
-        if (vwl2l4t && log_mode)
-            proto_item_append_text(vwl2l4t, " (Reduced)");
-
-        if (cmd_type != 4)
-            proto_item_set_len(tap_tree, length + OCTO_TIMESTAMP_FIELDS_LEN);
-        else
-            proto_item_set_len(tap_tree, length + OCTO_TIMESTAMP_FIELDS_LEN + OCTO_MODIFIED_RF_LEN);
-
-        if (mpdu_length != 0) {
-            /* There's data to dissect; grab the rest of the frame. */
-            next_tvb = tvb_new_subset_remaining(tvb, length);
-
-            /* dissect the 802.11 radio informaton and header next */
-            call_dissector_with_data(ieee80211_radio_handle, next_tvb, pinfo, tree, &phdr);
-        }
     }
 }
 
