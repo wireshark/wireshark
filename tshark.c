@@ -156,6 +156,7 @@
  * ui/commandline.c, so start tshark-specific options 1000 after this
  */
 #define LONGOPT_COLOR (65536+1000)
+#define LONGOPT_NO_DUPLICATE_KEYS (65536+1001)
 
 #if 0
 #define tshark_debug(...) g_warning(__VA_ARGS__)
@@ -205,6 +206,9 @@ static print_stream_t *print_stream = NULL;
 static output_fields_t* output_fields  = NULL;
 static gchar **protocolfilter = NULL;
 static pf_flags protocolfilter_flags = PF_NONE;
+
+static gboolean no_duplicate_keys = FALSE;
+static proto_node_children_grouper_func node_children_grouper = proto_node_group_children_by_unique;
 
 /* The line separator used between packets, changeable via the -S option */
 static const char *separator = "";
@@ -446,6 +450,9 @@ print_usage(FILE *output)
   fprintf(output, "                           requires a terminal with 24-bit color support\n");
   fprintf(output, "                           Also supplies color attributes to pdml and psml formats\n");
   fprintf(output, "                           (Note that attributes are nonstandard)\n");
+  fprintf(output, "  --no-duplicate-keys      If -T json is specified, merge duplicate keys in an object\n");
+  fprintf(output, "                           into a single key with as value a json array containing all\n");
+  fprintf(output, "                           values");
 
   fprintf(output, "\n");
   fprintf(output, "Miscellaneous:\n");
@@ -664,6 +671,7 @@ main(int argc, char *argv[])
     LONGOPT_DISSECT_COMMON
     {"export-objects", required_argument, NULL, LONGOPT_EXPORT_OBJECTS},
     {"color", no_argument, NULL, LONGOPT_COLOR},
+    {"no-duplicate-keys", no_argument, NULL, LONGOPT_NO_DUPLICATE_KEYS},
     {0, 0, 0, 0 }
   };
   gboolean             arg_error = FALSE;
@@ -1436,6 +1444,10 @@ main(int argc, char *argv[])
     case LONGOPT_COLOR: /* print in color where appropriate */
       dissect_color = TRUE;
       break;
+    case LONGOPT_NO_DUPLICATE_KEYS:
+      no_duplicate_keys = TRUE;
+      node_children_grouper = proto_node_group_children_by_json_key;
+      break;
     default:
     case '?':        /* Bad flag - print usage message */
       switch(optopt) {
@@ -1449,6 +1461,12 @@ main(int argc, char *argv[])
       goto clean_exit;
       break;
     }
+  }
+
+  if (no_duplicate_keys && output_action != WRITE_JSON && output_action != WRITE_JSON_RAW) {
+    cmdarg_err("--no-duplicate-keys can only be used with \"-T json\" and \"-T jsonraw\"");
+    exit_status = INVALID_OPTION;
+    goto clean_exit;
   }
 
   /* If we specified output fields, but not the output field type... */
@@ -3901,11 +3919,12 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
     case WRITE_JSON:
       write_json_proto_tree(output_fields, print_dissections_expanded,
                             print_hex, protocolfilter, protocolfilter_flags,
-                            edt, stdout);
+                            edt, node_children_grouper, stdout);
       return !ferror(stdout);
     case WRITE_JSON_RAW:
       write_json_proto_tree(output_fields, print_dissections_none, TRUE,
-                            protocolfilter, protocolfilter_flags, edt, stdout);
+                            protocolfilter, protocolfilter_flags,
+                            edt, node_children_grouper, stdout);
       return !ferror(stdout);
     case WRITE_EK:
       write_ek_proto_tree(output_fields, print_hex, protocolfilter,

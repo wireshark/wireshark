@@ -2862,7 +2862,7 @@ write_json_packet(capture_file *cf, frame_data *fdata,
   /* Write out the information in that tree. */
   write_json_proto_tree(NULL, args->print_args->print_dissections,
                         args->print_args->print_hex, NULL, PF_NONE,
-                        &args->edt, args->fh);
+                        &args->edt, proto_node_group_children_by_unique, args->fh);
 
   epan_dissect_reset(&args->edt);
 

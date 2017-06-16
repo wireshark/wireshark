@@ -71,6 +71,8 @@ typedef enum {
 struct _output_fields;
 typedef struct _output_fields output_fields_t;
 
+typedef GSList* (*proto_node_children_grouper_func)(proto_node *node);
+
 WS_DLL_PUBLIC output_fields_t* output_fields_new(void);
 WS_DLL_PUBLIC void output_fields_free(output_fields_t* info);
 WS_DLL_PUBLIC void output_fields_add(output_fields_t* info, const gchar* field);
@@ -95,13 +97,21 @@ WS_DLL_PUBLIC void write_pdml_preamble(FILE *fh, const gchar* filename);
 WS_DLL_PUBLIC void write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, pf_flags protocolfilter_flags, epan_dissect_t *edt, FILE *fh, gboolean use_color);
 WS_DLL_PUBLIC void write_pdml_finale(FILE *fh);
 
+// Implementations of proto_node_children_grouper_func
+// Groups each child separately
+WS_DLL_PUBLIC GSList *proto_node_group_children_by_unique(proto_node *node);
+// Groups children by json key (children with the same json key get put in the same group
+WS_DLL_PUBLIC GSList *proto_node_group_children_by_json_key(proto_node *node);
+
 WS_DLL_PUBLIC void write_json_preamble(FILE *fh);
 WS_DLL_PUBLIC void write_json_proto_tree(output_fields_t* fields,
                                          print_dissections_e print_dissections,
                                          gboolean print_hex_data,
                                          gchar **protocolfilter,
                                          pf_flags protocolfilter_flags,
-                                         epan_dissect_t *edt, FILE *fh);
+                                         epan_dissect_t *edt,
+                                         proto_node_children_grouper_func node_children_grouper,
+                                         FILE *fh);
 WS_DLL_PUBLIC void write_json_finale(FILE *fh);
 
 WS_DLL_PUBLIC void write_ek_proto_tree(output_fields_t* fields,

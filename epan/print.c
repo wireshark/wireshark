@@ -72,6 +72,7 @@ typedef struct {
     pf_flags        filter_flags;
     gboolean        print_hex;
     gboolean        print_text;
+    proto_node_children_grouper_func node_children_grouper;
 } write_json_data;
 
 typedef struct {
@@ -122,11 +123,7 @@ static void write_json_proto_node_filtered(proto_node *node, write_json_data *da
 static void write_json_proto_node_hex_dump(proto_node *node, write_json_data *data);
 static void write_json_proto_node_children(proto_node *node, write_json_data *data);
 static void write_json_proto_node_value(proto_node *node, write_json_data *data);
-
-typedef GSList* (*proto_node_children_grouper_func)(proto_node *node);
 static void write_json_proto_node_no_value(proto_node *node, write_json_data *data);
-static GSList *proto_node_group_children_by_unique(proto_node *node);
-
 static const char *proto_node_to_json_key(proto_node *node);
 
 static void print_pdml_geninfo(epan_dissect_t *edt, FILE *fh);
@@ -134,10 +131,6 @@ static void print_pdml_geninfo(epan_dissect_t *edt, FILE *fh);
 static void proto_tree_get_node_field_values(proto_node *node, gpointer data);
 
 static gboolean json_is_first;
-
-// Function used to group a node's children. Children in the same group are represented in the json output by a single
-// json key. If multiple nodes are in a group they are wrapped in a json array in the json output.
-static proto_node_children_grouper_func json_proto_node_children_grouper = proto_node_group_children_by_unique;
 
 /* Cache the protocols and field handles that the print functionality needs
    This helps break explicit dependency on the dissectors. */
@@ -695,6 +688,7 @@ write_json_proto_tree(output_fields_t* fields,
                       print_dissections_e print_dissections,
                       gboolean print_hex, gchar **protocolfilter,
                       pf_flags protocolfilter_flags, epan_dissect_t *edt,
+                      proto_node_children_grouper_func node_children_grouper,
                       FILE *fh)
 {
     char ts[30];
@@ -734,16 +728,9 @@ write_json_proto_tree(output_fields_t* fields,
         if (print_dissections == print_dissections_none) {
             data.print_text = FALSE;
         }
+        data.node_children_grouper = node_children_grouper;
 
-        /*
-         * Group nodes together by the key they will have in the json output. This is necessary to know which json keys
-         * have multiple values which need to be put in a json array in the output. A map is not required since we can
-         * easily retrieve the json key from the first value in the linked list.
-         */
-        GSList *same_key_nodes_list = json_proto_node_children_grouper(edt->tree);
-        write_json_proto_node_list(same_key_nodes_list, &data);
-        g_slist_free(same_key_nodes_list);
-
+        write_json_proto_node_children(edt->tree, &data);
     } else {
         write_specified_fields(FORMAT_JSON, fields, edt, NULL, fh);
     }
@@ -822,10 +809,14 @@ write_json_proto_node_list(GSList *proto_node_list_head, write_json_data *data)
         if (has_children) {
             if (delimiter_needed) fputs(",\n", data->fh);
 
-            if (is_filtered) {
-                write_json_proto_node(node_values_list, "", write_json_proto_node_filtered, data);
-            } else {
+            // If a node has both a value and a set of children we print the value and the children in separate
+            // key:value pairs. These can't have the same key so whenever a value is already printed with the node
+            // json key we print the children with the same key with a "_tree" suffix added.
+            char *suffix = has_value ? "_tree": "";
 
+            if (is_filtered) {
+                write_json_proto_node(node_values_list, suffix, write_json_proto_node_filtered, data);
+            } else {
                 // Remove protocol filter for children, if children should be included. This functionality is enabled
                 // with the "-J" command line option. We save the filter so it can be reenabled when we are done with
                 // the current key:value pair.
@@ -835,14 +826,7 @@ write_json_proto_node_list(GSList *proto_node_list_head, write_json_data *data)
                     data->filter = NULL;
                 }
 
-                // If a node has both a value and a set of children we print the value and the children in separate
-                // key:value pairs. These can't have the same key so whenever a value is already printed with the node
-                // json key we print the children with the same key with a "_tree" suffix added.
-                if (has_value) {
-                    write_json_proto_node(node_values_list, "_tree", write_json_proto_node_children, data);
-                } else {
-                    write_json_proto_node(node_values_list, "", write_json_proto_node_children, data);
-                }
+                write_json_proto_node(node_values_list, suffix, write_json_proto_node_children, data);
 
                 // Put protocol filter back
                 if ((data->filter_flags&PF_INCLUDE_CHILDREN) == PF_INCLUDE_CHILDREN) {
@@ -913,14 +897,9 @@ write_json_proto_node_value_list(GSList *node_values_head, proto_node_value_writ
         fputs("[\n", data->fh);
         data->level++;
 
-        // Print first value outside the while loop so we write the delimiter at the start of each loop without having
-        // to check if we are at the last element.
-        print_indent(data->level, data->fh);
-        value_writer((proto_node *) current_value->data, data);
-        current_value = current_value->next;
-
         while (current_value != NULL) {
-            fputs(",\n", data->fh);
+            // Do not print delimiter before first value
+            if (current_value != node_values_head) fputs(",\n", data->fh);
 
             print_indent(data->level, data->fh);
             value_writer((proto_node *) current_value->data, data);
@@ -1017,9 +996,9 @@ write_json_proto_node_hex_dump(proto_node *node, write_json_data *data)
 static void
 write_json_proto_node_children(proto_node *node, write_json_data *data)
 {
-    GSList *same_key_nodes_list = json_proto_node_children_grouper(node);
-    write_json_proto_node_list(same_key_nodes_list, data);
-    g_slist_free(same_key_nodes_list);
+    GSList *grouped_children_list = data->node_children_grouper(node);
+    write_json_proto_node_list(grouped_children_list, data);
+    g_slist_free_full(grouped_children_list, (GDestroyNotify) g_slist_free);
 }
 
 /**
@@ -1064,10 +1043,10 @@ write_json_proto_node_no_value(proto_node *node, write_json_data *data)
 }
 
 /**
- * Groups each node separately as if it had a unique json key even if it doesn't. Using this function leads to duplicate
- * keys in the json output.
+ * Groups each child of the node separately.
+ * @return Linked list where each element is another linked list containing a single node.
  */
-static GSList *
+GSList *
 proto_node_group_children_by_unique(proto_node *node) {
     GSList *unique_nodes_list = NULL;
     proto_node *current_child = node->first_child;
@@ -1079,6 +1058,54 @@ proto_node_group_children_by_unique(proto_node *node) {
     }
 
     return g_slist_reverse(unique_nodes_list);
+}
+
+/**
+ * Groups the children of a node by their json key. Children are put in the same group if they have the same json key.
+ * @return Linked list where each element is another linked list of nodes associated with the same json key.
+ */
+GSList *
+proto_node_group_children_by_json_key(proto_node *node)
+{
+    /**
+     * For each different json key we store a linked list of values corresponding to that json key. These lists are kept
+     * in both a linked list and a hashmap. The hashmap is used to quickly retrieve the values of a json key. The linked
+     * list is used to preserve the ordering of keys as they are encountered which is not guaranteed when only using a
+     * hashmap.
+     */
+    GSList *same_key_nodes_list = NULL;
+    GHashTable *lookup_by_json_key = g_hash_table_new(g_str_hash, g_str_equal);
+    proto_node *current_child = node->first_child;
+
+    /**
+     * For each child of the node get the key and get the list of values already associated with that key from the
+     * hashmap. If no list exist yet for that key create a new one and add it to both the linked list and hashmap. If a
+     * list already exists add the node to that list.
+     */
+    while (current_child != NULL) {
+        char *json_key = (char *) proto_node_to_json_key(current_child);
+        GSList *json_key_nodes = (GSList *) g_hash_table_lookup(lookup_by_json_key, json_key);
+
+        if (json_key_nodes == NULL) {
+            json_key_nodes = g_slist_append(json_key_nodes, current_child);
+            // Prepending in single linked list is O(1), appending is O(n). Better to prepend here and reverse at the
+            // end than potentially looping to the end of the linked list for each child.
+            same_key_nodes_list = g_slist_prepend(same_key_nodes_list, json_key_nodes);
+            g_hash_table_insert(lookup_by_json_key, json_key, json_key_nodes);
+        } else {
+            // Store and insert value again to circumvent unused_variable warning.
+            // Append in this case since most value lists will only have a single value.
+            json_key_nodes = g_slist_append(json_key_nodes, current_child);
+            g_hash_table_insert(lookup_by_json_key, json_key, json_key_nodes);
+        }
+
+        current_child = current_child->next;
+    }
+
+    // Hash table is not needed anymore since the linked list with the correct ordering is returned.
+    g_hash_table_destroy(lookup_by_json_key);
+
+    return g_slist_reverse(same_key_nodes_list);
 }
 
 /**

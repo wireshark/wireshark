@@ -55,6 +55,7 @@ S<[ B<-M> E<lt>auto session resetE<gt> ]>
 S<[ B<-z> E<lt>statisticsE<gt> ]>
 S<[ B<--capture-comment> E<lt>commentE<gt> ]>
 S<[ B<--color> ]>
+S<[ B<--no-duplicate-keys> ]>
 S<[ B<--export-objects> E<lt>protocolE<gt>,E<lt>destdirE<gt> ]>
 S<[ B<--enable-protocol> E<lt>proto_nameE<gt> ]>
 S<[ B<--disable-protocol> E<lt>proto_nameE<gt> ]>
@@ -1625,6 +1626,12 @@ is currently implemented via 24-bit "true color" terminal escape sequences that
 are not supported by all terminal emulators.  See
 L<https://wiki.wireshark.org/ColoringRules> for more information on configuring
 color filters.
+
+=item --no-duplicate-keys
+
+If a key appears multiple times in an object, only write it a single time with
+as value a json array containing all the separate values. (Only works with
+-T json)
 
 =item --export-objects E<lt>protocolE<gt>,E<lt>destdirE<gt>
 
