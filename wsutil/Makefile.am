@@ -31,7 +31,7 @@ AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) -DWS_BUILD_DLL \
 # Optional headers for ABI checking
 wsutil_optional_abi_includes =
 
-if HAVE_OS_X_FRAMEWORKS
+if HAVE_MACOS_FRAMEWORKS
 wsutil_optional_abi_includes += cfutils.h
 endif
 
@@ -157,7 +157,7 @@ libwsutil_la_SOURCES = \
 	wsgcrypt.c		\
 	wsjsmn.c
 
-if HAVE_OS_X_FRAMEWORKS
+if HAVE_MACOS_FRAMEWORKS
 libwsutil_la_SOURCES += cfutils.c cfutils.h
 endif
 

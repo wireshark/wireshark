@@ -124,7 +124,7 @@
 #include <wsutil/unicode-utils.h>
 /* if WIN32_LEAN_AND_MEAN is defined, shellapi.h is needed too */
 #include <shellapi.h>
-#elif defined (HAVE_OS_X_FRAMEWORKS)
+#elif defined (HAVE_MACOS_FRAMEWORKS)
 /* macOS - use Launch Services to start a browser */
 #include <CoreFoundation/CoreFoundation.h>
 #include <ApplicationServices/ApplicationServices.h>
@@ -159,7 +159,7 @@ browser_open_url (const gchar *url)
 
   return ((intptr_t) ShellExecute (HWND_DESKTOP, _T("open"), utf_8to16(url), NULL, NULL, SW_SHOWNORMAL) > 32);
 
-#elif defined(HAVE_OS_X_FRAMEWORKS)
+#elif defined(HAVE_MACOS_FRAMEWORKS)
 
   CFStringRef url_CFString;
   CFURLRef url_CFURL;
@@ -291,7 +291,7 @@ filemanager_open_directory (const gchar *path)
   g_free(xpath);
   return (ret > 32);
 
-#elif defined(HAVE_OS_X_FRAMEWORKS)
+#elif defined(HAVE_MACOS_FRAMEWORKS)
 
   CFStringRef path_CFString;
   CFURLRef path_CFURL;

@@ -218,7 +218,7 @@
 #cmakedefine HAVE_NTDDNDIS_H 1
 
 /* Define to 1 if you have macOS frameworks */
-#cmakedefine HAVE_OS_X_FRAMEWORKS 1
+#cmakedefine HAVE_MACOS_FRAMEWORKS 1
 
 /* Define to 1 if you have the macOS CFPropertyListCreateWithStream function */
 #cmakedefine HAVE_CFPROPERTYLISTCREATEWITHSTREAM 1

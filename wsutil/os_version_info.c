@@ -29,7 +29,7 @@
 #include <sys/utsname.h>
 #endif
 
-#ifdef HAVE_OS_X_FRAMEWORKS
+#ifdef HAVE_MACOS_FRAMEWORKS
 #include <CoreFoundation/CoreFoundation.h>
 #include <wsutil/cfutils.h>
 #endif
@@ -49,7 +49,7 @@ typedef void (WINAPI *nativesi_func_ptr)(LPSYSTEM_INFO);
  * from macOS (we want the macOS version, not the Darwin version, the latter
  * being easy to get with uname()).
  */
-#ifdef HAVE_OS_X_FRAMEWORKS
+#ifdef HAVE_MACOS_FRAMEWORKS
 
 /*
  * Fetch a string, as a UTF-8 C string, from a dictionary, given a key.
@@ -437,7 +437,7 @@ get_os_version_info(GString *str)
 		 * On *BSD and Darwin/macOS, it's a long string giving
 		 * a build date, config file name, etc., etc., etc..
 		 */
-#ifdef HAVE_OS_X_FRAMEWORKS
+#ifdef HAVE_MACOS_FRAMEWORKS
 		/*
 		 * On macOS, report the macOS version number as the OS
 		 * version if we can, and put the Darwin information
@@ -450,7 +450,7 @@ get_os_version_info(GString *str)
 			/* Failure - just use the Darwin information. */
 			g_string_append_printf(str, "%s %s", name.sysname, name.release);
 		}
-#else /* HAVE_OS_X_FRAMEWORKS */
+#else /* HAVE_MACOS_FRAMEWORKS */
 		/*
 		 * XXX - on Linux, are there any APIs to get the distribution
 		 * name and version number?  I think some distributions have
@@ -503,7 +503,7 @@ get_os_version_info(GString *str)
 		 * releases.
 		 */
 		g_string_append_printf(str, "%s %s", name.sysname, name.release);
-#endif /* HAVE_OS_X_FRAMEWORKS */
+#endif /* HAVE_MACOS_FRAMEWORKS */
 	}
 #else
 	g_string_append(str, "an unknown OS");
