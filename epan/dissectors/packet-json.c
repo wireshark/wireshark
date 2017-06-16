@@ -412,7 +412,7 @@ static char *json_string_unescape(tvbparse_elem_t *tok)
 
 			str[j] = ch;
 			/* XXX if it's not valid UTF-8 character, add some expert info? (it violates JSON grammar) */
-			utf_len = json_tvb_memcpy_utf8(&str[j], tok->tvb, i, tok->len);
+			utf_len = json_tvb_memcpy_utf8(&str[j], tok->tvb, tok->offset + i, tok->offset + tok->len);
 			j += utf_len;
 			i += (utf_len - 1);
 		}
