@@ -782,7 +782,7 @@ dis_field_pid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 static const value_string dcs_character_set_vals[] = {
    {0x00,    "GSM 7 bit default alphabet"},
    {0x01,    "8 bit data"},
-   {0x02,    "UCS2 (16 bit)"},
+   {0x02,    "UCS2 (16 bit)/UTF-16"},
    {0x03,    "Reserved"},
    {0,      NULL }
 };
@@ -2207,9 +2207,13 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 
                 if (!(reassembled && pinfo->num == reassembled_in))
                 {
-                    /* Show unreassembled SMS */
+                    /* Show unreassembled SMS
+                     * Decode as ENC_UTF_16 instead of UCS2 because Android and iOS smartphones
+                     * encode emoji characters as UTF-16 big endian and although the UTF-16
+                     * is not specified in the 3GPP 23.038 (GSM 03.38) it seems to be widely supported
+                     */
                     proto_tree_add_item(subtree, hf_gsm_sms_text, sm_tvb,
-                                        0, rep_len, ENC_UCS_2|ENC_BIG_ENDIAN);
+                                        0, rep_len, ENC_UTF_16|ENC_BIG_ENDIAN);
                 } else {
                     /*  Show reassembled SMS.  We show each fragment separately
                      *  so that the text doesn't get truncated when we add it to
@@ -2227,9 +2231,13 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                                                                              &frag_params_key);
 
                         if (p_frag_params) {
+                            /* Decode as ENC_UTF_16 instead of UCS2 because Android and iOS smartphones
+                             * encode emoji characters as UTF-16 big endian and although the UTF-16
+                             * is not specified in the 3GPP 23.038 (GSM 03.38) it seems to be widely supported
+                             */
                             proto_tree_add_item(subtree, hf_gsm_sms_text, sm_tvb, total_sms_len,
                                 (p_frag_params->udl > SMS_MAX_MESSAGE_SIZE ? SMS_MAX_MESSAGE_SIZE : p_frag_params->udl),
-                                ENC_UCS_2|ENC_BIG_ENDIAN);
+                                ENC_UTF_16|ENC_BIG_ENDIAN);
 
                             total_sms_len += p_frag_params->length;
                         }
