@@ -9531,6 +9531,16 @@ static gboolean dissect_rtps_rtitcp(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   return dissect_rtps(tvb, pinfo, tree, offset);
 }
 
+static int dissect_simple_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  gint offset = 0;
+
+  if (dissect_rtps(tvb, pinfo, tree, offset) == FALSE)
+    return 0;
+
+  return tvb_captured_length(tvb);
+}
+
 void proto_register_rtps(void) {
 
   static hf_register_info hf[] = {
@@ -11710,6 +11720,9 @@ void proto_register_rtps(void) {
           proto_rtps, FT_STRING, BASE_NONE);
 
   registry = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), hash_by_guid, compare_by_guid);
+
+  /* In order to get this dissector in LUA (aka "chained-dissector") */
+  register_dissector("rtps", dissect_simple_rtps, proto_rtps);
 }
 
 
