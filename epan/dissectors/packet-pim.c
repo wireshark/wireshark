@@ -77,6 +77,7 @@ void proto_reg_handoff_pim(void);
 #define PIM_HELLO_VPC_PEER_ID 33    /* 2 vPC Peer ID */
 #define PIM_HELLO_DR_LB_CAPA 34     /* variable DR Load Balancing Capability [draft-ietf-pim-drlb] */
 #define PIM_HELLO_LB_GDR 35         /* variable DR Load Balancing GDR (LBGDR) [draft-ietf-pim-drlb] */
+#define PIM_HELLO_RPF_PROXY 65004   /* RPF Proxy Vector (Cisco proprietary) */
 
 /* PIM BIDIR DF election messages */
 
@@ -120,6 +121,7 @@ static const value_string pim_opt_vals[] = {
     {22, "Bidir Capable"},
     {24, "Address List"},
     {65001, "Address List"},    /* old implementation */
+    {65004, "RPF Proxy Vector"},
     {0, NULL}
 };
 
@@ -1013,6 +1015,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             case PIM_HELLO_VPC_PEER_ID:
             case PIM_HELLO_DR_LB_CAPA:
             case PIM_HELLO_LB_GDR:
+            case PIM_HELLO_RPF_PROXY:
             default:
                 if (opt_len)
                     proto_tree_add_item(opt_tree, hf_pim_optionvalue, tvb,
