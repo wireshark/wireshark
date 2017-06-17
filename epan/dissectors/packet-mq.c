@@ -3571,7 +3571,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                     /* XXX - 32 is inferred from the code below.  What's the
                                     * correct minimum? */
                                     if (iSizeHeader <= 32)
-                                        THROW(ReportedBoundsError);
+                                        return;
 
                                     p_mq_parm->mq_head_ccsid.encod = tvb_get_guint32(tvb, offset + 12, p_mq_parm->mq_int_enc);
                                     p_mq_parm->mq_head_ccsid.ccsid = tvb_get_guint32(tvb, offset + 16, p_mq_parm->mq_int_enc);
