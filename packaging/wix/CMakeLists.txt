@@ -75,8 +75,11 @@ file(TO_NATIVE_PATH "${CMAKE_SOURCE_DIR}" TOP_SRC_DIR)
 file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/docbook" USER_GUIDE_DIR)
 if ("${WIRESHARK_TARGET_PLATFORM}" STREQUAL "win32")
 	set(TARGET_MACHINE x86)
+	set (MSVC_REDIST_DIR "$ENV{PROGRAMFILES}/Common Files/Merge Modules")
 elseif ("${WIRESHARK_TARGET_PLATFORM}" STREQUAL "win64")
 	set(TARGET_MACHINE x64)
+	set (PF86_ENV "ProgramFiles(x86)")
+	set (MSVC_REDIST_DIR "$ENV{${PF86_ENV}}/Common Files/Merge Modules")
 else()
 	message(FATAL_ERROR "Your mysterious moon-man architecture \"${WIRESHARK_TARGET_PLATFORM}\" frightens and confuses us.")
 endif()
@@ -101,10 +104,17 @@ set(PRODUCT_VERSION ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_
 set (VERSION "${PROJECT_VERSION}")
 set (PRODUCT_VERSION=${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}.${VERSION_BUILD})
 
-# Use the merge module that comes with Visual Studio (From MSVC 2015?)
-# This is currently hardcoded for MSVC 2015
-set (MSVC_CRT_VERSION "VC140")
-set (MSVC_REDIST_DIR "$ENV{PROGRAMFILES}/Common Files/Merge Modules")
+# Use the merge module that comes with our version of Visual Studio
+if(MSVC_VERSION GREATER_EQUAL 1910)
+	set (MSVC_CRT_VERSION "VC141")
+	# VS 2017 wasn't nearby at the time of this writing.
+	# set (MSVC_REDIST_DIR "$ENV{VCINSTALLDIR}/path/to/merge/modules")
+elseif(MSVC_VERSION GREATER_EQUAL 1900)
+	set (MSVC_CRT_VERSION "VC140")
+elseif(MSVC_VERSION GREATER_EQUAL 1800)
+	set (MSVC_CRT_VERSION "VC120")
+endif()
+
 message(STATUS "Using ${MSVC_REDIST_DIR}/Microsoft_${MSVC_CRT_VERSION}_CRT_${TARGET_MACHINE}.msm for the installer")
 
 if(NOT ENABLE_STATIC)

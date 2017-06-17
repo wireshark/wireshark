@@ -23,7 +23,7 @@ currently come as NSIS installers and it seems it would make more sense to "bund
 with WiX rather than include them as part of the Wireshark.msi.
 2. Needs more flexible handling of VC CRT Merge module (need build script to provide
 appropriate macros).  Something like (or modifying existing) FindMSVC_REDIST.cmake.
-Currently only VS2013 CRT120 is supported.
+Currently only VS2013 / CRT120 and VS 2015 / CRT140 are supported.
 3. Uninstalling previous versions.  NSIS installer did things more "manually" than Wix does
 by default.  Need to merge as best as possible to handle backwards compatibility. The .msi
 architecture uses an "UpgradeCode" help facilitate install/uninstall/upgrade and NSIS
