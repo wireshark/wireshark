@@ -35,6 +35,8 @@ void proto_reg_handoff_cmd(void);
 
 static dissector_handle_t ethertype_handle;
 
+static dissector_table_t gre_dissector_table;
+
 static int proto_cmd = -1;
 
 static int hf_cmd_version = -1;
@@ -48,7 +50,7 @@ static int hf_cmd_trailer = -1;
 static gint ett_cmd = -1;
 
 static int
-dissect_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_cmd_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint16 encap_proto;
     ethertype_data_t ethertype_data;
@@ -103,6 +105,41 @@ dissect_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     return tvb_captured_length(tvb);
 }
 
+static int
+dissect_cmd_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_item *ti = NULL;
+    proto_tree *cmd_tree = NULL;
+    guint16 encap_proto;
+    tvbuff_t *next_tvb;
+    gint offset = 0;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CMD");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    if (tree) {
+        ti = proto_tree_add_item(tree, proto_cmd, tvb, 0, 6, ENC_NA);
+        cmd_tree = proto_item_add_subtree(ti, ett_cmd);
+    }
+    encap_proto = tvb_get_ntohs(tvb, 0);
+    proto_tree_add_item(cmd_tree, hf_eth_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(cmd_tree, hf_cmd_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(cmd_tree, hf_cmd_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(cmd_tree, hf_cmd_options, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(cmd_tree, hf_cmd_sgt, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
+    if (!dissector_try_uint(gre_dissector_table, encap_proto, next_tvb, pinfo, tree))
+        call_data_dissector(next_tvb, pinfo, tree);
+    return tvb_captured_length(tvb);
+}
+
 void
 proto_register_cmd(void)
 {
@@ -139,12 +176,17 @@ proto_register_cmd(void)
 void
 proto_reg_handoff_cmd(void)
 {
-    dissector_handle_t cmd_handle;
+    dissector_handle_t cmd_eth_handle;
+    dissector_handle_t cmd_gre_handle;
 
     ethertype_handle = find_dissector_add_dependency("ethertype", proto_cmd);
 
-    cmd_handle = create_dissector_handle(dissect_cmd, proto_cmd);
-    dissector_add_uint("ethertype", ETHERTYPE_CMD, cmd_handle);
+    gre_dissector_table = find_dissector_table("gre.proto");
+
+    cmd_eth_handle = create_dissector_handle(dissect_cmd_eth, proto_cmd);
+    cmd_gre_handle = create_dissector_handle(dissect_cmd_gre, proto_cmd);
+    dissector_add_uint("ethertype", ETHERTYPE_CMD, cmd_eth_handle);
+    dissector_add_uint("gre.proto", ETHERTYPE_CMD, cmd_gre_handle);
 }
 
 /*
