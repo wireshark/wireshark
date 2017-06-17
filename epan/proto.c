@@ -9239,8 +9239,6 @@ proto_registrar_dump_values(void)
 			continue;
 		}
 
-fprintf(stderr, "Dumping %s value string, if any\n", hfinfo->abbrev);
-
 		/* ignore protocols */
 		if (proto_registrar_is_protocol(i)) {
 			continue;
