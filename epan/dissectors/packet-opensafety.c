@@ -1278,25 +1278,25 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
                 item = proto_tree_add_uint_format_value(ssdo_tree, hf_oss_ssdo_payload_size, message_tvb, payloadOffset - 4, 4,
                         payloadSize, "%d octets total (%d octets in this frame)", payloadSize, calcDataLength);
 
-                if ( fragmentId != 0 && packet->payload.ssdo->sacmd.segmented )
+                if ( calcDataLength >= 0 )
                 {
-                    pinfo->fragmented = TRUE;
-                    frag_msg = fragment_add_seq_check(&os_reassembly_table, message_tvb, payloadOffset, pinfo,
-                                                      fragmentId, NULL, 0, calcDataLength, TRUE );
-                    fragment_add_seq_offset ( &os_reassembly_table, pinfo, fragmentId, NULL, ct );
-
-                    if ( frag_msg != NULL )
+                    if ( fragmentId != 0 && packet->payload.ssdo->sacmd.segmented )
                     {
-                        item = proto_tree_add_bytes_format_value(ssdo_tree, hf_oss_ssdo_payload, message_tvb, 0, 0, NULL, "Reassembled" );
-                        PROTO_ITEM_SET_GENERATED(item);
+                        pinfo->fragmented = TRUE;
+                        frag_msg = fragment_add_seq_check(&os_reassembly_table, message_tvb, payloadOffset, pinfo,
+                                                          fragmentId, NULL, 0, calcDataLength, TRUE );
+                        fragment_add_seq_offset ( &os_reassembly_table, pinfo, fragmentId, NULL, ct );
 
-                        ssdo_payload = proto_item_add_subtree(item, ett_opensafety_ssdo_payload);
-                        process_reassembled_data(message_tvb, 0, pinfo, "Reassembled Message", frag_msg, &oss_frag_items, NULL, ssdo_payload );
+                        if ( frag_msg != NULL )
+                        {
+                            item = proto_tree_add_bytes_format_value(ssdo_tree, hf_oss_ssdo_payload, message_tvb, 0, 0, NULL, "Reassembled" );
+                            PROTO_ITEM_SET_GENERATED(item);
+
+                            ssdo_payload = proto_item_add_subtree(item, ett_opensafety_ssdo_payload);
+                            process_reassembled_data(message_tvb, 0, pinfo, "Reassembled Message", frag_msg, &oss_frag_items, NULL, ssdo_payload );
+                        }
                     }
-                }
 
-                if ( (gint) calcDataLength >= (gint) 0 )
-                {
                     proto_tree_add_item(ssdo_tree, hf_oss_ssdo_payload, message_tvb, payloadOffset, calcDataLength, ENC_NA );
                 } else {
                     if ( global_opensafety_debug_verbose )
