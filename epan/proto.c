@@ -9235,9 +9235,9 @@ proto_registrar_dump_values(void)
 
 		PROTO_REGISTRAR_GET_NTH(i, hfinfo);
 
-		 if (hfinfo->id == hf_text_only) {
-			 continue;
-		 }
+		if (hfinfo->id == hf_text_only) {
+			continue;
+		}
 
 		/* ignore protocols */
 		if (proto_registrar_is_protocol(i)) {
