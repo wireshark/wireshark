@@ -2385,7 +2385,7 @@ dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             tvbuff_t *pdu_tvb;
 
             if (pdu_len < 1)
-                THROW(ReportedBoundsError);
+                return offset;
 
             if (pdu_real_len <= 0)
                 return offset;
