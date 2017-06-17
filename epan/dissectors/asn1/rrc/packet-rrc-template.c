@@ -46,7 +46,7 @@
 #include "packet-nbap.h"
 #include "packet-umts_fp.h"
 #include "packet-umts_mac.h"
-#include "packet-rlc.h"
+#include "packet-umts_rlc.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4049: compiler limit : terminating line number emission" */

@@ -35,7 +35,7 @@
 
 #include <wiretap/catapult_dct2000.h>
 #include "packet-umts_fp.h"
-#include "packet-rlc.h"
+#include "packet-umts_rlc.h"
 
 #include "packet-mac-lte.h"
 #include "packet-rlc-lte.h"

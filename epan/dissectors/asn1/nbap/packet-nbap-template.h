@@ -22,7 +22,7 @@
 #ifndef PACKET_NBAP_H
 #define PACKET_NBAP_H
 
-#include "packet-rlc.h"
+#include "packet-umts_rlc.h"
 #include "packet-umts_mac.h"
 
 /*

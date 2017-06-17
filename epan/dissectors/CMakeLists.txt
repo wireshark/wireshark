@@ -1123,7 +1123,6 @@ set(DISSECTOR_SRC
 	packet-rip.c
 	packet-ripng.c
 	packet-rlc-lte.c
-	packet-rlc.c
 	packet-rlm.c
 	packet-rlogin.c
 	packet-rmcp.c
@@ -1314,6 +1313,7 @@ set(DISSECTOR_SRC
 	packet-uma.c
 	packet-umts_fp.c
 	packet-umts_mac.c
+	packet-umts_rlc.c
 	packet-usb-audio.c
 	packet-usb-ccid.c
 	packet-usb-com.c

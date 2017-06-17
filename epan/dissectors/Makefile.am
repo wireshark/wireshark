@@ -1145,7 +1145,6 @@ DISSECTOR_SRC = \
 	packet-rip.c		\
 	packet-ripng.c		\
 	packet-rlc-lte.c	\
-	packet-rlc.c		\
 	packet-rlm.c		\
 	packet-rlogin.c		\
 	packet-rmcp.c		\
@@ -1336,6 +1335,7 @@ DISSECTOR_SRC = \
 	packet-uma.c		\
 	packet-umts_fp.c	\
 	packet-umts_mac.c	\
+	packet-umts_rlc.c	\
 	packet-usb-audio.c	\
 	packet-usb-ccid.c	\
 	packet-usb-com.c	\
@@ -1713,7 +1713,6 @@ DISSECTOR_INCLUDES = \
 	packet-rdm.h		\
 	packet-rdt.h		\
 	packet-reload.h		\
-	packet-rlc.h		\
 	packet-rlc-lte.h	\
 	packet-rmi.h		\
 	packet-rmt-common.h	\
@@ -1788,6 +1787,7 @@ DISSECTOR_INCLUDES = \
 	packet-udp.h		\
 	packet-umts_fp.h	\
 	packet-umts_mac.h	\
+	packet-umts_rlc.h	\
 	packet-usb.h		\
 	packet-usb-hid.h	\
 	packet-usbip.h		\

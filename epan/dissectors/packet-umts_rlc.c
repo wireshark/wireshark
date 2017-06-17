@@ -1,4 +1,4 @@
-/* packet-rlc.c
+/* packet-umts_rlc.c
  * Routines for UMTS RLC (Radio Link Control) v9.3.0 disassembly
  * http://www.3gpp.org/ftp/Specs/archive/25_series/25.322/
  *
@@ -37,7 +37,7 @@
  * */
 
 #include "packet-umts_fp.h"
-#include "packet-rlc.h"
+#include "packet-umts_rlc.h"
 #include "packet-rrc.h"
 
 /* TODO:

@@ -29,7 +29,7 @@
 #include <epan/proto_data.h>
 #include "packet-umts_fp.h"
 #include "packet-umts_mac.h"
-#include "packet-rlc.h"
+#include "packet-umts_rlc.h"
 
 void proto_register_fp_hint(void);
 void proto_reg_handoff_fp_hint(void);
