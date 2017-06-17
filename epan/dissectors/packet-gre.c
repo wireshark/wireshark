@@ -746,7 +746,25 @@ proto_register_gre(void)
     expert_gre = expert_register_protocol(proto_gre);
     expert_register_field_array(expert_gre, ei, array_length(ei));
 
-    /* subdissector code */
+    /*
+     * Dissector table.
+     *
+     * XXX - according to
+     *
+     *    https://www.iana.org/assignments/gre-parameters/gre-parameters.xhtml#gre-parameters-1
+     *
+     * these are just Ethertypes; should we use "gre.proto" only for
+     * protocols *not* registered as Ethertypes, such as those listed
+     * in the table in "Current List of Protocol Types" in RFC 1701
+     * ("For historical reasons, a number of other values have been
+     * used for some protocols."), and for protocols encapsulated in GRE
+     * differently from the way they're encapsulated over LAN protocols
+     * (for example, Cisco MetaData), and if we don't get a match there,
+     * use the "ethertype" table?
+     *
+     * And should we also somehow do something similar for mapping values
+     * to strings, falling back on etype_vals?
+     */
     gre_dissector_table = register_dissector_table("gre.proto",
                                                    "GRE protocol type", proto_gre, FT_UINT16, BASE_HEX);
 }
