@@ -1806,13 +1806,13 @@ if(WIN32)
 endif()
 
 foreach(_install_file ${INSTALL_FILES})
+	get_filename_component(_install_file_src "${_install_file}" ABSOLUTE)
 	get_filename_component(_install_basename "${_install_file}" NAME)
 	set(_output_file "${DATAFILE_DIR}/${_install_basename}")
 	add_custom_command(OUTPUT "${_output_file}"
 		COMMAND ${CMAKE_COMMAND} -E copy
-			"${_install_file}"
+			"${_install_file_src}"
 			"${_output_file}"
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 		DEPENDS
 			docs
 			"${_install_file}"

@@ -96,8 +96,6 @@ add_custom_command(
 		${CMAKE_BINARY_DIR}/epan/wslua/taps_wslua.c
 		${CMAKE_BINARY_DIR}/epan/wslua/taps.txt
 		${CMAKE_SOURCE_DIR}/epan/wslua
-	WORKING_DIRECTORY
-		${CMAKE_SOURCE_DIR}/epan/wslua
 	DEPENDS
 		${CMAKE_SOURCE_DIR}/epan/wslua/taps
 		${CMAKE_SOURCE_DIR}/epan/wslua/make-taps.pl
