@@ -57,10 +57,13 @@ typedef struct content_t {
 
     gboolean fastpattern; /* Is most distinctive content in rule */
 
+    gboolean rawbytes;    /* Match should be done against raw bytes (which we do anyway) */
+
     /* http preprocessor modifiers */
     gboolean http_method;
     gboolean http_client_body;
     gboolean http_cookie;
+    gboolean http_user_agent;
 
     /* Pattern converted into bytes for matching against packet.
        Used for regular patterns and PCREs alike. */

@@ -286,7 +286,6 @@ static gboolean content_compare_case_insensitive(const guint8* memory, const cha
     return TRUE;
 }
 
-
 /* Move through the bytes of the tvbuff, looking for a match against the
  * regexp from the given content.
  */
@@ -303,7 +302,8 @@ static gboolean look_for_pcre(content_t *content, tvbuff_t *tvb, guint start_off
         return FALSE;
     }
 
-    /* Copy remaining bytes into NULL-terminated string. */
+    /* Copy remaining bytes into NULL-terminated string. Unfortunately, this interface does't allow
+       us to find patterns that involve bytes with value 0.. */
     int length_remaining = tvb_captured_length_remaining(tvb, start_offset);
     gchar *string = (gchar*)g_malloc(length_remaining + 1);
     tvb_memcpy(tvb, (void*)string, start_offset, length_remaining);
@@ -747,8 +747,9 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 
     /* Can only find start if we have the rule and know the protocol */
     guint content_start_match = 0;
+    guint payload_start = 0;
     if (rule) {
-        content_start_match = get_content_start_match(rule, tree);
+        payload_start = content_start_match = get_content_start_match(rule, tree);
     }
 
     /* Snort output arrived and was previously stored - so add to tree */
@@ -935,9 +936,10 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
                 /* Look up offset of match. N.B. would only expect to see on first content... */
                 guint offset_to_add = 0;
 
-                /* May need to add absolute offset into packet... */
+                /* May need to start looking from absolute offset into packet... */
                 if (rule->contents[n].offset_set) {
-                    offset_to_add = rule->contents[n].offset;
+                    content_start_match = payload_start + rule->contents[n].offset;
+                    offset_to_add = 0;
                 }
                 /* ... or a number of bytes beyond the previous content match */
                 else if (rule->contents[n].distance_set) {
@@ -964,6 +966,12 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
                                               rule->contents[n].str,
                                               content_text_template,
                                               rule->contents[n].str);
+
+            /* Next match position will be after this one */
+            if (match_found) {
+                content_start_match = content_last_match_end;
+            }
+
             if (!attempt_match) {
                 proto_item_append_text(ti, " (no match attempt made)");
             }
@@ -971,6 +979,9 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
             /* Show (only as text) attributes of content field */
             if (rule->contents[n].fastpattern) {
                 proto_item_append_text(ti, " (fast_pattern)");
+            }
+            if (rule->contents[n].rawbytes) {
+                proto_item_append_text(ti, " (rawbytes)");
             }
             if (rule->contents[n].nocase) {
                 proto_item_append_text(ti, " (nocase)");
@@ -1000,6 +1011,9 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
             }
             if (rule->contents[n].http_cookie != 0) {
                 proto_item_append_text(ti, " (http_cookie)");
+            }
+            if (rule->contents[n].http_user_agent != 0) {
+                proto_item_append_text(ti, " (http_user_agent)");
             }
 
             if (attempt_match && !rule->contents[n].negation && !match_found) {
