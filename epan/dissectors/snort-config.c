@@ -73,7 +73,7 @@ static char *skipWhiteSpace(char *source, int *accumulated_offset)
  * - returns: requested string.  Returns from static buffer when copy is FALSE */
 static char* read_token(char* source, char delimeter, int *length, int *accumulated_length, gboolean copy)
 {
-    static char static_buffer[512];
+    static char static_buffer[1024];
     int offset = 0;
 
     char *source_proper = skipWhiteSpace(source, accumulated_length);
@@ -162,6 +162,14 @@ static void rule_set_content_fast_pattern(Rule_t *rule)
     }
 }
 
+/* Set the rawbytes property of a content field */
+static void rule_set_content_rawbytes(Rule_t *rule)
+{
+    if (rule->last_added_content) {
+        rule->last_added_content->rawbytes = TRUE;
+    }
+}
+
 /* Set the http_method property of a content field */
 static void rule_set_content_http_method(Rule_t *rule)
 {
@@ -183,6 +191,14 @@ static void rule_set_content_http_cookie(Rule_t *rule)
 {
     if (rule->last_added_content) {
         rule->last_added_content->http_cookie = TRUE;
+    }
+}
+
+/* Set the http_UserAgent property of a content field */
+static void rule_set_content_http_user_agent(Rule_t *rule)
+{
+    if (rule->last_added_content) {
+        rule->last_added_content->http_user_agent = TRUE;
     }
 }
 
@@ -537,12 +553,14 @@ static gboolean parse_include_file(SnortConfig_t *snort_config, char *line, cons
             /* Write rule path variable value */
             /* Don't assume $RULE_PATH will end in a file separator */
             if (snort_config->rule_path_is_absolute) {
+                /* Rule path is absolute, so it can go at start */
                 g_snprintf(substituted_filename, 512, "%s%s%s",
                            snort_config->rule_path,
                            g_file_separator,
                            include_filename + 10);
             }
             else {
+                /* Rule path is relative to config directory, so it goes first */
                 g_snprintf(substituted_filename, 512, "%s%s%s%s%s",
                            config_directory,
                            g_file_separator,
@@ -554,7 +572,13 @@ static gboolean parse_include_file(SnortConfig_t *snort_config, char *line, cons
         }
         else {
             /* No $RULE_PATH, just use directory and filename */
-            g_snprintf(substituted_filename, 512, "%s/%s", config_directory, include_filename);
+            /* But may not even need directory if included_folder is absolute! */
+            if (!g_path_is_absolute(include_filename)) {
+                g_snprintf(substituted_filename, 512, "%s/%s", config_directory, include_filename);
+            }
+            else {
+                g_strlcpy(substituted_filename, include_filename, 512);
+            }
         }
 
         /* Try to open the file. */
@@ -696,6 +720,12 @@ static void process_rule_option(Rule_t *rule, char *options, int option_start_of
     }
     else if (strcmp(name, "http_cookie") == 0) {
         rule_set_content_http_cookie(rule);
+    }
+    else if (strcmp(name, "http_user_agent") == 0) {
+        rule_set_content_http_user_agent(rule);
+    }
+    else if (strcmp(name, "rawbytes") == 0) {
+        rule_set_content_rawbytes(rule);
     }
     else if (strcmp(name, "classtype") == 0) {
         rule_set_classtype(rule, value);
@@ -1126,6 +1156,12 @@ gboolean content_convert_pcre_for_regex(content_t *content)
     /* Start with content->str */
     if (pcre_length < 3) {
         /* Can't be valid.  Expect /regex/[modifiers] */
+        return FALSE;
+    }
+
+    if (pcre_length >= 512) {
+        /* Have seen regex library crash on very long expressions
+         * (830 bytes) as seen in SID=2019326, REV=6 */
         return FALSE;
     }
 
