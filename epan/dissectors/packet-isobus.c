@@ -745,7 +745,7 @@ proto_register_isobus(void)
         },
         { &hf_isobus_transportprotocol_connabort_abortreason,
           { "Connection Abort reason", "isobus.transport_protocol.connection_abort.abort_reason",
-            FT_UINT8, BASE_DEC, VALS(connection_abort_reasons), 0x0,
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING, VALS(connection_abort_reasons), 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_transportprotocol_connabort_pgn,
