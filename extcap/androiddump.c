@@ -103,7 +103,9 @@
 #define INTERFACE_ANDROID_BLUETOOTH_HCIDUMP             "android-bluetooth-hcidump"
 #define INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER     "android-bluetooth-external-parser"
 #define INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET         "android-bluetooth-btsnoop-net"
-#define INTERFACE_ANDROID_WIFI_TCPDUMP                  "android-wifi-tcpdump"
+#define INTERFACE_ANDROID_TCPDUMP                       "android-tcpdump"
+#define INTERFACE_ANDROID_TCPDUMP_FORMAT                INTERFACE_ANDROID_TCPDUMP "-%s"
+#define INTERFACE_ANDROID_TCPDUMP_SERIAL_FORMAT         INTERFACE_ANDROID_TCPDUMP_FORMAT "-%s"
 
 #define ANDROIDDUMP_VERSION_MAJOR    "1"
 #define ANDROIDDUMP_VERSION_MINOR    "1"
@@ -838,11 +840,68 @@ static void new_interface(extcap_parameters * extcap_conf, const gchar *interfac
             is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_EVENTS) ||
             is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_CRASH)) {
         extcap_base_register_interface(extcap_conf, interface, ifdisplay, 252, "Upper PDU" );
-    } else if (is_specified_interface(interface, INTERFACE_ANDROID_WIFI_TCPDUMP)) {
+    } else if (is_specified_interface(interface, INTERFACE_ANDROID_TCPDUMP)) {
         extcap_base_register_interface(extcap_conf, interface, ifdisplay, 1, "Ethernet");
     }
     g_free(interface);
     g_free(ifdisplay);
+}
+
+
+static int add_tcpdump_interfaces(extcap_parameters * extcap_conf, const char *adb_server_ip, unsigned short *adb_server_tcp_port, const char *serial_number)
+{
+    static const char *const adb_tcpdump_list = "shell:tcpdump -D";
+    static const char *const regex_ifaces = "\\d+\\.(?<iface>\\S+)\\s+?(?:(?:\\(.*\\))*)\\s*?\\[(?<flags>.*?)\\]";
+    static char recv_buffer[PACKET_LENGTH];
+    char *response;
+    gssize data_length;
+    socket_handle_t sock;
+    GRegex* regex = NULL;
+    GError *err = NULL;
+    GMatchInfo *match = NULL;
+    char* tok;
+    char iface_name[80];
+
+    sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
+    if (sock == INVALID_SOCKET) {
+        g_warning("Failed to connect to adb server");
+        return EXIT_CODE_GENERIC;
+    }
+
+    response = adb_send_and_read(sock, adb_tcpdump_list, recv_buffer, sizeof(recv_buffer), &data_length);
+    closesocket(sock);
+
+    if (!response) {
+        g_warning("Failed to get list of available tcpdump interfaces");
+        return EXIT_CODE_GENERIC;
+    }
+    response[data_length] = '\0';
+
+    regex = g_regex_new(regex_ifaces, (GRegexCompileFlags)0, (GRegexMatchFlags)0, &err);
+    if (!regex) {
+        g_warning("Failed to compile regex for tcpdump interface matching");
+        return EXIT_CODE_GENERIC;
+    }
+
+    tok = strtok(response, "\n");
+    while (tok != NULL) {
+        g_regex_match(regex, tok, (GRegexMatchFlags)0, &match);
+        if (g_match_info_matches(match)) {
+            gchar *iface = g_match_info_fetch_named(match, "iface");
+            gchar *flags = g_match_info_fetch_named(match, "flags");
+
+            if (strstr(flags, "Up")) {
+                g_snprintf(iface_name, sizeof(iface_name), INTERFACE_ANDROID_TCPDUMP_FORMAT, iface);
+                new_interface(extcap_conf, iface_name, iface, serial_number, "Android tcpdump");
+            }
+            g_free(flags);
+            g_free(iface);
+        }
+        g_match_info_free(match);
+        tok = strtok(NULL, "\n");
+    }
+    g_regex_unref(regex);
+    return 0;
 }
 
 
@@ -862,7 +921,6 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
     const char            *adb_ps_droid_bluetooth = "shell:ps droid.bluetooth";
     const char            *adb_ps_bluetooth_app   = "shell:ps com.android.bluetooth";
     const char            *adb_ps_with_grep       = "shell:ps | grep com.android.bluetooth";
-    const char            *adb_tcpdump_help       = "shell:tcpdump -h";
     char                   serial_number[SERIAL_NUMBER_LENGTH_MAX];
     char                   model_name[MODEL_NAME_LENGTH_MAX];
     int                    result;
@@ -921,23 +979,10 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
 
         g_debug("Processing device: \"%s\" <%s>" , serial_number, model_name);
 
-        /* Check for the presence of tcpdump in the android device. */
-
-        sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
-        if (sock == INVALID_SOCKET) continue;
-
-        response = adb_send_and_read(sock, adb_tcpdump_help, helpful_packet, sizeof(helpful_packet), &data_length);
-        closesocket(sock);
-
-        if (response) {
-            response[data_length] = '\0';
-
-            /* If tcpdump is found in the android device, add Android Wifi Tcpdump as an interface  */
-            if (strstr(response,"tcpdump version")) {
-                new_interface(extcap_conf, INTERFACE_ANDROID_WIFI_TCPDUMP, model_name, serial_number, "Android WiFi");
-            }
-        } else {
-            g_warning("Error on socket: <%s>", adb_tcpdump_help);
+        /* Function will only add tcpdump interfaces if tcpdump is present on the device */
+        result = add_tcpdump_interfaces(extcap_conf, adb_server_ip, adb_server_tcp_port, serial_number  );
+        if (result) {
+            g_warning("Error while adding tcpdump interfaces");
         }
 
         sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
@@ -1156,7 +1201,7 @@ static int list_config(char *interface) {
         return EXIT_CODE_SUCCESS;
     } else  if (is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_HCIDUMP) ||
             is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_WIFI_TCPDUMP)) {
+            is_specified_interface(interface, INTERFACE_ANDROID_TCPDUMP)) {
         printf("arg {number=0}{call=--adb-server-ip}{display=ADB Server IP Address}{type=string}{default=127.0.0.1}\n"
                 "arg {number=1}{call=--adb-server-tcp-port}{display=ADB Server TCP Port}{type=integer}{range=0,65535}{default=5037}\n"
                 "arg {number=2}{call=--verbose}{display=Verbose/Debug output on console}{type=boolean}{default=false}\n");
@@ -2280,8 +2325,10 @@ static int linktype_to_extcap_encap(const char* linktype)
 /* The Tcpdump sends data in pcap format. So for using the extcap_dumper we   */
 /* need to unpack the pcap and then send the packet data to the dumper.       */
 /*----------------------------------------------------------------------------*/
-static int capture_android_wifi_tcpdump(char *interface, char *fifo,
+static int capture_android_tcpdump(char *interface, char *fifo,
         const char *adb_server_ip, unsigned short *adb_server_tcp_port) {
+    static const char                       *const adb_shell_tcpdump_format = "shell:tcpdump -n -s 0 -u -i %s -w -";
+    static const char                       *const regex_interface = INTERFACE_ANDROID_TCPDUMP "-(?<iface>.*?)-(?<serial>.*)";
     static const char                       *const regex_linktype = "tcpdump: listening on .*?, link-type (?<linktype>.*?) ";
     struct extcap_dumper                     extcap_dumper;
     static char                              data[PACKET_LENGTH];
@@ -2290,9 +2337,9 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
     gssize                                   filter_buffer_length = 0;
     gssize                                   frame_length=0;
     socket_handle_t                          sock;
-    const char                               *adb_shell_tcpdump = "shell:tcpdump -n -s 0 -u -w -";
     gint                                     result;
-    char                                     *serial_number = NULL;
+    char                                    *iface = NULL;
+    char                                    *serial_number = NULL;
     static char                              filter_buffer[PACKET_LENGTH];
     gint                                     device_endiness = G_LITTLE_ENDIAN;
     gboolean                                 global_header_skipped=FALSE;
@@ -2301,18 +2348,40 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
     GRegex                                  *regex = NULL;
     GError                                  *err = NULL;
     GMatchInfo                              *match = NULL;
+    char                                     tcpdump_cmd[80];
 
-    if (is_specified_interface(interface, INTERFACE_ANDROID_WIFI_TCPDUMP)
-            && strlen(interface) > strlen(INTERFACE_ANDROID_WIFI_TCPDUMP) + 1) {
-        serial_number = interface + strlen(INTERFACE_ANDROID_WIFI_TCPDUMP) + 1;
+    regex = g_regex_new(regex_interface, (GRegexCompileFlags)0, (GRegexMatchFlags)0, &err);
+    if (!regex) {
+        g_warning("Failed to compile regex for tcpdump interface");
+        return EXIT_CODE_GENERIC;
     }
+
+    g_regex_match(regex, interface, (GRegexMatchFlags)0, &match);
+    if (!g_match_info_matches(match)) {
+        g_warning("Failed to determine iface name and serial number");
+        g_regex_unref(regex);
+        return EXIT_CODE_GENERIC;
+    }
+
+    iface = g_match_info_fetch_named(match, "iface");
+    serial_number = g_match_info_fetch_named(match, "serial");
+    g_match_info_free(match);
+    g_regex_unref(regex);
 
     /* First check for the device if it is connected or not */
     sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
-    if (sock == INVALID_SOCKET)
+    if (sock == INVALID_SOCKET) {
+        g_free(iface);
+        g_free(serial_number);
         return EXIT_CODE_INVALID_SOCKET_11;
+    }
 
-    result = adb_send(sock, adb_shell_tcpdump);
+    g_snprintf(tcpdump_cmd, sizeof(tcpdump_cmd), adb_shell_tcpdump_format, iface);
+    g_free(iface);
+    g_free(serial_number);
+
+    result = adb_send(sock, tcpdump_cmd);
+
     if (result) {
         g_warning("Error while setting adb transport");
         closesocket(sock);
@@ -2554,7 +2623,7 @@ int main(int argc, char **argv) {
         "\t"INTERFACE_ANDROID_BLUETOOTH_HCIDUMP"\n"
         "\t"INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER"\n"
         "\t"INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET"\n"
-        "\t"INTERFACE_ANDROID_WIFI_TCPDUMP"\n"
+        "\t"INTERFACE_ANDROID_TCPDUMP"\n"
         "\n"
         "\t""DEVICEID is the identifier of the device provided by Android SDK (see \"adb devices\")\n"
         "\t""For example: W3D7N15C29005648""\n",
@@ -2734,8 +2803,8 @@ int main(int argc, char **argv) {
                     bt_server_tcp_port, bt_forward_socket, bt_local_ip, bt_local_tcp_port);
         else if (extcap_conf->interface && (is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET)))
             ret = capture_android_bluetooth_btsnoop_net(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port);
-        else if (extcap_conf->interface && (is_specified_interface(extcap_conf->interface,INTERFACE_ANDROID_WIFI_TCPDUMP)))
-            ret = capture_android_wifi_tcpdump(extcap_conf->interface, extcap_conf->fifo, adb_server_ip,adb_server_tcp_port);
+        else if (extcap_conf->interface && (is_specified_interface(extcap_conf->interface,INTERFACE_ANDROID_TCPDUMP)))
+            ret = capture_android_tcpdump(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port);
 
         goto end;
     }
