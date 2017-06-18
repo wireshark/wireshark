@@ -26,6 +26,7 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <wsutil/str_util.h>
+#include <epan/expert.h>
 #include "packet-http.h"
 
 #define TCP_PORT_DAAP 3689
@@ -394,8 +395,10 @@ static int hf_daap_track_id = -1;
 static gint ett_daap = -1;
 static gint ett_daap_sub = -1;
 
+static expert_field ei_daap_max_recursion_depth_reached = EI_INIT;
+
 /* Forward declarations */
-static void dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb);
+static void dissect_daap_one_tag(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int recursion_depth);
 
 static int
 dissect_daap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -428,12 +431,14 @@ dissect_daap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
    ti = proto_tree_add_item(tree, proto_daap, tvb, 0, -1, ENC_NA);
    daap_tree = proto_item_add_subtree(ti, ett_daap);
-   dissect_daap_one_tag(daap_tree, tvb);
+   dissect_daap_one_tag(daap_tree, pinfo, tvb, 0);
    return tvb_captured_length(tvb);
 }
 
+#define DAAP_MAX_RECURSION_DEPTH 100
+
 static void
-dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb)
+dissect_daap_one_tag(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int recursion_depth)
 {
    guint       offset = 0;
    guint32     tagname, tagsize;
@@ -441,6 +446,11 @@ dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb)
    proto_tree *tag_tree;
    tvbuff_t   *new_tvb;
 
+   if (recursion_depth >= DAAP_MAX_RECURSION_DEPTH) {
+      proto_tree_add_expert(tree, pinfo, &ei_daap_max_recursion_depth_reached,
+                            tvb, 0, 0);
+      return;
+   }
    while (offset < tvb_reported_length(tvb)) {
       tagname = tvb_get_ntohl(tvb, offset);
       tagsize = tvb_get_ntohl(tvb, offset+4);
@@ -491,7 +501,7 @@ dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb)
          case dacp_cmst:
             /* Container tags */
             new_tvb  = tvb_new_subset_length(tvb, offset, (gint)tagsize);
-            dissect_daap_one_tag(tag_tree, new_tvb);
+            dissect_daap_one_tag(tag_tree, pinfo, new_tvb, recursion_depth+1);
             break;
 
          case daap_minm:
@@ -762,8 +772,18 @@ proto_register_daap(void)
       &ett_daap_sub,
    };
 
+   expert_module_t *expert_daap;
+
+   static ei_register_info ei[] = {
+      { &ei_daap_max_recursion_depth_reached, { "daap.max_recursion_depth_reached",
+        PI_PROTOCOL, PI_WARN, "Maximum allowed recursion depth reached - stop decoding", EXPFILL }}
+   };
+
    proto_daap = proto_register_protocol("Digital Audio Access Protocol",
                                         "DAAP", "daap");
+
+   expert_daap = expert_register_protocol(proto_daap);
+   expert_register_field_array(expert_daap, ei, array_length(ei));
 
    proto_register_field_array(proto_daap, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
