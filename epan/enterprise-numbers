@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2017-06-09)
+(last updated 2017-06-18)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -29118,9 +29118,9 @@ Decimal
     Youngbong Choe
       hurd&sds.co.kr
 7291
-  Lecointe Ludovic
+  LUTEUS SARL (formerly 'Lecointe Ludovic')
     Lecointe Ludovic
-      loriot&llecointe.com
+      support&loriotpro.com
 7292
   Krone Multimedia Ges.m.b.H Co KG
     Hans Peleska
@@ -77077,8 +77077,8 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
       yoshiaki.hasegawa&tamura-ss.co.jp
 19381
   Bundesanstalt fuer Finanzdienstleistungsaufsicht
-    Carsten Guenther
-      Carsten.Guenther&bafin.de
+    Stefan Klueppel, Oliver Hennl, Ruediger Vetter, Martin Steitz
+      pki&bafin.de
 19382
   Manzara Electronics LTD.
     Stacy Minkin
@@ -91412,7 +91412,7 @@ Urzêdzie Wojewódzkim w Olsztynie
 22962
   matrix.mx
     Martin Tomanec
-      martin-t&utanet.at
+      martin+iana&myspot.at
 22963
   Vale Technology LTD
     Edward Moloney
@@ -142918,7 +142918,7 @@ Decentralization / Helenic Public Administra
 35834
   Gozaimass
     Pascal VIVIEN
-      darwin&gozaimass.fr
+      pen.iana.org&gozaimass.fr
 35835
   iB Solution Corporation
     Satoshi HOSHINO
@@ -194812,7 +194812,7 @@ Decentralization / Helenic Public Administra
     David Combs
       david.combs&postholdings.com
 48808
-  THALES SERVICES LAB CSK
+  Thales Services France ATHENA (formerly 'THALES SERVICES LAB CSK')
     GINTRAND Olivier
       olivier.gintrand&thalesgroup.com
 48809
@@ -196424,7 +196424,7 @@ Decentralization / Helenic Public Administra
     Anthony de Broise
       anthony&cr0bar.co.uk
 49211
-  HanseCom Gesellschaft für Informations- und Kommunikationsdienstleistungen mbH
+  DATAGROUP Operate IT GmbH (formerly 'HanseCom Gesellschaft für Informations- und Kommunikationsdienstleistungen mbH')
     Clemens Christensen
       clemens.christensen&operate-it.com
 49212
@@ -197108,9 +197108,9 @@ Decentralization / Helenic Public Administra
     OID Administrator
       oid-admin&uow.edu.au
 49382
-  Engility Corporation 
-    Tyson Meza
-      tyson.meza&engilitycorp.com
+  Engility Corporation
+    Administrator
+      j.goldberg&engilitycorp.com
 49383
   Riverscape Software
     Brian Mottershead
@@ -197897,8 +197897,8 @@ Decentralization / Helenic Public Administra
       praneet&globalcom.in
 49579
   TCOM L.P.
-    Drew Hornischer
-      drew.hornischer&tcomlp.com
+    Matt Fields
+      tclo&tcomlp.com
 49580
   Samuel Bächler Informatik
     Samuel Bächler
@@ -200123,6 +200123,214 @@ Decentralization / Helenic Public Administra
   Markon Cooperative Inc
     John Eldredge
       johne&markon.com
+50136
+  High Sec Hosting HSDC AB
+    Rickard Johnsson
+      rille&highsechosting.eu
+50137
+  Greene County Circuit Court
+    Doug Shy
+      dshy&courts.mo.gov
+50138
+  Legrand North and Central America
+    John Canny
+      John.Canny&Legrand.Us
+50139
+  Trice Medical, Inc.
+    Al Intintoli
+      aintintoli&tricemedical.com
+50140
+  Thinking Objects GmbH
+    Raffaele Lupo
+      penmaster&to.com
+50141
+  Sundkontor
+    Igor Hein
+      igor.hein&sundkontor.de
+50142
+  Sunshine Coast Council
+    Web Master
+      webmaster&sunshinecoast.qld.gov.au
+50143
+  Universitätsmedizin Greifswald
+    UMG Hostmaster
+      umg-it-netz&uni-greifswald.de
+50144
+  Viz.AI
+    David Golan
+      david&viz.ai
+50145
+  FRRouting
+    David Lamparter
+      equinox&opensourcerouting.org
+50146
+  Wi-Net Telecom
+    Hugo De Zela
+      hugodz&winet.com.pe
+50147
+  Mateer Harbert
+    Bryan Fowler
+      bfowler&mateerharbert.com
+50148
+  PIXELLAB LLC
+    Jaiden Benz
+      pixellab&icloud.com
+50149
+  Beijing ZhongChuang Teraspek Co.,LTD
+    Marvin
+      Marvin&teraspek.com
+50150
+  Royole Corporation
+    Tuochen Lyu
+      Tuochen.Lyu&Royole.com
+50151
+  Flugatlas
+    PEN Administrator
+      pen.administrator&flugatlas.com
+50152
+  NEOCHROM-TRADE, ltd 
+    Oleksii Serikov
+      ceo&neochrom.trade
+50153
+  Span d.o.o.
+    Jasmin Kotur
+      jasmin.kotur&span.eu
+50154
+  NU2 Systems LLC
+    Isac Tabib
+      isac&ifly51.com
+50155
+  Babioch
+    Karol Babioch
+      karol&babioch.de
+50156
+  Navigators Studentenverenging Enschede
+    Daniël van de Giessen
+      daniel&nsenschede.nl
+50157
+  fouss
+    Sébastien Fouss
+      sebastien&fouss.be
+50158
+  City of Burnsville
+    Ryan Huss
+      ryan.huss&burnsvillemn.gov
+50159
+  Monro Muffler Brake Inc.
+    Mark Kraska
+      mark.kraska&monro.com
+50160
+  YUASA-NET
+    Toru Yuasa
+      cert_contact&yuasa.org
+50161
+  it-pro-berlin.de
+    Evgenij Smirnov
+      es&it-pro-berlin.de
+50162
+  Sweet Hub
+    Yanwen Sun
+      sunyanwen&steadysweet.com
+50163
+  Hartmut Eilers
+    Hartmut Eilers
+      hartmut&eilers.net
+50164
+  STATUS INTERNET CO., LTD
+    Nick Chang
+      Nickchang&status.com.tw
+50165
+  IPN Solutions GmbH & Co. KG
+    Daniel Glaser
+      info&ipn-solutions.com
+50166
+  Aviall Services, Inc.
+    Lesli Hust
+      Netops&aviall.com
+50167
+  NGP VAN, Inc
+    Louis Levine
+      it&ngpvan.com
+50168
+  Aaltronav
+    ICT Manager
+      hostmaster&aaltronav.eu
+50169
+  Industrielle Alliance
+    Olivier Van Uytvanck
+      olivier.vanuytvanck&ia.ca
+50170
+  Price International Ltd
+    Martin Kokalov
+      support&callflowlab.com
+50171
+  ICON Multimedia, S.L.
+    Rafael Hornos
+      rhornos&iconmm.com
+50172
+  ifm syntron gmbh
+    Andreas Gebhard
+      andreas.gebhard&ifm.com
+50173
+  DOMINAE Srl Unipersonale
+    Alessandro Bressan
+      info&dominae.com
+50174
+  Beekeeper Technology
+    Jonathan Steinert
+      iana&beekeeper.technology
+50175
+  The Department for Work and Pensions
+    Phil Raynor
+      phil.raynor&dwp.gsi.gov.uk
+50176
+  Mark H. Zangmeister Center
+    Dewana Frazier
+      mstromer&zangcenter.com
+50177
+  Nextiva
+    Ralph Goers
+      rgoers&nextiva.com
+50178
+  FLR Services Ltd
+    Lewis Richards
+      flr_ots&hotmail.com
+50179
+  Ocean Technical Systems
+    Lewis Richards
+      lrichards&oceantechsys.co.uk
+50180
+  MiaRec, Inc.
+    Gennadiy Bezkorovayniy
+      gb&miarec.com
+50181
+  pioto.org
+    Mike Kelly
+      pioto&pioto.org
+50182
+  Weibel Scientific A/S
+    Peter Adamsen
+      pa&weibel.dk
+50183
+  EIUS d.o.o.
+    Andrej Komelj
+      akomelj&gmail.com
+50184
+  Tech4Lyfe Co. Ltd
+    Nur Nadia Nabila Binti Mustakim
+      misenns&gmail.com
+50185
+  WH Gelsenkirchen FB Informatik
+    Volker Goerick
+      Volker.Goerick&w-hs.de
+50186
+  Vodafone UK
+    Lorraine Dryland
+      Lorraine.Dryland&vodafone.com
+50187
+  Pattern Recognition and Inteligent Systems Laboratory
+    Fransisco Siles
+      prislab.soporte&gmail.com
 
 
 End of Document
