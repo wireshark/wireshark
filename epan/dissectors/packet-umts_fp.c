@@ -62,7 +62,7 @@ void proto_reg_handoff_fp(void);
 
 int proto_fp = -1;
 extern int proto_umts_mac;
-extern int proto_rlc;
+extern int proto_umts_rlc;
 
 static int hf_fp_release = -1;
 static int hf_fp_release_version = -1;
@@ -2678,7 +2678,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint  total_bits = 0;
         gboolean dissected = FALSE;
 
-        rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
+        rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
         if (!rlcinf) {
             rlcinf = wmem_new0(wmem_packet_scope(), rlc_info);
         }
@@ -3233,7 +3233,7 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         rlc_info *rlcinf;
         guint32 user_identity;
 
-        rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
+        rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
         if (!rlcinf) {
             rlcinf = wmem_new0(wmem_packet_scope(), rlc_info);
         }
@@ -3448,7 +3448,7 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         rlc_info *rlcinf;
         guint32 user_identity;
 
-        rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
+        rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
         if (!rlcinf) {
             rlcinf = wmem_new0(wmem_packet_scope(), rlc_info);
         }
@@ -3703,7 +3703,7 @@ void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
         umts_mac_info *macinf;
         rlc_info *rlcinf;
 
-        rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
+        rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
         if (!rlcinf) {
             rlcinf = wmem_new0(wmem_packet_scope(), rlc_info);
         }
@@ -5074,7 +5074,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
             rlcinf->li_size[0] = RLC_LI_7BITS;
             rlcinf->ciphered[0] = FALSE;
             rlcinf->deciphered[0] = FALSE;
-            p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0, rlcinf);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0, rlcinf);
 
 
             return fpi;
@@ -5103,7 +5103,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
             rlcinf->deciphered[0] = FALSE;
 
             p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, macinf);
-            p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0, rlcinf);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0, rlcinf);
 
             return fpi;
 
@@ -5211,7 +5211,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                 offset++;
             }
             p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, macinf);
-            p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0, rlcinf);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0, rlcinf);
             /* Set offset to point to first TFI */
             offset = 2;
             break;
@@ -5244,7 +5244,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
             rlcinf->li_size[0] = RLC_LI_7BITS;
             rlcinf->ciphered[0] = FALSE;
             rlcinf->deciphered[0] = FALSE;
-            p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0, rlcinf);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0, rlcinf);
             break;
 
         case CHANNEL_RACH_FDD:
@@ -5271,13 +5271,13 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                 rlcinf->urnti[chan] = fpi->com_context_id;    /*Note: For DCCH, MAC dissector will override this with C-RNTI/U-RNTI*/
             }
             p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, macinf);
-            p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0, rlcinf);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0, rlcinf);
             break;
         case CHANNEL_HSDSCH_COMMON:
             rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
             macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
             p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, macinf);
-            p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0, rlcinf);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0, rlcinf);
             break;
         default:
             expert_add_info(pinfo, NULL, &ei_fp_transport_channel_type_unknown);

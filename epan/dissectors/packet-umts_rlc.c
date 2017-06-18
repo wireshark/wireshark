@@ -48,7 +48,7 @@
 void proto_register_rlc(void);
 void proto_reg_handoff_rlc(void);
 
-int proto_rlc = -1;
+int proto_umts_rlc = -1;
 
 extern int proto_fp;
 
@@ -351,7 +351,7 @@ rlc_channel_assign(struct rlc_channel *ch, enum rlc_mode mode, packet_info *pinf
     fp_info         *fpinf;
 
     fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
-    rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
+    rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
     if (!fpinf || !rlcinf) return -1;
 
     if (rlcinf->urnti[fpinf->cur_tb]) {
@@ -1596,7 +1596,7 @@ dissect_rlc_tm(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     rlc_info      *rlcinf;
 
     fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
-    rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
+    rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
 
     if (tree) {
         if (fpinf && rlcinf) {
@@ -1845,7 +1845,7 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     seq = next_byte >> 1;
 
     fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
-    rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
+    rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
 
     if (tree) {
         if (fpinf && rlcinf) {
@@ -2244,7 +2244,7 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     guint64        polling;
 
     fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
-    rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
+    rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
 
     next_byte = tvb_get_guint8(tvb, offs++);
     dc = next_byte >> 7;
@@ -2356,7 +2356,7 @@ dissect_rlc_pcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     /* PCCH is always RLC TM */
     if (tree) {
         proto_item *ti;
-        ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_NA);
+        ti = proto_tree_add_item(tree, proto_umts_rlc, tvb, 0, -1, ENC_NA);
         subtree = proto_item_add_subtree(ti, ett_rlc);
         proto_item_append_text(ti, " TM (PCCH)");
     }
@@ -2378,7 +2378,7 @@ dissect_rlc_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     if (!fpi) return 0; /* dissection failure */
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_NA);
+        ti = proto_tree_add_item(tree, proto_umts_rlc, tvb, 0, -1, ENC_NA);
         subtree = proto_item_add_subtree(ti, ett_rlc);
     }
     proto_item_append_text(ti, " TM (BCCH)");
@@ -2401,7 +2401,7 @@ dissect_rlc_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     if (!fpi) return 0; /* dissection failure */
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_NA);
+        ti = proto_tree_add_item(tree, proto_umts_rlc, tvb, 0, -1, ENC_NA);
         subtree = proto_item_add_subtree(ti, ett_rlc);
     }
 
@@ -2432,7 +2432,7 @@ dissect_rlc_ctch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void  *dat
     if (!fpi) return 0; /* dissection failure */
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_NA);
+        ti = proto_tree_add_item(tree, proto_umts_rlc, tvb, 0, -1, ENC_NA);
         subtree = proto_item_add_subtree(ti, ett_rlc);
     }
 
@@ -2456,7 +2456,7 @@ dissect_rlc_dcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     col_clear(pinfo->cinfo, COL_INFO);
 
     fpi = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
-    rlci = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
+    rlci = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
 
     if (!fpi || !rlci){
         proto_tree_add_expert(tree, pinfo, &ei_rlc_no_per_frame_data, tvb, 0, -1);
@@ -2464,7 +2464,7 @@ dissect_rlc_dcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     }
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_NA);
+        ti = proto_tree_add_item(tree, proto_umts_rlc, tvb, 0, -1, ENC_NA);
         subtree = proto_item_add_subtree(ti, ett_rlc);
     }
 
@@ -2496,7 +2496,7 @@ dissect_rlc_ps_dtch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     col_clear(pinfo->cinfo, COL_INFO);
 
     fpi  = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
-    rlci = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
+    rlci = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
 
     if (!fpi || !rlci) {
         proto_tree_add_expert(tree, pinfo, &ei_rlc_no_per_frame_data, tvb, 0, -1);
@@ -2504,7 +2504,7 @@ dissect_rlc_ps_dtch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     }
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_NA);
+        ti = proto_tree_add_item(tree, proto_umts_rlc, tvb, 0, -1, ENC_NA);
         subtree = proto_item_add_subtree(ti, ett_rlc);
     }
 
@@ -2538,12 +2538,12 @@ dissect_rlc_dch_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     col_clear(pinfo->cinfo, COL_INFO);
 
     fpi = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
-    rlci = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
+    rlci = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
 
     if (!fpi || !rlci) return 0;
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_NA);
+        ti = proto_tree_add_item(tree, proto_umts_rlc, tvb, 0, -1, ENC_NA);
         subtree = proto_item_add_subtree(ti, ett_rlc);
     }
 
@@ -2608,7 +2608,7 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     } else {
         fpInfoAlreadySet = TRUE;
     }
-    rlci = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
+    rlci = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
     if (rlci == NULL) {
         /* Allocate new info struct for this frame */
         rlci = (rlc_info *)wmem_alloc0(wmem_file_scope(), sizeof(rlc_info));
@@ -2672,7 +2672,7 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         p_add_proto_data(wmem_file_scope(), pinfo, proto_fp, 0, fpi);
     }
     if (!rlcInfoAlreadySet) {
-        p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0, rlci);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0, rlci);
     }
 
     /**************************************/
@@ -2687,7 +2687,7 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             col_clear(pinfo->cinfo, COL_INFO);
 
             if (tree) {
-                ti = proto_tree_add_item(tree, proto_rlc, rlc_tvb, 0, -1, ENC_NA);
+                ti = proto_tree_add_item(tree, proto_umts_rlc, rlc_tvb, 0, -1, ENC_NA);
                 subtree = proto_item_add_subtree(ti, ett_rlc);
             }
 
@@ -2738,7 +2738,7 @@ rlc_is_ciphered(packet_info * pinfo){
     }
 
     fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
-    rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
+    rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
 
     return ((rlcinf && fpinf && (rlcinf->ciphered[fpinf->cur_tb] == TRUE) && (rlcinf->deciphered[fpinf->cur_tb] == FALSE))
             || global_rlc_ciphered);
@@ -2951,22 +2951,22 @@ proto_register_rlc(void)
         { &ei_rlc_incomplete_sequence, { "rlc.incomplete_sequence", PI_MALFORMED, PI_ERROR, "Error: Incomplete sequence", EXPFILL }},
     };
 
-    proto_rlc = proto_register_protocol("Radio Link Control", "RLC", "rlc");
-    register_dissector("rlc.bcch",        dissect_rlc_bcch,        proto_rlc);
-    register_dissector("rlc.pcch",        dissect_rlc_pcch,        proto_rlc);
-    register_dissector("rlc.ccch",        dissect_rlc_ccch,        proto_rlc);
-    register_dissector("rlc.ctch",        dissect_rlc_ctch,        proto_rlc);
-    register_dissector("rlc.dcch",        dissect_rlc_dcch,        proto_rlc);
-    register_dissector("rlc.ps_dtch",     dissect_rlc_ps_dtch,     proto_rlc);
-    register_dissector("rlc.dch_unknown", dissect_rlc_dch_unknown, proto_rlc);
+    proto_umts_rlc = proto_register_protocol("Radio Link Control", "RLC", "rlc");
+    register_dissector("rlc.bcch",        dissect_rlc_bcch,        proto_umts_rlc);
+    register_dissector("rlc.pcch",        dissect_rlc_pcch,        proto_umts_rlc);
+    register_dissector("rlc.ccch",        dissect_rlc_ccch,        proto_umts_rlc);
+    register_dissector("rlc.ctch",        dissect_rlc_ctch,        proto_umts_rlc);
+    register_dissector("rlc.dcch",        dissect_rlc_dcch,        proto_umts_rlc);
+    register_dissector("rlc.ps_dtch",     dissect_rlc_ps_dtch,     proto_umts_rlc);
+    register_dissector("rlc.dch_unknown", dissect_rlc_dch_unknown, proto_umts_rlc);
 
-    proto_register_field_array(proto_rlc, hf, array_length(hf));
+    proto_register_field_array(proto_umts_rlc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    expert_rlc = expert_register_protocol(proto_rlc);
+    expert_rlc = expert_register_protocol(proto_umts_rlc);
     expert_register_field_array(expert_rlc, ei, array_length(ei));
 
     /* Preferences */
-    rlc_module = prefs_register_protocol(proto_rlc, NULL);
+    rlc_module = prefs_register_protocol(proto_umts_rlc, NULL);
 
     prefs_register_obsolete_preference(rlc_module, "heuristic_rlc_over_udp");
 
@@ -3008,11 +3008,11 @@ proto_register_rlc(void)
 void
 proto_reg_handoff_rlc(void)
 {
-    rrc_handle = find_dissector_add_dependency("rrc", proto_rlc);
-    ip_handle  = find_dissector_add_dependency("ip", proto_rlc);
-    bmc_handle = find_dissector_add_dependency("bmc", proto_rlc);
+    rrc_handle = find_dissector_add_dependency("rrc", proto_umts_rlc);
+    ip_handle  = find_dissector_add_dependency("ip", proto_umts_rlc);
+    bmc_handle = find_dissector_add_dependency("bmc", proto_umts_rlc);
     /* Add as a heuristic UDP dissector */
-    heur_dissector_add("udp", dissect_rlc_heur, "RLC over UDP", "rlc_udp", proto_rlc, HEURISTIC_DISABLE);
+    heur_dissector_add("udp", dissect_rlc_heur, "RLC over UDP", "rlc_udp", proto_umts_rlc, HEURISTIC_DISABLE);
 }
 
 /*

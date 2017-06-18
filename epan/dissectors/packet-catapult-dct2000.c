@@ -283,7 +283,7 @@ static const value_string lte_nas_rrc_opcode_vals[] = {
 #define MAX_OUTHDR_VALUES 32
 
 extern int proto_fp;
-extern int proto_rlc;
+extern int proto_umts_rlc;
 
 extern int proto_rlc_lte;
 extern int proto_pdcp_lte;
@@ -1679,7 +1679,7 @@ static void attach_rlc_info(packet_info *pinfo, guint32 urnti, guint8 rbid,
 {
     /* Only need to set info once per session. */
     struct fp_info  *p_fp_info;
-    struct rlc_info *p_rlc_info = (struct rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
+    struct rlc_info *p_rlc_info = (struct rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
 
     if (p_rlc_info != NULL) {
         return;
@@ -1735,7 +1735,7 @@ static void attach_rlc_info(packet_info *pinfo, guint32 urnti, guint8 rbid,
     p_rlc_info->li_size[0] = (enum rlc_li_size)outhdr_values[0];
 
     /* Store info in packet */
-    p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0, p_rlc_info);
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0, p_rlc_info);
 
     /* Also store minimal FP info consulted by RLC dissector
        TODO: Don't really know direction, but use S/R flag to make

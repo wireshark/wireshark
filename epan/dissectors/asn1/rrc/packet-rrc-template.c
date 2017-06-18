@@ -61,7 +61,7 @@
 
 extern int proto_fp;       /*Handler to FP*/
 extern int proto_umts_mac; /*Handler to MAC*/
-extern int proto_rlc;      /*Handler to RLC*/
+extern int proto_umts_rlc; /*Handler to RLC*/
 
 GTree * hsdsch_muxed_flows = NULL;
 GTree * rrc_ciph_inf = NULL;

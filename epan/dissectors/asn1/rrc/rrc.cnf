@@ -825,7 +825,7 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
   /* Trying to figure where to get the U-RNTI from Either from an ASN.1 field (if this is CCCH) or RLC's attached info (if this is DCCH) */
   fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
   macinf = (umts_mac_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_umts_mac, 0);
-  rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_rlc, 0);
+  rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_umts_rlc, 0);
   if (fpinf && macinf && rlcinf) {
     switch(macinf->content[fpinf->cur_tb]){
       case MAC_DCCH:

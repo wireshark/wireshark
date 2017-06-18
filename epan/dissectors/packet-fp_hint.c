@@ -37,7 +37,7 @@ void proto_reg_handoff_fp_hint(void);
 static int proto_fp_hint = -1;
 extern int proto_fp;
 extern int proto_umts_mac;
-extern int proto_rlc;
+extern int proto_umts_rlc;
 
 static int ett_fph = -1;
 static int ett_fph_rb = -1;
@@ -154,14 +154,14 @@ static guint16 assign_rb_info(tvbuff_t *tvb, packet_info *pinfo, guint16 offset,
     struct rlc_info *rlcinf;
 
     macinf = (umts_mac_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0);
-    rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
+    rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
     if (!macinf) {
         macinf = wmem_new0(wmem_file_scope(), struct umts_mac_info);
         p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, macinf);
     }
     if (!rlcinf) {
         rlcinf = wmem_new0(wmem_file_scope(), struct rlc_info);
-        p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0, rlcinf);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0, rlcinf);
     }
 
     while (i < rbcnt) {
