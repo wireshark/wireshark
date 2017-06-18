@@ -744,6 +744,45 @@ static int adb_send(socket_handle_t sock, const char *adb_service) {
     return EXIT_CODE_SUCCESS;
 }
 
+
+static socket_handle_t
+adb_connect_transport(const char *server_ip, unsigned short *server_tcp_port,
+                      const char* serial_number)
+{
+    static const char *const adb_transport_serial_templace = "%04lx""host:transport:%s";
+    static const char *const adb_transport_any  = "0012""host:transport-any";
+    char transport_buf[80];
+    const char* transport = transport_buf;
+    socket_handle_t sock;
+    gssize result;
+
+    sock = adb_connect(server_ip, server_tcp_port);
+    if (sock == INVALID_SOCKET) {
+        g_warning("Error while connecting to adb server");
+        return sock;
+    }
+
+    if (!serial_number) {
+        transport = adb_transport_any;
+    } else {
+        result = g_snprintf(transport_buf, sizeof(transport_buf), adb_transport_serial_templace, 15 + strlen(serial_number), serial_number);
+        if (result <= 0 || result > (int)sizeof(transport_buf)) {
+            g_warning("Error while completing adb packet for transport");
+            closesocket(sock);
+            return INVALID_SOCKET;
+        }
+    }
+
+    result = adb_send(sock, transport);
+    if (result) {
+        g_warning("Error while setting adb transport for <%s>", transport_buf);
+        closesocket(sock);
+        return INVALID_SOCKET;
+    }
+    return sock;
+}
+
+
 static void new_interface(extcap_parameters * extcap_conf, const gchar *interface_id,
         const gchar *model_name, const gchar *serial_number, const gchar *display_name)
 {
@@ -776,12 +815,12 @@ static void new_interface(extcap_parameters * extcap_conf, const gchar *interfac
 static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_server_ip, unsigned short *adb_server_tcp_port) {
     static char            packet[PACKET_LENGTH];
     static char            helpful_packet[PACKET_LENGTH];
+    char                   check_port_buf[80];
     char                  *response;
     char                  *device_list;
     gssize                 data_length;
     size_t                 device_length;
     socket_handle_t        sock;
-    const char            *adb_transport_serial_templace = "%04x""host:transport:%s";
     const char            *adb_check_port_templace       = "%04x""shell:cat /proc/%s/net/tcp";
     const char            *adb_devices            = "000E""host:devices-l";
     const char            *adb_api_level          = "0022""shell:getprop ro.build.version.sdk";
@@ -791,7 +830,6 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
     const char            *adb_ps_with_grep       = "0025""shell:ps | grep com.android.bluetooth";
     const char            *adb_tcpdump_help       = "0010""shell:tcpdump -h";
     char                   serial_number[SERIAL_NUMBER_LENGTH_MAX];
-    size_t                 serial_number_length;
     char                   model_name[MODEL_NAME_LENGTH_MAX];
     int                    result;
     char                  *pos;
@@ -833,7 +871,6 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
         }
         memcpy(serial_number, prev_pos, result);
         serial_number[result] = '\0';
-        serial_number_length = strlen(serial_number);
 
         model_name[0] = '\0';
         model_pos = g_strstr_len(i_pos, pos - i_pos, "model:");
@@ -852,52 +889,25 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
 
         /* Check for the presence of tcpdump in the android device. */
 
-        sock = adb_connect(adb_server_ip, adb_server_tcp_port);
+        sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
         if (sock == INVALID_SOCKET) continue;
 
-        result = g_snprintf((char *) helpful_packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
-        if (result <= 0 || result > PACKET_LENGTH) {
-            g_warning("Error while completing adb packet for transport");
-            closesocket(sock);
-            return EXIT_CODE_BAD_SIZE_OF_ASSEMBLED_ADB_PACKET_1;
-        }
+        response = adb_send_and_read(sock, adb_tcpdump_help, helpful_packet, sizeof(helpful_packet), &data_length);
+        closesocket(sock);
 
-        result = adb_send(sock, helpful_packet);
-        if (result) {
-            g_warning("Error while setting adb transport for <%s>", helpful_packet);
-            closesocket(sock);
-        } else {
-            response = adb_send_and_read(sock, adb_tcpdump_help, helpful_packet, sizeof(helpful_packet), &data_length);
-            closesocket(sock);
+        if (response) {
+            response[data_length] = '\0';
 
-            if (response) {
-                response[data_length] = '\0';
-
-                /* If tcpdump is found in the android device, add Android Wifi Tcpdump as an interface  */
-                if (strstr(response,"tcpdump version")) {
-                    new_interface(extcap_conf, INTERFACE_ANDROID_WIFI_TCPDUMP, model_name, serial_number, "Android WiFi");
-                }
-            } else {
-                g_warning("Error on socket: <%s>", helpful_packet);
+            /* If tcpdump is found in the android device, add Android Wifi Tcpdump as an interface  */
+            if (strstr(response,"tcpdump version")) {
+                new_interface(extcap_conf, INTERFACE_ANDROID_WIFI_TCPDUMP, model_name, serial_number, "Android WiFi");
             }
+        } else {
+            g_warning("Error on socket: <%s>", adb_tcpdump_help);
         }
 
-        sock = adb_connect(adb_server_ip, adb_server_tcp_port);
+        sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
         if (sock == INVALID_SOCKET) continue;
-
-        result = g_snprintf((char *) helpful_packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
-        if (result <= 0 || result > PACKET_LENGTH) {
-            g_warning("Error while completing adb packet");
-            closesocket(sock);
-            return EXIT_CODE_BAD_SIZE_OF_ASSEMBLED_ADB_PACKET_2;
-        }
-
-        result = adb_send(sock, helpful_packet);
-        if (result) {
-            g_warning("Error while setting adb transport for <%s>", helpful_packet);
-            closesocket(sock);
-            continue;
-        }
 
         response = adb_send_and_read(sock, adb_api_level, helpful_packet, sizeof(helpful_packet), &data_length);
         closesocket(sock);
@@ -932,25 +942,12 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
         if (api_level >= 5 && api_level < 17) {
             disable_interface = 0;
 
-            sock = adb_connect(adb_server_ip, adb_server_tcp_port);
+            sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
             if (sock == INVALID_SOCKET) continue;
-
-            result = g_snprintf((char *) helpful_packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
-            if (result <= 0 || result > PACKET_LENGTH) {
-                g_warning("Error while completing adb packet");
-                closesocket(sock);
-                return EXIT_CODE_BAD_SIZE_OF_ASSEMBLED_ADB_PACKET_3;
-            }
-
-            result = adb_send(sock, helpful_packet);
-            if (result) {
-                g_warning("Error while setting adb transport for <%s>", helpful_packet);
-                closesocket(sock);
-                return EXIT_CODE_GENERIC;
-            }
 
             response = adb_send_and_read(sock, adb_hcidump_version, helpful_packet, sizeof(helpful_packet), &data_length);
             closesocket(sock);
+
             if (!response || data_length < 1) {
                 g_warning("Error while getting hcidump version by <%s> (%p len=%"G_GSSIZE_FORMAT")",
                     adb_hcidump_version, (void*)response, data_length);
@@ -974,22 +971,8 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
 
         if (api_level >= 17 && api_level < 21) {
             disable_interface = 0;
-            sock = adb_connect(adb_server_ip, adb_server_tcp_port);
+            sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
             if (sock == INVALID_SOCKET) continue;
-
-            result = g_snprintf((char *) helpful_packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
-            if (result <= 0 || result > PACKET_LENGTH) {
-                g_warning("Error while completing adb packet");
-                closesocket(sock);
-                return EXIT_CODE_BAD_SIZE_OF_ASSEMBLED_ADB_PACKET_4;
-            }
-
-            result = adb_send(sock, helpful_packet);
-            if (result) {
-                g_warning("Error while setting adb transport for <%s>", helpful_packet);
-                closesocket(sock);
-                return EXIT_CODE_GENERIC;
-            }
 
             response = adb_send_and_read(sock, adb_ps_droid_bluetooth, helpful_packet, sizeof(helpful_packet), &data_length);
             closesocket(sock);
@@ -1009,32 +992,16 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
                 if (data_str && sscanf(data_str, "%*s %s", pid) == 1) {
                     g_debug("Android Bluetooth application PID for %s is %s", serial_number, pid);
 
-                    sock = adb_connect(adb_server_ip, adb_server_tcp_port);
-                    if (sock == INVALID_SOCKET)
-                        return EXIT_CODE_INVALID_SOCKET_1;
-
-                    result = g_snprintf((char *) helpful_packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
-                    if (result <= 0 || result > PACKET_LENGTH) {
+                    result = g_snprintf(check_port_buf, sizeof(check_port_buf), adb_check_port_templace, strlen(adb_check_port_templace) - 6 + strlen(pid), pid);
+                    if (result <= 0 || result > (int)sizeof(check_port_buf)) {
                         g_warning("Error while completing adb packet");
-                        closesocket(sock);
-                        return EXIT_CODE_BAD_SIZE_OF_ASSEMBLED_ADB_PACKET_5;
-                    }
-
-                    result = adb_send(sock, helpful_packet);
-                    if (result) {
-                        g_warning("Error while setting adb transport for <%s>", helpful_packet);
-                        closesocket(sock);
-                        return EXIT_CODE_GENERIC;
-                    }
-
-                    result = g_snprintf((char *) helpful_packet, PACKET_LENGTH, adb_check_port_templace, strlen(adb_check_port_templace) - 6 + strlen(pid), pid);
-                    if (result <= 0 || result > PACKET_LENGTH) {
-                        g_warning("Error while completing adb packet");
-                        closesocket(sock);
                         return EXIT_CODE_BAD_SIZE_OF_ASSEMBLED_ADB_PACKET_6;
                     }
 
-                    response = adb_send_and_read(sock, helpful_packet, helpful_packet, sizeof(helpful_packet), &data_length);
+                    sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
+                    if (sock == INVALID_SOCKET) continue;
+
+                    response = adb_send_and_read(sock, check_port_buf, helpful_packet, sizeof(helpful_packet), &data_length);
                     closesocket(sock);
 
                     if (!response) {
@@ -1062,31 +1029,22 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
         }
 
         if (api_level >= 21) {
+            const char* ps_cmd;
             disable_interface = 0;
-            sock = adb_connect(adb_server_ip, adb_server_tcp_port);
-            if (sock == INVALID_SOCKET) continue;
-
-            result = g_snprintf((char *) helpful_packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
-            if (result <= 0 || result > PACKET_LENGTH) {
-                g_warning("Error while completing adb packet");
-                closesocket(sock);
-                return EXIT_CODE_BAD_SIZE_OF_ASSEMBLED_ADB_PACKET_7;
-            }
-
-            result = adb_send(sock, helpful_packet);
-            if (result) {
-                g_warning("Error while setting adb transport for <%s>", helpful_packet);
-                closesocket(sock);
-                return EXIT_CODE_GENERIC;
-            }
 
             if (api_level >= 24) {
-                response = adb_send_and_read(sock, adb_ps_with_grep, helpful_packet, sizeof(helpful_packet), &data_length);
+                ps_cmd = adb_ps_with_grep;
             } else if (api_level >= 23) {
-                response = adb_send_and_read(sock, adb_ps_bluetooth_app, helpful_packet, sizeof(helpful_packet), &data_length);
-            }  else
-                response = adb_send_and_read(sock, adb_ps_droid_bluetooth, helpful_packet, sizeof(helpful_packet), &data_length);
+                ps_cmd = adb_ps_bluetooth_app;
+            }  else {
+                ps_cmd = adb_ps_droid_bluetooth;
+            }
+            sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
+            if (sock == INVALID_SOCKET) continue;
+
+            response = adb_send_and_read(sock, ps_cmd, helpful_packet, sizeof(helpful_packet), &data_length);
             closesocket(sock);
+
             if (!response || data_length < 1) {
                 g_warning("Error while getting Bluetooth application process id by <%s> "
                     "(%p len=%"G_GSSIZE_FORMAT")", adb_hcidump_version, (void*)response, data_length);
@@ -1107,32 +1065,16 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
                 if (data_str && sscanf(data_str, "%*s %s", pid) == 1) {
                     g_debug("Android Bluetooth application PID for %s is %s", serial_number, pid);
 
-                    sock = adb_connect(adb_server_ip, adb_server_tcp_port);
-                    if (sock == INVALID_SOCKET)
-                        return EXIT_CODE_INVALID_SOCKET_2;
-
-                    result = g_snprintf((char *) helpful_packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
-                    if (result <= 0 || result > PACKET_LENGTH) {
+                    result = g_snprintf(check_port_buf, sizeof(check_port_buf), adb_check_port_templace, strlen(adb_check_port_templace) - 6 + strlen(pid), pid);
+                    if (result <= 0 || result > (int)sizeof(check_port_buf)) {
                         g_warning("Error while completing adb packet");
-                        closesocket(sock);
-                        return EXIT_CODE_BAD_SIZE_OF_ASSEMBLED_ADB_PACKET_8;
-                    }
-
-                    result = adb_send(sock, helpful_packet);
-                    if (result) {
-                        g_warning("Error while setting adb transport for <%s>", helpful_packet);
-                        closesocket(sock);
-                        return EXIT_CODE_GENERIC;
-                    }
-
-                    result = g_snprintf((char *) helpful_packet, PACKET_LENGTH, adb_check_port_templace, strlen(adb_check_port_templace) - 6 + strlen(pid), pid);
-                    if (result <= 0 || result > PACKET_LENGTH) {
-                        g_warning("Error while completing adb packet");
-                        closesocket(sock);
                         return EXIT_CODE_BAD_SIZE_OF_ASSEMBLED_ADB_PACKET_9;
                     }
 
-                    response = adb_send_and_read(sock, helpful_packet, helpful_packet, sizeof(helpful_packet), &data_length);
+                    sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
+                    if (sock == INVALID_SOCKET) continue;
+
+                    response = adb_send_and_read(sock, ps_cmd, check_port_buf, sizeof(helpful_packet), &data_length);
                     closesocket(sock);
 
                     if (!response) {
@@ -1222,17 +1164,13 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
     struct extcap_dumper           extcap_dumper;
     static char                    data[PACKET_LENGTH];
     static char                    packet[PACKET_LENGTH];
-    static char                    helpful_packet[PACKET_LENGTH];
     gssize                         length;
     gssize                         used_buffer_length = 0;
     socket_handle_t                sock = INVALID_SOCKET;
-    const char                    *adb_transport  = "0012""host:transport-any";
-    const char                    *adb_transport_serial_templace = "%04x""host:transport:%s";
     const char                    *adb_shell_hcidump = "0013""shell:hcidump -R -t";
     const char                    *adb_shell_su_hcidump = "0019""shell:su -c hcidump -R -t";
     int                            result;
     char                          *serial_number = NULL;
-    size_t                         serial_number_length = 0;
     time_t                         ts = 0;
     unsigned int                   captured_length;
     gint64                         hex;
@@ -1249,38 +1187,14 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
 
     extcap_dumper = extcap_dumper_open(fifo, EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR);
 
-    sock = adb_connect(adb_server_ip, adb_server_tcp_port);
-    if (sock == INVALID_SOCKET)
-        return EXIT_CODE_INVALID_SOCKET_3;
-
     if (is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_HCIDUMP) &&
             strlen(interface) > strlen(INTERFACE_ANDROID_BLUETOOTH_HCIDUMP) + 1) {
         serial_number = interface + strlen(INTERFACE_ANDROID_BLUETOOTH_HCIDUMP) + 1;
-        serial_number_length = strlen(serial_number);
     }
 
-    if (!serial_number) {
-        result = adb_send(sock, adb_transport);
-        if (result) {
-            g_warning("Error while setting adb transport for <%s>", adb_transport);
-            closesocket(sock);
-            return EXIT_CODE_GENERIC;
-        }
-    } else {
-        result = g_snprintf((char *) helpful_packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
-        if (result <= 0 || result > PACKET_LENGTH) {
-            g_warning("Error while completing adb packet");
-            closesocket(sock);
-            return EXIT_CODE_BAD_SIZE_OF_ASSEMBLED_ADB_PACKET_10;
-        }
-
-        result = adb_send(sock, helpful_packet);
-        if (result) {
-            g_warning("Error while setting adb transport for <%s>", helpful_packet);
-            closesocket(sock);
-            return EXIT_CODE_GENERIC;
-        }
-    }
+    sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
+    if (sock == INVALID_SOCKET)
+        return EXIT_CODE_INVALID_SOCKET_3;
 
     result = adb_send(sock, adb_shell_hcidump);
     if (result) {
@@ -1342,23 +1256,9 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
     }
 
     if (sock == INVALID_SOCKET) {
-        sock = adb_connect(adb_server_ip, adb_server_tcp_port);
+        sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
         if (sock == INVALID_SOCKET)
             return EXIT_CODE_INVALID_SOCKET_4;
-
-        result = g_snprintf((char *) helpful_packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
-        if (result <= 0 || result > PACKET_LENGTH) {
-            g_warning("Error while completing adb packet");
-            closesocket(sock);
-            return EXIT_CODE_BAD_SIZE_OF_ASSEMBLED_ADB_PACKET_11;
-        }
-
-        result = adb_send(sock, helpful_packet);
-        if (result) {
-            g_warning("Error while setting adb transport for <%s>", helpful_packet);
-            closesocket(sock);
-            return EXIT_CODE_GENERIC;
-        }
 
         result = adb_send(sock, adb_shell_su_hcidump);
         if (result) {
@@ -1618,8 +1518,6 @@ static int capture_android_bluetooth_external_parser(char *interface,
     char                          *packet = buffer + BLUEDROID_TIMESTAMP_SIZE - sizeof(own_pcap_bluetooth_h4_header); /* skip timestamp (8 bytes) and reuse its space for header */
     own_pcap_bluetooth_h4_header  *h4_header;
     guint8                        *payload = packet + sizeof(own_pcap_bluetooth_h4_header);
-    const char                    *adb_transport  = "0012""host:transport-any";
-    const char                    *adb_transport_serial_templace              = "%04x""host:transport:%s";
     const char                    *adb_tcp_bluedroid_external_parser_template = "%04x""tcp:%05u";
     socklen_t                      slen;
     gssize                         length;
@@ -1629,7 +1527,6 @@ static int capture_android_bluetooth_external_parser(char *interface,
     struct sockaddr_in             server;
     int                            captured_length;
     char                          *serial_number = NULL;
-    size_t                         serial_number_length = 0;
     static unsigned int            id = 1;
     struct sockaddr_in             client;
 
@@ -1641,7 +1538,6 @@ static int capture_android_bluetooth_external_parser(char *interface,
     if (is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER) &&
             strlen(interface) > strlen(INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER) + 1) {
         serial_number = interface + strlen(INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER) + 1;
-        serial_number_length = strlen(serial_number);
     }
 
     if (bt_forward_socket) {
@@ -1691,32 +1587,9 @@ static int capture_android_bluetooth_external_parser(char *interface,
     } else {
         int  result;
 
-        sock = adb_connect(adb_server_ip, adb_server_tcp_port);
+        sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
         if (sock == INVALID_SOCKET)
             return EXIT_CODE_INVALID_SOCKET_6;
-
-        if (!serial_number) {
-            result = adb_send(sock, adb_transport);
-            if (result) {
-                g_warning("Error while setting adb transport");
-                closesocket(sock);
-                return EXIT_CODE_GENERIC;
-            }
-        } else {
-            result = g_snprintf((char *) buffer, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
-            if (result <= 0 || result > PACKET_LENGTH) {
-                g_warning("Error while completing adb packet");
-                closesocket(sock);
-                return EXIT_CODE_BAD_SIZE_OF_ASSEMBLED_ADB_PACKET_13;
-            }
-
-            result = adb_send(sock, buffer);
-            if (result) {
-                g_warning("Error while setting adb transport");
-                closesocket(sock);
-                return EXIT_CODE_GENERIC;
-            }
-        }
 
         result = g_snprintf((char *) buffer, PACKET_LENGTH, adb_tcp_bluedroid_external_parser_template, 4 + 5, *bt_server_tcp_port);
         if (result <= 0 || result > PACKET_LENGTH) {
@@ -1876,12 +1749,9 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
     gssize                         length;
     gssize                         used_buffer_length = 0;
     socket_handle_t                sock;
-    const char                    *adb_transport  = "0012""host:transport-any";
-    const char                    *adb_transport_serial_templace = "%04x""host:transport:%s";
     const char                    *adb_tcp_btsnoop_net   = "0008""tcp:8872";
     int                            result;
     char                          *serial_number = NULL;
-    size_t                         serial_number_length;
     uint64_t                       ts;
     static const uint64_t          BTSNOOP_TIMESTAMP_BASE = G_GUINT64_CONSTANT(0x00dcddb30f2f8000);
     uint32_t                      *reported_length;
@@ -1901,38 +1771,14 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
 
     extcap_dumper = extcap_dumper_open(fifo, EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR);
 
-    sock = adb_connect(adb_server_ip, adb_server_tcp_port);
-    if (sock == INVALID_SOCKET)
-        return EXIT_CODE_INVALID_SOCKET_7;
-
     if (is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET) &&
             strlen(interface) > strlen(INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET) + 1) {
         serial_number = interface + strlen(INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET) + 1;
-        serial_number_length = strlen(serial_number);
     }
 
-    if (!serial_number) {
-        result = adb_send(sock, adb_transport);
-        if (result) {
-            g_warning("Error while setting adb transport for <%s>", adb_transport);
-            closesocket(sock);
-            return EXIT_CODE_GENERIC;
-        }
-    } else {
-        result = g_snprintf((char *) packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
-        if (result <= 0 || result > PACKET_LENGTH) {
-            g_warning("Error while completing adb packet");
-            closesocket(sock);
-            return EXIT_CODE_BAD_SIZE_OF_ASSEMBLED_ADB_PACKET_15;
-        }
-
-        result = adb_send(sock, packet);
-        if (result) {
-            g_warning("Error while setting adb transport for <%s>", packet);
-            closesocket(sock);
-            return EXIT_CODE_GENERIC;
-        }
-    }
+    sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
+    if (sock == INVALID_SOCKET)
+        return EXIT_CODE_INVALID_SOCKET_7;
 
     result = adb_send(sock, adb_tcp_btsnoop_net);
     if (result) {
@@ -2034,11 +1880,8 @@ static int capture_android_logcat_text(char *interface, char *fifo,
     struct exported_pdu_header *exported_pdu_header_protocol;
     struct exported_pdu_header  exported_pdu_header_end = {0, 0};
     static const char          *wireshark_protocol_logcat_text = "logcat_text_threadtime";
-    const char                 *adb_transport = "0012""host:transport-any";
     const char                 *adb_logcat_template = "%04x""shell:export ANDROID_LOG_TAGS=\"\" ; exec logcat -v threadtime%s%s%s%s";
-    const char                 *adb_transport_serial_templace = "%04x""host:transport:%s";
     char                       *serial_number = NULL;
-    size_t                      serial_number_length = 0;
     int                         result;
     char                       *pos;
     const char                 *logcat_buffer;
@@ -2049,10 +1892,6 @@ static int capture_android_logcat_text(char *interface, char *fifo,
 
     exported_pdu_header_protocol_normal.tag = GUINT16_TO_BE(WIRESHARK_UPPER_PDU_TAG_DISSECTOR_NAME);
     exported_pdu_header_protocol_normal.length = GUINT16_TO_BE(strlen(wireshark_protocol_logcat_text) + 2);
-
-    sock = adb_connect(adb_server_ip, adb_server_tcp_port);
-    if (sock == INVALID_SOCKET)
-        return EXIT_CODE_INVALID_SOCKET_8;
 
     if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_MAIN) && strlen(interface) > strlen(INTERFACE_ANDROID_LOGCAT_MAIN) + 1) {
         serial_number = interface + strlen(INTERFACE_ANDROID_LOGCAT_MAIN) + 1;
@@ -2074,30 +1913,9 @@ static int capture_android_logcat_text(char *interface, char *fifo,
         serial_number = interface + strlen(INTERFACE_ANDROID_LOGCAT_TEXT_CRASH) + 1;
     }
 
-    if (!serial_number) {
-        result = adb_send(sock, adb_transport);
-        if (result) {
-            g_warning("Error while setting adb transport for <%s>", adb_transport);
-            closesocket(sock);
-            return EXIT_CODE_GENERIC;
-        }
-    } else {
-        serial_number_length = strlen(serial_number);
-
-        result = g_snprintf((char *) packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
-        if (result <= 0 || result > PACKET_LENGTH) {
-            g_warning("Error while completing adb packet");
-            closesocket(sock);
-            return EXIT_CODE_BAD_SIZE_OF_ASSEMBLED_ADB_PACKET_16;
-        }
-
-        result = adb_send(sock, packet);
-        if (result) {
-            g_warning("Error while setting adb transport for <%s>", packet);
-            closesocket(sock);
-            return EXIT_CODE_GENERIC;
-        }
-    }
+    sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
+    if (sock == INVALID_SOCKET)
+        return EXIT_CODE_INVALID_SOCKET_8;
 
     if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_MAIN) || is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_MAIN))
         logcat_buffer = " -b main";
@@ -2224,7 +2042,6 @@ static int capture_android_logcat(char *interface, char *fifo,
         const char *adb_server_ip, unsigned short *adb_server_tcp_port) {
     struct extcap_dumper        extcap_dumper;
     static char                 packet[PACKET_LENGTH];
-    static char                 helper_packet[PACKET_LENGTH];
     gssize                      length;
     size_t                      used_buffer_length = 0;
     socket_handle_t             sock;
@@ -2236,12 +2053,10 @@ static int capture_android_logcat(char *interface, char *fifo,
     struct exported_pdu_header  exported_pdu_header_end = {0, 0};
     static const char          *wireshark_protocol_logcat = "logcat";
     static const char          *wireshark_protocol_logcat_events = "logcat_events";
-    const char                 *adb_transport  = "0012""host:transport-any";
     const char                 *adb_log_main   = "0008""log:main";
     const char                 *adb_log_system = "000A""log:system";
     const char                 *adb_log_radio  = "0009""log:radio";
     const char                 *adb_log_events = "000A""log:events";
-    const char                 *adb_transport_serial_templace = "%04x""host:transport:%s";
     const char                 *adb_command;
     uint16_t                   *payload_length;
     uint16_t                   *try_header_size;
@@ -2250,7 +2065,6 @@ static int capture_android_logcat(char *interface, char *fifo,
     uint16_t                    header_size;
     int                         result;
     char                       *serial_number = NULL;
-    size_t                      serial_number_length = 0;
 
     extcap_dumper = extcap_dumper_open(fifo, EXTCAP_ENCAP_WIRESHARK_UPPER_PDU);
 
@@ -2259,10 +2073,6 @@ static int capture_android_logcat(char *interface, char *fifo,
 
     exported_pdu_header_protocol_normal.tag = GUINT16_TO_BE(WIRESHARK_UPPER_PDU_TAG_DISSECTOR_NAME);
     exported_pdu_header_protocol_normal.length = GUINT16_TO_BE(strlen(wireshark_protocol_logcat) + 2);
-
-    sock = adb_connect(adb_server_ip, adb_server_tcp_port);
-    if (sock == INVALID_SOCKET)
-        return EXIT_CODE_INVALID_SOCKET_9;
 
     if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_MAIN) && strlen(interface) > strlen(INTERFACE_ANDROID_LOGCAT_MAIN) + 1) {
         serial_number = interface + strlen(INTERFACE_ANDROID_LOGCAT_MAIN) + 1;
@@ -2274,30 +2084,9 @@ static int capture_android_logcat(char *interface, char *fifo,
         serial_number = interface + strlen(INTERFACE_ANDROID_LOGCAT_EVENTS) + 1;
     }
 
-    if (!serial_number) {
-        result = adb_send(sock, adb_transport);
-        if (result) {
-            g_warning("Error while setting adb transport");
-            closesocket(sock);
-            return EXIT_CODE_GENERIC;
-        }
-    } else {
-        serial_number_length = strlen(serial_number);
-
-        result = g_snprintf(packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
-        if (result <= 0 || result > PACKET_LENGTH) {
-            g_warning("Error while completing adb packet");
-            closesocket(sock);
-            return EXIT_CODE_BAD_SIZE_OF_ASSEMBLED_ADB_PACKET_18;
-        }
-
-        result = adb_send(sock, packet);
-        if (result) {
-            g_warning("Error while setting adb transport");
-            closesocket(sock);
-            return EXIT_CODE_GENERIC;
-        }
-    }
+    sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
+    if (sock == INVALID_SOCKET)
+        return EXIT_CODE_INVALID_SOCKET_9;
 
     if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_MAIN))
         adb_command = adb_log_main;
@@ -2368,32 +2157,9 @@ static int capture_android_logcat(char *interface, char *fifo,
                 used_buffer_length = 0;
                 closesocket(sock);
 
-                sock = adb_connect(adb_server_ip, adb_server_tcp_port);
+                sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
                 if (sock == INVALID_SOCKET)
                     return EXIT_CODE_INVALID_SOCKET_10;
-
-                if (!serial_number) {
-                    result = adb_send(sock, adb_transport);
-                    if (result) {
-                        g_warning("Error while setting adb transport for <%s>", adb_transport);
-                        closesocket(sock);
-                        return EXIT_CODE_GENERIC;
-                    }
-                } else {
-                    result = g_snprintf((char *) helper_packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
-                    if (result <= 0 || result > PACKET_LENGTH) {
-                        g_warning("Error while completing adb packet");
-                        closesocket(sock);
-                        return EXIT_CODE_BAD_SIZE_OF_ASSEMBLED_ADB_PACKET_19;
-                    }
-
-                    result = adb_send(sock, helper_packet);
-                    if (result) {
-                        g_warning("Error while setting adb transport for <%s>", helper_packet);
-                        closesocket(sock);
-                        return EXIT_CODE_GENERIC;
-                    }
-                }
 
                 if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_MAIN))
                     adb_command = adb_log_main;
@@ -2463,14 +2229,11 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
         const char *adb_server_ip, unsigned short *adb_server_tcp_port) {
     struct extcap_dumper                     extcap_dumper;
     static char                              data[PACKET_LENGTH];
-    static char                              helpful_packet[PACKET_LENGTH];
     gssize                                   length;
     gssize                                   used_buffer_length =  0;
     gssize                                   filter_buffer_length = 0;
     gssize                                   frame_length=0;
     socket_handle_t                          sock;
-    const char                               *adb_transport = "0012" "host:transport-any";
-    const char                               *adb_transport_serial_templace = "%04x" "host:transport:%s";
     const char                               *adb_shell_tcpdump = "001D" "shell:tcpdump -n -s 0 -u -w -";
     gint                                     result;
     char                                     *serial_number = NULL;
@@ -2479,42 +2242,16 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
     gboolean                                 global_header_skipped=FALSE;
     pcaprec_hdr_t                            p_header;
 
-    /* First check for the device if it is connected or not */
-    sock = adb_connect(adb_server_ip, adb_server_tcp_port);
-    if (sock == INVALID_SOCKET)
-        return EXIT_CODE_INVALID_SOCKET_11;
-
     if (is_specified_interface(interface, INTERFACE_ANDROID_WIFI_TCPDUMP)
             && strlen(interface) > strlen(INTERFACE_ANDROID_WIFI_TCPDUMP) + 1) {
         serial_number = interface + strlen(INTERFACE_ANDROID_WIFI_TCPDUMP) + 1;
     }
-    if (!serial_number) {
-        result = adb_send(sock, adb_transport);
-        if (result) {
-            g_warning("Error while setting adb transport");
-            fflush(stdout);
 
-            g_warning("Error while setting adb transport for <%s>",
-                adb_transport);
-            closesocket(sock);
-            return EXIT_CODE_GENERIC;
-        }
-    } else {
-        result = g_snprintf((char *) helpful_packet, PACKET_LENGTH, adb_transport_serial_templace,
-            15 + strlen(serial_number), serial_number);
-        if (result <= 0 || result > PACKET_LENGTH) {
-            g_warning("Error while completing adb packet");
-            closesocket(sock);
-            return EXIT_CODE_BAD_SIZE_OF_ASSEMBLED_ADB_PACKET_20;
-        }
+    /* First check for the device if it is connected or not */
+    sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
+    if (sock == INVALID_SOCKET)
+        return EXIT_CODE_INVALID_SOCKET_11;
 
-        result = adb_send(sock, helpful_packet);
-        if (result) {
-            g_warning("Error while setting adb transport");
-            closesocket(sock);
-            return EXIT_CODE_GENERIC;
-        }
-    }
     result = adb_send(sock, adb_shell_tcpdump);
     if (result) {
         g_warning("Error while setting adb transport");
