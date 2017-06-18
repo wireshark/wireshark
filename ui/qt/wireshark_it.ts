@@ -7654,7 +7654,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="600"/>
         <source>Osmux</source>
-        <translation type="unfinished"></translation>
+        <translation>Osmux</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="673"/>
@@ -8232,7 +8232,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="1935"/>
         <source>Osmux packet counts</source>
-        <translation type="unfinished"></translation>
+        <translation>Conteggi dei pacchetti Osmux</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1943"/>
@@ -8536,37 +8536,37 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="2994"/>
         <source>Zoom in on the wireless timeline</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingrandisci sulla linea temporale del wireless</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2997"/>
         <source>Ctrl+Shift+I</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Maiusc+I</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="3005"/>
         <source>Zoom out on the wireless timeline</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimpicciolisci sulla linea temporale del wireless</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="3008"/>
         <source>Ctrl+Shift+O</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Maiusc+O</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="3013"/>
         <source>Full capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Cattura completa</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="3016"/>
         <source>Fully zoom out on the wireless timeline</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimpicciolisci completamente sulla linea temporale del wireless</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="3019"/>
         <source>Ctrl+Shift+U</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Maiusc+U</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1216"/>
@@ -9388,22 +9388,22 @@ a:hover {
         <translation>prima di uscire</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1243"/>
+        <location filename="main_window.cpp" line="1247"/>
         <source>Save packets before merging?</source>
         <translation>Salvare i pacchetti prima di unire?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1244"/>
+        <location filename="main_window.cpp" line="1248"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>Un file di cattura temporaneo non può essere unito.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1250"/>
+        <location filename="main_window.cpp" line="1254"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>Salvare le modifiche a &quot;%1&quot; prima di unire?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1252"/>
+        <location filename="main_window.cpp" line="1256"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>Le modifiche devono essere salvate prima di unire.</translation>
     </message>
@@ -9413,128 +9413,128 @@ a:hover {
         <translation>Filtro di visualizzazione non valido</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1289"/>
+        <location filename="main_window.cpp" line="1293"/>
         <source>Invalid Read Filter</source>
         <translation>Filtro di lettura non valido</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1290"/>
+        <location filename="main_window.cpp" line="1294"/>
         <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
         <translation>L&apos;espressione %1 non è un filtro di lettura valido. (%2).</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1379"/>
+        <location filename="main_window.cpp" line="1383"/>
         <source> before importing a capture</source>
         <oldsource> before importing a new capture</oldsource>
         <translation>prima di importare una cattura</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1655"/>
+        <location filename="main_window.cpp" line="1659"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>Impossibile esportare su &quot;%1&quot;.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1656"/>
+        <location filename="main_window.cpp" line="1660"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>Non puoi esportare pacchetti sul file di cattura attuale.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1744"/>
-        <location filename="main_window.cpp" line="1769"/>
+        <location filename="main_window.cpp" line="1748"/>
+        <location filename="main_window.cpp" line="1773"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1816"/>
+        <location filename="main_window.cpp" line="1818"/>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>Vuoi salvare le modifiche che hai apportato%1?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1812"/>
-        <location filename="main_window.cpp" line="1820"/>
+        <location filename="main_window.cpp" line="1814"/>
+        <location filename="main_window.cpp" line="1822"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>I pacchetti catturati saranno persi se non li salvi.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1825"/>
+        <location filename="main_window.cpp" line="1827"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>Vuoi salvare le modifiche che hai apportato al file di cattura &quot;%1&quot;%2?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1817"/>
-        <location filename="main_window.cpp" line="1826"/>
+        <location filename="main_window.cpp" line="1819"/>
+        <location filename="main_window.cpp" line="1828"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>Le modifiche saranno perse se non le salvi.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1044"/>
+        <location filename="main_window.cpp" line="1048"/>
         <source>Unable to drop files during capture.</source>
         <translation>Impossibile scartare file durante la cattura.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1811"/>
+        <location filename="main_window.cpp" line="1813"/>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
         <translation>Vuoi interrompere la cattura e salvare i pacchetti catturati%1?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1819"/>
+        <location filename="main_window.cpp" line="1821"/>
         <source>Do you want to save the captured packets%1?</source>
         <translation>Vuoi salvare i pacchetti catturati%1?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1843"/>
+        <location filename="main_window.cpp" line="1845"/>
         <source>Save before Continue</source>
         <translation>Salva prima di continuare</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1845"/>
+        <location filename="main_window.cpp" line="1847"/>
         <source>Stop and Save</source>
         <translation>Ferma e salva</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1857"/>
+        <location filename="main_window.cpp" line="1859"/>
         <source>Stop and Quit &amp;without Saving</source>
         <oldsource>Stop and Quit without Saving</oldsource>
         <translation>Ferma ed esci senza sal&amp;vare</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1869"/>
+        <location filename="main_window.cpp" line="1871"/>
         <source>Quit &amp;without Saving</source>
         <oldsource>Quit without Saving</oldsource>
         <translation>Esci senza sal&amp;vare</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="855"/>
-        <location filename="main_window.cpp" line="2811"/>
+        <location filename="main_window.cpp" line="2830"/>
         <source>Show or hide the toolbar</source>
         <translation>Mostra o nascondi la barra degli strumenti</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1860"/>
-        <location filename="main_window.cpp" line="1873"/>
+        <location filename="main_window.cpp" line="1862"/>
+        <location filename="main_window.cpp" line="1875"/>
         <source>Continue &amp;without Saving</source>
         <oldsource>Continue without Saving</oldsource>
         <translation>Continua senza sal&amp;vare</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1863"/>
+        <location filename="main_window.cpp" line="1865"/>
         <source>Stop and Continue &amp;without Saving</source>
         <oldsource>Stop and Continue without Saving</oldsource>
         <translation>Ferma e continua senza sal&amp;vare</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2228"/>
+        <location filename="main_window.cpp" line="2247"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>(Il nome del file non può essere associato in UTF-8)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2249"/>
+        <location filename="main_window.cpp" line="2268"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>Wireshark l&apos;analizzatore di rete</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2274"/>
+        <location filename="main_window.cpp" line="2293"/>
         <source>Capturing from %1</source>
         <translation>Cattura da %1</translation>
     </message>
@@ -14798,7 +14798,7 @@ a:hover {
         <location filename="tcp_stream_dialog.ui" line="130"/>
         <source>Select SACKs</source>
         <oldsource>select SACKs</oldsource>
-        <translation type="unfinished">seleziona SACK</translation>
+        <translation>Seleziona SACK</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="153"/>
