@@ -7655,7 +7655,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="600"/>
         <source>Osmux</source>
-        <translation type="unfinished"></translation>
+        <translation>Osmux</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="673"/>
@@ -8233,7 +8233,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1935"/>
         <source>Osmux packet counts</source>
-        <translation type="unfinished"></translation>
+        <translation>Anzahl Osmux Pakete</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1943"/>
@@ -8537,37 +8537,37 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2994"/>
         <source>Zoom in on the wireless timeline</source>
-        <translation type="unfinished"></translation>
+        <translation>Vergrößern der Wireless Zeitleiste</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2997"/>
         <source>Ctrl+Shift+I</source>
-        <translation type="unfinished"></translation>
+        <translation>Strg+Umschalt+I</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="3005"/>
         <source>Zoom out on the wireless timeline</source>
-        <translation type="unfinished"></translation>
+        <translation>Verkleinern der Wireless Zeitleiste</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="3008"/>
         <source>Ctrl+Shift+O</source>
-        <translation type="unfinished"></translation>
+        <translation>Strg+Umschalt+O</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="3013"/>
         <source>Full capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Kompletter Mitschnitt</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="3016"/>
         <source>Fully zoom out on the wireless timeline</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireless Zeitleiste komplett darstellen</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="3019"/>
         <source>Ctrl+Shift+U</source>
-        <translation type="unfinished"></translation>
+        <translation>Strg+Umschalt+U</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1216"/>
@@ -9389,22 +9389,22 @@ text-decoration: underline;
         <translation> vor dem Schließen</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1243"/>
+        <location filename="main_window.cpp" line="1247"/>
         <source>Save packets before merging?</source>
         <translation>Pakete vor dem Zusammenführen speichern?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1244"/>
+        <location filename="main_window.cpp" line="1248"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>Eine temporäre Mitschnittdatei kann nicht zusammengeführt werden.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1250"/>
+        <location filename="main_window.cpp" line="1254"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>Vor der Zusammenführung Änderungen in &quot;%1&quot; speichern?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1252"/>
+        <location filename="main_window.cpp" line="1256"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>Änderungen müssen vor dem Zusammenführen gespeichert werden.</translation>
     </message>
@@ -9414,128 +9414,128 @@ text-decoration: underline;
         <translation>Ungültiger Anzeigefilter</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1289"/>
+        <location filename="main_window.cpp" line="1293"/>
         <source>Invalid Read Filter</source>
         <translation>Ungültiger Lesefilter</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1290"/>
+        <location filename="main_window.cpp" line="1294"/>
         <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
         <translation>Der Filterausdruck %1 ist kein gültiger Lesefilter. (%2).</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1379"/>
+        <location filename="main_window.cpp" line="1383"/>
         <source> before importing a capture</source>
         <oldsource> before importing a new capture</oldsource>
         <translation> vor dem Importieren einer Aufzeichnung</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1655"/>
+        <location filename="main_window.cpp" line="1659"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>Kann nicht nach &quot;%1&quot; exportieren.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1656"/>
+        <location filename="main_window.cpp" line="1660"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>Pakete können nicht in die aktuelle Mitschnittdatei exportiert werden.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1744"/>
-        <location filename="main_window.cpp" line="1769"/>
+        <location filename="main_window.cpp" line="1748"/>
+        <location filename="main_window.cpp" line="1773"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1816"/>
+        <location filename="main_window.cpp" line="1818"/>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>Wollen Sie die durchgeführten Änderungen speichern%1?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1812"/>
-        <location filename="main_window.cpp" line="1820"/>
+        <location filename="main_window.cpp" line="1814"/>
+        <location filename="main_window.cpp" line="1822"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>Die aufgezeichneten Pakete gehen verloren wenn sie nicht gespeichert werden.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1825"/>
+        <location filename="main_window.cpp" line="1827"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>Sollen die Änderungen an der Mitschnittdatei &quot;%1&quot;%2 gespeichert werden?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1817"/>
-        <location filename="main_window.cpp" line="1826"/>
+        <location filename="main_window.cpp" line="1819"/>
+        <location filename="main_window.cpp" line="1828"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>Änderungen gehen verloren, wenn sie nicht gesichert werden.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1044"/>
+        <location filename="main_window.cpp" line="1048"/>
         <source>Unable to drop files during capture.</source>
         <translation>Dateien können während dem Mitschnitt nicht verworfen werden.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1811"/>
+        <location filename="main_window.cpp" line="1813"/>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
         <translation>Wollen Sie die Aufzeichnung stoppen und die aufgezeichneten Pakete speichern%1?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1819"/>
+        <location filename="main_window.cpp" line="1821"/>
         <source>Do you want to save the captured packets%1?</source>
         <translation>Wollen Sie die aufgezeichneten Pakete speichern%1?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1843"/>
+        <location filename="main_window.cpp" line="1845"/>
         <source>Save before Continue</source>
         <translation>Vor dem Fortsetzen speichern</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1845"/>
+        <location filename="main_window.cpp" line="1847"/>
         <source>Stop and Save</source>
         <translation>Stoppen und speichern</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1857"/>
+        <location filename="main_window.cpp" line="1859"/>
         <source>Stop and Quit &amp;without Saving</source>
         <oldsource>Stop and Quit without Saving</oldsource>
         <translation>Stoppen und beenden &amp;ohne zu speichern</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1869"/>
+        <location filename="main_window.cpp" line="1871"/>
         <source>Quit &amp;without Saving</source>
         <oldsource>Quit without Saving</oldsource>
         <translation>&amp;Ohne speichern beenden</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="855"/>
-        <location filename="main_window.cpp" line="2811"/>
+        <location filename="main_window.cpp" line="2830"/>
         <source>Show or hide the toolbar</source>
         <translation>Werkzeugleise anzeigen oder verstecken</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1860"/>
-        <location filename="main_window.cpp" line="1873"/>
+        <location filename="main_window.cpp" line="1862"/>
+        <location filename="main_window.cpp" line="1875"/>
         <source>Continue &amp;without Saving</source>
         <oldsource>Continue without Saving</oldsource>
         <translation>Fortsetzen &amp;ohne zu Speichern</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1863"/>
+        <location filename="main_window.cpp" line="1865"/>
         <source>Stop and Continue &amp;without Saving</source>
         <oldsource>Stop and Continue without Saving</oldsource>
         <translation>Stoppen und Fortsetzen &amp;ohne zu Speichern</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2228"/>
+        <location filename="main_window.cpp" line="2247"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>(Dateiname kann nicht auf UTF-8 angewendet werden)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2249"/>
+        <location filename="main_window.cpp" line="2268"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>Die Wireshark Netzwerk Analysesoftware</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2274"/>
+        <location filename="main_window.cpp" line="2293"/>
         <source>Capturing from %1</source>
         <translation>Aufzeichnen von %1</translation>
     </message>
@@ -11965,7 +11965,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.ui" line="411"/>
         <source>Stream Synchronized Forward and Reverse Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Synchronisiertes Audio des Hin- und Rückweges streamen </translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="414"/>
@@ -11975,7 +11975,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.ui" line="419"/>
         <source>Stream Synchronized Forward Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Synchronisiertes Audio des Hinweges streamen</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="422"/>
@@ -11985,7 +11985,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.ui" line="427"/>
         <source>Stream Synchronized Reverse Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Synchronisiertes Audio des Rückweges streamen </translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="430"/>
@@ -11995,7 +11995,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.ui" line="435"/>
         <source>File Synchronized Forward and Reverse Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Audiostream des Hin- und Rückweges speichern</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="438"/>
@@ -12005,7 +12005,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.ui" line="443"/>
         <source>File Synchronized Forward Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Audiostream des Hinweges speichern</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="446"/>
@@ -12015,7 +12015,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.ui" line="451"/>
         <source>File Synchronized Reverse Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Audiostream des Rückweges speichern</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="454"/>
@@ -14804,7 +14804,7 @@ text-decoration: underline;
         <location filename="tcp_stream_dialog.ui" line="130"/>
         <source>Select SACKs</source>
         <oldsource>select SACKs</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>SACKs auswählen</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="153"/>

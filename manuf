@@ -17337,6 +17337,7 @@
 04:CF:25	Manycolo               # MANYCOLORS, INC.
 04:D3:CF	Apple                  # Apple, Inc.
 04:D4:37	Znv
+04:D6:AA	SamsungE               # SAMSUNG ELECTRO-MECHANICS(THAILAND)
 04:D7:83	Y&HE&C                 # Y&H E&C Co.,LTD.
 04:DA:D2	Cisco                  # Cisco Systems, Inc
 04:DB:56	Apple                  # Apple, Inc.
@@ -17580,6 +17581,7 @@
 08:60:6E	AsustekC               # ASUSTek COMPUTER INC.
 08:62:66	AsustekC               # ASUSTek COMPUTER INC.
 08:63:61	HuaweiTe               # HUAWEI TECHNOLOGIES CO.,LTD
+08:66:1F	PaloAlto               # Palo Alto Networks
 08:66:98	Apple                  # Apple, Inc.
 08:68:D0	JapanSys               # Japan System Design
 08:68:EA	EitoElec               # EITO ELECTRONICS CO., LTD.
@@ -17733,6 +17735,7 @@
 0C:55:21	Axiros                 # Axiros GmbH
 0C:56:5C	HybroadV               # HyBroad Vision (Hong Kong) Technology Co Ltd
 0C:57:EB	Mueller                # Mueller Systems
+0C:58:42	DmeMicro               # DME Micro
 0C:5A:19	AxtionSd               # Axtion Sdn Bhd
 0C:5A:9E	Wi-SunAl               # Wi-SUN Alliance
 0C:5C:D8	DoliElek               # DOLI Elektronik GmbH
@@ -18052,6 +18055,7 @@
 10:FA:CE	Reacheng               # Reacheng Communication Technology Co.,Ltd
 10:FB:F0	Kangshen               # KangSheng LTD.
 10:FC:54	ShanyEle               # Shany Electronic Co., Ltd.
+10:FC:B6	Mirusyst               # mirusystems CO.,LTD
 10:FE:ED	Tp-LinkT               # TP-LINK TECHNOLOGIES CO.,LTD.
 11:00:AA	Private
 11:11:11	Private
@@ -19335,11 +19339,13 @@
 2C:27:9E:30:00:00/28	Private
 2C:27:9E:40:00:00/28	Shijiazh               # Shijiazhuang King Transportation Equipment Co.,Ltd
 2C:27:9E:50:00:00/28	Audionor               # AudioNord Distribution A/S
+2C:27:9E:60:00:00/28	Rutledge               # Rutledge Omni Services Pte Ltd
 2C:27:9E:80:00:00/28	Institut               # Institut Dr. Foerster GmbH & Co. KG
 2C:27:9E:90:00:00/28	Octoscop               # octoScope, Inc.
 2C:27:9E:A0:00:00/28	Exegy                  # Exegy Inc
 2C:27:9E:C0:00:00/28	WaycomTe               # WAYCOM Technology Co.,Ltd
 2C:27:9E:D0:00:00/28	JiangsuJ               # Jiangsu JianHu Science & Technology Co., Ltd.
+2C:27:9E:E0:00:00/28	Amaryllo               # Amaryllo International Inc.
 2C:27:D7	HewlettP               # Hewlett Packard
 2C:28:2D	BbkEduca               # BBK EDUCATIONAL ELECTRONICS CORP.,LTD.
 2C:29:97	Microsof               # Microsoft Corporation
@@ -19768,6 +19774,7 @@
 34:51:AA	JidGloba               # JID GLOBAL
 34:51:C9	Apple                  # Apple, Inc.
 34:54:3C	TakaokaT               # TAKAOKA TOKO CO.,LTD.
+34:56:FE	CiscoMer               # Cisco Meraki
 34:57:60	Mitrasta               # MitraStar Technology Corp.
 34:5B:11	EviHeat                # EVI HEAT AB
 34:5B:BB	GdMideaA               # GD Midea Air-Conditioning Equipment Co.,Ltd.
@@ -20396,7 +20403,7 @@
 40:88:E0	BeijingE               # Beijing Ereneben Information Technology Limited Shenzhen Branch
 40:8A:9A	Titeng                 # TITENG CO., Ltd.
 40:8B:07	Actionte               # Actiontec Electronics, Inc
-40:8B:F6	Shenzhen               # Shenzhen TCL New Technology Co; Ltd.
+40:8B:F6	Shenzhen               # Shenzhen TCL New Technology Co., Ltd
 40:8D:5C	Giga-Byt               # GIGA-BYTE TECHNOLOGY CO.,LTD.
 40:95:58	Aisino                 # Aisino Corporation
 40:95:BD	Ntmore                 # NTmore.Co.,Ltd
@@ -21305,6 +21312,7 @@
 48:D1:8E	MetisCom               # Metis Communication Co.,Ltd
 48:D2:24	LiteonTe               # Liteon Technology Corporation
 48:D3:43	ArrisGro               # ARRIS Group, Inc.
+48:D3:5D	Private
 48:D5:39	HuaweiTe               # HUAWEI TECHNOLOGIES CO.,LTD
 48:D5:4C	JedaNetw               # Jeda Networks
 48:D7:05	Apple                  # Apple, Inc.
@@ -21583,6 +21591,7 @@
 50:32:37	Apple                  # Apple, Inc.
 50:32:75	SamsungE               # Samsung Electronics Co.,Ltd
 50:33:8B	TexasIns               # Texas Instruments
+50:33:F0	YichenSh               # YICHEN (SHENZHEN) TECHNOLOGY CO.LTD
 50:39:55	CiscoSpv               # Cisco SPVTG
 50:3A:7D	Alphatec               # AlphaTech PLC Int’l Co., Ltd.
 50:3A:A0	Shenzhen               # SHENZHEN MERCURY COMMUNICATION TECHNOLOGIES CO.,LTD.
@@ -22809,6 +22818,7 @@
 68:BC:0C	Cisco                  # Cisco Systems, Inc
 68:BD:AB	Cisco                  # Cisco Systems, Inc
 68:C4:4D	Motorola               # Motorola Mobility LLC, a Lenovo Company
+68:C6:3A	Espressi               # Espressif Inc.
 68:C9:0B	TexasIns               # Texas Instruments
 68:CA:00	Octopus                # Octopus Systems Limited
 68:CC:6E	HuaweiTe               # HUAWEI TECHNOLOGIES CO.,LTD
@@ -23131,6 +23141,7 @@
 70:8B:CD	AsustekC               # ASUSTek COMPUTER INC.
 70:8D:09	Nokia                  # Nokia Corporation
 70:91:8F	Weber-St               # Weber-Stephen Products LLC
+70:91:F3	Universa               # Universal Electronics, Inc.
 70:93:83	Intellig               # Intelligent Optical Network High Tech CO.,LTD.
 70:93:F8	SpaceMon               # Space Monkey, Inc.
 70:97:56	Happyele               # Happyelectronics Co.,Ltd
@@ -23404,6 +23415,7 @@
 70:B3:D5:1E:30:00/36	HatelEle               # Hatel Elektronik LTD. STI.
 70:B3:D5:1E:40:00/36	Tecnolog               # Tecnologix s.r.l.
 70:B3:D5:1E:50:00/36	Vendnova               # VendNovation LLC
+70:B3:D5:1E:60:00/36	SanminaI               # Sanmina Israel
 70:B3:D5:1E:90:00/36	Comtime                # comtime GmbH
 70:B3:D5:1E:F0:00/36	Adtek
 70:B3:D5:1F:30:00/36	SmartEne               # Smart Energy Code Company Limited
@@ -23491,6 +23503,7 @@
 70:B3:D5:2A:20:00/36	Visualwa               # Visualware, Inc.
 70:B3:D5:2A:50:00/36	Taitotek               # Taitotekniikka
 70:B3:D5:2A:70:00/36	Plasmabi               # Plasmability, LLC
+70:B3:D5:2A:B0:00/36	NasaJohn               # NASA Johnson Space Center
 70:B3:D5:2A:C0:00/36	NewImagi               # New Imaging Technologies
 70:B3:D5:2A:D0:00/36	OpgalOpt               # Opgal Optronic Industries
 70:B3:D5:2B:00:00/36	BeijingZ               # Beijing Zhongyi Yue Tai Technology Co., Ltd
@@ -23950,7 +23963,6 @@
 70:B3:D5:67:90:00/36	Emac                   # EMAC, Inc.
 70:B3:D5:67:B0:00/36	Stesalit               # Stesalit Systems Ltd
 70:B3:D5:68:20:00/36	Rosslare               # Rosslare Enterprises Limited
-70:B3:D5:68:30:00/36	ApeironD               # Apeiron Data Systems
 70:B3:D5:68:D0:00/36	Meta-Chr               # Meta-chrom Co. Ltd.
 70:B3:D5:68:E0:00/36	CeaTechn               # CEA Technologies Pty Ltd
 70:B3:D5:68:F0:00/36	PeekTraf               # PEEK TRAFFIC
@@ -24139,6 +24151,7 @@
 70:B3:D5:80:40:00/36	Pmt                    # PMT Corporation
 70:B3:D5:80:50:00/36	Eurotron               # Eurotronik Kranj d.o.o.
 70:B3:D5:80:70:00/36	CamsatPr               # Camsat Przemysław Gralak
+70:B3:D5:80:90:00/36	TecnintH               # Tecnint HTE SRL
 70:B3:D5:80:A0:00/36	SensingL               # SENSING LABS
 70:B3:D5:80:B0:00/36	FischerB               # Fischer Block, Inc.
 70:B3:D5:80:D0:00/36	DataPhys               # Data Physics Corporation
@@ -24155,6 +24168,7 @@
 70:B3:D5:82:10:00/36	Hl2Group               # HL2 group
 70:B3:D5:82:30:00/36	SpContro               # SP Controls
 70:B3:D5:82:50:00/36	TattileS               # TATTILE SRL
+70:B3:D5:82:60:00/36	ElbitOfA               # Elbit Systems of Amerixca
 70:B3:D5:82:70:00/36	Metromat               # Metromatics Pty Ltd
 70:B3:D5:82:C0:00/36	Nels                   # NELS Ltd.
 70:B3:D5:82:E0:00/36	Playaliv               # PlayAlive A/S
@@ -24166,6 +24180,7 @@
 70:B3:D5:83:C0:00/36	Sinoembe               # Sinoembed
 70:B3:D5:83:F0:00/36	LumineLi               # Lumine Lighting Solutions Oy
 70:B3:D5:84:00:00/36	Xm
+70:B3:D5:84:20:00/36	PlutoSol               # PLUTO Solution co.,ltd.
 70:B3:D5:84:40:00/36	SansfilT               # SANSFIL Technologies
 70:B3:D5:84:70:00/36	Ai-Lynx
 70:B3:D5:84:90:00/36	Rf-Tuote               # RF-Tuote Oy
@@ -24930,6 +24945,7 @@
 70:B3:D5:EB:10:00/36	CpContec               # CP contech electronic GmbH
 70:B3:D5:EB:20:00/36	ShooterD               # Shooter Detection Systems
 70:B3:D5:EB:70:00/36	Skreens
+70:B3:D5:EB:90:00/36	ThielAud               # Thiel Audio Products Company, LLC
 70:B3:D5:EB:B0:00/36	BeijingW               # Beijing Wing ICT Technology Co., Ltd.
 70:B3:D5:EB:D0:00/36	MidbitTe               # midBit Technologies, LLC
 70:B3:D5:EB:E0:00/36	SierraPa               # Sierra Pacific Innovations Corp
@@ -25406,6 +25422,7 @@
 78:30:E1	Ultracle               # UltraClenz, LLC
 78:31:2B	Zte                    # zte corporation
 78:31:C1	Apple                  # Apple, Inc.
+78:32:1B	D-LinkIn               # D-Link International
 78:32:4F	Millenni               # Millennium Group, Inc.
 78:36:90	YulongCo               # Yulong Computer Telecommunication Scientific (Shenzhen) Co.,Ltd
 78:3A:84	Apple                  # Apple, Inc.
@@ -26020,6 +26037,7 @@
 80:C6:3F	RemecBro               # Remec Broadband Wireless , LLC
 80:C6:AB	Technico               # Technicolor CH USA Inc.
 80:C6:CA	EndianSR               # Endian s.r.l.
+80:C7:55	Panasoni               # Panasonic Appliances Company
 80:C8:62	Openpeak               # Openpeak, Inc
 80:CE:B1	Theissen               # Theissen Training Systems GmbH
 80:CF:41	LenovoMo               # Lenovo Mobile Communication Technology Ltd.
@@ -26257,6 +26275,7 @@
 84:E0:F4:D0:00:00/28	Logos01S               # Logos01 Srl
 84:E0:F4:E0:00:00/28	Scale-Te               # Scale-Tec Ltd.
 84:E3:23	GreenWav               # Green Wave Telecommunication SDN BHD
+84:E3:27	TailynTe               # TAILYN TECHNOLOGIES INC
 84:E4:D9	Shenzhen               # Shenzhen NEED technology Ltd.
 84:E6:29	BluwanSa               # Bluwan SA
 84:E7:14	LiangHer               # Liang Herng Enterprise,Co.Ltd.
@@ -26370,6 +26389,7 @@
 88:79:7E	Motorola               # Motorola Mobility LLC, a Lenovo Company
 88:7A:31	Velankan               # Velankani Electronics Pvt. Ltd.
 88:7F:03	ComperTe               # Comper Technology Investment Limited
+88:82:79	Shenzhen               # Shenzhen RB-LINK Intelligent Technology Co.Ltd
 88:83:22	SamsungE               # Samsung Electronics Co.,Ltd
 88:86:03	HuaweiTe               # HUAWEI TECHNOLOGIES CO.,LTD
 88:86:A0	SimtonTe               # Simton Technologies, Ltd.
@@ -29592,6 +29612,9 @@ CC:1E:FF	Metrolog               # Metrological Group BV
 CC:1F:C4	Invue
 CC:20:E8	Apple                  # Apple, Inc.
 CC:22:18	Innodigi               # InnoDigital Co., Ltd.
+CC:22:37	IeeeRegi               # IEEE Registration Authority
+CC:22:37:20:00:00/28	ApeironD               # Apeiron Data Systems
+CC:22:37:40:00:00/28	Shanghai               # SHANGHAI CARGOA M.&E.EQUIPMENT CO.LTD
 CC:25:EF	Apple                  # Apple, Inc.
 CC:26:2D	VerifiLl               # Verifi, LLC
 CC:29:F5	Apple                  # Apple, Inc.
@@ -31483,6 +31506,7 @@ F4:6A:BC	Adonit                 # Adonit Corp. Ltd.
 F4:6B:EF	Sagemcom               # Sagemcom Broadband SAS
 F4:6D:04	AsustekC               # ASUSTek COMPUTER INC.
 F4:6D:E2	Zte                    # zte corporation
+F4:6E:24	NecPerso               # NEC Personal Computers, Ltd.
 F4:70:AB	VivoMobi               # vivo Mobile Communication Co., Ltd.
 F4:73:CA	Conversi               # Conversion Sound Inc.
 F4:76:26	Viltechm               # Viltechmeda UAB
@@ -31553,6 +31577,7 @@ F4:DC:F9	HuaweiTe               # HUAWEI TECHNOLOGIES CO.,LTD
 F4:DD:9E	Gopro
 F4:DE:0C	Espod                  # ESPOD Ltd.
 F4:E1:42	DeltaEle               # Delta Elektronika BV
+F4:E2:04	Traqueur
 F4:E3:FB	HuaweiTe               # HUAWEI TECHNOLOGIES CO.,LTD
 F4:E4:AD	Zte                    # zte corporation
 F4:E6:D7	SolarPow               # Solar Power Technologies, Inc.
