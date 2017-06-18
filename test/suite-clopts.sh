@@ -296,7 +296,6 @@ test_dump_glossary() {
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "exit status: $RETURNVALUE"
-		test_step_failed "Error messages on stderr"
 	elif [ -s ./testout.txt ]; then
 		test_step_output_print ./testout.txt
 		test_step_failed "Error messages on stderr"

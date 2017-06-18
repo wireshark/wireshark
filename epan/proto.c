@@ -9267,8 +9267,6 @@ proto_registrar_dump_values(void)
 		units  = NULL;
 
 		if (hfinfo->strings != NULL) {
-fprintf(stderr, "Will dump %s value string\n", hfinfo->abbrev);
-fflush(stderr);
 			if ((hfinfo->display & FIELD_DISPLAY_E_MASK) != BASE_CUSTOM &&
 			    (hfinfo->type == FT_CHAR  ||
 			     hfinfo->type == FT_UINT8  ||
