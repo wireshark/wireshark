@@ -78,7 +78,7 @@
 #include <epan/ptvcursor.h>
 #include <epan/exceptions.h>
 #include <epan/reassemble.h>
-
+#include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 
@@ -959,6 +959,8 @@ static gint ett_mq_reaasemb = -1;
 static gint ett_mq_notif = -1;
 
 static gint ett_mq_structid = -1;
+
+static expert_field ei_mq_reassembly_error = EI_INIT;
 
 static dissector_handle_t mq_handle;
 static dissector_handle_t mq_spx_handle;
@@ -3922,6 +3924,7 @@ static int reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 fragment_head *fd_head;
                 guint32 iConnectionId = (pinfo->srcport + pinfo->destport);
                 iHdrL = 28 + iMulS;
+                gboolean reassembly_error = FALSE;
 
                 /* Get the MQ Handle of the Object */
                 iHdl = tvb_get_guint32(tvb, iHdrL + 4, iEnco);
@@ -3955,10 +3958,16 @@ static int reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 */
                 iBegL = (bSeg1st) ? 0 : iNxtP;
 
-                fd_head = fragment_add_seq_next(&mq_reassembly_table,
-                    tvb, iBegL,
-                    pinfo, iConnectionId, NULL,
-                    iSegL - iBegL, bMore);
+                if (iSegL <= iBegL) {
+                    /* negative or null fragment length - something is wrong; skip reassembly */
+                    fd_head = NULL;
+                    reassembly_error = TRUE;
+                } else {
+                    fd_head = fragment_add_seq_next(&mq_reassembly_table,
+                        tvb, iBegL,
+                        pinfo, iConnectionId, NULL,
+                        iSegL - iBegL, bMore);
+                }
 
                 if (tree)
                 {
@@ -3978,6 +3987,11 @@ static int reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                         dissect_mq_addCR_colinfo(pinfo, &mq_parm);
                         proto_item_append_text(ti, " Hdl=0x%04x GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
                             iHdl, iGlbMsgIdx, iSegmIndex, iSegLength);
+                    }
+                    if (reassembly_error)
+                    {
+                        expert_add_info_format(pinfo, ti, &ei_mq_reassembly_error,
+                                               "Wrong fragment length (%d) - skipping reassembly", iSegL - iBegL);
                     }
                     mq_tree = proto_item_add_subtree(ti, ett_mq_reaasemb);
                 }
@@ -4766,10 +4780,19 @@ void proto_register_mq(void)
     };
 
     module_t *mq_module;
+    expert_module_t *expert_mq;
+
+    static ei_register_info ei[] = {
+        { &ei_mq_reassembly_error, { "mq.reassembly_error",
+          PI_REASSEMBLE, PI_ERROR, "Reassembly error", EXPFILL }}
+    };
 
     proto_mq = proto_register_protocol("WebSphere MQ", "MQ", "mq");
     proto_register_field_array(proto_mq, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_mq = expert_register_protocol(proto_mq);
+    expert_register_field_array(expert_mq, ei, array_length(ei));
 
     mq_heur_subdissector_list = register_heur_dissector_list("mq", proto_mq);
 
