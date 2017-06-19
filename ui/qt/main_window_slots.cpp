@@ -2116,10 +2116,10 @@ void MainWindow::on_actionEditFindPacket_triggered()
     }
     previous_focus_ = wsApp->focusWidget();
     connect(previous_focus_, SIGNAL(destroyed()), this, SLOT(resetPreviousFocus()));
-    showAccordionFrame(main_ui_->searchFrame, true);
-    if (main_ui_->searchFrame->isVisible()) {
-        main_ui_->searchFrame->setFocus();
+    if (! main_ui_->searchFrame->isVisible()) {
+        showAccordionFrame(main_ui_->searchFrame, true);
     }
+    main_ui_->searchFrame->setFocus();
 }
 
 void MainWindow::on_actionEditFindNext_triggered()
