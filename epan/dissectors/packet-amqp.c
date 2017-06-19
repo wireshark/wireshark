@@ -10756,7 +10756,13 @@ get_amqp_1_0_value_formatter(tvbuff_t *tvb,
                                                      item,
                                                      hf_amqp_type,
                                                      hf_amqp_subtype_count,
-                                                     hf_amqp_subtypes, name)-1; /* "-1" due to decode type again in the method */
+                                                     hf_amqp_subtypes, name);
+                if (*length_size == 0) {
+                    /* something went wrong during list dissection; let's stop here */
+                    *length_size = tvb_reported_length_remaining(tvb, offset);
+                } else {
+                    *length_size -= 1; /* "-1" due to decode type again in the method */
+                }
                 break;
             case AMQP_1_0_TYPE_MAP8:
             case AMQP_1_0_TYPE_MAP32:
