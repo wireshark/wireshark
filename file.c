@@ -638,6 +638,7 @@ cf_read(capture_file *cf, gboolean reloading)
           progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
           /* update the packet bar content on the first run or frequently on very large files */
           update_progress_dlg(progbar, progbar_val, status_str);
+          compute_elapsed(cf, &start_time);
           packets_bar_update();
           g_timer_start(prog_timer);
         }
@@ -4292,6 +4293,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile)
         progbar_val = calc_progbar_val(cf, size, cf->f_datalen, status_str, sizeof(status_str));
         /* update the packet bar content on the first run or frequently on very large files */
         update_progress_dlg(progbar, progbar_val, status_str);
+        compute_elapsed(cf, &start_time);
         packets_bar_update();
         g_timer_start(prog_timer);
       }

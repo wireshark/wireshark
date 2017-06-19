@@ -391,7 +391,7 @@ cf_status_t cf_filter_packets(capture_file *cf, gchar *dfilter, gboolean force);
 void cf_reftime_packets(capture_file *cf);
 
 /**
- * Return the time it took to load the file
+ * Return the time it took to load the file (in msec).
  */
 gulong cf_get_computed_elapsed(capture_file *cf);
 

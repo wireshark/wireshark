@@ -125,7 +125,7 @@ typedef struct _capture_file {
 #endif
   gpointer     window;               /* Top-level window associated with file */
   GTree       *frames_user_comments; /* BST with user comments for frames (key = frame_data) */
-  gulong       computed_elapsed;
+  gulong       computed_elapsed;     /* Elapsed time to load the file (in msec). */
 
   guint32      cum_bytes;
   const frame_data *ref;
