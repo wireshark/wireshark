@@ -546,6 +546,8 @@ proto_reg_handoff_fddi(void)
   dissector_add_uint("wtap_encap", WTAP_ENCAP_FDDI, fddi_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_FDDI_BITSWAPPED,
                      fddi_bitswapped_handle);
+  dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_FDDI,
+                     fddi_handle);
 
   fddi_cap_handle = create_capture_dissector_handle(capture_fddi, proto_fddi);
   capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_FDDI, fddi_cap_handle);
