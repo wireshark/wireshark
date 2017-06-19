@@ -1181,6 +1181,8 @@ void PacketList::goNextPacket(void)
         // First visible packet.
         setCurrentIndex(indexAt(viewport()->rect().topLeft()));
     }
+
+    scrollViewChanged(false);
 }
 
 void PacketList::goPreviousPacket(void)
@@ -1202,18 +1204,24 @@ void PacketList::goPreviousPacket(void)
             goLastPacket();
         }
     }
+
+    scrollViewChanged(false);
 }
 
 void PacketList::goFirstPacket(void) {
     if (packet_list_model_->rowCount() < 1) return;
     setCurrentIndex(packet_list_model_->index(0, 0));
     scrollTo(currentIndex());
+
+    scrollViewChanged(false);
 }
 
 void PacketList::goLastPacket(void) {
     if (packet_list_model_->rowCount() < 1) return;
     setCurrentIndex(packet_list_model_->index(packet_list_model_->rowCount() - 1, 0));
     scrollTo(currentIndex());
+
+    scrollViewChanged(false);
 }
 
 // XXX We can jump to the wrong packet if a display filter is applied
@@ -1223,6 +1231,8 @@ void PacketList::goToPacket(int packet) {
     if (row >= 0) {
         setCurrentIndex(packet_list_model_->index(row, 0));
     }
+
+    scrollViewChanged(false);
 }
 
 void PacketList::goToPacket(int packet, int hf_id)
@@ -1592,8 +1602,13 @@ void PacketList::vScrollBarActionTriggered(int)
     // past the end.
     tail_at_end_ = (verticalScrollBar()->sliderPosition() >= verticalScrollBar()->maximum());
 
+    scrollViewChanged(tail_at_end_);
+}
+
+void PacketList::scrollViewChanged(bool at_end)
+{
     if (capture_in_progress_ && prefs.capture_auto_scroll) {
-        emit packetListScrolled(tail_at_end_);
+        emit packetListScrolled(at_end);
     }
 }
 
