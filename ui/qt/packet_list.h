@@ -157,6 +157,7 @@ public slots:
     void applyTimeShift();
     void recolorPackets();
     void redrawVisiblePackets();
+    void redrawVisiblePacketsDontSelectCurrent();
     void columnsChanged();
     void fieldsChanged(capture_file *cf);
     void preferencesChanged();
