@@ -3503,7 +3503,10 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       if (length == 0) {
             /* BIG-REQUESTS extension */
-            length = tvb_get_guint32(tvb, query_ext_offset, byte_order) * 4;
+            length = tvb_get_guint32(tvb, query_ext_offset, byte_order);
+            if ((gint64)length * 4 > G_MAXINT32)
+                return;
+            length *= 4;
             query_ext_offset += 4;
       }
 
@@ -4851,7 +4854,7 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
       int length_remaining;
       volatile guint byte_order;
       guint8 opcode;
-      volatile int plen;
+      volatile gint plen;
       proto_item *ti;
       volatile gboolean is_initial_creq;
       guint16 auth_proto_len, auth_data_len;
@@ -5013,6 +5016,7 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
                   plen = 12 + ROUND_LENGTH(auth_proto_len) +
                         ROUND_LENGTH(auth_data_len);
             } else {
+                  gint64 tmp = (gint64)plen * 4;
                   /*
                    * This is probably an ordinary request.
                    */
@@ -5021,7 +5025,12 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
                   /*
                    * The length of a request is in 4-byte words.
                    */
-                  plen *= 4;
+                  if (tmp > G_MAXINT32) {
+                        ti = proto_tree_add_item(tree, proto_x11, tvb, offset, -1, ENC_NA);
+                        expert_add_info_format(pinfo, ti, &ei_x11_request_length, "Bogus request length (%"G_GINT64_MODIFIER"d)", tmp);
+                        return;
+                  }
+                  plen = (gint)tmp;
             }
 
             /*
