@@ -146,6 +146,7 @@ private:
     void initHeaderContextMenu();
     void drawCurrentPacket();
     void applyRecentColumnWidths();
+    void scrollViewChanged(bool at_end);
 
 signals:
     void packetDissectionChanged();
