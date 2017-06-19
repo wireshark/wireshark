@@ -435,7 +435,7 @@ PacketList::PacketList(QWidget *parent) :
 
     connect(packet_list_model_, SIGNAL(goToPacket(int)), this, SLOT(goToPacket(int)));
     connect(packet_list_model_, SIGNAL(itemHeightChanged(const QModelIndex&)), this, SLOT(updateRowHeights(const QModelIndex&)));
-    connect(wsApp, SIGNAL(addressResolutionChanged()), this, SLOT(redrawVisiblePackets()));
+    connect(wsApp, SIGNAL(addressResolutionChanged()), this, SLOT(redrawVisiblePacketsDontSelectCurrent()));
 
     header()->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(header(), SIGNAL(customContextMenuRequested(QPoint)),
@@ -750,13 +750,20 @@ void PacketList::drawCurrentPacket()
     }
 }
 
-// Redraw the packet list and detail. Called from many places.
-// XXX We previously re-selected the packet here, but that seems to cause
-// automatic scrolling problems.
+// Redraw the packet list and detail.  Re-selects the current packet (causes
+// the UI to scroll to that packet).
+// Called from many places.
 void PacketList::redrawVisiblePackets() {
     update();
     header()->update();
     drawCurrentPacket();
+}
+
+// Redraw the packet list and detail.
+// Does not scroll back to the selected packet.
+void PacketList::redrawVisiblePacketsDontSelectCurrent() {
+    update();
+    header()->update();
 }
 
 void PacketList::resetColumns()
