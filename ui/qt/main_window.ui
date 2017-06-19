@@ -126,6 +126,9 @@
      <widget class="FilterExpressionFrame" name="filterExpressionFrame"/>
     </item>
     <item>
+     <widget class="WirelessTimeline" name="wirelessTimelineWidget"/>
+    </item>
+    <item>
      <widget class="QStackedWidget" name="mainStack">
       <property name="enabled">
        <bool>true</bool>
@@ -3066,6 +3069,12 @@
    <class>FilterExpressionFrame</class>
    <extends>QFrame</extends>
    <header>filter_expression_frame.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>WirelessTimeline</class>
+   <extends>QWidget</extends>
+   <header>wireless_timeline.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
