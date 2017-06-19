@@ -49,11 +49,6 @@ typedef struct {
 	guint16	version_minor;
 } libpcap_t;
 
-/* On some systems, the FDDI MAC addresses are bit-swapped. */
-#if !defined(ultrix) && !defined(__alpha) && !defined(__bsdi__)
-#define BIT_SWAPPED_MAC_ADDRS
-#endif
-
 /* Try to read the first two records of the capture file. */
 static int libpcap_try(wtap *wth, int *err, gchar **err_info);
 static int libpcap_try_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
