@@ -4453,6 +4453,11 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         pi_length_found = FALSE;
     }
 
+    /* Making sure we have at least enough bytes for header (4) + footer (2) */
+    if (length < 6) {
+        return FALSE;
+    }
+
     p_fp_info = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
     /* Making sure FP info isn't already attached */
     if (p_fp_info) {
