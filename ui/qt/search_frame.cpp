@@ -109,6 +109,7 @@ void SearchFrame::findPrevious()
 void SearchFrame::setFocus()
 {
     sf_ui_->searchLineEdit->setFocus();
+    sf_ui_->searchLineEdit->selectAll();
     cap_file_->dir = SD_FORWARD;
 }
 
