@@ -1076,8 +1076,34 @@ endforeach()
 # Provide Windows system lib names
 include( UseWinLibs )
 
-#packaging
-include(CPackConfig.txt)
+#packaging information
+# XXX The CMake documentation recommends setting CPACK_PROJECT_CONFIG_FILE
+# instead.
+if(WIN32)
+        # To do:
+        # - Add WinPCap
+        # - Add USBPcap
+        # - Add CLI DLLs
+        # - Add common (Glib, etc) DLLs
+        # - Add Qt DLLs
+        # - Add
+        set(CPACK_PACKAGE_NAME Wireshark)
+else()
+        set(CPACK_PACKAGE_NAME wireshark)
+endif()
+
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+
+# dist target that prepares source dir
+add_custom_target(dist
+    COMMAND "${CMAKE_COMMAND}"
+        -DPROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}"
+        -DGIT_EXECUTABLE="${GIT_EXECUTABLE}"
+        -DWS_SOURCE_DIR="${WS_SOURCE_DIR}"
+        -P "${CMAKE_SOURCE_DIR}/cmake/modules/Dist.cmake"
+    COMMAND "${CMAKE_MAKE_PROGRAM}" package_source
+)
+
 
 if(HAVE_LIBAIRPCAP)
 	set(HAVE_AIRPCAP 1)

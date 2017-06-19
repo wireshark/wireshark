@@ -874,8 +874,7 @@ EXTRA_DIST = \
 	cmakeconfig.h.in	\
 	CMakeOptions.txt	\
 	ConfigureChecks.cmake	\
-	cmake			\
-	CPackConfig.txt
+	cmake
 
 install-exec-hook:
 if HAVE_DUMPCAP_GROUP
