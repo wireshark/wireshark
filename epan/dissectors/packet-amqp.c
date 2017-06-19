@@ -6650,13 +6650,13 @@ dissect_amqp_1_0_list(tvbuff_t *tvb,
         return bound-orig_offset;
     }
 
-    list_tree = proto_tree_add_none_format(item,
-                                           hf_amqp_type,
-                                           tvb,
-                                           offset-1,
-                                           element_size+1+count_len,
-                                           "%s",
-                                           name ? name : proto_registrar_get_name(hf_amqp_type));
+    list_tree = proto_tree_add_item(item,
+                                    hf_amqp_type,
+                                    tvb,
+                                    offset-1,
+                                    element_size+1+count_len,
+                                    ENC_BIG_ENDIAN);
+    proto_item_set_text(list_tree, "%s", name ? name : proto_registrar_get_name(hf_amqp_type));
     AMQP_INCREMENT(offset, count_len*2, bound);
 
     if (element_count > 0)
@@ -6915,13 +6915,13 @@ dissect_amqp_1_0_array(tvbuff_t *tvb,
                                                &hf_amqp_subtypes_array,
                                                &decoded_element_size);
 
-    array_tree = proto_tree_add_none_format(item,
-                                            hf_amqp_type,
-                                            tvb,
-                                            offset-1,
-                                            element_size+1+count_len,
-                                            "%s",
-                                            name ? name : proto_registrar_get_name(hf_amqp_type));
+    array_tree = proto_tree_add_item(item,
+                                     hf_amqp_type,
+                                     tvb,
+                                     offset-1,
+                                     element_size+1+count_len,
+                                     ENC_BIG_ENDIAN);
+    proto_item_set_text(array_tree, "%s", name ? name : proto_registrar_get_name(hf_amqp_type));
     AMQP_INCREMENT(offset, count_len*2+decoded_element_size, bound);
 
     if (element_count > 0)
