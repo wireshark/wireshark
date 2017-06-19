@@ -787,7 +787,7 @@ void MainWindow::captureFileReadStarted(const QString &action) {
     main_ui_->statusBar->pushFileStatus(msg, msgtip);
     main_ui_->mainStack->setCurrentWidget(&master_split_);
     main_ui_->actionAnalyzeReloadLuaPlugins->setEnabled(false);
-    wireless_timeline_->captureFileReadStarted(capture_file_.capFile());
+    main_ui_->wirelessTimelineWidget->captureFileReadStarted(capture_file_.capFile());
 
     WiresharkApplication::processEvents();
 }
@@ -809,7 +809,7 @@ void MainWindow::captureFileReadFinished() {
     updateForUnsavedChanges();
 
     /* enable wireless timeline if capture allows it */
-    wireless_timeline_->captureFileReadFinished();
+    main_ui_->wirelessTimelineWidget->captureFileReadFinished();
 
     /* Enable menu items that make sense if you have some captured packets. */
     setForCapturedPackets(true);
@@ -2469,17 +2469,17 @@ void MainWindow::on_actionViewNormalSize_triggered()
 
 void MainWindow::on_actionWirelessTimelineZoomIn_triggered()
 {
-    wireless_timeline_->zoomIn();
+    main_ui_->wirelessTimelineWidget->zoomIn();
 }
 
 void MainWindow::on_actionWirelessTimelineZoomOut_triggered()
 {
-    wireless_timeline_->zoomOut();
+    main_ui_->wirelessTimelineWidget->zoomOut();
 }
 
 void MainWindow::on_actionWirelessTimelineZoomFullOut_triggered()
 {
-    wireless_timeline_->zoomFullOut();
+    main_ui_->wirelessTimelineWidget->zoomFullOut();
 }
 
 void MainWindow::on_actionViewColorizePacketList_triggered(bool checked) {

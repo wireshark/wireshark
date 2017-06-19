@@ -59,7 +59,8 @@ class WirelessTimeline : public QWidget
     Q_OBJECT
 
 public:
-    explicit WirelessTimeline(QWidget *parent, PacketList *packet_list);
+    explicit WirelessTimeline(QWidget *parent);
+    void setPacketList(PacketList *packet_list);
     void captureFileReadStarted(capture_file *cf);
     void captureFileReadFinished();
     void zoomIn();

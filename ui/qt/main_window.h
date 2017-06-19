@@ -66,7 +66,6 @@ class FileSetDialog;
 class FunnelStatistics;
 class MainWelcome;
 class PacketList;
-class WirelessTimeline;
 class ProtoTree;
 class WirelessFrame;
 
@@ -153,7 +152,6 @@ private:
     // XXX - packet_list_, proto_tree_, and byte_view_tab_ should
     // probably be full-on values instead of pointers.
     PacketList *packet_list_;
-    WirelessTimeline *wireless_timeline_;
     ProtoTree *proto_tree_;
     QWidget *previous_focus_;
     FileSetDialog *file_set_dialog_;

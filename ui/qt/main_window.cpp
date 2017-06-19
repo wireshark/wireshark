@@ -339,7 +339,6 @@ MainWindow::MainWindow(QWidget *parent) :
     cur_layout_(QVector<unsigned>()),
     df_combo_box_(NULL),
     packet_list_(NULL),
-    wireless_timeline_(NULL),
     proto_tree_(NULL),
     previous_focus_(NULL),
     file_set_dialog_(NULL),
@@ -528,7 +527,7 @@ MainWindow::MainWindow(QWidget *parent) :
     empty_pane_.setObjectName("emptyPane");
 
     packet_list_ = new PacketList(&master_split_);
-    wireless_timeline_ = new WirelessTimeline(&master_split_, packet_list_);
+    main_ui_->wirelessTimelineWidget->setPacketList(packet_list_);
 
     proto_tree_ = new ProtoTree(&master_split_);
     proto_tree_->installEventFilter(this);
@@ -2441,7 +2440,7 @@ void MainWindow::setForCapturedPackets(bool have_captured_packets)
     main_ui_->actionViewNormalSize->setEnabled(have_captured_packets);
     main_ui_->actionViewResizeColumns->setEnabled(have_captured_packets);
 
-    bool wireless_timeline_visible = (wireless_timeline_ ? !wireless_timeline_->isHidden() : FALSE);
+    bool wireless_timeline_visible = (main_ui_->wirelessTimelineWidget ? !main_ui_->wirelessTimelineWidget->isHidden() : FALSE);
     main_ui_->actionWirelessTimelineZoomIn->setEnabled(wireless_timeline_visible);
     main_ui_->actionWirelessTimelineZoomOut->setEnabled(wireless_timeline_visible);
     main_ui_->actionWirelessTimelineZoomFullOut->setEnabled(wireless_timeline_visible);

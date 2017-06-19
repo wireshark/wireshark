@@ -309,9 +309,19 @@ int WirelessTimeline::position(guint64 tsf, float ratio)
 }
 
 
-WirelessTimeline::WirelessTimeline(QWidget *parent, PacketList *packet_list) : QWidget(parent)
+WirelessTimeline::WirelessTimeline(QWidget *parent) : QWidget(parent)
 {
     setHidden(true);
+    zoom_level = 1.0;
+    setFixedHeight(TIMELINE_HEIGHT);
+    first_packet = 1;
+    setMouseTracking(true);
+
+    radio_packet_list = NULL;
+}
+
+void WirelessTimeline::setPacketList(PacketList *packet_list)
+{
     this->packet_list = packet_list;
     connect(packet_list->packetListModel(), SIGNAL(bgColorizationProgress(int,int)),
             this, SLOT(bgColorizationProgress(int,int)));
@@ -319,12 +329,6 @@ WirelessTimeline::WirelessTimeline(QWidget *parent, PacketList *packet_list) : Q
             this, SLOT(packetSelectionChanged()));
     connect(wsApp, SIGNAL(appInitialized()),
         this, SLOT(appInitialized()));
-    zoom_level = 1.0;
-    setFixedHeight(TIMELINE_HEIGHT);
-    first_packet = 1;
-    setMouseTracking(true);
-
-    radio_packet_list = NULL;
 }
 
 void WirelessTimeline::tap_timeline_reset(void* tapdata)
