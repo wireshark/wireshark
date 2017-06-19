@@ -35,6 +35,18 @@
 #include "pcap-common.h"
 
 /*
+ * On some systems, the FDDI MAC addresses are bit-swapped.
+ *
+ * XXX - what we *really* need to know is whether the addresses are
+ * bit-swapped *in a particular capture*, which depends on the system
+ * on which it was captured, not on the system that's reading it.
+ * Unfortunately, we can't determine that.
+ */
+#if !defined(ultrix) && !defined(__alpha) && !defined(__bsdi__)
+#define BIT_SWAPPED_MAC_ADDRS
+#endif
+
+/*
  * Map link-layer header types (LINKTYPE_ values) to Wiretap encapsulations.
  *
  * Either LBL NRG wasn't an adequate central registry (e.g., because of
