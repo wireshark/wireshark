@@ -120,4 +120,18 @@ class testIPv4(dftest.DFTest):
         dfilter = "ip.src != 200.0.0.0/8"
         self.assertDFilterCount(dfilter, 2)
 
+    def test_slice_1(self):
+         dfilter = "ip.src[0:2] == ac:19"
+         self.assertDFilterCount(dfilter, 1)
 
+    def test_slice_2(self):
+         dfilter = "ip.src[0:2] == 00:00"
+         self.assertDFilterCount(dfilter, 0)
+
+    def test_slice_3(self):
+         dfilter = "ip.src[2:2] == 64:0e"
+         self.assertDFilterCount(dfilter, 1)
+
+    def test_slice_4(self):
+         dfilter = "ip.src[2:2] == ff:ff"
+         self.assertDFilterCount(dfilter, 0)

@@ -169,6 +169,21 @@ cmp_bitwise_and(const fvalue_t *fv_a, const fvalue_t *fv_b)
 	return ((addr_a & addr_b) != 0);
 }
 
+static guint
+len(fvalue_t *fv _U_)
+{
+	return 4;
+}
+
+static void
+slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
+{
+	guint8* data;
+	guint32 addr = ipv4_get_net_order_addr(&(fv->value.ipv4));
+	data = ((guint8*)&addr)+offset;
+	g_byte_array_append(bytes, data, length);
+}
+
 void
 ftype_register_ipv4(void)
 {
@@ -198,8 +213,8 @@ ftype_register_ipv4(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		NULL,
-		NULL,
+		len,
+		slice,
 	};
 
 	ftype_register(FT_IPv4, &ipv4_type);
