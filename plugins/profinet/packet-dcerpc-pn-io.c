@@ -735,6 +735,7 @@ static expert_field ei_pn_io_ar_info_not_found = EI_INIT;
 static expert_field ei_pn_io_iocr_type = EI_INIT;
 static expert_field ei_pn_io_frame_id = EI_INIT;
 static expert_field ei_pn_io_nr_of_tx_port_groups = EI_INIT;
+static expert_field ei_pn_io_max_recursion_depth_reached = EI_INIT;
 
 static e_guid_t uuid_pn_io_device = { 0xDEA00001, 0x6C97, 0x11D1, { 0x82, 0x71, 0x00, 0xA0, 0x24, 0x42, 0xDF, 0x7D } };
 static guint16  ver_pn_io_device = 1;
@@ -9993,14 +9994,20 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+#define PN_IO_MAX_RECURSION_DEPTH 100
 
 static int
 dissect_IODWriteReq(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep, pnio_ar_t **ar)
+    packet_info *pinfo, proto_tree *tree, guint8 *drep, pnio_ar_t **ar, guint recursion_count)
 {
     guint16 u16Index = 0;
     guint32 u32RecDataLen = 0;
 
+    if (++recursion_count >= PN_IO_MAX_RECURSION_DEPTH) {
+        proto_tree_add_expert(tree, pinfo, &ei_pn_io_max_recursion_depth_reached,
+                              tvb, 0, 0);
+        return tvb_captured_length(tvb);
+    }
 
     /* IODWriteHeader */
     offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, ar);
@@ -10008,7 +10015,7 @@ dissect_IODWriteReq(tvbuff_t *tvb, int offset,
     /* IODWriteMultipleReq? */
     if (u16Index == 0xe040) {
         while (tvb_captured_length_remaining(tvb, offset) > 0) {
-            offset = dissect_IODWriteReq(tvb, offset, pinfo, tree, drep, ar);
+            offset = dissect_IODWriteReq(tvb, offset, pinfo, tree, drep, ar, recursion_count++);
         }
     } else {
         tvbuff_t *new_tvb = tvb_new_subset_length(tvb, offset, u32RecDataLen);
@@ -10038,10 +10045,11 @@ dissect_IPNIO_Write_rqst(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
     pnio_ar_t *ar = NULL;
+    guint recursion_count = 0;
 
     offset = dissect_IPNIO_rqst_header(tvb, offset, pinfo, tree, di, drep);
 
-    offset = dissect_IODWriteReq(tvb, offset, pinfo, tree, drep, &ar);
+    offset = dissect_IODWriteReq(tvb, offset, pinfo, tree, drep, &ar, recursion_count);
 
     if (ar != NULL) {
         pnio_ar_info(tvb, pinfo, tree, ar);
@@ -12933,6 +12941,7 @@ proto_register_pn_io (void)
         { &ei_pn_io_iocr_type, { "pn_io.iocr_type.unknown", PI_UNDECODED, PI_WARN, "IOCRType undecoded!", EXPFILL }},
         { &ei_pn_io_localalarmref, { "pn_io.localalarmref.changed", PI_UNDECODED, PI_WARN, "AlarmCRBlockReq: local alarm ref changed", EXPFILL }},
         { &ei_pn_io_nr_of_tx_port_groups, { "pn_io.nr_of_tx_port_groups.not_allowed", PI_PROTOCOL, PI_WARN, "Not allowed value of NumberOfTxPortGroups", EXPFILL }},
+        { &ei_pn_io_max_recursion_depth_reached, { "pn_io.max_recursion_depth_reached", PI_PROTOCOL, PI_WARN, "Maximum allowed recursion depth reached - stopping dissection", EXPFILL }}
     };
 
     module_t *pnio_module;
