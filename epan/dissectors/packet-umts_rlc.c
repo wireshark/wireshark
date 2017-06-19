@@ -236,11 +236,11 @@ static GHashTable *sequence_table    = NULL; /* channel -> seq */
 static GHashTable *duplicate_table = NULL; /* duplicates */
 
 /* identify an RLC channel, using one of two options:
- *  - via Radio Bearer ID and U-RNTI
+ *  - via Radio Bearer ID and unique UE ID
  *  - via Radio Bearer ID and (VPI/VCI/CID) + Link ID
  */
 struct rlc_channel {
-    guint32          urnti;
+    guint32          ueid;
     guint16          vpi;
     guint16          vci;
     guint8           cid;
@@ -318,8 +318,8 @@ rlc_channel_hash(gconstpointer key)
 {
     const struct rlc_channel *ch = (const struct rlc_channel *)key;
 
-    if (ch->urnti)
-        return ch->urnti | ch->rbid | ch->mode;
+    if (ch->ueid)
+        return ch->ueid | ch->rbid | ch->mode;
 
     return (ch->vci << 16) | (ch->link << 16) | ch->vpi | ch->vci;
 }
@@ -329,8 +329,8 @@ rlc_channel_equal(gconstpointer a, gconstpointer b)
 {
     const struct rlc_channel *x = (const struct rlc_channel *)a, *y = (const struct rlc_channel *)b;
 
-    if (x->urnti || y->urnti)
-        return x->urnti == y->urnti &&
+    if (x->ueid || y->ueid)
+        return x->ueid == y->ueid &&
             x->rbid == y->rbid &&
             x->mode == y->mode &&
             x->dir == y->dir ? TRUE : FALSE;
@@ -354,12 +354,12 @@ rlc_channel_assign(struct rlc_channel *ch, enum rlc_mode mode, packet_info *pinf
     rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
     if (!fpinf || !rlcinf) return -1;
 
-    if (rlcinf->urnti[fpinf->cur_tb]) {
-        ch->urnti = rlcinf->urnti[fpinf->cur_tb];
+    if (rlcinf->ueid[fpinf->cur_tb]) {
+        ch->ueid = rlcinf->ueid[fpinf->cur_tb];
         ch->vpi = ch->vci = ch->link = ch->cid = 0;
     } else {
         if (!atm) return -1;
-        ch->urnti = 1;
+        ch->ueid = 1;
         ch->vpi = atm->vpi;
         ch->vci = atm->vci;
         ch->cid = atm->aal2_cid;
@@ -956,7 +956,7 @@ reassemble_sequence(struct rlc_frag ** frags, struct rlc_seqlist * endlist,
 /* Reset the specified channel's reassembly data, useful for when a sequence
  * resets on transport channel swap. */
 void
-rlc_reset_channel(enum rlc_mode mode, guint8 rbid, guint8 dir, guint32 urnti,
+rlc_reset_channel(enum rlc_mode mode, guint8 rbid, guint8 dir, guint32 ueid,
                   struct atm_phdr *atm)
 {
     struct rlc_frag ** frags = NULL;
@@ -967,7 +967,7 @@ rlc_reset_channel(enum rlc_mode mode, guint8 rbid, guint8 dir, guint32 urnti,
     ch_lookup.mode = mode;
     ch_lookup.rbid = rbid;
     ch_lookup.dir = dir;
-    ch_lookup.urnti = urnti;
+    ch_lookup.ueid = ueid;
     frags = get_frags(NULL, &ch_lookup, atm);
     endlist = get_endlist(NULL, &ch_lookup, atm);
     DISSECTOR_ASSERT(frags && endlist);
@@ -1003,7 +1003,7 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
     }
     rlc_frag_assign(&frag_lookup, mode, pinfo, seq, num_li, atm);
     #if RLC_ADD_FRAGMENT_DEBUG_PRINT
-        g_print("packet: %d, channel (%d %d %d) seq: %u, num_li: %u, offset: %u, \n", pinfo->num, ch_lookup.dir, ch_lookup.rbid, ch_lookup.urnti, seq, num_li, offset);
+        g_print("packet: %d, channel (%d %d %d) seq: %u, num_li: %u, offset: %u, \n", pinfo->num, ch_lookup.dir, ch_lookup.rbid, ch_lookup.ueid, seq, num_li, offset);
     #endif
 
     snmod = getChannelSNModulus(&ch_lookup);
@@ -1352,13 +1352,13 @@ add_channel_info(packet_info * pinfo, proto_tree * tree, fp_info * fpinf, rlc_in
     item = proto_tree_add_item(tree, hf_rlc_channel, NULL, 0, 0, ENC_NA);
     channel_tree = proto_item_add_subtree(item, ett_rlc_channel);
     proto_item_append_text(item, " (rbid: %u, dir: %s, uid: 0x%08x)", rlcinf->rbid[fpinf->cur_tb],
-                           val_to_str_const(pinfo->link_dir, rlc_dir_vals, "Unknown"), rlcinf->urnti[fpinf->cur_tb]);
+                           val_to_str_const(pinfo->link_dir, rlc_dir_vals, "Unknown"), rlcinf->ueid[fpinf->cur_tb]);
     PROTO_ITEM_SET_GENERATED(item);
     item = proto_tree_add_uint(channel_tree, hf_rlc_channel_rbid, NULL, 0, 0, rlcinf->rbid[fpinf->cur_tb]);
     PROTO_ITEM_SET_GENERATED(item);
     item = proto_tree_add_uint(channel_tree, hf_rlc_channel_dir, NULL, 0, 0, pinfo->link_dir);
     PROTO_ITEM_SET_GENERATED(item);
-    item = proto_tree_add_uint(channel_tree, hf_rlc_channel_ueid, NULL, 0, 0, rlcinf->urnti[fpinf->cur_tb]);
+    item = proto_tree_add_uint(channel_tree, hf_rlc_channel_ueid, NULL, 0, 0, rlcinf->ueid[fpinf->cur_tb]);
     PROTO_ITEM_SET_GENERATED(item);
 
 }
@@ -2642,7 +2642,7 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 offset++;
                 break;
             case RLC_URNTI_TAG:
-                rlci->urnti[fpi->cur_tb] = tvb_get_ntohl(tvb, offset);
+                rlci->ueid[fpi->cur_tb] = tvb_get_ntohl(tvb, offset);
                 offset += 4;
                 break;
             case RLC_RADIO_BEARER_ID_TAG:

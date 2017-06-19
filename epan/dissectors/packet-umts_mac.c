@@ -246,7 +246,7 @@ static guint16 tree_add_common_dcch_dtch_fields(tvbuff_t *tvb, packet_info *pinf
     bitoffs += 2;
     if (ueid_type == MAC_UEID_TYPE_URNTI) {
         proto_tree_add_bits_item(tree, hf_mac_urnti, tvb, bitoffs, 32, ENC_BIG_ENDIAN);
-        rlcinf->urnti[fpinf->cur_tb] = tvb_get_bits32(tvb, bitoffs, 32,ENC_BIG_ENDIAN);
+        rlcinf->ueid[fpinf->cur_tb] = tvb_get_bits32(tvb, bitoffs, 32,ENC_BIG_ENDIAN);
         bitoffs += 32;
     } else if (ueid_type == MAC_UEID_TYPE_CRNTI) {
         proto_tree_add_bits_item(tree, hf_mac_crnti, tvb, 4, 16, ENC_BIG_ENDIAN);
@@ -292,7 +292,7 @@ static guint16 tree_add_common_dcch_dtch_fields(tvbuff_t *tvb, packet_info *pinf
         /* Choosing between resolved U-RNTI (if found) or the C-RNTI as UE-ID for RLC */
         if(fp_crnti_allocation_info != NULL) {
             /* Using U-RNTI */
-            rlcinf->urnti[fpinf->cur_tb] = fp_crnti_allocation_info->urnti;
+            rlcinf->ueid[fpinf->cur_tb] = fp_crnti_allocation_info->urnti;
             /* Adding 'Resolved U-RNTI' related tree items*/
             proto_item *temp;
             proto_tree *resolved_urnti_tree;
@@ -304,7 +304,7 @@ static guint16 tree_add_common_dcch_dtch_fields(tvbuff_t *tvb, packet_info *pinf
         }
         else {
             /* Using C-RNTI */
-            rlcinf->urnti[fpinf->cur_tb] = c_rnti;
+            rlcinf->ueid[fpinf->cur_tb] = c_rnti;
         }
         bitoffs += 16;
     }
@@ -1053,7 +1053,7 @@ static int dissect_mac_fdd_edch_type2(tvbuff_t *tvb, packet_info *pinfo, proto_t
         PROTO_ITEM_SET_GENERATED(temp);
         /*Set up information needed for MAC and lower layers*/
         rlcinf->mode[sdu_no] = lchId_rlc_map[lchid]; /* Set RLC mode by lchid to RLC_MODE map in nbap.h */
-        rlcinf->urnti[sdu_no] = p_fp_info->com_context_id;
+        rlcinf->ueid[sdu_no] = p_fp_info->com_context_id;
         rlcinf->rbid[sdu_no] = lchid;
         rlcinf->li_size[sdu_no] = RLC_LI_7BITS;
         rlcinf->ciphered[sdu_no] = FALSE;

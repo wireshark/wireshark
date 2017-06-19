@@ -829,7 +829,7 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
   if (fpinf && macinf && rlcinf) {
     switch(macinf->content[fpinf->cur_tb]){
       case MAC_DCCH:
-        u_rnti = rlcinf->urnti[fpinf->cur_tb];
+        u_rnti = rlcinf->ueid[fpinf->cur_tb];
         break;
       case MAC_CCCH:
       default:

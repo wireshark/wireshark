@@ -44,7 +44,11 @@ enum rlc_li_size {
 #define MAX_RLC_CHANS 64
 typedef struct rlc_info
 {
-    guint32 urnti[MAX_RLC_CHANS];
+    /* Values in the 'ueid' array should identify users exclusively */
+    /* Preferred  content: */
+    /* 1. U-RNTI */
+    /* 2. C-RNC Context (from NBAP) */
+    guint32 ueid[MAX_RLC_CHANS];
     guint8 mode[MAX_RLC_CHANS];
     guint8 rbid[MAX_RLC_CHANS];
     enum rlc_li_size li_size[MAX_RLC_CHANS];
@@ -54,7 +58,7 @@ typedef struct rlc_info
 
 /* Reset the specified channel's reassembly data, useful for when a sequence
  * resets on transport channel swap. */
-void rlc_reset_channel(enum rlc_mode mode, guint8 rbid, guint8 dir, guint32 urnti, struct atm_phdr *atm);
+void rlc_reset_channel(enum rlc_mode mode, guint8 rbid, guint8 dir, guint32 ueid, struct atm_phdr *atm);
 
 /* Tells other functions if this packet is ciphered or not */
 gboolean rlc_is_ciphered(packet_info * pinfo);

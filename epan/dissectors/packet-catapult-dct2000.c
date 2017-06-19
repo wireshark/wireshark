@@ -1697,7 +1697,7 @@ static void attach_rlc_info(packet_info *pinfo, guint32 urnti, guint8 rbid,
     /* Fill in struct fields for first (only) PDU in this frame */
 
     /* Urnti.  Just use UEId */
-    p_rlc_info->urnti[0] = urnti;
+    p_rlc_info->ueid[0] = urnti;
 
     /* ciphered (off by default) */
     p_rlc_info->ciphered[0] = FALSE;

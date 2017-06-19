@@ -2918,7 +2918,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         rlcinf->mode[macd_idx] = lchId_rlc_map[lchid]; /* Set RLC mode by lchid to RLC_MODE map in nbap.h */
 
                         /* Set U-RNTI to ComuncationContext signaled from nbap*/
-                        rlcinf->urnti[macd_idx] = user_identity;
+                        rlcinf->ueid[macd_idx] = user_identity;
                         rlcinf->rbid[macd_idx] = lchid; /*subframes[n].ddi[i];*/    /*Save the DDI value for RLC*/
                         /*g_warning("========Setting RBID:%d for lchid:%d", subframes[n].ddi[i], lchid);*/
                         /* rlcinf->mode[0] = RLC_AM;*/
@@ -3313,7 +3313,7 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             } else {
                     macinf->ctmux[i] = FALSE;    /*Either it's multiplexed and not signled or it's not MUX*/
             }
-            rlcinf->urnti[i] = user_identity;
+            rlcinf->ueid[i] = user_identity;
             rlcinf->li_size[i] = RLC_LI_7BITS;
             rlcinf->deciphered[i] = FALSE;
             rlcinf->ciphered[i] = FALSE;
@@ -3326,7 +3326,7 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
              * */
             /*Indicate we need to reset stream*/
             if (p_fp_info->reset_frag) {
-                rlc_reset_channel(rlcinf->mode[i], macinf->lchid[i], p_fp_info->is_uplink,  rlcinf->urnti[i] );
+                rlc_reset_channel(rlcinf->mode[i], macinf->lchid[i], p_fp_info->is_uplink,  rlcinf->ueid[i] );
                 p_fp_info->reset_frag = FALSE;
 
             }
@@ -3628,7 +3628,7 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 rlcinf->deciphered[j] = FALSE;
                 rlcinf->rbid[j] = (guint8)lchid[n]+1;
 
-                rlcinf->urnti[j] = user_identity;
+                rlcinf->ueid[j] = user_identity;
             }
 
             /* Add PDU block header subtree */
@@ -3873,7 +3873,7 @@ void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
                     rlcinf->ciphered[j] = FALSE;
                     rlcinf->deciphered[j] = FALSE;
                     rlcinf->rbid[j] = (guint8)lchid[n]+1;
-                    rlcinf->urnti[j] = p_fp_info->channel; /*We need to fake urnti*/
+                    rlcinf->ueid[j] = p_fp_info->channel; /*We need to fake urnti*/
 
                     next_tvb = tvb_new_subset_length(tvb, offset, (gint)pdu_length[n]);
                     call_dissector_with_data(mac_fdd_hsdsch_handle, next_tvb, pinfo, top_level_tree, data);
@@ -5075,7 +5075,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                     rlcinf->mode[0] = RLC_UNKNOWN_MODE;
                     break;
             }*/
-            rlcinf->urnti[0] = get_ue_id_from_conv(p_conv_data);
+            rlcinf->ueid[0] = get_ue_id_from_conv(p_conv_data);
             rlcinf->li_size[0] = RLC_LI_7BITS;
             rlcinf->ciphered[0] = FALSE;
             rlcinf->deciphered[0] = FALSE;
@@ -5102,7 +5102,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
             }
             fpi->edch_type = fp_edch_channel_info->edch_type;
 
-            rlcinf->urnti[0] = get_ue_id_from_conv(p_conv_data);
+            rlcinf->ueid[0] = get_ue_id_from_conv(p_conv_data);
             rlcinf->li_size[0] = RLC_LI_7BITS;
             rlcinf->ciphered[0] = FALSE;
             rlcinf->deciphered[0] = FALSE;
@@ -5195,7 +5195,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                     }
 
                     /*** Set RLC info ***/
-                    rlcinf->urnti[j + chan] = get_ue_id_from_conv(p_conv_data);
+                    rlcinf->ueid[j + chan] = get_ue_id_from_conv(p_conv_data);
                     rlcinf->li_size[j+chan] = RLC_LI_7BITS;
 #if 0
                     /*If this entry exists, SECRUITY_MODE is completed (signled by RRC)*/
@@ -5244,7 +5244,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
             rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
             /* For RLC re-assembly to work we need to fake a "U-RNTI" as an identifier of this stream.*/
             /* Using the (UDP) conversation's ID and the prefix of 0xFFF */
-            rlcinf->urnti[0] = (p_conv->conv_index | 0xFFF00000);
+            rlcinf->ueid[0] = (p_conv->conv_index | 0xFFF00000);
             rlcinf->mode[0] = RLC_AM;
             rlcinf->li_size[0] = RLC_LI_7BITS;
             rlcinf->ciphered[0] = FALSE;
@@ -5273,7 +5273,10 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
             for ( chan = 0; chan < fpi->num_chans; chan++ ) {
                 macinf->ctmux[chan]   = 1;
                 macinf->content[chan] = MAC_CONTENT_DCCH;
-                rlcinf->urnti[chan] = fpi->com_context_id;    /*Note: For DCCH, MAC dissector will override this with C-RNTI/U-RNTI*/
+                /* RLC dissector requires a non-zero stream identifier ('UE ID') to work */
+                /* For DCCH: MAC dissector will override this with C-RNTI/U-RNTI */
+                /* For CCCH: RLC's mode is TM and the dissector does not need the ID for reassembly - showing 0 in the UI to indicate that */
+                rlcinf->ueid[chan] = 0;
             }
             p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, macinf);
             p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0, rlcinf);
