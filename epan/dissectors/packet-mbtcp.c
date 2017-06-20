@@ -1561,10 +1561,10 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
            modbus_conv_data = wmem_new(wmem_file_scope(), modbus_conversation);
            modbus_conv_data->modbus_request_frame_data = wmem_list_new(wmem_file_scope());
            modbus_conv_data->register_format = global_mbus_register_format;
-           pkt_info->register_format = global_mbus_register_format;
            conversation_add_proto_data(conversation, proto_modbus, (void *)modbus_conv_data);
         }
 
+        pkt_info->register_format = modbus_conv_data->register_format;
 
         if (*packet_type == QUERY_PACKET) {
             /*create the modbus_request frame. It holds the request information.*/
