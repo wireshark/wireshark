@@ -1378,6 +1378,45 @@ get_profiles_dir(void)
                     G_DIR_SEPARATOR_S, PROFILES_DIR);
 }
 
+int
+create_profiles_dir(char **pf_dir_path_return)
+{
+    char *pf_dir_path;
+    ws_statb64 s_buf;
+
+    /*
+     * Create the "Default" personal configuration files directory, if necessary.
+     */
+    if (create_persconffile_profile (NULL, pf_dir_path_return) == -1) {
+        return -1;
+    }
+
+    /*
+     * Check if profiles directory exists.
+     * If not then create it.
+     */
+    pf_dir_path = get_profiles_dir ();
+    if (ws_stat64(pf_dir_path, &s_buf) != 0) {
+        if (errno != ENOENT) {
+            /* Some other problem; give up now. */
+            *pf_dir_path_return = pf_dir_path;
+            return -1;
+        }
+
+        /*
+         * It doesn't exist; try to create it.
+         */
+        int ret = ws_mkdir(pf_dir_path, 0755);
+        if (ret == -1) {
+            *pf_dir_path_return = pf_dir_path;
+            return ret;
+        }
+    }
+    g_free(pf_dir_path);
+
+    return 0;
+}
+
 char *
 get_global_profiles_dir(void)
 {
@@ -1556,34 +1595,11 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
 
     if (profilename) {
         /*
-         * Create the "Default" personal configuration files directory, if necessary.
+         * Create the personal profiles directory, if necessary.
          */
-        if (create_persconffile_profile (NULL, pf_dir_path_return) == -1) {
+        if (create_profiles_dir(pf_dir_path_return) == -1) {
             return -1;
         }
-
-        /*
-         * Check if profiles directory exists.
-         * If not then create it.
-         */
-        pf_dir_path = get_profiles_dir ();
-        if (ws_stat64(pf_dir_path, &s_buf) != 0) {
-            if (errno != ENOENT) {
-                /* Some other problem; give up now. */
-                *pf_dir_path_return = pf_dir_path;
-                return -1;
-            }
-
-            /*
-             * It doesn't exist; try to create it.
-             */
-            ret = ws_mkdir(pf_dir_path, 0755);
-            if (ret == -1) {
-                *pf_dir_path_return = pf_dir_path;
-                return ret;
-            }
-        }
-        g_free(pf_dir_path);
     }
 
     pf_dir_path = get_persconffile_dir(profilename);
