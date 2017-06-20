@@ -1645,7 +1645,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		headers.upgrade = conv_data->upgrade;
 	}
 
-	if (http_type == HTTP_RESPONSE && pinfo->desegment_offset<=0 && pinfo->desegment_len<=0) {
+	if (http_type == HTTP_RESPONSE && headers.upgrade && pinfo->desegment_offset<=0 && pinfo->desegment_len<=0) {
 		conv_data->upgrade = headers.upgrade;
 		conv_data->startframe = pinfo->num + 1;
 		copy_address_wmem(wmem_file_scope(), &conv_data->server_addr, &pinfo->src);
