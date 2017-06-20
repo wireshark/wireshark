@@ -7026,7 +7026,7 @@ static int
 dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
     proto_tree *gtpv2_tree, *flags_tree;
-    proto_item *tf;
+    proto_item *ti;
     guint8      message_type, t_flag, p_flag, cause_aux;
     int         offset = 0;
     guint16     msg_length;
@@ -7053,7 +7053,8 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
 
     p_flag = (tvb_get_guint8(tvb, offset) & 0x10) >> 4;
     msg_length = tvb_get_ntohs(tvb, offset + 2);
-    proto_tree_add_item(tree, proto_gtpv2, tvb, offset, msg_length + 4, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_gtpv2, tvb, offset, msg_length + 4, ENC_NA);
+    gtpv2_tree = proto_item_add_subtree(ti, ett_gtpv2);
 
     if (g_gtp_session) {
         args = wmem_new0(wmem_packet_scope(), session_args_t);
@@ -7084,9 +7085,6 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
         conversation_add_proto_data(conversation, proto_gtpv2, gtpv2_info);
     }
 
-    gtpv2_tree = proto_tree_add_subtree(tree, tvb, offset, msg_length + 4, ett_gtpv2, NULL,
-                                val_to_str_ext_const(message_type, &gtpv2_message_type_vals_ext, "Unknown"));
-
     /* Control Plane GTP uses a variable length header. Control Plane GTP header
         * length shall be a multiple of 4 octets.
         * Figure 5.1-1 illustrates the format of the GTPv2-C Header.
@@ -7102,8 +7100,8 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
         * Figure 5.1-1: General format of GTPv2 Header for Control Plane
         */
     gtpv2_hdr->flags = tvb_get_guint8(tvb, offset);
-    tf = proto_tree_add_uint(gtpv2_tree, hf_gtpv2_flags, tvb, offset, 1, gtpv2_hdr->flags);
-    flags_tree = proto_item_add_subtree(tf, ett_gtpv2_flags);
+    ti = proto_tree_add_uint(gtpv2_tree, hf_gtpv2_flags, tvb, offset, 1, gtpv2_hdr->flags);
+    flags_tree = proto_item_add_subtree(ti, ett_gtpv2_flags);
 
     /* Octet 1 */
     t_flag = (tvb_get_guint8(tvb, offset) & 0x08) >> 3;
