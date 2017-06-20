@@ -212,7 +212,6 @@ cmp_bitwise_and(const fvalue_t *fv_a, const fvalue_t *fv_b)
 static void
 slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 {
-	/* XXX needed? ipv4 doesn't support slice() */
 	guint8* data;
 
 	data = fv->value.ipv6.addr.bytes + offset;

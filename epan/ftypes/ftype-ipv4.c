@@ -169,12 +169,6 @@ cmp_bitwise_and(const fvalue_t *fv_a, const fvalue_t *fv_b)
 	return ((addr_a & addr_b) != 0);
 }
 
-static guint
-len(fvalue_t *fv _U_)
-{
-	return 4;
-}
-
 static void
 slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 {
@@ -213,7 +207,7 @@ ftype_register_ipv4(void)
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		len,
+		NULL,
 		slice,
 	};
 
