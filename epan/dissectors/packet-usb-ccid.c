@@ -476,6 +476,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item *item;
     proto_tree *ccid_tree;
     guint8      cmd;
+    guint32     payload_len;
     tvbuff_t   *next_tvb;
     usb_conv_info_t  *usb_conv_info;
 
@@ -509,7 +510,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         if (tvb_get_letohl(tvb, 1) != 0)
         {
             next_tvb = tvb_new_subset_remaining(tvb, 10);
-            call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, tree);
+            call_data_dissector(next_tvb, pinfo, tree);
         }
         break;
 
@@ -552,7 +553,8 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     case PC_RDR_XFR_BLOCK:
     case PC_RDR_ESCAPE:
-        proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_uint(ccid_tree, hf_ccid_dwLength,
+                tvb, 1, 4, ENC_LITTLE_ENDIAN, &payload_len);
         proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
 
@@ -563,38 +565,27 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_tree_add_item(ccid_tree, hf_ccid_wLevelParameter, tvb, 8, 2, ENC_LITTLE_ENDIAN);
         }
 
-        if (tvb_get_letohl(tvb, 1) != 0)
-        {
-            next_tvb = tvb_new_subset_remaining(tvb, 10);
+        if (payload_len == 0)
+            break;
 
-            /* See if the dissector isn't Data */
-            if (sub_selected != SUB_DATA) {
+        next_tvb = tvb_new_subset_length(tvb, 10, payload_len);
+        /* sent/received is from the perspective of the card reader */
+        pinfo->p2p_dir = P2P_DIR_SENT;
 
-                if (sub_selected == SUB_PN532) {
-                    call_dissector_with_data(sub_handles[sub_selected], tvb_new_subset_remaining(tvb, 10), pinfo, tree, usb_conv_info);
-                } else if (sub_selected == SUB_ACR122_PN532) {
-                    pinfo->p2p_dir = P2P_DIR_SENT;
-                    call_dissector_with_data(sub_handles[sub_selected], tvb_new_subset_remaining(tvb, 10), pinfo, tree, usb_conv_info);
-                } else if (sub_selected == SUB_ISO7816) {
-                    /* sent/received is from the perspective of the card reader */
-                    pinfo->p2p_dir = P2P_DIR_SENT;
-                    call_dissector(sub_handles[SUB_ISO7816], next_tvb, pinfo, tree);
-                } else { /* The user probably wanted GSM SIM, or something else */
-                    call_dissector(sub_handles[sub_selected], next_tvb, pinfo, tree);
-                }
-
-            } else if (usb_conv_info->deviceVendor == 0x072F && usb_conv_info->deviceProduct == 0x2200) {
-                    pinfo->p2p_dir = P2P_DIR_SENT;
-                    call_dissector_with_data(sub_handles[SUB_ACR122_PN532], tvb_new_subset_remaining(tvb, 10), pinfo, tree, usb_conv_info);
-            } else { /* The user only wants plain data */
-                call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, tree);
-            }
+        /* See if the dissector isn't Data */
+        if (sub_selected != SUB_DATA) {
+            call_dissector_with_data(sub_handles[sub_selected], next_tvb, pinfo, tree, usb_conv_info);
+        } else if (usb_conv_info->deviceVendor == 0x072F && usb_conv_info->deviceProduct == 0x2200) {
+            call_dissector_with_data(sub_handles[SUB_ACR122_PN532], next_tvb, pinfo, tree, usb_conv_info);
+        } else { /* The user only wants plain data */
+            call_data_dissector(next_tvb, pinfo, tree);
         }
         break;
 
     case RDR_PC_DATA_BLOCK:
     case RDR_PC_ESCAPE:
-        proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_uint(ccid_tree, hf_ccid_dwLength,
+                tvb, 1, 4, ENC_LITTLE_ENDIAN, &payload_len);
         proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_bitmask(ccid_tree, tvb, 7, hf_ccid_bStatus, ett_ccid_status, bStatus_fields, ENC_LITTLE_ENDIAN);
@@ -604,27 +595,24 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         else
             proto_tree_add_item(ccid_tree, hf_ccid_bChainParameter, tvb, 9, 1, ENC_LITTLE_ENDIAN);
 
-        if (tvb_get_letohl(tvb, 1) != 0)
-        {
-            next_tvb = tvb_new_subset_remaining(tvb, 10);
+        if (payload_len == 0)
+            break;
 
-            if (sub_selected == SUB_PN532) {
-                next_tvb= tvb_new_subset_length(tvb, 10, tvb_get_guint8(tvb, 1));
-                call_dissector_with_data(sub_handles[SUB_PN532], next_tvb, pinfo, tree, usb_conv_info);
-            } else if (sub_selected == SUB_ACR122_PN532) {
-                pinfo->p2p_dir = P2P_DIR_RECV;
-                call_dissector_with_data(sub_handles[SUB_ACR122_PN532], tvb_new_subset_remaining(tvb, 10), pinfo, tree, usb_conv_info);
-            } else if (sub_selected == SUB_GSM_SIM_CMD) {  /* Try to dissect responses to GSM SIM packets */
-                call_dissector(sub_handles[SUB_GSM_SIM_RSP], next_tvb, pinfo, tree);
-            } else if (sub_selected == SUB_ISO7816) {
-                pinfo->p2p_dir = P2P_DIR_RECV;
-                call_dissector(sub_handles[SUB_ISO7816], next_tvb, pinfo, tree);
-            } else if (usb_conv_info->deviceVendor == 0x072F && usb_conv_info->deviceProduct == 0x2200) {
-                pinfo->p2p_dir = P2P_DIR_RECV;
-                call_dissector_with_data(sub_handles[SUB_ACR122_PN532], tvb_new_subset_remaining(tvb, 10), pinfo, tree, usb_conv_info);
-            } else {
-                call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, tree);
-            }
+        next_tvb = tvb_new_subset_length(tvb, 10, payload_len);
+        pinfo->p2p_dir = P2P_DIR_RECV;
+
+        if (sub_selected == SUB_PN532) {
+            call_dissector_with_data(sub_handles[SUB_PN532], next_tvb, pinfo, tree, usb_conv_info);
+        } else if (sub_selected == SUB_GSM_SIM_CMD) {  /* Try to dissect responses to GSM SIM packets */
+            call_dissector(sub_handles[SUB_GSM_SIM_RSP], next_tvb, pinfo, tree);
+        } else if (sub_selected == SUB_ACR122_PN532) {
+            call_dissector_with_data(sub_handles[SUB_ACR122_PN532], next_tvb, pinfo, tree, usb_conv_info);
+        } else if (sub_selected == SUB_ISO7816) {
+            call_dissector(sub_handles[SUB_ISO7816], next_tvb, pinfo, tree);
+        } else if (usb_conv_info->deviceVendor == 0x072F && usb_conv_info->deviceProduct == 0x2200) {
+            call_dissector_with_data(sub_handles[SUB_ACR122_PN532], next_tvb, pinfo, tree, usb_conv_info);
+        } else {
+            call_data_dissector(next_tvb, pinfo, tree);
         }
         break;
 
