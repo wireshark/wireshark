@@ -204,29 +204,7 @@ colorize_conversation_cb(conversation_filter_t* color_filter, int action_num)
                 * or through an accelerator key. Try to build a conversation
                 * filter in the order TCP, UDP, IP, Ethernet and apply the
                 * coloring */
-            color_filter = find_conversation_filter("tcp");
-            if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
-                filter = color_filter->build_filter_string(pi);
-            if (filter == NULL) {
-                color_filter = find_conversation_filter("udp");
-                if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
-                    filter = color_filter->build_filter_string(pi);
-            }
-            if (filter == NULL) {
-                color_filter = find_conversation_filter("ip");
-                if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
-                    filter = color_filter->build_filter_string(pi);
-            }
-            if (filter == NULL) {
-                color_filter = find_conversation_filter("ipv6");
-                if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
-                    filter = color_filter->build_filter_string(pi);
-            }
-            if (filter == NULL) {
-                color_filter = find_conversation_filter("eth");
-                if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
-                    filter = color_filter->build_filter_string(pi);
-            }
+            filter = conversation_filter_from_packet(pi);
             if( filter == NULL ) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Unable to build conversation filter.");
                 return;
@@ -258,24 +236,11 @@ goto_conversation_frame(gboolean dir)
     dfilter_t *dfcode       = NULL;
     gboolean   found_packet = FALSE;
     packet_info *pi = &cfile.edt->pi;
-    conversation_filter_t* conv_filter;
 
     /* Try to build a conversation
      * filter in the order TCP, UDP, IP, Ethernet and apply the
      * coloring */
-    conv_filter = find_conversation_filter("tcp");
-    if ((conv_filter != NULL) && (conv_filter->is_filter_valid(pi)))
-        filter = conv_filter->build_filter_string(pi);
-    conv_filter = find_conversation_filter("udp");
-    if ((conv_filter != NULL) && (conv_filter->is_filter_valid(pi)))
-        filter = conv_filter->build_filter_string(pi);
-    conv_filter = find_conversation_filter("ip");
-    if ((conv_filter != NULL) && (conv_filter->is_filter_valid(pi)))
-        filter = conv_filter->build_filter_string(pi);
-    conv_filter = find_conversation_filter("ipv6");
-    if ((conv_filter != NULL) && (conv_filter->is_filter_valid(pi)))
-        filter = conv_filter->build_filter_string(pi);
-
+    filter = conversation_filter_from_packet(pi);
     if( filter == NULL ) {
         statusbar_push_temporary_msg("Unable to build conversation filter.");
         g_free(filter);
