@@ -27306,7 +27306,7 @@ proto_register_wlan_rsna_eapol(void)
 
     {&hf_wlan_rsna_eapol_wpa_keydes_keyinfo_smk_message,
      {"SMK Message", "wlan_rsna_eapol.keydes.key_info.smk_message",
-      FT_BOOLEAN, 16, TFS(&tfs_set_notset), KEY_INFO_ENCRYPTED_KEY_DATA_MASK,
+      FT_BOOLEAN, 16, TFS(&tfs_set_notset), KEY_INFO_SMK_MESSAGE_MASK,
       NULL, HFILL }},
 
     {&hf_wlan_rsna_eapol_keydes_key_len,
