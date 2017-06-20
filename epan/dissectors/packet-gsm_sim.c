@@ -368,7 +368,7 @@ static int ett_tprof_b32 = -1;
 static int ett_tprof_b33 = -1;
 
 static dissector_handle_t sub_handle_cap;
-static dissector_handle_t sim_handle;
+static dissector_handle_t sim_handle, sim_part_handle;
 
 
 static const int *tprof_b1_fields[] = {
@@ -2942,13 +2942,15 @@ proto_register_gsm_sim(void)
 	register_dissector("gsm_sim.command", dissect_gsm_sim_command, proto_gsm_sim);
 	register_dissector("gsm_sim.response", dissect_gsm_sim_response, proto_gsm_sim);
 	register_dissector("gsm_sim.bertlv", dissect_bertlv, proto_gsm_sim);
-	register_dissector("gsm_sim.part", dissect_gsm_sim_part, proto_gsm_sim);
+	sim_part_handle = register_dissector("gsm_sim.part", dissect_gsm_sim_part, proto_gsm_sim);
 }
 
 void
 proto_reg_handoff_gsm_sim(void)
 {
 	dissector_add_uint("gsmtap.type", GSMTAP_TYPE_SIM, sim_handle);
+
+	dissector_add_for_decode_as("usbccid.subdissector", sim_part_handle);
 
 	sub_handle_cap = find_dissector_add_dependency("etsi_cat", proto_gsm_sim);
 }

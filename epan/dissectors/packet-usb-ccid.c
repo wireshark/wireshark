@@ -27,11 +27,14 @@
  */
 #include "config.h"
 
+#include <epan/decode_as.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include "packet-usb.h"
 
 static int proto_ccid = -1;
+
+static dissector_table_t subdissector_table;
 
 static int hf_ccid_bMessageType = -1;
 static int hf_ccid_dwLength = -1;
@@ -336,22 +339,16 @@ static gint ett_ccid_pin_support = -1;
 static gint ett_ccid_slot_change = -1;
 static gint ett_ccid_status = -1;
 
-/* Table of payload types - adapted from the I2C dissector */
-enum {
-    SUB_DATA = 0,
-    SUB_ISO7816,
-    SUB_GSM_SIM,
-    SUB_PN532,
-    SUB_ACR122_PN532,
+static void usb_ccid_prompt(packet_info *pinfo _U_, gchar* result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Next level protocol as");
+}
 
-    SUB_MAX
-};
 
-typedef gboolean (*sub_checkfunc_t)(packet_info *);
-
-static dissector_handle_t sub_handles[SUB_MAX];
-static gint sub_selected = SUB_DATA;
-
+static gpointer usb_ccid_value(packet_info *pinfo _U_)
+{
+    return 0;
+}
 
 static gint
 dissect_usb_ccid_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
@@ -571,12 +568,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         /* sent/received is from the perspective of the card reader */
         pinfo->p2p_dir = P2P_DIR_SENT;
 
-        /* See if the dissector isn't Data */
-        if (sub_selected != SUB_DATA) {
-            call_dissector_with_data(sub_handles[sub_selected], next_tvb, pinfo, tree, usb_conv_info);
-        } else if (usb_conv_info->deviceVendor == 0x072F && usb_conv_info->deviceProduct == 0x2200) {
-            call_dissector_with_data(sub_handles[SUB_ACR122_PN532], next_tvb, pinfo, tree, usb_conv_info);
-        } else { /* The user only wants plain data */
+        if (!dissector_try_uint_new(subdissector_table, 0, next_tvb, pinfo, tree, TRUE, usb_conv_info)) {
             call_data_dissector(next_tvb, pinfo, tree);
         }
         break;
@@ -600,17 +592,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         next_tvb = tvb_new_subset_length(tvb, 10, payload_len);
         pinfo->p2p_dir = P2P_DIR_RECV;
 
-        if (sub_selected == SUB_PN532) {
-            call_dissector_with_data(sub_handles[SUB_PN532], next_tvb, pinfo, tree, usb_conv_info);
-        } else if (sub_selected == SUB_GSM_SIM) {  /* Try to dissect responses to GSM SIM packets */
-            call_dissector(sub_handles[SUB_GSM_SIM], next_tvb, pinfo, tree);
-        } else if (sub_selected == SUB_ACR122_PN532) {
-            call_dissector_with_data(sub_handles[SUB_ACR122_PN532], next_tvb, pinfo, tree, usb_conv_info);
-        } else if (sub_selected == SUB_ISO7816) {
-            call_dissector(sub_handles[SUB_ISO7816], next_tvb, pinfo, tree);
-        } else if (usb_conv_info->deviceVendor == 0x072F && usb_conv_info->deviceProduct == 0x2200) {
-            call_dissector_with_data(sub_handles[SUB_ACR122_PN532], next_tvb, pinfo, tree, usb_conv_info);
-        } else {
+        if (!dissector_try_uint_new(subdissector_table, 0, next_tvb, pinfo, tree, TRUE, usb_conv_info)) {
             call_data_dissector(next_tvb, pinfo, tree);
         }
         break;
@@ -657,6 +639,12 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 void
 proto_register_ccid(void)
 {
+    static build_valid_func usb_ccid_build_value[1] = { usb_ccid_value };
+    static decode_as_value_t usb_ccid_da_values = { usb_ccid_prompt, 1, usb_ccid_build_value };
+    static decode_as_t usb_ccid_da = {"USB CCID", "Transport",
+        "usbccid.subdissector", 1, 0, &usb_ccid_da_values, NULL, NULL,
+        decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
     static hf_register_info hf[] = {
 
         {&hf_ccid_bMessageType,
@@ -897,26 +885,15 @@ proto_register_ccid(void)
         &ett_ccid_status
     };
 
-    static const enum_val_t sub_enum_vals[] = {
-        { "data", "Data", SUB_DATA },
-        { "iso7816", "Generic ISO 7816", SUB_ISO7816 },
-        { "gsm_sim", "GSM SIM", SUB_GSM_SIM },
-        { "pn532", "NXP PN532", SUB_PN532},
-        { "acr122", "ACR122 PN532", SUB_ACR122_PN532},
-        { NULL, NULL, 0 }
-    };
-
-    module_t *pref_mod;
-
     proto_ccid = proto_register_protocol("USB CCID", "USBCCID", "usbccid");
     proto_register_field_array(proto_ccid, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    pref_mod = prefs_register_protocol(proto_ccid, NULL);
-    prefs_register_enum_preference(pref_mod, "prtype", "PC -> Reader Payload Type", "How commands from the PC to the reader are interpreted",
-        &sub_selected, sub_enum_vals, FALSE);
-
     usb_ccid_handle = register_dissector("usbccid", dissect_ccid, proto_ccid);
+
+    subdissector_table = register_dissector_table(
+            "usbccid.subdissector", "USB CCID payload", proto_ccid, FT_UINT32, BASE_HEX);
+    register_decode_as(&usb_ccid_da);
 }
 
 /* Handler registration */
@@ -934,12 +911,6 @@ proto_reg_handoff_ccid(void)
     dissector_add_for_decode_as("usb.device", usb_ccid_handle);
     dissector_add_for_decode_as("usb.product", usb_ccid_handle);
     dissector_add_for_decode_as("usb.protocol", usb_ccid_handle);
-
-    sub_handles[SUB_DATA] = find_dissector("data");
-    sub_handles[SUB_ISO7816] = find_dissector_add_dependency("iso7816", proto_ccid);
-    sub_handles[SUB_GSM_SIM] = find_dissector_add_dependency("gsm_sim.part", proto_ccid);
-    sub_handles[SUB_PN532] = find_dissector_add_dependency("pn532", proto_ccid);
-    sub_handles[SUB_ACR122_PN532] = find_dissector_add_dependency("acr122", proto_ccid);
 }
 
 /*

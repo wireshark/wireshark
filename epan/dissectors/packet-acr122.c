@@ -91,6 +91,7 @@ static gint ett_status_word_sw2                                            = -1;
 
 static expert_field ei_unknown_command_or_invalid_parameters          = EI_INIT;
 
+static dissector_handle_t  acr122_handle;
 static dissector_handle_t  pn532_handle;
 
 static wmem_tree_t *command_info = NULL;
@@ -885,7 +886,7 @@ proto_register_acr122(void)
     command_info = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_acr122 = proto_register_protocol("Advanced Card Systems ACR122", "ACR 122", "acr122");
-    register_dissector("acr122", dissect_acr122, proto_acr122);
+    acr122_handle = register_dissector("acr122", dissect_acr122, proto_acr122);
 
     proto_register_field_array(proto_acr122, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -902,6 +903,7 @@ void
 proto_reg_handoff_acr122(void)
 {
     pn532_handle = find_dissector_add_dependency("pn532", proto_acr122);
+    dissector_add_for_decode_as("usbccid.subdissector", acr122_handle);
 }
 
 /*

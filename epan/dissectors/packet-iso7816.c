@@ -40,6 +40,7 @@ void proto_reg_handoff_iso7816(void);
 static int proto_iso7816 = -1;
 static int proto_iso7816_atr = -1;
 
+static dissector_handle_t iso7816_handle;
 static dissector_handle_t iso7816_atr_handle;
 
 static wmem_tree_t *transactions = NULL;
@@ -927,13 +928,20 @@ proto_register_iso7816(void)
     expert_iso7816 = expert_register_protocol(proto_iso7816);
     expert_register_field_array(expert_iso7816, ei, array_length(ei));
 
-    register_dissector("iso7816", dissect_iso7816, proto_iso7816);
+    iso7816_handle = register_dissector("iso7816", dissect_iso7816, proto_iso7816);
 
     transactions = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_iso7816_atr = proto_register_protocol_in_name_only("ISO/IEC 7816-3", "ISO 7816-3", "iso7816.atr", proto_iso7816, FT_PROTOCOL);
     iso7816_atr_handle = register_dissector("iso7816.atr", dissect_iso7816_atr, proto_iso7816_atr);
 }
+
+
+void proto_reg_handoff_iso7816(void)
+{
+    dissector_add_for_decode_as("usbccid.subdissector", iso7816_handle);
+}
+
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

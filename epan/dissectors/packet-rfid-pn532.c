@@ -219,6 +219,8 @@ static expert_field ei_unexpected_data = EI_INIT;
 
 static wmem_tree_t *command_info = NULL;
 
+static dissector_handle_t pn532_handle;
+
 void proto_register_pn532(void);
 void proto_reg_handoff_pn532(void);
 
@@ -2327,12 +2329,14 @@ void proto_register_pn532(void)
     prefs_register_enum_preference(pref_mod, "prtype532", "Payload Type", "Protocol payload type",
         &sub_selected, sub_enum_vals, FALSE);
 
-    register_dissector("pn532", dissect_pn532, proto_pn532);
+    pn532_handle = register_dissector("pn532", dissect_pn532, proto_pn532);
 }
 
 /* Handler registration */
 void proto_reg_handoff_pn532(void)
 {
+    dissector_add_for_decode_as("usbccid.subdissector", pn532_handle);
+
     sub_handles[SUB_DATA] = find_dissector("data");
     sub_handles[SUB_FELICA] = find_dissector_add_dependency("felica", proto_pn532);
     sub_handles[SUB_MIFARE] = find_dissector_add_dependency("mifare", proto_pn532);
