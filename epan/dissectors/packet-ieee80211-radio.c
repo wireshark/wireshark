@@ -466,7 +466,7 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
   /* durations in microseconds */
   guint preamble = 0, agg_preamble = 0; /* duration of plcp */
-  guint duration = 0; /* duration of whole frame (plcp + mac data + any trailing parts) */
+  guint duration = G_MAXUINT; /* duration of whole frame (plcp + mac data + any trailing parts) */
   guint prior_duration = 0; /* duration of previous part of aggregate */
 
   struct wlan_radio *wlan_radio_info;
@@ -885,8 +885,18 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
       data_rate == 5.5f || data_rate == 11.0f ||
       data_rate == 22.0f || data_rate == 33.0f)) {
       phy = PHDR_802_11_PHY_11B;
+    } else if (phy == PHDR_802_11_PHY_UNKNOWN &&
+      (data_rate == 1.0f || data_rate == 2.0f ||
+      data_rate == 5.5f || data_rate == 11.0f ||
+      data_rate == 22.0f || data_rate == 33.0f)) {
+      phy = PHDR_802_11_PHY_11B;
+    } else if (phy == PHDR_802_11_PHY_UNKNOWN &&
+      (data_rate == 6.0f || data_rate == 9.0f ||
+       data_rate == 12.0f || data_rate == 18.0f ||
+       data_rate == 24.0f || data_rate == 36.0f ||
+       data_rate == 48.0f || data_rate == 54.0f)) {
+      phy = PHDR_802_11_PHY_11A;
     }
-
     switch (phy) {
 
     case PHDR_802_11_PHY_11_FHSS:
@@ -1069,7 +1079,7 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     }
     }
 
-    if (!pinfo->fd->flags.visited && duration && phdr->has_tsf_timestamp) {
+    if (!pinfo->fd->flags.visited && duration != G_MAXUINT && phdr->has_tsf_timestamp) {
       if (current_aggregate) {
         current_aggregate->duration = agg_preamble + prior_duration + duration;
         if (previous_frame.radio_info && previous_frame.radio_info->aggregate == current_aggregate)
@@ -1117,7 +1127,7 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
       }
     }
 
-    if (duration) {
+    if (duration != G_MAXUINT) {
       proto_item *item = proto_tree_add_uint(radio_tree, hf_wlan_radio_duration, tvb, 0, 0, duration);
       proto_tree *d_tree = proto_item_add_subtree(item, ett_wlan_radio_duration);
       PROTO_ITEM_SET_GENERATED(item);
