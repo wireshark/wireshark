@@ -325,12 +325,12 @@ static void llc_gprs_dissect_xid(tvbuff_t *tvb,
 								 proto_item *llcgprs_tree)
 
 {
-	guint8 xid_param_len = 0, byte1 = 0, byte2 = 0, item_len = 0, tmp = 0;
+	guint8 xid_param_len = 0, byte1 = 0, byte2 = 0, tmp = 0;
 	guint16 location = 0;
 	guint16 loop_counter = 0;
 	proto_tree *uinfo_tree = NULL;
 	proto_tree *xid_tree = NULL;
-	guint16 info_len;
+	guint16 info_len, item_len;
 
 	info_len = tvb_reported_length(tvb);
 
