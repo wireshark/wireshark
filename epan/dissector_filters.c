@@ -73,6 +73,24 @@ void conversation_filters_cleanup(void)
     g_list_free(conv_filter_list);
 }
 
+gchar *conversation_filter_from_packet(struct _packet_info *pinfo)
+{
+    const char *layers[] = { "tcp", "udp", "ip", "ipv6", "eth" };
+    conversation_filter_t *conv_filter;
+    gchar *filter;
+    size_t i;
+
+    for (i = 0; i < G_N_ELEMENTS(layers); i++) {
+        conv_filter = find_conversation_filter(layers[i]);
+        if (conv_filter && conv_filter->is_filter_valid(pinfo)) {
+            if ((filter = conv_filter->build_filter_string(pinfo)) != NULL)
+                return filter;
+        }
+    }
+
+    return NULL;
+}
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *

@@ -49,6 +49,15 @@ WS_DLL_PUBLIC struct conversation_filter_s* find_conversation_filter(const char 
 /* Cleanup internal structures */
 extern void conversation_filters_cleanup(void);
 
+/**
+ * Tries to build a suitable display filter for the conversation in the current
+ * packet. More specific matches are tried first (like TCP ports) followed by
+ * less specific ones (IP addresses). NULL is returned when no filter is found.
+ *
+ * The returned filter should be freed with g_free.
+ */
+WS_DLL_PUBLIC gchar *conversation_filter_from_packet(struct _packet_info *pinfo);
+
 /*** THE FOLLOWING SHOULD NOT BE USED BY ANY DISSECTORS!!! ***/
 
 typedef struct conversation_filter_s {
