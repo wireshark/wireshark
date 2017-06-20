@@ -473,6 +473,14 @@ int main(int argc, char *qt_argv[])
     /* Assemble the run-time version information string */
     runtime_info_str = get_runtime_version_info(get_wireshark_runtime_info);
 
+    /* Create the user profiles directory */
+    if (create_profiles_dir(&rf_path) == -1) {
+        simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+                      "Could not create profiles directory\n\"%s\"",
+                      rf_path);
+        g_free (rf_path);
+    }
+
     profile_store_persconffiles(TRUE);
 
     /* Read the profile independent recent file.  We have to do this here so we can */
