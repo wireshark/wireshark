@@ -2248,6 +2248,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
    */
   save_fragmented = pinfo->fragmented;
   if (ip_defragment && (iph->ip_off & (IP_MF|IP_OFFSET)) &&
+      iph->ip_len > hlen &&
       tvb_bytes_exist(tvb, offset, iph->ip_len - hlen) &&
       ipsum == 0) {
     ipfd_head = fragment_add_check(&ip_reassembly_table, tvb, offset,
