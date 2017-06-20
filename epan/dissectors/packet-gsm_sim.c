@@ -1522,6 +1522,17 @@ dissect_gsm_sim_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 	return tvb_captured_length(tvb);
 }
 
+static int
+dissect_gsm_sim_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+	if (pinfo->p2p_dir == P2P_DIR_SENT)
+		return dissect_gsm_sim_command(tvb, pinfo, tree, data);
+	else if (pinfo->p2p_dir == P2P_DIR_RECV)
+		return dissect_gsm_sim_response(tvb, pinfo, tree, data);
+
+	return 0;
+}
+
 void
 proto_register_gsm_sim(void)
 {
@@ -2931,6 +2942,7 @@ proto_register_gsm_sim(void)
 	register_dissector("gsm_sim.command", dissect_gsm_sim_command, proto_gsm_sim);
 	register_dissector("gsm_sim.response", dissect_gsm_sim_response, proto_gsm_sim);
 	register_dissector("gsm_sim.bertlv", dissect_bertlv, proto_gsm_sim);
+	register_dissector("gsm_sim.part", dissect_gsm_sim_part, proto_gsm_sim);
 }
 
 void

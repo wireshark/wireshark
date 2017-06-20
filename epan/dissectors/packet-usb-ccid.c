@@ -340,10 +340,9 @@ static gint ett_ccid_status = -1;
 enum {
     SUB_DATA = 0,
     SUB_ISO7816,
-    SUB_GSM_SIM_CMD,
+    SUB_GSM_SIM,
     SUB_PN532,
     SUB_ACR122_PN532,
-    SUB_GSM_SIM_RSP,
 
     SUB_MAX
 };
@@ -603,8 +602,8 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         if (sub_selected == SUB_PN532) {
             call_dissector_with_data(sub_handles[SUB_PN532], next_tvb, pinfo, tree, usb_conv_info);
-        } else if (sub_selected == SUB_GSM_SIM_CMD) {  /* Try to dissect responses to GSM SIM packets */
-            call_dissector(sub_handles[SUB_GSM_SIM_RSP], next_tvb, pinfo, tree);
+        } else if (sub_selected == SUB_GSM_SIM) {  /* Try to dissect responses to GSM SIM packets */
+            call_dissector(sub_handles[SUB_GSM_SIM], next_tvb, pinfo, tree);
         } else if (sub_selected == SUB_ACR122_PN532) {
             call_dissector_with_data(sub_handles[SUB_ACR122_PN532], next_tvb, pinfo, tree, usb_conv_info);
         } else if (sub_selected == SUB_ISO7816) {
@@ -901,7 +900,7 @@ proto_register_ccid(void)
     static const enum_val_t sub_enum_vals[] = {
         { "data", "Data", SUB_DATA },
         { "iso7816", "Generic ISO 7816", SUB_ISO7816 },
-        { "gsm_sim", "GSM SIM", SUB_GSM_SIM_CMD },
+        { "gsm_sim", "GSM SIM", SUB_GSM_SIM },
         { "pn532", "NXP PN532", SUB_PN532},
         { "acr122", "ACR122 PN532", SUB_ACR122_PN532},
         { NULL, NULL, 0 }
@@ -938,10 +937,9 @@ proto_reg_handoff_ccid(void)
 
     sub_handles[SUB_DATA] = find_dissector("data");
     sub_handles[SUB_ISO7816] = find_dissector_add_dependency("iso7816", proto_ccid);
-    sub_handles[SUB_GSM_SIM_CMD] = find_dissector_add_dependency("gsm_sim.command", proto_ccid);
+    sub_handles[SUB_GSM_SIM] = find_dissector_add_dependency("gsm_sim.part", proto_ccid);
     sub_handles[SUB_PN532] = find_dissector_add_dependency("pn532", proto_ccid);
     sub_handles[SUB_ACR122_PN532] = find_dissector_add_dependency("acr122", proto_ccid);
-    sub_handles[SUB_GSM_SIM_RSP] = find_dissector_add_dependency("gsm_sim.response", proto_ccid);
 }
 
 /*
