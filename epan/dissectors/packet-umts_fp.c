@@ -5446,7 +5446,7 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_item       *ti;
     gint              offset = 0;
     struct fp_info   *p_fp_info;
-    conversation_t   *p_conv;
+    conversation_t   *p_conv = NULL;
     umts_fp_conversation_info_t *p_conv_data = NULL;
 
     /* Append this protocol name rather than replace. */
@@ -5462,40 +5462,49 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     p_fp_info = (struct fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
 
     /* Check if we have conversation info */
+    /* Trying to find exact match - with both RNC's address & port and Node B's address & port */
     p_conv = (conversation_t *)find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
                                pinfo->ptype,
-                               pinfo->destport, pinfo->srcport, NO_ADDR_B);
-
-
+                               pinfo->destport, pinfo->srcport, 0);
     if (p_conv) {
         p_conv_data = (umts_fp_conversation_info_t *)conversation_get_proto_data(p_conv, proto_fp);
-        if (p_conv_data) {
-            /*Figure out the direction of the link*/
-            if (addresses_equal(&(pinfo->net_dst), (&p_conv_data->crnc_address))) {
+    }
+    if (!p_conv || !p_conv_data) {
+        /* Didn't find exact conversation match */
+        /* Try to find a partial match with just the source/destination included */
+        p_conv = (conversation_t *)find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+                                   pinfo->ptype,
+                                   pinfo->destport, pinfo->srcport, NO_ADDR2);
+        if (p_conv) {
+            p_conv_data = (umts_fp_conversation_info_t *)conversation_get_proto_data(p_conv, proto_fp);
+        }
+    }
 
-                proto_item *item= proto_tree_add_uint(fp_tree, hf_fp_ul_setup_frame,
-                                                      tvb, 0, 0, p_conv_data->ul_frame_number);
+    if (p_conv_data) {
+        /*Figure out the direction of the link*/
+        if (addresses_equal(&(pinfo->net_dst), (&p_conv_data->crnc_address))) {
 
-                PROTO_ITEM_SET_GENERATED(item);
-                /* CRNC -> Node B */
-                pinfo->link_dir=P2P_DIR_UL;
-                if (p_fp_info == NULL) {
-                    p_fp_info = fp_set_per_packet_inf_from_conv(p_conv, p_conv_data, tvb, pinfo, fp_tree);
-                }
-            }
-            else {
-                /* Maybe the frame number should be stored in the proper location already in nbap?, in ul_frame_number*/
-                proto_item *item= proto_tree_add_uint(fp_tree, hf_fp_dl_setup_frame,
-                                                       tvb, 0, 0, p_conv_data->ul_frame_number);
+            proto_item *item= proto_tree_add_uint(fp_tree, hf_fp_ul_setup_frame,
+                                                  tvb, 0, 0, p_conv_data->ul_frame_number);
 
-                PROTO_ITEM_SET_GENERATED(item);
-                pinfo->link_dir=P2P_DIR_DL;
-                if (p_fp_info == NULL) {
-                    p_fp_info = fp_set_per_packet_inf_from_conv(p_conv, p_conv_data, tvb, pinfo, fp_tree);
-                }
+            PROTO_ITEM_SET_GENERATED(item);
+            /* CRNC -> Node B */
+            pinfo->link_dir=P2P_DIR_UL;
+            if (p_fp_info == NULL) {
+                p_fp_info = fp_set_per_packet_inf_from_conv(p_conv, p_conv_data, tvb, pinfo, fp_tree);
             }
         }
+        else {
+            /* Maybe the frame number should be stored in the proper location already in nbap?, in ul_frame_number*/
+            proto_item *item= proto_tree_add_uint(fp_tree, hf_fp_dl_setup_frame,
+                                                   tvb, 0, 0, p_conv_data->ul_frame_number);
 
+            PROTO_ITEM_SET_GENERATED(item);
+            pinfo->link_dir=P2P_DIR_DL;
+            if (p_fp_info == NULL) {
+                p_fp_info = fp_set_per_packet_inf_from_conv(p_conv, p_conv_data, tvb, pinfo, fp_tree);
+            }
+        }
     }
 
     if (pinfo->p2p_dir == P2P_DIR_UNKNOWN) {

@@ -109,6 +109,10 @@ ProtocolIE-ContainerPairList
     crcn_context_present = FALSE; /*Reset CRNC Com context present flag.*/
 #.END
 
+#.FN_PARS TransactionID/shortTransActionId VAL_PTR = &TransactionID
+
+#.FN_PARS TransactionID/longTransActionId VAL_PTR = &TransactionID
+
 #.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
 
 #.FN_PARS SuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_SuccessfulOutcomeValue
@@ -165,6 +169,43 @@ actx->pinfo->link_dir=P2P_DIR_UL;
 # CommonTransportChannelSetupRequestTDD
 # CommonTransportChannelSetupResponse
 # CommonTransportChannelSetupFailure
+# CommonTransportChannel-InformationResponse
+# CommonTransportChannel-InformationResponse
+#.FN_BODY CommonTransportChannel-InformationResponse
+address dst_addr;
+nbap_setup_conv_t *request_conv;
+conversation_t *conv;
+
+nbap_debug("Frame %%u CommonTransportChannel-InformationResponse Start", actx->pinfo->num);
+
+transportLayerAddress_ipv4 = 0;
+BindingID_port = 0;
+
+%(DEFAULT_BODY)s
+
+  if (actx->pinfo->fd->flags.visited||transportLayerAddress_ipv4==0||BindingID_port == 0){
+    return offset;
+  }
+
+  set_address(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
+
+  request_conv = find_setup_conv(TransactionID, ddMode, commontransportchannelid);
+
+  if(request_conv == NULL){
+    return offset;
+  }
+
+  conv = request_conv->conv;
+  conversation_set_addr2(conv, &dst_addr);
+  conversation_set_port2(conv, BindingID_port);
+
+  delete_setup_conv(request_conv);
+  nbap_debug("    Frame %%u conversation setup frame: %%u %%s:%%u -> %%s:%%u", actx->pinfo->num, conv->setup_frame,
+            address_to_str(wmem_packet_scope(), &conv->key_ptr->addr1), conv->key_ptr->port1,
+            address_to_str(wmem_packet_scope(), &conv->key_ptr->addr2), conv->key_ptr->port2);
+
+  nbap_debug("Frame %%u CommonTransportChannel-InformationResponse End", actx->pinfo->num);
+
 # CommonTransportChannelReconfigurationRequestFDD
 # CommonTransportChannelReconfigurationResponse
 # CommonTransportChannelReconfigurationFailure
@@ -746,7 +787,7 @@ hsdsch_macdflow_ids[num_items-1] = hsdsch_macdflow_id;
   }
 
 #.FN_BODY RACH-ParametersItem-CTCH-SetupRqstFDD
-address     dst_addr, null_addr;
+address dst_addr, null_addr;
 conversation_t *conversation;
 fp_rach_channel_info_t* fp_rach_channel_info;
 umts_fp_conversation_info_t *umts_fp_conversation_info;
@@ -758,68 +799,63 @@ transportFormatSet_type = NBAP_CPCH;
 
 %(DEFAULT_BODY)s
 
-        if (actx->pinfo->fd->flags.visited||transportLayerAddress_ipv4==0||BindingID_port == 0)
-        {
-            return offset;
-        }
-        clear_address(&null_addr);
+  if (actx->pinfo->fd->flags.visited||transportLayerAddress_ipv4==0||BindingID_port == 0)
+  {
+    return offset;
+  }
+  clear_address(&null_addr);
 
-        set_address(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
+  set_address(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
 
-        conversation = find_conversation(actx->pinfo->num,&dst_addr,
-            &null_addr, PT_UDP, BindingID_port,
-            0, NO_ADDR_B|NO_PORT_B);
+  conversation = conversation_new(actx->pinfo->num, &dst_addr, &null_addr, PT_UDP,BindingID_port, 0, NO_ADDR2|NO_PORT2);
 
-        if (conversation == NULL) {
-            /* It's not part of any conversation - create a new one. */
-            conversation = conversation_new(actx->pinfo->num, &dst_addr,
-                &null_addr, PT_UDP,BindingID_port ,
-                0, NO_ADDR2|NO_PORT2);
+  conversation_set_dissector(conversation, fp_handle);
 
-            /* Set dissector */
-            conversation_set_dissector(conversation, fp_handle);
-            if(actx->pinfo->link_dir==P2P_DIR_DL){
-                umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
-                /* Fill in the data */
-                umts_fp_conversation_info->iface_type        = IuB_Interface;
-                umts_fp_conversation_info->division          = Division_FDD;
-                umts_fp_conversation_info->channel           = CHANNEL_RACH_FDD;
-                umts_fp_conversation_info->dl_frame_number   = 0;
-                umts_fp_conversation_info->ul_frame_number   = actx->pinfo->num;
-                copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &dst_addr);
-                umts_fp_conversation_info->crnc_port         = BindingID_port;
-                umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
+  if(actx->pinfo->link_dir==P2P_DIR_DL){
+    umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
+    /* Fill in the data */
+    umts_fp_conversation_info->iface_type        = IuB_Interface;
+    umts_fp_conversation_info->division          = Division_FDD;
+    umts_fp_conversation_info->channel           = CHANNEL_RACH_FDD;
+    umts_fp_conversation_info->dl_frame_number   = 0;
+    umts_fp_conversation_info->ul_frame_number   = actx->pinfo->num;
+    copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &dst_addr);
+    umts_fp_conversation_info->crnc_port         = BindingID_port;
+    umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
 
-                /* Adding the 'channel specific info' for RACH */
-                fp_rach_channel_info = wmem_new0(wmem_file_scope(), fp_rach_channel_info_t);
-                fp_rach_channel_info->crnti_to_urnti_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
-                umts_fp_conversation_info->channel_specific_info = (void*)fp_rach_channel_info;
+    /* Adding the 'channel specific info' for RACH */
+    fp_rach_channel_info = wmem_new0(wmem_file_scope(), fp_rach_channel_info_t);
+    fp_rach_channel_info->crnti_to_urnti_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    umts_fp_conversation_info->channel_specific_info = (void*)fp_rach_channel_info;
 
 
-                /*Save unique UE-identifier */
-                umts_fp_conversation_info->com_context_id = crcn_context_present ?  com_context_id : 1;
+    /*Save unique UE-identifier */
+    umts_fp_conversation_info->com_context_id = crcn_context_present ?  com_context_id : 1;
 
-                /* DCH's in this flow */
-                umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
-                /* Set data for First or single channel */
-                umts_fp_conversation_info->fp_dch_channel_info[0].num_ul_chans = num_tf = nbap_dch_chnl_info[commonphysicalchannelid].num_ul_chans;
-                for (j = 0; j < num_tf; j++) {
-                    umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_tf_size[j] = nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_tf_size[j];
-                    umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_num_tbs[j] = nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_num_tbs[j];
-                }
+    /* DCH's in this flow */
+    umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
+    /* Set data for First or single channel */
+    umts_fp_conversation_info->fp_dch_channel_info[0].num_ul_chans = num_tf = nbap_dch_chnl_info[commonphysicalchannelid].num_ul_chans;
+    for (j = 0; j < num_tf; j++) {
+      umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_tf_size[j] = nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_tf_size[j];
+      umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_num_tbs[j] = nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_num_tbs[j];
+    }
 
-                /* Traffic flows per DCH(DL) */
-                umts_fp_conversation_info->fp_dch_channel_info[0].num_dl_chans = num_tf = nbap_dch_chnl_info[commonphysicalchannelid].num_dl_chans;
-                for (j = 0; j < num_tf; j++) {
-                    umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[j] = nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_tf_size[j];
-                    umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_num_tbs[j] = nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_num_tbs[j];
-                }
+    /* Traffic flows per DCH(DL) */
+    umts_fp_conversation_info->fp_dch_channel_info[0].num_dl_chans = num_tf = nbap_dch_chnl_info[commonphysicalchannelid].num_dl_chans;
+    for (j = 0; j < num_tf; j++) {
+      umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[j] = nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_tf_size[j];
+      umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_num_tbs[j] = nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_num_tbs[j];
+    }
 
-                umts_fp_conversation_info->dch_ids_in_flow_list[0] = commonphysicalchannelid;
-                umts_fp_conversation_info->num_dch_in_flow=1;
-                set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
-            }
-        }
+    umts_fp_conversation_info->dch_ids_in_flow_list[0] = commonphysicalchannelid;
+    umts_fp_conversation_info->num_dch_in_flow=1;
+    set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
+
+    /* Add Setup Conversation to list, we need it in response msg */
+    add_setup_conv(TransactionID, ddMode, commontransportchannelid, actx->pinfo->num, &dst_addr, BindingID_port, umts_fp_conversation_info, conversation);
+  }
+
 #.FN_BODY PICH-Mode VAL_PTR = &PICH_Mode
 guint32 PICH_Mode = 0;
 %(DEFAULT_BODY)s
@@ -843,7 +879,7 @@ guint32 PICH_Mode = 0;
 
 #.FN_BODY PCH-ParametersItem-CTCH-SetupRqstFDD
 
-address     dst_addr, null_addr;
+address dst_addr, null_addr;
 conversation_t *conversation;
 
 fp_pch_channel_info_t *fp_pch_channel_info;
@@ -858,106 +894,95 @@ num_items = 1;
 
 %(DEFAULT_BODY)s
 
-        if (actx->pinfo->fd->flags.visited||transportLayerAddress_ipv4==0||BindingID_port == 0)
-        {
-            return offset;
-        }
-        clear_address(&null_addr);
+  if (actx->pinfo->fd->flags.visited||transportLayerAddress_ipv4==0||BindingID_port == 0)
+  {
+    return offset;
+  }
+  clear_address(&null_addr);
 
-        set_address(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
+  set_address(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
 
-        conversation = find_conversation(actx->pinfo->num,&dst_addr,
-            &null_addr, PT_UDP, BindingID_port,
-            0, NO_ADDR_B|NO_PORT_B);
+  conversation = conversation_new(actx->pinfo->num, &dst_addr, &null_addr, PT_UDP,BindingID_port, 0, NO_ADDR2|NO_PORT2);
 
-        if (conversation == NULL) {
-            /* It's not part of any conversation - create a new one. */
-            conversation = conversation_new(actx->pinfo->num, &dst_addr,
-                &null_addr, PT_UDP,BindingID_port ,
-                0, NO_ADDR2|NO_PORT2);
+  /* Set dissector */
+  conversation_set_dissector(conversation, fp_handle);
 
-            /* Set dissector */
-            conversation_set_dissector(conversation, fp_handle);
-            if(actx->pinfo->link_dir==P2P_DIR_DL){
-                umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
-                /* Fill in the data */
-                umts_fp_conversation_info->iface_type         = IuB_Interface;
-                umts_fp_conversation_info->division           = Division_FDD;
-                umts_fp_conversation_info->channel            = CHANNEL_PCH;
-                umts_fp_conversation_info->dl_frame_number    = 0;
-                umts_fp_conversation_info->ul_frame_number    = actx->pinfo->num;
-                copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &dst_addr);
-                umts_fp_conversation_info->crnc_port          = BindingID_port;
-                umts_fp_conversation_info->rlc_mode           = FP_RLC_MODE_UNKNOWN;
+  if(actx->pinfo->link_dir==P2P_DIR_DL){
+    umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
+    /* Fill in the data */
+    umts_fp_conversation_info->iface_type         = IuB_Interface;
+    umts_fp_conversation_info->division           = Division_FDD;
+    umts_fp_conversation_info->channel            = CHANNEL_PCH;
+    umts_fp_conversation_info->dl_frame_number    = 0;
+    umts_fp_conversation_info->ul_frame_number    = actx->pinfo->num;
+    copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &dst_addr);
+    umts_fp_conversation_info->crnc_port          = BindingID_port;
+    umts_fp_conversation_info->rlc_mode           = FP_RLC_MODE_UNKNOWN;
 
-                fp_pch_channel_info = wmem_new0(wmem_file_scope(), fp_pch_channel_info_t);
-                fp_pch_channel_info->paging_indications = paging_indications;
-                umts_fp_conversation_info->channel_specific_info = (void*)fp_pch_channel_info;
+    fp_pch_channel_info = wmem_new0(wmem_file_scope(), fp_pch_channel_info_t);
+    fp_pch_channel_info->paging_indications = paging_indications;
+    umts_fp_conversation_info->channel_specific_info = (void*)fp_pch_channel_info;
 
-                /* DCH's in this flow */
-                umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
-                /* Set data for First or single channel */
-                umts_fp_conversation_info->fp_dch_channel_info[0].num_ul_chans = num_tf = nbap_dch_chnl_info[commontransportchannelid].num_ul_chans;
+    /* DCH's in this flow */
+    umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
+    /* Set data for First or single channel */
+    umts_fp_conversation_info->fp_dch_channel_info[0].num_ul_chans = num_tf = nbap_dch_chnl_info[commontransportchannelid].num_ul_chans;
 
-                nbap_debug("Frame %%u PCH-ParametersItem-CTCH-SetupRqstFDD Start: num_tf %%u",
-                        actx->pinfo->num,
-                        num_tf);
+    nbap_debug("Frame %%u PCH-ParametersItem-CTCH-SetupRqstFDD Start: num_tf %%u", actx->pinfo->num, num_tf);
 
-                for (j = 0; j < num_tf; j++) {
-                    umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_tf_size[j] = nbap_dch_chnl_info[commontransportchannelid].ul_chan_tf_size[j];
-                    umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_num_tbs[j] = nbap_dch_chnl_info[commontransportchannelid].ul_chan_num_tbs[j];
-                    nbap_debug("    UL tf %%u ul_chan_tf_size %%u",j, nbap_dch_chnl_info[commontransportchannelid].ul_chan_tf_size[j]);
-                }
+    for (j = 0; j < num_tf; j++) {
+      umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_tf_size[j] = nbap_dch_chnl_info[commontransportchannelid].ul_chan_tf_size[j];
+      umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_num_tbs[j] = nbap_dch_chnl_info[commontransportchannelid].ul_chan_num_tbs[j];
+      nbap_debug("    UL tf %%u ul_chan_tf_size %%u",j, nbap_dch_chnl_info[commontransportchannelid].ul_chan_tf_size[j]);
+    }
 
-                /* Traffic flows per DCH(DL) */
-                umts_fp_conversation_info->fp_dch_channel_info[0].num_dl_chans = num_tf = nbap_dch_chnl_info[commontransportchannelid].num_dl_chans;
-                for (j = 0; j < num_tf; j++) {
-                    umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[j] = nbap_dch_chnl_info[commontransportchannelid].dl_chan_tf_size[j];
-                    umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_num_tbs[j] = nbap_dch_chnl_info[commontransportchannelid].dl_chan_num_tbs[j];
-                    nbap_debug("    DL tf %%u ul_chan_tf_size %%u",j, nbap_dch_chnl_info[commontransportchannelid].dl_chan_tf_size[j]);
-                }
+    /* Traffic flows per DCH(DL) */
+    umts_fp_conversation_info->fp_dch_channel_info[0].num_dl_chans = num_tf = nbap_dch_chnl_info[commontransportchannelid].num_dl_chans;
+    for (j = 0; j < num_tf; j++) {
+      umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[j] = nbap_dch_chnl_info[commontransportchannelid].dl_chan_tf_size[j];
+      umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_num_tbs[j] = nbap_dch_chnl_info[commontransportchannelid].dl_chan_num_tbs[j];
+      nbap_debug("    DL tf %%u ul_chan_tf_size %%u",j, nbap_dch_chnl_info[commontransportchannelid].dl_chan_tf_size[j]);
+    }
 
-                /* Set data for associated DCH's if we have any */
-                i = commontransportchannelid;
+    /* Set data for associated DCH's if we have any */
+    i = commontransportchannelid;
 
-                nbap_debug("    commontransportchannelid %%u next ch %%u",commontransportchannelid, nbap_dch_chnl_info[i].next_dch);
+    nbap_debug("    commontransportchannelid %%u next ch %%u",commontransportchannelid, nbap_dch_chnl_info[i].next_dch);
 
-                umts_fp_conversation_info->dch_ids_in_flow_list[0] = commontransportchannelid;
-                while(nbap_dch_chnl_info[i].next_dch != 0){
-                    i = nbap_dch_chnl_info[i].next_dch;
-                    umts_fp_conversation_info->num_dch_in_flow++;
-                    umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
-                    /* Traffic flows per DCH(UL) */
-                    umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].num_ul_chans = num_tf = nbap_dch_chnl_info[i].num_ul_chans;
-                    for (j = 0; j < num_tf; j++) {
-                        umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].ul_chan_tf_size[j] = nbap_dch_chnl_info[i].ul_chan_tf_size[j];
-                        umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].ul_chan_num_tbs[j] = nbap_dch_chnl_info[i].ul_chan_num_tbs[j];
-                    }
+    umts_fp_conversation_info->dch_ids_in_flow_list[0] = commontransportchannelid;
+    while(nbap_dch_chnl_info[i].next_dch != 0){
+      i = nbap_dch_chnl_info[i].next_dch;
+      umts_fp_conversation_info->num_dch_in_flow++;
+      umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
+      /* Traffic flows per DCH(UL) */
+      umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].num_ul_chans = num_tf = nbap_dch_chnl_info[i].num_ul_chans;
+      for (j = 0; j < num_tf; j++) {
+        umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].ul_chan_tf_size[j] = nbap_dch_chnl_info[i].ul_chan_tf_size[j];
+        umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].ul_chan_num_tbs[j] = nbap_dch_chnl_info[i].ul_chan_num_tbs[j];
+      }
 
-                    /* Traffic flows per DCH(DL) */
-                    umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].num_dl_chans = num_tf = nbap_dch_chnl_info[i].num_dl_chans;
-                    for (j = 0; j < num_tf; j++) {
-                        umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_tf_size[j] = nbap_dch_chnl_info[i].dl_chan_tf_size[j];
-                        umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_num_tbs[j] = nbap_dch_chnl_info[i].dl_chan_num_tbs[j];
-                    }
-                }
-                umts_fp_conversation_info->num_dch_in_flow++;
+      /* Traffic flows per DCH(DL) */
+      umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].num_dl_chans = num_tf = nbap_dch_chnl_info[i].num_dl_chans;
+      for (j = 0; j < num_tf; j++) {
+        umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_tf_size[j] = nbap_dch_chnl_info[i].dl_chan_tf_size[j];
+        umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_num_tbs[j] = nbap_dch_chnl_info[i].dl_chan_num_tbs[j];
+      }
+    }
+    umts_fp_conversation_info->num_dch_in_flow++;
 
-                nbap_debug("    num_dch_in_flow %%u", umts_fp_conversation_info->num_dch_in_flow);
+    nbap_debug("    num_dch_in_flow %%u", umts_fp_conversation_info->num_dch_in_flow);
 
-                umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
-                set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
+    umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
+    set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
 
-                nbap_debug("Frame %%u PCH-ParametersItem-CTCH-SetupRqstFDD End",
-                        actx->pinfo->num);
+    /* Add Setup Conversation to list, we need it in response msg */
+    add_setup_conv(TransactionID, ddMode, commontransportchannelid, actx->pinfo->num, &dst_addr, BindingID_port, umts_fp_conversation_info, conversation);
 
-            }
-
-        }
-
+    nbap_debug("Frame %%u PCH-ParametersItem-CTCH-SetupRqstFDD End", actx->pinfo->num);
+  }
 
 #.FN_BODY FACH-ParametersItem-CTCH-SetupRqstFDD
-address     dst_addr, null_addr;
+address dst_addr, null_addr;
 conversation_t *conversation;
 
 fp_fach_channel_info_t* fp_fach_channel_info;
@@ -971,88 +996,82 @@ transportFormatSet_type = NBAP_CPCH;
 
 %(DEFAULT_BODY)s
 
-        if (actx->pinfo->fd->flags.visited||transportLayerAddress_ipv4==0||BindingID_port == 0)
-        {
-            return offset;
-        }
-        clear_address(&null_addr);
+  if (actx->pinfo->fd->flags.visited||transportLayerAddress_ipv4==0||BindingID_port == 0)
+  {
+    return offset;
+  }
+  clear_address(&null_addr);
 
-        set_address(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
+  set_address(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
 
-        conversation = find_conversation(actx->pinfo->num,&dst_addr,
-            &null_addr, PT_UDP, BindingID_port,
-            0, NO_ADDR_B|NO_PORT_B);
+  conversation = conversation_new(actx->pinfo->num, &dst_addr, &null_addr, PT_UDP,BindingID_port, 0, NO_ADDR2|NO_PORT2);
 
-        if (conversation == NULL) {
-            /* It's not part of any conversation - create a new one. */
-            conversation = conversation_new(actx->pinfo->num, &dst_addr,
-                &null_addr, PT_UDP,BindingID_port ,
-                0, NO_ADDR2|NO_PORT2);
+  /* Set dissector */
+  conversation_set_dissector(conversation, fp_handle);
 
-            /* Set dissector */
-            conversation_set_dissector(conversation, fp_handle);
-            if(actx->pinfo->link_dir==P2P_DIR_DL){
-                umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
-                /* Fill in the data */
-                umts_fp_conversation_info->iface_type        = IuB_Interface;
-                umts_fp_conversation_info->division          = Division_FDD;
-                umts_fp_conversation_info->channel           = CHANNEL_FACH_FDD;
-                umts_fp_conversation_info->dl_frame_number   = 0;
-                umts_fp_conversation_info->ul_frame_number   = actx->pinfo->num;
-                copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &dst_addr);
-                umts_fp_conversation_info->crnc_port         = BindingID_port;
-                umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
-                /*Save unique UE-identifier */
-                umts_fp_conversation_info->com_context_id = crcn_context_present ? com_context_id : 1;
+  if(actx->pinfo->link_dir==P2P_DIR_DL){
+    umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
+    /* Fill in the data */
+    umts_fp_conversation_info->iface_type        = IuB_Interface;
+    umts_fp_conversation_info->division          = Division_FDD;
+    umts_fp_conversation_info->channel           = CHANNEL_FACH_FDD;
+    umts_fp_conversation_info->dl_frame_number   = 0;
+    umts_fp_conversation_info->ul_frame_number   = actx->pinfo->num;
+    copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &dst_addr);
+    umts_fp_conversation_info->crnc_port         = BindingID_port;
+    umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
+    /*Save unique UE-identifier */
+    umts_fp_conversation_info->com_context_id = crcn_context_present ? com_context_id : 1;
 
-                /* Adding the 'channel specific info' for FACH */
-                fp_fach_channel_info = wmem_new0(wmem_file_scope(), fp_fach_channel_info_t);
-                fp_fach_channel_info->crnti_to_urnti_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
-                umts_fp_conversation_info->channel_specific_info = (void*)fp_fach_channel_info;
+    /* Adding the 'channel specific info' for FACH */
+    fp_fach_channel_info = wmem_new0(wmem_file_scope(), fp_fach_channel_info_t);
+    fp_fach_channel_info->crnti_to_urnti_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    umts_fp_conversation_info->channel_specific_info = (void*)fp_fach_channel_info;
 
-                /* DCH's in this flow */
-                umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
-                /* Set data for First or single channel */
-                umts_fp_conversation_info->fp_dch_channel_info[0].num_ul_chans = num_tf = nbap_dch_chnl_info[commonphysicalchannelid].num_ul_chans;
-                for (j = 0; j < num_tf; j++) {
-                    umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_tf_size[j] = nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_tf_size[j];
-                    umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_num_tbs[j] = nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_num_tbs[j];
-                }
+    /* DCH's in this flow */
+    umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
+    /* Set data for First or single channel */
+    umts_fp_conversation_info->fp_dch_channel_info[0].num_ul_chans = num_tf = nbap_dch_chnl_info[commonphysicalchannelid].num_ul_chans;
+    for (j = 0; j < num_tf; j++) {
+      umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_tf_size[j] = nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_tf_size[j];
+      umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_num_tbs[j] = nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_num_tbs[j];
+    }
 
-                /* Traffic flows per DCH(DL) */
-                umts_fp_conversation_info->fp_dch_channel_info[0].num_dl_chans = num_tf = nbap_dch_chnl_info[commonphysicalchannelid].num_dl_chans;
-                for (j = 0; j < num_tf; j++) {
-                    umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[j] = nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_tf_size[j];
-                    umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_num_tbs[j] = nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_num_tbs[j];
-                }
+    /* Traffic flows per DCH(DL) */
+    umts_fp_conversation_info->fp_dch_channel_info[0].num_dl_chans = num_tf = nbap_dch_chnl_info[commonphysicalchannelid].num_dl_chans;
+    for (j = 0; j < num_tf; j++) {
+      umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[j] = nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_tf_size[j];
+      umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_num_tbs[j] = nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_num_tbs[j];
+    }
 
-                /* Set data for associated DCH's if we have any */
-                i = commonphysicalchannelid;
-                umts_fp_conversation_info->dch_ids_in_flow_list[0] = commonphysicalchannelid;
-                while(nbap_dch_chnl_info[i].next_dch != 0){
-                    i = nbap_dch_chnl_info[i].next_dch;
-                    umts_fp_conversation_info->num_dch_in_flow++;
-                    umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
-                    /* Traffic flows per DCH(UL) */
-                    umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].num_ul_chans = num_tf = nbap_dch_chnl_info[i].num_ul_chans;
-                    for (j = 0; j < num_tf; j++) {
-                        umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].ul_chan_tf_size[j] = nbap_dch_chnl_info[i].ul_chan_tf_size[j];
-                        umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].ul_chan_num_tbs[j] = nbap_dch_chnl_info[i].ul_chan_num_tbs[j];
-                    }
+    /* Set data for associated DCH's if we have any */
+    i = commonphysicalchannelid;
+    umts_fp_conversation_info->dch_ids_in_flow_list[0] = commonphysicalchannelid;
+    while(nbap_dch_chnl_info[i].next_dch != 0){
+      i = nbap_dch_chnl_info[i].next_dch;
+      umts_fp_conversation_info->num_dch_in_flow++;
+      umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
+      /* Traffic flows per DCH(UL) */
+      umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].num_ul_chans = num_tf = nbap_dch_chnl_info[i].num_ul_chans;
+      for (j = 0; j < num_tf; j++) {
+        umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].ul_chan_tf_size[j] = nbap_dch_chnl_info[i].ul_chan_tf_size[j];
+        umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].ul_chan_num_tbs[j] = nbap_dch_chnl_info[i].ul_chan_num_tbs[j];
+      }
 
-                    /* Traffic flows per DCH(DL) */
-                    umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].num_dl_chans = num_tf = nbap_dch_chnl_info[i].num_dl_chans;
-                    for (j = 0; j < num_tf; j++) {
-                        umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_tf_size[j] = nbap_dch_chnl_info[i].dl_chan_tf_size[j];
-                        umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_num_tbs[j] = nbap_dch_chnl_info[i].dl_chan_num_tbs[j];
-                    }
-                }
-                umts_fp_conversation_info->num_dch_in_flow++;
-                umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
-                set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
-            }
+      /* Traffic flows per DCH(DL) */
+      umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].num_dl_chans = num_tf = nbap_dch_chnl_info[i].num_dl_chans;
+      for (j = 0; j < num_tf; j++) {
+        umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_tf_size[j] = nbap_dch_chnl_info[i].dl_chan_tf_size[j];
+        umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_num_tbs[j] = nbap_dch_chnl_info[i].dl_chan_num_tbs[j];
+      }
+    }
+    umts_fp_conversation_info->num_dch_in_flow++;
+    umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
+    set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
 
-        }
+    /* Add Setup Conversation to list, we need it in response msg */
+    add_setup_conv(TransactionID, ddMode, commontransportchannelid, actx->pinfo->num, &dst_addr, BindingID_port, umts_fp_conversation_info, conversation);
+  }
 
 #.FN_HDR DCH-Specific-FDD-InformationList
     g_num_dch_in_flow = 0;
