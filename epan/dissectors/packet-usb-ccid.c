@@ -885,9 +885,14 @@ proto_register_ccid(void)
         &ett_ccid_status
     };
 
+    module_t *pref_mod;
+
     proto_ccid = proto_register_protocol("USB CCID", "USBCCID", "usbccid");
     proto_register_field_array(proto_ccid, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    pref_mod = prefs_register_protocol_obsolete(proto_ccid);
+    prefs_register_obsolete_preference(pref_mod, "prtype");
 
     usb_ccid_handle = register_dissector("usbccid", dissect_ccid, proto_ccid);
 
