@@ -268,6 +268,7 @@ static const value_string ls_type_vals[] = {
     {OSPF_LSTYPE_EXTATTR,                 "External Attributes LSA"      },
     {OSPF_LSTYPE_OP_LINKLOCAL,            "Opaque LSA, Link-local scope" },
     {OSPF_LSTYPE_OP_AREALOCAL,            "Opaque LSA, Area-local scope" },
+    {OSPF_LSTYPE_OP_ASWIDE,               "Opaque LSA, AS-local scope" },
     {0,                                   NULL                           }
 
 };
