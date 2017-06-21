@@ -345,6 +345,12 @@ private slots:
     QMenu * searchSubMenu(QString objectName);
     void activatePluginIFToolbar(bool);
 
+    void filterToolbarCustomMenuHandler(const QPoint& globalPos);
+    void filterToolbarShowPreferences();
+    void filterToolbarEditFilter();
+    void filterToolbarDisableFilter();
+    void filterToolbarRemoveFilter();
+
     void startInterfaceCapture(bool valid, const QString capture_filter);
 
     void applyGlobalCommandLineOptions();

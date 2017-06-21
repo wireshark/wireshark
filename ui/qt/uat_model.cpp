@@ -29,8 +29,22 @@
 
 UatModel::UatModel(QObject *parent, epan_uat *uat) :
     QAbstractTableModel(parent),
-    uat_(uat)
+    uat_(0)
 {
+    loadUat(uat);
+}
+
+UatModel::UatModel(QObject * parent, QString tableName) :
+    QAbstractTableModel(parent),
+    uat_(0)
+{
+    loadUat(uat_get_table_by_name(tableName.toStdString().c_str()));
+}
+
+void UatModel::loadUat(epan_uat * uat)
+{
+    uat_ = uat;
+
     dirty_records.reserve(uat_->raw_data->len);
     // Validate existing data such that they can be marked as invalid if necessary.
     record_errors.reserve(uat_->raw_data->len);
@@ -122,6 +136,21 @@ QVariant UatModel::data(const QModelIndex &index, int role) const
     }
 
     return QVariant();
+}
+
+QModelIndex UatModel::findRowForColumnContent(QVariant columnContent, int columnToCheckAgainst, int role)
+{
+    if (! columnContent.isValid())
+        return QModelIndex();
+
+    for(int i = 0; i < rowCount(); i++)
+    {
+        QVariant r_expr = data(index(i, columnToCheckAgainst), role);
+        if ( r_expr == columnContent )
+            return index(i, columnToCheckAgainst);
+    }
+
+    return QModelIndex();
 }
 
 QVariant UatModel::headerData(int section, Qt::Orientation orientation, int role) const

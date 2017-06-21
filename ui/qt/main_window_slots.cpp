@@ -4041,6 +4041,77 @@ void MainWindow::activatePluginIFToolbar(bool)
     }
 }
 
+void MainWindow::filterToolbarCustomMenuHandler(const QPoint& pos)
+{
+    QAction * filterAction = filter_expression_toolbar_->actionAt(pos);
+    if ( ! filterAction )
+        return;
+
+    QMenu * filterMenu = new QMenu(this);
+
+    QAction *actFilter = filterMenu->addAction(tr("Filter Preferences..."));
+    connect(actFilter, SIGNAL(triggered()), this, SLOT(filterToolbarShowPreferences()));
+    actFilter->setData(filterAction->data());
+    filterMenu->addSeparator();
+    QAction * actEdit = filterMenu->addAction(tr("Edit Filter"));
+    connect(actEdit, SIGNAL(triggered()), this, SLOT(filterToolbarEditFilter()));
+    actEdit->setData(filterAction->data());
+    QAction * actDisable = filterMenu->addAction(tr("Disable Filter"));
+    connect(actDisable, SIGNAL(triggered()), this, SLOT(filterToolbarDisableFilter()));
+    actDisable->setData(filterAction->data());
+    QAction * actRemove = filterMenu->addAction(tr("Remove Filter"));
+    connect(actRemove, SIGNAL(triggered()), this, SLOT(filterToolbarRemoveFilter()));
+    actRemove->setData(filterAction->data());
+
+    filterMenu->exec(filter_expression_toolbar_->mapToGlobal(pos));
+}
+
+void MainWindow::filterToolbarShowPreferences()
+{
+    emit showPreferencesDialog(PreferencesDialog::ppFilterExpressions);
+}
+
+void MainWindow::filterToolbarEditFilter()
+{
+    UatModel * uatModel = new UatModel(this, "Display expressions");
+
+    QModelIndex rowIndex = uatModel->findRowForColumnContent(((QAction *)sender())->data(), 2);
+    if ( rowIndex.isValid() )
+        main_ui_->filterExpressionFrame->editExpression(rowIndex.row());
+
+    delete uatModel;
+}
+
+void MainWindow::filterToolbarDisableFilter()
+{
+    gchar* err = NULL;
+    UatModel * uatModel = new UatModel(this, "Display expressions");
+
+    QModelIndex rowIndex = uatModel->findRowForColumnContent(((QAction *)sender())->data(), 2);
+    if ( rowIndex.isValid() ) {
+        uatModel->setData(uatModel->index(rowIndex.row(), 0), QVariant::fromValue(false));
+
+        uat_save(uat_get_table_by_name("Display expressions"), &err);
+        g_free(err);
+        filterExpressionsChanged();
+    }
+}
+
+void MainWindow::filterToolbarRemoveFilter()
+{
+    gchar* err = NULL;
+    UatModel * uatModel = new UatModel(this, "Display expressions");
+
+    QModelIndex rowIndex = uatModel->findRowForColumnContent(((QAction *)sender())->data(), 2);
+    if ( rowIndex.isValid() ) {
+        uatModel->removeRow(rowIndex.row());
+
+        uat_save(uat_get_table_by_name("Display expressions"), &err);
+        g_free(err);
+        filterExpressionsChanged();
+    }
+}
+
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif

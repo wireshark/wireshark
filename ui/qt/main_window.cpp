@@ -462,6 +462,10 @@ MainWindow::MainWindow(QWidget *parent) :
     // https://bugreports.qt.io/browse/QTBUG-2472
     filter_expression_toolbar_ = new QToolBar();
     filter_expression_toolbar_->setStyleSheet("QToolBar { background: none; border: none; }");
+    filter_expression_toolbar_->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(filter_expression_toolbar_, SIGNAL(customContextMenuRequested(QPoint)),
+            this, SLOT(filterToolbarCustomMenuHandler(QPoint)));
+
     main_ui_->displayFilterToolBar->addWidget(filter_expression_toolbar_);
 
     wireless_frame_ = new WirelessFrame(this);

@@ -38,6 +38,7 @@ public:
     ~FilterExpressionFrame();
 
     void addExpression(const QString filter_text);
+    void editExpression(int exprIdx);
 
 signals:
     void showPreferencesDialog(PreferencesDialog::PreferencesPane start_pane);
@@ -49,10 +50,13 @@ protected:
 private:
     Ui::FilterExpressionFrame *ui;
 
+    int editExpression_;
+
 private slots:
     void updateWidgets();
     void on_filterExpressionPreferencesPushButton_clicked();
     void on_labelLineEdit_textChanged(const QString);
+    void on_displayFilterLineEdit_textChanged(const QString);
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
 };

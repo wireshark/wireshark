@@ -26,6 +26,8 @@
 #include <epan/uat-int.h>
 #include <ui/preference_utils.h>
 
+#include <ui/qt/uat_model.h>
+
 #include <QPushButton>
 
 // To do:
@@ -42,6 +44,8 @@ FilterExpressionFrame::FilterExpressionFrame(QWidget *parent) :
         w->setAttribute(Qt::WA_MacSmallSize, true);
     }
 #endif
+
+	editExpression_ = -1;
 }
 
 FilterExpressionFrame::~FilterExpressionFrame()
@@ -56,7 +60,34 @@ void FilterExpressionFrame::addExpression(const QString filter_text)
         return;
     }
 
+    editExpression_ = -1;
     ui->displayFilterLineEdit->setText(filter_text);
+}
+
+void FilterExpressionFrame::editExpression(int exprIdx)
+{
+    if (isVisible())
+    {
+        ui->labelLineEdit->clear();
+        ui->displayFilterLineEdit->clear();
+        ui->commentLineEdit->clear();
+        editExpression_ = -1;
+    }
+
+    UatModel * uatModel = new UatModel(this, "Display expressions");
+    if ( ! uatModel->index(exprIdx, 1).isValid() )
+        return;
+
+    editExpression_ = exprIdx;
+
+    ui->labelLineEdit->setText(uatModel->data(uatModel->index(exprIdx, 1), Qt::DisplayRole).toString());
+    ui->displayFilterLineEdit->setText(uatModel->data(uatModel->index(exprIdx, 2), Qt::DisplayRole).toString());
+    ui->commentLineEdit->setText(uatModel->data(uatModel->index(exprIdx, 3), Qt::DisplayRole).toString());
+
+    delete(uatModel);
+
+    if (! isVisible())
+        animatedShow();
 }
 
 void FilterExpressionFrame::showEvent(QShowEvent *event)
@@ -69,11 +100,10 @@ void FilterExpressionFrame::showEvent(QShowEvent *event)
 
 void FilterExpressionFrame::updateWidgets()
 {
-    bool ok_enable = false;
+    bool ok_enable = true;
 
-    if (!ui->labelLineEdit->text().isEmpty()) {
-        ok_enable = true;
-    }
+    if (ui->labelLineEdit->text().isEmpty() || ui->displayFilterLineEdit->text().isEmpty())
+        ok_enable = false;
 
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(ok_enable);
 }
@@ -89,6 +119,11 @@ void FilterExpressionFrame::on_labelLineEdit_textChanged(const QString)
     updateWidgets();
 }
 
+void FilterExpressionFrame::on_displayFilterLineEdit_textChanged(const QString)
+{
+    updateWidgets();
+}
+
 void FilterExpressionFrame::on_buttonBox_accepted()
 {
     gchar* err = NULL;
@@ -96,15 +131,31 @@ void FilterExpressionFrame::on_buttonBox_accepted()
     QByteArray expr_ba = ui->displayFilterLineEdit->text().toUtf8();
     QByteArray comment_ba = ui->commentLineEdit->text().toUtf8();
 
-    if ( ui->labelLineEdit->text().length() == 0 )
+    if ( ui->labelLineEdit->text().length() == 0 || ui->displayFilterLineEdit->text().length() == 0 )
         return;
 
-    filter_expression_new(label_ba.constData(), expr_ba.constData(), comment_ba.constData(), TRUE);
+    if ( ! ui->displayFilterLineEdit->checkFilter() )
+        return;
+
+    if ( editExpression_ >= 0 )
+    {
+        UatModel * uatModel = new UatModel(this, "Display expressions");
+        if ( ! uatModel->index(editExpression_, 1).isValid() )
+            return;
+
+        uatModel->setData(uatModel->index(editExpression_, 1), QVariant::fromValue(label_ba));
+        uatModel->setData(uatModel->index(editExpression_, 2), QVariant::fromValue(expr_ba));
+        uatModel->setData(uatModel->index(editExpression_, 3), QVariant::fromValue(comment_ba));
+    }
+    else
+    {
+        filter_expression_new(label_ba.constData(), expr_ba.constData(), comment_ba.constData(), TRUE);
+    }
+    uat_save(uat_get_table_by_name("Display expressions"), &err);
 
     on_buttonBox_rejected();
     emit filterExpressionsChanged();
 
-    uat_save(uat_get_table_by_name("Display expressions"), &err);
     g_free(err);
 }
 
@@ -112,6 +163,8 @@ void FilterExpressionFrame::on_buttonBox_rejected()
 {
     ui->labelLineEdit->clear();
     ui->displayFilterLineEdit->clear();
+    ui->commentLineEdit->clear();
+    editExpression_ = -1;
     animatedHide();
 }
 

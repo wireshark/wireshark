@@ -38,7 +38,8 @@ class UatModel : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    UatModel(QObject *parent = 0, epan_uat *uat = 0);
+    UatModel(QObject *parent, uat_t *uat = 0);
+    UatModel(QObject *parent, QString tableName);
 
     Qt::ItemFlags flags(const QModelIndex &index) const;
     QVariant data(const QModelIndex &index, int role) const;
@@ -55,9 +56,12 @@ public:
     bool copyRow(int dst_row, int src_row);
     bool hasErrors() const;
 
+    QModelIndex findRowForColumnContent(QVariant columnContent, int columnToCheckAgainst, int role = Qt::DisplayRole);
+
 private:
     bool checkField(int row, int col, char **error) const;
     QList<int> checkRow(int row);
+    void loadUat(uat_t * uat = 0);
 
     epan_uat *uat_;
     QList<bool> dirty_records;
