@@ -1564,6 +1564,7 @@ reset_default_profile(char **pf_dir_path_return)
         g_free(del_file);
         file = g_list_next(file);
     }
+    g_list_free(files);
 
     g_free(profile_dir);
     return 0;
