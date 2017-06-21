@@ -106,6 +106,7 @@ private:
     int max_line_count_;
 
     static int sort_column_;
+    static int sort_column_is_numeric_;
     static int text_sort_column_;
     static Qt::SortOrder sort_order_;
     static capture_file *sort_cap_file_;
@@ -114,6 +115,7 @@ private:
     QElapsedTimer *idle_dissection_timer_;
     int idle_dissection_row_;
 
+    bool isNumericColumn(int column);
 
 private slots:
     void emitItemHeightChanged(const QModelIndex &ih_index);
