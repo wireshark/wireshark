@@ -5985,14 +5985,12 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     }
     proto_item_set_len(ti, tcph->th_hlen);
     if (tcph->th_have_seglen) {
-        if (nxtseq != tcph->th_seq) {
-            if(tcp_relative_seq) {
-                tf=proto_tree_add_uint_format_value(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq, "%u    (relative sequence number)", nxtseq);
-            } else {
-                tf=proto_tree_add_uint(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq);
-            }
-            PROTO_ITEM_SET_GENERATED(tf);
+        if(tcp_relative_seq) {
+            tf=proto_tree_add_uint_format_value(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq, "%u    (relative sequence number)", nxtseq);
+        } else {
+            tf=proto_tree_add_uint(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq);
         }
+        PROTO_ITEM_SET_GENERATED(tf);
     }
 
     tf = proto_tree_add_uint(tcp_tree, hf_tcp_ack, tvb, offset + 8, 4, tcph->th_ack);
