@@ -74,13 +74,13 @@ static gboolean
 val_from_string(fvalue_t *fv, const char *pattern, gchar **err_msg)
 {
     GError *regex_error = NULL;
-    GRegexCompileFlags cflags = G_REGEX_OPTIMIZE;
+    GRegexCompileFlags cflags = (GRegexCompileFlags)(G_REGEX_CASELESS | G_REGEX_OPTIMIZE);
 
     /* Set RAW flag only if pattern requires matching raw byte
        sequences. Otherwise, omit it so that GRegex treats its
        input as UTF8-encoded string. */
     if (raw_flag_needed(pattern)) {
-        cflags = (GRegexCompileFlags)(G_REGEX_OPTIMIZE | G_REGEX_RAW);
+        cflags = (GRegexCompileFlags)(cflags | G_REGEX_RAW);
     }
 
     /* Free up the old value, if we have one */

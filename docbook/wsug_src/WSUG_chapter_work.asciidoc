@@ -367,8 +367,8 @@ anywhere in the header.
 http.host matches "acme\.(org|com|net)"
 ----
 The example above match HTTP packets where the HOST header contains acme.org or acme.com
-or acme.net. Note: Wireshark needs to be built with libpcre in order to be able to use the
-+matches+ resp. +~+ operator.
+or acme.net. Comparisons are case-insensitive. Note: Wireshark needs to be built with
+libpcre in order to be able to use the +matches+ resp. +~+ operator.
 ----
 tcp.flags & 0x02
 ----
