@@ -43,8 +43,8 @@ my %types = %{{
 	'address' => '{ Address a = (Address)g_malloc(sizeof(address)); copy_address(a, &(v->STR)); pushAddress(L,a); }',
 	'address*' => '{ Address a = (Address)g_malloc(sizeof(address)); copy_address(a, v->STR); pushAddress(L,a); }',
 	'int' => 'lua_pushnumber(L,(lua_Number)v->STR);',
-	'nstime_t' => '{ lua_Number t = (lua_Number) v->STR.secs; t += v->STR.nsecs * 1e-9; lua_pushnumber(L,t); }',
-	'nstime_t*' => '{ lua_Number t = (lua_Number) v->STR->secs; t += v->STR->nsecs * 1e-9; lua_pushnumber(L,t); }',
+	'nstime_t' => 'lua_pushnumber(L,(lua_Number)nstime_to_sec(&(v->STR)));',
+	'nstime_t*' => 'lua_pushnumber(L,(lua_Number)nstime_to_sec(v->STR));'
 }};
 
 my %comments = %{{
@@ -163,6 +163,8 @@ print CFILE  <<"HEADER";
 #include "config.h"
 
 #include "wslua.h"
+
+#include <wsutil/nstime.h>
 
 HEADER
 

@@ -30,7 +30,7 @@
 #include "config.h"
 
 #include "wslua.h"
-
+#include <wsutil/nstime.h>
 
 /* WSLUA_CONTINUE_MODULE Pinfo */
 
@@ -59,6 +59,15 @@ WSLUA_METAMETHOD NSTime__call(lua_State* L) { /* Creates a NSTime object. */
 #define WSLUA_OPTARG_NSTime__call_NSECONDS 2 /* Nanoseconds. */
     lua_remove(L,1); /* remove the table */
     WSLUA_RETURN(NSTime_new(L)); /* The new NSTime object. */
+}
+
+WSLUA_METHOD NSTime_tonumber(lua_State* L) {
+        /* Returns a Lua number of the `NSTime` representing seconds from epoch
+         *        @since 2.4.0
+         *             */
+        NSTime nstime = checkNSTime(L,1);
+        lua_pushnumber(L, (lua_Number)nstime_to_sec(nstime));
+        WSLUA_RETURN(1); /* The Lua number. */
 }
 
 WSLUA_METAMETHOD NSTime__tostring(lua_State* L) {
@@ -174,6 +183,7 @@ WSLUA_ATTRIBUTES NSTime_attributes[] = {
 
 WSLUA_METHODS NSTime_methods[] = {
     WSLUA_CLASS_FNREG(NSTime,new),
+    WSLUA_CLASS_FNREG(NSTime,tonumber),
     { NULL, NULL }
 };
 
