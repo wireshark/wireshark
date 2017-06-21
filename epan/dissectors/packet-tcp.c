@@ -5999,7 +5999,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     }
 
     if (tree) {
-        proto_tree_add_uint(tcp_tree, hf_tcp_hdr_len, tvb, offset + 12, 1, tcph->th_hlen);
+        // This should be consistent with ip.hdr_len.
+        proto_tree_add_uint_bits_format_value(tcp_tree, hf_tcp_hdr_len, tvb, (offset + 12) << 3, 4, tcph->th_hlen,
+            "%u bytes (%u)", tcph->th_hlen, tcph->th_hlen>>2);
         tf = proto_tree_add_uint_format(tcp_tree, hf_tcp_flags, tvb, offset + 12, 2,
                                         tcph->th_flags, "Flags: 0x%03x (%s)", tcph->th_flags, flags_str);
         field_tree = proto_item_add_subtree(tf, ett_tcp_flags);
@@ -6497,7 +6499,7 @@ proto_register_tcp(void)
             NULL, HFILL }},
 
         { &hf_tcp_hdr_len,
-        { "Header Length",      "tcp.hdr_len", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0x0,
+        { "Header Length",      "tcp.hdr_len", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_tcp_flags,

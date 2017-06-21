@@ -1933,6 +1933,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
     return tvb_captured_length(tvb);
   }
 
+  // This should be consistent with tcp.hdr_len.
   proto_tree_add_uint_bits_format_value(ip_tree, hf_ip_hdr_len, tvb, (offset<<3)+4, 4, hlen,
                                "%u bytes (%u)", hlen, hlen>>2);
 
