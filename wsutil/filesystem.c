@@ -1260,7 +1260,7 @@ profile_write_info_file(void)
     file = g_list_first(files);
     while (file) {
         filename = (gchar *)file->data;
-        ws_write(fd, filename, strlen(filename));
+        ws_write(fd, filename, (unsigned int)strlen(filename));
         ws_write(fd, "\n", 1);
         file = g_list_next(file);
     }
