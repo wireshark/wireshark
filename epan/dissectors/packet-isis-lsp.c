@@ -4437,7 +4437,7 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_mt_cap_spb_instance_vlanid_tuple_spvid,
             { "SPVID", "isis.lsp.mt_cap_spb_instance.vlanid_tuple.spvid",
-              FT_UINT24, BASE_DEC, NULL, 0xFFF000,
+              FT_UINT24, BASE_DEC, NULL, 0x000FFF,
               NULL, HFILL }
         },
         { &hf_isis_lsp_mt_cap_spb_opaque_algorithm,
