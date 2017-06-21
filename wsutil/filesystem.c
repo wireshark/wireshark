@@ -1244,25 +1244,39 @@ compare_filename(gconstpointer dissector_a, gconstpointer dissector_b)
     return strcmp((const char*)dissector_a, (const char*)dissector_b);
 }
 
-void
-profile_write_info_file(void)
+gboolean
+profile_write_info_file(gchar **pf_dir_path_return)
 {
     gchar *profile_dir, *info_file, *filename;
     GList *files, *file;
-    ssize_t nwritten = 0;
+    ssize_t filename_len;
     int fd;
 
     profile_dir = get_profiles_dir();
     info_file = g_strdup_printf("%s%s%s", profile_dir, G_DIR_SEPARATOR_S, PROFILES_INFO_NAME);
     fd = ws_open(info_file, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
+    if (fd < 0) {
+        g_free (profile_dir);
+        *pf_dir_path_return = info_file;
+        return FALSE;
+    }
 
     files = g_hash_table_get_keys(profile_files);
     files = g_list_sort(files, compare_filename);
     file = g_list_first(files);
     while (file) {
         filename = (gchar *)file->data;
-        nwritten += ws_write(fd, filename, (unsigned int)strlen(filename));
-        nwritten += ws_write(fd, "\n", 1);
+        filename_len = strlen(filename);
+        if ((ws_write(fd, filename, filename_len) != filename_len) ||
+            (ws_write(fd, "\n", 1) != 1))
+        {
+            ws_close(fd);
+            g_list_free(files);
+            g_free (profile_dir);
+
+            *pf_dir_path_return = info_file;
+            return FALSE;
+        }
         file = g_list_next(file);
     }
     g_list_free(files);
@@ -1270,6 +1284,8 @@ profile_write_info_file(void)
     ws_close(fd);
     g_free(info_file);
     g_free(profile_dir);
+
+    return TRUE;
 }
 
 /*

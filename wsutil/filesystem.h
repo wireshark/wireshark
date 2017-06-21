@@ -145,7 +145,7 @@ WS_DLL_PUBLIC void profile_store_persconffiles(gboolean store);
 /*
  * Store a list of all personal config files which belongs in a profile.
  */
-WS_DLL_PUBLIC void profile_write_info_file(void);
+WS_DLL_PUBLIC gboolean profile_write_info_file(gchar **pf_dir_path_return);
 
 /*
  * Check if given configuration profile exists.
