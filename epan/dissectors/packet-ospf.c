@@ -589,7 +589,6 @@ static int hf_ospf_ri_options_p2plan = -1;
 static int hf_ospf_ri_options_ete = -1;
 
 /* OSPF Dynamic Hostname support (RFC5642) */
-static int hf_ospf_opaque_lsa_mbz = -1;
 static int hf_ospf_v3_options = -1;
 static int hf_ospf_v3_options_v6 = -1;
 static int hf_ospf_v3_options_e = -1;
@@ -2526,7 +2525,6 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
 
     /* opaque LSA */
     guint8               ls_id_type;
-    guint8               ls_ri_opaque_field;
 
     guint8               ls_length_constraints[] = { 0, 24, 28, 28, 28, 36, 20, 36, 20, 20, 20, 20 };
 
@@ -2577,14 +2575,6 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
             break;
 
         case OSPF_LSA_OPAQUE_RI:
-           ls_ri_opaque_field = tvb_get_guint8(tvb, offset + 5);
-           if ( ls_ri_opaque_field != 0 )
-                ls_id_type = OSPF_LSA_UNKNOWN;
-           else
-                proto_tree_add_item(ospf_lsa_tree, hf_ospf_opaque_lsa_mbz,
-                                    tvb, offset + 5, 3, ENC_BIG_ENDIAN);
-           break;
-
         default:
             proto_tree_add_item(ospf_lsa_tree, hf_ospf_ls_id_opaque_id, tvb, offset + 5, 3, ENC_BIG_ENDIAN);
             break;
@@ -3548,11 +3538,6 @@ proto_register_ospf(void)
         {&hf_ospf_tlv_type_opaque,
          { "TLV Type", "ospf.tlv_type.opaque", FT_UINT16, BASE_DEC, VALS(ri_tlv_type_vals), 0x0,
            NULL, HFILL }},
-
-        /* An MBZ field for the 24-bits of type field of Opaque RI LSA */
-        {&hf_ospf_opaque_lsa_mbz,
-         { "MBZ", "ospf.ri.mbz", FT_UINT16, BASE_HEX,
-            NULL, 0x0, "OSPF Opaque RI LSA - 24 bits of Type Field Must be Zero", HFILL }},
 
         {&hf_ospf_v3_options,
          { "Options", "ospf.v3.options", FT_UINT24, BASE_HEX,
