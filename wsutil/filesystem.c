@@ -1249,6 +1249,7 @@ profile_write_info_file(void)
 {
     gchar *profile_dir, *info_file, *filename;
     GList *files, *file;
+    ssize_t nwritten = 0;
     int fd;
 
     profile_dir = get_profiles_dir();
@@ -1260,8 +1261,8 @@ profile_write_info_file(void)
     file = g_list_first(files);
     while (file) {
         filename = (gchar *)file->data;
-        (void)ws_write(fd, filename, (unsigned int)strlen(filename));
-        (void)ws_write(fd, "\n", 1);
+        nwritten += ws_write(fd, filename, (unsigned int)strlen(filename));
+        nwritten += ws_write(fd, "\n", 1);
         file = g_list_next(file);
     }
     g_list_free(files);
