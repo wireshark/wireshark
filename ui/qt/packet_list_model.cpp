@@ -295,6 +295,7 @@ void PacketListModel::setMaximiumRowHeight(int height)
 // to do in the future.
 
 int PacketListModel::sort_column_;
+int PacketListModel::sort_column_is_numeric_;
 int PacketListModel::text_sort_column_;
 Qt::SortOrder PacketListModel::sort_order_;
 capture_file *PacketListModel::sort_cap_file_;
@@ -343,6 +344,7 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
     }
 
     busy_timer_.restart();
+    sort_column_is_numeric_ = isNumericColumn(sort_column_);
     std::sort(physical_rows_.begin(), physical_rows_.end(), recordLessThan);
 
     beginResetModel();
@@ -370,6 +372,38 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
     }
 }
 
+bool PacketListModel::isNumericColumn(int column)
+{
+    if (column < 0 || sort_cap_file_->cinfo.columns[column].col_fmt != COL_CUSTOM) {
+        return false;
+    }
+
+    gchar **fields = g_regex_split_simple(COL_CUSTOM_PRIME_REGEX,
+            sort_cap_file_->cinfo.columns[column].col_custom_fields,
+            G_REGEX_ANCHORED, G_REGEX_MATCH_ANCHORED);
+
+    for (guint i = 0; i < g_strv_length(fields); i++) {
+        if (!*fields[i]) {
+            continue;
+        }
+
+        header_field_info *hfi = proto_registrar_get_byname(fields[i]);
+        if (!hfi || hfi->strings != NULL ||
+              !(((IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)) &&
+                 ((hfi->display == BASE_DEC) || (hfi->display == BASE_DEC_HEX) ||
+                  (hfi->display == BASE_OCT))) ||
+                (hfi->type == FT_DOUBLE) || (hfi->type == FT_FLOAT) ||
+                (hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
+                (hfi->type == FT_RELATIVE_TIME))) {
+            g_strfreev(fields);
+            return false;
+        }
+    }
+
+    g_strfreev(fields);
+    return true;
+}
+
 bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
 {
     int cmp_val = 0;
@@ -394,21 +428,8 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
         if (r1->columnString(sort_cap_file_, sort_column_).constData() == r2->columnString(sort_cap_file_, sort_column_).constData()) {
             cmp_val = 0;
         } else if (sort_cap_file_->cinfo.columns[sort_column_].col_fmt == COL_CUSTOM) {
-            header_field_info *hfi;
-
             // Column comes from custom data
-            hfi = proto_registrar_get_byname(sort_cap_file_->cinfo.columns[sort_column_].col_custom_fields);
-
-            if (hfi == NULL) {
-                cmp_val = frame_data_compare(sort_cap_file_->epan, r1->frameData(), r2->frameData(), COL_NUMBER);
-            } else if ((hfi->strings == NULL) &&
-                       (((IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)) &&
-                         ((hfi->display == BASE_DEC) || (hfi->display == BASE_DEC_HEX) ||
-                          (hfi->display == BASE_OCT))) ||
-                        (hfi->type == FT_DOUBLE) || (hfi->type == FT_FLOAT) ||
-                        (hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
-                        (hfi->type == FT_RELATIVE_TIME)))
-            {
+            if (sort_column_is_numeric_) {
                 // Attempt to convert to numbers.
                 // XXX This is slow. Can we avoid doing this?
                 bool ok_r1, ok_r2;
