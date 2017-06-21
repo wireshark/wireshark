@@ -915,6 +915,7 @@ int main(int argc, char *qt_argv[])
     g_free(get_persconffile_path("io_graphs", TRUE));
 
     profile_store_persconffiles(FALSE);
+    profile_write_info_file();
 
     ret_val = wsApp->exec();
 

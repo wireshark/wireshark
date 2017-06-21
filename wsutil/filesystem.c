@@ -68,6 +68,7 @@
 
 #define PROFILES_DIR    "profiles"
 #define PLUGINS_DIR_NAME    "plugins"
+#define PROFILES_INFO_NAME  "profile_files.txt"
 
 char *persconffile_dir = NULL;
 char *persdatafile_dir = NULL;
@@ -1235,6 +1236,39 @@ profile_store_persconffiles(gboolean store)
         profile_files = g_hash_table_new (g_str_hash, g_str_equal);
     }
     do_store_persconffiles = store;
+}
+
+static gint
+compare_filename(gconstpointer dissector_a, gconstpointer dissector_b)
+{
+    return strcmp((const char*)dissector_a, (const char*)dissector_b);
+}
+
+void
+profile_write_info_file(void)
+{
+    gchar *profile_dir, *info_file, *filename;
+    GList *files, *file;
+    int fd;
+
+    profile_dir = get_profiles_dir();
+    info_file = g_strdup_printf("%s%s%s", profile_dir, G_DIR_SEPARATOR_S, PROFILES_INFO_NAME);
+    fd = ws_open(info_file, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
+
+    files = g_hash_table_get_keys(profile_files);
+    files = g_list_sort(files, compare_filename);
+    file = g_list_first(files);
+    while (file) {
+        filename = (gchar *)file->data;
+        ws_write(fd, filename, strlen(filename));
+        ws_write(fd, "\n", 1);
+        file = g_list_next(file);
+    }
+    g_list_free(files);
+
+    ws_close(fd);
+    g_free(info_file);
+    g_free(profile_dir);
 }
 
 /*
