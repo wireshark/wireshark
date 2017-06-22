@@ -598,6 +598,7 @@ static int hf_asdu_bitstring = -1;
 static int hf_asdu_float = -1;
 static int hf_asdu_normval = -1;
 static int hf_asdu_scalval = -1;
+static int hf_asdu_raw_data = -1;
 
 static gint ett_apci = -1;
 static gint ett_asdu = -1;
@@ -614,6 +615,7 @@ static gint ett_cp56time = -1;
 
 static expert_field ei_iec104_short_asdu = EI_INIT;
 static expert_field ei_iec104_apdu_min_len = EI_INIT;
+static expert_field ei_iec104_apdu_invalid_len = EI_INIT;
 
 /* Misc. functions for dissection of signal values */
 
@@ -1370,8 +1372,20 @@ static int dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 			break;
 		default:
 			proto_tree_add_item(it104tree, hf_ioa, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+			offset += 3;
+
+			if (Len - offset > 0)
+				proto_tree_add_item(it104tree, hf_asdu_raw_data, tvb, offset, Len - offset, ENC_NA);
+			offset = Len;
+
 			break;
 	} /* end 'switch (asdu_typeid)' */
+
+	/* check correct apdu length */
+	if (Len != offset) {
+		expert_add_info(pinfo, it104tree, &ei_iec104_apdu_invalid_len);
+		return offset;
+	}
 
 	return tvb_captured_length(tvb);
 }
@@ -1821,6 +1835,10 @@ proto_register_iec104asdu(void)
 		{ &hf_asdu_scalval,
 		  { "Value", "104asdu.scalval", FT_INT16, BASE_DEC, NULL, 0x0,
 		    "Scaled value", HFILL }},
+
+		{ &hf_asdu_raw_data,
+		  { "Raw Data", "104asdu.rawdata", FT_BYTES, BASE_NONE, NULL, 0x0,
+		    "Information object raw data", HFILL }},
 	};
 
 	static gint *ett_as[] = {
@@ -1840,6 +1858,7 @@ proto_register_iec104asdu(void)
 	static ei_register_info ei[] = {
 		{ &ei_iec104_short_asdu, { "iec104.short_asdu", PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>", EXPFILL }},
 		{ &ei_iec104_apdu_min_len, { "iec104.apdu_min_len", PI_MALFORMED, PI_ERROR, "APDU less than bytes", EXPFILL }},
+		{ &ei_iec104_apdu_invalid_len, { "iec104.apdu_invalid_len", PI_MALFORMED, PI_ERROR, "Invalid ApduLen", EXPFILL }},
 	};
 
 	expert_module_t* expert_iec104;
