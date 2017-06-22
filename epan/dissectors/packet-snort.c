@@ -934,16 +934,19 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
                a negated content entry (i.e. beginning with '!') */
             if (attempt_match && !rule->contents[n].negation) {
                 /* Look up offset of match. N.B. would only expect to see on first content... */
-                guint offset_to_add = 0;
+                guint distance_to_add = 0;
 
                 /* May need to start looking from absolute offset into packet... */
                 if (rule->contents[n].offset_set) {
                     content_start_match = payload_start + rule->contents[n].offset;
-                    offset_to_add = 0;
                 }
                 /* ... or a number of bytes beyond the previous content match */
                 else if (rule->contents[n].distance_set) {
-                    offset_to_add = (content_last_match_end-content_start_match) + rule->contents[n].distance;
+                    distance_to_add = (content_last_match_end-content_start_match) + rule->contents[n].distance;
+                }
+                else {
+                    /* No constraints about where it appears - go back to the start of the frame. */
+                    content_start_match = payload_start;
                 }
 
 
@@ -951,7 +954,7 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
                 /* TODO: could take 'depth' and 'within' into account to limit extent of search,
                    but OK if just trying to verify what Snort already found. */
                 match_found = get_content_match(alert, n,
-                                                tvb, content_start_match+offset_to_add,
+                                                tvb, content_start_match+distance_to_add,
                                                 &content_offset, &converted_content_length);
                 if (match_found) {
                     content_last_match_end = content_offset + converted_content_length;
@@ -1018,6 +1021,9 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 
             if (attempt_match && !rule->contents[n].negation && !match_found) {
                 /* Useful for debugging, may also happen when Snort is reassembling.. */
+                /* TODO: not sure why, but PCREs might not be found first time through, but will be
+                 * found later, with the result that there will be 'not located' expert warnings,
+                 * but when you click on the packet, it is matched after all... */
                 proto_item_append_text(ti, " - not located");
                 expert_add_info_format(pinfo, ti, &ei_snort_content_not_matched,
                                        "%s   \"%s\"   not found in frame",
