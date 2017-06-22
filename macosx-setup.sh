@@ -1266,7 +1266,7 @@ uninstall_libgcrypt() {
 install_gmp() {
     if [ "$GMP_VERSION" -a ! -f gmp-$GMP_VERSION-done ] ; then
         echo "Downloading, building, and installing GMP:"
-        [ -f gmp-$GMP_VERSION.tar.gz ] || curl -L -O https://gmplib.org/download/gmp/gmp-$GMP_VERSION.tar.lz || exit 1
+        [ -f gmp-$GMP_VERSION.tar.lz ] || curl -L -O https://gmplib.org/download/gmp/gmp-$GMP_VERSION.tar.lz || exit 1
         $no_build && echo "Skipping installation" && return
         lzip -c -d gmp-$GMP_VERSION.tar.lz | tar xf - || exit 1
         cd gmp-$GMP_VERSION
