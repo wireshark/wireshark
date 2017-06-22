@@ -273,8 +273,10 @@ char *uat_fld_tostr(void *rec, uat_field_t *f) {
         case PT_TXTMOD_NONE:
         case PT_TXTMOD_STRING:
         case PT_TXTMOD_ENUM:
+        case PT_TXTMOD_BOOL:
         case PT_TXTMOD_FILENAME:
         case PT_TXTMOD_DIRECTORYNAME:
+        case PT_TXTMOD_DISPLAY_FILTER:
             out = g_strndup(ptr, len);
             break;
         case PT_TXTMOD_HEXBYTES: {
@@ -309,6 +311,7 @@ static void putfld(FILE* fp, void* rec, uat_field_t* f) {
         case PT_TXTMOD_ENUM:
         case PT_TXTMOD_FILENAME:
         case PT_TXTMOD_DIRECTORYNAME:
+        case PT_TXTMOD_DISPLAY_FILTER:
         case PT_TXTMOD_STRING: {
             guint i;
 
@@ -334,6 +337,10 @@ static void putfld(FILE* fp, void* rec, uat_field_t* f) {
                 fprintf(fp,"%02x", (guchar)fld_ptr[i]);
             }
 
+            break;
+        }
+        case PT_TXTMOD_BOOL: {
+            fprintf(fp,"\"%s\"", fld_ptr);
             break;
         }
         default:
@@ -633,13 +640,30 @@ gboolean uat_fld_chk_num_hex(void* u1 _U_, const char* strptr, guint len, const 
     return uat_fld_chk_num(16, strptr, len, err);
 }
 
+gboolean uat_fld_chk_bool(void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, char** err)
+{
+    char* str = g_strndup(strptr,len);
+
+    if ((g_strcmp0(str, "TRUE") == 0) ||
+        (g_strcmp0(str, "FALSE") == 0)) {
+        *err = NULL;
+        g_free(str);
+        return TRUE;
+    }
+
+    *err = g_strdup_printf("invalid value: %s (must be TRUE or FALSE)", str);
+    g_free(str);
+    return FALSE;
+}
+
+
 gboolean uat_fld_chk_enum(void* u1 _U_, const char* strptr, guint len, const void* v, const void* u3 _U_, char** err) {
     char* str = g_strndup(strptr,len);
     guint i;
     const value_string* vs = (const value_string *)v;
 
     for(i=0;vs[i].strptr;i++) {
-        if (g_str_equal(vs[i].strptr,str)) {
+        if (g_strcmp0(vs[i].strptr,str) == 0) {
             *err = NULL;
             g_free(str);
             return TRUE;

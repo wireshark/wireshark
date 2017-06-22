@@ -47,7 +47,13 @@ Qt::ItemFlags UatModel::flags(const QModelIndex &index) const
     if (!index.isValid())
         return 0;
 
+    uat_field_t *field = &uat_->fields[index.column()];
+
     Qt::ItemFlags flags = QAbstractTableModel::flags(index);
+    if (field->mode == PT_TXTMOD_BOOL)
+    {
+        flags |= Qt::ItemIsUserCheckable;
+    }
     flags |= Qt::ItemIsEditable;
     return flags;
 }
@@ -71,11 +77,26 @@ QVariant UatModel::data(const QModelIndex &index, int role) const
             QString qstr(temp_str);
             wmem_free(NULL, temp_str);
             return qstr;
+        } else if (field->mode == PT_TXTMOD_BOOL) {
+            return "";
         } else {
             QString qstr(str);
             g_free(str);
             return qstr;
         }
+    }
+
+    if ((role == Qt::CheckStateRole) && (field->mode == PT_TXTMOD_BOOL))
+    {
+        char *str = NULL;
+        guint length = 0;
+        enum Qt::CheckState state = Qt::Unchecked;
+        field->cb.tostr(rec, &str, &length, field->cbdata.tostr, field->fld_data);
+        if (g_strcmp0(str, "TRUE") == 0)
+            state = Qt::Checked;
+
+        g_free(str);
+        return state;
     }
 
     if (role == Qt::UserRole) {
@@ -133,7 +154,13 @@ int UatModel::columnCount(const QModelIndex &parent) const
 
 bool UatModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (!index.isValid() || role != Qt::EditRole)
+    if (!index.isValid())
+        return false;
+
+    uat_field_t *field = &uat_->fields[index.column()];
+
+    if ((role != Qt::EditRole) &&
+        ((field->mode == PT_TXTMOD_BOOL) && (role != Qt::CheckStateRole)))
         return false;
 
     if (data(index, role) == value) {
@@ -142,13 +169,20 @@ bool UatModel::setData(const QModelIndex &index, const QVariant &value, int role
     }
 
     const int row = index.row();
-    uat_field_t *field = &uat_->fields[index.column()];
     void *rec = UAT_INDEX_PTR(uat_, row);
 
     //qDebug() << "Changing (" << row << "," << index.column() << ") from " << data(index, Qt::EditRole) << " to " << value;
-    const QByteArray &str = value.toString().toUtf8();
-    const QByteArray &bytes = field->mode == PT_TXTMOD_HEXBYTES ? QByteArray::fromHex(str) : str;
-    field->cb.set(rec, bytes.constData(), (unsigned) bytes.size(), field->cbdata.set, field->fld_data);
+    if (field->mode != PT_TXTMOD_BOOL) {
+        const QByteArray &str = value.toString().toUtf8();
+        const QByteArray &bytes = field->mode == PT_TXTMOD_HEXBYTES ? QByteArray::fromHex(str) : str;
+        field->cb.set(rec, bytes.constData(), (unsigned) bytes.size(), field->cbdata.set, field->fld_data);
+    } else {
+        if (value == Qt::Checked) {
+            field->cb.set(rec, "TRUE", 4, field->cbdata.set, field->fld_data);
+        } else {
+            field->cb.set(rec, "FALSE", 5, field->cbdata.set, field->fld_data);
+        }
+    }
 
     QVector<int> roles;
     roles << role;

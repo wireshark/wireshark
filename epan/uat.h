@@ -217,8 +217,12 @@ typedef enum _uat_text_mode_t {
 
 	PT_TXTMOD_FILENAME,
 	/* processed like a PT_TXTMOD_STRING, but shows a filename dialog */
-	PT_TXTMOD_DIRECTORYNAME
+	PT_TXTMOD_DIRECTORYNAME,
 	/* processed like a PT_TXTMOD_STRING, but shows a directory dialog */
+	PT_TXTMOD_DISPLAY_FILTER,
+	/* processed like a PT_TXTMOD_STRING, but verifies display filter */
+	PT_TXTMOD_BOOL
+	/* Displays a checkbox for value */
 } uat_text_mode_t;
 
 /*
@@ -345,6 +349,8 @@ gboolean uat_fld_chk_num_dec(void*, const char*, unsigned, const void*, const vo
 WS_DLL_PUBLIC
 gboolean uat_fld_chk_num_hex(void*, const char*, unsigned, const void*, const void*, char** err);
 WS_DLL_PUBLIC
+gboolean uat_fld_chk_bool(void*, const char*, unsigned, const void*, const void*, char** err);
+WS_DLL_PUBLIC
 gboolean uat_fld_chk_enum(void*, const char*, unsigned, const void*, const void*, char**);
 WS_DLL_PUBLIC
 gboolean uat_fld_chk_range(void*, const char*, unsigned, const void*, const void*, char**);
@@ -439,6 +445,16 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 	{#field_name, title, PT_TXTMOD_DIRECTORYNAME,{uat_fld_chk_str,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
 /*
+ * DISPLAY_FILTER,
+ *    a simple c-string contained in (((rec_t*)rec)->(field_name))
+ */
+#define UAT_DISPLAY_FILTER_CB_DEF(basename,field_name,rec_t) UAT_CSTRING_CB_DEF(basename,field_name,rec_t)
+
+#define UAT_FLD_DISPLAY_FILTER(basename,field_name,title,desc) \
+	{#field_name, title, PT_TXTMOD_DISPLAY_FILTER, {uat_fld_chk_str,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
+
+
+/*
  * OID - just a CSTRING with a specific check routine
  */
 #define UAT_FLD_OID(basename,field_name,title,desc) \
@@ -521,6 +537,25 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 
 #define UAT_FLD_HEX(basename,field_name,title,desc) \
 {#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_num_hex,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
+
+/*
+ * BOOL Macros,
+ *   an boolean value contained in
+ */
+#define UAT_BOOL_CB_DEF(basename,field_name,rec_t) \
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
+	char* tmp_str = g_strndup(buf,len); \
+	if (g_strcmp0(tmp_str, "TRUE") == 0) \
+		((rec_t*)rec)->field_name = 1; \
+	else \
+		((rec_t*)rec)->field_name = 0; \
+	g_free(tmp_str); } \
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
+	*out_ptr = g_strdup_printf("%s",((rec_t*)rec)->field_name ? "TRUE" : "FALSE"); \
+	*out_len = (unsigned)strlen(*out_ptr); }
+
+#define UAT_FLD_BOOL(basename,field_name,title,desc) \
+{#field_name, title, PT_TXTMOD_BOOL,{uat_fld_chk_bool,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
 /*
  * ENUM macros

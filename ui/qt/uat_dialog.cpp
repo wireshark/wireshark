@@ -43,7 +43,7 @@ UatDialog::UatDialog(QWidget *parent, epan_uat *uat) :
     ui(new Ui::UatDialog),
     uat_model_(NULL),
     uat_delegate_(NULL),
-    uat_(NULL)
+    uat_(uat)
 {
     ui->setupUi(this);
     if (uat) loadGeometry(0, 0, uat->name);

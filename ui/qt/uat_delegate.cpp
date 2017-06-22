@@ -28,6 +28,9 @@
 #include <QEvent>
 #include <QFileDialog>
 #include <QLineEdit>
+#include <QCheckBox>
+
+#include "display_filter_edit.h"
 
 UatDelegate::UatDelegate(QObject *parent) : QStyledItemDelegate(parent)
 {
@@ -66,6 +69,11 @@ QWidget *UatDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &
         // TODO add a live validator? Should SyntaxLineEdit be used?
         return QStyledItemDelegate::createEditor(parent, option, index);
 
+    case PT_TXTMOD_DISPLAY_FILTER:
+    {
+        DisplayFilterEdit *editor = new DisplayFilterEdit(parent);
+        return editor;
+    }
     case PT_TXTMOD_HEXBYTES:
     {
         // Requires input of the form "ab cd ef" (with possibly no or a colon
@@ -79,6 +87,12 @@ QWidget *UatDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &
                 QStyledItemDelegate::createEditor(parent, option, index));
         editor->setValidator(new QRegExpValidator(hexbytes_regex, editor));
         return editor;
+    }
+
+    case PT_TXTMOD_BOOL:
+    {
+        // model will handle creating checkbox
+        return 0;
     }
 
     case PT_TXTMOD_NONE:
