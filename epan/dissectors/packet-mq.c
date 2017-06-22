@@ -3845,8 +3845,9 @@ static int reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             {
                 fragment_head *fd_head;
                 guint32 iConnectionId = (pinfo->srcport + pinfo->destport);
-                iHdrL = 28 + iMulS;
                 gboolean reassembly_error = FALSE;
+
+                iHdrL = 28 + iMulS;
 
                 /* Get the MQ Handle of the Object */
                 iHdl = tvb_get_guint32(tvb, iHdrL + 4, iEnco);
