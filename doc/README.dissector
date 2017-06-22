@@ -1036,6 +1036,11 @@ in tfs.h, included via packet.h.
 Custom fields (BASE_CUSTOM) should use CF_FUNC(&custom_format_func) for the
 'strings' field.
 
+-- Note to plugin authors
+Data cannot get exported from DLLs. For this reason plugin authors cannot use
+existing fieldconvert strings (e.g. from existing dissectors). Plugins must
+define value_strings, range_strings and true_false_strings locally.
+
 bitmask (BITMASK)
 -----------------
 If the field is a bitfield, then the bitmask is the mask which will
