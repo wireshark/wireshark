@@ -217,7 +217,7 @@ ph_stats_new(capture_file *cf)
 
 	if (!cf) return NULL;
 
-	pc_proto_id = proto_get_id_by_filter_name("pkt_comment");
+	pc_proto_id = proto_registrar_get_id_byname("pkt_comment");
 
 	/* Initialize the data */
 	ps = g_new(ph_stats_t, 1);
