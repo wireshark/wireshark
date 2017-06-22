@@ -604,7 +604,6 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     ctx_menu_.exec(event->globalPos());
     ctx_column_ = -1;
     decode_as_->setData(QVariant());
-
 }
 
 // Auto scroll if:
@@ -995,7 +994,7 @@ void PacketList::writeRecent(FILE *rf) {
         }
         col_fmt = get_column_format(col);
         if (col_fmt == COL_CUSTOM) {
-            fprintf (rf, " %%Cus:%s,", get_column_custom_fields(col));
+            fprintf (rf, " \"%%Cus:%s\",", get_column_custom_fields(col));
         } else {
             fprintf (rf, " %s,", col_format_to_string(col_fmt));
         }
@@ -1007,7 +1006,6 @@ void PacketList::writeRecent(FILE *rf) {
         }
     }
     fprintf (rf, "\n");
-
 }
 
 bool PacketList::contextMenuActive()

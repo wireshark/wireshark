@@ -1632,7 +1632,7 @@ packet_list_recent_write_all(FILE *rf)
 	for (col = 0; col < num_cols; col++) {
 		col_fmt = get_column_format(col);
 		if (col_fmt == COL_CUSTOM) {
-			fprintf (rf, " %%Cus:%s,", get_column_custom_fields(col));
+			fprintf (rf, " \"%%Cus:%s\",", get_column_custom_fields(col));
 		} else {
 			fprintf (rf, " %s,", col_format_to_string(col_fmt));
 		}
