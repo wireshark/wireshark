@@ -1015,12 +1015,17 @@ If the Boolean field is to be displayed as "False" or "True", the
 Wireshark predefines a whole range of ready made "true_false_string"s
 in tfs.h, included via packet.h.
 
+-- Note to plugin authors
+Data cannot get exported from DLLs. For this reason plugin authors cannot use
+existing fieldconvert strings (e.g. from existing dissectors). Plugins must
+define value_strings, range_strings and true_false_strings locally.
+
 -- Custom
 Custom fields (BASE_CUSTOM) should use CF_FUNC(&custom_format_func) for the
 'strings' field.
 
-bitmask
--------
+bitmask (BITMASK)
+-----------------
 If the field is a bitfield, then the bitmask is the mask which will
 leave only the bits needed to make the field when ANDed with a value.
 The proto_tree routines will calculate 'bitshift' automatically
