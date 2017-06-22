@@ -886,7 +886,7 @@ RepetitionPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
   if (parameter_tvb) {
     struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_WarningMessageContents);
-    dissect_s1ap_warningMessageContents(parameter_tvb, subtree, actx->pinfo, s1ap_data->data_coding_scheme);
+    dissect_s1ap_warningMessageContents(parameter_tvb, subtree, actx->pinfo, s1ap_data->data_coding_scheme, hf_s1ap_WarningMessageContents_nb_pages, hf_s1ap_WarningMessageContents_decoded_page);
   }
 
 #.FN_BODY MSClassmark2 VAL_PTR = &parameter_tvb

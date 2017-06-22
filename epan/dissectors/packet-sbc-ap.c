@@ -36,10 +36,14 @@
 #include <epan/strutil.h>
 #include <epan/asn1.h>
 #include <epan/sctpppids.h>
+#include <epan/proto_data.h>
 
 #include "packet-ber.h"
 #include "packet-per.h"
 #include "packet-e212.h"
+#include "packet-gsm_map.h"
+#include "packet-s1ap.h"
+#include "packet-lte-rrc.h"
 
 #define PNAME  "SBc Application Part"
 #define PSNAME "SBCAP"
@@ -98,11 +102,19 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-sbc-ap-val.h ---*/
-#line 51 "./asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 55 "./asn1/sbc-ap/packet-sbc-ap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_sbc_ap = -1;
 
+static int hf_sbc_ap_Serial_Number_gs = -1;
+static int hf_sbc_ap_Serial_Number_msg_code = -1;
+static int hf_sbc_ap_Serial_Number_upd_nb = -1;
+static int hf_sbc_ap_Warning_Type_value = -1;
+static int hf_sbc_ap_Warning_Type_emergency_user_alert = -1;
+static int hf_sbc_ap_Warning_Type_popup = -1;
+static int hf_sbc_ap_Warning_Message_Contents_nb_pages = -1;
+static int hf_sbc_ap_Warning_Message_Contents_decoded_page = -1;
 
 /*--- Included file: packet-sbc-ap-hf.c ---*/
 #line 1 "./asn1/sbc-ap/packet-sbc-ap-hf.c"
@@ -163,10 +175,14 @@ static int hf_sbc_ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value *
 static int hf_sbc_ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-sbc-ap-hf.c ---*/
-#line 56 "./asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 68 "./asn1/sbc-ap/packet-sbc-ap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_sbc_ap = -1;
+static int ett_sbc_ap_Serial_Number = -1;
+static int ett_sbc_ap_Warning_Type = -1;
+static int ett_sbc_ap_Data_Coding_Scheme = -1;
+static int ett_sbc_ap_Warning_Message_Contents = -1;
 
 
 /*--- Included file: packet-sbc-ap-ett.c ---*/
@@ -196,12 +212,16 @@ static gint ett_sbc_ap_SuccessfulOutcome = -1;
 static gint ett_sbc_ap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-sbc-ap-ett.c ---*/
-#line 61 "./asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 77 "./asn1/sbc-ap/packet-sbc-ap-template.c"
 
 enum{
 	INITIATING_MESSAGE,
 	SUCCESSFUL_OUTCOME,
 	UNSUCCESSFUL_OUTCOME
+};
+
+struct sbc_ap_private_data {
+  guint8 data_coding_scheme;
 };
 
 /* Global variables */
@@ -222,6 +242,18 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
+
+
+static struct sbc_ap_private_data*
+sbc_ap_get_private_data(packet_info *pinfo)
+{
+  struct sbc_ap_private_data *sbc_ap_data = (struct sbc_ap_private_data*)p_get_proto_data(pinfo->pool, pinfo, proto_sbc_ap, 0);
+  if (!sbc_ap_data) {
+    sbc_ap_data = wmem_new0(pinfo->pool, struct sbc_ap_private_data);
+    p_add_proto_data(pinfo->pool, pinfo, proto_sbc_ap, 0, sbc_ap_data);
+  }
+  return sbc_ap_data;
+}
 
 
 /*--- Included file: packet-sbc-ap-fn.c ---*/
@@ -538,8 +570,20 @@ dissect_sbc_ap_Criticality_Diagnostics(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_sbc_ap_Data_Coding_Scheme(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 218 "./asn1/sbc-ap/sbc-ap.cnf"
+  tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE, NULL, NULL);
+                                     8, 8, FALSE, &parameter_tvb, NULL);
+
+  if (parameter_tvb) {
+    struct sbc_ap_private_data *sbc_ap_data = sbc_ap_get_private_data(actx->pinfo);
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_sbc_ap_Data_Coding_Scheme);
+    sbc_ap_data->data_coding_scheme = dissect_cbs_data_coding_scheme(parameter_tvb, actx->pinfo, subtree, 0);
+  }
+
+
 
   return offset;
 }
@@ -687,8 +731,16 @@ dissect_sbc_ap_List_of_TAIs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_sbc_ap_Message_Identifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE, NULL, NULL);
+#line 184 "./asn1/sbc-ap/sbc-ap.cnf"
+  tvbuff_t *parameter_tvb = NULL;
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
+                                     16, 16, FALSE, &parameter_tvb, NULL);
+
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+
 
   return offset;
 }
@@ -727,8 +779,19 @@ dissect_sbc_ap_Repetition_Period(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_sbc_ap_Serial_Number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 191 "./asn1/sbc-ap/sbc-ap.cnf"
+  tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE, NULL, NULL);
+                                     16, 16, FALSE, &parameter_tvb, NULL);
+
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_sbc_ap_Serial_Number);
+    proto_tree_add_item(subtree, hf_sbc_ap_Serial_Number_gs, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_sbc_ap_Serial_Number_msg_code, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_sbc_ap_Serial_Number_upd_nb, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+
 
   return offset;
 }
@@ -775,8 +838,19 @@ dissect_sbc_ap_Warning_Area_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_sbc_ap_Warning_Message_Content(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 229 "./asn1/sbc-ap/sbc-ap.cnf"
+  tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       1, 9600, FALSE, NULL);
+                                       1, 9600, FALSE, &parameter_tvb);
+
+  if (parameter_tvb) {
+    struct sbc_ap_private_data *sbc_ap_data = sbc_ap_get_private_data(actx->pinfo);
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_sbc_ap_Warning_Message_Contents);
+    dissect_s1ap_warningMessageContents(parameter_tvb, subtree, actx->pinfo, sbc_ap_data->data_coding_scheme, hf_sbc_ap_Warning_Message_Contents_nb_pages, hf_sbc_ap_Warning_Message_Contents_decoded_page);
+  }
+
+
+
 
   return offset;
 }
@@ -795,8 +869,20 @@ dissect_sbc_ap_Warning_Security_Information(tvbuff_t *tvb _U_, int offset _U_, a
 
 static int
 dissect_sbc_ap_Warning_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 207 "./asn1/sbc-ap/sbc-ap.cnf"
+  tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       2, 2, FALSE, NULL);
+                                       2, 2, FALSE, &parameter_tvb);
+
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_sbc_ap_Warning_Type);
+    proto_tree_add_item(subtree, hf_sbc_ap_Warning_Type_value, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_sbc_ap_Warning_Type_emergency_user_alert, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_sbc_ap_Warning_Type_popup, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+
+
 
   return offset;
 }
@@ -1125,7 +1211,7 @@ static int dissect_SBC_AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-sbc-ap-fn.c ---*/
-#line 88 "./asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 120 "./asn1/sbc-ap/packet-sbc-ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -1187,7 +1273,38 @@ void proto_register_sbc_ap(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-
+    { &hf_sbc_ap_Serial_Number_gs,
+      { "Geographical Scope", "sbc_ap.SerialNumber.gs",
+        FT_UINT16, BASE_DEC, VALS(s1ap_serialNumber_gs_vals), 0xc000,
+        NULL, HFILL }},
+    { &hf_sbc_ap_Serial_Number_msg_code,
+      { "Message Code", "sbc_ap.SerialNumber.msg_code",
+        FT_UINT16, BASE_DEC, NULL, 0x3ff0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_Serial_Number_upd_nb,
+      { "Update Number", "sbc_ap.SerialNumber.upd_nb",
+        FT_UINT16, BASE_DEC, NULL, 0x000f,
+        NULL, HFILL }},
+    { &hf_sbc_ap_Warning_Type_value,
+      { "Warning Type Value", "sbc-ap.WarningType.value",
+        FT_UINT16, BASE_DEC, VALS(s1ap_warningType_vals), 0xfe00,
+        NULL, HFILL }},
+    { &hf_sbc_ap_Warning_Type_emergency_user_alert,
+      { "Emergency User Alert", "sbc-ap.WarningType.emergency_user_alert",
+        FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0100,
+        NULL, HFILL }},
+    { &hf_sbc_ap_Warning_Type_popup,
+      { "Popup", "sbc-ap.WarningType.popup",
+        FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0080,
+        NULL, HFILL }},
+    { &hf_sbc_ap_Warning_Message_Contents_nb_pages,
+      { "Number of Pages", "sbc-ap.WarningMessageContents.nb_pages",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_Warning_Message_Contents_decoded_page,
+      { "Decoded Page", "sbc-ap.WarningMessageContents.decoded_page",
+        FT_STRING, STR_UNICODE, NULL, 0,
+        NULL, HFILL }},
 
 /*--- Included file: packet-sbc-ap-hfarr.c ---*/
 #line 1 "./asn1/sbc-ap/packet-sbc-ap-hfarr.c"
@@ -1209,7 +1326,7 @@ void proto_register_sbc_ap(void) {
         NULL, HFILL }},
     { &hf_sbc_ap_Extended_Repetition_Period_PDU,
       { "Extended-Repetition-Period", "sbc-ap.Extended_Repetition_Period",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0,
         NULL, HFILL }},
     { &hf_sbc_ap_List_of_TAIs_PDU,
       { "List-of-TAIs", "sbc-ap.List_of_TAIs",
@@ -1217,7 +1334,7 @@ void proto_register_sbc_ap(void) {
         NULL, HFILL }},
     { &hf_sbc_ap_Message_Identifier_PDU,
       { "Message-Identifier", "sbc-ap.Message_Identifier",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &lte_rrc_messageIdentifier_vals_ext, 0,
         NULL, HFILL }},
     { &hf_sbc_ap_Number_of_Broadcasts_Requested_PDU,
       { "Number-of-Broadcasts-Requested", "sbc-ap.Number_of_Broadcasts_Requested",
@@ -1229,7 +1346,7 @@ void proto_register_sbc_ap(void) {
         NULL, HFILL }},
     { &hf_sbc_ap_Repetition_Period_PDU,
       { "Repetition-Period", "sbc-ap.Repetition_Period",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0,
         NULL, HFILL }},
     { &hf_sbc_ap_Serial_Number_PDU,
       { "Serial-Number", "sbc-ap.Serial_Number",
@@ -1413,12 +1530,16 @@ void proto_register_sbc_ap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-sbc-ap-hfarr.c ---*/
-#line 151 "./asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 214 "./asn1/sbc-ap/packet-sbc-ap-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
                   &ett_sbc_ap,
+                  &ett_sbc_ap_Serial_Number,
+                  &ett_sbc_ap_Warning_Type,
+                  &ett_sbc_ap_Data_Coding_Scheme,
+                  &ett_sbc_ap_Warning_Message_Contents,
 
 /*--- Included file: packet-sbc-ap-ettarr.c ---*/
 #line 1 "./asn1/sbc-ap/packet-sbc-ap-ettarr.c"
@@ -1447,7 +1568,7 @@ void proto_register_sbc_ap(void) {
     &ett_sbc_ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-sbc-ap-ettarr.c ---*/
-#line 157 "./asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 224 "./asn1/sbc-ap/packet-sbc-ap-template.c"
   };
 
 
@@ -1505,7 +1626,7 @@ proto_reg_handoff_sbc_ap(void)
 
 
 /*--- End of included file: packet-sbc-ap-dis-tab.c ---*/
-#line 190 "./asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 257 "./asn1/sbc-ap/packet-sbc-ap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete_uint("sctp.port", SctpPort, sbc_ap_handle);
@@ -1520,6 +1641,15 @@ proto_reg_handoff_sbc_ap(void)
 }
 
 
-
-
-
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

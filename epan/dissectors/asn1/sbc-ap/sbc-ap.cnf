@@ -176,3 +176,74 @@ Stop-Warning-Request					N sbc_ap.proc.imsg id-Stop-Warning
 Stop-Warning-Response					N sbc_ap.proc.sout id-Stop-Warning
 
 #.END
+
+#.TYPE_ATTR
+Message-Identifier TYPE = FT_UINT16 DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = &lte_rrc_messageIdentifier_vals_ext
+
+#.FN_BODY Message-Identifier VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY Serial-Number VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_sbc_ap_Serial_Number);
+    proto_tree_add_item(subtree, hf_sbc_ap_Serial_Number_gs, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_sbc_ap_Serial_Number_msg_code, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_sbc_ap_Serial_Number_upd_nb, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.TYPE_ATTR
+Repetition-Period DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
+#.TYPE_ATTR
+Extended-Repetition-Period DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
+#.FN_BODY Warning-Type VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_sbc_ap_Warning_Type);
+    proto_tree_add_item(subtree, hf_sbc_ap_Warning_Type_value, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_sbc_ap_Warning_Type_emergency_user_alert, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_sbc_ap_Warning_Type_popup, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+
+#.FN_BODY Data-Coding-Scheme VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    struct sbc_ap_private_data *sbc_ap_data = sbc_ap_get_private_data(actx->pinfo);
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_sbc_ap_Data_Coding_Scheme);
+    sbc_ap_data->data_coding_scheme = dissect_cbs_data_coding_scheme(parameter_tvb, actx->pinfo, subtree, 0);
+  }
+
+#.FN_BODY Warning-Message-Content VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    struct sbc_ap_private_data *sbc_ap_data = sbc_ap_get_private_data(actx->pinfo);
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_sbc_ap_Warning_Message_Contents);
+    dissect_s1ap_warningMessageContents(parameter_tvb, subtree, actx->pinfo, sbc_ap_data->data_coding_scheme, hf_sbc_ap_Warning_Message_Contents_nb_pages, hf_sbc_ap_Warning_Message_Contents_decoded_page);
+  }
+
+
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 2
+# tab-width: 8
+# indent-tabs-mode: nil
+# End:
+#
+# vi: set shiftwidth=2 tabstop=8 expandtab:
+# :indentSize=2:tabSize=8:noTabs=true:
+#

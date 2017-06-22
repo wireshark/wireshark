@@ -38,6 +38,10 @@ typedef struct _s1ap_ctx_t {
   guint32 ProtocolExtensionID;
 } s1ap_ctx_t;
 
+extern const value_string s1ap_warningType_vals[];
+extern const value_string s1ap_serialNumber_gs_vals[];
+
+void dissect_s1ap_warningMessageContents(tvbuff_t *warning_msg_tvb, proto_tree *tree, packet_info *pinfo, guint8 dcs, int hf_nb_pages, int hf_decoded_page);
 
 
 /*--- Included file: packet-s1ap-exp.h ---*/
@@ -62,7 +66,7 @@ int dissect_s1ap_SONtransferResponseContainer_PDU(tvbuff_t *tvb _U_, packet_info
 int dissect_s1ap_SONtransferCause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 /*--- End of included file: packet-s1ap-exp.h ---*/
-#line 35 "./asn1/s1ap/packet-s1ap-template.h"
+#line 39 "./asn1/s1ap/packet-s1ap-template.h"
 
 #endif  /* PACKET_S1AP_H */
 

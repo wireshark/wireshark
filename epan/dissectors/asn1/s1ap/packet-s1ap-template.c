@@ -248,7 +248,7 @@ s1ap_Time_UE_StayedInCell_EnhancedGranularity_fmt(gchar *s, guint32 v)
   g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fs", ((float)v)/10);
 }
 
-static const value_string s1ap_serialNumber_gs_vals[] = {
+const value_string s1ap_serialNumber_gs_vals[] = {
   { 0, "Display mode immediate, cell wide"},
   { 1, "Display mode normal, PLMN wide"},
   { 2, "Display mode normal, tracking area wide"},
@@ -256,7 +256,7 @@ static const value_string s1ap_serialNumber_gs_vals[] = {
   { 0, NULL},
 };
 
-static const value_string s1ap_warningType_vals[] = {
+const value_string s1ap_warningType_vals[] = {
   { 0, "Earthquake"},
   { 1, "Tsunami"},
   { 2, "Earthquake and Tsunami"},
@@ -265,8 +265,8 @@ static const value_string s1ap_warningType_vals[] = {
   { 0, NULL},
 };
 
-static void
-dissect_s1ap_warningMessageContents(tvbuff_t *warning_msg_tvb, proto_tree *tree, packet_info *pinfo, guint8 dcs)
+void
+dissect_s1ap_warningMessageContents(tvbuff_t *warning_msg_tvb, proto_tree *tree, packet_info *pinfo, guint8 dcs, int hf_nb_pages, int hf_decoded_page)
 {
   guint32 offset;
   guint8 nb_of_pages, length, *str;
@@ -275,7 +275,7 @@ dissect_s1ap_warningMessageContents(tvbuff_t *warning_msg_tvb, proto_tree *tree,
   int i;
 
   nb_of_pages = tvb_get_guint8(warning_msg_tvb, 0);
-  ti = proto_tree_add_uint(tree, hf_s1ap_WarningMessageContents_nb_pages, warning_msg_tvb, 0, 1, nb_of_pages);
+  ti = proto_tree_add_uint(tree, hf_nb_pages, warning_msg_tvb, 0, 1, nb_of_pages);
   if (nb_of_pages > 15) {
     expert_add_info_format(pinfo, ti, &ei_s1ap_number_pages_le15,
                            "Number of pages should be <=15 (found %u)", nb_of_pages);
@@ -287,7 +287,7 @@ dissect_s1ap_warningMessageContents(tvbuff_t *warning_msg_tvb, proto_tree *tree,
     cb_data_tvb = dissect_cbs_data(dcs, cb_data_page_tvb, tree, pinfo, 0);
     if (cb_data_tvb) {
       str = tvb_get_string_enc(wmem_packet_scope(), cb_data_tvb, 0, tvb_reported_length(cb_data_tvb), ENC_UTF_8|ENC_NA);
-      proto_tree_add_string_format(tree, hf_s1ap_WarningMessageContents_decoded_page, warning_msg_tvb, offset, 83,
+      proto_tree_add_string_format(tree, hf_decoded_page, warning_msg_tvb, offset, 83,
                                    str, "Decoded Page %u: %s", i+1, str);
     }
     offset += 83;

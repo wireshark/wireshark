@@ -30,6 +30,10 @@ typedef struct _s1ap_ctx_t {
   guint32 ProtocolExtensionID;
 } s1ap_ctx_t;
 
+extern const value_string s1ap_warningType_vals[];
+extern const value_string s1ap_serialNumber_gs_vals[];
+
+void dissect_s1ap_warningMessageContents(tvbuff_t *warning_msg_tvb, proto_tree *tree, packet_info *pinfo, guint8 dcs, int hf_nb_pages, int hf_decoded_page);
 
 #include "packet-s1ap-exp.h"
 
