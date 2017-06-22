@@ -611,11 +611,16 @@ static void process_rule_option(Rule_t *rule, char *options, int option_start_of
     value[0] = '\0';
     gint value_length = 0;
     guint32 value32 = 0;
+    gint spaces_after_colon = 0;
 
     if (colon_offset != 0) {
         /* Name and value */
         g_snprintf(name, colon_offset-option_start_offset, "%s", options+option_start_offset);
-        g_snprintf(value, options_end_offset-colon_offset, "%s", options+colon_offset);
+        if (options[colon_offset] == ' ') {
+            spaces_after_colon = 1;
+        }
+        g_snprintf(value, options_end_offset-spaces_after_colon-colon_offset, "%s",
+                   options+colon_offset+spaces_after_colon);
         value_length = (gint)strlen(value);
     }
     else {
@@ -657,7 +662,7 @@ static void process_rule_option(Rule_t *rule, char *options, int option_start_of
             }
         }
 
-        value[options_end_offset-colon_offset-2] = '\0';
+        value[options_end_offset-colon_offset-spaces_after_colon-2] = '\0';
         rule_add_content(rule, value+value_start+1, value_start == 1);
     }
     else if (strcmp(name, "uricontent") == 0) {
@@ -675,7 +680,7 @@ static void process_rule_option(Rule_t *rule, char *options, int option_start_of
             }
         }
 
-        value[options_end_offset-colon_offset-2] = '\0';
+        value[options_end_offset-colon_offset-spaces_after_colon-2] = '\0';
         rule_add_uricontent(rule, value+value_start+1, value_start == 1);
     }
     else if (strcmp(name, "http_uri") == 0) {
@@ -691,7 +696,7 @@ static void process_rule_option(Rule_t *rule, char *options, int option_start_of
 
         /* Not expecting negation (!)... */
 
-        value[options_end_offset-colon_offset-2] = '\0';
+        value[options_end_offset-colon_offset-spaces_after_colon-2] = '\0';
         rule_add_pcre(rule, value+value_start+1);
     }
     else if (strcmp(name, "nocase") == 0) {
