@@ -343,6 +343,7 @@ static gint ett_http2_encoded_entity = -1;
 static gint ett_http2_body_fragment = -1;
 static gint ett_http2_body_fragments = -1;
 
+#ifdef HAVE_NGHTTP2
 static const fragment_items http2_body_fragment_items = {
     /* Fragment subtrees */
     &ett_http2_body_fragment,
@@ -362,7 +363,6 @@ static const fragment_items http2_body_fragment_items = {
     "Body fragments"
 };
 
-#ifdef HAVE_NGHTTP2
 /* Due to HPACK compression, we may get lots of relatively large
    header fields (e.g., 4KiB).  Allocating each of them requires lots
    of memory.  The maximum compression is achieved in HPACK by
