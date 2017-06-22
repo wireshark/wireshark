@@ -220,7 +220,6 @@ typedef struct _e_prefs {
   gboolean     display_byte_fields_with_spaces;
   gboolean     enable_incomplete_dissectors_check;
   gboolean     incomplete_dissectors_check_debug;
-  gpointer     filter_expressions;/* Actually points to &head */
   gboolean     gui_update_enabled;
   software_update_channel_e gui_update_channel;
   gint         gui_update_interval;

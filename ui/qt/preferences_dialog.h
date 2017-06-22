@@ -91,6 +91,7 @@ private slots:
     void on_advancedTree_itemActivated(QTreeWidgetItem *item, int column);
 
     void on_buttonBox_accepted();
+    void on_buttonBox_rejected();
     void on_buttonBox_helpRequested();
 };
 

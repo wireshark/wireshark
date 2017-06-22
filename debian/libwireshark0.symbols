@@ -578,7 +578,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  fc_fc4_val@Base 1.9.1
  fetch_tapped_data@Base 1.9.1
  filter_expression_new@Base 1.9.1
- filter_expression_free@Base 1.99.3
  find_and_mark_frame_depended_upon@Base 1.12.0~rc1
  find_capture_dissector@Base 2.3.0
  find_circuit@Base 1.9.1
@@ -933,7 +932,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  p_get_proto_data@Base 1.9.1
  p_remove_proto_data@Base 1.12.0~rc1
  parse_key_string@Base 1.9.1
- pfilter_expression_head@Base 1.9.1
  plugin_if_apply_filter@Base 1.99.8
  plugin_if_get_ws_info@Base 2.1.0
  plugin_if_goto_frame@Base 2.0.0

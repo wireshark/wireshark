@@ -29,6 +29,7 @@
 #include <gtk/gtk.h>
 
 #include <epan/prefs.h>
+#include <epan/uat-int.h>
 
 
 #include "ui/preference_utils.h"
@@ -64,6 +65,18 @@ static GtkWidget *filter_save_frame_w;
 GtkWidget *_filter_tb = NULL;
 GtkWidget *_filter_te = NULL;
 
+static GList * filter_buttons = NULL;
+
+static gboolean
+add_filter_expression_button(const void *key _U_, void *value, void *user_data _U_)
+{
+	filter_expression_t* fe = (filter_expression_t*)value;
+
+	filter_button_add(NULL, NULL, fe);
+
+	return FALSE;
+}
+
 /*
  * This does do two things:
  * - Keep track of the various elements of the Filter Toolbar which will
@@ -75,76 +88,44 @@ GtkWidget *_filter_te = NULL;
 void
 filter_expression_save_dlg_init(gpointer filter_tb, gpointer filter_te)
 {
-	struct filter_expression *fe;
-
 	_filter_tb = (GtkWidget *)filter_tb;
 	_filter_te = (GtkWidget *)filter_te;
 
-	fe = *pfilter_expression_head;
-	while (fe != NULL) {
-		filter_button_add(NULL, NULL, fe);
-		fe = fe->next;
-	}
+	filter_expression_iterate_expressions(add_filter_expression_button, NULL);
+}
+
+static gboolean
+add_filter_buttons(const void *key _U_, void *value, void *user_data _U_)
+{
+	filter_expression_t* fe = (filter_expression_t*)value;
+
+	filter_button_add(NULL, NULL, fe);
+
+	return FALSE;
 }
 
 void
 filter_expression_reinit(int what)
 {
-	struct filter_expression *fe, *prevhead;
-
+	GList *button_list;
 	if ((what & FILTER_EXPRESSION_REINIT_DESTROY) != 0) {
-		fe = *pfilter_expression_head;
-		while (fe != NULL) {
-			if (fe->button != NULL) {
-				gtk_widget_destroy((GtkWidget *)fe->button);
-				fe->button = NULL;
-			}
-			fe = fe->next;
+		for(button_list = filter_buttons; button_list != NULL; button_list = g_list_next(button_list)) {
+			gtk_widget_destroy((GtkWidget *)button_list->data);
 		}
+		g_list_free(filter_buttons);
+		filter_buttons = NULL;
 	}
+
 	if (what == FILTER_EXPRESSION_REINIT_DESTROY) {
-		filter_expression_free(*pfilter_expression_head);
-		*pfilter_expression_head = NULL;
 		return;
 	}
 
 	if ((what & FILTER_EXPRESSION_REINIT_CREATE) != 0) {
-		gint maxindx = -1, indx;
-		fe = *pfilter_expression_head;
-		while (fe != NULL) {
-			maxindx = MAX(maxindx, fe->filter_index);
-			fe = fe->next;
-		}
-
-		prevhead = *pfilter_expression_head;
-		*pfilter_expression_head = NULL;
-
-		/*
-		 * The list should be in the order identified by the
-		 * index member.
-		 */
-		for (indx = 0; indx <= maxindx; indx++) {
-			if (prevhead != NULL) {
-				fe = prevhead;
-				while (fe != NULL && fe->filter_index != indx)
-					fe = fe->next;
-			}
-			if (fe == NULL)
-				continue;	/* Shouldn't happen */
-			if (fe->deleted)
-				continue;	/* Could happen */
-			filter_expression_new(fe->label, fe->expression,
-			    fe->enabled);
-		}
-		filter_expression_free(prevhead);
-
-		/* Create the buttons again */
-		fe = *pfilter_expression_head;
-		while (fe != NULL) {
-			if (fe->enabled && !fe->deleted)
-				filter_button_add(NULL, NULL, fe);
-			fe = fe->next;
-		}
+		/* XXX - Updating of the filter index was removed
+			when filter expressions were converted to a UAT.
+			This will probably cause some "reordering" bugs,
+			but they should be ignored since GTK GUI is deprecated */
+		filter_expression_iterate_expressions(add_filter_buttons, NULL);
 	}
 }
 
@@ -152,6 +133,7 @@ static int
 filter_button_add(const char *label, const char *expr, struct filter_expression *newfe)
 {
 	struct filter_expression *fe;
+	GtkWidget *button;
 
 	/* No duplicate buttons when adding a new one  */
 	if (newfe == NULL)
@@ -163,35 +145,42 @@ filter_button_add(const char *label, const char *expr, struct filter_expression 
 		return(0);
 
 	/* Create the "Label" button */
-	fe->button = gtk_tool_button_new(NULL, fe->label);
-	g_signal_connect(fe->button, "clicked", G_CALLBACK(filter_button_cb),
+	button = (GtkWidget*)gtk_tool_button_new(NULL, fe->label);
+	g_signal_connect(button, "clicked", G_CALLBACK(filter_button_cb),
 	    NULL);
-	gtk_widget_set_sensitive(GTK_WIDGET(fe->button), FALSE);
-	gtk_widget_show(GTK_WIDGET(fe->button));
+	gtk_widget_set_sensitive(GTK_WIDGET(button), FALSE);
+	gtk_widget_show(GTK_WIDGET(button));
 
-	gtk_toolbar_insert(GTK_TOOLBAR(_filter_tb), (GtkToolItem *)fe->button, -1);
-	gtk_widget_set_sensitive(GTK_WIDGET(fe->button), TRUE);
-	gtk_widget_set_tooltip_text(GTK_WIDGET(fe->button), fe->expression);
+	gtk_toolbar_insert(GTK_TOOLBAR(_filter_tb), (GtkToolItem *)button, -1);
+	gtk_widget_set_sensitive(GTK_WIDGET(button), TRUE);
+	gtk_widget_set_tooltip_text(GTK_WIDGET(button), fe->expression);
+
+	fe->button = button;
+	filter_buttons = g_list_append (filter_buttons, button);
 
 	return(0);
+}
+
+static gboolean
+find_match_filter_button(const void *key _U_, void *value, void *user_data)
+{
+	filter_expression_t* fe = (filter_expression_t*)value;
+	GtkWidget *this_button = (GtkWidget *)user_data;
+
+	if ((void *)fe->button == (void *)this_button) {
+		gtk_entry_set_text(GTK_ENTRY(_filter_te),
+			fe->expression);
+		main_filter_packets(&cfile, fe->expression, FALSE);
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 static void
 filter_button_cb(GtkWidget *this_button, gpointer parent_w _U_)
 {
-	struct filter_expression *fe;
-
-	fe = *pfilter_expression_head;
-	while (fe != NULL) {
-		if ((void *)fe->button == (void *)this_button) {
-			gtk_entry_set_text(GTK_ENTRY(_filter_te),
-			    fe->expression);
-			main_filter_packets(&cfile, fe->expression, FALSE);
-			return;
-		}
-		fe = fe->next;
-	}
-	printf("No Callback\n");
+	filter_expression_iterate_expressions(find_match_filter_button, this_button);
 }
 
 void
@@ -317,7 +306,12 @@ filter_save_ok_cb(GtkWidget *ok_bt _U_, GtkWindow *parent_w)
 	label = gtk_entry_get_text(GTK_ENTRY(label_te));
 
 	if (filter_button_add(label, expr, NULL) == 0) {
-		prefs_main_write();
+		gchar *err = NULL;
+
+		//Filter buttons are just a UAT, so only need to save that
+		uat_save(uat_get_table_by_name("Display expressions"), &err);
+		//ignore any errors
+		g_free(err);
 		filter_save_close_cb(NULL, parent_w);
 	}
 }

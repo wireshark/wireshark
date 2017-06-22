@@ -24,8 +24,9 @@
 
 #include <QFrame>
 
-class QLineEdit;
-class QTreeWidgetItem;
+#include <ui/qt/geometry_state_dialog.h>
+#include <ui/qt/uat_model.h>
+#include <ui/qt/uat_delegate.h>
 
 namespace Ui {
 class FilterExpressionsPreferencesFrame;
@@ -36,31 +37,29 @@ class FilterExpressionsPreferencesFrame : public QFrame
     Q_OBJECT
 
 public:
-    explicit FilterExpressionsPreferencesFrame(QWidget *parent = 0);
+    explicit FilterExpressionsPreferencesFrame(QWidget *parent = NULL);
     ~FilterExpressionsPreferencesFrame();
 
-    void unstash();
+    void setUat(struct epan_uat *uat);
 
-protected:
-    void keyPressEvent(QKeyEvent *evt);
+    void acceptChanges();
+    void rejectChanges();
 
 private:
     Ui::FilterExpressionsPreferencesFrame *ui;
 
-    int cur_column_;
-    QLineEdit *cur_line_edit_;
-    QString saved_col_string_;
+    UatModel *uat_model_;
+    UatDelegate *uat_delegate_;
+    struct epan_uat *uat_;
 
-    void addExpression(bool enabled, const QString label, const QString expression);
+    void checkForErrorHint(const QModelIndex &current, const QModelIndex &previous);
+    bool trySetErrorHintFromField(const QModelIndex &index);
+    void addRecord(bool copy_from_current = false);
 
 private slots:
-    void updateWidgets(void);
-    void on_expressionTreeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
-    void on_expressionTreeWidget_itemActivated(QTreeWidgetItem *item, int column);
-    void lineEditDestroyed();
-    void labelEditingFinished();
-    void expressionEditingFinished();
-    void on_expressionTreeWidget_itemSelectionChanged();
+    void modelDataChanged(const QModelIndex &topLeft);
+    void modelRowsRemoved();
+    void viewCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
     void on_newToolButton_clicked();
     void on_deleteToolButton_clicked();
     void on_copyToolButton_clicked();

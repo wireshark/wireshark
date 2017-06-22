@@ -894,9 +894,36 @@ void MainWindow::captureFileSaveStarted(const QString &file_path)
     main_ui_->statusBar->pushFileStatus(tr("Saving %1" UTF8_HORIZONTAL_ELLIPSIS).arg(file_info.baseName()));
 }
 
+struct filter_expression_data
+{
+    MainWindow* window;
+    bool actions_added;
+};
+
+gboolean MainWindow::filter_expression_add_action(const void *key _U_, void *value, void *user_data)
+{
+    filter_expression_t* fe = (filter_expression_t*)value;
+    struct filter_expression_data* data = (filter_expression_data*)user_data;
+
+    if (!fe->enabled)
+        return FALSE;
+
+    QAction *dfb_action = new QAction(fe->label, data->window->filter_expression_toolbar_);
+    dfb_action->setToolTip(fe->expression);
+    dfb_action->setData(fe->expression);
+    dfb_action->setProperty(dfe_property_, true);
+    data->window->filter_expression_toolbar_->addAction(dfb_action);
+    connect(dfb_action, SIGNAL(data->window->triggered()), data->window, SLOT(data->window->displayFilterButtonClicked()));
+    data->actions_added = true;
+    return FALSE;
+}
+
 void MainWindow::filterExpressionsChanged()
 {
-    bool actions_added = false;
+    struct filter_expression_data data;
+
+    data.window = this;
+    data.actions_added = false;
 
     // Recreate filter buttons
     foreach (QAction *act, filter_expression_toolbar_->actions()) {
@@ -908,18 +935,9 @@ void MainWindow::filterExpressionsChanged()
     }
 
     // XXX Add a context menu for removing and changing buttons.
-    for (struct filter_expression *fe = *pfilter_expression_head; fe != NULL; fe = fe->next) {
-        if (!fe->enabled) continue;
-        QAction *dfb_action = new QAction(fe->label, filter_expression_toolbar_);
-        dfb_action->setToolTip(fe->expression);
-        dfb_action->setData(fe->expression);
-        dfb_action->setProperty(dfe_property_, true);
-        filter_expression_toolbar_->addAction(dfb_action);
-        connect(dfb_action, SIGNAL(triggered()), this, SLOT(displayFilterButtonClicked()));
-        actions_added = true;
-    }
+    filter_expression_iterate_expressions(filter_expression_add_action, &data);
 
-    if (actions_added) {
+    if (data.actions_added) {
         main_ui_->displayFilterToolBar->adjustSize();
     }
 }

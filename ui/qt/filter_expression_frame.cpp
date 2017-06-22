@@ -23,6 +23,7 @@
 #include <ui_filter_expression_frame.h>
 
 #include <epan/filter_expressions.h>
+#include <epan/uat-int.h>
 #include <ui/preference_utils.h>
 
 #include <QPushButton>
@@ -91,6 +92,7 @@ void FilterExpressionFrame::on_labelLineEdit_textChanged(const QString)
 
 void FilterExpressionFrame::on_buttonBox_accepted()
 {
+    gchar* err = NULL;
     QByteArray label_ba = ui->labelLineEdit->text().toUtf8();
     QByteArray expr_ba = ui->displayFilterLineEdit->text().toUtf8();
 
@@ -98,7 +100,9 @@ void FilterExpressionFrame::on_buttonBox_accepted()
 
     on_buttonBox_rejected();
     emit filterExpressionsChanged();
-    prefs_main_write();
+
+    uat_save(uat_get_table_by_name("Display expressions"), &err);
+    g_free(err);
 }
 
 void FilterExpressionFrame::on_buttonBox_rejected()

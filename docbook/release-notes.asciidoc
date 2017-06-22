@@ -31,6 +31,10 @@ since version 2.4.0:
 * Add color support for TShark with --color option (non-Windows only)
 * TCP Analysis will detect and flag more spurious retransmissions.
 * The "matches" display filter operator is now case-insensitive.
+* Display expression (button) preferences have been converted to a UAT.
+  This puts the display expressions in their own file.  Wireshark still
+  supports preference files that contain the old preferences, but new
+  preference files will be written without the old fields.
 
 //=== Removed Dissectors
 

@@ -3356,6 +3356,14 @@ prefs_register_modules(void)
                                    "Look for dissectors that left some bytes undecoded (debug)",
                                    &prefs.incomplete_dissectors_check_debug);
 
+    /* Display filter Expressions
+     * This used to be an array of individual fields that has now been
+     * converted to a UAT.  Just make it part of the GUI category even
+     * though the name of the preference will never be seen in preference
+     * file
+     */
+    filter_expression_register_uat(gui_module);
+
     /* Capture
      * These are preferences that can be read/written using the
      * preference module API.  These preferences still use their own
@@ -3890,8 +3898,6 @@ init_prefs(void)
 
     prefs_register_modules();
 
-    filter_expression_init();
-
     prefs_initialized = TRUE;
 }
 
@@ -4205,12 +4211,6 @@ prefs_reset(void)
      * Unload any loaded MIBs.
      */
     oids_cleanup();
-
-    /*
-     * Free the filter expression list.
-     */
-    filter_expression_free(*pfilter_expression_head);
-    *pfilter_expression_head = NULL;
 
     /*
      * Reset the non-dissector preferences.
@@ -5299,6 +5299,8 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
     pref_t   *pref;
     int type;
 
+    //The PRS_GUI field names are here for backwards compatibility
+    //display filters have been converted to a UAT.
     if (strcmp(pref_name, PRS_GUI_FILTER_LABEL) == 0) {
         filter_label = g_strdup(value);
     } else if (strcmp(pref_name, PRS_GUI_FILTER_ENABLED) == 0) {
@@ -6370,6 +6372,35 @@ write_pref(gpointer data, gpointer user_data)
 
 }
 
+static void
+count_non_uat_pref(gpointer data, gpointer user_data)
+{
+    pref_t *pref = (pref_t *)data;
+    int *arg = (int *)user_data;
+
+    switch (pref->type)
+    {
+    case PREF_UAT:
+    case PREF_OBSOLETE:
+    case PREF_DECODE_AS_UINT:
+    case PREF_DECODE_AS_RANGE:
+        //These types are not written in preference file
+        break;
+    default:
+        (*arg)++;
+        break;
+    }
+}
+
+static int num_non_uat_prefs(module_t *module)
+{
+    int num = 0;
+
+    g_list_foreach(module->prefs, count_non_uat_pref, &num);
+
+    return num;
+}
+
 /*
  * Write out all preferences for a module.
  */
@@ -6387,7 +6418,7 @@ write_module_prefs(module_t *module, gpointer user_data)
     /* Write a header for the main modules and GUI sub-modules */
     if (((module->parent == NULL) || (module->parent == gui_module)) &&
         ((prefs_module_has_submodules(module)) ||
-         (module->numprefs > 0) ||
+         (num_non_uat_prefs(module) > 0) ||
          (module->name == NULL))) {
          if ((module->name == NULL) && (module->parent != NULL)) {
             fprintf(gui_pref_arg->pf, "\n####### %s: %s ########\n", module->parent->title, module->title);
@@ -6456,23 +6487,6 @@ write_prefs(char **pf_path_return)
     write_gui_pref_info.is_gui_module = TRUE;
 
     write_module_prefs(gui_module, &write_gui_pref_info);
-
-    {
-        struct filter_expression *fe = *(struct filter_expression **)prefs.filter_expressions;
-
-        if (fe != NULL)
-            fprintf(pf, "\n####### Filter Expressions ########\n\n");
-
-        while (fe != NULL) {
-            if (fe->deleted == FALSE) {
-                fprintf(pf, "%s: %s\n", PRS_GUI_FILTER_LABEL, fe->label);
-                fprintf(pf, "%s: %s\n", PRS_GUI_FILTER_ENABLED,
-                        fe->enabled == TRUE ? "TRUE" : "FALSE");
-                fprintf(pf, "%s: %s\n", PRS_GUI_FILTER_EXPR, fe->expression);
-            }
-            fe = fe->next;
-        }
-    }
 
     write_gui_pref_info.is_gui_module = FALSE;
     prefs_modules_foreach_submodules(NULL, write_module_prefs, &write_gui_pref_info);

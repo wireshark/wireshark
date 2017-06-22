@@ -296,6 +296,7 @@ public slots:
     void captureFileSaveStarted(const QString &file_path);
 
     void filterExpressionsChanged();
+    static gboolean filter_expression_add_action(const void *key, void *value, void *user_data);
 
     void launchRLCGraph(bool channelKnown, guint16 ueid, guint8 rlcMode,
                         guint16 channelType, guint16 channelId, guint8 direction);

@@ -40,6 +40,7 @@
 #include "ui/gtk/prefs_column.h"
 #include "ui/gtk/prefs_dlg.h"
 #include "ui/gtk/prefs_filter_expressions.h"
+#include "ui/gtk/filter_expression_save_dlg.h"
 #include "ui/gtk/prefs_font_color.h"
 #include "ui/gtk/prefs_gui.h"
 #include "ui/gtk/prefs_layout.h"
@@ -1295,8 +1296,9 @@ prefs_main_fetch_all(GtkWidget *dlg, gboolean *must_redissect)
   }
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
-  filter_expressions_prefs_fetch((GtkWidget *)g_object_get_data(G_OBJECT(dlg),
-    E_FILTER_EXPRESSIONS_PAGE_KEY));
+
+  /* Handle (re)creation of filter buttons */
+  filter_expression_reinit(FILTER_EXPRESSION_REINIT_DESTROY | FILTER_EXPRESSION_REINIT_CREATE);
   prefs_modules_foreach(module_prefs_fetch, must_redissect);
 
   return TRUE;

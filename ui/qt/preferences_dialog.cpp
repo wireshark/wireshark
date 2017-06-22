@@ -438,6 +438,8 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     prefs_pane_to_item_[ppCapture] = pd_ui_->prefsTree->topLevelItem(1);
     prefs_pane_to_item_[ppFilterExpressions] = pd_ui_->prefsTree->topLevelItem(2);
 
+    pd_ui_->filterExpressonsFrame->setUat(uat_get_table_by_name("Display expressions"));
+
     // Printing prefs don't apply here.
     module_t *print_module = prefs_find_module("print");
     if (print_module) print_module->use_gui = FALSE;
@@ -900,7 +902,7 @@ void PreferencesDialog::on_buttonBox_accepted()
     }
 
     pd_ui_->columnFrame->unstash();
-    pd_ui_->filterExpressonsFrame->unstash();
+    pd_ui_->filterExpressonsFrame->acceptChanges();
 
     prefs_main_write();
     if (save_decode_as_entries(&err) < 0)
@@ -946,6 +948,12 @@ void PreferencesDialog::on_buttonBox_accepted()
     if (new_layout != old_layout) {
         wsApp->queueAppSignal(WiresharkApplication::RecentPreferencesRead);
     }
+}
+
+void PreferencesDialog::on_buttonBox_rejected()
+{
+    //handle frames that don't have their own OK/Cancel "buttons"
+    pd_ui_->filterExpressonsFrame->rejectChanges();
 }
 
 void PreferencesDialog::on_buttonBox_helpRequested()

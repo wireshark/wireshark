@@ -34,10 +34,4 @@
  */
 GtkWidget *filter_expressions_prefs_show(void);
 
-/** Fetch preference values from page.
- *
- * @param widget widget from filtersave_prefs_show()
- */
-void filter_expressions_prefs_fetch(GtkWidget *widget);
-
 #endif

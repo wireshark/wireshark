@@ -31,14 +31,13 @@
 #include "wireshark_application.h"
 
 #include "qt_ui_utils.h"
+#include <wsutil/report_message.h>
 
 #include <QLineEdit>
 #include <QKeyEvent>
 #include <QTreeWidgetItemIterator>
 
-static const int enabled_col_    = 0;
-static const int label_col_      = 1;
-static const int expression_col_ = 2;
+#include <QDebug>
 
 // This shouldn't exist in its current form. Instead it should be the "display filters"
 // dialog, and the "dfilters" file should support a "show in toolbar" flag.
@@ -46,257 +45,230 @@ static const int expression_col_ = 2;
 FilterExpressionsPreferencesFrame::FilterExpressionsPreferencesFrame(QWidget *parent) :
     QFrame(parent),
     ui(new Ui::FilterExpressionsPreferencesFrame),
-    cur_column_(0),
-    cur_line_edit_(NULL)
+    uat_model_(NULL),
+    uat_delegate_(NULL),
+    uat_(NULL)
 {
     ui->setupUi(this);
 
-    int one_em = ui->expressionTreeWidget->fontMetrics().height();
-    ui->expressionTreeWidget->resizeColumnToContents(enabled_col_);
-    ui->expressionTreeWidget->setColumnWidth(label_col_, one_em * 10);
-    ui->expressionTreeWidget->setColumnWidth(expression_col_, one_em * 5);
+#ifdef Q_OS_MAC
+    ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
+    ui->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);
+    ui->copyToolButton->setAttribute(Qt::WA_MacSmallSize, true);
+    ui->pathLabel->setAttribute(Qt::WA_MacSmallSize, true);
+#endif
 
-    ui->expressionTreeWidget->setMinimumWidth(one_em * 15);
-    ui->expressionTreeWidget->setMinimumHeight(one_em * 10);
+    // FIXME: this prevents the columns from being resized, even if the text
+    // within a combobox needs more space (e.g. in the USER DLT settings).  For
+    // very long filenames in the SSL RSA keys dialog, it also results in a
+    // vertical scrollbar. Maybe remove this since the editor is not limited to
+    // the column width (and overlays other fields if more width is needed)?
+#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
+    ui->uatTreeView->header()->setResizeMode(QHeaderView::ResizeToContents);
+#else
+    ui->uatTreeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+#endif
 
-    ui->expressionTreeWidget->setSelectionMode(QAbstractItemView::SingleSelection);
-    ui->expressionTreeWidget->setDragEnabled(true);
-    ui->expressionTreeWidget->viewport()->setAcceptDrops(true);
-    ui->expressionTreeWidget->setDropIndicatorShown(true);
-    ui->expressionTreeWidget->setDragDropMode(QAbstractItemView::InternalMove);
-
-    ui->expressionTreeWidget->clear();
-
-    for (struct filter_expression *fe = *pfilter_expression_head; fe != NULL; fe = fe->next) {
-        if (fe->deleted) continue;
-        addExpression(fe->enabled, fe->label, fe->expression);
-    }
-
-    updateWidgets();
+    // XXX - Need to add uat_move or uat_insert to the UAT API for drag/drop
 }
 
 FilterExpressionsPreferencesFrame::~FilterExpressionsPreferencesFrame()
 {
     delete ui;
+    delete uat_delegate_;
+    delete uat_model_;
 }
 
-void FilterExpressionsPreferencesFrame::unstash()
+void FilterExpressionsPreferencesFrame::setUat(epan_uat *uat)
 {
-    struct filter_expression *cur_fe = *pfilter_expression_head, *new_fe_head = NULL, *new_fe = NULL;
-    bool changed = false;
+    QString title(tr("Unknown User Accessible Table"));
 
-    QTreeWidgetItemIterator it(ui->expressionTreeWidget);
-    while (*it) {
-        struct filter_expression *fe = g_new0(struct filter_expression, 1);
+    uat_ = uat;
 
-        if (!new_fe_head) {
-            new_fe_head = fe;
-        } else {
-            new_fe->next = fe;
+    ui->pathLabel->clear();
+    ui->pathLabel->setEnabled(false);
+
+    if (uat_) {
+        if (uat_->name) {
+            title = uat_->name;
         }
-        new_fe = fe;
 
-        new_fe->enabled = (*it)->checkState(enabled_col_) == Qt::Checked ? TRUE : FALSE;
-        new_fe->label = qstring_strdup((*it)->text(label_col_));
-        new_fe->expression = qstring_strdup((*it)->text(expression_col_));
+        QString abs_path = gchar_free_to_qstring(uat_get_actual_filename(uat_, FALSE));
+        ui->pathLabel->setText(abs_path);
+        ui->pathLabel->setUrl(QUrl::fromLocalFile(abs_path).toString());
+        ui->pathLabel->setToolTip(tr("Open ") + uat->filename);
+        ui->pathLabel->setEnabled(true);
 
-        if (cur_fe == NULL) {
-            changed = true;
-        } else {
-            if (cur_fe->enabled != new_fe->enabled ||
-                    g_strcmp0(cur_fe->label, new_fe->label) != 0 ||
-                    g_strcmp0(cur_fe->expression, new_fe->expression) != 0) {
-                changed = true;
-            }
-            cur_fe = cur_fe->next;
-        }
-        ++it;
+        uat_model_ = new UatModel(NULL, uat);
+        uat_delegate_ = new UatDelegate;
+        ui->uatTreeView->setModel(uat_model_);
+        ui->uatTreeView->setItemDelegate(uat_delegate_);
+
+        connect(uat_model_, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+                this, SLOT(modelDataChanged(QModelIndex)));
+        connect(uat_model_, SIGNAL(rowsRemoved(QModelIndex, int, int)),
+                this, SLOT(modelRowsRemoved()));
+        connect(ui->uatTreeView, SIGNAL(currentItemChanged(QModelIndex,QModelIndex)),
+                this, SLOT(viewCurrentChanged(QModelIndex,QModelIndex)));
+
+        connect(this, SIGNAL(rejected()), this, SLOT(rejectChanges()));
+        connect(this, SIGNAL(accepted()), this, SLOT(acceptChanges()));
     }
 
-    if (cur_fe) changed = true;
+    setWindowTitle(title);
+}
 
-    cur_fe = new_fe_head;
-    if (changed) {
-        cur_fe = *pfilter_expression_head;
-        *pfilter_expression_head = new_fe_head;
+void FilterExpressionsPreferencesFrame::acceptChanges()
+{
+    if (!uat_) return;
+
+    if (uat_->changed) {
+        gchar *err = NULL;
+
+        if (!uat_save(uat_, &err)) {
+            report_failure("Error while saving %s: %s", uat_->name, err);
+            g_free(err);
+        }
+
+        if (uat_->post_update_cb) {
+            uat_->post_update_cb();
+        }
+
+        //Filter expressions don't affect dissection, so there is no need to
+        //send any events to that effect.  However, the app needs to know
+        //about any button changes.
         wsApp->emitAppSignal(WiresharkApplication::FilterExpressionsChanged);
     }
-
-    while (cur_fe) {
-        struct filter_expression *fe = cur_fe;
-        cur_fe = fe->next;
-        g_free(fe->label);
-        g_free(fe->expression);
-        g_free(fe);
-    }
 }
 
-void FilterExpressionsPreferencesFrame::keyPressEvent(QKeyEvent *evt)
+void FilterExpressionsPreferencesFrame::rejectChanges()
 {
-    if (cur_line_edit_ && cur_line_edit_->hasFocus()) {
-        switch (evt->key()) {
-        case Qt::Key_Escape:
-            cur_line_edit_->setText(saved_col_string_);
-            /* Fall Through */
-        case Qt::Key_Enter:
-        case Qt::Key_Return:
-            switch (cur_column_) {
-            case label_col_:
-                labelEditingFinished();
-                break;
-            case expression_col_:
-                expressionEditingFinished();
-                break;
-            default:
-                break;
-            }
+    if (!uat_) return;
 
-            delete cur_line_edit_;
-            return;
-        default:
-            break;
+    if (uat_->changed) {
+        gchar *err = NULL;
+        uat_clear(uat_);
+        if (!uat_load(uat_, &err)) {
+            report_failure("Error while loading %s: %s", uat_->name, err);
+            g_free(err);
         }
-    }
-    QFrame::keyPressEvent(evt);
-}
-
-void FilterExpressionsPreferencesFrame::addExpression(bool enabled, const QString label, const QString expression)
-{
-    QTreeWidgetItem *item = new QTreeWidgetItem(ui->expressionTreeWidget);
-
-    item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-    item->setFlags(item->flags() & ~(Qt::ItemIsDropEnabled));
-    item->setCheckState(enabled_col_, enabled ? Qt::Checked : Qt::Unchecked);
-    item->setText(label_col_, label);
-    item->setText(expression_col_, expression);
-}
-
-void FilterExpressionsPreferencesFrame::updateWidgets()
-{
-    int num_selected = ui->expressionTreeWidget->selectedItems().count();
-
-    ui->copyToolButton->setEnabled(num_selected == 1);
-    ui->deleteToolButton->setEnabled(num_selected > 0);
-}
-
-void FilterExpressionsPreferencesFrame::on_expressionTreeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
-{
-    ui->deleteToolButton->setEnabled(current ? true : false);
-
-    if (previous && ui->expressionTreeWidget->itemWidget(previous, label_col_)) {
-        ui->expressionTreeWidget->removeItemWidget(previous, label_col_);
-    }
-    if (previous && ui->expressionTreeWidget->itemWidget(previous, expression_col_)) {
-        ui->expressionTreeWidget->removeItemWidget(previous, expression_col_);
+        //Filter expressions don't affect dissection, so there is no need to
+        //send any events to that effect
     }
 }
 
-void FilterExpressionsPreferencesFrame::on_expressionTreeWidget_itemActivated(QTreeWidgetItem *item, int column)
+void FilterExpressionsPreferencesFrame::addRecord(bool copy_from_current)
 {
-    if (!item || cur_line_edit_) return;
+    if (!uat_) return;
 
-    QWidget *editor = NULL;
-    cur_column_ = column;
+    const QModelIndex &current = ui->uatTreeView->currentIndex();
+    if (copy_from_current && !current.isValid()) return;
 
-    switch (column) {
-    case label_col_:
-    {
-        cur_line_edit_ = new QLineEdit();
-        saved_col_string_ = item->text(label_col_);
-        connect(cur_line_edit_, SIGNAL(editingFinished()), this, SLOT(labelEditingFinished()));
-        editor = cur_line_edit_;
-        break;
-    }
-    case expression_col_:
-    {
-        DisplayFilterEdit *display_edit = new DisplayFilterEdit();
-        saved_col_string_ = item->text(expression_col_);
-        connect(display_edit, SIGNAL(textChanged(QString)),
-                display_edit, SLOT(checkDisplayFilter(QString)));
-        connect(display_edit, SIGNAL(editingFinished()), this, SLOT(expressionEditingFinished()));
-        editor = cur_line_edit_ = display_edit;
-        break;
-    }
-    default:
+    // should not fail, but you never know.
+    if (!uat_model_->insertRows(uat_model_->rowCount(), 1)) {
+        qDebug() << "Failed to add a new record";
         return;
     }
+    const QModelIndex &new_index = uat_model_->index(uat_model_->rowCount() - 1, 0);
+    if (copy_from_current) {
+        uat_model_->copyRow(new_index.row(), current.row());
+    }
+    // due to an EditTrigger, this will also start editing.
+    ui->uatTreeView->setCurrentIndex(new_index);
+    // trigger updating error messages and the OK button state.
+    modelDataChanged(new_index);
+}
 
-    if (cur_line_edit_) {
-        cur_line_edit_->setText(saved_col_string_);
-        cur_line_edit_->selectAll();
-        connect(cur_line_edit_, SIGNAL(destroyed()), this, SLOT(lineEditDestroyed()));
+// Invoked when a different field is selected. Note: when selecting a different
+// field after editing, this event is triggered after modelDataChanged.
+void FilterExpressionsPreferencesFrame::viewCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+    if (current.isValid()) {
+        ui->deleteToolButton->setEnabled(true);
+        ui->copyToolButton->setEnabled(true);
+    } else {
+        ui->deleteToolButton->setEnabled(false);
+        ui->copyToolButton->setEnabled(false);
     }
 
-    if (editor) {
-        QFrame *edit_frame = new QFrame();
-        QHBoxLayout *hb = new QHBoxLayout();
-        QSpacerItem *spacer = new QSpacerItem(5, 10);
+    checkForErrorHint(current, previous);
+}
 
-        hb->addWidget(editor, 0);
-        hb->addSpacerItem(spacer);
-        hb->setStretch(1, 1);
-        hb->setContentsMargins(0, 0, 0, 0);
+// Invoked when a field in the model changes (e.g. by closing the editor)
+void FilterExpressionsPreferencesFrame::modelDataChanged(const QModelIndex &topLeft)
+{
+    checkForErrorHint(topLeft, QModelIndex());
+}
 
-        edit_frame->setLineWidth(0);
-        edit_frame->setFrameStyle(QFrame::NoFrame);
-        // The documentation suggests setting autoFillbackground. That looks silly
-        // so we clear the item text instead.
-        item->setText(cur_column_, "");
-        edit_frame->setLayout(hb);
-        ui->expressionTreeWidget->setItemWidget(item, cur_column_, edit_frame);
-        editor->setFocus();
+// Invoked after a row has been removed from the model.
+void FilterExpressionsPreferencesFrame::modelRowsRemoved()
+{
+    const QModelIndex &current = ui->uatTreeView->currentIndex();
+    checkForErrorHint(current, QModelIndex());
+}
+
+// If the current field has errors, show them.
+// Otherwise if the row has not changed, but the previous field has errors, show them.
+// Otherwise pick the first error in the current row.
+// Otherwise show the error from the previous field (if any).
+// Otherwise clear the error hint.
+void FilterExpressionsPreferencesFrame::checkForErrorHint(const QModelIndex &current, const QModelIndex &previous)
+{
+    if (current.isValid()) {
+        if (trySetErrorHintFromField(current)) {
+            return;
+        }
+
+        const int row = current.row();
+        if (row == previous.row() && trySetErrorHintFromField(previous)) {
+            return;
+        }
+
+        for (int i = 0; i < uat_model_->columnCount(); i++) {
+            if (trySetErrorHintFromField(uat_model_->index(row, i))) {
+                return;
+            }
+        }
     }
+
+    if (previous.isValid()) {
+        if (trySetErrorHintFromField(previous)) {
+            return;
+        }
+    }
+
+    ui->hintLabel->clear();
 }
 
-void FilterExpressionsPreferencesFrame::lineEditDestroyed()
+bool FilterExpressionsPreferencesFrame::trySetErrorHintFromField(const QModelIndex &index)
 {
-    cur_line_edit_ = NULL;
+    const QVariant &data = uat_model_->data(index, Qt::UserRole + 1);
+    if (!data.isNull()) {
+        // use HTML instead of PlainText because that handles wordwrap properly
+        ui->hintLabel->setText("<small><i>" + html_escape(data.toString()) + "</i></small>");
+        return true;
+    }
+    return false;
 }
 
-void FilterExpressionsPreferencesFrame::labelEditingFinished()
-{
-    QTreeWidgetItem *item = ui->expressionTreeWidget->currentItem();
-    if (!cur_line_edit_ || !item) return;
-
-    item->setText(label_col_, cur_line_edit_->text());
-    ui->expressionTreeWidget->removeItemWidget(item, label_col_);
-}
-
-void FilterExpressionsPreferencesFrame::expressionEditingFinished()
-{
-    QTreeWidgetItem *item = ui->expressionTreeWidget->currentItem();
-    if (!cur_line_edit_ || !item) return;
-
-    item->setText(expression_col_, cur_line_edit_->text());
-    ui->expressionTreeWidget->removeItemWidget(item, expression_col_);
-}
-
-void FilterExpressionsPreferencesFrame::on_expressionTreeWidget_itemSelectionChanged()
-{
-    updateWidgets();
-}
-
-static const QString new_button_label_ = QObject::tr("My Filter");
 void FilterExpressionsPreferencesFrame::on_newToolButton_clicked()
 {
-    addExpression(true, new_button_label_, QString());
+    addRecord();
 }
 
 void FilterExpressionsPreferencesFrame::on_deleteToolButton_clicked()
 {
-    QTreeWidgetItem *item = ui->expressionTreeWidget->currentItem();
-    if (item) {
-        ui->expressionTreeWidget->invisibleRootItem()->removeChild(item);
+    const QModelIndex &current = ui->uatTreeView->currentIndex();
+    if (uat_model_ && current.isValid()) {
+        if (!uat_model_->removeRows(current.row(), 1)) {
+            qDebug() << "Failed to remove row";
+        }
     }
 }
 
 void FilterExpressionsPreferencesFrame::on_copyToolButton_clicked()
 {
-    if (!ui->expressionTreeWidget->currentItem()) return;
-    QTreeWidgetItem *ti = ui->expressionTreeWidget->currentItem();
-
-    addExpression(ti->checkState(enabled_col_) == Qt::Checked,
-                  ti->text(label_col_), ti->text(expression_col_));
+    addRecord(true);
 }
 
 /*
