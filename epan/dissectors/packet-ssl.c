@@ -858,19 +858,18 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     return tvb_captured_length(tvb);
 }
 
-static int
-dissect_ssl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+static gboolean
+is_sslv3_or_tls(tvbuff_t *tvb)
 {
     guint8              content_type;
     guint16             protocol_version, record_length;
-    conversation_t     *conversation;
 
     /*
      * Heuristics should match a non-empty TLS record:
      * ContentType (1), ProtocolVersion (2), Length (2), fragment (...)
      */
     if (tvb_captured_length(tvb) < 6) {
-        return 0;
+        return FALSE;
     }
 
     content_type = tvb_get_guint8(tvb, 0);
@@ -879,7 +878,7 @@ dissect_ssl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     /* These are the common types. */
     if (content_type != SSL_ID_HANDSHAKE && content_type != SSL_ID_APP_DATA) {
-        return 0;
+        return FALSE;
     }
 
     /*
@@ -892,11 +891,79 @@ dissect_ssl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         protocol_version != TLSV1_VERSION &&
         protocol_version != TLSV1DOT1_VERSION &&
         protocol_version != TLSV1DOT2_VERSION) {
-        return 0;
+        return FALSE;
     }
 
     /* Check for sane length, see also ssl_check_record_length in packet-ssl-utils.c */
     if (record_length == 0 || record_length >= TLS_MAX_RECORD_LENGTH + 2048) {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+static gboolean
+is_sslv2_clienthello(tvbuff_t *tvb)
+{
+    /*
+     * Detect SSL 2.0 compatible Client Hello as used in SSLv3 and TLS.
+     *
+     * https://tools.ietf.org/html/rfc5246#appendix-E.2
+     *  uint8 V2CipherSpec[3];
+     *  struct {
+     *      uint16 msg_length;          // 0: highest bit must be 1
+     *      uint8 msg_type;             // 2: 1 for Client Hello
+     *      Version version;            // 3: equal to ClientHello.client_version
+     *      uint16 cipher_spec_length;  // 5: cannot be 0, must be multiple of 3
+     *      uint16 session_id_length;   // 7: zero or 16 (in TLS 1.0)
+     *      uint16 challenge_length;    // 9: must be 32
+     *      // length so far: 2 + 1 + 2 + 2 + 2 + 2 = 11
+     *      V2CipherSpec cipher_specs[V2ClientHello.cipher_spec_length];    // len: min 3
+     *      opaque session_id[V2ClientHello.session_id_length];             // len: zero or 16
+     *      opaque challenge[V2ClientHello.challenge_length;                // len: 32
+     *      // min. length: 11 + 3 + (0 or 16) + 32 = 46 or 62
+     *  } V2ClientHello;
+     */
+    if (tvb_captured_length(tvb) < 46) {
+        return FALSE;
+    }
+
+    /* Assume that message length is less than 256 (at most 64 cipherspecs). */
+    if (tvb_get_guint8(tvb, 0) != 0x80) {
+        return FALSE;
+    }
+
+    /* msg_type must be 1 for Client Hello */
+    if (tvb_get_guint8(tvb, 2) != 1) {
+        return FALSE;
+    }
+
+    /* cipher spec length must be a non-zero multiple of 3 */
+    guint16 cipher_spec_length = tvb_get_ntohs(tvb, 5);
+    if (cipher_spec_length == 0 || cipher_spec_length % 3 != 0) {
+        return FALSE;
+    }
+
+    /* session ID length must be 0 or 16 in TLS 1.0 */
+    guint16 session_id_length = tvb_get_ntohs(tvb, 7);
+    if (session_id_length != 0 && session_id_length != 16) {
+        return FALSE;
+    }
+
+    /* Challenge Length must be 32 */
+    if (tvb_get_ntohs(tvb, 9) != 32) {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+static int
+dissect_ssl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    conversation_t     *conversation;
+
+    if (!is_sslv3_or_tls(tvb) && !is_sslv2_clienthello(tvb)) {
         return 0;
     }
 
