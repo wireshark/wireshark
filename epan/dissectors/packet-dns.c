@@ -3704,30 +3704,6 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     dns_trans->req_time=pinfo->abs_ts;
   }
 
-  /* print state tracking in the tree */
-  if (!(flags&F_RESPONSE)) {
-    /* This is a request */
-    if (dns_trans->rep_frame) {
-      proto_item *it;
-
-      it=proto_tree_add_uint(dns_tree, hf_dns_response_in, tvb, 0, 0, dns_trans->rep_frame);
-      PROTO_ITEM_SET_GENERATED(it);
-    }
-  } else {
-    /* This is a reply */
-    if (dns_trans->req_frame) {
-      proto_item *it;
-      nstime_t ns;
-
-      it=proto_tree_add_uint(dns_tree, hf_dns_response_to, tvb, 0, 0, dns_trans->req_frame);
-      PROTO_ITEM_SET_GENERATED(it);
-
-      nstime_delta(&ns, &pinfo->abs_ts, &dns_trans->req_time);
-      it=proto_tree_add_time(dns_tree, hf_dns_time, tvb, 0, 0, &ns);
-      PROTO_ITEM_SET_GENERATED(it);
-    }
-  }
-
   if (is_tcp) {
     /* Put the length indication into the tree. */
     proto_tree_add_item(dns_tree, hf_dns_length, tvb, offset - 2, 2, ENC_BIG_ENDIAN);
@@ -3853,6 +3829,30 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (add > 0) {
     dissect_answer_records(tvb, cur_off, dns_data_offset, add, dns_tree, "Additional records",
                                       pinfo, is_mdns);
+  }
+
+  /* print state tracking in the tree */
+  if (!(flags&F_RESPONSE)) {
+    /* This is a request */
+    if (dns_trans->rep_frame) {
+      proto_item *it;
+
+      it=proto_tree_add_uint(dns_tree, hf_dns_response_in, tvb, 0, 0, dns_trans->rep_frame);
+      PROTO_ITEM_SET_GENERATED(it);
+    }
+  } else {
+    /* This is a reply */
+    if (dns_trans->req_frame) {
+      proto_item *it;
+      nstime_t ns;
+
+      it=proto_tree_add_uint(dns_tree, hf_dns_response_to, tvb, 0, 0, dns_trans->req_frame);
+      PROTO_ITEM_SET_GENERATED(it);
+
+      nstime_delta(&ns, &pinfo->abs_ts, &dns_trans->req_time);
+      it=proto_tree_add_time(dns_tree, hf_dns_time, tvb, 0, 0, &ns);
+      PROTO_ITEM_SET_GENERATED(it);
+    }
   }
 
   /* Collect stats */
