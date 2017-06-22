@@ -1023,7 +1023,7 @@ For fields with that unit name, you would declare a "unit_name_string":
 This is typically the case when abbreviations are used instead of full words.)
 
 There are several "common" unit name structures already defined in
-epan/unit_strings.h.  Dissector authors may choose to add the unit name
+epan/unit_strings.h. Dissector authors may choose to add the unit name
 structure there rather than locally in a dissector.
 
 For hf[] array FT_(U)INT*, FT_FlOAT and FT_DOUBLE fields that need a
@@ -1090,6 +1090,12 @@ in tfs.h, included via packet.h.
 -- Custom
 Custom fields (BASE_CUSTOM) should use CF_FUNC(&custom_format_func) for the
 'strings' field.
+
+-- Note to plugin authors
+Data cannot get exported from DLLs. For this reason plugin authors cannot use
+existing fieldconvert strings (e.g. from existing dissectors or those from
+epan/unit_strings.h). Plugins must define value_strings, unit_name_strings,
+range_strings and true_false_strings locally.
 
 bitmask (BITMASK)
 -----------------
