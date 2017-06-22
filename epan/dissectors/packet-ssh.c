@@ -213,7 +213,8 @@ static gboolean ssh_desegment = TRUE;
 
 static dissector_handle_t ssh_handle;
 
-#define TCP_PORT_SSH  22
+// 29418/tcp: Gerrit Code Review
+#define TCP_RANGE_SSH  "22,29418"
 #define SCTP_PORT_SSH 22
 
 /* Message Numbers (from RFC 4250) (1-255) */
@@ -1258,7 +1259,6 @@ ssh_dissect_proposal(tvbuff_t *tvb, int offset, proto_tree *tree,
     return offset;
 }
 
-
 void
 proto_register_ssh(void)
 {
@@ -1614,7 +1614,7 @@ proto_register_ssh(void)
 void
 proto_reg_handoff_ssh(void)
 {
-    dissector_add_uint_with_preference("tcp.port", TCP_PORT_SSH, ssh_handle);
+    dissector_add_uint_range_with_preference("tcp.port", TCP_RANGE_SSH, ssh_handle);
     dissector_add_uint("sctp.port", SCTP_PORT_SSH, ssh_handle);
     dissector_add_uint("sctp.ppi", SSH_PAYLOAD_PROTOCOL_ID, ssh_handle);
 }
