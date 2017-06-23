@@ -85,6 +85,14 @@ typedef struct decode_as_s {
 /** register a "Decode As".  A copy of the decode_as_t will be maintained by the decode_as module */
 WS_DLL_PUBLIC void register_decode_as(decode_as_t* reg);
 
+/** Register a "Decode As" entry for the special case where there is no
+    indication for the next protocol (such as port number etc.).
+    For now, this will use a uint32 dissector table internally and
+    assign all registered protocols to 0. The framework to do this can
+    be kept internal to epan. */
+WS_DLL_PUBLIC void register_decode_as_next_proto(
+      const char *name, const gchar *title, const gchar *table_name);
+
 /* Walk though the dissector table and provide dissector_handle_t for each item in the table */
 WS_DLL_PUBLIC void decode_as_default_populate_list(const gchar *table_name, decode_as_add_to_list_func add_to_list, gpointer ui_element);
 /* Clear a FT_UINT32 value from dissector table list */

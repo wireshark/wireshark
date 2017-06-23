@@ -55,6 +55,41 @@ void register_decode_as(decode_as_t* reg)
     decode_as_list = g_list_append(decode_as_list, reg);
 }
 
+static void next_proto_prompt(packet_info *pinfo _U_, gchar *result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Next level protocol as");
+}
+
+static gpointer next_proto_value(packet_info *pinfo _U_)
+{
+    return 0;
+}
+
+static build_valid_func next_proto_values[] = { next_proto_value };
+static decode_as_value_t next_proto_da_values =
+                        { next_proto_prompt, 1, next_proto_values };
+
+void register_decode_as_next_proto(
+        const char *name, const gchar *title, const gchar *table_name)
+{
+    decode_as_t *da;
+    dissector_table_t dt;
+
+    dt = find_dissector_table(table_name);
+    DISSECTOR_ASSERT(IS_FT_UINT(dissector_table_get_type(dt)));
+
+    da = wmem_new0(wmem_epan_scope(), decode_as_t);
+    da->name = wmem_strdup(wmem_epan_scope(), name);
+    da->title = wmem_strdup(wmem_epan_scope(), title);
+    da->table_name = wmem_strdup(wmem_epan_scope(), table_name);
+    da->num_items = 1;
+    da->values = &next_proto_da_values;
+    da->populate_list = decode_as_default_populate_list;
+    da->reset_value = decode_as_default_reset;
+    da->change_value = decode_as_default_change;
+
+    register_decode_as(da);
+}
 
 struct decode_as_default_populate
 {

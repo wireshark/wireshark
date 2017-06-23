@@ -1266,6 +1266,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  register_custom_dissector_table@Base 1.99.8
  register_custom_dissector_table@Base 1.99.8
  register_decode_as@Base 1.12.0~rc1
+ register_decode_as_next_proto@Base 2.5.0
  register_depend_dissector@Base 2.1.0
  register_dissector@Base 2.1.0
  register_dissector_table@Base 1.9.1
