@@ -379,7 +379,21 @@
   </Fragment>
   <Fragment>
     <ComponentGroup Id="CG.Tools.Reordercap">
-      <ComponentRef Id="cmpMergecap_exe" />
+      <ComponentRef Id="cmpReordercap_exe" />
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- DFTest -->
+  <Fragment>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpDFTest_exe" Guid="*">
+        <File Id="filDFTest_exe" KeyPath="yes" Source="$(var.Staging.Dir)\dftest.exe" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Tools.DFTest">
+      <ComponentRef Id="cmpDFTest_exe" />
     </ComponentGroup>
   </Fragment>
 

@@ -140,6 +140,7 @@ Push "randpktdump"
 Push "reordercap"
 Push "capinfos"
 Push "rawshark"
+Push "dftest"
 
 Pop $EXECUTABLE
 ${DoUntil} $EXECUTABLE == ${EXECUTABLE_MARKER}
