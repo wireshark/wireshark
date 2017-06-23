@@ -396,17 +396,27 @@ dissect_zbee_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     ieee802154_packet   *packet = (ieee802154_packet *)data;
     guint16             fcf;
     guint               ver;
+    guint               type;
 
     /* All ZigBee frames must always have a 16-bit source and destination address. */
     if (packet == NULL) return FALSE;
-    if (packet->src_addr_mode != IEEE802154_FCF_ADDR_SHORT && packet->src_addr_mode != IEEE802154_FCF_ADDR_EXT) return FALSE;
-    if (packet->dst_addr_mode != IEEE802154_FCF_ADDR_SHORT) return FALSE;
 
     /* If the frame type and version are not sane, then it's probably not ZigBee. */
     fcf = tvb_get_letohs(tvb, 0);
     ver = zbee_get_bit_field(fcf, ZBEE_NWK_FCF_VERSION);
+    type = zbee_get_bit_field(fcf, ZBEE_NWK_FCF_FRAME_TYPE);
     if ((ver < ZBEE_VERSION_2004) || (ver > ZBEE_VERSION_2007)) return FALSE;
-    if (!try_val_to_str(zbee_get_bit_field(fcf, ZBEE_NWK_FCF_FRAME_TYPE), zbee_nwk_frame_types)) return FALSE;
+    if (!try_val_to_str(type, zbee_nwk_frame_types)) return FALSE;
+
+    /* All interpan frames should originate from an extended address. */
+    if (type == ZBEE_NWK_FCF_INTERPAN) {
+        if (packet->src_addr_mode != IEEE802154_FCF_ADDR_EXT) return FALSE;
+    }
+    /* All other ZigBee frames must have 16-bit source and destination addresses. */
+    else {
+        if (packet->src_addr_mode != IEEE802154_FCF_ADDR_SHORT) return FALSE;
+        if (packet->dst_addr_mode != IEEE802154_FCF_ADDR_SHORT) return FALSE;
+    }
 
     /* Assume it's ZigBee */
     dissect_zbee_nwk(tvb, pinfo, tree, packet);

@@ -1181,6 +1181,7 @@
 #define ZBEE_PROTOABBREV_ZCL_DOOR_LOCK      "zbee_zcl_closures.door_lock"
 #define ZBEE_PROTOABBREV_ZCL_COLOR_CONTROL  "zbee_zcl_lighting.color_ctrl"
 #define ZBEE_PROTOABBREV_ZCL_BALLAST_CONFIG "zbee_zcl_lighting.ballast_ctrl"
+#define ZBEE_PROTOABBREV_ZCL_TOUCHLINK      "zbee_zcl_general.touchlink"
 #define ZBEE_PROTOABBREV_ZCL_GP             "zbee_zcl_general.gp"
 
 /* ZigBee Vendor Sub IE Fields */

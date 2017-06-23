@@ -304,6 +304,7 @@ typedef struct{
  */
 
 extern const value_string zbee_aps_cid_names[];
+extern const range_string zbee_aps_apid_names[];
 
 #endif /* PACKET_ZBEE_APS_H*/
 

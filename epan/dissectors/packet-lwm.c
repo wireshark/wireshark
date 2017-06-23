@@ -181,12 +181,23 @@ static const value_string lwm_cmd_multi_names[] = {
 static gboolean
 dissect_lwm_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+    guint8 endpt, srcep, dstep;
+
     /* 1) first byte must have bits 0000xxxx */
     if(tvb_get_guint8(tvb, 0) & LWM_FCF_RESERVED)
         return (FALSE);
 
     /* The header should be at least long enough for the base header. */
     if (tvb_reported_length(tvb) < LWM_HEADER_BASE_LEN)
+        return (FALSE);
+
+    /* The endpoints should either both be zero, or both non-zero. */
+    endpt = tvb_get_guint8(tvb, 6);
+    srcep = (endpt & LWM_SRC_ENDP_MASK) >> LWM_SRC_ENDP_OFFSET;
+    dstep = (endpt & LWM_DST_ENDP_MASK) >> LWM_DST_ENDP_OFFSET;
+    if ((srcep == 0) && (dstep != 0))
+        return (FALSE);
+    if ((srcep != 0) && (dstep == 0))
         return (FALSE);
 
     dissect_lwm(tvb, pinfo, tree, data);

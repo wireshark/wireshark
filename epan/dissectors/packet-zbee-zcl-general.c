@@ -15089,6 +15089,817 @@ proto_reg_handoff_zbee_zcl_gp(void)
                          );
 } /*proto_reg_handoff_zbee_zcl_gp*/
 
+/* ########################################################################## */
+/* #### (0x1000) TOUCHLINK COMMISSIONING CLUSTER ############################ */
+/* ########################################################################## */
+
+/*************************/
+/* Defines               */
+/*************************/
+/*Server commands received*/
+#define ZBEE_ZCL_CMD_ID_SCAN_REQUEST                    0x00
+#define ZBEE_ZCL_CMD_ID_DEVICE_INFO_REQUEST             0x02
+#define ZBEE_ZCL_CMD_ID_IDENTIFY_REQUEST                0x06
+#define ZBEE_ZCL_CMD_ID_FACTORT_RESET_REQUEST           0x07
+#define ZBEE_ZCL_CMD_ID_NETWORK_START_REQUEST           0x10
+#define ZBEE_ZCL_CMD_ID_NETWORK_JOIN_ROUTER_REQUEST     0x12
+#define ZBEE_ZCL_CMD_ID_NETWORK_JOIN_ENDDEV_REQUEST     0x14
+#define ZBEE_ZCL_CMD_ID_NETWORK_UPDATE_REQUEST          0x16
+#define ZBEE_ZCL_CMD_ID_GET_GROUP_IDENTIFIERS_REQUEST   0x41
+#define ZBEE_ZCL_CMD_ID_GET_ENDPOINT_LIST_REQUEST       0x42
+
+/*Server commands generated*/
+#define ZBEE_ZCL_CMD_ID_SCAN_RESPONSE                   0x01
+#define ZBEE_ZCL_CMD_ID_DEVICE_INFO_RESPONSE            0x03
+#define ZBEE_ZCL_CMD_ID_NETWORK_START_RESPONSE          0x11
+#define ZBEE_ZCL_CMD_ID_NETWORK_JOIN_ROUTER_RESPONSE    0x13
+#define ZBEE_ZCL_CMD_ID_NETWORK_JOIN_ENDDEV_RESPONSE    0x15
+#define ZBEE_ZCL_CMD_ID_ENDPOINT_INFORMATION            0x40
+#define ZBEE_ZCL_CMD_ID_GET_GROUP_IDENTIFIERS_RESPONSE  0x41
+#define ZBEE_ZCL_CMD_ID_GET_ENDPOINT_LIST_RESPONSE      0x42
+
+/*ZigBee Information Mask Value*/
+#define ZBEE_ZCL_TOUCHLINK_ZBEE_INFO_TYPE       0x03
+#define ZBEE_ZCL_TOUCHLINK_ZBEE_INFO_RXIDLE     0x04
+
+/*Touchlink Information Mask Values*/
+#define ZBEE_ZCL_TOUCHLINK_INFO_FACTORY         0x01
+#define ZBEE_ZCL_TOUCHLINK_INFO_ASSIGNMENT      0x02
+#define ZBEE_ZCL_TOUCHLINK_INFO_INITIATOR       0x10
+#define ZBEE_ZCL_TOUCHLINK_INFO_UNDEFINED       0x20
+
+/*Touchlink Key Indicies*/
+#define ZBEE_ZCL_TOUCHLINK_KEYID_DEVELOPMENT    0
+#define ZBEE_ZCL_TOUCHLINK_KEYID_MASTER         4
+#define ZBEE_ZCL_TOUCHLINK_KEYID_CERTIFICATION  15
+
+/*************************/
+/* Function Declarations */
+/*************************/
+void proto_register_zbee_zcl_touchlink(void);
+void proto_reg_handoff_zbee_zcl_touchlink(void);
+
+/*************************/
+/* Global Variables      */
+/*************************/
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_touchlink = -1;
+
+static int hf_zbee_zcl_touchlink_rx_cmd_id = -1;
+static int hf_zbee_zcl_touchlink_tx_cmd_id = -1;
+static int hf_zbee_zcl_touchlink_transaction_id = -1;
+static int hf_zbee_zcl_touchlink_zbee = -1;
+static int hf_zbee_zcl_touchlink_zbee_type = -1;
+static int hf_zbee_zcl_touchlink_zbee_rxidle = -1;
+static int hf_zbee_zcl_touchlink_info = -1;
+static int hf_zbee_zcl_touchlink_info_factory = -1;
+static int hf_zbee_zcl_touchlink_info_assignment = -1;
+static int hf_zbee_zcl_touchlink_info_initiator = -1;
+static int hf_zbee_zcl_touchlink_info_undefined = -1;
+static int hf_zbee_zcl_touchlink_start_index = -1;
+static int hf_zbee_zcl_touchlink_ident_duration = -1;
+
+static int hf_zbee_zcl_touchlink_rssi_correction = -1;
+static int hf_zbee_zcl_touchlink_response_id = -1;
+static int hf_zbee_zcl_touchlink_ext_panid = -1;
+static int hf_zbee_zcl_touchlink_nwk_update_id = -1;
+static int hf_zbee_zcl_touchlink_channel = -1;
+static int hf_zbee_zcl_touchlink_nwk_addr = -1;
+static int hf_zbee_zcl_touchlink_ext_addr = -1;
+static int hf_zbee_zcl_touchlink_panid = -1;
+static int hf_zbee_zcl_touchlink_sub_devices = -1;
+static int hf_zbee_zcl_touchlink_total_groups = -1;
+static int hf_zbee_zcl_touchlink_endpoint = -1;
+static int hf_zbee_zcl_touchlink_profile_id = -1;
+static int hf_zbee_zcl_touchlink_device_id = -1;
+static int hf_zbee_zcl_touchlink_version = -1;
+static int hf_zbee_zcl_touchlink_group_count = -1;
+static int hf_zbee_zcl_touchlink_group_begin = -1;
+static int hf_zbee_zcl_touchlink_group_end = -1;
+static int hf_zbee_zcl_touchlink_group_type = -1;
+static int hf_zbee_zcl_touchlink_group_id = -1;
+static int hf_zbee_zcl_touchlink_addr_range_begin = -1;
+static int hf_zbee_zcl_touchlink_addr_range_end = -1;
+static int hf_zbee_zcl_touchlink_group_range_begin = -1;
+static int hf_zbee_zcl_touchlink_group_range_end = -1;
+static int hf_zbee_zcl_touchlink_key_bitmask = -1;
+static int hf_zbee_zcl_touchlink_key_bit_dev = -1;
+static int hf_zbee_zcl_touchlink_key_bit_master = -1;
+static int hf_zbee_zcl_touchlink_key_bit_cert = -1;
+static int hf_zbee_zcl_touchlink_key_index = -1;
+static int hf_zbee_zcl_touchlink_key = -1;
+static int hf_zbee_zcl_touchlink_init_addr = -1;
+static int hf_zbee_zcl_touchlink_init_eui64 = -1;
+static int hf_zbee_zcl_touchlink_status = -1;
+
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_touchlink = -1;
+static gint ett_zbee_zcl_touchlink_zbee = -1;
+static gint ett_zbee_zcl_touchlink_info = -1;
+static gint ett_zbee_zcl_touchlink_keybits = -1;
+static gint ett_zbee_zcl_touchlink_groups = -1;
+
+/* Command names */
+static const value_string zbee_zcl_touchlink_rx_cmd_names[] = {
+    { ZBEE_ZCL_CMD_ID_SCAN_REQUEST, "Scan Request" },
+    { ZBEE_ZCL_CMD_ID_DEVICE_INFO_REQUEST, "Device Information Request" },
+    { ZBEE_ZCL_CMD_ID_IDENTIFY_REQUEST, "Identify Request" },
+    { ZBEE_ZCL_CMD_ID_FACTORT_RESET_REQUEST, "Reset to Factory New Request" },
+    { ZBEE_ZCL_CMD_ID_NETWORK_START_REQUEST, "Network Start Request" },
+    { ZBEE_ZCL_CMD_ID_NETWORK_JOIN_ROUTER_REQUEST, "Network Join Router Request" },
+    { ZBEE_ZCL_CMD_ID_NETWORK_JOIN_ENDDEV_REQUEST, "Network Join End Device Request" },
+    { ZBEE_ZCL_CMD_ID_NETWORK_UPDATE_REQUEST, "Network Update Request" },
+    { ZBEE_ZCL_CMD_ID_GET_GROUP_IDENTIFIERS_REQUEST, "Get Group Identifiers Request" },
+    { ZBEE_ZCL_CMD_ID_GET_ENDPOINT_LIST_REQUEST, "Get Group Identifiers Request" },
+    { 0, NULL }
+};
+static const value_string zbee_zcl_touchlink_tx_cmd_names[] = {
+    { ZBEE_ZCL_CMD_ID_SCAN_RESPONSE, "Scan Response" },
+    { ZBEE_ZCL_CMD_ID_DEVICE_INFO_RESPONSE, "Device Information Response" },
+    { ZBEE_ZCL_CMD_ID_NETWORK_START_RESPONSE, "Network Start Response" },
+    { ZBEE_ZCL_CMD_ID_NETWORK_JOIN_ROUTER_RESPONSE, "Network Join Router Response" },
+    { ZBEE_ZCL_CMD_ID_NETWORK_JOIN_ENDDEV_RESPONSE, "Network Join End Device Response" },
+    { ZBEE_ZCL_CMD_ID_ENDPOINT_INFORMATION, "Endpoint Information" },
+    { ZBEE_ZCL_CMD_ID_GET_GROUP_IDENTIFIERS_RESPONSE, "Get Group Identifiers Response" },
+    { ZBEE_ZCL_CMD_ID_GET_ENDPOINT_LIST_RESPONSE, "Get Group Identifiers Response" },
+    { 0, NULL }
+};
+
+/* ZigBee logical types */
+static const value_string zbee_zcl_touchlink_zbee_type_names[] = {
+    { 0, "coordinator" },
+    { 1, "router" },
+    { 2, "end device" },
+    { 0, NULL }
+};
+
+static const value_string zbee_zcl_touchlink_status_names[] = {
+    { 0x00, "Success" },
+    { 0x01, "Failure" },
+    { 0, NULL }
+};
+
+static const value_string zbee_zcl_touchlink_keyid_names[] = {
+    { ZBEE_ZCL_TOUCHLINK_KEYID_DEVELOPMENT, "Development Key" },
+    { ZBEE_ZCL_TOUCHLINK_KEYID_MASTER, "Master Key" },
+    { ZBEE_ZCL_TOUCHLINK_KEYID_CERTIFICATION, "Certification Key" },
+    { 0, NULL }
+};
+
+#define ZBEE_ZCL_TOUCHLINK_NUM_KEYID    16
+#define ZBEE_ZCL_TOUCHLINK_KEY_SIZE     16
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+/**
+ *This function decodes the Scan Request payload.
+ *
+ *@param  tvb the tv buffer of the current data_type
+ *@param  tree the tree to append this item to
+ *@param  offset offset of data in tvb
+*/
+static void
+dissect_zcl_touchlink_scan_request(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    static const int * zbee_info_flags[] = {
+        &hf_zbee_zcl_touchlink_zbee_type,
+        &hf_zbee_zcl_touchlink_zbee_rxidle,
+        NULL
+    };
+    static const int * zll_info_flags[] = {
+        &hf_zbee_zcl_touchlink_info_factory,
+        &hf_zbee_zcl_touchlink_info_assignment,
+        &hf_zbee_zcl_touchlink_info_initiator,
+        &hf_zbee_zcl_touchlink_info_undefined,
+        NULL
+    };
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_touchlink_zbee, ett_zbee_zcl_touchlink_zbee, zbee_info_flags, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_touchlink_info, ett_zbee_zcl_touchlink_info, zll_info_flags, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+} /*dissect_zcl_touchlink_scan_request*/
+
+/**
+ *This function decodes the Identify Request payload.
+ *
+ *@param  tvb the tv buffer of the current data_type
+ *@param  tree the tree to append this item to
+ *@param  offset offset of data in tvb
+*/
+static void
+dissect_zcl_touchlink_identify_request(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_ident_duration, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+} /*dissect_zcl_touchlink_identify_request*/
+
+/**
+ *This function decodes the Network Start Request payload.
+ *
+ *@param  tvb the tv buffer of the current data_type
+ *@param  tree the tree to append this item to
+ *@param  offset offset of data in tvb
+*/
+static void
+dissect_zcl_touchlink_network_start_request(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_ext_panid, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+    *offset += 8;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_key_index, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_key, tvb, *offset, 16, ENC_NA);
+    *offset += 16;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_channel, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_panid, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_nwk_addr, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_group_begin, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_group_end, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_addr_range_begin, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_addr_range_end, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_group_range_begin, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_group_range_end, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_init_eui64, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+    *offset += 8;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_init_addr, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+} /*dissect_zcl_touchlink_network_start_request*/
+
+/**
+ *This function decodes the Network Join Router/EndDevice Request payloads.
+ *
+ *@param  tvb the tv buffer of the current data_type
+ *@param  tree the tree to append this item to
+ *@param  offset offset of data in tvb
+*/
+static void
+dissect_zcl_touchlink_network_join_request(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_ext_panid, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+    *offset += 8;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_key_index, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_key, tvb, *offset, 16, ENC_NA);
+    *offset += 16;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_nwk_update_id, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_channel, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_panid, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_nwk_addr, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_group_begin, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_group_end, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_addr_range_begin, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_addr_range_end, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_group_range_begin, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_group_range_end, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+} /*dissect_zcl_touchlink_network_join_request*/
+
+/**
+ *This function decodes the Scan Response payload.
+ *
+ *@param  tvb the tv buffer of the current data_type
+ *@param  tree the tree to append this item to
+ *@param  offset offset of data in tvb
+*/
+static void
+dissect_zcl_touchlink_network_update_request(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_ext_panid, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+    *offset += 8;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_nwk_update_id, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_channel, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_panid, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_nwk_addr, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+} /*dissect_zcl_touchlink_network_update_request*/
+
+/**
+ *This function decodes the Scan Response payload.
+ *
+ *@param  tvb the tv buffer of the current data_type
+ *@param  tree the tree to append this item to
+ *@param  offset offset of data in tvb
+*/
+static void
+dissect_zcl_touchlink_scan_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    static const int * zbee_info_flags[] = {
+        &hf_zbee_zcl_touchlink_zbee_type,
+        &hf_zbee_zcl_touchlink_zbee_rxidle,
+        NULL
+    };
+    static const int * zll_info_flags[] = {
+        &hf_zbee_zcl_touchlink_info_factory,
+        &hf_zbee_zcl_touchlink_info_assignment,
+        &hf_zbee_zcl_touchlink_info_initiator,
+        &hf_zbee_zcl_touchlink_info_undefined,
+        NULL
+    };
+    static const int * zll_keybit_flags[] = {
+        &hf_zbee_zcl_touchlink_key_bit_dev,
+        &hf_zbee_zcl_touchlink_key_bit_master,
+        &hf_zbee_zcl_touchlink_key_bit_cert,
+        NULL
+    };
+    guint8 subdev;
+
+    /* Parse out the fixed-format stuff */
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_rssi_correction, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_touchlink_zbee, ett_zbee_zcl_touchlink_zbee, zbee_info_flags, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_touchlink_info, ett_zbee_zcl_touchlink_info, zll_info_flags, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_touchlink_key_bitmask, ett_zbee_zcl_touchlink_keybits, zll_keybit_flags, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_response_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_ext_panid, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+    *offset += 8;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_nwk_update_id, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_channel, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_panid, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_nwk_addr, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    subdev = tvb_get_guint8(tvb, *offset);
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_sub_devices, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_total_groups, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* The remaining fields are only present when sub-devices is one. */
+    if (subdev == 1) {
+        proto_tree_add_item(tree, hf_zbee_zcl_touchlink_endpoint, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+        *offset += 1;
+        proto_tree_add_item(tree, hf_zbee_zcl_touchlink_profile_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+        proto_tree_add_item(tree, hf_zbee_zcl_touchlink_device_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+        proto_tree_add_item(tree, hf_zbee_zcl_touchlink_version, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+        *offset += 1;
+        proto_tree_add_item(tree, hf_zbee_zcl_touchlink_group_count, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+        *offset += 1;
+    }
+} /*dissect_zcl_touchlink_scan_response*/
+
+/**
+ *This function decodes the Network Start Response payload.
+ *
+ *@param  tvb the tv buffer of the current data_type
+ *@param  tree the tree to append this item to
+ *@param  offset offset of data in tvb
+*/
+static void
+dissect_zcl_touchlink_network_start_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_ext_panid, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+    *offset += 8;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_nwk_update_id, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_channel, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_panid, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+} /* dissect_zcl_touchlink_network_start_response */
+
+/**
+ *This function decodes the Endpoint Information payload.
+ *
+ *@param  tvb the tv buffer of the current data_type
+ *@param  tree the tree to append this item to
+ *@param  offset offset of data in tvb
+*/
+static void
+dissect_zcl_touchlink_endpoint_info(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_ext_addr, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+    *offset += 8;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_nwk_addr, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_endpoint, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_profile_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_device_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_version, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+} /* dissect_zcl_touchlink_endpoint_info */
+
+/**
+ *This function decodes the Get Group Identifiers Response payload.
+ *
+ *@param  tvb the tv buffer of the current data_type
+ *@param  tree the tree to append this item to
+ *@param  offset offset of data in tvb
+*/
+static void
+dissect_zcl_touchlink_group_id_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    proto_tree *list_tree;
+    guint8 count;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_total_groups, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_start_index, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    count = tvb_get_guint8(tvb, *offset);
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_group_count, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    list_tree = proto_tree_add_subtree(tree, tvb, *offset, count * 3, ett_zbee_zcl_touchlink_groups, NULL, "Group Information Records");
+    while (count--) {
+        proto_tree_add_item(list_tree, hf_zbee_zcl_touchlink_group_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+        proto_tree_add_item(list_tree, hf_zbee_zcl_touchlink_group_type, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+        *offset += 1;
+    }
+} /* dissect_zcl_touchlink_group_id_response */
+
+/**
+ *ZigBee ZCL Touchlink Commissioining cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
+static int
+dissect_zbee_zcl_touchlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    zbee_zcl_packet   *zcl;
+    guint             offset = 0;
+    guint8            cmd_id;
+    int               hf_cmd_id;
+    const value_string *vals_cmd_id;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    zcl = (zbee_zcl_packet *)data;
+    cmd_id = zcl->cmd_id;
+
+    if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
+        hf_cmd_id = hf_zbee_zcl_touchlink_rx_cmd_id;
+        vals_cmd_id = zbee_zcl_touchlink_rx_cmd_names;
+    } else {
+        hf_cmd_id = hf_zbee_zcl_touchlink_tx_cmd_id;
+        vals_cmd_id = zbee_zcl_touchlink_tx_cmd_names;
+    }
+
+    /* Append the command name to the info column. */
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+        val_to_str_const(cmd_id, vals_cmd_id, "Unknown Command"),
+        zcl->tran_seqno);
+    /* Add the command ID. */
+    if (tree) {
+        proto_tree_add_item(tree, hf_cmd_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    }
+    offset++;
+
+    /* All touchlink commands begin with a transaction identifier.  */
+    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_transaction_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
+    if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
+        /* Call the appropriate command dissector */
+        switch (cmd_id) {
+            case ZBEE_ZCL_CMD_ID_SCAN_REQUEST:
+                dissect_zcl_touchlink_scan_request(tvb, tree, &offset);
+                break;
+
+            case ZBEE_ZCL_CMD_ID_IDENTIFY_REQUEST:
+                dissect_zcl_touchlink_identify_request(tvb, tree, &offset);
+                break;
+
+            case ZBEE_ZCL_CMD_ID_FACTORT_RESET_REQUEST:
+                /* No payload */
+                break;
+
+            case ZBEE_ZCL_CMD_ID_NETWORK_START_REQUEST:
+                dissect_zcl_touchlink_network_start_request(tvb, tree, &offset);
+                break;
+
+            case ZBEE_ZCL_CMD_ID_NETWORK_JOIN_ROUTER_REQUEST:
+            case ZBEE_ZCL_CMD_ID_NETWORK_JOIN_ENDDEV_REQUEST:
+                dissect_zcl_touchlink_network_join_request(tvb, tree, &offset);
+                break;
+
+            case ZBEE_ZCL_CMD_ID_NETWORK_UPDATE_REQUEST:
+                dissect_zcl_touchlink_network_update_request(tvb, tree, &offset);
+                break;
+
+            case ZBEE_ZCL_CMD_ID_DEVICE_INFO_REQUEST:
+            case ZBEE_ZCL_CMD_ID_GET_GROUP_IDENTIFIERS_REQUEST:
+            case ZBEE_ZCL_CMD_ID_GET_ENDPOINT_LIST_REQUEST:
+                proto_tree_add_item(tree, hf_zbee_zcl_touchlink_start_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset++;
+                break;
+
+            default:
+                break;
+        }
+    }
+    else {
+        /* Call the appropriate command dissector */
+        switch (cmd_id) {
+            case ZBEE_ZCL_CMD_ID_SCAN_RESPONSE:
+                dissect_zcl_touchlink_scan_response(tvb, tree, &offset);
+                break;
+
+            case ZBEE_ZCL_CMD_ID_NETWORK_START_RESPONSE:
+                dissect_zcl_touchlink_network_start_response(tvb, tree, &offset);
+                break;
+
+            case ZBEE_ZCL_CMD_ID_NETWORK_JOIN_ROUTER_RESPONSE:
+            case ZBEE_ZCL_CMD_ID_NETWORK_JOIN_ENDDEV_RESPONSE:
+                proto_tree_add_item(tree, hf_zbee_zcl_touchlink_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset++;
+                break;
+
+            case ZBEE_ZCL_CMD_ID_DEVICE_INFO_RESPONSE:
+                break;
+
+            case ZBEE_ZCL_CMD_ID_ENDPOINT_INFORMATION:
+                dissect_zcl_touchlink_endpoint_info(tvb, tree, &offset);
+                break;
+
+            case ZBEE_ZCL_CMD_ID_GET_GROUP_IDENTIFIERS_RESPONSE:
+                dissect_zcl_touchlink_group_id_response(tvb, tree, &offset);
+                break;
+
+            case ZBEE_ZCL_CMD_ID_GET_ENDPOINT_LIST_RESPONSE:
+                /* No payload */
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    /* Dump leftover data. */
+    if (tvb_captured_length_remaining(tvb, offset) > 0) {
+        tvbuff_t *excess = tvb_new_subset_remaining(tvb, offset);
+        call_data_dissector(excess, pinfo, proto_tree_get_root(tree));
+    }
+    return offset;
+} /*dissect_zbee_zcl_touchlink*/
+
+/**
+ *ZigBee ZCL Touchlink Commissioning cluster protocol registration routine.
+ *
+*/
+void
+proto_register_zbee_zcl_touchlink(void)
+{
+    /* Setup list of header fields */
+    static hf_register_info hf[] = {
+        { &hf_zbee_zcl_touchlink_rx_cmd_id,
+            { "Command", "zbee_zcl_general.touchlink.rx_cmd_id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_touchlink_rx_cmd_names),
+            0x00, NULL, HFILL } },
+        { &hf_zbee_zcl_touchlink_tx_cmd_id,
+            { "Command", "zbee_zcl_general.touchlink.tx_cmd_d", FT_UINT8, BASE_HEX, VALS(zbee_zcl_touchlink_tx_cmd_names),
+            0x00, NULL, HFILL } },
+        { &hf_zbee_zcl_touchlink_transaction_id,
+            { "Transaction ID", "zbee_zcl_general.touchlink.transaction_id", FT_UINT32, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        /* ZigBee Information Bitmask */
+        { &hf_zbee_zcl_touchlink_zbee,
+            { "ZigBee Information", "zbee_zcl_general.touchlink.zbee", FT_UINT8, BASE_HEX, NULL,
+                0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_touchlink_zbee_type,
+            { "Logical type", "zbee_zcl_general.touchlink.zbee.type", FT_UINT8, BASE_HEX, VALS(zbee_zcl_touchlink_zbee_type_names),
+            ZBEE_ZCL_TOUCHLINK_ZBEE_INFO_TYPE, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_zbee_rxidle,
+            { "Rx on when idle", "zbee_zcl_general.touchlink.zbee.rxidle", FT_BOOLEAN, 8, TFS(&tfs_yes_no),
+            ZBEE_ZCL_TOUCHLINK_ZBEE_INFO_RXIDLE, NULL, HFILL } },
+
+        /* Touchlink Information Bitmask */
+        { &hf_zbee_zcl_touchlink_info,
+            { "Touchlink Information", "zbee_zcl_general.touchlink.info", FT_UINT8, BASE_HEX, NULL,
+                0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_touchlink_info_factory,
+            { "Factory new", "zbee_zcl_general.touchlink.info.factory", FT_BOOLEAN, 8, TFS(&tfs_yes_no),
+            ZBEE_ZCL_TOUCHLINK_INFO_FACTORY, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_info_assignment,
+            { "Address assignment", "zbee_zcl_general.touchlink.info.assignment", FT_BOOLEAN, 8, TFS(&tfs_yes_no),
+            ZBEE_ZCL_TOUCHLINK_INFO_ASSIGNMENT, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_info_initiator,
+            { "Link initiator", "zbee_zcl_general.touchlink.info.initiator", FT_BOOLEAN, 8, TFS(&tfs_yes_no),
+            ZBEE_ZCL_TOUCHLINK_INFO_INITIATOR, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_info_undefined,
+            { "Undefined", "zbee_zcl_general.touchlink.info.undefined", FT_BOOLEAN, 8, NULL,
+            ZBEE_ZCL_TOUCHLINK_INFO_UNDEFINED, NULL, HFILL } },
+
+        /* Touchlink Key Information Bitmask */
+        { &hf_zbee_zcl_touchlink_key_bitmask,
+            { "Key Bitmask", "zbee_zcl_general.touchlink.key_bitmask", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_key_bit_dev,
+            { "Development Key", "zbee_zcl_general.touchlink.key_bitmask.dev", FT_BOOLEAN, 16, TFS(&tfs_yes_no),
+            (1<<ZBEE_ZCL_TOUCHLINK_KEYID_DEVELOPMENT), NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_key_bit_master,
+            { "Master Key", "zbee_zcl_general.touchlink.key_bitmask.master", FT_BOOLEAN, 16, TFS(&tfs_yes_no),
+            (1<<ZBEE_ZCL_TOUCHLINK_KEYID_MASTER), NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_key_bit_cert,
+            { "Certification Key", "zbee_zcl_general.touchlink.key_bitmask.cert", FT_BOOLEAN, 16, TFS(&tfs_yes_no),
+            (1<<ZBEE_ZCL_TOUCHLINK_KEYID_CERTIFICATION), NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_start_index,
+            { "Start index", "zbee_zcl_general.touchlink.index", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_ident_duration,
+            { "Identify duration", "zbee_zcl_general.touchlink.duration", FT_UINT16, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_rssi_correction,
+            { "RSSI Correction", "zbee_zcl_general.touchlink.rssi_correction", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_response_id,
+            { "Response ID", "zbee_zcl_general.touchlink.response_id", FT_UINT32, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_ext_panid,
+            { "Extended PAN ID", "zbee_zcl_general.touchlink.ext_panid", FT_EUI64, BASE_NONE, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_nwk_update_id,
+            { "Network Update ID", "zbee_zcl_general.touchlink.nwk_update_id", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_channel,
+            { "Logical Channel", "zbee_zcl_general.touchlink.channel", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_nwk_addr,
+            { "Network Address", "zbee_zcl_general.touchlink.nwk_addr", FT_UINT16, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_ext_addr,
+            { "Extended Address", "zbee_zcl_general.touchlink.ext_addr", FT_EUI64, BASE_NONE, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_panid,
+            { "PAN ID", "zbee_zcl_general.touchlink.panid", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_sub_devices,
+            { "Sub-devices", "zbee_zcl_general.touchlink.sub_devices", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_total_groups,
+            { "Total Group Identifiers", "zbee_zcl_general.touchlink.total_groups", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_endpoint,
+            { "Endpoint", "zbee_zcl_general.touchlink.endpoint", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_profile_id,
+            { "Profile ID", "zbee_zcl_general.touchlink.profile_id", FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_aps_apid_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_device_id,
+            { "Device ID", "zbee_zcl_general.touchlink.device_id", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_version,
+            { "Version", "zbee_zcl_general.touchlink.version", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_group_count,
+            { "Group ID Count", "zbee_zcl_general.touchlink.group_count", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_group_begin,
+            { "Group ID Begin", "zbee_zcl_general.touchlink.group_begin", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_group_end,
+            { "Group ID End", "zbee_zcl_general.touchlink.group_end", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_group_type,
+            { "Group Type", "zbee_zcl_general.touchlink.group_type", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_group_id,
+            { "Group ID", "zbee_zcl_general.touchlink.group_id", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_addr_range_begin,
+            { "Free Address Range Begin", "zbee_zcl_general.touchlink.addr_range_begin", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_addr_range_end,
+            { "Free Address Range End", "zbee_zcl_general.touchlink.addr_range_end", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_group_range_begin,
+            { "Free Group ID Range Begin", "zbee_zcl_general.touchlink.group_range_begin", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_group_range_end,
+            { "Free Group ID Range End", "zbee_zcl_general.touchlink.group_range_end", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_key_index,
+            { "Key Index", "zbee_zcl_general.touchlink.key_index", FT_UINT8, BASE_DEC, VALS(zbee_zcl_touchlink_keyid_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_key,
+            { "Encrypted Network Key", "zbee_zcl_general.touchlink.key", FT_BYTES, BASE_NONE, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_init_eui64,
+            { "Initiator Extended Address", "zbee_zcl_general.touchlink.init_eui", FT_EUI64, BASE_NONE, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_init_addr,
+            { "Initiator Network Address", "zbee_zcl_general.touchlink.init_addr", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_touchlink_status,
+            { "Status", "zbee_zcl_general.touchlink.status", FT_UINT8, BASE_HEX, VALS(zbee_zcl_touchlink_status_names),
+            0x00, NULL, HFILL } },
+    };
+
+    /* ZCL Touchlink subtrees */
+    static gint *ett[] = {
+        &ett_zbee_zcl_touchlink,
+        &ett_zbee_zcl_touchlink_zbee,
+        &ett_zbee_zcl_touchlink_info,
+        &ett_zbee_zcl_touchlink_keybits,
+        &ett_zbee_zcl_touchlink_groups,
+    };
+
+    /* Register the ZigBee ZCL Touchlink cluster protocol name and description */
+    proto_zbee_zcl_touchlink = proto_register_protocol("ZigBee ZCL Touchlink", "ZCL Touchlink", ZBEE_PROTOABBREV_ZCL_TOUCHLINK);
+    proto_register_field_array(proto_zbee_zcl_touchlink, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL Touchlink Commissioning dissector. */
+    register_dissector(ZBEE_PROTOABBREV_ZCL_TOUCHLINK, dissect_zbee_zcl_touchlink, proto_zbee_zcl_touchlink);
+} /*proto_register_zbee_zcl_touchlink*/
+
+/**
+ *Hands off the ZCL Touchlink Commissioning dissector.
+ *
+*/
+void
+proto_reg_handoff_zbee_zcl_touchlink(void)
+{
+    dissector_handle_t touchlink_handle;
+
+    /* Register our dissector with the ZigBee application dissectors. */
+    touchlink_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_TOUCHLINK);
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_ZLL, touchlink_handle);
+
+    zbee_zcl_init_cluster(  proto_zbee_zcl_touchlink,
+                            ett_zbee_zcl_touchlink,
+                            ZBEE_ZCL_CID_ZLL,
+                            -1,
+                            hf_zbee_zcl_touchlink_rx_cmd_id, hf_zbee_zcl_touchlink_tx_cmd_id,
+                            NULL
+                         );
+} /*proto_reg_handoff_zbee_zcl_touchlink*/
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
