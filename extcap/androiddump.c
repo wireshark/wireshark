@@ -341,24 +341,40 @@ static void useNormalConnectTimeout(socket_handle_t  sock) {
         g_debug("Can't set socket timeout, using default");
 }
 
+static int extcap_encap_to_dlt(int encap)
+{
+    int dlt = -1;
+#ifdef ANDROIDDUMP_USE_LIBPCAP
+    if (encap == EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR)
+        dlt = DLT_BLUETOOTH_H4_WITH_PHDR;
+    else if (encap == EXTCAP_ENCAP_WIRESHARK_UPPER_PDU)
+        dlt = DLT_WIRESHARK_UPPER_PDU;
+    else if (encap == EXTCAP_ENCAP_ETHERNET)
+        dlt = DLT_EN10MB;
+    return dlt;
+#else
+    if (encap == EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR)
+        dlt = WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR;
+    else if (encap == EXTCAP_ENCAP_WIRESHARK_UPPER_PDU)
+        dlt = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
+    else if (encap == EXTCAP_ENCAP_ETHERNET)
+        dlt = WTAP_ENCAP_ETHERNET;
+#endif
+    return dlt;
+}
 
 static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
     struct extcap_dumper extcap_dumper;
     int                  encap_ext;
 
-#ifdef ANDROIDDUMP_USE_LIBPCAP
-    pcap_t  *pcap;
-
-    if (encap == EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR)
-        encap_ext = DLT_BLUETOOTH_H4_WITH_PHDR;
-    else if (encap == EXTCAP_ENCAP_WIRESHARK_UPPER_PDU)
-        encap_ext = DLT_WIRESHARK_UPPER_PDU;
-    else if (encap == EXTCAP_ENCAP_ETHERNET)
-        encap_ext = DLT_EN10MB;
-    else {
+    encap_ext = extcap_encap_to_dlt(encap);
+    if (encap_ext == -1) {
         g_warning("Unknown encapsulation");
         exit(EXIT_CODE_UNKNOWN_ENCAPSULATION_LIBPCAP);
     }
+
+#ifdef ANDROIDDUMP_USE_LIBPCAP
+    pcap_t  *pcap;
 
     pcap = pcap_open_dead_with_tstamp_precision(encap_ext, PACKET_LENGTH, PCAP_TSTAMP_PRECISION_NANO);
     extcap_dumper.dumper.pcap = pcap_dump_open(pcap, fifo);
@@ -378,17 +394,6 @@ static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
 #ifdef HAVE_PLUGINS
     register_all_wiretap_modules();
 #endif
-
-    if (encap == EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR)
-        encap_ext = WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR;
-    else if (encap == EXTCAP_ENCAP_WIRESHARK_UPPER_PDU)
-        encap_ext = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
-    else if (encap == EXTCAP_ENCAP_ETHERNET)
-        encap_ext = WTAP_ENCAP_ETHERNET;
-    else {
-        g_warning("Unknown Wiretap encapsulation");
-        exit(EXIT_CODE_UNKNOWN_ENCAPSULATION_WIRETAP);
-    }
 
     extcap_dumper.dumper.wtap = wtap_dump_open(fifo, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC, encap_ext, PACKET_LENGTH, FALSE, &err);
     if (!extcap_dumper.dumper.wtap) {
