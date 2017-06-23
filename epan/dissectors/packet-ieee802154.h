@@ -227,7 +227,7 @@ typedef enum {
 } ieee802154_key_hash;
 
 /* Header IE Element ID */
-#define IEEE802154_HEADER_VENDOR_SPECIFIC   0x00
+#define IEEE802154_HEADER_IE_VENDOR_SPECIFIC 0x00
 /* Reserved 0x01-0x19 */
 #define IEEE802154_HEADER_IE_CSL            0x1a
 #define IEEE802154_HEADER_IE_RIT            0x1b
@@ -247,8 +247,8 @@ typedef enum {
 /* Assigned to External Organization: 0x2a    */
 #define IEEE802154_HEADER_IE_DA_IE          0x2b
 /* Reserved 0x2c-0x7d */
-#define IEEE802154_HEADER_IE_EID_TERM1      0x7e
-#define IEEE802154_HEADER_IE_EID_TERM2      0x7f
+#define IEEE802154_HEADER_IE_HT1            0x7e
+#define IEEE802154_HEADER_IE_HT2            0x7f
 /* Reserved 0x80-0xff */
 
 /* Payload IE Group ID */
