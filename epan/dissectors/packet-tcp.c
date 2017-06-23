@@ -324,6 +324,7 @@ static int hf_tcp_proc_dst_pid = -1;
 static int hf_tcp_proc_dst_uname = -1;
 static int hf_tcp_proc_dst_cmd = -1;
 static int hf_tcp_segment_data = -1;
+static int hf_tcp_payload = -1;
 static int hf_tcp_reset_cause = -1;
 static int hf_tcp_fin_retransmission = -1;
 static int hf_tcp_option_rvbd_probe_reserved = -1;
@@ -5564,7 +5565,13 @@ dissect_tcp_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 seq,
             proto_tree *tree, proto_tree *tcp_tree,
             struct tcp_analysis *tcpd, struct tcpinfo *tcpinfo)
 {
+    gint nbytes;
     gboolean save_fragmented;
+
+    nbytes = tvb_reported_length_remaining(tvb, offset);
+    proto_tree_add_bytes_format(tcp_tree, hf_tcp_payload, tvb, offset,
+        -1, NULL, "TCP payload (%u byte%s)", nbytes,
+        plurality(nbytes, "", "s"));
 
     /* Can we desegment this segment? */
     if (pinfo->can_desegment) {
@@ -7153,6 +7160,10 @@ proto_register_tcp(void)
         { &hf_tcp_segment_data,
           { "TCP segment data", "tcp.segment_data", FT_BYTES, BASE_NONE, NULL, 0x0,
             "A data segment used in reassembly of a lower-level protocol", HFILL}},
+
+        { &hf_tcp_payload,
+          { "TCP payload", "tcp.payload", FT_BYTES, BASE_NONE, NULL, 0x0,
+            "The TCP payload of this packet", HFILL}},
 
         { &hf_tcp_option_scps_binding_data,
           { "Binding Space Data", "tcp.options.scps.binding.data", FT_BYTES, BASE_NONE, NULL, 0x0,
