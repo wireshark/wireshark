@@ -73,11 +73,11 @@ static void address_type_register(int addr_type, address_type_t *at)
     g_assert(type_list[addr_type] == NULL);
 
     /* Sanity check */
-    DISSECTOR_ASSERT(at->name);
-    DISSECTOR_ASSERT(at->pretty_name);
-    DISSECTOR_ASSERT(at->addr_to_str);
-    DISSECTOR_ASSERT(at->addr_str_len);
-    DISSECTOR_ASSERT(((at->addr_name_res_str != NULL) && (at->addr_name_res_len != NULL)) ||
+    g_assert(at->name);
+    g_assert(at->pretty_name);
+    g_assert(at->addr_to_str);
+    g_assert(at->addr_str_len);
+    g_assert(((at->addr_name_res_str != NULL) && (at->addr_name_res_len != NULL)) ||
                      ((at->addr_name_res_str == NULL) && (at->addr_name_res_len == NULL)));
 
     type_list[addr_type] = at;
@@ -91,16 +91,16 @@ int address_type_dissector_register(const char* name, const char* pretty_name,
     int addr_type;
 
     /* Ensure valid data/functions for required fields */
-    DISSECTOR_ASSERT(name);
-    DISSECTOR_ASSERT(pretty_name);
-    DISSECTOR_ASSERT(to_str_func);
-    DISSECTOR_ASSERT(str_len_func);
+    g_assert(name);
+    g_assert(pretty_name);
+    g_assert(to_str_func);
+    g_assert(str_len_func);
     /* Either have both or neither */
-    DISSECTOR_ASSERT(((name_res_str_func != NULL) && (name_res_len_func != NULL)) ||
+    g_assert(((name_res_str_func != NULL) && (name_res_len_func != NULL)) ||
                      ((name_res_str_func == NULL) && (name_res_len_func == NULL)));
 
     /* This shouldn't happen, so flag it for fixing */
-    DISSECTOR_ASSERT(num_dissector_addr_type < MAX_DISSECTOR_ADDR_TYPE);
+    g_assert(num_dissector_addr_type < MAX_DISSECTOR_ADDR_TYPE);
 
     addr_type = AT_END_OF_LIST+num_dissector_addr_type;
     dissector_type_addresses[num_dissector_addr_type].addr_type = addr_type;
