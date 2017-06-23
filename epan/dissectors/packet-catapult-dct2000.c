@@ -1692,7 +1692,7 @@ static void attach_rlc_info(packet_info *pinfo, guint32 urnti, guint8 rbid,
 
     /* Allocate structs */
     p_rlc_info = wmem_new(wmem_file_scope(), struct rlc_info);
-    p_fp_info = wmem_new(wmem_file_scope(), struct fp_info);
+    p_fp_info = wmem_new0(wmem_file_scope(), struct fp_info);
 
     /* Fill in struct fields for first (only) PDU in this frame */
 

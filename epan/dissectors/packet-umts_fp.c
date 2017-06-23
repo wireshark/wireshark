@@ -50,6 +50,7 @@
  *  - Set the logical channel properly for non multiplexed, channels
  *    for channels that doesn't have the C/T flag! This should be based
  *    on the RRC message RadioBearerSetup.
+ *  - E-DCH (T1 & T2) heuristic dissectors
  */
 void proto_register_fp(void);
 void proto_reg_handoff_fp(void);
@@ -3910,6 +3911,10 @@ check_control_frame_crc_for_heur(tvbuff_t * tvb)
     guint8 crc = 0;
     guint8 calc_crc = 0;
     guint8 * data = NULL;
+    guint  reported_length = tvb_reported_length(tvb);
+
+    if (reported_length == 0 || reported_length > tvb_captured_length(tvb))
+        return FALSE;
 
     crc = tvb_get_guint8(tvb, 0) >> 1;
     /* Get data. */
@@ -3930,6 +3935,9 @@ check_header_crc_for_heur(tvbuff_t *tvb, guint16 header_length)
     guint8 calc_crc = 0;
     guint8 * data = NULL;
 
+    if (header_length > tvb_captured_length(tvb))
+        return FALSE;
+
     crc = tvb_get_guint8(tvb, 0) >> 1;
     /* Get data of header excluding the first byte */
     data = (guint8 *)tvb_get_ptr(tvb, 1, header_length - 1);
@@ -3944,7 +3952,7 @@ check_header_crc_for_heur(tvbuff_t *tvb, guint16 header_length)
 static gboolean
 check_payload_crc_for_heur(tvbuff_t *tvb, guint16 header_length)
 {
-    guint16 frame_length;
+    guint16 reported_length;
     guint16 crc_index;
     guint16 crc = 0;
     guint16 calc_crc = 0;
@@ -3952,16 +3960,16 @@ check_payload_crc_for_heur(tvbuff_t *tvb, guint16 header_length)
     guint16 payload_length;
     guint8 *data = NULL;
 
-    frame_length = tvb_reported_length(tvb);
-    if (frame_length < 2) {
+    reported_length = tvb_reported_length(tvb);
+    if (reported_length < 2 || reported_length > tvb_captured_length(tvb)) {
         return FALSE;
     }
     /* Payload CRC is in the last 2 bytes of the packet */
-    crc_index = frame_length - 2;
+    crc_index = reported_length - 2;
     crc = tvb_get_bits16(tvb, crc_index * 8, 16, ENC_BIG_ENDIAN);
 
     payload_index = header_length; /* payload first index is the same as the header length */
-    payload_length = (frame_length - payload_index) - 2;
+    payload_length = (reported_length - payload_index) - 2;
     data = (guint8 *)tvb_get_ptr(tvb, payload_index, payload_length);
     calc_crc = crc16_8005_noreflect_noxor(data, payload_length);
 
@@ -4060,9 +4068,10 @@ static gboolean
 heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     conversation_t   *p_conv;
-    umts_fp_conversation_info_t* umts_fp_conversation_info;
+    umts_fp_conversation_info_t* umts_fp_conversation_info = NULL;
     struct fp_info *p_fp_info;
-    int length;
+    guint32 captured_length;
+    guint32 reported_length;
     guint8 frame_type;
     guint8 tfi;
 
@@ -4080,7 +4089,8 @@ heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 dissect_fp(tvb, pinfo, tree, data);
                 return TRUE;
             }
-            else {
+            else if (umts_fp_conversation_info->channel != CHANNEL_UNKNOWN){
+                /* This conversation was successfuly framed as ANOTHER type */
                 return FALSE;
             }
         }
@@ -4094,28 +4104,21 @@ heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     frame_type = tvb_get_guint8(tvb, 0) & 0x01;
     if (frame_type == 1) { /* is 'control' frame type*/
-        /* Asserting that the Header CRC is correct */
-        if (!check_control_frame_crc_for_heur(tvb)) {
-            return FALSE;
-        }
-        /* All checks passed - This is an unknown FP frame. */
-        /* To allow dissection of this frame after umts_fp_conversation_info will be added in a later frame */
-        /* the conversation must be created here if it doesn't exist yet*/
-        if (p_conv == NULL) {
-            conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
-                pinfo->ptype,
-                pinfo->destport, pinfo->srcport, NO_ADDR_B);
-        }
         return FALSE;
     }
 
-    length = tvb_reported_length(tvb);
+    /* Making sure we have at least enough bytes for header (3) + footer (2) */
+    captured_length = tvb_captured_length(tvb);
+    reported_length = tvb_reported_length(tvb);
+    if (captured_length < 5) {
+        return FALSE;
+    }
     tfi = tvb_get_guint8(tvb, 2) & 0x1f;
 
     /* Checking if this is a DCH frame with 0 TBs*/
-    if (tfi == 0x00)
+    if (captured_length == 0x00)
     {
-        if (length != 5 /* DL */ && length != 7 /* UL */) {
+        if (reported_length != 5 /* DL */ && reported_length != 7 /* UL */) {
             return FALSE;
         }
         if (!check_header_crc_for_heur(tvb, 3)) {
@@ -4142,8 +4145,7 @@ heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     /* Expecting specific lengths: 24 for downlink frames, 26 for uplink frames */
     /* This is the common Transport Format of DCCH over DCH ( See 3GPP TR 25.944 / 4.1.1.3.1.1 ) */
-    length = tvb_reported_length(tvb);
-    if (length != 24 /* DL */ && length != 26 /* UL */) {
+    if (reported_length != 24 /* DL */ && reported_length != 26 /* UL */) {
         return FALSE;
     }
 
@@ -4154,7 +4156,10 @@ heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         return FALSE;
     }
 
-    umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
+    if(!umts_fp_conversation_info) {
+        umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
+        set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
+    }
     umts_fp_conversation_info->iface_type = IuB_Interface;
     umts_fp_conversation_info->division = Division_FDD;
     umts_fp_conversation_info->dl_frame_number = pinfo->num;
@@ -4162,7 +4167,7 @@ heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     umts_fp_conversation_info->dch_crc_present = 1;
     umts_fp_conversation_info->com_context_id = generate_ue_id_for_heur(pinfo);
     umts_fp_conversation_info->rlc_mode = FP_RLC_AM;
-    if (length == 24) { /* Downlink */
+    if (reported_length == 24) { /* Downlink */
         copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &pinfo->src);
         umts_fp_conversation_info->crnc_port = pinfo->srcport;
     }
@@ -4179,7 +4184,6 @@ heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     umts_fp_conversation_info->fp_dch_channel_info[0].num_ul_chans = 1;
     umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_num_tbs[1] = 1;
     umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_tf_size[1] = 148;
-    set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
     conversation_set_dissector(find_or_create_conversation(pinfo), fp_handle);
     dissect_fp(tvb, pinfo, tree, data);
     return TRUE;
@@ -4189,9 +4193,10 @@ heur_dissect_fp_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 {
     conversation_t   *p_conv;
     fp_fach_channel_info_t* fp_fach_channel_info;
-    umts_fp_conversation_info_t* umts_fp_conversation_info;
+    umts_fp_conversation_info_t* umts_fp_conversation_info = NULL;
     struct fp_info *p_fp_info;
-    int length;
+    guint32 captured_length;
+    guint32 reported_length;
     guint8 frame_type;
     guint8 tfi;
     guint8 tctf;
@@ -4210,16 +4215,22 @@ heur_dissect_fp_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 dissect_fp(tvb, pinfo, tree, data);
                 return TRUE;
             }
-            else {
+            else if (umts_fp_conversation_info->channel != CHANNEL_UNKNOWN){
+                /* This conversation was successfuly framed as ANOTHER type */
                 return FALSE;
             }
         }
     }
+    /* Making sure we have at least enough bytes for header (4) + footer (2) */
+    captured_length = tvb_captured_length(tvb);
+    if(captured_length < 6) {
+        return FALSE;
+    }
 
     /* Expecting specific lengths: 27 for frames with 1 TB, 48 for frames with 2 TBs */
     /* This is the common Transport Format of FACH ( See 3GPP TR 25.944 / 4.1.1.2 'FACH2' ) */
-    length = tvb_reported_length(tvb);
-    if (length != 27 && length != 48) {
+    reported_length = tvb_reported_length(tvb);
+    if (reported_length != 27 && reported_length != 48) {
         return FALSE;
     }
 
@@ -4237,10 +4248,10 @@ heur_dissect_fp_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     }
 
     tfi = tvb_get_guint8(tvb, 2) & 0x1f;
-    if (length == 27 && tfi != 0x01) {
+    if (reported_length == 27 && tfi != 0x01) {
         return FALSE;
     }
-    if (length == 48 && tfi != 0x02) {
+    if (reported_length == 48 && tfi != 0x02) {
         return FALSE;
     }
 
@@ -4263,7 +4274,10 @@ heur_dissect_fp_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         return FALSE;
     }
 
-    umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
+    if(!umts_fp_conversation_info) {
+        umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
+        set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
+    }
     umts_fp_conversation_info->iface_type = IuB_Interface;
     umts_fp_conversation_info->division = Division_FDD;
     umts_fp_conversation_info->dl_frame_number = pinfo->num;
@@ -4285,7 +4299,6 @@ heur_dissect_fp_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     fp_fach_channel_info->crnti_to_urnti_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     umts_fp_conversation_info->channel_specific_info = (void*)fp_fach_channel_info;
 
-    set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
     conversation_set_dissector(find_or_create_conversation(pinfo), fp_handle);
     dissect_fp(tvb, pinfo, tree, data);
     return TRUE;
@@ -4295,9 +4308,10 @@ heur_dissect_fp_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 {
     conversation_t   *p_conv;
     fp_rach_channel_info_t* fp_rach_channel_info;
-    umts_fp_conversation_info_t* umts_fp_conversation_info;
+    umts_fp_conversation_info_t* umts_fp_conversation_info = NULL;
     struct fp_info *p_fp_info;
-    int length;
+    guint32 captured_length;
+    guint32 reported_length;
     guint8 frame_type;
     guint8 tfi;
     guint8 tctf;
@@ -4316,16 +4330,23 @@ heur_dissect_fp_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 dissect_fp(tvb, pinfo, tree, data);
                 return TRUE;
             }
-            else {
+            else if (umts_fp_conversation_info->channel != CHANNEL_UNKNOWN){
+                /* This conversation was successfuly framed as ANOTHER type */
                 return FALSE;
             }
         }
     }
 
+    /* Making sure we have at least enough bytes for header (4) + footer (2) */
+    captured_length = tvb_captured_length(tvb);
+    if(captured_length < 6) {
+        return FALSE;
+    }
+
     /* Expecting specific lengths: rach frames are either 28 or 52 bytes long */
     /* This is the common Transport Formats of RACH ( See 3GPP TR 25.944 / 4.1.2.1 ) */
-    length = tvb_reported_length(tvb);
-    if (length != 28 && length != 52) {
+    reported_length = tvb_reported_length(tvb);
+    if (reported_length != 28 && reported_length != 52) {
         return FALSE;
     }
 
@@ -4343,10 +4364,10 @@ heur_dissect_fp_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     }
 
     tfi = tvb_get_guint8(tvb, 2) & 0x1f;
-    if (length == 28 && tfi != 0x00) {
+    if (reported_length == 28 && tfi != 0x00) {
         return FALSE;
     }
-    if (length == 52 && tfi != 0x01) {
+    if (reported_length == 52 && tfi != 0x01) {
         return FALSE;
     }
 
@@ -4365,7 +4386,10 @@ heur_dissect_fp_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         return FALSE;
     }
 
-    umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
+    if(!umts_fp_conversation_info) {
+        umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
+        set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
+    }
     umts_fp_conversation_info->iface_type = IuB_Interface;
     umts_fp_conversation_info->division = Division_FDD;
     umts_fp_conversation_info->dl_frame_number = pinfo->num;
@@ -4388,7 +4412,6 @@ heur_dissect_fp_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     fp_rach_channel_info->crnti_to_urnti_map = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     umts_fp_conversation_info->channel_specific_info = (void*)fp_rach_channel_info;
 
-    set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
     conversation_set_dissector(find_or_create_conversation(pinfo), fp_handle);
     dissect_fp(tvb, pinfo, tree, data);
     return TRUE;
@@ -4400,7 +4423,8 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     umts_fp_conversation_info_t* umts_fp_conversation_info = NULL;
     fp_pch_channel_info_t* fp_pch_channel_info = NULL;
     struct fp_info *p_fp_info;
-    int length;
+    guint32 captured_length;
+    guint32 reported_length;
     guint8 frame_type;
     guint8 reserved_bits;
     guint8 tfi;
@@ -4414,8 +4438,6 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     /* Both are optional in each packet and having them both in a packet without knowing any of them */
     /* is not helpful.*/
     /* Hence gathering the info from 2 different frames is required. */
-
-    length = tvb_reported_length(tvb);
 
     /* Finding or creating conversation */
     p_conv = (conversation_t *)find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
@@ -4437,24 +4459,31 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                     return TRUE;
                 }
             }
-            else {
+            else if (umts_fp_conversation_info->channel != CHANNEL_UNKNOWN){
+                /* This conversation was successfuly framed as ANOTHER type */
                 return FALSE;
+            }
+            else {
+                /* FP conversation info attached and the channel type is UNKNOWN - might be PCH */
+                tb_size_found = FALSE;
+                pi_length_found = FALSE;
             }
         }
         else {
-            /* FP conversatio info not attached - no PCH info is known */
+            /* FP conversation info not attached - no PCH info is known */
             tb_size_found = FALSE;
             pi_length_found = FALSE;
         }
     }
     else {
-        /* A conversatio does not exist yet - no PCH info is known */
+        /* A conversation does not exist yet - no PCH info is known */
         tb_size_found = FALSE;
         pi_length_found = FALSE;
     }
 
     /* Making sure we have at least enough bytes for header (4) + footer (2) */
-    if (length < 6) {
+    captured_length = tvb_captured_length(tvb);
+    if(captured_length < 6) {
         return FALSE;
     }
 
@@ -4488,12 +4517,13 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         return FALSE;
     }
 
+    reported_length = tvb_reported_length(tvb);
     pi_present = tvb_get_guint8(tvb, 2) & 0x01; /* Rightmost bit in the 3rd byte */
     if (pi_present) {
         if (tfi == 0x00 && !pi_length_found) {
             /* PI Bitmap present and No TB. Can calculate PI bitmap length */
             guint8 pi_bit_length;
-            pi_byte_length = length - 6; /* Removing header length (4) and footer length (2)*/
+            pi_byte_length = reported_length - 6; /* Removing header length (4) and footer length (2)*/
             switch (pi_byte_length)
             {
             case 3: /* 18 bits bitmap + padding */
@@ -4514,10 +4544,10 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             if (!umts_fp_conversation_info) {
                 umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 fill_pch_coversation_info_for_heur(umts_fp_conversation_info, pinfo);
+                set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
                 fp_pch_channel_info = (fp_pch_channel_info_t*)umts_fp_conversation_info->channel_specific_info;
             }
             fp_pch_channel_info->paging_indications = pi_bit_length;
-            set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
             pi_length_found = TRUE;
         }
         else if (tfi == 0x01 && !tb_size_found && pi_length_found) {
@@ -4525,13 +4555,13 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             pi_byte_length = (fp_pch_channel_info->paging_indications + 7) / 8;
             if (!umts_fp_conversation_info) {
                 umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
+                set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
                 fill_pch_coversation_info_for_heur(umts_fp_conversation_info, pinfo);
             }
-            tb_byte_length = (length - (pi_byte_length + 6)); /* Removing header length (4), footer length (2) and PI bitmap length*/
+            tb_byte_length = (reported_length - (pi_byte_length + 6)); /* Removing header length (4), footer length (2) and PI bitmap length*/
             /* Possible TB lengths for PCH is 10 or 30 bytes ( See 3GPP TR 25.944 / 4.1.1.2 ) */
             if (tb_byte_length == 10 || tb_byte_length == 30) {
                 umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[1] = tb_byte_length * 8;
-                set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
                 tb_size_found = TRUE;
             }
         }
@@ -4548,8 +4578,9 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             if (!umts_fp_conversation_info) {
                 umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 fill_pch_coversation_info_for_heur(umts_fp_conversation_info, pinfo);
+                set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
             }
-            tb_byte_length = (length - 6); /* Removing header length (4), footer length (2) */
+            tb_byte_length = (reported_length - 6); /* Removing header length (4), footer length (2) */
             /* Possible TB lengths for PCH is 10 or 30 bytes ( See 3GPP TR 25.944 / 4.1.1.2 ) */
             if (tb_byte_length == 10 || tb_byte_length == 30) {
                 umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[1] = tb_byte_length * 8;
@@ -4574,10 +4605,11 @@ static gboolean
 heur_dissect_fp_hsdsch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     conversation_t   *p_conv;
-    umts_fp_conversation_info_t* umts_fp_conversation_info;
+    umts_fp_conversation_info_t* umts_fp_conversation_info = NULL;
     fp_hsdsch_channel_info_t* fp_hsdsch_channel_info;
     struct fp_info *p_fp_info;
-    guint32 length;
+    guint32 captured_length;
+    guint32 reported_length;
     guint8 frame_type;
     guint16 mac_d_pdu_length;
     guint16 num_of_pdus;
@@ -4601,7 +4633,8 @@ heur_dissect_fp_hsdsch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 dissect_fp(tvb, pinfo, tree, data);
                 return TRUE;
             }
-            else {
+            else if (umts_fp_conversation_info->channel != CHANNEL_UNKNOWN){
+                /* This conversation was successfuly framed as ANOTHER type */
                 return FALSE;
             }
         }
@@ -4613,26 +4646,20 @@ heur_dissect_fp_hsdsch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         return FALSE;
     }
 
-    frame_type = tvb_get_guint8(tvb, 0) & 0x01;
-    if (frame_type == 1) { /* is 'control' frame type*/
-                           /* Asserting that the Header CRC is correct */
-        if (!check_control_frame_crc_for_heur(tvb)) {
-            return FALSE;
-        }
-        /* All checks passed - This is an unknown FP frame. */
-        /* To allow dissection of this frame after umts_fp_conversation_info will be added in a later frame */
-        /* the conversation must be created here if it doesn't exist yet*/
-        if (p_conv == NULL) {
-            conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
-                pinfo->ptype,
-                pinfo->destport, pinfo->srcport, NO_ADDR_B);
-        }
+    captured_length = tvb_reported_length(tvb);
+    /* Lengths limit: header size (7) + at least 1 PDU Block (2) + CRC Payload size (2)*/
+    if (captured_length < 11) {
         return FALSE;
     }
 
-    length = tvb_reported_length(tvb);
+    frame_type = tvb_get_guint8(tvb, 0) & 0x01;
+    if (frame_type == 1) { /* is 'control' frame type*/
+        return FALSE;
+    }
+
     /* Lengths limit: Smallest HS-DSCH type 1 data frame is 55 bytes (1 PDU of 336 bits) */
-    if (length < 55) {
+    reported_length = tvb_reported_length(tvb);
+    if (reported_length < 55) {
         return FALSE;
     }
 
@@ -4654,7 +4681,7 @@ heur_dissect_fp_hsdsch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     /* Making sure the expected packet size is smaller/equals to the entire packet's size */
     expected_total_size = (num_of_pdus * mac_d_pdu_length / 8) + 7 /*Header length*/ + 2 /*Footer length*/;
-    if (expected_total_size > length) {
+    if (expected_total_size > captured_length || expected_total_size > reported_length) {
         return FALSE;
     }
 
@@ -4679,7 +4706,10 @@ heur_dissect_fp_hsdsch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         return FALSE;
     }
 
-    umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
+    if(!umts_fp_conversation_info) {
+        umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
+        set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
+    }
     umts_fp_conversation_info->iface_type = IuB_Interface;
     umts_fp_conversation_info->division = Division_FDD;
     umts_fp_conversation_info->dl_frame_number = pinfo->num;
@@ -4694,7 +4724,7 @@ heur_dissect_fp_hsdsch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     fp_hsdsch_channel_info->hsdsch_entity = hs;
     fp_hsdsch_channel_info->hsdsch_macdflow_id = 0;
     umts_fp_conversation_info->channel_specific_info = (void*)fp_hsdsch_channel_info;
-    set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
+
     conversation_set_dissector(find_or_create_conversation(pinfo), fp_handle);
     dissect_fp(tvb, pinfo, tree, data);
     return TRUE;
@@ -4703,10 +4733,11 @@ static gboolean
 heur_dissect_fp_hsdsch_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     conversation_t   *p_conv;
-    umts_fp_conversation_info_t* umts_fp_conversation_info;
+    umts_fp_conversation_info_t* umts_fp_conversation_info = NULL;
     fp_hsdsch_channel_info_t* fp_hsdsch_channel_info;
     struct fp_info *p_fp_info;
-    guint32 length;
+    guint32 captured_length;
+    guint32 reported_length;
     guint8 frame_type;
     guint8 reserved_fach_ind_bits;
     guint8 pdu_block_header_reserved_bit;
@@ -4715,8 +4746,8 @@ heur_dissect_fp_hsdsch_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     guint16 pdu_block_header_pdu_length;
     guint8 pdu_block_header_pdus_count;
     guint8 pdu_block_header_lchid;
-    guint8 total_header_length;
-    guint16 expected_payload_length;
+    guint32 total_header_length;
+    guint32 expected_payload_length;
 
     /* Trying to find existing conversation */
     p_conv = (conversation_t *)find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
@@ -4733,7 +4764,8 @@ heur_dissect_fp_hsdsch_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 dissect_fp(tvb, pinfo, tree, data);
                 return TRUE;
             }
-            else {
+            else if (umts_fp_conversation_info->channel != CHANNEL_UNKNOWN){
+                /* This conversation was successfuly framed as ANOTHER type */
                 return FALSE;
             }
         }
@@ -4745,26 +4777,15 @@ heur_dissect_fp_hsdsch_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         return FALSE;
     }
 
-    frame_type = tvb_get_guint8(tvb, 0) & 0x01;
-    if (frame_type == 1) { /* is 'control' frame type*/
-                           /* Asserting that the Header CRC is correct */
-        if (!check_control_frame_crc_for_heur(tvb)) {
-            return FALSE;
-        }
-        /* All checks passed - This is an unknown FP frame. */
-        /* To allow dissection of this frame after umts_fp_conversation_info will be added in a later frame */
-        /* the conversation must be created here if it doesn't exist yet*/
-        if (p_conv == NULL) {
-            conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
-                pinfo->ptype,
-                pinfo->destport, pinfo->srcport, NO_ADDR_B);
-        }
+    captured_length = tvb_reported_length(tvb);
+    reported_length = tvb_reported_length(tvb);
+    /* Lengths limit: header size + at least 1 PDU Block Header + CRC Payload size */
+    if (captured_length < 11) {
         return FALSE;
     }
 
-    length = tvb_reported_length(tvb);
-    /* Lengths limit: header size + at least 1 PDU Block Header + CRC Payload size */
-    if (length < 11) {
+    frame_type = tvb_get_guint8(tvb, 0) & 0x01;
+    if (frame_type == 1) { /* is 'control' frame type*/
         return FALSE;
     }
 
@@ -4792,7 +4813,7 @@ heur_dissect_fp_hsdsch_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     for (int i = 0; i < pdu_block_headers_count; i++)
     {
         /* Making sure the next index is not out of range */
-        if (((guint32)(8 + (i * 3))) >= length) {
+        if (((guint32)(8 + (i * 3))) >= captured_length) {
             return FALSE;
         }
 
@@ -4839,8 +4860,8 @@ heur_dissect_fp_hsdsch_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     }
     /* Adding Payload CRC'slength to payload length*/
     expected_payload_length += 2;
-    /* Calculated expected packet size must not exceed captured length */
-    if ((guint32)(total_header_length + expected_payload_length) > length) {
+    /* Calculated expected packet size must not exceed captured length or reported length*/
+    if ((total_header_length + expected_payload_length) > captured_length || (total_header_length + expected_payload_length) > reported_length) {
         return FALSE;
     }
 
@@ -4851,7 +4872,10 @@ heur_dissect_fp_hsdsch_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         return FALSE;
     }
 
-    umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
+    if(!umts_fp_conversation_info) {
+        umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
+        set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
+    }
     umts_fp_conversation_info->iface_type = IuB_Interface;
     umts_fp_conversation_info->division = Division_FDD;
     umts_fp_conversation_info->dl_frame_number = pinfo->num;
@@ -4866,66 +4890,142 @@ heur_dissect_fp_hsdsch_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     fp_hsdsch_channel_info->hsdsch_entity = ehs;
     fp_hsdsch_channel_info->hsdsch_macdflow_id = 1;
     umts_fp_conversation_info->channel_specific_info = (void*)fp_hsdsch_channel_info;
-    set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
+
     conversation_set_dissector(find_or_create_conversation(pinfo), fp_handle);
     dissect_fp(tvb, pinfo, tree, data);
     return TRUE;
 }
 /* This method can frame UDP streams containing FP packets but dissection of those packets will */
 /* fail since the FP conversation info is never attached */
+/* Usefull for DCH streams containing CS data and don't have their own heuristic method */
 static gboolean
-heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+heur_dissect_fp_unknown_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
+    conversation_t   *p_conv;
+    umts_fp_conversation_info_t* umts_fp_conversation_info = NULL;
     struct fp_info *p_fp_info;
+    guint32 length;
+    guint8 frame_type;
+    gboolean is_control = FALSE;
 
-    p_fp_info = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
+    /* Trying to find existing conversation */
+    p_conv = (conversation_t *)find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+        pinfo->ptype,
+        pinfo->destport, pinfo->srcport, NO_ADDR_B);
 
-    /* if no FP info is present, this might be FP in a pcap(ng) file */
-    if (!p_fp_info) {
-        /* We only know the header length of control frames, so check that bit first */
-        int offset = 0, length;
-        guint8 oct, calc_crc = 0, crc;
-        unsigned char *buf;
-
-        oct = tvb_get_guint8(tvb, offset);
-        crc = oct & 0xfe;
-        if ((oct & 0x01) == 1) {
-            /*
-             * 6.3.2.1 Frame CRC
-             * Description: It is the result of the CRC applied to the remaining part of the frame,
-             * i.e. from bit 0 of the first byte of the header (the FT IE) to bit 0 of the last byte of the payload,
-             * with the corresponding generator polynomial: G(D) = D7+D6+D2+1. See subclause 7.2.
-             */
-            length =  tvb_reported_length(tvb);
-            buf = (unsigned char *)tvb_memdup(wmem_packet_scope(), tvb, 0, length);
-            buf[0] = 01;
-
-            calc_crc = crc7update(calc_crc, buf, length);
-            if (calc_crc == crc) {
-                /* assume this is FP, set conversatio dissector to catch the data frames too */
-                conversation_set_dissector(find_or_create_conversation(pinfo), fp_handle);
+    /* Check if FP Conversation Info is attached */
+    if (p_conv != NULL) {
+        umts_fp_conversation_info = (umts_fp_conversation_info_t *)conversation_get_proto_data(p_conv, proto_fp);
+        if (umts_fp_conversation_info) {
+            if (umts_fp_conversation_info->channel == CHANNEL_UNKNOWN) {
+                /* This stream was framed using a previous control frame, we can call FP dissector without further tests*/
                 dissect_fp(tvb, pinfo, tree, data);
                 return TRUE;
             }
+            else {
+                return FALSE;
+            }
         }
+    }
+
+    p_fp_info = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
+
+    /* Check if per-frame FP Info is attached*/
+    if(p_fp_info) {
+        /* if FP info is present, check that it really is an ethernet link */
+        if (p_fp_info->link_type != FP_Link_Ethernet) {
+            return FALSE;
+        }
+
+        /* discriminate 'lower' UDP layer from 'user data' UDP layer
+         * (i.e. if an FP over UDP packet contains a user UDP packet */
+        if (p_fp_info->srcport != pinfo->srcport ||
+            p_fp_info->destport != pinfo->destport)
+            return FALSE;
+
+        /* assume this is FP */
+        dissect_fp(tvb, pinfo, tree, data);
+        return TRUE;
+    }
+
+    /* Both per-frame FP info and conversation FP info are missing */
+    /* Try to frame control frames using header CRC */
+    is_control = (tvb_get_guint8(tvb, 0) & 0x01) == 1;
+    if(!is_control) {
+        /* This is a Data frame, can't tell if it's FP. */
         return FALSE;
     }
 
-    /* if FP info is present, check that it really is an ethernet link */
-    if (p_fp_info->link_type != FP_Link_Ethernet) {
+    length = tvb_captured_length(tvb);
+    /* Length limit: control frames header is 2 bytes */
+    if (length < 2) {
         return FALSE;
     }
 
-    /* discriminate 'lower' UDP layer from 'user data' UDP layer
-     * (i.e. if an FP over UDP packet contains a user UDP packet */
-    if (p_fp_info->srcport != pinfo->srcport ||
-        p_fp_info->destport != pinfo->destport)
+    /* Check 'Frame Type' */
+    frame_type = tvb_get_guint8(tvb, 1);
+    /* 0x00 is unused for both dedicated & common FP */
+    if( frame_type == 0x00 ) {
         return FALSE;
+    }
+    /* Max frame types are: */
+    /* For common channels: 0x0E */
+    /* For dedicated channels: 0x0B */
+    /* The left nibble is zeroed in both cases */
+    if( (frame_type & 0xF0) != 0x00) {
+        return FALSE;
+    }
 
-    /* assume this is FP */
+    /* Checking Header CRC*/
+    if (!check_control_frame_crc_for_heur(tvb)) {
+        /* The CRC is incorrect */
+        return FALSE;
+    }
+
+    /* The CRC is correct! */
+    /* Attaching 'FP Conversation Info' the the UDP conversation so other */
+    /* packets (both Control AND Data) will be marked as FP */
+    umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
+    umts_fp_conversation_info->channel = CHANNEL_UNKNOWN;
+    set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
+    /* Call FP Dissector for the current frame */
     dissect_fp(tvb, pinfo, tree, data);
     return TRUE;
 }
+
+/* This method wraps the heuristic dissectors of all supported channels */
+static gboolean
+heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    gboolean match;
+
+    match = heur_dissect_fp_dcch_over_dch(tvb, pinfo, tree, data);
+    if(match)
+        return TRUE;
+    match = heur_dissect_fp_fach(tvb, pinfo, tree, data);
+    if(match)
+        return TRUE;
+    match = heur_dissect_fp_rach(tvb, pinfo, tree, data);
+    if(match)
+        return TRUE;
+    match = heur_dissect_fp_pch(tvb, pinfo, tree, data);
+    if(match)
+        return TRUE;
+    match = heur_dissect_fp_hsdsch_type_1(tvb, pinfo, tree, data);
+    if(match)
+        return TRUE;
+    match = heur_dissect_fp_hsdsch_type_2(tvb, pinfo, tree, data);
+    if(match)
+        return TRUE;
+    /* NOTE: Add new heuristic dissectors BEFORE the 'unknown format' dissector */
+    /* since it might 'swallow' packets if the UDP stream is framed as 'CHANNEL_UNKNOWN' */
+    match = heur_dissect_fp_unknown_format(tvb, pinfo, tree, data);
+    if(match)
+        return TRUE;
+
+    return FALSE;
+}
+
 static guint8 fakes =5; /*[] ={1,5,8};*/
 static guint8 fake_map[256];
 
@@ -6834,12 +6934,6 @@ void proto_reg_handoff_fp(void)
     mac_fdd_hsdsch_handle     = find_dissector_add_dependency("mac.fdd.hsdsch", proto_fp);
 
     heur_dissector_add("udp", heur_dissect_fp, "FP over UDP", "fp_udp", proto_fp, HEURISTIC_DISABLE);
-    heur_dissector_add("udp", heur_dissect_fp_dcch_over_dch, "FP over UDP (DCCH over DCH)", "fp_udp_dcch_dch", proto_fp, HEURISTIC_DISABLE);
-    heur_dissector_add("udp", heur_dissect_fp_fach, "FP over UDP (FACH)", "fp_udp_fach", proto_fp, HEURISTIC_DISABLE);
-    heur_dissector_add("udp", heur_dissect_fp_rach, "FP over UDP (RACH)", "fp_udp_rach", proto_fp, HEURISTIC_DISABLE);
-    heur_dissector_add("udp", heur_dissect_fp_pch, "FP over UDP (PCH)", "fp_udp_pch", proto_fp, HEURISTIC_DISABLE);
-    heur_dissector_add("udp", heur_dissect_fp_hsdsch_type_1, "FP over UDP (HS-DSCH Type 1)", "fp_udp_hsdsch_type_1", proto_fp, HEURISTIC_DISABLE);
-    heur_dissector_add("udp", heur_dissect_fp_hsdsch_type_2, "FP over UDP (HS-DSCH Type 2)", "fp_udp_hsdsch_type_2", proto_fp, HEURISTIC_DISABLE);
 
     fp_aal2_handle = create_dissector_handle(dissect_fp_aal2, proto_fp);
     dissector_add_uint("atm.aal2.type", TRAF_UMTS_FP, fp_aal2_handle);

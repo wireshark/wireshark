@@ -24,6 +24,7 @@
 #include <glib.h>
 
 /* Channel types */
+#define CHANNEL_UNKNOWN           0
 #define CHANNEL_RACH_FDD          1
 #define CHANNEL_RACH_TDD          2
 #define CHANNEL_FACH_FDD          3
