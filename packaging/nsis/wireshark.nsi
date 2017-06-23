@@ -1094,6 +1094,12 @@ SetOutPath $INSTDIR
 File "${STAGING_DIR}\reordercap.exe"
 SectionEnd
 
+Section "DFTest" SecDFTest
+;-------------------------------------------
+SetOutPath $INSTDIR
+File "${STAGING_DIR}\dftest.exe"
+SectionEnd
+
 Section "Capinfos" SecCapinfos
 ;-------------------------------------------
 SetOutPath $INSTDIR
@@ -1196,6 +1202,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Read an ASCII hex dump and write the data into a libpcap-style capture file."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMergecap} "Combine multiple saved capture files into a single output file"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecReordercap} "Copy packets to a new file, sorted by time."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecDFTest} "Shows display filter byte-code, for debugging dfilter routines"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecCapinfos} "Pring information about capture files."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecRawshark} "Raw packet filter."
 

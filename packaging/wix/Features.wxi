@@ -72,6 +72,9 @@
       <Feature Id="Fe.Tools.Reordercap" Title="Reordercap" Level="1" AllowAdvertise="yes" Display="expand" Description="Copy packets to a new file, sorted by time.">
         <ComponentGroupRef Id="CG.Tools.Reordercap" />
       </Feature>
+      <Feature Id="Fe.Tools.DFTest" Title="DFTest" Level="1" AllowAdvertise="yes" Display="expand" Description="Shows display filter byte-code, for debugging dfilter routines.">
+        <ComponentGroupRef Id="CG.Tools.DFTest" />
+      </Feature>
       <Feature Id="Fe.Tools.Capinfos" Title="Capinfos" Level="1" AllowAdvertise="yes" Display="expand" Description="Print information about capture files.">
         <ComponentGroupRef Id="CG.Tools.Capinfos" />
       </Feature>
