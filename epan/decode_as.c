@@ -42,9 +42,9 @@ void register_decode_as(decode_as_t* reg)
     dissector_table_t decode_table;
 
     /* Ensure valid functions */
-    DISSECTOR_ASSERT(reg->populate_list);
-    DISSECTOR_ASSERT(reg->reset_value);
-    DISSECTOR_ASSERT(reg->change_value);
+    g_assert(reg->populate_list);
+    g_assert(reg->reset_value);
+    g_assert(reg->change_value);
 
     decode_table = find_dissector_table(reg->table_name);
     if (decode_table != NULL)
@@ -76,7 +76,7 @@ void register_decode_as_next_proto(
     dissector_table_t dt;
 
     dt = find_dissector_table(table_name);
-    DISSECTOR_ASSERT(IS_FT_UINT(dissector_table_get_type(dt)));
+    g_assert(IS_FT_UINT(dissector_table_get_type(dt)));
 
     da = wmem_new0(wmem_epan_scope(), decode_as_t);
     da->name = wmem_strdup(wmem_epan_scope(), name);
