@@ -54,6 +54,7 @@ LoRaTap
 LoRaWAN
 ISOBUS
 AMT (Automatic Multicast Tunneling)
+QUIC (IETF)
 --sort-and-group--
 
 === Updated Protocol Support

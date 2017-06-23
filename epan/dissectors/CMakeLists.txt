@@ -1101,6 +1101,7 @@ set(DISSECTOR_SRC
 	packet-quake2.c
 	packet-quake3.c
 	packet-quakeworld.c
+	packet-quic.c
 	packet-radius.c
 	packet-radius_packetcable.c
 	packet-raknet.c
