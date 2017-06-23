@@ -339,17 +339,6 @@ static gint ett_ccid_pin_support = -1;
 static gint ett_ccid_slot_change = -1;
 static gint ett_ccid_status = -1;
 
-static void usb_ccid_prompt(packet_info *pinfo _U_, gchar* result)
-{
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Next level protocol as");
-}
-
-
-static gpointer usb_ccid_value(packet_info *pinfo _U_)
-{
-    return 0;
-}
-
 static gint
 dissect_usb_ccid_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, void *data _U_)
@@ -639,12 +628,6 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 void
 proto_register_ccid(void)
 {
-    static build_valid_func usb_ccid_build_value[1] = { usb_ccid_value };
-    static decode_as_value_t usb_ccid_da_values = { usb_ccid_prompt, 1, usb_ccid_build_value };
-    static decode_as_t usb_ccid_da = {"USB CCID", "Transport",
-        "usbccid.subdissector", 1, 0, &usb_ccid_da_values, NULL, NULL,
-        decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
-
     static hf_register_info hf[] = {
 
         {&hf_ccid_bMessageType,
@@ -897,8 +880,10 @@ proto_register_ccid(void)
     usb_ccid_handle = register_dissector("usbccid", dissect_ccid, proto_ccid);
 
     subdissector_table = register_dissector_table(
-            "usbccid.subdissector", "USB CCID payload", proto_ccid, FT_UINT32, BASE_HEX);
-    register_decode_as(&usb_ccid_da);
+            "usbccid.subdissector", "USB CCID payload",
+            proto_ccid, FT_UINT32, BASE_HEX);
+    register_decode_as_next_proto(
+            "USB CCID", "Transport", "usbccid.subdissector");
 }
 
 /* Handler registration */
