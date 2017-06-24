@@ -105,7 +105,7 @@
 #include <epan/conversation.h>
 #include <epan/conversation_table.h>
 #include <epan/tap.h>
-#include <epan/sminmpec.h>
+#include <epan/addr_resolv.h>
 #include "packet-rsvp.h"
 #include "packet-ip.h"
 #include "packet-diffserv-mpls-common.h"
@@ -8211,7 +8211,7 @@ proto_register_rsvp(void)
          */
         {&hf_rsvp_filter[RSVPF_ENT_CODE],
          { "Enterprise Code", "rsvp.obj_private.enterprise",
-           FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0x0,
+           FT_UINT32, BASE_ENTERPRISES, STRINGS_ENTERPRISES, 0x0,
            "IANA Network Management Private Enterprise Code", HFILL }
         },
 

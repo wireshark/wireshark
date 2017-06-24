@@ -57,6 +57,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/sminmpec.h>
+#include <epan/addr_resolv.h>
 #include <epan/asn1.h>
 #include <epan/tap.h>
 #include <epan/srt_table.h>
@@ -8339,7 +8340,7 @@ decode_gtp_priv_ext(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
     if (length >= 2) {
         ext_id = tvb_get_ntohs(tvb, offset);
         proto_tree_add_uint(ext_tree_priv_ext, hf_gtp_ext_id, tvb, offset, 2, ext_id);
-        proto_item_append_text(te, "%s (%u)", val_to_str_ext_const(ext_id, &sminmpec_values_ext, "Unknown"), ext_id);
+        proto_item_append_text(te, "%s (%u)", enterprises_lookup(ext_id, "Unknown"), ext_id);
         offset = offset + 2;
 
        if (length > 2) {
@@ -9062,7 +9063,7 @@ proto_register_gtp(void)
         },
         {&hf_gtp_ext_id,
          { "Extension identifier", "gtp.ext_id",
-           FT_UINT16, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0,
+           FT_UINT16, BASE_ENTERPRISES, STRINGS_ENTERPRISES, 0,
            "Private Enterprise number", HFILL}
         },
         {&hf_gtp_ext_val,

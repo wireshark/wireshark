@@ -107,7 +107,6 @@ LIBWIRESHARK_SRC = \
 	req_resp_hdrs.c		\
 	rtd_table.c		\
 	show_exception.c	\
-	sminmpec.c		\
 	srt_table.c		\
 	stat_tap_ui.c		\
 	stats_tree.c		\
@@ -450,9 +449,6 @@ ws_version_info.c: $(top_srcdir)/ws_version_info.c
 	$(AM_V_LN_S)$(LN_S) $<
 
 tvbtest.o exntest.o oids_test.o: exceptions.h
-
-update-sminmpec:
-	$(PERL) $(srcdir)/../tools/make-sminmpec.pl
 
 ps.c: print.ps $(top_srcdir)/tools/rdps.py
 	$(AM_V_python)$(PYTHON) $(top_srcdir)/tools/rdps.py $(srcdir)/print.ps ps.c

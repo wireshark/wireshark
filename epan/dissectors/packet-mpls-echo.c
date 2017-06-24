@@ -33,7 +33,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/sminmpec.h>
+#include <epan/addr_resolv.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
 
@@ -2121,7 +2121,7 @@ proto_register_mpls_echo(void)
         },
         { &hf_mpls_echo_tlv_vendor,
           { "Vendor Id", "mpls_echo.tlv.vendor_id",
-            FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0x0, "MPLS ECHO Vendor Id", HFILL}
+            FT_UINT32, BASE_ENTERPRISES, STRINGS_ENTERPRISES, 0x0, "MPLS ECHO Vendor Id", HFILL}
         },
         { &hf_mpls_echo_tlv_ilso_addr_type,
           { "Address Type", "mpls_echo.tlv.ilso.addr_type",

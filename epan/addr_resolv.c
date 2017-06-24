@@ -118,6 +118,7 @@
 #define ENAME_SERVICES  "services"
 #define ENAME_VLANS     "vlans"
 #define ENAME_SS7PCS    "ss7pcs"
+#define ENAME_ENTERPRISES "enterprises"
 
 #define HASHETHSIZE      2048
 #define HASHHOSTSIZE     2048
@@ -240,6 +241,7 @@ static wmem_map_t *manuf_hashtable = NULL;
 static wmem_map_t *wka_hashtable = NULL;
 static wmem_map_t *eth_hashtable = NULL;
 static wmem_map_t *serv_port_hashtable = NULL;
+static GHashTable *enterprises_hashtable = NULL;
 
 static subnet_length_entry_t subnet_length_entries[SUBNETLENGTHSIZE]; /* Ordered array of entries */
 static gboolean have_subnet_entry = FALSE;
@@ -318,6 +320,8 @@ gchar *g_services_path  = NULL;     /* global services file   */
 gchar *g_pservices_path = NULL;     /* personal services file */
 gchar *g_pvlan_path     = NULL;     /* personal vlans file    */
 gchar *g_ss7pcs_path    = NULL;     /* personal ss7pcs file   */
+gchar *g_enterprises_path = NULL;   /* global enterprises file   */
+gchar *g_penterprises_path = NULL;  /* personal enterprises file */
                                     /* first resolving call   */
 
 /* c-ares */
@@ -380,6 +384,16 @@ typedef struct {
 /*
  *  Miscellaneous functions
  */
+
+static char *
+remove_comment_and_strip_line(char *buf)
+{
+    char *tok;
+
+    if ((tok = strchr(buf, '#')))
+        *tok = '\0';
+    return g_strstrip(buf);
+}
 
 static int
 fgetline(char **buf, int *size, FILE *fp)
@@ -679,6 +693,118 @@ service_name_lookup_cleanup(void)
     g_services_path = NULL;
     g_free(g_pservices_path);
     g_pservices_path = NULL;
+}
+
+static void
+parse_enterprises_line (char *line)
+{
+    char *str, *dec_str, *org_str;
+    guint32 dec;
+
+    str = remove_comment_and_strip_line(line);
+    dec_str = strtok(str, "\t");
+    if (!dec_str)
+        return;
+    org_str = strtok(NULL, "\t");
+    if (!org_str)
+        return;
+    if (!ws_strtou32(dec_str, NULL, &dec))
+        return;
+    g_hash_table_replace(enterprises_hashtable, GUINT_TO_POINTER(dec), g_strdup(org_str));
+}
+
+
+static gboolean
+parse_enterprises_file(const char * path)
+{
+    FILE *fp;
+    static int size = 0;
+    static char *buf = NULL;
+
+    fp = ws_fopen(path, "r");
+    if (fp == NULL)
+        return FALSE;
+
+    while (fgetline(&buf, &size, fp) >= 0) {
+        parse_enterprises_line(buf);
+    }
+
+    fclose(fp);
+    return TRUE;
+}
+
+static void
+initialize_enterprises(void)
+{
+    g_assert(enterprises_hashtable == NULL);
+    enterprises_hashtable = g_hash_table_new_full(NULL, NULL, NULL, g_free);
+
+    if (g_enterprises_path == NULL) {
+        g_enterprises_path = get_datafile_path(ENAME_ENTERPRISES);
+    }
+    parse_enterprises_file(g_enterprises_path);
+
+    if (g_penterprises_path == NULL) {
+        g_penterprises_path = get_persconffile_path(ENAME_ENTERPRISES, FALSE);
+    }
+    parse_enterprises_file(g_penterprises_path);
+}
+
+const gchar *
+try_enterprises_lookup(guint32 value)
+{
+    return (const gchar *)g_hash_table_lookup(enterprises_hashtable, GUINT_TO_POINTER(value));
+}
+
+const gchar *
+enterprises_lookup(guint32 value, const char *unknown_str)
+{
+    const gchar *s;
+
+    s = try_enterprises_lookup(value);
+    if (s != NULL)
+        return s;
+    if (unknown_str != NULL)
+        return unknown_str;
+    return "<Unknown>";
+}
+
+void
+enterprises_base_custom(char *buf, guint32 value)
+{
+    const gchar *s;
+
+    if ((s = try_enterprises_lookup(value)) == NULL)
+        s = ITEM_LABEL_UNKNOWN_STR;
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%s (%u)", s, value);
+}
+
+gchar *
+enterprises_lookup_format(wmem_allocator_t *allocator, guint32 value, const char *fmt)
+{
+    const gchar *s;
+
+    s = try_enterprises_lookup(value);
+    if (s != NULL)
+        return wmem_strdup(allocator, s);
+    if (fmt != NULL)
+        return wmem_strdup_printf(allocator, fmt, value);
+    return wmem_strdup(allocator, "<Unknown>");
+}
+
+static void
+enterprises_cleanup(void)
+{
+    g_assert(enterprises_hashtable);
+    g_hash_table_destroy(enterprises_hashtable);
+    enterprises_hashtable = NULL;
+    g_assert(g_enterprises_path);
+    g_free(g_enterprises_path);
+    g_enterprises_path = NULL;
+    if (g_pservices_path) {
+        g_free(g_pservices_path);
+        g_pservices_path = NULL;
+    }
 }
 
 /* Fill in an IP4 structure with info from subnets file or just with the
@@ -3391,6 +3517,7 @@ addr_resolv_init(void)
     initialize_ethers();
     initialize_ipxnets();
     initialize_vlans();
+    initialize_enterprises();
     /* host name initialization is done on a per-capture-file basis */
     /*host_name_lookup_init();*/
 }
@@ -3403,6 +3530,7 @@ addr_resolv_cleanup(void)
     service_name_lookup_cleanup();
     ethers_cleanup();
     ipx_name_lookup_cleanup();
+    enterprises_cleanup();
     /* host name initialization is done on a per-capture-file basis */
     /*host_name_lookup_cleanup();*/
 }

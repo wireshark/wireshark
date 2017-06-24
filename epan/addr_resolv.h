@@ -51,6 +51,9 @@ extern "C" {
 #define MAXVLANNAMELEN  	128	/* max vlan name length */
 #endif
 
+#define BASE_ENTERPRISES     BASE_CUSTOM
+#define STRINGS_ENTERPRISES  CF_FUNC(enterprises_base_custom)
+
 /**
  * @brief Flags to control name resolution.
  */
@@ -138,6 +141,29 @@ WS_DLL_PUBLIC gchar *sctp_port_to_display(wmem_allocator_t *allocator, guint por
  * representation if one doesn't exist.
  */
 WS_DLL_PUBLIC const gchar *serv_name_lookup(port_type proto, guint port);
+
+/*
+ * enterprises_lookup() returns the private enterprise code string, or 'unknown_str'
+ * if one doesn't exist, or "<Unknown>" if that is NULL.
+ */
+WS_DLL_PUBLIC const gchar *enterprises_lookup(guint32 value, const char *unknown_str);
+
+/*
+ * enterprises_lookup_format() returns the wmem-allocated private enterprise code
+ * string, or a formatted string if one doesn't exist, or "<Unknown>" if 'fmt' is NULL.
+ */
+WS_DLL_PUBLIC gchar *enterprises_lookup_format(wmem_allocator_t *allocator, guint32 value, const char *fmt);
+
+/*
+ * try_enterprises_lookup() returns the private enterprise code string, or NULL if not found.
+ */
+WS_DLL_PUBLIC const gchar *try_enterprises_lookup(guint32 value);
+
+/*
+ * enterprises_base_custom() prints the "name (decimal)" string to 'buf'.
+ * (Used with BASE_CUSTOM field display).
+ */
+WS_DLL_PUBLIC void enterprises_base_custom(char *buf, guint32 value);
 
 /*
  * try_serv_name_lookup() returns the well known service name string, or NULL if

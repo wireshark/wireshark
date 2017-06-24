@@ -46,6 +46,7 @@
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
+#include <epan/addr_resolv.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
 #include <epan/srt_table.h>
@@ -684,9 +685,7 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 		vendor->vs_avps_ext = value_string_ext_new(VND_AVP_VS(vendor),
 							   VND_AVP_VS_LEN(vendor)+1,
 							   wmem_strdup_printf(wmem_epan_scope(), "diameter_vendor_%s",
-									   val_to_str_ext_const(vendorid,
-												&sminmpec_values_ext,
-												"Unknown")));
+									   enterprises_lookup(vendorid, "Unknown")));
 #if 0
 		{ /* Debug code */
 			value_string *vendor_avp_vs = VALUE_STRING_EXT_VS_P(vendor->vs_avps_ext);
@@ -720,7 +719,7 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 		proto_tree *tu = proto_item_add_subtree(pi,ett_unknown);
 		proto_tree_add_expert_format(tu, c->pinfo, &ei_diameter_avp_code, tvb, offset, 4,
 			"Unknown AVP %u (vendor=%s), if you know what this is you can add it to dictionary.xml", code,
-			val_to_str_ext_const(vendorid, &sminmpec_values_ext, "Unknown"));
+			enterprises_lookup(vendorid, "Unknown"));
 	}
 
 	offset += 4;
@@ -2174,7 +2173,7 @@ real_register_diameter_fields(void)
 		  { "Reserved","diameter.flags.reserved7", FT_BOOLEAN, 8, TFS(&tfs_set_notset),
 			  DIAM_FLAGS_RESERVED7, NULL, HFILL }},
 	{ &hf_diameter_vendor_id,
-		  { "VendorId",	"diameter.vendorId", FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext,
+		  { "VendorId",	"diameter.vendorId", FT_UINT32, BASE_ENTERPRISES, STRINGS_ENTERPRISES,
 			  0x0, NULL, HFILL }},
 	{ &hf_diameter_application_id,
 		  { "ApplicationId", "diameter.applicationId", FT_UINT32, BASE_DEC|BASE_EXT_STRING, VALS_EXT_PTR(dictionary.applications),
@@ -2221,8 +2220,8 @@ real_register_diameter_fields(void)
 		  { "Reserved","diameter.avp.flags.reserved7", FT_BOOLEAN, 8, TFS(&tfs_set_notset),
 			  AVP_FLAGS_RESERVED7,	NULL, HFILL }},
 	{ &hf_diameter_avp_vendor_id,
-		  { "AVP Vendor Id","diameter.avp.vendorId", FT_UINT32, BASE_DEC|BASE_EXT_STRING,
-			  &sminmpec_values_ext, 0x0, NULL, HFILL }},
+		  { "AVP Vendor Id","diameter.avp.vendorId", FT_UINT32, BASE_ENTERPRISES, STRINGS_ENTERPRISES,
+			  0x0, NULL, HFILL }},
 	{ &(unknown_avp.hf_value),
 		  { "Value","diameter.avp.unknown", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	{ &hf_diameter_avp_data_wrong_length,

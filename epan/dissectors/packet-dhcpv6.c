@@ -55,7 +55,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/sminmpec.h>
+#include <epan/addr_resolv.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/to_str.h>
@@ -2378,7 +2378,7 @@ proto_register_dhcpv6(void)
         { &hf_clientfqdn_s,
           { "S bit", "dhcpv6.clientfqdn.s", FT_BOOLEAN, 8, TFS(&fqdn_s), 0x1, "Whether the server SHOULD or SHOULD NOT perform the AAAA RR (FQDN-to-address) DNS updates", HFILL}},
         { &hf_remoteid_enterprise,
-          { "Enterprise ID", "dhcpv6.remoteid.enterprise", FT_UINT32, BASE_DEC|BASE_EXT_STRING,  &sminmpec_values_ext, 0, "RemoteID Enterprise Number", HFILL }},
+          { "Enterprise ID", "dhcpv6.remoteid.enterprise", FT_UINT32, BASE_ENTERPRISES, STRINGS_ENTERPRISES, 0, "RemoteID Enterprise Number", HFILL }},
         { &hf_duid_bytes,
           { "DUID", "dhcpv6.duid.bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_duid_type,
@@ -2392,7 +2392,7 @@ proto_register_dhcpv6(void)
         { &hf_duidll_hwtype,
           { "Hardware type", "dhcpv6.duidll.hwtype", FT_UINT16, BASE_DEC, VALS(arp_hrd_vals), 0, "DUID LL Hardware Type", HFILL }},
         { &hf_duiden_enterprise,
-          { "Enterprise ID", "dhcpv6.duiden.enterprise", FT_UINT32, BASE_DEC|BASE_EXT_STRING,  &sminmpec_values_ext, 0, "DUID EN Enterprise Number", HFILL }},
+          { "Enterprise ID", "dhcpv6.duiden.enterprise", FT_UINT32, BASE_ENTERPRISES, STRINGS_ENTERPRISES, 0, "DUID EN Enterprise Number", HFILL }},
         { &hf_duiden_identifier,
           { "Identifier", "dhcpv6.duiden.identifier", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_duidll_link_layer_addr,
@@ -2436,11 +2436,11 @@ proto_register_dhcpv6(void)
         { &hf_opt_status_msg,
           { "Status Message", "dhcpv6.status_msg", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_vendorclass_enterprise,
-          { "Enterprise ID", "dhcpv6.vendorclass.enterprise", FT_UINT32, BASE_DEC|BASE_EXT_STRING,  &sminmpec_values_ext, 0, "Vendor Class Enterprise Number", HFILL }},
+          { "Enterprise ID", "dhcpv6.vendorclass.enterprise", FT_UINT32, BASE_ENTERPRISES, STRINGS_ENTERPRISES, 0, "Vendor Class Enterprise Number", HFILL }},
         { &hf_vendorclass_data,
           { "vendor-class-data", "dhcpv6.vendorclass.data", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_vendoropts_enterprise,
-          { "Enterprise ID", "dhcpv6.vendoropts.enterprise", FT_UINT32, BASE_DEC|BASE_EXT_STRING,  &sminmpec_values_ext, 0, "Vendor opts Enterprise Number", HFILL }},
+          { "Enterprise ID", "dhcpv6.vendoropts.enterprise", FT_UINT32, BASE_ENTERPRISES, STRINGS_ENTERPRISES, 0, "Vendor opts Enterprise Number", HFILL }},
         { &hf_vendoropts_enterprise_option_code,
           { "Option code", "dhcpv6.vendoropts.enterprise.option_code", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
         { &hf_vendoropts_enterprise_option_length,

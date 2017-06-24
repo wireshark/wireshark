@@ -23,8 +23,6 @@
 #ifndef __SMINMPEC_H__
 #define __SMINMPEC_H__
 
-#include "ws_symbol_export.h"
-
 /*
  * These are SMI Network Management Private Enterprise Codes for
  * organizations; see
@@ -97,7 +95,5 @@
 #define VENDOR_NTOP                 35632u
 #define VENDOR_ERICSSON_CANADA_INC  46098u
 #define VENDOR_CISCO_WIFI           4232704
-
-WS_DLL_PUBLIC value_string_ext sminmpec_values_ext;
 
 #endif /* __SMINMPEC_H__ */

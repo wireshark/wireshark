@@ -9960,7 +9960,7 @@ dissect_v9_v10_template_fields(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         length  = tvb_get_ntohs(tvb, offset+2); /* XXX: 0 length should not be allowed ? exception: "ScopeSystem" */
         if ((ver == 10) && (type & 0x8000)) {   /* IPFIX only */
             pen = tvb_get_ntohl(tvb, offset+4);
-            pen_str = val_to_str_ext_const(pen, &sminmpec_values_ext, "(Unknown)");
+            pen_str = enterprises_lookup(pen, "(Unknown)");
         }
 
         if (tmplt_p->fields_p[fields_type] != NULL) {

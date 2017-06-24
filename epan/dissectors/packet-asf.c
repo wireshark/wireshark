@@ -28,7 +28,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/sminmpec.h>
+#include <epan/addr_resolv.h>
 
 /*
  * See
@@ -305,7 +305,7 @@ proto_register_asf(void)
 	static hf_register_info hf[] = {
 		{ &hf_asf_iana, {
 			"IANA Enterprise Number", "asf.iana",
-			FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0,
+			FT_UINT32, BASE_ENTERPRISES, STRINGS_ENTERPRISES, 0,
 			NULL, HFILL }},
 		{ &hf_asf_type, {
 			"Message Type", "asf.type",

@@ -1493,7 +1493,7 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 			offset += 4;
 
 			vendor = (radius_vendor_info_t *)g_hash_table_lookup(dict->vendors_by_id, GUINT_TO_POINTER(vendor_id));
-			vendor_str = val_to_str_ext_const(vendor_id, &sminmpec_values_ext, "Unknown");
+			vendor_str = enterprises_lookup(vendor_id, "Unknown");
 			if (!vendor) {
 				vendor = &no_vendor;
 			}
@@ -2466,7 +2466,7 @@ radius_register_avp_dissector(guint32 vendor_id, guint32 _attribute_id, radius_a
 			vendor = (radius_vendor_info_t *)g_malloc(sizeof(radius_vendor_info_t));
 
 			vendor->name = g_strdup_printf("%s-%u",
-						       val_to_str_ext_const(vendor_id, &sminmpec_values_ext, "Unknown"),
+						       enterprises_lookup(vendor_id, "Unknown"),
 						       vendor_id);
 			vendor->code = vendor_id;
 			vendor->attrs_by_id = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, free_radius_attr_info);
@@ -2684,7 +2684,7 @@ register_radius_fields(const char *unused _U_)
 		{ "Type", "radius.avp.type", FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_radius_avp_vendor_id,
-		{ "Vendor ID", "radius.avp.vendor_id", FT_UINT32, BASE_DEC, NULL, 0x0,
+		{ "Vendor ID", "radius.avp.vendor_id", FT_UINT32, BASE_ENTERPRISES, STRINGS_ENTERPRISES, 0x0,
 			NULL, HFILL }},
 		{ &hf_radius_avp_vendor_type,
 		{ "Type", "radius.avp.vendor_type", FT_UINT8, BASE_DEC, NULL, 0x0,

@@ -61,16 +61,6 @@ set(LIBWIRESHARK_ASM_FILES
 #	!ENDIF
 )
 
-add_custom_target(
-	update-sminmpec
-	COMMAND ${PERL_EXECUTABLE}
-		${CMAKE_SOURCE_DIR}/tools/make-sminmpec.pl
-	DEPENDS
-		enterprise-numbers
-		${CMAKE_SOURCE_DIR}/tools/make-sminmpec.pl
-)
-set_target_properties(update-sminmpec PROPERTIES FOLDER "tools")
-
 add_custom_command(
 	OUTPUT ps.c
 	COMMAND ${PYTHON_EXECUTABLE}
@@ -145,7 +135,6 @@ set(LIBWIRESHARK_FILES
 	req_resp_hdrs.c
 	rtd_table.c
 	show_exception.c
-	sminmpec.c
 	srt_table.c
 	stat_tap_ui.c
 	stats_tree.c

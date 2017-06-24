@@ -121,7 +121,7 @@
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/arptypes.h>
-#include <epan/sminmpec.h>
+#include <epan/addr_resolv.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
 #include <epan/oui.h>
@@ -6924,7 +6924,7 @@ proto_register_bootp(void)
 
 		{ &hf_bootp_client_identifier_enterprise_num,
 		  { "Enterprise-number", "bootp.client_id.enterprise_num",
-		    FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0x0,
+		    FT_UINT32, BASE_ENTERPRISES, STRINGS_ENTERPRISES, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_bootp_client_identifier,
@@ -7972,7 +7972,7 @@ proto_register_bootp(void)
 
 		{ &hf_bootp_option82_vi_enterprise,
 		  { "Enterprise", "bootp.option.agent_information_option.vi.enterprise",
-		    FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0x0,
+		    FT_UINT32, BASE_ENTERPRISES, STRINGS_ENTERPRISES, 0x0,
 		    "Option 82:9 VI Enterprise", HFILL }},
 
 		{ &hf_bootp_option82_vi_data_length,
@@ -8469,7 +8469,7 @@ proto_register_bootp(void)
 
 		{ &hf_bootp_option_vi_class_enterprise,
 		  { "Enterprise", "bootp.option.vi_class.enterprise",
-		    FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0x00,
+		    FT_UINT32, BASE_ENTERPRISES, STRINGS_ENTERPRISES, 0x00,
 		    "Option 124: Enterprise", HFILL }},
 
 		{ &hf_bootp_option_vi_class_data_length,
@@ -8484,7 +8484,7 @@ proto_register_bootp(void)
 
 		{ &hf_bootp_option125_enterprise,
 		  { "Enterprise", "bootp.option.vi.enterprise",
-		    FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0x00,
+		    FT_UINT32, BASE_ENTERPRISES, STRINGS_ENTERPRISES, 0x00,
 		    "Option 125: Enterprise", HFILL }},
 
 		{ &hf_bootp_option125_length,

@@ -57,6 +57,7 @@
 #include <epan/expert.h>
 #include <epan/ip_opts.h>
 #include <epan/sminmpec.h>
+#include <epan/addr_resolv.h>
 
 #include <wsutil/str_util.h>
 
@@ -2510,7 +2511,7 @@ dissect_mip6_opt_vsm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
     proto_tree_add_item_ret_uint(opt_tree, hf_mip6_vsm_vid, tvb,
             offset, MIP6_VSM_VID_LEN, ENC_BIG_ENDIAN, &vendorid);
-    proto_item_append_text(ti, ": %s", val_to_str_ext_const(vendorid, &sminmpec_values_ext, "<unknown>"));
+    proto_item_append_text(ti, ": %s", enterprises_lookup(vendorid, "<unknown>"));
     offset += 4;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -4479,7 +4480,7 @@ proto_register_mip6(void)
     },
     { &hf_mip6_vsm_vid,
       { "Vendor Id", "mip6.vsm.vendorId",
-        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0x0,
+        FT_UINT32, BASE_ENTERPRISES, STRINGS_ENTERPRISES, 0x0,
         NULL, HFILL }
     },
     { &hf_mip6_vsm_subtype,

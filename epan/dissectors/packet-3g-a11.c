@@ -44,6 +44,7 @@
 #include <epan/expert.h>
 /* Include vendor id translation */
 #include <epan/sminmpec.h>
+#include <epan/addr_resolv.h>
 #include <epan/to_str.h>
 
 #include "packet-radius.h"
@@ -2209,7 +2210,7 @@ proto_register_a11(void)
         },
         { &hf_a11_vse_vid,
           { "Vendor ID",                      "a11.ext.vid",
-            FT_UINT32, BASE_HEX|BASE_EXT_STRING, &sminmpec_values_ext, 0,
+            FT_UINT32, BASE_ENTERPRISES, STRINGS_ENTERPRISES, 0,
             NULL, HFILL }
         },
         { &hf_a11_vse_apptype,

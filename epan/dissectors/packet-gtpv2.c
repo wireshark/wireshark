@@ -30,7 +30,7 @@
 #include <epan/to_str.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
-#include <epan/sminmpec.h>
+#include <epan/addr_resolv.h>
 
 #include "packet-gsm_a_common.h"
 #include "packet-gsm_map.h"
@@ -5210,7 +5210,7 @@ dissect_gtpv2_private_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     proto_tree_add_item(tree, hf_gtpv2_enterprise_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_item_append_text(item, "%s (%u)", val_to_str_ext_const(ext_id, &sminmpec_values_ext, "Unknown"), ext_id);
+    proto_item_append_text(item, "%s (%u)", enterprises_lookup(ext_id, "Unknown"), ext_id);
 
     next_tvb = tvb_new_subset_length(tvb, offset, length-2);
     if (dissector_try_uint_new(gtpv2_priv_ext_dissector_table, ext_id, next_tvb, pinfo, tree, FALSE, GUINT_TO_POINTER((guint32)instance))){
@@ -8791,7 +8791,7 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_enterprise_id,
           {"Enterprise ID", "gtpv2.enterprise_id",
-           FT_UINT16, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0x0,
+           FT_UINT16, BASE_ENTERPRISES, STRINGS_ENTERPRISES, 0x0,
            NULL, HFILL}
         },
         { &hf_gtpv2_ti,

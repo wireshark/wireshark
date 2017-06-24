@@ -62,7 +62,7 @@
 #include <epan/conversation.h>
 #include <epan/etypes.h>
 #include <epan/prefs.h>
-#include <epan/sminmpec.h>
+#include <epan/addr_resolv.h>
 #include <epan/next_tvb.h>
 #include <epan/uat.h>
 #include <epan/asn1.h>
@@ -3507,8 +3507,8 @@ void proto_register_snmp(void) {
 		    "Engine ID Conformance", "snmp.engineid.conform", FT_BOOLEAN, 8,
 		    TFS(&tfs_snmp_engineid_conform), F_SNMP_ENGINEID_CONFORM, "Engine ID RFC3411 Conformance", HFILL }},
 		{ &hf_snmp_engineid_enterprise, {
-		    "Engine Enterprise ID", "snmp.engineid.enterprise", FT_UINT32, BASE_DEC|BASE_EXT_STRING,
-		    &sminmpec_values_ext, 0, NULL, HFILL }},
+		    "Engine Enterprise ID", "snmp.engineid.enterprise", FT_UINT32, BASE_ENTERPRISES,
+                    STRINGS_ENTERPRISES, 0, NULL, HFILL }},
 		{ &hf_snmp_engineid_format, {
 		    "Engine ID Format", "snmp.engineid.format", FT_UINT8, BASE_DEC,
 		    VALS(snmp_engineid_format_vals), 0, NULL, HFILL }},

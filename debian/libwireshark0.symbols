@@ -479,6 +479,9 @@ libwireshark.so.0 libwireshark0 #MINVER#
  elem_tv_short@Base 1.9.1
  elem_v@Base 1.9.1
  elem_v_short@Base 1.9.1
+ enterprises_base_custom@Base 2.5.0
+ enterprises_lookup@Base 2.5.0
+ enterprises_lookup_format@Base 2.5.0
  eo_ct2ext@Base 2.3.0
  eo_free_entry@Base 2.3.0
  eo_iterate_tables@Base 2.3.0
@@ -1373,7 +1376,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  signed_time_secs_to_str@Base 2.1.0
  smb2_cmd_vals_ext@Base 1.9.1
  smb_cmd_vals_ext@Base 1.9.1
- sminmpec_values_ext@Base 1.9.1
  srt_table_dissector_init@Base 1.99.8
  srt_table_get_filter@Base 1.99.8
  srt_table_get_tap_string@Base 1.99.8
@@ -1528,6 +1530,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  try_capture_dissector@Base 2.1.0
  try_bytesprefix_to_str@Base 2.3.0
  try_bytesval_to_str@Base 2.3.0
+ try_enterprises_lookup@Base 2.5.0
  try_rval_to_str@Base 1.9.1
  try_rval_to_str_idx@Base 1.9.1
  try_rval64_to_str@Base 2.3.0

@@ -71,7 +71,7 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
-#include <epan/sminmpec.h>
+#include <epan/addr_resolv.h>
 #include "packet-tcp.h"
 
 void proto_register_pcep(void);
@@ -5575,7 +5575,7 @@ proto_register_pcep(void)
         },
         { &hf_pcep_enterprise_number,
           { "Enterprise Number", "pcep.vendor-information.enterprise-number",
-           FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0x0,
+           FT_UINT32, BASE_ENTERPRISES, STRINGS_ENTERPRISES, 0x0,
            "IANA Private Enterprise Number", HFILL }
         },
         { &hf_pcep_enterprise_specific_info,
@@ -5585,7 +5585,7 @@ proto_register_pcep(void)
         },
         { &hf_pcep_tlv_enterprise_number,
           { "Enterprise Number", "pcep.tlv.enterprise-number",
-           FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0x0,
+           FT_UINT32, BASE_ENTERPRISES, STRINGS_ENTERPRISES, 0x0,
            "IANA Private Enterprise Number", HFILL }
         },
         { &hf_pcep_tlv_enterprise_specific_info,

@@ -30,6 +30,7 @@
 #include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/sminmpec.h>
+#include <epan/addr_resolv.h>
 
 void proto_register_mip(void);
 void proto_reg_handoff_mip(void);
@@ -1406,7 +1407,7 @@ void proto_register_mip(void)
     },
     { &hf_mip_cvse_vendor_org_id,
       { "CVSE Vendor/org ID",                "mip.ext.cvse.vendor_id",
-        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0,
+        FT_UINT32, BASE_ENTERPRISES, STRINGS_ENTERPRISES, 0,
         NULL, HFILL }
     },
     { &hf_mip_cvse_verizon_cvse_type ,
@@ -1441,7 +1442,7 @@ void proto_register_mip(void)
     },
     { &hf_mip_nvse_vendor_org_id,
       { "Vendor ID",                "mip.ext.nvse.vendor_id",
-        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0,
+        FT_UINT32, BASE_ENTERPRISES, STRINGS_ENTERPRISES, 0,
         NULL, HFILL }
     },
     { &hf_mip_nvse_vendor_nvse_type ,
