@@ -61,6 +61,7 @@
 #define EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR    1
 #define EXTCAP_ENCAP_WIRESHARK_UPPER_PDU       2
 #define EXTCAP_ENCAP_ETHERNET                  3
+#define EXTCAP_ENCAP_LINUX_SLL                 4
 #define PCAP_GLOBAL_HEADER_LENGTH              24
 #define PCAP_RECORD_HEADER_LENGTH              16
 
@@ -354,6 +355,8 @@ static int extcap_encap_to_dlt(int encap)
         dlt = DLT_WIRESHARK_UPPER_PDU;
     else if (encap == EXTCAP_ENCAP_ETHERNET)
         dlt = DLT_EN10MB;
+    else if (encap == EXTCAP_ENCAP_LINUX_SLL)
+        dlt = DLT_LINUX_SLL;
     return dlt;
 #else
     if (encap == EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR)
@@ -362,6 +365,8 @@ static int extcap_encap_to_dlt(int encap)
         dlt = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
     else if (encap == EXTCAP_ENCAP_ETHERNET)
         dlt = WTAP_ENCAP_ETHERNET;
+    else if (encap == EXTCAP_ENCAP_LINUX_SLL)
+        dlt = WTAP_ENCAP_SLL;
 #endif
     return dlt;
 }
@@ -2243,6 +2248,33 @@ static int capture_android_logcat(char *interface, char *fifo,
     return EXIT_CODE_SUCCESS;
 }
 
+/* Translate tcpdump data link type strings to EXTCAP_ENCAP_ types
+ * For info about available data link types see:
+ * http://www.tcpdump.org/linktypes.html
+ */
+static int linktype_to_extcap_encap(const char* linktype)
+{
+    struct dlt_encap {
+        int extcap_encap;
+        const char* const dlt;
+    };
+    const struct dlt_encap lookup[] = {
+        { EXTCAP_ENCAP_LINUX_SLL, "LINUX_SLL" },
+        { EXTCAP_ENCAP_ETHERNET, "EN10MB" },
+        { -1, NULL }
+    };
+    int i;
+    int ret = EXTCAP_ENCAP_ETHERNET;
+
+    for (i = 0; lookup[i].dlt; i++) {
+        if (!strcmp(lookup[i].dlt, linktype)) {
+            ret = lookup[i].extcap_encap;
+        }
+    }
+    return ret;
+}
+
+
 /*----------------------------------------------------------------------------*/
 /* Android Wifi Tcpdump                                                       */
 /* The Tcpdump sends data in pcap format. So for using the extcap_dumper we   */
@@ -2250,6 +2282,7 @@ static int capture_android_logcat(char *interface, char *fifo,
 /*----------------------------------------------------------------------------*/
 static int capture_android_wifi_tcpdump(char *interface, char *fifo,
         const char *adb_server_ip, unsigned short *adb_server_tcp_port) {
+    static const char                       *const regex_linktype = "tcpdump: listening on .*?, link-type (?<linktype>.*?) ";
     struct extcap_dumper                     extcap_dumper;
     static char                              data[PACKET_LENGTH];
     gssize                                   length;
@@ -2264,6 +2297,10 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
     gint                                     device_endiness = G_LITTLE_ENDIAN;
     gboolean                                 global_header_skipped=FALSE;
     pcaprec_hdr_t                            p_header;
+    char                                    *linktype = NULL;
+    GRegex                                  *regex = NULL;
+    GError                                  *err = NULL;
+    GMatchInfo                              *match = NULL;
 
     if (is_specified_interface(interface, INTERFACE_ANDROID_WIFI_TCPDUMP)
             && strlen(interface) > strlen(INTERFACE_ANDROID_WIFI_TCPDUMP) + 1) {
@@ -2282,7 +2319,12 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
         return EXIT_CODE_GENERIC;
     }
 
-    extcap_dumper = extcap_dumper_open(fifo, EXTCAP_ENCAP_ETHERNET);
+    regex = g_regex_new(regex_linktype, (GRegexCompileFlags)0, (GRegexMatchFlags)0, &err);
+    if (!regex) {
+        g_warning("Failed to compile regex for tcpdump data link type matching");
+        return EXIT_CODE_GENERIC;
+    }
+
     while (endless_loop) {
         char *i_position;
         errno = 0;
@@ -2296,12 +2338,14 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
         }
         else if (errno != 0) {
             g_warning("ERROR capture: %s", strerror(errno));
+            g_regex_unref(regex);
             return EXIT_CODE_GENERIC;
         }
 
         if (length <= 0) {
             g_warning("Broken socket connection.");
             closesocket(sock);
+            g_regex_unref(regex);
             return EXIT_CODE_GENERIC;
         }
 
@@ -2324,12 +2368,21 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
             }
         }
 
+        g_regex_match(regex, data, (GRegexMatchFlags)0, &match);
+        if (g_match_info_matches(match)) {
+            linktype = g_match_info_fetch_named(match, "linktype");
+        }
+        g_match_info_free(match);
         i_position = (char *) memchr(data, '\n', used_buffer_length);
         if (i_position && i_position < data + used_buffer_length) {
             memmove(data, i_position + 1 , used_buffer_length - (i_position + 1 - data));
             used_buffer_length = used_buffer_length - (gssize) (i_position + 1 - data);
         }
     }
+    g_regex_unref(regex);
+    extcap_dumper = extcap_dumper_open(fifo, linktype_to_extcap_encap(linktype));
+    g_free(linktype);
+
     /*
      * The data we are getting from the tcpdump stdoutput stream as the stdout is the text stream it is
      * convertinng the 0A=0D0A; So we need to remove these extra character.
