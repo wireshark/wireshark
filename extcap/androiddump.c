@@ -2579,9 +2579,11 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
         gssize i = 0,read_offset,j=0;
        /*Filter the received data to get rid of unwanted 0DOA*/
         for (i = 0; i < (used_buffer_length - 1); i++) {
+#ifdef _WIN32
             if (data[i] == 0x0d && data[i + 1] == 0x0a) {
                 i++;
             }
+#endif
             filter_buffer[filter_buffer_length++] = data[i];
         }
 
