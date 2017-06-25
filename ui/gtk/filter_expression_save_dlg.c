@@ -134,10 +134,11 @@ filter_button_add(const char *label, const char *expr, struct filter_expression 
 {
 	struct filter_expression *fe;
 	GtkWidget *button;
+	gchar* tooltip;
 
 	/* No duplicate buttons when adding a new one  */
 	if (newfe == NULL)
-		fe = filter_expression_new(label, expr, TRUE);
+		fe = filter_expression_new(label, expr, "", TRUE);
 	else
 		fe = newfe;
 
@@ -153,7 +154,15 @@ filter_button_add(const char *label, const char *expr, struct filter_expression 
 
 	gtk_toolbar_insert(GTK_TOOLBAR(_filter_tb), (GtkToolItem *)button, -1);
 	gtk_widget_set_sensitive(GTK_WIDGET(button), TRUE);
-	gtk_widget_set_tooltip_text(GTK_WIDGET(button), fe->expression);
+	if (strlen(fe->comment) > 0)
+	{
+		tooltip = g_strdup_printf("%s, %s", fe->expression, fe->comment);
+		gtk_widget_set_tooltip_text(GTK_WIDGET(button), tooltip);
+	}
+	else
+	{
+		gtk_widget_set_tooltip_text(GTK_WIDGET(button), fe->expression);
+	}
 
 	fe->button = button;
 	filter_buttons = g_list_append (filter_buttons, button);

@@ -105,7 +105,30 @@
      </property>
     </widget>
    </item>
-   <item>
+    <item>
+      <widget class="QLabel" name="commentLabel">
+        <property name="text">
+          <string>Comment:</string>
+        </property>
+      </widget>
+    </item>
+    <item>
+      <widget class="SyntaxLineEdit" name="commentLineEdit">
+        <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+          </sizepolicy>
+        </property>
+        <property name="minimumSize">
+          <size>
+            <width>80</width>
+            <height>0</height>
+          </size>
+        </property>
+      </widget>
+    </item>
+    <item>
     <spacer name="horizontalSpacer">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>

@@ -39,6 +39,7 @@ static guint             num_display_filter_macros = 0;
 UAT_BOOL_CB_DEF(display_filter_macro_uat, enabled, filter_expression_t)
 UAT_CSTRING_CB_DEF(display_filter_macro_uat, label, filter_expression_t)
 UAT_DISPLAY_FILTER_CB_DEF(display_filter_macro_uat, expression, filter_expression_t)
+UAT_CSTRING_CB_DEF(display_filter_macro_uat, comment, filter_expression_t)
 
 /*
  * Create a new filter_expression and add it to the end of the list
@@ -46,7 +47,7 @@ UAT_DISPLAY_FILTER_CB_DEF(display_filter_macro_uat, expression, filter_expressio
  */
 filter_expression_t*
 filter_expression_new(const gchar *label, const gchar *expr,
-		      const gboolean enabled)
+		      const gchar *comment, const gboolean enabled)
 {
 	filter_expression_t expression;
 
@@ -54,6 +55,7 @@ filter_expression_new(const gchar *label, const gchar *expr,
 	memset(&expression, 0, sizeof(expression));
 	expression.label = g_strdup(label);
 	expression.expression = g_strdup(expr);
+	expression.comment = g_strdup(comment);
 	expression.enabled = enabled;
 
 	/* XXX - This is just returned to make GTK GUI work. */
@@ -75,6 +77,7 @@ static void display_filter_free_cb(void*r) {
 
 	g_free(rec->label);
 	g_free(rec->expression);
+	g_free(rec->comment);
 }
 
 static void* display_filter_copy_cb(void* n, const void* o, size_t siz _U_) {
@@ -84,6 +87,7 @@ static void* display_filter_copy_cb(void* n, const void* o, size_t siz _U_) {
 	new_record->button = old_record->button;
 	new_record->label = g_strdup(old_record->label);
 	new_record->expression = g_strdup(old_record->expression);
+	new_record->comment = g_strdup(old_record->comment);
 
 	new_record->enabled = old_record->enabled;
 
@@ -97,6 +101,8 @@ static uat_field_t display_filter_uat_flds[] = {
 		"Name of the display filter button"),
 	UAT_FLD_DISPLAY_FILTER(display_filter_macro_uat, expression, "Filter Expression",
 		"Filter expression to be applied by the button"),
+	UAT_FLD_CSTRING(display_filter_macro_uat, comment, "Comment",
+		"Comment describing filter expression"),
 	UAT_END_FIELDS
 };
 

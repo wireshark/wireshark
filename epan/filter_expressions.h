@@ -40,6 +40,7 @@ typedef struct filter_expression {
 	gpointer button;	/* Filter toolbar (GTK only) */
 	gchar	*label;
 	gchar	*expression;
+	gchar	*comment;
 
 	gboolean enabled;	/* Can be set to FALSE by Preferences Dialog */
 } filter_expression_t;
@@ -55,7 +56,7 @@ WS_DLL_PUBLIC void filter_expression_iterate_expressions(wmem_foreach_func func,
  */
 WS_DLL_PUBLIC
 filter_expression_t *filter_expression_new(const gchar *label,
-    const gchar *expr, const gboolean enabled);
+    const gchar *expr, const gchar *comment, const gboolean enabled);
 
 /* Keep the UAT structure local to the filter_expressions */
 void filter_expression_register_uat(module_t* pref_module);

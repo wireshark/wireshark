@@ -5307,7 +5307,8 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
         filter_enabled = (strcmp(value, "TRUE") == 0) ? TRUE : FALSE;
     } else if (strcmp(pref_name, PRS_GUI_FILTER_EXPR) == 0) {
         filter_expr = g_strdup(value);
-        filter_expression_new(filter_label, filter_expr, filter_enabled);
+        /* Comments not supported for "old" preference style */
+        filter_expression_new(filter_label, filter_expr, "", filter_enabled);
         g_free(filter_label);
         g_free(filter_expr);
     } else if (strcmp(pref_name, "gui.version_in_start_page") == 0) {
