@@ -74,7 +74,7 @@
 #define SAMPLE_SERVER_TEXT  "Sample 'Follow Stream' server text\n"
 #define SAMPLE_TEXT_VALID_TEXT  "Sample valid filter text\n"
 #define SAMPLE_TEXT_INVALID_TEXT  "Sample invalid filter text\n"
-#define SAMPLE_TEXT_DEPRECATED_TEXT  "Sample deprecated filter text\n"
+#define SAMPLE_TEXT_DEPRECATED_TEXT  "Sample warning filter text\n"
 
 #define MFG_IDX 0
 #define MBG_IDX 1
