@@ -7071,7 +7071,7 @@ text-decoration: underline;
     <name>MainWindow</name>
     <message>
         <location filename="main_window.ui" line="17"/>
-        <location filename="main_window.ui" line="875"/>
+        <location filename="main_window.ui" line="878"/>
         <source>Wireshark</source>
         <translation>Wireshark</translation>
     </message>
@@ -7086,78 +7086,78 @@ text-decoration: underline;
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="153"/>
+        <location filename="main_window.ui" line="156"/>
         <source>Open Recent</source>
         <translation>打开最近</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="159"/>
+        <location filename="main_window.ui" line="162"/>
         <source>File Set</source>
         <translation>文件集合</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="167"/>
+        <location filename="main_window.ui" line="170"/>
         <source>Export Packet Dissections</source>
         <translation>导出分组解析结果</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="179"/>
+        <location filename="main_window.ui" line="182"/>
         <source>Export Objects</source>
         <translation>导出对象</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="278"/>
+        <location filename="main_window.ui" line="281"/>
         <source>&amp;Zoom</source>
         <translation>缩放(&amp;Z)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="286"/>
+        <location filename="main_window.ui" line="289"/>
         <source>&amp;Time Display Format</source>
         <translation>时间显示格式(&amp;T)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="311"/>
+        <location filename="main_window.ui" line="314"/>
         <source>Name Resolution</source>
         <translation>解析名称</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="624"/>
+        <location filename="main_window.ui" line="627"/>
         <source>Copy</source>
         <translation>复制</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="222"/>
+        <location filename="main_window.ui" line="225"/>
         <source>Manual pages</source>
         <translation>说明文档</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="391"/>
+        <location filename="main_window.ui" line="394"/>
         <source>Apply as Filter</source>
         <translation>作为过滤器应用</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="402"/>
+        <location filename="main_window.ui" line="405"/>
         <source>Prepare a Filter</source>
         <translation>准备过滤器</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="413"/>
-        <location filename="main_window.ui" line="569"/>
+        <location filename="main_window.ui" line="416"/>
+        <location filename="main_window.ui" line="572"/>
         <source>SCTP</source>
         <translation>SCTP</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="458"/>
+        <location filename="main_window.ui" line="461"/>
         <source>TCP Stream Graphs</source>
         <translation>TCP 流图形</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="468"/>
+        <location filename="main_window.ui" line="471"/>
         <source>BACnet</source>
         <translation>BACnet</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="477"/>
+        <location filename="main_window.ui" line="480"/>
         <source>HTTP</source>
         <translation>HTTP</translation>
     </message>
@@ -7167,416 +7167,416 @@ text-decoration: underline;
         <translation>900000000</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="149"/>
+        <location filename="main_window.ui" line="152"/>
         <source>&amp;File</source>
         <translation>文件(&amp;F)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="206"/>
+        <location filename="main_window.ui" line="209"/>
         <source>&amp;Capture</source>
         <translation>捕获(&amp;C)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="218"/>
+        <location filename="main_window.ui" line="221"/>
         <source>&amp;Help</source>
         <translation>帮助(&amp;H)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="251"/>
+        <location filename="main_window.ui" line="254"/>
         <source>&amp;Go</source>
         <translation>跳转(&amp;G)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="269"/>
+        <location filename="main_window.ui" line="272"/>
         <source>&amp;View</source>
         <translation>视图(&amp;V)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="387"/>
+        <location filename="main_window.ui" line="390"/>
         <source>&amp;Analyze</source>
         <translation>分析(&amp;A)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="420"/>
+        <location filename="main_window.ui" line="423"/>
         <source>Follow</source>
         <translation>追踪流</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="454"/>
+        <location filename="main_window.ui" line="457"/>
         <source>&amp;Statistics</source>
         <translation>统计(&amp;S)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="485"/>
+        <location filename="main_window.ui" line="488"/>
         <location filename="main_window.ui" line="1983"/>
         <source>29West</source>
         <translation>29West</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="489"/>
+        <location filename="main_window.ui" line="492"/>
         <source>Topics</source>
         <translation>主题</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="501"/>
+        <location filename="main_window.ui" line="504"/>
         <source>Queues</source>
         <translation>队列</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="510"/>
+        <location filename="main_window.ui" line="513"/>
         <source>UIM</source>
         <translation>UIM</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="552"/>
+        <location filename="main_window.ui" line="555"/>
         <source>Telephon&amp;y</source>
         <translation>电话(&amp;Y)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="556"/>
+        <location filename="main_window.ui" line="559"/>
         <source>RTSP</source>
         <translation>RTSP</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="562"/>
+        <location filename="main_window.ui" line="565"/>
         <source>RTP</source>
         <translation>RTP</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="620"/>
+        <location filename="main_window.ui" line="623"/>
         <source>&amp;Edit</source>
         <translation>编辑(&amp;E)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="697"/>
+        <location filename="main_window.ui" line="700"/>
         <source>Main Toolbar</source>
         <translation>主工具栏</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="749"/>
+        <location filename="main_window.ui" line="752"/>
         <source>Display Filter Toolbar</source>
         <translation>显示过滤器工具栏</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="786"/>
+        <location filename="main_window.ui" line="789"/>
         <source>Open</source>
         <translation>打开</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="789"/>
+        <location filename="main_window.ui" line="792"/>
         <source>Open a capture file</source>
         <translation>打开已保存的捕获文件</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="800"/>
+        <location filename="main_window.ui" line="803"/>
         <source>Quit</source>
         <translation>退出</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="803"/>
+        <location filename="main_window.ui" line="806"/>
         <source>Quit Wireshark</source>
         <translation>退出 Wireshark</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="817"/>
+        <location filename="main_window.ui" line="820"/>
         <source>&amp;Start</source>
         <translation>开始(&amp;S)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="820"/>
+        <location filename="main_window.ui" line="823"/>
         <source>Start capturing packets</source>
         <translation>开始捕获分组</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="828"/>
+        <location filename="main_window.ui" line="831"/>
         <source>S&amp;top</source>
         <translation>停止(&amp;T)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="831"/>
+        <location filename="main_window.ui" line="834"/>
         <source>Stop capturing packets</source>
         <translation>停止捕获分组</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="839"/>
+        <location filename="main_window.ui" line="842"/>
         <source>Close</source>
         <translation>关闭</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="856"/>
+        <location filename="main_window.ui" line="859"/>
         <source>No files found</source>
         <translation>未找到文件</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="861"/>
+        <location filename="main_window.ui" line="864"/>
         <source>&amp;Contents</source>
         <translation>内容(&amp;C)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="880"/>
+        <location filename="main_window.ui" line="883"/>
         <source>Wireshark Filter</source>
         <translation>Wireshark 过滤器</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="885"/>
+        <location filename="main_window.ui" line="888"/>
         <source>TShark</source>
         <translation>TShark</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="890"/>
+        <location filename="main_window.ui" line="893"/>
         <source>RawShark</source>
         <translation>RawShark</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="895"/>
+        <location filename="main_window.ui" line="898"/>
         <source>Dumpcap</source>
         <translation>Dumpcap</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="900"/>
+        <location filename="main_window.ui" line="903"/>
         <source>Mergecap</source>
         <translation>Mergecap</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="905"/>
+        <location filename="main_window.ui" line="908"/>
         <source>Editcap</source>
         <translation>Editcap</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="910"/>
+        <location filename="main_window.ui" line="913"/>
         <source>Text2cap</source>
         <translation>Text2cap</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="919"/>
+        <location filename="main_window.ui" line="922"/>
         <source>Website</source>
         <translation>网站</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="924"/>
+        <location filename="main_window.ui" line="927"/>
         <source>FAQ&apos;s</source>
         <translation>常见问题</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="929"/>
+        <location filename="main_window.ui" line="932"/>
         <source>Downloads</source>
         <translation>下载</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="938"/>
+        <location filename="main_window.ui" line="941"/>
         <source>Wiki</source>
         <translation>Wiki</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="946"/>
+        <location filename="main_window.ui" line="949"/>
         <source>Sample Captures</source>
         <translation>捕获示例</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="951"/>
+        <location filename="main_window.ui" line="954"/>
         <source>&amp;About Wireshark</source>
         <translation>关于 Wireshark (&amp;A)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="963"/>
+        <location filename="main_window.ui" line="966"/>
         <source>Ask (Q&amp;&amp;A)</source>
         <translation>提问 (问答平台)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="971"/>
+        <location filename="main_window.ui" line="974"/>
         <source>Next Packet</source>
         <translation>下一分组</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="974"/>
+        <location filename="main_window.ui" line="977"/>
         <source>Go to the next packet</source>
         <translation>转到下一分组</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="982"/>
+        <location filename="main_window.ui" line="985"/>
         <source>Previous Packet</source>
         <translation>前一分组</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="985"/>
+        <location filename="main_window.ui" line="988"/>
         <source>Go to the previous packet</source>
         <translation>转到前一分组</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1037"/>
+        <location filename="main_window.ui" line="1040"/>
         <source>First Packet</source>
         <translation>首个分组</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1040"/>
+        <location filename="main_window.ui" line="1043"/>
         <source>Go to the first packet</source>
         <translation>转到首个分组</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1048"/>
+        <location filename="main_window.ui" line="1051"/>
         <source>Last Packet</source>
         <translation>最新分组</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1051"/>
+        <location filename="main_window.ui" line="1054"/>
         <source>Go to the last packet</source>
         <translation>转到最新分组</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1062"/>
+        <location filename="main_window.ui" line="1065"/>
         <source>E&amp;xpand Subtrees</source>
         <translation>展开子树(&amp;X)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1065"/>
+        <location filename="main_window.ui" line="1068"/>
         <source>Expand the current packet detail</source>
         <translation>展开当前分组详情</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1073"/>
+        <location filename="main_window.ui" line="1076"/>
         <source>&amp;Expand All</source>
         <translation>展开全部(&amp;E)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1076"/>
+        <location filename="main_window.ui" line="1079"/>
         <source>Expand packet details</source>
         <translation>展开分组详情</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1084"/>
+        <location filename="main_window.ui" line="1087"/>
         <source>Collapse &amp;All</source>
         <translation>收起全部(&amp;A)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1087"/>
+        <location filename="main_window.ui" line="1090"/>
         <source>Collapse all packet details</source>
         <translation>收起所有分组详情</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1101"/>
+        <location filename="main_window.ui" line="1104"/>
         <source>Go to specified packet</source>
         <translation>转到特定分组</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1112"/>
+        <location filename="main_window.ui" line="1115"/>
         <source>Merge one or more files</source>
         <translation>合并一或多个文件</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1120"/>
+        <location filename="main_window.ui" line="1123"/>
         <source>Import a file</source>
         <translation>导入文件</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1125"/>
+        <location filename="main_window.ui" line="1128"/>
         <source>&amp;Save</source>
         <translation>保存(&amp;S)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1142"/>
+        <location filename="main_window.ui" line="1145"/>
         <source>Save as a different file</source>
         <translation>另存为不同的文件</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1153"/>
+        <location filename="main_window.ui" line="1156"/>
         <source>Export specified packets</source>
         <translation>导出指定分组</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1179"/>
+        <location filename="main_window.ui" line="1182"/>
         <source>List Files</source>
         <translation>列出文件</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1184"/>
+        <location filename="main_window.ui" line="1187"/>
         <source>Next File</source>
         <translation>下一文件</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1189"/>
+        <location filename="main_window.ui" line="1192"/>
         <source>Previous File</source>
         <translation>上一文件</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1194"/>
+        <location filename="main_window.ui" line="1197"/>
         <source>&amp;Reload</source>
         <translation>重新加载(&amp;R)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1219"/>
+        <location filename="main_window.ui" line="1222"/>
         <source>Options</source>
         <translation>选项</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1222"/>
+        <location filename="main_window.ui" line="1225"/>
         <source>Capture options</source>
         <translation>捕获选项</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1236"/>
+        <location filename="main_window.ui" line="1239"/>
         <source>Capture filters</source>
         <translation>捕获过滤器</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1241"/>
+        <location filename="main_window.ui" line="1244"/>
         <source>Refresh Interfaces</source>
         <translation>刷新接口列表</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1244"/>
+        <location filename="main_window.ui" line="1247"/>
         <source>Refresh interfaces</source>
         <translation>刷新接口列表</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1252"/>
+        <location filename="main_window.ui" line="1255"/>
         <source>&amp;Restart</source>
         <translation>重新开始(&amp;R)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1255"/>
+        <location filename="main_window.ui" line="1258"/>
         <source>Restart current capture</source>
         <translation>重新开始当前捕获</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1293"/>
+        <location filename="main_window.ui" line="1296"/>
         <source>Description</source>
         <translation>描述</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1314"/>
+        <location filename="main_window.ui" line="1317"/>
         <source>Field Name</source>
         <translation>字段名称</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1325"/>
+        <location filename="main_window.ui" line="1328"/>
         <source>Value</source>
         <translation>值</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1336"/>
+        <location filename="main_window.ui" line="1339"/>
         <source>As Filter</source>
         <translation>作为过滤器</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1347"/>
-        <location filename="main_window.ui" line="1392"/>
+        <location filename="main_window.ui" line="1350"/>
+        <location filename="main_window.ui" line="1395"/>
         <source>&amp;Selected</source>
         <translation>选中(&amp;S)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1352"/>
-        <location filename="main_window.ui" line="1397"/>
+        <location filename="main_window.ui" line="1355"/>
+        <location filename="main_window.ui" line="1400"/>
         <source>&amp;Not Selected</source>
         <translation>非选中(&amp;N)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1355"/>
-        <location filename="main_window.ui" line="1400"/>
+        <location filename="main_window.ui" line="1358"/>
+        <location filename="main_window.ui" line="1403"/>
         <source>Not Selected</source>
         <translation>非选中</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="842"/>
+        <location filename="main_window.ui" line="845"/>
         <source>Close this capture file</source>
         <translation>关闭捕获文件</translation>
     </message>
@@ -7586,203 +7586,203 @@ text-decoration: underline;
         <translation>分组:</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="273"/>
+        <location filename="main_window.ui" line="276"/>
         <source>Interface Toolbars</source>
         <translation>接口工具栏</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="321"/>
+        <location filename="main_window.ui" line="324"/>
         <source>Colorize Conversation</source>
         <translation>对话着色</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="339"/>
+        <location filename="main_window.ui" line="342"/>
         <source>Internals</source>
         <translation>内部</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="347"/>
+        <location filename="main_window.ui" line="350"/>
         <source>Additional Toolbars</source>
         <translation>额外工具栏</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="429"/>
+        <location filename="main_window.ui" line="432"/>
         <source>Conversation Filter</source>
         <translation>对话过滤器</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="523"/>
+        <location filename="main_window.ui" line="526"/>
         <source>Service Response Time</source>
         <translation>服务响应时间</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="576"/>
+        <location filename="main_window.ui" line="579"/>
         <source>ANSI</source>
         <translation>ANSI</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="582"/>
+        <location filename="main_window.ui" line="585"/>
         <source>GSM</source>
         <translation>GSM</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="588"/>
+        <location filename="main_window.ui" line="591"/>
         <source>LTE</source>
         <translation>LTE</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="594"/>
+        <location filename="main_window.ui" line="597"/>
         <source>MTP3</source>
         <translation>MTP3</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="600"/>
+        <location filename="main_window.ui" line="603"/>
         <source>Osmux</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="673"/>
+        <location filename="main_window.ui" line="676"/>
         <source>&amp;Tools</source>
         <oldsource>Tools</oldsource>
         <translation>工具(&amp;T)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="772"/>
+        <location filename="main_window.ui" line="775"/>
         <source>Wireless Toolbar</source>
         <translation>无线工具栏</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="864"/>
+        <location filename="main_window.ui" line="867"/>
         <source>Help contents</source>
         <translation>帮助内容</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="993"/>
+        <location filename="main_window.ui" line="996"/>
         <source>Next Packet in Conversation</source>
         <translation>对话中的下一个分组</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="996"/>
+        <location filename="main_window.ui" line="999"/>
         <source>Go to the next packet in this conversation</source>
         <translation>转至此对话中的下一个分组</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1004"/>
+        <location filename="main_window.ui" line="1007"/>
         <source>Previous Packet in Conversation</source>
         <translation>对话中的上一个分组</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1007"/>
+        <location filename="main_window.ui" line="1010"/>
         <source>Go to the previous packet in this conversation</source>
         <translation>转至此对话中的上一个分组</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1015"/>
+        <location filename="main_window.ui" line="1018"/>
         <source>Next Packet In History</source>
         <translation>历史中的下一个分组</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1018"/>
+        <location filename="main_window.ui" line="1021"/>
         <source>Go to the next packet in your selection history</source>
         <translation>转至您的选定历史中的下一个分组</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1026"/>
+        <location filename="main_window.ui" line="1029"/>
         <source>Previous Packet In History</source>
         <translation>历史中的上一个分组</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1029"/>
+        <location filename="main_window.ui" line="1032"/>
         <source>Go to the previous packet in your selection history</source>
         <translation>转至您的选定历史中的上一个分组</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1098"/>
+        <location filename="main_window.ui" line="1101"/>
         <source>Go to Packet…</source>
         <translation>转至分组…</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1109"/>
+        <location filename="main_window.ui" line="1112"/>
         <source>&amp;Merge…</source>
         <translation>合并(&amp;M)…</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1117"/>
+        <location filename="main_window.ui" line="1120"/>
         <source>&amp;Import from Hex Dump…</source>
         <translation>从 Hex 转储导入(&amp;I)…</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1128"/>
+        <location filename="main_window.ui" line="1131"/>
         <source>Save this capture file</source>
         <translation>保存捕获文件</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1139"/>
+        <location filename="main_window.ui" line="1142"/>
         <source>Save &amp;As…</source>
         <translation>另存为(&amp;A)…</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1150"/>
+        <location filename="main_window.ui" line="1153"/>
         <source>Export Specified Packets…</source>
         <translation>导出特定分组…</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1158"/>
+        <location filename="main_window.ui" line="1161"/>
         <source>Export Packet &amp;Bytes…</source>
         <translation>导出分组字节流(&amp;B)…</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1166"/>
+        <location filename="main_window.ui" line="1169"/>
         <source>Export SSL Session Keys…</source>
         <translation>导出 SSL 会话密钥…</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1171"/>
+        <location filename="main_window.ui" line="1174"/>
         <source>&amp;Print…</source>
         <translation>打印(&amp;P)…</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1197"/>
+        <location filename="main_window.ui" line="1200"/>
         <source>Reload this file</source>
         <translation>重新加载文件</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1208"/>
+        <location filename="main_window.ui" line="1211"/>
         <source>Reload as File Format/Capture</source>
         <translation>重新载入为文件格式/捕获</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1288"/>
+        <location filename="main_window.ui" line="1291"/>
         <source>As JSON…</source>
         <translation>为 JSON…</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1296"/>
+        <location filename="main_window.ui" line="1299"/>
         <source>Copy this item&apos;s description</source>
         <translation>复制此项的描述</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1317"/>
+        <location filename="main_window.ui" line="1320"/>
         <source>Copy this item&apos;s field name</source>
         <translation>复制此项的字段名称</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1328"/>
+        <location filename="main_window.ui" line="1331"/>
         <source>Copy this item&apos;s value</source>
         <translation>复制此项的值</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1339"/>
+        <location filename="main_window.ui" line="1342"/>
         <source>Copy this item as a display filter</source>
         <translation>复制此项为显示过滤器</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1447"/>
+        <location filename="main_window.ui" line="1450"/>
         <source>Apply as Column</source>
         <translation>应用为列</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1450"/>
+        <location filename="main_window.ui" line="1453"/>
         <source>Create a packet list column from the selected field.</source>
         <translation>从选择的字段创建分组列表列。</translation>
     </message>
@@ -8553,110 +8553,110 @@ text-decoration: underline;
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1216"/>
+        <location filename="main_window.ui" line="1219"/>
         <source>&amp;Options…</source>
         <translation>选项(&amp;O)…</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="663"/>
+        <location filename="main_window.ui" line="666"/>
         <source>&amp;Wireless</source>
         <translation>无线(&amp;W)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1233"/>
+        <location filename="main_window.ui" line="1236"/>
         <source>Capture &amp;Filters…</source>
         <translation>捕获过滤器(&amp;F)…</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1263"/>
+        <location filename="main_window.ui" line="1266"/>
         <source>As Plain &amp;Text…</source>
         <translation>为纯文本(&amp;T)…</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1268"/>
+        <location filename="main_window.ui" line="1271"/>
         <source>As CSV…</source>
         <translation>为 CSV…</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1273"/>
+        <location filename="main_window.ui" line="1276"/>
         <source>As &quot;C&quot; Arrays…</source>
         <translation>为 C 语言数组…</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1278"/>
+        <location filename="main_window.ui" line="1281"/>
         <source>As PSML XML…</source>
         <translation>为 PSML XML…</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1283"/>
+        <location filename="main_window.ui" line="1286"/>
         <source>As PDML XML…</source>
         <translation>为 PDML XML…</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1304"/>
+        <location filename="main_window.ui" line="1307"/>
         <source>All Visible Items</source>
         <translation>所有可见项目</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1309"/>
+        <location filename="main_window.ui" line="1312"/>
         <source>All Visible Selected Tree Items</source>
         <translation>选中树的所有可见项目</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1360"/>
-        <location filename="main_window.ui" line="1405"/>
+        <location filename="main_window.ui" line="1363"/>
+        <location filename="main_window.ui" line="1408"/>
         <source>…&amp;and Selected</source>
         <translation>…与选中(&amp;A)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1363"/>
-        <location filename="main_window.ui" line="1408"/>
+        <location filename="main_window.ui" line="1366"/>
+        <location filename="main_window.ui" line="1411"/>
         <source>…and Selected</source>
         <translation>…与选中</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1368"/>
-        <location filename="main_window.ui" line="1413"/>
+        <location filename="main_window.ui" line="1371"/>
+        <location filename="main_window.ui" line="1416"/>
         <source>…&amp;or Selected</source>
         <translation>…或选中(&amp;O)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1371"/>
-        <location filename="main_window.ui" line="1416"/>
+        <location filename="main_window.ui" line="1374"/>
+        <location filename="main_window.ui" line="1419"/>
         <source>…or Selected</source>
         <translation>…或选中</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1376"/>
-        <location filename="main_window.ui" line="1421"/>
+        <location filename="main_window.ui" line="1379"/>
+        <location filename="main_window.ui" line="1424"/>
         <source>…a&amp;nd not Selected</source>
         <translation>…与非选中(&amp;N)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1379"/>
-        <location filename="main_window.ui" line="1424"/>
+        <location filename="main_window.ui" line="1382"/>
+        <location filename="main_window.ui" line="1427"/>
         <source>…and not Selected</source>
         <translation>…与非选中</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1384"/>
-        <location filename="main_window.ui" line="1429"/>
+        <location filename="main_window.ui" line="1387"/>
+        <location filename="main_window.ui" line="1432"/>
         <source>…o&amp;r not Selected</source>
         <translation>…或非选中(&amp;R)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1387"/>
-        <location filename="main_window.ui" line="1432"/>
+        <location filename="main_window.ui" line="1390"/>
+        <location filename="main_window.ui" line="1435"/>
         <source>…or not Selected</source>
         <translation>…或非选中</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1437"/>
+        <location filename="main_window.ui" line="1440"/>
         <source>Display Filters…</source>
         <translation>显示过滤器…</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1442"/>
+        <location filename="main_window.ui" line="1445"/>
         <source>Display Filter &amp;Macros…</source>
         <translation>显示过滤器宏(&amp;M)…</translation>
     </message>
@@ -9361,33 +9361,33 @@ text-decoration: underline;
         <translation>启用和禁用特定的协议</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="383"/>
+        <location filename="main_window.cpp" line="382"/>
         <source>Check for Updates</source>
         <oldsource>Check for Updates...</oldsource>
         <translation>检查更新</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1011"/>
+        <location filename="main_window.cpp" line="1010"/>
         <source> before quitting</source>
         <translation>在退出前</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1247"/>
+        <location filename="main_window.cpp" line="1246"/>
         <source>Save packets before merging?</source>
         <translation>是否在合并之前保存分组？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1248"/>
+        <location filename="main_window.cpp" line="1247"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>无法合并临时捕获文件。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1254"/>
+        <location filename="main_window.cpp" line="1253"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>是否在合并前保存对“%1”的更改？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1256"/>
+        <location filename="main_window.cpp" line="1255"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>在文件合并之前，其更改必须先保存。</translation>
     </message>
@@ -9397,128 +9397,128 @@ text-decoration: underline;
         <translation>无效显示过滤器</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1293"/>
+        <location filename="main_window.cpp" line="1292"/>
         <source>Invalid Read Filter</source>
         <translation>无效读取过滤器</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1294"/>
+        <location filename="main_window.cpp" line="1293"/>
         <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
         <translation>过滤器表达式 %1 不是有效的读取过滤器 (%2)。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1383"/>
+        <location filename="main_window.cpp" line="1382"/>
         <source> before importing a capture</source>
         <oldsource> before importing a new capture</oldsource>
         <translation> 导入新捕获前</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1659"/>
+        <location filename="main_window.cpp" line="1658"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>无法导出“%1”。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1660"/>
+        <location filename="main_window.cpp" line="1659"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>您不能将分组导出到当前捕获文件。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1748"/>
-        <location filename="main_window.cpp" line="1773"/>
+        <location filename="main_window.cpp" line="1747"/>
+        <location filename="main_window.cpp" line="1772"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1818"/>
+        <location filename="main_window.cpp" line="1817"/>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>您是否要保存已做出的更改%1？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1814"/>
-        <location filename="main_window.cpp" line="1822"/>
+        <location filename="main_window.cpp" line="1813"/>
+        <location filename="main_window.cpp" line="1821"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>若不保存，您已经捕获的分组将会丢失。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1827"/>
+        <location filename="main_window.cpp" line="1826"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>是否希望保存对捕获文件“%1”%2 的更改？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1819"/>
-        <location filename="main_window.cpp" line="1828"/>
+        <location filename="main_window.cpp" line="1818"/>
+        <location filename="main_window.cpp" line="1827"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>若不保存，您的更改将会丢失。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1048"/>
+        <location filename="main_window.cpp" line="1047"/>
         <source>Unable to drop files during capture.</source>
         <translation>无法在捕获时拖放文件。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1813"/>
+        <location filename="main_window.cpp" line="1812"/>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
         <translation>您是否要停止捕获，并保存已捕获的分组%1？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1821"/>
+        <location filename="main_window.cpp" line="1820"/>
         <source>Do you want to save the captured packets%1?</source>
         <translation>您是否要保存已捕获的分组%1？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1845"/>
+        <location filename="main_window.cpp" line="1844"/>
         <source>Save before Continue</source>
         <translation>继续前保存</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1847"/>
+        <location filename="main_window.cpp" line="1846"/>
         <source>Stop and Save</source>
         <translation>停止并保存</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1859"/>
+        <location filename="main_window.cpp" line="1858"/>
         <source>Stop and Quit &amp;without Saving</source>
         <oldsource>Stop and Quit without Saving</oldsource>
         <translation>停止并退出，不保存(&amp;W)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1871"/>
+        <location filename="main_window.cpp" line="1870"/>
         <source>Quit &amp;without Saving</source>
         <oldsource>Quit without Saving</oldsource>
         <translation>直接退出，不保存(&amp;W)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="855"/>
-        <location filename="main_window.cpp" line="2830"/>
+        <location filename="main_window.cpp" line="854"/>
+        <location filename="main_window.cpp" line="2829"/>
         <source>Show or hide the toolbar</source>
         <translation>显示或隐藏该工具栏</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1862"/>
-        <location filename="main_window.cpp" line="1875"/>
+        <location filename="main_window.cpp" line="1861"/>
+        <location filename="main_window.cpp" line="1874"/>
         <source>Continue &amp;without Saving</source>
         <oldsource>Continue without Saving</oldsource>
         <translation>继续，不保存(&amp;W)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1865"/>
+        <location filename="main_window.cpp" line="1864"/>
         <source>Stop and Continue &amp;without Saving</source>
         <oldsource>Stop and Continue without Saving</oldsource>
         <translation>停止并继续，不保存(&amp;W)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2247"/>
+        <location filename="main_window.cpp" line="2246"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>文件名不能映射到UTF-8</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2268"/>
+        <location filename="main_window.cpp" line="2267"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>Wireshark 网络分析器</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2293"/>
+        <location filename="main_window.cpp" line="2292"/>
         <source>Capturing from %1</source>
         <translation>正在捕获 %1</translation>
     </message>
@@ -9606,69 +9606,69 @@ text-decoration: underline;
         <translation>无法复制文本。请尝试其他对象。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2534"/>
-        <location filename="main_window_slots.cpp" line="3658"/>
+        <location filename="main_window_slots.cpp" line="2510"/>
+        <location filename="main_window_slots.cpp" line="3621"/>
         <source>Unable to build conversation filter.</source>
         <translation>无法建立对话过滤器。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2692"/>
-        <location filename="main_window_slots.cpp" line="2705"/>
+        <location filename="main_window_slots.cpp" line="2668"/>
+        <location filename="main_window_slots.cpp" line="2681"/>
         <source> before reloading the file</source>
         <translation>重新载入文件前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2739"/>
+        <location filename="main_window_slots.cpp" line="2715"/>
         <source>No filter available. Try another </source>
         <translation>无过滤器可用。请尝试其他 </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3665"/>
+        <location filename="main_window_slots.cpp" line="3628"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>为此对话编译过滤器时出错。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3674"/>
+        <location filename="main_window_slots.cpp" line="3637"/>
         <source>No previous/next packet in conversation.</source>
         <translation>此对话中没有上一个/下一个分组。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3751"/>
+        <location filename="main_window_slots.cpp" line="3714"/>
         <source>No Interface Selected</source>
         <translation>未选中接口</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3758"/>
+        <location filename="main_window_slots.cpp" line="3721"/>
         <source> before starting a new capture</source>
         <translation>在开始新捕获前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3776"/>
+        <location filename="main_window_slots.cpp" line="3739"/>
         <source> before restarting the capture</source>
         <translation>重新开始捕获前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3987"/>
+        <location filename="main_window_slots.cpp" line="3950"/>
         <source>Wiki Page for %1</source>
         <translation>%1 的 Wiki 页面</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3988"/>
+        <location filename="main_window_slots.cpp" line="3951"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Wireshark Wiki 由社区进行维护。&lt;/p&gt;&lt;p&gt;您即将加载的页面可能是良好的、不完整的、有错误的，甚至不存在的。&lt;/p&gt;&lt;p&gt;继续访问该 Wiki？&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="287"/>
+        <location filename="main_window.h" line="285"/>
         <source>Loading</source>
         <translation>正在载入</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="289"/>
+        <location filename="main_window.h" line="287"/>
         <source>Reloading</source>
         <translation>正在重新加载</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="290"/>
+        <location filename="main_window.h" line="288"/>
         <source>Rescanning</source>
         <translation>正在重新扫描</translation>
     </message>
@@ -10255,47 +10255,47 @@ text-decoration: underline;
         <translation>摘要为文本</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="719"/>
+        <location filename="packet_list.cpp" line="718"/>
         <source>Align Left</source>
         <translation>左对齐</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="720"/>
+        <location filename="packet_list.cpp" line="719"/>
         <source>Align Center</source>
         <translation>居中对齐</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="721"/>
+        <location filename="packet_list.cpp" line="720"/>
         <source>Align Right</source>
         <translation>右对齐</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="723"/>
+        <location filename="packet_list.cpp" line="722"/>
         <source>Column Preferences</source>
         <translation>列首选项</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="724"/>
+        <location filename="packet_list.cpp" line="723"/>
         <source>Edit Column</source>
         <translation>编辑列</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="725"/>
+        <location filename="packet_list.cpp" line="724"/>
         <source>Resize To Contents</source>
         <translation>适应内容</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="726"/>
+        <location filename="packet_list.cpp" line="725"/>
         <source>Resolve Names</source>
         <translation>名称解析</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="731"/>
+        <location filename="packet_list.cpp" line="730"/>
         <source>Remove This Column</source>
         <translation>删除此列</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1135"/>
+        <location filename="packet_list.cpp" line="1140"/>
         <source>Frame %1: %2
 
 </source>
@@ -10303,7 +10303,7 @@ text-decoration: underline;
 </translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1139"/>
+        <location filename="packet_list.cpp" line="1144"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ 注释文本超过 %1。正在停止。 ]</translation>
     </message>
@@ -10311,12 +10311,12 @@ text-decoration: underline;
 <context>
     <name>PacketListModel</name>
     <message>
-        <location filename="packet_list_model.cpp" line="319"/>
+        <location filename="packet_list_model.cpp" line="320"/>
         <source>Dissecting</source>
         <translation>剖析</translation>
     </message>
     <message>
-        <location filename="packet_list_model.cpp" line="341"/>
+        <location filename="packet_list_model.cpp" line="342"/>
         <source>Sorting &quot;%1&quot;</source>
         <translation>正在排序“%1”</translation>
     </message>
@@ -10455,9 +10455,9 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="preferences_dialog.ui" line="64"/>
-        <source>Filter Expressions</source>
-        <oldsource>Filter Bookmarks</oldsource>
-        <translation>过滤器表达式</translation>
+        <source>Filter Buttons</source>
+        <oldsource>Filter Expressions</oldsource>
+        <translation type="unfinished">过滤器表达式</translation>
     </message>
     <message>
         <location filename="preferences_dialog.ui" line="69"/>
@@ -11363,12 +11363,12 @@ text-decoration: underline;
         <translation>DLT %1</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="853"/>
+        <location filename="../../wireshark-qt.cpp" line="861"/>
         <source>Invalid Display Filter</source>
         <translation>无效显示过滤器</translation>
     </message>
     <message>
-        <location filename="../../wireshark-qt.cpp" line="854"/>
+        <location filename="../../wireshark-qt.cpp" line="862"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation>筛选器表达式 %1 不是有效的显示筛选器 (%2)。</translation>
     </message>
@@ -13857,62 +13857,62 @@ text-decoration: underline;
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="323"/>
+        <location filename="search_frame.cpp" line="324"/>
         <source>No valid search type selected. Please report this to the development team.</source>
         <translation>未选择有效的搜索类型。请将此问题报告给开发团队。</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="275"/>
+        <location filename="search_frame.cpp" line="276"/>
         <source>Invalid filter.</source>
         <translation>无效过滤器。</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="281"/>
+        <location filename="search_frame.cpp" line="282"/>
         <source>That filter doesn&apos;t test anything.</source>
         <translation>该过滤器未测试任何项目。</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="289"/>
+        <location filename="search_frame.cpp" line="290"/>
         <source>That&apos;s not a valid hex string.</source>
         <translation>不是有效的十六进制字符串。</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="298"/>
+        <location filename="search_frame.cpp" line="299"/>
         <source>You didn&apos;t specify any text for which to search.</source>
         <translation>您未指定任何要搜索的文本。</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="316"/>
+        <location filename="search_frame.cpp" line="317"/>
         <source>No valid character set selected. Please report this to the development team.</source>
         <translation>未选择有效的字符集。请将此问题报告给开发团队。</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="339"/>
+        <location filename="search_frame.cpp" line="340"/>
         <source>No valid search area selected. Please report this to the development team.</source>
         <translation>未选择有效的搜索范围。请将此问题报告给开发团队。</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="353"/>
+        <location filename="search_frame.cpp" line="354"/>
         <source>No packet contained those bytes.</source>
         <translation>无分组包含这些字节流。</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="367"/>
+        <location filename="search_frame.cpp" line="368"/>
         <source>No packet contained that string in its Info column.</source>
         <translation>无分组的“信息”列包含该字符串。</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="376"/>
+        <location filename="search_frame.cpp" line="377"/>
         <source>No packet contained that string in its dissected display.</source>
         <translation>无分组的解析视图包含该字符串。</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="385"/>
+        <location filename="search_frame.cpp" line="386"/>
         <source>No packet contained that string in its converted data.</source>
         <translation>无分组转换后的数据包含该字符串。</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="395"/>
+        <location filename="search_frame.cpp" line="396"/>
         <source>No packet matched that filter.</source>
         <translation>无分组与该过滤器匹配。</translation>
     </message>
