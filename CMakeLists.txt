@@ -1404,16 +1404,48 @@ foreach( _in_file ${IN_FILES} )
 endforeach()
 
 include(FeatureSummary)
-#SET_FEATURE_INFO(NAME DESCRIPTION [URL [COMMENT] ])
-SET_FEATURE_INFO(SBC "SBC Codec for Bluetooth A2DP stream playing" "http://git.kernel.org/cgit/bluetooth/sbc.git" )
-SET_FEATURE_INFO(SPANDSP "Support for G.722 and G.726 codecs in RTP player" "http://www.soft-switch.org/" )
-SET_FEATURE_INFO(LIBXML2 "Libxml2 is a XML C parser, which can be used for handling XML configuration in dissectors" "http://xmlsoft.org/" )
-SET_FEATURE_INFO(LIBSSH "libssh is library for ssh connections and it is needed to build sshdump/ciscodump" "https://www.libssh.org/get-it/" )
-SET_FEATURE_INFO(LZ4 "LZ4 is lossless compression algorithm used in some protocol (CQL...)" "http://www.lz4.org" )
-SET_FEATURE_INFO(SNAPPY "snappy is a fast compressor/decompressor from Google used in some protocol (CQL, kafka...)" "http://google.github.io/snappy/")
-SET_FEATURE_INFO(NGHTTP2 "nghttp2 is used for header (de)compression (HPACK)" "http://www.nghttp2.org" )
-SET_FEATURE_INFO(YAPP "Yet Another Perl Parser compiler" "http://search.cpan.org/dist/Parse-Yapp/")
-FEATURE_SUMMARY(WHAT ALL)
+set_package_properties(SBC PROPERTIES
+	DESCRIPTION "Bluetooth low-complexity, subband codec (SBC) decoder"
+	URL "https://git.kernel.org/pub/scm/bluetooth/sbc.git"
+	PURPOSE "Support for playing SBC codec in RTP player"
+)
+set_package_properties(SPANDSP PROPERTIES
+	DESCRIPTION "a library of many DSP functions for telephony"
+	URL "http://www.soft-switch.org/"
+	PURPOSE "Support for G.722 and G.726 codecs in RTP player"
+)
+set_package_properties(LIBXML2 PROPERTIES
+	DESCRIPTION "XML parsing library"
+	URL "http://xmlsoft.org/"
+	PURPOSE "Read XML configuration files in EPL dissector"
+)
+set_package_properties(LIBSSH PROPERTIES
+	DESCRIPTION "Library for implementing SSH clients"
+	URL "https://www.libssh.org/"
+	PURPOSE "extcap remote SSH interfaces (sshdump, ciscodump)"
+)
+set_package_properties(LZ4 PROPERTIES
+	DESCRIPTION "LZ4 is lossless compression algorithm used in some protocol (CQL...)"
+	URL "http://www.lz4.org"
+	PURPOSE "LZ4 decompression in CQL and Kafka dissectors"
+)
+set_package_properties(SNAPPY PROPERTIES
+	DESCRIPTION "A fast compressor/decompressor from Google"
+	URL "http://google.github.io/snappy/"
+	PURPOSE "Snappy decompression in CQL and Kafka dissectors"
+)
+set_package_properties(NGHTTP2 PROPERTIES
+	DESCRIPTION "HTTP/2 C library and tools"
+	URL "https://nghttp2.org"
+	PURPOSE "Header decompression in HTTP2"
+)
+# XXX tpg plugin is not added in CMakeLists/Makefile.am, remove plugins/tpg/?
+set_package_properties(YAPP PROPERTIES
+	DESCRIPTION "Yet Another Perl Parser compiler"
+	URL "http://search.cpan.org/dist/Parse-Yapp/"
+	PURPOSE "tpg plugin"
+)
+feature_summary(WHAT ALL)
 
 link_directories(
 	${CMAKE_BINARY_DIR}/ui
