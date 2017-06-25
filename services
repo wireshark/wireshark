@@ -1366,8 +1366,8 @@ gdoi              848/tcp # GDOI [RFC3547]
 gdoi              848/udp # GDOI [RFC3547]
 domain-s          853/tcp # DNS query-response protocol run over TLS/DTLS [IESG] [IETF_Chair] 2015-10-08 2017-01-23 [RFC7858][RFC8094]
 domain-s          853/udp # DNS query-response protocol run over TLS/DTLS [IESG] [IETF_Chair] 2015-10-08 2017-01-23 [RFC7858][RFC8094]
-dlep              854/tcp # Dynamic Link Exchange Protocol (DLEP) [IESG] [IETF_Chair] 2017-04-03 [RFC-ietf-manet-dlep-29]
-dlep              854/udp # Dynamic Link Exchange Protocol (DLEP) [IESG] [IETF_Chair] 2017-04-03 [RFC-ietf-manet-dlep-29]
+dlep              854/tcp # Dynamic Link Exchange Protocol (DLEP) [IESG] [IETF_Chair] 2017-04-03 [RFC8175]
+dlep              854/udp # Dynamic Link Exchange Protocol (DLEP) [IESG] [IETF_Chair] 2017-04-03 [RFC8175]
 iscsi             860/tcp # iSCSI [IESG] [IETF_Chair] 2013-08-27 [RFC7143]
 iscsi             860/udp # iSCSI [IESG] [IETF_Chair] 2013-08-27 [RFC7143]
 owamp-control     861/tcp # OWAMP-Control [RFC4656]
@@ -8006,8 +8006,8 @@ icms             4486/udp # Integrated Client Message Service [Resource_Allocati
 prex-tcp         4487/tcp # Protocol for Remote Execution over TCP [Daniel_Ruppert] [Daniel_Ruppert] 2010-09-16
 awacs-ice        4488/tcp # Apple Wide Area Connectivity Service ICE Bootstrap [Rory_McGuire] [Rory_McGuire] 2010-09-24
 awacs-ice        4488/udp # Apple Wide Area Connectivity Service ICE Bootstrap [Rory_McGuire] [Rory_McGuire] 2010-09-24
-ipsec-nat-t      4500/tcp # IPsec NAT-Traversal [RFC3947]
-ipsec-nat-t      4500/udp # IPsec NAT-Traversal [RFC3947]
+ipsec-nat-t      4500/tcp # IPsec NAT-Traversal 2017-06-19 [RFC-ietf-ipsecme-tcp-encaps-10]
+ipsec-nat-t      4500/udp # IPsec NAT-Traversal 2017-06-19 [RFC-ietf-ipsecme-tcp-encaps-10]
 a25-fap-fgw      4502/sctp # A25 (FAP-FGW) [ThreeGPP_2] [Zhiming_Li] 2012-01-11
 armagetronad     4534/udp # Armagetron Advanced Game Server [Manuel_Moos] [Yann_Kaiser] 2012-11-02
 ehs              4535/tcp # Event Heap Server
@@ -11441,6 +11441,7 @@ agpolicy        38203/tcp # AppGate Policy Server [Martin_Forssen] [Martin_Forss
 agpolicy        38203/udp # AppGate Policy Server [Martin_Forssen] [Martin_Forssen] 2004-11
 ng-control      38412/sctp # NG Control Plane (3GPP) [Luis_Lopes] [Luis_Lopes] 2017-05-18 2017-05-19
 xn-control      38422/sctp # Xn Control Plane (3GPP) [Luis_Lopes] [Luis_Lopes] 2017-05-18 2017-05-19
+f1-control      38472/sctp # F1 Control Plane (3GPP) [Luis_Lopes] [Luis_Lopes] 2017-06-23
 sruth           38800/tcp # Sruth is a service for the distribution of routinely-      generated but arbitrary files based on a publish/subscribe      distribution model and implemented using a peer-to-peer transport      mechanism [University_Corporation_for_Atmospheric_Research] [Steven_Emmerson] 2012-05-07
 secrmmsafecopya 38865/tcp # Security approval process for use of the secRMM SafeCopy program [Squadra_Technologies] [Anthony_LaMark] 2012-03-14
 turbonote-1     39681/tcp # TurboNote Default Port [Peter_Hyde] [Peter_Hyde]
