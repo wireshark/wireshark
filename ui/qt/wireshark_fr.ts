@@ -9293,54 +9293,54 @@ a:hover {
         <translation>Impossible de copier le texte. Essayer un autre item.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2411"/>
-        <location filename="main_window_slots.cpp" line="3513"/>
+        <location filename="main_window_slots.cpp" line="2387"/>
+        <location filename="main_window_slots.cpp" line="3476"/>
         <source>Unable to build conversation filter.</source>
         <translation>Impossible de construire un filtre de conversation.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2561"/>
-        <location filename="main_window_slots.cpp" line="2574"/>
+        <location filename="main_window_slots.cpp" line="2537"/>
+        <location filename="main_window_slots.cpp" line="2550"/>
         <source> before reloading the file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2608"/>
+        <location filename="main_window_slots.cpp" line="2584"/>
         <source>No filter available. Try another </source>
         <translation>Aucun filtre disponible. Essayer un autre</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3520"/>
+        <location filename="main_window_slots.cpp" line="3483"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>Erreur dans la compilation du filtre pour cette conversation.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3529"/>
+        <location filename="main_window_slots.cpp" line="3492"/>
         <source>No previous/next packet in conversation.</source>
         <translation>Aucun paquet précédent/suivant dans la conversation</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3606"/>
+        <location filename="main_window_slots.cpp" line="3569"/>
         <source>No Interface Selected</source>
         <translation>Aucune Interface Sélectionnée</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3613"/>
+        <location filename="main_window_slots.cpp" line="3576"/>
         <source> before starting a new capture</source>
         <translation>avant de commencer une nouvelle capture</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3631"/>
+        <location filename="main_window_slots.cpp" line="3594"/>
         <source> before restarting the capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3834"/>
+        <location filename="main_window_slots.cpp" line="3797"/>
         <source>Wiki Page for %1</source>
         <translation>Page Wiki pour %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3835"/>
+        <location filename="main_window_slots.cpp" line="3798"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Le Wiki Wireshark est maintenu par la communauté&lt;/p&gt;
 &lt;p&gt;La page que vous vous apprêtez à charger peut être magnifique, incomplète, fausse ou inexistante&lt;/p&gt;
@@ -10015,7 +10015,7 @@ a:hover {
         <translation>Supprimer cette colonne</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1088"/>
+        <location filename="packet_list.cpp" line="1095"/>
         <source>Frame %1: %2
 
 </source>
@@ -10024,7 +10024,7 @@ a:hover {
 </translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1092"/>
+        <location filename="packet_list.cpp" line="1099"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ Taille maximum de commentaire dépassé %1 Arrêt !]</translation>
     </message>
@@ -15377,22 +15377,22 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
 <context>
     <name>WiresharkApplication</name>
     <message>
-        <location filename="wireshark_application.cpp" line="555"/>
+        <location filename="wireshark_application.cpp" line="563"/>
         <source>Dell Backup and Recovery Found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="556"/>
+        <location filename="wireshark_application.cpp" line="564"/>
         <source>You appear to be running Dell Backup and Recovery 1.8.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="557"/>
+        <location filename="wireshark_application.cpp" line="565"/>
         <source>DBAR can make many applications crash &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;including Wireshark&lt;/a&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="561"/>
+        <location filename="wireshark_application.cpp" line="569"/>
         <source>Offending DLL: %1</source>
         <translation type="unfinished"></translation>
     </message>

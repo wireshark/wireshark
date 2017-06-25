@@ -9335,54 +9335,54 @@ text-decoration: underline;
         <translation>Text konnte nicht kopiert werden. Probieren sie einen anderen Eintrag.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2411"/>
-        <location filename="main_window_slots.cpp" line="3513"/>
+        <location filename="main_window_slots.cpp" line="2387"/>
+        <location filename="main_window_slots.cpp" line="3476"/>
         <source>Unable to build conversation filter.</source>
         <translation>Verbindungsfilter kann nicht erstellt werden.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2561"/>
-        <location filename="main_window_slots.cpp" line="2574"/>
+        <location filename="main_window_slots.cpp" line="2537"/>
+        <location filename="main_window_slots.cpp" line="2550"/>
         <source> before reloading the file</source>
         <translation> vor dem Neuladen der Datei</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2608"/>
+        <location filename="main_window_slots.cpp" line="2584"/>
         <source>No filter available. Try another </source>
         <translation>Kein Filter verfügbar. Probieren Sie einen anderen.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3520"/>
+        <location filename="main_window_slots.cpp" line="3483"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>Fehler beim Erstellen eines Filters für diese Verbindung.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3529"/>
+        <location filename="main_window_slots.cpp" line="3492"/>
         <source>No previous/next packet in conversation.</source>
         <translation>Kein vorheriges/nächstes Paket in dieser Verbindung.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3606"/>
+        <location filename="main_window_slots.cpp" line="3569"/>
         <source>No Interface Selected</source>
         <translation>Keine Schnittstelle ausgewählt</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3613"/>
+        <location filename="main_window_slots.cpp" line="3576"/>
         <source> before starting a new capture</source>
         <translation> vor dem Starten einer neuen Aufzeichnung</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3631"/>
+        <location filename="main_window_slots.cpp" line="3594"/>
         <source> before restarting the capture</source>
         <translation> vor dem Neustart der Aufzeichnung</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3834"/>
+        <location filename="main_window_slots.cpp" line="3797"/>
         <source>Wiki Page for %1</source>
         <translation>Wikiseite für &amp;1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3835"/>
+        <location filename="main_window_slots.cpp" line="3798"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Das Wireshark Wiki wird durch die Community gepflegt.&lt;/p&gt;&lt;p&gt;Die Seite, die aufgerufen werden soll, kann wundervoll, unvollständig, falsch oder gar nicht vorhanden sein.&lt;/p&gt;&lt;p&gt;Zum Wiki gehen?&lt;/p&gt;</translation>
     </message>
@@ -10055,7 +10055,7 @@ text-decoration: underline;
         <translation>Spalte entfernen</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1088"/>
+        <location filename="packet_list.cpp" line="1095"/>
         <source>Frame %1: %2
 
 </source>
@@ -10064,7 +10064,7 @@ text-decoration: underline;
 </translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1092"/>
+        <location filename="packet_list.cpp" line="1099"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ Kommentartext überschreitet %1. Anhalten der Verarbeitung. ]</translation>
     </message>
@@ -15445,22 +15445,22 @@ text-decoration: underline;
 <context>
     <name>WiresharkApplication</name>
     <message>
-        <location filename="wireshark_application.cpp" line="555"/>
+        <location filename="wireshark_application.cpp" line="563"/>
         <source>Dell Backup and Recovery Found</source>
         <translation>Dell Backup and Recovery gefunden</translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="556"/>
+        <location filename="wireshark_application.cpp" line="564"/>
         <source>You appear to be running Dell Backup and Recovery 1.8.</source>
         <translation>Offensichtlich wurde Dell Backup and Recovery 1.8 gestartet.</translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="557"/>
+        <location filename="wireshark_application.cpp" line="565"/>
         <source>DBAR can make many applications crash &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;including Wireshark&lt;/a&gt;.</source>
         <translation>DBAR kann zum Absturz von vielen Applikationen führen (&lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;inklusive Wireshark)&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="561"/>
+        <location filename="wireshark_application.cpp" line="569"/>
         <source>Offending DLL: %1</source>
         <translation>Problematische DLL: %1</translation>
     </message>

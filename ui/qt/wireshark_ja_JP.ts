@@ -9277,54 +9277,54 @@ a:hover {
         <translation>テキストをコピーできません 別の項目を試してみてください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2411"/>
-        <location filename="main_window_slots.cpp" line="3513"/>
+        <location filename="main_window_slots.cpp" line="2387"/>
+        <location filename="main_window_slots.cpp" line="3476"/>
         <source>Unable to build conversation filter.</source>
         <translation>会話フィルタを作成できません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2561"/>
-        <location filename="main_window_slots.cpp" line="2574"/>
+        <location filename="main_window_slots.cpp" line="2537"/>
+        <location filename="main_window_slots.cpp" line="2550"/>
         <source> before reloading the file</source>
         <translation>ファイルを再読み込みする前に</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2608"/>
+        <location filename="main_window_slots.cpp" line="2584"/>
         <source>No filter available. Try another </source>
         <translation>フィルタが利用できません 別のものを試してください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3520"/>
+        <location filename="main_window_slots.cpp" line="3483"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>この対話の間のフィルタ翻訳エラー</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3529"/>
+        <location filename="main_window_slots.cpp" line="3492"/>
         <source>No previous/next packet in conversation.</source>
         <translation>対話の前/次のパケットがありません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3606"/>
+        <location filename="main_window_slots.cpp" line="3569"/>
         <source>No Interface Selected</source>
         <translation>インターフェースが選択されていません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3613"/>
+        <location filename="main_window_slots.cpp" line="3576"/>
         <source> before starting a new capture</source>
         <translation>新規キャプチャを開始する前に</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3631"/>
+        <location filename="main_window_slots.cpp" line="3594"/>
         <source> before restarting the capture</source>
         <translation>キャプチャを再スタートする前に</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3834"/>
+        <location filename="main_window_slots.cpp" line="3797"/>
         <source>Wiki Page for %1</source>
         <translation>%1 の Wikiページ</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3835"/>
+        <location filename="main_window_slots.cpp" line="3798"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;ワイヤーシャークWikiはコミュニティによって運営されています &lt;/p&gt;&lt;p&gt;いま見ているページはすばらしかったり、不完全だったり、間違っていたり、存在しないかもしれません。&lt;/p&gt;&lt;p&gt;Wikiに移動しますか？&lt;/p&gt;</translation>
     </message>
@@ -9997,7 +9997,7 @@ a:hover {
         <translation>この列を削除</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1088"/>
+        <location filename="packet_list.cpp" line="1095"/>
         <source>Frame %1: %2
 
 </source>
@@ -10006,7 +10006,7 @@ a:hover {
 </translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1092"/>
+        <location filename="packet_list.cpp" line="1099"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ コメントテキスト超過 %1 停止中 ]</translation>
     </message>
@@ -15360,22 +15360,22 @@ a:hover {
 <context>
     <name>WiresharkApplication</name>
     <message>
-        <location filename="wireshark_application.cpp" line="555"/>
+        <location filename="wireshark_application.cpp" line="563"/>
         <source>Dell Backup and Recovery Found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="556"/>
+        <location filename="wireshark_application.cpp" line="564"/>
         <source>You appear to be running Dell Backup and Recovery 1.8.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="557"/>
+        <location filename="wireshark_application.cpp" line="565"/>
         <source>DBAR can make many applications crash &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;including Wireshark&lt;/a&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="561"/>
+        <location filename="wireshark_application.cpp" line="569"/>
         <source>Offending DLL: %1</source>
         <translation type="unfinished"></translation>
     </message>
