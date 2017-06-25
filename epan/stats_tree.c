@@ -781,9 +781,14 @@ stats_tree_create_range_node_string(stats_tree *st, const gchar *name,
     stat_node *rng_root = new_stat_node(st, name, parent_id, FALSE, TRUE);
     stat_node *range_node = NULL;
 
-    for (i = 0; i < num_str_ranges; i++) {
+    for (i = 0; i < num_str_ranges - 1; i++) {
         range_node = new_stat_node(st, str_ranges[i], rng_root->id, FALSE, FALSE);
         range_node->rng = get_range(str_ranges[i]);
+    }
+    range_node = new_stat_node(st, str_ranges[i], rng_root->id, FALSE, FALSE);
+    range_node->rng = get_range(str_ranges[i]);
+    if (range_node->rng->floor == range_node->rng->ceil) {
+        range_node->rng->ceil = G_MAXINT;
     }
 
     return rng_root->id;
