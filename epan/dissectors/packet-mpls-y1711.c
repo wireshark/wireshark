@@ -220,7 +220,7 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
         proto_tree_add_item(mpls_y1711_tree, hf_mpls_y1711_defect_type, tvb,
                             offset, 2,
-                            ENC_LITTLE_ENDIAN);
+                            ENC_BIG_ENDIAN);
         offset += 2;
 
         /*
@@ -251,7 +251,7 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         /* defect location */
         proto_tree_add_item(mpls_y1711_tree, hf_mpls_y1711_defect_location, tvb,
                             offset, 4,
-                            ENC_LITTLE_ENDIAN);
+                            ENC_BIG_ENDIAN);
         offset += 4;
 
         /* 14 octets of padding (all 0x00) */
@@ -307,7 +307,7 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     /* BIP16 */
     proto_tree_add_item(mpls_y1711_tree, hf_mpls_y1711_bip16, tvb, offset, 2,
-                        ENC_LITTLE_ENDIAN);
+                        ENC_BIG_ENDIAN);
     offset += 2;
 
     return offset;
