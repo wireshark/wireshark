@@ -156,7 +156,7 @@ filter_button_add(const char *label, const char *expr, struct filter_expression 
 	gtk_widget_set_sensitive(GTK_WIDGET(button), TRUE);
 	if (strlen(fe->comment) > 0)
 	{
-		tooltip = g_strdup_printf("%s, %s", fe->expression, fe->comment);
+		tooltip = g_strdup_printf("%s\n%s", fe->comment, fe->expression);
 		gtk_widget_set_tooltip_text(GTK_WIDGET(button), tooltip);
 	}
 	else

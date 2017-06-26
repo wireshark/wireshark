@@ -911,7 +911,7 @@ gboolean MainWindow::filter_expression_add_action(const void *key _U_, void *val
     QAction *dfb_action = new QAction(fe->label, data->window->filter_expression_toolbar_);
     if (strlen(fe->comment) > 0)
     {
-        QString tooltip = QString("%1, %2").arg(fe->expression).arg(fe->comment);
+        QString tooltip = QString("%1\n%2").arg(fe->comment).arg(fe->expression);
         dfb_action->setToolTip(tooltip);
     }
     else
