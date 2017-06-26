@@ -51,7 +51,7 @@ public:
     void reset(int row);
     void save();
 
-    void addDevice(interface_t * newDevice);
+    void addDevice(const interface_t * newDevice);
     void deleteDevice(const QModelIndex &index);
 #endif
 
@@ -59,7 +59,7 @@ private:
     InterfaceTreeModel * sourceModel;
 
 #ifdef HAVE_LIBPCAP
-    QList<interface_t *> newDevices;
+    QList<interface_t> newDevices;
 
     void saveNewDevices();
 #endif
@@ -68,7 +68,7 @@ private:
     QList<InterfaceTreeColumns> checkableColumns;
 
 #ifdef HAVE_LIBPCAP
-    interface_t * lookup(const QModelIndex &index) const;
+    const interface_t * lookup(const QModelIndex &index) const;
 #endif
 
     bool changeIsAllowed(InterfaceTreeColumns col) const;

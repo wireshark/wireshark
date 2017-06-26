@@ -62,11 +62,7 @@ InterfaceTreeCacheModel::~InterfaceTreeCacheModel()
 {
 #ifdef HAVE_LIBPCAP
     /* This list should only exist, if the dialog is closed, without calling save first */
-    if ( newDevices.size() > 0 )
-    {
-        qDeleteAll(newDevices);
-        newDevices.clear();
-    }
+    newDevices.clear();
 #endif
 
     delete storage;
@@ -95,7 +91,7 @@ void InterfaceTreeCacheModel::reset(int row)
 
 void InterfaceTreeCacheModel::saveNewDevices()
 {
-    QList<interface_t *>::const_iterator it = newDevices.constBegin();
+    QList<interface_t>::const_iterator it = newDevices.constBegin();
     /* idx is used for iterating only over the indices of the new devices. As all new
      * devices are stored with an index higher then sourceModel->rowCount(), we start
      * only with those storage indices.
@@ -103,7 +99,7 @@ void InterfaceTreeCacheModel::saveNewDevices()
      * have storage, which will lead to that device not being stored in global_capture_opts */
     for (int idx = sourceModel->rowCount(); it != newDevices.constEnd(); ++it, idx++)
     {
-        interface_t * device = (interface_t *)(*it);
+        interface_t *device = const_cast<interface_t *>(&(*it));
         bool useDevice = false;
 
         QMap<InterfaceTreeColumns, QVariant> * dataField = storage->value(idx, 0);
@@ -143,7 +139,6 @@ void InterfaceTreeCacheModel::saveNewDevices()
         delete dataField;
     }
 
-    qDeleteAll(newDevices);
     newDevices.clear();
 }
 
@@ -321,9 +316,9 @@ bool InterfaceTreeCacheModel::changeIsAllowed(InterfaceTreeColumns col) const
 }
 
 #ifdef HAVE_LIBPCAP
-interface_t * InterfaceTreeCacheModel::lookup(const QModelIndex &index) const
+const interface_t * InterfaceTreeCacheModel::lookup(const QModelIndex &index) const
 {
-    interface_t * result = 0;
+    const interface_t * result = 0;
 
     if ( ! index.isValid() )
         return result;
@@ -336,7 +331,7 @@ interface_t * InterfaceTreeCacheModel::lookup(const QModelIndex &index) const
     {
         idx = idx - global_capture_opts.all_ifaces->len;
         if ( idx < newDevices.size() )
-            result = newDevices[idx];
+            result = &newDevices[idx];
     }
     else
     {
@@ -355,7 +350,7 @@ bool InterfaceTreeCacheModel::isAllowedToBeEdited(const QModelIndex &index) cons
     Q_UNUSED(index)
 
 #ifdef HAVE_LIBPCAP
-    interface_t * device = lookup(index);
+    const interface_t * device = lookup(index);
     if ( device == 0 )
         return false;
 
@@ -383,7 +378,7 @@ bool InterfaceTreeCacheModel::isAvailableField(const QModelIndex &index) const
     Q_UNUSED(index)
 
 #ifdef HAVE_LIBPCAP
-    interface_t * device = lookup(index);
+    const interface_t * device = lookup(index);
 
     if ( device == 0 )
         return false;
@@ -502,7 +497,7 @@ QVariant InterfaceTreeCacheModel::data(const QModelIndex &index, int role) const
          * are supported at the moment, so the information to be displayed is pretty limited.
          * After saving, the devices are stored in global_capture_opts and no longer
          * classify as new devices. */
-        interface_t * device = lookup(index);
+        const interface_t * device = lookup(index);
 
         if ( device != 0 )
         {
@@ -557,10 +552,10 @@ QModelIndex InterfaceTreeCacheModel::index(int row, int column, const QModelInde
     return sourceModel->index(row, column, parent);
 }
 
-void InterfaceTreeCacheModel::addDevice(interface_t * newDevice)
+void InterfaceTreeCacheModel::addDevice(const interface_t * newDevice)
 {
     emit beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    newDevices << newDevice;
+    newDevices << *newDevice;
     emit endInsertRows();
 }
 
