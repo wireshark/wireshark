@@ -1600,7 +1600,10 @@ uninstall_lz4() {
         echo "Uninstalling lz4:"
         cd lz4-$installed_lz4_version
         $DO_MAKE_UNINSTALL || exit 1
-        make distclean || exit 1
+        #
+        # lz4 uses cmake and doesn't support "make distclean"
+        #
+        # make distclean || exit 1
         cd ..
         rm lz4-$installed_lz4_version-done
 
