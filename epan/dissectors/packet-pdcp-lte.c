@@ -92,6 +92,7 @@ static int hf_pdcp_lte_seq_num_7 = -1;
 static int hf_pdcp_lte_reserved3 = -1;
 static int hf_pdcp_lte_seq_num_12 = -1;
 static int hf_pdcp_lte_seq_num_15 = -1;
+static int hf_pdcp_lte_polling = -1;
 static int hf_pdcp_lte_reserved5 = -1;
 static int hf_pdcp_lte_seq_num_18 = -1;
 static int hf_pdcp_lte_signalling_data = -1;
@@ -1959,9 +1960,12 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             proto_item *ti;
                             guint8 reserved_value;
 
-                            /* 5 reserved bits */
+                            /* Polling bit */
+                            proto_tree_add_item(pdcp_tree, hf_pdcp_lte_polling, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+                            /* 4 reserved bits */
                             ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_reserved5, tvb, offset, 1, ENC_BIG_ENDIAN);
-                            reserved_value = (first_byte & 0x7c) >> 2;
+                            reserved_value = (first_byte & 0x3c) >> 2;
 
                             /* Complain if not 0 */
                             if (reserved_value != 0) {
@@ -2568,10 +2572,16 @@ void proto_register_pdcp(void)
               "PDCP Seq num", HFILL
             }
         },
+        { &hf_pdcp_lte_polling,
+            { "Polling",
+              "pdcp-lte.polling", FT_BOOLEAN, 8, NULL, 0x40,
+              NULL, HFILL
+            }
+        },
         { &hf_pdcp_lte_reserved5,
             { "Reserved",
-              "pdcp-lte.reserved5", FT_UINT8, BASE_HEX, NULL, 0x7c,
-              "5 reserved bits", HFILL
+              "pdcp-lte.reserved5", FT_UINT8, BASE_HEX, NULL, 0x3c,
+              "4 reserved bits", HFILL
             }
         },
         { &hf_pdcp_lte_seq_num_18,
