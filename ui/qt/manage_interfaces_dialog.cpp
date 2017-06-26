@@ -222,24 +222,25 @@ void ManageInterfacesDialog::on_buttonBox_accepted()
 
 void ManageInterfacesDialog::on_addPipe_clicked()
 {
-    interface_t * device = g_new0(interface_t, 1);
+    interface_t device;
 
-    device->name = qstring_strdup(tr("New Pipe"));
-    device->display_name = g_strdup(device->name);
-    device->hidden       = FALSE;
-    device->selected     = TRUE;
-    device->pmode        = global_capture_opts.default_options.promisc_mode;
-    device->has_snaplen  = global_capture_opts.default_options.has_snaplen;
-    device->snaplen      = global_capture_opts.default_options.snaplen;
-    device->cfilter      = g_strdup(global_capture_opts.default_options.cfilter);
+    memset(&device, 0, sizeof(device));
+    device.name = qstring_strdup(tr("New Pipe"));
+    device.display_name = g_strdup(device.name);
+    device.hidden       = FALSE;
+    device.selected     = TRUE;
+    device.pmode        = global_capture_opts.default_options.promisc_mode;
+    device.has_snaplen  = global_capture_opts.default_options.has_snaplen;
+    device.snaplen      = global_capture_opts.default_options.snaplen;
+    device.cfilter      = g_strdup(global_capture_opts.default_options.cfilter);
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
-    device->buffer       = DEFAULT_CAPTURE_BUFFER_SIZE;
+    device.buffer       = DEFAULT_CAPTURE_BUFFER_SIZE;
 #endif
-    device->active_dlt = -1;
-    device->if_info.name = g_strdup(device->name);
-    device->if_info.type = IF_PIPE;
+    device.active_dlt = -1;
+    device.if_info.name = g_strdup(device.name);
+    device.if_info.type = IF_PIPE;
 
-    sourceModel->addDevice(device);
+    sourceModel->addDevice(&device);
     updateWidgets();
 }
 
