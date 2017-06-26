@@ -110,9 +110,6 @@ void FilterExpressionsPreferencesFrame::setUat(epan_uat *uat)
                 this, SLOT(modelRowsRemoved()));
         connect(ui->uatTreeView, SIGNAL(currentItemChanged(QModelIndex,QModelIndex)),
                 this, SLOT(viewCurrentChanged(QModelIndex,QModelIndex)));
-
-        connect(this, SIGNAL(rejected()), this, SLOT(rejectChanges()));
-        connect(this, SIGNAL(accepted()), this, SLOT(acceptChanges()));
     }
 
     setWindowTitle(title);

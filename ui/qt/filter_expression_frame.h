@@ -51,7 +51,7 @@ private:
 
 private slots:
     void updateWidgets();
-    void on_filterExpressionPreferencesToolButton_clicked();
+    void on_filterExpressionPreferencesPushButton_clicked();
     void on_labelLineEdit_textChanged(const QString);
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();

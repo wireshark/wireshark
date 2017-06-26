@@ -56,7 +56,6 @@ void FilterExpressionFrame::addExpression(const QString filter_text)
         return;
     }
 
-    ui->labelLineEdit->setText(tr("Apply this filter"));
     ui->displayFilterLineEdit->setText(filter_text);
 }
 
@@ -79,7 +78,7 @@ void FilterExpressionFrame::updateWidgets()
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(ok_enable);
 }
 
-void FilterExpressionFrame::on_filterExpressionPreferencesToolButton_clicked()
+void FilterExpressionFrame::on_filterExpressionPreferencesPushButton_clicked()
 {
     on_buttonBox_rejected();
     emit showPreferencesDialog(PreferencesDialog::ppFilterExpressions);
@@ -96,6 +95,9 @@ void FilterExpressionFrame::on_buttonBox_accepted()
     QByteArray label_ba = ui->labelLineEdit->text().toUtf8();
     QByteArray expr_ba = ui->displayFilterLineEdit->text().toUtf8();
     QByteArray comment_ba = ui->commentLineEdit->text().toUtf8();
+
+    if ( ui->labelLineEdit->text().length() == 0 )
+        return;
 
     filter_expression_new(label_ba.constData(), expr_ba.constData(), comment_ba.constData(), TRUE);
 
