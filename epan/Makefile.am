@@ -374,7 +374,6 @@ EXTRA_DIST = \
 	dtd_parse.l		\
 	dtd_parse.h		\
 	dtd_preparse.l		\
-	enterprise-numbers	\
 	radius_dict.l		\
 	uat_load.l		\
 	doxygen.cfg.in		\
