@@ -82,13 +82,29 @@ features.  The C99 features that can be used are:
  - trailing comma in enum declarations
  - inline functions (guaranteed only by use of glib.h)
 
-Don't initialize variables in their declaration with non-constant
-values. Not all compilers support this. E.g. don't use
+Don't initialize variables with static storage duration - i.e., global
+or static variables - or objects with aggregate type (arrays and
+structures) in their declaration with non-constant values.  Not all
+compilers support this.  E.g., if "i" is a static or global variable,
+don't declare i as
+
     guint32 i = somearray[2];
-use
+
+declare it as just
+
     guint32 i;
+
+and later, in code, initialize it with
+
     i = somearray[2];
-instead.
+
+instead.  Initializations of non-aggregate variables with automatic
+storage duration - i.e., local variables - with non-constant values is
+permitted, so, within a function
+
+    guint32 i = somearray[2];
+
+is allowed.
 
 Don't use zero-length arrays as structure members, use flexible array members
 instead.
