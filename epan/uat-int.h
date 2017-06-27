@@ -112,6 +112,12 @@ WS_DLL_PUBLIC
 void uat_remove_record_idx(uat_t *uat, guint rec_idx);
 
 /**
+ * Moves the entry from the old position to the new one
+ */
+WS_DLL_PUBLIC
+void uat_move_index(uat_t *uat, guint old_idx, guint new_idx);
+
+/**
  * Removes and destroys all records from the UAT.
  */
 WS_DLL_PUBLIC

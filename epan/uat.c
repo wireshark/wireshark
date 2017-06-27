@@ -225,6 +225,20 @@ void uat_remove_record_idx(uat_t* uat, guint idx) {
     g_array_remove_index(uat->valid_data, idx);
 }
 
+void uat_move_index(uat_t * uat, guint old_idx, guint new_idx)
+{
+    guint dir = 1;
+    guint start = old_idx;
+    if ( old_idx > new_idx )
+        dir = -1;
+
+    while ( start != new_idx )
+    {
+        uat_swap(uat, start, start + dir);
+        start += dir;
+    }
+}
+
 /* The returned filename was g_malloc()'d so the caller must free it */
 gchar* uat_get_actual_filename(uat_t* uat, gboolean for_writing) {
     gchar *pers_fname = NULL;

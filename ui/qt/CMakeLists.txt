@@ -174,6 +174,7 @@ set(WIRESHARK_QT_HEADERS
 	wireshark_application.h
 	wireshark_dialog.h
 	wlan_statistics_dialog.h
+	widgets/drag_drop_toolbar.h
 	${WIRESHARK_CUSTOM_QT_HEADERS}
 )
 
@@ -348,6 +349,7 @@ set(WIRESHARK_QT_SRC
 	wireless_timeline.cpp
 	wireshark_application.cpp
 	wireshark_dialog.cpp
+	widgets/drag_drop_toolbar.cpp
 	${WIRESHARK_CUSTOM_QT_SRCS}
 )
 

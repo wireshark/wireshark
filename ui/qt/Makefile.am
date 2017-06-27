@@ -305,7 +305,8 @@ MOC_HDRS = \
 	wireless_timeline.h				\
 	wireshark_application.h				\
 	wireshark_dialog.h				\
-	wlan_statistics_dialog.h
+	wlan_statistics_dialog.h			\
+	widgets/drag_drop_toolbar.h
 
 #
 # .ui files.
@@ -592,7 +593,8 @@ WIRESHARK_QT_SRC = \
 	wireless_frame.cpp				\
 	wireless_timeline.cpp				\
 	wireshark_application.cpp			\
-	wireshark_dialog.cpp
+	wireshark_dialog.cpp				\
+	widgets/drag_drop_toolbar.cpp
 
 WIRESHARK_QT_TAP_SRC = \
 	expert_info_dialog.cpp			\

@@ -68,6 +68,7 @@ class MainWelcome;
 class PacketList;
 class ProtoTree;
 class WirelessFrame;
+class DragDropToolBar;
 
 class QAction;
 class QActionGroup;
@@ -165,7 +166,7 @@ private:
     QWidget *freeze_focus_;
     QMap<QAction *, ts_type> td_actions;
     QMap<QAction *, ts_precision> tp_actions;
-    QToolBar *filter_expression_toolbar_;
+    DragDropToolBar *filter_expression_toolbar_;
     bool was_maximized_;
 
     bool capture_stopping_;
@@ -194,6 +195,8 @@ private:
 #ifdef HAVE_SOFTWARE_UPDATE
     QAction *update_action_;
 #endif
+
+    QPoint dragStartPosition;
 
     QWidget* getLayoutWidget(layout_pane_content_e type);
 
@@ -350,6 +353,7 @@ private slots:
     void filterToolbarEditFilter();
     void filterToolbarDisableFilter();
     void filterToolbarRemoveFilter();
+    void filterToolbarActionMoved(QAction * action, int oldPos, int newPos);
 
     void startInterfaceCapture(bool valid, const QString capture_filter);
 

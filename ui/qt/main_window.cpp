@@ -84,6 +84,8 @@ DIAG_ON(frame-larger-than=)
 
 #include "qt_ui_utils.h"
 
+#include <ui/qt/widgets/drag_drop_toolbar.h>
+
 #include <QAction>
 #include <QActionGroup>
 #include <QDesktopWidget>
@@ -460,11 +462,13 @@ MainWindow::MainWindow(QWidget *parent) :
     // Make sure filter expressions overflow into a menu instead of a
     // larger toolbar. We do this by adding them to a child toolbar.
     // https://bugreports.qt.io/browse/QTBUG-2472
-    filter_expression_toolbar_ = new QToolBar();
+    filter_expression_toolbar_ = new DragDropToolBar();
     filter_expression_toolbar_->setStyleSheet("QToolBar { background: none; border: none; }");
     filter_expression_toolbar_->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(filter_expression_toolbar_, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(filterToolbarCustomMenuHandler(QPoint)));
+    connect(filter_expression_toolbar_, SIGNAL(actionMoved(QAction*, int, int)),
+            this, SLOT(filterToolbarActionMoved(QAction*, int, int)));
 
     main_ui_->displayFilterToolBar->addWidget(filter_expression_toolbar_);
 

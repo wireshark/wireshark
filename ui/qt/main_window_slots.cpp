@@ -64,6 +64,7 @@ DIAG_ON(frame-larger-than=)
 #include "epan/prefs.h"
 #include "epan/plugin_if.h"
 #include "epan/uat.h"
+#include "epan/uat-int.h"
 #include "epan/value_string.h"
 
 #ifdef HAVE_LUA
@@ -87,6 +88,7 @@ DIAG_ON(frame-larger-than=)
 #include "ui/qt/simple_dialog.h"
 
 #include <ui/qt/variant_pointer.h>
+#include <ui/qt/widgets/drag_drop_toolbar.h>
 
 #ifdef HAVE_SOFTWARE_UPDATE
 #include "ui/software_update.h"
@@ -4109,6 +4111,24 @@ void MainWindow::filterToolbarRemoveFilter()
         uat_save(uat_get_table_by_name("Display expressions"), &err);
         g_free(err);
         filterExpressionsChanged();
+    }
+}
+
+void MainWindow::filterToolbarActionMoved(QAction* action, int oldPos, int newPos)
+{
+    gchar* err = NULL;
+    if ( oldPos == newPos )
+        return;
+
+    UatModel * uatModel = new UatModel(this, "Display expressions");
+    QModelIndex rowIndex = uatModel->findRowForColumnContent(action->data(), 2);
+    if ( rowIndex.isValid() )
+    {
+        uat_t * table = uat_get_table_by_name("Display expressions");
+        uat_move_index(table, oldPos, newPos);
+        uat_save(table, &err);
+
+        g_free(err);
     }
 }
 
