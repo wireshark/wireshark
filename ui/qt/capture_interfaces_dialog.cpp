@@ -491,7 +491,7 @@ void CaptureInterfacesDialog::interfaceItemChanged(QTreeWidgetItem *item, int co
 
 void CaptureInterfacesDialog::on_gbStopCaptureAuto_toggled(bool checked)
 {
-    global_capture_opts.has_file_duration = checked;
+    global_capture_opts.has_file_interval = checked;
 }
 
 void CaptureInterfacesDialog::on_gbNewFileAuto_toggled(bool checked)
@@ -569,7 +569,7 @@ void CaptureInterfacesDialog::updateInterfaces()
 
     ui->gbNewFileAuto->setChecked(global_capture_opts.multi_files_on);
     ui->MBCheckBox->setChecked(global_capture_opts.has_autostop_filesize);
-    ui->SecsCheckBox->setChecked(global_capture_opts.has_file_duration);
+    ui->SecsCheckBox->setChecked(global_capture_opts.has_file_interval);
     if (global_capture_opts.has_autostop_filesize) {
         int value = global_capture_opts.autostop_filesize;
         if (value > 1000000) {
@@ -601,8 +601,8 @@ void CaptureInterfacesDialog::updateInterfaces()
             }
         }
     }
-    if (global_capture_opts.has_file_duration) {
-        int value = global_capture_opts.file_duration;
+    if (global_capture_opts.has_file_interval) {
+        int value = global_capture_opts.file_interval;
         if (value > 3600 && value % 3600 == 0) {
             ui->SecsSpinBox->setValue(value / 3600);
             ui->SecsComboBox->setCurrentIndex(2);
@@ -622,7 +622,7 @@ void CaptureInterfacesDialog::updateInterfaces()
 
     if (global_capture_opts.has_autostop_duration) {
         ui->stopSecsCheckBox->setChecked(true);
-        int value = global_capture_opts.file_duration;
+        int value = global_capture_opts.file_interval;
         if (value > 3600 && value % 3600 == 0) {
             ui->stopSecsSpinBox->setValue(value / 3600);
             ui->stopSecsComboBox->setCurrentIndex(2);
@@ -858,14 +858,14 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
     }
     global_capture_opts.multi_files_on = ui->gbNewFileAuto->isChecked();
     if (global_capture_opts.multi_files_on) {
-        global_capture_opts.has_file_duration = ui->SecsCheckBox->isChecked();
-        if (global_capture_opts.has_file_duration) {
-            global_capture_opts.file_duration = ui->SecsSpinBox->value();
+        global_capture_opts.has_file_interval = ui->SecsCheckBox->isChecked();
+        if (global_capture_opts.has_file_interval) {
+            global_capture_opts.file_interval = ui->SecsSpinBox->value();
             int index = ui->SecsComboBox->currentIndex();
             switch (index) {
-            case 1: global_capture_opts.file_duration *= 60;
+            case 1: global_capture_opts.file_interval *= 60;
                 break;
-            case 2: global_capture_opts.file_duration *= 3600;
+            case 2: global_capture_opts.file_interval *= 3600;
                 break;
             }
          }
@@ -897,9 +897,9 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
              QMessageBox::warning(this, tr("Error"),
                                       tr("Multiple files: No capture file name given. You must specify a filename if you want to use multiple files."));
              return false;
-         } else if (!global_capture_opts.has_autostop_filesize && !global_capture_opts.has_file_duration) {
+         } else if (!global_capture_opts.has_autostop_filesize && !global_capture_opts.has_file_interval) {
              QMessageBox::warning(this, tr("Error"),
-                                      tr("Multiple files: No file limit given. You must specify a file size or duration at which is switched to the next capture file\n if you want to use multiple files."));
+                                      tr("Multiple files: No file limit given. You must specify a file size or interval at which is switched to the next capture file\n if you want to use multiple files."));
              g_free(global_capture_opts.save_file);
              global_capture_opts.save_file = NULL;
              return false;

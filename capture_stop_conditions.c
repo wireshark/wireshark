@@ -40,6 +40,11 @@ static void _cnd_destr_capturesize(condition*);
 static gboolean _cnd_eval_capturesize(condition*, va_list);
 static void _cnd_reset_capturesize(condition*);
 
+static condition* _cnd_constr_interval(condition*, va_list);
+static void _cnd_destr_interval(condition*);
+static gboolean _cnd_eval_interval(condition*, va_list);
+static void _cnd_reset_interval(condition*);
+
 void init_capture_stop_conditions(void){
   cnd_register_class(CND_CLASS_TIMEOUT,
                      _cnd_constr_timeout,
@@ -51,11 +56,17 @@ void init_capture_stop_conditions(void){
                      _cnd_destr_capturesize,
                      _cnd_eval_capturesize,
                      _cnd_reset_capturesize);
+  cnd_register_class(CND_CLASS_INTERVAL,
+                     _cnd_constr_interval,
+                     _cnd_destr_interval,
+                     _cnd_eval_interval,
+                     _cnd_reset_interval);
 } /* END init_capture_stop_conditions() */
 
 void cleanup_capture_stop_conditions(void){
   cnd_unregister_class(CND_CLASS_TIMEOUT);
   cnd_unregister_class(CND_CLASS_CAPTURESIZE);
+  cnd_unregister_class(CND_CLASS_INTERVAL);
 } /* END cleanup_capture_stop_conditions() */
 
 /*****************************************************************************/
@@ -207,6 +218,87 @@ static gboolean _cnd_eval_capturesize(condition* cnd, va_list ap){
  */
 static void _cnd_reset_capturesize(condition *cnd _U_){
 } /* END _cnd_reset_capturesize() */
+
+
+/*****************************************************************************/
+/* Predefined condition 'interval'.                                           */
+
+/* class id */
+const char* CND_CLASS_INTERVAL = "cnd_class_interval";
+
+/* structure that contains user supplied data for this condition */
+typedef struct _cnd_interval_dat{
+  time_t start_time;
+  gint32 interval_s;
+}cnd_interval_dat;
+
+/*
+ * Constructs new condition for interval check. This function is invoked by
+ * 'cnd_new()' in order to perform class specific initialization.
+ *
+ * parameter: cnd - Pointer to condition passed by 'cnd_new()'.
+ *            ap  - Pointer to user supplied arguments list for this
+ *                  constructor.
+ * returns:   Pointer to condition - Construction was successful.
+ *            NULL                 - Construction failed.
+ */
+static condition* _cnd_constr_interval(condition* cnd, va_list ap){
+  cnd_interval_dat *data = NULL;
+  /* allocate memory */
+  if((data = (cnd_interval_dat*)g_malloc(sizeof(cnd_interval_dat))) == NULL)
+    return NULL;
+  /* initialize user data */
+  data->start_time = time(NULL);
+  data->interval_s = va_arg(ap, gint32);
+  data->start_time -= data->start_time % data->interval_s;
+  cnd_set_user_data(cnd, (void*)data);
+  return cnd;
+} /* END _cnd_constr_interval() */
+
+/*
+ * Destroys condition for interval check. This function is invoked by
+ * 'cnd_delete()' in order to perform class specific clean up.
+ *
+ * parameter: cnd - Pointer to condition passed by 'cnd_delete()'.
+ */
+static void _cnd_destr_interval(condition* cnd){
+  /* free memory */
+  g_free(cnd_get_user_data(cnd));
+} /* END _cnd_destr_interval() */
+
+/*
+ * Condition handler for interval condition. This function is invoked by
+ * 'cnd_eval()' in order to perform class specific condition checks.
+ *
+ * parameter: cnd - The inititalized interval condition.
+ *            ap  - Pointer to user supplied arguments list for this
+ *                  handler.
+ * returns:   TRUE  - Condition is true.
+ *            FALSE - Condition is false.
+ */
+static gboolean _cnd_eval_interval(condition* cnd, va_list ap _U_){
+  cnd_interval_dat* data = (cnd_interval_dat*)cnd_get_user_data(cnd);
+  gint32 elapsed_time;
+  /* check interval here */
+  if(data->interval_s == 0) return FALSE; /* 0 == infinite */
+  elapsed_time = (gint32) (time(NULL) - data->start_time);
+  if(elapsed_time >= data->interval_s) return TRUE;
+  return FALSE;
+} /* END _cnd_eval_interval()*/
+
+/*
+ * Call this function to reset this condition to its initial state, i.e. the
+ * state it was in right after creation.
+ *
+ * parameter: cnd - Pointer to an initialized condition.
+ */
+static void _cnd_reset_interval(condition *cnd){
+  ((cnd_interval_dat*)cnd_get_user_data(cnd))->start_time = time(NULL);
+  ((cnd_interval_dat*)cnd_get_user_data(cnd))->start_time -=
+      ((cnd_interval_dat*)cnd_get_user_data(cnd))->start_time % ((cnd_interval_dat*)cnd_get_user_data(cnd))->interval_s;
+} /* END _cnd_reset_interval() */
+
+
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

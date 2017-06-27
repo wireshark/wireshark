@@ -364,6 +364,7 @@ print_usage(FILE *output)
   /*fprintf(output, "\n");*/
   fprintf(output, "Capture output:\n");
   fprintf(output, "  -b <ringbuffer opt.> ... duration:NUM - switch to next file after NUM secs\n");
+  fprintf(output, "                           interval:NUM - create time intervals of NUM secs\n");
   fprintf(output, "                           filesize:NUM - switch to next file after NUM KB\n");
   fprintf(output, "                              files:NUM - ringbuffer: replace after NUM files\n");
 #endif  /* HAVE_LIBPCAP */
@@ -1638,6 +1639,12 @@ main(int argc, char *argv[])
         goto clean_exit;
       }
       if (global_capture_opts.has_file_duration) {
+        cmdarg_err("Switching capture files after a time period was specified, but "
+                   "a capture isn't being done.");
+        exit_status = INVALID_OPTION;
+        goto clean_exit;
+      }
+      if (global_capture_opts.has_file_interval) {
         cmdarg_err("Switching capture files after a time interval was specified, but "
                    "a capture isn't being done.");
         exit_status = INVALID_OPTION;
@@ -1720,9 +1727,10 @@ main(int argc, char *argv[])
             goto clean_exit;
           }
           if (!global_capture_opts.has_autostop_filesize &&
-              !global_capture_opts.has_file_duration) {
+              !global_capture_opts.has_file_duration &&
+              !global_capture_opts.has_file_interval) {
             cmdarg_err("Multiple capture files requested, but "
-              "no maximum capture file size or duration was specified.");
+              "no maximum capture file size, duration or interval was specified.");
             exit_status = INVALID_OPTION;
             goto clean_exit;
           }

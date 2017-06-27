@@ -148,9 +148,9 @@ enum
 #define E_CAP_RING_FILESIZE_CB_KEY      "cap_ring_filesize_cb"
 #define E_CAP_RING_FILESIZE_SB_KEY      "cap_ring_filesize_sb"
 #define E_CAP_RING_FILESIZE_CBX_KEY     "cap_ring_filesize_cbx"
-#define E_CAP_FILE_DURATION_CB_KEY      "cap_file_duration_cb"
-#define E_CAP_FILE_DURATION_SB_KEY      "cap_file_duration_sb"
-#define E_CAP_FILE_DURATION_CBX_KEY     "cap_file_duration_cbx"
+#define E_CAP_FILE_INTERVAL_CB_KEY      "cap_file_interval_cb"
+#define E_CAP_FILE_INTERVAL_SB_KEY      "cap_file_interval_sb"
+#define E_CAP_FILE_INTERVAL_CBX_KEY     "cap_file_interval_cbx"
 #define E_CAP_RING_NBF_CB_KEY           "cap_ring_nbf_cb"
 #define E_CAP_RING_NBF_SB_KEY           "cap_ring_nbf_sb"
 #define E_CAP_RING_NBF_LB_KEY           "cap_ring_nbf_lb"
@@ -4598,7 +4598,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                     *file_hb, *file_bt, *file_lb, *file_te,
                     *multi_hb, *multi_grid, *multi_files_on_cb,
                     *ring_filesize_cb, *ring_filesize_sb, *ring_filesize_cbx,
-                    *file_duration_cb, *file_duration_sb, *file_duration_cbx,
+                    *file_interval_cb, *file_interval_sb, *file_interval_cbx,
                     *ringbuffer_nbf_cb, *ringbuffer_nbf_sb, *ringbuffer_nbf_lb,
                     *stop_files_cb, *stop_files_sb, *stop_files_lb,
                     *limit_fr, *limit_vb, *limit_hb, *limit_grid,
@@ -4622,7 +4622,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
   GtkAdjustment     *ringbuffer_nbf_adj,
                     *stop_packets_adj, *stop_filesize_adj, *stop_duration_adj, *stop_files_adj,
-                    *ring_filesize_adj, *file_duration_adj;
+                    *ring_filesize_adj, *file_interval_adj;
   int                row;
   guint32            value;
   gchar             *cap_title;
@@ -5018,7 +5018,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Ring buffer filesize row */
   ring_filesize_cb = gtk_check_button_new_with_label("Next file every");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ring_filesize_cb),
-                               global_capture_opts.has_autostop_filesize || !global_capture_opts.has_file_duration);
+                               global_capture_opts.has_autostop_filesize || !global_capture_opts.has_file_interval);
   g_signal_connect(ring_filesize_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
   gtk_widget_set_tooltip_text(ring_filesize_cb,
     "If the selected file size is exceeded, capturing switches to the next file.\n"
@@ -5044,31 +5044,31 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   row++;
 
   /* Ring buffer duration row */
-  file_duration_cb = gtk_check_button_new_with_label("Next file every");
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(file_duration_cb),
-                               global_capture_opts.has_file_duration);
-  g_signal_connect(file_duration_cb, "toggled",
+  file_interval_cb = gtk_check_button_new_with_label("Next file every");
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(file_interval_cb),
+                               global_capture_opts.has_file_interval);
+  g_signal_connect(file_interval_cb, "toggled",
                    G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
-  gtk_widget_set_tooltip_text(file_duration_cb,
+  gtk_widget_set_tooltip_text(file_interval_cb,
     "If the selected duration is exceeded, capturing switches to the next file.\n"
     "PLEASE NOTE: at least one of the \"Next file every\" options MUST be selected.");
-  ws_gtk_grid_attach_extended(GTK_GRID (multi_grid), file_duration_cb, 0, row, 1, 1,
+  ws_gtk_grid_attach_extended(GTK_GRID (multi_grid), file_interval_cb, 0, row, 1, 1,
                               (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
-  file_duration_adj = (GtkAdjustment *)gtk_adjustment_new(0.0,
+  file_interval_adj = (GtkAdjustment *)gtk_adjustment_new(0.0,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
-  file_duration_sb = gtk_spin_button_new (file_duration_adj, 0, 0);
-  gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (file_duration_sb), TRUE);
-  gtk_widget_set_size_request(file_duration_sb, 80, -1);
-  ws_gtk_grid_attach_extended(GTK_GRID (multi_grid), file_duration_sb, 1, row, 1, 1,
+  file_interval_sb = gtk_spin_button_new (file_interval_adj, 0, 0);
+  gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (file_interval_sb), TRUE);
+  gtk_widget_set_size_request(file_interval_sb, 80, -1);
+  ws_gtk_grid_attach_extended(GTK_GRID (multi_grid), file_interval_sb, 1, row, 1, 1,
                               (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
-  file_duration_cbx = time_unit_combo_box_new(global_capture_opts.file_duration);
-  ws_gtk_grid_attach_extended(GTK_GRID (multi_grid), file_duration_cbx, 2, row, 1, 1,
+  file_interval_cbx = time_unit_combo_box_new(global_capture_opts.file_interval);
+  ws_gtk_grid_attach_extended(GTK_GRID (multi_grid), file_interval_cbx, 2, row, 1, 1,
                               (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
-  value = time_unit_combo_box_convert_value(global_capture_opts.file_duration);
-  gtk_adjustment_set_value(file_duration_adj, (gdouble) value);
+  value = time_unit_combo_box_convert_value(global_capture_opts.file_interval);
+  gtk_adjustment_set_value(file_interval_adj, (gdouble) value);
   row++;
 
   /* Ring buffer files row */
@@ -5318,9 +5318,9 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_RING_FILESIZE_CB_KEY,  ring_filesize_cb);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_RING_FILESIZE_SB_KEY,  ring_filesize_sb);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_RING_FILESIZE_CBX_KEY,  ring_filesize_cbx);
-  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_FILE_DURATION_CB_KEY,  file_duration_cb);
-  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_FILE_DURATION_SB_KEY,  file_duration_sb);
-  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_FILE_DURATION_CBX_KEY,  file_duration_cbx);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_FILE_INTERVAL_CB_KEY,  file_interval_cb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_FILE_INTERVAL_SB_KEY,  file_interval_sb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_FILE_INTERVAL_CBX_KEY,  file_interval_cbx);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_SYNC_KEY,  sync_cb);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_AUTO_SCROLL_KEY, auto_scroll_cb);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_HIDE_INFO_KEY, hide_info_cb);
@@ -5514,7 +5514,7 @@ capture_dlg_prep(gpointer parent_w) {
               *stop_filesize_cb, *stop_filesize_sb, *stop_filesize_cbx,
               *stop_duration_cb, *stop_duration_sb, *stop_duration_cbx,
               *ring_filesize_cb, *ring_filesize_sb, *ring_filesize_cbx,
-              *file_duration_cb, *file_duration_sb, *file_duration_cbx,
+              *file_interval_cb, *file_interval_sb, *file_interval_cbx,
               *stop_files_cb, *stop_files_sb,
               *m_resolv_cb, *n_resolv_cb, *t_resolv_cb, *e_resolv_cb;
   const gchar *g_save_file;
@@ -5530,9 +5530,9 @@ capture_dlg_prep(gpointer parent_w) {
   ring_filesize_cb  = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_RING_FILESIZE_CB_KEY);
   ring_filesize_sb  = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_RING_FILESIZE_SB_KEY);
   ring_filesize_cbx = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_RING_FILESIZE_CBX_KEY);
-  file_duration_cb  = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_FILE_DURATION_CB_KEY);
-  file_duration_sb  = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_FILE_DURATION_SB_KEY);
-  file_duration_cbx = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_FILE_DURATION_CBX_KEY);
+  file_interval_cb  = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_FILE_INTERVAL_CB_KEY);
+  file_interval_sb  = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_FILE_INTERVAL_SB_KEY);
+  file_interval_cbx = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_FILE_INTERVAL_CBX_KEY);
   sync_cb   = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_SYNC_KEY);
   auto_scroll_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_AUTO_SCROLL_KEY);
   hide_info_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_HIDE_INFO_KEY);
@@ -5631,13 +5631,13 @@ capture_dlg_prep(gpointer parent_w) {
   global_capture_opts.multi_files_on =
     gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(multi_files_on_cb));
 
-  global_capture_opts.has_file_duration =
-    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(file_duration_cb));
-  if (global_capture_opts.has_file_duration) {
-    global_capture_opts.file_duration =
-      gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(file_duration_sb));
-    global_capture_opts.file_duration =
-      time_unit_combo_box_get_value(file_duration_cbx, global_capture_opts.file_duration);
+  global_capture_opts.has_file_interval =
+    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(file_interval_cb));
+  if (global_capture_opts.has_file_interval) {
+    global_capture_opts.file_interval =
+      gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(file_interval_sb));
+    global_capture_opts.file_interval =
+      time_unit_combo_box_get_value(file_interval_cbx, global_capture_opts.file_interval);
   }
 
   global_capture_opts.has_autostop_files =
@@ -5670,10 +5670,10 @@ capture_dlg_prep(gpointer parent_w) {
         "You must specify a filename if you want to use multiple files.",
         simple_dialog_primary_start(), simple_dialog_primary_end());
       return FALSE;
-    } else if (!global_capture_opts.has_autostop_filesize && !global_capture_opts.has_file_duration) {
+    } else if (!global_capture_opts.has_autostop_filesize && !global_capture_opts.has_file_interval) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
         "%sMultiple files: No file limit given.%s\n\n"
-        "You must specify a file size or duration at which is switched to the next capture file\n"
+        "You must specify a file size or interval at which is switched to the next capture file\n"
         "if you want to use multiple files.",
         simple_dialog_primary_start(), simple_dialog_primary_end());
       g_free(global_capture_opts.save_file);
@@ -6022,7 +6022,7 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
 {
   GtkWidget *multi_files_on_cb, *ringbuffer_nbf_cb, *ringbuffer_nbf_sb, *ringbuffer_nbf_lb,
             *ring_filesize_cb, *ring_filesize_sb, *ring_filesize_cbx,
-            *file_duration_cb, *file_duration_sb, *file_duration_cbx,
+            *file_interval_cb, *file_interval_sb, *file_interval_cbx,
             *sync_cb, *auto_scroll_cb,
             *stop_packets_cb, *stop_packets_sb, *stop_packets_lb,
             *stop_filesize_cb, *stop_filesize_sb, *stop_filesize_cbx,
@@ -6036,9 +6036,9 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
   ring_filesize_cb  = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_RING_FILESIZE_CB_KEY);
   ring_filesize_sb  = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_RING_FILESIZE_SB_KEY);
   ring_filesize_cbx = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_RING_FILESIZE_CBX_KEY);
-  file_duration_cb  = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_FILE_DURATION_CB_KEY);
-  file_duration_sb  = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_FILE_DURATION_SB_KEY);
-  file_duration_cbx = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_FILE_DURATION_CBX_KEY);
+  file_interval_cb  = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_FILE_INTERVAL_CB_KEY);
+  file_interval_sb  = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_FILE_INTERVAL_SB_KEY);
+  file_interval_cbx = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_FILE_INTERVAL_CBX_KEY);
   sync_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_SYNC_KEY);
   auto_scroll_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_AUTO_SCROLL_KEY);
   stop_packets_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_PACKETS_CB_KEY);
@@ -6088,9 +6088,9 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
 
     /* Force at least one of the "file switch" conditions (we need at least one) */
       if ((gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ring_filesize_cb)) == FALSE) &&
-          (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(file_duration_cb)) == FALSE)) {
+          (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(file_interval_cb)) == FALSE)) {
       if (tb == ring_filesize_cb)
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(file_duration_cb), TRUE);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(file_interval_cb), TRUE);
       else
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ring_filesize_cb), TRUE);
     }
@@ -6109,13 +6109,13 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
     gtk_widget_set_sensitive(GTK_WIDGET(ring_filesize_cbx),
           gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ring_filesize_cb)));
 
-    /* The ring duration spinbox is sensitive if the "Next capture file
+    /* The ring interval spinbox is sensitive if the "Next capture file
          after N seconds" checkbox is on. */
-    gtk_widget_set_sensitive(GTK_WIDGET(file_duration_cb), TRUE);
-    gtk_widget_set_sensitive(GTK_WIDGET(file_duration_sb),
-          gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(file_duration_cb)));
-    gtk_widget_set_sensitive(GTK_WIDGET(file_duration_cbx),
-          gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(file_duration_cb)));
+    gtk_widget_set_sensitive(GTK_WIDGET(file_interval_cb), TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(file_interval_sb),
+          gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(file_interval_cb)));
+    gtk_widget_set_sensitive(GTK_WIDGET(file_interval_cbx),
+          gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(file_interval_cb)));
 
     gtk_widget_set_sensitive(GTK_WIDGET(stop_filesize_cb), FALSE);
     gtk_widget_set_sensitive(GTK_WIDGET(stop_filesize_sb), FALSE);
@@ -6136,9 +6136,9 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
     gtk_widget_set_sensitive(GTK_WIDGET(ring_filesize_sb),FALSE);
     gtk_widget_set_sensitive(GTK_WIDGET(ring_filesize_cbx),FALSE);
 
-    gtk_widget_set_sensitive(GTK_WIDGET(file_duration_cb), FALSE);
-    gtk_widget_set_sensitive(GTK_WIDGET(file_duration_sb),FALSE);
-    gtk_widget_set_sensitive(GTK_WIDGET(file_duration_cbx),FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(file_interval_cb), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(file_interval_sb),FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(file_interval_cbx),FALSE);
 
     /* The maximum file size spinbox is sensitive if the "Stop capture
          after N kilobytes" checkbox is on. */

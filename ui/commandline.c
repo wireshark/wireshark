@@ -672,8 +672,10 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
                 cmdarg_err("Ring buffer requested, but capture isn't being saved to a permanent file.");
                 global_capture_opts.multi_files_on = FALSE;
             }
-            if (!global_capture_opts.has_autostop_filesize && !global_capture_opts.has_file_duration) {
-                cmdarg_err("Ring buffer requested, but no maximum capture file size or duration were specified.");
+            if (!global_capture_opts.has_autostop_filesize &&
+                !global_capture_opts.has_file_duration &&
+                !global_capture_opts.has_file_interval) {
+                cmdarg_err("Ring buffer requested, but no maximum capture file size, duration or interval were specified.");
                 /* XXX - this must be redesigned as the conditions changed */
             }
         }

@@ -298,6 +298,8 @@ typedef struct capture_options_tag {
 
     gboolean           has_file_duration;     /**< TRUE if ring duration specified */
     gint32             file_duration;         /**< Switch file after n seconds */
+    gboolean           has_file_interval;     /**< TRUE if ring interval specified */
+    gint32             file_interval;         /**< Create time intervals of n seconds */
     gboolean           has_ring_num_files;    /**< TRUE if ring num_files specified */
     guint32            ring_num_files;        /**< Number of multiple buffer files */
 

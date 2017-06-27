@@ -524,6 +524,7 @@ print_usage(FILE *output)
     fprintf(output, "  -w <filename>            name of file to save (def: tempfile)\n");
     fprintf(output, "  -g                       enable group read access on the output file(s)\n");
     fprintf(output, "  -b <ringbuffer opt.> ... duration:NUM - switch to next file after NUM secs\n");
+    fprintf(output, "                           interval:NUM - create time intervals of NUM secs\n");
     fprintf(output, "                           filesize:NUM - switch to next file after NUM KB\n");
     fprintf(output, "                              files:NUM - ringbuffer: replace after NUM files\n");
     fprintf(output, "  -n                       use pcapng format instead of pcap (default)\n");
@@ -2970,7 +2971,8 @@ static gboolean
 do_file_switch_or_stop(capture_options *capture_opts,
                        condition *cnd_autostop_files,
                        condition *cnd_autostop_size,
-                       condition *cnd_file_duration)
+                       condition *cnd_file_duration,
+                       condition *cnd_file_interval)
 {
     guint             i;
     capture_src      *pcap_src;
@@ -3047,6 +3049,8 @@ do_file_switch_or_stop(capture_options *capture_opts,
                 cnd_reset(cnd_autostop_size);
             if (cnd_file_duration)
                 cnd_reset(cnd_file_duration);
+            if (cnd_file_interval)
+                cnd_reset(cnd_file_interval);
             fflush(global_ld.pdh);
             if (!quiet)
                 report_packet_count(global_ld.inpkts_to_sync_pipe);
@@ -3099,6 +3103,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     int               err_close;
     int               inpkts;
     condition        *cnd_file_duration     = NULL;
+    condition        *cnd_file_interval     = NULL;
     condition        *cnd_autostop_files    = NULL;
     condition        *cnd_autostop_size     = NULL;
     condition        *cnd_autostop_duration = NULL;
@@ -3224,6 +3229,10 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
         if (capture_opts->has_autostop_files)
             cnd_autostop_files =
                 cnd_new(CND_CLASS_CAPTURESIZE, (guint64)capture_opts->autostop_files);
+
+        if (capture_opts->has_file_interval)
+            cnd_file_interval =
+                cnd_new(CND_CLASS_INTERVAL, capture_opts->file_interval);
     }
 
     /* init the time values */
@@ -3315,8 +3324,11 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             if (cnd_autostop_size != NULL &&
                 cnd_eval(cnd_autostop_size, global_ld.bytes_written)) {
                 /* Capture size limit reached, do we have another file? */
-                if (!do_file_switch_or_stop(capture_opts, cnd_autostop_files,
-                                            cnd_autostop_size, cnd_file_duration))
+                if (!do_file_switch_or_stop(capture_opts,
+                                            cnd_autostop_files,
+                                            cnd_autostop_size,
+                                            cnd_file_duration,
+                                            cnd_file_interval))
                     continue;
             } /* cnd_autostop_size */
             if (capture_opts->output_to_pipe) {
@@ -3369,10 +3381,24 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             /* check capture file duration condition */
             if (cnd_file_duration != NULL && cnd_eval(cnd_file_duration)) {
                 /* duration limit reached, do we have another file? */
-                if (!do_file_switch_or_stop(capture_opts, cnd_autostop_files,
-                                            cnd_autostop_size, cnd_file_duration))
+                if (!do_file_switch_or_stop(capture_opts,
+                                            cnd_autostop_files,
+                                            cnd_autostop_size,
+                                            cnd_file_duration,
+                                            cnd_file_interval))
                     continue;
             } /* cnd_file_duration */
+
+            /* check capture file interval condition */
+            if (cnd_file_interval != NULL && cnd_eval(cnd_file_interval)) {
+                /* end of interval reached, do we have another file? */
+                if (!do_file_switch_or_stop(capture_opts,
+                                            cnd_autostop_files,
+                                            cnd_autostop_size,
+                                            cnd_file_duration,
+                                            cnd_file_interval))
+                    continue;
+            } /* cnd_file_interval */
         }
     }
 
@@ -3418,6 +3444,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     /* delete stop conditions */
     if (cnd_file_duration != NULL)
         cnd_delete(cnd_file_duration);
+    if (cnd_file_interval != NULL)
+        cnd_delete(cnd_file_interval);
     if (cnd_autostop_files != NULL)
         cnd_delete(cnd_autostop_files);
     if (cnd_autostop_size != NULL)
@@ -4397,12 +4425,19 @@ main(int argc, char *argv[])
                 cmdarg_err("Ring buffer requested, but capture isn't being saved to a permanent file.");
                 global_capture_opts.multi_files_on = FALSE;
             }
-            if (!global_capture_opts.has_autostop_filesize && !global_capture_opts.has_file_duration) {
-                cmdarg_err("Ring buffer requested, but no maximum capture file size or duration were specified.");
+            if (!global_capture_opts.has_autostop_filesize &&
+                !global_capture_opts.has_file_duration &&
+                !global_capture_opts.has_file_interval) {
+                cmdarg_err("Ring buffer requested, but no maximum capture file size, duration"
+                           "or interval were specified.");
 #if 0
                 /* XXX - this must be redesigned as the conditions changed */
                 global_capture_opts.multi_files_on = FALSE;
 #endif
+            }
+            if (global_capture_opts.has_file_duration && global_capture_opts.has_file_interval) {
+                cmdarg_err("Ring buffer file duration and interval can't be used at the same time.");
+                exit_main(1);
             }
         }
     }

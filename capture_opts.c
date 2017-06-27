@@ -106,6 +106,8 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->multi_files_on                  = FALSE;
     capture_opts->has_file_duration               = FALSE;
     capture_opts->file_duration                   = 60;               /* 1 min */
+    capture_opts->has_file_interval               = FALSE;
+    capture_opts->file_interval                   = 60;               /* 1 min */
     capture_opts->has_ring_num_files              = FALSE;
     capture_opts->ring_num_files                  = RINGBUFFER_MIN_NUM_FILES;
 
@@ -240,6 +242,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
 
     g_log(log_domain, log_level, "MultiFilesOn        : %u", capture_opts->multi_files_on);
     g_log(log_domain, log_level, "FileDuration    (%u) : %u", capture_opts->has_file_duration, capture_opts->file_duration);
+    g_log(log_domain, log_level, "FileInterval    (%u) : %u", capture_opts->has_file_interval, capture_opts->file_interval);
     g_log(log_domain, log_level, "RingNumFiles    (%u) : %u", capture_opts->has_ring_num_files, capture_opts->ring_num_files);
 
     g_log(log_domain, log_level, "AutostopFiles   (%u) : %u", capture_opts->has_autostop_files, capture_opts->autostop_files);
@@ -397,6 +400,9 @@ get_ring_arguments(capture_options *capture_opts, const char *arg)
     } else if (strcmp(arg,"duration") == 0) {
         capture_opts->has_file_duration = TRUE;
         capture_opts->file_duration = get_positive_int(p, "ring buffer duration");
+    } else if (strcmp(arg,"interval") == 0) {
+        capture_opts->has_file_interval = TRUE;
+        capture_opts->file_interval = get_positive_int(p, "ring buffer interval");
     }
 
     *colonp = ':';    /* put the colon back */

@@ -25,6 +25,7 @@ void cleanup_capture_stop_conditions(void);
 
 extern const char *CND_CLASS_TIMEOUT;
 extern const char *CND_CLASS_CAPTURESIZE;
+extern const char *CND_CLASS_INTERVAL;
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

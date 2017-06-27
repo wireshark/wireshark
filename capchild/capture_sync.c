@@ -205,6 +205,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
     char scount[ARGV_NUMBER_LEN];
     char sfilesize[ARGV_NUMBER_LEN];
     char sfile_duration[ARGV_NUMBER_LEN];
+    char sfile_interval[ARGV_NUMBER_LEN];
     char sring_num_files[ARGV_NUMBER_LEN];
     char sautostop_files[ARGV_NUMBER_LEN];
     char sautostop_filesize[ARGV_NUMBER_LEN];
@@ -291,6 +292,12 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
             argv = sync_pipe_add_arg(argv, &argc, "-b");
             g_snprintf(sfile_duration, ARGV_NUMBER_LEN, "duration:%d",capture_opts->file_duration);
             argv = sync_pipe_add_arg(argv, &argc, sfile_duration);
+        }
+
+        if (capture_opts->has_file_interval) {
+            argv = sync_pipe_add_arg(argv, &argc, "-b");
+            g_snprintf(sfile_interval, ARGV_NUMBER_LEN, "interval:%d",capture_opts->file_interval);
+            argv = sync_pipe_add_arg(argv, &argc, sfile_interval);
         }
 
         if (capture_opts->has_ring_num_files) {
