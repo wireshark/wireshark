@@ -495,17 +495,37 @@ AC_DEFUN([AC_WIRESHARK_ZLIB_CHECK],
 	then
 		#
 		# Well, we at least have the zlib header file.
+		#
 		# We link with zlib to support uncompression of
 		# gzipped network traffic, e.g. in an HTTP request
 		# or response body.
+		#
+		# Check for inflate() in zlib, to make sure the
+		# zlib library is usable.  For example, on at
+		# least some versions of Fedora, if you have a
+		# 64-bit machine, have both the 32-bit and 64-bit
+		# versions of the run-time zlib package installed,
+		# and have only the *32-bit* version of the zlib
+		# development package installed, it'll find the
+		# header, and think it can use zlib, and will use
+		# it in subsequent tests, but it'll try and link
+		# 64-bit test programs with the 32-bit library,
+		# causing those tests to falsely fail.  Hilarity
+		# ensues.
 		#
 		if test "x$zlib_dir" != "x"
 		then
 		  WS_CPPFLAGS="$WS_CPPFLAGS -I$zlib_dir/include"
 		  AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, $zlib_dir/lib)
 		fi
-		LIBS="-lz $LIBS"
 		AC_DEFINE(HAVE_ZLIB, 1, [Define to use zlib library])
+		#
+		# Check for "inflate()" in zlib to make sure we can
+		# link with it.
+		#
+		AC_CHECK_LIB(z, inflate,,
+		    AC_MSG_ERROR([zlib.h found but linking with -lz failed to find inflate(); do you have the right developer package installed (32-bit vs. 64-bit)?]))
+
 		#
 		# Check for "inflatePrime()" in zlib, which we need
 		# in order to read compressed capture files.
