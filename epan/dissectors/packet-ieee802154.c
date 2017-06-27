@@ -331,6 +331,10 @@ static int hf_ieee802154_hie_ht2 = -1;
 static int hf_ieee802154_nack = -1;
 static int hf_ieee802154_hie_time_correction_time_sync_info = -1;
 static int hf_ieee802154_hie_time_correction_value = -1;
+static int hf_ieee802154_hie_csl = -1;
+static int hf_ieee802154_hie_csl_phase = -1;
+static int hf_ieee802154_hie_csl_period = -1;
+static int hf_ieee802154_hie_csl_rendezvous_time = -1;
 static int hf_ieee802154_payload_ie = -1;
 static int hf_ieee802154_mlme = -1;
 static int hf_ieee802154_payload_ie_tlv = -1;
@@ -493,6 +497,7 @@ static gint ett_ieee802154_hie_unsupported = -1;
 static gint ett_ieee802154_hie_time_correction = -1;
 static gint ett_ieee802154_hie_ht1 = -1;
 static gint ett_ieee802154_hie_ht2 = -1;
+static gint ett_ieee802154_hie_csl = -1;
 static gint ett_ieee802154_payload = -1;
 static gint ett_ieee802154_payload_ie = -1;
 static gint ett_ieee802154_mlme = -1;
@@ -2559,8 +2564,19 @@ dissect_ieee802154_header_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     consumed = dissect_802154_hie_time_correction(content, pinfo, subtree, packet, subitem, ies_item);
                     break;
 
+                case IEEE802154_HEADER_IE_CSL: // 7.4.2.3 CSL IE
+                    proto_item_append_text(ies_item, ", %s", name);
+                    subtree = create_header_ie_tree(tvb, ies_tree, *offset, length, hf_ieee802154_hie_csl, ett_ieee802154_hie_csl, &subitem);
+                    proto_tree_add_item(subtree, hf_ieee802154_hie_csl_phase, content, 0, 2, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(subtree, hf_ieee802154_hie_csl_period, content, 2, 2, ENC_LITTLE_ENDIAN);
+                    consumed = 4;
+                    if (length >= 6) {
+                        proto_tree_add_item(subtree, hf_ieee802154_hie_csl_rendezvous_time, content, 4, 2, ENC_LITTLE_ENDIAN);
+                        consumed += 2;
+                    }
+                    break;
+
                 // the IEs defined in 802.15.4-2015 that are not yet supported
-                case IEEE802154_HEADER_IE_CSL:  // TODO: 7.4.2.3 CSL IE
                 case IEEE802154_HEADER_IE_RIT:  // TODO: 7.4.2.4 RIT IE
                 case IEEE802154_HEADER_IE_DSME_PAN:  // TODO: 7.4.2.5 DSME PAN descriptor IE
                 case IEEE802154_HEADER_IE_RENDEZVOUS:  // TODO: 7.4.2.6 Rendezvous Time IE
@@ -4157,6 +4173,23 @@ void proto_register_ieee802154(void)
         { "Time Correction",                "wpan.header_ie.time_correction.value", FT_INT16, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0FFF,
             "Time correction in microseconds", HFILL }},
 
+        /* CSL IE */
+        { &hf_ieee802154_hie_csl,
+        { "CSL IE", "wpan.header_ie.csl", FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_hie_csl_phase,
+        { "Phase", "wpan.header_ie.csl.phase", FT_INT16, BASE_DEC, NULL, 0x0,
+            "CSL Phase in units of 10 symbols", HFILL }},
+
+        { &hf_ieee802154_hie_csl_period,
+        { "Period", "wpan.header_ie.csl.period", FT_INT16, BASE_DEC, NULL, 0x0,
+            "CSL Period in units of 10 symbols", HFILL }},
+
+        { &hf_ieee802154_hie_csl_rendezvous_time,
+        { "Rendezvous Time", "wpan.header_ie.csl.rendezvous_time", FT_INT16, BASE_DEC, NULL, 0x0,
+            "CSL Rendezvous Time in units of 10 symbols", HFILL }},
+
         /* Payload IEs */
 
         { &hf_ieee802154_payload_ie,
@@ -4645,6 +4678,7 @@ void proto_register_ieee802154(void)
         &ett_ieee802154_hie_time_correction,
         &ett_ieee802154_hie_ht1,
         &ett_ieee802154_hie_ht2,
+        &ett_ieee802154_hie_csl,
         &ett_ieee802154_payload,
         &ett_ieee802154_payload_ie,
         &ett_ieee802154_tsch_timeslot,
