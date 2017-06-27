@@ -75,11 +75,8 @@ file(TO_NATIVE_PATH "${CMAKE_SOURCE_DIR}" TOP_SRC_DIR)
 file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/docbook" USER_GUIDE_DIR)
 if ("${WIRESHARK_TARGET_PLATFORM}" STREQUAL "win32")
 	set(TARGET_MACHINE x86)
-	set (MSVC_REDIST_DIR "$ENV{PROGRAMFILES}/Common Files/Merge Modules")
 elseif ("${WIRESHARK_TARGET_PLATFORM}" STREQUAL "win64")
 	set(TARGET_MACHINE x64)
-	set (PF86_ENV "ProgramFiles(x86)")
-	set (MSVC_REDIST_DIR "$ENV{${PF86_ENV}}/Common Files/Merge Modules")
 else()
 	message(FATAL_ERROR "Your mysterious moon-man architecture \"${WIRESHARK_TARGET_PLATFORM}\" frightens and confuses us.")
 endif()
@@ -107,15 +104,24 @@ set (PRODUCT_VERSION=${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_MICRO}.${VERSIO
 # Use the merge module that comes with our version of Visual Studio
 if(MSVC_VERSION GREATER_EQUAL 1910)
 	set (MSVC_CRT_VERSION "VC141")
-	# VS 2017 wasn't nearby at the time of this writing.
-	# set (MSVC_REDIST_DIR "$ENV{VCINSTALLDIR}/path/to/merge/modules")
 elseif(MSVC_VERSION GREATER_EQUAL 1900)
 	set (MSVC_CRT_VERSION "VC140")
 elseif(MSVC_VERSION GREATER_EQUAL 1800)
 	set (MSVC_CRT_VERSION "VC120")
 endif()
 
-message(STATUS "Using ${MSVC_REDIST_DIR}/Microsoft_${MSVC_CRT_VERSION}_CRT_${TARGET_MACHINE}.msm for the installer")
+set(MERGE_MODULE "Microsoft_${MSVC_CRT_VERSION}_CRT_${TARGET_MACHINE}.msm")
+set (PF86_ENV "ProgramFiles(x86)")
+
+find_path(MERGE_MODULE_DIR ${MERGE_MODULE}
+	PATHS
+		#"$ENV{VCINSTALLDIR}/VC/Redist/MSVC/how-do-we-get-this-version/Merge Modules"
+		"$ENV{${PF86_ENV}}/Common Files/Merge Modules"
+		"$ENV{PROGRAMFILES}/Common Files/Merge Modules"
+	NO_DEFAULT_PATH
+)
+
+message(STATUS "Using ${MERGE_MODULE_DIR}/Microsoft_${MSVC_CRT_VERSION}_CRT_${TARGET_MACHINE}.msm for the installer")
 
 if(NOT ENABLE_STATIC)
 	# XXX Replace ENABLE_LIBWIRESHARK with !ENABLE_STATIC everywhere.
@@ -310,7 +316,7 @@ set(WIX_CANDLE_DEFINES
 	-dRadiusDictDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}/radius
 	-dSnmpMibDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}/snmp/mibs
 	-dVCRedistVersion=${MSVC_CRT_VERSION}
-	-dVCRedistDir=${MSVC_REDIST_DIR}
+	-dVCRedistDir=${MERGE_MODULE_DIR}
 	${use_gtk}
 	${use_smi}
 	${ENABLE_LIBWIRESHARK}
