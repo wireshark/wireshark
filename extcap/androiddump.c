@@ -732,7 +732,7 @@ static char *adb_send_and_read(socket_handle_t sock, const char *adb_service, ch
 
 static int adb_send(socket_handle_t sock, const char *adb_service) {
     char buffer[5];
-    gssize   used_buffer_length;
+    int      used_buffer_length;
     gssize   result;
     size_t   adb_service_length;
 
@@ -761,7 +761,7 @@ static int adb_send(socket_handle_t sock, const char *adb_service) {
             return EXIT_CODE_ERROR_WHILE_RECEIVING_ADB_PACKET_STATUS;
         }
 
-        used_buffer_length += result;
+        used_buffer_length += (int)result;
     }
 
     if (memcmp(buffer, "OKAY", 4)) {
