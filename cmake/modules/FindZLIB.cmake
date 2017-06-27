@@ -87,11 +87,25 @@ IF(ZLIB_INCLUDE_DIR AND EXISTS "${ZLIB_INCLUDE_DIR}/zlib.h")
     SET(ZLIB_PATCH_VERSION "${ZLIB_VERSION_PATCH}")
 ENDIF()
 
-INCLUDE(CheckFunctionExists)
-SET(CMAKE_REQUIRED_LIBRARIES ${ZLIB_LIBRARY})
-CHECK_FUNCTION_EXISTS("inflatePrime" HAVE_INFLATEPRIME)
-# reset
-SET(CMAKE_REQUIRED_LIBRARIES "")
+#
+# Sigh.  On Windows, we build libz as part of the Wireshark build
+# process, so we don't necessarily *have* a libz library to search
+# for inflatePrime() at this point; the search fails on the buildbots,
+# for example.  See bug 13850.
+#
+# So, on Windows, we just assume we have a new enough version of
+# libz, so that it has inflatePrime().
+#
+IF(WIN32)
+    MESSAGE(STATUS "Zlib might not be built yet; assume it contains inflatePrime")
+    SET(HAVE_INFLATEPRIME ON)
+ELSE()
+    INCLUDE(CheckFunctionExists)
+    SET(CMAKE_REQUIRED_LIBRARIES ${ZLIB_LIBRARY})
+    CHECK_FUNCTION_EXISTS("inflatePrime" HAVE_INFLATEPRIME)
+    # reset
+    SET(CMAKE_REQUIRED_LIBRARIES "")
+ENDIF()
 
 # handle the QUIETLY and REQUIRED arguments and set ZLIB_FOUND to TRUE if
 # all listed variables are TRUE
