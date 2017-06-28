@@ -2889,7 +2889,7 @@ static int ett_e212_imsi = -1;
 
 static expert_field ei_E212_mcc_non_decimal = EI_INIT;
 static expert_field ei_E212_mnc_non_decimal = EI_INIT;
-
+static expert_field ei_E212_imsi_malformed = EI_INIT;
 
 /* static int hf_E212_msin = -1; */
 
@@ -3286,6 +3286,24 @@ dissect_e212_mcc_mnc_in_utf8_address(tvbuff_t *tvb, packet_info *pinfo _U_, prot
         return 5;
 }
 
+static gboolean
+is_imsi_string_valid(const gchar *imsi_str)
+{
+    size_t len;
+
+    if (imsi_str == NULL)
+        return FALSE;
+    len = strlen(imsi_str);
+    /* According to TS 23.003 2.2 and 2.3, the number of digits in IMSI shall not exceed 15.
+     * Even if in the reality imsis are always 14 or 15 digits long, the standard doesn't say
+     * anything about minimum length, except for the fact that they shall have a valid MCC
+     * (3 digits long), a valid MNC (2 or 3 digits long) and a MSIN (at least 1 digit)*/
+    if (len < 6 || len > 15 || strchr(imsi_str, '?')) {
+        return FALSE;
+    }
+    return TRUE;
+}
+
 const gchar *
 dissect_e212_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length, gboolean skip_first)
 {
@@ -3299,6 +3317,9 @@ dissect_e212_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
      */
     imsi_str = tvb_bcd_dig_to_wmem_packet_str( tvb, offset, length, NULL, skip_first);
     item = proto_tree_add_string(tree, hf_E212_imsi, tvb, offset, length, imsi_str);
+    if (!is_imsi_string_valid(imsi_str)) {
+        expert_add_info(pinfo, item, &ei_E212_imsi_malformed);
+    }
 
     subtree = proto_item_add_subtree(item, ett_e212_imsi);
 
@@ -3321,6 +3342,9 @@ dissect_e212_utf8_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     /* Fetch the UTF8-encoded IMSI */
     imsi_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_UTF_8);
     item = proto_tree_add_string(tree, hf_E212_imsi, tvb, offset, length, imsi_str);
+    if (!is_imsi_string_valid(imsi_str)) {
+        expert_add_info(pinfo, item, &ei_E212_imsi_malformed);
+    }
 
     subtree = proto_item_add_subtree(item, ett_e212_imsi);
 
@@ -3434,6 +3458,7 @@ proto_register_e212(void)
     static ei_register_info ei[] = {
         { &ei_E212_mcc_non_decimal, { "e212.mcc.non_decimal", PI_MALFORMED, PI_WARN, "MCC contains non-decimal digits", EXPFILL }},
         { &ei_E212_mnc_non_decimal, { "e212.mnc.non_decimal", PI_MALFORMED, PI_WARN, "MNC contains non-decimal digits", EXPFILL }},
+        { &ei_E212_imsi_malformed, { "e212.imsi.malformed", PI_MALFORMED, PI_WARN, "Malformed IMSI", EXPFILL }},
     };
 
     expert_module_t* expert_e212;
