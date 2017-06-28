@@ -4049,17 +4049,17 @@ void MainWindow::filterToolbarCustomMenuHandler(const QPoint& pos)
 
     QMenu * filterMenu = new QMenu(this);
 
-    QAction *actFilter = filterMenu->addAction(tr("Filter Preferences..."));
+    QAction *actFilter = filterMenu->addAction(tr("Filter Button Preferences..."));
     connect(actFilter, SIGNAL(triggered()), this, SLOT(filterToolbarShowPreferences()));
     actFilter->setData(filterAction->data());
     filterMenu->addSeparator();
-    QAction * actEdit = filterMenu->addAction(tr("Edit Filter"));
+    QAction * actEdit = filterMenu->addAction(tr("Edit"));
     connect(actEdit, SIGNAL(triggered()), this, SLOT(filterToolbarEditFilter()));
     actEdit->setData(filterAction->data());
-    QAction * actDisable = filterMenu->addAction(tr("Disable Filter"));
+    QAction * actDisable = filterMenu->addAction(tr("Disable"));
     connect(actDisable, SIGNAL(triggered()), this, SLOT(filterToolbarDisableFilter()));
     actDisable->setData(filterAction->data());
-    QAction * actRemove = filterMenu->addAction(tr("Remove Filter"));
+    QAction * actRemove = filterMenu->addAction(tr("Remove"));
     connect(actRemove, SIGNAL(triggered()), this, SLOT(filterToolbarRemoveFilter()));
     actRemove->setData(filterAction->data());
 
