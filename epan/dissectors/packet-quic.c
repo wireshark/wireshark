@@ -41,6 +41,9 @@ QUIC source code in Chromium : https://code.google.com/p/chromium/codesearch#chr
 void proto_register_quic(void);
 void proto_reg_handoff_quic(void);
 
+static dissector_handle_t quic_handle;
+
+
 static int proto_quic = -1;
 static int hf_quic_puflags = -1;
 static int hf_quic_puflags_vrsn = -1;
@@ -202,6 +205,8 @@ typedef struct quic_info_data {
 } quic_info_data_t;
 
 #define QUIC_MIN_LENGTH 3
+#define QUIC_MAGIC2 0x513032
+#define QUIC_MAGIC3 0x513033
 
 /**************************************************************************/
 /*                      Public Flags                                      */
@@ -2215,6 +2220,45 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return dissect_quic_common(tvb, pinfo, tree, NULL);
 }
 
+static gboolean dissect_gquic_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+
+    conversation_t *conversation = NULL;
+    int offset = 0;
+    guint8 flags;
+    guint32 version;
+
+    /* Verify packet size  (Flag (1 byte) + Connection ID (8 bytes) + Version (4 bytes)) */
+    if (tvb_captured_length(tvb) < 13)
+    {
+        return FALSE;
+    }
+
+    flags = tvb_get_guint8(tvb, offset);
+    offset += 1;
+    /* Check if flags version is set */
+    if((flags & PUFLAGS_VRSN) == 0) {
+        return FALSE;
+    }
+
+    /* Connection ID is always set to "long" (8bytes) too */
+    if((flags & PUFLAGS_CID) == 0){
+        return FALSE;
+    }
+    offset += 8;
+
+    /* Check if version start with Q02... (0x51 0x30 0x32) or Q03... (0x51 0x30 0x33) */
+    version = tvb_get_ntoh24(tvb, offset);
+    if ( version == QUIC_MAGIC2 || version == QUIC_MAGIC3) {
+        conversation = find_or_create_conversation(pinfo);
+        conversation_set_dissector(conversation, quic_handle);
+        dissect_quic(tvb, pinfo, tree, data);
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
 void
 proto_register_quic(void)
 {
@@ -2915,15 +2959,15 @@ proto_register_quic(void)
 
     expert_quic = expert_register_protocol(proto_quic);
     expert_register_field_array(expert_quic, ei, array_length(ei));
+
+    quic_handle = register_dissector("quic", dissect_quic, proto_quic);
 }
 
 void
 proto_reg_handoff_quic(void)
 {
-    dissector_handle_t quic_handle;
-
-    quic_handle = create_dissector_handle(dissect_quic, proto_quic);
-    dissector_add_uint_range_with_preference("udp.port", QUIC_PORT_RANGE, quic_handle);
+    dissector_add_uint_range_with_preference("udp.port", "", quic_handle);
+    heur_dissector_add("udp", dissect_gquic_heur, "Google QUIC", "gquic", proto_quic, HEURISTIC_ENABLE);
 }
 
 
