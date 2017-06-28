@@ -120,7 +120,7 @@
 #define SOCKET_CONNECT_TIMEOUT_TRIES   10
 #define SOCKET_CONNECT_DELAY_US      1000 /* (1000us = 1ms) * SOCKET_CONNECT_TIMEOUT_TRIES (10) = 10ms worst-case  */
 
-#define ADB_HEX4_FORMAT "%04lx"
+#define ADB_HEX4_FORMAT "%04zx"
 #define ADB_HEX4_LEN    4
 
 enum exit_code {
