@@ -1440,6 +1440,8 @@ get_sccp_assoc(packet_info *pinfo, guint offset, sccp_decode_context_t* value)
 
     break;
   }
+  case SCCP_MSG_TYPE_IT:
+    /* fall-through */
   case SCCP_MSG_TYPE_RLC:
   {
     wmem_tree_key_t fw_key[4];
