@@ -3015,6 +3015,11 @@ prefs_register_modules(void)
                                    "Place filter toolbar inside the statusbar?",
                                    &prefs.filter_toolbar_show_in_statusbar);
 
+    prefs_register_bool_preference(gui_module, "restore_filter_after_following_stream",
+                                   "Restore current display filter after following a stream",
+                                   "Restore current display filter after following a stream?",
+                                   &prefs.restore_filter_after_following_stream);
+
     prefs_register_enum_preference(gui_module, "protocol_tree_line_style",
                        "Protocol-tree line style",
                        "Protocol-tree line style",
@@ -3950,6 +3955,7 @@ pre_init_prefs(void)
     prefs.gui_ptree_expander_style = 1;
     prefs.gui_hex_dump_highlight_style = 1;
     prefs.filter_toolbar_show_in_statusbar = FALSE;
+    prefs.restore_filter_after_following_stream = FALSE;
     prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
     prefs.gui_toolbar_filter_style = TB_STYLE_TEXT;
     /* These will be g_freed, so they must be g_mallocated. */
