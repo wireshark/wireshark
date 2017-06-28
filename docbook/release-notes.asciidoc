@@ -99,7 +99,11 @@ DirectPlay 8 protocol
 NM protocol
 Netgear Ensemble Protocol
 OBD-II PIDs
-(Facebook) Zero
+Facebook Zero
+Citrix NetScaler Metric Exchange Protocol
+Citrix NetScaler RPC Protocol
+MUDURL
+UDP based FTP w/ multicast (UFTP and UFTP4)
 --sort-and-group--
 
 === Updated Protocol Support
@@ -108,16 +112,20 @@ Too many protocols have been updated to list here.
 
 === New and Updated Capture File Support
 
-_Non-empty section placeholder._
+//_Non-empty section placeholder._
 // Add one file type per line between the --sort-and-group-- delimiters.
 --sort-and-group--
+Libpcap
+Pcap-ng
+ERF
+IxVeriWave
 --sort-and-group--
 
-=== New and Updated Capture Interfaces support
+//=== New and Updated Capture Interfaces support
 
-_Non-empty section placeholder._
---sort-and-group--
---sort-and-group--
+//_Non-empty section placeholder._
+//--sort-and-group--
+//--sort-and-group--
 
 //=== Major API Changes
 IEEE802.11: wlan_mgt display filter element got renamed to wlan.

@@ -1,4 +1,4 @@
-                        Wireshark 2.4.0rc1 Release Notes
+                        Wireshark 2.4.0rc2 Release Notes
 
    This is the first release candidate for Wireshark 2.4.0.
      __________________________________________________________________
@@ -47,20 +47,22 @@ What's New
 
   New Protocol Support
 
-   (Facebook) Zero, Bluetooth HCI Vendor Intel, CAN FD, DirectPlay 8
-   protocol, Ericsson A-bis P-GSL, Ericsson A-bis TFP (Traffic Forwarding
-   Protocol), Fc00/cjdns Protocol, Generic Netlink (genl), GSM Osmux,
+   Bluetooth HCI Vendor Intel, CAN FD, Citrix NetScaler Metric Exchange
+   Protocol, Citrix NetScaler RPC Protocol, DirectPlay 8 protocol,
+   Ericsson A-bis P-GSL, Ericsson A-bis TFP (Traffic Forwarding Protocol),
+   Facebook Zero, Fc00/cjdns Protocol, Generic Netlink (genl), GSM Osmux,
    GSMTAP based logging, Health Level 7 (HL7), High-speed SECS message
    service (HSMS), HomePNA, IndigoCare iCall protocol, IndigoCare Netrix
    protocol, iPerf2, ISO 15765, Linux 802.11 Netlink (nl80211), Local
    Service Discovery (LSD), M2 Application Protocol, Mesh Link
-   Establishment (MLE), Netgear Ensemble Protocol, NetScaler HA Protocol,
-   NetScaler Metric Exchange Protocol, NetScaler RPC Protocol, NM
-   protocol, Nordic BLE Sniffer, NVMe, NVMe Fabrics RDMA, OBD-II PIDs,
+   Establishment (MLE), MUDURL, Netgear Ensemble Protocol, NetScaler HA
+   Protocol, NetScaler Metric Exchange Protocol, NetScaler RPC Protocol,
+   NM protocol, Nordic BLE Sniffer, NVMe, NVMe Fabrics RDMA, OBD-II PIDs,
    OpenThread simulator, RFTap Protocol, SCTE-35 Digital Program Insertion
-   Messages, Snort Post-dissector, Thread CoAP, Unified Diagnostic
-   Services (UDS), vSocket, Windows Cluster Management API (clusapi), and
-   X-Rite i1 Display Pro (and derivatives) USB protocol
+   Messages, Snort Post-dissector, Thread CoAP, UDP based FTP w/ multicast
+   (UFTP and UFTP4), Unified Diagnostic Services (UDS), vSocket, Windows
+   Cluster Management API (clusapi), and X-Rite i1 Display Pro (and
+   derivatives) USB protocol
 
   Updated Protocol Support
 
@@ -68,11 +70,7 @@ What's New
 
   New and Updated Capture File Support
 
-   Non-empty section placeholder.
-
-  New and Updated Capture Interfaces support
-
-   Non-empty section placeholder.
+   ERF, IxVeriWave, Libpcap, and Pcap-ng
 
    IEEE802.11: wlan_mgt display filter element got renamed to wlan.
    Libgcrypt is now a required dependency.
@@ -138,7 +136,7 @@ Frequently Asked Questions
    A complete FAQ is available on the [14]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2017-06-07 21:59:45 UTC
+   Last updated 2017-06-28 17:23:59 UTC
 
 References
 
