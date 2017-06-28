@@ -80,17 +80,42 @@ features.  The C99 features that can be used are:
 
 	variadic macros
 
-Don't initialize variables with static storage duration - i.e., global
-or static variables - or objects with aggregate type (arrays and
-structures) in their declaration with non-constant values.  Not all
-compilers support this.  E.g., if "i" is a static or global variable,
-don't declare i as
+Don't initialize array, structure, or union variables (variables with
+aggregate type) in their declaration with non-constant values.  Not all
+compilers support this.  E.g., if "foo" is a structure with two guint32
+members "a" and "b", don't declare it as
 
-    guint32 i = somearray[2];
+    struct xxx foo = { somearray[2], somearray[1] };
 
 declare it as just
 
+    struct xxx foo;
+
+and later, in code, initialize it with
+
+    foo.a = somearray[2];
+    foo.b = somearray[1];
+
+instead.
+
+Don't initialize global or static variables (variables with static
+storage duration) in their declaration with non-constant values.  Not
+all compilers support this.  E.g., if "i" is a static or global
+variable, don't declare "i" as
+
+    guint32 i = somearray[2];
+
+outside a function, or as
+
+    static guint32 i = somearray[2];
+
+inside or outside a function, declare it as just
+
     guint32 i;
+
+or
+
+    static guint32 i;
 
 and later, in code, initialize it with
 
