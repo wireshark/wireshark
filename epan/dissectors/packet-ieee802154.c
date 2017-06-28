@@ -2959,7 +2959,7 @@ dissect_ieee802154_payload_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
                     offset += pie_length;
                 }
         }
-    } while ((tvb_reported_length_remaining(tvb, offset) - IEEE802154_FCS_LEN > 1)
+    } while ((tvb_reported_length_remaining(tvb, offset) > 1)
              && (pie_id != IEEE802154_PAYLOAD_IE_GID_TERM));
 
     // Once the dissection is over, the length of the header is known
