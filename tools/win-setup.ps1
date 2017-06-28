@@ -99,13 +99,13 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2017-05-11"
-$Win32CurrentTag = "2017-05-11"
+$Win64CurrentTag = "2017-06-28"
+$Win32CurrentTag = "2017-06-28"
 
 # Archive file / subdir.
 $Win64Archives = @{
     "AirPcap_Devpack_4_1_0_1622.zip" = "AirPcap_Devpack_4_1_0_1622";
-    "c-ares-1.12.0-1-win64ws.zip" = "";
+    "c-ares-1.13.0-win64ws.zip" = "";
     "GeoIP-1.6.10-win64ws.zip" = "";
     "gnutls-3.4.11-1.35-win64ws.zip" = "";
     "gtk+-bundle_2.24.23-3.39-2_win64ws.zip" = "gtk2";
@@ -125,12 +125,12 @@ $Win64Archives = @{
     "upx303w.zip" = "";
     "WinSparkle-0.5.3.zip" = "";
     "WpdPack_4_1_2.zip" = "";
-    "zlib-1.2.8-ws.zip" = "";
+    "zlib-1.2.11-ws.zip" = "";
 }
 
 $Win32Archives = @{
     "AirPcap_Devpack_4_1_0_1622.zip" = "AirPcap_Devpack_4_1_0_1622";
-    "c-ares-1.12.0-1-win32ws.zip" = "";
+    "c-ares-1.13.0-win32ws.zip" = "";
     "GeoIP-1.6.10-win32ws.zip" = "";
     "gnutls-3.4.11-1.36-win32ws.zip" = "";
     "gtk+-bundle_2.24.23-1.1-1_win32ws.zip" = "gtk2";
@@ -150,7 +150,7 @@ $Win32Archives = @{
     "upx303w.zip" = "";
     "WinSparkle-0.5.3.zip" = "";
     "WpdPack_4_1_2.zip" = "";
-    "zlib-1.2.8-ws.zip" = "";
+    "zlib-1.2.11-ws.zip" = "";
 }
 
 # Plain file downloads
@@ -177,7 +177,7 @@ if ($Platform -eq "win32") {
 
 $CleanupItems = @(
     "c-ares-1.9.1-1-win??ws"
-    "c-ares-1.1?.0-win??ws"
+    "c-ares-1.1*-win??ws"
     "gnutls-3.1.22-*-win??ws"
     "gnutls-3.2.15-*-win??ws"
     "gnutls-3.4.11-*-win??ws"
@@ -206,7 +206,7 @@ $CleanupItems = @(
     "user-guide"
     "zlib-1.2.5"
     "zlib-1.2.8"
-    "zlib-1.2.8-ws"
+    "zlib-1.2.*-ws"
     "AirPcap_Devpack_4_1_0_1622"
     "GeoIP-1.*-win??ws"
     "WinSparkle-0.3-44-g2c8d9d3-win??ws"
