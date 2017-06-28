@@ -771,6 +771,7 @@ id-E-RABs-ToBeSetupRetrieve-Item											ProtocolIE-ID
 id-NewEUTRANCellIdentifier													ProtocolIE-ID
 id-OffsetOfNbiotChannelNumberToDL-EARFCN									ProtocolIE-ID
 id-OffsetOfNbiotChannelNumberToUL-EARFCN									ProtocolIE-ID
+id-uL-GTPtunnelEndpoint												ProtocolIE-ID
 
 #.REGISTER
 
@@ -952,6 +953,7 @@ CellReportingIndicator						N x2ap.extension id-CellReportingIndicator
 BearerType							N x2ap.extension id-BearerType
 OffsetOfNbiotChannelNumberToEARFCN				N x2ap.extension id-OffsetOfNbiotChannelNumberToDL-EARFCN
 OffsetOfNbiotChannelNumberToEARFCN				N x2ap.extension id-OffsetOfNbiotChannelNumberToUL-EARFCN
+GTPtunnelEndpoint						N x2ap.extension id-uL-GTPtunnelEndpoint
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE

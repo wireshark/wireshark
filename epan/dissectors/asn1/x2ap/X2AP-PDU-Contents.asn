@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V13.6.0 (2017-01)
+-- 3GPP TS 36.423 V13.7.0 (2017-06)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -283,6 +283,7 @@ FROM X2AP-Containers
 	id-UE-ContextInformationRetrieve,
 	id-E-RABs-ToBeSetupRetrieve-Item,
 	id-NewEUTRANCellIdentifier,
+	id-uL-GTPtunnelEndpoint,
 
 	maxCellineNB,
 	maxnoofBearers,
@@ -2088,6 +2089,7 @@ E-RABs-ToBeSetupRetrieve-Item ::= SEQUENCE {
 }
 
 E-RABs-ToBeSetupRetrieve-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-uL-GTPtunnelEndpoint		CRITICALITY reject	EXTENSION GTPtunnelEndpoint		PRESENCE mandatory},
 	...
 }
 

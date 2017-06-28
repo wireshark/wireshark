@@ -32,7 +32,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * Ref:
- * 3GPP TS 36.423 V13.6.0 (2017-01)
+ * 3GPP TS 36.423 V13.7.0 (2017-06)
  */
 
 #include "config.h"
@@ -306,7 +306,8 @@ typedef enum _ProtocolIE_ID_enum {
   id_E_RABs_ToBeSetupRetrieve_Item = 174,
   id_NewEUTRANCellIdentifier = 175,
   id_OffsetOfNbiotChannelNumberToDL_EARFCN = 177,
-  id_OffsetOfNbiotChannelNumberToUL_EARFCN = 178
+  id_OffsetOfNbiotChannelNumberToUL_EARFCN = 178,
+  id_uL_GTPtunnelEndpoint = 185
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-x2ap-val.h ---*/
@@ -399,6 +400,7 @@ static int hf_x2ap_ExpectedUEBehaviour_PDU = -1;  /* ExpectedUEBehaviour */
 static int hf_x2ap_ExtendedULInterferenceOverloadInfo_PDU = -1;  /* ExtendedULInterferenceOverloadInfo */
 static int hf_x2ap_FreqBandIndicatorPriority_PDU = -1;  /* FreqBandIndicatorPriority */
 static int hf_x2ap_GlobalENB_ID_PDU = -1;         /* GlobalENB_ID */
+static int hf_x2ap_GTPtunnelEndpoint_PDU = -1;    /* GTPtunnelEndpoint */
 static int hf_x2ap_GUGroupIDList_PDU = -1;        /* GUGroupIDList */
 static int hf_x2ap_GUMMEI_PDU = -1;               /* GUMMEI */
 static int hf_x2ap_HandoverReportType_PDU = -1;   /* HandoverReportType */
@@ -1620,6 +1622,7 @@ static const value_string x2ap_ProtocolIE_ID_vals[] = {
   { id_NewEUTRANCellIdentifier, "id-NewEUTRANCellIdentifier" },
   { id_OffsetOfNbiotChannelNumberToDL_EARFCN, "id-OffsetOfNbiotChannelNumberToDL-EARFCN" },
   { id_OffsetOfNbiotChannelNumberToUL_EARFCN, "id-OffsetOfNbiotChannelNumberToUL-EARFCN" },
+  { id_uL_GTPtunnelEndpoint, "id-uL-GTPtunnelEndpoint" },
   { 0, NULL }
 };
 
@@ -9209,6 +9212,14 @@ static int dissect_GlobalENB_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_GTPtunnelEndpoint_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_x2ap_GTPtunnelEndpoint(tvb, offset, &asn1_ctx, tree, hf_x2ap_GTPtunnelEndpoint_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_GUGroupIDList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -10962,6 +10973,10 @@ void proto_register_x2ap(void) {
         NULL, HFILL }},
     { &hf_x2ap_GlobalENB_ID_PDU,
       { "GlobalENB-ID", "x2ap.GlobalENB_ID_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x2ap_GTPtunnelEndpoint_PDU,
+      { "GTPtunnelEndpoint", "x2ap.GTPtunnelEndpoint_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_x2ap_GUGroupIDList_PDU,
@@ -13668,6 +13683,7 @@ proto_reg_handoff_x2ap(void)
   dissector_add_uint("x2ap.extension", id_BearerType, create_dissector_handle(dissect_BearerType_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_OffsetOfNbiotChannelNumberToDL_EARFCN, create_dissector_handle(dissect_OffsetOfNbiotChannelNumberToEARFCN_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_OffsetOfNbiotChannelNumberToUL_EARFCN, create_dissector_handle(dissect_OffsetOfNbiotChannelNumberToEARFCN_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.extension", id_uL_GTPtunnelEndpoint, create_dissector_handle(dissect_GTPtunnelEndpoint_PDU, proto_x2ap));
   dissector_add_uint("x2ap.proc.imsg", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequest_PDU, proto_x2ap));
   dissector_add_uint("x2ap.proc.sout", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequestAcknowledge_PDU, proto_x2ap));
   dissector_add_uint("x2ap.proc.uout", id_handoverPreparation, create_dissector_handle(dissect_HandoverPreparationFailure_PDU, proto_x2ap));
