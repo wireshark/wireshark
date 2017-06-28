@@ -5016,7 +5016,7 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
                   plen = 12 + ROUND_LENGTH(auth_proto_len) +
                         ROUND_LENGTH(auth_data_len);
             } else {
-                  gint64 tmp = (gint64)plen * 4;
+                  volatile gint64 tmp = (gint64)plen * 4;
                   /*
                    * This is probably an ordinary request.
                    */
