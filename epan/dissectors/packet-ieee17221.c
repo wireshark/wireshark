@@ -1261,6 +1261,8 @@ void proto_reg_handoff_17221(void);
 #define AEM_OFFSET_COMPRESS_MODE                   6
 #define AEM_OFFSET_COLOR_SPACE                     7
 
+/* AECP Vendor Unique Command Specific Offsets */
+#define AECP_VUC_OFFSET_PROTOCOL_ID                22
 
 /* AECP Video Cluster Format Offsets */
 /* IEEE 1722.1 draft D21 section 7.3.7 */
@@ -1734,7 +1736,7 @@ static const value_string aecp_message_type_vals[] = {
    {AECP_AVC_COMMAND_MESSAGE,             "AVC_COMMAND"},
    {AECP_AVC_RESPONSE_MESSAGE,            "AVC_RESPONSE"},
    {AECP_VENDOR_UNIQUE_COMMAND_MESSAGE,   "VENDOR_UNIQUE_COMMAND"},
-   {AECP_VENDOR_UNIQUE_RESPONSE_MESSAGE,  "VENDOR_UNIQUEU_RESPONSE"},
+   {AECP_VENDOR_UNIQUE_RESPONSE_MESSAGE,  "VENDOR_UNIQUE_RESPONSE"},
    {AECP_EXTENDED_COMMAND_MESSAGE,        "EXTENDED_COMMAND"},
    {AECP_EXTENDED_RESPONSE_MESSAGE,       "EXTENDED_RESPONSE"},
    {0,                                    NULL }
@@ -1968,6 +1970,8 @@ static int hf_adp_chan_format_22ch = -1;
 static int hf_adp_chan_format_24ch = -1;
 #endif
 
+/* AECP Vendor Unique Protocol Dissector table */
+static dissector_table_t vendor_unique_protocol_dissector_table;
 
 /* ***************************************************************** */
 /*     AVDECC Enumeration and Control Protocol Data Unit (AECPDU)    */
@@ -2130,6 +2134,7 @@ static int hf_aecp_u_flag = -1;
 static int hf_aecp_unlock_flag = -1;
 /* static int hf_aecp_values = -1; */
 /* static int hf_aecp_values_count = -1; */
+static int hf_aecp_vendor_unique_protocol_id = -1;
 static int hf_aecp_video_format = -1;
 static int hf_aecp_status_code = -1;
 static int hf_aecp_backup_talker_entity_id_0 = -1;
@@ -3810,6 +3815,8 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
    proto_item *mr_subtree;
    proto_item *mr_item;
    int i;
+   guint64 vendor_unique_protocol_id;
+   gchar *vendor_unique_protocol_id_string;
    /* next tvb for use in subdissection */
    tvbuff_t *next_tvb;
    proto_tree *flags_tree;
@@ -4549,8 +4556,18 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
          AECP_AA_OFFSET_TLVS_START, 2, ENC_BIG_ENDIAN);
       proto_tree_add_item(aecp_tree, hf_aecp_aa_tlv_address, tvb,
          AECP_AA_OFFSET_TLVS_START+2, 8, ENC_BIG_ENDIAN);
-   }
+   } /* AECP Vendor Unique Command/Response */
+   else if ((mess_type == AECP_VENDOR_UNIQUE_COMMAND_MESSAGE) || (mess_type == AECP_VENDOR_UNIQUE_RESPONSE_MESSAGE))
+   {
+      proto_tree_add_item(aecp_tree, hf_aecp_vendor_unique_protocol_id, tvb,
+         AECP_VUC_OFFSET_PROTOCOL_ID, 6, ENC_BIG_ENDIAN);
 
+      /* attempt to dissect the payload specific data */
+      next_tvb = tvb_new_subset_remaining(tvb, AECP_VUC_OFFSET_PROTOCOL_ID);
+      vendor_unique_protocol_id = tvb_get_guint48(tvb, AECP_VUC_OFFSET_PROTOCOL_ID, ENC_BIG_ENDIAN);
+      vendor_unique_protocol_id_string = wmem_strdup_printf(wmem_packet_scope(), "%012" G_GINT64_MODIFIER "x", vendor_unique_protocol_id);
+      dissector_try_string(vendor_unique_protocol_dissector_table, vendor_unique_protocol_id_string, next_tvb, pinfo, aecp_tree, NULL);
+    }
 }
 
 static void
@@ -6970,6 +6987,10 @@ proto_register_17221(void)
       { &hf_aecp_backedup_talker_unique_id,
          {"Backedup Talker Unique ID", "ieee17221.backedup_talker_unique_id",
             FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_aecp_vendor_unique_protocol_id,
+         {"Vendor Unique Protocol ID", "ieee17221.protocol_id",
+            FT_UINT48, BASE_HEX, NULL, 0x00, NULL, HFILL }
       }
    };
 
@@ -7010,6 +7031,9 @@ proto_register_17221(void)
    /* Required function calls to register the header fields and subtrees used */
    proto_register_field_array(proto_17221, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
+
+   /* Register the custom handler for vendor specific messages */
+   vendor_unique_protocol_dissector_table = register_dissector_table("ieee17221.protocol_id", "Vendor Unique Protocol ID", proto_17221, FT_STRING, BASE_NONE);
 }
 
 void
