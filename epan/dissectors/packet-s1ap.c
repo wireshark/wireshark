@@ -30,7 +30,7 @@
  *
  * Based on the RANAP dissector
  *
- * References: 3GPP TS 36.413 V13.5.0 (2016-12)
+ * References: 3GPP TS 36.413 V13.6.0 (2017-06)
  */
 
 #include "config.h"
@@ -6306,6 +6306,7 @@ static const value_string s1ap_OverloadAction_vals[] = {
   {   2, "permit-emergency-sessions-and-mobile-terminated-services-only" },
   {   3, "permit-high-priority-sessions-and-mobile-terminated-services-only" },
   {   4, "reject-delay-tolerant-access" },
+  {   5, "permit-high-priority-sessions-and-exception-reporting-and-mobile-terminated-services-only" },
   { 0, NULL }
 };
 
@@ -6313,7 +6314,7 @@ static const value_string s1ap_OverloadAction_vals[] = {
 static int
 dissect_s1ap_OverloadAction(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 2, NULL);
+                                     3, NULL, TRUE, 3, NULL);
 
   return offset;
 }
