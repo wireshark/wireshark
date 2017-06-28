@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V13.5.0 (2017-03)
+-- 3GPP TS 36.331 V13.6.0 (2017-06)
 --
 NBIOT-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -643,6 +643,8 @@ SystemInformationBlockType3-NB-r13 ::=	SEQUENCE {
 	lateNonCriticalExtension					OCTET STRING				OPTIONAL,
 	...,
 	[[	intraFreqCellReselectionInfo-v1350		IntraFreqCellReselectionInfo-NB-v1350 OPTIONAL 	-- Cond Qrxlevmin
+	]],
+	[[	intraFreqCellReselectionInfo-v1360		IntraFreqCellReselectionInfo-NB-v1360 OPTIONAL 	-- Need OR
 	]]
 }
 
@@ -650,6 +652,9 @@ IntraFreqCellReselectionInfo-NB-v1350 ::=	SEQUENCE {
 	delta-RxLevMin-v1350						INTEGER (-8..-1)
 }
 
+IntraFreqCellReselectionInfo-NB-v1360 ::=	SEQUENCE {
+	s-IntraSearchP-v1360						ReselectionThreshold-NB-v1360
+}
 
 SystemInformationBlockType4-NB-r13 ::=		SEQUENCE {
 	intraFreqNeighCellList-r13			IntraFreqNeighCellList	OPTIONAL,	-- Need OR
@@ -708,7 +713,7 @@ AB-ConfigPLMN-NB-r13 ::=	SEQUENCE {
 AB-Config-NB-r13 ::=		SEQUENCE {
 	ab-Category-r13					ENUMERATED {a, b, c},
 	ab-BarringBitmap-r13			BIT STRING (SIZE(10)),
-	ab-BarringExceptionData-r13		ENUMERATED {true}			OPTIONAL,	-- Need OP
+	ab-BarringForExceptionData-r13	ENUMERATED {true}			OPTIONAL,	-- Need OP
 	ab-BarringForSpecialAC-r13		BIT STRING (SIZE(5))
 }
 
@@ -958,7 +963,6 @@ PhysicalConfigDedicated-NB-r13 ::=	SEQUENCE {
 }
 
 
-
 RACH-ConfigCommon-NB-r13 ::=		SEQUENCE {
 	preambleTransMax-CE-r13				PreambleTransMax,
 	powerRampingParameters-r13			PowerRampingParameters,
@@ -1131,6 +1135,9 @@ NS-PmaxValue-NB-r13 ::=			SEQUENCE {
 	additionalPmax-r13				P-Max						OPTIONAL,	-- Need OR
 	additionalSpectrumEmission-r13	AdditionalSpectrumEmission
 }
+
+
+ReselectionThreshold-NB-v1360 ::=			INTEGER (32..63)
 
 
 T-Reselection-NB-r13 ::=		ENUMERATED {s0, s3, s6, s9, s12, s15, s18, s21}

@@ -915,6 +915,9 @@ RRCConnectionRelease-v1020-IEs/extendedWaitTime-r10 DISPLAY=BASE_DEC|BASE_UNIT_S
 SystemInformationBlockType1/cellSelectionInfo/q-RxLevMinOffset STRINGS=VALS(lte_rrc_q_RxLevMinOffset_vals)
 
 #.TYPE_ATTR
+CellSelectionInfoCE1-v1360/delta-RxLevMinCE1-v1360 STRINGS=VALS(lte_rrc_delta_RxLevMin_vals)
+
+#.TYPE_ATTR
 CellSelectionInfo-v920/q-QualMinOffset-r9 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
 
 #.TYPE_ATTR
@@ -1224,6 +1227,9 @@ ThresholdUTRA/utra-EcN0 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_thresh
 
 #.TYPE_ATTR
 RSRP-Range DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_RSRP_Range_vals_ext
+
+#.TYPE_ATTR
+RSRP-Range-v1360 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_RSRP_Range_v1360_vals_ext
 
 #.TYPE_ATTR
 RSRP-RangeSL-r12 DISPLAY=BASE_DEC STRINGS=VALS(lte_rrc_RSRP_RangeSL_vals)
@@ -2312,16 +2318,16 @@ RRCConnectionReject-NB-r13-IEs/extendedWaitTime-r13 DISPLAY=BASE_DEC|BASE_UNIT_S
 RRCConnectionRelease-NB-r13-IEs/extendedWaitTime-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.TYPE_ATTR
-CellSelectionInfo-NB-v1350/delta-RxLevMin-v1350 STRINGS=VALS(lte_rrc_delta_RxLevMin_v1350_vals)
+CellSelectionInfo-NB-v1350/delta-RxLevMin-v1350 STRINGS=VALS(lte_rrc_delta_RxLevMin_vals)
 
 #.TYPE_RENAME
 SystemInformationBlockType2-NB-r13/multiBandInfoList-r13 AdditionalSpectrumEmission_r13
 
 #.TYPE_ATTR
-IntraFreqCellReselectionInfo-NB-v1350/delta-RxLevMin-v1350 STRINGS=VALS(lte_rrc_delta_RxLevMin_v1350_vals)
+IntraFreqCellReselectionInfo-NB-v1350/delta-RxLevMin-v1350 STRINGS=VALS(lte_rrc_delta_RxLevMin_vals)
 
 #.TYPE_ATTR
-InterFreqCarrierFreqInfo-NB-r13/eag_1/delta-RxLevMin-v1350 STRINGS=VALS(lte_rrc_delta_RxLevMin_v1350_vals)
+InterFreqCarrierFreqInfo-NB-r13/eag_1/delta-RxLevMin-v1350 STRINGS=VALS(lte_rrc_delta_RxLevMin_vals)
 
 #.TYPE_ATTR
 AB-Config-NB-r13/ab-Category-r13 STRINGS=VALS(lte_rrc_eab_category_vals)
@@ -2404,3 +2410,6 @@ UplinkPowerControlCommon-NB-r13/deltaPreambleMsg3-r13 STRINGS=VALS(lte_rrc_delta
 
 #.TYPE_ATTR
 UplinkPowerControlDedicated-NB-r13/p0-UE-NPUSCH-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
+
+#.TYPE_ATTR
+ReselectionThreshold-NB-v1360  DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_ReselectionThreshold_NB_vals_ext

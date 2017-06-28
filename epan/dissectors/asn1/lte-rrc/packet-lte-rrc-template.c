@@ -1,7 +1,7 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V13.5.0 Release 13) packet dissection
+ * (3GPP TS 36.331 V13.6.0 Release 13) packet dissection
  * Copyright 2008, Vincent Helfre
  * Copyright 2009-2017, Pascal Quantin
  *
@@ -827,7 +827,7 @@ static const value_string lte_rrc_q_RxLevMinOffset_vals[] = {
   { 0, NULL}
 };
 
-static const value_string lte_rrc_delta_RxLevMin_v1350_vals[] = {
+static const value_string lte_rrc_delta_RxLevMin_vals[] = {
   { -8, "-16dBm"},
   { -7, "-14dBm"},
   { -6, "-12dBm"},
@@ -1068,6 +1068,43 @@ static const value_string lte_rrc_ReselectionThreshold_vals[] = {
   {  0, NULL}
 };
 static value_string_ext lte_rrc_ReselectionThreshold_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_ReselectionThreshold_vals);
+
+static const value_string lte_rrc_ReselectionThreshold_NB_vals[] = {
+  { 32, "64dB"},
+  { 33, "66dB"},
+  { 34, "68dB"},
+  { 35, "70dB"},
+  { 36, "72dB"},
+  { 37, "74dB"},
+  { 38, "76dB"},
+  { 39, "78dB"},
+  { 40, "80dB"},
+  { 41, "82dB"},
+  { 42, "84dB"},
+  { 43, "86dB"},
+  { 44, "88dB"},
+  { 45, "90dB"},
+  { 46, "92dB"},
+  { 47, "94dB"},
+  { 48, "96dB"},
+  { 49, "98dB"},
+  { 50, "100dB"},
+  { 51, "102dB"},
+  { 52, "104dB"},
+  { 53, "106dB"},
+  { 54, "108dB"},
+  { 55, "110dB"},
+  { 56, "112dB"},
+  { 57, "114dB"},
+  { 58, "116dB"},
+  { 59, "118dB"},
+  { 60, "120dB"},
+  { 61, "122dB"},
+  { 62, "124dB"},
+  { 63, "126dB"},
+  {  0, NULL}
+};
+static value_string_ext lte_rrc_ReselectionThreshold_NB_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_ReselectionThreshold_NB_vals);
 
 static const value_string lte_rrc_Hysteresis_vals[] = {
   { 0 , "0dB"},
@@ -1902,6 +1939,28 @@ static const value_string lte_rrc_RSRP_Range_vals[] = {
   {  0, NULL}
 };
 static value_string_ext lte_rrc_RSRP_Range_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_RSRP_Range_vals);
+
+static const value_string lte_rrc_RSRP_Range_v1360_vals[] = {
+  { -17, "RSRP < -156dBm"},
+  { -16, "-156dBm <= RSRP < -155dBm"},
+  { -15, "-155dBm <= RSRP < -154dBm"},
+  { -14, "-154dBm <= RSRP < -153dBm"},
+  { -13, "-153dBm <= RSRP < -152dBm"},
+  { -12, "-152dBm <= RSRP < -151dBm"},
+  { -11, "-151dBm <= RSRP < -150dBm"},
+  { -10, "-150dBm <= RSRP < -149dBm"},
+  {  -9, "-149dBm <= RSRP < -148dBm"},
+  {  -8, "-148dBm <= RSRP < -147dBm"},
+  {  -7, "-147dBm <= RSRP < -146dBm"},
+  {  -6, "-146dBm <= RSRP < -145dBm"},
+  {  -5, "-145dBm <= RSRP < -144dBm"},
+  {  -4, "-144dBm <= RSRP < -143dBm"},
+  {  -3, "-143dBm <= RSRP < -142dBm"},
+  {  -2, "-142dBm <= RSRP < -141dBm"},
+  {  -1, "-141dBm <= RSRP < -140dBm"},
+  {  0, NULL}
+};
+static value_string_ext lte_rrc_RSRP_Range_v1360_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_RSRP_Range_v1360_vals);
 
 static const value_string lte_rrc_RSRP_RangeSL_vals[] = {
   {  0, "-infinity"},

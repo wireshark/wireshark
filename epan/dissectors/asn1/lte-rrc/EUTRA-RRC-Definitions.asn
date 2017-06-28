@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V13.5.0 (2017-03)
+-- 3GPP TS 36.331 V13.6.0 (2017-06)
 --
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -363,7 +363,12 @@ InDeviceCoexIndication-v11d0-IEs ::=	SEQUENCE {
 InDeviceCoexIndication-v1310-IEs ::=	SEQUENCE {
 	affectedCarrierFreqList-v1310		AffectedCarrierFreqList-v1310			OPTIONAL,
 	affectedCarrierFreqCombList-r13	AffectedCarrierFreqCombList-r13		OPTIONAL,
-	nonCriticalExtension					SEQUENCE {}								OPTIONAL
+	nonCriticalExtension					InDeviceCoexIndication-v13yz-IEs								OPTIONAL
+}
+
+InDeviceCoexIndication-v13yz-IEs ::=	SEQUENCE {
+	hardwareSharingProblem-r13			ENUMERATED {true}				OPTIONAL,
+	nonCriticalExtension				SEQUENCE {}						OPTIONAL
 }
 
 AffectedCarrierFreqList-r11 ::=	SEQUENCE (SIZE (1..maxFreqIDC-r11)) OF AffectedCarrierFreq-r11
@@ -1885,7 +1890,12 @@ SystemInformationBlockType1-v1320-IEs ::=	SEQUENCE {
 
 SystemInformationBlockType1-v1350-IEs ::=	SEQUENCE {
 	cellSelectionInfoCE1-r13				CellSelectionInfoCE1-r13	OPTIONAL,	-- Need OP
-	nonCriticalExtension					SEQUENCE {}				OPTIONAL
+	nonCriticalExtension					SystemInformationBlockType1-v1360-IEs	OPTIONAL
+}
+
+SystemInformationBlockType1-v1360-IEs ::=	SEQUENCE {
+	cellSelectionInfoCE1-v1360	CellSelectionInfoCE1-v1360	OPTIONAL, -- Cond QrxlevminCE1
+	nonCriticalExtension			SEQUENCE {}				OPTIONAL
 }
 
 PLMN-IdentityList ::=					SEQUENCE (SIZE (1..maxPLMN-r11)) OF PLMN-IdentityInfo
@@ -2167,7 +2177,9 @@ RLF-Report-r9 ::= 					SEQUENCE {
 		lastServCellRSRQ-Type-r12		RSRQ-Type-r12					OPTIONAL,
 		measResultListEUTRA-v1250		MeasResultList2EUTRA-v1250		OPTIONAL
 	]],
-	[[	drb-EstablishedWithQCI-1-r13			ENUMERATED {qci1}				OPTIONAL
+	[[	drb-EstablishedWithQCI-1-r13	ENUMERATED {qci1}				OPTIONAL
+	]],
+	[[	measResultLastServCell-v1360	RSRP-Range-v1360				OPTIONAL
 	]]
 }
 
@@ -2243,6 +2255,8 @@ LogMeasInfo-r10 ::= 		SEQUENCE {
 		measResultListEUTRA-v1250			MeasResultList2EUTRA-v1250	OPTIONAL
 	]],
 	[[	inDeviceCoexDetected-r13			ENUMERATED {true}			OPTIONAL
+	]],
+	[[	measResultServCell-v1360			RSRP-Range-v1360			OPTIONAL
 	]]
 }
 
@@ -2301,6 +2315,8 @@ ConnEstFailReport-r11 ::= 				SEQUENCE {
 	[[	measResultFailedCell-v1250		RSRQ-Range-v1250				OPTIONAL,
 		failedCellRSRQ-Type-r12			RSRQ-Type-r12					OPTIONAL,
 		measResultListEUTRA-v1250		MeasResultList2EUTRA-v1250		OPTIONAL
+	]],
+	[[	measResultFailedCell-v1360		RSRP-Range-v1360				OPTIONAL
 	]]
 }
 
@@ -2554,6 +2570,8 @@ SystemInformationBlockType3 ::=		SEQUENCE {
 		t-ReselectionEUTRA-CE-r13				T-ReselectionEUTRA-CE-r13	OPTIONAL		-- Need OP
 	]],
 	[[	cellSelectionInfoCE1-r13				CellSelectionInfoCE1-r13	OPTIONAL	-- Need OP
+	]],
+	[[	cellSelectionInfoCE1-v1360			CellSelectionInfoCE1-v1360	OPTIONAL		-- Cond QrxlevminCE1
 	]]
 }
 
@@ -2610,6 +2628,8 @@ SystemInformationBlockType5 ::=		SEQUENCE {
 	]],
 	[[	interFreqCarrierFreqList-v1350		InterFreqCarrierFreqList-v1350	OPTIONAL,	-- Need OR
 		interFreqCarrierFreqListExt-v1350	InterFreqCarrierFreqListExt-v1350	OPTIONAL	-- Need OR
+	]],
+	[[	interFreqCarrierFreqListExt-v1360	InterFreqCarrierFreqListExt-v1360	OPTIONAL	-- Need OR
 	]]
 }
 
@@ -2643,6 +2663,8 @@ InterFreqCarrierFreqListExt-v1310 ::=	SEQUENCE (SIZE (1.. maxFreq)) OF InterFreq
 InterFreqCarrierFreqList-v1350 ::=	SEQUENCE (SIZE (1.. maxFreq)) OF InterFreqCarrierFreqInfo-v1350
 
 InterFreqCarrierFreqListExt-v1350 ::=	SEQUENCE (SIZE (1.. maxFreq)) OF InterFreqCarrierFreqInfo-v1350
+
+InterFreqCarrierFreqListExt-v1360 ::=	SEQUENCE (SIZE (1..maxFreq)) OF InterFreqCarrierFreqInfo-v1360
 
 InterFreqCarrierFreqInfo ::=	SEQUENCE {
 	dl-CarrierFreq						ARFCN-ValueEUTRA,
@@ -2725,6 +2747,10 @@ InterFreqCarrierFreqInfo-v1310	::=	SEQUENCE {
 
 InterFreqCarrierFreqInfo-v1350	::= SEQUENCE {
 	cellSelectionInfoCE1-r13			CellSelectionInfoCE1-r13			OPTIONAL	-- Need OP
+}
+
+InterFreqCarrierFreqInfo-v1360 ::= SEQUENCE {
+	cellSelectionInfoCE1-v1360		CellSelectionInfoCE1-v1360	OPTIONAL	-- Cond QrxlevminCE1
 }
 
 InterFreqNeighCellList ::=			SEQUENCE (SIZE (1..maxCellInter)) OF InterFreqNeighCellInfo
@@ -3722,7 +3748,7 @@ CSI-RS-ConfigEMIMO-r13 ::=	CHOICE {
 	}
 }
 
-CSI-RS-ConfigNonPrecoded-r13 ::=			SEQUENCE {
+CSI-RS-ConfigNonPrecoded-r13 ::=		SEQUENCE {
 	p-C-AndCBSRList-r13						P-C-AndCBSR-Pair-r13			OPTIONAL,	-- Need OR
 	codebookConfigN1-r13					ENUMERATED {n1, n2, n3, n4, n8},
 	codebookConfigN2-r13					ENUMERATED {n1, n2, n3, n4, n8},
@@ -6022,6 +6048,10 @@ CellSelectionInfoCE1-r13 ::=		SEQUENCE {
 	q-QualMinRSRQ-CE1-r13			Q-QualMin-r9						OPTIONAL	-- Need OR
 }
 
+CellSelectionInfoCE1-v1360 ::=	SEQUENCE {
+	delta-RxLevMinCE1-v1360			INTEGER (-8..-1)
+}
+
 
 CellReselectionSubPriority-r13 ::=			ENUMERATED {oDot2, oDot4, oDot6, oDot8}
 
@@ -6706,7 +6736,11 @@ MeasResults ::=						SEQUENCE {
 		}																	OPTIONAL,
 		ul-PDCP-DelayResultList-r13			UL-PDCP-DelayResultList-r13		OPTIONAL,
 		measResultListWLAN-r13				MeasResultListWLAN-r13			OPTIONAL
+	]],
+	[[
+		measResultPCell-v1360				RSRP-Range-v1360				OPTIONAL
 	]]
+
 
 }
 
@@ -6734,6 +6768,9 @@ MeasResultEUTRA ::=	SEQUENCE {
 				multiBandInfoList-r13				MultiBandInfoList-r11		OPTIONAL,
 				freqBandIndicatorPriority-r13		ENUMERATED {true}			OPTIONAL
 			}																OPTIONAL
+		]],
+		[[
+			measResult-v1360					RSRP-Range-v1360			OPTIONAL
 		]]
 	}
 }
@@ -6779,7 +6816,11 @@ MeasResultServFreq-r13 ::=			SEQUENCE {
 		rsrqResultNCell-r13					RSRQ-Range-r13,
 		rs-sinr-Result-r13					RS-SINR-Range-r13	OPTIONAL
 	}															OPTIONAL,
-	...
+	...,
+	[[	measResultBestNeighCell-v1360		SEQUENCE {
+			rsrpResultNCell-v1360				RSRP-Range-v1360
+		}														OPTIONAL
+	]]
 }
 
 MeasResultCSI-RS-List-r12 ::=	SEQUENCE (SIZE (1..maxCellReport)) OF MeasResultCSI-RS-r12
@@ -7131,11 +7172,11 @@ ThresholdCDMA2000 ::= 			INTEGER (0..63)
 ReportQuantityWLAN-r13 ::=		SEQUENCE {
 	bandRequestWLAN-r13							ENUMERATED {true}	OPTIONAL,	-- Need OR
 	carrierInfoRequestWLAN-r13					ENUMERATED {true}	OPTIONAL,	-- Need OR
-	availableAdmissionCapacityRequestWLAN-r13	ENUMERATED {true}	OPTIONAL,	-- Need ON
+	availableAdmissionCapacityRequestWLAN-r13	ENUMERATED {true}	OPTIONAL,	-- Need OR
 	backhaulDL-BandwidthRequestWLAN-r13			ENUMERATED {true}	OPTIONAL,	-- Need OR
 	backhaulUL-BandwidthRequestWLAN-r13			ENUMERATED {true}	OPTIONAL,	-- Need OR
 	channelUtilizationRequestWLAN-r13			ENUMERATED {true}	OPTIONAL,	-- Need OR
-	stationCountRequestWLAN-r13					ENUMERATED {true}	OPTIONAL	,	-- Need OR
+	stationCountRequestWLAN-r13					ENUMERATED {true}	OPTIONAL,	-- Need OR
 	...
 }
 
@@ -7158,6 +7199,8 @@ ReportInterval ::=					ENUMERATED {
 
 
 RSRP-Range ::=						INTEGER(0..97)
+
+RSRP-Range-v1360 ::=			INTEGER(-17..-1)
 
 RSRP-RangeSL-r12 ::=				INTEGER(0..13)
 
@@ -7304,6 +7347,8 @@ IDC-Config-r11 ::= 				SEQUENCE {
 	}		OPTIONAL, 		-- Need OR
 	...,
 	[[	idc-Indication-UL-CA-r11		ENUMERATED {setup}		OPTIONAL		-- Cond idc-Ind
+	]],
+	[[	idc-HardwareSharingIndication-r13		ENUMERATED {setup}	OPTIONAL	-- Need OR
 	]]
 }
 
@@ -7606,7 +7651,12 @@ UE-EUTRA-Capability-v1350-IEs ::= SEQUENCE {
 	ue-CategoryDL-v1350				ENUMERATED {oneBis}						OPTIONAL,
 	ue-CategoryUL-v1350				ENUMERATED {oneBis} 					OPTIONAL,
 	ce-Parameters-v1350				CE-Parameters-v1350,
-	nonCriticalExtension				SEQUENCE {}								OPTIONAL
+	nonCriticalExtension			UE-EUTRA-Capability-v13yz-IEs			OPTIONAL
+}
+
+UE-EUTRA-Capability-v13yz-IEs ::= SEQUENCE {
+	other-Parameters-v13yz			Other-Parameters-v13yz					OPTIONAL,
+	nonCriticalExtension			SEQUENCE {}								OPTIONAL
 }
 
 UE-EUTRA-CapabilityAddXDD-Mode-r9 ::=	SEQUENCE {
@@ -8375,6 +8425,10 @@ Other-Parameters-r11 ::=				SEQUENCE {
 
 Other-Parameters-v11d0 ::=				SEQUENCE {
 	inDeviceCoexInd-UL-CA-r11				ENUMERATED {supported}		OPTIONAL
+}
+
+Other-Parameters-v13yz ::= SEQUENCE {
+	inDeviceCoexInd-HardwareSharingInd-r13		ENUMERATED {supported}		OPTIONAL
 }
 
 MBMS-Parameters-r11 ::=				SEQUENCE {
