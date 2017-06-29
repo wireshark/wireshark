@@ -1393,6 +1393,7 @@ typedef enum
     DE_EMM_AUTN,                /* 9.9.3.2  Authentication parameter AUTN */
     DE_EMM_AUTH_PAR_RAND,       /* 9.9.3.3  Authentication parameter RAND */
     DE_EMM_AUTH_RESP_PAR,       /* 9.9.3.4  Authentication response parameter */
+    DE_EMM_SMS_SERVICES_STATUS, /* 9.9.3.4B SMS services status */
     DE_EMM_CSFB_RESP,           /* 9.9.3.5  CSFB response */
     DE_EMM_DAYL_SAV_T,          /* 9.9.3.6  Daylight saving time */
     DE_EMM_DET_TYPE,            /* 9.9.3.7  Detach type */

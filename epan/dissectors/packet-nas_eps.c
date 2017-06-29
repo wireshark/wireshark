@@ -21,7 +21,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * References: 3GPP TS 24.301 V13.8.0 (2016-12)
+ * References: 3GPP TS 24.301 V13.10.0 (2017-06)
  */
 
 #include "config.h"
@@ -121,6 +121,7 @@ static int hf_nas_eps_emm_pnb_ciot = -1;
 static int hf_nas_eps_emm_saf = -1;
 static int hf_nas_eps_emm_add_upd_type = -1;
 static int hf_nas_eps_emm_res = -1;
+static int hf_nas_eps_emm_sms_services_status = -1;
 static int hf_nas_eps_emm_csfb_resp = -1;
 static int hf_nas_eps_emm_cause = -1;
 static int hf_nas_eps_emm_id_type2 = -1;
@@ -705,6 +706,7 @@ static const value_string nas_emm_elem_strings[] = {
     { DE_EMM_AUTN, "Authentication parameter AUTN" },                          /* 9.9.3.2  Authentication parameter AUTN */
     { DE_EMM_AUTH_PAR_RAND, "Authentication parameter RAND" },                 /* 9.9.3.3  Authentication parameter RAND */
     { DE_EMM_AUTH_RESP_PAR, "Authentication response parameter" },             /* 9.9.3.4  Authentication response parameter */
+    { DE_EMM_SMS_SERVICES_STATUS, "SMS services status" },                     /* 9.9.3.4B SMS services status */
     { DE_EMM_CSFB_RESP, "CSFB response" },                                     /* 9.9.3.5  CSFB response */
     { DE_EMM_DAYL_SAV_T, "Daylight saving time" },                             /* 9.9.3.6  Daylight saving time */
     { DE_EMM_DET_TYPE, "Detach type" },                                        /* 9.9.3.7  Detach type */
@@ -779,6 +781,7 @@ typedef enum
     DE_EMM_AUTN,                /* 9.9.3.2  Authentication parameter AUTN */
     DE_EMM_AUTH_PAR_RAND,       /* 9.9.3.3  Authentication parameter RAND */
     DE_EMM_AUTH_RESP_PAR,       /* 9.9.3.4  Authentication response parameter */
+    DE_EMM_SMS_SERVICES_STATUS, /* 9.9.3.4B SMS services status */
     DE_EMM_CSFB_RESP,           /* 9.9.3.5  CSFB response */
     DE_EMM_DAYL_SAV_T,          /* 9.9.3.6  Daylight saving time */
     DE_EMM_DET_TYPE,            /* 9.9.3.7  Detach type */
@@ -936,6 +939,35 @@ de_emm_auth_resp_par(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  * 9.9.3.4A Ciphering key sequence number
  * See subclause 9.9.3.19 in 3GPP TS 24.008 [13].
  */
+
+/*
+ * 9.9.3.4B SMS services status
+ */
+static const value_string nas_eps_emm_sms_services_status_vals[] = {
+    { 0x0, "SMS services not available"},
+    { 0x1, "SMS services not available in this PLMN"},
+    { 0x2, "Network failure"},
+    { 0x3, "Congestion"},
+    { 0, NULL}
+};
+
+static guint16
+de_emm_sms_services_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                           guint32 offset, guint len _U_,
+                           gchar *add_string _U_, int string_len _U_)
+{
+    guint32 curr_offset, bit_offset;
+
+    curr_offset = offset;
+    bit_offset  = (curr_offset<<3)+4;
+
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
+    proto_tree_add_bits_item(tree, hf_nas_eps_emm_sms_services_status, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+    curr_offset++;
+
+    return (curr_offset - offset);
+}
 
 /*
  * 9.9.3.5  CSFB response
@@ -3285,6 +3317,7 @@ guint16 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     NULL,                       /* 9.9.3.2  Authentication parameter AUTN(packet-gsm_a_dtap.c) */
     NULL,                       /* 9.9.3.3  Authentication parameter RAND */
     de_emm_auth_resp_par,       /* 9.9.3.4  Authentication response parameter */
+    de_emm_sms_services_status, /* 9.9.3.4B SMS services status */
     de_emm_csfb_resp,           /* 9.9.3.5  CSFB response */
     NULL,                       /* 9.9.3.6  Daylight saving time (packet-gsm_a_dtap.c)*/
     NULL,                       /* 9.9.3.7  Detach type */
@@ -3511,6 +3544,8 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3324");
     /* 6E   Extended DRX parameters Extended DRX parameters 9.9.3.46 O   TLV  3 */
     ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
+    /* E-   SMS services status SMS services status 9.9.3.4B O TV 1 */
+    ELEM_OPT_TV_SHORT(0xE0, NAS_PDU_TYPE_EMM, DE_EMM_SMS_SERVICES_STATUS, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4260,6 +4295,8 @@ nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
     /* 68   Header compression configuration status Header compression configuration status 9.9.4.27 O  TLV  5-257 */
     ELEM_OPT_TLV(0x68, NAS_PDU_TYPE_ESM, DE_ESM_HDR_COMPR_CONFIG_STATUS, NULL);
+    /* E-   SMS services status SMS services status 9.9.3.4B O TV 1 */
+    ELEM_OPT_TV_SHORT(0xE0, NAS_PDU_TYPE_EMM, DE_EMM_SMS_SERVICES_STATUS, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -6143,6 +6180,11 @@ proto_register_nas_eps(void)
     { &hf_nas_eps_emm_res,
         { "RES","nas_eps.emm.res",
         FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_sms_services_status,
+        { "SMS services status value","nas_eps.emm.sms_services_status",
+        FT_UINT8, BASE_DEC, VALS(nas_eps_emm_sms_services_status_vals), 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_csfb_resp,
