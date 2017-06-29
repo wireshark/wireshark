@@ -28,19 +28,15 @@
 
 #include "filter_action.h"
 #include "wireshark_dialog.h"
+#include <ui/qt/models/expert_info_model.h>
+#include <ui/qt/models/expert_info_proxy_model.h>
+#include <ui/qt/widgets/expert_info_view.h>
 
 #include <QMenu>
-#include <QTreeWidgetItem>
-
-struct epan_dissect;
-struct expert_info_s;
-struct _packet_info;
 
 namespace Ui {
 class ExpertInfoDialog;
 }
-
-class ExpertPacketTreeWidgetItem;
 
 class ExpertInfoDialog : public WiresharkDialog
 {
@@ -53,43 +49,20 @@ public:
     void clearAllData();
     void setDisplayFilter(const QString &display_filter = QString());
 
+    ExpertInfoTreeView* getExpertInfoView();
+
 signals:
-    void goToPacket(int packet_num, int hf_id);
     void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);
 
 private:
     Ui::ExpertInfoDialog *ui;
 
-    int comment_events_;
-//    int disp_events;
-    int chat_events_;
-    int note_events_;
-    int warn_events_;
-    int error_events_;
-
-    bool need_show_hide_;
+    ExpertInfoModel* expert_info_model_;
+    ExpertInfoProxyModel* proxyModel_;
 
     QMenu ctx_menu_;
 
-    QHash<QString, QTreeWidgetItem*> ei_to_ti_;
-    QHash<QTreeWidgetItem*, QList<QTreeWidgetItem *> > gti_packets_;
-    QList<QAction *> severity_actions_;
-
     QString display_filter_;
-
-    void addExpertInfo(ExpertPacketTreeWidgetItem *packet_ti);
-    // Called from tapPacket
-    void addExpertInfo(struct expert_info_s *expert_info);
-    // Called from tapDraw
-    void updateCounts();
-
-    // Callbacks for register_tap_listener
-    static void tapReset(void *eid_ptr);
-    static gboolean tapPacket(void *eid_ptr, struct _packet_info *pinfo, struct epan_dissect *, const void *data);
-    static void tapDraw(void *eid_ptr);
-
-    QTreeWidgetItem *ensureGroupTreeWidgetItem(ExpertPacketTreeWidgetItem *packet_ti);
-    void addPacketTreeItems();
 
 private slots:
     void retapPackets();
@@ -98,12 +71,17 @@ private slots:
 
     void updateWidgets();
 
-    void actionShowToggled();
-    void showProtoHierMenu(QPoint pos);
-    void filterActionTriggered();
-    void captureFileClosing();
+    void on_actionShowError_toggled(bool checked);
+    void on_actionShowWarning_toggled(bool checked);
+    void on_actionShowNote_toggled(bool checked);
+    void on_actionShowChat_toggled(bool checked);
+    void on_actionShowComment_toggled(bool checked);
 
-    void on_expertInfoTreeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *);
+    void showExpertInfoMenu(QPoint pos);
+    void filterActionTriggered();
+    void collapseTree();
+    void expandTree();
+
     void on_limitCheckBox_toggled(bool);
     void on_groupBySummaryCheckBox_toggled(bool);
     void on_searchLineEdit_textChanged(const QString &search_re);

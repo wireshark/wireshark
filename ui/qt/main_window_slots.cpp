@@ -3007,7 +3007,7 @@ void MainWindow::statCommandExpertInfo(const char *, void *)
 
     expert_dialog->setDisplayFilter(df_edit->text());
 
-    connect(expert_dialog, SIGNAL(goToPacket(int, int)),
+    connect(expert_dialog->getExpertInfoView(), SIGNAL(goToPacket(int, int)),
             packet_list_, SLOT(goToPacket(int, int)));
     connect(expert_dialog, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
             this, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)));

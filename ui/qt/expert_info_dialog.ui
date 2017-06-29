@@ -15,38 +15,13 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTreeWidget" name="expertInfoTreeWidget">
+    <widget class="ExpertInfoTreeView" name="expertInfoTreeView">
      <property name="uniformRowHeights">
       <bool>true</bool>
      </property>
      <property name="sortingEnabled">
       <bool>true</bool>
      </property>
-     <column>
-      <property name="text">
-       <string>Severity</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Summary</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Group</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Protocol</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Count</string>
-      </property>
-     </column>
     </widget>
    </item>
    <item>
@@ -136,6 +111,13 @@
        <property name="text">
         <string>Show…</string>
        </property>
+        <widget class="QMenu" name="menuShowExpert">
+          <addaction name="actionShowError"/>
+          <addaction name="actionShowWarning"/>
+          <addaction name="actionShowChat"/>
+          <addaction name="actionShowNote"/>
+          <addaction name="actionShowComment"/>
+        </widget>
       </widget>
      </item>
     </layout>
@@ -155,6 +137,9 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Error</string>
    </property>
@@ -164,6 +149,9 @@
   </action>
   <action name="actionShowWarning">
    <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
     <bool>true</bool>
    </property>
    <property name="text">
@@ -177,6 +165,9 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Note</string>
    </property>
@@ -188,6 +179,9 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Chat</string>
    </property>
@@ -197,6 +191,9 @@
   </action>
   <action name="actionShowComment">
    <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
     <bool>true</bool>
    </property>
    <property name="text">
@@ -213,6 +210,11 @@
    <extends>QLabel</extends>
    <header>widgets/elided_label.h</header>
   </customwidget>
+   <customwidget>
+     <class>ExpertInfoTreeView</class>
+     <extends>QTreeView</extends>
+     <header>widgets/expert_info_view.h</header>
+   </customwidget>
  </customwidgets>
  <resources/>
  <connections>

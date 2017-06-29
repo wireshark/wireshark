@@ -34,6 +34,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/drag_label.h
 	widgets/editor_color_dialog.h
 	widgets/editor_file_dialog.h
+	widgets/expert_info_view.h
 	widgets/elided_label.h
 	widgets/field_filter_edit.h
 	widgets/find_line_edit.h
@@ -64,6 +65,8 @@ set(WIRESHARK_MODEL_HEADERS
 	models/cache_proxy_model.h
 	models/decode_as_delegate.h
 	models/decode_as_model.h
+	models/expert_info_model.h
+	models/expert_info_proxy_model.h
 	models/fileset_entry_model.h
 	models/html_text_delegate.h
 	models/interface_sort_filter_model.h
@@ -244,6 +247,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/editor_color_dialog.cpp
 	widgets/editor_file_dialog.cpp
 	widgets/elided_label.cpp
+	widgets/expert_info_view.cpp
 	widgets/field_filter_edit.cpp
 	widgets/find_line_edit.cpp
 	widgets/follow_stream_text.cpp
@@ -271,6 +275,8 @@ set(WIRESHARK_MODEL_SRCS
 	models/cache_proxy_model.cpp
 	models/decode_as_delegate.cpp
 	models/decode_as_model.cpp
+	models/expert_info_model.cpp
+	models/expert_info_proxy_model.cpp
 	models/fileset_entry_model.cpp
 	models/html_text_delegate.cpp
 	models/interface_sort_filter_model.cpp
