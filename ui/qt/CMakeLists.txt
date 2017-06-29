@@ -64,6 +64,9 @@ set(WIRESHARK_QT_HEADERS
 	enabled_protocols_dialog.h
 	endpoint_dialog.h
 	expert_info_dialog.h
+	expert_info_model.h
+	expert_info_proxy_model.h
+	expert_info_view.h
 	export_dissection_dialog.h
 	export_object_action.h
 	export_object_dialog.h
@@ -241,6 +244,9 @@ set(WIRESHARK_QT_SRC
 	elided_label.cpp
 	enabled_protocols_dialog.cpp
 	endpoint_dialog.cpp
+	expert_info_model.cpp
+	expert_info_proxy_model.cpp
+	expert_info_view.cpp
 	export_dissection_dialog.cpp
 	export_object_action.cpp
 	export_object_dialog.cpp
