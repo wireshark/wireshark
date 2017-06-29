@@ -2049,14 +2049,15 @@ cap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errmsg
         cap_pipe_adjust_header(pcap_src->cap_pipe_byte_swapped, &pcap_src->cap_pipe_hdr,
                                &pcap_src->cap_pipe_rechdr.hdr);
         if (pcap_src->cap_pipe_rechdr.hdr.incl_len > pcap_src->cap_pipe_max_pkt_size) {
+            /*
+             * The record contains more data than the advertised/allowed in the
+             * pcap header, do not try to read more data (do not change to
+             * STATE_EXPECT_DATA) as that would not fit in the buffer and
+             * instead stop with an error.
+             */
             g_snprintf(errmsg, errmsgl, "Frame %u too long (%d bytes)",
                        ld->packet_count+1, pcap_src->cap_pipe_rechdr.hdr.incl_len);
             break;
-        }
-
-        if (pcap_src->cap_pipe_rechdr.hdr.incl_len) {
-            pcap_src->cap_pipe_state = STATE_EXPECT_DATA;
-            return 0;
         }
 
         if (pcap_src->cap_pipe_rechdr.hdr.incl_len > pcap_src->cap_pipe_databuf_size) {
@@ -2078,7 +2079,20 @@ cap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errmsg
             pcap_src->cap_pipe_databuf = (guchar*)g_realloc(pcap_src->cap_pipe_databuf, new_bufsize);
             pcap_src->cap_pipe_databuf_size = new_bufsize;
         }
-        /* no data to read? */
+
+        /*
+         * The record has some data following the header, try to read it next
+         * time.
+         */
+        if (pcap_src->cap_pipe_rechdr.hdr.incl_len) {
+            pcap_src->cap_pipe_state = STATE_EXPECT_DATA;
+            return 0;
+        }
+
+        /*
+         * No data following the record header? Then no more data needs to be
+         * read and we will fallthrough and emit an empty packet.
+         */
         /* FALLTHROUGH */
     case PD_DATA_READ:
         /* Fill in a "struct pcap_pkthdr", and process the packet. */
