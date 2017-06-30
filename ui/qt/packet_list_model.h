@@ -111,6 +111,7 @@ private:
     static Qt::SortOrder sort_order_;
     static capture_file *sort_cap_file_;
     static bool recordLessThan(PacketListRecord *r1, PacketListRecord *r2);
+    static double parseNumericColumn(const QString &val, bool *ok);
 
     QElapsedTimer *idle_dissection_timer_;
     int idle_dissection_row_;
