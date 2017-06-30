@@ -389,7 +389,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     static const guint8    broadcast_addr[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
     connection_info_t     *connection_info = NULL;
     wmem_tree_t           *wmem_tree;
-    wmem_tree_key_t        key[5];
+    wmem_tree_key_t        key[6];
     guint32                interface_id;
     guint32                adapter_id;
     guint32                connection_access_address;
@@ -707,6 +707,15 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             offset += 1;
 
             if (!pinfo->fd->flags.visited) {
+                guint32 direction = BTLE_DIR_UNKNOWN;
+
+                /*
+                 * If having BTLE context we create one connection_info_tree for each direction.
+                 */
+                if (btle_context) {
+                    direction = BTLE_DIR_MASTER_SLAVE;
+                }
+
                 key[0].length = 1;
                 key[0].key = &interface_id;
                 key[1].length = 1;
@@ -714,9 +723,11 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 key[2].length = 1;
                 key[2].key = &connection_access_address;
                 key[3].length = 1;
-                key[3].key = &frame_number;
-                key[4].length = 0;
-                key[4].key = NULL;
+                key[3].key = &direction;
+                key[4].length = 1;
+                key[4].key = &frame_number;
+                key[5].length = 0;
+                key[5].key = NULL;
 
                 connection_info = wmem_new0(wmem_file_scope(), connection_info_t);
                 connection_info->interface_id   = interface_id;
@@ -727,6 +738,22 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 memcpy(connection_info->slave_bd_addr,  dst_bd_addr, 6);
 
                 wmem_tree_insert32_array(connection_info_tree, key, connection_info);
+
+                if (btle_context) {
+                    direction = BTLE_DIR_SLAVE_MASTER;
+                    key[3].length = 1;
+                    key[3].key = &direction;
+
+                    connection_info = wmem_new0(wmem_file_scope(), connection_info_t);
+                    connection_info->interface_id   = interface_id;
+                    connection_info->adapter_id     = adapter_id;
+                    connection_info->access_address = connection_access_address;
+
+                    memcpy(connection_info->master_bd_addr, src_bd_addr, 6);
+                    memcpy(connection_info->slave_bd_addr,  dst_bd_addr, 6);
+
+                    wmem_tree_insert32_array(connection_info_tree, key, connection_info);
+                }
             }
 
             break;
@@ -742,6 +769,11 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         guint8       oct;
         guint8       llid;
         guint8       control_opcode;
+        guint32      direction = BTLE_DIR_UNKNOWN;
+
+        if (btle_context) {
+            direction = btle_context->direction;
+        }
 
         btle_frame_info_t *btle_frame_info = NULL;
         fragment_head *frag_btl2cap_msg = NULL;
@@ -753,8 +785,10 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         key[1].key = &adapter_id;
         key[2].length = 1;
         key[2].key = &access_address;
-        key[3].length = 0;
-        key[3].key = NULL;
+        key[3].length = 1;
+        key[3].key = &direction;
+        key[4].length = 0;
+        key[4].key = NULL;
 
         oct = tvb_get_guint8(tvb, offset);
         wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(connection_info_tree, key);
