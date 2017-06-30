@@ -214,21 +214,41 @@ static value_string_ext zbee_zcl_met_attr_names_ext = VALUE_STRING_EXT_INIT(zbee
 
 /* Server Commands Received */
 #define zbee_zcl_met_srv_rx_cmd_names_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_CMD_ID_MET_GET_PROFILE,                        0x00, "Get Profile" ) \
     XXX(ZBEE_ZCL_CMD_ID_MET_REQUEST_MIRROR_RSP,                 0x01, "Request Mirror Response" ) \
+    XXX(ZBEE_ZCL_CMD_ID_MET_MIRROR_REMOVED,                     0x02, "Mirror Removed" ) \
+    XXX(ZBEE_ZCL_CMD_ID_MET_REQUEST_FAST_POLL_MODE,             0x03, "Request Fast Poll Mode" ) \
+    XXX(ZBEE_ZCL_CMD_ID_MET_SCHEDULE_SNAPSHOT,                  0x04, "Schedule Snapshot" ) \
+    XXX(ZBEE_ZCL_CMD_ID_MET_TAKE_SNAPSHOT,                      0x05, "Take Snapshot" ) \
     XXX(ZBEE_ZCL_CMD_ID_MET_GET_SNAPSHOT,                       0x06, "Get Snapshot" ) \
+    XXX(ZBEE_ZCL_CMD_ID_MET_START_SAMPLING,                     0x07, "Start Sampling" ) \
     XXX(ZBEE_ZCL_CMD_ID_MET_GET_SAMPLED_DATA,                   0x08, "Get Sampled Data" ) \
-    XXX(ZBEE_ZCL_CMD_ID_MET_LOCAL_CHANGE_SUPPLY,                0x0C, "Local Change Supply" )
+    XXX(ZBEE_ZCL_CMD_ID_MET_MIRROR_REPORT_ATTRIBUTE_RESPONSE,   0x09, "Mirror Report Attribute Response" ) \
+    XXX(ZBEE_ZCL_CMD_ID_MET_RESET_LOAD_LIMIT_COUNTER,           0x0A, "Reset Load Limit Counter" ) \
+    XXX(ZBEE_ZCL_CMD_ID_MET_CHANGE_SUPPLY,                      0x0B, "Change Supply" ) \
+    XXX(ZBEE_ZCL_CMD_ID_MET_LOCAL_CHANGE_SUPPLY,                0x0C, "Local Change Supply" ) \
+    XXX(ZBEE_ZCL_CMD_ID_MET_SET_SUPPLY_STATUS,                  0x0D, "Set Supply Status" ) \
+    XXX(ZBEE_ZCL_CMD_ID_MET_SET_UNCONTROLLED_FLOW_THRESHOLD,    0x0E, "Set Uncontrolled Flow Threshold" )
 
 VALUE_STRING_ENUM(zbee_zcl_met_srv_rx_cmd_names);
 VALUE_STRING_ARRAY(zbee_zcl_met_srv_rx_cmd_names);
 
 /* Server Commands Generated */
 #define zbee_zcl_met_srv_tx_cmd_names_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_CMD_ID_MET_GET_PROFILE_RESPONSE,               0x00, "Get Profile Response" ) \
     XXX(ZBEE_ZCL_CMD_ID_MET_REQUEST_MIRROR,                     0x01, "Request Mirror" ) \
+    XXX(ZBEE_ZCL_CMD_ID_MET_REMOVE_MIRROR,                      0x02, "Remove Mirror" ) \
+    XXX(ZBEE_ZCL_CMD_ID_MET_REQUEST_FAST_POLL_MODE_RESPONSE,    0x03, "Request Fast Poll Mode Response" ) \
+    XXX(ZBEE_ZCL_CMD_ID_MET_SCHEDULE_SNAPSHOT_RESPONSE,         0x04, "Schedule Snapshot Response" ) \
+    XXX(ZBEE_ZCL_CMD_ID_MET_TAKE_SNAPSHOT_RESPONSE,             0x05, "Take Snapshot Response" ) \
     XXX(ZBEE_ZCL_CMD_ID_MET_PUBLISH_SNAPSHOT,                   0x06, "Publish Snapshot" ) \
     XXX(ZBEE_ZCL_CMD_ID_MET_GET_SAMPLED_DATA_RSP,               0x07, "Get Sampled Data Response" ) \
     XXX(ZBEE_ZCL_CMD_ID_MET_CONFIGURE_MIRROR,                   0x08, "Configure Mirror" ) \
-    XXX(ZBEE_ZCL_CMD_ID_MET_GET_NOTIFIED_MESSAGE,               0x0B, "Get Notified Message" )
+    XXX(ZBEE_ZCL_CMD_ID_MET_CONFIGURE_NOTIFICATION_SCHEME,      0x09, "Configure Notification Scheme" ) \
+    XXX(ZBEE_ZCL_CMD_ID_MET_CONFIGURE_NOTIFICATION_FLAG,        0x0A, "Configure Notification Flag" ) \
+    XXX(ZBEE_ZCL_CMD_ID_MET_GET_NOTIFIED_MESSAGE,               0x0B, "Get Notified Message" ) \
+    XXX(ZBEE_ZCL_CMD_ID_MET_SUPPLY_STATUS_RESPONSE,             0x0C, "Supply Status Response" ) \
+    XXX(ZBEE_ZCL_CMD_ID_MET_START_SAMPLING_RESPONSE,            0x0D, "Start Sampling Response" )
 
 VALUE_STRING_ENUM(zbee_zcl_met_srv_tx_cmd_names);
 VALUE_STRING_ARRAY(zbee_zcl_met_srv_tx_cmd_names);
