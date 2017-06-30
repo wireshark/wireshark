@@ -212,13 +212,17 @@ static const value_string auth_vals[] = {
 #define OSPF_LSA_HEADER_LENGTH  20
 
 #define OSPF_DNA_LSA            0x8000
-/* Known opaque LSAs */
+/* Opaque Link-State Advertisements (LSA) Option Types
+ * https://www.iana.org/assignments/ospf-opaque-types/ospf-opaque-types.xhtml */
 #define OSPF_LSA_MPLS_TE        1
+#define OSPF_LSA_SYCAMORE       2
 #define OSPF_LSA_GRACE          3
-/* The type field "4" indicates the Opaque RI LSA with Optional Router Capabilites
-   advertized in the first TLV. (RFC4970) */
 #define OSPF_LSA_OPAQUE_RI      4
-#define OSPF_LSA_UNKNOWN        11
+#define OSPF_LSA_L1VPN          5
+#define OSPF_LSA_IAS_TE_V2      6
+#define OSPF_LSA_EXT_PREFIX     7
+#define OSPF_LSA_EXT_LINK       8
+#define OSPF_LSA_TTZ            9
 #define OSPF_RESTART_REASON_UNKNOWN   0
 #define OSPF_RESTART_REASON_SWRESTART 1
 #define OSPF_RESTART_REASON_SWRELOAD  2
@@ -298,11 +302,16 @@ static const value_string ls_type_vals[] = {
 };
 
 static const value_string ls_opaque_type_vals[] = {
-    {OSPF_LSA_MPLS_TE, "Traffic Engineering LSA"                },
-    {2,                "Sycamore Optical Topology Descriptions" },
-    {OSPF_LSA_GRACE,   "grace-LSA"                              },
-    {OSPF_LSA_OPAQUE_RI, "Optional Router Capabilities Opaque RI LSA" },
-    {0,                NULL                                     }
+    {OSPF_LSA_MPLS_TE,      "Traffic Engineering LSA"                   },
+    {OSPF_LSA_SYCAMORE,     "Sycamore Optical Topology Descriptions"    },
+    {OSPF_LSA_GRACE,        "grace-LSA"                                 },
+    {OSPF_LSA_OPAQUE_RI,    "Router Information (RI)"                   },
+    {OSPF_LSA_L1VPN,        "L1VPN LSA"                                 },
+    {OSPF_LSA_IAS_TE_V2,    "Inter-AS-TE-v2 LSA"                        },
+    {OSPF_LSA_EXT_PREFIX,   "OSPFv2 Extended Prefix Opaque LSA"         },
+    {OSPF_LSA_EXT_LINK,     "OSPFv2 Extended Link Opaque LSA"           },
+    {OSPF_LSA_TTZ,          "TTZ LSA"                                   },
+    {0,                     NULL                                        }
 };
 
 static const value_string v3_ls_type_vals[] = {
