@@ -2149,10 +2149,17 @@ static value_string_ext zbee_zcl_pp_attr_names_ext = VALUE_STRING_EXT_INIT(zbee_
 /* Server Commands Received */
 #define zbee_zcl_pp_srv_rx_cmd_names_VALUE_STRING_LIST(XXX) \
     XXX(ZBEE_ZCL_CMD_ID_PP_SELECT_AVAILABLE_EMERGENCY_CREDIT,   0x00, "Select Available Emergency Credit" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PP_CHANGE_DEBT,                         0x02, "Change Debt" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PP_EMERGENCY_CREDIT_SETUP,              0x03, "Emergency Credit Setup" ) \
     XXX(ZBEE_ZCL_CMD_ID_PP_CONSUMER_TOP_UP,                     0x04, "Consumer Top Up" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PP_CREDIT_ADJUSTMENT,                   0x05, "Credit Adjustment" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PP_CHANGE_PAYMENT_MODE,                 0x06, "Change Payment Mode" ) \
     XXX(ZBEE_ZCL_CMD_ID_PP_GET_PREPAY_SNAPTSHOT,                0x07, "Get Prepay Snapshot" ) \
     XXX(ZBEE_ZCL_CMD_ID_PP_GET_TOP_UP_LOG,                      0x08, "Get Top Up Log" ) \
-    XXX(ZBEE_ZCL_CMD_ID_PP_GET_DEBT_REPAYMENT_LOG,              0x0A, "Get Debt Repayment Log" )
+    XXX(ZBEE_ZCL_CMD_ID_PP_SET_LOW_CREDIT_WARNING_LEVEL,        0x09, "Set Low Credit Warning Level" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PP_GET_DEBT_REPAYMENT_LOG,              0x0A, "Get Debt Repayment Log" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PP_SET_MAXIMUM_CREDIT_LIMIT,            0x0B, "Set Maximum Credit Limit" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PP_SET_OVERALL_DEBT_CAP,                0x0C, "Set Overall Debt Cap" )
 
 VALUE_STRING_ENUM(zbee_zcl_pp_srv_rx_cmd_names);
 VALUE_STRING_ARRAY(zbee_zcl_pp_srv_rx_cmd_names);
@@ -2160,6 +2167,7 @@ VALUE_STRING_ARRAY(zbee_zcl_pp_srv_rx_cmd_names);
 /* Server Commands Generated */
 #define zbee_zcl_pp_srv_tx_cmd_names_VALUE_STRING_LIST(XXX) \
     XXX(ZBEE_ZCL_CMD_ID_PP_PUBLISH_PREPAY_SNAPSHOT,             0x01, "Publish Prepay Snapshot" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PP_CHANGE_PAYMENT_MODE_RESPONSE,        0x02, "Change Payment Mode Response" ) \
     XXX(ZBEE_ZCL_CMD_ID_PP_CONSUMER_TOP_UP_RESPONSE,            0x03, "Consumer Top Up Response" ) \
     XXX(ZBEE_ZCL_CMD_ID_PP_PUBLISH_TOP_UP_LOG,                  0x05, "Publish Top Up Log" ) \
     XXX(ZBEE_ZCL_CMD_ID_PP_PUBLISH_DEBT_LOG,                    0x06, "Publish Debt Log" )
