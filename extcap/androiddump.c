@@ -2393,6 +2393,7 @@ static int capture_android_tcpdump(char *interface, char *fifo,
     regex = g_regex_new(regex_linktype, (GRegexCompileFlags)0, (GRegexMatchFlags)0, &err);
     if (!regex) {
         g_warning("Failed to compile regex for tcpdump data link type matching");
+        closesocket(sock);
         return EXIT_CODE_GENERIC;
     }
 
@@ -2409,6 +2410,7 @@ static int capture_android_tcpdump(char *interface, char *fifo,
         }
         else if (errno != 0) {
             g_warning("ERROR capture: %s", strerror(errno));
+            closesocket(sock);
             g_regex_unref(regex);
             return EXIT_CODE_GENERIC;
         }
@@ -2546,6 +2548,7 @@ static int capture_android_tcpdump(char *interface, char *fifo,
             }
             else if (errno != 0) {
                 g_warning("ERROR capture: %s", strerror(errno));
+                closesocket(sock);
                 return EXIT_CODE_GENERIC;
             }
 
