@@ -2311,6 +2311,8 @@ static int linktype_to_extcap_encap(const char* linktype)
     int i;
     int ret = EXTCAP_ENCAP_ETHERNET;
 
+    if (!linktype)
+        return ret;
     for (i = 0; lookup[i].dlt; i++) {
         if (!strcmp(lookup[i].dlt, linktype)) {
             ret = lookup[i].extcap_encap;
