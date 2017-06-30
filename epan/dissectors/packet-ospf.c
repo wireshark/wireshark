@@ -2391,14 +2391,15 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, int offset, proto_tree *tree,
 {
     proto_tree *ri_tree;
     proto_tree *tlv_tree;
+    int offset_end = offset + length;
 
     int tlv_type;
-    int tlv_length;
+    guint tlv_length;
 
     ri_tree = proto_tree_add_subtree(tree, tvb, offset, length,
                              ett_ospf_lsa_opaque_ri, NULL, "Opaque Router Information LSA");
 
-    while (length > 0) {
+    while (offset < offset_end) {
         tlv_type = tvb_get_ntohs(tvb, offset);
         tlv_length = tvb_get_ntohs(tvb, offset + 2);
 
@@ -2427,7 +2428,7 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, int offset, proto_tree *tree,
             break;
 
         case OPAQUE_TLV_SA:{
-            int sa_number;
+            guint sa_number;
             tlv_tree = proto_tree_add_subtree_format(ri_tree, tvb, offset, tlv_length+4,
                                     ett_ospf_lsa_sa_tlv, NULL, "%s", val_to_str_const(tlv_type, ri_tlv_type_vals, "Unknown Opaque RI LSA TLV"));
 
@@ -2441,6 +2442,10 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, int offset, proto_tree *tree,
             break;
             }
         default:
+            if (tlv_length > (guint)(offset_end - offset)) {
+                /* Invalid length, probably not TLV. */
+                return;
+            }
             tlv_tree = proto_tree_add_subtree_format(ri_tree, tvb, offset, tlv_length+4,
                                     ett_ospf_lsa_unknown_tlv, NULL, "%s", val_to_str_const(tlv_type, ri_tlv_type_vals, "Unknown Opaque RI LSA TLV"));
 
@@ -2453,8 +2458,11 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, int offset, proto_tree *tree,
 
         }
 
-        offset += tlv_length + 4;
-        length -= tlv_length + 4;
+        /*
+         * RFC 7770, section 2.3: 4-octet aligned, but type, length and padding
+         * is not included in the length.
+         * */
+        offset += 4 + ((tlv_length + 3) & ~3);
     }
 }
 
