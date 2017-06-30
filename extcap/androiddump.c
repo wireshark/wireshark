@@ -269,6 +269,68 @@ static inline int is_specified_interface(char *interface, const char *interface_
     return !strncmp(interface, interface_prefix, strlen(interface_prefix));
 }
 
+static gboolean is_logcat_interface(char *interface) {
+    return is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_MAIN) ||
+           is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_SYSTEM) ||
+           is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_RADIO) ||
+           is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_EVENTS);
+}
+
+static gboolean is_logcat_text_interface(char *interface) {
+    return is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_MAIN) ||
+           is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_SYSTEM) ||
+           is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_RADIO) ||
+           is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_EVENTS) ||
+           is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_CRASH);
+}
+
+static char* get_serial_from_interface(char *interface)
+{
+    static const char* const iface_prefix[] = {
+        INTERFACE_ANDROID_LOGCAT_MAIN,
+        INTERFACE_ANDROID_LOGCAT_SYSTEM,
+        INTERFACE_ANDROID_LOGCAT_RADIO,
+        INTERFACE_ANDROID_LOGCAT_EVENTS,
+        INTERFACE_ANDROID_LOGCAT_TEXT_MAIN,
+        INTERFACE_ANDROID_LOGCAT_TEXT_SYSTEM,
+        INTERFACE_ANDROID_LOGCAT_TEXT_RADIO,
+        INTERFACE_ANDROID_LOGCAT_TEXT_EVENTS,
+        INTERFACE_ANDROID_LOGCAT_TEXT_CRASH,
+        INTERFACE_ANDROID_BLUETOOTH_HCIDUMP,
+        INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER,
+        INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET,
+        NULL
+    };
+    int i;
+    const char* curr = NULL;
+    for (i = 0; (curr = iface_prefix[i]); i++) {
+        if (is_specified_interface(interface, curr) &&
+                strlen(interface) > strlen(curr) + 1) {
+            return interface + strlen(curr) + 1;
+        }
+    }
+    return NULL;
+}
+
+static const char* interface_to_logbuf(char* interface)
+{
+    const char *const adb_log_main   = "log:main";
+    const char *const adb_log_system = "log:system";
+    const char *const adb_log_radio  = "log:radio";
+    const char *const adb_log_events = "log:events";
+    const char *logbuf = NULL;
+
+    if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_MAIN))
+        logbuf = adb_log_main;
+    else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_SYSTEM))
+        logbuf = adb_log_system;
+    else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_RADIO))
+        logbuf = adb_log_radio;
+    else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_EVENTS))
+        logbuf = adb_log_events;
+    return logbuf;
+}
+
 /*
  * General errors and warnings are reported through g_warning() in
  * androiddump.
@@ -830,15 +892,7 @@ static void new_interface(extcap_parameters * extcap_conf, const gchar *interfac
             is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET)) {
 
         extcap_base_register_interface_ext(extcap_conf, interface, ifdisplay, 99, "BluetoothH4", "Bluetooth HCI UART transport layer plus pseudo-header" );
-    } else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_MAIN) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_SYSTEM) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_RADIO) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_EVENTS) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_MAIN) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_SYSTEM) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_RADIO) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_EVENTS) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_CRASH)) {
+    } else if (is_logcat_interface(interface) || is_logcat_text_interface(interface)) {
         extcap_base_register_interface(extcap_conf, interface, ifdisplay, 252, "Upper PDU" );
     } else if (is_specified_interface(interface, INTERFACE_ANDROID_TCPDUMP)) {
         extcap_base_register_interface(extcap_conf, interface, ifdisplay, 1, "Ethernet");
@@ -1206,10 +1260,7 @@ static int list_config(char *interface) {
                 "arg {number=1}{call=--adb-server-tcp-port}{display=ADB Server TCP Port}{type=integer}{range=0,65535}{default=5037}\n"
                 "arg {number=2}{call=--verbose}{display=Verbose/Debug output on console}{type=boolean}{default=false}\n");
         return EXIT_CODE_SUCCESS;
-    } else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_MAIN) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_SYSTEM) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_RADIO) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_EVENTS)) {
+    } else if (is_logcat_interface(interface)) {
         printf("arg {number=0}{call=--adb-server-ip}{display=ADB Server IP Address}{type=string}{default=127.0.0.1}\n"
                 "arg {number=1}{call=--adb-server-tcp-port}{display=ADB Server TCP Port}{type=integer}{range=0,65535}{default=5037}\n"
                 "arg {number=2}{call=--logcat-text}{display=Use text logcat}{type=boolean}{default=false}\n"
@@ -1217,11 +1268,7 @@ static int list_config(char *interface) {
                 "arg {number=4}{call=--logcat-custom-options}{display=Custom logcat parameters}{type=string}\n"
                 "arg {number=5}{call=--verbose}{display=Verbose/Debug output on console}{type=boolean}{default=false}\n");
         return EXIT_CODE_SUCCESS;
-    } else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_MAIN) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_SYSTEM) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_RADIO) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_EVENTS) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_CRASH)) {
+    } else if (is_logcat_text_interface(interface)) {
         printf("arg {number=0}{call=--adb-server-ip}{display=ADB Server IP Address}{type=string}{default=127.0.0.1}\n"
                 "arg {number=1}{call=--adb-server-tcp-port}{display=ADB Server TCP Port}{type=integer}{range=0,65535}{default=5037}\n"
                 "arg {number=2}{call=--logcat-ignore-log-buffer}{display=Ignore log buffer}{type=boolean}{default=false}\n"
@@ -1249,7 +1296,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
     const char                    *adb_shell_hcidump = "shell:hcidump -R -t";
     const char                    *adb_shell_su_hcidump = "shell:su -c hcidump -R -t";
     int                            result;
-    char                          *serial_number = NULL;
+    char                          *serial_number;
     time_t                         ts = 0;
     unsigned int                   captured_length;
     gint64                         hex;
@@ -1266,11 +1313,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
 
     extcap_dumper = extcap_dumper_open(fifo, EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR);
 
-    if (is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_HCIDUMP) &&
-            strlen(interface) > strlen(INTERFACE_ANDROID_BLUETOOTH_HCIDUMP) + 1) {
-        serial_number = interface + strlen(INTERFACE_ANDROID_BLUETOOTH_HCIDUMP) + 1;
-    }
-
+    serial_number = get_serial_from_interface(interface);
     sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
     if (sock == INVALID_SOCKET)
         return EXIT_CODE_INVALID_SOCKET_3;
@@ -1605,7 +1648,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
     socket_handle_t                sock;
     struct sockaddr_in             server;
     int                            captured_length;
-    char                          *serial_number = NULL;
+    char                          *serial_number;
     static unsigned int            id = 1;
     struct sockaddr_in             client;
 
@@ -1613,11 +1656,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
     SET_DATA(h4_header, value_own_pcap_bluetooth_h4_header, packet);
 
     extcap_dumper = extcap_dumper_open(fifo, EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR);
-
-    if (is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER) &&
-            strlen(interface) > strlen(INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER) + 1) {
-        serial_number = interface + strlen(INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER) + 1;
-    }
+    serial_number = get_serial_from_interface(interface);
 
     if (bt_forward_socket) {
         if ((sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET) {
@@ -1830,7 +1869,7 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
     socket_handle_t                sock;
     const char                    *adb_tcp_btsnoop_net   = "tcp:8872";
     int                            result;
-    char                          *serial_number = NULL;
+    char                          *serial_number;
     uint64_t                       ts;
     static const uint64_t          BTSNOOP_TIMESTAMP_BASE = G_GUINT64_CONSTANT(0x00dcddb30f2f8000);
     uint32_t                      *reported_length;
@@ -1849,12 +1888,7 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
     SET_DATA(h4_header, value_own_pcap_bluetooth_h4_header, payload - sizeof(own_pcap_bluetooth_h4_header));
 
     extcap_dumper = extcap_dumper_open(fifo, EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR);
-
-    if (is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET) &&
-            strlen(interface) > strlen(INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET) + 1) {
-        serial_number = interface + strlen(INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET) + 1;
-    }
-
+    serial_number = get_serial_from_interface(interface);
     sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
     if (sock == INVALID_SOCKET)
         return EXIT_CODE_INVALID_SOCKET_7;
@@ -1945,6 +1979,7 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
 /* Android Logcat Text*/
 /*----------------------------------------------------------------------------*/
 
+
 static int capture_android_logcat_text(char *interface, char *fifo,
         const char *adb_server_ip, unsigned short *adb_server_tcp_port,
         int logcat_ignore_log_buffer, const char *logcat_custom_parameter) {
@@ -1971,26 +2006,7 @@ static int capture_android_logcat_text(char *interface, char *fifo,
     exported_pdu_header_protocol_normal.tag = GUINT16_TO_BE(WIRESHARK_UPPER_PDU_TAG_DISSECTOR_NAME);
     exported_pdu_header_protocol_normal.length = GUINT16_TO_BE(strlen(wireshark_protocol_logcat_text) + 2);
 
-    if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_MAIN) && strlen(interface) > strlen(INTERFACE_ANDROID_LOGCAT_MAIN) + 1) {
-        serial_number = interface + strlen(INTERFACE_ANDROID_LOGCAT_MAIN) + 1;
-    } else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_SYSTEM) && strlen(interface) > strlen(INTERFACE_ANDROID_LOGCAT_SYSTEM) + 1) {
-        serial_number = interface + strlen(INTERFACE_ANDROID_LOGCAT_SYSTEM) + 1;
-    } else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_RADIO) && strlen(interface) > strlen(INTERFACE_ANDROID_LOGCAT_RADIO) + 1) {
-        serial_number = interface + strlen(INTERFACE_ANDROID_LOGCAT_RADIO) + 1;
-    } else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_EVENTS) && strlen(interface) > strlen(INTERFACE_ANDROID_LOGCAT_EVENTS) + 1) {
-        serial_number = interface + strlen(INTERFACE_ANDROID_LOGCAT_EVENTS) + 1;
-    } else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_MAIN) && strlen(interface) > strlen(INTERFACE_ANDROID_LOGCAT_TEXT_MAIN) + 1) {
-        serial_number = interface + strlen(INTERFACE_ANDROID_LOGCAT_TEXT_MAIN) + 1;
-    } else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_SYSTEM) && strlen(interface) > strlen(INTERFACE_ANDROID_LOGCAT_TEXT_SYSTEM) + 1) {
-        serial_number = interface + strlen(INTERFACE_ANDROID_LOGCAT_TEXT_SYSTEM) + 1;
-    } else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_RADIO) && strlen(interface) > strlen(INTERFACE_ANDROID_LOGCAT_TEXT_RADIO) + 1) {
-        serial_number = interface + strlen(INTERFACE_ANDROID_LOGCAT_TEXT_RADIO) + 1;
-    } else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_EVENTS) && strlen(interface) > strlen(INTERFACE_ANDROID_LOGCAT_TEXT_EVENTS) + 1) {
-        serial_number = interface + strlen(INTERFACE_ANDROID_LOGCAT_TEXT_EVENTS) + 1;
-    } else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_CRASH) && strlen(interface) > strlen(INTERFACE_ANDROID_LOGCAT_TEXT_CRASH) + 1) {
-        serial_number = interface + strlen(INTERFACE_ANDROID_LOGCAT_TEXT_CRASH) + 1;
-    }
-
+    serial_number = get_serial_from_interface(interface);
     sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
     if (sock == INVALID_SOCKET)
         return EXIT_CODE_INVALID_SOCKET_8;
@@ -2126,10 +2142,6 @@ static int capture_android_logcat(char *interface, char *fifo,
     struct exported_pdu_header  exported_pdu_header_end = {0, 0};
     static const char          *wireshark_protocol_logcat = "logcat";
     static const char          *wireshark_protocol_logcat_events = "logcat_events";
-    const char                 *adb_log_main   = "log:main";
-    const char                 *adb_log_system = "log:system";
-    const char                 *adb_log_radio  = "log:radio";
-    const char                 *adb_log_events = "log:events";
     const char                 *adb_command;
     uint16_t                   *payload_length;
     uint16_t                   *try_header_size;
@@ -2147,29 +2159,13 @@ static int capture_android_logcat(char *interface, char *fifo,
     exported_pdu_header_protocol_normal.tag = GUINT16_TO_BE(WIRESHARK_UPPER_PDU_TAG_DISSECTOR_NAME);
     exported_pdu_header_protocol_normal.length = GUINT16_TO_BE(strlen(wireshark_protocol_logcat) + 2);
 
-    if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_MAIN) && strlen(interface) > strlen(INTERFACE_ANDROID_LOGCAT_MAIN) + 1) {
-        serial_number = interface + strlen(INTERFACE_ANDROID_LOGCAT_MAIN) + 1;
-    } else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_SYSTEM) && strlen(interface) > strlen(INTERFACE_ANDROID_LOGCAT_SYSTEM) + 1) {
-        serial_number = interface + strlen(INTERFACE_ANDROID_LOGCAT_SYSTEM) + 1;
-    } else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_RADIO) && strlen(interface) > strlen(INTERFACE_ANDROID_LOGCAT_RADIO) + 1) {
-        serial_number = interface + strlen(INTERFACE_ANDROID_LOGCAT_RADIO) + 1;
-    } else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_EVENTS) && strlen(interface) > strlen(INTERFACE_ANDROID_LOGCAT_EVENTS) + 1) {
-        serial_number = interface + strlen(INTERFACE_ANDROID_LOGCAT_EVENTS) + 1;
-    }
-
+    serial_number = get_serial_from_interface(interface);
     sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
     if (sock == INVALID_SOCKET)
         return EXIT_CODE_INVALID_SOCKET_9;
 
-    if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_MAIN))
-        adb_command = adb_log_main;
-    else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_SYSTEM))
-        adb_command = adb_log_system;
-    else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_RADIO))
-        adb_command = adb_log_radio;
-    else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_EVENTS))
-        adb_command = adb_log_events;
-    else {
+    adb_command = interface_to_logbuf(interface);
+    if (!adb_command) {
         g_warning("Unknown interface: <%s>", interface);
         closesocket(sock);
         return EXIT_CODE_GENERIC;
@@ -2233,20 +2229,6 @@ static int capture_android_logcat(char *interface, char *fifo,
                 sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
                 if (sock == INVALID_SOCKET)
                     return EXIT_CODE_INVALID_SOCKET_10;
-
-                if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_MAIN))
-                    adb_command = adb_log_main;
-                else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_SYSTEM))
-                    adb_command = adb_log_system;
-                else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_RADIO))
-                    adb_command = adb_log_radio;
-                else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_EVENTS))
-                    adb_command = adb_log_events;
-                else {
-                    g_warning("Unknown interface: <%s>", interface);
-                    closesocket(sock);
-                    return EXIT_CODE_GENERIC;
-                }
 
                 result = adb_send(sock, adb_command);
                 if (result) {
@@ -2783,10 +2765,7 @@ int main(int argc, char **argv) {
     }
 
     if (extcap_conf->capture) {
-        if (extcap_conf->interface && (is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_MAIN) ||
-                is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_SYSTEM) ||
-                is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_RADIO) ||
-                is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_EVENTS)))
+        if (extcap_conf->interface && is_logcat_interface(extcap_conf->interface))
             if (logcat_text)
                 ret = capture_android_logcat_text(extcap_conf->interface,
                         extcap_conf->fifo, adb_server_ip, adb_server_tcp_port,
@@ -2794,11 +2773,7 @@ int main(int argc, char **argv) {
             else
                 ret = capture_android_logcat(extcap_conf->interface,
                         extcap_conf->fifo, adb_server_ip, adb_server_tcp_port);
-        else if (extcap_conf->interface && (is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_TEXT_MAIN) ||
-                is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_TEXT_SYSTEM) ||
-                is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_TEXT_RADIO) ||
-                is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_TEXT_EVENTS) ||
-                (is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_TEXT_CRASH))))
+        else if (extcap_conf->interface && is_logcat_text_interface(extcap_conf->interface))
             ret = capture_android_logcat_text(extcap_conf->interface,
                     extcap_conf->fifo, adb_server_ip, adb_server_tcp_port,
                     logcat_ignore_log_buffer, logcat_custom_parameter);
