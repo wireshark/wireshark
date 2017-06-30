@@ -159,7 +159,8 @@ static dissector_handle_t btcommon_ad_handle;
 static dissector_handle_t btcommon_le_channel_map_handle;
 static dissector_handle_t btl2cap_handle;
 
-static wmem_tree_t *connection_info_tree = NULL;
+static wmem_tree_t *connection_info_tree;
+static guint32 reassembly_id;
 
 /* Reassembly */
 static reassembly_table btle_l2cap_msg_reassembly_table;
@@ -189,7 +190,7 @@ static const fragment_items btle_l2cap_msg_frag_items = {
 
 /* Store information about a connection*/
 typedef struct _connection_info_t {
-    /*Address information*/
+    /* Address information */
     guint32  interface_id;
     guint32  adapter_id;
     guint32  access_address;
@@ -201,13 +202,15 @@ typedef struct _connection_info_t {
     guint    first_data_frame_seen : 1;
     guint    nextexpectedseqnum : 1;
     guint    segmentation_started : 1;  /* 0 = No, 1 = Yes */
-    guint    segment_len_rem;          /* The remaining segment length, used to find last segment */
+    guint    segment_len_rem;           /* The remaining segment length, used to find last segment */
+    guint32  reassembly_id;             /* Unique identifier for each reassembly */
 } connection_info_t;
 
 /* */
 typedef struct _btle_frame_info_t {
-    guint retransmit : 1; /* 0 = No, 1 Retransmitted frame */
-    guint more_fragments : 1; /* 0 = Last fragment, 1 = more fragments*/
+    guint    retransmit : 1;      /* 0 = No, 1 Retransmitted frame */
+    guint    more_fragments : 1;  /* 0 = Last fragment, 1 = more fragments*/
+    guint32  reassembly_id;       /* Unique identifier for each reassembly */
 } btle_frame_info_t;
 
 static const value_string pdu_type_vals[] = {
@@ -286,6 +289,12 @@ static const true_false_string tfs_random_public = {
 
 void proto_register_btle(void);
 void proto_reg_handoff_btle(void);
+
+static void
+btle_init(void)
+{
+    reassembly_id = 0;
+}
 
 /*
  * Implements Bluetooth Vol 6, Part B, Section 3.1.1 (ref Figure 3.2)
@@ -777,7 +786,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         btle_frame_info_t *btle_frame_info = NULL;
         fragment_head *frag_btl2cap_msg = NULL;
-        btle_frame_info_t empty_btle_frame_info = {0, 0};
+        btle_frame_info_t empty_btle_frame_info = {0, 0, 0};
 
         key[0].length = 1;
         key[0].key = &interface_id;
@@ -797,7 +806,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (connection_info) {
                 gchar  *str_addr_src, *str_addr_dst;
                 gint tmp_dir = 0;
-                /* Holds "unknown" + access_address + NULL, which is the longest string*/
+                /* Holds "unknown" + access_address + NULL, which is the longest string */
                 int     str_addr_len = 18 + 1;
 
                 str_addr_src = (gchar *) wmem_alloc(pinfo->pool, str_addr_len);
@@ -841,6 +850,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     address *addr;
 
                     btle_frame_info = wmem_new0(wmem_file_scope(), btle_frame_info_t);
+                    btle_frame_info->reassembly_id = connection_info->reassembly_id;
 
                     addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
                     addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_src.data, pinfo->dl_src.len);
@@ -902,7 +912,6 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         switch (llid) {
         case 0x01: /* Continuation fragment of an L2CAP message, or an Empty PDU */
-/* TODO: Try reassemble cases 0x01 and 0x02 */
             if (length > 0) {
                 tvbuff_t *new_tvb = NULL;
 
@@ -911,7 +920,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     if (!pinfo->fd->flags.visited) {
                         if (connection_info->segmentation_started == 1) {
                             connection_info->segment_len_rem = connection_info->segment_len_rem - length;
-                            if(connection_info->segment_len_rem > 0){
+                            if (connection_info->segment_len_rem > 0) {
                                 btle_frame_info->more_fragments = 1;
                             }
                             else {
@@ -921,10 +930,11 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                             }
                         }
                     }
+
                     frag_btl2cap_msg = fragment_add_seq_next(&btle_l2cap_msg_reassembly_table,
                         tvb, offset,
                         pinfo,
-                        connection_info->access_address,   /* guint32 ID for fragments belonging together */
+                        btle_frame_info->reassembly_id,    /* guint32 ID for fragments belonging together */
                         NULL,                              /* data* */
                         length,                            /* Fragment length */
                         btle_frame_info->more_fragments);  /* More fragments */
@@ -951,7 +961,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     acl_data->is_btle = TRUE;
 
                     next_tvb = tvb_new_subset_length(tvb, offset, length);
-                    if(next_tvb){
+                    if (next_tvb) {
                         call_dissector_with_data(btl2cap_handle, new_tvb, pinfo, tree, acl_data);
                     }
                     offset += length;
@@ -972,25 +982,27 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (length > 0) {
                 guint le_frame_len = tvb_get_letohs(tvb, offset);
                 if (le_frame_len > length) {
-/* TODO: Try reassemble cases 0x01 and 0x02 */
                     pinfo->fragmented = TRUE;
                     if (connection_info) {
                         if (!pinfo->fd->flags.visited) {
                             connection_info->segmentation_started = 1;
                             /* The first two octets in the L2CAP PDU contain the length of the entire
-                            * L2CAP PDU in octets, excluding the Length and CID fields(4 octets).
-                            */
+                             * L2CAP PDU in octets, excluding the Length and CID fields(4 octets).
+                             */
                             connection_info->segment_len_rem = le_frame_len + 4 - length;
+                            connection_info->reassembly_id = reassembly_id;
                             btle_frame_info->more_fragments = 1;
+                            btle_frame_info->reassembly_id = reassembly_id;
+                            reassembly_id++;
                         }
 
                         frag_btl2cap_msg = fragment_add_seq_next(&btle_l2cap_msg_reassembly_table,
                             tvb, offset,
                             pinfo,
-                            connection_info->access_address, /* guint32 ID for fragments belonging together */
-                            NULL,
-                            length, /* Fragment length */
-                            TRUE);  /* More fragments */
+                            btle_frame_info->reassembly_id,    /* guint32 ID for fragments belonging together */
+                            NULL,                              /* data* */
+                            length,                            /* Fragment length */
+                            btle_frame_info->more_fragments);  /* More fragments */
 
                         process_reassembled_data(tvb, offset, pinfo,
                             "Reassembled L2CAP",
@@ -1757,6 +1769,8 @@ proto_register_btle(void)
 
     reassembly_table_register(&btle_l2cap_msg_reassembly_table,
         &addresses_reassembly_table_functions);
+
+    register_init_routine(btle_init);
 }
 
 void
