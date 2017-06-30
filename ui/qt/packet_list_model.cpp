@@ -388,10 +388,20 @@ bool PacketListModel::isNumericColumn(int column)
         }
 
         header_field_info *hfi = proto_registrar_get_byname(fields[i]);
-        if (!hfi || hfi->strings != NULL ||
+        /*
+         * Reject a field when there is no numeric field type or when:
+         * - there are (value_string) "strings"
+         *   (but do accept fields which have a unit suffix).
+         * - BASE_HEX or BASE_HEX_DEC (these have a constant width, string
+         *   comparison is faster than conversion to double).
+         * - BASE_CUSTOM (these can be formatted in any way).
+         */
+        if (!hfi ||
+              (hfi->strings != NULL && !(hfi->display & BASE_UNIT_STRING)) ||
               !(((IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)) &&
-                 ((hfi->display == BASE_DEC) || (hfi->display == BASE_DEC_HEX) ||
-                  (hfi->display == BASE_OCT))) ||
+                 ((FIELD_DISPLAY(hfi->display) == BASE_DEC) ||
+                  (FIELD_DISPLAY(hfi->display) == BASE_OCT) ||
+                  (FIELD_DISPLAY(hfi->display) == BASE_DEC_HEX))) ||
                 (hfi->type == FT_DOUBLE) || (hfi->type == FT_FLOAT) ||
                 (hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
                 (hfi->type == FT_RELATIVE_TIME))) {
@@ -433,8 +443,8 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
                 // Attempt to convert to numbers.
                 // XXX This is slow. Can we avoid doing this?
                 bool ok_r1, ok_r2;
-                double num_r1 = r1->columnString(sort_cap_file_, sort_column_).toDouble(&ok_r1);
-                double num_r2 = r2->columnString(sort_cap_file_, sort_column_).toDouble(&ok_r2);
+                double num_r1 = parseNumericColumn(r1->columnString(sort_cap_file_, sort_column_), &ok_r1);
+                double num_r2 = parseNumericColumn(r2->columnString(sort_cap_file_, sort_column_), &ok_r2);
 
                 if (!ok_r1 && !ok_r2) {
                     cmp_val = 0;
@@ -463,6 +473,19 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
     } else {
         return cmp_val > 0;
     }
+}
+
+// Parses a field as a double. Handle values with suffixes ("12ms"), negative
+// values ("-1.23") and fields with multiple occurrences ("1,2"). Marks values
+// that do not contain any numeric value ("Unknown") as invalid.
+double PacketListModel::parseNumericColumn(const QString &val, bool *ok)
+{
+    QByteArray ba = val.toUtf8();
+    const char *strval = ba.constData();
+    gchar *end = NULL;
+    double num = g_ascii_strtod(strval, &end);
+    *ok = strval != end;
+    return num;
 }
 
 // ::data is const so we have to make changes here.
