@@ -55,6 +55,404 @@ static const value_string zbee_zcl_se_reporting_status_names[] = {
 /*************************/
 
 /* ########################################################################## */
+/* #### (0x0700) PRICE CLUSTER ############################################## */
+/* ########################################################################## */
+
+/* Attributes */
+#define zbee_zcl_price_attr_names_VALUE_STRING_LIST(XXX) \
+/* Block Threshold (Delivered) Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_BLOCK_1_THRESHOLD,               0x0100, "Block 1 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_BLOCK_2_THRESHOLD,               0x0101, "Block 2 Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_BLOCK_3_THRESHOLD,               0x0102, "Block 3 Threshold" ) \
+/* Block Period (Delivered) Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_THRESHOLD_MULTIPLIER,            0x0202, "Threshold Multiplier" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_THRESHOLD_DIVISOR,               0x0203, "Threshold Divisor" ) \
+/* Commodity */ \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_COMMODITY_TYPE,                  0x0300, "Commodity Type" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_STANDING_CHARGE,                 0x0301, "Standing Charge" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CONVERSION_FACTOR,               0x0302, "Conversion Factor" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CONVERSION_FACTOR_TRAILING_DIGIT,0x0303, "Conversion Factor TrailingDigit" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CALORIFIC_VALUE,                 0x0304, "Calorific Value" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CALORIFIC_VALUE_UNIT,            0x0305, "Calorific Value Unit" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CALORIFIC_VALUE_TRAILING_DIGIT,  0x0306, "Calorific Value Trailing Digit" ) \
+/* Block Price Information (Delivered) */ \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_NO_TIER_BLOCK_1_PRICE,           0x0400, "No Tier Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_NO_TIER_BLOCK_2_PRICE,           0x0401, "No Tier Block 2 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_NO_TIER_BLOCK_3_PRICE,           0x0402, "No Tier Block 3 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_NO_TIER_BLOCK_4_PRICE,           0x0403, "No Tier Block 4 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_1_BLOCK_1_PRICE,            0x0410, "Tier 1 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_2_BLOCK_1_PRICE,            0x0420, "Tier 2 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_3_BLOCK_1_PRICE,            0x0430, "Tier 3 Block 1 Price" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_TIER_4_BLOCK_1_PRICE,            0x0440, "Tier 4 Block 1 Price" ) \
+/* Tariff Information Set (Delivered) */ \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_UNIT_OF_MEASURE,                 0x0615, "Unit of Measure" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_CURRENCY,                        0x0616, "Currency" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_PRICE_PRICE_TRAILING_DIGIT,            0x0617, "Price Trailing Digit" ) \
+/* Smart Energy */ \
+    XXX(ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_PRICE,           0xFFFE, "Attribute Reporting Status" )
+
+VALUE_STRING_ENUM(zbee_zcl_price_attr_names);
+VALUE_STRING_ARRAY(zbee_zcl_price_attr_names);
+
+/* Server Commands Received */
+#define zbee_zcl_price_srv_rx_cmd_names_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_GET_CURRENT_PRICE,                0x00, "Get Current Price" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_GET_SCHEDULED_PRICES,             0x01, "Get Scheduled Prices" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_GET_PRICE_ACKNOWLEDGEMENT,        0x02, "Price Acknowledgement" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_GET_BLOCK_PERIOD,                 0x03, "Get Block Period(s)" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_GET_CONVERSION_FACTOR,            0x04, "Get Conversion Factor" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_GET_CALORIFIC_VALUE,              0x05, "Get Calorific Value" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_GET_TARIFF_INFORMATION,           0x06, "Get Tariff Information" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_GET_PRICE_MATRIX,                 0x07, "Get Price Matrix" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_GET_BLOCK_THRESHOLDS,             0x08, "Get Block Thresholds" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_GET_CO2_VALUE,                    0x09, "Get CO2 Value" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_GET_TIER_LABELS,                  0x0A, "Get Tier Labels" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_GET_BILLING_PERIOD,               0x0B, "Get Billing Period" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_GET_CONSOLIDATED_BILL,            0x0C, "Get Consolidated Bill" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_CPP_EVENT_RESPONSE,               0x0D, "CPP Event Response" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_GET_CREDIT_PAYMENT,               0x0E, "Get Credit Payment" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_GET_CURRENCY_CONVERSION,          0x0F, "Get Currency Conversion" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_GET_TARIFF_CANCELLATION,          0x10, "Get Tariff Cancellation" )
+
+VALUE_STRING_ENUM(zbee_zcl_price_srv_rx_cmd_names);
+VALUE_STRING_ARRAY(zbee_zcl_price_srv_rx_cmd_names);
+
+/* Server Commands Generated */
+#define zbee_zcl_price_srv_tx_cmd_names_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_PRICE,                    0x00, "Publish Price" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_BLOCK_PERIOD,             0x01, "Publish Block Period" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_CONVERSION_FACTOR,        0x02, "Publish Conversion Factor" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_CALORIFIC_VALUE,          0x03, "Publish Calorific Value" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_TARIFF_INFORMATION,       0x04, "Publish Tariff Information" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_PRICE_MATRIX,             0x05, "Publish Price Matrix" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_BLOCK_THRESHOLDS,         0x06, "Publish Block Thresholds" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_CO2_VALUE,                0x07, "Publish CO2 Value" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_TIER_LABELS,              0x08, "Publish Tier Labels" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_BILLING_PERIOD,           0x09, "PublishBillingPeriod" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_CONSOLIDATED_BILL,        0x0A, "Publish Consolidated Bill" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_CPP_EVENT,                0x0B, "Publish CPP Event" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_CREDIT_PAYMENT,           0x0C, "Publish Credit Payment" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_CURRENCY_CONVERSION,      0x0D, "Publish Currency Conversion" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_CANCEL_TARIFF,                    0x0E, "Cancel Tariff" )
+
+VALUE_STRING_ENUM(zbee_zcl_price_srv_tx_cmd_names);
+VALUE_STRING_ARRAY(zbee_zcl_price_srv_tx_cmd_names);
+
+/*************************/
+/* Function Declarations */
+/*************************/
+void proto_register_zbee_zcl_price(void);
+void proto_reg_handoff_zbee_zcl_price(void);
+
+/* Attribute Dissector Helpers */
+static void dissect_zcl_price_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+/*************************/
+/* Global Variables      */
+/*************************/
+
+static dissector_handle_t price_handle;
+
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_price = -1;
+
+static int hf_zbee_zcl_price_srv_tx_cmd_id = -1;
+static int hf_zbee_zcl_price_srv_rx_cmd_id = -1;
+static int hf_zbee_zcl_price_attr_id = -1;
+static int hf_zbee_zcl_price_attr_reporting_status = -1;
+
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_price = -1;
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+ *@param attr_id attribute identifier
+ *@param data_type attribute data type
+*/
+static void
+dissect_zcl_price_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+{
+    switch (attr_id) {
+        /* applies to all SE clusters */
+        case ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_PRICE:
+            proto_tree_add_item(tree, hf_zbee_zcl_price_attr_reporting_status, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+
+        default: /* Catch all */
+            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            break;
+    }
+} /*dissect_zcl_price_attr_data*/
+
+/**
+ *ZigBee ZCL Price cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
+static int
+dissect_zbee_zcl_price(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    zbee_zcl_packet   *zcl;
+    guint             offset = 0;
+    guint8            cmd_id;
+    gint              rem_len;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    zcl = (zbee_zcl_packet *)data;
+    cmd_id = zcl->cmd_id;
+
+    /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
+    if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_price_srv_rx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_uint(tree, hf_zbee_zcl_price_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_price, NULL, "Payload");
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+
+                case ZBEE_ZCL_CMD_ID_PRICE_GET_CURRENT_PRICE:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_GET_SCHEDULED_PRICES:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_GET_PRICE_ACKNOWLEDGEMENT:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_GET_BLOCK_PERIOD:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_GET_CONVERSION_FACTOR:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_GET_CALORIFIC_VALUE:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_GET_TARIFF_INFORMATION:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_GET_PRICE_MATRIX:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_GET_BLOCK_THRESHOLDS:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_GET_CO2_VALUE:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_GET_TIER_LABELS:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_GET_BILLING_PERIOD:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_GET_CONSOLIDATED_BILL:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_CPP_EVENT_RESPONSE:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_GET_CREDIT_PAYMENT:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_GET_CURRENCY_CONVERSION:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_GET_TARIFF_CANCELLATION:
+                    /* Add function to dissect payload */
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+    else { /* ZBEE_ZCL_FCF_TO_CLIENT */
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_price_srv_tx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_uint(tree, hf_zbee_zcl_price_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_price, NULL, "Payload");
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+
+                case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_PRICE:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_BLOCK_PERIOD:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_CONVERSION_FACTOR:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_CALORIFIC_VALUE:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_TARIFF_INFORMATION:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_PRICE_MATRIX:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_BLOCK_THRESHOLDS:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_CO2_VALUE:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_TIER_LABELS:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_BILLING_PERIOD:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_CONSOLIDATED_BILL:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_CPP_EVENT:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_CREDIT_PAYMENT:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_CURRENCY_CONVERSION:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PRICE_CANCEL_TARIFF:
+                    /* Add function to dissect payload */
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    return tvb_captured_length(tvb);
+} /*dissect_zbee_zcl_price*/
+
+/**
+ *This function registers the ZCL Price dissector
+ *
+*/
+void
+proto_register_zbee_zcl_price(void)
+{
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_price_attr_id,
+            { "Attribute", "zbee_zcl_se.price.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_price_attr_names),
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_attr_reporting_status,                         /* common to all SE clusters */
+            { "Attribute Reporting Status", "zbee_zcl_se.price.attr.attr_reporting_status",
+            FT_UINT8, BASE_HEX, VALS(zbee_zcl_se_reporting_status_names), 0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_srv_tx_cmd_id,
+            { "Command", "zbee_zcl_se.price.cmd.srv_tx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_price_srv_tx_cmd_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_srv_rx_cmd_id,
+            { "Command", "zbee_zcl_se.price.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_price_srv_rx_cmd_names),
+            0x00, NULL, HFILL } },
+
+    };
+
+    /* ZCL Price subtrees */
+    gint *ett[] = {
+        &ett_zbee_zcl_price,
+    };
+
+    /* Register the ZigBee ZCL Price cluster protocol name and description */
+    proto_zbee_zcl_price = proto_register_protocol("ZigBee ZCL Price", "ZCL Price", ZBEE_PROTOABBREV_ZCL_PRICE);
+    proto_register_field_array(proto_zbee_zcl_price, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL Price dissector. */
+    price_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_PRICE, dissect_zbee_zcl_price, proto_zbee_zcl_price);
+} /*proto_register_zbee_zcl_price*/
+
+/**
+ *Hands off the Zcl Price dissector.
+ *
+*/
+void
+proto_reg_handoff_zbee_zcl_price(void)
+{
+    /* Register our dissector with the ZigBee application dissectors. */
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_PRICE, price_handle);
+
+    zbee_zcl_init_cluster(  proto_zbee_zcl_price,
+                            ett_zbee_zcl_price,
+                            ZBEE_ZCL_CID_PRICE,
+                            hf_zbee_zcl_price_attr_id,
+                            hf_zbee_zcl_price_srv_rx_cmd_id,
+                            hf_zbee_zcl_price_srv_tx_cmd_id,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_price_attr_data
+                         );
+} /*proto_reg_handoff_zbee_zcl_price*/
+
+/* ########################################################################## */
 /* #### (0x0702) METERING CLUSTER ########################################## */
 /* ########################################################################## */
 
