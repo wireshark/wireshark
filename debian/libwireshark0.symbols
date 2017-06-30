@@ -1470,6 +1470,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_detected_not_detected@Base 1.9.1
  tfs_disabled_enabled@Base 1.9.1
  tfs_do_not_clear_clear@Base 1.12.0~rc1
+ tfs_down_up@Base 2.5.0
  tfs_enabled_disabled@Base 1.9.1
  tfs_encrypt_do_not_encrypt@Base 2.1.0
  tfs_enforced_not_enforced@Base 1.12.0~rc1

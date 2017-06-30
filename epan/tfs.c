@@ -94,4 +94,5 @@ const true_false_string tfs_client_server = { "Client", "Server" };
 const true_false_string tfs_server_client = { "Server", "Client" };
 const true_false_string tfs_preferred_no_preference = { "Preferred", "No preference" };
 const true_false_string tfs_encrypt_do_not_encrypt = { "Encrypt", "Do Not Encrypt" };
+const true_false_string tfs_down_up = { "Down", "Up" };
 
