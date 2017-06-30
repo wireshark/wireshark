@@ -2439,6 +2439,7 @@ static int capture_android_tcpdump(char *interface, char *fifo,
 
         g_regex_match(regex, data, (GRegexMatchFlags)0, &match);
         if (g_match_info_matches(match)) {
+            g_free(linktype);
             linktype = g_match_info_fetch_named(match, "linktype");
         }
         g_match_info_free(match);
