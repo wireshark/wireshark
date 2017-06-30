@@ -57,8 +57,9 @@ if_list_comparator_alph(const void *first_arg, const void *second_arg)
 /*
  * Try to populate the given device with options (like capture filter) from
  * the capture options that are in use for an existing capture interface.
+ * Returns TRUE if the interface is selected for capture and FALSE otherwise.
  */
-static void
+static gboolean
 fill_from_ifaces (interface_t *device)
 {
     interface_options interface_opts;
@@ -82,8 +83,9 @@ fill_from_ifaces (interface_t *device)
         if (interface_opts.linktype != -1) {
             device->active_dlt = interface_opts.linktype;
         }
-        return;
+        return TRUE;
     }
+    return FALSE;
 }
 
 /*
@@ -309,9 +311,9 @@ scan_local_interfaces(void (*update_cb)(void))
 #endif
 
         /* Copy interface options for active capture devices. */
-        fill_from_ifaces(&device);
+        gboolean selected = fill_from_ifaces(&device);
         /* Restore device selection (for next capture). */
-        if (!device.selected && g_hash_table_lookup(selected_devices, device.name)) {
+        if (!device.selected && (selected || g_hash_table_lookup(selected_devices, device.name))) {
             device.selected = TRUE;
             global_capture_opts.num_selected++;
         }
