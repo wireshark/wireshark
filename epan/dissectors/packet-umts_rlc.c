@@ -1304,6 +1304,9 @@ rlc_call_subdissector(enum rlc_channel_type channel, tvbuff_t *tvb,
         case RLC_DL_CTCH:
             msgtype = RRC_MESSAGE_TYPE_INVALID;
             call_dissector(bmc_handle, tvb, pinfo, tree);
+            /* once the packet has been dissected, protect it from further changes using a 'fence' in the INFO column */
+            col_append_str(pinfo->cinfo, COL_INFO," ");
+            col_set_fence(pinfo->cinfo, COL_INFO);
             break;
         case RLC_UL_DCCH:
             msgtype = RRC_MESSAGE_TYPE_UL_DCCH;
@@ -1321,8 +1324,9 @@ rlc_call_subdissector(enum rlc_channel_type channel, tvbuff_t *tvb,
             msgtype = RRC_MESSAGE_TYPE_INVALID;
             /* assume transparent PDCP for now */
             call_dissector(ip_handle, tvb, pinfo, tree);
-            /* once the packet has been dissected, protect it from further changes */
-            col_set_writable(pinfo->cinfo, -1, FALSE);
+            /* once the packet has been dissected, protect it from further changes using a 'fence' in the INFO column */
+            col_append_str(pinfo->cinfo, COL_INFO," ");
+            col_set_fence(pinfo->cinfo, COL_INFO);
             break;
         default:
             return; /* stop dissecting */
@@ -1338,8 +1342,9 @@ rlc_call_subdissector(enum rlc_channel_type channel, tvbuff_t *tvb,
         }
         rrcinf->msgtype[fpinf->cur_tb] = msgtype;
         call_dissector(rrc_handle, tvb, pinfo, tree);
-        /* once the packet has been dissected, protect it from further changes */
-        col_set_writable(pinfo->cinfo, -1, FALSE);
+        /* once the packet has been dissected, protect it from further changes using a 'fence' in the INFO column */
+        col_append_str(pinfo->cinfo, COL_INFO," ");
+        col_set_fence(pinfo->cinfo, COL_INFO);
     }
 }
 
