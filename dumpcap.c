@@ -2434,7 +2434,6 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
                                 -1,                          /* section_length */
                                 &ld->bytes_written,
                                 &err);
-            g_string_free(cpu_info_str, TRUE);
             g_free(appname);
 
             for (i = 0; successful && (i < capture_opts->ifaces->len); i++) {
@@ -2934,7 +2933,6 @@ do_file_switch_or_stop(capture_options *capture_opts,
                                                                 -1,                          /* section_length */
                                 &(global_ld.bytes_written),
                                 &global_ld.err);
-                g_string_free(cpu_info_str, TRUE);
                 g_free(appname);
 
                 for (i = 0; successful && (i < capture_opts->ifaces->len); i++) {
