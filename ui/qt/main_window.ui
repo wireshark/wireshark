@@ -741,10 +741,6 @@
    <addaction name="actionViewZoomOut"/>
    <addaction name="actionViewNormalSize"/>
    <addaction name="actionViewResizeColumns"/>
-   <addaction name="separator"/>
-   <addaction name="actionWirelessTimelineZoomIn"/>
-   <addaction name="actionWirelessTimelineZoomOut"/>
-   <addaction name="actionWirelessTimelineZoomFullOut"/>
   </widget>
   <widget class="MainStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="displayFilterToolBar">
@@ -2984,39 +2980,6 @@
    </property>
    <property name="text">
     <string>&amp;Full Screen</string>
-   </property>
-  </action>
-  <action name="actionWirelessTimelineZoomIn">
-   <property name="text">
-    <string>&amp;Zoom In</string>
-   </property>
-   <property name="toolTip">
-    <string>Zoom in on the wireless timeline</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+I</string>
-   </property>
-  </action>
-  <action name="actionWirelessTimelineZoomOut">
-   <property name="text">
-    <string>Zoom Out</string>
-   </property>
-   <property name="toolTip">
-    <string>Zoom out on the wireless timeline</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+O</string>
-   </property>
-  </action>
-  <action name="actionWirelessTimelineZoomFullOut">
-   <property name="text">
-    <string>Full capture</string>
-   </property>
-   <property name="toolTip">
-    <string>Fully zoom out on the wireless timeline</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+U</string>
    </property>
   </action>
  </widget>

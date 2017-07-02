@@ -2467,21 +2467,6 @@ void MainWindow::on_actionViewNormalSize_triggered()
     zoomText();
 }
 
-void MainWindow::on_actionWirelessTimelineZoomIn_triggered()
-{
-    main_ui_->wirelessTimelineWidget->zoomIn();
-}
-
-void MainWindow::on_actionWirelessTimelineZoomOut_triggered()
-{
-    main_ui_->wirelessTimelineWidget->zoomOut();
-}
-
-void MainWindow::on_actionWirelessTimelineZoomFullOut_triggered()
-{
-    main_ui_->wirelessTimelineWidget->zoomFullOut();
-}
-
 void MainWindow::on_actionViewColorizePacketList_triggered(bool checked) {
     recent.packet_list_colorize = checked;
     packet_list_enable_color(checked);

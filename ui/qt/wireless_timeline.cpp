@@ -64,7 +64,6 @@
 
 const float fraction = 0.8F;
 const float base = 0.1F;
-
 class pcolor : public QColor
 {
 public:
@@ -387,6 +386,20 @@ bool WirelessTimeline::event(QEvent *event)
 }
 
 
+void WirelessTimeline::wheelEvent(QWheelEvent *event)
+{
+    // "Most mouse types work in steps of 15 degrees, in which case the delta
+    // value is a multiple of 120; i.e., 120 units * 1/8 = 15 degrees"
+    double steps = event->delta() / 120.0;
+    if (steps != 0.0) {
+        zoom_level += steps;
+        if (zoom_level < 0) zoom_level = 0;
+        if (zoom_level > TIMELINE_MAX_ZOOM) zoom_level = TIMELINE_MAX_ZOOM;
+        zoom((float)event->pos().x() / width());
+    }
+}
+
+
 void WirelessTimeline::bgColorizationProgress(int first, int last)
 {
     if (isHidden()) return;
@@ -402,27 +415,15 @@ void WirelessTimeline::bgColorizationProgress(int first, int last)
 }
 
 
-guint64 WirelessTimeline::current_frame_center()
+// zoom at relative position 0.0 <= x_fraction <= 1.0.
+void WirelessTimeline::zoom(double x_fraction)
 {
-    if (cfile.current_frame == NULL)
-        return 0;
-
-    struct wlan_radio *wr = get_wlan_radio(cfile.current_frame->num);
-    return (wr->start_tsf + wr->end_tsf) /2;
-}
-
-
-void WirelessTimeline::zoom()
-{
-    guint64 center = current_frame_center();
-    int x_position = position(center, 1.0);
-
     /* adjust the zoom around the selected packet */
-    float fraction = ((float) x_position)/width();
     guint64 file_range = last->end_tsf - first->start_tsf;
-    guint64 span = pow(file_range, 1.0-zoom_level/25.0);
-    start_tsf = center - span*fraction;
-    end_tsf = center + span*(1.0-fraction);
+    guint64 center = start_tsf + x_fraction * (end_tsf - start_tsf);
+    guint64 span = pow(file_range, 1.0 - zoom_level / TIMELINE_MAX_ZOOM);
+    start_tsf = center - span * x_fraction;
+    end_tsf = center + span * (1.0 - x_fraction);
 
     /* if we go out of range for the whole file, clamp it */
     if (start_tsf < first->start_tsf) {
@@ -434,25 +435,6 @@ void WirelessTimeline::zoom()
     }
 
     update();
-}
-
-void WirelessTimeline::zoomIn()
-{
-    zoom_level++;
-    zoom();
-}
-
-void WirelessTimeline::zoomOut()
-{
-    zoom_level--;
-    if (zoom_level < 0) zoom_level = 0;
-    zoom();
-}
-
-void WirelessTimeline::zoomFullOut()
-{
-    zoom_level = 0;
-    zoom();
 }
 
 int WirelessTimeline::find_packet_tsf(guint64 tsf)

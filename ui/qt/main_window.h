@@ -456,9 +456,6 @@ private slots:
     void on_actionViewZoomIn_triggered();
     void on_actionViewZoomOut_triggered();
     void on_actionViewNormalSize_triggered();
-    void on_actionWirelessTimelineZoomIn_triggered();
-    void on_actionWirelessTimelineZoomOut_triggered();
-    void on_actionWirelessTimelineZoomFullOut_triggered();
     void on_actionViewColorizePacketList_triggered(bool checked);
     void on_actionViewColoringRules_triggered();
     void colorizeConversation(bool create_rule = false);
