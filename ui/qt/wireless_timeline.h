@@ -51,6 +51,9 @@
 /* pixels height for rendered timeline */
 #define TIMELINE_HEIGHT 64
 
+/* Maximum zoom levels for the timeline */
+#define TIMELINE_MAX_ZOOM 25.0
+
 class WirelessTimeline;
 class PacketList;
 
@@ -63,9 +66,6 @@ public:
     void setPacketList(PacketList *packet_list);
     void captureFileReadStarted(capture_file *cf);
     void captureFileReadFinished();
-    void zoomIn();
-    void zoomOut();
-    void zoomFullOut();
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -74,6 +74,7 @@ protected:
     void mouseMoveEvent (QMouseEvent *event);
     void mouseReleaseEvent (QMouseEvent *event);
     bool event(QEvent *event);
+    void wheelEvent(QWheelEvent *event);
 
 public slots:
     void bgColorizationProgress(int first, int last);
@@ -87,12 +88,11 @@ protected:
     struct wlan_radio* get_wlan_radio(guint32 packet_num);
 
     void clip_tsf();
-    guint64 current_frame_center();
     int position(guint64 tsf, float ratio);
     int find_packet_tsf(guint64 tsf);
     void doToolTip(struct wlan_radio *wr, QPoint pos, int x);
-    void zoom();
-    int zoom_level;
+    void zoom(double x_fraction);
+    double zoom_level;
     qreal start_x, last_x;
     PacketList *packet_list;
     guint find_packet(qreal x);

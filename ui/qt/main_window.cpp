@@ -2014,10 +2014,6 @@ void MainWindow::initMainToolbarIcons()
     main_ui_->actionViewZoomOut->setIcon(StockIcon("zoom-out"));
     main_ui_->actionViewNormalSize->setIcon(StockIcon("zoom-original"));
     main_ui_->actionViewResizeColumns->setIcon(StockIcon("x-resize-columns"));
-
-    main_ui_->actionWirelessTimelineZoomIn->setIcon(StockIcon("zoom-in"));
-    main_ui_->actionWirelessTimelineZoomOut->setIcon(StockIcon("zoom-out"));
-    main_ui_->actionWirelessTimelineZoomFullOut->setIcon(StockIcon("zoom-original"));
 }
 
 void MainWindow::initShowHideMainWidgets()
@@ -2447,11 +2443,6 @@ void MainWindow::setForCapturedPackets(bool have_captured_packets)
     main_ui_->actionViewZoomOut->setEnabled(have_captured_packets);
     main_ui_->actionViewNormalSize->setEnabled(have_captured_packets);
     main_ui_->actionViewResizeColumns->setEnabled(have_captured_packets);
-
-    bool wireless_timeline_visible = (main_ui_->wirelessTimelineWidget ? !main_ui_->wirelessTimelineWidget->isHidden() : FALSE);
-    main_ui_->actionWirelessTimelineZoomIn->setEnabled(wireless_timeline_visible);
-    main_ui_->actionWirelessTimelineZoomOut->setEnabled(wireless_timeline_visible);
-    main_ui_->actionWirelessTimelineZoomFullOut->setEnabled(wireless_timeline_visible);
 
     main_ui_->actionStatisticsCaptureFileProperties->setEnabled(have_captured_packets);
     main_ui_->actionStatisticsProtocolHierarchy->setEnabled(have_captured_packets);
