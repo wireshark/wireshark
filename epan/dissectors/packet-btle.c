@@ -5,6 +5,7 @@
  * Copyright 2013, Mike Ryan, mikeryan /at/ isecpartners /dot/ com
  * Copyright 2013, Michal Labedzki for Tieto Corporation
  * Copyright 2014, Christopher D. Kilgour, techie at whiterocker dot com
+ * Copyright 2017, Stig Bjorlykke for Nordic Semiconductor
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -80,6 +81,7 @@ static int hf_data_header_more_data = -1;
 static int hf_data_header_sequence_number = -1;
 static int hf_data_header_next_expected_sequence_number = -1;
 static int hf_control_opcode = -1;
+static int hf_l2cap_index = -1;
 static int hf_l2cap_fragment = -1;
 static int hf_control_reject_opcode = -1;
 static int hf_control_error_code = -1;
@@ -153,6 +155,7 @@ static expert_field ei_access_address_bit_errors = EI_INIT;
 static expert_field ei_access_address_illegal = EI_INIT;
 static expert_field ei_crc_cannot_be_determined = EI_INIT;
 static expert_field ei_crc_incorrect = EI_INIT;
+static expert_field ei_missing_fragment_start = EI_INIT;
 
 static dissector_handle_t btle_handle;
 static dissector_handle_t btcommon_ad_handle;
@@ -160,7 +163,7 @@ static dissector_handle_t btcommon_le_channel_map_handle;
 static dissector_handle_t btl2cap_handle;
 
 static wmem_tree_t *connection_info_tree;
-static guint32 reassembly_id;
+static guint32 l2cap_index;
 
 /* Reassembly */
 static reassembly_table btle_l2cap_msg_reassembly_table;
@@ -203,14 +206,15 @@ typedef struct _connection_info_t {
     guint    nextexpectedseqnum : 1;
     guint    segmentation_started : 1;  /* 0 = No, 1 = Yes */
     guint    segment_len_rem;           /* The remaining segment length, used to find last segment */
-    guint32  reassembly_id;             /* Unique identifier for each reassembly */
+    guint32  l2cap_index;               /* Unique identifier for each L2CAP message */
 } connection_info_t;
 
 /* */
 typedef struct _btle_frame_info_t {
-    guint    retransmit : 1;      /* 0 = No, 1 Retransmitted frame */
-    guint    more_fragments : 1;  /* 0 = Last fragment, 1 = more fragments*/
-    guint32  reassembly_id;       /* Unique identifier for each reassembly */
+    guint    retransmit : 1;      /* 0 = No, 1 = Retransmitted frame */
+    guint    more_fragments : 1;  /* 0 = Last fragment, 1 = More fragments */
+    guint    missing_start : 1;   /* 0 = No, 1 = Missing fragment start */
+    guint32  l2cap_index;         /* Unique identifier for each L2CAP message */
 } btle_frame_info_t;
 
 static const value_string pdu_type_vals[] = {
@@ -293,7 +297,7 @@ void proto_reg_handoff_btle(void);
 static void
 btle_init(void)
 {
-    reassembly_id = 0;
+    l2cap_index = 0;
 }
 
 /*
@@ -779,6 +783,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         guint8       llid;
         guint8       control_opcode;
         guint32      direction = BTLE_DIR_UNKNOWN;
+        gboolean     add_l2cap_index = FALSE;
 
         if (btle_context) {
             direction = btle_context->direction;
@@ -786,7 +791,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         btle_frame_info_t *btle_frame_info = NULL;
         fragment_head *frag_btl2cap_msg = NULL;
-        btle_frame_info_t empty_btle_frame_info = {0, 0, 0};
+        btle_frame_info_t empty_btle_frame_info = {0, 0, 0, 0};
 
         key[0].length = 1;
         key[0].key = &interface_id;
@@ -850,7 +855,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     address *addr;
 
                     btle_frame_info = wmem_new0(wmem_file_scope(), btle_frame_info_t);
-                    btle_frame_info->reassembly_id = connection_info->reassembly_id;
+                    btle_frame_info->l2cap_index = connection_info->l2cap_index;
 
                     addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
                     addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_src.data, pinfo->dl_src.len);
@@ -919,7 +924,17 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 if (connection_info) {
                     if (!pinfo->fd->flags.visited) {
                         if (connection_info->segmentation_started == 1) {
-                            connection_info->segment_len_rem = connection_info->segment_len_rem - length;
+                            if (connection_info->segment_len_rem >= length) {
+                                connection_info->segment_len_rem = connection_info->segment_len_rem - length;
+                            } else {
+                                /*
+                                 * Missing fragment for previous L2CAP and fragment start for this.
+                                 * Increase l2cap_index.
+                                 */
+                                btle_frame_info->missing_start = 1;
+                                btle_frame_info->l2cap_index = l2cap_index;
+                                l2cap_index++;
+                            }
                             if (connection_info->segment_len_rem > 0) {
                                 btle_frame_info->more_fragments = 1;
                             }
@@ -928,13 +943,24 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                 connection_info->segmentation_started = 0;
                                 connection_info->segment_len_rem = 0;
                             }
+                        } else {
+                            /*
+                             * Missing fragment start.
+                             * Set more_fragments and increase l2cap_index to avoid reassembly.
+                             */
+                            btle_frame_info->more_fragments = 1;
+                            btle_frame_info->missing_start = 1;
+                            btle_frame_info->l2cap_index = l2cap_index;
+                            l2cap_index++;
                         }
                     }
+
+                    add_l2cap_index = TRUE;
 
                     frag_btl2cap_msg = fragment_add_seq_next(&btle_l2cap_msg_reassembly_table,
                         tvb, offset,
                         pinfo,
-                        btle_frame_info->reassembly_id,    /* guint32 ID for fragments belonging together */
+                        btle_frame_info->l2cap_index,      /* guint32 ID for fragments belonging together */
                         NULL,                              /* data* */
                         length,                            /* Fragment length */
                         btle_frame_info->more_fragments);  /* More fragments */
@@ -968,11 +994,12 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 }
                 else {
                     col_set_str(pinfo->cinfo, COL_INFO, "L2CAP Fragment");
-                    proto_tree_add_item(btle_tree, hf_l2cap_fragment, tvb, offset, length, ENC_NA);
+                    item = proto_tree_add_item(btle_tree, hf_l2cap_fragment, tvb, offset, length, ENC_NA);
+                    if (btle_frame_info->missing_start) {
+                        expert_add_info(pinfo, item, &ei_missing_fragment_start);
+                    }
                     offset += length;
                 }
-
-
             } else {
                 col_set_str(pinfo->cinfo, COL_INFO, "Empty PDU");
             }
@@ -990,16 +1017,18 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                              * L2CAP PDU in octets, excluding the Length and CID fields(4 octets).
                              */
                             connection_info->segment_len_rem = le_frame_len + 4 - length;
-                            connection_info->reassembly_id = reassembly_id;
+                            connection_info->l2cap_index = l2cap_index;
                             btle_frame_info->more_fragments = 1;
-                            btle_frame_info->reassembly_id = reassembly_id;
-                            reassembly_id++;
+                            btle_frame_info->l2cap_index = l2cap_index;
+                            l2cap_index++;
                         }
+
+                        add_l2cap_index = TRUE;
 
                         frag_btl2cap_msg = fragment_add_seq_next(&btle_l2cap_msg_reassembly_table,
                             tvb, offset,
                             pinfo,
-                            btle_frame_info->reassembly_id,    /* guint32 ID for fragments belonging together */
+                            btle_frame_info->l2cap_index,      /* guint32 ID for fragments belonging together */
                             NULL,                              /* data* */
                             length,                            /* Fragment length */
                             btle_frame_info->more_fragments);  /* More fragments */
@@ -1017,6 +1046,15 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     offset += length;
                 } else {
                     bthci_acl_data_t  *acl_data;
+                    if (connection_info) {
+                        /* Add a L2CAP index for completeness */
+                        if (!pinfo->fd->flags.visited) {
+                            btle_frame_info->l2cap_index = l2cap_index;
+                            l2cap_index++;
+                        }
+
+                        add_l2cap_index = TRUE;
+                    }
 
                     col_set_str(pinfo->cinfo, COL_INFO, "L2CAP Data");
 
@@ -1225,6 +1263,11 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_expert(btle_tree, pinfo, &ei_unknown_data, tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
                 offset += tvb_reported_length_remaining(tvb, offset) - 3;
             }
+        }
+
+        if (add_l2cap_index) {
+            item = proto_tree_add_uint(btle_tree, hf_l2cap_index, tvb, 0, 0, btle_frame_info->l2cap_index);
+            PROTO_ITEM_SET_GENERATED(item);
         }
 
         if ((crc_status == CRC_INDETERMINATE) &&
@@ -1660,6 +1703,11 @@ proto_register_btle(void)
             FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_microsecond_microseconds, 0x0,
             NULL, HFILL }
         },
+        { &hf_l2cap_index,
+            { "L2CAP Index",                     "btle.l2cap_index",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_l2cap_fragment,
             { "L2CAP Fragment",                  "btle.l2cap_data",
             FT_NONE, BASE_NONE, NULL, 0x0,
@@ -1736,6 +1784,8 @@ proto_register_btle(void)
             { "btle.crc.indeterminate",         PI_CHECKSUM, PI_NOTE,  "CRC unchecked, not all data available", EXPFILL }},
         { &ei_crc_incorrect,
             { "btle.crc.incorrect",             PI_CHECKSUM, PI_WARN,  "Incorrect CRC", EXPFILL }},
+        { &ei_missing_fragment_start,
+            { "btle.missing_fragment_start",    PI_SEQUENCE, PI_WARN,  "Missing Fragment Start", EXPFILL }},
     };
 
     static gint *ett[] = {
