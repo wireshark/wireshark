@@ -149,12 +149,6 @@ WS_DLL_PUBLIC const gchar *serv_name_lookup(port_type proto, guint port);
 WS_DLL_PUBLIC const gchar *enterprises_lookup(guint32 value, const char *unknown_str);
 
 /*
- * enterprises_lookup_format() returns the wmem-allocated private enterprise code
- * string, or a formatted string if one doesn't exist, or "<Unknown>" if 'fmt' is NULL.
- */
-WS_DLL_PUBLIC gchar *enterprises_lookup_format(wmem_allocator_t *allocator, guint32 value, const char *fmt);
-
-/*
  * try_enterprises_lookup() returns the private enterprise code string, or NULL if not found.
  */
 WS_DLL_PUBLIC const gchar *try_enterprises_lookup(guint32 value);

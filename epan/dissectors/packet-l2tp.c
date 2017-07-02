@@ -1526,8 +1526,8 @@ static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     avp_type        = tvb_get_ntohs(tvb, offset + 4);
 
     l2tp_avp_tree =  proto_tree_add_subtree_format(tree, tvb, offset,
-                              avp_len, ett_l2tp_avp, NULL, "Vendor %s: %s AVP",
-                              enterprises_lookup_format(wmem_packet_scope(), avp_vendor_id, "Unknown (%u)"),
+                              avp_len, ett_l2tp_avp, NULL, "Vendor %s (%u): %s AVP",
+                              enterprises_lookup(avp_vendor_id, "Unknown"), avp_vendor_id,
                               val_to_str(avp_type, cisco_avp_type_vals, "Unknown (%u)"));
 
     proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_mandatory, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1634,8 +1634,8 @@ static int dissect_l2tp_broadband_avps(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     avp_type        = tvb_get_ntohs(tvb, offset + 4);
 
     l2tp_avp_tree =  proto_tree_add_subtree_format(tree, tvb, offset,
-                              avp_len, ett_l2tp_avp, NULL, "Vendor %s: %s AVP",
-                              enterprises_lookup_format(wmem_packet_scope(), avp_vendor_id, "Unknown (%u)"),
+                              avp_len, ett_l2tp_avp, NULL, "Vendor %s (%u): %s AVP",
+                              enterprises_lookup(avp_vendor_id, "Unknown"), avp_vendor_id,
                               val_to_str(avp_type, broadband_avp_type_vals, "Unknown (%u)"));
 
     proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_mandatory, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1816,8 +1816,8 @@ static int dissect_l2tp_ericsson_avps(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     avp_type        = tvb_get_ntohs(tvb, offset + 4);
 
     l2tp_avp_tree =  proto_tree_add_subtree_format(tree, tvb, offset,
-                              avp_len, ett_l2tp_avp, NULL, "Vendor %s: %s AVP",
-                              enterprises_lookup_format(wmem_packet_scope(), avp_vendor_id, "Unknown (%u)"),
+                              avp_len, ett_l2tp_avp, NULL, "Vendor %s (%u): %s AVP",
+                              enterprises_lookup(avp_vendor_id, "Unknown"), avp_vendor_id,
                               val_to_str(avp_type, ericsson_avp_type_vals, "Unknown (%u)"));
 
     proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_mandatory, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1905,8 +1905,8 @@ dissect_l2tp_vnd_cablelabs_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     avp_type        = tvb_get_ntohs(tvb, offset + 4);
 
     l2tp_avp_tree =  proto_tree_add_subtree_format(tree, tvb, offset,
-                              avp_len, ett_l2tp_avp, NULL, "Vendor %s: %s AVP",
-                              enterprises_lookup_format(wmem_packet_scope(), avp_vendor_id, "Unknown (%u)"),
+                              avp_len, ett_l2tp_avp, NULL, "Vendor %s (%u): %s AVP",
+                              enterprises_lookup(avp_vendor_id, "Unknown"), avp_vendor_id,
                               val_to_str(avp_type, cablelabs_avp_type_vals, "Unknown (%u)"));
 
     proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_mandatory, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2037,8 +2037,8 @@ static void process_control_avps(tvbuff_t *tvb,
                 /* Vendor-Specific AVP */
                 if (!dissector_try_uint_new(l2tp_vendor_avp_dissector_table, avp_vendor_id, avp_tvb, pinfo, l2tp_tree, FALSE, l2tp_cntrl_data)){
                     l2tp_avp_tree =  proto_tree_add_subtree_format(l2tp_tree, tvb, idx,
-                                          avp_len, ett_l2tp_avp, NULL, "Vendor %s AVP Type %u",
-                                          enterprises_lookup_format(wmem_packet_scope(), avp_vendor_id, "Unknown (%u)"),
+                                          avp_len, ett_l2tp_avp, NULL, "Vendor %s (%u) AVP Type %u",
+                                          enterprises_lookup(avp_vendor_id, "Unknown"), avp_vendor_id,
                                           avp_type);
 
                     proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_mandatory, tvb, idx, 2, ENC_BIG_ENDIAN);

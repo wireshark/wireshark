@@ -779,19 +779,6 @@ enterprises_base_custom(char *buf, guint32 value)
     g_snprintf(buf, ITEM_LABEL_LENGTH, "%s (%u)", s, value);
 }
 
-gchar *
-enterprises_lookup_format(wmem_allocator_t *allocator, guint32 value, const char *fmt)
-{
-    const gchar *s;
-
-    s = try_enterprises_lookup(value);
-    if (s != NULL)
-        return wmem_strdup(allocator, s);
-    if (fmt != NULL)
-        return wmem_strdup_printf(allocator, fmt, value);
-    return wmem_strdup(allocator, "<Unknown>");
-}
-
 static void
 enterprises_cleanup(void)
 {

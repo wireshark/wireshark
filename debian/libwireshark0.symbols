@@ -481,7 +481,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  elem_v_short@Base 1.9.1
  enterprises_base_custom@Base 2.5.0
  enterprises_lookup@Base 2.5.0
- enterprises_lookup_format@Base 2.5.0
  eo_ct2ext@Base 2.3.0
  eo_free_entry@Base 2.3.0
  eo_iterate_tables@Base 2.3.0
