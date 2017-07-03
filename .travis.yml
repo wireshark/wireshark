@@ -29,6 +29,7 @@ before_install:
   - $CC --version
   # macos
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then ./tools/macos-setup-brew.sh; fi
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then PATH=/usr/local/opt/qt5/bin:$PATH; fi
   # linux
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get update -qq; fi
