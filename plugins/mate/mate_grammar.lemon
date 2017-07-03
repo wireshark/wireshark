@@ -151,6 +151,7 @@ static gchar* recolonize(mate_config* mc, gchar* s) {
 			} else {
 				v += (vec[i][1] - 'a' + 10)*16;
 			}
+		/* FALL THROUGH */
 		 case 1:
 			if (vec[i][0] >= '0' && vec[i][0] <= '9') {
 				v += (vec[i][0] - '0' );
@@ -159,7 +160,7 @@ static gchar* recolonize(mate_config* mc, gchar* s) {
 			}
 		 case 0:
 			break;
-		  default:
+		 default:
 			configuration_error(mc,"bad token %s",s);
 		}
 
