@@ -2559,10 +2559,16 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             case 0x14: /* LE Credit Based Connection Request */
                 offset = dissect_le_credit_based_connrequest(tvb, offset, pinfo, btl2cap_tree, btl2cap_cmd_tree, TRUE, acl_data, l2cap_data);
+
+                col_append_fstr(pinfo->cinfo, COL_INFO, " (CID: %04x, Initial Credits: %u)",
+                                tvb_get_letohs(tvb, offset - 8), tvb_get_letohs(tvb, offset - 2));
                 break;
 
             case 0x15: /* LE Credit Based Connection Response */
                 offset = dissect_le_credit_based_connresponse(tvb, offset, pinfo, btl2cap_cmd_tree, acl_data);
+
+                col_append_fstr(pinfo->cinfo, COL_INFO, " (CID: %04x, Initial Credits: %u)",
+                                tvb_get_letohs(tvb, offset - 10), tvb_get_letohs(tvb, offset - 4));
                 break;
 
             case 0x16: /* LE Flow Control Credit */
@@ -2573,7 +2579,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 2;
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " (CID: %04x, Credits: %u)",
-                        tvb_get_letohs(tvb, offset - 4), tvb_get_letohs(tvb, offset - 2));
+                                tvb_get_letohs(tvb, offset - 4), tvb_get_letohs(tvb, offset - 2));
                 break;
 
             default:
