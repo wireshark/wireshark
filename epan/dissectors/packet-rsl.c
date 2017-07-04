@@ -161,6 +161,13 @@ static int hf_rsl_paging_group_cs              = -1;
 static int hf_rsl_paging_group_empty_package   = -1;
 static int hf_rsl_paging_group_ps_spare        = -1;
 
+/* Physical Context dissection */
+static int hf_rsl_phy_ctx_ie_id                = -1;
+static int hf_rsl_phy_ctx_ext_rand_access      = -1;
+static int hf_rsl_phy_ctx_ab_rx_lvl            = -1;
+static int hf_rsl_phy_ctx_ab_err_bits          = -1;
+static int hf_rsl_phy_ctx_rx_lvl_ext           = -1;
+
 /* Initialize the subtree pointers */
 static int ett_rsl = -1;
 static int ett_ie_link_id = -1;
@@ -232,6 +239,12 @@ static int ett_ie_paging_package_info          = -1;
 static int ett_ie_paging_package_ch_a_emlpp    = -1;
 static int ett_ie_paging_group_paras           = -1;
 
+/* Physical Context dissection */
+static int ett_phy_ctx_ie                      = -1;
+static int ett_phy_ctx_ie_ext_rand_access      = -1;
+static int ett_phy_ctx_ab_rx_lvl_err_bits      = -1;
+static int ett_phy_ctx_rxlvl_ext               = -1;
+
 /* Generated from convert_proto_tree_add_text.pl */
 static expert_field ei_rsl_speech_or_data_indicator = EI_INIT;
 static expert_field ei_rsl_facility_information_element_3gpp_ts_44071 = EI_INIT;
@@ -247,6 +260,9 @@ static dissector_handle_t gsm_a_sacch_handle;
 
 /* Decode things as nanoBTS traces */
 static gboolean global_rsl_use_nano_bts = FALSE;
+
+/* Decode things in Physical Context Information field. */
+static gboolean global_rsl_dissect_phy_ctx_inf = TRUE;
 
 /* Forward declarations */
 static int dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
@@ -690,6 +706,19 @@ static const value_string rsl_ch_no_Cbits_vals[] = {
     { 0,            NULL }
 };
 static value_string_ext rsl_ch_no_Cbits_vals_ext = VALUE_STRING_EXT_INIT(rsl_ch_no_Cbits_vals);
+
+#define RSL_PHY_CTX_IE_EXT_RAND_ACCES 0x42
+#define RSL_PHY_CTX_IE_AB_RX_LEVEL_ERR_BITS 0x43
+#define RSL_PHY_CTX_IE_RX_LEVEL_EXT 0x45
+
+/* Physical Context IE vals*/
+static const value_string rsl_phy_con_ie_vals[] = {
+    {  RSL_PHY_CTX_IE_EXT_RAND_ACCES,           "Ext RandAccess" },
+    {  RSL_PHY_CTX_IE_AB_RX_LEVEL_ERR_BITS,     "AB RxLevel&ErrBits" },
+    {  RSL_PHY_CTX_IE_RX_LEVEL_EXT,             "RxLevel Ext" },
+    { 0,            NULL }
+};
+static value_string_ext rsl_phy_con_ie_vals_ext = VALUE_STRING_EXT_INIT(rsl_phy_con_ie_vals);
 
 /* From openbsc/include/openbsc/tlv.h */
 enum tlv_type {
@@ -1488,6 +1517,129 @@ dissect_rsl_ie_paging_load(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     return offset;
 
 }
+
+/* Physical Context dissection *
+ * Rx Level Ext *
+ *
+ */
+static int
+dissect_rsl_phy_ctx_rx_lvl_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    proto_tree *rxlvl_ext_tree;
+    proto_item *ti;
+    gint length;
+
+    rxlvl_ext_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_phy_ctx_rxlvl_ext, &ti, "RxLevel Rxt (called in Pre-processed Measurements)");
+
+    /* Phy Ctx Element Identifier */
+    proto_tree_add_item(rxlvl_ext_tree, hf_rsl_phy_ctx_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    /* Length */
+    length = tvb_get_guint8(tvb, offset);
+    proto_item_set_len(ti, length + 2);
+    proto_tree_add_item(rxlvl_ext_tree, hf_rsl_ie_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    /* Rx Level Ext */
+    proto_tree_add_item(rxlvl_ext_tree, hf_rsl_phy_ctx_rx_lvl_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    return offset;
+}
+/* Physical Context dissection*
+ * AB RxLevel&ErrBits *
+ *
+ */
+static int
+dissect_rsl_phy_ctx_ab_rx_lvl_err_bits(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    proto_tree *ab_tree;
+    proto_tree *ti;
+    gint length;
+
+    ab_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_phy_ctx_ab_rx_lvl_err_bits, &ti, "AB RxLevel&ErrBits IE");
+
+    /* Phy Ctx Element Identifier */
+    proto_tree_add_item(ab_tree, hf_rsl_phy_ctx_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    /* Length */
+    length = tvb_get_guint8(tvb, offset);
+    proto_item_set_len(ti, length + 2);
+    proto_tree_add_item(ab_tree, hf_rsl_ie_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    /* AB Rx Level */
+    proto_tree_add_item(ab_tree, hf_rsl_phy_ctx_ab_rx_lvl, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    /* Traning Err Bits */
+    proto_tree_add_item(ab_tree, hf_rsl_phy_ctx_ab_err_bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    return offset;
+}
+/* Physcial Context dissection*
+ * Ext RandAccess *
+ *
+ */
+static int
+dissect_rsl_phy_ctx_ext_rand_access(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    proto_tree *ext_rand_access_tree;
+    proto_item *ti;
+    guint length;
+
+    ext_rand_access_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_phy_ctx_ie_ext_rand_access, &ti, "Ext RandAccess IE");
+    /* Phy Ctx Element identifier */
+    proto_tree_add_item(ext_rand_access_tree, hf_rsl_phy_ctx_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    /* Length */
+    length = tvb_get_guint8(tvb, offset);
+    proto_item_set_len(ti, length+2);
+    proto_tree_add_item(ext_rand_access_tree, hf_rsl_ie_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(ext_rand_access_tree, hf_rsl_phy_ctx_ext_rand_access, tvb, offset, length, ENC_NA);
+    offset = offset + length;
+    return offset;
+}
+/* Physical Context IE dissection
+ *
+ */
+static int
+dissect_phy_ctx_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint8 length)
+{
+    proto_tree *phy_ctx_tree;
+    guint8 phy_ctx_ie_type;
+
+    phy_ctx_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_phy_ctx_ie, NULL, "Physical Context dissection");
+    phy_ctx_ie_type = tvb_get_guint8(tvb, offset);
+
+    switch (phy_ctx_ie_type) {
+        /* Ext RandAccess */
+        case RSL_PHY_CTX_IE_EXT_RAND_ACCES:
+            /* Ext RandAccess */
+            offset = dissect_rsl_phy_ctx_ext_rand_access(tvb, pinfo, phy_ctx_tree, offset);
+            /* AB Rx Level */
+            offset = dissect_rsl_phy_ctx_ab_rx_lvl_err_bits(tvb, pinfo, phy_ctx_tree, offset);
+            /* Rx Level Ext */
+            offset = dissect_rsl_phy_ctx_rx_lvl_ext(tvb, pinfo, phy_ctx_tree, offset);
+            break;
+        /* AB RxLevel&ErrBits */
+        case RSL_PHY_CTX_IE_AB_RX_LEVEL_ERR_BITS:
+            /* AB Rx Level */
+            offset = dissect_rsl_phy_ctx_ab_rx_lvl_err_bits(tvb, pinfo, phy_ctx_tree, offset);
+            /* Rx Level Ext */
+            offset = dissect_rsl_phy_ctx_rx_lvl_ext(tvb, pinfo, phy_ctx_tree, offset);
+            break;
+        /* RXLevelExt */
+        case RSL_PHY_CTX_IE_RX_LEVEL_EXT:
+            /* Rx Level Ext */
+            offset = dissect_rsl_phy_ctx_rx_lvl_ext(tvb, pinfo, phy_ctx_tree, offset);
+            break;
+        default:
+            break;
+    }
+
+    return offset;
+}
+
 /*
  * 9.3.16 Physical Context TLV
  */
@@ -1522,8 +1674,12 @@ dissect_rsl_ie_phy_ctx(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
      *  This information should not be analysed by BSC, but merely
      *  forwarded from one TRX/channel to another.
      */
-    proto_tree_add_item(ie_tree, hf_rsl_phy_ctx, tvb, offset, length, ENC_NA);
-    offset = offset + length;
+    if(global_rsl_dissect_phy_ctx_inf){
+        offset = dissect_phy_ctx_ie(tvb, pinfo, ie_tree, offset, length);
+    }else{
+        proto_tree_add_item(ie_tree, hf_rsl_phy_ctx, tvb, offset, length, ENC_NA);
+        offset = offset + length;
+    }
 
     return offset;
 }
@@ -4545,6 +4701,32 @@ void proto_register_rsl(void)
            FT_UINT8, BASE_DEC, NULL, 0x7f,
            NULL, HFILL }
         },
+        /* Physical Context */
+        { &hf_rsl_phy_ctx_ie_id,
+          { "Element identifier", "gsm_abis_rsl.phy_ctx_ie_id",
+            FT_UINT8, BASE_HEX_DEC|BASE_EXT_STRING, &rsl_phy_con_ie_vals_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rsl_phy_ctx_ext_rand_access,
+          { "RandRef11bit", "gsm_abis_rsl.phy_ctx_ext_rand_access",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rsl_phy_ctx_ab_rx_lvl,
+          { "AB Rx Level", "gsm_abis_rsl.phy_ctx_ab_rx_lvl",
+            FT_UINT8, BASE_HEX_DEC, NULL, 0xff,
+            NULL, HFILL }
+        },
+        { &hf_rsl_phy_ctx_ab_err_bits,
+          { "Training Err Bits", "gsm_abis_rsl.phy_ctx_ab_err_bits",
+            FT_UINT8, BASE_HEX, NULL, 0xff,
+            NULL, HFILL }
+        },
+        { &hf_rsl_phy_ctx_rx_lvl_ext,
+          { "Rx Level Ext", "gsm_abis_rsl.phy_ctx_rx_lvl_ext",
+            FT_UINT8, BASE_HEX_DEC, NULL, 0xff,
+            NULL, HFILL }
+        },
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_rsl_channel_description_tag, { "Channel Description Tag", "gsm_abis_rsl.channel_description_tag", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsl_mobile_allocation_tag, { "Mobile Allocation Tag+Length(0)", "gsm_abis_rsl.mobile_allocation_tag", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -4627,7 +4809,11 @@ void proto_register_rsl(void)
         &ett_ie_paging_package_number,
         &ett_ie_paging_package_info,
         &ett_ie_paging_package_ch_a_emlpp,
-        &ett_ie_paging_group_paras
+        &ett_ie_paging_group_paras,
+        &ett_phy_ctx_ie,
+        &ett_phy_ctx_ie_ext_rand_access,
+        &ett_phy_ctx_ab_rx_lvl_err_bits,
+        &ett_phy_ctx_rxlvl_ext
     };
     static ei_register_info ei[] = {
       /* Generated from convert_proto_tree_add_text.pl */
@@ -4733,6 +4919,12 @@ void proto_register_rsl(void)
                                    "Use nanoBTS definitions",
                                    "Use ipaccess nanoBTS specific definitions for RSL",
                                    &global_rsl_use_nano_bts);
+    prefs_register_bool_preference(rsl_module, "dissect_phy_ctx_inf",
+                                   "Decode Physical Context Information field",
+                                   "The Physical Context Information field is not specified "
+                                   "This information should be not be analysed by BSC, but merely "
+                                   "forwarded from one TRX/channel to another.",
+                                   &global_rsl_dissect_phy_ctx_inf);
 }
 
 void
