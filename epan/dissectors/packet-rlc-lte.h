@@ -67,7 +67,7 @@ typedef struct rlc_lte_info
     guint8          sequenceNumberLength;
     guint16         ueid;
     guint16         channelType;
-    guint16         channelId;
+    guint16         channelId; /* for SRB: 1=SRB1, 2=SRB2, 3=SRB1bis; for DRB: DRB ID */
     guint16         pduLength;
     gboolean        extendedLiField;
     rlc_lte_nb_mode nbMode;
