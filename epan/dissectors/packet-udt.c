@@ -36,6 +36,7 @@
  */
 typedef struct _udt_conversation {
 	gboolean is_dtls;
+	guint32 isn;
 } udt_conversation;
 
 /*
@@ -114,6 +115,14 @@ static expert_field ei_udt_nak_seqno = EI_INIT;
 
 static dissector_handle_t udt_handle;
 
+static int get_sqn(udt_conversation *udt_conv, guint32 sqn)
+{
+	if (udt_conv)
+		sqn -= udt_conv->isn;
+
+	return (sqn);
+}
+
 static int
 dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 	    void *data _U_)
@@ -122,6 +131,11 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 	proto_item       *udt_item;
 	int               is_control, type;
 	guint             i;
+	conversation_t   *conv;
+	udt_conversation *udt_conv;
+
+	conv = find_or_create_conversation(pinfo);
+	udt_conv = (udt_conversation *)conversation_get_proto_data(conv, proto_udt);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "UDT");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -134,17 +148,11 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 					   "Unknown Control Type (%x)");
 		switch (type) {
 		case UDT_PACKET_TYPE_ACK:
-			col_add_fstr(pinfo->cinfo, COL_INFO, "UDT type: %s seqno: %u ackno: %u id: %x",
-				     typestr,
-				     tvb_get_ntohl(tvb, 16),
-				     tvb_get_ntohl(tvb, 4) & 0x7fffffff,
-				     tvb_get_ntohl(tvb, 12));
+			col_add_fstr(pinfo->cinfo, COL_INFO, "UDT type: ack  seqno: %u",
+				     get_sqn(udt_conv, tvb_get_ntohl(tvb, 16)));
 			break;
 		case UDT_PACKET_TYPE_ACK2:
-			col_add_fstr(pinfo->cinfo, COL_INFO, "UDT type: %s ackno: %u id: %x",
-				     typestr,
-				     tvb_get_ntohl(tvb, 4) & 0x7fffffff,
-				     tvb_get_ntohl(tvb, 12));
+			col_add_fstr(pinfo->cinfo, COL_INFO, "UDT type: ack2");
 			break;
 		case UDT_PACKET_TYPE_NAK: {
 			gchar ranges[1024];
@@ -154,10 +162,10 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 				int     is_range;
 
 				is_range = tvb_get_ntohl(tvb, i) & 0x80000000;
-				start = tvb_get_ntohl(tvb, i) & 0x7fffffff;
+				start = get_sqn(udt_conv, tvb_get_ntohl(tvb, i) & 0x7fffffff);
 
 				if (is_range) {
-					finish = tvb_get_ntohl(tvb, i + 4) & 0x7fffffff;
+					finish = get_sqn(udt_conv, tvb_get_ntohl(tvb, i + 4) & 0x7fffffff);
 					p += g_snprintf(p, (gulong)(sizeof(ranges)-(p-ranges)), "%u-%u,", start, finish);
 					i = i + 4;
 				} else {
@@ -168,22 +176,19 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 				p -= 1;
 				*p = '\0';
 			}
-			col_add_fstr(pinfo->cinfo, COL_INFO, "UDT type: %s missing:%s id: %x",
-				     typestr, ranges, tvb_get_ntohl(tvb, 12));
+			col_add_fstr(pinfo->cinfo, COL_INFO, "UDT type: %s missing:%s",
+				     typestr, ranges);
 			break;
 		}
 		default:
-			col_add_fstr(pinfo->cinfo, COL_INFO, "UDT type: %s id: %x",
-				     typestr,
-				     tvb_get_ntohl(tvb, 12));
+			col_add_fstr(pinfo->cinfo, COL_INFO, "UDT type: %s", typestr);
 			break;
 		}
 	} else {
 		col_add_fstr(pinfo->cinfo, COL_INFO,
-			     "UDT type: data seqno: %u msgno: %u id: %x",
-			     tvb_get_ntohl(tvb, 0) & 0x7fffffff,
-			     tvb_get_ntohl(tvb, 4) & 0x1fffffff,
-			     tvb_get_ntohl(tvb, 12));
+			     "UDT type: data seqno: %u msgno: %u",
+			     get_sqn(udt_conv, tvb_get_ntohl(tvb, 0) & 0x7fffffff),
+			     tvb_get_ntohl(tvb, 4) & 0x1fffffff);
 	}
 
 	udt_item = proto_tree_add_item(parent_tree, proto_udt, tvb,
@@ -241,8 +246,14 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 		case UDT_PACKET_TYPE_ACK:
 			if (tree) {
 				int len = tvb_reported_length(tvb);
-				proto_tree_add_item(tree, hf_udt_ack_seqno, tvb, 16, 4,
-						    ENC_BIG_ENDIAN);
+				guint32 real_sqn = tvb_get_ntohl(tvb, 16);
+				guint32 sqn = get_sqn(udt_conv, real_sqn);
+				if (sqn != real_sqn)
+					proto_tree_add_uint_format_value(tree, hf_udt_ack_seqno, tvb, 16, 4, real_sqn,
+									 "%d (relative) [%d]", sqn, real_sqn);
+				else
+					proto_tree_add_uint(tree, hf_udt_ack_seqno, tvb, 16, 4, real_sqn);
+
 				/* if not a light ack, decode the extended fields */
 				if (len < 32) {
 					proto_item_set_len(udt_item, 20);
@@ -267,23 +278,40 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 			break;
 		case UDT_PACKET_TYPE_NAK:
 			for (i = 16; i < tvb_reported_length(tvb); i = i + 4) {
+				guint32 real_start, real_finish;
 				guint32 start, finish;
 				int     is_range;
 
 				is_range = tvb_get_ntohl(tvb, i) & 0x80000000;
-				start = tvb_get_ntohl(tvb, i) & 0x7fffffff;
+				real_start = tvb_get_ntohl(tvb, i) & 0x7fffffff;
+				start = get_sqn(udt_conv, real_start);
 
 				if (is_range) {
-					finish = tvb_get_ntohl(tvb, i + 4) & 0x7fffffff;
+					real_finish = tvb_get_ntohl(tvb, i + 4) & 0x7fffffff;
+					finish = get_sqn(udt_conv, real_finish);
 
-					proto_tree_add_expert_format(tree, pinfo, &ei_udt_nak_seqno,
-									tvb, i, 8, "Missing Sequence Number(s): %u-%u",
-								    start, finish);
+					if (start != real_start)
+						proto_tree_add_expert_format(tree, pinfo, &ei_udt_nak_seqno,
+									     tvb, i, 8,
+									     "MissingSequence Number(s): "
+									     "%u-%u (relative) [%u-%u]",
+									     start, finish, real_start, real_finish);
+					else
+						proto_tree_add_expert_format(tree, pinfo, &ei_udt_nak_seqno,
+									     tvb, i, 8,
+									     "Missing Sequence Number(s): %u-%u",
+									     real_start, real_finish);
 					i = i + 4;
 				} else {
-					proto_tree_add_expert_format(tree, pinfo, &ei_udt_nak_seqno,
-								    tvb, i, 4, "Missing Sequence Number: %u",
-								    start);
+					if (start != real_start)
+						proto_tree_add_expert_format(tree, pinfo, &ei_udt_nak_seqno,
+									     tvb, i, 4,
+									     "Missing Sequence Number: %u (relative) [%u]",
+									     start, real_start);
+					else
+						proto_tree_add_expert_format(tree, pinfo, &ei_udt_nak_seqno,
+									     tvb, i, 4,
+									     "Missing Sequence Number: %u", real_start);
 				}
 			}
 
@@ -295,8 +323,13 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 		tvbuff_t *next_tvb;
 
 		if (tree) {
-			proto_tree_add_item(tree, hf_udt_seqno,		tvb,  0, 4,
-					    ENC_BIG_ENDIAN);
+			guint32 real_seqno = tvb_get_ntohl(tvb, 0);
+			guint32 seqno = get_sqn(udt_conv, real_seqno);
+			if (seqno != real_seqno)
+				proto_tree_add_uint_format_value(tree, hf_udt_seqno, tvb, 0, 4, real_seqno,
+								 "%u (relative) [%u]", seqno, real_seqno);
+			else
+				proto_tree_add_uint(tree, hf_udt_seqno,	tvb, 0, 4, real_seqno);
 			proto_tree_add_item(tree, hf_udt_msgno_first,	tvb,  4, 4,
 					    ENC_BIG_ENDIAN);
 			proto_tree_add_item(tree, hf_udt_msgno_last,	tvb,  4, 4,
@@ -356,6 +389,9 @@ dissect_udt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 		/* This looks like UDT! */
 		udt_conv = wmem_new0(wmem_file_scope(), udt_conversation);
 		udt_conv->is_dtls = is_dtls;
+		/* Save initial sequence number if sufficient bytes were captured */
+		if (tvb_captured_length(tvb) >= 28)
+			udt_conv->isn = tvb_get_ntohl(tvb, 24);
 		conversation_add_proto_data(conv, proto_udt, udt_conv);
 		// DTLS should remain the dissector of record for encrypted conversations
 		if (!is_dtls)
