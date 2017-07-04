@@ -46,6 +46,8 @@
 #include "packet-lapdm.h"
 #include "packet-tetra.h"
 
+#include "packet-mac-lte.h"
+
 void proto_register_gsmtap(void);
 void proto_reg_handoff_gsmtap(void);
 
@@ -99,6 +101,9 @@ enum {
 	/* UMTS */
 	GSMTAP_SUB_UMTS_RLC_MAC,
 	GSMTAP_SUB_UMTS_RRC,
+	/* LTE*/
+	GSMTAP_SUB_LTE_RRC,
+	GSMTAP_SUB_LTE_MAC,
 
 	GSMTAP_SUB_MAX
 };
@@ -170,8 +175,23 @@ enum {
 	GSMTAP_RRC_SUB_MAX
 };
 
+/* LTE RRC message types */
+enum {
+	GSMTAP_LTE_RRC_SUB_DL_CCCH_Message = 0,
+	GSMTAP_LTE_RRC_SUB_DL_DCCH_Message,
+	GSMTAP_LTE_RRC_SUB_UL_CCCH_Message,
+	GSMTAP_LTE_RRC_SUB_UL_DCCH_Message,
+	GSMTAP_LTE_RRC_SUB_BCCH_BCH_Message,
+	GSMTAP_LTE_RRC_SUB_BCCH_DL_SCH_Message,
+	GSMTAP_LTE_RRC_SUB_PCCH_Message,
+	GSMTAP_LTE_RRC_SUB_MCCH_Message,
+
+	GSMTAP_LTE_RRC_SUB_MAX
+};
+
 static dissector_handle_t sub_handles[GSMTAP_SUB_MAX];
 static dissector_handle_t rrc_sub_handles[GSMTAP_RRC_SUB_MAX];
+static dissector_handle_t lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_MAX];
 
 static dissector_table_t gsmtap_dissector_table;
 
@@ -291,7 +311,8 @@ static const value_string gsmtap_types[] = {
 	{ GSMTAP_TYPE_GMR1_UM, "GMR-1 air interfeace (MES-MS<->GTS)" },
 	{ GSMTAP_TYPE_UMTS_RLC_MAC,	"UMTS RLC/MAC" },
 	{ GSMTAP_TYPE_UMTS_RRC,		"UMTS RRC" },
-	{ GSMTAP_TYPE_OSMOCORE_LOG,	"libosmocore logging" },
+	{ GSMTAP_TYPE_UMTS_RRC,		"LTE RRC" },
+	{ GSMTAP_TYPE_UMTS_RRC,		"LTE MAC" },
 	{ 0,			NULL },
 };
 
@@ -345,15 +366,35 @@ handle_tetra(int channel _U_, tvbuff_t *payload_tvb _U_, packet_info *pinfo _U_,
 	tetra_dissect_pdu(tetra_chan, TETRA_DOWNLINK, payload_tvb, tree, pinfo);
 }
 
+static void
+attach_mac_lte_info(tvbuff_t *lte_mac_info_tvb, int len, guint8 gsmtap_hdr_len, packet_info *pinfo)
+{
+	struct mac_lte_info *p_mac_lte_info;
+	guint8 lte_mac_info_len = 15;
+	int offset = 0;
+
+	p_mac_lte_info = get_mac_lte_proto_data(pinfo);
+	p_mac_lte_info = wmem_new0(wmem_file_scope(), struct mac_lte_info);
+	p_mac_lte_info->radioType = tvb_get_guint8(lte_mac_info_tvb, offset);
+	p_mac_lte_info->direction = tvb_get_guint8(lte_mac_info_tvb, offset+1);
+	p_mac_lte_info->rntiType = tvb_get_guint8(lte_mac_info_tvb, offset+2);
+	p_mac_lte_info->rnti = tvb_get_ntohs(lte_mac_info_tvb, offset+4);
+	p_mac_lte_info->ueid = tvb_get_ntohs(lte_mac_info_tvb, offset+7);
+	p_mac_lte_info->subframeNumber = tvb_get_ntohs(lte_mac_info_tvb, offset+10);
+	p_mac_lte_info->length = len - (gsmtap_hdr_len + lte_mac_info_len);
+
+	set_mac_lte_proto_data(pinfo, p_mac_lte_info);
+}
+
 /* dissect a GSMTAP header and hand payload off to respective dissector */
 static int
 dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int sub_handle, rrc_sub_handle = 0, len, offset = 0;
+	int sub_handle, rrc_sub_handle = 0, lte_rrc_sub_handle = 0, len, offset = 0;
 	proto_item *ti;
 	proto_tree *gsmtap_tree = NULL;
-	tvbuff_t *payload_tvb, *l1h_tvb = NULL;
-	guint8 hdr_len, type, sub_type, timeslot, subslot;
+	tvbuff_t *payload_tvb, *l1h_tvb = NULL, *lte_mac_info_tvb=NULL;;
+	guint8 hdr_len, type, sub_type, timeslot, subslot, lte_mac_info_len = 15;
 	guint16 arfcn;
 
 	len = tvb_reported_length(tvb);
@@ -371,6 +412,9 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	    sub_type & GSMTAP_CHANNEL_ACCH) {
 		l1h_tvb = tvb_new_subset_length(tvb, hdr_len, 2);
 		payload_tvb = tvb_new_subset_length(tvb, hdr_len+2, len-(hdr_len+2));
+	} else if (type == GSMTAP_TYPE_LTE_MAC) {
+		lte_mac_info_tvb = tvb_new_subset_length(tvb, hdr_len, lte_mac_info_len);
+		payload_tvb = tvb_new_subset_length(tvb, hdr_len+lte_mac_info_len, len - (hdr_len + lte_mac_info_len));
 	} else {
 		payload_tvb = tvb_new_subset_length(tvb, hdr_len, len-hdr_len);
 	}
@@ -485,6 +529,18 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		 * sub-dissector */
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RRC");
 		break;
+	case GSMTAP_TYPE_LTE_RRC:
+		sub_handle = GSMTAP_SUB_LTE_RRC;
+		lte_rrc_sub_handle = sub_type;
+		if (lte_rrc_sub_handle >= GSMTAP_LTE_RRC_SUB_MAX) {
+			sub_handle = GSMTAP_SUB_DATA;
+		}
+		/*Directly call the respective lte rrc message dissector */
+		break;
+	case GSMTAP_TYPE_LTE_MAC:
+		attach_mac_lte_info(lte_mac_info_tvb, len, hdr_len, pinfo);
+		sub_handle=GSMTAP_SUB_LTE_MAC;
+		break;
 	case GSMTAP_TYPE_UM:
 		if (l1h_tvb)
 			dissect_sacch_l1h(l1h_tvb, tree);
@@ -593,6 +649,9 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	if (sub_handle == GSMTAP_SUB_UMTS_RRC)
 		call_dissector(rrc_sub_handles[rrc_sub_handle], payload_tvb,
 			       pinfo, tree);
+	else if (sub_handle == GSMTAP_SUB_LTE_RRC)
+		call_dissector(lte_rrc_sub_handles[lte_rrc_sub_handle], payload_tvb,
+			       pinfo, tree);
 	else if (sub_handles[sub_handle] != NULL)
 		call_dissector(sub_handles[sub_handle], payload_tvb, pinfo, tree);
 	/* TODO: warn user that the WiMAX plugin must be enabled for some types */
@@ -685,6 +744,7 @@ proto_reg_handoff_gsmtap(void)
 	sub_handles[GSMTAP_SUB_GMR1_LAPSAT] = find_dissector_add_dependency("lapsat", proto_gsmtap);
 	sub_handles[GSMTAP_SUB_GMR1_RACH] = find_dissector_add_dependency("gmr1_rach", proto_gsmtap);
 	sub_handles[GSMTAP_SUB_UMTS_RRC] = find_dissector_add_dependency("rrc", proto_gsmtap);
+	sub_handles[GSMTAP_SUB_LTE_MAC] = find_dissector_add_dependency("mac-lte", proto_gsmtap);
 
 	rrc_sub_handles[GSMTAP_RRC_SUB_DL_DCCH_Message] = find_dissector_add_dependency("rrc.dl.dcch", proto_gsmtap);
 	rrc_sub_handles[GSMTAP_RRC_SUB_UL_DCCH_Message] = find_dissector_add_dependency("rrc.ul.dcch", proto_gsmtap);
@@ -748,6 +808,15 @@ proto_reg_handoff_gsmtap(void)
 	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoTypeSB2] = find_dissector_add_dependency("rrc.si.sb2", proto_gsmtap);
 	rrc_sub_handles[GSMTAP_RRC_SUB_ToTargetRNC_Container] = find_dissector_add_dependency("rrc.s_to_trnc_cont", proto_gsmtap);
 	rrc_sub_handles[GSMTAP_RRC_SUB_TargetRNC_ToSourceRNC_Container] = find_dissector_add_dependency("rrc.t_to_srnc_cont", proto_gsmtap);
+
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_DL_CCCH_Message] = find_dissector_add_dependency("lte_rrc.dl_ccch", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_DL_DCCH_Message] = find_dissector_add_dependency("lte_rrc.dl_dcch", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_UL_CCCH_Message] = find_dissector_add_dependency("lte_rrc.ul_ccch", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_UL_DCCH_Message] = find_dissector_add_dependency("lte_rrc.ul_dcch", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_BCCH_BCH_Message] = find_dissector_add_dependency("lte_rrc.bcch_bch", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_BCCH_DL_SCH_Message] = find_dissector_add_dependency("lte_rrc.bcch_dl_sch", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_PCCH_Message] = find_dissector_add_dependency("lte_rrc.pcch", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_MCCH_Message] = find_dissector_add_dependency("lte_rrc.mcch", proto_gsmtap);
 
 	gsmtap_handle = create_dissector_handle(dissect_gsmtap, proto_gsmtap);
 	dissector_add_uint_with_preference("udp.port", GSMTAP_UDP_PORT, gsmtap_handle);
