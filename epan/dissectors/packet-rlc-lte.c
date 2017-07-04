@@ -105,6 +105,18 @@ extern int proto_pdcp_lte;
 
 static dissector_handle_t pdcp_lte_handle;
 static dissector_handle_t ip_handle;
+static dissector_handle_t lte_rrc_mcch;
+static dissector_handle_t lte_rrc_ul_ccch;
+static dissector_handle_t lte_rrc_dl_ccch;
+static dissector_handle_t lte_rrc_bcch_bch;
+static dissector_handle_t lte_rrc_bcch_dl_sch;
+static dissector_handle_t lte_rrc_pcch;
+static dissector_handle_t lte_rrc_ul_ccch_nb;
+static dissector_handle_t lte_rrc_dl_ccch_nb;
+static dissector_handle_t lte_rrc_bcch_bch_nb;
+static dissector_handle_t lte_rrc_bcch_dl_sch_nb;
+static dissector_handle_t lte_rrc_pcch_nb;
+
 
 static int rlc_lte_tap = -1;
 
@@ -878,7 +890,13 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
                         if (params && (params->id != id)) {
                             params = NULL;
                         }
-                        p_pdcp_lte_info->seqnum_length = params ? params->pdcp_sn_bits : 12;
+                        if (params) {
+                            p_pdcp_lte_info->seqnum_length = params->pdcp_sn_bits;
+                        } else if (rlc_info->nbMode == rlc_nb_mode) {
+                            p_pdcp_lte_info->seqnum_length = 7;
+                        } else {
+                            p_pdcp_lte_info->seqnum_length = 12;
+                        }
                         break;
 
                     default:
@@ -899,7 +917,6 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
         else if (global_rlc_lte_call_rrc_for_mcch && (rlc_info->channelType == CHANNEL_TYPE_MCCH)) {
             /* Send whole PDU to RRC */
             static tvbuff_t *rrc_tvb = NULL;
-            volatile dissector_handle_t protocol_handle;
 
             /* Get tvb for passing to LTE RRC dissector */
             if (reassembly_info == NULL) {
@@ -911,11 +928,8 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
                 reassembly_show_source(reassembly_info, tree, tvb, offset);
             }
 
-            /* Get dissector handle */
-            protocol_handle = find_dissector("lte_rrc.mcch");
-
             TRY {
-                call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree, NULL);
+                call_dissector_only(lte_rrc_mcch, rrc_tvb, pinfo, tree, NULL);
             }
             CATCH_ALL {
             }
@@ -2028,26 +2042,31 @@ static void dissect_rlc_lte_tm(tvbuff_t *tvb, packet_info *pinfo,
 
     if (global_rlc_lte_call_rrc_for_ccch) {
         tvbuff_t *rrc_tvb = tvb_new_subset_remaining(tvb, offset);
-        volatile dissector_handle_t protocol_handle = 0;
+        volatile dissector_handle_t protocol_handle;
 
         switch (p_rlc_lte_info->channelType) {
             case CHANNEL_TYPE_CCCH:
                 if (p_rlc_lte_info->direction == DIRECTION_UPLINK) {
-                    protocol_handle = find_dissector("lte_rrc.ul_ccch");
+                    protocol_handle = (p_rlc_lte_info->nbMode == rlc_nb_mode) ?
+                                        lte_rrc_ul_ccch_nb : lte_rrc_ul_ccch;
                 }
                 else {
-                    protocol_handle = find_dissector("lte_rrc.dl_ccch");
+                    protocol_handle = (p_rlc_lte_info->nbMode == rlc_nb_mode) ?
+                                        lte_rrc_dl_ccch_nb : lte_rrc_dl_ccch;
                 }
                 break;
 
             case CHANNEL_TYPE_BCCH_BCH:
-                protocol_handle = find_dissector("lte_rrc.bcch_bch");
+                protocol_handle = (p_rlc_lte_info->nbMode == rlc_nb_mode) ?
+                                    lte_rrc_bcch_bch_nb : lte_rrc_bcch_bch;
                 break;
             case CHANNEL_TYPE_BCCH_DL_SCH:
-                protocol_handle = find_dissector("lte_rrc.bcch_dl_sch");
+                protocol_handle = (p_rlc_lte_info->nbMode == rlc_nb_mode) ?
+                                    lte_rrc_bcch_dl_sch_nb : lte_rrc_bcch_dl_sch;
                 break;
             case CHANNEL_TYPE_PCCH:
-                protocol_handle = find_dissector("lte_rrc.pcch");
+                protocol_handle = (p_rlc_lte_info->nbMode == rlc_nb_mode) ?
+                                    lte_rrc_pcch_nb : lte_rrc_pcch;
                 break;
 
             case CHANNEL_TYPE_SRB:
@@ -3701,8 +3720,19 @@ void proto_reg_handoff_rlc_lte(void)
     /* Add as a heuristic UDP dissector */
     heur_dissector_add("udp", dissect_rlc_lte_heur, "RLC-LTE over UDP", "rlc_lte_udp", proto_rlc_lte, HEURISTIC_DISABLE);
 
-    pdcp_lte_handle = find_dissector_add_dependency("pdcp-lte", proto_rlc_lte);
-    ip_handle       = find_dissector_add_dependency("ip", proto_rlc_lte);
+    pdcp_lte_handle        = find_dissector_add_dependency("pdcp-lte", proto_rlc_lte);
+    ip_handle              = find_dissector_add_dependency("ip", proto_rlc_lte);
+    lte_rrc_mcch           = find_dissector_add_dependency("lte_rrc.mcch", proto_rlc_lte);
+    lte_rrc_ul_ccch        = find_dissector_add_dependency("lte_rrc.ul_ccch", proto_rlc_lte);
+    lte_rrc_dl_ccch        = find_dissector_add_dependency("lte_rrc.dl_dcch", proto_rlc_lte);
+    lte_rrc_bcch_bch       = find_dissector_add_dependency("lte_rrc.bcch_bch", proto_rlc_lte);
+    lte_rrc_bcch_dl_sch    = find_dissector_add_dependency("lte_rrc.bcch_dl_sch", proto_rlc_lte);
+    lte_rrc_pcch           = find_dissector_add_dependency("lte_rrc.pcch", proto_rlc_lte);
+    lte_rrc_ul_ccch_nb     = find_dissector_add_dependency("lte_rrc.ul_ccch.nb", proto_rlc_lte);
+    lte_rrc_dl_ccch_nb     = find_dissector_add_dependency("lte_rrc.dl_ccch.nb", proto_rlc_lte);
+    lte_rrc_bcch_bch_nb    = find_dissector_add_dependency("lte_rrc.bcch_bch.nb", proto_rlc_lte);
+    lte_rrc_bcch_dl_sch_nb = find_dissector_add_dependency("lte_rrc.bcch_dl_sch.nb", proto_rlc_lte);
+    lte_rrc_pcch_nb        = find_dissector_add_dependency("lte_rrc.pcch.nb", proto_rlc_lte);
 }
 
 /*
