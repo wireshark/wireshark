@@ -852,9 +852,9 @@ enum QuicRstStreamErrorCode {
   QUIC_PROMISE_VARY_MISMATCH,
   /* Only GET and HEAD methods allowed. */
   QUIC_INVALID_PROMISE_METHOD,
-  // The push stream is unclaimed and timed out.
+  /* The push stream is unclaimed and timed out. */
   QUIC_PUSH_STREAM_TIMED_OUT,
-  // Received headers were too large.
+  /* Received headers were too large. */
   QUIC_HEADERS_TOO_LARGE,
   /* No error. Used as bound while iterating. */
   QUIC_STREAM_LAST_ERROR,
