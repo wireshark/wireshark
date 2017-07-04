@@ -207,6 +207,44 @@ include(UseMakeDissectorReg)
 include(UseMakeTapReg)
 include(UseAsn2Wrs)
 
+# The following snippet has been taken from
+# https://github.com/USESystemEngineeringBV/cmake-eclipse-helper/wiki/HowToWorkaroundIndexer
+# The eclipse indexer otherwise assumes __cplusplus=199711L which will lead to broken
+# lookup tables for the epan libraries
+# Check if CXX flags have been set to c++11 -> Setup Eclipse Indexer correctly!
+# Also setup the project slightly different
+if (${CMAKE_EXTRA_GENERATOR} MATCHES "Eclipse CDT4" )
+	SET(CXX_ENABLED 0)
+	LIST(LENGTH CMAKE_EXTRA_GENERATOR_CXX_SYSTEM_DEFINED_MACROS LIST_LEN)
+	if ( ${LIST_LEN} GREATER 0 )
+		SET(CXX_ENABLED 1)
+	endif()
+	SET(C_ENABLED 0)
+	LIST(LENGTH CMAKE_EXTRA_GENERATOR_C_SYSTEM_DEFINED_MACROS LIST_LEN)
+	if ( ${LIST_LEN} GREATER 0)
+		SET(C_ENABLED 1)
+	endif()
+	if (${C_ENABLED} EQUAL 1 AND ${CXX_ENABLED} EQUAL 1)
+		# Combined project (C and CXX). This will confuse the indexer. For that reason
+		# we unsert set the __cplusplus variable for the indexer
+		list(FIND CMAKE_EXTRA_GENERATOR_CXX_SYSTEM_DEFINED_MACROS "__cplusplus" GEN_MACRO_INDEX)
+		if( ${GEN_MACRO_INDEX} GREATER -1 )
+			list(REMOVE_AT CMAKE_EXTRA_GENERATOR_CXX_SYSTEM_DEFINED_MACROS ${GEN_MACRO_INDEX})
+			list(REMOVE_AT CMAKE_EXTRA_GENERATOR_CXX_SYSTEM_DEFINED_MACROS ${GEN_MACRO_INDEX})
+		endif()
+		SET(CMAKE_EXTRA_GENERATOR_CXX_SYSTEM_DEFINED_MACROS ${CMAKE_EXTRA_GENERATOR_CXX_SYSTEM_DEFINED_MACROS} CACHE INTERNAL "")
+	elseif ( (${CXX_ENABLED} EQUAL 1) AND (${CMAKE_CXX_FLAGS} MATCHES ".*-std=c\\+\\+11.*"))
+		#add_definitions (-D__cplusplus=201103L)
+		# CMAKE_EXTRA_GENERATOR_CXX_SYSTEM_DEFINED_MACROS
+		list(FIND CMAKE_EXTRA_GENERATOR_CXX_SYSTEM_DEFINED_MACROS "199711L" GEN_MACRO_INDEX)
+		if( ${GEN_MACRO_INDEX} GREATER -1 )
+			list(REMOVE_AT CMAKE_EXTRA_GENERATOR_CXX_SYSTEM_DEFINED_MACROS ${GEN_MACRO_INDEX})
+			list(INSERT CMAKE_EXTRA_GENERATOR_CXX_SYSTEM_DEFINED_MACROS ${GEN_MACRO_INDEX} "201103L")
+			SET(CMAKE_EXTRA_GENERATOR_CXX_SYSTEM_DEFINED_MACROS ${CMAKE_EXTRA_GENERATOR_CXX_SYSTEM_DEFINED_MACROS} CACHE INTERNAL "")
+		endif()
+	endif()
+endif()
+
 include_directories(
 	${CMAKE_BINARY_DIR}
 	${CMAKE_SOURCE_DIR}
