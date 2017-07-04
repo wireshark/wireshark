@@ -9,7 +9,7 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V13.6.0 Release 13) packet dissection
+ * (3GPP TS 36.331 V13.6.1 Release 13) packet dissection
  * Copyright 2008, Vincent Helfre
  * Copyright 2009-2017, Pascal Quantin
  *
@@ -625,7 +625,7 @@ static int hf_lte_rrc_victimSystemType_r11 = -1;  /* VictimSystemType_r11 */
 static int hf_lte_rrc_nonCriticalExtension_33 = -1;  /* InDeviceCoexIndication_v1310_IEs */
 static int hf_lte_rrc_affectedCarrierFreqList_v1310 = -1;  /* AffectedCarrierFreqList_v1310 */
 static int hf_lte_rrc_affectedCarrierFreqCombList_r13 = -1;  /* AffectedCarrierFreqCombList_r13 */
-static int hf_lte_rrc_nonCriticalExtension_34 = -1;  /* InDeviceCoexIndication_v13yz_IEs */
+static int hf_lte_rrc_nonCriticalExtension_34 = -1;  /* InDeviceCoexIndication_v1360_IEs */
 static int hf_lte_rrc_hardwareSharingProblem_r13 = -1;  /* T_hardwareSharingProblem_r13 */
 static int hf_lte_rrc_nonCriticalExtension_35 = -1;  /* T_nonCriticalExtension_14 */
 static int hf_lte_rrc_AffectedCarrierFreqList_r11_item = -1;  /* AffectedCarrierFreq_r11 */
@@ -3637,8 +3637,8 @@ static int hf_lte_rrc_nonCriticalExtension_198 = -1;  /* UE_EUTRA_Capability_v13
 static int hf_lte_rrc_ue_CategoryDL_v1350 = -1;   /* T_ue_CategoryDL_v1350 */
 static int hf_lte_rrc_ue_CategoryUL_v1350 = -1;   /* T_ue_CategoryUL_v1350 */
 static int hf_lte_rrc_ce_Parameters_v1350 = -1;   /* CE_Parameters_v1350 */
-static int hf_lte_rrc_nonCriticalExtension_199 = -1;  /* UE_EUTRA_Capability_v13yz_IEs */
-static int hf_lte_rrc_other_Parameters_v13yz = -1;  /* Other_Parameters_v13yz */
+static int hf_lte_rrc_nonCriticalExtension_199 = -1;  /* UE_EUTRA_Capability_v1360_IEs */
+static int hf_lte_rrc_other_Parameters_v1360 = -1;  /* Other_Parameters_v1360 */
 static int hf_lte_rrc_nonCriticalExtension_200 = -1;  /* T_nonCriticalExtension_66 */
 static int hf_lte_rrc_phyLayerParameters_r9 = -1;  /* PhyLayerParameters */
 static int hf_lte_rrc_featureGroupIndicators_r9 = -1;  /* T_featureGroupIndicators_r9 */
@@ -5162,7 +5162,7 @@ static gint ett_lte_rrc_InDeviceCoexIndication_r11_IEs = -1;
 static gint ett_lte_rrc_InDeviceCoexIndication_v11d0_IEs = -1;
 static gint ett_lte_rrc_T_ul_CA_AssistanceInfo_r11 = -1;
 static gint ett_lte_rrc_InDeviceCoexIndication_v1310_IEs = -1;
-static gint ett_lte_rrc_InDeviceCoexIndication_v13yz_IEs = -1;
+static gint ett_lte_rrc_InDeviceCoexIndication_v1360_IEs = -1;
 static gint ett_lte_rrc_T_nonCriticalExtension_14 = -1;
 static gint ett_lte_rrc_AffectedCarrierFreqList_r11 = -1;
 static gint ett_lte_rrc_AffectedCarrierFreqList_v1310 = -1;
@@ -6563,7 +6563,7 @@ static gint ett_lte_rrc_UE_EUTRA_Capability_v1320_IEs = -1;
 static gint ett_lte_rrc_UE_EUTRA_Capability_v1330_IEs = -1;
 static gint ett_lte_rrc_UE_EUTRA_Capability_v1340_IEs = -1;
 static gint ett_lte_rrc_UE_EUTRA_Capability_v1350_IEs = -1;
-static gint ett_lte_rrc_UE_EUTRA_Capability_v13yz_IEs = -1;
+static gint ett_lte_rrc_UE_EUTRA_Capability_v1360_IEs = -1;
 static gint ett_lte_rrc_T_nonCriticalExtension_66 = -1;
 static gint ett_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_r9 = -1;
 static gint ett_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_v1060 = -1;
@@ -6731,7 +6731,7 @@ static gint ett_lte_rrc_UE_BasedNetwPerfMeasParameters_v1250 = -1;
 static gint ett_lte_rrc_OTDOA_PositioningCapabilities_r10 = -1;
 static gint ett_lte_rrc_Other_Parameters_r11 = -1;
 static gint ett_lte_rrc_Other_Parameters_v11d0 = -1;
-static gint ett_lte_rrc_Other_Parameters_v13yz = -1;
+static gint ett_lte_rrc_Other_Parameters_v1360 = -1;
 static gint ett_lte_rrc_MBMS_Parameters_r11 = -1;
 static gint ett_lte_rrc_MBMS_Parameters_v1250 = -1;
 static gint ett_lte_rrc_SCPTM_Parameters_r13 = -1;
@@ -53441,16 +53441,16 @@ dissect_lte_rrc_T_nonCriticalExtension_14(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
-static const per_sequence_t InDeviceCoexIndication_v13yz_IEs_sequence[] = {
+static const per_sequence_t InDeviceCoexIndication_v1360_IEs_sequence[] = {
   { &hf_lte_rrc_hardwareSharingProblem_r13, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_hardwareSharingProblem_r13 },
   { &hf_lte_rrc_nonCriticalExtension_35, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_14 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_InDeviceCoexIndication_v13yz_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_InDeviceCoexIndication_v1360_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_InDeviceCoexIndication_v13yz_IEs, InDeviceCoexIndication_v13yz_IEs_sequence);
+                                   ett_lte_rrc_InDeviceCoexIndication_v1360_IEs, InDeviceCoexIndication_v1360_IEs_sequence);
 
   return offset;
 }
@@ -53459,7 +53459,7 @@ dissect_lte_rrc_InDeviceCoexIndication_v13yz_IEs(tvbuff_t *tvb _U_, int offset _
 static const per_sequence_t InDeviceCoexIndication_v1310_IEs_sequence[] = {
   { &hf_lte_rrc_affectedCarrierFreqList_v1310, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_AffectedCarrierFreqList_v1310 },
   { &hf_lte_rrc_affectedCarrierFreqCombList_r13, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_AffectedCarrierFreqCombList_r13 },
-  { &hf_lte_rrc_nonCriticalExtension_34, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_InDeviceCoexIndication_v13yz_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_34, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_InDeviceCoexIndication_v1360_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -61845,15 +61845,15 @@ dissect_lte_rrc_T_inDeviceCoexInd_HardwareSharingInd_r13(tvbuff_t *tvb _U_, int 
 }
 
 
-static const per_sequence_t Other_Parameters_v13yz_sequence[] = {
+static const per_sequence_t Other_Parameters_v1360_sequence[] = {
   { &hf_lte_rrc_inDeviceCoexInd_HardwareSharingInd_r13, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_inDeviceCoexInd_HardwareSharingInd_r13 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_Other_Parameters_v13yz(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_Other_Parameters_v1360(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_Other_Parameters_v13yz, Other_Parameters_v13yz_sequence);
+                                   ett_lte_rrc_Other_Parameters_v1360, Other_Parameters_v1360_sequence);
 
   return offset;
 }
@@ -61872,16 +61872,16 @@ dissect_lte_rrc_T_nonCriticalExtension_66(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
-static const per_sequence_t UE_EUTRA_Capability_v13yz_IEs_sequence[] = {
-  { &hf_lte_rrc_other_Parameters_v13yz, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_Other_Parameters_v13yz },
+static const per_sequence_t UE_EUTRA_Capability_v1360_IEs_sequence[] = {
+  { &hf_lte_rrc_other_Parameters_v1360, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_Other_Parameters_v1360 },
   { &hf_lte_rrc_nonCriticalExtension_200, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nonCriticalExtension_66 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lte_rrc_UE_EUTRA_Capability_v13yz_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_UE_EUTRA_Capability_v1360_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_UE_EUTRA_Capability_v13yz_IEs, UE_EUTRA_Capability_v13yz_IEs_sequence);
+                                   ett_lte_rrc_UE_EUTRA_Capability_v1360_IEs, UE_EUTRA_Capability_v1360_IEs_sequence);
 
   return offset;
 }
@@ -61891,7 +61891,7 @@ static const per_sequence_t UE_EUTRA_Capability_v1350_IEs_sequence[] = {
   { &hf_lte_rrc_ue_CategoryDL_v1350, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_ue_CategoryDL_v1350 },
   { &hf_lte_rrc_ue_CategoryUL_v1350, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_ue_CategoryUL_v1350 },
   { &hf_lte_rrc_ce_Parameters_v1350, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_CE_Parameters_v1350 },
-  { &hf_lte_rrc_nonCriticalExtension_199, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v13yz_IEs },
+  { &hf_lte_rrc_nonCriticalExtension_199, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v1360_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -72284,7 +72284,7 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_nonCriticalExtension_34,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "InDeviceCoexIndication_v13yz_IEs", HFILL }},
+        "InDeviceCoexIndication_v1360_IEs", HFILL }},
     { &hf_lte_rrc_hardwareSharingProblem_r13,
       { "hardwareSharingProblem-r13", "lte-rrc.hardwareSharingProblem_r13",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_hardwareSharingProblem_r13_vals), 0,
@@ -84332,9 +84332,9 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_nonCriticalExtension_199,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "UE_EUTRA_Capability_v13yz_IEs", HFILL }},
-    { &hf_lte_rrc_other_Parameters_v13yz,
-      { "other-Parameters-v13yz", "lte-rrc.other_Parameters_v13yz_element",
+        "UE_EUTRA_Capability_v1360_IEs", HFILL }},
+    { &hf_lte_rrc_other_Parameters_v1360,
+      { "other-Parameters-v1360", "lte-rrc.other_Parameters_v1360_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lte_rrc_nonCriticalExtension_200,
@@ -89847,7 +89847,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_InDeviceCoexIndication_v11d0_IEs,
     &ett_lte_rrc_T_ul_CA_AssistanceInfo_r11,
     &ett_lte_rrc_InDeviceCoexIndication_v1310_IEs,
-    &ett_lte_rrc_InDeviceCoexIndication_v13yz_IEs,
+    &ett_lte_rrc_InDeviceCoexIndication_v1360_IEs,
     &ett_lte_rrc_T_nonCriticalExtension_14,
     &ett_lte_rrc_AffectedCarrierFreqList_r11,
     &ett_lte_rrc_AffectedCarrierFreqList_v1310,
@@ -91248,7 +91248,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_UE_EUTRA_Capability_v1330_IEs,
     &ett_lte_rrc_UE_EUTRA_Capability_v1340_IEs,
     &ett_lte_rrc_UE_EUTRA_Capability_v1350_IEs,
-    &ett_lte_rrc_UE_EUTRA_Capability_v13yz_IEs,
+    &ett_lte_rrc_UE_EUTRA_Capability_v1360_IEs,
     &ett_lte_rrc_T_nonCriticalExtension_66,
     &ett_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_r9,
     &ett_lte_rrc_UE_EUTRA_CapabilityAddXDD_Mode_v1060,
@@ -91416,7 +91416,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_OTDOA_PositioningCapabilities_r10,
     &ett_lte_rrc_Other_Parameters_r11,
     &ett_lte_rrc_Other_Parameters_v11d0,
-    &ett_lte_rrc_Other_Parameters_v13yz,
+    &ett_lte_rrc_Other_Parameters_v1360,
     &ett_lte_rrc_MBMS_Parameters_r11,
     &ett_lte_rrc_MBMS_Parameters_v1250,
     &ett_lte_rrc_SCPTM_Parameters_r13,

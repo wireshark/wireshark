@@ -1,7 +1,7 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V13.6.0 Release 13) packet dissection
+ * (3GPP TS 36.331 V13.6.1 Release 13) packet dissection
  * Copyright 2008, Vincent Helfre
  * Copyright 2009-2017, Pascal Quantin
  *

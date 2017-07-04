@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V13.6.0 (2017-06)
+-- 3GPP TS 36.331 V13.6.1 (2017-07)
 --
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -363,10 +363,10 @@ InDeviceCoexIndication-v11d0-IEs ::=	SEQUENCE {
 InDeviceCoexIndication-v1310-IEs ::=	SEQUENCE {
 	affectedCarrierFreqList-v1310		AffectedCarrierFreqList-v1310			OPTIONAL,
 	affectedCarrierFreqCombList-r13	AffectedCarrierFreqCombList-r13		OPTIONAL,
-	nonCriticalExtension					InDeviceCoexIndication-v13yz-IEs								OPTIONAL
+	nonCriticalExtension					InDeviceCoexIndication-v1360-IEs								OPTIONAL
 }
 
-InDeviceCoexIndication-v13yz-IEs ::=	SEQUENCE {
+InDeviceCoexIndication-v1360-IEs ::=	SEQUENCE {
 	hardwareSharingProblem-r13			ENUMERATED {true}				OPTIONAL,
 	nonCriticalExtension				SEQUENCE {}						OPTIONAL
 }
@@ -7651,11 +7651,11 @@ UE-EUTRA-Capability-v1350-IEs ::= SEQUENCE {
 	ue-CategoryDL-v1350				ENUMERATED {oneBis}						OPTIONAL,
 	ue-CategoryUL-v1350				ENUMERATED {oneBis} 					OPTIONAL,
 	ce-Parameters-v1350				CE-Parameters-v1350,
-	nonCriticalExtension			UE-EUTRA-Capability-v13yz-IEs			OPTIONAL
+	nonCriticalExtension			UE-EUTRA-Capability-v1360-IEs			OPTIONAL
 }
 
-UE-EUTRA-Capability-v13yz-IEs ::= SEQUENCE {
-	other-Parameters-v13yz			Other-Parameters-v13yz					OPTIONAL,
+UE-EUTRA-Capability-v1360-IEs ::= SEQUENCE {
+	other-Parameters-v1360			Other-Parameters-v1360					OPTIONAL,
 	nonCriticalExtension			SEQUENCE {}								OPTIONAL
 }
 
@@ -8427,7 +8427,7 @@ Other-Parameters-v11d0 ::=				SEQUENCE {
 	inDeviceCoexInd-UL-CA-r11				ENUMERATED {supported}		OPTIONAL
 }
 
-Other-Parameters-v13yz ::= SEQUENCE {
+Other-Parameters-v1360 ::= SEQUENCE {
 	inDeviceCoexInd-HardwareSharingInd-r13		ENUMERATED {supported}		OPTIONAL
 }
 
