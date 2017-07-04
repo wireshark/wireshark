@@ -32,6 +32,13 @@
 #include <epan/expert.h>
 
 /*
+ * Per-conversation information
+ */
+typedef struct _udt_conversation {
+	gboolean is_dtls;
+} udt_conversation;
+
+/*
  * based on http://tools.ietf.org/html/draft-gg-udt-03
  */
 
@@ -111,10 +118,10 @@ static int
 dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 	    void *data _U_)
 {
-	proto_tree *tree;
-	proto_item *udt_item;
-	int         is_control, type;
-	guint       i;
+	proto_tree       *tree;
+	proto_item       *udt_item;
+	int               is_control, type;
+	guint             i;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "UDT");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -312,32 +319,63 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 }
 
 static gboolean
-dissect_udt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_udt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, gboolean is_dtls)
 {
 	conversation_t *conv;
-
-	/* Must have at least 24 captured bytes for heuristic check */
-	if (tvb_captured_length(tvb) < 24)
-		return FALSE;
-
-	/* detect handshake control packet */
-	if (tvb_get_ntohl(tvb, 0) != (0x80000000 | UDT_PACKET_TYPE_HANDSHAKE))
-		return FALSE;
-
-	/* must be version 4 */
-	if ((tvb_get_ntohl(tvb, 16) != 4))
-		return FALSE;
-
-	/* must be datagram or stream */
-	if ((tvb_get_ntohl(tvb, 20) != UDT_HANDSHAKE_TYPE_DGRAM)
-	    && (tvb_get_ntohl(tvb, 20) != UDT_HANDSHAKE_TYPE_STREAM))
-		return FALSE;
+	udt_conversation *udt_conv;
 
 	conv = find_or_create_conversation(pinfo);
-	conversation_set_dissector(conv, udt_handle);
-	dissect_udt(tvb, pinfo, tree, data);
+	udt_conv = (udt_conversation *)conversation_get_proto_data(conv, proto_udt);
 
+	if (udt_conv) {
+		// Already identified conversation as UDT - BUT we might have been called from
+		// the other dissector.
+		if (is_dtls != udt_conv->is_dtls)
+			return FALSE;
+		dissect_udt(tvb, pinfo, tree, data);
+	} else {
+		// Check if this is UDT...
+
+		/* Must have at least 24 captured bytes for heuristic check */
+		if (tvb_captured_length(tvb) < 24)
+			return FALSE;
+
+		/* detect handshake control packet */
+		if (tvb_get_ntohl(tvb, 0) != (0x80000000 | UDT_PACKET_TYPE_HANDSHAKE))
+			return FALSE;
+
+		/* must be version 4 */
+		if ((tvb_get_ntohl(tvb, 16) != 4))
+			return FALSE;
+
+		/* must be datagram or stream */
+		if ((tvb_get_ntohl(tvb, 20) != UDT_HANDSHAKE_TYPE_DGRAM)
+		    && (tvb_get_ntohl(tvb, 20) != UDT_HANDSHAKE_TYPE_STREAM))
+			return FALSE;
+
+		/* This looks like UDT! */
+		udt_conv = wmem_new0(wmem_file_scope(), udt_conversation);
+		udt_conv->is_dtls = is_dtls;
+		conversation_add_proto_data(conv, proto_udt, udt_conv);
+		// DTLS should remain the dissector of record for encrypted conversations
+		if (!is_dtls)
+			conversation_set_dissector(conv, udt_handle);
+
+		dissect_udt(tvb, pinfo, tree, data);
+	}
 	return TRUE;
+}
+
+static gboolean
+dissect_udt_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	return dissect_udt_heur(tvb, pinfo, tree, data, FALSE /* Not DTLS */);
+}
+
+static gboolean
+dissect_udt_heur_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	return dissect_udt_heur(tvb, pinfo, tree, data, TRUE /* Is DTLS */);
 }
 
 void proto_register_udt(void)
@@ -493,13 +531,16 @@ void proto_register_udt(void)
 
 	expert_udt = expert_register_protocol(proto_udt);
 	expert_register_field_array(expert_udt, ei, array_length(ei));
+
+	register_dissector("udt", dissect_udt, proto_udt);
 }
 
 void proto_reg_handoff_udt(void)
 {
 	udt_handle  = create_dissector_handle(dissect_udt, proto_udt);
 
-	heur_dissector_add("udp", dissect_udt_heur, "UDT over UDP", "udt_udp", proto_udt, HEURISTIC_ENABLE);
+	heur_dissector_add("udp", dissect_udt_heur_udp, "UDT over UDP", "udt_udp", proto_udt, HEURISTIC_ENABLE);
+	heur_dissector_add("dtls", dissect_udt_heur_dtls, "UDT over DTLS", "udt_dtls", proto_udt, HEURISTIC_ENABLE);
 	dissector_add_for_decode_as_with_preference("udp.port", udt_handle);
 }
 
