@@ -37,3 +37,16 @@ WS_DLL_PUBLIC void decrypt_xtea_ecb(guint8 plaintext[8], const guint8 ciphertext
 WS_DLL_PUBLIC void decrypt_xtea_le_ecb(guint8 plaintext[8], const guint8 ciphertext[8], const guint32 key[4], guint num_rounds);
 
 #endif /* __XTEA_H__ */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
