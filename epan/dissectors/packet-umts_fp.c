@@ -1001,12 +1001,16 @@ dissect_spare_extension_and_crc(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     if (crc_size) {
-     proto_item * pi = proto_tree_add_item(tree, hf_fp_payload_crc, tvb, offset, crc_size,
+        proto_item * pi = proto_tree_add_item(tree, hf_fp_payload_crc, tvb, offset, crc_size,
                             ENC_BIG_ENDIAN);
         if (preferences_payload_checksum) {
             guint16 calc_crc, read_crc;
-            guint8 * data = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, header_length, offset-header_length);
-            calc_crc = crc16_8005_noreflect_noxor(data, offset-header_length);
+            if ((guint)offset > header_length) {
+                guint8 * data = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, header_length, offset-header_length);
+                calc_crc = crc16_8005_noreflect_noxor(data, offset-header_length);
+            } else {
+                calc_crc = 0;
+            }
             read_crc = tvb_get_bits16(tvb, offset*8, 16, ENC_BIG_ENDIAN);
 
             if (calc_crc == read_crc) {
