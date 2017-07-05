@@ -28,7 +28,7 @@
 
 #include "capchild/capture_session.h"
 
-#include "label_stack.h"
+#include <ui/qt/widgets/label_stack.h>
 #include "progress_frame.h"
 #include "wireshark_application.h"
 

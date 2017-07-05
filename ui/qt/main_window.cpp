@@ -64,7 +64,7 @@ DIAG_ON(frame-larger-than=)
 #endif
 #include "conversation_colorize_action.h"
 #include "export_object_action.h"
-#include "display_filter_edit.h"
+#include <ui/qt/widgets/display_filter_edit.h>
 #include "export_dissection_dialog.h"
 #include "file_set_dialog.h"
 #include "funnel_statistics.h"
@@ -79,7 +79,7 @@ DIAG_ON(frame-larger-than=)
 #include "wireless_frame.h"
 #include "wireshark_application.h"
 
-#include "additional_toolbar.h"
+#include <ui/qt/widgets/additional_toolbar.h>
 #include "variant_pointer.h"
 
 #include "qt_ui_utils.h"

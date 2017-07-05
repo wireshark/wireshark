@@ -38,7 +38,7 @@
 #include <ui/recent.h>
 #include <main_window.h>
 
-#include "syntax_line_edit.h"
+#include <ui/qt/widgets/syntax_line_edit.h>
 #include "qt_ui_utils.h"
 #include "uat_dialog.h"
 #include "wireshark_application.h"

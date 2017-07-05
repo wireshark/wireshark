@@ -30,7 +30,7 @@
 #include <QLineEdit>
 #include <QCheckBox>
 
-#include "display_filter_edit.h"
+#include <ui/qt/widgets/display_filter_edit.h>
 
 UatDelegate::UatDelegate(QObject *parent) : QStyledItemDelegate(parent)
 {

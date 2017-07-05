@@ -150,15 +150,31 @@ NODIST_GENERATED_FILES = \
 # Files that generate compileable files
 GENERATOR_FILES =
 
+MOC_WIDGET_HDRS = \
+	widgets/additional_toolbar.h			\
+	widgets/apply_line_edit.h			\
+	widgets/capture_filter_combo.h			\
+	widgets/capture_filter_edit.h			\
+	widgets/clickable_label.h			\
+	widgets/display_filter_combo.h			\
+	widgets/display_filter_edit.h			\
+	widgets/elided_label.h				\
+	widgets/field_filter_edit.h			\
+	widgets/find_line_edit.h			\
+	widgets/follow_stream_text.h			\
+	widgets/interface_toolbar_lineedit.h		\
+	widgets/label_stack.h				\
+	widgets/overlay_scroll_bar.h			\
+	widgets/syntax_line_edit.h			\
+	widgets/drag_drop_toolbar.h
+
 #
 # Headers that have to be run through moc.
 #
 MOC_HDRS = \
 	about_dialog.h					\
 	accordion_frame.h				\
-	additional_toolbar.h				\
 	address_editor_frame.h				\
-	apply_line_edit.h				\
 	bluetooth_att_server_attributes_dialog.h	\
 	bluetooth_device_dialog.h			\
 	bluetooth_devices_dialog.h			\
@@ -169,14 +185,11 @@ MOC_HDRS = \
 	capture_file.h					\
 	capture_file_dialog.h				\
 	capture_file_properties_dialog.h		\
-	capture_filter_combo.h				\
-	capture_filter_edit.h				\
 	capture_filter_syntax_worker.h			\
 	capture_info_dialog.h				\
 	capture_interfaces_dialog.h			\
 	capture_preferences_frame.h			\
 	coloring_rules_dialog.h				\
-	clickable_label.h				\
 	color_utils.h					\
 	column_preferences_frame.h			\
 	column_editor_frame.h				\
@@ -185,11 +198,8 @@ MOC_HDRS = \
 	conversation_dialog.h				\
 	conversation_hash_tables_dialog.h		\
 	decode_as_dialog.h				\
-	widgets/display_filter_combo.h			\
-	display_filter_edit.h				\
 	display_filter_expression_dialog.h		\
 	dissector_tables_dialog.h			\
-	elided_label.h					\
 	enabled_protocols_dialog.h			\
 	endpoint_dialog.h				\
 	expert_info_dialog.h				\
@@ -197,15 +207,12 @@ MOC_HDRS = \
 	export_object_action.h				\
 	export_object_dialog.h				\
 	export_pdu_dialog.h				\
-	field_filter_edit.h				\
 	file_set_dialog.h				\
 	filter_action.h					\
 	filter_dialog.h					\
 	filter_expression_frame.h			\
-	find_line_edit.h				\
 	firewall_rules_dialog.h				\
 	follow_stream_dialog.h				\
-	follow_stream_text.h				\
 	font_color_preferences_frame.h			\
 	funnel_string_dialog.h				\
 	funnel_text_dialog.h				\
@@ -216,13 +223,11 @@ MOC_HDRS = \
 	import_text_dialog.h				\
 	interface_frame.h				\
 	interface_toolbar.h				\
-	interface_toolbar_lineedit.h			\
 	interface_toolbar_reader.h			\
 	interface_tree_model.h				\
 	interface_tree_cache_model.h			\
 	interface_sort_filter_model.h			\
 	io_graph_dialog.h				\
-	label_stack.h					\
 	layout_preferences_frame.h			\
 	lbm_lbtrm_transport_dialog.h			\
 	lbm_lbtru_transport_dialog.h			\
@@ -240,7 +245,6 @@ MOC_HDRS = \
 	multicast_statistics_dialog.h			\
 	mtp3_summary_dialog.h				\
 	numeric_value_chooser_delegate.h		\
-	overlay_scroll_bar.h				\
 	packet_comment_dialog.h				\
 	path_chooser_delegate.h				\
 	packet_dialog.h					\
@@ -288,7 +292,6 @@ MOC_HDRS = \
 	stats_tree_dialog.h				\
 	stock_icon_tool_button.h			\
 	supported_protocols_dialog.h			\
-	syntax_line_edit.h				\
 	tap_parameter_dialog.h				\
 	tcp_stream_dialog.h				\
 	time_shift_dialog.h				\
@@ -306,7 +309,7 @@ MOC_HDRS = \
 	wireshark_application.h				\
 	wireshark_dialog.h				\
 	wlan_statistics_dialog.h			\
-	widgets/drag_drop_toolbar.h
+	$(MOC_WIDGET_HDRS)
 
 #
 # .ui files.
@@ -446,12 +449,29 @@ TS_FILES = \
 #
 QM_FILES = $(TS_FILES:.ts=.qm)
 
+WIRESHARK_QT_WIDGET_SRC = \
+	widgets/additional_toolbar.cpp			\
+	widgets/apply_line_edit.cpp			\
+	widgets/capture_filter_combo.cpp		\
+	widgets/capture_filter_edit.cpp			\
+	widgets/clickable_label.cpp			\
+	widgets/display_filter_combo.cpp		\
+	widgets/display_filter_edit.cpp			\
+	widgets/elided_label.cpp				\
+	widgets/field_filter_edit.cpp			\
+	widgets/find_line_edit.cpp			\
+	widgets/follow_stream_text.cpp			\
+	widgets/interface_toolbar_lineedit.cpp		\
+	widgets/label_stack.cpp				\
+	widgets/overlay_scroll_bar.cpp			\
+	widgets/syntax_line_edit.cpp			\
+	widgets/drag_drop_toolbar.cpp
+
+
 WIRESHARK_QT_SRC = \
 	about_dialog.cpp				\
 	accordion_frame.cpp				\
-	additional_toolbar.cpp				\
 	address_editor_frame.cpp			\
-	apply_line_edit.cpp				\
 	bluetooth_att_server_attributes_dialog.cpp	\
 	bluetooth_device_dialog.cpp			\
 	bluetooth_devices_dialog.cpp			\
@@ -462,13 +482,10 @@ WIRESHARK_QT_SRC = \
 	capture_file.cpp				\
 	capture_file_dialog.cpp				\
 	capture_file_properties_dialog.cpp		\
-	capture_filter_combo.cpp			\
-	capture_filter_edit.cpp				\
 	capture_filter_syntax_worker.cpp		\
 	capture_info_dialog.cpp				\
 	capture_interfaces_dialog.cpp			\
 	capture_preferences_frame.cpp			\
-	clickable_label.cpp				\
 	color_utils.cpp					\
 	coloring_rules_dialog.cpp			\
 	column_preferences_frame.cpp			\
@@ -478,26 +495,20 @@ WIRESHARK_QT_SRC = \
 	conversation_dialog.cpp				\
 	conversation_hash_tables_dialog.cpp		\
 	decode_as_dialog.cpp				\
-	widgets/display_filter_combo.cpp		\
-	display_filter_edit.cpp				\
 	display_filter_expression_dialog.cpp		\
 	dissector_tables_dialog.cpp			\
-	elided_label.cpp				\
 	enabled_protocols_dialog.cpp			\
 	endpoint_dialog.cpp				\
 	export_dissection_dialog.cpp			\
 	export_object_action.cpp			\
 	export_object_dialog.cpp			\
 	export_pdu_dialog.cpp				\
-	field_filter_edit.cpp				\
 	file_set_dialog.cpp				\
 	filter_action.cpp				\
 	filter_dialog.cpp				\
 	filter_expression_frame.cpp			\
-	find_line_edit.cpp				\
 	firewall_rules_dialog.cpp			\
 	follow_stream_dialog.cpp			\
-	follow_stream_text.cpp				\
 	font_color_preferences_frame.cpp		\
 	funnel_string_dialog.cpp			\
 	funnel_text_dialog.cpp				\
@@ -506,12 +517,10 @@ WIRESHARK_QT_SRC = \
 	import_text_dialog.cpp				\
 	interface_frame.cpp				\
 	interface_toolbar.cpp				\
-	interface_toolbar_lineedit.cpp			\
 	interface_toolbar_reader.cpp			\
 	interface_tree_model.cpp			\
 	interface_tree_cache_model.cpp			\
 	interface_sort_filter_model.cpp			\
-	label_stack.cpp					\
 	layout_preferences_frame.cpp			\
 	lbm_lbtrm_transport_dialog.cpp			\
 	lbm_lbtru_transport_dialog.cpp			\
@@ -528,7 +537,6 @@ WIRESHARK_QT_SRC = \
 	manage_interfaces_dialog.cpp			\
 	module_preferences_scroll_area.cpp		\
 	numeric_value_chooser_delegate.cpp		\
-	overlay_scroll_bar.cpp				\
 	packet_comment_dialog.cpp			\
 	packet_dialog.cpp				\
 	packet_format_group_box.cpp			\
@@ -577,7 +585,6 @@ WIRESHARK_QT_SRC = \
 	stock_icon.cpp					\
 	stock_icon_tool_button.cpp			\
 	supported_protocols_dialog.cpp			\
-	syntax_line_edit.cpp				\
 	tap_parameter_dialog.cpp			\
 	tcp_stream_dialog.cpp				\
 	time_shift_dialog.cpp				\
@@ -594,7 +601,7 @@ WIRESHARK_QT_SRC = \
 	wireless_timeline.cpp				\
 	wireshark_application.cpp			\
 	wireshark_dialog.cpp				\
-	widgets/drag_drop_toolbar.cpp
+	$(WIRESHARK_QT_WIDGET_SRC)
 
 WIRESHARK_QT_TAP_SRC = \
 	expert_info_dialog.cpp			\

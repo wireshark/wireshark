@@ -35,9 +35,9 @@
 #include <QMessageBox>
 #include <QThread>
 
-#include "capture_filter_edit.h"
+#include <ui/qt/widgets/capture_filter_edit.h>
 //#include "capture_filter_syntax_worker.h"
-#include "display_filter_edit.h"
+#include <ui/qt/widgets/display_filter_edit.h>
 #include "wireshark_application.h"
 
 // To do:

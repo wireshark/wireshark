@@ -19,12 +19,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <additional_toolbar.h>
 #include <config.h>
 
 #include <glib.h>
 
-#include <ui/qt/apply_line_edit.h>
+#include <ui/qt/widgets/additional_toolbar.h>
+#include <ui/qt/widgets/apply_line_edit.h>
 #include <ui/qt/qt_ui_utils.h>
 #include <ui/qt/variant_pointer.h>
 #include <ui/qt/wireshark_application.h>

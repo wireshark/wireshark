@@ -196,12 +196,12 @@
   <customwidget>
    <class>SyntaxLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>syntax_line_edit.h</header>
+   <header>widgets/syntax_line_edit.h</header>
   </customwidget>
   <customwidget>
    <class>DisplayFilterEdit</class>
    <extends>QLineEdit</extends>
-   <header>display_filter_edit.h</header>
+   <header>widgets/display_filter_edit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

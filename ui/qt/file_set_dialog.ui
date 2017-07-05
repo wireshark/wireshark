@@ -118,7 +118,7 @@
   <customwidget>
    <class>ElidedLabel</class>
    <extends>QLabel</extends>
-   <header>elided_label.h</header>
+   <header>widgets/elided_label.h</header>
   </customwidget>
  </customwidgets>
  <connections>

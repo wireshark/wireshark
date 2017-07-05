@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <ui/qt/apply_line_edit.h>
+#include <ui/qt/widgets/apply_line_edit.h>
 
 #include <epan/prefs.h>
 

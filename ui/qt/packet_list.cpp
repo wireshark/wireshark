@@ -52,7 +52,7 @@
 #include "frame_tvbuff.h"
 
 #include "color_utils.h"
-#include "overlay_scroll_bar.h"
+#include <ui/qt/widgets/overlay_scroll_bar.h>
 #include "proto_tree.h"
 #include "qt_ui_utils.h"
 #include "wireshark_application.h"

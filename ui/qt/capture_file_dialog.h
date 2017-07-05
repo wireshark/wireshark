@@ -23,7 +23,7 @@
 #define CAPTURE_FILE_DIALOG_H
 
 #ifndef Q_OS_WIN
-#include "display_filter_edit.h"
+#include <ui/qt/widgets/display_filter_edit.h>
 #include "packet_range_group_box.h"
 #include "ui/help_url.h"
 #endif // Q_OS_WIN

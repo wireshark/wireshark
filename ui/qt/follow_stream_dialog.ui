@@ -135,12 +135,12 @@
   <customwidget>
    <class>FollowStreamText</class>
    <extends>QTextEdit</extends>
-   <header>follow_stream_text.h</header>
+   <header>widgets/follow_stream_text.h</header>
   </customwidget>
   <customwidget>
    <class>FindLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>find_line_edit.h</header>
+   <header>widgets/find_line_edit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

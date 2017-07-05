@@ -33,8 +33,8 @@
 #include "qt_ui_utils.h"
 #include "column_preferences_frame.h"
 #include <ui_column_preferences_frame.h>
-#include "syntax_line_edit.h"
-#include "field_filter_edit.h"
+#include <ui/qt/widgets/syntax_line_edit.h>
+#include <ui/qt/widgets/field_filter_edit.h>
 #include "wireshark_application.h"
 
 #include <QComboBox>

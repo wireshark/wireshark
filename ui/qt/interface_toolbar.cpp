@@ -24,7 +24,7 @@
 #include <errno.h>
 
 #include "interface_toolbar.h"
-#include "interface_toolbar_lineedit.h"
+#include <ui/qt/widgets/interface_toolbar_lineedit.h>
 #include "simple_dialog.h"
 #include "ui/main_statusbar.h"
 #include <ui_interface_toolbar.h>

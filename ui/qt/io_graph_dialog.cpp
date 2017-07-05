@@ -38,9 +38,9 @@
 #include "qcustomplot.h"
 #include "progress_frame.h"
 #include "stock_icon.h"
-#include "syntax_line_edit.h"
-#include "display_filter_edit.h"
-#include "field_filter_edit.h"
+#include <ui/qt/widgets/syntax_line_edit.h>
+#include <ui/qt/widgets/display_filter_edit.h>
+#include <ui/qt/widgets/field_filter_edit.h>
 #include "wireshark_application.h"
 
 #include <QClipboard>

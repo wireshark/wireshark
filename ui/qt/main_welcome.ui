@@ -329,7 +329,7 @@ a:hover {
   <customwidget>
    <class>CaptureFilterCombo</class>
    <extends>QComboBox</extends>
-   <header>capture_filter_combo.h</header>
+   <header>widgets/capture_filter_combo.h</header>
   </customwidget>
   <customwidget>
    <class>AccordionFrame</class>
@@ -340,7 +340,7 @@ a:hover {
   <customwidget>
    <class>ClickableLabel</class>
    <extends>QLabel</extends>
-   <header>clickable_label.h</header>
+   <header>widgets/clickable_label.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

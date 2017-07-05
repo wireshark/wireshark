@@ -24,7 +24,7 @@
 #include <glib.h>
 
 #include "capture_interfaces_dialog.h"
-#include "capture_filter_combo.h"
+#include <ui/qt/widgets/capture_filter_combo.h>
 #include <ui_capture_interfaces_dialog.h>
 #include "compiled_filter_output.h"
 #include "manage_interfaces_dialog.h"

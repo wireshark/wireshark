@@ -101,7 +101,7 @@
   <customwidget>
    <class>SyntaxLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>syntax_line_edit.h</header>
+   <header>widgets/syntax_line_edit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

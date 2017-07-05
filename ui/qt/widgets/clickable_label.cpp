@@ -21,7 +21,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "ui/qt/clickable_label.h"
+#include <ui/qt/widgets/clickable_label.h>
 
 #include <QMouseEvent>
 

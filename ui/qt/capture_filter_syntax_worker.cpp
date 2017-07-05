@@ -34,7 +34,7 @@
 #endif
 
 #include "capture_filter_syntax_worker.h"
-#include "syntax_line_edit.h"
+#include <ui/qt/widgets/syntax_line_edit.h>
 
 #include <QMutexLocker>
 #include <QSet>

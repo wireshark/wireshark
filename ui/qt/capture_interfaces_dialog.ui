@@ -801,7 +801,7 @@ PLEASE NOTE: One option MUST be selected.</string>
   <customwidget>
    <class>CaptureFilterCombo</class>
    <extends>QComboBox</extends>
-   <header>capture_filter_combo.h</header>
+   <header>widgets/capture_filter_combo.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

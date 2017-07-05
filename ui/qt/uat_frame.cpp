@@ -27,7 +27,7 @@
 
 #include "uat_frame.h"
 #include <ui_uat_frame.h>
-#include "display_filter_edit.h"
+#include <ui/qt/widgets/display_filter_edit.h>
 #include "wireshark_application.h"
 
 #include "qt_ui_utils.h"

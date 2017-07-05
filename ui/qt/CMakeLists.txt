@@ -21,14 +21,31 @@
 
 ADD_CUSTOM_CMAKE_INCLUDE()
 
+set(WIRESHARK_WIDGET_HEADERS
+	widgets/additional_toolbar.h
+	widgets/apply_line_edit.h
+	widgets/capture_filter_combo.h
+	widgets/capture_filter_edit.h
+	widgets/clickable_label.h
+	widgets/display_filter_combo.h
+	widgets/display_filter_edit.h
+	widgets/elided_label.h
+	widgets/field_filter_edit.h
+	widgets/find_line_edit.h
+	widgets/follow_stream_text.h
+	widgets/interface_toolbar_lineedit.h
+	widgets/label_stack.h
+	widgets/overlay_scroll_bar.h
+	widgets/syntax_line_edit.h
+	widgets/drag_drop_toolbar.h
+)
+
 # All .h files which inherit from QObject aka which use the Q_OBJECT macro
 # need to go here.
 set(WIRESHARK_QT_HEADERS
 	about_dialog.h
 	accordion_frame.h
-	additional_toolbar.h
 	address_editor_frame.h
-	apply_line_edit.h
 	bluetooth_att_server_attributes_dialog.h
 	bluetooth_device_dialog.h
 	bluetooth_devices_dialog.h
@@ -40,13 +57,10 @@ set(WIRESHARK_QT_HEADERS
 	capture_file.h
 	capture_file_dialog.h
 	capture_file_properties_dialog.h
-	capture_filter_combo.h
-	capture_filter_edit.h
 	capture_filter_syntax_worker.h
 	capture_info_dialog.h
 	capture_interfaces_dialog.h
 	capture_preferences_frame.h
-	clickable_label.h
 	color_utils.h
 	coloring_rules_dialog.h
 	column_preferences_frame.h
@@ -56,11 +70,8 @@ set(WIRESHARK_QT_HEADERS
 	conversation_dialog.h
 	conversation_hash_tables_dialog.h
 	decode_as_dialog.h
-	widgets/display_filter_combo.h
-	display_filter_edit.h
 	display_filter_expression_dialog.h
 	dissector_tables_dialog.h
-	elided_label.h
 	enabled_protocols_dialog.h
 	endpoint_dialog.h
 	expert_info_dialog.h
@@ -68,16 +79,13 @@ set(WIRESHARK_QT_HEADERS
 	export_object_action.h
 	export_object_dialog.h
 	export_pdu_dialog.h
-	field_filter_edit.h
 	file_set_dialog.h
 	filter_action.h
 	filter_dialog.h
 	filter_dialog.h
 	filter_expression_frame.h
-	find_line_edit.h
 	firewall_rules_dialog.h
 	follow_stream_dialog.h
-	follow_stream_text.h
 	font_color_preferences_frame.h
 	funnel_string_dialog.h
 	funnel_text_dialog.h
@@ -88,13 +96,11 @@ set(WIRESHARK_QT_HEADERS
 	import_text_dialog.h
 	interface_toolbar.h
 	interface_toolbar_reader.h
-	interface_toolbar_lineedit.h
 	interface_tree_model.h
 	interface_tree_cache_model.h
 	interface_sort_filter_model.h
 	interface_frame.h
 	io_graph_dialog.h
-	label_stack.h
 	layout_preferences_frame.h
 	lbm_lbtrm_transport_dialog.h
 	lbm_lbtru_transport_dialog.h
@@ -112,7 +118,6 @@ set(WIRESHARK_QT_HEADERS
 	mtp3_summary_dialog.h
 	numeric_value_chooser_delegate.h
 	multicast_statistics_dialog.h
-	overlay_scroll_bar.h
 	packet_comment_dialog.h
 	packet_dialog.h
 	packet_format_group_box.h
@@ -156,7 +161,6 @@ set(WIRESHARK_QT_HEADERS
 	simple_statistics_dialog.h
 	stock_icon_tool_button.h
 	supported_protocols_dialog.h
-	syntax_line_edit.h
 	tap_parameter_dialog.h
 	tcp_stream_dialog.h
 	time_shift_dialog.h
@@ -174,7 +178,6 @@ set(WIRESHARK_QT_HEADERS
 	wireshark_application.h
 	wireshark_dialog.h
 	wlan_statistics_dialog.h
-	widgets/drag_drop_toolbar.h
 	${WIRESHARK_CUSTOM_QT_HEADERS}
 )
 
@@ -203,12 +206,29 @@ file(GLOB EXTRA_QT_HEADERS
 	stock_icon.h
 )
 
+set(WIRESHARK_WIDGET_SRCS
+	widgets/additional_toolbar.cpp
+	widgets/apply_line_edit.cpp
+	widgets/capture_filter_combo.cpp
+	widgets/capture_filter_edit.cpp
+	widgets/clickable_label.cpp
+	widgets/display_filter_combo.cpp
+	widgets/display_filter_edit.cpp
+	widgets/elided_label.cpp
+	widgets/field_filter_edit.cpp
+	widgets/find_line_edit.cpp
+	widgets/follow_stream_text.cpp
+	widgets/interface_toolbar_lineedit.cpp
+	widgets/label_stack.cpp
+	widgets/overlay_scroll_bar.cpp
+	widgets/syntax_line_edit.cpp
+	widgets/drag_drop_toolbar.cpp
+)
+
 set(WIRESHARK_QT_SRC
 	about_dialog.cpp
 	accordion_frame.cpp
-	additional_toolbar.cpp
 	address_editor_frame.cpp
-	apply_line_edit.cpp
 	bluetooth_att_server_attributes_dialog.cpp
 	bluetooth_device_dialog.cpp
 	bluetooth_devices_dialog.cpp
@@ -219,13 +239,10 @@ set(WIRESHARK_QT_SRC
 	capture_file.cpp
 	capture_file_dialog.cpp
 	capture_file_properties_dialog.cpp
-	capture_filter_combo.cpp
-	capture_filter_edit.cpp
 	capture_filter_syntax_worker.cpp
 	capture_info_dialog.cpp
 	capture_interfaces_dialog.cpp
 	capture_preferences_frame.cpp
-	clickable_label.cpp
 	color_utils.cpp
 	coloring_rules_dialog.cpp
 	column_preferences_frame.cpp
@@ -235,47 +252,39 @@ set(WIRESHARK_QT_SRC
 	conversation_dialog.cpp
 	conversation_hash_tables_dialog.cpp
 	decode_as_dialog.cpp
-	widgets/display_filter_combo.cpp
-	display_filter_edit.cpp
 	display_filter_expression_dialog.cpp
 	dissector_tables_dialog.cpp
-	elided_label.cpp
 	enabled_protocols_dialog.cpp
 	endpoint_dialog.cpp
 	export_dissection_dialog.cpp
 	export_object_action.cpp
 	export_object_dialog.cpp
 	export_pdu_dialog.cpp
-	field_filter_edit.cpp
 	file_set_dialog.cpp
 	filter_action.cpp
 	filter_dialog.cpp
 	filter_expression_frame.cpp
-	find_line_edit.cpp
 	firewall_rules_dialog.cpp
 	follow_stream_dialog.cpp
-	follow_stream_text.cpp
 	font_color_preferences_frame.cpp
 	funnel_string_dialog.cpp
 	funnel_text_dialog.cpp
 	geometry_state_dialog.cpp
 	iax2_analysis_dialog.cpp
 	import_text_dialog.cpp
+	interface_frame.cpp
 	interface_toolbar.cpp
 	interface_toolbar_reader.cpp
-	interface_toolbar_lineedit.cpp
 	interface_tree_model.cpp
 	interface_tree_cache_model.cpp
 	interface_sort_filter_model.cpp
-	interface_frame.cpp
-	label_stack.cpp
 	layout_preferences_frame.cpp
 	lbm_lbtrm_transport_dialog.cpp
 	lbm_lbtru_transport_dialog.cpp
 	lbm_stream_dialog.cpp
 	lbm_uimflow_dialog.cpp
-	lte_rlc_graph_dialog.cpp
 	lte_mac_statistics_dialog.cpp
+	lte_rlc_graph_dialog.cpp
 	lte_rlc_statistics_dialog.cpp
 	main_status_bar.cpp
 	main_welcome.cpp
@@ -285,7 +294,6 @@ set(WIRESHARK_QT_SRC
 	manage_interfaces_dialog.cpp
 	module_preferences_scroll_area.cpp
 	numeric_value_chooser_delegate.cpp
-	overlay_scroll_bar.cpp
 	packet_comment_dialog.cpp
 	packet_dialog.cpp
 	packet_format_group_box.cpp
@@ -324,15 +332,14 @@ set(WIRESHARK_QT_SRC
 	sequence_diagram.cpp
 	sequence_dialog.cpp
 	service_response_time_dialog.cpp
+	show_packet_bytes_dialog.cpp
 	simple_dialog.cpp
 	simple_statistics_dialog.cpp
-	show_packet_bytes_dialog.cpp
-	splash_overlay.cpp
 	sparkline_delegate.cpp
+	splash_overlay.cpp
 	stock_icon.cpp
 	stock_icon_tool_button.cpp
 	supported_protocols_dialog.cpp
-	syntax_line_edit.cpp
 	tap_parameter_dialog.cpp
 	tcp_stream_dialog.cpp
 	time_shift_dialog.cpp
@@ -349,7 +356,6 @@ set(WIRESHARK_QT_SRC
 	wireless_timeline.cpp
 	wireshark_application.cpp
 	wireshark_dialog.cpp
-	widgets/drag_drop_toolbar.cpp
 	${WIRESHARK_CUSTOM_QT_SRCS}
 )
 
@@ -520,7 +526,7 @@ if (QT_VERSION EQUAL 5)
 	QT5_ADD_RESOURCES(WIRESHARK_QT_QRC_SRC ${WIRESHARK_QT_QRC})
 	QT5_WRAP_UI(WIRESHARK_QT_UI_SRC ${WIRESHARK_QT_UI})
 	# For now, do the moc stuff manually
-	QT5_WRAP_CPP(WIRESHARK_QT_MOC_SRC ${WIRESHARK_QT_HEADERS}
+	QT5_WRAP_CPP(WIRESHARK_QT_MOC_SRC ${WIRESHARK_QT_HEADERS} ${WIRESHARK_WIDGET_HEADERS}
 		OPTIONS ${MOC_OPTIONS})
 	# Starting with cmake 2.8.6, we may also use
 	# set(CMAKE_AUTOMOC TRUE)
@@ -531,7 +537,7 @@ else()
 	QT4_ADD_RESOURCES(WIRESHARK_QT_QRC_SRC ${WIRESHARK_QT_QRC})
 	QT4_WRAP_UI(WIRESHARK_QT_UI_SRC ${WIRESHARK_QT_UI})
 	# For now, do the moc stuff manually
-	QT4_WRAP_CPP(WIRESHARK_QT_MOC_SRC ${WIRESHARK_QT_HEADERS}
+	QT4_WRAP_CPP(WIRESHARK_QT_MOC_SRC ${WIRESHARK_QT_HEADERS} ${WIRESHARK_WIDGET_HEADERS}
 		OPTIONS ${MOC_OPTIONS})
 	# Starting with cmake 2.8.6, we may also use
 	# set(CMAKE_AUTOMOC TRUE)
@@ -571,10 +577,16 @@ source_group("ui Header Files" FILES ${WIRESHARK_QT_UI_SRC})
 source_group("ui Files" FILES ${WIRESHARK_QT_UI})
 source_group("qrc Files" FILES ${WIRESHARK_QT_QRC_SRC} ${WIRESHARK_QT_QRC})
 source_group("Header Files" FILES ${WIRESHARK_QT_HEADERS})
+source_group("Widget Header Files" FILES ${WIRESHARK_WIDGET_HEADERS})
+source_group("Widget Source Files" FILES ${WIRESHARK_WIDGET_SRCS})
 
 add_library(qtui STATIC
-	${WIRESHARK_QT_HEADERS} #Included so that Visual Studio can properly put header files in solution
+	#Included so that Visual Studio can properly put header files in solution
+	${WIRESHARK_QT_HEADERS}
+	${WIRESHARK_WIDGET_HEADERS}
+
 	${WIRESHARK_QT_SRC}
+	${WIRESHARK_WIDGET_SRCS}
 	${WIRESHARK_QT_TAP_SRC}
 	${WIRESHARK_QT_UI_SRC}
 	${WIRESHARK_QT_MOC_SRC}

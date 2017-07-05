@@ -30,7 +30,7 @@
 
 #include "ui/text_import.h"
 
-#include "syntax_line_edit.h"
+#include <ui/qt/widgets/syntax_line_edit.h>
 
 #include <QDialog>
 #include <QPushButton>

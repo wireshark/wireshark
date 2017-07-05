@@ -135,7 +135,7 @@
   <customwidget>
    <class>FindLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>find_line_edit.h</header>
+   <header>widgets/find_line_edit.h</header>
   </customwidget>
   <customwidget>
    <class>ShowPacketBytesTextEdit</class>

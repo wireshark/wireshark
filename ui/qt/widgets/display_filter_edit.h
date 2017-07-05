@@ -22,8 +22,8 @@
 #ifndef DISPLAYFILTEREDIT_H
 #define DISPLAYFILTEREDIT_H
 
-#include "preferences_dialog.h"
-#include "syntax_line_edit.h"
+#include <ui/qt/preferences_dialog.h>
+#include <ui/qt/widgets/syntax_line_edit.h>
 
 class QEvent;
 class StockIconToolButton;
