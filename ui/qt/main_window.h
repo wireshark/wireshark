@@ -54,7 +54,7 @@
 #include "capture_file.h"
 #include "capture_file_dialog.h"
 #include "capture_file_properties_dialog.h"
-#include "display_filter_combo.h"
+#include <ui/qt/widgets/display_filter_combo.h>
 #include "filter_action.h"
 #include "follow_stream_dialog.h"
 #include "preferences_dialog.h"

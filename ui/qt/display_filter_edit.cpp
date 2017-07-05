@@ -560,8 +560,8 @@ void DisplayFilterEdit::applyOrPrepareFilter()
 
     setText(pa->data().toString());
 
-    // Holding down the Alt key will only prepare filter.
-    if (!(QApplication::keyboardModifiers() & Qt::AltModifier)) {
+    // Holding down the Shift key will only prepare filter.
+    if (!(QApplication::keyboardModifiers() & Qt::ShiftModifier)) {
         applyDisplayFilter();
     }
 }

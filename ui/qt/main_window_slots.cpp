@@ -935,14 +935,7 @@ void MainWindow::filterExpressionsChanged()
     data.window = this;
     data.actions_added = false;
 
-    // Recreate filter buttons
-    foreach (QAction *act, filter_expression_toolbar_->actions()) {
-        // Permanent actions shouldn't have data
-        if (act->property(dfe_property_).isValid()) {
-            filter_expression_toolbar_->removeAction(act);
-            delete act;
-        }
-    }
+    filter_expression_toolbar_->clear();
 
     // XXX Add a context menu for removing and changing buttons.
     filter_expression_iterate_expressions(filter_expression_add_action, &data);
@@ -1750,13 +1743,13 @@ void MainWindow::displayFilterButtonClicked()
 {
     QAction *dfb_action = qobject_cast<QAction*>(sender());
 
-    if (dfb_action) {
-        df_combo_box_->lineEdit()->setText(dfb_action->data().toString());
-        // Holding down the Alt key will only prepare filter.
-        if (!(QApplication::keyboardModifiers() & Qt::AltModifier)) {
-            df_combo_box_->applyDisplayFilter();
-        }
-        df_combo_box_->lineEdit()->setFocus();
+    if (!dfb_action)
+        return;
+
+    df_combo_box_->setDisplayFilter(dfb_action->data().toString());
+    // Holding down the Shift key will only prepare filter.
+    if (!(QApplication::keyboardModifiers() & Qt::ShiftModifier)) {
+        df_combo_box_->applyDisplayFilter();
     }
 }
 

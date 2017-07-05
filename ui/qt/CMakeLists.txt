@@ -56,7 +56,7 @@ set(WIRESHARK_QT_HEADERS
 	conversation_dialog.h
 	conversation_hash_tables_dialog.h
 	decode_as_dialog.h
-	display_filter_combo.h
+	widgets/display_filter_combo.h
 	display_filter_edit.h
 	display_filter_expression_dialog.h
 	dissector_tables_dialog.h
@@ -235,7 +235,7 @@ set(WIRESHARK_QT_SRC
 	conversation_dialog.cpp
 	conversation_hash_tables_dialog.cpp
 	decode_as_dialog.cpp
-	display_filter_combo.cpp
+	widgets/display_filter_combo.cpp
 	display_filter_edit.cpp
 	display_filter_expression_dialog.cpp
 	dissector_tables_dialog.cpp

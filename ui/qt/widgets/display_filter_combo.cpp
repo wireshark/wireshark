@@ -138,6 +138,12 @@ void DisplayFilterCombo::applyDisplayFilter()
     if (df_edit) df_edit->applyDisplayFilter();
 }
 
+void DisplayFilterCombo::setDisplayFilter(QString filter)
+{
+    lineEdit()->setText(filter);
+    lineEdit()->setFocus();
+}
+
 void DisplayFilterCombo::updateMaxCount()
 {
     setMaxCount(prefs.gui_recent_df_entries_max);

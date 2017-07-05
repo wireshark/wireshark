@@ -41,6 +41,7 @@ protected:
 public slots:
     bool checkDisplayFilter();
     void applyDisplayFilter();
+    void setDisplayFilter(QString filter);
 
 private slots:
     void updateMaxCount();
