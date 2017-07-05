@@ -1244,7 +1244,8 @@ rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, guint16 seq,
     struct rlc_seq      seq_item, *seq_new;
     guint16 snmod;
 
-    rlc_channel_assign(&lookup.ch, mode, pinfo, atm);
+    if (rlc_channel_assign(&lookup.ch, mode, pinfo, atm) == -1)
+        return FALSE;
     list = (struct rlc_seqlist *)g_hash_table_lookup(sequence_table, &lookup.ch);
     if (!list) {
         /* we see this channel for the first time */
