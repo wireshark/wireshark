@@ -4460,11 +4460,11 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 				break;
 			case 0x0016:
 				if (link_dir == P2P_DIR_DL) {
-					proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3), 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(tree, hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_aer, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-					proto_tree_add_item(tree, hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_ul_time_unit, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_bits_item(pco_tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3), 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_aer, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_ul_time_unit, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 					if (e_len >= 4) {
-						proto_tree_add_item(tree, hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_max_ul_rate, tvb, curr_offset+1, 3, ENC_BIG_ENDIAN);
+						proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_max_ul_rate, tvb, curr_offset+1, 3, ENC_BIG_ENDIAN);
 					}
 				}
 				break;
