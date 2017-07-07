@@ -884,14 +884,15 @@ dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* Data bytes! */
         if (data_tree) {
-            pinfo->fd->subnum = pdu; /* set subframe number to current TB */
-            p_fp_info->cur_tb = pdu;    /*Set TB (PDU) index correctly*/
             pdu_ti = proto_tree_add_item(data_tree, hf_fp_mac_d_pdu, tvb,
                                          offset + (bit_offset/8),
                                          ((bit_offset % 8) + length + 7) / 8,
                                          ENC_NA);
             proto_item_set_text(pdu_ti, "MAC-d PDU (PDU %u)", pdu+1);
         }
+
+        pinfo->fd->subnum = pdu; /* set subframe number to current TB */
+        p_fp_info->cur_tb = pdu;    /*Set TB (PDU) index correctly*/
         if (preferences_call_mac_dissectors /*&& !rlc_is_ciphered(pinfo)*/) {
             tvbuff_t *next_tvb;
             next_tvb = tvb_new_subset(tvb, offset + bit_offset/8,
@@ -963,6 +964,7 @@ dissect_macd_pdu_data_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 
             fpi->cur_tb = pdu;    /*Set proper pdu index for MAC and higher layers*/
+            pinfo->fd->subnum = pdu;
             call_dissector_with_data(mac_fdd_hsdsch_handle, next_tvb, pinfo, top_level_tree, data);
             dissected = TRUE;
         }
