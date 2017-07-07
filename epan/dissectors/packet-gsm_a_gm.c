@@ -4303,8 +4303,8 @@ static const value_string gsm_a_gm_nbifom_mode_vals[] = {
 };
 
 const true_false_string gsm_a_gm_apn_rate_ctrl_params_aer_value = {
-	"Optimised for signalling traffic",
-	"Not optimised for signalling traffic"
+	"Additional exception reports at maximum rate reached are allowed",
+	"Additional exception reports at maximum rate reached are not allowed"
 };
 
 static const value_string gsm_a_gm_apn_rate_ctrl_ul_time_unit_vals[] = {
