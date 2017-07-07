@@ -192,6 +192,7 @@ qtshark
 /ui/qt/**/*.moc.cpp
 /ui/qt/**/*.rcc.cpp
 /ui/qt/**/moc_*.cxx
+/ui/qt/i18n.qrc
 /ui/qt/qrc_*.cpp
 /ui/qt/qrc_*.cxx
 /ui/qt/ui_*.h
