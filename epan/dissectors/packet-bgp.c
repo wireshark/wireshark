@@ -7056,25 +7056,25 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                     if ((community & 0xFFFF0000) == FOURHEX0 ||
                         (community & 0xFFFF0000) == FOURHEXF) {
                         proto_tree_add_item(communities_tree, hf_bgp_update_path_attribute_community_well_known,
-                                            tvb, q - 3 + aoff, 4, ENC_BIG_ENDIAN);
+                                            tvb, q, 4, ENC_BIG_ENDIAN);
                         proto_item_append_text(ti_pa, "%s ", val_to_str_const(community, community_vals, "Reserved"));
                         proto_item_append_text(ti_communities, "%s ", val_to_str_const(community, community_vals, "Reserved"));
                     }
                     else {
                         ti_community = proto_tree_add_item(communities_tree, hf_bgp_update_path_attribute_community, tvb,
-                                                           q - 3 + aoff, 4, ENC_NA);
+                                                           q, 4, ENC_NA);
                         community_tree = proto_item_add_subtree(ti_community,
                                                                 ett_bgp_community);
                         proto_tree_add_item(community_tree, hf_bgp_update_path_attribute_community_as,
-                                            tvb, q - 3 + aoff, 2, ENC_BIG_ENDIAN);
+                                            tvb, q, 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(community_tree, hf_bgp_update_path_attribute_community_value,
-                                            tvb, q - 1 + aoff, 2, ENC_BIG_ENDIAN);
-                        proto_item_append_text(ti_pa, "%u:%u ",tvb_get_ntohs(tvb, q - 3 + aoff),
-                                               tvb_get_ntohs(tvb, q -1 + aoff));
-                        proto_item_append_text(ti_communities, "%u:%u ",tvb_get_ntohs(tvb, q - 3 + aoff),
-                                               tvb_get_ntohs(tvb, q -1 + aoff));
-                        proto_item_append_text(ti_community, ": %u:%u ",tvb_get_ntohs(tvb, q - 3 + aoff),
-                                               tvb_get_ntohs(tvb, q -1 + aoff));
+                                            tvb, q+2, 2, ENC_BIG_ENDIAN);
+                        proto_item_append_text(ti_pa, "%u:%u ",tvb_get_ntohs(tvb, q),
+                                               tvb_get_ntohs(tvb, q+2));
+                        proto_item_append_text(ti_communities, "%u:%u ",tvb_get_ntohs(tvb, q),
+                                               tvb_get_ntohs(tvb, q+2));
+                        proto_item_append_text(ti_community, ": %u:%u ",tvb_get_ntohs(tvb, q),
+                                               tvb_get_ntohs(tvb, q+2));
                     }
 
                     q += 4;
