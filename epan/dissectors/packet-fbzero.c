@@ -390,8 +390,8 @@ static gboolean dissect_fb_zero_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     conversation_t *conversation = NULL;
     int offset = 0;
     guint32 version, length, message_tag;
-    /* Verify packet size  (Flag (1 byte) + Version (3bytes) + Flag (1 byte) + length (4 bytes) + Tag (4 bytes)*/
-    if (tvb_reported_length(tvb) < 13)
+    /* Verify packet size  (Flag (1 byte) + Version (3bytes) + Flag (1 byte) + length (4 bytes) + Tag (4 bytes) */
+    if (tvb_captured_length(tvb) < 13)
     {
         return FALSE;
     }
