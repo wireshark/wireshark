@@ -75,16 +75,8 @@
 void proto_register_nbap(void);
 void proto_reg_handoff_nbap(void);
 
-/* Global variables */
+/* Protocol Handles */
 static dissector_handle_t fp_handle;
-static guint32	transportLayerAddress_ipv4;
-static guint16	BindingID_port;
-static guint32	ul_scrambling_code;
-static guint32	com_context_id;
-static int cfn;
-
-wmem_tree_t *nbap_scrambling_code_crncc_map = NULL;
-wmem_tree_t *nbap_crncc_urnti_map = NULL;
 
 
 /*--- Included file: packet-nbap-val.h ---*/
@@ -1544,7 +1536,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-nbap-val.h ---*/
-#line 82 "./asn1/nbap/packet-nbap-template.c"
+#line 74 "./asn1/nbap/packet-nbap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_nbap = -1;
@@ -4848,7 +4840,7 @@ static int hf_nbap_RACH_SubChannelNumbers_subCh1 = -1;
 static int hf_nbap_RACH_SubChannelNumbers_subCh0 = -1;
 
 /*--- End of included file: packet-nbap-hf.c ---*/
-#line 90 "./asn1/nbap/packet-nbap-template.c"
+#line 82 "./asn1/nbap/packet-nbap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_nbap = -1;
@@ -6487,7 +6479,7 @@ static gint ett_nbap_UnsuccessfulOutcome = -1;
 static gint ett_nbap_Outcome = -1;
 
 /*--- End of included file: packet-nbap-ett.c ---*/
-#line 98 "./asn1/nbap/packet-nbap-template.c"
+#line 90 "./asn1/nbap/packet-nbap-template.c"
 
 static expert_field ei_nbap_no_find_comm_context_id = EI_INIT;
 static expert_field ei_nbap_no_find_port_info = EI_INIT;
@@ -6546,8 +6538,6 @@ typedef struct
   gint dl_chan_num_tbs[MAX_FP_CHANS];
 }nbap_dch_channel_info_t;
 
-nbap_dch_channel_info_t nbap_dch_chnl_info[256];
-
 /* Struct to collect E-DCH data in a packet
  * As the address data comes before the ddi entries
  * we save the address to be able to find the conversation and update the
@@ -6564,7 +6554,6 @@ typedef struct
   guint8 lchId[MAX_EDCH_DDIS]; /*Logical channel ids.*/
 } nbap_edch_channel_info_t;
 
-nbap_edch_channel_info_t nbap_edch_channel_info[maxNrOfEDCHMACdFlows];
 
 typedef struct
 {
@@ -6581,8 +6570,6 @@ typedef struct
   guint8 entity;  /* "ns" means type 1 and "ehs" means type 2, type 3 == ?*/
 } nbap_hsdsch_channel_info_t;
 
-nbap_hsdsch_channel_info_t nbap_hsdsch_channel_info[maxNrOfMACdFlows];
-
 typedef struct
 {
  address crnc_address;
@@ -6590,44 +6577,12 @@ typedef struct
  enum fp_rlc_mode rlc_mode;
 } nbap_common_channel_info_t;
 
-nbap_common_channel_info_t nbap_common_channel_info[maxNrOfMACdFlows]; /*TODO: Fix this!*/
-
-gint g_num_dch_in_flow;
-/* maxNrOfTFs   INTEGER ::= 32 */
-gint g_dch_ids_in_flow_list[maxNrOfTFs];
-
-gint hsdsch_macdflow_ids[maxNrOfMACdFlows];
-
-gint hrnti;
-
-guint node_b_com_context_id;
-
-static wmem_tree_t* edch_flow_port_map = NULL;
-
 /*Stuff for mapping NodeB-Comuncation Context ID to CRNC Communication Context ID*/
 typedef struct com_ctxt_{
   /*guint   nodeb_context;*/
   guint crnc_context;
   guint frame_num;
 }nbap_com_context_id_t;
-
-gboolean crcn_context_present = FALSE;
-static wmem_tree_t* com_context_map;
-
-struct _nbap_msg_info_for_fp g_nbap_msg_info_for_fp;
-
-/* Global variables */
-static guint32 ProcedureCode;
-static guint32 ProtocolIE_ID;
-static guint32 ddMode;
-static const gchar *ProcedureID;
-static guint32 TransactionID;
-static guint32 t_dch_id, dch_id, prev_dch_id, commonphysicalchannelid, e_dch_macdflow_id, hsdsch_macdflow_id=3,
-                e_dch_ddi_value,logical_channel_id,common_macdflow_id;
-static guint32 MACdPDU_Size, commontransportchannelid;
-static guint num_items;
-static gint paging_indications;
-static guint32 ib_type, segment_type;
 
 enum TransportFormatSet_type_enum
 {
@@ -6638,7 +6593,48 @@ enum TransportFormatSet_type_enum
   NBAP_PCH
 };
 
+/* Global Variables */
+static guint32	transportLayerAddress_ipv4;
+static guint16	BindingID_port;
+static guint32	ul_scrambling_code;
+static guint32	com_context_id;
+static int cfn;
+gint g_num_dch_in_flow;
+gint g_dch_ids_in_flow_list[maxNrOfTFs];
+gint hsdsch_macdflow_ids[maxNrOfMACdFlows];
+gint hrnti;
+guint node_b_com_context_id;
+static wmem_tree_t* edch_flow_port_map = NULL;
+static guint32 ProcedureCode;
+static guint32 ProtocolIE_ID;
+static guint32 ddMode;
+static const gchar *ProcedureID;
+static guint32 TransactionID;
+static guint32 t_dch_id;
+static guint32 dch_id;
+static guint32 prev_dch_id;
+static guint32 commonphysicalchannelid;
+static guint32 e_dch_macdflow_id;
+static guint32 hsdsch_macdflow_id=3;
+static guint32 e_dch_ddi_value;
+static guint32 logical_channel_id;
+static guint32 common_macdflow_id;
+static guint32 MACdPDU_Size;
+static guint32 commontransportchannelid;
+static guint num_items;
+static gint paging_indications;
+static guint32 ib_type;
+static guint32 segment_type;
+wmem_tree_t *nbap_scrambling_code_crncc_map = NULL;
+wmem_tree_t *nbap_crncc_urnti_map = NULL;
 enum TransportFormatSet_type_enum transportFormatSet_type;
+gboolean crcn_context_present = FALSE;
+static wmem_tree_t* com_context_map;
+nbap_dch_channel_info_t nbap_dch_chnl_info[256];
+nbap_edch_channel_info_t nbap_edch_channel_info[maxNrOfEDCHMACdFlows];
+nbap_hsdsch_channel_info_t nbap_hsdsch_channel_info[maxNrOfMACdFlows];
+nbap_common_channel_info_t nbap_common_channel_info[maxNrOfMACdFlows];	/*TODO: Fix this!*/
+struct _nbap_msg_info_for_fp g_nbap_msg_info_for_fp;
 
 /* This table is used externally from FP, MAC and such, TODO: merge this with
  * lch_contents[] */
@@ -55326,7 +55322,7 @@ static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-nbap-fn.c ---*/
-#line 369 "./asn1/nbap/packet-nbap-template.c"
+#line 365 "./asn1/nbap/packet-nbap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -68719,7 +68715,7 @@ void proto_register_nbap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-nbap-hfarr.c ---*/
-#line 597 "./asn1/nbap/packet-nbap-template.c"
+#line 593 "./asn1/nbap/packet-nbap-template.c"
   };
 
   /* List of subtrees */
@@ -70359,7 +70355,7 @@ void proto_register_nbap(void)
     &ett_nbap_Outcome,
 
 /*--- End of included file: packet-nbap-ettarr.c ---*/
-#line 606 "./asn1/nbap/packet-nbap-template.c"
+#line 602 "./asn1/nbap/packet-nbap-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -71510,6 +71506,6 @@ proto_reg_handoff_nbap(void)
 
 
 /*--- End of included file: packet-nbap-dis-tab.c ---*/
-#line 660 "./asn1/nbap/packet-nbap-template.c"
+#line 656 "./asn1/nbap/packet-nbap-template.c"
 }
 

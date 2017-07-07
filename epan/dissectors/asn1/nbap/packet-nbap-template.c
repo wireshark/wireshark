@@ -67,16 +67,8 @@
 void proto_register_nbap(void);
 void proto_reg_handoff_nbap(void);
 
-/* Global variables */
+/* Protocol Handles */
 static dissector_handle_t fp_handle;
-static guint32	transportLayerAddress_ipv4;
-static guint16	BindingID_port;
-static guint32	ul_scrambling_code;
-static guint32	com_context_id;
-static int cfn;
-
-wmem_tree_t *nbap_scrambling_code_crncc_map = NULL;
-wmem_tree_t *nbap_crncc_urnti_map = NULL;
 
 #include "packet-nbap-val.h"
 
@@ -153,8 +145,6 @@ typedef struct
   gint dl_chan_num_tbs[MAX_FP_CHANS];
 }nbap_dch_channel_info_t;
 
-nbap_dch_channel_info_t nbap_dch_chnl_info[256];
-
 /* Struct to collect E-DCH data in a packet
  * As the address data comes before the ddi entries
  * we save the address to be able to find the conversation and update the
@@ -171,7 +161,6 @@ typedef struct
   guint8 lchId[MAX_EDCH_DDIS]; /*Logical channel ids.*/
 } nbap_edch_channel_info_t;
 
-nbap_edch_channel_info_t nbap_edch_channel_info[maxNrOfEDCHMACdFlows];
 
 typedef struct
 {
@@ -188,8 +177,6 @@ typedef struct
   guint8 entity;  /* "ns" means type 1 and "ehs" means type 2, type 3 == ?*/
 } nbap_hsdsch_channel_info_t;
 
-nbap_hsdsch_channel_info_t nbap_hsdsch_channel_info[maxNrOfMACdFlows];
-
 typedef struct
 {
  address crnc_address;
@@ -197,44 +184,12 @@ typedef struct
  enum fp_rlc_mode rlc_mode;
 } nbap_common_channel_info_t;
 
-nbap_common_channel_info_t nbap_common_channel_info[maxNrOfMACdFlows]; /*TODO: Fix this!*/
-
-gint g_num_dch_in_flow;
-/* maxNrOfTFs   INTEGER ::= 32 */
-gint g_dch_ids_in_flow_list[maxNrOfTFs];
-
-gint hsdsch_macdflow_ids[maxNrOfMACdFlows];
-
-gint hrnti;
-
-guint node_b_com_context_id;
-
-static wmem_tree_t* edch_flow_port_map = NULL;
-
 /*Stuff for mapping NodeB-Comuncation Context ID to CRNC Communication Context ID*/
 typedef struct com_ctxt_{
   /*guint   nodeb_context;*/
   guint crnc_context;
   guint frame_num;
 }nbap_com_context_id_t;
-
-gboolean crcn_context_present = FALSE;
-static wmem_tree_t* com_context_map;
-
-struct _nbap_msg_info_for_fp g_nbap_msg_info_for_fp;
-
-/* Global variables */
-static guint32 ProcedureCode;
-static guint32 ProtocolIE_ID;
-static guint32 ddMode;
-static const gchar *ProcedureID;
-static guint32 TransactionID;
-static guint32 t_dch_id, dch_id, prev_dch_id, commonphysicalchannelid, e_dch_macdflow_id, hsdsch_macdflow_id=3,
-                e_dch_ddi_value,logical_channel_id,common_macdflow_id;
-static guint32 MACdPDU_Size, commontransportchannelid;
-static guint num_items;
-static gint paging_indications;
-static guint32 ib_type, segment_type;
 
 enum TransportFormatSet_type_enum
 {
@@ -245,7 +200,48 @@ enum TransportFormatSet_type_enum
   NBAP_PCH
 };
 
+/* Global Variables */
+static guint32	transportLayerAddress_ipv4;
+static guint16	BindingID_port;
+static guint32	ul_scrambling_code;
+static guint32	com_context_id;
+static int cfn;
+gint g_num_dch_in_flow;
+gint g_dch_ids_in_flow_list[maxNrOfTFs];
+gint hsdsch_macdflow_ids[maxNrOfMACdFlows];
+gint hrnti;
+guint node_b_com_context_id;
+static wmem_tree_t* edch_flow_port_map = NULL;
+static guint32 ProcedureCode;
+static guint32 ProtocolIE_ID;
+static guint32 ddMode;
+static const gchar *ProcedureID;
+static guint32 TransactionID;
+static guint32 t_dch_id;
+static guint32 dch_id;
+static guint32 prev_dch_id;
+static guint32 commonphysicalchannelid;
+static guint32 e_dch_macdflow_id;
+static guint32 hsdsch_macdflow_id=3;
+static guint32 e_dch_ddi_value;
+static guint32 logical_channel_id;
+static guint32 common_macdflow_id;
+static guint32 MACdPDU_Size;
+static guint32 commontransportchannelid;
+static guint num_items;
+static gint paging_indications;
+static guint32 ib_type;
+static guint32 segment_type;
+wmem_tree_t *nbap_scrambling_code_crncc_map = NULL;
+wmem_tree_t *nbap_crncc_urnti_map = NULL;
 enum TransportFormatSet_type_enum transportFormatSet_type;
+gboolean crcn_context_present = FALSE;
+static wmem_tree_t* com_context_map;
+nbap_dch_channel_info_t nbap_dch_chnl_info[256];
+nbap_edch_channel_info_t nbap_edch_channel_info[maxNrOfEDCHMACdFlows];
+nbap_hsdsch_channel_info_t nbap_hsdsch_channel_info[maxNrOfMACdFlows];
+nbap_common_channel_info_t nbap_common_channel_info[maxNrOfMACdFlows];	/*TODO: Fix this!*/
+struct _nbap_msg_info_for_fp g_nbap_msg_info_for_fp;
 
 /* This table is used externally from FP, MAC and such, TODO: merge this with
  * lch_contents[] */
