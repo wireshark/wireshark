@@ -8999,11 +8999,14 @@ find_first_finfo(proto_node *node, gpointer data)
 	if (fi && fi->hfinfo) {
 		if (fi->hfinfo->id == ((ffdata_t*)data)->id) {
 			g_ptr_array_add(((ffdata_t*)data)->array, fi);
+
+			/* Stop traversing. */
+			return TRUE;
 		}
 	}
 
-	/* Stop traversing. */
-	return TRUE;
+	/* Continue traversing. */
+	return FALSE;
 }
 
 /* Return GPtrArray* of field_info pointers for all hfindex that appear in a tree.
