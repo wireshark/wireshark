@@ -111,6 +111,7 @@ static int wlan_radio_timeline_tap = -1;
 /* Settings */
 static gboolean wlan_radio_always_short_preamble = FALSE;
 static gboolean wlan_radio_tsf_at_end = TRUE;
+static gboolean wlan_radio_timeline_enabled = FALSE;
 
 static const value_string phy_vals[] = {
     { PHDR_802_11_PHY_11_FHSS,       "802.11 FHSS" },
@@ -1176,7 +1177,9 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     }
   } /* if (have_data_rate) */
 
-  tap_queue_packet(wlan_radio_timeline_tap, pinfo, wlan_radio_info);
+  if (wlan_radio_timeline_enabled) {
+    tap_queue_packet(wlan_radio_timeline_tap, pinfo, wlan_radio_info);
+  }
 
   if (!pinfo->fd->flags.visited) {
     previous_frame.radio_info = wlan_radio_info;
@@ -1474,6 +1477,10 @@ void proto_register_ieee80211_radio(void)
     "TSF indicates the end of the PPDU",
     "Some generators timestamp the end of the PPDU rather than the start of the (A)MPDU.",
     &wlan_radio_tsf_at_end);
+  prefs_register_bool_preference(wlan_radio_module, "timeline",
+    "Enable Wireless Timeline (experimental)",
+    "Enables an additional panel for navigating through packets",
+    &wlan_radio_timeline_enabled);
 
   register_init_routine( setup_ieee80211_radio );
   register_cleanup_routine( cleanup_ieee80211_radio );
