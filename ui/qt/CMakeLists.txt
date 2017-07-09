@@ -158,6 +158,7 @@ set(WIRESHARK_QT_HEADERS
 	stock_icon_tool_button.h
 	supported_protocols_dialog.h
 	syntax_line_edit.h
+	tabnav_tree_widget.h
 	tap_parameter_dialog.h
 	tcp_stream_dialog.h
 	time_shift_dialog.h
@@ -333,6 +334,7 @@ set(WIRESHARK_QT_SRC
 	stock_icon_tool_button.cpp
 	supported_protocols_dialog.cpp
 	syntax_line_edit.cpp
+	tabnav_tree_widget.cpp
 	tap_parameter_dialog.cpp
 	tcp_stream_dialog.cpp
 	time_shift_dialog.cpp

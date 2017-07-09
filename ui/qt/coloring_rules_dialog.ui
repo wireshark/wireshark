@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTreeWidget" name="coloringRulesTreeWidget">
+    <widget class="TabnavTreeWidget" name="coloringRulesTreeWidget">
      <property name="selectionMode">
       <enum>QAbstractItemView::ExtendedSelection</enum>
      </property>
@@ -175,6 +175,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TabnavTreeWidget</class>
+   <extends>QTreeWidget</extends>
+   <header>tabnav_tree_widget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../../image/toolbar.qrc"/>
  </resources>
