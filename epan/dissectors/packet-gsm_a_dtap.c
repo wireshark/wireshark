@@ -508,6 +508,7 @@ static int hf_gsm_a_dtap_serv_cat_b4 = -1;
 static int hf_gsm_a_dtap_serv_cat_b3 = -1;
 static int hf_gsm_a_dtap_serv_cat_b2 = -1;
 static int hf_gsm_a_dtap_serv_cat_b1 = -1;
+static int hf_gsm_a_dtap_drvcc = -1;
 static int hf_gsm_a_dtap_csmo = -1;
 static int hf_gsm_a_dtap_csmt = -1;
 static int hf_gsm_a_dtap_mm_timer_unit = -1;
@@ -1242,6 +1243,11 @@ de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 /*
  * 10.5.3.14 Additional update parameters
  */
+static const true_false_string gsm_a_dtap_drvcc_value = {
+    "DRVCC call",
+    "No additional information"
+};
+
 static const true_false_string gsm_a_dtap_csmo_value = {
     "CS fallback mobile originating call",
     "No additional information"
@@ -1259,7 +1265,8 @@ de_add_upd_params(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
     curr_offset = offset;
 
-    proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_gsm_a_dtap_drvcc, tvb, (curr_offset<<3)+5, 1, ENC_BIG_ENDIAN);
     proto_tree_add_bits_item(tree, hf_gsm_a_dtap_csmo, tvb, (curr_offset<<3)+6, 1, ENC_BIG_ENDIAN);
     proto_tree_add_bits_item(tree, hf_gsm_a_dtap_csmt, tvb, (curr_offset<<3)+7, 1, ENC_BIG_ENDIAN);
 
@@ -2503,6 +2510,7 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset
     case   3: str = "No route to destination";                                            break;
     case   6: str = "Channel unacceptable";                                               break;
     case   8: str = "Operator determined barring";                                        break;
+    case  13: str = "Call completed elsewhere";                                           break;
     case  16: str = "Normal call clearing";                                               break;
     case  17: str = "User busy";                                                          break;
     case  18: str = "No user responding";                                                 break;
@@ -7296,6 +7304,11 @@ proto_register_gsm_a_dtap(void)
         { &hf_gsm_a_dtap_serv_cat_b1,
           { "Police", "gsm_a.dtap.serv_cat_b1",
             FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_gsm_a_dtap_drvcc,
+          { "DRVCC", "gsm_a.dtap.drvcc",
+            FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_dtap_drvcc_value), 0x0,
             NULL, HFILL }
         },
         { &hf_gsm_a_dtap_csmo,

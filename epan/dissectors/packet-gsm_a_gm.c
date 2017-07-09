@@ -59,6 +59,12 @@
  *   Stage 3
  *   (3GPP TS 24.008 version 13.8.0 Release 13)
  *
+ *   Reference [14]
+ *   Mobile radio interface Layer 3 specification;
+ *   Core network protocols;
+ *   Stage 3
+ *   (3GPP TS 24.008 version 14.4.0 Release 14)
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -201,13 +207,17 @@ static const value_string gsm_gm_elem_strings[] = {
 	{ DE_EXT_DRX_PARAMS,		 "Extended DRX Parameters" },
 	{ DE_MAC,			 "Message Authentication Code" },
 	{ DE_UP_INTEG_IND,		 "User Plane Integrity Indicator" },
+	{ DE_DCN_ID, 			 "DCN-ID"},
+	{ DE_PLMN_ID_CN_OPERATOR,	 "PLMN identity of the CN operator"},
+	{ DE_NON_3GPP_NW_PROV_POL, 	 "Non-3GPP NW provided policies"},
 	/* Session Management Information Elements 10.5.6 */
 	{ DE_ACC_POINT_NAME,		 "Access Point Name" },
 	{ DE_NET_SAPI,			 "Network Service Access Point Identifier" },
 	{ DE_PRO_CONF_OPT,		 "Protocol Configuration Options" },
+	{ DE_EXT_PRO_CONF_OPT,		 "Extended Protocol Configuration Options" },
 	{ DE_PD_PRO_ADDR,		 "Packet Data Protocol Address" },
 	{ DE_QOS,			 "Quality Of Service" },
-	{ DE_RE_ATTEMPT_IND,	 "Re-attempt Indicator" },
+	{ DE_RE_ATTEMPT_IND,		 "Re-attempt Indicator" },
 	{ DE_SM_CAUSE,			 "SM Cause" },
 	{ DE_SM_CAUSE_2,		 "SM Cause 2" },
 	{ DE_LINKED_TI,			 "Linked TI" },
@@ -352,6 +362,8 @@ static int hf_gsm_a_gm_lcs_molr = -1;
 static int hf_gsm_a_gm_mbms = -1;
 static int hf_gsm_a_gm_ims_vops = -1;
 static int hf_gsm_a_gm_emc_bs = -1;
+static int hf_gsm_a_gm_epco = -1;
+static int hf_gsm_a_gm_restrict_ec = -1;
 static int hf_gsm_a_gm_gprs_sms = -1;
 static int hf_gsm_a_gm_req_ms_info_irat = -1;
 static int hf_gsm_a_gm_req_ms_info_irat2 = -1;
@@ -363,6 +375,8 @@ static int hf_gsm_a_gm_paging_time_window = -1;
 static int hf_gsm_a_gm_edrx_value = -1;
 static int hf_gsm_a_gm_mac = -1;
 static int hf_gsm_a_gm_up_integ_ind = -1;
+static int hf_gsm_a_gm_dcn_id = -1;
+static int hf_gsm_a_gm_n3en_ind = -1;
 static int hf_gsm_a_sm_pdp_type_org = -1;
 static int hf_gsm_a_sm_qos_mean_thr = -1;
 static int hf_gsm_a_sm_qos_peak_thr = -1;
@@ -501,6 +515,8 @@ static int hf_gsm_a_gmm_net_cap_up_gia4 = -1;
 static int hf_gsm_a_gmm_net_cap_up_gia5 = -1;
 static int hf_gsm_a_gmm_net_cap_up_gia6 = -1;
 static int hf_gsm_a_gmm_net_cap_up_gia7 = -1;
+static int hf_gsm_a_gmm_net_cap_epco_ie_ind = -1;
+static int hf_gsm_a_gmm_net_cap_restrict_use_enh_cov = -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_gsm_a_gm_presence = -1;
@@ -533,6 +549,7 @@ static int hf_gsm_a_gm_sm_pco_non_ip_link_mtu_size = -1;
 static int hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_aer = -1;
 static int hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_ul_time_unit = -1;
 static int hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_max_ul_rate = -1;
+static int hf_gsm_a_gm_sm_pco_3gpp_data_off_ue_status = -1;
 static int hf_gsm_a_gm_sm_pco_sel_bearer_ctrl_mode = -1;
 static int hf_gsm_a_sm_pdp_type_number = -1;
 static int hf_gsm_a_sm_pdp_address = -1;
@@ -1182,6 +1199,16 @@ static const true_false_string gsm_a_gmm_net_cap_gia_vals = {
 	"Integrity algorithm not available"
 };
 
+static const true_false_string gsm_a_gmm_net_cap_epco_ie_ind_vals = {
+	"Used by a mobile station supporting extended protocol configuration options IE",
+	"Used by a mobile station not supporting extended protocol configuration options IE"
+};
+
+static const true_false_string gsm_a_gmm_net_cap_restrict_use_enh_cov_vals = {
+	"Mobile station supports restriction on use of enhanced coverage",
+	"Mobile station does not support restriction on use of enhanced coverage"
+};
+
 guint16
 de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
@@ -1275,6 +1302,12 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 
 	/* bit 4: GIA/7 */
 	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_up_gia7, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+
+	/* bit 3: ePCO IE indicator */
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_epco_ie_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+
+	/* bit 2: Restriction on use of enhanced coverage capability */
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_restrict_use_enh_cov, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	curr_offset++;
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
@@ -3587,6 +3620,14 @@ de_gmm_net_feat_supp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 /*
  * [7] 10.5.5.23a Additional network feature support
  */
+static const true_false_string gsm_a_gm_epco_value = {
+	"Extended protocol configuration options IE supported",
+	"Extended protocol configuration options IE not supported"
+};
+static const true_false_string gsm_a_gm_restrict_ec_value = {
+	"Enhanced coverage restricted",
+	"Enhanced coverage not restricted"
+};
 static const true_false_string gsm_a_gm_gprs_sms_value = {
 	"SMS via GPRS not supported",
 	"SMS via GPRS supported"
@@ -3598,7 +3639,9 @@ de_gmm_add_net_feat_supp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 
 	curr_offset = offset;
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset << 3, 7, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset << 3, 5, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_gm_epco, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_gm_restrict_ec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_gsm_a_gm_gprs_sms, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
@@ -3835,6 +3878,40 @@ de_gmm_up_integ_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 {
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset << 3) + 4, 3, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_gsm_a_gm_up_integ_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+	/* no length check possible */
+	return (1);
+}
+
+/* [14] 10.5.5.35 DCN-ID */
+static guint16
+de_gmm_dcn_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	proto_tree_add_item(tree, hf_gsm_a_gm_dcn_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+	return 2;
+}
+
+/* [14] 10.5.5.36 PLMN identity of the CN operator */
+static guint16
+de_gmm_plmn_id_cn_operator(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_NONE, TRUE);
+
+	return 3;
+}
+
+/* [14] 10.5.5.37 Non-3GPP NW provided policies */
+const true_false_string gsm_a_gm_n3en_ind_value = {
+	"Use of non-3GPP emergency numbers permitted",
+	"Use of non-3GPP emergency numbers not permitted"
+};
+
+static guint16
+de_gmm_non_3gpp_nw_prov_pol(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset << 3) + 4, 3, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_gm_n3en_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* no length check possible */
 	return (1);
@@ -4254,6 +4331,8 @@ static const range_string gsm_a_sm_pco_ms2net_prot_vals[] = {
 	{ 0x0014, 0x0014, "NBIFOM mode" },
 	{ 0x0015, 0x0015, "Non-IP Link MTU Request" },
 	{ 0x0016, 0x0016, "APN rate control support indicator" },
+	{ 0x0017, 0x0017, "3GPP PS data off UE status" },
+	{ 0x0018, 0x0018, "Reliable Data Service request indicator" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -4280,6 +4359,8 @@ static const range_string gsm_a_sm_pco_net2ms_prot_vals[] = {
 	{ 0x0014, 0x0014, "NBIFOM mode" },
 	{ 0x0015, 0x0015, "Non-IP Link MTU" },
 	{ 0x0016, 0x0016, "APN rate control parameters" },
+	{ 0x0017, 0x0017, "3GPP PS data off support indication" },
+	{ 0x0018, 0x0018, "Reliable Data Service accepted indicator" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -4315,6 +4396,12 @@ static const value_string gsm_a_gm_apn_rate_ctrl_ul_time_unit_vals[] = {
 	{ 3, "Day" },
 	{ 4, "Week" },
 	{ 0, NULL }
+};
+
+static const value_string gsm_a_gm_sm_pco_3gpp_data_off_ue_status_vals[] = {
+	{ 1, "Deactivated"},
+	{ 2, "Activated"},
+	{ 0, NULL}
 };
 
 guint16
@@ -4405,6 +4492,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 			case 0x0011:
 			case 0x0012:
 			case 0x0013:
+			case 0x0018:
 				break;
 			case 0x0004:
 				if ((link_dir == P2P_DIR_DL) && (e_len == 1)) {
@@ -4466,6 +4554,11 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 					if (e_len >= 4) {
 						proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_max_ul_rate, tvb, curr_offset+1, 3, ENC_BIG_ENDIAN);
 					}
+				}
+				break;
+			case 0x0017:
+				if (link_dir == P2P_DIR_UL && e_len >= 1) {
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_3gpp_data_off_ue_status, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 				}
 				break;
 			default:
@@ -4545,6 +4638,7 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
 		{
 			case 0x00: str = "Reserved, used in earlier version of this protocol"; break;
 			case 0x01: str = "PDP-type PPP"; break;
+			case 0x02: str = "non IP"; break;
 			default:   str = "reserved";
 		}
 	}
@@ -5174,6 +5268,8 @@ static const value_string gsm_a_sm_cause_vals[] = {
 	{ 0x33, "PDP type IPv6 only allowed" },
 	{ 0x34, "Single address bearers only allowed" },
 	{ 0x38, "Collision with network initiated request" },
+	{ 0x39, "PDP type IPv4v6 only allowed" },
+	{ 0x3a, "PDP type non IP only allowed" },
 	{ 0x3c, "Bearer handling not supported" },
 	{ 0x41, "Maximum number of PDP contexts reached" },
 	{ 0x42, "Requested APN not supported in current RAT and PLMN combination" },
@@ -5813,6 +5909,7 @@ static const value_string gsm_a_sm_req_type_vals[] = {
 	{ 0x02, "Handover" },
 	{ 0x03, "Unused. If received, the network shall interpret this as \"Initial request\"." },
 	{ 0x04, "Emergency" },
+	{ 0x06, "Handover of emergency bearer services" },
 	{ 0, NULL }
 };
 
@@ -5947,10 +6044,14 @@ guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 	de_gmm_ext_drx_params,             /* Extended DRX parameters */
 	de_gmm_mac,                        /* Message authentication code */
 	de_gmm_up_integ_ind,               /* User Plane integrity indicator */
+	de_gmm_dcn_id,                     /* DCN-ID */
+	de_gmm_plmn_id_cn_operator,        /* PLMN identity of the CN operator */
+	de_gmm_non_3gpp_nw_prov_pol,       /* Non-3GPP NW provided policies */
 	/* Session Management Information Elements 10.5.6 */
 	de_sm_apn,                         /* Access Point Name */
 	de_sm_nsapi,                       /* Network Service Access Point Identifier */
 	de_sm_pco,                         /* Protocol Configuration Options */
+	de_sm_pco,                         /* Extended Protocol Configuration Options */
 	de_sm_pdp_addr,                    /* Packet Data Protocol Address */
 	de_sm_qos,                         /* Quality Of Service */
 	de_sm_re_attempt_ind,              /* Re-attempt indicator */
@@ -6122,6 +6223,12 @@ dtap_gmm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP, " - Replayed MS Radio Access capability");
 
+	ELEM_OPT_TLV(0x65, GSM_A_PDU_TYPE_GM, DE_DCN_ID, NULL);
+
+	ELEM_OPT_TLV(0x63, GSM_A_PDU_TYPE_GM, DE_PLMN_ID_CN_OPERATOR, NULL);
+
+	ELEM_OPT_TV_SHORT(0xD0, GSM_A_PDU_TYPE_GM, DE_NON_3GPP_NW_PROV_POL, NULL);
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -6279,6 +6386,8 @@ dtap_gmm_ptmsi_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
 	ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND, GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE, ei_gsm_a_gm_missing_mandatory_element);
 
 	ELEM_OPT_TV( 0x19, GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG, " - P-TMSI Signature" );
+
+	ELEM_OPT_TLV(0x65, GSM_A_PDU_TYPE_GM, DE_DCN_ID, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -6584,6 +6693,12 @@ dtap_gmm_rau_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP, " - Replayed MS Radio Access capability");
 
+	ELEM_OPT_TLV(0x65, GSM_A_PDU_TYPE_GM, DE_DCN_ID, NULL);
+
+	ELEM_OPT_TLV(0x63, GSM_A_PDU_TYPE_GM, DE_PLMN_ID_CN_OPERATOR, NULL);
+
+	ELEM_OPT_TV_SHORT(0xD0, GSM_A_PDU_TYPE_GM, DE_NON_3GPP_NW_PROV_POL, NULL);
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -6800,6 +6915,8 @@ dtap_sm_act_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
+	ELEM_OPT_TLV_E(0x7B, GSM_A_PDU_TYPE_GM, DE_EXT_PRO_CONF_OPT, NULL);
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -6848,6 +6965,8 @@ dtap_sm_act_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
+	ELEM_OPT_TLV_E(0x7B, GSM_A_PDU_TYPE_GM, DE_EXT_PRO_CONF_OPT, NULL);
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -6878,6 +6997,8 @@ dtap_sm_act_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 	ELEM_OPT_TLV(0x6B, GSM_A_PDU_TYPE_GM, DE_RE_ATTEMPT_IND, NULL);
 
 	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
+
+	ELEM_OPT_TLV_E(0x7B, GSM_A_PDU_TYPE_GM, DE_EXT_PRO_CONF_OPT, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -6916,6 +7037,8 @@ dtap_sm_act_sec_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 	ELEM_OPT_TV_SHORT(0xC0, GSM_A_PDU_TYPE_GM, DE_DEVICE_PROPERTIES, NULL);
 
 	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
+
+	ELEM_OPT_TLV_E(0x7B, GSM_A_PDU_TYPE_GM, DE_EXT_PRO_CONF_OPT, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -6959,6 +7082,8 @@ dtap_sm_act_sec_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
+	ELEM_OPT_TLV_E(0x7B, GSM_A_PDU_TYPE_GM, DE_EXT_PRO_CONF_OPT, NULL);
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -6990,6 +7115,8 @@ dtap_sm_act_sec_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
+	ELEM_OPT_TLV_E(0x7B, GSM_A_PDU_TYPE_GM, DE_EXT_PRO_CONF_OPT, NULL);
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -7019,6 +7146,8 @@ dtap_sm_req_pdp_act(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
+	ELEM_OPT_TLV_E(0x7B, GSM_A_PDU_TYPE_GM, DE_EXT_PRO_CONF_OPT, NULL);
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -7045,6 +7174,8 @@ dtap_sm_req_pdp_act_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
 	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
+
+	ELEM_OPT_TLV_E(0x7B, GSM_A_PDU_TYPE_GM, DE_EXT_PRO_CONF_OPT, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -7091,6 +7222,8 @@ dtap_sm_mod_pdp_req_net(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
+	ELEM_OPT_TLV_E(0x7B, GSM_A_PDU_TYPE_GM, DE_EXT_PRO_CONF_OPT, NULL);
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -7124,6 +7257,8 @@ dtap_sm_mod_pdp_req_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guin
 
 	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
+	ELEM_OPT_TLV_E(0x7B, GSM_A_PDU_TYPE_GM, DE_EXT_PRO_CONF_OPT, NULL);
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -7148,6 +7283,8 @@ dtap_sm_mod_pdp_acc_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guin
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
 	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
+
+	ELEM_OPT_TLV_E(0x7B, GSM_A_PDU_TYPE_GM, DE_EXT_PRO_CONF_OPT, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -7184,6 +7321,8 @@ dtap_sm_mod_pdp_acc_net(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
+	ELEM_OPT_TLV_E(0x7B, GSM_A_PDU_TYPE_GM, DE_EXT_PRO_CONF_OPT, NULL);
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -7215,6 +7354,8 @@ dtap_sm_mod_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 	ELEM_OPT_TLV(0x6B, GSM_A_PDU_TYPE_GM, DE_RE_ATTEMPT_IND, NULL);
 
 	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
+
+	ELEM_OPT_TLV_E(0x7B, GSM_A_PDU_TYPE_GM, DE_EXT_PRO_CONF_OPT, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -7248,6 +7389,8 @@ dtap_sm_deact_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 
 	ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_SM_WLAN_OFFLOAD_ACCEPT, " - WLAN offload indication");
 
+	ELEM_OPT_TLV_E(0x7B, GSM_A_PDU_TYPE_GM, DE_EXT_PRO_CONF_OPT, NULL);
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -7271,6 +7414,8 @@ dtap_sm_deact_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
 	ELEM_OPT_TLV( 0x35, GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT, NULL);
+
+	ELEM_OPT_TLV_E(0x7B, GSM_A_PDU_TYPE_GM, DE_EXT_PRO_CONF_OPT, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -7309,6 +7454,8 @@ dtap_sm_req_sec_pdp_act(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
+	ELEM_OPT_TLV_E(0x7B, GSM_A_PDU_TYPE_GM, DE_EXT_PRO_CONF_OPT, NULL);
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -7336,6 +7483,8 @@ dtap_sm_req_sec_pdp_act_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
 	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
+
+	ELEM_OPT_TLV_E(0x7B, GSM_A_PDU_TYPE_GM, DE_EXT_PRO_CONF_OPT, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -8104,6 +8253,16 @@ proto_register_gsm_a_gm(void)
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_emc_bs_value), 0x01,
 		    "Emergency bearer services indicator", HFILL }
 		},
+		{ &hf_gsm_a_gm_epco,
+		  { "ePCO", "gsm_a.gm.gmm.epco",
+		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_epco_value), 0x04,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_restrict_ec,
+		  { "RestrictEC", "gsm_a.gm.gmm.restrict_ec",
+		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_restrict_ec_value), 0x02,
+		    NULL, HFILL }
+		},
 		{ &hf_gsm_a_gm_gprs_sms,
 		  { "GPRS-SMS", "gsm_a.gm.gmm.gprs_sms",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_gprs_sms_value), 0x01,
@@ -8156,7 +8315,17 @@ proto_register_gsm_a_gm(void)
 		},
 		{ &hf_gsm_a_gm_up_integ_ind,
 		  { "Integrity indicator", "gsm_a.gm.gmm.up_integ_ind",
-		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_up_integ_ind_value), 0x0,
+		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_up_integ_ind_value), 0x01,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_dcn_id,
+		  { "DCN-ID", "gsm_a.gm.gmm.dcn_id",
+		    FT_UINT16, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_n3en_ind,
+		  { "N3EN indicator", "gsm_a.gm.gmm.n3en_ind",
+		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_n3en_ind_value), 0x01,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_pdp_type_org,
@@ -8432,6 +8601,16 @@ proto_register_gsm_a_gm(void)
 		{ &hf_gsm_a_gmm_net_cap_up_gia7,
 		  { "GIA/7", "gsm_a.gm.gmm.net_cap.gia7",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_gia_vals), 0x08,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gmm_net_cap_epco_ie_ind,
+		  { "ePCO IE indicator", "gsm_a.gm.gmm.net_cap.epco_ie_ind",
+		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_epco_ie_ind_vals), 0x04,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gmm_net_cap_restrict_use_enh_cov,
+		  { "Restriction on use of enhanced coverage capability", "gsm_a.gm.gmm.net_cap.restrict_use_enh_cov",
+		    FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_restrict_use_enh_cov_vals), 0x02,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_tmgi,
@@ -8852,6 +9031,11 @@ proto_register_gsm_a_gm(void)
 		{ &hf_gsm_a_gm_sm_pco_apn_rate_ctrl_params_max_ul_rate,
 		  { "Maximum uplink rate", "gsm_a.gm.sm.pco.apn_rate_ctrl_params.max_ul_rate",
 		    FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_message_messages, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_3gpp_data_off_ue_status,
+		  { "3GPP PS data off UE status", "gsm_a.gm.sm.pco.3gpp_data_off_ue_status",
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_sm_pco_3gpp_data_off_ue_status_vals), 0x0,
 		    NULL, HFILL }
 		},
 		/* Generated from convert_proto_tree_add_text.pl */

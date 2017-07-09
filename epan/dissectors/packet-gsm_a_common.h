@@ -41,6 +41,12 @@
  *   Stage 3
  *   (3GPP TS 24.008 version 13.7.0 Release 13)
  *
+ *   Reference [12]
+ *   Mobile radio interface Layer 3 specification;
+ *   Core network protocols;
+ *   Stage 3
+ *   (3GPP TS 24.008 version 14.4.0 Release 14)
+ *
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.
  *
@@ -1200,10 +1206,14 @@ typedef enum
     DE_EXT_DRX_PARAMS,              /* [11] 10.5.5.32 Extended DRX parameters */
     DE_MAC,                         /* [11] 10.5.5.33 Message Authentication Code */
     DE_UP_INTEG_IND,                /* [11] 10.5.5.34 User Plane integrity indicator */
+    DE_DCN_ID,                      /* [12] 10.5.5.35 DCN-ID */
+    DE_PLMN_ID_CN_OPERATOR,         /* [12] 10.5.5.36 PLMN identity of the CN operator */
+    DE_NON_3GPP_NW_PROV_POL,        /* [12] 10.5.5.37 Non-3GPP NW provided policies */
     /* Session Management Information Elements [3] 10.5.6 */
     DE_ACC_POINT_NAME,              /* Access Point Name */
     DE_NET_SAPI,                    /* Network Service Access Point Identifier */
     DE_PRO_CONF_OPT,                /* Protocol Configuration Options */
+    DE_EXT_PRO_CONF_OPT,            /* Extended Protocol Configuration Options */
     DE_PD_PRO_ADDR,                 /* Packet Data Protocol Address */
     DE_QOS,                         /* Quality Of Service */
     DE_RE_ATTEMPT_IND,              /* Re-attempt indicator */
