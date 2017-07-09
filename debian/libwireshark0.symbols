@@ -820,6 +820,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  guids_init@Base 1.9.1
  guids_resolve_guid_to_str@Base 1.9.1
  guint8_to_hex@Base 2.3.0
+ guint32_to_str_buf@Base 2.4.0~rc2
+ guint64_to_str_buf@Base 2.4.0~rc2
  h225_RasMessage_vals@Base 1.9.1
  h225_ReleaseCompleteReason_vals@Base 1.9.1
  h245_set_h223_add_lc_handle@Base 1.9.1

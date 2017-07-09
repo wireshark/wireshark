@@ -785,12 +785,10 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 static int devicenet_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
 {
-    guint8 addrdata = *((const guint8*)addr->data) & 0x3F;
-    gchar *start_buf = buf;
+    const guint8 *addrdata = (const guint8 *)addr->data;
 
-    buf = uint_to_str_back(buf, addrdata);
-    *buf = '\0';
-    return (int)(buf-start_buf+1);
+    guint32_to_str_buf(*addrdata, buf, buf_len);
+    return (int)strlen(buf);
 }
 
 static int devicenet_addr_str_len(const address* addr _U_)
