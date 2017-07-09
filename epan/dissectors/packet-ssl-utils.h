@@ -788,6 +788,8 @@ typedef struct ssl_common_dissect {
         gint hs_comp_method;
         gint hs_session_ticket_lifetime_hint;
         gint hs_session_ticket_age_add;
+        gint hs_session_ticket_nonce_len;
+        gint hs_session_ticket_nonce;
         gint hs_session_ticket_len;
         gint hs_session_ticket;
         gint hs_finished;
@@ -1009,7 +1011,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1,                             \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,                     \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1584,6 +1586,16 @@ ssl_common_dissect_t name = {   \
         prefix ".handshake.session_ticket_age_add",                     \
         FT_UINT32, BASE_DEC, NULL, 0x0,                                 \
         "Random 32-bit value to obscure age of ticket", HFILL }         \
+    },                                                                  \
+    { & name .hf.hs_session_ticket_nonce_len,                           \
+      { "Session Ticket Nonce Length", prefix ".handshake.session_ticket_nonce_length", \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_session_ticket_nonce,                               \
+      { "Session Ticket Nonce", prefix ".handshake.session_ticket_nonce",   \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "A unique per-ticket value", HFILL }                            \
     },                                                                  \
     { & name .hf.hs_session_ticket_len,                                 \
       { "Session Ticket Length", prefix ".handshake.session_ticket_length", \
