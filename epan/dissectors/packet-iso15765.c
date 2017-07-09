@@ -157,18 +157,6 @@ static const fragment_items iso15765_frag_items = {
         "ISO15765 fragments"
 };
 
-static void
-iso15765_prompt(packet_info *pinfo _U_, gchar* result)
-{
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Next level protocol as");
-}
-
-static gpointer
-iso15765_value(packet_info *pinfo _U_)
-{
-    return 0;
-}
-
 static guint8
 masked_guint8_value(const guint8 value, const guint8 mask)
 {
@@ -559,13 +547,6 @@ proto_register_iso15765(void)
     module_t *iso15765_module;
     expert_module_t* expert_iso15765;
 
-    /* Decode As handling */
-    static build_valid_func iso15765_da_build_value[1] = {iso15765_value};
-    static decode_as_value_t iso15765_da_values = {iso15765_prompt, 1, iso15765_da_build_value};
-    static decode_as_t can_iso15765 = {"iso15765", "Transport", "iso15765.subdissector", 1, 0, &iso15765_da_values,
-                                       NULL, NULL, decode_as_default_populate_list, decode_as_default_reset,
-                                       decode_as_default_change, NULL};
-
     proto_iso15765 = proto_register_protocol (
             "ISO15765 Protocol", /* name       */
             "ISO 15765",          /* short name */
@@ -596,12 +577,12 @@ proto_register_iso15765(void)
                                    "Window of ISO 15765 fragments",
                                    10, &window);
 
-    register_decode_as(&can_iso15765);
-
     iso15765_frame_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 
     reassembly_table_register(&iso15765_reassembly_table,
                           &addresses_reassembly_table_functions);
+
+    register_decode_as_next_proto("iso15765", "Transport", "iso15765.subdissector", NULL);
 }
 
 void

@@ -2105,11 +2105,6 @@ static void bthci_cmd_vendor_prompt(packet_info *pinfo _U_, gchar* result)
     g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Vendor as");
 }
 
-static gpointer bthci_cmd_vendor_value(packet_info *pinfo _U_)
-{
-    return NULL;
-}
-
 static gint dissect_coding_format(proto_tree *tree, int hf_x, tvbuff_t *tvb, gint offset, gint ett_x)
 {
     proto_item *sub_item;
@@ -7114,12 +7109,6 @@ proto_register_bthci_cmd(void)
         &ett_pattern
     };
 
-    /* Decode As handling */
-    static build_valid_func bthci_cmd_vendor_da_build_value[1] = {bthci_cmd_vendor_value};
-    static decode_as_value_t bthci_cmd_vendor_da_values = {bthci_cmd_vendor_prompt, 1, bthci_cmd_vendor_da_build_value};
-    static decode_as_t bthci_cmd_vendor_da = {"bthci_evt", "Vendor", "bthci_cmd.vendor", 1, 0, &bthci_cmd_vendor_da_values, NULL, NULL,
-            decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
-
     proto_bthci_cmd = proto_register_protocol("Bluetooth HCI Command", "HCI_CMD", "bthci_cmd");
     bthci_cmd_handle = register_dissector("bthci_cmd", dissect_bthci_cmd, proto_bthci_cmd);
 
@@ -7139,7 +7128,7 @@ proto_register_bthci_cmd(void)
             "Bluetooth HCI version: 4.0 (Core)",
             "Version of protocol supported by this dissector.");
 
-    register_decode_as(&bthci_cmd_vendor_da);
+    register_decode_as_next_proto("bthci_evt", "Vendor", "bthci_cmd.vendor", (build_label_func*)&bthci_cmd_vendor_prompt);
 }
 
 

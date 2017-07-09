@@ -81,11 +81,6 @@ static void i2c_prompt(packet_info *pinfo _U_, gchar* result)
 	g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Interpret I2C messages as");
 }
 
-static gpointer i2c_value(packet_info *pinfo _U_)
-{
-	return 0;
-}
-
 static gboolean
 capture_i2c(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
@@ -241,12 +236,6 @@ proto_register_i2c(void)
 	};
 	module_t *m;
 
-	/* Decode As handling */
-	static build_valid_func i2c_da_build_value[1] = {i2c_value};
-	static decode_as_value_t i2c_da_values = {i2c_prompt, 1, i2c_da_build_value};
-	static decode_as_t i2c_da = {"i2c", "I2C Message", "i2c.message", 1, 0, &i2c_da_values, NULL, NULL,
-									decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
-
 	proto_i2c = proto_register_protocol("Inter-Integrated Circuit", "I2C", "i2c");
 	proto_register_field_array(proto_i2c, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -260,7 +249,7 @@ proto_register_i2c(void)
 	m = prefs_register_protocol(proto_i2c, NULL);
 	prefs_register_obsolete_preference(m, "type");
 
-	register_decode_as(&i2c_da);
+	register_decode_as_next_proto("i2c", "I2C Message", "i2c.message", (build_label_func*)&i2c_prompt);
 }
 
 void

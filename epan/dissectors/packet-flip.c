@@ -96,11 +96,6 @@ static void flip_prompt(packet_info *pinfo _U_, gchar* result)
     g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Decode FLIP payload protocol as");
 }
 
-static gpointer flip_value(packet_info *pinfo _U_)
-{
-    return 0;
-}
-
 /* Dissect the checksum extension header. */
 static int
 dissect_flip_chksum_hdr(tvbuff_t    *tvb,
@@ -451,12 +446,6 @@ proto_register_flip(void)
 
     module_t *flip_module;
 
-    /* Decode As handling */
-    static build_valid_func flip_da_build_value[1] = {flip_value};
-    static decode_as_value_t flip_da_values = {flip_prompt, 1, flip_da_build_value};
-    static decode_as_t flip_da = {"flip", "FLIP Payload", "flip.payload", 1, 0, &flip_da_values, NULL, NULL,
-                                    decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
-
     proto_flip = proto_register_protocol(
         "NSN FLIP", /* name */
         "FLIP",     /* short name */
@@ -478,7 +467,7 @@ proto_register_flip(void)
     prefs_register_obsolete_preference(flip_module, "forced_protocol");
     prefs_register_obsolete_preference(flip_module, "forced_decode");
 
-    register_decode_as(&flip_da);
+    register_decode_as_next_proto("flip", "FLIP Payload", "flip.payload", (build_label_func*)&flip_prompt);
 
 } /* proto_register_flip() */
 

@@ -120,12 +120,6 @@ rtacser_ppi_prompt(packet_info *pinfo _U_, gchar* result)
     g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Payload as");
 }
 
-static gpointer
-rtacser_ppi_value(packet_info *pinfo _U_)
-{
-    return 0;
-}
-
 /******************************************************************************************************/
 /* Code to dissect RTAC Serial-Line Protocol packets */
 /******************************************************************************************************/
@@ -280,11 +274,6 @@ proto_register_rtacser(void)
         &ett_rtacser_cl,
     };
 
-    static build_valid_func rtacser_da_ppi_build_value[1] = {rtacser_ppi_value};
-    static decode_as_value_t rtacser_da_ppi_values[1] = {{rtacser_ppi_prompt, 1, rtacser_da_ppi_build_value}};
-    static decode_as_t rtacser_da_ppi = {"rtacser", "RTAC Serial", "rtacser.data", 1, 0, rtacser_da_ppi_values, "RTAC Serial", NULL,
-                                    decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
-
     module_t *rtacser_module;
 
     /* Register the protocol name and description */
@@ -305,7 +294,7 @@ proto_register_rtacser(void)
     /* RTAC Serial Preference - Payload Protocol in use */
     prefs_register_obsolete_preference(rtacser_module, "rtacserial_payload_proto");
 
-    register_decode_as(&rtacser_da_ppi);
+    register_decode_as_next_proto("rtacser", "RTAC Serial", "rtacser.data", (build_label_func*)&rtacser_ppi_prompt);
 }
 
 /******************************************************************************************************/

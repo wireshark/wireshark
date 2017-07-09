@@ -86,12 +86,18 @@ typedef struct decode_as_s {
 WS_DLL_PUBLIC void register_decode_as(decode_as_t* reg);
 
 /** Register a "Decode As" entry for the special case where there is no
-    indication for the next protocol (such as port number etc.).
-    For now, this will use a uint32 dissector table internally and
-    assign all registered protocols to 0. The framework to do this can
-    be kept internal to epan. */
+ *  indication for the next protocol (such as port number etc.).
+ *  For now, this will use a uint32 dissector table internally and
+ *  assign all registered protocols to 0. The framework to do this can
+ *  be kept internal to epan.
+ *
+ * @param name The table name in which this dissector is found.
+ * @param title The table name in which this dissector is found.
+ * @param table_name The table name in which this dissector is found.
+ * @param label_func Optional prompt text for dissector.  If NULL, "Next level protocol as" is used.
+*/
 WS_DLL_PUBLIC void register_decode_as_next_proto(
-      const char *name, const gchar *title, const gchar *table_name);
+      const char *name, const gchar *title, const gchar *table_name, build_label_func* label_func);
 
 /* Walk though the dissector table and provide dissector_handle_t for each item in the table */
 WS_DLL_PUBLIC void decode_as_default_populate_list(const gchar *table_name, decode_as_add_to_list_func add_to_list, gpointer ui_element);

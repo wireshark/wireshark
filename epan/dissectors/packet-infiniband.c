@@ -1537,11 +1537,6 @@ static void infiniband_payload_prompt(packet_info *pinfo _U_, gchar* result)
     g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Dissect Infiniband payload as");
 }
 
-static gpointer infiniband_payload_value(packet_info *pinfo _U_)
-{
-    return 0;
-}
-
 static void table_destroy_notify(gpointer data) {
     g_free(data);
 }
@@ -7962,12 +7957,6 @@ void proto_register_infiniband(void)
         &ett_eoib
     };
 
-    /* Decode As handling */
-    static build_valid_func infiniband_payload_da_build_value[1] = {infiniband_payload_value};
-    static decode_as_value_t infiniband_payload_da_values = {infiniband_payload_prompt, 1, infiniband_payload_da_build_value};
-    static decode_as_t infiniband_payload_da = {"infiniband", "Network", "infiniband", 1, 0, &infiniband_payload_da_values, NULL, NULL,
-                                        decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
-
     proto_infiniband = proto_register_protocol("InfiniBand", "IB", "infiniband");
     ib_handle = register_dissector("infiniband", dissect_infiniband, proto_infiniband);
 
@@ -8006,7 +7995,7 @@ void proto_register_infiniband(void)
     CM_context_table = g_hash_table_new_full(g_int64_hash, g_int64_equal,
                                              table_destroy_notify, table_destroy_notify);
 
-    register_decode_as(&infiniband_payload_da);
+    register_decode_as_next_proto("infiniband", "Network", "infiniband", (build_label_func*)&infiniband_payload_prompt);
 
     register_shutdown_routine(infiniband_shutdown);
 }

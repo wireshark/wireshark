@@ -208,12 +208,6 @@ pcli_prompt(packet_info *pinfo _U_, gchar* result)
     g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PCLI payload as");
 }
 
-static gpointer
-pcli_value(packet_info *pinfo _U_)
-{
-    return NULL;
-}
-
 void
 proto_register_pcli(void)
 {
@@ -238,18 +232,6 @@ proto_register_pcli(void)
 
     module_t *pcli_module;
 
-    /* Decode As handling */
-    static build_valid_func pcli_payload_da_build_value[1] = {pcli_value};
-    static decode_as_value_t pcli_payload_da_values = {pcli_prompt, 1, pcli_payload_da_build_value};
-    static decode_as_t pcli_payload_da = {
-        "pcli", "PCLI payload", "pcli.payload", 1, 0,
-        &pcli_payload_da_values, NULL, NULL,
-        decode_as_default_populate_list,
-        decode_as_default_reset,
-        decode_as_default_change,
-        NULL,
-    };
-
     proto_pcli = proto_register_protocol("Packet Cable Lawful Intercept", "PCLI", "pcli");
     /* Create "placeholders" to remove confusion with Decode As" */
     proto_pcli8 = proto_register_protocol_in_name_only("Packet Cable Lawful Intercept (8 byte CCCID)", "PCLI8 (8 byte CCCID)", "pcli8", proto_pcli, FT_PROTOCOL);
@@ -271,7 +253,7 @@ proto_register_pcli(void)
         "pcli.payload", "PCLI payload dissector",
         proto_pcli, FT_UINT32, BASE_DEC);
 
-    register_decode_as(&pcli_payload_da);
+    register_decode_as_next_proto("pcli", "PCLI payload", "pcli.payload", (build_label_func*)&pcli_prompt);
 }
 
 /* The registration hand-off routing */

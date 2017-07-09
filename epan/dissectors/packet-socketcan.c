@@ -95,16 +95,6 @@ static const value_string frame_type_vals[] =
 	{ 0, NULL }
 };
 
-static void can_prompt(packet_info *pinfo _U_, gchar* result)
-{
-	g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Next level protocol as");
-}
-
-static gpointer can_value(packet_info *pinfo _U_)
-{
-	return 0;
-}
-
 static int
 dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						guint encoding)
@@ -388,12 +378,6 @@ proto_register_socketcan(void)
 
 	module_t *can_module;
 
-	/* Decode As handling */
-	static build_valid_func can_da_build_value[1] = {can_value};
-	static decode_as_value_t can_da_values = {can_prompt, 1, can_da_build_value};
-	static decode_as_t can_da = {"can", "Network", "can.subdissector", 1, 0, &can_da_values, NULL, NULL,
-									decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
-
 	proto_can = proto_register_protocol("Controller Area Network", "CAN", "can");
 	socketcan_bigendian_handle = register_dissector("can-bigendian", dissect_socketcan_bigendian, proto_can);
 	socketcan_hostendian_handle = register_dissector("can-hostendian", dissect_socketcan_hostendian, proto_can);
@@ -415,7 +399,7 @@ proto_register_socketcan(void)
 	    "Whether the CAN ID/flags field should be byte-swapped",
 	    &byte_swap);
 
-	register_decode_as(&can_da);
+	register_decode_as_next_proto("can", "Network", "can.subdissector", NULL);
 }
 
 void

@@ -882,8 +882,7 @@ proto_register_ccid(void)
     subdissector_table = register_dissector_table(
             "usbccid.subdissector", "USB CCID payload",
             proto_ccid, FT_UINT32, BASE_HEX);
-    register_decode_as_next_proto(
-            "USB CCID", "Transport", "usbccid.subdissector");
+    register_decode_as_next_proto("USB CCID", "Transport", "usbccid.subdissector", NULL);
 }
 
 /* Handler registration */

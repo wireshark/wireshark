@@ -66,11 +66,6 @@ static void moldudp64_prompt(packet_info *pinfo _U_, gchar* result)
     g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Payload as");
 }
 
-static gpointer moldudp64_value(packet_info *pinfo _U_)
-{
-    return 0;
-}
-
 /* Code to dissect a message block */
 static guint
 dissect_moldudp64_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -263,12 +258,6 @@ proto_register_moldudp64(void)
 
     expert_module_t* expert_moldudp64;
 
-    /* Decode As handling */
-    static build_valid_func moldudp64_da_build_value[1] = {moldudp64_value};
-    static decode_as_value_t moldudp64_da_values = {moldudp64_prompt, 1, moldudp64_da_build_value};
-    static decode_as_t moldudp64_da = {"moldudp64", "MoldUDP64 Payload", "moldudp64.payload", 1, 0, &moldudp64_da_values, NULL, NULL,
-                                        decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
-
     /* Register the protocol name and description */
     proto_moldudp64 = proto_register_protocol("MoldUDP64",
             "MoldUDP64", "moldudp64");
@@ -281,7 +270,7 @@ proto_register_moldudp64(void)
     expert_moldudp64 = expert_register_protocol(proto_moldudp64);
     expert_register_field_array(expert_moldudp64, ei, array_length(ei));
 
-    register_decode_as(&moldudp64_da);
+    register_decode_as_next_proto("moldudp64", "MoldUDP64 Payload", "moldudp64.payload", (build_label_func*)&moldudp64_prompt);
 }
 
 

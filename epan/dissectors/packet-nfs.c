@@ -946,11 +946,6 @@ static void nfs_prompt(packet_info *pinfo _U_, gchar* result)
 	g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Decode NFS file handles as");
 }
 
-static gpointer nfs_value(packet_info *pinfo _U_)
-{
-	return 0;
-}
-
 /* This function will store one nfs filehandle in our global tree of
  * filehandles.
  * We store all filehandles we see in this tree so that every unique
@@ -14038,12 +14033,6 @@ proto_register_nfs(void)
 	module_t *nfs_module;
 	expert_module_t* expert_nfs;
 
-	/* Decode As handling */
-	static build_valid_func nfs_da_build_value[1] = {nfs_value};
-	static decode_as_value_t nfs_da_values = {nfs_prompt, 1, nfs_da_build_value};
-	static decode_as_t nfs_da = {"nfs", "NFS File Handle", "nfs_fhandle.type", 1, 0, &nfs_da_values, NULL, NULL,
-									decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
-
 	proto_nfs = proto_register_protocol("Network File System", "NFS", "nfs");
 
 	/* "protocols" registered just for Decode As */
@@ -14108,7 +14097,7 @@ proto_register_nfs(void)
 	register_init_routine(nfs_name_snoop_init);
 	register_cleanup_routine(nfs_name_snoop_cleanup);
 
-	register_decode_as(&nfs_da);
+    register_decode_as_next_proto("nfs", "NFS File Handle", "nfs_fhandle.type", (build_label_func*)&nfs_prompt);
 }
 
 

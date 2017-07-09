@@ -115,16 +115,6 @@ static const true_false_string flexray_nfi = {
 	"True"
 };
 
-static void flexray_prompt(packet_info *pinfo _U_, gchar* result)
-{
-	g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Next level protocol as");
-}
-
-static gpointer flexray_value(packet_info *pinfo _U_)
-{
-	return 0;
-}
-
 static int
 dissect_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -438,12 +428,6 @@ proto_register_flexray(void)
 		}
 	};
 
-	/* Decode As handling */
-	static build_valid_func flexray_da_build_value[1] = { flexray_value };
-	static decode_as_value_t flexray_da_values = { flexray_prompt, 1, flexray_da_build_value };
-	static decode_as_t flexray_da = { "flexray", "Network", "flexray.subdissector", 1, 0, &flexray_da_values, NULL, NULL,
-		decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL };
-
 	proto_flexray = proto_register_protocol(
 		"FlexRay Protocol",
 		"FLEXRAY",
@@ -457,10 +441,12 @@ proto_register_flexray(void)
 	expert_register_field_array(expert_flexray, ei, array_length(ei));
 
 	register_dissector("flexray", dissect_flexray, proto_flexray);
-	register_decode_as(&flexray_da);
 
 	subdissector_table = register_dissector_table("flexray.subdissector",
 		"FLEXRAY next level dissector", proto_flexray, FT_UINT32, BASE_HEX);
+
+	register_decode_as_next_proto("flexray", "Network", "flexray.subdissector", NULL);
+
 }
 
 void

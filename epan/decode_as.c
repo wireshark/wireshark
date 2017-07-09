@@ -70,7 +70,7 @@ static decode_as_value_t next_proto_da_values =
                         { next_proto_prompt, 1, next_proto_values };
 
 void register_decode_as_next_proto(
-        const char *name, const gchar *title, const gchar *table_name)
+        const char *name, const gchar *title, const gchar *table_name, build_label_func* label_func)
 {
     decode_as_t *da;
     dissector_table_t dt;
@@ -83,7 +83,17 @@ void register_decode_as_next_proto(
     da->title = wmem_strdup(wmem_epan_scope(), title);
     da->table_name = wmem_strdup(wmem_epan_scope(), table_name);
     da->num_items = 1;
-    da->values = &next_proto_da_values;
+    if (label_func == NULL)
+    {
+        da->values = &next_proto_da_values;
+    }
+    else
+    {
+        da->values = wmem_new(wmem_epan_scope(), decode_as_value_t);
+        da->values->label_func = *label_func;
+        da->values->num_values = 1;
+        da->values->build_values = next_proto_values;
+    }
     da->populate_list = decode_as_default_populate_list;
     da->reset_value = decode_as_default_reset;
     da->change_value = decode_as_default_change;

@@ -353,13 +353,6 @@ aruba_erm_prompt(packet_info *pinfo _U_, gchar* result)
     g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Aruba ERM payload as");
 }
 
-static gpointer
-aruba_erm_value(packet_info *pinfo _U_)
-{
-    return NULL;
-}
-
-
 void
 proto_register_aruba_erm(void)
 {
@@ -412,18 +405,6 @@ proto_register_aruba_erm(void)
 
     module_t *aruba_erm_module;
 
-    /* Decode As handling */
-    static build_valid_func aruba_erm_payload_da_build_value[1] = {aruba_erm_value};
-    static decode_as_value_t aruba_erm_payload_da_values = {aruba_erm_prompt, 1, aruba_erm_payload_da_build_value};
-    static decode_as_t aruba_erm_payload_da = {
-        "aruba_erm", "Aruba ERM Type", "aruba_erm.type", 1, 0,
-        &aruba_erm_payload_da_values, NULL, NULL,
-        decode_as_default_populate_list,
-        decode_as_default_reset,
-        decode_as_default_change,
-        NULL,
-    };
-
     expert_module_t* expert_aruba_erm;
 
     proto_aruba_erm = proto_register_protocol(PROTO_LONG_NAME, "ARUBA_ERM" , "aruba_erm");
@@ -455,8 +436,7 @@ proto_register_aruba_erm(void)
         "aruba_erm.type", "Aruba ERM Type", proto_aruba_erm,
         FT_UINT32, BASE_DEC);
 
-    register_decode_as(&aruba_erm_payload_da);
-
+    register_decode_as_next_proto("aruba_erm", "Aruba ERM Type", "aruba_erm.type", (build_label_func*)&aruba_erm_prompt);
 }
 
 void

@@ -724,11 +724,6 @@ static void enip_prompt(packet_info *pinfo _U_, gchar* result)
    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Dissect unidentified I/O traffic as");
 }
 
-static gpointer enip_value(packet_info *pinfo _U_)
-{
-   return 0;
-}
-
 static wmem_map_t *enip_request_hashtable = NULL;
 
 /* Return codes of function classifying packets as query/response */
@@ -4330,12 +4325,6 @@ proto_register_enip(void)
    module_t *enip_module;
    expert_module_t* expert_enip;
 
-   /* Decode As handling */
-   static build_valid_func enip_da_build_value[1] = {enip_value};
-   static decode_as_value_t enip_da_values = {enip_prompt, 1, enip_da_build_value};
-   static decode_as_t enip_da = {"enip", "ENIP I/O", "enip.io", 1, 0, &enip_da_values, NULL, NULL,
-                                    decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
-
    /* Register the protocol name and description */
    proto_enip = proto_register_protocol("EtherNet/IP (Industrial Protocol)", "ENIP", "enip");
    proto_enipio = proto_register_protocol("EtherNet/IP I/O", "ENIP I/O", "enip_io");
@@ -4389,8 +4378,7 @@ proto_register_enip(void)
    register_conversation_filter("enip", "ENIP IO", enip_io_conv_valid, enip_io_conv_filter);
    register_conversation_filter("enip", "ENIP Explicit", enip_exp_conv_valid, enip_exp_conv_filter);
 
-   register_decode_as(&enip_da);
-
+   register_decode_as_next_proto("enip", "ENIP I/O", "enip.io", (build_label_func*)&enip_prompt);
 } /* end of proto_register_enip() */
 
 
