@@ -7382,6 +7382,7 @@ ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_i
      *  struct {
      *      uint32 ticket_lifetime;
      *      uint32 ticket_age_add;
+     *      opaque ticket_nonce<1..255>; #add in TLS 1.3 draft 21 (Section 4.6.1)
      *      opaque ticket<1..2^16-1>;
      *      Extension extensions<0..2^16-2>;
      *  } NewSessionTicket;
@@ -7389,6 +7390,7 @@ ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_i
     proto_tree *subtree;
     guint32     ticket_len;
     gboolean    is_tls13 = session->version == TLSV1DOT3_VERSION;
+    guchar      draft_version = session->tls13_draft_version;
 
     subtree = proto_tree_add_subtree(tree, tvb, offset, offset_end - offset,
                                      hf->ett.session_ticket, NULL,
@@ -7400,10 +7402,26 @@ ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_i
     offset += 4;
 
     if (is_tls13) {
+
         /* for TLS 1.3: ticket_age_add */
         proto_tree_add_item(subtree, hf->hf.hs_session_ticket_age_add,
                             tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
+
+        /* for TLS 1.3: ticket_nonce (coming with Draft 21)*/
+        if (draft_version == 0 || draft_version >= 21) {
+            guint32 ticket_nonce_len;
+
+            if (!ssl_add_vector(hf, tvb, pinfo, subtree, offset, offset_end, &ticket_nonce_len,
+                                hf->hf.hs_session_ticket_nonce_len, 1, 255)) {
+                return;
+            }
+            offset++;
+
+            proto_tree_add_item(subtree, hf->hf.hs_session_ticket_nonce, tvb, offset, ticket_nonce_len, ENC_NA);
+            offset += ticket_nonce_len;
+        }
+
     }
 
     /* opaque ticket<0..2^16-1> (with TLS 1.3 the minimum is 1) */
