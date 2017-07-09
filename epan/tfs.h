@@ -110,6 +110,7 @@ WS_DLL_PUBLIC const true_false_string tfs_server_client;
 WS_DLL_PUBLIC const true_false_string tfs_preferred_no_preference;
 WS_DLL_PUBLIC const true_false_string tfs_encrypt_do_not_encrypt;
 WS_DLL_PUBLIC const true_false_string tfs_down_up;
+WS_DLL_PUBLIC const true_false_string tfs_up_down;
 
 #ifdef __cplusplus
 }

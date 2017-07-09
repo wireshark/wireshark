@@ -510,7 +510,6 @@ static const int * prefix_sid_flags[] = {
     NULL,
 };
 
-static const true_false_string tfs_up_down = { "Up", "Down" };
 static const true_false_string tfs_notsupported_supported = { "Not Supported", "Supported" };
 static const true_false_string tfs_internal_external = { "Internal", "External" };
 static const true_false_string tfs_external_internal = { "External", "Internal" };

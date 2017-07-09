@@ -965,7 +965,6 @@ static const val64_string unique_indeterminable_or_no_link[] = {
     { 0, NULL },
 };
 
-static const true_false_string tfs_up_down = { "Up", "Down" };
 static const true_false_string tfs_new_existing = { "New", "Existing" };
 
 static dissector_handle_t ppp_hdlc_handle;
