@@ -95,7 +95,7 @@ static void* display_filter_copy_cb(void* n, const void* o, size_t siz _U_) {
 }
 
 static uat_field_t display_filter_uat_flds[] = {
-	UAT_FLD_BOOL(display_filter_macro_uat, enabled, "Enabled",
+	UAT_FLD_BOOL(display_filter_macro_uat, enabled, "Show in toolbar",
 		"Checked to add display filter button to toolbar"),
 	UAT_FLD_CSTRING(display_filter_macro_uat, label, "Button Label",
 		"Name of the display filter button"),
