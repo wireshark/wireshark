@@ -153,6 +153,7 @@ decode_proto_add_to_list (const gchar *table_name _U_, ftenum_t selector_type,
 
         case FT_BYTES:
         case FT_GUID:
+        case FT_NONE:
             dissector_name_str = dissector_handle_get_dissector_name(handle);
             if (dissector_name_str == NULL)
                 dissector_name_str = "<Unknown>";
@@ -244,6 +245,7 @@ display_dissector_table_names(const char *table_name, const char *ui_name, void 
             break;
         case FT_BYTES:
         case FT_GUID:
+        case FT_NONE:
             table_name_add_to_list(tree_info, dis_tbl_trees->custom_tree_wgt, table_name, ui_name);
             break;
         default:

@@ -367,6 +367,25 @@ WS_DLL_PUBLIC int dissector_try_guid_new(dissector_table_t sub_dissectors,
 WS_DLL_PUBLIC dissector_handle_t dissector_get_guid_handle(
     dissector_table_t const sub_dissectors, guid_key* guid_val);
 
+/* Use the currently assigned payload dissector for the dissector table and,
+   if any, call the dissector with the arguments supplied, and return the
+   number of bytes consumed, otherwise return 0. */
+WS_DLL_PUBLIC int dissector_try_payload(dissector_table_t sub_dissectors,
+    tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+/* Use the currently assigned payload dissector for the dissector table and,
+   if any, call the dissector with the arguments supplied, and return the
+   number of bytes consumed, otherwise return 0. */
+WS_DLL_PUBLIC int dissector_try_payload_new(dissector_table_t sub_dissectors,
+    tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const gboolean add_proto_name, void *data);
+
+/* Change the entry for a dissector in a payload (FT_NONE) dissector table
+   with a particular pattern to use a new dissector handle. */
+WS_DLL_PUBLIC void dissector_change_payload(const char *abbrev, dissector_handle_t handle);
+
+/* Reset payload (FT_NONE) dissector table to its initial value. */
+WS_DLL_PUBLIC void dissector_reset_payload(const char *name);
+
 /* Add a handle to the list of handles that *could* be used with this
    table.  That list is used by the "Decode As"/"-d" code in the UI. */
 WS_DLL_PUBLIC void dissector_add_for_decode_as(const char *name,

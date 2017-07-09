@@ -143,6 +143,9 @@ gboolean decode_as_default_reset(const gchar *name, gconstpointer pattern)
     case FT_UINT32:
         dissector_reset_uint(name, GPOINTER_TO_UINT(pattern));
         return TRUE;
+    case FT_NONE:
+        dissector_reset_payload(name);
+        return TRUE;
     case FT_STRING:
     case FT_STRINGZ:
     case FT_UINT_STRING:
@@ -166,6 +169,9 @@ gboolean decode_as_default_change(const gchar *name, gconstpointer pattern, gpoi
         case FT_UINT24:
         case FT_UINT32:
             dissector_change_uint(name, GPOINTER_TO_UINT(pattern), *dissector);
+            return TRUE;
+        case FT_NONE:
+            dissector_change_payload(name, *dissector);
             return TRUE;
         case FT_STRING:
         case FT_STRINGZ:
@@ -349,6 +355,17 @@ decode_as_write_entry (const gchar *table_name, ftenum_t selector_type,
                  table_name, GPOINTER_TO_UINT(key), initial_proto_name,
                  current_proto_name);
         break;
+    case FT_NONE:
+        /*
+         * XXX - Just put a placeholder for the key value.  Currently
+         * FT_NONE dissector table uses a single uint value for
+         * a placeholder
+         */
+        fprintf (da_file,
+                 DECODE_AS_ENTRY ": %s,0,%s,%s\n",
+                 table_name, initial_proto_name,
+                 current_proto_name);
+        break;
 
     case FT_STRING:
     case FT_STRINGZ:
@@ -436,6 +453,11 @@ decode_build_reset_list (const gchar *table_name, ftenum_t selector_type,
         item->ddi_selector.sel_uint = GPOINTER_TO_UINT(key);
         break;
 
+    case FT_NONE:
+        /* Not really needed, but prevents the assert */
+        item->ddi_selector.sel_uint = 0;
+        break;
+
     case FT_STRING:
     case FT_STRINGZ:
     case FT_UINT_STRING:
@@ -468,6 +490,10 @@ decode_clear_all(void)
         case FT_UINT32:
             dissector_reset_uint(item->ddi_table_name,
                                  item->ddi_selector.sel_uint);
+            break;
+
+        case FT_NONE:
+            dissector_reset_payload(item->ddi_table_name);
             break;
 
         case FT_STRING:

@@ -323,6 +323,10 @@ decode_build_show_list (const gchar *table_name, ftenum_t selector_type,
         selector_name = string1;
         break;
 
+    case FT_NONE:
+        selector_name = NULL;
+        break;
+
     case FT_STRING:
     case FT_STRINGZ:
     case FT_UINT_STRING:

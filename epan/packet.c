@@ -915,6 +915,9 @@ find_uint_dtbl_entry(dissector_table_t sub_dissectors, const guint32 pattern)
 		 * You can do a uint lookup in these tables.
 		 */
 		break;
+	case FT_NONE:
+		/* For now treat as uint */
+		break;
 
 	default:
 		/*
@@ -1856,6 +1859,36 @@ dissector_handle_t dissector_get_guid_handle(
 		return NULL;
 }
 
+/* Use the currently assigned payload dissector for the dissector table and,
+   if any, call the dissector with the arguments supplied, and return the
+   number of bytes consumed, otherwise return 0. */
+int dissector_try_payload(dissector_table_t sub_dissectors,
+    tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	return dissector_try_uint(sub_dissectors, 0, tvb, pinfo, tree);
+}
+
+/* Use the currently assigned payload dissector for the dissector table and,
+   if any, call the dissector with the arguments supplied, and return the
+   number of bytes consumed, otherwise return 0. */
+int dissector_try_payload_new(dissector_table_t sub_dissectors,
+    tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const gboolean add_proto_name, void *data)
+{
+	return dissector_try_uint_new(sub_dissectors, 0, tvb, pinfo, tree, add_proto_name, data);
+}
+
+/* Change the entry for a dissector in a payload (FT_NONE) dissector table
+   with a particular pattern to use a new dissector handle. */
+void dissector_change_payload(const char *abbrev, dissector_handle_t handle)
+{
+	dissector_change_uint(abbrev, 0, handle);
+}
+
+/* Reset payload (FT_NONE) dissector table to its initial value. */
+void dissector_reset_payload(const char *name)
+{
+	dissector_reset_uint(name, 0);
+}
 
 dissector_handle_t
 dtbl_entry_get_handle (dtbl_entry_t *dtbl_entry)
@@ -2349,6 +2382,18 @@ register_dissector_table(const char *name, const char *ui_name, const int proto,
 							       NULL,
 							       &g_free );
 		break;
+
+	case FT_NONE:
+		/* Dissector tables with FT_NONE don't have values associated with
+		   dissectors so this will always be a hash table size of 1 just
+		   to store the single dtbl_entry_t */
+		sub_dissectors->hash_func = g_direct_hash;
+		sub_dissectors->hash_table = g_hash_table_new_full( g_direct_hash,
+							       g_direct_equal,
+							       NULL,
+							       &g_free );
+		break;
+
 	default:
 		g_error("The dissector table %s (%s) is registering an unsupported type - are you using a buggy plugin?", name, ui_name);
 		g_assert_not_reached();

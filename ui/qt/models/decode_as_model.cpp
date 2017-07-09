@@ -61,14 +61,22 @@ Qt::ItemFlags DecodeAsModel::flags(const QModelIndex &index) const
     if (!index.isValid())
         return 0;
 
+    DecodeAsItem* item = decode_as_items_[index.row()];
+
     Qt::ItemFlags flags = QAbstractTableModel::flags(index);
     switch(index.column())
     {
     case DecodeAsModel::colTable:
-    case DecodeAsModel::colSelector:
     case DecodeAsModel::colProtocol:
         flags |= Qt::ItemIsEditable;
         break;
+    case DecodeAsModel::colSelector:
+        {
+        ftenum_t selector_type = get_dissector_table_selector_type(item->tableName_);
+        if (selector_type != FT_NONE)
+            flags |= Qt::ItemIsEditable;
+        break;
+        }
     }
 
     return flags;
@@ -126,7 +134,7 @@ QVariant DecodeAsModel::data(const QModelIndex &index, int role) const
 
             if (IS_FT_STRING(selector_type)) {
                 return tr("String");
-            } else {
+            } else if (IS_FT_UINT(selector_type)) {
                 QString type_desc = tr("Integer, base ");
                 switch (get_dissector_table_param(item->tableName_)) {
                 case BASE_OCT:
@@ -142,6 +150,8 @@ QVariant DecodeAsModel::data(const QModelIndex &index, int role) const
                     type_desc.append(tr("unknown"));
                 }
                 return type_desc;
+            } else if (selector_type == FT_NONE) {
+                return tr("<none>");
             }
         }
         case colDefault:
@@ -313,6 +323,9 @@ bool DecodeAsModel::insertRows(int row, int count, const QModelIndex &/*parent*/
                         }
 
                         dissector = dissector_get_default_uint_handle(entry->table_name, item->selectorUint_);
+                    } else if (selector_type == FT_NONE) {
+                        // There is no default for an FT_NONE dissector table
+                        dissector = NULL;
                     }
 
                     if (dissector != NULL) {
@@ -437,6 +450,10 @@ QString DecodeAsModel::entryString(const gchar *table_name, gpointer value)
         //TODO: DCE/RPC dissector table
         break;
 
+    case FT_NONE:
+        //doesn't really matter, just avoiding the assert
+        return "0";
+
     default:
         g_assert_not_reached();
         break;
@@ -519,6 +536,12 @@ void DecodeAsModel::gatherChangedEntries(const gchar *table_name,
     case FT_UINT32:
         model->changed_uint_entries_ << UintPair(table_name, GPOINTER_TO_UINT(key));
         break;
+    case FT_NONE:
+        //need to reset dissector table, so this needs to be in a changed list,
+        //might as well be the uint one.
+        model->changed_uint_entries_ << UintPair(table_name, 0);
+        break;
+
     case FT_STRING:
     case FT_STRINGZ:
     case FT_UINT_STRING:
@@ -596,6 +619,10 @@ void DecodeAsModel::applyChanges()
                 case FT_STRINGZPAD:
                     byteArray = item->selectorString_.toUtf8();
                     selector_value = (gpointer) byteArray.constData();
+                    break;
+                case FT_NONE:
+                    //selector value is ignored, but dissector table needs to happen
+                    selector_value = NULL;
                     break;
                 default:
                     continue;

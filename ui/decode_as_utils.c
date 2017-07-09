@@ -187,7 +187,7 @@ gboolean decode_as_command_option(const gchar *cl_param)
     guint32                       selector, selector2;
     gchar                        *decoded_param;
     gchar                        *remaining_param;
-    gchar                        *selector_str;
+    gchar                        *selector_str = NULL;
     gchar                        *dissector_str;
     dissector_handle_t            dissector_matching;
     dissector_table_t             table_matching;
@@ -212,7 +212,14 @@ gboolean decode_as_command_option(const gchar *cl_param)
 
     remaining_param = strchr(table_name, '=');
     if (remaining_param == NULL) {
-        cmdarg_err("Parameter \"%s\" doesn't follow the template \"%s\"", cl_param, DECODE_AS_ARG_TEMPLATE);
+        /* Dissector tables of type FT_NONE aren't required to specify a value, so for now
+           just check for comma */
+        remaining_param = strchr(table_name, ',');
+        if (remaining_param == NULL) {
+            cmdarg_err("Parameter \"%s\" doesn't follow the template \"%s\"", cl_param, DECODE_AS_ARG_TEMPLATE);
+        } else {
+            *remaining_param = '\0'; /* Terminate the layer type string (table_name) where ',' was detected */
+        }
         /* If the argument does not follow the template, carry on anyway to check
         if the table name is at least correct.  If remaining_param is NULL,
         we'll exit anyway further down */
@@ -254,31 +261,34 @@ gboolean decode_as_command_option(const gchar *cl_param)
         return FALSE;
     }
 
-    if (*(remaining_param + 1) != '=') { /* Check for "==" and not only '=' */
-        cmdarg_err("WARNING: -d requires \"==\" instead of \"=\". Option will be treated as \"%s==%s\"", table_name, remaining_param + 1);
-    }
-    else {
-        remaining_param++; /* Move to the second '=' */
-        *remaining_param = '\0'; /* Remove the second '=' */
-    }
-    remaining_param++; /* Position after the layer type string */
-
-    /* This section extracts a selector value (selector_str) from decoded_param */
-
-    selector_str = remaining_param; /* Next part starts with the selector number */
-
-    remaining_param = strchr(selector_str, ',');
-    if (remaining_param == NULL) {
-        cmdarg_err("Parameter \"%s\" doesn't follow the template \"%s\"", cl_param, DECODE_AS_ARG_TEMPLATE);
-        /* If the argument does not follow the template, carry on anyway to check
-        if the selector value is at least correct.  If remaining_param is NULL,
-        we'll exit anyway further down */
-    }
-    else {
-        *remaining_param = '\0'; /* Terminate the selector number string (selector_str) where ',' was detected */
-    }
-
     dissector_table_selector_type = get_dissector_table_selector_type(table_name);
+
+    if (dissector_table_selector_type != FT_NONE) {
+        if (*(remaining_param + 1) != '=') { /* Check for "==" and not only '=' */
+                cmdarg_err("WARNING: -d requires \"==\" instead of \"=\". Option will be treated as \"%s==%s\"", table_name, remaining_param + 1);
+        }
+        else {
+            remaining_param++; /* Move to the second '=' */
+            *remaining_param = '\0'; /* Remove the second '=' */
+        }
+        remaining_param++; /* Position after the layer type string */
+
+
+        /* This section extracts a selector value (selector_str) from decoded_param */
+
+        selector_str = remaining_param; /* Next part starts with the selector number */
+
+        remaining_param = strchr(selector_str, ',');
+        if (remaining_param == NULL) {
+            cmdarg_err("Parameter \"%s\" doesn't follow the template \"%s\"", cl_param, DECODE_AS_ARG_TEMPLATE);
+            /* If the argument does not follow the template, carry on anyway to check
+            if the selector value is at least correct.  If remaining_param is NULL,
+            we'll exit anyway further down */
+        }
+        else {
+            *remaining_param = '\0'; /* Terminate the selector number string (selector_str) where ',' was detected */
+        }
+    }
 
     switch (dissector_table_selector_type) {
 
@@ -326,6 +336,10 @@ gboolean decode_as_command_option(const gchar *cl_param)
     case FT_UINT_STRING:
     case FT_STRINGZPAD:
         /* The selector for this table is a string. */
+        break;
+
+    case FT_NONE:
+        /* There is no selector for this table */
         break;
 
     default:
@@ -438,6 +452,11 @@ gboolean decode_as_command_option(const gchar *cl_param)
     case FT_STRINGZPAD:
         /* The selector for this table is a string. */
         dissector_change_string(table_name, selector_str, dissector_matching);
+        break;
+
+    case FT_NONE:
+        /* Just directly set the dissector found. */
+        dissector_change_payload(table_name, dissector_matching);
         break;
 
     default:
