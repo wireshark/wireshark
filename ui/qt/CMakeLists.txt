@@ -74,7 +74,6 @@ set(WIRESHARK_QT_HEADERS
 	filter_dialog.h
 	filter_dialog.h
 	filter_expression_frame.h
-	filter_expressions_preferences_frame.h
 	find_line_edit.h
 	firewall_rules_dialog.h
 	follow_stream_dialog.h
@@ -165,6 +164,7 @@ set(WIRESHARK_QT_HEADERS
 	traffic_table_dialog.h
 	uat_delegate.h
 	uat_dialog.h
+	uat_frame.h
 	uat_model.h
 	uat_tree_view.h
 	voip_calls_dialog.h
@@ -251,7 +251,6 @@ set(WIRESHARK_QT_SRC
 	filter_action.cpp
 	filter_dialog.cpp
 	filter_expression_frame.cpp
-	filter_expressions_preferences_frame.cpp
 	find_line_edit.cpp
 	firewall_rules_dialog.cpp
 	follow_stream_dialog.cpp
@@ -341,6 +340,7 @@ set(WIRESHARK_QT_SRC
 	traffic_table_dialog.cpp
 	uat_delegate.cpp
 	uat_dialog.cpp
+	uat_frame.cpp
 	uat_model.cpp
 	uat_tree_view.cpp
 	voip_calls_dialog.cpp
@@ -418,7 +418,6 @@ set(WIRESHARK_QT_UI
 	file_set_dialog.ui
 	filter_dialog.ui
 	filter_expression_frame.ui
-	filter_expressions_preferences_frame.ui
 	firewall_rules_dialog.ui
 	follow_stream_dialog.ui
 	font_color_preferences_frame.ui
@@ -472,6 +471,7 @@ set(WIRESHARK_QT_UI
 	time_shift_dialog.ui
 	traffic_table_dialog.ui
 	uat_dialog.ui
+	uat_frame.ui
 	voip_calls_dialog.ui
 	wireless_frame.ui
 )

@@ -85,7 +85,7 @@
       <widget class="ColumnPreferencesFrame" name="columnFrame"/>
       <widget class="FontColorPreferencesFrame" name="fontandcolorFrame"/>
       <widget class="CapturePreferencesFrame" name="captureFrame"/>
-      <widget class="FilterExpressionsPreferencesFrame" name="filterExpressonsFrame"/>
+      <widget class="UatFrame" name="filterExpressonsFrame"/>
       <widget class="QFrame" name="advancedFrame">
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
@@ -194,9 +194,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>FilterExpressionsPreferencesFrame</class>
+   <class>UatFrame</class>
    <extends>QFrame</extends>
-   <header>filter_expressions_preferences_frame.h</header>
+   <header>uat_frame.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

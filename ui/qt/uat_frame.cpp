@@ -1,4 +1,4 @@
-/* filter_expressions_preferences_frame.cpp
+/* uat_frame.cpp
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -25,8 +25,8 @@
 
 #include <epan/filter_expressions.h>
 
-#include "filter_expressions_preferences_frame.h"
-#include <ui_filter_expressions_preferences_frame.h>
+#include "uat_frame.h"
+#include <ui_uat_frame.h>
 #include "display_filter_edit.h"
 #include "wireshark_application.h"
 
@@ -39,12 +39,9 @@
 
 #include <QDebug>
 
-// This shouldn't exist in its current form. Instead it should be the "display filters"
-// dialog, and the "dfilters" file should support a "show in toolbar" flag.
-
-FilterExpressionsPreferencesFrame::FilterExpressionsPreferencesFrame(QWidget *parent) :
+UatFrame::UatFrame(QWidget *parent) :
     QFrame(parent),
-    ui(new Ui::FilterExpressionsPreferencesFrame),
+    ui(new Ui::UatFrame),
     uat_model_(NULL),
     uat_delegate_(NULL),
     uat_(NULL)
@@ -72,14 +69,14 @@ FilterExpressionsPreferencesFrame::FilterExpressionsPreferencesFrame(QWidget *pa
     // XXX - Need to add uat_move or uat_insert to the UAT API for drag/drop
 }
 
-FilterExpressionsPreferencesFrame::~FilterExpressionsPreferencesFrame()
+UatFrame::~UatFrame()
 {
     delete ui;
     delete uat_delegate_;
     delete uat_model_;
 }
 
-void FilterExpressionsPreferencesFrame::setUat(epan_uat *uat)
+void UatFrame::setUat(epan_uat *uat)
 {
     QString title(tr("Unknown User Accessible Table"));
 
@@ -115,7 +112,7 @@ void FilterExpressionsPreferencesFrame::setUat(epan_uat *uat)
     setWindowTitle(title);
 }
 
-void FilterExpressionsPreferencesFrame::acceptChanges()
+void UatFrame::acceptChanges()
 {
     if (!uat_) return;
 
@@ -138,7 +135,7 @@ void FilterExpressionsPreferencesFrame::acceptChanges()
     }
 }
 
-void FilterExpressionsPreferencesFrame::rejectChanges()
+void UatFrame::rejectChanges()
 {
     if (!uat_) return;
 
@@ -154,7 +151,7 @@ void FilterExpressionsPreferencesFrame::rejectChanges()
     }
 }
 
-void FilterExpressionsPreferencesFrame::addRecord(bool copy_from_current)
+void UatFrame::addRecord(bool copy_from_current)
 {
     if (!uat_) return;
 
@@ -178,7 +175,7 @@ void FilterExpressionsPreferencesFrame::addRecord(bool copy_from_current)
 
 // Invoked when a different field is selected. Note: when selecting a different
 // field after editing, this event is triggered after modelDataChanged.
-void FilterExpressionsPreferencesFrame::viewCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
+void UatFrame::viewCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     if (current.isValid()) {
         ui->deleteToolButton->setEnabled(true);
@@ -192,13 +189,13 @@ void FilterExpressionsPreferencesFrame::viewCurrentChanged(const QModelIndex &cu
 }
 
 // Invoked when a field in the model changes (e.g. by closing the editor)
-void FilterExpressionsPreferencesFrame::modelDataChanged(const QModelIndex &topLeft)
+void UatFrame::modelDataChanged(const QModelIndex &topLeft)
 {
     checkForErrorHint(topLeft, QModelIndex());
 }
 
 // Invoked after a row has been removed from the model.
-void FilterExpressionsPreferencesFrame::modelRowsRemoved()
+void UatFrame::modelRowsRemoved()
 {
     const QModelIndex &current = ui->uatTreeView->currentIndex();
     checkForErrorHint(current, QModelIndex());
@@ -209,7 +206,7 @@ void FilterExpressionsPreferencesFrame::modelRowsRemoved()
 // Otherwise pick the first error in the current row.
 // Otherwise show the error from the previous field (if any).
 // Otherwise clear the error hint.
-void FilterExpressionsPreferencesFrame::checkForErrorHint(const QModelIndex &current, const QModelIndex &previous)
+void UatFrame::checkForErrorHint(const QModelIndex &current, const QModelIndex &previous)
 {
     if (current.isValid()) {
         if (trySetErrorHintFromField(current)) {
@@ -237,7 +234,7 @@ void FilterExpressionsPreferencesFrame::checkForErrorHint(const QModelIndex &cur
     ui->hintLabel->clear();
 }
 
-bool FilterExpressionsPreferencesFrame::trySetErrorHintFromField(const QModelIndex &index)
+bool UatFrame::trySetErrorHintFromField(const QModelIndex &index)
 {
     const QVariant &data = uat_model_->data(index, Qt::UserRole + 1);
     if (!data.isNull()) {
@@ -248,12 +245,12 @@ bool FilterExpressionsPreferencesFrame::trySetErrorHintFromField(const QModelInd
     return false;
 }
 
-void FilterExpressionsPreferencesFrame::on_newToolButton_clicked()
+void UatFrame::on_newToolButton_clicked()
 {
     addRecord();
 }
 
-void FilterExpressionsPreferencesFrame::on_deleteToolButton_clicked()
+void UatFrame::on_deleteToolButton_clicked()
 {
     const QModelIndex &current = ui->uatTreeView->currentIndex();
     if (uat_model_ && current.isValid()) {
@@ -263,7 +260,7 @@ void FilterExpressionsPreferencesFrame::on_deleteToolButton_clicked()
     }
 }
 
-void FilterExpressionsPreferencesFrame::on_copyToolButton_clicked()
+void UatFrame::on_copyToolButton_clicked()
 {
     addRecord(true);
 }

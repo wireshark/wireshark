@@ -60,7 +60,6 @@ NODIST_GENERATED_HEADER_FILES = \
 	ui_file_set_dialog.h				\
 	ui_filter_dialog.h				\
 	ui_filter_expression_frame.h			\
-	ui_filter_expressions_preferences_frame.h	\
 	ui_firewall_rules_dialog.h			\
 	ui_follow_stream_dialog.h			\
 	ui_font_color_preferences_frame.h		\
@@ -117,6 +116,7 @@ NODIST_GENERATED_HEADER_FILES = \
 	ui_time_shift_dialog.h				\
 	ui_traffic_table_dialog.h			\
 	ui_uat_dialog.h					\
+	ui_uat_frame.h					\
 	ui_voip_calls_dialog.h				\
 	ui_wireless_frame.h
 
@@ -202,7 +202,6 @@ MOC_HDRS = \
 	filter_action.h					\
 	filter_dialog.h					\
 	filter_expression_frame.h			\
-	filter_expressions_preferences_frame.h		\
 	find_line_edit.h				\
 	firewall_rules_dialog.h				\
 	follow_stream_dialog.h				\
@@ -297,6 +296,7 @@ MOC_HDRS = \
 	traffic_table_dialog.h				\
 	uat_delegate.h					\
 	uat_dialog.h					\
+	uat_frame.h					\
 	uat_model.h					\
 	uat_tree_view.h					\
 	voip_calls_dialog.h				\
@@ -336,7 +336,6 @@ UI_FILES = \
 	file_set_dialog.ui				\
 	filter_dialog.ui				\
 	filter_expression_frame.ui			\
-	filter_expressions_preferences_frame.ui		\
 	firewall_rules_dialog.ui			\
 	follow_stream_dialog.ui				\
 	font_color_preferences_frame.ui			\
@@ -392,6 +391,7 @@ UI_FILES = \
 	time_shift_dialog.ui				\
 	traffic_table_dialog.ui				\
 	uat_dialog.ui					\
+	uat_frame.ui					\
 	voip_calls_dialog.ui				\
 	wireless_frame.ui
 
@@ -494,7 +494,6 @@ WIRESHARK_QT_SRC = \
 	filter_action.cpp				\
 	filter_dialog.cpp				\
 	filter_expression_frame.cpp			\
-	filter_expressions_preferences_frame.cpp	\
 	find_line_edit.cpp				\
 	firewall_rules_dialog.cpp			\
 	follow_stream_dialog.cpp			\
@@ -586,6 +585,7 @@ WIRESHARK_QT_SRC = \
 	traffic_table_dialog.cpp			\
 	uat_delegate.cpp				\
 	uat_dialog.cpp					\
+	uat_frame.cpp					\
 	uat_model.cpp					\
 	uat_tree_view.cpp				\
 	voip_calls_dialog.cpp				\
@@ -812,8 +812,6 @@ filter_dialog.$(OBJEXT): ui_filter_dialog.h
 
 filter_expression_frame.$(OBJEXT): ui_filter_expression_frame.h
 
-filter_expressions_preferences_frame.$(OBJEXT): ui_filter_expressions_preferences_frame.h
-
 firewall_rules_dialog.$(OBJEXT): ui_firewall_rules_dialog.h
 
 follow_stream_dialog.$(OBJEXT): ui_follow_stream_dialog.h
@@ -925,6 +923,8 @@ time_shift_dialog.$(OBJEXT): ui_time_shift_dialog.h
 traffic_table_dialog.$(OBJEXT): ui_traffic_table_dialog.h
 
 uat_dialog.$(OBJEXT): ui_uat_dialog.h
+
+uat_frame.$(OBJEXT): ui_uat_frame.h
 
 voip_calls_dialog.$(OBJEXT): ui_voip_calls_dialog.h
 

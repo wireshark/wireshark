@@ -1,4 +1,4 @@
-/* filter_expressions_preferences_frame.h
+/* uat_frame.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,8 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef FILTER_EXPRESSIONS_PREFERENCES_FRAME_H
-#define FILTER_EXPRESSIONS_PREFERENCES_FRAME_H
+#ifndef UAT_FRAME_H
+#define UAT_FRAME_H
 
 #include <QFrame>
 
@@ -29,16 +29,16 @@
 #include <ui/qt/uat_delegate.h>
 
 namespace Ui {
-class FilterExpressionsPreferencesFrame;
+class UatFrame;
 }
 
-class FilterExpressionsPreferencesFrame : public QFrame
+class UatFrame : public QFrame
 {
     Q_OBJECT
 
 public:
-    explicit FilterExpressionsPreferencesFrame(QWidget *parent = NULL);
-    ~FilterExpressionsPreferencesFrame();
+    explicit UatFrame(QWidget *parent = NULL);
+    ~UatFrame();
 
     void setUat(struct epan_uat *uat);
 
@@ -46,7 +46,7 @@ public:
     void rejectChanges();
 
 private:
-    Ui::FilterExpressionsPreferencesFrame *ui;
+    Ui::UatFrame *ui;
 
     UatModel *uat_model_;
     UatDelegate *uat_delegate_;
@@ -65,4 +65,4 @@ private slots:
     void on_copyToolButton_clicked();
 };
 
-#endif // FILTER_EXPRESSIONS_PREFERENCES_FRAME_H
+#endif // UAT_FRAME_H
