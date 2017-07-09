@@ -205,11 +205,7 @@ dissect_aruba_erm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 {
     int offset = 0;
 
-    /*
-     * Implement "Decode As", as Aruba ERM doesn't
-     * have a unique identifier to determine subdissector
-     */
-    if (!dissector_try_uint(aruba_erm_subdissector_table, 0, tvb, pinfo, tree)) {
+    if (!dissector_try_payload(aruba_erm_subdissector_table, tvb, pinfo, tree)) {
 
         dissect_aruba_erm_common(tvb, pinfo, tree, &offset);
         /* Add Expert info how decode...*/
@@ -432,11 +428,9 @@ proto_register_aruba_erm(void)
     expert_register_field_array(expert_aruba_erm, ei, array_length(ei));
 
     register_dissector("aruba_erm", dissect_aruba_erm, proto_aruba_erm);
-    aruba_erm_subdissector_table = register_dissector_table(
-        "aruba_erm.type", "Aruba ERM Type", proto_aruba_erm,
-        FT_UINT32, BASE_DEC);
 
-    register_decode_as_next_proto("aruba_erm", "Aruba ERM Type", "aruba_erm.type", (build_label_func*)&aruba_erm_prompt);
+    aruba_erm_subdissector_table = register_decode_as_next_proto(proto_aruba_erm, "Aruba ERM Type", "aruba_erm.type",
+                                                                "Aruba ERM Type", (build_label_func*)&aruba_erm_prompt);
 }
 
 void

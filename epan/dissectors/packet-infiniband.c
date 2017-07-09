@@ -2626,9 +2626,7 @@ static void parse_PAYLOAD(proto_tree *parentTree,
 
         if (dissector_found == FALSE)
         {
-            /* Functionality for choosing subdissector is controlled through Decode As as there
-               isn't a unique identifier to determine subdissector */
-            if (dissector_try_uint_new(subdissector_table, 0, next_tvb, pinfo, top_tree, TRUE, info))
+            if (dissector_try_payload_new(subdissector_table, next_tvb, pinfo, top_tree, TRUE, info))
             {
                 dissector_found = TRUE;
             }
@@ -8414,7 +8412,6 @@ void proto_register_infiniband(void)
     /* register the subdissector tables */
     heur_dissectors_payload = register_heur_dissector_list("infiniband.payload", proto_infiniband);
     heur_dissectors_cm_private = register_heur_dissector_list("infiniband.mad.cm.private", proto_infiniband);
-    subdissector_table = register_dissector_table("infiniband", "Infiniband Payload", proto_infiniband, FT_UINT16, BASE_DEC);
 
     /* register dissection preferences */
     infiniband_module = prefs_register_protocol(proto_infiniband, proto_reg_handoff_infiniband);
@@ -8443,7 +8440,8 @@ void proto_register_infiniband(void)
     CM_context_table = g_hash_table_new_full(g_int64_hash, g_int64_equal,
                                              table_destroy_notify, table_destroy_notify);
 
-    register_decode_as_next_proto("infiniband", "Network", "infiniband", (build_label_func*)&infiniband_payload_prompt);
+    subdissector_table = register_decode_as_next_proto(proto_infiniband, "Network", "infiniband", "Infiniband Payload",
+                                                       (build_label_func*)&infiniband_payload_prompt);
 
     register_shutdown_routine(infiniband_shutdown);
 }

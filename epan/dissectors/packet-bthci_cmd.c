@@ -4664,7 +4664,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (ogf == HCI_OGF_VENDOR_SPECIFIC) {
         col_append_fstr(pinfo->cinfo, COL_INFO, "Vendor Command 0x%04X (opcode 0x%04X)", ocf, opcode);
 
-        if (!dissector_try_uint_new(vendor_dissector_table, HCI_VENDOR_DEFAULT, tvb, pinfo, tree, TRUE, bluetooth_data)) {
+        if (!dissector_try_payload_new(vendor_dissector_table, tvb, pinfo, tree, TRUE, bluetooth_data)) {
             if (bluetooth_data) {
                 hci_vendor_data_t  *hci_vendor_data;
 
@@ -7125,14 +7125,13 @@ proto_register_bthci_cmd(void)
 
     bthci_cmds = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
-    vendor_dissector_table = register_dissector_table("bthci_cmd.vendor", "BT HCI Vendor", proto_bthci_cmd, FT_UINT16, BASE_HEX);
-
     module = prefs_register_protocol(proto_bthci_cmd, NULL);
     prefs_register_static_text_preference(module, "hci_cmd.version",
             "Bluetooth HCI version: 4.0 (Core)",
             "Version of protocol supported by this dissector.");
 
-    register_decode_as_next_proto("bthci_evt", "Vendor", "bthci_cmd.vendor", (build_label_func*)&bthci_cmd_vendor_prompt);
+    vendor_dissector_table = register_decode_as_next_proto(proto_bthci_cmd, "Vendor", "bthci_cmd.vendor",
+                                                           "BT HCI Vendor", (build_label_func*)&bthci_cmd_vendor_prompt);
 }
 
 

@@ -212,9 +212,7 @@ dissect_i2c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 				addr, "0x%02x%s", addr, addr ? "" : " (General Call)");
 		proto_tree_add_uint(i2c_tree, hf_i2c_flags, tvb, 0, 0, flags);
 
-		/* Functionality for choosing subdissector is controlled through Decode As as I2C doesn't
-		   have a unique identifier to determine subdissector */
-		if (!dissector_try_uint(subdissector_table, 0, tvb, pinfo, tree))
+		if (!dissector_try_payload(subdissector_table, tvb, pinfo, tree))
 		{
 			call_data_dissector(tvb, pinfo, tree);
 		}
@@ -244,12 +242,10 @@ proto_register_i2c(void)
 	proto_i2c_event = proto_register_protocol_in_name_only("I2C Events", "I2C Events", "i2c_event", proto_i2c, FT_PROTOCOL);
 	proto_i2c_data = proto_register_protocol_in_name_only("I2C Data", "I2C Data", "i2c_data", proto_i2c, FT_PROTOCOL);
 
-	subdissector_table = register_dissector_table("i2c.message", "I2C messages dissector", proto_i2c, FT_UINT32, BASE_DEC);
-
 	m = prefs_register_protocol(proto_i2c, NULL);
 	prefs_register_obsolete_preference(m, "type");
 
-	register_decode_as_next_proto("i2c", "I2C Message", "i2c.message", (build_label_func*)&i2c_prompt);
+	subdissector_table = register_decode_as_next_proto(proto_i2c, "I2C Message", "i2c.message", "I2C messages dissector", (build_label_func*)&i2c_prompt);
 }
 
 void

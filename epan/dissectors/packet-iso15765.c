@@ -355,9 +355,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     }
 
     if (next_tvb) {
-        /* Functionality for choosing subdissector is controlled through Decode As as ISO15765 doesn't
-            have a unique identifier to determine subdissector */
-        if (!complete || !dissector_try_uint_new(subdissector_table, 0, next_tvb, pinfo, tree, TRUE, NULL)) {
+        if (!complete || !dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, TRUE, NULL)) {
             call_data_dissector(next_tvb, pinfo, tree);
         }
     }
@@ -560,10 +558,6 @@ proto_register_iso15765(void)
 
     expert_register_field_array(expert_iso15765, ei, array_length(ei));
 
-    subdissector_table = register_dissector_table("iso15765.subdissector",
-                                                  "ISO15765 next level dissector", proto_iso15765,
-                                                  FT_UINT32, BASE_HEX);
-
     iso15765_module = prefs_register_protocol(proto_iso15765, NULL);
 
     prefs_register_enum_preference(iso15765_module, "addressing",
@@ -582,7 +576,7 @@ proto_register_iso15765(void)
     reassembly_table_register(&iso15765_reassembly_table,
                           &addresses_reassembly_table_functions);
 
-    register_decode_as_next_proto("iso15765", "Transport", "iso15765.subdissector", NULL);
+    subdissector_table = register_decode_as_next_proto(proto_iso15765, "Transport", "iso15765.subdissector", "ISO15765 next level dissector", NULL);
 }
 
 void

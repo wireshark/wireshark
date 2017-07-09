@@ -135,11 +135,7 @@ dissect_pcli_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-    /*
-     * Implement "Decode As", as PCLI doesn't
-     * have a unique identifier to determine subdissector
-     */
-    if (!dissector_try_uint(pcli_subdissector_table, 0, next_tvb, pinfo, tree)) {
+    if (!dissector_try_payload(pcli_subdissector_table, next_tvb, pinfo, tree)) {
         call_data_dissector(next_tvb, pinfo, tree);
     }
 }
@@ -249,11 +245,8 @@ proto_register_pcli(void)
         "Whether the PCLI summary line should be shown in the protocol tree",
         &pcli_summary_in_tree);
 
-    pcli_subdissector_table = register_dissector_table(
-        "pcli.payload", "PCLI payload dissector",
-        proto_pcli, FT_UINT32, BASE_DEC);
-
-    register_decode_as_next_proto("pcli", "PCLI payload", "pcli.payload", (build_label_func*)&pcli_prompt);
+    pcli_subdissector_table = register_decode_as_next_proto(proto_pcli, "PCLI payload", "pcli.payload",
+                                                             "PCLI payload dissector", (build_label_func*)&pcli_prompt);
 }
 
 /* The registration hand-off routing */

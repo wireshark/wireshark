@@ -239,7 +239,7 @@ dissect_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			next_tvb = tvb_new_subset_length(tvb, 7, flexray_current_payload_length);
 
 			if (call_subdissector) {
-				if (!dissector_try_uint_new(subdissector_table, 0, next_tvb, pinfo, tree, FALSE, &flexray_id))
+				if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, FALSE, &flexray_id))
 				{
 					call_data_dissector(next_tvb, pinfo, tree);
 				}
@@ -442,11 +442,7 @@ proto_register_flexray(void)
 
 	register_dissector("flexray", dissect_flexray, proto_flexray);
 
-	subdissector_table = register_dissector_table("flexray.subdissector",
-		"FLEXRAY next level dissector", proto_flexray, FT_UINT32, BASE_HEX);
-
-	register_decode_as_next_proto("flexray", "Network", "flexray.subdissector", NULL);
-
+	subdissector_table = register_decode_as_next_proto(proto_flexray, "Network", "flexray.subdissector", "FLEXRAY next level dissector", NULL);
 }
 
 void

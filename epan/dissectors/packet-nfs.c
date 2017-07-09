@@ -2241,10 +2241,8 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	if (!hidden) {
 		tvbuff_t *fh_tvb;
 
-		/* Functionality for choosing subdissector is controlled through Decode As as NFS doesn't
-		   have a unique identifier to determine subdissector */
 		fh_tvb = tvb_new_subset_length_caplen(tvb, offset, fhlen, fhlen);
-		if (!dissector_try_uint(nfs_fhandle_table, 0, fh_tvb, pinfo, tree))
+		if (!dissector_try_payload(nfs_fhandle_table, fh_tvb, pinfo, tree))
 			dissect_fhandle_data_unknown(fh_tvb, pinfo, tree, NULL);
 	}
 }
@@ -14044,9 +14042,6 @@ proto_register_nfs(void)
 				       " in the info column.  Others (like GETFH, PUTFH, etc) are not displayed",
 					&display_major_nfs4_ops);
 
-	nfs_fhandle_table = register_dissector_table("nfs_fhandle.type",
-	    "NFS Filehandle types", proto_nfs, FT_UINT8, BASE_HEX);
-
 	prefs_register_obsolete_preference(nfs_module, "default_fhandle_type");
 
 	nfs_name_snoop_known    = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
@@ -14055,7 +14050,8 @@ proto_register_nfs(void)
 	register_init_routine(nfs_name_snoop_init);
 	register_cleanup_routine(nfs_name_snoop_cleanup);
 
-    register_decode_as_next_proto("nfs", "NFS File Handle", "nfs_fhandle.type", (build_label_func*)&nfs_prompt);
+	nfs_fhandle_table = register_decode_as_next_proto(proto_nfs, "NFS File Handle", "nfs_fhandle.type",
+								"NFS Filehandle types", (build_label_func*)&nfs_prompt);
 }
 
 

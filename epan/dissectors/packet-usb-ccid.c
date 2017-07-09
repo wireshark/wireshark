@@ -557,7 +557,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         /* sent/received is from the perspective of the card reader */
         pinfo->p2p_dir = P2P_DIR_SENT;
 
-        if (!dissector_try_uint_new(subdissector_table, 0, next_tvb, pinfo, tree, TRUE, usb_conv_info)) {
+        if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, TRUE, usb_conv_info)) {
             call_data_dissector(next_tvb, pinfo, tree);
         }
         break;
@@ -581,7 +581,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         next_tvb = tvb_new_subset_length(tvb, 10, payload_len);
         pinfo->p2p_dir = P2P_DIR_RECV;
 
-        if (!dissector_try_uint_new(subdissector_table, 0, next_tvb, pinfo, tree, TRUE, usb_conv_info)) {
+        if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, TRUE, usb_conv_info)) {
             call_data_dissector(next_tvb, pinfo, tree);
         }
         break;
@@ -879,10 +879,7 @@ proto_register_ccid(void)
 
     usb_ccid_handle = register_dissector("usbccid", dissect_ccid, proto_ccid);
 
-    subdissector_table = register_dissector_table(
-            "usbccid.subdissector", "USB CCID payload",
-            proto_ccid, FT_UINT32, BASE_HEX);
-    register_decode_as_next_proto("USB CCID", "Transport", "usbccid.subdissector", NULL);
+    subdissector_table = register_decode_as_next_proto(proto_ccid, "Transport", "usbccid.subdissector", "USB CCID payload", NULL);
 }
 
 /* Handler registration */

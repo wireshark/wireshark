@@ -118,7 +118,7 @@ dissect_moldudp_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Functionality for choosing subdissector is controlled through Decode As as MoldUDP doesn't
        have a unique identifier to determine subdissector */
     next_tvb = tvb_new_subset_length(tvb, offset, real_msglen);
-    if (!dissector_try_uint_new(moldudp_payload_table, 0, next_tvb, pinfo, tree, FALSE, NULL))
+    if (!dissector_try_payload_new(moldudp_payload_table, next_tvb, pinfo, tree, FALSE, NULL))
     {
         proto_tree_add_item(blk_tree, hf_moldudp_msgdata,
                 tvb, offset, real_msglen, ENC_NA);
@@ -247,15 +247,13 @@ proto_register_moldudp(void)
     /* Register the protocol name and description */
     proto_moldudp = proto_register_protocol("MoldUDP", "MoldUDP", "moldudp");
 
-    moldudp_payload_table = register_dissector_table("moldudp.payload", "MoldUDP Payload", proto_moldudp, FT_UINT32, BASE_DEC);
-
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_moldudp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_moldudp = expert_register_protocol(proto_moldudp);
     expert_register_field_array(expert_moldudp, ei, array_length(ei));
 
-    register_decode_as_next_proto("moldudp", "MoldUDP Payload", "moldudp.payload", (build_label_func*)&moldudp_prompt);
+    moldudp_payload_table = register_decode_as_next_proto(proto_moldudp, "MoldUDP Payload", "moldudp.payload", "MoldUDP Payload", (build_label_func*)&moldudp_prompt);
 }
 
 

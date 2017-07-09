@@ -114,10 +114,8 @@ dissect_moldudp64_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     offset += MOLDUDP64_MSGLEN_LEN;
 
-    /* Functionality for choosing subdissector is controlled through Decode As as CAN doesn't
-       have a unique identifier to determine subdissector */
     next_tvb = tvb_new_subset_length(tvb, offset, real_msglen);
-    if (!dissector_try_uint_new(moldudp64_payload_table, 0, next_tvb, pinfo, tree, FALSE, NULL))
+    if (!dissector_try_payload_new(moldudp64_payload_table, next_tvb, pinfo, tree, FALSE, NULL))
     {
         proto_tree_add_item(blk_tree, hf_moldudp64_msgdata, tvb, offset, real_msglen, ENC_NA);
     }
@@ -262,15 +260,14 @@ proto_register_moldudp64(void)
     proto_moldudp64 = proto_register_protocol("MoldUDP64",
             "MoldUDP64", "moldudp64");
 
-    moldudp64_payload_table = register_dissector_table("moldudp64.payload", "MoldUDP64 Payload", proto_moldudp64, FT_UINT32, BASE_DEC);
-
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_moldudp64, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_moldudp64 = expert_register_protocol(proto_moldudp64);
     expert_register_field_array(expert_moldudp64, ei, array_length(ei));
 
-    register_decode_as_next_proto("moldudp64", "MoldUDP64 Payload", "moldudp64.payload", (build_label_func*)&moldudp64_prompt);
+    moldudp64_payload_table = register_decode_as_next_proto(proto_moldudp64, "MoldUDP64 Payload", "moldudp64.payload",
+                                                            "MoldUDP64 Payload", (build_label_func*)&moldudp64_prompt);
 }
 
 

@@ -2444,9 +2444,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                       }
                       else
                       {
-                         /* Functionality for choosing subdissector is controlled through Decode As as EtherNet/IP doesn't
-                         have a unique identifier to determine subdissector */
-                         if (!dissector_try_uint(subdissector_io_table, 0, next_tvb, pinfo, dissector_tree))
+                         if (!dissector_try_payload(subdissector_io_table, next_tvb, pinfo, dissector_tree))
                          {
                             proto_tree_add_item(item_tree, hf_enip_connection_transport_data, tvb, offset+6, item_length, ENC_NA);
                          }
@@ -4502,8 +4500,6 @@ proto_register_enip(void)
    subdissector_srrd_table = register_dissector_table("enip.srrd.iface",
                                                       "ENIP SendRequestReplyData.Interface Handle", proto_enip, FT_UINT32, BASE_HEX);
 
-   subdissector_io_table = register_dissector_table("enip.io", "ENIP IO Payload", proto_enip, FT_UINT32, BASE_DEC);
-
    enip_request_hashtable = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), enip_request_hash, enip_request_equal);
    enip_conn_hashtable = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), enip_conn_hash, enip_conn_equal);
 
@@ -4517,7 +4513,7 @@ proto_register_enip(void)
    register_conversation_filter("enip", "ENIP IO", enip_io_conv_valid, enip_io_conv_filter);
    register_conversation_filter("enip", "ENIP Explicit", enip_exp_conv_valid, enip_exp_conv_filter);
 
-   register_decode_as_next_proto("enip", "ENIP I/O", "enip.io", (build_label_func*)&enip_prompt);
+   subdissector_io_table = register_decode_as_next_proto(proto_enip, "ENIP I/O", "enip.io", "ENIP IO Payload", (build_label_func*)&enip_prompt);
 } /* end of proto_register_enip() */
 
 
