@@ -4013,7 +4013,7 @@ generate_ue_id_for_heur(packet_info *pinfo)
 /* Fills common PCH information in a 'fp conversation info' object */
 /* Should only be used in heuristic dissectors! */
 static void
-fill_pch_coversation_info_for_heur(umts_fp_conversation_info_t* umts_fp_conversation_info ,packet_info *pinfo)
+fill_pch_conversation_info_for_heur(umts_fp_conversation_info_t* umts_fp_conversation_info ,packet_info *pinfo)
 {
     umts_fp_conversation_info->iface_type = IuB_Interface;
     umts_fp_conversation_info->division = Division_FDD;
@@ -4429,6 +4429,7 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     umts_fp_conversation_info_t* umts_fp_conversation_info = NULL;
     fp_pch_channel_info_t* fp_pch_channel_info = NULL;
     struct fp_info *p_fp_info;
+    gboolean conversation_initialized = FALSE;
     guint32 captured_length;
     guint32 reported_length;
     guint8 frame_type;
@@ -4457,6 +4458,7 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             fp_pch_channel_info = (fp_pch_channel_info_t*)umts_fp_conversation_info->channel_specific_info;
             /* Making sure this conversation type is "PCH" and the PCH channel info is present */
             if (umts_fp_conversation_info->channel == CHANNEL_PCH && fp_pch_channel_info != NULL) {
+                conversation_initialized = TRUE;
                 pi_length_found = fp_pch_channel_info->paging_indications != 0;
                 tb_size_found = umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[1] != 0;
                 if (pi_length_found && tb_size_found) {
@@ -4549,8 +4551,10 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             }
             if (!umts_fp_conversation_info) {
                 umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
-                fill_pch_coversation_info_for_heur(umts_fp_conversation_info, pinfo);
                 set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
+            }
+            if(!conversation_initialized) {
+                fill_pch_conversation_info_for_heur(umts_fp_conversation_info, pinfo);
                 fp_pch_channel_info = (fp_pch_channel_info_t*)umts_fp_conversation_info->channel_specific_info;
             }
             fp_pch_channel_info->paging_indications = pi_bit_length;
@@ -4562,7 +4566,9 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             if (!umts_fp_conversation_info) {
                 umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
-                fill_pch_coversation_info_for_heur(umts_fp_conversation_info, pinfo);
+            }
+            if(!conversation_initialized) {
+                fill_pch_conversation_info_for_heur(umts_fp_conversation_info, pinfo);
             }
             tb_byte_length = (reported_length - (pi_byte_length + 6)); /* Removing header length (4), footer length (2) and PI bitmap length*/
             /* Possible TB lengths for PCH is 10 or 30 bytes ( See 3GPP TR 25.944 / 4.1.1.2 ) */
@@ -4583,8 +4589,10 @@ heur_dissect_fp_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             /* TB present and PI bitmap is missing. Can calculate TB length.*/
             if (!umts_fp_conversation_info) {
                 umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
-                fill_pch_coversation_info_for_heur(umts_fp_conversation_info, pinfo);
                 set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
+            }
+            if(!conversation_initialized) {
+                fill_pch_conversation_info_for_heur(umts_fp_conversation_info, pinfo);
             }
             tb_byte_length = (reported_length - 6); /* Removing header length (4), footer length (2) */
             /* Possible TB lengths for PCH is 10 or 30 bytes ( See 3GPP TR 25.944 / 4.1.1.2 ) */
