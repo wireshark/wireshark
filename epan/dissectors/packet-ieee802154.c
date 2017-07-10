@@ -273,15 +273,12 @@ static void dissect_ieee802154_common       (tvbuff_t *, packet_info *, proto_tr
 
 /* Information Elements */
 static void dissect_ieee802154_header_ie       (tvbuff_t *, packet_info *, proto_tree *, guint *, ieee802154_packet *);
-static int  dissect_ieee802154_payload_mlme_sub_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset);
-static int  dissect_ieee802154_payload_ie      (tvbuff_t *, packet_info *, proto_tree *, int offset);
-static int  dissect_ieee802154_vendor_ie (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset, gint pie_length);
+static int  dissect_ieee802154_payload_ie      (tvbuff_t *, packet_info *, proto_tree *, guint);
 static void dissect_802154_enhanced_beacon_filter(tvbuff_t *tvb, proto_tree *subtree, guint16 psie_remaining, gint *offset);
 static void dissect_802154_tsch_time_sync(tvbuff_t *, proto_tree *, int *, guint);
 static void dissect_802154_tsch_timeslot(tvbuff_t *, proto_tree *, guint, guint16, gint*);
 static void dissect_802154_tsch_slotframe_link(tvbuff_t *, proto_tree *, guint16, guint16, guint *);
 static void dissect_802154_channel_hopping(tvbuff_t *, proto_tree *, guint16, guint *);
-static int  dissect_ieee802154_6top      (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_inf_elem_tree, guint offset, gint pie_length);
 /* Sub-dissector helpers. */
 static void dissect_ieee802154_fcf             (tvbuff_t *, packet_info *, proto_tree *, ieee802154_packet *, guint *);
 static void dissect_ieee802154_command         (tvbuff_t *, packet_info *, proto_tree *, ieee802154_packet *);
@@ -334,15 +331,18 @@ static int hf_ieee802154_hie_csl = -1;
 static int hf_ieee802154_hie_csl_phase = -1;
 static int hf_ieee802154_hie_csl_period = -1;
 static int hf_ieee802154_hie_csl_rendezvous_time = -1;
-static int hf_ieee802154_payload_ie = -1;
-static int hf_ieee802154_mlme = -1;
+static int hf_ieee802154_payload_ies = -1;
 static int hf_ieee802154_payload_ie_tlv = -1;
 static int hf_ieee802154_payload_ie_type = -1;
 static int hf_ieee802154_payload_ie_id = -1;
 static int hf_ieee802154_payload_ie_length = -1;
-static int hf_ieee802154_payload_ie_data = -1;
+static int hf_ieee802154_pie_unknown = -1;
+static int hf_ieee802154_pie_unknown_content = -1;
+static int hf_ieee802154_pie_termination = -1;
+static int hf_ieee802154_pie_vendor = -1;
+static int hf_ieee802154_pie_ietf = -1;
+static int hf_ieee802154_mlme = -1;
 static int hf_ieee802154_payload_ie_vendor_oui = -1;
-static int hf_ieee802154_payload_ie_ietf = -1;
 static int hf_ieee802154_timeslot_ie = -1;
 static int hf_ieee802154_enhanced_beacon_filter_ie = -1;
 static int hf_ieee802154_mlme_ie_data = -1;
@@ -503,9 +503,12 @@ static gint ett_ieee802154_hie_time_correction = -1;
 static gint ett_ieee802154_hie_ht1 = -1;
 static gint ett_ieee802154_hie_ht2 = -1;
 static gint ett_ieee802154_hie_csl = -1;
-static gint ett_ieee802154_payload = -1;
 static gint ett_ieee802154_payload_ie = -1;
-static gint ett_ieee802154_payload_ie_ietf = -1;
+static gint ett_ieee802154_payload_ie_tlv = -1;
+static gint ett_ieee802154_pie_termination = -1;
+static gint ett_ieee802154_pie_vendor = -1;
+static gint ett_ieee802154_pie_ietf = -1;
+static gint ett_ieee802154_pie_unknown = -1;
 static gint ett_ieee802154_mlme = -1;
 static gint ett_ieee802154_mlme_payload = -1;
 static gint ett_ieee802154_mlme_payload_data = -1;
@@ -708,7 +711,7 @@ static const value_string ieee802154_payload_ie_names[] = {
     { IEEE802154_PAYLOAD_IE_MLME,                     "MLME IE" },
     { IEEE802154_PAYLOAD_IE_VENDOR,                   "Vendor Specific IE" },
     { IEEE802154_PAYLOAD_IE_IETF,                     "IETF IE" },
-    { IEEE802154_PAYLOAD_IE_GID_TERM,                 "Payload Termination IE" },
+    { IEEE802154_PAYLOAD_IE_TERMINATION,              "Payload Termination IE" },
     { 0, NULL }
 };
 
@@ -2131,23 +2134,22 @@ dissect_802154_tsch_slotframe_link(tvbuff_t *tvb, proto_tree *tree, guint16 psie
 /**
  * Subdissector for the 6TOP Protocol contained within the Payload Information Elements.
  *
- * @param tvb pointer to buffer containing raw packet.
- * @param pinfo pointer to packet information fields.
- * @param p_inf_elem_tree pointer to data tree wireshark uses to display packet.
- * @param offset offset into the tvbuff to begin dissection.
- * @param pie_length size of the 6TOP message
+ * @param tvb the tv buffer
+ * @param pinfo packet info used for expert info
+ * @param p_inf_elem_tree the tree to append this item to
  */
-static int
-dissect_ieee802154_6top(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_inf_elem_tree, guint offset, gint pie_length)
+static guint
+dissect_ieee802154_6top(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_inf_elem_tree)
 {
     const guint8 supported_6p_version = 0x00;
 
+    guint      offset = 0;
+    guint      pie_length = tvb_reported_length(tvb);
     guint8     subie;
     guint8     version;
     guint8     type;
     guint8     code;
     guint8     num_cells;
-    int        orig_offset = offset;
     gboolean   have_cell_list = FALSE;
     int        i;
     proto_item *sixtop_item = NULL;
@@ -2330,7 +2332,7 @@ dissect_ieee802154_6top(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_inf_ele
         }
     }
 
-    return offset - orig_offset;
+    return offset;
 } /* dissect_ieee802154_6top */
 
 /**
@@ -2592,7 +2594,7 @@ dissect_ieee802154_header_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
         subtree = NULL;  // for checking in catch block if already created
 
-        TRY {  // primarily to catch out-of-bounds exceptions if a IE is expected to have more content
+        TRY {  // primarily to catch out-of-bounds exceptions if an IE is expected to have more content
             switch (id) {
                 case IEEE802154_HEADER_IE_HT1:
                     proto_item_append_text(ies_item, ", %s", name);
@@ -2931,15 +2933,15 @@ dissect_802154_enhanced_beacon_filter(tvbuff_t *tvb, proto_tree *tree, guint16 p
 /**
  * Subdissector for Vendor Specific IEs (Information Elements)
  *
- * @param tvb pointer to buffer containing the Vendor Specific IE
- * @param pinfo pointer to packet information fields (unused).
- * @param tree pointer to command subtree.
- * @param offset offset into the tvbuff to begin dissection.
- * @param pie_length the length of the Vendor Payload IE
+ * @param tvb the tv buffer
+ * @param pinfo packet info used for expert info
+ * @param tree the tree to append this item to
  */
-static int
-dissect_ieee802154_vendor_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint pie_length)
+static guint
+dissect_ieee802154_vendor_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+    guint      offset = 0;
+    guint      pie_length = tvb_reported_length(tvb);
     tvbuff_t  *next_tvb;
     guint32    vendor_oui;
 
@@ -2972,22 +2974,15 @@ dissect_ieee802154_vendor_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
  * @param tvb pointer to buffer containing raw packet.
  * @param pinfo pointer to packet information fields (unused).
  * @param tree pointer to command subtree.
- * @param offset offset into the tvbuff to begin dissection.
+ * @param orig_offset offset into the tvbuff to begin dissection.
  */
 static int
-dissect_ieee802154_payload_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+dissect_ieee802154_payload_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint orig_offset)
 {
-    proto_tree *subtree;
-    proto_item *payload_item;
-    proto_tree *payload_tree;
-    proto_item *mlme_item;
-    proto_tree *mlme_subtree;
-    proto_item *ietf_item;
-    proto_tree *ietf_subtree;
-    guint16     payload_ie;
-    guint16     pie_id;
-    int         pie_length;
-    int         orig_offset;
+    // GCC emits a spurious -Wclobbered if offset is used as function parameter (even with volatile)
+    volatile guint offset = orig_offset;
+    proto_item *ies_item = proto_tree_add_item(tree, hf_ieee802154_payload_ies, tvb, offset, -1, ENC_NA);
+    proto_tree *ies_tree = proto_item_add_subtree(ies_item, ett_ieee802154_payload_ie);
 
     static const int * fields[] = {
         &hf_ieee802154_payload_ie_type,
@@ -2996,76 +2991,98 @@ dissect_ieee802154_payload_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         NULL
     };
 
-    orig_offset = offset;
-
-    payload_item = proto_tree_add_item(tree, hf_ieee802154_payload_ie, tvb, offset, -1, ENC_NA);
-    payload_tree = proto_item_add_subtree(payload_item, ett_ieee802154_payload_ie);
-
     do {
-        payload_ie    =  tvb_get_letohs(tvb, offset);
-        pie_id        = (guint16) ((payload_ie & IEEE802154_PAYLOAD_IE_ID_MASK) >> 11);
-        pie_length    =  payload_ie & IEEE802154_PAYLOAD_IE_LENGTH_MASK;
+        proto_item *subitem;
+        guint consumed;
+        proto_tree *volatile subtree = NULL;  // for checking in catch block if already created
 
-        switch (pie_id) {
+        guint16 ie_header = tvb_get_letohs(tvb, offset);
+        guint16 id = (guint16) ((ie_header & IEEE802154_PAYLOAD_IE_ID_MASK) >> 11);
+        guint16 length = (guint16) (ie_header & IEEE802154_PAYLOAD_IE_LENGTH_MASK);
+        tvbuff_t *content = tvb_new_subset_length(tvb, offset + 2, length);
 
-            case IEEE802154_PAYLOAD_IE_MLME:
-                // 7.4.3.2 MLME IE
-                mlme_item = proto_tree_add_item(payload_tree, hf_ieee802154_mlme, tvb, offset, pie_length + 2, ENC_NA);
-                mlme_subtree = proto_item_add_subtree(mlme_item, ett_ieee802154_mlme);
-                proto_tree_add_bitmask(mlme_subtree, tvb, (const guint) offset, hf_ieee802154_payload_ie_tlv, ett_ieee802154_payload_ie, fields, ENC_LITTLE_ENDIAN);
-                offset += 2;
-
-                while (offset < (orig_offset + pie_length)) {
-                    offset += dissect_ieee802154_payload_mlme_sub_ie(tvb, pinfo, mlme_subtree, offset);
-                }
-                break;
-
-            case IEEE802154_PAYLOAD_IE_GID_TERM:
-                // 7.4.3.3 Payload Termination IE
-                subtree = proto_tree_add_subtree(payload_tree, tvb, offset, pie_length + 2, ett_ieee802154_payload, NULL, "Payload IE");
-                proto_item_append_text(subtree, ", %s, Length: %d", val_to_str_const(pie_id, ieee802154_payload_ie_names, "Unknown IE"), pie_length);
-                proto_tree_add_bitmask(subtree, tvb, (const guint) offset, hf_ieee802154_payload_ie_tlv, ett_ieee802154_payload_ie, fields, ENC_LITTLE_ENDIAN);
-                offset += 2;
-                break;
-
-            case IEEE802154_PAYLOAD_IE_VENDOR:
-                // 7.4.4.30 Vendor Specific Nested IE
-                subtree = proto_tree_add_subtree(payload_tree, tvb, offset, pie_length + 2, ett_ieee802154_payload, NULL, "Payload IE");
-                proto_item_append_text(subtree, ", %s, Length: %d", val_to_str_const(pie_id, ieee802154_payload_ie_names, "Unknown IE"), pie_length);
-                proto_tree_add_bitmask(subtree, tvb, (const guint) offset, hf_ieee802154_payload_ie_tlv, ett_ieee802154_payload_ie, fields, ENC_LITTLE_ENDIAN);
-                offset += 2;
-
-                offset += dissect_ieee802154_vendor_ie(tvb, pinfo, subtree, offset, pie_length);
-                break;
-
-            case IEEE802154_PAYLOAD_IE_IETF:
-                ietf_item = proto_tree_add_item(payload_tree, hf_ieee802154_payload_ie_ietf, tvb, offset, pie_length + 2, ENC_NA);
-                ietf_subtree = proto_item_add_subtree(ietf_item, ett_ieee802154_payload_ie_ietf);
-                proto_item_append_text(ietf_item, ", Length: %d", pie_length);
-                proto_tree_add_bitmask(ietf_subtree, tvb, (const guint) offset, hf_ieee802154_payload_ie_tlv, ett_ieee802154_payload_ie, fields, ENC_LITTLE_ENDIAN);
-                offset += 2;
-
-                offset += dissect_ieee802154_6top(tvb, pinfo, ietf_subtree, (guint) offset, pie_length);
-                break;
-
-            default:
-                subtree = proto_tree_add_subtree(payload_tree, tvb, offset, pie_length + 2, ett_ieee802154_payload, NULL, "Payload IE");
-                proto_item_append_text(subtree, ", %s, Length: %d", val_to_str_const(pie_id, ieee802154_payload_ie_names, "Unknown IE"), pie_length);
-                proto_tree_add_bitmask(subtree, tvb, (const guint) offset, hf_ieee802154_payload_ie_tlv, ett_ieee802154_payload_ie, fields, ENC_LITTLE_ENDIAN);
-                offset += 2;
-
-                if (pie_length > 0) {
-                    proto_tree_add_item(subtree, hf_ieee802154_payload_ie_data, tvb, offset, pie_length, ENC_NA);
-                    offset += pie_length;
-                }
+        const char *name = try_val_to_str(id, ieee802154_payload_ie_names);
+        if (name != NULL) {
+            proto_item_append_text(ies_item, ", %s", name);
         }
-    } while ((tvb_reported_length_remaining(tvb, offset) > 1)
-             && (pie_id != IEEE802154_PAYLOAD_IE_GID_TERM));
+
+        TRY {  // primarily to catch out-of-bounds exceptions if an IE is expected to have more content
+            switch (id) {
+                case IEEE802154_PAYLOAD_IE_MLME:
+                    // 7.4.3.2 MLME IE
+                    subitem = proto_tree_add_item(ies_tree, hf_ieee802154_mlme, tvb, offset, length + 2, ENC_NA);
+                    subtree = proto_item_add_subtree(subitem, ett_ieee802154_mlme);
+                    proto_tree_add_bitmask(subtree, tvb, offset, hf_ieee802154_payload_ie_tlv, ett_ieee802154_payload_ie_tlv, fields, ENC_LITTLE_ENDIAN);
+                    consumed = 0;
+                    while (consumed < length) {
+                        consumed += dissect_ieee802154_payload_mlme_sub_ie(content, pinfo, subtree, consumed);
+                    }
+                    break;
+
+                case IEEE802154_PAYLOAD_IE_TERMINATION:
+                    // 7.4.3.3 Payload Termination IE
+                    subitem = proto_tree_add_item(ies_tree, hf_ieee802154_pie_termination, tvb, offset, length + 2, ENC_NA);
+                    subtree = proto_item_add_subtree(subitem, ett_ieee802154_pie_termination);
+                    proto_tree_add_bitmask(subtree, tvb, offset, hf_ieee802154_payload_ie_tlv, ett_ieee802154_payload_ie_tlv, fields, ENC_LITTLE_ENDIAN);
+                    consumed = 0;
+                    break;
+
+                case IEEE802154_PAYLOAD_IE_VENDOR:
+                    // 7.4.4.30 Vendor Specific Nested IE
+                    subitem = proto_tree_add_item(ies_tree, hf_ieee802154_pie_vendor, tvb, offset, length + 2, ENC_NA);
+                    subtree = proto_item_add_subtree(subitem, ett_ieee802154_pie_vendor);
+                    proto_tree_add_bitmask(subtree, tvb, offset, hf_ieee802154_payload_ie_tlv, ett_ieee802154_payload_ie_tlv, fields, ENC_LITTLE_ENDIAN);
+                    consumed = dissect_ieee802154_vendor_ie(content, pinfo, subtree);
+                    break;
+
+                case IEEE802154_PAYLOAD_IE_IETF:
+                    // RFC 8137: IEEE 802.15.4 Information Element for the IETF
+                    subitem = proto_tree_add_item(ies_tree, hf_ieee802154_pie_ietf, tvb, offset, length + 2, ENC_NA);
+                    subtree = proto_item_add_subtree(subitem, ett_ieee802154_pie_ietf);
+                    proto_tree_add_bitmask(subtree, tvb, offset, hf_ieee802154_payload_ie_tlv, ett_ieee802154_payload_ie_tlv, fields, ENC_LITTLE_ENDIAN);
+                    consumed = dissect_ieee802154_6top(content, pinfo, subtree);
+                    break;
+
+                // unknown IE
+                default:
+                    proto_item_append_text(ies_item, ", Unknown IE 0x%02x", id);
+                    subitem = proto_tree_add_item(ies_tree, hf_ieee802154_pie_unknown, tvb, offset, length + 2, ENC_NA);
+                    proto_item_append_text(subitem, ": 0x%02x", id);
+                    subtree = proto_item_add_subtree(subitem, ett_ieee802154_pie_unknown);
+                    proto_tree_add_bitmask(subtree, tvb, offset, hf_ieee802154_payload_ie_tlv, ett_ieee802154_payload_ie_tlv, fields, ENC_LITTLE_ENDIAN);
+                    if (length > 0) {
+                        proto_tree_add_item(subtree, hf_ieee802154_pie_unknown_content, content, 0, length, ENC_NA);
+                    }
+                    expert_add_info(pinfo, subitem, &ei_ieee802154_ie_unknown_element_id);
+                    consumed = length;
+                    break;
+            }
+
+            if (consumed < length) {
+                proto_tree_add_item(subtree, hf_ieee802154_pie_unknown_content, content, consumed, length - consumed, ENC_NA);
+                expert_add_info(pinfo, subitem, &ei_ieee802154_ie_unknown_extra_content);
+            }
+        }
+        CATCH_ALL {
+            if (subtree == NULL) {  // if not done yet, create a tree for the exception
+                subitem = proto_tree_add_item(ies_tree, hf_ieee802154_pie_unknown, tvb, offset, length + 2, ENC_NA);
+                subtree = proto_item_add_subtree(subitem, ett_ieee802154_pie_unknown);
+            }
+            show_exception(tvb, pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+        }
+        ENDTRY;
+
+        offset += 2 + length;
+
+        if (id == IEEE802154_PAYLOAD_IE_TERMINATION) {
+            break;
+        }
+    } while (tvb_reported_length_remaining(tvb, offset) > 1);
 
     // Once the dissection is over, the length of the header is known
-    proto_item_set_len(payload_item, offset - orig_offset);
+    proto_item_set_len(ies_item, offset - orig_offset);
 
-    return (offset - orig_offset);
+    return offset - orig_offset;
 }
 
 static const true_false_string tfs_cinfo_device_type = { "FFD", "RFD" };
@@ -4242,21 +4259,11 @@ void proto_register_ieee802154(void)
 
         /* Payload IEs */
 
-        { &hf_ieee802154_payload_ie,
-        { "Payload IE",                     "wpan.payload_ie", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_ieee802154_mlme,
-        { "MLME IE",                        "wpan.mlme", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_ieee802154_timeslot_ie,
-        { "Timeslot IE",                    "wpan.timeslot", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_ieee802154_enhanced_beacon_filter_ie,
-        { "Enhanced Beacon Filter IE",      "wpan.enhanced_beacon_filter", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_ieee802154_payload_ies,
+        { "Payload IEs",                    "wpan.payload_ie", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_ieee802154_payload_ie_tlv,
-        { "Payload IE TLV",                 "wpan.payload_ie_tlv", FT_UINT16, BASE_HEX, NULL,
-            0x0, NULL, HFILL }},
+        { "Payload IE TLV",                 "wpan.payload_ie_tlv", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         { &hf_ieee802154_payload_ie_type,
         { "Type",                           "wpan.payload_ie.type", FT_UINT16, BASE_DEC, VALS(ieee802154_ie_types),
@@ -4269,6 +4276,34 @@ void proto_register_ieee802154(void)
         { &hf_ieee802154_payload_ie_length,
         { "Length",                         "wpan.payload_ie.length", FT_UINT16, BASE_DEC, NULL,
                 IEEE802154_PAYLOAD_IE_LENGTH_MASK, NULL, HFILL }},
+
+
+        /* Individual Payload IEs */
+
+        { &hf_ieee802154_pie_unknown,
+        { "Unknown Payload IE",             "wpan.payload_ie.unknown", FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_pie_unknown_content,
+        { "Unknown Content",                "wpan.payload_ie.unknown_content", FT_BYTES, SEP_SPACE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_pie_termination,
+        { "Payload Termination IE",         "wpan.payload_ie.termination", FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_pie_vendor,
+        { "Vendor Specific IE",             "wpan.payload_ie.vendor", FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_mlme,
+        { "MLME IE",                        "wpan.mlme", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee802154_timeslot_ie,
+        { "Timeslot IE",                    "wpan.timeslot", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee802154_enhanced_beacon_filter_ie,
+        { "Enhanced Beacon Filter IE",      "wpan.enhanced_beacon_filter", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_ieee802154_psie_short,
         { "Payload Sub IE (short)",         "wpan.payload_sub_ie.short", FT_UINT16, BASE_HEX, NULL,
@@ -4391,24 +4426,19 @@ void proto_register_ieee802154(void)
         { "Attribute ID Bitmap",             "wpan.payload_sub_ie.eb_filter.attr_id_bits", FT_UINT24, BASE_HEX, NULL,
                 0x0, NULL, HFILL }},
 
-        { &hf_ieee802154_payload_ie_data,
-        { "Data",                            "wpan.payload_ie.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-
         { &hf_ieee802154_payload_ie_vendor_oui,
         { "Vendor OUI",                      "wpan.payload_ie.vendor_oui", FT_UINT24, BASE_HEX, NULL,
             0x0, NULL, HFILL }},
-
-        { &hf_ieee802154_payload_ie_ietf,
-        { "Payload IE, IETF IE",             "wpan.payload_ie.ietf", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_ieee802154_mlme_ie_data,
         { "Data",                            "wpan.mlme_sub_ie.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         /* IETF IE */
+        { &hf_ieee802154_pie_ietf,
+        { "IETF Payload IE",                 "wpan.payload_ie.ietf", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_ieee802154_p_ie_ietf_sub_id,
-        { "Sub-ID", "wpan.ietf_ie.sub_id", FT_UINT8, BASE_DEC, NULL, 0,
-          NULL, HFILL }},
+        { "Sub-ID",                          "wpan.ietf_ie.sub_id", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
         /* IETF IE - 6top IE */
         { &hf_ieee802154_6top,
@@ -4751,9 +4781,12 @@ void proto_register_ieee802154(void)
         &ett_ieee802154_hie_ht1,
         &ett_ieee802154_hie_ht2,
         &ett_ieee802154_hie_csl,
-        &ett_ieee802154_payload,
         &ett_ieee802154_payload_ie,
-        &ett_ieee802154_payload_ie_ietf,
+        &ett_ieee802154_payload_ie_tlv,
+        &ett_ieee802154_pie_termination,
+        &ett_ieee802154_pie_vendor,
+        &ett_ieee802154_pie_ietf,
+        &ett_ieee802154_pie_unknown,
         &ett_ieee802154_tsch_timeslot,
         &ett_ieee802154_tsch_synch,
         &ett_ieee802154_channel_hopping,

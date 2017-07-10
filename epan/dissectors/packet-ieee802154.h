@@ -255,9 +255,10 @@ typedef enum {
 #define IEEE802154_PAYLOAD_IE_ESDU           0x0 /* Encapsulated Service Data Unit */
 #define IEEE802154_PAYLOAD_IE_MLME           0x1 /* Media Access Control (MAC) subLayer Management Entity */
 #define IEEE802154_PAYLOAD_IE_VENDOR         0x2 /* Vendor Specific */
+/* Reserved 0x3-0x4 */
 #define IEEE802154_PAYLOAD_IE_IETF           0x5 /* IETF IE, RFC 8137 */
-/* Reserved 0x3-0xe */
-#define IEEE802154_PAYLOAD_IE_GID_TERM       0xf
+/* Reserved 0x6-0xe */
+#define IEEE802154_PAYLOAD_IE_TERMINATION    0xf
 
 /* Payload IE (Nested) Sub ID */
 /* Payload IE (Nested) Sub ID - long format */
