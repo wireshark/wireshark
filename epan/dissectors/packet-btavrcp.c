@@ -686,8 +686,8 @@ dissect_item_mediaplayer(tvbuff_t *tvb, proto_tree *tree, gint offset)
     proto_tree *features_not_set_tree;
 
     item_length = tvb_get_ntohs(tvb, offset + 1);
-    displayable_name_length = tvb_get_ntohs(tvb, offset + 1 + 2 + 1 + 1 + 4 + 16 + 1 + 2);
-    displayable_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1 + 2 + 1 + 1 + 4 + 16 + 1 + 2 + 2, displayable_name_length, ENC_ASCII);
+    displayable_name_length = tvb_get_ntohs(tvb, offset + 1 + 2 + 2 + 1 + 4 + 16 + 1 + 2);
+    displayable_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1 + 2 + 2 + 1 + 4 + 16 + 1 + 2 + 2, displayable_name_length, ENC_ASCII);
 
     pitem = proto_tree_add_none_format(tree, hf_btavrcp_player_item, tvb, offset, 1 + 2 + item_length, "Player: %s", displayable_name);
     ptree = proto_item_add_subtree(pitem, ett_btavrcp_player);
@@ -697,14 +697,17 @@ dissect_item_mediaplayer(tvbuff_t *tvb, proto_tree *tree, gint offset)
     proto_tree_add_item(ptree, hf_btavrcp_item_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(ptree, hf_btavrcp_player_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
+    proto_tree_add_item(ptree, hf_btavrcp_player_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
     proto_tree_add_item(ptree, hf_btavrcp_major_player_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     proto_tree_add_item(ptree, hf_btavrcp_player_subtype, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
+
+    proto_tree_add_item(ptree, hf_btavrcp_play_status, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
 
     /* feature bit mask */
     features_item = proto_tree_add_item(ptree, hf_btavrcp_features, tvb, offset, 16, ENC_NA);
@@ -817,9 +820,6 @@ dissect_item_mediaplayer(tvbuff_t *tvb, proto_tree *tree, gint offset)
         proto_tree_add_item((feature_octet & (1 << 7)) ? features_tree : features_not_set_tree, hf_btavrcp_feature_reserved_7, tvb, offset + i_feature, 1, ENC_BIG_ENDIAN);
     }
     offset += 16;
-
-    proto_tree_add_item(ptree, hf_btavrcp_play_status, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
 
     proto_tree_add_item(ptree, hf_btavrcp_character_set, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
