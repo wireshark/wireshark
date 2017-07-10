@@ -55480,12 +55480,12 @@ static void delete_setup_conv(nbap_setup_conv_t *conv)
 {
   guint32 key;
 
-  key = calculate_setup_conv_key(conv->transaction_id, conv->dd_mode, conv->channel_id);
   /* check if conversation exist */
   if(conv == NULL){
     nbap_debug("Trying delete Setup Conversation that does not exist (ptr == NULL)\t");
     return;
   }
+  key = calculate_setup_conv_key(conv->transaction_id, conv->dd_mode, conv->channel_id);
   wmem_map_remove(nbap_setup_conv_table, GUINT_TO_POINTER(key));
 }
 
