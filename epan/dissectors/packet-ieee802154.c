@@ -71,6 +71,8 @@
 #include <epan/to_str.h>
 #include <epan/show_exception.h>
 #include <epan/proto_data.h>
+#include <epan/etypes.h>
+#include <epan/oui.h>
 #include <wsutil/pint.h>
 
 /* Use libgcrypt for cipher libraries. */
@@ -273,7 +275,7 @@ static void dissect_ieee802154_common       (tvbuff_t *, packet_info *, proto_tr
 
 /* Information Elements */
 static void dissect_ieee802154_header_ie       (tvbuff_t *, packet_info *, proto_tree *, guint *, ieee802154_packet *);
-static int  dissect_ieee802154_payload_ie      (tvbuff_t *, packet_info *, proto_tree *, guint);
+static int  dissect_ieee802154_payload_ie      (tvbuff_t *, packet_info *, proto_tree *, guint, proto_tree *);
 static void dissect_802154_enhanced_beacon_filter(tvbuff_t *tvb, proto_tree *subtree, guint16 psie_remaining, gint *offset);
 static void dissect_802154_tsch_time_sync(tvbuff_t *, proto_tree *, int *, guint);
 static void dissect_802154_tsch_timeslot(tvbuff_t *, proto_tree *, guint, guint16, gint*);
@@ -407,6 +409,18 @@ static int hf_ieee802154_6top_slot_offset = -1;
 static int hf_ieee802154_6top_channel_offset = -1;
 static int hf_ieee802154_6top_total_num_cells = -1;
 
+static int hf_ieee802159_mpx = -1;
+static int hf_ieee802159_mpx_transaction_control = -1;
+static int hf_ieee802159_mpx_transfer_type = -1;
+static int hf_ieee802159_mpx_transaction_id = -1;
+static int hf_ieee802159_mpx_transaction_id_as_multiplex_id = -1;
+static int hf_ieee802159_mpx_fragment_number = -1;
+static int hf_ieee802159_mpx_total_frame_size = -1;
+static int hf_ieee802159_mpx_multiplex_id = -1;
+static int hf_ieee802159_mpx_kmp_id = -1;
+static int hf_ieee802159_mpx_kmp_vendor_oui = -1;
+static int hf_ieee802159_mpx_fragment = -1;
+
 static int proto_zboss = -1;
 static int hf_zboss_direction = -1;
 static int hf_zboss_page = -1;
@@ -530,6 +544,8 @@ static gint ett_ieee802154_p_ie_6top_cell_list = -1;
 static gint ett_ieee802154_p_ie_6top_cand_cell_list = -1;
 static gint ett_ieee802154_p_ie_6top_rel_cell_list = -1;
 static gint ett_ieee802154_p_ie_6top_cell = -1;
+static gint ett_ieee802159_mpx = -1;
+static gint ett_ieee802159_mpx_transaction_control = -1;
 
 static expert_field ei_ieee802154_invalid_addressing = EI_INIT;
 /* static expert_field ei_ieee802154_invalid_panid_compression = EI_INIT; */
@@ -548,6 +564,9 @@ static expert_field ei_ieee802154_6top_unsupported_command = EI_INIT;
 static expert_field ei_ieee802154_ie_unsupported_element_id = EI_INIT;
 static expert_field ei_ieee802154_ie_unknown_element_id = EI_INIT;
 static expert_field ei_ieee802154_ie_unknown_extra_content = EI_INIT;
+static expert_field ei_ieee802159_mpx_invalid_transfer_type = EI_INIT;
+static expert_field ei_ieee802159_mpx_unsupported_kmp = EI_INIT;
+static expert_field ei_ieee802159_mpx_unknown_kmp = EI_INIT;
 
 static int ieee802_15_4_short_address_type = -1;
 /*
@@ -566,6 +585,9 @@ static dissector_handle_t  zigbee_nwk_handle;
 static dissector_handle_t  ieee802154_handle;
 static dissector_handle_t  ieee802154_nonask_phy_handle;
 static dissector_handle_t  ieee802154_nofcs_handle;
+
+static dissector_table_t ethertype_table;  // for the MPX-IE
+static dissector_handle_t eapol_handle;  // for the MPX-IE
 
 /* Versions */
 static const value_string ieee802154_frame_versions[] = {
@@ -710,6 +732,7 @@ static const value_string ieee802154_payload_ie_names[] = {
     { IEEE802154_PAYLOAD_IE_ESDU,                     "ESDU IE" },
     { IEEE802154_PAYLOAD_IE_MLME,                     "MLME IE" },
     { IEEE802154_PAYLOAD_IE_VENDOR,                   "Vendor Specific IE" },
+    { IEEE802154_PAYLOAD_IE_MPX,                      "MPX IE" },
     { IEEE802154_PAYLOAD_IE_IETF,                     "IETF IE" },
     { IEEE802154_PAYLOAD_IE_TERMINATION,              "Payload Termination IE" },
     { 0, NULL }
@@ -831,6 +854,33 @@ static const value_string ietf_6top_cell_options[] = {
     { 6, "RX|SHARED" },
     { 7, "TX|RX|SHARED" },
     { 0, NULL}
+};
+
+static const value_string mpx_transfer_type_vals[] = {
+    { IEEE802159_MPX_FULL_FRAME, "Full Frame" },
+    { IEEE802159_MPX_FULL_FRAME_NO_MUXID, "Full frame with compressed Multiplex ID" },
+    { IEEE802159_MPX_NON_LAST_FRAGMENT, "Non-last Fragment" },
+    { IEEE802159_MPX_LAST_FRAGMENT, "Last Fragment" },
+    { IEEE802159_MPX_ABORT, "Abort" },
+    { 0, NULL }
+};
+
+static const value_string mpx_multiplex_id_vals[] = {
+    { IEEE802159_MPX_MULTIPLEX_ID_KMP, "KMP" },
+    { 0, NULL }
+};
+
+static const value_string mpx_kmp_id_vals[] = {
+    { IEEE802159_MPX_KMP_ID_IEEE8021X, "IEEE 802.1X/MKA" },
+    { IEEE802159_MPX_KMP_ID_HIP, "HIP" },
+    { IEEE802159_MPX_KMP_ID_IKEV2, "IKEv2" },
+    { IEEE802159_MPX_KMP_ID_PANA, "PANA" },
+    { IEEE802159_MPX_KMP_ID_DRAGONFLY, "Dragonfly" },
+    { IEEE802159_MPX_KMP_ID_IEEE80211_4WH, "IEEE 802.11/4WH" },
+    { IEEE802159_MPX_KMP_ID_IEEE80211_GKH, "IEEE 802.11/GKH" },
+    { IEEE802159_MPX_KMP_ID_ETSI_TS_102_887_2, "ETSI TS 102 887-2" },
+    { IEEE802159_MPX_KMP_ID_VENDOR_SPECIFIC, "Vendor-specific" },
+    { 0, NULL }
 };
 
 static const int * header_short_format_nested_ie[] = {
@@ -1850,7 +1900,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     /* Presence of Payload IEs is defined by the termination of the Header IEs */
     if (packet->payload_ie_present) {
-        offset += dissect_ieee802154_payload_ie(payload_tvb, pinfo, ieee802154_tree, offset);
+        offset += dissect_ieee802154_payload_ie(payload_tvb, pinfo, ieee802154_tree, offset, tree);
     }
 
     if ((packet->version == IEEE802154_VERSION_2015) && (packet->frame_type == IEEE802154_FCF_CMD)) {
@@ -2931,6 +2981,134 @@ dissect_802154_enhanced_beacon_filter(tvbuff_t *tvb, proto_tree *tree, guint16 p
 }
 
 /**
+ * Subdissector for MPX IEs (IEEE 802.15.9)
+ *
+ * @param tvb the tv buffer
+ * @param pinfo packet info
+ * @param tree the tree to append this item to
+ * @param top_level_tree the top level tree used for displaying payload content
+ */
+static guint
+dissect_mpx_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *top_level_tree)
+{
+    static const int * fields[] = {
+            &hf_ieee802159_mpx_transaction_id,
+            &hf_ieee802159_mpx_transfer_type,
+            NULL
+    };
+    static const int * fields_compressed_multiplex_id[] = {
+            &hf_ieee802159_mpx_transaction_id_as_multiplex_id,
+            &hf_ieee802159_mpx_transfer_type,
+            NULL
+    };
+
+    guint offset = 0;
+    guint8 transaction_control = tvb_get_guint8(tvb, offset);
+    guint8 transfer_type = (guint8) (transaction_control & IEEE802159_MPX_TRANSFER_TYPE_MASK);
+    guint8 transaction_id = (guint8) ((transaction_control & IEEE802159_MPX_TRANSACTION_ID_MASK) >> IEEE802159_MPX_TRANSACTION_ID_SHIFT);
+    gint32 multiplex_id = -1;
+    guint8 fragment_number;
+
+    if (transfer_type == IEEE802159_MPX_FULL_FRAME_NO_MUXID) {
+        proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee802159_mpx_transaction_control, ett_ieee802159_mpx_transaction_control,
+                               fields_compressed_multiplex_id, ENC_LITTLE_ENDIAN, BMT_NO_FLAGS);
+        multiplex_id = transaction_id;
+    } else {
+        proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee802159_mpx_transaction_control, ett_ieee802159_mpx_transaction_control,
+                               fields, ENC_LITTLE_ENDIAN, BMT_NO_FLAGS);
+    }
+    offset += 1;
+
+    switch (transfer_type) {  // cf. IEEE 802.15.9 Table 18 - Summary of different MPX IE formats
+        case IEEE802159_MPX_FULL_FRAME:
+            proto_tree_add_item(tree, hf_ieee802159_mpx_multiplex_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            multiplex_id = tvb_get_letohs(tvb, offset);
+            offset += 2;
+            break;
+        case IEEE802159_MPX_FULL_FRAME_NO_MUXID:
+            break;  // nothing to do
+        case IEEE802159_MPX_NON_LAST_FRAGMENT:
+            fragment_number = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(tree, hf_ieee802159_mpx_fragment_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            if (fragment_number == 0) {
+                proto_tree_add_item(tree, hf_ieee802159_mpx_total_frame_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+                multiplex_id = tvb_get_letohs(tvb, offset);
+                proto_tree_add_item(tree, hf_ieee802159_mpx_multiplex_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+            }
+            break;
+        case IEEE802159_MPX_LAST_FRAGMENT:
+            proto_tree_add_item(tree, hf_ieee802159_mpx_fragment_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            break;
+        case IEEE802159_MPX_ABORT:
+            if (tvb_reported_length_remaining(tvb, offset) == 2) {
+                proto_tree_add_item(tree, hf_ieee802159_mpx_total_frame_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+            }
+            return offset;
+        default:  // reserved values -> warning and return
+            expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_ieee802159_mpx_invalid_transfer_type);
+            return offset;
+    }
+
+    // TODO: reassembly
+
+    dissector_handle_t dissector = NULL;
+
+    if (multiplex_id == IEEE802159_MPX_MULTIPLEX_ID_KMP) {
+        guint8 kmp_id = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(tree, hf_ieee802159_mpx_kmp_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+        switch (kmp_id) {
+            case IEEE802159_MPX_KMP_ID_IEEE8021X:
+                dissector = eapol_handle;
+                break;
+
+            // TODO
+            case IEEE802159_MPX_KMP_ID_HIP:
+            case IEEE802159_MPX_KMP_ID_IKEV2:
+            case IEEE802159_MPX_KMP_ID_PANA:
+            case IEEE802159_MPX_KMP_ID_DRAGONFLY:
+            case IEEE802159_MPX_KMP_ID_IEEE80211_4WH:
+            case IEEE802159_MPX_KMP_ID_IEEE80211_GKH:
+            case IEEE802159_MPX_KMP_ID_ETSI_TS_102_887_2:
+                expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_ieee802159_mpx_unsupported_kmp);
+                break;
+
+            case IEEE802159_MPX_KMP_ID_VENDOR_SPECIFIC:
+                proto_tree_add_item(tree, hf_ieee802159_mpx_kmp_vendor_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
+                offset += 3;
+                break;
+
+            // Unknown
+            default:
+                expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_ieee802159_mpx_unknown_kmp);
+        }
+    }
+
+    if (transfer_type == IEEE802159_MPX_FULL_FRAME || transfer_type == IEEE802159_MPX_FULL_FRAME_NO_MUXID) {
+        tvbuff_t * payload = tvb_new_subset_remaining(tvb, offset);
+        if (multiplex_id > 1500) {
+            dissector = dissector_get_uint_handle(ethertype_table, (guint)multiplex_id);
+        }
+        if (dissector) {
+            call_dissector(dissector, payload, pinfo, top_level_tree);  // exceptions are caught in our caller
+        } else {
+            call_data_dissector(payload, pinfo, top_level_tree);
+        }
+    } else {
+        proto_tree_add_item(tree, hf_ieee802159_mpx_fragment, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+    }
+    offset = tvb_reported_length(tvb);
+
+    return offset;
+}
+
+
+/**
  * Subdissector for Vendor Specific IEs (Information Elements)
  *
  * @param tvb the tv buffer
@@ -2975,9 +3153,10 @@ dissect_ieee802154_vendor_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
  * @param pinfo pointer to packet information fields (unused).
  * @param tree pointer to command subtree.
  * @param orig_offset offset into the tvbuff to begin dissection.
+ * @param top_level_tree the top level tree used for displaying payload content
  */
 static int
-dissect_ieee802154_payload_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint orig_offset)
+dissect_ieee802154_payload_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint orig_offset, proto_tree *top_level_tree)
 {
     // GCC emits a spurious -Wclobbered if offset is used as function parameter (even with volatile)
     volatile guint offset = orig_offset;
@@ -3033,6 +3212,14 @@ dissect_ieee802154_payload_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
                     subtree = proto_item_add_subtree(subitem, ett_ieee802154_pie_vendor);
                     proto_tree_add_bitmask(subtree, tvb, offset, hf_ieee802154_payload_ie_tlv, ett_ieee802154_payload_ie_tlv, fields, ENC_LITTLE_ENDIAN);
                     consumed = dissect_ieee802154_vendor_ie(content, pinfo, subtree);
+                    break;
+
+                case IEEE802154_PAYLOAD_IE_MPX:
+                    // IEEE 802.15.9
+                    subitem = proto_tree_add_item(ies_tree, hf_ieee802159_mpx, tvb, offset, length + 2, ENC_NA);
+                    subtree = proto_item_add_subtree(subitem, ett_ieee802159_mpx);
+                    proto_tree_add_bitmask(subtree, tvb, offset, hf_ieee802154_payload_ie_tlv, ett_ieee802154_payload_ie_tlv, fields, ENC_LITTLE_ENDIAN);
+                    consumed = dissect_mpx_ie(content, pinfo, subtree, top_level_tree);
                     break;
 
                 case IEEE802154_PAYLOAD_IE_IETF:
@@ -4541,6 +4728,63 @@ void proto_register_ieee802154(void)
         { "Total Number of Cells", "wpan.6top_total_num_cells", FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }},
 
+        /* MPX IE (IEEE 802.15.9) */
+        { &hf_ieee802159_mpx,
+          { "MPX IE", "wpan.mpx", FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_ieee802159_mpx_transaction_control,
+          { "Transaction Control", "wpan.mpx.transaction_control", FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_ieee802159_mpx_transfer_type,
+          { "Transfer Type", "wpan.mpx.transfer_type", FT_UINT8, BASE_HEX, VALS(mpx_transfer_type_vals), IEEE802159_MPX_TRANSFER_TYPE_MASK,
+            NULL, HFILL }
+        },
+
+        { &hf_ieee802159_mpx_transaction_id,
+          { "Transaction ID", "wpan.mpx.transaction_id", FT_UINT8, BASE_HEX, NULL, IEEE802159_MPX_TRANSACTION_ID_MASK,
+            NULL, HFILL }
+        },
+
+        { &hf_ieee802159_mpx_transaction_id_as_multiplex_id,
+          { "Multiplex ID", "wpan.mpx.multiplex_id", FT_UINT8, BASE_HEX, VALS(mpx_multiplex_id_vals), IEEE802159_MPX_TRANSACTION_ID_MASK,
+            "Transaction ID used as Multiplex ID", HFILL }
+        },
+
+        { &hf_ieee802159_mpx_fragment_number,
+          { "Fragment Number", "wpan.mpx.fragment_number", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_ieee802159_mpx_total_frame_size,
+          { "Total Frame Size", "wpan.mpx.total_frame_size", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Total Upper-Layer Frame Size", HFILL }
+        },
+
+        { &hf_ieee802159_mpx_multiplex_id,
+          { "Multiplex ID", "wpan.mpx.multiplex_id", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_ieee802159_mpx_kmp_id,
+          { "KMP ID", "wpan.mpx.kmp.id", FT_UINT8, BASE_DEC, VALS(mpx_kmp_id_vals), 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_ieee802159_mpx_kmp_vendor_oui,
+          { "Vendor OUI", "wpan.mpx.kmp.vendor_oui", FT_UINT24, BASE_HEX, VALS(oui_vals), 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_ieee802159_mpx_fragment,
+          { "Upper-Layer Frame Fragment", "wpan.mpx.fragment", FT_BYTES, SEP_SPACE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+
         /* Command Frame Specific Fields */
 
         { &hf_ieee802154_cmd_id,
@@ -4785,6 +5029,8 @@ void proto_register_ieee802154(void)
         &ett_ieee802154_payload_ie_tlv,
         &ett_ieee802154_pie_termination,
         &ett_ieee802154_pie_vendor,
+        &ett_ieee802159_mpx,
+        &ett_ieee802159_mpx_transaction_control,
         &ett_ieee802154_pie_ietf,
         &ett_ieee802154_pie_unknown,
         &ett_ieee802154_tsch_timeslot,
@@ -4849,6 +5095,12 @@ void proto_register_ieee802154(void)
                 "Unknown IE element ID", EXPFILL }},
         { &ei_ieee802154_ie_unknown_extra_content, { "wpan.ie_unknown_extra_content", PI_PROTOCOL, PI_WARN,
                 "Unexpected extra content for IE", EXPFILL }},
+        { &ei_ieee802159_mpx_invalid_transfer_type, { "wpan.payload_ie.mpx.invalid_transfer_type", PI_PROTOCOL, PI_WARN,
+                "Invalid transfer type (cf. IEEE 802.15.9 Table 19)", EXPFILL }},
+        { &ei_ieee802159_mpx_unsupported_kmp, { "wpan.payload_ie.mpx.invalid_transfer_type", PI_PROTOCOL, PI_WARN,
+                "Unsupported KMP ID", EXPFILL }},
+        { &ei_ieee802159_mpx_unknown_kmp, { "wpan.payload_ie.mpx.invalid_transfer_type", PI_PROTOCOL, PI_WARN,
+                "Unknown KMP ID (cf. IEEE 802.15.9 Table 21)", EXPFILL }},
     };
 
     /* Preferences. */
@@ -5027,6 +5279,10 @@ void proto_reg_handoff_ieee802154(void)
 
     /* Register dissector handles. */
     dissector_add_uint("ethertype", ieee802154_ethertype, ieee802154_handle);
+
+    /* For the MPX-IE */
+    ethertype_table = find_dissector_table("ethertype");
+    eapol_handle = find_dissector("eapol");
 } /* proto_reg_handoff_ieee802154 */
 
 /*

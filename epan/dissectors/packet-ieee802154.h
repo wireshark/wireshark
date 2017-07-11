@@ -255,7 +255,8 @@ typedef enum {
 #define IEEE802154_PAYLOAD_IE_ESDU           0x0 /* Encapsulated Service Data Unit */
 #define IEEE802154_PAYLOAD_IE_MLME           0x1 /* Media Access Control (MAC) subLayer Management Entity */
 #define IEEE802154_PAYLOAD_IE_VENDOR         0x2 /* Vendor Specific */
-/* Reserved 0x3-0x4 */
+#define IEEE802154_PAYLOAD_IE_MPX            0x3 /* MPX IE (802.15.9) */
+/* Reserved 0x4 */
 #define IEEE802154_PAYLOAD_IE_IETF           0x5 /* IETF IE, RFC 8137 */
 /* Reserved 0x6-0xe */
 #define IEEE802154_PAYLOAD_IE_TERMINATION    0xf
@@ -344,6 +345,29 @@ typedef enum {
 #define IETF_6TOP_CELL_OPTION_RX       0x02
 #define IETF_6TOP_CELL_OPTION_SHARED   0x04
 #define IETF_6TOP_CELL_OPTION_RESERVED 0xF8
+
+/* IEEE 802.15.9 MPX IE */
+#define IEEE802159_MPX_TRANSFER_TYPE_MASK      0x07
+#define IEEE802159_MPX_TRANSACTION_ID_MASK     0xf8
+#define IEEE802159_MPX_TRANSACTION_ID_SHIFT    0x03
+/* IEEE 802.15.9 Table 19 */
+#define IEEE802159_MPX_FULL_FRAME                 0
+#define IEEE802159_MPX_FULL_FRAME_NO_MUXID        1
+#define IEEE802159_MPX_NON_LAST_FRAGMENT          2
+#define IEEE802159_MPX_LAST_FRAGMENT              4
+#define IEEE802159_MPX_ABORT                      6
+/* IEEE 802.15.9 Table 20 */
+#define IEEE802159_MPX_MULTIPLEX_ID_KMP           1
+/* IEEE 802.15.9 Table 21 */
+#define IEEE802159_MPX_KMP_ID_IEEE8021X           1
+#define IEEE802159_MPX_KMP_ID_HIP                 2
+#define IEEE802159_MPX_KMP_ID_IKEV2               3
+#define IEEE802159_MPX_KMP_ID_PANA                4
+#define IEEE802159_MPX_KMP_ID_DRAGONFLY           5
+#define IEEE802159_MPX_KMP_ID_IEEE80211_4WH       6
+#define IEEE802159_MPX_KMP_ID_IEEE80211_GKH       7
+#define IEEE802159_MPX_KMP_ID_ETSI_TS_102_887_2   8
+#define IEEE802159_MPX_KMP_ID_VENDOR_SPECIFIC   255
 
 /*  Structure containing information regarding all necessary packet fields. */
 typedef struct {
