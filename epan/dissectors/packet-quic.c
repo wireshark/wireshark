@@ -1073,6 +1073,27 @@ static guint32 get_len_missing_packet(guint8 frame_type){
     return 1;
 }
 
+static guint32 get_len_packet_number(guint8 puflags){
+
+    switch((puflags & PUFLAGS_PKN) >> 4){
+        case 0:
+            return 1;
+        break;
+        case 1:
+            return 2;
+        break;
+        case 2:
+            return 4;
+        break;
+        case 3:
+            return 6;
+        break;
+        default:
+        break;
+    }
+    return 6;
+}
+
 static gboolean is_quic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint16 len_pkn, quic_info_data_t *quic_info){
     guint8 frame_type;
     guint8 num_ranges, num_revived, num_blocks = 0, num_timestamp;
@@ -2163,30 +2184,9 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Packet Number */
 
-    /* Get len of packet number (and packet number), may be a more easy function to get the length... */
-    switch((puflags & PUFLAGS_PKN) >> 4){
-        case 0:
-            len_pkn = 1;
-            pkn = tvb_get_guint8(tvb, offset);
-        break;
-        case 1:
-            len_pkn = 2;
-            pkn = tvb_get_letohs(tvb, offset);
-        break;
-        case 2:
-            len_pkn = 4;
-            pkn = tvb_get_letohl(tvb, offset);
-        break;
-        case 3:
-            len_pkn = 6;
-            pkn = tvb_get_letoh48(tvb, offset);
-        break;
-        default: /* It is only between 0..3 but Clang(Analyser) i don't like this... ;-) */
-            len_pkn = 6;
-            pkn = tvb_get_letoh48(tvb, offset);
-        break;
-    }
-    proto_tree_add_item(quic_tree, hf_quic_packet_number, tvb, offset, len_pkn, ENC_LITTLE_ENDIAN);
+    /* Get len of packet number */
+    len_pkn = get_len_packet_number(puflags);
+    proto_tree_add_item_ret_uint64(quic_tree, hf_quic_packet_number, tvb, offset, len_pkn, ENC_LITTLE_ENDIAN, &pkn);
     offset += len_pkn;
 
     /* Unencrypt Message (Handshake or Connection Close...) */
