@@ -61,6 +61,11 @@
       </item>
       <item>
        <property name="text">
+        <string>Expert</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
         <string>Filter Buttons</string>
        </property>
       </item>
@@ -85,6 +90,7 @@
       <widget class="ColumnPreferencesFrame" name="columnFrame"/>
       <widget class="FontColorPreferencesFrame" name="fontandcolorFrame"/>
       <widget class="CapturePreferencesFrame" name="captureFrame"/>
+      <widget class="UatFrame" name="expertFrame"/>
       <widget class="UatFrame" name="filterExpressonsFrame"/>
       <widget class="QFrame" name="advancedFrame">
        <layout class="QVBoxLayout" name="verticalLayout_2">

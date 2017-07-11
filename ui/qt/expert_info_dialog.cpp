@@ -40,8 +40,7 @@
 #include <QTreeWidgetItemIterator>
 
 // To do:
-// - Test with custom expert levels (Preferences -> Protocols -> Expert).
-//   - Figure out why the expert level prefs are buried under "Protocols".
+// - Test with custom expert levels (Preferences -> Expert).
 // - Test with large captures. Add a custom model if needed.
 // - Promote to a fourth pane in the main window?
 // - Make colors configurable? In theory we could condense image/expert_indicators.svg,

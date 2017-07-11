@@ -442,7 +442,18 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
 
     // Printing prefs don't apply here.
     module_t *print_module = prefs_find_module("print");
-    if (print_module) print_module->use_gui = FALSE;
+    if (print_module)
+        print_module->use_gui = FALSE;
+
+    //Since "expert" is really a pseudo protocol, it shouldn't be
+    //categorized with other "real" protocols when it comes to
+    //preferences.  Since it's just a UAT, don't bury it in
+    //with the other protocols
+    pd_ui_->expertFrame->setUat(uat_get_table_by_name("Expert Info Severity Level Configuration"));
+    module_t *expert_module = prefs_find_module("_ws.expert");
+    if (expert_module)
+       expert_module->use_gui = FALSE;
+
 
     // We called takeChildren above so this shouldn't be necessary.
     while (tmp_item.childCount() > 0) {
@@ -903,6 +914,7 @@ void PreferencesDialog::on_buttonBox_accepted()
 
     pd_ui_->columnFrame->unstash();
     pd_ui_->filterExpressonsFrame->acceptChanges();
+    pd_ui_->expertFrame->acceptChanges();
 
     prefs_main_write();
     if (save_decode_as_entries(&err) < 0)
@@ -954,6 +966,7 @@ void PreferencesDialog::on_buttonBox_rejected()
 {
     //handle frames that don't have their own OK/Cancel "buttons"
     pd_ui_->filterExpressonsFrame->rejectChanges();
+    pd_ui_->expertFrame->rejectChanges();
 }
 
 void PreferencesDialog::on_buttonBox_helpRequested()
