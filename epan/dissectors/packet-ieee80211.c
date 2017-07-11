@@ -13872,6 +13872,19 @@ ieee80211_tag_ssid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
    * We also need a better way of getting the display format of a
    * string value, so we can do something other than run it through
    * format_text(), which won't handle UTF-8.
+   *
+   * Addendum: 802.11 2012 points out that a Zero-length SSID means
+   * the Wildcard SSID. Make it so. From 8.4.2.2 of 802.11 2012:
+   *
+   * "The length of the SSID field is between 0 and 32 octets. A SSID
+   *  field of length 0 is used within Probe Request management frames to
+   *  indicate the wildcard SSID. The wildcard SSID is also used in
+   *  Beacon and Probe Response frames transmitted by mesh STAs."
+   *
+   * Also, we have to return a non-zero value here to prevent an ugly
+   * undissected field warning. Since this code is only called from
+   * one place and is used in call to dissector_try_uint_new, it is
+   * OK to do so.
    */
   ssid = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, ssid_len, ENC_ASCII);
   if (ssid_len == (gint)tag_len) {
@@ -13890,9 +13903,10 @@ ieee80211_tag_ssid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     memcpy(wlan_stats.ssid, ssid, MIN(ssid_len, MAX_SSID_LEN));
     wlan_stats.ssid_len = ssid_len;
   } else {
-    proto_item_append_text(field_data->item_tag, ": Broadcast");
+    proto_item_append_text(field_data->item_tag, ": Wildcard SSID");
 
-    col_append_str(pinfo->cinfo, COL_INFO, ", SSID=Broadcast");
+    col_append_str(pinfo->cinfo, COL_INFO, ", SSID=Wildcard (Broadcast)");
+    offset += 1; // Make sure we return non-zero
   }
 
   beacon_padding += 1; /* padding bug */
