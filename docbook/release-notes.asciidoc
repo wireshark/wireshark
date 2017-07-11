@@ -36,6 +36,7 @@ since version 2.4.0:
   supports preference files that contain the old preferences, but new
   preference files will be written without the old fields.
 * Support for user-editable "enterprises" file in the personal config dir (overriding system file).
+* QUIC dissector is rename to G(oogle) QUIC (quic => gquic)
 
 //=== Removed Dissectors
 

@@ -1,5 +1,5 @@
-/* packet-quic.c
- * Routines for Quick UDP Internet Connections dissection
+/* packet-gquic.c
+ * Routines for (Google) Quick UDP Internet Connections dissection
  * Copyright 2013, Alexis La Goutte <alexis.lagoutte at gmail dot com>
  *
  * Wireshark - Network traffic analyzer
@@ -38,175 +38,175 @@ QUIC source code in Chromium : https://code.google.com/p/chromium/codesearch#chr
 #include <epan/dissectors/packet-http2.h>
 #include <wsutil/strtoi.h>
 
-void proto_register_quic(void);
-void proto_reg_handoff_quic(void);
+void proto_register_gquic(void);
+void proto_reg_handoff_gquic(void);
 
-static dissector_handle_t quic_handle;
+static dissector_handle_t gquic_handle;
 
 
-static int proto_quic = -1;
-static int hf_quic_puflags = -1;
-static int hf_quic_puflags_vrsn = -1;
-static int hf_quic_puflags_rst = -1;
-static int hf_quic_puflags_dnonce = -1;
-static int hf_quic_puflags_cid = -1;
-static int hf_quic_puflags_cid_old = -1;
-static int hf_quic_puflags_pkn = -1;
-static int hf_quic_puflags_mpth = -1;
-static int hf_quic_puflags_rsv = -1;
-static int hf_quic_cid = -1;
-static int hf_quic_version = -1;
-static int hf_quic_diversification_nonce = -1;
-static int hf_quic_packet_number = -1;
-static int hf_quic_prflags = -1;
-static int hf_quic_prflags_entropy = -1;
-static int hf_quic_prflags_fecg = -1;
-static int hf_quic_prflags_fec = -1;
-static int hf_quic_prflags_rsv = -1;
-static int hf_quic_message_authentication_hash = -1;
-static int hf_quic_frame = -1;
-static int hf_quic_frame_type = -1;
-static int hf_quic_frame_type_padding_length = -1;
-static int hf_quic_frame_type_padding = -1;
-static int hf_quic_frame_type_rsts_stream_id = -1;
-static int hf_quic_frame_type_rsts_byte_offset = -1;
-static int hf_quic_frame_type_rsts_error_code = -1;
-static int hf_quic_frame_type_cc_error_code = -1;
-static int hf_quic_frame_type_cc_reason_phrase_length = -1;
-static int hf_quic_frame_type_cc_reason_phrase = -1;
-static int hf_quic_frame_type_goaway_error_code = -1;
-static int hf_quic_frame_type_goaway_last_good_stream_id = -1;
-static int hf_quic_frame_type_goaway_reason_phrase_length = -1;
-static int hf_quic_frame_type_goaway_reason_phrase = -1;
-static int hf_quic_frame_type_wu_stream_id = -1;
-static int hf_quic_frame_type_wu_byte_offset = -1;
-static int hf_quic_frame_type_blocked_stream_id = -1;
-static int hf_quic_frame_type_sw_send_entropy = -1;
-static int hf_quic_frame_type_sw_least_unacked_delta = -1;
-static int hf_quic_frame_type_stream = -1;
-static int hf_quic_frame_type_stream_f = -1;
-static int hf_quic_frame_type_stream_d = -1;
-static int hf_quic_frame_type_stream_ooo = -1;
-static int hf_quic_frame_type_stream_ss = -1;
+static int proto_gquic = -1;
+static int hf_gquic_puflags = -1;
+static int hf_gquic_puflags_vrsn = -1;
+static int hf_gquic_puflags_rst = -1;
+static int hf_gquic_puflags_dnonce = -1;
+static int hf_gquic_puflags_cid = -1;
+static int hf_gquic_puflags_cid_old = -1;
+static int hf_gquic_puflags_pkn = -1;
+static int hf_gquic_puflags_mpth = -1;
+static int hf_gquic_puflags_rsv = -1;
+static int hf_gquic_cid = -1;
+static int hf_gquic_version = -1;
+static int hf_gquic_diversification_nonce = -1;
+static int hf_gquic_packet_number = -1;
+static int hf_gquic_prflags = -1;
+static int hf_gquic_prflags_entropy = -1;
+static int hf_gquic_prflags_fecg = -1;
+static int hf_gquic_prflags_fec = -1;
+static int hf_gquic_prflags_rsv = -1;
+static int hf_gquic_message_authentication_hash = -1;
+static int hf_gquic_frame = -1;
+static int hf_gquic_frame_type = -1;
+static int hf_gquic_frame_type_padding_length = -1;
+static int hf_gquic_frame_type_padding = -1;
+static int hf_gquic_frame_type_rsts_stream_id = -1;
+static int hf_gquic_frame_type_rsts_byte_offset = -1;
+static int hf_gquic_frame_type_rsts_error_code = -1;
+static int hf_gquic_frame_type_cc_error_code = -1;
+static int hf_gquic_frame_type_cc_reason_phrase_length = -1;
+static int hf_gquic_frame_type_cc_reason_phrase = -1;
+static int hf_gquic_frame_type_goaway_error_code = -1;
+static int hf_gquic_frame_type_goaway_last_good_stream_id = -1;
+static int hf_gquic_frame_type_goaway_reason_phrase_length = -1;
+static int hf_gquic_frame_type_goaway_reason_phrase = -1;
+static int hf_gquic_frame_type_wu_stream_id = -1;
+static int hf_gquic_frame_type_wu_byte_offset = -1;
+static int hf_gquic_frame_type_blocked_stream_id = -1;
+static int hf_gquic_frame_type_sw_send_entropy = -1;
+static int hf_gquic_frame_type_sw_least_unacked_delta = -1;
+static int hf_gquic_frame_type_stream = -1;
+static int hf_gquic_frame_type_stream_f = -1;
+static int hf_gquic_frame_type_stream_d = -1;
+static int hf_gquic_frame_type_stream_ooo = -1;
+static int hf_gquic_frame_type_stream_ss = -1;
 /* ACK */
-static int hf_quic_frame_type_ack = -1;
-static int hf_quic_frame_type_ack_n = -1;
-static int hf_quic_frame_type_ack_u = -1;
-static int hf_quic_frame_type_ack_t = -1;
-static int hf_quic_frame_type_ack_ll = -1;
-static int hf_quic_frame_type_ack_mm = -1;
+static int hf_gquic_frame_type_ack = -1;
+static int hf_gquic_frame_type_ack_n = -1;
+static int hf_gquic_frame_type_ack_u = -1;
+static int hf_gquic_frame_type_ack_t = -1;
+static int hf_gquic_frame_type_ack_ll = -1;
+static int hf_gquic_frame_type_ack_mm = -1;
 /* ACK Before Q034 */
-static int hf_quic_frame_type_ack_received_entropy = -1;
-static int hf_quic_frame_type_ack_largest_observed = -1;
-static int hf_quic_frame_type_ack_ack_delay_time = -1;
-static int hf_quic_frame_type_ack_num_timestamp = -1;
-static int hf_quic_frame_type_ack_delta_largest_observed = -1;
-static int hf_quic_frame_type_ack_first_timestamp = -1;
-static int hf_quic_frame_type_ack_time_since_previous_timestamp = -1;
-static int hf_quic_frame_type_ack_num_ranges = -1;
-static int hf_quic_frame_type_ack_missing_packet = -1;
-static int hf_quic_frame_type_ack_range_length = -1;
-static int hf_quic_frame_type_ack_num_revived = -1;
-static int hf_quic_frame_type_ack_revived_packet = -1;
+static int hf_gquic_frame_type_ack_received_entropy = -1;
+static int hf_gquic_frame_type_ack_largest_observed = -1;
+static int hf_gquic_frame_type_ack_ack_delay_time = -1;
+static int hf_gquic_frame_type_ack_num_timestamp = -1;
+static int hf_gquic_frame_type_ack_delta_largest_observed = -1;
+static int hf_gquic_frame_type_ack_first_timestamp = -1;
+static int hf_gquic_frame_type_ack_time_since_previous_timestamp = -1;
+static int hf_gquic_frame_type_ack_num_ranges = -1;
+static int hf_gquic_frame_type_ack_missing_packet = -1;
+static int hf_gquic_frame_type_ack_range_length = -1;
+static int hf_gquic_frame_type_ack_num_revived = -1;
+static int hf_gquic_frame_type_ack_revived_packet = -1;
 /* ACK After Q034 */
-static int hf_quic_frame_type_ack_largest_acked = -1;
-static int hf_quic_frame_type_ack_largest_acked_delta_time = -1;
-static int hf_quic_frame_type_ack_num_blocks = -1;
-static int hf_quic_frame_type_ack_first_ack_block_length = -1;
-static int hf_quic_frame_type_ack_gap_to_next_block = -1;
-static int hf_quic_frame_type_ack_ack_block_length = -1;
-static int hf_quic_frame_type_ack_delta_largest_acked = -1;
-static int hf_quic_frame_type_ack_time_since_largest_acked = -1;
-static int hf_quic_stream_id = -1;
-static int hf_quic_offset = -1;
-static int hf_quic_data_len = -1;
-static int hf_quic_tag = -1;
-static int hf_quic_tags = -1;
-static int hf_quic_tag_number = -1;
-static int hf_quic_tag_value = -1;
-static int hf_quic_tag_type = -1;
-static int hf_quic_tag_offset_end = -1;
-static int hf_quic_tag_length = -1;
-static int hf_quic_tag_sni = -1;
-static int hf_quic_tag_pad = -1;
-static int hf_quic_tag_ver = -1;
-static int hf_quic_tag_ccs = -1;
-static int hf_quic_tag_pdmd = -1;
-static int hf_quic_tag_uaid = -1;
-static int hf_quic_tag_stk = -1;
-static int hf_quic_tag_sno = -1;
-static int hf_quic_tag_prof = -1;
-static int hf_quic_tag_scfg = -1;
-static int hf_quic_tag_scfg_number = -1;
-static int hf_quic_tag_rrej = -1;
-static int hf_quic_tag_crt = -1;
-static int hf_quic_tag_aead = -1;
-static int hf_quic_tag_scid = -1;
-static int hf_quic_tag_pubs = -1;
-static int hf_quic_tag_kexs = -1;
-static int hf_quic_tag_obit = -1;
-static int hf_quic_tag_expy = -1;
-static int hf_quic_tag_nonc = -1;
-static int hf_quic_tag_mspc = -1;
-static int hf_quic_tag_tcid = -1;
-static int hf_quic_tag_srbf = -1;
-static int hf_quic_tag_icsl = -1;
-static int hf_quic_tag_scls = -1;
-static int hf_quic_tag_copt = -1;
-static int hf_quic_tag_ccrt = -1;
-static int hf_quic_tag_irtt = -1;
-static int hf_quic_tag_cfcw = -1;
-static int hf_quic_tag_sfcw = -1;
-static int hf_quic_tag_cetv = -1;
-static int hf_quic_tag_xlct = -1;
-static int hf_quic_tag_nonp = -1;
-static int hf_quic_tag_csct = -1;
-static int hf_quic_tag_ctim = -1;
-static int hf_quic_tag_mids = -1;
-static int hf_quic_tag_fhol = -1;
-static int hf_quic_tag_sttl = -1;
-static int hf_quic_tag_smhl = -1;
-static int hf_quic_tag_tbkp = -1;
+static int hf_gquic_frame_type_ack_largest_acked = -1;
+static int hf_gquic_frame_type_ack_largest_acked_delta_time = -1;
+static int hf_gquic_frame_type_ack_num_blocks = -1;
+static int hf_gquic_frame_type_ack_first_ack_block_length = -1;
+static int hf_gquic_frame_type_ack_gap_to_next_block = -1;
+static int hf_gquic_frame_type_ack_ack_block_length = -1;
+static int hf_gquic_frame_type_ack_delta_largest_acked = -1;
+static int hf_gquic_frame_type_ack_time_since_largest_acked = -1;
+static int hf_gquic_stream_id = -1;
+static int hf_gquic_offset = -1;
+static int hf_gquic_data_len = -1;
+static int hf_gquic_tag = -1;
+static int hf_gquic_tags = -1;
+static int hf_gquic_tag_number = -1;
+static int hf_gquic_tag_value = -1;
+static int hf_gquic_tag_type = -1;
+static int hf_gquic_tag_offset_end = -1;
+static int hf_gquic_tag_length = -1;
+static int hf_gquic_tag_sni = -1;
+static int hf_gquic_tag_pad = -1;
+static int hf_gquic_tag_ver = -1;
+static int hf_gquic_tag_ccs = -1;
+static int hf_gquic_tag_pdmd = -1;
+static int hf_gquic_tag_uaid = -1;
+static int hf_gquic_tag_stk = -1;
+static int hf_gquic_tag_sno = -1;
+static int hf_gquic_tag_prof = -1;
+static int hf_gquic_tag_scfg = -1;
+static int hf_gquic_tag_scfg_number = -1;
+static int hf_gquic_tag_rrej = -1;
+static int hf_gquic_tag_crt = -1;
+static int hf_gquic_tag_aead = -1;
+static int hf_gquic_tag_scid = -1;
+static int hf_gquic_tag_pubs = -1;
+static int hf_gquic_tag_kexs = -1;
+static int hf_gquic_tag_obit = -1;
+static int hf_gquic_tag_expy = -1;
+static int hf_gquic_tag_nonc = -1;
+static int hf_gquic_tag_mspc = -1;
+static int hf_gquic_tag_tcid = -1;
+static int hf_gquic_tag_srbf = -1;
+static int hf_gquic_tag_icsl = -1;
+static int hf_gquic_tag_scls = -1;
+static int hf_gquic_tag_copt = -1;
+static int hf_gquic_tag_ccrt = -1;
+static int hf_gquic_tag_irtt = -1;
+static int hf_gquic_tag_cfcw = -1;
+static int hf_gquic_tag_sfcw = -1;
+static int hf_gquic_tag_cetv = -1;
+static int hf_gquic_tag_xlct = -1;
+static int hf_gquic_tag_nonp = -1;
+static int hf_gquic_tag_csct = -1;
+static int hf_gquic_tag_ctim = -1;
+static int hf_gquic_tag_mids = -1;
+static int hf_gquic_tag_fhol = -1;
+static int hf_gquic_tag_sttl = -1;
+static int hf_gquic_tag_smhl = -1;
+static int hf_gquic_tag_tbkp = -1;
 
 /* Public Reset Tags */
-static int hf_quic_tag_rnon = -1;
-static int hf_quic_tag_rseq = -1;
-static int hf_quic_tag_cadr_addr_type = -1;
-static int hf_quic_tag_cadr_addr_ipv4 = -1;
-static int hf_quic_tag_cadr_addr_ipv6 = -1;
-static int hf_quic_tag_cadr_addr = -1;
-static int hf_quic_tag_cadr_port = -1;
+static int hf_gquic_tag_rnon = -1;
+static int hf_gquic_tag_rseq = -1;
+static int hf_gquic_tag_cadr_addr_type = -1;
+static int hf_gquic_tag_cadr_addr_ipv4 = -1;
+static int hf_gquic_tag_cadr_addr_ipv6 = -1;
+static int hf_gquic_tag_cadr_addr = -1;
+static int hf_gquic_tag_cadr_port = -1;
 
-static int hf_quic_tag_unknown = -1;
+static int hf_gquic_tag_unknown = -1;
 
-static int hf_quic_padding = -1;
-static int hf_quic_stream_data = -1;
-static int hf_quic_payload = -1;
+static int hf_gquic_padding = -1;
+static int hf_gquic_stream_data = -1;
+static int hf_gquic_payload = -1;
 
 #define QUIC_PORT_RANGE "80,443"
-static gboolean g_quic_debug = FALSE;
+static gboolean g_gquic_debug = FALSE;
 
-static gint ett_quic = -1;
-static gint ett_quic_puflags = -1;
-static gint ett_quic_prflags = -1;
-static gint ett_quic_ft = -1;
-static gint ett_quic_ftflags = -1;
-static gint ett_quic_tag_value = -1;
+static gint ett_gquic = -1;
+static gint ett_gquic_puflags = -1;
+static gint ett_gquic_prflags = -1;
+static gint ett_gquic_ft = -1;
+static gint ett_gquic_ftflags = -1;
+static gint ett_gquic_tag_value = -1;
 
-static expert_field ei_quic_tag_undecoded = EI_INIT;
-static expert_field ei_quic_tag_length = EI_INIT;
-static expert_field ei_quic_tag_unknown = EI_INIT;
-static expert_field ei_quic_version_invalid = EI_INIT;
+static expert_field ei_gquic_tag_undecoded = EI_INIT;
+static expert_field ei_gquic_tag_length = EI_INIT;
+static expert_field ei_gquic_tag_unknown = EI_INIT;
+static expert_field ei_gquic_version_invalid = EI_INIT;
 
-typedef struct quic_info_data {
+typedef struct gquic_info_data {
     guint8 version;
     gboolean version_valid;
     guint16 server_port;
-} quic_info_data_t;
+} gquic_info_data_t;
 
-#define QUIC_MIN_LENGTH 3
-#define QUIC_MAGIC2 0x513032
-#define QUIC_MAGIC3 0x513033
+#define GQUIC_MIN_LENGTH 3
+#define GQUIC_MAGIC2 0x513032
+#define GQUIC_MAGIC3 0x513033
 
 /**************************************************************************/
 /*                      Public Flags                                      */
@@ -1094,7 +1094,7 @@ static guint32 get_len_packet_number(guint8 puflags){
     return 6;
 }
 
-static gboolean is_quic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint16 len_pkn, quic_info_data_t *quic_info){
+static gboolean is_gquic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint16 len_pkn, gquic_info_data_t *gquic_info){
     guint8 frame_type;
     guint8 num_ranges, num_revived, num_blocks = 0, num_timestamp;
     guint32 len_stream = 0, len_offset = 0, len_data = 0, len_largest_observed = 1, len_missing_packet = 1;
@@ -1107,7 +1107,7 @@ static gboolean is_quic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, guint offse
     /* Message Authentication Hash */
     offset += 12;
 
-    if(quic_info->version_valid && quic_info->version < 34){ /* No longer Private Flags after Q034 */
+    if(gquic_info->version_valid && gquic_info->version < 34){ /* No longer Private Flags after Q034 */
         /* Private Flags */
         offset += 1;
     }
@@ -1179,7 +1179,7 @@ static gboolean is_quic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, guint offse
                     offset += 4;
                 break;
                 case FT_STOP_WAITING:
-                    if(quic_info->version_valid && quic_info->version < 34){ /* No longer Entropy after Q034 */
+                    if(gquic_info->version_valid && gquic_info->version < 34){ /* No longer Entropy after Q034 */
                         /* Send Entropy */
                         offset += 1;
                     }
@@ -1221,7 +1221,7 @@ static gboolean is_quic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, guint offse
                 message_tag = tvb_get_ntohl(tvb, offset);
                 if (message_tag == MTAG_CHLO|| message_tag == MTAG_SHLO || message_tag == MTAG_REJ) {
                     if(message_tag == MTAG_CHLO && pinfo->srcport != 443) { /* Found */
-                        quic_info->server_port = pinfo->destport;
+                        gquic_info->server_port = pinfo->destport;
                     }
                     return TRUE;
                 }
@@ -1236,7 +1236,7 @@ static gboolean is_quic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, guint offse
                 /* Frame Type */
                 offset += 1;
 
-                if(quic_info->version_valid && quic_info->version < 34){ /* No longer Entropy after Q034 */
+                if(gquic_info->version_valid && gquic_info->version < 34){ /* No longer Entropy after Q034 */
                     /* Received Entropy */
                     offset += 1;
 
@@ -1344,7 +1344,7 @@ static gboolean is_quic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, guint offse
 }
 
 static guint32
-dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, guint32 tag_number, quic_info_data_t *quic_info){
+dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, guint offset, guint32 tag_number, gquic_info_data_t *gquic_info){
     guint32 tag_offset_start = offset + tag_number*4*2;
     guint32 tag_offset = 0, total_tag_len = 0;
     gint32 tag_len;
@@ -1354,20 +1354,20 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
         guint32 offset_end, tag;
         const guint8* tag_str;
 
-        ti_tag = proto_tree_add_item(quic_tree, hf_quic_tags, tvb, offset, 8, ENC_NA);
-        tag_tree = proto_item_add_subtree(ti_tag, ett_quic_tag_value);
-        ti_type = proto_tree_add_item_ret_string(tag_tree, hf_quic_tag_type, tvb, offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
+        ti_tag = proto_tree_add_item(gquic_tree, hf_gquic_tags, tvb, offset, 8, ENC_NA);
+        tag_tree = proto_item_add_subtree(ti_tag, ett_gquic_tag_value);
+        ti_type = proto_tree_add_item_ret_string(tag_tree, hf_gquic_tag_type, tvb, offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
         tag = tvb_get_ntohl(tvb, offset);
         proto_item_append_text(ti_type, " (%s)", val_to_str(tag, tag_vals, "Unknown"));
         proto_item_append_text(ti_tag, ": %s (%s)", tag_str, val_to_str(tag, tag_vals, "Unknown"));
         offset += 4;
 
-        proto_tree_add_item(tag_tree, hf_quic_tag_offset_end, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(tag_tree, hf_gquic_tag_offset_end, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset_end = tvb_get_letohl(tvb, offset);
 
         tag_len = offset_end - tag_offset;
         total_tag_len += tag_len;
-        ti_len = proto_tree_add_uint(tag_tree, hf_quic_tag_length, tvb, offset, 4, tag_len);
+        ti_len = proto_tree_add_uint(tag_tree, hf_gquic_tag_length, tvb, offset, 4, tag_len);
         proto_item_append_text(ti_tag, " (l=%u)", tag_len);
         PROTO_ITEM_SET_GENERATED(ti_len);
         offset += 4;
@@ -1376,246 +1376,246 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
         if( tag_len > tvb_reported_length_remaining(tvb, tag_offset_start + tag_offset)){
             tag_len = tvb_reported_length_remaining(tvb, tag_offset_start + tag_offset);
             offset_end = tag_offset + tag_len;
-            expert_add_info(pinfo, ti_len, &ei_quic_tag_length);
+            expert_add_info(pinfo, ti_len, &ei_gquic_tag_length);
         }
 
-        proto_tree_add_item(tag_tree, hf_quic_tag_value, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
+        proto_tree_add_item(tag_tree, hf_gquic_tag_value, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
 
         switch(tag){
             case TAG_PAD:
-                proto_tree_add_item(tag_tree, hf_quic_tag_pad, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_pad, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
                 tag_offset += tag_len;
             break;
             case TAG_SNI:
-                proto_tree_add_item_ret_string(tag_tree, hf_quic_tag_sni, tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
+                proto_tree_add_item_ret_string(tag_tree, hf_gquic_tag_sni, tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
                 proto_item_append_text(ti_tag, ": %s", tag_str);
                 tag_offset += tag_len;
             break;
             case TAG_VER:
-                proto_tree_add_item_ret_string(tag_tree, hf_quic_tag_ver, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
+                proto_tree_add_item_ret_string(tag_tree, hf_gquic_tag_ver, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
                 proto_item_append_text(ti_tag, ": %s", tag_str);
                 tag_offset += 4;
             break;
             case TAG_CCS:
                 while(offset_end - tag_offset >= 8){
-                    proto_tree_add_item(tag_tree, hf_quic_tag_ccs, tvb, tag_offset_start + tag_offset, 8, ENC_NA);
+                    proto_tree_add_item(tag_tree, hf_gquic_tag_ccs, tvb, tag_offset_start + tag_offset, 8, ENC_NA);
                     tag_offset += 8;
                 }
             break;
             case TAG_PDMD:
-                proto_tree_add_item_ret_string(tag_tree, hf_quic_tag_pdmd, tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
+                proto_tree_add_item_ret_string(tag_tree, hf_gquic_tag_pdmd, tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
                 proto_item_append_text(ti_tag, ": %s", tag_str);
                 tag_offset += tag_len;
             break;
             case TAG_UAID:
-                proto_tree_add_item_ret_string(tag_tree, hf_quic_tag_uaid, tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
+                proto_tree_add_item_ret_string(tag_tree, hf_gquic_tag_uaid, tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
                 proto_item_append_text(ti_tag, ": %s", tag_str);
                 tag_offset += tag_len;
             break;
             case TAG_STK:
-                proto_tree_add_item(tag_tree, hf_quic_tag_stk, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_stk, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
                 tag_offset += tag_len;
             break;
             case TAG_SNO:
-                proto_tree_add_item(tag_tree, hf_quic_tag_sno, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_sno, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
                 tag_offset += tag_len;
             break;
             case TAG_PROF:
-                proto_tree_add_item(tag_tree, hf_quic_tag_prof, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_prof, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
                 tag_offset += tag_len;
             break;
             case TAG_SCFG:{
                 guint32 scfg_tag_number;
 
-                proto_tree_add_item(tag_tree, hf_quic_tag_scfg, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_scfg, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA);
                 tag_offset += 4;
-                proto_tree_add_item(tag_tree, hf_quic_tag_scfg_number, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_scfg_number, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
                 scfg_tag_number = tvb_get_letohl(tvb, tag_offset_start + tag_offset);
                 tag_offset += 4;
 
-                dissect_quic_tag(tvb, pinfo, tag_tree, tag_offset_start + tag_offset, scfg_tag_number, quic_info);
+                dissect_gquic_tag(tvb, pinfo, tag_tree, tag_offset_start + tag_offset, scfg_tag_number, gquic_info);
                 tag_offset += tag_len - 4 - 4;
                 }
             break;
             case TAG_RREJ:
                 while(offset_end - tag_offset >= 4){
-                    proto_tree_add_item(tag_tree, hf_quic_tag_rrej, tvb, tag_offset_start + tag_offset, 4,  ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(tag_tree, hf_gquic_tag_rrej, tvb, tag_offset_start + tag_offset, 4,  ENC_LITTLE_ENDIAN);
                     proto_item_append_text(ti_tag, ", Code %s", val_to_str_ext(tvb_get_letohl(tvb, tag_offset_start + tag_offset), &handshake_failure_reason_vals_ext, "Unknown"));
                     tag_offset += 4;
                 }
             break;
             case TAG_CRT:
-                proto_tree_add_item(tag_tree, hf_quic_tag_crt, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_crt, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
                 tag_offset += tag_len;
             break;
             case TAG_AEAD:
                 while(offset_end - tag_offset >= 4){
                     proto_tree *ti_aead;
-                    ti_aead = proto_tree_add_item(tag_tree, hf_quic_tag_aead, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA);
+                    ti_aead = proto_tree_add_item(tag_tree, hf_gquic_tag_aead, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA);
                     proto_item_append_text(ti_aead, " (%s)", val_to_str(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_aead_vals, "Unknown"));
                     proto_item_append_text(ti_tag, ", %s", val_to_str(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_aead_vals, "Unknown"));
                     tag_offset += 4;
                 }
             break;
             case TAG_SCID:
-                proto_tree_add_item(tag_tree, hf_quic_tag_scid, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_scid, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
                 tag_offset += tag_len;
             break;
             case TAG_PUBS:
                 /*TODO FIX: 24 Length + Pubs key?.. ! */
-                proto_tree_add_item(tag_tree, hf_quic_tag_pubs, tvb, tag_offset_start + tag_offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_pubs, tvb, tag_offset_start + tag_offset, 2, ENC_LITTLE_ENDIAN);
                 tag_offset += 2;
                 while(offset_end - tag_offset >= 3){
-                    proto_tree_add_item(tag_tree, hf_quic_tag_pubs, tvb, tag_offset_start + tag_offset, 3, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(tag_tree, hf_gquic_tag_pubs, tvb, tag_offset_start + tag_offset, 3, ENC_LITTLE_ENDIAN);
                     tag_offset += 3;
                 }
             break;
             case TAG_KEXS:
                 while(offset_end - tag_offset >= 4){
                     proto_tree *ti_kexs;
-                    ti_kexs = proto_tree_add_item(tag_tree, hf_quic_tag_kexs, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA);
+                    ti_kexs = proto_tree_add_item(tag_tree, hf_gquic_tag_kexs, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA);
                     proto_item_append_text(ti_kexs, " (%s)", val_to_str(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_kexs_vals, "Unknown"));
                     proto_item_append_text(ti_tag, ", %s", val_to_str(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_kexs_vals, "Unknown"));
                     tag_offset += 4;
                 }
             break;
             case TAG_OBIT:
-                proto_tree_add_item(tag_tree, hf_quic_tag_obit, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_obit, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
                 tag_offset += tag_len;
             break;
             case TAG_EXPY:
-                proto_tree_add_item(tag_tree, hf_quic_tag_expy, tvb, tag_offset_start + tag_offset, 8, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_expy, tvb, tag_offset_start + tag_offset, 8, ENC_LITTLE_ENDIAN);
                 tag_offset += 8;
             break;
             case TAG_NONC:
                 /*TODO: Enhance display: 32 bytes consisting of 4 bytes of timestamp (big-endian, UNIX epoch seconds), 8 bytes of server orbit and 20 bytes of random data. */
-                proto_tree_add_item(tag_tree, hf_quic_tag_nonc, tvb, tag_offset_start + tag_offset, 32, ENC_NA);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_nonc, tvb, tag_offset_start + tag_offset, 32, ENC_NA);
                 tag_offset += 32;
             break;
             case TAG_MSPC:
-                proto_tree_add_item(tag_tree, hf_quic_tag_mspc, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_mspc, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
                 proto_item_append_text(ti_tag, ": %u", tvb_get_letohl(tvb, tag_offset_start + tag_offset));
                 tag_offset += 4;
             break;
             case TAG_TCID:
-                proto_tree_add_item(tag_tree, hf_quic_tag_tcid, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_tcid, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
                 tag_offset += 4;
             break;
             case TAG_SRBF:
-                proto_tree_add_item(tag_tree, hf_quic_tag_srbf, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_srbf, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
                 tag_offset += 4;
             break;
             case TAG_ICSL:
-                proto_tree_add_item(tag_tree, hf_quic_tag_icsl, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_icsl, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
                 tag_offset += 4;
             break;
             case TAG_SCLS:
-                proto_tree_add_item(tag_tree, hf_quic_tag_scls, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_scls, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
                 tag_offset += 4;
             break;
             case TAG_COPT:
                 if(tag_len){
-                    proto_tree_add_item(tag_tree, hf_quic_tag_copt, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(tag_tree, hf_gquic_tag_copt, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
                     tag_offset += 4;
                 }
             break;
             case TAG_CCRT:
-                proto_tree_add_item(tag_tree, hf_quic_tag_ccrt, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_ccrt, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
                 tag_offset += tag_len;
             break;
             case TAG_IRTT:
-                proto_tree_add_item(tag_tree, hf_quic_tag_irtt, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_irtt, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
                 proto_item_append_text(ti_tag, ": %u", tvb_get_letohl(tvb, tag_offset_start + tag_offset));
                 tag_offset += 4;
             break;
             case TAG_CFCW:
-                proto_tree_add_item(tag_tree, hf_quic_tag_cfcw, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_cfcw, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
                 proto_item_append_text(ti_tag, ": %u", tvb_get_letohl(tvb, tag_offset_start + tag_offset));
                 tag_offset += 4;
             break;
             case TAG_SFCW:
-                proto_tree_add_item(tag_tree, hf_quic_tag_sfcw, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_sfcw, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
                 proto_item_append_text(ti_tag, ": %u", tvb_get_letohl(tvb, tag_offset_start + tag_offset));
                 tag_offset += 4;
             break;
             case TAG_CETV:
-                proto_tree_add_item(tag_tree, hf_quic_tag_cetv, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_cetv, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
                 tag_offset += tag_len;
             break;
             case TAG_XLCT:
-                proto_tree_add_item(tag_tree, hf_quic_tag_xlct, tvb, tag_offset_start + tag_offset, 8, ENC_NA);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_xlct, tvb, tag_offset_start + tag_offset, 8, ENC_NA);
                 tag_offset += 8;
             break;
             case TAG_NONP:
-                proto_tree_add_item(tag_tree, hf_quic_tag_nonp, tvb, tag_offset_start + tag_offset, 32, ENC_NA);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_nonp, tvb, tag_offset_start + tag_offset, 32, ENC_NA);
                 tag_offset += 32;
             break;
             case TAG_CSCT:
-                proto_tree_add_item(tag_tree, hf_quic_tag_csct, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_csct, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
                 tag_offset += tag_len;
             break;
             case TAG_CTIM:
-                proto_tree_add_item(tag_tree, hf_quic_tag_ctim, tvb, tag_offset_start + tag_offset, 8, ENC_TIME_TIMESPEC);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_ctim, tvb, tag_offset_start + tag_offset, 8, ENC_TIME_TIMESPEC);
                 tag_offset += 8;
             break;
             case TAG_RNON: /* Public Reset Tag */
-                proto_tree_add_item(tag_tree, hf_quic_tag_rnon, tvb, tag_offset_start + tag_offset, 8, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_rnon, tvb, tag_offset_start + tag_offset, 8, ENC_LITTLE_ENDIAN);
                 tag_offset += 8;
             break;
             case TAG_RSEQ: /* Public Reset Tag */
-                proto_tree_add_item(tag_tree, hf_quic_tag_rseq, tvb, tag_offset_start + tag_offset, 8, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_rseq, tvb, tag_offset_start + tag_offset, 8, ENC_LITTLE_ENDIAN);
                 tag_offset += 8;
             break;
             case TAG_CADR: /* Public Reset Tag */{
                 guint32 addr_type;
-                proto_tree_add_item_ret_uint(tag_tree, hf_quic_tag_cadr_addr_type, tvb, tag_offset_start + tag_offset, 2, ENC_LITTLE_ENDIAN, &addr_type);
+                proto_tree_add_item_ret_uint(tag_tree, hf_gquic_tag_cadr_addr_type, tvb, tag_offset_start + tag_offset, 2, ENC_LITTLE_ENDIAN, &addr_type);
                 tag_offset += 2;
                 switch(addr_type){
                     case 2: /* IPv4 */
-                    proto_tree_add_item(tag_tree, hf_quic_tag_cadr_addr_ipv4, tvb, tag_offset_start + tag_offset, 4, ENC_NA);
+                    proto_tree_add_item(tag_tree, hf_gquic_tag_cadr_addr_ipv4, tvb, tag_offset_start + tag_offset, 4, ENC_NA);
                     tag_offset += 4;
                     break;
                     case 10: /* IPv6 */
-                    proto_tree_add_item(tag_tree, hf_quic_tag_cadr_addr_ipv6, tvb, tag_offset_start + tag_offset, 16, ENC_NA);
+                    proto_tree_add_item(tag_tree, hf_gquic_tag_cadr_addr_ipv6, tvb, tag_offset_start + tag_offset, 16, ENC_NA);
                     tag_offset += 16;
                     break;
                     default: /* Unknown */
-                    proto_tree_add_item(tag_tree, hf_quic_tag_cadr_addr, tvb, tag_offset_start + tag_offset, tag_len - 2 - 2, ENC_NA);
+                    proto_tree_add_item(tag_tree, hf_gquic_tag_cadr_addr, tvb, tag_offset_start + tag_offset, tag_len - 2 - 2, ENC_NA);
                     tag_offset += tag_len + 2 + 2 ;
                     break;
                 }
-                proto_tree_add_item(tag_tree, hf_quic_tag_cadr_port, tvb, tag_offset_start + tag_offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_cadr_port, tvb, tag_offset_start + tag_offset, 2, ENC_LITTLE_ENDIAN);
                 tag_offset += 2;
             }
             break;
             case TAG_MIDS:
-                proto_tree_add_item(tag_tree, hf_quic_tag_mids, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_mids, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
                 proto_item_append_text(ti_tag, ": %u", tvb_get_letohl(tvb, tag_offset_start + tag_offset));
                 tag_offset += 4;
             break;
             case TAG_FHOL:
-                proto_tree_add_item(tag_tree, hf_quic_tag_fhol, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_fhol, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
                 proto_item_append_text(ti_tag, ": %u", tvb_get_letohl(tvb, tag_offset_start + tag_offset));
                 tag_offset += 4;
             break;
             case TAG_STTL:
-                proto_tree_add_item(tag_tree, hf_quic_tag_sttl, tvb, tag_offset_start + tag_offset, 8, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_sttl, tvb, tag_offset_start + tag_offset, 8, ENC_LITTLE_ENDIAN);
                 tag_offset += 8;
             break;
             case TAG_SMHL:
-                proto_tree_add_item(tag_tree, hf_quic_tag_smhl, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_smhl, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
                 proto_item_append_text(ti_tag, ": %u", tvb_get_letohl(tvb, tag_offset_start + tag_offset));
                 tag_offset += 4;
             break;
             case TAG_TBKP:
-                proto_tree_add_item_ret_string(tag_tree, hf_quic_tag_tbkp, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
+                proto_tree_add_item_ret_string(tag_tree, hf_gquic_tag_tbkp, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
                 proto_item_append_text(ti_tag, ": %s", tag_str);
                 tag_offset += 4;
             break;
             default:
-                proto_tree_add_item(tag_tree, hf_quic_tag_unknown, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
-                expert_add_info_format(pinfo, ti_tag, &ei_quic_tag_undecoded,
-                                 "Dissector for QUIC Tag"
+                proto_tree_add_item(tag_tree, hf_gquic_tag_unknown, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
+                expert_add_info_format(pinfo, ti_tag, &ei_gquic_tag_undecoded,
+                                 "Dissector for (Google) QUIC Tag"
                                  " %s (%s) code not implemented, Contact"
                                  " Wireshark developers if you want this supported", tvb_get_string_enc(wmem_packet_scope(), tvb, offset-8, 4, ENC_ASCII|ENC_NA), val_to_str(tag, tag_vals, "Unknown"));
                 tag_offset += tag_len;
@@ -1623,7 +1623,7 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
         }
         if(tag_offset != offset_end){
             /* Wrong Tag len... */
-            proto_tree_add_expert(tag_tree, pinfo, &ei_quic_tag_unknown, tvb, tag_offset_start + tag_offset, tag_len);
+            proto_tree_add_expert(tag_tree, pinfo, &ei_gquic_tag_unknown, tvb, tag_offset_start + tag_offset, tag_len);
             tag_offset = offset_end;
         }
 
@@ -1634,7 +1634,7 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
 }
 
 static int
-dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, guint8 len_pkn, quic_info_data_t *quic_info){
+dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, guint offset, guint8 len_pkn, gquic_info_data_t *gquic_info){
     proto_item *ti, *ti_ft, *ti_ftflags /*, *expert_ti*/;
     proto_tree *ft_tree, *ftflags_tree;
     guint8 frame_type;
@@ -1642,11 +1642,11 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
     guint32 tag_number;
     guint32 len_stream = 0, len_offset = 0, len_data = 0, len_largest_observed = 1, len_missing_packet = 1;
 
-    ti_ft = proto_tree_add_item(quic_tree, hf_quic_frame, tvb, offset, 1, ENC_NA);
-    ft_tree = proto_item_add_subtree(ti_ft, ett_quic_ft);
+    ti_ft = proto_tree_add_item(gquic_tree, hf_gquic_frame, tvb, offset, 1, ENC_NA);
+    ft_tree = proto_item_add_subtree(ti_ft, ett_gquic_ft);
 
     /* Frame type */
-    ti_ftflags = proto_tree_add_item(ft_tree, hf_quic_frame_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    ti_ftflags = proto_tree_add_item(ft_tree, hf_gquic_frame_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     frame_type = tvb_get_guint8(tvb, offset);
     proto_item_set_text(ti_ft, "%s", rval_to_str(frame_type, frame_type_vals, "Unknown"));
 
@@ -1657,20 +1657,20 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 proto_item *ti_pad_len;
                 guint32 pad_len = tvb_reported_length_remaining(tvb, offset);
 
-                ti_pad_len = proto_tree_add_uint(ft_tree, hf_quic_frame_type_padding_length, tvb, offset, 0, pad_len);
+                ti_pad_len = proto_tree_add_uint(ft_tree, hf_gquic_frame_type_padding_length, tvb, offset, 0, pad_len);
                 PROTO_ITEM_SET_GENERATED(ti_pad_len);
                 proto_item_append_text(ti_ft, " Length: %u", pad_len);
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_padding, tvb, offset, -1, ENC_NA);
+                proto_tree_add_item(ft_tree, hf_gquic_frame_type_padding, tvb, offset, -1, ENC_NA);
                 offset += pad_len;
                 }
             break;
             case FT_RST_STREAM:{
                 guint32 stream_id, error_code;
-                proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_rsts_stream_id, tvb, offset, 4, ENC_LITTLE_ENDIAN, &stream_id);
+                proto_tree_add_item_ret_uint(ft_tree, hf_gquic_frame_type_rsts_stream_id, tvb, offset, 4, ENC_LITTLE_ENDIAN, &stream_id);
                 offset += 4;
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_rsts_byte_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(ft_tree, hf_gquic_frame_type_rsts_byte_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
                 offset += 8;
-                proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_rsts_error_code, tvb, offset, 4, ENC_LITTLE_ENDIAN, &error_code);
+                proto_tree_add_item_ret_uint(ft_tree, hf_gquic_frame_type_rsts_error_code, tvb, offset, 4, ENC_LITTLE_ENDIAN, &error_code);
                 offset += 4;
                 proto_item_append_text(ti_ft, " Stream ID: %u, Error code: %s", stream_id, val_to_str_ext(error_code, &rststream_error_code_vals_ext, "Unknown (%d)"));
                 col_set_str(pinfo->cinfo, COL_INFO, "RST STREAM");
@@ -1680,12 +1680,12 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 guint16 len_reason;
                 guint32 error_code;
 
-                proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_cc_error_code, tvb, offset, 4, ENC_LITTLE_ENDIAN, &error_code);
+                proto_tree_add_item_ret_uint(ft_tree, hf_gquic_frame_type_cc_error_code, tvb, offset, 4, ENC_LITTLE_ENDIAN, &error_code);
                 offset += 4;
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_cc_reason_phrase_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(ft_tree, hf_gquic_frame_type_cc_reason_phrase_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 len_reason = tvb_get_letohs(tvb, offset);
                 offset += 2;
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_cc_reason_phrase, tvb, offset, len_reason, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(ft_tree, hf_gquic_frame_type_cc_reason_phrase, tvb, offset, len_reason, ENC_ASCII|ENC_NA);
                 offset += len_reason;
                 proto_item_append_text(ti_ft, " Error code: %s", val_to_str_ext(error_code, &error_code_vals_ext, "Unknown (%d)"));
                 col_set_str(pinfo->cinfo, COL_INFO, "Connection Close");
@@ -1695,14 +1695,14 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 guint16 len_reason;
                 guint32 error_code, last_good_stream_id;
 
-                proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_goaway_error_code, tvb, offset, 4, ENC_LITTLE_ENDIAN, &error_code);
+                proto_tree_add_item_ret_uint(ft_tree, hf_gquic_frame_type_goaway_error_code, tvb, offset, 4, ENC_LITTLE_ENDIAN, &error_code);
                 offset += 4;
-                proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_goaway_last_good_stream_id, tvb, offset, 4, ENC_LITTLE_ENDIAN, &last_good_stream_id);
+                proto_tree_add_item_ret_uint(ft_tree, hf_gquic_frame_type_goaway_last_good_stream_id, tvb, offset, 4, ENC_LITTLE_ENDIAN, &last_good_stream_id);
                 offset += 4;
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_goaway_reason_phrase_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(ft_tree, hf_gquic_frame_type_goaway_reason_phrase_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 len_reason = tvb_get_letohs(tvb, offset);
                 offset += 2;
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_goaway_reason_phrase, tvb, offset, len_reason, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(ft_tree, hf_gquic_frame_type_goaway_reason_phrase, tvb, offset, len_reason, ENC_ASCII|ENC_NA);
                 offset += len_reason;
                 proto_item_append_text(ti_ft, " Stream ID: %u, Error code: %s", last_good_stream_id, val_to_str_ext(error_code, &error_code_vals_ext, "Unknown (%d)"));
                 col_set_str(pinfo->cinfo, COL_INFO, "GOAWAY");
@@ -1711,9 +1711,9 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             case FT_WINDOW_UPDATE:{
                 guint32 stream_id;
 
-                proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_wu_stream_id, tvb, offset, 4, ENC_LITTLE_ENDIAN, &stream_id);
+                proto_tree_add_item_ret_uint(ft_tree, hf_gquic_frame_type_wu_stream_id, tvb, offset, 4, ENC_LITTLE_ENDIAN, &stream_id);
                 offset += 4;
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_wu_byte_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(ft_tree, hf_gquic_frame_type_wu_byte_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
                 offset += 8;
                 proto_item_append_text(ti_ft, " Stream ID: %u", stream_id);
                 }
@@ -1721,20 +1721,20 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             case FT_BLOCKED:{
                 guint32 stream_id;
 
-                proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_blocked_stream_id, tvb, offset, 4, ENC_LITTLE_ENDIAN, &stream_id);
+                proto_tree_add_item_ret_uint(ft_tree, hf_gquic_frame_type_blocked_stream_id, tvb, offset, 4, ENC_LITTLE_ENDIAN, &stream_id);
                 offset += 4;
                 proto_item_append_text(ti_ft, " Stream ID: %u", stream_id);
                 }
             break;
             case FT_STOP_WAITING:{
                 guint8 send_entropy;
-                if(quic_info->version_valid && quic_info->version < 34){ /* No longer Entropy after Q034 */
-                    proto_tree_add_item(ft_tree, hf_quic_frame_type_sw_send_entropy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                if(gquic_info->version_valid && gquic_info->version < 34){ /* No longer Entropy after Q034 */
+                    proto_tree_add_item(ft_tree, hf_gquic_frame_type_sw_send_entropy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     send_entropy = tvb_get_guint8(tvb, offset);
                     proto_item_append_text(ti_ft, " Send Entropy: %u", send_entropy);
                     offset += 1;
                 }
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_sw_least_unacked_delta, tvb, offset, len_pkn, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(ft_tree, hf_gquic_frame_type_sw_least_unacked_delta, tvb, offset, len_pkn, ENC_LITTLE_ENDIAN);
                 offset += len_pkn;
 
                 }
@@ -1749,59 +1749,59 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         const guint8* message_tag_str;
         proto_item *ti_stream;
 
-        ftflags_tree = proto_item_add_subtree(ti_ftflags, ett_quic_ftflags);
-        proto_tree_add_item(ftflags_tree, hf_quic_frame_type_stream , tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        ftflags_tree = proto_item_add_subtree(ti_ftflags, ett_gquic_ftflags);
+        proto_tree_add_item(ftflags_tree, hf_gquic_frame_type_stream , tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
         if(frame_type & FTFLAGS_STREAM){ /* Stream Flags */
-            proto_tree_add_item(ftflags_tree, hf_quic_frame_type_stream_f, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ftflags_tree, hf_quic_frame_type_stream_d, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ftflags_tree, hf_gquic_frame_type_stream_f, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ftflags_tree, hf_gquic_frame_type_stream_d, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             if(frame_type & FTFLAGS_STREAM_D){
                 len_data = 2;
             }
-            proto_tree_add_item(ftflags_tree, hf_quic_frame_type_stream_ooo, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ftflags_tree, hf_gquic_frame_type_stream_ooo, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
             len_offset = get_len_offset(frame_type);
 
-            proto_tree_add_item(ftflags_tree, hf_quic_frame_type_stream_ss, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ftflags_tree, hf_gquic_frame_type_stream_ss, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             len_stream = get_len_stream(frame_type);
             offset += 1;
 
-            ti_stream = proto_tree_add_item_ret_uint(ft_tree, hf_quic_stream_id, tvb, offset, len_stream, ENC_LITTLE_ENDIAN, &stream_id);
+            ti_stream = proto_tree_add_item_ret_uint(ft_tree, hf_gquic_stream_id, tvb, offset, len_stream, ENC_LITTLE_ENDIAN, &stream_id);
             offset += len_stream;
 
             proto_item_append_text(ti_ft, " Stream ID: %u", stream_id);
 
             if(len_offset) {
-                proto_tree_add_item(ft_tree, hf_quic_offset, tvb, offset, len_offset, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(ft_tree, hf_gquic_offset, tvb, offset, len_offset, ENC_LITTLE_ENDIAN);
                 offset += len_offset;
             }
 
             if(len_data) {
-                proto_tree_add_item(ft_tree, hf_quic_data_len, tvb, offset, len_data, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(ft_tree, hf_gquic_data_len, tvb, offset, len_data, ENC_LITTLE_ENDIAN);
                 offset += len_data;
             }
 
-            /* Check if there is some reserved streams (Chapiter 6.1 of draft-shade-quic-http2-mapping-00) */
+            /* Check if there is some reserved streams (Chapiter 6.1 of draft-shade-gquic-http2-mapping-00) */
 
             switch(stream_id) {
-                case 1: { /* Reserved QUIC (handshake, crypto, config updates...) */
+                case 1: { /* Reserved (G)QUIC (handshake, crypto, config updates...) */
                     message_tag = tvb_get_ntohl(tvb, offset);
-                    ti = proto_tree_add_item_ret_string(ft_tree, hf_quic_tag, tvb, offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &message_tag_str);
+                    ti = proto_tree_add_item_ret_string(ft_tree, hf_gquic_tag, tvb, offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &message_tag_str);
 
-                    proto_item_append_text(ti_stream, " (Reserved for QUIC handshake, crypto, config updates...)");
+                    proto_item_append_text(ti_stream, " (Reserved for (G)QUIC handshake, crypto, config updates...)");
                     proto_item_append_text(ti, " (%s)", val_to_str(message_tag, message_tag_vals, "Unknown Tag"));
                     proto_item_append_text(ti_ft, ", Type: %s (%s)", message_tag_str, val_to_str(message_tag, message_tag_vals, "Unknown Tag"));
                     col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(message_tag, message_tag_vals, "Unknown"));
                     offset += 4;
 
-                    proto_tree_add_item(ft_tree, hf_quic_tag_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(ft_tree, hf_gquic_tag_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                     tag_number = tvb_get_letohs(tvb, offset);
                     offset += 2;
 
-                    proto_tree_add_item(ft_tree, hf_quic_padding, tvb, offset, 2, ENC_NA);
+                    proto_tree_add_item(ft_tree, hf_gquic_padding, tvb, offset, 2, ENC_NA);
                     offset += 2;
 
-                    offset = dissect_quic_tag(tvb, pinfo, ft_tree, offset, tag_number, quic_info);
+                    offset = dissect_gquic_tag(tvb, pinfo, ft_tree, offset, tag_number, gquic_info);
                 break;
                 }
                 case 3: { /* Reserved H2 HEADERS (or PUSH_PROMISE..) */
@@ -1821,61 +1821,61 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
                     col_add_str(pinfo->cinfo, COL_INFO, "DATA");
 
-                    proto_tree_add_item(ft_tree, hf_quic_stream_data, tvb, offset, data_len, ENC_NA);
+                    proto_tree_add_item(ft_tree, hf_gquic_stream_data, tvb, offset, data_len, ENC_NA);
                     offset += data_len;
                 }
                 break;
             }
         } else if (frame_type & FTFLAGS_ACK) {     /* ACK Flags */
 
-            proto_tree_add_item(ftflags_tree, hf_quic_frame_type_ack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ftflags_tree, hf_gquic_frame_type_ack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-            proto_tree_add_item(ftflags_tree, hf_quic_frame_type_ack_n, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ftflags_tree, hf_gquic_frame_type_ack_n, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-            if(quic_info->version_valid && quic_info->version < 34){ /* No longer NACK after Q034 */
-                proto_tree_add_item(ftflags_tree, hf_quic_frame_type_ack_t, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            if(gquic_info->version_valid && gquic_info->version < 34){ /* No longer NACK after Q034 */
+                proto_tree_add_item(ftflags_tree, hf_gquic_frame_type_ack_t, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             } else {
-                proto_tree_add_item(ftflags_tree, hf_quic_frame_type_ack_u, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(ftflags_tree, hf_gquic_frame_type_ack_u, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             }
-            proto_tree_add_item(ftflags_tree, hf_quic_frame_type_ack_ll, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ftflags_tree, hf_gquic_frame_type_ack_ll, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
             len_largest_observed = get_len_largest_observed(frame_type);
 
-            proto_tree_add_item(ftflags_tree, hf_quic_frame_type_ack_mm, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ftflags_tree, hf_gquic_frame_type_ack_mm, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             len_missing_packet = get_len_missing_packet(frame_type);
             offset += 1;
 
-            if(quic_info->version_valid && quic_info->version < 34){ /* Big change after Q034 */
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_received_entropy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            if(gquic_info->version_valid && gquic_info->version < 34){ /* Big change after Q034 */
+                proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_received_entropy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
 
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_largest_observed, tvb, offset, len_largest_observed, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_largest_observed, tvb, offset, len_largest_observed, ENC_LITTLE_ENDIAN);
                 offset += len_largest_observed;
 
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_ack_delay_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_ack_delay_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
 
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_num_timestamp, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_num_timestamp, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 num_timestamp = tvb_get_guint8(tvb, offset);
                 offset += 1;
 
                 if(num_timestamp){
 
                     /* Delta Largest Observed */
-                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_delta_largest_observed, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_delta_largest_observed, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     offset += 1;
 
                     /* First Timestamp */
-                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_first_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_first_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                     offset += 4;
 
                     num_timestamp -= 1;
                     /* Num Timestamp (-1) x (Delta Largest Observed + Time Since Previous Timestamp) */
                     while(num_timestamp){
-                        proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_delta_largest_observed, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_delta_largest_observed, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                         offset += 1;
 
-                        proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_time_since_previous_timestamp, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_time_since_previous_timestamp, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                         offset += 2;
 
                         num_timestamp--;
@@ -1883,25 +1883,25 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 }
 
                 if(frame_type & FTFLAGS_ACK_N){
-                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_num_ranges, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_num_ranges, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     num_ranges = tvb_get_guint8(tvb, offset);
                     offset += 1;
                     while(num_ranges){
 
-                        proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_missing_packet, tvb, offset, len_missing_packet, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_missing_packet, tvb, offset, len_missing_packet, ENC_LITTLE_ENDIAN);
                         offset += len_missing_packet;
 
-                        proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_range_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_range_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                         offset += 1;
                         num_ranges--;
                     }
 
-                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_num_revived, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_num_revived, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     num_revived = tvb_get_guint8(tvb, offset);
                     offset += 1;
                     while(num_revived){
 
-                        proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_revived_packet, tvb, offset, len_largest_observed, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_revived_packet, tvb, offset, len_largest_observed, ENC_LITTLE_ENDIAN);
                         offset += len_largest_observed;
                         num_revived--;
 
@@ -1912,33 +1912,33 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             } else {
 
                 /* Largest Acked */
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_largest_acked, tvb, offset, len_largest_observed, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_largest_acked, tvb, offset, len_largest_observed, ENC_LITTLE_ENDIAN);
                 offset += len_largest_observed;
 
                 /* Largest Acked Delta Time*/
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_largest_acked_delta_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_largest_acked_delta_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
 
                 /* Ack Block */
                 if(frame_type & FTFLAGS_ACK_N){
-                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_num_blocks, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_num_blocks, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     num_blocks = tvb_get_guint8(tvb, offset);
                     offset += 1;
                 }
 
                 /* First Ack Block Length */
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_first_ack_block_length, tvb, offset, len_missing_packet, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_first_ack_block_length, tvb, offset, len_missing_packet, ENC_LITTLE_ENDIAN);
                 offset += len_missing_packet;
 
                 if(num_blocks){
                     /* Gap to next block */
-                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_gap_to_next_block, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_gap_to_next_block, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     offset += 1;
 
                     num_blocks -= 1;
                     while(num_blocks){
                         /* Ack Block Length */
-                        proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_ack_block_length, tvb, offset, len_missing_packet, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_ack_block_length, tvb, offset, len_missing_packet, ENC_LITTLE_ENDIAN);
                         offset += len_missing_packet;
 
                         num_blocks--;
@@ -1946,26 +1946,26 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 }
 
                 /* Timestamp */
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_num_timestamp, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_num_timestamp, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 num_timestamp = tvb_get_guint8(tvb, offset);
                 offset += 1;
 
                 if(num_timestamp){
 
                     /* Delta Largest Acked */
-                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_delta_largest_acked, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_delta_largest_acked, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     offset += 1;
 
                     /* Time Since Largest Acked */
-                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_time_since_largest_acked, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_time_since_largest_acked, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                     offset += 4;
 
                     /* Num Timestamp x (Delta Largest Acked + Time Since Previous Timestamp) */
                     while(num_timestamp){
-                        proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_delta_largest_acked, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_delta_largest_acked, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                         offset += 1;
 
-                        proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_time_since_previous_timestamp, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_time_since_previous_timestamp, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                         offset += 2;
 
                         num_timestamp--;
@@ -1984,27 +1984,27 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
 
 static int
-dissect_quic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, guint8 len_pkn, quic_info_data_t *quic_info){
+dissect_gquic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, guint offset, guint8 len_pkn, gquic_info_data_t *gquic_info){
     proto_item *ti_prflags;
     proto_tree *prflags_tree;
 
     /* Message Authentication Hash */
-    proto_tree_add_item(quic_tree, hf_quic_message_authentication_hash, tvb, offset, 12, ENC_NA);
+    proto_tree_add_item(gquic_tree, hf_gquic_message_authentication_hash, tvb, offset, 12, ENC_NA);
     offset += 12;
 
-    if(quic_info->version_valid && quic_info->version < 34){ /* No longer Private Flags after Q034 */
+    if(gquic_info->version_valid && gquic_info->version < 34){ /* No longer Private Flags after Q034 */
         /* Private Flags */
-        ti_prflags = proto_tree_add_item(quic_tree, hf_quic_prflags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        prflags_tree = proto_item_add_subtree(ti_prflags, ett_quic_prflags);
-        proto_tree_add_item(prflags_tree, hf_quic_prflags_entropy, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(prflags_tree, hf_quic_prflags_fecg, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(prflags_tree, hf_quic_prflags_fec, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(prflags_tree, hf_quic_prflags_rsv, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        ti_prflags = proto_tree_add_item(gquic_tree, hf_gquic_prflags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        prflags_tree = proto_item_add_subtree(ti_prflags, ett_gquic_prflags);
+        proto_tree_add_item(prflags_tree, hf_gquic_prflags_entropy, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(prflags_tree, hf_gquic_prflags_fecg, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(prflags_tree, hf_gquic_prflags_fec, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(prflags_tree, hf_gquic_prflags_rsv, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
     }
 
     while(tvb_reported_length_remaining(tvb, offset) > 0){
-        offset = dissect_quic_frame_type(tvb, pinfo, quic_tree, offset, len_pkn, quic_info);
+        offset = dissect_gquic_frame_type(tvb, pinfo, gquic_tree, offset, len_pkn, gquic_info);
     }
 
     return offset;
@@ -2012,18 +2012,18 @@ dissect_quic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree,
 }
 
 static int
-dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_gquic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         void *data _U_)
 {
     proto_item *ti, *ti_puflags; /*, *expert_ti*/
-    proto_tree *quic_tree, *puflags_tree;
+    proto_tree *gquic_tree, *puflags_tree;
     guint offset = 0;
     guint8 puflags, len_cid = 0, len_pkn;
     guint64 cid = 0, pkn;
     conversation_t  *conv;
-    quic_info_data_t  *quic_info;
+    gquic_info_data_t  *gquic_info;
 
-    if (tvb_captured_length(tvb) < QUIC_MIN_LENGTH)
+    if (tvb_captured_length(tvb) < GQUIC_MIN_LENGTH)
         return 0;
 
 
@@ -2031,20 +2031,20 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     conv = find_or_create_conversation(pinfo);
 
     /* get associated state information, create if necessary */
-    quic_info = (quic_info_data_t *)conversation_get_proto_data(conv, proto_quic);
+    gquic_info = (gquic_info_data_t *)conversation_get_proto_data(conv, proto_gquic);
 
-    if (!quic_info) {
-        quic_info = wmem_new(wmem_file_scope(), quic_info_data_t);
-        quic_info->version = 0;
-        quic_info->version_valid = TRUE;
-        quic_info->server_port = 443;
-        conversation_add_proto_data(conv, proto_quic, quic_info);
+    if (!gquic_info) {
+        gquic_info = wmem_new(wmem_file_scope(), gquic_info_data_t);
+        gquic_info->version = 0;
+        gquic_info->version_valid = TRUE;
+        gquic_info->server_port = 443;
+        conversation_add_proto_data(conv, proto_gquic, gquic_info);
     }
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUIC");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "GQUIC");
 
-    ti = proto_tree_add_item(tree, proto_quic, tvb, 0, -1, ENC_NA);
-    quic_tree = proto_item_add_subtree(ti, ett_quic);
+    ti = proto_tree_add_item(tree, proto_gquic, tvb, 0, -1, ENC_NA);
+    gquic_tree = proto_item_add_subtree(ti, ett_gquic);
 
     /* Public Flags */
     puflags = tvb_get_guint8(tvb, offset);
@@ -2055,48 +2055,48 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     /* check and get (and store) version */
     if(puflags & PUFLAGS_VRSN){
-        quic_info->version_valid = ws_strtou8(tvb_get_string_enc(wmem_packet_scope(), tvb,
-            offset + 1 + len_cid + 1, 3, ENC_ASCII), NULL, &quic_info->version);
-        if (!quic_info->version_valid)
-            expert_add_info(pinfo, quic_tree, &ei_quic_version_invalid);
+        gquic_info->version_valid = ws_strtou8(tvb_get_string_enc(wmem_packet_scope(), tvb,
+            offset + 1 + len_cid + 1, 3, ENC_ASCII), NULL, &gquic_info->version);
+        if (!gquic_info->version_valid)
+            expert_add_info(pinfo, gquic_tree, &ei_gquic_version_invalid);
     }
 
-    ti_puflags = proto_tree_add_item(quic_tree, hf_quic_puflags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    puflags_tree = proto_item_add_subtree(ti_puflags, ett_quic_puflags);
-    proto_tree_add_item(puflags_tree, hf_quic_puflags_vrsn, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(puflags_tree, hf_quic_puflags_rst, tvb, offset, 1, ENC_NA);
-    if (quic_info->version_valid) {
-        if(quic_info->version < 33){
-            proto_tree_add_item(puflags_tree, hf_quic_puflags_cid_old, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    ti_puflags = proto_tree_add_item(gquic_tree, hf_gquic_puflags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    puflags_tree = proto_item_add_subtree(ti_puflags, ett_gquic_puflags);
+    proto_tree_add_item(puflags_tree, hf_gquic_puflags_vrsn, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(puflags_tree, hf_gquic_puflags_rst, tvb, offset, 1, ENC_NA);
+    if (gquic_info->version_valid) {
+        if(gquic_info->version < 33){
+            proto_tree_add_item(puflags_tree, hf_gquic_puflags_cid_old, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         } else {
-            proto_tree_add_item(puflags_tree, hf_quic_puflags_dnonce, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(puflags_tree, hf_quic_puflags_cid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(puflags_tree, hf_gquic_puflags_dnonce, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(puflags_tree, hf_gquic_puflags_cid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         }
     }
-    proto_tree_add_item(puflags_tree, hf_quic_puflags_pkn, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(puflags_tree, hf_quic_puflags_mpth, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(puflags_tree, hf_quic_puflags_rsv, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(puflags_tree, hf_gquic_puflags_pkn, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(puflags_tree, hf_gquic_puflags_mpth, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(puflags_tree, hf_gquic_puflags_rsv, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
     /* CID */
     if (len_cid) {
         cid = tvb_get_letoh64(tvb, offset);
-        proto_tree_add_item(quic_tree, hf_quic_cid, tvb, offset, len_cid, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(gquic_tree, hf_gquic_cid, tvb, offset, len_cid, ENC_LITTLE_ENDIAN);
         offset += len_cid;
     }
 
     /* Version */
     if(puflags & PUFLAGS_VRSN){
-        if(pinfo->srcport == quic_info->server_port){ /* Version Negotiation Packet */
+        if(pinfo->srcport == gquic_info->server_port){ /* Version Negotiation Packet */
             while(tvb_reported_length_remaining(tvb, offset) > 0){
-                proto_tree_add_item(quic_tree, hf_quic_version, tvb, offset, 4, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(gquic_tree, hf_gquic_version, tvb, offset, 4, ENC_ASCII|ENC_NA);
                 offset += 4;
             }
             col_add_fstr(pinfo->cinfo, COL_INFO, "Version Negotiation, CID: %" G_GINT64_MODIFIER "u", cid);
             return offset;
         }
         else{
-            proto_tree_add_item(quic_tree, hf_quic_version, tvb, offset, 4, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(gquic_tree, hf_gquic_version, tvb, offset, 4, ENC_ASCII|ENC_NA);
             offset += 4;
         }
     }
@@ -2105,19 +2105,19 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if(puflags & PUFLAGS_RST){
         guint32 tag_number, message_tag;
 
-        ti = proto_tree_add_item(quic_tree, hf_quic_tag, tvb, offset, 4, ENC_ASCII|ENC_NA);
+        ti = proto_tree_add_item(gquic_tree, hf_gquic_tag, tvb, offset, 4, ENC_ASCII|ENC_NA);
         message_tag = tvb_get_ntohl(tvb, offset);
         proto_item_append_text(ti, " (%s)", val_to_str(message_tag, message_tag_vals, "Unknown Tag"));
         offset += 4;
 
-        proto_tree_add_item(quic_tree, hf_quic_tag_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(gquic_tree, hf_gquic_tag_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         tag_number = tvb_get_letohs(tvb, offset);
         offset += 2;
 
-        proto_tree_add_item(quic_tree, hf_quic_padding, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(gquic_tree, hf_gquic_padding, tvb, offset, 2, ENC_NA);
         offset += 2;
 
-        offset = dissect_quic_tag(tvb, pinfo, quic_tree, offset, tag_number, quic_info);
+        offset = dissect_gquic_tag(tvb, pinfo, gquic_tree, offset, tag_number, gquic_info);
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "Public Reset, CID: %" G_GINT64_MODIFIER "u", cid);
 
@@ -2125,9 +2125,9 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     /* Diversification Nonce */
-    if(quic_info->version_valid && (puflags & PUFLAGS_DNONCE) && (quic_info->version >= 33)){
-        if(pinfo->srcport == quic_info->server_port){ /* Diversification nonce is only present from server to client */
-            proto_tree_add_item(quic_tree, hf_quic_diversification_nonce, tvb, offset, 32, ENC_NA);
+    if(gquic_info->version_valid && (puflags & PUFLAGS_DNONCE) && (gquic_info->version >= 33)){
+        if(pinfo->srcport == gquic_info->server_port){ /* Diversification nonce is only present from server to client */
+            proto_tree_add_item(gquic_tree, hf_gquic_diversification_nonce, tvb, offset, 32, ENC_NA);
             offset += 32;
         }
     }
@@ -2136,15 +2136,15 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Get len of packet number */
     len_pkn = get_len_packet_number(puflags);
-    proto_tree_add_item_ret_uint64(quic_tree, hf_quic_packet_number, tvb, offset, len_pkn, ENC_LITTLE_ENDIAN, &pkn);
+    proto_tree_add_item_ret_uint64(gquic_tree, hf_gquic_packet_number, tvb, offset, len_pkn, ENC_LITTLE_ENDIAN, &pkn);
     offset += len_pkn;
 
     /* Unencrypt Message (Handshake or Connection Close...) */
-    if (is_quic_unencrypt(tvb, pinfo, offset, len_pkn, quic_info) || g_quic_debug){
-        offset = dissect_quic_unencrypt(tvb, pinfo, quic_tree, offset, len_pkn, quic_info);
+    if (is_gquic_unencrypt(tvb, pinfo, offset, len_pkn, gquic_info) || g_gquic_debug){
+        offset = dissect_gquic_unencrypt(tvb, pinfo, gquic_tree, offset, len_pkn, gquic_info);
     }else {     /* Payload... (encrypted... TODO FIX !) */
         col_add_str(pinfo->cinfo, COL_INFO, "Payload (Encrypted)");
-        proto_tree_add_item(quic_tree, hf_quic_payload, tvb, offset, -1, ENC_NA);
+        proto_tree_add_item(gquic_tree, hf_gquic_payload, tvb, offset, -1, ENC_NA);
 
     }
 
@@ -2159,10 +2159,10 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static int
-dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_gquic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               void *data _U_)
 {
-    return dissect_quic_common(tvb, pinfo, tree, NULL);
+    return dissect_gquic_common(tvb, pinfo, tree, NULL);
 }
 
 static gboolean dissect_gquic_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -2194,10 +2194,10 @@ static gboolean dissect_gquic_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     /* Check if version start with Q02... (0x51 0x30 0x32) or Q03... (0x51 0x30 0x33) */
     version = tvb_get_ntoh24(tvb, offset);
-    if ( version == QUIC_MAGIC2 || version == QUIC_MAGIC3) {
+    if ( version == GQUIC_MAGIC2 || version == GQUIC_MAGIC3) {
         conversation = find_or_create_conversation(pinfo);
-        conversation_set_dissector(conversation, quic_handle);
-        dissect_quic(tvb, pinfo, tree, data);
+        conversation_set_dissector(conversation, gquic_handle);
+        dissect_gquic(tvb, pinfo, tree, data);
         return TRUE;
     }
 
@@ -2205,714 +2205,714 @@ static gboolean dissect_gquic_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 }
 
 void
-proto_register_quic(void)
+proto_register_gquic(void)
 {
-    module_t *quic_module;
+    module_t *gquic_module;
 
     static hf_register_info hf[] = {
-        { &hf_quic_puflags,
-            { "Public Flags", "quic.puflags",
+        { &hf_gquic_puflags,
+            { "Public Flags", "gquic.puflags",
               FT_UINT8, BASE_HEX, NULL, 0x0,
               "Specifying per-packet public flags", HFILL }
         },
-        { &hf_quic_puflags_vrsn,
-            { "Version", "quic.puflags.version",
+        { &hf_gquic_puflags_vrsn,
+            { "Version", "gquic.puflags.version",
               FT_BOOLEAN, 8, TFS(&tfs_yes_no), PUFLAGS_VRSN,
-              "Signifies that this packet also contains the version of the QUIC protocol", HFILL }
+              "Signifies that this packet also contains the version of the (Google)QUIC protocol", HFILL }
         },
-        { &hf_quic_puflags_rst,
-            { "Reset", "quic.puflags.reset",
+        { &hf_gquic_puflags_rst,
+            { "Reset", "gquic.puflags.reset",
               FT_BOOLEAN, 8, TFS(&tfs_yes_no), PUFLAGS_RST,
               "Signifies that this packet is a public reset packet", HFILL }
         },
-        { &hf_quic_puflags_dnonce,
-            { "Diversification nonce", "quic.puflags.nonce",
+        { &hf_gquic_puflags_dnonce,
+            { "Diversification nonce", "gquic.puflags.nonce",
               FT_BOOLEAN, 8, TFS(&tfs_yes_no), PUFLAGS_DNONCE,
               "Indicates the presence of a 32 byte diversification nonce", HFILL }
         },
-        { &hf_quic_puflags_cid,
-            { "CID Length", "quic.puflags.cid",
+        { &hf_gquic_puflags_cid,
+            { "CID Length", "gquic.puflags.cid",
               FT_BOOLEAN, 8, TFS(&puflags_cid_tfs), PUFLAGS_CID,
               "Indicates the full 8 byte Connection ID is present", HFILL }
         },
-        { &hf_quic_puflags_cid_old,
-            { "CID Length", "quic.puflags.cid.old",
+        { &hf_gquic_puflags_cid_old,
+            { "CID Length", "gquic.puflags.cid.old",
               FT_UINT8, BASE_HEX, VALS(puflags_cid_old_vals), PUFLAGS_CID_OLD,
               "Signifies the Length of CID", HFILL }
         },
-        { &hf_quic_puflags_pkn,
-            { "Packet Number Length", "quic.puflags.pkn",
+        { &hf_gquic_puflags_pkn,
+            { "Packet Number Length", "gquic.puflags.pkn",
               FT_UINT8, BASE_HEX, VALS(puflags_pkn_vals), PUFLAGS_PKN,
               "Signifies the Length of packet number", HFILL }
         },
-        { &hf_quic_puflags_mpth,
-            { "Multipath", "quic.puflags.mpth",
+        { &hf_gquic_puflags_mpth,
+            { "Multipath", "gquic.puflags.mpth",
               FT_BOOLEAN, 8, TFS(&tfs_yes_no), PUFLAGS_MPTH,
               "Reserved for multipath use", HFILL }
         },
-        { &hf_quic_puflags_rsv,
-            { "Reserved", "quic.puflags.rsv",
+        { &hf_gquic_puflags_rsv,
+            { "Reserved", "gquic.puflags.rsv",
               FT_UINT8, BASE_HEX, NULL, PUFLAGS_RSV,
               "Must be Zero", HFILL }
         },
-        { &hf_quic_cid,
-            { "CID", "quic.cid",
+        { &hf_gquic_cid,
+            { "CID", "gquic.cid",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Connection ID 64 bit pseudo random number", HFILL }
         },
-        { &hf_quic_version,
-            { "Version", "quic.version",
+        { &hf_gquic_version,
+            { "Version", "gquic.version",
               FT_STRING, BASE_NONE, NULL, 0x0,
-              "32 bit opaque tag that represents the version of the QUIC", HFILL }
+              "32 bit opaque tag that represents the version of the (Google)QUIC", HFILL }
         },
-        { &hf_quic_diversification_nonce,
-            { "Diversification nonce", "quic.diversification_nonce",
+        { &hf_gquic_diversification_nonce,
+            { "Diversification nonce", "gquic.diversification_nonce",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_packet_number,
-            { "Packet Number", "quic.packet_number",
+        { &hf_gquic_packet_number,
+            { "Packet Number", "gquic.packet_number",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "The lower 8, 16, 32, or 48 bits of the packet number", HFILL }
         },
 
-        { &hf_quic_prflags,
-            { "Private Flags", "quic.prflags",
+        { &hf_gquic_prflags,
+            { "Private Flags", "gquic.prflags",
               FT_UINT8, BASE_HEX, NULL, 0x0,
               "Specifying per-packet Private flags", HFILL }
         },
 
-        { &hf_quic_prflags_entropy,
-            { "Entropy", "quic.prflags.entropy",
+        { &hf_gquic_prflags_entropy,
+            { "Entropy", "gquic.prflags.entropy",
               FT_BOOLEAN, 8, TFS(&tfs_yes_no), PRFLAGS_ENTROPY,
               "For data packets, signifies that this packet contains the 1 bit of entropy, for fec packets, contains the xor of the entropy of protected packets", HFILL }
         },
-        { &hf_quic_prflags_fecg,
-            { "FEC Group", "quic.prflags.fecg",
+        { &hf_gquic_prflags_fecg,
+            { "FEC Group", "gquic.prflags.fecg",
               FT_BOOLEAN, 8, TFS(&tfs_yes_no), PRFLAGS_FECG,
               "Indicates whether the fec byte is present.", HFILL }
         },
-        { &hf_quic_prflags_fec,
-            { "FEC", "quic.prflags.fec",
+        { &hf_gquic_prflags_fec,
+            { "FEC", "gquic.prflags.fec",
               FT_BOOLEAN, 8, TFS(&tfs_yes_no), PRFLAGS_FEC,
               "Signifies that this packet represents an FEC packet", HFILL }
         },
-        { &hf_quic_prflags_rsv,
-            { "Reserved", "quic.prflags.rsv",
+        { &hf_gquic_prflags_rsv,
+            { "Reserved", "gquic.prflags.rsv",
               FT_UINT8, BASE_HEX, NULL, PRFLAGS_RSV,
               "Must be Zero", HFILL }
         },
 
-        { &hf_quic_message_authentication_hash,
-            { "Message Authentication Hash", "quic.message_authentication_hash",
+        { &hf_gquic_message_authentication_hash,
+            { "Message Authentication Hash", "gquic.message_authentication_hash",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               "The hash is an FNV1a-128 hash, serialized in little endian order", HFILL }
         },
-        { &hf_quic_frame,
-            { "Frame", "quic.frame",
+        { &hf_gquic_frame,
+            { "Frame", "gquic.frame",
               FT_NONE, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_frame_type,
-            { "Frame Type", "quic.frame_type",
+        { &hf_gquic_frame_type,
+            { "Frame Type", "gquic.frame_type",
               FT_UINT8 ,BASE_RANGE_STRING | BASE_HEX, RVALS(frame_type_vals), 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_frame_type_padding_length,
-            { "Padding Length", "quic.frame_type.padding.length",
+        { &hf_gquic_frame_type_padding_length,
+            { "Padding Length", "gquic.frame_type.padding.length",
               FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_frame_type_padding,
-            { "Padding", "quic.frame_type.padding",
+        { &hf_gquic_frame_type_padding,
+            { "Padding", "gquic.frame_type.padding",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               "Must be zero", HFILL }
         },
-        { &hf_quic_frame_type_rsts_stream_id,
-            { "Stream ID", "quic.frame_type.rsts.stream_id",
+        { &hf_gquic_frame_type_rsts_stream_id,
+            { "Stream ID", "gquic.frame_type.rsts.stream_id",
               FT_UINT32, BASE_DEC, NULL, 0x0,
               "Stream ID of the stream being terminated", HFILL }
         },
-        { &hf_quic_frame_type_rsts_byte_offset,
-            { "Byte offset", "quic.frame_type.rsts.byte_offset",
+        { &hf_gquic_frame_type_rsts_byte_offset,
+            { "Byte offset", "gquic.frame_type.rsts.byte_offset",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Indicating the absolute byte offset of the end of data for this stream", HFILL }
         },
-        { &hf_quic_frame_type_rsts_error_code,
-            { "Error code", "quic.frame_type.rsts.error_code",
+        { &hf_gquic_frame_type_rsts_error_code,
+            { "Error code", "gquic.frame_type.rsts.error_code",
               FT_UINT32, BASE_DEC|BASE_EXT_STRING, &rststream_error_code_vals_ext, 0x0,
               "Indicates why the stream is being closed", HFILL }
         },
-        { &hf_quic_frame_type_cc_error_code,
-            { "Error code", "quic.frame_type.cc.error_code",
+        { &hf_gquic_frame_type_cc_error_code,
+            { "Error code", "gquic.frame_type.cc.error_code",
               FT_UINT32, BASE_DEC|BASE_EXT_STRING, &error_code_vals_ext, 0x0,
               "Indicates the reason for closing this connection", HFILL }
         },
-        { &hf_quic_frame_type_cc_reason_phrase_length,
-            { "Reason phrase Length", "quic.frame_type.cc.reason_phrase.length",
+        { &hf_gquic_frame_type_cc_reason_phrase_length,
+            { "Reason phrase Length", "gquic.frame_type.cc.reason_phrase.length",
               FT_UINT16, BASE_DEC, NULL, 0x0,
               "Specifying the length of the reason phrase", HFILL }
         },
-        { &hf_quic_frame_type_cc_reason_phrase,
-            { "Reason phrase", "quic.frame_type.cc.reason_phrase",
+        { &hf_gquic_frame_type_cc_reason_phrase,
+            { "Reason phrase", "gquic.frame_type.cc.reason_phrase",
               FT_STRING, BASE_NONE, NULL, 0x0,
               "An optional human-readable explanation for why the connection was closed", HFILL }
         },
-        { &hf_quic_frame_type_goaway_error_code,
-            { "Error code", "quic.frame_type.goaway.error_code",
+        { &hf_gquic_frame_type_goaway_error_code,
+            { "Error code", "gquic.frame_type.goaway.error_code",
               FT_UINT32, BASE_DEC|BASE_EXT_STRING, &error_code_vals_ext, 0x0,
               "Indicates the reason for closing this connection", HFILL }
         },
-        { &hf_quic_frame_type_goaway_last_good_stream_id,
-            { "Last Good Stream ID", "quic.frame_type.goaway.last_good_stream_id",
+        { &hf_gquic_frame_type_goaway_last_good_stream_id,
+            { "Last Good Stream ID", "gquic.frame_type.goaway.last_good_stream_id",
               FT_UINT32, BASE_DEC, NULL, 0x0,
               "last Stream ID which was accepted by the sender of the GOAWAY message", HFILL }
         },
-        { &hf_quic_frame_type_goaway_reason_phrase_length,
-            { "Reason phrase Length", "quic.frame_type.goaway.reason_phrase.length",
+        { &hf_gquic_frame_type_goaway_reason_phrase_length,
+            { "Reason phrase Length", "gquic.frame_type.goaway.reason_phrase.length",
               FT_UINT16, BASE_DEC, NULL, 0x0,
               "Specifying the length of the reason phrase", HFILL }
         },
-        { &hf_quic_frame_type_goaway_reason_phrase,
-            { "Reason phrase", "quic.frame_type.goaway.reason_phrase",
+        { &hf_gquic_frame_type_goaway_reason_phrase,
+            { "Reason phrase", "gquic.frame_type.goaway.reason_phrase",
               FT_STRING, BASE_NONE, NULL, 0x0,
               "An optional human-readable explanation for why the connection was closed", HFILL }
         },
-        { &hf_quic_frame_type_wu_stream_id,
-            { "Stream ID", "quic.frame_type.wu.stream_id",
+        { &hf_gquic_frame_type_wu_stream_id,
+            { "Stream ID", "gquic.frame_type.wu.stream_id",
               FT_UINT32, BASE_DEC, NULL, 0x0,
               "ID of the stream whose flow control windows is begin updated, or 0 to specify the connection-level flow control window", HFILL }
         },
-        { &hf_quic_frame_type_wu_byte_offset,
-            { "Byte offset", "quic.frame_type.wu.byte_offset",
+        { &hf_gquic_frame_type_wu_byte_offset,
+            { "Byte offset", "gquic.frame_type.wu.byte_offset",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Indicating the absolute byte offset of data which can be sent on the given stream", HFILL }
         },
-        { &hf_quic_frame_type_blocked_stream_id,
-            { "Stream ID", "quic.frame_type.blocked.stream_id",
+        { &hf_gquic_frame_type_blocked_stream_id,
+            { "Stream ID", "gquic.frame_type.blocked.stream_id",
               FT_UINT32, BASE_DEC, NULL, 0x0,
               "Indicating the stream which is flow control blocked", HFILL }
         },
-        { &hf_quic_frame_type_sw_send_entropy,
-            { "Send Entropy", "quic.frame_type.sw.send_entropy",
+        { &hf_gquic_frame_type_sw_send_entropy,
+            { "Send Entropy", "gquic.frame_type.sw.send_entropy",
               FT_UINT8, BASE_DEC, NULL, 0x0,
               "Specifying the cumulative hash of entropy in all sent packets up to the packet with packet number one less than the least unacked packet", HFILL }
         },
-        { &hf_quic_frame_type_sw_least_unacked_delta,
-            { "Least unacked delta", "quic.frame_type.sw.least_unacked_delta",
+        { &hf_gquic_frame_type_sw_least_unacked_delta,
+            { "Least unacked delta", "gquic.frame_type.sw.least_unacked_delta",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "A variable length packet number delta with the same length as the packet header's packet number", HFILL }
         },
-        { &hf_quic_frame_type_stream,
-            { "Stream", "quic.frame_type.stream",
+        { &hf_gquic_frame_type_stream,
+            { "Stream", "gquic.frame_type.stream",
               FT_BOOLEAN, 8, NULL, FTFLAGS_STREAM,
               NULL, HFILL }
         },
-        { &hf_quic_frame_type_stream_f,
-            { "FIN", "quic.frame_type.stream.f",
+        { &hf_gquic_frame_type_stream_f,
+            { "FIN", "gquic.frame_type.stream.f",
               FT_BOOLEAN, 8, NULL, FTFLAGS_STREAM_F,
               NULL, HFILL }
         },
-        { &hf_quic_frame_type_stream_d,
-            { "Data Length", "quic.frame_type.stream.d",
+        { &hf_gquic_frame_type_stream_d,
+            { "Data Length", "gquic.frame_type.stream.d",
               FT_BOOLEAN, 8, TFS(&len_data_vals), FTFLAGS_STREAM_D,
               NULL, HFILL }
         },
-        { &hf_quic_frame_type_stream_ooo,
-            { "Offset Length", "quic.frame_type.stream.ooo",
+        { &hf_gquic_frame_type_stream_ooo,
+            { "Offset Length", "gquic.frame_type.stream.ooo",
               FT_UINT8, BASE_DEC, VALS(len_offset_vals), FTFLAGS_STREAM_OOO,
               NULL, HFILL }
         },
-        { &hf_quic_frame_type_stream_ss,
-            { "Stream Length", "quic.frame_type.stream.ss",
+        { &hf_gquic_frame_type_stream_ss,
+            { "Stream Length", "gquic.frame_type.stream.ss",
               FT_UINT8, BASE_DEC, VALS(len_stream_vals), FTFLAGS_STREAM_SS,
               NULL, HFILL }
         },
-        { &hf_quic_frame_type_ack,
-            { "ACK", "quic.frame_type.ack",
+        { &hf_gquic_frame_type_ack,
+            { "ACK", "gquic.frame_type.ack",
               FT_BOOLEAN, 8, NULL, FTFLAGS_ACK,
               NULL, HFILL }
         },
-        { &hf_quic_frame_type_ack_n,
-            { "NACK", "quic.frame_type.ack.n",
+        { &hf_gquic_frame_type_ack_n,
+            { "NACK", "gquic.frame_type.ack.n",
               FT_BOOLEAN, 8, NULL, FTFLAGS_ACK_N,
               NULL, HFILL }
         },
-        { &hf_quic_frame_type_ack_u,
-            { "Unused", "quic.frame_type.ack.u",
+        { &hf_gquic_frame_type_ack_u,
+            { "Unused", "gquic.frame_type.ack.u",
               FT_BOOLEAN, 8, NULL, FTFLAGS_ACK_U,
               NULL, HFILL }
         },
-        { &hf_quic_frame_type_ack_t,
-            { "Truncated", "quic.frame_type.ack.t",
+        { &hf_gquic_frame_type_ack_t,
+            { "Truncated", "gquic.frame_type.ack.t",
               FT_BOOLEAN, 8, NULL, FTFLAGS_ACK_T,
               NULL, HFILL }
         },
-        { &hf_quic_frame_type_ack_ll,
-            { "Largest Observed Length", "quic.frame_type.ack.ll",
+        { &hf_gquic_frame_type_ack_ll,
+            { "Largest Observed Length", "gquic.frame_type.ack.ll",
               FT_UINT8, BASE_DEC, VALS(len_largest_observed_vals), FTFLAGS_ACK_LL,
               "Length of the Largest Observed field as 1, 2, 4, or 6 bytes long", HFILL }
         },
-        { &hf_quic_frame_type_ack_mm,
-            { "Missing Packet Length", "quic.frame_type.ack.mm",
+        { &hf_gquic_frame_type_ack_mm,
+            { "Missing Packet Length", "gquic.frame_type.ack.mm",
               FT_UINT8, BASE_DEC, VALS(len_missing_packet_vals), FTFLAGS_ACK_MM,
               "Length of the Missing Packet Number Delta field as 1, 2, 4, or 6 bytes long", HFILL }
         },
         /* ACK before Q034 */
-        { &hf_quic_frame_type_ack_received_entropy,
-            { "Received Entropy", "quic.frame_type.ack.received_entropy",
+        { &hf_gquic_frame_type_ack_received_entropy,
+            { "Received Entropy", "gquic.frame_type.ack.received_entropy",
               FT_UINT8, BASE_DEC, NULL, 0x0,
               "Specifying the cumulative hash of entropy in all received packets up to the largest observed packet", HFILL }
         },
-        { &hf_quic_frame_type_ack_largest_observed,
-            { "Largest Observed", "quic.frame_type.ack.largest_observed",
+        { &hf_gquic_frame_type_ack_largest_observed,
+            { "Largest Observed", "gquic.frame_type.ack.largest_observed",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Representing the largest packet number the peer has observed", HFILL }
         },
-        { &hf_quic_frame_type_ack_ack_delay_time,
-            { "Ack Delay time", "quic.frame_type.ack.ack_delay_time",
+        { &hf_gquic_frame_type_ack_ack_delay_time,
+            { "Ack Delay time", "gquic.frame_type.ack.ack_delay_time",
               FT_UINT16, BASE_DEC, NULL, 0x0,
               "Specifying the time elapsed in microseconds from when largest observed was received until this Ack frame was sent", HFILL }
         },
-        { &hf_quic_frame_type_ack_num_timestamp,
-            { "Num Timestamp", "quic.frame_type.ack.num_timestamp",
+        { &hf_gquic_frame_type_ack_num_timestamp,
+            { "Num Timestamp", "gquic.frame_type.ack.num_timestamp",
               FT_UINT8, BASE_DEC, NULL, 0x0,
               "Specifying the number of TCP timestamps that are included in this frame", HFILL }
         },
-        { &hf_quic_frame_type_ack_delta_largest_observed,
-            { "Delta Largest Observed", "quic.frame_type.ack.delta_largest_observed",
+        { &hf_gquic_frame_type_ack_delta_largest_observed,
+            { "Delta Largest Observed", "gquic.frame_type.ack.delta_largest_observed",
               FT_UINT8, BASE_DEC, NULL, 0x0,
               "Specifying the packet number delta from the first timestamp to the largest observed", HFILL }
         },
-        { &hf_quic_frame_type_ack_first_timestamp,
-            { "First Timestamp", "quic.frame_type.ack.first_timestamp",
+        { &hf_gquic_frame_type_ack_first_timestamp,
+            { "First Timestamp", "gquic.frame_type.ack.first_timestamp",
               FT_UINT32, BASE_DEC, NULL, 0x0,
               "Specifying the time delta in microseconds, from the beginning of the connection of the arrival of the packet specified by Largest Observed minus Delta Largest Observed", HFILL }
         },
-        { &hf_quic_frame_type_ack_time_since_previous_timestamp,
-            { "Time since Previous timestamp", "quic.frame_type.ack.time_since_previous_timestamp",
+        { &hf_gquic_frame_type_ack_time_since_previous_timestamp,
+            { "Time since Previous timestamp", "gquic.frame_type.ack.time_since_previous_timestamp",
               FT_UINT16, BASE_DEC, NULL, 0x0,
               "This is the time delta from the previous timestamp", HFILL }
         },
-        { &hf_quic_frame_type_ack_num_ranges,
-            { "Num Ranges", "quic.frame_type.ack.num_ranges",
+        { &hf_gquic_frame_type_ack_num_ranges,
+            { "Num Ranges", "gquic.frame_type.ack.num_ranges",
               FT_UINT8, BASE_DEC, NULL, 0x0,
               "Specifying the number of missing packet ranges between largest observed and least unacked", HFILL }
         },
-        { &hf_quic_frame_type_ack_missing_packet,
-            { "Missing Packet Packet Number Delta", "quic.frame_type.ack.missing_packet",
+        { &hf_gquic_frame_type_ack_missing_packet,
+            { "Missing Packet Packet Number Delta", "gquic.frame_type.ack.missing_packet",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_frame_type_ack_range_length,
-            { "Range Length", "quic.frame_type.ack.range_length",
+        { &hf_gquic_frame_type_ack_range_length,
+            { "Range Length", "gquic.frame_type.ack.range_length",
               FT_UINT8, BASE_DEC, NULL, 0x0,
               "Specifying one less than the number of sequential nacks in the range", HFILL }
         },
-        { &hf_quic_frame_type_ack_num_revived,
-            { "Num Revived", "quic.frame_type.ack.num_revived",
+        { &hf_gquic_frame_type_ack_num_revived,
+            { "Num Revived", "gquic.frame_type.ack.num_revived",
               FT_UINT8, BASE_DEC, NULL, 0x0,
               "Specifying the number of revived packets, recovered via FEC", HFILL }
         },
-        { &hf_quic_frame_type_ack_revived_packet,
-            { "Revived Packet Packet Number", "quic.frame_type.ack.revived_packet",
+        { &hf_gquic_frame_type_ack_revived_packet,
+            { "Revived Packet Packet Number", "gquic.frame_type.ack.revived_packet",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Representing a packet the peer has revived via FEC", HFILL }
         },
         /* ACK after Q034 */
-        { &hf_quic_frame_type_ack_largest_acked,
-            { "Largest Acked", "quic.frame_type.ack.largest_acked",
+        { &hf_gquic_frame_type_ack_largest_acked,
+            { "Largest Acked", "gquic.frame_type.ack.largest_acked",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Representing the largest packet number the peer has observed", HFILL }
         },
-        { &hf_quic_frame_type_ack_largest_acked_delta_time,
-            { "Largest Acked Delta Time", "quic.frame_type.ack.largest_acked_delta_time",
+        { &hf_gquic_frame_type_ack_largest_acked_delta_time,
+            { "Largest Acked Delta Time", "gquic.frame_type.ack.largest_acked_delta_time",
               FT_UINT16, BASE_DEC, NULL, 0x0,
               "Specifying the time elapsed in microseconds from when largest acked was received until this Ack frame was sent", HFILL }
         },
-        { &hf_quic_frame_type_ack_num_blocks,
-            { "Num blocks", "quic.frame_type.ack.num_blocks",
+        { &hf_gquic_frame_type_ack_num_blocks,
+            { "Num blocks", "gquic.frame_type.ack.num_blocks",
               FT_UINT8, BASE_DEC, NULL, 0x0,
               "Specifying one less than the number of ack blocks", HFILL }
         },
-        { &hf_quic_frame_type_ack_first_ack_block_length,
-            { "First Ack block length", "quic.frame_type.ack.first_ack_block_length",
+        { &hf_gquic_frame_type_ack_first_ack_block_length,
+            { "First Ack block length", "gquic.frame_type.ack.first_ack_block_length",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_frame_type_ack_gap_to_next_block,
-            { "Gap to next block", "quic.frame_type.ack.gap_to_next_block",
+        { &hf_gquic_frame_type_ack_gap_to_next_block,
+            { "Gap to next block", "gquic.frame_type.ack.gap_to_next_block",
               FT_UINT8, BASE_DEC, NULL, 0x0,
               "Specifying the number of packets between ack blocks", HFILL }
         },
-        { &hf_quic_frame_type_ack_ack_block_length,
-            { "Ack block length", "quic.frame_type.ack.ack_block_length",
+        { &hf_gquic_frame_type_ack_ack_block_length,
+            { "Ack block length", "gquic.frame_type.ack.ack_block_length",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_frame_type_ack_delta_largest_acked,
-            { "Delta Largest Observed", "quic.frame_type.ack.delta_largest_acked",
+        { &hf_gquic_frame_type_ack_delta_largest_acked,
+            { "Delta Largest Observed", "gquic.frame_type.ack.delta_largest_acked",
               FT_UINT8, BASE_DEC, NULL, 0x0,
               "Specifying the packet number delta from the first timestamp to the largest observed", HFILL }
         },
-        { &hf_quic_frame_type_ack_time_since_largest_acked,
-            { "Time Since Largest Acked", "quic.frame_type.ack.time_since_largest_acked",
+        { &hf_gquic_frame_type_ack_time_since_largest_acked,
+            { "Time Since Largest Acked", "gquic.frame_type.ack.time_since_largest_acked",
               FT_UINT32, BASE_DEC, NULL, 0x0,
               "Specifying the time delta in microseconds, from the beginning of the connection of the arrival of the packet specified by Largest Observed minus Delta Largest Observed", HFILL }
         },
 
 
 
-        { &hf_quic_stream_id,
-            { "Stream ID", "quic.stream_id",
+        { &hf_gquic_stream_id,
+            { "Stream ID", "gquic.stream_id",
               FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_offset,
-            { "Offset", "quic.offset",
+        { &hf_gquic_offset,
+            { "Offset", "gquic.offset",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_data_len,
-            { "Data Length", "quic.data_len",
+        { &hf_gquic_data_len,
+            { "Data Length", "gquic.data_len",
               FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag,
-            { "Tag", "quic.tag",
+        { &hf_gquic_tag,
+            { "Tag", "gquic.tag",
               FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_number,
-            { "Tag Number", "quic.tag_number",
+        { &hf_gquic_tag_number,
+            { "Tag Number", "gquic.tag_number",
               FT_UINT16, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tags,
-            { "Tag/value", "quic.tags",
+        { &hf_gquic_tags,
+            { "Tag/value", "gquic.tags",
               FT_NONE, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_type,
-            { "Tag Type", "quic.tag_type",
+        { &hf_gquic_tag_type,
+            { "Tag Type", "gquic.tag_type",
               FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_offset_end,
-            { "Tag offset end", "quic.tag_offset_end",
+        { &hf_gquic_tag_offset_end,
+            { "Tag offset end", "gquic.tag_offset_end",
               FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_length,
-            { "Tag length", "quic.tag_offset_length",
+        { &hf_gquic_tag_length,
+            { "Tag length", "gquic.tag_offset_length",
               FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_value,
-            { "Tag/value", "quic.tag_value",
+        { &hf_gquic_tag_value,
+            { "Tag/value", "gquic.tag_value",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_sni,
-            { "Server Name Indication", "quic.tag.sni",
+        { &hf_gquic_tag_sni,
+            { "Server Name Indication", "gquic.tag.sni",
               FT_STRING, BASE_NONE, NULL, 0x0,
               "The fully qualified DNS name of the server, canonicalised to lowercase with no trailing period", HFILL }
         },
-        { &hf_quic_tag_pad,
-            { "Padding", "quic.tag.pad",
+        { &hf_gquic_tag_pad,
+            { "Padding", "gquic.tag.pad",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               "Pad.....", HFILL }
         },
-        { &hf_quic_tag_ver,
-            { "Version", "quic.tag.version",
+        { &hf_gquic_tag_ver,
+            { "Version", "gquic.tag.version",
               FT_STRING, BASE_NONE, NULL, 0x0,
-              "Version of QUIC supported", HFILL }
+              "Version of gquic supported", HFILL }
         },
-        { &hf_quic_tag_pdmd,
-            { "Proof demand", "quic.tag.pdmd",
+        { &hf_gquic_tag_pdmd,
+            { "Proof demand", "gquic.tag.pdmd",
               FT_STRING, BASE_NONE, NULL, 0x0,
               "a list of tags describing the types of proof acceptable to the client, in preference order", HFILL }
         },
-        { &hf_quic_tag_ccs,
-            { "Common certificate sets", "quic.tag.ccs",
+        { &hf_gquic_tag_ccs,
+            { "Common certificate sets", "gquic.tag.ccs",
               FT_UINT64, BASE_HEX, NULL, 0x0,
               "A series of 64-bit, FNV-1a hashes of sets of common certificates that the client possesses", HFILL }
         },
-        { &hf_quic_tag_uaid,
-            { "Client's User Agent ID", "quic.tag.uaid",
+        { &hf_gquic_tag_uaid,
+            { "Client's User Agent ID", "gquic.tag.uaid",
               FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_stk,
-            { "Source-address token", "quic.tag.stk",
+        { &hf_gquic_tag_stk,
+            { "Source-address token", "gquic.tag.stk",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_sno,
-            { "Server nonce", "quic.tag.sno",
+        { &hf_gquic_tag_sno,
+            { "Server nonce", "gquic.tag.sno",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_prof,
-            { "Proof (Signature)", "quic.tag.prof",
+        { &hf_gquic_tag_prof,
+            { "Proof (Signature)", "gquic.tag.prof",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_scfg,
-            { "Server Config Tag", "quic.tag.scfg",
+        { &hf_gquic_tag_scfg,
+            { "Server Config Tag", "gquic.tag.scfg",
               FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_scfg_number,
-            { "Number Server Config Tag", "quic.tag.scfg.number",
+        { &hf_gquic_tag_scfg_number,
+            { "Number Server Config Tag", "gquic.tag.scfg.number",
               FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_rrej,
-            { "Reasons for server sending", "quic.tag.rrej",
+        { &hf_gquic_tag_rrej,
+            { "Reasons for server sending", "gquic.tag.rrej",
               FT_UINT32, BASE_DEC|BASE_EXT_STRING, &handshake_failure_reason_vals_ext, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_crt,
-            { "Certificate chain", "quic.tag.crt",
+        { &hf_gquic_tag_crt,
+            { "Certificate chain", "gquic.tag.crt",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_aead,
-            { "Authenticated encryption algorithms", "quic.tag.aead",
+        { &hf_gquic_tag_aead,
+            { "Authenticated encryption algorithms", "gquic.tag.aead",
               FT_STRING, BASE_NONE, NULL, 0x0,
               "A list of tags, in preference order, specifying the AEAD primitives supported by the server", HFILL }
         },
-        { &hf_quic_tag_scid,
-            { "Server Config ID", "quic.tag.scid",
+        { &hf_gquic_tag_scid,
+            { "Server Config ID", "gquic.tag.scid",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               "An opaque, 16-byte identifier for this server config", HFILL }
         },
-        { &hf_quic_tag_pubs,
-            { "Public value", "quic.tag.pubs",
+        { &hf_gquic_tag_pubs,
+            { "Public value", "gquic.tag.pubs",
               FT_UINT24, BASE_DEC_HEX, NULL, 0x0,
               "A list of public values, 24-bit, little-endian length prefixed", HFILL }
         },
-        { &hf_quic_tag_kexs,
-            { "Key exchange algorithms", "quic.tag.kexs",
+        { &hf_gquic_tag_kexs,
+            { "Key exchange algorithms", "gquic.tag.kexs",
               FT_STRING, BASE_NONE, NULL, 0x0,
               "A list of tags, in preference order, specifying the key exchange algorithms that the server supports", HFILL }
         },
-        { &hf_quic_tag_obit,
-            { "Server orbit", "quic.tag.obit",
+        { &hf_gquic_tag_obit,
+            { "Server orbit", "gquic.tag.obit",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_expy,
-            { "Expiry", "quic.tag.expy",
+        { &hf_gquic_tag_expy,
+            { "Expiry", "gquic.tag.expy",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "a 64-bit expiry time for the server config in UNIX epoch seconds", HFILL }
         },
-        { &hf_quic_tag_nonc,
-            { "Client nonce", "quic.tag.nonc",
+        { &hf_gquic_tag_nonc,
+            { "Client nonce", "gquic.tag.nonc",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               "32 bytes consisting of 4 bytes of timestamp (big-endian, UNIX epoch seconds), 8 bytes of server orbit and 20 bytes of random data", HFILL }
         },
-        { &hf_quic_tag_mspc,
-            { "Max streams per connection", "quic.tag.mspc",
+        { &hf_gquic_tag_mspc,
+            { "Max streams per connection", "gquic.tag.mspc",
               FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_tcid,
-            { "Connection ID truncation", "quic.tag.tcid",
+        { &hf_gquic_tag_tcid,
+            { "Connection ID truncation", "gquic.tag.tcid",
               FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_srbf,
-            { "Socket receive buffer", "quic.tag.srbf",
+        { &hf_gquic_tag_srbf,
+            { "Socket receive buffer", "gquic.tag.srbf",
               FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_icsl,
-            { "Idle connection state", "quic.tag.icsl",
+        { &hf_gquic_tag_icsl,
+            { "Idle connection state", "gquic.tag.icsl",
               FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_scls,
-            { "Silently close on timeout", "quic.tag.scls",
+        { &hf_gquic_tag_scls,
+            { "Silently close on timeout", "gquic.tag.scls",
               FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_copt,
-            { "Connection options", "quic.tag.copt",
+        { &hf_gquic_tag_copt,
+            { "Connection options", "gquic.tag.copt",
               FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_ccrt,
-            { "Cached certificates", "quic.tag.ccrt",
+        { &hf_gquic_tag_ccrt,
+            { "Cached certificates", "gquic.tag.ccrt",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_irtt,
-            { "Estimated initial RTT", "quic.tag.irtt",
+        { &hf_gquic_tag_irtt,
+            { "Estimated initial RTT", "gquic.tag.irtt",
               FT_UINT32, BASE_DEC, NULL, 0x0,
               "in us", HFILL }
         },
-        { &hf_quic_tag_cfcw,
-            { "Initial session/connection", "quic.tag.cfcw",
+        { &hf_gquic_tag_cfcw,
+            { "Initial session/connection", "gquic.tag.cfcw",
               FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_sfcw,
-            { "Initial stream flow control", "quic.tag.sfcw",
+        { &hf_gquic_tag_sfcw,
+            { "Initial stream flow control", "gquic.tag.sfcw",
               FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_cetv,
-            { "Client encrypted tag-value", "quic.tag.cetv",
+        { &hf_gquic_tag_cetv,
+            { "Client encrypted tag-value", "gquic.tag.cetv",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_xlct,
-            { "Expected leaf certificate", "quic.tag.xlct",
+        { &hf_gquic_tag_xlct,
+            { "Expected leaf certificate", "gquic.tag.xlct",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_nonp,
-            { "Client Proof nonce", "quic.tag.nonp",
+        { &hf_gquic_tag_nonp,
+            { "Client Proof nonce", "gquic.tag.nonp",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_csct,
-            { "Signed cert timestamp", "quic.tag.csct",
+        { &hf_gquic_tag_csct,
+            { "Signed cert timestamp", "gquic.tag.csct",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_ctim,
-            { "Client Timestamp", "quic.tag.ctim",
+        { &hf_gquic_tag_ctim,
+            { "Client Timestamp", "gquic.tag.ctim",
               FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_rnon,
-            { "Public reset nonce proof", "quic.tag.rnon",
+        { &hf_gquic_tag_rnon,
+            { "Public reset nonce proof", "gquic.tag.rnon",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_rseq,
-            { "Rejected Packet Number", "quic.tag.rseq",
+        { &hf_gquic_tag_rseq,
+            { "Rejected Packet Number", "gquic.tag.rseq",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "a 64-bit packet number", HFILL }
         },
-        { &hf_quic_tag_cadr_addr_type,
-            { "Client IP Address Type", "quic.tag.caddr.addr.type",
+        { &hf_gquic_tag_cadr_addr_type,
+            { "Client IP Address Type", "gquic.tag.caddr.addr.type",
               FT_UINT16, BASE_DEC, VALS(cadr_type_vals), 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_cadr_addr_ipv4,
-            { "Client IP Address", "quic.tag.caddr.addr.ipv4",
+        { &hf_gquic_tag_cadr_addr_ipv4,
+            { "Client IP Address", "gquic.tag.caddr.addr.ipv4",
               FT_IPv4, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_cadr_addr_ipv6,
-            { "Client IP Address", "quic.tag.caddr.addr.ipv6",
+        { &hf_gquic_tag_cadr_addr_ipv6,
+            { "Client IP Address", "gquic.tag.caddr.addr.ipv6",
               FT_IPv6, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_cadr_addr,
-            { "Client IP Address", "quic.tag.caddr.addr",
+        { &hf_gquic_tag_cadr_addr,
+            { "Client IP Address", "gquic.tag.caddr.addr",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_cadr_port,
-            { "Client Port (Source)", "quic.tag.caddr.port",
+        { &hf_gquic_tag_cadr_port,
+            { "Client Port (Source)", "gquic.tag.caddr.port",
               FT_UINT16, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_mids,
-            { "Max incoming dynamic streams", "quic.tag.mids",
+        { &hf_gquic_tag_mids,
+            { "Max incoming dynamic streams", "gquic.tag.mids",
               FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_fhol,
-            { "Force Head Of Line blocking", "quic.tag.fhol",
+        { &hf_gquic_tag_fhol,
+            { "Force Head Of Line blocking", "gquic.tag.fhol",
               FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_sttl,
-            { "Server Config TTL", "quic.tag.sttl",
+        { &hf_gquic_tag_sttl,
+            { "Server Config TTL", "gquic.tag.sttl",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_smhl,
-            { "Support Max Header List (size)", "quic.tag.smhl",
+        { &hf_gquic_tag_smhl,
+            { "Support Max Header List (size)", "gquic.tag.smhl",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_tag_tbkp,
-            { "Token Binding Key Params.", "quic.tag.tbkp",
+        { &hf_gquic_tag_tbkp,
+            { "Token Binding Key Params.", "gquic.tag.tbkp",
               FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
 
-        { &hf_quic_tag_unknown,
-            { "Unknown tag", "quic.tag.unknown",
+        { &hf_gquic_tag_unknown,
+            { "Unknown tag", "gquic.tag.unknown",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_padding,
-            { "Padding", "quic.padding",
+        { &hf_gquic_padding,
+            { "Padding", "gquic.padding",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_stream_data,
-            { "Stream Data", "quic.stream_data",
+        { &hf_gquic_stream_data,
+            { "Stream Data", "gquic.stream_data",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_payload,
-            { "Payload", "quic.payload",
+        { &hf_gquic_payload,
+            { "Payload", "gquic.payload",
               FT_BYTES, BASE_NONE, NULL, 0x0,
-              "Quic Payload..", HFILL }
+              "(Google) QUIC Payload..", HFILL }
         },
     };
 
 
     static gint *ett[] = {
-        &ett_quic,
-        &ett_quic_puflags,
-        &ett_quic_prflags,
-        &ett_quic_ft,
-        &ett_quic_ftflags,
-        &ett_quic_tag_value
+        &ett_gquic,
+        &ett_gquic_puflags,
+        &ett_gquic_prflags,
+        &ett_gquic_ft,
+        &ett_gquic_ftflags,
+        &ett_gquic_tag_value
     };
 
     static ei_register_info ei[] = {
-        { &ei_quic_tag_undecoded, { "quic.tag.undecoded", PI_UNDECODED, PI_NOTE, "Dissector for QUIC Tag code not implemented, Contact Wireshark developers if you want this supported", EXPFILL }},
-        { &ei_quic_tag_length, { "quic.tag.length.truncated", PI_MALFORMED, PI_NOTE, "Truncated Tag Length...", EXPFILL }},
-        { &ei_quic_tag_unknown, { "quic.tag.unknown.data", PI_UNDECODED, PI_NOTE, "Unknown Data", EXPFILL }},
-        { &ei_quic_version_invalid, { "quic.version.invalid", PI_MALFORMED, PI_ERROR, "Invalid Version", EXPFILL }}
+        { &ei_gquic_tag_undecoded, { "gquic.tag.undecoded", PI_UNDECODED, PI_NOTE, "Dissector for (Google)QUIC Tag code not implemented, Contact Wireshark developers if you want this supported", EXPFILL }},
+        { &ei_gquic_tag_length, { "gquic.tag.length.truncated", PI_MALFORMED, PI_NOTE, "Truncated Tag Length...", EXPFILL }},
+        { &ei_gquic_tag_unknown, { "gquic.tag.unknown.data", PI_UNDECODED, PI_NOTE, "Unknown Data", EXPFILL }},
+        { &ei_gquic_version_invalid, { "gquic.version.invalid", PI_MALFORMED, PI_ERROR, "Invalid Version", EXPFILL }}
     };
 
-    expert_module_t *expert_quic;
+    expert_module_t *expert_gquic;
 
-    proto_quic = proto_register_protocol("QUIC (Quick UDP Internet Connections)", "QUIC", "quic");
+    proto_gquic = proto_register_protocol("GQUIC (Google Quick UDP Internet Connections)", "GQUIC", "gquic");
 
-    proto_register_field_array(proto_quic, hf, array_length(hf));
+    proto_register_field_array(proto_gquic, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    quic_module = prefs_register_protocol(proto_quic, NULL);
+    gquic_module = prefs_register_protocol(proto_gquic, NULL);
 
-    prefs_register_bool_preference(quic_module, "debug.quic",
-                       "Force decode of all QUIC Payload",
+    prefs_register_bool_preference(gquic_module, "debug.quic",
+                       "Force decode of all (Google) QUIC Payload",
                        "Help for debug...",
-                       &g_quic_debug);
+                       &g_gquic_debug);
 
-    expert_quic = expert_register_protocol(proto_quic);
-    expert_register_field_array(expert_quic, ei, array_length(ei));
+    expert_gquic = expert_register_protocol(proto_gquic);
+    expert_register_field_array(expert_gquic, ei, array_length(ei));
 
-    quic_handle = register_dissector("quic", dissect_quic, proto_quic);
+    gquic_handle = register_dissector("gquic", dissect_gquic, proto_gquic);
 }
 
 void
-proto_reg_handoff_quic(void)
+proto_reg_handoff_gquic(void)
 {
-    dissector_add_uint_range_with_preference("udp.port", "", quic_handle);
-    heur_dissector_add("udp", dissect_gquic_heur, "Google QUIC", "gquic", proto_quic, HEURISTIC_ENABLE);
+    dissector_add_uint_range_with_preference("udp.port", "", gquic_handle);
+    heur_dissector_add("udp", dissect_gquic_heur, "Google QUIC", "gquic", proto_gquic, HEURISTIC_ENABLE);
 }
 
 
