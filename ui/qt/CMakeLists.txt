@@ -566,7 +566,14 @@ register_tap_files(wireshark-tap-register.c
 	${WIRESHARK_QT_TAP_SRC}
 )
 
+source_group("moc Source Files" FILES ${WIRESHARK_QT_MOC_SRC})
+source_group("ui Header Files" FILES ${WIRESHARK_QT_UI_SRC})
+source_group("ui Files" FILES ${WIRESHARK_QT_UI})
+source_group("qrc Files" FILES ${WIRESHARK_QT_QRC_SRC} ${WIRESHARK_QT_QRC})
+source_group("Header Files" FILES ${WIRESHARK_QT_HEADERS})
+
 add_library(qtui STATIC
+	${WIRESHARK_QT_HEADERS} #Included so that Visual Studio can properly put header files in solution
 	${WIRESHARK_QT_SRC}
 	${WIRESHARK_QT_TAP_SRC}
 	${WIRESHARK_QT_UI_SRC}
