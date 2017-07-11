@@ -980,105 +980,97 @@ static value_string_ext handshake_failure_reason_vals_ext = VALUE_STRING_EXT_INI
 
 
 static guint32 get_len_offset(guint8 frame_type){
-    guint32 len;
 
     switch((frame_type & FTFLAGS_STREAM_OOO) >> 2){
         case 0:
-            len = 0;
+            return 0;
         break;
         case 1:
-            len = 2;
+            return 2;
         break;
         case 2:
-            len = 3;
+            return 3;
         break;
         case 3:
-            len = 4;
+            return 4;
         break;
         case 4:
-            len = 5;
+            return 5;
         break;
         case 5:
-            len = 6;
+            return 6;
         break;
         case 6:
-            len = 7;
+            return 7;
         break;
         case 7:
-            len = 8;
+            return 8;
         break;
-        default: /* No possible but always return value... */
-            len = 0;
+        default:
         break;
     }
-    return len;
+    return 0;
 }
 static guint32 get_len_stream(guint8 frame_type){
-    guint32 len;
 
     switch(frame_type & FTFLAGS_STREAM_SS){
         case 0:
-            len = 1;
+            return 1;
         break;
         case 1:
-            len  = 2;
+            return 2;
         break;
         case 2:
-            len = 3;
+            return 3;
         break;
         case 3:
-            len = 4;
+            return 4;
         break;
-        default: /* No possible but always return value... */
-            len = 1;
+        default:
         break;
     }
-    return len;
+    return 1;
 }
 
 static guint32 get_len_largest_observed(guint8 frame_type){
-    guint32 len;
 
     switch((frame_type & FTFLAGS_ACK_LL) >> 2){
         case 0:
-            len = 1;
+            return 1;
         break;
         case 1:
-            len = 2;
+            return 2;
         break;
         case 2:
-            len = 4;
+            return 4;
         break;
         case 3:
-            len = 6;
+            return 6;
         break;
-        default: /* No possible but always return value... */
-            len = 1;
+        default:
         break;
     }
-    return len;
+    return 1;
 }
 static guint32 get_len_missing_packet(guint8 frame_type){
-    guint32 len;
 
     switch(frame_type & FTFLAGS_ACK_MM){
         case 0:
-            len = 1;
+            return 1;
         break;
         case 1:
-            len = 2;
+            return 2;
         break;
         case 2:
-            len = 4;
+            return 4;
         break;
         case 3:
-            len = 6;
+            return 6;
         break;
-        default: /* No possible but always return value... */
-            len = 1;
+        default:
         break;
     }
-    return len;
+    return 1;
 }
 
 static gboolean is_quic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint16 len_pkn, quic_info_data_t *quic_info){
