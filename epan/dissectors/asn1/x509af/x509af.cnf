@@ -152,7 +152,7 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
   proto_item_append_text(proto_item_get_parent(tree), " (%%s)", str?str:"");
 
 #.TYPE_ATTR
-CertificateSerialNumber TYPE = FT_INT64
+CertificateSerialNumber TYPE = FT_UINT64
 DSS-Params/p TYPE = FT_BYTES  DISPLAY = BASE_NONE
 DSS-Params/q TYPE = FT_BYTES  DISPLAY = BASE_NONE
 DSS-Params/g TYPE = FT_BYTES  DISPLAY = BASE_NONE

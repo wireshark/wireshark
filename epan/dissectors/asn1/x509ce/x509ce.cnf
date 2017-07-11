@@ -13,7 +13,7 @@
 #.END
 
 # InformationFramework classes
-##.CLASS ATTRIBUTE
+# #.CLASS ATTRIBUTE
 #&derivation            ClassReference ATTRIBUTE
 #&Type
 #&equality-match        ClassReference MATCHING-RULE
@@ -24,7 +24,7 @@
 #&no-user-modification  BooleanType
 #&usage
 #&id                    ObjectIdentifierType
-##.END
+# #.END
 
 #.CLASS MATCHING-RULE
 &ParentMatchingRules   ClassReference MATCHING-RULE
@@ -183,5 +183,4 @@ EnhancedCertificateAssertion/pathToName			enhancedPathToName
 	PROTO_ITEM_SET_URL(actx->created_item);
 
 #.END
-
 
