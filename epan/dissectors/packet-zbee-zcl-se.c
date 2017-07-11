@@ -1190,7 +1190,7 @@ proto_register_zbee_zcl_met(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_met_publish_snapshot_snapshot_sub_payload,
-            { "Snapshot Sub-Payload", "zbee_zcl_se.met.publish_snapshot.payload_type", FT_BYTES, BASE_NONE, NULL,
+            { "Snapshot Sub-Payload", "zbee_zcl_se.met.publish_snapshot.sub_payload", FT_BYTES, BASE_NONE, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_met_get_sampled_data_rsp_sample_id,
