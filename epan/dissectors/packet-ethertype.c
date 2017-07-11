@@ -187,6 +187,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_NWP,                  "Neighborhood Watch Protocol" },
 	{ ETHERTYPE_BLUECOM,              "bluecom Protocol" },
 	{ ETHERTYPE_QINQ_OLD,             "QinQ: old non-standard 802.1ad" },
+	{ ETHERTYPE_6LOWPAN,              "6LoWPAN" },
 	{ 0, NULL }
 };
 

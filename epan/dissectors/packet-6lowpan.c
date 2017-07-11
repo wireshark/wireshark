@@ -30,6 +30,7 @@
 #include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
 #include <epan/proto_data.h>
+#include <epan/etypes.h>
 #include "packet-ipv6.h"
 #include "packet-6lowpan.h"
 #include "packet-btl2cap.h"
@@ -3378,6 +3379,9 @@ proto_reg_handoff_6lowpan(void)
     /* Register the 6LoWPAN dissector with IEEE 802.15.4 */
     dissector_add_for_decode_as(IEEE802154_PROTOABBREV_WPAN_PANID, handle_6lowpan);
     heur_dissector_add(IEEE802154_PROTOABBREV_WPAN, dissect_6lowpan_heur, "6LoWPAN over IEEE 802.15.4", "6lowpan_wlan", proto_6lowpan, HEURISTIC_ENABLE);
+
+    /* Register Ethertype (RFC 7973) */
+    dissector_add_uint("ethertype", ETHERTYPE_6LOWPAN, handle_6lowpan);
 
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_LE_IPSP, handle_6lowpan);
     dissector_add_for_decode_as("btl2cap.cid", handle_6lowpan);
