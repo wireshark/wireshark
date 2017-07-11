@@ -248,6 +248,7 @@ set(DISSECTOR_SRC
 	packet-alljoyn.c
 	packet-amqp.c
 	packet-amr.c
+	packet-amt.c
 	packet-ancp.c
 	packet-ans.c
 	packet-ansi_637.c

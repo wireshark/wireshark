@@ -49,6 +49,7 @@ since version 2.4.0:
 LoRaTap
 LoRaWAN
 ISOBUS
+AMT (Automatic Multicast Tunneling)
 --sort-and-group--
 
 === Updated Protocol Support
