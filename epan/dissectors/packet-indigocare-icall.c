@@ -56,6 +56,7 @@ void proto_register_icall(void);
 
 static expert_field ei_icall_unexpected_header = EI_INIT;
 static expert_field ei_icall_unexpected_record = EI_INIT;
+static expert_field ei_icall_unexpected_end = EI_INIT;
 
 static int proto_icall = -1;
 static int hf_icall_header_type = -1;
@@ -70,6 +71,8 @@ static int hf_icall_call_name1_type = -1;
 static int hf_icall_call_name2_type = -1;
 static int hf_icall_call_numerical_type = -1;
 static int hf_icall_call_nurse_type = -1;
+
+static int hf_icall_padding_type = -1;
 
 static gint ett_icall = -1;
 static gint ett_icall_call = -1;
@@ -95,10 +98,6 @@ dissect_icall(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *dat
 	/* Starts with SOH */
 	if ( tvb_get_guint8(tvb, 0) != INDIGOCARE_ICALL_SOH )
 		return 0;
-	/* Ends with EOT */
-	if ((pinfo->phdr->caplen == pinfo->phdr->len) && ( tvb_get_guint8(tvb, tvb_reported_length(tvb) - 1) != INDIGOCARE_ICALL_EOT ))
-		return 0;
-	/* It is a iCall Communication Protocol packet */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "iCall");
 	col_clear(pinfo->cinfo,COL_INFO);
 	ti = proto_tree_add_item(tree, proto_icall, tvb, 0, -1, ENC_NA);
@@ -179,6 +178,17 @@ dissect_icall(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *dat
 				}
 			break;
 		}
+	}
+	current_offset++;
+	if (tvb_get_guint8(tvb, current_offset) != INDIGOCARE_ICALL_EOT) {
+		/* Malformed packet terminator */
+		proto_tree_add_expert(icall_header_tree, pinfo, &ei_icall_unexpected_end, tvb, current_offset, 1);
+		return tvb_captured_length(tvb);
+	}
+	current_offset++;
+	if (tvb_captured_length_remaining(tvb, current_offset)) {
+		/* Padding */
+		proto_tree_add_item(icall_header_tree, hf_icall_padding_type, tvb, current_offset, tvb_captured_length_remaining(tvb, current_offset), ENC_NA);
 	}
 	return tvb_captured_length(tvb);
 }
@@ -262,12 +272,19 @@ proto_register_icall(void)
 		FT_STRING, BASE_NONE,
 		NULL, 0x0,
 		NULL, HFILL }
+	},
+	{ &hf_icall_padding_type,
+		{ "Padding", "icall.padding",
+		FT_BYTES, BASE_NONE,
+		NULL, 0x0,
+		NULL, HFILL }
 	}
 	};
 
 	static ei_register_info ei[] = {
 		{ &ei_icall_unexpected_header, { "icall.unexpected.header", PI_MALFORMED, PI_WARN, "Unexpected header", EXPFILL }},
-		{ &ei_icall_unexpected_record, { "icall.unexpected.record", PI_MALFORMED, PI_WARN, "Unexpected record", EXPFILL }}
+		{ &ei_icall_unexpected_record, { "icall.unexpected.record", PI_MALFORMED, PI_WARN, "Unexpected record", EXPFILL }},
+		{ &ei_icall_unexpected_end, { "icall.unexpected.end", PI_MALFORMED, PI_WARN, "Unexpected end of packet", EXPFILL }}
 	};
 
 	expert_module_t* expert_icall;
