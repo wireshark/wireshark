@@ -31,6 +31,10 @@
 /* PANID dissector list is for Decode-As and stateful dissection only. */
 #define IEEE802154_PROTOABBREV_WPAN_PANID   "wpan.panid"
 
+/* Dissector tables for the Header IEs and Payload IEs */
+#define IEEE802154_HEADER_IE_DTABLE         "wpan.header_ie"
+#define IEEE802154_PAYLOAD_IE_DTABLE        "wpan.payload_ie"
+
 /*  Packet Overhead from MAC header + footer (excluding addressing) */
 #define IEEE802154_MAX_FRAME_LEN            127
 #define IEEE802154_FCS_LEN                  2
