@@ -1281,7 +1281,7 @@ tree_view_key_pressed_cb(GtkWidget   *tree,
                 rc = TRUE;
                 break;
             }
-            /* No break - fall through to jumping to the parent */
+            /* else fall through to jumping to the parent */
         case GDK_BackSpace:
             if (!expanded) {
                 /* subtree is already collapsed, jump to parent node */
