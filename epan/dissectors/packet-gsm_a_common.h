@@ -1453,8 +1453,11 @@ typedef enum
     DE_EMM_GUTI_TYPE,           /* 9.9.3.45 GUTI type */
     DE_EMM_EXT_DRX_PARAMS,      /* 9.9.3.46 Extended DRX parameters */
     DE_EMM_DATA_SERV_TYPE,      /* 9.9.3.47 Data service type */
+    DE_EMM_DCN_ID,              /* 9.9.3.48 DCN-ID, See subclause 10.5.5.35 in 3GPP TS 24.008 */
+    DE_EMM_NON_3GPP_ACCESS_PROV_EMERG_NB_POL, /* 9.9.3.49 Non-3GPP access provided emergency numbers policy, See subclause 10.5.5.A in 3GPP TS 24.008 */
+    DE_EMM_HASH_MME,            /* 9.9.3.50 HashMME */
+    DE_EMM_REPLAYED_NAS_MSG_CONT, /* 9.9.3.51 Replayed NAS message container */
     DE_EMM_NONE                 /* NONE */
-
 }
 nas_emm_elem_idx_t;
 

@@ -56,6 +56,7 @@ static dissector_handle_t ipv6_handle;
 
 /* Forward declaration */
 static void disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
+static void dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean second_header);
 
 static int hf_nas_eps_msg_emm_type = -1;
 int hf_nas_eps_common_elem_id = -1;
@@ -98,6 +99,7 @@ static int hf_nas_eps_emm_cs_lcs = -1;
 static int hf_nas_eps_emm_epc_lcs = -1;
 static int hf_nas_eps_emm_emc_bs = -1;
 static int hf_nas_eps_emm_ims_vops = -1;
+static int hf_nas_eps_emm_restrict_ec = -1;
 static int hf_nas_eps_emm_epco = -1;
 static int hf_nas_eps_emm_hc_cp_ciot = -1;
 static int hf_nas_eps_emm_s1_u_data = -1;
@@ -184,6 +186,9 @@ static int hf_nas_eps_emm_up_ciot_cap = -1;
 static int hf_nas_eps_emm_cp_ciot_cap = -1;
 static int hf_nas_eps_emm_prose_relay_cap = -1;
 static int hf_nas_eps_emm_prose_dc_cap = -1;
+static int hf_nas_eps_cp_backoff_cap = -1;
+static int hf_nas_eps_restrict_ec_cap = -1;
+static int hf_nas_eps_v2x_pc5_cap = -1;
 static int hf_nas_eps_multiple_drb_cap = -1;
 static int hf_nas_eps_emm_ue_ra_cap_inf_upd_need_flg = -1;
 static int hf_nas_eps_emm_ss_code = -1;
@@ -198,6 +203,9 @@ static int hf_nas_eps_emm_apn_ambr_dl_ext2 = -1;
 static int hf_nas_eps_emm_apn_ambr_ul_total = -1;
 static int hf_nas_eps_emm_apn_ambr_dl_total = -1;
 static int hf_nas_eps_emm_guti_type = -1;
+static int hf_nas_eps_non_3gpp_emerg_nb_ind = -1;
+static int hf_nas_eps_hash_mme = -1;
+static int hf_nas_eps_replayed_nas_msg_cont = -1;
 static int hf_nas_eps_emm_detach_req_UL = -1;
 static int hf_nas_eps_emm_detach_req_DL = -1;
 static int hf_nas_eps_emm_switch_off = -1;
@@ -294,6 +302,7 @@ static int ett_nas_eps_gen_msg_cont = -1;
 static int ett_nas_eps_cmn_add_info = -1;
 static int ett_nas_eps_remote_ue_context = -1;
 static int ett_nas_eps_esm_user_data_cont = -1;
+static int ett_nas_eps_replayed_nas_msg_cont = -1;
 
 static expert_field ei_nas_eps_extraneous_data = EI_INIT;
 static expert_field ei_nas_eps_unknown_identity = EI_INIT;
@@ -756,6 +765,10 @@ static const value_string nas_emm_elem_strings[] = {
     { DE_EMM_GUTI_TYPE, "GUTI type" },                                         /* 9.9.3.45 GUTI type */
     { DE_EMM_EXT_DRX_PARAMS, "Extended DRX parameters" },                      /* 9.9.3.46 Extended DRX parameters */
     { DE_EMM_DATA_SERV_TYPE, "Data service type" },                            /* 9.9.3.47 Data service type */
+    { DE_EMM_DCN_ID, "DCN-ID" },                                               /* 9.9.3.48 DCN-ID */
+    { DE_EMM_NON_3GPP_ACCESS_PROV_EMERG_NB_POL, "Non-3GPP access provided emergency numbers policy" },/* 9.9.3.49 Non-3GPP access provided emergency numbers policy */
+    { DE_EMM_HASH_MME, "HashMME" },                                            /* 9.9.3.50 HashMME */
+    { DE_EMM_REPLAYED_NAS_MSG_CONT, "Replayed NAS message container" },        /* 9.9.3.51 Replayed NAS message container */
     { 0, NULL }
 };
 value_string_ext nas_emm_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_emm_elem_strings);
@@ -831,6 +844,10 @@ typedef enum
     DE_EMM_GUTI_TYPE,           /* 9.9.3.45 GUTI type */
     DE_EMM_EXT_DRX_PARAMS,      /* 9.9.3.46 Extended DRX parameters */
     DE_EMM_DATA_SERV_TYPE,      /* 9.9.3.47 Data service type */
+    DE_EMM_DCN_ID,              /* 9.9.3.48 DCN-ID */
+    DE_EMM_NON_3GPP_ACCESS_PROV_EMERG_NB_POL /* 9.9.3.49 Non-3GPP access provided emergency numbers policy */
+    DE_EMM_HASH_MME,            /* 9.9.3.50 HashMME */
+    DE_EMM_REPLAYED_NAS_MSG_CONT, /* 9.9.3.51 Replayed NAS message container */
     DE_EMM_NONE                 /* NONE */
 }
 nas_emm_elem_idx_t;
@@ -1256,8 +1273,10 @@ de_emm_eps_net_feature_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     proto_tree_add_bits_item(tree, hf_nas_eps_emm_ims_vops, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset += 1;
     if (len >= 2) {
-        proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
-        bit_offset += 4;
+        proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+        bit_offset += 3;
+        proto_tree_add_bits_item(tree, hf_nas_eps_emm_restrict_ec, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+        bit_offset += 1;
         proto_tree_add_bits_item(tree, hf_nas_eps_emm_epco, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset += 1;
         proto_tree_add_bits_item(tree, hf_nas_eps_emm_hc_cp_ciot, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
@@ -2011,7 +2030,13 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     if ((curr_offset - offset) >= len)
         return (len);
 
-    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 7, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 4, ENC_BIG_ENDIAN);
+    /* CP backoff capability (octet 9, bit 4) */
+    proto_tree_add_item(tree, hf_nas_eps_cp_backoff_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    /* RestrictEC capability (octet 9, bit 3) */
+    proto_tree_add_item(tree, hf_nas_eps_restrict_ec_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    /* V2X PC5 capability (octet 9, bit 2) */
+    proto_tree_add_item(tree, hf_nas_eps_v2x_pc5_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     /* multipleDRB capability (octet 9, bit 1) */
     proto_tree_add_item(tree, hf_nas_eps_multiple_drb_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
@@ -2357,7 +2382,63 @@ de_emm_guti_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  * Coded inline 1/2 octet
  */
 
- /*
+/*
+ * 9.9.3.48 DCN-ID
+ * See subclause 10.5.5.35 in 3GPP TS 24.008
+ */
+
+/*
+ * 9.9.3.49 Non-3GPP access provided emergency numbers policy
+ */
+const true_false_string nas_eps_permitted_not_permitted_value = {
+    "Permitted",
+    "Not permitted"
+};
+
+static guint16
+de_emm_non_3gpp_access_prov_emerg_nb_pol(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (offset << 3) + 4, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_nas_eps_non_3gpp_emerg_nb_ind, tvb, (offset << 3) + 7, 1, ENC_BIG_ENDIAN);
+
+    /* no length check possible */
+    return (1);
+}
+
+/*
+ * 9.9.3.50 HashMME
+ */
+static guint16
+de_emm_hash_mme(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    proto_tree_add_item(tree, hf_nas_eps_hash_mme, tvb, offset, 8, ENC_NA);
+
+    return len;
+}
+
+/*
+ * 9.9.3.51 Replayed NAS message container
+ */
+static guint16
+de_emm_replayed_nas_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    proto_item *item;
+    proto_tree *sub_tree;
+
+    item = proto_tree_add_item(tree, hf_nas_eps_replayed_nas_msg_cont, tvb, offset, len, ENC_NA);
+    sub_tree = proto_item_add_subtree(item, ett_nas_eps_replayed_nas_msg_cont);
+
+    tvbuff_t *replayed_tvb = tvb_new_subset_length(tvb, offset, len);
+    TRY {
+        dissect_nas_eps_emm_msg(replayed_tvb, pinfo, sub_tree, 0, TRUE);
+    } CATCH_BOUNDS_ERRORS {
+        show_exception(replayed_tvb, pinfo, sub_tree, EXCEPT_CODE, GET_MESSAGE);
+    } ENDTRY
+
+    return len;
+}
+
+/*
  * 9.9.4    EPS Session Management (ESM) information elements
  */
 
@@ -3182,7 +3263,7 @@ de_esm_hdr_compr_config(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  */
 static true_false_string nas_eps_ctrl_plane_only_ind_cpoi_value = {
     "PDN connection can be used for control plane CIoT EPS optimization only",
-    "PDN connection can be used with user plane radio bearer(s)"
+    "Reserved"
 };
 static guint16
 de_esm_ctrl_plane_only_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
@@ -3367,6 +3448,10 @@ guint16 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     de_emm_guti_type,           /* 9.9.3.45 GUTI type */
     NULL,                       /* 9.9.3.46 Extended DRX parameters */
     NULL,                       /* 9.9.3.47 Data service type */
+    NULL,                       /* 9.9.3.48 DCN-ID */
+    de_emm_non_3gpp_access_prov_emerg_nb_pol, /* 9.9.3.49 Non-3GPP access provided emergency numbers policy */
+    de_emm_hash_mme,            /* 9.9.3.50 HashMME */
+    de_emm_replayed_nas_msg_cont, /* 9.9.3.51 Replayed NAS message container */
     NULL,   /* NONE */
 };
 
@@ -3541,11 +3626,17 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     /* 5E   T3412 extended value GPRS timer 3 9.9.3.16B O   TLV  3 */
     ELEM_OPT_TLV(0x5E, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3412 extended value");
     /* 6A   T3324 value GPRS timer 2 9.9.3.16A O   TLV  3 */
-    ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3324");
+    ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3324 value");
     /* 6E   Extended DRX parameters Extended DRX parameters 9.9.3.46 O   TLV  3 */
     ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
+    /* 65   DCN-ID DCN-ID 9.9.3.48 O   TLV  4 */
+    ELEM_OPT_TLV(0x65, GSM_A_PDU_TYPE_GM, DE_DCN_ID, NULL);
     /* E-   SMS services status SMS services status 9.9.3.4B O TV 1 */
     ELEM_OPT_TV_SHORT(0xE0, NAS_PDU_TYPE_EMM, DE_EMM_SMS_SERVICES_STATUS, NULL);
+    /* D-   Non-3GPP access provided emergency numbers policy Non-3GPP access provided emergency numbers policy O   TV  1 */
+    ELEM_OPT_TV_SHORT(0xD0, NAS_PDU_TYPE_EMM, DE_EMM_NON_3GPP_ACCESS_PROV_EMERG_NB_POL, NULL);
+    /* 6B   T3448 value GPRS timer 2 9.9.3.16A O   TLV  3 */
+    ELEM_OPT_TLV(0x6B, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3448 value");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4031,6 +4122,9 @@ nas_emm_guti_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
     /* 54   TAI list    Tracking area identity list 9.9.3.33    O   TLV 8-98 */
     ELEM_OPT_TLV(0x54, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, NULL);
 
+    /* 65   DCN-ID DCN-ID 9.9.3.48 O   TLV  4 */
+    ELEM_OPT_TLV(0x65, GSM_A_PDU_TYPE_GM, DE_DCN_ID, NULL);
+
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
 
@@ -4133,6 +4227,8 @@ nas_emm_sec_mode_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
     ELEM_OPT_TV(0x55, NAS_PDU_TYPE_EMM, DE_EMM_NONCE, " - Replayed NonceUE");
     /* 56   NonceMME    Nonce 9.9.3.25  O   TV  5 */
     ELEM_OPT_TV(0x56, NAS_PDU_TYPE_EMM, DE_EMM_NONCE, " - NonceMME");
+    /* 4F   HashMME     HashMME 9.9.3.50  O   TLV  10 */
+    ELEM_OPT_TLV(0x4F, NAS_PDU_TYPE_EMM, DE_EMM_HASH_MME, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4153,6 +4249,8 @@ nas_emm_sec_mode_comp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 
     /* 23   IMEISV  Mobile identity 9.9.2.3 O   TLV 11 */
     ELEM_OPT_TLV(0x23, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_MOB_ID, " - IMEISV");
+    /* 79   Replayed NAS message container Replayed NAS message container 9.9.3.51 O   TLV-E 3-n */
+    ELEM_OPT_TLV_E(0x79, NAS_PDU_TYPE_EMM, DE_EMM_REPLAYED_NAS_MSG_CONT, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4197,6 +4295,8 @@ nas_emm_serv_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
     ELEM_OPT_TV(0x5b, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, " - T3442 value");
     /* 5F   T3346 value GPRS timer 2 9.9.3.16A O   TLV  3 */
     ELEM_OPT_TLV(0x5F, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3346 value");
+    /* 6B   T3448 value GPRS timer 2 9.9.3.16A O   TLV  3 */
+    ELEM_OPT_TLV(0x6B, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3448 value");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4290,13 +4390,19 @@ nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     /* 5E   T3412 extended value GPRS timer 3 9.9.3.16B O   TLV  3 */
     ELEM_OPT_TLV(0x5E, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3412 extended value");
     /* 6A   T3324 value GPRS timer 2 9.9.3.16A O   TLV  3 */
-    ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3324");
+    ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3324 value");
     /* 6E   Extended DRX parameters Extended DRX parameters 9.9.3.46 O   TLV  3 */
     ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
     /* 68   Header compression configuration status Header compression configuration status 9.9.4.27 O  TLV  5-257 */
     ELEM_OPT_TLV(0x68, NAS_PDU_TYPE_ESM, DE_ESM_HDR_COMPR_CONFIG_STATUS, NULL);
+    /* 65   DCN-ID DCN-ID 9.9.3.48 O   TLV  4 */
+    ELEM_OPT_TLV(0x65, GSM_A_PDU_TYPE_GM, DE_DCN_ID, NULL);
     /* E-   SMS services status SMS services status 9.9.3.4B O TV 1 */
     ELEM_OPT_TV_SHORT(0xE0, NAS_PDU_TYPE_EMM, DE_EMM_SMS_SERVICES_STATUS, NULL);
+    /* D-   Non-3GPP access provided emergency numbers policy Non-3GPP access provided emergency numbers policy O   TV  1 */
+    ELEM_OPT_TV_SHORT(0xD0, NAS_PDU_TYPE_EMM, DE_EMM_NON_3GPP_ACCESS_PROV_EMERG_NB_POL, NULL);
+    /* 6B   T3448 value GPRS timer 2 9.9.3.16A O   TLV  3 */
+    ELEM_OPT_TLV(0x6B, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3448 value");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4555,6 +4661,8 @@ nas_emm_serv_accept(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
     /* 57  EPS bearer context status  EPS bearer context status 9.9.2.1 O  TLV  4 */
     ELEM_OPT_TLV(0x57, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_EPS_BE_CTX_STATUS, NULL);
+    /* 6B   T3448 value GPRS timer 2 9.9.3.16A O   TLV  3 */
+    ELEM_OPT_TLV(0x6B, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3448 value");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -6067,8 +6175,13 @@ proto_register_nas_eps(void)
         FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
         NULL, HFILL }
     },
+    { &hf_nas_eps_emm_restrict_ec,
+        { "Restriction on enhanced coverage","nas_eps.emm.restrict_ec",
+        FT_BOOLEAN ,BASE_NONE, TFS(&tfs_restricted_not_restricted), 0x0,
+        NULL, HFILL }
+    },
     { &hf_nas_eps_emm_epco,
-        { "Extended protocol configuration options IE","nas_eps.emm.epco",
+        { "Extended protocol configuration options","nas_eps.emm.epco",
         FT_BOOLEAN ,BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
         NULL, HFILL }
     },
@@ -6499,6 +6612,21 @@ proto_register_nas_eps(void)
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
         NULL, HFILL }
     },
+    { &hf_nas_eps_cp_backoff_cap,
+        { "Control plane data backoff","nas_eps.emm.cp_backoff_cap",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_restrict_ec_cap,
+        { "Restriction on use of enhanced coverage","nas_eps.emm.restrict_ec_cap",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_v2x_pc5_cap,
+        { "V2X communication over PC5","nas_eps.emm.v2x_pc5_cap",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+        NULL, HFILL }
+    },
     { &hf_nas_eps_multiple_drb_cap,
         { "Multiple DRB","nas_eps.emm.multiple_drb_cap",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
@@ -6567,6 +6695,21 @@ proto_register_nas_eps(void)
     { &hf_nas_eps_emm_guti_type,
         { "GUTI type", "nas_eps.emm.guti_type",
         FT_BOOLEAN, BASE_NONE, TFS(&nas_eps_emm_guti_type_value), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_non_3gpp_emerg_nb_ind,
+        { "Non-3GPP emergency number indicator", "nas_eps.emm.non_3gpp_emerg_nb_ind",
+        FT_BOOLEAN, BASE_NONE, TFS(&nas_eps_permitted_not_permitted_value), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_hash_mme,
+        { "HashMME", "nas_eps.emm.hash_mme",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_replayed_nas_msg_cont,
+        { "Replayed NAS message container", "nas_eps.emm.replayed_nas_msg_cont",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_detach_req_UL,
@@ -6986,7 +7129,7 @@ proto_register_nas_eps(void)
     expert_module_t* expert_nas_eps;
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    7
+#define NUM_INDIVIDUAL_ELEMS    8
     gint *ett[NUM_INDIVIDUAL_ELEMS +
           NUM_NAS_EPS_COMMON_ELEM +
           NUM_NAS_MSG_EMM + NUM_NAS_EMM_ELEM+
@@ -6999,6 +7142,7 @@ proto_register_nas_eps(void)
     ett[4] = &ett_nas_eps_cmn_add_info;
     ett[5] = &ett_nas_eps_remote_ue_context;
     ett[6] = &ett_nas_eps_esm_user_data_cont;
+    ett[7] = &ett_nas_eps_replayed_nas_msg_cont;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
