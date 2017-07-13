@@ -2599,7 +2599,7 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
 
 }
 
-static void
+void
 dissect_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
     proto_tree *flag_tree;
@@ -5199,11 +5199,15 @@ dissect_gtpv2_fqdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
  * 8.67 Private Extension
  */
 static void
-dissect_gtpv2_private_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance, session_args_t * args _U_)
+dissect_gtpv2_private_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, guint8 instance, session_args_t * args _U_)
 {
     int       offset = 0;
     tvbuff_t *next_tvb;
     guint16   ext_id;
+    gtpv2_priv_ext_info_t  gtpv2_inf;
+
+    gtpv2_inf.instance = instance;
+    gtpv2_inf.item = item;
 
     /* oct 5 -7 Enterprise ID */
     ext_id = tvb_get_ntohs(tvb, offset);
@@ -5213,7 +5217,7 @@ dissect_gtpv2_private_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     proto_item_append_text(item, "%s (%u)", enterprises_lookup(ext_id, "Unknown"), ext_id);
 
     next_tvb = tvb_new_subset_length(tvb, offset, length-2);
-    if (dissector_try_uint_new(gtpv2_priv_ext_dissector_table, ext_id, next_tvb, pinfo, tree, FALSE, GUINT_TO_POINTER((guint32)instance))){
+    if (dissector_try_uint_new(gtpv2_priv_ext_dissector_table, ext_id, next_tvb, pinfo, tree, FALSE, &gtpv2_inf)){
         return;
     }
 
