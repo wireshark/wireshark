@@ -1,4 +1,4 @@
--- 3GPP TS 36.443 V13.3.0 (2016-03)
+-- 3GPP TS 36.443 V14.0.0 (2017-03)
 -- **************************************************************
 --
 -- Constant definitions
@@ -105,5 +105,8 @@ id-Active-MBMS-Session-List													ProtocolIE-ID ::= 42
 id-MBMS-Suspension-Notification-List 										ProtocolIE-ID ::= 43
 id-MBMS-Suspension-Notification-Item										ProtocolIE-ID ::= 44
 id-SC-PTM-Information														ProtocolIE-ID ::= 45
+id-Modification-PeriodExtended												ProtocolIE-ID ::= 46
+id-Repetition-PeriodExtended												ProtocolIE-ID ::= 47
+id-MCH-Scheduling-PeriodExtended2											ProtocolIE-ID ::= 48
 
 END

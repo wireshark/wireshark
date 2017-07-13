@@ -216,6 +216,9 @@ id-Active-MBMS-Session-List                              ProtocolIE-ID
 id-MBMS-Suspension-Notification-List                     ProtocolIE-ID
 id-MBMS-Suspension-Notification-Item                     ProtocolIE-ID
 id-SC-PTM-Information                                    ProtocolIE-ID
+id-Modification-PeriodExtended                           ProtocolIE-ID
+id-Repetition-PeriodExtended                             ProtocolIE-ID
+id-MCH-Scheduling-PeriodExtended2                        ProtocolIE-ID
 
 #.REGISTER
 
@@ -265,6 +268,9 @@ SC-PTM-Information                                    N m2ap.ies id-SC-PTM-Infor
 #M2AP-PROTOCOL-EXTENSION
 Modulation-Coding-Scheme2                             N m2ap.extension id-Modulation-Coding-Scheme2
 MCH-Scheduling-PeriodExtended                         N m2ap.extension id-MCH-Scheduling-PeriodExtended
+Repetition-PeriodExtended                             N m2ap.extension id-Repetition-PeriodExtended
+Modification-PeriodExtended                           N m2ap.extension id-Modification-PeriodExtended
+MCH-Scheduling-PeriodExtended2                        N m2ap.extension id-MCH-Scheduling-PeriodExtended2
 
 #M2AP-ELEMENTARY-PROCEDURE
 SessionStartRequest               N m2ap.proc.imsg id-sessionStart
