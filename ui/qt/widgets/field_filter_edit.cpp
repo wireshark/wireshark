@@ -35,13 +35,8 @@
 #include "syntax_line_edit.h"
 
 #include <QAction>
-#include <QAbstractItemView>
-#include <QComboBox>
 #include <QCompleter>
 #include <QEvent>
-#include <QMenu>
-#include <QMessageBox>
-#include <QPainter>
 #include <QStringListModel>
 
 #include <wsutil/utf8_entities.h>
