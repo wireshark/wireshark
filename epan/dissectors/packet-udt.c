@@ -32,6 +32,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 
 /*
  * Per-conversation information
@@ -57,6 +58,10 @@ typedef struct _udt_conversation {
 
 #define UDT_HANDSHAKE_TYPE_STREAM	1
 #define UDT_HANDSHAKE_TYPE_DGRAM	2
+
+#define UDT_CONTROL_OFFSET             16  /* Offset of control information field */
+#define UDT_MAX_NAK_ENTRIES             8  /* max number of NAK entries displayed in summary */
+#define UDT_MAX_NAK_LENGTH             (UDT_CONTROL_OFFSET + UDT_MAX_NAK_ENTRIES*4)
 
 void proto_register_udt(void);
 void proto_reg_handoff_udt(void);
@@ -160,9 +165,12 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 			col_add_fstr(pinfo->cinfo, COL_INFO, "UDT type: ack2");
 			break;
 		case UDT_PACKET_TYPE_NAK: {
-			gchar ranges[1024];
-			gchar *p = ranges;
-			for (i = 16; i < tvb_reported_length(tvb); i = i + 4) {
+			wmem_strbuf_t *nakstr = wmem_strbuf_new(wmem_packet_scope(), "");
+			guint max = tvb_reported_length(tvb);
+			if (max > UDT_MAX_NAK_LENGTH)
+			    max = UDT_MAX_NAK_LENGTH;
+
+			for (i = UDT_CONTROL_OFFSET; i <= (max-4) ; i = i + 4) {
 				guint32 start, finish;
 				int     is_range;
 
@@ -170,19 +178,28 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 				start = get_sqn(udt_conv, tvb_get_ntohl(tvb, i) & 0x7fffffff);
 
 				if (is_range) {
+					if (i > (max-8)) {
+						// Message is truncated
+						break;
+					}
 					finish = get_sqn(udt_conv, tvb_get_ntohl(tvb, i + 4) & 0x7fffffff);
-					p += g_snprintf(p, (gulong)(sizeof(ranges)-(p-ranges)), "%u-%u,", start, finish);
+					wmem_strbuf_append_printf(nakstr, "%s%u-%u",
+								  i == UDT_CONTROL_OFFSET? "":",",
+								  start, finish);
 					i = i + 4;
 				} else {
-					p += g_snprintf(p, (gulong)(sizeof(ranges) - (p-ranges)), "%u,", start);
+					wmem_strbuf_append_printf(nakstr, "%s%u",
+								  i == UDT_CONTROL_OFFSET? "":",",
+								  start);
 				}
 			}
-			if (p > ranges) {
-				p -= 1;
-				*p = '\0';
-			}
+
+			// Add ellipsis if the list was too long
+			if (max != tvb_reported_length(tvb))
+				wmem_strbuf_append(nakstr, "...");
+
 			col_add_fstr(pinfo->cinfo, COL_INFO, "UDT type: %s missing:%s",
-				     typestr, ranges);
+				     typestr, wmem_strbuf_get_str(nakstr));
 			break;
 		}
 		default:
@@ -282,7 +299,7 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 			}
 			break;
 		case UDT_PACKET_TYPE_NAK:
-			for (i = 16; i < tvb_reported_length(tvb); i = i + 4) {
+			for (i = 16; i <= (tvb_reported_length(tvb)-4); i = i + 4) {
 				guint32 real_start, real_finish;
 				guint32 start, finish;
 				int     is_range;
@@ -292,31 +309,36 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 				start = get_sqn(udt_conv, real_start);
 
 				if (is_range) {
+					if (i > (tvb_reported_length(tvb)-8)) {
+						// Message is truncated - bail
+						break;
+					}
+
 					real_finish = tvb_get_ntohl(tvb, i + 4) & 0x7fffffff;
 					finish = get_sqn(udt_conv, real_finish);
 
 					if (start != real_start)
 						proto_tree_add_expert_format(tree, pinfo, &ei_udt_nak_seqno,
 									     tvb, i, 8,
-									     "MissingSequence Number(s): "
+									     "Missing Sequence Numbers: "
 									     "%u-%u (relative) [%u-%u]",
 									     start, finish, real_start, real_finish);
 					else
 						proto_tree_add_expert_format(tree, pinfo, &ei_udt_nak_seqno,
 									     tvb, i, 8,
-									     "Missing Sequence Number(s): %u-%u",
+									     "Missing Sequence Numbers: %u-%u",
 									     real_start, real_finish);
 					i = i + 4;
 				} else {
 					if (start != real_start)
 						proto_tree_add_expert_format(tree, pinfo, &ei_udt_nak_seqno,
 									     tvb, i, 4,
-									     "Missing Sequence Number: %u (relative) [%u]",
+									     "Missing Sequence Number : %u (relative) [%u]",
 									     start, real_start);
 					else
 						proto_tree_add_expert_format(tree, pinfo, &ei_udt_nak_seqno,
 									     tvb, i, 4,
-									     "Missing Sequence Number: %u", real_start);
+									     "Missing Sequence Number : %u", real_start);
 				}
 			}
 
