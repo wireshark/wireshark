@@ -1469,7 +1469,7 @@ dissect_multipath_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Minimum size is the fixed header plus at least 1 byte for path. */
     min_spec_size = (is_mutation ? 8 : 4) + 1;
 
-    while (offset + min_spec_size < end) {
+    while (offset + min_spec_size <= end) {
       guint32 path_len;
       guint32 spec_value_len = 0;
       gint start_offset = offset;
