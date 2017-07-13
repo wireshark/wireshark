@@ -170,6 +170,7 @@ static int hf_gtpv2_mmbr_ul = -1;
 static int hf_gtpv2_mmbr_dl = -1;
 
 static int hf_gtpv2_rat_type = -1;
+static int hf_gtpv2_uli_spare = -1;
 static int hf_gtpv2_uli_ecgi_flg = -1;
 static int hf_gtpv2_uli_lai_flg = -1;
 static int hf_gtpv2_uli_tai_flg = -1;
@@ -589,6 +590,7 @@ static int hf_gtpv2_uplink_rate_limit = -1;
 static int hf_gtpv2_downlink_rate_limit = -1;
 static int hf_gtpv2_timestamp_value = -1;
 static int hf_gtpv2_counter_value = -1;
+static int hf_gtpv2_uli_flags = -1;
 
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
@@ -2602,26 +2604,23 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
 void
 dissect_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
-    proto_tree *flag_tree;
     int         offset = 0;
     guint       flags;
 
-    flag_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_gtpv2_uli_flags, NULL, "Flags");
-    flags = tvb_get_guint8(tvb, offset) & 0x3f;
-    proto_tree_add_bits_item(flag_tree, hf_gtpv2_spare_bits, tvb, offset >> 3, 2, ENC_BIG_ENDIAN);
+    static const int * gtpv2_uli_flags[] = {
+        &hf_gtpv2_uli_spare,
+        &hf_gtpv2_uli_lai_flg,
+        &hf_gtpv2_uli_ecgi_flg,
+        &hf_gtpv2_uli_tai_flg,
+        &hf_gtpv2_uli_rai_flg,
+        &hf_gtpv2_uli_sai_flg,
+        &hf_gtpv2_uli_cgi_flg,
+        NULL
+    };
 
-    /* LAI B6 */
-    proto_tree_add_item(flag_tree, hf_gtpv2_uli_lai_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
-    /* ECGI B5 */
-    proto_tree_add_item(flag_tree, hf_gtpv2_uli_ecgi_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
-    /* TAI B4  */
-    proto_tree_add_item(flag_tree, hf_gtpv2_uli_tai_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
-    /* RAI B3  */
-    proto_tree_add_item(flag_tree, hf_gtpv2_uli_rai_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
-    /* SAI B2  */
-    proto_tree_add_item(flag_tree, hf_gtpv2_uli_sai_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
-    /* CGI B1  */
-    proto_tree_add_item(flag_tree, hf_gtpv2_uli_cgi_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
+    flags = tvb_get_guint8(tvb, offset) & 0x3f;
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_gtpv2_uli_flags,
+        ett_gtpv2_uli_flags, gtpv2_uli_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE| BMT_NO_INT);
 
     decode_gtpv2_uli(tvb, pinfo, tree, item, length, instance, flags);
 
@@ -8199,32 +8198,37 @@ void proto_register_gtpv2(void)
            NULL, HFILL}
         },
         { &hf_gtpv2_uli_ecgi_flg,
-          {"ECGI Present Flag", "gtpv2.uli_ecgi_flg",
+          {"ECGI Present", "gtpv2.uli_ecgi_flg",
            FT_BOOLEAN, 8, NULL, GTPv2_ULI_ECGI_MASK,
            NULL, HFILL}
         },
+        { &hf_gtpv2_uli_spare,
+        { "Spare", "gtpv2.uli_lai_flg",
+            FT_UINT8, BASE_HEX, NULL, 0xc0,
+            NULL, HFILL }
+        },
         { &hf_gtpv2_uli_lai_flg,
-          {"LAI Present Flag", "gtpv2.uli_lai_flg",
+          {"LAI Present", "gtpv2.uli_lai_flg",
            FT_BOOLEAN, 8, NULL, GTPv2_ULI_LAI_MASK,
            NULL, HFILL}
         },
         { &hf_gtpv2_uli_tai_flg,
-          {"TAI Present Flag", "gtpv2.uli_tai_flg",
+          {"TAI Present", "gtpv2.uli_tai_flg",
            FT_BOOLEAN, 8, NULL, GTPv2_ULI_TAI_MASK,
            NULL, HFILL}
         },
         { &hf_gtpv2_uli_rai_flg,
-          {"RAI Present Flag", "gtpv2.uli_rai_flg",
+          {"RAI Present", "gtpv2.uli_rai_flg",
            FT_BOOLEAN, 8, NULL, GTPv2_ULI_RAI_MASK,
            NULL, HFILL}
         },
         { &hf_gtpv2_uli_sai_flg,
-          {"SAI Present Flag", "gtpv2.uli_sai_flg",
+          {"SAI Present", "gtpv2.uli_sai_flg",
            FT_BOOLEAN, 8, NULL, GTPv2_ULI_SAI_MASK,
            NULL, HFILL}
         },
         { &hf_gtpv2_uli_cgi_flg,
-          {"CGI Present Flag", "gtpv2.uli_cgi_flg",
+          {"CGI Present", "gtpv2.uli_cgi_flg",
            FT_BOOLEAN, 8, NULL, GTPv2_ULI_CGI_MASK,
            NULL, HFILL}
         },
@@ -9358,6 +9362,11 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_counter_value,
       { "Counter value", "gtpv2.counter_value",
           FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_uli_flags,
+      { "ULI Flags", "gtpv2.uli_flags",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
           NULL, HFILL }
       },
     };
