@@ -1576,7 +1576,7 @@ set(INSTALL_FILES
 	cfilters
 	colorfilters
 	dfilters
-	enterprises
+	enterprises.tsv
 	ipmap.html
 	manuf
 	pdml2html.xsl

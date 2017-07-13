@@ -118,7 +118,7 @@
 #define ENAME_SERVICES  "services"
 #define ENAME_VLANS     "vlans"
 #define ENAME_SS7PCS    "ss7pcs"
-#define ENAME_ENTERPRISES "enterprises"
+#define ENAME_ENTERPRISES "enterprises.tsv"
 
 #define HASHETHSIZE      2048
 #define HASHHOSTSIZE     2048

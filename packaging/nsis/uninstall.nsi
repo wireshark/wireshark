@@ -318,6 +318,7 @@ SectionIn 1 2
 Delete "$INSTDIR\cfilters"
 Delete "$INSTDIR\colorfilters"
 Delete "$INSTDIR\dfilters"
+Delete "$INSTDIR\enterprises.tsv"
 Delete "$INSTDIR\init.lua"
 Delete "$INSTDIR\console.lua"
 Delete "$INSTDIR\dtd_gen.lua"

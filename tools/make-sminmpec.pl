@@ -89,7 +89,7 @@ for(@in_lines) {
 
 die "\"End of Document\" not found. Truncated source file?" unless ($end_of_document);
 
-open OUT, "> enterprises";
+open OUT, "> enterprises.tsv";
 
 print OUT <<"_SMINMPEC";
 #

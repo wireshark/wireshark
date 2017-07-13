@@ -117,6 +117,9 @@
         <Component Id="cmpDfilters" Guid="*">
           <File Id="filDfilters" KeyPath="yes" Source="$(var.Staging.Dir)\dfilters" />
         </Component>
+        <Component Id="cmpEnterprisesTsv" Guid="*">
+          <File Id="filEnterprisesTsv" KeyPath="yes" Source="$(var.Staging.Dir)\enterprises.tsv" />
+        </Component>
         <Component Id="cmpSmi_modules" Guid="*">
           <File Id="filSmi_modules" KeyPath="yes" Source="$(var.Staging.Dir)\smi_modules" />
         </Component>
@@ -127,6 +130,7 @@
         <ComponentRef Id="cmpCfilters" />
         <ComponentRef Id="cmpColorfilters" />
         <ComponentRef Id="cmpDfilters" />
+        <ComponentRef Id="cmpEnterprisesTsv" />
         <ComponentRef Id="cmpSmi_modules" />
       </ComponentGroup>
     </Fragment>
