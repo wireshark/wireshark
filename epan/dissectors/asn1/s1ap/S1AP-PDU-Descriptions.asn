@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V13.6.0 (2017-06)
+-- 3GPP TS 36.413 V14.3.0 (2017-06)
 -- 9.3.2	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -111,7 +111,12 @@ FROM S1AP-CommonDataTypes
 	UEContextResumeRequest,
 	UEContextResumeResponse,
 	UEContextResumeFailure,
-	ConnectionEstablishmentIndication
+	ConnectionEstablishmentIndication,
+	NASDeliveryIndication,
+	RetrieveUEInformation,
+	UEInformationTransfer,
+	ENBCPRelocationIndication,
+	MMECPRelocationIndication
 
 
 FROM S1AP-PDU-Contents
@@ -172,7 +177,14 @@ FROM S1AP-PDU-Contents
 	id-PWSFailureIndication,
 	id-UEContextSuspend,
 	id-UEContextResume,
-	id-ConnectionEstablishmentIndication
+	id-ConnectionEstablishmentIndication,
+	id-NASDeliveryIndication,
+	id-RetrieveUEInformation,
+	id-UEInformationTransfer,
+	id-eNBCPRelocationIndication,
+	id-MMECPRelocationIndication
+
+
 FROM S1AP-Constants;
 
 
@@ -303,7 +315,12 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-2 S1AP-ELEMENTARY-PROCEDURE ::= {
 	pWSRestartIndication			|
 	rerouteNASRequest				|
 	pWSFailureIndication						|
-	connectionEstablishmentIndication
+	connectionEstablishmentIndication	|
+	nASDeliveryIndication			|
+	retrieveUEInformation			|
+	uEInformationTransfer			|
+	eNBCPRelocationIndication					|
+	mMECPRelocationIndication
 }
 
 -- **************************************************************
@@ -681,5 +698,36 @@ connectionEstablishmentIndication S1AP-ELEMENTARY-PROCEDURE ::= {
 	PROCEDURE CODE			id-ConnectionEstablishmentIndication
 	CRITICALITY				reject
 }
+
+nASDeliveryIndication S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		NASDeliveryIndication
+	PROCEDURE CODE			id-NASDeliveryIndication
+	CRITICALITY				ignore
+}
+
+retrieveUEInformation S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		RetrieveUEInformation
+	PROCEDURE CODE			id-RetrieveUEInformation
+	CRITICALITY				reject
+}
+
+uEInformationTransfer S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UEInformationTransfer
+	PROCEDURE CODE			id-UEInformationTransfer
+	CRITICALITY				reject
+}
+
+eNBCPRelocationIndication S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ENBCPRelocationIndication
+	PROCEDURE CODE			id-eNBCPRelocationIndication
+	CRITICALITY				reject
+}
+
+mMECPRelocationIndication S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		MMECPRelocationIndication
+	PROCEDURE CODE			id-MMECPRelocationIndication
+	CRITICALITY				reject
+}
+
 
 END

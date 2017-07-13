@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V13.6.0 (2017-06)
+-- 3GPP TS 36.413 V14.3.0 (2017-06)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -90,6 +90,11 @@ id-UEContextModificationIndication			ProcedureCode ::= 53
 id-ConnectionEstablishmentIndication		ProcedureCode ::= 54
 id-UEContextSuspend							ProcedureCode ::= 55
 id-UEContextResume							ProcedureCode ::= 56
+id-NASDeliveryIndication					ProcedureCode ::= 57
+id-RetrieveUEInformation					ProcedureCode ::= 58
+id-UEInformationTransfer					ProcedureCode ::= 59
+id-eNBCPRelocationIndication				ProcedureCode ::= 60
+id-MMECPRelocationIndication				ProcedureCode ::= 61
 
 -- **************************************************************
 --
@@ -122,6 +127,7 @@ maxnoofCells							INTEGER ::= 16
 maxnoofCellsineNB						INTEGER ::= 256
 maxnoofTAIforWarning					INTEGER ::= 65535
 maxnoofCellID							INTEGER ::= 65535
+maxnoofDCNs								INTEGER ::= 32
 maxnoofEmergencyAreaID					INTEGER ::= 65535
 maxnoofCellinTAI						INTEGER ::= 65535
 maxnoofCellinEAI						INTEGER ::= 65535
@@ -396,12 +402,20 @@ id-E-RABFailedToResumeItemResumeReq					ProtocolIE-ID ::= 236
 id-E-RABFailedToResumeListResumeRes					ProtocolIE-ID ::= 237
 id-E-RABFailedToResumeItemResumeRes					ProtocolIE-ID ::= 238
 id-NB-IoT-Paging-eDRXInformation					ProtocolIE-ID ::= 239
---WS extension
-id-Unknown-240										ProtocolIE-ID ::= 240
+id-V2XServicesAuthorized							ProtocolIE-ID ::= 240
 id-UEUserPlaneCIoTSupportIndicator 					ProtocolIE-ID ::= 241
 id-CE-mode-B-SupportIndicator 						ProtocolIE-ID ::= 242
 id-SRVCCOperationNotPossible						ProtocolIE-ID ::= 243
 id-NB-IoT-UEIdentityIndexValue 						ProtocolIE-ID ::= 244
 id-RRC-Resume-Cause									ProtocolIE-ID ::= 245
+id-DCN-ID											ProtocolIE-ID ::= 246
+id-ServedDCNs					 					ProtocolIE-ID ::= 247
+id-UESidelinkAggregateMaximumBitrate 				ProtocolIE-ID ::= 248
+id-DLNASPDUDeliveryAckRequest						ProtocolIE-ID ::= 249
+id-Coverage-Level 									ProtocolIE-ID ::= 250
+id-EnhancedCoverageRestricted						ProtocolIE-ID ::= 251
+id-UE-Level-QoS-Parameters							ProtocolIE-ID ::= 252
+id-DL-CP-SecurityInformation						ProtocolIE-ID ::= 253
+id-UL-CP-SecurityInformation						ProtocolIE-ID ::= 254
 
 END

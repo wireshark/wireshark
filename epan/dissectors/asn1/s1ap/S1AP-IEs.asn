@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V13.6.0 (2017-06)
+-- 3GPP TS 36.413 V14.3.0 (2017-06)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -61,6 +61,7 @@ IMPORTS
 	maxnoofForbTACs,
 	maxnoofCells,
 	maxnoofCellID,
+	maxnoofDCNs,
 	maxnoofEmergencyAreaID,
 	maxnoofTAIforWarning,
 	maxnoofCellinTAI,
@@ -542,6 +543,11 @@ COUNTvaluePDCP-SNlength18-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+Coverage-Level ::= ENUMERATED {
+	extendedcoverage,
+	...
+}
+
 CriticalityDiagnostics ::= SEQUENCE {
 	procedureCode					ProcedureCode														OPTIONAL,
 	triggeringMessage				TriggeringMessage													OPTIONAL,
@@ -574,10 +580,37 @@ CriticalityDiagnostics-IE-Item-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 
 DataCodingScheme ::= BIT STRING (SIZE (8))
 
+DCN-ID ::= INTEGER (0..65535)
+
+ServedDCNs ::= SEQUENCE (SIZE(0..maxnoofDCNs)) OF ServedDCNsItem
+
+ServedDCNsItem ::= SEQUENCE {
+	dCN-ID						DCN-ID,
+	relativeDCNCapacity			RelativeMMECapacity,
+	iE-Extensions			ProtocolExtensionContainer { {ServedDCNsItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+ServedDCNsItem-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+DL-CP-SecurityInformation ::= SEQUENCE {
+	dl-NAS-MAC				DL-NAS-MAC,
+	iE-Extensions			ProtocolExtensionContainer { { DL-CP-SecurityInformation-ExtIEs} }	OPTIONAL,
+	...
+}
+
+DL-CP-SecurityInformation-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 DL-Forwarding ::= ENUMERATED {
 	dL-Forwarding-proposed,
 	...
 }
+
+DL-NAS-MAC ::= BIT STRING (SIZE (16))
 
 Direct-Forwarding-Path-Availability ::= ENUMERATED {
 	directPathAvailable,
@@ -586,6 +619,11 @@ Direct-Forwarding-Path-Availability ::= ENUMERATED {
 
 Data-Forwarding-Not-Possible ::= ENUMERATED {
 	data-Forwarding-not-Possible,
+	...
+}
+
+DLNASPDUDeliveryAckRequest ::= ENUMERATED {
+	requested,
 	...
 }
 
@@ -646,7 +684,9 @@ EmergencyAreaIDListForRestart	::= SEQUENCE (SIZE(1..maxnoofRestartEmergencyAreaI
 ENB-ID ::= CHOICE {
 	macroENB-ID			BIT STRING (SIZE(20)),
 	homeENB-ID			BIT STRING (SIZE(28)),
-	...
+	... ,
+	short-macroENB-ID 	BIT STRING (SIZE(18)),
+	long-macroENB-ID		BIT STRING (SIZE(21))
 }
 
 GERAN-Cell-ID ::= SEQUENCE {
@@ -691,6 +731,11 @@ ENBname ::= PrintableString (SIZE (1..150,...))
 ENBX2TLAs ::= SEQUENCE (SIZE(1.. maxnoofeNBX2TLAs)) OF TransportLayerAddress
 
 EncryptionAlgorithms ::= BIT STRING (SIZE (16,...))
+
+EnhancedCoverageRestricted ::= ENUMERATED {
+	restricted,
+	...
+}
 
 EPLMNs ::= SEQUENCE (SIZE(1..maxnoofEPLMNs)) OF PLMNidentity
 EventType	::= ENUMERATED {
@@ -1296,7 +1341,9 @@ OverloadAction ::= ENUMERATED {
 	...,
 	permit-high-priority-sessions-and-mobile-terminated-services-only,
 	reject-delay-tolerant-access,
+	not-accept-mo-data-or-delay-tolerant-access-from-CP-CIoT,
 	permit-high-priority-sessions-and-exception-reporting-and-mobile-terminated-services-only
+
 }
 
 OverloadResponse ::= CHOICE {
@@ -2085,7 +2132,33 @@ UESecurityCapabilities-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+UESidelinkAggregateMaximumBitrate ::= SEQUENCE {
+	uESidelinkAggregateMaximumBitRate		BitRate,
+	iE-Extensions					ProtocolExtensionContainer { {UE-Sidelink-Aggregate-MaximumBitrates-ExtIEs} } OPTIONAL,
+	...
+}
+
+UE-Sidelink-Aggregate-MaximumBitrates-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 UE-Usage-Type ::= INTEGER (0..255)
+
+UL-CP-SecurityInformation ::= SEQUENCE {
+	ul-NAS-MAC				UL-NAS-MAC,
+	ul-NAS-Count			UL-NAS-Count,
+	iE-Extensions			ProtocolExtensionContainer { { UL-CP-SecurityInformation-ExtIEs} }	OPTIONAL,
+	...
+}
+
+UL-CP-SecurityInformation-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+UL-NAS-MAC ::= BIT STRING (SIZE (16))
+
+UL-NAS-Count ::= BIT STRING (SIZE (5))
+
 
 UserLocationInformation ::= SEQUENCE {
 	eutran-cgi 				EUTRAN-CGI,
@@ -2108,6 +2181,29 @@ UEUserPlaneCIoTSupportIndicator ::= ENUMERATED {
 VoiceSupportMatchIndicator ::= ENUMERATED {
 	supported,
 	not-supported,
+	...
+}
+
+V2XServicesAuthorized ::= SEQUENCE {
+	vehicleUE			VehicleUE											OPTIONAL,
+	pedestrianUE 		PedestrianUE						OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {V2XServicesAuthorized-ExtIEs} }	OPTIONAL,
+	...
+}
+
+V2XServicesAuthorized-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+VehicleUE ::= ENUMERATED {
+	authorized,
+	not-authorized,
+	...
+}
+
+PedestrianUE ::= ENUMERATED {
+	authorized,
+	not-authorized,
 	...
 }
 

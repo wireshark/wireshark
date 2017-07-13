@@ -1144,6 +1144,11 @@ id-UEContextModificationIndication      ProcedureCode
 id-ConnectionEstablishmentIndication    ProcedureCode
 id-UEContextSuspend                     ProcedureCode
 id-UEContextResume                      ProcedureCode
+id-NASDeliveryIndication                ProcedureCode
+id-RetrieveUEInformation                ProcedureCode
+id-UEInformationTransfer                ProcedureCode
+id-eNBCPRelocationIndication            ProcedureCode
+id-MMECPRelocationIndication            ProcedureCode
 
 # ProtocolIE-ID
 id-MME-UE-S1AP-ID                                   ProtocolIE-ID
@@ -1368,11 +1373,21 @@ id-E-RABFailedToResumeItemResumeReq                 ProtocolIE-ID
 id-E-RABFailedToResumeListResumeRes                 ProtocolIE-ID
 id-E-RABFailedToResumeItemResumeRes                 ProtocolIE-ID
 id-NB-IoT-Paging-eDRXInformation                    ProtocolIE-ID
+id-V2XServicesAuthorized                            ProtocolIE-ID
 id-UEUserPlaneCIoTSupportIndicator                  ProtocolIE-ID
 id-CE-mode-B-SupportIndicator                       ProtocolIE-ID
 id-SRVCCOperationNotPossible                        ProtocolIE-ID
 id-NB-IoT-UEIdentityIndexValue                      ProtocolIE-ID
 id-RRC-Resume-Cause                                 ProtocolIE-ID
+id-DCN-ID                                           ProtocolIE-ID
+id-ServedDCNs                                       ProtocolIE-ID
+id-UESidelinkAggregateMaximumBitrate                ProtocolIE-ID
+id-DLNASPDUDeliveryAckRequest                       ProtocolIE-ID
+id-Coverage-Level                                   ProtocolIE-ID
+id-EnhancedCoverageRestricted                       ProtocolIE-ID
+id-UE-Level-QoS-Parameters                          ProtocolIE-ID
+id-DL-CP-SecurityInformation                        ProtocolIE-ID
+id-UL-CP-SecurityInformation                        ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -1568,6 +1583,16 @@ CE-mode-B-SupportIndicator                      N s1ap.ies id-CE-mode-B-SupportI
 SRVCCOperationNotPossible                       N s1ap.ies id-SRVCCOperationNotPossible
 NB-IoT-UEIdentityIndexValue                     N s1ap.ies id-NB-IoT-UEIdentityIndexValue
 RRC-Establishment-Cause                         N s1ap.ies id-RRC-Resume-Cause
+V2XServicesAuthorized                           N s1ap.ies id-V2XServicesAuthorized
+UESidelinkAggregateMaximumBitrate               N s1ap.ies id-UESidelinkAggregateMaximumBitrate
+EnhancedCoverageRestricted                      N s1ap.ies id-EnhancedCoverageRestricted
+DLNASPDUDeliveryAckRequest                      N s1ap.ies id-DLNASPDUDeliveryAckRequest
+DCN-ID                                          N s1ap.ies id-DCN-ID
+Coverage-Level                                  N s1ap.ies id-Coverage-Level
+ServedDCNs                                      N s1ap.ies id-ServedDCNs
+DL-CP-SecurityInformation                       N s1ap.ies id-DL-CP-SecurityInformation
+E-RABLevelQoSParameters                         N s1ap.ies id-UE-Level-QoS-Parameters
+UL-CP-SecurityInformation                       N s1ap.ies id-UL-CP-SecurityInformation
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst             N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
@@ -1756,181 +1781,201 @@ UEContextResumeRequest                  N s1ap.proc.imsg id-UEContextResume
 UEContextResumeResponse                 N s1ap.proc.sout id-UEContextResume
 UEContextResumeFailure                  N s1ap.proc.uout id-UEContextResume
 
+NASDeliveryIndication                   N s1ap.proc.imsg id-NASDeliveryIndication
+
+RetrieveUEInformation                   N s1ap.proc.imsg id-RetrieveUEInformation
+
+UEInformationTransfer                   N s1ap.proc.imsg id-UEInformationTransfer
+
+ENBCPRelocationIndication               N s1ap.proc.imsg id-eNBCPRelocationIndication
+
+MMECPRelocationIndication               N s1ap.proc.imsg id-MMECPRelocationIndication
+
 
 #.FN_HDR HandoverRequired
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverRequired");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverRequired");
 #.FN_HDR HandoverCommand
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverCommand");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverCommand");
 #.FN_HDR HandoverPreparationFailure
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverPreparationFailure");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverPreparationFailure");
 #.FN_HDR HandoverRequest
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverRequest");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverRequest");
 #.FN_HDR HandoverRequestAcknowledge
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverRequestAcknowledge");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverRequestAcknowledge");
 #.FN_HDR HandoverFailure
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverFailure");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverFailure");
 #.FN_HDR HandoverNotify
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverNotify");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverNotify");
 #.FN_HDR PathSwitchRequest
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PathSwitchRequest");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PathSwitchRequest");
 #.FN_HDR PathSwitchRequestAcknowledge
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PathSwitchRequestAcknowledge");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PathSwitchRequestAcknowledge");
 #.FN_HDR PathSwitchRequestFailure
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PathSwitchRequestFailure");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PathSwitchRequestFailure");
 #.FN_HDR HandoverCancel
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverCancel");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverCancel");
 #.FN_HDR HandoverCancelAcknowledge
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverCancelAcknowledge");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "HandoverCancelAcknowledge");
 #.FN_HDR E-RABSetupRequest
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-RABSetupRequest");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-RABSetupRequest");
 #.FN_HDR E-RABSetupResponse
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-RABSetupResponse");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-RABSetupResponse");
 #.FN_HDR E-RABModifyRequest
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-RABModifyRequest");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-RABModifyRequest");
 #.FN_HDR E-RABModifyResponse
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-RABModifyResponse");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-RABModifyResponse");
 #.FN_HDR E-RABReleaseCommand
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-RABReleaseCommand");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-RABReleaseCommand");
 #.FN_HDR E-RABReleaseResponse
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-RABReleaseResponse");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-RABReleaseResponse");
 #.FN_HDR E-RABReleaseIndication
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-RABReleaseIndication");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-RABReleaseIndication");
 #.FN_HDR InitialContextSetupRequest
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "InitialContextSetupRequest");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "InitialContextSetupRequest");
 #.FN_HDR InitialContextSetupResponse
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "InitialContextSetupResponse");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "InitialContextSetupResponse");
 #.FN_HDR InitialContextSetupFailure
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "InitialContextSetupFailure");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "InitialContextSetupFailure");
 #.FN_HDR Paging
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Paging");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Paging");
 #.FN_HDR UEContextReleaseRequest
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextReleaseRequest");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextReleaseRequest");
 #.FN_HDR UEContextReleaseCommand
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextReleaseCommand");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextReleaseCommand");
 #.FN_HDR UEContextReleaseComplete
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextReleaseComplete");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextReleaseComplete");
 #.FN_HDR UEContextModificationRequest
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextModificationRequest");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextModificationRequest");
 #.FN_HDR UEContextModificationResponse
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextModificationResponse");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextModificationResponse");
 #.FN_HDR UEContextModificationFailure
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextModificationFailure");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextModificationFailure");
 #.FN_HDR UERadioCapabilityMatchRequest
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UERadioCapabilityMatchRequest");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UERadioCapabilityMatchRequest");
 #.FN_HDR UERadioCapabilityMatchResponse
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UERadioCapabilityMatchResponse");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UERadioCapabilityMatchResponse");
 #.FN_HDR DownlinkNASTransport
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DownlinkNASTransport");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DownlinkNASTransport");
 #.FN_HDR InitialUEMessage
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "InitialUEMessage");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "InitialUEMessage");
 #.FN_HDR UplinkNASTransport
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UplinkNASTransport");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UplinkNASTransport");
 #.FN_HDR NASNonDeliveryIndication
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "NASNonDeliveryIndication");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "NASNonDeliveryIndication");
 #.FN_HDR RerouteNASRequest
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RerouteNASRequest");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RerouteNASRequest");
 #.FN_HDR Reset
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Reset");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Reset");
 #.FN_HDR ResetAcknowledge
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResetAcknowledge");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResetAcknowledge");
 # FN_HDR ErrorIndication
 #col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ErrorIndication");
 #.FN_HDR S1SetupRequest
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "S1SetupRequest");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "S1SetupRequest");
 #.FN_HDR S1SetupResponse
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "S1SetupResponse");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "S1SetupResponse");
 #.FN_HDR S1SetupFailure
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "S1SetupFailure");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "S1SetupFailure");
 #.FN_HDR ENBConfigurationUpdate
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENBConfigurationUpdate");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENBConfigurationUpdate");
 #.FN_HDR ENBConfigurationUpdateAcknowledge
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENBConfigurationUpdateAcknowledge");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENBConfigurationUpdateAcknowledge");
 #.FN_HDR ENBConfigurationUpdateFailure
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENBConfigurationUpdateFailure");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENBConfigurationUpdateFailure");
 #.FN_HDR MMEConfigurationUpdate
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MMEConfigurationUpdate");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MMEConfigurationUpdate");
 #.FN_HDR MMEConfigurationUpdateAcknowledge
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MMEConfigurationUpdateAcknowledge");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MMEConfigurationUpdateAcknowledge");
 #.FN_HDR MMEConfigurationUpdateFailure
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MMEConfigurationUpdateFailure");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MMEConfigurationUpdateFailure");
 #.FN_HDR DownlinkS1cdma2000tunnelling
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DownlinkS1cdma2000tunnelling");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DownlinkS1cdma2000tunnelling");
 #.FN_HDR UplinkS1cdma2000tunnelling
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UplinkS1cdma2000tunnelling");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UplinkS1cdma2000tunnelling");
 #.FN_HDR UECapabilityInfoIndication
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UECapabilityInfoIndication");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UECapabilityInfoIndication");
 #.FN_HDR ENBStatusTransfer
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENBStatusTransfer");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENBStatusTransfer");
 #.FN_HDR MMEStatusTransfer
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MMEStatusTransfer");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MMEStatusTransfer");
 #.FN_HDR TraceStart
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TraceStart");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TraceStart");
 #.FN_HDR TraceFailureIndication
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TraceFailureIndication");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TraceFailureIndication");
 #.FN_HDR DeactivateTrace
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DeactivateTrace");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DeactivateTrace");
 #.FN_HDR CellTrafficTrace
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CellTrafficTrace");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CellTrafficTrace");
 #.FN_HDR LocationReportingControl
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "LocationReportingControl");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "LocationReportingControl");
 #.FN_HDR LocationReportingFailureIndication
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "LocationReportingFailureIndication");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "LocationReportingFailureIndication");
 #.FN_HDR LocationReport
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "LocationReport");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "LocationReport");
 #.FN_HDR OverloadStart
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "OverloadStart");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "OverloadStart");
 #.FN_HDR OverloadStop
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "OverloadStop");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "OverloadStop");
 #.FN_HDR WriteReplaceWarningRequest
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "WriteReplaceWarningRequest");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "WriteReplaceWarningRequest");
 #.FN_HDR WriteReplaceWarningResponse
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "WriteReplaceWarningResponse");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "WriteReplaceWarningResponse");
 #.FN_HDR ENBDirectInformationTransfer
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENBDirectInformationTransfer");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENBDirectInformationTransfer");
 #.FN_HDR MMEDirectInformationTransfer
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MMEDirectInformationTransfer");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MMEDirectInformationTransfer");
 #.FN_HDR ENBConfigurationTransfer
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENBConfigurationTransfer");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENBConfigurationTransfer");
 #.FN_HDR MMEConfigurationTransfer
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MMEConfigurationTransfer");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MMEConfigurationTransfer");
 #.FN_HDR PrivateMessage
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PrivateMessage");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PrivateMessage");
 #.FN_HDR KillRequest
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "KillRequest");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "KillRequest");
 #.FN_HDR KillResponse
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "KillResponse");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "KillResponse");
 #.FN_HDR PWSRestartIndication
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PWSRestartIndication");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PWSRestartIndication");
 #.FN_HDR PWSFailureIndication
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PWSFailureIndication");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PWSFailureIndication");
 #.FN_HDR DownlinkUEAssociatedLPPaTransport
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DownlinkUEAssociatedLPPaTransport");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DownlinkUEAssociatedLPPaTransport");
 #.FN_HDR UplinkUEAssociatedLPPaTransport
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UplinkUEAssociatedLPPaTransport");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UplinkUEAssociatedLPPaTransport");
 #.FN_HDR DownlinkNonUEAssociatedLPPaTransport
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DownlinkNonUEAssociatedLPPaTransport");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DownlinkNonUEAssociatedLPPaTransport");
 #.FN_HDR UplinkNonUEAssociatedLPPaTransport
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UplinkNonUEAssociatedLPPaTransport");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UplinkNonUEAssociatedLPPaTransport");
 #.FN_HDR E-RABModificationIndication
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-RABModificationIndication");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-RABModificationIndication");
 #.FN_HDR E-RABModificationConfirm
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-RABModificationConfirm");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-RABModificationConfirm");
 #.FN_HDR UEContextModificationIndication
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextModificationIndication");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextModificationIndication");
 #.FN_HDR UEContextModificationConfirm
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextModificationConfirm");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextModificationConfirm");
 #.FN_HDR UEContextSuspendRequest
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextSuspendRequest");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextSuspendRequest");
 #.FN_HDR UEContextSuspendResponse
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextSuspendResponse");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextSuspendResponse");
 #.FN_HDR UEContextResumeRequest
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextResumeRequest");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextResumeRequest");
 #.FN_HDR UEContextResumeResponse
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextResumeResponse");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextResumeResponse");
 #.FN_HDR UEContextResumeFailure
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextResumeFailure");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextResumeFailure");
 #.FN_HDR ConnectionEstablishmentIndication
-col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ConnectionEstablishmentIndication");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ConnectionEstablishmentIndication");
+#.FN_HDR NASDeliveryIndication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "NASDeliveryIndication");
+#.FN_HDR RetrieveUEInformation
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RetrieveUEInformation");
+#.FN_HDR UEInformationTransfer
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEInformationTransfer");
+#.FN_HDR ENBCPRelocationIndication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENBCPRelocationIndication");
+#.FN_HDR MMECPRelocationIndication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MMECPRelocationIndication");
 #.END
 
 # Whenever a Cause appears, look up the reason and show it in the Info column
