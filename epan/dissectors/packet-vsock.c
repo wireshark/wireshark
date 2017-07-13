@@ -50,6 +50,7 @@ static int hf_vsock_dst_port = -1;
 static int hf_vsock_op = -1;
 static int hf_vsock_t = -1;
 static int hf_vsock_t_len = -1;
+static int hf_vsock_reserved = -1;
 static int hf_vsock_payload = -1;
 
 /* Virtio related fields */
@@ -172,6 +173,9 @@ dissect_vsock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item_ret_uint(vsock_tree, hf_vsock_t_len, tvb, offset, 2, ENC_LITTLE_ENDIAN, &t_len);
     offset += 2;
 
+    proto_tree_add_item(vsock_tree, hf_vsock_reserved, tvb, offset, 2, ENC_NA);
+    offset += 2;
+
     payload_offset = offset + t_len;
 
     /* Append summary information to top tree */
@@ -261,6 +265,9 @@ proto_register_vsock(void)
                 0x0, NULL, HFILL }},
         { &hf_vsock_t_len,
             {"Transport length", "vsock.trans_len", FT_UINT16, BASE_DEC, NULL,
+                0x0, NULL, HFILL }},
+        { &hf_vsock_reserved,
+            {"Reserved", "vsock.reserved", FT_BYTES, BASE_NONE, NULL,
                 0x0, NULL, HFILL }},
         { &hf_vsock_payload,
             { "Payload", "vsock.payload", FT_BYTES, BASE_NONE, NULL,
