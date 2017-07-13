@@ -459,6 +459,9 @@ static const struct {
 	/* LoRaTap */
 	{ 270,		WTAP_ENCAP_LORATAP },
 
+	/* Linux vsock */
+	{ 271,		WTAP_ENCAP_VSOCK },
+
 	/*
 	 * To repeat:
 	 *

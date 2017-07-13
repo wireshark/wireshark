@@ -33,11 +33,14 @@
 #include <epan/packet.h>
 #include <wsutil/pint.h>
 #include <epan/address_types.h>
+#include <wiretap/wtap.h>
 
 void proto_register_vsock(void);
+void proto_reg_handoff_vsock(void);
 
 static int proto_vsock = -1;
 static int vsock_address_type = -1;
+static dissector_handle_t vsock_handle;
 
 /* Generic header related fields */
 static int hf_vsock_src_cid = -1;
@@ -305,7 +308,13 @@ proto_register_vsock(void)
     proto_register_field_array(proto_vsock, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("vsock", dissect_vsock, proto_vsock);
+    vsock_handle = register_dissector("vsock", dissect_vsock, proto_vsock);
+}
+
+void
+proto_reg_handoff_vsock(void)
+{
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_VSOCK, vsock_handle);
 }
 
 /*

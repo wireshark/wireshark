@@ -926,6 +926,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_3MB_ETHERNET */
 	{ "Xerox 3MB Ethernet", "xeth"},
+
+	/* Linux vsock */
+	{ "Linux vsock", "vsock" },
 };
 
 WS_DLL_LOCAL
