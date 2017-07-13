@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V13.7.0 (2017-06)
+-- 3GPP TS 36.423 V14.3.0 (2017-06)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -44,6 +44,8 @@ IMPORTS
 	id-M7Configuration,
 	id-OffsetOfNbiotChannelNumberToDL-EARFCN,
 	id-OffsetOfNbiotChannelNumberToUL-EARFCN,
+	id-AdditionalSpecialSubframeExtension-Info,
+	id-BandwidthReducedSI,
 	maxnoofBearers,
 	maxCellineNB,
 	maxEARFCN,
@@ -161,6 +163,23 @@ AdditionalSpecialSubframePatterns ::= ENUMERATED {
 	...
 }
 
+AdditionalSpecialSubframeExtension-Info ::=		SEQUENCE {
+	additionalspecialSubframePatternsExtension	AdditionalSpecialSubframePatternsExtension,
+	cyclicPrefixDL								CyclicPrefixDL,
+	cyclicPrefixUL								CyclicPrefixUL,
+	iE-Extensions								ProtocolExtensionContainer { { AdditionalSpecialSubframeExtension-Info-ExtIEs} } OPTIONAL,
+	...
+}
+
+AdditionalSpecialSubframeExtension-Info-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+AdditionalSpecialSubframePatternsExtension ::= ENUMERATED {
+	ssp10,
+	...
+}
+
 AllocationAndRetentionPriority ::= SEQUENCE {
 	priorityLevel				PriorityLevel,
 	pre-emptionCapability		Pre-emptionCapability,
@@ -194,6 +213,11 @@ AS-SecurityInformation-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 
 -- B
+
+BandwidthReducedSI::= ENUMERATED {
+	scheduled,
+	...
+}
 
 BearerType ::= ENUMERATED {
 	non-IP,
@@ -620,7 +644,9 @@ EnhancedRNTPStartTime-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 ENB-ID ::= CHOICE {
 	macro-eNB-ID	BIT STRING (SIZE (20)),
 	home-eNB-ID		BIT STRING (SIZE (28)),
-	...
+	... ,
+	short-Macro-eNB-ID		BIT STRING (SIZE(18)),
+	long-Macro-eNB-ID		BIT STRING (SIZE(21))
 }
 
 EncryptionAlgorithms ::= BIT STRING (SIZE (16, ...))
@@ -1069,6 +1095,8 @@ M7Configuration-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 M7period ::= INTEGER(1..60, ...)
 
+MakeBeforeBreakIndicator::= ENUMERATED {true, ...}
+
 ManagementBasedMDTallowed ::= ENUMERATED {allowed, ...}
 
 Masked-IMEISV ::= BIT STRING (SIZE (64))
@@ -1510,7 +1538,8 @@ ServedCell-Information-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-CSG-Id						CRITICALITY ignore	EXTENSION CSG-Id								PRESENCE optional}|
 	{ ID id-MBMS-Service-Area-List		CRITICALITY ignore	EXTENSION MBMS-Service-Area-Identity-List	PRESENCE optional}|
 	{ ID id-MultibandInfoList			CRITICALITY ignore	EXTENSION MultibandInfoList						PRESENCE optional}|
-	{ ID id-FreqBandIndicatorPriority	CRITICALITY ignore	EXTENSION FreqBandIndicatorPriority				PRESENCE optional},
+	{ ID id-FreqBandIndicatorPriority	CRITICALITY ignore	EXTENSION FreqBandIndicatorPriority				PRESENCE optional}|
+	{ ID id-BandwidthReducedSI			CRITICALITY ignore	EXTENSION BandwidthReducedSI					PRESENCE optional},
 	...
 }
 
@@ -1677,7 +1706,8 @@ TDD-Info ::= SEQUENCE {
 }
 TDD-Info-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-AdditionalSpecialSubframe-Info	CRITICALITY ignore	EXTENSION AdditionalSpecialSubframe-Info	PRESENCE optional}|
-	{ ID id-eARFCNExtension					CRITICALITY reject	EXTENSION EARFCNExtension						PRESENCE optional},
+	{ ID id-eARFCNExtension					CRITICALITY reject	EXTENSION EARFCNExtension						PRESENCE optional}|
+	{ ID id-AdditionalSpecialSubframeExtension-Info	CRITICALITY ignore	EXTENSION AdditionalSpecialSubframeExtension-Info	PRESENCE optional},
 	...
 }
 
@@ -1804,6 +1834,16 @@ UESecurityCapabilities-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+UESidelinkAggregateMaximumBitRate ::= SEQUENCE {
+	uESidelinkAggregateMaximumBitRate		BitRate,
+	iE-Extensions					ProtocolExtensionContainer { {UE-Sidelink-Aggregate-MaximumBitRate-ExtIEs} } OPTIONAL,
+	...
+}
+
+UE-Sidelink-Aggregate-MaximumBitRate-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 UL-GBR-PRB-usage::= INTEGER (0..100)
 
 UL-HighInterferenceIndicationInfo ::= SEQUENCE (SIZE(1..maxCellineNB)) OF UL-HighInterferenceIndicationInfo-Item
@@ -1862,6 +1902,30 @@ UsableABSInformationTDD-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 
 -- V
+
+V2XServicesAuthorized ::= SEQUENCE {
+	vehicleUE			VehicleUE											OPTIONAL,
+pedestrianUE 		PedestrianUE										    OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {V2XServicesAuthorized-ExtIEs} }	OPTIONAL,
+	...
+}
+
+V2XServicesAuthorized-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+VehicleUE ::= ENUMERATED {
+	authorized,
+	not-authorized,
+	...
+}
+
+PedestrianUE ::= ENUMERATED {
+	authorized,
+	not-authorized,
+	...
+}
+
 -- W
 
 WidebandCQI ::= SEQUENCE {
@@ -1880,6 +1944,22 @@ WidebandCQICodeword1::= CHOICE {
 	three-bitSpatialDifferentialCQI			INTEGER (0..7, ...),
 	...
 }
+
+WTID ::= CHOICE {
+	wTID-Type1			WTID-Type1,
+	wTID-Type2			WTID-Long-Type2,
+	...
+}
+
+WTID-Type1 ::= SEQUENCE {
+	pLMN-Identity					PLMN-Identity,
+	shortWTID						BIT STRING (SIZE(24)),
+	...
+}
+
+WTID-Long-Type2 ::= BIT STRING (SIZE(48))
+
+WT-UE-XwAP-ID ::= OCTET STRING (SIZE (3))
 
 -- X
 

@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V13.7.0 (2017-06)
+-- 3GPP TS 36.423 V14.3.0 (2017-06)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -115,9 +115,14 @@ IMPORTS
 	UE-X2AP-ID-Extension,
 	SIPTOBearerDeactivationIndication,
 	TunnelInformation,
+	V2XServicesAuthorized,
 	X2BenefitValue,
 	ResumeID,
-	EUTRANCellIdentifier
+	EUTRANCellIdentifier,
+	MakeBeforeBreakIndicator,
+	WTID,
+	WT-UE-XwAP-ID,
+	UESidelinkAggregateMaximumBitRate
 
 FROM X2AP-IEs
 
@@ -268,7 +273,9 @@ FROM X2AP-Containers
 	id-Correlation-ID,
 	id-SIPTO-Correlation-ID,
 	id-UE-ContextReferenceAtSeNB,
+	id-UE-ContextReferenceAtWT,
 	id-UE-ContextKeptIndicator,
+	id-WT-UE-ContextKeptIndicator,
 	id-New-eNB-UE-X2AP-ID-Extension,
 	id-Old-eNB-UE-X2AP-ID-Extension,
 	id-MeNB-UE-X2AP-ID-Extension,
@@ -279,10 +286,13 @@ FROM X2AP-Containers
 	id-GW-TransportLayerAddress,
 	id-X2RemovalThreshold,
 	id-CellReportingIndicator,
+	id-V2XServicesAuthorized,
 	id-resumeID,
 	id-UE-ContextInformationRetrieve,
 	id-E-RABs-ToBeSetupRetrieve-Item,
 	id-NewEUTRANCellIdentifier,
+	id-MakeBeforeBreakIndicator,
+	id-UESidelinkAggregateMaximumBitRate,
 	id-uL-GTPtunnelEndpoint,
 
 	maxCellineNB,
@@ -320,7 +330,9 @@ HandoverRequest-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-ExpectedUEBehaviour				CRITICALITY ignore	TYPE ExpectedUEBehaviour				PRESENCE optional}|
 	{ ID id-ProSeAuthorized					CRITICALITY ignore	TYPE ProSeAuthorized					PRESENCE optional}|
 	{ ID id-UE-ContextReferenceAtSeNB		CRITICALITY ignore	TYPE UE-ContextReferenceAtSeNB			PRESENCE optional}|
-	{ ID id-Old-eNB-UE-X2AP-ID-Extension	CRITICALITY reject	TYPE UE-X2AP-ID-Extension				PRESENCE optional},
+	{ ID id-Old-eNB-UE-X2AP-ID-Extension	CRITICALITY reject	TYPE UE-X2AP-ID-Extension				PRESENCE optional}|
+	{ ID id-V2XServicesAuthorized			CRITICALITY ignore	TYPE V2XServicesAuthorized				PRESENCE optional}|
+	{ ID id-UE-ContextReferenceAtWT			CRITICALITY ignore	TYPE UE-ContextReferenceAtWT			PRESENCE optional},
 	...
 }
 
@@ -340,7 +352,8 @@ UE-ContextInformation ::= SEQUENCE {
 
 UE-ContextInformation-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 { ID id-ManagementBasedMDTallowed	CRITICALITY ignore	EXTENSION ManagementBasedMDTallowed		PRESENCE optional }|
-{ ID id-ManagementBasedMDTPLMNList	CRITICALITY ignore	EXTENSION MDTPLMNList					PRESENCE optional },
+{ ID id-ManagementBasedMDTPLMNList	CRITICALITY ignore	EXTENSION MDTPLMNList					PRESENCE optional }|
+{ ID id-UESidelinkAggregateMaximumBitRate	CRITICALITY ignore	EXTENSION UESidelinkAggregateMaximumBitRate		PRESENCE optional},
 	...
 }
 
@@ -379,6 +392,17 @@ UE-ContextReferenceAtSeNB-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+UE-ContextReferenceAtWT ::= SEQUENCE {
+	wTID					WTID,
+	wT-UE-XwAP-ID			WT-UE-XwAP-ID,
+	iE-Extensions			ProtocolExtensionContainer { {UE-ContextReferenceAtWT-ItemExtIEs} } OPTIONAL,
+	...
+}
+
+UE-ContextReferenceAtWT-ItemExtIEs	X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 -- **************************************************************
 --
 -- HANDOVER REQUEST ACKNOWLEDGE
@@ -400,7 +424,8 @@ HandoverRequestAcknowledge-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-UE-ContextKeptIndicator						CRITICALITY ignore	TYPE UE-ContextKeptIndicator	PRESENCE optional}|
 	{ ID id-SeNB-UE-X2AP-ID-Extension					CRITICALITY ignore	TYPE UE-X2AP-ID-Extension	PRESENCE optional}|
 	{ ID id-Old-eNB-UE-X2AP-ID-Extension				CRITICALITY ignore	TYPE UE-X2AP-ID-Extension	PRESENCE optional}|
-	{ ID id-New-eNB-UE-X2AP-ID-Extension				CRITICALITY reject	TYPE UE-X2AP-ID-Extension	PRESENCE optional},
+	{ ID id-New-eNB-UE-X2AP-ID-Extension				CRITICALITY reject	TYPE UE-X2AP-ID-Extension	PRESENCE optional}|
+	{ ID id-WT-UE-ContextKeptIndicator					CRITICALITY ignore	TYPE UE-ContextKeptIndicator	PRESENCE optional},
 	...
 }
 
@@ -1797,7 +1822,8 @@ SeNBReleaseRequest-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-E-RABs-ToBeReleased-List-RelReq		CRITICALITY ignore	TYPE E-RABs-ToBeReleased-List-RelReq		PRESENCE optional}|
 	{ ID id-UE-ContextKeptIndicator				CRITICALITY ignore	TYPE UE-ContextKeptIndicator					PRESENCE optional}|
 	{ ID id-MeNB-UE-X2AP-ID-Extension			CRITICALITY reject	TYPE UE-X2AP-ID-Extension						PRESENCE optional}|
-	{ ID id-SeNB-UE-X2AP-ID-Extension			CRITICALITY reject	TYPE UE-X2AP-ID-Extension						PRESENCE optional},
+	{ ID id-SeNB-UE-X2AP-ID-Extension			CRITICALITY reject	TYPE UE-X2AP-ID-Extension						PRESENCE optional}|
+	{ ID id-MakeBeforeBreakIndicator			CRITICALITY ignore	TYPE MakeBeforeBreakIndicator				PRESENCE optional},
 	...
 }
 E-RABs-ToBeReleased-List-RelReq ::= SEQUENCE (SIZE(1..maxnoofBearers)) OF ProtocolIE-Single-Container { {E-RABs-ToBeReleased-RelReqItemIEs} }
@@ -2049,7 +2075,8 @@ RetrieveUEContextResponse-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-Masked-IMEISV					CRITICALITY ignore	TYPE Masked-IMEISV						PRESENCE optional}|
 	{ ID id-ExpectedUEBehaviour				CRITICALITY ignore	TYPE ExpectedUEBehaviour				PRESENCE optional}|
 	{ ID id-ProSeAuthorized					CRITICALITY ignore	TYPE ProSeAuthorized					PRESENCE optional}|
-	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional},
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional}|
+	{ ID id-V2XServicesAuthorized			CRITICALITY ignore	TYPE V2XServicesAuthorized				PRESENCE optional},
 	...
 }
 
@@ -2070,6 +2097,7 @@ UE-ContextInformationRetrieve ::= SEQUENCE {
 }
 
 UE-ContextInformationRetrieve-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+{ ID id-UESidelinkAggregateMaximumBitRate	CRITICALITY ignore	EXTENSION UESidelinkAggregateMaximumBitRate		PRESENCE optional},
 	...
 }
 

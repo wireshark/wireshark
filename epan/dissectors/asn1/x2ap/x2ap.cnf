@@ -769,9 +769,16 @@ id-resumeID																	ProtocolIE-ID
 id-UE-ContextInformationRetrieve											ProtocolIE-ID
 id-E-RABs-ToBeSetupRetrieve-Item											ProtocolIE-ID
 id-NewEUTRANCellIdentifier													ProtocolIE-ID
+id-V2XServicesAuthorized													ProtocolIE-ID
 id-OffsetOfNbiotChannelNumberToDL-EARFCN									ProtocolIE-ID
 id-OffsetOfNbiotChannelNumberToUL-EARFCN									ProtocolIE-ID
-id-uL-GTPtunnelEndpoint												ProtocolIE-ID
+id-AdditionalSpecialSubframeExtension-Info									ProtocolIE-ID
+id-BandwidthReducedSI														ProtocolIE-ID
+id-MakeBeforeBreakIndicator													ProtocolIE-ID
+id-UE-ContextReferenceAtWT													ProtocolIE-ID
+id-WT-UE-ContextKeptIndicator												ProtocolIE-ID
+id-UESidelinkAggregateMaximumBitRate										ProtocolIE-ID
+id-uL-GTPtunnelEndpoint														ProtocolIE-ID
 
 #.REGISTER
 
@@ -901,6 +908,10 @@ ResumeID							N x2ap.ies id-resumeID
 UE-ContextInformationRetrieve					N x2ap.ies id-UE-ContextInformationRetrieve
 E-RABs-ToBeSetupRetrieve-Item					N x2ap.ies id-E-RABs-ToBeSetupRetrieve-Item
 EUTRANCellIdentifier						N x2ap.ies id-NewEUTRANCellIdentifier
+V2XServicesAuthorized						N x2ap.ies id-V2XServicesAuthorized
+UE-ContextReferenceAtWT						N x2ap.ies id-UE-ContextReferenceAtWT
+UE-ContextKeptIndicator						N x2ap.ies id-WT-UE-ContextKeptIndicator
+MakeBeforeBreakIndicator					N x2ap.ies id-MakeBeforeBreakIndicator
 
 #X2AP-PROTOCOL-EXTENSION
 Number-of-Antennaports						N x2ap.extension id-Number-of-Antennaports
@@ -954,6 +965,9 @@ BearerType							N x2ap.extension id-BearerType
 OffsetOfNbiotChannelNumberToEARFCN				N x2ap.extension id-OffsetOfNbiotChannelNumberToDL-EARFCN
 OffsetOfNbiotChannelNumberToEARFCN				N x2ap.extension id-OffsetOfNbiotChannelNumberToUL-EARFCN
 GTPtunnelEndpoint						N x2ap.extension id-uL-GTPtunnelEndpoint
+UESidelinkAggregateMaximumBitRate				N x2ap.extension id-UESidelinkAggregateMaximumBitRate
+BandwidthReducedSI						N x2ap.extension id-BandwidthReducedSI
+AdditionalSpecialSubframeExtension-Info				N x2ap.extension id-AdditionalSpecialSubframeExtension-Info
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE
