@@ -28,7 +28,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Ref 3GPP TS 36.455 version 13.1.0 Release 13
+ * Ref 3GPP TS 36.455 version 14.2.0 Release 14
  * http://www.3gpp.org
  */
 
@@ -53,6 +53,7 @@ static int proto_lppa = -1;
 /*--- Included file: packet-lppa-hf.c ---*/
 #line 1 "./asn1/lppa/packet-lppa-hf.c"
 static int hf_lppa_LPPA_PDU_PDU = -1;             /* LPPA_PDU */
+static int hf_lppa_Add_OTDOACells_PDU = -1;       /* Add_OTDOACells */
 static int hf_lppa_Cause_PDU = -1;                /* Cause */
 static int hf_lppa_Cell_Portion_ID_PDU = -1;      /* Cell_Portion_ID */
 static int hf_lppa_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics */
@@ -68,6 +69,9 @@ static int hf_lppa_OTDOACells_PDU = -1;           /* OTDOACells */
 static int hf_lppa_ReportCharacteristics_PDU = -1;  /* ReportCharacteristics */
 static int hf_lppa_RequestedSRSTransmissionCharacteristics_PDU = -1;  /* RequestedSRSTransmissionCharacteristics */
 static int hf_lppa_ULConfiguration_PDU = -1;      /* ULConfiguration */
+static int hf_lppa_WLANMeasurementQuantities_PDU = -1;  /* WLANMeasurementQuantities */
+static int hf_lppa_WLANMeasurementQuantities_Item_PDU = -1;  /* WLANMeasurementQuantities_Item */
+static int hf_lppa_WLANMeasurementResult_PDU = -1;  /* WLANMeasurementResult */
 static int hf_lppa_E_CIDMeasurementInitiationRequest_PDU = -1;  /* E_CIDMeasurementInitiationRequest */
 static int hf_lppa_E_CIDMeasurementInitiationResponse_PDU = -1;  /* E_CIDMeasurementInitiationResponse */
 static int hf_lppa_E_CIDMeasurementInitiationFailure_PDU = -1;  /* E_CIDMeasurementInitiationFailure */
@@ -104,13 +108,18 @@ static int hf_lppa_lppatransactionID = -1;        /* LPPATransactionID */
 static int hf_lppa_initiatingMessagevalue = -1;   /* InitiatingMessage_value */
 static int hf_lppa_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_lppa_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
+static int hf_lppa_Add_OTDOACells_item = -1;      /* Add_OTDOACells_item */
+static int hf_lppa_add_OTDOACellInfo = -1;        /* Add_OTDOACell_Information */
+static int hf_lppa_iE_Extensions = -1;            /* ProtocolExtensionContainer */
+static int hf_lppa_Add_OTDOACell_Information_item = -1;  /* OTDOACell_Information_Item */
+static int hf_lppa_ten = -1;                      /* BIT_STRING_SIZE_10 */
+static int hf_lppa_forty = -1;                    /* BIT_STRING_SIZE_40 */
 static int hf_lppa_radioNetwork = -1;             /* CauseRadioNetwork */
 static int hf_lppa_protocol = -1;                 /* CauseProtocol */
 static int hf_lppa_misc = -1;                     /* CauseMisc */
 static int hf_lppa_triggeringMessage = -1;        /* TriggeringMessage */
 static int hf_lppa_procedureCriticality = -1;     /* Criticality */
 static int hf_lppa_iEsCriticalityDiagnostics = -1;  /* CriticalityDiagnostics_IE_List */
-static int hf_lppa_iE_Extensions = -1;            /* ProtocolExtensionContainer */
 static int hf_lppa_CriticalityDiagnostics_IE_List_item = -1;  /* CriticalityDiagnostics_IE_List_item */
 static int hf_lppa_iECriticality = -1;            /* Criticality */
 static int hf_lppa_iE_ID = -1;                    /* ProtocolIE_ID */
@@ -144,6 +153,21 @@ static int hf_lppa_valueTimingAdvanceType1 = -1;  /* INTEGER_0_7690 */
 static int hf_lppa_valueTimingAdvanceType2 = -1;  /* INTEGER_0_7690 */
 static int hf_lppa_resultRSRP = -1;               /* ResultRSRP */
 static int hf_lppa_resultRSRQ = -1;               /* ResultRSRQ */
+static int hf_lppa_MBSFNsubframeConfiguration_item = -1;  /* MBSFNsubframeConfigurationValue */
+static int hf_lppa_radioframeAllocationPeriod = -1;  /* T_radioframeAllocationPeriod */
+static int hf_lppa_radioframeAllocationOffset = -1;  /* INTEGER_0_7 */
+static int hf_lppa_subframeAllocation = -1;       /* Subframeallocation */
+static int hf_lppa_nPRSSubframePartA = -1;        /* NPRSSubframePartA */
+static int hf_lppa_nPRSSubframePartB = -1;        /* NPRSSubframePartB */
+static int hf_lppa_two = -1;                      /* BIT_STRING_SIZE_2 */
+static int hf_lppa_four = -1;                     /* BIT_STRING_SIZE_4 */
+static int hf_lppa_eight = -1;                    /* BIT_STRING_SIZE_8 */
+static int hf_lppa_sixteen = -1;                  /* BIT_STRING_SIZE_16 */
+static int hf_lppa_bitmapsforNPRS = -1;           /* BitmapsforNPRS */
+static int hf_lppa_nPRSMutingConfiguration = -1;  /* NPRSMutingConfiguration */
+static int hf_lppa_numberofNPRSOneOccasion = -1;  /* T_numberofNPRSOneOccasion */
+static int hf_lppa_periodicityofNPRS = -1;        /* T_periodicityofNPRS */
+static int hf_lppa_startingsubframeoffset = -1;   /* T_startingsubframeoffset */
 static int hf_lppa_OTDOACells_item = -1;          /* OTDOACells_item */
 static int hf_lppa_oTDOACellInfo = -1;            /* OTDOACell_Information */
 static int hf_lppa_OTDOACell_Information_item = -1;  /* OTDOACell_Information_Item */
@@ -158,10 +182,29 @@ static int hf_lppa_numberOfDlFrames = -1;         /* NumberOfDlFrames */
 static int hf_lppa_numberOfAntennaPorts = -1;     /* NumberOfAntennaPorts */
 static int hf_lppa_sFNInitialisationTime = -1;    /* SFNInitialisationTime */
 static int hf_lppa_pRSMutingConfiguration = -1;   /* PRSMutingConfiguration */
-static int hf_lppa_two = -1;                      /* BIT_STRING_SIZE_2 */
-static int hf_lppa_four = -1;                     /* BIT_STRING_SIZE_4 */
-static int hf_lppa_eight = -1;                    /* BIT_STRING_SIZE_8 */
-static int hf_lppa_sixteen = -1;                  /* BIT_STRING_SIZE_16 */
+static int hf_lppa_prsid = -1;                    /* PRS_ID */
+static int hf_lppa_tpid = -1;                     /* TP_ID */
+static int hf_lppa_tpType = -1;                   /* TP_Type */
+static int hf_lppa_numberOfDlFrames_Extended = -1;  /* NumberOfDlFrames_Extended */
+static int hf_lppa_crsCPlength = -1;              /* CPLength */
+static int hf_lppa_mBSFNsubframeConfiguration = -1;  /* MBSFNsubframeConfiguration */
+static int hf_lppa_nPRSConfiguration = -1;        /* NPRSConfiguration */
+static int hf_lppa_offsetNBChanneltoEARFCN = -1;  /* OffsetNBChanneltoEARFCN */
+static int hf_lppa_operationModeInfo = -1;        /* OperationModeInfo */
+static int hf_lppa_nPRS_ID = -1;                  /* INTEGER_0_4095_ */
+static int hf_lppa_dL_Bandwidth = -1;             /* DL_Bandwidth */
+static int hf_lppa_pRSOccasionGroup = -1;         /* PRSOccasionGroup */
+static int hf_lppa_pRSFreqHoppingConfig = -1;     /* PRSFrequencyHoppingConfiguration */
+static int hf_lppa_repetitionNumberofSIB1_NB = -1;  /* RepetitionNumberofSIB1_NB */
+static int hf_lppa_thirty_two = -1;               /* BIT_STRING_SIZE_32 */
+static int hf_lppa_sixty_four = -1;               /* BIT_STRING_SIZE_64 */
+static int hf_lppa_one_hundred_and_twenty_eight = -1;  /* BIT_STRING_SIZE_128 */
+static int hf_lppa_two_hundred_and_fifty_six = -1;  /* BIT_STRING_SIZE_256 */
+static int hf_lppa_five_hundred_and_twelve = -1;  /* BIT_STRING_SIZE_512 */
+static int hf_lppa_one_thousand_and_twenty_four = -1;  /* BIT_STRING_SIZE_1024 */
+static int hf_lppa_noOfFreqHoppingBands = -1;     /* NumberOfFrequencyHoppingBands */
+static int hf_lppa_bandPositions = -1;            /* SEQUENCE_SIZE_1_maxnoFreqHoppingBandsMinusOne_OF_NarrowBandIndex */
+static int hf_lppa_bandPositions_item = -1;       /* NarrowBandIndex */
 static int hf_lppa_numberOfTransmissions = -1;    /* INTEGER_0_500_ */
 static int hf_lppa_bandwidth = -1;                /* INTEGER_1_100_ */
 static int hf_lppa_ResultRSRP_item = -1;          /* ResultRSRP_Item */
@@ -197,9 +240,23 @@ static int hf_lppa_freqDomainPosition = -1;       /* INTEGER_0_23 */
 static int hf_lppa_groupHoppingEnabled = -1;      /* BOOLEAN */
 static int hf_lppa_deltaSS = -1;                  /* INTEGER_0_29 */
 static int hf_lppa_sfnInitialisationTime = -1;    /* SFNInitialisationTime */
+static int hf_lppa_oneFrame = -1;                 /* BIT_STRING_SIZE_6 */
+static int hf_lppa_fourFrames = -1;               /* BIT_STRING_SIZE_24 */
 static int hf_lppa_timingAdvanceType1 = -1;       /* INTEGER_0_7690 */
 static int hf_lppa_timingAdvanceType2 = -1;       /* INTEGER_0_7690 */
 static int hf_lppa_srsConfiguration = -1;         /* SRSConfigurationForAllCells */
+static int hf_lppa_WLANMeasurementQuantities_item = -1;  /* ProtocolIE_Single_Container */
+static int hf_lppa_wLANMeasurementQuantitiesValue = -1;  /* WLANMeasurementQuantitiesValue */
+static int hf_lppa_WLANMeasurementResult_item = -1;  /* WLANMeasurementResult_Item */
+static int hf_lppa_wLAN_RSSI = -1;                /* WLAN_RSSI */
+static int hf_lppa_sSID = -1;                     /* SSID */
+static int hf_lppa_bSSID = -1;                    /* BSSID */
+static int hf_lppa_hESSID = -1;                   /* HESSID */
+static int hf_lppa_operatingClass = -1;           /* WLANOperatingClass */
+static int hf_lppa_countryCode = -1;              /* WLANCountryCode */
+static int hf_lppa_wLANChannelList = -1;          /* WLANChannelList */
+static int hf_lppa_wLANBand = -1;                 /* WLANBand */
+static int hf_lppa_WLANChannelList_item = -1;     /* WLANChannel */
 static int hf_lppa_protocolIEs = -1;              /* ProtocolIE_Container */
 static int hf_lppa_OTDOA_Information_Type_item = -1;  /* ProtocolIE_Single_Container */
 static int hf_lppa_oTDOA_Information_Type_Item = -1;  /* OTDOA_Information_Item */
@@ -224,6 +281,10 @@ static gint ett_lppa_LPPA_PDU = -1;
 static gint ett_lppa_InitiatingMessage = -1;
 static gint ett_lppa_SuccessfulOutcome = -1;
 static gint ett_lppa_UnsuccessfulOutcome = -1;
+static gint ett_lppa_Add_OTDOACells = -1;
+static gint ett_lppa_Add_OTDOACells_item = -1;
+static gint ett_lppa_Add_OTDOACell_Information = -1;
+static gint ett_lppa_BitmapsforNPRS = -1;
 static gint ett_lppa_Cause = -1;
 static gint ett_lppa_CriticalityDiagnostics = -1;
 static gint ett_lppa_CriticalityDiagnostics_IE_List = -1;
@@ -239,11 +300,19 @@ static gint ett_lppa_MeasurementQuantities = -1;
 static gint ett_lppa_MeasurementQuantities_Item = -1;
 static gint ett_lppa_MeasuredResults = -1;
 static gint ett_lppa_MeasuredResultsValue = -1;
+static gint ett_lppa_MBSFNsubframeConfiguration = -1;
+static gint ett_lppa_MBSFNsubframeConfigurationValue = -1;
+static gint ett_lppa_NPRSConfiguration = -1;
+static gint ett_lppa_NPRSMutingConfiguration = -1;
+static gint ett_lppa_NPRSSubframePartA = -1;
+static gint ett_lppa_NPRSSubframePartB = -1;
 static gint ett_lppa_OTDOACells = -1;
 static gint ett_lppa_OTDOACells_item = -1;
 static gint ett_lppa_OTDOACell_Information = -1;
 static gint ett_lppa_OTDOACell_Information_Item = -1;
 static gint ett_lppa_PRSMutingConfiguration = -1;
+static gint ett_lppa_PRSFrequencyHoppingConfiguration = -1;
+static gint ett_lppa_SEQUENCE_SIZE_1_maxnoFreqHoppingBandsMinusOne_OF_NarrowBandIndex = -1;
 static gint ett_lppa_RequestedSRSTransmissionCharacteristics = -1;
 static gint ett_lppa_ResultRSRP = -1;
 static gint ett_lppa_ResultRSRP_Item = -1;
@@ -256,7 +325,13 @@ static gint ett_lppa_ResultUTRAN_Item = -1;
 static gint ett_lppa_T_physCellIDUTRAN = -1;
 static gint ett_lppa_SRSConfigurationForAllCells = -1;
 static gint ett_lppa_SRSConfigurationForOneCell = -1;
+static gint ett_lppa_Subframeallocation = -1;
 static gint ett_lppa_ULConfiguration = -1;
+static gint ett_lppa_WLANMeasurementQuantities = -1;
+static gint ett_lppa_WLANMeasurementQuantities_Item = -1;
+static gint ett_lppa_WLANMeasurementResult = -1;
+static gint ett_lppa_WLANMeasurementResult_Item = -1;
+static gint ett_lppa_WLANChannelList = -1;
 static gint ett_lppa_E_CIDMeasurementInitiationRequest = -1;
 static gint ett_lppa_E_CIDMeasurementInitiationResponse = -1;
 static gint ett_lppa_E_CIDMeasurementInitiationFailure = -1;
@@ -303,6 +378,10 @@ static dissector_table_t lppa_proc_uout_dissector_table;
 #define maxServCell                    5
 #define maxGERANMeas                   8
 #define maxUTRANMeas                   8
+#define maxCellineNB_ext               3840
+#define maxMBSFN_Allocations           8
+#define maxWLANchannels                16
+#define maxnoFreqHoppingBandsMinusOne  7
 
 typedef enum _ProcedureCode_enum {
   id_errorIndication =   0,
@@ -334,7 +413,11 @@ typedef enum _ProtocolIE_ID_enum {
   id_Cell_Portion_ID =  14,
   id_InterRATMeasurementQuantities =  15,
   id_InterRATMeasurementQuantities_Item =  16,
-  id_InterRATMeasurementResult =  17
+  id_InterRATMeasurementResult =  17,
+  id_AddOTDOACells =  18,
+  id_WLANMeasurementQuantities =  19,
+  id_WLANMeasurementQuantities_Item =  20,
+  id_WLANMeasurementResult =  21
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-lppa-val.h ---*/
@@ -464,6 +547,10 @@ static const value_string lppa_ProtocolIE_ID_vals[] = {
   { id_InterRATMeasurementQuantities, "id-InterRATMeasurementQuantities" },
   { id_InterRATMeasurementQuantities_Item, "id-InterRATMeasurementQuantities-Item" },
   { id_InterRATMeasurementResult, "id-InterRATMeasurementResult" },
+  { id_AddOTDOACells, "id-AddOTDOACells" },
+  { id_WLANMeasurementQuantities, "id-WLANMeasurementQuantities" },
+  { id_WLANMeasurementQuantities_Item, "id-WLANMeasurementQuantities-Item" },
+  { id_WLANMeasurementResult, "id-WLANMeasurementResult" },
   { 0, NULL }
 };
 
@@ -735,178 +822,9 @@ dissect_lppa_LPPA_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 
 static int
-dissect_lppa_BCCH(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lppa_PCI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 1023U, NULL, TRUE);
-
-  return offset;
-}
-
-
-static const value_string lppa_CauseRadioNetwork_vals[] = {
-  {   0, "unspecified" },
-  {   1, "requested-item-not-supported" },
-  {   2, "requested-item-temporarily-not-available" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_lppa_CauseRadioNetwork(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-static const value_string lppa_CauseProtocol_vals[] = {
-  {   0, "transfer-syntax-error" },
-  {   1, "abstract-syntax-error-reject" },
-  {   2, "abstract-syntax-error-ignore-and-notify" },
-  {   3, "message-not-compatible-with-receiver-state" },
-  {   4, "semantic-error" },
-  {   5, "unspecified" },
-  {   6, "abstract-syntax-error-falsely-constructed-message" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_lppa_CauseProtocol(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     7, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-static const value_string lppa_CauseMisc_vals[] = {
-  {   0, "unspecified" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_lppa_CauseMisc(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-static const value_string lppa_Cause_vals[] = {
-  {   0, "radioNetwork" },
-  {   1, "protocol" },
-  {   2, "misc" },
-  { 0, NULL }
-};
-
-static const per_choice_t Cause_choice[] = {
-  {   0, &hf_lppa_radioNetwork   , ASN1_EXTENSION_ROOT    , dissect_lppa_CauseRadioNetwork },
-  {   1, &hf_lppa_protocol       , ASN1_EXTENSION_ROOT    , dissect_lppa_CauseProtocol },
-  {   2, &hf_lppa_misc           , ASN1_EXTENSION_ROOT    , dissect_lppa_CauseMisc },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_lppa_Cause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_lppa_Cause, Cause_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_lppa_Cell_Portion_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 255U, NULL, TRUE);
-
-  return offset;
-}
-
-
-static const value_string lppa_CPLength_vals[] = {
-  {   0, "normal" },
-  {   1, "extended" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_lppa_CPLength(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-static const value_string lppa_TypeOfError_vals[] = {
-  {   0, "not-understood" },
-  {   1, "missing" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_lppa_TypeOfError(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t CriticalityDiagnostics_IE_List_item_sequence[] = {
-  { &hf_lppa_iECriticality  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_Criticality },
-  { &hf_lppa_iE_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_ProtocolIE_ID },
-  { &hf_lppa_typeOfError    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_TypeOfError },
-  { &hf_lppa_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_lppa_CriticalityDiagnostics_IE_List_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lppa_CriticalityDiagnostics_IE_List_item, CriticalityDiagnostics_IE_List_item_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t CriticalityDiagnostics_IE_List_sequence_of[1] = {
-  { &hf_lppa_CriticalityDiagnostics_IE_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lppa_CriticalityDiagnostics_IE_List_item },
-};
-
-static int
-dissect_lppa_CriticalityDiagnostics_IE_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_lppa_CriticalityDiagnostics_IE_List, CriticalityDiagnostics_IE_List_sequence_of,
-                                                  1, maxNrOfErrors, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t CriticalityDiagnostics_sequence[] = {
-  { &hf_lppa_procedureCode  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_ProcedureCode },
-  { &hf_lppa_triggeringMessage, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_TriggeringMessage },
-  { &hf_lppa_procedureCriticality, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_Criticality },
-  { &hf_lppa_lppatransactionID, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_LPPATransactionID },
-  { &hf_lppa_iEsCriticalityDiagnostics, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_CriticalityDiagnostics_IE_List },
-  { &hf_lppa_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_lppa_CriticalityDiagnostics(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lppa_CriticalityDiagnostics, CriticalityDiagnostics_sequence);
+                                                            0U, 503U, NULL, TRUE);
 
   return offset;
 }
@@ -953,6 +871,106 @@ static int
 dissect_lppa_TAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        2, 2, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_EARFCN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 65535U, NULL, TRUE);
+
+  return offset;
+}
+
+
+static const value_string lppa_PRS_Bandwidth_vals[] = {
+  {   0, "bw6" },
+  {   1, "bw15" },
+  {   2, "bw25" },
+  {   3, "bw50" },
+  {   4, "bw75" },
+  {   5, "bw100" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lppa_PRS_Bandwidth(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     6, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_PRS_Configuration_Index(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 4095U, NULL, TRUE);
+
+  return offset;
+}
+
+
+static const value_string lppa_CPLength_vals[] = {
+  {   0, "normal" },
+  {   1, "extended" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lppa_CPLength(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lppa_NumberOfDlFrames_vals[] = {
+  {   0, "sf1" },
+  {   1, "sf2" },
+  {   2, "sf4" },
+  {   3, "sf6" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lppa_NumberOfDlFrames(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     4, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lppa_NumberOfAntennaPorts_vals[] = {
+  {   0, "n1-or-n2" },
+  {   1, "n4" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lppa_NumberOfAntennaPorts(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_SFNInitialisationTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     64, 64, FALSE, NULL, NULL);
 
   return offset;
 }
@@ -1075,6 +1093,930 @@ dissect_lppa_E_UTRANAccessPointPosition(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 
 static int
+dissect_lppa_BIT_STRING_SIZE_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     2, 2, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_BIT_STRING_SIZE_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     4, 4, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_BIT_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     8, 8, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_BIT_STRING_SIZE_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     16, 16, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_BIT_STRING_SIZE_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     32, 32, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_BIT_STRING_SIZE_64(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     64, 64, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_BIT_STRING_SIZE_128(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     128, 128, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_BIT_STRING_SIZE_256(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     256, 256, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_BIT_STRING_SIZE_512(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     512, 512, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_BIT_STRING_SIZE_1024(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     1024, 1024, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+static const value_string lppa_PRSMutingConfiguration_vals[] = {
+  {   0, "two" },
+  {   1, "four" },
+  {   2, "eight" },
+  {   3, "sixteen" },
+  {   4, "thirty-two" },
+  {   5, "sixty-four" },
+  {   6, "one-hundred-and-twenty-eight" },
+  {   7, "two-hundred-and-fifty-six" },
+  {   8, "five-hundred-and-twelve" },
+  {   9, "one-thousand-and-twenty-four" },
+  { 0, NULL }
+};
+
+static const per_choice_t PRSMutingConfiguration_choice[] = {
+  {   0, &hf_lppa_two            , ASN1_EXTENSION_ROOT    , dissect_lppa_BIT_STRING_SIZE_2 },
+  {   1, &hf_lppa_four           , ASN1_EXTENSION_ROOT    , dissect_lppa_BIT_STRING_SIZE_4 },
+  {   2, &hf_lppa_eight          , ASN1_EXTENSION_ROOT    , dissect_lppa_BIT_STRING_SIZE_8 },
+  {   3, &hf_lppa_sixteen        , ASN1_EXTENSION_ROOT    , dissect_lppa_BIT_STRING_SIZE_16 },
+  {   4, &hf_lppa_thirty_two     , ASN1_NOT_EXTENSION_ROOT, dissect_lppa_BIT_STRING_SIZE_32 },
+  {   5, &hf_lppa_sixty_four     , ASN1_NOT_EXTENSION_ROOT, dissect_lppa_BIT_STRING_SIZE_64 },
+  {   6, &hf_lppa_one_hundred_and_twenty_eight, ASN1_NOT_EXTENSION_ROOT, dissect_lppa_BIT_STRING_SIZE_128 },
+  {   7, &hf_lppa_two_hundred_and_fifty_six, ASN1_NOT_EXTENSION_ROOT, dissect_lppa_BIT_STRING_SIZE_256 },
+  {   8, &hf_lppa_five_hundred_and_twelve, ASN1_NOT_EXTENSION_ROOT, dissect_lppa_BIT_STRING_SIZE_512 },
+  {   9, &hf_lppa_one_thousand_and_twenty_four, ASN1_NOT_EXTENSION_ROOT, dissect_lppa_BIT_STRING_SIZE_1024 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_lppa_PRSMutingConfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_lppa_PRSMutingConfiguration, PRSMutingConfiguration_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_PRS_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 4095U, NULL, TRUE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_TP_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 4095U, NULL, TRUE);
+
+  return offset;
+}
+
+
+static const value_string lppa_TP_Type_vals[] = {
+  {   0, "prs-only-tp" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lppa_TP_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_NumberOfDlFrames_Extended(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 160U, NULL, TRUE);
+
+  return offset;
+}
+
+
+static const value_string lppa_T_radioframeAllocationPeriod_vals[] = {
+  {   0, "n1" },
+  {   1, "n2" },
+  {   2, "n4" },
+  {   3, "n8" },
+  {   4, "n16" },
+  {   5, "n32" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lppa_T_radioframeAllocationPeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     6, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_INTEGER_0_7(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 7U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_BIT_STRING_SIZE_6(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     6, 6, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_BIT_STRING_SIZE_24(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     24, 24, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+static const value_string lppa_Subframeallocation_vals[] = {
+  {   0, "oneFrame" },
+  {   1, "fourFrames" },
+  { 0, NULL }
+};
+
+static const per_choice_t Subframeallocation_choice[] = {
+  {   0, &hf_lppa_oneFrame       , ASN1_NO_EXTENSIONS     , dissect_lppa_BIT_STRING_SIZE_6 },
+  {   1, &hf_lppa_fourFrames     , ASN1_NO_EXTENSIONS     , dissect_lppa_BIT_STRING_SIZE_24 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_lppa_Subframeallocation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_lppa_Subframeallocation, Subframeallocation_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t MBSFNsubframeConfigurationValue_sequence[] = {
+  { &hf_lppa_radioframeAllocationPeriod, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lppa_T_radioframeAllocationPeriod },
+  { &hf_lppa_radioframeAllocationOffset, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lppa_INTEGER_0_7 },
+  { &hf_lppa_subframeAllocation, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lppa_Subframeallocation },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lppa_MBSFNsubframeConfigurationValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lppa_MBSFNsubframeConfigurationValue, MBSFNsubframeConfigurationValue_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t MBSFNsubframeConfiguration_sequence_of[1] = {
+  { &hf_lppa_MBSFNsubframeConfiguration_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lppa_MBSFNsubframeConfigurationValue },
+};
+
+static int
+dissect_lppa_MBSFNsubframeConfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lppa_MBSFNsubframeConfiguration, MBSFNsubframeConfiguration_sequence_of,
+                                                  1, maxMBSFN_Allocations, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_BIT_STRING_SIZE_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     10, 10, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_BIT_STRING_SIZE_40(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     40, 40, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+static const value_string lppa_BitmapsforNPRS_vals[] = {
+  {   0, "ten" },
+  {   1, "forty" },
+  { 0, NULL }
+};
+
+static const per_choice_t BitmapsforNPRS_choice[] = {
+  {   0, &hf_lppa_ten            , ASN1_EXTENSION_ROOT    , dissect_lppa_BIT_STRING_SIZE_10 },
+  {   1, &hf_lppa_forty          , ASN1_EXTENSION_ROOT    , dissect_lppa_BIT_STRING_SIZE_40 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_lppa_BitmapsforNPRS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_lppa_BitmapsforNPRS, BitmapsforNPRS_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string lppa_NPRSMutingConfiguration_vals[] = {
+  {   0, "two" },
+  {   1, "four" },
+  {   2, "eight" },
+  {   3, "sixteen" },
+  { 0, NULL }
+};
+
+static const per_choice_t NPRSMutingConfiguration_choice[] = {
+  {   0, &hf_lppa_two            , ASN1_EXTENSION_ROOT    , dissect_lppa_BIT_STRING_SIZE_2 },
+  {   1, &hf_lppa_four           , ASN1_EXTENSION_ROOT    , dissect_lppa_BIT_STRING_SIZE_4 },
+  {   2, &hf_lppa_eight          , ASN1_EXTENSION_ROOT    , dissect_lppa_BIT_STRING_SIZE_8 },
+  {   3, &hf_lppa_sixteen        , ASN1_EXTENSION_ROOT    , dissect_lppa_BIT_STRING_SIZE_16 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_lppa_NPRSMutingConfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_lppa_NPRSMutingConfiguration, NPRSMutingConfiguration_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t NPRSSubframePartA_sequence[] = {
+  { &hf_lppa_bitmapsforNPRS , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_BitmapsforNPRS },
+  { &hf_lppa_nPRSMutingConfiguration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_NPRSMutingConfiguration },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lppa_NPRSSubframePartA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lppa_NPRSSubframePartA, NPRSSubframePartA_sequence);
+
+  return offset;
+}
+
+
+static const value_string lppa_T_numberofNPRSOneOccasion_vals[] = {
+  {   0, "sf10" },
+  {   1, "sf20" },
+  {   2, "sf40" },
+  {   3, "sf80" },
+  {   4, "sf160" },
+  {   5, "sf320" },
+  {   6, "sf640" },
+  {   7, "sf1280" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lppa_T_numberofNPRSOneOccasion(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     8, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lppa_T_periodicityofNPRS_vals[] = {
+  {   0, "sf160" },
+  {   1, "sf320" },
+  {   2, "sf640" },
+  {   3, "sf1280" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lppa_T_periodicityofNPRS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     4, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lppa_T_startingsubframeoffset_vals[] = {
+  {   0, "zero" },
+  {   1, "one-Eighth" },
+  {   2, "two-Eighths" },
+  {   3, "three-Eighths" },
+  {   4, "four-Eighths" },
+  {   5, "five-Eighths" },
+  {   6, "six-Eighths" },
+  {   7, "seven-Eighths" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lppa_T_startingsubframeoffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     8, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t NPRSSubframePartB_sequence[] = {
+  { &hf_lppa_numberofNPRSOneOccasion, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_T_numberofNPRSOneOccasion },
+  { &hf_lppa_periodicityofNPRS, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_T_periodicityofNPRS },
+  { &hf_lppa_startingsubframeoffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_T_startingsubframeoffset },
+  { &hf_lppa_nPRSMutingConfiguration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_NPRSMutingConfiguration },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lppa_NPRSSubframePartB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lppa_NPRSSubframePartB, NPRSSubframePartB_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t NPRSConfiguration_sequence[] = {
+  { &hf_lppa_nPRSSubframePartA, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_NPRSSubframePartA },
+  { &hf_lppa_nPRSSubframePartB, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_NPRSSubframePartB },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lppa_NPRSConfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lppa_NPRSConfiguration, NPRSConfiguration_sequence);
+
+  return offset;
+}
+
+
+static const value_string lppa_OffsetNBChanneltoEARFCN_vals[] = {
+  {   0, "minusTen" },
+  {   1, "minusNine" },
+  {   2, "minusEight" },
+  {   3, "minusSeven" },
+  {   4, "minusSix" },
+  {   5, "minusFive" },
+  {   6, "minusFour" },
+  {   7, "minusThree" },
+  {   8, "minusTwo" },
+  {   9, "minusOne" },
+  {  10, "minusZeroDotFive" },
+  {  11, "zero" },
+  {  12, "one" },
+  {  13, "two" },
+  {  14, "three" },
+  {  15, "four" },
+  {  16, "five" },
+  {  17, "six" },
+  {  18, "seven" },
+  {  19, "eight" },
+  {  20, "nine" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lppa_OffsetNBChanneltoEARFCN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     21, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lppa_OperationModeInfo_vals[] = {
+  {   0, "inband" },
+  {   1, "guardband" },
+  {   2, "standalone" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lppa_OperationModeInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     3, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_INTEGER_0_4095_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 4095U, NULL, TRUE);
+
+  return offset;
+}
+
+
+static const value_string lppa_DL_Bandwidth_vals[] = {
+  {   0, "bw6" },
+  {   1, "bw15" },
+  {   2, "bw25" },
+  {   3, "bw50" },
+  {   4, "bw75" },
+  {   5, "bw100" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lppa_DL_Bandwidth(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     6, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lppa_PRSOccasionGroup_vals[] = {
+  {   0, "og2" },
+  {   1, "og4" },
+  {   2, "og8" },
+  {   3, "og16" },
+  {   4, "og32" },
+  {   5, "og64" },
+  {   6, "og128" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lppa_PRSOccasionGroup(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     7, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lppa_NumberOfFrequencyHoppingBands_vals[] = {
+  {   0, "twobands" },
+  {   1, "fourbands" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lppa_NumberOfFrequencyHoppingBands(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_NarrowBandIndex(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 15U, NULL, TRUE);
+
+  return offset;
+}
+
+
+static const per_sequence_t SEQUENCE_SIZE_1_maxnoFreqHoppingBandsMinusOne_OF_NarrowBandIndex_sequence_of[1] = {
+  { &hf_lppa_bandPositions_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lppa_NarrowBandIndex },
+};
+
+static int
+dissect_lppa_SEQUENCE_SIZE_1_maxnoFreqHoppingBandsMinusOne_OF_NarrowBandIndex(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lppa_SEQUENCE_SIZE_1_maxnoFreqHoppingBandsMinusOne_OF_NarrowBandIndex, SEQUENCE_SIZE_1_maxnoFreqHoppingBandsMinusOne_OF_NarrowBandIndex_sequence_of,
+                                                  1, maxnoFreqHoppingBandsMinusOne, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t PRSFrequencyHoppingConfiguration_sequence[] = {
+  { &hf_lppa_noOfFreqHoppingBands, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_NumberOfFrequencyHoppingBands },
+  { &hf_lppa_bandPositions  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_SEQUENCE_SIZE_1_maxnoFreqHoppingBandsMinusOne_OF_NarrowBandIndex },
+  { &hf_lppa_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lppa_PRSFrequencyHoppingConfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lppa_PRSFrequencyHoppingConfiguration, PRSFrequencyHoppingConfiguration_sequence);
+
+  return offset;
+}
+
+
+static const value_string lppa_RepetitionNumberofSIB1_NB_vals[] = {
+  {   0, "r4" },
+  {   1, "r8" },
+  {   2, "r16" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lppa_RepetitionNumberofSIB1_NB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     3, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lppa_OTDOACell_Information_Item_vals[] = {
+  {   0, "pCI" },
+  {   1, "cellId" },
+  {   2, "tAC" },
+  {   3, "eARFCN" },
+  {   4, "pRS-Bandwidth" },
+  {   5, "pRS-ConfigurationIndex" },
+  {   6, "cPLength" },
+  {   7, "numberOfDlFrames" },
+  {   8, "numberOfAntennaPorts" },
+  {   9, "sFNInitialisationTime" },
+  {  10, "e-UTRANAccessPointPosition" },
+  {  11, "pRSMutingConfiguration" },
+  {  12, "prsid" },
+  {  13, "tpid" },
+  {  14, "tpType" },
+  {  15, "numberOfDlFrames-Extended" },
+  {  16, "crsCPlength" },
+  {  17, "mBSFNsubframeConfiguration" },
+  {  18, "nPRSConfiguration" },
+  {  19, "offsetNBChanneltoEARFCN" },
+  {  20, "operationModeInfo" },
+  {  21, "nPRS-ID" },
+  {  22, "dL-Bandwidth" },
+  {  23, "pRSOccasionGroup" },
+  {  24, "pRSFreqHoppingConfig" },
+  {  25, "repetitionNumberofSIB1-NB" },
+  { 0, NULL }
+};
+
+static const per_choice_t OTDOACell_Information_Item_choice[] = {
+  {   0, &hf_lppa_pCI            , ASN1_EXTENSION_ROOT    , dissect_lppa_PCI },
+  {   1, &hf_lppa_cellId         , ASN1_EXTENSION_ROOT    , dissect_lppa_ECGI },
+  {   2, &hf_lppa_tAC            , ASN1_EXTENSION_ROOT    , dissect_lppa_TAC },
+  {   3, &hf_lppa_eARFCN         , ASN1_EXTENSION_ROOT    , dissect_lppa_EARFCN },
+  {   4, &hf_lppa_pRS_Bandwidth  , ASN1_EXTENSION_ROOT    , dissect_lppa_PRS_Bandwidth },
+  {   5, &hf_lppa_pRS_ConfigurationIndex, ASN1_EXTENSION_ROOT    , dissect_lppa_PRS_Configuration_Index },
+  {   6, &hf_lppa_cPLength       , ASN1_EXTENSION_ROOT    , dissect_lppa_CPLength },
+  {   7, &hf_lppa_numberOfDlFrames, ASN1_EXTENSION_ROOT    , dissect_lppa_NumberOfDlFrames },
+  {   8, &hf_lppa_numberOfAntennaPorts, ASN1_EXTENSION_ROOT    , dissect_lppa_NumberOfAntennaPorts },
+  {   9, &hf_lppa_sFNInitialisationTime, ASN1_EXTENSION_ROOT    , dissect_lppa_SFNInitialisationTime },
+  {  10, &hf_lppa_e_UTRANAccessPointPosition, ASN1_EXTENSION_ROOT    , dissect_lppa_E_UTRANAccessPointPosition },
+  {  11, &hf_lppa_pRSMutingConfiguration, ASN1_NOT_EXTENSION_ROOT, dissect_lppa_PRSMutingConfiguration },
+  {  12, &hf_lppa_prsid          , ASN1_NOT_EXTENSION_ROOT, dissect_lppa_PRS_ID },
+  {  13, &hf_lppa_tpid           , ASN1_NOT_EXTENSION_ROOT, dissect_lppa_TP_ID },
+  {  14, &hf_lppa_tpType         , ASN1_NOT_EXTENSION_ROOT, dissect_lppa_TP_Type },
+  {  15, &hf_lppa_numberOfDlFrames_Extended, ASN1_NOT_EXTENSION_ROOT, dissect_lppa_NumberOfDlFrames_Extended },
+  {  16, &hf_lppa_crsCPlength    , ASN1_NOT_EXTENSION_ROOT, dissect_lppa_CPLength },
+  {  17, &hf_lppa_mBSFNsubframeConfiguration, ASN1_NOT_EXTENSION_ROOT, dissect_lppa_MBSFNsubframeConfiguration },
+  {  18, &hf_lppa_nPRSConfiguration, ASN1_NOT_EXTENSION_ROOT, dissect_lppa_NPRSConfiguration },
+  {  19, &hf_lppa_offsetNBChanneltoEARFCN, ASN1_NOT_EXTENSION_ROOT, dissect_lppa_OffsetNBChanneltoEARFCN },
+  {  20, &hf_lppa_operationModeInfo, ASN1_NOT_EXTENSION_ROOT, dissect_lppa_OperationModeInfo },
+  {  21, &hf_lppa_nPRS_ID        , ASN1_NOT_EXTENSION_ROOT, dissect_lppa_INTEGER_0_4095_ },
+  {  22, &hf_lppa_dL_Bandwidth   , ASN1_NOT_EXTENSION_ROOT, dissect_lppa_DL_Bandwidth },
+  {  23, &hf_lppa_pRSOccasionGroup, ASN1_NOT_EXTENSION_ROOT, dissect_lppa_PRSOccasionGroup },
+  {  24, &hf_lppa_pRSFreqHoppingConfig, ASN1_NOT_EXTENSION_ROOT, dissect_lppa_PRSFrequencyHoppingConfiguration },
+  {  25, &hf_lppa_repetitionNumberofSIB1_NB, ASN1_NOT_EXTENSION_ROOT, dissect_lppa_RepetitionNumberofSIB1_NB },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_lppa_OTDOACell_Information_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_lppa_OTDOACell_Information_Item, OTDOACell_Information_Item_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t Add_OTDOACell_Information_sequence_of[1] = {
+  { &hf_lppa_Add_OTDOACell_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lppa_OTDOACell_Information_Item },
+};
+
+static int
+dissect_lppa_Add_OTDOACell_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lppa_Add_OTDOACell_Information, Add_OTDOACell_Information_sequence_of,
+                                                  1, maxnoOTDOAtypes, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t Add_OTDOACells_item_sequence[] = {
+  { &hf_lppa_add_OTDOACellInfo, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_Add_OTDOACell_Information },
+  { &hf_lppa_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lppa_Add_OTDOACells_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lppa_Add_OTDOACells_item, Add_OTDOACells_item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t Add_OTDOACells_sequence_of[1] = {
+  { &hf_lppa_Add_OTDOACells_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lppa_Add_OTDOACells_item },
+};
+
+static int
+dissect_lppa_Add_OTDOACells(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lppa_Add_OTDOACells, Add_OTDOACells_sequence_of,
+                                                  1, maxCellineNB_ext, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_BCCH(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 1023U, NULL, TRUE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_BSSID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       6, 6, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const value_string lppa_CauseRadioNetwork_vals[] = {
+  {   0, "unspecified" },
+  {   1, "requested-item-not-supported" },
+  {   2, "requested-item-temporarily-not-available" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lppa_CauseRadioNetwork(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     3, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lppa_CauseProtocol_vals[] = {
+  {   0, "transfer-syntax-error" },
+  {   1, "abstract-syntax-error-reject" },
+  {   2, "abstract-syntax-error-ignore-and-notify" },
+  {   3, "message-not-compatible-with-receiver-state" },
+  {   4, "semantic-error" },
+  {   5, "unspecified" },
+  {   6, "abstract-syntax-error-falsely-constructed-message" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lppa_CauseProtocol(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     7, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lppa_CauseMisc_vals[] = {
+  {   0, "unspecified" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lppa_CauseMisc(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string lppa_Cause_vals[] = {
+  {   0, "radioNetwork" },
+  {   1, "protocol" },
+  {   2, "misc" },
+  { 0, NULL }
+};
+
+static const per_choice_t Cause_choice[] = {
+  {   0, &hf_lppa_radioNetwork   , ASN1_EXTENSION_ROOT    , dissect_lppa_CauseRadioNetwork },
+  {   1, &hf_lppa_protocol       , ASN1_EXTENSION_ROOT    , dissect_lppa_CauseProtocol },
+  {   2, &hf_lppa_misc           , ASN1_EXTENSION_ROOT    , dissect_lppa_CauseMisc },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_lppa_Cause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_lppa_Cause, Cause_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_Cell_Portion_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 255U, NULL, TRUE);
+
+  return offset;
+}
+
+
+static const value_string lppa_TypeOfError_vals[] = {
+  {   0, "not-understood" },
+  {   1, "missing" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lppa_TypeOfError(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t CriticalityDiagnostics_IE_List_item_sequence[] = {
+  { &hf_lppa_iECriticality  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_Criticality },
+  { &hf_lppa_iE_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_ProtocolIE_ID },
+  { &hf_lppa_typeOfError    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_TypeOfError },
+  { &hf_lppa_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lppa_CriticalityDiagnostics_IE_List_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lppa_CriticalityDiagnostics_IE_List_item, CriticalityDiagnostics_IE_List_item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t CriticalityDiagnostics_IE_List_sequence_of[1] = {
+  { &hf_lppa_CriticalityDiagnostics_IE_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lppa_CriticalityDiagnostics_IE_List_item },
+};
+
+static int
+dissect_lppa_CriticalityDiagnostics_IE_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lppa_CriticalityDiagnostics_IE_List, CriticalityDiagnostics_IE_List_sequence_of,
+                                                  1, maxNrOfErrors, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t CriticalityDiagnostics_sequence[] = {
+  { &hf_lppa_procedureCode  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_ProcedureCode },
+  { &hf_lppa_triggeringMessage, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_TriggeringMessage },
+  { &hf_lppa_procedureCriticality, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_Criticality },
+  { &hf_lppa_lppatransactionID, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_LPPATransactionID },
+  { &hf_lppa_iEsCriticalityDiagnostics, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_CriticalityDiagnostics_IE_List },
+  { &hf_lppa_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lppa_CriticalityDiagnostics(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lppa_CriticalityDiagnostics, CriticalityDiagnostics_sequence);
+
+  return offset;
+}
+
+
+
+static int
 dissect_lppa_INTEGER_0_719(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 719U, NULL, FALSE);
@@ -1088,26 +2030,6 @@ static int
 dissect_lppa_INTEGER_0_7690(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 7690U, NULL, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_lppa_PCI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 503U, NULL, TRUE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_lppa_EARFCN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 65535U, NULL, TRUE);
 
   return offset;
 }
@@ -1251,6 +2173,16 @@ static int
 dissect_lppa_E_CID_MeasurementResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lppa_E_CID_MeasurementResult, E_CID_MeasurementResult_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_HESSID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       6, 6, FALSE, NULL);
 
   return offset;
 }
@@ -1578,188 +2510,6 @@ dissect_lppa_MeasurementQuantities_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_
 }
 
 
-static const value_string lppa_NumberOfAntennaPorts_vals[] = {
-  {   0, "n1-or-n2" },
-  {   1, "n4" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_lppa_NumberOfAntennaPorts(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-static const value_string lppa_NumberOfDlFrames_vals[] = {
-  {   0, "sf1" },
-  {   1, "sf2" },
-  {   2, "sf4" },
-  {   3, "sf6" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_lppa_NumberOfDlFrames(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     4, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-static const value_string lppa_PRS_Bandwidth_vals[] = {
-  {   0, "bw6" },
-  {   1, "bw15" },
-  {   2, "bw25" },
-  {   3, "bw50" },
-  {   4, "bw75" },
-  {   5, "bw100" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_lppa_PRS_Bandwidth(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     6, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_lppa_PRS_Configuration_Index(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 4095U, NULL, TRUE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_lppa_SFNInitialisationTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     64, 64, FALSE, NULL, NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_lppa_BIT_STRING_SIZE_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     2, 2, FALSE, NULL, NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_lppa_BIT_STRING_SIZE_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     4, 4, FALSE, NULL, NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_lppa_BIT_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE, NULL, NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_lppa_BIT_STRING_SIZE_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE, NULL, NULL);
-
-  return offset;
-}
-
-
-static const value_string lppa_PRSMutingConfiguration_vals[] = {
-  {   0, "two" },
-  {   1, "four" },
-  {   2, "eight" },
-  {   3, "sixteen" },
-  { 0, NULL }
-};
-
-static const per_choice_t PRSMutingConfiguration_choice[] = {
-  {   0, &hf_lppa_two            , ASN1_EXTENSION_ROOT    , dissect_lppa_BIT_STRING_SIZE_2 },
-  {   1, &hf_lppa_four           , ASN1_EXTENSION_ROOT    , dissect_lppa_BIT_STRING_SIZE_4 },
-  {   2, &hf_lppa_eight          , ASN1_EXTENSION_ROOT    , dissect_lppa_BIT_STRING_SIZE_8 },
-  {   3, &hf_lppa_sixteen        , ASN1_EXTENSION_ROOT    , dissect_lppa_BIT_STRING_SIZE_16 },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_lppa_PRSMutingConfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_lppa_PRSMutingConfiguration, PRSMutingConfiguration_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const value_string lppa_OTDOACell_Information_Item_vals[] = {
-  {   0, "pCI" },
-  {   1, "cellId" },
-  {   2, "tAC" },
-  {   3, "eARFCN" },
-  {   4, "pRS-Bandwidth" },
-  {   5, "pRS-ConfigurationIndex" },
-  {   6, "cPLength" },
-  {   7, "numberOfDlFrames" },
-  {   8, "numberOfAntennaPorts" },
-  {   9, "sFNInitialisationTime" },
-  {  10, "e-UTRANAccessPointPosition" },
-  {  11, "pRSMutingConfiguration" },
-  { 0, NULL }
-};
-
-static const per_choice_t OTDOACell_Information_Item_choice[] = {
-  {   0, &hf_lppa_pCI            , ASN1_EXTENSION_ROOT    , dissect_lppa_PCI },
-  {   1, &hf_lppa_cellId         , ASN1_EXTENSION_ROOT    , dissect_lppa_ECGI },
-  {   2, &hf_lppa_tAC            , ASN1_EXTENSION_ROOT    , dissect_lppa_TAC },
-  {   3, &hf_lppa_eARFCN         , ASN1_EXTENSION_ROOT    , dissect_lppa_EARFCN },
-  {   4, &hf_lppa_pRS_Bandwidth  , ASN1_EXTENSION_ROOT    , dissect_lppa_PRS_Bandwidth },
-  {   5, &hf_lppa_pRS_ConfigurationIndex, ASN1_EXTENSION_ROOT    , dissect_lppa_PRS_Configuration_Index },
-  {   6, &hf_lppa_cPLength       , ASN1_EXTENSION_ROOT    , dissect_lppa_CPLength },
-  {   7, &hf_lppa_numberOfDlFrames, ASN1_EXTENSION_ROOT    , dissect_lppa_NumberOfDlFrames },
-  {   8, &hf_lppa_numberOfAntennaPorts, ASN1_EXTENSION_ROOT    , dissect_lppa_NumberOfAntennaPorts },
-  {   9, &hf_lppa_sFNInitialisationTime, ASN1_EXTENSION_ROOT    , dissect_lppa_SFNInitialisationTime },
-  {  10, &hf_lppa_e_UTRANAccessPointPosition, ASN1_EXTENSION_ROOT    , dissect_lppa_E_UTRANAccessPointPosition },
-  {  11, &hf_lppa_pRSMutingConfiguration, ASN1_NOT_EXTENSION_ROOT, dissect_lppa_PRSMutingConfiguration },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_lppa_OTDOACell_Information_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_lppa_OTDOACell_Information_Item, OTDOACell_Information_Item_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
 static const per_sequence_t OTDOACell_Information_sequence_of[1] = {
   { &hf_lppa_OTDOACell_Information_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lppa_OTDOACell_Information_Item },
 };
@@ -1816,6 +2566,20 @@ static const value_string lppa_OTDOA_Information_Item_vals[] = {
   {   9, "sFNInitTime" },
   {  10, "e-UTRANAccessPointPosition" },
   {  11, "prsmutingconfiguration" },
+  {  12, "prsid" },
+  {  13, "tpid" },
+  {  14, "tpType" },
+  {  15, "crsCPlength" },
+  {  16, "mBSFNsubframeConfiguration" },
+  {  17, "nPRSConfiguration" },
+  {  18, "offsetNBChannelNumbertoEARFCN" },
+  {  19, "operationModeInfo" },
+  {  20, "nPRS-ID" },
+  {  21, "dlBandwidth" },
+  {  22, "multipleprsConfigurationsperCell" },
+  {  23, "prsOccasionGroup" },
+  {  24, "prsFrequencyHoppingConfiguration" },
+  {  25, "repetitionNumberofSIB1-NB" },
   { 0, NULL }
 };
 
@@ -1823,7 +2587,7 @@ static const value_string lppa_OTDOA_Information_Item_vals[] = {
 static int
 dissect_lppa_OTDOA_Information_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     10, NULL, TRUE, 2, NULL);
+                                     10, NULL, TRUE, 16, NULL);
 
   return offset;
 }
@@ -2104,6 +2868,16 @@ dissect_lppa_SRSConfigurationForAllCells(tvbuff_t *tvb _U_, int offset _U_, asn1
 }
 
 
+
+static int
+dissect_lppa_SSID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       1, 32, FALSE, NULL);
+
+  return offset;
+}
+
+
 static const per_sequence_t ULConfiguration_sequence[] = {
   { &hf_lppa_pci            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_PCI },
   { &hf_lppa_ul_earfcn      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_EARFCN },
@@ -2118,6 +2892,164 @@ static int
 dissect_lppa_ULConfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lppa_ULConfiguration, ULConfiguration_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t WLANMeasurementQuantities_sequence_of[1] = {
+  { &hf_lppa_WLANMeasurementQuantities_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lppa_ProtocolIE_Single_Container },
+};
+
+static int
+dissect_lppa_WLANMeasurementQuantities(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lppa_WLANMeasurementQuantities, WLANMeasurementQuantities_sequence_of,
+                                                  0, maxNoMeas, FALSE);
+
+  return offset;
+}
+
+
+static const value_string lppa_WLANMeasurementQuantitiesValue_vals[] = {
+  {   0, "wlan" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lppa_WLANMeasurementQuantitiesValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t WLANMeasurementQuantities_Item_sequence[] = {
+  { &hf_lppa_wLANMeasurementQuantitiesValue, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_WLANMeasurementQuantitiesValue },
+  { &hf_lppa_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lppa_WLANMeasurementQuantities_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lppa_WLANMeasurementQuantities_Item, WLANMeasurementQuantities_Item_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_WLAN_RSSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 141U, NULL, TRUE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_WLANOperatingClass(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 255U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string lppa_WLANCountryCode_vals[] = {
+  {   0, "unitedStates" },
+  {   1, "europe" },
+  {   2, "japan" },
+  {   3, "global" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lppa_WLANCountryCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     4, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lppa_WLANChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 255U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t WLANChannelList_sequence_of[1] = {
+  { &hf_lppa_WLANChannelList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lppa_WLANChannel },
+};
+
+static int
+dissect_lppa_WLANChannelList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lppa_WLANChannelList, WLANChannelList_sequence_of,
+                                                  1, maxWLANchannels, FALSE);
+
+  return offset;
+}
+
+
+static const value_string lppa_WLANBand_vals[] = {
+  {   0, "band2dot4" },
+  {   1, "band5" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lppa_WLANBand(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t WLANMeasurementResult_Item_sequence[] = {
+  { &hf_lppa_wLAN_RSSI      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_WLAN_RSSI },
+  { &hf_lppa_sSID           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_SSID },
+  { &hf_lppa_bSSID          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_BSSID },
+  { &hf_lppa_hESSID         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_HESSID },
+  { &hf_lppa_operatingClass , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_WLANOperatingClass },
+  { &hf_lppa_countryCode    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_WLANCountryCode },
+  { &hf_lppa_wLANChannelList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_WLANChannelList },
+  { &hf_lppa_wLANBand       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_WLANBand },
+  { &hf_lppa_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lppa_WLANMeasurementResult_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lppa_WLANMeasurementResult_Item, WLANMeasurementResult_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t WLANMeasurementResult_sequence_of[1] = {
+  { &hf_lppa_WLANMeasurementResult_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lppa_WLANMeasurementResult_Item },
+};
+
+static int
+dissect_lppa_WLANMeasurementResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lppa_WLANMeasurementResult, WLANMeasurementResult_sequence_of,
+                                                  1, maxNoMeas, FALSE);
 
   return offset;
 }
@@ -2371,6 +3303,14 @@ static int dissect_LPPA_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_Add_OTDOACells_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_lppa_Add_OTDOACells(tvb, offset, &asn1_ctx, tree, hf_lppa_Add_OTDOACells_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_Cause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -2488,6 +3428,30 @@ static int dissect_ULConfiguration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_lppa_ULConfiguration(tvb, offset, &asn1_ctx, tree, hf_lppa_ULConfiguration_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_WLANMeasurementQuantities_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_lppa_WLANMeasurementQuantities(tvb, offset, &asn1_ctx, tree, hf_lppa_WLANMeasurementQuantities_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_WLANMeasurementQuantities_Item_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_lppa_WLANMeasurementQuantities_Item(tvb, offset, &asn1_ctx, tree, hf_lppa_WLANMeasurementQuantities_Item_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_WLANMeasurementResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_lppa_WLANMeasurementResult(tvb, offset, &asn1_ctx, tree, hf_lppa_WLANMeasurementResult_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -2665,6 +3629,10 @@ void proto_register_lppa(void) {
       { "LPPA-PDU", "lppa.LPPA_PDU",
         FT_UINT32, BASE_DEC, VALS(lppa_LPPA_PDU_vals), 0,
         NULL, HFILL }},
+    { &hf_lppa_Add_OTDOACells_PDU,
+      { "Add-OTDOACells", "lppa.Add_OTDOACells",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_lppa_Cause_PDU,
       { "Cause", "lppa.Cause",
         FT_UINT32, BASE_DEC, VALS(lppa_Cause_vals), 0,
@@ -2724,6 +3692,18 @@ void proto_register_lppa(void) {
     { &hf_lppa_ULConfiguration_PDU,
       { "ULConfiguration", "lppa.ULConfiguration_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_WLANMeasurementQuantities_PDU,
+      { "WLANMeasurementQuantities", "lppa.WLANMeasurementQuantities",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_WLANMeasurementQuantities_Item_PDU,
+      { "WLANMeasurementQuantities-Item", "lppa.WLANMeasurementQuantities_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_WLANMeasurementResult_PDU,
+      { "WLANMeasurementResult", "lppa.WLANMeasurementResult",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_lppa_E_CIDMeasurementInitiationRequest_PDU,
       { "E-CIDMeasurementInitiationRequest", "lppa.E_CIDMeasurementInitiationRequest_element",
@@ -2869,6 +3849,30 @@ void proto_register_lppa(void) {
       { "value", "lppa.value_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UnsuccessfulOutcome_value", HFILL }},
+    { &hf_lppa_Add_OTDOACells_item,
+      { "Add-OTDOACells item", "lppa.Add_OTDOACells_item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_add_OTDOACellInfo,
+      { "add-OTDOACellInfo", "lppa.add_OTDOACellInfo",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Add_OTDOACell_Information", HFILL }},
+    { &hf_lppa_iE_Extensions,
+      { "iE-Extensions", "lppa.iE_Extensions",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ProtocolExtensionContainer", HFILL }},
+    { &hf_lppa_Add_OTDOACell_Information_item,
+      { "OTDOACell-Information-Item", "lppa.OTDOACell_Information_Item",
+        FT_UINT32, BASE_DEC, VALS(lppa_OTDOACell_Information_Item_vals), 0,
+        NULL, HFILL }},
+    { &hf_lppa_ten,
+      { "ten", "lppa.ten",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_10", HFILL }},
+    { &hf_lppa_forty,
+      { "forty", "lppa.forty",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_40", HFILL }},
     { &hf_lppa_radioNetwork,
       { "radioNetwork", "lppa.radioNetwork",
         FT_UINT32, BASE_DEC, VALS(lppa_CauseRadioNetwork_vals), 0,
@@ -2893,10 +3897,6 @@ void proto_register_lppa(void) {
       { "iEsCriticalityDiagnostics", "lppa.iEsCriticalityDiagnostics",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CriticalityDiagnostics_IE_List", HFILL }},
-    { &hf_lppa_iE_Extensions,
-      { "iE-Extensions", "lppa.iE_Extensions",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "ProtocolExtensionContainer", HFILL }},
     { &hf_lppa_CriticalityDiagnostics_IE_List_item,
       { "CriticalityDiagnostics-IE-List item", "lppa.CriticalityDiagnostics_IE_List_item_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -3029,6 +4029,66 @@ void proto_register_lppa(void) {
       { "resultRSRQ", "lppa.resultRSRQ",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_lppa_MBSFNsubframeConfiguration_item,
+      { "MBSFNsubframeConfigurationValue", "lppa.MBSFNsubframeConfigurationValue_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_radioframeAllocationPeriod,
+      { "radioframeAllocationPeriod", "lppa.radioframeAllocationPeriod",
+        FT_UINT32, BASE_DEC, VALS(lppa_T_radioframeAllocationPeriod_vals), 0,
+        NULL, HFILL }},
+    { &hf_lppa_radioframeAllocationOffset,
+      { "radioframeAllocationOffset", "lppa.radioframeAllocationOffset",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_7", HFILL }},
+    { &hf_lppa_subframeAllocation,
+      { "subframeAllocation", "lppa.subframeAllocation",
+        FT_UINT32, BASE_DEC, VALS(lppa_Subframeallocation_vals), 0,
+        NULL, HFILL }},
+    { &hf_lppa_nPRSSubframePartA,
+      { "nPRSSubframePartA", "lppa.nPRSSubframePartA_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_nPRSSubframePartB,
+      { "nPRSSubframePartB", "lppa.nPRSSubframePartB_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_two,
+      { "two", "lppa.two",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_2", HFILL }},
+    { &hf_lppa_four,
+      { "four", "lppa.four",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_4", HFILL }},
+    { &hf_lppa_eight,
+      { "eight", "lppa.eight",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_8", HFILL }},
+    { &hf_lppa_sixteen,
+      { "sixteen", "lppa.sixteen",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_16", HFILL }},
+    { &hf_lppa_bitmapsforNPRS,
+      { "bitmapsforNPRS", "lppa.bitmapsforNPRS",
+        FT_UINT32, BASE_DEC, VALS(lppa_BitmapsforNPRS_vals), 0,
+        NULL, HFILL }},
+    { &hf_lppa_nPRSMutingConfiguration,
+      { "nPRSMutingConfiguration", "lppa.nPRSMutingConfiguration",
+        FT_UINT32, BASE_DEC, VALS(lppa_NPRSMutingConfiguration_vals), 0,
+        NULL, HFILL }},
+    { &hf_lppa_numberofNPRSOneOccasion,
+      { "numberofNPRSOneOccasion", "lppa.numberofNPRSOneOccasion",
+        FT_UINT32, BASE_DEC, VALS(lppa_T_numberofNPRSOneOccasion_vals), 0,
+        NULL, HFILL }},
+    { &hf_lppa_periodicityofNPRS,
+      { "periodicityofNPRS", "lppa.periodicityofNPRS",
+        FT_UINT32, BASE_DEC, VALS(lppa_T_periodicityofNPRS_vals), 0,
+        NULL, HFILL }},
+    { &hf_lppa_startingsubframeoffset,
+      { "startingsubframeoffset", "lppa.startingsubframeoffset",
+        FT_UINT32, BASE_DEC, VALS(lppa_T_startingsubframeoffset_vals), 0,
+        NULL, HFILL }},
     { &hf_lppa_OTDOACells_item,
       { "OTDOACells item", "lppa.OTDOACells_item_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -3085,22 +4145,98 @@ void proto_register_lppa(void) {
       { "pRSMutingConfiguration", "lppa.pRSMutingConfiguration",
         FT_UINT32, BASE_DEC, VALS(lppa_PRSMutingConfiguration_vals), 0,
         NULL, HFILL }},
-    { &hf_lppa_two,
-      { "two", "lppa.two",
+    { &hf_lppa_prsid,
+      { "prsid", "lppa.prsid",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "PRS_ID", HFILL }},
+    { &hf_lppa_tpid,
+      { "tpid", "lppa.tpid",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "TP_ID", HFILL }},
+    { &hf_lppa_tpType,
+      { "tpType", "lppa.tpType",
+        FT_UINT32, BASE_DEC, VALS(lppa_TP_Type_vals), 0,
+        "TP_Type", HFILL }},
+    { &hf_lppa_numberOfDlFrames_Extended,
+      { "numberOfDlFrames-Extended", "lppa.numberOfDlFrames_Extended",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_crsCPlength,
+      { "crsCPlength", "lppa.crsCPlength",
+        FT_UINT32, BASE_DEC, VALS(lppa_CPLength_vals), 0,
+        "CPLength", HFILL }},
+    { &hf_lppa_mBSFNsubframeConfiguration,
+      { "mBSFNsubframeConfiguration", "lppa.mBSFNsubframeConfiguration",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_nPRSConfiguration,
+      { "nPRSConfiguration", "lppa.nPRSConfiguration_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_offsetNBChanneltoEARFCN,
+      { "offsetNBChanneltoEARFCN", "lppa.offsetNBChanneltoEARFCN",
+        FT_UINT32, BASE_DEC, VALS(lppa_OffsetNBChanneltoEARFCN_vals), 0,
+        NULL, HFILL }},
+    { &hf_lppa_operationModeInfo,
+      { "operationModeInfo", "lppa.operationModeInfo",
+        FT_UINT32, BASE_DEC, VALS(lppa_OperationModeInfo_vals), 0,
+        NULL, HFILL }},
+    { &hf_lppa_nPRS_ID,
+      { "nPRS-ID", "lppa.nPRS_ID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_4095_", HFILL }},
+    { &hf_lppa_dL_Bandwidth,
+      { "dL-Bandwidth", "lppa.dL_Bandwidth",
+        FT_UINT32, BASE_DEC, VALS(lppa_DL_Bandwidth_vals), 0,
+        NULL, HFILL }},
+    { &hf_lppa_pRSOccasionGroup,
+      { "pRSOccasionGroup", "lppa.pRSOccasionGroup",
+        FT_UINT32, BASE_DEC, VALS(lppa_PRSOccasionGroup_vals), 0,
+        NULL, HFILL }},
+    { &hf_lppa_pRSFreqHoppingConfig,
+      { "pRSFreqHoppingConfig", "lppa.pRSFreqHoppingConfig_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PRSFrequencyHoppingConfiguration", HFILL }},
+    { &hf_lppa_repetitionNumberofSIB1_NB,
+      { "repetitionNumberofSIB1-NB", "lppa.repetitionNumberofSIB1_NB",
+        FT_UINT32, BASE_DEC, VALS(lppa_RepetitionNumberofSIB1_NB_vals), 0,
+        NULL, HFILL }},
+    { &hf_lppa_thirty_two,
+      { "thirty-two", "lppa.thirty_two",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "BIT_STRING_SIZE_2", HFILL }},
-    { &hf_lppa_four,
-      { "four", "lppa.four",
+        "BIT_STRING_SIZE_32", HFILL }},
+    { &hf_lppa_sixty_four,
+      { "sixty-four", "lppa.sixty_four",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "BIT_STRING_SIZE_4", HFILL }},
-    { &hf_lppa_eight,
-      { "eight", "lppa.eight",
+        "BIT_STRING_SIZE_64", HFILL }},
+    { &hf_lppa_one_hundred_and_twenty_eight,
+      { "one-hundred-and-twenty-eight", "lppa.one_hundred_and_twenty_eight",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "BIT_STRING_SIZE_8", HFILL }},
-    { &hf_lppa_sixteen,
-      { "sixteen", "lppa.sixteen",
+        "BIT_STRING_SIZE_128", HFILL }},
+    { &hf_lppa_two_hundred_and_fifty_six,
+      { "two-hundred-and-fifty-six", "lppa.two_hundred_and_fifty_six",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "BIT_STRING_SIZE_16", HFILL }},
+        "BIT_STRING_SIZE_256", HFILL }},
+    { &hf_lppa_five_hundred_and_twelve,
+      { "five-hundred-and-twelve", "lppa.five_hundred_and_twelve",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_512", HFILL }},
+    { &hf_lppa_one_thousand_and_twenty_four,
+      { "one-thousand-and-twenty-four", "lppa.one_thousand_and_twenty_four",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_1024", HFILL }},
+    { &hf_lppa_noOfFreqHoppingBands,
+      { "noOfFreqHoppingBands", "lppa.noOfFreqHoppingBands",
+        FT_UINT32, BASE_DEC, VALS(lppa_NumberOfFrequencyHoppingBands_vals), 0,
+        "NumberOfFrequencyHoppingBands", HFILL }},
+    { &hf_lppa_bandPositions,
+      { "bandPositions", "lppa.bandPositions",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_1_maxnoFreqHoppingBandsMinusOne_OF_NarrowBandIndex", HFILL }},
+    { &hf_lppa_bandPositions_item,
+      { "NarrowBandIndex", "lppa.NarrowBandIndex",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_lppa_numberOfTransmissions,
       { "numberOfTransmissions", "lppa.numberOfTransmissions",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -3241,6 +4377,14 @@ void proto_register_lppa(void) {
       { "sfnInitialisationTime", "lppa.sfnInitialisationTime",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_lppa_oneFrame,
+      { "oneFrame", "lppa.oneFrame",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_6", HFILL }},
+    { &hf_lppa_fourFrames,
+      { "fourFrames", "lppa.fourFrames",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_24", HFILL }},
     { &hf_lppa_timingAdvanceType1,
       { "timingAdvanceType1", "lppa.timingAdvanceType1",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -3253,6 +4397,54 @@ void proto_register_lppa(void) {
       { "srsConfiguration", "lppa.srsConfiguration",
         FT_UINT32, BASE_DEC, NULL, 0,
         "SRSConfigurationForAllCells", HFILL }},
+    { &hf_lppa_WLANMeasurementQuantities_item,
+      { "ProtocolIE-Single-Container", "lppa.ProtocolIE_Single_Container_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_wLANMeasurementQuantitiesValue,
+      { "wLANMeasurementQuantitiesValue", "lppa.wLANMeasurementQuantitiesValue",
+        FT_UINT32, BASE_DEC, VALS(lppa_WLANMeasurementQuantitiesValue_vals), 0,
+        NULL, HFILL }},
+    { &hf_lppa_WLANMeasurementResult_item,
+      { "WLANMeasurementResult-Item", "lppa.WLANMeasurementResult_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_wLAN_RSSI,
+      { "wLAN-RSSI", "lppa.wLAN_RSSI",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_sSID,
+      { "sSID", "lppa.sSID",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_bSSID,
+      { "bSSID", "lppa.bSSID",
+        FT_ETHER, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_hESSID,
+      { "hESSID", "lppa.hESSID",
+        FT_ETHER, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_operatingClass,
+      { "operatingClass", "lppa.operatingClass",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "WLANOperatingClass", HFILL }},
+    { &hf_lppa_countryCode,
+      { "countryCode", "lppa.countryCode",
+        FT_UINT32, BASE_DEC, VALS(lppa_WLANCountryCode_vals), 0,
+        "WLANCountryCode", HFILL }},
+    { &hf_lppa_wLANChannelList,
+      { "wLANChannelList", "lppa.wLANChannelList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_wLANBand,
+      { "wLANBand", "lppa.wLANBand",
+        FT_UINT32, BASE_DEC, VALS(lppa_WLANBand_vals), 0,
+        NULL, HFILL }},
+    { &hf_lppa_WLANChannelList_item,
+      { "WLANChannel", "lppa.WLANChannel",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_lppa_protocolIEs,
       { "protocolIEs", "lppa.protocolIEs",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -3291,6 +4483,10 @@ void proto_register_lppa(void) {
     &ett_lppa_InitiatingMessage,
     &ett_lppa_SuccessfulOutcome,
     &ett_lppa_UnsuccessfulOutcome,
+    &ett_lppa_Add_OTDOACells,
+    &ett_lppa_Add_OTDOACells_item,
+    &ett_lppa_Add_OTDOACell_Information,
+    &ett_lppa_BitmapsforNPRS,
     &ett_lppa_Cause,
     &ett_lppa_CriticalityDiagnostics,
     &ett_lppa_CriticalityDiagnostics_IE_List,
@@ -3306,11 +4502,19 @@ void proto_register_lppa(void) {
     &ett_lppa_MeasurementQuantities_Item,
     &ett_lppa_MeasuredResults,
     &ett_lppa_MeasuredResultsValue,
+    &ett_lppa_MBSFNsubframeConfiguration,
+    &ett_lppa_MBSFNsubframeConfigurationValue,
+    &ett_lppa_NPRSConfiguration,
+    &ett_lppa_NPRSMutingConfiguration,
+    &ett_lppa_NPRSSubframePartA,
+    &ett_lppa_NPRSSubframePartB,
     &ett_lppa_OTDOACells,
     &ett_lppa_OTDOACells_item,
     &ett_lppa_OTDOACell_Information,
     &ett_lppa_OTDOACell_Information_Item,
     &ett_lppa_PRSMutingConfiguration,
+    &ett_lppa_PRSFrequencyHoppingConfiguration,
+    &ett_lppa_SEQUENCE_SIZE_1_maxnoFreqHoppingBandsMinusOne_OF_NarrowBandIndex,
     &ett_lppa_RequestedSRSTransmissionCharacteristics,
     &ett_lppa_ResultRSRP,
     &ett_lppa_ResultRSRP_Item,
@@ -3323,7 +4527,13 @@ void proto_register_lppa(void) {
     &ett_lppa_T_physCellIDUTRAN,
     &ett_lppa_SRSConfigurationForAllCells,
     &ett_lppa_SRSConfigurationForOneCell,
+    &ett_lppa_Subframeallocation,
     &ett_lppa_ULConfiguration,
+    &ett_lppa_WLANMeasurementQuantities,
+    &ett_lppa_WLANMeasurementQuantities_Item,
+    &ett_lppa_WLANMeasurementResult,
+    &ett_lppa_WLANMeasurementResult_Item,
+    &ett_lppa_WLANChannelList,
     &ett_lppa_E_CIDMeasurementInitiationRequest,
     &ett_lppa_E_CIDMeasurementInitiationResponse,
     &ett_lppa_E_CIDMeasurementInitiationFailure,
@@ -3386,6 +4596,10 @@ proto_reg_handoff_lppa(void)
   dissector_add_uint("lppa.ies", id_Cell_Portion_ID, create_dissector_handle(dissect_Cell_Portion_ID_PDU, proto_lppa));
   dissector_add_uint("lppa.ies", id_InterRATMeasurementResult, create_dissector_handle(dissect_InterRATMeasurementResult_PDU, proto_lppa));
   dissector_add_uint("lppa.ies", id_InterRATMeasurementQuantities_Item, create_dissector_handle(dissect_InterRATMeasurementQuantities_Item_PDU, proto_lppa));
+  dissector_add_uint("lppa.ies", id_WLANMeasurementQuantities, create_dissector_handle(dissect_WLANMeasurementQuantities_PDU, proto_lppa));
+  dissector_add_uint("lppa.ies", id_WLANMeasurementResult, create_dissector_handle(dissect_WLANMeasurementResult_PDU, proto_lppa));
+  dissector_add_uint("lppa.ies", id_AddOTDOACells, create_dissector_handle(dissect_Add_OTDOACells_PDU, proto_lppa));
+  dissector_add_uint("lppa.ies", id_WLANMeasurementQuantities_Item, create_dissector_handle(dissect_WLANMeasurementQuantities_Item_PDU, proto_lppa));
   dissector_add_uint("lppa.proc.imsg", id_e_CIDMeasurementInitiation, create_dissector_handle(dissect_E_CIDMeasurementInitiationRequest_PDU, proto_lppa));
   dissector_add_uint("lppa.proc.sout", id_e_CIDMeasurementInitiation, create_dissector_handle(dissect_E_CIDMeasurementInitiationResponse_PDU, proto_lppa));
   dissector_add_uint("lppa.proc.uout", id_e_CIDMeasurementInitiation, create_dissector_handle(dissect_E_CIDMeasurementInitiationFailure_PDU, proto_lppa));

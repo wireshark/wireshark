@@ -1,4 +1,4 @@
--- 3GPP TS 36.455 V13.1.0 (2016-03)
+-- 3GPP TS 36.455 V13.2.0 (2017-06)
 --
 
 -- **************************************************************
@@ -36,7 +36,10 @@ IMPORTS
 	ULConfiguration,
 	Cell-Portion-ID,
 	InterRATMeasurementQuantities,
-	InterRATMeasurementResult
+	InterRATMeasurementResult,
+	Add-OTDOACells,
+	WLANMeasurementQuantities,
+	WLANMeasurementResult
 
 FROM LPPA-IEs
 
@@ -70,7 +73,10 @@ FROM LPPA-Containers
 	id-ULConfiguration,
 	id-Cell-Portion-ID,
 	id-InterRATMeasurementQuantities,
-	id-InterRATMeasurementResult
+	id-InterRATMeasurementResult,
+	id-AddOTDOACells,
+	id-WLANMeasurementQuantities,
+	id-WLANMeasurementResult
 
 
 FROM LPPA-Constants;
@@ -90,9 +96,10 @@ E-CIDMeasurementInitiationRequest-IEs LPPA-PROTOCOL-IES ::= {
 	{ ID id-E-SMLC-UE-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID						PRESENCE mandatory}|
 	{ ID id-ReportCharacteristics			CRITICALITY reject	TYPE ReportCharacteristics				PRESENCE mandatory}|
 	{ ID id-MeasurementPeriodicity			CRITICALITY reject	TYPE MeasurementPeriodicity				PRESENCE conditional}|
--- The IE shall be present if the Report Characteritics IE is set to “periodic” --
+-- The IE shall be present if the Report Characteritics IE is set to "periodic" --
 	{ ID id-MeasurementQuantities			CRITICALITY reject	TYPE MeasurementQuantities				PRESENCE mandatory}|
-	{ ID id-InterRATMeasurementQuantities	CRITICALITY ignore	TYPE InterRATMeasurementQuantities	PRESENCE optional},
+	{ ID id-InterRATMeasurementQuantities	CRITICALITY ignore	TYPE InterRATMeasurementQuantities	PRESENCE optional}|
+	{ ID id-WLANMeasurementQuantities		CRITICALITY ignore	TYPE WLANMeasurementQuantities			PRESENCE optional},
 	...
 }
 
@@ -114,7 +121,8 @@ E-CIDMeasurementInitiationResponse-IEs LPPA-PROTOCOL-IES ::= {
 	{ ID id-E-CID-MeasurementResult		CRITICALITY ignore	TYPE E-CID-MeasurementResult		PRESENCE optional}|
 	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional}|
 	{ ID id-Cell-Portion-ID				CRITICALITY ignore	TYPE Cell-Portion-ID				PRESENCE optional}|
-	{ ID id-InterRATMeasurementResult	CRITICALITY ignore	TYPE InterRATMeasurementResult		PRESENCE optional},
+	{ ID id-InterRATMeasurementResult	CRITICALITY ignore	TYPE InterRATMeasurementResult		PRESENCE optional}|
+	{ ID id-WLANMeasurementResult		CRITICALITY ignore	TYPE WLANMeasurementResult			PRESENCE optional},
 	...
 }
 
@@ -244,7 +252,8 @@ OTDOAInformationResponse ::= SEQUENCE {
 
 OTDOAInformationResponse-IEs LPPA-PROTOCOL-IES ::= {
 	{ ID id-OTDOACells						CRITICALITY ignore	TYPE OTDOACells					PRESENCE mandatory}|
-	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional}|
+	{ ID id-AddOTDOACells					CRITICALITY ignore	TYPE Add-OTDOACells				PRESENCE optional},
 	...
 }
 
@@ -358,7 +367,7 @@ ErrorIndication-IEs LPPA-PROTOCOL-IES ::= {
 -- **************************************************************
 
 PrivateMessage ::= SEQUENCE {
-	privateIEs		PrivateIE-Container  {{PrivateMessage-IEs}},
+	privateIEs		PrivateIE-Container	{{PrivateMessage-IEs}},
 	...
 }
 

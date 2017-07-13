@@ -1,6 +1,6 @@
 # lppa.cnf
 # llpa conformation file
-# Copyright 2011-2016 Pascal Quantin
+# Copyright 2011-2017 Pascal Quantin
 
 #.OPT
 PER
@@ -62,6 +62,12 @@ ProtocolIE-Field/value ie_field_value
 #.END
 
 #.TYPE_ATTR
+BSSID TYPE=FT_ETHER
+
+#.TYPE_ATTR
+HESSID TYPE=FT_ETHER
+
+#.TYPE_ATTR
 # ProcedureCode
 id-errorIndication                   ProcedureCode
 id-privateMessage                    ProcedureCode
@@ -92,6 +98,10 @@ id-Cell-Portion-ID                         ProtocolIE-ID
 id-InterRATMeasurementQuantities           ProtocolIE-ID
 id-InterRATMeasurementQuantities-Item      ProtocolIE-ID
 id-InterRATMeasurementResult               ProtocolIE-ID
+id-AddOTDOACells                           ProtocolIE-ID
+id-WLANMeasurementQuantities               ProtocolIE-ID
+id-WLANMeasurementQuantities-Item          ProtocolIE-ID
+id-WLANMeasurementResult                   ProtocolIE-ID
 #.REGISTER
 
 #LPPA-PROTOCOL-IES
@@ -113,6 +123,10 @@ InterRATMeasurementQuantities           N lppa.ies id-InterRATMeasurementQuantit
 Cell-Portion-ID                         N lppa.ies id-Cell-Portion-ID
 InterRATMeasurementResult               N lppa.ies id-InterRATMeasurementResult
 InterRATMeasurementQuantities-Item      N lppa.ies id-InterRATMeasurementQuantities-Item
+WLANMeasurementQuantities               N lppa.ies id-WLANMeasurementQuantities
+WLANMeasurementResult                   N lppa.ies id-WLANMeasurementResult
+Add-OTDOACells                          N lppa.ies id-AddOTDOACells
+WLANMeasurementQuantities-Item          N lppa.ies id-WLANMeasurementQuantities-Item
 
 #LPPA-ELEMENTARY-PROCEDURE
 E-CIDMeasurementInitiationRequest  N lppa.proc.imsg id-e-CIDMeasurementInitiation

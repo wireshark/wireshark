@@ -1,4 +1,4 @@
--- 3GPP TS 36.455 V13.1.0 (2016-03)
+-- 3GPP TS 36.455 V14.2.0 (2017-06)
 --
 
 -- **************************************************************
@@ -25,8 +25,13 @@ IMPORTS
 	maxnoOTDOAtypes,
 	maxServCell,
 	id-InterRATMeasurementQuantities-Item,
+	id-WLANMeasurementQuantities-Item,
 	maxGERANMeas,
-	maxUTRANMeas
+	maxUTRANMeas,
+	maxCellineNB-ext,
+	maxWLANchannels,
+	maxMBSFN-Allocations,
+	maxnoFreqHoppingBandsMinusOne
 
 FROM LPPA-Constants
 
@@ -46,9 +51,31 @@ FROM LPPA-CommonDataTypes
 FROM LPPA-Containers;
 
 -- A
+
+Add-OTDOACells ::= SEQUENCE (SIZE (1.. maxCellineNB-ext)) OF SEQUENCE {
+	add-OTDOACellInfo				Add-OTDOACell-Information,
+	iE-Extensions					ProtocolExtensionContainer { {Add-OTDOACells-ExtIEs} } OPTIONAL,
+	...
+}
+
+Add-OTDOACells-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Add-OTDOACell-Information ::= SEQUENCE (SIZE (1..maxnoOTDOAtypes)) OF OTDOACell-Information-Item
+
 -- B
 
 BCCH ::= INTEGER (0..1023, ...)
+
+BitmapsforNPRS	::= CHOICE {
+	ten			BIT STRING(SIZE (10)),
+	forty		BIT STRING(SIZE (40)),
+	...
+}
+
+BSSID ::= OCTET STRING (SIZE(6))
+
 
 -- C
 
@@ -83,7 +110,7 @@ CauseRadioNetwork ::= ENUMERATED {
 
 }
 
-Cell-Portion-ID ::= INTEGER (0..255,...)
+Cell-Portion-ID ::= INTEGER (0..255,... , 256..4095)
 
 CPLength ::= ENUMERATED {
 	normal,
@@ -120,6 +147,17 @@ CriticalityDiagnostics-IE-List-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
 }
 
 -- D
+
+DL-Bandwidth ::= ENUMERATED {
+	bw6,
+	bw15,
+	bw25,
+	bw50,
+	bw75,
+	bw100,
+	...
+}
+
 -- E
 
 E-CID-MeasurementResult ::= SEQUENCE {
@@ -162,6 +200,10 @@ E-UTRANAccessPointPosition ::= SEQUENCE {
 -- F
 -- G
 -- H
+
+HESSID ::= OCTET STRING (SIZE(6))
+
+
 -- I
 
 InterRATMeasurementQuantities ::= SEQUENCE (SIZE (0.. maxNoMeas)) OF ProtocolIE-Single-Container { {InterRATMeasurementQuantities-ItemIEs} }
@@ -255,7 +297,46 @@ MeasuredResultsValue ::= CHOICE {
 	...
 }
 
+MBSFNsubframeConfiguration ::= SEQUENCE (SIZE (1.. maxMBSFN-Allocations)) OF MBSFNsubframeConfigurationValue
+
+MBSFNsubframeConfigurationValue ::=			SEQUENCE {
+	radioframeAllocationPeriod			ENUMERATED {n1, n2, n4, n8, n16, n32},
+	radioframeAllocationOffset			INTEGER (0..7),
+	subframeAllocation					Subframeallocation
+}
+
+
 -- N
+
+NarrowBandIndex ::= INTEGER (0..15,...)
+
+NPRSConfiguration ::=			SEQUENCE {
+	nPRSSubframePartA			NPRSSubframePartA 		OPTIONAL,
+	nPRSSubframePartB			NPRSSubframePartB 		OPTIONAL,
+	...
+}
+
+NPRSMutingConfiguration ::= CHOICE {
+	two 				BIT STRING (SIZE (2)),
+	four 				BIT STRING (SIZE (4)),
+	eight 				BIT STRING (SIZE (8)),
+	sixteen 			BIT STRING (SIZE (16)),
+	...
+}
+
+NPRSSubframePartA ::=			SEQUENCE {
+	bitmapsforNPRS				BitmapsforNPRS,
+	nPRSMutingConfiguration		NPRSMutingConfiguration 		OPTIONAL,
+	...
+}
+
+NPRSSubframePartB ::=			SEQUENCE {
+	numberofNPRSOneOccasion		ENUMERATED {sf10, sf20, sf40, sf80, sf160, sf320, sf640, sf1280, ...},
+	periodicityofNPRS			ENUMERATED {sf160, sf320, sf640, sf1280, ...},
+	startingsubframeoffset		ENUMERATED {zero, one-Eighth, two-Eighths, three-Eighths, four-Eighths, five-Eighths, six-Eighths, seven-Eighths, ...},
+	nPRSMutingConfiguration		NPRSMutingConfiguration 		OPTIONAL,
+	...
+}
 
 NumberOfAntennaPorts ::= ENUMERATED {
 		n1-or-n2,
@@ -271,7 +352,48 @@ NumberOfDlFrames ::= ENUMERATED {
 		...
 }
 
+
+NumberOfDlFrames-Extended ::= INTEGER (1..160,...)
+
+NumberOfFrequencyHoppingBands ::= ENUMERATED {
+	twobands,
+	fourbands,
+	...
+}
+
 -- O
+
+OffsetNBChanneltoEARFCN ::= ENUMERATED {
+		minusTen,
+		minusNine,
+		minusEight,
+		minusSeven,
+		minusSix,
+		minusFive,
+		minusFour,
+		minusThree,
+		minusTwo,
+		minusOne,
+		minusZeroDotFive,
+		zero,
+		one,
+		two,
+		three,
+		four,
+		five,
+		six,
+		seven,
+		eight,
+		nine,
+		...
+}
+
+OperationModeInfo ::= ENUMERATED {
+		inband,
+		guardband,
+		standalone,
+		...
+}
 
 OTDOACells ::= SEQUENCE (SIZE (1.. maxCellineNB)) OF SEQUENCE {
 	oTDOACellInfo					OTDOACell-Information,
@@ -298,7 +420,21 @@ OTDOACell-Information-Item ::= CHOICE {
 	sFNInitialisationTime		SFNInitialisationTime,
 	e-UTRANAccessPointPosition	E-UTRANAccessPointPosition,
 	...,
-	pRSMutingConfiguration		PRSMutingConfiguration
+	pRSMutingConfiguration		PRSMutingConfiguration,
+	prsid						PRS-ID,
+	tpid						TP-ID,
+	tpType						TP-Type,
+	numberOfDlFrames-Extended	NumberOfDlFrames-Extended,
+	crsCPlength					CPLength,
+	mBSFNsubframeConfiguration	MBSFNsubframeConfiguration,
+	nPRSConfiguration			NPRSConfiguration,
+	offsetNBChanneltoEARFCN		OffsetNBChanneltoEARFCN,
+	operationModeInfo			OperationModeInfo,
+	nPRS-ID						INTEGER (0..4095, ...),
+	dL-Bandwidth				DL-Bandwidth,
+	pRSOccasionGroup			PRSOccasionGroup,
+	pRSFreqHoppingConfig		PRSFrequencyHoppingConfiguration,
+	repetitionNumberofSIB1-NB	RepetitionNumberofSIB1-NB
 }
 
 OTDOA-Information-Item ::= ENUMERATED {
@@ -314,7 +450,21 @@ OTDOA-Information-Item ::= ENUMERATED {
 		sFNInitTime,
 		...,
 		e-UTRANAccessPointPosition,
-		prsmutingconfiguration
+		prsmutingconfiguration,
+		prsid,
+		tpid,
+		tpType,
+		crsCPlength,
+		mBSFNsubframeConfiguration,
+		nPRSConfiguration,
+		offsetNBChannelNumbertoEARFCN,
+		operationModeInfo,
+		nPRS-ID,
+		dlBandwidth,
+		multipleprsConfigurationsperCell,
+		prsOccasionGroup,
+		prsFrequencyHoppingConfiguration,
+		repetitionNumberofSIB1-NB
 }
 
 -- P
@@ -341,17 +491,53 @@ PRS-Bandwidth ::= ENUMERATED {
 
 PRS-Configuration-Index ::= INTEGER (0..4095, ...)
 
+PRS-ID	::= INTEGER (0..4095, ...)
+
 PRSMutingConfiguration ::= CHOICE {
 	two 			BIT STRING (SIZE (2)),
 	four 			BIT STRING (SIZE (4)),
 	eight 			BIT STRING (SIZE (8)),
 	sixteen 		BIT STRING (SIZE (16)),
+	...,
+	thirty-two						BIT STRING (SIZE (32)),
+	sixty-four						BIT STRING (SIZE (64)),
+	one-hundred-and-twenty-eight	BIT STRING (SIZE (128)),
+	two-hundred-and-fifty-six		BIT STRING (SIZE (256)),
+	five-hundred-and-twelve			BIT STRING (SIZE (512)),
+	one-thousand-and-twenty-four	BIT STRING (SIZE (1024))
+}
+
+PRSOccasionGroup ::= ENUMERATED {
+	og2,
+	og4,
+	og8,
+	og16,
+	og32,
+	og64,
+	og128,
 	...
 }
 
+PRSFrequencyHoppingConfiguration ::= SEQUENCE {
+	noOfFreqHoppingBands		NumberOfFrequencyHoppingBands,
+	bandPositions				SEQUENCE(SIZE (1..maxnoFreqHoppingBandsMinusOne)) OF NarrowBandIndex,
+	iE-Extensions				ProtocolExtensionContainer { { PRSFrequencyHoppingConfiguration-Item-IEs} } OPTIONAL,
+	...
+}
+
+PRSFrequencyHoppingConfiguration-Item-IEs LPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 -- Q
 -- R
+
+RepetitionNumberofSIB1-NB ::= ENUMERATED {
+	r4,
+	r8,
+	r16,
+	...
+}
 
 ReportCharacteristics ::= ENUMERATED {
 	onDemand,
@@ -455,10 +641,22 @@ SRSConfigurationForOneCell ::= SEQUENCE {
 	...
 }
 
+
+Subframeallocation ::= CHOICE {
+	oneFrame						BIT STRING (SIZE(6)),
+	fourFrames						BIT STRING (SIZE(24))
+}
+
+
+SSID ::= OCTET STRING (SIZE(1..32))
+
 -- T
 
 TAC ::= OCTET STRING (SIZE(2))
 
+TP-ID ::= INTEGER (0..4095, ...)
+
+TP-Type ::= ENUMERATED { prs-only-tp, ... }
 
 TypeOfError ::= ENUMERATED {
 	not-understood,
@@ -493,6 +691,65 @@ ValueRSRP ::= INTEGER (0..97, ...)
 ValueRSRQ ::= INTEGER (0..34, ...)
 
 -- W
+
+WLANMeasurementQuantities ::= SEQUENCE (SIZE (0.. maxNoMeas)) OF ProtocolIE-Single-Container { {WLANMeasurementQuantities-ItemIEs} }
+
+WLANMeasurementQuantities-ItemIEs LPPA-PROTOCOL-IES ::= {
+	{ ID id-WLANMeasurementQuantities-Item	CRITICALITY reject	TYPE WLANMeasurementQuantities-Item PRESENCE mandatory}}
+
+WLANMeasurementQuantities-Item ::= SEQUENCE {
+	wLANMeasurementQuantitiesValue			WLANMeasurementQuantitiesValue,
+	iE-Extensions							ProtocolExtensionContainer { { WLANMeasurementQuantitiesValue-ExtIEs} } OPTIONAL,
+	...
+}
+
+WLANMeasurementQuantitiesValue-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+WLANMeasurementQuantitiesValue ::= ENUMERATED {
+	wlan,
+	...
+}
+
+
+WLANMeasurementResult ::= SEQUENCE (SIZE (1..maxNoMeas)) OF WLANMeasurementResult-Item
+
+WLANMeasurementResult-Item ::= SEQUENCE {
+	wLAN-RSSI			WLAN-RSSI,
+	sSID				SSID					OPTIONAL,
+	bSSID				BSSID					OPTIONAL,
+	hESSID				HESSID					OPTIONAL,
+	operatingClass		WLANOperatingClass		OPTIONAL,
+	countryCode			WLANCountryCode			OPTIONAL,
+	wLANChannelList		WLANChannelList			OPTIONAL,
+	wLANBand			WLANBand				OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { { WLANMeasurementResult-Item-ExtIEs } }	OPTIONAL,
+	...
+}
+
+WLANMeasurementResult-Item-ExtIEs	LPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+WLAN-RSSI ::= INTEGER (0..141, ...)
+
+WLANBand ::= ENUMERATED {band2dot4, band5, ...}
+
+WLANChannelList ::= SEQUENCE (SIZE (1..maxWLANchannels)) OF WLANChannel
+
+WLANChannel ::= INTEGER (0..255)
+
+WLANCountryCode ::= ENUMERATED {
+	unitedStates,
+	europe,
+	japan,
+	global,
+	...
+}
+
+WLANOperatingClass ::= INTEGER (0..255)
+
 -- X
 -- Y
 -- Z

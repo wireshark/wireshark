@@ -1,4 +1,4 @@
--- 3GPP TS 36.455 V13.1.0 (2016-03)
+-- 3GPP TS 36.455 V14.2.0 (2017-06)
 --
 
 -- **************************************************************
@@ -50,6 +50,10 @@ maxnoOTDOAtypes								INTEGER ::= 63
 maxServCell									INTEGER ::= 5
 maxGERANMeas								INTEGER ::= 8
 maxUTRANMeas								INTEGER ::= 8
+maxCellineNB-ext							INTEGER ::= 3840
+maxMBSFN-Allocations						INTEGER ::= 8
+maxWLANchannels								INTEGER ::= 16
+maxnoFreqHoppingBandsMinusOne				INTEGER ::= 7
 
 -- **************************************************************
 --
@@ -75,5 +79,9 @@ id-Cell-Portion-ID															ProtocolIE-ID ::= 14
 id-InterRATMeasurementQuantities											ProtocolIE-ID ::= 15
 id-InterRATMeasurementQuantities-Item										ProtocolIE-ID ::= 16
 id-InterRATMeasurementResult												ProtocolIE-ID ::= 17
+id-AddOTDOACells															ProtocolIE-ID ::= 18
+id-WLANMeasurementQuantities												ProtocolIE-ID ::= 19
+id-WLANMeasurementQuantities-Item											ProtocolIE-ID ::= 20
+id-WLANMeasurementResult													ProtocolIE-ID ::= 21
 
 END
