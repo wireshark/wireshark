@@ -1274,15 +1274,18 @@ void IOGraphDialog::on_graphTreeWidget_itemActivated(QTreeWidgetItem *item, int 
 {
     if (!item || name_line_edit_) return;
 
+    QTreeWidget *gtw = ui->graphTreeWidget;
     QWidget *editor = NULL;
     int cur_idx;
 
     name_line_edit_ = new QLineEdit();
+    name_line_edit_->setFixedWidth(gtw->columnWidth(name_col_));
     name_line_edit_->setText(item->text(name_col_));
 
     dfilter_line_edit_ = new DisplayFilterEdit();
     connect(dfilter_line_edit_, SIGNAL(textChanged(QString)),
             dfilter_line_edit_, SLOT(checkDisplayFilter(QString)));
+    dfilter_line_edit_->setFixedWidth(gtw->columnWidth(dfilter_col_));
     dfilter_line_edit_->setText(item->text(dfilter_col_));
 
     color_combo_box_ = new QComboBox();
@@ -1329,6 +1332,7 @@ void IOGraphDialog::on_graphTreeWidget_itemActivated(QTreeWidgetItem *item, int 
     yfield_line_edit_ = new FieldFilterEdit();
     connect(yfield_line_edit_, SIGNAL(textChanged(QString)),
             yfield_line_edit_, SLOT(checkFieldName(QString)));
+    yfield_line_edit_->setFixedWidth(gtw->columnWidth(yfield_col_));
     yfield_line_edit_->setText(item->text(yfield_col_));
 
     sma_combo_box_ = new QComboBox();
