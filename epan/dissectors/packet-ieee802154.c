@@ -3064,6 +3064,8 @@ dissect_mpx_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *
         offset += 1;
         switch (kmp_id) {
             case IEEE802159_MPX_KMP_ID_IEEE8021X:
+            case IEEE802159_MPX_KMP_ID_IEEE80211_4WH:
+            case IEEE802159_MPX_KMP_ID_IEEE80211_GKH:
                 dissector = eapol_handle;
                 break;
 
@@ -3072,8 +3074,6 @@ dissect_mpx_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *
             case IEEE802159_MPX_KMP_ID_IKEV2:
             case IEEE802159_MPX_KMP_ID_PANA:
             case IEEE802159_MPX_KMP_ID_DRAGONFLY:
-            case IEEE802159_MPX_KMP_ID_IEEE80211_4WH:
-            case IEEE802159_MPX_KMP_ID_IEEE80211_GKH:
             case IEEE802159_MPX_KMP_ID_ETSI_TS_102_887_2:
                 expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_ieee802159_mpx_unsupported_kmp);
                 break;
