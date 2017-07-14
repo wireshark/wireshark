@@ -55,6 +55,7 @@ public:
 
     QMenu * getSelectionMenu();
     int interfacesPresent();
+    void setTreeFocus();
 
 Q_SIGNALS:
     void showExtcapOptions(QString device_name);

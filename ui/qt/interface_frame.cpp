@@ -168,6 +168,11 @@ int InterfaceFrame::interfacesPresent()
     return sourceModel->rowCount() - proxyModel->interfacesHidden();
 }
 
+void InterfaceFrame::setTreeFocus()
+{
+    ui->interfaceTree->setFocus();
+}
+
 void InterfaceFrame::hideEvent(QHideEvent *) {
 #ifdef HAVE_LIBPCAP
     if (stat_timer_)
