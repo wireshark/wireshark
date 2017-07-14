@@ -184,6 +184,8 @@ MOC_UTILS_HDRS = \
 # Files for delegates and models
 MOC_MODELS_HDRS = \
 	models/cache_proxy_model.h			\
+	models/decode_as_delegate.h			\
+	models/decode_as_model.h			\
 	models/interface_sort_filter_model.h		\
 	models/interface_tree_cache_model.h		\
 	models/interface_tree_model.h			\
@@ -495,6 +497,8 @@ WIRESHARK_QT_UTILS_SRC = \
 
 WIRESHARK_QT_MODELS_SRCS = \
 	models/cache_proxy_model.cpp			\
+	models/decode_as_delegate.cpp			\
+	models/decode_as_model.cpp			\
 	models/interface_sort_filter_model.cpp		\
 	models/interface_tree_cache_model.cpp		\
 	models/interface_tree_model.cpp			\

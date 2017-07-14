@@ -55,6 +55,8 @@ set(WIRESHARK_UTILS_HEADERS
 
 set(WIRESHARK_MODEL_HEADERS
 	models/cache_proxy_model.h
+	models/decode_as_delegate.h
+	models/decode_as_model.h
 	models/interface_sort_filter_model.h
 	models/interface_tree_cache_model.h
 	models/interface_tree_model.h
@@ -252,6 +254,8 @@ set(WIRESHARK_UTILS_SRCS
 
 set(WIRESHARK_MODEL_SRCS
 	models/cache_proxy_model.cpp
+	models/decode_as_delegate.cpp
+	models/decode_as_model.cpp
 	models/interface_sort_filter_model.cpp
 	models/interface_tree_cache_model.cpp
 	models/interface_tree_model.cpp
