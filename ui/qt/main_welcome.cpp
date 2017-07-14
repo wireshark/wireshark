@@ -34,6 +34,7 @@
 #include <ui_main_welcome.h>
 #include "tango_colors.h"
 
+#include "color_utils.h"
 #include "qt_ui_utils.h"
 #include "wireshark_application.h"
 
@@ -47,7 +48,7 @@
 #include <QUrl>
 #include <QWidget>
 
-#if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
+#if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
 #include <QGraphicsBlurEffect>
 #endif
 
@@ -77,6 +78,8 @@ MainWelcome::MainWelcome(QWidget *parent) :
 
     welcome_ui_->captureFilterComboBox->setEnabled(false);
 
+    QColor hover_color = ColorUtils::alphaBlend(palette().window(), palette().highlight(), 0.5);
+
     setStyleSheet(QString(
                       "MainWelcome {"
                       "  padding: 1em;"
@@ -85,37 +88,38 @@ MainWelcome::MainWelcome(QWidget *parent) :
                       "  background-color: palette(base);"
                       "  color: palette(text);"
                       " }"
-                      "QListWidget {"
+                      "QAbstractItemView {"
                       "  border: 0;"
                       "}"
-                      "QTreeWidget {"
-                      "  border: 0;"
+                      "QAbstractItemView:item:hover {"
+                      "  background-color: %1;"
                       "}"
                       )
+                  .arg(hover_color.name())
                 );
 
     QString welcome_ss = QString(
                 "QLabel {"
                 "  border-radius: 0.33em;"
-                "  color: #%1;"
-                "  background-color: #%2;"
+                "  color: %1;"
+                "  background-color: %2;"
                 "  padding: 0.33em;"
                 "}"
                 )
-            .arg(tango_aluminium_6, 6, 16, QChar('0'))   // Text color
-            .arg(tango_sky_blue_2, 6, 16, QChar('0'));   // Background color
+            .arg(QColor(tango_aluminium_6).name())   // Text color
+            .arg(QColor(tango_sky_blue_2).name());   // Background color
     welcome_ui_->mainWelcomeBanner->setStyleSheet(welcome_ss);
 
     QString title_button_ss = QString(
             "QLabel {"
-            "  color: #%1;"
+            "  color: %1;"
             "}"
             "QLabel::hover {"
-            "  color: #%2;"
+            "  color: %2;"
             "}"
             )
-            .arg(tango_aluminium_4, 6, 16, QChar('0'))   // Text color
-            .arg(tango_sky_blue_4, 6, 16, QChar('0'));    // Hover color
+            .arg(QColor(tango_aluminium_4).name())   // Text color
+            .arg(QColor(tango_sky_blue_4).name());   // Hover color
 
     // XXX Is there a better term than "flavor"? Provider? Admonition (a la DocBook)?
     // Release_source?
@@ -138,7 +142,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
                     )
                 .arg("white") //   Text color
                 .arg("#2c4bc4"); // Background color. Matches capture start button.
-        //            .arg(tango_butter_5, 6, 16, QChar('0'));      // "Warning" background
+        //            .arg(QColor(tango_butter_5).name());      // "Warning" background
 
         welcome_ui_->flavorBanner->setText(flavor_);
         welcome_ui_->flavorBanner->setStyleSheet(flavor_ss);
@@ -192,8 +196,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
     connect(recent_files_, SIGNAL(itemActivated(QListWidgetItem *)), this, SLOT(openRecentItem(QListWidgetItem *)));
     updateRecentCaptures();
 
-#if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
-    // This crashes with Qt 4.8.3 on macOS.
+#if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
     QGraphicsBlurEffect *blur = new QGraphicsBlurEffect(welcome_ui_->childContainer);
     blur->setBlurRadius(2);
     welcome_ui_->childContainer->setGraphicsEffect(blur);
@@ -256,7 +259,7 @@ void MainWelcome::appInitialized()
 #endif
     welcome_ui_->fullReleaseLabel->setText(full_release);
 
-#if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
+#if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
     welcome_ui_->childContainer->setGraphicsEffect(NULL);
 #endif
 
@@ -266,7 +269,16 @@ void MainWelcome::appInitialized()
 
     welcome_ui_->captureFilterComboBox->setEnabled(true);
 
+    QString capture_device = prefs.capture_device;
+    if (!capture_device.isEmpty()) {
+        capture_opts_default_iface_if_necessary(&global_capture_opts, prefs.capture_device);
+    }
+
     interfaceListChanged();
+
+    if (global_capture_opts.num_selected > 0) {
+        welcome_ui_->interfaceFrame->setTreeFocus();
+    }
 
     delete splash_overlay_;
     splash_overlay_ = NULL;
