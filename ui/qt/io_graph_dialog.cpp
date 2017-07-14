@@ -404,6 +404,15 @@ void IOGraphDialog::addDefaultGraph(bool enabled, int idx)
 
 // Sync the settings from a graphTreeWidget item to its IOGraph.
 // Disables the graph if any errors are found.
+//
+// NOTE: Setting dfilter, yaxis and yfield here will all end up in setFilter() and this
+//       has a chicken-and-egg problem because setFilter() depends on previous assigned
+//       values for filter_, val_units_ and vu_field_.  Setting values in wrong order
+//       may give unpredicted results because setFilter() does not always set filter_
+//       on errors.
+// TODO: The issues in the above note should be fixed and setFilter() should not be
+//       called so frequently.
+
 void IOGraphDialog::syncGraphSettings(QTreeWidgetItem *item)
 {
     if (!item) return;
@@ -414,15 +423,14 @@ void IOGraphDialog::syncGraphSettings(QTreeWidgetItem *item)
     bool retap = !iog->visible() && visible;
 
     iog->setName(item->text(name_col_));
-
-    /* dfilter and plot style depend on the value unit, so set it first. */
-    iog->setValueUnits(item->data(yaxis_col_, Qt::UserRole).toInt());
-
     iog->setFilter(item->text(dfilter_col_));
+
+    /* plot style depend on the value unit, so set it first. */
+    iog->setValueUnits(item->data(yaxis_col_, Qt::UserRole).toInt());
+    iog->setValueUnitField(item->text(yfield_col_));
+
     iog->setColor(colors_[item->data(color_col_, Qt::UserRole).toInt() % colors_.size()]);
     iog->setPlotStyle(item->data(style_col_, Qt::UserRole).toInt());
-
-    iog->setValueUnitField(item->text(yfield_col_));
 
     iog->moving_avg_period_ = item->data(sma_period_col_, Qt::UserRole).toUInt();
 
