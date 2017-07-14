@@ -1546,6 +1546,7 @@ proto_reg_handoff_mp2t(void)
     heur_dissector_add("usb.bulk", heur_dissect_mp2t, "MP2T USB bulk endpoint", "mp2t_usb_bulk", proto_mp2t, HEURISTIC_ENABLE);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_MPEG_2_TS, mp2t_handle);
     dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_DOCSIS_DMPT, mp2t_handle);
+    dissector_add_string("media_type", "video/mp2t", mp2t_handle);
 
     docsis_handle = find_dissector("docsis");
     mpeg_pes_handle = find_dissector("mpeg-pes");
