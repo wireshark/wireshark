@@ -93,6 +93,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
                       "}"
                       "QAbstractItemView:item:hover {"
                       "  background-color: %1;"
+                      "  color: palette(text);"
                       "}"
                       )
                   .arg(hover_color.name())
