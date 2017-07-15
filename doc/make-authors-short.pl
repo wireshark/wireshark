@@ -33,12 +33,14 @@ s/\xef\xbb\xbf//;		# Skip UTF-8 byte order mark
 print unless /^\n/;
 
 while (<>) {
-	if (/(.*){/) {
+	if (/(.*?)\s*\{/) {
 		$subinfo = 1;
 		print "$1\n";
-	} elsif (/}/) {
+	} elsif (/\}/) {
 		$subinfo = 0;
 		if (($nextline = <>) !~ /^[\s]*$/) {
+			print STDERR "Missing newline after '}', found: $nextline"
+				if $nextline =~ m/\{/;
 			print $nextline;
 		}
 	} elsif ($subinfo == 1) {
