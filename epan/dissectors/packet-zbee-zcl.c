@@ -2028,7 +2028,7 @@ void proto_register_zbee_zcl(void)
                 ZBEE_ZCL_FCF_MFR_SPEC, NULL, HFILL }},
 
         { &hf_zbee_zcl_fcf_dir,
-            { "Direction", "zbee_zcl.dir", FT_BOOLEAN, 8, TFS(&tfs_client_server),
+            { "Direction", "zbee_zcl.dir", FT_BOOLEAN, 8, TFS(&tfs_s2c_c2s),
                 ZBEE_ZCL_FCF_DIRECTION, NULL, HFILL }},
 
         { &hf_zbee_zcl_fcf_disable_default_resp,
