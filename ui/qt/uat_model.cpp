@@ -155,10 +155,19 @@ QModelIndex UatModel::findRowForColumnContent(QVariant columnContent, int column
 
 QVariant UatModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (role != Qt::DisplayRole || orientation != Qt::Horizontal)
+    if (orientation != Qt::Horizontal) {
         return QVariant();
+    }
 
-    return uat_->fields[section].title;
+    if (role == Qt::ToolTipRole && uat_->fields[section].desc) {
+        return uat_->fields[section].desc;
+    }
+
+    if (role == Qt::DisplayRole) {
+        return uat_->fields[section].title;
+    }
+
+    return QVariant();
 }
 
 int UatModel::rowCount(const QModelIndex &parent) const
