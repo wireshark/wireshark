@@ -256,6 +256,7 @@ void ColumnPreferencesFrame::on_columnTreeWidget_itemActivated(QTreeWidgetItem *
 {
     if (!item || cur_line_edit_ || cur_combo_box_) return;
 
+    QTreeWidget *ctw = ui->columnTreeWidget;
     QWidget *editor = NULL;
     cur_column_ = column;
     saved_combo_idx_ = item->data(type_col_, Qt::UserRole).toInt();
@@ -290,6 +291,7 @@ void ColumnPreferencesFrame::on_columnTreeWidget_itemActivated(QTreeWidgetItem *
         connect(field_filter_edit, SIGNAL(textChanged(QString)),
                 field_filter_edit, SLOT(checkCustomColumn(QString)));
         connect(field_filter_edit, SIGNAL(editingFinished()), this, SLOT(customFieldsEditingFinished()));
+        field_filter_edit->setFixedWidth(ctw->columnWidth(custom_fields_col_));
         editor = cur_line_edit_ = field_filter_edit;
 
         //Save off the current column type in case it needs to be restored
@@ -307,6 +309,7 @@ void ColumnPreferencesFrame::on_columnTreeWidget_itemActivated(QTreeWidgetItem *
         connect(syntax_edit, SIGNAL(textChanged(QString)),
                 syntax_edit, SLOT(checkInteger(QString)));
         connect(syntax_edit, SIGNAL(editingFinished()), this, SLOT(customOccurrenceEditingFinished()));
+        syntax_edit->setFixedWidth(ctw->columnWidth(custom_occurrence_col_));
         editor = cur_line_edit_ = syntax_edit;
 
         //Save off the current column type in case it needs to be restored
