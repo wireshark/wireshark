@@ -99,6 +99,8 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     goodput_graph_(NULL),
     seg_graph_(NULL),
     ack_graph_(NULL),
+    sack_graph_(NULL),
+    sack2_graph_(NULL),
     rwin_graph_(NULL),
     tracer_(NULL),
     packet_num_(0),
