@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2017-06-23)
+(last updated 2017-07-14)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -2170,9 +2170,9 @@ Decimal
     Jeff Gear
       jjg&infores.com
 539
-  Kentrox
+  Westell Inc. (formerly 'Kentrox')
     Ken Huffman
-      snmp&kentrox.com
+      snmp&westell.com
 540
   Crypto AG
     Roland Luthi
@@ -9323,8 +9323,8 @@ Decimal
       marcg&arraycomm.com
 2329
   DST Systems Inc.
-    W. Evan Rasco
-      erasco&dstsystems.com
+    Russell Petree
+      rpetree&dstsystems.com
 2330
   Vision Service Plan
     Kevin Parrish
@@ -10822,9 +10822,9 @@ Decimal
     Paul Panotzki
       paul&objectzone.se
 2704
-  ICCC A/S
-    Viggo Helth
-      vh&iccc.dk
+  Unassigned
+    Returned 2017-07-12
+      -- None --
 2705
   SECUDE IT Security GmbH
     Stephan André
@@ -12451,8 +12451,8 @@ Decimal
       avys&rafael.co.il
 3111
   Crystal Group Inc.
-    Eric Busch
-      embusch&crystalpc.com
+    Brian Grimm
+      brian.grimm&crystalrugged.com
 3112
   C-bridge Internet Solutions
     Ron Bodkin
@@ -37739,8 +37739,8 @@ Decimal
       rotordyn&yahoo.com
 9446
   Indiana University
-    Mark S. Bruhn
-      mbruhn&iu.edu
+    David E. Jent
+      djent&iu.edu
 9447
   Red Fern Software
     Tom Redfern
@@ -41826,8 +41826,8 @@ Decimal
     Jörg Geistmann
       joerg&geistmann.com
 10468
-  IRTNOG.ORG
-    System Administrator
+  IRTNOG
+    Matthew X. Economou
       admin&irtnog.org
 10469
   Lidcam Technology Pty Ltd
@@ -88081,9 +88081,9 @@ Signature
     Patrick Jennings
       iana-info&vivatas.com
 22131
-  Technical Management System GmbH
-    Thomas Lerchner
-      t.lerchner&t-m-s.at
+  ÖWD time access GmbH (formerly 'Technical Management System GmbH')
+    Gerald Fauland
+      g.fauland&owd.at
 22132
   Mediasyscom SAS
     Mr Emmanuel BASSE
@@ -105225,8 +105225,8 @@ S.A
       Alexandr.Kara&seznam.cz
 26413
   Golden West Internet Solutions
-    Jim Forster
-      jforster&rapidnet.com
+    Tad DeVries
+      gwisoperations&goldenwest.com
 26414
   Fenri
     Jan Podany
@@ -117091,9 +117091,9 @@ Decentralization / Helenic Public Administra
     Jeremy Hahn
       jeremy.hahn&makeabyte.com
 29378
-  CoCo Communications Corp.
+  Unium (formerly 'CoCo Communications Corp.')
     Dennis Edwards
-      dennis&cococorp.com
+      dedwards&uniumwifi.com
 29379
   Lostar Bilgi Guvenligi A.S.
     Murat Lostar
@@ -123617,7 +123617,7 @@ Decentralization / Helenic Public Administra
 31009
   PRECISION ELECTRONICS LTD.
     Amit Kumar Mittal
-      amit.mittal&pelindia.com
+      amit.mittal&pel-india.com
 31010
   Cymphonix Corp
     Trevor Paskett
@@ -173565,8 +173565,8 @@ Decentralization / Helenic Public Administra
       luo&tai-de.com
 43496
   QSC AG
-    Thore Bunde
-      thore.bunde&qsc.de
+    Fabian Bader
+      fabian.bader&qsc.de
 43497
   Weavesys UK
     Elliott Clark
@@ -187085,8 +187085,8 @@ Decentralization / Helenic Public Administra
       mischa.hueschen&prodot.de
 46876
   GE Lighting
-    SiNguyen Vo
-      singuyen.vo&ge.com
+    Tom Holland
+      holland&ge.com
 46877
   ATB Financial
     Dustin Heywood
@@ -187484,7 +187484,7 @@ Decentralization / Helenic Public Administra
     Cedomir Suljagic
       c.suljagic&medigroup.rs
 46976
-  Rhebo AG
+  Rhebo GmbH (formerly 'Rhebo AG')
     Martin Menschner
       martin.menschner&rhebo.com
 46977
@@ -188909,8 +188909,8 @@ Decentralization / Helenic Public Administra
       adi.roiban&proatria.com
 47332
   Current, powered by GE
-    SiNguyen Vo
-      singuyen.vo&ge.com
+    Tom Holland
+      holland&ge.com
 47333
   Asintel, S.L.
     Victor Orero
@@ -193684,7 +193684,7 @@ Decentralization / Helenic Public Administra
     Pascal Mathis
       pascal.mathis&snapserv.net
 48526
-  Twilio
+  Twilio, inc.
     Seth Hardiman
       shardiman&twilio.com
 48527
@@ -195981,8 +195981,8 @@ Decentralization / Helenic Public Administra
       a.richman&gblabs.co.uk
 49100
   ce - corporate education GmbH
-    Ulrich Bruns
-      ubruns&ce.de
+    Juan Luis Lopez Lopez
+      jlopez&ce.de
 49101
   EBS BrokerTec
     Gil Kaspi
@@ -198028,9 +198028,9 @@ Decentralization / Helenic Public Administra
     Thomas Felder
       tf&molch.at
 49612
-  Orange Espagne, S.A.U.
-    Roberto Martín
-      roberto.martin&orange.com
+  Unassigned
+    Returned 2017-07-12
+      -- None --
 49613
   Fremont Bank
     Chris Lane
@@ -200336,7 +200336,7 @@ Decentralization / Helenic Public Administra
     Kevin Zhang
       zkpig123&yahoo.com
 50189
-  anrobot
+  AnRobot
     ZHANG XINNAN
       70331471&qq.com
 50190
@@ -200463,6 +200463,466 @@ Decentralization / Helenic Public Administra
   Lukas Müller
     Lukas Müller
       info&muellerlukas.de
+50221
+  Secure Edge Technologies
+    Jason Van der Meer
+      jason.vandermeer&securedge.com.au
+50222
+  jw4.us
+    John Weldon
+      johnweldon4&gmail.com
+50223
+  Changing Information Technology Inc.
+    Eric Wang
+      techsupport&changingtec.com
+50224
+  Shenzhen HS Fiber Communication Equipment CO.,LTD
+    LIU XIN
+      liuxin&hsgq.com
+50225
+  FONEX SAS
+    Jerome Brisset
+      xliu&fonex.com
+50226
+  APM Technica AG
+    Oliver Strasser
+      oliver.strasser&apm-technica.com
+50227
+  Trinecke zelezarny, a.s.
+    Tomas Bocek
+      tomas.bocek&trz.cz
+50228
+  NETSURFUSA INC
+    NETWORK OPERATIONS
+      noc&netsurfusa.net
+50229
+  Positive Resource Center
+    Jim Wegman
+      jim.wegman&prcsf.org
+50230
+  The Regional Municipality of York
+    Dima Stolarsky
+      dima.stolarsky&york.ca
+50231
+  Beijing SinoVoice Technology Co.,Ltd.
+    lei lu
+      lulei&sinovoice.com.cn
+50232
+  WebWorks Sistemas e Redes
+    Marcio Calasans Rodrigues
+      suporte&webworks.net.br
+50233
+  One Identity LLC
+    Bob Baske
+      Bob.Baske&oneidentity.com
+50234
+  Ursaconn Technology Co., Ltd.
+    Aviva LI
+      aviva&yeastar.com
+50235
+  Energy Efficiency Ltd
+    Mikhail Saltykov
+      redpine&hited.ru
+50236
+  T 8 Publishing Technologies
+    Pavel Sheldyaev
+      ps&t8group.ru
+50237
+  WILO SE
+    Klaus Samusch
+      hostmaster&wilo.com
+50238
+  Manuel Fernandez Lopez
+    Manuel Fernandez Lopez
+      admin&fernandez-lopez.net
+50239
+  Crypteron
+    Sid Shetye
+      info&crypteron.com
+50240
+  Raycap
+    Ioannis Apostolou
+      iapostolou&raycap.com
+50241
+  Tom Storey
+    Tom Storey
+      tom+pen&snnap.net
+50242
+  SERVICE TOUS TRANSPORTS
+    JOEL BONETTO
+      bonettoj&wanadoo.fr
+50243
+  Panoptix CC
+    Stephan Buys
+      info&panoptix.co.za
+50244
+  International Aeronavigation Systems Concern, JSC (IANS)
+    Boris Resnick
+      resnick&ians.aero
+50245
+  van Ryck Communications LLC.
+    Mark de Groot
+      mark.degroot&vanryck.net
+50246
+  Oncology & Hematology Associates of West Broward PA
+    Jacwen Jones
+      suzie.jones&ohawb.com
+50247
+  Techbase IT Solutions
+    Mark Breitkreutz
+      domains&techbase.ca
+50248
+  mr-s.run
+    Marc Vogler
+      vogler.marc&t-online.de
+50249
+  five-nines
+    Yuji Yasuda
+      drhouse201009&yahoo.co.jp
+50250
+  ErvoCom Engineering AG
+    Fabian Vogt
+      Fabian.vogt&ervocom.ch
+50251
+  TMM Software
+    Serge MASSOT
+      s.massot&tmm-groupe.com
+50252
+  Web Benefits Design Corporation
+    Christian Clay Columba Campbell
+      christian.campbell&wbdcorp.com
+50253
+  Electronic Transaction Consultants Corporation
+    Alessandro Stagni
+      astagni&etcc.com
+50254
+  JPoD
+    Robert Wuttke
+      pen_iana_org&jpod.cc
+50255
+  PeerPair
+    Bruce Fitzsimons
+      bruce&fitzsimons.org
+50256
+  Infinite Solutions LLC
+    Brian Gordon
+      bgordon&infinitesolutionsllc.com
+50257
+  NSD Corporation
+    UNE RYOSUKE
+      une&nsdcorp.co.jp
+50258
+  Northwestern Local Schools
+    John Hermes
+      hermesj&nwlschools.org
+50259
+  Citra Health Solutions
+    Eric DeVaudreuil
+      eric&citrahealth.com
+50260
+  Byteflux.io
+    Robert Westman
+      robert&byteflux.io
+50261
+  Verafin
+    Alain O'Dea
+      alain.odea&verafin.com
+50262
+  Razzleberries AB
+    Thomas Guimbretiere
+      tguimbreti&gmail.com
+50263
+  Tuveri
+    Nicola Tuveri
+      nic.tuv&gmail.com
+50264
+  PINTU PASWAN 
+    PINTU 
+      pk2479073&gmail.com
+50265
+  SAS TRANSPORT NOEL
+    GILLES NOEL
+      gilles.noel4&wanadoo.fr
+50266
+  5xS Security Consulting
+    Ernst Giessmann
+      giessmann&informatik.hu-berlin.de
+50267
+  Credit Agricole Technologies et Services
+    GARIBALDI Francois
+      POLITIQUES.SIGNATURE.ELECTRONIQUE&ca-ts.fr
+50268
+  BOUVERY COMBUSTIBLES
+    MANUEL BOUVERY
+      combustibles.bouvery&wanadoo.fr
+50269
+  AKIO SOFTWARE
+    Thibaut Gaspaillard
+      tgaspaillard&akio.com
+50270
+  Software Logistics / ABN AMRO
+    Fred Jonkhart
+      fred.jonkhart&nl.abnamro.com
+50271
+  Salam International
+    IT Manager
+      it.manager&salaminternational.com
+50272
+  QInnovate
+    CIO Office
+      cio&qinnovate.biz
+50273
+  Diginosis, Inc.
+    Ken Smith
+      ksmith&diginosis.com
+50274
+  TRANSPORTS KIEFFER SARL
+    CLARISSE KIEFFER
+      transports.bois.kieffer&orange.fr
+50275
+  Granicus Systems Limited
+    Robert Henderson
+      postmaster&granicus-systems.co.uk
+50276
+  Strikr
+    Saifi Khan
+      saifi&strikr.in
+50277
+  all-your-assets
+    Thomas Tannhäuser
+      thomas.tannhaeuser&all-your-assets.de
+50278
+  ColorTokens, Inc.
+    Bharat Sastri
+      bharat.sastri&colortokens.com
+50279
+  Magrathea Technologies
+    Lamar Hansford
+      lamar.hansford&magrathea-tech.net
+50280
+  Naveria, LLC
+    Jacob Greenfield
+      xales&naveria.com
+50281
+  whateverany.com
+    Jeff Brown
+      news&whateverany.com
+50282
+  S.A.S. TRANSPORTS CLAUDEL
+    Anthony Claudel
+      transports.claudel88&gmail.com
+50283
+  HovNet-SERVIS s.r.o.
+    Radomir Luza
+      info&hovnetservis.cz
+50284
+  University Innopolis
+    Igor Loginov
+      it&innopolis.ru
+50285
+  Logikbar, LLC
+    Randy Hall
+      randy&logikbar.com
+50286
+  GRUPO LA NOGALERA SA DE CV
+    Jesus Chavez
+      sistemas&lanogalera.biz
+50287
+  Webellian
+    Jacek Hewko
+      j.hewko&webellian.com
+50288
+  fibrisTerre Systems GmbH
+    Andrea Carradori
+      iana-contact&fibristerre.de
+50289
+  aapala.fi
+    Esa Ääpälä
+      aapala&gmail.com
+50290
+  Supplyframe, Inc.
+    Leon Torres
+      ltorres&supplyframe.com
+50291
+  Infomicro Comunicaciones
+    Carlos Heredia
+      carlos.heredia&infomicro.es
+50292
+  Jenoptik AG
+    Martin Räthe
+      martin.raethe&jenoptik.com
+50293
+  Selfnet e.V.
+    Selfnet Administrators Team
+      admin&selfnet.de
+50294
+  Canreer
+    FAN QINGJUN
+      service&anrobot.org
+50295
+  Melbourne Grammar School
+    IT Technical Services
+      certificates&mgs.vic.edu.au
+50296
+  jSCM Solucoes Empresariais
+    Diogo Soares
+      diogo.soares&jscm.eti.br
+50297
+  WERNER IT-SYSTEME
+    Andreas Werner
+      mail&werner-it.net
+50298
+  Paper 4 Print
+    Graham Kinchin
+      graham.kinchin&paper4print.com
+50299
+  effexx Telekommunikation GmbH
+    Daniel Hetzel
+      IT&effexx.com
+50300
+  SIGNAL IDUNA Gruppe
+    Jörg Henkel
+      joerg.henkel&signal-iduna.de
+50301
+  Personal
+    Rahul Chauhan
+      crahul10101991&gmail.com
+50302
+  ACIN-iCloud Solutions,Lda
+    Sandra Fernández
+      sandra.fernandez&acin.pt
+50303
+  Meadow
+    Boris van Es
+      boris.van.es&vionfood.com
+50304
+  OnePacs LLC
+    Jennifer Chen
+      info&onepacs.com
+50305
+  inkClub Development AB
+    Erik Ellingsen
+      erik.ellingsen&inkclub.com
+50306
+  roselarsen.dk
+    Johnny Rose Larsen
+      johnny&roselarsen.dk
+50307
+  Laureate Education Services Australia
+    IT Manager
+      pen&laureate.net.au
+50308
+  YazamTech
+    Elina Abuliak
+      elina&yazamtech.com
+50309
+  ITALIAN INSTITUTE FOR GENOMIC MEDICINE (IIGM)
+    Sabrina Bertinetti
+      sabrina.bertinetti&iigm.it
+50310
+  BridgeHead Software
+    Mark Hodgson
+      mark.hodgson&bridgeheadsoftware.com
+50311
+  INSITE S.A.S.
+    DAVID MORA
+      dmorar&insite.com.co
+50312
+  Tennessee Cancer Specialists
+    Karen Barber
+      karen.barber&tncancer.com
+50313
+  eVestment
+    Joshua McCorkle
+      corporateit&evestment.com
+50314
+  Bracket Computing, Inc.
+    Marcel Moolenaar
+      marcel&brkt.com
+50315
+  Harborside Condominium Owners Association
+    Mark Kendrick
+      sysadmin&hscondo.net
+50316
+  Modbus Organization, Inc.
+    Rudy Belliardi
+      rudy.belliardi&schneider-electric.com
+50317
+  RNK SERVICOS
+    FRANCISCO DE PAULA LIMA FILHO
+      francisco.lima&rnkgroup.com.br
+50318
+  TrustFactory(Pty)Ltd
+    Jayesh Nana
+      jayesh&isolvtech.com
+50319
+  POCABAR GmbH
+    Wolfgang Mair
+      w.mair&pocabar.de
+50320
+  Engineers Gate
+    Robert Cherry
+      ssl-admin&engineersgatelp.com
+50321
+  Trimark Limited
+    Joakim Gezelius
+      joakim&trimarkgaming.com
+50322
+  Mondragon Goi Eskola Politeknikoa Jº Mª Arizmendiarrieta S. Coop.
+    Arantxa Manterola
+      sistemak.mgep&mondragon.edu
+50323
+  Santander Consumer USA Holdings Inc
+    Daniel Cervera
+      dacervera&santanderconsumerusa.com
+50324
+  Quatius Limied
+    Simon Wu
+      simon.wu&quatius.com
+50325
+  The Candystripe Company
+    Dominic Martin
+      dm&thecandystripecompany.com
+50326
+  Xton Technologies
+    Mark Klinchin
+      mklinchin&xtontech.com
+50327
+  Funding Circle Limited
+    Marcus Berglof
+      devops&fundingcircle.com
+50328
+  asap
+    Stephan Kalvelage
+      skalvelage&freenet.de
+50329
+  Druid Software
+    Olivier Deme
+      odeme&druidsoftware.com
+50330
+  Microart ltd.
+    Kirichenko Timur
+      sale&microart.ru
+50331
+  Rennschmiede Pforzheim e.V.
+    Nils Siegle
+      admin&rennschmiede-pforzheim.de
+50332
+  Motorola Solutions Australia Pty. Limited
+    Chris Blaker
+      chris.blaker&motorolasolutions.com
+50333
+  SamKnows Ltd
+    Russell Knighton
+      russell&samknows.com
+50334
+  E.on Värme Sverige AB
+    Annelie Mossberg
+      annelie.mossberg&eon.se
+50335
+  Security Bank of KC
+    William Girnius
+      itdept&securitybankkc.com
 
 
 End of Document
