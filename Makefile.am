@@ -846,7 +846,7 @@ EXTRA_DIST = \
 	dfilters		\
 	doxygen_global.cfg	\
 	doxygen.cfg.in		\
-	enterprises		\
+	enterprises.tsv		\
 	fix			\
 	idl			\
 	image			\
