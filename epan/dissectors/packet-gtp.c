@@ -4582,7 +4582,7 @@ wrapped_tvb_get_guint8(tvbuff_t * tvb, int offset, int type)
   * WARNING :) type does not mean length of length any more... see below for
   * type = 3!
   */
-static int
+int
 decode_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, const gchar * qos_str, guint8 type)
 {
 
@@ -4625,6 +4625,14 @@ decode_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tr
     int retval = 0;
 
     switch (type) {
+    case 0:
+        /* For QoS inside GPRS-CDR messages from GGSN/P-GW */
+        length = tvb_reported_length(tvb);
+        ext_tree_qos = proto_tree_add_subtree(tree, tvb, offset, length, ett_gtp_qos, NULL, qos_str);
+        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_umts_length, tvb, offset, 1, length);
+        /* QoS inside GPRS-CDR has no length octet, so no extra offset needed */
+        retval = length;
+        break;
     case 1:
         length = tvb_get_guint8(tvb, offset);
         ext_tree_qos = proto_tree_add_subtree(tree, tvb, offset, length + 1, ett_gtp_qos, NULL, qos_str);

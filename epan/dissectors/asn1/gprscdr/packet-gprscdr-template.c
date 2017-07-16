@@ -31,6 +31,7 @@
 #include "packet-gsm_map.h"
 #include "packet-e212.h"
 #include "packet-gprscdr.h"
+#include "packet-gtp.h"
 
 #define PNAME  "GPRS CDR"
 #define PSNAME "GPRSCDR"

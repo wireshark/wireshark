@@ -128,6 +128,18 @@ GPRSRecord
   subtree = proto_item_add_subtree(actx->created_item, ett_gprscdr_plmn_id);
   dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, TRUE);
 
+#.FN_BODY QoSInformation
+
+  /* This octet string is a 1:1 copy of the contents (i.e. starting with octet 4) of the
+   * Quality of Service (QoS) Profile information element specified in 29.060, ch7.7.34.
+   *
+   */
+
+  header_field_info *hfi;
+  hfi = proto_registrar_get_nth(hf_index);
+
+  offset = decode_qos_umts(tvb, 0, actx->pinfo, tree, hfi->name, 0);
+
 #.FN_BODY GPRSRecord VAL_PTR = &branch_taken
 proto_item *item;
 gint branch_taken, t_offset = offset;

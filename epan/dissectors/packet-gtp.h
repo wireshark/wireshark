@@ -178,4 +178,6 @@ void fill_map(wmem_list_t *teid_list, wmem_list_t *ip_list, guint32 frame);
 
 gboolean is_cause_accepted(guint8 cause, guint32 version);
 
+int decode_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, const gchar * qos_str, guint8 type);
+
 #endif /* __PACKET_GTP_H*/
