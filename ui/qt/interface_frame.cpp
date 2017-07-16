@@ -168,9 +168,18 @@ int InterfaceFrame::interfacesPresent()
     return sourceModel->rowCount() - proxyModel->interfacesHidden();
 }
 
-void InterfaceFrame::setTreeFocus()
+void InterfaceFrame::ensureSelectedInterface()
 {
+#ifdef HAVE_LIBPCAP
+    if (interfacesPresent() < 1) return;
+
+    if (sourceModel->selectedDevices().count() < 1) {
+        QModelIndex first_idx = proxyModel->index(0, 0);
+        ui->interfaceTree->setCurrentIndex(first_idx);
+    }
+
     ui->interfaceTree->setFocus();
+#endif
 }
 
 void InterfaceFrame::hideEvent(QHideEvent *) {
