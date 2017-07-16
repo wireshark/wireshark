@@ -3,16 +3,26 @@
 #
 # Resync translation between Gerrit repo and Transifex
 
-#Get last translation for Transifex
-tx pull -f
-
-#Regenerate last translation for repo
+# Add line numbers
 for i in ui/qt/*.ts ; do
-        lupdate ui/qt/*.h ui/qt/*.cpp wireshark-qt.cpp ui/qt/*.ui -ts $i
+    lupdate -locations absolute ui/qt/*.h ui/qt/*.cpp wireshark-qt.cpp ui/qt/*.ui -ts $i
 done
 
-#Push last change tranlastion on Transifex
+# Get last translation for Transifex
+tx pull -f
+
+# Regenerate last translation for repo
+for i in ui/qt/*.ts ; do
+    lupdate -locations absolute ui/qt/*.h ui/qt/*.cpp wireshark-qt.cpp ui/qt/*.ui -ts $i
+done
+
+# Push last change tranlastion on Transifex
 tx push -t -s
+
+# Remove line numbers
+for i in ui/qt/*.ts ; do
+    lupdate -locations none -no-ui-lines ui/qt/*.h ui/qt/*.cpp wireshark-qt.cpp ui/qt/*.ui -ts $i
+done
 
 #Add new commit with last translaation update
 #git commit -a -m "TX: Update Translations (sync)"
