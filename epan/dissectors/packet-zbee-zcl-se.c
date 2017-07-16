@@ -2602,6 +2602,25 @@ void proto_reg_handoff_zbee_zcl_pp(void);
 /* Attribute Dissector Helpers */
 static void dissect_zcl_pp_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
 
+/* Command Dissector Helpers */
+static void dissect_zcl_pp_select_available_emergency_credit    (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_pp_change_debt                          (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_pp_emergency_credit_setup               (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_pp_consumer_top_up                      (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_pp_credit_adjustment                    (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_pp_change_payment_mode                  (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_pp_get_prepay_snapshot                  (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_pp_get_top_up_log                       (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_pp_set_low_credit_warning_level         (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_pp_get_debt_repayment_log               (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_pp_set_maximum_credit_limit             (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_pp_set_overall_debt_cap                 (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_pp_publish_prepay_snapshot              (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_pp_change_payment_mode_response         (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_pp_consumer_top_up_response             (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_pp_publish_top_up_log                   (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_pp_publish_debt_log                     (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+
 /*************************/
 /* Global Variables      */
 /*************************/
@@ -2615,9 +2634,83 @@ static int hf_zbee_zcl_pp_srv_tx_cmd_id = -1;
 static int hf_zbee_zcl_pp_srv_rx_cmd_id = -1;
 static int hf_zbee_zcl_pp_attr_id = -1;
 static int hf_zbee_zcl_pp_attr_reporting_status = -1;
+static int hf_zbee_zcl_pp_select_available_emc_cmd_issue_date_time = -1;
+static int hf_zbee_zcl_pp_select_available_emc_originating_device = -1;
+static int hf_zbee_zcl_pp_change_debt_issuer_event_id = -1;
+static int hf_zbee_zcl_pp_change_debt_label = -1;
+static int hf_zbee_zcl_pp_change_debt_amount = -1;
+static int hf_zbee_zcl_pp_change_debt_recovery_method = -1;
+static int hf_zbee_zcl_pp_change_debt_amount_type = -1;
+static int hf_zbee_zcl_pp_change_debt_recovery_start_time = -1;
+static int hf_zbee_zcl_pp_change_debt_recovery_collection_time = -1;
+static int hf_zbee_zcl_pp_change_debt_recovery_frequency = -1;
+static int hf_zbee_zcl_pp_change_debt_recovery_amount = -1;
+static int hf_zbee_zcl_pp_change_debt_recovery_balance_percentage = -1;
+static int hf_zbee_zcl_pp_emergency_credit_setup_issuer_event_id = -1;
+static int hf_zbee_zcl_pp_emergency_credit_setup_start_time = -1;
+static int hf_zbee_zcl_pp_emergency_credit_setup_emergency_credit_limit = -1;
+static int hf_zbee_zcl_pp_emergency_credit_setup_emergency_credit_threshold = -1;
+static int hf_zbee_zcl_pp_consumer_top_up_originating_device = -1;
+static int hf_zbee_zcl_pp_consumer_top_up_top_up_code = -1;
+static int hf_zbee_zcl_pp_credit_adjustment_issuer_event_id = -1;
+static int hf_zbee_zcl_pp_credit_adjustment_start_time = -1;
+static int hf_zbee_zcl_pp_credit_adjustment_credit_adjustment_type = -1;
+static int hf_zbee_zcl_pp_credit_adjustment_credit_adjustment_value = -1;
+static int hf_zbee_zcl_pp_change_payment_mode_provider_id = -1;
+static int hf_zbee_zcl_pp_change_payment_mode_issuer_event_id = -1;
+static int hf_zbee_zcl_pp_change_payment_mode_implementation_date_time = -1;
+static int hf_zbee_zcl_pp_change_payment_mode_proposed_payment_control_configuration = -1;
+static int hf_zbee_zcl_pp_change_payment_mode_cut_off_value = -1;
+static int hf_zbee_zcl_pp_get_prepay_snapshot_earliest_start_time = -1;
+static int hf_zbee_zcl_pp_get_prepay_snapshot_latest_end_time = -1;
+static int hf_zbee_zcl_pp_get_prepay_snapshot_snapshot_offset = -1;
+static int hf_zbee_zcl_pp_get_prepay_snapshot_snapshot_cause = -1;
+static int hf_zbee_zcl_pp_get_top_up_log_latest_end_time = -1;
+static int hf_zbee_zcl_pp_get_top_up_log_number_of_records = -1;
+static int hf_zbee_zcl_pp_set_low_credit_warning_level_low_credit_warning_level = -1;
+static int hf_zbee_zcl_pp_get_debt_repayment_log_latest_end_time = -1;
+static int hf_zbee_zcl_pp_get_debt_repayment_log_number_of_debts = -1;
+static int hf_zbee_zcl_pp_get_debt_repayment_log_debt_type = -1;
+static int hf_zbee_zcl_pp_set_maximum_credit_limit_provider_id = -1;
+static int hf_zbee_zcl_pp_set_maximum_credit_limit_issuer_event_id = -1;
+static int hf_zbee_zcl_pp_set_maximum_credit_limit_implementation_date_time = -1;
+static int hf_zbee_zcl_pp_set_maximum_credit_limit_maximum_credit_level = -1;
+static int hf_zbee_zcl_pp_set_maximum_credit_limit_maximum_credit_per_top_up = -1;
+static int hf_zbee_zcl_pp_set_overall_debt_cap_limit_provider_id = -1;
+static int hf_zbee_zcl_pp_set_overall_debt_cap_limit_issuer_event_id = -1;
+static int hf_zbee_zcl_pp_set_overall_debt_cap_limit_implementation_date_time = -1;
+static int hf_zbee_zcl_pp_set_overall_debt_cap_limit_overall_debt_cap = -1;
+static int hf_zbee_zcl_pp_publish_prepay_snapshot_snapshot_id = -1;
+static int hf_zbee_zcl_pp_publish_prepay_snapshot_snapshot_time = -1;
+static int hf_zbee_zcl_pp_publish_prepay_snapshot_total_snapshots_found = -1;
+static int hf_zbee_zcl_pp_publish_prepay_snapshot_command_index = -1;
+static int hf_zbee_zcl_pp_publish_prepay_snapshot_total_number_of_commands = -1;
+static int hf_zbee_zcl_pp_publish_prepay_snapshot_snapshot_cause = -1;
+static int hf_zbee_zcl_pp_publish_prepay_snapshot_snapshot_payload_type = -1;
+static int hf_zbee_zcl_pp_publish_prepay_snapshot_snapshot_payload = -1;
+static int hf_zbee_zcl_pp_change_payment_mode_response_friendly_credit = -1;
+static int hf_zbee_zcl_pp_change_payment_mode_response_friendly_credit_calendar_id = -1;
+static int hf_zbee_zcl_pp_change_payment_mode_response_emergency_credit_limit = -1;
+static int hf_zbee_zcl_pp_change_payment_mode_response_emergency_credit_threshold = -1;
+static int hf_zbee_zcl_pp_consumer_top_up_response_result_type = -1;
+static int hf_zbee_zcl_pp_consumer_top_up_response_top_up_value = -1;
+static int hf_zbee_zcl_pp_consumer_top_up_response_source_of_top_up = -1;
+static int hf_zbee_zcl_pp_consumer_top_up_response_credit_remaining = -1;
+static int hf_zbee_zcl_pp_publish_top_up_log_command_index = -1;
+static int hf_zbee_zcl_pp_publish_top_up_log_total_number_of_commands = -1;
+static int hf_zbee_zcl_pp_publish_top_up_log_top_up_code = -1;
+static int hf_zbee_zcl_pp_publish_top_up_log_top_up_amount = -1;
+static int hf_zbee_zcl_pp_publish_debt_log_command_index = -1;
+static int hf_zbee_zcl_pp_publish_debt_log_total_number_of_commands = -1;
+static int hf_zbee_zcl_pp_publish_debt_log_collection_time = -1;
+static int hf_zbee_zcl_pp_publish_debt_log_amount_collected = -1;
+static int hf_zbee_zcl_pp_publish_debt_log_debt_type = -1;
+static int hf_zbee_zcl_pp_publish_debt_log_outstanding_debt = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_zbee_zcl_pp = -1;
+static gint ett_zbee_zcl_pp_publish_top_up_entry[10];
+static gint ett_zbee_zcl_pp_publish_debt_log_entry[10];
 
 /*************************/
 /* Function Bodies       */
@@ -2658,6 +2751,7 @@ dissect_zcl_pp_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16
 static int
 dissect_zbee_zcl_pp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
+    proto_tree        *payload_tree;
     zbee_zcl_packet   *zcl;
     guint             offset = 0;
     guint8            cmd_id;
@@ -2682,29 +2776,57 @@ dissect_zbee_zcl_pp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
         if (rem_len > 0) {
-            proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_pp, NULL, "Payload");
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_pp, NULL, "Payload");
 
             /* Call the appropriate command dissector */
             switch (cmd_id) {
 
                 case ZBEE_ZCL_CMD_ID_PP_SELECT_AVAILABLE_EMERGENCY_CREDIT:
-                    /* Add function to dissect payload */
+                    dissect_zcl_pp_select_available_emergency_credit(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PP_CHANGE_DEBT:
+                    dissect_zcl_pp_change_debt(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PP_EMERGENCY_CREDIT_SETUP:
+                    dissect_zcl_pp_emergency_credit_setup(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PP_CONSUMER_TOP_UP:
-                    /* Add function to dissect payload */
+                    dissect_zcl_pp_consumer_top_up(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PP_CREDIT_ADJUSTMENT:
+                    dissect_zcl_pp_credit_adjustment(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PP_CHANGE_PAYMENT_MODE:
+                    dissect_zcl_pp_change_payment_mode(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PP_GET_PREPAY_SNAPTSHOT:
-                    /* Add function to dissect payload */
+                    dissect_zcl_pp_get_prepay_snapshot(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PP_GET_TOP_UP_LOG:
-                    /* Add function to dissect payload */
+                    dissect_zcl_pp_get_top_up_log(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PP_SET_LOW_CREDIT_WARNING_LEVEL:
+                    dissect_zcl_pp_set_low_credit_warning_level(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PP_GET_DEBT_REPAYMENT_LOG:
-                    /* Add function to dissect payload */
+                    dissect_zcl_pp_get_debt_repayment_log(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PP_SET_MAXIMUM_CREDIT_LIMIT:
+                    dissect_zcl_pp_set_maximum_credit_limit(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PP_SET_OVERALL_DEBT_CAP:
+                    dissect_zcl_pp_set_overall_debt_cap(tvb, payload_tree, &offset);
                     break;
 
                 default:
@@ -2724,25 +2846,29 @@ dissect_zbee_zcl_pp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
         if (rem_len > 0) {
-            proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_pp, NULL, "Payload");
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_pp, NULL, "Payload");
 
             /* Call the appropriate command dissector */
             switch (cmd_id) {
 
                 case ZBEE_ZCL_CMD_ID_PP_PUBLISH_PREPAY_SNAPSHOT:
-                    /* Add function to dissect payload */
+                    dissect_zcl_pp_publish_prepay_snapshot(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_PP_CHANGE_PAYMENT_MODE_RESPONSE:
+                    dissect_zcl_pp_change_payment_mode_response(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PP_CONSUMER_TOP_UP_RESPONSE:
-                    /* Add function to dissect payload */
+                    dissect_zcl_pp_consumer_top_up_response(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PP_PUBLISH_TOP_UP_LOG:
-                    /* Add function to dissect payload */
+                    dissect_zcl_pp_publish_top_up_log(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PP_PUBLISH_DEBT_LOG:
-                    /* Add function to dissect payload */
+                    dissect_zcl_pp_publish_debt_log(tvb, payload_tree, &offset);
                     break;
 
                 default:
@@ -2753,6 +2879,569 @@ dissect_zbee_zcl_pp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
     return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_pp*/
+
+/**
+ *This function manages the Select Available Emergency Credit payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_pp_select_available_emergency_credit(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t start_time;
+
+    /* Command Issue Date/Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_pp_select_available_emc_cmd_issue_date_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    /* Originating Device */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_select_available_emc_originating_device, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+} /*dissect_zcl_pp_select_available_emergency_credit*/
+
+/**
+ *This function manages the Change Debt payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_pp_change_debt(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    guint8 label_length;
+    nstime_t start_time;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_change_debt_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Debt Label */
+    label_length = tvb_get_guint8(tvb, *offset) + 1;
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_change_debt_label, tvb, *offset, label_length, ENC_NA);
+    *offset += label_length;
+
+    /* Debt Amount */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_change_debt_amount, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Debt Recovery Method */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_change_debt_recovery_method, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Debt Amount Type */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_change_debt_amount_type, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Debt Recovery Start Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_pp_change_debt_recovery_start_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    /* Debt Recovery Collection Time */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_change_debt_recovery_collection_time, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Debt Recovery Frequency */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_change_debt_recovery_frequency, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Debt Recovery Amount */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_change_debt_recovery_amount, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Debt Recovery Balance Percentage */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_change_debt_recovery_balance_percentage, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+} /*dissect_zcl_pp_change_debt*/
+
+/**
+ *This function manages the Select Available Emergency Credit payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_pp_emergency_credit_setup(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t start_time;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_emergency_credit_setup_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Start Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_pp_emergency_credit_setup_start_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    /* Emergency Credit Limit */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_emergency_credit_setup_emergency_credit_limit, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Emergency Credit Threshold */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_emergency_credit_setup_emergency_credit_threshold, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+} /*dissect_zcl_pp_emergency_credit_setup*/
+
+/**
+ *This function manages the Consumer Top Up payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_pp_consumer_top_up(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    gint rem_len;
+
+    /* Originating Device */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_consumer_top_up_originating_device, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* TopUp Code */
+    rem_len = tvb_reported_length_remaining(tvb, *offset);
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_consumer_top_up_top_up_code, tvb, *offset, rem_len, ENC_NA);
+    *offset += rem_len;
+} /*dissect_zcl_pp_consumer_top_up*/
+
+/**
+ *This function manages the Credit Adjustment payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_pp_credit_adjustment(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t start_time;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_credit_adjustment_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Start Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_pp_credit_adjustment_start_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    /* Credit Adjustment Type */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_credit_adjustment_credit_adjustment_type, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Credit Adjustment Value */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_credit_adjustment_credit_adjustment_value, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+} /*dissect_zcl_pp_credit_adjustment*/
+
+/**
+ *This function manages the Change Payment Mode payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_pp_change_payment_mode(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t start_time;
+
+    /* Provider ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_change_payment_mode_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_change_payment_mode_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Implementation Date/Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_pp_change_payment_mode_implementation_date_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    /* Proposed Payment Control Configuration */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_change_payment_mode_proposed_payment_control_configuration, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Cut Off Value */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_change_payment_mode_cut_off_value, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+} /*dissect_zcl_pp_change_payment_mode*/
+
+/**
+ *This function manages the Get Prepay Snapshot payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_pp_get_prepay_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t start_time;
+    nstime_t end_time;
+
+    /* Earliest Start Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_pp_get_prepay_snapshot_earliest_start_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    /* Latest End Time */
+    end_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    end_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_pp_get_prepay_snapshot_latest_end_time, tvb, *offset, 4, &end_time);
+    *offset += 4;
+
+    /* Snapshot Offset */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_get_prepay_snapshot_snapshot_offset, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Snapshot Cause */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_get_prepay_snapshot_snapshot_cause, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+} /*dissect_zcl_pp_get_prepay_snapshot*/
+
+/**
+ *This function manages the Get Top Up Log payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_pp_get_top_up_log(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t end_time;
+
+    /* Latest End Time */
+    end_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    end_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_pp_get_top_up_log_latest_end_time, tvb, *offset, 4, &end_time);
+    *offset += 4;
+
+    /* Number of Records */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_get_top_up_log_number_of_records, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+} /*dissect_zcl_pp_get_top_up_log*/
+
+/**
+ *This function manages the Set Low Credit Warning Level payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_pp_set_low_credit_warning_level(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Low Credit Warning Level */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_set_low_credit_warning_level_low_credit_warning_level, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+} /*dissect_zcl_pp_set_low_credit_warning_level*/
+
+  /**
+  *This function manages the Get Debt Repayment Log payload
+  *
+  *@param tvb pointer to buffer containing raw packet.
+  *@param tree pointer to data tree Wireshark uses to display packet.
+  *@param offset pointer to offset from caller
+  */
+static void
+dissect_zcl_pp_get_debt_repayment_log(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t end_time;
+
+    /* Latest End Time */
+    end_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    end_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_pp_get_debt_repayment_log_latest_end_time, tvb, *offset, 4, &end_time);
+    *offset += 4;
+
+    /* Number of Records */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_get_debt_repayment_log_number_of_debts, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Debt Type */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_get_debt_repayment_log_debt_type, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+} /*dissect_zcl_pp_get_debt_repayment_log*/
+
+/**
+ *This function manages the Set Maximum Credit Limit payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_pp_set_maximum_credit_limit(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t start_time;
+
+    /* Provider ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_set_maximum_credit_limit_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_set_maximum_credit_limit_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Implementation Date/Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_pp_set_maximum_credit_limit_implementation_date_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    /* Maximum Credit Level */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_set_maximum_credit_limit_maximum_credit_level, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Maximum Credit Per Top Up  */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_set_maximum_credit_limit_maximum_credit_per_top_up, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+} /*dissect_zcl_pp_set_maximum_credit_limit*/
+
+/**
+ *This function manages the Set Overall Debt Cap payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_pp_set_overall_debt_cap(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t start_time;
+
+    /* Provider ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_set_overall_debt_cap_limit_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_set_overall_debt_cap_limit_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Implementation Date/Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_pp_set_overall_debt_cap_limit_implementation_date_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    /* Overall Debt Cap */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_set_overall_debt_cap_limit_overall_debt_cap, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+} /*dissect_zcl_pp_set_overall_debt_cap*/
+
+/**
+ *This function manages the Publish Prepay Snapshot payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_pp_publish_prepay_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t snapshot_time;
+    gint rem_len;
+
+    /* Snapshot ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_publish_prepay_snapshot_snapshot_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Snapshot Time */
+    snapshot_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    snapshot_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_pp_publish_prepay_snapshot_snapshot_time, tvb, *offset, 4, &snapshot_time);
+    *offset += 4;
+
+    /* Total Snapshots Found */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_publish_prepay_snapshot_total_snapshots_found, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Command Index */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_publish_prepay_snapshot_command_index, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Total Number of Commands */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_publish_prepay_snapshot_total_number_of_commands, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Snapshot Cause */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_publish_prepay_snapshot_snapshot_cause, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Snapshot Payload Type */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_publish_prepay_snapshot_snapshot_payload_type, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Snapshot Payload */
+    rem_len = tvb_reported_length_remaining(tvb, *offset);
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_publish_prepay_snapshot_snapshot_payload, tvb, *offset, rem_len, ENC_NA);
+    *offset += rem_len;
+} /*dissect_zcl_pp_publish_prepay_snapshot*/
+
+/**
+ *This function manages the Change Payment Mode Response payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_pp_change_payment_mode_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Friendly Credit */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_change_payment_mode_response_friendly_credit, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Friendly Credit Calendar ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_change_payment_mode_response_friendly_credit_calendar_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Emergency Credit Limit */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_change_payment_mode_response_emergency_credit_limit, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Emergency Credit Threshold */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_change_payment_mode_response_emergency_credit_threshold, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+} /*dissect_zcl_pp_change_payment_mode_response*/
+
+/**
+ *This function manages the Consumer Top Up Response payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_pp_consumer_top_up_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Result Type */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_consumer_top_up_response_result_type, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Top Up Value */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_consumer_top_up_response_top_up_value, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Source of Top up */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_consumer_top_up_response_source_of_top_up, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Credit Remaining */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_consumer_top_up_response_credit_remaining, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+} /*dissect_zcl_pp_consumer_top_up_response*/
+
+/**
+ *This function manages the Publish Top Up Log payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_pp_publish_top_up_log(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    gint rem_len;
+    guint i = 0;
+    proto_tree *sub_tree;
+    guint8 top_up_length;
+
+    /* Command Index */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_publish_top_up_log_command_index, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Total Number of Commands */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_publish_top_up_log_total_number_of_commands, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Top Up Payload */
+    rem_len = tvb_reported_length_remaining(tvb, *offset);
+    while (rem_len > 0 && i < sizeof(ett_zbee_zcl_pp_publish_top_up_entry) / sizeof(ett_zbee_zcl_pp_publish_top_up_entry[0])) {
+        // Create subtree for top up code
+        sub_tree = proto_tree_add_subtree(tree, tvb, *offset, 0, ett_zbee_zcl_pp_publish_top_up_entry[i], NULL, "Top Up");
+        i++;
+
+        /* Top Up Code */
+        top_up_length = tvb_get_guint8(tvb, *offset) + 1;
+        proto_tree_add_item(sub_tree, hf_zbee_zcl_pp_publish_top_up_log_top_up_code, tvb, *offset, top_up_length, ENC_NA);
+        *offset += top_up_length;
+        rem_len -= top_up_length;
+
+        /* Top Up Amount */
+        proto_tree_add_item(sub_tree, hf_zbee_zcl_pp_publish_top_up_log_top_up_amount, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+        *offset += 4;
+        rem_len -= 4;
+    }
+} /*dissect_zcl_pp_publish_top_up_log*/
+
+/**
+ *This function manages the Publish Debt Log payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_pp_publish_debt_log(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    gint rem_len;
+    guint i = 0;
+    proto_tree *sub_tree;
+
+    /* Command Index */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_publish_debt_log_command_index, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Total Number of Commands */
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_publish_debt_log_total_number_of_commands, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Top Up Payload */
+    rem_len = tvb_reported_length_remaining(tvb, *offset);
+    while (rem_len > 0 && i < sizeof(ett_zbee_zcl_pp_publish_debt_log_entry) / sizeof(ett_zbee_zcl_pp_publish_debt_log_entry[0])) {
+        // Create subtree for top up code
+        sub_tree = proto_tree_add_subtree(tree, tvb, *offset, 0, ett_zbee_zcl_pp_publish_debt_log_entry[i], NULL, "Debt Payload");
+        i++;
+
+        /* Collection Time */
+        proto_tree_add_item(sub_tree, hf_zbee_zcl_pp_publish_debt_log_collection_time, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+        *offset += 4;
+        rem_len -= 4;
+
+        /* Amount Collected */
+        proto_tree_add_item(sub_tree, hf_zbee_zcl_pp_publish_debt_log_amount_collected, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+        *offset += 4;
+        rem_len -= 4;
+
+        /* Debt Type */
+        proto_tree_add_item(sub_tree, hf_zbee_zcl_pp_publish_debt_log_debt_type, tvb, *offset, 1, ENC_NA);
+        *offset += 1;
+        rem_len -= 1;
+
+        /* Outstanding Debt */
+        proto_tree_add_item(sub_tree, hf_zbee_zcl_pp_publish_debt_log_outstanding_debt, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+        *offset += 4;
+        rem_len -= 4;
+    }
+} /*dissect_zcl_pp_publish_debt_log*/
 
 /**
  *This function registers the ZCL Prepayment dissector
@@ -2779,6 +3468,293 @@ proto_register_zbee_zcl_pp(void)
             { "Command", "zbee_zcl_se.pp.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_pp_srv_rx_cmd_names),
             0x00, NULL, HFILL } },
 
+        { &hf_zbee_zcl_pp_select_available_emc_cmd_issue_date_time,
+            { "Command Issue Date/Time", "zbee_zcl_se.pp.select_available_emc.cmd_issue_date_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_select_available_emc_originating_device,
+            { "Originating Device", "zbee_zcl_se.pp.select_available_emc.originating_device", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_change_debt_issuer_event_id,
+            { "Issuer Event ID", "zbee_zcl_se.pp.change_debt.issuer_event_id", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_change_debt_label,
+            { "Debt Label", "zbee_zcl_se.pp.change_debt.debt_label", FT_BYTES, BASE_NONE, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_change_debt_amount,
+            { "Debt Amount", "zbee_zcl_se.pp.change_debt.debt_amount", FT_INT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_change_debt_recovery_method,
+            { "Debt Recovery Method", "zbee_zcl_se.pp.change_debt.recovery_method", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_change_debt_amount_type,
+            { "Debt Amount Type", "zbee_zcl_se.pp.change_debt.amount_type", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_change_debt_recovery_start_time,
+            { "Debt Recovery Start Time", "zbee_zcl_se.pp.change_debt.recovery_start_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_change_debt_recovery_collection_time,
+            { "Debt Recovery Collection Time", "zbee_zcl_se.pp.change_debt.recovery_collection_time", FT_UINT16, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_change_debt_recovery_frequency,
+            { "Debt Recovery Frequency", "zbee_zcl_se.pp.change_debt.recovery_frequency", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_change_debt_recovery_amount,
+            { "Debt Recovery Amount", "zbee_zcl_se.pp.change_debt.recovery_amount", FT_INT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_change_debt_recovery_balance_percentage,
+            { "Debt Recovery Balance Percentage", "zbee_zcl_se.pp.change_debt.recovery_balance_percentage", FT_UINT16, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_emergency_credit_setup_issuer_event_id,
+            { "Issuer Event ID", "zbee_zcl_se.pp.emc_setup.issuer_event_id", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_emergency_credit_setup_start_time,
+            { "Start Time", "zbee_zcl_se.pp.emc_setup.start_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_emergency_credit_setup_emergency_credit_limit,
+            { "Emergency Credit Limit", "zbee_zcl_se.pp.emc_setup.emc_limit", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_emergency_credit_setup_emergency_credit_threshold,
+            { "Emergency Credit Threshold", "zbee_zcl_se.pp.emc_setup.emc_threshold", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_consumer_top_up_originating_device,
+            { "Originating Device", "zbee_zcl_se.pp.consumer_top_up.originating_device", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_consumer_top_up_top_up_code,
+            { "TopUp Code", "zbee_zcl_se.pp.consumer_top_up.top_up_code", FT_BYTES, BASE_NONE, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_credit_adjustment_issuer_event_id,
+            { "Issuer Event ID", "zbee_zcl_se.pp.credit_adjustment.issuer_event_id", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_credit_adjustment_start_time,
+            { "Start Time", "zbee_zcl_se.pp.credit_adjustment.start_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_credit_adjustment_credit_adjustment_type,
+            { "Credit Adjustment Type", "zbee_zcl_se.pp.credit_adjustment.credit_adjustment_type", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_credit_adjustment_credit_adjustment_value,
+            { "Credit Adjustment Value", "zbee_zcl_se.pp.credit_adjustment.credit_adjustment_value", FT_INT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_change_payment_mode_provider_id,
+            { "Provider ID", "zbee_zcl_se.pp.change_payment_mode.provider_id", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_change_payment_mode_issuer_event_id,
+            { "Issuer Event ID", "zbee_zcl_se.pp.change_payment_mode.issuer_event_id", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_change_payment_mode_implementation_date_time,
+            { "Implementation Date/Time", "zbee_zcl_se.pp.change_payment_mode.implementation_date_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_change_payment_mode_proposed_payment_control_configuration,
+            { "Proposed Payment Control Configuration", "zbee_zcl_se.pp.change_payment_mode.payment_control_configuration", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_change_payment_mode_cut_off_value,
+            { "Cut Off Value", "zbee_zcl_se.pp.change_payment_mode.cut_off_value", FT_INT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_get_prepay_snapshot_earliest_start_time,
+            { "Earliest Start Time", "zbee_zcl_se.pp.get_prepay_snapshot.earliest_start_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_get_prepay_snapshot_latest_end_time,
+            { "Latest End Time", "zbee_zcl_se.pp.get_prepay_snapshot.latest_end_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_get_prepay_snapshot_snapshot_offset,
+            { "Snapshot Offset", "zbee_zcl_se.pp.get_prepay_snapshot.snapshot_offset", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_get_prepay_snapshot_snapshot_cause,
+            { "Snapshot Cause", "zbee_zcl_se.pp.get_prepay_snapshot.snapshot_cause", FT_UINT32, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_get_top_up_log_latest_end_time,
+            { "Latest End Time", "zbee_zcl_se.pp.get_top_up_log.latest_end_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_get_top_up_log_number_of_records,
+            { "Number of Records", "zbee_zcl_se.pp.get_top_up_log.number_of_records", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_set_low_credit_warning_level_low_credit_warning_level,
+            { "Low Credit Warning Level", "zbee_zcl_se.pp.set_low_credit_warning_level.low_credit_warning_level", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_get_debt_repayment_log_latest_end_time,
+            { "Latest End Time", "zbee_zcl_se.pp.get_debt_repayment_log.latest_end_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_get_debt_repayment_log_number_of_debts,
+            { "Number of Records", "zbee_zcl_se.pp.get_debt_repayment_log.number_of_records", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_get_debt_repayment_log_debt_type,
+            { "Debt Type", "zbee_zcl_se.pp.get_debt_repayment_log.debt_type", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_set_maximum_credit_limit_provider_id,
+            { "Provider ID", "zbee_zcl_se.pp.set_maximum_credit_limit.provider_id", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_set_maximum_credit_limit_issuer_event_id,
+            { "Issuer Event ID", "zbee_zcl_se.pp.set_maximum_credit_limit.issuer_event_id", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_set_maximum_credit_limit_implementation_date_time,
+            { "Implementation Date/Time", "zbee_zcl_se.pp.set_maximum_credit_limit.implementation_date_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_set_maximum_credit_limit_maximum_credit_level,
+            { "Maximum Credit Level", "zbee_zcl_se.pp.set_maximum_credit_limit.max_credit_level", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_set_maximum_credit_limit_maximum_credit_per_top_up,
+            { "Maximum Credit Per Top Up", "zbee_zcl_se.pp.set_maximum_credit_limit.max_credit_per_top_up", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_set_overall_debt_cap_limit_provider_id,
+            { "Provider ID", "zbee_zcl_se.pp.set_overall_debt_cap_limit.provider_id", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_set_overall_debt_cap_limit_issuer_event_id,
+            { "Issuer Event ID", "zbee_zcl_se.pp.set_overall_debt_cap_limit.issuer_event_id", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_set_overall_debt_cap_limit_implementation_date_time,
+            { "Implementation Date/Time", "zbee_zcl_se.pp.set_overall_debt_cap_limit.implementation_date_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_set_overall_debt_cap_limit_overall_debt_cap,
+            { "Overall Debt Cap", "zbee_zcl_se.pp.set_overall_debt_cap_limit.overall_debt_cap", FT_INT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_publish_prepay_snapshot_snapshot_id,
+            { "Snapshot ID", "zbee_zcl_se.pp.publish_prepay_snapshot.snapshot_id", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_publish_prepay_snapshot_snapshot_time,
+            { "Snapshot Time", "zbee_zcl_se.pp.publish_prepay_snapshot.snapshot_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_publish_prepay_snapshot_total_snapshots_found,
+            { "Total Snapshots Found", "zbee_zcl_se.pp.publish_prepay_snapshot.total_snapshots_found", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_publish_prepay_snapshot_command_index,
+            { "Command Index", "zbee_zcl_se.pp.publish_prepay_snapshot.command_index", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_publish_prepay_snapshot_total_number_of_commands,
+            { "Total Number of Commands", "zbee_zcl_se.pp.publish_prepay_snapshot.total_number_of_commands", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_publish_prepay_snapshot_snapshot_cause,
+            { "Snapshot Cause", "zbee_zcl_se.pp.publish_prepay_snapshot.snapshot_cause", FT_UINT32, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_publish_prepay_snapshot_snapshot_payload_type,
+            { "Snapshot Payload Type", "zbee_zcl_se.pp.publish_prepay_snapshot.snapshot_payload_type", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_publish_prepay_snapshot_snapshot_payload,
+            { "Snapshot Payload", "zbee_zcl_se.pp.publish_prepay_snapshot.snapshot_payload", FT_BYTES, BASE_NONE, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_change_payment_mode_response_friendly_credit,
+            { "Friendly Credit", "zbee_zcl_se.pp.change_payment_mode_response.friendly_credit", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_change_payment_mode_response_friendly_credit_calendar_id,
+            { "Friendly Credit Calendar ID", "zbee_zcl_se.pp.change_payment_mode_response.friendly_credit_calendar_id", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_change_payment_mode_response_emergency_credit_limit,
+            { "Emergency Credit Limit", "zbee_zcl_se.pp.change_payment_mode_response.emc_limit", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_change_payment_mode_response_emergency_credit_threshold,
+            { "Emergency Credit Threshold", "zbee_zcl_se.pp.change_payment_mode_response.emc_threshold", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_consumer_top_up_response_result_type,
+            { "Result Type", "zbee_zcl_se.pp.consumer_top_up_response.result_type", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_consumer_top_up_response_top_up_value,
+            { "Top Up Value", "zbee_zcl_se.pp.consumer_top_up_response.top_up_value", FT_INT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_consumer_top_up_response_source_of_top_up,
+            { "Source of Top up", "zbee_zcl_se.pp.consumer_top_up_response.source_of_top_up", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_consumer_top_up_response_credit_remaining,
+            { "Credit Remaining", "zbee_zcl_se.pp.consumer_top_up_response.credit_remaining", FT_INT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_publish_top_up_log_command_index,
+            { "Command Index", "zbee_zcl_se.pp.publish_top_up_log.command_index", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_publish_top_up_log_total_number_of_commands,
+            { "Total Number of Commands", "zbee_zcl_se.pp.publish_top_up_log.total_number_of_commands", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_publish_top_up_log_top_up_code,
+            { "TopUp Code", "zbee_zcl_se.pp.publish_top_up_log.top_up_code", FT_BYTES, BASE_NONE, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_publish_top_up_log_top_up_amount,
+            { "TopUp Amount", "zbee_zcl_se.pp.publish_top_up_log.top_up_amount", FT_INT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_publish_debt_log_command_index,
+            { "Command Index", "zbee_zcl_se.pp.publish_debt_log.command_index", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_publish_debt_log_total_number_of_commands,
+            { "Total Number of Commands", "zbee_zcl_se.pp.publish_debt_log.total_number_of_commands", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_publish_debt_log_collection_time,
+            { "Collection Time", "zbee_zcl_se.pp.publish_debt_log.collection_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_publish_debt_log_amount_collected,
+            { "Amount Collected", "zbee_zcl_se.pp.publish_debt_log.amount_collected", FT_INT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_publish_debt_log_debt_type,
+            { "Debt Type", "zbee_zcl_se.pp.publish_debt_log.debt_type", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_publish_debt_log_outstanding_debt,
+            { "Outstanding Debt", "zbee_zcl_se.pp.publish_debt_log.outstanding_debt", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
     };
 
     /* ZCL Prepayment subtrees */
