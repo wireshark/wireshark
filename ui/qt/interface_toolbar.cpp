@@ -917,6 +917,7 @@ void InterfaceToolbar::updateWidgets()
 
 void InterfaceToolbar::interfaceListChanged()
 {
+#ifdef HAVE_LIBPCAP
     const QString &selected_ifname = ui->interfacesComboBox->currentText();
     bool keep_selected = false;
 
@@ -950,6 +951,7 @@ void InterfaceToolbar::interfaceListChanged()
     }
 
     updateWidgets();
+#endif
 }
 
 void InterfaceToolbar::on_interfacesComboBox_currentIndexChanged(const QString &ifname)
