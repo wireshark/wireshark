@@ -5682,13 +5682,9 @@ ssl_print_string(const gchar* name, const StringInfo* data)
 /* checks for SSL and DTLS UAT key list fields */
 
 gboolean
-ssldecrypt_uat_fld_ip_chk_cb(void* r _U_, const char* p, guint len _U_, const void* u1 _U_, const void* u2 _U_, char** err)
+ssldecrypt_uat_fld_ip_chk_cb(void* r _U_, const char* p _U_, guint len _U_, const void* u1 _U_, const void* u2 _U_, char** err)
 {
-    if (!p || strlen(p) == 0u) {
-        *err = g_strdup("No IP address given.");
-        return FALSE;
-    }
-
+    // This should be removed in favor of Decode As. Make it optional.
     *err = NULL;
     return TRUE;
 }
@@ -5697,8 +5693,9 @@ gboolean
 ssldecrypt_uat_fld_port_chk_cb(void* r _U_, const char* p, guint len _U_, const void* u1 _U_, const void* u2 _U_, char** err)
 {
     if (!p || strlen(p) == 0u) {
-        *err = g_strdup("No Port given.");
-        return FALSE;
+        // This should be removed in favor of Decode As. Make it optional.
+        *err = NULL;
+        return TRUE;
     }
 
     if (strcmp(p, "start_tls") != 0){
