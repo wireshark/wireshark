@@ -166,6 +166,7 @@ MOC_WIDGET_HDRS = \
 	widgets/label_stack.h				\
 	widgets/overlay_scroll_bar.h			\
 	widgets/syntax_line_edit.h			\
+	widgets/tabnav_tree_view.h			\
 	widgets/drag_drop_toolbar.h
 
 #
@@ -302,7 +303,6 @@ MOC_HDRS = \
 	uat_dialog.h					\
 	uat_frame.h					\
 	uat_model.h					\
-	uat_tree_view.h					\
 	voip_calls_dialog.h				\
 	voip_calls_info_model.h				\
 	wireless_frame.h				\
@@ -466,6 +466,7 @@ WIRESHARK_QT_WIDGET_SRC = \
 	widgets/label_stack.cpp				\
 	widgets/overlay_scroll_bar.cpp			\
 	widgets/syntax_line_edit.cpp			\
+	widgets/tabnav_tree_view.cpp			\
 	widgets/drag_drop_toolbar.cpp
 
 
@@ -596,7 +597,6 @@ WIRESHARK_QT_SRC = \
 	uat_dialog.cpp					\
 	uat_frame.cpp					\
 	uat_model.cpp					\
-	uat_tree_view.cpp				\
 	voip_calls_dialog.cpp				\
 	voip_calls_info_model.cpp			\
 	wireless_frame.cpp				\

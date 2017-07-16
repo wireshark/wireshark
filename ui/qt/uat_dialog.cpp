@@ -73,6 +73,10 @@ UatDialog::UatDialog(QWidget *parent, epan_uat *uat) :
     ui->uatTreeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 #endif
 
+    // start editing as soon as the field is selected or when typing starts
+    ui->uatTreeView->setEditTriggers(ui->uatTreeView->editTriggers() |
+            QAbstractItemView::CurrentChanged | QAbstractItemView::AnyKeyPressed);
+
     // Need to add uat_move or uat_insert to the UAT API.
     ui->uatTreeView->setDragEnabled(false);
     qDebug() << "FIX Add drag reordering to UAT dialog";
@@ -115,8 +119,6 @@ void UatDialog::setUat(epan_uat *uat)
                 this, SLOT(modelDataChanged(QModelIndex)));
         connect(uat_model_, SIGNAL(rowsRemoved(QModelIndex, int, int)),
                 this, SLOT(modelRowsRemoved()));
-        connect(ui->uatTreeView, SIGNAL(currentItemChanged(QModelIndex,QModelIndex)),
-                this, SLOT(viewCurrentChanged(QModelIndex,QModelIndex)));
         ok_button_->setEnabled(!uat_model_->hasErrors());
 
         if (uat_->help && strlen(uat_->help) > 0) {
@@ -147,7 +149,7 @@ void UatDialog::modelRowsRemoved()
 
 // Invoked when a different field is selected. Note: when selecting a different
 // field after editing, this event is triggered after modelDataChanged.
-void UatDialog::viewCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
+void UatDialog::on_uatTreeView_currentItemChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     if (current.isValid()) {
         ui->deleteToolButton->setEnabled(true);

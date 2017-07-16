@@ -1,5 +1,5 @@
-/* uat_tree_view.h
- * Tree view of UAT data.
+/* tabnav_tree_view.h
+ * Tree view with saner tab navigation functionality.
  *
  * Copyright 2016 Peter Wu <peter@lekensteyn.nl>
  *
@@ -22,17 +22,22 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef UAT_TREE_VIEW_H
-#define UAT_TREE_VIEW_H
+#ifndef TABNAV_TREE_VIEW_H
+#define TABNAV_TREE_VIEW_H
 
 #include <config.h>
 #include <QTreeView>
 
-class UatTreeView : public QTreeView
+/**
+ * Like QTreeView, but instead of changing to the next row (same column) when
+ * pressing Tab while editing, change to the next column (same row).
+ */
+class TabnavTreeView : public QTreeView
 {
     Q_OBJECT
+
 public:
-    UatTreeView(QWidget *parent = 0);
+    TabnavTreeView(QWidget *parent = 0);
     QModelIndex moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
 
 protected slots:
@@ -41,4 +46,16 @@ protected slots:
 signals:
     void currentItemChanged(const QModelIndex &current, const QModelIndex &previous);
 };
-#endif // UAT_TREE_VIEW_H
+#endif // TABNAV_TREE_VIEW_H
+
+/* * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

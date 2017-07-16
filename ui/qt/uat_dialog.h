@@ -52,7 +52,7 @@ public:
 private slots:
     void modelDataChanged(const QModelIndex &topLeft);
     void modelRowsRemoved();
-    void viewCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
+    void on_uatTreeView_currentItemChanged(const QModelIndex &current, const QModelIndex &previous);
     void acceptChanges();
     void rejectChanges();
     void on_newToolButton_clicked();

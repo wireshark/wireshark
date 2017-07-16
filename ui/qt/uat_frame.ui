@@ -18,7 +18,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-      <widget class="UatTreeView" name="uatTreeView">
+      <widget class="TabnavTreeView" name="uatTreeView">
         <column>
           <property name="text">
             <string notr="true">1</string>
@@ -138,9 +138,9 @@
       <header>widgets/elided_label.h</header>
     </customwidget>
     <customwidget>
-      <class>UatTreeView</class>
+      <class>TabnavTreeView</class>
       <extends>QTreeView</extends>
-      <header>uat_tree_view.h</header>
+      <header>widgets/tabnav_tree_view.h</header>
     </customwidget>
   </customwidgets>
   <resources>

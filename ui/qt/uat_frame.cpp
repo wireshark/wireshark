@@ -66,6 +66,10 @@ UatFrame::UatFrame(QWidget *parent) :
     ui->uatTreeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 #endif
 
+    // start editing as soon as the field is selected or when typing starts
+    ui->uatTreeView->setEditTriggers(ui->uatTreeView->editTriggers() |
+            QAbstractItemView::CurrentChanged | QAbstractItemView::AnyKeyPressed);
+
     // XXX - Need to add uat_move or uat_insert to the UAT API for drag/drop
 }
 
@@ -105,8 +109,6 @@ void UatFrame::setUat(epan_uat *uat)
                 this, SLOT(modelDataChanged(QModelIndex)));
         connect(uat_model_, SIGNAL(rowsRemoved(QModelIndex, int, int)),
                 this, SLOT(modelRowsRemoved()));
-        connect(ui->uatTreeView, SIGNAL(currentItemChanged(QModelIndex,QModelIndex)),
-                this, SLOT(viewCurrentChanged(QModelIndex,QModelIndex)));
     }
 
     setWindowTitle(title);
@@ -175,7 +177,7 @@ void UatFrame::addRecord(bool copy_from_current)
 
 // Invoked when a different field is selected. Note: when selecting a different
 // field after editing, this event is triggered after modelDataChanged.
-void UatFrame::viewCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
+void UatFrame::on_uatTreeView_currentItemChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     if (current.isValid()) {
         ui->deleteToolButton->setEnabled(true);

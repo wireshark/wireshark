@@ -24,7 +24,7 @@
 
 #include "tabnav_tree_widget.h"
 
-// Copy on UatTreeView, modified to use QTreeWidget instead of QTreeView.
+// Copy of TabnavTreeView, modified to use QTreeWidget instead of QTreeView.
 
 TabnavTreeWidget::TabnavTreeWidget(QWidget *parent) : QTreeWidget(parent)
 {

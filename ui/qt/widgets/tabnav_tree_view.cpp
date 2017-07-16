@@ -1,5 +1,5 @@
-/* uat_tree_view.cpp
- * Tree view of UAT data.
+/* tabnav_tree_view.cpp
+ * Tree view with saner tab navigation functionality.
  *
  * Copyright 2016 Peter Wu <peter@lekensteyn.nl>
  *
@@ -22,18 +22,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "uat_tree_view.h"
+#include "tabnav_tree_view.h"
 
-UatTreeView::UatTreeView(QWidget *parent) : QTreeView(parent)
+TabnavTreeView::TabnavTreeView(QWidget *parent) : QTreeView(parent)
 {
-    // start editing as soon as the field is selected or when typing starts
-    setEditTriggers(editTriggers() | CurrentChanged | AnyKeyPressed);
 }
 
 // Note: if a QTableView is used, then this is not needed anymore since Tab
 // works as "expected" (move to next cell instead of row).
 // Note 2: this does not help with fields with no widget (like filename).
-QModelIndex UatTreeView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
+QModelIndex TabnavTreeView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
 {
     QModelIndex current = currentIndex();
     // If an item is currently selected, interpret Next/Previous. Otherwise,
@@ -55,7 +53,16 @@ QModelIndex UatTreeView::moveCursor(CursorAction cursorAction, Qt::KeyboardModif
     return QTreeView::moveCursor(cursorAction, modifiers);
 }
 
-void UatTreeView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
+/*!
+    \fn void TabnavTreeView::currentItemChanged(QModelIndex *current, QModelIndex *previous)
+
+    This signal is emitted whenever the current item changes.
+
+    \a previous is the item that previously had the focus; \a current is the
+    new current item.
+ */
+
+void TabnavTreeView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     QTreeView::currentChanged(current, previous);
     emit currentItemChanged(current, previous);
