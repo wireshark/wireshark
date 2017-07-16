@@ -270,20 +270,9 @@ void MainWelcome::appInitialized()
 
     welcome_ui_->captureFilterComboBox->setEnabled(true);
 
-#ifdef HAVE_LIBPCAP
-    QString capture_device = prefs.capture_device;
-    if (!capture_device.isEmpty()) {
-        capture_opts_default_iface_if_necessary(&global_capture_opts, prefs.capture_device);
-    }
-#endif // HAVE_LIBPCAP
-
     interfaceListChanged();
 
-#ifdef HAVE_LIBPCAP
-    if (global_capture_opts.num_selected > 0) {
-        welcome_ui_->interfaceFrame->setTreeFocus();
-    }
-#endif // HAVE_LIBPCAP
+    welcome_ui_->interfaceFrame->ensureSelectedInterface();
 
     delete splash_overlay_;
     splash_overlay_ = NULL;
