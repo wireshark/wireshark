@@ -3687,7 +3687,6 @@ Martin Kacer	<kacer.martin[AT]gmail.com> {
 	JSON and Elasticsearch tshark output
 	json2pcap
 }
-
 Ben Stewart		<bst[AT]google.com> {
 	SCTE-35 dissector
 }

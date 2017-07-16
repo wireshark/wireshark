@@ -2,7 +2,7 @@
 # generated from http://www.iana.org/assignments/enterprise-numbers
 # run "tools/make-sminmpec.pl [infile]" to regenerate
 #
-# (last updated 2017-06-23)
+# (last updated 2017-07-14)
 
 0	Reserved
 1	NxNetworks
@@ -543,7 +543,7 @@
 536	Triticom
 537	Universal Instruments Corp.
 538	Information Resources, Inc.
-539	Kentrox
+539	Westell Inc.	# formerly 'Kentrox'
 540	Crypto AG
 541	Infinite Networks, Ltd.
 542	Tangram Enterprise Solutions, Inc.
@@ -2703,7 +2703,6 @@
 2701	Argon Networks Inc.
 2702	WACOS Inc.
 2703	Object Zone AB
-2704	ICCC A/S
 2705	SECUDE IT Security GmbH
 2706	Institute for Applied Information Processing and Communications,Graz University of Technology
 2707	International Network Services
@@ -10440,7 +10439,7 @@
 10465	Flypaper
 10466	Holim Technology
 10467	Ingenieurbüro Jörg Geistmann
-10468	IRTNOG.ORG
+10468	IRTNOG
 10469	Lidcam Technology Pty Ltd
 10470	Media Brokers International
 10471	OpenFortress
@@ -21974,7 +21973,7 @@
 22128	RBC Capital Markets, Sydney
 22129	AfterHours Upgrades
 22130	Vivatas, Inc
-22131	Technical Management System GmbH
+22131	ÖWD time access GmbH	# formerly 'Technical Management System GmbH'
 22132	Mediasyscom SAS
 22133	UWIC
 22134	Eminds AB
@@ -29216,7 +29215,7 @@
 29375	Selekron Microcontrol s.l.
 29376	Trägerverein Bürgernetz Bamberg e.V.
 29377	Make-A-Byte, Inc.
-29378	CoCo Communications Corp.
+29378	Unium	# formerly 'CoCo Communications Corp.'
 29379	Lostar Bilgi Guvenligi A.S.
 29380	Beekhul Holdings Pty Ltd
 29381	McNeese State University
@@ -46796,7 +46795,7 @@
 46973	Datalab Software GmbH
 46974	EdgeTheory LLC
 46975	MediGroup
-46976	Rhebo AG
+46976	Rhebo GmbH	# formerly 'Rhebo AG'
 46977	ELTEC Elektronik AG
 46978	The Akron Holding
 46979	Q&D Solutions
@@ -48345,7 +48344,7 @@
 48523	ALTEC S.p.A.
 48524	Ping Communication (Switzerland) AG
 48525	SnapServ Ltd
-48526	Twilio
+48526	Twilio, inc.
 48527	LEGO System A/S
 48528	IT Niedersachsen
 48529	MediaSift Ltd
@@ -49430,7 +49429,6 @@
 49609	Picomass Limited
 49610	d.velop AG
 49611	molch
-49612	Orange Espagne, S.A.U.
 49613	Fremont Bank
 49614	Caritas der Dioezese St. Poelten
 49615	Metro Vancouver Regional District
@@ -50006,7 +50004,7 @@
 50186	Vodafone UK
 50187	Pattern Recognition and Inteligent Systems Laboratory
 50188	zkpig123.org
-50189	anrobot
+50189	AnRobot
 50190	CS Corporation
 50191	Matra Mandiri Prima
 50192	SOGETEL srl
@@ -50038,3 +50036,118 @@
 50218	Union Scribe
 50219	Alaska Railroad
 50220	Lukas Müller
+50221	Secure Edge Technologies
+50222	jw4.us
+50223	Changing Information Technology Inc.
+50224	Shenzhen HS Fiber Communication Equipment CO.,LTD
+50225	FONEX SAS
+50226	APM Technica AG
+50227	Trinecke zelezarny, a.s.
+50228	NETSURFUSA INC
+50229	Positive Resource Center
+50230	The Regional Municipality of York
+50231	Beijing SinoVoice Technology Co.,Ltd.
+50232	WebWorks Sistemas e Redes
+50233	One Identity LLC
+50234	Ursaconn Technology Co., Ltd.
+50235	Energy Efficiency Ltd
+50236	T 8 Publishing Technologies
+50237	WILO SE
+50238	Manuel Fernandez Lopez
+50239	Crypteron
+50240	Raycap
+50241	Tom Storey
+50242	SERVICE TOUS TRANSPORTS
+50243	Panoptix CC
+50244	International Aeronavigation Systems Concern, JSC (IANS)
+50245	van Ryck Communications LLC.
+50246	Oncology & Hematology Associates of West Broward PA
+50247	Techbase IT Solutions
+50248	mr-s.run
+50249	five-nines
+50250	ErvoCom Engineering AG
+50251	TMM Software
+50252	Web Benefits Design Corporation
+50253	Electronic Transaction Consultants Corporation
+50254	JPoD
+50255	PeerPair
+50256	Infinite Solutions LLC
+50257	NSD Corporation
+50258	Northwestern Local Schools
+50259	Citra Health Solutions
+50260	Byteflux.io
+50261	Verafin
+50262	Razzleberries AB
+50263	Tuveri
+50264	PINTU PASWAN
+50265	SAS TRANSPORT NOEL
+50266	5xS Security Consulting
+50267	Credit Agricole Technologies et Services
+50268	BOUVERY COMBUSTIBLES
+50269	AKIO SOFTWARE
+50270	Software Logistics / ABN AMRO
+50271	Salam International
+50272	QInnovate
+50273	Diginosis, Inc.
+50274	TRANSPORTS KIEFFER SARL
+50275	Granicus Systems Limited
+50276	Strikr
+50277	all-your-assets
+50278	ColorTokens, Inc.
+50279	Magrathea Technologies
+50280	Naveria, LLC
+50281	whateverany.com
+50282	S.A.S. TRANSPORTS CLAUDEL
+50283	HovNet-SERVIS s.r.o.
+50284	University Innopolis
+50285	Logikbar, LLC
+50286	GRUPO LA NOGALERA SA DE CV
+50287	Webellian
+50288	fibrisTerre Systems GmbH
+50289	aapala.fi
+50290	Supplyframe, Inc.
+50291	Infomicro Comunicaciones
+50292	Jenoptik AG
+50293	Selfnet e.V.
+50294	Canreer
+50295	Melbourne Grammar School
+50296	jSCM Solucoes Empresariais
+50297	WERNER IT-SYSTEME
+50298	Paper 4 Print
+50299	effexx Telekommunikation GmbH
+50300	SIGNAL IDUNA Gruppe
+50301	Personal
+50302	ACIN-iCloud Solutions,Lda
+50303	Meadow
+50304	OnePacs LLC
+50305	inkClub Development AB
+50306	roselarsen.dk
+50307	Laureate Education Services Australia
+50308	YazamTech
+50309	ITALIAN INSTITUTE FOR GENOMIC MEDICINE (IIGM)
+50310	BridgeHead Software
+50311	INSITE S.A.S.
+50312	Tennessee Cancer Specialists
+50313	eVestment
+50314	Bracket Computing, Inc.
+50315	Harborside Condominium Owners Association
+50316	Modbus Organization, Inc.
+50317	RNK SERVICOS
+50318	TrustFactory(Pty)Ltd
+50319	POCABAR GmbH
+50320	Engineers Gate
+50321	Trimark Limited
+50322	Mondragon Goi Eskola Politeknikoa Jº Mª Arizmendiarrieta S. Coop.
+50323	Santander Consumer USA Holdings Inc
+50324	Quatius Limied
+50325	The Candystripe Company
+50326	Xton Technologies
+50327	Funding Circle Limited
+50328	asap
+50329	Druid Software
+50330	Microart ltd.
+50331	Rennschmiede Pforzheim e.V.
+50332	Motorola Solutions Australia Pty. Limited
+50333	SamKnows Ltd
+50334	E.on Värme Sverige AB
+50335	Security Bank of KC
