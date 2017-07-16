@@ -6404,8 +6404,8 @@ isoft-p2p        3501/tcp # iSoft-P2P [David_Walling_2] [David_Walling_2]
 isoft-p2p        3501/udp # iSoft-P2P [David_Walling_2] [David_Walling_2]
 avinstalldisc    3502/tcp # Avocent Install Discovery [Brian_S_Stewart_2] [Brian_S_Stewart_2]
 avinstalldisc    3502/udp # Avocent Install Discovery [Brian_S_Stewart_2] [Brian_S_Stewart_2]
-lsp-ping         3503/tcp # MPLS LSP-echo Port [RFC-ietf-mpls-rfc4379bis-09]
-lsp-ping         3503/udp # MPLS LSP-echo Port [RFC-ietf-mpls-rfc4379bis-09]
+lsp-ping         3503/tcp # MPLS LSP-echo Port [RFC8029]
+lsp-ping         3503/udp # MPLS LSP-echo Port [RFC8029]
 ironstorm        3504/tcp # IronStorm game server [Arnaud_Clermonte] [Arnaud_Clermonte]
 ironstorm        3504/udp # IronStorm game server [Arnaud_Clermonte] [Arnaud_Clermonte]
 ccmcomm          3505/tcp # CCM communications port [Tom_Bougan] [Tom_Bougan]
@@ -8007,7 +8007,7 @@ prex-tcp         4487/tcp # Protocol for Remote Execution over TCP [Daniel_Ruppe
 awacs-ice        4488/tcp # Apple Wide Area Connectivity Service ICE Bootstrap [Rory_McGuire] [Rory_McGuire] 2010-09-24
 awacs-ice        4488/udp # Apple Wide Area Connectivity Service ICE Bootstrap [Rory_McGuire] [Rory_McGuire] 2010-09-24
 ipsec-nat-t      4500/tcp # IPsec NAT-Traversal 2017-06-19 [RFC-ietf-ipsecme-tcp-encaps-10]
-ipsec-nat-t      4500/udp # IPsec NAT-Traversal 2017-06-19 [RFC-ietf-ipsecme-tcp-encaps-10]
+ipsec-nat-t      4500/udp # IPsec NAT-Traversal 2017-07-07 [RFC3948][RFC7296]
 a25-fap-fgw      4502/sctp # A25 (FAP-FGW) [ThreeGPP_2] [Zhiming_Li] 2012-01-11
 armagetronad     4534/udp # Armagetron Advanced Game Server [Manuel_Moos] [Yann_Kaiser] 2012-11-02
 ehs              4535/tcp # Event Heap Server
@@ -9486,8 +9486,8 @@ hnmp             6790/tcp # HNMP [Jude_George] [Jude_George]
 hnmp             6790/udp # HNMP [Jude_George] [Jude_George]
 hnm              6791/tcp # Halcyon Network Manager [Richard_Harriss] [Richard_Harriss] 2005-05
 hnm              6791/udp # Halcyon Network Manager [Richard_Harriss] [Richard_Harriss] 2005-05
-acnet            6801/tcp # ACNET Control System Protocol [Rich_Neswold] [Rich_Neswold] 2007-02
-acnet            6801/udp # ACNET Control System Protocol [Rich_Neswold] [Rich_Neswold] 2007-02
+acnet            6801/tcp # ACNET Control System Protocol [Fermilab] [Rich_Neswold] 2007-02 2017-07-13
+acnet            6801/udp # ACNET Control System Protocol [Fermilab] [Rich_Neswold] 2007-02 2017-07-13
 pentbox-sim      6817/tcp # PenTBox Secure IM Protocol [Alberto_Ortega_Llama] [Alberto_Ortega_Llama] 2009-11-04
 ambit-lm         6831/tcp # ambit-lm [Don_Hejna] [Don_Hejna]
 ambit-lm         6831/udp # ambit-lm [Don_Hejna] [Don_Hejna]
@@ -9942,6 +9942,8 @@ vantronix-mgmt   8034/tcp # .vantronix Management [Reyk_Floeter] [Reyk_Floeter] 
 vantronix-mgmt   8034/udp # .vantronix Management [Reyk_Floeter] [Reyk_Floeter] 2008-02-27
 ampify           8040/tcp # Ampify Messaging Protocol [Tav_Espian] [Tav_Espian] 2010-08-10
 ampify           8040/udp # Ampify Messaging Protocol [Tav_Espian] [Tav_Espian] 2010-08-10
+enguity-xccetp   8041/tcp # Xcorpeon ASIC Carrier Ethernet Transport [Enguity_Technology_Corp] [Kraig_Beahn_Jr] 2017-06-28
+enguity-xccetp   8041/udp # Xcorpeon ASIC Carrier Ethernet Transport [Enguity_Technology_Corp] [Kraig_Beahn_Jr] 2017-06-28
 fs-agent         8042/tcp # FireScope Agent [Matt_Rogers] [Matt_Rogers] 2008-10-16
 fs-server        8043/tcp # FireScope Server [Matt_Rogers] [Matt_Rogers] 2008-10-16
 fs-mgmt          8044/tcp # FireScope Management Interface [Matt_Rogers] [Matt_Rogers] 2008-10-16
