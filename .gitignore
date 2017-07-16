@@ -196,6 +196,7 @@ qtshark
 /ui/qt/qrc_*.cxx
 /ui/qt/ui_*.h
 /ui/qt/console.lua
+/ui/qt/widgets/*.moc.cpp
 /wireshark-qt*
 
 # abi #
