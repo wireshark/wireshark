@@ -3687,6 +3687,7 @@ Martin Kacer	<kacer.martin[AT]gmail.com> {
 	JSON and Elasticsearch tshark output
 	json2pcap
 }
+
 Ben Stewart		<bst[AT]google.com> {
 	SCTE-35 dissector
 }
@@ -4047,6 +4048,7 @@ Christian Ullrich	<chris[AT]chrullrich.net>
 Christoph Burger-Scheidlin <mail[AT]christoph.burger-scheidlin.name>
 Christoph Jähnigen	<nuabaranda[AT]web.de>
 Christoph Schlosser	<christoph[AT]schlosser.xyz>
+Christoph Wurm		<wurm[AT]elastic.co>
 Christopher Kilgour	<techie[AT]whiterocker.com>
 Chuan He		<bupthc[AT]gmail.com>
 Chuck Lever		<chuck.lever[AT]oracle.com>
@@ -4058,6 +4060,7 @@ Cédric Delmas		<cedricde[AT]outlook.fr>
 D. Ulis			<daulis0[AT]gmail.com>
 Daan De Meyer		<daan.j.demeyer[AT]gmail.com>
 Daniel Mack		<daniel[AT]zonque.org>
+Daniel McLean		<maczor[AT]gmail.com>
 Daniel Stenberg		<daniel[AT]haxx.se>
 Daniel Tan		<BACdaBASpert[AT]optigo.net>
 Daniel Willmann		<dwillmann[AT]sysmocom.de>
@@ -4118,6 +4121,7 @@ Francois Schneider	<francois.schneider[AT]airbus.com>
 Francois-Xavier Le Bail	<fx.lebail[AT]yahoo.com>
 Frank Carpenter		<frank.carpenter[AT]spectralink.com>
 Franklin Mathieu	<franklinmathieu[AT]gmail.com>
+Gabor Vaszkun		<vaszkun[AT]gmail.com>
 Gabriel Ganne		<gabriel.ganne[AT]enea.com>
 Ganesh Nawsupe		<ganesh991[AT]gmail.com>
 Garming Sam		<garming[AT]catalyst.net.nz>
@@ -4163,7 +4167,7 @@ Jeffrey Smith		<whydoubt[AT]gmail.com>
 Jens Kilian		<jens.kilian[AT]advantest.com>
 Jeremy Hitt		<jeremy.hitt[AT]isilon.com>
 Jeroen Roovers		<jer[AT]gentoo.org>
-Jeroen Sack		<jeroen@jeroensack.nl>
+Jeroen Sack		<jeroen[AT]jeroensack.nl>
 Jesse Gross		<jesse[AT]kernel.org>
 Jim Schaettle		<jimschaettle[AT]gmail.com>
 Jim Young		<jyoung[AT]gsu.edu>
@@ -4171,6 +4175,7 @@ Jo Rueschel		<wireshark[AT]rueschel.de>
 Joakim Karlsson		<oakimk[AT]gmail.com>
 Johan Wahl		<johan.wahl[AT]ericsson.com>
 John A. Thacker		<johnthacker[AT]gmail.com>
+John Keeping		<john[AT]metanate.com>
 John Miner		<optommp[AT]gmail.com>
 John Viklund		<john.viklund[AT]effnet.com>
 Jonas Falkevik		<jonas.falkevik[AT]gmail.com>
@@ -4227,6 +4232,7 @@ Mark Phillips		<mark.s.phillips[AT]outlook.com>
 Mark Weel		<markweel[AT]hotmail.com>
 Marko Hrastovec		<marko.hrastovec[AT]gmail.com>
 Martin Boye Petersen	<martinboyepetersen[AT]gmail.com>
+Martin Heusse		<martin.heusse[AT]imag.fr>
 Martin Sehnoutka	<msehnout[AT]redhat.com>
 Martin Tibenský		<martin.tibensky[AT]alcatel-lucent.com>
 Martin Vit		<martin[AT]voipmonitor.org>
@@ -4349,11 +4355,13 @@ Shu Shen		<shu.shen[AT]gmail.com>
 Shuai Xiao		<iamhihi[AT]gmail.com>
 Silvio Gissi		<silvio.gissi[AT]gmail.com>
 Simon Barber		<simon.barber[AT]meraki.net>
+Simon Graham		<simgrxp[AT]gmail.com>
 Simon Zhong		<szhong.jnpr[AT]gmail.com>
 Slava Shwartsman	<slavash[AT]mellanox.com>
 Soumya Koduri		<skoduri[AT]redhat.com>
 Steev Klimaszewski	<threeway[AT]gmail.com>
 Stefan Doehla		<stefan.doehla[AT]iis.fraunhofer.de>
+Stefan Hajnoczi		<stefanha[AT]redhat.com>
 Stefan Pöschel		<github[AT]basicmaster.de>
 Stefan Völkel		<sv[AT]its-v.de>
 Stella Randall		<stella.randall[AT]emeerson.com>
@@ -4411,7 +4419,7 @@ Yan Burman		<yanb[AT]mellanox.com>
 Yang Luo		<hsluoyz[AT]qq.com>
 Yann Diorcet		<yann[AT]diorcet.fr>
 Yann Lejeune		<ylejeune[AT]netyl.org>
-Yasuyuki Tanaka		<yatch[AT]isl.rdc.toshiba.co.jp>
+Yasuyuki Tanaka		<yatch1.tanaka[AT]toshiba.co.jp>
 Yurii Lysyi		<yurii.lysyi[AT]ericsson.com>
 Zdeněk Žamberský	<zzdevel[AT]seznam.cz>
 Zhao Lin		<zlbinghamton[AT]gmail.com>
