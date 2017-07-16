@@ -2465,6 +2465,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 offset += 1;
 
                 report_id += 1;
+                number_of_reports--;
             }
 
             }
