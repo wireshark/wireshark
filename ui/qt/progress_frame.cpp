@@ -103,7 +103,7 @@ ProgressFrame::ProgressFrame(QWidget *parent) :
     ui(new Ui::ProgressFrame)
   , terminate_is_stop_(false)
   , stop_flag_(NULL)
-#if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
+#if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
   , show_timer_(-1)
   , effect_(NULL)
   , animation_(NULL)
@@ -143,7 +143,7 @@ ProgressFrame::ProgressFrame(QWidget *parent) :
             "}"
             );
 
-#if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
+#if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
     effect_ = new QGraphicsOpacityEffect(this);
     animation_ = new QPropertyAnimation(effect_, "opacity", this);
 #endif
@@ -231,7 +231,7 @@ void ProgressFrame::setValue(int value)
     emit valueChanged(value);
 }
 
-#if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
+#if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
 void ProgressFrame::timerEvent(QTimerEvent *event)
 {
     if (event->timerId() == show_timer_) {
@@ -255,7 +255,7 @@ void ProgressFrame::timerEvent(QTimerEvent *event)
 
 void ProgressFrame::hide()
 {
-#if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
+#if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
     show_timer_ = -1;
 #endif
     emit setHidden();
@@ -274,7 +274,7 @@ void ProgressFrame::on_stopButton_clicked()
     emit stopLoading();
 }
 
-#if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
+#if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
 const int show_delay_ = 500; // ms
 #endif
 
@@ -289,7 +289,7 @@ void ProgressFrame::show(bool animate, bool terminate_is_stop, gboolean *stop_fl
         ui->stopButton->hide();
     }
 
-#if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
+#if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
     if (animate) {
         show_timer_ = startTimer(show_delay_);
     } else {

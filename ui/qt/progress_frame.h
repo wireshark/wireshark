@@ -75,7 +75,7 @@ signals:
     void stopLoading();
 
 protected:
-#if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
+#if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
     void timerEvent(QTimerEvent *event);
 #endif
 
@@ -87,7 +87,7 @@ private:
     QString status_;
     bool terminate_is_stop_;
     gboolean *stop_flag_;
-#if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
+#if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
     int show_timer_;
     QGraphicsOpacityEffect *effect_;
     QPropertyAnimation *animation_;
