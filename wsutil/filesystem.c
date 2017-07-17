@@ -1849,14 +1849,11 @@ get_persconffile_path(const char *filename, gboolean from_profile)
     }
 
     if (from_profile) {
-      dir = get_persconffile_dir(persconfprofile);
-      path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
-                 dir, filename);
+        dir = get_persconffile_dir(persconfprofile);
     } else {
-      dir = get_persconffile_dir(NULL);
-      path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
-                 dir, filename);
+        dir = get_persconffile_dir(NULL);
     }
+    path = g_build_filename(dir, filename, NULL);
 
     g_free(dir);
     return path;
