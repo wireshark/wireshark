@@ -20471,12 +20471,12 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_sswf_dmg_antenna_select,
      {"Sector Sweep Feedback DMG Antenna Select", "wlan.sswf.dmg_antenna_select",
-      FT_UINT24, BASE_DEC, NULL, 0x0001C0,
+      FT_UINT24, BASE_DEC, NULL, 0x0000C0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_sswf_snr_report,
      {"Sector Sweep Feedback SNR Report", "wlan.sswf.snr_report",
-      FT_UINT24, BASE_DEC, NULL, 0x00FE00,
+      FT_UINT24, BASE_DEC, NULL, 0x00FF00,
       NULL, HFILL }},
 
 
