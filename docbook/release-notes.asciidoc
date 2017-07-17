@@ -12,15 +12,61 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed:
 
+* ws-salink:2017-13[]
++
+WBMXL dissector infinite loop
+(ws-buglink:13477[], ws-buglink:13796[])
+//cve-idlink:2017-7702[]
+// Fixed in master: 8e1befc, 50fa2d9
+// Fixed in master-2.2: bb67dbf, 651a974
+// Fixed in master-2.0: 2f322f6, 3c7168c
+Note: This is an update for a fix in Wireshark 2.2.6 and 2.0.12.
+
+//* Buildbot crash output: fuzz-2017-06-12-4268.pcap. (ws-buglink:13796[])
+// Same as CVE-2017-7702 / wnpa-sec-2017-13 / bug 13477
+
+* ws-salink:2017-28[]
++
+openSAFETY dissector memory exhaustion
+(ws-buglink:13649[], ws-buglink:13755[])
+// cve-idlink:2017-9350[]
+// Fixed in master: f643169, 66c5058
+// Fixed in master-2.2: 3ce1ba9, 54acd9b
+// Fixed in master-2.0: dbc7cb0, a83a324
+Note: This is an update for a fix in Wireshark 2.2.7.
+
+//* [oss-fuzz] Allocation too large: 4294967295 > 2147483648 (0xffffffff > 0x80000000). (ws-buglink:13755[])
+// Same as CVE-2017-9350 / wnpa-sec-2017-28 / bug 13649
+
 * ws-salink:2017-34[]
 +
-A dissector went awry.
-(ws-buglink:XXXX[])
+AMQP dissector crash.
+(ws-buglink:13780[])
 // cve-idlink:2017-XXXX[]
-// Fixed in master: XXXX
-// Fixed in master-2.2: XXXX
-// Fixed in master-2.0: XXXX
+// Fixed in master: 246cbbc, 2de483c
+// Fixed in master-2.2: d6231d9, a102c17
+// Fixed in master-2.0: e57c86e
 
+* ws-salink:2017-35[]
++
+MQ dissector crash.
+(ws-buglink:13792[])
+// cve-idlink:2017-XXXX[]
+// Fixed in master: bb58b3a
+// Fixed in master-2.2: 4e54dae
+// Fixed in master-2.0: 8fcd725
+
+* ws-salink:2017-36[]
++
+DOCSIS infinite loop.
+(ws-buglink:13797[])
+// cve-idlink:2017-XXXX[]
+// Fixed in master: 26a6881
+// Fixed in master-2.2: 2502162
+// Fixed in master-2.0: 283b0af
+
+//* Buildbot crash output: fuzz-2017-07-04-2598.pcap. (ws-buglink:13871[])
+// No a vulnerability.
 
 The following bugs have been fixed:
 
@@ -30,6 +76,43 @@ The following bugs have been fixed:
 //* Wireshark accepted your prom invitation then cancelled at the last minute. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.2.8rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
+* Y.1711 dissector reverses defect type order. (ws-buglink:8292[])
+
+* Packet list keeps scrolling back to selected packet while names are being resolved. (ws-buglink:12074[])
+
+* [REGRESSION] Export Objects do not show files from a SMB2 capture. (ws-buglink:13214[])
+
+* LTE RRC: lte-rrc.q_RxLevMin filter fails on negative values. (ws-buglink:13481[])
+
+* Hexpane showing in proportional font again. (ws-buglink:13638[])
+
+* Regression in SCCP fragments handling. (ws-buglink:13651[])
+
+* TCAP SRT incorrectly matches TC_BEGINs and TC_ENDs. (ws-buglink:13739[])
+
+* Dissector for WSMP (IEEE 1609.3) not current. (ws-buglink:13766[])
+
+* RANAP: possible issue in the heuristic code. (ws-buglink:13770[])
+
+* [oss-fuzz] UBSAN: shift exponent 35 is too large for 32-bit type 'int' in packet-btrfcomm.c:314:37. (ws-buglink:13783[])
+
+* RANAP: false positives on heuristic algorithm. (ws-buglink:13791[])
+
+* Automatic name resolution not saved to PCAP-NG NRB. (ws-buglink:13798[])
+
+* DAAP dissector dissect_daap_one_tag recursion stack exhausted. (ws-buglink:13799[])
+
+* Malformed DCERPC PNIO packet decode, exception handler invalid poionter reference. (ws-buglink:13811[])
+
+* It seems SPVID was decoded from wrong field. (ws-buglink:13821[])
+
+* README.dissectors: Add notes about predefined string structures not available to plugin authors. (ws-buglink:13828[])
+
+* Statistics->Packet Lengths doesn't display details for '5120 or greater'. (ws-buglink:13844[])
+
+* cmake/modules/FindZLIB.cmake doesn't find inflatePrime. (ws-buglink:13850[])
+
+* BGP: incorrect decoding COMMUNITIES whose length is larger than 255. (ws-buglink:13872[])
 
 === New and Updated Features
 
@@ -48,13 +131,43 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+AMQP
+BGP
+BSSMAP
+BT RFCOMM
+DAAP
+DOCSIS
+E.212
+FDDI
+GSM A GM
+GSM BSSMAP
+IEEE 802.11
+IP
+ISIS LSP
+LTE RRC
+MQ
+OpenSafety
+OSPF
+PROFINET IO
+RANAP
+SCCP
+SGSAP
+SMB2
+TCAP
+TCP
+UMTS FP
+UMTS RLC
+Y.1711
+WBXML
+WSMP
 --sort-and-group--
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
-//--sort-and-group--
-//--sort-and-group--
+//There is no new or updated capture file support in this release.
+--sort-and-group--
+pcap, pcap-ng
+--sort-and-group--
 
 === New and Updated Capture Interfaces support
 
