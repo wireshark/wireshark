@@ -3804,11 +3804,10 @@ cf_unignore_frame(capture_file *cf, frame_data *frame)
 }
 
 /*
- * Read the comment in SHB block
+ * Read the section comment.
  */
-
 const gchar *
-cf_read_shb_comment(capture_file *cf)
+cf_read_section_comment(capture_file *cf)
 {
   wtap_block_t shb_inf;
   char *shb_comment;
@@ -3824,8 +3823,11 @@ cf_read_shb_comment(capture_file *cf)
   return shb_comment;
 }
 
+/*
+ * Modify the section comment.
+ */
 void
-cf_update_capture_comment(capture_file *cf, gchar *comment)
+cf_update_section_comment(capture_file *cf, gchar *comment)
 {
   wtap_block_t shb_inf;
   gchar *shb_comment;
@@ -3943,7 +3945,7 @@ cf_comment_types(capture_file *cf)
 {
   guint32 comment_types = 0;
 
-  if (cf_read_shb_comment(cf) != NULL)
+  if (cf_read_section_comment(cf) != NULL)
     comment_types |= WTAP_COMMENT_PER_SECTION;
   if (cf->packet_comment_count != 0)
     comment_types |= WTAP_COMMENT_PER_PACKET;

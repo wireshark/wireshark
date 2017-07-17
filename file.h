@@ -678,18 +678,20 @@ cf_merge_files_to_tempfile(gpointer pd_window, char **out_filenamep,
 
 /**
  * Get the comment on a capture from the SHB data block
+ * XXX - should support multiple sections.
  *
  * @param cf the capture file
  */
-const gchar* cf_read_shb_comment(capture_file *cf);
+const gchar* cf_read_section_comment(capture_file *cf);
 
 /**
  * Update(replace) the comment on a capture from the SHB data block
+ * XXX - should support multiple sections.
  *
  * @param cf the capture file
  * @param comment the string replacing the old comment
  */
-void cf_update_capture_comment(capture_file *cf, gchar *comment);
+void cf_update_section_comment(capture_file *cf, gchar *comment);
 
 char *cf_get_comment(capture_file *cf, const frame_data *fd);
 

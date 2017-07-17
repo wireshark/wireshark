@@ -107,7 +107,7 @@ void CaptureFilePropertiesDialog::updateWidgets()
     ui->commentsTextEdit->setEnabled(enable);
 
     fillDetails();
-    ui->commentsTextEdit->setText(cf_read_shb_comment(cap_file_.capFile()));
+    ui->commentsTextEdit->setText(cf_read_section_comment(cap_file_.capFile()));
 
     WiresharkDialog::updateWidgets();
 }
@@ -512,7 +512,7 @@ void CaptureFilePropertiesDialog::fillDetails()
     cursor.insertHtml(summary);
     cursor.insertBlock(); // Work around rendering oddity.
 
-    QString file_comments = cf_read_shb_comment(cap_file_.capFile());
+    QString file_comments = cf_read_section_comment(cap_file_.capFile());
     if (!file_comments.isEmpty()) {
         QString file_comments_html;
 
@@ -577,7 +577,7 @@ void CaptureFilePropertiesDialog::on_buttonBox_accepted()
     if (wtap_dump_can_write(cap_file_.capFile()->linktypes, WTAP_COMMENT_PER_SECTION))
     {
         gchar *str = qstring_strdup(ui->commentsTextEdit->toPlainText());
-        cf_update_capture_comment(cap_file_.capFile(), str);
+        cf_update_section_comment(cap_file_.capFile(), str);
         emit captureCommentChanged();
         fillDetails();
     }
