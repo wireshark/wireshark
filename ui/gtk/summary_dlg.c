@@ -141,7 +141,7 @@ summary_ok_cb(GtkWidget *w _U_, GtkWidget *view)
 
     new_comment = gtk_text_buffer_get_text (buffer, &start_iter, &end_iter, FALSE /* whether to include invisible text */);
 
-    cf_update_capture_comment(&cfile, new_comment);
+    cf_update_section_comment(&cfile, new_comment);
 
     /* Update the main window */
     main_update_for_unsaved_changes(&cfile);

@@ -80,7 +80,7 @@ capture_comment_text_buff_ok_cb(GtkWidget *w _U_, GtkWidget *view)
   new_capture_comment = gtk_text_buffer_get_text (buffer, &start_iter, &end_iter, FALSE /* whether to include invisible text */);
 
   /*g_warning("The new comment is '%s'",new_capture_comment);*/
-  cf_update_capture_comment(&cfile, new_capture_comment);
+  cf_update_section_comment(&cfile, new_capture_comment);
 
   /* Update the main window as appropriate */
   main_update_for_unsaved_changes(&cfile);
@@ -209,7 +209,7 @@ edit_capture_comment_dlg_launch (GtkAction *action _U_, gpointer data _U_)
   gtk_box_pack_start(GTK_BOX (vbox), scroll, TRUE, TRUE, 0);
 
   /* Get the comment */
-  comment_str = cf_read_shb_comment(&cfile);
+  comment_str = cf_read_section_comment(&cfile);
   if(comment_str != NULL){
     gtk_text_buffer_set_text (buffer, comment_str, -1);
   }
