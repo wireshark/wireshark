@@ -209,7 +209,7 @@
  */
 /* General indicies. */
 extern int hf_zbee_zdp_ext_addr;
-extern int hf_zbee_zdp_device;
+extern int hf_zbee_zdp_nwk_addr;
 extern int hf_zbee_zdp_req_type;
 extern int hf_zbee_zdp_index;
 extern int hf_zbee_zdp_ep_count;

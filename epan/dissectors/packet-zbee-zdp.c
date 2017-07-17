@@ -55,7 +55,7 @@ static int hf_zbee_zdp_length = -1; /* Deprecates since ZigBee 2006. */
 
 /* General indicies. */
        int hf_zbee_zdp_ext_addr = -1;
-       int hf_zbee_zdp_device = -1;
+       int hf_zbee_zdp_nwk_addr = -1;
        int hf_zbee_zdp_req_type = -1;
        int hf_zbee_zdp_index = -1;
 static int hf_zbee_zdp_status = -1;
@@ -1333,8 +1333,8 @@ void proto_register_zbee_zdp(void)
         { "Extended Address",           "zbee_zdp.ext_addr", FT_EUI64, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
-        { &hf_zbee_zdp_device,
-        { "Device",                     "zbee_zdp.device", FT_UINT16, BASE_HEX, NULL, 0x0,
+        { &hf_zbee_zdp_nwk_addr,
+        { "Nwk Addr of Interest",       "zbee_zdp.nwk_addr", FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_req_type,
@@ -1390,11 +1390,11 @@ void proto_register_zbee_zdp(void)
             NULL, HFILL }},
 
         { &hf_zbee_zdp_in_cluster,
-        { "Input Cluster",              "zbee_zdp.in_cluster", FT_UINT16, BASE_DEC, NULL, 0x0,
+        { "Input Cluster",              "zbee_zdp.in_cluster", FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_out_cluster,
-        { "Output Cluster",             "zbee_zdp.out_cluster", FT_UINT16, BASE_DEC, NULL, 0x0,
+        { "Output Cluster",             "zbee_zdp.out_cluster", FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_assoc_device_count,

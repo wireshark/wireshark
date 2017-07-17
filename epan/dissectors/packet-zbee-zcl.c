@@ -573,6 +573,8 @@ static value_string_ext zbee_mfr_code_names_ext = VALUE_STRING_EXT_INIT(zbee_mfr
     { ZBEE_ZCL_STAT_HARDWARE_FAILURE,               "Hardware Failure"},
     { ZBEE_ZCL_STAT_SOFTWARE_FAILURE,               "Software Failure"},
     { ZBEE_ZCL_STAT_CALIBRATION_ERROR,              "Calibration Error"},
+    { ZBEE_ZCL_STAT_UNSUPPORTED_CLUSTER,            "Unsupported Cluster"},
+    { ZBEE_ZCL_STAT_LIMIT_REACHED,                  "Limit Reached"},
     { 0, NULL }
 };
 

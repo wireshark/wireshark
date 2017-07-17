@@ -3419,7 +3419,7 @@ proto_register_zbee_zcl_alarms(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_alarms_alarm_code,
-            { "Alarm Code", "zbee_zcl_general.alarms.alarm_code", FT_UINT16, BASE_HEX, NULL,
+            { "Alarm Code", "zbee_zcl_general.alarms.alarm_code", FT_UINT8, BASE_HEX, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_alarms_cluster_id,
