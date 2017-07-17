@@ -1,6 +1,6 @@
 /* packet-lpp.c
  * Routines for 3GPP LTE Positioning Protocol (LPP) packet dissection
- * Copyright 2011-2016 Pascal Quantin <pascal.quantin@gmail.com>
+ * Copyright 2011-2017 Pascal Quantin <pascal.quantin@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -20,7 +20,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Ref 3GPP TS 36.355 version 13.2.0 Release 13
+ * Ref 3GPP TS 36.355 version 14.2.0 Release 14
  * http://www.3gpp.org
  */
 
@@ -119,6 +119,12 @@ lpp_confidence_fmt(gchar *s, guint32 v)
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%u%%", v);
   }
+}
+
+static void
+lpp_measurementLimit_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%u octets (%u)", 100*v, v);
 }
 
 static void
@@ -231,6 +237,14 @@ static const value_string lpp_error_NumSamples_vals[] = {
   {  7, "55 or more"},
   { 0, NULL}
 };
+
+static void
+lpp_relativeTimeDifference_fmt(gchar *s, guint32 v)
+{
+  double rtd = (double)((gint32)v)*0.5;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f Ts (%d)", rtd, (gint32)v);
+}
 
 static void
 lpp_referenceTimeUnc_fmt(gchar *s, guint32 v)
@@ -1581,6 +1595,46 @@ lpp_codePhaseRMSError_fmt(gchar *s, guint32 v)
 }
 
 static void
+lpp_transmitterLatitude_fmt(gchar *s, guint32 v)
+{
+  double lat = ((double)v*4.0/pow(2, 20))-90.0;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%g degrees (%u)", lat, v);
+}
+
+static void
+lpp_transmitterLongitude_fmt(gchar *s, guint32 v)
+{
+  double longitude = ((double)v*4.0/pow(2, 20))-180.0;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%g degrees (%u)", longitude, v);
+}
+
+static void
+lpp_transmitterAltitude_fmt(gchar *s, guint32 v)
+{
+  double alt = ((double)v*0.29)-500.0;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%gm (%u)", alt, v);
+}
+
+static void
+lpp_refPressure_fmt(gchar *s, guint32 v)
+{
+  gint32 pressure = (gint32)v;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%dPa (%d)", 101325+pressure, pressure);
+}
+
+static void
+lpp_refTemperature_fmt(gchar *s, guint32 v)
+{
+  gint32 temp = (gint32)v;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%dK (%d)", 273+temp, temp);
+}
+
+static void
 lpp_doppler_fmt(gchar *s, guint32 v)
 {
   g_snprintf(s, ITEM_LABEL_LENGTH, "%gm/s (%d)", (gint32)v*0.04, (gint32)v);
@@ -1597,7 +1651,13 @@ lpp_adr_fmt(gchar *s, guint32 v)
 static void
 lpp_rsrp_Result_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%u)", v-140, v);
+  if (v == 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "RSRP < -140dBm (0)");
+  } else if (v < 97) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm < RSRP <= %ddBm (%u)", v-141, v-140, v);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "-44dBm <= RSRP (97)");
+  }
 }
 
 static void
@@ -1609,6 +1669,30 @@ lpp_rsrq_Result_fmt(gchar *s, guint32 v)
     g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB <= RSRQ < %.1fdB (%u)", ((float)v/2)-20, (((float)v+1)/2)-20, v);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "-3dB <= RSRQ (34)");
+  }
+}
+
+static void
+lpp_nrsrp_Result_fmt(gchar *s, guint32 v)
+{
+  if (v == 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "NRSRP < -156dBm (0)");
+  } else if (v < 113) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm < NRSRP <= %ddBm (%u)", v-157, v-156, v);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "-44dBm <= NRSRP (97)");
+  }
+}
+
+static void
+lpp_nrsrq_Result_fmt(gchar *s, guint32 v)
+{
+  if (v == 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "NRSRQ < -19.5dB (0)");
+  } else if (v < 46) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB < NRSRQ <= %.1fdB (%u)", ((float)v/2)-20, (((float)v+1)/2)-20, v);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "2.5dB <= NRSRQ (%u)", v);
   }
 }
 

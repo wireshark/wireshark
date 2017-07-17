@@ -1,4 +1,4 @@
--- 3GPP TS 36.355 V13.2.0 (2016-09)
+-- 3GPP TS 36.355 V14.2.0 (2017-06)
 --
 
 LPP-PDU-Definitions {
@@ -80,7 +80,6 @@ RequestCapabilities-r9-IEs ::= SEQUENCE {
 		wlan-RequestCapabilities-r13	WLAN-RequestCapabilities-r13		OPTIONAL,	-- Need ON
 		bt-RequestCapabilities-r13		BT-RequestCapabilities-r13			OPTIONAL	-- Need ON
 	]]
-
 }
 
 
@@ -124,7 +123,12 @@ RequestAssistanceData-r9-IEs ::= SEQUENCE {
 	a-gnss-RequestAssistanceData		A-GNSS-RequestAssistanceData		OPTIONAL,
 	otdoa-RequestAssistanceData			OTDOA-RequestAssistanceData			OPTIONAL,
 	epdu-RequestAssistanceData			EPDU-Sequence						OPTIONAL,
-	...
+	...,
+	[[	sensor-RequestAssistanceData-r14
+										Sensor-RequestAssistanceData-r14	OPTIONAL,
+		tbs-RequestAssistanceData-r14	TBS-RequestAssistanceData-r14		OPTIONAL,
+		wlan-RequestAssistanceData-r14	WLAN-RequestAssistanceData-r14		OPTIONAL
+	]]
 }
 
 
@@ -143,7 +147,12 @@ ProvideAssistanceData-r9-IEs ::= SEQUENCE {
 	a-gnss-ProvideAssistanceData		A-GNSS-ProvideAssistanceData		OPTIONAL,	-- Need ON
 	otdoa-ProvideAssistanceData			OTDOA-ProvideAssistanceData			OPTIONAL,	-- Need ON
 	epdu-Provide-Assistance-Data		EPDU-Sequence						OPTIONAL,	-- Need ON
-	...
+	...,
+	[[
+	sensor-ProvideAssistanceData-r14	Sensor-ProvideAssistanceData-r14	OPTIONAL,	-- Need ON
+	tbs-ProvideAssistanceData-r14		TBS-ProvideAssistanceData-r14		OPTIONAL,	-- Need ON
+	wlan-ProvideAssistanceData-r14		WLAN-ProvideAssistanceData-r14		OPTIONAL	-- Need ON
+	]]
 }
 
 
@@ -159,7 +168,7 @@ RequestLocationInformation ::= SEQUENCE {
 
 RequestLocationInformation-r9-IEs ::= SEQUENCE {
 	commonIEsRequestLocationInformation
-									CommonIEsRequestLocationInformation		OPTIONAL,	-- Need ON
+										CommonIEsRequestLocationInformation	OPTIONAL,	-- Need ON
 	a-gnss-RequestLocationInformation	A-GNSS-RequestLocationInformation	OPTIONAL,	-- Need ON
 	otdoa-RequestLocationInformation	OTDOA-RequestLocationInformation	OPTIONAL,	-- Need ON
 	ecid-RequestLocationInformation		ECID-RequestLocationInformation		OPTIONAL,	-- Need ON
@@ -203,7 +212,6 @@ ProvideLocationInformation-r9-IEs ::= SEQUENCE {
 	wlan-ProvideLocationInformation-r13	WLAN-ProvideLocationInformation-r13	OPTIONAL,
 	bt-ProvideLocationInformation-r13	BT-ProvideLocationInformation-r13	OPTIONAL
 	]]
-
 }
 
 
@@ -239,7 +247,8 @@ Error-r9-IEs ::= SEQUENCE {
 AccessTypes ::= SEQUENCE {
 	accessTypes		BIT STRING {	eutra		(0),
 									utra		(1),
-									gsm			(2)	 } (SIZE (1..8)),
+									gsm			(2),
+									nb-iot		(3) } (SIZE (1..8)),
 	...
 }
 
@@ -247,6 +256,8 @@ AccessTypes ::= SEQUENCE {
 ARFCN-ValueEUTRA ::= INTEGER (0..maxEARFCN)
 
 ARFCN-ValueEUTRA-v9a0 ::=	INTEGER (maxEARFCN-Plus1..maxEARFCN2)
+
+ARFCN-ValueEUTRA-r14  ::=	INTEGER (0..maxEARFCN2)
 
 maxEARFCN					INTEGER ::= 65535	-- Maximum value of EUTRA carrier frequency
 
@@ -256,6 +267,19 @@ maxEARFCN2					INTEGER ::= 262143	-- Highest value extended EARFCN range
 
 
 ARFCN-ValueUTRA ::=	INTEGER (0..16383)
+
+
+CarrierFreq-NB-r14 ::=		SEQUENCE {
+	carrierFreq-r14				ARFCN-ValueEUTRA-r14,
+	carrierFreqOffset-r14		CarrierFreqOffsetNB-r14				OPTIONAL,
+	...
+}
+
+
+CarrierFreqOffsetNB-r14 ::=		ENUMERATED {
+									v-10, v-9, v-8,	v-7, v-6, v-5, v-4, v-3, v-2, v-1, v-0dot5,
+									  v0,  v1,	v2,	 v3,  v4,  v5, 	v6,  v7,  v8,  v9
+									}
 
 
 CellGlobalIdEUTRA-AndUTRA ::= SEQUENCE {
@@ -471,7 +495,10 @@ CommonIEsRequestLocationInformation ::= SEQUENCE {
 	environment					Environment					OPTIONAL,	-- Need ON
 	locationCoordinateTypes		LocationCoordinateTypes		OPTIONAL,	-- Need ON
 	velocityTypes				VelocityTypes				OPTIONAL,	-- Need ON
-	...
+	...,
+	[[
+		messageSizeLimitNB-r14	MessageSizeLimitNB-r14		OPTIONAL	-- Need ON
+	]]
 }
 
 LocationInformationType ::= ENUMERATED {
@@ -513,7 +540,9 @@ QoS ::= SEQUENCE {
 	verticalAccuracy			VerticalAccuracy		OPTIONAL,	-- Need ON
 	responseTime				ResponseTime			OPTIONAL,	-- Need ON
 	velocityRequest				BOOLEAN,
-	...
+	...,
+	[[	responseTimeNB-r14		ResponseTimeNB-r14		OPTIONAL	-- Need ON
+	]]
 }
 
 HorizontalAccuracy ::= SEQUENCE {
@@ -535,10 +564,21 @@ ResponseTime ::= SEQUENCE {
 	]]
 }
 
+ResponseTimeNB-r14 ::= SEQUENCE {
+	timeNB-r14							INTEGER (1..512),
+	responseTimeEarlyFixNB-r14			INTEGER (1..512)		OPTIONAL,		-- Need ON
+	...
+}
+
 Environment ::= ENUMERATED {
 	badArea,
 	notBadArea,
 	mixedArea,
+	...
+}
+
+MessageSizeLimitNB-r14 ::= SEQUENCE {
+	measurementLimit-r14				INTEGER (1..512)		OPTIONAL,		-- Need ON
 	...
 }
 
@@ -628,7 +668,11 @@ OTDOA-ProvideAssistanceData ::= SEQUENCE {
 	otdoa-ReferenceCellInfo			OTDOA-ReferenceCellInfo				OPTIONAL,	-- Need ON
 	otdoa-NeighbourCellInfo			OTDOA-NeighbourCellInfoList			OPTIONAL,	-- Need ON
 	otdoa-Error						OTDOA-Error							OPTIONAL,	-- Need ON
-	...
+	...,
+	[[
+	  otdoa-ReferenceCellInfoNB-r14	OTDOA-ReferenceCellInfoNB-r14		OPTIONAL,	-- Need ON
+	  otdoa-NeighbourCellInfoNB-r14	OTDOA-NeighbourCellInfoListNB-r14	OPTIONAL	-- Need ON
+	]]
 }
 
 
@@ -642,23 +686,52 @@ OTDOA-ReferenceCellInfo ::= SEQUENCE {
 	prsInfo						PRS-Info					OPTIONAL,		-- Cond PRS
 	...,
 	[[ earfcnRef-v9a0			ARFCN-ValueEUTRA-v9a0		OPTIONAL		-- Cond NotSameAsServ2
+	]],
+	[[ tpId-r14					INTEGER (0..4095)			OPTIONAL,		-- Need ON
+		cpLengthCRS-r14			ENUMERATED { normal, extended, ... }
+															OPTIONAL,		-- Cond CRS
+		sameMBSFNconfigRef-r14 	BOOLEAN						OPTIONAL,		-- Need ON
+		dlBandwidth-r14			ENUMERATED {n6, n15, n25, n50, n75, n100}
+															OPTIONAL,		-- Cond NotSameAsServ3
+		addPRSconfigRef-r14		SEQUENCE (SIZE (1..maxAddPRSconfig-r14)) OF PRS-Info
+															OPTIONAL		-- Need ON
 	]]
 }
+
+maxAddPRSconfig-r14 			INTEGER ::= 2
 
 
 PRS-Info ::= SEQUENCE {
 	prs-Bandwidth			ENUMERATED { n6, n15, n25, n50, n75, n100, ... },
 	prs-ConfigurationIndex	INTEGER (0..4095),
-	numDL-Frames			ENUMERATED {sf-1, sf-2, sf-4, sf-6, ...},
+	numDL-Frames			ENUMERATED {sf-1, sf-2, sf-4, sf-6, ..., sf-add-v1420},
 	...,
 	prs-MutingInfo-r9		CHOICE {
 		po2-r9					BIT STRING (SIZE(2)),
 		po4-r9					BIT STRING (SIZE(4)),
 		po8-r9					BIT STRING (SIZE(8)),
 		po16-r9					BIT STRING (SIZE(16)),
-		...
-	}														OPTIONAL				-- Need OP
+		...,
+		po32-v1420				BIT STRING (SIZE(32)),
+		po64-v1420				BIT STRING (SIZE(64)),
+		po128-v1420				BIT STRING (SIZE(128)),
+		po256-v1420				BIT STRING (SIZE(256)),
+		po512-v1420				BIT STRING (SIZE(512)),
+		po1024-v1420			BIT STRING (SIZE(1024))
+	}														OPTIONAL,				-- Need OP
+	[[ prsID-r14			INTEGER (0..4095)				OPTIONAL,				-- Need ON
+		add-numDL-Frames-r14	INTEGER (1..160)			OPTIONAL,				-- Cond sf-add
+		prsOccGroupLen-r14	ENUMERATED {g2, g4, g8, g16, g32, g64, g128,... }
+															OPTIONAL, 				-- Cond Occ-Grp
+		prsHoppingInfo-r14	CHOICE {
+			nb2-r14				INTEGER (0.. maxAvailNarrowBands-Minus1-r14),
+			nb4-r14				SEQUENCE (SIZE (3))
+										OF INTEGER (1.. maxAvailNarrowBands-Minus1-r14)
+	}														OPTIONAL				-- Cond PRS-FH
+	]]
 }
+
+maxAvailNarrowBands-Minus1-r14		INTEGER ::= 15	-- Maximum number of narrowbands minus 1
 
 
 OTDOA-NeighbourCellInfoList ::= SEQUENCE (SIZE (1..maxFreqLayers)) OF OTDOA-NeighbourFreqInfo
@@ -679,22 +752,125 @@ OTDOA-NeighbourCellInfoElement ::= SEQUENCE {
 	expectedRSTD-Uncertainty			INTEGER (0..1023),
 	...,
 	[[ earfcn-v9a0					ARFCN-ValueEUTRA-v9a0	OPTIONAL		-- Cond NotSameAsRef5
+	]],
+	[[ tpId-r14						INTEGER (0..4095)		OPTIONAL,		-- Need ON
+		prs-only-tp-r14				ENUMERATED { true }		OPTIONAL,		-- Cond TBS
+		cpLengthCRS-r14				ENUMERATED { normal, extended, ... }
+															OPTIONAL,		-- Cond CRS
+		sameMBSFNconfigNeighbour-r14	BOOLEAN				OPTIONAL,		-- Need ON
+		dlBandwidth-r14				ENUMERATED {n6, n15, n25, n50, n75, n100}
+															OPTIONAL,		-- Cond NotSameAsRef6
+		addPRSconfigNeighbour-r14	SEQUENCE (SIZE (1..maxAddPRSconfig-r14)) OF
+										Add-PRSconfigNeighbourElement-r14
+															OPTIONAL		-- Need ON
 	]]
+}
+
+Add-PRSconfigNeighbourElement-r14 ::= SEQUENCE {
+	add-prsInfo-r14					PRS-Info				OPTIONAL,		-- Cond NotSameAsRef7
+	...
 }
 
 maxFreqLayers	INTEGER ::= 3
 
 
+OTDOA-ReferenceCellInfoNB-r14 ::= SEQUENCE {
+	physCellIdNB-r14				INTEGER (0..503)			OPTIONAL,	-- Cond NoPRS-AD1
+	cellGlobalIdNB-r14				ECGI						OPTIONAL,	-- Cond NoPRS-AD2
+	carrierFreqRef-r14				CarrierFreq-NB-r14			OPTIONAL,	-- Cond NotSameAsServ1
+	earfcn-r14 						ARFCN-ValueEUTRA-r14		OPTIONAL,	-- Cond Inband
+	eutra-NumCRS-Ports-r14			ENUMERATED {ports1-or-2, ports4}
+																OPTIONAL,	-- Cond NoPRS-AD3
+	otdoa-SIB1-NB-repetitions-r14	ENUMERATED { r4, r8, r16 }	OPTIONAL,	-- Cond NotSameAsServ2
+	nprsInfo-r14					PRS-Info-NB-r14				OPTIONAL,	-- Cond NPRS
+	...
+}
+
+
+PRS-Info-NB-r14 ::= SEQUENCE (SIZE (1..maxCarrier-r14)) OF NPRS-Info-r14
+
+NPRS-Info-r14 ::= SEQUENCE {
+	operationModeInfoNPRS-r14	ENUMERATED { inband, standalone },
+	nprs-carrier-r14			CarrierFreq-NB-r14	OPTIONAL, 	-- Cond Standalone/Guardband
+	nprsSequenceInfo-r14		INTEGER (0..174)	OPTIONAL,	-- Cond Inband
+	nprsID-r14					INTEGER (0..4095)	OPTIONAL,	-- Cond NPRS-ID
+	partA-r14					SEQUENCE {
+		nprsBitmap-r14			CHOICE {
+			subframePattern10-r14	BIT STRING (SIZE (10)),
+			subframePattern40-r14  	BIT STRING (SIZE (40))
+		},
+		nprs-MutingInfoA-r14	CHOICE {
+			po2-r14					BIT STRING (SIZE(2)),
+			po4-r14					BIT STRING (SIZE(4)),
+			po8-r14					BIT STRING (SIZE(8)),
+			po16-r14				BIT STRING (SIZE(16)),
+			...
+		}															OPTIONAL,		-- Cond MutingA
+		...
+	}																OPTIONAL,		-- Cond PartA
+	partB-r14					SEQUENCE {
+		nprs-Period-r14			ENUMERATED { ms160, ms320, ms640, ms1280, ... },
+		nprs-startSF-r14		ENUMERATED { zero, one-eighth, two-eighths, three-eighths,
+											 four-eighths, five-eighths, six-eighths,
+											 seven-eighths, ...},
+		nprs-NumSF-r14			ENUMERATED { sf10, sf20, sf40, sf80, sf160, sf320,
+											 sf640, sf1280, ...},
+		nprs-MutingInfoB-r14	CHOICE {
+			po2-r14					BIT STRING (SIZE(2)),
+			po4-r14					BIT STRING (SIZE(4)),
+			po8-r14					BIT STRING (SIZE(8)),
+			po16-r14				BIT STRING (SIZE(16)),
+			...
+		}															OPTIONAL,		-- Cond MutingB
+		...
+	}																OPTIONAL,		-- Cond PartB
+	...
+}
+
+maxCarrier-r14	INTEGER ::= 5
+
+
+OTDOA-NeighbourCellInfoListNB-r14 ::= SEQUENCE (SIZE (1..maxCells-r14)) OF
+														OTDOA-NeighbourCellInfoNB-r14
+
+OTDOA-NeighbourCellInfoNB-r14 ::= SEQUENCE {
+	physCellIdNB-r14				INTEGER (0..503)		OPTIONAL,		-- Cond NoPRS-AD1
+	cellGlobalIdNB-r14				ECGI					OPTIONAL,		-- Cond NoPRS-AD2
+	carrierFreq-r14					CarrierFreq-NB-r14		OPTIONAL,		-- Cond NotSameAsRef1
+	earfcn-r14 						ARFCN-ValueEUTRA-r14	OPTIONAL,		-- Cond Inband
+	eutra-NumCRS-Ports-r14			ENUMERATED {ports-1-or-2, ports-4, ...}
+															OPTIONAL,  		-- Cond NotsameAsRef2
+	otdoa-SIB1-NB-repetitions-r14	ENUMERATED { r4, r8, r16 }
+															OPTIONAL,		-- Cond	NotSameAsRef3
+	nprsInfo-r14					PRS-Info-NB-r14			OPTIONAL,		-- Cond NotsameAsRef4
+	nprs-slotNumberOffset-r14		INTEGER (0..19)			OPTIONAL,		-- Cond NotsameAsRef5
+	nprs-SFN-Offset-r14				INTEGER (0..63)			OPTIONAL,		-- Cond NotsameAsRef6
+	nprs-SubframeOffset-r14			INTEGER (0..1279)		OPTIONAL,		-- Need OP
+	expectedRSTD-r14				INTEGER (0..16383)		OPTIONAL,		-- Cond NoPRS-AD3
+	expectedRSTD-Uncertainty-r14	INTEGER (0..1023)		OPTIONAL,		-- Cond NoPRS-AD3
+	prsNeighbourCellIndex-r14		INTEGER (1..72)			OPTIONAL,		-- Cond PRS-AD
+	...
+}
+
+maxCells-r14	INTEGER ::= 72
+
+
 OTDOA-RequestAssistanceData ::= SEQUENCE {
 	physCellId		INTEGER (0..503),
-	...
+	...,
+	[[
+	  adType-r14	BIT STRING { prs (0), nprs (1) } (SIZE (1..8))		OPTIONAL
+	]]
 }
 
 
 OTDOA-ProvideLocationInformation ::= SEQUENCE {
 	otdoaSignalMeasurementInformation	OTDOA-SignalMeasurementInformation	OPTIONAL,
 	otdoa-Error							OTDOA-Error							OPTIONAL,
-	...
+	...,
+	[[
+		otdoaSignalMeasurementInformation-NB-r14	OTDOA-SignalMeasurementInformation-NB-r14	OPTIONAL
+	]]
 }
 
 
@@ -707,6 +883,15 @@ OTDOA-SignalMeasurementInformation ::= SEQUENCE {
 	neighbourMeasurementList	NeighbourMeasurementList,
 	...,
 	[[ earfcnRef-v9a0		ARFCN-ValueEUTRA-v9a0	OPTIONAL		-- Cond NotSameAsRef1
+	]],
+	[[ tpIdRef-r14			INTEGER (0..4095)		OPTIONAL,		-- Cond ProvidedByServer0
+		prsIdRef-r14		INTEGER (0..4095)		OPTIONAL,		-- Cond ProvidedByServer1
+		additionalPathsRef-r14
+							AdditionalPathList-r14	OPTIONAL,
+		nprsIdRef-r14		INTEGER (0..4095)		OPTIONAL,		-- Cond ProvidedByServer2
+		carrierFreqOffsetNB-Ref-r14
+							CarrierFreqOffsetNB-r14	OPTIONAL,		-- Cond NB-IoT
+		hyperSFN-r14		BIT STRING (SIZE (10))	OPTIONAL		-- Cond H-SFN
 	]]
 }
 
@@ -720,7 +905,56 @@ NeighbourMeasurementElement ::= SEQUENCE {
 	rstd-Quality			OTDOA-MeasQuality,
 	...,
 	[[ earfcnNeighbour-v9a0	ARFCN-ValueEUTRA-v9a0	OPTIONAL		-- Cond NotSameAsRef3
+	]],
+	[[ tpIdNeighbour-r14	INTEGER (0..4095)		OPTIONAL,		-- Cond ProvidedByServer0
+		prsIdNeighbour-r14	INTEGER (0..4095)		OPTIONAL,		-- Cond ProvidedByServer1
+		delta-rstd-r14		INTEGER (0..5)			OPTIONAL,
+		additionalPathsNeighbour-r14
+							AdditionalPathList-r14	OPTIONAL,
+		nprsIdNeighbour-r14	INTEGER (0..4095)		OPTIONAL,		-- Cond ProvidedByServer2
+		carrierFreqOffsetNB-Neighbour-r14
+							CarrierFreqOffsetNB-r14	OPTIONAL		-- Cond NB-IoT
 	]]
+}
+
+AdditionalPathList-r14 ::= SEQUENCE (SIZE(1..maxPaths-r14)) OF AdditionalPath-r14
+
+maxPaths-r14    INTEGER ::= 2
+
+
+OTDOA-SignalMeasurementInformation-NB-r14 ::= SEQUENCE {
+	systemFrameNumber-r14			BIT STRING (SIZE (10)),
+	physCellIdRef-r14				INTEGER (0..503),
+	cellGlobalIdRef-r14				ECGI					OPTIONAL,
+	earfcnRef-r14					ARFCN-ValueEUTRA-r14	OPTIONAL,	-- Cond NotSameAsRef0
+	referenceQuality-r14			OTDOA-MeasQuality		OPTIONAL,
+	neighbourMeasurementList-r14	NeighbourMeasurementList-NB-r14,
+	tpIdRef-r14						INTEGER (0..4095)		OPTIONAL,	-- Cond ProvidedByServer0
+	prsIdRef-r14					INTEGER (0..4095)		OPTIONAL,	-- Cond ProvidedByServer1
+	additionalPathsRef-r14			AdditionalPathList-r14	OPTIONAL,
+	nprsIdRef-r14					INTEGER (0..4095)		OPTIONAL,	-- Cond ProvidedByServer2
+	carrierFreqOffsetNB-Ref-r14		CarrierFreqOffsetNB-r14	OPTIONAL,	-- Cond NB-IoT
+	hyperSFN-r14					BIT STRING (SIZE (10))	OPTIONAL,	-- Cond H-SFN
+	...
+}
+
+NeighbourMeasurementList-NB-r14 ::= SEQUENCE (SIZE(1..24)) OF NeighbourMeasurementElement-NB-r14
+
+NeighbourMeasurementElement-NB-r14 ::= SEQUENCE {
+	physCellIdNeighbour-r14		INTEGER (0..503),
+	cellGlobalIdNeighbour-r14	ECGI					OPTIONAL,
+	earfcnNeighbour-r14			ARFCN-ValueEUTRA-r14	OPTIONAL,		-- Cond NotSameAsRef2
+	rstd-r14					INTEGER (0..12711),
+	rstd-Quality-r14			OTDOA-MeasQuality,
+	tpIdNeighbour-r14			INTEGER (0..4095)		OPTIONAL,		-- Cond ProvidedByServer0
+	prsIdNeighbour-r14			INTEGER (0..4095)		OPTIONAL,		-- Cond ProvidedByServer1
+	delta-rstd-r14				INTEGER (0..5)			OPTIONAL,
+	additionalPathsNeighbour-r14
+								AdditionalPathList-r14	OPTIONAL,
+	nprsIdNeighbour-r14			INTEGER (0..4095)		OPTIONAL,		-- Cond ProvidedByServer2
+	carrierFreqOffsetNB-Neighbour-r14
+								CarrierFreqOffsetNB-r14	OPTIONAL,		-- Cond NB-IoT
+	...
 }
 
 
@@ -732,20 +966,45 @@ OTDOA-MeasQuality ::= SEQUENCE {
 }
 
 
-OTDOA-RequestLocationInformation ::= SEQUENCE {
-	assistanceAvailability		BOOLEAN,
+AdditionalPath-r14 ::= SEQUENCE {
+	relativeTimeDifference-r14	INTEGER (-256..255),
+	path-Quality-r14			OTDOA-MeasQuality				OPTIONAL,
 	...
 }
 
 
+OTDOA-RequestLocationInformation ::= SEQUENCE {
+	assistanceAvailability		BOOLEAN,
+	...,
+	[[
+		multipathRSTD-r14		ENUMERATED { requested }	OPTIONAL,		-- Need ON
+		maxNoOfRSTDmeas-r14		INTEGER (1..32)				OPTIONAL        -- Need ON
+	]]
+}
+
+
 OTDOA-ProvideCapabilities ::= SEQUENCE {
-	otdoa-Mode		BIT STRING { 	ue-assisted (0) } (SIZE (1..8)),
+	otdoa-Mode		BIT STRING { 	ue-assisted 		(0),
+									ue-assisted-NB-r14	(1) } (SIZE (1..8)),
 	...,
 	supportedBandListEUTRA 		SEQUENCE (SIZE (1..maxBands)) OF SupportedBandEUTRA		OPTIONAL,
 	supportedBandListEUTRA-v9a0	SEQUENCE (SIZE (1..maxBands)) OF SupportedBandEUTRA-v9a0
 																						OPTIONAL,
 	interFreqRSTDmeasurement-r10		ENUMERATED { supported }						OPTIONAL,
-	additionalNeighbourCellInfoList-r10	ENUMERATED { supported }						OPTIONAL
+	additionalNeighbourCellInfoList-r10	ENUMERATED { supported }						OPTIONAL,
+	prs-id-r14							ENUMERATED { supported }						OPTIONAL,
+	tp-separation-via-muting-r14		ENUMERATED { supported }						OPTIONAL,
+	additional-prs-config-r14			ENUMERATED { supported }						OPTIONAL,
+	prs-based-tbs-r14					ENUMERATED { supported }						OPTIONAL,
+	additionalPathsReport-r14			ENUMERATED { supported }						OPTIONAL,
+	densePrsConfig-r14					ENUMERATED { supported }						OPTIONAL,
+	maxSupportedPrsBandwidth-r14 		ENUMERATED { n6, n15, n25, n50, n75, n100, ...}	OPTIONAL,
+	prsOccGroup-r14						ENUMERATED { supported }						OPTIONAL,
+	prsFrequencyHopping-r14 			ENUMERATED { supported }						OPTIONAL,
+	maxSupportedPrsConfigs-r14			ENUMERATED { c2, c3 }							OPTIONAL,
+	periodicalReporting-r14				ENUMERATED { supported }						OPTIONAL,
+	multiPrbNprs-r14					ENUMERATED { supported }						OPTIONAL,
+	idleStateForMeasurements-r14		ENUMERATED { required }							OPTIONAL
 }
 
 maxBands INTEGER ::= 64
@@ -910,7 +1169,13 @@ NetworkTime ::= SEQUENCE {
 							cellGlobalIdGERAN	CellGlobalIdGERAN			OPTIONAL,	-- Need ON
 							...
 							},
-				...
+				...,
+				nBIoT-r14	SEQUENCE {
+							nbPhysCellId-r14	INTEGER (0..503),
+							nbCellGlobalId-r14	ECGI						OPTIONAL,	-- Need ON
+							nbCarrierFreq-r14	CarrierFreq-NB-r14,
+							...
+							}
 				},
 	...
 }
@@ -1832,7 +2097,15 @@ MeasurementReferenceTime  ::= SEQUENCE {
 				deltaGNSS-TOD 		INTEGER (0 .. 127)		OPTIONAL,
 				...
 				},
-		...
+		...,
+		nbIoT-r14
+				SEQUENCE {
+				nbPhysCellId-r14	INTEGER (0..503),
+				nbCellGlobalId-r14	ECGI						OPTIONAL,
+				sfn-r14				BIT STRING (SIZE (10)),
+				hyperSFN-r14		BIT STRING (SIZE (10))		OPTIONAL,
+				...
+				}
 		}		OPTIONAL,
 	...
 }
@@ -1899,7 +2172,12 @@ A-GNSS-ProvideCapabilities ::= SEQUENCE {
 	assistanceDataSupportList	AssistanceDataSupportList		OPTIONAL,
 	locationCoordinateTypes		LocationCoordinateTypes			OPTIONAL,
 	velocityTypes				VelocityTypes					OPTIONAL,
-	...
+	...,
+	[[ periodicalReportingNotSupported-r14
+								PositioningModes				OPTIONAL,
+		idleStateForMeasurements-r14
+								ENUMERATED { required }			OPTIONAL
+	]]
 }
 
 GNSS-SupportList ::= SEQUENCE (SIZE(1..16)) OF GNSS-SupportElement
@@ -2199,6 +2477,12 @@ MeasuredResultsElement ::= SEQUENCE {
 	ue-RxTxTimeDiff	INTEGER (0..4095)					OPTIONAL,
 	...,
 	[[ arfcnEUTRA-v9a0		ARFCN-ValueEUTRA-v9a0 		OPTIONAL		-- Cond EARFCN-max
+	]],
+	[[ nrsrp-Result-r14		INTEGER (0..113)			OPTIONAL,
+	   nrsrq-Result-r14		INTEGER (0..74)				OPTIONAL,
+	   carrierFreqOffsetNB-r14
+							CarrierFreqOffsetNB-r14		OPTIONAL,		-- Cond NB-IoT
+	   hyperSFN-r14			BIT STRING (SIZE (10))		OPTIONAL
 	]]
 }
 
@@ -2206,7 +2490,9 @@ MeasuredResultsElement ::= SEQUENCE {
 ECID-RequestLocationInformation ::= SEQUENCE {
 	requestedMeasurements		BIT STRING { 	rsrpReq		(0),
 												rsrqReq		(1),
-												ueRxTxReq	(2)	} (SIZE(1..8)),
+												ueRxTxReq	(2),
+												nrsrpReq-r14	(3),
+												nrsrqReq-r14	(4)} (SIZE(1..8)),
 	...
 }
 
@@ -2214,9 +2500,15 @@ ECID-RequestLocationInformation ::= SEQUENCE {
 ECID-ProvideCapabilities ::= SEQUENCE {
 	ecid-MeasSupported	BIT STRING { 	rsrpSup		(0),
 										rsrqSup		(1),
-										ueRxTxSup	(2)	} (SIZE(1..8)),
+										ueRxTxSup	(2),
+										nrsrpSup-r14	(3),
+										nrsrqSup-r14	(4)} (SIZE(1..8)),
 	...,
-	[[	ueRxTxSupTDD-r13		ENUMERATED { true }				OPTIONAL
+	[[	ueRxTxSupTDD-r13					ENUMERATED { true }				OPTIONAL
+	]],
+	[[	periodicalReporting-r14				ENUMERATED { supported }		OPTIONAL,
+		triggeredReporting-r14				ENUMERATED { supported }		OPTIONAL,
+		idleStateForMeasurements-r14		ENUMERATED { required }			OPTIONAL
 	]]
 }
 
@@ -2250,20 +2542,24 @@ ECID-TargetDeviceErrorCauses ::= SEQUENCE {
 	rsrpMeasurementNotPossible				NULL		OPTIONAL,
 	rsrqMeasurementNotPossible				NULL		OPTIONAL,
 	ueRxTxMeasurementNotPossible			NULL		OPTIONAL,
-	...
+	...,
+	[[
+	  nrsrpMeasurementNotPossible-r14		NULL		OPTIONAL,
+	  nrsrqMeasurementNotPossible-r14		NULL		OPTIONAL
+	]]
 }
 
 
 TBS-ProvideLocationInformation-r13 ::= SEQUENCE {
 	tbs-MeasurementInformation-r13			TBS-MeasurementInformation-r13		OPTIONAL,
-		tbs-Error-r13					TBS-Error-r13				OPTIONAL,
-		...
+	tbs-Error-r13							TBS-Error-r13						OPTIONAL,
+	...
 }
 
 
 TBS-MeasurementInformation-r13 ::= SEQUENCE {
-	measurementReferenceTime-r13	UTCTime	OPTIONAL,
-	mbs-SgnMeasList-r13				MBS-BeaconMeasList-r13 OPTIONAL, -- Cond MBS
+	measurementReferenceTime-r13	UTCTime						OPTIONAL,
+	mbs-SgnMeasList-r13				MBS-BeaconMeasList-r13 		OPTIONAL, 	-- Cond MBS
 	...
 }
 
@@ -2271,29 +2567,52 @@ TBS-MeasurementInformation-r13 ::= SEQUENCE {
 MBS-BeaconMeasList-r13 ::= SEQUENCE (SIZE(1..64)) OF MBS-BeaconMeasElement-r13
 
 MBS-BeaconMeasElement-r13 ::= SEQUENCE {
-	transmitterID-r13 INTEGER (0..32767),
-	codePhase-r13 INTEGER (0..2097151),
-	codePhaseRMSError-r13 INTEGER (0..63),
-	...
+	transmitterID-r13				INTEGER (0..32767),
+	codePhase-r13					INTEGER (0..2097151),
+	codePhaseRMSError-r13			INTEGER (0..63),
+	...,
+	[[ rssi-r14						INTEGER (-130..-30)		OPTIONAL
+	]]
 }
 
 
 TBS-RequestLocationInformation-r13 ::= SEQUENCE {
 	mbsSgnMeasListReq-r13				BOOLEAN,
-	...
+	...,
+	[[	mbsAssistanceAvailability-r14	BOOLEAN							OPTIONAL,	-- Need ON
+		mbsRequestedMeasurements-r14	BIT STRING {
+										rssi		(0)} (SIZE(1..8))	OPTIONAL	-- Need ON
+	]]
 }
 
 
 TBS-ProvideCapabilities-r13 ::= SEQUENCE {
-	tbs-Modes-r13			BIT STRING { 	standalone 	(0),
-											ue-assisted	(1) } (SIZE (1..8)),
-...
+	tbs-Modes-r13			BIT STRING { 	standalone		(0),
+											ue-assisted		(1),
+											ue-based		(2)} (SIZE (1..8)),
+	...,
+	[[	mbs-AssistanceDataSupportList-r14	MBS-AssistanceDataSupportList-r14		OPTIONAL,
+		periodicalReportingSupported-r14	PositioningModes						OPTIONAL,
+		mbs-ConfigSupport-r14	BIT STRING { 	tb1		(0),
+												tb2		(1),
+												tb3		(2),
+												tb4		(3)} (SIZE (1..8))			OPTIONAL,
+		mbs-IdleStateForMeasurements-r14		ENUMERATED { required }				OPTIONAL
+	]]
+}
+
+
+MBS-AssistanceDataSupportList-r14 ::= SEQUENCE {
+	mbs-AcquisitionAssistanceDataSupport-r14	BOOLEAN,
+	mbs-AlmanacAssistanceDataSupport-r14		BOOLEAN,
+	...
 }
 
 
 TBS-RequestCapabilities-r13 ::= SEQUENCE {
 	...
 }
+
 
 TBS-Error-r13 ::= CHOICE {
 	locationServerErrorCauses-r13		TBS-LocationServerErrorCauses-r13,
@@ -2304,7 +2623,9 @@ TBS-Error-r13 ::= CHOICE {
 
 TBS-LocationServerErrorCauses-r13 ::= SEQUENCE {
 	cause-r13		ENUMERATED	{	undefined,
-									...
+									...,
+									assistanceDataNotSupportedByServer-v1420,
+									assistanceDataSupportedButCurrentlyNotAvailableByServer-v1420
 								},
 	...
 }
@@ -2313,42 +2634,111 @@ TBS-LocationServerErrorCauses-r13 ::= SEQUENCE {
 TBS-TargetDeviceErrorCauses-r13 ::= SEQUENCE {
 	cause-r13		ENUMERATED {	undefined,
 									thereWereNotEnoughMBSBeaconsReceived,
-									...
-							},
+									...,
+									assistanceDataMissing-v1420
+								},
+	...
+}
+
+
+TBS-ProvideAssistanceData-r14 ::= SEQUENCE {
+	tbs-AssistanceDataList-r14	TBS-AssistanceDataList-r14 	OPTIONAL,	-- Need ON
+	tbs-Error-r14				TBS-Error-r13				OPTIONAL,	-- Need ON
+	...
+}
+
+
+TBS-AssistanceDataList-r14 ::= SEQUENCE {
+	mbs-AssistanceDataList-r14		MBS-AssistanceDataList-r14		OPTIONAL,	-- Need ON
+	...
+}
+
+MBS-AssistanceDataList-r14 ::= SEQUENCE (SIZE (1..maxMBS-r14)) OF MBS-AssistanceDataElement-r14
+
+MBS-AssistanceDataElement-r14 ::= SEQUENCE {
+	mbs-AlmanacAssistance-r14		MBS-AlmanacAssistance-r14			OPTIONAL,	-- Need ON
+	mbs-AcquisitionAssistance-r14	MBS-AcquisitionAssistance-r14		OPTIONAL,	-- Need ON
+	...
+}
+
+maxMBS-r14		INTEGER ::= 64
+
+
+MBS-AlmanacAssistance-r14 ::= SEQUENCE {
+	transmitterID-r14			INTEGER (0..32767),
+	transmitterLatitude-r14		BIT STRING (SIZE (26)),
+	transmitterLongitude-r14	BIT STRING (SIZE (27)),
+	transmitterAltitude-r14		BIT STRING (SIZE (15)),
+	timeCorrection-r14			INTEGER (0..25)		OPTIONAL,	-- Need ON
+	...
+}
+
+
+MBS-AcquisitionAssistance-r14 ::= SEQUENCE {
+	transmitterID-r14				INTEGER (0..32767)						OPTIONAL,	-- Need ON
+	mbsConfiguration-r14			ENUMERATED {tb1, tb2, tb3, tb4, ...}	OPTIONAL,	-- Need ON
+	pnCodeIndex-r14					INTEGER (1..128)						OPTIONAL,	-- Need ON
+	freq-r14						INTEGER (919750000..927250000)			OPTIONAL,	-- Need ON
+	...
+}
+
+
+TBS-RequestAssistanceData-r14 ::= SEQUENCE {
+	mbs-AlmanacAssistanceDataReq-r14		BOOLEAN,
+	mbs-AcquisitionAssistanceDataReq-r14	BOOLEAN,
 	...
 }
 
 
 Sensor-ProvideLocationInformation-r13 ::= SEQUENCE {
 	sensor-MeasurementInformation-r13		Sensor-MeasurementInformation-r13		OPTIONAL,
-	sensor-Error-r13									Sensor-Error-r13	OPTIONAL,
+	sensor-Error-r13						Sensor-Error-r13						OPTIONAL,
 	...
 }
 
 
 Sensor-MeasurementInformation-r13 ::= SEQUENCE {
-	measurementReferenceTime-r13			UTCTime		OPTIONAL,
-	uncompensatedBarometricPressure-r13 	INTEGER (30000..115000)	OPTIONAL, -- Cond Barometer
-	...
+	measurementReferenceTime-r13			UTCTime						OPTIONAL,
+	uncompensatedBarometricPressure-r13 	INTEGER (30000..115000)		OPTIONAL, -- Cond Barometer
+	...,
+	[[
+	uncertainty-r14					SEQUENCE {
+									range-r14		INTEGER (0..1000),
+									confidence-r14	INTEGER (1..100)
+									}									OPTIONAL
+	]]
 }
 
 
 Sensor-RequestLocationInformation-r13 ::= SEQUENCE {
 	uncompensatedBarometricPressureReq-r13		BOOLEAN,
-	...
+	...,
+	[[	assistanceAvailability-r14				BOOLEAN		OPTIONAL	-- Need ON
+	]]
 }
 
 
 Sensor-ProvideCapabilities-r13 ::= SEQUENCE {
 	sensor-Modes-r13			BIT STRING { 	standalone	(0),
-												ue-assisted	(1)  } (SIZE (1..8)),
+												ue-assisted	(1),
+												ue-based	(2)} (SIZE (1..8)),
+	...,
+	[[	sensor-AssistanceDataSupportList-r14	Sensor-AssistanceDataSupportList-r14	OPTIONAL,
+		periodicalReportingSupported-r14		PositioningModes						OPTIONAL,
+		idleStateForMeasurements-r14			ENUMERATED { required }					OPTIONAL
+	]]
+}
+
+Sensor-AssistanceDataSupportList-r14 ::= SEQUENCE {
 	...
+
 }
 
 
 Sensor-RequestCapabilities-r13 ::= SEQUENCE {
 	...
 }
+
 
 Sensor-Error-r13 ::= CHOICE {
 	locationServerErrorCauses-r13		Sensor-LocationServerErrorCauses-r13,
@@ -2358,24 +2748,47 @@ Sensor-Error-r13 ::= CHOICE {
 
 
 Sensor-LocationServerErrorCauses-r13 ::= SEQUENCE {
-	cause-r13					ENUMERATED	{	undefined,
-												...
-											},
-...
+	cause-r13		ENUMERATED	{	undefined,
+									...,
+									assistanceDataNotSupportedByServer-v1420,
+									assistanceDataSupportedButCurrentlyNotAvailableByServer-v1420
+									},
+	...
 }
 
 
 Sensor-TargetDeviceErrorCauses-r13 ::= SEQUENCE {
 	cause-r13			ENUMERATED		{	undefined,
-											...
+											...,
+											assistanceDataMissing-v1420
 										},
-...
+	...
+}
+
+
+Sensor-ProvideAssistanceData-r14 ::= SEQUENCE {
+	sensor-AssistanceDataList-r14		Sensor-AssistanceDataList-r14		OPTIONAL,	-- Need ON
+	sensor-Error-r14					Sensor-Error-r13					OPTIONAL,	-- Need ON
+	...
+}
+
+
+Sensor-AssistanceDataList-r14::= SEQUENCE {
+	refPressure-r14		INTEGER (-20000..10000),
+	refPosition-r14		EllipsoidPointWithAltitudeAndUncertaintyEllipsoid	OPTIONAL,	-- Need ON
+	refTemperature-r14	INTEGER (-64..63)									OPTIONAL,	-- Need ON
+	...
+}
+
+
+Sensor-RequestAssistanceData-r14 ::= SEQUENCE {
+	...
 }
 
 
 WLAN-ProvideLocationInformation-r13 ::= SEQUENCE {
 	wlan-MeasurementInformation-r13		WLAN-MeasurementInformation-r13		OPTIONAL,
-	wlan-Error-r13					WLAN-Error-r13				OPTIONAL,
+	wlan-Error-r13						WLAN-Error-r13						OPTIONAL,
 	...
 }
 
@@ -2385,12 +2798,13 @@ WLAN-MeasurementInformation-r13 ::= SEQUENCE {
 	wlan-MeasurementList-r13			WLAN-MeasurementList-r13	OPTIONAL,
 	...
 }
+
 WLAN-MeasurementList-r13 ::= SEQUENCE (SIZE(1..maxWLAN-AP-r13)) OF WLAN-MeasurementElement-r13
 
 WLAN-MeasurementElement-r13 ::= SEQUENCE {
 	wlan-AP-Identifier-r13		WLAN-AP-Identifier-r13,
-	rssi-r13					INTEGER(-127..128)	OPTIONAL,
-	rtt-r13						WLAN-RTT-r13	OPTIONAL,
+	rssi-r13					INTEGER (-127..128)					OPTIONAL,
+	rtt-r13						WLAN-RTT-r13						OPTIONAL,
 	apChannelFrequency-r13		INTEGER (0..256)					OPTIONAL,
 	servingFlag-r13				BOOLEAN								OPTIONAL,
 	...
@@ -2403,34 +2817,46 @@ WLAN-AP-Identifier-r13 ::= SEQUENCE {
 }
 
 WLAN-RTT-r13 ::= SEQUENCE {
-	rttValue-r13     INTEGER(0..16777215),
+	rttValue-r13     INTEGER (0..16777215),
 	rttUnits-r13     ENUMERATED { 	microseconds,
 									hundredsofnanoseconds,
 									tensofnanoseconds,
 									nanoseconds,
 									tenthsofnanoseconds,
 									... },
-	rttAccuracy-r13  INTEGER(0..255)		OPTIONAL,
+	rttAccuracy-r13  INTEGER (0..255)								OPTIONAL,
 	...
 }
 
 maxWLAN-AP-r13			INTEGER ::= 64
 
+
 WLAN-RequestLocationInformation-r13 ::= SEQUENCE {
 	requestedMeasurements-r13	BIT STRING {
 											rssi		(0),
 											rtt			(1)} (SIZE(1..8)),
-	...
+	...,
+	[[	assistanceAvailability-r14	BOOLEAN			OPTIONAL	-- Need ON
+	]]
 }
 
 
 WLAN-ProvideCapabilities-r13 ::= SEQUENCE {
-	wlan-Modes-r13			BIT STRING { 	standalone		(0),
-											ue-assisted		(1)}	(SIZE (1..8)),
+	wlan-Modes-r13			BIT STRING	{ 	standalone		(0),
+											ue-assisted		(1),
+											ue-based		(2)}	(SIZE (1..8)),
 	wlan-MeasSupported-r13	BIT STRING	{
 											rssi-r13		(0),
 											rtt-r13			(1)}	(SIZE(1..8)),
-	...
+	...	,
+	[[	wlan-AP-AD-Supported-r14
+							BIT STRING {	ap-identifier	(0),
+											ap-location		(1)}	(SIZE (1..8))
+																					OPTIONAL,
+		periodicalReportingSupported-r14	PositioningModes						OPTIONAL,
+		idleStateForMeasurements-r14
+							ENUMERATED { 	required 	}							OPTIONAL
+	]]
 }
 
 
@@ -2447,13 +2873,19 @@ WLAN-Error-r13 ::= CHOICE {
 
 
 WLAN-LocationServerErrorCauses-r13 ::= SEQUENCE {
-	cause-r13								ENUMERATED	{undefined,	...},
-	...
+	cause-r13								ENUMERATED	{undefined,
+														...,
+														requestedADNotAvailable-v1420,
+														notAllrequestedADAvailable-v1420
+														},
+	...,
+	[[	apLocationDataUnavailable-r14		NULL	OPTIONAL		-- Need ON
+	]]
 }
 
 
 WLAN-TargetDeviceErrorCauses-r13 ::= SEQUENCE {
-	cause-r13									ENUMERATED {undefined,
+	cause-r13								ENUMERATED {undefined,
 														requestedMeasurementsNotAvailable,
 														notAllrequestedMeasurementsPossible,
 														...
@@ -2464,9 +2896,101 @@ WLAN-TargetDeviceErrorCauses-r13 ::= SEQUENCE {
 }
 
 
+WLAN-ProvideAssistanceData-r14 ::= SEQUENCE {
+	wlan-DataSet-r14	SEQUENCE (SIZE (1..maxWLAN-DataSets-r14)) OF WLAN-DataSet-r14
+																			OPTIONAL,	-- Need ON
+	wlan-Error-r14		WLAN-Error-r13										OPTIONAL,	-- Need ON
+	...
+}
+
+maxWLAN-DataSets-r14		INTEGER ::= 8
+
+
+WLAN-DataSet-r14 ::= SEQUENCE {
+	wlan-AP-List-r14				SEQUENCE (SIZE (1..maxWLAN-AP-r14)) OF WLAN-AP-Data-r14,
+	supportedChannels-11a-r14		SupportedChannels-11a-r14		OPTIONAL,	-- Need ON
+	supportedChannels-11bg-r14		SupportedChannels-11bg-r14		OPTIONAL,	-- Need ON
+	...
+}
+
+SupportedChannels-11a-r14 ::= SEQUENCE {
+	ch34-r14		BOOLEAN,
+	ch36-r14		BOOLEAN,
+	ch38-r14		BOOLEAN,
+	ch40-r14		BOOLEAN,
+	ch42-r14		BOOLEAN,
+	ch44-r14		BOOLEAN,
+	ch46-r14		BOOLEAN,
+	ch48-r14		BOOLEAN,
+	ch52-r14		BOOLEAN,
+	ch56-r14		BOOLEAN,
+	ch60-r14		BOOLEAN,
+	ch64-r14		BOOLEAN,
+	ch149-r14		BOOLEAN,
+	ch153-r14		BOOLEAN,
+	ch157-r14		BOOLEAN,
+	ch161-r14		BOOLEAN
+}
+
+SupportedChannels-11bg-r14 ::= SEQUENCE {
+	ch1-r14			BOOLEAN,
+	ch2-r14			BOOLEAN,
+	ch3-r14			BOOLEAN,
+	ch4-r14			BOOLEAN,
+	ch5-r14			BOOLEAN,
+	ch6-r14			BOOLEAN,
+	ch7-r14			BOOLEAN,
+	ch8-r14			BOOLEAN,
+	ch9-r14			BOOLEAN,
+	ch10-r14		BOOLEAN,
+	ch11-r14		BOOLEAN,
+	ch12-r14		BOOLEAN,
+	ch13-r14		BOOLEAN,
+	ch14-r14		BOOLEAN
+}
+
+maxWLAN-AP-r14		INTEGER ::= 128
+
+
+
+WLAN-AP-Data-r14 ::= SEQUENCE {
+	wlan-AP-Identifier-r14				WLAN-AP-Identifier-r13,
+	wlan-AP-Location-r14				WLAN-AP-Location-r14		OPTIONAL,	-- Need ON
+	...
+}
+
+WLAN-AP-Location-r14 ::= SEQUENCE {
+	locationDataLCI-r14					LocationDataLCI-r14,
+	...
+}
+
+LocationDataLCI-r14 ::= SEQUENCE {
+	latitudeUncertainty-r14				BIT STRING (SIZE (6)),
+	latitude-r14 						BIT STRING (SIZE (34)),
+	longitudeUncertainty-r14			BIT STRING (SIZE (6)),
+	longitude-r14						BIT STRING (SIZE (34)),
+	altitudeUncertainty-r14				BIT STRING (SIZE (6))		OPTIONAL,	-- Need ON
+	altitude-r14						BIT STRING (SIZE (30))		OPTIONAL,	-- Need ON
+	datum-r14							BIT STRING (SIZE (8)),
+	...
+}
+
+
+WLAN-RequestAssistanceData-r14 ::= SEQUENCE {
+	requestedAD-r14			BIT STRING { 	ap-identifier		(0),
+											ap-location			(1)}	(SIZE (1..8)),
+	visibleAPs-r14			SEQUENCE (SIZE (1..maxVisibleAPs-r14)) OF WLAN-AP-Identifier-r13	OPTIONAL,
+	wlan-AP-StoredData-r14 	SEQUENCE (SIZE (1..maxKnownAPs-r14)) OF WLAN-AP-Identifier-r13	OPTIONAL,
+	...
+}
+
+maxVisibleAPs-r14			INTEGER ::= 32
+maxKnownAPs-r14				INTEGER ::= 2048
+
+
 BT-ProvideLocationInformation-r13 ::= SEQUENCE {
 	bt-MeasurementInformation-r13		BT-MeasurementInformation-r13	OPTIONAL,
-	bt-Error-r13						BT-Error-r13			OPTIONAL,
+	bt-Error-r13						BT-Error-r13					OPTIONAL,
 	...
 }
 
@@ -2476,16 +3000,18 @@ BT-MeasurementInformation-r13 ::= SEQUENCE {
 	bt-MeasurementList-r13				BT-MeasurementList-r13		OPTIONAL,
 	...
 }
+
 BT-MeasurementList-r13 ::= SEQUENCE (SIZE(1..maxBT-Beacon-r13)) OF BT-MeasurementElement-r13
 
 
 BT-MeasurementElement-r13 ::= SEQUENCE {
 	btAddr-r13						BIT STRING (SIZE (48)),
-	rssi-r13 						INTEGER(-128..127)		OPTIONAL,
+	rssi-r13 						INTEGER (-128..127)				OPTIONAL,
 	...
 }
 
 maxBT-Beacon-r13				INTEGER ::= 32
+
 
 BT-RequestLocationInformation-r13 ::= SEQUENCE {
 	requestedMeasurements-r13	BIT STRING {
@@ -2498,7 +3024,13 @@ BT-ProvideCapabilities-r13 ::= SEQUENCE {
 	bt-Modes-r13			BIT STRING { 	standalone		(0),
 											ue-assisted		(1)}	(SIZE (1..8)),
 	bt-MeasSupported-r13	BIT STRING {	rssi-r13		(0)}	(SIZE (1..8)),
-	...
+	...,
+	[[
+	idleStateForMeasurements-r14
+							ENUMERATED { 	required 	}							OPTIONAL,
+	periodicalReportingSupported-r14
+							PositioningModes										OPTIONAL
+	]]
 }
 
 
@@ -2521,13 +3053,13 @@ BT-LocationServerErrorCauses-r13 ::= SEQUENCE {
 
 
 BT-TargetDeviceErrorCauses-r13 ::= SEQUENCE {
-	cause-r13									ENUMERATED {undefined,
+	cause-r13								ENUMERATED {undefined,
 														requestedMeasurementsNotAvailable,
 														notAllrequestedMeasurementsPossible,
 														...
 														},
 	bt-Beacon-rssiMeasurementNotPossible-r13	NULL		OPTIONAL,
-...
+	...
 }
 
 

@@ -69,7 +69,7 @@ sub extract_asn1 {
       $is_asn1 = 0;
     }
 
-    if($line =~ m/–	LPP-PDU-Definitions/){
+    if($line =~ m/	LPP-PDU-Definitions/){
       $output_file_name = "LPP.asn";
       print  "generating $output_file_name\n";
       open(OUTPUT_FILE, "> $output_file_name") or die "Can not open file $output_file_name";
