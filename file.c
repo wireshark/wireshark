@@ -3864,8 +3864,13 @@ cf_get_user_packet_comment(capture_file *cf, const frame_data *fd)
   return NULL;
 }
 
+/*
+ * Get the comment on a packet (record).
+ * If the comment has been edited, it returns the result of the edit,
+ * otherwise it returns the comment from the file.
+ */
 char *
-cf_get_comment(capture_file *cf, const frame_data *fd)
+cf_get_packet_comment(capture_file *cf, const frame_data *fd)
 {
   char *comment;
 
@@ -3903,10 +3908,13 @@ frame_cmp(gconstpointer a, gconstpointer b, gpointer user_data _U_)
     0;
 }
 
+/*
+ * Update(replace) the comment on a capture from a frame
+ */
 gboolean
 cf_set_user_packet_comment(capture_file *cf, frame_data *fd, const gchar *new_comment)
 {
-  char *pkt_comment = cf_get_comment(cf, fd);
+  char *pkt_comment = cf_get_packet_comment(cf, fd);
 
   /* Check if the comment has changed */
   if (!g_strcmp0(pkt_comment, new_comment)) {

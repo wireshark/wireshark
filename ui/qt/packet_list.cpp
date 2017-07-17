@@ -1091,7 +1091,7 @@ QString PacketList::packetComment()
 
     if (!fdata) return NULL;
 
-    pkt_comment = cf_get_comment(cap_file_, fdata);
+    pkt_comment = cf_get_packet_comment(cap_file_, fdata);
 
     return QString(pkt_comment);
 
@@ -1134,7 +1134,7 @@ QString PacketList::allPacketComments()
     for (framenum = 1; framenum <= cap_file_->count ; framenum++) {
         fdata = frame_data_sequence_find(cap_file_->frames, framenum);
 
-        char *pkt_comment = cf_get_comment(cap_file_, fdata);
+        char *pkt_comment = cf_get_packet_comment(cap_file_, fdata);
 
         if (pkt_comment) {
             buf_str.append(QString(tr("Frame %1: %2\n\n")).arg(framenum).arg(pkt_comment));

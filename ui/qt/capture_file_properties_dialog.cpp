@@ -530,7 +530,7 @@ void CaptureFilePropertiesDialog::fillDetails()
 
         for (guint32 framenum = 1; framenum <= cap_file_.capFile()->count ; framenum++) {
             frame_data *fdata = frame_data_sequence_find(cap_file_.capFile()->frames, framenum);
-            char *pkt_comment = cf_get_comment(cap_file_.capFile(), fdata);
+            char *pkt_comment = cf_get_packet_comment(cap_file_.capFile(), fdata);
 
             if (pkt_comment) {
                 QString frame_comment_html = tr("<p>Frame %1: ").arg(framenum);
