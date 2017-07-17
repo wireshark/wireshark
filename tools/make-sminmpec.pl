@@ -96,6 +96,9 @@ print OUT <<"_SMINMPEC";
 # generated from http://www.iana.org/assignments/enterprise-numbers
 # run "tools/make-sminmpec.pl [infile]" to regenerate
 #
+# The format used here is: <NUMERICAL_ID><SPACE><NAME>
+# Where SPACE can be any sequence of spaces and tabs.
+#
 # $last_updated
 $body
 _SMINMPEC

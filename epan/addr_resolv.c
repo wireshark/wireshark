@@ -385,16 +385,6 @@ typedef struct {
  *  Miscellaneous functions
  */
 
-static char *
-remove_comment_and_strip_line(char *buf)
-{
-    char *tok;
-
-    if ((tok = strchr(buf, '#')))
-        *tok = '\0';
-    return g_strstrip(buf);
-}
-
 static int
 fgetline(char **buf, int *size, FILE *fp)
 {
@@ -698,14 +688,17 @@ service_name_lookup_cleanup(void)
 static void
 parse_enterprises_line (char *line)
 {
-    char *str, *dec_str, *org_str;
+    char *tok, *dec_str, *org_str;
     guint32 dec;
 
-    str = remove_comment_and_strip_line(line);
-    dec_str = strtok(str, "\t");
+    if ((tok = strchr(line, '#')))
+        *tok = '\0';
+    dec_str = strtok(line, " \t");
     if (!dec_str)
         return;
-    org_str = strtok(NULL, "\t");
+    org_str = strtok(NULL, ""); /* everything else */
+    if (org_str)
+        org_str = g_strstrip(org_str);
     if (!org_str)
         return;
     if (!ws_strtou32(dec_str, NULL, &dec))
