@@ -90,8 +90,8 @@ typedef struct {
   guint64 prev_frame_ts;
   guint8 prev_erf_type;
   guint64 gen_time;
-  guint32 first_frame_time_sec;
-  guint32 prev_inserted_time_sec;
+  time_t first_frame_time_sec;
+  time_t prev_inserted_time_sec;
   gchar* user_comment_ptr;
   GPtrArray* periodic_sections;
   GArray *periodic_extra_ehdrs;
@@ -1793,7 +1793,7 @@ static gboolean erf_dump(
 
   if(!dump_priv->gen_time) {
     erf_dump_priv_init_gen_time(dump_priv);
-    dump_priv->first_frame_time_sec = (guint32)phdr->ts.secs;
+    dump_priv->first_frame_time_sec = phdr->ts.secs;
   }
 
   if (encap != WTAP_ENCAP_ERF) {
@@ -1911,7 +1911,7 @@ static gboolean erf_dump(
         }
 
         if (!erf_write_meta_record(wdh, dump_priv, dump_priv->prev_frame_ts, dump_priv->periodic_sections, dump_priv->periodic_extra_ehdrs, err)) return FALSE;
-        dump_priv->prev_inserted_time_sec = (guint32) phdr->ts.secs;
+        dump_priv->prev_inserted_time_sec = phdr->ts.secs;
         /*TODO: clear accumulated existing extension headers here?*/
       }
 
@@ -1922,7 +1922,7 @@ static gboolean erf_dump(
        * read. */
       /* restart searching for next meta record to update capture comment at */
       dump_priv->write_next_extra_meta = FALSE;
-    } else if (phdr->ts.secs > dump_priv->first_frame_time_sec + 1U
+    } else if (phdr->ts.secs > dump_priv->first_frame_time_sec + 1
           && dump_priv->prev_inserted_time_sec != phdr->ts.secs) {
       /* For compatibility, don't insert metadata for older ERF files with no changed metadata */
       if (dump_priv->write_next_extra_meta) {
@@ -1940,7 +1940,7 @@ static gboolean erf_dump(
        * already) or the full metadata */
       if (dump_priv->periodic_sections) {
         if (!erf_write_meta_record(wdh, dump_priv, (guint64)(phdr->ts.secs) << 32, dump_priv->periodic_sections, dump_priv->periodic_extra_ehdrs, err)) return FALSE;
-        dump_priv->prev_inserted_time_sec = (guint32) phdr->ts.secs;
+        dump_priv->prev_inserted_time_sec = phdr->ts.secs;
       }
     }
   }
