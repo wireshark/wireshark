@@ -693,7 +693,15 @@ const gchar* cf_read_section_comment(capture_file *cf);
  */
 void cf_update_section_comment(capture_file *cf, gchar *comment);
 
-char *cf_get_comment(capture_file *cf, const frame_data *fd);
+/*
+ * Get the comment on a packet (record).
+ * If the comment has been edited, it returns the result of the edit,
+ * otherwise it returns the comment from the file.
+ *
+ * @param cf the capture file
+ * @param fd the frame_data structure for the frame
+ */
+char *cf_get_packet_comment(capture_file *cf, const frame_data *fd);
 
 /**
  * Update(replace) the comment on a capture from a frame
