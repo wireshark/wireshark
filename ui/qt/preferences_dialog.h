@@ -53,6 +53,7 @@ public:
         ppColumn,
         ppFontAndColor,
         ppCapture,
+        ppExpert,
         ppFilterExpressions
     };
 

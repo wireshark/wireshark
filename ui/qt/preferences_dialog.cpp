@@ -436,7 +436,8 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     prefs_pane_to_item_[ppColumn] = item->child(1);
     prefs_pane_to_item_[ppFontAndColor] = item->child(2);
     prefs_pane_to_item_[ppCapture] = pd_ui_->prefsTree->topLevelItem(1);
-    prefs_pane_to_item_[ppFilterExpressions] = pd_ui_->prefsTree->topLevelItem(2);
+    prefs_pane_to_item_[ppExpert] = pd_ui_->prefsTree->topLevelItem(2);
+    prefs_pane_to_item_[ppFilterExpressions] = pd_ui_->prefsTree->topLevelItem(3);
 
     pd_ui_->filterExpressonsFrame->setUat(uat_get_table_by_name("Display expressions"));
 
