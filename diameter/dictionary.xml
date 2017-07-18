@@ -147,14 +147,14 @@
 			8388647 Send-Routing-Info-for-SM-Request/Answer (SRR/SRA) [3GPP TS 29.338][Kimmo_Kymalainen]
 			8388648 Alert-Service-Centre-Request/Answer (ALR/ALA) [3GPP TS 29.338][Kimmo_Kymalainen]
 			8388649 Report-SM-Delivery-Status-Request/Answer (RDR/RDA) [3GPP TS 29.338][Kimmo_Kymalainen]
-			8388650 NSN Cancel-LocationMS-Request/Answer (CLR/CLA) [Hannes_Tschofenig]
-			8388651 NSN User-DataMS-Request/Answer (UDR/UDA) [Hannes_Tschofenig]
-			8388652 NSN Profile-UpdateMS-Request/Answer (PUR/PUA) [Hannes_Tschofenig]
-			8388653 NSN Subscribe-NotificationsMS-Request/Answer (SNR/SNA) [Hannes_Tschofenig]
-			8388654 NSN Push-NotificationMS-Request/Answer (PNR/PNA) [Hannes_Tschofenig]
-			8388655 Get Gateway Request/Answer (GGR/GGA) [Steve_Donovan]
-			8388656 Trigger-Establishment-Request/Answer (TER/TEA) [3GPP TS 29.215][Kimmo_Kymalainen]
 		-->
+		<command name="NSN Cancel-LocationMS"		code="8388650" vendor-id="None"/>
+		<command name="NSN User-DataMS"		code="8388651" vendor-id="None"/>
+		<command name="NSN Profile-UpdateMS"		code="8388652" vendor-id="None"/>
+		<command name="NSN Subscribe-NotificationsMS"		code="8388653" vendor-id="None"/>
+		<command name="NSN Push-NotificationMS"		code="8388654" vendor-id="None"/>
+		<command name="Get Gateway"		code="8388655" vendor-id="None"/>
+		<command name="Trigger-Establishment"		code="8388656" vendor-id="None"/>
 		<command name="Ericsson Binding-Data"		code="8388657" vendor-id="None"/>
 		<!--
 			8388658 3GPP2 Subscriber-Information-Request/Answer (SIR/SIA) [3GPP2 X.S0068][Jun_Wang]
