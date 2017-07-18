@@ -1683,7 +1683,13 @@ static gboolean erf_write_meta_record(wtap_dumper *wdh, erf_dump_t *dump_priv, g
 
   total_rlen = total_wlen + 24; /* 24 is the header + extension header length */
   if (extra_ehdrs) {
-    num_extra_ehdrs = MIN(extra_ehdrs->len, MAX_ERF_EHDR);
+    /*
+     * These will be appended to the first extension header in
+     * other_header.erf.ehdr_list.  There are a total of MAX_ERF_EHDR
+     * extension headers in that array, so we can append no more than
+     * MAX_ERF_EHDR - 1 extension headeers.
+     */
+    num_extra_ehdrs = MIN(extra_ehdrs->len, MAX_ERF_EHDR - 1);
     total_rlen += num_extra_ehdrs * 8;
   }
   /*padding to 8 byte alignment*/
