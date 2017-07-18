@@ -247,6 +247,8 @@ static int hf_icmpv6_opt_6cio_unassigned1 = -1;
 static int hf_icmpv6_opt_6cio_flag_g = -1;
 static int hf_icmpv6_opt_6cio_unassigned2 = -1;
 
+static int hf_icmpv6_opt_captive_portal = -1;
+
 /* RFC 2710: Multicast Listener Discovery for IPv6 */
 static int hf_icmpv6_mld_mrd = -1;
 static int hf_icmpv6_mld_multicast_address = -1;
@@ -925,6 +927,7 @@ static const true_false_string tfs_ni_flag_a = {
 #define ND_OPT_6LOWPAN_CONTEXT          34
 #define ND_OPT_AUTH_BORDER_ROUTER       35
 #define ND_OPT_6CIO                     36
+#define ND_OPT_CAPPORT                  37
 
 static const value_string option_vals[] = {
 /*  1 */   { ND_OPT_SOURCE_LINKADDR,           "Source link-layer address" },
@@ -962,7 +965,8 @@ static const value_string option_vals[] = {
 /* 34 */   { ND_OPT_6LOWPAN_CONTEXT,           "6LoWPAN Context Option" },                 /* [RFC6775] */
 /* 35 */   { ND_OPT_AUTH_BORDER_ROUTER,        "Authoritative Border Router" },            /* [RFC6775] */
 /* 36 */   { ND_OPT_6CIO,                      "6LoWPAN Capability Indication Option" },   /* [RFC7400] */
-/* 37-137  Unassigned */
+/* 37 */   { ND_OPT_CAPPORT,                   "DHCP Captive-Portal" },                    /* [RFC7710] */
+/* 38-137  Unassigned */
    { 138,                              "CARD Request" },                           /* [RFC4065] */
    { 139,                              "CARD Reply" },                             /* [RFC4065] */
 /* 140-252 Unassigned */
@@ -2407,6 +2411,16 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_6cio_unassigned2, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
                 opt_offset += 4;
 
+
+            }
+            break;
+            case ND_OPT_CAPPORT: /* DHCP Captive-Portal Option (37) */
+            {
+                proto_item *ti_cp;
+
+                ti_cp = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_captive_portal, tvb, opt_offset, opt_len-2, ENC_ASCII|ENC_NA);
+                PROTO_ITEM_SET_URL(ti_cp);
+                opt_offset += opt_len - 2;
 
             }
             break;
@@ -4948,6 +4962,10 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_opt_6cio_unassigned2,
           { "Unassigned", "icmpv6.opt.6cio.unassigned2", FT_UINT32, BASE_HEX, NULL, 0x00,
             NULL, HFILL }},
+
+        { &hf_icmpv6_opt_captive_portal,
+           { "Captive Portal", "icmpv6.opt.captive_portal", FT_STRING, BASE_NONE, NULL, 0x00,
+             "The contact URI for the captive portal that the user should connect to", HFILL }},
 
         /* RFC2710:  Multicast Listener Discovery for IPv6 */
         { &hf_icmpv6_mld_mrd,
