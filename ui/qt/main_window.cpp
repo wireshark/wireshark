@@ -957,7 +957,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
     // proto tree, and main welcome widgets.
     if (event->type() == QEvent::KeyPress) {
         QKeyEvent *kevt = static_cast<QKeyEvent *>(event);
-        if (kevt->text().length() > 0 && kevt->text()[0].isPrint()) {
+        if (kevt->text().length() > 0 && kevt->text()[0].isPrint() &&
+            !(kevt->modifiers() & Qt::ControlModifier)) {
             df_combo_box_->lineEdit()->insert(kevt->text());
             df_combo_box_->lineEdit()->setFocus();
             return true;
