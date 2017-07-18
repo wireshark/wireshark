@@ -1021,12 +1021,10 @@ static void erf_write_wtap_option_to_capture_tag(wtap_block_t block _U_,
       break;
     default:
       erf_meta_tag_free(tag_ptr);
-      tag_ptr = NULL;
       return;
   }
 
-  if (tag_ptr)
-    g_ptr_array_add(section_ptr->tags, tag_ptr);
+  g_ptr_array_add(section_ptr->tags, tag_ptr);
 }
 
 static void erf_write_wtap_option_to_host_tag(wtap_block_t block _U_,
