@@ -48,7 +48,7 @@ static void dissect_zcl_config_report (tvbuff_t *tvb, packet_info *pinfo, proto_
 static void dissect_zcl_config_report_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id);
 static void dissect_zcl_read_report_config (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id);
 static void dissect_zcl_read_report_config_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id);
-static void dissect_zcl_default_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id, guint8 dir);
+static void dissect_zcl_default_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset);
 static void dissect_zcl_discover_attr (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset);
 static void dissect_zcl_discover_attr_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id);
 
@@ -77,6 +77,7 @@ static int hf_zbee_zcl_tran_seqno = -1;
 
 static int hf_zbee_zcl_cmd_id = -1;
 static int hf_zbee_zcl_cs_cmd_id = -1;
+static int hf_zbee_zcl_cmd_id_rsp = -1;
 static int hf_zbee_zcl_attr_id = -1;
 static int hf_zbee_zcl_attr_data_type = -1;
 static int hf_zbee_zcl_attr_boolean = -1;
@@ -936,7 +937,7 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
 
             case ZBEE_ZCL_CMD_DEFAULT_RESP:
-                dissect_zcl_default_resp(tvb, pinfo, zcl_tree, &offset, cluster_id, packet.direction);
+                dissect_zcl_default_resp(tvb, pinfo, zcl_tree, &offset);
                 break;
 
             case ZBEE_ZCL_CMD_DISCOVER_ATTR:
@@ -1298,21 +1299,12 @@ static void dissect_zcl_read_report_config(tvbuff_t *tvb, packet_info *pinfo _U_
  *@param cluster_id cluster id.
  *@param dir direction.
 */
-static void dissect_zcl_default_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                                     guint *offset, guint16 cluster_id, guint8 dir)
+static void dissect_zcl_default_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset)
 {
-    zbee_zcl_cluster_desc *desc;
-    int hf_cmd_id = hf_zbee_zcl_cs_cmd_id;
-
-    /* Retrieve the cluster-specific command ID definition, with the direction
-     * inverted, since this is a response to the originating command. */
-    desc = zbee_zcl_get_cluster_desc(cluster_id);
-    if (dir == ZBEE_ZCL_FCF_TO_SERVER) {
-        if (desc && (desc->hf_cmd_tx_id >= 0)) hf_cmd_id = desc->hf_cmd_tx_id;
-    } else {
-        if (desc && (desc->hf_cmd_rx_id >= 0)) hf_cmd_id = desc->hf_cmd_rx_id;
-    }
-    proto_tree_add_item(tree, hf_cmd_id, tvb, *offset, 1, ENC_NA);
+    /* The only way to tell if this is a profile-wide or cluster specific command */
+    /* is the frame control of the original message to which this is the response. */
+    /* So, display the originating command id and do not attempt to interpret */
+    proto_tree_add_item(tree, hf_zbee_zcl_cmd_id_rsp, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Dissect the status */
@@ -2049,6 +2041,10 @@ void proto_register_zbee_zcl(void)
 
         { &hf_zbee_zcl_cs_cmd_id,
           { "Command",    "zbee_zcl.cs.cmd.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_cs_cmd_names) /*"Unknown"*/,
+                0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_cmd_id_rsp,
+          { "Response to Command", "zbee_zcl.cmd.id.rsp", FT_UINT8, BASE_HEX, NULL,
                 0x0, NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_id,
