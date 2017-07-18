@@ -91,10 +91,12 @@ MainWelcome::MainWelcome(QWidget *parent) :
                       "QAbstractItemView {"
                       "  border: 0;"
                       "}"
+#if !defined(Q_OS_WIN)
                       "QAbstractItemView:item:hover {"
                       "  background-color: %1;"
                       "  color: palette(text);"
                       "}"
+#endif
                       )
                   .arg(hover_color.name())
                 );
