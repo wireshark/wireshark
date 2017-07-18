@@ -16,7 +16,7 @@ The following vulnerabilities have been fixed:
 +
 WBMXL dissector infinite loop
 (ws-buglink:13477[], ws-buglink:13796[])
-//cve-idlink:2017-7702[]
+cve-idlink:2017-7702[], cve-idlink:CVE-2017-11410[]
 // Fixed in master: 8e1befc, 50fa2d9
 // Fixed in master-2.2: bb67dbf, 651a974
 // Fixed in master-2.0: 2f322f6, 3c7168c
@@ -29,7 +29,7 @@ Note: This is an update for a fix in Wireshark 2.2.6 and 2.0.12.
 +
 openSAFETY dissector memory exhaustion
 (ws-buglink:13649[], ws-buglink:13755[])
-// cve-idlink:2017-9350[]
+cve-idlink:2017-9350[], cve-idlink:2017-11411[]
 // Fixed in master: f643169, 66c5058
 // Fixed in master-2.2: 3ce1ba9, 54acd9b
 // Fixed in master-2.0: dbc7cb0, a83a324
@@ -42,7 +42,7 @@ Note: This is an update for a fix in Wireshark 2.2.7.
 +
 AMQP dissector crash.
 (ws-buglink:13780[])
-// cve-idlink:2017-XXXX[]
+cve-idlink:2017-11408[]
 // Fixed in master: 246cbbc, 2de483c
 // Fixed in master-2.2: d6231d9, a102c17
 // Fixed in master-2.0: e57c86e
@@ -51,7 +51,7 @@ AMQP dissector crash.
 +
 MQ dissector crash.
 (ws-buglink:13792[])
-// cve-idlink:2017-XXXX[]
+cve-idlink:2017-11407[]
 // Fixed in master: bb58b3a
 // Fixed in master-2.2: 4e54dae
 // Fixed in master-2.0: 8fcd725
@@ -60,7 +60,7 @@ MQ dissector crash.
 +
 DOCSIS infinite loop.
 (ws-buglink:13797[])
-// cve-idlink:2017-XXXX[]
+cve-idlink:2017-11406[]
 // Fixed in master: 26a6881
 // Fixed in master-2.2: 2502162
 // Fixed in master-2.0: 283b0af
