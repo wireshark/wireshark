@@ -137,6 +137,14 @@ WS_DLL_PUBLIC gboolean ranges_are_equal(range_t *a, range_t *b);
  */
 WS_DLL_PUBLIC void range_foreach(range_t *range, void (*callback)(guint32 val));
 
+/** This function calls the provided callback function for each value in
+ * in the range. Takes an optional pointer argument.
+ * @param range the range
+ * @param callback the callback function
+ * @param ptr pointer passed to the callback
+ */
+WS_DLL_PUBLIC void range_foreach2(range_t *range, void (*callback2)(guint32 val, gpointer ptr), gpointer ptr);
+
 /**
  * This function converts a range_t to a (wmem_alloc()-allocated) string.
  */

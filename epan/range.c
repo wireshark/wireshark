@@ -414,6 +414,18 @@ range_foreach(range_t *range, void (*callback)(guint32 val))
    }
 }
 
+void range_foreach2(range_t *range, void (*callback2)(guint32 val, gpointer ptr), gpointer ptr)
+{
+   guint32 i, j;
+
+   if (range && callback2) {
+      for (i=0; i < range->nranges; i++) {
+         for (j = range->ranges[i].low; j <= range->ranges[i].high; j++)
+            callback2(j, ptr);
+      }
+   }
+}
+
 /* This function converts a range_t to a (wmem-allocated) string.  */
 char *
 range_convert_range(wmem_allocator_t *scope, const range_t *range)

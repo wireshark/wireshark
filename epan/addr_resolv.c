@@ -234,9 +234,10 @@ typedef struct _resolved_ipv6
 
 static addrinfo_lists_t addrinfo_lists = { NULL, NULL};
 
-static gchar        *cb_service;
-static port_type    cb_proto = PT_NONE;
-
+struct cb_serv_data {
+    gchar       *service;
+    port_type    proto;
+};
 
 static wmem_map_t *manuf_hashtable = NULL;
 static wmem_map_t *wka_hashtable = NULL;
@@ -252,7 +253,7 @@ static gboolean new_resolved_objects = FALSE;
 static GPtrArray* extra_hosts_files = NULL;
 
 static hashether_t *add_eth_name(const guint8 *addr, const gchar *name);
-static void add_serv_port_cb(const guint32 port);
+static void add_serv_port_cb(const guint32 port, gpointer ptr);
 
 
 /* http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx#existing
@@ -475,18 +476,12 @@ add_service_name(port_type proto, const guint port, const char *service_name)
 static void
 parse_service_line (char *line)
 {
-    /*
-     *  See the services(4) or services(5) man page for services file format
-     *  (not available on all systems).
-     */
-
     gchar *cp;
     gchar *service;
     gchar *port;
     port_type proto;
-
+    struct cb_serv_data cb_data;
     range_t *port_rng = NULL;
-    guint32 max_port = MAX_UDP_PORT;
 
     if ((cp = strchr(line, '#')))
         *cp = '\0';
@@ -504,48 +499,43 @@ parse_service_line (char *line)
     if (strtok(cp, "/") == NULL)
         return;
 
-    if ((cp = strtok(NULL, "/")) == NULL)
-        return;
-
-    /* seems we got all interesting things from the file */
-    if (strcmp(cp, "tcp") == 0) {
-        max_port = MAX_TCP_PORT;
-        proto = PT_TCP;
-    }
-    else if (strcmp(cp, "udp") == 0) {
-        max_port = MAX_UDP_PORT;
-        proto = PT_UDP;
-    }
-    else if (strcmp(cp, "sctp") == 0) {
-        max_port = MAX_SCTP_PORT;
-        proto = PT_SCTP;
-    }
-    else if (strcmp(cp, "dccp") == 0) {
-        max_port = MAX_DCCP_PORT;
-        proto = PT_DCCP;
-    } else {
-        return;
-    }
-
-    if (CVT_NO_ERROR != range_convert_str(NULL, &port_rng, port, max_port)) {
-        /* some assertion here? */
+    if (range_convert_str(NULL, &port_rng, port, G_MAXUINT16) != CVT_NO_ERROR) {
         wmem_free (NULL, port_rng);
         return;
     }
 
-    cb_service = service;
-    cb_proto = proto;
-    range_foreach(port_rng, add_serv_port_cb);
+    while ((cp = strtok(NULL, "/")) != NULL) {
+        if (strcmp(cp, "tcp") == 0) {
+            proto = PT_TCP;
+        }
+        else if (strcmp(cp, "udp") == 0) {
+            proto = PT_UDP;
+        }
+        else if (strcmp(cp, "sctp") == 0) {
+            proto = PT_SCTP;
+        }
+        else if (strcmp(cp, "dccp") == 0) {
+            proto = PT_DCCP;
+        }
+        else {
+            break;
+        }
+        cb_data.service = service;
+        cb_data.proto = proto;
+        range_foreach2(port_rng, add_serv_port_cb, &cb_data);
+    }
+
     wmem_free (NULL, port_rng);
-    cb_proto = PT_NONE;
 } /* parse_service_line */
 
 
 static void
-add_serv_port_cb(const guint32 port)
+add_serv_port_cb(const guint32 port, gpointer ptr)
 {
+    struct cb_serv_data *cb_data = (struct cb_serv_data *)ptr;
+
     if ( port ) {
-        add_service_name(cb_proto, port, cb_service);
+        add_service_name(cb_data->proto, port, cb_data->service);
     }
 }
 

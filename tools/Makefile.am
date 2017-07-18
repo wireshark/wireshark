@@ -65,7 +65,6 @@ EXTRA_DIST = \
 	make-dissector-reg.py				\
 	make-manuf					\
 	make-sminmpec.pl				\
-	make-services.pl				\
 	make-services.py				\
 	make-tap-reg.py					\
 	make-usb.py					\

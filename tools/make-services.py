@@ -50,16 +50,29 @@ exclude_services = [
     '^shilp',
     ]
 
-exclude_comments = [
-    'should not be used for discovery purposes',
-    'NOTE Conflict',
-]
+min_source_lines = 14000 # Size was ~ 14800 on 2017-07-20
 
-min_body_size = 900000 # Size was ~ 922000 on 2013-08-06
+def parse_port(port_str):
+
+    p = port_str.split('-')
+    try:
+        if len(p) == 1:
+            return tuple([int(p[0])])
+        if len(p) == 2:
+            return tuple([int(p[0]), int(p[1])])
+    except ValueError:
+        pass
+    return ()
+
+def port_to_str(port):
+    if len(port) == 2:
+        return str(port[0]) + '-' + str(port[1])
+    return str(port[0])
 
 def parse_rows(svc_fd):
     lines = []
     port_reader = csv.reader(svc_fd)
+    count = 0
 
     # Header positions as of 2013-08-06
     if python_version < 0x206:
@@ -79,38 +92,77 @@ def parse_rows(svc_fd):
         tp_pos = headers.index('Transport Protocol')
     except:
         tp_pos = 2
+    try:
+        desc_pos = headers.index('Description')
+    except:
+        desc_pos = 3
 
-    positions = [sn_pos, pn_pos, tp_pos]
-    positions.sort()
-    positions.reverse()
+    services_map = {}
 
     for row in port_reader:
         service = row[sn_pos]
-        port = row[pn_pos]
+        port = parse_port(row[pn_pos])
         proto = row[tp_pos]
-        
-        if len(service) < 1 or len(port) < 1 or len(proto) < 1:
+        description = row[desc_pos]
+        count += 1
+
+        if len(service) < 1 or not port or len(proto) < 1:
             continue
             
-        for pos in positions:
-            del row[pos]
-        row = filter(None, row)
-        comment = ' '.join(row)
-        comment = re.sub('[\n]', '', comment)
-        
         if re.search('|'.join(exclude_services), service):
             continue
-        if re.search('|'.join(exclude_comments), comment):
+
+        # max 15 chars
+        service = service[:15].rstrip()
+
+        # replace blanks (for some non-standard long names)
+        service = service.replace(" ", "-")
+
+        description = description.replace("\n", "")
+        description = re.sub("IANA assigned this well-formed service .+$", "", description)
+        description = re.sub("  +", " ", description)
+        description = description.strip()
+        if description == service or description == service.replace("-", " "):
+            description = None
+
+        if not port in services_map:
+            services_map[port] = {}
+
+        # Remove some duplicates (first entry wins)
+        proto_exists = False
+        for k in services_map[port].keys():
+            if proto in services_map[port][k]:
+                proto_exists = True
+                break
+        if proto_exists:
             continue
 
-        lines.append('%-15s %5s/%s # %s' % (
-            service,
-            port,
-            proto,
-            comment
-        ))
+        if not service in services_map[port]:
+            services_map[port][service] = [description]
+        services_map[port][service].append(proto)
 
-    return '\n'.join(lines)
+    if count < min_source_lines:
+        exit_msg('Not enough parsed data')
+
+    return services_map
+
+def write_body(d, f):
+    keys = list(d.keys())
+    keys.sort()
+
+    for port in keys:
+        for serv in d[port].keys():
+            sep = "\t" * (1 + abs((15 - len(serv)) // 8))
+            port_str = port_to_str(port) + "/" + "/".join(d[port][serv][1:])
+            line = serv + sep + port_str
+            description = d[port][serv][0]
+            if description:
+                sep = "\t"
+                if len(port_str) < 8:
+                    sep *= 2
+                line += sep + "# " + description
+            line += "\n"
+            f.write(line)
 
 def exit_msg(msg=None, status=1):
     if msg is not None:
@@ -133,7 +185,9 @@ def main(argv):
         svc_url = iana_svc_url
 
     try:
-        if python_version < 0x300:
+        if not svc_url.startswith('http'):
+            svc_fd = open(svc_url)
+        elif python_version < 0x300:
             svc_fd = urllib.urlopen(svc_url)
         else:
             req = urllib.request.urlopen(svc_url)
@@ -142,8 +196,6 @@ def main(argv):
         exit_msg('Error opening ' + svc_url)
 
     body = parse_rows(svc_fd)
-    if len(body) < min_body_size:
-        exit_msg('Not enough parsed data')
 
     out = open(services_file, 'w')
     out.write('''\
@@ -158,9 +210,19 @@ def main(argv):
 # The original file can be found at:
 # %s
 #
+# The format is the same as that used for services(5). It is allowed to merge
+# identical protocols, for example:
+#   foo 64/tcp
+#   foo 64/udp
+# becomes
+#   foo 64/tcp/udp
+#
 
-%s
-''' % (iana_svc_url, body))
+''' % (iana_svc_url))
+
+    write_body(body, out)
+
+    out.close()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
