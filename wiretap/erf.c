@@ -1065,7 +1065,6 @@ static void erf_write_wtap_option_to_interface_tag(wtap_block_t block _U_,
 
   struct erf_meta_section *section_ptr = (struct erf_meta_section*) user_data;
   struct erf_meta_tag *tag_ptr = NULL;
-  guint32 fcslen;
 
   tag_ptr = (struct erf_meta_tag*) g_malloc0(sizeof(struct erf_meta_tag));
 
@@ -1131,8 +1130,7 @@ static void erf_write_wtap_option_to_interface_tag(wtap_block_t block _U_,
       tag_ptr->type = ERF_META_TAG_fcs_len;
       tag_ptr->length = 4;
       tag_ptr->value = (guint8*)g_malloc(tag_ptr->length);
-      fcslen = (guint32)optval->uint8val;
-      phtonl(tag_ptr->value, fcslen);
+      phtonl(tag_ptr->value, (guint32)optval->uint8val);
       break;
     /* TODO: Don't know what to do with these yet */
     case OPT_IDB_EUIADDR:
