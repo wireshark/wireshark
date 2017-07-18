@@ -1,0 +1,583 @@
+commit 9f202e4
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jul 17 16:06:28 2017 -0700
+
+    Prep for 2.0.14.
+    
+    Change-Id: If869241874c1d741aad8e8198193eaf497ed0bda
+    Reviewed-on: https://code.wireshark.org/review/22682
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit a83a324
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Sat Jun 17 11:33:29 2017 -0400
+
+    OpenSafety: sanity check calculated length.
+    
+    Original sanity check was missed for fragmentation
+    
+    Bug: 13755
+    Change-Id: If9e24e01a119c869b02f198456776c8e6c6f2ad0
+    Reviewed-on: https://code.wireshark.org/review/22193
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Roland Knall <rknall@gmail.com>
+    (cherry picked from commit 66c50585e5c10764d0b8a850fd49fa7012346560)
+    Reviewed-on: https://code.wireshark.org/review/22680
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 903300e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 16 17:33:21 2017 +0000
+
+    [Automatic update for 2017-07-16]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Ia88592416ced2d27684b6b389ce1adeedec67976
+    Reviewed-on: https://code.wireshark.org/review/22650
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 3c65b5e
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Wed Jul 5 10:05:04 2017 +0200
+
+    UMTS RLC: check rlc_channel_assign return value when searching duplicates
+    
+    Bug: 13871
+    Change-Id: Id28d73115b557af96c23154a18dcee502b4305ed
+    Reviewed-on: https://code.wireshark.org/review/22520
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 9ff673d3e85590141a6f0e33c9521de91512094d)
+    Conflicts:
+            epan/dissectors/packet-umts_rlc.c
+    Reviewed-on: https://code.wireshark.org/review/22527
+
+commit 92f8601
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Wed Jul 5 10:19:08 2017 +0200
+
+    UMTS FP: do not try to compute CRC on payload when no payload is present
+    
+    A call to tvb_memdup() with a 0 length triggers a UBSan warning
+    
+    Change-Id: I6c99ef85050cd2219d2135f64f747961a8be6927
+    Ping-Bug: 13871
+    Reviewed-on: https://code.wireshark.org/review/22521
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 02f66afd64753c6b177ba21c46bdf938d682afe4)
+    Reviewed-on: https://code.wireshark.org/review/22524
+
+commit 8c91d8e
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat Jul 1 05:17:23 2017 +0000
+
+    Revert "dumpcap: fix minor memory leak at begin of capture"
+    
+    This reverts commit 4b40cee433172d061e45c9ddfdadae50bfbdcd10.
+    
+    There's no cpu_info_str to *be* leaked in this branch.
+    
+    Change-Id: I83af74b00a5903eeefb2af0510ee1341f337f094
+    Reviewed-on: https://code.wireshark.org/review/22492
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 4b40cee
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Fri Jun 30 00:32:25 2017 +0200
+
+    dumpcap: fix minor memory leak at begin of capture
+    
+    While "os_info_str" is freed after the loop, "cpu_info_str" was leaked.
+    
+    Change-Id: Ia4069403c0a5dd5cc6bd7ed61726c1bfa9736b19
+    Reviewed-on: https://code.wireshark.org/review/22465
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 247446539704aee99f64e73a77e5e88a40ae885a)
+    Reviewed-on: https://code.wireshark.org/review/22470
+
+commit 2787642
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Jun 27 18:44:39 2017 -0700
+
+    Clean up the "non-constant initalizers" stuff.
+    
+    We aren't, in this branch, insisting on C99 on UN*X, so we still warn
+    against initializing aggregates, even if they have automatic storage
+    duration, with non-constant values.  Put that into its own section, with
+    some details, and take that out of the section on initializing global
+    and static variables with non-constant values.
+    
+    (In practice, it'll probably Just Work, but we haven't pulled any of the
+    *other* C99isms into this branch, and this branch is soon going to be
+    less active once 2.4 is out, so we'll just leave the restrictions in.)
+    
+    For the latter section, expand the example in the hopes of avoiding
+    confusion between "static storage duration" (which something declared
+    "static" has, but which anything declared with file scope, whether
+    declared "static" or not, also has) and "static storage duration and
+    internal linkage", which is what the "static" keyword specifies.
+    
+    Change-Id: I5a7d307f0cb3be84e355b92231fb115359d0cd41
+    Reviewed-on: https://code.wireshark.org/review/22436
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 0930fe4cffc3f9b4a8ef9168a72fdb05c8f1bcb8)
+    Reviewed-on: https://code.wireshark.org/review/22437
+
+commit e0b028f
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Jun 27 14:35:20 2017 -0700
+
+    Fix the "don't initialize with non-constant variables" item.
+    
+    It only applies to variables with static storage duration, i.e. global
+    and static variables.  Expand the example of how to do it, to make it a
+    bit clearer.
+    
+    Change-Id: Ie0c473a35a77351dd10d6c9df2c34a39f077fca4
+    Reviewed-on: https://code.wireshark.org/review/22430
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 7321df2a4532d6531eab75f99c5f158ffd90574b)
+    Reviewed-on: https://code.wireshark.org/review/22433
+
+commit 77a3732
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Jun 26 18:48:01 2017 -0700
+
+    Don't check for inflatePrime() on Windows.
+    
+    On Windows, we build libz as part of the Wireshark build process, so we
+    don't necessarily *have* a libz library to search or inflatePrime() at
+    this point; the search fails on the buildbots, for example.
+    
+    So, on Windows, we just assume we have a new enough version of libz, so
+    that it has inflatePrime().
+    
+    Bug: 13850
+    Change-Id: Ied0909f4a591ff3312d83a2a2ed41e3cd12218e8
+    Reviewed-on: https://code.wireshark.org/review/22413
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 9a1d16b55324056e4d5031370b007097b76dc519)
+    Reviewed-on: https://code.wireshark.org/review/22416
+
+commit 3837aa7
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 25 08:24:00 2017 +0000
+
+    [Automatic update for 2017-06-25]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: I67970f2016f4ac63a15a1815a27a0b496dcf516f
+    Reviewed-on: https://code.wireshark.org/review/22387
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit aecad01
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Wed Jun 21 23:25:24 2017 +0200
+
+    OSPF: fix Opaque LSA Type 11 is considered as unknown
+    
+    it is define in RFC5250 (and RFC 2370)
+    
+    Ping-Bug: 13823
+    
+    Change-Id: I84f166d48b39e76ab811a6c2d1c7b1d516e7f0f3
+    Reviewed-on: https://code.wireshark.org/review/22328
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 0727123773d36a9dd6000d82a2967f7ddaa61aca)
+    Reviewed-on: https://code.wireshark.org/review/22372
+
+commit bce386e
+Author: Dirk Weise <code@dirk-weise.de>
+Date:   Thu Jun 22 10:16:17 2017 +0200
+
+    Add notes about predefined strings not available to plugins
+    
+    The documention refers dissector authors to helpful predifined string structures
+    that plugin authors unfortunately cannot use.
+    
+    # Conflicts:
+    #       doc/README.dissector
+    
+    Bug: 13828
+    Change-Id: I62cdfeb200c9b354aed44d40c80a0e8f9e8f910b
+    Reviewed-on: https://code.wireshark.org/review/22339
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Reviewed-on: https://code.wireshark.org/review/22343
+    Reviewed-on: https://code.wireshark.org/review/22344
+
+commit 0a48660
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Thu Jun 22 02:13:52 2017 +0200
+
+    MQ: put declaration before code
+    
+    Change-Id: I2b0d1a4795e3278a1702d51d4fd532a37a4eba19
+    Reviewed-on: https://code.wireshark.org/review/22332
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit e46cb2defc559a530d11689d50f0adf47513e8e5)
+    Reviewed-on: https://code.wireshark.org/review/22335
+
+commit 8d9a0e9
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Wed Jun 21 14:43:04 2017 +0200
+
+    ISIS LSP: fix wrong bitmask for SPVID
+    
+    Issue reported by Bo-Han Liao
+    
+    Bug: 13821
+    Change-Id: I74641bef723e747bfe5fa87e946b7f4f74b94bf6
+    Reviewed-on: https://code.wireshark.org/review/22299
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 855484fbd98c8c01f5a84902243389e07e32b6e9)
+    Reviewed-on: https://code.wireshark.org/review/22302
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+
+commit 000b206
+Author: Roland Knall <rknall@gmail.com>
+Date:   Tue Jun 20 16:10:42 2017 -0400
+
+    tcp: Change the wording to include (s)
+    
+    More than one packet could be meant by that
+    
+    Change-Id: Ie751a282c927608414673c2cd48b11dc5e6d5ea6
+    Reviewed-on: https://code.wireshark.org/review/22283
+    Reviewed-by: Roland Knall <rknall@gmail.com>
+    Petri-Dish: Roland Knall <rknall@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 050da447424223d39d1e494b8daab840a100d05e)
+    Reviewed-on: https://code.wireshark.org/review/22297
+
+commit 57b83bb
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Tue Jun 20 21:31:49 2017 +0200
+
+    GPRS LLC: fix a variable overflow when decoding XID
+    
+    Bug: 13603
+    Change-Id: I135c5d6a9edff53ed4b7aa283c7293e22bd377e6
+    Reviewed-on: https://code.wireshark.org/review/22276
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+
+commit 8fcd725
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Mon Jun 19 20:40:52 2017 +0200
+
+    MQ: check fragment length before trying to perform reassembly
+    
+    Bug: 13792
+    Change-Id: Id0c116655288c5a3347911281a932ae80250c24f
+    Reviewed-on: https://code.wireshark.org/review/22233
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit bb58b3a2643ab81560d84b00be3a9b9e86f0393c)
+     Conflicts:
+            epan/dissectors/packet-mq.c
+    Reviewed-on: https://code.wireshark.org/review/22253
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit 0ba332e
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Mon Jun 19 20:06:06 2017 +0200
+
+    PROFINET IO: define an arbitrary recursion depth limit
+    
+    Bug: 13811
+    Change-Id: I52bffd4a79dcdad9da23f33e1fc6a868472390bf
+    Reviewed-on: https://code.wireshark.org/review/22232
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit fbfb87a2439dd18f2318586b8e5a2f6db410ba6a)
+    Reviewed-on: https://code.wireshark.org/review/22256
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit e57c86e
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Mon Jun 19 21:23:47 2017 +0200
+
+    AMQP: fix a stack overflow when offset goes back and forth
+    
+    Previous code assumed that list decoding was successful and that some
+    bytes were consumed. Let's explicitly check this.
+    
+    Bug: 13780
+    Change-Id: I3546b093f309f2b8096f01bc9987ac5ad9e029eb
+    Reviewed-on: https://code.wireshark.org/review/22235
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 246cbbc2ea6dd0a3a69a1aaa94db244a77565353)
+    Reviewed-on: https://code.wireshark.org/review/22250
+
+commit 891d531
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Sun Jun 18 22:16:42 2017 +0200
+
+    DAAP: define an arbitrary recursion depth limit
+    
+    Bug: 13799
+    Change-Id: I611e3e888f91f78262e0d685e613a2bc221687c5
+    Reviewed-on: https://code.wireshark.org/review/22210
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 82fc557bed30b1aa69ca43a4291b64a9ce54c78a)
+     Conflicts:
+            epan/dissectors/packet-daap.c
+    Reviewed-on: https://code.wireshark.org/review/22231
+
+commit 195fb99
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Jun 18 19:55:11 2017 -0700
+
+    Put the definition of BIT_SWAPPED_MAC_ADDRS in the file where it's used.
+    
+    In change 18a3b0659c209a2e0121eacd640b75e6c1c3b87d, I moved the table
+    that uses it, but not the actual definition, from libpcap.c to
+    pcap-common.c; they both should have been moved.  Make it so.
+    
+    Change-Id: I266fce455df3848b873cdfadb12cecdbf9c8d4d3
+    Reviewed-on: https://code.wireshark.org/review/22216
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit e9e1b4816278a131aa38dfc579ccd975fed2d7c7)
+    Reviewed-on: https://code.wireshark.org/review/22219
+
+commit 48cdd49
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 18 08:38:46 2017 +0000
+
+    [Automatic update for 2017-06-18]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: Ib19f0a1ee301aca47b4dde911150525fe8135dfa
+    Reviewed-on: https://code.wireshark.org/review/22206
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 02e6264
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Jun 16 11:40:22 2017 -0700
+
+    Fix SURROGATE_VALUE() to match what RFC 2781 says.
+    
+    While we're at it, note in the comment for get_utf_16_string() the
+    "decoding UTF-16" algorithm in RFC 2781.
+    
+    Change-Id: I5d7dc5c09af0474c055796e49e0c7b94fa87d2ad
+    Reviewed-on: https://code.wireshark.org/review/22171
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 435c68cd2b856a6be7d015e8703c6c83d9b8eb89)
+    Reviewed-on: https://code.wireshark.org/review/22174
+
+commit e7a9ae7
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Wed Jun 14 12:52:09 2017 -0400
+
+    packet-btrfcomm.c: Prevent over bit shift in get_le_multi_byte_value.
+    
+    https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=2163
+    Bug: 13783
+    Change-Id: I92cefec86f9545345d00cf28e32ef7c05064417c
+    Reviewed-on: https://code.wireshark.org/review/22141
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 552dab08a6ea1b47465d888c613c353f8697e918)
+    Reviewed-on: https://code.wireshark.org/review/22154
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit 3c7168c
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Tue Jun 13 23:05:24 2017 -0400
+
+    WBXML: Fix some more potential infinite loops.
+    
+    tvb_get_guintvar can generate some unrealistic values so do some
+    sanity checking on them.
+    
+    Bug: 13796
+    Change-Id: I2d5f7a48c2e982a419ea6ab3ac0000be3b6bcbc7
+    Reviewed-on: https://code.wireshark.org/review/22121
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 50fa2d95833ec2e2b0de3000eda7b290fc23eaeb)
+    Reviewed-on: https://code.wireshark.org/review/22130
+
+commit 283b0af
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Tue Jun 13 20:37:11 2017 -0400
+
+    DOCSIS: Prevent infinite loop from unknown FCParm.
+    
+    concatlen was not updated if FCParm was unknown, leading to an infinite loop.
+    
+    # Conflicts:
+    #       plugins/docsis/packet-docsis.c
+    
+    Bug: 13797
+    Change-Id: I1b64d757a369183a711f01b0b5cd1ba7aa0787bc
+    Reviewed-on: https://code.wireshark.org/review/22120
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 26a6881014c85c935f2794f6eeb852849137c20a)
+    Reviewed-on: https://code.wireshark.org/review/22124
+    Reviewed-on: https://code.wireshark.org/review/22126
+
+commit d414f5c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 11 08:36:06 2017 +0000
+
+    [Automatic update for 2017-06-11]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: I2ca6804b96a3b9d464b9f951b014ac3caf2f5648
+    Reviewed-on: https://code.wireshark.org/review/22070
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit e7cb1d8
+Author: Martin Kaiser <wireshark@kaiser.cx>
+Date:   Wed Jun 7 23:26:33 2017 +0200
+
+    wsmp: read the message length as big endian
+    
+    We add the message length to the tree as big endian but we interpret it
+    as little endian for our further calculations. This causes parsing
+    errors. Use big endian for both cases.
+    
+    Bug: 13766
+    Change-Id: I4e6cdb7d4267be96ea78eb664e88c532a9a90b52
+    Reviewed-on: https://code.wireshark.org/review/22024
+    Petri-Dish: Martin Kaiser <wireshark@kaiser.cx>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit bd130766438546ab64f7540597a2e3b82cbf8a3c)
+    Reviewed-on: https://code.wireshark.org/review/22030
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+
+commit 565b67c
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Tue May 23 10:56:03 2017 +0000
+
+    Revert "Fix issue with dissecting multiple DT1 packets in the frame"
+    
+    Bug: 13651
+    This reverts commit daefa86695ecb6f859615ccd1bee6269e2c568a5.
+    
+    Change-Id: I50eee7ae99bc471d95365a8da0271188d826ac46
+    Reviewed-on: https://code.wireshark.org/review/21738
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 8fd14b796055fc45f0aac0ee6d24bfb183bebe43)
+    Reviewed-on: https://code.wireshark.org/review/22016
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit 74ad6ed
+Author: Ivan Nardi <nardi.ivan@gmail.com>
+Date:   Mon Jun 5 13:24:03 2017 +0200
+
+    [Bssmap] Fix and improve dissection
+    
+    See TS 48.008:
+    * in "Perform Location Request" msg, "Cell Identifier" ie is optional, not mandatory (3.2.1.71)
+    * in "Uplink Releae Command" msg, "Cause" ie is mandatory (3.2.1.62)
+    * fixed and improved "Service Handover" ie dissection (3.2.2.75)
+    
+    Change-Id: I2194bf56ef21a2cccbd4f2ed7ff22565af04cddd
+    Reviewed-on: https://code.wireshark.org/review/21957
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 795077b3ea95b1c2fb8f8cf5c6971da05a0c3ed2)
+    Reviewed-on: https://code.wireshark.org/review/21962
+
+commit ad0663e
+Author: Ivan Nardi <nardi.ivan@gmail.com>
+Date:   Sun Jun 4 12:46:50 2017 +0200
+
+    [SGsAP] Fix Release-Request msg
+    
+    "SGs Cause" is an optional ie, not a mandatory one. See TS 29.118 8.23.1
+    
+    Change-Id: I74ad90d159e667fa41f8c099520ce5f662a4d85e
+    Reviewed-on: https://code.wireshark.org/review/21939
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 88cf898c4409d4267ef11eb6676cca5c8b05c435)
+    Reviewed-on: https://code.wireshark.org/review/21945
+
+commit a32ee6a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 4 08:29:27 2017 +0000
+
+    [Automatic update for 2017-06-04]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: Ib270518cf13dd3184169bed02270415f658d4e9a
+    Reviewed-on: https://code.wireshark.org/review/21935
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit af9cf12
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Mon May 29 21:49:26 2017 +0200
+
+    TCAP: fix SRT analysis
+    
+    When reviewing the code, the following issues were identified:
+    - otid/dtid on 3 bytes were not stored
+    - when receiving the first continue from dest, the TC_END hash entry was
+    created with the source tid / address instead of destination ones
+    - when receiving the first continue from src, the logic could prevent
+    the creation of the hash entry
+    
+    Bug: 13739
+    Change-Id: If4ee70f0fa69f5ff74fdf75f3a741102baa0121a
+    Reviewed-on: https://code.wireshark.org/review/21780
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit f434820705b7875e5eaab1bba77c0264b1eb1bd6)
+    Conflicts:
+            epan/dissectors/asn1/tcap/packet-tcap-template.c
+            epan/dissectors/asn1/tcap/tcap.cnf
+            epan/dissectors/packet-tcap.c
+    Reviewed-on: https://code.wireshark.org/review/21898
+
+commit fbb83f5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Jun 1 13:51:51 2017 -0700
+
+    2.0.13 → 2.0.14.
+    
+    Change-Id: I52ca7078683e4927f5575e189ee840105c0c8c07
+    Reviewed-on: https://code.wireshark.org/review/21885
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
