@@ -33,8 +33,8 @@ since version 2.2.0:
   That is, you should make sure the NSIS package is completely uninstalled before
   installing the Windows Installer package and vice-versa.
 * Source packages are now compressed using xz instead of bzip2.
-* The legacy (GTK+) UI is disabled by default in the Windows installer.
-* The legacy (GTK+) UI is disabled by default in Autotools and CMake.
+* The legacy (GTK+) UI is disabled by default in the Windows installers.
+* The legacy (GTK+) UI is disabled by default in the development environment (Autotools and CMake).
 * SS7 Point Codes can now be resolved into names with a hosts-like file.
 * Wireshark can now go fullscreen to have more room for packets.
 * TShark can now export objects like the other GUI interfaces.
@@ -135,8 +135,10 @@ IxVeriWave
 //--sort-and-group--
 //--sort-and-group--
 
-//=== Major API Changes
+=== Major API Changes
+
 IEEE802.11: wlan_mgt display filter element got renamed to wlan.
+
 Libgcrypt is now a required dependency.
 
 == Getting Wireshark
@@ -180,9 +182,6 @@ Wireshark and TShark will display incorrect delta times in some cases.
 (ws-buglink:4985[])
 
 Wireshark should let you work with multiple capture files. (ws-buglink:10488[])
-
-Dell Backup and Recovery (DBAR) makes many Windows applications crash,
-including Wireshark. (ws-buglink:12036[])
 
 == Getting Help
 

@@ -1,4 +1,4 @@
-                        Wireshark 2.4.0rc2 Release Notes
+                         Wireshark 2.4.0 Release Notes
 
    This is the first release candidate for Wireshark 2.4.0.
      __________________________________________________________________
@@ -22,8 +22,9 @@ What's New
        Windows Installer package and vice-versa.
      * Source packages are now compressed using xz instead of bzip2.
      * The legacy (GTK+) UI is disabled by default in the Windows
-       installer.
-     * The legacy (GTK+) UI is disabled by default in Autotools and CMake.
+       installers.
+     * The legacy (GTK+) UI is disabled by default in the development
+       environment (Autotools and CMake).
      * SS7 Point Codes can now be resolved into names with a hosts-like
        file.
      * Wireshark can now go fullscreen to have more room for packets.
@@ -43,7 +44,17 @@ What's New
      * Extcap utilities can now validate the capture filter.
      * Display filter function len() can now be used on all string and
        byte fields.
-     * Added timeline view for 802.11 wireless packet data.
+     * Added an experimental timeline view for 802.11 wireless packet data
+       which can be enabled via the "802.11 radio information"
+       preferences.
+     * Added TLS 1.3 (draft 21) dissection and decryption support ([1]Bug
+       12779).
+     * The (D)TLS Application Layer protocol (e.g. HTTP or CoAP) can now
+       be changed via the Decode As dialog.
+     * The RSA keys dialog for SSL keys has improved feedback for invalid
+       settings and no longer requires the IP address, Port or Protocol
+       fields to be set in addition to the Key File.
+     * TCP Analysis will detect and flag more spurious retransmissions.
 
   New Protocol Support
 
@@ -72,21 +83,24 @@ What's New
 
    ERF, IxVeriWave, Libpcap, and Pcap-ng
 
+  Major API Changes
+
    IEEE802.11: wlan_mgt display filter element got renamed to wlan.
+
    Libgcrypt is now a required dependency.
      __________________________________________________________________
 
 Getting Wireshark
 
    Wireshark source code and installation packages are available from
-   [1]https://www.wireshark.org/download.html.
+   [2]https://www.wireshark.org/download.html.
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can be
-   found on the [2]download page on the Wireshark web site.
+   found on the [3]download page on the Wireshark web site.
      __________________________________________________________________
 
 File Locations
@@ -99,26 +113,23 @@ File Locations
 
 Known Problems
 
-   Dumpcap might not quit if Wireshark or TShark crashes. ([3]Bug 1419)
+   Dumpcap might not quit if Wireshark or TShark crashes. ([4]Bug 1419)
 
-   The BER dissector might infinitely loop. ([4]Bug 1516)
+   The BER dissector might infinitely loop. ([5]Bug 1516)
 
-   Capture filters aren't applied when capturing from named pipes. ([5]Bug
+   Capture filters aren't applied when capturing from named pipes. ([6]Bug
    1814)
 
    Filtering tshark captures with read filters (-R) no longer works.
-   ([6]Bug 2234)
+   ([7]Bug 2234)
 
-   Application crash when changing real-time option. ([7]Bug 4035)
+   Application crash when changing real-time option. ([8]Bug 4035)
 
    Wireshark and TShark will display incorrect delta times in some cases.
-   ([8]Bug 4985)
+   ([9]Bug 4985)
 
-   Wireshark should let you work with multiple capture files. ([9]Bug
+   Wireshark should let you work with multiple capture files. ([10]Bug
    10488)
-
-   Dell Backup and Recovery (DBAR) makes many Windows applications crash,
-   including Wireshark. ([10]Bug 12036)
      __________________________________________________________________
 
 Getting Help
@@ -136,20 +147,20 @@ Frequently Asked Questions
    A complete FAQ is available on the [14]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2017-06-28 17:23:59 UTC
+   Last updated 2017-07-19 16:38:16 UTC
 
 References
 
-   1. https://www.wireshark.org/download.html
-   2. https://www.wireshark.org/download.html#thirdparty
-   3. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
-   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
-   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
-   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
-   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
-   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
-  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036
+   1. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12779
+   2. https://www.wireshark.org/download.html
+   3. https://www.wireshark.org/download.html#thirdparty
+   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
+   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
+   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
+   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
+   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
+  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
   11. https://ask.wireshark.org/
   12. https://www.wireshark.org/lists/
   13. http://www.wiresharktraining.com/
