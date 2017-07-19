@@ -13060,7 +13060,7 @@ proto_register_pn_io (void)
         NULL, HFILL }
     },
     { &hf_pn_io_iops,
-      { "IOPS", "pn_io.ioxs",
+      { "IOPS", "pn_io.iops",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
