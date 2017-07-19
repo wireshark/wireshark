@@ -291,6 +291,13 @@ static int hf_dcm_info_rolesel_scprole = -1;
 static int hf_dcm_info_async_neg = -1;
 static int hf_dcm_info_async_neg_max_num_ops_inv = -1;
 static int hf_dcm_info_async_neg_max_num_ops_per = -1;
+static int hf_dcm_info_user_identify = -1;
+static int hf_dcm_info_user_identify_type = -1;
+static int hf_dcm_info_user_identify_response_requested = -1;
+static int hf_dcm_info_user_identify_primary_field_length = -1;
+static int hf_dcm_info_user_identify_primary_field = -1;
+static int hf_dcm_info_user_identify_secondary_field_length = -1;
+static int hf_dcm_info_user_identify_secondary_field = -1;
 static int hf_dcm_info_unknown = -1;
 static int hf_dcm_assoc_item_data = -1;
 static int hf_dcm_pdu_maxlen = -1;
@@ -322,6 +329,7 @@ static gint ett_assoc_info_version = -1;
 static gint ett_assoc_info_extneg = -1;
 static gint ett_assoc_info_rolesel = -1;
 static gint ett_assoc_info_async_neg = -1;
+static gint ett_assoc_info_user_identify = -1;
 static gint ett_assoc_info_unknown = -1;
 static gint ett_dcm_data = -1;
 static gint ett_dcm_data_pdv = -1;
@@ -370,6 +378,15 @@ static const value_string dcm_assoc_item_type[] = {
     { 0x54, "SCP/SCU Role Selection" },
     { 0x55, "Implementation Version" },
     { 0x56, "SOP Class Extended Negotiation" },
+    { 0x58, "User Identity" },
+    { 0, NULL }
+};
+
+static const value_string user_identify_type_vals[] = {
+    { 1, "Username as a string in UTF-8" },
+    { 2, "Username as a string in UTF-8 and passcode" },
+    { 3, "Kerberos Service ticket" },
+    { 4, "SAML Assertion" },
     { 0, NULL }
 };
 
@@ -4985,6 +5002,54 @@ dissect_dcm_assoc_sopclass_extneg(tvbuff_t *tvb, proto_tree *tree, guint32 offse
 }
 
 static void
+dissect_dcm_assoc_user_identify(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+{
+    /*
+     *  Decode unknown type
+     */
+
+    proto_tree *assoc_item_user_identify_tree = NULL;  /* Tree for item details */
+    proto_item *assoc_item_user_identify_item = NULL;
+
+    guint16 primary_field_length, secondary_field_length, item_len  = 0;
+    guint8 type;
+
+    item_len  = tvb_get_ntohs(tvb, offset+2);
+
+    assoc_item_user_identify_item = proto_tree_add_item(tree, hf_dcm_info_user_identify, tvb, offset, item_len+4, ENC_NA);
+    assoc_item_user_identify_tree = proto_item_add_subtree(assoc_item_user_identify_item, ett_assoc_info_user_identify);
+
+    proto_tree_add_item(assoc_item_user_identify_tree, hf_dcm_assoc_item_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(assoc_item_user_identify_tree, hf_dcm_assoc_item_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    type = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(assoc_item_user_identify_tree, hf_dcm_info_user_identify_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(assoc_item_user_identify_tree, hf_dcm_info_user_identify_response_requested, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    primary_field_length = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(assoc_item_user_identify_tree, hf_dcm_info_user_identify_primary_field_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(assoc_item_user_identify_tree, hf_dcm_info_user_identify_primary_field, tvb, offset, primary_field_length, ENC_UTF_8|ENC_NA);
+    proto_item_append_text(assoc_item_user_identify_item, ": %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, primary_field_length, ENC_UTF_8|ENC_NA));
+    offset += primary_field_length;
+
+    if (type == 2) {
+        secondary_field_length = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item(assoc_item_user_identify_tree, hf_dcm_info_user_identify_secondary_field_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(assoc_item_user_identify_tree, hf_dcm_info_user_identify_secondary_field, tvb, offset, secondary_field_length, ENC_UTF_8|ENC_NA);
+        proto_item_append_text(assoc_item_user_identify_item, ", %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, secondary_field_length, ENC_UTF_8|ENC_NA));
+    }
+}
+
+static void
 dissect_dcm_assoc_unknown(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
     /*
@@ -5391,6 +5456,13 @@ dissect_dcm_userinfo(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 le
         case 0x56:              /* extended negotiation */
 
             dissect_dcm_assoc_sopclass_extneg(tvb, userinfo_ptree, offset-4);
+
+            offset += item_len;
+            break;
+
+        case 0x58:              /* User Identify */
+
+            dissect_dcm_assoc_user_identify(tvb, userinfo_ptree, offset-4);
 
             offset += item_len;
             break;
@@ -7063,6 +7135,20 @@ proto_register_dcm(void)
         FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_dcm_assoc_item_data, { "Unknown Data", "dicom.userinfo.data",
         FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+    { &hf_dcm_info_user_identify, { "User Identify", "dicom.userinfo.user_identify",
+        FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
+    { &hf_dcm_info_user_identify_type, { "Type", "dicom.userinfo.user_identify.type",
+        FT_UINT8, BASE_DEC, VALS(user_identify_type_vals), 0, NULL, HFILL } },
+    { &hf_dcm_info_user_identify_response_requested, { "Response Requested", "dicom.userinfo.user_identify.response_requested",
+        FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+    { &hf_dcm_info_user_identify_primary_field_length, { "Primary Field Length", "dicom.userinfo.user_identify.primary_field_length",
+        FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+    { &hf_dcm_info_user_identify_primary_field, { "Primary Field", "dicom.userinfo.user_identify.primary_field",
+        FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+    { &hf_dcm_info_user_identify_secondary_field_length, { "Secondary Field Length", "dicom.userinfo.user_identify.secondary_field_length",
+        FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+    { &hf_dcm_info_user_identify_secondary_field, { "Secondary Field", "dicom.userinfo.user_identify.secondary_field",
+        FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_dcm_pdu_maxlen, { "Max PDU Length", "dicom.max_pdu_len",
         FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
     { &hf_dcm_pdv_len, { "PDV Length", "dicom.pdv.len",
@@ -7144,6 +7230,7 @@ proto_register_dcm(void)
             &ett_assoc_info_extneg,
             &ett_assoc_info_rolesel,
             &ett_assoc_info_async_neg,
+            &ett_assoc_info_user_identify,
             &ett_assoc_info_unknown,
             &ett_dcm_data,
             &ett_dcm_data_pdv,
