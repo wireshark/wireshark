@@ -3,8 +3,6 @@ include::attributes.asciidoc[]
 = Wireshark {wireshark-version} Release Notes
 // AsciiDoc quick reference: http://powerman.name/doc/asciidoc
 
-This is the first release candidate for Wireshark 2.4.0.
-
 == What is Wireshark?
 
 Wireshark is the world's most popular network protocol analyzer. It is
@@ -12,9 +10,18 @@ used for troubleshooting, analysis, development and education.
 
 == What's New
 
-//=== Bug Fixes
+=== Bug Fixes
 
-//The following bugs have been fixed:
+The following bugs have been fixed:
+
+* ws-salink:2017-38[]
++
+A dissector went awry.
+(ws-buglink:xxxx[])
+// cve-idlink:2017-7702[]
+// Fixed in master: XXXX
+// Fixed in master-2.2: XXXX
+// Fixed in master-2.0: XXXX
 
 //* ws-buglink:5000[]
 //* ws-buglink:6000[Wireshark bug]
@@ -25,41 +32,7 @@ used for troubleshooting, analysis, development and education.
 
 === New and Updated Features
 
-The following features are new (or have been significantly updated)
-since version 2.2.0:
-
-* Experimental 32-bit and 64-bit Windows Installer (.msi) packages are available.
-  It is recommended that you use these independently of the NSIS (.exe) installers.
-  That is, you should make sure the NSIS package is completely uninstalled before
-  installing the Windows Installer package and vice-versa.
-* Source packages are now compressed using xz instead of bzip2.
-* The legacy (GTK+) UI is disabled by default in the Windows installers.
-* The legacy (GTK+) UI is disabled by default in the development environment (Autotools and CMake).
-* SS7 Point Codes can now be resolved into names with a hosts-like file.
-* Wireshark can now go fullscreen to have more room for packets.
-* TShark can now export objects like the other GUI interfaces.
-* Support for G.722 and G.726 codecs in the RTP Player (via the SpanDSP library).
-* You can now choose the output device when playing RTP streams.
-* Added support for dissectors to include a unit name natively in their hf field.
-  A field can now automatically append "seconds" or "ms" to its value without
-  additional printf-style APIs.
-* The Default profile can now be reset to default values.
-* You can move back and forth in the selection history in the Qt UI.
-* IEEE 802.15.4 dissector now uses an UAT for decryption keys. The original
-  decryption key preference has been obsoleted.
-* Extcap utilities can now provide configuration for a GUI interface toolbar to
-  control the extcap utility while capturing.
-* Extcap utilities can now validate the capture filter.
-* Display filter function len() can now be used on all string and byte fields.
-* Added an experimental timeline view for 802.11 wireless packet data which can
-  be enabled via the "802.11 radio information" preferences.
-* Added TLS 1.3 (draft 21) dissection and decryption support (ws-buglink:12779[]).
-* The (D)TLS Application Layer protocol (e.g. HTTP or CoAP) can now be changed
-  via the Decode As dialog.
-* The RSA keys dialog for SSL keys has improved feedback for invalid settings
-  and no longer requires the IP address, Port or Protocol fields to be set in
-  addition to the Key File.
-* TCP Analysis will detect and flag more spurious retransmissions.
+There are no new features in this release.
 
 //=== Removed Dissectors
 
@@ -67,67 +40,18 @@ since version 2.2.0:
 
 === New Protocol Support
 
-// Add one protocol per line between the --sort-and-group-- delimiters.
---sort-and-group--
-Bluetooth HCI Vendor Intel
-CAN FD
-Ericsson A-bis P-GSL
-Ericsson A-bis TFP (Traffic Forwarding Protocol)
-Fc00/cjdns Protocol
-Generic Netlink (genl)
-GSM Osmux
-Health Level 7 (HL7)
-High-speed SECS message service (HSMS)
-iPerf2
-ISO 15765
-Linux 802.11 Netlink (nl80211)
-Local Service Discovery (LSD)
-M2 Application Protocol
-Mesh Link Establishment (MLE)
-Nordic BLE Sniffer
-NVMe Fabrics RDMA
-NVMe
-OpenThread simulator
-RFTap Protocol
-SCTE-35 Digital Program Insertion Messages
-Snort Post-dissector
-Thread CoAP
-Unified Diagnostic Services (UDS)
-vSocket
-Windows Cluster Management API (clusapi)
-GSMTAP based logging
-HomePNA
-X-Rite i1 Display Pro (and derivatives) USB protocol
-IndigoCare iCall protocol
-IndigoCare Netrix protocol
-NetScaler HA Protocol
-NetScaler Metric Exchange Protocol
-NetScaler RPC Protocol
-DirectPlay 8 protocol
-NM protocol
-Netgear Ensemble Protocol
-OBD-II PIDs
-Facebook Zero
-Citrix NetScaler Metric Exchange Protocol
-Citrix NetScaler RPC Protocol
-MUDURL
-UDP based FTP w/ multicast (UFTP and UFTP4)
---sort-and-group--
+There are no new protocols in this release.
 
 === Updated Protocol Support
 
-Too many protocols have been updated to list here.
+--sort-and-group--
+--sort-and-group--
 
 === New and Updated Capture File Support
 
-//_Non-empty section placeholder._
-// Add one file type per line between the --sort-and-group-- delimiters.
---sort-and-group--
-Libpcap
-Pcap-ng
-ERF
-IxVeriWave
---sort-and-group--
+There is no new or updated capture file support in this release.
+//--sort-and-group--
+//--sort-and-group--
 
 //=== New and Updated Capture Interfaces support
 
