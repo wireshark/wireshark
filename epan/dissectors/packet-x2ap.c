@@ -32,7 +32,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * Ref:
- * 3GPP TS 36.423 V13.7.0 (2017-06)
+ * 3GPP TS 36.423 V14.3.0 (2017-06)
  */
 
 #include "config.h"
