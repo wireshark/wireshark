@@ -42,6 +42,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
+#include <epan/dissectors/packet-http.h> /* for getting status reason-phrase */
 #include <epan/dissectors/packet-http2.h>
 
 #ifdef HAVE_NGHTTP2
@@ -78,6 +79,9 @@ static gboolean http2_decompress_body = TRUE;
 #else
 static gboolean http2_decompress_body = FALSE;
 #endif
+
+/* Try to dissect reassembled http2.data.data according to content-type later */
+static dissector_table_t media_type_dissector_table;
 #endif
 
 /* Decompressed header field */
@@ -149,6 +153,7 @@ typedef struct {
 
 /* struct for per-stream, per-direction entity body info */
 typedef struct {
+    gchar *content_type;
     gchar *content_encoding;
     gboolean is_partial_content;
 } http2_data_stream_body_info_t;
@@ -447,6 +452,8 @@ static const value_string http2_type_vals[] = {
 #define HTTP2_HEADER_METHOD ":method"
 #define HTTP2_HEADER_METHOD_CONNECT "CONNECT"
 #define HTTP2_HEADER_TRANSFER_ENCODING "transfer-encoding"
+#define HTTP2_HEADER_PATH ":path"
+#define HTTP2_HEADER_CONTENT_TYPE "content-type"
 
 /* header matching helpers */
 #define IS_HTTP2_END_STREAM(flags)   (flags & HTTP2_FLAGS_END_STREAM)
@@ -910,6 +917,26 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
         http2_stream_info_t *stream_info = get_stream_info(h2session);
         stream_info->is_stream_http_connect = TRUE;
     }
+
+    /* Populate the content type so we can dissect the body later */
+    if (strcmp(header_name, HTTP2_HEADER_CONTENT_TYPE) == 0) {
+        http2_data_stream_body_info_t *body_info = get_data_stream_body_info(pinfo);
+        if (body_info->content_type == NULL) {
+            body_info->content_type = wmem_strndup(wmem_file_scope(), header_value, header_value_length);
+        }
+    }
+}
+
+static void
+try_append_method_path_info(packet_info *pinfo, proto_tree *tree,
+                        const gchar *method_header_value, const gchar *path_header_value)
+{
+    if (method_header_value != NULL && path_header_value != NULL) {
+        /* append request inforamtion to info column (for example, HEADERS: GET /demo/1.jpg) */
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s %s", method_header_value, path_header_value);
+        /* append request information to Stream node */
+        proto_item_append_text(tree, ", %s %s", method_header_value, path_header_value);
+    }
 }
 
 static void
@@ -936,6 +963,8 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
     wmem_list_t *header_list;
     wmem_array_t *headers;
     guint i;
+    const gchar *method_header_value = NULL;
+    const gchar *path_header_value = NULL;
 
     if (!http2_hdrcache_map) {
         http2_hdrcache_map = wmem_map_new(wmem_file_scope(), http2_hdrcache_hash, http2_hdrcache_equal);
@@ -1165,6 +1194,24 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
 
         proto_item_append_text(header, ": %s: %s", header_name, header_value);
 
+        /* Display :method, :path and :status in info column (just like http1.1 dissector does)*/
+        if (strcmp(header_name, HTTP2_HEADER_METHOD) == 0) {
+            method_header_value = header_value;
+            try_append_method_path_info(pinfo, tree, method_header_value, path_header_value);
+        }
+        else if (strcmp(header_name, HTTP2_HEADER_PATH) == 0) {
+            path_header_value = header_value;
+            try_append_method_path_info(pinfo, tree, method_header_value, path_header_value);
+        }
+        else if (strcmp(header_name, HTTP2_HEADER_STATUS) == 0) {
+            const gchar* reason_phase = val_to_str((guint)strtoul(header_value, NULL, 10), vals_http_status_code, "Unknown");
+            /* append response status and reason phrase to info column (for example, HEADERS: 200 OK) */
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s %s", header_value, reason_phase);
+            /* append response status and reason phrase to header_tree and Stream node */
+            proto_item_append_text(header_tree, " %s", reason_phase);
+            proto_item_append_text(tree, ", %s %s", header_value, reason_phase);
+        }
+
         offset += in->length;
     }
 }
@@ -1289,6 +1336,23 @@ can_uncompress_body(packet_info *pinfo)
            && (strncmp(content_encoding, "gzip", 4) == 0 || strncmp(content_encoding, "deflate", 7) == 0);
 }
 
+/* Try to dissect reassembled http2.data.data according to content_type. */
+static void
+dissect_body_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
+                  const gint start, gint length, const guint encoding)
+{
+    http2_data_stream_body_info_t *body_info = get_data_stream_body_info(pinfo);
+    gchar *content_type = body_info->content_type;
+
+    proto_tree_add_item(tree, hf_http2_data_data, tvb, start, length, encoding);
+
+    if (content_type != NULL) {
+        /* add it to STREAM level */
+        proto_tree *ptree = tree->parent != NULL ? tree->parent : tree;
+        dissector_try_string(media_type_dissector_table, content_type,
+                                         tvb_new_subset_length(tvb, start, length), pinfo, ptree, NULL);
+    }
+}
 
 static void
 dissect_http2_data_full_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *http2_tree)
@@ -1314,14 +1378,14 @@ dissect_http2_data_full_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *http
             guint uncompressed_length = tvb_captured_length(uncompressed_tvb);
             add_new_data_source(pinfo, uncompressed_tvb, "Uncompressed entity body");
             proto_item_append_text(compressed_proto_item, " -> %u bytes", uncompressed_length);
-            proto_tree_add_item(compressed_entity_tree, hf_http2_data_data, uncompressed_tvb, 0, uncompressed_length, ENC_NA);
+            dissect_body_data(compressed_entity_tree, pinfo, uncompressed_tvb, 0, uncompressed_length, ENC_NA);
 
         } else {
             proto_tree_add_expert(compressed_entity_tree, pinfo, &ei_http2_body_decompression_failed, tvb, 0, datalen);
-            proto_tree_add_item(compressed_entity_tree, hf_http2_data_data, tvb, 0, datalen, ENC_NA);
+            dissect_body_data(compressed_entity_tree, pinfo, tvb, 0, datalen, ENC_NA);
         }
     } else {
-        proto_tree_add_item(http2_tree, hf_http2_data_data, tvb, 0, datalen, ENC_NA);
+        dissect_body_data(http2_tree, pinfo, tvb, 0, datalen, ENC_NA);
     }
 
 }
@@ -1870,7 +1934,6 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
     proto_tree_add_item(http2_tree, hf_http2_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     type = tvb_get_guint8(tvb, offset);
-    col_append_sep_str( pinfo->cinfo, COL_INFO, ", ", val_to_str(type, http2_type_vals, "Unknown type (%d)"));
 
     offset += 1;
 
@@ -1882,6 +1945,9 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     streamid = tvb_get_ntohl(tvb, offset) & MASK_HTTP2_STREAMID;
     proto_item_append_text(ti, ": %s, Stream ID: %u, Length %u", val_to_str(type, http2_type_vals, "Unknown type (%d)"), streamid, length);
     offset += 4;
+
+    /* append stream id after frame type on info column, like: HEADERS[1], DATA[1], HEADERS[3], DATA[3] */
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s[%u]", val_to_str(type, http2_type_vals, "Unknown type (%d)"), streamid);
 
 #ifdef HAVE_NGHTTP2
     /* Mark the current stream, used for per-stream processing later in the dissection */
@@ -2525,6 +2591,8 @@ static int http2_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_
 void
 proto_reg_handoff_http2(void)
 {
+    media_type_dissector_table = find_dissector_table("media_type");
+
     dissector_add_for_decode_as_with_preference("tcp.port", http2_handle);
 
     heur_dissector_add("ssl", dissect_http2_heur_ssl, "HTTP2 over SSL", "http2_ssl", proto_http2, HEURISTIC_ENABLE);
