@@ -291,6 +291,8 @@ static int hf_dcm_info_rolesel_scprole = -1;
 static int hf_dcm_info_async_neg = -1;
 static int hf_dcm_info_async_neg_max_num_ops_inv = -1;
 static int hf_dcm_info_async_neg_max_num_ops_per = -1;
+static int hf_dcm_info_unknown = -1;
+static int hf_dcm_assoc_item_data = -1;
 static int hf_dcm_pdu_maxlen = -1;
 static int hf_dcm_pdv_len = -1;
 static int hf_dcm_pdv_ctx = -1;
@@ -320,6 +322,7 @@ static gint ett_assoc_info_version = -1;
 static gint ett_assoc_info_extneg = -1;
 static gint ett_assoc_info_rolesel = -1;
 static gint ett_assoc_info_async_neg = -1;
+static gint ett_assoc_info_unknown = -1;
 static gint ett_dcm_data = -1;
 static gint ett_dcm_data_pdv = -1;
 static gint ett_dcm_data_tag = -1;
@@ -4982,6 +4985,30 @@ dissect_dcm_assoc_sopclass_extneg(tvbuff_t *tvb, proto_tree *tree, guint32 offse
 }
 
 static void
+dissect_dcm_assoc_unknown(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+{
+    /*
+     *  Decode unknown type
+     */
+
+    proto_tree *assoc_item_unknown_tree = NULL;  /* Tree for item details */
+    proto_item *assoc_item_unknown_item = NULL;
+
+    guint16 item_len  = 0;
+
+    item_len  = tvb_get_ntohs(tvb, offset+2);
+
+    assoc_item_unknown_item = proto_tree_add_item(tree, hf_dcm_info_unknown, tvb, offset, item_len+4, ENC_NA);
+    assoc_item_unknown_tree = proto_item_add_subtree(assoc_item_unknown_item, ett_assoc_info_unknown);
+
+    proto_tree_add_item(assoc_item_unknown_tree, hf_dcm_assoc_item_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(assoc_item_unknown_tree, hf_dcm_assoc_item_len, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+
+    proto_tree_add_item(assoc_item_unknown_tree, hf_dcm_assoc_item_data, tvb, offset+2+2, item_len, ENC_NA);
+
+}
+
+static void
 dissect_dcm_assoc_role_selection(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
     /*
@@ -5369,6 +5396,9 @@ dissect_dcm_userinfo(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 le
             break;
 
         default:
+
+            dissect_dcm_assoc_unknown(tvb, userinfo_ptree, offset-4);
+
             offset += item_len;
             break;
         }
@@ -7029,6 +7059,10 @@ proto_register_dcm(void)
         FT_UINT16, BASE_DEC, NULL, 0, "This field contains the maximum-number-operations-invoked in the Asynchronous Operations (and sub-operations) Window Negotiation Sub-Item.", HFILL } },
     { &hf_dcm_info_async_neg_max_num_ops_per, { "Maximum-number-operations-performed", "dicom.userinfo.asyncneg.maxnumopsper",
         FT_UINT16, BASE_DEC, NULL, 0, "This field contains the maximum-number-operations-performed in the Asynchronous Operations (and sub-operations) Window Negotiation Sub-Item.", HFILL } },
+    { &hf_dcm_info_unknown, { "Unknown", "dicom.userinfo.unknown",
+        FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
+    { &hf_dcm_assoc_item_data, { "Unknown Data", "dicom.userinfo.data",
+        FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_dcm_pdu_maxlen, { "Max PDU Length", "dicom.max_pdu_len",
         FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
     { &hf_dcm_pdv_len, { "PDV Length", "dicom.pdv.len",
@@ -7110,6 +7144,7 @@ proto_register_dcm(void)
             &ett_assoc_info_extneg,
             &ett_assoc_info_rolesel,
             &ett_assoc_info_async_neg,
+            &ett_assoc_info_unknown,
             &ett_dcm_data,
             &ett_dcm_data_pdv,
             &ett_dcm_data_tag,
