@@ -193,7 +193,7 @@ typedef enum {
 static output_action_e output_action;
 static gboolean do_dissection;     /* TRUE if we have to dissect each packet */
 static gboolean print_packet_info; /* TRUE if we're to print packet information */
-static gint print_summary = -1;    /* TRUE if we're to print packet summary information */
+static gboolean print_summary;     /* TRUE if we're to print packet summary information */
 static gboolean print_details;     /* TRUE if we're to print packet details information */
 static gboolean print_hex;         /* TRUE if we're to print hex/ascci information */
 static gboolean line_buffered;
@@ -872,15 +872,6 @@ main(int argc, char *argv[])
     }
   }
 
-  /*
-   * Print packet summary information is the default, unless either -V or -x
-   * were specified and -P was not.  Note that this is new behavior, which
-   * allows for the possibility of printing only hex/ascii output without
-   * necessarily requiring that either the summary or details be printed too.
-   */
-  if (print_summary == -1)
-    print_summary = (print_details || print_hex) ? FALSE : TRUE;
-
 /** Send All g_log messages to our own handler **/
 
   log_flags =
@@ -1323,8 +1314,8 @@ main(int argc, char *argv[])
         print_summary = FALSE;  /* Don't allow summary */
       } else if (strcmp(optarg, "ek") == 0) {
         output_action = WRITE_EK;
-        print_details = TRUE;   /* Need details */
-        print_summary = FALSE;  /* Don't allow summary */
+        if (!print_summary)
+          print_details = TRUE;
       } else if (strcmp(optarg, "jsonraw") == 0) {
         output_action = WRITE_JSON_RAW;
         print_details = TRUE;   /* Need details */
@@ -1479,6 +1470,15 @@ main(int argc, char *argv[])
       break;
     }
   }
+
+  /*
+   * Print packet summary information is the default if neither -V or -x
+   * were specified. Note that this is new behavior, which allows for the
+   * possibility of printing only hex/ascii output without necessarily
+   * requiring that either the summary or details be printed too.
+   */
+  if (!print_summary && !print_details && !print_hex)
+    print_summary = TRUE;
 
   if (no_duplicate_keys && output_action != WRITE_JSON && output_action != WRITE_JSON_RAW) {
     cmdarg_err("--no-duplicate-keys can only be used with \"-T json\" and \"-T jsonraw\"");
@@ -3899,36 +3899,17 @@ print_columns(capture_file *cf, const epan_dissect_t *edt)
 static gboolean
 print_packet(capture_file *cf, epan_dissect_t *edt)
 {
-  if (print_summary || output_fields_has_cols(output_fields)) {
+  if (print_summary || output_fields_has_cols(output_fields))
     /* Just fill in the columns. */
     epan_dissect_fill_in_columns(edt, FALSE, TRUE);
 
-    if (print_summary) {
-      /* Now print them. */
-      switch (output_action) {
+  /* Print summary columns and/or protocol tree */
+  switch (output_action) {
 
-      case WRITE_TEXT:
-        if (!print_columns(cf, edt))
-          return FALSE;
-        break;
-
-      case WRITE_XML:
-        write_psml_columns(edt, stdout, dissect_color);
-        return !ferror(stdout);
-      case WRITE_FIELDS: /*No non-verbose "fields" format */
-      case WRITE_JSON:
-      case WRITE_EK:
-      case WRITE_JSON_RAW:
-        g_assert_not_reached();
-        break;
-      }
-    }
-  }
-  if (print_details) {
-    /* Print the information in the protocol tree. */
-    switch (output_action) {
-
-    case WRITE_TEXT:
+  case WRITE_TEXT:
+    if (print_summary && !print_columns(cf, edt))
+        return FALSE;
+    if (print_details) {
       if (!proto_tree_print(print_details ? print_dissections_expanded : print_dissections_none,
                             print_hex, edt, output_only_tables, print_stream))
         return FALSE;
@@ -3936,32 +3917,61 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
         if (!print_line(print_stream, 0, separator))
           return FALSE;
       }
-      break;
+    }
+    break;
 
-    case WRITE_XML:
+  case WRITE_XML:
+    if (print_summary) {
+      write_psml_columns(edt, stdout, dissect_color);
+      return !ferror(stdout);
+    }
+    if (print_details) {
       write_pdml_proto_tree(output_fields, protocolfilter, protocolfilter_flags, edt, stdout, dissect_color);
       printf("\n");
       return !ferror(stdout);
-    case WRITE_FIELDS:
+    }
+    break;
+
+  case WRITE_FIELDS:
+    if (print_summary) {
+      /*No non-verbose "fields" format */
+      g_assert_not_reached();
+    }
+    if (print_details) {
       write_fields_proto_tree(output_fields, edt, &cf->cinfo, stdout);
       printf("\n");
       return !ferror(stdout);
-    case WRITE_JSON:
+    }
+    break;
+
+  case WRITE_JSON:
+    if (print_summary)
+      g_assert_not_reached();
+    if (print_details) {
       write_json_proto_tree(output_fields, print_dissections_expanded,
                             print_hex, protocolfilter, protocolfilter_flags,
                             edt, node_children_grouper, stdout);
       return !ferror(stdout);
-    case WRITE_JSON_RAW:
+    }
+    break;
+
+  case WRITE_JSON_RAW:
+    if (print_summary)
+      g_assert_not_reached();
+    if (print_details) {
       write_json_proto_tree(output_fields, print_dissections_none, TRUE,
                             protocolfilter, protocolfilter_flags,
                             edt, node_children_grouper, stdout);
       return !ferror(stdout);
-    case WRITE_EK:
-      write_ek_proto_tree(output_fields, print_hex, protocolfilter,
-                          protocolfilter_flags, edt, stdout);
-      return !ferror(stdout);
     }
+    break;
+
+  case WRITE_EK:
+    write_ek_proto_tree(output_fields, print_summary, print_hex, protocolfilter,
+                        protocolfilter_flags, edt, stdout);
+    return !ferror(stdout);
   }
+
   if (print_hex) {
     if (print_summary || print_details) {
       if (!print_line(print_stream, 0, ""))

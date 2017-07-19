@@ -115,6 +115,7 @@ WS_DLL_PUBLIC void write_json_proto_tree(output_fields_t* fields,
 WS_DLL_PUBLIC void write_json_finale(FILE *fh);
 
 WS_DLL_PUBLIC void write_ek_proto_tree(output_fields_t* fields,
+                                       gboolean print_summary,
                                        gboolean print_hex_data,
                                        gchar **protocolfilter,
                                        pf_flags protocolfilter_flags,

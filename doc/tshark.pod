@@ -771,11 +771,14 @@ options are one of:
 
 B<ek> Newline delimited JSON format for bulk import into Elasticsearch.
 It can be used with B<-j> or B<-J> including the JSON filter or with
-B<-x> flag to include raw hex-encoded packet data.
+B<-x> to include raw hex-encoded packet data.
+If B<-P> is specified it will print the packet summary only, with both
+B<-P> and B<-V> it will print the packet summary and packet details.
+If neither B<-P> or B<-V> are used it will print the packet details only.
 Example of usage to import data into Elasticsearch:
 
-  tshark -T ek -j "http tcp ip" -x -r file.pcap > file.json
-  curl -XPUT http://elasticsearch:9200/_bulk --data-binary @file.json
+  tshark -T ek -j "http tcp ip" -P -V -x -r file.pcap > file.json
+  curl -H "Content-Type: application/x-ndjson" -XPOST http://elasticsearch:9200/_bulk --data-binary "@file.json"
 
 B<fields> The values of fields specified with the B<-e> option, in a
 form specified by the B<-E> option.  For example,

@@ -128,6 +128,7 @@ static void write_json_proto_node_no_value(proto_node *node, write_json_data *da
 static const char *proto_node_to_json_key(proto_node *node);
 
 static void print_pdml_geninfo(epan_dissect_t *edt, FILE *fh);
+static void write_ek_summary(column_info *cinfo, FILE *fh);
 
 static void proto_tree_get_node_field_values(proto_node *node, gpointer data);
 
@@ -352,7 +353,8 @@ write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, pf_flags 
 
 void
 write_ek_proto_tree(output_fields_t* fields,
-                    gboolean print_hex, gchar **protocolfilter,
+                    gboolean print_summary, gboolean print_hex,
+                    gchar **protocolfilter,
                     pf_flags protocolfilter_flags, epan_dissect_t *edt,
                     FILE *fh)
 {
@@ -373,7 +375,12 @@ write_ek_proto_tree(output_fields_t* fields,
 
     fprintf(fh, "{\"index\" : {\"_index\": \"packets-%s\", \"_type\": \"pcap_file\", \"_score\": null}}\n", ts);
     /* Timestamp added for time indexing in Elasticsearch */
-    fprintf(fh, "{\"timestamp\" : \"%" G_GUINT64_FORMAT "%03d\", \"layers\" : {", (guint64)edt->pi.abs_ts.secs, edt->pi.abs_ts.nsecs/1000000);
+    fprintf(fh, "{\"timestamp\" : \"%" G_GUINT64_FORMAT "%03d\"", (guint64)edt->pi.abs_ts.secs, edt->pi.abs_ts.nsecs/1000000);
+
+    if (print_summary)
+        write_ek_summary(edt->pi.cinfo, fh);
+
+    fprintf(fh, ", \"layers\" : {");
 
     if (fields == NULL || fields->fields == NULL) {
         /* Write out all fields */
@@ -1156,6 +1163,21 @@ ek_check_protocolfilter(gchar **protocolfilter, const char *str)
 /**
  * Finds a node's descendants to be printed as EK/JSON attributes.
  */
+static void
+write_ek_summary(column_info *cinfo, FILE *fh)
+{
+    gint i;
+
+    for (i = 0; i < cinfo->num_cols; i++) {
+        fputs(", \"", fh);
+        print_escaped_ek(fh, g_ascii_strdown(cinfo->columns[i].col_title, -1));
+        fputs("\": \"", fh);
+        print_escaped_json(fh, cinfo->columns[i].col_data);
+        fputs("\"", fh);
+    }
+}
+
+/* Write out a tree's data, and any child nodes, as JSON for EK */
 static void
 ek_fill_attr(proto_node *node, GSList **attr_list, GHashTable *attr_table, write_json_data *pdata)
 {
