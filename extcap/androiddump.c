@@ -652,7 +652,7 @@ static char *adb_send_and_receive(socket_handle_t sock, const char *adb_service,
         return NULL;
     }
 
-    g_snprintf(buffer, sizeof(buffer), ADB_HEX4_FORMAT, adb_service_length);
+    g_snprintf(buffer, buffer_length, ADB_HEX4_FORMAT, adb_service_length);
     result = send(sock, buffer, ADB_HEX4_LEN, 0);
     if (result < ADB_HEX4_LEN) {
         g_warning("Error while sending <%s> length to ADB daemon", adb_service);
@@ -740,7 +740,7 @@ static char *adb_send_and_read(socket_handle_t sock, const char *adb_service, ch
     size_t   adb_service_length;
 
     adb_service_length = strlen(adb_service);
-    g_snprintf(buffer, sizeof(buffer), ADB_HEX4_FORMAT, adb_service_length);
+    g_snprintf(buffer, buffer_length, ADB_HEX4_FORMAT, adb_service_length);
 
     result = send(sock, buffer, ADB_HEX4_LEN, 0);
     if (result < ADB_HEX4_LEN) {
