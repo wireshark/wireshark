@@ -73,7 +73,8 @@ man1_MANS = \
 	@randpkt_man@		\
 	@androiddump_man@	\
 	@sshdump_man@		\
-	@randpktdump_man@
+	@randpktdump_man@	\
+	@udpdump_man@
 
 man4_MANS = \
 	@extcap_man@		\
@@ -89,7 +90,7 @@ pkgdata_DATA = AUTHORS-SHORT $(top_srcdir)/docbook/ws.css wireshark.html \
 	tshark.html wireshark-filter.html capinfos.html ciscodump.html editcap.html \
 	mergecap.html reordercap.html text2pcap.html dumpcap.html androiddump.html \
 	sshdump.html randpktdump.html rawshark.html dftest.html randpkt.html \
-	extcap.html
+	extcap.html udpdump.html
 
 #
 # Build the short version of the authors file for the about dialog
@@ -272,6 +273,13 @@ randpkt.html: randpkt.pod ../config.h $(top_srcdir)/docbook/ws.css
 	--noindex							\
 	$(srcdir)/randpkt.pod > randpkt.html
 
+udpdump.html: udpdump.pod ../config.h $(top_srcdir)/docbook/ws.css
+	$(AM_V_POD2HTML)$(POD2HTML)                     \
+	--title="udpdump - The Wireshark Network Analyzer $(VERSION)"	\
+	--css=$(POD_CSS_URL)						\
+	--noindex							\
+	$(srcdir)/udpdump.pod > udpdump.html
+
 CLEANFILES =		\
 	wireshark.pod	\
 	*.1		\
@@ -334,7 +342,8 @@ EXTRA_DIST =				\
 	sshdump.pod			\
 	text2pcap.pod			\
 	tshark.pod			\
-	wireshark-filter.pod    	\
+	udpdump.pod			\
+	wireshark-filter.pod		\
 	wireshark.pod.template		\
 	CMakeLists.txt
 
