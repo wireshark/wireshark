@@ -1873,7 +1873,6 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
   guint32    addr;
   int        offset = 0, dst_off;
   guint      hlen, optlen;
-  guint16    flags;
   guint16    ipsum;
   fragment_head *ipfd_head = NULL;
   tvbuff_t   *next_tvb;
@@ -1884,7 +1883,22 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
   proto_tree *tree;
   proto_item *item = NULL, *ttl_item;
   guint16 ttl;
-  int bit_offset;
+
+  static const int * ip_flags[] = {
+      &hf_ip_flags_rf,
+      &hf_ip_flags_df,
+      &hf_ip_flags_mf,
+      &hf_ip_frag_offset,
+      NULL
+  };
+  /* XXX do we realy want decoding of an april fools joke? */
+  static const int * ip_flags_evil[] = {
+      &hf_ip_flags_sf,
+      &hf_ip_flags_df,
+      &hf_ip_flags_mf,
+      &hf_ip_frag_offset,
+      NULL
+  };
 
   tree = parent_tree;
   iph = wmem_new0(wmem_packet_scope(), ws_ip);
@@ -2032,35 +2046,19 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
     proto_tree_add_uint(ip_tree, hf_ip_id, tvb, offset + 4, 2, iph->ip_id);
 
   iph->ip_off = tvb_get_ntohs(tvb, offset + 6);
-  bit_offset = (offset + 6) * 8;
 
-  flags = (iph->ip_off & (IP_RF | IP_DF | IP_MF)) >> IP_OFFSET_WIDTH;
-  tf = proto_tree_add_uint(ip_tree, hf_ip_flags, tvb, offset + 6, 1, flags);
-  field_tree = proto_item_add_subtree(tf, ett_ip_off);
   if (ip_security_flag) {
-      proto_item *sf;
+    proto_item *sf;
 
-      sf = proto_tree_add_bits_item(field_tree, hf_ip_flags_sf, tvb,
-                                    bit_offset + 0, 1, ENC_BIG_ENDIAN);
-      if (iph->ip_off & IP_RF) {
-        proto_item_append_text(tf, " (Evil packet!)");
+    sf = proto_tree_add_bitmask_with_flags(ip_tree, tvb, offset + 6, hf_ip_flags,
+        ett_ip_off, ip_flags_evil, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
+    if (iph->ip_off & IP_RF) {
         expert_add_info(pinfo, sf, &ei_ip_evil_packet);
-      }
+    }
   } else {
-      proto_tree_add_bits_item(field_tree, hf_ip_flags_rf, tvb, bit_offset + 0,
-                               1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask_with_flags(ip_tree, tvb, offset + 6, hf_ip_flags,
+        ett_ip_off, ip_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
   }
-  if (iph->ip_off & IP_DF)
-    proto_item_append_text(tf, " (Don't Fragment)");
-
-  proto_tree_add_bits_item(field_tree, hf_ip_flags_df, tvb, bit_offset + 1,
-                             1, ENC_BIG_ENDIAN);
-  if (iph->ip_off & IP_MF)
-      proto_item_append_text(tf, " (More Fragments)");
-  proto_tree_add_bits_item(field_tree, hf_ip_flags_mf, tvb, bit_offset + 2,
-                             1, ENC_BIG_ENDIAN);
-  proto_tree_add_uint(ip_tree, hf_ip_frag_offset, tvb, offset + 6, 2,
-                        (iph->ip_off & IP_OFFSET)*8);
 
   iph->ip_ttl = tvb_get_guint8(tvb, offset + 8);
   if (tree) {
@@ -2603,28 +2601,28 @@ proto_register_ip(void)
 #endif /* HAVE_GEOIP */
 
     { &hf_ip_flags,
-      { "Flags", "ip.flags", FT_UINT8, BASE_HEX,
+      { "Flags", "ip.flags", FT_UINT16, BASE_HEX,
         NULL, 0x0, FLAGS_OFFSET_WIDTH_MSG(IP_FLAGS_WIDTH), HFILL }},
 
     { &hf_ip_flags_sf,
-      { "Security flag", "ip.flags.sf", FT_BOOLEAN, BASE_NONE,
-        TFS(&flags_sf_set_evil), 0x0, "Security flag (RFC 3514)", HFILL }},
+      { "Security flag", "ip.flags.sf", FT_BOOLEAN, 16,
+        TFS(&flags_sf_set_evil), 0x8000, "Security flag (RFC 3514)", HFILL }},
 
     { &hf_ip_flags_rf,
-      { "Reserved bit", "ip.flags.rb", FT_BOOLEAN, BASE_NONE,
-        TFS(&tfs_set_notset), 0x0, NULL, HFILL }},
+      { "Reserved bit", "ip.flags.rb", FT_BOOLEAN, 16,
+        TFS(&tfs_set_notset), 0x8000, NULL, HFILL }},
 
     { &hf_ip_flags_df,
-      { "Don't fragment", "ip.flags.df", FT_BOOLEAN, BASE_NONE,
-        TFS(&tfs_set_notset), 0x0, NULL, HFILL }},
+      { "Don't fragment", "ip.flags.df", FT_BOOLEAN, 16,
+        TFS(&tfs_set_notset), 0x4000, NULL, HFILL }},
 
     { &hf_ip_flags_mf,
-      { "More fragments", "ip.flags.mf", FT_BOOLEAN, BASE_NONE,
-        TFS(&tfs_set_notset), 0x0, NULL, HFILL }},
+      { "More fragments", "ip.flags.mf", FT_BOOLEAN, 16,
+        TFS(&tfs_set_notset), 0x2000, NULL, HFILL }},
 
     { &hf_ip_frag_offset,
       { "Fragment offset", "ip.frag_offset", FT_UINT16, BASE_DEC,
-        NULL, 0x0, FRAG_OFFSET_WIDTH_MSG(IP_OFFSET_WIDTH), HFILL }},
+        NULL, 0x1fff, FRAG_OFFSET_WIDTH_MSG(IP_OFFSET_WIDTH), HFILL }},
 
     { &hf_ip_ttl,
       { "Time to live", "ip.ttl", FT_UINT8, BASE_DEC,
