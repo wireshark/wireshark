@@ -283,14 +283,6 @@ WS_DLL_PUBLIC char* get_hash_ether_resolved_name(hashether_t* ether);
 WS_DLL_PUBLIC char* get_hash_manuf_resolved_name(hashmanuf_t* manuf);
 
 
-/* returns the ethernet address corresponding to name or NULL if not known */
-extern guint8 *get_ether_addr(const gchar *name);
-
-/* returns the ipx network corresponding to name. If name is unknown,
- * 0 is returned and 'known' is set to FALSE. On success, 'known'
- * is set to TRUE. */
-guint32 get_ipxnet_addr(const gchar *name, gboolean *known);
-
 /* adds a hostname/IPv4 in the hash table */
 WS_DLL_PUBLIC void add_ipv4_name(const guint addr, const gchar *name);
 

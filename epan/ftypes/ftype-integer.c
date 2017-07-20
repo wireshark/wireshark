@@ -504,26 +504,19 @@ char_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf, uns
 static gboolean
 ipxnet_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
-	guint32 val;
-	gboolean	known;
-
 	/*
-	 * Don't request an errror message if uint32_from_unparsed fails;
-	 * if it does, we'll try looking it up as an IPX network name, and
-	 * if that fails, we'll report an error message for that.
+	 * Don't request an error message if bytes_from_unparsed fails;
+	 * if it does, we'll report an error specific to this address
+	 * type.
 	 */
 	if (uint32_from_unparsed(fv, s, TRUE, NULL)) {
 		return TRUE;
 	}
 
-	val = get_ipxnet_addr(s, &known);
-	if (known) {
-		fv->value.uinteger = val;
-		return TRUE;
-	}
+	/* XXX - Try resolving as an IPX host name and parse that? */
 
 	if (err_msg != NULL)
-		*err_msg = g_strdup_printf("\"%s\" is not a valid IPX network name or address.", s);
+		*err_msg = g_strdup_printf("\"%s\" is not a valid IPX network address.", s);
 	return FALSE;
 }
 

@@ -370,8 +370,6 @@ vines_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, g
 static gboolean
 ether_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
-	guint8	*mac;
-
 	/*
 	 * Don't request an error message if bytes_from_unparsed fails;
 	 * if it does, we'll report an error specific to this address
@@ -396,17 +394,11 @@ ether_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, g
 		return TRUE;
 	}
 
-	mac = get_ether_addr(s);
-	if (!mac) {
-		if (err_msg != NULL) {
-			*err_msg = g_strdup_printf("\"%s\" is not a valid hostname or Ethernet address.",
-			    s);
-		}
-		return FALSE;
-	}
+	/* XXX - Try resolving as an Ethernet host name and parse that? */
 
-	ether_fvalue_set(fv, mac);
-	return TRUE;
+	if (err_msg != NULL)
+		*err_msg = g_strdup_printf("\"%s\" is not a valid Ethernet address.", s);
+	return FALSE;
 }
 
 static gboolean

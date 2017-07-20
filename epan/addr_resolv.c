@@ -1196,33 +1196,6 @@ get_ethent(unsigned int *mask, const gboolean manuf_file)
 
 } /* get_ethent */
 
-#if 0
-static ether_t *
-get_ethbyname(const gchar *name)
-{
-    ether_t *eth;
-
-    set_ethent(g_pethers_path);
-
-    while (((eth = get_ethent(NULL, FALSE)) != NULL) && strncmp(name, eth->name, MAXNAMELEN) != 0)
-        ;
-
-    if (eth == NULL) {
-        end_ethent();
-
-        set_ethent(g_ethers_path);
-
-        while (((eth = get_ethent(NULL, FALSE)) != NULL) && strncmp(name, eth->name, MAXNAMELEN) != 0)
-            ;
-
-        end_ethent();
-    }
-
-    return eth;
-
-} /* get_ethbyname */
-#endif
-
 static ether_t *
 get_ethbyaddr(const guint8 *addr)
 {
@@ -1426,7 +1399,7 @@ initialize_ethers(void)
     }
 
     /* Set g_pethers_path here, but don't actually do anything
-     * with it. It's used in get_ethbyname() and get_ethbyaddr()
+     * with it. XXX - It used to be used in get_ethbyname() and get_ethbyaddr()
      */
     if (g_pethers_path == NULL)
         g_pethers_path = get_persconffile_path(ENAME_ETHERS, FALSE);
@@ -1622,41 +1595,6 @@ eth_name_lookup(const guint8 *addr, const gboolean resolve)
 
 } /* eth_name_lookup */
 
-static guint8 *
-eth_addr_lookup(const gchar *name _U_)
-{
-#if 0
-    /* XXX Do we need reverse lookup??? */
-    ether_t      *eth;
-    hashether_t  *tp;
-    hashether_t **table = eth_table;
-    gint          i;
-
-    /* to be optimized (hash table from name to addr) */
-    for (i = 0; i < HASHETHSIZE; i++) {
-        tp = table[i];
-        while (tp) {
-            if (strcmp(tp->resolved_name, name) == 0)
-                return tp->addr;
-            tp = tp->next;
-        }
-    }
-
-    /* not in hash table : performs a file lookup */
-
-    if ((eth = get_ethbyname(name)) == NULL)
-        return NULL;
-
-    /* add new entry in hash table */
-
-    tp = add_eth_name(eth->addr, name);
-
-    return tp->addr;
-#endif
-    return NULL;
-
-} /* eth_addr_lookup */
-
 
 /* IPXNETS */
 static int
@@ -1751,34 +1689,6 @@ get_ipxnetent(void)
 
 } /* get_ipxnetent */
 
-/* Unused ??? */
-#if 0
-static ipxnet_t *
-get_ipxnetbyname(const gchar *name)
-{
-    ipxnet_t *ipxnet;
-
-    set_ipxnetent(g_ipxnets_path);
-
-    while (((ipxnet = get_ipxnetent()) != NULL) && strncmp(name, ipxnet->name, MAXNAMELEN) != 0)
-        ;
-
-    if (ipxnet == NULL) {
-        end_ipxnetent();
-
-        set_ipxnetent(g_pipxnets_path);
-
-        while (((ipxnet = get_ipxnetent()) != NULL) && strncmp(name, ipxnet->name, MAXNAMELEN) != 0)
-            ;
-
-        end_ipxnetent();
-    }
-
-    return ipxnet;
-
-} /* get_ipxnetbyname */
-#endif
-
 static ipxnet_t *
 get_ipxnetbyaddr(guint32 addr)
 {
@@ -1819,7 +1729,7 @@ initialize_ipxnets(void)
     }
 
     /* Set g_pipxnets_path here, but don't actually do anything
-     * with it. It's used in get_ipxnetbyname() and get_ipxnetbyaddr()
+     * with it. XXX - It used to be used in get_ipxnetbyname() and get_ipxnetbyaddr()
      */
     if (g_pipxnets_path == NULL)
         g_pipxnets_path = get_persconffile_path(ENAME_IPXNETS, FALSE);
@@ -1833,35 +1743,6 @@ ipx_name_lookup_cleanup(void)
     g_free(g_pipxnets_path);
     g_pipxnets_path = NULL;
 }
-
-#if 0
-static hashipxnet_t *
-add_ipxnet_name(guint addr, const gchar *name)
-{
-    hashipxnet_t *tp;
-
-    tp = (hashipxnet_t   *)g_hash_table_lookup(ipxnet_hash_table, &addr);
-    if (tp) {
-        g_strlcpy(tp->name, name, MAXNAMELEN);
-    } else {
-        int *key;
-
-        key = (int *)g_new(int, 1);
-        *key = addr;
-        tp = g_new(hashipxnet_t,1);
-        g_strlcpy(tp->name, name, MAXNAMELEN);
-        g_hash_table_insert(ipxnet_hash_table, key, tp);
-    }
-
-    tp->addr = addr;
-    g_strlcpy(tp->name, name, MAXNAMELEN);
-    tp->next = NULL;
-    new_resolved_objects = TRUE;
-
-    return tp;
-
-} /* add_ipxnet_name */
-#endif
 
 static gchar *
 ipxnet_name_lookup(wmem_allocator_t *allocator, const guint addr)
@@ -1896,46 +1777,6 @@ ipxnet_name_lookup(wmem_allocator_t *allocator, const guint addr)
     return wmem_strdup(allocator, tp->name);
 
 } /* ipxnet_name_lookup */
-
-static guint
-ipxnet_addr_lookup(const gchar *name _U_, gboolean *success)
-{
-    *success = FALSE;
-    return 0;
-#if 0
-    /* XXX Do we need reverse lookup??? */
-    ipxnet_t *ipxnet;
-    hashipxnet_t *tp;
-    hashipxnet_t **table = ipxnet_table;
-    int i;
-
-    /* to be optimized (hash table from name to addr) */
-    for (i = 0; i < HASHIPXNETSIZE; i++) {
-        tp = table[i];
-        while (tp) {
-            if (strcmp(tp->name, name) == 0) {
-                *success = TRUE;
-                return tp->addr;
-            }
-            tp = tp->next;
-        }
-    }
-
-    /* not in hash table : performs a file lookup */
-
-    if ((ipxnet = get_ipxnetbyname(name)) == NULL) {
-        *success = FALSE;
-        return 0;
-    }
-
-    /* add new entry in hash table */
-
-    tp = add_ipxnet_name(ipxnet->addr, name);
-
-    *success = TRUE;
-    return tp->addr;
-#endif
-} /* ipxnet_addr_lookup */
 
 /* VLANS */
 static int
@@ -3102,15 +2943,6 @@ get_ether_name_if_known(const guint8 *addr)
     }
 }
 
-guint8 *
-get_ether_addr(const gchar *name)
-{
-
-    /* force resolution (do not check gbl_resolv_flags) */
-    return eth_addr_lookup(name);
-
-} /* get_ether_addr */
-
 void
 add_ether_byip(const guint ip, const guint8 *eth)
 {
@@ -3155,20 +2987,6 @@ get_ipxnet_name(wmem_allocator_t *allocator, const guint32 addr)
     return ipxnet_name_lookup(allocator, addr);
 
 } /* get_ipxnet_name */
-
-guint32
-get_ipxnet_addr(const gchar *name, gboolean *known)
-{
-    guint32 addr;
-    gboolean success;
-
-    /* force resolution (do not check gbl_resolv_flags) */
-    addr =  ipxnet_addr_lookup(name, &success);
-
-    *known = success;
-    return addr;
-
-} /* get_ipxnet_addr */
 
 gchar *
 get_vlan_name(wmem_allocator_t *allocator, const guint16 id)
