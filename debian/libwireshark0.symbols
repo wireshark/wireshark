@@ -1461,6 +1461,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_allowed_not_allowed@Base 1.9.1
  tfs_asynchronous_synchronous@Base 1.99.1
  tfs_available_not_available@Base 1.9.1
+ tfs_c2s_s2c@Base 2.5.0
  tfs_capable_not_capable@Base 1.9.1
  tfs_client_server@Base 2.1.0
  tfs_command_response@Base 1.9.1
@@ -1492,6 +1493,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_odd_even@Base 1.9.1
  tfs_ok_error@Base 1.9.1
  tfs_on_off@Base 1.9.1
+ tfs_open_closed@Base 2.5.0
  tfs_possible_not_possible@Base 1.99.0
  tfs_preferred_no_preference@Base 2.1.0
  tfs_present_absent@Base 1.9.1
@@ -1506,6 +1508,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_response_command@Base 2.1.0
  tfs_response_request@Base 1.99.8
  tfs_restricted_allowed@Base 1.9.1
+ tfs_s2c_c2s@Base 2.5.0
  tfs_segmentation_no_segmentation@Base 2.1.0
  tfs_server_client@Base 2.1.0
  tfs_set_notset@Base 1.9.1

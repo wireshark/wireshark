@@ -114,6 +114,7 @@ WS_DLL_PUBLIC const true_false_string tfs_down_up;
 WS_DLL_PUBLIC const true_false_string tfs_up_down;
 WS_DLL_PUBLIC const true_false_string tfs_s2c_c2s;
 WS_DLL_PUBLIC const true_false_string tfs_c2s_s2c;
+WS_DLL_PUBLIC const true_false_string tfs_open_closed;
 
 #ifdef __cplusplus
 }

@@ -99,3 +99,4 @@ const true_false_string tfs_down_up = { "Down", "Up" };
 const true_false_string tfs_up_down = { "Up", "Down" };
 const true_false_string tfs_s2c_c2s = { "Server to Client", "Client to Server" };
 const true_false_string tfs_c2s_s2c = { "Client to Server", "Server to Client" };
+const true_false_string tfs_open_closed = { "Open", "Closed" };

@@ -226,10 +226,6 @@ static int global_linktype = -1;
 static int linktype = -1;
 static gboolean info_added = FALSE;
 
-static const true_false_string open_closed = {
-  "Open", "Closed"
-};
-
 static const value_string message_type[] = {
   { RPCAP_MSG_ERROR,              "Error"                       },
   { RPCAP_MSG_FINDALLIF_REQ,      "Find all interfaces request" },
@@ -1242,7 +1238,7 @@ proto_register_rpcap (void)
         TFS(&tfs_yes_no), FLAG_DGRAM, NULL, HFILL } },
     { &hf_flags_serveropen,
       { "Server open", "rpcap.flags.serveropen", FT_BOOLEAN, 16,
-        TFS(&open_closed), FLAG_SERVEROPEN, NULL, HFILL } },
+        TFS(&tfs_open_closed), FLAG_SERVEROPEN, NULL, HFILL } },
     { &hf_flags_inbound,
       { "Inbound", "rpcap.flags.inbound", FT_BOOLEAN, 16,
         TFS(&tfs_yes_no), FLAG_INBOUND, NULL, HFILL } },

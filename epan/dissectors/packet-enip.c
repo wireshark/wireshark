@@ -83,6 +83,7 @@ void proto_reg_handoff_enip(void);
 /* EtherNet/IP Common Data Format Type IDs */
 #define CDF_NULL              0x0000
 #define LIST_IDENTITY_RESP    0x000C
+#define LIST_ID_SECURITY      0x0086
 #define CONNECTION_BASED      0x00A1
 #define CONNECTION_TRANSPORT  0x00B1
 #define UNCONNECTED_MSG       0x00B2
@@ -128,6 +129,22 @@ static int hf_enip_lsr_servicename = -1;
 
 static int hf_enip_rs_version = -1;
 static int hf_enip_rs_optionflags = -1;
+
+static int hf_enip_security_profiles = -1;
+static int hf_enip_security_profiles_eip_integrity = -1;
+static int hf_enip_security_profiles_eip_confidentiality = -1;
+static int hf_enip_security_profiles_cip_authorization = -1;
+static int hf_enip_security_profiles_cip_integrity = -1;
+static int hf_enip_security_profiles_reserved = -1;
+static int hf_enip_cip_security_state = -1;
+static int hf_enip_eip_security_state = -1;
+static int hf_enip_iana_port_state_flags = -1;
+static int hf_enip_iana_port_state_flags_tcp_44818 = -1;
+static int hf_enip_iana_port_state_flags_udp_44818 = -1;
+static int hf_enip_iana_port_state_flags_udp_2222 = -1;
+static int hf_enip_iana_port_state_flags_tcp_2221 = -1;
+static int hf_enip_iana_port_state_flags_udp_2221 = -1;
+static int hf_enip_iana_port_state_flags_reserved = -1;
 
 static int hf_enip_srrd_ifacehnd = -1;
 
@@ -338,6 +355,8 @@ static gint ett_eip_security_active_certs = -1;
 static gint ett_eip_security_trusted_auths = -1;
 static gint ett_eip_cert_capability_flags = -1;
 static gint ett_eip_cert_num_certs = -1;
+static gint ett_security_profiles = -1;
+static gint ett_iana_port_state_flags = -1;
 
 static expert_field ei_mal_tcpip_status = EI_INIT;
 static expert_field ei_mal_tcpip_config_cap = EI_INIT;
@@ -467,6 +486,7 @@ static const value_string encap_status_vals[] = {
 static const value_string cdf_type_vals[] = {
    { CDF_NULL,             "Null Address Item"        },
    { LIST_IDENTITY_RESP,   "List Identity Response"   },
+   { LIST_ID_SECURITY,     "CIP Security Information" },
    { CONNECTION_BASED,     "Connected Address Item"   },
    { CONNECTION_TRANSPORT, "Connected Data Item"      },
    { UNCONNECTED_MSG,      "Unconnected Data Item"    },
@@ -623,6 +643,15 @@ static const value_string enip_dlr_redundant_gateway_status_vals[] = {
    { 3,  "Gateway Fault" },
    { 4,  "Cannot Support Parameters" },
    { 5,  "Partial Network Fault" },
+
+   { 0,  NULL }
+};
+
+static const value_string cip_security_state_vals[] = {
+   { 0,  "Factory Default Configuration" },
+   { 1,  "Initial Commissioning In Progress" },
+   { 2,  "Configured" },
+   { 3,  "Incomplete Configuration" },
 
    { 0,  NULL }
 };
@@ -2493,6 +2522,39 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                      tvb, offset+name_length+39, 1, ENC_LITTLE_ENDIAN );
                break;
 
+            case LIST_ID_SECURITY:
+               {
+               static const int * security_profiles[] = {
+                  &hf_enip_security_profiles_eip_integrity,
+                  &hf_enip_security_profiles_eip_confidentiality,
+                  &hf_enip_security_profiles_cip_authorization,
+                  &hf_enip_security_profiles_cip_integrity,
+                  &hf_enip_security_profiles_reserved,
+                  NULL
+               };
+               static const int * iana_flags[] = {
+                  &hf_enip_iana_port_state_flags_tcp_44818,
+                  &hf_enip_iana_port_state_flags_udp_44818,
+                  &hf_enip_iana_port_state_flags_udp_2222,
+                  &hf_enip_iana_port_state_flags_tcp_2221,
+                  &hf_enip_iana_port_state_flags_udp_2221,
+                  &hf_enip_iana_port_state_flags_reserved,
+                  NULL
+               };
+
+               /* Security profiles */
+               proto_tree_add_bitmask( item_tree, tvb, offset+6, hf_enip_security_profiles, ett_security_profiles, security_profiles, ENC_LITTLE_ENDIAN );
+
+               /* CIP Security object state */
+               proto_tree_add_item( item_tree, hf_enip_cip_security_state, tvb, offset+8, 1, ENC_LITTLE_ENDIAN );
+
+               /* ENIP Security object state  */
+               proto_tree_add_item( item_tree, hf_enip_eip_security_state, tvb, offset+9, 1, ENC_LITTLE_ENDIAN );
+
+               /* IANA Port State flags */
+               proto_tree_add_bitmask( item_tree, tvb, offset+10, hf_enip_iana_port_state_flags, ett_iana_port_state_flags, iana_flags, ENC_LITTLE_ENDIAN );
+               }
+               break;
 
             case SOCK_ADR_INFO_OT:
             case SOCK_ADR_INFO_TO:
@@ -3172,6 +3234,81 @@ proto_register_enip(void)
         { "State", "enip.lir.state",
           FT_UINT8, BASE_HEX, NULL, 0,
           "ListIdentity Reply: State", HFILL }},
+
+      { &hf_enip_security_profiles,
+        { "Security Profiles", "enip.security_profiles",
+          FT_UINT16, BASE_HEX, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_enip_security_profiles_eip_integrity,
+        { "EtherNet/IP Integrity Profile", "enip.security_profiles.eip_integrity",
+          FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0001,
+          NULL, HFILL }},
+
+      { &hf_enip_security_profiles_eip_confidentiality,
+        { "EtherNet/IP Confidentiality Profile", "enip.security_profiles.eip_confidentiality",
+          FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0002,
+          NULL, HFILL }},
+
+      { &hf_enip_security_profiles_cip_authorization,
+        { "CIP Authorization Profile", "enip.security_profiles.cip_authorization",
+          FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0004,
+          NULL, HFILL }},
+
+      { &hf_enip_security_profiles_cip_integrity,
+        { "CIP Integrity Profile", "enip.security_profiles.cip_integrity",
+          FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0008,
+          NULL, HFILL }},
+
+      { &hf_enip_security_profiles_reserved,
+        { "Reserved", "enip.security_profiles.reserved",
+          FT_UINT16, BASE_HEX, NULL, 0xFFF0,
+          NULL, HFILL }},
+
+      { &hf_enip_cip_security_state,
+        { "CIP Security State", "enip.cip_security_state",
+          FT_UINT8, BASE_DEC, VALS(cip_security_state_vals), 0,
+          NULL, HFILL }},
+
+      { &hf_enip_eip_security_state,
+        { "EIP Security State", "enip.eip_security_state",
+          FT_UINT8, BASE_DEC, VALS(eip_security_state_vals), 0,
+          NULL, HFILL }},
+
+      { &hf_enip_iana_port_state_flags,
+        { "IANA Port State", "enip.iana_port_state_flags",
+          FT_UINT8, BASE_HEX, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_enip_iana_port_state_flags_tcp_44818,
+        { "44818/tcp", "enip.security_profiles.iana_port_state_flags.tcp_44818",
+          FT_BOOLEAN, 8, TFS(&tfs_open_closed), 0x01,
+          NULL, HFILL }},
+
+      { &hf_enip_iana_port_state_flags_udp_44818,
+        { "44818/udp", "enip.security_profiles.iana_port_state_flags.udp_44818",
+          FT_BOOLEAN, 8, TFS(&tfs_open_closed), 0x02,
+          NULL, HFILL }},
+
+      { &hf_enip_iana_port_state_flags_udp_2222,
+        { "2222/udp", "enip.security_profiles.iana_port_state_flags.udp_2222",
+          FT_BOOLEAN, 8, TFS(&tfs_open_closed), 0x04,
+          NULL, HFILL }},
+
+      { &hf_enip_iana_port_state_flags_tcp_2221,
+        { "2221/tcp", "enip.security_profiles.iana_port_state_flags.tcp_2221",
+          FT_BOOLEAN, 8, TFS(&tfs_open_closed), 0x08,
+          NULL, HFILL }},
+
+      { &hf_enip_iana_port_state_flags_udp_2221,
+        { "2221/udp", "enip.security_profiles.iana_port_state_flags.udp_2221",
+          FT_BOOLEAN, 8, TFS(&tfs_open_closed), 0x10,
+          NULL, HFILL }},
+
+      { &hf_enip_iana_port_state_flags_reserved,
+        { "Reserved", "enip.iana_port_state_flags.reserved",
+          FT_UINT8, BASE_HEX, NULL, 0xE0,
+          NULL, HFILL }},
 
       /* Common Packet Format */
       { &hf_enip_cpf_itemcount,
@@ -4075,6 +4212,8 @@ proto_register_enip(void)
       &ett_eip_security_trusted_auths,
       &ett_eip_cert_capability_flags,
       &ett_eip_cert_num_certs,
+      &ett_security_profiles,
+      &ett_iana_port_state_flags
    };
 
    static ei_register_info ei[] = {
