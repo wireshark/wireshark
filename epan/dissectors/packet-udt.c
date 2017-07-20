@@ -1,6 +1,8 @@
 /* packet-udt.c
  *
  * Routines for UDT packet dissection
+ * http://udt.sourceforge.net
+ * draft-gg-udt
  *
  * Copyright 2013 (c) chas williams <chas@cmf.nrl.navy.mil>
  *
