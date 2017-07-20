@@ -1584,6 +1584,7 @@ set(INSTALL_FILES
 	pdml2html.xsl
 	services
 	smi_modules
+	wka
 	docbook/ws.css
 	${CMAKE_BINARY_DIR}/doc/AUTHORS-SHORT
 	${CMAKE_BINARY_DIR}/doc/asn2deb.html

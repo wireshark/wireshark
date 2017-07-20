@@ -9,12 +9,12 @@
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
 # of the License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -246,7 +246,7 @@
 20-53-45-4E-44-00/40	Send
 33-33-00-00-00-00	IPv6-Neighbor-Discovery
 33-33-00-00-00-00/16	IPv6mcast
-AA-00-03-00-00-00/32	DEC-UNA	
+AA-00-03-00-00-00/32	DEC-UNA
 AA-00-03-01-00-00/32	DEC-PROM-AA
 AA-00-03-03-00-00/32	DEC-NI20
 AB-00-00-01-00-00	DEC-MOP-Dump/Load-Assistance

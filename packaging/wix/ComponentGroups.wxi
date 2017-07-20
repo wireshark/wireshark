@@ -50,6 +50,9 @@
         <Component Id="cmpManuf" Guid="*">
           <File Id="filManuf" KeyPath="yes" Source="$(var.Staging.Dir)\manuf" />
         </Component>
+        <Component Id="cmpWka" Guid="*">
+          <File Id="filWka" KeyPath="yes" Source="$(var.Staging.Dir)\wka" />
+        </Component>
         <Component Id="cmpServices" Guid="*">
           <File Id="filServices" KeyPath="yes" Source="$(var.Staging.Dir)\services" />
         </Component>
@@ -93,6 +96,7 @@
         <ComponentRef Id="cmpREADME_windows_txt" />
         <ComponentRef Id="cmpAUTHORS_SHORT" />
         <ComponentRef Id="cmpManuf" />
+        <ComponentRef Id="cmpWka" />
         <ComponentRef Id="cmpServices" />
         <ComponentRef Id="cmpPdml2html_xsl" />
         <ComponentRef Id="cmpWs_css" />

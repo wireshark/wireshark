@@ -115,6 +115,7 @@
 #define ENAME_ETHERS    "ethers"
 #define ENAME_IPXNETS   "ipxnets"
 #define ENAME_MANUF     "manuf"
+#define ENAME_WKA       "wka"
 #define ENAME_SERVICES  "services"
 #define ENAME_VLANS     "vlans"
 #define ENAME_SS7PCS    "ss7pcs"
@@ -314,6 +315,8 @@ static guint name_resolve_concurrency = 500;
 
 gchar *g_ethers_path    = NULL;     /* global ethers file     */
 gchar *g_pethers_path   = NULL;     /* personal ethers file   */
+gchar *g_wka_path       = NULL;     /* global well-known-addresses file */
+gchar *g_manuf_path     = NULL;     /* global manuf file      */
 gchar *g_ipxnets_path   = NULL;     /* global ipxnets file    */
 gchar *g_pipxnets_path  = NULL;     /* personal ipxnets file  */
 gchar *g_services_path  = NULL;     /* global services file   */
@@ -1005,13 +1008,13 @@ host_lookup6(const struct e_in6_addr *addr)
 
 
 /*
- * If "manuf_file" is FALSE, parse a 6-byte MAC address.
- * If "manuf_file" is TRUE, parse an up-to-6-byte sequence with an optional
+ * If "accept_mask" is FALSE,  either 3 or 6 bytes are valid, but no other number of bytes is.
+ * If "accept_mask" is TRUE, parse an up-to-6-byte sequence with an optional
  * mask.
  */
 static gboolean
 parse_ether_address(const char *cp, ether_t *eth, unsigned int *mask,
-        const gboolean manuf_file)
+        const gboolean accept_mask)
 {
     int i;
     unsigned long num;
@@ -1033,8 +1036,8 @@ parse_ether_address(const char *cp, ether_t *eth, unsigned int *mask,
         /* OK, what character terminated the octet? */
         if (*cp == '/') {
             /* "/" - this has a mask. */
-            if (!manuf_file) {
-                /* Entries with masks are allowed only in the "manuf" files. */
+            if (!accept_mask) {
+                /* Entries with masks are not allowed in this file. */
                 return FALSE;
             }
             cp++; /* skip past the '/' to get to the mask */
@@ -1064,9 +1067,8 @@ parse_ether_address(const char *cp, ether_t *eth, unsigned int *mask,
             /* We're at the end of the address, and there's no mask. */
             if (i == 2) {
                 /* We got 3 bytes, so this is a manufacturer ID. */
-                if (!manuf_file) {
-                    /* Manufacturer IDs are only allowed in the "manuf"
-                       files. */
+                if (!accept_mask) {
+                    /* Manufacturer IDs are not allowed in this file */
                     return FALSE;
                 }
                 /* Indicate that this is a manufacturer ID (0 is not allowed
@@ -1076,10 +1078,8 @@ parse_ether_address(const char *cp, ether_t *eth, unsigned int *mask,
             }
 
             if (i == 5) {
-                /* We got 6 bytes, so this is a MAC address.
-                   If we're reading one of the "manuf" files, indicate that
-                   this is a MAC address (48 is not allowed as a mask). */
-                if (manuf_file)
+                /* We got 6 bytes, so this is a MAC address (48 is not allowed as a mask). */
+                if (accept_mask)
                     *mask = 48;
                 return TRUE;
             }
@@ -1108,7 +1108,7 @@ parse_ether_address(const char *cp, ether_t *eth, unsigned int *mask,
 
 static int
 parse_ether_line(char *line, ether_t *eth, unsigned int *mask,
-        const gboolean manuf_file)
+        const gboolean accept_mask)
 {
     /*
      *  See the ethers(4) or ethers(5) man page for ethers file format
@@ -1125,7 +1125,7 @@ parse_ether_line(char *line, ether_t *eth, unsigned int *mask,
     if ((cp = strtok(line, " \t")) == NULL)
         return -1;
 
-    if (!parse_ether_address(cp, eth, mask, manuf_file))
+    if (!parse_ether_address(cp, eth, mask, accept_mask))
         return -1;
 
     if ((cp = strtok(NULL, " \t")) == NULL)
@@ -1158,7 +1158,7 @@ end_ethent(void)
 }
 
 static ether_t *
-get_ethent(unsigned int *mask, const gboolean manuf_file)
+get_ethent(unsigned int *mask, const gboolean accept_mask)
 {
 
     static ether_t eth;
@@ -1169,7 +1169,7 @@ get_ethent(unsigned int *mask, const gboolean manuf_file)
         return NULL;
 
     while (fgetline(&buf, &size, eth_p) >= 0) {
-        if (parse_ether_line(buf, &eth, mask, manuf_file) == 0) {
+        if (parse_ether_line(buf, &eth, mask, accept_mask) == 0) {
             return &eth;
         }
     }
@@ -1366,7 +1366,6 @@ static void
 initialize_ethers(void)
 {
     ether_t *eth;
-    char    *manuf_path;
     guint    mask = 0;
 
     /* hash table initialization */
@@ -1376,8 +1375,7 @@ initialize_ethers(void)
 
     /* Compute the pathname of the ethers file. */
     if (g_ethers_path == NULL) {
-        g_ethers_path = wmem_strdup_printf(wmem_epan_scope(), "%s" G_DIR_SEPARATOR_S "%s",
-                get_systemfile_dir(), ENAME_ETHERS);
+        g_ethers_path = g_build_filename(get_systemfile_dir(), ENAME_ETHERS, NULL);
     }
 
     /* Set g_pethers_path here, but don't actually do anything
@@ -1387,26 +1385,40 @@ initialize_ethers(void)
         g_pethers_path = get_persconffile_path(ENAME_ETHERS, FALSE);
 
     /* Compute the pathname of the manuf file */
-    manuf_path = get_datafile_path(ENAME_MANUF);
+    if (g_manuf_path == NULL)
+        g_manuf_path = get_datafile_path(ENAME_MANUF);
 
     /* Read it and initialize the hash table */
-    set_ethent(manuf_path);
-
+    set_ethent(g_manuf_path);
     while ((eth = get_ethent(&mask, TRUE))) {
         add_manuf_name(eth->addr, mask, eth->name);
     }
-
     end_ethent();
 
-    g_free(manuf_path);
+    /* Compute the pathname of the wka file */
+    if (g_wka_path == NULL)
+        g_wka_path = get_datafile_path(ENAME_WKA);
+
+    /* Read it and initialize the hash table */
+    set_ethent(g_wka_path);
+    while ((eth = get_ethent(&mask, TRUE))) {
+        add_manuf_name(eth->addr, mask, eth->name);
+    }
+    end_ethent();
 
 } /* initialize_ethers */
 
 static void
 ethers_cleanup(void)
 {
+    g_free(g_ethers_path);
+    g_ethers_path = NULL;
     g_free(g_pethers_path);
     g_pethers_path = NULL;
+    g_free(g_manuf_path);
+    g_manuf_path = NULL;
+    g_free(g_wka_path);
+    g_wka_path = NULL;
 }
 
 /* Resolve ethernet address */
