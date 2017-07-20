@@ -348,13 +348,6 @@ typedef struct _async_hostent {
     void *addrp;
 } async_hostent_t;
 
-#if ( ( ARES_VERSION_MAJOR < 1 )                                     \
-        || ( 1 == ARES_VERSION_MAJOR && ARES_VERSION_MINOR < 5 ) )
-static void c_ares_ghba_cb(void *arg, int status, struct hostent *hostent);
-#else
-static void c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hostent *hostent);
-#endif
-
 ares_channel ghba_chan; /* ares_gethostbyaddr -- Usually non-interactive, no timeout */
 ares_channel ghbn_chan; /* ares_gethostbyname -- Usually interactive, timeout */
 
@@ -845,18 +838,7 @@ fill_dummy_ip6(hashipv6_t* volatile tp)
 #ifdef HAVE_C_ARES
 
 static void
-c_ares_ghba_cb(
-        void *arg,
-        int status,
-#if ( ( ARES_VERSION_MAJOR < 1 )                                     \
-        || ( 1 == ARES_VERSION_MAJOR && ARES_VERSION_MINOR < 5 ) )
-        struct hostent *he
-#else
-        int timeouts _U_,
-        struct hostent *he
-#endif
-        ) {
-
+c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hostent *he) {
     async_dns_queue_msg_t *caqm = (async_dns_queue_msg_t *)arg;
     char **p;
 
@@ -3103,18 +3085,7 @@ eui64_to_display(wmem_allocator_t *allocator, const guint64 addr_eui64)
 #ifdef HAVE_C_ARES
 #define GHI_TIMEOUT (250 * 1000)
 static void
-c_ares_ghi_cb(
-        void *arg,
-        int status,
-#if ( ( ARES_VERSION_MAJOR < 1 )                                     \
-    || ( 1 == ARES_VERSION_MAJOR && ARES_VERSION_MINOR < 5 ) )
-        struct hostent *hp
-#else
-        int timeouts _U_,
-        struct hostent *hp
-#endif
-        ) {
-
+c_ares_ghi_cb(void *arg, int status, int timeouts _U_, struct hostent *hp) {
     /*
      * XXX - If we wanted to be really fancy we could cache results here and
      * look them up in get_host_ipaddr* below.
