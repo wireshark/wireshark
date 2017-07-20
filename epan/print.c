@@ -312,10 +312,12 @@ void
 write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, pf_flags protocolfilter_flags, epan_dissect_t *edt, FILE *fh, gboolean use_color)
 {
     write_pdml_data data;
-    const color_filter_t *cfp = edt->pi.fd->color_filter;
+    const color_filter_t *cfp;
 
     g_assert(edt);
     g_assert(fh);
+
+    cfp = edt->pi.fd->color_filter;
 
     /* Create the output */
     if (use_color && (cfp != NULL)) {
