@@ -2091,7 +2091,7 @@ static int capture_android_logcat_text(char *interface, char *fifo,
 
         while (used_buffer_length > 0 && (pos = (char *) memchr(packet + exported_pdu_headers_size, '\n', used_buffer_length))) {
             int        ms;
-            struct tm  date;
+            struct tm* date;
             time_t     seconds;
             time_t     secs = 0;
             int        nsecs = 0;
@@ -2100,11 +2100,13 @@ static int capture_android_logcat_text(char *interface, char *fifo,
             length = (gssize)(pos - packet) + 1;
 
             t = time(NULL);
-            date = *localtime(&t);
-            if (6 == sscanf(packet + exported_pdu_headers_size, "%d-%d %d:%d:%d.%d", &date.tm_mon, &date.tm_mday, &date.tm_hour,
-                            &date.tm_min, &date.tm_sec, &ms)) {
-                date.tm_mon -= 1;
-                seconds = mktime(&date);
+            date = localtime(&t);
+            if (!date)
+                continue;
+            if (6 == sscanf(packet + exported_pdu_headers_size, "%d-%d %d:%d:%d.%d", &date->tm_mon, &date->tm_mday, &date->tm_hour,
+                            &date->tm_min, &date->tm_sec, &ms)) {
+                date->tm_mon -= 1;
+                seconds = mktime(date);
                 secs = (time_t) seconds;
                 nsecs = (int) (ms * 1e6);
             }
