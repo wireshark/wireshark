@@ -579,6 +579,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ext_toolbar_update_value@Base 2.3.0
  fc_fc4_val@Base 1.9.1
  fetch_tapped_data@Base 1.9.1
+ filter_expression_iterate_expressions@Base 2.5.0
  filter_expression_new@Base 1.9.1
  find_and_mark_frame_depended_upon@Base 1.12.0~rc1
  find_capture_dissector@Base 2.3.0
@@ -1088,6 +1089,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_item_set_len@Base 1.9.1
  proto_item_set_text@Base 1.9.1
  proto_name_already_registered@Base 2.0.1
+ proto_node_group_children_by_json_key@Base 2.5.0
+ proto_node_group_children_by_unique@Base 2.5.0
  proto_reenable_all@Base 2.3.0
  proto_register_field_array@Base 1.9.1
  proto_register_fields_manual@Base 1.12.0~rc1
@@ -1508,6 +1511,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_response_command@Base 2.1.0
  tfs_response_request@Base 1.99.8
  tfs_restricted_allowed@Base 1.9.1
+ tfs_restricted_not_restricted@Base 2.5.0
  tfs_s2c_c2s@Base 2.5.0
  tfs_segmentation_no_segmentation@Base 2.1.0
  tfs_server_client@Base 2.1.0
@@ -1691,6 +1695,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvbparse_until@Base 1.9.1
  uat_add_record@Base 1.9.1
  uat_clear@Base 1.9.1
+ uat_fld_chk_bool@Base 2.5.0
  uat_fld_chk_enum@Base 1.9.1
  uat_fld_chk_num_dec@Base 1.9.1
  uat_fld_chk_num_hex@Base 1.9.1
@@ -1708,6 +1713,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  uat_get_table_by_name@Base 1.9.1
  uat_insert_record_idx@Base 2.3.0
  uat_load@Base 1.9.1
+ uat_move_index@Base 2.5.0
  uat_new@Base 1.9.1
  uat_remove_record_idx@Base 1.9.1
  uat_save@Base 1.9.1
@@ -1723,7 +1729,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  units_bit_bits@Base 2.3.0
  units_bit_sec@Base 2.3.0
  units_byte_bytes@Base 2.3.0
- units_byte_bytespseconds@Base 2.5.0
+ units_byte_bytespsecond@Base 2.5.0
  units_day_days@Base 2.3.0
  units_dbi@Base 2.3.0
  units_dbm@Base 2.3.0
