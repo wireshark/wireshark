@@ -50,7 +50,7 @@ macro(pod2manhtml _sourcefile _manext)
 		COMMAND
 			${PERL_EXECUTABLE} ${POD2MAN_EXECUTABLE}
 			--section=${_manext}
-			--center="The Wireshark Network Analyzer"
+			--center=\"The Wireshark Network Analyzer\"
 			--release=${CPACK_PACKAGE_VERSION}
 			${_sourcefile}.pod
 			> ${_outman}
@@ -63,7 +63,7 @@ macro(pod2manhtml _sourcefile _manext)
 			${_outhtml}
 		COMMAND
 			${PERL_EXECUTABLE} ${POD2HTML_EXECUTABLE}
-			--title="${_basefile} - The Wireshark Network Analyzer ${CPACK_PACKAGE_VERSION}"
+			--title=\"${_basefile} - The Wireshark Network Analyzer ${CPACK_PACKAGE_VERSION}\"
 			--css=ws.css
 			--noindex
 			${_sourcefile}.pod
