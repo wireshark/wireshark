@@ -3521,6 +3521,7 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
     if (print_packet_info) {
       /* We're printing packet information; print the information for
          this packet. */
+      g_assert(edt);
       print_packet(cf, edt);
 
       /* If we're doing "line-buffering", flush the standard output
