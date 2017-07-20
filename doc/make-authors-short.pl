@@ -39,7 +39,7 @@ while (<>) {
 	} elsif (/\}/) {
 		$subinfo = 0;
 		if (($nextline = <>) !~ /^[\s]*$/) {
-			print STDERR "Missing newline after '}', found: $nextline"
+			print STDERR "No blank line after '}', found: $nextline"
 				if $nextline =~ m/\{/;
 			print $nextline;
 		}
