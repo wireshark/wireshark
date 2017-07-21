@@ -148,19 +148,19 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     ui->playButton->setIcon(StockIcon("media-playback-start"));
     ui->stopButton->setIcon(StockIcon("media-playback-stop"));
 
-    QString default_out_name = QAudioDeviceInfo::defaultOutputDevice().deviceName();
+    // Ordered, unique device names starting with the system default
+    QMap<QString, bool> out_device_map; // true == default device
+    out_device_map.insert(QAudioDeviceInfo::defaultOutputDevice().deviceName(), true);
     foreach (QAudioDeviceInfo out_device, QAudioDeviceInfo::availableDevices(QAudio::AudioOutput)) {
-        QString out_name = out_device.deviceName();
+        if (!out_device_map.contains(out_device.deviceName())) {
+            out_device_map.insert(out_device.deviceName(), false);
+        }
+    }
+
+    foreach (QString out_name, out_device_map.keys()) {
         ui->outputDeviceComboBox->addItem(out_name);
-        if (out_name == default_out_name) {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-            ui->outputDeviceComboBox->setCurrentText(out_name);
-#else
-            int new_index = ui->outputDeviceComboBox->findText(default_out_name);
-            if (new_index >= 0) {
-                ui->outputDeviceComboBox->setCurrentIndex(new_index);
-            }
-#endif
+        if (out_device_map.value(out_name)) {
+            ui->outputDeviceComboBox->setCurrentIndex(ui->outputDeviceComboBox->count() - 1);
         }
     }
     if (ui->outputDeviceComboBox->count() < 1) {
@@ -740,6 +740,11 @@ int RtpPlayerDialog::getHoveredPacket()
 QString RtpPlayerDialog::currentOutputDeviceName()
 {
     return ui->outputDeviceComboBox->currentText();
+}
+
+void RtpPlayerDialog::on_outputDeviceComboBox_currentIndexChanged(const QString &)
+{
+    rescanPackets();
 }
 
 void RtpPlayerDialog::on_jitterSpinBox_valueChanged(double)

@@ -186,6 +186,7 @@ private:
 
     void writeSilence(int samples);
     const QString formatDescription(const QAudioFormat & format);
+    QString currentOutputDevice();
 
 private slots:
     void outputStateChanged(QAudio::State new_state);
