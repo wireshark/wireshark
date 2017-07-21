@@ -114,6 +114,7 @@ private slots:
     void on_actionMoveRight1_triggered();
     void on_actionGoToPacket_triggered();
     void on_streamTreeWidget_itemSelectionChanged();
+    void on_outputDeviceComboBox_currentIndexChanged(const QString &);
     void on_jitterSpinBox_valueChanged(double);
     void on_timingComboBox_currentIndexChanged(int);
     void on_todCheckBox_toggled(bool checked);
