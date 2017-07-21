@@ -823,9 +823,34 @@ AC_DEFUN([AC_WIRESHARK_C_ARES_CHECK],
 	if test "x$want_c_ares" = "xyes"; then
 		AC_CHECK_LIB(cares, ares_init,
 		  [
-		    C_ARES_LIBS=-lcares
-		    AC_DEFINE(HAVE_C_ARES, 1, [Define to use c-ares library])
-		    have_good_c_ares=yes
+		    #
+		    # Make sure we have c-ares 1.5 or later; we don't
+		    # support the older API.
+		    #
+		    AC_MSG_CHECKING([whether we have c-ares 1.5 or later])
+		    AC_TRY_COMPILE(
+		      [
+#include <ares.h>
+#include <ares_version.h>
+		      ],
+		      [
+#if ((ARES_VERSION_MAJOR < 1) || \
+    (1 == ARES_VERSION_MAJOR == 1 && ARES_VERSION_MINOR < 5))
+#error You lose
+#else
+			return 0;
+#endif
+		      ],
+		      [
+			AC_MSG_RESULT([yes])
+			C_ARES_LIBS=-lcares
+			AC_DEFINE(HAVE_C_ARES, 1, [Define to use c-ares library])
+			have_good_c_ares=yes
+		      ],
+		      [
+			AC_MSG_RESULT([no])
+			AC_MSG_ERROR([Pre-1.5 versions of c-ares aren't supported])
+		      ])
 		  ])
 	else
 		AC_MSG_RESULT(not required)

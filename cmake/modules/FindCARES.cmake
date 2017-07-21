@@ -22,10 +22,20 @@ FIND_PATH(CARES_INCLUDE_DIR ares.h HINTS "${CARES_HINTS}/include" )
 SET(CARES_NAMES cares libcares-2)
 FIND_LIBRARY(CARES_LIBRARY NAMES ${CARES_NAMES} HINTS "${CARES_HINTS}/lib" )
 
+# Try to retrieve version from header if found
+if(CARES_INCLUDE_DIR)
+  set(_version_regex "^#define[ \t]+ARES_VERSION_STR[ \t]+\"([^\"]+)\".*")
+  file(STRINGS "${CARES_INCLUDE_DIR}/ares_version.h" CARES_VERSION REGEX "${_version_regex}")
+  string(REGEX REPLACE "${_version_regex}" "\\1" CARES_VERSION "${CARES_VERSION}")
+  unset(_version_regex)
+endif()
+
 # handle the QUIETLY and REQUIRED arguments and set CARES_FOUND to TRUE if
 # all listed variables are TRUE
 INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(CARES DEFAULT_MSG CARES_LIBRARY CARES_INCLUDE_DIR)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(CARES
+    REQUIRED_VARS   CARES_LIBRARY CARES_INCLUDE_DIR
+    VERSION_VAR     CARES_VERSION)
 
 IF(CARES_FOUND)
   SET( CARES_LIBRARIES ${CARES_LIBRARY} )
