@@ -1457,9 +1457,6 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 						proto_tree_add_item_ret_uint(cql_subtree, hf_cql_short_bytes_length, tvb, offset, 2, ENC_BIG_ENDIAN, &bytes_length);
 						offset += 2;
 						proto_tree_add_item(cql_subtree, hf_cql_query_id, tvb, offset, bytes_length, ENC_NA);
-						offset += bytes_length;
-
-
 						break;
 
 
