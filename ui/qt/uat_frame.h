@@ -55,6 +55,7 @@ private:
     void checkForErrorHint(const QModelIndex &current, const QModelIndex &previous);
     bool trySetErrorHintFromField(const QModelIndex &index);
     void addRecord(bool copy_from_current = false);
+    void applyChanges();
 
 private slots:
     void modelDataChanged(const QModelIndex &topLeft);

@@ -114,6 +114,20 @@ void UatFrame::setUat(epan_uat *uat)
     setWindowTitle(title);
 }
 
+void UatFrame::applyChanges()
+{
+    if (!uat_) return;
+
+    if (uat_->flags & UAT_AFFECTS_FIELDS) {
+        /* Recreate list with new fields and redissect packets */
+        wsApp->queueAppSignal(WiresharkApplication::FieldsChanged);
+    }
+    if (uat_->flags & UAT_AFFECTS_DISSECTION) {
+        /* Just redissect packets if we have any */
+        wsApp->queueAppSignal(WiresharkApplication::PacketDissectionChanged);
+    }
+}
+
 void UatFrame::acceptChanges()
 {
     if (!uat_) return;
@@ -130,10 +144,7 @@ void UatFrame::acceptChanges()
             uat_->post_update_cb();
         }
 
-        //Filter expressions don't affect dissection, so there is no need to
-        //send any events to that effect.  However, the app needs to know
-        //about any button changes.
-        wsApp->emitAppSignal(WiresharkApplication::FilterExpressionsChanged);
+        applyChanges();
     }
 }
 

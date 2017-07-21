@@ -917,6 +917,11 @@ void PreferencesDialog::on_buttonBox_accepted()
     pd_ui_->filterExpressonsFrame->acceptChanges();
     pd_ui_->expertFrame->acceptChanges();
 
+    //Filter expressions don't affect dissection, so there is no need to
+    //send any events to that effect.  However, the app needs to know
+    //about any button changes.
+    wsApp->emitAppSignal(WiresharkApplication::FilterExpressionsChanged);
+
     prefs_main_write();
     if (save_decode_as_entries(&err) < 0)
     {
