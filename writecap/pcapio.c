@@ -550,20 +550,18 @@ pcapng_write_enhanced_packet_block(FILE* pfile,
         if(caplen % 4) {
             pad_len = 4 - (caplen % 4);
         }
+        /*
+         * If we have no options to write, just write out the padding and
+         * the block total length with one fwrite() call.
+         */
         if(!comment && flags == 0 && options_length==0){
             /* Put padding in the buffer */
             for (i = 0; i < pad_len; i++) {
                 buff[i] = 0;
             }
             /* Write the total length */
-            buff[i] = (block_total_length & 0x000000ff);
-            i++;
-            buff[i] = (block_total_length & 0x0000ff00) >> 8;
-            i++;
-            buff[i] = (block_total_length & 0x00ff0000) >> 16;
-            i++;
-            buff[i] = (block_total_length & 0xff000000) >> 24;
-            i++;
+            memcpy(&buff[i], &block_total_length, sizeof(guint32));
+            i += sizeof(guint32);
             return write_to_file(pfile, (const guint8*)&buff, i, bytes_written, err);
         }
         if (pad_len) {
