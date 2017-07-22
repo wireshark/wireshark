@@ -879,7 +879,7 @@ endif()
 if(ENABLE_CARES)
 	set(PACKAGELIST ${PACKAGELIST} CARES)
 	# Minimum version needed.
-	set(CARES_OPTIONS "1.5.0" REQUIRED)
+	set(CARES_OPTIONS "1.5.0")
 endif()
 
 # Zlib compression
