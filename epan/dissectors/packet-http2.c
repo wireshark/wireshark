@@ -2591,7 +2591,9 @@ static int http2_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_
 void
 proto_reg_handoff_http2(void)
 {
+#ifdef HAVE_NGHTTP2
     media_type_dissector_table = find_dissector_table("media_type");
+#endif
 
     dissector_add_for_decode_as_with_preference("tcp.port", http2_handle);
 
