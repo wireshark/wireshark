@@ -30,6 +30,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/display_filter_combo.h
 	widgets/display_filter_edit.h
 	widgets/drag_drop_toolbar.h
+	widgets/editor_color_dialog.h
 	widgets/editor_file_dialog.h
 	widgets/elided_label.h
 	widgets/field_filter_edit.h
@@ -228,6 +229,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/display_filter_combo.cpp
 	widgets/display_filter_edit.cpp
 	widgets/drag_drop_toolbar.cpp
+	widgets/editor_color_dialog.cpp
 	widgets/editor_file_dialog.cpp
 	widgets/elided_label.cpp
 	widgets/field_filter_edit.cpp

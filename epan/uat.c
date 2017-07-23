@@ -291,6 +291,8 @@ char *uat_fld_tostr(void *rec, uat_field_t *f) {
         case PT_TXTMOD_FILENAME:
         case PT_TXTMOD_DIRECTORYNAME:
         case PT_TXTMOD_DISPLAY_FILTER:
+        case PT_TXTMOD_COLOR:
+        case PT_TXTMOD_PROTO_FIELD:
             out = g_strndup(ptr, len);
             break;
         case PT_TXTMOD_HEXBYTES: {
@@ -326,6 +328,8 @@ static void putfld(FILE* fp, void* rec, uat_field_t* f) {
         case PT_TXTMOD_FILENAME:
         case PT_TXTMOD_DIRECTORYNAME:
         case PT_TXTMOD_DISPLAY_FILTER:
+        case PT_TXTMOD_PROTO_FIELD:
+        case PT_TXTMOD_COLOR:
         case PT_TXTMOD_STRING: {
             guint i;
 
@@ -717,6 +721,17 @@ gboolean uat_fld_chk_range(void* u1 _U_, const char* strptr, guint len, const vo
     g_free(str);
     wmem_free(NULL, r);
     return ret_value;
+}
+
+gboolean uat_fld_chk_color(void* u1 _U_, const char* strptr, guint len, const void* v _U_, const void* u3 _U_, char** err) {
+
+    if ((len != 7) || (*strptr != '#')) {
+        *err = g_strdup("Color must be of the format #RRGGBB");
+        return FALSE;
+    }
+
+    /* Color is just # followed by hex string, so use hex verification */
+    return uat_fld_chk_num(16, strptr + 1, len - 1, err);
 }
 
 char* uat_unbinstring(const char* si, guint in_len, guint* len_p) {

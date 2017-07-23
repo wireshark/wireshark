@@ -32,17 +32,15 @@
 
 #include "wireshark_dialog.h"
 
+#include <ui/qt/models/uat_model.h>
+#include <ui/qt/models/uat_delegate.h>
+
 #include <QIcon>
 #include <QMenu>
 #include <QTextStream>
 
-class QComboBox;
-class QLineEdit;
 class QRubberBand;
 class QTimer;
-class QTreeWidgetItem;
-
-class SyntaxLineEdit;
 
 class QCPBars;
 class QCPGraph;
@@ -89,10 +87,6 @@ public:
     QString scaledValueUnit() const { return scaled_value_unit_; }
 
     void clearAllData();
-
-    static QMap<io_graph_item_unit_t, QString> valueUnitsToNames();
-    static QMap<PlotStyles, QString> plotStylesToNames();
-    static QMap<int, QString> movingAveragesToNames();
 
     unsigned int moving_avg_period_;
 
@@ -149,11 +143,13 @@ public:
     explicit IOGraphDialog(QWidget &parent, CaptureFile &cf);
     ~IOGraphDialog();
 
+    enum UatColumns { colEnabled = 0, colName, colDFilter, colColor, colStyle, colYAxis, colYField, colSMAPeriod, colMaxNum};
+
     void addGraph(bool checked, QString name, QString dfilter, int color_idx, IOGraph::PlotStyles style,
                   io_graph_item_unit_t value_units, QString yfield, int moving_average);
     void addGraph(bool copy_from_current = false);
     void addDefaultGraph(bool enabled, int idx = 0);
-    void syncGraphSettings(QTreeWidgetItem *item);
+    void syncGraphSettings(int row);
 
 public slots:
     void scheduleReplot(bool now = false);
@@ -174,13 +170,14 @@ signals:
 private:
     Ui::IOGraphDialog *ui;
 
-    QLineEdit *name_line_edit_;
-    SyntaxLineEdit *dfilter_line_edit_;
-    SyntaxLineEdit *yfield_line_edit_;
-    QComboBox *color_combo_box_;
-    QComboBox *style_combo_box_;
-    QComboBox *yaxis_combo_box_;
-    QComboBox *sma_combo_box_;
+    //Model and delegate were chosen over UatFrame because add/remove/copy
+    //buttons would need realignment (UatFrame has its own)
+    UatModel *uat_model_;
+    UatDelegate *uat_delegate_;
+
+    // XXX - This needs to stay synced with UAT index
+    QVector<IOGraph*> ioGraphs_;
+
     QString hint_err_;
     QCPGraph *base_graph_;
     QCPItemTracer *tracer_;
@@ -195,9 +192,6 @@ private:
     bool need_recalc_; // Medium weight: recalculate values, then replot
     bool need_retap_; // Heavy weight: re-read packet data
     bool auto_axes_;
-    // Available colors
-    // XXX - Add custom
-    QList<QRgb> colors_;
 
 
 //    void fillGraph();
@@ -205,12 +199,11 @@ private:
     void zoomXAxis(bool in);
     void zoomYAxis(bool in);
     void panAxes(int x_pixels, int y_pixels);
-    QIcon graphColorIcon(int color_idx);
     void toggleTracerStyle(bool force_default = false);
     void getGraphInfo();
     void updateLegend();
     QRectF getZoomRanges(QRect zoom_rect);
-    void itemEditingFinished(QTreeWidgetItem *item);
+    void createIOGraph(int currentRow);
     void loadProfileGraphs();
     void makeCsv(QTextStream &stream) const;
     bool saveCsv(const QString &file_name) const;
@@ -221,18 +214,15 @@ private slots:
     void graphClicked(QMouseEvent *event);
     void mouseMoved(QMouseEvent *event);
     void mouseReleased(QMouseEvent *event);
-    void focusChanged(QWidget *previous, QWidget *current);
-    void activateLastItem();
+
     void resetAxes();
     void updateStatistics(void);
     void copyAsCsvClicked();
 
     void on_intervalComboBox_currentIndexChanged(int index);
     void on_todCheckBox_toggled(bool checked);
-    void on_graphTreeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
-    void on_graphTreeWidget_itemActivated(QTreeWidgetItem *item, int column);
-    void on_graphTreeWidget_itemSelectionChanged();
-    void on_graphTreeWidget_itemChanged(QTreeWidgetItem *item, int column);
+    void modelDataChanged(const QModelIndex &index);
+    void on_graphUat_currentItemChanged(const QModelIndex &current, const QModelIndex &previous);
 
     void on_resetButton_clicked();
     void on_logCheckBox_toggled(bool checked);

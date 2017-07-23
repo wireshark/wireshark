@@ -294,6 +294,7 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 			case PT_TXTMOD_STRING:
 			case PT_TXTMOD_BOOL:
 			case PT_TXTMOD_DISPLAY_FILTER:
+			case PT_TXTMOD_PROTO_FIELD:
 				text = gtk_entry_get_text(GTK_ENTRY(e));
 				len = (unsigned) strlen(text);
 				break;
@@ -518,6 +519,7 @@ static void uat_edit_dialog(uat_t *uat, gint row, gboolean copy) {
 			case PT_TXTMOD_STRING:
 			case PT_TXTMOD_HEXBYTES:
 			case PT_TXTMOD_DISPLAY_FILTER:
+			case PT_TXTMOD_PROTO_FIELD:
 			case PT_TXTMOD_BOOL:
 				entry = gtk_entry_new();
 				if (! dd->is_new || copy) {

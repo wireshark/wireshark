@@ -85,18 +85,25 @@ QVariant UatModel::data(const QModelIndex &index, int role) const
         guint length = 0;
         field->cb.tostr(rec, &str, &length, field->cbdata.tostr, field->fld_data);
 
-        if (field->mode == PT_TXTMOD_HEXBYTES) {
+        switch (field->mode) {
+        case PT_TXTMOD_HEXBYTES:
+            {
             char* temp_str = bytes_to_str(NULL, (const guint8 *) str, length);
             g_free(str);
             QString qstr(temp_str);
             wmem_free(NULL, temp_str);
             return qstr;
-        } else if (field->mode == PT_TXTMOD_BOOL) {
+            }
+        case PT_TXTMOD_BOOL:
             return "";
-        } else {
+        case PT_TXTMOD_COLOR:
+            return QVariant();
+        default:
+            {
             QString qstr(str);
             g_free(str);
             return qstr;
+            }
         }
     }
 
@@ -106,7 +113,8 @@ QVariant UatModel::data(const QModelIndex &index, int role) const
         guint length = 0;
         enum Qt::CheckState state = Qt::Unchecked;
         field->cb.tostr(rec, &str, &length, field->cbdata.tostr, field->fld_data);
-        if (g_strcmp0(str, "TRUE") == 0)
+        if ((g_strcmp0(str, "TRUE") == 0) ||
+            (g_strcmp0(str, "Enabled") == 0))
             state = Qt::Checked;
 
         g_free(str);
@@ -125,6 +133,16 @@ QVariant UatModel::data(const QModelIndex &index, int role) const
             return QBrush("pink");
         }
         return QVariant();
+    }
+
+    if (role == Qt::DecorationRole) {
+        if (field->mode == PT_TXTMOD_COLOR) {
+            char *str = NULL;
+            guint length = 0;
+            field->cb.tostr(rec, &str, &length, field->cbdata.tostr, field->fld_data);
+
+            return QColor(QString(str));
+        }
     }
 
     // expose error message if any.

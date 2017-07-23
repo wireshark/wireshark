@@ -215,12 +215,17 @@ typedef enum _uat_text_mode_t {
 	PT_TXTMOD_ENUM,
 	/* Read/Writes/displays the string value (not number!) */
 
+	PT_TXTMOD_COLOR,
+	/* Reads/Writes/display color in #RRGGBB format */
+
 	PT_TXTMOD_FILENAME,
 	/* processed like a PT_TXTMOD_STRING, but shows a filename dialog */
 	PT_TXTMOD_DIRECTORYNAME,
 	/* processed like a PT_TXTMOD_STRING, but shows a directory dialog */
 	PT_TXTMOD_DISPLAY_FILTER,
 	/* processed like a PT_TXTMOD_STRING, but verifies display filter */
+	PT_TXTMOD_PROTO_FIELD,
+	/* processed like a PT_TXTMOD_STRING, but verifies protocol field name (e.g tcp.flags.syn) */
 	PT_TXTMOD_BOOL
 	/* Displays a checkbox for value */
 } uat_text_mode_t;
@@ -354,6 +359,8 @@ WS_DLL_PUBLIC
 gboolean uat_fld_chk_enum(void*, const char*, unsigned, const void*, const void*, char**);
 WS_DLL_PUBLIC
 gboolean uat_fld_chk_range(void*, const char*, unsigned, const void*, const void*, char**);
+WS_DLL_PUBLIC
+gboolean uat_fld_chk_color(void*, const char*, unsigned, const void*, const void*, char**);
 
 typedef void (*uat_cb_t)(void* uat,void* user_data);
 WS_DLL_PUBLIC
@@ -453,6 +460,14 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 #define UAT_FLD_DISPLAY_FILTER(basename,field_name,title,desc) \
 	{#field_name, title, PT_TXTMOD_DISPLAY_FILTER, {uat_fld_chk_str,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
+/*
+ * PROTO_FIELD,
+ *    a simple c-string contained in (((rec_t*)rec)->(field_name))
+ */
+#define UAT_PROTO_FIELD_CB_DEF(basename,field_name,rec_t) UAT_CSTRING_CB_DEF(basename,field_name,rec_t)
+
+#define UAT_FLD_PROTO_FIELD(basename,field_name,title,desc) \
+	{#field_name, title, PT_TXTMOD_PROTO_FIELD, {uat_fld_chk_str,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
 /*
  * OID - just a CSTRING with a specific check routine
@@ -613,6 +628,23 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 
 #define UAT_FLD_VS(basename,field_name,title,enum,desc) \
 	{#field_name, title, PT_TXTMOD_ENUM,{uat_fld_chk_enum,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{&(enum),&(enum),&(enum)},&(enum),desc,FLDFILL}
+
+
+/*
+ * Color Macros,
+ *   an boolean value contained in
+ */
+#define UAT_COLOR_CB_DEF(basename,field_name,rec_t) \
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
+	char* tmp_str = g_strndup(buf+1,len-1); \
+	((rec_t*)rec)->field_name = (guint)strtol(tmp_str,NULL,16); \
+	g_free(tmp_str); } \
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
+	*out_ptr = g_strdup_printf("#%06X",((rec_t*)rec)->field_name); \
+	*out_len = (unsigned)strlen(*out_ptr); }
+
+#define UAT_FLD_COLOR(basename,field_name,title,desc) \
+{#field_name, title, PT_TXTMOD_COLOR,{uat_fld_chk_color,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
 
 /*

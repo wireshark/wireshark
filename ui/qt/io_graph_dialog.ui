@@ -64,48 +64,13 @@
     </widget>
    </item>
    <item>
-    <widget class="QTreeWidget" name="graphTreeWidget">
+    <widget class="TabnavTreeView" name="graphUat">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
        <verstretch>1</verstretch>
       </sizepolicy>
      </property>
-     <column>
-      <property name="text">
-       <string>Name</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Display filter</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Color</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Style</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Y Axis</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Y Field</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Smoothing</string>
-      </property>
-     </column>
     </widget>
    </item>
    <item>
@@ -512,6 +477,11 @@
    <class>ElidedLabel</class>
    <extends>QLabel</extends>
    <header>widgets/elided_label.h</header>
+  </customwidget>
+  <customwidget>
+   <class>TabnavTreeView</class>
+   <extends>QTreeView</extends>
+   <header>widgets/tabnav_tree_view.h</header>
   </customwidget>
  </customwidgets>
  <resources>

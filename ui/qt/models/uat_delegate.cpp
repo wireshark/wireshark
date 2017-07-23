@@ -29,9 +29,12 @@
 #include <QFileDialog>
 #include <QLineEdit>
 #include <QCheckBox>
+#include <QColorDialog>
 
 #include <ui/qt/widgets/display_filter_edit.h>
+#include <ui/qt/widgets/field_filter_edit.h>
 #include <ui/qt/widgets/editor_file_dialog.h>
+#include <ui/qt/widgets/editor_color_dialog.h>
 
 UatDelegate::UatDelegate(QObject *parent) : QStyledItemDelegate(parent)
 {
@@ -50,7 +53,6 @@ QWidget *UatDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &
 
     switch (field->mode) {
     case PT_TXTMOD_DIRECTORYNAME:
-    {
         if (index.isValid()) {
             QString filename_old = index.model()->data(index, Qt::EditRole).toString();
             EditorFileDialog* fileDialog = new EditorFileDialog(index, parent, QString(field->title), filename_old);
@@ -64,10 +66,8 @@ QWidget *UatDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &
 
         //shouldn't happen
         return 0;
-    }
 
     case PT_TXTMOD_FILENAME:
-    {
         if (index.isValid()) {
             QString filename_old = index.model()->data(index, Qt::EditRole).toString();
             EditorFileDialog* fileDialog = new EditorFileDialog(index, parent, QString(field->title), filename_old);
@@ -82,7 +82,22 @@ QWidget *UatDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &
 
         //shouldn't happen
         return 0;
-    }
+
+   case PT_TXTMOD_COLOR:
+        if (index.isValid()) {
+            QColor color(index.model()->data(index, Qt::DecorationRole).toString());
+            EditorColorDialog *colorDialog = new EditorColorDialog(index, color, new QWidget(parent));
+
+            colorDialog->setWindowFlags(Qt::Window);
+
+            //Use signals to accept data from cell
+            connect(colorDialog, SIGNAL(acceptEdit(const QModelIndex &)), this, SLOT(applyColor(const QModelIndex &)));
+            return colorDialog;
+        }
+
+        //shouldn't happen
+        return 0;
+
     case PT_TXTMOD_ENUM:
     {
         // Note: the string repr. is written, not the integer value.
@@ -101,6 +116,11 @@ QWidget *UatDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &
     case PT_TXTMOD_DISPLAY_FILTER:
     {
         DisplayFilterEdit *editor = new DisplayFilterEdit(parent);
+        return editor;
+    }
+    case PT_TXTMOD_PROTO_FIELD:
+    {
+        FieldFilterEdit *editor = new FieldFilterEdit(parent);
         return editor;
     }
     case PT_TXTMOD_HEXBYTES:
@@ -174,8 +194,10 @@ void UatDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
     }
     case PT_TXTMOD_DIRECTORYNAME:
     case PT_TXTMOD_FILENAME:
+    case PT_TXTMOD_COLOR:
         //do nothing, dialog signals will update table
         break;
+
     default:
         QStyledItemDelegate::setModelData(editor, model, index);
     }
@@ -228,6 +250,16 @@ void UatDelegate::applyDirectory(const QModelIndex& index)
         ((QAbstractItemModel *)index.model())->setData(index, data, Qt::EditRole);
     }
 }
+
+void UatDelegate::applyColor(const QModelIndex& index)
+{
+    if (index.isValid()) {
+        QColorDialog *colorDialog = static_cast<QColorDialog*>(sender());
+        QColor newColor = colorDialog->currentColor();
+        ((QAbstractItemModel *)index.model())->setData(index, newColor.name(), Qt::EditRole);
+    }
+}
+
 
 /* * Editor modelines
  *
