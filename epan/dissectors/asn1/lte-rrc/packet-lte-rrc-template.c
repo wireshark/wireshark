@@ -1,7 +1,7 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V13.6.1 Release 13) packet dissection
+ * (3GPP TS 36.331 V14.3.0 Release 14) packet dissection
  * Copyright 2008, Vincent Helfre
  * Copyright 2009-2017, Pascal Quantin
  *
@@ -838,6 +838,76 @@ static const value_string lte_rrc_delta_RxLevMin_vals[] = {
   { -1, "-2dBm"},
   { 0, NULL}
 };
+
+static const value_string lte_rrc_messageSize_r14_vals[] =
+{
+    { 0,  "size = 0"},
+    { 1,  "0 < size <= 10"},
+    { 2,  "10 < size <= 12"},
+    { 3,  "12 < size <= 14"},
+    { 4,  "14 < size <= 17"},
+    { 5,  "17 < size <= 19"},
+    { 6,  "19 < size <= 22"},
+    { 7,  "22 < size <= 26"},
+    { 8,  "26 < size <= 31"},
+    { 9,  "31 < size <= 36"},
+    { 10, "36 < size <= 42"},
+    { 11, "42 < size <= 49"},
+    { 12, "49 < size <= 57"},
+    { 13, "57 < size <= 67"},
+    { 14, "67 < size <= 78"},
+    { 15, "78 < size <= 91"},
+    { 16, "91 < size <= 107"},
+    { 17, "107 < size <= 125"},
+    { 18, "125 < size <= 146"},
+    { 19, "146 < size <= 171"},
+    { 20, "171 < size <= 200"},
+    { 21, "200 < size <= 234"},
+    { 22, "234 < size <= 274"},
+    { 23, "274 < size <= 321"},
+    { 24, "321 < size <= 376"},
+    { 25, "376 < size <= 440"},
+    { 26, "440 < size <= 515"},
+    { 27, "515 < size <= 603"},
+    { 28, "603 < size <= 706"},
+    { 29, "706 < size <= 826"},
+    { 30, "826 < size <= 967"},
+    { 31, "967 < size <= 1132"},
+    { 32, "1132 < size <= 1326"},
+    { 33, "1326 < size <= 1552"},
+    { 34, "1552 < size <= 1817"},
+    { 35, "1817 < size <= 2127"},
+    { 36, "2127 < size <= 2490"},
+    { 37, "2490 < size <= 2915"},
+    { 38, "2915 < size <= 3413"},
+    { 39, "3413 < size <= 3995"},
+    { 40, "3995 < size <= 4677"},
+    { 41, "4677 < size <= 5476"},
+    { 42, "5476 < size <= 6411"},
+    { 43, "6411 < size <= 7505"},
+    { 44, "7505 < size <= 8787"},
+    { 45, "8787 < size <= 10276"},
+    { 46, "10287 < size <= 12043"},
+    { 47, "12043 < size <= 14099"},
+    { 48, "14099 < size <= 16507"},
+    { 49, "16507 < size <= 19325"},
+    { 50, "19325 < size <= 22624"},
+    { 51, "22624 < size <= 26487"},
+    { 52, "26487 < size <= 31009"},
+    { 53, "31009 < size <= 36304"},
+    { 54, "36304 < size <= 42502"},
+    { 55, "42502 < size <= 49759"},
+    { 56, "49759 < size <= 58255"},
+    { 57, "58255 < size <= 68201"},
+    { 58, "68201 < size <= 79846"},
+    { 59, "79846 < size <= 93479"},
+    { 60, "93479 < size <= 109439"},
+    { 61, "109439 < size <= 128125"},
+    { 62, "128125 < size <= 150000"},
+    { 63, "size > 150000"},
+    { 0, NULL }
+};
+static value_string_ext lte_rrc_messageSize_r14_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_messageSize_r14_vals);
 
 static void
 lte_rrc_timeConnFailure_r10_fmt(gchar *s, guint32 v)
@@ -2411,9 +2481,57 @@ lte_rrc_RSSI_Range_r13_fmt(gchar *s, guint32 v)
 }
 
 static void
+lte_rrc_scptm_FreqOffset_r14_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%udB (%u)", 2*v, v);
+}
+
+static void
+lte_rrc_offsetDFN_r14_fmt(gchar *s, guint32 v)
+{
+  if (v == 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "0ms (0)");
+  } else if (v < 1000) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.3fms (%u)", ((float)v)/1000, v);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "1ms (1000)");
+  }
+}
+
+static void
 lte_rrc_thresholdWLAN_RSSI_fmt(gchar *s, guint32 v)
 {
   g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%u)", -128+v, v);
+}
+
+static void
+lte_rrc_cr_Limit_r14_fmt(gchar *s, guint32 v)
+{
+  if (v == 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "0 (0)");
+  } else if (v < 10000) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.4f (%u)", ((float)v)/10000, v);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "1 (10000)");
+  }
+}
+
+static void
+lte_rrc_SL_CBR_r14_fmt(gchar *s, guint32 v)
+{
+  if (v == 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "0 (0)");
+  } else if (v < 100) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.2f (%u)", ((float)v)/100, v);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "1 (100)");
+  }
+}
+
+static void
+lte_rrc_threshS_RSSI_CBR_r14_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%u)", -112+(2*v), v);
 }
 
 static const value_string lte_rrc_schedulingInfoSIB1_NB_r13_vals[] = {
@@ -3138,6 +3256,21 @@ dissect_lte_rrc_SBCCH_SL_BCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 static int
+dissect_lte_rrc_SBCCH_SL_BCH_V2X(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  proto_item *ti;
+  proto_tree *lte_rrc_tree;
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC SBCCH_SL_BCH_V2X");
+  col_clear(pinfo->cinfo, COL_INFO);
+
+  ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+  lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+  dissect_SBCCH_SL_BCH_Message_V2X_r14_PDU(tvb, pinfo, lte_rrc_tree, NULL);
+  return tvb_captured_length(tvb);
+}
+
+static int
 dissect_lte_rrc_SC_MCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item *ti;
@@ -3254,6 +3387,51 @@ dissect_lte_rrc_PCCH_NB(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
   lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
   dissect_PCCH_Message_NB_PDU(tvb, pinfo, lte_rrc_tree, NULL);
+  return tvb_captured_length(tvb);
+}
+
+static int
+dissect_lte_rrc_SC_MCCH_NB(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  proto_item *ti;
+  proto_tree *lte_rrc_tree;
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC SC MCCH_NB");
+  col_clear(pinfo->cinfo, COL_INFO);
+
+  ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+  lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+  dissect_SC_MCCH_Message_NB_PDU(tvb, pinfo, lte_rrc_tree, NULL);
+  return tvb_captured_length(tvb);
+}
+
+static int
+dissect_lte_rrc_BCCH_BCH_MBMS(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  proto_item *ti;
+  proto_tree *lte_rrc_tree;
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC BCCH_BCH_MBMS");
+  col_clear(pinfo->cinfo, COL_INFO);
+
+  ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+  lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+  dissect_BCCH_BCH_Message_MBMS_PDU(tvb, pinfo, lte_rrc_tree, NULL);
+  return tvb_captured_length(tvb);
+}
+
+static int
+dissect_lte_rrc_BCCH_DL_SCH_MBMS(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  proto_item *ti;
+  proto_tree *lte_rrc_tree;
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC DL_SCH_MBMS");
+  col_clear(pinfo->cinfo, COL_INFO);
+
+  ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+  lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+  dissect_BCCH_DL_SCH_Message_MBMS_PDU(tvb, pinfo, lte_rrc_tree, NULL);
   return tvb_captured_length(tvb);
 }
 
@@ -4048,6 +4226,7 @@ void proto_register_lte_rrc(void) {
   register_dissector("lte_rrc.mcch", dissect_lte_rrc_MCCH, proto_lte_rrc);
   register_dissector("lte_rrc.handover_prep_info", dissect_lte_rrc_Handover_Preparation_Info, proto_lte_rrc);
   register_dissector("lte_rrc.sbcch_sl_bch", dissect_lte_rrc_SBCCH_SL_BCH, proto_lte_rrc);
+  register_dissector("lte_rrc.sbcch_sl_bch.v2x", dissect_lte_rrc_SBCCH_SL_BCH_V2X, proto_lte_rrc);
   register_dissector("lte_rrc.sc_mcch", dissect_lte_rrc_SC_MCCH, proto_lte_rrc);
   register_dissector("lte_rrc.dl_ccch.nb", dissect_lte_rrc_DL_CCCH_NB, proto_lte_rrc);
   register_dissector("lte_rrc.dl_dcch.nb", dissect_lte_rrc_DL_DCCH_NB, proto_lte_rrc);
@@ -4056,6 +4235,9 @@ void proto_register_lte_rrc(void) {
   register_dissector("lte_rrc.bcch_bch.nb", dissect_lte_rrc_BCCH_BCH_NB, proto_lte_rrc);
   register_dissector("lte_rrc.bcch_dl_sch.nb", dissect_lte_rrc_BCCH_DL_SCH_NB, proto_lte_rrc);
   register_dissector("lte_rrc.pcch.nb", dissect_lte_rrc_PCCH_NB, proto_lte_rrc);
+  register_dissector("lte_rrc.sc_mcch.nb", dissect_lte_rrc_SC_MCCH_NB, proto_lte_rrc);
+  register_dissector("lte_rrc.bcch_bch.mbms", dissect_lte_rrc_BCCH_BCH_MBMS, proto_lte_rrc);
+  register_dissector("lte_rrc.bcch_dl_sch.mbms", dissect_lte_rrc_BCCH_DL_SCH_MBMS, proto_lte_rrc);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_lte_rrc, hf, array_length(hf));
