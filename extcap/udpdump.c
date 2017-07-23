@@ -113,6 +113,8 @@ static int list_config(char *interface)
 		"{type=string}{default=data}{tooltip=The type used to describe the payload in the exported pdu format}\n",
 		inc++);
 
+	extcap_config_debug(&inc);
+
 	return EXIT_SUCCESS;
 }
 

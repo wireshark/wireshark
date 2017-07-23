@@ -121,6 +121,8 @@ static int list_config(char *interface)
 	g_strfreev(longname_list);
 	inc++;
 
+	extcap_config_debug(&inc);
+
 	return EXIT_SUCCESS;
 }
 

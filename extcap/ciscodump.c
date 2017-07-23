@@ -512,6 +512,8 @@ static int list_config(char *interface, unsigned int remote_port)
 		"{type=unsigned}{required=true}{tooltip=The number of remote packets to capture.}\n",
 		inc++);
 
+	extcap_config_debug(&inc);
+
 	g_free(ipfilter);
 
 	return EXIT_SUCCESS;

@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <errno.h>
 
 #ifdef HAVE_GETOPT_H
     #include <getopt.h>
@@ -56,6 +57,8 @@ typedef struct _extcap_option {
     char * optname;
     char * optdesc;
 } extcap_option_t;
+
+FILE* custom_log = NULL;
 
 #ifdef _WIN32
 BOOLEAN IsHandleRedirected(DWORD handle)
@@ -146,7 +149,22 @@ void extcap_base_set_util_info(extcap_parameters * extcap, const char * exename,
     extcap->helppage = g_strdup(helppage);
 }
 
-uint8_t extcap_base_parse_options(extcap_parameters * extcap, int result, char * optargument )
+static void extcap_custom_log(const gchar *log_domain,
+             GLogLevelFlags log_level,
+             const gchar *message,
+             gpointer user_data)
+{
+    if (log_level & G_LOG_LEVEL_DEBUG) {
+        if (!custom_log)
+            return;
+        fprintf(custom_log, "%s\n", message);
+        fflush(custom_log);
+    } else {
+        g_log_default_handler(log_domain, log_level, message, user_data);
+    }
+}
+
+uint8_t extcap_base_parse_options(extcap_parameters * extcap, int result, char * optargument)
 {
     switch (result) {
         case EXTCAP_OPT_DEBUG:
@@ -155,6 +173,10 @@ uint8_t extcap_base_parse_options(extcap_parameters * extcap, int result, char *
 #else
             setenv("G_MESSAGES_DEBUG", "all", 1);
 #endif
+            break;
+        case EXTCAP_OPT_DEBUG_FILE:
+            extcap_init_custom_log(optargument);
+            g_log_set_default_handler(extcap_custom_log, NULL);
             break;
         case EXTCAP_OPT_LIST_INTERFACES:
             extcap->do_list_interfaces = 1;
@@ -330,6 +352,24 @@ void extcap_help_add_header(extcap_parameters * extcap, char * help_header)
     extcap_help_add_option(extcap, "--fifo <file>", "dump data to file or fifo");
     extcap_help_add_option(extcap, "--extcap-version", "print tool version");
     extcap_help_add_option(extcap, "--debug", "print additional messages");
+    extcap_help_add_option(extcap, "--debug-file", "print debug messages to file");
+}
+
+void extcap_init_custom_log(const char* filename)
+{
+    custom_log = fopen(filename, "w");
+    if (!custom_log)
+        g_error("Can't open custom log file: %s (%s)", filename, strerror(errno));
+}
+
+void extcap_config_debug(unsigned* count)
+{
+    printf("arg {number=%u}{call=--debug}{display=Run in debug mode}"
+    "{type=boolean}{default=false}{tooltip=Print debug messages}\n",
+    (*count)++);
+    printf("arg {number=%u}{call=--debug-file}{display=Use a file for debug}"
+    "{type=string}{tooltip=Set a file where the debug messages are written}\n",
+    (*count)++);
 }
 
 void extcap_cmdline_debug(char** ar, const unsigned n)

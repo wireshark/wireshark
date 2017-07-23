@@ -54,7 +54,8 @@
 	EXTCAP_OPT_CAPTURE, \
 	EXTCAP_OPT_CAPTURE_FILTER, \
 	EXTCAP_OPT_FIFO, \
-	EXTCAP_OPT_DEBUG
+	EXTCAP_OPT_DEBUG, \
+	EXTCAP_OPT_DEBUG_FILE
 
 
 #define EXTCAP_BASE_OPTIONS \
@@ -66,7 +67,8 @@
 	{ "capture", no_argument, NULL, EXTCAP_OPT_CAPTURE}, \
 	{ "extcap-capture-filter", required_argument,	NULL, EXTCAP_OPT_CAPTURE_FILTER}, \
 	{ "fifo", required_argument, NULL, EXTCAP_OPT_FIFO}, \
-	{ "debug", optional_argument, NULL, EXTCAP_OPT_DEBUG} \
+	{ "debug", required_argument, NULL, EXTCAP_OPT_DEBUG}, \
+	{ "debug-file", required_argument, NULL, EXTCAP_OPT_DEBUG_FILE}
 
 #if defined(_WIN32)
 	BOOLEAN IsHandleRedirected(DWORD handle);
@@ -106,6 +108,8 @@ void extcap_help_add_header(extcap_parameters * extcap, char * help_header);
 void extcap_help_add_option(extcap_parameters * extcap, const char * help_option_name, const char * help_optionn_desc);
 void extcap_help_print(extcap_parameters * extcap);
 void extcap_cmdline_debug(char** ar, const unsigned n);
+void extcap_init_custom_log(const char* filename);
+void extcap_config_debug(unsigned* count);
 void extcap_base_help(void);
 
 #endif
