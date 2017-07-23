@@ -140,6 +140,62 @@ GPRSRecord
 
   offset = decode_qos_umts(tvb, 0, actx->pinfo, tree, hfi->name, 0);
 
+#.FN_BODY GGSNPDPRecord/userLocationInformation
+
+  offset = dissect_gprscdr_uli(tvb, actx, tree, 1);
+
+#.FN_BODY GGSNPDPRecordV750/userLocationInformation
+
+  offset = dissect_gprscdr_uli(tvb, actx, tree, 1);
+
+#.FN_BODY EGSNPDPRecord/userLocationInformation
+
+  offset = dissect_gprscdr_uli(tvb, actx, tree, 1);
+
+#.FN_BODY EGSNPDPRecordV750/userLocationInformation
+
+  offset = dissect_gprscdr_uli(tvb, actx, tree, 1);
+
+#.FN_BODY ChangeOfCharConditionV651/userLocationInformation
+
+  offset = dissect_gprscdr_uli(tvb, actx, tree, 1);
+
+#.FN_BODY ChangeOfServiceConditionV750/userLocationInformation
+
+  offset = dissect_gprscdr_uli(tvb, actx, tree, 1);
+
+#.FN_BODY SGWRecord/userLocationInformation
+
+  offset = dissect_gprscdr_uli(tvb, actx, tree, 2);
+
+#.FN_BODY SGWRecord/lastUserLocationInformation
+
+  offset = dissect_gprscdr_uli(tvb, actx, tree, 2);
+
+#.FN_BODY PGWRecord/userLocationInformation
+
+  offset = dissect_gprscdr_uli(tvb, actx, tree, 2);
+
+#.FN_BODY PGWRecord/lastUserLocationInformation
+
+  offset = dissect_gprscdr_uli(tvb, actx, tree, 2);
+
+#.FN_BODY ChangeOfCharCondition/userLocationInformation
+
+  offset = dissect_gprscdr_uli(tvb, actx, tree, 2);
+
+#.FN_BODY ChangeOfServiceCondition/userLocationInformation
+
+  offset = dissect_gprscdr_uli(tvb, actx, tree, 2);
+
+#.FN_BODY RelatedChangeOfCharCondition/userLocationInformation
+
+  offset = dissect_gprscdr_uli(tvb, actx, tree, 2);
+
+#.FN_BODY RelatedChangeOfServiceCondition/userLocationInformation
+
+  offset = dissect_gprscdr_uli(tvb, actx, tree, 2);
+
 #.FN_BODY GPRSRecord VAL_PTR = &branch_taken
 proto_item *item;
 gint branch_taken, t_offset = offset;

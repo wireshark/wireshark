@@ -6130,26 +6130,15 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
  * 7.7.51 User Location Information
  */
 
-static int
-decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
+void
+dissect_gtp_uli(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
-
-    guint16     length;
-    proto_tree *ext_tree;
     guint8      geo_loc_type;
     proto_item* ti;
 
-    length = tvb_get_ntohs(tvb, offset + 1);
-    ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_USR_LOC_INF], NULL,
-                val_to_str_ext_const(GTP_EXT_USR_LOC_INF, &gtp_val_ext, "Unknown"));
-
-    offset++;
-    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset = offset + 2;
-
     /* Geographic Location Type */
     geo_loc_type = tvb_get_guint8(tvb, offset);
-    ti = proto_tree_add_uint(ext_tree, hf_gtp_uli_geo_loc_type, tvb, offset, 1, geo_loc_type);
+    ti = proto_tree_add_uint(tree, hf_gtp_uli_geo_loc_type, tvb, offset, 1, geo_loc_type);
 
     offset++;
 
@@ -6159,22 +6148,22 @@ decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tr
              * Identification (CGI) of where the user currently is registered.
              * CGI is defined in sub-clause 4.3.1 of 3GPP TS 23.003 [2].
              */
-            dissect_e212_mcc_mnc(tvb, pinfo, ext_tree, offset, E212_CGI, TRUE);
+            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_CGI, TRUE);
             offset+=3;
-            proto_tree_add_item(ext_tree, hf_gtp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_gtp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
-            proto_tree_add_item(ext_tree, hf_gtp_cgi_ci, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_gtp_cgi_ci, tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
         case 1:
             /* Geographic Location field included and it holds the Service
              * Area Identity (SAI) of where the user currently is registered.
              * SAI is defined in sub-clause 9.2.3.9 of 3GPP TS 25.413 [7].
              */
-            dissect_e212_mcc_mnc(tvb, pinfo, ext_tree, offset, E212_SAI, TRUE);
+            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_SAI, TRUE);
             offset+=3;
-            proto_tree_add_item(ext_tree, hf_gtp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_gtp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
-            proto_tree_add_item(ext_tree, hf_gtp_sai_sac, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_gtp_sai_sac, tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
         case 2:
             /* Geographic Location field included and it holds the Routing
@@ -6182,19 +6171,36 @@ decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tr
              * registered. RAI is defined in sub-clause 4.2 of 3GPP TS 23.003
              * [2].
              */
-            dissect_e212_mcc_mnc(tvb, pinfo, ext_tree, offset, E212_RAI, TRUE);
+            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_RAI, TRUE);
             offset+=3;
-            proto_tree_add_item(ext_tree, hf_gtp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_gtp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
-            proto_tree_add_item(ext_tree, hf_gtp_rai_rac, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_gtp_rai_rac, tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
         default:
             expert_add_info(pinfo, ti, &ei_gtp_ext_geo_loc_type);
             break;
     }
+}
+
+static int
+decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
+{
+
+    guint16     length;
+    proto_tree *ext_tree;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_USR_LOC_INF], NULL,
+                val_to_str_ext_const(GTP_EXT_USR_LOC_INF, &gtp_val_ext, "Unknown"));
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset = offset + 2;
+
+    dissect_gtp_uli(tvb, offset, pinfo, ext_tree, args);
 
     return 3 + length;
-
 }
 
 static const value_string daylight_saving_time_vals[] = {

@@ -180,4 +180,6 @@ gboolean is_cause_accepted(guint8 cause, guint32 version);
 
 int decode_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, const gchar * qos_str, guint8 type);
 
+void dissect_gtp_uli(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+
 #endif /* __PACKET_GTP_H*/
