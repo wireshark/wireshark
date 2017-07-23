@@ -698,8 +698,8 @@ int randpkt_parse_type(char *string)
 	int	num_entries = array_length(examples);
 	int	i;
 
-	/* Called with NULL, choose a random packet */
-	if (!string) {
+	/* If called with NULL, or empty string, choose a random packet */
+	if (!string || !g_strcmp0(string, "")) {
 		return examples[g_random_int_range(0, num_entries)].produceable_type;
 	}
 
@@ -710,7 +710,7 @@ int randpkt_parse_type(char *string)
 	}
 
 	/* Complain */
-	fprintf(stderr, "randpkt: Type %s not known.\n", string);
+	g_error("randpkt: Type %s not known.\n", string);
 	return -1;
 }
 
