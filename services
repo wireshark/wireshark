@@ -9567,8 +9567,8 @@ talon-webserver  7015/tcp # Talon Webserver [Jim_Thompson] [Jim_Thompson]
 talon-webserver  7015/udp # Talon Webserver [Jim_Thompson] [Jim_Thompson]
 spg              7016/tcp # SPG Controls Carrier [SPG_Controls_Ltd] [Steve_Barton_2] 2017-03-27
 spg              7016/udp # SPG Controls Carrier [SPG_Controls_Ltd] [Steve_Barton_2] 2017-03-27
-grasp            7017/tcp # GeneRic Autonomic Signaling Protocol     (TEMPORARY - registered 2017-04-28, expires 2018-04-28) [IESG] [IETF_Chair] 2017-04-28 [draft-ietf-anima-grasp]
-grasp            7017/udp # GeneRic Autonomic Signaling Protocol     (TEMPORARY - registered 2017-04-28, expires 2018-04-28) [IESG] [IETF_Chair] 2017-04-28 [draft-ietf-anima-grasp]
+grasp            7017/tcp # GeneRic Autonomic Signaling Protocol [IESG] [IETF_Chair] 2017-04-28 2017-07-20 [RFC-ietf-anima-grasp-15]
+grasp            7017/udp # GeneRic Autonomic Signaling Protocol [IESG] [IETF_Chair] 2017-04-28 2017-07-20 [RFC-ietf-anima-grasp-15]
 fisa-svc         7018/tcp # FISA Service [FAUCONNET_Ingenierie] [FAUCONNET_Ingenierie] 2011-05-19
 doceri-ctl       7019/tcp # doceri drawing service control [Paul_Brown] [Paul_Brown] 2011-04-27
 doceri-view      7019/udp # doceri drawing service screen view [Paul_Brown] [Paul_Brown] 2011-04-27
@@ -9920,6 +9920,8 @@ mxi              8005/tcp # MXI Generation II for z/OS [Rob_Scott] [Rob_Scott] 2
 mxi              8005/udp # MXI Generation II for z/OS [Rob_Scott] [Rob_Scott] 2007-05
 wpl-analytics    8006/tcp # World Programming analytics [World_Programming_Limited] [Thomas_Quarendon] 2017-04-04
 wpl-disc         8006/udp # World Programming analytics discovery [World_Programming_Limited] [Thomas_Quarendon] 2017-04-04
+warppipe         8007/tcp # I/O oriented cluster computing software [MirrorWeb_LTD] [Jonathan_Kingsley] 2017-07-19
+warppipe         8007/udp # I/O oriented cluster computing software [MirrorWeb_LTD] [Jonathan_Kingsley] 2017-07-19
 http-alt         8008/tcp # HTTP Alternate [James_Gettys] [James_Gettys]
 http-alt         8008/udp # HTTP Alternate [James_Gettys] [James_Gettys]
 qbdb             8019/tcp # QB DB Dynamic Port [Sridhar_Krishnamurth] [Sridhar_Krishnamurth] 2008-02-15
