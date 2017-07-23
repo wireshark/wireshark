@@ -95,6 +95,7 @@ public slots:
     void pushProgressStatus(const QString &message, bool animate, bool terminate_is_stop = false, gboolean *stop_flag = NULL);
     void updateProgressStatus(int value);
     void popProgressStatus();
+    void packetSelectionChanged();
 
     void updateCaptureStatistics(capture_session * cap_session);
     void updateCaptureFixedStatistics(capture_session * cap_session);

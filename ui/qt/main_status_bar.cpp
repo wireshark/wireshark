@@ -414,6 +414,11 @@ void MainStatusBar::popProgressStatus()
     progress_frame_.hide();
 }
 
+void MainStatusBar::packetSelectionChanged()
+{
+    showCaptureStatistics();
+}
+
 void MainStatusBar::showCaptureStatistics()
 {
     QString packets_str;
@@ -421,9 +426,19 @@ void MainStatusBar::showCaptureStatistics()
 #ifdef HAVE_LIBPCAP
     /* Do we have any packets? */
     if (cs_fixed_ && cs_count_ > 0) {
+        if (cap_file_->current_frame) {
+            packets_str.append(QString(tr("Current Packet: %1 "))
+                              .arg(cap_file_->current_frame->num));
+        }
+        packets_str.append(QString(tr("Packets: %1"))
+                          .arg(cs_count_));
         packets_str.append(QString(tr("Packets: %1"))
                           .arg(cs_count_));
     } else if (cap_file_ && cs_count_ > 0) {
+        if (cap_file_->current_frame) {
+            packets_str.append(QString(tr("Current Packet: %1 "))
+                              .arg(cap_file_->current_frame->num));
+        }
         packets_str.append(QString(tr("Packets: %1 %4 Displayed: %2 (%3%)"))
                           .arg(cap_file_->count)
                           .arg(cap_file_->displayed_count)

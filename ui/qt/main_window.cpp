@@ -540,6 +540,8 @@ MainWindow::MainWindow(QWidget *parent) :
             main_ui_->wirelessTimelineWidget, SLOT(packetSelectionChanged()));
     connect(packet_list_->packetListModel(), SIGNAL(bgColorizationProgress(int,int)),
             main_ui_->wirelessTimelineWidget, SLOT(bgColorizationProgress(int,int)));
+    connect(packet_list_, SIGNAL(packetSelectionChanged()),
+            main_ui_->statusBar, SLOT(packetSelectionChanged()));
 
     proto_tree_ = new ProtoTree(&master_split_);
     proto_tree_->installEventFilter(this);
