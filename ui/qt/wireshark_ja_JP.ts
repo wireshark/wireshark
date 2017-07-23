@@ -3418,7 +3418,7 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>IOGraph</name>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1898"/>
+        <location filename="io_graph_dialog.cpp" line="1910"/>
         <source>Unknown</source>
         <translation>不明</translation>
     </message>
@@ -3921,72 +3921,72 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>TCPエラー</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="927"/>
+        <location filename="io_graph_dialog.cpp" line="935"/>
         <source>Hover over the graph for details.</source>
         <translation>詳細はグラフの上にマウスをのせてください</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="929"/>
+        <location filename="io_graph_dialog.cpp" line="937"/>
         <source>No packets in interval</source>
         <translation>この間隔にパケットはありません</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="934"/>
+        <location filename="io_graph_dialog.cpp" line="942"/>
         <source>Click to select packet</source>
         <translation>クリックしてパケットを選んでください</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="934"/>
+        <location filename="io_graph_dialog.cpp" line="942"/>
         <source>Packet</source>
         <translation>パケット</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="938"/>
+        <location filename="io_graph_dialog.cpp" line="946"/>
         <source>%1 (%2s%3).</source>
         <translation>%1 (%2s%3).</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="949"/>
+        <location filename="io_graph_dialog.cpp" line="957"/>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
         <translation>離してズーム, x = %1 から %2, y = %3 から %4</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="955"/>
+        <location filename="io_graph_dialog.cpp" line="963"/>
         <source>Unable to select range.</source>
         <translation>範囲を選択できません</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="958"/>
+        <location filename="io_graph_dialog.cpp" line="966"/>
         <source>Click to select a portion of the graph.</source>
         <translation>クリックしてグラフの割合を選びます</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1590"/>
+        <location filename="io_graph_dialog.cpp" line="1602"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>PDF形式 (*.pdf)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1591"/>
+        <location filename="io_graph_dialog.cpp" line="1603"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>PNG形式 (*.png)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1592"/>
+        <location filename="io_graph_dialog.cpp" line="1604"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windowsビットマップ形式 (*.bmp)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1594"/>
+        <location filename="io_graph_dialog.cpp" line="1606"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>JPEG形式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1595"/>
+        <location filename="io_graph_dialog.cpp" line="1607"/>
         <source>Comma Separated Values (*.csv)</source>
         <translation>カンマ区切りテキスト形式 (*.csv)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1607"/>
+        <location filename="io_graph_dialog.cpp" line="1619"/>
         <source>Save Graph As</source>
         <translation>としてグラフを保存</translation>
     </message>
@@ -6971,22 +6971,22 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="67"/>
+        <location filename="main_welcome.cpp" line="68"/>
         <source>Show in Finder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="69"/>
+        <location filename="main_welcome.cpp" line="70"/>
         <source>Show in Folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="230"/>
+        <location filename="main_welcome.cpp" line="236"/>
         <source>All interfaces shown</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="main_welcome.cpp" line="232"/>
+        <location filename="main_welcome.cpp" line="238"/>
         <source>%n interface(s) shown, %1 hidden</source>
         <oldsource>%Ln interface(s) shown</oldsource>
         <translation type="unfinished">
@@ -6994,37 +6994,37 @@ a:hover {
         </translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="243"/>
+        <location filename="main_welcome.cpp" line="249"/>
         <source>You are running Wireshark </source>
         <translation>Wiresharkを起動中です</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="245"/>
+        <location filename="main_welcome.cpp" line="251"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="248"/>
+        <location filename="main_welcome.cpp" line="254"/>
         <source> You receive automatic updates.</source>
         <translation>自動アップデートを受信します</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="250"/>
+        <location filename="main_welcome.cpp" line="256"/>
         <source> You have disabled automatic updates.</source>
         <translation>自動アップデートを無効にしました</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="385"/>
+        <location filename="main_welcome.cpp" line="393"/>
         <source>not found</source>
         <translation>見つかりません</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="464"/>
+        <location filename="main_welcome.cpp" line="472"/>
         <source>Copy file path</source>
         <translation>ファイルパスをコピー</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="470"/>
+        <location filename="main_welcome.cpp" line="478"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10783,97 +10783,97 @@ a:hover {
         <translation>ウインドウサイズ(バイト)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1998"/>
+        <location filename="io_graph_dialog.cpp" line="2010"/>
         <source>Packets</source>
         <translation>パケット数</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1999"/>
+        <location filename="io_graph_dialog.cpp" line="2011"/>
         <source>Bytes</source>
         <translation>バイト数</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2000"/>
+        <location filename="io_graph_dialog.cpp" line="2012"/>
         <source>Bits</source>
         <translation>ビット数</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2001"/>
+        <location filename="io_graph_dialog.cpp" line="2013"/>
         <source>SUM(Y Field)</source>
         <translation>SUM(Yフィールド)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2002"/>
+        <location filename="io_graph_dialog.cpp" line="2014"/>
         <source>COUNT FRAMES(Y Field)</source>
         <translation>COUNT FRAMES(Yフィールド)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2003"/>
+        <location filename="io_graph_dialog.cpp" line="2015"/>
         <source>COUNT FIELDS(Y Field)</source>
         <translation>COUNT FIELDS(Yフィールド)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2004"/>
+        <location filename="io_graph_dialog.cpp" line="2016"/>
         <source>MAX(Y Field)</source>
         <translation>MAX(Yフィールド)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2005"/>
+        <location filename="io_graph_dialog.cpp" line="2017"/>
         <source>MIN(Y Field)</source>
         <translation>MIN(Yフィールド)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2006"/>
+        <location filename="io_graph_dialog.cpp" line="2018"/>
         <source>AVG(Y Field)</source>
         <translation>AVG(Yフィールド)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2007"/>
+        <location filename="io_graph_dialog.cpp" line="2019"/>
         <source>LOAD(Y Field)</source>
         <translation>LOAD(Yフィールド)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2016"/>
+        <location filename="io_graph_dialog.cpp" line="2028"/>
         <source>Line</source>
         <translation>線</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2017"/>
+        <location filename="io_graph_dialog.cpp" line="2029"/>
         <source>Impulse</source>
         <translation>点線</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2018"/>
+        <location filename="io_graph_dialog.cpp" line="2030"/>
         <source>Bar</source>
         <translation>棒</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2019"/>
+        <location filename="io_graph_dialog.cpp" line="2031"/>
         <source>Stacked Bar</source>
         <translation>積み棒</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2020"/>
+        <location filename="io_graph_dialog.cpp" line="2032"/>
         <source>Dot</source>
         <translation>点</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2021"/>
+        <location filename="io_graph_dialog.cpp" line="2033"/>
         <source>Square</source>
         <translation>四角</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2022"/>
+        <location filename="io_graph_dialog.cpp" line="2034"/>
         <source>Diamond</source>
         <translation>菱形</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2033"/>
+        <location filename="io_graph_dialog.cpp" line="2045"/>
         <source>None</source>
         <translation>なし</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2035"/>
+        <location filename="io_graph_dialog.cpp" line="2047"/>
         <source>%1 interval SMA</source>
         <translation>%1 インターバル SMA</translation>
     </message>
@@ -12202,12 +12202,12 @@ a:hover {
 <context>
     <name>RtpAudioStream</name>
     <message>
-        <location filename="rtp_audio_stream.cpp" line="553"/>
+        <location filename="rtp_audio_stream.cpp" line="573"/>
         <source>RTP stream is empty or codec is unsupported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_audio_stream.cpp" line="577"/>
+        <location filename="rtp_audio_stream.cpp" line="597"/>
         <source>%1 does not support PCM at %2. Preferred format is %3</source>
         <translation type="unfinished"></translation>
     </message>

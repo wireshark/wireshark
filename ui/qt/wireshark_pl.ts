@@ -3434,7 +3434,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
 <context>
     <name>IOGraph</name>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1898"/>
+        <location filename="io_graph_dialog.cpp" line="1910"/>
         <source>Unknown</source>
         <translation>Nieznany</translation>
     </message>
@@ -3930,72 +3930,72 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>Błędy TCP</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="927"/>
+        <location filename="io_graph_dialog.cpp" line="935"/>
         <source>Hover over the graph for details.</source>
         <translation>Przesuń kursor nad wykresem by zobaczyć szczegóły.</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="929"/>
+        <location filename="io_graph_dialog.cpp" line="937"/>
         <source>No packets in interval</source>
         <translation>Brak pakietów w zadanym czasie</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="934"/>
+        <location filename="io_graph_dialog.cpp" line="942"/>
         <source>Click to select packet</source>
         <translation>Kliknij by wybrać pakiet</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="934"/>
+        <location filename="io_graph_dialog.cpp" line="942"/>
         <source>Packet</source>
         <translation>Pakiet</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="938"/>
+        <location filename="io_graph_dialog.cpp" line="946"/>
         <source>%1 (%2s%3).</source>
         <translation>%1 (%2s%3).</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="949"/>
+        <location filename="io_graph_dialog.cpp" line="957"/>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
         <translation>Powiększenie, x = %1 do %2, y = %3 do %4</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="955"/>
+        <location filename="io_graph_dialog.cpp" line="963"/>
         <source>Unable to select range.</source>
         <translation>Niemożna wybrać danego zakresu.</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="958"/>
+        <location filename="io_graph_dialog.cpp" line="966"/>
         <source>Click to select a portion of the graph.</source>
         <translation>Kliknij by wybrać obszar wykresu.</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1590"/>
+        <location filename="io_graph_dialog.cpp" line="1602"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>Dokument PDF (*.pdf)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1591"/>
+        <location filename="io_graph_dialog.cpp" line="1603"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>Obraz PNG (*.png)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1592"/>
+        <location filename="io_graph_dialog.cpp" line="1604"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Bitmapa Windows (*.bmp)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1594"/>
+        <location filename="io_graph_dialog.cpp" line="1606"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>Obraz JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1595"/>
+        <location filename="io_graph_dialog.cpp" line="1607"/>
         <source>Comma Separated Values (*.csv)</source>
         <translation>Wartości rozdzielane przecinkami (*.csv)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1607"/>
+        <location filename="io_graph_dialog.cpp" line="1619"/>
         <source>Save Graph As</source>
         <translation>Zapisz wykres jako</translation>
     </message>
@@ -7010,22 +7010,22 @@ text-decoration: underline;
 &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="67"/>
+        <location filename="main_welcome.cpp" line="68"/>
         <source>Show in Finder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="69"/>
+        <location filename="main_welcome.cpp" line="70"/>
         <source>Show in Folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="230"/>
+        <location filename="main_welcome.cpp" line="236"/>
         <source>All interfaces shown</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="main_welcome.cpp" line="232"/>
+        <location filename="main_welcome.cpp" line="238"/>
         <source>%n interface(s) shown, %1 hidden</source>
         <oldsource>%Ln interface(s) shown</oldsource>
         <translation type="unfinished">
@@ -7035,37 +7035,37 @@ text-decoration: underline;
         </translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="243"/>
+        <location filename="main_welcome.cpp" line="249"/>
         <source>You are running Wireshark </source>
         <translation>Wireshark uruchomiony  </translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="245"/>
+        <location filename="main_welcome.cpp" line="251"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="248"/>
+        <location filename="main_welcome.cpp" line="254"/>
         <source> You receive automatic updates.</source>
         <translation> Automatyczne aktualizacje są włączone.</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="250"/>
+        <location filename="main_welcome.cpp" line="256"/>
         <source> You have disabled automatic updates.</source>
         <translation>Automatyczne aktualizacje są wyłączone.</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="385"/>
+        <location filename="main_welcome.cpp" line="393"/>
         <source>not found</source>
         <translation>nie znaleziono</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="464"/>
+        <location filename="main_welcome.cpp" line="472"/>
         <source>Copy file path</source>
         <translation>Kopiuj ścieżkę</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="470"/>
+        <location filename="main_welcome.cpp" line="478"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10825,97 +10825,97 @@ text-decoration: underline;
         <translation>Rozmiar okna (B)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1998"/>
+        <location filename="io_graph_dialog.cpp" line="2010"/>
         <source>Packets</source>
         <translation>Pakietów</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1999"/>
+        <location filename="io_graph_dialog.cpp" line="2011"/>
         <source>Bytes</source>
         <translation>Bajtów</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2000"/>
+        <location filename="io_graph_dialog.cpp" line="2012"/>
         <source>Bits</source>
         <translation>Bitów</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2001"/>
+        <location filename="io_graph_dialog.cpp" line="2013"/>
         <source>SUM(Y Field)</source>
         <translation>SUMA(pole Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2002"/>
+        <location filename="io_graph_dialog.cpp" line="2014"/>
         <source>COUNT FRAMES(Y Field)</source>
         <translation>LICZ RAMKI(pole Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2003"/>
+        <location filename="io_graph_dialog.cpp" line="2015"/>
         <source>COUNT FIELDS(Y Field)</source>
         <translation>LICZ POLA(pole Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2004"/>
+        <location filename="io_graph_dialog.cpp" line="2016"/>
         <source>MAX(Y Field)</source>
         <translation>MAX(pole Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2005"/>
+        <location filename="io_graph_dialog.cpp" line="2017"/>
         <source>MIN(Y Field)</source>
         <translation>MIN(pole Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2006"/>
+        <location filename="io_graph_dialog.cpp" line="2018"/>
         <source>AVG(Y Field)</source>
         <translation>ŚREDNIA(pole Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2007"/>
+        <location filename="io_graph_dialog.cpp" line="2019"/>
         <source>LOAD(Y Field)</source>
         <translation>LOAD(pole Y)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2016"/>
+        <location filename="io_graph_dialog.cpp" line="2028"/>
         <source>Line</source>
         <translation>Linia</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2017"/>
+        <location filename="io_graph_dialog.cpp" line="2029"/>
         <source>Impulse</source>
         <translation>Impuls</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2018"/>
+        <location filename="io_graph_dialog.cpp" line="2030"/>
         <source>Bar</source>
         <translation>Pasek</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2019"/>
+        <location filename="io_graph_dialog.cpp" line="2031"/>
         <source>Stacked Bar</source>
         <translation>Ułożony pasek</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2020"/>
+        <location filename="io_graph_dialog.cpp" line="2032"/>
         <source>Dot</source>
         <translation>Kropka</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2021"/>
+        <location filename="io_graph_dialog.cpp" line="2033"/>
         <source>Square</source>
         <translation>Kwadrat</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2022"/>
+        <location filename="io_graph_dialog.cpp" line="2034"/>
         <source>Diamond</source>
         <translation>Diament</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2033"/>
+        <location filename="io_graph_dialog.cpp" line="2045"/>
         <source>None</source>
         <translation>Brak</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="2035"/>
+        <location filename="io_graph_dialog.cpp" line="2047"/>
         <source>%1 interval SMA</source>
         <translation>%1 interwał SMA</translation>
     </message>
@@ -12244,12 +12244,12 @@ text-decoration: underline;
 <context>
     <name>RtpAudioStream</name>
     <message>
-        <location filename="rtp_audio_stream.cpp" line="553"/>
+        <location filename="rtp_audio_stream.cpp" line="573"/>
         <source>RTP stream is empty or codec is unsupported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_audio_stream.cpp" line="577"/>
+        <location filename="rtp_audio_stream.cpp" line="597"/>
         <source>%1 does not support PCM at %2. Preferred format is %3</source>
         <translation type="unfinished"></translation>
     </message>
