@@ -150,7 +150,6 @@ set(WIRESHARK_QT_HEADERS
 	sequence_diagram.h
 	sequence_dialog.h
 	show_packet_bytes_dialog.h
-	simple_dialog.h
 	splash_overlay.h
 	stats_tree_dialog.h
 	service_response_time_dialog.h

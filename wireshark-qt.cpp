@@ -107,6 +107,8 @@
 
 #include "caputils/capture-pcap-util.h"
 
+#include <QMessageBox>
+
 #ifdef _WIN32
 #  include "caputils/capture-wpcap.h"
 #  include "caputils/capture_wpcap_packet.h"
