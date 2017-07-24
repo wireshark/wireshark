@@ -286,7 +286,6 @@ MOC_HDRS = \
 	sequence_dialog.h				\
 	service_response_time_dialog.h			\
 	show_packet_bytes_dialog.h			\
-	simple_dialog.h					\
 	simple_statistics_dialog.h			\
 	sparkline_delegate.h				\
 	splash_overlay.h				\
@@ -625,6 +624,7 @@ noinst_HEADERS = \
 	packet_list_record.h	\
 	qcustomplot.h		\
 	qt_ui_utils.h		\
+	simple_dialog.h		\
 	stock_icon.h		\
 	tango_colors.h		\
 	variant_pointer.h

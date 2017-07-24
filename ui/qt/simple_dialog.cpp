@@ -80,7 +80,7 @@ simple_error_message_box(const char *msg_format, ...)
 }
 
 SimpleDialog::SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const char *msg_format, va_list ap) :
-    QMessageBox(parent)
+    message_box_(0)
 {
     gchar *vmessage;
     QString message;
@@ -88,11 +88,6 @@ SimpleDialog::SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const
     vmessage = g_strdup_vprintf(msg_format, ap);
     message = QTextCodec::codecForLocale()->toUnicode(vmessage);
     g_free(vmessage);
-
-    setTextFormat(Qt::PlainText);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
-    setTextInteractionFlags(Qt::TextSelectableByMouse);
-#endif
 
     MessagePair msg_pair = splitMessage(message);
     // Remove leading and trailing whitespace along with excessive newline runs.
@@ -109,53 +104,60 @@ SimpleDialog::SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const
         if (type > max_severity_) {
             max_severity_ = type;
         }
-        setText(QString());
         return;
     }
 
+    message_box_ = new QMessageBox(parent);
+    message_box_->setTextFormat(Qt::PlainText);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
+    message_box_->setTextInteractionFlags(Qt::TextSelectableByMouse);
+#endif
+
+
     switch(type) {
     case ESD_TYPE_ERROR:
-        setIcon(QMessageBox::Critical);
+        message_box_->setIcon(QMessageBox::Critical);
         break;
     case ESD_TYPE_WARN:
-        setIcon(QMessageBox::Warning);
+        message_box_->setIcon(QMessageBox::Warning);
         break;
     case ESD_TYPE_CONFIRMATION:
-        setIcon(QMessageBox::Question);
+        message_box_->setIcon(QMessageBox::Question);
         break;
     case ESD_TYPE_INFO:
     default:
-        setIcon(QMessageBox::Information);
+        message_box_->setIcon(QMessageBox::Information);
         break;
     }
 
     if (btn_mask & ESD_BTN_OK) {
-        addButton(QMessageBox::Ok);
+        message_box_->addButton(QMessageBox::Ok);
     }
     if (btn_mask & ESD_BTN_CANCEL) {
-        addButton(QMessageBox::Cancel);
+        message_box_->addButton(QMessageBox::Cancel);
     }
     if (btn_mask & ESD_BTN_YES) {
-        addButton(QMessageBox::Yes);
+        message_box_->addButton(QMessageBox::Yes);
     }
     if (btn_mask & ESD_BTN_NO) {
-        addButton(QMessageBox::No);
+        message_box_->addButton(QMessageBox::No);
     }
 //    if (btn_mask & ESD_BTN_CLEAR) {
 //        addButton(QMessageBox::);
 //    }
     if (btn_mask & ESD_BTN_SAVE) {
-        addButton(QMessageBox::Save);
+        message_box_->addButton(QMessageBox::Save);
     }
     if (btn_mask & ESD_BTN_DONT_SAVE) {
-        addButton(QMessageBox::Discard);
+        message_box_->addButton(QMessageBox::Discard);
     }
 //    if (btn_mask & ESD_BTN_QUIT_DONT_SAVE) {
 //        addButton(QMessageBox::);
 //    }
 
-    setText(primary);
-    setInformativeText(secondary);
+
+    message_box_->setText(primary);
+    message_box_->setInformativeText(secondary);
 }
 
 SimpleDialog::~SimpleDialog()
@@ -197,7 +199,7 @@ void SimpleDialog::displayQueuedMessages(QWidget *parent)
         QString first_primary = message_queue_[0].first;
         first_primary.append(UTF8_HORIZONTAL_ELLIPSIS);
 
-        mb.setText(tr("Multiple problems found"));
+        mb.setText(QObject::tr("Multiple problems found"));
         mb.setInformativeText(first_primary);
 
         foreach (MessagePair msg_pair, message_queue_) {
@@ -220,11 +222,19 @@ void SimpleDialog::displayQueuedMessages(QWidget *parent)
 
 int SimpleDialog::exec()
 {
-    if (!parentWidget() || text().isEmpty()) {
+    if (!message_box_) {
         return 0;
     }
 
-    switch (QMessageBox::exec()) {
+    message_box_->setDetailedText(detailed_text_);
+    message_box_->setCheckBox(check_box_);
+
+    int status = message_box_->exec();
+    delete message_box_;
+    message_box_ = 0;
+    detailed_text_ = QString();
+
+    switch (status) {
     case QMessageBox::Ok:
         return ESD_BTN_OK;
     case QMessageBox::Yes:

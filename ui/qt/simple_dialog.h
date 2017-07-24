@@ -30,24 +30,32 @@
 
 #include "ui/simple_dialog.h"
 
-#include <QMessageBox>
+#include <QPair>
+#include <QString>
 
 typedef QPair<QString,QString> MessagePair;
 
-class SimpleDialog : public QMessageBox
-{
-    Q_OBJECT
+class QCheckBox;
+class QMessageBox;
+class QWidget;
 
+// This might be constructed before Qt is initialized and must be a plain, non-Qt object.
+class SimpleDialog
+{
 public:
     explicit SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const char *msg_format, va_list ap);
     ~SimpleDialog();
-    static void displayQueuedMessages(QWidget *parent = 0);
 
-public slots:
+    static void displayQueuedMessages(QWidget *parent = 0);
+    void setDetailedText(QString text) { detailed_text_ = text; }
+    void setCheckBox(QCheckBox *cb) { check_box_ = cb; }
     int exec();
 
 private:
     const MessagePair splitMessage(QString &message) const;
+    QString detailed_text_;
+    QCheckBox *check_box_;
+    QMessageBox *message_box_;
 };
 
 #endif // SIMPLE_DIALOG_H
