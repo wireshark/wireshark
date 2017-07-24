@@ -1507,6 +1507,7 @@ static gint hf_epl_asnd_identresponse_feat_bit11     = -1;
 static gint hf_epl_asnd_identresponse_feat_bit12     = -1;
 static gint hf_epl_asnd_identresponse_feat_bit13     = -1;
 static gint hf_epl_asnd_identresponse_feat_bit14     = -1;
+static gint hf_epl_asnd_identresponse_feat_bit21     = -1;
 static gint hf_epl_asnd_identresponse_mtu            = -1;
 static gint hf_epl_asnd_identresponse_pis            = -1;
 static gint hf_epl_asnd_identresponse_pos            = -1;
@@ -3320,6 +3321,7 @@ dissect_epl_asnd_ires(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *t
 	proto_tree_add_item(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit12, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit13, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit14, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit21, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_mtu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -5510,6 +5512,10 @@ proto_register_epl(void)
 		{ &hf_epl_asnd_identresponse_feat_bit14,
 			{ "Dynamic Node Allocation", "epl.asnd.ires.features.bit14",
 				FT_BOOLEAN, 32, NULL, 0x100000, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_identresponse_feat_bit21,
+			{ "Modular Device", "epl.asnd.ires.features.bit21",
+				FT_BOOLEAN, 32, NULL, 0x00200000, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_mtu,
 			{ "MTU", "epl.asnd.ires.mtu",
