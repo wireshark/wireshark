@@ -1203,6 +1203,7 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_EXTENDED_MASTER_SECRET, "extended_master_secret" }, /* RFC 7627 */
     { SSL_HND_HELLO_EXT_TOKEN_BINDING, "token_binding" }, /* https://tools.ietf.org/html/draft-ietf-tokbind-negotiation */
     { SSL_HND_HELLO_EXT_CACHED_INFO, "cached_info" }, /* RFC 7924 */
+    { SSL_HND_HELLO_EXT_QUIC_TRANSPORT_PARAMETERS, "quic_transports_parameters" }, /* https://tools.ietf.org/html/draft-ietf-quic-tls */
     { SSL_HND_HELLO_EXT_SESSION_TICKET_TLS, "SessionTicket TLS" }, /* RFC 4507 */
     { SSL_HND_HELLO_EXT_KEY_SHARE, "key_share" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
     { SSL_HND_HELLO_EXT_PRE_SHARED_KEY, "pre_shared_key" }, /* TLS 1.3 https://tools.ietf.org/html/draft-ietf-tls-tls13 */
@@ -1393,6 +1394,16 @@ static const ssl_alpn_protocol_t ssl_alpn_protocols[] = {
     /* draft-ietf-httpbis-http2-16 */
     { "h2-",                FALSE,  "http2" }, /* draft versions */
     { "h2",                 TRUE,   "http2" }, /* final version */
+};
+
+const value_string quic_transport_parameter_id[] = {
+    { SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA, "initial_max_stream_data" },
+    { SSL_HND_QUIC_TP_INITIAL_MAX_DATA, "initial_max_data" },
+    { SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_ID, "initial_max_stream_id" },
+    { SSL_HND_QUIC_TP_IDLE_TIMEOUT, "idle_timeout" },
+    { SSL_HND_QUIC_TP_OMIT_CONNECTION_ID, "omit_connection_id" },
+    { SSL_HND_QUIC_TP_MAX_PACKET_SIZE, "max_packet_size" },
+    { 0, NULL }
 };
 
 /* Lookup tables }}} */
@@ -6315,6 +6326,149 @@ ssl_dissect_hnd_hello_ext_cert_type(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     return offset;
 }
 
+static guint32
+ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                                                    proto_tree *tree, guint32 offset, guint32 offset_end,
+                                                    guint8 hnd_type, SslDecryptSession *ssl _U_)
+{
+    guint32 quic_length, parameter_length, supported_versions_length, next_offset;
+
+    /* https://tools.ietf.org/html/draft-ietf-quic-transport-04#section-7.3
+     *  uint32 QuicVersion;
+     *  enum {
+     *     initial_max_stream_data(0),
+     *     initial_max_data(1),
+     *     initial_max_stream_id(2),
+     *     idle_timeout(3),
+     *     truncate_connection_id(4),
+     *     max_packet_size(5),
+     *     (65535)
+     *  } TransportParameterId;
+     *
+     *   struct {
+     *     TransportParameterId parameter;
+     *     opaque value<0..2^16-1>;
+     *  } TransportParameter;
+     *
+     *  struct {
+     *      select (Handshake.msg_type) {
+     *          case client_hello:
+     *              QuicVersion negotiated_version;
+     *              QuicVersion initial_version;
+     *
+     *         case encrypted_extensions:
+     *              QuicVersion supported_versions<2..2^8-4>;
+     *      };
+     *      TransportParameter parameters<30..2^16-1>;
+     *  } TransportParameters;
+     */
+    switch (hnd_type) {
+    case SSL_HND_CLIENT_HELLO:
+        proto_tree_add_item(tree, hf->hf.hs_ext_quictp_negotiated_version,
+                            tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(tree, hf->hf.hs_ext_quictp_initial_version,
+                            tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        break;
+    case SSL_HND_ENCRYPTED_EXTENSIONS:
+        /* QuicVersion supported_versions<2..2^8-4>;*/
+        if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &supported_versions_length,
+                            hf->hf.hs_ext_quictp_supported_versions_len, 2, G_MAXUINT8-3)) {
+            return offset_end;
+        }
+        offset += 1;
+        next_offset = offset + supported_versions_length;
+
+        while (offset < next_offset) {
+            proto_tree_add_item(tree, hf->hf.hs_ext_quictp_supported_versions,
+                                tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+        }
+        break;
+    case SSL_HND_NEWSESSION_TICKET:
+        break;
+    default:
+        return offset;
+    }
+
+    /* TransportParameter parameters<30..2^16-1>; */
+    if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &quic_length,
+                        hf->hf.hs_ext_quictp_len, 30, G_MAXUINT16)) {
+        return offset_end;
+    }
+    offset += 2;
+    next_offset = offset + quic_length;
+
+    while (offset < next_offset) {
+        guint32 parameter_type;
+        proto_tree *parameter_tree;
+
+        parameter_tree = proto_tree_add_subtree(tree, tvb, offset, 4, hf->ett.hs_ext_quictp_parameter,
+                                                NULL, "Parameter");
+        /* TransportParameterId parameter */
+        proto_tree_add_item_ret_uint(parameter_tree, hf->hf.hs_ext_quictp_parameter_type,
+                                     tvb, offset, 2, ENC_BIG_ENDIAN, &parameter_type);
+        offset += 2;
+        proto_item_append_text(parameter_tree, ": %s", val_to_str(parameter_type, quic_transport_parameter_id, "Unknown"));
+
+        /* opaque value<0..2^16-1> */
+        if (!ssl_add_vector(hf, tvb, pinfo, parameter_tree, offset, next_offset, &parameter_length,
+                            hf->hf.hs_ext_quictp_parameter_len, 0, G_MAXUINT16)) {
+            return next_offset;
+        }
+        offset += 2;
+        proto_item_append_text(parameter_tree, " (len=%u)", parameter_length);
+
+        proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_value,
+                            tvb, offset, parameter_length, ENC_NA);
+
+        switch (parameter_type) {
+            case SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA:
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_stream_data,
+                                    tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_item_append_text(parameter_tree, " %u", tvb_get_ntohl(tvb, offset));
+                offset += 4;
+            break;
+            case SSL_HND_QUIC_TP_INITIAL_MAX_DATA:
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_data,
+                                    tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_item_append_text(parameter_tree, " %u", tvb_get_ntohl(tvb, offset));
+                offset += 4;
+            break;
+            case SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_ID:
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_stream_id,
+                                    tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_item_append_text(parameter_tree, " %u", tvb_get_ntohl(tvb, offset));
+                offset += 4;
+            break;
+            case SSL_HND_QUIC_TP_IDLE_TIMEOUT:
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_idle_timeout,
+                                    tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_item_append_text(parameter_tree, " %u secs", tvb_get_ntohs(tvb, offset));
+                offset += 2;
+            break;
+            case SSL_HND_QUIC_TP_OMIT_CONNECTION_ID:
+                /* No Payload */
+            break;
+            case SSL_HND_QUIC_TP_MAX_PACKET_SIZE:
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_max_packet_size,
+                                    tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_item_append_text(parameter_tree, " %u", tvb_get_ntohs(tvb, offset));
+                /*TODO display expert info about invalid value (< 1252 or >65527) ? */
+                offset += 2;
+            break;
+            default:
+                offset += parameter_length;
+                /*TODO display expert info about unknown ? */
+            break;
+        }
+
+    }
+
+    return offset;
+}
+
 static gint
 ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                              proto_tree *tree, guint32 offset,
@@ -7622,6 +7776,9 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
                     break;
                 }
             }
+            break;
+        case SSL_HND_HELLO_EXT_QUIC_TRANSPORT_PARAMETERS:
+            offset = ssl_dissect_hnd_hello_ext_quic_transport_parameters(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type, ssl);
             break;
         case SSL_HND_HELLO_EXT_SESSION_TICKET_TLS:
             offset = ssl_dissect_hnd_hello_ext_session_ticket(hf, tvb, ext_tree, offset, next_offset, hnd_type, ssl);

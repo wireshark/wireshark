@@ -163,6 +163,7 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_EXTENDED_MASTER_SECRET        23
 #define SSL_HND_HELLO_EXT_TOKEN_BINDING                 24
 #define SSL_HND_HELLO_EXT_CACHED_INFO                   25
+#define SSL_HND_HELLO_EXT_QUIC_TRANSPORT_PARAMETERS     26 /* Not yet assigned by IANA (QUIC-TLS Draft04) */
 /* 26-34  Unassigned*/
 #define SSL_HND_HELLO_EXT_SESSION_TICKET_TLS            35
 /* TLS 1.3 draft */
@@ -203,6 +204,12 @@ typedef enum {
 #define SSL_HND_CERT_STATUS_TYPE_OCSP_MULTI  2
 #define SSL_HND_CERT_TYPE_RAW_PUBLIC_KEY     2
 
+#define SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA         0
+#define SSL_HND_QUIC_TP_INITIAL_MAX_DATA                1
+#define SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_ID           2
+#define SSL_HND_QUIC_TP_IDLE_TIMEOUT                    3
+#define SSL_HND_QUIC_TP_OMIT_CONNECTION_ID              4
+#define SSL_HND_QUIC_TP_MAX_PACKET_SIZE                 5
 /*
  * Lookup tables
  */
@@ -243,6 +250,8 @@ extern const value_string ssl_curve_types[];
 extern const value_string tls_hello_ext_server_name_type_vs[];
 extern const value_string tls_hello_ext_psk_ke_mode[];
 extern const value_string tls13_key_update_request[];
+extern const value_string quic_transport_parameter_id[];
+extern const value_string quic_version_vals[];
 
 /* XXX Should we use GByteArray instead? */
 typedef struct _StringInfo {
@@ -818,6 +827,22 @@ typedef struct ssl_common_dissect {
         gint hs_ext_oid_filters_oid;
         gint hs_ext_oid_filters_values_length;
 
+        /* QUIC Transport Parameters */
+        gint hs_ext_quictp_negotiated_version;
+        gint hs_ext_quictp_initial_version;
+        gint hs_ext_quictp_supported_versions_len;
+        gint hs_ext_quictp_supported_versions;
+        gint hs_ext_quictp_len;
+        gint hs_ext_quictp_parameter;
+        gint hs_ext_quictp_parameter_type;
+        gint hs_ext_quictp_parameter_len;
+        gint hs_ext_quictp_parameter_value;
+        gint hs_ext_quictp_parameter_initial_max_stream_data;
+        gint hs_ext_quictp_parameter_initial_max_data;
+        gint hs_ext_quictp_parameter_initial_max_stream_id;
+        gint hs_ext_quictp_parameter_idle_timeout;
+        gint hs_ext_quictp_parameter_max_packet_size;
+
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_HF_LIST! */
     } hf;
     struct {
@@ -834,6 +859,7 @@ typedef struct ssl_common_dissect {
         gint hs_ext_psk_identity;
         gint hs_ext_server_name;
         gint hs_ext_oid_filter;
+        gint hs_ext_quictp_parameter;
         gint hs_sig_hash_alg;
         gint hs_sig_hash_algs;
         gint urlhash;
@@ -1011,11 +1037,12 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,                     \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1,                             \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1,                             \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,                         \
     },                                                                  \
     /* ei */ {                                                          \
         EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT,           \
@@ -1721,6 +1748,76 @@ ssl_common_dissect_t name = {   \
       { "Certificate Extension Values Length", prefix ".extension.oid_filters.values_length", \
         FT_UINT16, BASE_DEC, NULL, 0x00,                                \
         NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_negotiated_version,                      \
+      { "Negotiated Version", prefix ".quic.negotiated_version",        \
+        FT_UINT32, BASE_HEX, VALS(quic_version_vals), 0x00,             \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_initial_version,                         \
+      { "Initial Version", prefix ".quic.initial_version",              \
+        FT_UINT32, BASE_HEX, VALS(quic_version_vals), 0x00,             \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_supported_versions_len,                  \
+      { "Supported Versions Length", prefix ".quic.supported_versions.len", \
+        FT_UINT16, BASE_DEC, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_supported_versions,                      \
+      { "Supported Versions", prefix ".quic.supported_versions",        \
+        FT_UINT32, BASE_HEX, VALS(quic_version_vals), 0x00,             \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_len,                                     \
+      { "Parameters Length", prefix ".quic.len",                        \
+        FT_UINT16, BASE_DEC, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter,                               \
+      { "Parameter", prefix ".quic.parameter",                          \
+        FT_NONE, BASE_NONE, NULL, 0x00,                                 \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_type,                          \
+      { "Type", prefix ".quic.parameter.type",                          \
+        FT_UINT16, BASE_HEX, VALS(quic_transport_parameter_id), 0x00,   \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_len,                           \
+      { "Length", prefix ".quic.parameter.length",                      \
+        FT_UINT16, BASE_DEC, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_value,                         \
+      { "Value", prefix ".quic.parameter.value",                        \
+        FT_BYTES, BASE_NONE, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_initial_max_stream_data,       \
+      { "initial_max_stream_data", prefix ".quic.parameter.initial_max_stream_data",    \
+        FT_UINT32, BASE_DEC, NULL, 0x00,                                \
+        "Contains the initial value for the maximum data that can be sent on any newly created stream", HFILL }                                                                 \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_initial_max_data,              \
+      { "initial_max_data", prefix ".quic.parameter.initial_max_data",  \
+        FT_UINT32, BASE_DEC, NULL, 0x00,                                \
+        "Contains the initial value for the maximum amount of data that can be sent on the connection", HFILL }                                                                 \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_initial_max_stream_id,         \
+      { "initial_max_stream_id", prefix ".quic.parameter.initial_max_stream_id",    \
+        FT_UINT32, BASE_DEC, NULL, 0x00,                                \
+        "Contains the initial maximum stream number the peer may initiate", HFILL } \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_idle_timeout,                  \
+      { "idle_timeout", prefix ".quic.parameter.idle_timeout",          \
+        FT_UINT16, BASE_DEC, NULL, 0x00,                                \
+        "In seconds", HFILL }                                            \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_max_packet_size,               \
+      { "max_packet_size", prefix ".quic.parameter.max_packet_size",    \
+        FT_UINT16, BASE_DEC, NULL, 0x00,                                \
+        "Indicates that packets larger than this limit will be dropped", HFILL }    \
     }
 /* }}} */
 
@@ -1739,6 +1836,7 @@ ssl_common_dissect_t name = {   \
         & name .ett.hs_ext_psk_identity,            \
         & name .ett.hs_ext_server_name,             \
         & name .ett.hs_ext_oid_filter,              \
+        & name .ett.hs_ext_quictp_parameter,        \
         & name .ett.hs_sig_hash_alg,                \
         & name .ett.hs_sig_hash_algs,               \
         & name .ett.urlhash,                        \

@@ -106,7 +106,7 @@ static gint ett_quic_ftflags = -1;
 static dissector_handle_t quic_handle;
 static dissector_handle_t ssl_handle;
 
-static const value_string quic_version_vals[] = {
+const value_string quic_version_vals[] = {
     { 0xff000004, "draft-04" },
     { 0xff000005, "draft-05" },
     { 0, NULL }
@@ -237,6 +237,11 @@ static const value_string len_ack_block_vals[] = {
 #define QUIC_VERSION_NEGOTIATION_ERROR  0x80000009
 #define QUIC_PROTOCOL_VIOLATION         0x8000000A
 
+/* QUIC TLS Error */
+#define QUIC_TLS_HANDSHAKE_FAILED       0xC000001C
+#define QUIC_TLS_FATAL_ALERT_GENERATED  0xC000001D
+#define QUIC_TLS_FATAL_ALERT_RECEIVED   0xC000001E
+
 static const value_string quic_error_code_vals[] = {
     { QUIC_NO_ERROR, "NO_ERROR (An endpoint uses this with CONNECTION_CLOSE to signal that the connection is being closed abruptly in the absence of any error)" },
     { QUIC_INTERNAL_ERROR, "INTERNAL_ERROR (The endpoint encountered an internal error and cannot continue with the connection)" },
@@ -249,6 +254,9 @@ static const value_string quic_error_code_vals[] = {
     { QUIC_TRANSPORT_PARAMETER_ERROR, "TRANSPORT_PARAMETER_ERROR (An endpoint received transport parameters that were badly formatted)" },
     { QUIC_VERSION_NEGOTIATION_ERROR, "VERSION_NEGOTIATION_ERROR (An endpoint received transport parameters that contained version negotiation parameters that disagreed with the version negotiation that it performed)" },
     { QUIC_PROTOCOL_VIOLATION, "PROTOCOL_VIOLATION (An endpoint detected an error with protocol compliance that was not covered by more specific error codes)" },
+    { QUIC_TLS_HANDSHAKE_FAILED, "TLS_HANDSHAKE_FAILED (The TLS handshake failed)" },
+    { QUIC_TLS_FATAL_ALERT_GENERATED, "TLS_FATAL_ALERT_GENERATED (A TLS fatal alert was sent, causing the TLS connection to end prematurel)" },
+    { QUIC_TLS_FATAL_ALERT_RECEIVED, "TLS_FATAL_ALERT_RECEIVED (A TLS fatal alert was received, causing the TLS connection to end prematurely)" },
     { 0, NULL }
 };
 static value_string_ext quic_error_code_vals_ext = VALUE_STRING_EXT_INIT(quic_error_code_vals);
