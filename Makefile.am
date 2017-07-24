@@ -867,7 +867,7 @@ EXTRA_DIST = \
 	wireshark-mime-package.xml	\
 	wireshark.appdata.xml	\
 	wireshark.pc.in		\
-	wka.tmpl		\
+	wka			\
 	CMakeLists.txt		\
 	CMakeListsCustom.txt.example	\
 	cmakeconfig.h.in	\
