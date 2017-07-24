@@ -1348,7 +1348,7 @@ dissect_body_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
     if (content_type != NULL) {
         /* add it to STREAM level */
-        proto_tree *ptree = tree->parent != NULL ? tree->parent : tree;
+        proto_tree *ptree = proto_tree_get_parent_tree(tree);
         dissector_try_string(media_type_dissector_table, content_type,
                                          tvb_new_subset_length(tvb, start, length), pinfo, ptree, NULL);
     }
