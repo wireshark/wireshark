@@ -54,6 +54,11 @@ struct epan_range;
 }
 #endif /* __cplusplus */
 
+// Needed to support Qt 4.x
+#ifndef Q_NULLPTR
+#define Q_NULLPTR NULL
+#endif
+
 /** Create a glib-compatible copy of a QString.
  *
  * @param q_string A QString.
