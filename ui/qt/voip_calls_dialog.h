@@ -28,8 +28,8 @@
 
 #include "ui/voip_calls.h"
 
-#include "voip_calls_info_model.h"
-#include "cache_proxy_model.h"
+#include <ui/qt/models/voip_calls_info_model.h>
+#include <ui/qt/models/cache_proxy_model.h>
 #include "wireshark_dialog.h"
 
 #include <QMenu>

@@ -23,11 +23,11 @@
 #define PACKET_LIST_H
 
 #include "byte_view_tab.h"
-#include "packet_list_model.h"
+#include <ui/qt/models/packet_list_model.h>
 #include "preferences_dialog.h"
 #include "proto_tree.h"
 #include "protocol_preferences_menu.h"
-#include <ui/qt/related_packet_delegate.h>
+#include <ui/qt/models/related_packet_delegate.h>
 
 #include <QMenu>
 #include <QTime>

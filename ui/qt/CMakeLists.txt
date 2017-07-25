@@ -47,8 +47,26 @@ set(WIRESHARK_UTILS_HEADERS
 	utils/color_utils.h
 	utils/stock_icon.h
 	utils/qt_ui_utils.h
+	utils/tango_colors.h
 	utils/variant_pointer.h
-	uat_delegate.h
+)
+
+set(WIRESHARK_MODEL_HEADERS
+	models/cache_proxy_model.h
+	models/interface_sort_filter_model.h
+	models/interface_tree_cache_model.h
+	models/interface_tree_model.h
+	models/numeric_value_chooser_delegate.h
+	models/packet_list_model.h
+	models/packet_list_record.h
+	models/path_chooser_delegate.h
+	models/percent_bar_delegate.h
+	models/related_packet_delegate.h
+	models/timeline_delegate.h
+	models/sparkline_delegate.h
+	models/uat_delegate.h
+	models/uat_model.h
+	models/voip_calls_info_model.h
 )
 
 # All .h files which inherit from QObject aka which use the Q_OBJECT macro
@@ -64,7 +82,6 @@ set(WIRESHARK_QT_HEADERS
 	accordion_frame.h
 	byte_view_tab.h
 	byte_view_text.h
-	cache_proxy_model.h
 	capture_file.h
 	capture_file_dialog.h
 	capture_file_properties_dialog.h
@@ -106,9 +123,6 @@ set(WIRESHARK_QT_HEADERS
 	import_text_dialog.h
 	interface_toolbar.h
 	interface_toolbar_reader.h
-	interface_tree_model.h
-	interface_tree_cache_model.h
-	interface_sort_filter_model.h
 	interface_frame.h
 	io_graph_dialog.h
 	layout_preferences_frame.h
@@ -126,16 +140,12 @@ set(WIRESHARK_QT_HEADERS
 	manage_interfaces_dialog.h
 	module_preferences_scroll_area.h
 	mtp3_summary_dialog.h
-	numeric_value_chooser_delegate.h
 	multicast_statistics_dialog.h
 	packet_comment_dialog.h
 	packet_dialog.h
 	packet_format_group_box.h
 	packet_list.h
-	packet_list_model.h
 	packet_range_group_box.h
-	path_chooser_delegate.h
-	percent_bar_delegate.h
 	preference_editor_frame.h
 	preferences_dialog.h
 	print_dialog.h
@@ -145,7 +155,6 @@ set(WIRESHARK_QT_HEADERS
 	protocol_hierarchy_dialog.h
 	protocol_preferences_menu.h
 	recent_file_status.h
-	related_packet_delegate.h
 	resolved_addresses_dialog.h
 	response_time_delay_dialog.h
 	rpc_service_response_time_dialog.h
@@ -172,14 +181,10 @@ set(WIRESHARK_QT_HEADERS
 	tap_parameter_dialog.h
 	tcp_stream_dialog.h
 	time_shift_dialog.h
-	timeline_delegate.h
 	traffic_table_dialog.h
-	uat_delegate.h
 	uat_dialog.h
 	uat_frame.h
-	uat_model.h
 	voip_calls_dialog.h
-	voip_calls_info_model.h
 	wireless_frame.h
 	wireless_timeline.h
 	wireshark_application.h
@@ -208,8 +213,8 @@ endif()
 
 file(GLOB EXTRA_QT_HEADERS
 	packet_list_record.h
+	models/sparkline_delegate.h
 	utils/qt_ui_utils.h
-	sparkline_delegate.h
 	utils/stock_icon.h
 )
 
@@ -241,6 +246,25 @@ set(WIRESHARK_UTILS_SRCS
 	utils/qt_ui_utils.cpp
 )
 
+set(WIRESHARK_MODEL_SRCS
+	models/cache_proxy_model.cpp
+	models/interface_sort_filter_model.cpp
+	models/interface_tree_cache_model.cpp
+	models/interface_tree_model.cpp
+	models/numeric_value_chooser_delegate.cpp
+	models/packet_list_model.cpp
+	models/packet_list_record.cpp
+	models/path_chooser_delegate.cpp
+	models/percent_bar_delegate.cpp
+	models/related_packet_delegate.cpp
+	models/sparkline_delegate.cpp
+	models/sparkline_delegate.cpp
+	models/timeline_delegate.cpp
+	models/uat_delegate.cpp
+	models/uat_model.cpp
+	models/voip_calls_info_model.cpp
+)
+
 set(WIRESHARK_QT_SRC
 	about_dialog.cpp
 	accordion_frame.cpp
@@ -251,7 +275,6 @@ set(WIRESHARK_QT_SRC
 	bluetooth_hci_summary_dialog.cpp
 	byte_view_tab.cpp
 	byte_view_text.cpp
-	cache_proxy_model.cpp
 	capture_file.cpp
 	capture_file_dialog.cpp
 	capture_file_properties_dialog.cpp
@@ -290,9 +313,6 @@ set(WIRESHARK_QT_SRC
 	interface_frame.cpp
 	interface_toolbar.cpp
 	interface_toolbar_reader.cpp
-	interface_tree_model.cpp
-	interface_tree_cache_model.cpp
-	interface_sort_filter_model.cpp
 	layout_preferences_frame.cpp
 	lbm_lbtrm_transport_dialog.cpp
 	lbm_lbtru_transport_dialog.cpp
@@ -308,16 +328,11 @@ set(WIRESHARK_QT_SRC
 	main_window_slots.cpp
 	manage_interfaces_dialog.cpp
 	module_preferences_scroll_area.cpp
-	numeric_value_chooser_delegate.cpp
 	packet_comment_dialog.cpp
 	packet_dialog.cpp
 	packet_format_group_box.cpp
 	packet_list.cpp
-	packet_list_model.cpp
-	packet_list_record.cpp
 	packet_range_group_box.cpp
-	path_chooser_delegate.cpp
-	percent_bar_delegate.cpp
 	preference_editor_frame.cpp
 	preferences_dialog.cpp
 	print_dialog.cpp
@@ -327,7 +342,6 @@ set(WIRESHARK_QT_SRC
 	protocol_hierarchy_dialog.cpp
 	protocol_preferences_menu.cpp
 	recent_file_status.cpp
-	related_packet_delegate.cpp
 	resolved_addresses_dialog.cpp
 	response_time_delay_dialog.cpp
 	rpc_service_response_time_dialog.cpp
@@ -348,21 +362,16 @@ set(WIRESHARK_QT_SRC
 	show_packet_bytes_dialog.cpp
 	simple_dialog.cpp
 	simple_statistics_dialog.cpp
-	sparkline_delegate.cpp
 	splash_overlay.cpp
 	supported_protocols_dialog.cpp
 	tabnav_tree_widget.cpp
 	tap_parameter_dialog.cpp
 	tcp_stream_dialog.cpp
 	time_shift_dialog.cpp
-	timeline_delegate.cpp
 	traffic_table_dialog.cpp
-	uat_delegate.cpp
 	uat_dialog.cpp
 	uat_frame.cpp
-	uat_model.cpp
 	voip_calls_dialog.cpp
-	voip_calls_info_model.cpp
 	wireless_frame.cpp
 	wireless_timeline.cpp
 	wireshark_application.cpp
@@ -571,25 +580,30 @@ register_tap_files(wireshark-tap-register.c
 	${WIRESHARK_QT_TAP_SRC}
 )
 
-source_group("moc Source Files" FILES ${WIRESHARK_QT_MOC_SRC})
-source_group("ui Header Files" FILES ${WIRESHARK_QT_UI_SRC})
-source_group("ui Files" FILES ${WIRESHARK_QT_UI})
-source_group("qrc Files" FILES ${WIRESHARK_QT_QRC_SRC} ${WIRESHARK_QT_QRC})
-source_group("Header Files" FILES ${WIRESHARK_QT_HEADERS})
-source_group("Widget Header Files" FILES ${WIRESHARK_WIDGET_HEADERS})
-source_group("Widget Source Files" FILES ${WIRESHARK_WIDGET_SRCS})
-source_group("Utils Header Files" FILES ${WIRESHARK_UTILS_HEADERS})
-source_group("Utils Source Files" FILES ${WIRESHARK_UTILS_SRCS})
+source_group("ui\\moc Source Files" FILES ${WIRESHARK_QT_MOC_SRC})
+source_group("ui\\Header" FILES ${WIRESHARK_QT_UI_SRC})
+source_group("ui\\UIC Files" FILES ${WIRESHARK_QT_UI})
+source_group("ui\\qrc" FILES ${WIRESHARK_QT_QRC_SRC} ${WIRESHARK_QT_QRC})
+source_group("ui\\Header" FILES ${WIRESHARK_QT_HEADERS})
+source_group("ui\\Widget Header" FILES ${WIRESHARK_WIDGET_HEADERS})
+source_group("ui\\Widget Source" FILES ${WIRESHARK_WIDGET_SRCS})
+source_group("ui\\Utils Headers Files" FILES ${WIRESHARK_UTILS_HEADERS})
+source_group("ui\\Utils Source" FILES ${WIRESHARK_UTILS_SRCS})
+source_group("ui\\Models Headers" FILES ${WIRESHARK_MODEL_HEADERS})
+source_group("ui\\Models Headers" FILES ${WIRESHARK_MODEL_SRCS})
 
 add_library(qtui STATIC
 	#Included so that Visual Studio can properly put header files in solution
 	${WIRESHARK_QT_HEADERS}
 	${WIRESHARK_WIDGET_HEADERS}
 	${WIRESHARK_UTILS_HEADERS}
+	${WIRESHARK_MODEL_HEADERS}
 
 	${WIRESHARK_QT_SRC}
 	${WIRESHARK_WIDGET_SRCS}
 	${WIRESHARK_UTILS_SRCS}
+	${WIRESHARK_MODEL_SRCS}
+
 	${WIRESHARK_QT_TAP_SRC}
 	${WIRESHARK_QT_UI_SRC}
 	${WIRESHARK_QT_MOC_SRC}

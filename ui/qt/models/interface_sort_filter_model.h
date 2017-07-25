@@ -25,7 +25,7 @@
 
 #include <config.h>
 
-#include "ui/qt/interface_tree_model.h"
+#include <ui/qt/models/interface_tree_model.h>
 
 #include <glib.h>
 

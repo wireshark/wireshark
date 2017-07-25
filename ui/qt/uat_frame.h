@@ -25,8 +25,8 @@
 #include <QFrame>
 
 #include <ui/qt/geometry_state_dialog.h>
-#include <ui/qt/uat_model.h>
-#include <ui/qt/uat_delegate.h>
+#include <ui/qt/models/uat_model.h>
+#include <ui/qt/models/uat_delegate.h>
 
 namespace Ui {
 class UatFrame;

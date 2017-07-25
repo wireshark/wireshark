@@ -23,7 +23,7 @@
 #ifndef INTERFACE_TREE_CACHE_MODEL_H_
 #define INTERFACE_TREE_CACHE_MODEL_H_
 
-#include "ui/qt/interface_tree_model.h"
+#include <ui/qt/models/interface_tree_model.h>
 
 #include <QMap>
 #include <QAbstractItemModel>
@@ -90,4 +90,3 @@ private:
  * ex: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-

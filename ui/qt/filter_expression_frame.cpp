@@ -26,7 +26,7 @@
 #include <epan/uat-int.h>
 #include <ui/preference_utils.h>
 
-#include <ui/qt/uat_model.h>
+#include <ui/qt/models/uat_model.h>
 
 #include <QPushButton>
 

@@ -28,8 +28,8 @@
 #include "capture_opts.h"
 #include "ui/capture_globals.h"
 #include "ui/qt/capture_interfaces_dialog.h"
-#include "ui/qt/interface_tree_cache_model.h"
-#include "ui/qt/interface_sort_filter_model.h"
+#include <ui/qt/models/interface_tree_cache_model.h>
+#include <ui/qt/models/interface_sort_filter_model.h>
 #ifdef HAVE_PCAP_REMOTE
 #include "ui/qt/remote_capture_dialog.h"
 #include "ui/qt/remote_settings_dialog.h"
@@ -49,7 +49,7 @@
 
 #include "ui/capture_ui_utils.h"
 
-#include <ui/qt/path_chooser_delegate.h>
+#include <ui/qt/models/path_chooser_delegate.h>
 
 #include <QCheckBox>
 #include <QFileDialog>

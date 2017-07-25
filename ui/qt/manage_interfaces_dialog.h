@@ -27,8 +27,8 @@
 #include <glib.h>
 #include "capture_opts.h"
 
-#include "ui/qt/interface_tree_cache_model.h"
-#include "ui/qt/interface_sort_filter_model.h"
+#include <ui/qt/models/interface_tree_cache_model.h>
+#include <ui/qt/models/interface_sort_filter_model.h>
 
 #include "geometry_state_dialog.h"
 #include <QStyledItemDelegate>

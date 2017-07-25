@@ -22,7 +22,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "uat_delegate.h"
+#include <ui/qt/models/uat_delegate.h>
 #include "epan/value_string.h"
 #include <QComboBox>
 #include <QEvent>

@@ -171,12 +171,32 @@ MOC_WIDGET_HDRS = \
 	widgets/tabnav_tree_view.h			\
 	widgets/drag_drop_toolbar.h			\
 	widgets/qcustomplot.h
+
 # Files that are utility classes with multi-purpose, but no widgets
 MOC_UTILS_HDRS = \
 	utils/color_utils.h				\
 	utils/stock_icon.h				\
 	utils/qt_ui_utils.h				\
 	utils/variant_pointer.h
+
+# Files for delegates and models
+MOC_MODELS_HDRS = \
+	models/cache_proxy_model.h			\
+	models/interface_sort_filter_model.h		\
+	models/interface_tree_cache_model.h		\
+	models/interface_tree_model.h			\
+	models/numeric_value_chooser_delegate.h		\
+	models/packet_list_model.h			\
+	models/packet_list_record.h			\
+	models/path_chooser_delegate.h			\
+	models/percent_bar_delegate.h			\
+	models/related_packet_delegate.h		\
+	models/timeline_delegate.h			\
+	models/sparkline_delegate.h			\
+	models/uat_delegate.h				\
+	models/uat_model.h				\
+	models/voip_calls_info_model.h
+
 
 #
 # Headers that have to be run through moc.
@@ -191,7 +211,6 @@ MOC_HDRS = \
 	bluetooth_hci_summary_dialog.h			\
 	byte_view_tab.h					\
 	byte_view_text.h				\
-	cache_proxy_model.h				\
 	capture_file.h					\
 	capture_file_dialog.h				\
 	capture_file_properties_dialog.h		\
@@ -233,9 +252,6 @@ MOC_HDRS = \
 	interface_frame.h				\
 	interface_toolbar.h				\
 	interface_toolbar_reader.h			\
-	interface_tree_model.h				\
-	interface_tree_cache_model.h			\
-	interface_sort_filter_model.h			\
 	io_graph_dialog.h				\
 	layout_preferences_frame.h			\
 	lbm_lbtrm_transport_dialog.h			\
@@ -253,15 +269,11 @@ MOC_HDRS = \
 	module_preferences_scroll_area.h		\
 	multicast_statistics_dialog.h			\
 	mtp3_summary_dialog.h				\
-	numeric_value_chooser_delegate.h		\
 	packet_comment_dialog.h				\
-	path_chooser_delegate.h				\
 	packet_dialog.h					\
 	packet_format_group_box.h			\
 	packet_list.h					\
-	packet_list_model.h				\
 	packet_range_group_box.h			\
-	percent_bar_delegate.h				\
 	preference_editor_frame.h			\
 	preferences_dialog.h				\
 	print_dialog.h					\
@@ -271,7 +283,6 @@ MOC_HDRS = \
 	protocol_hierarchy_dialog.h			\
 	protocol_preferences_menu.h			\
 	recent_file_status.h				\
-	related_packet_delegate.h			\
 	remote_capture_dialog.h				\
 	remote_settings_dialog.h			\
 	resolved_addresses_dialog.h			\
@@ -294,7 +305,6 @@ MOC_HDRS = \
 	service_response_time_dialog.h			\
 	show_packet_bytes_dialog.h			\
 	simple_statistics_dialog.h			\
-	sparkline_delegate.h				\
 	splash_overlay.h				\
 	stats_tree_dialog.h				\
 	supported_protocols_dialog.h			\
@@ -302,21 +312,18 @@ MOC_HDRS = \
 	tap_parameter_dialog.h				\
 	tcp_stream_dialog.h				\
 	time_shift_dialog.h				\
-	timeline_delegate.h				\
 	traffic_table_dialog.h				\
-	uat_delegate.h					\
 	uat_dialog.h					\
 	uat_frame.h					\
-	uat_model.h					\
 	voip_calls_dialog.h				\
-	voip_calls_info_model.h				\
 	wireless_frame.h				\
 	wireless_timeline.h				\
 	wireshark_application.h				\
 	wireshark_dialog.h				\
 	wlan_statistics_dialog.h			\
 	$(MOC_WIDGET_HDRS)				\
-	$(MOC_UTILS_HDRS)
+	$(MOC_UTILS_HDRS)				\
+	$(MOC_MODELS_HDRS)
 
 #
 # .ui files.
@@ -482,6 +489,23 @@ WIRESHARK_QT_UTILS_SRC = \
 	utils/stock_icon.cpp				\
 	utils/qt_ui_utils.cpp
 
+WIRESHARK_QT_MODELS_SRCS = \
+	models/cache_proxy_model.cpp			\
+	models/interface_sort_filter_model.cpp		\
+	models/interface_tree_cache_model.cpp		\
+	models/interface_tree_model.cpp			\
+	models/numeric_value_chooser_delegate.cpp	\
+	models/packet_list_model.cpp			\
+	models/packet_list_record.cpp			\
+	models/path_chooser_delegate.cpp		\
+	models/percent_bar_delegate.cpp			\
+	models/related_packet_delegate.cpp		\
+	models/sparkline_delegate.cpp			\
+	models/timeline_delegate.cpp			\
+	models/uat_model.cpp				\
+	models/uat_delegate.cpp				\
+	models/voip_calls_info_model.cpp
+
 WIRESHARK_QT_SRC = \
 	about_dialog.cpp				\
 	accordion_frame.cpp				\
@@ -492,7 +516,6 @@ WIRESHARK_QT_SRC = \
 	bluetooth_hci_summary_dialog.cpp		\
 	byte_view_tab.cpp				\
 	byte_view_text.cpp				\
-	cache_proxy_model.cpp				\
 	capture_file.cpp				\
 	capture_file_dialog.cpp				\
 	capture_file_properties_dialog.cpp		\
@@ -531,9 +554,6 @@ WIRESHARK_QT_SRC = \
 	interface_frame.cpp				\
 	interface_toolbar.cpp				\
 	interface_toolbar_reader.cpp			\
-	interface_tree_model.cpp			\
-	interface_tree_cache_model.cpp			\
-	interface_sort_filter_model.cpp			\
 	layout_preferences_frame.cpp			\
 	lbm_lbtrm_transport_dialog.cpp			\
 	lbm_lbtru_transport_dialog.cpp			\
@@ -549,16 +569,11 @@ WIRESHARK_QT_SRC = \
 	main_window_slots.cpp				\
 	manage_interfaces_dialog.cpp			\
 	module_preferences_scroll_area.cpp		\
-	numeric_value_chooser_delegate.cpp		\
 	packet_comment_dialog.cpp			\
 	packet_dialog.cpp				\
 	packet_format_group_box.cpp			\
 	packet_list.cpp					\
-	packet_list_model.cpp				\
-	packet_list_record.cpp				\
 	packet_range_group_box.cpp			\
-	path_chooser_delegate.cpp			\
-	percent_bar_delegate.cpp			\
 	preference_editor_frame.cpp			\
 	preferences_dialog.cpp				\
 	print_dialog.cpp				\
@@ -568,7 +583,6 @@ WIRESHARK_QT_SRC = \
 	protocol_hierarchy_dialog.cpp			\
 	protocol_preferences_menu.cpp			\
 	recent_file_status.cpp				\
-	related_packet_delegate.cpp			\
 	remote_capture_dialog.cpp			\
 	remote_settings_dialog.cpp			\
 	resolved_addresses_dialog.cpp			\
@@ -591,27 +605,23 @@ WIRESHARK_QT_SRC = \
 	show_packet_bytes_dialog.cpp			\
 	simple_dialog.cpp				\
 	simple_statistics_dialog.cpp			\
-	sparkline_delegate.cpp				\
 	splash_overlay.cpp				\
 	supported_protocols_dialog.cpp			\
 	tabnav_tree_widget.cpp				\
 	tap_parameter_dialog.cpp			\
 	tcp_stream_dialog.cpp				\
 	time_shift_dialog.cpp				\
-	timeline_delegate.cpp				\
 	traffic_table_dialog.cpp			\
-	uat_delegate.cpp				\
 	uat_dialog.cpp					\
 	uat_frame.cpp					\
-	uat_model.cpp					\
 	voip_calls_dialog.cpp				\
-	voip_calls_info_model.cpp			\
 	wireless_frame.cpp				\
 	wireless_timeline.cpp				\
 	wireshark_application.cpp			\
 	wireshark_dialog.cpp				\
 	$(WIRESHARK_QT_WIDGET_SRC)			\
-	$(WIRESHARK_QT_UTILS_SRC)
+	$(WIRESHARK_QT_UTILS_SRC)			\
+	${WIRESHARK_QT_MODELS_SRCS}
 
 WIRESHARK_QT_TAP_SRC = \
 	expert_info_dialog.cpp			\
@@ -630,8 +640,8 @@ WIRESHARK_QT_TAP_SRC = \
 
 noinst_HEADERS = \
 	$(MOC_HDRS)			\
-	packet_list_record.h		\
 	simple_dialog.h			\
+	models/packet_list_record.h	\
 	widgets/qcustomplot.h		\
 	utils/qt_ui_utils.h		\
 	utils/stock_icon.h		\

@@ -21,7 +21,7 @@
  */
 
 
-#include "ui/qt/interface_tree_cache_model.h"
+#include <ui/qt/models/interface_tree_cache_model.h>
 
 #include "glib.h"
 
@@ -34,6 +34,8 @@
 #include "wiretap/wtap.h"
 
 #include "wireshark_application.h"
+
+#include <QIdentityProxyModel>
 
 InterfaceTreeCacheModel::InterfaceTreeCacheModel(QObject *parent) :
     QIdentityProxyModel(parent)
@@ -616,4 +618,3 @@ void InterfaceTreeCacheModel::deleteDevice(const QModelIndex &index)
  * ex: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-

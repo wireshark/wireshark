@@ -57,7 +57,7 @@
 #include <QToolTip>
 
 #include "packet_list.h"
-#include "packet_list_model.h"
+#include <ui/qt/models/packet_list_model.h>
 
 #include "ui/main_statusbar.h"
 

@@ -25,7 +25,7 @@
 #include <QMenu>
 
 #include "filter_action.h"
-#include <ui/qt/percent_bar_delegate.h>
+#include <ui/qt/models/percent_bar_delegate.h>
 #include "wireshark_dialog.h"
 
 class QPushButton;

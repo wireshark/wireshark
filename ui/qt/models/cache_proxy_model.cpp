@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "cache_proxy_model.h"
+#include <ui/qt/models/cache_proxy_model.h>
 
 CacheProxyModel::CacheProxyModel(QObject *parent) : QIdentityProxyModel(parent)
 {

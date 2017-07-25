@@ -25,9 +25,9 @@
 
 #include "caputils/capture_ifinfo.h"
 #include "ui/qt/interface_frame.h"
-#include "ui/qt/interface_tree_model.h"
+#include <ui/qt/models/interface_tree_model.h>
 
-#include <ui/qt/sparkline_delegate.h>
+#include <ui/qt/models/sparkline_delegate.h>
 #include "wireshark_application.h"
 
 #ifdef HAVE_EXTCAP

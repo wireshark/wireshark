@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "related_packet_delegate.h"
+#include <ui/qt/models/related_packet_delegate.h>
 #include "packet_list_record.h"
 
 #include <ui/qt/utils/color_utils.h>

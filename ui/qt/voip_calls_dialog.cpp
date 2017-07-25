@@ -34,7 +34,7 @@
 #include "sequence_dialog.h"
 #include <ui/qt/utils/stock_icon.h>
 #include "wireshark_application.h"
-#include "voip_calls_info_model.h"
+#include <ui/qt/models/voip_calls_info_model.h>
 
 #include <QClipboard>
 #include <QContextMenuEvent>

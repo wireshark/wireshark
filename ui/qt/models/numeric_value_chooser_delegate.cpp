@@ -22,7 +22,7 @@
 
 #include "config.h"
 
-#include "ui/qt/numeric_value_chooser_delegate.h"
+#include <ui/qt/models/numeric_value_chooser_delegate.h>
 
 #include <QStyledItemDelegate>
 #include <QSpinBox>

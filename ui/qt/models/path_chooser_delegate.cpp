@@ -25,7 +25,7 @@
 #include "epan/prefs.h"
 #include "ui/last_open_dir.h"
 
-#include "ui/qt/path_chooser_delegate.h"
+#include <ui/qt/models/path_chooser_delegate.h>
 
 #include <QHBoxLayout>
 #include <QPushButton>

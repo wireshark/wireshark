@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "percent_bar_delegate.h"
+#include <ui/qt/models/percent_bar_delegate.h>
 
 #include <ui/qt/utils/color_utils.h>
 

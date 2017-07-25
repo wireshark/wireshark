@@ -22,7 +22,7 @@
 
 #include "config.h"
 
-#include "interface_tree_model.h"
+#include <ui/qt/models/interface_tree_model.h>
 
 #ifdef HAVE_LIBPCAP
 #include "ui/capture.h"
@@ -39,7 +39,7 @@
 #include "wireshark_application.h"
 
 /* Needed for the meta type declaration of QList<int>* */
-#include <ui/qt/sparkline_delegate.h>
+#include <ui/qt/models/sparkline_delegate.h>
 
 #ifdef HAVE_EXTCAP
 #include "extcap.h"

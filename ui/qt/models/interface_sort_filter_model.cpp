@@ -20,9 +20,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "ui/qt/interface_tree_model.h"
-#include "ui/qt/interface_tree_cache_model.h"
-#include "ui/qt/interface_sort_filter_model.h"
+#include <ui/qt/models/interface_tree_model.h>
+#include <ui/qt/models/interface_tree_cache_model.h>
+#include <ui/qt/models/interface_sort_filter_model.h>
 
 #include <glib.h>
 

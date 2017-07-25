@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "sparkline_delegate.h"
+#include <ui/qt/models/sparkline_delegate.h>
 
 #include <QPainter>
 #include <QApplication>
