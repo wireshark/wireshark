@@ -4294,7 +4294,7 @@ dissect_epl_sdo_command_write_multiple_by_index(struct epl_convo *convo, proto_t
 				if ( remlength < EPL_SOA_EPLV_OFFSET )
 					break;
 
-				size = remlength - EPL_SOA_EPLV_OFFSET;
+				size = remlength - EPL_SOA_EPLV_OFFSET - padding;
 				lastentry = TRUE;
 			}
 			else
@@ -4636,7 +4636,7 @@ dissect_epl_sdo_command_read_multiple_by_index(struct epl_convo *convo, proto_tr
 				if ( remlength < EPL_SOA_EPLV_OFFSET )
 					break;
 
-				size = remlength - EPL_SOA_EPLV_OFFSET;
+				size = remlength - EPL_SOA_EPLV_OFFSET - padding;
 				lastentry = TRUE;
 			}
 			else
