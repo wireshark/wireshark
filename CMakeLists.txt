@@ -2726,9 +2726,6 @@ if(ENABLE_EXTCAP AND BUILD_sshdump AND LIBSSH_FOUND)
 		${CMAKE_DL_LIBS}
 		${LIBSSH_LIBRARIES}
 	)
-	if (WIN32)
-		set(sshdump_LIBS wsutil ${sshdump_LIBS})
-	endif()
 	set(sshdump_FILES
 		extcap/sshdump.c
 		extcap/extcap-base.c
@@ -2752,9 +2749,6 @@ if(ENABLE_EXTCAP AND BUILD_ciscodump AND LIBSSH_FOUND)
 		${CMAKE_DL_LIBS}
 		${LIBSSH_LIBRARIES}
 	)
-	if (WIN32)
-		set(ciscodump_LIBS wsutil ${ciscodump_LIBS})
-	endif()
 	set(ciscodump_FILES
 		extcap/ciscodump.c
 		extcap/extcap-base.c
