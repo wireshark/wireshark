@@ -238,4 +238,3 @@ tendency to re-use known port numbers for new protocols. But TCP and UDP are
 not the only dissectors that provide support for HDs.  You can find more
 examples by searching the Wireshark sources as follows:
 grep -l register_heur_dissector_list epan/dissectors/packet-*.c
-returns 45 files (November 2014).
