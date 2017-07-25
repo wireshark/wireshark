@@ -32,6 +32,7 @@
 #include "cfile.h"
 
 #include <epan/packet.h>
+#include <epan/dissectors/packet-dcerpc.h>
 
 class DecodeAsItem
 {
@@ -46,6 +47,7 @@ public:
     //between (lack of) persistent data in GUI and underlying data
     uint selectorUint_;
     QString selectorString_;
+    decode_dcerpc_bind_values_t* selectorDCERPC_; //for special handling of DCE/RPC
 
     QString default_proto_;
     QString current_proto_;
