@@ -161,6 +161,7 @@ void proto_reg_handoff_netflow(void);
 #define IPFIX_UDP_PORTS   "4739"
 #define REVPEN            29305
 static dissector_handle_t netflow_handle;
+static dissector_handle_t netflow_tcp_handle;
 
 /* If you want sort of safely to send enterprise specific element IDs
    using v9 you need to stake a claim in the wilds with the high bit
@@ -176,6 +177,8 @@ static range_t *global_netflow_ports = NULL;
  *  global_ipfix_ports : holds the configured range of ports for IPFIX
  */
 static range_t *global_ipfix_ports = NULL;
+
+static gboolean netflow_preference_desegment = TRUE;
 
 /*
  * Flowset (template) ID's
@@ -16629,11 +16632,36 @@ proto_register_netflow(void)
                                    " (default: " G_STRINGIFY(V9_TMPLT_MAX_FIELDS_DEF) ")",
                                    10, &v9_tmplt_max_fields);
 
+    prefs_register_bool_preference(netflow_module, "desegment", "Reassemble Netflow v10 messages spanning multiple TCP segments.", "Whether the Netflow/Ipfix dissector should reassemble messages spanning multiple TCP segments.  To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.", &netflow_preference_desegment);
+
     v9_v10_tmplt_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), v9_v10_tmplt_table_hash, v9_v10_tmplt_table_equal);
     netflow_sequence_analysis_domain_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
     netflow_sequence_analysis_result_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 }
 
+static guint
+get_netflow_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+{
+    unsigned int    ver;
+    guint16         plen;
+
+    ver = tvb_get_ntohs(tvb, offset);
+    if (ver == 10) {
+        plen = tvb_get_ntohs(tvb, offset+2);
+    } else {
+        plen = tvb_reported_length(tvb);
+    }
+
+  return plen;
+}
+
+static int
+dissect_tcp_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+  tcp_dissect_pdus(tvb, pinfo, tree, netflow_preference_desegment, 4, get_netflow_pdu_len,
+                   dissect_netflow, data);
+  return tvb_reported_length(tvb);
+}
 
 /*
  * protocol/port association
@@ -16665,9 +16693,10 @@ proto_reg_handoff_netflow(void)
 
     if (!netflow_prefs_initialized) {
         netflow_handle = create_dissector_handle(dissect_netflow, proto_netflow);
+        netflow_tcp_handle = create_dissector_handle(dissect_tcp_netflow, proto_netflow);
         netflow_prefs_initialized = TRUE;
         dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IPFIX, netflow_handle);
-        dissector_add_uint_range_with_preference("tcp.port", IPFIX_UDP_PORTS, netflow_handle);
+        dissector_add_uint_range_with_preference("tcp.port", IPFIX_UDP_PORTS, netflow_tcp_handle);
     } else {
         dissector_delete_uint_range("udp.port", netflow_ports, netflow_handle);
         wmem_free(wmem_epan_scope(), netflow_ports);
