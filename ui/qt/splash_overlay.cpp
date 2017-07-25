@@ -27,7 +27,7 @@
 
 #include "ui/util.h"
 #include <wsutil/utf8_entities.h>
-#include "tango_colors.h"
+#include <ui/qt/utils/tango_colors.h>
 
 #ifdef HAVE_LUA
 #include "epan/wslua/init_wslua.h"

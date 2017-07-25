@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "stock_icon.h"
+#include <ui/qt/utils/stock_icon.h>
 
 // Stock icons. Based on gtk/stock_icons.h
 

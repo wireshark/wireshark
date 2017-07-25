@@ -36,7 +36,7 @@
 #include <QVariant>
 
 #include <epan/prefs.h>
-#include <color_utils.h>
+#include <ui/qt/utils/color_utils.h>
 
 #include <ui/all_files_wildcard.h>
 

@@ -51,10 +51,10 @@
 #include <epan/color_filters.h>
 #include "frame_tvbuff.h"
 
-#include "color_utils.h"
+#include <ui/qt/utils/color_utils.h>
 #include <ui/qt/widgets/overlay_scroll_bar.h>
 #include "proto_tree.h"
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 #include "wireshark_application.h"
 
 #include <QAction>

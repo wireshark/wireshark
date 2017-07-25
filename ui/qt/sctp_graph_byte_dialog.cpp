@@ -29,7 +29,7 @@
 
 #include "ui/tap-sctp-analysis.h"
 
-#include "qcustomplot.h"
+#include <ui/qt/widgets/qcustomplot.h>
 #include "sctp_graph_dialog.h"
 #include "sctp_assoc_analyse_dialog.h"
 

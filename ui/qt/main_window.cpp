@@ -74,15 +74,15 @@ DIAG_ON(frame-larger-than=)
 #include "wireless_timeline.h"
 #include "proto_tree.h"
 #include "simple_dialog.h"
-#include "stock_icon.h"
+#include <ui/qt/utils/stock_icon.h>
 #include "tap_parameter_dialog.h"
 #include "wireless_frame.h"
 #include "wireshark_application.h"
 
 #include <ui/qt/widgets/additional_toolbar.h>
-#include "variant_pointer.h"
+#include <ui/qt/utils/variant_pointer.h>
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 
 #include <ui/qt/widgets/drag_drop_toolbar.h>
 

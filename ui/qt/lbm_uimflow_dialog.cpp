@@ -37,7 +37,7 @@
 
 #include <wsutil/utf8_entities.h>
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 #include "sequence_diagram.h"
 #include "wireshark_application.h"
 

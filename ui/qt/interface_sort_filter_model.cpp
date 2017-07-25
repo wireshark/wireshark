@@ -28,7 +28,7 @@
 
 #include <epan/prefs.h>
 #include <ui/preference_utils.h>
-#include <ui/qt/qt_ui_utils.h>
+#include <ui/qt/utils/qt_ui_utils.h>
 
 #include "wireshark_application.h"
 

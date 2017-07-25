@@ -26,7 +26,7 @@
 #include <glib.h>
 
 #include "ui/voip_calls.h"
-#include "variant_pointer.h"
+#include <ui/qt/utils/variant_pointer.h>
 
 #include <QAbstractTableModel>
 #include <QSortFilterProxyModel>

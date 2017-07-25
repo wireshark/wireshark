@@ -29,10 +29,10 @@
 
 #include <wsutil/utf8_entities.h>
 
-#include "display_filter_edit.h"
+#include <ui/qt/widgets/display_filter_edit.h>
 #include "filter_dialog.h"
-#include "stock_icon_tool_button.h"
-#include "syntax_line_edit.h"
+#include <ui/qt/widgets/stock_icon_tool_button.h>
+#include <ui/qt/widgets/syntax_line_edit.h>
 
 #include <QAction>
 #include <QAbstractItemView>
@@ -51,41 +51,6 @@
 // - We need simplified (button- and dropdown-free) versions for use in dialogs and field-only checking.
 // - Add a separator or otherwise distinguish between recent items and fields
 //   in the completion dropdown.
-
-#if defined(Q_OS_MAC) && 0
-// http://developer.apple.com/library/mac/#documentation/Cocoa/Reference/ApplicationKit/Classes/NSImage_Class/Reference/Reference.html
-// http://www.virtualbox.org/svn/vbox/trunk/src/VBox/Frontends/VirtualBox/src/platform/darwin/UICocoaSpecialControls.mm
-
-class UIMiniCancelButton: public QAbstractButton
-{
-    Q_OBJECT;
-
-public:
-    UIMiniCancelButton(QWidget *pParent = 0);
-
-    void setText(const QString &strText) { m_pButton->setText(strText); }
-    void setToolTip(const QString &strTip) { m_pButton->setToolTip(strTip); }
-    void removeBorder() {}
-
-protected:
-    void paintEvent(QPaintEvent * /* pEvent */) {}
-    void resizeEvent(QResizeEvent *pEvent);
-
-private:
-    UICocoaButton *m_pButton;
-};
-
-UIMiniCancelButton::UIMiniCancelButton(QWidget *pParent /* = 0 */)
-  : QAbstractButton(pParent)
-{
-    setShortcut(QKeySequence(Qt::Key_Escape));
-    m_pButton = new UICocoaButton(UICocoaButton::CancelButton, this);
-    connect(m_pButton, SIGNAL(clicked()),
-            this, SIGNAL(clicked()));
-    setFixedSize(m_pButton->size());
-}
-
-#endif
 
 #ifdef __APPLE__
 #define DEFAULT_MODIFIER UTF8_PLACE_OF_INTEREST_SIGN

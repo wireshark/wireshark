@@ -25,7 +25,7 @@
 #include <QLabel>
 #include <QLineEdit>
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 #include "wireshark_application.h"
 
 // Helper object used for sending close signal to open dialogs from a C function

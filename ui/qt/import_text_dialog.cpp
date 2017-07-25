@@ -41,7 +41,7 @@
 
 #include <ui_import_text_dialog.h>
 #include "wireshark_application.h"
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 
 #include <QFileDialog>
 #include <QDebug>

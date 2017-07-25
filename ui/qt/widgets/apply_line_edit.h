@@ -25,7 +25,7 @@
 #include <QLineEdit>
 #include <QString>
 
-#include <ui/qt/stock_icon_tool_button.h>
+#include <ui/qt/widgets/stock_icon_tool_button.h>
 
 class ApplyLineEdit : public QLineEdit
 {

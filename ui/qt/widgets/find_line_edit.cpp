@@ -19,8 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "find_line_edit.h"
-#include "color_utils.h"
+#include <ui/qt/widgets/find_line_edit.h>
+#include <ui/qt/utils/color_utils.h>
 #include "epan/prefs.h"
 
 #include <QAction>

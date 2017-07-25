@@ -23,7 +23,7 @@
 #include <ui_sctp_all_assocs_dialog.h>
 #include "sctp_assoc_analyse_dialog.h"
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 //#include "wireshark_application.h"
 #include "file.h"
 #include "ui/qt/main_window.h"

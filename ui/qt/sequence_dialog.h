@@ -32,7 +32,7 @@
 
 #include "ui/tap-sequence-analysis.h"
 
-#include "qcustomplot.h"
+#include <ui/qt/widgets/qcustomplot.h>
 #include "wireshark_dialog.h"
 
 #include <QMenu>

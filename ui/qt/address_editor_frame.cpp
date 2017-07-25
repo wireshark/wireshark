@@ -35,7 +35,7 @@
 
 #include <QPushButton>
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 
 // To do:
 // - Fill in currently resolved address.

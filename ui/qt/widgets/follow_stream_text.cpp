@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "follow_stream_text.h"
+#include <ui/qt/widgets/follow_stream_text.h>
 
 #include <wireshark_application.h>
 

@@ -27,7 +27,7 @@
 
 #include "epan/prefs.h"
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 #include "ui/capture_globals.h"
 #include "wsutil/utf8_entities.h"
 

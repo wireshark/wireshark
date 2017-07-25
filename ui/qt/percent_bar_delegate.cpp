@@ -21,7 +21,7 @@
 
 #include "percent_bar_delegate.h"
 
-#include "color_utils.h"
+#include <ui/qt/utils/color_utils.h>
 
 #include <QApplication>
 #include <QPainter>

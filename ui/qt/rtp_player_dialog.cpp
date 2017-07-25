@@ -28,11 +28,11 @@
 
 #include <wsutil/utf8_entities.h>
 
-#include "color_utils.h"
-#include "qcustomplot.h"
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/color_utils.h>
+#include <ui/qt/widgets/qcustomplot.h>
+#include <ui/qt/utils/qt_ui_utils.h>
 #include "rtp_audio_stream.h"
-#include "tango_colors.h"
+#include <ui/qt/utils/tango_colors.h>
 
 #include <QAudio>
 #include <QAudioDeviceInfo>
@@ -44,7 +44,7 @@
 
 #include <QPushButton>
 
-#include "stock_icon.h"
+#include <ui/qt/utils/stock_icon.h>
 #include "wireshark_application.h"
 
 // To do:

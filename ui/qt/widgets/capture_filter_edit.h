@@ -24,7 +24,7 @@
 
 #include <QThread>
 #include <QToolButton>
-#include "syntax_line_edit.h"
+#include <ui/qt/widgets/syntax_line_edit.h>
 
 class CaptureFilterSyntaxWorker;
 class StockIconToolButton;

@@ -28,9 +28,9 @@
 #include <epan/dfilter/dfilter.h>
 #include <epan/column-info.h>
 
-#include "syntax_line_edit.h"
+#include <ui/qt/widgets/syntax_line_edit.h>
 
-#include "color_utils.h"
+#include <ui/qt/utils/color_utils.h>
 
 #include <QAbstractItemView>
 #include <QCompleter>

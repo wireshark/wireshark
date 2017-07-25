@@ -29,10 +29,10 @@
 
 #include <wsutil/utf8_entities.h>
 
-#include "field_filter_edit.h"
+#include <ui/qt/widgets/field_filter_edit.h>
 #include "filter_dialog.h"
-#include "stock_icon_tool_button.h"
-#include "syntax_line_edit.h"
+#include <ui/qt/widgets/stock_icon_tool_button.h>
+#include <ui/qt/widgets/syntax_line_edit.h>
 
 #include <QAction>
 #include <QCompleter>

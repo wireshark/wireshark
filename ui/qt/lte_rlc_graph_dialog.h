@@ -25,7 +25,7 @@
 #include "wireshark_dialog.h"
 #include <ui/tap-rlc-graph.h>
 
-#include "qcustomplot.h"
+#include <ui/qt/widgets/qcustomplot.h>
 
 class QMenu;
 class QRubberBand;

@@ -39,7 +39,7 @@
 #include "ui/ui_util.h"
 #include <wsutil/utf8_entities.h>
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 
 #include "wireshark_application.h"
 
@@ -49,7 +49,7 @@
 
 #include "ui/capture_ui_utils.h"
 
-#include "ui/qt/path_chooser_delegate.h"
+#include <ui/qt/path_chooser_delegate.h>
 
 #include <QCheckBox>
 #include <QFileDialog>

@@ -26,7 +26,7 @@
 #include <QPushButton>
 #include <QTreeWidget>
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/widgets/syntax_line_edit.h>
 #include "wireshark_application.h"
 

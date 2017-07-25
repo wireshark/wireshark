@@ -22,7 +22,7 @@
 #include "bluetooth_att_server_attributes_dialog.h"
 #include <ui_bluetooth_att_server_attributes_dialog.h>
 
-#include "color_utils.h"
+#include <ui/qt/utils/color_utils.h>
 
 #include "epan/epan.h"
 #include "epan/to_str.h"

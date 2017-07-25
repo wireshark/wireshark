@@ -25,7 +25,7 @@
 #include "wireshark_application.h"
 
 #include <ui/time_shift.h>
-#include "tango_colors.h"
+#include <ui/qt/utils/tango_colors.h>
 
 
 TimeShiftDialog::TimeShiftDialog(QWidget *parent, capture_file *cf) :

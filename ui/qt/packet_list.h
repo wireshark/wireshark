@@ -27,7 +27,7 @@
 #include "preferences_dialog.h"
 #include "proto_tree.h"
 #include "protocol_preferences_menu.h"
-#include "related_packet_delegate.h"
+#include <ui/qt/related_packet_delegate.h>
 
 #include <QMenu>
 #include <QTime>

@@ -31,8 +31,8 @@
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 
-#include "percent_bar_delegate.h"
-#include "qt_ui_utils.h"
+#include <ui/qt/percent_bar_delegate.h>
+#include <ui/qt/utils/qt_ui_utils.h>
 #include "wireshark_application.h"
 
 

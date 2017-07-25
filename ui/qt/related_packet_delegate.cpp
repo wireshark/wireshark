@@ -22,7 +22,7 @@
 #include "related_packet_delegate.h"
 #include "packet_list_record.h"
 
-#include "color_utils.h"
+#include <ui/qt/utils/color_utils.h>
 
 #include <QApplication>
 #include <QPainter>

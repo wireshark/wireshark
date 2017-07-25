@@ -35,7 +35,7 @@
 #include <epan/guid-utils.h>
 #include <epan/srt_table.h>
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 
 #include <QComboBox>
 #include <QHBoxLayout>

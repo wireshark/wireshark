@@ -25,9 +25,9 @@
 
 #include "epan/stats_tree_priv.h"
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 
-#include <ui/qt/variant_pointer.h>
+#include <ui/qt/utils/variant_pointer.h>
 
 #include <QHeaderView>
 #include <QMessageBox>

@@ -28,7 +28,7 @@
 #include "ui/help_url.h"
 #include <wsutil/report_message.h>
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 
 #include <QDesktopServices>
 #include <QPushButton>

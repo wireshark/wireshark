@@ -33,7 +33,7 @@
 #include "protocol_preferences_menu.h"
 
 #include "enabled_protocols_dialog.h"
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 #include "uat_dialog.h"
 #include "wireshark_application.h"
 

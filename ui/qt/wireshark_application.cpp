@@ -49,8 +49,8 @@
 #include "ui/simple_dialog.h"
 #include "ui/util.h"
 
-#include "qt_ui_utils.h"
-#include "color_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/color_utils.h>
 #include "coloring_rules_dialog.h"
 
 #include "epan/color_filters.h"

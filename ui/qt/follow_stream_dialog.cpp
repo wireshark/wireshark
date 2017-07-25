@@ -44,10 +44,10 @@
 
 #include "ws_symbol_export.h"
 
-#include "color_utils.h"
+#include <ui/qt/utils/color_utils.h>
 
 #include "progress_frame.h"
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 
 #include <QElapsedTimer>
 #include <QKeyEvent>

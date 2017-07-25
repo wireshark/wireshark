@@ -19,14 +19,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "label_stack.h"
+#include <ui/qt/widgets/label_stack.h>
 
 #include <QContextMenuEvent>
 #include <QPainter>
 #include <QMouseEvent>
 #include <QStyleOption>
 
-#include "tango_colors.h"
+#include <ui/qt/utils/tango_colors.h>
 
 /* Temporary message timeouts */
 const int temporary_interval_ = 1000;

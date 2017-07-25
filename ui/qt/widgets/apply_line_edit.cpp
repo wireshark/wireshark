@@ -23,7 +23,7 @@
 
 #include <epan/prefs.h>
 
-#include <ui/qt/color_utils.h>
+#include <ui/qt/utils/color_utils.h>
 
 #include <QRegExp>
 #include <QRegExpValidator>

@@ -33,7 +33,7 @@
 #include <QVariant>
 
 #include <epan/prefs.h>
-#include <color_utils.h>
+#include <ui/qt/utils/color_utils.h>
 
 #include <extcap_parser.h>
 #include <extcap_argument_multiselect.h>

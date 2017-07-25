@@ -49,7 +49,7 @@
 #include <extcap.h>
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
-#include <color_utils.h>
+#include <ui/qt/utils/color_utils.h>
 
 #include <extcap_parser.h>
 #include <extcap_argument_file.h>

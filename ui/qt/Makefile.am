@@ -150,6 +150,7 @@ NODIST_GENERATED_FILES = \
 # Files that generate compileable files
 GENERATOR_FILES =
 
+# Files that are basic widgets for every tool to be used
 MOC_WIDGET_HDRS = \
 	widgets/additional_toolbar.h			\
 	widgets/apply_line_edit.h			\
@@ -166,8 +167,16 @@ MOC_WIDGET_HDRS = \
 	widgets/label_stack.h				\
 	widgets/overlay_scroll_bar.h			\
 	widgets/syntax_line_edit.h			\
+	widgets/stock_icon_tool_button.h		\
 	widgets/tabnav_tree_view.h			\
-	widgets/drag_drop_toolbar.h
+	widgets/drag_drop_toolbar.h			\
+	widgets/qcustomplot.h
+# Files that are utility classes with multi-purpose, but no widgets
+MOC_UTILS_HDRS = \
+	utils/color_utils.h				\
+	utils/stock_icon.h				\
+	utils/qt_ui_utils.h				\
+	utils/variant_pointer.h
 
 #
 # Headers that have to be run through moc.
@@ -191,7 +200,6 @@ MOC_HDRS = \
 	capture_interfaces_dialog.h			\
 	capture_preferences_frame.h			\
 	coloring_rules_dialog.h				\
-	color_utils.h					\
 	column_preferences_frame.h			\
 	column_editor_frame.h				\
 	compiled_filter_output.h			\
@@ -262,7 +270,6 @@ MOC_HDRS = \
 	proto_tree.h					\
 	protocol_hierarchy_dialog.h			\
 	protocol_preferences_menu.h			\
-	qcustomplot.h					\
 	recent_file_status.h				\
 	related_packet_delegate.h			\
 	remote_capture_dialog.h				\
@@ -290,7 +297,6 @@ MOC_HDRS = \
 	sparkline_delegate.h				\
 	splash_overlay.h				\
 	stats_tree_dialog.h				\
-	stock_icon_tool_button.h			\
 	supported_protocols_dialog.h			\
 	tabnav_tree_widget.h				\
 	tap_parameter_dialog.h				\
@@ -309,7 +315,8 @@ MOC_HDRS = \
 	wireshark_application.h				\
 	wireshark_dialog.h				\
 	wlan_statistics_dialog.h			\
-	$(MOC_WIDGET_HDRS)
+	$(MOC_WIDGET_HDRS)				\
+	$(MOC_UTILS_HDRS)
 
 #
 # .ui files.
@@ -457,17 +464,23 @@ WIRESHARK_QT_WIDGET_SRC = \
 	widgets/clickable_label.cpp			\
 	widgets/display_filter_combo.cpp		\
 	widgets/display_filter_edit.cpp			\
-	widgets/elided_label.cpp				\
+	widgets/elided_label.cpp			\
 	widgets/field_filter_edit.cpp			\
 	widgets/find_line_edit.cpp			\
 	widgets/follow_stream_text.cpp			\
 	widgets/interface_toolbar_lineedit.cpp		\
 	widgets/label_stack.cpp				\
 	widgets/overlay_scroll_bar.cpp			\
+	widgets/stock_icon_tool_button.cpp		\
 	widgets/syntax_line_edit.cpp			\
 	widgets/tabnav_tree_view.cpp			\
-	widgets/drag_drop_toolbar.cpp
+	widgets/drag_drop_toolbar.cpp			\
+	widgets/qcustomplot.cpp
 
+WIRESHARK_QT_UTILS_SRC = \
+	utils/color_utils.cpp				\
+	utils/stock_icon.cpp				\
+	utils/qt_ui_utils.cpp				\
 
 WIRESHARK_QT_SRC = \
 	about_dialog.cpp				\
@@ -487,7 +500,6 @@ WIRESHARK_QT_SRC = \
 	capture_info_dialog.cpp				\
 	capture_interfaces_dialog.cpp			\
 	capture_preferences_frame.cpp			\
-	color_utils.cpp					\
 	coloring_rules_dialog.cpp			\
 	column_preferences_frame.cpp			\
 	column_editor_frame.cpp				\
@@ -555,8 +567,6 @@ WIRESHARK_QT_SRC = \
 	proto_tree.cpp					\
 	protocol_hierarchy_dialog.cpp			\
 	protocol_preferences_menu.cpp			\
-	qcustomplot.cpp					\
-	qt_ui_utils.cpp					\
 	recent_file_status.cpp				\
 	related_packet_delegate.cpp			\
 	remote_capture_dialog.cpp			\
@@ -583,8 +593,6 @@ WIRESHARK_QT_SRC = \
 	simple_statistics_dialog.cpp			\
 	sparkline_delegate.cpp				\
 	splash_overlay.cpp				\
-	stock_icon.cpp					\
-	stock_icon_tool_button.cpp			\
 	supported_protocols_dialog.cpp			\
 	tabnav_tree_widget.cpp				\
 	tap_parameter_dialog.cpp			\
@@ -602,7 +610,8 @@ WIRESHARK_QT_SRC = \
 	wireless_timeline.cpp				\
 	wireshark_application.cpp			\
 	wireshark_dialog.cpp				\
-	$(WIRESHARK_QT_WIDGET_SRC)
+	$(WIRESHARK_QT_WIDGET_SRC)			\
+	$(WIRESHARK_QT_UTILS_SRC)
 
 WIRESHARK_QT_TAP_SRC = \
 	expert_info_dialog.cpp			\
@@ -620,14 +629,14 @@ WIRESHARK_QT_TAP_SRC = \
 	wlan_statistics_dialog.cpp
 
 noinst_HEADERS = \
-	$(MOC_HDRS)		\
-	packet_list_record.h	\
-	qcustomplot.h		\
-	qt_ui_utils.h		\
-	simple_dialog.h		\
-	stock_icon.h		\
-	tango_colors.h		\
-	variant_pointer.h
+	$(MOC_HDRS)			\
+	packet_list_record.h		\
+	simple_dialog.h			\
+	widgets/qcustomplot.h		\
+	utils/qt_ui_utils.h		\
+	utils/stock_icon.h		\
+	utils/tango_colors.h		\
+	utils/variant_pointer.h
 
 if HAVE_EXTCAP
 NODIST_GENERATED_HEADER_FILES += \

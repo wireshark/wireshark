@@ -32,10 +32,9 @@
 
 #include "main_welcome.h"
 #include <ui_main_welcome.h>
-#include "tango_colors.h"
-
-#include "color_utils.h"
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/tango_colors.h>
+#include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/qt_ui_utils.h>
 #include "wireshark_application.h"
 
 #include <QClipboard>

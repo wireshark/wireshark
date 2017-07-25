@@ -94,7 +94,7 @@
 #include "ui/capture_ui_utils.h"
 
 #include "ui/qt/conversation_dialog.h"
-#include "ui/qt/color_utils.h"
+#include "ui/qt/utils/color_utils.h"
 #include "ui/qt/coloring_rules_dialog.h"
 #include "ui/qt/endpoint_dialog.h"
 #include "ui/qt/main_window.h"

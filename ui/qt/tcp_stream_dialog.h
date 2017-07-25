@@ -32,7 +32,7 @@
 
 #include "ui/tap-tcp-stream.h"
 
-#include "qcustomplot.h"
+#include <ui/qt/widgets/qcustomplot.h>
 #include <QDialog>
 #include <QMenu>
 #include <QRubberBand>

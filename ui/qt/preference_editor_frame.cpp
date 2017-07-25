@@ -33,7 +33,7 @@
 #include "preference_editor_frame.h"
 #include <ui_preference_editor_frame.h>
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 #include <wsutil/utf8_entities.h>
 
 #include "wireshark_application.h"

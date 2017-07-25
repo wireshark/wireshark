@@ -30,7 +30,7 @@
 
 #include <QMenu>
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 
 ExportObjectAction::ExportObjectAction(QObject *parent, register_eo_t *eo) :
     QAction(parent),

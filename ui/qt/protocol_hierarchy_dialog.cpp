@@ -26,11 +26,11 @@
 
 #include "ui/proto_hier_stats.h"
 
-#include <ui/qt/variant_pointer.h>
+#include <ui/qt/utils/variant_pointer.h>
 
 #include <wsutil/utf8_entities.h>
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 #include "wireshark_application.h"
 
 #include <QClipboard>

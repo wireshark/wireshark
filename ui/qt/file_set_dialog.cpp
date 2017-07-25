@@ -28,7 +28,7 @@
 
 #include "ui/help_url.h"
 
-#include <ui/qt/variant_pointer.h>
+#include <ui/qt/utils/variant_pointer.h>
 
 #include <wsutil/str_util.h>
 

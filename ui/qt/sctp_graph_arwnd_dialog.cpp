@@ -30,7 +30,7 @@
 
 #include "ui/tap-sctp-analysis.h"
 
-#include "qcustomplot.h"
+#include <ui/qt/widgets/qcustomplot.h>
 #include "sctp_graph_dialog.h"
 
 SCTPGraphArwndDialog::SCTPGraphArwndDialog(QWidget *parent, sctp_assoc_info_t *assoc, _capture_file *cf, int dir) :

@@ -29,7 +29,7 @@
 
 #include <QMenu>
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 
 ConversationAction::ConversationAction(QObject *parent, conversation_filter_s *conv_filter) :
     QAction(parent),

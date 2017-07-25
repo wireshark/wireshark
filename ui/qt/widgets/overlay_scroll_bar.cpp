@@ -19,9 +19,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "overlay_scroll_bar.h"
+#include <ui/qt/widgets/overlay_scroll_bar.h>
 
-#include "color_utils.h"
+#include <ui/qt/utils/color_utils.h>
 
 #include <QMouseEvent>
 #include <QPainter>

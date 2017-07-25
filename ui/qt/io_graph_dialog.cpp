@@ -30,14 +30,14 @@
 
 #include <wsutil/utf8_entities.h>
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 
-#include <ui/qt/variant_pointer.h>
+#include <ui/qt/utils/variant_pointer.h>
 
-#include "color_utils.h"
-#include "qcustomplot.h"
+#include <ui/qt/utils/color_utils.h>
+#include <ui/qt/widgets/qcustomplot.h>
 #include "progress_frame.h"
-#include "stock_icon.h"
+#include <ui/qt/utils/stock_icon.h>
 #include <ui/qt/widgets/syntax_line_edit.h>
 #include <ui/qt/widgets/display_filter_edit.h>
 #include <ui/qt/widgets/field_filter_edit.h>

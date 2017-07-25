@@ -57,8 +57,8 @@
 
 #include <wiretap/wtap.h>
 
-#include "qt_ui_utils.h"
-#include "sparkline_delegate.h"
+#include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/sparkline_delegate.h>
 
 // To do:
 // - Set a size hint for item delegates.

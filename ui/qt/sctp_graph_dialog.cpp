@@ -35,7 +35,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-#include "qcustomplot.h"
+#include <ui/qt/widgets/qcustomplot.h>
 #include "wireshark_application.h"
 
 SCTPGraphDialog::SCTPGraphDialog(QWidget *parent, sctp_assoc_info_t *assoc, capture_file *cf, int dir) :

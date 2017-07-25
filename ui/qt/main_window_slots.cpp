@@ -87,7 +87,7 @@ DIAG_ON(frame-larger-than=)
 #include "ui/all_files_wildcard.h"
 #include "ui/qt/simple_dialog.h"
 
-#include <ui/qt/variant_pointer.h>
+#include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/widgets/drag_drop_toolbar.h>
 
 #ifdef HAVE_SOFTWARE_UPDATE
@@ -103,7 +103,7 @@ DIAG_ON(frame-larger-than=)
 #ifdef HAVE_LIBPCAP
 #include "capture_interfaces_dialog.h"
 #endif
-#include "color_utils.h"
+#include <ui/qt/utils/color_utils.h>
 #include "coloring_rules_dialog.h"
 #include "conversation_dialog.h"
 #include "conversation_colorize_action.h"
@@ -147,7 +147,7 @@ DIAG_ON(frame-larger-than=)
 #include "print_dialog.h"
 #include "profile_dialog.h"
 #include "protocol_hierarchy_dialog.h"
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 #include "resolved_addresses_dialog.h"
 #include "rpc_service_response_time_dialog.h"
 #include "rtp_stream_dialog.h"
@@ -158,7 +158,7 @@ DIAG_ON(frame-larger-than=)
 #include "sequence_dialog.h"
 #include "show_packet_bytes_dialog.h"
 #include "stats_tree_dialog.h"
-#include "stock_icon.h"
+#include <ui/qt/utils/stock_icon.h>
 #include "supported_protocols_dialog.h"
 #include "tap_parameter_dialog.h"
 #include "tcp_stream_dialog.h"

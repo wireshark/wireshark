@@ -56,7 +56,7 @@ public:
     static const QList<QRgb> graphColors();
     static QRgb graphColor(int item);
     static QRgb sequenceColor(int item);
-    static QColor byteViewHoverColor(bool background) { return QColor(background ? byte_view_hover_bg_ : byte_view_hover_fg_); }
+    static QColor byteViewHoverColor(bool background);
 
 signals:
 

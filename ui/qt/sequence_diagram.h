@@ -30,7 +30,7 @@
 
 #include <QObject>
 #include <QMultiMap>
-#include "qcustomplot.h"
+#include <ui/qt/widgets/qcustomplot.h>
 
 struct _seq_analysis_info;
 struct _seq_analysis_item;

@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 
 #include <epan/addr_resolv.h>
 #include <epan/range.h>

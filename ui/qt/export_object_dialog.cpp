@@ -28,7 +28,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/str_util.h>
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 #include "wireshark_application.h"
 
 #include <QDialogButtonBox>

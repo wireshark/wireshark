@@ -34,12 +34,12 @@
 
 #include "wsutil/filesystem.h"
 
-#include "qt_ui_utils.h"
-#include "stock_icon.h"
+#include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/stock_icon.h>
 #include "wireshark_application.h"
 
 /* Needed for the meta type declaration of QList<int>* */
-#include "sparkline_delegate.h"
+#include <ui/qt/sparkline_delegate.h>
 
 #ifdef HAVE_EXTCAP
 #include "extcap.h"

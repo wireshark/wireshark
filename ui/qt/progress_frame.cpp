@@ -31,7 +31,7 @@
 #include <QBoxLayout>
 #include <QPropertyAnimation>
 
-#include "stock_icon_tool_button.h"
+#include <ui/qt/widgets/stock_icon_tool_button.h>
 #include "wireshark_application.h"
 
 // To do:

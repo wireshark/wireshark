@@ -54,13 +54,13 @@
 #include <extcap.h>
 #include <extcap_parser.h>
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 
 #include <epan/prefs.h>
 #include <ui/preference_utils.h>
 
 #include <ui/qt/wireshark_application.h>
-#include <ui/qt/variant_pointer.h>
+#include <ui/qt/utils/variant_pointer.h>
 
 #include <ui/qt/extcap_argument.h>
 #include <ui/qt/extcap_argument_file.h>

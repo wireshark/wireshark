@@ -26,7 +26,7 @@
 
 #include <glib.h>
 
-#include "ui/packet_range.h"
+#include <ui/packet_range.h>
 
 #include <ui/qt/widgets/syntax_line_edit.h>
 #include <QGroupBox>

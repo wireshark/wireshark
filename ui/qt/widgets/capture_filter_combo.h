@@ -22,7 +22,7 @@
 #ifndef CAPTURE_FILTER_COMBO_H
 #define CAPTURE_FILTER_COMBO_H
 
-#include "capture_filter_edit.h"
+#include <ui/qt/widgets/capture_filter_edit.h>
 
 #include <QComboBox>
 #include <QList>

@@ -21,7 +21,7 @@
 
 #include <stdio.h>
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 #include "ui/recent_utils.h"
 #include "ui/recent.h"
 
@@ -30,8 +30,8 @@
 #include <QHelpEvent>
 #include <QStyleOptionComboBox>
 
-#include "display_filter_edit.h"
-#include "display_filter_combo.h"
+#include <ui/qt/widgets/display_filter_edit.h>
+#include <ui/qt/widgets/display_filter_combo.h>
 #include "wireshark_application.h"
 
 // If we ever add support for multiple windows this will need to be replaced.

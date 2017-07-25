@@ -33,7 +33,7 @@
 #include <QPushButton>
 
 #include "lte_rlc_graph_dialog.h"
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 #include "wireshark_application.h"
 
 #include "ui/recent.h"

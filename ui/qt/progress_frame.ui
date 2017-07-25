@@ -58,7 +58,7 @@
   <customwidget>
    <class>StockIconToolButton</class>
    <extends>QToolButton</extends>
-   <header>stock_icon_tool_button.h</header>
+   <header>widgets/stock_icon_tool_button.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

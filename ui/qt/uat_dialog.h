@@ -28,7 +28,7 @@
 
 #include "geometry_state_dialog.h"
 #include "uat_model.h"
-#include "uat_delegate.h"
+#include <ui/qt/uat_delegate.h>
 
 class QComboBox;
 class QPushButton;

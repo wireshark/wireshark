@@ -29,7 +29,7 @@
 
 #include <wsutil/utf8_entities.h>
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 #include "rtp_analysis_dialog.h"
 #include "wireshark_application.h"
 
@@ -42,7 +42,7 @@
 #include <QTreeWidgetItem>
 #include <QTreeWidgetItemIterator>
 
-#include "tango_colors.h"
+#include <ui/qt/utils/tango_colors.h>
 
 /*
  * @file RTP stream dialog

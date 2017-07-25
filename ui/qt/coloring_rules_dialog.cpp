@@ -39,7 +39,7 @@
 
 #include "wsutil/filesystem.h"
 
-#include "color_utils.h"
+#include <ui/qt/utils/color_utils.h>
 #include "ui/ui_util.h"
 #include <ui/qt/widgets/display_filter_combo.h>
 #include <ui/qt/widgets/syntax_line_edit.h>

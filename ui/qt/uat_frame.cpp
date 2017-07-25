@@ -30,7 +30,7 @@
 #include <ui/qt/widgets/display_filter_edit.h>
 #include "wireshark_application.h"
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 #include <wsutil/report_message.h>
 
 #include <QLineEdit>

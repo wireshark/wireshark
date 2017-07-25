@@ -24,7 +24,7 @@
 #include "sctp_assoc_analyse_dialog.h"
 #include <ui_sctp_assoc_analyse_dialog.h>
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 #include "sctp_graph_dialog.h"
 #include "sctp_graph_arwnd_dialog.h"
 #include "sctp_graph_byte_dialog.h"

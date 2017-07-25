@@ -19,11 +19,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 
 #include "font_color_preferences_frame.h"
 #include <ui_font_color_preferences_frame.h>
-#include "color_utils.h"
+#include <ui/qt/utils/color_utils.h>
 #include "wireshark_application.h"
 
 #include <QFontDialog>

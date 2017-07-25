@@ -21,7 +21,7 @@
 
 #include "voip_calls_info_model.h"
 #include <wsutil/utf8_entities.h>
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 
 #include <QDateTime>
 

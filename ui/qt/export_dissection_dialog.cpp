@@ -34,7 +34,7 @@
 #include <epan/print.h>
 #include <wsutil/filesystem.h>
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 
 
 #include <QDialogButtonBox>

@@ -28,7 +28,7 @@
 
 #include <QTreeWidget>
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 #include "wireshark_application.h"
 
 static QHash<const QString, register_rtd_t *> cfg_str_to_rtd_;

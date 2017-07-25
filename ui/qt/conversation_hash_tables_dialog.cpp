@@ -29,7 +29,7 @@
 #include <epan/conversation.h>
 #include <epan/conversation_debug.h>
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 #include "wireshark_application.h"
 
 ConversationHashTablesDialog::ConversationHashTablesDialog(QWidget *parent) :

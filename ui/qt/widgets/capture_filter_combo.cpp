@@ -21,13 +21,13 @@
 
 #include <stdio.h>
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 #include "ui/recent_utils.h"
 #include "ui/recent.h"
 
 #include <epan/prefs.h>
 
-#include "capture_filter_combo.h"
+#include <ui/qt/widgets/capture_filter_combo.h>
 #include "wireshark_application.h"
 
 CaptureFilterCombo::CaptureFilterCombo(QWidget *parent, bool plain) :

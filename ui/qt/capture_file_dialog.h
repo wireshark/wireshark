@@ -28,6 +28,8 @@
 #include "ui/help_url.h"
 #endif // Q_OS_WIN
 
+#include <ui/packet_range.h>
+
 #include "packet_list_record.h"
 #include "cfile.h"
 

@@ -22,7 +22,7 @@
 #ifndef FIELDFILTEREDIT_H
 #define FIELDFILTEREDIT_H
 
-#include "syntax_line_edit.h"
+#include <ui/qt/widgets/syntax_line_edit.h>
 
 class QEvent;
 class StockIconToolButton;

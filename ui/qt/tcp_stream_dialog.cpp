@@ -32,8 +32,8 @@
 
 #include <wsutil/utf8_entities.h>
 
-#include "tango_colors.h"
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/tango_colors.h>
+#include <ui/qt/utils/qt_ui_utils.h>
 #include "progress_frame.h"
 #include "wireshark_application.h"
 

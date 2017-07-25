@@ -43,7 +43,7 @@
 #include "ui/capture_globals.h"
 #include "ui/simple_dialog.h"
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 #include "wireshark_application.h"
 
 #include <QTextStream>

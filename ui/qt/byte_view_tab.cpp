@@ -28,7 +28,7 @@
 #include <QTabBar>
 #include <QTreeWidgetItem>
 
-#include <ui/qt/variant_pointer.h>
+#include <ui/qt/utils/variant_pointer.h>
 
 // To do:
 // - We might want to add a callback to free_data_sources in so that we

@@ -19,9 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "color_utils.h"
-
-#include "tango_colors.h"
+#include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/tango_colors.h>
 
 // Colors we use in various parts of the UI.
 //
@@ -45,6 +44,11 @@ const QRgb ColorUtils::byte_view_hover_fg_ = tango_sky_blue_5;
 ColorUtils::ColorUtils(QObject *parent) :
     QObject(parent)
 {
+}
+
+QColor ColorUtils::byteViewHoverColor(bool background)
+{
+	return QColor(background ? byte_view_hover_bg_ : byte_view_hover_fg_);
 }
 
 //

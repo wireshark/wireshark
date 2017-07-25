@@ -30,7 +30,7 @@
 
 #include <ui/preference_utils.h>
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 #include "column_preferences_frame.h"
 #include <ui_column_preferences_frame.h>
 #include <ui/qt/widgets/syntax_line_edit.h>

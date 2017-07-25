@@ -35,15 +35,14 @@
 #include <cmath>
 
 #include "globals.h"
-#include "color_utils.h"
 #include "../../log.h"
 #include <epan/dissectors/packet-ieee80211-radio.h>
 
 #include <epan/color_filters.h>
 #include "frame_tvbuff.h"
 
-#include "color_utils.h"
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/qt_ui_utils.h>
 #include "wireshark_application.h"
 #include "wsutil/utf8_entities.h"
 

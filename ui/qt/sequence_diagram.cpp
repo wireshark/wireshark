@@ -25,8 +25,8 @@
 
 #include "ui/tap-sequence-analysis.h"
 
-#include "color_utils.h"
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/qt_ui_utils.h>
 
 #include <QFont>
 #include <QFontMetrics>

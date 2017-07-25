@@ -21,10 +21,10 @@
 
 #include "config.h"
 
-#include "interface_toolbar_lineedit.h"
-#include "stock_icon_tool_button.h"
+#include <ui/qt/widgets/interface_toolbar_lineedit.h>
+#include <ui/qt/widgets/stock_icon_tool_button.h>
 #include "epan/prefs.h"
-#include "color_utils.h"
+#include <ui/qt/utils/color_utils.h>
 
 #include <QStyle>
 

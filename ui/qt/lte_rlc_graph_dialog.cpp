@@ -31,12 +31,12 @@
 #include <epan/tvbuff.h>
 #include <frame_tvbuff.h>
 
-#include "tango_colors.h"
+#include <ui/qt/utils/tango_colors.h>
 
 #include <QMenu>
 #include <QRubberBand>
 
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 #include "wireshark_application.h"
 #include "simple_dialog.h"
 

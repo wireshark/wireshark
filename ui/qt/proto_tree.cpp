@@ -26,9 +26,9 @@
 #include <epan/ftypes/ftypes.h>
 #include <epan/prefs.h>
 
-#include "color_utils.h"
+#include <ui/qt/utils/color_utils.h>
 
-#include <ui/qt/variant_pointer.h>
+#include <ui/qt/utils/variant_pointer.h>
 
 #include <QApplication>
 #include <QContextMenuEvent>

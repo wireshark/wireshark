@@ -43,10 +43,10 @@
 #include <QPushButton>
 #include <QTemporaryFile>
 
-#include "color_utils.h"
-#include "qt_ui_utils.h"
+#include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/qt_ui_utils.h>
 #include "rtp_player_dialog.h"
-#include "stock_icon.h"
+#include <ui/qt/utils/stock_icon.h>
 #include "wireshark_application.h"
 
 /*

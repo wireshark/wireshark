@@ -29,6 +29,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/clickable_label.h
 	widgets/display_filter_combo.h
 	widgets/display_filter_edit.h
+	widgets/drag_drop_toolbar.h
 	widgets/elided_label.h
 	widgets/field_filter_edit.h
 	widgets/find_line_edit.h
@@ -36,9 +37,18 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/interface_toolbar_lineedit.h
 	widgets/label_stack.h
 	widgets/overlay_scroll_bar.h
+	widgets/qcustomplot.h
+	widgets/stock_icon_tool_button.h
 	widgets/syntax_line_edit.h
 	widgets/tabnav_tree_view.h
-	widgets/drag_drop_toolbar.h
+)
+
+set(WIRESHARK_UTILS_HEADERS
+	utils/color_utils.h
+	utils/stock_icon.h
+	utils/qt_ui_utils.h
+	utils/variant_pointer.h
+	uat_delegate.h
 )
 
 # All .h files which inherit from QObject aka which use the Q_OBJECT macro
@@ -62,7 +72,6 @@ set(WIRESHARK_QT_HEADERS
 	capture_info_dialog.h
 	capture_interfaces_dialog.h
 	capture_preferences_frame.h
-	color_utils.h
 	coloring_rules_dialog.h
 	column_preferences_frame.h
 	column_editor_frame.h
@@ -135,7 +144,6 @@ set(WIRESHARK_QT_HEADERS
 	proto_tree.h
 	protocol_hierarchy_dialog.h
 	protocol_preferences_menu.h
-	qcustomplot.h
 	recent_file_status.h
 	related_packet_delegate.h
 	resolved_addresses_dialog.h
@@ -159,7 +167,6 @@ set(WIRESHARK_QT_HEADERS
 	stats_tree_dialog.h
 	service_response_time_dialog.h
 	simple_statistics_dialog.h
-	stock_icon_tool_button.h
 	supported_protocols_dialog.h
 	tabnav_tree_widget.h
 	tap_parameter_dialog.h
@@ -201,9 +208,9 @@ endif()
 
 file(GLOB EXTRA_QT_HEADERS
 	packet_list_record.h
-	qt_ui_utils.h
+	utils/qt_ui_utils.h
 	sparkline_delegate.h
-	stock_icon.h
+	utils/stock_icon.h
 )
 
 set(WIRESHARK_WIDGET_SRCS
@@ -214,6 +221,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/clickable_label.cpp
 	widgets/display_filter_combo.cpp
 	widgets/display_filter_edit.cpp
+	widgets/drag_drop_toolbar.cpp
 	widgets/elided_label.cpp
 	widgets/field_filter_edit.cpp
 	widgets/find_line_edit.cpp
@@ -221,9 +229,16 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/interface_toolbar_lineedit.cpp
 	widgets/label_stack.cpp
 	widgets/overlay_scroll_bar.cpp
+	widgets/qcustomplot.cpp
+	widgets/stock_icon_tool_button.cpp
 	widgets/syntax_line_edit.cpp
 	widgets/tabnav_tree_view.cpp
-	widgets/drag_drop_toolbar.cpp
+)
+
+set(WIRESHARK_UTILS_SRCS
+	utils/color_utils.cpp
+	utils/stock_icon.cpp
+	utils/qt_ui_utils.cpp
 )
 
 set(WIRESHARK_QT_SRC
@@ -244,7 +259,6 @@ set(WIRESHARK_QT_SRC
 	capture_info_dialog.cpp
 	capture_interfaces_dialog.cpp
 	capture_preferences_frame.cpp
-	color_utils.cpp
 	coloring_rules_dialog.cpp
 	column_preferences_frame.cpp
 	column_editor_frame.cpp
@@ -312,8 +326,6 @@ set(WIRESHARK_QT_SRC
 	proto_tree.cpp
 	protocol_hierarchy_dialog.cpp
 	protocol_preferences_menu.cpp
-	qcustomplot.cpp
-	qt_ui_utils.cpp
 	recent_file_status.cpp
 	related_packet_delegate.cpp
 	resolved_addresses_dialog.cpp
@@ -338,8 +350,6 @@ set(WIRESHARK_QT_SRC
 	simple_statistics_dialog.cpp
 	sparkline_delegate.cpp
 	splash_overlay.cpp
-	stock_icon.cpp
-	stock_icon_tool_button.cpp
 	supported_protocols_dialog.cpp
 	tabnav_tree_widget.cpp
 	tap_parameter_dialog.cpp
@@ -522,28 +532,16 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+SET(CMAKE_AUTOMOC TRUE)
+
 if (QT_VERSION EQUAL 5)
 	QT5_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS})
 	QT5_ADD_RESOURCES(WIRESHARK_QT_QRC_SRC ${WIRESHARK_QT_QRC})
 	QT5_WRAP_UI(WIRESHARK_QT_UI_SRC ${WIRESHARK_QT_UI})
-	# For now, do the moc stuff manually
-	QT5_WRAP_CPP(WIRESHARK_QT_MOC_SRC ${WIRESHARK_QT_HEADERS} ${WIRESHARK_WIDGET_HEADERS}
-		OPTIONS ${MOC_OPTIONS})
-	# Starting with cmake 2.8.6, we may also use
-	# set(CMAKE_AUTOMOC TRUE)
-	# or
-	# set_target_properties(${some-source-files} PROPERTIES AUTOMOC TRUE)
 else()
 	QT4_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS})
 	QT4_ADD_RESOURCES(WIRESHARK_QT_QRC_SRC ${WIRESHARK_QT_QRC})
 	QT4_WRAP_UI(WIRESHARK_QT_UI_SRC ${WIRESHARK_QT_UI})
-	# For now, do the moc stuff manually
-	QT4_WRAP_CPP(WIRESHARK_QT_MOC_SRC ${WIRESHARK_QT_HEADERS} ${WIRESHARK_WIDGET_HEADERS}
-		OPTIONS ${MOC_OPTIONS})
-	# Starting with cmake 2.8.6, we may also use
-	# set(CMAKE_AUTOMOC TRUE)
-	# or
-	# set_target_properties(${some-source-files} PROPERTIES AUTOMOC TRUE)
 endif()
 
 foreach(_file ${WIRESHARK_QT_QM})
@@ -580,14 +578,18 @@ source_group("qrc Files" FILES ${WIRESHARK_QT_QRC_SRC} ${WIRESHARK_QT_QRC})
 source_group("Header Files" FILES ${WIRESHARK_QT_HEADERS})
 source_group("Widget Header Files" FILES ${WIRESHARK_WIDGET_HEADERS})
 source_group("Widget Source Files" FILES ${WIRESHARK_WIDGET_SRCS})
+source_group("Utils Header Files" FILES ${WIRESHARK_UTILS_HEADERS})
+source_group("Utils Source Files" FILES ${WIRESHARK_UTILS_SRCS})
 
 add_library(qtui STATIC
 	#Included so that Visual Studio can properly put header files in solution
 	${WIRESHARK_QT_HEADERS}
 	${WIRESHARK_WIDGET_HEADERS}
+	${WIRESHARK_UTILS_HEADERS}
 
 	${WIRESHARK_QT_SRC}
 	${WIRESHARK_WIDGET_SRCS}
+	${WIRESHARK_UTILS_SRCS}
 	${WIRESHARK_QT_TAP_SRC}
 	${WIRESHARK_QT_UI_SRC}
 	${WIRESHARK_QT_MOC_SRC}

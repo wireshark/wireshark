@@ -29,7 +29,7 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/tap.h>
 
-#include "color_utils.h"
+#include <ui/qt/utils/color_utils.h>
 #include "wireshark_application.h"
 
 #include <QAction>
