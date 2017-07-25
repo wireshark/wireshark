@@ -601,6 +601,27 @@ static const value_string gprscdr_daylight_saving_time_vals[] = {
     {0, NULL}
 };
 
+/* 3GPP-RAT-Type
+*  3GPP TS 29.061
+*/
+static const value_string gprscdr_rat_type_vals[] = {
+    {0, "Reserved"},
+    {1, "UTRAN"},
+    {2, "GERAN"},
+    {3, "WLAN"},
+    {4, "GAN"},
+    {5, "HSPA Evolution"},
+    {6, "EUTRAN"},
+    {7, "Virtual"},
+    {8, "EUTRAN-NB-IoT"},
+    /* 9-100 Spare for future use TS 29.061 */
+    {101, "IEEE 802.16e"},
+    {102, "3GPP2 eHRPD"},
+    {103, "3GPP2 HRPD"},
+    /* 104-255 Spare for future use TS 29.061 */
+    {0, NULL}
+};
+
 static int
 dissect_gprscdr_uli(tvbuff_t *tvb _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int type) {
   proto_tree *ext_tree_uli;
@@ -4646,7 +4667,7 @@ int dissect_gprscdr_GPRSRecord_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-gprscdr-fn.c ---*/
-#line 101 "./asn1/gprscdr/packet-gprscdr-template.c"
+#line 122 "./asn1/gprscdr/packet-gprscdr-template.c"
 
 
 
@@ -4989,7 +5010,7 @@ proto_register_gprscdr(void)
         "IMEI", HFILL }},
     { &hf_gprscdr_rATType,
       { "rATType", "gprscdr.rATType",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(gprscdr_rat_type_vals), 0,
         NULL, HFILL }},
     { &hf_gprscdr_mSTimeZone,
       { "mSTimeZone", "gprscdr.mSTimeZone",
@@ -6381,7 +6402,7 @@ proto_register_gprscdr(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-gprscdr-hfarr.c ---*/
-#line 111 "./asn1/gprscdr/packet-gprscdr-template.c"
+#line 132 "./asn1/gprscdr/packet-gprscdr-template.c"
   };
 
   /* List of subtrees */
@@ -6482,7 +6503,7 @@ proto_register_gprscdr(void)
     &ett_gprscdr_UWANUserLocationInfo,
 
 /*--- End of included file: packet-gprscdr-ettarr.c ---*/
-#line 121 "./asn1/gprscdr/packet-gprscdr-template.c"
+#line 142 "./asn1/gprscdr/packet-gprscdr-template.c"
         };
 
   static ei_register_info ei[] = {

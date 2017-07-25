@@ -213,6 +213,7 @@ gint32   tag;
 #.TYPE_ATTR
 IPBinaryAddress/iPBinV4Address TYPE = FT_IPv4  DISPLAY = BASE_NONE
 IPBinaryAddress/iPBinV6Address TYPE = FT_IPv6  DISPLAY = BASE_NONE
+RATType  TYPE = FT_UINT32  DISPLAY = BASE_DEC  STRINGS = VALS(gprscdr_rat_type_vals)
 #.END
 
 #

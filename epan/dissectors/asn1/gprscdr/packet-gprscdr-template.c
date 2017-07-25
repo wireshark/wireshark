@@ -66,6 +66,27 @@ static const value_string gprscdr_daylight_saving_time_vals[] = {
     {0, NULL}
 };
 
+/* 3GPP-RAT-Type
+*  3GPP TS 29.061
+*/
+static const value_string gprscdr_rat_type_vals[] = {
+    {0, "Reserved"},
+    {1, "UTRAN"},
+    {2, "GERAN"},
+    {3, "WLAN"},
+    {4, "GAN"},
+    {5, "HSPA Evolution"},
+    {6, "EUTRAN"},
+    {7, "Virtual"},
+    {8, "EUTRAN-NB-IoT"},
+    /* 9-100 Spare for future use TS 29.061 */
+    {101, "IEEE 802.16e"},
+    {102, "3GPP2 eHRPD"},
+    {103, "3GPP2 HRPD"},
+    /* 104-255 Spare for future use TS 29.061 */
+    {0, NULL}
+};
+
 static int
 dissect_gprscdr_uli(tvbuff_t *tvb _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int type) {
   proto_tree *ext_tree_uli;
