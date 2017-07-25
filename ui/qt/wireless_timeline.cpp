@@ -317,17 +317,12 @@ WirelessTimeline::WirelessTimeline(QWidget *parent) : QWidget(parent)
     setMouseTracking(true);
 
     radio_packet_list = NULL;
+    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(appInitialized()));
 }
 
 void WirelessTimeline::setPacketList(PacketList *packet_list)
 {
     this->packet_list = packet_list;
-    connect(packet_list->packetListModel(), SIGNAL(bgColorizationProgress(int,int)),
-            this, SLOT(bgColorizationProgress(int,int)));
-    connect(packet_list, SIGNAL(packetSelectionChanged()),
-            this, SLOT(packetSelectionChanged()));
-    connect(wsApp, SIGNAL(appInitialized()),
-        this, SLOT(appInitialized()));
 }
 
 void WirelessTimeline::tap_timeline_reset(void* tapdata)
