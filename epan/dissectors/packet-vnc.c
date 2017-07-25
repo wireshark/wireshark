@@ -2359,9 +2359,9 @@ vnc_hextile_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 			if(subencoding_mask & 0x1) { /* Raw */
 				raw_length = tile_width * tile_height * bytes_per_pixel;
 
+				VNC_BYTES_NEEDED(raw_length);
 				proto_tree_add_item(tile_tree, hf_vnc_hextile_raw_value, tvb,
 						    *offset, raw_length, ENC_NA);
-				VNC_BYTES_NEEDED(raw_length);
 				*offset += raw_length;
 			} else {
 				if(subencoding_mask & 0x2) { /* Background Specified */
