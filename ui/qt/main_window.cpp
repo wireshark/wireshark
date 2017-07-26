@@ -39,7 +39,6 @@ DIAG_ON(frame-larger-than=)
 #include <epan/plugin_if.h>
 #include <epan/export_object.h>
 
-#include "ui/commandline.h"
 #include "ui/iface_toolbar.h"
 
 #ifdef HAVE_LIBPCAP
@@ -235,92 +234,6 @@ static void mainwindow_remove_toolbar(const gchar *menu_title)
     {
         gbl_cur_main_window_->removeInterfaceToolbar(menu_title);
     }
-}
-
-gpointer
-simple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, ...)
-{
-    va_list ap;
-
-    va_start(ap, msg_format);
-    SimpleDialog sd(gbl_cur_main_window_, type, btn_mask, msg_format, ap);
-    va_end(ap);
-
-    sd.exec();
-    return NULL;
-}
-
-/*
- * Alert box, with optional "don't show this message again" variable
- * and checkbox, and optional secondary text.
- */
-void
-simple_message_box(ESD_TYPE_E type, gboolean *notagain,
-                   const char *secondary_msg, const char *msg_format, ...)
-{
-    if (notagain && *notagain) {
-        return;
-    }
-
-    va_list ap;
-
-    va_start(ap, msg_format);
-    SimpleDialog sd(gbl_cur_main_window_, type, ESD_BTN_OK, msg_format, ap);
-    va_end(ap);
-
-    sd.setDetailedText(secondary_msg);
-
-#if (QT_VERSION > QT_VERSION_CHECK(5, 2, 0))
-    QCheckBox *cb = NULL;
-    if (notagain) {
-        cb = new QCheckBox();
-        cb->setChecked(true);
-        cb->setText(QObject::tr("Don't show this message again."));
-        sd.setCheckBox(cb);
-    }
-#endif
-
-    sd.exec();
-
-#if (QT_VERSION > QT_VERSION_CHECK(5, 2, 0))
-    if (notagain && cb) {
-        *notagain = cb->isChecked();
-    }
-#endif
-}
-
-/*
- * Error alert box, taking a format and a va_list argument.
- */
-void
-vsimple_error_message_box(const char *msg_format, va_list ap)
-{
-#ifdef HAVE_LIBPCAP
-    // We want to quit after reading the capture file, hence
-    // we don't actually open the error dialog.
-    if (global_commandline_info.quit_after_cap)
-        exit(0);
-#endif
-
-    SimpleDialog sd(gbl_cur_main_window_, ESD_TYPE_ERROR, ESD_BTN_OK, msg_format, ap);
-    sd.exec();
-}
-
-/*
- * Warning alert box, taking a format and a va_list argument.
- */
-void
-vsimple_warning_message_box(const char *msg_format, va_list ap)
-{
-#ifdef HAVE_LIBPCAP
-    // We want to quit after reading the capture file, hence
-    // we don't actually open the error dialog.
-    if (global_commandline_info.quit_after_cap)
-        exit(0);
-#endif
-
-    SimpleDialog sd(gbl_cur_main_window_, ESD_TYPE_WARN, ESD_BTN_OK, msg_format, ap);
-    sd.exec();
 }
 
 QMenu* MainWindow::findOrAddMenu(QMenu *parent_menu, QString& menu_text) {
