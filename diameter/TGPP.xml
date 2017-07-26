@@ -1418,6 +1418,12 @@
 	<avp name="Extended-PCO" code="4313" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
 		<type type-name="OctetString"/>
 	</avp>
+	<avp name="Connection-Action" code="4314" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Non-IP-Data" code="4315" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
 	<avp name="SCEF-Wait-Time" code="4316" mandatory="must" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="TGPP">
 		<type type-name="Time"/>
 	</avp>
