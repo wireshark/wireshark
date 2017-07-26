@@ -2753,6 +2753,8 @@ int main(int argc, char **argv) {
     }
 #endif  /* _WIN32 */
 
+    extcap_cmdline_debug(argv, argc);
+
     if (extcap_conf->do_list_interfaces)
         register_interfaces(extcap_conf, adb_server_ip, adb_server_tcp_port);
 

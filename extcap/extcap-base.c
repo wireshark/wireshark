@@ -332,6 +332,16 @@ void extcap_help_add_header(extcap_parameters * extcap, char * help_header)
     extcap_help_add_option(extcap, "--debug", "print additional messages");
 }
 
+void extcap_cmdline_debug(char** ar, const unsigned n)
+{
+    GString* cmdline = g_string_new("cmdline: ");
+    unsigned i;
+    for (i = 0; i < n; i++)
+        g_string_append_printf(cmdline, "%s ", ar[i]);
+    g_debug("%s", cmdline->str);
+    g_string_free(cmdline, TRUE);
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

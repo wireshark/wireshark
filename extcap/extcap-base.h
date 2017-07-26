@@ -105,7 +105,7 @@ void extcap_base_cleanup(extcap_parameters ** extcap);
 void extcap_help_add_header(extcap_parameters * extcap, char * help_header);
 void extcap_help_add_option(extcap_parameters * extcap, const char * help_option_name, const char * help_optionn_desc);
 void extcap_help_print(extcap_parameters * extcap);
-
+void extcap_cmdline_debug(char** ar, const unsigned n);
 void extcap_base_help(void);
 
 #endif

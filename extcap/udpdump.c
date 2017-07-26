@@ -441,6 +441,8 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	extcap_cmdline_debug(argv, argc);
+
 	if (optind != argc) {
 		g_warning("Unexpected extra option: %s", argv[optind]);
 		goto end;
