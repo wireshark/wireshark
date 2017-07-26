@@ -21,13 +21,21 @@
 
 #include "simple_dialog.h"
 
+#include "file.h"
+
 #include "epan/strutil.h"
+#include "epan/prefs.h"
+
+#include "ui/commandline.h"
 
 #include <wsutil/utf8_entities.h>
 
 #include "qt_ui_utils.h"
 #include "wireshark_application.h"
 
+#if (QT_VERSION > QT_VERSION_CHECK(5, 2, 0))
+#include <QCheckBox>
+#endif
 #include <QMessageBox>
 #include <QRegExp>
 #include <QTextCodec>
@@ -66,6 +74,92 @@ simple_dialog_format_message(const char *msg)
     return g_strdup(msg);
 }
 
+gpointer
+simple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, ...)
+{
+    va_list ap;
+
+    va_start(ap, msg_format);
+    SimpleDialog sd(wsApp->mainWindow(), type, btn_mask, msg_format, ap);
+    va_end(ap);
+
+    sd.exec();
+    return NULL;
+}
+
+/*
+ * Alert box, with optional "don't show this message again" variable
+ * and checkbox, and optional secondary text.
+ */
+void
+simple_message_box(ESD_TYPE_E type, gboolean *notagain,
+                   const char *secondary_msg, const char *msg_format, ...)
+{
+    if (notagain && *notagain) {
+        return;
+    }
+
+    va_list ap;
+
+    va_start(ap, msg_format);
+    SimpleDialog sd(wsApp->mainWindow(), type, ESD_BTN_OK, msg_format, ap);
+    va_end(ap);
+
+    sd.setDetailedText(secondary_msg);
+
+#if (QT_VERSION > QT_VERSION_CHECK(5, 2, 0))
+    QCheckBox *cb = NULL;
+    if (notagain) {
+        cb = new QCheckBox();
+        cb->setChecked(true);
+        cb->setText(QObject::tr("Don't show this message again."));
+        sd.setCheckBox(cb);
+    }
+#endif
+
+    sd.exec();
+
+#if (QT_VERSION > QT_VERSION_CHECK(5, 2, 0))
+    if (notagain && cb) {
+        *notagain = cb->isChecked();
+    }
+#endif
+}
+
+/*
+ * Error alert box, taking a format and a va_list argument.
+ */
+void
+vsimple_error_message_box(const char *msg_format, va_list ap)
+{
+#ifdef HAVE_LIBPCAP
+    // We want to quit after reading the capture file, hence
+    // we don't actually open the error dialog.
+    if (global_commandline_info.quit_after_cap)
+        exit(0);
+#endif
+
+    SimpleDialog sd(wsApp->mainWindow(), ESD_TYPE_ERROR, ESD_BTN_OK, msg_format, ap);
+    sd.exec();
+}
+
+/*
+ * Warning alert box, taking a format and a va_list argument.
+ */
+void
+vsimple_warning_message_box(const char *msg_format, va_list ap)
+{
+#ifdef HAVE_LIBPCAP
+    // We want to quit after reading the capture file, hence
+    // we don't actually open the error dialog.
+    if (global_commandline_info.quit_after_cap)
+        exit(0);
+#endif
+
+    SimpleDialog sd(wsApp->mainWindow(), ESD_TYPE_WARN, ESD_BTN_OK, msg_format, ap);
+    sd.exec();
+}
+
 /*
  * Error alert box, taking a format and a list of arguments.
  */
@@ -80,6 +174,7 @@ simple_error_message_box(const char *msg_format, ...)
 }
 
 SimpleDialog::SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const char *msg_format, va_list ap) :
+    check_box_(0),
     message_box_(0)
 {
     gchar *vmessage;
@@ -170,11 +265,7 @@ void SimpleDialog::displayQueuedMessages(QWidget *parent)
         return;
     }
 
-    // Use last parent if not set
-    static QWidget *parent_w = NULL;
-    if (parent) parent_w = parent;
-
-    QMessageBox mb(parent_w);
+    QMessageBox mb(parent ? parent : wsApp->mainWindow());
 
     switch(max_severity_) {
     case ESD_TYPE_ERROR:
@@ -227,7 +318,9 @@ int SimpleDialog::exec()
     }
 
     message_box_->setDetailedText(detailed_text_);
+#if (QT_VERSION > QT_VERSION_CHECK(5, 2, 0))
     message_box_->setCheckBox(check_box_);
+#endif
 
     int status = message_box_->exec();
     delete message_box_;

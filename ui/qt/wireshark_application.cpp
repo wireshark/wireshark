@@ -89,6 +89,7 @@
 #include <QFontInfo>
 #include <QLibraryInfo>
 #include <QLocale>
+#include <QMainWindow>
 #include <QMutableListIterator>
 #include <QSocketNotifier>
 #include <QThread>
@@ -460,6 +461,18 @@ void WiresharkApplication::applyCustomColorsFromRecent()
 #endif
         }
     }
+}
+
+// Return the first top-level QMainWindow.
+QWidget *WiresharkApplication::mainWindow()
+{
+    foreach (QWidget *tlw, topLevelWidgets()) {
+        QMainWindow *tlmw = qobject_cast<QMainWindow *>(tlw);
+        if (tlmw && tlmw->isVisible()) {
+            return tlmw;
+        }
+    }
+    return 0;
 }
 
 void WiresharkApplication::storeCustomColorsInRecent()

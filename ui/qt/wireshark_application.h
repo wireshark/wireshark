@@ -130,6 +130,7 @@ public:
     bool softwareUpdateCanShutdown();
     void softwareUpdateShutdownRequest();
 #endif
+    QWidget *mainWindow();
 
     QTranslator translator;
     QTranslator translatorQt;
