@@ -480,7 +480,7 @@ WIRESHARK_QT_WIDGET_SRC = \
 WIRESHARK_QT_UTILS_SRC = \
 	utils/color_utils.cpp				\
 	utils/stock_icon.cpp				\
-	utils/qt_ui_utils.cpp				\
+	utils/qt_ui_utils.cpp
 
 WIRESHARK_QT_SRC = \
 	about_dialog.cpp				\
