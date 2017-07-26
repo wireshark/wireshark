@@ -5237,7 +5237,7 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
     }
     else
     {
-        proto_tree_add_item(sub_tree, hf_entity_appearance, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_entity_appearance, tvb, offset, 4, ENC_BIG_ENDIAN);
     }
     offset += 4;
 
