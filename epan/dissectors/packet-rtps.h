@@ -418,11 +418,11 @@ typedef struct _rtps_dissector_data {
 #define SUBMESSAGE_APP_ACK                              (0x1c)
 #define SUBMESSAGE_APP_ACK_CONF                         (0x1d)
 #define SUBMESSAGE_HEARTBEAT_VIRTUAL                    (0x1e)
-#define SUBMESSAGE_SECURE_BODY                          (0x30)
-#define SUBMESSAGE_SECURE_PREFIX                        (0x31)
-#define SUBMESSAGE_SECURE_POSTFIX                       (0x32)
-#define SUBMESSAGE_SECURE_RTPS_PREFIX                   (0x33)
-#define SUBMESSAGE_SECURE_RTPS_POSTFIX                  (0x34)
+#define SUBMESSAGE_SEC_BODY                             (0x30)
+#define SUBMESSAGE_SEC_PREFIX                           (0x31)
+#define SUBMESSAGE_SEC_POSTFIX                          (0x32)
+#define SUBMESSAGE_SRTPS_PREFIX                         (0x33)
+#define SUBMESSAGE_SRTPS_POSTFIX                        (0x34)
 
 #define SUBMESSAGE_RTI_CRC                              (0x80)
 
@@ -534,6 +534,12 @@ typedef struct _rtps_dissector_data {
 #define APPLICATION_AUTO_ACKNOWLEDGMENT      (1)
 #define APPLICATION_ORDERED_ACKNOWLEDGMENT   (2)
 #define APPLICATION_EXPLICIT_ACKNOWLEDGMENT  (3)
+
+#define CRYPTO_TRANSFORMATION_KIND_NONE          (0)
+#define CRYPTO_TRANSFORMATION_KIND_AES128_GMAC   (1)
+#define CRYPTO_TRANSFORMATION_KIND_AES128_GCM    (2)
+#define CRYPTO_TRANSFORMATION_KIND_AES256_GMAC   (3)
+#define CRYPTO_TRANSFORMATION_KIND_AES256_GCM    (4)
 
 /* Vendor specific - rti */
 #define NDDS_TRANSPORT_CLASSID_ANY                  (0)

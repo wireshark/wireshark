@@ -248,8 +248,8 @@ static int hf_rtps_param_endpoint_security_attributes      = -1;
 static int hf_rtps_param_plugin_promiscuity_kind    = -1;
 static int hf_rtps_param_service_kind               = -1;
 
-static int hf_rtps_secure_transformation_id                 = -1;
-static int hf_rtps_secure_ciphertext                        = -1;
+static int hf_rtps_secure_secure_data_length                 = -1;
+static int hf_rtps_secure_secure_data                        = -1;
 static int hf_rtps_param_enable_authentication              = -1;
 static int hf_rtps_param_enable_encryption                  = -1;
 static int hf_rtps_secure_dataheader_transformation_kind    = -1;
@@ -374,6 +374,7 @@ static int hf_rtps_flag_reserved0200                            = -1;
 static int hf_rtps_flag_reserved0100                            = -1;
 static int hf_rtps_flag_reserved0080                            = -1;
 static int hf_rtps_flag_reserved0040                            = -1;
+static int hf_rtps_flag_builtin_endpoint_set_reserved           = -1;
 static int hf_rtps_flag_unregister                              = -1;
 static int hf_rtps_flag_inline_qos_v1                           = -1;
 static int hf_rtps_flag_hash_key                                = -1;
@@ -416,6 +417,17 @@ static int hf_rtps_flag_participant_state_announcer             = -1;
 static int hf_rtps_flag_participant_state_detector              = -1;
 static int hf_rtps_flag_participant_message_datawriter          = -1;
 static int hf_rtps_flag_participant_message_datareader          = -1;
+static int hf_rtps_flag_secure_publication_writer               = -1;
+static int hf_rtps_flag_secure_publication_reader               = -1;
+static int hf_rtps_flag_secure_subscription_writer              = -1;
+static int hf_rtps_flag_secure_subscription_reader              = -1;
+static int hf_rtps_flag_secure_participant_message_writer       = -1;
+static int hf_rtps_flag_secure_participant_message_reader       = -1;
+static int hf_rtps_flag_participant_stateless_message_writer    = -1;
+static int hf_rtps_flag_participant_stateless_message_reader    = -1;
+static int hf_rtps_flag_secure_participant_volatile_message_writer  = -1;
+static int hf_rtps_flag_secure_participant_volatile_message_reader  = -1;
+
 static int hf_rtps_flag_typeflag_final                          = -1;
 static int hf_rtps_flag_typeflag_mutable                        = -1;
 static int hf_rtps_flag_typeflag_nested                         = -1;
@@ -427,6 +439,8 @@ static int hf_rtps_flag_service_request_writer                  = -1;
 static int hf_rtps_flag_service_request_reader                  = -1;
 static int hf_rtps_flag_locator_ping_writer                     = -1;
 static int hf_rtps_flag_locator_ping_reader                     = -1;
+static int hf_rtps_flag_secure_service_request_writer           = -1;
+static int hf_rtps_flag_secure_service_request_reader           = -1;
 static int hf_rtps_flag_security_access_protected               = -1;
 static int hf_rtps_flag_security_discovery_protected            = -1;
 static int hf_rtps_flag_security_submessage_protected           = -1;
@@ -678,11 +692,11 @@ static const value_string submessage_id_valsv2[] = {
   { SUBMESSAGE_APP_ACK,                 "APP_ACK" },
   { SUBMESSAGE_APP_ACK_CONF,            "APP_ACK_CONF" },
   { SUBMESSAGE_HEARTBEAT_VIRTUAL,       "HEARTBEAT_VIRTUAL" },
-  { SUBMESSAGE_SECURE_BODY,             "SUBMESSAGE_SECURE_BODY" },
-  { SUBMESSAGE_SECURE_PREFIX,           "SUBMESSAGE_SECURE_PREFIX" },
-  { SUBMESSAGE_SECURE_POSTFIX,          "SUBMESSAGE_SECURE_POSTFIX" },
-  { SUBMESSAGE_SECURE_RTPS_PREFIX,      "SUBMESSAGE_SECURE_RTPS_PREFIX" },
-  { SUBMESSAGE_SECURE_RTPS_POSTFIX,     "SUBMESSAGE_SECURE_RTPS_POSTFIX" },
+  { SUBMESSAGE_SEC_BODY,                "SEC_BODY" },
+  { SUBMESSAGE_SEC_PREFIX,              "SEC_PREFIX" },
+  { SUBMESSAGE_SEC_POSTFIX,             "SEC_POSTFIX" },
+  { SUBMESSAGE_SRTPS_PREFIX,            "SRTPS_PREFIX" },
+  { SUBMESSAGE_SRTPS_POSTFIX,           "SRTPS_POSTFIX" },
   /* Deprecated submessages */
   { SUBMESSAGE_DATA,              "DATA_deprecated" },
   { SUBMESSAGE_NOKEY_DATA,        "NOKEY_DATA_deprecated" },
@@ -1018,6 +1032,15 @@ static const value_string plugin_promiscuity_kind_vals[] = {
 static const value_string service_kind_vals[] = {
   { 0x00000000,                             "NO_SERVICE_QOS" },
   { 0x00000001,                             "PERSISTENCE_SERVICE_QOS" },
+  { 0, NULL }
+};
+
+static const value_string secure_transformation_kind[] = {
+  { CRYPTO_TRANSFORMATION_KIND_NONE,          "NONE" },
+  { CRYPTO_TRANSFORMATION_KIND_AES128_GMAC,   "AES128_GMAC" },
+  { CRYPTO_TRANSFORMATION_KIND_AES128_GCM,    "AES128_GCM" },
+  { CRYPTO_TRANSFORMATION_KIND_AES256_GMAC,   "AES256_GMAC" },
+  { CRYPTO_TRANSFORMATION_KIND_AES256_GCM,    "AES256_GCM" },
   { 0, NULL }
 };
 
@@ -1383,6 +1406,17 @@ static const int* STATUS_INFO_FLAGS[] = {
 };
 
 static const int* BUILTIN_ENDPOINT_FLAGS[] = {
+  &hf_rtps_flag_secure_participant_volatile_message_reader,     /* Bit 25 */
+  &hf_rtps_flag_secure_participant_volatile_message_writer,     /* Bit 24 */
+  &hf_rtps_flag_participant_stateless_message_reader,           /* Bit 23 */
+  &hf_rtps_flag_participant_stateless_message_writer,           /* Bit 22 */
+  &hf_rtps_flag_secure_participant_message_reader,              /* Bit 21 */
+  &hf_rtps_flag_secure_participant_message_writer,              /* Bit 20 */
+  &hf_rtps_flag_secure_subscription_reader,                     /* Bit 19 */
+  &hf_rtps_flag_secure_subscription_writer,                     /* Bit 18 */
+  &hf_rtps_flag_secure_publication_reader,                      /* Bit 17 */
+  &hf_rtps_flag_secure_publication_writer,                      /* Bit 16 */
+  &hf_rtps_flag_builtin_endpoint_set_reserved,      /* Bit 12-15 */
   &hf_rtps_flag_participant_message_datareader,     /* Bit 11 */
   &hf_rtps_flag_participant_message_datawriter,     /* Bit 10 */
   &hf_rtps_flag_participant_state_detector,         /* Bit 9 */
@@ -1498,6 +1532,8 @@ static const int* NACK_FLAGS[] = {
 #endif
 
 static const int* VENDOR_BUILTIN_ENDPOINT_FLAGS[] = {
+  &hf_rtps_flag_secure_service_request_reader,        /* Bit 5 */
+  &hf_rtps_flag_secure_service_request_writer,        /* Bit 4 */
   &hf_rtps_flag_locator_ping_reader,                  /* Bit 3 */
   &hf_rtps_flag_locator_ping_writer,                  /* Bit 2 */
   &hf_rtps_flag_service_request_reader,               /* Bit 1 */
@@ -9006,7 +9042,7 @@ static void dissect_SECURE(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset,
     * |                                                               |
     * +---------------+---------------+---------------+---------------+
     * |                                                               |
-    * +                      octet ciphertext[]                       +
+    * +                     octet secure_data[]                       +
     * |                                                               |
     * +---------------+---------------+---------------+---------------+
     */
@@ -9021,11 +9057,11 @@ static void dissect_SECURE(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset,
     payload_tree = proto_tree_add_subtree_format(tree, tvb, offset, octets_to_next_header,
                    ett_rtps_secure_payload_tree, NULL, "Secured payload");
 
-    proto_tree_add_item(payload_tree, hf_rtps_secure_transformation_id, tvb,
+    proto_tree_add_item(payload_tree, hf_rtps_secure_secure_data_length, tvb,
                             offset, 4, encoding);
     offset += 4;
 
-    proto_tree_add_item(payload_tree, hf_rtps_secure_ciphertext, tvb,
+    proto_tree_add_item(payload_tree, hf_rtps_secure_secure_data, tvb,
                             offset, octets_to_next_header-4, encoding);
 
 }
@@ -9073,7 +9109,7 @@ static void dissect_SECURE_PREFIX(tvbuff_t *tvb, packet_info *pinfo _U_, gint of
           ett_rtps_secure_dataheader_tree, NULL, "Secure Data Header");
 
   proto_tree_add_item(sec_data_header_tree, hf_rtps_secure_dataheader_transformation_kind, tvb,
-          offset, 4, encoding);
+          offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
 
   proto_tree_add_item(sec_data_header_tree, hf_rtps_secure_dataheader_transformation_key_id, tvb,
@@ -9188,17 +9224,17 @@ static gboolean dissect_rtps_submessage_v2(tvbuff_t *tvb, packet_info *pinfo, gi
                                 rtps_submessage_tree);
       }
       break;
-    case SUBMESSAGE_SECURE_BODY:
+    case SUBMESSAGE_SEC_BODY:
       dissect_SECURE(tvb, pinfo, offset, flags, encoding, octets_to_next_header,
                                 rtps_submessage_tree, vendor_id);
       break;
-    case SUBMESSAGE_SECURE_PREFIX:
-    case SUBMESSAGE_SECURE_RTPS_PREFIX:
+    case SUBMESSAGE_SEC_PREFIX:
+    case SUBMESSAGE_SRTPS_PREFIX:
       dissect_SECURE_PREFIX(tvb, pinfo, offset, flags, encoding, octets_to_next_header,
                                 rtps_submessage_tree, vendor_id);
       break;
-    case SUBMESSAGE_SECURE_POSTFIX:
-    case SUBMESSAGE_SECURE_RTPS_POSTFIX:
+    case SUBMESSAGE_SEC_POSTFIX:
+    case SUBMESSAGE_SRTPS_POSTFIX:
       dissect_SECURE_POSTFIX(tvb, pinfo, offset, flags, encoding, octets_to_next_header,
                                 rtps_submessage_tree, vendor_id);
       break;
@@ -11145,6 +11181,10 @@ void proto_register_rtps(void) {
         "Reserved", "rtps.flag.reserved",
         FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0040, NULL, HFILL }
     },
+    { &hf_rtps_flag_builtin_endpoint_set_reserved, {
+        "Reserved", "rtps.flag.reserved",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x0000F000, NULL, HFILL }
+    },
     { &hf_rtps_flag_unregister, {
         "Unregister flag", "rtps.flag.unregister",
         FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20, NULL, HFILL }
@@ -11309,6 +11349,46 @@ void proto_register_rtps(void) {
         "Participant Message DataReader", "rtps.flag.participant_message_datareader",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000800, NULL, HFILL }
     },
+    { &hf_rtps_flag_secure_publication_writer, {
+        "Secure Publication Writer", "rtps.flag.secure_publication_writer",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00010000, NULL, HFILL }
+    },
+    { &hf_rtps_flag_secure_publication_reader, {
+        "Secure Publication Reader", "rtps.flag.secure_publication_reader",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00020000, NULL, HFILL }
+    },
+    { &hf_rtps_flag_secure_subscription_writer, {
+        "Secure Subscription Writer", "rtps.flag.secure_subscription_writer",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00040000, NULL, HFILL }
+    },
+    { &hf_rtps_flag_secure_subscription_reader, {
+        "Secure Subscription Reader", "rtps.flag.secure_subscription_reader",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00080000, NULL, HFILL }
+    },
+    { &hf_rtps_flag_secure_participant_message_writer, {
+        "Secure Participant Message Writer", "rtps.flag.secure_participant_message_writer",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00100000, NULL, HFILL }
+    },
+    { &hf_rtps_flag_secure_participant_message_reader, {
+        "Secure Participant Message Reader", "rtps.flag.secure_participant_message_reader",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00200000, NULL, HFILL }
+    },
+    { &hf_rtps_flag_participant_stateless_message_writer, {
+        "Participant Stateless Message Writer", "rtps.flag.participant_stateless_message_writer",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00400000, NULL, HFILL }
+    },
+    { &hf_rtps_flag_participant_stateless_message_reader, {
+        "Participant Stateless Message Reader", "rtps.flag.participant_stateless_message_reader",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00800000, NULL, HFILL }
+    },
+    { &hf_rtps_flag_secure_participant_volatile_message_writer, {
+        "Secure Participant Volatile Message Writer", "rtps.flag.secure_participant_volatile_message_writer",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x01000000, NULL, HFILL }
+    },
+    { &hf_rtps_flag_secure_participant_volatile_message_reader, {
+        "Secure Participant Volatile Message Reader", "rtps.flag.secure_participant_volatile_message_reader",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x02000000, NULL, HFILL }
+    },
     { &hf_rtps_type_object_type_id_disc,
           { "TypeId (_d)", "rtps.type_object.type_id.discr",
             FT_INT16, BASE_DEC, 0x0, 0,
@@ -11436,6 +11516,14 @@ void proto_register_rtps(void) {
         "Locator Ping Reader", "rtps.flag.locator_ping_reader",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000008, NULL, HFILL }
     },
+    { &hf_rtps_flag_secure_service_request_writer, {
+        "Secure Service Request Writer", "rtps.flag.secure_service_request_writer",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000010, NULL, HFILL }
+    },
+    { &hf_rtps_flag_secure_service_request_reader, {
+        "Secure Service Request Reader", "rtps.flag.secure_service_request_reader",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000020, NULL, HFILL }
+    },
     { &hf_rtps_flag_security_access_protected, {
         "Access Protected" ,"rtps.flag.security.access_protected",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001, NULL, HFILL }
@@ -11462,7 +11550,7 @@ void proto_register_rtps(void) {
     },
     { &hf_rtps_secure_dataheader_transformation_kind, {
         "Transformation Kind", "rtps.secure.data_header.transformation_kind",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_INT32, BASE_DEC, VALS(secure_transformation_kind), 0,
         NULL, HFILL }
     },
     { &hf_rtps_secure_dataheader_transformation_key_id, {
@@ -11516,12 +11604,12 @@ void proto_register_rtps(void) {
       { "Original Related Reader GUID", "rtps.srm.topic_query.original_related_reader_guid",
         FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
     },
-    { &hf_rtps_secure_transformation_id,
-      { "Transformation Id", "rtps.secure.transformation_id",
-        FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+    { &hf_rtps_secure_secure_data_length,
+      { "Secure Data Length", "rtps.secure.secure_data_length",
+        FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
     },
-    { &hf_rtps_secure_ciphertext,
-      { "Ciphertext", "rtps.secure.ciphertext",
+    { &hf_rtps_secure_secure_data,
+      { "Secure Data", "rtps.secure.secure_data",
         FT_BYTES, BASE_NONE, NULL, 0, "The user data transferred in a secure payload", HFILL }
     },
     { &hf_rtps_pgm, {
