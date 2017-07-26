@@ -352,6 +352,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="statusBarShowSelectedPacketCheckBox">
+     <property name="text">
+      <string>Show selected packet number in the status bar</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

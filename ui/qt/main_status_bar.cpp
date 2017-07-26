@@ -26,6 +26,7 @@
 #include "file.h"
 
 #include <epan/expert.h>
+#include <epan/prefs.h>
 
 #include <wsutil/filesystem.h>
 #include <wsutil/utf8_entities.h>
@@ -426,18 +427,18 @@ void MainStatusBar::showCaptureStatistics()
 #ifdef HAVE_LIBPCAP
     /* Do we have any packets? */
     if (cs_fixed_ && cs_count_ > 0) {
-        if (cap_file_->current_frame) {
-            packets_str.append(QString(tr("Current Packet: %1 "))
-                              .arg(cap_file_->current_frame->num));
+        if (prefs.gui_qt_show_selected_packet && cap_file_->current_frame) {
+            packets_str.append(QString(tr("Selected Packet: %1 %2 "))
+                              .arg(cap_file_->current_frame->num)
+                              .arg(UTF8_MIDDLE_DOT));
         }
         packets_str.append(QString(tr("Packets: %1"))
                           .arg(cs_count_));
-        packets_str.append(QString(tr("Packets: %1"))
-                          .arg(cs_count_));
     } else if (cap_file_ && cs_count_ > 0) {
-        if (cap_file_->current_frame) {
-            packets_str.append(QString(tr("Current Packet: %1 "))
-                              .arg(cap_file_->current_frame->num));
+        if (prefs.gui_qt_show_selected_packet && cap_file_->current_frame) {
+            packets_str.append(QString(tr("Selected Packet: %1 %2 "))
+                              .arg(cap_file_->current_frame->num)
+                              .arg(UTF8_MIDDLE_DOT));
         }
         packets_str.append(QString(tr("Packets: %1 %4 Displayed: %2 (%3%)"))
                           .arg(cap_file_->count)

@@ -50,6 +50,9 @@ LayoutPreferencesFrame::LayoutPreferencesFrame(QWidget *parent) :
 
     pref_packet_list_separator_ = prefFromPrefPtr(&prefs.gui_qt_packet_list_separator);
     ui->packetListSeparatorCheckBox->setChecked(prefs_get_bool_value(pref_packet_list_separator_, pref_stashed));
+
+    pref_show_selected_packet_ = prefFromPrefPtr(&prefs.gui_qt_show_selected_packet);
+    ui->statusBarShowSelectedPacketCheckBox->setChecked(prefs_get_bool_value(pref_show_selected_packet_, pref_stashed));
 }
 
 LayoutPreferencesFrame::~LayoutPreferencesFrame()
@@ -287,11 +290,17 @@ void LayoutPreferencesFrame::on_restoreButtonBox_clicked(QAbstractButton *)
     updateWidgets();
 
     ui->packetListSeparatorCheckBox->setChecked(prefs_get_bool_value(pref_packet_list_separator_, pref_default));
+    ui->statusBarShowSelectedPacketCheckBox->setChecked(prefs_get_bool_value(pref_show_selected_packet_, pref_default));
 }
 
 void LayoutPreferencesFrame::on_packetListSeparatorCheckBox_toggled(bool checked)
 {
     prefs_set_bool_value(pref_packet_list_separator_, (gboolean) checked, pref_stashed);
+}
+
+void LayoutPreferencesFrame::on_statusBarShowSelectedPacketCheckBox_toggled(bool checked)
+{
+    prefs_set_bool_value(pref_show_selected_packet_, (gboolean) checked, pref_stashed);
 }
 
 /*
