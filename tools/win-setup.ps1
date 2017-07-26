@@ -99,12 +99,13 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2017-07-19"
-$Win32CurrentTag = "2017-07-19"
+$Win64CurrentTag = "2017-07-28"
+$Win32CurrentTag = "2017-07-28"
 
 # Archive file / subdir.
 $Win64Archives = @{
     "AirPcap_Devpack_4_1_0_1622.zip" = "AirPcap_Devpack_4_1_0_1622";
+    "bcg729-1.0.4-win64ws.zip" = "";
     "c-ares-1.13.0-win64ws.zip" = "";
     "GeoIP-1.6.10-win64ws.zip" = "";
     "gnutls-3.4.11-1.35-win64ws.zip" = "";
@@ -130,6 +131,7 @@ $Win64Archives = @{
 
 $Win32Archives = @{
     "AirPcap_Devpack_4_1_0_1622.zip" = "AirPcap_Devpack_4_1_0_1622";
+    "bcg729-1.0.4-win32ws.zip" = "";
     "c-ares-1.13.0-win32ws.zip" = "";
     "GeoIP-1.6.10-win32ws.zip" = "";
     "gnutls-3.4.11-1.36-win32ws.zip" = "";
@@ -176,6 +178,7 @@ if ($Platform -eq "win32") {
 }
 
 $CleanupItems = @(
+    "bcg729-1.0.4-win??ws"
     "c-ares-1.9.1-1-win??ws"
     "c-ares-1.1*-win??ws"
     "gnutls-3.1.22-*-win??ws"

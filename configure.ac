@@ -2567,6 +2567,35 @@ fi
 AM_CONDITIONAL(HAVE_SPANDSP, test "x$have_spandsp" = "xyes")
 
 #`
+# Check bcg729 library for RTP Player
+# https://www.linphone.org/technical-corner/bcg729/overview
+dnl bcg729 Check
+BCG729_LIBS=''
+AC_MSG_CHECKING(whether to use the bcg729 library if available)
+
+AC_ARG_WITH([bcg729],
+  AC_HELP_STRING( [--with-bcg729=@<:@=DIR@:>@],
+                 [use bcg729 to play G.729 codec(located in directory DIR, if supplied) @<:@default=yes, if present@:>@]),
+[
+if   test "x$withval" = "xno";  then
+	want_bcg729=no
+elif test "x$withval" = "xyes"; then
+	want_bcg729=yes
+elif test -d "$withval"; then
+	want_bcg729=yes
+	AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, ${withval}/lib)
+fi
+])
+if test "x$want_bcg729" = "xno"; then
+	AC_MSG_RESULT(no)
+else
+	AC_MSG_RESULT(yes)
+	AC_WIRESHARK_BCG729_CHECK
+fi
+AC_SUBST(BCG729_LIBS)
+AM_CONDITIONAL(HAVE_BCG729, test "x$have_good_bcg729" = "xyes")
+
+#`
 # Libxml2 check
 AC_ARG_WITH(libxml2,
   AC_HELP_STRING([--with-libxml2=@<:@yes/no@:>@],
@@ -3146,6 +3175,12 @@ else
 	nghttp2_message="no"
 fi
 
+if test "x$have_good_bcg729" = "xyes" ; then
+	bcg729_message="yes"
+else
+	bcg729_message="no"
+fi
+
 echo ""
 echo "  CPPFLAGS: $WS_CPPFLAGS $CPPFLAGS"
 echo ""
@@ -3206,6 +3241,7 @@ echo "            Have ssh_userauth_agent : $ssh_userauth_agent_message"
 echo "                     Use nl library : $libnl_message"
 echo "              Use SBC codec library : $have_sbc"
 echo "                Use SpanDSP library : $have_spandsp"
+echo "                 Use bcg729 library : $bcg729_message"
 echo "                Use libxml2 library : $have_libxml2"
 echo "                Use nghttp2 library : $nghttp2_message"
 echo "                    Use LZ4 library : $have_lz4"

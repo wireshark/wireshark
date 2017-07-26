@@ -299,6 +299,9 @@
 /* Define to 1 if you have the SpanDSP library. */
 #cmakedefine HAVE_SPANDSP 1
 
+/* Define to 1 if you have the bcg729 library. */
+#cmakedefine HAVE_BCG729 1
+
 /* Define to 1 if you have the lixbml2 library. */
 #cmakedefine HAVE_LIBXML2 1
 

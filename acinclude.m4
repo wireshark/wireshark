@@ -2129,3 +2129,31 @@ AC_DEFUN([AC_WIRESHARK_SNAPPY_CHECK],
 
 	AC_WIRESHARK_POP_FLAGS
 ])
+
+#
+# AC_WIRESHARK_BCG729_CHECK
+#
+AC_DEFUN([AC_WIRESHARK_BCG729_CHECK],
+[
+	want_bcg729=defaultyes
+
+	if test "x$want_bcg729" = "xdefaultyes"; then
+		want_bcg729=yes
+	fi
+
+	if test "x$want_bcg729" = "xyes"; then
+		AC_CHECK_LIB(bcg729, bcg729Decoder,
+			[
+				AC_CHECK_HEADERS(bcg729/decoder.h,
+					[
+						BCG729_LIBS=-lbcg729
+						AC_DEFINE(HAVE_BCG729, 1, [Define to use bcg729 library])
+						have_good_bcg729=yes
+					],,
+				)
+			],,
+		)
+	else
+		AC_MSG_RESULT(not required)
+	fi
+])

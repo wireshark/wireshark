@@ -932,6 +932,10 @@ if(ENABLE_SPANDSP)
 	set(PACKAGELIST ${PACKAGELIST} SPANDSP)
 endif()
 
+if(ENABLE_BCG729)
+	set(PACKAGELIST ${PACKAGELIST} BCG729)
+endif()
+
 if(ENABLE_LIBXML2)
 	set(PACKAGELIST ${PACKAGELIST} LibXml2)
 endif()
@@ -1058,6 +1062,9 @@ if(HAVE_LIBSBC)
 endif()
 if(SPANDSP_FOUND)
 	set(HAVE_SPANDSP 1)
+endif()
+if(BCG729_FOUND)
+	set(HAVE_BCG729 1)
 endif()
 if(LIBXML2_FOUND)
 	set(HAVE_LIBXML2 1)
@@ -1454,6 +1461,11 @@ set_package_properties(SPANDSP PROPERTIES
 	URL "http://www.soft-switch.org/"
 	PURPOSE "Support for G.722 and G.726 codecs in RTP player"
 )
+set_package_properties(BCG729 PROPERTIES
+	DESCRIPTION "G.729 decoder"
+	URL "https://www.linphone.org/technical-corner/bcg729/overview"
+	PURPOSE "Support for G.729 codec in RTP player"
+)
 set_package_properties(LIBXML2 PROPERTIES
 	DESCRIPTION "XML parsing library"
 	URL "http://xmlsoft.org/"
@@ -1762,6 +1774,13 @@ if(WIN32)
 				"${_dll_output_dir}"
 		)
 	endif(SPANDSP_FOUND)
+	if (BCG729_FOUND)
+		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				"${BCG729_DLL_DIR}/${BCG729_DLL}"
+				"${_dll_output_dir}"
+		)
+	endif(BCG729_FOUND)
 	if (LIBXML2_FOUND)
 		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
 			COMMAND ${CMAKE_COMMAND} -E copy_if_different

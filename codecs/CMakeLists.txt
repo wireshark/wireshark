@@ -52,6 +52,11 @@ if(HAVE_SPANDSP)
   list(APPEND wscodecs_LIBS ${SPANDSP_LIBRARIES})
 endif()
 
+if(HAVE_BCG729)
+  list(APPEND WSCODECS_FILES G729/G729decode.c)
+  list(APPEND wscodecs_LIBS ${BCG729_LIBRARIES})
+endif()
+
 add_library(wscodecs ${LINK_MODE_LIB}
   ${WSCODECS_FILES}
   ${CMAKE_BINARY_DIR}/image/libwscodecs.rc

@@ -37,6 +37,10 @@
 #include "G726/G726decode.h"
 #endif
 
+#ifdef HAVE_BCG729
+#include "G729/G729decode.h"
+#endif
+
 #ifdef HAVE_PLUGINS
 
 #include <gmodule.h>
@@ -129,6 +133,14 @@ register_all_codecs(void)
             codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
     register_codec("AAL2-G726-40", codec_aal2_g726_40_init, codec_g726_release,
             codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
+#endif
+#ifdef HAVE_BCG729
+    register_codec("g729", codec_g729_init, codec_g729_release,
+            codec_g729_get_channels, codec_g729_get_frequency, codec_g729_decode);
+#endif
+#ifdef HAVE_SBC
+    register_codec("SBC", codec_sbc_init, codec_sbc_release,
+            codec_sbc_get_channels, codec_sbc_get_frequency, codec_sbc_decode);
 #endif
 #ifdef HAVE_SBC
     register_codec("SBC", codec_sbc_init, codec_sbc_release,
@@ -252,6 +264,13 @@ void codec_get_compiled_version_info(GString *str)
     g_string_append(str, ", with SpanDSP");
 #else
     g_string_append(str, ", without SpanDSP");
+#endif
+
+    /* BCG729 (G.729) */
+#ifdef HAVE_BCG729
+    g_string_append(str, ", with bcg729");
+#else
+    g_string_append(str, ", without bcg729");
 #endif
 }
 
