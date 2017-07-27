@@ -2925,7 +2925,7 @@ dissect_pmip6_opt_grek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     proto_tree_add_item(opt_tree, hf_mip6_ipv4dra_reserved, tvb,
             offset, 2, ENC_BIG_ENDIAN);
 
-    if (option_len == 8) {
+    if (option_len == 6) {
         offset += 2;
         proto_tree_add_item_ret_uint(opt_tree, hf_pmip6_gre_key, tvb,
                             offset, PMIP6_GREK_ID_LEN, ENC_BIG_ENDIAN, &key);
