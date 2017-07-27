@@ -313,6 +313,17 @@ static capture_dissector_handle_t ip_cap_handle;
 
 /* IP structs and definitions */
 
+const value_string ip_version_vals[] = {
+  { IP_VERSION_NUM_RESERVED,       "Reserved" },
+  { IP_VERSION_NUM_INET,           "IPv4" },
+  { IP_VERSION_NUM_ST,             "ST Datagram" },
+  { IP_VERSION_NUM_INET6,          "IPv6" },
+  { IP_VERSION_NUM_TPIX,           "TP/IX" },
+  { IP_VERSION_NUM_PIP,            "PIP" },
+  { IP_VERSION_NUM_TUBA,           "TUBA" },
+  { 0, NULL },
+};
+
 /* Offsets of fields within an IP header. */
 #define IPH_V_HL                0
 #define IPH_TOS                 1

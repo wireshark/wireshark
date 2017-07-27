@@ -28,6 +28,21 @@
 
 extern int proto_ip;
 
+/*
+ * IP Version numbers, from
+ *
+ *  https://www.iana.org/assignments/version-numbers/version-numbers.xhtml
+ */
+#define IP_VERSION_NUM_RESERVED          0       /* Reserved */
+#define IP_VERSION_NUM_INET              4       /* IP (IP version 4)           */
+#define IP_VERSION_NUM_ST                5       /* ST Datagram Mode            */
+#define IP_VERSION_NUM_INET6             6       /* IP6 (IP version 6)          */
+#define IP_VERSION_NUM_TPIX              7       /* TP/IX: The Next Internet    */
+#define IP_VERSION_NUM_PIP               8       /* The P Internet Protocol     */
+#define IP_VERSION_NUM_TUBA              9       /* TUBA     */
+
+extern const value_string ip_version_vals[];
+
 typedef struct _ws_ip
 {
     guint8  ip_ver;     /* 4 or 6 */
