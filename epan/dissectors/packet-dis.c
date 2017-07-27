@@ -5244,7 +5244,7 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 40, ett_entity_dead_reckoning_parameters, NULL, "Dead Reckoning Parameters");
     proto_tree_add_item(sub_tree, hf_dis_entity_dead_reckoning_algorithm, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item(sub_tree, hf_dis_dead_reckoning_other_parameters, tvb, offset, 15, ENC_NA);
+    proto_tree_add_item(sub_tree2, hf_dis_dead_reckoning_other_parameters, tvb, offset, 15, ENC_NA);
     offset += 15;
 
     sub_tree2 = proto_tree_add_subtree(sub_tree, tvb, offset, 12, ett_entity_linear_aceleration, NULL, "Entity Linear Acceleration");
