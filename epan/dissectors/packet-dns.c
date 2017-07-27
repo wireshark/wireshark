@@ -38,6 +38,7 @@
 #include <epan/addr_resolv.h>
 #include "packet-dns.h"
 #include "packet-tcp.h"
+#include "packet-ip.h"
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/expert.h>
@@ -269,6 +270,14 @@ static int hf_dns_ipseckey_gateway_ipv4 = -1;
 static int hf_dns_ipseckey_gateway_ipv6 = -1;
 static int hf_dns_ipseckey_gateway_dns = -1;
 static int hf_dns_ipseckey_public_key = -1;
+static int hf_dns_xpf_ip_version = -1;
+static int hf_dns_xpf_protocol = -1;
+static int hf_dns_xpf_source_ipv4 = -1;
+static int hf_dns_xpf_destination_ipv4 = -1;
+static int hf_dns_xpf_source_ipv6 = -1;
+static int hf_dns_xpf_destination_ipv6 = -1;
+static int hf_dns_xpf_sport = -1;
+static int hf_dns_xpf_dport = -1;
 static int hf_dns_a6_prefix_len = -1;
 static int hf_dns_a6_address_suffix = -1;
 static int hf_dns_a6_prefix_name = -1;
@@ -553,6 +562,7 @@ typedef struct _dns_conv_info_t {
 #define T_DLV        32769              /* DNSSEC Lookaside Validation (DLV) DNS Resource Record (RFC 4431) */
 #define T_WINS       65281              /* Microsoft's WINS RR */
 #define T_WINS_R     65282              /* Microsoft's WINS-R RR */
+#define T_XPF        65422              /* XPF draft-bellis-dnsop-xpf */
 
 /* Class values */
 #define C_IN             1              /* the Internet */
@@ -913,6 +923,7 @@ static const value_string dns_types_vals[] = {
 
   { T_WINS,       "WINS"       },
   { T_WINS_R,     "WINS-R"     },
+  { T_XPF,        "XPF"        }, /* draft-bellis-dnsop-xpf */
 
   {0,             NULL}
 };
@@ -1006,6 +1017,7 @@ static const value_string dns_types_description_vals[] = {
 
   { T_WINS,       "WINS" },
   { T_WINS_R,     "WINS-R" },
+  { T_XPF,        "XPF" }, /* draft-bellis-dnsop-xpf */
 
   {0,             NULL}
 };
@@ -3529,6 +3541,41 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
       proto_item_append_text(trr, ", name result domain %s", name_out);
     }
+
+    case T_XPF: /* XPF draft-bellis-dnsop-xpf */
+    {
+      guint32 address_family;
+
+      proto_tree_add_item_ret_uint(rr_tree, hf_dns_xpf_ip_version, tvb, cur_offset, 1, ENC_BIG_ENDIAN, &address_family);
+      cur_offset++;
+
+      if(address_family == IP_VERSION_NUM_INET){
+        proto_tree_add_item(rr_tree, hf_dns_xpf_protocol, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+        cur_offset++;
+        proto_tree_add_item(rr_tree, hf_dns_xpf_source_ipv4, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
+        cur_offset += 4;
+        proto_tree_add_item(rr_tree, hf_dns_xpf_destination_ipv4, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
+        cur_offset += 4;
+        proto_tree_add_item(rr_tree, hf_dns_xpf_sport, tvb, cur_offset, 2, ENC_BIG_ENDIAN);;
+        cur_offset += 2;
+        proto_tree_add_item(rr_tree, hf_dns_xpf_dport, tvb, cur_offset, 2, ENC_BIG_ENDIAN);;
+        cur_offset += 2;
+      }
+      if(address_family == IP_VERSION_NUM_INET6){
+        proto_tree_add_item(rr_tree, hf_dns_xpf_protocol, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+        cur_offset++;
+        proto_tree_add_item(rr_tree, hf_dns_xpf_source_ipv6, tvb, cur_offset, 16, ENC_NA);
+        cur_offset += 16;
+        proto_tree_add_item(rr_tree, hf_dns_xpf_destination_ipv6, tvb, cur_offset, 16, ENC_NA);
+        cur_offset += 16;
+        proto_tree_add_item(rr_tree, hf_dns_xpf_sport, tvb, cur_offset, 2, ENC_BIG_ENDIAN);;
+        cur_offset += 2;
+        proto_tree_add_item(rr_tree, hf_dns_xpf_dport, tvb, cur_offset, 2, ENC_BIG_ENDIAN);;
+        cur_offset += 2;
+      }
+    }
+
+
     break;
 
     /* TODO: parse more record types */
@@ -4821,6 +4868,48 @@ proto_register_dns(void)
     { &hf_dns_ipseckey_public_key,
       { "Public Key", "dns.ipseckey.public_key",
         FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_xpf_ip_version,
+      { "IP Version", "dns.xpf.ip_version",
+        FT_UINT16, BASE_DEC,
+        VALS(ip_version_vals), 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_xpf_protocol,
+      { "Protocol", "dns.xpf.protocol",
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING,
+        &ipproto_val_ext, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_xpf_source_ipv4,
+      { "IPv4 Source", "dns.xpf.source_ipv4",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_xpf_destination_ipv4,
+      { "IPv4 Destination", "dns.xpf.destination_ipv4",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_xpf_source_ipv6,
+      { "IPv6 Source", "dns.xpf.source_ipv6",
+        FT_IPv6, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_xpf_destination_ipv6,
+      { "IPv6 Destination", "dns.xpf.destination_ipv6",
+        FT_IPv6, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_xpf_sport,
+      { "Source port", "dns.xpf.sport",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_xpf_dport,
+      { "Destination port", "dns.xpf.dport",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_dns_a6_prefix_len,
