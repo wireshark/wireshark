@@ -5212,7 +5212,7 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
             NULL
         };
 
-        sub_tree = proto_tree_add_bitmask(tree, tvb, offset, hf_entity_appearance, ett_entity_appearance, entity_appearance_domain_land_bitmask, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask(tree, tvb, offset, hf_entity_appearance, ett_entity_appearance, entity_appearance_domain_land_bitmask, ENC_BIG_ENDIAN);
     }
     else if (entityKind == DIS_ENTITYKIND_LIFE_FORM)
     {
@@ -5233,7 +5233,7 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
             NULL
         };
 
-        sub_tree = proto_tree_add_bitmask(tree, tvb, offset, hf_entity_appearance, ett_entity_appearance, entity_appearance_kind_life_form_bitmask, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask(tree, tvb, offset, hf_entity_appearance, ett_entity_appearance, entity_appearance_kind_life_form_bitmask, ENC_BIG_ENDIAN);
     }
     else
     {
