@@ -162,8 +162,6 @@ dissect_metamako(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   for ( i = 0; i < 2 && metamako_trailer_bytes >= 12 && !trailer_valid; i++ ) {
     /* Start at the tail of the trailer and work inwards */
     metamako_meta       = tvb_get_ntohl(tvb, metamako_trailer_bytes - 4);
-    metamako_srcport    = metamako_meta & 0xFF;
-    metamako_srcdevice  = (metamako_meta >> 8) & 0xFFFF;
     metamako_flags      = (metamako_meta >> 24) & 0xFF;
     metamako_trailer_bytes -= 4;
     metamako_time.nsecs = tvb_get_ntohl(tvb, metamako_trailer_bytes - 4);
