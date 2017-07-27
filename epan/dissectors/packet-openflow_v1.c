@@ -390,7 +390,7 @@ static const value_string openflow_action_values[] = {
 };
 
 static int
-dissect_openflow_action_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+dissect_openflow_action_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     guint16 action_type, action_len;
     proto_item* ti;
@@ -629,7 +629,7 @@ static const value_string openflow_reason_values[] = {
 };
 
 static void
-dissect_openflow_pkt_in(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length)
+dissect_openflow_pkt_in(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 length)
 {
     tvbuff_t *next_tvb;
 
@@ -657,7 +657,7 @@ dissect_openflow_pkt_in(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-dissect_openflow_pkt_out(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
+dissect_openflow_pkt_out(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 length)
 {
     tvbuff_t *next_tvb;
     gint32 buffer_id;
