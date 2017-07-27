@@ -1184,7 +1184,7 @@ get_ocfs2_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data 
 	return plen + 24;
 }
 
-static int dissect_ocfs2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+static int dissect_ocfs2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	guint32 magic;
 	int offset = 0;
