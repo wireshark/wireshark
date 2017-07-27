@@ -500,6 +500,17 @@ int main(int argc, char *qt_argv[])
     reset_library_path();
 #endif
 
+    // Scale up the UI. Windows, X11, Android.
+    // http://doc.qt.io/qt-5/scalability.html
+    // http://doc.qt.io/qt-5/highdpi.html
+    // https://bugreports.qt.io/browse/QTBUG-53022 - The device pixel ratio is pretty much bogus on Windows.
+    // https://bugreports.qt.io/browse/QTBUG-55510 - Windows have wrong size
+    // We do the equivalent on macOS by setting NSHighResolutionCapable
+    // in Info.plist.
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
+
     /* Create The Wireshark app */
     WiresharkApplication ws_app(argc, qt_argv);
 
