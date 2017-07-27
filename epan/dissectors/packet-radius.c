@@ -229,6 +229,7 @@ static dissector_handle_t radius_handle;
 static const gchar *shared_secret = "";
 static gboolean validate_authenticator = FALSE;
 static gboolean show_length = FALSE;
+static gboolean disable_extended_attributes = FALSE;
 
 static guint8 authenticator[AUTHENTICATOR_LENGTH];
 
@@ -1427,6 +1428,11 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 		memset(&avp_type, 0, sizeof(avp_type));
 		avp_type.u8_code[0] = avp_type0;
 		avp_type.u8_code[1] = avp_type1;
+
+		if (disable_extended_attributes) {
+			avp_is_extended = FALSE;
+			avp_type.u8_code[1] = 0;
+		}
 
 		if (avp_length < 2) {
 			proto_tree_add_expert_format(tree, pinfo, &ei_radius_invalid_length, tvb, offset, 0,
@@ -2814,6 +2820,13 @@ proto_register_radius(void)
 	prefs_register_bool_preference(radius_module, "show_length", "Show AVP Lengths",
 				       "Whether to add or not to the tree the AVP's payload length",
 				       &show_length);
+	/*
+	 * For now this preference allows supporting legacy Ascend AVPs and others
+	 * who might use these attribute types (not complying with IANA allocation).
+	 */
+	prefs_register_bool_preference(radius_module, "disable_extended_attributes", "Disable extended attribute space (RFC 6929)",
+				       "Whether to interpret 241-246 as extended attributes according to RFC 6929",
+				       &disable_extended_attributes);
 	prefs_register_obsolete_preference(radius_module, "request_ttl");
 
 	radius_tap = register_tap("radius");
