@@ -51,6 +51,7 @@ private:
     pref_t *pref_layout_content_3_;
     pref_t *pref_packet_list_separator_;
     pref_t *pref_show_selected_packet_;
+    pref_t *pref_show_file_load_time_;
 
     void updateWidgets();
 
@@ -76,7 +77,7 @@ private slots:
     void on_restoreButtonBox_clicked(QAbstractButton *button);
     void on_packetListSeparatorCheckBox_toggled(bool checked);
     void on_statusBarShowSelectedPacketCheckBox_toggled(bool checked);
-
+    void on_statusBarShowFileLoadTimeCheckBox_toggled(bool checked);
 };
 
 #endif // LAYOUT_PREFERENCES_FRAME_H

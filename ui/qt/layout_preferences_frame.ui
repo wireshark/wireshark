@@ -352,11 +352,45 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="statusBarShowSelectedPacketCheckBox">
+    <spacer name="verticalSpacer_3">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>10</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QLabel" name="statusBarSettings">
      <property name="text">
-      <string>Show selected packet number in the status bar</string>
+      <string>Status Bar settings:</string>
      </property>
     </widget>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="statusBarSettingsVerticalLayout">
+     <item>
+      <widget class="QCheckBox" name="statusBarShowSelectedPacketCheckBox">
+       <property name="text">
+        <string>Show selected packet number</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="statusBarShowFileLoadTimeCheckBox">
+       <property name="text">
+        <string>Show file load time</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <spacer name="verticalSpacer">

@@ -37,7 +37,9 @@ since version 2.4.0:
 * SMI private enterprise numbers are now read from the "enterprises.tsv" configuration file.
 * QUIC dissector is rename to G(oogle) QUIC (quic => gquic)
 * Selected packet number can now be shown in the Status Bar by enabling
-  Preferences -> Appearance -> Layout -> Show selected packet number in the Status Bar
+  Preferences -> Appearance -> Layout -> Show selected packet number
+* File load time in Status Bar is now disabled by default and can be enabled in
+  Preferences -> Appearance -> Layout -> Show file load time
 
 //=== Removed Dissectors
 

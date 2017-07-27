@@ -3300,6 +3300,11 @@ prefs_register_modules(void)
                                    "Show selected packet in the Status Bar",
                                    &prefs.gui_qt_show_selected_packet);
 
+    prefs_register_bool_preference(gui_layout_module, "show_file_load_time.enabled",
+                                   "Show file load time in the Status Bar",
+                                   "Show file load time in the Status Bar",
+                                   &prefs.gui_qt_show_file_load_time);
+
     prefs_register_bool_preference(gui_module, "packet_editor.enabled",
                                    "Enable Packet Editor",
                                    "Enable Packet Editor (Experimental)",
@@ -4048,6 +4053,7 @@ pre_init_prefs(void)
 
     prefs.gui_qt_packet_list_separator = FALSE;
     prefs.gui_qt_show_selected_packet = FALSE;
+    prefs.gui_qt_show_file_load_time = FALSE;
 
     if (prefs.col_list) {
         free_col_info(prefs.col_list);
