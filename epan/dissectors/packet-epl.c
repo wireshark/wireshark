@@ -4479,7 +4479,7 @@ dissect_epl_sdo_command_write_multiple_by_index(struct epl_convo *convo, proto_t
 	else
 	{
 		col_append_fstr(pinfo->cinfo, COL_INFO, "Response %s[%d]:",
-				val_to_str_ext(EPL_ASND_SDO_COMMAND_READ_MULTIPLE_PARAMETER_BY_INDEX,
+				val_to_str_ext(EPL_ASND_SDO_COMMAND_WRITE_MULTIPLE_PARAMETER_BY_INDEX,
 				&epl_sdo_asnd_commands_short_ext, "Command(%02X)"),
 				segment_size);
 
