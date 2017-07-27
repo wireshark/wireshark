@@ -30,6 +30,8 @@ A dissector went awry.
 
 //_Non-empty section placeholder._
 
+Wireshark should behave better on high resolution displays on Windows. (ws-buglink:13877[])
+
 === New and Updated Features
 
 There are no new features in this release.
