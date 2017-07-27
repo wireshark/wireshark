@@ -1528,7 +1528,7 @@ static int dissect_pcp_message_instance(tvbuff_t *tvb, packet_info *pinfo, proto
    these routines are called by dissect_pcp_message_* as needed
 */
 
-static int dissect_pcp_partial_pmid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+static int dissect_pcp_partial_pmid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     proto_item *pcp_pmid_item;
     proto_tree *pcp_pmid_tree;
@@ -1581,7 +1581,7 @@ static int dissect_pcp_partial_when(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     return offset;
 }
 
-static int dissect_pcp_partial_features(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+static int dissect_pcp_partial_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     guint16     feature_flags;
     const gchar *feature_flags_string;
