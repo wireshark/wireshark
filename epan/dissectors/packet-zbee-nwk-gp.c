@@ -118,13 +118,10 @@ typedef struct {
     guint8 payload_len;
 } zbee_nwk_green_power_packet;
 
-/* Commissioning command payload. */
-#define NWK_CMD_SECURITY_KEY_LEN 16
-
 /* Definitions for GP Commissioning command opt field (bitmask). */
 #define ZBEE_NWK_GP_CMD_COMMISSIONING_OPT_MAC_SEQ           0x01
 #define ZBEE_NWK_GP_CMD_COMMISSIONING_OPT_RX_ON_CAP         0x02
-#define ZBEE_NWK_GP_CMD_COMMISSIONING_OPT_MANUFACTURER_INFO 0x04
+#define ZBEE_NWK_GP_CMD_COMMISSIONING_OPT_APPLICATION_INFO  0x04
 #define ZBEE_NWK_GP_CMD_COMMISSIONING_OPT_PAN_ID_REQ        0x10
 #define ZBEE_NWK_GP_CMD_COMMISSIONING_OPT_GP_SEC_KEY_REQ    0x20
 #define ZBEE_NWK_GP_CMD_COMMISSIONING_OPT_FIXED_LOCATION    0x40
@@ -137,11 +134,11 @@ typedef struct {
 #define ZBEE_NWK_GP_CMD_COMMISSIONING_EXT_OPT_GPD_KEY_ENCR      0x40
 #define ZBEE_NWK_GP_CMD_COMMISSIONING_EXT_OPT_OUT_COUNTER       0x80
 
-/* Definitions for GP Commissioning command MS Extensions field (bitmask). */
-#define ZBEE_NWK_GP_CMD_COMMISSIONING_MS_EXT_MIP    0x01
-#define ZBEE_NWK_GP_CMD_COMMISSIONING_MS_EXT_MMIP   0x02
-#define ZBEE_NWK_GP_CMD_COMMISSIONING_MS_EXT_GCLP   0x04
-#define ZBEE_NWK_GP_CMD_COMMISSIONING_MS_EXT_CRP    0x08
+/* Definitions for GP Commissioning command application information field (bitmask). */
+#define ZBEE_NWK_GP_CMD_COMMISSIONING_APPLI_INFO_MIP    0x01
+#define ZBEE_NWK_GP_CMD_COMMISSIONING_APPLI_INFO_MMIP   0x02
+#define ZBEE_NWK_GP_CMD_COMMISSIONING_APPLI_INFO_GCLP   0x04
+#define ZBEE_NWK_GP_CMD_COMMISSIONING_APPLI_INFO_CRP    0x08
 
 /* Definitions for GP Commissioning command Number of server ClusterIDs (bitmask) */
 #define ZBEE_NWK_GP_CMD_COMMISSIONING_CLID_LIST_LEN_SRV 0x0F
@@ -248,7 +245,7 @@ static int hf_zbee_nwk_gp_cmd_comm_opt_ext_opt = -1;
 static int hf_zbee_nwk_gp_cmd_comm_opt = -1;
 static int hf_zbee_nwk_gp_cmd_comm_opt_fixed_location = -1;
 static int hf_zbee_nwk_gp_cmd_comm_opt_mac_sec_num_cap = -1;
-static int hf_zbee_nwk_gp_cmd_comm_opt_ms_ext_present = -1;
+static int hf_zbee_nwk_gp_cmd_comm_opt_appli_info_present = -1;
 static int hf_zbee_nwk_gp_cmd_comm_opt_panid_req = -1;
 static int hf_zbee_nwk_gp_cmd_comm_opt_rx_on_cap = -1;
 static int hf_zbee_nwk_gp_cmd_comm_opt_sec_key_req = -1;
@@ -256,11 +253,11 @@ static int hf_zbee_nwk_gp_cmd_comm_outgoing_counter = -1;
 static int hf_zbee_nwk_gp_cmd_comm_manufacturer_greenpeak_dev_id = -1;
 static int hf_zbee_nwk_gp_cmd_comm_manufacturer_dev_id = -1;
 static int hf_zbee_nwk_gp_cmd_comm_manufacturer_id = -1;
-static int hf_zbee_nwk_gp_cmd_comm_ms_ext = -1;
-static int hf_zbee_nwk_gp_cmd_comm_ms_ext_crp = -1;
-static int hf_zbee_nwk_gp_cmd_comm_ms_ext_gclp = -1;
-static int hf_zbee_nwk_gp_cmd_comm_ms_ext_mip = -1;
-static int hf_zbee_nwk_gp_cmd_comm_ms_ext_mmip = -1;
+static int hf_zbee_nwk_gp_cmd_comm_appli_info = -1;
+static int hf_zbee_nwk_gp_cmd_comm_appli_info_crp = -1;
+static int hf_zbee_nwk_gp_cmd_comm_appli_info_gclp = -1;
+static int hf_zbee_nwk_gp_cmd_comm_appli_info_mip = -1;
+static int hf_zbee_nwk_gp_cmd_comm_appli_info_mmip = -1;
 static int hf_zbee_nwk_gp_cmd_comm_gpd_cmd_num = -1;
 static int hf_zbee_nwk_gp_cmd_comm_gpd_cmd_id_list = -1;
 static int hf_zbee_nwk_gp_cmd_comm_length_of_clid_list = -1;
@@ -310,12 +307,13 @@ static int hf_zbee_nwk_gp_cmd_step_up_down_transition_time = -1;
 
 static expert_field ei_zbee_nwk_gp_no_payload = EI_INIT;
 static expert_field ei_zbee_nwk_gp_inval_residual_data = EI_INIT;
+static expert_field ei_zbee_nwk_gp_com_rep_no_out_cnt = EI_INIT;
 
 /* Proto tree elements. */
 static gint ett_zbee_nwk = -1;
 static gint ett_zbee_nwk_cmd = -1;
 static gint ett_zbee_nwk_cmd_cinfo = -1;
-static gint ett_zbee_nwk_cmd_ms_ext = -1;
+static gint ett_zbee_nwk_cmd_appli_info = -1;
 static gint ett_zbee_nwk_cmd_options = -1;
 static gint ett_zbee_nwk_fcf = -1;
 static gint ett_zbee_nwk_fcf_ext = -1;
@@ -689,7 +687,7 @@ dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 {
     guint8 comm_options;
     guint8 comm_ext_options = 0;
-    guint8 ms_ext_options = 0;
+    guint8 appli_info_options = 0;
     guint16 manufacturer_id = 0;
 
     guint8 i;
@@ -706,7 +704,7 @@ dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     static const int * options[] = {
         &hf_zbee_nwk_gp_cmd_comm_opt_mac_sec_num_cap,
         &hf_zbee_nwk_gp_cmd_comm_opt_rx_on_cap,
-        &hf_zbee_nwk_gp_cmd_comm_opt_ms_ext_present,
+        &hf_zbee_nwk_gp_cmd_comm_opt_appli_info_present,
         &hf_zbee_nwk_gp_cmd_comm_opt_panid_req,
         &hf_zbee_nwk_gp_cmd_comm_opt_sec_key_req,
         &hf_zbee_nwk_gp_cmd_comm_opt_fixed_location,
@@ -721,11 +719,11 @@ dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo _U_, pro
         &hf_zbee_nwk_gp_cmd_comm_ext_opt_outgoing_counter,
         NULL
     };
-    static const int * ms_ext[] = {
-        &hf_zbee_nwk_gp_cmd_comm_ms_ext_mip,
-        &hf_zbee_nwk_gp_cmd_comm_ms_ext_mmip,
-        &hf_zbee_nwk_gp_cmd_comm_ms_ext_gclp,
-        &hf_zbee_nwk_gp_cmd_comm_ms_ext_crp,
+    static const int * appli_info[] = {
+        &hf_zbee_nwk_gp_cmd_comm_appli_info_mip,
+        &hf_zbee_nwk_gp_cmd_comm_appli_info_mmip,
+        &hf_zbee_nwk_gp_cmd_comm_appli_info_gclp,
+        &hf_zbee_nwk_gp_cmd_comm_appli_info_crp,
         NULL
     };
     static const int * length_of_clid_list[] = {
@@ -749,8 +747,8 @@ dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo _U_, pro
         offset += 1;
         if (comm_ext_options & ZBEE_NWK_GP_CMD_COMMISSIONING_EXT_OPT_GPD_KEY_PRESENT) {
             /* Get security key and display it. */
-            proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_comm_security_key, tvb, offset, NWK_CMD_SECURITY_KEY_LEN, ENC_NA);
-            offset += NWK_CMD_SECURITY_KEY_LEN;
+            proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_comm_security_key, tvb, offset, ZBEE_SEC_CONST_KEYSIZE, ENC_NA);
+            offset += ZBEE_SEC_CONST_KEYSIZE;
         }
         if (comm_ext_options & ZBEE_NWK_GP_CMD_COMMISSIONING_EXT_OPT_GPD_KEY_ENCR) {
             /* Get Security MIC and display it. */
@@ -764,18 +762,18 @@ dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo _U_, pro
         }
     }
     /* Display manufacturer specific data. */
-    if (comm_options & ZBEE_NWK_GP_CMD_COMMISSIONING_OPT_MANUFACTURER_INFO) {
-        /* Display MS extensions. */
-        ms_ext_options = tvb_get_guint8(tvb, offset);
-        proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_nwk_gp_cmd_comm_ms_ext, ett_zbee_nwk_cmd_ms_ext, ms_ext, ENC_NA);
+    if (comm_options & ZBEE_NWK_GP_CMD_COMMISSIONING_OPT_APPLICATION_INFO) {
+        /* Display application information. */
+        appli_info_options = tvb_get_guint8(tvb, offset);
+        proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_nwk_gp_cmd_comm_appli_info, ett_zbee_nwk_cmd_appli_info, appli_info, ENC_NA);
         offset += 1;
-        if (ms_ext_options & ZBEE_NWK_GP_CMD_COMMISSIONING_MS_EXT_MIP) {
+        if (appli_info_options & ZBEE_NWK_GP_CMD_COMMISSIONING_APPLI_INFO_MIP) {
             /* Get Manufacturer ID. */
             manufacturer_id = tvb_get_letohs(tvb, offset);
             proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_comm_manufacturer_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
         }
-        if (ms_ext_options & ZBEE_NWK_GP_CMD_COMMISSIONING_MS_EXT_MMIP) {
+        if (appli_info_options & ZBEE_NWK_GP_CMD_COMMISSIONING_APPLI_INFO_MMIP) {
             /* Get Manufacturer Device ID. */
             switch (manufacturer_id) {
                 case ZBEE_NWK_GP_MANUF_ID_GREENPEAK:
@@ -789,7 +787,7 @@ dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo _U_, pro
                     break;
             }
         }
-        if (ms_ext_options & ZBEE_NWK_GP_CMD_COMMISSIONING_MS_EXT_GCLP) {
+        if (appli_info_options & ZBEE_NWK_GP_CMD_COMMISSIONING_APPLI_INFO_GCLP) {
             /* Get and display number of GPD commands */
             gpd_cmd_num = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_comm_gpd_cmd_num, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -806,7 +804,7 @@ dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo _U_, pro
                 }
             }
         }
-        if (ms_ext_options & ZBEE_NWK_GP_CMD_COMMISSIONING_MS_EXT_CRP) {
+        if (appli_info_options & ZBEE_NWK_GP_CMD_COMMISSIONING_APPLI_INFO_CRP) {
             /* Get and display Cluster List */
             length_of_clid_list_bm = tvb_get_guint8(tvb, offset);
             server_clid_num = (length_of_clid_list_bm & ZBEE_NWK_GP_CMD_COMMISSIONING_CLID_LIST_LEN_SRV) >>
@@ -965,8 +963,8 @@ dissect_zbee_nwk_gp_cmd_commissioning_reply(tvbuff_t *tvb, packet_info *pinfo _U
     }
     /* Parse and display security key. */
     if (cr_options & ZBEE_NWK_GP_CMD_COMMISSIONING_REP_OPT_SEC_KEY_PRESENT) {
-        proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_comm_security_key, tvb, offset, NWK_CMD_SECURITY_KEY_LEN, ENC_NA);
-        offset += NWK_CMD_SECURITY_KEY_LEN;
+        proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_comm_security_key, tvb, offset, ZBEE_SEC_CONST_KEYSIZE, ENC_NA);
+        offset += ZBEE_SEC_CONST_KEYSIZE;
     }
     /* Parse and display security MIC. */
     if ((cr_options & ZBEE_NWK_GP_CMD_COMMISSIONING_REP_OPT_KEY_ENCR) && (cr_options &
@@ -981,8 +979,14 @@ dissect_zbee_nwk_gp_cmd_commissioning_reply(tvbuff_t *tvb, packet_info *pinfo _U
         (cr_options & ZBEE_NWK_GP_CMD_COMMISSIONING_REP_OPT_SEC_KEY_PRESENT) &&
         ((cr_sec_level == ZBEE_NWK_GP_SECURITY_LEVEL_FULL) ||
         (cr_sec_level == ZBEE_NWK_GP_SECURITY_LEVEL_FULLENCR))) {
-        proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_comm_rep_frame_counter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        offset += 4;
+        if(offset + 4 <= tvb_captured_length(tvb)){
+            proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_comm_rep_frame_counter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+        }
+        else{
+            /* This field is new in 2016 specification, older implementation may exist without it */
+            proto_tree_add_expert(tree, pinfo, &ei_zbee_nwk_gp_com_rep_no_out_cnt, tvb, 0, -1);
+        }
     }
     return offset;
 } /* dissect_zbee_nwk_gp_cmd_commissioning_reply */
@@ -1406,6 +1410,8 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     } else if (packet.mic_size == 4) {
         packet.mic = tvb_get_letohl(tvb, offset + packet.payload_len);
     }
+    /* Save packet private data. */
+    data = (void *)&packet;
     payload_tvb = tvb_new_subset_length(tvb, offset, packet.payload_len);
     if (packet.security_level != ZBEE_NWK_GP_SECURITY_LEVEL_FULLENCR) {
         dissect_zbee_nwk_gp_cmd(payload_tvb, pinfo, nwk_tree, data);
@@ -1417,8 +1423,6 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 hf_zbee_nwk_gp_security_mic_2b, tvb, offset, packet.mic_size, packet.mic);
         offset += packet.mic_size;
     }
-    /* Save packet private data. */
-    data = (void *)&packet;
     if ((offset < tvb_captured_length(tvb)) && (packet.security_level != ZBEE_NWK_GP_SECURITY_LEVEL_FULLENCR)) {
         proto_tree_add_expert(nwk_tree, pinfo, &ei_zbee_nwk_gp_inval_residual_data, tvb, offset, -1);
         return offset;
@@ -1651,9 +1655,9 @@ proto_register_zbee_nwk_gp(void)
             { "MAC Sequence number capability", "zbee_nwk_gp.cmd.comm.opt.mac_seq_num_cap", FT_BOOLEAN, 8, NULL,
                 ZBEE_NWK_GP_CMD_COMMISSIONING_OPT_MAC_SEQ, NULL, HFILL }},
 
-        { &hf_zbee_nwk_gp_cmd_comm_opt_ms_ext_present,
-            { "MS Extensions Present", "zbee_nwk_gp.cmd.comm.opt.ms_ext_present", FT_BOOLEAN, 8, NULL,
-                ZBEE_NWK_GP_CMD_COMMISSIONING_OPT_MANUFACTURER_INFO, NULL, HFILL }},
+        { &hf_zbee_nwk_gp_cmd_comm_opt_appli_info_present,
+            { "Application information present", "zbee_nwk_gp.cmd.comm.opt.appli_info_present", FT_BOOLEAN, 8, NULL,
+                ZBEE_NWK_GP_CMD_COMMISSIONING_OPT_APPLICATION_INFO, NULL, HFILL }},
 
         { &hf_zbee_nwk_gp_cmd_comm_opt_panid_req,
             { "PANId request", "zbee_nwk_gp.cmd.comm.opt.panid_req", FT_BOOLEAN, 8, NULL,
@@ -1687,25 +1691,25 @@ proto_register_zbee_nwk_gp(void)
             { "Manufacturer ID", "zbee_nwk_gp.cmd.comm.manufacturer_id", FT_UINT16, BASE_HEX,
                 VALS(zbee_mfr_code_names), 0x0, NULL, HFILL }},
 
-        { &hf_zbee_nwk_gp_cmd_comm_ms_ext_crp,
-            { "Cluster reports present", "zbee_nwk_gp.cmd.comm.ms_ext.crp", FT_BOOLEAN, 8, NULL,
-                ZBEE_NWK_GP_CMD_COMMISSIONING_MS_EXT_CRP , NULL, HFILL }},
+        { &hf_zbee_nwk_gp_cmd_comm_appli_info_crp,
+            { "Cluster reports present", "zbee_nwk_gp.cmd.comm.appli_info.crp", FT_BOOLEAN, 8, NULL,
+                ZBEE_NWK_GP_CMD_COMMISSIONING_APPLI_INFO_CRP , NULL, HFILL }},
 
-        { &hf_zbee_nwk_gp_cmd_comm_ms_ext_gclp,
-            { "GP commands list present", "zbee_nwk_gp.cmd.comm.ms_ext.gclp", FT_BOOLEAN, 8, NULL,
-                ZBEE_NWK_GP_CMD_COMMISSIONING_MS_EXT_GCLP , NULL, HFILL }},
+        { &hf_zbee_nwk_gp_cmd_comm_appli_info_gclp,
+            { "GP commands list present", "zbee_nwk_gp.cmd.comm.appli_info.gclp", FT_BOOLEAN, 8, NULL,
+                ZBEE_NWK_GP_CMD_COMMISSIONING_APPLI_INFO_GCLP , NULL, HFILL }},
 
-        { &hf_zbee_nwk_gp_cmd_comm_ms_ext,
-            { "MS Extensions Field", "zbee_nwk_gp.cmd.comm.ms_ext", FT_UINT8, BASE_HEX, NULL,
+        { &hf_zbee_nwk_gp_cmd_comm_appli_info,
+            { "Application information Field", "zbee_nwk_gp.cmd.comm.appli_info", FT_UINT8, BASE_HEX, NULL,
                 0x0, NULL, HFILL }},
 
-        { &hf_zbee_nwk_gp_cmd_comm_ms_ext_mip,
-            { "Manufacturer ID present", "zbee_nwk_gp.cmd.comm.ms_ext.mip", FT_BOOLEAN, 8, NULL,
-                ZBEE_NWK_GP_CMD_COMMISSIONING_MS_EXT_MIP , NULL, HFILL }},
+        { &hf_zbee_nwk_gp_cmd_comm_appli_info_mip,
+            { "Manufacturer ID present", "zbee_nwk_gp.cmd.comm.appli_info.mip", FT_BOOLEAN, 8, NULL,
+                ZBEE_NWK_GP_CMD_COMMISSIONING_APPLI_INFO_MIP , NULL, HFILL }},
 
-        { &hf_zbee_nwk_gp_cmd_comm_ms_ext_mmip,
-            { "Manufacturer Model ID present", "zbee_nwk_gp.cmd.comm.ms_ext.mmip", FT_BOOLEAN, 8, NULL,
-                ZBEE_NWK_GP_CMD_COMMISSIONING_MS_EXT_MMIP , NULL, HFILL }},
+        { &hf_zbee_nwk_gp_cmd_comm_appli_info_mmip,
+            { "Manufacturer Model ID present", "zbee_nwk_gp.cmd.comm.appli_info.mmip", FT_BOOLEAN, 8, NULL,
+                ZBEE_NWK_GP_CMD_COMMISSIONING_APPLI_INFO_MMIP , NULL, HFILL }},
 
         { &hf_zbee_nwk_gp_cmd_comm_gpd_cmd_num,
             { "Number of GPD commands", "zbee_nwk_gp.cmd.comm.gpd_cmd_num", FT_UINT8, BASE_DEC, NULL,
@@ -1826,14 +1830,17 @@ proto_register_zbee_nwk_gp(void)
                 "Payload is missing", EXPFILL }},
         { &ei_zbee_nwk_gp_inval_residual_data,
             { "zbee_nwk_gp.inval_residual_data", PI_MALFORMED, PI_ERROR,
-                "Invalid residual data", EXPFILL }}
+                "Invalid residual data", EXPFILL }},
+        { &ei_zbee_nwk_gp_com_rep_no_out_cnt,
+            { "zbee_nwk_gp.com_rep_no_out_cnt", PI_DEBUG, PI_WARN,
+                "Missing outgoing frame counter", EXPFILL }}
     };
 
     static gint *ett[] = {
         &ett_zbee_nwk,
         &ett_zbee_nwk_cmd,
         &ett_zbee_nwk_cmd_cinfo,
-        &ett_zbee_nwk_cmd_ms_ext,
+        &ett_zbee_nwk_cmd_appli_info,
         &ett_zbee_nwk_cmd_options,
         &ett_zbee_nwk_fcf,
         &ett_zbee_nwk_fcf_ext,
