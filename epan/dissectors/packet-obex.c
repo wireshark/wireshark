@@ -1092,7 +1092,7 @@ static gpointer media_type_value(packet_info *pinfo)
     return NULL;
 }
 
-static void obex_profile_prompt(packet_info *pinfo _U_, gchar* result)
+static void obex_profile_prompt(packet_info *pinfo, gchar* result)
 {
     guint8 *value_data;
 
@@ -1103,7 +1103,7 @@ static void obex_profile_prompt(packet_info *pinfo _U_, gchar* result)
         g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown OBEX Profile");
 }
 
-static gpointer obex_profile_value(packet_info *pinfo _U_)
+static gpointer obex_profile_value(packet_info *pinfo)
 {
     guint8 *value_data;
 
