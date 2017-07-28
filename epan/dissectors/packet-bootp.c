@@ -1726,7 +1726,7 @@ bootp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item,
 }
 
 static int
-dissect_bootpopt_basic_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data)
+dissect_bootpopt_basic_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	struct opt_info *opt;
 	bootp_option_data_t *option_data = (bootp_option_data_t*)data;
@@ -2268,7 +2268,7 @@ dissect_bootpopt_slp_service_scope(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 }
 
 static int
-dissect_bootpopt_client_full_domain_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_bootpopt_client_full_domain_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	static const int * fqdn_hf_flags[] = {
 		&hf_bootp_fqdn_mbz,
@@ -2867,7 +2867,7 @@ dissect_bootpopt_dhcp_captive_portal(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 }
 
 static int
-dissect_bootpopt_6RD_option(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_bootpopt_6RD_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
 
@@ -2897,7 +2897,7 @@ dissect_bootpopt_6RD_option(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 }
 
 static int
-dissect_bootpopt_avaya_ip_telephone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_bootpopt_avaya_ip_telephone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
 	proto_tree *o242avaya_v_tree;
@@ -3133,7 +3133,7 @@ bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 }
 
 static int
-dissect_bootpopt_relay_agent_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_bootpopt_relay_agent_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
 
@@ -6017,7 +6017,7 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 }
 
 static int
-dissect_bootpopt_packetcable_ccc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_bootpopt_packetcable_ccc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
 
