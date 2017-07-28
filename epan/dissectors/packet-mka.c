@@ -405,7 +405,7 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
 
     proto_tree_add_item(distributed_sak_tree, hf_mka_aes_key_wrap_sak,
                         tvb, offset, distributed_sak_len - 12, ENC_NA);
-    offset += (distributed_sak_len + 12);
+    offset += (distributed_sak_len - 12);
   }
   else
   {
@@ -957,7 +957,7 @@ proto_register_mka(void)
 
     { &hf_mka_suspension_time, {
         "Suspension time", "mka.suspension_time",
-        FT_UINT8, BASE_DEC, NULL, 0xc0,
+        FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_mka_icv, {
