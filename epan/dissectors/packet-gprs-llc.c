@@ -95,6 +95,7 @@ static int hf_llcgprs_tom_rl 	  = -1;
 static int hf_llcgprs_tom_pd 	  = -1;
 static int hf_llcgprs_tom_header  = -1;
 static int hf_llcgprs_tom_data 	  = -1;
+static int hf_llcgprs_dummy_ui 	  = -1;
 
 /* Unnumbered Commands and Responses (U Frames) */
 #define U_DM	0x01
@@ -451,6 +452,8 @@ llc_gprs_dissect_xid(tvbuff_t *tvb, packet_info *pinfo, proto_item *llcgprs_tree
 	}
 }
 
+/* shortest dummy UI command as per TS 44.064 Section 6.4.2.2 */
+static const guint8 dummy_ui_cmd[] = { 0x43, 0xc0, 0x01, 0x2b, 0x2b, 0x2b };
 
 static int
 dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -473,6 +476,12 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	guint info_len;
 	proto_tree *uinfo_tree = NULL;
 	gboolean ciphered_ui_frame = FALSE;
+
+	if (!tvb_memeql(tvb, 0, dummy_ui_cmd, sizeof(dummy_ui_cmd))) {
+		proto_tree_add_boolean(tree, hf_llcgprs_dummy_ui, tvb, offset,
+					tvb_captured_length(tvb), TRUE);
+		return tvb_captured_length(tvb);
+	}
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GPRS-LLC");
 
@@ -1305,6 +1314,10 @@ proto_register_llcgprs(void)
 		{ &hf_llcgprs_tom_data,
 		  { "TOM Message Capsule Byte", "llcgprs.tomdata", FT_UINT8, BASE_HEX,
 		    NULL, 0xFF, "tdb", HFILL }},
+
+		{ &hf_llcgprs_dummy_ui,
+		  { "Dummy UI Command", "llcgprs.dummy_ui", FT_BOOLEAN, BASE_NONE,
+		    NULL, 0x00, NULL, HFILL }},
 	};
 
 /* Setup protocol subtree array */
