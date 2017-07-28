@@ -283,6 +283,7 @@ typedef struct _rtps_dissector_data {
 #define PID_REACHABILITY_LEASE_DURATION         (0x8016)
 #define PID_VENDOR_BUILTIN_ENDPOINT_SET         (0x8017)
 #define PID_ENDPOINT_SECURITY_ATTRIBUTES        (0x8018)
+#define PID_SAMPLE_SIGNATURE                    (0x8019)/* inline QoS */
 #define PID_EXTENDED                            (0x3f01)
 #define PID_LIST_END                            (0x3f02)
 

@@ -248,8 +248,12 @@ static int hf_rtps_param_endpoint_security_attributes      = -1;
 static int hf_rtps_param_plugin_promiscuity_kind    = -1;
 static int hf_rtps_param_service_kind               = -1;
 
-static int hf_rtps_secure_secure_data_length                 = -1;
-static int hf_rtps_secure_secure_data                        = -1;
+static int hf_rtps_param_sample_signature_epoch             = -1;
+static int hf_rtps_param_sample_signature_nonce             = -1;
+static int hf_rtps_param_sample_signature_length            = -1;
+static int hf_rtps_param_sample_signature_signature         = -1;
+static int hf_rtps_secure_secure_data_length                = -1;
+static int hf_rtps_secure_secure_data                       = -1;
 static int hf_rtps_param_enable_authentication              = -1;
 static int hf_rtps_param_enable_encryption                  = -1;
 static int hf_rtps_secure_dataheader_transformation_kind    = -1;
@@ -816,6 +820,7 @@ static const value_string parameter_id_inline_qos_rti[] = {
   { PID_RELATED_READER_GUID,            "PID_RELATED_READER_GUID" },
   { PID_SOURCE_GUID,                    "PID_SOURCE_GUID" },
   { PID_TOPIC_QUERY_GUID,               "PID_TOPIC_QUERY_GUID" },
+  { PID_SAMPLE_SIGNATURE,               "PID_SAMPLE_SIGNATURE" },
   { 0, NULL }
 };
 
@@ -4093,6 +4098,17 @@ static gboolean dissect_parameter_sequence_rti(proto_tree *rtps_parameter_tree, 
   const guint encoding, int param_length, guint16 parameter, gboolean is_inline_qos) {
 
   switch(parameter) {
+    case PID_SAMPLE_SIGNATURE:
+      ENSURE_LENGTH(16);
+      proto_tree_add_item(rtps_parameter_tree, hf_rtps_param_sample_signature_epoch, tvb,
+                  offset, 8, encoding);
+      proto_tree_add_item(rtps_parameter_tree, hf_rtps_param_sample_signature_nonce, tvb,
+                  offset+8, 4, encoding);
+      proto_tree_add_item(rtps_parameter_tree, hf_rtps_param_sample_signature_length, tvb,
+                  offset+12, 4, encoding);
+      proto_tree_add_item(rtps_parameter_tree, hf_rtps_param_sample_signature_signature, tvb,
+                  offset+16, param_length-16, ENC_NA);
+      break;
 
     case PID_ENABLE_AUTHENTICATION:
       ENSURE_LENGTH(4);
@@ -9025,7 +9041,7 @@ static void dissect_RTI_CRC(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
 }
 
 static void dissect_SECURE(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset,
-                guint8 flags, const guint encoding, int octets_to_next_header,
+                guint8 flags, const guint encoding _U_, int octets_to_next_header,
                 proto_tree *tree, guint16 vendor_id _U_) {
 
  /* *********************************************************************** */
@@ -9047,10 +9063,11 @@ static void dissect_SECURE(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset,
     * +---------------+---------------+---------------+---------------+
     */
     proto_tree * payload_tree;
-
+    guint local_encoding;
     proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, SECURE_FLAGS, flags);
+    local_encoding = ((flags & FLAG_E) != 0) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
 
-    proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb, offset + 2, 2, encoding);
+    proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb, offset + 2, 2, local_encoding);
 
     offset += 4;
 
@@ -9058,11 +9075,11 @@ static void dissect_SECURE(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset,
                    ett_rtps_secure_payload_tree, NULL, "Secured payload");
 
     proto_tree_add_item(payload_tree, hf_rtps_secure_secure_data_length, tvb,
-                            offset, 4, encoding);
+                            offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     proto_tree_add_item(payload_tree, hf_rtps_secure_secure_data, tvb,
-                            offset, octets_to_next_header-4, encoding);
+                            offset, octets_to_next_header-4, local_encoding);
 
 }
 
@@ -11547,6 +11564,22 @@ void proto_register_rtps(void) {
     { &hf_rtps_param_enable_encryption,
       { "Encryption enabled", "rtps.secure.enable_encryption",
         FT_BOOLEAN, 8, TFS(&tfs_true_false), 0, NULL, HFILL }
+    },
+    { &hf_rtps_param_sample_signature_epoch,
+      { "Epoch", "rtps.sample_signature.epoch",
+        FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }
+    },
+    { &hf_rtps_param_sample_signature_nonce,
+      { "Nonce", "rtps.sample_signature.nonce",
+        FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+    },
+    { &hf_rtps_param_sample_signature_length,
+      {"Signature Length", "rtps.sample_signature.signature_length",
+        FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+    },
+    { &hf_rtps_param_sample_signature_signature,
+      { "Signature", "rtps.sample_signature.signature",
+        FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
     },
     { &hf_rtps_secure_dataheader_transformation_kind, {
         "Transformation Kind", "rtps.secure.data_header.transformation_kind",
