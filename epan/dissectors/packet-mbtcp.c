@@ -1568,13 +1568,17 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         if (*packet_type == QUERY_PACKET) {
             /*create the modbus_request frame. It holds the request information.*/
-            modbus_request_info_t    *frame_ptr = wmem_new(wmem_file_scope(), modbus_request_info_t);
+            modbus_request_info_t    *frame_ptr = wmem_new0(wmem_file_scope(), modbus_request_info_t);
+            gint captured_length = tvb_captured_length(tvb);
 
             /* load information into the modbus request frame */
             frame_ptr->fnum = pinfo->num;
             frame_ptr->function_code = function_code;
-            pkt_info->reg_base = frame_ptr->base_address = tvb_get_ntohs(tvb, 1);
-            pkt_info->num_reg = frame_ptr->num_reg = tvb_get_ntohs(tvb, 3);
+            if (captured_length >= 3) {
+                pkt_info->reg_base = frame_ptr->base_address = tvb_get_ntohs(tvb, 1);
+                if (captured_length >= 5)
+                    pkt_info->num_reg = frame_ptr->num_reg = tvb_get_ntohs(tvb, 3);
+            }
 
             wmem_list_prepend(modbus_conv_data->modbus_request_frame_data, frame_ptr);
         }
