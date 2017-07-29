@@ -1358,29 +1358,38 @@ rfc1867_size(tvbuff_t *tvb, int offset)
 }
 
 static char *
-rfc1867_angle(tvbuff_t *tvb, int offset, const char *nsew)
+rfc1867_angle(tvbuff_t *tvb, int offset, gboolean longitude)
 {
   guint32     angle;
   char        direction;
   guint32     degrees, minutes, secs, tsecs;
               /* "%u deg %u min %u.%03u sec %c" */
   static char buf[10+1+3+1 + 2+1+3+1 + 2+1+3+1+3+1 + 1 + 1];
+  static char *nsew = "NSEW";
 
   angle = tvb_get_ntohl(tvb, offset);
 
   if (angle < 0x80000000U) {
     angle = 0x80000000U - angle;
-    direction = nsew[1];
+    direction = nsew[1 + longitude ? 2 : 0];
   } else {
     angle = angle - 0x80000000U;
-    direction = nsew[0];
+    direction = nsew[longitude ? 2 : 0];
   }
+
+  if (longitude ? (angle > 648000000) : (angle > 324000000))
+  {
+    g_snprintf(buf, sizeof(buf), "Value out of range");
+    return buf;
+  }
+
   tsecs = angle % 1000;
   angle = angle / 1000;
   secs = angle % 60;
   angle = angle / 60;
   minutes = angle % 60;
   degrees = angle / 60;
+
   g_snprintf(buf, sizeof(buf), "%u deg %u min %u.%03u sec %c", degrees, minutes, secs,
              tsecs, direction);
   return buf;
@@ -2388,11 +2397,11 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         cur_offset++;
 
         ti = proto_tree_add_item(rr_tree, hf_dns_loc_latitude, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, " (%s)", rfc1867_angle(tvb, cur_offset, "NS"));
+        proto_item_append_text(ti, " (%s)", rfc1867_angle(tvb, cur_offset, FALSE));
         cur_offset += 4;
 
         ti = proto_tree_add_item(rr_tree, hf_dns_loc_longitude, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, " (%s)", rfc1867_angle(tvb, cur_offset, "EW"));
+        proto_item_append_text(ti, " (%s)", rfc1867_angle(tvb, cur_offset, TRUE));
         cur_offset += 4;
 
         ti = proto_tree_add_item(rr_tree, hf_dns_loc_altitude, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
