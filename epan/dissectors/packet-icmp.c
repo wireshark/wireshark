@@ -967,6 +967,19 @@ dissect_extensions(tvbuff_t * tvb, packet_info *pinfo, gint offset, proto_tree *
 }
 
 /* ======================================================================= */
+/*
+	Note: We are tracking conversations via these keys:
+
+	0                   1                   2                   3
+	0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+	+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	|                             |G|            Checksum           |
+	+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	|           Identifier          |        Sequence Number        |
+	+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	|                            VLAN ID                            |
+	+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+*/
 static icmp_transaction_t *transaction_start(packet_info * pinfo,
 					     proto_tree * tree,
 					     guint32 * key)
@@ -992,7 +1005,7 @@ static icmp_transaction_t *transaction_start(packet_info * pinfo,
 		/* this is a new request, create a new transaction structure and map it to the
 		   unmatched table
 		 */
-		icmp_key[0].length = 2;
+		icmp_key[0].length = 3;
 		icmp_key[0].key = key;
 		icmp_key[1].length = 0;
 		icmp_key[1].key = NULL;
@@ -1008,7 +1021,7 @@ static icmp_transaction_t *transaction_start(packet_info * pinfo,
 		/* Already visited this frame */
 		guint32 frame_num = pinfo->num;
 
-		icmp_key[0].length = 2;
+		icmp_key[0].length = 3;
 		icmp_key[0].key = key;
 		icmp_key[1].length = 1;
 		icmp_key[1].key = &frame_num;
@@ -1082,7 +1095,7 @@ static icmp_transaction_t *transaction_end(packet_info * pinfo,
 	if (!PINFO_FD_VISITED(pinfo)) {
 		guint32 frame_num;
 
-		icmp_key[0].length = 2;
+		icmp_key[0].length = 3;
 		icmp_key[0].key = key;
 		icmp_key[1].length = 0;
 		icmp_key[1].key = NULL;
@@ -1102,7 +1115,7 @@ static icmp_transaction_t *transaction_end(packet_info * pinfo,
 
 		/* we found a match. Add entries to the matched table for both request and reply frames
 		 */
-		icmp_key[0].length = 2;
+		icmp_key[0].length = 3;
 		icmp_key[0].key = key;
 		icmp_key[1].length = 1;
 		icmp_key[1].key = &frame_num;
@@ -1120,7 +1133,7 @@ static icmp_transaction_t *transaction_end(packet_info * pinfo,
 		/* Already visited this frame */
 		guint32 frame_num = pinfo->num;
 
-		icmp_key[0].length = 2;
+		icmp_key[0].length = 3;
 		icmp_key[0].key = key;
 		icmp_key[1].length = 1;
 		icmp_key[1].key = &frame_num;
@@ -1238,7 +1251,7 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 	guint32 i;
 	gboolean save_in_error_pkt;
 	tvbuff_t *next_tvb;
-	guint32 conv_key[2];
+	guint32 conv_key[3];
 	icmp_transaction_t *trans = NULL;
 	nstime_t ts, time_relative;
 	ws_ip4 *iph = WS_IP4_PTR(data);
@@ -1506,11 +1519,12 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 			if (!pinfo->flags.in_error_pkt) {
 				conv_key[0] =
 				    (guint32) tvb_get_ntohs(tvb, 2);
-				if (pinfo->flags.in_gre_pkt)
+				if (pinfo->flags.in_gre_pkt && prefs.strict_conversation_tracking_heuristics)
 					conv_key[0] |= 0x00010000;	/* set a bit for "in GRE" */
 				conv_key[1] =
 				    ((guint32) tvb_get_ntohs(tvb, 4) << 16) |
 				     tvb_get_ntohs(tvb, 6);
+				conv_key[2] = prefs.strict_conversation_tracking_heuristics ? pinfo->vlan_id : 0;
 				trans =
 				    transaction_end(pinfo, icmp_tree,
 						    conv_key);
@@ -1527,12 +1541,13 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 				if (conv_key[0] == 0) {
 					conv_key[0] = 0xffff;
 				}
-				if (pinfo->flags.in_gre_pkt) {
+				if (pinfo->flags.in_gre_pkt && prefs.strict_conversation_tracking_heuristics) {
 					conv_key[0] |= 0x00010000;	/* set a bit for "in GRE" */
 				}
 				conv_key[1] =
 				    ((guint32) tvb_get_ntohs(tvb, 4) << 16) |
 				     tvb_get_ntohs(tvb, 6);
+				conv_key[2] = prefs.strict_conversation_tracking_heuristics ? pinfo->vlan_id : 0;
 				trans =
 				    transaction_start(pinfo, icmp_tree,
 						      conv_key);

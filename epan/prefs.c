@@ -3595,6 +3595,12 @@ prefs_register_modules(void)
                                    "Look for dissectors that left some bytes undecoded.",
                                    &prefs.enable_incomplete_dissectors_check);
 
+    prefs_register_bool_preference(protocols_module, "strict_conversation_tracking_heuristics",
+                                   "Enable stricter conversation tracking heuristics",
+                                   "Protocols may use things like VLAN ID or interface ID to narrow the potential for duplicate conversations."
+                                   "Currently only ICMP and ICMPv6 use this preference to add VLAN ID to conversation tracking",
+                                   &prefs.strict_conversation_tracking_heuristics);
+
     /* Obsolete preferences
      * These "modules" were reorganized/renamed to correspond to their GUI
      * configuration screen within the preferences dialog
