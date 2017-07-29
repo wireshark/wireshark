@@ -794,8 +794,6 @@ static const value_string hip_algo_vals[] = {
 };
 
 /* RFC 3123 */
-#define TAPL_ADDR_FAMILY_IPV4   (AFNUM_INET)
-#define TAPL_ADDR_FAMILY_IPV6   (AFNUM_INET6)
 #define DNS_APL_NEGATION       (1<<7)
 #define DNS_APL_AFDLENGTH      (0x7F<<0)
 
@@ -2818,12 +2816,12 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         cur_offset += 1;
         rr_len     -= 1;
 
-        if (afamily == 1 && afdpart_len <= 4) { /* IPv4 */
-          addr_copy = (guint8 *)wmem_alloc0(wmem_file_scope(), 4);
+        if (afamily == AFNUM_INET && afdpart_len <= 4) {
+          addr_copy = (guint8 *)wmem_alloc0(wmem_packet_scope(), 4);
           tvb_memcpy(tvb, (guint8 *)addr_copy, cur_offset, afdpart_len);
-          proto_tree_add_ipv4(rr_tree, hf_dns_apl_afdpart_ipv4, tvb, cur_offset, afdpart_len, *addr_copy);
-        } else if (afamily == 2 && afdpart_len <= 16) { /* IPv6 */
-          addr_copy = (guint8 *)wmem_alloc0(wmem_file_scope(), 16);
+          proto_tree_add_ipv4(rr_tree, hf_dns_apl_afdpart_ipv4, tvb, cur_offset, afdpart_len, *(guint32*)addr_copy);
+        } else if (afamily == AFNUM_INET6 && afdpart_len <= 16) {
+          addr_copy = (guint8 *)wmem_alloc0(wmem_packet_scope(), 16);
           tvb_memcpy(tvb, (guint8 *)addr_copy, cur_offset, afdpart_len);
           proto_tree_add_ipv6(rr_tree, hf_dns_apl_afdpart_ipv6, tvb, cur_offset, afdpart_len, (struct e_in6_addr *)addr_copy);
         } else { /* Other... */
