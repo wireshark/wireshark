@@ -848,8 +848,7 @@ dissect_ipopt_security(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   proto_item *tf;
   guint      val;
   guint      curr_offset = 2;
-  guint offset = 2,
-      optlen = tvb_reported_length(tvb);
+  guint      optlen = tvb_reported_length(tvb);
 
   field_tree = ip_var_option_header(tree, pinfo, tvb, proto_ip_option_security, ett_ip_option_sec, &tf, optlen);
 
@@ -877,7 +876,7 @@ dissect_ipopt_security(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   /* Dissect as RFC 108 */
   proto_tree_add_item(field_tree, hf_ip_opt_sec_cl, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
   curr_offset++;
-  if ((curr_offset - offset) >= optlen) {
+  if (curr_offset >= optlen) {
     return curr_offset;
   }
   val = tvb_get_guint8(tvb, curr_offset);
@@ -886,7 +885,7 @@ dissect_ipopt_security(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                          ENC_BIG_ENDIAN);
   curr_offset++;
   while (val & 0x01) {
-    if ((val & 0x01) && ((curr_offset - offset) == optlen)) {
+    if ((val & 0x01) && (curr_offset == optlen)) {
       expert_add_info(pinfo, tf, &ei_ip_opt_sec_prot_auth_fti);
       break;
     }
@@ -896,7 +895,7 @@ dissect_ipopt_security(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                            ENC_BIG_ENDIAN);
     curr_offset++;
   }
-  if ((curr_offset - offset) < optlen) {
+  if (curr_offset < optlen) {
     expert_add_info(pinfo, tf, &ei_ip_extraneous_data);
   }
 
