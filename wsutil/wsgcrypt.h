@@ -37,8 +37,12 @@ DIAG_OFF(deprecated-declarations)
 
 DIAG_ON(deprecated-declarations)
 
-#define HASH_MD5_LENGTH 16
-#define HASH_SHA1_LENGTH 20
+#define HASH_MD5_LENGTH      16
+#define HASH_SHA1_LENGTH     20
+#define HASH_SHA2_224_LENGTH 28
+#define HASH_SHA2_256_LENGTH 32
+#define HASH_SHA2_384_LENGTH 48
+#define HASH_SHA2_512_LENGTH 64
 
 /* Convenience function to calculate the HMAC from the data in BUFFER
    of size LENGTH with key KEY of size KEYLEN using the algorithm ALGO avoiding the creating of a
