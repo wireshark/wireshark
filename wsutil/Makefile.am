@@ -92,7 +92,8 @@ libwsutil_nonrepl_INCLUDES = \
 	ws_mempbrk.h		\
 	ws_mempbrk_int.h	\
 	ws_printf.h		\
-	wsjsmn.h
+	wsjsmn.h		\
+	xtea.h
 
 # Header files for functions in libwsutil's ABI on this platform.
 libwsutil_abi_INCLUDES = \

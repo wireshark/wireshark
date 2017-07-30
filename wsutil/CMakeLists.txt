@@ -67,6 +67,7 @@ set(WSUTIL_COMMON_FILES
 	ws_mempbrk.c
 	wsgcrypt.c
 	wsjsmn.c
+	xtea.c
 )
 
 set(WSUTIL_FILES ${WSUTIL_COMMON_FILES})
