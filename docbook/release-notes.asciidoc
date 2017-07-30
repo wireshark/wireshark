@@ -28,18 +28,19 @@ used for troubleshooting, analysis, development and education.
 
 The following features are new (or have been significantly updated)
 since version 2.4.0:
-* Add color support for TShark with --color option (non-Windows only)
+* Add color support for TShark with --color option (non-Windows only).
 * The "matches" display filter operator is now case-insensitive.
 * Display expression (button) preferences have been converted to a UAT.
   This puts the display expressions in their own file.  Wireshark still
   supports preference files that contain the old preferences, but new
   preference files will be written without the old fields.
 * SMI private enterprise numbers are now read from the "enterprises.tsv" configuration file.
-* QUIC dissector is rename to G(oogle) QUIC (quic => gquic)
+* QUIC dissector is renamed to G(oogle) QUIC (quic => gquic).
 * Selected packet number can now be shown in the Status Bar by enabling
-  Preferences -> Appearance -> Layout -> Show selected packet number
+  Preferences -> Appearance -> Layout -> Show selected packet number.
 * File load time in Status Bar is now disabled by default and can be enabled in
-  Preferences -> Appearance -> Layout -> Show file load time
+  Preferences -> Appearance -> Layout -> Show file load time.
+* Support for G.729 codec in the RTP Player (via the bcg729 library).
 
 //=== Removed Dissectors
 
