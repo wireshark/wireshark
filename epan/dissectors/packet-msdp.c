@@ -31,12 +31,12 @@
 void proto_register_msdp(void);
 void proto_reg_handoff_msdp(void);
 
-/* MSDP message types. The messages are TLV (Type-Length-Value) encoded */
+/* MSDP (Type-Length-Value) TLV types. The messages are a sequence of TLVs. */
 enum { MSDP_SA     = 1,
        MSDP_SA_REQ,
        MSDP_SA_RSP,
        MSDP_KEEP_ALIVE,
-       MSDP_NOTIFICATION,
+       MSDP_NOTIFICATION,  /* draft 10, but not RFC 3618 */
 
        /* Theses are only assigned in MSDP spec. Their use is specifed
         * elsewhere */
@@ -206,11 +206,14 @@ dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 switch (type) {
                 case MSDP_SA:
-                case MSDP_SA_RSP:
                         dissect_msdp_sa(tvb, pinfo, msdp_tree, &offset,
                                         length);
                         break;
                 case MSDP_SA_REQ:
+                        /*
+                         * This type is mentioned in the RFC but the format
+                         * isn't described.
+                         */
                         if (length < 1)
                                 break;
                         proto_tree_add_item(msdp_tree, hf_msdp_sa_req_res, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -222,6 +225,25 @@ dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         }
                         proto_tree_add_item(msdp_tree, hf_msdp_sa_req_group, tvb, offset, 4, ENC_BIG_ENDIAN);
                         offset += 4;
+                        length -= 4;
+                        if (length > 0) {
+                                proto_tree_add_item(tree, hf_msdp_trailing_junk, tvb, offset, length, ENC_NA);
+                                offset += length;
+                        }
+                        break;
+                case MSDP_SA_RSP:
+                        /*
+                         * This type is mentioned in the RFC but the format
+                         * isn't described.
+                         */
+                        dissect_msdp_sa(tvb, pinfo, msdp_tree, &offset,
+                                        length);
+                        break;
+                case MSDP_KEEP_ALIVE:
+                        if (length > 0) {
+                                proto_tree_add_item(tree, hf_msdp_trailing_junk, tvb, offset, length, ENC_NA);
+                                offset += length;
+                        }
                         break;
                 case MSDP_NOTIFICATION:
                         /*
