@@ -530,6 +530,7 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 			handle_lapdm(sub_type, payload_tvb, pinfo, tree);
 			return tvb_captured_length(tvb);
 		case GSMTAP_CHANNEL_PACCH:
+		case GSMTAP_CHANNEL_PDTCH:
 			if (pinfo->p2p_dir == P2P_DIR_SENT) {
 				sub_handle = GSMTAP_SUB_UM_RLC_MAC_UL;
 			}
