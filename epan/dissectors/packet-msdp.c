@@ -1,6 +1,6 @@
 /* packet-msdp.c
  * Routines for Multicast Source Discovery Protocol (MSDP) dissection.
- * draft-ietf-msdp-spec-10.txt
+ * RFC 3618
  *
  * Copyright 2001, Heikki Vatiainen <hessu@cs.tut.fi>
  *
@@ -156,7 +156,6 @@ static int hf_msdp_not_sprefix_len = -1;
 
 static int hf_msdp_tlv_contents = -1;
 static int hf_msdp_trailing_junk = -1;
-static int hf_msdp_unknown_encap = -1;
 static int hf_msdp_unknown_data = -1;
 
 static gint ett_msdp = -1;
@@ -189,7 +188,7 @@ dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
         col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(tvb_get_guint8(tvb, 0),
                                                                      msdp_types,
-                                                                     "<Unknown MSDP message type>"));
+                                                                     "<Unknown MSDP TLV type>"));
 
         ti = proto_tree_add_item(tree, proto_msdp, tvb, 0, -1, ENC_NA);
         msdp_tree = proto_item_add_subtree(ti, ett_msdp);
@@ -212,11 +211,23 @@ dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                                         length);
                         break;
                 case MSDP_SA_REQ:
+                        if (length < 1)
+                                break;
                         proto_tree_add_item(msdp_tree, hf_msdp_sa_req_res, tvb, offset, 1, ENC_BIG_ENDIAN);
-                        proto_tree_add_item(msdp_tree, hf_msdp_sa_req_group, tvb, offset + 1, 4, ENC_BIG_ENDIAN);
-                        offset += 5;
+                        offset += 1;
+                        length -= 1;
+                        if (length < 4) {
+                                offset += length;
+                                break;
+                        }
+                        proto_tree_add_item(msdp_tree, hf_msdp_sa_req_group, tvb, offset, 4, ENC_BIG_ENDIAN);
+                        offset += 4;
                         break;
                 case MSDP_NOTIFICATION:
+                        /*
+                         * This was in draft 10, but is reserved in the
+                         * RFC.
+                         */
                         dissect_msdp_notification(tvb, pinfo, msdp_tree, &offset, length);
                         break;
                 default:
@@ -292,26 +303,19 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo,
          */
         if (length > 0) {
                 proto_tree *enc_tree;
-                gint available_length, reported_length;
+                gint reported_length;
                 tvbuff_t *next_tvb;
 
                 enc_tree = proto_tree_add_subtree_format(tree, tvb, *offset, length,
                                          ett_msdp_sa_enc_data, NULL, "Encapsulated IPv4 packet: %u bytes",
                                          length);
 
-                available_length = tvb_captured_length_remaining(tvb, *offset);
                 reported_length = tvb_reported_length_remaining(tvb, *offset);
-                DISSECTOR_ASSERT(available_length >= 0);
                 DISSECTOR_ASSERT(reported_length >= 0);
-                if (available_length > reported_length)
-                        available_length = reported_length;
-                if (available_length > length)
-                        available_length = length;
                 if (reported_length > length)
                         reported_length = length;
 
-                next_tvb = tvb_new_subset(tvb, *offset, available_length,
-                                          reported_length);
+                next_tvb = tvb_new_subset_length(tvb, *offset, reported_length);
                 /* Set the information columns read-only so that they
                  * reflect the MSDP packet rather than the
                  * encapsulated packet.
@@ -339,12 +343,17 @@ static void dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_t
 {
         guint8              error, error_sub;
         const value_string *vals;
+        gint reported_length;
+        tvbuff_t *next_tvb;
 
+        if (tlv_len < 1)
+                return;
         proto_tree_add_item(tree, hf_msdp_not_o, tvb, *offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_msdp_not_error, tvb, *offset, 1, ENC_BIG_ENDIAN);
         error = tvb_get_guint8(tvb, *offset);
         error &= 0x7F;             /* Error is 7-bit field. O-bit is bit 8 */
         *offset += 1;
+        tlv_len -= 1;
 
         /* Depending on the Error Code, we collect the correct
          * value_strings for the Error subcode
@@ -372,63 +381,117 @@ static void dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_t
                 break;
         }
 
+        if (tlv_len < 1)
+                return;
         error_sub = tvb_get_guint8(tvb, *offset);
         proto_tree_add_uint_format_value(tree, hf_msdp_not_error_sub, tvb, *offset, 1,
                                    error_sub, "%s (%u)",
                                    val_to_str_const(error_sub, vals, "<Unknown Error subcode>"),
                                    error_sub);
         *offset += 1;
+        tlv_len -= 1;
 
         /* Do switch again, this time to dissect the data portion
          * correctly. Ugly.
          */
         switch (error) {
         case SA_REQUEST_ERROR:
+                if (tlv_len < 7) {
+                        *offset += tlv_len;
+                        return;
+                }
                 add_notification_data_ipv4addr(tvb, tree, offset, hf_msdp_not_group_address);
+                tlv_len -= 7;
                 break;
         case SA_MESSAGE_SA_RESPONSE_ERROR:
                 if (error_sub == 0) {
                         break;
                 } else if (error_sub == 1) {
+                        if (tlv_len < 1)
+                                return;
                         proto_tree_add_item(tree, hf_msdp_not_entry_count, tvb, *offset, 1, ENC_BIG_ENDIAN);
                         *offset += 1;
+                        tlv_len -= 1;
                         break;
                 } else if (error_sub == 2) {
+                        if (tlv_len < 7) {
+                                *offset += tlv_len;
+                                return;
+                        }
                         add_notification_data_ipv4addr(tvb, tree, offset, hf_msdp_not_rp_address);
+                        tlv_len -= 7;
                         break;
                 } else if (error_sub == 3 || error_sub == 8) {
+                        if (tlv_len < 7) {
+                                *offset += tlv_len;
+                                return;
+                        }
                         add_notification_data_ipv4addr(tvb, tree, offset, hf_msdp_not_group_address);
+                        tlv_len -= 7;
                         break;
                 } else if (error_sub == 4) {
+                        if (tlv_len < 7) {
+                                *offset += tlv_len;
+                                return;
+                        }
                         add_notification_data_ipv4addr(tvb, tree, offset, hf_msdp_not_source_address);
+                        tlv_len -= 7;
                         break;
                 } else if (error_sub == 5) {
+                        if (tlv_len < 1)
+                                return;
                         proto_tree_add_item(tree, hf_msdp_not_sprefix_len, tvb, *offset, 1, ENC_BIG_ENDIAN);
                         *offset += 1;
+                        tlv_len -= 1;
                         break;
                 } else if (error_sub == 6) {
-                        /* No break, causes fall through to next label */
+                        if (tlv_len > 0) {
+                                reported_length = tvb_reported_length_remaining(tvb, *offset);
+                                DISSECTOR_ASSERT(reported_length >= 0);
+                                if (reported_length > tlv_len)
+                                        reported_length = tlv_len;
+                                next_tvb = tvb_new_subset_length(tvb, *offset, tlv_len);
+                                dissect_msdp(next_tvb, pinfo, tree, NULL);
+                        }
+                        *offset += tlv_len;
+                        tlv_len = 0;
                 } else if (error_sub == 7) {
-                        proto_tree_add_item(tree, hf_msdp_unknown_encap, tvb, *offset, tlv_len - 5, ENC_NA);
-                        *offset += tlv_len - 5;
+                        if (tlv_len > 0) {
+                                reported_length = tvb_reported_length_remaining(tvb, *offset);
+                                DISSECTOR_ASSERT(reported_length >= 0);
+                                if (reported_length > tlv_len)
+                                        reported_length = tlv_len;
+                                next_tvb = tvb_new_subset_length(tvb, *offset, tlv_len);
+                                dissect_msdp(next_tvb, pinfo, tree, NULL);
+                        }
+                        *offset += tlv_len;
+                        tlv_len = 0;
                         break;
                 } else {
-                        proto_tree_add_item(tree, hf_msdp_unknown_data, tvb, *offset, tlv_len - 5, ENC_NA);
-                        *offset += tlv_len - 5;
+                        if (tlv_len > 0)
+                                proto_tree_add_item(tree, hf_msdp_unknown_data, tvb, *offset, tlv_len, ENC_NA);
+                        *offset += tlv_len;
+                        tlv_len = 0;
                         break;
                 }
-                /* Fall through */
+                break;
         case MESSAGE_HEADER_ERROR:
-        case NOTIFICATION: {
-                tvbuff_t *next_tvb;
+        case NOTIFICATION:
                 /* Data contains the message that had an error. Even a
                  * broken Notification message causes a Notification
                  * message with Error Code set to Notification to be
                  * sent back.
                  */
-                next_tvb = tvb_new_subset_remaining(tvb, *offset);
-                dissect_msdp(next_tvb, pinfo, tree, NULL);
+                if (tlv_len > 0) {
+                        reported_length = tvb_reported_length_remaining(tvb, *offset);
+                        DISSECTOR_ASSERT(reported_length >= 0);
+                        if (reported_length > tlv_len)
+                                reported_length = tlv_len;
+                        next_tvb = tvb_new_subset_length(tvb, *offset, tlv_len);
+                        dissect_msdp(next_tvb, pinfo, tree, NULL);
                 }
+                *offset += tlv_len;
+                tlv_len = 0;
                 break;
         case FSM_ERROR:
         case HOLD_TIMER_EXPIRED:
@@ -436,10 +499,15 @@ static void dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_t
                 /* Do nothing. These contain no data */
                 break;
         default:
-                if (tlv_len - 5 > 0)
-                proto_tree_add_item(tree, hf_msdp_unknown_data, tvb, *offset, tlv_len - 5, ENC_NA);
-                *offset += tlv_len - 5;
+                if (tlv_len > 0)
+                        proto_tree_add_item(tree, hf_msdp_unknown_data, tvb, *offset, tlv_len, ENC_NA);
+                *offset += tlv_len;
+                tlv_len = 0;
                 break;
+        }
+        if (tlv_len != 0) {
+                proto_tree_add_item(tree, hf_msdp_trailing_junk, tvb, *offset, tlv_len, ENC_NA);
+                *offset += tlv_len;
         }
 
         return;
@@ -551,11 +619,6 @@ proto_register_msdp(void)
                 },
                 { &hf_msdp_trailing_junk,
                         { "Trailing junk",           "msdp.trailing_junk",
-                        FT_BYTES, BASE_NONE, NULL, 0,
-                        NULL, HFILL }
-                },
-                { &hf_msdp_unknown_encap,
-                        { "Packet with unknown encapsulation",           "msdp.unknown_encap",
                         FT_BYTES, BASE_NONE, NULL, 0,
                         NULL, HFILL }
                 },
