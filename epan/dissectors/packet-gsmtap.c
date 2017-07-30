@@ -226,7 +226,7 @@ static const value_string gsmtap_channels[] = {
 	{ GSMTAP_CHANNEL_TCH_H,		"FACCH/H" },
 	{ GSMTAP_CHANNEL_PACCH,		"PACCH" },
 	{ GSMTAP_CHANNEL_CBCH52,	"CBCH" },
-	{ GSMTAP_CHANNEL_PDCH,		"PDCH" },
+	{ GSMTAP_CHANNEL_PDTCH,		"PDTCH" },
 	{ GSMTAP_CHANNEL_PTCCH,		"PTTCH" },
 	{ GSMTAP_CHANNEL_CBCH51,	"CBCH" },
 
