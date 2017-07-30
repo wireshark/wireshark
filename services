@@ -724,8 +724,8 @@ cvc-hostd         442/tcp # cvc_hostdIANA assigned this well-formed service name
 cvc_hostd         442/tcp # cvc_hostd [Bill_Davidson] [Bill_Davidson] This entry is an alias to "cvc-hostd".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
 cvc-hostd         442/udp # cvc_hostdIANA assigned this well-formed service name as a replacement for "cvc_hostd". [Bill_Davidson] [Bill_Davidson]
 cvc_hostd         442/udp # cvc_hostd [Bill_Davidson] [Bill_Davidson] This entry is an alias to "cvc-hostd".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
-https             443/tcp # http protocol over TLS/SSL [Kipp_E_B_Hickman] [Kipp_E_B_Hickman]
-https             443/udp # http protocol over TLS/SSL [Kipp_E_B_Hickman] [Kipp_E_B_Hickman]
+https             443/tcp # http protocol over TLS/SSL [IESG] [IESG] 2017-07-26
+https             443/udp # http protocol over TLS/SSL [IESG] [IESG] 2017-07-26
 https             443/sctp # HTTPS [Randall_Stewart] [Randall_Stewart] [RFC4960]
 snpp              444/tcp # Simple Network Paging Protocol [RFC1568]
 snpp              444/udp # Simple Network Paging Protocol [RFC1568]
@@ -6595,8 +6595,8 @@ a15              3598/tcp # A15 (AN-to-AN) [David_Ott] [David_Ott] 2002-09
 a15              3598/udp # A15 (AN-to-AN) [David_Ott] [David_Ott] 2002-09
 quasar-server    3599/tcp # Quasar Accounting Server [Brad_Pepers] [Brad_Pepers] 2002-09
 quasar-server    3599/udp # Quasar Accounting Server [Brad_Pepers] [Brad_Pepers] 2002-09
-trap-daemon      3600/tcp # text relay-answer [John_Willis] [John_Willis] 2002-09
-trap-daemon      3600/udp # text relay-answer [John_Willis] [John_Willis] 2002-09
+trap-daemon      3600/tcp # text relay-answer [John_Willis] [John_Willis] 2002-09 2017-07-26
+trap-daemon      3600/udp # text relay-answer [John_Willis] [John_Willis] 2002-09 2017-07-26
 visinet-gui      3601/tcp # Visinet Gui [Jeff_Douglass] [Jeff_Douglass] 2002-09
 visinet-gui      3601/udp # Visinet Gui [Jeff_Douglass] [Jeff_Douglass] 2002-09
 infiniswitchcl   3602/tcp # InfiniSwitch Mgr Client [Lee_VanTine] [Lee_VanTine] 2002-09
