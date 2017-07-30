@@ -590,7 +590,7 @@ source_group("ui\\Widget Source" FILES ${WIRESHARK_WIDGET_SRCS})
 source_group("ui\\Utils Headers Files" FILES ${WIRESHARK_UTILS_HEADERS})
 source_group("ui\\Utils Source" FILES ${WIRESHARK_UTILS_SRCS})
 source_group("ui\\Models Headers" FILES ${WIRESHARK_MODEL_HEADERS})
-source_group("ui\\Models Headers" FILES ${WIRESHARK_MODEL_SRCS})
+source_group("ui\\Models Source" FILES ${WIRESHARK_MODEL_SRCS})
 
 add_library(qtui STATIC
 	#Included so that Visual Studio can properly put header files in solution
