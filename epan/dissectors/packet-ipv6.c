@@ -79,6 +79,7 @@ void proto_reg_handoff_ipv6(void);
 #define IP6OPT_RTALERT                  0x05    /* 00 0 00101 =   5 */
 #define IP6OPT_CALIPSO                  0x07    /* 00 0 00111 =   7 */
 #define IP6OPT_SMF_DPD                  0x08    /* 00 0 01000 =   8 */
+#define IP6OPT_PDM                      0x0F    /* 00 0 01111 =  15 */
 #define IP6OPT_EXP_1E                   0x1E    /* 00 0 11110 =  30 */
 #define IP6OPT_QUICKSTART               0x26    /* 00 1 00110 =  38 */
 #define IP6OPT_EXP_3E                   0x3E    /* 00 1 11110 =  62 */
@@ -180,6 +181,12 @@ static int hf_ipv6_opt_smf_dpd_tid_len          = -1;
 static int hf_ipv6_opt_smf_dpd_tagger_id        = -1;
 static int hf_ipv6_opt_smf_dpd_ident            = -1;
 static int hf_ipv6_opt_smf_dpd_hav              = -1;
+static int hf_ipv6_opt_pdm_scale_dtlr           = -1;
+static int hf_ipv6_opt_pdm_scale_dtls           = -1;
+static int hf_ipv6_opt_pdm_psn_this_pkt         = -1;
+static int hf_ipv6_opt_pdm_psn_last_recv        = -1;
+static int hf_ipv6_opt_pdm_delta_last_recv      = -1;
+static int hf_ipv6_opt_pdm_delta_last_sent      = -1;
 static int hf_ipv6_opt_qs_func                  = -1;
 static int hf_ipv6_opt_qs_rate                  = -1;
 static int hf_ipv6_opt_qs_ttl                   = -1;
@@ -551,6 +558,7 @@ static const value_string ipv6_opt_type_vals[] = {
     { IP6OPT_RTALERT,       "Router Alert"                  },
     { IP6OPT_CALIPSO,       "CALIPSO"                       },
     { IP6OPT_SMF_DPD,       "SMF_DPD"                       },
+    { IP6OPT_PDM,           "Performance and Diagnostic Metrics" },
     { IP6OPT_EXP_1E,        "Experimental (0x1E)"           },
     { IP6OPT_QUICKSTART,    "Quick-Start"                   },
     { IP6OPT_EXP_3E,        "Experimental (0x3E)"           },
@@ -620,6 +628,7 @@ static const gint _ipv6_opt_type_hdr[][2] = {
     { IP6OPT_RTALERT,       IPv6_OPT_HDR_HBH },
     { IP6OPT_CALIPSO,       IPv6_OPT_HDR_HBH },
     { IP6OPT_SMF_DPD,       IPv6_OPT_HDR_HBH },
+    { IP6OPT_PDM,           IPv6_OPT_HDR_DST },
     { IP6OPT_QUICKSTART,    IPv6_OPT_HDR_HBH },
     { IP6OPT_RPL,           IPv6_OPT_HDR_HBH },
     { IP6OPT_MPL,           IPv6_OPT_HDR_HBH },
@@ -1616,6 +1625,43 @@ dissect_opt_smf_dpd(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tr
 }
 
 /*
+ * Performance and Diagnostic Metrics Destination Option (ietf-ippm-6man-pdm-option-13)
+ *
+      0                   1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |  Option Type  | Option Length |    ScaleDTLR  |     ScaleDTLS |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |   PSN This Packet             |  PSN Last Received            |
+      |-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |   Delta Time Last Received    |  Delta Time Last Sent         |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+*/
+static gint
+dissect_opt_pdm(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *opt_tree,
+                    struct opt_proto_item *opt_ti _U_, guint8 opt_len)
+{
+    if (opt_len != 10) {
+        expert_add_info_format(pinfo, opt_ti->len, &ei_ipv6_opt_invalid_len,
+                "PDM: Invalid length (%u bytes)", opt_len);
+    }
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_pdm_scale_dtlr, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_pdm_scale_dtls, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_pdm_psn_this_pkt, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_pdm_psn_last_recv, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_pdm_delta_last_recv, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_pdm_delta_last_sent, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+/*
  * Home Address Option
  *
        0                   1                   2                   3
@@ -1924,6 +1970,9 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
             break;
         case IP6OPT_SMF_DPD:
             offset = dissect_opt_smf_dpd(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
+            break;
+        case IP6OPT_PDM:
+            offset = dissect_opt_pdm(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
         case IP6OPT_HOME_ADDRESS:
             offset = dissect_opt_home_address(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
@@ -2826,6 +2875,36 @@ proto_register_ipv6(void)
         { &hf_ipv6_opt_smf_dpd_hav,
             { "Hash Assist Value", "ipv6.opt.smf_dpd.hav",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_pdm_scale_dtlr,
+            { "Scale DTLR", "ipv6.opt.pdm.scale_dtlr",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Scale for Delta Time Last Received", HFILL }
+        },
+        { &hf_ipv6_opt_pdm_scale_dtls,
+            { "Scale DTLS", "ipv6.opt.pdm.scale_dtls",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Scale for Delta Time Last Sent", HFILL }
+        },
+        { &hf_ipv6_opt_pdm_psn_this_pkt,
+            { "PSN This Packet", "ipv6.opt.pdm.psn_this_pkt",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Packet Sequence Number This Packet", HFILL }
+        },
+        { &hf_ipv6_opt_pdm_psn_last_recv,
+            { "PSN Last Received", "ipv6.opt.pdm.psn_last_recv",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Packet Sequence Number Last Received", HFILL }
+        },
+        { &hf_ipv6_opt_pdm_delta_last_recv,
+            { "Delta Time Last Received", "ipv6.opt.pdm.delta_last_recv",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_pdm_delta_last_sent,
+            { "Delta Time Last Sent", "ipv6.opt.pdm.delta_last_sent",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_ipv6_opt_qs_func,
