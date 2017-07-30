@@ -3541,6 +3541,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
       proto_item_append_text(trr, ", name result domain %s", name_out);
     }
+    break;
 
     case T_XPF: /* XPF draft-bellis-dnsop-xpf */
     {
