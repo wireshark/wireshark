@@ -24,6 +24,19 @@
 
 int dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ );
 
+/** Get header value from current or the other direction stream.
+ * Return the value of a header if it appear in previous HEADERS or PROMISE frames in
+ * current or the other direction stream. Subdissector may invoke this function to get http2
+ * header value.
+ * @param pinfo  packet info pointer. Http2 dissector passes it to subdissector
+ *               when dissecting http2.data.data.
+ * @param name   the name of header.
+ * @param the_other_direction  FALSE means from current direction stream, TRUE from the other.
+ * @return  NULL if header was not found. Or header value. Note: the value is allocated
+ *          by wmem_packet_scope().
+ */
+const gchar* http2_get_header_value(packet_info *pinfo, const gchar* name, gboolean the_other_direction);
+
 #endif
 
 /*

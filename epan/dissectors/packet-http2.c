@@ -165,6 +165,9 @@ typedef struct {
 typedef struct {
     http2_frame_num_t header_start_in;
     http2_frame_num_t header_end_in;
+    /* list of pointer to wmem_array_t, which is array of http2_header_t
+    * that come from all HEADERS and CONTINUATION frames. */
+    wmem_list_t *stream_header_list;
 } http2_header_stream_info_t;
 
 /* struct to reference uni-directional per-stream info */
@@ -539,6 +542,8 @@ get_stream_info(http2_session_t *http2_session)
     http2_stream_info_t *stream_info = (http2_stream_info_t *)wmem_map_lookup(stream_map, GINT_TO_POINTER(stream_id));
     if (stream_info == NULL) {
         stream_info = wmem_new0(wmem_file_scope(), http2_stream_info_t);
+        stream_info->oneway_stream_info[0].header_stream_info.stream_header_list = wmem_list_new(wmem_file_scope());
+        stream_info->oneway_stream_info[1].header_stream_info.stream_header_list = wmem_list_new(wmem_file_scope());
         stream_info->stream_id = stream_id;
         wmem_map_insert(stream_map, GINT_TO_POINTER(stream_id), stream_info);
     }
@@ -627,11 +632,16 @@ get_http2_frame_num(tvbuff_t *tvb, packet_info *pinfo)
 }
 
 static http2_oneway_stream_info_t*
-get_oneway_stream_info(packet_info *pinfo)
+get_oneway_stream_info(packet_info *pinfo, gboolean the_other_direction)
 {
     http2_session_t *http2_session = get_http2_session(pinfo);
     http2_stream_info_t *http2_stream_info = get_stream_info(http2_session);
     int flow_index = select_http2_flow_index(pinfo, http2_session);
+    if (the_other_direction) {
+        /* need stream info of the other direction,
+        so set index from 0 to 1, or from 1 to 0 */
+        flow_index ^= 1;
+    }
 
     return &http2_stream_info->oneway_stream_info[flow_index];
 }
@@ -639,20 +649,20 @@ get_oneway_stream_info(packet_info *pinfo)
 static http2_data_stream_body_info_t*
 get_data_stream_body_info(packet_info *pinfo)
 {
-    return &(get_oneway_stream_info(pinfo)->data_stream_body_info);
+    return &(get_oneway_stream_info(pinfo, FALSE)->data_stream_body_info);
 }
 
 
 static http2_data_stream_reassembly_info_t*
 get_data_reassembly_info(packet_info *pinfo)
 {
-    return &(get_oneway_stream_info(pinfo)->data_stream_reassembly_info);
+    return &(get_oneway_stream_info(pinfo, FALSE)->data_stream_reassembly_info);
 }
 
 static http2_header_stream_info_t*
-get_header_stream_info(packet_info *pinfo)
+get_header_stream_info(packet_info *pinfo, gboolean the_other_direction)
 {
-    return &(get_oneway_stream_info(pinfo)->header_stream_info);
+    return &(get_oneway_stream_info(pinfo, the_other_direction)->header_stream_info);
 }
 
 static void
@@ -867,7 +877,7 @@ static gboolean http2_hdrcache_equal(gconstpointer lhs, gconstpointer rhs)
 static int
 is_in_header_context(tvbuff_t *tvb, packet_info *pinfo)
 {
-    http2_header_stream_info_t *stream_info = get_header_stream_info(pinfo);
+    http2_header_stream_info_t *stream_info = get_header_stream_info(pinfo, FALSE);
     if (get_http2_frame_num(tvb, pinfo) >= stream_info->header_start_in) {
         /* We either haven't established the frame that the headers end in so we are currently in the HEADERS context,
          * or if we have, it should be equal or less that the current frame number */
@@ -1022,6 +1032,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
     guint i;
     const gchar *method_header_value = NULL;
     const gchar *path_header_value = NULL;
+    http2_header_stream_info_t* header_stream_info;
 
     if (!http2_hdrcache_map) {
         http2_hdrcache_map = wmem_map_new(wmem_file_scope(), http2_hdrcache_hash, http2_hdrcache_equal);
@@ -1138,6 +1149,12 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
 
         if(!header_data->current) {
             header_data->current = wmem_list_head(header_list);
+        }
+
+        /* add this packet headers to stream header list */
+        header_stream_info = get_header_stream_info(pinfo, FALSE);
+        if (header_stream_info) {
+            wmem_list_append(header_stream_info->stream_header_list, headers);
         }
 
     } else {
@@ -1565,11 +1582,73 @@ dissect_http2_data_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *http2_tre
     }
 }
 
+/* Get header value from current or the other direction stream_header_list */
+const gchar*
+http2_get_header_value(packet_info *pinfo, const gchar* name, gboolean the_other_direction)
+{
+    http2_header_stream_info_t* header_stream_info;
+    wmem_list_frame_t* frame;
+    wmem_array_t* headers;
+    guint i;
+    guint32 name_len;
+    guint32 value_len;
+    http2_header_t *hdr;
+    gchar* data;
+
+    header_stream_info = get_header_stream_info(pinfo, the_other_direction);
+    if (!header_stream_info) {
+        return NULL;
+    }
+
+    for (frame = wmem_list_head(header_stream_info->stream_header_list);
+        frame;
+        frame = wmem_list_frame_next(frame))
+    {   /* each frame contains one HEADERS or CONTINUATION frame's headers */
+        headers = (wmem_array_t*)wmem_list_frame_data(frame);
+        if (!headers) {
+            continue;
+        }
+
+        for (i = 0; i < wmem_array_get_count(headers); ++i) {
+            hdr = (http2_header_t*)wmem_array_index(headers, i);
+            if (hdr->type == HTTP2_HD_HEADER_TABLE_SIZE_UPDATE) {
+                continue;
+            }
+
+            /* parsing data as format:
+                   name length (uint32)
+                   name (string)
+                   value length (uint32)
+                   value (string)
+            */
+            data = (gchar*) hdr->table.data.data;
+            name_len = pntoh32(data);
+            if (strlen(name) == name_len && strncmp(data + 4, name, name_len) == 0) {
+                value_len = pntoh32(data + 4 + name_len);
+                if (4 + name_len + 4 + value_len == hdr->table.data.datalen) {
+                    /* return value */
+                    return wmem_strndup(wmem_packet_scope(), data + 4 + name_len + 4, value_len);
+                }
+                else {
+                    return NULL; /* unexpected error */
+                }
+            }
+        }
+    }
+
+    return NULL;
+}
 #else
 static void
 dissect_http2_data_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree, guint offset, guint8 flags _U_, gint datalen)
 {
     proto_tree_add_item(http2_tree, hf_http2_data_data, tvb, offset, datalen, ENC_NA);
+}
+
+const gchar*
+http2_get_header_value(packet_info *pinfo _U_, const gchar* name _U_, gboolean the_other_direction _U_)
+{
+    return NULL;
 }
 #endif
 
@@ -1627,7 +1706,7 @@ dissect_http2_headers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_t
     /* Mark this frame as the first header frame seen and last if the END_HEADERS flag
      * is set. We use this to ensure when we read header values, we are not reading ones
      * that have come from a PUSH_PROMISE header (and associated CONTINUATION frames) */
-    http2_header_stream_info_t *stream_info = get_header_stream_info(pinfo);
+    http2_header_stream_info_t *stream_info = get_header_stream_info(pinfo, FALSE);
     if (stream_info->header_start_in == 0) {
         stream_info->header_start_in = get_http2_frame_num(tvb, pinfo);
     }
@@ -1873,7 +1952,7 @@ dissect_http2_continuation(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
     /* Mark this as the last CONTINUATION frame for a HEADERS frame. This is used to know the context when we read
      * header (is the source a HEADER frame or a PUSH_PROMISE frame?) */
     if (flags & HTTP2_FLAGS_END_HEADERS) {
-        http2_header_stream_info_t *stream_info = get_header_stream_info(pinfo);
+        http2_header_stream_info_t *stream_info = get_header_stream_info(pinfo, FALSE);
         if (stream_info->header_start_in != 0 && stream_info->header_end_in == 0) {
             stream_info->header_end_in = get_http2_frame_num(tvb, pinfo);
         }
