@@ -186,8 +186,8 @@ dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         proto_tree *msdp_tree;
         proto_item *length_item;
         int         offset;
-        guint8      type;
-        guint16     length;
+        guint32     type;
+        guint32     length;
 
 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSDP");
@@ -201,10 +201,8 @@ dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
         offset = 0;
         while (tvb_reported_length_remaining(tvb, offset) != 0) {
-                type = tvb_get_guint8(tvb, offset);
-                length = tvb_get_ntohs(tvb, offset + 1);
-                proto_tree_add_uint(msdp_tree, hf_msdp_type, tvb, offset, 1, type);
-                length_item = proto_tree_add_uint(msdp_tree, hf_msdp_length, tvb, offset + 1, 2, length);
+                proto_tree_add_item_ret_uint(msdp_tree, hf_msdp_type, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
+                length_item = proto_tree_add_item_ret_uint(msdp_tree, hf_msdp_length, tvb, offset + 1, 2, ENC_BIG_ENDIAN, &length);
                 if (length < 3) {
                         expert_add_info_format(pinfo, length_item,
                             &ei_msdp_tlv_len_too_short,
@@ -293,7 +291,7 @@ dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, int *offset, int length, proto_item *length_item)
 {
-        guint8 entries;
+        guint32 entries;
 
         if (length < 1) {
                 expert_add_info_format(pinfo, length_item,
@@ -301,8 +299,7 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo,
                     "TLV length for IPv4 Source-Active or Source-Active Response < 5");
                 return;
         }
-        entries = tvb_get_guint8(tvb, *offset);
-        proto_tree_add_uint(tree, hf_msdp_sa_entry_count, tvb, *offset, 1, entries);
+        proto_tree_add_item_ret_uint(tree, hf_msdp_sa_entry_count, tvb, *offset, 1, ENC_BIG_ENDIAN, &entries);
         *offset += 1;
         length -= 1;
 
