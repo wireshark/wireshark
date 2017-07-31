@@ -473,7 +473,7 @@ static void dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_t
                                 if (reported_length > tlv_len)
                                         reported_length = tlv_len;
                                 next_tvb = tvb_new_subset_length(tvb, *offset, tlv_len);
-                                dissect_msdp(next_tvb, pinfo, tree, NULL);
+                                dissect_msdp(next_tvb, pinfo, tree);
                         }
                         *offset += tlv_len;
                         tlv_len = 0;
@@ -484,7 +484,7 @@ static void dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_t
                                 if (reported_length > tlv_len)
                                         reported_length = tlv_len;
                                 next_tvb = tvb_new_subset_length(tvb, *offset, tlv_len);
-                                dissect_msdp(next_tvb, pinfo, tree, NULL);
+                                dissect_msdp(next_tvb, pinfo, tree);
                         }
                         *offset += tlv_len;
                         tlv_len = 0;
