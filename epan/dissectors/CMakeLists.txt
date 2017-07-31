@@ -994,6 +994,7 @@ set(DISSECTOR_SRC
 	packet-gprs-llc.c
 	packet-gprscdr.c
 	packet-gre.c
+	packet-grpc.c
 	packet-gsm_a_bssmap.c
 	packet-gsm_a_common.c
 	packet-gsm_a_dtap.c
