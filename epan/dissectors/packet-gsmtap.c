@@ -28,6 +28,10 @@
  * payload in various formats of GSM interfaces such as Um MAC
  * blocks or Um bursts.
  *
+ * It is defined by the gsmtap.h libosmocore header, in
+ *
+ * http://cgit.osmocom.org/cgit/libosmocore/tree/include/osmocom/core/gsmtap.h
+ *
  * Example programs generating GSMTAP data are airprobe
  * (http://airprobe.org/) or OsmocomBB (http://bb.osmocom.org/)
  *
