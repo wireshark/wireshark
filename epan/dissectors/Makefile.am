@@ -1105,6 +1105,7 @@ DISSECTOR_SRC = \
 	packet-ppp.c		\
 	packet-pppoe.c		\
 	packet-pptp.c		\
+	packet-protobuf.c   	\
 	packet-prp.c		\
 	packet-ptp.c		\
 	packet-ptpip.c		\
@@ -1708,6 +1709,7 @@ DISSECTOR_INCLUDES = \
 	packet-ppi-geolocation-common.h	\
 	packet-ppp.h		\
 	packet-pres.h		\
+	packet-protobuf.h	\
 	packet-ptp.h		\
 	packet-ptpip.h		\
 	packet-pw-atm.h		\

@@ -1450,6 +1450,7 @@ set(DISSECTOR_SRC
 	packet-ppp.c
 	packet-pppoe.c
 	packet-pptp.c
+	packet-protobuf.c
 	packet-prp.c
 	packet-ptp.c
 	packet-ptpip.c

@@ -73,6 +73,7 @@ Tibia
 Broadcom tags (Broadcom Ethernet switch management frames)
 GRPC (gRPC)
 SolarEdge monitoring protocol
+Protobuf (Protocol Buffers)
 --sort-and-group--
 
 === Updated Protocol Support
