@@ -46,13 +46,15 @@
 
 if (WIN32)
   find_path(CYGWIN_INSTALL_PATH
-    cygwin.bat
-    PATH ENV WIRESHARK_CYGWIN_INSTALL_PATH
-    "C:/Cygwin"
-    "C:/Cygwin64"
-    "C:/tools/cygwin"
-    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Cygwin\\setup;rootdir]"
-    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Cygnus Solutions\\Cygwin\\mounts v2\\/;native]"
+    NAMES cygwin.bat
+    PATHS
+      ENV WIRESHARK_CYGWIN_INSTALL_PATH
+      "C:/Cygwin"
+      "C:/Cygwin64"
+      "C:/tools/cygwin"
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Cygwin\\setup;rootdir]"
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Cygwin\\setup;rootdir]"
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Cygnus Solutions\\Cygwin\\mounts v2\\/;native]"
   )
 
   if(NOT CYGWIN_INSTALL_PATH)
