@@ -275,7 +275,10 @@ static gboolean dissect_ircomm_parameters(tvbuff_t* tvb, guint offset, packet_in
 
                     g_strlcat(buf, ")", 256);
 
-                    proto_item_append_text(ti, "%s", buf+2);
+                    if (strlen(buf) > 2)
+                        proto_item_append_text(ti, "%s", buf+2);
+                    else
+                        proto_item_append_text(ti, "unknown)");
 
                     break;
 
@@ -290,7 +293,10 @@ static gboolean dissect_ircomm_parameters(tvbuff_t* tvb, guint offset, packet_in
 
                     g_strlcat(buf, ")", 256);
 
-                    proto_item_append_text(ti, "%s", buf+2);
+                    if (strlen(buf) > 2)
+                        proto_item_append_text(ti, "%s", buf+2);
+                    else
+                        proto_item_append_text(ti, "unknown)");
 
                     break;
 
