@@ -31,6 +31,7 @@
 #include <QCheckBox>
 
 #include <ui/qt/widgets/display_filter_edit.h>
+#include <ui/qt/widgets/editor_file_dialog.h>
 
 UatDelegate::UatDelegate(QObject *parent) : QStyledItemDelegate(parent)
 {
@@ -49,11 +50,39 @@ QWidget *UatDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &
 
     switch (field->mode) {
     case PT_TXTMOD_DIRECTORYNAME:
-    case PT_TXTMOD_FILENAME:
-        // TODO tab navigation from this field is broken.
-        // Do not create editor, a dialog will be opened in editorEvent
-        return 0;
+    {
+        if (index.isValid()) {
+            QString filename_old = index.model()->data(index, Qt::EditRole).toString();
+            EditorFileDialog* fileDialog = new EditorFileDialog(index, parent, QString(field->title), filename_old);
 
+            fileDialog->setFileMode(QFileDialog::DirectoryOnly);
+
+            //Use signals to accept data from cell
+            connect(fileDialog, SIGNAL(acceptEdit(const QModelIndex &)), this, SLOT(applyDirectory(const QModelIndex&)));
+            return fileDialog;
+        }
+
+        //shouldn't happen
+        return 0;
+    }
+
+    case PT_TXTMOD_FILENAME:
+    {
+        if (index.isValid()) {
+            QString filename_old = index.model()->data(index, Qt::EditRole).toString();
+            EditorFileDialog* fileDialog = new EditorFileDialog(index, parent, QString(field->title), filename_old);
+
+            fileDialog->setFileMode(QFileDialog::ExistingFile);
+            fileDialog->setOption(QFileDialog::DontConfirmOverwrite);
+
+            //Use signals to accept data from cell
+            connect(fileDialog, SIGNAL(acceptEdit(const QModelIndex &)), this, SLOT(applyFilename(const QModelIndex &)));
+            return fileDialog;
+        }
+
+        //shouldn't happen
+        return 0;
+    }
     case PT_TXTMOD_ENUM:
     {
         // Note: the string repr. is written, not the integer value.
@@ -143,64 +172,60 @@ void UatDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
         model->setData(index, data, Qt::EditRole);
         break;
     }
-
+    case PT_TXTMOD_DIRECTORYNAME:
+    case PT_TXTMOD_FILENAME:
+        //do nothing, dialog signals will update table
+        break;
     default:
         QStyledItemDelegate::setModelData(editor, model, index);
     }
 }
 
-#if 0
-// Qt docs suggest overriding updateEditorGeometry, but the defaults seem sane.
 void UatDelegate::updateEditorGeometry(QWidget *editor,
         const QStyleOptionViewItem &option, const QModelIndex &index) const
-{
-    QStyledItemDelegate::updateEditorGeometry(editor, option, index);
-}
-#endif
-
-bool UatDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index)
 {
     uat_field_t *field = indexToField(index);
 
     switch (field->mode) {
     case PT_TXTMOD_DIRECTORYNAME:
+    {
+        QRect rect = option.rect;
+        rect.setBottom(rect.width());
+        editor->setGeometry(rect);
+        break;
+    }
     case PT_TXTMOD_FILENAME:
-        if (event && (event->type() == QEvent::MouseButtonRelease ||
-                    event->type() == QEvent::MouseButtonDblClick)) {
-            // Ignore these mouse events, only handle MouseButtonPress.
-            return false;
-        }
-        if (index.isValid()) {
-            QString filename_old = model->data(index, Qt::EditRole).toString();
-            QString filename = openFileDialog(field, filename_old);
-            // TODO should this overwrite only when !filename.isEmpty()?
-            model->setData(index, filename, Qt::EditRole);
-        }
-        // returns false to ensure that QAbstractItemView::edit does not assume
-        // the editing state. This causes the view's currentIndex to be changed
-        // to the cell where this delegate was "created", as desired.
-        return false;
-
+    {
+        QRect rect = option.rect;
+        rect.setWidth(600);
+        rect.setHeight(600);
+        editor->setGeometry(rect);
+        break;
+    }
     default:
-        return QStyledItemDelegate::editorEvent(event, model, option, index);
+        //the defaults for other editors seem sane.
+        QStyledItemDelegate::updateEditorGeometry(editor, option, index);
     }
 }
 
-QString UatDelegate::openFileDialog(uat_field_t *field, const QString &cur_path) const
+void UatDelegate::applyFilename(const QModelIndex& index)
 {
-    // Note: file dialogs have their parent widget set to NULL because we do not
-    // have an editor nor the view that would attach us.
-    switch (field->mode) {
-    case PT_TXTMOD_DIRECTORYNAME:
-        return QFileDialog::getExistingDirectory(NULL, field->title, cur_path);
+    if (index.isValid()) {
+        EditorFileDialog* fileDialog = static_cast<EditorFileDialog*>(sender());
 
-    case PT_TXTMOD_FILENAME:
-        return QFileDialog::getOpenFileName(NULL, field->title, cur_path,
-                QString(), NULL, QFileDialog::DontConfirmOverwrite);
+        QStringList files = fileDialog->selectedFiles();
+        if (files.size() > 0) {
+            ((QAbstractItemModel *)index.model())->setData(index, files[0], Qt::EditRole);
+        }
+    }
+}
 
-    default:
-        g_assert_not_reached();
-        return 0;
+void UatDelegate::applyDirectory(const QModelIndex& index)
+{
+    if (index.isValid()) {
+        EditorFileDialog* fileDialog = static_cast<EditorFileDialog*>(sender());
+        const QString &data = fileDialog->directory().absolutePath();
+        ((QAbstractItemModel *)index.model())->setData(index, data, Qt::EditRole);
     }
 }
 

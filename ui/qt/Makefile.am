@@ -159,6 +159,7 @@ MOC_WIDGET_HDRS = \
 	widgets/clickable_label.h			\
 	widgets/display_filter_combo.h			\
 	widgets/display_filter_edit.h			\
+	widgets/editor_file_dialog.h				\
 	widgets/elided_label.h				\
 	widgets/field_filter_edit.h			\
 	widgets/find_line_edit.h			\
@@ -471,6 +472,7 @@ WIRESHARK_QT_WIDGET_SRC = \
 	widgets/clickable_label.cpp			\
 	widgets/display_filter_combo.cpp		\
 	widgets/display_filter_edit.cpp			\
+	widgets/editor_file_dialog.cpp			\
 	widgets/elided_label.cpp			\
 	widgets/field_filter_edit.cpp			\
 	widgets/find_line_edit.cpp			\

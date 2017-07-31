@@ -28,7 +28,9 @@
 #include <config.h>
 #include <glib.h>
 #include <epan/uat-int.h>
+
 #include <QStyledItemDelegate>
+#include <QModelIndex>
 
 class UatDelegate : public QStyledItemDelegate
 {
@@ -43,15 +45,14 @@ public:
     void setModelData(QWidget *editor, QAbstractItemModel *model,
                       const QModelIndex &index) const;
 
-#if 0
     void updateEditorGeometry(QWidget *editor,
             const QStyleOptionViewItem &option, const QModelIndex &index) const;
-#endif
 
-    bool editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index);
+private slots:
+    void applyDirectory(const QModelIndex& index);
+    void applyFilename(const QModelIndex& index);
 
 private:
     uat_field_t *indexToField(const QModelIndex &index) const;
-    QString openFileDialog(uat_field_t *field, const QString &cur_path) const;
 };
 #endif // UAT_DELEGATE_H
