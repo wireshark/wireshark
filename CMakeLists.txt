@@ -450,11 +450,15 @@ else()
 		-Wno-overlength-strings
 		-Wno-long-long
 		-Wheader-guard
-		#
-		# Code that may be worth looking into (coding practices)
-		#
+	)
+if((NOT ENABLE_ASAN) AND (NOT ENABLE_UBSAN))
+	#
+	# Code that may be worth looking into (coding practices)
+	#
+	set(COMMON_WARN_FLAGS
 		-Wframe-larger-than=16384
 	)
+endif()
 
 	set(C_WARN_FLAGS
 		# The following are C only, not C++
