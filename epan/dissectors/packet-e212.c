@@ -3240,8 +3240,10 @@ dissect_e212_mcc_mnc_in_utf8_address(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 
     /* Try to match the MCC and 2 digits MNC with an entry in our list of operators */
     if (!try_val_to_str_ext(mcc * 100 + mnc, &mcc_mnc_2digits_codes_ext)) {
+        if (tvb_reported_length_remaining(tvb, offset + 3) > 2) {
             mnc = atoi(tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 3, 3, ENC_UTF_8));
             long_mnc = TRUE;
+        }
     }
 
     proto_tree_add_uint(tree, hf_E212_mcc, tvb, offset, 3, mcc );
