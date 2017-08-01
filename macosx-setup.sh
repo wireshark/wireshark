@@ -140,12 +140,16 @@ LIBXML2_VERSION=2.9.4
 LZ4_VERSION=r131
 SBC_VERSION=1.3
 GEOIP_VERSION=1.6.10
-
 CARES_VERSION=1.12.0
-
 LIBSSH_VERSION=0.7.3
-
 NGHTTP2_VERSION=1.14.0
+SPANDSP_VERSION=0.0.6
+if [ "$SPANDSP_VERSION" ]; then
+    #
+    # SpanDSP depends on libtiff.
+    #
+    LIBTIFF_VERSION=3.8.1
+fi
 
 DARWIN_MAJOR_VERSION=`uname -r | sed 's/\([0-9]*\).*/\1/'`
 
@@ -1686,11 +1690,105 @@ uninstall_nghttp2() {
     fi
 }
 
+install_libtiff() {
+    if [ "$LIBTIFF_VERSION" -a ! -f tiff-$LIBTIFF_VERSION-done ] ; then
+        echo "Downloading, building, and installing libtiff:"
+        [ -f libtiff-$LIBTIFF_VERSION.tar.gz ] || curl -L -O http://dl.maptools.org/dl/libtiff/tiff-$LIBTIFF_VERSION.tar.gz || exit 1
+        $no_build && echo "Skipping installation" && return
+        gzcat tiff-$LIBTIFF_VERSION.tar.gz | tar xf - || exit 1
+        cd tiff-$LIBTIFF_VERSION
+        ./configure || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch tiff-$LIBTIFF_VERSION-done
+    fi
+}
+
+uninstall_libtiff() {
+    if [ ! -z "$installed_libtiff_version" ] ; then
+        echo "Uninstalling libtiff:"
+        cd tiff-$installed_libtiff_version
+        $DO_MAKE_UNINSTALL || exit 1
+        make distclean || exit 1
+        cd ..
+        rm tiff-$installed_libtiff_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf tiff-$installed_libtiff_version
+            rm -rf tiff-$installed_libtiff_version.tar.gz
+        fi
+
+        installed_libtiff_version=""
+    fi
+}
+
+install_spandsp() {
+    if [ "$SPANDSP_VERSION" -a ! -f spandsp-$SPANDSP_VERSION-done ] ; then
+        echo "Downloading, building, and installing SpanDSP:"
+        [ -f spandsp-$SPANDSP_VERSION.tar.gz ] || curl -L -O https://www.soft-switch.org/downloads/spandsp/spandsp-$SPANDSP_VERSION.tar.gz || exit 1
+        $no_build && echo "Skipping installation" && return
+        gzcat spandsp-$SPANDSP_VERSION.tar.gz | tar xf - || exit 1
+        cd spandsp-$SPANDSP_VERSION
+        ./configure || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch spandsp-$SPANDSP_VERSION-done
+    fi
+}
+
+uninstall_spandsp() {
+    if [ ! -z "$installed_spandsp_version" ] ; then
+        echo "Uninstalling SpanDSP:"
+        cd spandsp-$installed_spandsp_version
+        $DO_MAKE_UNINSTALL || exit 1
+        make distclean || exit 1
+        cd ..
+        rm spandsp-$installed_spandsp_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf spandsp-$installed_spandsp_version
+            rm -rf spandsp-$installed_spandsp_version.tar.gz
+        fi
+
+        installed_spandsp_version=""
+    fi
+}
+
 install_all() {
     #
     # Check whether the versions we have installed are the versions
     # requested; if not, uninstall the installed versions.
     #
+    if [ ! -z "$installed_spandsp_version" -a \
+              "$installed_spandsp_version" != "$SPANDSP_VERSION" ] ; then
+        echo "Installed SpanDSP version is $installed_spandsp_version"
+        if [ -z "$SPANDSP_VERSION" ] ; then
+            echo "spandsp is not requested"
+        else
+            echo "Requested SpanDSP version is $SPANDSP_VERSION"
+        fi
+        uninstall_spandsp -r
+    fi
+
+    if [ ! -z "$installed_libtiff_version" -a \
+              "$installed_libtiff_version" != "$LIBTIFF_VERSION" ] ; then
+        echo "Installed libtiff version is $installed_libtiff_version"
+        if [ -z "$LIBTIFF_VERSION" ] ; then
+            echo "libtiff is not requested"
+        else
+            echo "Requested libtiff version is $LIBTIFF_VERSION"
+        fi
+        uninstall_libtiff -r
+    fi
+
     if [ ! -z "$installed_nghttp2_version" -a \
               "$installed_nghttp2_version" != "$NGHTTP2_VERSION" ] ; then
         echo "Installed nghttp2 version is $installed_nghttp2_version"
@@ -2157,6 +2255,10 @@ install_all() {
     install_libssh
 
     install_nghttp2
+
+    install_libtiff
+
+    install_spandsp
 }
 
 uninstall_all() {
@@ -2173,6 +2275,10 @@ uninstall_all() {
         # We also do a "make distclean", so that we don't have leftovers from
         # old configurations.
         #
+	uninstall_spandsp
+
+	uninstall_libtiff
+
         uninstall_nghttp2
 
         uninstall_libssh
@@ -2352,6 +2458,8 @@ then
     installed_cares_version=`ls c-ares-*-done 2>/dev/null | sed 's/c-ares-\(.*\)-done/\1/'`
     installed_libssh_version=`ls libssh-*-done 2>/dev/null | sed 's/libssh-\(.*\)-done/\1/'`
     installed_nghttp2_version=`ls nghttp2-*-done 2>/dev/null | sed 's/nghttp2-\(.*\)-done/\1/'`
+    installed_spandsp_version=`ls spandsp-*-done 2>/dev/null | sed 's/spandsp-\(.*\)-done/\1/'`
+    installed_libtiff_version=`ls tiff-*-done 2>/dev/null | sed 's/tiff-\(.*\)-done/\1/'`
 
     #
     # If we don't have a versioned -done file for portaudio, but do have
