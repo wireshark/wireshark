@@ -3508,7 +3508,7 @@ void proto_register_snmp(void) {
 		    TFS(&tfs_snmp_engineid_conform), F_SNMP_ENGINEID_CONFORM, "Engine ID RFC3411 Conformance", HFILL }},
 		{ &hf_snmp_engineid_enterprise, {
 		    "Engine Enterprise ID", "snmp.engineid.enterprise", FT_UINT32, BASE_ENTERPRISES,
-                    STRINGS_ENTERPRISES, 0, NULL, HFILL }},
+		    STRINGS_ENTERPRISES, 0, NULL, HFILL }},
 		{ &hf_snmp_engineid_format, {
 		    "Engine ID Format", "snmp.engineid.format", FT_UINT8, BASE_DEC,
 		    VALS(snmp_engineid_format_vals), 0, NULL, HFILL }},
