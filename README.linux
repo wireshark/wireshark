@@ -11,9 +11,11 @@ in "/var/adm/messages", or may get messages such as
 
 from applications using libpcap.
 
-You must configure the kernel with the CONFIG_PACKET option for this
-protocol; the following note is from the Linux "Configure.help" file for
-the 2.0[.x] kernel:
+Most recent Linux distributions will have this configured in by default. 
+If it is not configured in with the default kernel, and if it is not a
+module loaded by default, you must configure the kernel with the
+CONFIG_PACKET option for this protocol; the following note is from the
+Linux "Configure.help" file for the 2.0[.x] kernel:
 
 	Packet socket
 	CONFIG_PACKET
@@ -57,8 +59,10 @@ significant number of packets.  (If no filter is specified, it makes no
 difference whether the filtering isn't performed in the kernel or isn't
 performed in user mode. :-))
 
-The option for this is the CONFIG_FILTER option; the "Configure.help"
-file says:
+Most recent Linux distributions will have this configured in by default. 
+If it is not configured in with the default kernel, you must configure
+the kernel with the CONFIG_FILTER option; the "Configure.help" file
+says:
 
 	Socket filtering
 	CONFIG_FILTER
