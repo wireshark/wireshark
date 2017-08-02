@@ -1241,12 +1241,10 @@ proto_tree_add_text_internal(proto_tree *tree, tvbuff_t *tvb, gint start, gint l
 	header_field_info *hfinfo;
 
 	if (length == -1) {
-		/* If we're fetching until the end of the TVB, only validate
-		 * that the offset is within range.
-		 */
-		length = 0;
+		length = tvb_captured_length(tvb) ? tvb_ensure_captured_length_remaining(tvb, start) : 0;
+	} else {
+		tvb_ensure_bytes_exist(tvb, start, length);
 	}
-	tvb_ensure_bytes_exist(tvb, start, length);
 
 	CHECK_FOR_NULL_TREE(tree);
 
@@ -1272,12 +1270,10 @@ proto_tree_add_text_valist_internal(proto_tree *tree, tvbuff_t *tvb, gint start,
 	header_field_info *hfinfo;
 
 	if (length == -1) {
-		/* If we're fetching until the end of the TVB, only validate
-		 * that the offset is within range.
-		 */
-		length = 0;
+		length = tvb_captured_length(tvb) ? tvb_ensure_captured_length_remaining(tvb, start) : 0;
+	} else {
+		tvb_ensure_bytes_exist(tvb, start, length);
 	}
-	tvb_ensure_bytes_exist(tvb, start, length);
 
 	CHECK_FOR_NULL_TREE(tree);
 
