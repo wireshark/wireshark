@@ -117,7 +117,7 @@ pa_stable_v19_20071207 version of PortAudio will cause certain
 platform-dependent build environment #defines to be set in the Makefile
 rules, and to cause a universal build to be done; those #defines will be
 incorrect for all but one of the architectures for which the build is
-being done, and that will cause a compile-time error on Snow Leopard. 
+being done, and that will cause a compile-time error on Snow Leopard.
 Newer versions don't have this problem, but still fail to build on Lion
 if a universal build is attempted.  The tools/macos-setup.sh script
 downloads a newer version, and also suppresses the universal build.
