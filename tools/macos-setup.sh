@@ -2639,7 +2639,7 @@ do
         min_osx_target="$OPTARG"
         ;;
     h|?)
-        echo "Usage: macosx-setup.sh [ -t <target> ] [ -u ] [ -n ]" 1>&1
+        echo "Usage: macos-setup.sh [ -t <target> ] [ -u ] [ -n ]" 1>&1
         exit 0
         ;;
     esac
@@ -2803,7 +2803,7 @@ then
 
     if [ -z "$sdkpath" ]
     then
-        echo "macosx-setup.sh: Couldn't find an SDK for macOS $min_osx_target or later" 1>&2
+        echo "macos-setup.sh: Couldn't find an SDK for macOS $min_osx_target or later" 1>&2
         exit 1
     fi
 

@@ -20,18 +20,21 @@ Qt packages and source code from
 
 	https://www.qt.io/download-open-source/
 
-or use the macosx-setup.sh script described below.
+or use the tools/macos-setup.sh script described below.
 
-The macosx-setup.sh script can be used to download, patch as necessary,
-build as necessary, and install those libraries and the libraries on
-which they depend; it will, by default, also install other libraries
-that can be used by Wireshark and TShark.  The versions of libraries to
-download are specified by variables set early in the script; you can
-comment out the settings of optional libraries if you don't want them
-downloaded and installed.  Before running the macosx-setup.sh script,
-and before attempting to build Wireshark, make sure your PKG_CONFIG_PATH
-environment variable's setting includes both /usr/X11/lib/pkgconfig and
-/usr/local/lib/pkgconfig.
+The tools/macos-setup.sh script can be used to download, patch as
+necessary, build as necessary, and install those libraries and the
+libraries on which they depend; it will, by default, also install other
+libraries that can be used by Wireshark and TShark.  The versions of
+libraries to download are specified by variables set early in the
+script; you can comment out the settings of optional libraries if you
+don't want them downloaded and installed.  Before running the
+tools/macos-setup.sh script, and before attempting to build Wireshark,
+make sure your PKG_CONFIG_PATH environment variable's setting includes
+both /usr/X11/lib/pkgconfig and /usr/local/lib/pkgconfig.
+
+The tools/macos-setup.sh script must be run from the top-level source
+directory.
 
 If you wish to build the legacy (GTK+) UI you must have X11 and the X11
 developer headers and libraries installed, as well as the Pango, ATK,
@@ -81,7 +84,7 @@ un-install them and rebuild them on your current version of macOS, to get
 
 Some required and optional libraries require special attention if you
 install them by building from source code on Snow Leopard and later
-releases; the macosx-setup.sh script will handle that for you.
+releases; the tools/macos-setup.sh script will handle that for you.
 
 GLib - the GLib configuration script determines whether the system's
 libiconv is GNU iconv or not by checking whether it has libiconv_open(),
@@ -89,14 +92,14 @@ and the compile will fail if that test doesn't correctly indicate
 whether libiconv is GNU iconv.  In macOS, libiconv is GNU iconv, but the
 64-bit version doesn't have libiconv_open(); a workaround for this is to
 replace all occurrences of "libiconv_open" with "iconv_open" in the
-configure script before running the script.  The macosx-setup.sh setup
-script will patch GLib to work around this.
+configure script before running the script.  The tools/macos-setup.sh
+setup script will patch GLib to work around this.
 
 GTK+ - GTK+ 2.24.10, at least, doesn't build on Mountain Lion with the
 CUPS printing backend - either the CUPS API changed incompatibly or the
 backend was depending on non-API implementation details.  The
-macosx-setup.sh setup script will, on Mountain Lion and later, configure
-GTK+ with the CUPS printing backend disabled.
+tools/macos-setup.sh setup script will, on Mountain Lion and later,
+configure GTK+ with the CUPS printing backend disabled.
 
 libgcrypt - the libgcrypt configuration script attempts to determine
 which flavor of assembler-language routines to use based on the platform
@@ -106,25 +109,25 @@ determine the processor type; however, in macOS, uname always reports
 64-bit processors, so it will attempt to assemble the 32-bit x86
 assembler-language routines, which will fail.  The workaround for this
 is to run the configure script with the --disable-asm argument, so that
-the assembler-language routines are not used.  The macosx-setup.sh will
-configure libgcrypt with that option.
+the assembler-language routines are not used.  The tools/macos-setup.sh
+will configure libgcrypt with that option.
 
 PortAudio - when compiling on macOS, the configure script for the
 pa_stable_v19_20071207 version of PortAudio will cause certain
 platform-dependent build environment #defines to be set in the Makefile
 rules, and to cause a universal build to be done; those #defines will be
 incorrect for all but one of the architectures for which the build is
-being done, and that will cause a compile-time error on Snow Leopard.
+being done, and that will cause a compile-time error on Snow Leopard. 
 Newer versions don't have this problem, but still fail to build on Lion
-if a universal build is attempted.  The macosx-setup.sh script downloads
-a newer version, and also suppresses the universal build.
+if a universal build is attempted.  The tools/macos-setup.sh script
+downloads a newer version, and also suppresses the universal build.
 
 GeoIP - Their man pages "helpfully" have an ISO 8859-1 copyright symbol
-in the copyright notice, but macOS's default character encoding is UTF-8.
-sed on Mountain Lion barfs at the "illegal character sequence"
+in the copyright notice, but macOS's default character encoding is
+UTF-8.  sed on Mountain Lion barfs at the "illegal character sequence"
 represented by an ISO 8859-1 copyright symbol, as it's not a valid UTF-8
-sequence.  The macosx-setup.sh script uses iconv to convert the man page
-files from ISO 8859-1 to UTF-8.
+sequence.  The tools/macos-setup.sh script uses iconv to convert the man
+page files from ISO 8859-1 to UTF-8.
 
 If you want to build Wireshark installer packages on a system that
 doesn't include Xcode 3.x or earlier, you will need to install some

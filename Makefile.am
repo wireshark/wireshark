@@ -852,7 +852,6 @@ EXTRA_DIST = \
 	image			\
 	ipmap.html		\
 	m4			\
-	macosx-setup.sh		\
 	macosx-support-lib-patches	\
 	make-version.pl		\
 	manuf			\
