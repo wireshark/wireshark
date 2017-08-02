@@ -61,6 +61,7 @@ EXTRA_DIST = \
 	licensecheck.pl					\
 	list_protos_in_cap.sh				\
 	macos-setup.sh					\
+	macos-setup-brew.sh				\
 	make-dissector-reg.py				\
 	make-manuf					\
 	make-sminmpec.pl				\
