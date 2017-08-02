@@ -1744,6 +1744,9 @@
    <property name="text">
     <string>TCP Stream</string>
    </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Alt+Shift+T</string>
+   </property>
   </action>
   <action name="actionAnalyzeFollowUDPStream">
    <property name="enabled">
@@ -1751,6 +1754,9 @@
    </property>
    <property name="text">
     <string>UDP Stream</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Alt+Shift+U</string>
    </property>
   </action>
   <action name="actionAnalyzeFollowSSLStream">
@@ -1760,6 +1766,9 @@
    <property name="text">
     <string>SSL Stream</string>
    </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Alt+Shift+S</string>
+   </property>
   </action>
   <action name="actionAnalyzeFollowHTTPStream">
    <property name="enabled">
@@ -1767,6 +1776,9 @@
    </property>
    <property name="text">
     <string>HTTP Stream</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Alt+Shift+H</string>
    </property>
   </action>
   <action name="actionStatisticsTcpStreamTcptrace">
