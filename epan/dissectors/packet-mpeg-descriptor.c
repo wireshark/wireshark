@@ -2549,14 +2549,20 @@ proto_mpeg_descriptor_dissect_ac3_system_a(tvbuff_t *tvb, guint offset, guint le
     proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_full_svc, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
+    if (offset >= end) return;
+
     proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_langcode, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
+
+    if (offset >= end) return;
 
     if (num_channels == 0) {
         /* 1+1 mode, so there is the possibility the second mono is in a different language */
         proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_langcode2, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
     }
+
+    if (offset >= end) return;
 
     if (bsmod < 2) {
         proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_mainid, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2567,21 +2573,29 @@ proto_mpeg_descriptor_dissect_ac3_system_a(tvbuff_t *tvb, guint offset, guint le
     }
     offset += 1;
 
+    if (offset >= end) return;
+
     textlen = tvb_get_guint8(tvb, offset) >> 1;
     proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_textlen, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_textcode, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     offset += textlen;
 
+    if (offset >= end) return;
+
     lang = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_lang1, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_lang2, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
+    if (offset >= end) return;
+
     if (lang & 0x80) {
         proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_lang1_bytes, tvb, offset, 3, ENC_ASCII|ENC_NA);
         offset += 3;
     }
+
+    if (offset >= end) return;
 
     if (lang & 0x40) {
         proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_lang2_bytes, tvb, offset, 3, ENC_ASCII|ENC_NA);
