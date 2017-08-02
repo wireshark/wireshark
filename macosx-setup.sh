@@ -166,6 +166,7 @@ if [ "$SPANDSP_VERSION" ]; then
     #
     LIBTIFF_VERSION=3.8.1
 fi
+BCG729_VERSION=1.0.2
 
 DARWIN_MAJOR_VERSION=`uname -r | sed 's/\([0-9]*\).*/\1/'`
 
@@ -1890,11 +1891,58 @@ uninstall_spandsp() {
     fi
 }
 
+install_bcg729() {
+    if [ "$BCG729_VERSION" -a ! -f bcg729-$BCG729_VERSION-done ] ; then
+        echo "Downloading, building, and installing bcg729:"
+        [ -f bcg729-$BCG729_VERSION.tar.gz ] || curl -L -O http://download-mirror.savannah.gnu.org/releases/linphone/plugins/sources/bcg729-$BCG729_VERSION.tar.gz || exit 1
+        $no_build && echo "Skipping installation" && return
+        gzcat bcg729-$BCG729_VERSION.tar.gz | tar xf - || exit 1
+        cd bcg729-$BCG729_VERSION
+        ./configure || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch bcg729-$BCG729_VERSION-done
+    fi
+}
+
+uninstall_bcg729() {
+    if [ ! -z "$installed_bcg729_version" ] ; then
+        echo "Uninstalling bcg729:"
+        cd bcg729-$installed_bcg729_version
+        $DO_MAKE_UNINSTALL || exit 1
+        make distclean || exit 1
+        cd ..
+        rm bcg729-$installed_bcg729_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf bcg729-$installed_bcg729_version
+            rm -rf bcg729-$installed_bcg729_version.tar.gz
+        fi
+
+        installed_bcg729_version=""
+    fi
+}
+
 install_all() {
     #
     # Check whether the versions we have installed are the versions
     # requested; if not, uninstall the installed versions.
     #
+    if [ ! -z "$installed_bcg729_version" -a \
+              "$installed_bcg729_version" != "$BCG729_VERSION" ] ; then
+        echo "Installed SpanDSP version is $installed_bcg729_version"
+        if [ -z "$BCG729_VERSION" ] ; then
+            echo "bcg729 is not requested"
+        else
+            echo "Requested bcg729 version is $BCG729_VERSION"
+        fi
+        uninstall_bcg729 -r
+    fi
+
     if [ ! -z "$installed_spandsp_version" -a \
               "$installed_spandsp_version" != "$SPANDSP_VERSION" ] ; then
         echo "Installed SpanDSP version is $installed_spandsp_version"
@@ -2425,6 +2473,8 @@ install_all() {
     install_libtiff
 
     install_spandsp
+
+    install_bcg729
 }
 
 uninstall_all() {
@@ -2441,6 +2491,8 @@ uninstall_all() {
         # We also do a "make distclean", so that we don't have leftovers from
         # old configurations.
         #
+	uninstall_bcg729
+
 	uninstall_spandsp
 
 	uninstall_libtiff
