@@ -66,4 +66,39 @@ http://www.cisco.com/c/dam/en/us/td/docs/wireless/asr_5000/20/AAA/20-AAA-Referen
     <enum name="SUBSCRIBER_LEVEL" code="1"></enum>
   </avp>
 
+  <avp name="Override-Control" code="132017" vendor-id="CiscoSystems">
+    <grouped>
+      <gavp name="Override-Charging-Action-Parameters" />
+    </grouped>
+  </avp>
+
+  <avp name="Override-Charging-Action-Parameters" code="132019" vendor-id="CiscoSystems">
+    <grouped>
+      <gavp name="Override-Charging-Action-Exclude-Rule" />
+      <gavp name="Override-Charging-Parameters" />
+    </grouped>
+  </avp>
+
+  <avp name="Override-Charging-Action-Exclude-Rule" code="132021" vendor-id="CiscoSystems">
+    <type type-name="UTF8String"></type>
+  </avp>
+
+  <avp name="Override-Charging-Parameters" code="132022" vendor-id="CiscoSystems">
+    <grouped>
+      <gavp name="Override-Rating-Group" />
+    </grouped>
+  </avp>
+
+  <avp name="Override-Rating-Group" code="132024" vendor-id="CiscoSystems">
+    <type type-name="Unsigned32"></type>
+  </avp>
+
+  <avp name="Override-Online" code="132026" vendor-id="CiscoSystems">
+    <type type-name="Unsigned32"></type>
+  </avp>
+
+  <avp name="Override-Offline" code="132027" vendor-id="CiscoSystems">
+    <type type-name="Unsigned32"></type>
+  </avp>
+
 </vendor>
