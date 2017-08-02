@@ -22,13 +22,13 @@ Qt packages and source code from
 or use the macosx-setup.sh script described below.
 
 The macosx-setup.sh script can be used to download, patch as necessary,
-build, and install those libraries and the libraries on which they
-depend; it will, by default, also install other libraries that can be
-used by Wireshark and TShark.  The versions of libraries to download are
-specified by variables set early in the script; you can comment out the
-settings of optional libraries if you don't want them downloaded and
-installed.  Before running the macosx-setup.sh script, and before
-attempting to build Wireshark, make sure your PKG_CONFIG_PATH
+build as necessary, and install those libraries and the libraries on
+which they depend; it will, by default, also install other libraries
+that can be used by Wireshark and TShark.  The versions of libraries to
+download are specified by variables set early in the script; you can
+comment out the settings of optional libraries if you don't want them
+downloaded and installed.  Before running the macosx-setup.sh script,
+and before attempting to build Wireshark, make sure your PKG_CONFIG_PATH
 environment variable's setting includes both /usr/X11/lib/pkgconfig and
 /usr/local/lib/pkgconfig.
 
