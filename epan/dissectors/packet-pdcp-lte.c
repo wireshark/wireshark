@@ -47,7 +47,7 @@ void proto_reg_handoff_pdcp_lte(void);
 
 /* Described in:
  * 3GPP TS 36.323 Evolved Universal Terrestrial Radio Access (E-UTRA)
- *                Packet Data Convergence Protocol (PDCP) specification v13.1.0
+ *                Packet Data Convergence Protocol (PDCP) specification v14.3.0
  */
 
 
@@ -115,7 +115,9 @@ static int hf_pdcp_lte_nmp2 = -1;
 static int hf_pdcp_lte_hrw3 = -1;
 static int hf_pdcp_lte_reserved8 = -1;
 static int hf_pdcp_lte_nmp3 = -1;
-
+static int hf_pdcp_lte_lsn = -1;
+static int hf_pdcp_lte_lsn2 = -1;
+static int hf_pdcp_lte_lsn3 = -1;
 
 /* Sequence Analysis */
 static int hf_pdcp_lte_sequence_analysis = -1;
@@ -420,9 +422,10 @@ static const value_string pdu_type_vals[] = {
 };
 
 static const value_string control_pdu_type_vals[] = {
-    { 0,   "PDCP Status report" },
+    { 0,   "PDCP status report" },
     { 1,   "Interspersed ROHC feedback packet" },
     { 2,   "LWA status report" },
+    { 3,   "LWA end-marker packet"},
     { 0,   NULL }
 };
 
@@ -2213,6 +2216,54 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         }
                         return 1;
 
+                    case 3:     /* LWA end-marker packet */
+                        {
+                            guint32 lsn;
+
+                            if (p_pdcp_info->seqnum_length == PDCP_SN_LENGTH_12_BITS) {
+                                proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_lte_lsn, tvb,
+                                                             offset, 2, ENC_BIG_ENDIAN, &lsn);
+                                offset += 2;
+                            } else if (p_pdcp_info->seqnum_length == PDCP_SN_LENGTH_15_BITS) {
+                                proto_item *ti;
+                                guint32 reserved_value;
+
+                                /* 5 reserved bits */
+                                ti = proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_lte_reserved4, tvb,
+                                                                  offset, 2, ENC_BIG_ENDIAN, &reserved_value);
+                                offset++;
+                                /* Complain if not 0 */
+                                if (reserved_value != 0) {
+                                    expert_add_info_format(pinfo, ti, &ei_pdcp_lte_reserved_bits_not_zero,
+                                                           "Reserved bits have value 0x%x - should be 0x0",
+                                                           reserved_value);
+                                }
+
+                                proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_lte_lsn2, tvb,
+                                                             offset, 2, ENC_BIG_ENDIAN, &lsn);
+                                offset += 2;
+                            } else {
+                                proto_item *ti;
+                                guint32 reserved_value;
+
+                                /* 2 reserved bits */
+                                ti = proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_lte_reserved6,
+                                                                  tvb, offset, 1, ENC_BIG_ENDIAN, &reserved_value);
+                                /* Complain if not 0 */
+                                if (reserved_value != 0) {
+                                    expert_add_info_format(pinfo, ti, &ei_pdcp_lte_reserved_bits_not_zero,
+                                                           "Reserved bits have value 0x%x - should be 0x0",
+                                                           reserved_value);
+                                }
+
+                                proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_lte_lsn3, tvb,
+                                                             offset, 3, ENC_BIG_ENDIAN, &lsn);
+                                offset += 3;
+                            }
+
+                            write_pdu_label_and_info(root_ti, pinfo, " LWA End-Marker Packet (lsn=%u)", lsn);
+                        }
+                        return 1;
                     default:    /* Reserved */
                         return 1;
                 }
@@ -2669,7 +2720,7 @@ void proto_register_pdcp(void)
             }
         },
         { &hf_pdcp_lte_nmp,
-            { "Number of Missing PDCP PDUs",
+            { "Number of Missing PDCP SDUs",
               "pdcp-lte.nmp", FT_UINT16, BASE_DEC, NULL, 0x0fff,
               NULL, HFILL
             }
@@ -2687,7 +2738,7 @@ void proto_register_pdcp(void)
             }
         },
         { &hf_pdcp_lte_nmp2,
-            { "Number of Missing PDCP PDUs",
+            { "Number of Missing PDCP SDUs",
               "pdcp-lte.nmp", FT_UINT16, BASE_DEC, NULL, 0x7fff,
               NULL, HFILL
             }
@@ -2705,8 +2756,26 @@ void proto_register_pdcp(void)
             }
         },
         { &hf_pdcp_lte_nmp3,
-            { "Number of Missing PDCP PDUs",
+            { "Number of Missing PDCP SDUs",
               "pdcp-lte.nmp", FT_UINT24, BASE_DEC, NULL, 0x03ffff,
+              NULL, HFILL
+            }
+        },
+        { &hf_pdcp_lte_lsn,
+            { "Last PDCP PDU SN ciphered with previous key",
+              "pdcp-lte.lsn", FT_UINT16, BASE_DEC, NULL, 0x0fff,
+              NULL, HFILL
+            }
+        },
+        { &hf_pdcp_lte_lsn2,
+            { "Last PDCP PDU SN ciphered with previous key",
+              "pdcp-lte.lsn", FT_UINT16, BASE_DEC, NULL, 0x7fff,
+              NULL, HFILL
+            }
+        },
+        { &hf_pdcp_lte_lsn3,
+            { "Last PDCP PDU SN ciphered with previous key",
+              "pdcp-lte.lsn", FT_UINT24, BASE_DEC, NULL, 0x03ffff,
               NULL, HFILL
             }
         },
