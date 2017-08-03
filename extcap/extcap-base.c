@@ -357,6 +357,8 @@ void extcap_help_add_header(extcap_parameters * extcap, char * help_header)
 
 void extcap_init_custom_log(const char* filename)
 {
+    if (!filename || strlen(filename) == 0)
+        return;
     custom_log = fopen(filename, "w");
     if (!custom_log)
         g_error("Can't open custom log file: %s (%s)", filename, strerror(errno));
@@ -365,10 +367,10 @@ void extcap_init_custom_log(const char* filename)
 void extcap_config_debug(unsigned* count)
 {
     printf("arg {number=%u}{call=--debug}{display=Run in debug mode}"
-    "{type=boolean}{default=false}{tooltip=Print debug messages}\n",
+    "{type=boolean}{default=false}{tooltip=Print debug messages}{required=false}\n",
     (*count)++);
     printf("arg {number=%u}{call=--debug-file}{display=Use a file for debug}"
-    "{type=string}{tooltip=Set a file where the debug messages are written}\n",
+    "{type=string}{tooltip=Set a file where the debug messages are written}{required=false}\n",
     (*count)++);
 }
 
