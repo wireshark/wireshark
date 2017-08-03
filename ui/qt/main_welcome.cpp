@@ -79,28 +79,30 @@ MainWelcome::MainWelcome(QWidget *parent) :
 
     QColor hover_color = ColorUtils::alphaBlend(palette().window(), palette().highlight(), 0.5);
 
-    setStyleSheet(QString(
-                      "MainWelcome {"
-                      "  padding: 1em;"
-                      " }"
-                      "MainWelcome, QAbstractItemView {"
-                      "  background-color: palette(base);"
-                      "  color: palette(text);"
-                      " }"
-                      "QAbstractItemView {"
-                      "  border: 0;"
-                      "}"
-#if !defined(Q_OS_WIN)
-                      "QAbstractItemView:item:hover {"
-                      "  background-color: %1;"
-                      "  color: palette(text);"
-                      "}"
-#endif
-                      )
-                  .arg(hover_color.name())
-                );
-
     QString welcome_ss = QString(
+                "MainWelcome {"
+                "  padding: 1em;"
+                " }"
+                "MainWelcome, QAbstractItemView {"
+                "  background-color: palette(base);"
+                "  color: palette(text);"
+                " }"
+                "QAbstractItemView {"
+                "  border: 0;"
+                "}"
+                );
+#if !defined(Q_OS_WIN)
+    welcome_ss += QString(
+                "QAbstractItemView:item:hover {"
+                "  background-color: %1;"
+                "  color: palette(text);"
+                "}"
+                )
+            .arg(hover_color.name());
+#endif
+    setStyleSheet(welcome_ss);
+
+    QString banner_ss = QString(
                 "QLabel {"
                 "  border-radius: 0.33em;"
                 "  color: %1;"
@@ -110,7 +112,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
                 )
             .arg(QColor(tango_aluminium_6).name())   // Text color
             .arg(QColor(tango_sky_blue_2).name());   // Background color
-    welcome_ui_->mainWelcomeBanner->setStyleSheet(welcome_ss);
+    welcome_ui_->mainWelcomeBanner->setStyleSheet(banner_ss);
 
     QString title_button_ss = QString(
             "QLabel {"
