@@ -1282,7 +1282,7 @@ GPtrArray *extcap_prepare_arguments(interface_options interface_opts)
                 arg_list = g_list_first((GList *)elem->data);
                 while (arg_list != NULL)
                 {
-                    const gchar *stored = NULL, * defval = NULL;
+                    const gchar *stored = NULL;
                     /* In case of boolflags only first element in arg_list is relevant. */
                     arg_iter = (extcap_arg *)(arg_list->data);
                     if (arg_iter->pref_valptr != NULL)
@@ -1290,32 +1290,22 @@ GPtrArray *extcap_prepare_arguments(interface_options interface_opts)
                         stored = *arg_iter->pref_valptr;
                     }
 
-                    if (arg_iter->default_complex != NULL && arg_iter->default_complex->_val != NULL)
-                    {
-                        defval = arg_iter->default_complex->_val;
-                    }
-
-                    /* Different data in storage then set for default */
-                    if (g_strcmp0(stored, defval) != 0)
-                    {
-                        if (arg_iter->arg_type == EXTCAP_ARG_BOOLFLAG)
-                        {
-                            if (g_strcmp0(stored, "true") == 0)
-                            {
-                                add_arg(arg_iter->call);
-                            }
-                        }
-                        else
-                        {
-                            add_arg(arg_iter->call);
-                            add_arg(stored);
-                        }
-                    }
-                    else if (arg_iter->arg_type == EXTCAP_ARG_BOOLFLAG)
+                    if (arg_iter->arg_type == EXTCAP_ARG_BOOLFLAG)
                     {
                         if (extcap_complex_get_bool(arg_iter->default_complex))
                         {
                             add_arg(arg_iter->call);
+                        }
+                        else if (g_strcmp0(stored, "true") == 0)
+                        {
+                            add_arg(arg_iter->call);
+                        }
+                    }
+                    else
+                    {
+                        if (stored) {
+                            add_arg(arg_iter->call);
+                            add_arg(stored);
                         }
                     }
 
