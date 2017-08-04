@@ -4641,22 +4641,25 @@ ssl_parse_key_list(const ssldecrypt_assoc_t *uats, GHashTable *key_hash, const c
 
     if ((gint)strlen(uats->password) == 0) {
         priv_key = rsa_load_pem_key(fp, &err);
-        if (err) {
-            ssl_debug_printf("%s\n", err);
-            g_free(err);
-        }
     } else {
         priv_key = rsa_load_pkcs12(fp, uats->password, &err);
-        if (err) {
-            report_failure("%s\n", err);
-            g_free(err);
-        }
     }
     fclose(fp);
 
     if (!priv_key) {
-        report_failure("Can't load private key from %s\n", uats->keyfile);
+        if (err) {
+            report_failure("Can't load private key from %s: %s",
+                           uats->keyfile, err);
+            g_free(err);
+        } else
+            report_failure("Can't load private key from %s: unknown error",
+                           uats->keyfile);
         return;
+    }
+    if (err) {
+        report_failure("Load of private key from %s \"succeeded\" with error %s",
+                       uats->keyfile, err);
+        g_free(err);
     }
 
     key_id = (guchar *) g_malloc0(key_id_len);
