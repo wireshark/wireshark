@@ -276,10 +276,12 @@ static const int *pf_flds_ief2[] =
 /* Initial Data Capability Flag 3 */
 static int hf_mq_id_icf3_CanMsgPrp = -1;
 static int hf_mq_id_icf3_Unknown02 = -1;
+static int hf_mq_id_icf3_MPlxSyGet = -1;
 static const int *pf_flds_icf3[] =
 {
     &hf_mq_id_icf3_Unknown02,
     &hf_mq_id_icf3_CanMsgPrp,
+    &hf_mq_id_icf3_MPlxSyGet,
     NULL
 };
 
@@ -908,6 +910,9 @@ static gint ett_mq_id = -1;
 static gint ett_mq_id_icf1 = -1;
 static gint ett_mq_id_icf2 = -1;
 static gint ett_mq_id_icf3 = -1;
+static gint ett_mq_id_eicf1 = -1;
+static gint ett_mq_id_eicf2 = -1;
+static gint ett_mq_id_eicf3 = -1;
 static gint ett_mq_id_ief1 = -1;
 static gint ett_mq_id_ief2 = -1;
 static gint ett_mq_uid = -1;
@@ -1195,6 +1200,7 @@ static reassembly_table mq_reassembly_table;
 
 #define MQ_ICF3_MSG_PROP_CAPABLE       0x01
 #define MQ_ICF3_UNKNOWNX02             0x02
+#define MQ_ICF3_MULTIPLEX_SYNCGET      0x08
 
 #define MQ_IEF1_CCSID                  0x01
 #define MQ_IEF1_ENCODING               0x02
@@ -2344,7 +2350,7 @@ static gint dissect_mq_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mqroot_
 
             /* ID Capability flags 1 */
             proto_tree_add_bitmask(mq_tree, tvb, offset + 5, hf_mq_id_icf1, ett_mq_id_icf1, pf_flds_icf1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(mq_tree, hf_mq_id_Eicf1, tvb, offset + 6, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_bitmask(mq_tree, tvb, offset + 6, hf_mq_id_Eicf1, ett_mq_id_eicf1, pf_flds_icf1, ENC_BIG_ENDIAN);
 
             /* Error flags 1*/
             proto_tree_add_bitmask(mq_tree, tvb, offset + 7, hf_mq_id_ief1, ett_mq_id_ief1, pf_flds_ief1, ENC_BIG_ENDIAN);
@@ -2360,7 +2366,7 @@ static gint dissect_mq_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mqroot_
             {
                 /* ID Capability flags 2 */
                 proto_tree_add_bitmask(mq_tree, tvb, offset + 44, hf_mq_id_icf2, ett_mq_id_icf2, pf_flds_icf2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(mq_tree, hf_mq_id_Eicf2, tvb, offset + 45, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_bitmask(mq_tree, tvb, offset + 45, hf_mq_id_Eicf2, ett_mq_id_eicf2, pf_flds_icf2, ENC_BIG_ENDIAN);
 
                 proto_tree_add_item(mq_tree, hf_mq_id_ccsid     , tvb, offset +  46,  2, p_mq_parm->mq_int_enc);
                 proto_tree_add_item(mq_tree, hf_mq_id_qmgrname  , tvb, offset +  48, 48, p_mq_parm->mq_str_enc);
@@ -2380,7 +2386,7 @@ static gint dissect_mq_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mqroot_
 
                     /* ID Capability flags 3 */
                     proto_tree_add_bitmask(mq_tree, tvb, offset + 132, hf_mq_id_icf3, ett_mq_id_icf3, pf_flds_icf3, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(mq_tree, hf_mq_id_Eicf3, tvb, offset + 133, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_bitmask(mq_tree, tvb, offset + 133, hf_mq_id_Eicf3, ett_mq_id_eicf3, pf_flds_icf3, ENC_BIG_ENDIAN);
 
                     proto_tree_add_item(mq_tree, hf_mq_id_Reserved3, tvb, offset + 134,  2, p_mq_parm->mq_int_enc);
                     proto_tree_add_item(mq_tree, hf_mq_id_ProcessId, tvb, offset + 136,  4, p_mq_parm->mq_int_enc);
@@ -2531,7 +2537,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if ((p_mq_parm->mq_strucID & MQ_MASK_TSHx) == MQ_STRUCTID_TSHx_EBCDIC)
             {
                 bEBCDIC = TRUE;
-                p_mq_parm->mq_str_enc = ENC_EBCDIC|ENC_NA;
+                p_mq_parm->mq_str_enc = ENC_EBCDIC | ENC_NA;
             }
 
             iSegmentLength = tvb_get_ntohl(tvb, offset + 4);
@@ -2541,7 +2547,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if (tvb_reported_length_remaining(tvb, offset) < 36)
                     return;
                 iSizeMPF += 8;
-                iSizeTSH  = 36;
+                iSizeTSH += iSizeMPF;
                 p_mq_parm->mq_convID = tvb_get_ntohl(tvb, offset +  8);
                 p_mq_parm->mq_rqstID = tvb_get_ntohl(tvb, offset + 12);
             }
@@ -2563,7 +2569,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (p_mq_parm->mq_tsh_ccsid.ccsid == 500 && !bEBCDIC)
             {
                 bEBCDIC = TRUE;
-                p_mq_parm->mq_str_enc = ENC_EBCDIC|ENC_NA;
+                p_mq_parm->mq_str_enc = ENC_EBCDIC | ENC_NA;
             }
 
             if (!mq_in_reassembly)
@@ -2575,7 +2581,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             if (tree)
             {
-                if (p_mq_parm->mq_opcode!=MQ_TST_ASYNC_MESSAGE)
+                if (p_mq_parm->mq_opcode != MQ_TST_ASYNC_MESSAGE)
                 {
                     ti = proto_tree_add_item(tree, proto_mq, tvb, offset, -1, ENC_NA);
                     proto_item_append_text(ti, " (%s)", val_to_str_ext(p_mq_parm->mq_opcode, GET_VALS_EXTP(opcode), "Unknown (0x%02x)"));
@@ -4157,6 +4163,7 @@ void proto_register_mq(void)
 
         { &hf_mq_id_icf3_CanMsgPrp, {"Msg Property Cap", "mq.id.icf.msgprpcap", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF3_MSG_PROP_CAPABLE, "ID ICF3 Message PropertyCapable", HFILL }},
         { &hf_mq_id_icf3_Unknown02, {"Unknownx02", "mq.id.icf.unknown02", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF3_UNKNOWNX02, "ID ICF3 Unknown Flag x02", HFILL }},
+        { &hf_mq_id_icf3_MPlxSyGet, {"Multiplex_synchget", "mq.id.icf.Multiplex_synchget", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF3_MULTIPLEX_SYNCGET, "ID ICF3 MULTIPLEX_SYNCGET", HFILL }},
 
         { &hf_mq_id_ief1_ccsid  , {"Invalid CCSID", "mq.id.ief1.ccsid", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_IEF1_CCSID, "ID invalid CCSID", HFILL }},
         { &hf_mq_id_ief1_enc    , {"Invalid encoding", "mq.id.ief1.enc", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_IEF1_ENCODING, "ID invalid encoding", HFILL }},
@@ -4653,6 +4660,9 @@ void proto_register_mq(void)
         &ett_mq_id_icf1,
         &ett_mq_id_icf2,
         &ett_mq_id_icf3,
+        &ett_mq_id_eicf1,
+        &ett_mq_id_eicf2,
+        &ett_mq_id_eicf3,
         &ett_mq_id_ief1,
         &ett_mq_id_ief2,
         &ett_mq_uid,
