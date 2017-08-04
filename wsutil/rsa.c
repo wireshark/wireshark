@@ -136,7 +136,7 @@ rsa_load_pem_key(FILE *fp, char **err)
     key.size = (int)statbuf.st_size;
     bytes = (guint) fread(key.data, 1, key.size, fp);
     if (bytes < key.size) {
-    	if (bytes == 0 && ferror(fp)) {
+        if (bytes == 0 && ferror(fp)) {
             *err = g_strdup_printf("can't read from file %d bytes, got error %s",
                     key.size, strerror(errno));
         } else {
