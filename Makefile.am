@@ -871,7 +871,6 @@ EXTRA_DIST = \
 	CMakeListsCustom.txt.example	\
 	cmakeconfig.h.in	\
 	CMakeOptions.txt	\
-	README.cmake		\
 	ConfigureChecks.cmake	\
 	cmake			\
 	CPackConfig.txt

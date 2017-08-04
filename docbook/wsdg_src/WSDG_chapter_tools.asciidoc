@@ -48,22 +48,10 @@ toolname`.
 You will find explanations of the tool usage for some of the specific
 development tasks in <<ChapterSources>>.
 
-[[ChToolsWindowsPowerShell]]
-
-=== Windows PowerShell
-
-PowerShell 2.0 or later is required for building Wireshark and the NSIS package.
-Windows 7 and later include compatible versions.
-
-If you are running Windows Vista and have thus far managed to not install
-PowerShell 2.0, either directly or via anything that requires it, you must now
-install PowerShell 2.0. You can download it from
-https://www.microsoft.com/powershell[]
-
 === Chocolatey
 
 Chocolatey is a Windows package manager that can be used to install (and update)
-many of the packages required for Wireshark development.  Chocolatey can be
+many of the packages required for Wireshark development. Chocolatey can be
 obtained from the http://chocolatey.org[website] or from a DOS command prompt:
 
 ----
@@ -76,6 +64,10 @@ or a Powershell prompt:
 PS:\>iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))
 ----
 
+Chocolatey sometimes installs packages in unexpected locations. Cygwin is a notable
+example -- recent versions of the Cygwin package are installed in `C:\ProgramData\chocolatey\lib\Cygwin\tools\cygwin` instead of Cygwin's default location
+(`C:\cygwin` or `C:\cygwin64`).
+
 [[ChToolsCygwin]]
 
 === Windows: Cygwin
@@ -86,41 +78,34 @@ but at an acceptable level. The installation and update is pretty easy and done
 through a single utility, 'setup-x86.exe' for 32-bit Windows and
 'setup-x86_64.exe' for 64-bit Windows.
 
-The native Windows tools will typically be a bit faster but more complicated to
-install, as you would have to download the tools from different web sites and
-install and configure them individually.
-
-
-[NOTE]
-.You must have Cygwin installed
-====
-As there's no Windows native bash version available, at least a basic installation
-of Cygwin is required in any case. This may change in the future as packaging
-systems such as NuGet and Chocolatey mature.
-====
+Over time the Wireshark development toolchain has been migrating away from Cygwin
+toward native tools and we hope to eliminate it as a requirement someday.
 
 Although Cygwin consists of several separate packages, the installation
 and update is done through a single utility, 'setup-x86.exe' or
 'setup-x86_64.exe', which acts similarly to other web based installers.
-Alternatively you can install Cygwin and its packages using Chocolatey.
+You can install Cygwin and its packages using Chocolatey, but this is not
+recommended due to Chocolatey's default installation location, described
+in the previous section.
 
 ==== Installing Cygwin using the Cygwin installer
 
 You will find 'setup-x86.exe', for 32-bit systems, and
 'setup-x86_64.exe', for 64-bit systems, at
-http://www.cygwin.com/install.html[].  Click on the link for the
-appropriate setup utility to download it.  After the download completes,
+http://www.cygwin.com/install.html[]. Click on the link for the
+appropriate setup utility to download it. After the download completes,
 run it.
 
-All tools will be installed into one base folder.  The default is
-'C:\cygwin'.
+All tools will be installed into one base folder. The default is
+'C:\cygwin' for the 32-bit installer and `C:\cygwin64` for the 64-bit
+installer.
 
 The setup utility will ask you for some settings. The defaults
 should usually work well, at least initially.
 
 If, at the "Choose A Download Source" page, you use the default "Install
 from Internet" setting, you will need to choose a download site at the
-"Choose A Download Site" page.  See the list of mirror sites at
+"Choose A Download Site" page. See the list of mirror sites at
 http://cygwin.com/mirrors.html[] to choose a download site appropriate
 to your location.
 
@@ -170,7 +155,7 @@ PS$>choco install cygwin
 PS$>choco install cyg-get
 ----
 
-Chocolatey installs Cygwin in 'C:\tools\cygwin' by default.
+Chocolatey installs Cygwin in 'C:\ProgramData\chocolatey\lib\Cygwin\tools\cygwin' by default.
 
 One or more Cygwin packages can be installed using "cyg-get":
 
@@ -210,6 +195,81 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ----
 
 Your version string may vary, of course.
+
+[[ChToolsCMake]]
+
+Wireshark's build environment can be configured using CMake on Windows
+and either CMake or Autotools on Linux, macOS, and UNIX. CMake is designed
+to support out of tree builds. So much so, that in tree builds do not work
+properly in all cases. Along with being cross-platform, CMake supports
+many build tools and environments including traditional make, Ninja, and
+MSBuild. Our Buildbot runs CMake steps on Ubuntu, Win32, Win64, and macOS.
+In particular, the macOS and Windows packages are built using CMake.
+
+Building with CMake typically includes creating a build directory and
+specifying a *generator*, aka a build tool. For example, to build
+Wireshark using Ninja in the directory `wireshark-ninja` you might
+run the following commands:
+
+----
+# Starting from your Wireshark source directory, create a build directory
+# alongside it.
+$ cd ..
+$ mkdir wsbuild
+$ cd wsbuild
+# Assumes your source directory is named "wireshark".
+$ cmake -G Ninja ../wireshark
+$ ninja (or cmake --build .)
+----
+
+Using CMake on Windows is described further in <<ChWin32Generate>>.
+
+Along with specifying a generator with the `-G` flag you can set variables
+using the `-D` flag. Useful variables and generators include the following:
+
+-DENABLE_CAP=OFF:: Disable the POSIX capabilities check
+
+-DCMAKE_BUILD_TYPE=Debug:: Enable debugging symbols
+
+-DENABLE_GTK3=ON:: Enable GTK+ 3
+
+-DENABLE_HTML_GUIDES=ON -DENABLE_PDF_GUIDES=ON:: Build documentation
+
+-DCMAKE_C_FLAGS='-Qunused-arguments':: Make ccache and clang work together
+
+-DPYTHON_EXECUTABLE=c:/Python27/python:: Force the Python path. Useful on Windows since Cygwin's /usrbin/python is a symlink.
+
+-DENABLE_APPLICATION_BUNDLE=OFF:: Disable building an application bundle (Wireshark.app) on macOS
+
+You can list all build variables (with help) using `cmake -LH [options]
+../<Name_of_WS_source_dir>`. This lists the cache of build variables
+after the cmake run. To only view the current cache, add option `-N`.
+
+After running cmake, you can always run "make help" to see a list of all possible make targets.
+
+Note that CMake honors user umask for creating directories as of now. You should set
+the umask explicitly before running the `install` target.
+
+CMake links:
+
+The home page of the CMake project: http://www.cmake.org/
+
+Official documentation: https://cmake.org/documentation/
+
+About CMake in general and why KDE4 uses it: http://lwn.net/Articles/188693/
+
+Introductory tutorial/presentation:
+http://ait.web.psi.ch/services/linux/hpc/hpc_user_cookbook/tools/cmake/docs/Cmake_VM_2007.pdf
+
+Introductory article in the Linux Journal:
+http://www.linuxjournal.com/node/6700/print
+
+Useful variables: http://www.cmake.org/Wiki/CMake_Useful_Variables
+
+Frequently Asked Questions: http://www.cmake.org/Wiki/CMake_FAQ
+
+// 2017-08-04 dead
+//Additional cmake modules: http://code.google.com/p/cmake-modules/
 
 [[ChToolsGDB]]
 
@@ -313,6 +373,8 @@ compiler, you'll need:
 
 . Linker (`link.exe`)
 
+. Resource Compiler (`rc.exe`)
+
 . C runtime headers and libraries (e.g. 'stdio.h', 'msvcrt.lib')
 
 . Windows platform headers and libraries (e.g.
@@ -321,20 +383,20 @@ compiler, you'll need:
 // Can we drop support for CHM?
 . HTML help headers and libraries ('htmlhelp.h', 'htmlhelp.lib')
 
-==== Toolchain Package Alternatives
+==== Official Toolchain Packages And Alternatives
 
-The Wireshark 2.0.x releases are compiled using Microsoft Visual $$C++$$ 2013.
-The official Wireshark 1.12.x and 1.10.x releases are compiled using
+The official Wireshark 2.4.x releases are compiled using Microsoft Visual $$C++$$ 2015.
+The Wireshark 2.2.x and 2.0.x releases are compiled using Microsoft Visual $$C++$$ 2013.
+The Wireshark 1.12.x and 1.10.x releases were compiled using
 Microsoft Visual $$C++$$ 2010 SP1.
-The official 1.8 releases were compiled using
+The 1.8 releases were compiled using
 Microsoft Visual $$C++$$ 2010 SP1 as well.
-The official 1.6, 1.4, and 1.2 releases were compiled using
+The 1.6, 1.4, and 1.2 releases were compiled using
 Microsoft Visual $$C++$$ 2008 SP1.
 Other past releases, including the 1.0 branch,
 were compiled using Microsoft Visual $$C++$$ 6.0.
 
-Using the release
-compilers is recommended for Wireshark development work.
+Using the release compilers is recommended for Wireshark development work.
 
 The older "Express
 Edition" compilers such as Visual $$C++$$ 2010 Express Edition SP1 can be
@@ -404,9 +466,10 @@ versions ordered by release date.
 
 |===============
 |Compiler Package|cl.exe|_MSC_VER|CRT DLL
+|Visual Studio 2015|14.0|1900|msvcr140.dll
 |Visual Studio 2013|12.0|1800|msvcr120.dll
+|Visual Studio 2012|11.0|1700|msvcr110.dll
 |Visual Studio 2010|10.0|1600|msvcr100.dll
-|Visual Studio 2010 Express Edition
 |===============
 
 After correct installation of the toolchain, typing
@@ -684,21 +747,15 @@ However, the version string may vary.
 
 [[ChToolsWindowsBash]]
 
-==== Windows native:
-
-// MinGW? PowerShell?
-****
-This section not yet written
-****
-
 [[ChToolsPython]]
 
 === Python
 
-Python is an interpreted programming language. The homepage of the Python
-project is http://python.org/[]. It is used to generate some source files.
+http://python.org/[Python] is an interpreted programming language. It is
+used to generate some source files, documenation, and other tasks.
 Python 2.5 or later (including Python 3) should work fine and Python 3.5 and
-2.7 are recommended.
+2.7 are recommended. If you're building documentation you must have Python
+2 installed since AsciiDoc doesn't support Python 3.
 
 Python is either included or available as a package on most UNIX-like platforms.
 Windows packages and source are available at http://python.org/download/[].
@@ -833,60 +890,8 @@ However, the version string may vary.
 //
 //However, the version string may vary.
 
-[[ChToolsSed]]
-
-=== sed
-
-Sed it the streaming editor. It makes it easy for example
-to replace text inside a source code file.
-The Wireshark build process uses this to stamp version strings
-in various places.
-
-[[ChToolsUnixSed]]
-
-==== UNIX and Cygwin: sed
-
-Sed is available for most of the UNIX-like platforms
-and as the sed package from the
-<<ChToolsCygwin,Cygwin setup>>. It is also available via Chocolatey:
-
-// XXX Is sed part of the base Cygwin install?
-
-----
-PS$>cyg-get sed
-----
-
-If sed isn't already installed or available
-as a package for your platform, you can get it at
-http://directory.fsf.org/GNU/sed.html[]
-
-After correct installation, typing at the
-bash command line prompt:
-
-----
-$ sed --version
-----
-
-should result in something like:
-
-----
-GNU sed version 4.1.5
-Copyright (C) 2003 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE,
-to the extent permitted by law.
-----
-
-However, the version string may vary.
-
-[[ChToolsWindowsSed]]
-
-==== Windows native: sed
-
-A native Windows sed package can be obtained from
-http://gnuwin32.sourceforge.net/[]. The
-installation should be straightforward. A Chocolatey package
-(devbox-sed) is available but has not been tested.
+// Sed is no longer required.
+//[[ChToolsSed]]
 
 [[ChToolsBison]]
 
@@ -986,21 +991,16 @@ officially supported but _should_ work.
 
 === Git client
 
-The Wireshark project uses its own Git repository
-to keep track of all the changes done to the source
-code. Details about the usage of Git in the Wireshark
-project can be found in
-<<ChSrcGitRepository>>.
+The Wireshark project uses its own Git repository to keep track of all
+the changes done to the source code. Details about the usage of Git in
+the Wireshark project can be found in <<ChSrcGitRepository>>.
 
-If you want to work with the source code and are planning to
-commit your changes back to the Wireshark community, it is
-recommended to use a Git client to get the latest source files.
-For detailed information about the different ways to obtain the
-Wireshark sources, see
-<<ChSrcObtain>>.
+If you want to work with the source code and are planning to commit your
+changes back to the Wireshark community, it is recommended to use a Git
+client to get the latest source files. For detailed information about
+the different ways to obtain the Wireshark sources, see <<ChSrcObtain>>.
 
-You will find more instructions in
-<<ChSrcGit>> on how to use the Git
+You will find more instructions in <<ChSrcGit>> on how to use the Git
 client.
 
 [[ChToolsUnixGit]]

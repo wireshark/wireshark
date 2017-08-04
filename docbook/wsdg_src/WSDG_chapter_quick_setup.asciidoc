@@ -42,19 +42,6 @@ Known traps are:
 
 ====
 
-[[ChSetupPowerShell]]
-
-==== Install PowerShell
-
-PowerShell 2.0 or later is required for building Wireshark and the NSIS package.
-Windows 7 and later include compatible versions. It is also required by
-Chocolatey.
-
-If you are running Windows Vista and have thus far managed to not install
-PowerShell 2.0, either directly or via anything that requires it, you must now
-install PowerShell 2.0. You can download it from
-https://www.microsoft.com/powershell[]
-
 [[ChSetupChocolatey]]
 
 ==== Optional: Install Chocolatey
@@ -78,21 +65,20 @@ You need to install, in exactly this order:
 
 . C compiler:
 http://go.microsoft.com/?linkid=9863608[Download]
-and install "Microsoft Visual Studio 2013 Community Edition." This is a small download that then downloads all the other required parts (which are quite large).
+and install "Microsoft Visual Studio 2015 Community Edition." This is a small download that then downloads all the other required parts (which are quite large).
 
 Uncheck all the optional components (unless you want to use them for purposes other than Wireshark).
 
 You can use Chocolatey to install Visual Studio:
 
 ----
-PS$>choco install VisualStudioCommunity2013
+PS$>choco install VisualStudioCommunity2015
 ----
 
-You can use other Microsoft C compiler variants, but VS2013 is used
-to build the development releases and is the preferred option.
-It's possible to compile Wireshark with a wide range
-of Microsoft C compiler variants. For details see
-<<ChToolsMSChain>>.
+You can use other Microsoft C compiler variants, but VS2015 is used to
+build the development releases and is the preferred option. It's
+possible to compile Wireshark with a wide range of Microsoft C compiler
+variants. For details see <<ChToolsMSChain>>.
 
 You may have to do this as Administrator.
 
@@ -107,9 +93,9 @@ of Visual Studio add more cross-platform support.
 // required components
 
 Why is this recommended? While this is a huge download,
-Visual Studio 2013 Community Edition is the only free (as in beer)
+Visual Studio 2015 Community Edition is the only free (as in beer)
 versions that includes the Visual Studio integrated
-debugger. Visual Studio 2013 is also used to create official
+debugger. Visual Studio 2015 is also used to create official
 Wireshark builds, so it will likely have fewer development-related
 problems.
 
@@ -157,21 +143,22 @@ sure it doesn't install Visual Studio 2010 SP1 out of order.
 The main Wireshark application uses the Qt windowing toolkit. To install
 Qt download the *Qt Online Installer for Windows* from the Qt Project
 https://www.qt.io/download-open-source/["Download Open Source" page] and
-select a component that matches your target system and compiler. For example,
-the ``msvc2013 64-bit'' component is used to build the official 64-bit packages.
+select a component that matches your target system and compiler. For
+example, the ``msvc2015 64-bit'' component is used to build the official
+64-bit packages.
 
-Note that separate installations (into different directories) of Qt
-are required for 32 bit and 64 bit builds.  The environment variable
+Note that separate installations (into different directories) of Qt are
+required for 32 bit and 64 bit builds. The environment variable
 `QT5_BASE_DIR` should be set as appropriate for your environment and
 should point to the Qt directory that contains the bin directory, e.g.
-`C:\Qt\5.6\msvc2013_64`
+`C:\Qt\5.9.2\msvc2015_64`
 
 [[ChSetupCygwin]]
 
 ==== Install Cygwin
 
 On 32-bit Windows, http://www.cygwin.com/setup-x86.exe[download the
-32-bit Cygwin installer] and start it.  On 64-bit Windows,
+32-bit Cygwin installer] and start it. On 64-bit Windows,
 http://www.cygwin.com/setup-x86_64.exe[download the 64-bit Cygwin
 installer] and start it.
 
@@ -180,8 +167,6 @@ some additional packages which are not installed by default.
 Navigate to the required Category/Package row and, if the package
 has a "Skip" item in the "New" column, click on the "Skip" item
 so it shows a version number for:
-
-* Archive/unzip (not needed if using CMake)
 
 * Devel/bison (or install Win flex-bison - see Chocolatey below)
 
@@ -211,10 +196,6 @@ m4 is missing bison will fail.
 After clicking the Next button several times, the setup
 will then download and install the selected packages (this
 may take a while).
-
-Why is this recommended? Cygwin's bash version is required, as no native Win32
-version is available. As additional packages can easily be added, Perl and
-other packages are also used.
 
 Alternatively you can install Cygwin and its packages using Chocolatey:
 
@@ -380,10 +361,8 @@ Make sure your repository path doesn't contain spaces.
 
 ==== Open a Visual Studio Command Prompt
 
-From the Start Menu (or Start Screen), navigate to the Visual Studio 2013 ->
-Visual Studio Tools directory and choose the Command Prompt appropriate for
-the build you wish to make, e.g. VS2013 x86 Native Tools Command Prompt for a 32-bit version,
-VS2013 x64 Native Tools Command Prompt for a 64-bit version.
+From the Start Menu (or Start Screen), navigate to the `Visual Studio 2015 ->
+Visual Studio Tools' directory and choose `Developer Command Prompt for VS2015'.
 
 [TIP]
 .Pin the items to the Task Bar
@@ -399,18 +378,24 @@ All subsequent operations take place in this Command Prompt window.
 Set the following environment variables, using paths and values suitable for your installation:
 
 ----
-> set CYGWIN=nodosfilewarning
-> set WIRESHARK_BASE_DIR=C:\Development or set WIRESHARK_LIB_DIR to the appropriate library directory for your build.
-> set WIRESHARK_TARGET_PLATFORM=win32 or win64 as required
-> set QT5_BASE_DIR=C:\Qt\5.6\msvc2013_64
-
+> rem Populate the VS build environment. Default is x86.
+> "c:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86_amd64
+> rem Set the library download directory using WIRESHARK_LIB_DIR...
+> set WIRESHARK_LIB_DIR=c:\wireshark-win64-libs
+> rem ...or by using WIRESHARK_BASE_DIR
+> set WIRESHARK_BASE_DIR=C:\Development
+> rem Set the Qt installation directory
+> set QT5_BASE_DIR=C:\Qt\5.9.2\msvc2015_64
+> rem Append a custom string to the package version. Optional.
 > set WIRESHARK_VERSION_EXTRA=-YourExtraVersionInfo
 ----
-If your Cygwin installation path is not automatically detected by CMake, you can explicitly specify it with the following
-environment variable:
+
+If your Cygwin installation path is not automatically detected by CMake,
+you can explicitly specify it with the following environment variable:
 
 ----
-> set WIRESHARK_CYGWIN_INSTALL_PATH=c:\cygwin or whatever other path that is applicable to your setup
+> rem Chocolatey installs Cygwin in an odd location
+> set WIRESHARK_CYGWIN_INSTALL_PATH=C:\ProgramData\chocolatey\lib\Cygwin\tools\cygwin
 ----
 
 If you are using a version of Visual Studio earlier than VS2012 then you must set an additional env var,
@@ -418,13 +403,14 @@ e.g. for VS2010 set the following:
 ----
 > set VisualStudioVersion=10.0
 ----
+
 Setting these variables could be added to a batch file to be run after you open
 the Visual Studio Tools Command Prompt.
 
 [TIP]
 ====
-Qt 5.6 is a "long term support" branch of Qt5. We recommend using it
-to compile Wireshark on Windows.
+Qt 5.9 is a "long term support" branch of Qt5. We recommend using it to
+compile Wireshark on Windows.
 ====
 
 --
@@ -461,17 +447,19 @@ If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,pre
 
 To generate the build files enter the following at the Visual Studio command prompt:
 ----
-> cmake -DENABLE_CHM_GUIDES=on -G "Visual Studio 12" ..\wireshark
+> cmake -DENABLE_CHM_GUIDES=on -G "Visual Studio 14 2015" ..\wireshark
 ----
 
-Adjusting the paths as required to Python and the wireshark source tree.  To use a different generator
-modify the -G parameter, cmake -G lists all the CMake supported generators, but only Visual Studio is
-supported for Wireshark builds.
+Adjusting the paths as required to Python and the wireshark source tree.
+To use a different generator modify the `-G` parameter. `cmake -G` lists
+all the CMake supported generators, but only Visual Studio is supported
+for Wireshark builds.
 
-To build an x64 version, the -G parameter must have a Win64 suffix, e.g. -G "Visual Studio 12 Win64", e.g.
+To build an x64 version, the `-G` parameter must have a Win64 suffix,
+e.g. `-G "Visual Studio 14 2015 Win64"`:
 
 ----
-> cmake -DENABLE_CHM_GUIDES=on -G "Visual Studio 12 Win64" ..\wireshark
+> cmake -DENABLE_CHM_GUIDES=on -G "Visual Studio 14 2015 Win64" ..\wireshark
 ----
 
 The CMake generation process will download the required 3rd party libraries (apart from Qt)
@@ -485,8 +473,8 @@ At the end of the CMake generation process the following should be displayed:
 ----
 
 If you get any other output, there is an issue in your envirnment that must be rectified before building.
-Check the parameters passed to CMake, especially the -G option and the path to the Wireshark sources and
-the environment variables WIRESHARK_BASE_DIR, WIRESHARK_TARGET_PLATFORM and QT5_BASE_DIR.
+Check the parameters passed to CMake, especially the `-G` option and the path to the Wireshark sources and
+the environment variables WIRESHARK_BASE_DIR and QT5_BASE_DIR.
 
 [[ChWin32Build]]
 
@@ -508,8 +496,6 @@ to build Wireshark.
 . Wait for Wireshark to compile. This will take a while, and there will be a lot of text output in the command prompt window
 
 . For the Qt version run `C:\Development\wsbuild32\run\RelWithDebInfo\Wireshark.exe` and make sure it starts.
-
-. For the older GTK version run `C:\Development\wsbuild32\run\RelWithDebInfo\wireshark-gtk.exe`.
 
 . Open 'Help -> About'. If it shows your "private" program
 version, e.g.: Version {wireshark-version}-myprotocol123

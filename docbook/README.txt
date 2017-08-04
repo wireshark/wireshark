@@ -7,7 +7,7 @@ This directory contains the source files needed to build the:
  - Release notes (NEWS)
  - Lua Reference
 
-To build everything, just run `make` (for Windows see README.cmake).
+To build everything, just run `make` or `msbuild all_guides.vcxproj`.
 Requirements are listed below.
 
 The guides and release notes are written in AsciiDoc (http://asciidoc.org),
