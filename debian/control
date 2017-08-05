@@ -164,7 +164,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}
 Conflicts: wireshark-common (<< 1.4.0~rc2-1), libwireshark1 (<< 1.4.2-2)
 Replaces: wireshark-common (<< 1.4.0~rc2-1), libwireshark1 (<< 1.4.2-2)
 Description: network packet dissection utilities library -- shared library
- The libwsutil library provides utility functions for libwireshark05.
+ The libwsutil library provides utility functions for libwireshark0.
 
 Package: libwsutil-dev
 Section: libdevel
