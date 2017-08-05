@@ -4,7 +4,7 @@ Author: Frederic Peters <fpeters@debian.org>
 
 --- a/ui/gtk/about_dlg.c
 +++ b/ui/gtk/about_dlg.c
-@@ -502,7 +502,7 @@
+@@ -522,7 +522,7 @@
  #if defined(_WIN32)
    absolute_path = get_datafile_path("COPYING.txt");
  #else
@@ -15,7 +15,7 @@ Author: Frederic Peters <fpeters@debian.org>
  
 --- a/ui/qt/about_dialog.cpp
 +++ b/ui/qt/about_dialog.cpp
-@@ -312,7 +312,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
+@@ -335,7 +335,7 @@
  #if defined(_WIN32)
      f_license.setFileName(get_datafile_path("COPYING.txt"));
  #else
