@@ -762,25 +762,25 @@ static void process_cwd_success(ftp_conversation_t *conv, const char *new_path)
 
 /* When get a PWD command response, extract directory and set it in conversation.  */
 static void process_pwd_success(ftp_conversation_t *conv, const char *line,
-                                packet_info *pinfo, proto_item *pi)
+                                int linelen, packet_info *pinfo, proto_item *pi)
 {
     wmem_strbuf_t *output = wmem_strbuf_new(wmem_file_scope(), NULL);
     int offset;
     gboolean outputStarted = FALSE;
 
     /* Line must start with quotes */
-    if ((strlen(line) < 2) || (line[0] != '"')) {
+    if ((linelen < 2) || (line[0] != '"')) {
         expert_add_info(pinfo, pi, &ei_ftp_pwd_response_invalid);
         return;
     }
 
     /* For each character */
     for (offset=0;
-         (line[offset] != '\0') && (line[offset] != '\r') && (line[offset] != '\n');
+         (offset < linelen) && (line[offset] != '\r') && (line[offset] != '\n');
          offset++) {
 
         if (line[offset] == '"') {
-            if (line[offset+1] == '"') {
+            if ((offset+1 < linelen) && (line[offset+1] == '"')) {
                 /* Double, so output one */
                 wmem_strbuf_append_c(output, '"');
                 offset++;
@@ -800,7 +800,7 @@ static void process_pwd_success(ftp_conversation_t *conv, const char *line,
     }
 
     /* Make sure output ends in " */
-    if (line[offset] != '"') {
+    if (offset >= linelen || line[offset] != '"') {
         expert_add_info(pinfo, pi, &ei_ftp_pwd_response_invalid);
         return;
     }
@@ -1007,9 +1007,9 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
              */
             if (code == 257) {
                 if (!pinfo->fd->flags.visited) {
-                    if (p_ftp_conv) {
+                    if (p_ftp_conv && linelen >= 4) {
                         /* Want directory name, which will be between " " */
-                        process_pwd_success(p_ftp_conv, line+4, pinfo, pi);
+                        process_pwd_success(p_ftp_conv, line+4, linelen-4, pinfo, pi);
 
                         /* Update path in packet */
                         if (!pinfo->fd->flags.visited) {
