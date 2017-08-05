@@ -191,12 +191,9 @@ rsa_load_pkcs12(FILE *fp, const gchar *cert_passwd, char **err)
     int                       rest;
     unsigned char            *p;
     gnutls_datum_t            data;
-    gnutls_pkcs12_bag_t       bag = NULL;
-    gnutls_pkcs12_bag_type_t  bag_type;
     size_t                    len;
 
     gnutls_pkcs12_t       rsa_p12  = NULL;
-    gnutls_x509_privkey_t rsa_pkey = NULL;
 
     gnutls_x509_privkey_t     priv_key = NULL;
     *err = NULL;
@@ -239,6 +236,7 @@ rsa_load_pkcs12(FILE *fp, const gchar *cert_passwd, char **err)
     }
     g_free(data.data);
     if (ret < 0) {
+        gnutls_pkcs12_deinit(rsa_p12);
         return NULL;
     }
 
@@ -246,19 +244,22 @@ rsa_load_pkcs12(FILE *fp, const gchar *cert_passwd, char **err)
 
     /* TODO: Use gnutls_pkcs12_simple_parse, since 3.1.0 (August 2012) */
     for (i=0; ; i++) {
+        gnutls_pkcs12_bag_t       bag;
+        gnutls_pkcs12_bag_type_t  bag_type;
 
         ret = gnutls_pkcs12_bag_init(&bag);
         if (ret < 0) {
             *err = g_strdup_printf("gnutls_pkcs12_bag_init failed: %s",
                                    gnutls_strerror(ret));
-            break;
+            goto done;
         }
 
         ret = gnutls_pkcs12_get_bag(rsa_p12, i, bag);
         if (ret < 0) {
             *err = g_strdup_printf("gnutls_pkcs12_get_bag failed: %s",
                                    gnutls_strerror(ret));
-            break;
+            gnutls_pkcs12_bag_deinit(bag);
+            goto done;
         }
 
         for (j=0; j<gnutls_pkcs12_bag_get_count(bag); j++) {
@@ -267,12 +268,14 @@ rsa_load_pkcs12(FILE *fp, const gchar *cert_passwd, char **err)
             if (ret < 0) {
                 *err = g_strdup_printf("gnutls_pkcs12_bag_get_type failed: %s",
                                        gnutls_strerror(ret));
+                gnutls_pkcs12_bag_deinit(bag);
                 goto done;
             }
             bag_type = (gnutls_pkcs12_bag_type_t)ret;
             if (bag_type >= GNUTLS_BAG_UNKNOWN) {
                 *err = g_strdup_printf("gnutls_pkcs12_bag_get_type returnd unknown bag type %u",
                                        ret);
+                gnutls_pkcs12_bag_deinit(bag);
                 goto done;
             }
             g_log(NULL, G_LOG_LEVEL_INFO, "Bag %d/%d: %s\n", i, j, BAGTYPE(bag_type));
@@ -283,12 +286,14 @@ rsa_load_pkcs12(FILE *fp, const gchar *cert_passwd, char **err)
                     if (ret < 0) {
                         *err = g_strdup_printf("gnutls_pkcs12_bag_get_type failed: %s",
                                                gnutls_strerror(ret));
+                        gnutls_pkcs12_bag_deinit(bag);
                         goto done;
                     }
                     bag_type = (gnutls_pkcs12_bag_type_t)ret;
                     if (bag_type >= GNUTLS_BAG_UNKNOWN) {
                         *err = g_strdup_printf("gnutls_pkcs12_bag_get_type returnd unknown bag type %u",
                                                ret);
+                        gnutls_pkcs12_bag_deinit(bag);
                         goto done;
                     }
                     g_log(NULL, G_LOG_LEVEL_INFO, "Bag %d/%d decrypted: %s\n", i, j, BAGTYPE(bag_type));
@@ -299,6 +304,7 @@ rsa_load_pkcs12(FILE *fp, const gchar *cert_passwd, char **err)
             if (ret < 0) {
                 *err = g_strdup_printf("gnutls_pkcs12_bag_get_data failed: %s",
                                        gnutls_strerror(ret));
+                gnutls_pkcs12_bag_deinit(bag);
                 goto done;
             }
 
@@ -306,21 +312,28 @@ rsa_load_pkcs12(FILE *fp, const gchar *cert_passwd, char **err)
 
                 case GNUTLS_BAG_PKCS8_KEY:
                 case GNUTLS_BAG_PKCS8_ENCRYPTED_KEY:
+                {
+                    gnutls_x509_privkey_t rsa_pkey;
 
                     ret = gnutls_x509_privkey_init(&rsa_pkey);
                     if (ret < 0) {
-                        *err = g_strdup_printf("gnutls_x509_privkey_init(&rsa_pkey) - %s", gnutls_strerror(ret));
+                        *err = g_strdup_printf("gnutls_x509_privkey_init failed: %s", gnutls_strerror(ret));
+                        gnutls_pkcs12_bag_deinit(bag);
                         goto done;
                     }
                     ret = gnutls_x509_privkey_import_pkcs8(rsa_pkey, &data, GNUTLS_X509_FMT_DER, cert_passwd,
                             (bag_type==GNUTLS_BAG_PKCS8_KEY) ? GNUTLS_PKCS_PLAIN : 0);
                     if (ret < 0) {
                         *err = g_strdup_printf("Can not decrypt private key - %s", gnutls_strerror(ret));
+                        gnutls_x509_privkey_deinit(rsa_pkey);
+                        gnutls_pkcs12_bag_deinit(bag);
                         goto done;
                     }
 
                     if (gnutls_x509_privkey_get_pk_algorithm(rsa_pkey) != GNUTLS_PK_RSA) {
                         *err = g_strdup("private key public key algorithm isn't RSA");
+                        gnutls_x509_privkey_deinit(rsa_pkey);
+                        gnutls_pkcs12_bag_deinit(bag);
                         goto done;
                     }
 
@@ -328,18 +341,26 @@ rsa_load_pkcs12(FILE *fp, const gchar *cert_passwd, char **err)
                     priv_key = rsa_pkey;
                     goto done;
                     break;
+                }
 
                 default: ;
             }
+            gnutls_pkcs12_bag_deinit(bag);
+            bag = NULL;
         }  /* j */
-        if (bag) { gnutls_pkcs12_bag_deinit(bag); bag = NULL; }
     }  /* i */
 
 done:
-    if (!priv_key && rsa_pkey)
-        gnutls_x509_privkey_deinit(rsa_pkey);
-    if (bag)
-        gnutls_pkcs12_bag_deinit(bag);
+    if (!priv_key) {
+        /*
+         * We failed.  If we didn't fail with an error, we failed because
+         * we found no PKCS8 key and fell out of the loop; report that
+         * error.
+         */
+        if (*err == NULL)
+            *err = g_strdup("no PKCS8 key found");
+    }
+    gnutls_pkcs12_deinit(rsa_p12);
 
     return priv_key;
 }
