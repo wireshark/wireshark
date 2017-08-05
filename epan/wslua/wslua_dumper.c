@@ -309,7 +309,7 @@ WSLUA_METHOD Dumper_dump(lua_State* L) {
     ph = checkPseudoHeader(L,WSLUA_ARG_Dumper_dump_PSEUDOHEADER);
 
     if (!ph) {
-        WSLUA_ARG_ERROR(Dumper_dump,TIMESTAMP,"need a PseudoHeader");
+        WSLUA_ARG_ERROR(Dumper_dump,PSEUDOHEADER,"need a PseudoHeader");
         return 0;
     }
 
