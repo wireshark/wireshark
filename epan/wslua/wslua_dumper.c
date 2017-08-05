@@ -331,7 +331,9 @@ WSLUA_METHOD Dumper_dump(lua_State* L) {
     pkthdr.len       = ba->len;
     pkthdr.caplen    = ba->len;
     pkthdr.pkt_encap = DUMPER_ENCAP(d);
-    pkthdr.pseudo_header = *ph->wph;
+    if (ph->wph) {
+        pkthdr.pseudo_header = *ph->wph;
+    }
 
     /* TODO: Can we get access to pinfo->pkt_comment here somehow? We
      * should be copying it to pkthdr.opt_comment if we can. */
