@@ -3140,12 +3140,6 @@ decode_MPLS_stack(tvbuff_t *tvb, gint offset, wmem_strbuf_t *stack_strbuf)
                 ((label_entry & BGP_MPLS_BOTTOM_L_STACK) == 0) ? "," : " (bottom)");
 
         indx += 3 ;
-
-        if ((label_entry & BGP_MPLS_BOTTOM_L_STACK) == 0) {
-            /* real MPLS multi-label stack in BGP? - maybe later; for now, it must be a bogus packet */
-            wmem_strbuf_append(stack_strbuf, " (BOGUS: Bottom of Stack NOT set!)");
-            break;
-        }
     }
 
     return((indx - offset) / 3);
