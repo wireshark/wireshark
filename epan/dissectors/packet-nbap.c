@@ -55530,6 +55530,79 @@ dissect_nbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
   return dissect_NBAP_PDU_PDU(tvb, pinfo, nbap_tree, data);
 }
 
+/* Highest ProcedureCode value, used in heuristics */
+#define NBAP_MAX_PC 56 /* id-secondaryULFrequencyUpdate = 56*/
+#define NBAP_MSG_MIN_LENGTH 7
+static gboolean
+dissect_nbap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+  guint8 pdu_type;
+  guint8 procedure_id;
+  guint8 dd_mode;
+  guint8 criticality;
+  guint8 transaction_id_type;
+  guint length;
+  int length_field_offset;
+
+  #define PDU_TYPE_OFFSET 0
+  #define PROC_CODE_OFFSET 1
+  #define DD_CRIT_OFFSET 2
+  if (tvb_captured_length(tvb) < NBAP_MSG_MIN_LENGTH) {
+    return FALSE;
+  }
+
+  pdu_type = tvb_get_guint8(tvb, PDU_TYPE_OFFSET);
+  if (pdu_type != 0x00 && pdu_type != 0x20 && pdu_type != 0x40 && pdu_type != 0x60) {
+    return FALSE;
+  }
+
+  procedure_id = tvb_get_guint8(tvb, PROC_CODE_OFFSET);
+  if (procedure_id > NBAP_MAX_PC) {
+      return FALSE;
+  }
+
+  dd_mode = tvb_get_guint8(tvb, DD_CRIT_OFFSET) >> 5;
+  if (dd_mode != 0x00 && dd_mode != 0x01 && dd_mode != 0x02) {
+    return FALSE;
+  }
+
+  criticality = (tvb_get_guint8(tvb, DD_CRIT_OFFSET) & 0x18) >> 3;
+  if (criticality != 0x00 && criticality != 0x01 && criticality != 0x02) {
+    return FALSE;
+  }
+
+  /* Finding the offset for the length field - depends on wether the transaction id is long or short */
+  transaction_id_type = (tvb_get_guint8(tvb, DD_CRIT_OFFSET) & 0x02) >> 1;
+  if(transaction_id_type == 0x00) { /* Short transaction id - 1 byte*/
+    length_field_offset = 4;
+  }
+  else { /* Long transaction id - 2 bytes*/
+    length_field_offset = 5;
+  }
+
+  /* compute aligned PER length determinant without calling dissect_per_length_determinant()
+     to avoid exceptions and info added to tree, info column and expert info */
+  length = tvb_get_guint8(tvb, length_field_offset);
+  length_field_offset += 1;
+  if ((length & 0x80) == 0x80) {
+    if ((length & 0xc0) == 0x80) {
+      length &= 0x3f;
+      length <<= 8;
+      length += tvb_get_guint8(tvb, length_field_offset);
+      length_field_offset += 1;
+    } else {
+      length = 0;
+    }
+  }
+  if (length!= (tvb_reported_length(tvb) - length_field_offset)){
+    return FALSE;
+  }
+
+  dissect_nbap(tvb, pinfo, tree, data);
+
+  return TRUE;
+}
+
 /*--- proto_register_nbap -------------------------------------------*/
 void proto_register_nbap(void)
 {
@@ -68715,7 +68788,7 @@ void proto_register_nbap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-nbap-hfarr.c ---*/
-#line 593 "./asn1/nbap/packet-nbap-template.c"
+#line 666 "./asn1/nbap/packet-nbap-template.c"
   };
 
   /* List of subtrees */
@@ -70355,7 +70428,7 @@ void proto_register_nbap(void)
     &ett_nbap_Outcome,
 
 /*--- End of included file: packet-nbap-ettarr.c ---*/
-#line 602 "./asn1/nbap/packet-nbap-template.c"
+#line 675 "./asn1/nbap/packet-nbap-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -70408,6 +70481,7 @@ proto_reg_handoff_nbap(void)
   dissector_add_uint("sctp.ppi", 17, nbap_handle);
 #endif
   dissector_add_for_decode_as("sctp.port", nbap_handle);
+  heur_dissector_add("sctp", dissect_nbap_heur, "NBAP over SCTP", "nbap_sctp", proto_nbap, HEURISTIC_ENABLE);
 
 
 /*--- Included file: packet-nbap-dis-tab.c ---*/
@@ -71506,6 +71580,6 @@ proto_reg_handoff_nbap(void)
 
 
 /*--- End of included file: packet-nbap-dis-tab.c ---*/
-#line 656 "./asn1/nbap/packet-nbap-template.c"
+#line 730 "./asn1/nbap/packet-nbap-template.c"
 }
 
