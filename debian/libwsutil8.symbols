@@ -41,6 +41,7 @@ libwsutil.so.8 libwsutil8 #MINVER#
  crc8_0x3B@Base 2.3.0
  create_persconffile_dir@Base 1.12.0~rc1
  create_persconffile_profile@Base 1.12.0~rc1
+ create_profiles_dir@Base 2.4.0
  create_tempdir@Base 1.12.0~rc1
  create_tempfile@Base 1.12.0~rc1
  crypt_des_ecb@Base 2.3.0

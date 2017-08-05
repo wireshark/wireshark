@@ -377,10 +377,17 @@ libwireshark.so.10 libwireshark10 #MINVER#
  dissect_per_set_of@Base 1.9.1
  dissect_q931_bearer_capability_ie@Base 1.9.1
  dissect_q931_high_layer_compat_ie@Base 1.9.1
+ dissect_q932_Address@Base 2.4.0
  dissect_q932_PartyNumber@Base 1.9.1
  dissect_q932_PartySubaddress@Base 1.9.1
+ dissect_q932_PresentationAllowedIndicator@Base 2.4.0
+ dissect_q932_PresentedAddressScreened@Base 2.4.0
+ dissect_q932_PresentedAddressUnscreened@Base 2.4.0
  dissect_q932_PresentedNumberScreened@Base 1.9.1
  dissect_q932_PresentedNumberUnscreened@Base 1.9.1
+ dissect_q932_ScreeningIndicator@Base 2.4.0
+ dissect_qsig_Extension@Base 2.4.0
+ dissect_qsig_PSS1InformationElement@Base 2.4.0
  dissect_qsig_na_Name@Base 1.9.1
  dissect_rpc_array@Base 1.9.1
  dissect_rpc_bool@Base 1.9.1
@@ -1008,6 +1015,7 @@ libwireshark.so.10 libwireshark10 #MINVER#
  prefs_set_color_value@Base 2.3.0
  prefs_set_control@Base 2.3.0
  prefs_set_enum_value@Base 2.3.0
+ prefs_set_gui_theme_is_dark@Base 2.4.0
  prefs_set_pref@Base 1.9.1
  prefs_set_range_value@Base 2.1.0
  prefs_set_range_value_work@Base 2.3.0
@@ -1220,8 +1228,11 @@ libwireshark.so.10 libwireshark10 #MINVER#
  q931_message_type_vals@Base 1.9.1
  q932_PartyNumber_vals@Base 2.1.0
  q932_PartySubaddress_vals@Base 2.1.0
+ q932_PresentedAddressScreened_vals@Base 2.4.0
+ q932_PresentedAddressUnscreened_vals@Base 2.4.0
  q932_PresentedNumberScreened_vals@Base 2.1.0
  q932_PresentedNumberUnscreened_vals@Base 2.1.0
+ q932_ScreeningIndicator_vals@Base 2.4.0
  qs_func_vals@Base 1.9.1
  qs_rate_vals_ext@Base 1.9.1
  raknet_add_udp_dissector@Base 2.3.0
@@ -1351,7 +1362,6 @@ libwireshark.so.10 libwireshark10 #MINVER#
  set_column_resolved@Base 1.9.1
  set_column_title@Base 1.9.1
  set_column_visible@Base 1.9.1
- set_enabled_protos_list@Base 2.3.0
  set_fd_time@Base 1.9.1
  set_mac_lte_proto_data@Base 1.9.1
  set_postdissector_wanted_hfids@Base 2.3.0
