@@ -61,10 +61,14 @@ static int hf_ftp_eprt_port = -1;
 static int hf_ftp_epsv_ip = -1;
 static int hf_ftp_epsv_ipv6 = -1;
 static int hf_ftp_epsv_port = -1;
+static int hf_ftp_command_response_frames = -1;
+static int hf_ftp_command_response_first_frame_num = -1;
+
 
 static int hf_ftp_data_setup_frame = -1;
 static int hf_ftp_data_setup_method = -1;
 static int hf_ftp_data_command = -1;
+static int hf_ftp_data_command_frame = -1;
 static int hf_ftp_data_current_working_directory = -1;
 
 static gint ett_ftp = -1;
@@ -157,21 +161,30 @@ static const value_string eprt_af_vals[] = {
 
 typedef struct ftp_data_conversation_t
 {
-    const gchar   *command;  /* Command that this data answers */
+    const gchar   *command;      /* Command that this data answers */
+    guint32       command_frame; /* Frame command was seen */
     const gchar   *setup_method; /* Type of command used to set up data conversation */
     wmem_strbuf_t *current_working_directory;
+
+    /* Summary details of stream to show in command frame.
+     * Could include last frame, data rate, etc */
+    guint         first_frame_num;
+    guint         frames_seen;
 } ftp_data_conversation_t;
 
+/* Data to associate with individual FTP frame */
 typedef struct ftp_packet_data_t
 {
     wmem_strbuf_t *current_working_directory;
 } ftp_packet_data_t;
 
+/* State of FTP conversation */
 typedef struct ftp_conversation_t
 {
-    const gchar *last_command;
+    const gchar *last_command;       /* Most recent request command seen (on first pass) */
+    guint32     last_command_frame;  /* When request was seen */
     wmem_strbuf_t *current_working_directory;
-    ftp_data_conversation_t *current_data_conv;
+    ftp_data_conversation_t *current_data_conv;  /* Current data conversation (during first pass) */
 } ftp_conversation_t;
 
 /* For a given packet, retrieve or initialise a new conversation, and return it */
@@ -192,6 +205,10 @@ static ftp_conversation_t *find_or_create_ftp_conversation(packet_info *pinfo)
 
     return p_ftp_conv;
 }
+
+/* Keep track of ftp_data_conversation_t*, keyed by the ftp command frame */
+static GHashTable *ftp_command_to_data_hash = NULL;
+
 
 /* When new data conversation is being created, should:
  * - create data conversation
@@ -926,10 +943,15 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
            command yet, attempt to update here */
         if (p_ftp_conv) {
             p_ftp_conv->last_command = wmem_strndup(wmem_file_scope(), line, linelen);
+            p_ftp_conv->last_command_frame = pinfo->num;
         }
         /* And make sure set for FTP data conversation */
         if (p_ftp_conv && p_ftp_conv->current_data_conv && !p_ftp_conv->current_data_conv->command) {
             p_ftp_conv->current_data_conv->command = wmem_strndup(wmem_file_scope(), line, linelen);
+            p_ftp_conv->current_data_conv->command_frame = pinfo->num;
+
+            /* Add to table to ftp-data response can be shown with this frame on later passes */
+            g_hash_table_insert(ftp_command_to_data_hash, GUINT_TO_POINTER(pinfo->num), p_ftp_conv->current_data_conv);
         }
     } else {
         /*
@@ -1255,13 +1277,30 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         }
     }
 
+    /* If this is a command resulting in an ftp-data stream, show details */
+    if (pinfo->fd->flags.visited) {
+        ftp_data_conversation_t *ftp_data =
+                (ftp_data_conversation_t *)g_hash_table_lookup(ftp_command_to_data_hash, GUINT_TO_POINTER(pinfo->num));
+        if (ftp_data) {
+            /* Number of frames */
+            ti = proto_tree_add_uint(tree, hf_ftp_command_response_frames,
+                                     tvb, 0, 0, ftp_data->frames_seen);
+            PROTO_ITEM_SET_GENERATED(ti);
+
+            /* First frame */
+            ti = proto_tree_add_uint(tree, hf_ftp_command_response_first_frame_num,
+                                     tvb, 0, 0, ftp_data->first_frame_num);
+            PROTO_ITEM_SET_GENERATED(ti);
+        }
+    }
+
     return tvb_captured_length(tvb);
 }
 
 static int
 dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_item *ti;
+    proto_item *data_ti, *ti;
     int         data_length = tvb_captured_length(tvb);
     gboolean    is_text = TRUE;
     gint        check_chars, i;
@@ -1273,7 +1312,7 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     col_add_fstr(pinfo->cinfo, COL_INFO, "FTP Data: %u bytes",
         tvb_reported_length(tvb));
 
-    ti = proto_tree_add_item(tree, proto_ftp_data, tvb, 0, -1, ENC_NA);
+    data_ti = proto_tree_add_item(tree, proto_ftp_data, tvb, 0, -1, ENC_NA);
 
     /* Link back to setup of this stream */
     p_conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
@@ -1282,36 +1321,47 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
                                0);
 
     if (p_conv) {
-        proto_item *setup_ti;
-        setup_ti = proto_tree_add_uint(tree, hf_ftp_data_setup_frame,
-                                       tvb, 0, 0, p_conv->setup_frame);
-        PROTO_ITEM_SET_GENERATED(setup_ti);
+        /* Link back to FTP frame where this conversation was created */
+        ti = proto_tree_add_uint(tree, hf_ftp_data_setup_frame,
+                                 tvb, 0, 0, p_conv->setup_frame);
+        PROTO_ITEM_SET_GENERATED(ti);
 
         p_ftp_data_conv = (ftp_data_conversation_t*)conversation_get_proto_data(p_conv, proto_ftp_data);
 
         if (p_ftp_data_conv) {
+            /* First time around, update info. */
+            if (!pinfo->fd->flags.visited) {
+                if (!p_ftp_data_conv->first_frame_num) {
+                    p_ftp_data_conv->first_frame_num = pinfo->num;
+                }
+                p_ftp_data_conv->frames_seen++;
+            }
+
             /* Show setup method as field and in info column */
             if (p_ftp_data_conv->setup_method) {
-                setup_ti = proto_tree_add_string(tree, hf_ftp_data_setup_method,
-                                                 tvb, 0, 0, p_ftp_data_conv->setup_method);
+                ti = proto_tree_add_string(tree, hf_ftp_data_setup_method,
+                                           tvb, 0, 0, p_ftp_data_conv->setup_method);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", p_ftp_data_conv->setup_method);
-                PROTO_ITEM_SET_GENERATED(setup_ti);
+                PROTO_ITEM_SET_GENERATED(ti);
             }
 
             /* Show command in info column */
             if (p_ftp_data_conv->command) {
-                proto_item *desc_ti;
-                desc_ti = proto_tree_add_string(tree, hf_ftp_data_command,
-                                                tvb, 0, 0, p_ftp_data_conv->command);
-                PROTO_ITEM_SET_GENERATED(desc_ti);
+                ti = proto_tree_add_string(tree, hf_ftp_data_command,
+                                           tvb, 0, 0, p_ftp_data_conv->command);
+                PROTO_ITEM_SET_GENERATED(ti);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", p_ftp_data_conv->command);
+
+                proto_tree_add_uint(tree, hf_ftp_data_command_frame,
+                                    tvb, 0, 0, p_ftp_data_conv->command_frame);
+                PROTO_ITEM_SET_GENERATED(ti);
             }
 
             /* Show current working directory */
             if (p_ftp_data_conv->current_working_directory) {
-                proto_item *cwd_ti = proto_tree_add_string(tree, hf_ftp_data_current_working_directory,
-                                                           tvb, 0, 0, wmem_strbuf_get_str(p_ftp_data_conv->current_working_directory));
-                PROTO_ITEM_SET_GENERATED(cwd_ti);
+                ti = proto_tree_add_string(tree, hf_ftp_data_current_working_directory,
+                                           tvb, 0, 0, wmem_strbuf_get_str(p_ftp_data_conv->current_working_directory));
+                PROTO_ITEM_SET_GENERATED(ti);
             }
         }
     }
@@ -1327,7 +1377,7 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     }
 
     /* Show the number of bytes */
-    proto_item_append_text(ti, " (%u bytes data)", data_length);
+    proto_item_append_text(data_ti, " (%u bytes data)", data_length);
 
     /* Show line-by-line if text */
     if (is_text) {
@@ -1335,6 +1385,16 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     }
 
     return data_length;
+}
+
+static void ftp_init_protocol(void)
+{
+    ftp_command_to_data_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
+}
+
+static void ftp_cleanup_protocol(void)
+{
+    g_hash_table_destroy(ftp_command_to_data_hash);
 }
 
 void
@@ -1439,8 +1499,17 @@ proto_register_ftp(void)
         { &hf_ftp_epsv_port,
           { "Extended passive port", "ftp.epsv.port",
             FT_UINT16, BASE_DEC, NULL, 0,
-            "Extended passive FTP server port", HFILL }}
+            "Extended passive FTP server port", HFILL }},
 
+        { &hf_ftp_command_response_first_frame_num,
+          { "Command response first frame", "ftp.command-response.first-frame-num",
+            FT_FRAMENUM, BASE_NONE, NULL, 0,
+            "First frame seen in resulting ftp-data stream", HFILL }},
+
+        { &hf_ftp_command_response_frames,
+          { "Command response frames", "ftp.command-response.frames",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "Number of frames seen in resulting ftp-data stream", HFILL }}
     };
     static gint *ett[] = {
         &ett_ftp,
@@ -1451,15 +1520,23 @@ proto_register_ftp(void)
         { &hf_ftp_data_setup_frame,
           { "Setup frame", "ftp-data.setup-frame",
             FT_FRAMENUM, BASE_NONE, NULL, 0,
-            "Where ftp-data conversation was created", HFILL }},
+            "Where ftp-data conversation was signalled", HFILL }},
+
         { &hf_ftp_data_setup_method,
           { "Setup method", "ftp-data.setup-method",
             FT_STRING, BASE_NONE, NULL, 0,
             "Method used to set up data conversation", HFILL }},
+
         { &hf_ftp_data_command,
           { "Command", "ftp-data.command",
             FT_STRING, BASE_NONE, NULL, 0,
             "Command that this data stream answers", HFILL }},
+
+        { &hf_ftp_data_command_frame,
+          { "Command frame", "ftp-data.command-frame",
+            FT_FRAMENUM, BASE_NONE, NULL, 0,
+            "Where command for this data was seen", HFILL }},
+
         { &hf_ftp_data_current_working_directory,
           { "Current working directory", "ftp-data.current-working-directory",
             FT_STRING, BASE_NONE, NULL, 0,
@@ -1485,6 +1562,9 @@ proto_register_ftp(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_ftp = expert_register_protocol(proto_ftp);
     expert_register_field_array(expert_ftp, ei, array_length(ei));
+
+    register_init_routine(&ftp_init_protocol);
+    register_cleanup_routine(&ftp_cleanup_protocol);
 }
 
 void
