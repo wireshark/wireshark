@@ -4,7 +4,7 @@ Author: Balint Reczey <balint@balintreczey.hu>
 
 --- a/ui/gtk/main.c
 +++ b/ui/gtk/main.c
-@@ -2102,7 +2102,7 @@
+@@ -1949,7 +1949,7 @@
          "This could be dangerous.\n\n"
          "If you're running Wireshark this way in order to perform live capture, "
          "you may want to be aware that there is a better way documented at\n"

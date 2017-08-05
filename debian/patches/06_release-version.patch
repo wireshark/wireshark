@@ -4,9 +4,9 @@ Author: Balint Reczey <balint@balintreczey.hu>
 
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -676,7 +676,7 @@
- am__v_PERL_0 = @echo "  PERL    " $@;
- am__v_PERL_1 =
+@@ -776,7 +776,7 @@
+ # FORCE is the portable version of .PHONY
+ FORCE:
  
 -version.h: FORCE
 +version.h:
