@@ -112,7 +112,7 @@ rsa_load_pem_key(FILE *fp, char **err)
     *err = NULL;
 
     if (ws_fstat64(ws_fileno(fp), &statbuf) == -1) {
-        *err = g_strdup_printf("can't ws_fstat64 file: %s", strerror(errno));
+        *err = g_strdup_printf("can't ws_fstat64 file: %s", g_strerror(errno));
         return NULL;
     }
     if (S_ISDIR(statbuf.st_mode)) {
@@ -138,7 +138,7 @@ rsa_load_pem_key(FILE *fp, char **err)
     if (bytes < key.size) {
         if (bytes == 0 && ferror(fp)) {
             *err = g_strdup_printf("can't read from file %d bytes, got error %s",
-                    key.size, strerror(errno));
+                    key.size, g_strerror(errno));
         } else {
             *err = g_strdup_printf("can't read from file %d bytes, got %d",
                     key.size, bytes);
