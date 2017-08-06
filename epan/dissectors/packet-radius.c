@@ -983,6 +983,9 @@ radius_decrypt_avp(gchar *dest, int dest_len, tvbuff_t *tvb, int offset, int len
 	gcry_md_close(old_md5_handle);
 }
 
+static void
+add_avp_to_tree_with_dissector(proto_tree *avp_tree, proto_item *avp_item, packet_info *pinfo, tvbuff_t *tvb, radius_avp_dissector_t *avp_dissector, guint32 avp_length, guint32 offset);
+
 
 void
 radius_integer(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset, int len, proto_item *avp_item)
@@ -1220,6 +1223,10 @@ radius_date(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, tvb
 void
 radius_abinary(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset, int len, proto_item *avp_item)
 {
+	if (a->code.u8_code[0] == 242) {
+		add_avp_to_tree_with_dissector(tree, avp_item, pinfo, tvb, dissect_ascend_data_filter, len, offset);
+		return;
+	}
 	proto_tree_add_item(tree, a->hf, tvb, offset, len, ENC_NA);
 	proto_item_append_text(avp_item, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, len));
 }
@@ -1316,6 +1323,17 @@ radius_tlv(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, tvbu
 }
 
 static void
+add_avp_to_tree_with_dissector(proto_tree *avp_tree, proto_item *avp_item, packet_info *pinfo, tvbuff_t *tvb, radius_avp_dissector_t *avp_dissector, guint32 avp_length, guint32 offset)
+{
+	tvbuff_t *tvb_value;
+	const gchar *str;
+
+	tvb_value = tvb_new_subset_length(tvb, offset, avp_length);
+	str = avp_dissector(avp_tree, tvb_value, pinfo);
+	proto_item_append_text(avp_item, "%s", str);
+}
+
+static void
 add_avp_to_tree(proto_tree *avp_tree, proto_item *avp_item, packet_info *pinfo, tvbuff_t *tvb, radius_attr_info_t *dictionary_entry, guint32 avp_length, guint32 offset)
 {
 
@@ -1343,20 +1361,14 @@ add_avp_to_tree(proto_tree *avp_tree, proto_item *avp_item, packet_info *pinfo, 
 		}
 	}
 
+	proto_item_append_text(avp_item, ": ");
+
 	if (dictionary_entry->dissector) {
-		tvbuff_t *tvb_value;
-		const gchar *str;
-
-		tvb_value = tvb_new_subset_length(tvb, offset, avp_length);
-
-		str = dictionary_entry->dissector(avp_tree, tvb_value, pinfo);
-
-		proto_item_append_text(avp_item, ": %s", str);
-	} else {
-		proto_item_append_text(avp_item, ": ");
-
-		dictionary_entry->type(dictionary_entry, avp_tree, pinfo, tvb, offset, avp_length, avp_item);
+		add_avp_to_tree_with_dissector(avp_tree, avp_item, pinfo, tvb, dictionary_entry->dissector, avp_length, offset);
+		return;
 	}
+
+	dictionary_entry->type(dictionary_entry, avp_tree, pinfo, tvb, offset, avp_length, avp_item);
 }
 
 static gboolean
@@ -2797,15 +2809,6 @@ register_radius_fields(const char *unused _U_)
 	radius_register_avp_dissector(0, 58, dissect_rfc4675_egress_vlan_name);
 
 	radius_register_avp_dissector(VENDOR_COSINE, 5, dissect_cosine_vpvc);
-	/*
-	 * XXX - should we just call dissect_ascend_data_filter()
-	 * in radius_abinary()?
-	 *
-	 * Note that there is no attribute 242 in dictionary.redback.
-	 */
-	radius_register_avp_dissector(VENDOR_ASCEND, 242, dissect_ascend_data_filter);
-	radius_register_avp_dissector(VENDOR_REDBACK, 242, dissect_ascend_data_filter);
-	radius_register_avp_dissector(0, 242, dissect_ascend_data_filter);
 
 	/*
 	 * XXX - we should special-case Cisco attribute 252; see the comment in
