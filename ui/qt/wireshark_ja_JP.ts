@@ -3595,13 +3595,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
 </context>
 <context>
-    <name>InterfaceSortFilterModel</name>
-    <message>
-        <source>No interfaces to be displayed. %1 interfaces filtered.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>InterfaceToolbar</name>
     <message>
         <source>Frame</source>
@@ -3614,82 +3607,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Interface</source>
         <translation type="unfinished">インターフェース</translation>
-    </message>
-</context>
-<context>
-    <name>InterfaceTreeModel</name>
-    <message>
-        <source>No Interfaces found.</source>
-        <oldsource>No Interfaces found!</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show</source>
-        <translation type="unfinished">表示</translation>
-    </message>
-    <message>
-        <source>Friendly Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Interface Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Local Pipe Path</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Comment</source>
-        <translation type="unfinished">コメント</translation>
-    </message>
-    <message>
-        <source>Link-Layer Header</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Promiscuous</source>
-        <translation type="unfinished">プロミスキャス</translation>
-    </message>
-    <message>
-        <source>Snaplen (B)</source>
-        <translation type="unfinished">キャプチャ長(バイト)</translation>
-    </message>
-    <message>
-        <source>Buffer (MB)</source>
-        <translation type="unfinished">バッファ(メガバイト)</translation>
-    </message>
-    <message>
-        <source>Monitor Mode</source>
-        <translation type="unfinished">モニタモード</translation>
-    </message>
-    <message>
-        <source>Capture Filter</source>
-        <translation type="unfinished">キャプチャフィルタ</translation>
-    </message>
-    <message>
-        <source>Addresses</source>
-        <translation type="unfinished">アドレス</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="unfinished">アドレス</translation>
-    </message>
-    <message>
-        <source>Extcap interface: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No addresses</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No capture filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Capture filter</source>
-        <translation type="unfinished">キャプチャフィルタ</translation>
     </message>
 </context>
 <context>
@@ -4777,6 +4694,18 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>Show packet separator on Packet List</source>
         <translation>パケット一覧のパケット行間仕切りを表示</translation>
     </message>
+    <message>
+        <source>Status Bar settings:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show selected packet number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show file load time</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>LteMacStatisticsDialog</name>
@@ -5265,6 +5194,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Packets: %1</source>
         <translation>パケット: %1</translation>
+    </message>
+    <message>
+        <source>Selected Packet: %1 %2 </source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7992,11 +7925,11 @@ a:hover {
     <name>PacketListModel</name>
     <message>
         <source>Dissecting</source>
-        <translation>解析中</translation>
+        <translation type="vanished">解析中</translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;</source>
-        <translation>ソート中 &quot;%1&quot;</translation>
+        <translation type="vanished">ソート中 &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
@@ -8050,11 +7983,11 @@ a:hover {
     <name>PathChooserDelegate</name>
     <message>
         <source>Browse</source>
-        <translation>参照</translation>
+        <translation type="vanished">参照</translation>
     </message>
     <message>
         <source>Open Pipe</source>
-        <translation>パイプを開く</translation>
+        <translation type="vanished">パイプを開く</translation>
     </message>
 </context>
 <context>
@@ -8576,6 +8509,10 @@ a:hover {
     <message>
         <source>Don&apos;t show this message again.</source>
         <translation>このメッセージは再度表示されません</translation>
+    </message>
+    <message>
+        <source>Multiple problems found</source>
+        <translation type="unfinished">複数の問題が見つかりました</translation>
     </message>
     <message>
         <source>%1 (%L2%)</source>
@@ -11277,7 +11214,7 @@ a:hover {
     <name>SimpleDialog</name>
     <message>
         <source>Multiple problems found</source>
-        <translation>複数の問題が見つかりました</translation>
+        <translation type="vanished">複数の問題が見つかりました</translation>
     </message>
 </context>
 <context>
@@ -12261,61 +12198,6 @@ a:hover {
     <message>
         <source>No Audio</source>
         <translation>音声なし</translation>
-    </message>
-</context>
-<context>
-    <name>VoipCallsInfoModel</name>
-    <message>
-        <source>On</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Off</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Tunneling: %1  Fast Start: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Start Time</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stop Time</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Initial Speaker</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>From</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>To</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="unfinished">プロトコル</translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Packets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>State</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Comments</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

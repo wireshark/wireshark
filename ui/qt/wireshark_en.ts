@@ -3575,13 +3575,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
 </context>
 <context>
-    <name>InterfaceSortFilterModel</name>
-    <message>
-        <source>No interfaces to be displayed. %1 interfaces filtered.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>InterfaceToolbar</name>
     <message>
         <source>Frame</source>
@@ -3593,82 +3586,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Interface</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>InterfaceTreeModel</name>
-    <message>
-        <source>No Interfaces found.</source>
-        <oldsource>No Interfaces found!</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Friendly Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Interface Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Local Pipe Path</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Comment</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Link-Layer Header</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Promiscuous</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Snaplen (B)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Buffer (MB)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Monitor Mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Capture Filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Addresses</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Extcap interface: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No addresses</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No capture filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Capture filter</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4740,6 +4657,18 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>Show packet separator on Packet List</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Status Bar settings:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show selected packet number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show file load time</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>LteMacStatisticsDialog</name>
@@ -5168,6 +5097,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Profile: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected Packet: %1 %2 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7923,17 +7856,6 @@ a:hover {
     </message>
 </context>
 <context>
-    <name>PacketListModel</name>
-    <message>
-        <source>Dissecting</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sorting &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>PacketRangeGroupBox</name>
     <message>
         <source>Form</source>
@@ -7977,17 +7899,6 @@ a:hover {
     </message>
     <message>
         <source>Captured</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>PathChooserDelegate</name>
-    <message>
-        <source>Browse</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Pipe</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -8509,6 +8420,10 @@ a:hover {
     </message>
     <message>
         <source>Don&apos;t show this message again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Multiple problems found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11169,13 +11084,6 @@ a:hover {
     </message>
 </context>
 <context>
-    <name>SimpleDialog</name>
-    <message>
-        <source>Multiple problems found</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>SplashOverlay</name>
     <message>
         <source>Form</source>
@@ -12116,61 +12024,6 @@ a:hover {
     </message>
     <message>
         <source>No Audio</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>VoipCallsInfoModel</name>
-    <message>
-        <source>On</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Off</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Tunneling: %1  Fast Start: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Start Time</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stop Time</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Initial Speaker</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>From</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>To</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Packets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>State</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Comments</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

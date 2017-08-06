@@ -3599,7 +3599,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>InterfaceSortFilterModel</name>
     <message>
         <source>No interfaces to be displayed. %1 interfaces filtered.</source>
-        <translation>没有可显示的接口。已过滤 %1 个接口。</translation>
+        <translation type="vanished">没有可显示的接口。已过滤 %1 个接口。</translation>
     </message>
 </context>
 <context>
@@ -3622,75 +3622,71 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>No Interfaces found.</source>
         <oldsource>No Interfaces found!</oldsource>
-        <translation>没有找到接口。</translation>
+        <translation type="vanished">没有找到接口。</translation>
     </message>
     <message>
         <source>Show</source>
-        <translation>显示</translation>
+        <translation type="vanished">显示</translation>
     </message>
     <message>
         <source>Friendly Name</source>
-        <translation>友好名称</translation>
+        <translation type="vanished">友好名称</translation>
     </message>
     <message>
         <source>Interface Name</source>
-        <translation>接口名称</translation>
+        <translation type="vanished">接口名称</translation>
     </message>
     <message>
         <source>Local Pipe Path</source>
-        <translation>本地管道路径</translation>
+        <translation type="vanished">本地管道路径</translation>
     </message>
     <message>
         <source>Comment</source>
-        <translation>注释</translation>
+        <translation type="vanished">注释</translation>
     </message>
     <message>
         <source>Link-Layer Header</source>
-        <translation>链路层头</translation>
+        <translation type="vanished">链路层头</translation>
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation>混杂</translation>
-    </message>
-    <message>
-        <source>Snaplen (B)</source>
-        <translation type="unfinished">Snap长度 (B)</translation>
+        <translation type="vanished">混杂</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation>缓冲区 (MB)</translation>
+        <translation type="vanished">缓冲区 (MB)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation>监控模式</translation>
+        <translation type="vanished">监控模式</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation>捕获过滤器</translation>
+        <translation type="vanished">捕获过滤器</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation>地址</translation>
+        <translation type="vanished">地址</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation>地址</translation>
+        <translation type="vanished">地址</translation>
     </message>
     <message>
         <source>Extcap interface: %1</source>
-        <translation>Extcap 接口：%1</translation>
+        <translation type="vanished">Extcap 接口：%1</translation>
     </message>
     <message>
         <source>No addresses</source>
-        <translation>无地址</translation>
+        <translation type="vanished">无地址</translation>
     </message>
     <message>
         <source>No capture filter</source>
-        <translation>无捕获过滤器</translation>
+        <translation type="vanished">无捕获过滤器</translation>
     </message>
     <message>
         <source>Capture filter</source>
-        <translation>捕获过滤器</translation>
+        <translation type="vanished">捕获过滤器</translation>
     </message>
 </context>
 <context>
@@ -4778,6 +4774,18 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>Show packet separator on Packet List</source>
         <translation>在分组列表显示分组分隔器</translation>
     </message>
+    <message>
+        <source>Status Bar settings:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show selected packet number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show file load time</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>LteMacStatisticsDialog</name>
@@ -5262,6 +5270,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Packets: %1</source>
         <translation>分组: %1</translation>
+    </message>
+    <message>
+        <source>Selected Packet: %1 %2 </source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8018,11 +8030,11 @@ text-decoration: underline;
     <name>PacketListModel</name>
     <message>
         <source>Dissecting</source>
-        <translation>剖析</translation>
+        <translation type="vanished">剖析</translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;</source>
-        <translation>正在排序“%1”</translation>
+        <translation type="vanished">正在排序“%1”</translation>
     </message>
 </context>
 <context>
@@ -8076,11 +8088,11 @@ text-decoration: underline;
     <name>PathChooserDelegate</name>
     <message>
         <source>Browse</source>
-        <translation>浏览</translation>
+        <translation type="vanished">浏览</translation>
     </message>
     <message>
         <source>Open Pipe</source>
-        <translation>打开管道</translation>
+        <translation type="vanished">打开管道</translation>
     </message>
 </context>
 <context>
@@ -8602,6 +8614,10 @@ text-decoration: underline;
     <message>
         <source>Don&apos;t show this message again.</source>
         <translation>不再显示此消息。</translation>
+    </message>
+    <message>
+        <source>Multiple problems found</source>
+        <translation type="unfinished">多个问题发现</translation>
     </message>
     <message>
         <source>%1 (%L2%)</source>
@@ -11326,7 +11342,7 @@ text-decoration: underline;
     <name>SimpleDialog</name>
     <message>
         <source>Multiple problems found</source>
-        <translation>多个问题发现</translation>
+        <translation type="vanished">多个问题发现</translation>
     </message>
 </context>
 <context>
@@ -12312,55 +12328,55 @@ text-decoration: underline;
     <name>VoipCallsInfoModel</name>
     <message>
         <source>On</source>
-        <translation>开</translation>
+        <translation type="vanished">开</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation>关</translation>
+        <translation type="vanished">关</translation>
     </message>
     <message>
         <source>Tunneling: %1  Fast Start: %2</source>
-        <translation>隧道: %1  快速启动: %2</translation>
+        <translation type="vanished">隧道: %1  快速启动: %2</translation>
     </message>
     <message>
         <source>Start Time</source>
-        <translation>开始时间</translation>
+        <translation type="vanished">开始时间</translation>
     </message>
     <message>
         <source>Stop Time</source>
-        <translation>结束时间</translation>
+        <translation type="vanished">结束时间</translation>
     </message>
     <message>
         <source>Initial Speaker</source>
-        <translation>呼叫发起方</translation>
+        <translation type="vanished">呼叫发起方</translation>
     </message>
     <message>
         <source>From</source>
-        <translation>从</translation>
+        <translation type="vanished">从</translation>
     </message>
     <message>
         <source>To</source>
-        <translation>至</translation>
+        <translation type="vanished">至</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation>协议</translation>
+        <translation type="vanished">协议</translation>
     </message>
     <message>
         <source>Duration</source>
-        <translation>持续</translation>
+        <translation type="vanished">持续</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation>分组</translation>
+        <translation type="vanished">分组</translation>
     </message>
     <message>
         <source>State</source>
-        <translation>状态</translation>
+        <translation type="vanished">状态</translation>
     </message>
     <message>
         <source>Comments</source>
-        <translation>注释</translation>
+        <translation type="vanished">注释</translation>
     </message>
 </context>
 <context>

@@ -3613,7 +3613,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <name>InterfaceSortFilterModel</name>
     <message>
         <source>No interfaces to be displayed. %1 interfaces filtered.</source>
-        <translation>Keine Schnittstelle zum Anzeigen. %1 Schnittstellen gefiltert.</translation>
+        <translation type="vanished">Keine Schnittstelle zum Anzeigen. %1 Schnittstellen gefiltert.</translation>
     </message>
 </context>
 <context>
@@ -3636,75 +3636,75 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>No Interfaces found.</source>
         <oldsource>No Interfaces found!</oldsource>
-        <translation>Keine Schnittstellen gefunden.</translation>
+        <translation type="vanished">Keine Schnittstellen gefunden.</translation>
     </message>
     <message>
         <source>Show</source>
-        <translation>Anzeigen</translation>
+        <translation type="vanished">Anzeigen</translation>
     </message>
     <message>
         <source>Friendly Name</source>
-        <translation>Kurzname</translation>
+        <translation type="vanished">Kurzname</translation>
     </message>
     <message>
         <source>Interface Name</source>
-        <translation>Schnittstellenname</translation>
+        <translation type="vanished">Schnittstellenname</translation>
     </message>
     <message>
         <source>Local Pipe Path</source>
-        <translation>Pfad lokale Pipe</translation>
+        <translation type="vanished">Pfad lokale Pipe</translation>
     </message>
     <message>
         <source>Comment</source>
-        <translation>Kommentar</translation>
+        <translation type="vanished">Kommentar</translation>
     </message>
     <message>
         <source>Link-Layer Header</source>
-        <translation>Link-Layer Header</translation>
+        <translation type="vanished">Link-Layer Header</translation>
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation>Promiskuitiv</translation>
+        <translation type="vanished">Promiskuitiv</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation>Mitschnittlänge (B)</translation>
+        <translation type="vanished">Mitschnittlänge (B)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation>Puffer (MB)</translation>
+        <translation type="vanished">Puffer (MB)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation>Überwachungsmodus</translation>
+        <translation type="vanished">Überwachungsmodus</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation>Mitschnittfilter</translation>
+        <translation type="vanished">Mitschnittfilter</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation>Adressen</translation>
+        <translation type="vanished">Adressen</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation>Adresse</translation>
+        <translation type="vanished">Adresse</translation>
     </message>
     <message>
         <source>Extcap interface: %1</source>
-        <translation>Extcap Schnittstelle: %1</translation>
+        <translation type="vanished">Extcap Schnittstelle: %1</translation>
     </message>
     <message>
         <source>No addresses</source>
-        <translation>Keine Adressen</translation>
+        <translation type="vanished">Keine Adressen</translation>
     </message>
     <message>
         <source>No capture filter</source>
-        <translation>Kein Mitschnittfilter</translation>
+        <translation type="vanished">Kein Mitschnittfilter</translation>
     </message>
     <message>
         <source>Capture filter</source>
-        <translation>Mitschnittfilter</translation>
+        <translation type="vanished">Mitschnittfilter</translation>
     </message>
 </context>
 <context>
@@ -4794,6 +4794,18 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <source>Show packet separator on Packet List</source>
         <translation>Pakettrenner in Paketliste anzeigen</translation>
     </message>
+    <message>
+        <source>Status Bar settings:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show selected packet number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show file load time</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>LteMacStatisticsDialog</name>
@@ -5278,6 +5290,10 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Packets: %1</source>
         <translation>Pakete: %1</translation>
+    </message>
+    <message>
+        <source>Selected Packet: %1 %2 </source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8037,11 +8053,11 @@ text-decoration: underline;
     <name>PacketListModel</name>
     <message>
         <source>Dissecting</source>
-        <translation>Analysiere</translation>
+        <translation type="vanished">Analysiere</translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; wird sortiert</translation>
+        <translation type="vanished">&quot;%1&quot; wird sortiert</translation>
     </message>
 </context>
 <context>
@@ -8095,11 +8111,11 @@ text-decoration: underline;
     <name>PathChooserDelegate</name>
     <message>
         <source>Browse</source>
-        <translation>Öffnen</translation>
+        <translation type="vanished">Öffnen</translation>
     </message>
     <message>
         <source>Open Pipe</source>
-        <translation>Öffne Pipe</translation>
+        <translation type="vanished">Öffne Pipe</translation>
     </message>
 </context>
 <context>
@@ -8621,6 +8637,10 @@ text-decoration: underline;
     <message>
         <source>Don&apos;t show this message again.</source>
         <translation>Diese Mitteilung nicht mehr anzeigen.</translation>
+    </message>
+    <message>
+        <source>Multiple problems found</source>
+        <translation type="unfinished">Mehrere Probleme gefunden</translation>
     </message>
     <message>
         <source>%1 (%L2%)</source>
@@ -11349,7 +11369,7 @@ text-decoration: underline;
     <name>SimpleDialog</name>
     <message>
         <source>Multiple problems found</source>
-        <translation>Mehrere Probleme gefunden</translation>
+        <translation type="vanished">Mehrere Probleme gefunden</translation>
     </message>
 </context>
 <context>
@@ -12339,55 +12359,55 @@ text-decoration: underline;
     <name>VoipCallsInfoModel</name>
     <message>
         <source>On</source>
-        <translation>An</translation>
+        <translation type="vanished">An</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation>Aus</translation>
+        <translation type="vanished">Aus</translation>
     </message>
     <message>
         <source>Tunneling: %1  Fast Start: %2</source>
-        <translation>Tunneling: %1  Fast Start: %2</translation>
+        <translation type="vanished">Tunneling: %1  Fast Start: %2</translation>
     </message>
     <message>
         <source>Start Time</source>
-        <translation>Startzeitpunkt</translation>
+        <translation type="vanished">Startzeitpunkt</translation>
     </message>
     <message>
         <source>Stop Time</source>
-        <translation>Endzeitpunkt</translation>
+        <translation type="vanished">Endzeitpunkt</translation>
     </message>
     <message>
         <source>Initial Speaker</source>
-        <translation>Initiierender Sprecher</translation>
+        <translation type="vanished">Initiierender Sprecher</translation>
     </message>
     <message>
         <source>From</source>
-        <translation>Von</translation>
+        <translation type="vanished">Von</translation>
     </message>
     <message>
         <source>To</source>
-        <translation>Nach</translation>
+        <translation type="vanished">Nach</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation>Protokoll</translation>
+        <translation type="vanished">Protokoll</translation>
     </message>
     <message>
         <source>Duration</source>
-        <translation>Dauer</translation>
+        <translation type="vanished">Dauer</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation>Pakete</translation>
+        <translation type="vanished">Pakete</translation>
     </message>
     <message>
         <source>State</source>
-        <translation>Zustand</translation>
+        <translation type="vanished">Zustand</translation>
     </message>
     <message>
         <source>Comments</source>
-        <translation>Kommentare</translation>
+        <translation type="vanished">Kommentare</translation>
     </message>
 </context>
 <context>

@@ -3610,13 +3610,6 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     </message>
 </context>
 <context>
-    <name>InterfaceSortFilterModel</name>
-    <message>
-        <source>No interfaces to be displayed. %1 interfaces filtered.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>InterfaceToolbar</name>
     <message>
         <source>Frame</source>
@@ -3629,82 +3622,6 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <message>
         <source>Interface</source>
         <translation type="unfinished">Interface</translation>
-    </message>
-</context>
-<context>
-    <name>InterfaceTreeModel</name>
-    <message>
-        <source>No Interfaces found.</source>
-        <oldsource>No Interfaces found!</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show</source>
-        <translation type="unfinished">Afficher</translation>
-    </message>
-    <message>
-        <source>Friendly Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Interface Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Local Pipe Path</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Comment</source>
-        <translation type="unfinished">Commentaire</translation>
-    </message>
-    <message>
-        <source>Link-Layer Header</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Promiscuous</source>
-        <translation type="unfinished">Promiscuous</translation>
-    </message>
-    <message>
-        <source>Snaplen (B)</source>
-        <translation type="unfinished">Snaplen (B)</translation>
-    </message>
-    <message>
-        <source>Buffer (MB)</source>
-        <translation type="unfinished">Tampon (Mo)</translation>
-    </message>
-    <message>
-        <source>Monitor Mode</source>
-        <translation type="unfinished">Mode moniteur</translation>
-    </message>
-    <message>
-        <source>Capture Filter</source>
-        <translation type="unfinished">Filtre de capture</translation>
-    </message>
-    <message>
-        <source>Addresses</source>
-        <translation type="unfinished">Adresses</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="unfinished">Adresse</translation>
-    </message>
-    <message>
-        <source>Extcap interface: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No addresses</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No capture filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Capture filter</source>
-        <translation type="unfinished">Filtre de capture</translation>
     </message>
 </context>
 <context>
@@ -4794,6 +4711,18 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <source>Show packet separator on Packet List</source>
         <translation>Voir le séparateur de paquet dans la Liste de Paquets</translation>
     </message>
+    <message>
+        <source>Status Bar settings:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show selected packet number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show file load time</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>LteMacStatisticsDialog</name>
@@ -5277,6 +5206,10 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <message>
         <source>Packets: %1</source>
         <translation>Paquets: %1</translation>
+    </message>
+    <message>
+        <source>Selected Packet: %1 %2 </source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8008,11 +7941,11 @@ a:hover {
     <name>PacketListModel</name>
     <message>
         <source>Dissecting</source>
-        <translation>Dissection</translation>
+        <translation type="vanished">Dissection</translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;</source>
-        <translation>Triage &quot;%1&quot;</translation>
+        <translation type="vanished">Triage &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
@@ -8066,11 +7999,11 @@ a:hover {
     <name>PathChooserDelegate</name>
     <message>
         <source>Browse</source>
-        <translation>Parcourir</translation>
+        <translation type="vanished">Parcourir</translation>
     </message>
     <message>
         <source>Open Pipe</source>
-        <translation>Ouvrir Pipe</translation>
+        <translation type="vanished">Ouvrir Pipe</translation>
     </message>
 </context>
 <context>
@@ -8592,6 +8525,10 @@ a:hover {
     <message>
         <source>Don&apos;t show this message again.</source>
         <translation>Ne plus afficher ce message.</translation>
+    </message>
+    <message>
+        <source>Multiple problems found</source>
+        <translation type="unfinished">Plusieurs problèmes trouvés</translation>
     </message>
     <message>
         <source>%1 (%L2%)</source>
@@ -11291,7 +11228,7 @@ a:hover {
     <name>SimpleDialog</name>
     <message>
         <source>Multiple problems found</source>
-        <translation>Plusieurs problèmes trouvés</translation>
+        <translation type="vanished">Plusieurs problèmes trouvés</translation>
     </message>
 </context>
 <context>
@@ -12276,61 +12213,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>No Audio</source>
         <translation>Pas d&apos;Audio</translation>
-    </message>
-</context>
-<context>
-    <name>VoipCallsInfoModel</name>
-    <message>
-        <source>On</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Off</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Tunneling: %1  Fast Start: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Start Time</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stop Time</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Initial Speaker</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>From</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>To</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="unfinished">Protocole</translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Packets</source>
-        <translation type="unfinished">Paquets</translation>
-    </message>
-    <message>
-        <source>State</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Comments</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
