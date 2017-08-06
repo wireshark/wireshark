@@ -174,7 +174,9 @@ simple_error_message_box(const char *msg_format, ...)
 }
 
 SimpleDialog::SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const char *msg_format, va_list ap) :
+#if (QT_VERSION > QT_VERSION_CHECK(5, 2, 0))
     check_box_(0),
+#endif
     message_box_(0)
 {
     gchar *vmessage;
