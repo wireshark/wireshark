@@ -45,7 +45,7 @@ libwscodecs_la_SOURCES += speex/resample.c
 endif
 
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-libwscodecs_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
+libwscodecs_la_LDFLAGS = -version-info 2:0:1 @LDFLAGS_SHAREDLIB@
 
 libwscodecs_la_LIBADD = $(top_builddir)/wsutil/libwsutil.la $(GLIB_LIBS) $(SBC_LIBS) $(SPANDSP_LIBS)
 
