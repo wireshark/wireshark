@@ -7036,12 +7036,12 @@ text-decoration: underline;
         <translation>Im Ordner anzeigen</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="236"/>
+        <location filename="main_welcome.cpp" line="238"/>
         <source>All interfaces shown</source>
         <translation>Alle Schnittstellen angezeigt</translation>
     </message>
     <message numerus="yes">
-        <location filename="main_welcome.cpp" line="238"/>
+        <location filename="main_welcome.cpp" line="240"/>
         <source>%n interface(s) shown, %1 hidden</source>
         <oldsource>%Ln interface(s) shown</oldsource>
         <translation>
@@ -7050,37 +7050,37 @@ text-decoration: underline;
         </translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="249"/>
+        <location filename="main_welcome.cpp" line="251"/>
         <source>You are running Wireshark </source>
         <translation>Sie nutzen Wireshark </translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="251"/>
+        <location filename="main_welcome.cpp" line="253"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="254"/>
+        <location filename="main_welcome.cpp" line="256"/>
         <source> You receive automatic updates.</source>
         <translation>Updates werden automatisch heruntergeladen.</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="256"/>
+        <location filename="main_welcome.cpp" line="258"/>
         <source> You have disabled automatic updates.</source>
         <translation>Automatische Aktualisierung ist deaktiviert.</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="393"/>
+        <location filename="main_welcome.cpp" line="395"/>
         <source>not found</source>
         <translation>nicht gefunden</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="472"/>
+        <location filename="main_welcome.cpp" line="474"/>
         <source>Copy file path</source>
         <translation>Dateipfad kopieren</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="478"/>
+        <location filename="main_welcome.cpp" line="480"/>
         <source>Remove</source>
         <translation>Entfernen</translation>
     </message>
@@ -11033,9 +11033,9 @@ text-decoration: underline;
         <translation>Diese Mitteilung nicht mehr anzeigen.</translation>
     </message>
     <message>
-        <location filename="simple_dialog.cpp" line="293"/>
+        <location filename="simple_dialog.cpp" line="295"/>
         <source>Multiple problems found</source>
-        <translation type="unfinished">Mehrere Probleme gefunden</translation>
+        <translation>Mehrere Probleme gefunden</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.cpp" line="128"/>
@@ -14470,13 +14470,6 @@ text-decoration: underline;
         <location filename="show_packet_bytes_dialog.cpp" line="772"/>
         <source>Show All</source>
         <translation>Alle anzeigen</translation>
-    </message>
-</context>
-<context>
-    <name>SimpleDialog</name>
-    <message>
-        <source>Multiple problems found</source>
-        <translation type="vanished">Mehrere Probleme gefunden</translation>
     </message>
 </context>
 <context>

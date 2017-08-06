@@ -7008,12 +7008,12 @@ text-decoration: underline;
         <translation>在 Finder 中显示</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="236"/>
+        <location filename="main_welcome.cpp" line="238"/>
         <source>All interfaces shown</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="main_welcome.cpp" line="238"/>
+        <location filename="main_welcome.cpp" line="240"/>
         <source>%n interface(s) shown, %1 hidden</source>
         <oldsource>%Ln interface(s) shown</oldsource>
         <translation type="unfinished">
@@ -7021,37 +7021,37 @@ text-decoration: underline;
         </translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="249"/>
+        <location filename="main_welcome.cpp" line="251"/>
         <source>You are running Wireshark </source>
         <translation>正在运行 Wireshark</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="251"/>
+        <location filename="main_welcome.cpp" line="253"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="254"/>
+        <location filename="main_welcome.cpp" line="256"/>
         <source> You receive automatic updates.</source>
         <translation>接受自动更新。</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="256"/>
+        <location filename="main_welcome.cpp" line="258"/>
         <source> You have disabled automatic updates.</source>
         <translation>禁止自动更新。</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="393"/>
+        <location filename="main_welcome.cpp" line="395"/>
         <source>not found</source>
         <translation>未找到</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="472"/>
+        <location filename="main_welcome.cpp" line="474"/>
         <source>Copy file path</source>
         <translation>复制文件路径</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="478"/>
+        <location filename="main_welcome.cpp" line="480"/>
         <source>Remove</source>
         <translation>移除</translation>
     </message>
@@ -11002,9 +11002,9 @@ text-decoration: underline;
         <translation>不再显示此消息。</translation>
     </message>
     <message>
-        <location filename="simple_dialog.cpp" line="293"/>
+        <location filename="simple_dialog.cpp" line="295"/>
         <source>Multiple problems found</source>
-        <translation type="unfinished">多个问题发现</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.cpp" line="128"/>
@@ -14435,13 +14435,6 @@ text-decoration: underline;
         <location filename="show_packet_bytes_dialog.cpp" line="772"/>
         <source>Show All</source>
         <translation>显示全部</translation>
-    </message>
-</context>
-<context>
-    <name>SimpleDialog</name>
-    <message>
-        <source>Multiple problems found</source>
-        <translation type="vanished">多个问题发现</translation>
     </message>
 </context>
 <context>

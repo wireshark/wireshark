@@ -6991,12 +6991,12 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="236"/>
+        <location filename="main_welcome.cpp" line="238"/>
         <source>All interfaces shown</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="main_welcome.cpp" line="238"/>
+        <location filename="main_welcome.cpp" line="240"/>
         <source>%n interface(s) shown, %1 hidden</source>
         <oldsource>%Ln interface(s) shown</oldsource>
         <translation type="unfinished">
@@ -7005,37 +7005,37 @@ a:hover {
         </translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="249"/>
+        <location filename="main_welcome.cpp" line="251"/>
         <source>You are running Wireshark </source>
         <translation>Vous exécutez Wireshark</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="251"/>
+        <location filename="main_welcome.cpp" line="253"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="254"/>
+        <location filename="main_welcome.cpp" line="256"/>
         <source> You receive automatic updates.</source>
         <translation>Vous recevez les mises à jour automatiques.</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="256"/>
+        <location filename="main_welcome.cpp" line="258"/>
         <source> You have disabled automatic updates.</source>
         <translation>Vous avez désactivé les mises à jour automatiques.</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="393"/>
+        <location filename="main_welcome.cpp" line="395"/>
         <source>not found</source>
         <translation>Non trouvé</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="472"/>
+        <location filename="main_welcome.cpp" line="474"/>
         <source>Copy file path</source>
         <translation>Copier le chemin du fichier</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="478"/>
+        <location filename="main_welcome.cpp" line="480"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10990,9 +10990,9 @@ a:hover {
         <translation>Ne plus afficher ce message.</translation>
     </message>
     <message>
-        <location filename="simple_dialog.cpp" line="293"/>
+        <location filename="simple_dialog.cpp" line="295"/>
         <source>Multiple problems found</source>
-        <translation type="unfinished">Plusieurs problèmes trouvés</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.cpp" line="128"/>
@@ -14398,13 +14398,6 @@ a:hover {
         <location filename="show_packet_bytes_dialog.cpp" line="772"/>
         <source>Show All</source>
         <translation type="unfinished">Afficher tout</translation>
-    </message>
-</context>
-<context>
-    <name>SimpleDialog</name>
-    <message>
-        <source>Multiple problems found</source>
-        <translation type="vanished">Plusieurs problèmes trouvés</translation>
     </message>
 </context>
 <context>
