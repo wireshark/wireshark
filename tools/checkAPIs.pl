@@ -33,6 +33,7 @@
 
 use strict;
 use Getopt::Long;
+use Text::Balanced qw(extract_bracketed);
 
 my %APIs = (
         # API groups.
@@ -1876,6 +1877,44 @@ sub check_hf_entries($$)
         return $errorCount;
 }
 
+sub check_pref_var_dupes($$)
+{
+        my ($filecontentsref, $filename) = @_;
+        my $errorcount = 0;
+
+        # remove macro lines
+        my $filecontents = ${$filecontentsref};
+        $filecontents =~ s { ^\s*\#.*$} []xogm;
+
+        # At what position is the variable in the prefs_register_*_preference() call?
+        my %prefs_register_var_pos = (
+                static_text => undef, obsolete => undef, # ignore
+                decode_as_range => -2, range => -2, filename => -2, # second to last
+                enum => -3, # third to last
+                # everything else is the last argument
+        );
+
+        my @dupes;
+        my %count;
+        while ($filecontents =~ /prefs_register_(\w+?)_preference/gs) {
+                my ($args) = extract_bracketed(substr($filecontents, $+[0]), '()');
+                $args = substr($args, 1, -1); # strip parens
+
+                my $pos = $prefs_register_var_pos{$1};
+                next if exists $prefs_register_var_pos{$1} and not defined $pos;
+                $pos //= -1;
+                my $var = (split /\s*,\s*(?![^(]*\))/, $args)[$pos]; # only commas outside parens
+                push @dupes, $var if $count{$var}++ == 1;
+        }
+
+        if (@dupes) {
+                print STDERR "$filename: error: found these preference variables used in more than one prefs_register_*_preference:\n\t".join(', ', @dupes)."\n";
+                $errorcount++;
+        }
+
+        return $errorcount;
+}
+
 sub print_usage
 {
         print "Usage: checkAPIs.pl [-M] [-h] [-g group1] [-g group2] ... \n";
@@ -2182,6 +2221,7 @@ while ($_ = pop @filelist)
         $fileContents =~ s{ $DoubleQuotedStr | $SingleQuotedStr } []xog;
 
         #$errorCount += check_ett_registration(\$fileContents, $filename);
+        $errorCount += check_pref_var_dupes(\$fileContents, $filename);
 
         # Remove all blank lines
         $fileContents =~ s{ ^ \s* $ } []xog;
