@@ -1281,6 +1281,7 @@ set(DISSECTOR_SRC
 	packet-tftp.c
 	packet-thread.c
 	packet-thrift.c
+	packet-tibia.c
 	packet-time.c
 	packet-tipc.c
 	packet-tivoconnect.c
