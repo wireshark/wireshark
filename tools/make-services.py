@@ -34,6 +34,7 @@ import sys
 import getopt
 import csv
 import re
+import collections
 
 python_version = sys.hexversion >> 16
 if python_version < 0x300:
@@ -126,7 +127,7 @@ def parse_rows(svc_fd):
             description = None
 
         if not port in services_map:
-            services_map[port] = {}
+            services_map[port] = collections.OrderedDict()
 
         # Remove some duplicates (first entry wins)
         proto_exists = False
