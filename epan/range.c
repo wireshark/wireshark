@@ -414,7 +414,7 @@ range_foreach(range_t *range, void (*callback)(guint32 val))
    }
 }
 
-void range_foreach2(range_t *range, void (*callback2)(guint32 val, gpointer ptr), gpointer ptr)
+void range_foreach_r(range_t *range, void (*callback2)(guint32 val, gpointer ptr), gpointer ptr)
 {
    guint32 i, j;
 
