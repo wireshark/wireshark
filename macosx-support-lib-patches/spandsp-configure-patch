@@ -1,0 +1,53 @@
+*** configure.dist	2014-06-04 07:28:14.000000000 -0700
+--- configure	2017-08-07 00:16:39.000000000 -0700
+***************
+*** 19658,19664 ****
+  
+  case "${ax_cv_c_compiler_vendor}" in
+  gnu)
+!     COMP_VENDOR_CFLAGS="-std=gnu99 -ffast-math -Wall -Wunused-variable -Wunused-but-set-variable -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes $COMP_VENDOR_CFLAGS"
+      if test "$enable_avx" = "yes" ; then
+          COMP_VENDOR_CFLAGS="-mavx $COMP_VENDOR_CFLAGS"
+      fi
+--- 19658,19664 ----
+  
+  case "${ax_cv_c_compiler_vendor}" in
+  gnu)
+!     COMP_VENDOR_CFLAGS="-std=gnu99 -ffast-math -Wall -Wunused-variable -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes $COMP_VENDOR_CFLAGS"
+      if test "$enable_avx" = "yes" ; then
+          COMP_VENDOR_CFLAGS="-mavx $COMP_VENDOR_CFLAGS"
+      fi
+***************
+*** 19733,19739 ****
+  
+      ;;
+  intel)
+!     COMP_VENDOR_CFLAGS="-std=c99 -D_POSIX_C_SOURCE=2 -D_GNU_SOURCE=1 -Wall -Wunused-variable -Wunused-but-set-variable -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes $COMP_VENDOR_CFLAGS"
+      if test "$enable_avx" = "yes" ; then
+          COMP_VENDOR_CFLAGS="-mavx $COMP_VENDOR_CFLAGS"
+      fi
+--- 19733,19739 ----
+  
+      ;;
+  intel)
+!     COMP_VENDOR_CFLAGS="-std=c99 -D_POSIX_C_SOURCE=2 -D_GNU_SOURCE=1 -Wall -Wunused-variable -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes $COMP_VENDOR_CFLAGS"
+      if test "$enable_avx" = "yes" ; then
+          COMP_VENDOR_CFLAGS="-mavx $COMP_VENDOR_CFLAGS"
+      fi
+***************
+*** 19767,19773 ****
+      COMP_VENDOR_LDFLAGS=
+      ;;
+  *)
+!     COMP_VENDOR_CFLAGS="-std=c99 -Wall -Wunused-variable -Wunused-but-set-variable -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes $COMP_VENDOR_CFLAGS"
+      COMP_VENDOR_LDFLAGS=
+      ;;
+  esac
+--- 19767,19773 ----
+      COMP_VENDOR_LDFLAGS=
+      ;;
+  *)
+!     COMP_VENDOR_CFLAGS="-std=c99 -Wall -Wunused-variable -Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes $COMP_VENDOR_CFLAGS"
+      COMP_VENDOR_LDFLAGS=
+      ;;
+  esac

@@ -1733,6 +1733,12 @@ install_spandsp() {
         $no_build && echo "Skipping installation" && return
         gzcat spandsp-$SPANDSP_VERSION.tar.gz | tar xf - || exit 1
         cd spandsp-$SPANDSP_VERSION
+        #
+        # Don't use -Wunused-but-set-variable, as it's not supported
+        # by all the gcc versions in the versions of Xcode that we
+        # support.
+        #
+        patch -p0 <../../macosx-support-lib-patches/spandsp-configure-patch || exit 1
         ./configure || exit 1
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
