@@ -109,8 +109,10 @@ commandline_print_usage(gboolean for_help_option) {
     fprintf(output, "  -B <buffer size>         size of kernel buffer (def: %dMB)\n", DEFAULT_CAPTURE_BUFFER_SIZE);
 #endif
     fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
+    fprintf(output, "  --time-stamp-type <type> timestamp method for interface\n");
     fprintf(output, "  -D                       print list of interfaces and exit\n");
     fprintf(output, "  -L                       print list of link-layer types of iface and exit\n");
+    fprintf(output, "  --list-time-stamp-types  print list of timestamp types for iface and exit\n");
     fprintf(output, "\n");
     fprintf(output, "Capture stop conditions:\n");
     fprintf(output, "  -c <packet count>        stop after n packets (def: infinite)\n");
@@ -352,6 +354,7 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
 {
     int opt;
     gboolean arg_error = FALSE;
+    const char *list_option_supplied = NULL;
 #ifdef HAVE_LIBPCAP
     int status;
 #else
@@ -405,6 +408,7 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
 #ifdef HAVE_LIBPCAP
     global_commandline_info.start_capture = FALSE;
     global_commandline_info.list_link_layer_types = FALSE;
+    global_commandline_info.list_timestamp_types = FALSE;
     global_commandline_info.quit_after_cap = getenv("WIRESHARK_QUIT_AFTER_CAPTURE") ? TRUE : FALSE;
 #endif
     global_commandline_info.full_screen = FALSE;
@@ -420,6 +424,7 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
             case 'H':        /* Hide capture info dialog box */
             case 'p':        /* Don't capture in promiscuous mode */
             case 'i':        /* Use interface x */
+            case LONGOPT_SET_TSTAMP_TYPE: /* Set capture timestamp type */
 #ifdef HAVE_PCAP_CREATE
             case 'I':        /* Capture in monitor mode, if available */
 #endif
@@ -469,6 +474,16 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
             case 'L':        /* Print list of link-layer types and exit */
 #ifdef HAVE_LIBPCAP
                 global_commandline_info.list_link_layer_types = TRUE;
+                list_option_supplied = "-L";
+#else
+                capture_option_specified = TRUE;
+                arg_error = TRUE;
+#endif
+                break;
+            case LONGOPT_LIST_TSTAMP_TYPES:
+#ifdef HAVE_LIBPCAP
+                global_commandline_info.list_timestamp_types = TRUE;
+                list_option_supplied = "--list-time-stamp-types";
 #else
                 capture_option_specified = TRUE;
                 arg_error = TRUE;
@@ -631,18 +646,18 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
     }
 
 #ifdef HAVE_LIBPCAP
-    if (global_commandline_info.start_capture && global_commandline_info.list_link_layer_types) {
+    if (global_commandline_info.start_capture && list_option_supplied) {
         /* Specifying *both* is bogus. */
-        cmdarg_err("You can't specify both -L and a live capture.");
+        cmdarg_err("You can't specify both %s and a live capture.", list_option_supplied);
         exit(1);
     }
 
-    if (global_commandline_info.list_link_layer_types) {
+    if (list_option_supplied) {
         /* We're supposed to list the link-layer types for an interface;
            did the user also specify a capture file to be read? */
         if (global_commandline_info.cf_name) {
             /* Yes - that's bogus. */
-            cmdarg_err("You can't specify -L and a capture file to be read.");
+            cmdarg_err("You can't specify %s and a capture file to be read.", list_option_supplied);
             exit(1);
         }
         /* No - did they specify a ring buffer option? */

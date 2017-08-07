@@ -228,11 +228,10 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
                             char **err_str, void (*update_cb)(void))
 {
     if_capabilities_t *caps;
-    GList              *linktype_list = NULL;
+    GList              *linktype_list = NULL, *timestamp_list = NULL;
     int                 err, i;
     gchar              *data, *primary_msg, *secondary_msg;
-    gchar             **raw_list, **lt_parts;
-    data_link_info_t   *data_link_info;
+    gchar             **raw_list;
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities ...");
 
@@ -309,11 +308,12 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
     }
 
     /*
-     * The rest are link-layer types.
+     * The following are link-layer types.
      */
-    for (i = 1; raw_list[i] != NULL; i++) {
+    for (i = 1; raw_list[i] != NULL && *raw_list[i] != '\0'; i++) {
+        data_link_info_t *data_link_info;
         /* ...and what if the interface name has a tab in it, Mr. Clever Programmer? */
-        lt_parts = g_strsplit(raw_list[i], "\t", 3);
+        char **lt_parts = g_strsplit(raw_list[i], "\t", 3);
         if (lt_parts[0] == NULL || lt_parts[1] == NULL || lt_parts[2] == NULL) {
             g_strfreev(lt_parts);
             continue;
@@ -330,6 +330,25 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
 
         linktype_list = g_list_append(linktype_list, data_link_info);
     }
+
+    if (raw_list[i]) { /* Oh, timestamp types! */
+        for (i++; raw_list[i] != NULL && *raw_list[i] != '\0'; i++) {
+            timestamp_info_t *timestamp_info;
+            char **tt_parts = g_strsplit(raw_list[i], "\t", 2);
+            if (tt_parts[0] == NULL || tt_parts[1] == NULL) {
+                g_strfreev(tt_parts);
+                continue;
+            }
+
+            timestamp_info = g_new(timestamp_info_t,1);
+            timestamp_info->name = g_strdup(tt_parts[0]);
+            timestamp_info->description = g_strdup(tt_parts[1]);
+            g_strfreev(tt_parts);
+
+            timestamp_list = g_list_append(timestamp_list, timestamp_info);
+        }
+    }
+
     g_strfreev(raw_list);
 
     /* Check to see if we built a list */
@@ -340,7 +359,11 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
         g_free(caps);
         return NULL;
     }
+
     caps->data_link_types = linktype_list;
+    /* Might be NULL. Not all systems report timestamp types */
+    caps->timestamp_types = timestamp_list;
+
     return caps;
 }
 

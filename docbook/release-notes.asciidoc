@@ -41,6 +41,7 @@ since version 2.4.0:
 * File load time in Status Bar is now disabled by default and can be enabled in
   Preferences -> Appearance -> Layout -> Show file load time.
 * Support for G.729 codec in the RTP Player (via the bcg729 library).
+* Support for hardware-timestamping of packets
 
 //=== Removed Dissectors
 

@@ -60,7 +60,9 @@ extern "C" {
  * In short: we must not use 1 here, which is another reason to use
  * values outside the range of ASCII graphic characters.
  */
-#define LONGOPT_NUM_CAP_COMMENT 128
+#define LONGOPT_NUM_CAP_COMMENT   128
+#define LONGOPT_LIST_TSTAMP_TYPES 129
+#define LONGOPT_SET_TSTAMP_TYPE   130
 
 /*
  * Options for capturing common to all capturing programs.
@@ -89,17 +91,20 @@ extern "C" {
 #endif
 
 #define LONGOPT_CAPTURE_COMMON \
-    {"capture-comment",      required_argument, NULL, LONGOPT_NUM_CAP_COMMENT}, \
-    {"autostop",             required_argument, NULL, 'a'}, \
-    {"ring-buffer",          required_argument, NULL, 'b'}, \
+    {"capture-comment",       required_argument, NULL, LONGOPT_NUM_CAP_COMMENT}, \
+    {"autostop",              required_argument, NULL, 'a'}, \
+    {"ring-buffer",           required_argument, NULL, 'b'}, \
     LONGOPT_BUFFER_SIZE \
-    {"list-interfaces",      no_argument,       NULL, 'D'}, \
-    {"interface",            required_argument, NULL, 'i'}, \
+    {"list-interfaces",       no_argument,       NULL, 'D'}, \
+    {"interface",             required_argument, NULL, 'i'}, \
     LONGOPT_MONITOR_MODE \
-    {"list-data-link-types", no_argument,       NULL, 'L'}, \
-    {"no-promiscuous-mode",  no_argument,       NULL, 'p'}, \
-    {"snapshot-length",      required_argument, NULL, 's'}, \
-    {"linktype",             required_argument, NULL, 'y'}, \
+    {"list-data-link-types",  no_argument,       NULL, 'L'}, \
+    {"no-promiscuous-mode",   no_argument,       NULL, 'p'}, \
+    {"snapshot-length",       required_argument, NULL, 's'}, \
+    {"linktype",              required_argument, NULL, 'y'}, \
+    {"list-time-stamp-types", no_argument,       NULL, LONGOPT_LIST_TSTAMP_TYPES}, \
+    {"time-stamp-type",       required_argument, NULL, LONGOPT_SET_TSTAMP_TYPE},
+
 
 #define OPTSTRING_CAPTURE_COMMON \
     "a:" OPTSTRING_A "b:" OPTSTRING_B "c:Df:i:" OPTSTRING_I "Lps:y:"
@@ -248,6 +253,9 @@ typedef struct interface_options_tag {
     capture_sampling  sampling_method;
     int               sampling_param;
 #endif
+    gchar            *timestamp_type;       /* requested timestamp as string */
+    int               timestamp_type_id;    /* Timestamp type to pass to pcap_set_tstamp_type.
+                                               only valid if timestamp_type != NULL */
 } interface_options;
 
 /** Capture options coming from user interface */
@@ -342,10 +350,15 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
 extern void
 capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_options *capture_opts);
 
+enum caps_query {
+    CAPS_MONITOR_MODE          = 0x1,
+    CAPS_QUERY_LINK_TYPES      = 0x2,
+    CAPS_QUERY_TIMESTAMP_TYPES = 0x4
+};
+
 /* print interface capabilities, including link layer types */
 extern void
-capture_opts_print_if_capabilities(if_capabilities_t *caps, char *name,
-                                   gboolean monitor_mode);
+capture_opts_print_if_capabilities(if_capabilities_t *caps, char *name, int queries);
 
 /* print list of interfaces */
 extern void

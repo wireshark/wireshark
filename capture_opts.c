@@ -90,6 +90,7 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->default_options.sampling_method = CAPTURE_SAMP_NONE;
     capture_opts->default_options.sampling_param  = 0;
 #endif
+    capture_opts->default_options.timestamp_type  = NULL;
     capture_opts->saving_to_file                  = FALSE;
     capture_opts->save_file                       = NULL;
     capture_opts->group_read_access               = FALSE;
@@ -193,6 +194,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
         g_log(log_domain, log_level, "Sampling meth.[%02d]  : %d", i, interface_opts.sampling_method);
         g_log(log_domain, log_level, "Sampling param.[%02d] : %d", i, interface_opts.sampling_param);
 #endif
+        g_log(log_domain, log_level, "Timestamp type [%02d] : %s", i, interface_opts.timestamp_type);
     }
     g_log(log_domain, log_level, "Interface name[df]  : %s", capture_opts->default_options.name ? capture_opts->default_options.name : "(unspecified)");
     g_log(log_domain, log_level, "Interface Descr[df] : %s", capture_opts->default_options.descr ? capture_opts->default_options.descr : "(unspecified)");
@@ -233,6 +235,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
     g_log(log_domain, log_level, "Sampling meth. [df] : %d", capture_opts->default_options.sampling_method);
     g_log(log_domain, log_level, "Sampling param.[df] : %d", capture_opts->default_options.sampling_param);
 #endif
+    g_log(log_domain, log_level, "Timestamp type [df] : %s", capture_opts->default_options.timestamp_type ? capture_opts->default_options.timestamp_type : "(unspecified)");
     g_log(log_domain, log_level, "SavingToFile        : %u", capture_opts->saving_to_file);
     g_log(log_domain, log_level, "SaveFile            : %s", (capture_opts->save_file) ? capture_opts->save_file : "");
     g_log(log_domain, log_level, "GroupReadAccess     : %u", capture_opts->group_read_access);
@@ -732,6 +735,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
     interface_opts.sampling_method = capture_opts->default_options.sampling_method;
     interface_opts.sampling_param  = capture_opts->default_options.sampling_param;
 #endif
+    interface_opts.timestamp_type  = capture_opts->default_options.timestamp_type;
 
     g_array_append_val(capture_opts->ifaces, interface_opts);
 
@@ -799,6 +803,18 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         break;
     case 'H':        /* Hide capture info dialog box */
         capture_opts->show_info = FALSE;
+        break;
+    case LONGOPT_SET_TSTAMP_TYPE:        /* Set capture time stamp type */
+        if (capture_opts->ifaces->len > 0) {
+            interface_options interface_opts;
+
+            interface_opts = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
+            capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->ifaces->len - 1);
+            interface_opts.timestamp_type = g_strdup(optarg_str_p);
+            g_array_append_val(capture_opts->ifaces, interface_opts);
+        } else {
+            capture_opts->default_options.timestamp_type = g_strdup(optarg_str_p);
+        }
         break;
     case 'i':        /* Use interface x */
         status = capture_opts_add_iface_opt(capture_opts, optarg_str_p);
@@ -939,26 +955,40 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
 }
 
 void
-capture_opts_print_if_capabilities(if_capabilities_t *caps, char *name,
-                                   gboolean monitor_mode)
+capture_opts_print_if_capabilities(if_capabilities_t *caps, char *name, int queries)
 {
-    GList *lt_entry;
-    data_link_info_t *data_link_info;
+    GList *lt_entry, *ts_entry;
 
-    if (caps->can_set_rfmon)
-        printf("Data link types of interface %s when %sin monitor mode (use option -y to set):\n",
-               name, monitor_mode ? "" : "not ");
-    else
-        printf("Data link types of interface %s (use option -y to set):\n", name);
-    for (lt_entry = caps->data_link_types; lt_entry != NULL;
-         lt_entry = g_list_next(lt_entry)) {
-        data_link_info = (data_link_info_t *)lt_entry->data;
-        printf("  %s", data_link_info->name);
-        if (data_link_info->description != NULL)
-            printf(" (%s)", data_link_info->description);
+    if (queries & CAPS_QUERY_LINK_TYPES) {
+        if (caps->can_set_rfmon)
+            printf("Data link types of interface %s when %sin monitor mode (use option -y to set):\n",
+                   name, queries & CAPS_MONITOR_MODE ? "" : "not ");
         else
-            printf(" (not supported)");
-        printf("\n");
+            printf("Data link types of interface %s (use option -y to set):\n", name);
+        for (lt_entry = caps->data_link_types; lt_entry != NULL;
+             lt_entry = g_list_next(lt_entry)) {
+            data_link_info_t *data_link_info = (data_link_info_t *)lt_entry->data;
+            printf("  %s", data_link_info->name);
+            if (data_link_info->description != NULL)
+                printf(" (%s)", data_link_info->description);
+            else
+                printf(" (not supported)");
+            printf("\n");
+        }
+    }
+
+    if (queries & CAPS_QUERY_TIMESTAMP_TYPES) {
+        printf("Timestamp types of the interface (use option --time-stamp-type to set):\n");
+        for (ts_entry = caps->timestamp_types; ts_entry != NULL;
+             ts_entry = g_list_next(ts_entry)) {
+            timestamp_info_t *timestamp = (timestamp_info_t *)ts_entry->data;
+            printf("  %s", timestamp->name);
+            if (timestamp->description != NULL)
+                printf(" (%s)", timestamp->description);
+            else
+                printf(" (none)");
+            printf("\n");
+        }
     }
 }
 

@@ -278,6 +278,9 @@
 /* Define to 1 if you have the `pcap_set_tstamp_precision' function. */
 #cmakedefine HAVE_PCAP_SET_TSTAMP_PRECISION 1
 
+/* Define to 1 if you have the `pcap_set_tstamp_type' function. */
+#cmakedefine HAVE_PCAP_SET_TSTAMP_TYPE 1
+
 /* Define to 1 if you have the popcount function. */
 #cmakedefine HAVE_POPCOUNT 1
 

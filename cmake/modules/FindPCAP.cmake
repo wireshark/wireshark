@@ -85,6 +85,7 @@ if( PCAP_FOUND )
   check_function_exists( "bpf_image" HAVE_BPF_IMAGE )
   check_function_exists( "pcap_setsampling" HAVE_PCAP_SETSAMPLING )
   check_function_exists( "pcap_set_tstamp_precision" HAVE_PCAP_SET_TSTAMP_PRECISION )
+  check_function_exists( "pcap_set_tstamp_type" HAVE_PCAP_SET_TSTAMP_TYPE )
   # Remote pcap checks
   check_function_exists( "pcap_open" HAVE_PCAP_OPEN )
   if( HAVE_PCAP_OPEN )

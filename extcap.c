@@ -383,6 +383,7 @@ static gboolean cb_dlt(extcap_callback_info_t cb_info)
      */
     caps = (if_capabilities_t *) g_malloc(sizeof * caps);
     caps->can_set_rfmon = FALSE;
+    caps->timestamp_types = NULL;
 
     while (dlts)
     {

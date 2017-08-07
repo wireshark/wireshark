@@ -53,6 +53,8 @@ S<[ B<--enable-protocol> E<lt>proto_nameE<gt> ]>
 S<[ B<--disable-protocol> E<lt>proto_nameE<gt> ]>
 S<[ B<--enable-heuristic> E<lt>short_nameE<gt> ]>
 S<[ B<--disable-heuristic> E<lt>short_nameE<gt> ]>
+S<[ B<--list-time-stamp-types> ]>
+S<[ B<--time-stamp-type> E<lt>typeE<gt> ]>
 S<[ E<lt>infileE<gt> ]>
 
 =head1 DESCRIPTION
@@ -986,6 +988,15 @@ Enable dissection of heuristic protocol.
 =item --disable-heuristic E<lt>short_nameE<gt>
 
 Disable dissection of heuristic protocol.
+
+=item --list-time-stamp-types
+
+List time stamp types supported for the interface. If no time stamp type can be
+set, no time stamp types are listed.
+
+=item --time-stamp-type E<lt>typeE<gt>
+
+Change the interface's timestamp method.
 
 =back
 

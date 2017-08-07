@@ -42,8 +42,10 @@ Capture interface:
   -I                       capture in monitor mode, if available
   -B <buffer size>         size of kernel buffer (def: 2MB)
   -y <link type>           link layer type (def: first appropriate)
+  --time-stamp-type <type> timestamp method for interface
   -D                       print list of interfaces and exit
   -L                       print list of link-layer types of iface and exit
+  --list-time-stamp-types  print list of timestamp types for iface and exit
 
 Capture stop conditions:
   -c <packet count>        stop after n packets (def: infinite)
@@ -185,8 +187,10 @@ Capture interface:
   -I                       capture in monitor mode, if available
   -B <buffer size>         size of kernel buffer in MiB (def: 2MiB)
   -y <link type>           link layer type (def: first appropriate)
+  --time-stamp-type <type> timestamp method for interface
   -D                       print list of interfaces and exit
   -L                       print list of link-layer types of iface and exit
+  --list-time-stamp-types  print list of timestamp types for iface and exit
   -d                       print generated BPF code for capture filter
   -k                       set channel on wifi interface <freq>,[<type>]
   -S                       print statistics for each interface once per second

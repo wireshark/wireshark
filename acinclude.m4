@@ -412,7 +412,7 @@ install a newer version of the header file.])
 	    AC_DEFINE(CAN_SET_CAPTURE_BUFFER_SIZE, 1,
 	     [Define to 1 if the capture buffer size can be set.])
 	  ])
-	  AC_CHECK_FUNCS(bpf_image pcap_set_tstamp_precision)
+	  AC_CHECK_FUNCS(bpf_image pcap_set_tstamp_precision pcap_set_tstamp_type)
 	fi
 
 	AC_WIRESHARK_POP_FLAGS

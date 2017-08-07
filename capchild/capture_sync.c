@@ -412,6 +412,10 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
             argv = sync_pipe_add_arg(argv, &argc, ssampling);
         }
 #endif
+        if (interface_opts.timestamp_type) {
+            argv = sync_pipe_add_arg(argv, &argc, "--time-stamp-type");
+            argv = sync_pipe_add_arg(argv, &argc, interface_opts.timestamp_type);
+        }
     }
 
     /* dumpcap should be running in capture child mode (hidden feature) */
@@ -1302,6 +1306,7 @@ sync_if_capabilities_open(const gchar *ifname, gboolean monitor_mode, const gcha
     argv = sync_pipe_add_arg(argv, &argc, "-i");
     argv = sync_pipe_add_arg(argv, &argc, ifname);
     argv = sync_pipe_add_arg(argv, &argc, "-L");
+    argv = sync_pipe_add_arg(argv, &argc, "--list-time-stamp-types");
     if (monitor_mode)
         argv = sync_pipe_add_arg(argv, &argc, "-I");
     if (auth) {

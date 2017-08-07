@@ -56,8 +56,10 @@ Capture interface:
   -I                       capture in monitor mode, if available
   -B <buffer size>         size of kernel buffer (def: 2MB)
   -y <link type>           link layer type (def: first appropriate)
+  --time-stamp-type <type> timestamp method for interface
   -D                       print list of interfaces and exit
   -L                       print list of link-layer types of iface and exit
+  --list-time-stamp-types  print list of timestamp types for iface and exit
 
 Capture stop conditions:
   -c <packet count>        stop after n packets (def: infinite)
@@ -273,6 +275,10 @@ updated automatically as packets arrive during a capture ( as specified by the
 
 List the data link types supported by the interface and exit.
 
+--list-time-stamp-types::
+
+List timestamp types configurable for the iface and exit
+
 -m <font>::
 
 This option sets the name of the font used for most text displayed by Wireshark.
@@ -420,9 +426,15 @@ This option sets the name of the file to be used to save captured packets.
 
 -y <capture link type>::
 
-If a capture is started from the command line with -k, set the data
-link type to use while capturing packets. The values reported by -L
+If a capture is started from the command line with `-k`, set the data
+link type to use while capturing packets. The values reported by `-L`
 are the values that can be used.
+
+--time-stamp-type <type>::
+
+If a capture is started from the command line with `-k`, set the data
+link type to use while capturing packets. The values reported by
+`--list-time-stamp-types` are the values that can be used.
 
 -X <eXtension option>::
 

@@ -37,6 +37,7 @@ typedef struct commandline_param_info
 {
 #ifdef HAVE_LIBPCAP
     gboolean list_link_layer_types;
+    gboolean list_timestamp_types;
     gboolean start_capture;
     gboolean quit_after_cap;
 #endif

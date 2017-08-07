@@ -366,6 +366,7 @@ int main(int argc, char *qt_argv[])
     GString             *runtime_info_str = NULL;
 
     QString              dfilter, read_filter;
+    int                  caps_queries = 0;
     /* Start time in microseconds*/
     guint64 start_time = g_get_monotonic_time();
 #ifdef DEBUG_STARTUP_TIME
@@ -714,8 +715,13 @@ int main(int argc, char *qt_argv[])
 
     fill_in_local_interfaces(main_window_update);
 
-    if (global_commandline_info.start_capture || global_commandline_info.list_link_layer_types) {
-        /* We're supposed to do a live capture or get a list of link-layer
+    if  (global_commandline_info.list_link_layer_types)
+        caps_queries |= CAPS_QUERY_LINK_TYPES;
+     if (global_commandline_info.list_timestamp_types)
+        caps_queries |= CAPS_QUERY_TIMESTAMP_TYPES;
+
+    if (global_commandline_info.start_capture || caps_queries) {
+        /* We're supposed to do a live capture or get a list of link-layer/timestamp
            types for a live capture device; if the user didn't specify an
            interface to use, pick a default. */
         ret_val = capture_opts_default_iface_if_necessary(&global_capture_opts,
@@ -725,13 +731,13 @@ int main(int argc, char *qt_argv[])
         }
     }
 
-    if (global_commandline_info.list_link_layer_types) {
+    if (caps_queries) {
         /* Get the list of link-layer types for the capture devices. */
         if_capabilities_t *caps;
         guint i;
         interface_t device;
         for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-
+            int if_caps_queries = caps_queries;
             device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
             if (device.selected) {
 #if defined(HAVE_PCAP_CREATE)
@@ -754,10 +760,10 @@ int main(int argc, char *qt_argv[])
             create_console();
 #endif /* _WIN32 */
 #if defined(HAVE_PCAP_CREATE)
-            capture_opts_print_if_capabilities(caps, device.name, device.monitor_mode_supported);
-#else
-            capture_opts_print_if_capabilities(caps, device.name, FALSE);
+            if (device.monitor_mode_supported)
+                if_caps_queries |= CAPS_MONITOR_MODE;
 #endif
+            capture_opts_print_if_capabilities(caps, device.name, if_caps_queries);
 #ifdef _WIN32
             destroy_console();
 #endif /* _WIN32 */

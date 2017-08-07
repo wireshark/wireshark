@@ -99,6 +99,7 @@ void free_interface_list(GList *if_list);
 typedef struct {
 	gboolean	can_set_rfmon;	/* TRUE if can be put into monitor mode */
 	GList		*data_link_types;	/* GList of data_link_info_t's */
+	GList		*timestamp_types;   /* GList of timestamp_info_t's */
 } if_capabilities_t;
 
 /*
@@ -109,6 +110,14 @@ typedef struct {
 	char	*name;          /* e.g. "EN10MB" or "DLT 1" */
 	char	*description;   /* descriptive name from wiretap e.g. "Ethernet", NULL if unknown */
 } data_link_info_t;
+
+/*
+ * Information about timestamp types.
+ */
+typedef struct {
+	const char	*name;          /* e.g. "adapter_unsynced" */
+	const char	*description;   /* description from libpcap e.g. "Adapter, not synced with system time" */
+} timestamp_info_t;
 
 /**
  * Fetch the linktype list for the specified interface from a child process.

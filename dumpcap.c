@@ -493,8 +493,10 @@ print_usage(FILE *output)
     fprintf(output, "  -B <buffer size>         size of kernel buffer in MiB (def: %dMiB)\n", DEFAULT_CAPTURE_BUFFER_SIZE);
 #endif
     fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
+    fprintf(output, "  --time-stamp-type <type> timestamp method for interface\n");
     fprintf(output, "  -D                       print list of interfaces and exit\n");
     fprintf(output, "  -L                       print list of link-layer types of iface and exit\n");
+    fprintf(output, "  --list-time-stamp-types  print list of timestamp types for iface and exit\n");
 #ifdef HAVE_BPF_IMAGE
     fprintf(output, "  -d                       print generated BPF code for capture filter\n");
 #endif
@@ -906,10 +908,9 @@ print_machine_readable_interfaces(GList *if_list)
  * you MUST update capture_ifinfo.c:capture_get_if_capabilities() accordingly!
  */
 static void
-print_machine_readable_if_capabilities(if_capabilities_t *caps)
+print_machine_readable_if_capabilities(if_capabilities_t *caps, int queries)
 {
-    GList *lt_entry;
-    data_link_info_t *data_link_info;
+    GList *lt_entry, *ts_entry;
     const gchar *desc_str;
 
     if (capture_child) {
@@ -917,19 +918,33 @@ print_machine_readable_if_capabilities(if_capabilities_t *caps)
         pipe_write_block(2, SP_SUCCESS, NULL);
     }
 
-    if (caps->can_set_rfmon)
-        printf("1\n");
-    else
-        printf("0\n");
-    for (lt_entry = caps->data_link_types; lt_entry != NULL;
-         lt_entry = g_list_next(lt_entry)) {
-      data_link_info = (data_link_info_t *)lt_entry->data;
-      if (data_link_info->description != NULL)
-        desc_str = data_link_info->description;
-      else
-        desc_str = "(not supported)";
-      printf("%d\t%s\t%s\n", data_link_info->dlt, data_link_info->name,
-             desc_str);
+    if (queries & CAPS_QUERY_LINK_TYPES) {
+        if (caps->can_set_rfmon)
+            printf("1\n");
+        else
+            printf("0\n");
+        for (lt_entry = caps->data_link_types; lt_entry != NULL;
+             lt_entry = g_list_next(lt_entry)) {
+          data_link_info_t *data_link_info = (data_link_info_t *)lt_entry->data;
+          if (data_link_info->description != NULL)
+            desc_str = data_link_info->description;
+          else
+            desc_str = "(not supported)";
+          printf("%d\t%s\t%s\n", data_link_info->dlt, data_link_info->name,
+                 desc_str);
+        }
+    }
+    printf("\n");
+    if (queries & CAPS_QUERY_TIMESTAMP_TYPES) {
+        for (ts_entry = caps->timestamp_types; ts_entry != NULL;
+             ts_entry = g_list_next(ts_entry)) {
+          timestamp_info_t *timestamp = (timestamp_info_t *)ts_entry->data;
+          if (timestamp->description != NULL)
+            desc_str = timestamp->description;
+          else
+            desc_str = "(none)";
+          printf("%s\t%s\n", timestamp->name, desc_str);
+        }
     }
 }
 
@@ -3888,7 +3903,7 @@ main(int argc, char *argv[])
     struct pcap_stat  stats;
     GLogLevelFlags    log_flags;
     gboolean          list_interfaces       = FALSE;
-    gboolean          list_link_layer_types = FALSE;
+    int               caps_queries          = 0;
 #ifdef HAVE_BPF_IMAGE
     gboolean          print_bpf_code        = FALSE;
 #endif
@@ -4241,6 +4256,7 @@ main(int argc, char *argv[])
         case 'f':        /* capture filter */
         case 'g':        /* enable group read access on file(s) */
         case 'i':        /* Use interface x */
+        case LONGOPT_SET_TSTAMP_TYPE: /* Set capture timestamp type */
         case 'n':        /* Use pcapng format */
         case 'p':        /* Don't capture in promiscuous mode */
         case 'P':        /* Use pcap format */
@@ -4306,11 +4322,14 @@ main(int argc, char *argv[])
             }
             break;
         case 'L':        /* Print list of link-layer types and exit */
-            if (!list_link_layer_types) {
-                list_link_layer_types = TRUE;
+            if (!(caps_queries & CAPS_QUERY_LINK_TYPES)) {
+                caps_queries |= CAPS_QUERY_LINK_TYPES;
                 run_once_args++;
             }
             break;
+        case LONGOPT_LIST_TSTAMP_TYPES:
+                caps_queries |= CAPS_QUERY_TIMESTAMP_TYPES;
+        break;
 #ifdef HAVE_BPF_IMAGE
         case 'd':        /* Print BPF code for capture filter and exit */
             if (!print_bpf_code) {
@@ -4387,9 +4406,9 @@ main(int argc, char *argv[])
 
     if (run_once_args > 1) {
 #ifdef HAVE_BPF_IMAGE
-        cmdarg_err("Only one of -D, -L, -d, -k, or -S may be supplied.");
+        cmdarg_err("Only one of -D, -L, -d, -k or -S may be supplied.");
 #else
-        cmdarg_err("Only one of -D, -L, -k, or -S may be supplied.");
+        cmdarg_err("Only one of -D, -L, -k or -S may be supplied.");
 #endif
         exit_main(1);
     } else if (run_once_args == 1) {
@@ -4452,7 +4471,7 @@ main(int argc, char *argv[])
         int    err;
         gchar *err_str;
 
-        if_list = capture_interface_list(&err, &err_str,NULL);
+        if_list = capture_interface_list(&err, &err_str, NULL);
         if (if_list == NULL) {
             if (err == 0) {
                 /*
@@ -4512,13 +4531,14 @@ main(int argc, char *argv[])
         exit_main(status);
     }
 
-    if (list_link_layer_types) {
-        /* Get the list of link-layer types for the capture device. */
+    if (caps_queries) {
+        /* Get the list of link-layer and/or timestamp types for the capture device. */
         if_capabilities_t *caps;
         gchar *err_str;
         guint  ii;
 
         for (ii = 0; ii < global_capture_opts.ifaces->len; ii++) {
+            int if_caps_queries = caps_queries;
             interface_options interface_opts;
 
             interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, ii);
@@ -4531,21 +4551,39 @@ main(int argc, char *argv[])
                 g_free(err_str);
                 exit_main(2);
             }
-            if (caps->data_link_types == NULL) {
+            if ((if_caps_queries & CAPS_QUERY_LINK_TYPES) && caps->data_link_types == NULL) {
                 cmdarg_err("The capture device \"%s\" has no data link types.", interface_opts.name);
                 exit_main(2);
-            }
+            } /* No timestamp types is no big deal. So we will just ignore it */
+
+            if (interface_opts.monitor_mode)
+                if_caps_queries |= CAPS_MONITOR_MODE;
+
             if (machine_readable)      /* tab-separated values to stdout */
-                /* XXX: We need to change the format and adopt consumers */
-                print_machine_readable_if_capabilities(caps);
+                /* XXX: We need to change the format and adapt consumers */
+                print_machine_readable_if_capabilities(caps, if_caps_queries);
             else
                 /* XXX: We might want to print also the interface name */
-                capture_opts_print_if_capabilities(caps, interface_opts.name,
-                                                   interface_opts.monitor_mode);
+                capture_opts_print_if_capabilities(caps, interface_opts.name, if_caps_queries);
             free_if_capabilities(caps);
         }
         exit_main(0);
     }
+
+#ifdef HAVE_PCAP_SET_TSTAMP_TYPE
+    for (j = 0; j < global_capture_opts.ifaces->len; j++) {
+        interface_options *interface_opts;
+
+        interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, j);
+        if (interface_opts->timestamp_type) {
+            interface_opts->timestamp_type_id = pcap_tstamp_type_name_to_val(interface_opts->timestamp_type);
+            if (interface_opts->timestamp_type_id < 0) {
+                cmdarg_err("Invalid argument to option: --time-stamp-type=%s", interface_opts->timestamp_type);
+                exit_main(1);
+            }
+        }
+    }
+#endif
 
     /* We're supposed to do a capture, or print the BPF code for a filter. */
 
