@@ -1615,7 +1615,13 @@ uninstall_lz4() {
             #
             # Get rid of the previously downloaded and unpacked version.
             #
-            rm -rf lz4-$installed_lz4_version
+            # "make install" apparently causes some stuff to be
+            # modified in the build tree, so, as it's done as
+            # root, that leaves stuff owned by root in the build
+            # tree.  Therefore, we have to remove the build tree
+            # as root.
+            #
+            sudo rm -rf lz4-$installed_lz4_version
             rm -rf lz4-$installed_lz4_version.tar.gz
         fi
 
@@ -1778,7 +1784,32 @@ install_libssh() {
 
 uninstall_libssh() {
     if [ ! -z "$installed_libssh_version" ] ; then
-        echo "Sadly, libssh uses cmake, and doesn't support uninstall."
+        echo "Uninstalling libssh:"
+        cd libssh-$installed_libssh_version
+        #
+        # libssh uses cmake and doesn't support "make uninstall"
+        #
+        # $DO_MAKE_UNINSTALL || exit 1
+        sudo rm -rf /usr/local/lib/libssh*
+        sudo rm -rf /usr/local/include/libssh
+        sudo rm -rf /usr/local/lib/pkgconfig/libssh*
+        sudo rm -rf /usr/local/lib/cmake/libssh
+        #
+        # libssh uses cmake and doesn't support "make distclean"
+        #
+        # make distclean || exit 1
+        cd ..
+        rm libssh-$installed_libssh_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf libssh-$installed_libssh_version
+            rm -rf libssh-$installed_libssh_version.tar.gz
+        fi
+
+        installed_libssh_version=""
     fi
 }
 
