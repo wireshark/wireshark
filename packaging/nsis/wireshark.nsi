@@ -1205,7 +1205,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMergecap} "Combine multiple saved capture files into a single output file"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecReordercap} "Copy packets to a new file, sorted by time."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecDFTest} "Shows display filter byte-code, for debugging dfilter routines"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecCapinfos} "Pring information about capture files."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecCapinfos} "Print information about capture files."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecRawshark} "Raw packet filter."
 
 !ifdef USER_GUIDE_DIR
