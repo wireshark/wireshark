@@ -739,6 +739,10 @@ AC_ARG_ENABLE(extra-compiler-warnings,
 		# (about glib library not using Doxygen)
 		#
 		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wdocumentation)
+		#
+		# Works only with GCC 7
+		#
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wduplicated-branches)
 
 		#
 		# The following are C only, not C++
@@ -748,10 +752,6 @@ AC_ARG_ENABLE(extra-compiler-warnings,
 		# never enable this one with -Werror.
 		#
 		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wbad-function-cast, C)
-
-		# Works only with GCC 7
-		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wduplicated-branches)
-
 	fi
 ])
 
