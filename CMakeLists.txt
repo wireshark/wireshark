@@ -470,15 +470,32 @@ else()
 	set(C_WARN_FLAGS
 		# The following are C only, not C++
 		-Wc++-compat
+		-Wunused-const-variable
+		#
+		# XXX - some versions of GCC, including the one in at
+		# least some Xcode versions that come with Mac OS X
+		# 10.5, complain about variables in function and
+		# function pointer *declarations* shadowing other
+		# variables.  The autoconf script checks for that; we
+		# don't.
 		-Wshadow
 		-Wno-pointer-sign
 		-Wold-style-definition
 		-Wstrict-prototypes
+		#
+		# Some versions of GCC, such as 4.3.2 and 4.4.5,
+		# generate logical-op warnings when strchr() is given a
+		# constant string.  The autoconf script checks for that;
+		# we don't.
+		#
 		-Wlogical-op
 		-Wjump-misses-init
-		-Wunused-const-variable
+		#
+		# The Qt headers generate a ton of shortening warnings
+		# on 64-bit systems, so we only enable this for C for
+		# now.
+		#
 		-Wshorten-64-to-32
-
 		#
 		# Implicit function declarations are an error in C++ and most
 		# likely a programming error in C. Turn -Wimplicit-int and
@@ -499,6 +516,10 @@ else()
 		)
 	endif()
 
+	#
+	# These are not enabled by default, because the warnings they
+	# produce are very hard or impossible to eliminate.
+	#
 	set(COMMON_EXTRA_WARN_FLAGS
 		# The following are for C and C++
 		-Wpedantic
@@ -548,14 +569,14 @@ else()
 		# (about glib library not using Doxygen)
 		#
 		-Wdocumentation
-		#
-		# No longer supported by El Capitan clang on C++
-		#
-		-fno-delete-null-pointer-checks
-
 		# Works only with GCC 7
 		-Wduplicated-branches
-
+		#
+		# No longer supported by El Capitan clang on C++
+		# XXX - is this one of those where CMake's check
+		# doesn't fail, so it won't reject this?
+		#
+		-fno-delete-null-pointer-checks
 	)
 
 	set(C_EXTRA_WARN_FLAGS
