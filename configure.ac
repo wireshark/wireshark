@@ -727,7 +727,10 @@ AC_ARG_ENABLE(extra-compiler-warnings,
 		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wmissing-declarations)
 		#
 		# A bunch of "that might not work on SPARC" code blocks
-		# this one for now.
+		# this one for now; some of it is code that *will* work
+		# on SPARC, such as casts of "struct sockaddr *" to
+		# "struct sockaddr_in *", which are required by some
+		# APIs such as getifaddrs().
 		#
 		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wcast-align)
 		#
