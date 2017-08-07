@@ -79,13 +79,6 @@ const int min_zoom_pixels_ = 20;
 const int stat_update_interval_ = 200; // ms
 
 // Saved graph settings
-
-static const value_string graph_enabled_vs[] = {
-    { 0, "Disabled" },
-    { 1, "Enabled" },
-    { 0, NULL }
-};
-
 typedef struct _io_graph_settings_t {
     gboolean enabled;
     char* name;
