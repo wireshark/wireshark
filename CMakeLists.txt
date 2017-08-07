@@ -452,9 +452,15 @@ else()
 		-Wheader-guard
 	)
 
+	#
+	# Code that may be worth looking into (coding practices)
+	#
 	if((NOT ENABLE_ASAN) AND (NOT ENABLE_UBSAN))
 		#
-		# Code that may be worth looking into (coding practices)
+		# Only do this if neither ASan nor UBSan are
+		# enabled; the instrumentation they add increases
+		# the stack usage - we only care about stack
+		# usage in normal operation.
 		#
 		set(COMMON_WARN_FLAGS ${COMMON_WARN_FLAGS}
 			-Wframe-larger-than=16384
