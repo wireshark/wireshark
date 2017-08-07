@@ -569,7 +569,9 @@ else()
 		# (about glib library not using Doxygen)
 		#
 		-Wdocumentation
+		#
 		# Works only with GCC 7
+		#
 		-Wduplicated-branches
 		#
 		# No longer supported by El Capitan clang on C++
