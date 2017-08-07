@@ -3561,7 +3561,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
           proto_tree_add_item(rr_tree, hf_dns_xpf_sport, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
           cur_offset += 2;
           proto_tree_add_item(rr_tree, hf_dns_xpf_dport, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-          cur_offset += 2;
         break;
         case IP_VERSION_NUM_INET6:
           proto_tree_add_item(rr_tree, hf_dns_xpf_protocol, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
@@ -3573,7 +3572,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
           proto_tree_add_item(rr_tree, hf_dns_xpf_sport, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
           cur_offset += 2;
           proto_tree_add_item(rr_tree, hf_dns_xpf_dport, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-          cur_offset += 2;
         break;
         default: /* Add Expert info ? */
         break;
