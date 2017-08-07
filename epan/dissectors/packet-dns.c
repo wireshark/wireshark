@@ -3558,9 +3558,9 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
           cur_offset += 4;
           proto_tree_add_item(rr_tree, hf_dns_xpf_destination_ipv4, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
           cur_offset += 4;
-          proto_tree_add_item(rr_tree, hf_dns_xpf_sport, tvb, cur_offset, 2, ENC_BIG_ENDIAN);;
+          proto_tree_add_item(rr_tree, hf_dns_xpf_sport, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
           cur_offset += 2;
-          proto_tree_add_item(rr_tree, hf_dns_xpf_dport, tvb, cur_offset, 2, ENC_BIG_ENDIAN);;
+          proto_tree_add_item(rr_tree, hf_dns_xpf_dport, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
           cur_offset += 2;
         break;
         case IP_VERSION_NUM_INET6:
@@ -3570,9 +3570,9 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
           cur_offset += 16;
           proto_tree_add_item(rr_tree, hf_dns_xpf_destination_ipv6, tvb, cur_offset, 16, ENC_NA);
           cur_offset += 16;
-          proto_tree_add_item(rr_tree, hf_dns_xpf_sport, tvb, cur_offset, 2, ENC_BIG_ENDIAN);;
+          proto_tree_add_item(rr_tree, hf_dns_xpf_sport, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
           cur_offset += 2;
-          proto_tree_add_item(rr_tree, hf_dns_xpf_dport, tvb, cur_offset, 2, ENC_BIG_ENDIAN);;
+          proto_tree_add_item(rr_tree, hf_dns_xpf_dport, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
           cur_offset += 2;
         break;
         default: /* Add Expert info ? */
