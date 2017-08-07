@@ -1467,10 +1467,10 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 		if (avp_is_extended) {
 			avp_length -= 1;
 			offset += 1;
-		}
-		if (RADIUS_ATTR_TYPE_IS_EXTENDED_LONG(avp_type0)) {
-			avp_length -= 1;
-			offset += 1;
+			if (RADIUS_ATTR_TYPE_IS_EXTENDED_LONG(avp_type0)) {
+				avp_length -= 1;
+				offset += 1;
+			}
 		}
 
 		if (avp_type0 == RADIUS_ATTR_TYPE_VENDOR_SPECIFIC || (avp_is_extended && avp_type1 == RADIUS_ATTR_TYPE_VENDOR_SPECIFIC)) {
@@ -1509,10 +1509,10 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 			if (avp_is_extended) {
 				proto_tree_add_item(vendor_tree, hf_radius_avp_extended_type, tvb, vendor_offset, 1, ENC_BIG_ENDIAN);
 				vendor_offset += 1;
-			}
-			if (RADIUS_ATTR_TYPE_IS_EXTENDED_LONG(avp_type0)) {
-				proto_tree_add_item(vendor_tree, hf_radius_avp_extended_more, tvb, vendor_offset, 1, ENC_BIG_ENDIAN);
-				vendor_offset += 1;
+				if (RADIUS_ATTR_TYPE_IS_EXTENDED_LONG(avp_type0)) {
+					proto_tree_add_item(vendor_tree, hf_radius_avp_extended_more, tvb, vendor_offset, 1, ENC_BIG_ENDIAN);
+					vendor_offset += 1;
+				}
 			}
 			proto_tree_add_uint_format_value(vendor_tree, hf_radius_avp_vendor_id, tvb, vendor_offset, 4, vendor_id, "%s (%u)", vendor_str, vendor_id);
 			vendor_offset += 4;
@@ -1706,9 +1706,9 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 
 		if (avp_is_extended) {
 			proto_tree_add_item(avp_tree, hf_radius_avp_extended_type, tvb, avp_offset_start+2, 1, ENC_BIG_ENDIAN);
-		}
-		if (RADIUS_ATTR_TYPE_IS_EXTENDED_LONG(avp_type0)) {
-			proto_tree_add_item(avp_tree, hf_radius_avp_extended_more, tvb, avp_offset_start+3, 1, ENC_BIG_ENDIAN);
+			if (RADIUS_ATTR_TYPE_IS_EXTENDED_LONG(avp_type0)) {
+				proto_tree_add_item(avp_tree, hf_radius_avp_extended_more, tvb, avp_offset_start+3, 1, ENC_BIG_ENDIAN);
+			}
 		}
 
 		if (avp_type0 == RADIUS_ATTR_TYPE_EAP_MESSAGE) {
