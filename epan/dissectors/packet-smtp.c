@@ -120,6 +120,7 @@ static  dissector_handle_t smtp_handle;
 static  dissector_handle_t ssl_handle;
 static  dissector_handle_t imf_handle;
 static  dissector_handle_t ntlmssp_handle;
+static  dissector_handle_t data_text_lines_handle;
 
 /*
  * A CMD is an SMTP command, MESSAGE is the message portion, and EOM is the
@@ -760,6 +761,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                                          pinfo, spd_frame_data->conversation_id, NULL,
                                          tvb_reported_length(tvb),
                                          spd_frame_data->more_frags);
+        /* Show the text lines within this PDU fragment */
+        call_dissector(data_text_lines_handle, tvb, pinfo, smtp_tree);
       } else {
         /*
          * Message body.
@@ -1319,6 +1322,9 @@ proto_reg_handoff_smtp(void)
 
   /* find the NTLM dissector */
   ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_smtp);
+
+  /* find the data-text-lines dissector */
+  data_text_lines_handle = find_dissector_add_dependency("data-text-lines", proto_smtp);
 }
 
 /*
