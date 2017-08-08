@@ -546,28 +546,28 @@ static gboolean lua_load_script(const gchar* filename, const gchar* dirname, con
 #endif
 
     switch (error) {
-        case 0:
+        case 0: /* LUA_OK */
             if (dirname) {
                 set_file_environment(filename, dirname);
             }
             if (file_count > 0) {
                 numargs = lua_script_push_args(file_count);
             }
-            lua_pcall(L,numargs,0,1);
+            error = lua_pcall(L,numargs,0,1);
             fclose(file);
             lua_pop(L,1); /* pop the error handler */
-            return TRUE;
+            return error ? FALSE : TRUE;
         case LUA_ERRSYNTAX: {
             report_failure("Lua: syntax error during precompilation of `%s':\n%s",filename,lua_tostring(L,-1));
             fclose(file);
             return FALSE;
         }
         case LUA_ERRMEM:
-            report_failure("Lua: memory allocation error during execution of %s",filename);
+            report_failure("Lua: memory allocation error during precompilation of %s",filename);
             fclose(file);
             return FALSE;
         default:
-            report_failure("Lua: unknown error during execution of %s: %d",filename,error);
+            report_failure("Lua: unknown error during precompilation of %s: %d",filename,error);
             fclose(file);
             return FALSE;
     }
