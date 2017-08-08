@@ -1247,6 +1247,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  range_copy@Base 1.9.1
  range_empty@Base 1.9.1
  range_foreach@Base 1.9.1
+ range_foreach_r@Base 2.5.0
  range_add_value@Base 2.3.0
  range_remove_value@Base 2.3.0
  ranges_are_equal@Base 1.9.1
@@ -1477,6 +1478,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_disabled_enabled@Base 1.9.1
  tfs_do_not_clear_clear@Base 1.12.0~rc1
  tfs_down_up@Base 2.5.0
+ tfs_downlink_uplink@Base 2.5.0
  tfs_enabled_disabled@Base 1.9.1
  tfs_encrypt_do_not_encrypt@Base 2.1.0
  tfs_enforced_not_enforced@Base 1.12.0~rc1
@@ -1521,6 +1523,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_supported_not_supported@Base 1.9.1
  tfs_true_false@Base 1.9.1
  tfs_up_down@Base 2.5.0
+ tfs_uplink_downlink@Base 2.5.0
  tfs_used_notused@Base 1.9.1
  tfs_valid_invalid@Base 1.9.1
  tfs_valid_not_valid@Base 1.12.0~rc1
@@ -1696,6 +1699,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  uat_add_record@Base 1.9.1
  uat_clear@Base 1.9.1
  uat_fld_chk_bool@Base 2.5.0
+ uat_fld_chk_color@Base 2.5.0
  uat_fld_chk_enum@Base 1.9.1
  uat_fld_chk_num_dec@Base 1.9.1
  uat_fld_chk_num_hex@Base 1.9.1
