@@ -1113,15 +1113,33 @@ iso14443_block_pcb(guint8 byte)
 
 
 static iso14443_transaction_t *
-iso14443_get_transaction(packet_info *pinfo, proto_tree *tree)
+iso14443_get_transaction(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *it;
+    wmem_tree_key_t key[3];
     iso14443_transaction_t *iso14443_trans = NULL;
+    /* Is the current message a Waiting-Time-Extension request or response? */
+    gboolean wtx = (tvb_get_guint8(tvb, 0) & 0xF7) == 0xF2;
 
-    if (pinfo->p2p_dir == P2P_DIR_SENT) {
+    /* When going backwards from the current message, we want to link wtx
+       messages only to other wtx messages (and non-wtx messages to non-wtx,
+       respectively). For this to work, the wtx flag must be the first
+       component of the key. */
+    key[0].length = 1;
+    key[0].key = &wtx;
+    key[1].length = 1;
+    key[1].key = &pinfo->num;
+    key[2].length = 0;
+    key[2].key = NULL;
+
+    /* Is this a request message? WTX requests are sent by the PICC, all
+       other requests are sent by the PCD. */
+    if (((pinfo->p2p_dir == P2P_DIR_SENT) && !wtx) ||
+        ((pinfo->p2p_dir == P2P_DIR_RECV) && wtx)) {
         if (PINFO_FD_VISITED(pinfo)) {
-            iso14443_trans = (iso14443_transaction_t *)wmem_tree_lookup32(
-                    transactions, pinfo->num);
+            iso14443_trans =
+                (iso14443_transaction_t *)wmem_tree_lookup32_array(
+                    transactions, key);
             if (iso14443_trans && iso14443_trans->rqst_frame==pinfo->num &&
                     iso14443_trans->resp_frame!=0) {
                it = proto_tree_add_uint(tree, hf_iso14443_resp_in,
@@ -1130,17 +1148,17 @@ iso14443_get_transaction(packet_info *pinfo, proto_tree *tree)
             }
         }
         else {
-            iso14443_trans = wmem_new(wmem_file_scope(), iso14443_transaction_t);
+            iso14443_trans =
+                wmem_new(wmem_file_scope(), iso14443_transaction_t);
             iso14443_trans->rqst_frame = pinfo->num;
             iso14443_trans->resp_frame = 0;
-            /* iso14443_trans->ctrl = ctrl; */
-            wmem_tree_insert32(transactions,
-                    iso14443_trans->rqst_frame, (void *)iso14443_trans);
+            wmem_tree_insert32_array(transactions, key, (void *)iso14443_trans);
         }
     }
-    else if (pinfo->p2p_dir == P2P_DIR_RECV) {
-        iso14443_trans = (iso14443_transaction_t *)wmem_tree_lookup32_le(
-                transactions, pinfo->num);
+    else if (((pinfo->p2p_dir == P2P_DIR_SENT) && wtx) ||
+        ((pinfo->p2p_dir == P2P_DIR_RECV) && !wtx)) {
+        iso14443_trans = (iso14443_transaction_t *)wmem_tree_lookup32_array_le(
+                transactions, key);
         if (iso14443_trans && iso14443_trans->resp_frame==0) {
             /* there's a pending request, this packet is the response */
             iso14443_trans->resp_frame = pinfo->num;
@@ -1219,7 +1237,7 @@ dissect_iso14443_msg(tvbuff_t *tvb, packet_info *pinfo,
         crc_dropped = TRUE;
     }
 
-    iso14443_trans = iso14443_get_transaction(pinfo, tree);
+    iso14443_trans = iso14443_get_transaction(tvb, pinfo, tree);
     if (!iso14443_trans)
         return -1;
 
