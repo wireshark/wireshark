@@ -2558,6 +2558,23 @@ radius_shutdown(void)
 }
 
 static void
+_radius_load_dictionary(gchar* dir)
+{
+	gchar *dict_err_str = NULL;
+
+	if (!dir || test_for_directory(dir) != EISDIR) {
+		return;
+	}
+
+	radius_load_dictionary(dict, dir, "dictionary", &dict_err_str);
+
+	if (dict_err_str) {
+		report_failure("radius: %s", dict_err_str);
+		g_free(dict_err_str);
+	}
+}
+
+static void
 register_radius_fields(const char *unused _U_)
 {
 	hf_register_info base_hf[] = {
@@ -2756,7 +2773,6 @@ register_radius_fields(const char *unused _U_)
 	expert_module_t *expert_radius;
 	hfett_t ri;
 	char *dir = NULL;
-	gchar *dict_err_str = NULL;
 
 	ri.hf = wmem_array_new(wmem_epan_scope(), sizeof(hf_register_info));
 	ri.ett = wmem_array_new(wmem_epan_scope(), sizeof(gint *));
@@ -2765,33 +2781,16 @@ register_radius_fields(const char *unused _U_)
 	wmem_array_append(ri.hf, base_hf, array_length(base_hf));
 	wmem_array_append(ri.ett, base_ett, array_length(base_ett));
 
-	dir = get_persconffile_path("radius", FALSE);
 
-	if (test_for_directory(dir) != EISDIR) {
-		/* Although dir isn't a directory it may still use memory */
-		g_free(dir);
-
-		dir = get_datafile_path("radius");
-
-		if (test_for_directory(dir) != EISDIR) {
-			g_free(dir);
-			dir = NULL;
-		}
-	}
-
-	if (dir) {
-		radius_load_dictionary(dict, dir, "dictionary", &dict_err_str);
-
-		if (dict_err_str) {
-			report_failure("radius: %s", dict_err_str);
-			g_free(dict_err_str);
-		}
-
-		g_hash_table_foreach(dict->attrs_by_id, register_attrs, &ri);
-		g_hash_table_foreach(dict->vendors_by_id, register_vendors, &ri);
-	}
-
+	dir = get_datafile_path("radius");
+	_radius_load_dictionary(dir);
 	g_free(dir);
+	dir = get_persconffile_path("radius", FALSE);
+	_radius_load_dictionary(dir);
+	g_free(dir);
+
+	g_hash_table_foreach(dict->attrs_by_id, register_attrs, &ri);
+	g_hash_table_foreach(dict->vendors_by_id, register_vendors, &ri);
 
 	proto_register_field_array(proto_radius, (hf_register_info *)wmem_array_get_raw(ri.hf), wmem_array_get_count(ri.hf));
 	proto_register_subtree_array((gint **)wmem_array_get_raw(ri.ett), wmem_array_get_count(ri.ett));
