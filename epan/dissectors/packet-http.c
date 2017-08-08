@@ -3300,12 +3300,12 @@ dissect_ssdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 }
 
 static void
-range_delete_http_ssl_callback(guint32 port) {
+range_delete_http_ssl_callback(guint32 port, gpointer ptr _U_) {
 	ssl_dissector_delete(port, http_ssl_handle);
 }
 
 static void
-range_add_http_ssl_callback(guint32 port) {
+range_add_http_ssl_callback(guint32 port, gpointer ptr _U_) {
 	ssl_dissector_add(port, http_ssl_handle);
 }
 
@@ -3317,10 +3317,10 @@ static void reinit_http(void) {
 	http_sctp_range = range_copy(wmem_epan_scope(), global_http_sctp_range);
 	dissector_add_uint_range("sctp.port", http_sctp_range, http_sctp_handle);
 
-	range_foreach(http_ssl_range, range_delete_http_ssl_callback);
+	range_foreach(http_ssl_range, range_delete_http_ssl_callback, NULL);
 	wmem_free(wmem_epan_scope(), http_ssl_range);
 	http_ssl_range = range_copy(wmem_epan_scope(), global_http_ssl_range);
-	range_foreach(http_ssl_range, range_add_http_ssl_callback);
+	range_foreach(http_ssl_range, range_add_http_ssl_callback, NULL);
 }
 
 void

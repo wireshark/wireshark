@@ -522,7 +522,7 @@ parse_service_line (char *line)
         }
         cb_data.service = service;
         cb_data.proto = proto;
-        range_foreach_r(port_rng, add_serv_port_cb, &cb_data);
+        range_foreach(port_rng, add_serv_port_cb, &cb_data);
     }
 
     wmem_free (NULL, port_rng);

@@ -23348,14 +23348,14 @@ gsm_map_stat_free_table_item(stat_tap_table* table _U_, guint row _U_, guint col
 }
 
 /*--- proto_reg_handoff_gsm_map ---------------------------------------*/
-static void range_delete_callback(guint32 ssn)
+static void range_delete_callback(guint32 ssn, gpointer ptr _U_)
 {
   if (ssn) {
     delete_itu_tcap_subdissector(ssn, map_handle);
   }
 }
 
-static void range_add_callback(guint32 ssn)
+static void range_add_callback(guint32 ssn, gpointer ptr _U_)
 {
   if (ssn) {
    add_itu_tcap_subdissector(ssn, map_handle);
@@ -23485,12 +23485,12 @@ void proto_reg_handoff_gsm_map(void) {
     register_ber_oid_dissector("1.3.12.2.1107.3.66.1.6",dissect_NokiaMAP_ext_AllowedServiceData,proto_gsm_map,"Nokia AllowedServiceData Extension");
   }
   else {
-    range_foreach(ssn_range, range_delete_callback);
+    range_foreach(ssn_range, range_delete_callback, NULL);
     wmem_free(wmem_epan_scope(), ssn_range);
   }
 
   ssn_range = range_copy(wmem_epan_scope(), global_ssn_range);
-  range_foreach(ssn_range, range_add_callback);
+  range_foreach(ssn_range, range_add_callback, NULL);
 
 }
 

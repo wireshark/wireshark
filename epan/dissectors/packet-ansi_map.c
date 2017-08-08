@@ -16078,17 +16078,17 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     return tvb_captured_length(tvb);
 }
 
-static void range_delete_callback(guint32 ssn)
+static void range_delete_callback(guint32 ssn, gpointer ptr _U_)
 {
     if (ssn) {
-        delete_ansi_tcap_subdissector(ssn , ansi_map_handle);
+        delete_ansi_tcap_subdissector(ssn, ansi_map_handle);
     }
 }
 
-static void range_add_callback(guint32 ssn)
+static void range_add_callback(guint32 ssn, gpointer ptr _U_)
 {
     if (ssn) {
-        add_ansi_tcap_subdissector(ssn , ansi_map_handle);
+        add_ansi_tcap_subdissector(ssn, ansi_map_handle);
     }
 }
 
@@ -16202,13 +16202,13 @@ proto_reg_handoff_ansi_map(void)
     }
     else
     {
-        range_foreach(ssn_range, range_delete_callback);
+        range_foreach(ssn_range, range_delete_callback, NULL);
         wmem_free(wmem_epan_scope(), ssn_range);
     }
 
     ssn_range = range_copy(wmem_epan_scope(), global_ssn_range);
 
-    range_foreach(ssn_range, range_add_callback);
+    range_foreach(ssn_range, range_add_callback, NULL);
 }
 
 /*--- proto_register_ansi_map -------------------------------------------*/

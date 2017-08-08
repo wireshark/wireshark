@@ -583,13 +583,13 @@ proto_register_vp8(void)
 }
 
 static void
-range_delete_vp8_rtp_pt_callback(guint32 rtp_pt) {
+range_delete_vp8_rtp_pt_callback(guint32 rtp_pt, gpointer ptr _U_) {
     if ((rtp_pt >= 96) && (rtp_pt <= 127))
         dissector_delete_uint("rtp.pt", rtp_pt, vp8_handle);
 }
 
 static void
-range_add_vp8_rtp_pt_callback(guint32 rtp_pt) {
+range_add_vp8_rtp_pt_callback(guint32 rtp_pt, gpointer ptr _U_) {
     if ((rtp_pt >= 96) && (rtp_pt <= 127))
         dissector_add_uint("rtp.pt", rtp_pt, vp8_handle);
 }
@@ -604,12 +604,12 @@ proto_reg_handoff_vp8(void)
         dissector_add_string("rtp_dyn_payload_type" , "VP8", vp8_handle);
         vp8_prefs_initialized = TRUE;
     } else {
-        range_foreach(dynamic_payload_type_range, range_delete_vp8_rtp_pt_callback);
+        range_foreach(dynamic_payload_type_range, range_delete_vp8_rtp_pt_callback, NULL);
         wmem_free(wmem_epan_scope(), dynamic_payload_type_range);
     }
 
     dynamic_payload_type_range = range_copy(wmem_epan_scope(), temp_dynamic_payload_type_range);
-    range_foreach(dynamic_payload_type_range, range_add_vp8_rtp_pt_callback);
+    range_foreach(dynamic_payload_type_range, range_add_vp8_rtp_pt_callback, NULL);
 }
 
 /*

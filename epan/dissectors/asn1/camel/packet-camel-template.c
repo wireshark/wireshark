@@ -1282,14 +1282,14 @@ camel_stat_free_table_item(stat_tap_table* table _U_, guint row _U_, guint colum
 }
 
 /*--- proto_reg_handoff_camel ---------------------------------------*/
-static void range_delete_callback(guint32 ssn)
+static void range_delete_callback(guint32 ssn, gpointer ptr _U_)
 {
   if (ssn) {
     delete_itu_tcap_subdissector(ssn, camel_handle);
   }
 }
 
-static void range_add_callback(guint32 ssn)
+static void range_add_callback(guint32 ssn, gpointer ptr _U_)
 {
   if (ssn) {
     add_itu_tcap_subdissector(ssn, camel_handle);
@@ -1317,13 +1317,13 @@ void proto_reg_handoff_camel(void) {
 
 #include "packet-camel-dis-tab.c"
   } else {
-    range_foreach(ssn_range, range_delete_callback);
+    range_foreach(ssn_range, range_delete_callback, NULL);
     wmem_free(wmem_epan_scope(), ssn_range);
   }
 
   ssn_range = range_copy(wmem_epan_scope(), global_ssn_range);
 
-  range_foreach(ssn_range, range_add_callback);
+  range_foreach(ssn_range, range_add_callback, NULL);
 
 }
 

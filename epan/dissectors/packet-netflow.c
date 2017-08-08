@@ -16667,7 +16667,7 @@ dissect_tcp_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
  * protocol/port association
  */
 static void
-ipfix_delete_callback(guint32 port)
+ipfix_delete_callback(guint32 port, gpointer ptr _U_)
 {
     if ( port ) {
         dissector_delete_uint("udp.port",  port, netflow_handle);
@@ -16676,7 +16676,7 @@ ipfix_delete_callback(guint32 port)
 }
 
 static void
-ipfix_add_callback(guint32 port)
+ipfix_add_callback(guint32 port, gpointer ptr _U_)
 {
     if ( port ) {
         dissector_add_uint("udp.port",  port, netflow_handle);
@@ -16700,7 +16700,7 @@ proto_reg_handoff_netflow(void)
     } else {
         dissector_delete_uint_range("udp.port", netflow_ports, netflow_handle);
         wmem_free(wmem_epan_scope(), netflow_ports);
-        range_foreach(ipfix_ports, ipfix_delete_callback);
+        range_foreach(ipfix_ports, ipfix_delete_callback, NULL);
         wmem_free(wmem_epan_scope(), ipfix_ports);
     }
 
@@ -16708,7 +16708,7 @@ proto_reg_handoff_netflow(void)
     ipfix_ports = range_copy(wmem_epan_scope(), global_ipfix_ports);
 
     dissector_add_uint_range("udp.port", netflow_ports, netflow_handle);
-    range_foreach(ipfix_ports, ipfix_add_callback);
+    range_foreach(ipfix_ports, ipfix_add_callback, NULL);
 }
 
 /*

@@ -402,26 +402,14 @@ ranges_are_equal(range_t *a, range_t *b)
  * in the range.
  */
 void
-range_foreach(range_t *range, void (*callback)(guint32 val))
+range_foreach(range_t *range, void (*callback)(guint32 val, gpointer ptr), gpointer ptr)
 {
    guint32 i, j;
 
    if (range && callback) {
       for (i=0; i < range->nranges; i++) {
          for (j = range->ranges[i].low; j <= range->ranges[i].high; j++)
-            callback(j);
-      }
-   }
-}
-
-void range_foreach_r(range_t *range, void (*callback2)(guint32 val, gpointer ptr), gpointer ptr)
-{
-   guint32 i, j;
-
-   if (range && callback2) {
-      for (i=0; i < range->nranges; i++) {
-         for (j = range->ranges[i].low; j <= range->ranges[i].high; j++)
-            callback2(j, ptr);
+            callback(j, ptr);
       }
    }
 }

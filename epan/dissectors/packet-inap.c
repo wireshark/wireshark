@@ -9393,14 +9393,14 @@ dissect_inap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
 }
 
 /*--- proto_reg_handoff_inap ---------------------------------------*/
-static void range_delete_callback(guint32 ssn)
+static void range_delete_callback(guint32 ssn, gpointer ptr _U_)
 {
   if (ssn) {
     delete_itu_tcap_subdissector(ssn, inap_handle);
   }
 }
 
-static void range_add_callback(guint32 ssn)
+static void range_add_callback(guint32 ssn, gpointer ptr _U_)
 {
   if (ssn) {
   add_itu_tcap_subdissector(ssn, inap_handle);
@@ -9421,13 +9421,13 @@ void proto_reg_handoff_inap(void) {
     oid_add_from_string("iso(1) member-body(2) gb(826) national(0) ericsson(1249) inDomain(51) inNetwork(1) inNetworkcapabilitySet1plus(1) ","1.2.826.0.1249.51.1.1");
   }
   else {
-    range_foreach(ssn_range, range_delete_callback);
+    range_foreach(ssn_range, range_delete_callback, NULL);
     wmem_free(wmem_epan_scope(), ssn_range);
   }
 
   ssn_range = range_copy(wmem_epan_scope(), global_ssn_range);
 
-  range_foreach(ssn_range, range_add_callback);
+  range_foreach(ssn_range, range_add_callback, NULL);
 
 }
 

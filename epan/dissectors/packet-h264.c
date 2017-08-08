@@ -2714,12 +2714,12 @@ dissect_h264_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree, void*
 }
 
 
-static void range_delete_h264_rtp_pt_callback(guint32 rtp_pt) {
+static void range_delete_h264_rtp_pt_callback(guint32 rtp_pt, gpointer ptr _U_) {
     if (rtp_pt >= 96 && rtp_pt <= 127)
         dissector_delete_uint("rtp.pt", rtp_pt, h264_handle);
 }
 
-static void range_add_h264_rtp_pt_callback(guint32 rtp_pt) {
+static void range_add_h264_rtp_pt_callback(guint32 rtp_pt, gpointer ptr _U_) {
     if (rtp_pt >= 96 && rtp_pt <= 127)
         dissector_add_uint("rtp.pt", rtp_pt, h264_handle);
 }
@@ -3729,12 +3729,12 @@ proto_reg_handoff_h264(void)
         }
         h264_prefs_initialized = TRUE;
     } else {
-        range_foreach(dynamic_payload_type_range, range_delete_h264_rtp_pt_callback);
+        range_foreach(dynamic_payload_type_range, range_delete_h264_rtp_pt_callback, NULL);
         wmem_free(wmem_epan_scope(), dynamic_payload_type_range);
     }
 
     dynamic_payload_type_range = range_copy(wmem_epan_scope(), temp_dynamic_payload_type_range);
-    range_foreach(dynamic_payload_type_range, range_add_h264_rtp_pt_callback);
+    range_foreach(dynamic_payload_type_range, range_add_h264_rtp_pt_callback, NULL);
 }
 
 /*

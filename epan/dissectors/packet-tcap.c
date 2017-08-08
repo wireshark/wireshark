@@ -3686,14 +3686,14 @@ proto_register_tcap(void)
 }
 
 
-static void range_delete_callback(guint32 ssn)
+static void range_delete_callback(guint32 ssn, gpointer ptr _U_)
 {
   if ( ssn && !get_ansi_tcap_subdissector(ssn) && !get_itu_tcap_subdissector(ssn) ) {
     dissector_delete_uint("sccp.ssn", ssn, tcap_handle);
   }
 }
 
-static void range_add_callback(guint32 ssn)
+static void range_add_callback(guint32 ssn, gpointer ptr _U_)
 {
   if (ssn && !get_ansi_tcap_subdissector(ssn) && !get_itu_tcap_subdissector(ssn) ) {
     dissector_add_uint("sccp.ssn", ssn, tcap_handle);
@@ -3704,7 +3704,7 @@ static void range_add_callback(guint32 ssn)
 static void init_tcap(void)
 {
   ssn_range = range_copy(wmem_epan_scope(), global_ssn_range);
-  range_foreach(ssn_range, range_add_callback);
+  range_foreach(ssn_range, range_add_callback, NULL);
 
   /* Reset the session counter */
   tcapsrt_global_SessionId=1;
@@ -3715,7 +3715,7 @@ static void init_tcap(void)
 
 static void cleanup_tcap(void)
 {
-  range_foreach(ssn_range, range_delete_callback);
+  range_foreach(ssn_range, range_delete_callback, NULL);
   wmem_free(wmem_epan_scope(), ssn_range);
 }
 
