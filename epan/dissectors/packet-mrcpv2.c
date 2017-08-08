@@ -1023,8 +1023,8 @@ dissect_mrcpv2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     value_size = dot_offset - slash_offset - 1;
     if ((value_size != 1) && (value_size != 2))
         return 0;
-    major = tvb_get_string_enc(wmem_packet_scope(), tvb, slash_offset + 1, dot_offset - 1, ENC_ASCII);
-    if (ws_strtou32(major, NULL, &value) || value != 2)
+    major = tvb_get_string_enc(wmem_packet_scope(), tvb, slash_offset + 1, value_size, ENC_ASCII);
+    if (!ws_strtou32(major, NULL, &value) || value != 2)
         return 0;
 
     /* get second digit, it should be 0 */
@@ -1039,7 +1039,7 @@ dissect_mrcpv2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         minor = tvb_get_string_enc(wmem_packet_scope(), tvb, dot_offset + 1, MRCPV2_MIN_LENGTH - sp_offset - 1, ENC_ASCII);
         len = sp_offset;
     }
-    if (ws_strtou32(minor, NULL, &value) || value != 0)
+    if (!ws_strtou32(minor, NULL, &value) || value != 0)
         return 0;
 
     /* if we are here, then we have MRCP v 2.0 protocol, so proceed with the dissection */
