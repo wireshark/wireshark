@@ -530,7 +530,7 @@ static void dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_t
                                 DISSECTOR_ASSERT(reported_length >= 0);
                                 if (reported_length > tlv_len)
                                         reported_length = tlv_len;
-                                next_tvb = tvb_new_subset_length(tvb, *offset, tlv_len);
+                                next_tvb = tvb_new_subset_length(tvb, *offset, reported_length);
                                 dissect_msdp(next_tvb, pinfo, tree, NULL);
                         }
                         *offset += tlv_len;
@@ -541,7 +541,7 @@ static void dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_t
                                 DISSECTOR_ASSERT(reported_length >= 0);
                                 if (reported_length > tlv_len)
                                         reported_length = tlv_len;
-                                next_tvb = tvb_new_subset_length(tvb, *offset, tlv_len);
+                                next_tvb = tvb_new_subset_length(tvb, *offset, reported_length);
                                 dissect_msdp(next_tvb, pinfo, tree, NULL);
                         }
                         *offset += tlv_len;
@@ -567,7 +567,7 @@ static void dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_t
                         DISSECTOR_ASSERT(reported_length >= 0);
                         if (reported_length > tlv_len)
                                 reported_length = tlv_len;
-                        next_tvb = tvb_new_subset_length(tvb, *offset, tlv_len);
+                        next_tvb = tvb_new_subset_length(tvb, *offset, reported_length);
                         dissect_msdp(next_tvb, pinfo, tree, NULL);
                 }
                 *offset += tlv_len;
