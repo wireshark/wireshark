@@ -939,7 +939,7 @@ get_datafile_dir(void)
 /*
  * Find the directory where the plugins are stored.
  *
- * On Windows, we use the plugin/{VERSION} subdirectory of the datafile
+ * On Windows, we use the plugin\{VERSION} subdirectory of the datafile
  * directory, where {VERSION} is the version number of this version of
  * Wireshark.
  *
