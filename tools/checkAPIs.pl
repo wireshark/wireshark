@@ -1882,6 +1882,9 @@ sub check_pref_var_dupes($$)
         my ($filecontentsref, $filename) = @_;
         my $errorcount = 0;
 
+        # Avoid flagging the actual prototypes
+        return 0 if $filename =~ /prefs\.[ch]$/;
+
         # remove macro lines
         my $filecontents = ${$filecontentsref};
         $filecontents =~ s { ^\s*\#.*$} []xogm;
