@@ -2888,6 +2888,9 @@ static int      hf_pie_ixia_dns_txt                     = -1;
 static int      hf_pie_ixia_source_as_name              = -1;
 static int      hf_pie_ixia_dest_as_name                = -1;
 static int      hf_pie_ixia_transaction_latency         = -1;
+static int      hf_pie_ixia_dns_query_names             = -1;
+static int      hf_pie_ixia_dns_answer_names            = -1;
+static int      hf_pie_ixia_dns_classes                 = -1;
 
 static int      hf_pie_netscaler                                         = -1;
 static int      hf_pie_netscaler_roundtriptime                           = -1;
@@ -9024,6 +9027,18 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case ((VENDOR_IXIA << 16) | 188):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_transaction_latency,
                                      tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 189):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_query_names,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 190):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_answer_names,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 191):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_classes,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
             break;
             /* END Ixia Communications */
 
@@ -15389,9 +15404,30 @@ proto_register_netflow(void)
 
         /* ixia, 3054 / 188 */
         {&hf_pie_ixia_transaction_latency,
-         {"Transaction Latency (ms)", "cflow.pie.ixia.transact-latency-ms",
+         {"Transaction Latency (us)", "cflow.pie.ixia.transact-latency-us",
           FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL}
+        },
+
+        /* ixia, 3054 / 189 */
+        {&hf_pie_ixia_dns_query_names,
+         {"DNS Query Names", "cflow.pie.ixia.dns-query-names",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "Names in the Query section of a DNS message (comma separated list)", HFILL}
+        },
+
+        /* ixia, 3054 / 190 */
+        {&hf_pie_ixia_dns_answer_names,
+         {"DNS Answer Names", "cflow.pie.ixia.dns-answer-names",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "Names in the Answer section of a DNS message (comma separated list)", HFILL}
+        },
+
+        /* ixia, 3054 / 191 */
+        {&hf_pie_ixia_dns_classes,
+         {"DNS Classes", "cflow.pie.ixia.dns-classes",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "Class types appearing in a DNS message (comma separated list)", HFILL}
         },
 
         /* Netscaler root (a hidden item to allow filtering) */
