@@ -24,14 +24,14 @@
 #include <ui/qt/widgets/editor_file_dialog.h>
 
 EditorFileDialog::EditorFileDialog(const QModelIndex& index, QWidget* parent, Qt::WindowFlags flags)
-	: QFileDialog(parent, flags)
-	, index_(index)
+    : QFileDialog(parent, flags)
+    , index_(index)
 {
 }
 
 EditorFileDialog::EditorFileDialog(const QModelIndex& index, QWidget* parent, const QString& caption, const QString& directory, const QString& filter)
-	: QFileDialog(parent, caption, directory, filter)
-	, index_(index)
+    : QFileDialog(parent, caption, directory, filter)
+    , index_(index)
 {
 }
 
