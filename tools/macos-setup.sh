@@ -1592,7 +1592,33 @@ uninstall_libxml2() {
 install_lz4() {
     if [ "$LZ4_VERSION" -a ! -f lz4-$LZ4_VERSION-done ] ; then
         echo "Downloading, building, and installing lz4:"
-        [ -f lz4-$LZ4_VERSION.tar.gz ] || curl -L -o lz4-$LZ4_VERSION.tar.gz https://github.com/lz4/lz4/archive/v$LZ4_VERSION.tar.gz  || exit 1
+        #
+        # lz4 switched from sequentially numbered releases, named rN,
+        # to vX.Y.Z-numbered releases.
+        #
+        # The old sequentially-numbered releases were in tarballs
+        # at https://github.com/lz4/lz4/archive/rN.tar.gz, which
+        # extract into an lz4-rN directory.
+        #
+        # THe new vX.Y.Z-numbered releases are in tarballs at
+        # https://github.com/lz4/lz4/archive/vX.Y.Z.tar.gz, which
+        # extract into an lz4-X.Y.Z directory - no, not lz4-vX.Y.Z,
+        # just lz4-X.Y.Z.
+        #
+        # We expect LZ4_VERSION to be set to rN for the sequentially-
+        # numbered releases and X.Y.Z - not vX.Y.Z - for the vX.Y.Z-
+        # numbered releases.  We also tell Curl to download the tarball
+        # with a name that corresponds to the name of the target
+        # directory, so that it begins with "lz4-" and ends with either
+        # "rN" or "X.Y.Z", to match what almost all of the other
+        # support libraries do.
+        #
+        if [[ "$LZ4_VERSION" == r* ]]
+        then
+            [ -f lz4-$LZ4_VERSION.tar.gz ] || curl -L -o lz4-$LZ4_VERSION.tar.gz https://github.com/lz4/lz4/archive/$LZ4_VERSION.tar.gz  || exit 1
+        else
+            [ -f lz4-$LZ4_VERSION.tar.gz ] || curl -L -o lz4-$LZ4_VERSION.tar.gz https://github.com/lz4/lz4/archive/v$LZ4_VERSION.tar.gz  || exit 1
+        fi
         $no_build && echo "Skipping installation" && return
         gzcat lz4-$LZ4_VERSION.tar.gz | tar xf - || exit 1
         cd lz4-$LZ4_VERSION
