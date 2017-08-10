@@ -3041,12 +3041,13 @@ static const value_string str_vta_type[] = {
 
 static const value_string str_additional_vta_type[] = {
     {0x00, "Not Applicable"},
-    {0x30, "4018"},
-    {0x31, "4028S"},
+    {0x30, "8018"},
+    {0x31, "8028S"},
     {0x32, "8058S"},
     {0x33, "4068S"},
     {0x34, "8078S"},
     {0x35, "8088"},
+    {0x36, "8008"},
     {0, NULL}
 };
 
