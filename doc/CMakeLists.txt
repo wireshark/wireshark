@@ -70,15 +70,12 @@ else()
 endif()
 
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/androiddump 1)
-pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/asn2deb     1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/udpdump     1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/capinfos    1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/captype     1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/dftest      1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/dumpcap     1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/editcap     1)
-pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/idl2deb     1)
-pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/idl2wrs     1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/mergecap    1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/randpkt     1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/randpktdump 1)
@@ -93,8 +90,15 @@ pod2manhtml(${CMAKE_CURRENT_BINARY_DIR}/wireshark   1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/extcap           4)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/wireshark-filter 4)
 
+if (BUILD_corbaidl2wrs)
+	pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/idl2wrs     1)
+endif()
+if (BUILD_xxx2deb)
+	pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/asn2deb     1)
+	pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/idl2deb     1)
+endif()
+
 set(MAN1_INSTALL_FILES
-	${CMAKE_CURRENT_BINARY_DIR}/asn2deb.1
 	${CMAKE_CURRENT_BINARY_DIR}/androiddump.1
 	${CMAKE_CURRENT_BINARY_DIR}/udpdump.1
 	${CMAKE_CURRENT_BINARY_DIR}/capinfos.1
@@ -103,8 +107,6 @@ set(MAN1_INSTALL_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/dftest.1
 	${CMAKE_CURRENT_BINARY_DIR}/dumpcap.1
 	${CMAKE_CURRENT_BINARY_DIR}/editcap.1
-	${CMAKE_CURRENT_BINARY_DIR}/idl2deb.1
-	${CMAKE_CURRENT_BINARY_DIR}/idl2wrs.1
 	${CMAKE_CURRENT_BINARY_DIR}/mergecap.1
 	${CMAKE_CURRENT_BINARY_DIR}/randpkt.1
 	${CMAKE_CURRENT_BINARY_DIR}/randpktdump.1
@@ -116,6 +118,16 @@ set(MAN1_INSTALL_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/tshark.1
 	${CMAKE_CURRENT_BINARY_DIR}/wireshark.1
 )
+
+if (BUILD_corbaidl2wrs)
+	list(APPEND MAN1_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/idl2wrs.1)
+endif()
+if (BUILD_xxx2deb)
+	list(APPEND MAN1_INSTALL_FILES
+		${CMAKE_CURRENT_BINARY_DIR}/asn2deb.1
+		${CMAKE_CURRENT_BINARY_DIR}/idl2deb.1
+	)
+endif()
 
 set(MAN4_INSTALL_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/extcap.4
@@ -131,7 +143,6 @@ add_custom_target(manpages DEPENDS
 )
 
 set(HTML_INSTALL_FILES
-	${CMAKE_CURRENT_BINARY_DIR}/asn2deb.html
 	${CMAKE_CURRENT_BINARY_DIR}/androiddump.html
 	${CMAKE_CURRENT_BINARY_DIR}/udpdump.html
 	${CMAKE_CURRENT_BINARY_DIR}/capinfos.html
@@ -141,8 +152,6 @@ set(HTML_INSTALL_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/dumpcap.html
 	${CMAKE_CURRENT_BINARY_DIR}/editcap.html
 	${CMAKE_CURRENT_BINARY_DIR}/extcap.html
-	${CMAKE_CURRENT_BINARY_DIR}/idl2deb.html
-	${CMAKE_CURRENT_BINARY_DIR}/idl2wrs.html
 	${CMAKE_CURRENT_BINARY_DIR}/mergecap.html
 	${CMAKE_CURRENT_BINARY_DIR}/randpkt.html
 	${CMAKE_CURRENT_BINARY_DIR}/randpktdump.html
@@ -155,6 +164,16 @@ set(HTML_INSTALL_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/wireshark.html
 	${CMAKE_CURRENT_BINARY_DIR}/wireshark-filter.html
 )
+
+if (BUILD_corbaidl2wrs)
+	list(APPEND HTML_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/idl2wrs.html)
+endif()
+if (BUILD_xxx2deb)
+	list(APPEND HTML_INSTALL_FILES
+		${CMAKE_CURRENT_BINARY_DIR}/asn2deb.html
+		${CMAKE_CURRENT_BINARY_DIR}/idl2deb.html
+	)
+endif()
 
 add_custom_target(
 	docs ALL

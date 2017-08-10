@@ -66,6 +66,7 @@ pkgconfig_DATA = wireshark.pc
 profilesdir = $(pkgdatadir)
 nobase_dist_profiles_DATA = \
 	profiles/Bluetooth/colorfilters \
+	profiles/Bluetooth/preferences \
 	profiles/Classic/colorfilters
 
 #

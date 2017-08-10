@@ -1626,7 +1626,7 @@ set(TSHARK_TAP_SRC
 set(INSTALL_DIRS
 	diameter
 	dtds
-	help
+	${DATAFILE_DIR}/help
 	profiles
 	radius
 	tpncp
@@ -1646,7 +1646,6 @@ set(INSTALL_FILES
 	wka
 	docbook/ws.css
 	${CMAKE_BINARY_DIR}/doc/AUTHORS-SHORT
-	${CMAKE_BINARY_DIR}/doc/asn2deb.html
 	${CMAKE_BINARY_DIR}/doc/androiddump.html
 	${CMAKE_BINARY_DIR}/doc/udpdump.html
 	${CMAKE_BINARY_DIR}/doc/capinfos.html
@@ -1656,8 +1655,6 @@ set(INSTALL_FILES
 	${CMAKE_BINARY_DIR}/doc/dumpcap.html
 	${CMAKE_BINARY_DIR}/doc/editcap.html
 	${CMAKE_BINARY_DIR}/doc/extcap.html
-	${CMAKE_BINARY_DIR}/doc/idl2deb.html
-	${CMAKE_BINARY_DIR}/doc/idl2wrs.html
 	${CMAKE_BINARY_DIR}/doc/mergecap.html
 	${CMAKE_BINARY_DIR}/doc/randpkt.html
 	${CMAKE_BINARY_DIR}/doc/randpktdump.html
@@ -1669,6 +1666,16 @@ set(INSTALL_FILES
 	${CMAKE_BINARY_DIR}/doc/wireshark.html
 	${CMAKE_BINARY_DIR}/doc/wireshark-filter.html
 )
+
+if (BUILD_corbaidl2wrs)
+	list(APPEND INSTALL_FILES ${CMAKE_BINARY_DIR}/doc/idl2wrs.html)
+endif()
+if (BUILD_xxx2deb)
+	list(APPEND INSTALL_FILES
+		${CMAKE_BINARY_DIR}/doc/asn2deb.html
+		${CMAKE_BINARY_DIR}/doc/idl2deb.html
+	)
+endif()
 
 if(WIN32)
 	set(TEXTIFY_FILES COPYING NEWS README README.windows)
@@ -1968,16 +1975,19 @@ if(ENABLE_EXTCAP)
 	)
 	list(APPEND copy_data_files_depends "${DATAFILE_DIR}/extcap")
 endif()
-set(_help_files
+
+# faq.txt is handled separately below.
+set(_help_source_files
 	help/capture_filters.txt
 	help/capturing.txt
 	help/display_filters.txt
 	help/getting_started.txt
 	help/overview.txt
 )
+
 if(WIN32)
 	file(TO_NATIVE_PATH "${DATAFILE_DIR}/help" _help_dest_dir)
-	foreach(_help_file IN LISTS _help_files)
+	foreach(_help_file IN LISTS _help_source_files)
 		add_custom_command(OUTPUT "${DATAFILE_DIR}/${_help_file}"
 			COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}/help"
 			COMMAND ${POWERSHELL_COMMAND} "${CMAKE_SOURCE_DIR}/tools/textify.ps1"
@@ -1989,7 +1999,7 @@ if(WIN32)
 		list(APPEND copy_data_files_depends "${DATAFILE_DIR}/${_help_file}")
 	endforeach()
 else()
-	list(APPEND DATA_FILES_SRC ${_help_files})
+	list(APPEND DATA_FILES_SRC ${_help_source_files})
 endif(WIN32)
 
 # Create help/faq.txt when missing
@@ -2724,6 +2734,24 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 	endif()
 endif()
 
+# We have two idl2wrs utilities: this and the CORBA version in tools.
+# We probably shouldn't do that.
+if(BUILD_dcerpcidl2wrs)
+	set(idl2wrs_LIBS
+		${GLIB2_LIBRARIES}
+		wsutil
+	)
+	set(idl2wrs_FILES
+		epan/dissectors/dcerpc/idl2wrs.c
+	)
+
+	add_executable(idl2wrs ${idl2wrs_FILES})
+	set_target_properties(idl2wrs PROPERTIES FOLDER "Executables")
+	set_extra_executable_properties(idl2wrs "Executables")
+	target_link_libraries(idl2wrs ${idl2wrs_LIBS})
+	install(TARGETS idl2wrs RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
+
 if (WIN32)
 	find_package( MSVC_REDIST )
 
@@ -2937,6 +2965,7 @@ set(CLEAN_C_FILES
 	${capinfos_FILES}
 	${captype_FILES}
 	${editcap_FILES}
+	${idl2wrs_FILES}
 	${dumpcap_FILES}
 	${androiddump_FILES}
 	${sshdump_FILES}
@@ -3015,7 +3044,6 @@ install(
 	PATTERN ".git" EXCLUDE
 	PATTERN ".svn" EXCLUDE
 	PATTERN "Makefile.*" EXCLUDE
-	PATTERN "faq.py" EXCLUDE
 )
 
 set(CMAKE_INSTALL_MODULES_DIR ${CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME})
