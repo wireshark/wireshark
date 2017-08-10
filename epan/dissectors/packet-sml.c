@@ -2395,11 +2395,11 @@ static void dissect_sml_file(tvbuff_t *tvb, packet_info *pinfo, gint *offset, pr
 				}
 
 				proto_tree_add_checksum(crc16_tree, tvb, *offset, hf_sml_crc16, hf_sml_crc16_status, &ei_sml_crc_error, pinfo, crc_check,
-									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+									ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
 			}
 			else {
 				proto_tree_add_checksum(crc16_tree, tvb, *offset, hf_sml_crc16, hf_sml_crc16_status, &ei_sml_crc_error, pinfo, 0,
-									ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+									ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 			}
 			*offset+=data;
 
@@ -2469,11 +2469,11 @@ static void dissect_sml_file(tvbuff_t *tvb, packet_info *pinfo, gint *offset, pr
 			crc_check = crc16_ccitt_tvb_offset(tvb,*offset-crc_file_len, crc_file_len);
 
 			proto_tree_add_checksum(msgend_tree, tvb, *offset, hf_sml_crc16, hf_sml_crc16_status, &ei_sml_crc_error, pinfo, crc_check,
-									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+									ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
 		}
 		else {
 			proto_tree_add_checksum(msgend_tree, tvb, *offset, hf_sml_crc16, hf_sml_crc16_status, &ei_sml_crc_error, pinfo, crc_check,
-									ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+									ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 		}
 		*offset+=2;
 
