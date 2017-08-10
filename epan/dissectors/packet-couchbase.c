@@ -318,12 +318,16 @@ static int hf_extras_flags_dcp_snapshot_marker_chk = -1;
 static int hf_extras_flags_dcp_snapshot_marker_ack = -1;
 static int hf_extras_flags_dcp_include_xattrs = -1;
 static int hf_extras_flags_dcp_no_value = -1;
+static int hf_subdoc_doc_flags = -1;
+static int hf_subdoc_doc_flags_mkdoc = -1;
+static int hf_subdoc_doc_flags_add = -1;
+static int hf_subdoc_doc_flags_accessdeleted = -1;
+static int hf_subdoc_doc_flags_reserved = -1;
 static int hf_subdoc_flags = -1;
 static int hf_subdoc_flags_mkdirp = -1;
-static int hf_subdoc_flags_mkdoc = -1;
 static int hf_subdoc_flags_xattrpath = -1;
-static int hf_subdoc_flags_accessdeleted = -1;
 static int hf_subdoc_flags_expandmacros = -1;
+static int hf_subdoc_flags_reserved = -1;
 static int hf_extras_seqno = -1;
 static int hf_extras_opaque = -1;
 static int hf_extras_reserved = -1;
@@ -672,10 +676,17 @@ static const int * datatype_vals[] = {
 
 static const int * subdoc_flags[] = {
   &hf_subdoc_flags_mkdirp,
-  &hf_subdoc_flags_mkdoc,
   &hf_subdoc_flags_xattrpath,
-  &hf_subdoc_flags_accessdeleted,
   &hf_subdoc_flags_expandmacros,
+  &hf_subdoc_flags_reserved,
+  NULL
+};
+
+static const int * subdoc_doc_flags[] = {
+  &hf_subdoc_doc_flags_mkdoc,
+  &hf_subdoc_doc_flags_add,
+  &hf_subdoc_doc_flags_accessdeleted,
+  &hf_subdoc_doc_flags_reserved,
   NULL
 };
 
@@ -1149,6 +1160,11 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case PROTOCOL_BINARY_CMD_SUBDOC_EXISTS:
     dissect_subdoc_spath_required_extras(tvb, extras_tree, extlen, request,
                                          &offset, path_len, &illegal);
+    if (extlen == 4) {
+      proto_tree_add_bitmask(extras_tree, tvb, offset, hf_subdoc_doc_flags,
+                             ett_extras_flags, subdoc_doc_flags, ENC_BIG_ENDIAN);
+      offset += 1;
+    }
     break;
 
   case PROTOCOL_BINARY_CMD_SUBDOC_DICT_ADD:
@@ -1164,11 +1180,21 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                          &offset, path_len, &illegal);
     if (request) {
       /* optional expiry only permitted for mutation requests,
-         iff extlen == 7 */
-      if (extlen == 7) {
-        proto_tree_add_item(extras_tree, hf_extras_expiration, tvb, offset, 4, ENC_BIG_ENDIAN);
+         if and only if (extlen == 7 || extlen == 8) */
+      if (extlen == 7 || extlen == 8) {
+        proto_tree_add_item(extras_tree, hf_extras_expiration, tvb, offset,
+                            4, ENC_BIG_ENDIAN);
         offset += 4;
-      } else if (extlen != 3) {
+      }
+      /* optional doc flags only permitted if and only if
+         (extlen == 4 || extlen == 8) */
+      if (extlen == 4 || extlen == 8) {
+        proto_tree_add_bitmask(extras_tree, tvb, offset, hf_subdoc_doc_flags,
+                               ett_extras_flags, subdoc_doc_flags,
+                               ENC_BIG_ENDIAN);
+        offset += 1;
+      }
+      if (extlen != 3 && extlen != 7 && extlen != 4 && extlen != 8) {
         illegal = TRUE;
       }
     }
@@ -1176,7 +1202,30 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   case PROTOCOL_BINARY_CMD_SUBDOC_MULTI_LOOKUP:
     if (request) {
-      if (extlen) {
+      if (extlen == 1) {
+        proto_tree_add_bitmask(extras_tree, tvb, offset, hf_subdoc_doc_flags,
+                               ett_extras_flags, subdoc_doc_flags,
+                               ENC_BIG_ENDIAN);
+        offset += 1;
+      } else {
+        illegal = TRUE;
+      }
+    }
+    break;
+
+  case PROTOCOL_BINARY_CMD_SUBDOC_MULTI_MUTATION:
+    if (request) {
+      if (extlen == 4 || extlen == 5) {
+        proto_tree_add_item(extras_tree, hf_extras_expiration, tvb, offset, 4,
+                            ENC_BIG_ENDIAN);
+        offset += 4;
+      }
+      if (extlen == 1 || extlen == 5) {
+        proto_tree_add_bitmask(extras_tree, tvb, offset, hf_subdoc_doc_flags,
+                               ett_extras_flags, subdoc_doc_flags, ENC_BIG_ENDIAN);
+        offset += 1;
+      }
+      if (extlen != 1 && extlen != 4 && extlen != 5) {
         illegal = TRUE;
       }
     }
@@ -2035,10 +2084,14 @@ proto_register_couchbase(void)
     /* Sub-document */
     { &hf_subdoc_flags, { "Subdoc flags", "couchbase.extras.subdoc.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL} },
     { &hf_subdoc_flags_mkdirp, { "MKDIR_P", "couchbase.extras.subdoc.flags.mkdir_p", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01, "Create non-existent intermediate paths", HFILL} },
-    { &hf_subdoc_flags_mkdoc, { "MKDOC", "couchbase.extras.subdoc.flags.mkdoc", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, "Create document if it does not exist, implies mkdir_p", HFILL} },
     { &hf_subdoc_flags_xattrpath, { "XATTR_PATH", "couchbase.extras.subdoc.flags.xattr_path", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04, "If set path refers to extended attribute (XATTR)", HFILL} },
-    { &hf_subdoc_flags_accessdeleted, { "ACCESS_DELETED", "couchbase.extras.subdoc.flags.access_deleted", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08, "Allow access to XATTRs for deleted documents", HFILL} },
     { &hf_subdoc_flags_expandmacros, { "EXPAND_MACROS", "couchbase.extras.subdoc.flags.expand_macros", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10, "Expand macro values inside XATTRs", HFILL} },
+    { &hf_subdoc_flags_reserved, {"Reserved fields", "couchbase.extras.subdoc.flags.reserved", FT_UINT8, BASE_HEX, NULL, 0xEA, "A reserved field", HFILL} },
+    { &hf_subdoc_doc_flags, { "Subdoc Doc flags", "couchbase.extras.subdoc.doc_flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+    { &hf_subdoc_doc_flags_mkdoc, { "MKDOC", "couchbase.extras.subdoc.doc_flags.mkdoc", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01, "Create document if it does not exist, implies mkdir_p", HFILL} },
+    { &hf_subdoc_doc_flags_add, { "ADD", "couchbase.extras.subdoc.doc_flags.add", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, "Fail if doc already exists", HFILL} },
+    { &hf_subdoc_doc_flags_accessdeleted, { "ACCESS_DELETED", "couchbase.extras.subdoc.doc_flags.access_deleted", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04, "Allow access to XATTRs for deleted documents", HFILL} },
+    { &hf_subdoc_doc_flags_reserved, {"Reserved fields", "couchbase.extras.subdoc.doc_flags.reserved", FT_UINT8, BASE_HEX, NULL, 0xF8, "A reserved field", HFILL} },
     { &hf_extras_pathlen, { "Path Length", "couchbase.extras.pathlen", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
     /* DCP flags */
