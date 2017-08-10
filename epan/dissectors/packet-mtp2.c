@@ -189,7 +189,7 @@ mtp2_decode_crc16(tvbuff_t *tvb, proto_tree *fh_tree, packet_info *pinfo)
      * Compute the FCS and put it into the tree.
      */
     proto_tree_add_checksum(fh_tree, tvb, proto_offset + len, hf_mtp2_fcs_16, hf_mtp2_fcs_16_status, &ei_mtp2_checksum_error, pinfo, mtp2_fcs16(tvb),
-                            ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+                            ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
   }
   return next_tvb;
 }
