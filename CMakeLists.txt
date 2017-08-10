@@ -182,9 +182,19 @@ if(NOT LIBRARY_OUTPUT_PATH)
 		   "Single output directory for building all libraries.")
 endif()
 
-# Under linux the release mode (CMAKE_BUILD_TYPE=release) defines NDEBUG
+# Under Linux the release mode (CMAKE_BUILD_TYPE=release) defines NDEBUG
 #Defines CMAKE_INSTALL_BINDIR, CMAKE_INSTALL_DATADIR, etc ...
 include(CMakeInstallDirs)
+# Make sure our executables can can load our libraries if we install into
+# a non-default directory on UNIX/Linux.
+# https://cmake.org/Wiki/CMake_RPATH_handling
+if(NOT (WIN32 OR APPLE))
+	LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" IS_SYSTEM_DIR)
+	if("${IS_SYSTEM_DIR}" STREQUAL "-1")
+		SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+		SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+	endif("${IS_SYSTEM_DIR}" STREQUAL "-1")
+endif()
 
 # Banner shown at top right of Qt welcome screen.
 if(DEFINED ENV{WIRESHARK_VERSION_FLAVOR})
