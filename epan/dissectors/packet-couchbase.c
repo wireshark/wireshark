@@ -264,6 +264,7 @@
 #define PROTOCOL_BINARY_CMD_GET_CMD_TIMER           0xf3
 #define PROTOCOL_BINARY_CMD_SET_CTRL_TOKEN          0xf4
 #define PROTOCOL_BINARY_CMD_GET_CTRL_TOKEN          0xf5
+#define PROTOCOL_BINARY_CMD_GET_ERROR_MAP           0xfe
 
  /* vBucket states */
 #define VBUCKET_ACTIVE                              0x01
@@ -358,6 +359,8 @@ static int hf_observe_last_persisted_seqno = -1;
 static int hf_observe_current_seqno = -1;
 static int hf_observe_old_vbucket_uuid = -1;
 static int hf_observe_last_received_seqno = -1;
+
+static int hf_get_errmap_version = -1;
 
 static int hf_failover_log = -1;
 static int hf_failover_log_size = -1;
@@ -637,6 +640,7 @@ static const value_string opcode_vals[] = {
   { PROTOCOL_BINARY_CMD_GET_CMD_TIMER,              "Internal Timer Control"   },
   { PROTOCOL_BINARY_CMD_SET_CTRL_TOKEN,             "Set Control Token"        },
   { PROTOCOL_BINARY_CMD_GET_CTRL_TOKEN,             "Get Control Token"        },
+  { PROTOCOL_BINARY_CMD_GET_ERROR_MAP,              "Get Error Map"            },
 
   /* Internally defined values not valid here */
   { 0, NULL }
@@ -1731,6 +1735,13 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       opcode == PROTOCOL_BINARY_CMD_ADDQ_WITH_META )) {
 
       dissect_dcp_xattrs(tvb, tree, value_len, offset, pinfo);
+    } else if (request && opcode == PROTOCOL_BINARY_CMD_GET_ERROR_MAP) {
+      if (value_len != 2) {
+        expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Illegal Value length, should be 2");
+        ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
+      } else {
+        ti = proto_tree_add_item(tree, hf_get_errmap_version, tvb, offset, value_len, ENC_BIG_ENDIAN);
+      }
     } else {
       ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
     }
@@ -2087,6 +2098,8 @@ proto_register_couchbase(void)
     { &hf_observe_old_vbucket_uuid, { "Old VBucket UUID", "couchbase.observe.old_vbucket_uuid", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_observe_last_received_seqno, { "Last received sequence number", "couchbase.observe.last_received_seqno", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_observe_failed_over, { "Failed over", "couchbase.observe.failed_over", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+
+    { &hf_get_errmap_version, {"Version", "couchbase.geterrmap.version", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL} },
 
     { &hf_multipath_opcode, { "Opcode", "couchbase.multipath.opcode", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &opcode_vals_ext, 0x0, "Command code", HFILL } },
     { &hf_multipath_index, { "Index", "couchbase.multipath.index", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
