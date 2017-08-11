@@ -153,7 +153,8 @@ struct tcaphash_cont_info_key_t {
 struct tcaphash_end_info_key_t {
   guint32 hashKey;
   guint32 tid;
-  guint32 pc_hash;
+  guint32 opc_hash;
+  guint32 dpc_hash;
 };
 
 struct tcaphash_ansi_info_key_t {
