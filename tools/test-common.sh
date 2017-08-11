@@ -125,10 +125,11 @@ export ASAN_OPTIONS=detect_leaks=0
 
 # See if we were configured with gcc or clang's AddressSanitizer.
 CONFIGURED_WITH_ASAN=0
-if [ -r "$WIRESHARK_BIN_DIR/Makefile" ] ; then
-    grep -- "-fsanitize=address" "$WIRESHARK_BIN_DIR/Makefile" > /dev/null 2>&1 && CONFIGURED_WITH_ASAN=1
-elif [ -r "$WIRESHARK_BIN_DIR/../CMakeFiles/tshark.dir/flags.make" ] ; then
-    grep -- "-fsanitize=address" "$WIRESHARK_BIN_DIR/../CMakeFiles/tshark.dir/flags.make" > /dev/null 2>&1 && CONFIGURED_WITH_ASAN=1
+# If tshark is built with ASAN this will generate an error. We could
+# also pass help=1 and look for help text.
+ASAN_OPTIONS=Invalid_Option_Flag $TSHARK -h > /devnull 2>&1
+if [ $? -ne 0 ] ; then
+    CONFIGURED_WITH_ASAN=1
 fi
 export CONFIGURED_WITH_ASAN
 
