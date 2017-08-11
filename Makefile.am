@@ -837,6 +837,7 @@ EXTRA_DIST = \
 	README.hpux		\
 	README.linux		\
 	README.macos		\
+	README.md		\
 	README.vmware		\
 	README.windows		\
 	abi-descriptor.template	\

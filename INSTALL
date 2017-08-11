@@ -52,7 +52,7 @@ README.windows for those instructions.
    install a "development" package; for example, there's
    apparently a "libpcap0" Debian package, but it just includes a
    shared library, a copyright notice, changelog files, and a
-   README file - you also need to install a "libpcap-dev" package
+   README.md file - you also need to install a "libpcap-dev" package
    to get header files, a non-shared library, and the man page.
    Similarly, Red Hat users will need to install a "libpcap-devel"
    .rpm to go along with the "libpcap" .rpm.

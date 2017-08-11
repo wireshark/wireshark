@@ -16,10 +16,10 @@ Before starting to develop a new dissector, a "running" Wireshark build
 environment is required - there's no such thing as a standalone "dissector
 build toolkit".
 
-How to setup such an environment is platform dependent; detailed information
-about these steps can be found in the "Developer's Guide" (available from:
-https://www.wireshark.org) and in the INSTALL and README files of the sources
-root dir.
+How to setup such an environment is platform dependent; detailed
+information about these steps can be found in the "Developer's Guide"
+(available from: https://www.wireshark.org) and in the INSTALL and
+README.md files of the sources root dir.
 
 0.1. Dissector related README files.
 
