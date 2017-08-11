@@ -1780,6 +1780,12 @@ parse_options (int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
+    if (max_offset > WTAP_MAX_PACKET_SIZE_STANDARD) {
+        fprintf(stderr, "Maximum packet length cannot be more than %d bytes\n",
+                WTAP_MAX_PACKET_SIZE_STANDARD);
+        return EXIT_FAILURE;
+    }
+
     if (strcmp(argv[optind], "-") != 0) {
         input_filename = argv[optind];
         input_file = ws_fopen(input_filename, "rb");
