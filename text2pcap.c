@@ -1759,6 +1759,12 @@ parse_options (int argc, char *argv[])
         exit(1);
     }
 
+    if (max_offset > MAX_PACKET) {
+        fprintf(stderr, "Maximum packet length cannot be more than %d bytes\n",
+                MAX_PACKET);
+        exit(1);
+    }
+
     if (strcmp(argv[optind], "-") != 0) {
         input_filename = g_strdup(argv[optind]);
         input_file = ws_fopen(input_filename, "rb");
