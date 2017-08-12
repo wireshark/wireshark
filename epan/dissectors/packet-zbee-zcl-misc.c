@@ -704,6 +704,7 @@ static int hf_zbee_zcl_ias_zone_type = -1;
 static int hf_zbee_zcl_ias_zone_status = -1;
 static int hf_zbee_zcl_ias_zone_delay = -1;
 static int hf_zbee_zcl_ias_zone_ext_status = -1;
+static int hf_zbee_zcl_ias_zone_manufacturer_code = -1;
 static int hf_zbee_zcl_ias_zone_status_ac_mains = -1;
 static int hf_zbee_zcl_ias_zone_status_alarm1 = -1;
 static int hf_zbee_zcl_ias_zone_status_alarm2 = -1;
@@ -859,8 +860,16 @@ dissect_zbee_zcl_ias_zone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                 offset += 1;
                 proto_tree_add_item(tree, hf_zbee_zcl_ias_zone_delay, tvb, offset, 2,
                     ENC_LITTLE_ENDIAN);
+                break;
 
             case ZBEE_ZCL_CMD_ID_IAS_ZONE_ENROLL_REQUEST:
+                proto_tree_add_item(tree, hf_zbee_zcl_ias_zone_type, tvb, offset, 2,
+                    ENC_LITTLE_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(tree, hf_zbee_zcl_ias_zone_manufacturer_code,
+                    tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                break;
+
             default:
                 break;
         } /* switch */
@@ -962,6 +971,10 @@ proto_register_zbee_zcl_ias_zone(void)
 
         { &hf_zbee_zcl_ias_zone_type,
             { "ZoneType", "zbee_zcl_ias.zone.type", FT_UINT16, BASE_HEX, VALS(zbee_ias_type_names), 0x0, NULL, HFILL }},
+
+        { &hf_zbee_zcl_ias_zone_manufacturer_code,
+            { "ManufacturerCode", "zbee_zcl_ias.zone.manufacturer_code", FT_UINT16, BASE_HEX, VALS(zbee_mfr_code_names),
+            0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ias_zone_status,
             { "ZoneStatus", "zbee_zcl_ias.zone.status", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
