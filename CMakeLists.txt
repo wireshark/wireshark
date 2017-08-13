@@ -188,7 +188,7 @@ include(CMakeInstallDirs)
 # Make sure our executables can can load our libraries if we install into
 # a non-default directory on UNIX/Linux.
 # https://cmake.org/Wiki/CMake_RPATH_handling
-if(NOT (WIN32 OR APPLE))
+if(NOT CMAKE_INSTALL_RPATH AND NOT (WIN32 OR APPLE))
 	LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" IS_SYSTEM_DIR)
 	if("${IS_SYSTEM_DIR}" STREQUAL "-1")
 		SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
