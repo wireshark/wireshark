@@ -11304,6 +11304,7 @@ rwp             30100/tcp # Remote Window Protocol [Maxim_Baklanovsky] [Maxim_Ba
 rwp             30100/sctp # Remote Window Protocol [Maxim_Baklanovsky] [Maxim_Baklanovsky] 2015-05-20
 kingdomsonline  30260/tcp # Kingdoms Online (CraigAvenue) [Drake_Bankston] [Drake_Bankston] 2009-08-18
 kingdomsonline  30260/udp # Kingdoms Online (CraigAvenue) [Drake_Bankston] [Drake_Bankston] 2009-08-18
+gs-realtime     30400/tcp # GroundStar RealTime System [INFORM_GmbH] [Benjamin_Schleinzer] 2017-08-10
 samsung-disc    30832/udp # Samsung Convergence Discovery Protocol [Samsung_2] [Young_Ki_Kim] 2013-05-29
 ovobs           30999/tcp # OpenView Service Desk Client [Service_Desk_Product] [Service_Desk_Product] 2006-05
 ovobs           30999/udp # OpenView Service Desk Client [Service_Desk_Product] [Service_Desk_Product] 2006-05
