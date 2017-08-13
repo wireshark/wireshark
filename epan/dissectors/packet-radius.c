@@ -1577,6 +1577,7 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 
 				avp_vsa_len -= avp_vsa_header_len;
 
+				memset(&vendor_type, 0, sizeof(vendor_type));
 				if (avp_is_extended) {
 					vendor_type.u8_code[0] = avp_type.u8_code[0];
 					vendor_type.u8_code[1] = avp_vsa_type;
