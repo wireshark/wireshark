@@ -24,10 +24,12 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
+#include <epan/oui.h>
 
 #include "packet-ieee80211.h"
 
 void proto_register_p2p(void);
+void proto_reg_handoff_p2p(void);
 
 enum {
   P2P_ATTR_STATUS = 0,
@@ -419,6 +421,7 @@ static int hf_p2p_anqp_query_data = -1;
 static int hf_p2p_anqp_status_code = -1;
 static int hf_p2p_anqp_response_data = -1;
 
+static int hf_p2p_wfa_subtype = -1;
 static int hf_p2p_action_subtype = -1;
 static int hf_p2p_action_dialog_token = -1;
 static int hf_p2p_public_action_subtype = -1;
@@ -1190,12 +1193,23 @@ int dissect_wifi_p2p_public_action(packet_info *pinfo, proto_tree *tree,
   return offset;
 }
 
-int dissect_wifi_p2p_action(proto_tree *tree, tvbuff_t *tvb, int offset)
+static int
+dissect_wifi_p2p_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-  proto_tree_add_item(tree, hf_p2p_action_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+  int offset = 0;
+  guint32 subtype;
+
+  proto_tree_add_item_ret_uint(tree, hf_p2p_wfa_subtype, tvb, offset, 1, ENC_NA, &subtype);
   offset++;
-  proto_tree_add_item(tree, hf_p2p_action_dialog_token, tvb, offset, 1, ENC_BIG_ENDIAN);
-  offset++;
+
+  if (subtype == 9 /* WFA_SUBTYPE_P2P */ )
+  {
+    proto_tree_add_item(tree, hf_p2p_action_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_item(tree, hf_p2p_action_dialog_token, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+  }
+
   /* Followed by variable length IEs dissected by packet-ieee80211.c */
   return offset;
 }
@@ -1774,6 +1788,10 @@ proto_register_p2p(void)
       { "Response Data", "wifi_p2p.anqp.response_data",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
+    {&hf_p2p_wfa_subtype,
+     {"WFA Subtype", "wifi_p2p.wfa_subtype",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
     { &hf_p2p_action_subtype,
       { "P2P Action Subtype", "wifi_p2p.action.subtype",
         FT_UINT8, BASE_DEC, VALS(p2p_action_subtypes), 0x0, NULL, HFILL }},
@@ -1811,6 +1829,12 @@ proto_register_p2p(void)
 
   expert_p2p = expert_register_protocol(proto_p2p);
   expert_register_field_array(expert_p2p, ei, array_length(ei));
+}
+
+void
+proto_reg_handoff_p2p(void)
+{
+  dissector_add_uint("wlan.action.vendor_specific", OUI_WFA, create_dissector_handle(dissect_wifi_p2p_action, proto_p2p));
 }
 
 /*

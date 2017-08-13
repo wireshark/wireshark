@@ -5119,7 +5119,8 @@ static dissector_handle_t eth_withoutfcs_handle;
 static capture_dissector_handle_t llc_cap_handle;
 static capture_dissector_handle_t ipx_cap_handle;
 
-dissector_table_t tagged_field_table;
+static dissector_table_t tagged_field_table;
+static dissector_table_t vendor_specific_action_table;
 
 static int wlan_tap = -1;
 
@@ -5760,9 +5761,10 @@ get_tagged_parameter_tree(proto_tree * tree, tvbuff_t *tvb, int start, int size)
 
 
 static int
-dissect_vendor_action_marvell(proto_tree *tree, tvbuff_t *tvb, int offset)
+dissect_vendor_action_marvell(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
   guint8 octet;
+  int offset = 0;
 
   octet = tvb_get_guint8(tvb, offset);
   proto_tree_add_item(tree, hf_ieee80211_ff_marvell_action_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -8486,28 +8488,25 @@ add_ff_action_vendor_specific(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 {
   guint   start = offset;
   guint32 oui;
-  guint8  subtype;
+  tvbuff_t *vendor_tvb;
+  int dissected;
 
   offset += add_ff_category_code(tree, tvb, pinfo, offset);
   oui = tvb_get_ntoh24(tvb, offset);
   proto_tree_add_item(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
   offset += 3;
-  switch (oui) {
-  case OUI_MARVELL:
-    offset = dissect_vendor_action_marvell(tree, tvb, offset);
-    break;
-  case OUI_WFA:
-    subtype = tvb_get_guint8(tvb, offset);
-      proto_tree_add_item(tree, hf_ieee80211_tag_oui_wfa_subtype, tvb, offset, 1, ENC_NA);
-    offset += 1;
-    if (subtype == WFA_SUBTYPE_P2P) {
-      offset = dissect_wifi_p2p_action(tree, tvb, offset);
-    }
-    break;
-  default:
-    /* Don't know how to handle this vendor */
-    break;
+
+  vendor_tvb = tvb_new_subset_remaining(tvb, offset);
+  dissected = dissector_try_uint_new(vendor_specific_action_table, oui, vendor_tvb, pinfo, tree, FALSE, NULL);
+  if (dissected <= 0)
+  {
+      call_data_dissector(vendor_tvb, pinfo, tree);
+      /* don't advance the dissector pointer as this will probably cause more malformed packets
+         if vendor is unknown. It also matches previous behavior (before dissection table implementation) */
+      dissected = 0;
   }
+
+  offset += dissected;
 
   return offset - start;  /* Size of fixed fields */
 }
@@ -28131,6 +28130,7 @@ proto_register_ieee80211(void)
   set_address(&bssid_broadcast, wlan_bssid_address_type, 6, bssid_broadcast_data);
 
   tagged_field_table = register_dissector_table("wlan.tag.number", "IEEE 802.11 Fields", proto_wlan, FT_UINT8, BASE_DEC);
+  vendor_specific_action_table = register_dissector_table("wlan.action.vendor_specific", "IEEE802.11 Vendor Specific Action", proto_wlan, FT_UINT24, BASE_HEX);
 
   /* Register configuration options */
   wlan_module = prefs_register_protocol(proto_wlan, init_wepkeys);
@@ -28510,6 +28510,10 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.tag.number", TAG_DMG_LINK_MARGIN, create_dissector_handle(ieee80211_tag_dmg_link_margin, -1));
   dissector_add_uint("wlan.tag.number", TAG_DMG_LINK_ADAPTION_ACK, create_dissector_handle(ieee80211_tag_dmg_link_adaption_ack, -1));
   dissector_add_uint("wlan.tag.number", TAG_SWITCHING_STREAM, create_dissector_handle(ieee80211_tag_switching_stream, -1));
+
+  /* Vendor specfic actions */
+  dissector_add_uint("wlan.action.vendor_specific", OUI_MARVELL, create_dissector_handle(dissect_vendor_action_marvell, -1));
+
 }
 
 /*
