@@ -2601,7 +2601,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <name>IOGraph</name>
     <message>
         <source>Unknown</source>
-        <translation>Sconosciuto</translation>
+        <translation type="vanished">Sconosciuto</translation>
     </message>
 </context>
 <context>
@@ -2700,31 +2700,31 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation>Nome</translation>
+        <translation type="vanished">Nome</translation>
     </message>
     <message>
         <source>Display filter</source>
-        <translation>Filtro di visualizzazione</translation>
+        <translation type="vanished">Filtro di visualizzazione</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation>Colore</translation>
+        <translation type="vanished">Colore</translation>
     </message>
     <message>
         <source>Style</source>
-        <translation>Stile</translation>
+        <translation type="vanished">Stile</translation>
     </message>
     <message>
         <source>Y Axis</source>
-        <translation>Asse Y</translation>
+        <translation type="vanished">Asse Y</translation>
     </message>
     <message>
         <source>Y Field</source>
-        <translation>Campo Y</translation>
+        <translation type="vanished">Campo Y</translation>
     </message>
     <message>
         <source>Smoothing</source>
-        <translation>Smussatura</translation>
+        <translation type="vanished">Smussatura</translation>
     </message>
     <message>
         <source>Remove this graph.</source>
@@ -3609,13 +3609,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
 </context>
 <context>
-    <name>InterfaceSortFilterModel</name>
-    <message>
-        <source>No interfaces to be displayed. %1 interfaces filtered.</source>
-        <translation type="vanished">Nessuna interfaccia da visualizzare. %1 interfacce filtrate.</translation>
-    </message>
-</context>
-<context>
     <name>InterfaceToolbar</name>
     <message>
         <source>Frame</source>
@@ -3628,82 +3621,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Interface</source>
         <translation>Interfaccia</translation>
-    </message>
-</context>
-<context>
-    <name>InterfaceTreeModel</name>
-    <message>
-        <source>No Interfaces found.</source>
-        <oldsource>No Interfaces found!</oldsource>
-        <translation type="vanished">Nessuna interfaccia trovata.</translation>
-    </message>
-    <message>
-        <source>Show</source>
-        <translation type="vanished">Mostra</translation>
-    </message>
-    <message>
-        <source>Friendly Name</source>
-        <translation type="vanished">Nome intuitivo</translation>
-    </message>
-    <message>
-        <source>Interface Name</source>
-        <translation type="vanished">Nome interfaccia</translation>
-    </message>
-    <message>
-        <source>Local Pipe Path</source>
-        <translation type="vanished">Percorso pipe locale</translation>
-    </message>
-    <message>
-        <source>Comment</source>
-        <translation type="vanished">Commento</translation>
-    </message>
-    <message>
-        <source>Link-Layer Header</source>
-        <translation type="vanished">Intestazione livello di collegamento</translation>
-    </message>
-    <message>
-        <source>Promiscuous</source>
-        <translation type="vanished">Promiscua</translation>
-    </message>
-    <message>
-        <source>Snaplen (B)</source>
-        <translation type="vanished">Lunghezza di cattura (B)</translation>
-    </message>
-    <message>
-        <source>Buffer (MB)</source>
-        <translation type="vanished">Buffer (MB)</translation>
-    </message>
-    <message>
-        <source>Monitor Mode</source>
-        <translation type="vanished">Modalità di monitoraggio</translation>
-    </message>
-    <message>
-        <source>Capture Filter</source>
-        <translation type="vanished">Filtro di cattura</translation>
-    </message>
-    <message>
-        <source>Addresses</source>
-        <translation type="vanished">Indirizzi</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="vanished">Indirizzo</translation>
-    </message>
-    <message>
-        <source>Extcap interface: %1</source>
-        <translation type="vanished">Interfaccia Extcap: %1</translation>
-    </message>
-    <message>
-        <source>No addresses</source>
-        <translation type="vanished">Nessun indirizzo</translation>
-    </message>
-    <message>
-        <source>No capture filter</source>
-        <translation type="vanished">Nessun filtro di cattura</translation>
-    </message>
-    <message>
-        <source>Capture filter</source>
-        <translation type="vanished">Filtro di cattura</translation>
     </message>
 </context>
 <context>
@@ -4795,15 +4712,15 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Status Bar settings:</source>
-        <translation type="unfinished"></translation>
+        <translation>Impostazioni barra di stato:</translation>
     </message>
     <message>
         <source>Show selected packet number</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra il numero dei pacchetti selezionati</translation>
     </message>
     <message>
         <source>Show file load time</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra il tempo di caricamento dei file</translation>
     </message>
 </context>
 <context>
@@ -5261,6 +5178,10 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Profilo: </translation>
     </message>
     <message>
+        <source>Selected Packet: %1 %2 </source>
+        <translation>Pacchetto selezionato: %1 %2 </translation>
+    </message>
+    <message>
         <source>Packets: %1 %4 Displayed: %2 (%3%)</source>
         <oldsource>Packets: %1 %4 Displayed: %2 %4 Marked: %3</oldsource>
         <translation>Pacchetti: %1 %4 visualizzati: %2 (%3%)</translation>
@@ -5289,10 +5210,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Packets: %1</source>
         <translation>Pacchetti: %1</translation>
-    </message>
-    <message>
-        <source>Selected Packet: %1 %2 </source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8049,17 +7966,6 @@ a:hover {
     </message>
 </context>
 <context>
-    <name>PacketListModel</name>
-    <message>
-        <source>Dissecting</source>
-        <translation type="vanished">Decodifica</translation>
-    </message>
-    <message>
-        <source>Sorting &quot;%1&quot;</source>
-        <translation type="vanished">Ordinamento di &quot;%1&quot;</translation>
-    </message>
-</context>
-<context>
     <name>PacketRangeGroupBox</name>
     <message>
         <source>Form</source>
@@ -8104,17 +8010,6 @@ a:hover {
     <message>
         <source>Captured</source>
         <translation>Catturati</translation>
-    </message>
-</context>
-<context>
-    <name>PathChooserDelegate</name>
-    <message>
-        <source>Browse</source>
-        <translation type="vanished">Sfoglia</translation>
-    </message>
-    <message>
-        <source>Open Pipe</source>
-        <translation type="vanished">Apri una pipe</translation>
     </message>
 </context>
 <context>
@@ -8491,79 +8386,79 @@ a:hover {
     </message>
     <message>
         <source>Packets</source>
-        <translation>Pacchetti</translation>
+        <translation type="vanished">Pacchetti</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation>Byte</translation>
+        <translation type="vanished">Byte</translation>
     </message>
     <message>
         <source>Bits</source>
-        <translation>Bit</translation>
+        <translation type="vanished">Bit</translation>
     </message>
     <message>
         <source>SUM(Y Field)</source>
-        <translation>SOMMA (Campo Y)</translation>
+        <translation type="vanished">SOMMA (Campo Y)</translation>
     </message>
     <message>
         <source>COUNT FRAMES(Y Field)</source>
-        <translation>CONTA FRAME (Campo Y)</translation>
+        <translation type="vanished">CONTA FRAME (Campo Y)</translation>
     </message>
     <message>
         <source>COUNT FIELDS(Y Field)</source>
-        <translation>CONTA CAMPI (Campo Y)</translation>
+        <translation type="vanished">CONTA CAMPI (Campo Y)</translation>
     </message>
     <message>
         <source>MAX(Y Field)</source>
-        <translation>MAX (Campo Y)</translation>
+        <translation type="vanished">MAX (Campo Y)</translation>
     </message>
     <message>
         <source>MIN(Y Field)</source>
-        <translation>MIN (Campo Y)</translation>
+        <translation type="vanished">MIN (Campo Y)</translation>
     </message>
     <message>
         <source>AVG(Y Field)</source>
-        <translation>MED (Campo Y)</translation>
+        <translation type="vanished">MED (Campo Y)</translation>
     </message>
     <message>
         <source>LOAD(Y Field)</source>
-        <translation>CARICO (Campo Y)</translation>
+        <translation type="vanished">CARICO (Campo Y)</translation>
     </message>
     <message>
         <source>Line</source>
-        <translation>Linea</translation>
+        <translation type="vanished">Linea</translation>
     </message>
     <message>
         <source>Impulse</source>
-        <translation>Impulso</translation>
+        <translation type="vanished">Impulso</translation>
     </message>
     <message>
         <source>Bar</source>
-        <translation>Barra</translation>
+        <translation type="vanished">Barra</translation>
     </message>
     <message>
         <source>Stacked Bar</source>
-        <translation>Barre impilate</translation>
+        <translation type="vanished">Barre impilate</translation>
     </message>
     <message>
         <source>Dot</source>
-        <translation>Punto</translation>
+        <translation type="vanished">Punto</translation>
     </message>
     <message>
         <source>Square</source>
-        <translation>Quadrato</translation>
+        <translation type="vanished">Quadrato</translation>
     </message>
     <message>
         <source>Diamond</source>
-        <translation>Diamante</translation>
+        <translation type="vanished">Diamante</translation>
     </message>
     <message>
         <source>None</source>
-        <translation>Nessuno</translation>
+        <translation type="vanished">Nessuno</translation>
     </message>
     <message>
         <source>%1 interval SMA</source>
-        <translation>%1 intervallo SMA</translation>
+        <translation type="vanished">%1 intervallo SMA</translation>
     </message>
     <message>
         <source>[no capture file]</source>
@@ -8639,7 +8534,7 @@ a:hover {
     </message>
     <message>
         <source>Multiple problems found</source>
-        <translation type="unfinished">Rilevati numerosi problemi</translation>
+        <translation>Rilevati diversi problemi</translation>
     </message>
     <message>
         <source>%1 (%L2%)</source>
@@ -11365,13 +11260,6 @@ a:hover {
     </message>
 </context>
 <context>
-    <name>SimpleDialog</name>
-    <message>
-        <source>Multiple problems found</source>
-        <translation type="vanished">Rilevati numerosi problemi</translation>
-    </message>
-</context>
-<context>
     <name>SplashOverlay</name>
     <message>
         <source>Form</source>
@@ -12347,61 +12235,6 @@ a:hover {
     <message>
         <source>No Audio</source>
         <translation>Nessun audio</translation>
-    </message>
-</context>
-<context>
-    <name>VoipCallsInfoModel</name>
-    <message>
-        <source>On</source>
-        <translation type="vanished">Acceso</translation>
-    </message>
-    <message>
-        <source>Off</source>
-        <translation type="vanished">Spento</translation>
-    </message>
-    <message>
-        <source>Tunneling: %1  Fast Start: %2</source>
-        <translation type="vanished">Tunnel: %1  Avvio veloce: %2</translation>
-    </message>
-    <message>
-        <source>Start Time</source>
-        <translation type="vanished">Orario di inizio</translation>
-    </message>
-    <message>
-        <source>Stop Time</source>
-        <translation type="vanished">Orario di fine</translation>
-    </message>
-    <message>
-        <source>Initial Speaker</source>
-        <translation type="vanished">Oratore iniziale</translation>
-    </message>
-    <message>
-        <source>From</source>
-        <translation type="vanished">Da</translation>
-    </message>
-    <message>
-        <source>To</source>
-        <translation type="vanished">A</translation>
-    </message>
-    <message>
-        <source>Protocol</source>
-        <translation type="vanished">Protocollo</translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation type="vanished">Durata</translation>
-    </message>
-    <message>
-        <source>Packets</source>
-        <translation type="vanished">Pacchetti</translation>
-    </message>
-    <message>
-        <source>State</source>
-        <translation type="vanished">Stato</translation>
-    </message>
-    <message>
-        <source>Comments</source>
-        <translation type="vanished">Commenti</translation>
     </message>
 </context>
 <context>

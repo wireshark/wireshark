@@ -2607,7 +2607,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <name>IOGraph</name>
     <message>
         <source>Unknown</source>
-        <translation>Nieznany</translation>
+        <translation type="vanished">Nieznany</translation>
     </message>
 </context>
 <context>
@@ -2699,31 +2699,31 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation>Nazwa</translation>
+        <translation type="vanished">Nazwa</translation>
     </message>
     <message>
         <source>Display filter</source>
-        <translation>Filtr</translation>
+        <translation type="vanished">Filtr</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation>Kolor</translation>
+        <translation type="vanished">Kolor</translation>
     </message>
     <message>
         <source>Style</source>
-        <translation>Styl</translation>
+        <translation type="vanished">Styl</translation>
     </message>
     <message>
         <source>Y Axis</source>
-        <translation>Oś Y</translation>
+        <translation type="vanished">Oś Y</translation>
     </message>
     <message>
         <source>Y Field</source>
-        <translation>Pole osi Y</translation>
+        <translation type="vanished">Pole osi Y</translation>
     </message>
     <message>
         <source>Smoothing</source>
-        <translation>Wygładzanie</translation>
+        <translation type="vanished">Wygładzanie</translation>
     </message>
     <message>
         <source>Remove this graph.</source>
@@ -5179,6 +5179,10 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>Profil: </translation>
     </message>
     <message>
+        <source>Selected Packet: %1 %2 </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packets: %1 %4 Displayed: %2 (%3%)</source>
         <oldsource>Packets: %1 %4 Displayed: %2 %4 Marked: %3</oldsource>
         <translation>Pakietów: %1 %4 Wyświetlanych: %2 (%3%)</translation>
@@ -5207,10 +5211,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Packets: %1</source>
         <translation>Pakiety: %1</translation>
-    </message>
-    <message>
-        <source>Selected Packet: %1 %2 </source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7968,17 +7968,6 @@ text-decoration: underline;
     </message>
 </context>
 <context>
-    <name>PacketListModel</name>
-    <message>
-        <source>Dissecting</source>
-        <translation type="vanished">Analizowanie</translation>
-    </message>
-    <message>
-        <source>Sorting &quot;%1&quot;</source>
-        <translation type="vanished">Sortowanie &quot;%1&quot;</translation>
-    </message>
-</context>
-<context>
     <name>PacketRangeGroupBox</name>
     <message>
         <source>Form</source>
@@ -8023,17 +8012,6 @@ text-decoration: underline;
     <message>
         <source>Captured</source>
         <translation>Przechwyconych</translation>
-    </message>
-</context>
-<context>
-    <name>PathChooserDelegate</name>
-    <message>
-        <source>Browse</source>
-        <translation type="vanished">Przeglądaj</translation>
-    </message>
-    <message>
-        <source>Open Pipe</source>
-        <translation type="vanished">Otwórz rurę</translation>
     </message>
 </context>
 <context>
@@ -8410,79 +8388,79 @@ text-decoration: underline;
     </message>
     <message>
         <source>Packets</source>
-        <translation>Pakietów</translation>
+        <translation type="vanished">Pakietów</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation>Bajtów</translation>
+        <translation type="vanished">Bajtów</translation>
     </message>
     <message>
         <source>Bits</source>
-        <translation>Bitów</translation>
+        <translation type="vanished">Bitów</translation>
     </message>
     <message>
         <source>SUM(Y Field)</source>
-        <translation>SUMA(pole Y)</translation>
+        <translation type="vanished">SUMA(pole Y)</translation>
     </message>
     <message>
         <source>COUNT FRAMES(Y Field)</source>
-        <translation>LICZ RAMKI(pole Y)</translation>
+        <translation type="vanished">LICZ RAMKI(pole Y)</translation>
     </message>
     <message>
         <source>COUNT FIELDS(Y Field)</source>
-        <translation>LICZ POLA(pole Y)</translation>
+        <translation type="vanished">LICZ POLA(pole Y)</translation>
     </message>
     <message>
         <source>MAX(Y Field)</source>
-        <translation>MAX(pole Y)</translation>
+        <translation type="vanished">MAX(pole Y)</translation>
     </message>
     <message>
         <source>MIN(Y Field)</source>
-        <translation>MIN(pole Y)</translation>
+        <translation type="vanished">MIN(pole Y)</translation>
     </message>
     <message>
         <source>AVG(Y Field)</source>
-        <translation>ŚREDNIA(pole Y)</translation>
+        <translation type="vanished">ŚREDNIA(pole Y)</translation>
     </message>
     <message>
         <source>LOAD(Y Field)</source>
-        <translation>LOAD(pole Y)</translation>
+        <translation type="vanished">LOAD(pole Y)</translation>
     </message>
     <message>
         <source>Line</source>
-        <translation>Linia</translation>
+        <translation type="vanished">Linia</translation>
     </message>
     <message>
         <source>Impulse</source>
-        <translation>Impuls</translation>
+        <translation type="vanished">Impuls</translation>
     </message>
     <message>
         <source>Bar</source>
-        <translation>Pasek</translation>
+        <translation type="vanished">Pasek</translation>
     </message>
     <message>
         <source>Stacked Bar</source>
-        <translation>Ułożony pasek</translation>
+        <translation type="vanished">Ułożony pasek</translation>
     </message>
     <message>
         <source>Dot</source>
-        <translation>Kropka</translation>
+        <translation type="vanished">Kropka</translation>
     </message>
     <message>
         <source>Square</source>
-        <translation>Kwadrat</translation>
+        <translation type="vanished">Kwadrat</translation>
     </message>
     <message>
         <source>Diamond</source>
-        <translation>Diament</translation>
+        <translation type="vanished">Diament</translation>
     </message>
     <message>
         <source>None</source>
-        <translation>Brak</translation>
+        <translation type="vanished">Brak</translation>
     </message>
     <message>
         <source>%1 interval SMA</source>
-        <translation>%1 interwał SMA</translation>
+        <translation type="vanished">%1 interwał SMA</translation>
     </message>
     <message>
         <source>[no capture file]</source>
@@ -8558,7 +8536,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Multiple problems found</source>
-        <translation type="unfinished">Wystąpiło wiele problemów</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1 (%L2%)</source>
@@ -11285,13 +11263,6 @@ text-decoration: underline;
     <message>
         <source>Show All</source>
         <translation>Pokaż wszystko</translation>
-    </message>
-</context>
-<context>
-    <name>SimpleDialog</name>
-    <message>
-        <source>Multiple problems found</source>
-        <translation type="vanished">Wystąpiło wiele problemów</translation>
     </message>
 </context>
 <context>

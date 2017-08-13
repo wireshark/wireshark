@@ -2587,7 +2587,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>IOGraph</name>
     <message>
         <source>Unknown</source>
-        <translation>不明</translation>
+        <translation type="vanished">不明</translation>
     </message>
 </context>
 <context>
@@ -2686,31 +2686,31 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Name</source>
-        <translation>名前</translation>
+        <translation type="vanished">名前</translation>
     </message>
     <message>
         <source>Display filter</source>
-        <translation>表示フィルタ</translation>
+        <translation type="vanished">表示フィルタ</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation>色</translation>
+        <translation type="vanished">色</translation>
     </message>
     <message>
         <source>Style</source>
-        <translation>スタイル</translation>
+        <translation type="vanished">スタイル</translation>
     </message>
     <message>
         <source>Y Axis</source>
-        <translation>Y軸</translation>
+        <translation type="vanished">Y軸</translation>
     </message>
     <message>
         <source>Y Field</source>
-        <translation>Yフィールド</translation>
+        <translation type="vanished">Yフィールド</translation>
     </message>
     <message>
         <source>Smoothing</source>
-        <translation>スムーズ化</translation>
+        <translation type="vanished">スムーズ化</translation>
     </message>
     <message>
         <source>Remove this graph.</source>
@@ -5166,6 +5166,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>プロファイル:</translation>
     </message>
     <message>
+        <source>Selected Packet: %1 %2 </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packets: %1 %4 Displayed: %2 (%3%)</source>
         <oldsource>Packets: %1 %4 Displayed: %2 %4 Marked: %3</oldsource>
         <translation>パケット数: %1 %4 表示: %2 (%3%)</translation>
@@ -5194,10 +5198,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Packets: %1</source>
         <translation>パケット: %1</translation>
-    </message>
-    <message>
-        <source>Selected Packet: %1 %2 </source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7922,17 +7922,6 @@ a:hover {
     </message>
 </context>
 <context>
-    <name>PacketListModel</name>
-    <message>
-        <source>Dissecting</source>
-        <translation type="vanished">解析中</translation>
-    </message>
-    <message>
-        <source>Sorting &quot;%1&quot;</source>
-        <translation type="vanished">ソート中 &quot;%1&quot;</translation>
-    </message>
-</context>
-<context>
     <name>PacketRangeGroupBox</name>
     <message>
         <source>Form</source>
@@ -7977,17 +7966,6 @@ a:hover {
     <message>
         <source>Captured</source>
         <translation>キャプチャされたパケット</translation>
-    </message>
-</context>
-<context>
-    <name>PathChooserDelegate</name>
-    <message>
-        <source>Browse</source>
-        <translation type="vanished">参照</translation>
-    </message>
-    <message>
-        <source>Open Pipe</source>
-        <translation type="vanished">パイプを開く</translation>
     </message>
 </context>
 <context>
@@ -8364,79 +8342,79 @@ a:hover {
     </message>
     <message>
         <source>Packets</source>
-        <translation>パケット数</translation>
+        <translation type="vanished">パケット数</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation>バイト数</translation>
+        <translation type="vanished">バイト数</translation>
     </message>
     <message>
         <source>Bits</source>
-        <translation>ビット数</translation>
+        <translation type="vanished">ビット数</translation>
     </message>
     <message>
         <source>SUM(Y Field)</source>
-        <translation>SUM(Yフィールド)</translation>
+        <translation type="vanished">SUM(Yフィールド)</translation>
     </message>
     <message>
         <source>COUNT FRAMES(Y Field)</source>
-        <translation>COUNT FRAMES(Yフィールド)</translation>
+        <translation type="vanished">COUNT FRAMES(Yフィールド)</translation>
     </message>
     <message>
         <source>COUNT FIELDS(Y Field)</source>
-        <translation>COUNT FIELDS(Yフィールド)</translation>
+        <translation type="vanished">COUNT FIELDS(Yフィールド)</translation>
     </message>
     <message>
         <source>MAX(Y Field)</source>
-        <translation>MAX(Yフィールド)</translation>
+        <translation type="vanished">MAX(Yフィールド)</translation>
     </message>
     <message>
         <source>MIN(Y Field)</source>
-        <translation>MIN(Yフィールド)</translation>
+        <translation type="vanished">MIN(Yフィールド)</translation>
     </message>
     <message>
         <source>AVG(Y Field)</source>
-        <translation>AVG(Yフィールド)</translation>
+        <translation type="vanished">AVG(Yフィールド)</translation>
     </message>
     <message>
         <source>LOAD(Y Field)</source>
-        <translation>LOAD(Yフィールド)</translation>
+        <translation type="vanished">LOAD(Yフィールド)</translation>
     </message>
     <message>
         <source>Line</source>
-        <translation>線</translation>
+        <translation type="vanished">線</translation>
     </message>
     <message>
         <source>Impulse</source>
-        <translation>点線</translation>
+        <translation type="vanished">点線</translation>
     </message>
     <message>
         <source>Bar</source>
-        <translation>棒</translation>
+        <translation type="vanished">棒</translation>
     </message>
     <message>
         <source>Stacked Bar</source>
-        <translation>積み棒</translation>
+        <translation type="vanished">積み棒</translation>
     </message>
     <message>
         <source>Dot</source>
-        <translation>点</translation>
+        <translation type="vanished">点</translation>
     </message>
     <message>
         <source>Square</source>
-        <translation>四角</translation>
+        <translation type="vanished">四角</translation>
     </message>
     <message>
         <source>Diamond</source>
-        <translation>菱形</translation>
+        <translation type="vanished">菱形</translation>
     </message>
     <message>
         <source>None</source>
-        <translation>なし</translation>
+        <translation type="vanished">なし</translation>
     </message>
     <message>
         <source>%1 interval SMA</source>
-        <translation>%1 インターバル SMA</translation>
+        <translation type="vanished">%1 インターバル SMA</translation>
     </message>
     <message>
         <source>[no capture file]</source>
@@ -8512,7 +8490,7 @@ a:hover {
     </message>
     <message>
         <source>Multiple problems found</source>
-        <translation type="unfinished">複数の問題が見つかりました</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1 (%L2%)</source>
@@ -11208,13 +11186,6 @@ a:hover {
     <message>
         <source>Show All</source>
         <translation>すべてを表示</translation>
-    </message>
-</context>
-<context>
-    <name>SimpleDialog</name>
-    <message>
-        <source>Multiple problems found</source>
-        <translation type="vanished">複数の問題が見つかりました</translation>
     </message>
 </context>
 <context>

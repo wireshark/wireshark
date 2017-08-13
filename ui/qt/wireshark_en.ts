@@ -2593,13 +2593,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
 </context>
 <context>
-    <name>IOGraph</name>
-    <message>
-        <source>Unknown</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>IOGraphDialog</name>
     <message>
         <source>Dialog</source>
@@ -2662,34 +2655,6 @@ PLEASE NOTE: One option MUST be selected.</source>
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Style</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Y Axis</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Y Field</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Smoothing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8272,82 +8237,6 @@ a:hover {
     </message>
     <message>
         <source>Window Size (B)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Packets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Bytes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Bits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SUM(Y Field)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>COUNT FRAMES(Y Field)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>COUNT FIELDS(Y Field)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>MAX(Y Field)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>MIN(Y Field)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>AVG(Y Field)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>LOAD(Y Field)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Impulse</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Bar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stacked Bar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Dot</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Square</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Diamond</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 interval SMA</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

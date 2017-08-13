@@ -5952,6 +5952,7 @@ amicon-fpsu-ra	30003/tcp/udp	# Amicon FPSU-IP Remote Administration
 amicon-fpsu-s	30004/udp	# Amicon FPSU-IP VPN
 rwp		30100/tcp/sctp	# Remote Window Protocol
 kingdomsonline	30260/tcp/udp	# Kingdoms Online (CraigAvenue)
+gs-realtime	30400/tcp	# GroundStar RealTime System
 samsung-disc	30832/udp	# Samsung Convergence Discovery Protocol
 ovobs		30999/tcp/udp	# OpenView Service Desk Client
 ka-sddp		31016/tcp	# Kollective Agent Secure Distributed Delivery Protocol
