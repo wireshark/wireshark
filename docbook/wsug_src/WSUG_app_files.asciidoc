@@ -107,7 +107,7 @@ Files\Wireshark`.
 
 ==== Folders on Unix-like systems
 
-_XDG_CONFIG_HOME_ is the folder for user-specific configuration files. 
+_XDG_CONFIG_HOME_ is the folder for user-specific configuration files.
 It's usually $HOME++/.config++, where $HOME is the user's home folder, which
 is usually something such as ++/home/++__username__, or
 ++/Users/++__username__ on macOS.
@@ -392,7 +392,7 @@ overrides the setting in the personal preference file.
 +
 --
 Each line in one of these files consists of an IPv4 address, a subnet
-mask length separated only by a '/' and a name separated by whitespace. 
+mask length separated only by a '/' and a name separated by whitespace.
 While the address must be a full IPv4 address, any values beyond the
 mask length are subsequently ignored.
 
@@ -596,7 +596,7 @@ On Unix-like systems:
 * The personal plugin folder is
 __XDG_CONFIG_HOME__++/wireshark/plugins++ or, if
 __XDG_CONFIG_HOME__++/wireshark++ does not exist and
-$HOME++/.wireshark++ is present, $HOME++/.wireshark/plugins++. 
+$HOME++/.wireshark++ is present, $HOME++/.wireshark/plugins++.
 
 * If you are running on macOS and Wireshark is installed as an
 application bundle, the global plugin folder is
