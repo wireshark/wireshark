@@ -48,15 +48,6 @@ typedef struct ieee80211_tagged_field_data
   proto_item* item_tag_length;
 } ieee80211_tagged_field_data_t;
 
-void dissect_wifi_p2p_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
-                         int offset, gint size);
-int dissect_wifi_p2p_public_action(packet_info *pinfo, proto_tree *tree,
-                                   tvbuff_t *tvb, int offset);
-void dissect_wifi_p2p_anqp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
-                           int offset, gboolean request);
-
-void dissect_wifi_display_ie(packet_info *pinfo, proto_tree *tree,
-                             tvbuff_t *tvb, int offset, gint size);
 
 int add_tagged_field(packet_info *pinfo, proto_tree *tree,
                             tvbuff_t *tvb, int offset, int ftype,
@@ -272,6 +263,23 @@ typedef struct {
   guint8    key;
   gchar    *string;
 } uat_wep_key_record_t;
+
+#define ADV_PROTO_ID_ANQP      0
+#define ANV_PROTO_ID_MIH_IS    1
+#define ADV_PROTO_ID_MIH_CESCD 2
+#define ADV_PROTO_ID_EAS       3
+#define ADV_PROTO_ID_VS        221
+
+typedef struct anqp_info_dissector_data {
+  gboolean request;
+  int idx;
+} anqp_info_dissector_data_t;
+
+/* WFA vendor specific subtypes */
+#define WFA_SUBTYPE_P2P 9
+#define WFA_SUBTYPE_WIFI_DISPLAY 10
+#define WFA_SUBTYPE_HS20_INDICATION 16
+#define WFA_SUBTYPE_HS20_ANQP 17
 
 /*
  * Editor modelines

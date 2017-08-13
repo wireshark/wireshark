@@ -28,6 +28,7 @@
 #include "packet-ieee80211.h"
 
 void proto_register_wifi_display(void);
+void proto_reg_handoff_wifi_display(void);
 
 static int proto_wifi_display = -1;
 
@@ -95,6 +96,8 @@ static gint ett_wfd_dev_info_descr = -1;
 static expert_field ei_wfd_subelem_len_invalid = EI_INIT;
 static expert_field ei_wfd_subelem_session_descr_invalid = EI_INIT;
 static expert_field ei_wfd_subelem_id = EI_INIT;
+
+dissector_handle_t wifi_display_ie_handle;
 
 enum wifi_display_subelem {
   WFD_SUBELEM_DEVICE_INFO = 0,
@@ -357,10 +360,11 @@ dissect_wfd_subelem_alt_mac_addr(packet_info *pinfo, proto_tree *tree,
                       tvb, offset, 6, ENC_NA);
 }
 
-void dissect_wifi_display_ie(packet_info *pinfo, proto_tree *tree,
-                             tvbuff_t *tvb, int offset, gint size)
+static int
+dissect_wifi_display_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-  int end = offset + size;
+  int end = tvb_reported_length(tvb);
+  int offset = 0;
   guint8 id;
   guint16 len;
   proto_tree *wfd_tree;
@@ -415,6 +419,8 @@ void dissect_wifi_display_ie(packet_info *pinfo, proto_tree *tree,
 
     offset += len;
   }
+
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -630,6 +636,15 @@ proto_register_wifi_display(void)
 
   expert_wifi_display = expert_register_protocol(proto_wifi_display);
   expert_register_field_array(expert_wifi_display, ei, array_length(ei));
+
+  wifi_display_ie_handle = register_dissector("wifi_display_ie", dissect_wifi_display_ie, proto_wifi_display);
+
+}
+
+void
+proto_reg_handoff_wifi_display(void)
+{
+  dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_WIFI_DISPLAY, wifi_display_ie_handle);
 }
 
 /*

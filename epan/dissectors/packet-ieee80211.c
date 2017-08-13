@@ -685,12 +685,6 @@ static const value_string tag_num_vals[] = {
 };
 static value_string_ext tag_num_vals_ext = VALUE_STRING_EXT_INIT(tag_num_vals);
 
-/* WFA vendor specific subtypes */
-#define WFA_SUBTYPE_P2P 9
-#define WFA_SUBTYPE_WIFI_DISPLAY 10
-#define WFA_SUBTYPE_HS20_INDICATION 16
-#define WFA_SUBTYPE_HS20_ANQP 17
-
 static const value_string wfa_subtype_vals[] = {
   { WFA_SUBTYPE_P2P, "P2P" },
   { WFA_SUBTYPE_HS20_INDICATION, "Hotspot 2.0 Indication" },
@@ -5121,6 +5115,11 @@ static capture_dissector_handle_t ipx_cap_handle;
 
 static dissector_table_t tagged_field_table;
 static dissector_table_t vendor_specific_action_table;
+static dissector_table_t wifi_alliance_action_subtype_table;
+static dissector_table_t vendor_specific_anqp_info_table;
+static dissector_table_t wifi_alliance_anqp_info_table;
+static dissector_table_t wifi_alliance_ie_table;
+static dissector_table_t wifi_alliance_public_action_table;
 
 static int wlan_tap = -1;
 
@@ -5850,6 +5849,31 @@ dissect_vendor_action_marvell(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
   return offset;
 }
 
+static int
+dissect_vendor_action_wifi_alliance(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  guint8 subtype;
+  int offset = 0;
+  int dissected;
+  tvbuff_t *subtvb;
+
+  subtype = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(tree, hf_ieee80211_tag_oui_wfa_subtype, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  subtvb = tvb_new_subset_remaining(tvb, offset);
+  dissected = dissector_try_uint_new(wifi_alliance_action_subtype_table, subtype, subtvb, pinfo, tree, FALSE, NULL);
+  if (dissected <= 0)
+  {
+      call_data_dissector(subtvb, pinfo, tree);
+      dissected = tvb_reported_length(subtvb);
+  }
+
+  offset += dissected;
+
+  return offset;
+}
+
 static guint
 dissect_advertisement_protocol_common(packet_info *pinfo, proto_tree *tree,
                                tvbuff_t *tvb, int offset, gboolean *anqp)
@@ -6526,21 +6550,25 @@ dissect_hs20_anqp_oper_class_indic(proto_tree *tree, tvbuff_t *tvb, int offset, 
   }
 }
 
-static void
-dissect_hs20_anqp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
-                  int end, gboolean request, int idx)
+static int
+dissect_hs20_anqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   guint8 subtype;
+  int end = tvb_reported_length(tvb);
+  int offset = 0;
+  anqp_info_dissector_data_t* anqp_data = (anqp_info_dissector_data_t*)data;
+
+  DISSECTOR_ASSERT(anqp_data);
 
   subtype = tvb_get_guint8(tvb, offset);
   proto_item_append_text(tree, " - HS 2.0 %s",
                          val_to_str(subtype, hs20_anqp_subtype_vals,
                                     "Unknown (%u)"));
-  if (idx == 0) {
+  if (anqp_data->idx == 0) {
     col_append_fstr(pinfo->cinfo, COL_INFO, " HS 2.0 %s",
                     val_to_str(subtype, hs20_anqp_subtype_vals,
                                "Unknown (%u)"));
-  } else if (idx == 1) {
+  } else if (anqp_data->idx == 1) {
     col_append_str(pinfo->cinfo, COL_INFO, ", ..");
   }
   proto_tree_add_item(tree, hf_hs20_anqp_subtype, tvb, offset, 1,
@@ -6562,7 +6590,7 @@ dissect_hs20_anqp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
     dissect_hs20_anqp_operator_friendly_name(tree, tvb, pinfo, offset, end);
     break;
   case HS20_ANQP_WAN_METRICS:
-    dissect_hs20_anqp_wan_metrics(tree, tvb, offset, request);
+    dissect_hs20_anqp_wan_metrics(tree, tvb, offset, anqp_data->request);
     break;
   case HS20_ANQP_CONNECTION_CAPABILITY:
     dissect_hs20_anqp_connection_capability(tree, tvb, offset, end);
@@ -6580,7 +6608,28 @@ dissect_hs20_anqp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
                         end - offset, ENC_NA);
     break;
   }
+
+  return tvb_captured_length(tvb);
 }
+
+static int
+dissect_vendor_wifi_alliance_anqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+  guint8 subtype;
+  int offset = 0;
+  tvbuff_t *subtvb;
+
+  subtype = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(tree, hf_ieee80211_anqp_wfa_subtype, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  subtvb = tvb_new_subset_remaining(tvb, offset);
+  if (!dissector_try_uint_new(wifi_alliance_anqp_info_table, subtype, subtvb, pinfo, tree, FALSE, data))
+      call_data_dissector(subtvb, pinfo, tree);
+
+  return tvb_captured_length(tvb);
+}
+
 
 static int
 dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
@@ -6589,6 +6638,8 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
   guint16     id, len;
   guint32     oui;
   proto_item *item;
+  tvbuff_t *vendor_tvb;
+  anqp_info_dissector_data_t anqp_info;
 
   item = proto_tree_add_item(tree, hf_ieee80211_ff_anqp_info_id,
                              tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -6647,25 +6698,13 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
     oui = tvb_get_ntoh24(tvb, offset);
     proto_tree_add_item(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
     offset += 3;
+    vendor_tvb = tvb_new_subset_length(tvb, offset, len);
 
-    switch (oui) {
-    case OUI_WFA:
-      proto_tree_add_item(tree, hf_ieee80211_anqp_wfa_subtype, tvb, offset, 1,
-                          ENC_NA);
-      switch (tvb_get_guint8(tvb, offset)) {
-      case WFA_SUBTYPE_P2P:
-        dissect_wifi_p2p_anqp(pinfo, tree, tvb, offset + 1, request);
-        break;
-      case WFA_SUBTYPE_HS20_ANQP:
-        dissect_hs20_anqp(tree, tvb, pinfo, offset + 1, offset + len - 3, request,
-                          idx);
-        break;
-      }
-      break;
-    default:
-      proto_tree_add_item(tree, hf_ieee80211_ff_anqp_info,
-                          tvb, offset, len, ENC_NA);
-      break;
+    anqp_info.request = request;
+    anqp_info.idx = idx;
+    if (!dissector_try_uint_new(vendor_specific_anqp_info_table, oui, vendor_tvb, pinfo, tree, FALSE, &anqp_info))
+    {
+      proto_tree_add_item(tree, hf_ieee80211_ff_anqp_info, tvb, offset, len, ENC_NA);
     }
     break;
   default:
@@ -7931,11 +7970,13 @@ static guint
 add_ff_action_public_fields(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, guint8 code)
 {
   guint32  oui;
-  guint8   subtype;
-  gboolean anqp;
+  guint    type;
+  guint    subtype;
   guint8   dialog_token;
   guint8   frag;
   gboolean more;
+  tvbuff_t *vendor_tvb;
+  int dissected;
 
   guint start = offset;
 
@@ -7952,9 +7993,9 @@ add_ff_action_public_fields(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
       subtype = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(tree, hf_ieee80211_tag_oui_wfa_subtype, tvb, offset, 1, ENC_NA);
       offset += 1;
-      if (subtype == WFA_SUBTYPE_P2P) {
-        offset = dissect_wifi_p2p_public_action(pinfo, tree, tvb, offset);
-      }
+      vendor_tvb = tvb_new_subset_remaining(tvb, offset);
+      dissected = dissector_try_uint_new(wifi_alliance_public_action_table, subtype, vendor_tvb, pinfo, tree, FALSE, NULL);
+      offset += dissected;
       break;
     default:
       /* Don't know how to handle this vendor */
@@ -10390,8 +10431,8 @@ static const value_string hs20_indication_release_number_vals[] = {
   { 0, NULL }
 };
 
-static void
-dissect_hs20_indication(proto_tree *tree, tvbuff_t *tvb, int offset)
+static int
+dissect_hs20_indication(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
   static const int *ieee80211_hs20_indication[] = {
     &hf_hs20_indication_dgaf_disabled,
@@ -10401,31 +10442,25 @@ dissect_hs20_indication(proto_tree *tree, tvbuff_t *tvb, int offset)
     NULL
   };
 
-  proto_tree_add_bitmask_list(tree, tvb, offset, 1, ieee80211_hs20_indication, ENC_LITTLE_ENDIAN);
+  proto_tree_add_bitmask_list(tree, tvb, 0, 1, ieee80211_hs20_indication, ENC_LITTLE_ENDIAN);
+  return tvb_captured_length(tvb);
 }
 
 static void
 dissect_vendor_ie_wfa(packet_info *pinfo, proto_item *item, tvbuff_t *tag_tvb)
 {
   gint tag_len = tvb_reported_length(tag_tvb);
+  guint8 subtype;
+  int offset = 0;
+  tvbuff_t *vendor_tvb;
 
   if (tag_len < 4)
     return;
 
-  switch (tvb_get_guint8(tag_tvb, 3)) {
-  case WFA_SUBTYPE_P2P:
-    dissect_wifi_p2p_ie(pinfo, item, tag_tvb, 4, tag_len - 4);
-    proto_item_append_text(item, ": P2P");
-    break;
-  case WFA_SUBTYPE_WIFI_DISPLAY:
-    dissect_wifi_display_ie(pinfo, item, tag_tvb, 4, tag_len - 4);
-    proto_item_append_text(item, ": Wi-Fi Display");
-    break;
-  case WFA_SUBTYPE_HS20_INDICATION:
-    dissect_hs20_indication(item, tag_tvb, 4);
-    proto_item_append_text(item, ": Hotspot 2.0 Indication");
-    break;
-  }
+  subtype = tvb_get_guint8(tag_tvb, 3);
+  proto_item_append_text(item, ": %s", val_to_str_const(subtype, wfa_subtype_vals, "Unknown"));
+  vendor_tvb = tvb_new_subset_length(tag_tvb, offset, tag_len - 4);
+  dissector_try_uint_new(wifi_alliance_ie_table, subtype, vendor_tvb, pinfo, item, FALSE, NULL);
 }
 
 static void
@@ -23274,7 +23309,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_oui_wfa_subtype,
      {"WFA Subtype", "wlan.tag.oui.wfa_subtype",
-      FT_UINT8, BASE_DEC, NULL, 0,
+      FT_UINT8, BASE_DEC, VALS(wfa_subtype_vals), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_ds_param_channel,
@@ -28131,6 +28166,11 @@ proto_register_ieee80211(void)
 
   tagged_field_table = register_dissector_table("wlan.tag.number", "IEEE 802.11 Fields", proto_wlan, FT_UINT8, BASE_DEC);
   vendor_specific_action_table = register_dissector_table("wlan.action.vendor_specific", "IEEE802.11 Vendor Specific Action", proto_wlan, FT_UINT24, BASE_HEX);
+  wifi_alliance_action_subtype_table = register_dissector_table("wlan.action.wifi_alliance.subtype", "Wi-Fi Alliance Action Subtype", proto_wlan, FT_UINT8, BASE_HEX);
+  vendor_specific_anqp_info_table = register_dissector_table("wlan.anqp.vendor_specific", "IEEE802.11 ANQP information Vendor Specific", proto_wlan, FT_UINT24, BASE_HEX);
+  wifi_alliance_anqp_info_table = register_dissector_table("wlan.anqp.wifi_alliance.subtype", "Wi-Fi Alliance ANQP Subtype", proto_wlan, FT_UINT8, BASE_HEX);
+  wifi_alliance_ie_table = register_dissector_table("wlan.ie.wifi_alliance.subtype", "Wi-Fi Alliance IE Subtype", proto_wlan, FT_UINT8, BASE_HEX);
+  wifi_alliance_public_action_table = register_dissector_table("wlan.pa.wifi_alliance.subtype", "Wi-Fi Alliance PA Subtype", proto_wlan, FT_UINT8, BASE_HEX);
 
   /* Register configuration options */
   wlan_module = prefs_register_protocol(proto_wlan, init_wepkeys);
@@ -28513,6 +28553,11 @@ proto_reg_handoff_ieee80211(void)
 
   /* Vendor specfic actions */
   dissector_add_uint("wlan.action.vendor_specific", OUI_MARVELL, create_dissector_handle(dissect_vendor_action_marvell, -1));
+  dissector_add_uint("wlan.action.vendor_specific", OUI_WFA, create_dissector_handle(dissect_vendor_action_wifi_alliance, -1));
+
+  dissector_add_uint("wlan.anqp.vendor_specific", OUI_WFA, create_dissector_handle(dissect_vendor_wifi_alliance_anqp, -1));
+  dissector_add_uint("wlan.anqp.wifi_alliance.subtype", WFA_SUBTYPE_HS20_ANQP, create_dissector_handle(dissect_hs20_anqp, -1));
+  dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_HS20_INDICATION, create_dissector_handle(dissect_hs20_indication, -1));
 
 }
 
