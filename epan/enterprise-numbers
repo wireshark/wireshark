@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2017-08-05)
+(last updated 2017-08-12)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -26379,8 +26379,8 @@ Decimal
       tangxin&zb-public.sd.cninfo.net
 6605
   Euroclear Operations Centre
-    Basselier Jo
-      basselier_jo&euroclear.com
+    Ignace Hemeryck
+      ignace.hemeryck&euroclear.com
 6606
   Platypus Technology
     Adrian Sheedy
@@ -56447,8 +56447,8 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     Dennis Wright
       dwright&ercot.com
 14223
-  Sourcefire, Inc.
-    Chris Green
+  Talos (formerly 'Sourcefire, Inc.')
+    Mark Felder
       snmp&sourcefire.com
 14224
   Software Machine
@@ -83698,7 +83698,7 @@ Information Security of Pr
 21035
   DEV Systemtechnik GmbH
     Julien Langer
-      jlanger&dev-systemtechnik.de
+      iana&dev-systemtechnik.com
 21036
   Ultrapower Software Co., Ltd. Beijing
     Zhang Guobo
@@ -157526,7 +157526,7 @@ Decentralization / Helenic Public Administra
 39486
   ChongQing TrunkSoft Technology Co., LTD.
     Huayong Liu
-      23667547&qq.com
+      liuhy&trunksoft.net
 39487
   Wavestore Limited
     Christopher Mocock
@@ -182316,9 +182316,9 @@ Decentralization / Helenic Public Administra
     Marcus Wallgren
       ops&benify.com
 45684
-  Ingenieurbüro Dübon
+  Dübon Engineering GmbH
     Matthias Dübon
-      matthias.duebon&ing-duebon.de
+      matthias.duebon&duebon-engineering.de
 45685
   AllCreator Co., Ltd.
     Toshihide Hashimoto
@@ -184001,7 +184001,7 @@ Decentralization / Helenic Public Administra
       williams&tvmcapital.com
 46105
   Alexion Pharmaceuticals, Inc.
-    Todd Brodie
+    Jacob Thampi
       oidadmin&alxn.com
 46106
   1-800 Contacts Inc.
@@ -186770,7 +186770,7 @@ Decentralization / Helenic Public Administra
 46797
   The self-financing Science Information Center for New Technologies under State Tax Committee of the Republic of Uzbekistan
     Azamat Musakhanov
-      sicnt.uz&gmail.com
+      info&yt.uz
 46798
   RBS Services (Switzerland) Ltd 
     Andrew Church
@@ -191289,8 +191289,8 @@ Decentralization / Helenic Public Administra
       externalitsupport&mfgroup.co.uk
 47927
   Tenet Healthcare
-    Jarrett Bell
-      Jarrett.Bell&ca.com
+    Mario Olbera
+      mario.olbera&tenethealth.com
 47928
   Fortifydata
     Sushil jain
@@ -196868,7 +196868,7 @@ Decentralization / Helenic Public Administra
     Raffaele Rialdi
       atd&vevy.com
 49322
-  Haaglanden Medisch Centrum
+  Stichting Haaglanden Medisch Centrum
     Michel Vissers
       tib&haaglandenmc.nl
 49323
@@ -199605,8 +199605,8 @@ Decentralization / Helenic Public Administra
       iana-oid&uha.fr
 50006
   Chongqing Ambition  Science&Technologies Co.,Ltd.
-    waine liu
-      huayong.liu&cnambition.com
+    Waine 
+      nornet&sina.cn
 50007
   Lahti University of Applied Sciences
     Sari Laaksonen
@@ -201511,6 +201511,154 @@ Decentralization / Helenic Public Administra
   A.N. Belozersky Institute Of Physico-Chemical Biology
     Alexander Romanov
       alerom&belozersky.msu.ru
+50483
+  SK Versicherung AG
+    Henning Grote
+      grote&sk-versicherung.at
+50484
+  Geely universty
+    习天一 (Xi Tianyi)
+      993150929&qq.com
+50485
+  Vodafone GmbH
+    Holger Jacobs
+      holger.jacobs&vodafone.com
+50486
+  Vlaamse Maatschappij voor Sociaal Wonen
+    Peter Rousseau
+      peter.rousseau&vmsw.be
+50487
+  Municipio de Caxias do Sul
+    Fernando Brombatti
+      infra&caxias.rs.gov.br
+50488
+  AW2S
+    Mr David ARNAUD
+      contact&aw2s.com
+50489
+  Beveridge Williams & Co Pty Ltd
+    Ian Macnaughtan
+      macnaughtani&bevwill.com.au
+50490
+  Yunhe Enmo（Beijing）Technology Co.,LTD
+    Jinyi Wang
+      Jinyi.Wang&enmotech.com
+50491
+  Covond Digital Communications Tec.,Ltd
+    Wei Sun
+      sunxikui&covond.com
+50492
+  Reygers Systemhaus GmbH
+    Michael Reygers
+      info&reygers.de
+50493
+  The Wind in the Sail, LLc
+    william sheldon
+      william.sheldon&windinsail.com
+50494
+  Danske Spil A/S
+    Jesper Tjørnlund
+      jest&danskespil.dk
+50495
+  Ceph
+    Sage Weil
+      sage&newdream.net
+50496
+  Sidean SRL
+    Francisco Villegas
+      francisco.villegas&sidean.com
+50497
+  4myhealth
+    Martin Exner
+      me&4myhealth.at
+50498
+  Inalasys Technologies
+    Christo Steyn
+      christo.steyn&inalasys.co.za
+50499
+  Delta Engineers, Architects, & Land Surveyors, DPC
+    Colleen Mulrooney
+      cmulrooney&delta-eas.com
+50500
+  NCSCCS Intelligence
+    James Burton
+      jb&0.me.uk
+50501
+  Pos Digicert Sdn Bhd
+    Muhammad Faris Bin Zainal Abidin
+      muhammadfaris&digicert.com.my
+50502
+  HYPR Biometric Security
+    Enterprise Infrastructure
+      entint&hypr.com
+50503
+  Federal Way Schools
+    Noah Keables
+      nkeables&fwps.org
+50504
+  XtraTrust, Inc.
+    Sheky Cheung
+      sheky&xtratrust.com
+50505
+  Mystia.org
+    OID Administrator
+      oidmaster&mystia.org
+50506
+  CGI
+    Magnus Forsell
+      magnus.forsell&cgi.com
+50507
+  Royal National Lifeboat Institution
+    Nick Royley
+      nick_royley&rnli.org.uk
+50508
+  GrowingSpace
+    Justin Kaufman
+      jkaufman&growing.space
+50509
+  Fidelity Bank
+    Andrew Dodd
+      andrew.dodd&lionbank.com
+50510
+  Procubed Inc
+    Amarjeet Kumar
+      kumar&procubedinc.com
+50511
+  Stordata Sverige AB
+    Niklas Nord
+      niklas.nord&stordata.se
+50512
+  Reisenett AS
+    Carl Petter Sky
+      sky&reisenett.no
+50513
+  coseos.com
+    Thorsten Lorenz
+      thorsten.lorenz&coseos.com
+50514
+  Royal Automobile Club of Tasmania
+    Justin Delpero
+      j.delpero&ract.com.au
+50515
+  Smart Study Co., Ltd.
+    Jooncheol Park
+      joongom&smartstudy.co.kr
+50516
+  Cubresa
+    Bob Schellenberg
+      bschellenberg&cubresa.com
+50517
+  Reinform-Int
+    Arcady Gryzunov
+      agryzunov&reinform-int.ru
+50518
+  YOUNG Develpment Co.
+    Ian Lee
+      admin&youngdevelop.com
+50519
+  NetCologne GmbH
+    Ingo Jentzsch
+      ijentzsch&netcologne.de
 
 
 End of Document
