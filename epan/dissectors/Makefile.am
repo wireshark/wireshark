@@ -1298,7 +1298,7 @@ DISSECTOR_SRC = \
 	packet-text-media.c	\
 	packet-tfp.c		\
 	packet-tftp.c		\
-	packet-thread.c	\
+	packet-thread.c		\
 	packet-thrift.c		\
 	packet-time.c		\
 	packet-tipc.c		\
