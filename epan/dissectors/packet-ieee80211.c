@@ -28615,7 +28615,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.tag.number", TAG_DMG_LINK_ADAPTION_ACK, create_dissector_handle(ieee80211_tag_dmg_link_adaption_ack, -1));
   dissector_add_uint("wlan.tag.number", TAG_SWITCHING_STREAM, create_dissector_handle(ieee80211_tag_switching_stream, -1));
 
-  /* Vendor specfic actions */
+  /* Vendor specific actions */
   dissector_add_uint("wlan.action.vendor_specific", OUI_MARVELL, create_dissector_handle(dissect_vendor_action_marvell, -1));
   dissector_add_uint("wlan.action.vendor_specific", OUI_WFA, create_dissector_handle(dissect_vendor_action_wifi_alliance, -1));
 
