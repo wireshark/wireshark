@@ -67,7 +67,6 @@ MACRO( ASCIIDOC2DOCBOOK _asciidocsource _conf_files _src_files _built_deps )
     GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
     set( A2X_HTML_OPTS --stylesheet=ws.css )
     set( _output_xml ${_source_base_name}.xml )
-    set( _output_dbk ${_source_base_name}.dbk )
 
     foreach(_conf_file ${${_conf_files}})
         TO_A2X_COMPATIBLE_PATH ( ${CMAKE_CURRENT_SOURCE_DIR}/${_conf_file} _a2x_conf_file )
