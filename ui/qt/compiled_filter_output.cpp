@@ -21,8 +21,6 @@
 
 #include "config.h"
 
-#ifdef HAVE_LIBPCAP
-
 #include <ui_compiled_filter_output.h>
 #include "compiled_filter_output.h"
 
@@ -62,7 +60,9 @@ CompiledFilterOutput::CompiledFilterOutput(QWidget *parent, QStringList &intList
 #else
     pcap_compile_mtx = g_mutex_new();
 #endif
+#ifdef HAVE_LIBPCAP
     compileFilter();
+#endif
 }
 
 CompiledFilterOutput::~CompiledFilterOutput()
@@ -77,6 +77,7 @@ CompiledFilterOutput::~CompiledFilterOutput()
     delete ui;
 }
 
+#ifdef HAVE_LIBPCAP
 void CompiledFilterOutput::compileFilter()
 {
     struct bpf_program fcode;
@@ -115,6 +116,7 @@ void CompiledFilterOutput::compileFilter()
         }
     }
 }
+#endif
 
 void CompiledFilterOutput::on_interfaceList_currentItemChanged(QListWidgetItem *current, QListWidgetItem *)
 {
@@ -128,8 +130,6 @@ void CompiledFilterOutput::copyFilterText()
 {
     wsApp->clipboard()->setText(ui->filterList->toPlainText());
 }
-
-#endif /* HAVE_LIBPCAP */
 
 //
 // Editor modelines  -  http://www.wireshark.org/tools/modelines.html

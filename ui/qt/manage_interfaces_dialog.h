@@ -73,8 +73,10 @@ private slots:
 
     void on_buttonBox_accepted();
 
+#ifdef HAVE_LIBPCAP
     void on_addPipe_clicked();
     void on_delPipe_clicked();
+#endif
 
     void onSelectionChanged(const QItemSelection &sel, const QItemSelection &desel);
 

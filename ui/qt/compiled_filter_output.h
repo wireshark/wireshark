@@ -47,7 +47,9 @@ private:
     QHash<QString, QString> compile_results;
     QListWidget *interface_list_;
     QPushButton *copy_bt_;
+#ifdef HAVE_LIBPCAP
     void compileFilter();
+#endif
 
 public:
     explicit CompiledFilterOutput(QWidget *parent = 0, QStringList &intList = *new QStringList(), QString &filter = *new QString());
