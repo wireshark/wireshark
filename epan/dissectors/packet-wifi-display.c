@@ -97,7 +97,7 @@ static expert_field ei_wfd_subelem_len_invalid = EI_INIT;
 static expert_field ei_wfd_subelem_session_descr_invalid = EI_INIT;
 static expert_field ei_wfd_subelem_id = EI_INIT;
 
-dissector_handle_t wifi_display_ie_handle;
+static dissector_handle_t wifi_display_ie_handle;
 
 enum wifi_display_subelem {
   WFD_SUBELEM_DEVICE_INFO = 0,

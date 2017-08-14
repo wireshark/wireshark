@@ -431,7 +431,7 @@ static expert_field ei_wifi_p2p_attr_len = EI_INIT;
 static expert_field ei_wifi_p2p_anqp_length = EI_INIT;
 static expert_field ei_wifi_p2p_anqp_unexpected_padding = EI_INIT;
 
-dissector_handle_t wifi_display_ie_handle;
+static dissector_handle_t wifi_display_ie_handle;
 
 static void dissect_wifi_p2p_capability(proto_item *tlv_root,
                                         proto_item *tlv_item,
