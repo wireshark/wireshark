@@ -6803,7 +6803,7 @@ dissect_gas_initial_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                        val_to_str(subtype >> 8, dpp_subtype_vals, "Unknown (%u)"));
       dissect_wifi_dpp_attributes(pinfo, query, tvb, offset);
     }
-    /* FALL THROUGH */
+    break;
   default:
     proto_tree_add_item(query, hf_ieee80211_ff_query_request,
                         tvb, offset, req_len, ENC_NA);
