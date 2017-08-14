@@ -689,6 +689,14 @@ static const value_string wfa_subtype_vals[] = {
   { WFA_SUBTYPE_P2P, "P2P" },
   { WFA_SUBTYPE_HS20_INDICATION, "Hotspot 2.0 Indication" },
   { WFA_SUBTYPE_HS20_ANQP, "Hotspot 2.0 ANQP" },
+  { WFA_SUBTYPE_DPP, "Device Provisioning Protocol" },
+  { 0, NULL }
+};
+
+#define DPP_CONFIGURATION_PROTOCOL 0x01
+
+static const value_string dpp_subtype_vals[] = {
+  { DPP_CONFIGURATION_PROTOCOL, "DPP Configuration Protocol" },
   { 0, NULL }
 };
 
@@ -4164,7 +4172,8 @@ static int hf_ieee80211_tag_qos_map_set_high = -1;
 static int hf_ieee80211_tag_adv_proto_resp_len_limit = -1;
 static int hf_ieee80211_tag_adv_proto_pame_bi = -1;
 static int hf_ieee80211_tag_adv_proto_id = -1;
-static int hf_ieee80211_tag_adv_proto_vs_info = -1;
+static int hf_ieee80211_tag_adv_vs_len = -1;
+/* static int hf_ieee80211_tag_adv_proto_vs_info = -1; */
 
 /* IEEE Std 802.11u-2011 7.3.2.96 */
 static int hf_ieee80211_tag_roaming_consortium_num_anqp_oi = -1;
@@ -4505,6 +4514,8 @@ static int hf_ieee80211_tag_timeout_int_value = -1;
 static int hf_ieee80211_data_encap_payload_type = -1;
 
 static int hf_ieee80211_anqp_wfa_subtype = -1;
+
+static int hf_ieee80211_dpp_subtype = -1;
 
 /* Hotspot 2.0 */
 static int hf_hs20_indication_dgaf_disabled = -1;
@@ -5876,16 +5887,19 @@ dissect_vendor_action_wifi_alliance(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 static guint
 dissect_advertisement_protocol_common(packet_info *pinfo, proto_tree *tree,
-                               tvbuff_t *tvb, int offset, gboolean *anqp)
+                               tvbuff_t *tvb, int offset, guint *type,
+                               guint *subtype)
 {
   guint8      tag_no, tag_len, left;
   proto_item *item = NULL, *adv_item;
   proto_tree *adv_tree, *adv_tuple_tree;
 
-  if (anqp)
-    *anqp = FALSE;
+  if (type)
+    *type = 0xff; // Last reserved value
+  if (subtype)
+    *subtype = 0xff;
   tag_no = tvb_get_guint8(tvb, offset);
-  if (anqp)
+  if (type)
     item = proto_tree_add_item(tree, hf_ieee80211_tag_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
   tag_len = tvb_get_guint8(tvb, offset + 1);
@@ -5895,10 +5909,10 @@ dissect_advertisement_protocol_common(packet_info *pinfo, proto_tree *tree,
                            "Protocol)", tag_no);
     return 2 + tag_len;
   }
-  if (anqp)
+  if (type)
     item = proto_tree_add_uint(tree, hf_ieee80211_tag_length, tvb, offset + 1, 1, tag_len);
   if (tag_len < 2) {
-    if (!anqp)
+    if (!type)
       item = proto_tree_add_uint(tree, hf_ieee80211_tag_length, tvb, offset + 1, 1, tag_len);
     expert_add_info_format(pinfo, item, &ei_ieee80211_tag_length,
                            "Advertisement Protocol: IE must be at least 2 "
@@ -5935,23 +5949,41 @@ dissect_advertisement_protocol_common(packet_info *pinfo, proto_tree *tree,
     offset += 1;
     left--;
 
-    if ((id == 0) && anqp)
-      *anqp = TRUE;
+    if ((id == 0) && type)
+      *type = ADV_PROTO_ID_ANQP;
 
     if (id == 221) {
       /* Vendor specific */
       guint8 len = tvb_get_guint8(tvb, offset);
+      guint oui;
+      guint8 wfa_subtype;
+      proto_tree_add_item(adv_tuple_tree, hf_ieee80211_tag_adv_vs_len, tvb, offset, 1, ENC_NA);
       offset += 1;
       left   -= 1;
+      *type = ADV_PROTO_ID_VS;
       if (len > left) {
         expert_add_info_format(pinfo, item, &ei_ieee80211_tag_length,
                                "Vendor specific info length error");
         return 2 + tag_len;
       }
-      proto_tree_add_item(adv_tuple_tree, hf_ieee80211_tag_adv_proto_vs_info, tvb,
-                        offset, len, ENC_NA);
-      offset += len;
-      left   -= len;
+      oui = tvb_get_ntoh24(tvb, offset);
+      proto_tree_add_item(adv_tuple_tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
+      offset += 3;
+      left   -= 3;
+      wfa_subtype = tvb_get_guint8(tvb, offset);
+      proto_tree_add_item(adv_tuple_tree, hf_ieee80211_anqp_wfa_subtype, tvb,
+                        offset, 1, ENC_NA);
+      offset += 1;
+      left   -= 1;
+      if (oui == OUI_WFA) {
+        proto_tree_add_item(adv_tuple_tree, hf_ieee80211_dpp_subtype, tvb, offset, 1, ENC_NA);
+        if (wfa_subtype == WFA_SUBTYPE_DPP) {
+          *subtype = WFA_SUBTYPE_DPP;
+          *subtype |= (tvb_get_guint8(tvb, offset) << 8);
+        }
+        offset++;
+        left--;
+      }
     }
   }
 
@@ -5966,7 +5998,7 @@ dissect_advertisement_protocol_common(packet_info *pinfo, proto_tree *tree,
 static int
 dissect_advertisement_protocol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  return dissect_advertisement_protocol_common(pinfo, tree, tvb, 0, NULL);
+  return dissect_advertisement_protocol_common(pinfo, tree, tvb, 0, NULL, NULL);
 }
 
 static void
@@ -6738,7 +6770,7 @@ dissect_anqp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, gb
 
 static guint
 dissect_gas_initial_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
-                            gboolean anqp)
+                            guint type, guint subtype)
 {
   guint16     req_len;
   int         start = offset;
@@ -6761,11 +6793,21 @@ dissect_gas_initial_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
    * Query Request (GAS query; formatted per protocol specified in the
    * Advertisement Protocol IE)
    */
-  if (anqp)
+  switch (type) {
+  case ADV_PROTO_ID_ANQP:
     dissect_anqp(query, tvb, pinfo, offset, TRUE);
-  else
+    break;
+  case ADV_PROTO_ID_VS:
+    if (subtype == ((DPP_CONFIGURATION_PROTOCOL << 8) | WFA_SUBTYPE_DPP)) {
+       col_append_fstr(pinfo->cinfo, COL_INFO, ", DPP - %s",
+                       val_to_str(subtype >> 8, dpp_subtype_vals, "Unknown (%u)"));
+      dissect_wifi_dpp_attributes(pinfo, query, tvb, offset);
+    }
+    /* FALL THROUGH */
+  default:
     proto_tree_add_item(query, hf_ieee80211_ff_query_request,
                         tvb, offset, req_len, ENC_NA);
+  }
   offset += req_len;
 
   return offset - start;
@@ -6773,7 +6815,7 @@ dissect_gas_initial_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
 static guint
 dissect_gas_initial_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
-                             gboolean anqp)
+                             guint type, guint subtype)
 {
   guint16     resp_len;
   int         start = offset;
@@ -6795,11 +6837,21 @@ dissect_gas_initial_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
   offset += 2;
   /* Query Response (optional) */
   if (resp_len) {
-    if (anqp)
+    switch (type) {
+    case ADV_PROTO_ID_ANQP:
       dissect_anqp(query, tvb, pinfo, offset, FALSE);
-    else
+      break;
+    case ADV_PROTO_ID_VS:
+      if (subtype == ((DPP_CONFIGURATION_PROTOCOL << 8) | WFA_SUBTYPE_DPP)) {
+         col_append_fstr(pinfo->cinfo, COL_INFO, ", DPP - %s",
+                         val_to_str(subtype >> 8, dpp_subtype_vals, "Unknown (%u)"));
+        dissect_wifi_dpp_attributes(pinfo, query, tvb, offset);
+      }
+      break;
+    default:
       proto_tree_add_item(query, hf_ieee80211_ff_query_response,
                           tvb, offset, resp_len, ENC_NA);
+    }
     offset += resp_len;
   }
 
@@ -6842,7 +6894,7 @@ static const fragment_items gas_resp_frag_items = {
 
 static guint
 dissect_gas_comeback_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
-                              gboolean anqp, guint8 frag, gboolean more,
+                              guint type, guint subtype _U_, guint8 frag, gboolean more,
                               guint8 dialog_token)
 {
   guint16     resp_len;
@@ -6865,7 +6917,7 @@ dissect_gas_comeback_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
   offset += 2;
   /* Query Response (optional) */
   if (resp_len) {
-    if (anqp && (frag == 0) && !more)
+    if (type == ADV_PROTO_ID_ANQP && (frag == 0) && !more)
       dissect_anqp(query, tvb, pinfo, offset, FALSE);
     else {
       fragment_head *frag_msg;
@@ -6882,7 +6934,7 @@ dissect_gas_comeback_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
                                          frag_msg, &gas_resp_frag_items,
                                          NULL, tree);
       if (new_tvb) {
-        if (anqp)
+        if (type == ADV_PROTO_ID_ANQP)
           dissect_anqp(query, new_tvb, pinfo, 0, FALSE);
         else
           proto_tree_add_item(query, hf_ieee80211_ff_query_response,
@@ -8005,16 +8057,18 @@ add_ff_action_public_fields(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
   case PA_GAS_INITIAL_REQUEST:
     offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
     offset += dissect_advertisement_protocol_common(pinfo, tree, tvb, offset,
-                                             &anqp);
-    offset += dissect_gas_initial_request(tree, tvb, pinfo, offset, anqp);
+                                             &type, &subtype);
+    offset += dissect_gas_initial_request(tree, tvb, pinfo, offset, type,
+                                          subtype);
     break;
   case PA_GAS_INITIAL_RESPONSE:
     offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
     offset += add_ff_status_code(tree, tvb, pinfo, offset);
     offset += add_ff_gas_comeback_delay(tree, tvb, pinfo, offset);
     offset += dissect_advertisement_protocol_common(pinfo, tree, tvb, offset,
-                                             &anqp);
-    offset += dissect_gas_initial_response(tree, tvb, pinfo, offset, anqp);
+                                             &type, &subtype);
+    offset += dissect_gas_initial_response(tree, tvb, pinfo, offset, type,
+                                           subtype);
     break;
   case PA_GAS_COMEBACK_REQUEST:
     offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
@@ -8028,9 +8082,9 @@ add_ff_action_public_fields(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     offset += add_ff_gas_fragment_id(tree, tvb, pinfo, offset);
     offset += add_ff_gas_comeback_delay(tree, tvb, pinfo, offset);
     offset += dissect_advertisement_protocol_common(pinfo, tree, tvb, offset,
-                                             &anqp);
-    offset += dissect_gas_comeback_response(tree, tvb, pinfo, offset, anqp, frag,
-                                            more, dialog_token);
+                                             &type, &subtype);
+    offset += dissect_gas_comeback_response(tree, tvb, pinfo, offset, type,
+                                            subtype, frag, more, dialog_token);
     break;
   case PA_TDLS_DISCOVERY_RESPONSE:
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TDLS");
@@ -23146,8 +23200,12 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_anqp_wfa_subtype,
-     {"ANQP WFA Subtype", "wlan.anqp.wfa.subtype",
+     {"WFA Subtype", "wlan.anqp.wfa.subtype",
       FT_UINT8, BASE_DEC, VALS(wfa_subtype_vals), 0, NULL, HFILL }},
+
+    {&hf_ieee80211_dpp_subtype,
+     {"DPP Subtype", "dpp",
+      FT_UINT8, BASE_DEC, VALS(dpp_subtype_vals), 0, NULL, HFILL }},
 
     {&hf_hs20_indication_dgaf_disabled,
      {"DGAF Disabled", "wlan.hs20.indication.dgaf_disabled",
@@ -27608,10 +27666,16 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_DEC, VALS(adv_proto_id_vals), 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_tag_adv_vs_len,
+     {"Advertisement Protocol Vendor Specific length", "wlan.adv_proto.vs_len",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL}},
+#if 0
     {&hf_ieee80211_tag_adv_proto_vs_info,
      {"Advertisement Protocol Vendor Specific info", "wlan.adv_proto.vs_info",
       FT_NONE, BASE_NONE, NULL, 0,
       NULL, HFILL }},
+#endif
 
     /* Roaming Consortium */
     {&hf_ieee80211_tag_roaming_consortium_num_anqp_oi,

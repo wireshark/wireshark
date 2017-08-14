@@ -1364,6 +1364,7 @@ set(DISSECTOR_SRC
 	packet-wfleet-hdlc.c
 	packet-who.c
 	packet-whois.c
+	packet-wifi-dpp.c
 	packet-wifi-display.c
 	packet-wifi-p2p.c
 	packet-windows-common.c
