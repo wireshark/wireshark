@@ -23204,7 +23204,7 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_DEC, VALS(wfa_subtype_vals), 0, NULL, HFILL }},
 
     {&hf_ieee80211_dpp_subtype,
-     {"DPP Subtype", "dpp",
+     {"DPP Subtype", "wlan.wfa.dpp.subtype",
       FT_UINT8, BASE_DEC, VALS(dpp_subtype_vals), 0, NULL, HFILL }},
 
     {&hf_hs20_indication_dgaf_disabled,
