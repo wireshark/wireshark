@@ -58,10 +58,7 @@
 
 /* Configuration options */
 /* #define ANDROIDDUMP_USE_LIBPCAP */
-#define EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR    1
-#define EXTCAP_ENCAP_WIRESHARK_UPPER_PDU       2
-#define EXTCAP_ENCAP_ETHERNET                  3
-#define EXTCAP_ENCAP_LINUX_SLL                 4
+
 #define PCAP_GLOBAL_HEADER_LENGTH              24
 #define PCAP_RECORD_HEADER_LENGTH              16
 
@@ -87,6 +84,18 @@
     #endif
 #else
     #include "wiretap/wtap.h"
+#endif
+
+#ifdef ANDROIDDUMP_USE_LIBPCAP
+    #define EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR DLT_BLUETOOTH_H4_WITH_PHDR
+    #define EXTCAP_ENCAP_WIRESHARK_UPPER_PDU    DLT_WIRESHARK_UPPER_PDU
+    #define EXTCAP_ENCAP_ETHERNET               DLT_EN10MB
+    #define EXTCAP_ENCAP_LINUX_SLL              DLT_LINUX_SLL
+#else
+    #define EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR
+    #define EXTCAP_ENCAP_WIRESHARK_UPPER_PDU    WTAP_ENCAP_WIRESHARK_UPPER_PDU
+    #define EXTCAP_ENCAP_ETHERNET               WTAP_ENCAP_ETHERNET
+    #define EXTCAP_ENCAP_LINUX_SLL              WTAP_ENCAP_SLL
 #endif
 
 #define WIRESHARK_UPPER_PDU_TAG_DISSECTOR_NAME  0x000C
@@ -409,46 +418,13 @@ static void useNormalConnectTimeout(socket_handle_t  sock) {
         g_debug("Can't set socket timeout, using default");
 }
 
-static int extcap_encap_to_dlt(int encap)
-{
-    int dlt = -1;
-#ifdef ANDROIDDUMP_USE_LIBPCAP
-    if (encap == EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR)
-        dlt = DLT_BLUETOOTH_H4_WITH_PHDR;
-    else if (encap == EXTCAP_ENCAP_WIRESHARK_UPPER_PDU)
-        dlt = DLT_WIRESHARK_UPPER_PDU;
-    else if (encap == EXTCAP_ENCAP_ETHERNET)
-        dlt = DLT_EN10MB;
-    else if (encap == EXTCAP_ENCAP_LINUX_SLL)
-        dlt = DLT_LINUX_SLL;
-    return dlt;
-#else
-    if (encap == EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR)
-        dlt = WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR;
-    else if (encap == EXTCAP_ENCAP_WIRESHARK_UPPER_PDU)
-        dlt = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
-    else if (encap == EXTCAP_ENCAP_ETHERNET)
-        dlt = WTAP_ENCAP_ETHERNET;
-    else if (encap == EXTCAP_ENCAP_LINUX_SLL)
-        dlt = WTAP_ENCAP_SLL;
-#endif
-    return dlt;
-}
-
 static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
     struct extcap_dumper extcap_dumper;
-    int                  encap_ext;
-
-    encap_ext = extcap_encap_to_dlt(encap);
-    if (encap_ext == -1) {
-        g_warning("Unknown encapsulation");
-        exit(EXIT_CODE_UNKNOWN_ENCAPSULATION_LIBPCAP);
-    }
 
 #ifdef ANDROIDDUMP_USE_LIBPCAP
     pcap_t  *pcap;
 
-    pcap = pcap_open_dead_with_tstamp_precision(encap_ext, PACKET_LENGTH, PCAP_TSTAMP_PRECISION_NANO);
+    pcap = pcap_open_dead_with_tstamp_precision(encap, PACKET_LENGTH, PCAP_TSTAMP_PRECISION_NANO);
     extcap_dumper.dumper.pcap = pcap_dump_open(pcap, fifo);
     if (!extcap_dumper.dumper.pcap) {
         g_warning("Can't open %s for saving packets: %s", pcap_geterr(pcap));
@@ -467,7 +443,7 @@ static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
     register_all_wiretap_modules();
 #endif
 
-    extcap_dumper.dumper.wtap = wtap_dump_open(fifo, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC, encap_ext, PACKET_LENGTH, FALSE, &err);
+    extcap_dumper.dumper.wtap = wtap_dump_open(fifo, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC, encap, PACKET_LENGTH, FALSE, &err);
     if (!extcap_dumper.dumper.wtap) {
         cfile_dump_open_failure_message("androiddump", fifo, err, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC);
         exit(EXIT_CODE_CANNOT_SAVE_WIRETAP_DUMP);
