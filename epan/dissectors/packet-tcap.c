@@ -2501,7 +2501,7 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #ifdef DEBUG_TCAPSRT
       dbg(12,"BnotFound ");
 #endif
-      if (use_dst) {
+      if (!use_dst) {
         /* make another try with src tid / address */
         goto try_src;
       }
