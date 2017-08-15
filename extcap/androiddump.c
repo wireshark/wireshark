@@ -91,11 +91,15 @@
     #define EXTCAP_ENCAP_WIRESHARK_UPPER_PDU    DLT_WIRESHARK_UPPER_PDU
     #define EXTCAP_ENCAP_ETHERNET               DLT_EN10MB
     #define EXTCAP_ENCAP_LINUX_SLL              DLT_LINUX_SLL
+    #define EXTCAP_ENCAP_IEEE802_11_RADIO       DLT_IEEE802_11_RADIO
+    #define EXTCAP_ENCAP_NETLINK                DLT_NETLINK
 #else
     #define EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR
     #define EXTCAP_ENCAP_WIRESHARK_UPPER_PDU    WTAP_ENCAP_WIRESHARK_UPPER_PDU
     #define EXTCAP_ENCAP_ETHERNET               WTAP_ENCAP_ETHERNET
     #define EXTCAP_ENCAP_LINUX_SLL              WTAP_ENCAP_SLL
+    #define EXTCAP_ENCAP_IEEE802_11_RADIO       WTAP_ENCAP_IEEE_802_11_RADIOTAP
+    #define EXTCAP_ENCAP_NETLINK                WTAP_ENCAP_NETLINK
 #endif
 
 #define WIRESHARK_UPPER_PDU_TAG_DISSECTOR_NAME  0x000C
@@ -2273,6 +2277,8 @@ static int linktype_to_extcap_encap(const char* linktype)
     const struct dlt_encap lookup[] = {
         { EXTCAP_ENCAP_LINUX_SLL, "LINUX_SLL" },
         { EXTCAP_ENCAP_ETHERNET, "EN10MB" },
+        { EXTCAP_ENCAP_IEEE802_11_RADIO, "IEEE802_11_RADIO" },
+        { EXTCAP_ENCAP_NETLINK, "NETLINK" },
         { -1, NULL }
     };
     int i;
