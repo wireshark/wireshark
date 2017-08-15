@@ -1280,6 +1280,7 @@ typedef enum _ProtocolIE_ID_enum {
 void proto_register_rnsap(void);
 void proto_reg_handoff_rnsap(void);
 
+static dissector_handle_t ranap_handle = NULL;
 static dissector_handle_t rrc_dl_ccch_handle = NULL;
 static dissector_handle_t rrc_ul_ccch_handle = NULL;
 
@@ -4395,7 +4396,7 @@ static int hf_rnsap_value_04 = -1;                /* UnsuccessfulOutcome_value *
 static int hf_rnsap_value_05 = -1;                /* Outcome_value */
 
 /*--- End of included file: packet-rnsap-hf.c ---*/
-#line 60 "./asn1/rnsap/packet-rnsap-template.c"
+#line 61 "./asn1/rnsap/packet-rnsap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_rnsap = -1;
@@ -5832,7 +5833,7 @@ static gint ett_rnsap_UnsuccessfulOutcome = -1;
 static gint ett_rnsap_Outcome = -1;
 
 /*--- End of included file: packet-rnsap-ett.c ---*/
-#line 65 "./asn1/rnsap/packet-rnsap-template.c"
+#line 66 "./asn1/rnsap/packet-rnsap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -28497,8 +28498,22 @@ dissect_rnsap_RANAP_EnhancedRelocationInformationResponse(tvbuff_t *tvb _U_, int
 
 static int
 dissect_rnsap_RANAP_RelocationInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 139 "./asn1/rnsap/rnsap.cnf"
+  tvbuff_t *parameter_tvb=NULL;
+
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     NO_BOUND, NO_BOUND, FALSE, NULL, NULL);
+                                     NO_BOUND, NO_BOUND, FALSE, &parameter_tvb, NULL);
+
+
+  if (!parameter_tvb)
+    return offset;
+
+  /* Calling RANAP dissector but preventing changes to the protocol column */
+  col_set_writable(actx->pinfo->cinfo, COL_PROTOCOL, FALSE);
+  call_dissector_only(ranap_handle, parameter_tvb, actx->pinfo, tree, NULL);
+  col_set_writable(actx->pinfo->cinfo, COL_PROTOCOL, TRUE);
+
+
 
   return offset;
 }
@@ -49030,7 +49045,7 @@ static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-rnsap-fn.c ---*/
-#line 91 "./asn1/rnsap/packet-rnsap-template.c"
+#line 92 "./asn1/rnsap/packet-rnsap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -61508,7 +61523,7 @@ void proto_register_rnsap(void) {
         "Outcome_value", HFILL }},
 
 /*--- End of included file: packet-rnsap-hfarr.c ---*/
-#line 148 "./asn1/rnsap/packet-rnsap-template.c"
+#line 149 "./asn1/rnsap/packet-rnsap-template.c"
   };
 
   /* List of subtrees */
@@ -62946,7 +62961,7 @@ void proto_register_rnsap(void) {
     &ett_rnsap_Outcome,
 
 /*--- End of included file: packet-rnsap-ettarr.c ---*/
-#line 154 "./asn1/rnsap/packet-rnsap-template.c"
+#line 155 "./asn1/rnsap/packet-rnsap-template.c"
   };
 
 
@@ -62973,6 +62988,7 @@ void proto_register_rnsap(void) {
 void
 proto_reg_handoff_rnsap(void)
 {
+	ranap_handle = find_dissector("ranap");
 	rrc_dl_ccch_handle = find_dissector_add_dependency("rrc.dl.ccch", proto_rnsap);
 	rrc_ul_ccch_handle = find_dissector_add_dependency("rrc.ul.ccch", proto_rnsap);
 
@@ -63906,7 +63922,7 @@ proto_reg_handoff_rnsap(void)
 
 
 /*--- End of included file: packet-rnsap-dis-tab.c ---*/
-#line 188 "./asn1/rnsap/packet-rnsap-template.c"
+#line 190 "./asn1/rnsap/packet-rnsap-template.c"
 }
 
 

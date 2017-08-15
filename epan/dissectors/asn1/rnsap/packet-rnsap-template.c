@@ -50,6 +50,7 @@
 void proto_register_rnsap(void);
 void proto_reg_handoff_rnsap(void);
 
+static dissector_handle_t ranap_handle = NULL;
 static dissector_handle_t rrc_dl_ccch_handle = NULL;
 static dissector_handle_t rrc_ul_ccch_handle = NULL;
 
@@ -177,6 +178,7 @@ void proto_register_rnsap(void) {
 void
 proto_reg_handoff_rnsap(void)
 {
+	ranap_handle = find_dissector("ranap");
 	rrc_dl_ccch_handle = find_dissector_add_dependency("rrc.dl.ccch", proto_rnsap);
 	rrc_ul_ccch_handle = find_dissector_add_dependency("rrc.ul.ccch", proto_rnsap);
 
