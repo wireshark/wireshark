@@ -24,15 +24,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
  * References:
- * 2004-03-11
- * http://www.ietf.org/rfc/rfc3588.txt
- * http://www.iana.org/assignments/radius-types
- * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-cc-03.txt
- * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-nasreq-14.txt
- * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-mobileip-16.txt
- * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-sip-app-01.txt
+ *
+ * RFC 3588, "Diameter Base Protocol" (now RFC 6733)
+ * draft-ietf-aaa-diameter-mobileip-16, "Diameter Mobile IPv4 Application"
+ *    (now RFC 4004)
+ * draft-ietf-aaa-diameter-nasreq-14, "Diameter Network Access Server
+ *     Application" (now RFC 4005)
+ * drafts/draft-ietf-aaa-diameter-cc-03, "Diameter Credit-Control
+ *     Application" (now RFC 4006)
+ * draft-ietf-aaa-diameter-sip-app-01, "Diameter Session Initiation
+ *     Protocol (SIP) Application" (now RFC 4740)
  * http://www.ietf.org/html.charters/aaa-charter.html
+ * http://www.iana.org/assignments/radius-types
  * http://www.iana.org/assignments/address-family-numbers
  * http://www.iana.org/assignments/enterprise-numbers
  * http://www.iana.org/assignments/aaa-parameters
