@@ -2587,6 +2587,33 @@ dissect_rsvp_session(proto_item *ti, proto_tree *rsvp_object_tree,
         rsvph->ext_tunnel_id = tvb_get_ntohl(tvb, offset2 + 8);
 
         break;
+    case RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV6:
+        proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
+                            RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV6, "14 - IPv6 P2MP LSP TUNNEL");
+        proto_tree_add_item(rsvp_object_tree,
+                            hf_rsvp_session_p2mp_id,
+                            tvb, offset2, 4, ENC_BIG_ENDIAN);
+
+        proto_tree_add_item(rsvp_object_tree,
+                            hf_rsvp_filter[RSVPF_SESSION_TUNNEL_ID],
+                            tvb, offset2+6, 2, ENC_BIG_ENDIAN);
+
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_extended_tunnel, tvb, offset2+8, 16, ENC_NA);
+        hidden_item = proto_tree_add_item(rsvp_object_tree,
+                                   hf_rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID_IPV6],
+                                   tvb, offset2+8, 16, ENC_NA);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
+
+        /*
+         * Save this information to build the conversation request key
+         * later.
+         */
+        rsvph->session_type = RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV6;
+        set_address_tvb(&rsvph->destination, AT_IPv6, 16, tvb, offset2);
+        rsvph->udp_dest_port = tvb_get_ntohs(tvb, offset2+18);
+        rsvph->ext_tunnel_id_ipv6_pre = tvb_get_ntoh64(tvb, offset2+20);
+        rsvph->ext_tunnel_id_ipv6_post = tvb_get_ntoh64(tvb, offset2+28);
+        break;
 
     case RSVP_SESSION_TYPE_IPV4_E_NNI:
         proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
