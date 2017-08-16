@@ -1075,6 +1075,11 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xCCAC, "TLS_ECDHE_PSK_WITH_CHACHA20_POLY1305_SHA256" },
     { 0xCCAD, "TLS_DHE_PSK_WITH_CHACHA20_POLY1305_SHA256" },
     { 0xCCAE, "TLS_RSA_PSK_WITH_CHACHA20_POLY1305_SHA256" },
+    /* https://tools.ietf.org/html/draft-ietf-tls-ecdhe-psk-aead */
+    { 0xD001, "TLS_ECDHE_PSK_WITH_AES_128_GCM_SHA256" },
+    { 0xD002, "TLS_ECDHE_PSK_WITH_AES_256_GCM_SHA384" },
+    { 0xD003, "TLS_ECDHE_PSK_WITH_AES_128_CCM_8_SHA256" },
+    { 0xD005, "TLS_ECDHE_PSK_WITH_AES_128_CCM_SHA256" },
     /* https://tools.ietf.org/html/draft-ietf-tls-grease */
     { 0xDADA, "Reserved (GREASE)" },
     /* http://tools.ietf.org/html/draft-josefsson-salsa20-tls */
