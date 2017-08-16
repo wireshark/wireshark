@@ -64,7 +64,7 @@ the Python Package Index.
 You need to install, in exactly this order:
 
 . C compiler:
-http://go.microsoft.com/?linkid=9863608[Download]
+https://go.microsoft.com/fwlink/?LinkId=532606&clcid=0x409[Download]
 and install "Microsoft Visual Studio 2015 Community Edition." This is a small download that then downloads all the other required parts (which are quite large).
 
 Uncheck all the optional components (unless you want to use them for purposes other than Wireshark).
