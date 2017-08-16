@@ -278,18 +278,18 @@ struct extcap_dumper {
 static int endless_loop = 1;
 
 /* Functions */
-static inline int is_specified_interface(char *interface, const char *interface_prefix) {
+static inline int is_specified_interface(const char *interface, const char *interface_prefix) {
     return !strncmp(interface, interface_prefix, strlen(interface_prefix));
 }
 
-static gboolean is_logcat_interface(char *interface) {
+static gboolean is_logcat_interface(const char *interface) {
     return is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_MAIN) ||
            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_SYSTEM) ||
            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_RADIO) ||
            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_EVENTS);
 }
 
-static gboolean is_logcat_text_interface(char *interface) {
+static gboolean is_logcat_text_interface(const char *interface) {
     return is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_MAIN) ||
            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_SYSTEM) ||
            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_RADIO) ||
@@ -879,6 +879,21 @@ static void new_interface(extcap_parameters * extcap_conf, const gchar *interfac
     }
     g_free(interface);
     g_free(ifdisplay);
+}
+
+
+static void new_fake_interface_for_list_dlts(extcap_parameters * extcap_conf,
+        const gchar *ifname)
+{
+    if (is_specified_interface(ifname, INTERFACE_ANDROID_BLUETOOTH_HCIDUMP) ||
+            is_specified_interface(ifname, INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER) ||
+            is_specified_interface(ifname, INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET)) {
+        extcap_base_register_interface_ext(extcap_conf, ifname, ifname, 99, "BluetoothH4", "Bluetooth HCI UART transport layer plus pseudo-header" );
+    } else if (is_logcat_interface(ifname) || is_logcat_text_interface(ifname)) {
+        extcap_base_register_interface(extcap_conf, ifname, ifname, 252, "Upper PDU" );
+    } else if (is_specified_interface(ifname, INTERFACE_ANDROID_TCPDUMP)) {
+        extcap_base_register_interface(extcap_conf, ifname, ifname, 1, "Ethernet");
+    }
 }
 
 
@@ -2746,6 +2761,18 @@ int main(int argc, char **argv) {
 
     if (extcap_conf->do_list_interfaces)
         register_interfaces(extcap_conf, adb_server_ip, adb_server_tcp_port);
+
+    /* NOTE:
+     * extcap implementation calls androiddump --extcap-dlts for each interface.
+     * The only way to know whether an interface exists or not is to go through the
+     * whole process of listing all interfaces (i.e. calling register_interfaces
+     * function). Since being a system resource heavy operation and repeated for
+     * each interface instead register a fake interface to be returned for dlt
+     * listing only purpose
+     */
+    if (extcap_conf->do_list_dlts) {
+        new_fake_interface_for_list_dlts(extcap_conf, extcap_conf->interface);
+    }
 
     if (extcap_base_handle_interface(extcap_conf)) {
         ret = EXIT_CODE_SUCCESS;
