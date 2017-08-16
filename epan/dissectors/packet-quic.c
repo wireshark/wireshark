@@ -85,8 +85,6 @@ static int hf_quic_frame_type_rsts_final_offset = -1;
 static int hf_quic_frame_type_cc_error_code = -1;
 static int hf_quic_frame_type_cc_reason_phrase_length = -1;
 static int hf_quic_frame_type_cc_reason_phrase = -1;
-static int hf_quic_frame_type_ga_largest_client_stream_id = -1;
-static int hf_quic_frame_type_ga_largest_server_stream_id = -1;
 static int hf_quic_frame_type_md_maximum_data = -1;
 static int hf_quic_frame_type_msd_stream_id = -1;
 static int hf_quic_frame_type_msd_maximum_stream_data = -1;
@@ -145,7 +143,6 @@ static const value_string quic_long_packet_type_vals[] = {
 #define FT_PADDING          0x00
 #define FT_RST_STREAM       0x01
 #define FT_CONNECTION_CLOSE 0x02
-#define FT_GOAWAY           0x03
 #define FT_MAX_DATA         0x04
 #define FT_MAX_STREAM_DATA  0x05
 #define FT_MAX_STREAM_ID    0x06
@@ -163,7 +160,6 @@ static const range_string quic_frame_type_vals[] = {
     { 0x00, 0x00,   "PADDING" },
     { 0x01, 0x01,   "RST_STREAM" },
     { 0x02, 0x02,   "CONNECTION_CLOSE" },
-    { 0x03, 0x03,   "GOAWAY" },
     { 0x04, 0x04,   "MAX_DATA" },
     { 0x05, 0x05,   "MAX_STREAM_DATA" },
     { 0x06, 0x06,   "MAX_STREAM_ID" },
@@ -542,19 +538,6 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
                 proto_item_set_len(ti_ft, 1 + 4 + 2 + len_reason);
 
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "Connection Close");
-
-            }
-            break;
-            case FT_GOAWAY:{
-
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_ga_largest_client_stream_id, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_ga_largest_server_stream_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 4;
-
-                proto_item_set_len(ti_ft, 1 + 4 + 4);
-
-                col_prepend_fstr(pinfo->cinfo, COL_INFO, "GOAWAY");
 
             }
             break;
@@ -999,17 +982,6 @@ proto_register_quic(void)
             { "Reason phrase", "quic.frame_type.cc.reason_phrase",
               FT_STRING, BASE_NONE, NULL, 0x0,
               "A human-readable explanation for why the connection was closed", HFILL }
-        },
-        /* GOAWAY */
-        { &hf_quic_frame_type_ga_largest_client_stream_id,
-            { "Largest Client Stream ID", "quic.frame_type.goway.largest_client_stream_id",
-              FT_UINT32, BASE_DEC, NULL, 0x0,
-              "The highest-numbered, client-initiated stream on which the endpoint sending the GOAWAY frame either sent data, or received and delivered data", HFILL }
-        },
-        { &hf_quic_frame_type_ga_largest_server_stream_id,
-            { "Largest Server Stream ID", "quic.frame_type.goway.largest_server_stream_id",
-              FT_UINT32, BASE_DEC, NULL, 0x0,
-              "The highest-numbered, server-initiated stream on which the endpoint sending the GOAWAY frame either sent data, or received and delivered data", HFILL }
         },
         /* MAX_DATA */
         { &hf_quic_frame_type_md_maximum_data,
