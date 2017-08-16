@@ -10,7 +10,7 @@ EXTRA_DIST = \
 	InputPaths.wxi		\
 	Plugins.wxi		\
 	Prerequisites.wxi	\
-	README.md		\
+	README			\
 	StringOverrides.wxl	\
 	UserInterface.wxi	\
 	Wireshark.wxs		\
