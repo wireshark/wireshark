@@ -421,6 +421,7 @@ static int hf_rsvp_tspec_token_bucket_rate = -1;
 static int hf_rsvp_tspec_multiplier = -1;
 static int hf_rsvp_dclass_dscp = -1;
 static int hf_rsvp_tspec_number_of_contiguous_components = -1;
+static int hf_rsvp_session_p2mp_id = -1;
 static int hf_rsvp_session_data = -1;
 static int hf_rsvp_lsp_tunnel_if_id_target_igp_instance = -1;
 static int hf_rsvp_flowspec_profile = -1;
@@ -2313,14 +2314,14 @@ summary_session(tvbuff_t *tvb, int offset)
     case RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV4:
         return wmem_strdup_printf(wmem_packet_scope(),
                                   "SESSION: IPv4-P2MP LSP TUNNEL, PSMP ID %d, Tunnel ID %d, Ext Tunnel %s. ",
-                                  tvb_get_ntohl(tvb, offset+4),
+                                  tvb_get_ntohs(tvb, offset+4),
                                   tvb_get_ntohs(tvb, offset+10),
                                   tvb_ip_to_str(tvb, offset+12));
         break;
     case RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV6:
         return wmem_strdup_printf(wmem_packet_scope(),
                                   "SESSION: IPv6-P2MP LSP TUNNEL, PSMP ID %d, Tunnel ID %d, Ext Tunnel %s. ",
-                                  tvb_get_ntohl(tvb, offset+4),
+                                  tvb_get_ntohs(tvb, offset+4),
                                   tvb_get_ntohs(tvb, offset+10),
                                   tvb_ip6_to_str(tvb, offset+12));
         break;
@@ -2563,7 +2564,7 @@ dissect_rsvp_session(proto_item *ti, proto_tree *rsvp_object_tree,
         proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
                             RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV4, "13 - IPv4 P2MP LSP TUNNEL");
         proto_tree_add_item(rsvp_object_tree,
-                            hf_rsvp_filter[RSVPF_SESSION_IP],
+                            hf_rsvp_session_p2mp_id,
                             tvb, offset2, 4, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(rsvp_object_tree,
@@ -9240,6 +9241,7 @@ proto_register_rsvp(void)
       { &hf_rsvp_session_destination_port, { "Destination port", "rsvp.session.destination_port", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_session_dscp, { "DSCP", "rsvp.session.dscp", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &dscp_vals_ext, 0x0, NULL, HFILL }},
       { &hf_rsvp_session_extended_ipv4_address, { "Extended IPv4 Address", "rsvp.session.extended_ipv4_address", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_session_p2mp_id, { "P2MP ID", "rsvp.session.p2mp_id", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_session_data, { "Data", "rsvp.session.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_ifid_tlv_length, { "Length", "rsvp.ifid_tlv.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_ifid_tlv_ipv4_address, { "IPv4 address", "rsvp.ifid_tlv.ipv4_address", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
