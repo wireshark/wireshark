@@ -64,10 +64,12 @@ static int hf_gtpv2_flags = -1;
 static int hf_gtpv2_version = -1;
 static int hf_gtpv2_p = -1;
 static int hf_gtpv2_t = -1;
+static int hf_gtpv2_mp = -1;
 static int hf_gtpv2_message_type = -1;
 static int hf_gtpv2_msg_length = -1;
 static int hf_gtpv2_teid = -1;
 static int hf_gtpv2_seq = -1;
+static int hf_gtpv2_msg_prio = -1;
 static int hf_gtpv2_spare = -1;
 
 
@@ -7028,9 +7030,9 @@ dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
 static int
 dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
-    proto_tree *gtpv2_tree, *flags_tree;
+    proto_tree *gtpv2_tree;
     proto_item *ti;
-    guint8      message_type, t_flag, p_flag, cause_aux;
+    guint8      message_type, t_flag, p_flag, mp_flag, cause_aux;
     int         offset = 0;
     guint16     msg_length;
     tvbuff_t   *msg_tvb;
@@ -7039,6 +7041,15 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
     gtpv2_conv_info_t *gtpv2_info;
     session_args_t  *args = NULL;
     gtpv2_hdr_t * gtpv2_hdr = NULL;
+    guint64 gtpv2_hdr_flags;
+
+    static const int * gtpv2_flags[] = {
+        &hf_gtpv2_version,
+        &hf_gtpv2_p,
+        &hf_gtpv2_t,
+        &hf_gtpv2_mp,
+        NULL
+    };
 
     gtpv2_hdr = wmem_new0(wmem_packet_scope(), gtpv2_hdr_t);
 
@@ -7054,7 +7065,6 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(message_type, &gtpv2_message_type_vals_ext, "Unknown"));
 
 
-    p_flag = (tvb_get_guint8(tvb, offset) & 0x10) >> 4;
     msg_length = tvb_get_ntohs(tvb, offset + 2);
     ti = proto_tree_add_item(tree, proto_gtpv2, tvb, offset, msg_length + 4, ENC_NA);
     gtpv2_tree = proto_item_add_subtree(ti, ett_gtpv2);
@@ -7102,15 +7112,32 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
         * (n+3)      Spare
         * Figure 5.1-1: General format of GTPv2 Header for Control Plane
         */
-    gtpv2_hdr->flags = tvb_get_guint8(tvb, offset);
-    ti = proto_tree_add_uint(gtpv2_tree, hf_gtpv2_flags, tvb, offset, 1, gtpv2_hdr->flags);
-    flags_tree = proto_item_add_subtree(ti, ett_gtpv2_flags);
+
+    /* 5.4  EPC specific GTP-C header
+     * Bits          8  7  6   5       4   3       2       1
+     * Octets      1 Version   P       T=1 MP      Spare   Spare
+     *             2 Message Type
+     *             3 Message Length (1st Octet)
+     *             4 Message Length (2nd Octet)
+     *             5 Tunnel Endpoint Identifier (1st Octet)
+     *             6 Tunnel Endpoint Identifier (2nd Octet)
+     *             7 Tunnel Endpoint Identifier (3rd Octet)
+     *             8 Tunnel Endpoint Identifier (4th Octet)
+     *             9 Sequence Number (1st Octet)
+     *            10 Sequence Number (2nd Octet)
+     *            11 Sequence Number (3rd Octet)
+     *            12 Message Priority  Spare
+     */
 
     /* Octet 1 */
-    t_flag = (tvb_get_guint8(tvb, offset) & 0x08) >> 3;
-    proto_tree_add_item(flags_tree, hf_gtpv2_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(flags_tree, hf_gtpv2_p, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(flags_tree, hf_gtpv2_t, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_with_flags_ret_uint64(gtpv2_tree, tvb, offset, hf_gtpv2_flags,
+        ett_gtpv2_flags, gtpv2_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &gtpv2_hdr_flags);
+
+    gtpv2_hdr->flags = (guint8)gtpv2_hdr_flags;
+    p_flag  = (gtpv2_hdr->flags & 0x10) >> 4;
+    t_flag  = (gtpv2_hdr->flags & 0x08) >> 3;
+    mp_flag = (gtpv2_hdr->flags & 0x04) >> 2;
+
     offset += 1;
 
     /* Octet 2 */
@@ -7132,8 +7159,18 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
     proto_tree_add_item_ret_uint(gtpv2_tree, hf_gtpv2_seq, tvb, offset, 3, ENC_BIG_ENDIAN, &seq_no);
     offset += 3;
 
-    /* Spare 1 octet */
-    proto_tree_add_item(gtpv2_tree, hf_gtpv2_spare, tvb, offset, 1, ENC_BIG_ENDIAN);
+    /* Spare 1 octet or if the "MP" flag is set to "1",
+     * then bits 8 to 5 of octet 12 shall indicate the message priority.
+     */
+    if (mp_flag) {
+        /* Bits 8 to 5 of octet 12 shall be encoded as the binary value of the Message Priority
+         * and it may take any value between 0 and 15, where 0 corresponds to the highest priority
+         * and 15 the lowest priority.
+         */
+        proto_tree_add_item(gtpv2_tree, hf_gtpv2_msg_prio, tvb, offset, 1, ENC_BIG_ENDIAN);
+    }else{
+        proto_tree_add_item(gtpv2_tree, hf_gtpv2_spare, tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
     offset += 1;
 
     if (p_flag) {
@@ -7222,6 +7259,11 @@ void proto_register_gtpv2(void)
            FT_UINT8, BASE_DEC, NULL, 0x08,
            "If TEID field is present or not", HFILL}
         },
+        { &hf_gtpv2_mp,
+          {"Message Priority(MP)", "gtpv2.mp",
+           FT_UINT8, BASE_DEC, NULL, 0x04,
+           "If Message Priority field is present or not", HFILL}
+        },
         { &hf_gtpv2_message_type,
           {"Message Type", "gtpv2.message_type",
            FT_UINT8, BASE_DEC|BASE_EXT_STRING, &gtpv2_message_type_vals_ext, 0x0,
@@ -7241,6 +7283,11 @@ void proto_register_gtpv2(void)
           {"Sequence Number", "gtpv2.seq",
            FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
            "SEQ", HFILL}
+        },
+        { &hf_gtpv2_msg_prio,
+          {"Message Priority", "gtpv2.mp",
+           FT_UINT8, BASE_HEX_DEC, NULL, 0xf0,
+           NULL, HFILL}
         },
         { &hf_gtpv2_spare,
           {"Spare", "gtpv2.spare",
