@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Include>
 
   <!-- Wireshark -->
@@ -38,8 +38,8 @@
         <Component Id="cmpNEWS_txt" Guid="*">
           <File Id="filNEWS_txt" KeyPath="yes" Source="$(var.Staging.Dir)\NEWS.txt" />
         </Component>
-        <Component Id="cmpREADME_md" Guid="*">
-          <File Id="filREADME_md" KeyPath="yes" Source="$(var.Staging.Dir)\README.md" />
+        <Component Id="cmpREADME_txt" Guid="*">
+          <File Id="filREADME_txt" KeyPath="yes" Source="$(var.Staging.Dir)\README.txt" />
         </Component>
         <Component Id="cmpREADME_windows_txt" Guid="*">
           <File Id="filREADME_windows_txt" KeyPath="yes" Source="$(var.Staging.Dir)\README.windows.txt" />
@@ -92,7 +92,7 @@
         <ComponentRef Id="cmpLibwsutil_dll" />
         <ComponentRef Id="cmpCOPYING_txt" />
         <ComponentRef Id="cmpNEWS_txt" />
-        <ComponentRef Id="cmpREADME_md" />
+        <ComponentRef Id="cmpREADME_txt" />
         <ComponentRef Id="cmpREADME_windows_txt" />
         <ComponentRef Id="cmpAUTHORS_SHORT" />
         <ComponentRef Id="cmpManuf" />

@@ -1678,10 +1678,11 @@ if (BUILD_xxx2deb)
 endif()
 
 if(WIN32)
-	set(INSTALL_FILES README.md ${INSTALL_FILES})
 	set(TEXTIFY_FILES COPYING NEWS README.windows)
-	foreach(_text_file ${TEXTIFY_FILES})
-		set(INSTALL_FILES ${CMAKE_BINARY_DIR}/${_text_file}.txt ${INSTALL_FILES})
+	set(TEXTIFY_MD_FILES README.md)
+	foreach(_text_file ${TEXTIFY_FILES} ${TEXTIFY_MD_FILES})
+		string(REGEX REPLACE ".md$" "" _out_file ${_text_file})
+		set(INSTALL_FILES ${CMAKE_BINARY_DIR}/${_out_file}.txt ${INSTALL_FILES})
 	endforeach()
 else()
 	set(INSTALL_FILES COPYING ${INSTALL_FILES})
@@ -1947,6 +1948,19 @@ if(WIN32)
 			COMMAND ${POWERSHELL_COMMAND} "${CMAKE_SOURCE_DIR}/tools/textify.ps1"
 				-Destination ${CMAKE_BINARY_DIR}
 				${CMAKE_SOURCE_DIR}/${_text_file}
+			DEPENDS
+				${CMAKE_SOURCE_DIR}/${_text_file}
+		)
+	endforeach()
+	foreach(_md_file ${TEXTIFY_MD_FILES})
+		string(REGEX REPLACE ".md$" ".txt" _text_file ${_md_file})
+		add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${_text_file}
+			COMMAND ${POWERSHELL_COMMAND} "${CMAKE_SOURCE_DIR}/tools/textify.ps1"
+				-Destination ${CMAKE_BINARY_DIR}
+				${CMAKE_SOURCE_DIR}/${_md_file}
+			COMMAND ${CMAKE_COMMAND} -E rename
+				${CMAKE_BINARY_DIR}/${_md_file}.txt
+				${CMAKE_BINARY_DIR}/${_text_file}
 			DEPENDS
 				${CMAKE_SOURCE_DIR}/${_text_file}
 		)
