@@ -158,6 +158,22 @@ static int hf_gsm_map_ericsson_locationInformation_lac = -1;
 static int hf_gsm_map_ericsson_locationInformation_ci = -1;
 static int hf_gsm_map_ericsson_locationInformation_sac = -1;
 static int hf_gsm_map_ussd_string = -1;
+static int hf_gsm_map_spare_bits = -1;
+static int hf_gsm_map_qos_signalling_ind = -1;
+static int hf_gsm_map_qos_source_stat_desc = - 1;
+static int hf_gsm_map_qos_max_bitrate_upl_ext = -1;
+static int hf_gsm_map_qos_max_bitrate_downl_ext = -1;
+static int hf_gsm_map_qos_guar_bitrate_upl_ext = -1;
+static int hf_gsm_map_qos_guar_bitrate_downl_ext = -1;
+/*
+static int hf_gsm_map_qos_max_bitrate_upl_ext2 = -1;
+static int hf_gsm_map_qos_max_bitrate_downl_ext2 = -1;
+static int hf_gsm_map_qos_guar_bitrate_upl_ext2 = -1;
+static int hf_gsm_map_qos_guar_bitrate_downl_ext2 = -1;
+*/
+static int hf_gsm_map_earp_pci = -1;
+static int hf_gsm_map_earp_pl = -1;
+static int hf_gsm_map_earp_pvi = -1;
 
 
 /*--- Included file: packet-gsm_map-hf.c ---*/
@@ -1973,7 +1989,7 @@ static int hf_NokiaMAP_Extensions_AccessSubscriptionListExt_item = -1;  /* Acces
 static int hf_NokiaMAP_Extensions_AllowedServiceData_amr_wb_allowed = -1;
 
 /*--- End of included file: packet-gsm_map-hf.c ---*/
-#line 155 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 171 "./asn1/gsm_map/packet-gsm_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_gsm_map = -1;
@@ -2004,6 +2020,8 @@ static gint ett_gsm_map_ericsson_locationInformation = -1;
 static gint ett_gsm_map_extension_data = -1;
 static gint ett_gsm_map_tbcd_digits = -1;
 static gint ett_gsm_map_ussd_string = -1;
+static gint ett_gsm_map_ext2_qos_subscribed = -1;
+static gint ett_gsm_map_ext3_qos_subscribed = -1;
 
 
 /*--- Included file: packet-gsm_map-ett.c ---*/
@@ -2697,7 +2715,7 @@ static gint ett_NokiaMAP_Extensions_AccessSubscriptionListExt = -1;
 static gint ett_NokiaMAP_Extensions_AllowedServiceData = -1;
 
 /*--- End of included file: packet-gsm_map-ett.c ---*/
-#line 187 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 205 "./asn1/gsm_map/packet-gsm_map-template.c"
 
 static expert_field ei_gsm_map_unknown_sequence3 = EI_INIT;
 static expert_field ei_gsm_map_unknown_sequence = EI_INIT;
@@ -3022,7 +3040,7 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
   */
   octet = tvb_get_guint8(tvb,offset);
   if (octet == 0 ){
-    proto_tree_add_uint_format_value(subtree, hf_gsm_map_guaranteed_max_brate_ulink, tvb, offset, 1, octet, "Reserved"  );
+    proto_tree_add_uint_format_value(subtree, hf_gsm_map_guaranteed_max_brate_ulink, tvb, offset, 1, octet, "Subscribed guaranteed bit rate for uplink/reserved");
   }else{
     proto_tree_add_uint(subtree, hf_gsm_map_guaranteed_max_brate_ulink, tvb, offset, 1, gsm_map_calc_bitrate(octet));
   }
@@ -3033,13 +3051,202 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
   */
   octet = tvb_get_guint8(tvb,offset);
   if (octet == 0 ){
-    proto_tree_add_uint_format_value(subtree, hf_gsm_map_guaranteed_max_brate_dlink, tvb, offset, 1, octet, "Reserved"  );
+    proto_tree_add_uint_format_value(subtree, hf_gsm_map_guaranteed_max_brate_dlink, tvb, offset, 1, octet, "Subscribed guaranteed bit rate for downlink/reserved");
   }else{
     proto_tree_add_uint(subtree, hf_gsm_map_guaranteed_max_brate_dlink, tvb, offset, 1, gsm_map_calc_bitrate(octet));
   }
 
 }
 
+/*
+Ext2-QoS-Subscribed ::= OCTET STRING (SIZE (1..3))
+-- Octets 1-3 are coded according to 3GPP TS 24.008 [35] Quality of Service Octets 14-16.
+-- If Quality of Service information is structured with 14 octet length, then
+-- Octet 1 is coded according to 3GPP TS 24.008 [35] Quality of Service Octet 14.
+
+*/
+
+static const true_false_string gsm_map_qos_signalling_ind_value = {
+    "Optimised for signalling traffic",
+    "Not optimised for signalling traffic"
+};
+#if 0
+/* Helper function returning the main bitrates in kbps */
+static guint32
+qos_calc_bitrate(guint8 oct)
+{
+    if (oct <= 0x3f)
+        return oct;
+    if (oct <= 0x7f)
+        return 64 + (oct - 0x40) * 8;
+
+    return 576 + (oct - 0x80) * 64;
+}
+#endif
+/* Helper function returning the extended bitrates in kbps */
+static guint32
+qos_calc_ext_bitrate(guint8 oct)
+{
+    if (oct <= 0x4a)
+        return 8600 + oct * 100;
+    if (oct <= 0xba)
+        return 16000 + (oct - 0x4a) * 1000;
+
+    return 128000 + (oct - 0xba) * 2000;
+}
+#if 0
+static guint32
+qos_calc_ext2_bitrate(guint8 oct)
+{
+    if (oct <= 0x3d)
+        return (256 + oct * 4);
+    if (oct <= 0xa1)
+        return (500 + (oct - 0x3d) * 10);
+    if (oct <= 0xf6)
+        return (1500 + (oct - 0xa1) * 100);
+
+    return 10000;
+}
+#endif
+static void
+dissect_gsm_map_ext2_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, asn1_ctx_t *actx) {
+
+    int offset = 0;
+    proto_tree *subtree;
+    const gchar *str;
+    guint8 oct, tmp_oct;
+    guint32 temp32;
+    int length = tvb_reported_length(tvb);
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_ext2_qos_subscribed);
+
+    /* Ocet 14 */
+    oct = tvb_get_guint8(tvb, offset);
+    proto_tree_add_bits_item(subtree, hf_gsm_map_spare_bits, tvb, (offset << 3), 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_gsm_map_qos_signalling_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    tmp_oct = oct & 7;
+    if (tmp_oct == 0x01)
+        str = "speech";
+    else
+        str = "unknown";
+
+    proto_tree_add_uint_format_value(subtree, hf_gsm_map_qos_source_stat_desc, tvb,
+        offset, 1, oct, "%s (%u)", str, tmp_oct);
+
+    offset += 1;
+    if (length == offset) {
+        return;
+    }
+
+    /* Octet 15 */
+    oct = tvb_get_guint8(tvb, offset);
+
+    if (oct == 0x00)
+        str = "Use the value indicated by the Maximum bit rate for downlink";
+    else
+    {
+        temp32 = qos_calc_ext_bitrate(oct);
+        if (temp32 % 1000 == 0)
+            str = wmem_strdup_printf(wmem_packet_scope(), "%u Mbps", temp32 / 1000);
+        else
+            str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", temp32);
+    }
+    proto_tree_add_uint_format_value(subtree, hf_gsm_map_qos_max_bitrate_downl_ext, tvb,
+        offset, 1, oct, "%s (%u)", str, oct);
+
+    offset += 1;
+    if (length == offset) {
+        return;
+    }
+
+    /* Octet 16 */
+    oct = tvb_get_guint8(tvb, offset);
+
+    if (oct == 0x00)
+        str = "Use the value indicated by the Guaranteed bit rate for downlink";
+    else
+    {
+        temp32 = qos_calc_ext_bitrate(oct);
+        if (temp32 % 1000 == 0)
+            str = wmem_strdup_printf(wmem_packet_scope(), "%u Mbps", temp32 / 1000);
+        else
+            str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", temp32);
+    }
+    proto_tree_add_uint_format_value(subtree, hf_gsm_map_qos_guar_bitrate_downl_ext, tvb,
+        offset, 1, oct, "%s (%u)", str, oct);
+
+}
+
+/*
+Ext3-QoS-Subscribed ::= OCTET STRING (SIZE (1..2))
+-- Octets 1-2 are coded according to 3GPP TS 24.008 [35] Quality of Service Octets 17-18.
+
+*/
+static void
+dissect_gsm_map_ext3_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, asn1_ctx_t *actx) {
+
+    int offset = 0;
+    proto_tree *subtree;
+    const gchar *str;
+    guint8 oct;
+    guint32 temp32;
+    int length = tvb_reported_length(tvb);
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_ext3_qos_subscribed);
+
+    /* Maximum bit rate for uplink (extended) Octet 17 */
+    oct = tvb_get_guint8(tvb, offset);
+
+    if (oct == 0x00)
+        str = "Use the value indicated by the Maximum bit rate for uplink";
+    else
+    {
+        temp32 = qos_calc_ext_bitrate(oct);
+        if (temp32 % 1000 == 0)
+            str = wmem_strdup_printf(wmem_packet_scope(), "%u Mbps", temp32 / 1000);
+        else
+            str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", temp32);
+    }
+    proto_tree_add_uint_format_value(subtree, hf_gsm_map_qos_max_bitrate_upl_ext, tvb,
+        offset, 1, oct, "%s (%u)", str, oct);
+
+    offset += 1;
+    if (length == offset) {
+        return;
+    }
+
+    /* Guaranteed bit rate for uplink (extended) Octet 18 */
+    oct = tvb_get_guint8(tvb, offset);
+
+    if (oct == 0x00)
+        str = "Use the value indicated by the Guaranteed bit rate for uplink";
+    else
+    {
+        temp32 = qos_calc_ext_bitrate(oct);
+        if (temp32 % 1000 == 0)
+            str = wmem_strdup_printf(wmem_packet_scope(), "%u Mbps", temp32 / 1000);
+        else
+            str = wmem_strdup_printf(wmem_packet_scope(), "%u kbps", temp32);
+    }
+    proto_tree_add_uint_format_value(subtree, hf_gsm_map_qos_guar_bitrate_upl_ext, tvb,
+        offset, 1, oct, "%s (%u)", str, oct);
+
+    return;
+}
+
+static void
+dissect_gsm_map_ext4_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, asn1_ctx_t *actx) {
+    int offset = 0;
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_ext3_qos_subscribed);
+
+    proto_tree_add_item(subtree, hf_gsm_map_earp_pvi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_gsm_map_earp_pl, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_gsm_map_earp_pci, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+}
 #define  ELLIPSOID_POINT 0
 #define  ELLIPSOID_POINT_WITH_UNCERT_CIRC 1
 #define  ELLIPSOID_POINT_WITH_UNCERT_ELLIPSE 3
@@ -3755,7 +3962,7 @@ static const ber_sequence_t gsm_map_ExternalSignalInfo_sequence[] = {
 
 int
 dissect_gsm_map_ExternalSignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 946 "./asn1/gsm_map/gsm_map.cnf"
+#line 976 "./asn1/gsm_map/gsm_map.cnf"
 /*
 -- Information about the internal structure is given in
 -- clause 7.6.9.
@@ -3977,7 +4184,7 @@ dissect_gsm_map_AlertingPattern(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 int
 dissect_gsm_map_GSN_Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 769 "./asn1/gsm_map/gsm_map.cnf"
+#line 799 "./asn1/gsm_map/gsm_map.cnf"
 
 	tvbuff_t	*parameter_tvb;
 	guint8		octet;
@@ -4154,7 +4361,7 @@ dissect_gsm_map_HLR_List(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 int
 dissect_gsm_map_GlobalCellId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1028 "./asn1/gsm_map/gsm_map.cnf"
+#line 1058 "./asn1/gsm_map/gsm_map.cnf"
     tvbuff_t	*parameter_tvb;
 	proto_tree	*subtree;
 
@@ -4431,7 +4638,7 @@ dissect_gsm_map_TA_Id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 int
 dissect_gsm_map_RAIdentity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 793 "./asn1/gsm_map/gsm_map.cnf"
+#line 823 "./asn1/gsm_map/gsm_map.cnf"
 
 	tvbuff_t	*parameter_tvb;
 	proto_tree *subtree;
@@ -4479,7 +4686,7 @@ dissect_gsm_map_CellGlobalIdOrServiceAreaIdFixedLength(gboolean implicit_tag _U_
 
 int
 dissect_gsm_map_LAIFixedLength(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 805 "./asn1/gsm_map/gsm_map.cnf"
+#line 835 "./asn1/gsm_map/gsm_map.cnf"
 
         tvbuff_t        *parameter_tvb;
         proto_tree *subtree;
@@ -8470,7 +8677,7 @@ dissect_gsm_map_ms_GeographicalInformation(gboolean implicit_tag _U_, tvbuff_t *
 
 static int
 dissect_gsm_map_ms_LocationNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1089 "./asn1/gsm_map/gsm_map.cnf"
+#line 1119 "./asn1/gsm_map/gsm_map.cnf"
  tvbuff_t	*parameter_tvb;
  proto_tree	*subtree;
  const char	*digit_str;
@@ -9160,7 +9367,7 @@ dissect_gsm_map_ms_SGSN_Capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_gsm_map_ms_APN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1062 "./asn1/gsm_map/gsm_map.cnf"
+#line 1092 "./asn1/gsm_map/gsm_map.cnf"
     tvbuff_t	*parameter_tvb;
     proto_tree	*subtree;
     int			length, name_len, tmp;
@@ -9426,7 +9633,7 @@ dissect_gsm_map_ms_UpdateGprsLocationRes(gboolean implicit_tag _U_, tvbuff_t *tv
 
 static int
 dissect_gsm_map_ms_IntegrityProtectionInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 841 "./asn1/gsm_map/gsm_map.cnf"
+#line 871 "./asn1/gsm_map/gsm_map.cnf"
     tvbuff_t        *parameter_tvb;
 	asn1_ctx_t		asn1_ctx;
 
@@ -9449,7 +9656,7 @@ dissect_gsm_map_ms_IntegrityProtectionInformation(gboolean implicit_tag _U_, tvb
 
 static int
 dissect_gsm_map_ms_EncryptionInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 853 "./asn1/gsm_map/gsm_map.cnf"
+#line 883 "./asn1/gsm_map/gsm_map.cnf"
     tvbuff_t        *parameter_tvb;
 	asn1_ctx_t		asn1_ctx;
 
@@ -9534,7 +9741,7 @@ dissect_gsm_map_ms_AllowedUMTS_Algorithms(gboolean implicit_tag _U_, tvbuff_t *t
 
 static int
 dissect_gsm_map_ms_RadioResourceInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 817 "./asn1/gsm_map/gsm_map.cnf"
+#line 847 "./asn1/gsm_map/gsm_map.cnf"
     tvbuff_t        *parameter_tvb;
 	proto_tree *subtree;
 
@@ -9605,7 +9812,7 @@ dissect_gsm_map_ms_BSSMAP_ServiceHandover(gboolean implicit_tag _U_, tvbuff_t *t
 
 static int
 dissect_gsm_map_ms_RANAP_ServiceHandover(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 829 "./asn1/gsm_map/gsm_map.cnf"
+#line 859 "./asn1/gsm_map/gsm_map.cnf"
     tvbuff_t        *parameter_tvb;
 	asn1_ctx_t		asn1_ctx;
 
@@ -11803,8 +12010,19 @@ dissect_gsm_map_ms_ChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *
 
 int
 dissect_gsm_map_ms_Ext2_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 769 "./asn1/gsm_map/gsm_map.cnf"
+
+	tvbuff_t	*parameter_tvb;
+
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+
+	if (!parameter_tvb)
+		return offset;
+	dissect_gsm_map_ext2_qos_subscribed(tvb, actx->pinfo, tree, actx);
+
+
 
   return offset;
 }
@@ -11813,8 +12031,19 @@ dissect_gsm_map_ms_Ext2_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 int
 dissect_gsm_map_ms_Ext3_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 779 "./asn1/gsm_map/gsm_map.cnf"
+
+	tvbuff_t	*parameter_tvb;
+
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+
+	if (!parameter_tvb)
+		return offset;
+	dissect_gsm_map_ext3_qos_subscribed(tvb, actx->pinfo, tree, actx);
+
+
 
   return offset;
 }
@@ -11823,8 +12052,19 @@ dissect_gsm_map_ms_Ext3_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 static int
 dissect_gsm_map_ms_Ext4_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 789 "./asn1/gsm_map/gsm_map.cnf"
+
+	tvbuff_t	*parameter_tvb;
+
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+
+	if (!parameter_tvb)
+		return offset;
+	dissect_gsm_map_ext4_qos_subscribed(tvb, actx->pinfo, tree, actx);
+
+
 
   return offset;
 }
@@ -16210,7 +16450,7 @@ dissect_gsm_map_lcs_ProvideSubscriberLocation_Arg(gboolean implicit_tag _U_, tvb
 
 int
 dissect_gsm_map_lcs_Ext_GeographicalInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1040 "./asn1/gsm_map/gsm_map.cnf"
+#line 1070 "./asn1/gsm_map/gsm_map.cnf"
     tvbuff_t	*parameter_tvb;
 	proto_tree	*subtree;
 
@@ -17679,7 +17919,7 @@ static const ber_sequence_t gsm_old_Bss_APDU_sequence[] = {
 
 static int
 dissect_gsm_old_Bss_APDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 866 "./asn1/gsm_map/gsm_map.cnf"
+#line 896 "./asn1/gsm_map/gsm_map.cnf"
  guint8		octet;
  guint8		length;
  tvbuff_t	*next_tvb;
@@ -19488,7 +19728,7 @@ dissect_gsm_ss_LCS_PeriodicLocationCancellationArg(gboolean implicit_tag _U_, tv
 
 static int
 dissect_gsm_map_ericsson_T_locationInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1118 "./asn1/gsm_map/gsm_map.cnf"
+#line 1148 "./asn1/gsm_map/gsm_map.cnf"
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
   guint8 rat;
@@ -21137,7 +21377,7 @@ dissect_NokiaMAP_Extensions_AllowedServiceData(gboolean implicit_tag _U_, tvbuff
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 904 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 1111 "./asn1/gsm_map/packet-gsm_map-template.c"
 
 /* Specific translation for MAP V3 */
 const value_string gsm_map_V1V2_opr_code_strings[] = {
@@ -21359,7 +21599,7 @@ const value_string gsm_map_opr_code_strings[] = {
 /* Unknown or empty loop list OPERATION */
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 915 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 1122 "./asn1/gsm_map/packet-gsm_map-template.c"
   { 0, NULL }
 };
 
@@ -21576,7 +21816,7 @@ static const value_string gsm_map_err_code_string_vals[] = {
 /* Unknown or empty loop list OPERATION */
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 921 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 1128 "./asn1/gsm_map/packet-gsm_map-template.c"
     { 0, NULL }
 };
 #endif
@@ -21795,7 +22035,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
       if (application_context_version == 3){
           offset=dissect_gsm_map_ch_SendRoutingInfoArg(FALSE, tvb, offset, actx, tree, -1);
       }else{
-          offset=dissect_gsm_old_SendRoutingInfoArgV2(FALSE, tvb, offset, actx, tree, -1);
+          offset = dissect_gsm_old_SendRoutingInfoArgV2(FALSE, tvb, offset, actx, tree, -1);
       }
     break;
   case 23: /*updateGprsLocation*/
@@ -23786,7 +24026,78 @@ void proto_register_gsm_map(void) {
         { "USSD String", "gsm_map.ussd_string",
           FT_STRING, STR_UNICODE, NULL, 0,
           NULL, HFILL }},
-
+    { &hf_gsm_map_spare_bits,
+        { "Spare bit(s)", "gsm_map.spare_bits",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_gsm_map_qos_signalling_ind,
+    { "Signalling indication", "gsm_map.qos.signalling_ind",
+          FT_BOOLEAN, 8, TFS(&gsm_map_qos_signalling_ind_value), 0x10,
+          NULL, HFILL }
+    },
+    { &hf_gsm_map_qos_source_stat_desc,
+    { "Source statistics description", "gsm_map.qos.source_stat_desc",
+          FT_UINT8, BASE_DEC, NULL, 0x0f,
+          NULL, HFILL }
+    },
+    { &hf_gsm_map_qos_max_bitrate_upl_ext,
+    { "Maximum bitrate for uplink (extended)", "gsm_map.qos.max_bitrate_upl_ext",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+    },
+    { &hf_gsm_map_qos_max_bitrate_downl_ext,
+    { "Maximum bitrate for downlink (extended)", "gsm_map.qos.max_bitrate_downl_ext",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+    },
+    { &hf_gsm_map_qos_guar_bitrate_upl_ext,
+    { "Guaranteed bitrate for uplink (extended)", "gsm_map.qos.guar_bitrate_upl_ext",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+    },
+    { &hf_gsm_map_qos_guar_bitrate_downl_ext,
+    { "Guaranteed bitrate for downlink (extended)", "gsm_map.qos.guar_bitrate_downl_ext",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+    },
+/*
+    { &hf_gsm_map_qos_max_bitrate_upl_ext2,
+    { "Maximum bitrate for uplink (extended-2)", "gsm_map.qos.max_bitrate_upl_ext2",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+    },
+    { &hf_gsm_map_qos_max_bitrate_downl_ext2,
+    { "Maximum bitrate for downlink (extended-2)", "gsm_map.qos.max_bitrate_downl_ext2",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+    },
+    { &hf_gsm_map_qos_guar_bitrate_upl_ext2,
+    { "Guaranteed bitrate for uplink (extended-2)", "gsm_map.qos.guar_bitrate_upl_ext2",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+    },
+    { &hf_gsm_map_qos_guar_bitrate_downl_ext2,
+    { "Guaranteed bitrate for downlink (extended-2)", "gsm_map.qos.guar_bitrate_downl_ext2",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+    },
+    */
+    { &hf_gsm_map_earp_pvi,
+    { "PVI Pre-emption Vulnerability", "gsm_map.EARP_pre_emption_par_vulnerability",
+              FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x01,
+              NULL, HFILL }
+    },
+    { &hf_gsm_map_earp_pl,
+    { "PL Priority Level", "gsm_map.EARP_priority_level",
+              FT_UINT8, BASE_DEC, NULL, 0x3C,
+              NULL, HFILL }
+    },
+    { &hf_gsm_map_earp_pci,
+    { "PCI Pre-emption Capability", "gsm_map.EARP_pre_emption_Capability",
+            FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x40,
+            NULL, HFILL }
+    },
 
 
 /*--- Included file: packet-gsm_map-hfarr.c ---*/
@@ -30866,7 +31177,7 @@ void proto_register_gsm_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 3133 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3411 "./asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -30899,6 +31210,8 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_extension_data,
     &ett_gsm_map_tbcd_digits,
     &ett_gsm_map_ussd_string,
+    &ett_gsm_map_ext2_qos_subscribed,
+    &ett_gsm_map_ext3_qos_subscribed,
 
 
 /*--- Included file: packet-gsm_map-ettarr.c ---*/
@@ -31592,7 +31905,7 @@ void proto_register_gsm_map(void) {
     &ett_NokiaMAP_Extensions_AllowedServiceData,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 3167 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3447 "./asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -31736,7 +32049,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 3227 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3507 "./asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );

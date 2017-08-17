@@ -765,6 +765,36 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 		return offset;
 	dissect_gsm_map_ext_qos_subscribed(tvb, actx->pinfo, tree, actx);
 
+#.FN_BODY Ext2-QoS-Subscribed VAL_PTR = &parameter_tvb
+
+	tvbuff_t	*parameter_tvb;
+
+%(DEFAULT_BODY)s
+
+	if (!parameter_tvb)
+		return offset;
+	dissect_gsm_map_ext2_qos_subscribed(tvb, actx->pinfo, tree, actx);
+
+#.FN_BODY Ext3-QoS-Subscribed VAL_PTR = &parameter_tvb
+
+	tvbuff_t	*parameter_tvb;
+
+%(DEFAULT_BODY)s
+
+	if (!parameter_tvb)
+		return offset;
+	dissect_gsm_map_ext3_qos_subscribed(tvb, actx->pinfo, tree, actx);
+
+#.FN_BODY Ext4-QoS-Subscribed VAL_PTR = &parameter_tvb
+
+	tvbuff_t	*parameter_tvb;
+
+%(DEFAULT_BODY)s
+
+	if (!parameter_tvb)
+		return offset;
+	dissect_gsm_map_ext4_qos_subscribed(tvb, actx->pinfo, tree, actx);
+
 #.FN_BODY GSN-Address VAL_PTR = &parameter_tvb
 
 	tvbuff_t	*parameter_tvb;
