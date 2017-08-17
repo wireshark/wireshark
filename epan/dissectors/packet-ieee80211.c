@@ -8300,6 +8300,8 @@ wnm_bss_trans_mgmt_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
   int    start = offset;
   guint8 mode;
   gint   left;
+  int tmp_sublen;
+  const guint8 ids[] = { TAG_NEIGHBOR_REPORT };
 
   static const int *ieee80211_ff_request_flags[] = {
     &hf_ieee80211_ff_request_mode_pref_cand,
@@ -8345,7 +8347,15 @@ wnm_bss_trans_mgmt_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
   if (left > 0) {
     proto_tree_add_item(tree, hf_ieee80211_ff_bss_transition_candidate_list_entries,
                         tvb, offset, left, ENC_NA);
-    offset += left;
+
+    while (left > 0){
+      tmp_sublen = tvb_get_guint8(tvb, offset + 1);
+      if(add_tagged_field(pinfo, tree, tvb, offset, 0, ids, G_N_ELEMENTS(ids), NULL) == 0){
+        break;
+      }
+      left -= (tmp_sublen + 2);
+      offset += (tmp_sublen + 2);
+    }
   }
 
   return offset - start;
@@ -8358,6 +8368,8 @@ wnm_bss_trans_mgmt_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
   int    start = offset;
   guint8 code;
   gint   left;
+  int tmp_sublen;
+  const guint8 ids[] = { TAG_NEIGHBOR_REPORT };
 
   offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
   code = tvb_get_guint8(tvb, offset);
@@ -8372,7 +8384,14 @@ wnm_bss_trans_mgmt_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
   if (left > 0) {
     proto_tree_add_item(tree, hf_ieee80211_ff_bss_transition_candidate_list_entries,
                         tvb, offset, left, ENC_NA);
-    offset += left;
+    while (left > 0){
+      tmp_sublen = tvb_get_guint8(tvb, offset + 1);
+      if(add_tagged_field(pinfo, tree, tvb, offset, 0, ids, G_N_ELEMENTS(ids), NULL) == 0){
+        break;
+      }
+      left -= (tmp_sublen + 2);
+      offset += (tmp_sublen + 2);
+    }
   }
 
   return offset - start;
