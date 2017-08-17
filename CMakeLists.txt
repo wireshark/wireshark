@@ -182,11 +182,15 @@ if(NOT LIBRARY_OUTPUT_PATH)
 		   "Single output directory for building all libraries.")
 endif()
 
-# Under Linux the release mode (CMAKE_BUILD_TYPE=release) defines NDEBUG
+#
+# The release mode (CMAKE_BUILD_TYPE=release) defines NDEBUG for
+# the Unix Makefile generator.
+#
+
 #Defines CMAKE_INSTALL_BINDIR, CMAKE_INSTALL_DATADIR, etc ...
 include(CMakeInstallDirs)
 # Make sure our executables can can load our libraries if we install into
-# a non-default directory on UNIX/Linux.
+# a non-default directory on Unix-like systems other than macOS.
 # https://cmake.org/Wiki/CMake_RPATH_handling
 if(NOT CMAKE_INSTALL_RPATH AND NOT (WIN32 OR APPLE))
 	LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" IS_SYSTEM_DIR)
