@@ -1183,7 +1183,7 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
                     sock = adb_connect_transport(adb_server_ip, adb_server_tcp_port, serial_number);
                     if (sock == INVALID_SOCKET) continue;
 
-                    response = adb_send_and_read(sock, ps_cmd, check_port_buf, sizeof(helpful_packet), &data_length);
+                    response = adb_send_and_read(sock, check_port_buf, helpful_packet, sizeof(helpful_packet), &data_length);
                     closesocket(sock);
 
                     if (!response) {
