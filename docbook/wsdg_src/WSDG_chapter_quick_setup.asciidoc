@@ -361,8 +361,14 @@ Make sure your repository path doesn't contain spaces.
 
 ==== Open a Visual Studio Command Prompt
 
-From the Start Menu (or Start Screen), navigate to the `Visual Studio 2015 ->
-Visual Studio Tools' directory and choose `Developer Command Prompt for VS2015'.
+From the Start Menu (or Start Screen), navigate to the `Visual Studio
+2015' directory directory and choose the Command Prompt appropriate for
+the build you wish to make, e.g. `VS2015 x64 Native Tools Command
+Prompt' for a 64-bit version or `VS2015 x86 Native Tools Command Prompt'
+for a 32-bit version. Depending on your version of Windows the Command
+Prompt list might be directly under `Visual Studio 2015' or you might
+have to dig for it under multiple folders, e.g. `Visual Studio 2015 ->
+Visual Studio Tools -> Windows Desktop Command Prompts'.
 
 [TIP]
 .Pin the items to the Task Bar
@@ -378,12 +384,11 @@ All subsequent operations take place in this Command Prompt window.
 Set the following environment variables, using paths and values suitable for your installation:
 
 ----
-> rem Populate the VS build environment. Default is x86.
-> "c:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86_amd64
-> rem Set the library download directory using WIRESHARK_LIB_DIR...
-> set WIRESHARK_LIB_DIR=c:\wireshark-win64-libs
-> rem ...or by using WIRESHARK_BASE_DIR
+> rem Let CMake determine the library download directory name under
+> rem WIRESHARK_BASE_DIR or set it explicitly by using WIRESHARK_LIB_DIR.
+> rem Set *one* of these.
 > set WIRESHARK_BASE_DIR=C:\Development
+> rem set WIRESHARK_LIB_DIR=c:\wireshark-win64-libs
 > rem Set the Qt installation directory
 > set QT5_BASE_DIR=C:\Qt\5.9.1\msvc2015_64
 > rem Append a custom string to the package version. Optional.
