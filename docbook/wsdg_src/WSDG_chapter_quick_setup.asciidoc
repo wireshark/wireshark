@@ -99,7 +99,7 @@ debugger. Visual Studio 2015 is also used to create official
 Wireshark builds, so it will likely have fewer development-related
 problems.
 
-For VS2010 You will need some extra items:
+For VS2010 you will need some extra items:
 
 . Windows SDK for Windows 7, if you want to build 64-bit binaries for Windows 7:
 http://msdn.microsoft.com/en-us/windowsserver/bb980924.aspx[Download] and
