@@ -99,43 +99,6 @@ debugger. Visual Studio 2015 is also used to create official
 Wireshark builds, so it will likely have fewer development-related
 problems.
 
-For VS2010 you will need some extra items:
-
-. Windows SDK for Windows 7, if you want to build 64-bit binaries for Windows 7:
-http://msdn.microsoft.com/en-us/windowsserver/bb980924.aspx[Download] and
-install "Microsoft Windows SDK for Windows 7."
-+
-In case the install of the SDK fails go to software management and
-remove the $$VC++$$ 2010 runtime and redist packages (don't worry, they
-will be added back via the service pack later). If installation of
-the SDK still fails, there may be a permission problem. See
-http://ctrlf5.net/?p=184[here] for a solution.
-
-. C compiler service pack:
-http://www.microsoft.com/en-us/download/details.aspx?id=23691[Download] and
-install "Microsoft Visual Studio 2010 Service Pack 1." This is a very large
-download.
-
-. Microsoft Visual $$C++$$ 2010 Service Pack 1 Compiler Update for the Windows
-SDK 7.1, if you want to build 64-bit binaries for Windows 7:
-http://www.microsoft.com/en-us/download/details.aspx?id=4422[Download] and
-install "Microsoft Visual $$C++$$ 2010 Service Pack 1 Compiler Update for the
-Windows SDK 7.1."
-
-. If you will be building 64-bit binaries those items must be
-installed in that order as installing the Microsoft Visual Studio
-2010 Service Pack 1 can, if you've installed the Microsoft Windows
-SDK for Windows 7, remove the 64-bit compilers, as per
-http://support.microsoft.com/?kbid=2519277[] the Microsoft Knowledge Base article "FIX: Visual C++ compilers are removed when you upgrade Visual Studio 2010 Professional or Visual Studio 2010 Express to Visual Studio 2010 SP1 if Windows SDK v7.1 is installed".  The release notes for the Microsoft Visual
-$$C++$$ 2010 Service Pack 1 Compiler Update for the Windows SDK 7.1
-say that, to ensure that your system has a supported
-configuration, you must install the items in the order specified
-above.  If you have Microsoft Update installed, so that the
-Windows update process will update software other than components
-of Windows, and thus will update Visual Studio, you may need to
-disable it until after all of the above are installed, to make
-sure it doesn't install Visual Studio 2010 SP1 out of order.
-
 [[ChSetupQt]]
 
 ==== Install Qt
