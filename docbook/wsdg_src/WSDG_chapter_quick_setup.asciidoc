@@ -329,7 +329,7 @@ Make sure your repository path doesn't contain spaces.
 ==== Open a Visual Studio Command Prompt
 
 From the Start Menu (or Start Screen), navigate to the `Visual Studio
-2015' directory directory and choose the Command Prompt appropriate for
+2015' folder and choose the Command Prompt appropriate for
 the build you wish to make, e.g. `VS2015 x64 Native Tools Command
 Prompt' for a 64-bit version or `VS2015 x86 Native Tools Command Prompt'
 for a 32-bit version. Depending on your version of Windows the Command
