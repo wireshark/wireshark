@@ -145,13 +145,17 @@ Qt download the *Qt Online Installer for Windows* from the Qt Project
 https://www.qt.io/download-open-source/["Download Open Source" page] and
 select a component that matches your target system and compiler. For
 example, the ``msvc2015 64-bit'' component is used to build the official
-64-bit packages.
+64-bit packages.  You can deselect all the Qt xxxx (e.g. Qt Charts)
+components as they aren't required.
 
-Note that separate installations (into different directories) of Qt are
-required for 32 bit and 64 bit builds. The environment variable
-`QT5_BASE_DIR` should be set as appropriate for your environment and
-should point to the Qt directory that contains the bin directory, e.g.
-`C:\Qt\5.9.1\msvc2015_64`
+Note that installation of separate Qt components are required for 32 bit
+and 64 bit builds, e.g. `msvc2015 32-bit` and `msvc2015 64-bit`. The
+environment variable `QT5_BASE_DIR` should be set as appropriate for your
+environment and should point to the Qt directory that contains the bin
+directory, e.g. `C:\Qt\5.9.1\msvc2015_64`
+
+The Qt maintenance tool (`C:\Qt\MaintenanceTool.exe`) can be used to
+upgrade Qt to newer versions.
 
 [[ChSetupCygwin]]
 
