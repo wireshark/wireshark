@@ -5,9 +5,11 @@ include::attributes.asciidoc[]
 
 [[Preface]]
 ["preface",id="Preface"]
-= Preface
+== Preface
 
 include::wsdg_src/WSDG_preface.asciidoc[]
+
+include::common_src/typographic_conventions.asciidoc[]
 
 [[PartEnvironment]]
 = Wireshark Build Environment

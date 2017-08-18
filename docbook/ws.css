@@ -127,6 +127,14 @@ tt.literal, code.literal {
   font-weight: bold;
 }
 
+.guibutton {
+  background: #f4f4f4;
+  border: 0.5px solid #f4f4f4;
+  border-radius: 0.25em;
+  padding-left: 0.25em;
+  padding-right: 0.25em;
+}
+
 .keycap, .guimenu, .guisubmenu, .guimenuitem {
   border: 0.5px solid silver;
   padding-left: 0.25em;

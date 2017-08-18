@@ -57,6 +57,10 @@ else()
 	endmacro()
 endif()
 
+set(COMMON_FILES
+	common_src/GPL_appendix.asciidoc
+)
+
 set(COMMON_GRAPHICS
 	common_graphics/note.svg
 	common_graphics/tip.svg
@@ -81,6 +85,7 @@ set(WSUG_FILES
 	wsug_src/WSUG_chapter_use.asciidoc
 	wsug_src/WSUG_chapter_work.asciidoc
 	wsug_src/WSUG_preface.asciidoc
+	${COMMON_FILES}
 )
 
 set(WSUG_GRAPHICS
@@ -230,6 +235,7 @@ set(WSDG_FILES
 	wsdg_src/WSDG_chapter_works.asciidoc
 	wsdg_src/WSDG_preface.asciidoc
 	wsluarm.asciidoc
+	${COMMON_FILES}
 )
 
 set(WSDG_GRAPHICS
@@ -331,7 +337,7 @@ if(ENABLE_HTML_GUIDES OR ENABLE_PDF_GUIDES OR ENABLE_CHM_GUIDES)
 	add_custom_target(user_guide_docbook DEPENDS generate_user-guide.xml)
 	set_target_properties(user_guide_docbook PROPERTIES FOLDER "Docbook")
 
-	ASCIIDOC2DOCBOOK(developer-guide.asciidoc ASCIIDOC_WSLUARM_CONF_FILES WSDG_SOURCE WSDG_BUILT_DEPS)
+	ASCIIDOC2DOCBOOK(developer-guide.asciidoc ASCIIDOC_CONF_FILES WSDG_SOURCE WSDG_BUILT_DEPS)
 	add_custom_target(developer_guide_docbook DEPENDS generate_developer-guide.xml)
 	set_target_properties(developer_guide_docbook PROPERTIES FOLDER "Docbook")
 

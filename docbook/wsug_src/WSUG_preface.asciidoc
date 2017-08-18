@@ -79,26 +79,6 @@ updated by mailto:{wsug-author-email}[Ulf Lamping].
 It was originally written in DocBook/XML and converted to AsciiDoc by
 Gerald Combs.
 
-You will find some specially marked parts in this book:
-
-[WARNING]
-.This is a warning
-====
-You should pay attention to a warning, otherwise data loss might occur.
-====
-
-[NOTE]
-.This is a note
-====
-A note will point you to common mistakes and things that might not be obvious.
-====
-
-[TIP]
-.This is a tip
-====
-Tips are helpful for your everyday work using Wireshark.
-====
-
 [[PreDownload]]
 
 === Where to get the latest copy of this document?

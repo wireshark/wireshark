@@ -213,6 +213,10 @@ WSDG_GRAPHICS =	\
 	wsdg_graphics/ws-logo.png		\
 	wsdg_graphics/toolbar/dummy.dummy
 
+COMMON_FILES = \
+	common_src/GPL_appendix.asciidoc	\
+	common_src/typographic_conventions.asciidoc
+
 COMMON_GRAPHICS = \
 	common_graphics/note.svg	\
 	common_graphics/tip.svg		\
@@ -222,11 +226,11 @@ COMMON_GRAPHICS = \
 WSUG_DIST =	\
 	user-guide.asciidoc	\
 	attributes.asciidoc	\
-	GPL_appendix.asciidoc	\
 	custom_layer_chm.xsl	\
 	custom_layer_pdf.xsl	\
 	$(WSUG_FILES)		\
 	$(WSUG_GRAPHICS)	\
+	$(COMMON_FILES)		\
 	$(COMMON_GRAPHICS)
 
 WSUG_SOURCE = $(WSUG_GENERATED_SOURCE) $(WSUG_DIST)
@@ -235,11 +239,11 @@ WSUG_SOURCE = $(WSUG_GENERATED_SOURCE) $(WSUG_DIST)
 WSDG_DIST =	\
 	developer-guide.asciidoc	\
 	attributes.asciidoc	\
-	GPL_appendix.asciidoc	\
 	custom_layer_chm.xsl	\
 	custom_layer_pdf.xsl	\
 	$(WSDG_FILES)		\
 	$(WSDG_GRAPHICS)	\
+	$(COMMON_FILES)		\
 	$(COMMON_GRAPHICS)
 
 WSDG_SOURCE = $(WSDG_GENERATED_SOURCE) $(WSDG_DIST)

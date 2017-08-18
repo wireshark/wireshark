@@ -112,12 +112,12 @@ example, the ``msvc2015 64-bit'' component is used to build the official
 components as they aren't required.
 
 Note that installation of separate Qt components are required for 32 bit
-and 64 bit builds, e.g. `msvc2015 32-bit` and `msvc2015 64-bit`. The
+and 64 bit builds, e.g. ``msvc2015 32-bit'' and ``msvc2015 64-bit''. The
 environment variable `QT5_BASE_DIR` should be set as appropriate for your
 environment and should point to the Qt directory that contains the bin
-directory, e.g. `C:\Qt\5.9.1\msvc2015_64`
+directory, e.g. 'C:\Qt\5.9.1\msvc2015_64'
 
-The Qt maintenance tool (`C:\Qt\MaintenanceTool.exe`) can be used to
+The Qt maintenance tool ('C:\Qt\MaintenanceTool.exe') can be used to
 upgrade Qt to newer versions.
 
 [[ChSetupCygwin]]
@@ -160,7 +160,7 @@ You might also have to install
 if installing Devel/bison doesn't provide a working version of Bison. If
 m4 is missing bison will fail.
 
-After clicking the Next button several times, the setup
+After clicking the button:Next[] button several times, the setup
 will then download and install the selected packages (this
 may take a while).
 
@@ -169,12 +169,12 @@ Alternatively you can install Cygwin and its packages using Chocolatey:
 ----
 PS$>choco install cygwin
 PS$>choco install cyg-get
-//PS$>choco install sed asciidoc [...] -source cygwin
 ----
+//PS$>choco install sed asciidoc [...] -source cygwin
 
 Chocolatey installs Cygwin in 'C:\tools\cygwin' by default.
 
-You can directly download packages via cyg-get
+You can directly download packages via `cyg-get`
 
 ----
 PS$>cyg-get asciidoc patch docbook-xml45 [...]
@@ -194,7 +194,7 @@ PS$>choco install winflexbison
 Get the Python 3.5 or 2.7 installer from http://python.org/download/[] and
 install Python into the default location ('C:\Python35' or 'C:\Python27').
 
-Why is this recommended? Cygwin's `/usr/bin/python` is a Cygwin-specific
+Why is this recommended? Cygwin's '/usr/bin/python' is a Cygwin-specific
 symbolic link which cannot be run from Windows. The native package is faster
 as well.
 
@@ -309,11 +309,11 @@ Using Git extensions:
 
 . In the main screen select _Clone repository_. Fill in the following:
 +
-Repository to clone: `https://code.wireshark.org/review/wireshark`
+Repository to clone: *`https://code.wireshark.org/review/wireshark`*
 +
-Destination: Your top-level development directory, e.g. `C:\Development`.
+Destination: Your top-level development directory, e.g. 'C:\Development'.
 +
-Subdirectory to create: Anything you'd like. Usually `wireshark`.
+Subdirectory to create: Anything you'd like. Usually 'wireshark'.
 +
 [TIP]
 .Check your paths
@@ -321,8 +321,8 @@ Subdirectory to create: Anything you'd like. Usually `wireshark`.
 Make sure your repository path doesn't contain spaces.
 ====
 
-. Click the _Clone_ button. Git Extensions should start cloning the
-   Wireshark repository.
+. Click the button:Clone[] button. Git Extensions should start cloning the
+  Wireshark repository.
 
 [[ChSetupPrepareCommandCom]]
 
@@ -446,7 +446,7 @@ At the end of the CMake generation process the following should be displayed:
 
 If you get any other output, there is an issue in your envirnment that must be rectified before building.
 Check the parameters passed to CMake, especially the `-G` option and the path to the Wireshark sources and
-the environment variables WIRESHARK_BASE_DIR and QT5_BASE_DIR.
+the environment variables `WIRESHARK_BASE_DIR` and `QT5_BASE_DIR`.
 
 [[ChWin32Build]]
 
@@ -467,16 +467,16 @@ to build Wireshark.
 
 . Wait for Wireshark to compile. This will take a while, and there will be a lot of text output in the command prompt window
 
-. For the Qt version run `C:\Development\wsbuild32\run\RelWithDebInfo\Wireshark.exe` and make sure it starts.
+. Run *`C:\Development\wsbuild32\run\RelWithDebInfo\Wireshark.exe`* and make sure it starts.
 
-. Open 'Help -> About'. If it shows your "private" program
+. Open menu:Help[About]. If it shows your "private" program
 version, e.g.: Version {wireshark-version}-myprotocol123
 congratulations! You have compiled your own version of Wireshark!
 
-You may also open the Wireshark solution file (Wireshark.sln) in the Visual Studio IDE and build there.
+You may also open the Wireshark solution file ('Wireshark.sln') in the Visual Studio IDE and build there.
 
 TIP: If compilation fails for suspicious reasons after you changed some source
-files try to clean the build files by running msbuild /m /p:Configuration=RelWithDebInfo Wireshark.sln /t:Clean
+files try to clean the build files by running *`msbuild /m /p:Configuration=RelWithDebInfo Wireshark.sln /t:Clean`*
 and then building the solution again.
 
 The build files produced by CMake will regenerate themselves if required by changes in the source tree.
@@ -507,13 +507,13 @@ Note that the 32-bit version of NSIS will work for both 32-bit and
 64-bit versions of Wireshark. NSIS v3 is recommended and may be required
 in the future.
 
-Note: If you do not yet have a copy of vcredist_x86.exe or vcredist_x64.exe in ./wireshark-winXX-libs (where XX is 32 or 64) you will need to download the appropriate file and place it in ./wireshark-winXX-libs before starting this step.
+Note: If you do not yet have a copy of vcredist_x86.exe or vcredist_x64.exe in './wireshark-win**XX**-libs' (where *'XX'* is 32 or 64) you will need to download the appropriate file and place it in './wireshark-win**XX**-libs' before starting this step.
 
-If building an x86 version using a Visual Studio "Express" edition or an x64 version with any edition, then you must have the appropriate vcredist file for your compiler in the support libraries directory (vcredist_x86.exe in wireshark-32-libs or vcredist_x64.exe in wireshark-win64-libs).
+If building an x86 version using a Visual Studio "Express" edition or an x64 version with any edition, then you must have the appropriate vcredist file for your compiler in the support libraries directory ('vcredist_x86.exe' in 'wireshark-32-libs' or 'vcredist_x64.exe' in 'wireshark-win64-libs').
 
 The files can be located in the Visual Studio install directory for non-Express edition builds, or downloaded from Microsoft for Expresss edition builds.
 
-Note you must use the correct version of vcredist for your compiler, unfortunately they all have the same name (vcredist_x86.exe or vcredist_x64.exe).  You can use Windows Explorer and examine the Properties >> Details tab for a vcredist file to determine which compiler version the file is for use with.
+Note you must use the correct version of vcredist for your compiler, unfortunately they all have the same name ('vcredist_x86.exe' or 'vcredist_x64.exe').  You can use Windows Explorer and examine the `Properties -> Details' tab for a vcredist file to determine which compiler version the file is for use with.
 
 . If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,prepare>> it again.
 

@@ -69,27 +69,6 @@ and updated for VS2013 by mailto:{wsdg-author-email2}[Graham Bloice]
 
 It is written in AsciiDoc.
 
-You will find some specially marked parts in this book:
-
-[WARNING]
-.This is a warning
-====
-You should pay attention to a warning, as otherwise data loss might occur.
-====
-
-[NOTE]
-.This is a note
-====
-A note will point you to common mistakes and things that might not be
-obvious.
-====
-
-[TIP]
-.This is a tip
-====
-Tips will be helpful for your everyday work developing Wireshark.
-====
-
 [[PreDownload]]
 
 === Where to get the latest copy of this document?

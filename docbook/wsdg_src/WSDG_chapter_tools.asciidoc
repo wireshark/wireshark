@@ -42,8 +42,8 @@ tested.
 Documentation for these tools is outside the scope of this document. If you need
 further information on using a specific tool you should find lots of useful
 information on the web, as these tools are commonly used. You can also get help
-for the UNIX based tools with `toolname --help` or the man page via `man
-toolname`.
+for the UNIX based tools with +**toolname** --help+ or the man page via +man
+**toolname**+.
 
 You will find explanations of the tool usage for some of the specific
 development tasks in <<ChapterSources>>.
@@ -52,7 +52,7 @@ development tasks in <<ChapterSources>>.
 
 Chocolatey is a Windows package manager that can be used to install (and update)
 many of the packages required for Wireshark development. Chocolatey can be
-obtained from the http://chocolatey.org[website] or from a DOS command prompt:
+obtained from the http://chocolatey.org[website] or from a Command Prompt:
 
 ----
 C:\>@powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))" && SET PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin
@@ -65,8 +65,8 @@ PS:\>iex ((new-object net.webclient).DownloadString('https://chocolatey.org/inst
 ----
 
 Chocolatey sometimes installs packages in unexpected locations. Cygwin is a notable
-example -- recent versions of the Cygwin package are installed in `C:\ProgramData\chocolatey\lib\Cygwin\tools\cygwin` instead of Cygwin's default location
-(`C:\cygwin` or `C:\cygwin64`).
+example -- recent versions of the Cygwin package are installed in 'C:\ProgramData\chocolatey\lib\Cygwin\tools\cygwin' instead of Cygwin's default location
+('C:\cygwin' or 'C:\cygwin64').
 
 [[ChToolsCygwin]]
 
@@ -97,7 +97,7 @@ appropriate setup utility to download it. After the download completes,
 run it.
 
 All tools will be installed into one base folder. The default is
-'C:\cygwin' for the 32-bit installer and `C:\cygwin64` for the 64-bit
+'C:\cygwin' for the 32-bit installer and 'C:\cygwin64' for the 64-bit
 installer.
 
 The setup utility will ask you for some settings. The defaults
@@ -118,9 +118,9 @@ After clicking the Next button several times the setup
 will then download and install the selected packages (this may
 take a while, depending on the package size).
 
-Under: 'Start->Programs->Cygwin->Cygwin Bash Shell' you should now be able to start
-a new Cygwin bash shell, which is similar to the standard Windows command line
-interpreters (command.com / cmd.exe) but much more powerful.
+Under menu:Start[Programs,Cygwin,Cygwin Bash Shell] you should now be able to start
+a new Cygwin bash shell, which is similar to the standard Windows Command Prompt
+(cmd.exe) but much more powerful.
 
 [[ChToolsCygwinPackages]]
 
@@ -157,7 +157,7 @@ PS$>choco install cyg-get
 
 Chocolatey installs Cygwin in 'C:\ProgramData\chocolatey\lib\Cygwin\tools\cygwin' by default.
 
-One or more Cygwin packages can be installed using "cyg-get":
+One or more Cygwin packages can be installed using `cyg-get`:
 
 ----
 PS$>cyg-get sed asciidoc
@@ -208,15 +208,15 @@ In particular, the macOS and Windows packages are built using CMake.
 
 Building with CMake typically includes creating a build directory and
 specifying a *generator*, aka a build tool. For example, to build
-Wireshark using Ninja in the directory `wireshark-ninja` you might
+Wireshark using Ninja in the directory 'wireshark-ninja' you might
 run the following commands:
 
 ----
 # Starting from your Wireshark source directory, create a build directory
 # alongside it.
 $ cd ..
-$ mkdir wsbuild
-$ cd wsbuild
+$ mkdir wireshark-ninja
+$ cd wireshark-ninja
 # Assumes your source directory is named "wireshark".
 $ cmake -G Ninja ../wireshark
 $ ninja (or cmake --build .)
@@ -241,11 +241,11 @@ using the `-D` flag. Useful variables and generators include the following:
 
 -DENABLE_APPLICATION_BUNDLE=OFF:: Disable building an application bundle (Wireshark.app) on macOS
 
-You can list all build variables (with help) using `cmake -LH [options]
-../<Name_of_WS_source_dir>`. This lists the cache of build variables
+You can list all build variables (with help) by running *`cmake -LH [options]
+../<Name_of_WS_source_dir>`*. This lists the cache of build variables
 after the cmake run. To only view the current cache, add option `-N`.
 
-After running cmake, you can always run "make help" to see a list of all possible make targets.
+After running cmake, you can always run *`make help`* to see a list of all possible make targets.
 
 Note that CMake honors user umask for creating directories as of now. You should set
 the umask explicitly before running the `install` target.
@@ -367,13 +367,13 @@ Your version string may vary, of course.
 To compile Wireshark on Windows using the Microsoft C/$$C++$$
 compiler, you'll need:
 
-. C compiler (`cl.exe`)
+. C compiler ('cl.exe')
 
-. Assembler (`ml.exe` for 32-bit targets and `ml64.exe` for 64-bit targets)
+. Assembler ('ml.exe' for 32-bit targets and 'ml64.exe' for 64-bit targets)
 
-. Linker (`link.exe`)
+. Linker ('link.exe')
 
-. Resource Compiler (`rc.exe`)
+. Resource Compiler ('rc.exe')
 
 . C runtime headers and libraries (e.g. 'stdio.h', 'msvcrt.lib')
 
@@ -417,7 +417,7 @@ Purchase required?:: http://www.visualstudio.com/en-us/downloads/download-visual
 
 SDK required for 64-bit builds?:: No
 
-CMake Generator: `Visual Studio 12`
+CMake Generator: *`Visual Studio 12`*
 
 .Visual $$C++$$ 2010 Express Edition
 
@@ -427,7 +427,7 @@ Purchase required?:: http://www.microsoft.com/express/Downloads/#Visual_Studio_2
 
 SDK required for 64-bit builds?:: Yes.
 
-CMake Generator: `Visual Studio 10`
+CMake Generator: *`Visual Studio 10`*
 
 Remarks:: Installers created using express editions require a $$C++$$ redistributable
 '$$vcredist_x86.exe$$' (3MB free
@@ -446,7 +446,7 @@ Purchase required?:: Yes
 
 SDK required for 64-bit builds?:: No
 
-CMake Generator: `Visual Studio 10`
+CMake Generator: *`Visual Studio 10`*
 
 Remarks:: Building a 64-bit installer
 requires a a $$C++$$ redistributable
@@ -709,7 +709,7 @@ menu and then click on the required line and press F9.  To run the program,
 press F5.
 
 If you require a non-optimised version, then build using a debug configuration, e.g.
-`msbuild /m /p:Configuration=Debug Wireshark.sln`.  The build products will be found
+*`msbuild /m /p:Configuration=Debug Wireshark.sln`*. The build products will be found
 in C:\Development\wsbuild32\run\Debug\.
 
 [[ChToolsBash]]
@@ -759,7 +759,7 @@ Python 2.5 or later (including Python 3) should work fine and Python 3.5 and
 
 Python is either included or available as a package on most UNIX-like platforms.
 Windows packages and source are available at http://python.org/download/[].
-The Cygwin Python package is *not* recommended since `/usr/bin/python` is
+The Cygwin Python package is *not* recommended since '/usr/bin/python' is
 a symbolic link, which causes confusion outside Cygwin.
 
 You can also use Chocolatey to install Python:
@@ -842,7 +842,7 @@ Perl may be copied only under the terms of either the Artistic License or the
 GNU General Public License, which may be found in the Perl 5 source kit.
 
 Complete documentation for Perl, including FAQ lists, should be found on
-this system using `man perl' or `perldoc perl'.  If you have access to the
+this system using *`man perl'* or *`perldoc perl'*.  If you have access to the
 Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 ----
 
@@ -934,7 +934,7 @@ Your version string may vary.
 
 A native Windows version of bison is available in the _winflexbison_
 https://chocolatey.org/[Chocolatey] package. Note that the executable is named
-`win_bison`.
+'win_bison'.
 
 Native packages are available from other sources such as
 http://gnuwin32.sourceforge.net/packages/bison.htm[GnuWin]. They aren't
@@ -977,7 +977,7 @@ Your version string may vary.
 
 A native Windows version of flex is available in the _winflexbison_
 https://chocolatey.org/[Chocolatey] package. Note that the executable is named
-`win_flex`.
+'win_flex'.
 
 ----
 PS:\>choco install winflexbison
