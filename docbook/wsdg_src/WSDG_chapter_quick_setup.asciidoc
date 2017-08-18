@@ -151,7 +151,7 @@ Note that separate installations (into different directories) of Qt are
 required for 32 bit and 64 bit builds. The environment variable
 `QT5_BASE_DIR` should be set as appropriate for your environment and
 should point to the Qt directory that contains the bin directory, e.g.
-`C:\Qt\5.9.2\msvc2015_64`
+`C:\Qt\5.9.1\msvc2015_64`
 
 [[ChSetupCygwin]]
 
@@ -390,7 +390,7 @@ Set the following environment variables, using paths and values suitable for you
 > set WIRESHARK_BASE_DIR=C:\Development
 > rem set WIRESHARK_LIB_DIR=c:\wireshark-win64-libs
 > rem Set the Qt installation directory
-> set QT5_BASE_DIR=C:\Qt\5.9.2\msvc2015_64
+> set QT5_BASE_DIR=C:\Qt\5.9.1\msvc2015_64
 > rem Append a custom string to the package version. Optional.
 > set WIRESHARK_VERSION_EXTRA=-YourExtraVersionInfo
 ----
