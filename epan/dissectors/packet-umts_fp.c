@@ -793,7 +793,7 @@ dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                     chan+1, n+1, p_fp_info->chan_tf_size[chan]);
             }
 
-            if (preferences_call_mac_dissectors /*&& !rlc_is_ciphered(pinfo)*/ && data_handle &&
+            if (preferences_call_mac_dissectors && data_handle &&
                 (p_fp_info->chan_tf_size[chan] > 0)) {
                 tvbuff_t *next_tvb;
                 proto_item *item;
@@ -900,7 +900,7 @@ dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         pinfo->fd->subnum = pdu; /* set subframe number to current TB */
         p_fp_info->cur_tb = pdu;    /*Set TB (PDU) index correctly*/
-        if (preferences_call_mac_dissectors /*&& !rlc_is_ciphered(pinfo)*/) {
+        if (preferences_call_mac_dissectors) {
             tvbuff_t *next_tvb;
             next_tvb = tvb_new_subset_length_caplen(tvb, offset + bit_offset/8,
                                       ((bit_offset % 8) + length + 7)/8, -1);
@@ -965,7 +965,7 @@ dissect_macd_pdu_data_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
         }
 
-        if (preferences_call_mac_dissectors  /*&& !rlc_is_ciphered(pinfo)*/) {
+        if (preferences_call_mac_dissectors) {
 
             tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, length);
 
@@ -2910,7 +2910,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
                 for (macd_idx = 0; macd_idx < subframes[n].number_of_mac_d_pdus[i]; macd_idx++) {
 
-                    if (preferences_call_mac_dissectors /*&& !rlc_is_ciphered(pinfo)*/) {
+                    if (preferences_call_mac_dissectors) {
                         tvbuff_t *next_tvb;
                         pinfo->fd->subnum = macd_idx; /* set subframe number to current TB */
                         /* create new TVB and pass further on */
@@ -3305,7 +3305,7 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
             /*Check if this is multiplexed (signaled by RRC)*/
-            if ( /*!rlc_is_ciphered(pinfo) &&*/ p_fp_info->hsdhsch_macfdlow_is_mux[p_fp_info->hsdsch_macflowd_id] ) {
+            if (p_fp_info->hsdhsch_macfdlow_is_mux[p_fp_info->hsdsch_macflowd_id] ) {
                 macinf->ctmux[i] = TRUE;
             } else if (p_fp_info->hsdsch_macflowd_id == 0) {              /*MACd-flow = 0 is often SRB */
                 expert_add_info(pinfo, NULL, &ei_fp_maybe_srb);
@@ -5152,7 +5152,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
             /*Figure out RLC_MODE based on MACd-flow-ID, basically MACd-flow-ID = 0 then it's SRB0 == UM else AM*/
             rlcinf->mode[0] = hsdsch_macdflow_id_rlc_map[fp_hsdsch_channel_info->hsdsch_macdflow_id];
 
-            if (fpi->hsdsch_entity == hs /*&& !rlc_is_ciphered(pinfo)*/) {
+            if (fpi->hsdsch_entity == hs) {
                 for (i=0; i<MAX_NUM_HSDHSCH_MACDFLOW; i++) {
                     /*Figure out if this channel is multiplexed (signaled from RRC)*/
                     if ((cur_val=(gint *)g_tree_lookup(hsdsch_muxed_flows, GINT_TO_POINTER((gint)fp_hsdsch_channel_info->hrnti))) != NULL) {

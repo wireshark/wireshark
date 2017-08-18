@@ -2813,22 +2813,6 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     return TRUE;
 }
 
-gboolean
-rlc_is_ciphered(packet_info * pinfo){
-    fp_info *fpinf;
-    rlc_info *rlcinf;
-
-    if (!pinfo) {
-        return global_rlc_ciphered;
-    }
-
-    fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
-    rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
-
-    return ((rlcinf && fpinf && (rlcinf->ciphered[fpinf->cur_tb] == TRUE) && (rlcinf->deciphered[fpinf->cur_tb] == FALSE))
-            || global_rlc_ciphered);
-}
-
 void
 proto_register_rlc(void)
 {
