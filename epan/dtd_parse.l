@@ -88,6 +88,8 @@
 #include "dtd_grammar.h"
 #include "dtd_parse.h"
 
+DIAG_OFF(sign-compare)
+
 	struct _proto_xmlpi_attr {
 		const gchar* name;
 		void (*act)(gchar*);
@@ -343,6 +345,8 @@ squoted        ['][^\']*[']
 <DTD>{name}                  { DTD_PARSE(TOKEN_NAME); }
 
 %%
+
+DIAG_ON(sign-compare)
 
 static dtd_token_data_t* new_token(gchar* text, gchar* location) {
 	dtd_token_data_t* t = g_new(dtd_token_data_t,1);

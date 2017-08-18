@@ -100,6 +100,8 @@
 #include <epan/to_str.h>
 #include <wsutil/file_util.h>
 
+DIAG_OFF(sign-compare)
+
 typedef struct entity_t {
 	char* name;
 	char* file;
@@ -624,6 +626,8 @@ description_attr description=\042
 
 
 %%
+
+DIAG_ON(sign-compare)
 
 static int debugging  = 0;
 

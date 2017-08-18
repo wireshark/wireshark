@@ -114,6 +114,8 @@
 #define YY_NO_UNISTD_H
 #endif
 
+DIAG_OFF(sign-compare)
+
 /*
  * State kept by the scanner.
  */
@@ -243,6 +245,8 @@ hdlc HDLC
 <<EOF>> { yyextra->at_eof = TRUE; yyterminate(); }
 
 %%
+
+DIAG_ON(sign-compare)
 
 /* Fill in pkthdr */
 

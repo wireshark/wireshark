@@ -84,6 +84,8 @@
 
 #include "text_import_scanner.h"
 
+DIAG_OFF(sign-compare)
+
 /*
  * Flex (v 2.5.35) uses this symbol to "exclude" unistd.h
  */

@@ -78,6 +78,8 @@
 #include "ascend.h"
 #include "file_wrappers.h"
 
+DIAG_OFF(sign-compare)
+
 #define YY_INPUT(buf,result,max_size) { \
 	ascend_state_t *parser_state = ascendget_extra(yyscanner); \
 	int c = file_getc(parser_state->fh); \

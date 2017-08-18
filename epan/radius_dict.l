@@ -92,6 +92,8 @@
 #include <epan/dissectors/packet-radius.h>
 #include <wsutil/file_util.h>
 
+DIAG_OFF(sign-compare)
+
 /*
  * See
  *
@@ -409,6 +411,8 @@ static void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, c
 
 
 %%
+
+DIAG_ON(sign-compare)
 
 static void add_vendor(Radius_scanner_state_t* state, const gchar* name, guint32 id, guint type_octets, guint length_octets, gboolean has_flags) {
 	radius_vendor_info_t* v;

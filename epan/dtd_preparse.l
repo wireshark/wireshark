@@ -97,6 +97,8 @@
 #include "dtd.h"
 #include <wsutil/file_util.h>
 
+DIAG_OFF(sign-compare)
+
 #define ECHO g_string_append(yyextra->current,yytext);
 
 struct _dtd_preparse_scanner_state {
@@ -209,6 +211,8 @@ newline    \n
 <ENTITY_DONE>{special_stop}		{ yyextra->current = yyextra->output; g_string_append(yyextra->current,"\n"); BEGIN OUTSIDE; }
 
 %%
+
+DIAG_ON(sign-compare)
 
 static const gchar* replace_entity(Dtd_PreParse_scanner_state_t* state, gchar* entity) {
 	GString* replacement;

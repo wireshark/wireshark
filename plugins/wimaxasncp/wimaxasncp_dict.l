@@ -100,6 +100,8 @@
 
 #include "wimaxasncp_dict.h"
 
+DIAG_OFF(sign-compare)
+
 typedef struct entity_t {
 	gchar *name;
 	gchar *file;
@@ -520,6 +522,8 @@ since_attr since=\042
 
 
 %%
+
+DIAG_ON(sign-compare)
 
 static int debugging  = 0;
 
