@@ -321,9 +321,9 @@ write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, pf_flags 
 
     /* Create the output */
     if (use_color && (cfp != NULL)) {
-        fprintf(fh, "<packet foreground='#%02x%02x%02x' background='#%02x%02x%02x'>\n",
-            cfp->fg_color.red, cfp->fg_color.green, cfp->fg_color.blue,
-            cfp->bg_color.red, cfp->bg_color.green, cfp->bg_color.blue);
+        fprintf(fh, "<packet foreground='#%06x' background='#%06x'>\n",
+            color_t_to_rgb(&cfp->fg_color),
+            color_t_to_rgb(&cfp->bg_color));
     }
     else {
         fprintf(fh, "<packet>\n");
@@ -1466,9 +1466,9 @@ write_psml_columns(epan_dissect_t *edt, FILE *fh, gboolean use_color)
     const color_filter_t *cfp = edt->pi.fd->color_filter;
 
     if (use_color && (cfp != NULL)) {
-        fprintf(fh, "<packet foreground='#%02x%02x%02x' background='#%02x%02x%02x'>\n",
-            cfp->fg_color.red, cfp->fg_color.green, cfp->fg_color.blue,
-            cfp->bg_color.red, cfp->bg_color.green, cfp->bg_color.blue);
+        fprintf(fh, "<packet foreground='#%06x' background='#%06x'>\n",
+            color_t_to_rgb(&cfp->fg_color),
+            color_t_to_rgb(&cfp->bg_color));
     }
     else {
         fprintf(fh, "<packet>\n");
