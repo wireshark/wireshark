@@ -355,7 +355,9 @@ the following'':
 // tcp_analyze_seq_info->nextseq
 Next expected sequence number:: The last-seen sequence number plus
 segment length. Set when there are no analysis flags and and for zero
-window probes.
+window probes. This is initially zero and calculated based on the
+previous packet in the same TCP flow. Note that this may not be the same
+as the tcp.nxtseq protocol field.
 
 // tcp_analyze_seq_info->maxseqtobeacked
 Next expected acknowledgement number:: The last-seen sequence number for
@@ -458,9 +460,10 @@ Set when the current sequence number is greater than the next expected sequence 
 [float]
 ==== TCP Spurious Retransmission
 
-Set when all of the following are true:
+Checks for a retransmission based on analysis data in the reverse
+direction. Set when all of the following are true:
 
-- In the forward direction, the segment length is greater than zero or the SYN or FIN is set.
+- The SYN or FIN flag is set.
 - This is not a keepalive packet.
 - The segment length is greater than zero.
 - Data for this flow has been acknowledged. That is, the last-seen acknowledgement number has been set.
@@ -475,7 +478,7 @@ Supersedes ``Retransmission''.
 Set when all of the following are true:
 
 - This is not a keepalive packet.
-- In the forward direction, the segment length is greater than zero or the SYN or FIN is set.
+- In the forward direction, the segment length is greater than zero or the SYN or FIN flag is set.
 - The next expected sequence number is greater than the current sequence number.
 
 // TCP_A_WINDOW_FULL
