@@ -2034,7 +2034,7 @@ proto_reg_handoff_zbee_zcl_groups(void)
 /*************************/
 
 #define ZBEE_ZCL_SCENES_NUM_ETT                                 2
-#define ZBEE_ZCL_CMD_ID_SCENES_SUPPORTED_MASK                   0x80  /* bit     7 */
+#define ZBEE_ZCL_ATTR_SCENES_SCENE_VALID_MASK                     0x01  /* bit     0 */
 
 /* Attributes */
 #define ZBEE_ZCL_ATTR_ID_SCENES_SCENE_COUNT                     0x0000  /* Scene Count */
@@ -2643,8 +2643,8 @@ proto_register_zbee_zcl_scenes(void)
             ZBEE_ZCL_CMD_ID_SCENES_NAME_SUPPORT_MASK, NULL, HFILL } },
 
         { &hf_zbee_zcl_scenes_attr_id_scene_valid,
-            { "Scene Validity", "zbee_zcl_general.scenes.scene_valid",  FT_BOOLEAN, 8, TFS(&tfs_true_false),
-            ZBEE_ZCL_CMD_ID_SCENES_SUPPORTED_MASK, NULL, HFILL } },
+            { "Scene Valid", "zbee_zcl_general.scenes.scene_valid", FT_BOOLEAN, 8, TFS(&tfs_true_false),
+            ZBEE_ZCL_ATTR_SCENES_SCENE_VALID_MASK, NULL, HFILL } },
 
         { &hf_zbee_zcl_scenes_attr_str_len,
             { "Length", "zbee_zcl_general.scenes.attr_str_len", FT_UINT8, BASE_DEC, NULL,
