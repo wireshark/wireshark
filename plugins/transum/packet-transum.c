@@ -199,9 +199,9 @@ void add_detected_tcp_svc(guint16 port)
 
 static void init_dcerpc_data(void)
 {
-    wmem_map_insert(dcerpc_req_pkt_type, GUINT_TO_POINTER(0), GUINT_TO_POINTER(0));
-    wmem_map_insert(dcerpc_req_pkt_type, GUINT_TO_POINTER(11), GUINT_TO_POINTER(11));
-    wmem_map_insert(dcerpc_req_pkt_type, GUINT_TO_POINTER(14), GUINT_TO_POINTER(14));
+    wmem_map_insert(dcerpc_req_pkt_type, GUINT_TO_POINTER(0), GUINT_TO_POINTER(1));
+    wmem_map_insert(dcerpc_req_pkt_type, GUINT_TO_POINTER(11), GUINT_TO_POINTER(1));
+    wmem_map_insert(dcerpc_req_pkt_type, GUINT_TO_POINTER(14), GUINT_TO_POINTER(1));
 
     wmem_map_insert(dcerpc_context_zero, GUINT_TO_POINTER(11), GUINT_TO_POINTER(11));
     wmem_map_insert(dcerpc_context_zero, GUINT_TO_POINTER(12), GUINT_TO_POINTER(12));
