@@ -69,17 +69,23 @@
 #define PROTOCOL_BINARY_RESPONSE_NOT_STORED         0x05
 #define PROTOCOL_BINARY_RESPONSE_DELTA_BADVAL       0x06
 #define PROTOCOL_BINARY_RESPONSE_NOT_MY_VBUCKET     0x07
+#define PROTOCOL_BINARY_RESPONSE_NO_VBUCKET         0x08
+#define PROTOCOL_BINARY_RESPONSE_LOCKED             0x09
+#define PROTOCOL_BINARY_RESPONSE_AUTH_STALE         0x1f
 #define PROTOCOL_BINARY_RESPONSE_AUTH_ERROR         0x20
 #define PROTOCOL_BINARY_RESPONSE_AUTH_CONTINUE      0x21
 #define PROTOCOL_BINARY_RESPONSE_ERANGE             0x22
 #define PROTOCOL_BINARY_RESPONSE_ROLLBACK           0x23
 #define PROTOCOL_BINARY_RESPONSE_EACCESS            0x24
+#define PROTOCOL_BINARY_RESPONSE_NOT_INITIALIZED    0x25
 #define PROTOCOL_BINARY_RESPONSE_UNKNOWN_COMMAND    0x81
 #define PROTOCOL_BINARY_RESPONSE_ENOMEM             0x82
 #define PROTOCOL_BINARY_RESPONSE_NOT_SUPPORTED      0x83
 #define PROTOCOL_BINARY_RESPONSE_EINTERNAL          0x84
 #define PROTOCOL_BINARY_RESPONSE_EBUSY              0x85
 #define PROTOCOL_BINARY_RESPONSE_ETMPFAIL           0x86
+#define PROTOCOL_BINARY_RESPONSE_XATTR_EINVAL       0x87
+#define PROTOCOL_BINARY_RESPONSE_UNKNOWN_COLLECTION         0x88
 #define PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_ENOENT         0xc0
 #define PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_MISMATCH       0xc1
 #define PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_EINVAL         0xc2
@@ -93,6 +99,14 @@
 #define PROTOCOL_BINARY_RESPONSE_SUBDOC_VALUE_ETOODEEP      0xca
 #define PROTOCOL_BINARY_RESPONSE_SUBDOC_INVALID_COMBO       0xcb
 #define PROTOCOL_BINARY_RESPONSE_SUBDOC_MULTI_PATH_FAILURE  0xcc
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_SUCCESS_DELETED            0xcd
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_INVALID_FLAG_COMBO   0xce
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_INVALID_KEY_COMBO    0xcf
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_UNKNOWN_MACRO        0xd0
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_UNKNOWN_VATTR        0xd1
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_CANT_MODIFY_VATTR    0xd2
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_MULTI_PATH_FAILURE_DELETED 0xd3
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_INVALID_XATTR_ORDER        0xd4
 
  /* Command Opcodes */
 #define PROTOCOL_BINARY_CMD_GET                     0x00
@@ -456,17 +470,27 @@ static const value_string status_vals[] = {
   { PROTOCOL_BINARY_RESPONSE_NOT_STORED,        "Key not stored"          },
   { PROTOCOL_BINARY_RESPONSE_DELTA_BADVAL,      "Bad value to incr/decr"  },
   { PROTOCOL_BINARY_RESPONSE_NOT_MY_VBUCKET,    "Not my vBucket"          },
+  { PROTOCOL_BINARY_RESPONSE_NO_VBUCKET,        "Not connected to a bucket" },
+  { PROTOCOL_BINARY_RESPONSE_LOCKED,            "The requested resource is locked" },
+  { PROTOCOL_BINARY_RESPONSE_AUTH_STALE,        "Authentication context is stale. Should reauthenticate." },
   { PROTOCOL_BINARY_RESPONSE_AUTH_ERROR,        "Authentication error"    },
   { PROTOCOL_BINARY_RESPONSE_AUTH_CONTINUE,     "Authentication continue" },
   { PROTOCOL_BINARY_RESPONSE_ERANGE,            "Range error"             },
   { PROTOCOL_BINARY_RESPONSE_ROLLBACK,          "Rollback"                },
   { PROTOCOL_BINARY_RESPONSE_EACCESS,           "Access error"            },
+  { PROTOCOL_BINARY_RESPONSE_NOT_INITIALIZED,
+    "The Couchbase cluster is currently initializing this node, and "
+    "the Cluster manager has not yet granted all users access to the cluster."},
   { PROTOCOL_BINARY_RESPONSE_UNKNOWN_COMMAND,   "Unknown command"         },
   { PROTOCOL_BINARY_RESPONSE_ENOMEM,            "Out of memory"           },
   { PROTOCOL_BINARY_RESPONSE_NOT_SUPPORTED,     "Command isn't supported" },
   { PROTOCOL_BINARY_RESPONSE_EINTERNAL,         "Internal error"          },
   { PROTOCOL_BINARY_RESPONSE_EBUSY,             "Server is busy"          },
   { PROTOCOL_BINARY_RESPONSE_ETMPFAIL,          "Temporary failure"       },
+  { PROTOCOL_BINARY_RESPONSE_XATTR_EINVAL,
+    "There is something wrong with the syntax of the provided XATTR."},
+  { PROTOCOL_BINARY_RESPONSE_UNKNOWN_COLLECTION,
+    "Operation attempted with an unknown collection."},
   { PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_ENOENT,
     "Subdoc: Path not does not exist"},
   { PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_MISMATCH,
@@ -493,7 +517,22 @@ static const value_string status_vals[] = {
     "Subdoc: Invalid combination for multi-path command"},
   { PROTOCOL_BINARY_RESPONSE_SUBDOC_MULTI_PATH_FAILURE,
     "Subdoc: One or more paths in a multi-path command failed"},
-
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_SUCCESS_DELETED,
+    "Subdoc: The operation completed successfully, but operated on a deleted document."},
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_INVALID_FLAG_COMBO,
+    "Subdoc: The combination of the subdoc flags for the xattrs doesn't make any sense."},
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_INVALID_KEY_COMBO,
+    "Subdoc: Only a single xattr key may be accessed at the same time."},
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_UNKNOWN_MACRO,
+    "Subdoc: The server has no knowledge of the requested macro."},
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_UNKNOWN_VATTR,
+    "Subdoc: The server has no knowledge of the requested virtual xattr."},
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_CANT_MODIFY_VATTR,
+    "Subdoc: Virtual xattrs can't be modified."},
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_MULTI_PATH_FAILURE_DELETED,
+    "Subdoc: Specified key was found as a deleted document, but one or more path operations failed."},
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_INVALID_XATTR_ORDER,
+    "Subdoc: According to the spec all xattr commands should come first, followed by the commands for the document body."},
   { 0, NULL }
 };
 
