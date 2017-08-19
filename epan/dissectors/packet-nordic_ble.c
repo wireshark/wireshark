@@ -1,7 +1,7 @@
 /* packet-nordic_ble.c
  * Routines for Nordic BLE sniffer dissection
  *
- * Copyright (c) 2016 Nordic Semiconductor.
+ * Copyright (c) 2016-2017 Nordic Semiconductor.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -20,6 +20,97 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ */
+
+/* Nordic BLE Sniffer packet format: BoardID + Header + Payload
+ *
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *  |                           BoardID  (1 byte)                           |
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *
+ * Header:
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *  |                      Length of header  (1 byte)                       |
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *  |                      Length of payload  (1 byte)                      |
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *  |                      Protocol version  (1 byte)                       |
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *  |                         Packet counter (LSB)                          |
+ *  |                               (2 bytes)                               |
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *  |                          Packet ID  (1 byte)                          |
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *
+ *  Packet ID:
+ *   0x00 = REQ_FOLLOW
+ *          Host tells the Sniffer to only send packets received from a specific
+ *          address.
+ *   0x01 = EVENT_FOLLOW
+ *          Sniffer tells the Host that it has entered the FOLLOW state.
+ *   0x05 = EVENT_CONNECT
+ *          Sniffer tells the Host that someone has connected to the unit we
+ *          are following.
+ *   0x06 = EVENT_PACKET
+ *          Sniffer tells the Host that it has received a packet.
+ *   0x07 = REQ_SCAN_CONT
+ *          Host tells the Sniffer to scan continuously and hand over the
+ *          packets ASAP.
+ *   0x09 = EVENT_DISCONNECT
+ *          Sniffer tells the Host that the connected address we were following
+ *          has received a disconnect packet.
+ *   0x0C = SET_TEMPORARY_KEY
+ *          Specify a temporary key to use on encryption (for OOB and passkey).
+ *   0x0D = PING_REQ
+ *   0x0E = PING_RESP
+ *   0x13 = SWITCH_BAUD_RATE_REQ
+ *   0x14 = SWITCH_BAUD_RATE_RESP
+ *   0x17 = SET_ADV_CHANNEL_HOP_SEQ
+ *          Host tells the Sniffer which order to cycle through the channels
+ *          when following an advertiser.
+ *   0xFE = GO_IDLE
+ *          Host tell the Sniffer to stop sending UART traffic and listen for
+ *          new commands.
+ *
+ * Payloads:
+ *
+ *  EVENT_PACKET (ID 0x06):
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *  |                   Length of payload data  (1 byte)                    |
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *  |                            Flags  (1 byte)                            |
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *  |                           Channel  (1 byte)                           |
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *  |                          RSSI (dBm)  (1 byte)                         |
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *  |                             Event counter                             |
+ *  |                               (2 bytes)                               |
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *  |                                                                       |
+ *  |                     Delta time (us end to start)                      |
+ *  |                               (4 bytes)                               |
+ *  |                                                                       |
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *  |                                                                       |
+ *  |                Bluetooth Low Energy Link Layer Packet                 |
+ *  |                                  ...                                  |
+ *  |                                                                       |
+ *  +--------+--------+--------+--------+--------+--------+--------+--------+
+ *
+ *  Flags:
+ *   00000001 = CRC       (0 = Incorrect, 1 = OK)
+ *   00000010 = Direction (0 = Slave -> Master, 1 = Master -> Slave)
+ *   00000100 = Encrypted (0 = No, 1 = Yes)
+ *
+ *  Channel:
+ *   The channel index being used.
+ *
+ *  Delta time:
+ *   This is the time in micro seconds from the end of the previous received
+ *   packet to the beginning of this packet.
  */
 
 #include "config.h"
@@ -235,9 +326,6 @@ dissect_packet_header(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree
 
         proto_tree_add_item(header_tree, hf_nordic_ble_packet_id, tvb, offset, 1, ENC_NA);
         offset += 1;
-
-        proto_tree_add_item(header_tree, hf_nordic_ble_packet_length, tvb, offset, 1, ENC_NA);
-        offset += 1;
     }
 
     proto_item_set_len(ti, offset - start_offset);
@@ -249,6 +337,9 @@ static gint
 dissect_packet(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, btle_context_t *context, guint8 packet_len)
 {
     gint32 rssi;
+
+    proto_tree_add_item(tree, hf_nordic_ble_packet_length, tvb, offset, 1, ENC_NA);
+    offset += 1;
 
     offset = dissect_flags(tvb, offset, pinfo, tree, context);
 
