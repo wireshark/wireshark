@@ -69,6 +69,7 @@ static int hf_gsmtap_burst_type = -1;
 static int hf_gsmtap_channel_type = -1;
 static int hf_gsmtap_tetra_channel_type = -1;
 static int hf_gsmtap_gmr1_channel_type = -1;
+static int hf_gsmtap_rrc_sub_type = -1;
 static int hf_gsmtap_antenna = -1;
 
 static int hf_sacch_l1h_power_lev = -1;
@@ -174,6 +175,72 @@ enum {
 	GSMTAP_RRC_SUB_TargetRNC_ToSourceRNC_Container,
 
 	GSMTAP_RRC_SUB_MAX
+};
+
+static const value_string rrc_sub_types[] = {
+	{ GSMTAP_RRC_SUB_DL_DCCH_Message,					"RRC DL-DCCH" },
+	{ GSMTAP_RRC_SUB_UL_DCCH_Message,					"RRC UL-DCCH" },
+	{ GSMTAP_RRC_SUB_DL_CCCH_Message,					"RRC DL-CCCH" },
+	{ GSMTAP_RRC_SUB_UL_CCCH_Message,					"RRC UL-CCCH" },
+	{ GSMTAP_RRC_SUB_PCCH_Message,						"RRC PCCH" },
+	{ GSMTAP_RRC_SUB_DL_SHCCH_Message,					"RRC DL-SHCCH" },
+	{ GSMTAP_RRC_SUB_UL_SHCCH_Message,					"RRC UL-SHCCH" },
+	{ GSMTAP_RRC_SUB_BCCH_FACH_Message,					"RRC BCCH-FACH" },
+	{ GSMTAP_RRC_SUB_BCCH_BCH_Message,					"RRC BCCH-BCH" },
+	{ GSMTAP_RRC_SUB_MCCH_Message,						"RRC MCCH" },
+	{ GSMTAP_RRC_SUB_MSCH_Message,						"RRC MSCH" },
+	{ GSMTAP_RRC_SUB_HandoverToUTRANCommand,			"RRC Handover To UTRAN Command" },
+	{ GSMTAP_RRC_SUB_InterRATHandoverInfo,				"RRC Inter RAT Handover Info" },
+	{ GSMTAP_RRC_SUB_SystemInformation_BCH,				"RRC System Information - BCH" },
+	{ GSMTAP_RRC_SUB_System_Information_Container,		"RRC System Information Container" },
+	{ GSMTAP_RRC_SUB_UE_RadioAccessCapabilityInfo,		"RRC UE Radio Access Capability Info" },
+	{ GSMTAP_RRC_SUB_MasterInformationBlock,			"RRC Master Information Block" },
+	{ GSMTAP_RRC_SUB_SysInfoType1,						"RRC System Information Type 1" },
+	{ GSMTAP_RRC_SUB_SysInfoType2,						"RRC System Information Type 2" },
+	{ GSMTAP_RRC_SUB_SysInfoType3,						"RRC System Information Type 3" },
+	{ GSMTAP_RRC_SUB_SysInfoType4,						"RRC System Information Type 4" },
+	{ GSMTAP_RRC_SUB_SysInfoType5,						"RRC System Information Type 5" },
+	{ GSMTAP_RRC_SUB_SysInfoType5bis,					"RRC System Information Type 5bis" },
+	{ GSMTAP_RRC_SUB_SysInfoType6,						"RRC System Information Type 6" },
+	{ GSMTAP_RRC_SUB_SysInfoType7,						"RRC System Information Type 7" },
+	{ GSMTAP_RRC_SUB_SysInfoType8,						"RRC System Information Type 8" },
+	{ GSMTAP_RRC_SUB_SysInfoType9,						"RRC System Information Type 9" },
+	{ GSMTAP_RRC_SUB_SysInfoType10,						"RRC System Information Type 10" },
+	{ GSMTAP_RRC_SUB_SysInfoType11,						"RRC System Information Type 11" },
+	{ GSMTAP_RRC_SUB_SysInfoType11bis,					"RRC System Information Type 11bis" },
+	{ GSMTAP_RRC_SUB_SysInfoType12,						"RRC System Information Type 12" },
+	{ GSMTAP_RRC_SUB_SysInfoType13,						"RRC System Information Type 13" },
+	{ GSMTAP_RRC_SUB_SysInfoType13_1,					"RRC System Information Type 13.1" },
+	{ GSMTAP_RRC_SUB_SysInfoType13_2,					"RRC System Information Type 13.2" },
+	{ GSMTAP_RRC_SUB_SysInfoType13_3,					"RRC System Information Type 13.3" },
+	{ GSMTAP_RRC_SUB_SysInfoType13_4,					"RRC System Information Type 13.4" },
+	{ GSMTAP_RRC_SUB_SysInfoType14,						"RRC System Information Type 14" },
+	{ GSMTAP_RRC_SUB_SysInfoType15,						"RRC System Information Type 15" },
+	{ GSMTAP_RRC_SUB_SysInfoType15bis,					"RRC System Information Type 15bis" },
+	{ GSMTAP_RRC_SUB_SysInfoType15_1,					"RRC System Information Type 15.1" },
+	{ GSMTAP_RRC_SUB_SysInfoType15_1bis,				"RRC System Information Type 15.1bis" },
+	{ GSMTAP_RRC_SUB_SysInfoType15_2,					"RRC System Information Type 15.1" },
+	{ GSMTAP_RRC_SUB_SysInfoType15_2bis,				"RRC System Information Type 15.2bis" },
+	{ GSMTAP_RRC_SUB_SysInfoType15_2ter,				"RRC System Information Type 15.2ter" },
+	{ GSMTAP_RRC_SUB_SysInfoType15_3,					"RRC System Information Type 15.3" },
+	{ GSMTAP_RRC_SUB_SysInfoType15_3bis,				"RRC System Information Type 15.3bis" },
+	{ GSMTAP_RRC_SUB_SysInfoType15_4,					"RRC System Information Type 15.4" },
+	{ GSMTAP_RRC_SUB_SysInfoType15_5,					"RRC System Information Type 15.5" },
+	{ GSMTAP_RRC_SUB_SysInfoType15_6,					"RRC System Information Type 15.6" },
+	{ GSMTAP_RRC_SUB_SysInfoType15_7,					"RRC System Information Type 15.7 "},
+	{ GSMTAP_RRC_SUB_SysInfoType15_8,					"RRC System Information Type 15.8" },
+	{ GSMTAP_RRC_SUB_SysInfoType16,						"RRC System Information Type 16" },
+	{ GSMTAP_RRC_SUB_SysInfoType17,						"RRC System Information Type 17" },
+	{ GSMTAP_RRC_SUB_SysInfoType18,						"RRC System Information Type 18" },
+	{ GSMTAP_RRC_SUB_SysInfoType19,						"RRC System Information Type 19" },
+	{ GSMTAP_RRC_SUB_SysInfoType20,						"RRC System Information Type 20" },
+	{ GSMTAP_RRC_SUB_SysInfoType21,						"RRC System Information Type 21" },
+	{ GSMTAP_RRC_SUB_SysInfoType22,						"RRC System Information Type 22" },
+	{ GSMTAP_RRC_SUB_SysInfoTypeSB1,					"RRC System Information Type SB 1" },
+	{ GSMTAP_RRC_SUB_SysInfoTypeSB2,					"RRC System Information Type SB 2" },
+	{ GSMTAP_RRC_SUB_ToTargetRNC_Container,				"RRC To Target RNC Container" },
+	{ GSMTAP_RRC_SUB_TargetRNC_ToSourceRNC_Container,	"RRC Target RNC To Source RNC Container" },
+	{ 0,												NULL }
 };
 
 /* LTE RRC message types */
@@ -488,6 +555,9 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		else if (type == GSMTAP_TYPE_GMR1_UM)
 			proto_tree_add_item(gsmtap_tree, hf_gsmtap_gmr1_channel_type,
 					    tvb, offset+12, 1, ENC_BIG_ENDIAN);
+		else if (type == GSMTAP_TYPE_UMTS_RRC)
+			proto_tree_add_item(gsmtap_tree, hf_gsmtap_rrc_sub_type,
+					    tvb, offset+12, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_antenna,
 				    tvb, offset+13, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_subslot,
@@ -668,6 +738,8 @@ proto_register_gsmtap(void)
 		  FT_UINT8, BASE_DEC, VALS(gsmtap_tetra_channels), 0, NULL, HFILL }},
 		{ &hf_gsmtap_gmr1_channel_type, { "Channel Type", "gsmtap.gmr1_chan_type",
 		  FT_UINT8, BASE_DEC, VALS(gsmtap_gmr1_channels), 0, NULL, HFILL }},
+		{ &hf_gsmtap_rrc_sub_type, { "Message Type", "gsmtap.rrc_sub_type",
+		  FT_UINT8, BASE_DEC, VALS(rrc_sub_types), 0, NULL, HFILL }},
 		{ &hf_gsmtap_antenna, { "Antenna Number", "gsmtap.antenna",
 		  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 		{ &hf_gsmtap_subslot, { "Sub-Slot", "gsmtap.sub_slot",
