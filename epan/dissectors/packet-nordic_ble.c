@@ -334,12 +334,14 @@ dissect_packet_header(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree
 }
 
 static gint
-dissect_packet(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, btle_context_t *context, guint8 packet_len)
+dissect_packet(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, gboolean legacy_mode, btle_context_t *context, guint8 packet_len)
 {
     gint32 rssi;
 
-    proto_tree_add_item(tree, hf_nordic_ble_packet_length, tvb, offset, 1, ENC_NA);
-    offset += 1;
+    if (!legacy_mode) {
+        proto_tree_add_item(tree, hf_nordic_ble_packet_length, tvb, offset, 1, ENC_NA);
+        offset += 1;
+    }
 
     offset = dissect_flags(tvb, offset, pinfo, tree, context);
 
@@ -379,7 +381,7 @@ dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, btle_context
     }
 
     offset = dissect_packet_header(tvb, offset, pinfo, nordic_ble_tree, legacy_mode, bad_length, &packet_len);
-    offset = dissect_packet(tvb, offset, pinfo, nordic_ble_tree, context, packet_len);
+    offset = dissect_packet(tvb, offset, pinfo, nordic_ble_tree, legacy_mode, context, packet_len);
 
     proto_item_set_len(ti, offset);
 
