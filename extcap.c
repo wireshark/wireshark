@@ -63,7 +63,7 @@
 #include "extcap_spawn.h"
 
 #ifdef _WIN32
-static HANDLE pipe_h = NULL;
+static HANDLE pipe_h = INVALID_HANDLE_VALUE;
 #endif
 
 static void extcap_child_watch_cb(GPid pid, gint status, gpointer user_data);
@@ -1031,13 +1031,14 @@ void extcap_if_cleanup(capture_options *capture_opts, gchar **errormsg)
               "Extcap [%s] - Cleaning up fifo: %s; PID: %d", interface_opts.name,
               interface_opts.extcap_fifo, interface_opts.extcap_pid);
 #ifdef _WIN32
-        if (pipe_h)
+        if (interface_opts.extcap_pipe_h != INVALID_HANDLE_VALUE)
         {
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
                   "Extcap [%s] - Closing pipe", interface_opts.name);
-            FlushFileBuffers(pipe_h);
-            DisconnectNamedPipe(pipe_h);
-            CloseHandle(pipe_h);
+            FlushFileBuffers(interface_opts.extcap_pipe_h);
+            DisconnectNamedPipe(interface_opts.extcap_pipe_h);
+            CloseHandle(interface_opts.extcap_pipe_h);
+            interface_opts.extcap_pipe_h = INVALID_HANDLE_VALUE;
         }
 #else
         if (interface_opts.extcap_fifo != NULL && file_exists(interface_opts.extcap_fifo))
@@ -1362,15 +1363,21 @@ extcap_init_interfaces(capture_options *capture_opts)
         /* create control pipes if having toolbar */
         if (extcap_has_toolbar(interface_opts.name))
         {
-            extcap_create_pipe(&interface_opts.extcap_control_in);
-            extcap_create_pipe(&interface_opts.extcap_control_out);
+            extcap_create_pipe(interface_opts.name, &interface_opts.extcap_control_in,
+                               EXTCAP_CONTROL_IN_PREFIX);
+            extcap_create_pipe(interface_opts.name, &interface_opts.extcap_control_out,
+                               EXTCAP_CONTROL_OUT_PREFIX);
         }
 
         /* create pipe for fifo */
-        if (!extcap_create_pipe(&interface_opts.extcap_fifo))
+        if (!extcap_create_pipe(interface_opts.name, &interface_opts.extcap_fifo,
+                                EXTCAP_PIPE_PREFIX))
         {
             return FALSE;
         }
+#ifdef _WIN32
+        interface_opts.extcap_pipe_h = pipe_h;
+#endif
 
         /* Create extcap call */
         args = extcap_prepare_arguments(interface_opts);
@@ -1405,9 +1412,8 @@ extcap_init_interfaces(capture_options *capture_opts)
          */
         if (pid != INVALID_EXTCAP_PID)
         {
-            extcap_wait_for_pipe(pipe_h, pid);
+            extcap_wait_for_pipe(interface_opts.extcap_pipe_h, pid);
         }
-
 #endif
 
         interface_opts.extcap_userdata = (gpointer) userdata;
@@ -1419,16 +1425,7 @@ extcap_init_interfaces(capture_options *capture_opts)
     return TRUE;
 }
 
-#ifdef _WIN32
-/* called by capture_sync to get the CreatNamedPipe handle*/
-HANDLE
-extcap_get_win32_handle()
-{
-    return pipe_h;
-}
-#endif
-
-gboolean extcap_create_pipe(char **fifo)
+gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, const gchar *pipe_prefix)
 {
 #ifdef _WIN32
     gchar timestr[ 14 + 1 ];
@@ -1444,7 +1441,7 @@ gboolean extcap_create_pipe(char **fifo)
      * so we won't get a null pointer back from localtime().
      */
     strftime(timestr, sizeof(timestr), "%Y%m%d%H%M%S", localtime(&current_time));
-    pipename = g_strconcat("\\\\.\\pipe\\", EXTCAP_PIPE_PREFIX, "_", timestr, NULL);
+    pipename = g_strconcat("\\\\.\\pipe\\", pipe_prefix, "_", ifname, "_", timestr, NULL);
 
     /* Security struct to enable Inheritable HANDLE */
     memset(&security, 0, sizeof(SECURITY_ATTRIBUTES));
@@ -1475,10 +1472,13 @@ gboolean extcap_create_pipe(char **fifo)
     gchar *temp_name = NULL;
     int fd = 0;
 
-    if ((fd = create_tempfile(&temp_name, EXTCAP_PIPE_PREFIX, NULL)) < 0)
+    gchar *pfx = g_strconcat(pipe_prefix, "_", ifname, NULL);
+    if ((fd = create_tempfile(&temp_name, pfx, NULL)) < 0)
     {
+        g_free(pfx);
         return FALSE;
     }
+    g_free(pfx);
 
     ws_close(fd);
 
