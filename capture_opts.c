@@ -68,6 +68,9 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->default_options.extcap_args     = NULL;
     capture_opts->default_options.extcap_userdata = NULL;
     capture_opts->default_options.extcap_pid      = INVALID_EXTCAP_PID;
+#ifdef _WIN32
+    capture_opts->default_options.extcap_pipe_h   = INVALID_HANDLE_VALUE;
+#endif
     capture_opts->default_options.extcap_control_in  = NULL;
     capture_opts->default_options.extcap_control_out = NULL;
 #endif
@@ -713,6 +716,9 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
     interface_opts.extcap_args = NULL;
     interface_opts.extcap_pid = INVALID_EXTCAP_PID;
     interface_opts.extcap_userdata = NULL;
+#ifdef _WIN32
+    interface_opts.extcap_pipe_h = INVALID_HANDLE_VALUE;
+#endif
     interface_opts.extcap_control_in = g_strdup(capture_opts->default_options.extcap_control_in);
     interface_opts.extcap_control_out = g_strdup(capture_opts->default_options.extcap_control_out);
 #endif
@@ -1226,6 +1232,9 @@ collect_ifaces(capture_options *capture_opts)
             if (interface_opts.extcap_args)
                 g_hash_table_ref(interface_opts.extcap_args);
             interface_opts.extcap_userdata = NULL;
+#ifdef _WIN32
+            interface_opts.extcap_pipe_h = INVALID_HANDLE_VALUE;
+#endif
             interface_opts.extcap_control_in = NULL;
             interface_opts.extcap_control_out = NULL;
 #endif

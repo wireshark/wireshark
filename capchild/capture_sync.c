@@ -526,19 +526,12 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
 #else
     si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
     si.wShowWindow  = SW_HIDE;  /* this hides the console window */
-#if defined(_WIN32)
-    /* needs first a check if NULL *
-     * otherwise wouldn't work with non extcap interfaces */
-    if(interface_opts.extcap_fifo != NULL)
-    {
-       if(strncmp(interface_opts.extcap_fifo,"\\\\.\\pipe\\",9)== 0)
-       {
-         si.hStdInput = extcap_get_win32_handle();
-       }
-    }
+#ifdef HAVE_EXTCAP
+    if(interface_opts.extcap_pipe_h != INVALID_HANDLE_VALUE)
+        si.hStdInput = interface_opts.extcap_pipe_h;
     else
 #endif
-       si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+        si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
 
     si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
     si.hStdError = sync_pipe_write;

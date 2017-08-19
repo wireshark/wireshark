@@ -36,6 +36,10 @@
 
 #include <caputils/capture_ifinfo.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -232,6 +236,9 @@ typedef struct interface_options_tag {
     GPid              extcap_pid;           /* pid of running process or INVALID_EXTCAP_PID */
     gpointer          extcap_userdata;
     guint             extcap_child_watch;
+#ifdef _WIN32
+    HANDLE            extcap_pipe_h;
+#endif
     gchar            *extcap_control_in;
     gchar            *extcap_control_out;
 #endif

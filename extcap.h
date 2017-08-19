@@ -29,7 +29,6 @@
 #include <glib.h>
 
 #ifdef _WIN32
-#include <windows.h>
 #include <wsutil/unicode-utils.h>
 #endif
 
@@ -41,6 +40,8 @@
 
 /* Prefix for the pipe interfaces */
 #define EXTCAP_PIPE_PREFIX "wireshark_extcap"
+#define EXTCAP_CONTROL_IN_PREFIX  "wireshark_control_in"
+#define EXTCAP_CONTROL_OUT_PREFIX "wireshark_control_out"
 
 #define EXTCAP_ARGUMENT_CONFIG                  "--extcap-config"
 #define EXTCAP_ARGUMENT_LIST_INTERFACES         "--extcap-interfaces"
@@ -138,16 +139,11 @@ extcap_has_configuration(const char * ifname, gboolean is_required);
 gboolean
 extcap_has_toolbar(const char *ifname);
 
-#ifdef WIN32
-HANDLE
-extcap_get_win32_handle();
-#endif
-
 gboolean
 extcap_init_interfaces(capture_options * capture_opts);
 
 gboolean
-extcap_create_pipe(char ** fifo);
+extcap_create_pipe(const gchar *ifname, gchar **fifo, const gchar *pipe_prefix);
 
 /* Clean up all if related stuff */
 void
