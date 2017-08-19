@@ -70,20 +70,20 @@ typedef struct rrc_info
 } rrc_info;
 
 /*Struct for storing ciphering information*/
-typedef struct rrc_ciph_info_
+typedef struct rrc_ciphering_info
 {
-  int seq_no[31][2];    /*Indicates for each Rbid when ciphering starts*/
+  int seq_no[31][2];    /*Indicates for each Rbid when ciphering starts - Indexers are [BearerID][Direction]*/
   GTree * /*guint32*/ start_cs;    /*Start value for CS counter*/
   GTree * /*guint32*/ start_ps;    /*Start value for PS counter*/
   guint32 conf_algo_indicator;    /*Indicates which type of ciphering algorithm used*/
   guint32 int_algo_indiccator;    /*Indicates which type of integrity algorithm used*/
-  unsigned int setup_frame;    /*Store which frame contained this information*/
+  guint32 setup_frame[2];    /*Store which frame contained this information - Indexer is [Direction]*/
   guint32 ps_conf_counters[31][2];    /*This should also be made for CS*/
 
 } rrc_ciphering_info;
 
 extern GTree * hsdsch_muxed_flows;
-extern GTree * rrc_ciph_inf;
+extern GTree * rrc_ciph_info_tree;
 extern GTree * rrc_scrambling_code_urnti;
 extern wmem_tree_t* rrc_rach_urnti_crnti_map;
 

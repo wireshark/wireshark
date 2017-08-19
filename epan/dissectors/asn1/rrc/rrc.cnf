@@ -417,20 +417,46 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 %(DEFAULT_BODY)s
 
 #.FN_BODY SecurityModeCommand
+  fp_info            *fpinf;
+  rlc_info           *rlcinf;
+  rrc_ciphering_info *ciphering_info = NULL;
+  guint8              direction;
   col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeCommand");
-%(DEFAULT_BODY)s
-
-#.FN_BODY SecurityModeComplete
-rrc_ciphering_info * c_inf ;
-fp_info       *fpinf ;
-
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeComplete");
-
-%(DEFAULT_BODY)s
 
   fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
-  if(fpinf && ((c_inf = (rrc_ciphering_info *)g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER(fpinf->com_context_id))) != NULL) ){
-    c_inf->setup_frame = actx->pinfo->num;
+  rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_umts_rlc, 0);
+
+  /*If FP info or RLC info is missing , skip all this*/
+  if(fpinf != NULL && rlcinf != NULL){
+    ciphering_info = get_or_create_cipher_info(fpinf, rlcinf);
+    private_data_set_ciphering_info(actx, ciphering_info);
+  }
+%(DEFAULT_BODY)s
+  if( ciphering_info != NULL ){
+    direction = 0; /* Security Mode Command is from the RNC, direction is always downlink */
+    ciphering_info->setup_frame[direction] = actx->pinfo->num;
+  }
+
+#.FN_BODY SecurityModeComplete
+  fp_info            *fpinf;
+  rlc_info           *rlcinf;
+  rrc_ciphering_info *ciphering_info = NULL;
+  guint8              direction;
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeComplete");
+
+  fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
+  rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_umts_rlc, 0);
+
+  /*If FP info or RLC info is missing , skip all this*/
+  if(fpinf != NULL || rlcinf != NULL){
+    ciphering_info = get_or_create_cipher_info(fpinf, rlcinf);
+    private_data_set_ciphering_info(actx, ciphering_info);
+  }
+
+%(DEFAULT_BODY)s
+  if( ciphering_info != NULL ){
+    direction = 1; /* Security Mode Complete is from the UE, direction is always uplink */
+    ciphering_info->setup_frame[direction] = actx->pinfo->num;
   }
 
 
@@ -978,18 +1004,19 @@ private_data_set_scrambling_code(actx,scrambling_code);
 #.FN_BODY START-Value VAL_PTR = &start_val
   tvbuff_t * start_val;
   fp_info       *fpinf;
-  rrc_ciphering_info * c_inf;
-  int i;
+  rlc_info      *rlcinf;
+  rrc_ciphering_info * ciphering_info;
   guint32 * start;
   enum nas_sys_info_gsm_map cn_domain;
 
 %(DEFAULT_BODY)s
 
-  /*We base this map on communication context from fp*/
-    fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
+  /*We base this map on User Identity from RLC*/
+  fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
+  rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_umts_rlc, 0);
 
-  /*If no info found, skip all this*/
-  if(fpinf == NULL){
+  /*If FP info or RLC info is missing , skip all this*/
+  if(fpinf == NULL || rlcinf== NULL){
       return offset;
   }
   /*Retrieve the start value for the two ciphering domains*/
@@ -1002,29 +1029,16 @@ private_data_set_scrambling_code(actx,scrambling_code);
       break;
     case RRC_NAS_SYS_INFO_PS:
 
-      /*Find the entry for the communication context (taken from FP)*/
-      if( (c_inf =(rrc_ciphering_info *)g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER(fpinf->com_context_id))) == NULL ){
-        c_inf = g_new0(rrc_ciphering_info,1);
-
-        /*Initiate tree with START_PS values.*/
-        if(!c_inf->start_ps)
-          c_inf->start_ps = g_tree_new_full(rrc_key_cmp,
-                                            NULL,rrc_free_key,rrc_free_value);
-
-        /*Clear and initialize seq_no matrix*/
-        for(i = 0; i< 31; i++){
-          c_inf->seq_no[i][0] = -1;
-          c_inf->seq_no[i][1] = -1;
-        }
-        g_tree_insert(rrc_ciph_inf, GINT_TO_POINTER(fpinf->com_context_id), c_inf);
-      }
+      /*Find the entry for the UE ID(taken from RLC)*/
+      ciphering_info = get_or_create_cipher_info(fpinf, rlcinf);
+      private_data_set_ciphering_info(actx, ciphering_info);
 
       /*Retrieve and store the value*/
       start = g_new(guint32,1);
       *start = tvb_get_bits32(start_val,0,20,ENC_BIG_ENDIAN);
-      if(c_inf && c_inf->start_ps)
+      if(ciphering_info && ciphering_info->start_ps)
         /*Insert the value based on current frame num since this might vary over time*/
-        g_tree_insert(c_inf->start_ps, GUINT_TO_POINTER(actx->pinfo->num), start);
+        g_tree_insert(ciphering_info->start_ps, GUINT_TO_POINTER(actx->pinfo->num), start);
 
       break;
     default:
@@ -1033,36 +1047,43 @@ private_data_set_scrambling_code(actx,scrambling_code);
   private_data_set_cn_domain(actx, RRC_NAS_SYS_UNKNOWN);
 
 #.FN_BODY RB-ActivationTimeInfo
-  fp_info       *fpinf;
-  rrc_ciphering_info * c_inf;
-
-
+  fp_info            *fpinf;
+  rlc_info           *rlcinf;
+  rrc_ciphering_info *ciphering_info;
+  guint32 rbid;
+  guint32 rlc_ciphering_sqn;
 
   fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
+  rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_umts_rlc, 0);
 
 %(DEFAULT_BODY)s
 
-  /*If no info found, skip all this*/
-  if(fpinf == NULL){
+  /*If FP info or RLC info is missing , skip all this*/
+  if(fpinf == NULL || rlcinf== NULL){
     return offset;
   }
-  /*This should not happen*/
-  if( (c_inf = (rrc_ciphering_info *)g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER(fpinf->com_context_id))) == NULL ){
+
+  ciphering_info = private_data_get_ciphering_info(actx);
+  if( ciphering_info == NULL ){
     return offset;
   }
+
+  rbid = private_data_get_rbid(actx);
+  rlc_ciphering_sqn = private_data_get_rlc_ciphering_sqn(actx);
   /*Set the ciphering activation frame information*/
-  c_inf->seq_no[rbid][fpinf->is_uplink] = activation_frame;
+  ciphering_info->seq_no[rbid][fpinf->is_uplink] = rlc_ciphering_sqn;
 
 
 #.FN_BODY RB-Identity VAL_PTR = &rbid
-
+guint32 rbid;
 %(DEFAULT_BODY)s
+private_data_set_rbid(actx, rbid);
 
 
-
-#.FN_BODY RLC-SequenceNumber VAL_PTR = &activation_frame
-
+#.FN_BODY RLC-SequenceNumber VAL_PTR = &rlc_ciphering_sqn
+guint32 rlc_ciphering_sqn;
 %(DEFAULT_BODY)s
+private_data_set_rlc_ciphering_sqn(actx, rlc_ciphering_sqn);
 
 #.FN_BODY DL-DCCH-MessageType VAL_PTR = &msg_type
 %(DEFAULT_BODY)s

@@ -58,8 +58,12 @@ static gboolean global_rlc_perform_reassemby = TRUE;
 /* Preference to expect RLC headers without payloads */
 static gboolean global_rlc_headers_expected = FALSE;
 
-/* Preference to expect ciphered data */
+/* Preference to expect ONLY ciphered data */
 static gboolean global_rlc_ciphered = FALSE;
+
+/* Preference to ignore ciphering state reported from RRC */
+/* This is important for captures with deciphered traffic AND the original security RRC messages present*/
+static gboolean global_ignore_rrc_ciphering_indication = FALSE;
 
 /* Preference to try deciphering */
 static gboolean global_rlc_try_decipher = FALSE;
@@ -94,6 +98,8 @@ static int hf_rlc_li_value = -1;
 static int hf_rlc_li_ext = -1;
 static int hf_rlc_li_data = -1;
 static int hf_rlc_data = -1;
+static int hf_rlc_ciphered_data = -1;
+static int hf_rlc_ciphered_lis_data = -1;
 static int hf_rlc_ctrl_type = -1;
 static int hf_rlc_r1 = -1;
 static int hf_rlc_rsn = -1;
@@ -1446,6 +1452,48 @@ rlc_decipher_tvb(tvbuff_t *tvb, packet_info *pinfo, guint32 counter, guint8 rbid
 #endif /* HAVE_UMTS_KASUMI */
 }
 
+/** @brief Checks if an RLC packet is ciphered, according to information reported from the RRC layer
+ *
+ *  @param pinfo Packet info.
+ *  @param fpinf FP info
+ *  @param rlcinf RLC info
+ *  @param seq Sequence number of the RLC packet
+ *  @return gboolean Returns TRUE if the packet is ciphered and false otherwise
+ */
+static gboolean
+is_ciphered_according_to_rrc(packet_info *pinfo, fp_info *fpinf, rlc_info *rlcinf ,guint16 seq) {
+    gint16              cur_tb;
+    guint32             ueid;
+    rrc_ciphering_info *ciphering_info;
+    guint8              rbid;
+    guint8              direction;
+    guint32             security_mode_frame_num;
+    gint32              ciphering_begin_seq;
+
+    if(global_ignore_rrc_ciphering_indication) {
+        return FALSE;
+    }
+
+    cur_tb = fpinf->cur_tb;
+    ueid = rlcinf->ueid[cur_tb];
+    ciphering_info =  (rrc_ciphering_info *)g_tree_lookup(rrc_ciph_info_tree, GINT_TO_POINTER((gint)ueid));
+    if(ciphering_info != NULL) {
+        rbid = rlcinf->rbid[cur_tb];
+        direction = fpinf->is_uplink ? 1 : 0;
+        security_mode_frame_num = ciphering_info->setup_frame[direction];
+        ciphering_begin_seq = ciphering_info->seq_no[rbid][direction];
+        /* Making sure the rrc security message's frame number makes sense */
+        if( security_mode_frame_num > 0 && security_mode_frame_num <= pinfo->num) {
+            /* Making sure the sequence number where ciphering starts makes sense */
+            /* TODO: This check is incorrect if the sequence numbers wrap around */
+            if(ciphering_begin_seq >= 0 && ciphering_begin_seq <= seq){
+                return TRUE;
+            }
+        }
+    }
+    return FALSE;
+}
+
 /*
  * @param key is created with GINT_TO_POINTER
  * @param value is a pointer to a guint32
@@ -1487,9 +1535,11 @@ static void
 rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fpinf,
              rlc_info * rlcinf, guint16 seq, enum rlc_mode mode)
 {
-    rrc_ciphering_info * c_inf;
+    rrc_ciphering_info *ciphering_info;
     guint8 indx, header_size, hfn_shift;
     gint16 pos;
+    guint8 ext;
+    int ciphered_data_hf;
 
     indx = fpinf->is_uplink ? 1 : 0;
     pos = fpinf->cur_tb;
@@ -1502,12 +1552,12 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
     }
 
     /*Ciphering info singled in RRC by securitymodecommands */
-    c_inf =  (rrc_ciphering_info *)g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER((gint)fpinf->com_context_id));
+    ciphering_info =  (rrc_ciphering_info *)g_tree_lookup(rrc_ciph_info_tree, GINT_TO_POINTER((gint)rlcinf->ueid[fpinf->cur_tb]));
 
     /*TODO: This doesn't really work for all packets..*/
     /*Check if we have ciphering info and that this frame is ciphered*/
-    if(c_inf!=NULL && ( (c_inf->setup_frame > 0 && c_inf->setup_frame < pinfo->num && c_inf->seq_no[rlcinf->rbid[pos]][indx] == -1)  ||
-                     (c_inf->setup_frame < pinfo->num && c_inf->seq_no[rlcinf->rbid[pos]][indx] >= 0  && c_inf->seq_no[rlcinf->rbid[pos]][indx] <= seq) )){
+    if(ciphering_info!=NULL && ( (ciphering_info->setup_frame[indx] > 0 && ciphering_info->setup_frame[indx] < pinfo->num && ciphering_info->seq_no[rlcinf->rbid[pos]][indx] == -1)  ||
+                     (ciphering_info->setup_frame[indx] < pinfo->num && ciphering_info->seq_no[rlcinf->rbid[pos]][indx] >= 0  && ciphering_info->seq_no[rlcinf->rbid[pos]][indx] <= seq) )){
 
         tvbuff_t *t;
 
@@ -1519,10 +1569,10 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
             counter_init[rlcinf->rbid[pos]][0] = TRUE;
             counter_init[rlcinf->rbid[pos]][1] = TRUE;
             /*Find appropriate start value*/
-            g_tree_foreach(c_inf->start_ps, (GTraverseFunc)iter_same, &frame_num);
+            g_tree_foreach(ciphering_info->start_ps, (GTraverseFunc)iter_same, &frame_num);
 
             /*Set COUNTER value accordingly as specified by 6.4.8 in 3GPP TS 33.102 */
-            if(max_counter +2 > frame_num && c_inf->seq_no[rlcinf->rbid[pos]][indx] == -1){
+            if(max_counter +2 > frame_num && ciphering_info->seq_no[rlcinf->rbid[pos]][indx] == -1){
                 ps_counter[rlcinf->rbid[pos]][0] = (max_counter+2) << hfn_shift;
                 ps_counter[rlcinf->rbid[pos]][1] = (max_counter+2) << hfn_shift;
             }else{
@@ -1582,7 +1632,12 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
 
         /*Unable to decipher the packet*/
         if(t == NULL){
-            proto_tree_add_expert(tree, pinfo, &ei_rlc_ciphered_data, tvb, 0, -1);
+            /* Choosing the right field text ("LIs & Data" or just "Data") based on extension bit / header extension */
+            ext = tvb_get_guint8(tvb, header_size - 1) & 0x01;
+            ciphered_data_hf = (ext == 1) ? hf_rlc_ciphered_lis_data : hf_rlc_ciphered_data;
+            /* Adding ciphered payload field to tree */
+            proto_tree_add_item(tree, ciphered_data_hf, tvb, header_size, -1, ENC_NA);
+            proto_tree_add_expert(tree, pinfo, &ei_rlc_ciphered_data, tvb, header_size, -1);
             col_append_str(pinfo->cinfo, COL_INFO, "[Ciphered Data]");
             return;
 
@@ -1842,10 +1897,16 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     rlc_info      *rlcinf;
     guint32        orig_num;
     guint8         seq;
+    guint8         ext;
     guint8         next_byte, offs = 0;
-    gint16         pos, num_li     = 0;
+    gint16         cur_tb, num_li  = 0;
     gboolean       is_truncated, li_is_on_2_bytes;
     proto_item    *truncated_ti;
+    gboolean       ciphered_according_to_rrc = FALSE;
+    gboolean       ciphered_flag = FALSE;
+    gboolean       deciphered_flag = FALSE;
+    int            ciphered_data_hf;
+
 
     next_byte = tvb_get_guint8(tvb, offs++);
     seq = next_byte >> 1;
@@ -1868,23 +1929,30 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
         return;
     }
 
-    pos = fpinf->cur_tb;
-
-    if ((rlcinf->ciphered[pos] == TRUE && rlcinf->deciphered[pos] == FALSE) || global_rlc_ciphered) {
+    cur_tb = fpinf->cur_tb;
+    ciphered_according_to_rrc = is_ciphered_according_to_rrc(pinfo, fpinf, rlcinf, (guint16)seq);
+    ciphered_flag = rlcinf->ciphered[cur_tb];
+    deciphered_flag = rlcinf->deciphered[cur_tb];
+    if (((ciphered_according_to_rrc || ciphered_flag) && !deciphered_flag) || global_rlc_ciphered) {
         if(global_rlc_try_decipher){
             rlc_decipher(tvb, pinfo, tree, fpinf, rlcinf, seq, RLC_UM);
         }else{
-            proto_tree_add_expert(tree, pinfo, &ei_rlc_ciphered_data, tvb, 0, -1);
+            /* Choosing the right field text ("LIs & Data" or just "Data") based on extension bit */
+            ext = tvb_get_guint8(tvb, 0) & 0x01;
+            ciphered_data_hf = (ext == 1) ? hf_rlc_ciphered_lis_data : hf_rlc_ciphered_data;
+            /* Adding ciphered payload field to tree */
+            proto_tree_add_item(tree, ciphered_data_hf, tvb, offs, -1, ENC_NA);
+            proto_tree_add_expert(tree, pinfo, &ei_rlc_ciphered_data, tvb, offs, -1);
             col_append_str(pinfo->cinfo, COL_INFO, "[Ciphered Data]");
             return;
         }
     }
 
     if (global_rlc_li_size == RLC_LI_UPPERLAYER) {
-        if (rlcinf->li_size[pos] == RLC_LI_VARIABLE) {
+        if (rlcinf->li_size[cur_tb] == RLC_LI_VARIABLE) {
             li_is_on_2_bytes = (tvb_reported_length(tvb) > 125) ? TRUE : FALSE;
         } else {
-            li_is_on_2_bytes = (rlcinf->li_size[pos] == RLC_LI_15BITS) ? TRUE : FALSE;
+            li_is_on_2_bytes = (rlcinf->li_size[cur_tb] == RLC_LI_15BITS) ? TRUE : FALSE;
         }
     } else { /* Override rlcinf configuration with preference. */
         li_is_on_2_bytes = (global_rlc_li_size == RLC_LI_15BITS) ? TRUE : FALSE;
@@ -2243,11 +2311,16 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     guint8         ext, dc;
     guint8         next_byte, offs = 0;
     guint32        orig_num        = 0;
-    gint16         num_li          = 0, pos;
+    gint16         num_li          = 0;
+    gint16         cur_tb;
     guint16        seq;
     gboolean       is_truncated, li_is_on_2_bytes;
     proto_item    *truncated_ti, *ti;
     guint64        polling;
+    gboolean       ciphered_according_to_rrc = FALSE;
+    gboolean       ciphered_flag = FALSE;
+    gboolean       deciphered_flag = FALSE;
+    int            ciphered_data_hf;
 
     fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
     rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
@@ -2289,26 +2362,32 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
         return;
     }
 
-    pos = fpinf->cur_tb;
-
+    cur_tb = fpinf->cur_tb;
     /**
      * WARNING DECIPHERING IS HIGHLY EXPERIMENTAL!!!
      * */
-    if (((rlcinf->ciphered[pos] == TRUE && rlcinf->deciphered[pos] == FALSE) || global_rlc_ciphered)) {
+    ciphered_according_to_rrc = is_ciphered_according_to_rrc(pinfo, fpinf, rlcinf, (guint16)seq);
+    ciphered_flag = rlcinf->ciphered[cur_tb];
+    deciphered_flag = rlcinf->deciphered[cur_tb];
+    if (((ciphered_according_to_rrc || ciphered_flag) && !deciphered_flag) || global_rlc_ciphered) {
         if(global_rlc_try_decipher){
             rlc_decipher(tvb, pinfo, tree, fpinf, rlcinf, seq, RLC_AM);
         }else{
-            proto_tree_add_expert(tree, pinfo, &ei_rlc_ciphered_data, tvb, 0, -1);
+            /* Choosing the right field text ("LIs & Data" or just "Data") based on header extension field */
+            ciphered_data_hf = (ext == 0x01) ? hf_rlc_ciphered_lis_data : hf_rlc_ciphered_data;
+            /* Adding ciphered payload field to tree */
+            proto_tree_add_item(tree, ciphered_data_hf, tvb, offs, -1, ENC_NA);
+            proto_tree_add_expert(tree, pinfo, &ei_rlc_ciphered_data, tvb, offs, -1);
             col_append_str(pinfo->cinfo, COL_INFO, "[Ciphered Data]");
             return;
         }
     }
 
     if (global_rlc_li_size == RLC_LI_UPPERLAYER) {
-        if (rlcinf->li_size[pos] == RLC_LI_VARIABLE) {
+        if (rlcinf->li_size[cur_tb] == RLC_LI_VARIABLE) {
             li_is_on_2_bytes = (tvb_reported_length(tvb) > 126) ? TRUE : FALSE;
         } else {
-            li_is_on_2_bytes = (rlcinf->li_size[pos] == RLC_LI_15BITS) ? TRUE : FALSE;
+            li_is_on_2_bytes = (rlcinf->li_size[cur_tb] == RLC_LI_15BITS) ? TRUE : FALSE;
         }
     } else { /* Override rlcinf configuration with preference. */
         li_is_on_2_bytes = (global_rlc_li_size == RLC_LI_15BITS) ? TRUE : FALSE;
@@ -2816,6 +2895,14 @@ proto_register_rlc(void)
           { "Data", "rlc.data",
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
         },
+        { &hf_rlc_ciphered_data,
+          { "Ciphered Data", "rlc.ciphered_data",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_rlc_ciphered_lis_data,
+          { "Ciphered LIs & Data", "rlc.ciphered_data",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
         /* LI information */
         { &hf_rlc_li,
           { "LI", "rlc.li",
@@ -2987,14 +3074,19 @@ proto_register_rlc(void)
         "add expert info to indicate that headers were omitted",
         &global_rlc_headers_expected);
 
+    prefs_register_bool_preference(rlc_module, "ignore_rrc_cipher_indication",
+        "Ignore ciphering indication from higher layers",
+        "When enabled, RLC will ignore sequence numbers reported in 'Security Mode Command'/'Security Mode Complete' (RRC) messages when checking if frames are ciphered",
+        &global_ignore_rrc_ciphering_indication);
+
     prefs_register_bool_preference(rlc_module, "ciphered_data",
-        "Ciphered data",
-        "When enabled, rlc will assume all data is ciphered",
+        "All data is ciphered",
+        "When enabled, RLC will assume all payloads in RLC frames are ciphered",
         &global_rlc_ciphered);
 
     prefs_register_bool_preference(rlc_module, "try_decipher",
-        "Try to Decipher data",
-        "When enabled, rlc will try to decipher data. (Experimental)",
+        "Try to decipher data",
+        "When enabled, RLC will try to decipher data. (Experimental)",
         &global_rlc_try_decipher);
 
     prefs_register_enum_preference(rlc_module, "li_size",
