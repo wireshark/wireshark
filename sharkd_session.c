@@ -65,9 +65,9 @@
 #include <epan/dissectors/packet-rtp.h>
 #include <ui/rtp_media.h>
 #ifdef HAVE_SPEEXDSP
-#include <speex/speex_resampler.h>
+# include <speex/speex_resampler.h>
 #else
-#include <codecs/speex/speex_resampler.h>
+# include <codecs/speex/speex_resampler.h>
 #endif /* HAVE_SPEEXDSP */
 
 #ifdef HAVE_GEOIP
@@ -1627,7 +1627,7 @@ sharkd_session_process_tap_rtd_cb(void *arg)
 	/* XXX, some dissectors are having single table and multiple timestats (mgcp, megaco),
 	 *      some multiple table and single timestat (radius, h225)
 	 *      and it seems that value_string is used one for timestamp-ID, other one for table-ID
-	 *      I wonder how it will gonna work with multiple timestats and multiple timestat...
+	 *      I wonder how it will gonna work with multiple timestats and multiple tables...
 	 * (for usage grep for: register_rtd_table)
 	 */
 	const value_string *vs = get_rtd_value_string(rtd);
@@ -3088,7 +3088,8 @@ sharkd_session_process_setconf(char *buf, const jsmntok_t *tokens, int count)
 
 	ret = prefs_set_pref(pref, &errmsg);
 	printf("{\"err\":%d", ret);
-	if (errmsg) {
+	if (errmsg)
+	{
 		/* Add error message for some syntax errors. */
 		printf(",\"errmsg\":");
 		json_puts_string(errmsg);
@@ -3541,7 +3542,7 @@ sharkd_session_process_download(char *buf, const jsmntok_t *tokens, int count)
 			printf(",\"mime\":");
 			json_puts_string(mime);
 			printf(",\"data\":");
-			json_print_base64(eo_entry->payload_data, (int) eo_entry->payload_len); /* XXX, export object will be truncated if >= 2^31 */
+			json_print_base64(eo_entry->payload_data, eo_entry->payload_len);
 			printf("}\n");
 		}
 	}
