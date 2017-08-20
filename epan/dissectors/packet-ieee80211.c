@@ -4030,6 +4030,8 @@ static int hf_ieee80211_tag_neighbor_report_bssid_info_capability_dback = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_capability_iback = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_mobility_domain = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_high_throughput = -1;
+static int hf_ieee80211_tag_neighbor_report_bssid_info_very_high_throughput = -1;
+static int hf_ieee80211_tag_neighbor_report_bssid_info_ftm = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_reserved = -1;
 static int hf_ieee80211_tag_neighbor_report_ope_class = -1;
 static int hf_ieee80211_tag_neighbor_report_channel_number = -1;
@@ -14061,6 +14063,8 @@ dissect_neighbor_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   proto_tree_add_item(bssid_info_cap_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability_iback, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_mobility_domain, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_high_throughput, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_very_high_throughput, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_ftm, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_reserved, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   offset += 4;
 
@@ -26120,9 +26124,19 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 32, NULL, 0x00000800,
       NULL, HFILL }},
 
+    {&hf_ieee80211_tag_neighbor_report_bssid_info_very_high_throughput,
+     {"Very High Throughput (+VHT)", "wlan.nreport.bssid.info.vht",
+      FT_BOOLEAN, 32, NULL, 0x00001000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_neighbor_report_bssid_info_ftm,
+     {"Fine Timing Measurement (FTM)", "wlan.nreport.bssid.info.ftm",
+      FT_BOOLEAN, 32, NULL, 0x00002000,
+      NULL, HFILL }},
+
     {&hf_ieee80211_tag_neighbor_report_bssid_info_reserved,
      {"Reserved", "wlan.nreport.bssid.info.reserved",
-      FT_UINT32, BASE_HEX, NULL, 0xFFFFF000,
+      FT_UINT32, BASE_HEX, NULL, 0xFFFFC000,
       "Must be zero", HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_ope_class,
