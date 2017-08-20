@@ -2597,13 +2597,6 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     </message>
 </context>
 <context>
-    <name>IOGraph</name>
-    <message>
-        <source>Unknown</source>
-        <translation type="vanished">Inconnu</translation>
-    </message>
-</context>
-<context>
     <name>IOGraphDialog</name>
     <message>
         <source>Dialog</source>
@@ -2698,34 +2691,6 @@ NOTE: Une option DOIT être sélectionnée.</translation>
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">Nom</translation>
-    </message>
-    <message>
-        <source>Display filter</source>
-        <translation type="vanished">Filtre d&apos;affichage</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation type="vanished">Couleur</translation>
-    </message>
-    <message>
-        <source>Style</source>
-        <translation type="vanished">Style</translation>
-    </message>
-    <message>
-        <source>Y Axis</source>
-        <translation type="vanished">Axis Y</translation>
-    </message>
-    <message>
-        <source>Y Field</source>
-        <translation type="vanished">Champs Y</translation>
-    </message>
-    <message>
-        <source>Smoothing</source>
-        <translation type="vanished">Lissage</translation>
     </message>
     <message>
         <source>Remove this graph.</source>
@@ -8355,70 +8320,6 @@ a:hover {
     <message>
         <source>Window Size (B)</source>
         <translation>Taille de fenetres (b)</translation>
-    </message>
-    <message>
-        <source>SUM(Y Field)</source>
-        <translation type="vanished">SOMME(Champs Y)</translation>
-    </message>
-    <message>
-        <source>COUNT FRAMES(Y Field)</source>
-        <translation type="vanished">COMPTER TRAME(Champs Y)</translation>
-    </message>
-    <message>
-        <source>COUNT FIELDS(Y Field)</source>
-        <translation type="vanished">COMPTER CHAMPS(Champs Y)</translation>
-    </message>
-    <message>
-        <source>MAX(Y Field)</source>
-        <translation type="vanished">MAX(Champs Y)</translation>
-    </message>
-    <message>
-        <source>MIN(Y Field)</source>
-        <translation type="vanished">MIN(CHAMPS Y)</translation>
-    </message>
-    <message>
-        <source>AVG(Y Field)</source>
-        <translation type="vanished">AVG(Champs Y)</translation>
-    </message>
-    <message>
-        <source>LOAD(Y Field)</source>
-        <translation type="vanished">LOAD(Champs Y)</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation type="vanished">Ligne</translation>
-    </message>
-    <message>
-        <source>Impulse</source>
-        <translation type="vanished">Impulsion</translation>
-    </message>
-    <message>
-        <source>Bar</source>
-        <translation type="vanished">Bar</translation>
-    </message>
-    <message>
-        <source>Stacked Bar</source>
-        <translation type="vanished">Bar Empilé</translation>
-    </message>
-    <message>
-        <source>Dot</source>
-        <translation type="vanished">Point</translation>
-    </message>
-    <message>
-        <source>Square</source>
-        <translation type="vanished">Carré</translation>
-    </message>
-    <message>
-        <source>Diamond</source>
-        <translation type="vanished">Diamant</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="vanished">Aucun</translation>
-    </message>
-    <message>
-        <source>%1 interval SMA</source>
-        <translation type="vanished">%1 intervale SMA</translation>
     </message>
     <message>
         <source>[no capture file]</source>

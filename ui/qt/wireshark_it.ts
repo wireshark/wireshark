@@ -2598,13 +2598,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
 </context>
 <context>
-    <name>IOGraph</name>
-    <message>
-        <source>Unknown</source>
-        <translation type="vanished">Sconosciuto</translation>
-    </message>
-</context>
-<context>
     <name>IOGraphDialog</name>
     <message>
         <source>Dialog</source>
@@ -2697,34 +2690,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">Nome</translation>
-    </message>
-    <message>
-        <source>Display filter</source>
-        <translation type="vanished">Filtro di visualizzazione</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation type="vanished">Colore</translation>
-    </message>
-    <message>
-        <source>Style</source>
-        <translation type="vanished">Stile</translation>
-    </message>
-    <message>
-        <source>Y Axis</source>
-        <translation type="vanished">Asse Y</translation>
-    </message>
-    <message>
-        <source>Y Field</source>
-        <translation type="vanished">Campo Y</translation>
-    </message>
-    <message>
-        <source>Smoothing</source>
-        <translation type="vanished">Smussatura</translation>
     </message>
     <message>
         <source>Remove this graph.</source>
@@ -8383,82 +8348,6 @@ a:hover {
     <message>
         <source>Window Size (B)</source>
         <translation>Dimensione della finestra (B)</translation>
-    </message>
-    <message>
-        <source>Packets</source>
-        <translation type="vanished">Pacchetti</translation>
-    </message>
-    <message>
-        <source>Bytes</source>
-        <translation type="vanished">Byte</translation>
-    </message>
-    <message>
-        <source>Bits</source>
-        <translation type="vanished">Bit</translation>
-    </message>
-    <message>
-        <source>SUM(Y Field)</source>
-        <translation type="vanished">SOMMA (Campo Y)</translation>
-    </message>
-    <message>
-        <source>COUNT FRAMES(Y Field)</source>
-        <translation type="vanished">CONTA FRAME (Campo Y)</translation>
-    </message>
-    <message>
-        <source>COUNT FIELDS(Y Field)</source>
-        <translation type="vanished">CONTA CAMPI (Campo Y)</translation>
-    </message>
-    <message>
-        <source>MAX(Y Field)</source>
-        <translation type="vanished">MAX (Campo Y)</translation>
-    </message>
-    <message>
-        <source>MIN(Y Field)</source>
-        <translation type="vanished">MIN (Campo Y)</translation>
-    </message>
-    <message>
-        <source>AVG(Y Field)</source>
-        <translation type="vanished">MED (Campo Y)</translation>
-    </message>
-    <message>
-        <source>LOAD(Y Field)</source>
-        <translation type="vanished">CARICO (Campo Y)</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation type="vanished">Linea</translation>
-    </message>
-    <message>
-        <source>Impulse</source>
-        <translation type="vanished">Impulso</translation>
-    </message>
-    <message>
-        <source>Bar</source>
-        <translation type="vanished">Barra</translation>
-    </message>
-    <message>
-        <source>Stacked Bar</source>
-        <translation type="vanished">Barre impilate</translation>
-    </message>
-    <message>
-        <source>Dot</source>
-        <translation type="vanished">Punto</translation>
-    </message>
-    <message>
-        <source>Square</source>
-        <translation type="vanished">Quadrato</translation>
-    </message>
-    <message>
-        <source>Diamond</source>
-        <translation type="vanished">Diamante</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="vanished">Nessuno</translation>
-    </message>
-    <message>
-        <source>%1 interval SMA</source>
-        <translation type="vanished">%1 intervallo SMA</translation>
     </message>
     <message>
         <source>[no capture file]</source>

@@ -2604,13 +2604,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
 </context>
 <context>
-    <name>IOGraph</name>
-    <message>
-        <source>Unknown</source>
-        <translation type="vanished">Nieznany</translation>
-    </message>
-</context>
-<context>
     <name>IOGraphDialog</name>
     <message>
         <source>Dialog</source>
@@ -2696,34 +2689,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">Nazwa</translation>
-    </message>
-    <message>
-        <source>Display filter</source>
-        <translation type="vanished">Filtr</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation type="vanished">Kolor</translation>
-    </message>
-    <message>
-        <source>Style</source>
-        <translation type="vanished">Styl</translation>
-    </message>
-    <message>
-        <source>Y Axis</source>
-        <translation type="vanished">Oś Y</translation>
-    </message>
-    <message>
-        <source>Y Field</source>
-        <translation type="vanished">Pole osi Y</translation>
-    </message>
-    <message>
-        <source>Smoothing</source>
-        <translation type="vanished">Wygładzanie</translation>
     </message>
     <message>
         <source>Remove this graph.</source>
@@ -8385,82 +8350,6 @@ text-decoration: underline;
     <message>
         <source>Window Size (B)</source>
         <translation>Rozmiar okna (B)</translation>
-    </message>
-    <message>
-        <source>Packets</source>
-        <translation type="vanished">Pakietów</translation>
-    </message>
-    <message>
-        <source>Bytes</source>
-        <translation type="vanished">Bajtów</translation>
-    </message>
-    <message>
-        <source>Bits</source>
-        <translation type="vanished">Bitów</translation>
-    </message>
-    <message>
-        <source>SUM(Y Field)</source>
-        <translation type="vanished">SUMA(pole Y)</translation>
-    </message>
-    <message>
-        <source>COUNT FRAMES(Y Field)</source>
-        <translation type="vanished">LICZ RAMKI(pole Y)</translation>
-    </message>
-    <message>
-        <source>COUNT FIELDS(Y Field)</source>
-        <translation type="vanished">LICZ POLA(pole Y)</translation>
-    </message>
-    <message>
-        <source>MAX(Y Field)</source>
-        <translation type="vanished">MAX(pole Y)</translation>
-    </message>
-    <message>
-        <source>MIN(Y Field)</source>
-        <translation type="vanished">MIN(pole Y)</translation>
-    </message>
-    <message>
-        <source>AVG(Y Field)</source>
-        <translation type="vanished">ŚREDNIA(pole Y)</translation>
-    </message>
-    <message>
-        <source>LOAD(Y Field)</source>
-        <translation type="vanished">LOAD(pole Y)</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation type="vanished">Linia</translation>
-    </message>
-    <message>
-        <source>Impulse</source>
-        <translation type="vanished">Impuls</translation>
-    </message>
-    <message>
-        <source>Bar</source>
-        <translation type="vanished">Pasek</translation>
-    </message>
-    <message>
-        <source>Stacked Bar</source>
-        <translation type="vanished">Ułożony pasek</translation>
-    </message>
-    <message>
-        <source>Dot</source>
-        <translation type="vanished">Kropka</translation>
-    </message>
-    <message>
-        <source>Square</source>
-        <translation type="vanished">Kwadrat</translation>
-    </message>
-    <message>
-        <source>Diamond</source>
-        <translation type="vanished">Diament</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="vanished">Brak</translation>
-    </message>
-    <message>
-        <source>%1 interval SMA</source>
-        <translation type="vanished">%1 interwał SMA</translation>
     </message>
     <message>
         <source>[no capture file]</source>

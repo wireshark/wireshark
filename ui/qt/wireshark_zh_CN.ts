@@ -2142,7 +2142,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Enter a description for the filter button</source>
-        <translation type="unfinished"></translation>
+        <translation>为过滤器按钮输入描述</translation>
     </message>
     <message>
         <source>Filter:</source>
@@ -2154,7 +2154,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Comment:</source>
-        <translation type="unfinished"></translation>
+        <translation>注释：</translation>
     </message>
     <message>
         <source>Enter a comment for the filter button</source>
@@ -2585,13 +2585,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
 </context>
 <context>
-    <name>IOGraph</name>
-    <message>
-        <source>Unknown</source>
-        <translation type="vanished">未知</translation>
-    </message>
-</context>
-<context>
     <name>IOGraphDialog</name>
     <message>
         <source>Dialog</source>
@@ -2684,34 +2677,6 @@ PLEASE NOTE: One option MUST be selected.</source>
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">名称</translation>
-    </message>
-    <message>
-        <source>Display filter</source>
-        <translation type="vanished">显示过滤器</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation type="vanished">颜色</translation>
-    </message>
-    <message>
-        <source>Style</source>
-        <translation type="vanished">样式</translation>
-    </message>
-    <message>
-        <source>Y Axis</source>
-        <translation type="vanished">Y 轴</translation>
-    </message>
-    <message>
-        <source>Y Field</source>
-        <translation type="vanished">Y 字段</translation>
-    </message>
-    <message>
-        <source>Smoothing</source>
-        <translation type="vanished">平滑</translation>
     </message>
     <message>
         <source>Remove this graph.</source>
@@ -4697,7 +4662,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Status Bar settings:</source>
-        <translation type="unfinished"></translation>
+        <translation>状态栏设置：</translation>
     </message>
     <message>
         <source>Show selected packet number</source>
@@ -4705,7 +4670,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Show file load time</source>
-        <translation type="unfinished"></translation>
+        <translation>显示文件加载时间</translation>
     </message>
 </context>
 <context>
@@ -7411,15 +7376,15 @@ text-decoration: underline;
     </message>
     <message>
         <source>Edit</source>
-        <translation type="unfinished">编辑</translation>
+        <translation>编辑</translation>
     </message>
     <message>
         <source>Disable</source>
-        <translation type="unfinished"></translation>
+        <translation>禁用</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished">移除</translation>
+        <translation>移除</translation>
     </message>
     <message>
         <source>Loading</source>
@@ -8367,82 +8332,6 @@ text-decoration: underline;
         <translation>窗口大小 (B)</translation>
     </message>
     <message>
-        <source>Packets</source>
-        <translation type="vanished">分组</translation>
-    </message>
-    <message>
-        <source>Bytes</source>
-        <translation type="vanished">字节</translation>
-    </message>
-    <message>
-        <source>Bits</source>
-        <translation type="vanished">比特</translation>
-    </message>
-    <message>
-        <source>SUM(Y Field)</source>
-        <translation type="vanished">总和 (Y字段)</translation>
-    </message>
-    <message>
-        <source>COUNT FRAMES(Y Field)</source>
-        <translation type="vanished">COUNT FRAMES (Y字段)</translation>
-    </message>
-    <message>
-        <source>COUNT FIELDS(Y Field)</source>
-        <translation type="vanished">COUNT FIELDS (Y字段)</translation>
-    </message>
-    <message>
-        <source>MAX(Y Field)</source>
-        <translation type="vanished">最大值 (Y字段)</translation>
-    </message>
-    <message>
-        <source>MIN(Y Field)</source>
-        <translation type="vanished">最小值 (Y字段)</translation>
-    </message>
-    <message>
-        <source>AVG(Y Field)</source>
-        <translation type="vanished">平均值 (Y字段)</translation>
-    </message>
-    <message>
-        <source>LOAD(Y Field)</source>
-        <translation type="vanished">星形 (Y字段)</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation type="vanished">折线</translation>
-    </message>
-    <message>
-        <source>Impulse</source>
-        <translation type="vanished">脉冲</translation>
-    </message>
-    <message>
-        <source>Bar</source>
-        <translation type="vanished">条形</translation>
-    </message>
-    <message>
-        <source>Stacked Bar</source>
-        <translation type="vanished">堆积条形图</translation>
-    </message>
-    <message>
-        <source>Dot</source>
-        <translation type="vanished">点</translation>
-    </message>
-    <message>
-        <source>Square</source>
-        <translation type="vanished">方形</translation>
-    </message>
-    <message>
-        <source>Diamond</source>
-        <translation type="vanished">星形</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="vanished">无</translation>
-    </message>
-    <message>
-        <source>%1 interval SMA</source>
-        <translation type="vanished">%1 间隔 SMA</translation>
-    </message>
-    <message>
         <source>[no capture file]</source>
         <translation>[无捕获文件]</translation>
     </message>
@@ -8516,7 +8405,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Multiple problems found</source>
-        <translation type="unfinished"></translation>
+        <translation>发现多个问题</translation>
     </message>
     <message>
         <source>%1 (%L2%)</source>
@@ -12146,7 +12035,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished">打开</translation>
+        <translation>打开</translation>
     </message>
 </context>
 <context>

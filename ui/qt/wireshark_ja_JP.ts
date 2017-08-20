@@ -2584,13 +2584,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
 </context>
 <context>
-    <name>IOGraph</name>
-    <message>
-        <source>Unknown</source>
-        <translation type="vanished">不明</translation>
-    </message>
-</context>
-<context>
     <name>IOGraphDialog</name>
     <message>
         <source>Dialog</source>
@@ -2683,34 +2676,6 @@ PLEASE NOTE: One option MUST be selected.</source>
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">名前</translation>
-    </message>
-    <message>
-        <source>Display filter</source>
-        <translation type="vanished">表示フィルタ</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation type="vanished">色</translation>
-    </message>
-    <message>
-        <source>Style</source>
-        <translation type="vanished">スタイル</translation>
-    </message>
-    <message>
-        <source>Y Axis</source>
-        <translation type="vanished">Y軸</translation>
-    </message>
-    <message>
-        <source>Y Field</source>
-        <translation type="vanished">Yフィールド</translation>
-    </message>
-    <message>
-        <source>Smoothing</source>
-        <translation type="vanished">スムーズ化</translation>
     </message>
     <message>
         <source>Remove this graph.</source>
@@ -8339,82 +8304,6 @@ a:hover {
     <message>
         <source>Window Size (B)</source>
         <translation>ウインドウサイズ(バイト)</translation>
-    </message>
-    <message>
-        <source>Packets</source>
-        <translation type="vanished">パケット数</translation>
-    </message>
-    <message>
-        <source>Bytes</source>
-        <translation type="vanished">バイト数</translation>
-    </message>
-    <message>
-        <source>Bits</source>
-        <translation type="vanished">ビット数</translation>
-    </message>
-    <message>
-        <source>SUM(Y Field)</source>
-        <translation type="vanished">SUM(Yフィールド)</translation>
-    </message>
-    <message>
-        <source>COUNT FRAMES(Y Field)</source>
-        <translation type="vanished">COUNT FRAMES(Yフィールド)</translation>
-    </message>
-    <message>
-        <source>COUNT FIELDS(Y Field)</source>
-        <translation type="vanished">COUNT FIELDS(Yフィールド)</translation>
-    </message>
-    <message>
-        <source>MAX(Y Field)</source>
-        <translation type="vanished">MAX(Yフィールド)</translation>
-    </message>
-    <message>
-        <source>MIN(Y Field)</source>
-        <translation type="vanished">MIN(Yフィールド)</translation>
-    </message>
-    <message>
-        <source>AVG(Y Field)</source>
-        <translation type="vanished">AVG(Yフィールド)</translation>
-    </message>
-    <message>
-        <source>LOAD(Y Field)</source>
-        <translation type="vanished">LOAD(Yフィールド)</translation>
-    </message>
-    <message>
-        <source>Line</source>
-        <translation type="vanished">線</translation>
-    </message>
-    <message>
-        <source>Impulse</source>
-        <translation type="vanished">点線</translation>
-    </message>
-    <message>
-        <source>Bar</source>
-        <translation type="vanished">棒</translation>
-    </message>
-    <message>
-        <source>Stacked Bar</source>
-        <translation type="vanished">積み棒</translation>
-    </message>
-    <message>
-        <source>Dot</source>
-        <translation type="vanished">点</translation>
-    </message>
-    <message>
-        <source>Square</source>
-        <translation type="vanished">四角</translation>
-    </message>
-    <message>
-        <source>Diamond</source>
-        <translation type="vanished">菱形</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="vanished">なし</translation>
-    </message>
-    <message>
-        <source>%1 interval SMA</source>
-        <translation type="vanished">%1 インターバル SMA</translation>
     </message>
     <message>
         <source>[no capture file]</source>

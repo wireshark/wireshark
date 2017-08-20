@@ -2799,7 +2799,7 @@ stss		3090/tcp/udp	# Senforce Session Services
 1ci-smcs	3091/tcp/udp	# 1Ci Server Management
 rapidmq-center	3093/tcp/udp	# Jiiva RapidMQ Center
 rapidmq-reg	3094/tcp/udp	# Jiiva RapidMQ Registry
-panasas		3095/tcp/udp	# Panasas rendevous port
+panasas		3095/tcp/udp	# Panasas rendezvous port
 ndl-aps		3096/tcp/udp	# Active Print Server Port
 itu-bicc-stc	3097/sctp	# ITU-T Q.1902.1/Q.2150.3
 umm-port	3098/tcp/udp	# Universal Message Manager
