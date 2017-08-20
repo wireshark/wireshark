@@ -4036,6 +4036,7 @@ static int hf_ieee80211_tag_neighbor_report_channel_number = -1;
 static int hf_ieee80211_tag_neighbor_report_phy_type = -1;
 static int hf_ieee80211_tag_neighbor_report_subelement_id = -1;
 static int hf_ieee80211_tag_neighbor_report_subelement_length = -1;
+static int hf_ieee80211_tag_neighbor_report_subelement_data = -1;
 
 static int hf_ieee80211_tag_supported_ope_classes_current = -1;
 static int hf_ieee80211_tag_supported_ope_classes_alternate = -1;
@@ -14088,6 +14089,8 @@ dissect_neighbor_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_subelement_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
     sub_tag_tvb = tvb_new_subset_length(tvb, offset, sub_tag_length);
+
+    proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_subelement_data, tvb, offset, sub_tag_length, ENC_NA);
 
     switch (sub_tag_id) {
       case NR_SUB_ID_TSF_INFO:
@@ -26143,8 +26146,13 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_subelement_length,
-     {"Length", "wlan.nreport.phytype.subelement_length",
+     {"Length", "wlan.nreport.subelement_length",
       FT_UINT8, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_neighbor_report_subelement_data,
+     {"Subelement Data", "wlan.nreport.subelement_data",
+      FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_supported_ope_classes_current,
