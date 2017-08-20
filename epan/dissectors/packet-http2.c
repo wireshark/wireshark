@@ -154,6 +154,7 @@ typedef struct {
 /* struct for per-stream, per-direction entity body info */
 typedef struct {
     gchar *content_type;
+    gchar *content_type_parameters;
     gchar *content_encoding;
     gboolean is_partial_content;
 } http2_data_stream_body_info_t;
@@ -877,6 +878,61 @@ is_in_header_context(tvbuff_t *tvb, packet_info *pinfo)
     return FALSE;
 }
 
+/* Extracts only the media-type from a content-type header. EG:
+   "text/html"                  returns "text/html"
+   "text/html; charset=utf-8"   returns "text/html"
+
+   Allocates file-scoped string when called as its only called when the header population is done.
+*/
+static gchar*
+get_content_type_only(const gchar *content_type, int content_type_str_len) {
+    gchar *cp = wmem_strndup(wmem_file_scope(), content_type, content_type_str_len);
+    gchar *start = cp;
+
+    while (*cp != '\0' && *cp != ';' && !g_ascii_isspace(*cp)) {
+        *cp = g_ascii_tolower(*cp);
+        ++cp;
+    }
+    *cp = '\0';
+
+    return start;
+}
+
+/* Extracts the parameters from a content-type or returns NULL. EG:
+
+   "text/html; charset=utf-8"   returns "charset=utf-8"
+   "text/html"                  returns NULL
+   "text/html; "                returns NULL
+
+   Allocates file-scoped string when called as its only called when the header population is done.
+*/
+static gchar*
+get_content_type_parameters_only(const gchar *content_type, int content_type_str_len) {
+    gchar *cp = wmem_strndup(wmem_file_scope(), content_type, content_type_str_len);
+
+    /* Get past the first part of the content type EG: "text/html" */
+    while (*cp != '\0' && *cp != ';' && !g_ascii_isspace(*cp)) {
+        ++cp;
+    }
+
+    /* No parameters */
+    if(*cp == '\0') {
+        return NULL;
+    }
+
+    /* Move past the first ";" or any whitespace */
+    while (*cp == ';' || g_ascii_isspace(*cp)) {
+        ++cp;
+    }
+
+    /* Didn't end up getting any parameters, we just had trailing whitespace or a semicolon after the content-type */
+    if (*cp == '\0') {
+        return NULL;
+    }
+
+    return cp;
+}
+
 static void
 populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t *h2session, int header_value_length,
                                    const gchar *header_name, const gchar *header_value)
@@ -922,7 +978,8 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
     if (strcmp(header_name, HTTP2_HEADER_CONTENT_TYPE) == 0) {
         http2_data_stream_body_info_t *body_info = get_data_stream_body_info(pinfo);
         if (body_info->content_type == NULL) {
-            body_info->content_type = wmem_strndup(wmem_file_scope(), header_value, header_value_length);
+            body_info->content_type = get_content_type_only(header_value, header_value_length);
+            body_info->content_type_parameters = get_content_type_parameters_only(header_value, header_value_length);
         }
     }
 }
@@ -1343,14 +1400,15 @@ dissect_body_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 {
     http2_data_stream_body_info_t *body_info = get_data_stream_body_info(pinfo);
     gchar *content_type = body_info->content_type;
+    http_message_info_t metadata_used_for_media_type_handle = { HTTP_OTHERS, body_info->content_type_parameters };
 
     proto_tree_add_item(tree, hf_http2_data_data, tvb, start, length, encoding);
 
     if (content_type != NULL) {
         /* add it to STREAM level */
         proto_tree *ptree = proto_tree_get_parent_tree(tree);
-        dissector_try_string(media_type_dissector_table, content_type,
-                                         tvb_new_subset_length(tvb, start, length), pinfo, ptree, NULL);
+        dissector_try_string(media_type_dissector_table, content_type, tvb_new_subset_length(tvb, start, length), pinfo,
+                             ptree, &metadata_used_for_media_type_handle);
     }
 }
 
