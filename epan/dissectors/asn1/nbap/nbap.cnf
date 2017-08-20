@@ -1907,7 +1907,11 @@ nbap_edch_channel_info[e_dch_macdflow_id].no_ddi_entries = num_items;
                     umts_fp_conversation_info->num_dch_in_flow++;
                     umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow -1] = i;
 
-                    /*XXX: Is this craziness, what is physical_layer? */
+                    /* The information collected from the 'hsdsch_physical_layer_category' field
+                     * is used here to tell if the UE supports MAC-ehs or MAC-hs.
+                     * This logic is based on this line in TS 25.306 / Section 5.1 :
+                     * "... A UE that supports categories greater or equal to category 13, also supports MAC-ehs."
+                     */
                     if(nbap_hsdsch_channel_info[i].entity == entity_not_specified ){
 
                         if(nbap_hsdsch_channel_info[i].hsdsch_physical_layer_category > 12){
@@ -2027,7 +2031,11 @@ nbap_edch_channel_info[e_dch_macdflow_id].no_ddi_entries = num_items;
                     umts_fp_conversation_info->num_dch_in_flow++;
                     umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow -1] = i;
 
-                    /*XXX: Is this craziness, what is physical_layer? */
+                    /* The information collected from the 'hsdsch_physical_layer_category' field
+                     * is used here to tell if the UE supports MAC-ehs or MAC-hs.
+                     * This logic is based on this line in TS 25.306 / Section 5.1 :
+                     * "... A UE that supports categories greater or equal to category 13, also supports MAC-ehs."
+                     */
                     if(nbap_hsdsch_channel_info[i].entity == entity_not_specified ){
 
                         if(nbap_hsdsch_channel_info[i].hsdsch_physical_layer_category > 12){

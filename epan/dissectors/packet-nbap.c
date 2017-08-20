@@ -10101,7 +10101,7 @@ dissect_nbap_AddorDeleteIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_nbap_CFN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2238 "./asn1/nbap/nbap.cnf"
+#line 2246 "./asn1/nbap/nbap.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &cfn, FALSE);
 
@@ -10354,7 +10354,7 @@ dissect_nbap_AvailabilityStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_nbap_HSDSCH_RNTI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2200 "./asn1/nbap/nbap.cnf"
+#line 2208 "./asn1/nbap/nbap.cnf"
 umts_fp_conversation_info_t *umts_fp_conversation_info = NULL;
 fp_hsdsch_channel_info_t* fp_hsdsch_channel_info = NULL;
 address     null_addr;
@@ -11579,7 +11579,7 @@ dissect_nbap_Common_E_DCH_Resource_Combination_InfoList(tvbuff_t *tvb _U_, int o
 
 static int
 dissect_nbap_Common_MACFlow_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2057 "./asn1/nbap/nbap.cnf"
+#line 2065 "./asn1/nbap/nbap.cnf"
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, maxNrOfCommonMACFlows_1, &common_macdflow_id, FALSE);
@@ -12154,7 +12154,7 @@ static const per_sequence_t CommonMACFlow_Specific_InfoItem_sequence[] = {
 
 static int
 dissect_nbap_CommonMACFlow_Specific_InfoItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2064 "./asn1/nbap/nbap.cnf"
+#line 2072 "./asn1/nbap/nbap.cnf"
     address     dst_addr;
     transportLayerAddress_ipv4 = 0;
     BindingID_port = 0;
@@ -13457,7 +13457,7 @@ dissect_nbap_CriticalityDiagnostics(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static int
 dissect_nbap_CRNC_CommunicationContextID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2174 "./asn1/nbap/nbap.cnf"
+#line 2182 "./asn1/nbap/nbap.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 1048575U, &com_context_id, FALSE);
 
@@ -23448,7 +23448,7 @@ static const per_sequence_t HSDSCH_Common_System_InformationFDD_sequence[] = {
 
 static int
 dissect_nbap_HSDSCH_Common_System_InformationFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2084 "./asn1/nbap/nbap.cnf"
+#line 2092 "./asn1/nbap/nbap.cnf"
 /*
  * 5.1.6 High Speed Downlink Shared Channels
  * The Data Transfer procedure is used to transfer a HS-DSCH DATA FRAME (TYPE 1, TYPE 2 [FDD and 1.28Mcps
@@ -23987,7 +23987,11 @@ dissect_nbap_HSDSCH_FDD_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                     umts_fp_conversation_info->num_dch_in_flow++;
                     umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow -1] = i;
 
-                    /*XXX: Is this craziness, what is physical_layer? */
+                    /* The information collected from the 'hsdsch_physical_layer_category' field
+                     * is used here to tell if the UE supports MAC-ehs or MAC-hs.
+                     * This logic is based on this line in TS 25.306 / Section 5.1 :
+                     * "... A UE that supports categories greater or equal to category 13, also supports MAC-ehs."
+                     */
                     if(nbap_hsdsch_channel_info[i].entity == entity_not_specified ){
 
                         if(nbap_hsdsch_channel_info[i].hsdsch_physical_layer_category > 12){
@@ -24051,7 +24055,7 @@ static const per_sequence_t HSDSCH_MACdFlow_Specific_InfoItem_to_Modify_sequence
 
 static int
 dissect_nbap_HSDSCH_MACdFlow_Specific_InfoItem_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1929 "./asn1/nbap/nbap.cnf"
+#line 1933 "./asn1/nbap/nbap.cnf"
     address     dst_addr;
     transportLayerAddress_ipv4 = 0;
     BindingID_port = 0;
@@ -24244,7 +24248,7 @@ static const per_sequence_t HSDSCH_Information_to_Modify_sequence[] = {
 
 static int
 dissect_nbap_HSDSCH_Information_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1949 "./asn1/nbap/nbap.cnf"
+#line 1953 "./asn1/nbap/nbap.cnf"
 /*
  * This is pretty much the same like if we setup a previous flow
  */
@@ -24328,7 +24332,11 @@ dissect_nbap_HSDSCH_Information_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn
                     umts_fp_conversation_info->num_dch_in_flow++;
                     umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow -1] = i;
 
-                    /*XXX: Is this craziness, what is physical_layer? */
+                    /* The information collected from the 'hsdsch_physical_layer_category' field
+                     * is used here to tell if the UE supports MAC-ehs or MAC-hs.
+                     * This logic is based on this line in TS 25.306 / Section 5.1 :
+                     * "... A UE that supports categories greater or equal to category 13, also supports MAC-ehs."
+                     */
                     if(nbap_hsdsch_channel_info[i].entity == entity_not_specified ){
 
                         if(nbap_hsdsch_channel_info[i].hsdsch_physical_layer_category > 12){
@@ -24896,7 +24904,7 @@ static const per_sequence_t HSDSCH_Paging_System_InformationFDD_sequence[] = {
 
 static int
 dissect_nbap_HSDSCH_Paging_System_InformationFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2164 "./asn1/nbap/nbap.cnf"
+#line 2172 "./asn1/nbap/nbap.cnf"
   /*
   g_warning("HS-DSCH Type 3 NOT Implemented!");
   */
@@ -28209,7 +28217,7 @@ dissect_nbap_NI_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_nbap_NodeB_CommunicationContextID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2178 "./asn1/nbap/nbap.cnf"
+#line 2186 "./asn1/nbap/nbap.cnf"
 /*Set up and map that maps Node-B ids to CRNC ids, since often you only have one of them present in nbap*/
 nbap_com_context_id_t *cur_val;
 
@@ -41223,7 +41231,7 @@ col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkReconfigurationCommit ");
 actx->pinfo->link_dir=P2P_DIR_DL;
 
 
-#line 2230 "./asn1/nbap/nbap.cnf"
+#line 2238 "./asn1/nbap/nbap.cnf"
 /*
  * Here we need to signal the CFN value, down to FP so
  * that lowert layers know when a reconfiguration becomes active
@@ -55397,7 +55405,6 @@ static void add_hsdsch_bind(packet_info *pinfo){
           umts_fp_conversation_info->num_dch_in_flow++;
           umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow -1] = i;
 
-          /*XXX: Is this craziness, what is physical_layer? */
           if(nbap_hsdsch_channel_info[i].entity == entity_not_specified ){
             /*Error*/
             expert_add_info(pinfo, NULL, &ei_nbap_hsdsch_entity_not_specified);
@@ -68788,7 +68795,7 @@ void proto_register_nbap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-nbap-hfarr.c ---*/
-#line 666 "./asn1/nbap/packet-nbap-template.c"
+#line 665 "./asn1/nbap/packet-nbap-template.c"
   };
 
   /* List of subtrees */
@@ -70428,7 +70435,7 @@ void proto_register_nbap(void)
     &ett_nbap_Outcome,
 
 /*--- End of included file: packet-nbap-ettarr.c ---*/
-#line 675 "./asn1/nbap/packet-nbap-template.c"
+#line 674 "./asn1/nbap/packet-nbap-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -71580,6 +71587,6 @@ proto_reg_handoff_nbap(void)
 
 
 /*--- End of included file: packet-nbap-dis-tab.c ---*/
-#line 730 "./asn1/nbap/packet-nbap-template.c"
+#line 729 "./asn1/nbap/packet-nbap-template.c"
 }
 

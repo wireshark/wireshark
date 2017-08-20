@@ -436,7 +436,6 @@ static void add_hsdsch_bind(packet_info *pinfo){
           umts_fp_conversation_info->num_dch_in_flow++;
           umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow -1] = i;
 
-          /*XXX: Is this craziness, what is physical_layer? */
           if(nbap_hsdsch_channel_info[i].entity == entity_not_specified ){
             /*Error*/
             expert_add_info(pinfo, NULL, &ei_nbap_hsdsch_entity_not_specified);
