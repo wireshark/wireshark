@@ -293,6 +293,7 @@ static int hf_rsvp_juniper_unknown = -1;
 static int hf_rsvp_juniper_pad = -1;
 static int hf_rsvp_unknown_data = -1;
 static int hf_rsvp_ctype = -1;
+static int hf_rsvp_ctype_session = -1;
 static int hf_rsvp_parameter = -1;
 static int hf_rsvp_parameter_flags = -1;
 static int hf_rsvp_parameter_length = -1;
@@ -2269,6 +2270,18 @@ find_rsvp_session_tempfilt(tvbuff_t *tvb, int hdr_offset, int *session_offp, int
     if (tempfilt_offp) *tempfilt_offp = t_off;
 }
 
+static const value_string rsvp_c_type_session_vals[] = {
+   {RSVP_SESSION_TYPE_IPV4,                 "IPv4"},
+   {RSVP_SESSION_TYPE_IPV4_LSP,             "IPv4-LSP"},
+   {RSVP_SESSION_TYPE_IPV6_LSP,             "IPv6-LSP"},
+   {RSVP_SESSION_TYPE_AGGREGATE_IPV4,       "IPv4-Aggregate"},
+   {RSVP_SESSION_TYPE_IPV4_UNI,             "IPv4-UNI"},
+   {RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV4, "IPv4-P2MP LSP TUNNEL"},
+   {RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV6, "IPv6-P2MP LSP TUNNEL"},
+   {RSVP_SESSION_TYPE_IPV4_E_NNI,           "IPv4-E-NNI"},
+   {0,    NULL }
+};
+
 static char *
 summary_session(tvbuff_t *tvb, int offset)
 {
@@ -2399,10 +2412,12 @@ dissect_rsvp_session(proto_item *ti, proto_tree *rsvp_object_tree,
 
     proto_item_set_text(ti, "%s", summary_session(tvb, offset));
 
+    hidden_item = proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+
     switch(type) {
     case RSVP_SESSION_TYPE_IPV4:
-        proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
-                            type, "1 - IPv4");
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_session, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(rsvp_object_tree,
                             hf_rsvp_filter[RSVPF_SESSION_IP],
                             tvb, offset2, 4, ENC_BIG_ENDIAN);
@@ -2427,8 +2442,7 @@ dissect_rsvp_session(proto_item *ti, proto_tree *rsvp_object_tree,
         break;
 
     case RSVP_SESSION_TYPE_IPV6:
-        proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
-                            type, "2 - IPv6");
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_session, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_session_destination_address, tvb, offset2, 16, ENC_NA);
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_session_protocol, tvb, offset2+16, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_session_flags, tvb, offset2+17, 1, ENC_BIG_ENDIAN);
@@ -2443,8 +2457,7 @@ dissect_rsvp_session(proto_item *ti, proto_tree *rsvp_object_tree,
         break;
 
     case RSVP_SESSION_TYPE_IPV4_LSP:
-        proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
-                            type, "7 - IPv4 LSP");
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_session, tvb, offset+3, 1, ENC_BIG_ENDIAN);;
         proto_tree_add_item(rsvp_object_tree,
                             hf_rsvp_filter[RSVPF_SESSION_IP],
                             tvb, offset2, 4, ENC_BIG_ENDIAN);
@@ -2478,8 +2491,7 @@ dissect_rsvp_session(proto_item *ti, proto_tree *rsvp_object_tree,
         break;
 
     case RSVP_SESSION_TYPE_IPV6_LSP:
-        proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
-                            type, "8 - IPv6 LSP");
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_session, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(rsvp_object_tree,
                             hf_rsvp_filter[RSVPF_SESSION_IP],
                             tvb, offset2, 16, ENC_BIG_ENDIAN);
@@ -2515,8 +2527,7 @@ dissect_rsvp_session(proto_item *ti, proto_tree *rsvp_object_tree,
 
 
     case RSVP_SESSION_TYPE_AGGREGATE_IPV4:
-        proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
-                            type, "9 - IPv4 Aggregate");
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_session, tvb, offset+3, 1, ENC_BIG_ENDIAN);;
         proto_tree_add_item(rsvp_object_tree,
                             hf_rsvp_filter[RSVPF_SESSION_IP],
                             tvb, offset2, 4, ENC_BIG_ENDIAN);
@@ -2533,8 +2544,7 @@ dissect_rsvp_session(proto_item *ti, proto_tree *rsvp_object_tree,
         break;
 
     case RSVP_SESSION_TYPE_IPV4_UNI:
-        proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
-                            type, "11 - IPv4 UNI");
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_session, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(rsvp_object_tree,
                             hf_rsvp_filter[RSVPF_SESSION_IP],
                             tvb, offset2, 4, ENC_BIG_ENDIAN);
@@ -2561,8 +2571,7 @@ dissect_rsvp_session(proto_item *ti, proto_tree *rsvp_object_tree,
         break;
 
     case RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV4:
-        proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
-                            RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV4, "13 - IPv4 P2MP LSP TUNNEL");
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_session, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(rsvp_object_tree,
                             hf_rsvp_session_p2mp_id,
                             tvb, offset2, 4, ENC_BIG_ENDIAN);
@@ -2588,8 +2597,7 @@ dissect_rsvp_session(proto_item *ti, proto_tree *rsvp_object_tree,
 
         break;
     case RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV6:
-        proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
-                            RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV6, "14 - IPv6 P2MP LSP TUNNEL");
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_session, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(rsvp_object_tree,
                             hf_rsvp_session_p2mp_id,
                             tvb, offset2, 4, ENC_BIG_ENDIAN);
@@ -2616,8 +2624,7 @@ dissect_rsvp_session(proto_item *ti, proto_tree *rsvp_object_tree,
         break;
 
     case RSVP_SESSION_TYPE_IPV4_E_NNI:
-        proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
-                            type, "15 - IPv4 E-NNI");
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_session, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(rsvp_object_tree,
                             hf_rsvp_filter[RSVPF_SESSION_IP],
                             tvb, offset2, 4, ENC_BIG_ENDIAN);
@@ -2644,8 +2651,7 @@ dissect_rsvp_session(proto_item *ti, proto_tree *rsvp_object_tree,
         break;
 
     default:
-        proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
-                            type, "Unknown (%u)", type);
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_session, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_session_data, tvb, offset2, obj_length-4, ENC_NA);
         break;
     }
@@ -7684,6 +7690,12 @@ proto_register_rsvp(void)
         {&hf_rsvp_ctype,
          { "C-type", "rsvp.ctype",
            FT_UINT32, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_ctype_session,
+         { "C-type", "rsvp.ctype.session",
+           FT_UINT32, BASE_DEC, VALS(rsvp_c_type_session_vals), 0x0,
            NULL, HFILL }
         },
 
