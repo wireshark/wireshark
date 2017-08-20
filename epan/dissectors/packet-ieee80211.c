@@ -4047,7 +4047,9 @@ static int hf_ieee80211_tag_neighbor_report_phy_type = -1;
 static int hf_ieee80211_tag_neighbor_report_subelement_id = -1;
 static int hf_ieee80211_tag_neighbor_report_subelement_length = -1;
 static int hf_ieee80211_tag_neighbor_report_subelement_data = -1;
-
+static int hf_ieee80211_tag_neighbor_report_subelement_bss_trn_can_pref = -1;
+static int hf_ieee80211_tag_neighbor_report_subelement_bss_ter_tsf = -1;
+static int hf_ieee80211_tag_neighbor_report_subelement_bss_dur = -1;
 static int hf_ieee80211_tag_supported_ope_classes_current = -1;
 static int hf_ieee80211_tag_supported_ope_classes_alternate = -1;
 
@@ -14110,6 +14112,14 @@ dissect_neighbor_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         break;
       case NR_SUB_ID_MEASUREMENT_PILOT_INFO:
         /* TODO */
+        break;
+      case NR_SUB_ID_BSS_TRN_CAN_PREF:
+        proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_subelement_bss_trn_can_pref, tvb, offset, 1, ENC_NA);
+        break;
+      case NR_SUB_ID_BSS_TER_DUR:
+        proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_subelement_bss_ter_tsf, tvb, offset, 8, ENC_NA);
+
+        proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_subelement_bss_dur, tvb, offset+8, 2, ENC_NA);
         break;
       case NR_SUB_ID_HT_CAPABILITIES:
         sub_tag_tree = proto_tree_add_subtree(tree, tvb, offset, sub_tag_length,
@@ -26175,6 +26185,21 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_tag_neighbor_report_subelement_data,
      {"Subelement Data", "wlan.nreport.subelement_data",
       FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_neighbor_report_subelement_bss_trn_can_pref,
+     {"Preference", "wlan.nreport.subelement.bss_trn_can_pref",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_neighbor_report_subelement_bss_ter_tsf,
+     {"BSS Termination TSF", "wlan.nreport.subelement.bss_ter_tsf",
+      FT_UINT64, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_neighbor_report_subelement_bss_dur,
+     {"Duration", "wlan.nreport.subelement.bss_dur",
+      FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_supported_ope_classes_current,
