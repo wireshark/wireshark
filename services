@@ -5611,8 +5611,8 @@ rapidmq-center   3093/tcp # Jiiva RapidMQ Center
 rapidmq-center   3093/udp # Jiiva RapidMQ Center
 rapidmq-reg      3094/tcp # Jiiva RapidMQ Registry [Mark_Ericksen] [Mark_Ericksen]
 rapidmq-reg      3094/udp # Jiiva RapidMQ Registry [Mark_Ericksen] [Mark_Ericksen]
-panasas          3095/tcp # Panasas rendevous port [Peter_Berger] [Peter_Berger]
-panasas          3095/udp # Panasas rendevous port [Peter_Berger] [Peter_Berger]
+panasas          3095/tcp # Panasas rendezvous port [Patrick_Keane] [Patrick_Keane] 2017-08-17
+panasas          3095/udp # Panasas rendezvous port [Patrick_Keane] [Patrick_Keane] 2017-08-17
 ndl-aps          3096/tcp # Active Print Server Port [Martin_Norman] [Martin_Norman]
 ndl-aps          3096/udp # Active Print Server Port [Martin_Norman] [Martin_Norman]
 itu-bicc-stc     3097/sctp # ITU-T Q.1902.1/Q.2150.3 [Greg_Sidebottom] [Greg_Sidebottom]
@@ -8006,7 +8006,7 @@ icms             4486/udp # Integrated Client Message Service [Resource_Allocati
 prex-tcp         4487/tcp # Protocol for Remote Execution over TCP [Daniel_Ruppert] [Daniel_Ruppert] 2010-09-16
 awacs-ice        4488/tcp # Apple Wide Area Connectivity Service ICE Bootstrap [Rory_McGuire] [Rory_McGuire] 2010-09-24
 awacs-ice        4488/udp # Apple Wide Area Connectivity Service ICE Bootstrap [Rory_McGuire] [Rory_McGuire] 2010-09-24
-ipsec-nat-t      4500/tcp # IPsec NAT-Traversal 2017-06-19 [RFC-ietf-ipsecme-tcp-encaps-10]
+ipsec-nat-t      4500/tcp # IPsec NAT-Traversal 2017-06-19 [RFC8229]
 ipsec-nat-t      4500/udp # IPsec NAT-Traversal 2017-07-07 [RFC3948][RFC7296]
 a25-fap-fgw      4502/sctp # A25 (FAP-FGW) [ThreeGPP_2] [Zhiming_Li] 2012-01-11
 armagetronad     4534/udp # Armagetron Advanced Game Server [Manuel_Moos] [Yann_Kaiser] 2012-11-02
