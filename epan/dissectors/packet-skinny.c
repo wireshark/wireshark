@@ -42,6 +42,7 @@
  * :indentSize=2:tabSize=8:noTabs=true:
  */
 
+
 #include "config.h"
 
 #include <epan/packet.h>
@@ -1804,7 +1805,6 @@ static int hf_skinny_PhoneFeatures_RFC2833 = -1;
 static int hf_skinny_PhoneFeatures_UTF8 = -1;
 static int hf_skinny_RFC2833PayloadType = -1;
 static int hf_skinny_RTCPPortNumber = -1;
-static int hf_skinny_RTPPayloadFormat = -1;
 static int hf_skinny_RedirDialed = -1;
 static int hf_skinny_RestrictInformationType_BitsReserved = -1;
 static int hf_skinny_RestrictInformationType_CalledParty = -1;
@@ -1853,12 +1853,11 @@ static int hf_skinny_annStatus = -1;
 static int hf_skinny_annexNandWFutureUse = -1;
 static int hf_skinny_appConfID = -1;
 static int hf_skinny_appData = -1;
-static int hf_skinny_appID = -1;
 static int hf_skinny_appInstanceID = -1;
 static int hf_skinny_appName = -1;
-static int hf_skinny_applicationID = -1;
+static int hf_skinny_applicationId = -1;
 static int hf_skinny_areMessagesWaiting = -1;
-static int hf_skinny_associatedStreamID = -1;
+static int hf_skinny_associatedStreamId = -1;
 static int hf_skinny_audioCapCount = -1;
 static int hf_skinny_audioLevelAdjustment = -1;
 static int hf_skinny_audit_participant_result = -1;
@@ -1900,7 +1899,7 @@ static int hf_skinny_codecParam2 = -1;
 static int hf_skinny_command = -1;
 static int hf_skinny_compressionType = -1;
 static int hf_skinny_confServiceNum = -1;
-static int hf_skinny_conferenceID = -1;
+static int hf_skinny_conferenceId = -1;
 static int hf_skinny_conferenceName = -1;
 static int hf_skinny_configVersionStamp = -1;
 static int hf_skinny_confirmRequired = -1;
@@ -2008,7 +2007,7 @@ static int hf_skinny_mediaTransmissionStatus = -1;
 static int hf_skinny_mediaTransportType = -1;
 static int hf_skinny_mediaType = -1;
 static int hf_skinny_micMode = -1;
-static int hf_skinny_millisecondPacketSize = -1;
+static int hf_skinny_milliSecondPacketSize = -1;
 static int hf_skinny_minBitRate = -1;
 static int hf_skinny_mixingMode = -1;
 static int hf_skinny_modAnd2833 = -1;
@@ -2055,8 +2054,8 @@ static int hf_skinny_participantEntry = -1;
 static int hf_skinny_participantName = -1;
 static int hf_skinny_participantNumber = -1;
 static int hf_skinny_partyDirection = -1;
+static int hf_skinny_passThroughPartyId = -1;
 static int hf_skinny_passThruData = -1;
-static int hf_skinny_passThruPartyId = -1;
 static int hf_skinny_passthruPartyID = -1;
 static int hf_skinny_payloadCapability = -1;
 static int hf_skinny_payloadDtmf = -1;
@@ -2100,6 +2099,7 @@ static int hf_skinny_rsvpErrorCode = -1;
 static int hf_skinny_rsvpErrorFlag = -1;
 static int hf_skinny_rsvpErrorSubCodeVal = -1;
 static int hf_skinny_rtpMediaPort = -1;
+static int hf_skinny_rtpPayloadFormat = -1;
 static int hf_skinny_salt = -1;
 static int hf_skinny_saltlen = -1;
 static int hf_skinny_secondaryKeepAliveInterval = -1;
@@ -2145,7 +2145,7 @@ static int hf_skinny_stillImageTransmission = -1;
 static int hf_skinny_stimulus = -1;
 static int hf_skinny_stimulusInstance = -1;
 static int hf_skinny_stimulusStatus = -1;
-static int hf_skinny_streamPassThroughID = -1;
+static int hf_skinny_streamPassThroughId = -1;
 static int hf_skinny_subAppID = -1;
 static int hf_skinny_subcriptionFeatureID = -1;
 static int hf_skinny_subscriptionFeatureID = -1;
@@ -2163,7 +2163,7 @@ static int hf_skinny_totalButtonCount = -1;
 static int hf_skinny_totalNumOfConfiguredLines = -1;
 static int hf_skinny_totalSoftKeyCount = -1;
 static int hf_skinny_totalSoftKeySetCount = -1;
-static int hf_skinny_transactionID = -1;
+static int hf_skinny_transactionId = -1;
 static int hf_skinny_transmitIpAddr_ipv4 = -1;
 static int hf_skinny_transmitIpAddr_ipv6 = -1;
 static int hf_skinny_transmitPreference = -1;
@@ -2178,6 +2178,7 @@ static int hf_skinny_v150sprt = -1;
 static int hf_skinny_vendor = -1;
 static int hf_skinny_vendorID = -1;
 static int hf_skinny_version = -1;
+static int hf_skinny_versionStr = -1;
 static int hf_skinny_videoCapCount = -1;
 static int hf_skinny_videoCapabilityDirection = -1;
 static int hf_skinny_wDay = -1;
@@ -2423,7 +2424,7 @@ handle_RegisterReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_c
     ptvcursor_add(cursor, hf_skinny_activeStreams, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_protocolVer, 1, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_unknown, 1, ENC_LITTLE_ENDIAN);
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "PhoneFeatures");
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "phoneFeatures");
     ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_Bit1, 2, ENC_LITTLE_ENDIAN);
     ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_Bit2, 2, ENC_LITTLE_ENDIAN);
     ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_Bit3, 2, ENC_LITTLE_ENDIAN);
@@ -2441,7 +2442,7 @@ handle_RegisterReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_c
     ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_Bit15, 2, ENC_LITTLE_ENDIAN);
     ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_Abbreviated_Dial, 2, ENC_LITTLE_ENDIAN);
     ptvcursor_advance(cursor, 2);
-    ptvcursor_pop_subtree(cursor); /* end bitfield: PhoneFeatures */
+    ptvcursor_pop_subtree(cursor); /* end bitfield: phoneFeatures */
     ptvcursor_add(cursor, hf_skinny_maxConferences, 4, ENC_LITTLE_ENDIAN);
   }
   if (hdr_data_length > 100) {
@@ -2761,15 +2762,15 @@ handle_AlarmMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_in
 static void
 handle_MulticastMediaReceptionAckMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  guint32 passThruPartyId = 0;
+  guint32 passThroughPartyId = 0;
   si->multicastReceptionStatus = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_multicastReceptionStatus, 4, ENC_LITTLE_ENDIAN);
-  passThruPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
-  skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x0101 ^ passThruPartyId);
+  skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x0101 ^ passThroughPartyId);
 }
 
 /*
@@ -2784,20 +2785,20 @@ static void
 handle_OpenReceiveChannelAckMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
   guint32 hdr_data_length = tvb_get_letohl(ptvcursor_tvbuff(cursor), 0);
-  guint32 passThruPartyId = 0;
+  guint32 passThroughPartyId = 0;
 
   si->mediaReceptionStatus = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_mediaReceptionStatus, 4, ENC_LITTLE_ENDIAN);
   dissect_skinny_ipv4or6(cursor, hf_skinny_ipAddr_ipv4, hf_skinny_ipAddr_ipv6);
   ptvcursor_add(cursor, hf_skinny_portNumber, 4, ENC_LITTLE_ENDIAN);
-  passThruPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   if (hdr_data_length > 20) {
     si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
   }
-  skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x0105 ^ passThruPartyId);
+  skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x0105 ^ passThroughPartyId);
 }
 
 /*
@@ -2816,21 +2817,14 @@ handle_ConnectionStatisticsResMessage(ptvcursor_t *cursor, packet_info * pinfo _
   guint32 callReference = 0;
   guint32 dataSize = 0;
 
-  if (hdr_version <= V16_MSG_TYPE) {
+  if (hdr_version <= V17_MSG_TYPE) {
     ptvcursor_add(cursor, hf_skinny_directoryNum, 24, ENC_ASCII|ENC_NA);
     callReference = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_statsProcessingMode, 4, ENC_LITTLE_ENDIAN);
   }
-  if (hdr_version >= V17_MSG_TYPE && hdr_version <= V20_MSG_TYPE) {
-    ptvcursor_add(cursor, hf_skinny_directoryNum, 28, ENC_ASCII|ENC_NA);
-    callReference = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-    si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-    ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
-    ptvcursor_add(cursor, hf_skinny_statsProcessingMode, 4, ENC_LITTLE_ENDIAN);
-  }
-  if (hdr_version >= V21_MSG_TYPE) {
+  if (hdr_version >= V18_MSG_TYPE) {
     ptvcursor_add(cursor, hf_skinny_directoryNum, 28, ENC_ASCII|ENC_NA);
     callReference = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -2943,16 +2937,16 @@ handle_RegisterTokenReq(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_con
 static void
 handle_MediaTransmissionFailureMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  guint32 passThruPartyId = 0;
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
-  passThruPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  guint32 passThroughPartyId = 0;
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
+  passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   dissect_skinny_ipv4or6(cursor, hf_skinny_remoteIpAddr_ipv4, hf_skinny_remoteIpAddr_ipv6);
   ptvcursor_add(cursor, hf_skinny_remotePortNumber, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
-  skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x008a ^ passThruPartyId);
+  skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x008a ^ passThroughPartyId);
 }
 
 /*
@@ -3014,12 +3008,12 @@ handle_DeviceToUserDataMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, ski
   guint32 dataLength = 0;
   {
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "deviceToUserData");
-    ptvcursor_add(cursor, hf_skinny_applicationID, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_skinny_applicationId, 4, ENC_LITTLE_ENDIAN);
     si->lineId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_lineInstance, 4, ENC_LITTLE_ENDIAN);
     si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
-    ptvcursor_add(cursor, hf_skinny_transactionID, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_skinny_transactionId, 4, ENC_LITTLE_ENDIAN);
     dataLength = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_dataLength, 4, ENC_LITTLE_ENDIAN);
     dissect_skinny_xml(cursor, hf_skinny_xmldata, pinfo, dataLength, 2000);
@@ -3042,12 +3036,12 @@ handle_DeviceToUserDataResponseMessage(ptvcursor_t *cursor, packet_info * pinfo 
   guint32 dataLength = 0;
   {
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "deviceToUserData");
-    ptvcursor_add(cursor, hf_skinny_applicationID, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_skinny_applicationId, 4, ENC_LITTLE_ENDIAN);
     si->lineId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_lineInstance, 4, ENC_LITTLE_ENDIAN);
     si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
-    ptvcursor_add(cursor, hf_skinny_transactionID, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_skinny_transactionId, 4, ENC_LITTLE_ENDIAN);
     dataLength = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_dataLength, 4, ENC_LITTLE_ENDIAN);
     dissect_skinny_xml(cursor, hf_skinny_xmldata, pinfo, dataLength, 2000);
@@ -3081,7 +3075,7 @@ handle_UpdateCapabilitiesMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
   ptvcursor_add(cursor, hf_skinny_videoCapCount, 4, ENC_LITTLE_ENDIAN);
   dataCapCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_dataCapCount, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_RTPPayloadFormat, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_rtpPayloadFormat, 4, ENC_LITTLE_ENDIAN);
   customPictureFormatCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_customPictureFormatCount, 4, ENC_LITTLE_ENDIAN);
   if (customPictureFormatCount <= 6) {
@@ -3359,17 +3353,17 @@ handle_UpdateCapabilitiesMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
 static void
 handle_OpenMultiMediaReceiveChannelAckMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  guint32 passThruPartyId = 0;
+  guint32 passThroughPartyId = 0;
   si->multimediaReceptionStatus = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_multimediaReceptionStatus, 4, ENC_LITTLE_ENDIAN);
   dissect_skinny_ipv4or6(cursor, hf_skinny_ipAddr_ipv4, hf_skinny_ipAddr_ipv6);
   ptvcursor_add(cursor, hf_skinny_portNumber, 4, ENC_LITTLE_ENDIAN);
-  passThruPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
-  skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x0131 ^ passThruPartyId);
+  skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x0131 ^ passThroughPartyId);
 }
 
 /*
@@ -3383,7 +3377,7 @@ handle_OpenMultiMediaReceiveChannelAckMessage(ptvcursor_t *cursor, packet_info *
 static void
 handle_ClearConferenceMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_serviceNum, 4, ENC_LITTLE_ENDIAN);
 }
 
@@ -3437,15 +3431,15 @@ handle_FeatureStatReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinn
 static void
 handle_CreateConferenceResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  guint32 conferenceID = 0;
+  guint32 conferenceId = 0;
   guint32 dataLength = 0;
-  conferenceID = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  conferenceId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_result, 4, ENC_LITTLE_ENDIAN);
   dataLength = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_dataLength, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_passThruData, dataLength, ENC_ASCII|ENC_NA);
-  skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x0137 ^ conferenceID);
+  skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x0137 ^ conferenceId);
 }
 
 /*
@@ -3459,11 +3453,11 @@ handle_CreateConferenceResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, 
 static void
 handle_DeleteConferenceResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  guint32 conferenceID = 0;
-  conferenceID = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  guint32 conferenceId = 0;
+  conferenceId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_delete_conf_result, 4, ENC_LITTLE_ENDIAN);
-  skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x0138 ^ conferenceID);
+  skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x0138 ^ conferenceId);
 }
 
 /*
@@ -3477,15 +3471,15 @@ handle_DeleteConferenceResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, 
 static void
 handle_ModifyConferenceResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  guint32 conferenceID = 0;
+  guint32 conferenceId = 0;
   guint32 dataLength = 0;
-  conferenceID = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  conferenceId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_modify_conf_result, 4, ENC_LITTLE_ENDIAN);
   dataLength = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_dataLength, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_passThruData, dataLength, ENC_ASCII|ENC_NA);
-  skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x0139 ^ conferenceID);
+  skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x0139 ^ conferenceId);
 }
 
 /*
@@ -3499,14 +3493,14 @@ handle_ModifyConferenceResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, 
 static void
 handle_AddParticipantResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  guint32 conferenceID = 0;
-  conferenceID = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  guint32 conferenceId = 0;
+  conferenceId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_add_participant_result, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_bridgeParticipantId, 257, ENC_ASCII|ENC_NA);
-  skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x013a ^ conferenceID);
+  skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x013a ^ conferenceId);
 }
 
 /*
@@ -3531,11 +3525,11 @@ handle_AuditConferenceResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
       for (counter_1 = 0; counter_1 < 32; counter_1++) {
         if (counter_1 < numberOfEntries) {
           ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "conferenceEntry [%d / %d]", counter_1 + 1, numberOfEntries);
-          ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_resourceType, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_numberOfReservedParticipants, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_numberOfActiveParticipants, 4, ENC_LITTLE_ENDIAN);
-          ptvcursor_add(cursor, hf_skinny_appID, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_applicationId, 4, ENC_LITTLE_ENDIAN);
           ptvcursor_add(cursor, hf_skinny_appConfID, 32, ENC_ASCII|ENC_NA);
           ptvcursor_add(cursor, hf_skinny_appData, 24, ENC_ASCII|ENC_NA);
         } else {
@@ -3562,12 +3556,12 @@ handle_AuditConferenceResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
 static void
 handle_AuditParticipantResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  guint32 conferenceID = 0;
+  guint32 conferenceId = 0;
   guint32 numberOfEntries = 0;
   ptvcursor_add(cursor, hf_skinny_audit_participant_result, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_last, 4, ENC_LITTLE_ENDIAN);
-  conferenceID = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  conferenceId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   numberOfEntries = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_numberOfEntries, 4, ENC_LITTLE_ENDIAN);
   if (numberOfEntries <= 256) {
@@ -3584,7 +3578,7 @@ handle_AuditParticipantResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, 
   } else {
     ptvcursor_advance(cursor, (256 * 4));
   }
-  skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x013d ^ conferenceID);
+  skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x013d ^ conferenceId);
 }
 
 /*
@@ -3601,17 +3595,17 @@ handle_DeviceToUserDataMessageVersion1(ptvcursor_t *cursor, packet_info * pinfo 
   guint32 dataLength = 0;
   {
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "deviceToUserDataVersion1");
-    ptvcursor_add(cursor, hf_skinny_applicationID, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_skinny_applicationId, 4, ENC_LITTLE_ENDIAN);
     si->lineId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_lineInstance, 4, ENC_LITTLE_ENDIAN);
     si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
-    ptvcursor_add(cursor, hf_skinny_transactionID, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_skinny_transactionId, 4, ENC_LITTLE_ENDIAN);
     dataLength = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_dataLength, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_sequenceFlag, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_displayPriority, 4, ENC_LITTLE_ENDIAN);
-    ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_appInstanceID, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_routingID, 4, ENC_LITTLE_ENDIAN);
     dissect_skinny_xml(cursor, hf_skinny_xmldata, pinfo, dataLength, 2000);
@@ -3634,17 +3628,17 @@ handle_DeviceToUserDataResponseMessageVersion1(ptvcursor_t *cursor, packet_info 
   guint32 dataLength = 0;
   {
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "deviceToUserDataVersion1");
-    ptvcursor_add(cursor, hf_skinny_applicationID, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_skinny_applicationId, 4, ENC_LITTLE_ENDIAN);
     si->lineId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_lineInstance, 4, ENC_LITTLE_ENDIAN);
     si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
-    ptvcursor_add(cursor, hf_skinny_transactionID, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_skinny_transactionId, 4, ENC_LITTLE_ENDIAN);
     dataLength = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_dataLength, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_sequenceFlag, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_displayPriority, 4, ENC_LITTLE_ENDIAN);
-    ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_appInstanceID, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_routingID, 4, ENC_LITTLE_ENDIAN);
     dissect_skinny_xml(cursor, hf_skinny_xmldata, pinfo, dataLength, 2000);
@@ -3678,7 +3672,7 @@ handle_CapabilitiesV2ResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
   ptvcursor_add(cursor, hf_skinny_videoCapCount, 4, ENC_LITTLE_ENDIAN);
   dataCapCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_dataCapCount, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_RTPPayloadFormat, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_rtpPayloadFormat, 4, ENC_LITTLE_ENDIAN);
   customPictureFormatCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_customPictureFormatCount, 4, ENC_LITTLE_ENDIAN);
   if (customPictureFormatCount <= 6) {
@@ -3988,7 +3982,7 @@ handle_CapabilitiesV3ResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
   ptvcursor_add(cursor, hf_skinny_videoCapCount, 4, ENC_LITTLE_ENDIAN);
   dataCapCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_dataCapCount, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_RTPPayloadFormat, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_rtpPayloadFormat, 4, ENC_LITTLE_ENDIAN);
   customPictureFormatCount = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_customPictureFormatCount, 4, ENC_LITTLE_ENDIAN);
   if (customPictureFormatCount <= 6) {
@@ -4264,12 +4258,12 @@ handle_PortResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_
   guint32 hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);
   guint32 callReference = 0;
 
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   callReference = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   dissect_skinny_ipv4or6(cursor, hf_skinny_ipAddr_ipv4, hf_skinny_ipAddr_ipv6);
   ptvcursor_add(cursor, hf_skinny_portNumber, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_RTCPPortNumber, 4, ENC_LITTLE_ENDIAN);
@@ -4290,11 +4284,11 @@ handle_PortResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_
 static void
 handle_QoSResvNotifyMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   dissect_skinny_ipv4or6(cursor, hf_skinny_remoteIpAddr_ipv4, hf_skinny_remoteIpAddr_ipv6);
   ptvcursor_add(cursor, hf_skinny_remotePortNumber, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_direction, 4, ENC_LITTLE_ENDIAN);
@@ -4311,11 +4305,11 @@ handle_QoSResvNotifyMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny
 static void
 handle_QoSErrorNotifyMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   dissect_skinny_ipv4or6(cursor, hf_skinny_remoteIpAddr_ipv4, hf_skinny_remoteIpAddr_ipv6);
   ptvcursor_add(cursor, hf_skinny_remotePortNumber, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_direction, 4, ENC_LITTLE_ENDIAN);
@@ -4337,13 +4331,13 @@ handle_QoSErrorNotifyMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinn
 static void
 handle_SubscriptionStatReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  guint32 transactionID = 0;
-  transactionID = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_transactionID, 4, ENC_LITTLE_ENDIAN);
+  guint32 transactionId = 0;
+  transactionId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_transactionId, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_subcriptionFeatureID, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_timer, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_subscriptionID, 64, ENC_ASCII|ENC_NA);
-  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x0048 ^ transactionID);
+  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x0048 ^ transactionId);
 }
 
 /*
@@ -4434,7 +4428,7 @@ handle_RegisterAckMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_c
   ptvcursor_add(cursor, hf_skinny_secondaryKeepAliveInterval, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_maxProtocolVer, 1, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_unknown, 1, ENC_LITTLE_ENDIAN);
-  ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "PhoneFeatures");
+  ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "phoneFeatures");
   ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_Bit1, 2, ENC_LITTLE_ENDIAN);
   ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_Bit2, 2, ENC_LITTLE_ENDIAN);
   ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_Bit3, 2, ENC_LITTLE_ENDIAN);
@@ -4452,7 +4446,7 @@ handle_RegisterAckMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_c
   ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_Bit15, 2, ENC_LITTLE_ENDIAN);
   ptvcursor_add_no_advance(cursor, hf_skinny_PhoneFeatures_Abbreviated_Dial, 2, ENC_LITTLE_ENDIAN);
   ptvcursor_advance(cursor, 2);
-  ptvcursor_pop_subtree(cursor); /* end bitfield: PhoneFeatures */
+  ptvcursor_pop_subtree(cursor); /* end bitfield: phoneFeatures */
   skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x0001);
 }
 
@@ -4572,18 +4566,18 @@ static void
 handle_StartMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
   guint32 hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);
-  guint32 passThruPartyId = 0;
+  guint32 passThroughPartyId = 0;
   guint32 compressionType = 0;
   guint16 keylen = 0;
   guint16 saltlen = 0;
 
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
-  passThruPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
+  passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   dissect_skinny_ipv4or6(cursor, hf_skinny_remoteIpAddr_ipv4, hf_skinny_remoteIpAddr_ipv6);
   ptvcursor_add(cursor, hf_skinny_remotePortNumber, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_millisecondPacketSize, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_milliSecondPacketSize, 4, ENC_LITTLE_ENDIAN);
   compressionType = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_compressionType, 4, ENC_LITTLE_ENDIAN);
   {
@@ -4656,8 +4650,8 @@ handle_StartMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pinfo _U
     ptvcursor_add(cursor, hf_skinny_keyDerivationRate, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(cursor);
   }
-  ptvcursor_add(cursor, hf_skinny_streamPassThroughID, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_associatedStreamID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_streamPassThroughId, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_associatedStreamId, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_RFC2833PayloadType, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_dtmfType, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_mixingMode, 4, ENC_LITTLE_ENDIAN);
@@ -4703,7 +4697,7 @@ handle_StartMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pinfo _U
       ptvcursor_pop_subtree(cursor);
     }
   }
-  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x008a ^ passThruPartyId);
+  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x008a ^ passThroughPartyId);
 }
 
 /*
@@ -4717,9 +4711,9 @@ handle_StartMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pinfo _U
 static void
 handle_StopMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_portHandlingFlag, 4, ENC_LITTLE_ENDIAN);
@@ -4978,7 +4972,7 @@ handle_ButtonTemplateResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
 static void
 handle_VersionResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  ptvcursor_add(cursor, hf_skinny_version, 16, ENC_ASCII|ENC_NA);
+  ptvcursor_add(cursor, hf_skinny_versionStr, 16, ENC_ASCII|ENC_NA);
   skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x000f);
 }
 
@@ -5093,16 +5087,16 @@ handle_Reset(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * 
 static void
 handle_StartMulticastMediaReceptionMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  guint32 passThruPartyId = 0;
+  guint32 passThroughPartyId = 0;
   guint32 compressionType = 0;
   guint32 hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
-  passThruPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
+  passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   dissect_skinny_ipv4or6(cursor, hf_skinny_multicastIpAddr_ipv4, hf_skinny_multicastIpAddr_ipv6);
   ptvcursor_add(cursor, hf_skinny_multicastPortNumber, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_millisecondPacketSize, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_milliSecondPacketSize, 4, ENC_LITTLE_ENDIAN);
   compressionType = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_compressionType, 4, ENC_LITTLE_ENDIAN);
   {
@@ -5133,7 +5127,7 @@ handle_StartMulticastMediaReceptionMessage(ptvcursor_t *cursor, packet_info * pi
   }
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
-  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x0101 ^ passThruPartyId);
+  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x0101 ^ passThroughPartyId);
 }
 
 /*
@@ -5147,16 +5141,16 @@ handle_StartMulticastMediaReceptionMessage(ptvcursor_t *cursor, packet_info * pi
 static void
 handle_StartMulticastMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  guint32 passThruPartyId = 0;
+  guint32 passThroughPartyId = 0;
   guint32 compressionType = 0;
   guint32 hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
-  passThruPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
+  passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   dissect_skinny_ipv4or6(cursor, hf_skinny_multicastIpAddr_ipv4, hf_skinny_multicastIpAddr_ipv6);
   ptvcursor_add(cursor, hf_skinny_multicastPortNumber, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_millisecondPacketSize, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_milliSecondPacketSize, 4, ENC_LITTLE_ENDIAN);
   compressionType = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_compressionType, 4, ENC_LITTLE_ENDIAN);
   {
@@ -5190,7 +5184,7 @@ handle_StartMulticastMediaTransmissionMessage(ptvcursor_t *cursor, packet_info *
   }
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
-  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x0102 ^ passThruPartyId);
+  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x0102 ^ passThroughPartyId);
 }
 
 /*
@@ -5204,9 +5198,9 @@ handle_StartMulticastMediaTransmissionMessage(ptvcursor_t *cursor, packet_info *
 static void
 handle_StopMulticastMediaReceptionMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
 }
@@ -5222,9 +5216,9 @@ handle_StopMulticastMediaReceptionMessage(ptvcursor_t *cursor, packet_info * pin
 static void
 handle_StopMulticastMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
 }
@@ -5241,17 +5235,17 @@ static void
 handle_OpenReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
   guint32 hdr_data_length = tvb_get_letohl(ptvcursor_tvbuff(cursor), 0);
-  guint32 passThruPartyId = 0;
+  guint32 passThroughPartyId = 0;
   guint32 compressionType = 0;
   guint32 hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);
   guint16 keylen = 0;
   guint16 saltlen = 0;
 
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
-  passThruPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_millisecondPacketSize, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
+  passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_milliSecondPacketSize, 4, ENC_LITTLE_ENDIAN);
   compressionType = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_compressionType, 4, ENC_LITTLE_ENDIAN);
   {
@@ -5321,8 +5315,8 @@ handle_OpenReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
     ptvcursor_add(cursor, hf_skinny_keyDerivationRate, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(cursor);
   }
-  ptvcursor_add(cursor, hf_skinny_streamPassThroughID, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_associatedStreamID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_streamPassThroughId, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_associatedStreamId, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_RFC2833PayloadType, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_dtmfType, 4, ENC_LITTLE_ENDIAN);
   if (hdr_version >= V11_MSG_TYPE) {
@@ -5380,7 +5374,7 @@ handle_OpenReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
       }
     }
   }
-  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x0105 ^ passThruPartyId);
+  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x0105 ^ passThroughPartyId);
 }
 
 /*
@@ -5394,9 +5388,9 @@ handle_OpenReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
 static void
 handle_CloseReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_portHandlingFlag, 4, ENC_LITTLE_ENDIAN);
@@ -5416,10 +5410,10 @@ handle_ConnectionStatisticsReqMessage(ptvcursor_t *cursor, packet_info * pinfo _
   guint32 hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);
   guint32 callReference = 0;
 
-  if (hdr_version <= V16_MSG_TYPE) {
+  if (hdr_version <= V17_MSG_TYPE) {
     ptvcursor_add(cursor, hf_skinny_directoryNum, 24, ENC_ASCII|ENC_NA);
   }
-  if (hdr_version >= V17_MSG_TYPE) {
+  if (hdr_version >= V18_MSG_TYPE) {
     ptvcursor_add(cursor, hf_skinny_directoryNum, 28, ENC_ASCII|ENC_NA);
   }
   callReference = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -5716,10 +5710,10 @@ handle_StartMediaFailureDetectionMessage(ptvcursor_t *cursor, packet_info * pinf
 {
   guint32 compressionType = 0;
   guint32 hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_millisecondPacketSize, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_milliSecondPacketSize, 4, ENC_LITTLE_ENDIAN);
   compressionType = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_compressionType, 4, ENC_LITTLE_ENDIAN);
   {
@@ -5796,12 +5790,12 @@ handle_UserToDeviceDataMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, ski
   guint32 dataLength = 0;
   {
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "userToDeviceData");
-    ptvcursor_add(cursor, hf_skinny_applicationID, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_skinny_applicationId, 4, ENC_LITTLE_ENDIAN);
     si->lineId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_lineInstance, 4, ENC_LITTLE_ENDIAN);
     si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
-    ptvcursor_add(cursor, hf_skinny_transactionID, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_skinny_transactionId, 4, ENC_LITTLE_ENDIAN);
     dataLength = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_dataLength, 4, ENC_LITTLE_ENDIAN);
     dissect_skinny_xml(cursor, hf_skinny_xmldata, pinfo, dataLength, 2000);
@@ -5883,7 +5877,7 @@ handle_StartAnnouncementMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
     ptvcursor_pop_subtree(cursor);
   }
   ptvcursor_add(cursor, hf_skinny_annAckReq, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   {
     guint32 counter_2 = 0;
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "matrixConfPartyID [max:16]");
@@ -5907,7 +5901,7 @@ handle_StartAnnouncementMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
 static void
 handle_StopAnnouncementMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
 }
 
 /*
@@ -5921,7 +5915,7 @@ handle_StopAnnouncementMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, ski
 static void
 handle_AnnouncementFinishMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_annStatus, 4, ENC_LITTLE_ENDIAN);
 }
 
@@ -5937,7 +5931,7 @@ static void
 handle_NotifyDtmfToneMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
   ptvcursor_add(cursor, hf_skinny_tone, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_passthruPartyID, 4, ENC_LITTLE_ENDIAN);
 }
 
@@ -5953,7 +5947,7 @@ static void
 handle_SendDtmfToneMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
   ptvcursor_add(cursor, hf_skinny_tone, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_passthruPartyID, 4, ENC_LITTLE_ENDIAN);
 }
 
@@ -5969,7 +5963,7 @@ static void
 handle_SubscribeDtmfPayloadReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
   ptvcursor_add(cursor, hf_skinny_payloadDtmf, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_passthruPartyID, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_dtmfType, 4, ENC_LITTLE_ENDIAN);
   skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x0129);
@@ -5988,7 +5982,7 @@ handle_SubscribeDtmfPayloadResMessage(ptvcursor_t *cursor, packet_info * pinfo _
 {
   guint32 passthruPartyID = 0;
   ptvcursor_add(cursor, hf_skinny_payloadDtmf, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   passthruPartyID = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_passthruPartyID, 4, ENC_LITTLE_ENDIAN);
   skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x0129 ^ passthruPartyID);
@@ -6007,7 +6001,7 @@ handle_SubscribeDtmfPayloadErrMessage(ptvcursor_t *cursor, packet_info * pinfo _
 {
   guint32 passthruPartyID = 0;
   ptvcursor_add(cursor, hf_skinny_payloadDtmf, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   passthruPartyID = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_passthruPartyID, 4, ENC_LITTLE_ENDIAN);
   skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x0129 ^ passthruPartyID);
@@ -6026,7 +6020,7 @@ handle_UnSubscribeDtmfPayloadReqMessage(ptvcursor_t *cursor, packet_info * pinfo
 {
   guint32 passthruPartyID = 0;
   ptvcursor_add(cursor, hf_skinny_payloadDtmf, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   passthruPartyID = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_passthruPartyID, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_dtmfType, 4, ENC_LITTLE_ENDIAN);
@@ -6046,7 +6040,7 @@ handle_UnSubscribeDtmfPayloadResMessage(ptvcursor_t *cursor, packet_info * pinfo
 {
   guint32 passthruPartyID = 0;
   ptvcursor_add(cursor, hf_skinny_payloadDtmf, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   passthruPartyID = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_passthruPartyID, 4, ENC_LITTLE_ENDIAN);
   skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x012d ^ passthruPartyID);
@@ -6065,7 +6059,7 @@ handle_UnSubscribeDtmfPayloadErrMessage(ptvcursor_t *cursor, packet_info * pinfo
 {
   guint32 passthruPartyID = 0;
   ptvcursor_add(cursor, hf_skinny_payloadDtmf, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   passthruPartyID = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_passthruPartyID, 4, ENC_LITTLE_ENDIAN);
   skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x012d ^ passthruPartyID);
@@ -6120,17 +6114,17 @@ static void
 handle_OpenMultiMediaReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
   guint32 hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);
-  guint32 passThruPartyId = 0;
+  guint32 passThroughPartyId = 0;
   guint32 compressionType = 0;
   guint32 payloadType = 0;
   guint32 pictureFormatCount = 0;
   guint16 keylen = 0;
   guint16 saltlen = 0;
 
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
-  passThruPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
+  passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   compressionType = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_compressionType, 4, ENC_LITTLE_ENDIAN);
   si->lineId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -6149,7 +6143,7 @@ handle_OpenMultiMediaReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pi
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadType <= Media_Payload_AMR_WB");
     {
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "audioParameters");
-      ptvcursor_add(cursor, hf_skinny_millisecondPacketSize, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_skinny_milliSecondPacketSize, 4, ENC_LITTLE_ENDIAN);
       {
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "qualifierIn");
         ptvcursor_add(cursor, hf_skinny_ecValue, 4, ENC_LITTLE_ENDIAN);
@@ -6338,8 +6332,8 @@ handle_OpenMultiMediaReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pi
     ptvcursor_add(cursor, hf_skinny_keyDerivationRate, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(cursor);
   }
-  ptvcursor_add(cursor, hf_skinny_streamPassThroughID, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_associatedStreamID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_streamPassThroughId, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_associatedStreamId, 4, ENC_LITTLE_ENDIAN);
   if (hdr_version >= V11_MSG_TYPE) {
     dissect_skinny_ipv4or6(cursor, hf_skinny_sourceIpAddr_ipv4, hf_skinny_sourceIpAddr_ipv6);
     ptvcursor_add(cursor, hf_skinny_sourcePortNumber, 4, ENC_LITTLE_ENDIAN);
@@ -6347,7 +6341,7 @@ handle_OpenMultiMediaReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pi
   if (hdr_version >= V16_MSG_TYPE) {
     ptvcursor_add(cursor, hf_skinny_requestedIpAddrType, 4, ENC_LITTLE_ENDIAN);
   }
-  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x0131 ^ passThruPartyId);
+  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x0131 ^ passThroughPartyId);
 }
 
 /*
@@ -6368,7 +6362,7 @@ handle_StartMultiMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pin
   guint32 pictureFormatCount = 0;
   guint16 keylen = 0;
   guint16 saltlen = 0;
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   passthruPartyID = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_passthruPartyID, 4, ENC_LITTLE_ENDIAN);
   compressionType = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -6389,7 +6383,7 @@ handle_StartMultiMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pin
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadType <= Media_Payload_AMR_WB");
     {
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "audioParameters");
-      ptvcursor_add(cursor, hf_skinny_millisecondPacketSize, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_skinny_milliSecondPacketSize, 4, ENC_LITTLE_ENDIAN);
       {
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "qualifierIn");
         ptvcursor_add(cursor, hf_skinny_ecValue, 4, ENC_LITTLE_ENDIAN);
@@ -6578,8 +6572,8 @@ handle_StartMultiMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pin
     ptvcursor_add(cursor, hf_skinny_keyDerivationRate, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(cursor);
   }
-  ptvcursor_add(cursor, hf_skinny_streamPassThroughID, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_associatedStreamID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_streamPassThroughId, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_associatedStreamId, 4, ENC_LITTLE_ENDIAN);
   skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x0132 ^ passthruPartyID);
 }
 
@@ -6594,9 +6588,9 @@ handle_StartMultiMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pin
 static void
 handle_StopMultiMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_portHandlingFlag, 4, ENC_LITTLE_ENDIAN);
@@ -6615,7 +6609,7 @@ handle_MiscellaneousCommandMessage(ptvcursor_t *cursor, packet_info * pinfo _U_,
 {
   guint32 command = 0;
   guint32 recoveryReferencePictureCount = 0;
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_passthruPartyID, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
@@ -6730,7 +6724,7 @@ handle_MiscellaneousCommandMessage(ptvcursor_t *cursor, packet_info * pinfo _U_,
 static void
 handle_FlowControlCommandMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_passthruPartyID, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
@@ -6748,9 +6742,9 @@ handle_FlowControlCommandMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
 static void
 handle_CloseMultiMediaReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_portHandlingFlag, 4, ENC_LITTLE_ENDIAN);
@@ -6767,19 +6761,19 @@ handle_CloseMultiMediaReceiveChannelMessage(ptvcursor_t *cursor, packet_info * p
 static void
 handle_CreateConferenceReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  guint32 conferenceID = 0;
+  guint32 conferenceId = 0;
   guint32 dataLength = 0;
-  conferenceID = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  conferenceId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_numberOfReservedParticipants, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_resourceType, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_appID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_applicationId, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_appConfID, 32, ENC_ASCII|ENC_NA);
   ptvcursor_add(cursor, hf_skinny_appData, 24, ENC_ASCII|ENC_NA);
   dataLength = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_dataLength, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_passThruData, dataLength, ENC_ASCII|ENC_NA);
-  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x0137 ^ conferenceID);
+  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x0137 ^ conferenceId);
 }
 
 /*
@@ -6793,10 +6787,10 @@ handle_CreateConferenceReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, 
 static void
 handle_DeleteConferenceReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  guint32 conferenceID = 0;
-  conferenceID = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
-  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x0138 ^ conferenceID);
+  guint32 conferenceId = 0;
+  conferenceId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
+  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x0138 ^ conferenceId);
 }
 
 /*
@@ -6810,18 +6804,18 @@ handle_DeleteConferenceReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, 
 static void
 handle_ModifyConferenceReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  guint32 conferenceID = 0;
+  guint32 conferenceId = 0;
   guint32 dataLength = 0;
-  conferenceID = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  conferenceId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_numberOfReservedParticipants, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_appID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_applicationId, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_appConfID, 32, ENC_ASCII|ENC_NA);
   ptvcursor_add(cursor, hf_skinny_appData, 24, ENC_ASCII|ENC_NA);
   dataLength = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_dataLength, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_passThruData, dataLength, ENC_ASCII|ENC_NA);
-  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x0139 ^ conferenceID);
+  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x0139 ^ conferenceId);
 }
 
 /*
@@ -6835,9 +6829,9 @@ handle_ModifyConferenceReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, 
 static void
 handle_AddParticipantReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  guint32 conferenceID = 0;
-  conferenceID = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  guint32 conferenceId = 0;
+  conferenceId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "partyPIRestrictionBits");
@@ -6859,7 +6853,7 @@ handle_AddParticipantReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
   ptvcursor_add(cursor, hf_skinny_participantName, 40, ENC_ASCII|ENC_NA);
   ptvcursor_add(cursor, hf_skinny_participantNumber, 24, ENC_ASCII|ENC_NA);
   ptvcursor_add(cursor, hf_skinny_conferenceName, 32, ENC_ASCII|ENC_NA);
-  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x013a ^ conferenceID);
+  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x013a ^ conferenceId);
 }
 
 /*
@@ -6873,12 +6867,12 @@ handle_AddParticipantReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, sk
 static void
 handle_DropParticipantReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  guint32 conferenceID = 0;
-  conferenceID = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  guint32 conferenceId = 0;
+  conferenceId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
-  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x013b ^ conferenceID);
+  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x013b ^ conferenceId);
 }
 
 /*
@@ -6892,10 +6886,10 @@ handle_DropParticipantReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
 static void
 handle_AuditParticipantReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  guint32 conferenceID = 0;
-  conferenceID = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
-  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x013d ^ conferenceID);
+  guint32 conferenceId = 0;
+  conferenceId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
+  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x013d ^ conferenceId);
 }
 
 /*
@@ -6909,9 +6903,9 @@ handle_AuditParticipantReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, 
 static void
 handle_ChangeParticipantReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  guint32 conferenceID = 0;
-  conferenceID = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  guint32 conferenceId = 0;
+  conferenceId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "partyPIRestrictionBits");
@@ -6933,7 +6927,7 @@ handle_ChangeParticipantReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_,
   ptvcursor_add(cursor, hf_skinny_participantName, 40, ENC_ASCII|ENC_NA);
   ptvcursor_add(cursor, hf_skinny_participantNumber, 24, ENC_ASCII|ENC_NA);
   ptvcursor_add(cursor, hf_skinny_conferenceName, 32, ENC_ASCII|ENC_NA);
-  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x013e ^ conferenceID);
+  skinny_reqrep_add_request(cursor, pinfo, skinny_conv, 0x013e ^ conferenceId);
 }
 
 /*
@@ -6950,17 +6944,17 @@ handle_UserToDeviceDataMessageVersion1(ptvcursor_t *cursor, packet_info * pinfo 
   guint32 dataLength = 0;
   {
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "userToDeviceDataVersion1");
-    ptvcursor_add(cursor, hf_skinny_applicationID, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_skinny_applicationId, 4, ENC_LITTLE_ENDIAN);
     si->lineId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_lineInstance, 4, ENC_LITTLE_ENDIAN);
     si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
-    ptvcursor_add(cursor, hf_skinny_transactionID, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_skinny_transactionId, 4, ENC_LITTLE_ENDIAN);
     dataLength = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_skinny_dataLength, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_sequenceFlag, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_displayPriority, 4, ENC_LITTLE_ENDIAN);
-    ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_appInstanceID, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_routingID, 4, ENC_LITTLE_ENDIAN);
     dissect_skinny_xml(cursor, hf_skinny_xmldata, pinfo, dataLength, 2000);
@@ -6979,7 +6973,7 @@ handle_UserToDeviceDataMessageVersion1(ptvcursor_t *cursor, packet_info * pinfo 
 static void
 handle_VideoDisplayCommandMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_layoutID, 4, ENC_LITTLE_ENDIAN);
@@ -6996,7 +6990,7 @@ handle_VideoDisplayCommandMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, 
 static void
 handle_FlowControlNotifyMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_passthruPartyID, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
@@ -7373,11 +7367,11 @@ handle_CallInfoV2Message(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_co
 static void
 handle_PortReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_mediaTransportType, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_ipAddressType, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_mediaType, 4, ENC_LITTLE_ENDIAN);
@@ -7395,11 +7389,11 @@ handle_PortReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_
 static void
 handle_PortCloseMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_mediaType, 4, ENC_LITTLE_ENDIAN);
 }
 
@@ -7414,11 +7408,11 @@ handle_PortCloseMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_con
 static void
 handle_QoSListenMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   dissect_skinny_ipv4or6(cursor, hf_skinny_remoteIpAddr_ipv4, hf_skinny_remoteIpAddr_ipv6);
   ptvcursor_add(cursor, hf_skinny_remotePortNumber, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_resvStyle, 4, ENC_LITTLE_ENDIAN);
@@ -7432,7 +7426,7 @@ handle_QoSListenMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_con
   ptvcursor_add(cursor, hf_skinny_burstSize, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_peakRate, 4, ENC_LITTLE_ENDIAN);
   {
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "appID");
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "applicationID");
     ptvcursor_add(cursor, hf_skinny_vendorID, 32, ENC_ASCII|ENC_NA);
     ptvcursor_add(cursor, hf_skinny_version, 16, ENC_ASCII|ENC_NA);
     ptvcursor_add(cursor, hf_skinny_appName, 32, ENC_ASCII|ENC_NA);
@@ -7452,11 +7446,11 @@ handle_QoSListenMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_con
 static void
 handle_QoSPathMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   dissect_skinny_ipv4or6(cursor, hf_skinny_remoteIpAddr_ipv4, hf_skinny_remoteIpAddr_ipv6);
   ptvcursor_add(cursor, hf_skinny_remotePortNumber, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_resvStyle, 4, ENC_LITTLE_ENDIAN);
@@ -7469,7 +7463,7 @@ handle_QoSPathMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_
   ptvcursor_add(cursor, hf_skinny_burstSize, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_peakRate, 4, ENC_LITTLE_ENDIAN);
   {
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "appID");
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "applicationID");
     ptvcursor_add(cursor, hf_skinny_vendorID, 32, ENC_ASCII|ENC_NA);
     ptvcursor_add(cursor, hf_skinny_version, 16, ENC_ASCII|ENC_NA);
     ptvcursor_add(cursor, hf_skinny_appName, 32, ENC_ASCII|ENC_NA);
@@ -7489,11 +7483,11 @@ handle_QoSPathMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_
 static void
 handle_QoSTeardownMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   dissect_skinny_ipv4or6(cursor, hf_skinny_remoteIpAddr_ipv4, hf_skinny_remoteIpAddr_ipv6);
   ptvcursor_add(cursor, hf_skinny_remotePortNumber, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_direction, 4, ENC_LITTLE_ENDIAN);
@@ -7510,11 +7504,11 @@ handle_QoSTeardownMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_c
 static void
 handle_UpdateDSCPMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   dissect_skinny_ipv4or6(cursor, hf_skinny_remoteIpAddr_ipv4, hf_skinny_remoteIpAddr_ipv6);
   ptvcursor_add(cursor, hf_skinny_remotePortNumber, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_DSCPValue, 4, ENC_LITTLE_ENDIAN);
@@ -7531,11 +7525,11 @@ handle_UpdateDSCPMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_co
 static void
 handle_QoSModifyMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   dissect_skinny_ipv4or6(cursor, hf_skinny_remoteIpAddr_ipv4, hf_skinny_remoteIpAddr_ipv6);
   ptvcursor_add(cursor, hf_skinny_remotePortNumber, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_direction, 4, ENC_LITTLE_ENDIAN);
@@ -7544,7 +7538,7 @@ handle_QoSModifyMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_con
   ptvcursor_add(cursor, hf_skinny_burstSize, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_peakRate, 4, ENC_LITTLE_ENDIAN);
   {
-    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "appID");
+    ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "applicationID");
     ptvcursor_add(cursor, hf_skinny_vendorID, 32, ENC_ASCII|ENC_NA);
     ptvcursor_add(cursor, hf_skinny_version, 16, ENC_ASCII|ENC_NA);
     ptvcursor_add(cursor, hf_skinny_appName, 32, ENC_ASCII|ENC_NA);
@@ -7564,13 +7558,13 @@ handle_QoSModifyMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_con
 static void
 handle_SubscriptionStatResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  guint32 transactionID = 0;
-  transactionID = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_transactionID, 4, ENC_LITTLE_ENDIAN);
+  guint32 transactionId = 0;
+  transactionId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_transactionId, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_subscriptionFeatureID, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_timer, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_cause, 4, ENC_LITTLE_ENDIAN);
-  skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x0048 ^ transactionID);
+  skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x0048 ^ transactionId);
 }
 
 /*
@@ -7584,7 +7578,7 @@ handle_SubscriptionStatResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, 
 static void
 handle_NotificationMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  ptvcursor_add(cursor, hf_skinny_transactionID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_transactionId, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_subscriptionFeatureID, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_notificationStatus, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_text, 97, ENC_ASCII|ENC_NA);
@@ -7601,18 +7595,18 @@ handle_NotificationMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_
 static void
 handle_StartMediaTransmissionAckMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  guint32 passThruPartyId = 0;
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
-  passThruPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  guint32 passThroughPartyId = 0;
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
+  passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
   dissect_skinny_ipv4or6(cursor, hf_skinny_transmitIpAddr_ipv4, hf_skinny_transmitIpAddr_ipv6);
   ptvcursor_add(cursor, hf_skinny_portNumber, 4, ENC_LITTLE_ENDIAN);
   si->mediaTransmissionStatus = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_mediaTransmissionStatus, 4, ENC_LITTLE_ENDIAN);
-  skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x008a ^ passThruPartyId);
+  skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x008a ^ passThroughPartyId);
 }
 
 /*
@@ -7626,18 +7620,18 @@ handle_StartMediaTransmissionAckMessage(ptvcursor_t *cursor, packet_info * pinfo
 static void
 handle_StartMultiMediaTransmissionAckMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  guint32 passThruPartyId = 0;
-  ptvcursor_add(cursor, hf_skinny_conferenceID, 4, ENC_LITTLE_ENDIAN);
-  passThruPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  si->passThruId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_passThruPartyId, 4, ENC_LITTLE_ENDIAN);
+  guint32 passThroughPartyId = 0;
+  ptvcursor_add(cursor, hf_skinny_conferenceId, 4, ENC_LITTLE_ENDIAN);
+  passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  ptvcursor_add(cursor, hf_skinny_passThroughPartyId, 4, ENC_LITTLE_ENDIAN);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
   dissect_skinny_ipv4or6(cursor, hf_skinny_transmitIpAddr_ipv4, hf_skinny_transmitIpAddr_ipv6);
   ptvcursor_add(cursor, hf_skinny_portNumber, 4, ENC_LITTLE_ENDIAN);
   si->multimediaTransmissionStatus = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_multimediaTransmissionStatus, 4, ENC_LITTLE_ENDIAN);
-  skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x0132 ^ passThruPartyId);
+  skinny_reqrep_add_response(cursor, pinfo, skinny_conv, 0x0132 ^ passThroughPartyId);
 }
 
 /*
@@ -8070,7 +8064,7 @@ static int dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   si->messageName = val_to_str_ext(hdr_opcode, &message_id_ext, "0x%08X (Unknown)");
   si->callId = 0;
   si->lineId = 0;
-  si->passThruId = 0;
+  si->passThroughPartyId = 0;
   si->callState = 0;
   g_free(si->callingParty);
   si->callingParty = NULL;
@@ -8439,10 +8433,6 @@ proto_register_skinny(void)
       {
         "RTCPPortNumber", "skinny.RTCPPortNumber", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
-    { &hf_skinny_RTPPayloadFormat,
-      {
-        "RTPPayloadFormat", "skinny.RTPPayloadFormat", FT_UINT32, BASE_DEC, NULL, 0x0,
-        NULL, HFILL }},
     { &hf_skinny_RedirDialed,
       {
         "Redirected Dialed", "skinny.RedirDialed", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0002,
@@ -8599,25 +8589,21 @@ proto_register_skinny(void)
       {
         "annexNandWFutureUse", "skinny.annexNandWFutureUse", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
-    { &hf_skinny_appID,
-      {
-        "appID", "skinny.appID", FT_UINT32, BASE_DEC, NULL, 0x0,
-        NULL, HFILL }},
     { &hf_skinny_appInstanceID,
       {
         "appInstanceID", "skinny.appInstanceID", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
-    { &hf_skinny_applicationID,
+    { &hf_skinny_applicationId,
       {
-        "applicationID", "skinny.applicationID", FT_UINT32, BASE_DEC, NULL, 0x0,
+        "applicationId", "skinny.applicationId", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
     { &hf_skinny_areMessagesWaiting,
       {
         "areMessagesWaiting", "skinny.areMessagesWaiting", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
-    { &hf_skinny_associatedStreamID,
+    { &hf_skinny_associatedStreamId,
       {
-        "associatedStreamID", "skinny.associatedStreamID", FT_UINT32, BASE_DEC, NULL, 0x0,
+        "associatedStreamId", "skinny.associatedStreamId", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
     { &hf_skinny_audioCapCount,
       {
@@ -8715,9 +8701,9 @@ proto_register_skinny(void)
       {
         "confServiceNum", "skinny.confServiceNum", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
-    { &hf_skinny_conferenceID,
+    { &hf_skinny_conferenceId,
       {
-        "conferenceID", "skinny.conferenceID", FT_UINT32, BASE_DEC, NULL, 0x0,
+        "conferenceId", "skinny.conferenceId", FT_UINT32, BASE_DEC, NULL, 0x0,
         "Conference ID", HFILL }},
     { &hf_skinny_confirmRequired,
       {
@@ -8983,9 +8969,9 @@ proto_register_skinny(void)
       {
         "maximumBitRate", "skinny.maximumBitRate", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
-    { &hf_skinny_millisecondPacketSize,
+    { &hf_skinny_milliSecondPacketSize,
       {
-        "millisecondPacketSize", "skinny.millisecondPacketSize", FT_UINT32, BASE_DEC, NULL, 0x0,
+        "milliSecondPacketSize", "skinny.milliSecondPacketSize", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
     { &hf_skinny_minBitRate,
       {
@@ -9119,9 +9105,9 @@ proto_register_skinny(void)
       {
         "partyDirection", "skinny.partyDirection", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
-    { &hf_skinny_passThruPartyId,
+    { &hf_skinny_passThroughPartyId,
       {
-        "passThruPartyId", "skinny.passThruPartyId", FT_UINT32, BASE_DEC, NULL, 0x0,
+        "passThroughPartyId", "skinny.passThroughPartyId", FT_UINT32, BASE_DEC, NULL, 0x0,
         "PassThrough PartyId", HFILL }},
     { &hf_skinny_passthruPartyID,
       {
@@ -9243,6 +9229,10 @@ proto_register_skinny(void)
       {
         "rtpMediaPort", "skinny.rtpMediaPort", FT_UINT32, BASE_DEC, NULL, 0x0,
         "RTP Media Port", HFILL }},
+    { &hf_skinny_rtpPayloadFormat,
+      {
+        "rtpPayloadFormat", "skinny.rtpPayloadFormat", FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_skinny_salt,
       {
         "salt", "skinny.salt", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -9355,9 +9345,9 @@ proto_register_skinny(void)
       {
         "stimulusStatus", "skinny.stimulusStatus", FT_UINT32, BASE_DEC, NULL, 0x0,
         "Stimulus Status", HFILL }},
-    { &hf_skinny_streamPassThroughID,
+    { &hf_skinny_streamPassThroughId,
       {
-        "streamPassThroughID", "skinny.streamPassThroughID", FT_UINT32, BASE_DEC, NULL, 0x0,
+        "streamPassThroughId", "skinny.streamPassThroughId", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
     { &hf_skinny_systemTime,
       {
@@ -9395,9 +9385,9 @@ proto_register_skinny(void)
       {
         "totalSoftKeySetCount", "skinny.totalSoftKeySetCount", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
-    { &hf_skinny_transactionID,
+    { &hf_skinny_transactionId,
       {
-        "transactionID", "skinny.transactionID", FT_UINT32, BASE_DEC, NULL, 0x0,
+        "transactionId", "skinny.transactionId", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
     { &hf_skinny_transmitIpAddr_ipv4,
      {
@@ -9994,6 +9984,10 @@ proto_register_skinny(void)
     {&hf_skinny_version,
       {
         "version", "skinny.version", FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    {&hf_skinny_versionStr,
+      {
+        "versionStr", "skinny.versionStr", FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
     {&hf_skinny_videoCapabilityDirection,
       {

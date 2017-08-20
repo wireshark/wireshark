@@ -34,7 +34,7 @@
 
 /*
  * Generated Automatically Using (from wireshark base directory):
- *   cog.py -D xmlfile=tools/SkinnyProtocolOptimized.xml -d -c -o epan/dissectors/packet-skinny.c epan/dissectors/packet-skinny.c.in
+ *   cog.py -D xmlfile=tools/SkinnyProtocolOptimized.xml -d -c -o epan/dissectors/packet-skinny.h epan/dissectors/packet-skinny.h.in
  */
 
 #include <epan/wmem/wmem.h>
@@ -74,7 +74,7 @@ typedef struct _skinny_info_t
   guint32                 maxProtocolVersion;
   gint32                  lineId;
   guint32                 callId;
-  guint32                 passThruId;
+  guint32                 passThroughPartyId;
   const gchar           * messageName;
   guint32                 callState;
   gboolean                hasCallInfo;

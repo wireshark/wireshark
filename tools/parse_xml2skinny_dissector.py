@@ -40,7 +40,7 @@ fieldsArray = {}
 si_fields = {
     "callReference" : "si->callId",
     "lineInstance": "si->lineId",
-    "passThruPartyId" : "si->passThruId",
+    "passThroughPartyId" : "si->passThroughPartyId",
     "callState" : "si->callState",
     "callingParty" : "si->callingParty",
     "calledParty" : "si->calledParty",

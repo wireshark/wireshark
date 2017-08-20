@@ -3848,7 +3848,7 @@ skinny_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *ed
     skinny_calls_info_t *tmp_skinnyinfo;
     gchar *comment;
 
-    if (si == NULL || (si->callId == 0 && si->passThruId == 0))
+    if (si == NULL || (si->callId == 0 && si->passThroughPartyId == 0))
         return FALSE;
     /* check whether we already have this context in the list */
     list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
@@ -3858,7 +3858,7 @@ skinny_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *ed
         if (tmp_listinfo->protocol == VOIP_SKINNY) {
             tmp_skinnyinfo = (skinny_calls_info_t *)tmp_listinfo->prot_info;
             if (tmp_skinnyinfo->callId == si->callId ||
-                    tmp_skinnyinfo->callId == si->passThruId) {
+                    tmp_skinnyinfo->callId == si->passThroughPartyId) {
                 callsinfo = (voip_calls_info_t*)(list->data);
                 break;
             }
@@ -3881,7 +3881,7 @@ skinny_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *ed
         callsinfo->prot_info = g_malloc(sizeof(skinny_calls_info_t));
         callsinfo->free_prot_info = g_free;
         tmp_skinnyinfo = (skinny_calls_info_t *)callsinfo->prot_info;
-        tmp_skinnyinfo->callId = si->callId ? si->callId : si->passThruId;
+        tmp_skinnyinfo->callId = si->callId ? si->callId : si->passThroughPartyId;
         callsinfo->npackets = 1;
 
         copy_address(&(callsinfo->initial_speaker), phone);
@@ -3913,13 +3913,13 @@ skinny_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *ed
     }
 
     if (si->callId) {
-        if (si->passThruId)
-            comment = g_strdup_printf("CallId = %u, PTId = %u", si->callId, si->passThruId);
+        if (si->passThroughPartyId)
+            comment = g_strdup_printf("CallId = %u, PTId = %u", si->callId, si->passThroughPartyId);
         else
             comment = g_strdup_printf("CallId = %u, LineId = %u", si->callId, si->lineId);
     } else {
-        if (si->passThruId)
-            comment = g_strdup_printf("PTId = %u", si->passThruId);
+        if (si->passThroughPartyId)
+            comment = g_strdup_printf("PTId = %u", si->passThroughPartyId);
         else
             comment = NULL;
     }

@@ -46,14 +46,14 @@ cog.out('/*\n')
 cog.out(' * Generated Automatically Using (from wireshark base directory):\n')
 cog.out(' *   cog.py -D xmlfile=tools/SkinnyProtocolOptimized.xml -d -c -o epan/dissectors/packet-skinny.c epan/dissectors/packet-skinny.c.in\n')
 cog.out(' */\n')
-]]]*/
-
+/*]]]*/
 /*[[[end]]]*/
 
 /* c-basic-offset: 2; tab-width: 8; indent-tabs-mode: nil
  * vi: set shiftwidth=2 tabstop=8 expandtab:
  * :indentSize=2:tabSize=8:noTabs=true:
  */
+
 
 #include "config.h"
 
@@ -127,7 +127,7 @@ for message in skinny.message:
 cog.out('  {0     , NULL}\n')
 cog.out('};\n')
 cog.out('static value_string_ext message_id_ext = VALUE_STRING_EXT_INIT(message_id);\n')
-]]]*/
+/*]]]*/
 /*[[[end]]]*/
 
 /* Declare Enums and Defines */
@@ -152,7 +152,7 @@ for enum in skinny.enum:
     cog.out('  { 0x00000, NULL }\n')
     cog.out('};\n')
     cog.out('static value_string_ext %s_ext = VALUE_STRING_EXT_INIT(%s);\n\n' %(name, name))
-]]]*/
+/*]]]*/
 /*[[[end]]]*/
 
 /* Staticly Declared Variables */
@@ -462,7 +462,7 @@ static int dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   si->messageName = val_to_str_ext(hdr_opcode, &message_id_ext, "0x%08X (Unknown)");
   si->callId = 0;
   si->lineId = 0;
-  si->passThruId = 0;
+  si->passThroughPartyId = 0;
   si->callState = 0;
   g_free(si->callingParty);
   si->callingParty = NULL;
