@@ -188,6 +188,7 @@ struct hashmanuf {
     guint8            addr[3];
     char              hexaddr[3*3];
     char              resolved_name[MAXNAMELEN];
+    char              resolved_longname[MAXNAMELEN];
 };
 
 /* internal ethernet type */
@@ -195,6 +196,7 @@ typedef struct _ether
 {
     guint8            addr[6];
     char              name[MAXNAMELEN];
+    char              longname[MAXNAMELEN];
 } ether_t;
 
 /* internal ipxnet type */
@@ -1123,6 +1125,18 @@ parse_ether_line(char *line, ether_t *eth, unsigned int *mask,
 
     g_strlcpy(eth->name, cp, MAXNAMELEN);
 
+    if ((cp = strtok(NULL, "\t")) != NULL)
+    {
+        /* Remove access whitespace */
+        while (g_ascii_isspace(*cp))
+            cp++;
+
+        g_strlcpy(eth->longname, cp, MAXNAMELEN);
+    } else {
+        /* Make the long name the short name */
+        g_strlcpy(eth->longname, eth->name, MAXNAMELEN);
+    }
+
     return 0;
 
 } /* parse_ether_line */
@@ -1195,7 +1209,7 @@ get_ethbyaddr(const guint8 *addr)
 } /* get_ethbyaddr */
 
 static hashmanuf_t *
-manuf_hash_new_entry(const guint8 *addr, char* name)
+manuf_hash_new_entry(const guint8 *addr, char* name, char* longname)
 {
     int    *manuf_key;
     hashmanuf_t *manuf_value;
@@ -1210,10 +1224,17 @@ manuf_hash_new_entry(const guint8 *addr, char* name)
     if (name != NULL) {
         g_strlcpy(manuf_value->resolved_name, name, MAXNAMELEN);
         manuf_value->status = HASHETHER_STATUS_RESOLVED_NAME;
+        if (longname != NULL) {
+            g_strlcpy(manuf_value->resolved_longname, longname, MAXNAMELEN);
+        }
+        else {
+            g_strlcpy(manuf_value->resolved_longname, name, MAXNAMELEN);
+        }
     }
     else {
         manuf_value->status = HASHETHER_STATUS_UNRESOLVED;
         manuf_value->resolved_name[0] = '\0';
+        manuf_value->resolved_longname[0] = '\0';
     }
     /* Values returned by bytes_to_hexstr_punct() are *not* null-terminated */
     endp = bytes_to_hexstr_punct(manuf_value->hexaddr, addr, sizeof(manuf_value->addr), ':');
@@ -1235,13 +1256,13 @@ wka_hash_new_entry(const guint8 *addr, char* name)
 }
 
 static void
-add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
+add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name, gchar *longname)
 {
     switch (mask)
     {
     case 0:
         /* This is a manufacturer ID; add it to the manufacturer ID hash table */
-        manuf_hash_new_entry(addr, name);
+        manuf_hash_new_entry(addr, name, longname);
         break;
 
     case 48:
@@ -1293,7 +1314,7 @@ manuf_name_lookup(const guint8 *addr)
     }
 
     /* Add the address as a hex string */
-    return manuf_hash_new_entry(addr, NULL);
+    return manuf_hash_new_entry(addr, NULL, NULL);
 
 } /* manuf_name_lookup */
 
@@ -1381,7 +1402,7 @@ initialize_ethers(void)
     /* Read it and initialize the hash table */
     set_ethent(g_manuf_path);
     while ((eth = get_ethent(&mask, TRUE))) {
-        add_manuf_name(eth->addr, mask, eth->name);
+        add_manuf_name(eth->addr, mask, eth->name, eth->longname);
     }
     end_ethent();
 
@@ -1392,7 +1413,7 @@ initialize_ethers(void)
     /* Read it and initialize the hash table */
     set_ethent(g_wka_path);
     while ((eth = get_ethent(&mask, TRUE))) {
-        add_manuf_name(eth->addr, mask, eth->name);
+        add_manuf_name(eth->addr, mask, eth->name, eth->longname);
     }
     end_ethent();
 
@@ -2998,17 +3019,6 @@ get_manuf_name(const guint8 *addr)
 } /* get_manuf_name */
 
 const gchar *
-uint_get_manuf_name(const guint oid)
-{
-    guint8 addr[3];
-
-    addr[0] = (oid >> 16) & 0xFF;
-    addr[1] = (oid >> 8) & 0xFF;
-    addr[2] = (oid >> 0) & 0xFF;
-    return get_manuf_name(addr);
-}
-
-const gchar *
 tvb_get_manuf_name(tvbuff_t *tvb, gint offset)
 {
     return get_manuf_name(tvb_get_ptr(tvb, offset, 3));
@@ -3035,7 +3045,7 @@ get_manuf_name_if_known(const guint8 *addr)
         return NULL;
     }
 
-    return manuf_value->resolved_name;
+    return manuf_value->resolved_longname;
 
 } /* get_manuf_name_if_known */
 
@@ -3049,7 +3059,7 @@ uint_get_manuf_name_if_known(const guint manuf_key)
         return NULL;
     }
 
-    return manuf_value->resolved_name;
+    return manuf_value->resolved_longname;
 }
 
 const gchar *
@@ -3060,7 +3070,7 @@ tvb_get_manuf_name_if_known(tvbuff_t *tvb, gint offset)
 
 char* get_hash_manuf_resolved_name(hashmanuf_t* manuf)
 {
-    return manuf->resolved_name;
+    return manuf->resolved_longname;
 }
 
 gchar *

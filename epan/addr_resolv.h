@@ -239,12 +239,6 @@ extern const gchar *get_manuf_name(const guint8 *addr);
 WS_DLL_PUBLIC const gchar *get_manuf_name_if_known(const guint8 *addr);
 
 /*
- * Given an integer containing a 24-bit OID, uint_get_manuf_name()
- * returns the vendor name, or "%02x:%02x:%02x" if not known.
- */
-extern const gchar *uint_get_manuf_name(const guint oid);
-
-/*
  * Given an integer containing a 24-bit OID, uint_get_manuf_name_if_known()
  * returns the vendor name, or NULL if not known.
  */

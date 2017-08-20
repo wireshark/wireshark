@@ -15859,7 +15859,7 @@ ieee80211_tag_vendor_specific_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
   oui = tvb_get_ntoh24(tvb, offset);
   proto_tree_add_item(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
-  proto_item_append_text(field_data->item_tag, ": %s", uint_get_manuf_name(oui));
+  proto_item_append_text(field_data->item_tag, ": %s", uint_get_manuf_name_if_known(oui));
   offset += 3;
   tag_vs_len -= 3;
 

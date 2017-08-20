@@ -24,6 +24,7 @@
 
 use Encode;
 use open ':encoding(utf8)';
+use Text::Autoformat;
 
 eval "require LWP::UserAgent;";
 if( $@ ) {
@@ -91,7 +92,16 @@ sub shorten
   if ($manuf =~ /\Q$origmanuf\E/i) {
     return $manuf;
   } else {
-    return sprintf("%-22s # %s", $manuf, $origmanuf);
+    my $mixedcase = $origmanuf;
+
+    #If company is all caps, convert to mixed case (so it doesn't look like we're screaming the company name)
+    if ($origmanuf =~ /^[A-Z\s\.\,]+$/) {
+        $mixedcase = autoformat $origmanuf, { case => 'title' };
+        #autoformat produces some unnecessary linebreaks
+        chomp($mixedcase);
+        chomp($mixedcase);
+    }
+    return sprintf("%s\t%s", $manuf, $mixedcase);
   }
 }
 
