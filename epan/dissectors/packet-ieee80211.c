@@ -1955,13 +1955,17 @@ static value_string_ext category_codes_ext = VALUE_STRING_EXT_INIT(category_code
 #define NR_SUB_ID_BSS_TRN_CAN_PREF         3
 #define NR_SUB_ID_BSS_TER_DUR              4
 #define NR_SUB_ID_BEARING                  5
+#define NR_SUB_ID_WIDE_BW_CHANNEL          6
 
+#define NR_SUB_ID_MEASUREMENT_REPORT       39
 #define NR_SUB_ID_HT_CAPABILITIES          45
 #define NR_SUB_ID_HT_OPERATION             61
 #define NR_SUB_ID_SEC_CHANNEL_OFFSET       62
 #define NR_SUB_ID_MEASUREMENT_PILOT_INFO   66
 #define NR_SUB_ID_RM_ENABLE_CAP            70
 #define NR_SUB_ID_HT_MULTIPLE_BSSID        71
+#define NR_SUB_ID_VHT_CAPABILITIES         191
+#define NR_SUB_ID_VHT_OPERATION            192
 
 #define NR_SUB_ID_VENDOR_SPECIFIC          221
 
@@ -1971,12 +1975,16 @@ static const value_string ieee80211_neighbor_report_subelement_id_vals[] = {
   {NR_SUB_ID_BSS_TRN_CAN_PREF, "BSS Transition Candidate Preference"},
   {NR_SUB_ID_BSS_TER_DUR, "BSS Termination Duration"},
   {NR_SUB_ID_BEARING, "Bearing"},
+  {NR_SUB_ID_WIDE_BW_CHANNEL, "Wide Bandwidth Channel"},
+  {NR_SUB_ID_MEASUREMENT_REPORT, "Measurement Report"},
   {NR_SUB_ID_HT_CAPABILITIES, "HT Capabilities"},
   {NR_SUB_ID_HT_OPERATION, "HT Operation"},
   {NR_SUB_ID_SEC_CHANNEL_OFFSET, "Secondary Channel Offset"},
   {NR_SUB_ID_MEASUREMENT_PILOT_INFO, "Measurement Pilot Transmission"},
   {NR_SUB_ID_RM_ENABLE_CAP, "RM Enabled Capabilities"},
   {NR_SUB_ID_HT_MULTIPLE_BSSID, "Multiple BSSID"},
+  {NR_SUB_ID_VHT_CAPABILITIES, "VHT Capabilities"},
+  {NR_SUB_ID_VHT_OPERATION, "VHT Operation"},
   {NR_SUB_ID_VENDOR_SPECIFIC, "Vendor Specific"},
   {0, NULL}
 };
