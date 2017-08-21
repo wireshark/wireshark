@@ -27,7 +27,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 /*
- * Data structure holding RGB value for a color.
+ * Data structure holding RGB value for a color, 16 bits per channel.
  */
 typedef struct {
     guint16 red;
@@ -35,6 +35,10 @@ typedef struct {
     guint16 blue;
 } color_t;
 
+/*
+ * Convert a color_t to a 24-bit RGB value, reducing each channel to
+ * 8 bits and combining them.
+ */
 inline static unsigned int
 color_t_to_rgb(const color_t *color) {
     return (((color->red >> 8) << 16)
