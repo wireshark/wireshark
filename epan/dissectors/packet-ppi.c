@@ -58,7 +58,10 @@
 
 /*
  * Per-Packet Information (PPI) header.
- * See the PPI Packet Header documentation at http://www.cacetech.com/documents
+ * See the PPI Packet Header documentation at
+ *
+ *     https://wayback.archive.org/web/20120525190041/https://www.cacetech.com/documents/PPI%20Header%20format%201.0.10.pdf
+ *
  * for details.
  */
 
