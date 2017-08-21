@@ -1586,11 +1586,9 @@ dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
 			    tvb, offset+4, 4, seq);
 	offset += 8;
 
-	if (dissect_function != NULL) {
-		/* offset = */
-		call_dissect_function(tvb, pinfo, gtree, offset,
-				      dissect_function, progname, rpc_call);
-	}
+	/* offset = */
+	call_dissect_function(tvb, pinfo, gtree, offset, dissect_function, progname, rpc_call);
+
 	offset += rounded_length - 4;
 	offset = dissect_rpc_authgss_token(tvb, tree, offset, pinfo, hf_rpc_authgss_checksum);
 
