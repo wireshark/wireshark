@@ -366,7 +366,9 @@ int main(int argc, char *qt_argv[])
     GString             *runtime_info_str = NULL;
 
     QString              dfilter, read_filter;
+#ifdef HAVE_LIBPCAP
     int                  caps_queries = 0;
+#endif
     /* Start time in microseconds*/
     guint64 start_time = g_get_monotonic_time();
 #ifdef DEBUG_STARTUP_TIME
