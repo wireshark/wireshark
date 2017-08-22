@@ -501,7 +501,7 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 
 #if 0
         /* PDML spec, see:
-         * http://www.nbee.org/doku.php?id=netpdl:pdml_specification
+         * https://wayback.archive.org/web/20150330045501/http://www.nbee.org/doku.php?id=netpdl:pdml_specification
          *
          * the show fields contains things in 'human readable' format
          * showname: contains only the name of the field
