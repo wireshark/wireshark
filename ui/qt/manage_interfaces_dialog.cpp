@@ -234,6 +234,7 @@ void ManageInterfacesDialog::on_addPipe_clicked()
     device.has_snaplen  = global_capture_opts.default_options.has_snaplen;
     device.snaplen      = global_capture_opts.default_options.snaplen;
     device.cfilter      = g_strdup(global_capture_opts.default_options.cfilter);
+    device.timestamp_type = g_strdup(global_capture_opts.default_options.timestamp_type);
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     device.buffer       = DEFAULT_CAPTURE_BUFFER_SIZE;
 #endif
@@ -350,6 +351,7 @@ void ManageInterfacesDialog::updateRemoteInterfaceList(GList* rlist, remote_opti
             device.snaplen = global_capture_opts.default_options.snaplen;
         }
         device.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
+        device.timestamp_type = g_strdup(global_capture_opts.default_options.timestamp_type);
         monitor_mode = prefs_capture_device_monitor_mode(if_string);
         if (roptions->remote_host_opts.auth_type == CAPTURE_AUTH_PWD) {
             auth_str = g_strdup_printf("%s:%s", roptions->remote_host_opts.auth_username,

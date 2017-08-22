@@ -1302,6 +1302,7 @@ insert_new_rows(GList *rlist)
       device.snaplen = global_capture_opts.default_options.snaplen;
     }
     device.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
+    device.timestamp_type = g_strdup(global_capture_opts.default_options.timestamp_type);
     monitor_mode = prefs_capture_device_monitor_mode(if_string);
     if (roptions->remote_host_opts.auth_type == CAPTURE_AUTH_PWD) {
       auth_str = g_strdup_printf("%s:%s", roptions->remote_host_opts.auth_username,
@@ -2656,6 +2657,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   device.has_snaplen = FALSE;
   device.snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
   device.cfilter = NULL;
+  device.timestamp_type = NULL;
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
   device.buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
 #endif
@@ -3507,6 +3509,7 @@ add_pipe_cb(gpointer w _U_)
     device.has_snaplen  = global_capture_opts.default_options.has_snaplen;
     device.snaplen      = global_capture_opts.default_options.snaplen;
     device.cfilter      = g_strdup(global_capture_opts.default_options.cfilter);
+    device.timestamp_type = g_strdup(global_capture_opts.default_options.timestamp_type);
     device.addresses    = NULL;
     device.no_addresses = 0;
     device.last_packets = 0;

@@ -810,9 +810,11 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
 
             interface_opts = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
             capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->ifaces->len - 1);
+            g_free(interface_opts.timestamp_type);
             interface_opts.timestamp_type = g_strdup(optarg_str_p);
             g_array_append_val(capture_opts->ifaces, interface_opts);
         } else {
+            g_free(capture_opts->default_options.timestamp_type);
             capture_opts->default_options.timestamp_type = g_strdup(optarg_str_p);
         }
         break;
@@ -1161,6 +1163,7 @@ capture_opts_del_iface(capture_options *capture_opts, guint if_index)
     if (interface_opts.console_display_name != NULL)
         g_free(interface_opts.console_display_name);
     g_free(interface_opts.cfilter);
+    g_free(interface_opts.timestamp_type);
 #ifdef HAVE_EXTCAP
     g_free(interface_opts.extcap);
     g_free(interface_opts.extcap_fifo);
@@ -1209,6 +1212,7 @@ collect_ifaces(capture_options *capture_opts)
             interface_opts.console_display_name = g_strdup(device.name);
             interface_opts.linktype = device.active_dlt;
             interface_opts.cfilter = g_strdup(device.cfilter);
+            interface_opts.timestamp_type = g_strdup(device.timestamp_type);
             interface_opts.snaplen = device.snaplen;
             interface_opts.has_snaplen = device.has_snaplen;
             interface_opts.promisc_mode = device.pmode;
@@ -1277,6 +1281,7 @@ capture_opts_free_interface_t(interface_t *device)
         g_free(device->friendly_name);
         g_free(device->addresses);
         g_free(device->cfilter);
+        g_free(device->timestamp_type);
         g_list_foreach(device->links,
                        capture_opts_free_interface_t_links, NULL);
         g_list_free(device->links);

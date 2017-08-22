@@ -201,6 +201,7 @@ typedef struct interface_tag {
     /* External capture cached data */
     GHashTable     *external_cap_args_settings;
 #endif
+    gchar          *timestamp_type;
 } interface_t;
 
 typedef struct link_row_tag {
