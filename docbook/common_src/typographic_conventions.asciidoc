@@ -15,7 +15,7 @@ The following table shows the typographic conventions that are used in this guid
 |**`Bold Monospace`** |Commands that should be run by the user|Run **`cmake -G Ninja ..`**.
 |button:[Button]      |Dialog and window buttons |Press button:[Launch] to go to the Moon.
 |kbd:[Key]            |Keyboard shortcut |Press kbd:[Ctrl+Down] to move to the next packet.
-|menu:Menu[]          |Menu item |Select menu:Go[Next Packet to move to the next packet.
+|menu:Menu[]          |Menu item |Select menu:Go[Next Packet] to move to the next packet.
 |===============
 
 ==== Admonitions
