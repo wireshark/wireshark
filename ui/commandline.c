@@ -354,8 +354,8 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
 {
     int opt;
     gboolean arg_error = FALSE;
-    const char *list_option_supplied = NULL;
 #ifdef HAVE_LIBPCAP
+    const char *list_option_supplied = NULL;
     int status;
 #else
     gboolean capture_option_specified;
