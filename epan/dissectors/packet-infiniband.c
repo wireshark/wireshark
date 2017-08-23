@@ -5931,11 +5931,11 @@ void proto_register_infiniband(void)
         },
         {&hf_cm_req_local_cm_resp_to, {
                 "Local CM Response Timeout", "infiniband.cm.req.localresptout",
-                FT_UINT8, BASE_HEX, NULL, 0xf8, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0xE0, NULL, HFILL}
         },
         {&hf_cm_req_retry_count, {
                 "Retry Count", "infiniband.cm.req.retrcount",
-                FT_UINT8, BASE_HEX, NULL, 0x7, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0x1F, NULL, HFILL}
         },
         {&hf_cm_req_pkey, {
                 "Partition Key", "infiniband.cm.req.pkey",
