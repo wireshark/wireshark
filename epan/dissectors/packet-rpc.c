@@ -1349,8 +1349,6 @@ dissect_rpc_authgss_token(tvbuff_t* tvb, proto_tree* tree, int offset,
 	if (opaque_length != 0) {
 		length = tvb_captured_length_remaining(tvb, offset);
 		reported_length = tvb_reported_length_remaining(tvb, offset);
-		DISSECTOR_ASSERT(length >= 0);
-		DISSECTOR_ASSERT(reported_length >= 0);
 		if (length > reported_length)
 			length = reported_length;
 		if ((guint32)length > opaque_length)
