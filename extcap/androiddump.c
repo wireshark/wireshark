@@ -1102,7 +1102,7 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
                 response[data_length] = '\0';
 
                 data_str = strchr(response, '\n');
-                if (data_str && sscanf(data_str, "%*s %s", pid) == 1) {
+                if (data_str && sscanf(data_str, "%*s %15s", pid) == 1) {
                     g_debug("Android Bluetooth application PID for %s is %s", serial_number, pid);
 
                     result = g_snprintf(check_port_buf, sizeof(check_port_buf), adb_check_port_templace, pid);
@@ -1123,7 +1123,7 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
                         response[data_length] = '\0';
 
                         data_str = strchr(response, '\n');
-                        if (data_str && sscanf(data_str, "%*s %s", pid) == 1 && strcmp(pid + 9, "10EA") == 0) {
+                        if (data_str && sscanf(data_str, "%*s %15s", pid) == 1 && strlen(pid) > 10 && strcmp(pid + 9, "10EA") == 0) {
                             g_debug("Bluedroid External Parser Port for %s is %s", serial_number, pid + 9);
                         } else {
                             disable_interface = 1;
@@ -1175,7 +1175,7 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
                 else
                     data_str = strchr(response, '\n');
 
-                if (data_str && sscanf(data_str, "%*s %s", pid) == 1) {
+                if (data_str && sscanf(data_str, "%*s %15s", pid) == 1) {
                     g_debug("Android Bluetooth application PID for %s is %s", serial_number, pid);
 
                     result = g_snprintf(check_port_buf, sizeof(check_port_buf), adb_check_port_templace, pid);
@@ -1196,7 +1196,7 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
                         response[data_length] = '\0';
 
                         data_str = strchr(response, '\n');
-                        if (data_str && sscanf(data_str, "%*s %s", pid) == 1 && strcmp(pid + 9, "22A8") == 0) {
+                        if (data_str && sscanf(data_str, "%*s %15s", pid) == 1 && strlen(pid) > 10 && strcmp(pid + 9, "22A8") == 0) {
                             g_debug("Btsnoop Net Port for %s is %s", serial_number, pid + 9);
                         } else {
                             disable_interface = 1;
