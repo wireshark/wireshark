@@ -240,7 +240,7 @@ from the IP address 192.168.0.1, use `ip.addr==192.168.0.1`.
 
 [NOTE]
 ====
-To remove the filter, click on the button:[Clear] button  to the right of the filter field.
+To remove the filter, click on the btn:[Clear] button  to the right of the filter field.
 ====
 
 [[ChWorkBuildDisplayFilterSection]]
@@ -526,12 +526,12 @@ _Range_::
 A range of integers or a group of ranges, such as `1-12` or `39-42,98-2000`.
 
 _OK_::
-When you have built a satisfactory expression click button:[OK] and a filter string
+When you have built a satisfactory expression click btn:[OK] and a filter string
 will be built for you.
 
 _Cancel_::
 You can leave the ``Add Expression...'' dialog box without any effect by
-clicking the button:[Cancel] button.
+clicking the btn:[Cancel] button.
 
 [[ChWorkDefineFilterSection]]
 
@@ -552,8 +552,8 @@ will be marked as such.
 
 [WARNING]
 ====
-You must use button:[Save] to save your filters permanently. button:[OK] or
-button:[Apply] will not save the filters and they will be lost when you close
+You must use btn:[Save] to save your filters permanently. btn:[OK] or
+btn:[Apply] will not save the filters and they will be lost when you close
 Wireshark.
 ====
 
@@ -702,7 +702,7 @@ Go forward in the packet history, works much like the page history in  current w
 .The ``Go To Packet'' dialog box
 image::wsug_graphics/ws-goto-packet.png[{screenshot-attrs}]
 
-This dialog box will let you enter a packet number. When you press button:[OK],
+This dialog box will let you enter a packet number. When you press btn:[OK],
 Wireshark will jump to that packet.
 
 ==== The ``Go to Corresponding Packet'' command

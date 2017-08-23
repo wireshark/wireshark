@@ -508,13 +508,13 @@ for DNS may not be applied (DNS is typically carried over UDP and the UDP rule
 will match first).
 ====
 
-You can create a new rule by clicking on the button:[+] button. You can delete
-one or more rules by clicking the button:[-] button. The ``copy'' button will
+You can create a new rule by clicking on the btn:[+] button. You can delete
+one or more rules by clicking the btn:[-] button. The ``copy'' button will
 duplicate a rule.
 
 You can edit a rule by double-clicking on its name or filter. In
 <<ChCustColoringRulesDialog>> the name of the rule ``Checksum Errors'' is being
-edited. Clicking on the button:[Foreground] and button:[Background] buttons will
+edited. Clicking on the btn:[Foreground] and btn:[Background] buttons will
 open a color chooser (<<ChCustChooseColorDialog>>) for the foreground (text) and
 background colors respectively.
 
@@ -524,7 +524,7 @@ image::wsug_graphics/ws-choose-color-rule.png[{small-screenshot-attrs}]
 
 The color chooser appearance depends on your operating system. The macOS color
 picker is shown. Select the color you desire for the selected packets and click
-button:[OK].
+btn:[OK].
 
 <<ChCustColorFilterMany>> shows an example of several color filters being used
 in Wireshark. Note that the frame detail shows that the ``Bad TCP'' rule rule
@@ -583,25 +583,25 @@ letters of the protocol name when the Enabled Protocols dialog box is active
 will temporarily open a search text box and automatically select the first
 matching protocol name (if it exists).
 
-You must use the button:[Save] button to save your settings. The button:[OK] or
-button:[Apply] buttons will not save your changes permanently and they will be
+You must use the btn:[Save] button to save your settings. The btn:[OK] or
+btn:[Apply] buttons will not save your changes permanently and they will be
 lost when Wireshark is closed.
 
 You can choose from the following actions:
 
-. button:[Enable All]: Enable all protocols in the list.
+. btn:[Enable All]: Enable all protocols in the list.
 
-. button:[Disable All]: Disable all protocols in the list.
+. btn:[Disable All]: Disable all protocols in the list.
 
-. button:[Invert]: Toggle the state of all protocols in the list.
+. btn:[Invert]: Toggle the state of all protocols in the list.
 
-. button:[OK]: Apply the changes and close the dialog box.
+. btn:[OK]: Apply the changes and close the dialog box.
 
-. button:[Apply]: Apply the changes and keep the dialog box open.
+. btn:[Apply]: Apply the changes and keep the dialog box open.
 
-. button:[Save]: Save the settings to the disabled_protos, see <<AppFiles>> for details.
+. btn:[Save]: Save the settings to the disabled_protos, see <<AppFiles>> for details.
 
-. button:[Cancel]: Cancel the changes and close the dialog box.
+. btn:[Cancel]: Cancel the changes and close the dialog box.
 
 [[ChAdvDecodeAs]]
 
@@ -624,23 +624,23 @@ These settings will be lost if you quit Wireshark or change profile unless you
 save the entries in the _Show User Specified Decodes..._ windows
 (<<ChAdvDecodeAsShow>>).
 
-. button:[Decode]: Decode packets the selected way.
+. btn:[Decode]: Decode packets the selected way.
 
-. button:[Do not decode]: Do not decode packets the selected way.
+. btn:[Do not decode]: Do not decode packets the selected way.
 
-. button:[Link/Network/Transport]: Specify the network layer at which ``Decode
+. btn:[Link/Network/Transport]: Specify the network layer at which ``Decode
   As'' should take place. Which of these pages are available depends on the
   content of the selected packet when this dialog box is opened.
 
-. button:[Show Current]: Open a dialog box showing the current list of user
+. btn:[Show Current]: Open a dialog box showing the current list of user
   specified decodes.
 
-. button:[OK]: Apply the currently selected decode and close the dialog box.
+. btn:[OK]: Apply the currently selected decode and close the dialog box.
 
-. button:[Apply]: Apply the currently selected decode and keep the dialog box
+. btn:[Apply]: Apply the currently selected decode and keep the dialog box
   open.
 
-. button:[Cancel]: Cancel the changes and close the dialog box.
+. btn:[Cancel]: Cancel the changes and close the dialog box.
 
 [[ChAdvDecodeAsShow]]
 
@@ -653,11 +653,11 @@ can be saved into current profile for later session.
 .The ``Decode As: Show'' dialog box
 image::wsug_graphics/ws-decode-as-show.png[{screenshot-attrs}]
 
-. button:[OK]: Close this dialog box.
+. btn:[OK]: Close this dialog box.
 
-. button:[Save]: Save the entries in the table into current profile.
+. btn:[Save]: Save the entries in the table into current profile.
 
-. button:[Clear]: Removes all user specified decodes without updating the profile.
+. btn:[Clear]: Removes all user specified decodes without updating the profile.
 
 [[ChCustPreferencesSection]]
 
@@ -669,11 +669,11 @@ Wireshark will pop up the Preferences dialog box as shown in
 <<ChCustGUIPrefPage>>, with the ``User Interface'' page as default. On the left
 side is a tree where you can select the page to be shown.
 
-* The button:[OK] button will apply the preferences settings and close the dialog.
+* The btn:[OK] button will apply the preferences settings and close the dialog.
 
-* The button:[Apply] button will apply the preferences settings and keep the dialog open.
+* The btn:[Apply] button will apply the preferences settings and keep the dialog open.
 
-* The button:[Cancel] button will restore all preferences settings to the last saved state.
+* The btn:[Cancel] button will restore all preferences settings to the last saved state.
 
 [[ChCustGUIPrefPage]]
 .The preferences dialog box
@@ -685,7 +685,7 @@ image::wsug_graphics/ws-gui-preferences.png[{screenshot-attrs}]
 
 In the ``Capture'' preferences it is possible to configure several options for the
 interfaces available on your computer. Select the ``Capture'' pane and press the
-button:[Edit] button. In this window it is possible to change the default
+btn:[Edit] button. In this window it is possible to change the default
 link-layer header type for the interface, add a comment or choose to hide a
 interface from other parts of the program.
 
@@ -817,19 +817,19 @@ contain any of the following characters: `&#x5c;', `&#x2f;', `:', `&#x2a;',
 cannot contain the `&#x2f;' character.
 --
 
-button:[OK]::
+btn:[OK]::
 This button saves all changes, applies the selected profile and closes the
 dialog.
 
-button:[Apply]::
+btn:[Apply]::
 This button saves all changes, applies the selected profile and keeps the dialog
 open.
 
-button:[Cancel]::
+btn:[Cancel]::
 Close this dialog. This will discard unsaved settings, new profiles will not be
 added and deleted profiles will not be deleted.
 
-button:[Help]::
+btn:[Help]::
 Show this help page.
 
 [[ChUserTable]]

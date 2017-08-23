@@ -84,7 +84,7 @@ statistical values of one protocol. Two of the columns (_Percent Packets_ and
 _Percent Bytes_) serve double duty as bar graphs. If a display filter is set it
 will be shown at the bottom.
 
-The button:[Copy] button will let you copy the window contents as CSV or YAML.
+The btn:[Copy] button will let you copy the window contents as CSV or YAML.
 
 .Protocol hierarchy columns
 
@@ -159,12 +159,12 @@ between relative (``Rel Start'') and absolute (``Abs Start'') times. Relative st
 times match the ``Seconds Since Beginning of Capture'' time display format in the
 packet list and absolute start times match the ``Time of Day'' display format.
 
-The button:[Copy] button will copy the list values to the clipboard in CSV
-(Comma Separated Values) or YAML format. The button:[Follow Stream...] button
+The btn:[Copy] button will copy the list values to the clipboard in CSV
+(Comma Separated Values) or YAML format. The btn:[Follow Stream...] button
 will show the stream contents as described in <<ChAdvFollowStream>> dialog. The
-button:[Graph...] button will show a graph as described in <<ChStatIOGraphs>>.
+btn:[Graph...] button will show a graph as described in <<ChStatIOGraphs>>.
 
-button:[Conversation Types] lets you choose which traffic type tabs are shown.
+btn:[Conversation Types] lets you choose which traffic type tabs are shown.
 See <<ChStatEndpoints>> for a list of endpoint types. The enabled types
 are saved in your profile settings.
 
@@ -263,11 +263,11 @@ page). _Limit to display filter_ will only show conversations matching the
 current display filter. Note that in this example we have GeoIP configured which
 gives us extra geographic columns. See <<ChGeoIPDbPaths>> for more information.
 
-The button:[Copy] button will copy the list values to the clipboard in CSV
-(Comma Separated Values) or YAML format. The button:[Map] button will show the
+The btn:[Copy] button will copy the list values to the clipboard in CSV
+(Comma Separated Values) or YAML format. The btn:[Map] button will show the
 endpoints mapped in your web browser.
 
-button:[Endpoint Types] lets you choose which traffic type tabs are shown. See
+btn:[Endpoint Types] lets you choose which traffic type tabs are shown. See
 <<ChStatEndpoints>> above for a list of endpoint types. The enabled
 types are saved in your profile settings.
 
@@ -317,10 +317,10 @@ The user can configure the following things:
 
   - __Scale__: the scale for the y unit (Logarithmic,Auto,10,20,50,100,200,500,...)
 
-The button:[Save] button will save the currently displayed portion of the graph as one
+The btn:[Save] button will save the currently displayed portion of the graph as one
 of various file formats.
 
-The button:[Copy] button will copy values from selected graphs to the clipboard in CSV
+The btn:[Copy] button will copy values from selected graphs to the clipboard in CSV
 (Comma Separated Values) format.
 
 
@@ -449,7 +449,7 @@ the MAC layer.
 _Only show existing networks_ will exclude probe requests with a SSID not
 matching any network from the list.
 
-The button:[Copy] button will copy the list values to the clipboard in CSV (Comma
+The btn:[Copy] button will copy the list values to the clipboard in CSV (Comma
 Separated Values) format.
 
 

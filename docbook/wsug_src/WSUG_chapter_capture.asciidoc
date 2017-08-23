@@ -66,7 +66,7 @@ The following methods can be used to start capturing packets with Wireshark:
   Interfaces'' dialog box (menu:Capture[Options...]). See
   <<ChCapCaptureInterfacesDialogWin32>> or <<ChCapCaptureInterfacesDialog>> for
   more information. You can start a capture from this dialog box using the
-  button:[Start] button.
+  btn:[Start] button.
 
 * You can immediately start a capture using your current settings by selecting
   menu:Capture[Start] or by cliking the first toolbar button.
@@ -227,14 +227,14 @@ selected interfaces will inherit the filter. Capture filters are discussed in
 more details in <<ChCapCaptureFilterSection>>. It defaults to empty, or no
 filter.
 +
-You can also click on the button:[Capture Filter] button and Wireshark will
+You can also click on the btn:[Capture Filter] button and Wireshark will
 bring up the Capture Filters dialog box and allow you to create and/or select a
 filter. Please see <<ChWorkDefineFilterSection>>
 
 _Compile selected BPFs_::
 This button allows you to compile the capture filter into BPF code and pop up a
 window showing you the resulting pseudo code. This can help in understanding the
-working of the capture filter you created. The button:[Compile Selected BPFs] button
+working of the capture filter you created. The btn:[Compile Selected BPFs] button
 leads you to <<ChCapCompileSelectedBpfsDialog>>.
 
 [TIP]
@@ -251,7 +251,7 @@ link:{sysfs-main-url}[sysfsutils].
 ====
 
 _Manage Interfaces_::
-The button:[Manage Interfaces] button opens the <<ChCapManageInterfacesDialog>>
+The btn:[Manage Interfaces] button opens the <<ChCapManageInterfacesDialog>>
 where pipes can be defined, local interfaces scanned or hidden, or remote
 interfaces added (Windows only).
 
@@ -345,7 +345,7 @@ addresses into protocols. See <<ChAdvNameResolutionSection>>.
 ==== Buttons
 
 Once you have set the values you desire and have selected the options you need,
-simply click on button:[Start] to commence the capture or button:[Cancel] to
+simply click on btn:[Start] to commence the capture or btn:[Cancel] to
 cancel the capture.
 
 // XXX ChCapRunningSection currently disabled
@@ -436,7 +436,7 @@ This field allows you to specify a capture filter. Capture filters are discussed
 in more details in <<ChCapCaptureFilterSection>>. It defaults to empty, or no
 filter.
 +
-You can also click on the button:[Capture Filter] button and Wireshark will
+You can also click on the btn:[Capture Filter] button and Wireshark will
 bring up the ``Capture Filters'' dialog box and allow you to create and/or
 select a filter. Please see <<ChWorkDefineFilterSection>>
 
@@ -476,13 +476,13 @@ image::wsug_graphics/ws-capture-options-manage-interfaces.png[{screenshot-attrs}
 image::wsug_graphics/ws-capture-options-manage-interfaces-pipes.png[{screenshot-attrs}]
 
 To successfully add a pipe, this pipe must have already been created. Click the
-button:[New] button and type the name of the pipe including its path.
-Alternatively, the button:[Browse] button can be used to locate the pipe. With
-the button:[Save] button the pipe is added to the list of available interfaces.
+btn:[New] button and type the name of the pipe including its path.
+Alternatively, the btn:[Browse] button can be used to locate the pipe. With
+the btn:[Save] button the pipe is added to the list of available interfaces.
 Afterwards, other pipes can be added.
 
 To remove a pipe from the list of interfaces it first has to be selected. Then
-click the button:[Delete] button.
+click the btn:[Delete] button.
 
 ==== Add or hide local interfaces
 
@@ -499,7 +499,7 @@ scanning for a change in the list of available interfaces. To renew the list a
 rescan can be done.
 
 One way to hide an interface is to change the preferences. If the ``Hide''
-checkbox is activated and the button:[Apply] button clicked, the interface will
+checkbox is activated and the btn:[Apply] button clicked, the interface will
 not be seen in the lists of the ``Capture Interfaces'' dialog box any more. The
 changes are also saved in the `preferences` file.
 
@@ -514,7 +514,7 @@ interfaces can be hidden. In contrast to the local interfaces they are not saved
 in the `preferences` file.
 
 To remove a host including all its interfaces from the list, it has to be
-selected. Then click the button:[Delete] button.
+selected. Then click the btn:[Delete] button.
 
 For a detailed description see <<ChCapInterfaceRemoteSection>>
 
@@ -547,7 +547,7 @@ default.
 ====
 
 To access the Remote Capture Interfaces dialog use the ``Add New Interfaces -
-Remote'' dialog. See <<ChCapManageInterfacesRemoteDialog>> and select button:[Add].
+Remote'' dialog. See <<ChCapManageInterfacesRemoteDialog>> and select btn:[Add].
 
 ==== Remote Capture Interfaces
 
@@ -579,7 +579,7 @@ needed to connect to the Remote Packet Capture Protocol service.
 ==== Remote Capture Settings
 
 The remote capture can be further fine tuned to match your situation. The
-button:[Remote Settings] button in <<ChCapEditInterfacesSettingsDialog>> gives
+btn:[Remote Settings] button in <<ChCapEditInterfacesSettingsDialog>> gives
 you this option. It pops up the dialog shown in
 <<ChCapInterfaceRemoteSettingsDialog>>.
 
@@ -911,7 +911,7 @@ dialog'' option in the Capture Options dialog box.
 
 A running capture session will be stopped in one of the following ways:
 
-. Using the button:[Stop] button from the ``Capture Info'' dialog box.
+. Using the btn:[Stop] button from the ``Capture Info'' dialog box.
 
 [NOTE]
 ====
@@ -921,7 +921,7 @@ dialog'' option is used.
 
 . Using the menu:Capture[Stop] menu item.
 
-. Using the button:[Stop] toolbar button.
+. Using the btn:[Stop] toolbar button.
 
 . Pressing kbd:[Ctrl+E].
 
@@ -942,7 +942,7 @@ ways:
 
 . Using the menu:Capture[Restart] menu item.
 
-. Using the button:[Restart] toolbar button.
+. Using the btn:[Restart] toolbar button.
 
 ++++++++++++++++++++++++++++++++++++++
 <!-- End of WSUG Chapter Capture -->

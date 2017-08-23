@@ -60,20 +60,20 @@ Common dialog behaviour on all systems:
 
 * Select files and directories.
 
-* Click the button:[Open] or button:[OK] button to accept your selected file and
+* Click the btn:[Open] or btn:[OK] button to accept your selected file and
   open it.
 
-* Click the button:[Cancel] button to go back to Wireshark and not load a capture file.
+* Click the btn:[Cancel] button to go back to Wireshark and not load a capture file.
 
 Wireshark extensions to the standard behaviour of these dialogs:
 
 * View file preview information such as the filesize and the number of packets
   in a selected a capture file.
 
-* Specify a display filter with the button:[Filter] button and filter field.
+* Specify a display filter with the btn:[Filter] button and filter field.
   This filter will be used when opening the new file. The text field background
   becomes green for a valid filter string and red for an invalid one. Clicking
-  on the button:[Filter] button causes Wireshark to pop up the ``Filters''
+  on the btn:[Filter] button causes Wireshark to pop up the ``Filters''
   dialog box (which is discussed further in <<ChWorkDisplayFilterSection>>).
 +
 // XXX - we need a better description of these read filters
@@ -100,7 +100,7 @@ This is the common Windows file open dialog - plus some Wireshark extensions.
 
 Specific for this dialog:
 
-* The button:[Help] button will lead you to this section of this ``User's Guide''.
+* The btn:[Help] button will lead you to this section of this ``User's Guide''.
 
 [[ChIOOpenFileDialog]]
 
@@ -111,15 +111,15 @@ This is the common Gimp/GNOME file open dialog plus some Wireshark extensions.
 
 Specific for this dialog:
 
-* The button:[+] button allows you to add a directory selected in the
+* The btn:[+] button allows you to add a directory selected in the
   right-hand pane to the favorites list on the left. These changes are
   persistent.
 
-* The button:[-] button allows you to remove a selected directory from the list.
+* The btn:[-] button allows you to remove a selected directory from the list.
   Some items (such as ``Desktop'') cannot be removed from the favorites list.
 
 * If Wireshark doesn't recognize the selected file as a capture file it will
-  grey out the button:[Open] button.
+  grey out the btn:[Open] button.
 
 // XXX Add macOS
 
@@ -283,12 +283,12 @@ You can convert capture files from one format to another by reading in a capture
 file and writing it out using a different format.
 ====
 
-. Click the button:[Save] or button:[OK] button to accept your selected file and
+. Click the btn:[Save] or btn:[OK] button to accept your selected file and
   save to it. If Wireshark has a problem saving the captured packets to the file
-  you specified it will display an error dialog box. After clicking button:[OK]
+  you specified it will display an error dialog box. After clicking btn:[OK]
   on that error dialog box you can try again.
 
-. Click on the button:[Cancel] button to go back to Wireshark without saving any
+. Click on the btn:[Cancel] button to go back to Wireshark without saving any
   packets.
 
 [[ChIOOutputFormatsSection]]
@@ -528,7 +528,7 @@ You may not be interested in the full frames from the text file, just the first
 part. Here you can define how much data from the start of the frame you want to
 import. If you leave this open the maximum is set to 65535 bytes.
 
-Once all input and import parameters are setup click button:[OK] to start the
+Once all input and import parameters are setup click btn:[OK] to start the
 import. If your current data wasn't saved before you will be asked to save it
 first.
 
@@ -569,10 +569,10 @@ with file sets in a convenient way:
 *  The ``List Files'' dialog box will list the files Wireshark has recognized as
    being part of the current file set.
 
-*  button:[Next File] closes the current and opens the next file in the file
+*  btn:[Next File] closes the current and opens the next file in the file
    set.
 
-*  button:[Previous File] closes the current and opens the previous file in the
+*  btn:[Previous File] closes the current and opens the previous file in the
    file set.
 
 [[ChIOFileSetListDialog]]
@@ -600,7 +600,7 @@ the files in the file set can be found.
 The content of this dialog box is updated each time a capture file is
 opened/closed.
 
-The button:[Close] button will, well, close the dialog box.
+The btn:[Close] button will, well, close the dialog box.
 
 [[ChIOExportSection]]
 
@@ -872,8 +872,8 @@ function.
 .The ``Packet Range'' frame
 image::wsug_graphics/ws-packet-range.png[{screenshot-attrs}]
 
-If the button:[Captured] button is set (default), all packets from the selected rule
-will be processed. If the button:[Displayed] button is set, only the currently
+If the btn:[Captured] button is set (default), all packets from the selected rule
+will be processed. If the btn:[Displayed] button is set, only the currently
 displayed packets are taken into account to the selected rule.
 
 * _All packets_ will process all packets.
