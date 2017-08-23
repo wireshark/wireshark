@@ -2837,6 +2837,10 @@ proto_register_radius(void)
 	prefs_register_bool_preference(radius_module, "show_length", "Show AVP Lengths",
 				       "Whether to add or not to the tree the AVP's payload length",
 				       &show_length);
+	/*
+	 * For now this preference allows supporting legacy Ascend AVPs and others
+	 * who might use these attribute types (not complying with IANA allocation).
+	 */
 	prefs_register_bool_preference(radius_module, "disable_extended_attributes", "Disable extended attribute space (RFC 6929)",
 				       "Whether to interpret 241-246 as extended attributes according to RFC 6929",
 				       &disable_extended_attributes);
