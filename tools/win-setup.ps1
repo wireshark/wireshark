@@ -101,8 +101,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2017-07-19-2.2"
-$Win32CurrentTag = "2017-07-19-2.2"
+$Win64CurrentTag = "2017-08-23-2.2"
+$Win32CurrentTag = "2017-08-23-2.2"
 
 # Archive file / subdir.
 $Win64Archives = @{
@@ -117,7 +117,7 @@ $Win64Archives = @{
     "nasm-2.09.08-win32.zip" = "";
     "portaudio_v19_2.zip" = "";
     "upx303w.zip" = "";
-    "WinSparkle-0.5.4.zip" = "";
+    "WinSparkle-0.5.6.zip" = "";
     "WpdPack_4_1_2.zip" = "";
     "zlib-1.2.8-ws.zip" = "";
 }
@@ -134,7 +134,7 @@ $Win32Archives = @{
     "nasm-2.09.08-win32.zip" = "";
     "portaudio_v19_2.zip" = "";
     "upx303w.zip" = "";
-    "WinSparkle-0.5.4.zip" = "";
+    "WinSparkle-0.5.6.zip" = "";
     "WpdPack_4_1_2.zip" = "";
     "zlib-1.2.8-ws.zip" = "";
 }
