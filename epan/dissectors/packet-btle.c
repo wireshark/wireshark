@@ -715,8 +715,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             call_dissector(btcommon_le_channel_map_handle, tvb_new_subset_length(tvb, offset, 5), pinfo, sub_tree);
             offset += 5;
 
-            proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_sleep_clock_accuracy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_hop, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_sleep_clock_accuracy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
             if (!pinfo->fd->flags.visited) {
@@ -1440,12 +1440,12 @@ proto_register_btle(void)
         },
         { &hf_link_layer_data_hop,
             { "Hop",                             "btle.link_layer_data.hop",
-            FT_UINT8, BASE_DEC, NULL, 0xf8,
+            FT_UINT8, BASE_DEC, NULL, 0x1f,
             NULL, HFILL }
         },
         { &hf_link_layer_data_sleep_clock_accuracy,
             { "Sleep Clock Accuracy",            "btle.link_layer_data.sleep_clock_accuracy",
-            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &sleep_clock_accuracy_vals_ext, 0x07,
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &sleep_clock_accuracy_vals_ext, 0xe0,
             NULL, HFILL }
         },
         { &hf_data_header,
