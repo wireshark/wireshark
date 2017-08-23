@@ -51,4 +51,4 @@ include::wsluarm.asciidoc[]
 
 include::wsdg_src/WSDG_chapter_userinterface.asciidoc[]
 
-include::GPL_appendix.asciidoc[]
+include::common_src/GPL_appendix.asciidoc[]
