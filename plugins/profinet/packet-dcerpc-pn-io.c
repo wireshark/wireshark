@@ -8216,7 +8216,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
                             if((strstr(puffer, vendorIdStr)) != NULL) {
                                 memset (convertStr, 0, sizeof(*convertStr));
                                 pch = strstr(puffer, vendorIdStr);
-                                if (sscanf(pch, "VendorID=\"%[^\"]", convertStr) == 1) {
+                                if (pch!= NULL && sscanf(pch, "VendorID=\"%199[^\"]", convertStr) == 1) {
                                     read_vendor_id = (guint32) strtoul (convertStr, NULL, 0);
 
                                     if(read_vendor_id == searchVendorID) {
@@ -8229,7 +8229,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
                             if((strstr(puffer, deviceIdStr)) != NULL) {
                                 memset(convertStr, 0, sizeof(*convertStr));
                                 pch = strstr(puffer, deviceIdStr);
-                                if (sscanf(pch, "DeviceID=\"%[^\"]", convertStr) == 1) {
+                                if (pch != NULL && sscanf(pch, "DeviceID=\"%199[^\"]", convertStr) == 1) {
                                     read_device_id = (guint32)strtoul(convertStr, NULL, 0);
 
                                     if(read_device_id == searchDeviceID) {
@@ -8360,7 +8360,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
                         memset (convertStr, 0, sizeof(*convertStr));
 
                         pch = strstr(temp, fParameterIndexStr);
-                        if (sscanf(pch, "Index=\"%[^\"]", convertStr) == 1) {
+                        if (pch != NULL && sscanf(pch, "Index=\"%199[^\"]", convertStr) == 1) {
                             io_data_object->fParameterIndexNr = (guint32)strtoul(convertStr, NULL, 0);
                         }
                         break;    /* found Indexnumber -> break search loop */
@@ -8374,7 +8374,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
                     if((strstr(temp, moduleStr)) != NULL) {                         /* find the String "ModuleIdentNumber=" */
                         memset (convertStr, 0, sizeof(*convertStr));
                         pch = strstr(temp, moduleStr);                              /* search for "ModuleIdentNumber=\"" within GSD-file */
-                        if (sscanf(pch, "ModuleIdentNumber=\"%[^\"]", convertStr) == 1) {  /* Change format of Value string-->numeric string */
+                        if (pch != NULL && sscanf(pch, "ModuleIdentNumber=\"%199[^\"]", convertStr) == 1) {  /* Change format of Value string-->numeric string */
                             read_module_id = (guint32)strtoul(convertStr, NULL, 0);     /* Change numeric string --> unsigned long; read_module_id contains the Value of the ModuleIdentNumber */
 
                             /* If the found ModuleID matches with the wanted ModuleID, search for the Submodule and break */
@@ -8385,7 +8385,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
                                     if((strstr(temp, moduleNameInfo)) != NULL) {                    /* find the String "<Name" for the TextID */
                                         long filePosRecord;
 
-                                        if (sscanf(temp, "%*s TextId=\"%[^\"]", tmp_moduletext) != 1)        /* saves the correct TextId for the next searchloop */
+                                        if (sscanf(temp, "%*s TextId=\"%199[^\"]", tmp_moduletext) != 1)        /* saves the correct TextId for the next searchloop */
                                             break;
 
                                         filePosRecord = ftell(fp);            /* save the current position of the filepointer (Offset) */
@@ -8408,7 +8408,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
                                     if((strstr(temp, subModuleStr)) != NULL) {
                                         memset (convertStr, 0, sizeof(*convertStr));
                                         pch = strstr(temp, subModuleStr);
-                                        if (sscanf(pch, "SubmoduleIdentNumber=\"%[^\"]", convertStr) == 1) {
+                                        if (pch != NULL && sscanf(pch, "SubmoduleIdentNumber=\"%199[^\"]", convertStr) == 1) {
                                             read_submodule_id = (guint32) strtoul (convertStr, NULL, 0);    /* read_submodule_id contains the Value of the SubModuleIdentNumber */
 
                                             /* Find "PROFIsafeSupported" flag of the module in GSD-file */
