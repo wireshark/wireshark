@@ -1,6 +1,7 @@
 /* packet-bssgp.c
  * Routines for Base Station Subsystem GPRS Protocol dissection
  * Copyright 2000, Susanne Edlund <susanne.edlund@ericsson.com>
+ * Copyright 2017, Anders Broman <anders.broman@ericsson.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -212,6 +213,8 @@ static int hf_bssgp_ec_ul_coveradge_class = -1;
 static int hf_bssgp_paging_attempt_count = -1;
 static int hf_bssgp_intended_num_of_pag_attempts = -1;
 static int hf_bssgp_extended_feature_bitmap = -1;
+static int hf_bssgp_prio_class_ind = -1;
+static int hf_bssgp_prio_class_flag_b0 = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bssgp = -1;
@@ -225,6 +228,7 @@ static gint ett_bssgp_list_of_setup_pfcs = -1;
 static gint ett_bssgp_pfc_flow_control_parameters_pfc = -1;
 static gint ett_bssgp_ra_id = -1;
 static gint ett_bssgp_extended_feature_bitmap = -1;
+static gint ett_bssgp_prio_class_ind = -1;
 
 static expert_field ei_bssgp_extraneous_data = EI_INIT;
 static expert_field ei_bssgp_missing_mandatory_element = EI_INIT;
@@ -260,8 +264,8 @@ static expert_field ei_bssgp_ran_inf_app_cont_utra_si = EI_INIT;
 #define BSSGP_PDU_DUMMY_PAGING_PS              0x12
 #define BSSGP_PDU_DUMMY_PAGING_PS_RESPONSE     0x13
 
-#define BSSGP_PDU_RESERVED_0X14                0x14
-#define BSSGP_PDU_RESERVED_0X15                0x15
+#define BSSGP_PDU_MS_REG_ENQ                   0x14
+#define BSSGP_PDU_MS_REG_ENQ_RESP              0x15
 #define BSSGP_PDU_RESERVED_0X16                0x16
 #define BSSGP_PDU_RESERVED_0X17                0x17
 #define BSSGP_PDU_RESERVED_0X18                0x18
@@ -402,12 +406,6 @@ static expert_field ei_bssgp_ran_inf_app_cont_utra_si = EI_INIT;
 #define BSSGP_PDU_PS_HANDOVER_CANCEL           0x92
 #define BSSGP_PDU_PS_HANDOVER_COMPLETE_ACK     0x93
 
-/*
-0x91 PS-HANDOVER-COMPLETE
-0x92 PS-HANDOVER-CANCEL
-0x93 PS-HANDOVER-COMPLETE-ACK
-*/
-
 /* Information element coding, v 6.5.0, table 11.3, p 72 */
 #define BSSGP_IEI_ALIGNMENT_OCTETS                         0x00
 #define BSSGP_IEI_BMAX_DEFAULT_MS                          0x01
@@ -540,16 +538,32 @@ x86 TAC
 #define BSSGP_IEI_SCI                                      0x8c
 #define BSSGP_IEI_GGSN_PGW_LOCATION                        0x8d
 #define BSSGP_IEI_SELECTED_PLMN_ID                         0x8e
+#define BSSGP_IEI_PRIORITY_CLASS_INDICATOR                 0x8f
 
+/*
+x90     Source Cell ID
+x91     IRAT Measurement Configuration (extended E-ARFCNs)
+*/
 #define BSSGP_IEI_EDRX_PARAMETERS                          0x92
 #define BSSGP_IEI_TUNPO                                    0x93
-
 #define BSSGP_IEI_COVERADGE_CLASS                          0x98
 #define BSSGP_IEI_PAG_ATTEMPT_INFO                         0x99
 #define BSSGP_IEI_EXCEPTION_REPORT_FLAG                    0x9a
 #define BSSGP_IEI_OLD_RA_IDENTIFICATION                    0x9b
 #define BSSGP_IEI_ATTACH_INDIC                             0x9c
 #define BSSGP_IEI_PLMN_ID                                  0x9d
+/*
+x9e     MME Query
+x9f     SGSN Group Identity
+xa0     Additional P-TMSI
+xa1     UE Usage Type
+xa2     Multilateration Timer
+xa3     Multilateration Timing Advance
+xa4     MS Sync Accuracy
+xa5     BTS Reception Accuracy Level
+xa6     Timing Advance Request
+
+*/
 
 /* Macros */
 /* Defined locally here without the check of curr_len wrapping, that will be taken care of when this IEI dissection finishes */
@@ -3425,6 +3439,24 @@ de_bssgp_ggsn_pgw_location(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 /* See PLMN ID */
 
 /*
+ * 11.3.119 Priority Class Indicator
+ */
+static guint16
+de_bssgp_pri_class_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    guint32 curr_offset;
+    const int* bssgp_prio_class_flags[] = {
+        &hf_bssgp_prio_class_flag_b0,
+        NULL
+    };
+    curr_offset = offset;
+
+    proto_tree_add_bitmask(tree, tvb, curr_offset, hf_bssgp_prio_class_ind, ett_bssgp_prio_class_ind, bssgp_prio_class_flags, ENC_BIG_ENDIAN);
+    curr_offset++;
+
+    return(curr_offset - offset);
+}
+/*
  * 11.3.122 Extended DRX parameters
  */
 static const value_string bssgp_edrx_cycle_vals[] = {
@@ -3612,11 +3644,13 @@ typedef enum
     DE_BSSGP_BUCKET_FULL_RATIO,                                 /* 11.3.46  0x3c Bucket Full Ratio */
     DE_BSSGP_SERV_UTRAN_CCO,                                    /* 11.3.47  0x3d Service UTRAN CCO */
     DE_BSSGP_NSEI,                                              /* 11.3.48  0x3e NSEI (Network Service Entity Identifier) */
-    DE_BSSGP_RRLP_APDU,                                         /* 11.3.49 RRLP APDU */
-    DE_BSSGP_RRLP_FLAGS,                                        /* 11.3.60  RRLP Flags */
-    DE_BSSGP_RIM_APP_ID,                                        /* 11.3.61  RIM Application Identity */
-    DE_BSSGP_RIM_SEQ_NO,                                        /* 11.3.62  RIM Sequence Number */
-    DE_BSSGP_RAN_INF_REQUEST_RIM_CONT,                          /* 11.3.62a.1   RAN-INFORMATION-REQUEST RIM Container */
+    DE_BSSGP_RRLP_APDU,                                         /* 11.3.49  0x3f RRLP APDU */
+
+    DE_BSSGP_RRLP_FLAGS,                                        /* 11.3.60  0x4a RRLP Flags */
+    DE_BSSGP_RIM_APP_ID,                                        /* 11.3.61  0x4b RIM Application Identity */
+    DE_BSSGP_RIM_SEQ_NO,                                        /* 11.3.62  0x4c RIM Sequence Number */
+
+    DE_BSSGP_RAN_INF_REQUEST_RIM_CONT,                          /* 11.3.62a.1   0x57 RAN-INFORMATION-REQUEST RIM Container */
     DE_BSSGP_RAN_INF_RIM_CONT,                                  /* 11.3.62a.2   RAN-INFORMATION RIM Container */
     DE_BSSGP_RAN_INFORMATION_ACK_RIM_CONT,                      /* 11.3.62a.3   RAN-INFORMATION-ACK RIM Container */
     DE_BSSGP_RAN_INFORMATION_ERROR_RIM_CONT,                    /* 11.3.62a.4   RAN-INFORMATION-ERROR RIM Container */
@@ -3675,6 +3709,7 @@ typedef enum
     DE_BSSGP_UNCONFIRM_SEND_STATE_VAR,                          /* 11.3.114 Unconfirmed send state variable */
     DE_BSSGP_SCI,                                               /* 11.3.116 SCI */
     DE_BSSGP_GGSN_PGW_LOCATION,                                 /* 11.3.117 GGSN/P-GW location */
+    DE_BSSGP_PRIORITY_CLASS_IND,                                /* 11.3.119 Priority Class Indicator */
     DE_BSSGP_EDRX_PARAMS,                                       /* 11.3.122 eDRX Parameters */
     DE_BSSGP_TUNPO,                                             /* 11.3.123 Time Until Next Paging Occasion */
     DE_BSSGP_COVERADGE_CLASS,                                   /* 11.3.124 Coverage Class */
@@ -3841,6 +3876,7 @@ static const value_string bssgp_elem_strings[] = {
     { DE_BSSGP_SCI,                                  "SCI" },                                                /* 11.3.116 SCI */
     { DE_BSSGP_GGSN_PGW_LOCATION,                    "GGSN / P - GW location"},                              /* 11.3.117 GGSN/P-GW location */
     /* 11.3.118 Selected PLMN ID */
+    { DE_BSSGP_PRIORITY_CLASS_IND,                   "Priority Class Indicator" },                           /* 11.3.119 Priority Class Indicator */
     { DE_BSSGP_EDRX_PARAMS,                          "eDRX Parameters" },                                    /* 11.3.122 eDRX Parameters */
     { DE_BSSGP_TUNPO,                                "Time Until Next Paging Occasion" },                    /* 11.3.123 Time Until Next Paging Occasion */
     { DE_BSSGP_COVERADGE_CLASS,                      "Coverage Class" },                                     /* 11.3.124 Coverage Class */
@@ -3966,6 +4002,7 @@ guint16 (*bssgp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     de_bssgp_unconfim_send_state_var,                           /* 11.3.114 Unconfirmed send state variable */
     de_bssgp_sci,                                               /* 11.3.116 SCI */
     de_bssgp_ggsn_pgw_location,                                 /* 11.3.117 GGSN/P-GW location */
+    de_bssgp_pri_class_ind,                                     /* 11.3.119 Priority Class Indicator */
     de_bssgp_edrx_params,                                       /* 11.3.122 eDRX Parameters */
     de_bssgp_tunpo,                                             /* 11.3.122 Time Until Next Paging Occasion */
     de_bssgp_coveradge_class,                                   /* 11.3.124 Coverage Class */
@@ -4263,17 +4300,17 @@ bssgp_dl_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
     /* Attach Indicator(note 13) Attach Indicator / 11.3.128 O TLV 3 */
     ELEM_OPT_TELV(BSSGP_IEI_ATTACH_INDIC, GSM_A_PDU_TYPE_GM, DE_BSSGP_ATTACH_INDIC, NULL);
 
-    /* SGSN Group Identity (note 15)	SGSN Group Identity/11.3.131	C	TLV	5 */
-    /* Additional P-TMSI (note 15)	Additional P-TMSI/11.3.132	C	TLV	6 */
-    /* UE Usage Type (note 15)	UE Usage Type/11.3.133	C	TLV	3 */
-    /* Alignment octets Alignment octets/11.3.1 O TLV 2-5 */
+    /* SGSN Group Identity (note 15)	SGSN Group Identity/11.3.131    C   TLV 5 */
+    /* Additional P-TMSI (note 15)	Additional P-TMSI/11.3.132	C   TLV 6 */
+    /* UE Usage Type (note 15)	UE Usage Type/11.3.133  C   TLV	3 */
 
+    /* Alignment octets Alignment octets/11.3.1 O TLV 2-5 */
     ELEM_OPT_TELV(0x00, BSSGP_PDU_TYPE, DE_BSSGP_ALIGNMENT_OCTETS, NULL);
     /* LLC-PDU (note 4) LLC-PDU/11.3.15 M TLV 2-? */
     ELEM_MAND_TELV(0x0e, BSSGP_PDU_TYPE, DE_BSSGP_LLC_PDU, NULL, ei_bssgp_missing_mandatory_element);
     /* Initial LLC-PDU (note 8) LLC-PDU/11.3.15 O TLV 2-? */
     ELEM_OPT_TELV(0x0e, BSSGP_PDU_TYPE, DE_BSSGP_LLC_PDU, " - initial");
-
+    /* Timing Advance Request	Timing Advance Request/11.3.140	O	TLV 3 */
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_bssgp_extraneous_data);
 }
 /*
@@ -4321,14 +4358,16 @@ bssgp_ul_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
     /* CS Registered Operator(note 8, 10) PLMN Identity / 11.3.129 O TLV 5 */
     ELEM_OPT_TELV(BSSGP_IEI_PLMN_ID, BSSGP_PDU_TYPE, DE_BSSGP_PLMN_ID, " - CS Registered Operator");
 
-    /* SGSN Group Identity (note 11)	SGSN Group Identity /11.3.131	O	TLV	5 */
-    /* UE Usage Type (note 11)	UE Usage Type/11.3.133	O	TLV	3 */
+    /* SGSN Group Identity (note 11)    SGSN Group Identity /11.3.131   O   TLV	5 */
+    /* UE Usage Type (note 11)	UE Usage Type/11.3.133	O   TLV 3 */
 
     /* Alignment octets Alignment octets/11.3.1 O TLV 2-5  */
     ELEM_OPT_TELV(0x00, BSSGP_PDU_TYPE, DE_BSSGP_ALIGNMENT_OCTETS, NULL);
     /* LLC-PDU (note) LLC-PDU/11.3.15 M TLV 2-?  */
     ELEM_MAND_TELV(0x0e, BSSGP_PDU_TYPE, DE_BSSGP_LLC_PDU, NULL, ei_bssgp_missing_mandatory_element);
-
+    /* MultilaterationTiming Advance (note 13)	MultilaterationTiming Advance/11.3.137  O   TLV 4 */
+    /* MS Sync Accuracy (note 13)   MS Sync Accuracy/11.3.138   O   TLV 3 */
+    /* BTS Reception Accuracy Level (note 13)   BTS Reception Accuracy Level/11.3.139   O   TLV 3 */
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_bssgp_extraneous_data);
 }
 /*
@@ -4466,6 +4505,8 @@ bssgp_paging_ps(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
     ELEM_OPT_TELV(BSSGP_IEI_CELL_IDENTIFIER, BSSGP_PDU_TYPE, DE_BSSGP_CELL_ID, NULL);
     /* MS Radio Access Capability (note 5) MS Radio Access Capability/11.3.22 O TLV 7-? */
     ELEM_OPT_TELV(BSSGP_IEI_MS_RADIO_ACCESS_CAPABILITY, GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP, NULL);
+    /* Paging Attempt Information (note 6)  Paging Attempt Information/11.3.125 O   TLV 3 */
+    ELEM_OPT_TELV(BSSGP_IEI_PAG_ATTEMPT_INFO, BSSGP_PDU_TYPE, DE_BSSGP_CELL_ID, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_bssgp_extraneous_data);
 }
@@ -4532,12 +4573,6 @@ bssgp_ra_cap_upd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
     ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI, NULL, ei_bssgp_missing_mandatory_element);
     /* Tag Tag/11.3.34 M TLV 3 */
     ELEM_MAND_TELV(BSSGP_IEI_TAG, BSSGP_PDU_TYPE, DE_BSSGP_TAG, NULL, ei_bssgp_missing_mandatory_element);
-    /* IMSI (note) IMSI/11.3.14 C TLV 5 -10 */
-    ELEM_OPT_TELV(BSSGP_IEI_IMSI, BSSGP_PDU_TYPE, DE_BSSGP_IMSI , NULL);
-    /* RA-Cap-UPD-CAUSE RA-Cap-UPDCAUSE/11.3.30 M TLV 3 */
-    ELEM_OPT_TELV(BSSGP_IEI_RA_CAP_UPD_CAUSE, BSSGP_PDU_TYPE, DE_BSSGP_RA_CAP_UPD_CAUSE , NULL);
-    /* MS Radio Access Capability MS Radio Access Capability/11.3.22 C TLV 7-? */
-    ELEM_OPT_TELV(BSSGP_IEI_MS_RADIO_ACCESS_CAPABILITY, GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP , NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_bssgp_extraneous_data);
 }
@@ -5902,6 +5937,25 @@ bssgp_ps_ho_complete_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_bssgp_extraneous_data);
 }
+
+/*
+ * 10.4.36  OVERLOAD
+ */
+static void
+bssgp_overload(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    /* Priority Class Indicator	Priority Class Indicator/11.3.118   M   TLV 3 */
+    ELEM_OPT_TELV(BSSGP_IEI_PRIORITY_CLASS_INDICATOR, BSSGP_PDU_TYPE, DE_BSSGP_PRIORITY_CLASS_IND, NULL);
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_bssgp_extraneous_data);
+}
 /*
  * 10.5 PDU functional definitions and contents at LCS SAP
  * 10.5.1   PERFORM-LOCATION-REQUEST
@@ -5950,10 +6004,15 @@ bssgp_perform_loc_request(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     ELEM_OPT_TELV(0x7c, GSM_A_PDU_TYPE_BSSMAP, BE_GANSS_LOC_TYP, NULL);
     /* Requested GANSS Assistance Data (note 6) Requested GANSS Assistance Data/11.3.99 O TLV 3-? */
     ELEM_OPT_TLV(0x7b, GSM_A_PDU_TYPE_BSSMAP, BE_GANSS_ASS_DTA, NULL);
-
-    /* eDRX Parameters (note 7)	eDRX Parameters/11.3.122	O	TLV	3 */
-    /* Coverage Class	Coverage Class/11.3.124	O	TLV	3 */
-    /* MS Radio Access Capability (note 8)	MS Radio Access Capability/11.3.22	O	TLV	7-? */
+    /* eDRX Parameters (note 7)	eDRX Parameters/11.3.122    O   TLV 3 */
+    ELEM_OPT_TELV(BSSGP_IEI_EDRX_PARAMETERS, BSSGP_PDU_TYPE, DE_BSSGP_EDRX_PARAMS, NULL);
+    /* Coverage Class   Coverage Class/11.3.124 O   TLV 3 */
+    ELEM_OPT_TELV(BSSGP_IEI_COVERADGE_CLASS, BSSGP_PDU_TYPE, DE_BSSGP_COVERADGE_CLASS, NULL);
+    /* MS Radio Access Capability (note 8)  MS Radio Access Capability/11.3.22  O   TLV 7   ? */
+    ELEM_IN_ELEM_MAND_TELV(BSSGP_IEI_MS_RADIO_ACCESS_CAPABILITY, GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP, NULL);
+    /* MultilaterationTiming Advance (note 9)   MultilaterationTiming Advance/11.3.137  O   TLV 4 */
+    /* MS Sync Accuracy (note 9)    MS Sync Accuracy/11.3.138   O   TLV 3 */
+    /* BTS Reception Accuracy Level (note 9)    BTS Reception Accuracy Level/11.3.139   O   TLV 3 */
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_bssgp_extraneous_data);
 }
@@ -6047,6 +6106,8 @@ bssgp_pos_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offse
     ELEM_MAND_TELV(BSSGP_IEI_RRLP_FLAGS, BSSGP_PDU_TYPE, DE_BSSGP_RRLP_FLAGS, NULL, ei_bssgp_missing_mandatory_element);
     /* RRLP APDU RRLP APDU/11.3.49 M TLV 3-? */
     ELEM_MAND_TELV(BSSGP_IEI_RRLP_APDU, BSSGP_PDU_TYPE, DE_BSSGP_RRLP_APDU, NULL, ei_bssgp_missing_mandatory_element);
+    /* Multilateration Timer    Multilateration Timer/11.3.136  O   TLV 3 */
+    /* Timing Advance Request   Timing Advance Request/11.3.140 O   TLV 3 */
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_bssgp_extraneous_data);
 }
@@ -6447,8 +6508,8 @@ static const value_string bssgp_msg_strings[] = {
 /* 0x13 */  { BSSGP_PDU_DUMMY_PAGING_PS_RESPONSE,     "DUMMY-PAGING-PS-RESPONSE" },     /* 10.3.13 DUMMY PAGING PS RESPONSE */
 
 /* 0x14 to 0x1f Reserved */
-/* 0x14 */  { BSSGP_PDU_RESERVED_0X14,                 "MS-REGISTRATION-ENQUIRY" },          /* 10.3.15 MS REGISTRATION ENQUIRY */
-/* 0x15 */  { BSSGP_PDU_RESERVED_0X15,                 "MS-REGISTRATION-ENQUIRY-RESPONSE" }, /* 10.3.16 MS REGISTRATION ENQUIRY RESPONSE */
+/* 0x14 */  { BSSGP_PDU_MS_REG_ENQ,                    "MS-REGISTRATION-ENQUIRY" },          /* 10.3.15 MS REGISTRATION ENQUIRY */
+/* 0x15 */  { BSSGP_PDU_MS_REG_ENQ_RESP,               "MS-REGISTRATION-ENQUIRY-RESPONSE" }, /* 10.3.16 MS REGISTRATION ENQUIRY RESPONSE */
 /* 0x16 */  { BSSGP_PDU_RESERVED_0X16,                 "Reserved" },                    /*  */
 /* 0x17 */  { BSSGP_PDU_RESERVED_0X17,                 "Reserved" },                    /*  */
 /* 0x18 */  { BSSGP_PDU_RESERVED_0X18,                 "Reserved" },                    /*  */
@@ -6494,9 +6555,9 @@ static const value_string bssgp_msg_strings[] = {
 /* 0x3e */  { BSSGP_PDU_RESERVED_0X3E,                 "Reserved" },                    /*  */
 /* 0x3f */  { BSSGP_PDU_RESERVED_0X3F,                 "Reserved" },                    /*  */
 
-/* 0x40 */  { BSSGP_PDU_SGSN_INVOKE_TRACE,             "SGSN-INVOKE-TRACE" },            /* 10.4.15 SGSN-INVOKE-TRACE */
-/* 0x41 */  { BSSGP_PDU_STATUS,                        "STATUS" },                       /* 10.4.14 STATUS */
-/* 0x42 */  { BSSGP_PDU_OVERLOAD,                      "OVERLOAD" },                    /*  */
+/* 0x40 */  { BSSGP_PDU_SGSN_INVOKE_TRACE,             "SGSN-INVOKE-TRACE" },           /* 10.4.15 SGSN-INVOKE-TRACE */
+/* 0x41 */  { BSSGP_PDU_STATUS,                        "STATUS" },                      /* 10.4.14 STATUS */
+/* 0x42 */  { BSSGP_PDU_OVERLOAD,                      "OVERLOAD" },                    /* 10.4.36 OVERLOAD */
 /* 0x43 to 0x4f Reserved */
 /* 0x43 */  { BSSGP_PDU_RESERVED_0X43,                 "Reserved" },                    /*  */
 /* 0x44 */  { BSSGP_PDU_RESERVED_0X44,                 "Reserved" },                    /*  */
@@ -6668,9 +6729,9 @@ static void (*bssgp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 /* 0x40 to 0x41 */
     bssgp_sgsn_invoke_trace,            /* 10.4.15 SGSN-INVOKE-TRACE */
     bssgp_status,                       /* 10.4.14 STATUS */
+    bssgp_overload,                     /* 10.4.36 OVERLOAD 0x42 */
 
-/* 0x42 to 0x4f Reserved */
-    NULL,                              /* 0x42 */
+/* 0x43 to 0x4f Reserved */
     NULL,                              /* 0x43 */
     NULL,                              /* 0x44 */
     NULL,                              /* 0x45 */
@@ -7458,11 +7519,21 @@ proto_register_bssgp(void)
           FT_UINT8, BASE_HEX, NULL, 0x0,
           NULL, HFILL }
         },
+        { &hf_bssgp_prio_class_ind,
+        { "Priority Class Indicator", "bssgp.prio_class_ind",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bssgp_prio_class_flag_b0,
+        { "A mobile station configured for 'low access priority'", "bssgp.prio_class_ind.b0",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
 
     };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    11
+#define NUM_INDIVIDUAL_ELEMS    12
     gint *ett[NUM_INDIVIDUAL_ELEMS +
               NUM_BSSGP_ELEM +
               NUM_BSSGP_MSG];
@@ -7494,6 +7565,7 @@ proto_register_bssgp(void)
     ett[8] = &ett_bssgp_pfc_flow_control_parameters_pfc;
     ett[9] = &ett_bssgp_ra_id,
     ett[10] = &ett_bssgp_extended_feature_bitmap,
+    ett[11] = &ett_bssgp_prio_class_ind,
 
         last_offset = NUM_INDIVIDUAL_ELEMS;
 
