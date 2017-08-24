@@ -4527,20 +4527,21 @@ ssl_packet_from_server(SslSession *session, dissector_table_t table, packet_info
  * @param record_id The identifier for this record within the current packet.
  * @param flow Information about sequence numbers, etc.
  * @param type TLS Content Type (such as handshake or application_data).
+ * @param curr_layer_num_ssl The layer identifier for this TLS session.
  */
 void
-ssl_add_record_info(gint proto, packet_info *pinfo, const guchar *data, gint data_len, gint record_id, SslFlow *flow, ContentType type)
+ssl_add_record_info(gint proto, packet_info *pinfo, const guchar *data, gint data_len, gint record_id, SslFlow *flow, ContentType type, guint8 curr_layer_num_ssl)
 {
     SslRecordInfo* rec, **prec;
     SslPacketInfo* pi;
 
-    pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto, pinfo->curr_layer_num);
+    pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto, curr_layer_num_ssl);
     if (!pi)
     {
         pi = wmem_new0(wmem_file_scope(), SslPacketInfo);
         pi->srcport = pinfo->srcport;
         pi->destport = pinfo->destport;
-        p_add_proto_data(wmem_file_scope(), pinfo, proto, pinfo->curr_layer_num, pi);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto, curr_layer_num_ssl, pi);
     }
 
     rec = wmem_new(wmem_file_scope(), SslRecordInfo);
@@ -4569,11 +4570,11 @@ ssl_add_record_info(gint proto, packet_info *pinfo, const guchar *data, gint dat
 
 /* search in packet data for the specified id; return a newly created tvb for the associated data */
 tvbuff_t*
-ssl_get_record_info(tvbuff_t *parent_tvb, int proto, packet_info *pinfo, gint record_id, SslRecordInfo **matched_record)
+ssl_get_record_info(tvbuff_t *parent_tvb, int proto, packet_info *pinfo, gint record_id, guint8 curr_layer_num_ssl, SslRecordInfo **matched_record)
 {
     SslRecordInfo* rec;
     SslPacketInfo* pi;
-    pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto, pinfo->curr_layer_num);
+    pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto, curr_layer_num_ssl);
 
     if (!pi)
         return NULL;

@@ -548,7 +548,8 @@ static gint dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                                 proto_tree *tree, guint32 offset,
                                 SslSession *session, gint is_from_server,
                                 gboolean *need_desegmentation,
-                                SslDecryptSession *conv_data);
+                                SslDecryptSession *conv_data,
+                                guint8 curr_layer_num_ssl);
 
 /* alert message dissector */
 static void dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
@@ -803,7 +804,8 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 offset = dissect_ssl3_record(tvb, pinfo, ssl_tree,
                                              offset, session, is_from_server,
                                              &need_desegmentation,
-                                             ssl_session);
+                                             ssl_session,
+                                             curr_layer_num_ssl);
             }
             break;
 
@@ -825,7 +827,8 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 offset = dissect_ssl3_record(tvb, pinfo, ssl_tree,
                                              offset, session, is_from_server,
                                              &need_desegmentation,
-                                             ssl_session);
+                                             ssl_session,
+                                             curr_layer_num_ssl);
             }
             else
             {
@@ -980,7 +983,7 @@ dissect_ssl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 static gboolean
 decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, SslDecryptSession *ssl,
         guint8 content_type, guint16 record_version, guint16 record_length,
-        gboolean allow_fragments)
+        gboolean allow_fragments, guint8 curr_layer_num_ssl)
 {
     gboolean    success;
     gint        direction;
@@ -1055,7 +1058,7 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, SslDecryp
          * Alert messages MUST NOT be fragmented across records, so do not
          * bother maintaining a flow for those. */
         ssl_add_record_info(proto_ssl, pinfo, data, datalen, tvb_raw_offset(tvb)+offset,
-                allow_fragments ? decoder->flow : NULL, (ContentType)content_type);
+                allow_fragments ? decoder->flow : NULL, (ContentType)content_type, curr_layer_num_ssl);
     }
     return success;
 }
@@ -1616,7 +1619,8 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                     proto_tree *tree, guint32 offset,
                     SslSession *session, gint is_from_server,
                     gboolean *need_desegmentation,
-                    SslDecryptSession *ssl)
+                    SslDecryptSession *ssl,
+                    guint8 curr_layer_num_ssl)
 {
 
     /*
@@ -1798,10 +1802,10 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         decrypt_ssl3_record(tvb, pinfo, offset, ssl,
                 content_type, record_version, record_length,
                 content_type == SSL_ID_APP_DATA ||
-                content_type == SSL_ID_HANDSHAKE);
+                content_type == SSL_ID_HANDSHAKE, curr_layer_num_ssl);
     }
     /* try to retrieve and use decrypted alert/handshake/appdata record, if any. */
-    decrypted = ssl_get_record_info(tvb, proto_ssl, pinfo, tvb_raw_offset(tvb)+offset, &record);
+    decrypted = ssl_get_record_info(tvb, proto_ssl, pinfo, tvb_raw_offset(tvb)+offset, curr_layer_num_ssl, &record);
     if (decrypted) {
         add_new_data_source(pinfo, decrypted, "Decrypted SSL");
         if (session->version == TLSV1DOT3_VERSION) {
