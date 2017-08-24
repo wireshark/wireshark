@@ -117,6 +117,9 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
+
+#include <wsutil/utf8_entities.h>
 
 #include "packet-btle.h"
 
@@ -268,10 +271,18 @@ dissect_flags(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, 
 }
 
 static gint
-dissect_ble_delta_time(tvbuff_t *tvb, gint offset, proto_tree *tree, guint8 packet_len)
+dissect_ble_delta_time(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, guint8 packet_len)
 {
     static guint8 previous_ble_packet_length = 0;
     guint32 delta_time, delta_time_ss;
+    proto_item *pi;
+
+    if (!pinfo->fd->flags.visited) {
+        /* First time visiting this packet, store previous BLE packet length */
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_nordic_ble, 0, GUINT_TO_POINTER(previous_ble_packet_length));
+    } else {
+        previous_ble_packet_length = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo, proto_nordic_ble, 0));
+    }
 
     /* end - start */
     delta_time = (guint32)tvb_get_letohl(tvb, offset);
@@ -279,9 +290,12 @@ dissect_ble_delta_time(tvbuff_t *tvb, gint offset, proto_tree *tree, guint8 pack
 
     /* start - start */
     delta_time_ss = BLE_METADATA_TRANFER_TIME_US + (US_PER_BYTE * previous_ble_packet_length) + delta_time;
-    proto_tree_add_uint(tree, hf_nordic_ble_delta_time_ss, tvb, offset, 4, delta_time_ss);
+    pi = proto_tree_add_uint(tree, hf_nordic_ble_delta_time_ss, tvb, offset, 4, delta_time_ss);
+    PROTO_ITEM_SET_GENERATED(pi);
 
-    previous_ble_packet_length = packet_len;
+    if (!pinfo->fd->flags.visited) {
+        previous_ble_packet_length = packet_len;
+    }
     offset += 4;
 
     return offset;
@@ -355,7 +369,7 @@ dissect_packet(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(tree, hf_nordic_ble_event_counter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    offset = dissect_ble_delta_time(tvb, offset, tree, packet_len);
+    offset = dissect_ble_delta_time(tvb, offset, pinfo, tree, packet_len);
 
     return offset;
 }
@@ -507,14 +521,14 @@ proto_register_nordic_ble(void)
                 NULL, HFILL }
         },
         { &hf_nordic_ble_delta_time,
-            { "Delta time (us end to start)", "nordic_ble.delta_time",
+            { "Delta time (" UTF8_MICRO_SIGN "s end to start)", "nordic_ble.delta_time",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
-                "Delta time: us since last reported packet", HFILL }
+                UTF8_MICRO_SIGN "s since end of last reported packet", HFILL }
         },
         { &hf_nordic_ble_delta_time_ss,
-            { "Delta time (us start to start)", "nordic_ble.delta_time_ss",
+            { "Delta time (" UTF8_MICRO_SIGN "s start to start)", "nordic_ble.delta_time_ss",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
-                "Delta time: us since start of last reported packet", HFILL }
+                UTF8_MICRO_SIGN "s since start of last reported packet", HFILL }
         }
     };
 
@@ -532,7 +546,7 @@ proto_register_nordic_ble(void)
 
     expert_module_t *expert_nordic_ble;
 
-    proto_nordic_ble = proto_register_protocol("Nordic BLE sniffer meta", "NORDIC_BLE", "nordic_ble");
+    proto_nordic_ble = proto_register_protocol("Nordic BLE Sniffer", "NORDIC_BLE", "nordic_ble");
 
     register_dissector("nordic_ble", dissect_nordic_ble, proto_nordic_ble);
 
