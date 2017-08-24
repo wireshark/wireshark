@@ -260,8 +260,8 @@ static int hf_gtp_correlation_id = -1;
 static int hf_gtp_earp_pvi = -1;
 static int hf_gtp_earp_pl = -1;
 static int hf_gtp_ext_comm_flags_uasi = -1;
-static int hf_gtp_ext_comm_flags_II_dtci = -1;
 static int hf_gtp_ext_comm_flags_II_pnsi = -1;
+static int hf_gtp_ext_comm_flags_II_dtci = -1;
 static int hf_gtp_ext_comm_flags_II_pmtsmi = -1;
 static int hf_gtp_ext_comm_flags_II_spare = -1;
 static int hf_gtp_earp_pci = -1;
@@ -9751,19 +9751,19 @@ proto_register_gtp(void)
            FT_BOOLEAN, 8, NULL, 0x80,
            NULL, HFILL}
         },
-        {&hf_gtp_ext_comm_flags_II_dtci,
-         { "DTCI", "gtp.ext_comm_flags_II_dtci",
-           FT_BOOLEAN, 8, NULL, 0x02,
-           NULL, HFILL}
-        },
         {&hf_gtp_ext_comm_flags_II_pnsi,
          { "PNSI", "gtp.ext_comm_flags_II_pnsi",
            FT_UINT8, BASE_DEC, NULL, 0x01,
            NULL, HFILL}
         },
+        {&hf_gtp_ext_comm_flags_II_dtci,
+         { "DTCI", "gtp.ext_comm_flags_II_dtci",
+           FT_BOOLEAN, 8, NULL, 0x02,
+           NULL, HFILL}
+        },
         {&hf_gtp_ext_comm_flags_II_pmtsmi,
          { "PMTSMI", "gtp.ext_comm_flags_II_pmtsmi",
-           FT_UINT8, BASE_DEC, NULL, 0x02,
+           FT_UINT8, BASE_DEC, NULL, 0x04,
            NULL, HFILL}
         },
         {&hf_gtp_ext_comm_flags_II_spare,
