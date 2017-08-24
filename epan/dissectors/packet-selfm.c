@@ -1435,7 +1435,7 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
 
         if (!config_found) {
             proto_item_append_text(fmdata_item, ", No Fast Meter Configuration frame found");
-            offset += (len-2);
+            offset += (len-3);  /* Don't include the 2 header bytes or 1 length byte, those are already in the offset */
             return offset;
         }
     }
