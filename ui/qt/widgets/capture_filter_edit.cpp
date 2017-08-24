@@ -256,13 +256,13 @@ QPair<const QString, bool> CaptureFilterEdit::getSelectedFilter()
     int selected_devices = 0;
 
     for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        if (device.selected) {
+        interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        if (device->selected) {
             selected_devices++;
             if (selected_devices == 1) {
-                user_filter = device.cfilter;
+                user_filter = device->cfilter;
             } else {
-                if (user_filter.compare(device.cfilter)) {
+                if (user_filter.compare(device->cfilter)) {
                     filter_conflict = true;
                 }
             }

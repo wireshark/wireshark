@@ -951,20 +951,20 @@ void InterfaceToolbar::interfaceListChanged()
 
     for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++)
     {
-        interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        if (device.hidden)
+        interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        if (device->hidden)
             continue;
 
-        if (interface_.keys().contains(device.name))
+        if (interface_.keys().contains(device->name))
         {
-            ui->interfacesComboBox->addItem(device.name);
-            if (selected_ifname.compare(device.name) == 0)
+            ui->interfacesComboBox->addItem(device->name);
+            if (selected_ifname.compare(device->name) == 0)
             {
                 // Keep selected interface
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-                ui->interfacesComboBox->setCurrentText(device.name);
+                ui->interfacesComboBox->setCurrentText(device->name);
 #else
-                int new_index = ui->interfacesComboBox->findText(device.name);
+                int new_index = ui->interfacesComboBox->findText(device->name);
                 if (new_index >= 0)
                 {
                     ui->interfacesComboBox->setCurrentIndex(new_index);

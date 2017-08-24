@@ -84,12 +84,12 @@ void CompiledFilterOutput::compileFilter()
 
     foreach (QString interfaces, intList_) {
         for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-            interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+            interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
 
-            if (interfaces.compare(device.display_name)) {
+            if (interfaces.compare(device->display_name)) {
                 continue;
             } else {
-                pcap_t *pd = pcap_open_dead(device.active_dlt, WTAP_MAX_PACKET_SIZE_STANDARD);
+                pcap_t *pd = pcap_open_dead(device->active_dlt, WTAP_MAX_PACKET_SIZE_STANDARD);
                 if (pd == NULL)
                     break;
                 g_mutex_lock(pcap_compile_mtx);

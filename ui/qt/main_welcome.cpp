@@ -289,26 +289,24 @@ void MainWelcome::appInitialized()
 void MainWelcome::captureFilterTextEdited(const QString capture_filter)
 {
     if (global_capture_opts.num_selected > 0) {
-        interface_t device;
+        interface_t *device;
 
         for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-            device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-            if (!device.selected) {
+            device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+            if (!device->selected) {
                 continue;
             }
-            //                if (device.active_dlt == -1) {
-            //                    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The link type of interface %s was not specified.", device.name);
+            //                if (device->active_dlt == -1) {
+            //                    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The link type of interface %s was not specified.", device->name);
             //                    continue;  /* Programming error: somehow managed to select an "unsupported" entry */
             //                }
-            g_array_remove_index(global_capture_opts.all_ifaces, i);
-            g_free(device.cfilter);
+            g_free(device->cfilter);
             if (capture_filter.isEmpty()) {
-                device.cfilter = NULL;
+                device->cfilter = NULL;
             } else {
-                device.cfilter = qstring_strdup(capture_filter);
+                device->cfilter = qstring_strdup(capture_filter);
             }
-            g_array_insert_val(global_capture_opts.all_ifaces, i, device);
-            //                update_filter_string(device.name, filter_text);
+            //                update_filter_string(device->name, filter_text);
         }
     }
 }

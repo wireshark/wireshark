@@ -458,12 +458,10 @@ void ManageInterfacesDialog::remoteAccepted()
 
     while(*it) {
         for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-            interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-            if ((*it)->text(col_r_host_dev_).compare(device.name))
+            interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+            if ((*it)->text(col_r_host_dev_).compare(device->name))
                 continue;
-            device.hidden = ((*it)->checkState(col_r_show_) == Qt::Checked ? false : true);
-            global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-            g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+            device->hidden = ((*it)->checkState(col_r_show_) == Qt::Checked ? false : true);
         }
         ++it;
     }
@@ -481,11 +479,11 @@ void ManageInterfacesDialog::on_remoteList_itemClicked(QTreeWidgetItem *item, in
     }
 
     for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        if (!device.local) {
-            if (item->text(col_r_host_dev_).compare(device.name))
+        interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        if (!device->local) {
+            if (item->text(col_r_host_dev_).compare(device->name))
                 continue;
-            device.hidden = (item->checkState(col_r_show_) == Qt::Checked ? false : true);
+            device->hidden = (item->checkState(col_r_show_) == Qt::Checked ? false : true);
         }
     }
 }
@@ -498,8 +496,8 @@ void ManageInterfacesDialog::on_delRemote_clicked()
     }
 
     for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        if (item->text(col_r_host_dev_).compare(device.remote_opts.remote_host_opts.remote_host))
+        interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        if (item->text(col_r_host_dev_).compare(device->remote_opts.remote_host_opts.remote_host))
             continue;
         global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
     }
@@ -516,22 +514,22 @@ void ManageInterfacesDialog::on_addRemote_clicked()
 void ManageInterfacesDialog::showRemoteInterfaces()
 {
     guint i;
-    interface_t device;
+    interface_t *device;
     QTreeWidgetItem *item = NULL;
 
     // We assume that remote interfaces are grouped by host.
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         QTreeWidgetItem *child;
-        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        if (!device.local) {
-            if (!item || item->text(col_r_host_dev_).compare(device.remote_opts.remote_host_opts.remote_host) != 0) {
+        device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        if (!device->local) {
+            if (!item || item->text(col_r_host_dev_).compare(device->remote_opts.remote_host_opts.remote_host) != 0) {
                 item = new QTreeWidgetItem(ui->remoteList);
-                item->setText(col_r_host_dev_, device.remote_opts.remote_host_opts.remote_host);
+                item->setText(col_r_host_dev_, device->remote_opts.remote_host_opts.remote_host);
                 item->setExpanded(true);
             }
             child = new QTreeWidgetItem(item);
-            child->setCheckState(col_r_show_, device.hidden ? Qt::Unchecked : Qt::Checked);
-            child->setText(col_r_host_dev_, QString(device.name));
+            child->setCheckState(col_r_show_, device->hidden ? Qt::Unchecked : Qt::Checked);
+            child->setText(col_r_host_dev_, QString(device->name));
         }
     }
 }
@@ -539,19 +537,19 @@ void ManageInterfacesDialog::showRemoteInterfaces()
 void ManageInterfacesDialog::on_remoteSettings_clicked()
 {
     guint i = 0;
-    interface_t device;
+    interface_t *device;
     QTreeWidgetItem* item = ui->remoteList->currentItem();
     if (!item) {
         return;
     }
 
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        if (!device.local) {
-            if (item->text(col_r_host_dev_).compare(device.name)) {
+        device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        if (!device->local) {
+            if (item->text(col_r_host_dev_).compare(device->name)) {
                continue;
             } else {
-                RemoteSettingsDialog *dlg = new RemoteSettingsDialog(this, &device);
+                RemoteSettingsDialog *dlg = new RemoteSettingsDialog(this, device);
                 dlg->show();
                 break;
             }
@@ -562,19 +560,17 @@ void ManageInterfacesDialog::on_remoteSettings_clicked()
 void ManageInterfacesDialog::setRemoteSettings(interface_t *iface)
 {
     for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        if (!device.local) {
-            if (strcmp(iface->name, device.name)) {
+        interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        if (!device->local) {
+            if (strcmp(iface->name, device->name)) {
                 continue;
             }
-            device.remote_opts.remote_host_opts.nocap_rpcap = iface->remote_opts.remote_host_opts.nocap_rpcap;
-            device.remote_opts.remote_host_opts.datatx_udp = iface->remote_opts.remote_host_opts.datatx_udp;
+            device->remote_opts.remote_host_opts.nocap_rpcap = iface->remote_opts.remote_host_opts.nocap_rpcap;
+            device->remote_opts.remote_host_opts.datatx_udp = iface->remote_opts.remote_host_opts.datatx_udp;
 #ifdef HAVE_PCAP_SETSAMPLING
-            device.remote_opts.sampling_method = iface->remote_opts.sampling_method;
-            device.remote_opts.sampling_param = iface->remote_opts.sampling_param;
+            device->remote_opts.sampling_method = iface->remote_opts.sampling_method;
+            device->remote_opts.sampling_param = iface->remote_opts.sampling_param;
 #endif //HAVE_PCAP_SETSAMPLING
-            global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-            g_array_insert_val(global_capture_opts.all_ifaces, i, device);
         }
     }
 }

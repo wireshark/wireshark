@@ -737,15 +737,15 @@ int main(int argc, char *qt_argv[])
         /* Get the list of link-layer types for the capture devices. */
         if_capabilities_t *caps;
         guint i;
-        interface_t device;
+        interface_t *device;
         for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
             int if_caps_queries = caps_queries;
-            device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-            if (device.selected) {
+            device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+            if (device->selected) {
 #if defined(HAVE_PCAP_CREATE)
-                caps = capture_get_if_capabilities(device.name, device.monitor_mode_supported, NULL, &err_str, main_window_update);
+                caps = capture_get_if_capabilities(device->name, device->monitor_mode_supported, NULL, &err_str, main_window_update);
 #else
-                caps = capture_get_if_capabilities(device.name, FALSE, NULL, &err_str,main_window_update);
+                caps = capture_get_if_capabilities(device->name, FALSE, NULL, &err_str,main_window_update);
 #endif
                 if (caps == NULL) {
                     cmdarg_err("%s", err_str);
@@ -754,7 +754,7 @@ int main(int argc, char *qt_argv[])
                     goto clean_exit;
                 }
             if (caps->data_link_types == NULL) {
-                cmdarg_err("The capture device \"%s\" has no data link types.", device.name);
+                cmdarg_err("The capture device \"%s\" has no data link types.", device->name);
                 ret_val = INVALID_LINK_TYPE;
                 goto clean_exit;
             }
@@ -762,10 +762,10 @@ int main(int argc, char *qt_argv[])
             create_console();
 #endif /* _WIN32 */
 #if defined(HAVE_PCAP_CREATE)
-            if (device.monitor_mode_supported)
+            if (device->monitor_mode_supported)
                 if_caps_queries |= CAPS_MONITOR_MODE;
 #endif
-            capture_opts_print_if_capabilities(caps, device.name, if_caps_queries);
+            capture_opts_print_if_capabilities(caps, device->name, if_caps_queries);
 #ifdef _WIN32
             destroy_console();
 #endif /* _WIN32 */
@@ -794,14 +794,12 @@ int main(int argc, char *qt_argv[])
     if ((global_capture_opts.num_selected == 0) &&
             (prefs.capture_device != NULL)) {
         guint i;
-        interface_t device;
+        interface_t *device;
         for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-            device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-            if (!device.hidden && strcmp(device.display_name, prefs.capture_device) == 0) {
-                device.selected = TRUE;
+            device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+            if (!device->hidden && strcmp(device->display_name, prefs.capture_device) == 0) {
+                device->selected = TRUE;
                 global_capture_opts.num_selected++;
-                global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-                g_array_insert_val(global_capture_opts.all_ifaces, i, device);
                 break;
             }
         }

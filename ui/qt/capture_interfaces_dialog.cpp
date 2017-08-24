@@ -247,22 +247,16 @@ void CaptureInterfacesDialog::updateGlobalDeviceSelections()
     while (*iter) {
         QString device_name = (*iter)->data(col_interface_, Qt::UserRole).value<QString>();
         for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-            interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-            if (device_name.compare(QString().fromUtf8(device.name)) == 0) {
-                if (!device.locked) {
+            interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+            if (device_name.compare(QString().fromUtf8(device->name)) == 0) {
+                if (!device->locked) {
                     if ((*iter)->isSelected()) {
-                        device.selected = TRUE;
+                        device->selected = TRUE;
                         global_capture_opts.num_selected++;
                     } else {
-                        device.selected = FALSE;
+                        device->selected = FALSE;
                     }
-                    device.locked = TRUE;
-                    global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-                    g_array_insert_val(global_capture_opts.all_ifaces, i, device);
-
-                    device.locked = FALSE;
-                    global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-                    g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+                    device->locked = FALSE;
                 }
                 break;
             }
@@ -284,10 +278,10 @@ void CaptureInterfacesDialog::updateFromGlobalDeviceSelections()
     while (*iter) {
         QString device_name = (*iter)->data(col_interface_, Qt::UserRole).value<QString>();
         for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-            interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-            if (device_name.compare(QString().fromUtf8(device.name)) == 0) {
-                if ((bool)device.selected != (*iter)->isSelected()) {
-                    (*iter)->setSelected(device.selected);
+            interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+            if (device_name.compare(QString().fromUtf8(device->name)) == 0) {
+                if ((bool)device->selected != (*iter)->isSelected()) {
+                    (*iter)->setSelected(device->selected);
                 }
                 break;
             }

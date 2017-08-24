@@ -71,7 +71,7 @@ void CapturePreferencesFrame::showEvent(QShowEvent *)
 void CapturePreferencesFrame::updateWidgets()
 {
 #ifdef HAVE_LIBPCAP
-    interface_t device;
+    interface_t *device;
     QString default_device_string;
 
     if (prefs_get_string_value(pref_device_, pref_stashed)) {
@@ -87,20 +87,20 @@ void CapturePreferencesFrame::updateWidgets()
         wsApp->refreshLocalInterfaces();
     }
     for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
 
         /* Continue if capture device is hidden */
-        if (device.hidden) {
+        if (device->hidden) {
             continue;
         }
-        // InterfaceTree matches against device.name when selecting the
+        // InterfaceTree matches against device->name when selecting the
         // default interface, so add it here if needed. On Windows this
         // means that we show the user a big ugly UUID-laden device path.
-        // We might be able to work around that by passing device.name as
+        // We might be able to work around that by passing device->name as
         // the userData argument to addItem instead.
-        QString item_text = device.display_name;
-        if (!item_text.contains(device.name)) {
-            item_text.append(QString(" (%1)").arg(device.name));
+        QString item_text = device->display_name;
+        if (!item_text.contains(device->name)) {
+            item_text.append(QString(" (%1)").arg(device->name));
         }
         ui->defaultInterfaceComboBox->addItem(item_text);
     }
