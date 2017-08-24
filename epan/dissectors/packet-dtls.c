@@ -322,7 +322,8 @@ dtls_parse_old_keys(void)
 static gint dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
                                 proto_tree *tree, guint32 offset,
                                 SslSession *session, gint is_from_server,
-                                SslDecryptSession *conv_data);
+                                SslDecryptSession *conv_data,
+                                guint8 curr_layer_num_ssl);
 
 /* alert message dissector */
 static void dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
@@ -373,6 +374,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   SslDecryptSession *ssl_session;
   SslSession        *session;
   gint               is_from_server;
+  guint8             curr_layer_num_ssl = pinfo->curr_layer_num;
 
   ti                    = NULL;
   dtls_tree             = NULL;
@@ -439,7 +441,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       case DTLSV1DOT2_VERSION:
         offset = dissect_dtls_record(tvb, pinfo, dtls_tree,
                                      offset, session, is_from_server,
-                                     ssl_session);
+                                     ssl_session, curr_layer_num_ssl);
         break;
 
         /* that failed, so apply some heuristics based
@@ -451,7 +453,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             /* looks like dtls */
             offset = dissect_dtls_record(tvb, pinfo, dtls_tree,
                                          offset, session, is_from_server,
-                                         ssl_session);
+                                         ssl_session, curr_layer_num_ssl);
           }
         else
           {
@@ -472,6 +474,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       first_record_in_frame = FALSE;
     }
 
+  // XXX there is no Follow DTLS Stream, is this tap needed?
   tap_queue_packet(dtls_tap, pinfo, NULL);
   return tvb_captured_length(tvb);
 }
@@ -567,7 +570,7 @@ dtls_is_null_cipher(guint cipher )
 
 static gboolean
 decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, SslDecryptSession *ssl,
-                    guint8 content_type, guint16 record_version, guint16 record_length)
+                    guint8 content_type, guint16 record_version, guint16 record_length, guint8 curr_layer_num_ssl)
 {
   gboolean    success;
   SslDecoder *decoder;
@@ -634,7 +637,7 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, SslDecryp
 
     ssl_add_record_info(proto_dtls, pinfo, data, datalen,
         tvb_raw_offset(tvb)+offset,
-        NULL, (ContentType)content_type);
+        NULL, (ContentType)content_type, curr_layer_num_ssl);
   }
   return success;
 }
@@ -661,7 +664,8 @@ static gint
 dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
                     proto_tree *tree, guint32 offset,
                     SslSession *session, gint is_from_server,
-                    SslDecryptSession* ssl)
+                    SslDecryptSession* ssl,
+                    guint8 curr_layer_num_ssl)
 {
 
   /*
@@ -785,9 +789,9 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   /* try to decrypt record on the first pass, if possible. Store decrypted
    * record for later usage (without having to decrypt again). */
   if (ssl) {
-    decrypt_dtls_record(tvb, pinfo, offset, ssl, content_type, version, record_length);
+    decrypt_dtls_record(tvb, pinfo, offset, ssl, content_type, version, record_length, curr_layer_num_ssl);
   }
-  decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, tvb_raw_offset(tvb)+offset, &record);
+  decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, tvb_raw_offset(tvb)+offset, curr_layer_num_ssl, &record);
   if (decrypted) {
     add_new_data_source(pinfo, decrypted, "Decrypted DTLS");
   }

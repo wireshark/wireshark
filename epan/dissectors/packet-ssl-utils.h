@@ -622,11 +622,11 @@ ssl_packet_from_server(SslSession *session, dissector_table_t table, packet_info
 
 /* add to packet data a copy of the specified real data */
 extern void
-ssl_add_record_info(gint proto, packet_info *pinfo, const guchar *data, gint data_len, gint record_id, SslFlow *flow, ContentType type);
+ssl_add_record_info(gint proto, packet_info *pinfo, const guchar *data, gint data_len, gint record_id, SslFlow *flow, ContentType type, guint8 curr_layer_num_ssl);
 
 /* search in packet data for the specified id; return a newly created tvb for the associated data */
 extern tvbuff_t*
-ssl_get_record_info(tvbuff_t *parent_tvb, gint proto, packet_info *pinfo, gint record_id, SslRecordInfo **matched_record);
+ssl_get_record_info(tvbuff_t *parent_tvb, gint proto, packet_info *pinfo, gint record_id, guint8 curr_layer_num_ssl, SslRecordInfo **matched_record);
 
 /* initialize/reset per capture state data (ssl sessions cache) */
 extern void
