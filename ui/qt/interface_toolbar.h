@@ -70,7 +70,7 @@ signals:
     void closeReader();
 
 private slots:
-    void startReaderThread(QString ifname, QString control_in);
+    void startReaderThread(QString ifname, void *control_in);
     void updateWidgets();
 
     void onControlButtonPressed();

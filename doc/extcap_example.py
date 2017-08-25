@@ -340,28 +340,22 @@ def extcap_capture(interface, fifo, control_in, control_out, in_delay, in_verify
 	message = in_message
 	verify = in_verify
 	counter = 1
-
-	if not os.path.exists(fifo):
-		print ( "Fifo does not exist, exiting!", file=sys.stderr )
-		sys.exit(1)
-
 	fn_out = None
-	if control_out != None:
-		fn_out = open(control_out, 'wb', 0)
-		control_write(fn_out, CTRL_ARG_LOGGER, CTRL_CMD_SET, "Log started at " + time.strftime("%c") + "\n")
-
-
-	if control_in != None:
-		# Start reading thread
-		thread = Thread(target = control_read_thread, args = (control_in, fn_out))
-		thread.start()
-
-
-	if fn_out != None:
-		control_write_defaults(fn_out)
 
 	with open(fifo, 'wb', 0 ) as fh:
 		fh.write (pcap_fake_header())
+
+		if control_out != None:
+			fn_out = open(control_out, 'wb', 0)
+			control_write(fn_out, CTRL_ARG_LOGGER, CTRL_CMD_SET, "Log started at " + time.strftime("%c") + "\n")
+
+		if control_in != None:
+			# Start reading thread
+			thread = Thread(target = control_read_thread, args = (control_in, fn_out))
+			thread.start()
+
+		if fn_out != None:
+			control_write_defaults(fn_out)
 
 		while True:
 			if fn_out != None:
@@ -383,10 +377,6 @@ def extcap_capture(interface, fifo, control_in, control_out, in_delay, in_verify
 	        fn_out.close()
 
 def extcap_close_fifo(fifo):
-	if not os.path.exists(fifo):
-		print ( "Fifo does not exist!", file=sys.stderr )
-		return
-
 	# This is apparently needed to workaround an issue on Windows/macOS
 	# where the message cannot be read. (really?)
 	fh = open(fifo, 'wb', 0 )

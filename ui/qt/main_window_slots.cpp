@@ -655,7 +655,7 @@ void MainWindow::queuedFilterAction(QString action_filter, FilterAction::Action 
 
 // Capture callbacks
 
-void MainWindow::captureCapturePrepared(capture_session *session) {
+void MainWindow::captureCapturePrepared(capture_session *) {
 #ifdef HAVE_LIBPCAP
     setTitlebarForCaptureInProgress();
 
@@ -663,7 +663,7 @@ void MainWindow::captureCapturePrepared(capture_session *session) {
 
     /* Disable menu items that make no sense if you're currently running
        a capture. */
-    setForCaptureInProgress(true, session->capture_opts->ifaces);
+    setForCaptureInProgress(true);
 //    set_capture_if_dialog_for_capture_in_progress(TRUE);
 
 //    /* Don't set up main window for a capture file. */

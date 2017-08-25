@@ -710,7 +710,8 @@ void InterfaceToolbar::closeLog()
     }
 }
 
-void InterfaceToolbar::startReaderThread(QString ifname, QString control_in)
+
+void InterfaceToolbar::startReaderThread(QString ifname, void *control_in)
 {
     QThread *thread = new QThread;
     InterfaceToolbarReader *reader = new InterfaceToolbarReader(ifname, control_in);
@@ -757,12 +758,14 @@ void InterfaceToolbar::startCapture(GArray *ifaces)
             // Already have control channels for this interface
             continue;
 
-        // The reader thread will open control in channel
-        startReaderThread(ifname, interface_opts.extcap_control_in);
-
         // Open control out channel
+#ifdef _WIN32
+        startReaderThread(ifname, interface_opts.extcap_control_in_h);
+        interface_[ifname].out_fd = _open_osfhandle((intptr_t)interface_opts.extcap_control_out_h, O_APPEND | O_BINARY);
+#else
+        startReaderThread(ifname, interface_opts.extcap_control_in);
         interface_[ifname].out_fd = ws_open(interface_opts.extcap_control_out, O_WRONLY | O_BINARY, 0);
-
+#endif
         sendChangedValues(ifname);
         controlSend(ifname, 0, commandControlInitialized);
     }
@@ -800,7 +803,9 @@ void InterfaceToolbar::stopCapture()
 
         if (interface_[ifname].out_fd != -1)
         {
+#ifndef _WIN32
             ws_close (interface_[ifname].out_fd);
+#endif
             interface_[ifname].out_fd = -1;
         }
 
