@@ -15123,12 +15123,12 @@ proto_register_btatt(void)
         },
         {&hf_request_in_frame,
             {"Request in Frame", "btatt.request_in_frame",
-            FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
+            FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
             NULL, HFILL}
         },
         {&hf_response_in_frame,
             {"Response in Frame", "btatt.response_in_frame",
-            FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
+            FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
             NULL, HFILL}
         },
     };
