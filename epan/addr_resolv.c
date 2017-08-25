@@ -1111,8 +1111,17 @@ parse_ether_line(char *line, ether_t *eth, unsigned int *mask,
 
     gchar *cp;
 
-    if ((cp = strchr(line, '#')))
+    line = g_strstrip(line);
+    if (line[0] == '\0' || line[0] == '#')
+        return -1;
+
+    if ((cp = strchr(line, '#'))) {
+        cp--;
+        while (g_ascii_isspace(*cp)) {
+            cp--;
+        }
         *cp = '\0';
+    }
 
     if ((cp = strtok(line, " \t")) == NULL)
         return -1;
@@ -1125,12 +1134,8 @@ parse_ether_line(char *line, ether_t *eth, unsigned int *mask,
 
     g_strlcpy(eth->name, cp, MAXNAMELEN);
 
-    if ((cp = strtok(NULL, "\t")) != NULL)
+    if ((cp = strtok(NULL, "")) != NULL)
     {
-        /* Remove access whitespace */
-        while (g_ascii_isspace(*cp))
-            cp++;
-
         g_strlcpy(eth->longname, cp, MAXNAMELEN);
     } else {
         /* Make the long name the short name */
