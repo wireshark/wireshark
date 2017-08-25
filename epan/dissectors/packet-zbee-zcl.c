@@ -1296,8 +1296,6 @@ static void dissect_zcl_read_report_config(tvbuff_t *tvb, packet_info *pinfo _U_
  *@param pinfo pointer to packet information fields
  *@param tree pointer to data tree wireshark uses to display packet.
  *@param offset pointer to offset from caller.
- *@param cluster_id cluster id.
- *@param dir direction.
 */
 static void dissect_zcl_default_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset)
 {
