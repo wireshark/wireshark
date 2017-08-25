@@ -1027,7 +1027,7 @@ iface_mon_event_cb(const char *iface, int up)
     int present = 0;
     guint ifs, j;
     interface_t *device;
-    interface_options interface_opts;
+    interface_options *interface_opts;
 
     for (ifs = 0; ifs < global_capture_opts.all_ifaces->len; ifs++) {
         device = &g_array_index(global_capture_opts.all_ifaces, interface_t, ifs);
@@ -1040,8 +1040,8 @@ iface_mon_event_cb(const char *iface, int up)
                  * for capturing.
                  */
                 for (j = 0; j < global_capture_opts.ifaces->len; j++) {
-                    interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, j);
-                    if (strcmp(interface_opts.name, device->name) == 0) {
+                    interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, j);
+                    if (strcmp(interface_opts->name, device->name) == 0) {
                         g_array_remove_index(global_capture_opts.ifaces, j);
                 }
              }

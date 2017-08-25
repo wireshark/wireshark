@@ -741,8 +741,8 @@ void InterfaceToolbar::startCapture(GArray *ifaces)
 
     for (guint i = 0; i < ifaces->len; i++)
     {
-        interface_options interface_opts = g_array_index(ifaces, interface_options, i);
-        QString ifname(interface_opts.name);
+        interface_options *interface_opts = &g_array_index(ifaces, interface_options, i);
+        QString ifname(interface_opts->name);
 
         if (!interface_.contains(ifname))
             // This interface is not for us
@@ -760,11 +760,11 @@ void InterfaceToolbar::startCapture(GArray *ifaces)
 
         // Open control out channel
 #ifdef _WIN32
-        startReaderThread(ifname, interface_opts.extcap_control_in_h);
-        interface_[ifname].out_fd = _open_osfhandle((intptr_t)interface_opts.extcap_control_out_h, O_APPEND | O_BINARY);
+        startReaderThread(ifname, interface_opts->extcap_control_in_h);
+        interface_[ifname].out_fd = _open_osfhandle((intptr_t)interface_opts->extcap_control_out_h, O_APPEND | O_BINARY);
 #else
-        startReaderThread(ifname, interface_opts.extcap_control_in);
-        interface_[ifname].out_fd = ws_open(interface_opts.extcap_control_out, O_WRONLY | O_BINARY, 0);
+        startReaderThread(ifname, interface_opts->extcap_control_in);
+        interface_[ifname].out_fd = ws_open(interface_opts->extcap_control_out, O_WRONLY | O_BINARY, 0);
 #endif
         sendChangedValues(ifname);
         controlSend(ifname, 0, commandControlInitialized);

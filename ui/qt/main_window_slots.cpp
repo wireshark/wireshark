@@ -951,7 +951,7 @@ void MainWindow::filterExpressionsChanged()
 
 void MainWindow::startCapture() {
 #ifdef HAVE_LIBPCAP
-    interface_options interface_opts;
+    interface_options *interface_opts;
     guint i;
 
     /* did the user ever select a capture interface before? */
@@ -1009,16 +1009,16 @@ void MainWindow::startCapture() {
          valid; add this capture filter to the recent capture filter list. */
         QByteArray filter_ba;
         for (i = 0; i < global_capture_opts.ifaces->len; i++) {
-            interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
-            if (interface_opts.cfilter) {
-                recent_add_cfilter(interface_opts.name, interface_opts.cfilter);
+            interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, i);
+            if (interface_opts->cfilter) {
+                recent_add_cfilter(interface_opts->name, interface_opts->cfilter);
                 if (filter_ba.isEmpty()) {
-                    filter_ba = interface_opts.cfilter;
+                    filter_ba = interface_opts->cfilter;
                 } else {
                     /* Not the first selected interface; is its capture filter
                        the same as the one the other interfaces we've looked
                        at have? */
-                    if (strcmp(interface_opts.cfilter, filter_ba.constData()) != 0) {
+                    if (strcmp(interface_opts->cfilter, filter_ba.constData()) != 0) {
                       /* No, so not all selected interfaces have the same capture
                          filter. */
                         filter_ba.clear();

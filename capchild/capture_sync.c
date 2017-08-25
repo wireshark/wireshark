@@ -244,7 +244,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
     char **argv;
     int i;
     guint j;
-    interface_options interface_opts;
+    interface_options *interface_opts;
 
     if (capture_opts->ifaces->len > 1)
         capture_opts->use_pcapng = TRUE;
@@ -336,28 +336,28 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
     }
 
     for (j = 0; j < capture_opts->ifaces->len; j++) {
-        interface_opts = g_array_index(capture_opts->ifaces, interface_options, j);
+        interface_opts = &g_array_index(capture_opts->ifaces, interface_options, j);
 
         argv = sync_pipe_add_arg(argv, &argc, "-i");
 #ifdef HAVE_EXTCAP
-        if (interface_opts.extcap_fifo != NULL)
-            argv = sync_pipe_add_arg(argv, &argc, interface_opts.extcap_fifo);
+        if (interface_opts->extcap_fifo != NULL)
+            argv = sync_pipe_add_arg(argv, &argc, interface_opts->extcap_fifo);
         else
 #endif
-            argv = sync_pipe_add_arg(argv, &argc, interface_opts.name);
+            argv = sync_pipe_add_arg(argv, &argc, interface_opts->name);
 
-        if (interface_opts.cfilter != NULL && strlen(interface_opts.cfilter) != 0) {
+        if (interface_opts->cfilter != NULL && strlen(interface_opts->cfilter) != 0) {
             argv = sync_pipe_add_arg(argv, &argc, "-f");
-            argv = sync_pipe_add_arg(argv, &argc, interface_opts.cfilter);
+            argv = sync_pipe_add_arg(argv, &argc, interface_opts->cfilter);
         }
-        if (interface_opts.has_snaplen) {
+        if (interface_opts->has_snaplen) {
             argv = sync_pipe_add_arg(argv, &argc, "-s");
-            g_snprintf(ssnap, ARGV_NUMBER_LEN, "%d", interface_opts.snaplen);
+            g_snprintf(ssnap, ARGV_NUMBER_LEN, "%d", interface_opts->snaplen);
             argv = sync_pipe_add_arg(argv, &argc, ssnap);
         }
 
-        if (interface_opts.linktype != -1) {
-            const char *linktype = linktype_val_to_name(interface_opts.linktype);
+        if (interface_opts->linktype != -1) {
+            const char *linktype = linktype_val_to_name(interface_opts->linktype);
             if ( linktype != NULL )
             {
                 argv = sync_pipe_add_arg(argv, &argc, "-y");
@@ -365,56 +365,56 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
             }
         }
 
-        if (!interface_opts.promisc_mode) {
+        if (!interface_opts->promisc_mode) {
             argv = sync_pipe_add_arg(argv, &argc, "-p");
         }
 
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
-        if (interface_opts.buffer_size != DEFAULT_CAPTURE_BUFFER_SIZE) {
+        if (interface_opts->buffer_size != DEFAULT_CAPTURE_BUFFER_SIZE) {
             argv = sync_pipe_add_arg(argv, &argc, "-B");
-            if(interface_opts.buffer_size == 0x00)
-                interface_opts.buffer_size = DEFAULT_CAPTURE_BUFFER_SIZE;
-            g_snprintf(buffer_size, ARGV_NUMBER_LEN, "%d", interface_opts.buffer_size);
+            if(interface_opts->buffer_size == 0x00)
+                interface_opts->buffer_size = DEFAULT_CAPTURE_BUFFER_SIZE;
+            g_snprintf(buffer_size, ARGV_NUMBER_LEN, "%d", interface_opts->buffer_size);
             argv = sync_pipe_add_arg(argv, &argc, buffer_size);
         }
 #endif
 
 #ifdef HAVE_PCAP_CREATE
-        if (interface_opts.monitor_mode) {
+        if (interface_opts->monitor_mode) {
             argv = sync_pipe_add_arg(argv, &argc, "-I");
         }
 #endif
 
 #ifdef HAVE_PCAP_REMOTE
-        if (interface_opts.datatx_udp)
+        if (interface_opts->datatx_udp)
             argv = sync_pipe_add_arg(argv, &argc, "-u");
 
-        if (!interface_opts.nocap_rpcap)
+        if (!interface_opts->nocap_rpcap)
             argv = sync_pipe_add_arg(argv, &argc, "-r");
 
-        if (interface_opts.auth_type == CAPTURE_AUTH_PWD) {
+        if (interface_opts->auth_type == CAPTURE_AUTH_PWD) {
             argv = sync_pipe_add_arg(argv, &argc, "-A");
             g_snprintf(sauth, sizeof(sauth), "%s:%s",
-                       interface_opts.auth_username,
-                       interface_opts.auth_password);
+                       interface_opts->auth_username,
+                       interface_opts->auth_password);
             argv = sync_pipe_add_arg(argv, &argc, sauth);
         }
 #endif
 
 #ifdef HAVE_PCAP_SETSAMPLING
-        if (interface_opts.sampling_method != CAPTURE_SAMP_NONE) {
+        if (interface_opts->sampling_method != CAPTURE_SAMP_NONE) {
             argv = sync_pipe_add_arg(argv, &argc, "-m");
             g_snprintf(ssampling, ARGV_NUMBER_LEN, "%s:%d",
-                       interface_opts.sampling_method == CAPTURE_SAMP_BY_COUNT ? "count" :
-                       interface_opts.sampling_method == CAPTURE_SAMP_BY_TIMER ? "timer" :
+                       interface_opts->sampling_method == CAPTURE_SAMP_BY_COUNT ? "count" :
+                       interface_opts->sampling_method == CAPTURE_SAMP_BY_TIMER ? "timer" :
                        "undef",
-                       interface_opts.sampling_param);
+                       interface_opts->sampling_param);
             argv = sync_pipe_add_arg(argv, &argc, ssampling);
         }
 #endif
-        if (interface_opts.timestamp_type) {
+        if (interface_opts->timestamp_type) {
             argv = sync_pipe_add_arg(argv, &argc, "--time-stamp-type");
-            argv = sync_pipe_add_arg(argv, &argc, interface_opts.timestamp_type);
+            argv = sync_pipe_add_arg(argv, &argc, interface_opts->timestamp_type);
         }
     }
 
@@ -527,8 +527,8 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
     si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
     si.wShowWindow  = SW_HIDE;  /* this hides the console window */
 #ifdef HAVE_EXTCAP
-    if(interface_opts.extcap_pipe_h != INVALID_HANDLE_VALUE)
-        si.hStdInput = interface_opts.extcap_pipe_h;
+    if(interface_opts->extcap_pipe_h != INVALID_HANDLE_VALUE)
+        si.hStdInput = interface_opts->extcap_pipe_h;
     else
 #endif
         si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);

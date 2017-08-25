@@ -484,16 +484,14 @@ get_if_name(const char *if_text)
 const char *
 get_iface_description_for_interface(capture_options *capture_opts, guint i)
 {
-  interface_options interface_opts;
+  interface_options *interface_opts;
 
   if (i < capture_opts->ifaces->len) {
-    interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
-    if (!interface_opts.descr && interface_opts.name) {
-      interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
-      capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, i);
-      g_array_insert_val(capture_opts->ifaces, i, interface_opts);
+    interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
+    if (!interface_opts->descr && interface_opts->name) {
+      interface_opts->descr = get_interface_descriptive_name(interface_opts->name);
     }
-    return (interface_opts.descr);
+    return (interface_opts->descr);
   } else {
     return (NULL);
   }
@@ -584,12 +582,12 @@ get_iface_list_string(capture_options *capture_opts, guint32 style)
       if (style & IFLIST_QUOTE_IF_DESCRIPTION)
         g_string_append_printf(iface_list_string, "'");
       if (style & IFLIST_SHOW_FILTER) {
-        interface_options interface_opts;
+        interface_options *interface_opts;
 
-        interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
-        if (interface_opts.cfilter != NULL &&
-            strlen(interface_opts.cfilter) > 0) {
-          g_string_append_printf(iface_list_string, " (%s)", interface_opts.cfilter);
+        interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
+        if (interface_opts->cfilter != NULL &&
+            strlen(interface_opts->cfilter) > 0) {
+          g_string_append_printf(iface_list_string, " (%s)", interface_opts->cfilter);
         }
       }
     }

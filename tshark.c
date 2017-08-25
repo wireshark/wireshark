@@ -1527,12 +1527,10 @@ main(int argc, char *argv[])
         goto clean_exit;
       }
       for (i = 0; i < global_capture_opts.ifaces->len; i++) {
-        interface_options interface_opts;
-        interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
-        if (interface_opts.cfilter == NULL) {
-          interface_opts.cfilter = get_args_as_string(argc, argv, optind);
-          global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, i);
-          g_array_insert_val(global_capture_opts.ifaces, i, interface_opts);
+        interface_options *interface_opts;
+        interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, i);
+        if (interface_opts->cfilter == NULL) {
+          interface_opts->cfilter = get_args_as_string(argc, argv, optind);
         } else {
           cmdarg_err("A capture filter was specified both with \"-f\""
               " and with additional command-line arguments.");
@@ -2097,18 +2095,18 @@ main(int argc, char *argv[])
 
         /* Get the list of link-layer types for the capture devices. */
         for (i = 0; i < global_capture_opts.ifaces->len; i++) {
-          interface_options  interface_opts;
+          interface_options *interface_opts;
           if_capabilities_t *caps;
           char *auth_str = NULL;
           int if_caps_queries = caps_queries;
 
-          interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
+          interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, i);
 #ifdef HAVE_PCAP_REMOTE
-          if (interface_opts.auth_type == CAPTURE_AUTH_PWD) {
-              auth_str = g_strdup_printf("%s:%s", interface_opts.auth_username, interface_opts.auth_password);
+          if (interface_opts->auth_type == CAPTURE_AUTH_PWD) {
+              auth_str = g_strdup_printf("%s:%s", interface_opts->auth_username, interface_opts->auth_password);
           }
 #endif
-          caps = capture_get_if_capabilities(interface_opts.name, interface_opts.monitor_mode, auth_str, &err_str, NULL);
+          caps = capture_get_if_capabilities(interface_opts->name, interface_opts->monitor_mode, auth_str, &err_str, NULL);
           g_free(auth_str);
           if (caps == NULL) {
             cmdarg_err("%s", err_str);
@@ -2117,18 +2115,18 @@ main(int argc, char *argv[])
             goto clean_exit;
           }
           if ((if_caps_queries & CAPS_QUERY_LINK_TYPES) && caps->data_link_types == NULL) {
-            cmdarg_err("The capture device \"%s\" has no data link types.", interface_opts.name);
+            cmdarg_err("The capture device \"%s\" has no data link types.", interface_opts->name);
             exit_status = INVALID_DATA_LINK;
             goto clean_exit;
           }
           if ((if_caps_queries & CAPS_QUERY_TIMESTAMP_TYPES) && caps->timestamp_types == NULL) {
-            cmdarg_err("The capture device \"%s\" has no timestamp types.", interface_opts.name);
+            cmdarg_err("The capture device \"%s\" has no timestamp types.", interface_opts->name);
             exit_status = INVALID_TIMESTAMP_TYPE;
             goto clean_exit;
           }
-          if (interface_opts.monitor_mode)
+          if (interface_opts->monitor_mode)
                 if_caps_queries |= CAPS_MONITOR_MODE;
-          capture_opts_print_if_capabilities(caps, interface_opts.name, if_caps_queries);
+          capture_opts_print_if_capabilities(caps, interface_opts->name, if_caps_queries);
           free_if_capabilities(caps);
         }
         exit_status = EXIT_SUCCESS;
@@ -2442,12 +2440,10 @@ capture(void)
 
   /* Let the user know which interfaces were chosen. */
   for (i = 0; i < global_capture_opts.ifaces->len; i++) {
-    interface_options interface_opts;
+    interface_options *interface_opts;
 
-    interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
-    interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
-    global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, i);
-    g_array_insert_val(global_capture_opts.ifaces, i, interface_opts);
+    interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, i);
+    interface_opts->descr = get_interface_descriptive_name(interface_opts->name);
   }
   str = get_iface_list_string(&global_capture_opts, IFLIST_QUOTE_IF_DESCRIPTION);
   if (really_quiet == FALSE)
@@ -2537,12 +2533,12 @@ capture_input_cfilter_error_message(capture_session *cap_session, guint i, char 
 {
   capture_options *capture_opts = cap_session->capture_opts;
   dfilter_t         *rfcode = NULL;
-  interface_options  interface_opts;
+  interface_options *interface_opts;
 
   g_assert(i < capture_opts->ifaces->len);
-  interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
+  interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
 
-  if (dfilter_compile(interface_opts.cfilter, &rfcode, NULL) && rfcode != NULL) {
+  if (dfilter_compile(interface_opts->cfilter, &rfcode, NULL) && rfcode != NULL) {
     cmdarg_err(
       "Invalid capture filter \"%s\" for interface '%s'.\n"
       "\n"
@@ -2553,7 +2549,7 @@ capture_input_cfilter_error_message(capture_session *cap_session, guint i, char 
       "so you can't use most display filter expressions as capture filters.\n"
       "\n"
       "See the User's Guide for a description of the capture filter syntax.",
-      interface_opts.cfilter, interface_opts.descr, error_message);
+      interface_opts->cfilter, interface_opts->descr, error_message);
     dfilter_free(rfcode);
   } else {
     cmdarg_err(
@@ -2561,7 +2557,7 @@ capture_input_cfilter_error_message(capture_session *cap_session, guint i, char 
       "\n"
       "That string isn't a valid capture filter (%s).\n"
       "See the User's Guide for a description of the capture filter syntax.",
-      interface_opts.cfilter, interface_opts.descr, error_message);
+      interface_opts->cfilter, interface_opts->descr, error_message);
   }
 }
 
