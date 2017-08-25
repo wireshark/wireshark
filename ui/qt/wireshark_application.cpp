@@ -1042,7 +1042,7 @@ iface_mon_event_cb(const char *iface, int up)
                 for (j = 0; j < global_capture_opts.ifaces->len; j++) {
                     interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, j);
                     if (strcmp(interface_opts->name, device->name) == 0) {
-                        g_array_remove_index(global_capture_opts.ifaces, j);
+                        capture_opts_del_iface(&global_capture_opts, j);
                 }
              }
           }
