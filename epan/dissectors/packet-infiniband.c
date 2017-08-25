@@ -627,10 +627,10 @@ static int hf_cm_req_ip_cm_minv = -1;
 static int hf_cm_req_ip_cm_ipv = -1;
 static int hf_cm_req_ip_cm_res = -1;
 static int hf_cm_req_ip_cm_sport = -1;
-static int hf_cm_req_ip_cm_dip6 = -1;
 static int hf_cm_req_ip_cm_sip6 = -1;
-static int hf_cm_req_ip_cm_dip4 = -1;
+static int hf_cm_req_ip_cm_dip6 = -1;
 static int hf_cm_req_ip_cm_sip4 = -1;
+static int hf_cm_req_ip_cm_dip4 = -1;
 static int hf_ip_cm_req_consumer_private_data = -1;
 
 /* CM REP Header */
@@ -3149,15 +3149,15 @@ static void parse_IP_CM_Req_Msg(proto_tree *parent_tree, tvbuff_t *tvb, gint loc
     local_offset += 2;
 
     if (ipv == 4) {
-        /* skip first 12 bytes of zero for dip */
-        proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_dip4, tvb, local_offset + 12, 4, ENC_NA);
-        local_offset += 16;
         /* skip first 12 bytes of zero for sip */
         proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_sip4, tvb, local_offset + 12, 4, ENC_NA);
-    } else {
-        proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_dip6, tvb, local_offset, 16, ENC_NA);
         local_offset += 16;
+        /* skip first 12 bytes of zero for dip */
+        proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_dip4, tvb, local_offset + 12, 4, ENC_NA);
+    } else {
         proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_sip6, tvb, local_offset, 16, ENC_NA);
+        local_offset += 16;
+        proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_dip6, tvb, local_offset, 16, ENC_NA);
     }
     local_offset += 16;
 
@@ -6113,20 +6113,20 @@ void proto_register_infiniband(void)
                 "IP CM Source Port", "infiniband.cm.req.ip_cm.sport",
                 FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
-        {&hf_cm_req_ip_cm_dip6, {
-                "IP CM Destination IP", "infiniband.cm.req.ip_cm.dip6",
-                FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
-        },
         {&hf_cm_req_ip_cm_sip6, {
                 "IP CM Source IP", "infiniband.cm.req.ip_cm.sip6",
                 FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
-        {&hf_cm_req_ip_cm_dip4, {
-                "IP CM Destination IP", "infiniband.cm.req.ip_cm.dip4",
-                FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        {&hf_cm_req_ip_cm_dip6, {
+                "IP CM Destination IP", "infiniband.cm.req.ip_cm.dip6",
+                FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         {&hf_cm_req_ip_cm_sip4, {
                 "IP CM Source IP", "infiniband.cm.req.ip_cm.sip4",
+                FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_ip_cm_dip4, {
+                "IP CM Destination IP", "infiniband.cm.req.ip_cm.dip4",
                 FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         {&hf_ip_cm_req_consumer_private_data, {
