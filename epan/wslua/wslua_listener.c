@@ -279,7 +279,7 @@ WSLUA_CONSTRUCTOR Listener_list (lua_State *L) {
     lua_newtable(L);
     for (i=1; elist; i++, elist = g_list_next(elist)) {
         lua_pushstring(L,(const char *) elist->data);
-        lua_rawseti(L,1,i);
+        lua_rawseti(L,-2,i);
     }
 
     g_list_free(list);
