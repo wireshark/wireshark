@@ -659,7 +659,7 @@ WSLUA_CONSTRUCTOR Field_list(lua_State *L) {
 
             count++;
             lua_pushstring(L,hfinfo->abbrev);
-            lua_rawseti(L,1,count);
+            lua_rawseti(L,-2,count);
         }
     }
 
