@@ -733,26 +733,27 @@ if(APPLE AND EXISTS /usr/local/opt/gettext)
 	link_directories(/usr/local/opt/gettext/lib)
 endif()
 
-# The packagelist is doing some magic:  If we add XXX to the packagelist, we
+# The packagelist is doing some magic: If we add XXX to the packagelist, we
 # - may optionally set XXX_OPTIONS to pass to the find_package command
-# - will call FindXXX.cmake
+# - will call FindXXX.cmake or find_package
 # - return found libraries in XXX_LIBRARIES
 # - return found include in XXX_INCLUDE_DIRS
 # - set HAVE_XXX
 
-#The minimum package list
-set(PACKAGELIST Gettext M Git GLIB2 GMODULE2 GTHREAD2 LEX YACC Perl SH PythonInterp NGHTTP2)
-set(LEX_REQUIRED TRUE)
-set(GLIB2_REQUIRED TRUE)
-set(GLIB2_FIND_REQUIRED TRUE)
+# The minimum package list
+set(PACKAGELIST Gettext M Git GLIB2 GMODULE2 GTHREAD2 GCRYPT LEX YACC Perl SH PythonInterp NGHTTP2)
+set(LEX_OPTIONS REQUIRED)
+set(GLIB2_OPTIONS REQUIRED)
+set(GLIB2_FIND_OPTIONS REQUIRED)
 set(GLIB2_MIN_VERSION 2.22.0)
-set(GTHREAD2_REQUIRED TRUE)
+set(GTHREAD2_OPTIONS REQUIRED)
+set(GCRYPT_OPTIONS "1.4.2" REQUIRED)
 set(PythonInterp_FIND_VERSION 2)
 set(Python_ADDITIONAL_VERSIONS 3)
-set(YACC_REQUIRED TRUE)
+set(YACC_OPTIONS REQUIRED)
 
 if (NOT WIN32)
-	set(M_REQUIRED TRUE)
+	set(M_OPTIONS REQUIRED)
 endif()
 
 set(PACKAGELIST ${PACKAGELIST} LIBSSH)
@@ -813,11 +814,6 @@ endif()
 if(ENABLE_SMI)
 	set(PACKAGELIST ${PACKAGELIST} SMI)
 endif()
-
-# GNU crypto
-set(PACKAGELIST ${PACKAGELIST} GCRYPT)
-# Minimum version needed.
-set(GCRYPT_OPTIONS "1.4.2" REQUIRED)
 
 # GNU SSL/TLS support
 if(ENABLE_GNUTLS)
@@ -936,8 +932,6 @@ foreach(PACKAGE ${PACKAGELIST})
 	endif()
 	if(${PACKAGE}_OPTIONS)
 		find_package(${PACKAGE} ${${PACKAGE}_OPTIONS})
-	elseif(${PACKAGE}_REQUIRED)
-		find_package(${PACKAGE} REQUIRED)
 	else()
 		find_package(${PACKAGE})
 	endif()
@@ -968,7 +962,7 @@ foreach(PACKAGE ${PACKAGELIST})
 		#
 		# Not finding a package is only a fatal error if the
 		# package is required; if it's required, then its
-		# XXX_REQUIRED variable is set to TRUE, and the above
+		# XXX_OPTIONS variable contains REQUIRED, and the above
 		# code will pass REQUIRED to find_package, and the
 		# configure will fail if the package isn't found.
 		#
