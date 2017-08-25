@@ -5497,27 +5497,24 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (p_conv_data) {
         /*Figure out the direction of the link*/
         if (addresses_equal(&(pinfo->net_dst), (&p_conv_data->crnc_address))) {
+            /* Node B -> CRNC*/
+            pinfo->link_dir=P2P_DIR_UL;
 
             proto_item *item= proto_tree_add_uint(fp_tree, hf_fp_ul_setup_frame,
                                                   tvb, 0, 0, p_conv_data->ul_frame_number);
-
             PROTO_ITEM_SET_GENERATED(item);
-            /* CRNC -> Node B */
-            pinfo->link_dir=P2P_DIR_UL;
-            if (p_fp_info == NULL) {
-                p_fp_info = fp_set_per_packet_inf_from_conv(p_conv, p_conv_data, tvb, pinfo, fp_tree);
-            }
         }
         else {
+            /* CRNC -> Node B */
+            pinfo->link_dir=P2P_DIR_DL;
+
             /* Maybe the frame number should be stored in the proper location already in nbap?, in ul_frame_number*/
             proto_item *item= proto_tree_add_uint(fp_tree, hf_fp_dl_setup_frame,
                                                    tvb, 0, 0, p_conv_data->ul_frame_number);
-
             PROTO_ITEM_SET_GENERATED(item);
-            pinfo->link_dir=P2P_DIR_DL;
-            if (p_fp_info == NULL) {
-                p_fp_info = fp_set_per_packet_inf_from_conv(p_conv, p_conv_data, tvb, pinfo, fp_tree);
-            }
+        }
+        if (p_fp_info == NULL) {
+            p_fp_info = fp_set_per_packet_inf_from_conv(p_conv, p_conv_data, tvb, pinfo, fp_tree);
         }
     }
 
