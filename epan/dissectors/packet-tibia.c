@@ -83,9 +83,10 @@
  * from Game Developers Conference Europe 2011 is also available:
  * http://www.gdcvault.com/play/1014908/Inside-Tibia-The-Technical-Infrastructure
  *
- * The protocol, as implemented here, has been inferred from network footage
- * and game client execution traces and was written from scratch. Especially,
- * no code of Cipsoft GmbH was used.
+ * The login protocol, as implemented here, has been inferred from network
+ * footage and game client execution traces and was written from scratch.
+ * The listing of game protocol commands were taken from TibiaAPI and Khaos' spec
+ * No code of Cipsoft GmbH was used.
  *
  * Tibia is a registered trademark of Cipsoft GmbH.
  */
@@ -154,6 +155,24 @@ static gboolean xteakeys_uat_fld_key_chk_cb(void *, const char *, guint, const v
 UAT_DEC_CB_DEF(xteakeylist_uats, framenum, struct xteakeys_assoc)
 UAT_CSTRING_CB_DEF(xteakeylist_uats, key, struct xteakeys_assoc)
 
+
+#define COND_POISONED     0x1
+#define COND_BURNING      0x2
+#define COND_ELECTROCUTED 0x4
+#define COND_DRUNK        0x8
+#define COND_MANASHIELD   0x10
+#define COND_PARALYZED    0x20
+#define COND_HASTE        0x40
+#define COND_BATTLE       0x80
+#define COND_DROWNING     0x100
+#define COND_FREEZING     0x200
+#define COND_DAZZLED      0x400
+#define COND_CURSED       0x800
+#define COND_BUFF         0x1000
+#define COND_PZBLOCK      0x2000
+#define COND_PZ           0x4000
+#define COND_BLEEDING     0x8000
+#define COND_HUNGRY       0x10000
 
 /* The login server has been traditionally on 7171,
  * For OTServ, the game server often listens on the same IP/port,
@@ -238,17 +257,102 @@ static gint hf_tibia_worldlist_entry_preview = -1;
 static gint hf_tibia_worldlist_entry_id      = -1;
 static gint hf_tibia_pacc_days               = -1;
 
-static gint ett_tibia                  = -1;
-static gint ett_command                = -1;
-static gint ett_file_versions          = -1;
-static gint ett_client_info            = -1;
-static gint ett_locale                 = -1;
-static gint ett_cpu                    = -1;
-static gint ett_resolution             = -1;
-static gint ett_charlist               = -1;
-static gint ett_worldlist              = -1;
-static gint ett_char                   = -1;
-static gint ett_world                  = -1;
+static gint hf_tibia_channel_id              = -1;
+static gint hf_tibia_channel_name            = -1;
+
+static gint hf_tibia_char_cond               = -1;
+static gint hf_tibia_char_cond_poisoned      = -1;
+static gint hf_tibia_char_cond_burning       = -1;
+static gint hf_tibia_char_cond_electrocuted  = -1;
+static gint hf_tibia_char_cond_drunk         = -1;
+static gint hf_tibia_char_cond_manashield    = -1;
+static gint hf_tibia_char_cond_paralyzed     = -1;
+static gint hf_tibia_char_cond_haste         = -1;
+static gint hf_tibia_char_cond_battle        = -1;
+static gint hf_tibia_char_cond_drowning      = -1;
+static gint hf_tibia_char_cond_freezing      = -1;
+static gint hf_tibia_char_cond_dazzled       = -1;
+static gint hf_tibia_char_cond_cursed        = -1;
+static gint hf_tibia_char_cond_buff          = -1;
+static gint hf_tibia_char_cond_pzblock       = -1;
+static gint hf_tibia_char_cond_pz            = -1;
+static gint hf_tibia_char_cond_bleeding      = -1;
+static gint hf_tibia_char_cond_hungry        = -1;
+
+static const int *char_conds[] = {
+    &hf_tibia_char_cond_poisoned,
+    &hf_tibia_char_cond_burning,
+    &hf_tibia_char_cond_electrocuted,
+    &hf_tibia_char_cond_drunk,
+    &hf_tibia_char_cond_manashield,
+    &hf_tibia_char_cond_paralyzed,
+    &hf_tibia_char_cond_haste,
+    &hf_tibia_char_cond_battle,
+    &hf_tibia_char_cond_drowning,
+    &hf_tibia_char_cond_freezing,
+    &hf_tibia_char_cond_dazzled,
+    &hf_tibia_char_cond_cursed,
+    &hf_tibia_char_cond_buff,
+    &hf_tibia_char_cond_pzblock,
+    &hf_tibia_char_cond_pz,
+    &hf_tibia_char_cond_bleeding,
+    &hf_tibia_char_cond_hungry,
+    NULL
+};
+
+static gint hf_tibia_chat_msg            = -1;
+static gint hf_tibia_speech_type         = -1;
+
+static gint hf_tibia_coords_x            = -1;
+static gint hf_tibia_coords_y            = -1;
+static gint hf_tibia_coords_z            = -1;
+static gint hf_tibia_coords              = -1;
+static gint hf_tibia_stackpos            = -1;
+
+#if 0
+static gint hf_tibia_item                = -1;
+#endif
+static gint hf_tibia_container           = -1;
+static gint hf_tibia_container_icon      = -1;
+static gint hf_tibia_container_slot      = -1;
+static gint hf_tibia_container_slots     = -1;
+static gint hf_tibia_inventory           = -1;
+static gint hf_tibia_vip                 = -1;
+static gint hf_tibia_vip_online          = -1;
+static gint hf_tibia_player              = -1;
+static gint hf_tibia_creature            = -1;
+static gint hf_tibia_creature_health     = -1;
+static gint hf_tibia_window              = -1;
+static gint hf_tibia_window_icon         = -1;
+static gint hf_tibia_window_textlen      = -1;
+static gint hf_tibia_window_text         = -1;
+
+static gint hf_tibia_light_level         = -1;
+static gint hf_tibia_light_color         = -1;
+static gint hf_tibia_magic_effect_id     = -1;
+static gint hf_tibia_animated_text_color = -1;
+static gint hf_tibia_animated_text       = -1;
+static gint hf_tibia_projectile          = -1;
+static gint hf_tibia_squarecolor         = -1;
+static gint hf_tibia_textmsg_class       = -1;
+static gint hf_tibia_textmsg             = -1;
+static gint hf_tibia_walk_dir            = -1;
+
+
+static gint ett_tibia               = -1;
+static gint ett_command             = -1;
+static gint ett_file_versions       = -1;
+static gint ett_client_info         = -1;
+static gint ett_locale              = -1;
+static gint ett_cpu                 = -1;
+static gint ett_resolution          = -1;
+static gint ett_charlist            = -1;
+static gint ett_worldlist           = -1;
+static gint ett_char                = -1;
+static gint ett_world               = -1;
+static gint ett_coords              = -1;
+static gint ett_char_cond           = -1;
+
 
 static expert_field ei_xtea_len_toobig               = EI_INIT;
 static expert_field ei_adler32_checksum_bad          = EI_INIT;
@@ -449,19 +553,108 @@ convo_get_privkey(struct tibia_convo *convo)
 }
 
 enum client_cmd {
+    /* from TibiaAPI */
     C_GET_CHARLIST          = 0x01,
     C_LOGIN_CHAR            = 0x0A,
     C_LOGOUT                = 0x14, /* I think this is a 7.7+ thing */
-    C_PONG                  = 0x1E
-};
+    C_PONG                  = 0x1E,
+
+    C_AUTO_WALK             = 0x64,
+    C_GO_NORTH              = 0x65,
+    C_GO_EAST               = 0x66,
+    C_GO_SOUTH              = 0x67,
+    C_GO_WEST               = 0x68,
+    C_AUTO_WALK_CANCEL      = 0x69,
+    C_GO_NE                 = 0x6A,
+    C_GO_SE                 = 0x6B,
+    C_GO_SW                 = 0x6C,
+    C_GO_NW                 = 0x6D,
+    C_TURN_NORTH            = 0x6F,
+    C_TURN_EAST             = 0x70,
+    C_TURN_SOUTH            = 0x71,
+    C_TURN_WEST             = 0x72,
+    C_MOVE_ITEM             = 0x78,
+    C_SHOP_BUY              = 0x7A,
+    C_SHOP_SELL             = 0x7B,
+    C_SHOP_CLOSE            = 0x7C,
+    C_ITEM_USE              = 0x82,
+    C_ITEM_USE_ON           = 0x83,
+    C_ITEM_USE_BATTLELIST   = 0x84,
+    C_ITEM_ROTATE           = 0x85,
+    C_CONTAINER_CLOSE       = 0x87,
+    C_CONTAINER_OPEN_PARENT = 0x88,
+    C_LOOK_AT               = 0x8C,
+    C_PLAYER_SPEECH         = 0x96,
+    C_CHANNEL_LIST          = 0x97,
+    C_CHANNEL_OPEN          = 0x98,
+    C_CHANNEL_CLOSE         = 0x99,
+    C_PRIVATE_CHANNEL_OPEN  = 0x9A,
+    C_NPC_CHANNEL_CLOSE     = 0x9E,
+    C_FIGHT_MODES           = 0xA0,
+    C_ATTACK                = 0xA1,
+    C_FOLLOW                = 0xA2,
+    C_CANCEL_GO             = 0xBE,
+    C_TILE_UPDATE           = 0xC9,
+    C_CONTAINER_UPDATE      = 0xCA,
+    C_SET_OUTFIT            = 0xD3,
+    C_VIP_ADD               = 0xDC,
+    C_VIP_REMOVE            = 0xDD
+ };
+
 static const value_string from_client_packet_types[] = {
     { C_GET_CHARLIST,     "Charlist request" },
     { C_LOGIN_CHAR,       "Character login" },
+
     { C_LOGOUT,           "Logout" },
     { C_PONG,             "Pong" },
 
+    { C_AUTO_WALK,        "Map walk" },
+    { C_GO_NORTH,         "Go north"},
+    { C_GO_EAST,          "Go east"},
+    { C_GO_SOUTH,         "Go south"},
+    { C_GO_WEST,          "Go west"},
+    { C_AUTO_WALK_CANCEL, "Map walk cancel" },
+    { C_GO_NE,            "Go north-east"},
+    { C_GO_SE,            "Go south-east"},
+    { C_GO_SW,            "Go south-west"},
+    { C_GO_NW,            "Go north-west"},
+
+    { C_TURN_NORTH,      "Turn north" },
+    { C_TURN_EAST,       "Turn east" },
+    { C_TURN_SOUTH,      "Turn south" },
+    { C_TURN_WEST,       "Turn west" },
+    { C_MOVE_ITEM,       "Move item" },
+    { C_SHOP_BUY,        "Buy in shop" },
+    { C_SHOP_SELL,       "Sell in shop" },
+    { C_SHOP_CLOSE,      "Close shop" },
+    { C_ITEM_USE,        "Use item" },
+    { C_ITEM_USE_ON,     "Use item on" },
+    { C_ITEM_USE_BATTLELIST,   "Use item on battle list" },
+    { C_ITEM_ROTATE,           "Rotate item" },
+
+    { C_CONTAINER_CLOSE,       "Close container" },
+    { C_CONTAINER_OPEN_PARENT, "Open parent container" },
+    { C_LOOK_AT,               "Look at" },
+    { C_PLAYER_SPEECH,         "Speech" },
+    { C_CHANNEL_LIST,          "List channels" },
+    { C_CHANNEL_OPEN,          "Open public channel" },
+    { C_CHANNEL_CLOSE,         "close channel" },
+    { C_PRIVATE_CHANNEL_OPEN,  "Open private channel" },
+    { C_NPC_CHANNEL_CLOSE,     "Open NPC channel" },
+    { C_FIGHT_MODES,           "Set fight modes" },
+    { C_ATTACK,                "Attack" },
+    { C_FOLLOW,                "Follow" },
+    { C_CANCEL_GO,             "Cancel go" },
+    { C_TILE_UPDATE,           "Update tile" },
+    { C_CONTAINER_UPDATE,      "Update container" },
+    { C_SET_OUTFIT,            "Set outfit" },
+    { C_VIP_ADD,               "Add VIP" },
+    { C_VIP_REMOVE,            "Remove VIP" },
+
     { 0, NULL }
 };
+
+static value_string_ext from_client_packet_types_ext = VALUE_STRING_EXT_INIT(from_client_packet_types);
 
 enum loginserv_cmd {
     LOGINSERV_DLG_ERROR    = 0x0A,
@@ -470,6 +663,7 @@ enum loginserv_cmd {
     LOGINSERV_SESSION_KEY  = 0x28,
     LOGINSERV_DLG_CHARLIST = 0x64
 };
+
 static const value_string from_loginserv_packet_types[] = {
     { LOGINSERV_DLG_ERROR,    "Error" },
     { LOGINSERV_DLG_ERROR2,   "Error" },
@@ -481,24 +675,125 @@ static const value_string from_loginserv_packet_types[] = {
 };
 
 enum gameserv_cmd {
-    S_DLG_ERROR =              0x14,
+    /* Credit to Khaos (OBJECT Networks). Values and comments extracted from PDF table */
+    S_MAPINIT =                0x0A, /* Long playerCreatureId Int unknownU16 (Byte reportBugs?) */
+    S_GMACTIONS =              0x0B, /* Used to be 32 unknown bytes, but with GMs removed it                                      might not be in use anymore */
+    S_DLG_ERROR =              0x14, /* String errorMessage */
     S_DLG_INFO =               0x15,
     S_DLG_TOOMANYPLAYERS =     0x16,
     S_PING =                   0x1E,
-    S_NONCE =                  0x1F
+    S_NONCE =                  0x1F,
+    S_PLAYERLOC =              0x64, /* Coord pos */
+    S_GO_NORTH =               0x65, /* MapDescription (18,1) */
+    S_GO_EAST =                0x66, /* MapDescription (1,14) */
+    S_GO_SOUTH =               0x67, /* MapDescription (18,1) */
+    S_GO_WEST =                0x68, /* MapDescription (1,14) */
+    S_TILEUPDATE =             0x69, /* Coord pos TileDescription td */
+    S_ADDITEM =                0x6a, /* Coord pos ThingDescription thing */
+    S_REPLACEITEM =            0x6b, /* Coord pos Byte stackpos ThingDescription thing */
+    S_REMOVEITEM =             0x6c, /* Coord pos Byte stackpos */
+    S_MOVE_THING =             0x6d,
+    S_CONTAINER =              0x6e, /* Byte index Short containerIcon Byte slotCount ThingDescription item */
+    S_CONTAINERCLOSE =         0x6f, /* Byte index */
+    S_ADDITEMCONTAINER =       0x70, /* Byte index ThingDescription itm */
+    S_TRANSFORMITEMCONTAINER = 0x71, /* Byte index Byte slot */
+    S_REMOVEITEMCONTAINER =    0x72, /* Byte index Byte slot */
+    S_INVENTORYEMPTY =         0x78, /* Byte invSlot */
+    S_INVENTORYITEM =          0x79, /* Byte invSlot ThingDescription itm */
+    S_TRADEREQ =               0x7d, /* String otherperson Byte slotCount ThingDescription itm */
+    S_TRADEACK =               0x7e, /* String otherperson Byte slotCount ThingDescription itm */
+    S_TRADECLOSE =             0x7f,
+    S_LIGHTLEVEL =             0x82, /* Byte lightlevel Byte lightcolor */
+    S_MAGIC_EFFECT =           0x83,
+    S_ANIMATEDTEXT =           0x84, /* Coord pos Byte color String message */
+    S_DISTANCESHOT =           0x85, /* Coord pos1 Byte stackposition Coord pos2 */
+    S_CREATURESQUARE =         0x86, /* Long creatureid Byte squarecolor */
+    S_CREATURE_HEALTH =        0x8C,
+    S_CREATURELIGHT =          0x8d, /* Long creatureid Byte ? Byte ? */
+    S_SETOUTFIT =              0x8e, /* Long creatureid Byte lookType Byte headType Byte bodyType Byte legsType Byte feetType // can extended look go here too? */
+    S_CREATURESPEED =          0x8f, /* YIKES! I didnt handle this! */
+    S_TEXTWINDOW =             0x96, /* Long windowId Byte icon Byte maxlength String message */
+    S_STATUSMSG =              0xA0, /* Status status */
+    S_SKILLS =                 0xA1, /* Skills skills */
+    S_PLAYER_CONDITION =       0xA2,
+    S_CANCELATTACK =           0xA3,
+    S_SPEAK =                  0xAA,
+    S_CHANNELSDIALOG =         0xAB, /* Byte channelCount (Int channelId String channelName) */
+    S_CHANNEL_OPEN =           0xAC,
+    S_OPENPRIV =               0xAD, /* String playerName */
+    S_TEXTMESSAGE =            0xB4, /* Byte msgClass String string */
+    S_CANCELWALK =             0xB5, /* Byte direction */
+    S_FLOORUP =                0xBE, /* Advanced topic; read separate text */
+    S_FLOORDOWN =              0xBF, /* Advanced topic; read separate text */
+    S_OUTFITLIST =             0xC8, /* Byte lookType Byte headType Byte bodyType Byte legsType Byte feetType Byte firstModel Byte lastModel */
+    S_VIPADD =                 0xD2, /* long guid string name byte isonline */
+    S_VIPLOGIN =               0xD3, /* long guid */
+    S_VIPLOGOUT =              0xD4  /* long guid*/
 };
 static const value_string from_gameserv_packet_types[] = {
 
+    { S_MAPINIT,            "Initialize map" },
+    { S_GMACTIONS,          "GM actions" },
     { S_DLG_ERROR,          "Error" },
     { S_DLG_INFO,           "Info" },
     { S_DLG_TOOMANYPLAYERS, "Too many players" },
     { S_PING,               "Ping" },
     { S_NONCE,              "Nonce" },
+    { S_PLAYERLOC,      "Set player location" },
+    { S_GO_NORTH,       "Go north" },
+    { S_GO_EAST,        "Go east" },
+    { S_GO_SOUTH,       "Go south" },
+    { S_GO_WEST,        "Go west" },
+    { S_TILEUPDATE,     "Update tile" },
+    { S_ADDITEM,        "Add item" },
+    { S_REPLACEITEM,    "Replace item" },
+    { S_REMOVEITEM,     "Remove item" },
+    { S_MOVE_THING,     "Move thing" },
+    { S_CONTAINER,      "Open container" },
+    { S_CONTAINERCLOSE, "Close container" },
+
+    { S_ADDITEMCONTAINER,       "Add item in container" },
+    { S_TRANSFORMITEMCONTAINER, "Transform item in container" },
+    { S_REMOVEITEMCONTAINER,    "Remove item in container" },
+
+    { S_INVENTORYEMPTY,   "Inventory empty" },
+    { S_INVENTORYITEM,    "Inventory item" },
+    { S_TRADEREQ,         "Trade request" },
+    { S_TRADEACK,         "Trade acknowledge" },
+    { S_TRADECLOSE,       "Trade over" },
+    { S_LIGHTLEVEL,       "Light level" },
+    { S_MAGIC_EFFECT,     "Magic effect" },
+    { S_ANIMATEDTEXT,     "Animated text" },
+    { S_DISTANCESHOT,     "Distance shot" },
+    { S_CREATURESQUARE,   "Creature square" },
+    { S_CREATURE_HEALTH,  "Creature health" },
+    { S_CREATURELIGHT,    "Creature light" },
+    { S_SETOUTFIT,        "Set outfit" },
+    { S_CREATURESPEED,    "Set creature speed" },
+    { S_TEXTWINDOW,       "Text window" },
+    { S_STATUSMSG,        "Status message" },
+    { S_SKILLS,           "Skills" },
+    { S_PLAYER_CONDITION, "Player condition" },
+    { S_CANCELATTACK,     "Cancel attack" },
+    { S_SPEAK,            "Creature speech" },
+    { S_CHANNELSDIALOG,   "Channels dialog" },
+    { S_CHANNEL_OPEN,     "Channel open" },
+    { S_OPENPRIV,         "Private channel open" },
+    { S_TEXTMESSAGE,      "Text message" },
+    { S_CANCELWALK,       "Cancel walk" },
+    { S_FLOORUP,          "Floor +1" },
+    { S_FLOORDOWN,        "Floor -1" },
+    { S_OUTFITLIST,       "Outfit list" },
+    { S_VIPADD,           "Add VIP" },
+    { S_VIPLOGIN,         "VIP login" },
+    { S_VIPLOGOUT,        "VIP logout" },
 
     { 0, NULL }
 };
 
-static const unit_name_string mb_unit[] = {{"MB", NULL}};
+static value_string_ext from_gameserv_packet_types_ext = VALUE_STRING_EXT_INIT(from_gameserv_packet_types);
+
+static const unit_name_string mb_unit = {"MB", NULL};
 
 static int
 dissect_loginserv_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, int len, packet_info *pinfo, proto_tree *tree, gboolean first_fragment )
@@ -620,6 +915,40 @@ dissect_loginserv_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, i
     return offset;
 }
 
+static void
+dissect_coord(ptvcursor_t *ptvc, gboolean with_stackpos)
+{
+    tvbuff_t *tvb;
+    proto_tree *tree;
+    int offset;
+
+    guint32 x, y, z, stackpos;
+    proto_item *coords_tuple = ptvcursor_add_with_subtree(ptvc, hf_tibia_coords, SUBTREE_UNDEFINED_LENGTH, ENC_NA, ett_coords);
+    {
+        tvb = ptvcursor_tvbuff(ptvc);
+        tree = ptvcursor_tree(ptvc);
+        offset = ptvcursor_current_offset(ptvc);
+
+        proto_tree_add_item_ret_uint(tree, hf_tibia_coords_x, tvb, offset, 2, ENC_LITTLE_ENDIAN, &x);
+        offset += 2;
+        proto_tree_add_item_ret_uint(tree, hf_tibia_coords_y, tvb, offset, 2, ENC_LITTLE_ENDIAN, &y);
+        offset += 2;
+        proto_tree_add_item_ret_uint(tree, hf_tibia_coords_z, tvb, offset, 1, ENC_NA, &z);
+        offset += 1;
+
+        ptvcursor_advance(ptvc, 5);
+    }
+    if (with_stackpos) {
+        proto_tree_add_item_ret_uint(tree, hf_tibia_stackpos, tvb, offset, 1, ENC_NA, &stackpos);
+        proto_item_set_text(coords_tuple, "Coordinates: (%u, %u, %u)[%u]", x, y, z, stackpos);
+        ptvcursor_advance(ptvc, 1);
+    } else {
+        proto_item_set_text(coords_tuple, "Coordinates: (%u, %u, %u)", x, y, z);
+    }
+
+    ptvcursor_pop_subtree(ptvc);
+}
+
 
 static int
 dissect_gameserv_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, int len, packet_info *pinfo, proto_tree *tree, gboolean first_fragment)
@@ -641,16 +970,170 @@ dissect_gameserv_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, in
                 case S_DLG_TOOMANYPLAYERS:
                     ptvcursor_add(ptvc, cmd == S_DLG_ERROR ? hf_tibia_dlg_error : hf_tibia_dlg_info, 2, ENC_LITTLE_ENDIAN | convo->has.string_enc);
                     break;
+                case S_GMACTIONS: /* 0x0B, Used to be 32 unknown bytes, but with GMs removed it                                     might not be in use anymore */
+                    ptvcursor_add(ptvc, hf_tibia_unknown, 32, ENC_NA);
+                    break;
+                case S_PLAYERLOC: /* 0x64,Coord pos */
+                    dissect_coord(ptvc, FALSE);
+                    break;
+                case S_TILEUPDATE: /* 0x69,Coord pos TileDescription td */
+                    dissect_coord(ptvc, FALSE);
+                    ptvcursor_add(ptvc, hf_tibia_unknown, len - ptvcursor_current_offset(ptvc), ENC_NA);
+                    break;
+                case S_ADDITEM: /* 0x6a,Coord pos ThingDescription thing */
+                    dissect_coord(ptvc, FALSE);
+                    ptvcursor_add(ptvc, hf_tibia_unknown, len - ptvcursor_current_offset(ptvc), ENC_NA);
+                    break;
+                case S_REPLACEITEM: /* 0x6b,Coord pos Byte stackpos ThingDescription thing */
+                    dissect_coord(ptvc, TRUE);
+                    ptvcursor_add(ptvc, hf_tibia_unknown, len - ptvcursor_current_offset(ptvc), ENC_NA);
+                    break;
+                case S_REMOVEITEM: /* 0x6c,Coord pos Byte stackpos */
+                    dissect_coord(ptvc, TRUE);
+                    break;
+                case S_MOVE_THING: /* 0x6d, */
+                    dissect_coord(ptvc, TRUE);
+                    dissect_coord(ptvc, FALSE);
+                    break;
+                case S_CONTAINER: /* 0x6e,Byte index Short containerIcon Byte slotCount ThingDescription item */
+                    ptvcursor_add(ptvc, hf_tibia_container, 1, ENC_NA);
+                    ptvcursor_add(ptvc, hf_tibia_container_icon, 2, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptvc, hf_tibia_container_slots, 2, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptvc, hf_tibia_unknown, len - ptvcursor_current_offset(ptvc), ENC_NA);
+                    break;
+                case S_CONTAINERCLOSE: /* 0x6f,Byte index */
+                    ptvcursor_add(ptvc, hf_tibia_container, 1, ENC_NA);
+                    break;
+                case S_ADDITEMCONTAINER: /* 0x70,Byte index ThingDescription itm */
+                    ptvcursor_add(ptvc, hf_tibia_container, 1, ENC_NA);
+                    ptvcursor_add(ptvc, hf_tibia_unknown, len - ptvcursor_current_offset(ptvc), ENC_NA);
+                    break;
+                case S_TRANSFORMITEMCONTAINER:/* 0x71,Byte index Byte slot */
+                    ptvcursor_add(ptvc, hf_tibia_container, 1, ENC_NA);
+                    ptvcursor_add(ptvc, hf_tibia_container_slot, 1, ENC_NA);
+                    break;
+                case S_REMOVEITEMCONTAINER: /* 0x72,Byte index Byte slot */
+                    ptvcursor_add(ptvc, hf_tibia_container, 1, ENC_NA);
+                    ptvcursor_add(ptvc, hf_tibia_container_slot, 1, ENC_NA);
+                    break;
+                case S_INVENTORYEMPTY: /* 0x78,Byte invSlot */
+                    ptvcursor_add(ptvc, hf_tibia_inventory, 1, ENC_NA);
+                    break;
+                case S_INVENTORYITEM: /* 0x79,Byte invSlot ThingDescription itm */
+                    ptvcursor_add(ptvc, hf_tibia_inventory, 1, ENC_NA);
+                    ptvcursor_add(ptvc, hf_tibia_unknown, len - ptvcursor_current_offset(ptvc), ENC_NA);
+                    break;
+                case S_TRADEREQ: /* 0x7d,String otherperson Byte slotCount ThingDescription itm */
+                    ptvcursor_add(ptvc, hf_tibia_player, 2, ENC_LITTLE_ENDIAN | convo->has.string_enc);
+                    ptvcursor_add(ptvc, hf_tibia_inventory, 1, ENC_NA);
+                    ptvcursor_add(ptvc, hf_tibia_unknown, len - ptvcursor_current_offset(ptvc), ENC_NA);
+                    break;
+                case S_TRADEACK: /* 0x7e,String otherperson Byte slotCount ThingDescription itm */
+                    ptvcursor_add(ptvc, hf_tibia_player, 2, ENC_LITTLE_ENDIAN | convo->has.string_enc);
+                    ptvcursor_add(ptvc, hf_tibia_inventory, 1, ENC_NA);
+                    ptvcursor_add(ptvc, hf_tibia_unknown, len - ptvcursor_current_offset(ptvc), ENC_NA);
+                    break;
+
+                case S_TRADECLOSE: /* 0x7f, */
+                    break;
+                case S_LIGHTLEVEL: /* 0x82,Byte lightlevel Byte lightcolor */
+                    ptvcursor_add(ptvc, hf_tibia_light_level, 1, ENC_NA);
+                    ptvcursor_add(ptvc, hf_tibia_light_color, 1, ENC_NA);
+                    break;
+                case S_MAGIC_EFFECT: /* 0x83, */
+                    dissect_coord(ptvc, FALSE);
+                    ptvcursor_add(ptvc, hf_tibia_magic_effect_id, 1, ENC_NA);
+                    break;
+                case S_ANIMATEDTEXT: /* 0x84,Coord pos Byte color String message */
+                    dissect_coord(ptvc, FALSE);
+                    ptvcursor_add(ptvc, hf_tibia_animated_text_color, 1, ENC_NA);
+                    ptvcursor_add(ptvc, hf_tibia_animated_text, 2, ENC_LITTLE_ENDIAN | convo->has.string_enc);
+                    break;
+                case S_DISTANCESHOT: /* 0x85,Coord pos1 Byte stackposition Coord pos2 */
+                    dissect_coord(ptvc, FALSE);
+                    ptvcursor_add(ptvc, hf_tibia_projectile, 4, ENC_LITTLE_ENDIAN);
+                    dissect_coord(ptvc, FALSE);
+                    break;
+                case S_CREATURESQUARE: /* 0x86,Long creatureid Byte squarecolor */
+                    ptvcursor_add(ptvc, hf_tibia_creature, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptvc, hf_tibia_squarecolor, 1, ENC_NA);
+                    break;
+                case S_CREATURE_HEALTH: /* 0x8C, */
+                    ptvcursor_add(ptvc, hf_tibia_creature, 1, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptvc, hf_tibia_creature_health, 1, ENC_NA);
+                    break;
+                case S_CREATURELIGHT: /* 0x8d,Long creatureid Byte ? Byte ? */
+                    ptvcursor_add(ptvc, hf_tibia_creature, 1, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptvc, hf_tibia_unknown, 2, ENC_NA);
+                    break;
+                case S_SETOUTFIT: /* 0x8e,Long creatureid Byte lookType Byte headType Byte bodyType Byte legsType Byte feetType // can extended look go here too? */
+                    ptvcursor_add(ptvc, hf_tibia_creature, 1, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptvc, hf_tibia_unknown, len - ptvcursor_current_offset(ptvc), ENC_NA);
+                    break;
+                case S_TEXTWINDOW: /* 0x96,Long windowId Byte icon Byte maxlength String message */
+                    ptvcursor_add(ptvc, hf_tibia_window, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptvc, hf_tibia_window_icon, 1, ENC_NA);
+                    ptvcursor_add(ptvc, hf_tibia_window_textlen, 1, ENC_NA);
+                    ptvcursor_add(ptvc, hf_tibia_window_text, 1, ENC_LITTLE_ENDIAN | convo->has.string_enc);
+                    break;
+                case S_PLAYER_CONDITION: /* 0xA2, */
+                    proto_tree_add_bitmask(ptvcursor_tree(ptvc), ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), hf_tibia_char_cond, ett_char_cond, char_conds, ENC_LITTLE_ENDIAN);
+                    ptvcursor_advance(ptvc, sizeof(guint32));
+                    break;
+                case S_CANCELATTACK: /* 0xA3, */
+                    break;
+                case S_CHANNEL_OPEN:
+                    ptvcursor_add(ptvc, hf_tibia_channel_id, 2, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptvc, hf_tibia_channel_name, 2, ENC_LITTLE_ENDIAN|convo->has.string_enc);
+                    ptvcursor_add(ptvc, hf_tibia_unknown, 4, ENC_NA);
+                    break;
+                case S_OPENPRIV: /* 0xAD,String playerName */
+                    ptvcursor_add(ptvc, hf_tibia_player, 2, ENC_LITTLE_ENDIAN | convo->has.string_enc);
+                    break;
+                case S_TEXTMESSAGE: /* 0xB4,Byte msgClass String string */
+                    ptvcursor_add(ptvc, hf_tibia_textmsg_class, 1, ENC_NA);
+                    ptvcursor_add(ptvc, hf_tibia_textmsg, 2, ENC_LITTLE_ENDIAN | convo->has.string_enc);
+                    break;
+                case S_CANCELWALK: /* 0xB5,Byte direction */
+                    ptvcursor_add(ptvc, hf_tibia_walk_dir, 1, ENC_NA);
+                    break;
+                case S_VIPADD: /* 0xd2,long guid string name byte isonline */
+                    ptvcursor_add(ptvc, hf_tibia_vip, 4, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptvc, hf_tibia_player, 2, ENC_LITTLE_ENDIAN | convo->has.string_enc);
+                    ptvcursor_add(ptvc, hf_tibia_vip_online, 1, ENC_NA);
+                    break;
+                case S_VIPLOGIN: /* 0xd3,long guid */
+                    ptvcursor_add(ptvc, hf_tibia_vip, 4, ENC_LITTLE_ENDIAN);
+                    break;
+                case S_VIPLOGOUT: /* 0xd4long guid*/
+                    ptvcursor_add(ptvc, hf_tibia_vip, 4, ENC_LITTLE_ENDIAN);
+                    break;
                 case S_PING:
                     break;
-                case S_NONCE:
+                case S_NONCE: /* 0x1F, */
                     ptvcursor_add(ptvc, hf_tibia_nonce, 5, ENC_NA);
                     break;
+
+                case S_MAPINIT: /* 0x0A, Long playerCreatureId Int unknownU16 (Byte reportBugs?) */
+                case S_OUTFITLIST: /* 0xC8,Byte lookType Byte headType Byte bodyType Byte legsType Byte feetType Byte firstModel Byte lastModel */
+                    /* TODO This changed with mounts and outfit */
+                case S_FLOORUP: /* 0xBE,Advanced topic; read separate text */
+                case S_FLOORDOWN: /* 0xBF,Advanced topic; read separate text */
+                case S_SPEAK: /* 0xAA, */
+                case S_CHANNELSDIALOG: /* 0xAB,Byte channelCount (Int channelId String channelName) */
+                case S_STATUSMSG: /* 0xA0,Status status */
+                case S_SKILLS: /* 0xA1,Skills skills */
+                case S_CREATURESPEED: /* 0x8f,YIKES! I didnt handle this! */
+                case S_GO_NORTH: /* 0x65,MapDescription (18,1) */
+                case S_GO_EAST: /* 0x66,MapDescription (1,14) */
+                case S_GO_SOUTH: /* 0x67,MapDescription (18,1) */
+                case S_GO_WEST: /* 0x68,MapDescription (1,14) */
                 default:
                     offset = ptvcursor_current_offset(ptvc);
                     call_data_dissector(tvb_new_subset_length(tvb, offset, len - offset), pinfo, ptvcursor_tree(ptvc));
                     ptvcursor_advance(ptvc, len - offset);
             }
+
 
             ptvcursor_pop_subtree(ptvc);
 
@@ -685,6 +1168,15 @@ dissect_client_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, int 
             ptvcursor_advance(ptvc, 1);
 
             switch ((enum client_cmd)cmd) {
+                case C_PLAYER_SPEECH: {
+                    guint8 type = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+
+                    ptvcursor_add(ptvc, hf_tibia_speech_type, 1, ENC_NA);
+                    if (type == 0x7)
+                        ptvcursor_add(ptvc, hf_tibia_channel_id, 2, ENC_LITTLE_ENDIAN);
+                    ptvcursor_add(ptvc, hf_tibia_chat_msg, 2, ENC_LITTLE_ENDIAN|convo->has.string_enc);
+                    }
+                    break;
                 case C_PONG:
                     break;
                 default:
@@ -1106,6 +1598,14 @@ static const value_string operating_systems[] = {
     { 0, NULL }
 };
 
+static const value_string speech_types[] = {
+    { 0x1, "Say" },
+    { 0x2, "Whisper" },
+    { 0x3, "Yell" },
+    { 0x7, "Public Channel" },
+    { 0, NULL }
+};
+
 static guint
 rsakey_hash(gconstpointer _rsakey)
 {
@@ -1481,6 +1981,114 @@ proto_register_tibia(void)
                 NULL, 0x1,
                 NULL, HFILL }
         },
+        { &hf_tibia_char_cond,
+          {"Character Condition", "tibia.cond",
+                FT_UINT32, BASE_HEX,
+                NULL, 0,
+                NULL, HFILL}
+        },
+        { &hf_tibia_char_cond_poisoned,
+            { "Poisoned", "tibia.cond.poisoned",
+                FT_BOOLEAN, 32,
+                TFS(&tfs_yes_no), COND_POISONED,
+                NULL, HFILL }
+        },
+        { &hf_tibia_char_cond_burning,
+            { "Burning", "tibia.cond.burning",
+                FT_BOOLEAN, 32,
+                TFS(&tfs_yes_no), COND_BURNING,
+                NULL, HFILL }
+        },
+        { &hf_tibia_char_cond_electrocuted,
+            { "Electrocuted", "tibia.cond.electrocuted",
+                FT_BOOLEAN, 32,
+                TFS(&tfs_yes_no), COND_ELECTROCUTED,
+                NULL, HFILL }
+        },
+        { &hf_tibia_char_cond_drunk,
+            { "Drunk", "tibia.cond.drunk",
+                FT_BOOLEAN, 32,
+                TFS(&tfs_yes_no), COND_DRUNK,
+                NULL, HFILL }
+        },
+        { &hf_tibia_char_cond_manashield, /* Utamo Vita */
+            { "Mana Shield", "tibia.cond.manashield",
+                FT_BOOLEAN, 32,
+                TFS(&tfs_yes_no), COND_MANASHIELD,
+                NULL, HFILL }
+        },
+        { &hf_tibia_char_cond_paralyzed,
+            { "Paralyzed", "tibia.cond.paralyzed",
+                FT_BOOLEAN, 32,
+                TFS(&tfs_yes_no), COND_PARALYZED,
+                NULL, HFILL }
+        },
+        { &hf_tibia_char_cond_haste,
+            { "Haste", "tibia.cond.haste",
+                FT_BOOLEAN, 32,
+                TFS(&tfs_yes_no), COND_HASTE,
+                NULL, HFILL }
+        },
+        { &hf_tibia_char_cond_battle,
+            { "Battle lock", "tibia.cond.battle",
+                FT_BOOLEAN, 32,
+                TFS(&tfs_yes_no), COND_BATTLE,
+                NULL, HFILL }
+        },
+        { &hf_tibia_char_cond_drowning,
+            { "Drowning", "tibia.cond.drowning",
+                FT_BOOLEAN, 32,
+                TFS(&tfs_yes_no), COND_DROWNING,
+                NULL, HFILL }
+        },
+        { &hf_tibia_char_cond_freezing,
+            { "Freezing", "tibia.cond.freezing",
+                FT_BOOLEAN, 32,
+                TFS(&tfs_yes_no), COND_FREEZING,
+                NULL, HFILL }
+        },
+        { &hf_tibia_char_cond_dazzled,
+            { "Dazzled", "tibia.cond.dazzled",
+                FT_BOOLEAN, 32,
+                TFS(&tfs_yes_no), COND_DAZZLED,
+                NULL, HFILL }
+        },
+        { &hf_tibia_char_cond_cursed,
+            { "Cursed", "tibia.cond.cursed",
+                FT_BOOLEAN, 32,
+                TFS(&tfs_yes_no), COND_CURSED,
+                NULL, HFILL }
+        },
+        { &hf_tibia_char_cond_buff, /* e.g. after casting Utura */
+            { "Buff", "tibia.cond.buff",
+                FT_BOOLEAN, 32,
+                TFS(&tfs_yes_no), COND_BUFF,
+                NULL, HFILL }
+        },
+        { &hf_tibia_char_cond_pzblock, /* Blocked from entering PZ */
+            { "Protection Zone Block", "tibia.cond.pzblock",
+                FT_BOOLEAN, 32,
+                TFS(&tfs_yes_no), COND_PZBLOCK,
+                NULL, HFILL }
+        },
+        { &hf_tibia_char_cond_pz,
+            { "Protection Zone", "tibia.cond.pz",
+                FT_BOOLEAN, 32,
+                TFS(&tfs_yes_no), COND_PZ,
+                NULL, HFILL }
+        },
+        { &hf_tibia_char_cond_bleeding,
+            { "Bleeding", "tibia.cond.bleeding",
+                FT_BOOLEAN, 32,
+                TFS(&tfs_yes_no), COND_BLEEDING,
+                NULL, HFILL }
+        },
+        { &hf_tibia_char_cond_hungry,
+            { "Hungry", "tibia.cond.hungry",
+                FT_BOOLEAN, 32,
+                TFS(&tfs_yes_no), COND_HUNGRY,
+                NULL, HFILL }
+        },
         { &hf_tibia_acc_name,
             { "Account", "tibia.acc",
                 FT_UINT_STRING, BASE_NONE,
@@ -1639,14 +2247,14 @@ proto_register_tibia(void)
         },
         { &hf_tibia_gameserv_command,
             { "Command", "tibia.cmd",
-                FT_UINT8, BASE_HEX,
-                VALS(from_gameserv_packet_types), 0x0,
+                FT_UINT8, BASE_HEX|BASE_EXT_STRING,
+                &from_gameserv_packet_types_ext, 0x0,
                 NULL, HFILL }
         },
         { &hf_tibia_client_command,
             { "Command", "tibia.cmd",
-                FT_UINT8, BASE_HEX,
-                VALS(from_client_packet_types), 0x0,
+                FT_UINT8, BASE_HEX|BASE_EXT_STRING,
+                &from_client_packet_types_ext, 0x0,
                 NULL, HFILL }
         },
         { &hf_tibia_motd,
@@ -1746,6 +2354,207 @@ proto_register_tibia(void)
                 NULL, 0x0,
                 NULL, HFILL }
         },
+        { &hf_tibia_channel_id,
+            { "Channel id", "tibia.channel.id",
+                FT_UINT16, BASE_HEX,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_channel_name,
+            { "Channel name", "tibia.channel",
+                FT_UINT_STRING, BASE_NONE,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_speech_type,
+            { "Type", "tibia.speechtype",
+                FT_UINT8, BASE_HEX,
+                VALS(speech_types), 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_chat_msg,
+            { "Message", "tibia.msg",
+                FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_coords_x,
+            { "X-Coordinate", "tibia.coord.x",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_coords_y,
+            { "Y-Coordinate", "tibia.coords.y",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_coords_z,
+            { "Z-Coordinate", "tibia.coords.z",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_coords,
+            { "Coordinates", "tibia.coords",
+                FT_STRING, BASE_NONE,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_stackpos,
+            { "Stack position", "tibia.coords.stackpos",
+                FT_UINT8, BASE_DEC,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+#if 0
+        { &hf_tibia_item,
+            { "Item ID", "tibia.item",
+                FT_UINT16, BASE_DEC,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+#endif
+        { &hf_tibia_container,
+            { "Container index", "tibia.container",
+                FT_UINT8, BASE_DEC,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_container_icon,
+            { "Container icon", "tibia.container.icon",
+                FT_UINT8, BASE_DEC,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_container_slot,
+            { "Container slot", "tibia.container.slot",
+                FT_UINT8, BASE_DEC,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_container_slots,
+            { "Container slots", "tibia.container.slots",
+                FT_UINT8, BASE_DEC,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_inventory,
+            { "Inventory slot", "tibia.inventory",
+                FT_UINT16, BASE_DEC,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_vip,
+            { "VIP GUID", "tibia.vip",
+                FT_UINT32, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_vip_online,
+            { "Online", "tibia.vip",
+                FT_BOOLEAN, 8,
+                NULL, 0x1,
+                NULL, HFILL }
+        },
+        { &hf_tibia_player,
+            { "Player name", "tibia.player",
+                FT_UINT_STRING, BASE_NONE,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_creature,
+            { "Creature", "tibia.creature",
+                FT_UINT32, BASE_HEX,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_creature_health,
+            { "Creature", "tibia.creature.health",
+                FT_UINT8, BASE_DEC|BASE_UNIT_STRING,
+                &units_percent, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_window,
+            { "Window", "tibia.window",
+                FT_UINT32, BASE_HEX,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_window_icon,
+            { "Window Icon", "tibia.window.icon",
+                FT_UINT8, BASE_HEX,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_window_textlen,
+            { "Window Text Length", "tibia.window.text.len",
+                FT_UINT8, BASE_DEC,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_window_text,
+            { "Window Text", "tibia.window.text",
+                FT_UINT_STRING, BASE_NONE,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_squarecolor,
+            { "Square Color", "tibia.creature.square",
+                FT_UINT8, BASE_HEX,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_light_color,
+            { "Light Color", "tibia.light.color",
+                FT_UINT8, BASE_HEX,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_light_level,
+            { "Light Level", "tibia.light.level",
+                FT_UINT8, BASE_DEC,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_magic_effect_id,
+            { "Magic Effect", "tibia.magic_effect",
+                FT_UINT8, BASE_HEX,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_animated_text_color,
+            { "Text Color", "tibia.animated_text.color",
+                FT_UINT8, BASE_HEX,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_animated_text,
+            { "Text", "tibia.animated_text",
+                FT_UINT16, BASE_HEX,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_textmsg_class,
+            { "Text Message Class", "tibia.textmsg.class",
+                FT_UINT8, BASE_HEX,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_textmsg,
+            { "Text", "tibia.textmsg",
+                FT_UINT_STRING, BASE_NONE,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_projectile,
+            { "Projectile", "tibia.projectile",
+                FT_UINT32, BASE_HEX,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_tibia_walk_dir,
+            { "Walk Direction", "tibia.walk_dir",
+                FT_UINT8, BASE_HEX,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
     };
 
     static uat_field_t rsakeylist_uats_flds[] = {
@@ -1775,6 +2584,8 @@ proto_register_tibia(void)
         &ett_char,
         &ett_worldlist,
         &ett_world,
+        &ett_coords,
+        &ett_char_cond,
     };
 
     static ei_register_info ei[] = {
