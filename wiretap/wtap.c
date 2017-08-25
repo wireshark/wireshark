@@ -935,6 +935,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_NETMON_NET_NETEVENT */
 	{ "Network Monitor Network Event", "netmon_event" },
+
+	/* WTAP_ENCAP_NETMON_HEADER */
+	{ "Network Monitor Header", "netmon_header" },
 };
 
 WS_DLL_LOCAL

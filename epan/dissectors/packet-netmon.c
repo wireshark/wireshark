@@ -67,7 +67,11 @@ static const value_string event_level_vals[] = {
 };
 
 /* Initialize the protocol and registered fields */
+static int proto_netmon_header = -1;
 static int proto_netmon_event = -1;
+
+static int hf_netmon_header_title_comment = -1;
+static int hf_netmon_header_description_comment = -1;
 
 static int hf_netmon_event_size = -1;
 static int hf_netmon_event_header_type = -1;
@@ -114,13 +118,81 @@ static int hf_netmon_event_user_data = -1;
 
 
 /* Initialize the subtree pointers */
+static gint ett_netmon_header = -1;
 static gint ett_netmon_event = -1;
 static gint ett_netmon_event_desc = -1;
 static gint ett_netmon_event_flags = -1;
 static gint ett_netmon_event_property = -1;
 static gint ett_netmon_event_extended_data = -1;
 
+static dissector_table_t wtap_encap_table;
+
 /* Code to actually dissect the packets */
+static int
+dissect_netmon_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+	proto_item *ti;
+	proto_tree *header_tree;
+	union wtap_pseudo_header temp_header;
+	gchar *comment;
+	GIConv cd;
+
+	ti = proto_tree_add_item(tree, proto_netmon_header, tvb, 0, 0, ENC_NA);
+	header_tree = proto_item_add_subtree(ti, ett_netmon_header);
+
+	if (pinfo->pseudo_header->netmon.title != NULL) {
+		/* Title comment is UTF-16 */
+
+		if ((cd = g_iconv_open("UTF-8", "UTF-16")) != (GIConv) -1)
+		{
+			comment = g_convert_with_iconv(pinfo->pseudo_header->netmon.title, pinfo->pseudo_header->netmon.titleLength, cd, NULL, NULL, NULL);
+			g_iconv_close(cd);
+
+			ti = proto_tree_add_string(header_tree, hf_netmon_header_title_comment, tvb, 0, 0, comment);
+			PROTO_ITEM_SET_GENERATED(ti);
+			g_free(comment);
+		}
+
+	}
+
+	if (pinfo->pseudo_header->netmon.description != NULL) {
+		/* Description comment is only ASCII */
+
+		/* Ensure string termination */
+		comment = wmem_strndup(wmem_packet_scope(), pinfo->pseudo_header->netmon.description, pinfo->pseudo_header->netmon.descLength);
+
+		ti = proto_tree_add_string(header_tree, hf_netmon_header_description_comment, tvb, 0, 0, comment);
+		PROTO_ITEM_SET_GENERATED(ti);
+	}
+
+	/* Save the pseudo header data to a temp variable before it's copied to
+	 * real pseudo header
+	 */
+	switch (pinfo->pseudo_header->netmon.sub_encap)
+	{
+	case WTAP_ENCAP_ATM_PDUS:
+		memcpy(&temp_header.atm, &pinfo->pseudo_header->netmon.subheader.atm, sizeof(temp_header.atm));
+		memcpy(&pinfo->pseudo_header->atm, &temp_header.atm, sizeof(temp_header.atm));
+		break;
+	case WTAP_ENCAP_ETHERNET:
+		memcpy(&temp_header.eth, &pinfo->pseudo_header->netmon.subheader.eth, sizeof(temp_header.eth));
+		memcpy(&pinfo->pseudo_header->eth, &temp_header.eth, sizeof(temp_header.eth));
+		break;
+	case WTAP_ENCAP_IEEE_802_11_NETMON:
+		memcpy(&temp_header.ieee_802_11, &pinfo->pseudo_header->netmon.subheader.ieee_802_11, sizeof(temp_header.ieee_802_11));
+		memcpy(&pinfo->pseudo_header->ieee_802_11, &temp_header.ieee_802_11, sizeof(temp_header.ieee_802_11));
+		break;
+	}
+
+	if (!dissector_try_uint_new(wtap_encap_table,
+		pinfo->pseudo_header->netmon.sub_encap, tvb, pinfo, tree, TRUE,
+		(void *)pinfo->pseudo_header)) {
+		call_data_dissector(tvb, pinfo, tree);
+	}
+
+	return tvb_captured_length(tvb);
+}
+
 static int
 dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -239,7 +311,19 @@ dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
 void proto_register_netmon(void)
 {
-	static hf_register_info hf[] = {
+	static hf_register_info hf_header[] = {
+		{ &hf_netmon_header_title_comment,
+			{ "Comment title", "netmon_header.title_comment",
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_header_description_comment,
+			{ "Comment description", "netmon_header.description_comment",
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+	};
+
+
+	static hf_register_info hf_event[] = {
 		{ &hf_netmon_event_size,
 			{ "Size", "netmon_event.size",
 			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
@@ -411,6 +495,7 @@ void proto_register_netmon(void)
 	};
 
 	static gint *ett[] = {
+		&ett_netmon_header,
 		&ett_netmon_event,
 		&ett_netmon_event_desc,
 		&ett_netmon_event_flags,
@@ -418,18 +503,25 @@ void proto_register_netmon(void)
 		&ett_netmon_event_extended_data
 	};
 
+	proto_netmon_header = proto_register_protocol ("Network Monitor Header", "NetMon Header", "netmon_header" );
 	proto_netmon_event = proto_register_protocol ("Network Monitor Event", "NetMon Event", "netmon_event" );
-	proto_register_field_array(proto_netmon_event, hf, array_length(hf));
+
+	proto_register_field_array(proto_netmon_header, hf_header, array_length(hf_header));
+	proto_register_field_array(proto_netmon_event, hf_event, array_length(hf_event));
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void proto_reg_handoff_netmon(void)
 {
-	dissector_handle_t netmon_handle;
+	dissector_handle_t netmon_event_handle, netmon_header_handle;
 
-	netmon_handle = create_dissector_handle(dissect_netmon_event, proto_netmon_event);
+	netmon_event_handle = create_dissector_handle(dissect_netmon_event, proto_netmon_event);
+	netmon_header_handle = create_dissector_handle(dissect_netmon_header, proto_netmon_header);
 
-	dissector_add_uint("wtap_encap", WTAP_ENCAP_NETMON_NET_NETEVENT, netmon_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_NETMON_NET_NETEVENT, netmon_event_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_NETMON_HEADER, netmon_header_handle);
+
+	wtap_encap_table = find_dissector_table("wtap_encap");
 }
 
 /*

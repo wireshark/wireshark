@@ -120,6 +120,22 @@ struct netmonrec_2_3_trlr {
 	guint8 timezone_index;		/* index of time zone information */
 };
 
+struct netmonrec_comment {
+	guint32 numFramePerComment;		/* Currently, this is always set to 1. Each comment is attached to only one frame. */
+	guint32 frameOffset;	/* Offset in the capture file table that indicates the beginning of the frame.  Key used to match comment with frame */
+	guint32 titleLength;	/* Number of bytes in the comment title. Must be greater than zero. */
+	guint8* title;			/* Comment title */
+	guint32 descLength;		/* Number of bytes in the comment description. Must be at least zero. */
+	guint8* description;	/* Comment description */
+};
+
+/* Just the first few fields of netmonrec_comment so it can be read sequentially from file */
+struct netmonrec_comment_header {
+	guint32 numFramePerComment;
+	guint32 frameOffset;
+	guint32 titleLength;
+};
+
 /*
  * The link-layer header on ATM packets.
  */
@@ -131,13 +147,14 @@ struct netmon_atm_hdr {
 };
 
 typedef struct {
-	time_t	start_secs;
-	guint32	start_nsecs;
-	guint8	version_major;
-	guint8	version_minor;
+	time_t  start_secs;
+	guint32 start_nsecs;
+	guint8  version_major;
+	guint8  version_minor;
 	guint32 *frame_table;
-	guint32	frame_table_size;
-	guint	current_frame;
+	guint32 frame_table_size;
+	GHashTable* comment_table;
+	guint current_frame;
 } netmon_t;
 
 /*
@@ -180,10 +197,18 @@ static gboolean netmon_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static gboolean netmon_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
-static void netmon_sequential_close(wtap *wth);
+static void netmon_close(wtap *wth);
 static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const guint8 *pd, int *err, gchar **err_info);
 static gboolean netmon_dump_finish(wtap_dumper *wdh, int *err);
+
+static void netmonrec_comment_destroy(gpointer key) {
+	struct netmonrec_comment *comment = (struct netmonrec_comment*) key;
+
+	g_free(comment->title);
+	g_free(comment->description);
+	g_free(comment);
+}
 
 wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 {
@@ -195,6 +220,10 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 	guint32 frame_table_length;
 	guint32 frame_table_size;
 	guint32 *frame_table;
+	guint32 comment_table_offset;
+	guint32 comment_table_size;
+	GHashTable* comment_table;
+	struct netmonrec_comment* comment_rec;
 #ifdef WORDS_BIGENDIAN
 	unsigned int i;
 #endif
@@ -244,11 +273,11 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 
 	/* This is a netmon file */
 	wth->file_type_subtype = file_type;
-	netmon = (netmon_t *)g_malloc(sizeof(netmon_t));
+	netmon = (netmon_t *)g_malloc0(sizeof(netmon_t));
 	wth->priv = (void *)netmon;
 	wth->subtype_read = netmon_read;
 	wth->subtype_seek_read = netmon_seek_read;
-	wth->subtype_sequential_close = netmon_sequential_close;
+	wth->subtype_close = netmon_close;
 
 	/* NetMon capture file formats v2.1+ use per-packet encapsulation types.  NetMon 3 sets the value in
 	 * the header to 1 (Ethernet) for backwards compability. */
@@ -290,18 +319,15 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 	netmon->version_minor = hdr.ver_minor;
 
 	/*
-	 * No frame table allocated yet; initialize these in case we
-	 * get an error before allocating it or when trying to allocate
-	 * it, so that the attempt to release the private data on failure
-	 * doesn't crash.
-	 */
-	netmon->frame_table_size = 0;
-	netmon->frame_table = NULL;
-
-	/*
 	 * Get the offset of the frame index table.
 	 */
 	frame_table_offset = pletoh32(&hdr.frametableoffset);
+
+	/*
+	 * Get the offset and length of the comment index table.
+	 */
+	comment_table_offset = pletoh32(&hdr.commentdataoffset);
+	comment_table_size = pletoh32(&hdr.commentdatalength);
 
 	/*
 	 * It appears that some NetMon 2.x files don't have the
@@ -350,6 +376,44 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 	if (file_seek(wth->fh, frame_table_offset, SEEK_SET, err) == -1) {
 		return WTAP_OPEN_ERROR;
 	}
+
+	/*
+	 * Sanity check the comment table information before we bother to allocate
+	 * large chunks of memory for the frame table
+	 */
+	if (comment_table_size > 0) {
+		/*
+		 * XXX - clamp the size of the comment table, so that we don't
+		 * attempt to allocate a huge comment table and fail.
+		 *
+		 * Just use same size requires as frame table
+		 */
+		if (comment_table_size > 512*1024*1024) {
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = g_strdup_printf("netmon: comment table size is %u, which is larger than we support",
+				comment_table_size);
+			return WTAP_OPEN_ERROR;
+		}
+
+		if (comment_table_size < 17) {
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = g_strdup_printf("netmon: comment table size is %u, which is too small to use",
+				comment_table_size);
+			return WTAP_OPEN_ERROR;
+		}
+
+		if (file_seek(wth->fh, comment_table_offset, SEEK_SET, err) == -1) {
+			return WTAP_OPEN_ERROR;
+		}
+
+		/*
+		 * Return back to the frame table offset
+		 */
+		if (file_seek(wth->fh, frame_table_offset, SEEK_SET, err) == -1) {
+			return WTAP_OPEN_ERROR;
+		}
+	}
+
 	frame_table = (guint32 *)g_try_malloc(frame_table_length);
 	if (frame_table_length != 0 && frame_table == NULL) {
 		*err = ENOMEM;	/* we assume we're out of memory */
@@ -362,6 +426,115 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 	}
 	netmon->frame_table_size = frame_table_size;
 	netmon->frame_table = frame_table;
+
+	if (comment_table_size > 0) {
+		comment_table = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, netmonrec_comment_destroy);
+		if (comment_table == NULL) {
+				*err = ENOMEM;	/* we assume we're out of memory */
+				g_free(frame_table);
+				return WTAP_OPEN_ERROR;
+		}
+
+		/* Make sure the file contains the full comment section */
+		if (file_seek(wth->fh, comment_table_offset+comment_table_size, SEEK_SET, err) == -1) {
+			g_free(frame_table);
+			g_hash_table_destroy(comment_table);
+			return WTAP_OPEN_ERROR;
+		}
+
+		if (file_seek(wth->fh, comment_table_offset, SEEK_SET, err) == -1) {
+			/* Shouldn't fail... */
+			g_free(frame_table);
+			g_hash_table_destroy(comment_table);
+			return WTAP_OPEN_ERROR;
+		}
+
+		while (comment_table_size > 16) {
+			struct netmonrec_comment_header comment_header;
+			guint32 desc_length;
+
+			/* Read the first 12 bytes of the structure */
+			if (!wtap_read_bytes(wth->fh, &comment_header, 12, err, err_info)) {
+				g_free(frame_table);
+				g_hash_table_destroy(comment_table);
+				return WTAP_OPEN_ERROR;
+			}
+			comment_table_size -= 12;
+
+			/* Make sure comment size is sane */
+			if (pletoh32(&comment_header.titleLength) == 0) {
+				*err = WTAP_ERR_BAD_FILE;
+				*err_info = g_strdup("netmon: comment title size can't be 0");
+				g_free(frame_table);
+				g_hash_table_destroy(comment_table);
+				return WTAP_OPEN_ERROR;
+			}
+			if (pletoh32(&comment_header.titleLength) > comment_table_size) {
+				*err = WTAP_ERR_BAD_FILE;
+				*err_info = g_strdup_printf("netmon: comment title size is %u, which is larger than the entire comment section (%d)",
+						pletoh32(&comment_header.titleLength), comment_table_size);
+				g_free(frame_table);
+				g_hash_table_destroy(comment_table);
+				return WTAP_OPEN_ERROR;
+			}
+
+			comment_rec = g_new(struct netmonrec_comment, 1);
+			comment_rec->numFramePerComment = pletoh32(&comment_header.numFramePerComment);
+			comment_rec->frameOffset = pletoh32(&comment_header.frameOffset);
+			comment_rec->titleLength = pletoh32(&comment_header.titleLength);
+			comment_rec->title = (guint8*)g_malloc(comment_rec->titleLength);
+
+			g_hash_table_insert(comment_table, GUINT_TO_POINTER(comment_rec->frameOffset), comment_rec);
+
+			/* Read the comment title */
+			if (!wtap_read_bytes(wth->fh, comment_rec->title, comment_rec->titleLength, err, err_info)) {
+				g_free(frame_table);
+				g_hash_table_destroy(comment_table);
+				return WTAP_OPEN_ERROR;
+			}
+			comment_table_size -= comment_rec->titleLength;
+
+			if (comment_table_size < 4) {
+				*err = WTAP_ERR_BAD_FILE;
+				*err_info = g_strdup("netmon: corrupt comment section");
+				g_free(frame_table);
+				g_hash_table_destroy(comment_table);
+				return WTAP_OPEN_ERROR;
+			}
+
+			if (!wtap_read_bytes(wth->fh, &desc_length, 4, err, err_info)) {
+				g_free(frame_table);
+				g_hash_table_destroy(comment_table);
+				return WTAP_OPEN_ERROR;
+			}
+			comment_table_size -= 4;
+
+			comment_rec->descLength = pletoh32(&desc_length);
+			if (comment_rec->descLength > 0) {
+				/* Make sure comment size is sane */
+				if (comment_rec->descLength > comment_table_size) {
+					*err = WTAP_ERR_BAD_FILE;
+					*err_info = g_strdup_printf("netmon: comment description size is %u, which is larger than the entire comment section (%d)",
+								comment_rec->descLength, comment_table_size);
+					g_free(frame_table);
+					g_hash_table_destroy(comment_table);
+					return WTAP_OPEN_ERROR;
+				}
+
+				comment_rec->description = (guint8*)g_malloc(comment_rec->descLength);
+
+				/* Read the comment description */
+				if (!wtap_read_bytes(wth->fh, comment_rec->description, comment_rec->descLength, err, err_info)) {
+					g_free(frame_table);
+					g_hash_table_destroy(comment_table);
+					return WTAP_OPEN_ERROR;
+				}
+
+				comment_table_size -= comment_rec->descLength;
+			}
+		}
+		netmon->comment_table = comment_table;
+	}
 
 #ifdef WORDS_BIGENDIAN
 	/*
@@ -467,6 +640,7 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	}	trlr;
 	guint16 network;
 	int	pkt_encap;
+	struct netmonrec_comment* comment_rec = NULL;
 
 	/* Read record header. */
 	switch (netmon->version_major) {
@@ -754,6 +928,62 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	}
 
 	netmon_set_pseudo_header_info(phdr, buf);
+
+	/* If any header specific information is present, set it as pseudo header data
+	 * and set the encapsulation type, so it can be handled to the netmon_header
+	 * dissector for further processing
+	 */
+	if (netmon->comment_table != NULL) {
+		comment_rec = (struct netmonrec_comment*)g_hash_table_lookup(netmon->comment_table, GUINT_TO_POINTER(netmon->frame_table[netmon->current_frame-1]));
+	}
+
+	if (comment_rec != NULL) {
+		union wtap_pseudo_header temp_header;
+
+		/* These are the current encapsulation types that NetMon uses.
+		 * Save them off so they can be copied to the NetMon pseudoheader
+		 */
+		switch (phdr->pkt_encap)
+		{
+		case WTAP_ENCAP_ATM_PDUS:
+			memcpy(&temp_header.atm, &phdr->pseudo_header.atm, sizeof(temp_header.atm));
+			break;
+		case WTAP_ENCAP_ETHERNET:
+			memcpy(&temp_header.eth, &phdr->pseudo_header.eth, sizeof(temp_header.eth));
+			break;
+		case WTAP_ENCAP_IEEE_802_11_NETMON:
+			memcpy(&temp_header.ieee_802_11, &phdr->pseudo_header.ieee_802_11, sizeof(temp_header.ieee_802_11));
+			break;
+		}
+		memset(&phdr->pseudo_header.netmon, 0, sizeof(phdr->pseudo_header.netmon));
+
+		/* Save the current encapsulation type to the NetMon pseudoheader */
+		phdr->pseudo_header.netmon.sub_encap = phdr->pkt_encap;
+
+		/* Copy the comment data */
+		phdr->pseudo_header.netmon.titleLength = comment_rec->titleLength;
+		phdr->pseudo_header.netmon.title = comment_rec->title;
+		phdr->pseudo_header.netmon.descLength = comment_rec->descLength;
+		phdr->pseudo_header.netmon.description = comment_rec->description;
+
+		/* Copy the saved pseudoheaders to the netmon pseudoheader structure */
+		switch (phdr->pkt_encap)
+		{
+		case WTAP_ENCAP_ATM_PDUS:
+			memcpy(&phdr->pseudo_header.netmon.subheader.atm, &temp_header.atm, sizeof(temp_header.atm));
+			break;
+		case WTAP_ENCAP_ETHERNET:
+			memcpy(&phdr->pseudo_header.netmon.subheader.eth, &temp_header.eth, sizeof(temp_header.eth));
+			break;
+		case WTAP_ENCAP_IEEE_802_11_NETMON:
+			memcpy(&phdr->pseudo_header.netmon.subheader.ieee_802_11, &temp_header.ieee_802_11, sizeof(temp_header.ieee_802_11));
+			break;
+		}
+
+		/* Encapsulation type is now something that can be passed to netmon_header dissector */
+		phdr->pkt_encap = WTAP_ENCAP_NETMON_HEADER;
+	}
+
 	return SUCCESS;
 }
 
@@ -767,10 +997,6 @@ static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
 	for (;;) {
 		/* Have we reached the end of the packet data? */
 		if (netmon->current_frame >= netmon->frame_table_size) {
-			/* Yes.  We won't need the frame table any more;
-			   free it. */
-			g_free(netmon->frame_table);
-			netmon->frame_table = NULL;
 			*err = 0;	/* it's just an EOF, not an error */
 			return FALSE;
 		}
@@ -865,13 +1091,18 @@ netmon_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 
 /* Throw away the frame table used by the sequential I/O stream. */
 static void
-netmon_sequential_close(wtap *wth)
+netmon_close(wtap *wth)
 {
 	netmon_t *netmon = (netmon_t *)wth->priv;
 
 	if (netmon->frame_table != NULL) {
 		g_free(netmon->frame_table);
 		netmon->frame_table = NULL;
+	}
+
+	if (netmon->comment_table != NULL) {
+		g_hash_table_destroy(netmon->comment_table);
+		netmon->comment_table = NULL;
 	}
 }
 

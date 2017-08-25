@@ -275,6 +275,7 @@ extern "C" {
 #define WTAP_ENCAP_VSOCK                        185
 #define WTAP_ENCAP_NORDIC_BLE                   186
 #define WTAP_ENCAP_NETMON_NET_NETEVENT          187
+#define WTAP_ENCAP_NETMON_HEADER                188
 /* After adding new item here, please also add new item to encap_table_base array */
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
@@ -1147,6 +1148,21 @@ struct sysdig_event_phdr {
     /* ... Event ... */
 };
 
+/* Packet "pseudo-header" information for header data from NetMon files. */
+
+struct netmon_phdr {
+    guint32 titleLength;    /* Number of bytes in the comment title */
+    guint8* title;          /* Comment title */
+    guint32 descLength;     /* Number of bytes in the comment description */
+    guint8* description;    /* Comment description */
+    guint sub_encap;        /* "Real" encap value for the record that will be used once pseudo header data is display */
+    union sub_wtap_pseudo_header {
+        struct eth_phdr     eth;
+        struct atm_phdr     atm;
+        struct ieee_802_11_phdr ieee_802_11;
+    } subheader;
+};
+
 /* Pseudo-header for file-type-specific records */
 struct ft_specific_record_phdr {
     guint record_type;    /* the type of record this is */
@@ -1179,6 +1195,7 @@ union wtap_pseudo_header {
     struct llcp_phdr    llcp;
     struct logcat_phdr  logcat;
     struct sysdig_event_phdr sysdig_event;
+    struct netmon_phdr  netmon;
     struct ft_specific_record_phdr ftsrec;
 };
 
