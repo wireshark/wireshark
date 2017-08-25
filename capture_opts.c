@@ -142,6 +142,11 @@ capture_opts_cleanup(capture_options *capture_opts)
         capture_opts->ifaces = NULL;
     }
     if (capture_opts->all_ifaces) {
+        while (capture_opts->all_ifaces->len > 0) {
+            interface_t *device = &g_array_index(capture_opts->all_ifaces, interface_t, 0);
+            capture_opts_free_interface_t(device);
+            capture_opts->all_ifaces = g_array_remove_index(capture_opts->all_ifaces, 0);
+        }
         g_array_free(capture_opts->all_ifaces, TRUE);
         capture_opts->all_ifaces = NULL;
     }
