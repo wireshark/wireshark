@@ -1390,7 +1390,7 @@ initialize_ethers(void)
     }
 
     /* Set g_pethers_path here, but don't actually do anything
-     * with it. XXX - It used to be used in get_ethbyname() and get_ethbyaddr()
+     * with it. It's used in get_ethbyaddr().
      */
     if (g_pethers_path == NULL)
         g_pethers_path = get_persconffile_path(ENAME_ETHERS, FALSE);
@@ -1734,7 +1734,7 @@ initialize_ipxnets(void)
     }
 
     /* Set g_pipxnets_path here, but don't actually do anything
-     * with it. XXX - It used to be used in get_ipxnetbyname() and get_ipxnetbyaddr()
+     * with it. It's used in get_ipxnetbyaddr().
      */
     if (g_pipxnets_path == NULL)
         g_pipxnets_path = get_persconffile_path(ENAME_IPXNETS, FALSE);
