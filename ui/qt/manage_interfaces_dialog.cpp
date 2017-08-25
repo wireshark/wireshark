@@ -499,6 +499,7 @@ void ManageInterfacesDialog::on_delRemote_clicked()
         interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
         if (item->text(col_r_host_dev_).compare(device->remote_opts.remote_host_opts.remote_host))
             continue;
+        capture_opts_free_interface_t(device);
         global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
     }
     delete item;

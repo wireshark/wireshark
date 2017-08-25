@@ -595,7 +595,9 @@ void InterfaceTreeCacheModel::deleteDevice(const QModelIndex &index)
     }
     else
     {
-        g_array_remove_index(global_capture_opts.all_ifaces, row);
+        interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, row);
+        capture_opts_free_interface_t(device);
+        global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, row);
         emit endRemoveRows();
         wsApp->emitAppSignal(WiresharkApplication::LocalInterfacesChanged);
     }
