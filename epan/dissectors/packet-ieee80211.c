@@ -11151,7 +11151,7 @@ dissect_fast_bss_transition(proto_tree *tree, tvbuff_t *tvb, int offset,
       break;
     case 3:
       proto_tree_add_item(tree, hf_ieee80211_tag_ft_subelem_r0kh_id,
-                          tvb, offset, len, ENC_ASCII|ENC_NA);
+                          tvb, offset, len, ENC_NA);
       break;
     case 4:
       proto_tree_add_item(tree, hf_ieee80211_tag_ft_subelem_igtk_key_id,
@@ -26255,7 +26255,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_ft_subelem_r0kh_id,
      {"PMK-R0 key holder identifier (R0KH-ID)", "wlan_mgt.ft.subelem.r0kh_id",
-      FT_STRING, BASE_NONE, NULL, 0,
+      FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_ft_subelem_igtk_key_id,
