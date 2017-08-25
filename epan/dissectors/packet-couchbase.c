@@ -730,13 +730,18 @@ static const int * subdoc_doc_flags[] = {
 };
 
 static const value_string feature_vals[] = {
-  {1, "Datatype"},
-  {2, "TLS"},
-  {3, "TCP Nodelay"},
-  {4, "Mutation Seqno"},
-  {5, "TCP Delay"},
-  {6, "XATTR"},
-  {7, "XERROR"},
+  {0x01, "Datatype"},
+  {0x02, "TLS"},
+  {0x03, "TCP Nodelay"},
+  {0x04, "Mutation Seqno"},
+  {0x05, "TCP Delay"},
+  {0x06, "XATTR"},
+  {0x07, "Error Map"},
+  {0x08, "Select Bucket"},
+  {0x09, "Collections"},
+  {0x0a, "Snappy"},
+  {0x0b, "JSON"},
+  {0x0c, "Duplex"},
   {0, NULL}
 };
 
