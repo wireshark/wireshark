@@ -115,8 +115,8 @@ typedef struct {
  * Information about timestamp types.
  */
 typedef struct {
-	const char	*name;          /* e.g. "adapter_unsynced" */
-	const char	*description;   /* description from libpcap e.g. "Adapter, not synced with system time" */
+	char	*name;          /* e.g. "adapter_unsynced" */
+	char	*description;   /* description from libpcap e.g. "Adapter, not synced with system time" */
 } timestamp_info_t;
 
 /**

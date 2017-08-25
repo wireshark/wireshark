@@ -671,9 +671,10 @@ free_linktype_cb(gpointer data, gpointer user_data _U_)
 static void
 free_timestamp_cb(gpointer data, gpointer user_data _U_)
 {
-	/* timestamp_info_t's contents are immutable and in static memory,
-	 * so we only need to free the struct itself
-	 */
+	timestamp_info_t *timestamp_info = (timestamp_info_t *)data;
+
+	g_free(timestamp_info->name);
+	g_free(timestamp_info->description);
 	g_free(data);
 }
 
@@ -987,8 +988,8 @@ get_pcap_timestamp_types(pcap_t *pch _U_, char **err_str _U_)
 
 	while (ntypes--) {
 		timestamp_info_t *info = (timestamp_info_t *)g_malloc(sizeof *info);
-		info->name        = pcap_tstamp_type_val_to_name(types[ntypes]);
-		info->description = pcap_tstamp_type_val_to_description(types[ntypes]);
+		info->name        = g_strdup(pcap_tstamp_type_val_to_name(types[ntypes]));
+		info->description = g_strdup(pcap_tstamp_type_val_to_description(types[ntypes]));
 		list = g_list_prepend(list, info);
 	}
 
