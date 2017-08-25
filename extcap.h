@@ -40,8 +40,8 @@
 
 /* Prefix for the pipe interfaces */
 #define EXTCAP_PIPE_PREFIX "wireshark_extcap"
-#define EXTCAP_CONTROL_IN_PREFIX  "wireshark_control_in"
-#define EXTCAP_CONTROL_OUT_PREFIX "wireshark_control_out"
+#define EXTCAP_CONTROL_IN_PREFIX  "wireshark_control_ext_to_ws"
+#define EXTCAP_CONTROL_OUT_PREFIX "wireshark_control_ws_to_ext"
 
 #define EXTCAP_ARGUMENT_CONFIG                  "--extcap-config"
 #define EXTCAP_ARGUMENT_LIST_INTERFACES         "--extcap-interfaces"
@@ -143,11 +143,11 @@ gboolean
 extcap_init_interfaces(capture_options * capture_opts);
 
 gboolean
-extcap_create_pipe(const gchar *ifname, gchar **fifo, const gchar *pipe_prefix);
+extcap_create_pipe(const gchar *ifname, gchar **fifo, const gchar *pipe_prefix, gboolean byte_mode);
 
 /* Clean up all if related stuff */
 void
-extcap_if_cleanup(capture_options * capture_opts _U_, gchar ** errormsg);
+extcap_if_cleanup(capture_options * capture_opts, gchar ** errormsg);
 
 struct preference *
 extcap_pref_for_argument(const gchar *ifname, struct _extcap_arg * arg);

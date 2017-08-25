@@ -287,67 +287,117 @@ GPid extcap_spawn_async(extcap_userdata *userdata, GPtrArray *args)
 }
 
 #ifdef _WIN32
-gboolean
-extcap_wait_for_pipe(HANDLE pipe_h, HANDLE pid)
+
+typedef struct
 {
-    DWORD dw;
-    HANDLE handles[2];
-    OVERLAPPED ov;
-    gboolean success = FALSE;
-    ov.Pointer = 0;
-    ov.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+    HANDLE pipeHandle;
+    OVERLAPPED ol;
+    BOOL pendingIO;
+} PIPEINTS;
 
-    ConnectNamedPipe(pipe_h, &ov);
-    handles[0] = ov.hEvent;
-    handles[1] = pid;
+gboolean
+extcap_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid)
+{
+    PIPEINTS pipeinsts[3];
+    DWORD dw, cbRet;
+    HANDLE handles[4];
+    int error_code;
+    int num_waiting_to_connect = 0;
+    int num_handles = num_pipe_handles + 1; // PID handle is also added to list of handles.
 
-    if (GetLastError() == ERROR_PIPE_CONNECTED)
+    if (num_pipe_handles == 0 || num_pipe_handles > 3)
     {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "extcap connected to pipe");
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Invalid number of pipes given as argument.");
+        return FALSE;
     }
-    else
+
+    for (int i = 0; i < num_pipe_handles; ++i)
     {
-        dw = WaitForMultipleObjects(2, handles, FALSE, 30000);
-        if (dw == WAIT_OBJECT_0)
+        pipeinsts[i].pipeHandle = pipe_handles[i];
+        pipeinsts[i].ol.Pointer = 0;
+        pipeinsts[i].ol.hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+        pipeinsts[i].pendingIO = FALSE;
+        handles[i] = pipeinsts[i].ol.hEvent;
+        BOOL connected = ConnectNamedPipe(pipeinsts[i].pipeHandle, &pipeinsts[i].ol);
+        if (connected)
         {
-            /* ConnectNamedPipe finished. */
-            DWORD code;
+            error_code = GetLastError();
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "ConnectNamedPipe failed with %d \n.", error_code);
+            return FALSE;
+        }
 
-            code = GetLastError();
-            if (code == ERROR_IO_PENDING)
+        switch (GetLastError())
+        {
+        case ERROR_IO_PENDING:
+            num_waiting_to_connect++;
+            pipeinsts[i].pendingIO = TRUE;
+            break;
+
+        case ERROR_PIPE_CONNECTED:
+            if (SetEvent(pipeinsts[i].ol.hEvent))
             {
-                DWORD dummy;
-                if (!GetOverlappedResult(ov.hEvent, &ov, &dummy, TRUE))
-                {
-                    code = GetLastError();
-                }
-                else
-                {
-                    code = ERROR_SUCCESS;
-                    success = TRUE;
-                }
-            }
+                break;
+            } // Fallthrough if this fails.
 
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "ConnectNamedPipe code: %d", code);
+        default:
+            error_code = GetLastError();
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "ConnectNamedPipe failed with %d \n.", error_code);
+            return FALSE;
         }
-        else if (dw == (WAIT_OBJECT_0 + 1))
-        {
-            /* extcap process terminated. */
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "extcap terminated without connecting to pipe.");
-        }
-        else if (dw == WAIT_TIMEOUT)
+    }
+
+    // Store pid of extcap process so it can be monitored in case it fails before the pipes has connceted.
+    handles[num_pipe_handles] = pid;
+
+    while(num_waiting_to_connect > 0)
+    {
+        dw = WaitForMultipleObjects(num_handles, handles, FALSE, 30000);
+        int idx = dw - WAIT_OBJECT_0;
+        if (dw == WAIT_TIMEOUT)
         {
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "extcap didn't connect to pipe within 30 seconds.");
+            return FALSE;
+        }
+        // If index points to our handles array
+        else if (idx >= 0 && idx < num_handles)
+        {
+            if (idx < num_pipe_handles)  // Index of pipe handle
+            {
+                if (pipeinsts[idx].pendingIO)
+                {
+                    BOOL success = GetOverlappedResult(
+                        pipeinsts[idx].pipeHandle, // handle to pipe
+                        &pipeinsts[idx].ol,        // OVERLAPPED structure
+                        &cbRet,                    // bytes transferred
+                        FALSE);                    // do not wait
+
+                    if (!success)
+                    {
+                        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Error %d \n.", GetLastError());
+                        return FALSE;
+                    }
+                    else
+                    {
+                        pipeinsts[idx].pendingIO = FALSE;
+                        num_waiting_to_connect--;
+                    }
+                }
+            }
+            else // Index of PID
+            {
+                // Fail since index of 'pid' indicates that the pid of the extcap process has terminated.
+                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "extcap terminated without connecting to pipe.");
+                return FALSE;
+            }
         }
         else
         {
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "WaitForMultipleObjects returned 0x%08X. Error %d", dw, GetLastError());
+            return FALSE;
         }
     }
 
-    CloseHandle(ov.hEvent);
-
-    return success;
+    return TRUE;
 }
 #endif
 

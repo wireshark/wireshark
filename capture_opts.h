@@ -238,6 +238,8 @@ typedef struct interface_options_tag {
     guint             extcap_child_watch;
 #ifdef _WIN32
     HANDLE            extcap_pipe_h;
+    HANDLE            extcap_control_in_h;
+    HANDLE            extcap_control_out_h;
 #endif
     gchar            *extcap_control_in;
     gchar            *extcap_control_out;

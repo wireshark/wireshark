@@ -356,7 +356,7 @@ Control packet:
   The common sync pipe indication. This protocol uses the value 'T'.
 
  Message Length:
-  Payload length + 2 bytes for argument number and command.
+  Payload length + 2 bytes for control number and command.
 
  Control Number:
    Unique number to identify the control.  This number also gives the order of

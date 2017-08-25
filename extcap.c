@@ -1041,6 +1041,24 @@ void extcap_if_cleanup(capture_options *capture_opts, gchar **errormsg)
             CloseHandle(interface_opts.extcap_pipe_h);
             interface_opts.extcap_pipe_h = INVALID_HANDLE_VALUE;
         }
+        if (interface_opts.extcap_control_in_h != INVALID_HANDLE_VALUE)
+        {
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
+                  "Extcap [%s] - Closing control_in pipe", interface_opts.name);
+            FlushFileBuffers(interface_opts.extcap_control_in_h);
+            DisconnectNamedPipe(interface_opts.extcap_control_in_h);
+            CloseHandle(interface_opts.extcap_control_in_h);
+            interface_opts.extcap_control_in_h = INVALID_HANDLE_VALUE;
+        }
+        if (interface_opts.extcap_control_out_h != INVALID_HANDLE_VALUE)
+        {
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
+                  "Extcap [%s] - Closing control_out pipe", interface_opts.name);
+            FlushFileBuffers(interface_opts.extcap_control_out_h);
+            DisconnectNamedPipe(interface_opts.extcap_control_out_h);
+            CloseHandle(interface_opts.extcap_control_out_h);
+            interface_opts.extcap_control_out_h = INVALID_HANDLE_VALUE;
+        }
 #else
         if (interface_opts.extcap_fifo != NULL && file_exists(interface_opts.extcap_fifo))
         {
@@ -1355,14 +1373,20 @@ extcap_init_interfaces(capture_options *capture_opts)
         if (extcap_has_toolbar(interface_opts.name))
         {
             extcap_create_pipe(interface_opts.name, &interface_opts.extcap_control_in,
-                               EXTCAP_CONTROL_IN_PREFIX);
+                               EXTCAP_CONTROL_IN_PREFIX, FALSE);
+#ifdef _WIN32
+            interface_opts.extcap_control_in_h = pipe_h;
+#endif
             extcap_create_pipe(interface_opts.name, &interface_opts.extcap_control_out,
-                               EXTCAP_CONTROL_OUT_PREFIX);
+                               EXTCAP_CONTROL_OUT_PREFIX, FALSE);
+#ifdef _WIN32
+            interface_opts.extcap_control_out_h = pipe_h;
+#endif
         }
 
         /* create pipe for fifo */
         if (!extcap_create_pipe(interface_opts.name, &interface_opts.extcap_fifo,
-                                EXTCAP_PIPE_PREFIX))
+                                EXTCAP_PIPE_PREFIX, TRUE))
         {
             return FALSE;
         }
@@ -1403,7 +1427,18 @@ extcap_init_interfaces(capture_options *capture_opts)
          */
         if (pid != INVALID_EXTCAP_PID)
         {
-            extcap_wait_for_pipe(interface_opts.extcap_pipe_h, pid);
+            HANDLE pipe_handles[3];
+            int num_pipe_handles = 1;
+            pipe_handles[0] = interface_opts.extcap_pipe_h;
+
+            if (extcap_has_toolbar(interface_opts.name))
+            {
+                pipe_handles[1] = interface_opts.extcap_control_in_h;
+                pipe_handles[2] = interface_opts.extcap_control_out_h;
+                num_pipe_handles += 2;
+             }
+
+            extcap_wait_for_pipe(pipe_handles, num_pipe_handles, pid);
         }
 #endif
 
@@ -1416,15 +1451,14 @@ extcap_init_interfaces(capture_options *capture_opts)
     return TRUE;
 }
 
-gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, const gchar *pipe_prefix)
+gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, const gchar *pipe_prefix, gboolean byte_mode _U_)
 {
 #ifdef _WIN32
     gchar timestr[ 14 + 1 ];
     time_t current_time;
-
     gchar *pipename = NULL;
-
     SECURITY_ATTRIBUTES security;
+
     /* create pipename */
     current_time = time(NULL);
     /*
@@ -1440,18 +1474,19 @@ gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, const gchar *pipe
     security.bInheritHandle = TRUE;
     security.lpSecurityDescriptor = NULL;
 
-    /* create a namedPipe*/
+    /* create a namedPipe */
     pipe_h = CreateNamedPipe(
                  utf_8to16(pipename),
                  PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
-                 PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
-                 5, 65536, 65536,
+                 byte_mode ? PIPE_TYPE_BYTE : PIPE_TYPE_MESSAGE | byte_mode ? PIPE_READMODE_BYTE : PIPE_READMODE_MESSAGE | PIPE_WAIT,
+                 1, 65536, 65536,
                  300,
                  &security);
 
     if (pipe_h == INVALID_HANDLE_VALUE)
     {
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "\nError creating pipe => (%d)", GetLastError());
+        g_free (pipename);
         return FALSE;
     }
     else

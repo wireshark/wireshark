@@ -714,14 +714,12 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
     plugin_if_register_gui_cb(PLUGIN_IF_REMOVE_TOOLBAR, plugin_if_mainwindow_update_toolbars);
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0) && !defined(_WIN32)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
     // Register Interface Toolbar callbacks
     //
     // Qt version must be 5.2 or higher because the use of
     // QThread::requestInterruption() in interface_toolbar.cpp and
     // QThread::isInterruptionRequested() in interface_toolbar_reader.cpp
-    //
-    // The toolbar in/out control pipes are not supported on WIN32 yet.
     iface_toolbar_register_cb(mainwindow_add_toolbar, mainwindow_remove_toolbar);
 #endif
 
