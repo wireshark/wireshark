@@ -1245,6 +1245,17 @@ static void snort_start(void)
         NULL
     };
 
+    /* Enable field priming if required. */
+    if (snort_alert_in_reassembled_frame) {
+        /* Add items we want to try to get to find before we get called.
+           For now, just ask for tcp.reassembled_in, which won't be seen
+           on the first pass through the packets. */
+        GArray *wanted_hfids = g_array_new(FALSE, FALSE, (guint)sizeof(int));
+        int id = proto_registrar_get_id_byname("tcp.reassembled_in");
+        g_array_append_val(wanted_hfids, id);
+        set_postdissector_wanted_hfids(snort_handle, wanted_hfids);
+    }
+
     /* Nothing to do if not enabled, but registered init function gets called anyway */
     if ((pref_snort_alerts_source == FromNowhere) ||
         !proto_is_protocol_enabled(find_protocol_by_id(proto_snort))) {
@@ -1355,6 +1366,9 @@ static void snort_file_cleanup(void)
     if (g_snort_config) {
         delete_config(&g_snort_config);
     }
+
+    /* Disable field priming that got enabled in the init routine. */
+    set_postdissector_wanted_hfids(snort_handle, NULL);
 }
 
 void
@@ -1364,14 +1378,6 @@ proto_reg_handoff_snort(void)
      * work as a non-root user (couldn't read stdin)
      * TODO: could run snort just to get the version number and check the config file is readable?
      * TODO: could make snort config parsing less forgiving and use that as a test? */
-
-    /* Add items we want to try to get to find before we get called.
-       For now, just ask for tcp.reassembled_in, which won't be seen
-       on the first pass through the packets. */
-    GArray *wanted_hfids = g_array_new(FALSE, FALSE, (guint)sizeof(int));
-    int id = proto_registrar_get_id_byname("tcp.reassembled_in");
-    g_array_append_val(wanted_hfids, id);
-    set_postdissector_wanted_hfids(snort_handle, wanted_hfids);
 }
 
 void
