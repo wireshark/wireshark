@@ -120,6 +120,7 @@
 #include <epan/proto_data.h>
 
 #include <wsutil/utf8_entities.h>
+#include <wiretap/wtap.h>
 
 #include "packet-btle.h"
 
@@ -568,6 +569,7 @@ proto_reg_handoff_nordic_ble(void)
     debug_handle = find_dissector("nordic_debug");
 
     dissector_add_for_decode_as_with_preference("udp.port", nordic_ble_handle);
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_NORDIC_BLE, nordic_ble_handle);
 }
 
 

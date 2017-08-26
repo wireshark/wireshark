@@ -462,6 +462,9 @@ static const struct {
 	/* Linux vsock */
 	{ 271,		WTAP_ENCAP_VSOCK },
 
+	/* Nordic BLE Sniffer */
+	{ 272,		WTAP_ENCAP_NORDIC_BLE },
+
 	/*
 	 * To repeat:
 	 *

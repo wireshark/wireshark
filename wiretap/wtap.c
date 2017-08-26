@@ -929,6 +929,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* Linux vsock */
 	{ "Linux vsock", "vsock" },
+
+	/* Nordic BLE Sniffer */
+	{ "Nordic BLE Sniffer", "nordic_ble" },
 };
 
 WS_DLL_LOCAL

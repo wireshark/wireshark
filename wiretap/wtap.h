@@ -273,6 +273,7 @@ extern "C" {
 #define WTAP_ENCAP_LORATAP                      183
 #define WTAP_ENCAP_3MB_ETHERNET                 184
 #define WTAP_ENCAP_VSOCK                        185
+#define WTAP_ENCAP_NORDIC_BLE                   186
 /* After adding new item here, please also add new item to encap_table_base array */
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
