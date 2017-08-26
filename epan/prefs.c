@@ -67,6 +67,8 @@ static void pre_init_prefs(void);
 static gboolean prefs_is_column_visible(const gchar *cols_hidden, fmt_data *cfmt);
 static gboolean parse_column_format(fmt_data *cfmt, const char *fmt);
 static void try_convert_to_custom_column(gpointer *el_data);
+static guint prefs_module_list_foreach(wmem_tree_t *module_list, module_cb callback,
+                          gpointer user_data, gboolean skip_obsolete);
 
 #define IS_PREF_OBSOLETE(p) ((p) & PREF_OBSOLETE)
 #define SET_PREF_OBSOLETE(p) ((p) |= PREF_OBSOLETE)
@@ -388,7 +390,7 @@ free_module_prefs(module_t *module, gpointer data _U_)
     module->prefs = NULL;
     module->numprefs = 0;
     if (module->submodules) {
-        prefs_modules_foreach_submodules(module, free_module_prefs, NULL);
+        prefs_module_list_foreach(module->submodules, free_module_prefs, NULL, FALSE);
     }
     /*  We don't free the actual module: its submodules pointer points to
         a wmem_tree and the module itself is stored in a wmem_tree
@@ -404,7 +406,7 @@ prefs_cleanup(void)
     /*  This isn't strictly necessary since we're exiting anyway, but let's
      *  do what clean up we can.
      */
-    prefs_modules_foreach(free_module_prefs, NULL);
+    prefs_module_list_foreach(prefs_modules, free_module_prefs, NULL, FALSE);
 
     /* Clean the uats */
     uat_cleanup();
@@ -765,7 +767,7 @@ find_subtree(module_t *parent, const char *name)
  * non-zero value, we stop and return that value, otherwise we
  * return 0.
  *
- * Ignores "obsolete" modules; their sole purpose is to allow old
+ * Normally "obsolete" modules are ignored; their sole purpose is to allow old
  * preferences for dissectors that no longer have preferences to be
  * silently ignored in preference files.  Does not ignore subtrees,
  * as this can be used when walking the display tree of modules.
@@ -775,6 +777,7 @@ typedef struct {
     module_cb callback;
     gpointer user_data;
     guint ret;
+    gboolean skip_obsolete;
 } call_foreach_t;
 
 static gboolean
@@ -783,7 +786,7 @@ call_foreach_cb(const void *key _U_, void *value, void *data)
     module_t *module = (module_t*)value;
     call_foreach_t *call_data = (call_foreach_t*)data;
 
-    if (!module->obsolete)
+    if (!call_data->skip_obsolete || !module->obsolete)
         call_data->ret = (*call_data->callback)(module, call_data->user_data);
 
     return (call_data->ret != 0);
@@ -791,7 +794,7 @@ call_foreach_cb(const void *key _U_, void *value, void *data)
 
 static guint
 prefs_module_list_foreach(wmem_tree_t *module_list, module_cb callback,
-                          gpointer user_data)
+                          gpointer user_data, gboolean skip_obsolete)
 {
     call_foreach_t call_data;
 
@@ -801,6 +804,7 @@ prefs_module_list_foreach(wmem_tree_t *module_list, module_cb callback,
     call_data.callback = callback;
     call_data.user_data = user_data;
     call_data.ret = 0;
+    call_data.skip_obsolete = skip_obsolete;
     wmem_tree_foreach(module_list, call_foreach_cb, &call_data);
     return call_data.ret;
 }
@@ -833,7 +837,7 @@ prefs_module_has_submodules(module_t *module)
 guint
 prefs_modules_foreach(module_cb callback, gpointer user_data)
 {
-    return prefs_module_list_foreach(prefs_modules, callback, user_data);
+    return prefs_module_list_foreach(prefs_modules, callback, user_data, TRUE);
 }
 
 /*
@@ -850,7 +854,7 @@ guint
 prefs_modules_foreach_submodules(module_t *module, module_cb callback,
                                  gpointer user_data)
 {
-    return prefs_module_list_foreach((module)?module->submodules:prefs_top_level_modules, callback, user_data);
+    return prefs_module_list_foreach((module)?module->submodules:prefs_top_level_modules, callback, user_data, TRUE);
 }
 
 static gboolean
