@@ -3197,8 +3197,7 @@ static void l2tp_cleanup(void)
     GSList *iterator = list_heads;
 
     while (iterator) {
-        if (iterator->data != NULL)
-            g_slist_free((GSList *)iterator->data);
+        g_slist_free((GSList *)iterator->data);
         iterator = g_slist_next(iterator);
     }
 

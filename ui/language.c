@@ -46,8 +46,7 @@ read_language_pref(gchar *key, const gchar *value,
                    void *private_data _U_, gboolean return_range_errors _U_)
 {
     if (strcmp(key, LANGUAGE_PREF_LANGUAGE) == 0) {
-        if (language)
-            g_free(language);
+        g_free(language);
         /*
          * For backwards compatibility, treat "auto" as meaning "use the
          * system language".

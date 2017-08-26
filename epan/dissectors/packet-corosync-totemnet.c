@@ -481,10 +481,7 @@ proto_reg_handoff_corosync_totemnet(void)
     initialized = TRUE;
   }
 
-  if (corosync_totemnet_private_keys_list) {
-    g_strfreev(corosync_totemnet_private_keys_list);
-    corosync_totemnet_private_keys_list = NULL;
-  }
+  g_strfreev(corosync_totemnet_private_keys_list);
   corosync_totemnet_private_keys_list = g_strsplit(corosync_totemnet_private_keys, ";", 0);
 }
 

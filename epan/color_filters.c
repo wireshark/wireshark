@@ -173,10 +173,8 @@ color_filters_set_tmp(guint8 filt_nr, const gchar *filter, gboolean disabled, gc
                 g_free(local_err_msg);
                 return FALSE;
             } else {
-                if (colorf->filter_text != NULL)
-                    g_free(colorf->filter_text);
-                if (colorf->c_colorfilter != NULL)
-                    dfilter_free(colorf->c_colorfilter);
+                g_free(colorf->filter_text);
+                dfilter_free(colorf->c_colorfilter);
                 colorf->filter_text = g_strdup(tmpfilter);
                 colorf->c_colorfilter = compiled_filter;
                 colorf->disabled = ((i!=filt_nr) ? TRUE : disabled);
@@ -225,12 +223,9 @@ color_filters_reset_tmp(gchar **err_msg)
 void
 color_filter_delete(color_filter_t *colorf)
 {
-    if (colorf->filter_name != NULL)
-        g_free(colorf->filter_name);
-    if (colorf->filter_text != NULL)
-        g_free(colorf->filter_text);
-    if (colorf->c_colorfilter != NULL)
-        dfilter_free(colorf->c_colorfilter);
+    g_free(colorf->filter_name);
+    g_free(colorf->filter_text);
+    dfilter_free(colorf->c_colorfilter);
     g_free(colorf);
 }
 

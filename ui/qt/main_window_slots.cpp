@@ -250,8 +250,7 @@ bool MainWindow::openCaptureFile(QString cf_path, QString read_filter, unsigned 
                dismiss the alert box popped up for the open error,
                try again. */
             CaptureFile::globalCapFile()->window = NULL;
-            if (rfcode != NULL)
-                dfilter_free(rfcode);
+            dfilter_free(rfcode);
             cf_path.clear();
             continue;
         }

@@ -233,7 +233,7 @@ static const gchar* replace_entity(Dtd_PreParse_scanner_state_t* state, gchar* e
 const gchar* dtd_location(Dtd_PreParse_scanner_state_t* state) {
 	static gchar* loc = NULL;
 
-	if (loc) g_free(loc);
+	g_free(loc);
 
 	if (!state) return NULL;
 

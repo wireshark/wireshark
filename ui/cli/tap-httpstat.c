@@ -293,11 +293,7 @@ httpstat_init(const char *opt_arg, void *userdata _U_)
 	}
 
 	sp = g_new(httpstat_t, 1);
-	if (filter) {
-		sp->filter = g_strdup(filter);
-	} else {
-		sp->filter = NULL;
-	}
+	sp->filter = g_strdup(filter);
 	/*g_hash_table_foreach(http_status, (GHFunc)http_reset_hash_responses, NULL);*/
 
 

@@ -354,8 +354,7 @@ pppdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 	if (!collate(state, wth->fh, err, err_info, buf, &num_bytes, &direction,
 	    pid, 0)) {
-		if (pid != NULL)
-			g_free(pid);
+		g_free(pid);
 		return FALSE;
 	}
 

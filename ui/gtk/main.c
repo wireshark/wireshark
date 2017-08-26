@@ -2584,8 +2584,7 @@ main(int argc, char *argv[])
                 g_free(global_commandline_info.cf_name);
                 global_commandline_info.cf_name = NULL;
             } else {
-                if (rfcode != NULL)
-                    dfilter_free(rfcode);
+                dfilter_free(rfcode);
                 cfile.rfcode = NULL;
                 show_main_window(FALSE);
                 /* Don't call check_and_warn_user_startup(): we did it above */

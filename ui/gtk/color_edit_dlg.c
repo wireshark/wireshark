@@ -448,9 +448,7 @@ color_edit_dlg_ok_cb(GtkWidget *w _U_, gpointer user_data)
                      1, filter_text, 2, fg_str, 3, bg_str,
                      4, filter_disabled, -1);
 
-  if (colorf->c_colorfilter != NULL) {
-    dfilter_free(colorf->c_colorfilter);
-  }
+  dfilter_free(colorf->c_colorfilter);
   colorf->c_colorfilter = compiled_filter;
 
   /* Destroy the dialog box. */

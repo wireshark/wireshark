@@ -154,8 +154,7 @@ static GSList* local_interfaces_to_list_win(void)
 		pCurrAddresses = pCurrAddresses->Next;
 	}
 end:
-	if (pAddresses)
-		g_free(pAddresses);
+	g_free(pAddresses);
 
 	return interfaces;
 }

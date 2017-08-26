@@ -176,11 +176,7 @@ scan_local_interfaces(void (*update_cb)(void))
             continue;
         }
         device.name = g_strdup(if_info->name);
-        if (if_info->friendly_name != NULL) {
-            device.friendly_name = g_strdup(if_info->friendly_name);
-        } else {
-            device.friendly_name = NULL;
-        }
+        device.friendly_name = g_strdup(if_info->friendly_name);
         device.hidden = FALSE;
         memset(&temp, 0, sizeof(temp));
         temp.name = g_strdup(if_info->name);

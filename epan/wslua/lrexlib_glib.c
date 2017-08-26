@@ -161,8 +161,7 @@ typedef struct {
 } TGrgx;
 
 static void minfo_free(TGrgx* ud) {
-  if (ud->match_info)
-    g_match_info_free (ud->match_info);
+  g_match_info_free (ud->match_info);
   ud->match_info = NULL;
 }
 

@@ -787,8 +787,7 @@ gboolean radius_load_dictionary (radius_dictionary_t* d, gchar* dir, const gchar
 	 */
 
 	for (i = 0; i < MAX_INCLUDE_DEPTH; i++) {
-		if (state.fullpaths[i])
-			g_free(state.fullpaths[i]);
+		g_free(state.fullpaths[i]);
 	}
 
 	g_hash_table_foreach(state.dict->attrs_by_id,setup_attrs,&state);

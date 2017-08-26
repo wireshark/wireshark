@@ -216,7 +216,7 @@ WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
     tap = (Listener)g_malloc(sizeof(struct _wslua_tap));
 
     tap->name = g_strdup(tap_type);
-    tap->filter = filter ? g_strdup(filter) : NULL;
+    tap->filter = g_strdup(filter);
     tap->extractor = wslua_get_tap_extractor(tap_type);
     tap->L = L;
     tap->packet_ref = LUA_NOREF;

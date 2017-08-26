@@ -6351,14 +6351,8 @@ proto_reg_handoff_dvbci(void)
     tcp_dissector_table = find_dissector_table("tcp.port");
     udp_dissector_table = find_dissector_table("udp.port");
 
-    if (dvbci_sek_bin) {
-        g_free(dvbci_sek_bin);
-        dvbci_sek_bin = NULL;
-    }
-    if (dvbci_siv_bin) {
-        g_free(dvbci_siv_bin);
-        dvbci_siv_bin = NULL;
-    }
+    g_free(dvbci_sek_bin);
+    g_free(dvbci_siv_bin);
     pref_key_string_to_bin(dvbci_sek, &dvbci_sek_bin);
     pref_key_string_to_bin(dvbci_siv, &dvbci_siv_bin);
 }

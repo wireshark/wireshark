@@ -283,8 +283,7 @@ icmpstat_init(const char *opt_arg, void *userdata _U_)
     memset(icmpstat, 0, sizeof(icmpstat_t));
     icmpstat->min_msecs = 1.0 * G_MAXUINT;
 
-    if (filter)
-        icmpstat->filter = g_strdup(filter);
+    icmpstat->filter = g_strdup(filter);
 
 /* It is possible to create a filter and attach it to the callbacks.  Then the
  * callbacks would only be invoked if the filter matched.
@@ -300,8 +299,7 @@ icmpstat_init(const char *opt_arg, void *userdata _U_)
         TL_REQUIRES_NOTHING, icmpstat_reset, icmpstat_packet, icmpstat_draw);
     if (error_string) {
         /* error, we failed to attach to the tap. clean up */
-        if (icmpstat->filter)
-            g_free(icmpstat->filter);
+        g_free(icmpstat->filter);
         g_free(icmpstat);
 
         fprintf(stderr, "tshark: Couldn't register icmp,srt tap: %s\n",

@@ -516,9 +516,7 @@ free_tap_listener(volatile tap_listener_t *tl)
 {
 	if(!tl)
 		return;
-	if(tl->code){
-		dfilter_free(tl->code);
-	}
+	dfilter_free(tl->code);
 	g_free(tl->fstring);
 DIAG_OFF(cast-qual)
 	g_free((gpointer)tl);

@@ -1123,9 +1123,7 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
     }
     prefs_clear_string_list(col_l);
   } else if (strcmp(key, RECENT_GUI_FILEOPEN_REMEMBERED_DIR) == 0) {
-    if (recent.gui_fileopen_remembered_dir) {
-      g_free (recent.gui_fileopen_remembered_dir);
-    }
+    g_free(recent.gui_fileopen_remembered_dir);
     recent.gui_fileopen_remembered_dir = g_strdup(value);
   } else if (strcmp(key, RECENT_GUI_TOOLBAR_SHOW) == 0) {
       recent.gui_additional_toolbars = prefs_get_string_list(value);
@@ -1446,11 +1444,7 @@ recent_set_column_width(gint col, gint width)
   if (!found) {
     col_w = (col_width_data *) g_malloc(sizeof(col_width_data));
     col_w->cfmt = cfmt;
-    if (cfield) {
-      col_w->cfield = g_strdup(cfield);
-    } else {
-      col_w->cfield = NULL;
-    }
+    col_w->cfield = g_strdup(cfield);
     col_w->width = width;
     col_w->xalign = COLUMN_XALIGN_DEFAULT;
     recent.col_width_list = g_list_append(recent.col_width_list, col_w);
@@ -1514,11 +1508,7 @@ recent_set_column_xalign(gint col, gchar xalign)
   if (!found) {
     col_w = (col_width_data *) g_malloc(sizeof(col_width_data));
     col_w->cfmt = cfmt;
-    if (cfield) {
-      col_w->cfield = g_strdup(cfield);
-    } else {
-      col_w->cfield = NULL;
-    }
+    col_w->cfield = g_strdup(cfield);
     col_w->width = 40;
     col_w->xalign = xalign;
     recent.col_width_list = g_list_append(recent.col_width_list, col_w);

@@ -145,11 +145,7 @@ static void *uat_expert_copy_cb(void *n, const void *o, size_t siz _U_)
 	expert_level_entry_t       *new_record = (expert_level_entry_t*)n;
 	const expert_level_entry_t *old_record = (const expert_level_entry_t *)o;
 
-	if (old_record->field) {
-		new_record->field = g_strdup(old_record->field);
-	} else {
-		new_record->field = NULL;
-	}
+	new_record->field = g_strdup(old_record->field);
 
 	new_record->severity = old_record->severity;
 
@@ -160,8 +156,7 @@ static void uat_expert_free_cb(void*r)
 {
 	expert_level_entry_t *rec = (expert_level_entry_t *)r;
 
-	if (rec->field)
-		g_free(rec->field);
+	g_free(rec->field);
 }
 
 static void uat_expert_post_update_cb(void)

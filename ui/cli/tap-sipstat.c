@@ -422,11 +422,7 @@ sipstat_init(const char *opt_arg, void *userdata _U_)
 	}
 
 	sp = g_new0(sipstat_t, 1);
-	if (filter) {
-		sp->filter = g_strdup(filter);
-	} else {
-		sp->filter = NULL;
-	}
+	sp->filter = g_strdup(filter);
 	/*g_hash_table_foreach( sip_status, (GHFunc)sip_reset_hash_responses, NULL);*/
 
 

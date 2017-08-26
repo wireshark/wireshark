@@ -110,10 +110,10 @@ DIAG_OFF(sign-compare)
 
 	static dtd_build_data_t* build_data;
 
-	static void set_proto_name (gchar* val) { if(build_data->proto_name) g_free(build_data->proto_name); build_data->proto_name = g_strdup(val); }
-	static void set_media_type (gchar* val) { if(build_data->media_type) g_free(build_data->media_type); build_data->media_type = g_strdup(val); }
-	static void set_proto_root (gchar* val) { if(build_data->proto_root) g_free(build_data->proto_root); build_data->proto_root = g_strdup(val); }
-	static void set_description (gchar* val) { if(build_data->description) g_free(build_data->description); build_data->description = g_strdup(val); }
+	static void set_proto_name (gchar* val) { g_free(build_data->proto_name); build_data->proto_name = g_strdup(val); }
+	static void set_media_type (gchar* val) { g_free(build_data->media_type); build_data->media_type = g_strdup(val); }
+	static void set_proto_root (gchar* val) { g_free(build_data->proto_root); build_data->proto_root = g_strdup(val); }
+	static void set_description (gchar* val) { g_free(build_data->description); build_data->description = g_strdup(val); }
 	static void set_recursive (gchar* val) { build_data->recursion = ( g_ascii_strcasecmp(val,"yes") == 0 ) ? TRUE : FALSE; }
 
 #ifdef DEBUG_DTD_PARSER
@@ -244,7 +244,7 @@ squoted        ['][^\']*[']
 <XMLPI>{stop_xmlpi} BEGIN DTD;
 
 <LOCATION>{get_location_xmlpi} {
-	if(yyextra->location) g_free(yyextra->location);
+	g_free(yyextra->location);
 	yyextra->location = g_strdup(yytext);
 	BEGIN DONE;
 }
@@ -421,8 +421,7 @@ extern dtd_build_data_t* dtd_parse(GString* s) {
 
 	Dtd_Parse_lex_destroy(scanner);
 
-	if (state.location)
-		g_free(state.location);
+	g_free(state.location);
 
 	DtdParseFree(state.pParser, g_free);
 

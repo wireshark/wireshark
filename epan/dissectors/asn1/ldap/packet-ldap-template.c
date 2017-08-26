@@ -515,8 +515,8 @@ attribute_types_free_cb(void*r)
 {
   attribute_type_t* rec = (attribute_type_t*)r;
 
-  if (rec->attribute_type) g_free(rec->attribute_type);
-  if (rec->attribute_desc) g_free(rec->attribute_desc);
+  g_free(rec->attribute_type);
+  g_free(rec->attribute_desc);
 }
 
 UAT_CSTRING_CB_DEF(attribute_types, attribute_type, attribute_type_t)

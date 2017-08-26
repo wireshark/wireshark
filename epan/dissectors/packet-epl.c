@@ -2324,9 +2324,7 @@ static void
 free_key(gpointer ptr)
 {
 	duplication_key *key = (duplication_key *)ptr;
-
-	if(key)
-		g_slice_free(duplication_key, key);
+	g_slice_free(duplication_key, key);
 }
 
 /* removes the table entries of a specific transfer */

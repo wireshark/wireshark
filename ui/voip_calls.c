@@ -1377,25 +1377,21 @@ isup_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
         callsinfo->call_active_state = VOIP_ACTIVE;
         callsinfo->call_state = VOIP_UNKNOWN;
         copy_address(&(callsinfo->initial_speaker),&(pinfo->src));
-        callsinfo->selected=FALSE;
-        callsinfo->start_fd=pinfo->fd;
-        callsinfo->start_rel_ts=pinfo->rel_ts;
-        callsinfo->protocol=VOIP_ISUP;
-        if (pi->calling_number!=NULL) {
-            callsinfo->from_identity=g_strdup(pi->calling_number);
-        }
-        if (pi->called_number!=NULL) {
-            callsinfo->to_identity=g_strdup(pi->called_number);
-        }
-        callsinfo->prot_info=g_malloc(sizeof(isup_calls_info_t));
+        callsinfo->selected       = FALSE;
+        callsinfo->start_fd       = pinfo->fd;
+        callsinfo->start_rel_ts   = pinfo->rel_ts;
+        callsinfo->protocol       = VOIP_ISUP;
+        callsinfo->from_identity  = g_strdup(pi->calling_number);
+        callsinfo->to_identity    = g_strdup(pi->called_number);
+        callsinfo->prot_info      = g_malloc(sizeof(isup_calls_info_t));
         callsinfo->free_prot_info = g_free;
-        tmp_isupinfo=(isup_calls_info_t *)callsinfo->prot_info;
-        tmp_isupinfo->opc = tapinfo->mtp3_opc;
-        tmp_isupinfo->dpc = tapinfo->mtp3_dpc;
-        tmp_isupinfo->ni = tapinfo->mtp3_ni;
-        tmp_isupinfo->cic = pi->circuit_id;
-        callsinfo->npackets = 0;
-        callsinfo->call_num = tapinfo->ncalls++;
+        tmp_isupinfo              = (isup_calls_info_t *)callsinfo->prot_info;
+        tmp_isupinfo->opc         = tapinfo->mtp3_opc;
+        tmp_isupinfo->dpc         = tapinfo->mtp3_dpc;
+        tmp_isupinfo->ni          = tapinfo->mtp3_ni;
+        tmp_isupinfo->cic         = pi->circuit_id;
+        callsinfo->npackets       = 0;
+        callsinfo->call_num       = tapinfo->ncalls++;
         g_queue_push_tail(tapinfo->callsinfos, callsinfo);
     }
 

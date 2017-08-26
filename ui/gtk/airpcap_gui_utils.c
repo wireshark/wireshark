@@ -510,8 +510,7 @@ write_wlan_driver_wep_keys_to_registry(GList* key_list)
     /*
      * Free the old adapter key collection!
      */
-    if (fake_info_if->keysCollection != NULL)
-        g_free(fake_info_if->keysCollection);
+    g_free(fake_info_if->keysCollection);
 
     /*
      * Set this collection ad the new one
@@ -647,8 +646,7 @@ write_wlan_wep_keys_to_registry(airpcap_if_info_t* info_if, GList* key_list)
     /*
      * Free the old adapter key collection!
      */
-    if (info_if->keysCollection != NULL)
-        g_free(info_if->keysCollection);
+    g_free(info_if->keysCollection);
 
     /*
      * Set this collection ad the new one
@@ -1028,7 +1026,7 @@ get_airpcap_driver_keys(void)
             /* KEY */
             tmp_key = airpcap_get_key_string(fake_info_if->keysCollection->Keys[i]);
             new_key->key = g_string_new(tmp_key);
-            if (tmp_key != NULL) g_free(tmp_key);
+            g_free(tmp_key);
 
             /* BITS */
             new_key->bits = (guint) new_key->key->len *4; /* every char is 4 bits in WEP keys (it is an hexadecimal number) */
@@ -1243,7 +1241,7 @@ free_key_list(GList *list)
             g_string_free(curr_key->key, TRUE);
 
         if (curr_key->ssid != NULL)
-        g_byte_array_free(curr_key->ssid, TRUE);
+            g_byte_array_free(curr_key->ssid, TRUE);
 
         /* free the decryption_key_t structure*/
         g_free(curr_key);
@@ -2077,8 +2075,7 @@ airpcap_add_keys_to_driver_from_list(GtkListStore *key_list_store, airpcap_if_in
     /*
      * Free the old adapter key collection!
      */
-    if (fake_if_info->keysCollection != NULL)
-        g_free(fake_if_info->keysCollection);
+    g_free(fake_if_info->keysCollection);
 
     /*
      * Set this collection ad the new one

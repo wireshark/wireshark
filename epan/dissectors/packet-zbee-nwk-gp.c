@@ -550,16 +550,9 @@ uat_key_record_copy_cb(void *n, const void *o, size_t siz _U_)
     uat_key_record_t *new_key = (uat_key_record_t *)n;
     const uat_key_record_t *old_key = (const uat_key_record_t *)o;
 
-    if (old_key->string) {
-        new_key->string = g_strdup(old_key->string);
-    } else {
-        new_key->string = NULL;
-    }
-    if (old_key->label) {
-        new_key->label = g_strdup(old_key->label);
-    } else {
-        new_key->label = NULL;
-    }
+    new_key->string = g_strdup(old_key->string);
+    new_key->label = g_strdup(old_key->label);
+
     return new_key;
 }
 
@@ -568,12 +561,8 @@ static void
 uat_key_record_free_cb(void *r)
 {
     uat_key_record_t *key = (uat_key_record_t *)r;
-    if (key->string) {
-        g_free(key->string);
-    }
-    if (key->label) {
-        g_free(key->label);
-    }
+    g_free(key->string);
+    g_free(key->label);
 }
 
 /**

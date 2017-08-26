@@ -177,8 +177,7 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command
 	g_free(quoted_iface);
 	g_free(quoted_filter);
 	g_free(cmdline);
-	if (count_str)
-		g_free(count_str);
+	g_free(count_str);
 
 	return channel;
 }

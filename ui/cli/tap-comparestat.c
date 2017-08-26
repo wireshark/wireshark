@@ -565,11 +565,7 @@ comparestat_init(const char *opt_arg, void *userdata _U_)
 	cs->zebra_time.nsecs	   = 1;
 	cs->nr_set		   = g_hash_table_new(NULL, NULL);
 
-	if (filter) {
-		cs->filter = g_strdup(filter);
-	} else {
-		cs->filter = NULL;
-	}
+	cs->filter = g_strdup(filter);
 
 	/* create a Hash to count the packets with the same ip.id */
 	cs->packet_set = g_hash_table_new_full(NULL, NULL, NULL, frame_info_free);

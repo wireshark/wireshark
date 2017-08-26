@@ -345,10 +345,7 @@ static gboolean
 stat_node_free(GNode *node, gpointer data _U_)
 {
 	ph_stats_node_t	*stats = (ph_stats_node_t *)node->data;
-
-	if (stats) {
-		g_free(stats);
-	}
+	g_free(stats);
 	return FALSE;
 }
 

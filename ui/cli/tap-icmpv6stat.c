@@ -284,8 +284,7 @@ icmpv6stat_init(const char *opt_arg, void *userdata _U_)
     memset(icmpv6stat, 0, sizeof(icmpv6stat_t));
     icmpv6stat->min_msecs = 1.0 * G_MAXUINT;
 
-    if (filter)
-        icmpv6stat->filter = g_strdup(filter);
+    icmpv6stat->filter = g_strdup(filter);
 
 /* It is possible to create a filter and attach it to the callbacks.  Then the
  * callbacks would only be invoked if the filter matched.
@@ -301,8 +300,7 @@ icmpv6stat_init(const char *opt_arg, void *userdata _U_)
         TL_REQUIRES_NOTHING, icmpv6stat_reset, icmpv6stat_packet, icmpv6stat_draw);
     if (error_string) {
         /* error, we failed to attach to the tap. clean up */
-        if (icmpv6stat->filter)
-            g_free(icmpv6stat->filter);
+        g_free(icmpv6stat->filter);
         g_free(icmpv6stat);
 
         fprintf(stderr, "tshark: Couldn't register icmpv6,srt tap: %s\n",

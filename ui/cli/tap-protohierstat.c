@@ -184,12 +184,7 @@ protohierstat_init(const char *opt_arg, void *userdata _U_)
 	}
 
 	rs = new_phs_t(NULL);
-
-	if (filter) {
-		rs->filter = g_strdup(filter);
-	} else {
-		rs->filter = NULL;
-	}
+	rs->filter = g_strdup(filter);
 
 	error_string = register_tap_listener("frame", rs, filter, TL_REQUIRES_PROTO_TREE, NULL, protohierstat_packet, protohierstat_draw);
 	if (error_string) {

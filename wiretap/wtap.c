@@ -1236,8 +1236,7 @@ wtap_close(wtap *wth)
 	if (wth->random_fh != NULL)
 		file_close(wth->random_fh);
 
-	if (wth->priv != NULL)
-		g_free(wth->priv);
+	g_free(wth->priv);
 
 	if (wth->fast_seek != NULL) {
 		g_ptr_array_foreach(wth->fast_seek, g_fast_seek_item_free, NULL);

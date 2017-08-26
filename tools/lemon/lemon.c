@@ -3047,7 +3047,7 @@ PRIVATE FILE *file_open(
 ){
   FILE *fp;
 
-  if( lemp->outname ) free(lemp->outname);
+  free(lemp->outname);
   lemp->outname = file_makename_using_basename(lemp, suffix);
   fp = fopen(lemp->outname,mode);
   if( fp==0 && *mode=='w' ){
@@ -3459,9 +3459,8 @@ PRIVATE FILE *tplt_open(struct lemon *lemp)
     fprintf(stderr,"Can't open the template file \"%s\".\n",templatename);
     lemp->errorcnt++;
   }
-  if (tpltname_alloc) {
-    free(tpltname_alloc);
-  }
+  free(tpltname_alloc);
+
   return in;
 }
 

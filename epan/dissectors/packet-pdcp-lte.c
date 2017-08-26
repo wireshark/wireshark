@@ -204,9 +204,9 @@ static void* uat_ue_keys_record_copy_cb(void* n, const void* o, size_t siz _U_) 
     const uat_ue_keys_record_t* old_rec = (const uat_ue_keys_record_t *)o;
 
     new_rec->ueid = old_rec->ueid;
-    new_rec->rrcCipherKeyString = (old_rec->rrcCipherKeyString) ? g_strdup(old_rec->rrcCipherKeyString) : NULL;
-    new_rec->upCipherKeyString = (old_rec->upCipherKeyString) ? g_strdup(old_rec->upCipherKeyString) : NULL;
-    new_rec->rrcIntegrityKeyString = (old_rec->rrcIntegrityKeyString) ? g_strdup(old_rec->rrcIntegrityKeyString) : NULL;
+    new_rec->rrcCipherKeyString = g_strdup(old_rec->rrcCipherKeyString);
+    new_rec->upCipherKeyString = g_strdup(old_rec->upCipherKeyString);
+    new_rec->rrcIntegrityKeyString = g_strdup(old_rec->rrcIntegrityKeyString);
 
     return new_rec;
 }

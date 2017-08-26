@@ -224,11 +224,7 @@ init_srt_table(const char *name, const char *short_name, GArray *srt_array, int 
     int i;
     srt_stat_table *table = g_new(srt_stat_table, 1);
 
-    if(filter_string){
-        table->filter_string=g_strdup(filter_string);
-    } else {
-        table->filter_string=NULL;
-    }
+    table->filter_string = g_strdup(filter_string);
 
     table->name = name;
     table->short_name = short_name;

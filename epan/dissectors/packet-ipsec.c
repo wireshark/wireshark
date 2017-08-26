@@ -354,13 +354,13 @@ static void* uat_esp_sa_record_copy_cb(void* n, const void* o, size_t siz _U_) {
 
   /* Copy UAT fields */
   new_rec->protocol = old_rec->protocol;
-  new_rec->srcIP = (old_rec->srcIP) ? g_strdup(old_rec->srcIP) : NULL;
-  new_rec->dstIP = (old_rec->dstIP) ? g_strdup(old_rec->dstIP) : NULL;
-  new_rec->spi = (old_rec->spi) ? g_strdup(old_rec->spi) : NULL;
+  new_rec->srcIP = g_strdup(old_rec->srcIP);
+  new_rec->dstIP = g_strdup(old_rec->dstIP);
+  new_rec->spi = g_strdup(old_rec->spi);
   new_rec->encryption_algo = old_rec->encryption_algo;
-  new_rec->encryption_key_string = (old_rec->encryption_key_string) ? g_strdup(old_rec->encryption_key_string) : NULL;
+  new_rec->encryption_key_string = g_strdup(old_rec->encryption_key_string);
   new_rec->authentication_algo = old_rec->authentication_algo;
-  new_rec->authentication_key_string = (old_rec->authentication_key_string) ? g_strdup(old_rec->authentication_key_string) : NULL;
+  new_rec->authentication_key_string = g_strdup(old_rec->authentication_key_string);
 
   /* Parse keys as in an update */
   uat_esp_sa_record_update_cb(new_rec, NULL);
@@ -431,12 +431,7 @@ void esp_sa_record_add_from_dissector(guint8 protocol, const gchar *srcIP, const
 
    /* Authentication */
    record->authentication_algo = authentication_algo;
-   if (authentication_key) {
-      record->authentication_key_string = g_strdup(authentication_key);
-   }
-   else {
-      record->authentication_key_string = NULL;
-   }
+   record->authentication_key_string = g_strdup(authentication_key);
 
    /* Parse keys */
    uat_esp_sa_record_update_cb(record, NULL);

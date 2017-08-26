@@ -1128,8 +1128,7 @@ dcerpc_fragment_free_temporary_key(gpointer ptr)
 {
     dcerpc_fragment_key *key = (dcerpc_fragment_key *)ptr;
 
-    if (key)
-        g_slice_free(dcerpc_fragment_key, key);
+    g_slice_free(dcerpc_fragment_key, key);
 }
 
 static void
@@ -3118,9 +3117,7 @@ dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, dcerpc_
     } while (found_new_pointer);
     DISSECTOR_ASSERT(original_depth == current_depth);
 
-    if (ndr_pointer_list) {
-        g_slist_free_full(ndr_pointer_list, g_free);
-    }
+    g_slist_free_full(ndr_pointer_list, g_free);
     ndr_pointer_list = (GSList *)g_slist_nth_data(list_ndr_pointer_list, current_depth);
     len_ndr_pointer_list = g_slist_length(ndr_pointer_list);
 

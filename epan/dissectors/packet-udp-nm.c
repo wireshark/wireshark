@@ -147,31 +147,12 @@ user_data_fields_copy_cb(void* n, const void* o, size_t siz _U_)
   user_data_field_t* new_rec = (user_data_field_t*)n;
   const user_data_field_t* old_rec = (const user_data_field_t*)o;
 
-  if (old_rec->udf_name) {
-    new_rec->udf_name = g_strdup(old_rec->udf_name);
-  }
-  else {
-    new_rec->udf_name = NULL;
-  }
-
-  if (old_rec->udf_desc) {
-    new_rec->udf_desc = g_strdup(old_rec->udf_desc);
-  }
-  else {
-    new_rec->udf_desc = NULL;
-  }
-
-  new_rec->udf_offset = old_rec->udf_offset;
-  new_rec->udf_length = old_rec->udf_length;
-
-  new_rec->udf_mask = old_rec->udf_mask;
-
-  if (old_rec->udf_value_desc) {
-    new_rec->udf_value_desc = g_strdup(old_rec->udf_value_desc);
-  }
-  else {
-    new_rec->udf_value_desc = NULL;
-  }
+  new_rec->udf_name       = g_strdup(old_rec->udf_name);
+  new_rec->udf_desc       = g_strdup(old_rec->udf_desc);
+  new_rec->udf_offset     = old_rec->udf_offset;
+  new_rec->udf_length     = old_rec->udf_length;
+  new_rec->udf_mask       = old_rec->udf_mask;
+  new_rec->udf_value_desc = g_strdup(old_rec->udf_value_desc);
 
   return new_rec;
 }
@@ -181,9 +162,9 @@ user_data_fields_free_cb(void*r)
 {
   user_data_field_t* rec = (user_data_field_t*)r;
 
-  if (rec->udf_name) g_free(rec->udf_name);
-  if (rec->udf_desc) g_free(rec->udf_desc);
-  if (rec->udf_value_desc) g_free(rec->udf_value_desc);
+  g_free(rec->udf_name);
+  g_free(rec->udf_desc);
+  g_free(rec->udf_value_desc);
 }
 
 UAT_CSTRING_CB_DEF(user_data_fields, udf_name, user_data_field_t)

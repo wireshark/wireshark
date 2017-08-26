@@ -3409,32 +3409,9 @@ static void* secmode_list_copy_cb(void *n, const void *o, size_t siz _U_)
     secmode_field_t *new_rec = (secmode_field_t *)n;
     const secmode_field_t *old_rec = (const secmode_field_t *)o;
 
-    if (old_rec->domain)
-    {
-        new_rec->domain = g_strdup(old_rec->domain);
-    }
-    else
-    {
-        new_rec->domain = NULL;
-    }
-
-    if (old_rec->identity)
-    {
-        new_rec->identity = g_strdup(old_rec->identity);
-    }
-    else
-    {
-        new_rec->identity = NULL;
-    }
-
-    if (old_rec->kek)
-    {
-        new_rec->kek = g_strdup(old_rec->kek);
-    }
-    else
-    {
-        new_rec->kek = NULL;
-    }
+    new_rec->domain = g_strdup(old_rec->domain);
+    new_rec->identity = g_strdup(old_rec->identity);
+    new_rec->kek = g_strdup(old_rec->kek);
 
     return new_rec;
 }
@@ -3443,12 +3420,9 @@ static void secmode_list_free_cb(void *r)
 {
     secmode_field_t *rec = (secmode_field_t *)r;
 
-    if (rec->domain)
-        g_free(rec->domain);
-    if (rec->identity)
-        g_free(rec->identity);
-    if (rec->kek)
-        g_free(rec->kek);
+    g_free(rec->domain);
+    g_free(rec->identity);
+    g_free(rec->kek);
 }
 
 
@@ -3477,14 +3451,7 @@ static void* seckey_list_copy_cb(void *n, const void *o, size_t siz _U_)
     seckey_field_t *new_rec = (seckey_field_t *)n;
     const seckey_field_t *old_rec = (const seckey_field_t *)o;
 
-    if (old_rec->key)
-    {
-        new_rec->key = g_strdup(old_rec->key);
-    }
-    else
-    {
-        new_rec->key = NULL;
-    }
+    new_rec->key = g_strdup(old_rec->key);
 
     return new_rec;
 }
@@ -3493,8 +3460,7 @@ static void seckey_list_free_cb(void *r)
 {
     seckey_field_t *rec = (seckey_field_t *)r;
 
-    if (rec->key)
-        g_free(rec->key);
+    g_free(rec->key);
 }
 
 
@@ -3557,32 +3523,9 @@ static void* identsecret_list_copy_cb(void *n, const void *o, size_t siz _U_)
     identsecret_field_t *new_rec = (identsecret_field_t *)n;
     const identsecret_field_t *old_rec = (const identsecret_field_t *)o;
 
-    if (old_rec->domain)
-    {
-        new_rec->domain = g_strdup(old_rec->domain);
-    }
-    else
-    {
-        new_rec->domain = NULL;
-    }
-
-    if (old_rec->identity)
-    {
-        new_rec->identity = g_strdup(old_rec->identity);
-    }
-    else
-    {
-        new_rec->identity = NULL;
-    }
-
-    if (old_rec->secret)
-    {
-        new_rec->secret = g_strdup(old_rec->secret);
-    }
-    else
-    {
-        new_rec->secret = NULL;
-    }
+    new_rec->domain = g_strdup(old_rec->domain);
+    new_rec->identity = g_strdup(old_rec->identity);
+    new_rec->secret = g_strdup(old_rec->secret);
 
     return new_rec;
 }
@@ -3591,12 +3534,9 @@ static void identsecret_list_free_cb(void *r)
 {
     identsecret_field_t *rec = (identsecret_field_t *)r;
 
-    if (rec->domain)
-        g_free(rec->domain);
-    if (rec->identity)
-        g_free(rec->identity);
-    if (rec->secret)
-        g_free(rec->secret);
+    g_free(rec->domain);
+    g_free(rec->identity);
+    g_free(rec->secret);
 }
 
 static void init_addr_port_tables(void);

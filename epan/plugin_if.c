@@ -353,8 +353,7 @@ ext_toolbar_add_entry( ext_toolbar_t * parent, ext_toolbar_item_t type, const gc
     if ( value_list != NULL && g_list_length(value_list) > 0 )
         entry->values = g_list_copy(value_list);
 
-    if ( regex )
-        entry->regex = g_strdup(regex);
+    entry->regex = g_strdup(regex);
 
     entry->is_required = is_required;
     entry->capture_only = capture_only;

@@ -1152,8 +1152,7 @@ capture_opts_del_iface(capture_options *capture_opts, guint if_index)
 
     g_free(interface_opts->name);
     g_free(interface_opts->descr);
-    if (interface_opts->console_display_name != NULL)
-        g_free(interface_opts->console_display_name);
+    g_free(interface_opts->console_display_name);
     g_free(interface_opts->cfilter);
     g_free(interface_opts->timestamp_type);
 #ifdef HAVE_EXTCAP

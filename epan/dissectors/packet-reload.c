@@ -748,19 +748,14 @@ static void* uat_kindid_copy_cb(void* n, const void* o, size_t siz _U_) {
   kind_t * new_record = (kind_t *)n;
   const kind_t* old_record = (const kind_t *)o;
 
-  if (old_record->name) {
-    new_record->name = g_strdup(old_record->name);
-  } else {
-    new_record->name = NULL;
-  }
+  new_record->name = g_strdup(old_record->name);
 
   return new_record;
 }
 
 static void uat_kindid_record_free_cb(void*r) {
   kind_t* rec = (kind_t *)r;
-
-  if (rec->name) g_free(rec->name);
+  g_free(rec->name);
 }
 
 UAT_DEC_CB_DEF(kindidlist_uats,id,kind_t)

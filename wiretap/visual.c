@@ -852,8 +852,7 @@ static void visual_dump_free(wtap_dumper *wdh)
     if (visual)
     {
         /* Free the index table memory. */
-        if (visual->index_table)
-            g_free(visual->index_table);
+        g_free(visual->index_table);
     }
 }
 

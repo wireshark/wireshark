@@ -273,10 +273,6 @@ capture_prefs_fetch(GtkWidget *w)
 	auto_scroll_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), AUTO_SCROLL_KEY);
 	show_info_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), SHOW_INFO_KEY);
 
-	if (prefs.capture_device != NULL) {
-		g_free(prefs.capture_device);
-		prefs.capture_device = NULL;
-	}
 	if_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(gtk_bin_get_child(GTK_BIN(if_cbxe)))));
 	/* Strip out white space */
 	g_strstrip(if_text);
@@ -291,6 +287,8 @@ capture_prefs_fetch(GtkWidget *w)
 	/* Ensure capture device is not NULL */
 	if (if_text == NULL)
 		if_text = g_strdup("");
+
+	g_free(prefs.capture_device);
 	prefs.capture_device = if_text;
 
 	prefs.capture_prom_mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(promisc_cb));

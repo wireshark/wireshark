@@ -1202,8 +1202,7 @@ iostat_draw(void *arg)
                 }
 
                 if (last_row) {
-                    if (fmt)
-                        g_free(fmt);
+                    g_free(fmt);
                 } else {
                     item_in_column[j] = item_in_column[j]->next;
                 }

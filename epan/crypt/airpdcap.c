@@ -2088,8 +2088,7 @@ parse_key_string(gchar* input_string, guint8 key_type)
             g_byte_array_free(ssid_ba, TRUE);
 
         g_free(key);
-        if(ssid != NULL)
-            g_free(ssid);
+        g_free(ssid);
 
         /* Free the array of strings */
         g_strfreev(tokens);

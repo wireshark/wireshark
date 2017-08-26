@@ -780,11 +780,9 @@ free_airpcap_if_cb(gpointer data, gpointer user_data _U_)
     if (NULL == if_info)
         return;
 
-    if (if_info->name != NULL)
-        g_free(if_info->name);
+    g_free(if_info->name);
 
-    if (if_info->description != NULL)
-        g_free(if_info->description);
+    g_free(if_info->description);
 
     /* XXX - FREE THE WEP KEY LIST HERE!!!*/
     if (if_info->keysCollection != NULL)
@@ -793,8 +791,7 @@ free_airpcap_if_cb(gpointer data, gpointer user_data _U_)
         if_info->keysCollection = NULL;
     }
 
-    if (if_info->ip_addr != NULL)
-        g_slist_free(if_info->ip_addr);
+    g_slist_free(if_info->ip_addr);
 
     g_free(if_info);
 }
@@ -1107,11 +1104,9 @@ airpcap_if_info_free(airpcap_if_info_t *if_info)
 {
     if (if_info != NULL)
     {
-        if (if_info->name != NULL)
-            g_free(if_info->name);
+        g_free(if_info->name);
 
-        if (if_info->description != NULL)
-            g_free(if_info->description);
+        g_free(if_info->description);
 
         if (if_info->keysCollection != NULL)
         {
@@ -1125,10 +1120,7 @@ airpcap_if_info_free(airpcap_if_info_t *if_info)
             if_info->ip_addr = NULL;
         }
 
-        if (if_info != NULL)
-        {
-            g_free(if_info);
-        }
+        g_free(if_info);
     }
 }
 

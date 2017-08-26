@@ -112,8 +112,7 @@ WSLUA_METHOD FrameInfo_read_data(lua_State* L) {
 /* free the struct we created, but not the phdr/buf it points to */
 static int FrameInfo__gc(lua_State* L) {
     FrameInfo fi = toFrameInfo(L,1);
-    if (fi)
-        g_free(fi);
+    g_free(fi);
     return 0;
 }
 
@@ -322,8 +321,7 @@ WSLUA_METHOD FrameInfoConst_write_data(lua_State* L) {
 /* free the struct we created, but not the wtap_pkthdr it points to */
 static int FrameInfoConst__gc(lua_State* L) {
     FrameInfoConst fi = toFrameInfoConst(L,1);
-    if (fi)
-        g_free(fi);
+    g_free(fi);
     return 0;
 }
 

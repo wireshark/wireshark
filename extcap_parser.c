@@ -691,14 +691,10 @@ static iface_toolbar_control *extcap_parse_control_sentence(GList *control_items
         }
 
         param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_TOOLTIP));
-        if (param_value != NULL) {
-            control->tooltip = g_strdup(param_value);
-        }
+        control->tooltip = g_strdup(param_value);
 
         param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_PLACEHOLDER));
-        if (param_value != NULL) {
-            control->placeholder = g_strdup(param_value);
-        }
+        control->placeholder = g_strdup(param_value);
 
         param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_TYPE));
         if (param_value == NULL) {

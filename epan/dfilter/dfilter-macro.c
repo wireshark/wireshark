@@ -184,7 +184,7 @@ static gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, gchar*
 		FGS(name); \
 		FGS(arg); \
 		if (args) { \
-			while(args->len) { void* p = g_ptr_array_remove_index_fast(args,0); if (p) g_free(p); } \
+			while(args->len) { void* p = g_ptr_array_remove_index_fast(args,0); g_free(p); } \
 			g_ptr_array_free(args,TRUE); \
 			args = NULL; \
 		} \

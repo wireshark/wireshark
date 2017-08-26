@@ -251,10 +251,7 @@ read_keytab_file_from_preferences(void)
 		return;
 	}
 
-	if (last_keytab != NULL) {
-		g_free(last_keytab);
-		last_keytab = NULL;
-	}
+	g_free(last_keytab);
 	last_keytab = g_strdup(keytab_filename);
 
 	read_keytab_file(last_keytab);
@@ -620,9 +617,9 @@ clear_keytab(void) {
 	for(ske = service_key_list; ske != NULL; ske = g_slist_next(ske)){
 		sk = (service_key_t *) ske->data;
 		if (sk) {
-					g_free(sk->contents);
-					g_free(sk);
-				}
+			g_free(sk->contents);
+			g_free(sk);
+		}
 	}
 	g_slist_free(service_key_list);
 	service_key_list = NULL;

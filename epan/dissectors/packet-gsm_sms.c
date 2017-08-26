@@ -445,9 +445,7 @@ static void
 sm_fragment_free_temporary_key(gpointer ptr)
 {
     sm_fragment_key *key = (sm_fragment_key *)ptr;
-
-    if(key)
-        g_slice_free(sm_fragment_key, key);
+    g_slice_free(sm_fragment_key, key);
 }
 
 static void

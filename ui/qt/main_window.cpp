@@ -1276,8 +1276,7 @@ void MainWindow::mergeCaptureFile()
         g_free(in_filenames[1]);
 
         if (merge_status != CF_OK) {
-            if (rfcode != NULL)
-                dfilter_free(rfcode);
+            dfilter_free(rfcode);
             g_free(tmpname);
             continue;
         }
@@ -1289,8 +1288,7 @@ void MainWindow::mergeCaptureFile()
         if (cf_open(CaptureFile::globalCapFile(), tmpname, WTAP_TYPE_AUTO, TRUE /* temporary file */, &err) != CF_OK) {
             /* We couldn't open it; fail. */
             CaptureFile::globalCapFile()->window = NULL;
-            if (rfcode != NULL)
-                dfilter_free(rfcode);
+            dfilter_free(rfcode);
             g_free(tmpname);
             return;
         }

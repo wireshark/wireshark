@@ -741,8 +741,7 @@ GtkWidget *extcap_create_gtk_multicheckwidget(extcap_arg *argument,
                 EXTCAP_GTK_MULTI_COL_ACTIVATABLE, v->enabled, -1);
     }
 
-    if (prev_list != NULL)
-        g_strfreev(prev_list);
+    g_strfreev(prev_list);
 
     renderer = gtk_cell_renderer_text_new();
     togglerenderer = gtk_cell_renderer_toggle_new();
@@ -866,8 +865,7 @@ GSList *extcap_populate_gtk_vbox(GList *arguments, GtkWidget *vbox,
 
             gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.1f);
             item = extcap_create_gtk_fileselect(arg_iter, prev_map, default_str);
-            if (default_str != NULL)
-                g_free(default_str);
+            g_free(default_str);
             break;
         case EXTCAP_ARG_TIMESTAMP:
             default_str = NULL;

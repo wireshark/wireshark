@@ -474,8 +474,7 @@ WSLUA_METAMETHOD File__tostring(lua_State* L) {
 /* We free the struct we malloc'ed, but not the FILE_T/dumper in it of course */
 static int File__gc(lua_State* L) {
     File f = toFile(L,1);
-    if (f)
-        g_free(f);
+    g_free(f);
     return 0;
 }
 

@@ -3944,9 +3944,9 @@ pre_init_prefs(void)
 
     prefs.pr_format  = PR_FMT_TEXT;
     prefs.pr_dest    = PR_DEST_CMD;
-    if (prefs.pr_file) g_free(prefs.pr_file);
+    g_free(prefs.pr_file);
     prefs.pr_file    = g_strdup("wireshark.out");
-    if (prefs.pr_cmd) g_free(prefs.pr_cmd);
+    g_free(prefs.pr_cmd);
     prefs.pr_cmd     = g_strdup("lpr");
 
     prefs.gui_altern_colors = FALSE;
@@ -3959,14 +3959,14 @@ pre_init_prefs(void)
     prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
     prefs.gui_toolbar_filter_style = TB_STYLE_TEXT;
     /* These will be g_freed, so they must be g_mallocated. */
-    if (prefs.gui_gtk2_font_name) g_free(prefs.gui_gtk2_font_name);
+    g_free(prefs.gui_gtk2_font_name);
 #ifdef _WIN32
     prefs.gui_gtk2_font_name         = g_strdup("Lucida Console 10");
 #else
     prefs.gui_gtk2_font_name         = g_strdup("Monospace 10");
 #endif
     /* We try to find the best font in the Qt code */
-    if (prefs.gui_qt_font_name) g_free(prefs.gui_qt_font_name);
+    g_free(prefs.gui_qt_font_name);
     prefs.gui_qt_font_name           = g_strdup("");
     prefs.gui_marked_fg.red          =     65535;
     prefs.gui_marked_fg.green        =     65535;
@@ -3980,9 +3980,9 @@ pre_init_prefs(void)
     prefs.gui_ignored_bg.red         =     65535;
     prefs.gui_ignored_bg.green       =     65535;
     prefs.gui_ignored_bg.blue        =     65535;
-    if (prefs.gui_colorized_fg) g_free(prefs.gui_colorized_fg);
+    g_free(prefs.gui_colorized_fg);
     prefs.gui_colorized_fg           = g_strdup("000000,000000,000000,000000,000000,000000,000000,000000,000000,000000");
-    if (prefs.gui_colorized_bg) g_free(prefs.gui_colorized_bg);
+    g_free(prefs.gui_colorized_bg);
     prefs.gui_colorized_bg           = g_strdup("ffc0c0,ffc0ff,e0c0e0,c0c0ff,c0e0e0,c0ffff,c0ffc0,ffffc0,e0e0c0,e0e0e0");
     prefs.st_client_fg.red           = 32767;
     prefs.st_client_fg.green         =     0;
@@ -4029,7 +4029,7 @@ pre_init_prefs(void)
     prefs.gui_fileopen_style         = FO_STYLE_LAST_OPENED;
     prefs.gui_recent_df_entries_max  = 10;
     prefs.gui_recent_files_count_max = 10;
-    if (prefs.gui_fileopen_dir) g_free(prefs.gui_fileopen_dir);
+    g_free(prefs.gui_fileopen_dir);
     prefs.gui_fileopen_dir           = g_strdup(get_persdatafile_dir());
     prefs.gui_fileopen_preview       = 3;
     prefs.gui_ask_unsaved            = TRUE;
@@ -4038,13 +4038,13 @@ pre_init_prefs(void)
     prefs.gui_update_enabled         = TRUE;
     prefs.gui_update_channel         = UPDATE_CHANNEL_STABLE;
     prefs.gui_update_interval        = 60*60*24; /* Seconds */
-    if (prefs.gui_webbrowser) g_free(prefs.gui_webbrowser);
+    g_free(prefs.gui_webbrowser);
     prefs.gui_webbrowser             = g_strdup("");
-    if (prefs.gui_window_title) g_free(prefs.gui_window_title);
+    g_free(prefs.gui_window_title);
     prefs.gui_window_title           = g_strdup("");
-    if (prefs.gui_prepend_window_title) g_free(prefs.gui_prepend_window_title);
+    g_free(prefs.gui_prepend_window_title);
     prefs.gui_prepend_window_title   = g_strdup("");
-    if (prefs.gui_start_title) g_free(prefs.gui_start_title);
+    g_free(prefs.gui_start_title);
     prefs.gui_start_title            = g_strdup("The World's Most Popular Network Protocol Analyzer");
     prefs.gui_version_placement      = version_both;
     prefs.gui_auto_scroll_on_expand  = FALSE;
@@ -4057,7 +4057,7 @@ pre_init_prefs(void)
     prefs.gui_packet_list_elide_mode = ELIDE_RIGHT;
     prefs.gui_packet_list_show_related = TRUE;
     prefs.gui_packet_list_show_minimap = TRUE;
-    if (prefs.gui_interfaces_hide_types) g_free (prefs.gui_interfaces_hide_types);
+    g_free (prefs.gui_interfaces_hide_types);
     prefs.gui_interfaces_hide_types = g_strdup("");
     prefs.gui_interfaces_show_hidden = FALSE;
 #ifdef HAVE_PCAP_REMOTE

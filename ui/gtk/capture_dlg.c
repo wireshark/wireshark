@@ -2480,8 +2480,7 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
     device.snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
   }
   filter_text = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(filter_cm));
-  if (device.cfilter)
-    g_free(device.cfilter);
+  g_free(device.cfilter);
   g_assert(filter_text != NULL);
   device.cfilter = filter_text;
 
@@ -4523,9 +4522,7 @@ update_properties_all(void)
             if (strcmp(device.cfilter, filter_str) != 0) {
               /* No, so not all selected interfaces have the same capture
                  filter. */
-              if (filter_str != NULL) {
-                g_free(filter_str);
-              }
+              g_free(filter_str);
               filter_str = NULL;
               filter_all = FALSE;
             }
@@ -5445,11 +5442,8 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
              the same as the one the other interfaces we've looked
              at have? */
           if (strcmp(interface_opts.cfilter, filter_str) != 0) {
-            /* No, so not all selected interfaces have the same capture
-               filter. */
-            if (filter_str != NULL) {
-              g_free(filter_str);
-            }
+            /* No, so not all selected interfaces have the same capture filter. */
+            g_free(filter_str);
             filter_str = NULL;
           }
         }

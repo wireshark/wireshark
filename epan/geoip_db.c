@@ -165,13 +165,9 @@ static void geoip_dat_cleanup(void) {
          * databases as they weren't created by GeoIP_new()
          * or GeoIP_open() */
         gi = g_array_index(geoip_dat_arr, GeoIP *, i);
-        if (gi) {
-            g_free(gi);
-        }
+        g_free(gi);
         gi = g_array_index(geoip_dat_arr, GeoIP *, i+1);
-        if (gi) {
-            g_free(gi);
-        }
+        g_free(gi);
         /* finally, free the array itself */
         g_array_free(geoip_dat_arr, TRUE);
         geoip_dat_arr = NULL;

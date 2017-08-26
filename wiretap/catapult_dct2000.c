@@ -1670,9 +1670,7 @@ free_line_prefix_info(gpointer key, gpointer value,
 
     /* Free the strings inside */
     g_free(info->before_time);
-    if (info->after_time) {
-        g_free(info->after_time);
-    }
+    g_free(info->after_time);
 
     /* And the structure itself */
     g_free(info);

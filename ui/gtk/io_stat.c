@@ -1826,8 +1826,7 @@ filter_callback(GtkWidget *widget, gpointer user_data)
         io_stat_redraw(gio->io);
         return;
     }
-    if (dfilter != NULL)
-        dfilter_free(dfilter);
+    dfilter_free(dfilter);
 
     /* ok, we have a valid filter and the graph is active.
        first just try to delete any previous settings and then apply

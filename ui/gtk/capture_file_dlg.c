@@ -930,8 +930,7 @@ file_merge_cmd(GtkWidget *w _U_)
       }
 
       if (merge_status != CF_OK) {
-        if (rfcode != NULL)
-          dfilter_free(rfcode);
+        dfilter_free(rfcode);
         g_free(tmpname);
         continue;
       }
@@ -941,8 +940,7 @@ file_merge_cmd(GtkWidget *w _U_)
       /* Try to open the merged capture file. This closes the current file if it succeeds. */
       if (cf_open(&cfile, tmpname, WTAP_TYPE_AUTO, TRUE /* temporary file */, &err) != CF_OK) {
         /* We couldn't open it; fail. */
-        if (rfcode != NULL)
-          dfilter_free(rfcode);
+        dfilter_free(rfcode);
         g_free(tmpname);
         g_string_free(file_name, TRUE);
         g_string_free(display_filter, TRUE);

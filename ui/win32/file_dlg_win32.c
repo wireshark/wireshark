@@ -1323,8 +1323,7 @@ filter_tb_syntax_check(HWND hwnd, TCHAR *filter_text) {
         SendMessage(hwnd, EM_SETBKGNDCOLOR, (WPARAM) 1, COLOR_WINDOW);
         return;
     } else if (dfilter_compile(utf_16to8(strval), &dfp, NULL)) { /* colorize filter string entry */
-        if (dfp != NULL)
-            dfilter_free(dfp);
+        dfilter_free(dfp);
         /* Valid (light green) */
         SendMessage(hwnd, EM_SETBKGNDCOLOR, 0, RGB(0xe4, 0xff, 0xc7)); /* tango_chameleon_1 */
     } else {
@@ -1332,7 +1331,7 @@ filter_tb_syntax_check(HWND hwnd, TCHAR *filter_text) {
         SendMessage(hwnd, EM_SETBKGNDCOLOR, 0, RGB(0xff, 0xcc, 0xcc)); /* tango_scarlet_red_1 */
     }
 
-    if (strval) g_free(strval);
+    g_free(strval);
 }
 
 
@@ -1365,8 +1364,7 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                 case CDN_FILEOK:
                     /* Fetch the read filter */
                     cur_ctrl = GetDlgItem(of_hwnd, EWFD_FILTER_EDIT);
-                    if (g_dfilter_str)
-                        g_free(g_dfilter_str);
+                    g_free(g_dfilter_str);
                     g_dfilter_str = filter_tb_get(cur_ctrl);
 
                     cur_ctrl = GetDlgItem(of_hwnd, EWFD_FORMAT_TYPE);
@@ -2220,8 +2218,7 @@ merge_file_hook_proc(HWND mf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                 case CDN_FILEOK:
                     /* Fetch the read filter */
                     cur_ctrl = GetDlgItem(mf_hwnd, EWFD_FILTER_EDIT);
-                    if (g_dfilter_str)
-                        g_free(g_dfilter_str);
+                    g_free(g_dfilter_str);
                     g_dfilter_str = filter_tb_get(cur_ctrl);
 
                     cur_ctrl = GetDlgItem(mf_hwnd, EWFD_MERGE_CHRONO_BTN);

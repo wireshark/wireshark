@@ -62,8 +62,8 @@ static GPtrArray* g_ptr_array_join(GPtrArray* a, GPtrArray* b){
 %token_destructor {
 	(void) bd; /* Mark unused, similar to Q_UNUSED */
 	if ($$) {
-		if ($$->text) g_free($$->text);
-		if ($$->location) g_free($$->location);
+		g_free($$->text);
+		g_free($$->location);
 		g_free($$);
 	}
 }
@@ -96,8 +96,7 @@ doctype ::= TAG_START DOCTYPE_KW NAME(Name) OPEN_BRACKET dtd_parts CLOSE_BRACKET
 		bd->proto_name = Name->text;
 	}
 
-	if(bd->proto_root)
-		g_free(bd->proto_root);
+	g_free(bd->proto_root);
 
 	bd->proto_root = Name->text;
 

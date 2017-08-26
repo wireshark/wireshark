@@ -245,11 +245,8 @@ wspstat_init(const char *opt_arg, void *userdata _U_)
 	}
 	sp->num_pdus = 16;
 	sp->pdu_stats = g_new(wsp_pdu_t, (sp->num_pdus+1));
-	if (filter) {
-		sp->filter = g_strdup(filter);
-	} else {
-		sp->filter = NULL;
-	}
+	sp->filter = g_strdup(filter);
+
 	for (i=0; i<sp->num_pdus; i++)
 	{
 		sp->pdu_stats[i].packets = 0;

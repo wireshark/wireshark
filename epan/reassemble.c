@@ -130,9 +130,7 @@ static void
 fragment_addresses_free_temporary_key(gpointer ptr)
 {
 	fragment_addresses_key *key = (fragment_addresses_key *)ptr;
-
-	if(key)
-		g_slice_free(fragment_addresses_key, key);
+	g_slice_free(fragment_addresses_key, key);
 }
 
 static void
@@ -268,9 +266,7 @@ static void
 fragment_addresses_ports_free_temporary_key(gpointer ptr)
 {
 	fragment_addresses_ports_key *key = (fragment_addresses_ports_key *)ptr;
-
-	if(key)
-		g_slice_free(fragment_addresses_ports_key, key);
+	g_slice_free(fragment_addresses_ports_key, key);
 }
 
 static void

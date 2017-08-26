@@ -521,11 +521,7 @@ static void *sctp_chunk_type_copy_cb(void* n, const void* o, size_t siz _U_)
 {
   type_field_t* new_rec = (type_field_t*)n;
   const type_field_t* old_rec = (const type_field_t*)o;
-  if (old_rec->type_name) {
-    new_rec->type_name = g_strdup(old_rec->type_name);
-  } else {
-    new_rec->type_name = NULL;
-  }
+  new_rec->type_name = g_strdup(old_rec->type_name);
 
   return new_rec;
 }
@@ -534,7 +530,7 @@ static void
 sctp_chunk_type_free_cb(void* r)
 {
   type_field_t* rec = (type_field_t*)r;
-  if (rec->type_name) g_free(rec->type_name);
+  g_free(rec->type_name);
 }
 
 static gboolean

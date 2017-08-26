@@ -1487,11 +1487,7 @@ static void* uat_bootp_record_copy_cb(void* n, const void* o, size_t siz _U_) {
 	uat_bootp_record_t* new_record = (uat_bootp_record_t *)n;
 	const uat_bootp_record_t* old_record = (const uat_bootp_record_t *)o;
 
-	if (old_record->text) {
-		new_record->text = g_strdup(old_record->text);
-	} else {
-		new_record->text = NULL;
-	}
+	new_record->text = g_strdup(old_record->text);
 
 	return new_record;
 }
@@ -1509,7 +1505,7 @@ static gboolean uat_bootp_record_update_cb(void* r, char** err) {
 static void uat_bootp_record_free_cb(void*r) {
 	uat_bootp_record_t* rec = (uat_bootp_record_t *)r;
 
-	if (rec->text) g_free(rec->text);
+	g_free(rec->text);
 }
 
 UAT_DEC_CB_DEF(uat_bootp_records, opt, uat_bootp_record_t)

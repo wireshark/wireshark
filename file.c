@@ -681,9 +681,7 @@ cf_read(capture_file *cf, gboolean reloading)
   g_free(name_ptr);
 
   /* Cleanup and release all dfilter resources */
-  if (dfcode != NULL) {
-    dfilter_free(dfcode);
-  }
+  dfilter_free(dfcode);
 
   epan_dissect_cleanup(&edt);
 
@@ -849,9 +847,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   cf->lnk_t = wtap_file_encap(cf->wth);
 
   /* Cleanup and release all dfilter resources */
-  if (dfcode != NULL) {
-    dfilter_free(dfcode);
-  }
+  dfilter_free(dfcode);
 
   epan_dissect_cleanup(&edt);
 
@@ -963,9 +959,7 @@ cf_finish_tail(capture_file *cf, int *err)
   }
 
   /* Cleanup and release all dfilter resources */
-  if (dfcode != NULL) {
-    dfilter_free(dfcode);
-  }
+  dfilter_free(dfcode);
 
   epan_dissect_cleanup(&edt);
 
