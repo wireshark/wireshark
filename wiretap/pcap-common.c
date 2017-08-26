@@ -455,6 +455,9 @@ static const struct {
 	/* IBM SDLC frames containing SNA PDUs */
 	{ 268,		WTAP_ENCAP_SDLC },
 
+	/* Nordic BLE Sniffer */
+	{ 272,		WTAP_ENCAP_NORDIC_BLE },
+
 	/*
 	 * To repeat:
 	 *

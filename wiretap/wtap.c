@@ -920,6 +920,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_USB_DARWIN */
 	{ "USB packets with Darwin (macOS, etc.) headers", "usb-darwin" },
+
+	/* Nordic BLE Sniffer */
+	{ "Nordic BLE Sniffer", "nordic_ble" },
 };
 
 WS_DLL_LOCAL
