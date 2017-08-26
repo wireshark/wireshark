@@ -709,7 +709,7 @@ dissect_nvme_cqe(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
     proto_tree_add_item(cqe_tree, hf_nvme_cqe_sts, nvme_tvb,
                         0, 8, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cqe_tree, hf_nvme_cqe_sqhd, nvme_tvb,
-                        8, 2, ENC_NA);
+                        8, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cqe_tree, hf_nvme_cqe_rsvd, nvme_tvb,
                         10, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cqe_tree, hf_nvme_cqe_cid, nvme_tvb,
