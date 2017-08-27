@@ -724,7 +724,7 @@ static proto_tree *g_tree;
 static guint8 cell_discriminator = 0x0f;  /* tracks whether handover is to UMTS */
 
 static guint16
-be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
+be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
 
 #if 0
 This enum has been moved to packet-gsm_a_common to
@@ -1049,7 +1049,7 @@ static const range_string gsm_a_bssap_cause_rvals[] = {
 };
 
 static guint16
-be_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len)
+be_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8       oct;
     guint32      curr_offset;
@@ -1111,7 +1111,7 @@ be_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset
  * [2] 3.2.2.7 TMSI
  */
 static guint16
-be_tmsi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len)
+be_tmsi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint32 curr_offset;
     guint32 value;
@@ -1138,7 +1138,7 @@ be_tmsi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset,
  * [2] 3.2.2.8 Number Of MSs
  */
 static guint16
-be_num_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_num_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -1155,7 +1155,7 @@ be_num_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offse
  * [2] 3.2.2.9 Layer 3 Header Information
  */
 static guint16
-be_l3_header_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+be_l3_header_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset  = offset;
 
@@ -1183,7 +1183,7 @@ be_l3_header_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 static const true_false_string tfs_permitted_not_permitted = { "Permitted", "Not permitted" };
 
 static guint16
-be_enc_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+be_enc_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset = offset;
 
@@ -1269,7 +1269,7 @@ static const range_string gsm_a_bssap_channel_rate_and_type_rvals[] = {
 static const true_false_string tfs_non_transparent_transparent = {"Non-Transparent", "Transparent"};
 
 guint16
-be_chan_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len)
+be_chan_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8       oct;
     guint8       sdi;
@@ -1717,7 +1717,7 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
 }
 
 static guint16
-be_cell_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+be_cell_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint8  oct;
     guint8  disc;
@@ -2054,7 +2054,7 @@ static const value_string gsm_a_bssap_cell_id_list_seg_cell_id_disc_vals[] = {
 };
 
 static guint16
-be_cell_id_list_seg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_cell_id_list_seg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2444,7 +2444,7 @@ be_trace_reference(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 }
     /* 3.2.2.40 TransactionID */
 static guint16
-be_trace_transaction_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_trace_transaction_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -3232,7 +3232,7 @@ bssmap_new_bss_to_old_bss_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
  * 3.2.2.81 Inter-System Information
  */
 static guint16
-be_inter_sys_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_inter_sys_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     tvbuff_t *new_tvb;
 
@@ -3398,7 +3398,7 @@ static const value_string gsm_a_bssmap_talker_pri_vals[] = {
 };
 
 static guint16
-be_talker_pri(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_talker_pri(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -3578,7 +3578,7 @@ be_ganss_pos_dta(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
  * 3.2.2.97 GANSS Location Type
  */
 guint16
-be_ganss_loc_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_ganss_loc_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -3651,7 +3651,7 @@ be_app_data_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
   * 3.2.2.102   AoIP Transport Layer Address
   */
 static guint16
-be_aoip_trans_lay_add(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_aoip_trans_lay_add(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
     guint8  addr_type;
@@ -3783,7 +3783,7 @@ static const value_string bssap_extended_codec_values[] = {
 };
 
 static guint16
-be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset, consumed = 0;
     guint8 codec;
@@ -3937,7 +3937,7 @@ static const true_false_string bssmap_pt2_vals = {
     "PCM over A-Interface with TDM as transport is not selected for this Codec Type"
 };
 static guint16
-be_speech_codec(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_speech_codec(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset, consumed = 0;
     guint8 codec;
@@ -4380,7 +4380,7 @@ be_lcls_bss_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
  * 3.2.2.126 Selected PLMN ID
  */
 static guint16
-be_selected_plmn_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+be_selected_plmn_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 
     proto_tree_add_string(tree, hf_gsm_a_bssmap_selected_plmn_id, tvb, offset, 3, dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, E212_NONE, TRUE));
@@ -4389,7 +4389,7 @@ be_selected_plmn_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 }
 
 
-guint16 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len) = {
+guint16 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len) = {
     NULL,               /* Undefined */
     be_cic,             /* Circuit Identity Code */
     NULL,               /* Reserved */
@@ -4748,7 +4748,7 @@ be_fe_dtm_ho_command_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
     return(curr_offset - offset);
 }
 
-static guint16 (*bssmap_bss_to_bss_element_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_) = {
+static guint16 (*bssmap_bss_to_bss_element_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_) = {
     be_fe_extra_info,              /* { 0x01,       "Extra information" }, */
     be_fe_cur_chan_type2,          /* { 0x02,       "Current Channel Type 2" }, */
     be_fe_target_radio_cell_info,  /* { 0x03,       "Target cell radio information" }, */
@@ -4832,7 +4832,7 @@ be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
  * 48.008 8.4.0
  */
 static void
-bssmap_ass_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_ass_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -4895,7 +4895,7 @@ bssmap_ass_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
  *  [2] 3.2.1.2 ASSIGNMENT COMPLETE
  */
 static void
-bssmap_ass_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_ass_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -4938,7 +4938,7 @@ bssmap_ass_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
  *  [2] 3.2.1.3 ASSIGNMENT FAILURE
  */
 static void
-bssmap_ass_failure(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_ass_failure(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -4967,7 +4967,7 @@ bssmap_ass_failure(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
  *  [2] 3.2.1.4 BLOCK
  */
 static void
-bssmap_block(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_block(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -4991,7 +4991,7 @@ bssmap_block(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
  */
 
 static void
-bssmap_block_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_block_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5010,7 +5010,7 @@ bssmap_block_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
  *  [2] 3.2.1.6 UNBLOCK
  */
 static void
-bssmap_unblock(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_unblock(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5029,7 +5029,7 @@ bssmap_unblock(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
  *  [2] 3.2.1.7 UNBLOCKING ACKNOWLEDGE
  */
 static void
-bssmap_unblock_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_unblock_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5048,7 +5048,7 @@ bssmap_unblock_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
  *  [2] 3.2.1.8 HANDOVER REQUEST
  */
 static void
-bssmap_ho_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_ho_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5139,7 +5139,7 @@ bssmap_ho_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
  *  [2] 3.2.1.9 HANDOVER REQUIRED
  */
 static void
-bssmap_ho_reqd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_ho_reqd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5186,7 +5186,7 @@ bssmap_ho_reqd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
  *  [2] 3.2.1.10 HANDOVER REQUEST ACKNOWLEDGE
  */
 static void
-bssmap_ho_req_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_ho_req_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5231,7 +5231,7 @@ bssmap_ho_req_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  *  [2] 3.2.1.11 HANDOVER COMMAND
  */
 static void
-bssmap_ho_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_ho_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5257,7 +5257,7 @@ bssmap_ho_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
  *  [2] 3.2.1.12 HANDOVER COMPLETE
  */
 static void
-bssmap_ho_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_ho_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5288,7 +5288,7 @@ bssmap_ho_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
  * 3.2.1.13 HANDOVER SUCCEEDED
  */
 static void
-bssmap_ho_succ(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_ho_succ(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5307,7 +5307,7 @@ bssmap_ho_succ(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
  *  [2] 3.2.1.14 HANDOVER CANDIDATE ENQUIRE
  */
 static void
-bssmap_ho_cand_enq(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_ho_cand_enq(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5332,7 +5332,7 @@ bssmap_ho_cand_enq(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
  *  [2] 3.2.1.15 HANDOVER CANDIDATE RESPONSE
  */
 static void
-bssmap_ho_cand_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_ho_cand_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5354,7 +5354,7 @@ bssmap_ho_cand_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
  *  [2] 3.2.1.16 HANDOVER FAILURE
  */
 static void
-bssmap_ho_failure(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_ho_failure(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5389,7 +5389,7 @@ bssmap_ho_failure(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  * 3.2.1.17 RESOURCE REQUEST
  */
 static void
-bssmap_res_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_res_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5414,7 +5414,7 @@ bssmap_res_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
  * 3.2.1.18 RESOURCE INDICATION
  */
 static void
-bssmap_res_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_res_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5438,7 +5438,7 @@ bssmap_res_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
  *  [2] 3.2.1.19 PAGING
  */
 static void
-bssmap_paging(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_paging(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5467,7 +5467,7 @@ bssmap_paging(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
  *  [2] 3.2.1.20 CLEAR REQUEST
  */
 static void
-bssmap_clear_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_clear_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5486,7 +5486,7 @@ bssmap_clear_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
  *  [2] 3.2.1.21 CLEAR COMMAND
  */
 static void
-bssmap_clear_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_clear_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5513,7 +5513,7 @@ bssmap_clear_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
  *  [2] 3.2.1.23 RESET
  */
 void
-bssmap_reset(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_reset(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5534,7 +5534,7 @@ bssmap_reset(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
  * 3.2.1.24 RESET ACKNOWLEDGE
  */
 static void
-bssmap_reset_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_reset_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5553,7 +5553,7 @@ bssmap_reset_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
  *  [2] 3.2.1.25 HANDOVER PERFORMED
  */
 static void
-bssmap_ho_performed(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_ho_performed(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5590,7 +5590,7 @@ bssmap_ho_performed(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
  *  [2] 3.2.1.26 OVERLOAD
  */
 static void
-bssmap_overload(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_overload(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5610,7 +5610,7 @@ bssmap_overload(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
  * 3.2.1.27 MSC INVOKE TRACE
  */
 static void
-bssmap_msc_invoke_trace(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_msc_invoke_trace(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5639,7 +5639,7 @@ bssmap_msc_invoke_trace(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  * 3.2.1.28 BSS INVOKE TRACE
  */
 static void
-bssmap_bss_invoke_trace(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_bss_invoke_trace(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5668,7 +5668,7 @@ bssmap_bss_invoke_trace(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  *  [2] 3.2.1.29 CLASSMARK UPDATE
  */
 static void
-bssmap_cm_upd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_cm_upd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5691,7 +5691,7 @@ bssmap_cm_upd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
  *  [2] 3.2.1.30 CIPHER MODE COMMAND
  */
 static void
-bssmap_ciph_mode_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_ciph_mode_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5716,7 +5716,7 @@ bssmap_ciph_mode_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
  *  [2] 3.2.1.31 CIPHER MODE COMPLETE
  */
 static void
-bssmap_ciph_mode_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_ciph_mode_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5738,7 +5738,7 @@ bssmap_ciph_mode_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
  * Updated to 3GPP TS 48.008 version 11.5.0 Release 11
  */
 static void
-bssmap_cl3_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_cl3_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 consumed;
     guint32 curr_offset;
@@ -5781,7 +5781,7 @@ bssmap_cl3_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
  * [2] 3.2.1.34 SAPI "n" REJECT
  */
 static void
-bssmap_sapi_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_sapi_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 consumed;
     guint32 curr_offset;
@@ -5804,7 +5804,7 @@ bssmap_sapi_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
  *  [2] 3.2.1.37 HANDOVER REQUIRED REJECT
  */
 static void
-bssmap_ho_reqd_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_ho_reqd_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5827,7 +5827,7 @@ bssmap_ho_reqd_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
  *  [2] 3.2.1.38 RESET CIRCUIT
  */
 static void
-bssmap_reset_cct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_reset_cct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5848,7 +5848,7 @@ bssmap_reset_cct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
  *  [2] 3.2.1.39 RESET CIRCUIT ACKNOWLEDGE
  */
 static void
-bssmap_reset_cct_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_reset_cct_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5867,7 +5867,7 @@ bssmap_reset_cct_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
  * 3.2.1.40 HANDOVER DETECT
  */
 static void
-bssmap_ho_det(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_ho_det(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5885,7 +5885,7 @@ bssmap_ho_det(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
  *  [2] 3.2.1.41 CIRCUIT GROUP BLOCK
  */
 static void
-bssmap_cct_group_block(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_cct_group_block(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5908,7 +5908,7 @@ bssmap_cct_group_block(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
  *  [2] 3.2.1.42 CIRCUIT GROUP BLOCKING ACKNOWLEDGE
  */
 static void
-bssmap_cct_group_block_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_cct_group_block_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5929,7 +5929,7 @@ bssmap_cct_group_block_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
  *  [2] 3.2.1.43 CIRCUIT GROUP UNBLOCK
  */
 static void
-bssmap_cct_group_unblock(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_cct_group_unblock(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5950,7 +5950,7 @@ bssmap_cct_group_unblock(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
  *  [2] 3.2.1.44 CIRCUIT GROUP UNBLOCKING ACKNOWLEDGE
  */
 static void
-bssmap_cct_group_unblock_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_cct_group_unblock_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5971,7 +5971,7 @@ bssmap_cct_group_unblock_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
  *  [2] 3.2.1.45 CONFUSION
  */
 static void
-bssmap_confusion(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_confusion(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -5991,7 +5991,7 @@ bssmap_confusion(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
  * 3.2.1.46 CLASSMARK REQUEST
  */
 static void
-bssmap_cls_m_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_cls_m_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6009,7 +6009,7 @@ bssmap_cls_m_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
  *  [2] 3.2.1.47 UNEQUIPPED CIRCUIT
  */
 static void
-bssmap_unequipped_cct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_unequipped_cct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6030,7 +6030,7 @@ bssmap_unequipped_cct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
  *  [2] 3.2.1.48 CIPHER MODE REJECT
  */
 static void
-bssmap_ciph_mode_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_ciph_mode_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6049,7 +6049,7 @@ bssmap_ciph_mode_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
  *  [2] 3.2.1.49 LOAD INDICATION
  */
 static void
-bssmap_load_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_load_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6075,7 +6075,7 @@ bssmap_load_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
  * 3.2.1.50 VGCS/VBS SETUP
  */
  static void
- bssmap_vgcs_vbs_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+ bssmap_vgcs_vbs_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6098,7 +6098,7 @@ bssmap_load_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
  * 3.2.1.51 VGCS/VBS SETUP ACK
  */
  static void
-bssmap_vgcs_vbs_setup_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_vgcs_vbs_setup_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6117,7 +6117,7 @@ bssmap_vgcs_vbs_setup_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
  * 3.2.1.52 VGCS/VBS SETUP REFUSE
  */
  static void
-bssmap_vgcs_vbs_setup_refuse(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_vgcs_vbs_setup_refuse(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6136,7 +6136,7 @@ bssmap_vgcs_vbs_setup_refuse(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
  * 3.2.1.53 VGCS/VBS ASSIGNMENT REQUEST
  */
 static void
-bssmap_vgcs_vbs_ass_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_vgcs_vbs_ass_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6181,7 +6181,7 @@ bssmap_vgcs_vbs_ass_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  * 3.2.1.54 VGCS/VBS ASSIGNMENT RESULT
  */
 static void
-bssmap_vgcs_vbs_ass_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_vgcs_vbs_ass_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6213,7 +6213,7 @@ bssmap_vgcs_vbs_ass_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  * 3.2.1.55 VGCS/VBS ASSIGNMENT FAILURE
  */
 static void
-bssmap_vgcs_vbs_ass_fail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_vgcs_vbs_ass_fail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6241,7 +6241,7 @@ bssmap_vgcs_vbs_ass_fail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
  * 3.2.1.57 UPLINK REQUEST
  */
 static void
-bssmap_uplink_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_uplink_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6265,7 +6265,7 @@ bssmap_uplink_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  * 3.2.1.58 UPLINK REQUEST ACKNOWLEDGE
  */
 static void
-bssmap_uplink_req_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_uplink_req_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6287,7 +6287,7 @@ bssmap_uplink_req_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
  * 3.2.1.59 UPLINK REQUEST CONFIRMATION
  */
 static void
-bssmap_uplink_req_conf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_uplink_req_conf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6309,7 +6309,7 @@ bssmap_uplink_req_conf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
  * 3.2.1.59a    UPLINK APPLICATION DATA
  */
 static void
-bssmap_uplink_app_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_uplink_app_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6331,7 +6331,7 @@ bssmap_uplink_app_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
  * 3.2.1.60 UPLINK RELEASE INDICATION
  */
 static void
-bssmap_uplink_rel_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_uplink_rel_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6352,7 +6352,7 @@ bssmap_uplink_rel_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
  * 3.2.1.61 UPLINK REJECT COMMAND
  */
 static void
-bssmap_uplink_rej_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_uplink_rej_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6376,7 +6376,7 @@ bssmap_uplink_rej_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
  * 3.2.1.62 UPLINK RELEASE COMMAND
  */
 static void
-bssmap_uplink_rel_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_uplink_rel_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6395,7 +6395,7 @@ bssmap_uplink_rel_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
  * 3.2.1.63 UPLINK SEIZED COMMAND
  */
 static void
-bssmap_uplink_seized_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_uplink_seized_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6419,7 +6419,7 @@ bssmap_uplink_seized_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
  * 3.2.1.64 SUSPEND
  */
 static void
-bssmap_sus(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_sus(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6437,7 +6437,7 @@ bssmap_sus(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
  * 3.2.1.65 RESUME
  */
 static void
-bssmap_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6455,7 +6455,7 @@ bssmap_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
  *  [2] 3.2.1.66 CHANGE CIRCUIT
  */
 static void
-bssmap_change_cct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_change_cct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6474,7 +6474,7 @@ bssmap_change_cct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  *  [2] 3.2.1.67 CHANGE CIRCUIT ACKNOWLEDGE
  */
 static void
-bssmap_change_cct_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_change_cct_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6493,7 +6493,7 @@ bssmap_change_cct_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
  *  [2] 3.2.1.68 Common ID
  */
 static void
-bssmap_common_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_common_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6517,7 +6517,7 @@ bssmap_common_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
  *  [2] 3.2.1.69 LSA INFORMATION
  */
 static void
-bssmap_lsa_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_lsa_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6536,7 +6536,7 @@ bssmap_lsa_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
  *  [2] 3.2.1.70 (void)
  */
 void
-bssmap_conn_oriented(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_conn_oriented(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6556,7 +6556,7 @@ bssmap_conn_oriented(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
  * 3.2.1.71 PERFORM LOCATION REQUEST
  */
 static void
-bssmap_perf_loc_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_perf_loc_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6598,7 +6598,7 @@ bssmap_perf_loc_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
  * 3.2.1.72 PERFORM LOCATION RESPONSE
  */
 static void
-bssmap_perf_loc_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_perf_loc_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6626,7 +6626,7 @@ bssmap_perf_loc_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
  * 3.2.1.73 PERFORM LOCATION ABORT
  */
 void
-bssmap_perf_loc_abort(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_perf_loc_abort(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6657,7 +6657,7 @@ Return Error Cause  3.2.2.73    Both    C (note 3)  3-n
  */
 
 static void
-bssmap_chan_mod_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_chan_mod_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6689,7 +6689,7 @@ Mobile Identity 3.2.2.41    BSS-MSC O (note 1)  3-n
  * 3.2.1.78 VGCS ADDITIONAL INFORMATION
  */
 static void
-bssmap_vgcs_add_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_vgcs_add_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6707,7 +6707,7 @@ bssmap_vgcs_add_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
  * 3.2.1.79 VGCS/VBS AREA CELL INFO
  */
 static void
-bssmap_vgcs_vbs_area_cell_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_vgcs_vbs_area_cell_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6727,7 +6727,7 @@ bssmap_vgcs_vbs_area_cell_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
  * 3.2.1.80 VGCS/VBS ASSIGNMENT STATUS
  */
 static void
-bssmap_vgcs_vbs_assign_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_vgcs_vbs_assign_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6753,7 +6753,7 @@ bssmap_vgcs_vbs_assign_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
  * 3.2.1.81 VGCS SMS
  */
 static void
-bssmap_vgcs_sms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_vgcs_sms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6771,7 +6771,7 @@ bssmap_vgcs_sms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
  * 3.2.1.82 NOTIFICATION DATA
  */
 static void
-bssmap_notification_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_notification_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6793,7 +6793,7 @@ bssmap_notification_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
  * 3.2.1.83 INTERNAL HANDOVER REQUIRED
  */
 static void
-bssmap_int_ho_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_int_ho_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6817,7 +6817,7 @@ bssmap_int_ho_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  * 3.2.1.84 INTERNAL HANDOVER REQUIRED REJECT
  */
 static void
-bssmap_int_ho_req_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_int_ho_req_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6838,7 +6838,7 @@ bssmap_int_ho_req_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
  * 3.2.1.85 INTERNAL HANDOVER COMMAND
  */
 static void
-bssmap_int_ho_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_int_ho_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6867,7 +6867,7 @@ bssmap_int_ho_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  */
 
 static void
-bssmap_int_ho_enq(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_int_ho_enq(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6885,7 +6885,7 @@ bssmap_int_ho_enq(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  * 3.2.1.87 RESET IP RESOURCE
  */
 static void
-bssmap_reset_ip_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_reset_ip_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6905,7 +6905,7 @@ bssmap_reset_ip_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
  * 3.2.1.88 RESET IP RESOURCE ACKNOWLEDGE
  */
 static void
-bssmap_reset_ip_res_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_reset_ip_res_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6924,7 +6924,7 @@ bssmap_reset_ip_res_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  * 3.2.1.89 REROUTE COMMAND
  */
 static void
-bssmap_reroute_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_reroute_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6953,7 +6953,7 @@ bssmap_reroute_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
  */
 
 static void
-bssmap_reroute_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+bssmap_reroute_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
