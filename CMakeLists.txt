@@ -741,7 +741,7 @@ endif()
 # - set HAVE_XXX
 
 # The minimum package list
-set(PACKAGELIST Gettext M Git GLIB2 GMODULE2 GTHREAD2 GCRYPT LEX YACC Perl SH PythonInterp NGHTTP2)
+set(PACKAGELIST Gettext M Git GLIB2 GMODULE2 GTHREAD2 GCRYPT LEX YACC Perl SH PythonInterp)
 set(LEX_OPTIONS REQUIRED)
 set(GLIB2_OPTIONS REQUIRED)
 set(GLIB2_FIND_OPTIONS REQUIRED)
@@ -864,6 +864,11 @@ endif()
 # Snappy compression
 if(ENABLE_SNAPPY)
 	set(PACKAGELIST ${PACKAGELIST} SNAPPY)
+endif()
+
+# Enhanced HTTP/2 dissection
+if(ENABLE_NGHTTP2)
+	set(PACKAGELIST ${PACKAGELIST} NGHTTP2)
 endif()
 
 # Embedded Lua interpreter
