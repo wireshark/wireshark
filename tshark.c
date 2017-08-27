@@ -3766,7 +3766,7 @@ print_columns(capture_file *cf, const epan_dissect_t *edt)
         case COL_DEF_DST:
         case COL_RES_DST:
         case COL_UNRES_DST:
-          g_snprintf(str_format, sizeof(str_format), " %s%s", UTF8_RIGHTWARDS_ARROW, delimiter_char);
+          g_snprintf(str_format, sizeof(str_format), "%s%s%s", delimiter_char, UTF8_RIGHTWARDS_ARROW, delimiter_char);
           put_string(line_bufp + buf_offset, str_format, 5);
           buf_offset += 5;
           break;
@@ -3786,7 +3786,7 @@ print_columns(capture_file *cf, const epan_dissect_t *edt)
         case COL_DEF_DL_DST:
         case COL_RES_DL_DST:
         case COL_UNRES_DL_DST:
-          g_snprintf(str_format, sizeof(str_format), " %s%s", UTF8_RIGHTWARDS_ARROW, delimiter_char);
+          g_snprintf(str_format, sizeof(str_format), "%s%s%s", delimiter_char, UTF8_RIGHTWARDS_ARROW, delimiter_char);
           put_string(line_bufp + buf_offset, str_format, 5);
           buf_offset += 5;
           break;
@@ -3806,7 +3806,7 @@ print_columns(capture_file *cf, const epan_dissect_t *edt)
         case COL_DEF_NET_DST:
         case COL_RES_NET_DST:
         case COL_UNRES_NET_DST:
-          g_snprintf(str_format, sizeof(str_format), " %s%s", UTF8_RIGHTWARDS_ARROW, delimiter_char);
+          g_snprintf(str_format, sizeof(str_format), "%s%s%s", delimiter_char, UTF8_RIGHTWARDS_ARROW, delimiter_char);
           put_string(line_bufp + buf_offset, str_format, 5);
           buf_offset += 5;
           break;
@@ -3826,7 +3826,7 @@ print_columns(capture_file *cf, const epan_dissect_t *edt)
         case COL_DEF_SRC:
         case COL_RES_SRC:
         case COL_UNRES_SRC:
-          g_snprintf(str_format, sizeof(str_format), " %s%s", UTF8_LEFTWARDS_ARROW, delimiter_char);
+          g_snprintf(str_format, sizeof(str_format), "%s%s%s", delimiter_char, UTF8_LEFTWARDS_ARROW, delimiter_char);
           put_string(line_bufp + buf_offset, str_format, 5);
           buf_offset += 5;
           break;
@@ -3846,7 +3846,7 @@ print_columns(capture_file *cf, const epan_dissect_t *edt)
         case COL_DEF_DL_SRC:
         case COL_RES_DL_SRC:
         case COL_UNRES_DL_SRC:
-          g_snprintf(str_format, sizeof(str_format), " %s%s", UTF8_LEFTWARDS_ARROW, delimiter_char);
+          g_snprintf(str_format, sizeof(str_format), "%s%s%s", delimiter_char, UTF8_LEFTWARDS_ARROW, delimiter_char);
           put_string(line_bufp + buf_offset, str_format, 5);
           buf_offset += 5;
           break;
@@ -3866,7 +3866,7 @@ print_columns(capture_file *cf, const epan_dissect_t *edt)
         case COL_DEF_NET_SRC:
         case COL_RES_NET_SRC:
         case COL_UNRES_NET_SRC:
-          g_snprintf(str_format, sizeof(str_format), " %s%s", UTF8_LEFTWARDS_ARROW, delimiter_char);
+          g_snprintf(str_format, sizeof(str_format), "%s%s%s", delimiter_char, UTF8_LEFTWARDS_ARROW, delimiter_char);
           put_string(line_bufp + buf_offset, str_format, 5);
           buf_offset += 5;
           break;
