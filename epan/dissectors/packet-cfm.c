@@ -689,7 +689,7 @@ static int dissect_cfm_gnm_bnm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	return offset;
 }
 
-static int dissect_cfm_gnm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+static int dissect_cfm_gnm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
 	proto_item *ti;
 	proto_item *fi;
