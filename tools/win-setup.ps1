@@ -99,8 +99,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2017-08-23-2.4"
-$Win32CurrentTag = "2017-08-23-2.4"
+$Win64CurrentTag = "2017-08-26-2.4"
+$Win32CurrentTag = "2017-08-26-2.4"
 
 # Archive file / subdir.
 $Win64Archives = @{
@@ -157,12 +157,12 @@ $Win32Archives = @{
 
 $Win32Files = @(
     "WinPcap_4_1_3.exe";
-    "USBPcapSetup-1.2.0.2.exe";
+    "USBPcapSetup-1.2.0.3.exe";
 )
 
 $Win64Files = @(
     "WinPcap_4_1_3.exe";
-    "USBPcapSetup-1.2.0.2.exe";
+    "USBPcapSetup-1.2.0.3.exe";
 )
 
 $Archives = $Win64Archives;
