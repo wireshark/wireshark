@@ -430,7 +430,7 @@ k12text_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *
 }
 
 wtap_open_return_val
-k12text_open(wtap *wth, int *err, gchar **err_info _U_)
+k12text_open(wtap *wth, int *err, gchar **err_info)
 {
 	k12text_t *k12text;
 	k12text_state_t state;
