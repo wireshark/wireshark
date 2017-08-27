@@ -2311,7 +2311,7 @@ dissect_bootpopt_client_full_domain_name(tvbuff_t *tvb, packet_info *pinfo, prot
 }
 
 static int
-dissect_bootpopt_novell_servers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_bootpopt_novell_servers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
 
