@@ -3198,8 +3198,8 @@ static void parse_CM_Req(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb
     proto_tree_add_item(CM_header_tree, hf_cm_req_transp_serv_type, tvb, local_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(CM_header_tree, hf_cm_req_e2e_flow_ctrl, tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
     proto_tree_add_item(CM_header_tree, hf_cm_req_start_psn, tvb, local_offset, 3, ENC_BIG_ENDIAN); local_offset += 3;
-    proto_tree_add_item(CM_header_tree, hf_cm_req_retry_count, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(CM_header_tree, hf_cm_req_local_cm_resp_to, tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
+    proto_tree_add_item(CM_header_tree, hf_cm_req_local_cm_resp_to, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(CM_header_tree, hf_cm_req_retry_count, tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
     proto_tree_add_item(CM_header_tree, hf_cm_req_pkey, tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset += 2;
     proto_tree_add_item(CM_header_tree, hf_cm_req_path_pp_mtu, tvb, local_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(CM_header_tree, hf_cm_req_rdc_exists, tvb, local_offset, 1, ENC_BIG_ENDIAN);
