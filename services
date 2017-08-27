@@ -5563,8 +5563,7 @@ ls3              3069/tcp # ls3 [Jim_Thompson] [Jim_Thompson]
 ls3              3069/udp # ls3 [Jim_Thompson] [Jim_Thompson]
 mgxswitch        3070/tcp # MGXSWITCH [George_Walter] [George_Walter]
 mgxswitch        3070/udp # MGXSWITCH [George_Walter] [George_Walter]
-csd-mgmt-port    3071/tcp # ContinuStor Manager Port [NetApp] [MSW_architecture_team] 2014-07-18
-csd-mgmt-port    3071/udp # ContinuStor Manager Port [NetApp] [MSW_architecture_team] 2014-07-18
+xplat-replicate  3071/tcp # Crossplatform replication protocol [NetApp_3] [Ravindra_Kuramkote] 2017-08-24
 csd-monitor      3072/tcp # ContinuStor Monitor Port [NetApp] [MSW_architecture_team] 2014-07-18
 csd-monitor      3072/udp # ContinuStor Monitor Port [NetApp] [MSW_architecture_team] 2014-07-18
 vcrp             3073/tcp # Very simple chatroom prot [Andreas_Wurf] [Andreas_Wurf]
@@ -8325,6 +8324,7 @@ ccss-qmm         4969/tcp # CCSS QMessageMonitor
 ccss-qmm         4969/udp # CCSS QMessageMonitor
 ccss-qsm         4970/tcp # CCSS QSystemMonitor [David_Young] [David_Young] 2006-01
 ccss-qsm         4970/udp # CCSS QSystemMonitor [David_Young] [David_Young] 2006-01
+burp             4971/tcp # BackUp and Restore Program [Marat_Khalili] [Marat_Khalili] 2017-08-23
 ctxs-vpp         4980/udp # Citrix Virtual Path [Citrix_Systems] [Rohith_Ramkumar] 2015-04-17
 webyast          4984/tcp # WebYast [Federico_Lucifredi] [Federico_Lucifredi] 2009-09-25
 gerhcs           4985/tcp # GER HC Standard [Roger_Ward] [Roger_Ward] 2009-09-25
