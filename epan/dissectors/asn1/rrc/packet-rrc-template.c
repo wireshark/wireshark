@@ -90,6 +90,8 @@ typedef struct umts_rrc_private_data_t
   guint32 current_u_rnti;
   guint32 scrambling_code;
   enum nas_sys_info_gsm_map cn_domain;
+  wmem_strbuf_t* digits_strbuf; /* A collection of digits in a string. Used for reconstructing IMSIs or MCC-MNC pairs */
+  gboolean digits_strbuf_parsing_failed_flag; /* Whether an error occured when creating the IMSI/MCC-MNC pair string */
   guint32 rbid;
   guint32 rlc_ciphering_sqn; /* Sequence number where ciphering starts in a given bearer */
   rrc_ciphering_info* ciphering_info;
@@ -179,6 +181,30 @@ static void private_data_set_cn_domain(asn1_ctx_t *actx, enum nas_sys_info_gsm_m
 {
   umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
   private_data->cn_domain = cn_domain;
+}
+
+static wmem_strbuf_t* private_data_get_digits_strbuf(asn1_ctx_t *actx)
+{
+  umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
+  return private_data->digits_strbuf;
+}
+
+static void private_data_set_digits_strbuf(asn1_ctx_t *actx, wmem_strbuf_t* digits_strbuf)
+{
+  umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
+  private_data->digits_strbuf = digits_strbuf;
+}
+
+static gboolean private_data_get_digits_strbuf_parsing_failed_flag(asn1_ctx_t *actx)
+{
+  umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
+  return private_data->digits_strbuf_parsing_failed_flag;
+}
+
+static void private_data_set_digits_strbuf_parsing_failed_flag(asn1_ctx_t *actx, gboolean digits_strbuf_parsing_failed_flag)
+{
+  umts_rrc_private_data_t *private_data = (umts_rrc_private_data_t*)umts_rrc_get_private_data(actx);
+  private_data->digits_strbuf_parsing_failed_flag = digits_strbuf_parsing_failed_flag;
 }
 
 static guint32 private_data_get_rbid(asn1_ctx_t *actx)

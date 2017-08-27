@@ -694,6 +694,85 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
     curr_bit_offset++;
 }
 
+#.FN_BODY PLMN-Identity
+  wmem_strbuf_t* mcc_mnc_strbuf;
+  guint32 string_len;
+  gchar* mcc_mnc_string;
+  tvbuff_t* mcc_mnc_tvb;
+
+  /* Reset the digits string in the private data struct */
+  /* Maximal length: 6 = 3 digits MCC + 3 digits MNC + trailing '\0'*/
+  mcc_mnc_strbuf = wmem_strbuf_sized_new(actx->pinfo->pool,7,7);
+  private_data_set_digits_strbuf(actx, mcc_mnc_strbuf);
+  /* Reset parsing failure flag*/
+  private_data_set_digits_strbuf_parsing_failed_flag(actx, FALSE);
+%(DEFAULT_BODY)s
+  /* Check for parsing errors */
+  if(private_data_get_digits_strbuf_parsing_failed_flag(actx)) {
+    return offset;
+  }
+
+  /* Extracing the string collected in the strbuf */
+  string_len = (guint32)wmem_strbuf_get_len(mcc_mnc_strbuf);
+  mcc_mnc_string = wmem_strbuf_finalize(mcc_mnc_strbuf);
+
+  /* Creating TVB from extracted string*/
+  mcc_mnc_tvb = tvb_new_child_real_data(tvb, (guint8*)mcc_mnc_string, string_len, string_len);
+  add_new_data_source(actx->pinfo, mcc_mnc_tvb, "MCC-MNC");
+
+  /* Calling E.212 */
+  dissect_e212_mcc_mnc_in_utf8_address(mcc_mnc_tvb, actx->pinfo, tree, 0);
+
+#.FN_BODY IMSI-GSM-MAP
+  wmem_strbuf_t* imsi_strbuf;
+  guint32 string_len;
+  gchar* imsi_string;
+  tvbuff_t* imsi_tvb;
+
+  /* Reset the digits string in the private data struct */
+  imsi_strbuf = wmem_strbuf_sized_new(actx->pinfo->pool,16,16);
+  private_data_set_digits_strbuf(actx, imsi_strbuf);
+  /* Reset parsing failure flag*/
+  private_data_set_digits_strbuf_parsing_failed_flag(actx, FALSE);
+%(DEFAULT_BODY)s
+  /* Check for parsing errors */
+  if(private_data_get_digits_strbuf_parsing_failed_flag(actx)) {
+    return offset;
+  }
+
+  /* Extracing the string collected in the strbuf */
+  string_len = (guint32)wmem_strbuf_get_len(imsi_strbuf);
+  imsi_string = wmem_strbuf_finalize(imsi_strbuf);
+
+  /* Creating TVB from extracted string*/
+  imsi_tvb = tvb_new_child_real_data(tvb, (guint8*)imsi_string, string_len, string_len);
+  add_new_data_source(actx->pinfo, imsi_tvb, "IMSI");
+
+  /* Calling E.212 */
+  dissect_e212_utf8_imsi(imsi_tvb,actx->pinfo,tree,0,string_len);
+
+#.FN_BODY Digit VAL_PTR = &digit
+  guint32 digit;
+  gchar digit_char;
+  wmem_strbuf_t* digits_strbuf; /* The string of either an IMSI or a MCC-MNC pair */
+%(DEFAULT_BODY)s
+
+  if(private_data_get_digits_strbuf_parsing_failed_flag(actx)) {
+    return offset;
+  }
+
+  digits_strbuf = private_data_get_digits_strbuf(actx);
+  if(digit > 9) {
+    private_data_set_digits_strbuf_parsing_failed_flag(actx, TRUE);
+    return offset;
+  }
+
+  /* Converting to the matching gchar */
+  digit_char = (gchar)(digit + '0');
+
+  /* Appending to the digits string */
+  wmem_strbuf_append_c(digits_strbuf, digit_char);
+
 #.FN_BODY RSR-VCC-Info/ims-Information VAL_PTR = &imsInformation_tvb
   tvbuff_t *imsInformation_tvb=NULL;
 %(DEFAULT_BODY)s
