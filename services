@@ -2776,7 +2776,7 @@ fjhpjp		3067/tcp/udp	# FJHPJP
 ls3bcast	3068/tcp/udp	# ls3 Broadcast
 ls3		3069/tcp/udp
 mgxswitch	3070/tcp/udp	# MGXSWITCH
-csd-mgmt-port	3071/tcp/udp	# ContinuStor Manager Port
+xplat-replicate	3071/tcp	# Crossplatform replication protocol
 csd-monitor	3072/tcp/udp	# ContinuStor Monitor Port
 vcrp		3073/tcp/udp	# Very simple chatroom prot
 xbox		3074/tcp/udp	# Xbox game port
@@ -4213,6 +4213,7 @@ sagxtsds	4952/tcp/udp	# SAG Directory Server
 dbsyncarbiter	4953/tcp	# Synchronization Arbiter
 ccss-qmm	4969/tcp/udp	# CCSS QMessageMonitor
 ccss-qsm	4970/tcp/udp	# CCSS QSystemMonitor
+burp		4971/tcp	# BackUp and Restore Program
 ctxs-vpp	4980/udp	# Citrix Virtual Path
 webyast		4984/tcp	# WebYast
 gerhcs		4985/tcp	# GER HC Standard

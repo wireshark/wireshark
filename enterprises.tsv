@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2017-08-18)
+# (last updated 2017-08-27)
 
 0	Reserved
 1	NxNetworks
@@ -4454,7 +4454,7 @@
 4454	Gottfried Web and Computer Consulting
 4455	I-Bus Corporation
 4456	AWI	# formerly 'Qualimetrics'
-4457	O ROCK ActiveWear	# formerly 'Alpha & Omega Storehouse, LLC'
+4457	O ROCK Outerwear
 4458	Radwin Ltd.
 4459	Industree B.V.
 4460	FirstWorld Communications
@@ -38492,7 +38492,7 @@
 38660	Certipost n.v./s.a.
 38661	Wuxi Thinkyare Electronic Technology Co., Ltd.
 38662	Drachenfels Ltd
-38663	ahd hellweg data GmbH & Co. KG
+38663	ahd GmbH & Co. KG
 38664	Sky Area
 38665	PUUR it (www.puur-it.nl)
 38666	Silversands Limited
@@ -39442,7 +39442,7 @@
 39610	BITLANCER LLC
 39611	Video Design Software Inc.
 39612	Stantec Consulting
-39613	Sawridge Systems India Pvt Ltd
+39613	Tambora Systems India Pvt Ltd	# formerly 'Sawridge Systems India Pvt Ltd'
 39614	Valid
 39615	2008mcitp.com
 39616	GlasgowNet
@@ -46524,7 +46524,7 @@
 46699	HCit Consultant
 46700	ICTrex
 46701	State Historical Museum
-46702	Control Service do Brasil Ltda.
+46702	Control Service do Brasil Eireli.
 46703	aBjorne
 46704	Salib Oncology Hematology
 46705	Maestria en Seguridad Informatica Aplicada - ESPOL
@@ -50372,3 +50372,54 @@
 50551	Elara Software GmbH
 50552	SARA ELECTRONIC INSTRUMENTS SRL
 50553	PRIMARK Limited
+50554	DigiCAP Co.,Ltd.
+50555	Laureate Education Services Australia
+50556	ukgov.cloud
+50557	ictservices.co.uk
+50558	Northrop Grumman Litef GmbH
+50559	Alex Lambert
+50560	infra fuerth gmbh
+50561	Agroprombank CJSC
+50562	Powersmiths International Corp.
+50563	Council Rock Enterprises LLC
+50564	MaxiMedia
+50565	CohuHD Costar LLC
+50566	Pitt County Schools
+50567	RF Optic LTD
+50568	The University of Texas Rio Grande Valley
+50569	Cookiejar Technologies Pvt. Ltd.
+50570	WoTrus CA Limited
+50571	Erste Group IT International
+50572	CHU de Québec
+50573	Ram Tool Construction Supply Co.
+50574	R3 Continuum, LLC
+50575	Synchrony Financial
+50576	TrustComm Inc
+50577	West Cancer Center
+50578	Solid State Network Solutions
+50579	Seckure, LLC
+50580	International Integrated Systems, Inc.
+50581	MHOLGUIN
+50582	U-NMS
+50583	Omnipresent Friki Enviroment
+50584	Indiana University, Radiology and Imaging sciences
+50585	Core-Mark International
+50586	Civiq Smartscapes LLC
+50587	Cloudwise SRL
+50588	Datapath Limited
+50589	Xorble
+50590	RunSmart
+50591	SCIERIE ET CAISSERIE DE STEINBOURG
+50592	OOO "OTZVUK"/ООО "ОТЗВУК"
+50593	FSI (FM Solutions) Ltd
+50594	Peregrine Labs LLC
+50595	AtFCyber Inc
+50596	VisageCloud
+50597	GnomeLabs
+50598	stulz technology integration limited
+50599	Bank Millennium SA
+50600	Radium
+50601	Richard M. Hicks Consulting, Inc.
+50602	Impact Networking
+50603	Discovery Bank
+50604	ss7.io
