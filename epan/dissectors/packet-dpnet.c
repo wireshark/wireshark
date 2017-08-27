@@ -449,7 +449,7 @@ dpnet_process_control_frame(proto_tree *dpnet_tree, tvbuff_t *tvb, packet_info *
 }
 
 static int
-dissect_dpnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
+dissect_dpnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint8  lead;
 
