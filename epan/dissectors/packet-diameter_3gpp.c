@@ -1300,7 +1300,7 @@ dissect_diameter_3gpp_credit_management_status(tvbuff_t *tvb, packet_info *pinfo
 
 /* AVP Code: 1242 location estimate */
 static int
-dissect_diameter_3gpp_location_estimate(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_diameter_3gpp_location_estimate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     dissect_geographical_description(tvb, pinfo, tree);
 
@@ -1936,7 +1936,7 @@ dissect_diameter_3gpp_air_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 /* AVP Code: 2516 EUTRAN-Positioning-Data */
 static int
-dissect_diameter_3gpp_eutran_positioning_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_diameter_3gpp_eutran_positioning_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     return dissect_lcsap_Positioning_Data_PDU(tvb, pinfo, tree, NULL);
 }
