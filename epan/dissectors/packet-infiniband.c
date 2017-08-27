@@ -5913,11 +5913,11 @@ void proto_register_infiniband(void)
         },
         {&hf_cm_req_remote_cm_resp_to, {
                 "Remote CM Response Timeout", "infiniband.cm.req.remoteresptout",
-                FT_UINT8, BASE_HEX, NULL, 0x1f, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0xF8, NULL, HFILL}
         },
         {&hf_cm_req_transp_serv_type, {
                 "Transport Service Type", "infiniband.cm.req.transpsvctype",
-                FT_UINT8, BASE_HEX, NULL, 0x60, NULL, HFILL}
+                FT_UINT8, BASE_HEX, NULL, 0x06, NULL, HFILL}
         },
         {&hf_cm_req_e2e_flow_ctrl, {
                 "End-to-End Flow Control", "infiniband.cm.req.e2eflowctrl",
