@@ -649,12 +649,19 @@ dissect_file(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 
 /*********************** code added for sub-dissector lookup *********************/
 
+enum dissector_e {
+	DISSECTOR_TYPE_SIMPLE,
+	DISSECTOR_TYPE_CALLBACK
+};
+
 /*
  * A dissector handle.
  */
 struct dissector_handle {
 	const char	*name;		/* dissector name */
-	dissector_t	dissector;
+	enum dissector_e dissector_type;
+	void		*dissector_func;
+	void		*dissector_data;
 	protocol_t	*protocol;
 };
 
@@ -682,7 +689,15 @@ call_dissector_through_handle(dissector_handle_t handle, tvbuff_t *tvb,
 			proto_get_protocol_short_name(handle->protocol);
 	}
 
-	len = (*handle->dissector)(tvb, pinfo, tree, data);
+	if (handle->dissector_type == DISSECTOR_TYPE_SIMPLE) {
+		len = ((dissector_t)handle->dissector_func)(tvb, pinfo, tree, data);
+	}
+	else if (handle->dissector_type == DISSECTOR_TYPE_CALLBACK) {
+		len = ((dissector_cb_t)handle->dissector_func)(tvb, pinfo, tree, data, handle->dissector_data);
+	}
+	else {
+		g_assert_not_reached();
+	}
 	pinfo->current_proto = saved_proto;
 
 	return len;
@@ -2945,13 +2960,15 @@ dissector_handle_get_dissector_name(const dissector_handle_t handle)
 }
 
 static dissector_handle_t
-new_dissector_handle(dissector_t dissector, int proto, const char *name)
+new_dissector_handle(enum dissector_e type, void *dissector, const int proto, const char *name, void *cb_data)
 {
 	struct dissector_handle *handle;
 
 	handle			= wmem_new(wmem_epan_scope(), struct dissector_handle);
 	handle->name		= name;
-	handle->dissector	= dissector;
+	handle->dissector_type	= type;
+	handle->dissector_func	= dissector;
+	handle->dissector_data	= cb_data;
 	handle->protocol	= find_protocol_by_id(proto);
 	return handle;
 }
@@ -2960,14 +2977,14 @@ new_dissector_handle(dissector_t dissector, int proto, const char *name)
 dissector_handle_t
 create_dissector_handle(dissector_t dissector, const int proto)
 {
-	return new_dissector_handle(dissector, proto, NULL);
+	return new_dissector_handle(DISSECTOR_TYPE_SIMPLE, dissector, proto, NULL, NULL);
 }
 
 dissector_handle_t
 create_dissector_handle_with_name(dissector_t dissector,
 				const int proto, const char* name)
 {
-	return new_dissector_handle(dissector, proto, name);
+	return new_dissector_handle(DISSECTOR_TYPE_SIMPLE, dissector, proto, name, NULL);
 }
 
 /* Destroy an anonymous handle for a dissector. */
@@ -2998,7 +3015,17 @@ register_dissector(const char *name, dissector_t dissector, const int proto)
 {
 	struct dissector_handle *handle;
 
-	handle = new_dissector_handle(dissector, proto, name);
+	handle = new_dissector_handle(DISSECTOR_TYPE_SIMPLE, dissector, proto, name, NULL);
+
+	return register_dissector_handle(name, handle);
+}
+
+dissector_handle_t
+register_dissector_with_data(const char *name, dissector_cb_t dissector, const int proto, void *cb_data)
+{
+	struct dissector_handle *handle;
+
+	handle = new_dissector_handle(DISSECTOR_TYPE_CALLBACK, dissector, proto, name, cb_data);
 
 	return register_dissector_handle(name, handle);
 }

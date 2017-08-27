@@ -86,6 +86,9 @@ typedef struct dissector_table *dissector_table_t;
  */
 typedef int (*dissector_t)(tvbuff_t *, packet_info *, proto_tree *, void *);
 
+/* Same as dissector_t with an extra parameter for callback pointer */
+typedef int (*dissector_cb_t)(tvbuff_t *, packet_info *, proto_tree *, void *, void *);
+
 /** Type of a heuristic dissector, used in heur_dissector_add().
  *
  * @param tvb the tvbuff with the (remaining) packet data
@@ -521,6 +524,9 @@ WS_DLL_PUBLIC void heur_dissector_delete(const char *name, heur_dissector_t diss
 
 /** Register a new dissector. */
 WS_DLL_PUBLIC dissector_handle_t register_dissector(const char *name, dissector_t dissector, const int proto);
+
+/** Register a new dissector with a callback pointer. */
+WS_DLL_PUBLIC dissector_handle_t register_dissector_with_data(const char *name, dissector_cb_t dissector, const int proto, void *cb_data);
 
 /** Deregister a dissector. */
 void deregister_dissector(const char *name);
