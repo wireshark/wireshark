@@ -264,8 +264,14 @@ packet_cleanup(void)
 	g_hash_table_destroy(heuristic_short_names);
 	g_slist_foreach(shutdown_routines, &call_routine, NULL);
 	g_slist_free(shutdown_routines);
-	if (postdissectors)
+	if (postdissectors) {
+		for (guint i = 0; i < postdissectors->len; i++) {
+			if (POSTDISSECTORS(i).wanted_hfids) {
+				g_array_free(POSTDISSECTORS(i).wanted_hfids, TRUE);
+			}
+		}
 		g_array_free(postdissectors, TRUE);
+	}
 }
 
 /*
@@ -3285,31 +3291,37 @@ register_postdissector(dissector_handle_t handle)
 void
 set_postdissector_wanted_hfids(dissector_handle_t handle, GArray *wanted_hfids)
 {
-    guint i;
+	guint i;
 
-    if (!postdissectors) return;
+	if (!postdissectors) return;
 
-    for (i = 0; i < postdissectors->len; i++) {
-        if (POSTDISSECTORS(i).handle == handle) {
-            POSTDISSECTORS(i).wanted_hfids = wanted_hfids;
-            break;
-        }
-    }
+	for (i = 0; i < postdissectors->len; i++) {
+		if (POSTDISSECTORS(i).handle == handle) {
+			if (POSTDISSECTORS(i).wanted_hfids) {
+				g_array_free(POSTDISSECTORS(i).wanted_hfids, TRUE);
+			}
+			POSTDISSECTORS(i).wanted_hfids = wanted_hfids;
+			break;
+		}
+	}
 }
 
 void
 deregister_postdissector(dissector_handle_t handle)
 {
-    guint i;
+	guint i;
 
-    if (!postdissectors) return;
+	if (!postdissectors) return;
 
-    for (i = 0; i < postdissectors->len; i++) {
-        if (POSTDISSECTORS(i).handle == handle) {
-            postdissectors = g_array_remove_index_fast(postdissectors, i);
-            break;
-        }
-    }
+	for (i = 0; i < postdissectors->len; i++) {
+		if (POSTDISSECTORS(i).handle == handle) {
+			if (POSTDISSECTORS(i).wanted_hfids) {
+				g_array_free(POSTDISSECTORS(i).wanted_hfids, TRUE);
+			}
+			postdissectors = g_array_remove_index_fast(postdissectors, i);
+			break;
+		}
+	}
 }
 
 gboolean

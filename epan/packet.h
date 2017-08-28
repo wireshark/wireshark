@@ -773,7 +773,8 @@ WS_DLL_PUBLIC void register_postdissector(dissector_handle_t handle);
 
 /*
  * Specify a set of hfids that the postdissector will need.
- * The GArray is an array of hfids.
+ * The GArray is an array of hfids (type int) and should be NULL to clear the
+ * list. This function will take ownership of the memory.
  */
 WS_DLL_PUBLIC void set_postdissector_wanted_hfids(dissector_handle_t handle,
     GArray *wanted_hfids);
