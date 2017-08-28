@@ -14,12 +14,23 @@ The following vulnerabilities have been fixed:
 
 * ws-salink:2017-38[]
 +
-A dissector went awry.
-(ws-buglink:xxxx[])
-// cve-idlink:2017-7702[]
-// Fixed in master: XXXX
-// Fixed in master-2.2: XXXX
-// Fixed in master-2.0: XXXX
+MSDP dissector infinite loop
+(ws-buglink:13933[])
+// cve-idlink:2017-xxxx[]
+// Fixed in master: 33b95883aa
+// Fixed in master-2.4: a6d312cce1
+// Fixed in master-2.2: 5ade15dbd6
+// Fixed in master-2.0: 6f18ace2a2
+
+* ws-salink:2017-41[]
++
+IrCOMM dissector buffer overrun
+(ws-buglink:13929[])
+// cve-idlink:2017-xxxx[]
+// Fixed in master: c9cb01adbb
+// Fixed in master-2.4: a8668a1561
+// Fixed in master-2.2: cbf91bab71
+// Fixed in master-2.0: 94666d4357
 
 The following bugs have been fixed:
 
@@ -27,7 +38,11 @@ The following bugs have been fixed:
 //* ws-buglink:6000[Wireshark bug]
 //* cve-idlink:2016-7000[]
 //* Wireshark insists on calling you on your land line which is keeping you from abandoning it for cellular. (ws-buglink:0000[])
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.0.14rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.0.16rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* Win64 CMake bug - (CYGWIN_INSTALL_PATH redefinition) causing missing packages when using CMake 3.9.0. (ws-buglink:13922[])
+
+* Crash in Wireshark using Dumper:dump() from Lua. (ws-buglink:13944[])
 
 === New and Updated Features
 
@@ -46,6 +61,8 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+IrCOMM
+MSDP
 --sort-and-group--
 
 === New and Updated Capture File Support
