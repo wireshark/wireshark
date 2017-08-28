@@ -336,11 +336,7 @@ function(_GTK2_FIND_LIBRARY _var _lib _expand_vc _append_version)
 
     if(_expand_vc AND MSVC)
         # Add vc80/vc90/vc100 midfixes
-        if(MSVC80)
-            set(_library   ${_library}-vc80)
-        elseif(MSVC90)
-            set(_library   ${_library}-vc90)
-        elseif(MSVC10)
+        if(MSVC10)
             set(_library ${_library}-vc100)
         elseif(MSVC11)
             # Up to gtkmm-win 2.22.0-2 there are no vc110 libraries but vc100 can be used

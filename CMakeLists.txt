@@ -1465,13 +1465,6 @@ gmx_test_large_files(GMX_LARGEFILES)
 
 add_definitions( -DTOP_SRCDIR=\"${CMAKE_SOURCE_DIR}\" )
 
-if(WIN32)
-	# Disable deprecation
-	if(MSVC80 OR MSVC90)
-		add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
-	endif()
-endif()
-
 if (${GIT_EXECUTABLE})
 	set(GIT_BIN_PARAM "--git-bin ${GIT_EXECUTABLE}")
 endif()
