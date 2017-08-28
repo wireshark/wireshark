@@ -138,6 +138,9 @@ capture_opts_cleanup(capture_options *capture_opts)
         return;
 
     if (capture_opts->ifaces) {
+        while (capture_opts->ifaces->len > 0) {
+            capture_opts_del_iface(capture_opts, 0);
+        }
         g_array_free(capture_opts->ifaces, TRUE);
         capture_opts->ifaces = NULL;
     }
