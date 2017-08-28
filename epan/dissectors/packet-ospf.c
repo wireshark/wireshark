@@ -459,6 +459,8 @@ static gint ett_ospf_lsa_dh_tlv = -1;
 static gint ett_ospf_lsa_sa_tlv = -1;
 static gint ett_ospf_lsa_unknown_tlv = -1;
 
+static gint ett_ospf_lsa_type = -1;
+
 
 /* The Options field in the first TLV of the Opaque RI LSA with type field set to "4" for OSPFv2
    and type field set to "12" in OSPFv3, is interpreted as advertizing optional router capabilties.
@@ -531,9 +533,10 @@ static int *hf_ospf_ls_type_array[] = {
         &hf_ospf_ls_opaque
 };
 
+static int hf_ospf_v3_ls_type = -1;
 static int hf_ospf_v3_ls_type_u = -1;
 static int hf_ospf_v3_ls_type_s12 = -1;
-static int hf_ospf_v3_ls_type = -1;
+static int hf_ospf_v3_ls_type_fc = -1;
 
 /* OSPF V3 LSA Type */
 static int hf_ospf_v3_ls_router = -1;
@@ -2787,7 +2790,7 @@ static int
 dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
                     gboolean disassemble_body, guint8 address_family)
 {
-    proto_tree *ospf_lsa_tree, *router_tree = NULL, *router_entry_tree;
+    proto_tree *ospf_lsa_tree, *router_tree = NULL, *router_entry_tree, *lsa_type_tree;
     proto_item *ti, *hidden_item, *type_item;
 
     guint16              ls_type;
@@ -2818,9 +2821,11 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_ls_age, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_v3_lsa_do_not_age, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-    proto_tree_add_item(ospf_lsa_tree, hf_ospf_v3_ls_type_u, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ospf_lsa_tree, hf_ospf_v3_ls_type_s12, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ospf_lsa_tree, hf_ospf_v3_ls_type, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(ospf_lsa_tree, hf_ospf_v3_ls_type, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+    lsa_type_tree = proto_item_add_subtree(ti, ett_ospf_lsa_type);
+    proto_tree_add_item(lsa_type_tree, hf_ospf_v3_ls_type_u, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lsa_type_tree, hf_ospf_v3_ls_type_s12, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lsa_type_tree, hf_ospf_v3_ls_type_fc, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
     if (ospf_v3_ls_type_to_filter(ls_type) != -1) {
         hidden_item = proto_tree_add_item(ospf_lsa_tree,
@@ -3403,13 +3408,16 @@ proto_register_ospf(void)
 
         /* OSPFv3 LS Types */
         {&hf_ospf_v3_ls_type,
-         { "LS Type", "ospf.v3.lsa", FT_UINT16, BASE_DEC, VALS(v3_ls_type_vals),0x1FFF,
+         { "LS Type", "ospf.v3.lsa", FT_UINT16, BASE_HEX, NULL, 0x0,
            NULL, HFILL }},
         {&hf_ospf_v3_ls_type_u,
-         { "LSA Handling", "ospf.v3.lsa.u", FT_BOOLEAN, 16, TFS(&tfs_v3_ls_type_u),0x8000,
+         { "LSA Handling", "ospf.v3.lsa.u", FT_BOOLEAN, 16, TFS(&tfs_v3_ls_type_u), 0x8000,
            NULL, HFILL }},
         {&hf_ospf_v3_ls_type_s12,
-         { "Flooding Scope", "ospf.v3.lsa.s12", FT_UINT16, BASE_HEX, VALS(v3_ls_type_s12_vals),0x6000,
+         { "Flooding Scope", "ospf.v3.lsa.s12", FT_UINT16, BASE_HEX, VALS(v3_ls_type_s12_vals), 0x6000,
+           NULL, HFILL }},
+        {&hf_ospf_v3_ls_type_fc,
+         { "Function Code", "ospf.v3.lsa.fc", FT_UINT16, BASE_DEC, VALS(v3_ls_type_vals), 0x1FFF,
            NULL, HFILL }},
 
         {&hf_ospf_v3_ls_router,
@@ -3845,6 +3853,7 @@ proto_register_ospf(void)
         &ett_ospf_lsa_oif_tna,
         &ett_ospf_lsa_oif_tna_stlv,
         &ett_ospf_lsa_grace_tlv,
+        &ett_ospf_lsa_type,
         &ett_ospf_v2_options,
         &ett_ospf_ri_options,
         &ett_ospf_v3_options,
