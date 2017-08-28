@@ -1316,7 +1316,7 @@ GPtrArray *extcap_prepare_arguments(interface_options *interface_opts)
                     }
                     else
                     {
-                        if (stored) {
+                        if (stored && strlen(stored) > 0) {
                             add_arg(arg_iter->call);
                             add_arg(stored);
                         }
