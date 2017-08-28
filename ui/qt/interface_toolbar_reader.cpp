@@ -43,8 +43,9 @@ const int header_size = 6;
 int InterfaceToolbarReader::async_pipe_read(void *data, int nbyte)
 {
     BOOL success;
-    DWORD nof_bytes_read, last_err;
+    DWORD nof_bytes_read;
     OVERLAPPED overlap;
+    int bytes_read = -1;
 
     overlap.Pointer = 0;
     overlap.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -59,17 +60,12 @@ int InterfaceToolbarReader::async_pipe_read(void *data, int nbyte)
     if (success && nof_bytes_read != 0)
     {
         // The read operation completed successfully.
-        return nof_bytes_read;
+        bytes_read = nof_bytes_read;
     }
-
-    last_err = GetLastError();
-
-    if (!success && last_err == ERROR_IO_PENDING)
+    else if (!success && GetLastError() == ERROR_IO_PENDING)
     {
         // The operation is still pending, wait for a signal.
-        DWORD wait = WaitForMultipleObjects(1, &overlap.hEvent, TRUE, INFINITE);
-
-        if (wait - WAIT_OBJECT_0 == 0)
+        if (WaitForSingleObject(overlap.hEvent, INFINITE) == WAIT_OBJECT_0)
         {
             // The wait operation has completed.
             success = GetOverlappedResult(control_in_, &overlap, &nof_bytes_read, FALSE);
@@ -77,13 +73,13 @@ int InterfaceToolbarReader::async_pipe_read(void *data, int nbyte)
             if (success && nof_bytes_read != 0)
             {
                 // The get result operation completed successfully.
-                return nof_bytes_read;
+                bytes_read = nof_bytes_read;
             }
         }
     }
 
-    // The pipe is closed or an unknown error occured.
-    return -1;
+    CloseHandle(overlap.hEvent);
+    return bytes_read;
 }
 #endif
 
