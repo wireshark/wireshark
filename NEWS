@@ -1,4 +1,4 @@
-                         Wireshark 2.4.0 Release Notes
+                         Wireshark 2.4.1 Release Notes
      __________________________________________________________________
 
 What is Wireshark?
@@ -9,96 +9,107 @@ What is Wireshark?
 
 What's New
 
+  Bug Fixes
+
+   The following bugs have been fixed:
+     * [1]wnpa-sec-2017-38
+       MSDP dissector infinite loop ([2]Bug 13933)
+     * [3]wnpa-sec-2017-39
+       Profinet I/O buffer overrun ([4]Bug 13847)
+     * [5]wnpa-sec-2017-40
+       Modbus dissector crash ([6]Bug 13925)
+     * [7]wnpa-sec-2017-41
+       IrCOMM dissector buffer overrun ([8]Bug 13929)
+
+     * Incorrect presentation of Ascend-Data-Filter (RADIUS attribute
+       242). ([9]Bug 11630)
+     * Confusing "Apply a display filter <Command/>" keyboard shortcut.
+       ([10]Bug 12450)
+     * Wireshark crashes at startup if it needs to display a dialog early
+       in the startup process. ([11]Bug 13275)
+     * RADIUS dictionary: BEGIN-VENDOR does not support
+       format=Extended-Vendor-Specific-\*. ([12]Bug 13745)
+     * Dumpcap on big-endian machines writes out corrupt, unreadable
+       Enhanced Packet Blocks. ([13]Bug 13802)
+     * Interface Toolbar support for Windows. ([14]Bug 13833)
+     * Wireshark should behave better on high resolution displays on
+       Windows. ([15]Bug 13877)
+     * Udpdump.pod missing from build. ([16]Bug 13903)
+     * RTP Player Format Error. ([17]Bug 13906)
+     * VNC Protocol disector : Framebuffer Updates. ([18]Bug 13910)
+     * DNS LOC RRs with out-of-range longitude or latitude aren't shown as
+       errors. ([19]Bug 13914)
+     * DIS Dissector Entity Appearance Record displayed in wrong location.
+       ([20]Bug 13917)
+     * Win64 CMake bug - (CYGWIN_INSTALL_PATH redefinition) causing
+       missing packages when using CMake 3.9.0. ([21]Bug 13922)
+     * APL records parsed incorrectly for IPv4 prefixes. ([22]Bug 13923)
+     * File->Merge dialog doesn't show all options. Resizing doesn't help.
+       ([23]Bug 13924)
+     * TCAP SRT Analysis incorrectly matched TCAP begins and ends.
+       ([24]Bug 13926)
+     * Error in MKA Distributed SAK parameter set dissection. ([25]Bug
+       13927)
+     * E.212: Check length before trying 3-digits MNC. ([26]Bug 13935)
+     * mpeg_descriptor: AC3 System A: Respect descriptor length. ([27]Bug
+       13939)
+     * Crash in Wireshark using Dumper:dump() from Lua. ([28]Bug 13944)
+     * MRCPv2 not decoded correctly. ([29]Bug 13952)
+     * UDP Checksum verification not working for 0x0000 checksum. ([30]Bug
+       13955)
+     * OSPF v3 LSA Type not well parsed. ([31]Bug 13979)
+     * GTPv2 - decoding issue for Packet Flow ID (type 123). ([32]Bug
+       13987)
+     * TRANSUM fails to calculate RTE figures for DCE-RPC where request
+       Packet Type is zero. ([33]Bug 13988)
+     * BTLE Hop and SCA fields incorrectly dissected in BLE CONNECT_REQ.
+       ([34]Bug 13990)
+     * [oss-fuzz] BGP memleak: ASAN: 276 byte(s) leaked in 5
+       allocation(s). ([35]Bug 13995)
+     * Some Infiniband Connect Req fields are not decoded correctly.
+       ([36]Bug 13997)
+     * GTP: gtp.ext_comm_flags_II_pmtsmi bit not decoded correctly.
+       ([37]Bug 14001)
+     * InfiniBand: sIP and dIP inside IP CM Private Data are decoded in
+       the wrong order. ([38]Bug 14002)
+     * 802.11 wlan.ft.subelem.r0kh_id should be sequence of bytes.
+       ([39]Bug 14004)
+     * USB capture: Unrecognized libpcap format or not libpcap data.
+       ([40]Bug 14006)
+     * SQ Header Pointer in NVMoF response capsule is decoded with the
+       wrong endian. ([41]Bug 14008)
+
   New and Updated Features
 
-   The following features are new (or have been significantly updated)
-   since version 2.2.0:
-     * Experimental 32-bit and 64-bit Windows Installer (.msi) packages
-       are available. It is recommended that you use these independently
-       of the NSIS (.exe) installers. That is, you should make sure the
-       NSIS package is completely uninstalled before installing the
-       Windows Installer package and vice-versa.
-     * Source packages are now compressed using xz instead of bzip2.
-     * The legacy (GTK+) UI is disabled by default in the Windows
-       installers.
-     * The legacy (GTK+) UI is disabled by default in the development
-       environment (Autotools and CMake).
-     * SS7 Point Codes can now be resolved into names with a hosts-like
-       file.
-     * Wireshark can now go fullscreen to have more room for packets.
-     * TShark can now export objects like the other GUI interfaces.
-     * Support for G.722 and G.726 codecs in the RTP Player (via the
-       SpanDSP library).
-     * You can now choose the output device when playing RTP streams.
-     * Added support for dissectors to include a unit name natively in
-       their hf field. A field can now automatically append "seconds" or
-       "ms" to its value without additional printf-style APIs.
-     * The Default profile can now be reset to default values.
-     * You can move back and forth in the selection history in the Qt UI.
-     * IEEE 802.15.4 dissector now uses an UAT for decryption keys. The
-       original decryption key preference has been obsoleted.
-     * Extcap utilities can now provide configuration for a GUI interface
-       toolbar to control the extcap utility while capturing.
-     * Extcap utilities can now validate the capture filter.
-     * Display filter function len() can now be used on all string and
-       byte fields.
-     * Added an experimental timeline view for 802.11 wireless packet data
-       which can be enabled via the "802.11 radio information"
-       preferences.
-     * Added TLS 1.3 (draft 21) dissection and decryption support ([1]Bug
-       12779).
-     * The (D)TLS Application Layer protocol (e.g. HTTP or CoAP) can now
-       be changed via the Decode As dialog.
-     * The RSA keys dialog for SSL keys has improved feedback for invalid
-       settings and no longer requires the IP address, Port or Protocol
-       fields to be set in addition to the Key File.
-     * TCP Analysis will detect and flag more spurious retransmissions.
+   There are no new features in this release.
 
   New Protocol Support
 
-   Bluetooth HCI Vendor Intel, CAN FD, Citrix NetScaler Metric Exchange
-   Protocol, Citrix NetScaler RPC Protocol, DirectPlay 8 protocol,
-   Ericsson A-bis P-GSL, Ericsson A-bis TFP (Traffic Forwarding Protocol),
-   Facebook Zero, Fc00/cjdns Protocol, Generic Netlink (genl), GSM Osmux,
-   GSMTAP based logging, Health Level 7 (HL7), High-speed SECS message
-   service (HSMS), HomePNA, IndigoCare iCall protocol, IndigoCare Netrix
-   protocol, iPerf2, ISO 15765, Linux 802.11 Netlink (nl80211), Local
-   Service Discovery (LSD), M2 Application Protocol, Mesh Link
-   Establishment (MLE), MUDURL, Netgear Ensemble Protocol, NetScaler HA
-   Protocol, NetScaler Metric Exchange Protocol, NetScaler RPC Protocol,
-   NM protocol, Nordic BLE Sniffer, NVMe, NVMe Fabrics RDMA, OBD-II PIDs,
-   OpenThread simulator, RFTap Protocol, SCTE-35 Digital Program Insertion
-   Messages, Snort Post-dissector, Thread CoAP, UDP based FTP w/ multicast
-   (UFTP and UFTP4), Unified Diagnostic Services (UDS), vSocket, Windows
-   Cluster Management API (clusapi), and X-Rite i1 Display Pro (and
-   derivatives) USB protocol
+   There are no new protocols in this release.
 
   Updated Protocol Support
 
-   Too many protocols have been updated to list here.
+   BGP, BT LE, DIS, DNS, E.212, EPL, GTP, GTPv2, IEEE 802.11, InfiniBand,
+   IPv4, IrCOMM, MKA, Modbus, MPEG Descriptor, MRCPv2, MSDP, MTP2, Nordic
+   BLE, NVMe, OSPF, pcapng MIME, PMIPv6, Profinet I/O, RADIUS, SML, TCAP,
+   TRANSUM, UA3G, UDP, VNC, and ZigBee
 
   New and Updated Capture File Support
 
-   ERF, IxVeriWave, Libpcap, and Pcap-ng
-
-  Major API Changes
-
-   IEEE802.11: wlan_mgt display filter element got renamed to wlan.
-
-   Libgcrypt is now a required dependency.
+   There is no new or updated capture file support in this release.
      __________________________________________________________________
 
 Getting Wireshark
 
    Wireshark source code and installation packages are available from
-   [2]https://www.wireshark.org/download.html.
+   [42]https://www.wireshark.org/download.html.
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can be
-   found on the [3]download page on the Wireshark web site.
+   found on the [43]download page on the Wireshark web site.
      __________________________________________________________________
 
 File Locations
@@ -111,55 +122,95 @@ File Locations
 
 Known Problems
 
-   Dumpcap might not quit if Wireshark or TShark crashes. ([4]Bug 1419)
+   Dumpcap might not quit if Wireshark or TShark crashes. ([44]Bug 1419)
 
-   The BER dissector might infinitely loop. ([5]Bug 1516)
+   The BER dissector might infinitely loop. ([45]Bug 1516)
 
-   Capture filters aren't applied when capturing from named pipes. ([6]Bug
-   1814)
+   Capture filters aren't applied when capturing from named pipes.
+   ([46]Bug 1814)
 
    Filtering tshark captures with read filters (-R) no longer works.
-   ([7]Bug 2234)
+   ([47]Bug 2234)
 
-   Application crash when changing real-time option. ([8]Bug 4035)
+   Application crash when changing real-time option. ([48]Bug 4035)
 
    Wireshark and TShark will display incorrect delta times in some cases.
-   ([9]Bug 4985)
+   ([49]Bug 4985)
 
-   Wireshark should let you work with multiple capture files. ([10]Bug
+   Wireshark should let you work with multiple capture files. ([50]Bug
    10488)
      __________________________________________________________________
 
 Getting Help
 
-   Community support is available on [11]Wireshark's Q&A site and on the
+   Community support is available on [51]Wireshark's Q&A site and on the
    wireshark-users mailing list. Subscription information and archives for
-   all of Wireshark's mailing lists can be found on [12]the web site.
+   all of Wireshark's mailing lists can be found on [52]the web site.
 
    Official Wireshark training and certification are available from
-   [13]Wireshark University.
+   [53]Wireshark University.
      __________________________________________________________________
 
 Frequently Asked Questions
 
-   A complete FAQ is available on the [14]Wireshark web site.
+   A complete FAQ is available on the [54]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2017-07-19 17:49:40 UTC
+   Last updated 2017-08-29 17:18:29 UTC
 
 References
 
-   1. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12779
-   2. https://www.wireshark.org/download.html
-   3. https://www.wireshark.org/download.html#thirdparty
-   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
-   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
-   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
-   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
-   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
-  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
-  11. https://ask.wireshark.org/
-  12. https://www.wireshark.org/lists/
-  13. http://www.wiresharktraining.com/
-  14. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/security/wnpa-sec-2017-38.html
+   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13933
+   3. https://www.wireshark.org/security/wnpa-sec-2017-39.html
+   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13847
+   5. https://www.wireshark.org/security/wnpa-sec-2017-40.html
+   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13925
+   7. https://www.wireshark.org/security/wnpa-sec-2017-41.html
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13929
+   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=11630
+  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12450
+  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13275
+  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13745
+  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13802
+  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13833
+  15. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13877
+  16. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13903
+  17. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13906
+  18. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13910
+  19. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13914
+  20. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13917
+  21. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13922
+  22. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13923
+  23. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13924
+  24. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13926
+  25. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13927
+  26. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13935
+  27. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13939
+  28. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13944
+  29. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13952
+  30. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13955
+  31. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13979
+  32. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13987
+  33. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13988
+  34. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13990
+  35. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13995
+  36. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13997
+  37. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14001
+  38. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14002
+  39. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14004
+  40. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14006
+  41. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14008
+  42. https://www.wireshark.org/download.html
+  43. https://www.wireshark.org/download.html#thirdparty
+  44. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
+  45. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
+  46. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
+  47. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
+  48. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
+  49. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
+  50. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
+  51. https://ask.wireshark.org/
+  52. https://www.wireshark.org/lists/
+  53. http://www.wiresharktraining.com/
+  54. https://www.wireshark.org/faq.html

@@ -22,16 +22,16 @@ MSDP dissector infinite loop
 // Fixed in master: 33b95883aa
 // Fixed in master-2.4: a6d312cce1
 // Fixed in master-2.2: 5ade15dbd6
-// Fixed in master-2.0: n/a
+// Fixed in master-2.0: 6f18ace2a2
 
 * ws-salink:2017-39[]
 +
 Profinet I/O buffer overrun
 (ws-buglink:13847[])
 // cve-idlink:2017-xxxx[]
-// Fixed in master: 5574b78dae
-// Fixed in master-2.4: 1c95d45a40
-// Fixed in master-2.2: 2096bc1e50
+// Fixed in master: 5574b78dae, c9d0554840
+// Fixed in master-2.4: 1c95d45a40, 85d2230f89
+// Fixed in master-2.2: 2096bc1e50, af7b093ca5
 // Fixed in master-2.0: n/a
 
 * ws-salink:2017-40[]
@@ -58,7 +58,7 @@ IrCOMM dissector buffer overrun
 //* ws-buglink:6000[Wireshark bug]
 //* cve-idlink:2014-2486[]
 //* Wireshark keeps leaving voicemails advertising timeshare condominiums in Fresno. (ws-buglink:0000[])
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.4.1rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.4.2rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
 * Incorrect presentation of Ascend-Data-Filter (RADIUS attribute 242). (ws-buglink:11630[])
 
@@ -69,6 +69,8 @@ IrCOMM dissector buffer overrun
 * RADIUS dictionary: BEGIN-VENDOR does not support format=Extended-Vendor-Specific-\*. (ws-buglink:13745[])
 
 * Dumpcap on big-endian machines writes out corrupt, unreadable Enhanced Packet Blocks. (ws-buglink:13802[])
+
+* Interface Toolbar support for Windows. (ws-buglink:13833[])
 
 * Wireshark should behave better on high resolution displays on Windows. (ws-buglink:13877[])
 
@@ -102,7 +104,9 @@ IrCOMM dissector buffer overrun
 
 * UDP Checksum verification not working for 0x0000 checksum. (ws-buglink:13955[])
 
-* Gtpv2 - decoding issue for Packet Flow ID (type 123). (ws-buglink:13987[])
+* OSPF v3 LSA Type not well parsed. (ws-buglink:13979[])
+
+* GTPv2 - decoding issue for Packet Flow ID (type 123). (ws-buglink:13987[])
 
 * TRANSUM fails to calculate RTE figures for DCE-RPC where request Packet Type is zero. (ws-buglink:13988[])
 
@@ -110,7 +114,17 @@ IrCOMM dissector buffer overrun
 
 * [oss-fuzz] BGP memleak: ASAN: 276 byte(s) leaked in 5 allocation(s). (ws-buglink:13995[])
 
+* Some Infiniband Connect Req fields are not decoded correctly. (ws-buglink:13997[])
+
 * GTP: gtp.ext_comm_flags_II_pmtsmi bit not decoded correctly. (ws-buglink:14001[])
+
+* InfiniBand: sIP and dIP inside IP CM Private Data are decoded in the wrong order. (ws-buglink:14002[])
+
+* 802.11 wlan.ft.subelem.r0kh_id should be sequence of bytes. (ws-buglink:14004[])
+
+* USB capture: Unrecognized libpcap format or not libpcap data. (ws-buglink:14006[])
+
+* SQ Header Pointer in NVMoF response capsule is decoded with the wrong endian. (ws-buglink:14008[])
 
 === New and Updated Features
 
@@ -135,6 +149,8 @@ E.212
 EPL
 GTP
 GTPv2
+IEEE 802.11
+InfiniBand
 IPv4
 IrCOMM
 MKA
@@ -144,7 +160,11 @@ MRCPv2
 MSDP
 MTP2
 Nordic BLE
+NVMe
+OSPF
+pcapng MIME
 PMIPv6
+Profinet I/O
 RADIUS
 SML
 TCAP
