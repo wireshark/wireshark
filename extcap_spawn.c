@@ -379,6 +379,7 @@ extcap_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid)
                     else
                     {
                         pipeinsts[idx].pendingIO = FALSE;
+                        CloseHandle(pipeinsts[idx].ol.hEvent);
                         num_waiting_to_connect--;
                     }
                 }
