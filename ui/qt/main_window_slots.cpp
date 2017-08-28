@@ -671,8 +671,6 @@ void MainWindow::captureCapturePrepared(capture_session *) {
 //    /* Don't set up main window for a capture file. */
 //    main_set_for_capture_file(FALSE);
     main_ui_->mainStack->setCurrentWidget(&master_split_);
-#else
-    Q_UNUSED(session)
 #endif // HAVE_LIBPCAP
 }
 
