@@ -3088,7 +3088,6 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
   guint         i;
 
   /* Initialise device */
-  device.locked = FALSE;
   device.cfilter = NULL;
 
   if_cb = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
@@ -3105,15 +3104,12 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
       break;
     }
   }
-  if (!device.locked) {
-    if (enabled == FALSE) {
-      device.selected = TRUE;
-      global_capture_opts.num_selected++;
-    } else {
-      device.selected = FALSE;
-      global_capture_opts.num_selected--;
-    }
-    device.locked = TRUE;
+  if (enabled == FALSE) {
+    device.selected = TRUE;
+    global_capture_opts.num_selected++;
+  } else {
+    device.selected = FALSE;
+    global_capture_opts.num_selected--;
   }
   if (indx != -1) {
     global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, indx);
@@ -3151,7 +3147,6 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
     device.cfilter = NULL;
     update_filter_string(device.name, NULL);
   }
-  device.locked = FALSE;
   global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, indx);
   g_array_insert_val(global_capture_opts.all_ifaces, indx, device);
   gtk_tree_path_free (path);
@@ -3518,7 +3513,6 @@ add_pipe_cb(gpointer w _U_)
     device.buffer       = DEFAULT_CAPTURE_BUFFER_SIZE;
 #endif
     device.active_dlt   = -1;
-    device.locked       = FALSE;
     device.if_info.name = g_strdup(g_save_file);
     device.if_info.friendly_name = NULL;
     device.if_info.vendor_description = NULL;

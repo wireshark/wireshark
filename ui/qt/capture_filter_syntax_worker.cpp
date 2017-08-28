@@ -92,7 +92,7 @@ void CaptureFilterSyntaxWorker::start() {
             interface_t *device;
 
             device = &g_array_index(global_capture_opts.all_ifaces, interface_t, if_idx);
-            if (!device->locked && device->selected) {
+            if (device->selected) {
 #ifdef HAVE_EXTCAP
                 if (device->if_info.extcap == NULL || strlen(device->if_info.extcap) == 0) {
 #endif

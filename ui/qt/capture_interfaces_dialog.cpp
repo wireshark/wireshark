@@ -249,14 +249,11 @@ void CaptureInterfacesDialog::updateGlobalDeviceSelections()
         for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
             interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
             if (device_name.compare(QString().fromUtf8(device->name)) == 0) {
-                if (!device->locked) {
-                    if ((*iter)->isSelected()) {
-                        device->selected = TRUE;
-                        global_capture_opts.num_selected++;
-                    } else {
-                        device->selected = FALSE;
-                    }
-                    device->locked = FALSE;
+                if ((*iter)->isSelected()) {
+                    device->selected = TRUE;
+                    global_capture_opts.num_selected++;
+                } else {
+                    device->selected = FALSE;
                 }
                 break;
             }

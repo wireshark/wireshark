@@ -172,24 +172,19 @@ store_selected(GtkWidget *choose_bt, gpointer name)
   for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
     device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
     if (strcmp((char *)name, device.if_info.name) == 0) {
-      if (!device.locked) {
-        device.selected ^= 1;
-        if (device.selected) {
-          global_capture_opts.num_selected++;
-        } else {
-          global_capture_opts.num_selected--;
-        }
-        global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-        g_array_insert_val(global_capture_opts.all_ifaces, i, device);
-        if (gtk_widget_is_focus(choose_bt) && get_welcome_window()) {
-          change_interface_selection(device.name, device.selected);
-        }
-        if (gtk_widget_is_focus(choose_bt) && capture_dlg_window_present()) {
-          enable_selected_interface(device.name, device.selected);
-        }
-        device.locked = FALSE;
-        global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-        g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+      device.selected ^= 1;
+      if (device.selected) {
+        global_capture_opts.num_selected++;
+      } else {
+        global_capture_opts.num_selected--;
+      }
+      global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
+      g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+      if (gtk_widget_is_focus(choose_bt) && get_welcome_window()) {
+        change_interface_selection(device.name, device.selected);
+      }
+      if (gtk_widget_is_focus(choose_bt) && capture_dlg_window_present()) {
+        enable_selected_interface(device.name, device.selected);
       }
       break;
     }

@@ -737,32 +737,25 @@ on_selection_changed(GtkTreeSelection *selection _U_,
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
         if (strcmp(device.name, if_name) == 0) {
-            if (!device.locked) {
-                if (path_currently_selected) {
-                    if (device.selected) {
-                        device.selected = FALSE;
-                        global_capture_opts.num_selected--;
-                    }
-                } else {
-                    if (!device.selected) {
-                        device.selected = TRUE;
-                        global_capture_opts.num_selected++;
-                    }
+            if (path_currently_selected) {
+                if (device.selected) {
+                    device.selected = FALSE;
+                    global_capture_opts.num_selected--;
                 }
-                device.locked = TRUE;
-                global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-                g_array_insert_val(global_capture_opts.all_ifaces, i, device);
-
-                if (capture_dlg_window_present()) {
-                    enable_selected_interface(g_strdup(if_name), device.selected);
+            } else {
+                if (!device.selected) {
+                    device.selected = TRUE;
+                    global_capture_opts.num_selected++;
                 }
-                if (interfaces_dialog_window_present()) {
-                    update_selected_interface(g_strdup(if_name));
-                }
-                device.locked = FALSE;
-                global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-                g_array_insert_val(global_capture_opts.all_ifaces, i, device);
             }
+            if (capture_dlg_window_present()) {
+                enable_selected_interface(g_strdup(if_name), device.selected);
+            }
+            if (interfaces_dialog_window_present()) {
+                update_selected_interface(g_strdup(if_name));
+            }
+            global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
+            g_array_insert_val(global_capture_opts.all_ifaces, i, device);
             break;
         }
     }

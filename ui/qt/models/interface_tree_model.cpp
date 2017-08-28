@@ -512,20 +512,16 @@ bool InterfaceTreeModel::updateSelectedDevices(QItemSelection sourceSelection)
     for ( unsigned int idx = 0; idx < global_capture_opts.all_ifaces->len; idx++ )
     {
         interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
-        if ( !device->locked )
+        if ( selectedIndices.contains(idx) )
         {
-            if ( selectedIndices.contains(idx) )
-            {
-                if (! device->selected )
-                    selectionHasChanged = true;
-                device->selected = TRUE;
-                global_capture_opts.num_selected++;
-            } else {
-                if ( device->selected )
-                    selectionHasChanged = true;
-                device->selected = FALSE;
-            }
-            device->locked = FALSE;
+            if (! device->selected )
+                selectionHasChanged = true;
+            device->selected = TRUE;
+            global_capture_opts.num_selected++;
+        } else {
+            if ( device->selected )
+                selectionHasChanged = true;
+            device->selected = FALSE;
         }
     }
 #else

@@ -200,7 +200,6 @@ typedef struct interface_tag {
     if_info_t       if_info;
     gboolean        selected;
     gboolean        hidden;
-    gboolean        locked;
 #ifdef HAVE_EXTCAP
     /* External capture cached data */
     GHashTable     *external_cap_args_settings;

@@ -182,7 +182,6 @@ scan_local_interfaces(void (*update_cb)(void))
             device.friendly_name = NULL;
         }
         device.hidden = FALSE;
-        device.locked = FALSE;
         memset(&temp, 0, sizeof(temp));
         temp.name = g_strdup(if_info->name);
         temp.friendly_name = g_strdup(if_info->friendly_name);
@@ -381,7 +380,6 @@ scan_local_interfaces(void (*update_cb)(void))
             device.last_packets = 0;
             device.links        = NULL;
             device.local        = TRUE;
-            device.locked       = FALSE;
             device.if_info.name = g_strdup(interface_opts->name);
             device.if_info.friendly_name = NULL;
             device.if_info.vendor_description = g_strdup(interface_opts->descr);
