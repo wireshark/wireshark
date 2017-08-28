@@ -3126,6 +3126,9 @@ sharkd_session_process_dumpconf_cb(pref_t *pref, gpointer d)
 			break;
 
 		case PREF_STRING:
+		case PREF_SAVE_FILENAME:
+		case PREF_OPEN_FILENAME:
+		case PREF_DIRNAME:
 			printf("\"s\":");
 			json_puts_string(prefs_get_string_value(pref, pref_current));
 			break;
@@ -3236,12 +3239,12 @@ sharkd_session_process_dumpconf_mod_cb(module_t *module, gpointer d)
  * Output object with attributes:
  *   (o) prefs   - object with module preferences
  *                  (m) [KEY] - preference name
- *                  (o) u - preference value (only for PREF_UINT)
- *                  (o) ub - preference value suggested base for display (only for PREF_UINT) and if different than 10
+ *                  (o) u - preference value (for PREF_UINT, PREF_DECODE_AS_UINT)
+ *                  (o) ub - preference value suggested base for display (for PREF_UINT, PREF_DECODE_AS_UINT) and if different than 10
  *                  (o) b - preference value (only for PREF_BOOL) (1 true, 0 false)
- *                  (o) s - preference value (only for PREF_STRING)
+ *                  (o) s - preference value (for PREF_STRING, PREF_SAVE_FILENAME, PREF_OPEN_FILENAME, PREF_DIRNAME)
  *                  (o) e - preference possible values (only for PREF_ENUM)
- *                  (o) r - preference value (only for PREF_RANGE)
+ *                  (o) r - preference value (for PREF_RANGE, PREF_DECODE_AS_RANGE)
  *                  (o) t - preference value (only for PREF_UAT)
  */
 static void
