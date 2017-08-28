@@ -160,7 +160,7 @@ You might also have to install
 if installing Devel/bison doesn't provide a working version of Bison. If
 m4 is missing bison will fail.
 
-After clicking the btn:Next[] button several times, the setup
+After clicking the btn:[Next] button several times, the setup
 will then download and install the selected packages (this
 may take a while).
 
@@ -305,7 +305,7 @@ Using Git extensions:
 . Open the Git Extensions application. By default Git Extensions
    will show a validation checklist at startup. If anything needs to
    be fixed do so now. You can bring up the checklist at any time
-   via _Tools -> Settings_.
+   via menu:Tools[Settings].
 
 . In the main screen select _Clone repository_. Fill in the following:
 +
@@ -321,7 +321,7 @@ Subdirectory to create: Anything you'd like. Usually 'wireshark'.
 Make sure your repository path doesn't contain spaces.
 ====
 
-. Click the btn:Clone[] button. Git Extensions should start cloning the
+. Click the btn:[Clone] button. Git Extensions should start cloning the
   Wireshark repository.
 
 [[ChSetupPrepareCommandCom]]
