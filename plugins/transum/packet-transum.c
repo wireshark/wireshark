@@ -141,11 +141,6 @@ static wmem_map_t *output_rrpd;
  */
 static wmem_list_t *temp_rsp_rrpd_list = NULL;  /* Reuse these for speed and efficient memory use - issue a warning if we run out */
 
-/*
- * GArray of the hfids of all fields we're interested in.
- */
-GArray *wanted_fields;
-
 static gint ett_transum = -1;
 static gint ett_transum_header = -1;
 static gint ett_transum_data = -1;
@@ -707,7 +702,7 @@ static void init_globals(void)
     temp_rsp_rrpd_list = wmem_list_new(wmem_file_scope());
 
     /* Indicate what fields we're interested in. */
-    wanted_fields = g_array_new(FALSE, FALSE, (guint)sizeof(int));
+    GArray *wanted_fields = g_array_sized_new(FALSE, FALSE, (guint)sizeof(int), HF_INTEREST_END_OF_LIST);
     for (int i = 0; i < HF_INTEREST_END_OF_LIST; i++)
     {
         g_array_append_val(wanted_fields, hf_of_interest[i].hf);
@@ -744,6 +739,13 @@ static void init_globals(void)
     wmem_map_insert(preferences.udp_svc_ports, GUINT_TO_POINTER(53), GUINT_TO_POINTER(RTE_CALC_DNS));
 
     output_rrpd = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+}
+
+/* Undo capture file-specific initializations. */
+static void cleanup_globals(void)
+{
+    /* Clear the list of wanted fields as it will be reinitialized. */
+    set_postdissector_wanted_hfids(transum_handle, NULL);
 }
 
 /* This function adds the RTE data to the tree.  The summary ptr is currently
@@ -1195,6 +1197,7 @@ proto_register_transum(void)
     transum_handle = register_dissector("transum", dissect_transum, proto_transum);
 
     register_init_routine(init_globals);
+    register_cleanup_routine(cleanup_globals);
 
     register_postdissector(transum_handle);
 }
