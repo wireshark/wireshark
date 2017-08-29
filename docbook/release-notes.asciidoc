@@ -27,9 +27,9 @@ MSDP dissector infinite loop
 Profinet I/O buffer overrun
 (ws-buglink:13847[])
 // cve-idlink:2017-xxxx[]
-// Fixed in master: 5574b78dae
-// Fixed in master-2.4: 1c95d45a40
-// Fixed in master-2.2: 2096bc1e50
+// Fixed in master: 5574b78dae, c9d0554840
+// Fixed in master-2.4: 1c95d45a40, 85d2230f89
+// Fixed in master-2.2: 2096bc1e50, af7b093ca5
 // Fixed in master-2.0: n/a
 
 * ws-salink:2017-41[]
@@ -72,6 +72,8 @@ The following bugs have been fixed:
 
 * [oss-fuzz] BGP memleak: ASAN: 276 byte(s) leaked in 5 allocation(s). (ws-buglink:13995[])
 
+* Some Infiniband Connect Req fields are not decoded correctly. (ws-buglink:13997[])
+
 * 802.11 wlan.ft.subelem.r0kh_id should be sequence of bytes. (ws-buglink:14004[])
 
 
@@ -102,6 +104,7 @@ IEEE 802.11
 InfiniBand
 MSDP
 MTP2
+pcapng MIME
 Profinet I/O
 SML
 TCAP
