@@ -1304,7 +1304,7 @@ GPtrArray *extcap_prepare_arguments(interface_options interface_opts)
                     const gchar *stored = NULL, * defval = NULL;
                     /* In case of boolflags only first element in arg_list is relevant. */
                     arg_iter = (extcap_arg *)(arg_list->data);
-                    if (arg_iter->pref_valptr != NULL)
+                    if (arg_iter->pref_valptr != NULL && strlen(*arg_iter->pref_valptr) > 0)
                     {
                         stored = *arg_iter->pref_valptr;
                     }
