@@ -571,6 +571,7 @@ static value_string_ext zbee_mfr_code_names_ext = VALUE_STRING_EXT_INIT(zbee_mfr
     { ZBEE_ZCL_STAT_OTA_WAIT_FOR_DATA,              "Ota Wait For Data"},
     { ZBEE_ZCL_STAT_OTA_NO_IMAGE_AVAILABLE,         "Ota No Image Available"},
     { ZBEE_ZCL_STAT_OTA_REQUIRE_MORE_IMAGE,         "Ota Require More Image"},
+    { ZBEE_ZCL_STAT_OTA_NOTIFICATION_PENDING,       "Ota Notification Pending"},
     { ZBEE_ZCL_STAT_HARDWARE_FAILURE,               "Hardware Failure"},
     { ZBEE_ZCL_STAT_SOFTWARE_FAILURE,               "Software Failure"},
     { ZBEE_ZCL_STAT_CALIBRATION_ERROR,              "Calibration Error"},
