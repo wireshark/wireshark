@@ -976,6 +976,7 @@ set(DISSECTOR_SRC
 	packet-netlink-route.c
 	packet-netlink-sock_diag.c
 	packet-netlink.c
+	packet-netmon.c
 	packet-netperfmeter.c
 	packet-netrom.c
 	packet-netsync.c

@@ -57,6 +57,7 @@ ISOBUS
 AMT (Automatic Multicast Tunneling)
 QUIC (IETF)
 Wi-Fi Device Provisioning Protocol
+Network Monitor Event Tracing event
 --sort-and-group--
 
 === Updated Protocol Support

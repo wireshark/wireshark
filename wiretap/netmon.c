@@ -689,7 +689,8 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 				 *
 				 * http://msdn.microsoft.com/en-us/library/aa363759(VS.85).aspx
 				 */
-				return RETRY;
+				pkt_encap = WTAP_ENCAP_NETMON_NET_NETEVENT;
+				break;
 
 			case NETMON_NET_NETWORK_INFO_EX:
 				/*

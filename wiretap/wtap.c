@@ -927,11 +927,14 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_3MB_ETHERNET */
 	{ "Xerox 3MB Ethernet", "xeth"},
 
-	/* Linux vsock */
+	/* WTAP_ENCAP_VSOCK */
 	{ "Linux vsock", "vsock" },
 
-	/* Nordic BLE Sniffer */
+	/* WTAP_ENCAP_NORDIC_BLE */
 	{ "Nordic BLE Sniffer", "nordic_ble" },
+
+	/* WTAP_ENCAP_NETMON_NET_NETEVENT */
+	{ "Network Monitor Network Event", "netmon_event" },
 };
 
 WS_DLL_LOCAL
