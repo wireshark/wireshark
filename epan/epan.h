@@ -128,6 +128,18 @@ e_prefs *epan_load_settings(void);
 WS_DLL_PUBLIC
 void epan_cleanup(void);
 
+#ifdef HAVE_PLUGINS
+typedef struct {
+	void (*init)(void);
+	void (*dissect_init)(epan_dissect_t *);
+	void (*dissect_cleanup)(epan_dissect_t *);
+	void (*cleanup)(void);
+	void (*register_all_protocols)(register_cb, gpointer);
+	void (*register_all_handoffs)(register_cb, gpointer);
+} epan_plugin;
+
+WS_DLL_PUBLIC void epan_register_plugin(const epan_plugin *plugin);
+#endif
 /**
  * Initialize the table of conversations.  Conversations are identified by
  * their endpoints; they are used for protocols such as IP, TCP, and UDP,

@@ -70,6 +70,10 @@
 #include "stats_tree.h"
 #include <dtd.h>
 
+#ifdef HAVE_PLUGINS
+#include <wsutil/plugins.h>
+#endif
+
 #ifdef HAVE_LUA
 #include <lua.h>
 #include <wslua/wslua.h>
@@ -92,10 +96,14 @@
 #include <libxml/parser.h>
 #endif
 
+static GSList *epan_register_all_procotols = NULL;
+static GSList *epan_register_all_handoffs = NULL;
+
 static wmem_allocator_t *pinfo_pool_cache = NULL;
 
 #ifdef HAVE_PLUGINS
 plugins_t *libwireshark_plugins = NULL;
+static GSList *epan_plugins = NULL;
 #endif
 
 const gchar*
@@ -139,6 +147,41 @@ quiet_gcrypt_logger (void *dummy _U_, int level, const char *format, va_list arg
 	g_logv(NULL, log_level, format, args);
 }
 #endif // _WIN32
+
+#ifdef HAVE_PLUGINS
+static void
+epan_plugin_init(gpointer data, gpointer user_data _U_)
+{
+	((epan_plugin *)data)->init();
+}
+
+static void
+epan_plugin_dissect_init(gpointer data, gpointer user_data)
+{
+	((epan_plugin *)data)->dissect_init((epan_dissect_t *)user_data);
+}
+
+static void
+epan_plugin_dissect_cleanup(gpointer data, gpointer user_data)
+{
+	((epan_plugin *)data)->dissect_cleanup((epan_dissect_t *)user_data);
+}
+
+static void
+epan_plugin_cleanup(gpointer data, gpointer user_data _U_)
+{
+	((epan_plugin *)data)->cleanup();
+}
+
+void epan_register_plugin(const epan_plugin *plug)
+{
+	epan_plugins = g_slist_prepend(epan_plugins, (epan_plugin *)plug);
+	if (plug->register_all_protocols)
+		epan_register_all_procotols = g_slist_prepend(epan_register_all_procotols, plug->register_all_protocols);
+	if (plug->register_all_handoffs)
+		epan_register_all_handoffs = g_slist_prepend(epan_register_all_handoffs, plug->register_all_handoffs);
+}
+#endif
 
 gboolean
 epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_data),
@@ -185,8 +228,12 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 		conversation_init();
 		capture_dissector_init();
 		reassembly_tables_init();
-		proto_init(register_all_protocols_func, register_all_handoffs_func,
-		    cb, client_data);
+#ifdef HAVE_PLUGINS
+		g_slist_foreach(epan_plugins, epan_plugin_init, NULL);
+#endif
+		epan_register_all_procotols = g_slist_prepend(epan_register_all_procotols, register_all_protocols_func);
+		epan_register_all_handoffs = g_slist_prepend(epan_register_all_handoffs, register_all_handoffs_func);
+		proto_init(epan_register_all_procotols, epan_register_all_handoffs, cb, client_data);
 		packet_cache_proto_handles();
 		dfilter_init();
 		final_registration_all_protocols();
@@ -244,6 +291,16 @@ epan_load_settings(void)
 void
 epan_cleanup(void)
 {
+#ifdef HAVE_PLUGINS
+	g_slist_foreach(epan_plugins, epan_plugin_cleanup, NULL);
+	g_slist_free_full(epan_plugins, g_free);
+	epan_plugins = NULL;
+#endif
+	g_slist_free(epan_register_all_procotols);
+	epan_register_all_procotols = NULL;
+	g_slist_free(epan_register_all_handoffs);
+	epan_register_all_handoffs = NULL;
+
 	dfilter_cleanup();
 	proto_cleanup();
 	prefs_cleanup();
@@ -401,6 +458,10 @@ epan_dissect_init(epan_dissect_t *edt, epan_t *session, const gboolean create_pr
 	}
 
 	edt->tvb = NULL;
+
+#ifdef HAVE_PLUGINS
+	g_slist_foreach(epan_plugins, epan_plugin_dissect_init, edt);
+#endif
 }
 
 void
@@ -511,6 +572,10 @@ void
 epan_dissect_cleanup(epan_dissect_t* edt)
 {
 	g_assert(edt);
+
+#ifdef HAVE_PLUGINS
+	g_slist_foreach(epan_plugins, epan_plugin_dissect_cleanup, edt);
+#endif
 
 	g_slist_free(edt->pi.proto_data);
 	g_slist_free(edt->pi.dependent_frames);

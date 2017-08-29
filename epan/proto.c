@@ -468,8 +468,8 @@ call_plugin_register_handoff(gpointer data, gpointer user_data _U_)
 
 /* initialize data structures and register protocols and fields */
 void
-proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_data),
-	   void (register_all_handoffs_func)(register_cb cb, gpointer client_data),
+proto_init(GSList *register_all_protocols_list,
+	   GSList *register_all_handoffs_list,
 	   register_cb cb,
 	   gpointer client_data)
 {
@@ -506,7 +506,9 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 	   dissector tables, and dissectors to be called through a
 	   handle, and do whatever one-time initialization it needs to
 	   do. */
-	register_all_protocols_func(cb, client_data);
+	for (GSList *l = register_all_protocols_list; l != NULL; l = l->next) {
+		((void (*)(register_cb, gpointer))l->data)(cb, client_data);
+	}
 
 	/* Now that the VINES dissector has registered it's address
 	   type, grab the value for the field type */
@@ -523,7 +525,9 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 	   dissectors; those routines register the dissector in other
 	   dissectors' handoff tables, and fetch any dissector handles
 	   they need. */
-	register_all_handoffs_func(cb, client_data);
+	for (GSList *l = register_all_handoffs_list; l != NULL; l = l->next) {
+		((void (*)(register_cb, gpointer))l->data)(cb, client_data);
+	}
 
 #ifdef HAVE_PLUGINS
 	/* Now do the same with plugins. */
