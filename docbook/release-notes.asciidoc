@@ -63,6 +63,7 @@ There are no new protocols in this release.
 --sort-and-group--
 IrCOMM
 MSDP
+pcapng MIME
 --sort-and-group--
 
 === New and Updated Capture File Support

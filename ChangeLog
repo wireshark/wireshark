@@ -1,0 +1,335 @@
+commit 4b587c3b8e
+Author: Jim Young <jyoung@gsu.edu>
+Date:   Mon Aug 28 23:32:43 2017 -0500
+
+    MIME based pcapng dissector: Fixup apparent copy-and-pasteos.
+    
+    The MIME based pcapng dissector incorrectly displayed the EPB
+    Flags option's link layer error bits.
+    
+    Change-Id: Ia14eec39e2a9c4432e6b3d1c0cee718ad2da1cac
+    Reviewed-on: https://code.wireshark.org/review/23279
+    Petri-Dish: Jim Young <jim.young.ws@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 6d5fcb7378b89790ab2d3feac0a6579c59b97bef)
+    Reviewed-on: https://code.wireshark.org/review/23289
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 3d745d2dc7
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Aug 28 11:37:34 2017 -0700
+
+    Prep for 2.0.15.
+    
+    Change-Id: I2b7caad8c5ecde43e387c38289a406d05e0a7edf
+    Reviewed-on: https://code.wireshark.org/review/23270
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 2eb22ce13f
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Fri Aug 25 11:19:06 2017 -0700
+
+    Lua: fix crash on invalid Dissector.list("food") invocation
+    
+    The Dissector.list, Listener.list and Field.list functions do not accept
+    a parameter. Passing one however results in a crash because the first
+    element is not the expected table, but the first function parameter.
+    
+    Change-Id: I8483d0aa20716045472f30f5b41a449bed549b05
+    Reviewed-on: https://code.wireshark.org/review/23209
+    Petri-Dish: Peter Wu <peter@lekensteyn.nl>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    (cherry picked from commit f3ba318e099f62aea51718b73e8e817482beab51)
+    Reviewed-on: https://code.wireshark.org/review/23235
+
+commit 43151a2d5c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 27 08:27:50 2017 +0000
+
+    [Automatic update for 2017-08-27]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I9c448935bb92540009d94b579a92bd3294586268
+    Reviewed-on: https://code.wireshark.org/review/23227
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 94666d4357
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Mon Jul 31 08:36:46 2017 +0200
+
+    IrCOMM: check string length before appending it to item
+    
+    Bug: 13929
+    Change-Id: I33f3fec77014949fcc15df72c42ffcb25158562f
+    Reviewed-on: https://code.wireshark.org/review/22887
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit c9cb01adbb24c91b665c6c219573f8ee96e1986c)
+    Reviewed-on: https://code.wireshark.org/review/23212
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit df26288160
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Aug 23 10:15:06 2017 -0700
+
+    Update WinSparkle to 0.5.6.
+    
+    Change-Id: Ib0f981bdf4579af8549450bb14b694253e9694e7
+    Reviewed-on: https://code.wireshark.org/review/23181
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 730f5803c8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 20 08:22:12 2017 +0000
+
+    [Automatic update for 2017-08-20]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I94cab26a4a92892042c4f7b95bd3a3471fcd0582
+    Reviewed-on: https://code.wireshark.org/review/23144
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 36d86f25fc
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 13 08:29:40 2017 +0000
+
+    [Automatic update for 2017-08-13]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I9b869462714c1fd2590cfa70d7ccb14352023ea0
+    Reviewed-on: https://code.wireshark.org/review/23059
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 09932a2425
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 6 08:24:29 2017 +0000
+
+    [Automatic update for 2017-08-06]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I945b1b4875ed49cff365e48e0824dd9f868594ea
+    Reviewed-on: https://code.wireshark.org/review/22964
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit bebd9b439a
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Sat Aug 5 12:19:02 2017 +0200
+
+    Lua: Check for PseudoHeader.none
+    
+    Don't dereference pointer when using PseudoHeader.none.
+    
+    Bug: 13944
+    Change-Id: I4e509269ac4983531912f3f9b2cc6b7cf00fbeae
+    Reviewed-on: https://code.wireshark.org/review/22945
+    Petri-Dish: Stig Bjørlykke <stig@bjorlykke.org>
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+    (cherry picked from commit 15c0c8db5e0aac50e44eb3e2cd6eb5c0b3585220)
+    Reviewed-on: https://code.wireshark.org/review/22952
+
+commit abdbf88cd3
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Sat Aug 5 12:29:33 2017 +0200
+
+    Lua: Fix error message in Dumper:dump()
+    
+    Change-Id: I9cdf8ecaf5129a30091b9b4d109f70cfdd7fca1b
+    Reviewed-on: https://code.wireshark.org/review/22946
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+    (cherry picked from commit 4b4ce9fb35a46447796252cbfd1af4ea6b889d55)
+    Reviewed-on: https://code.wireshark.org/review/22949
+
+commit b2f8573776
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Aug 2 00:30:28 2017 -0700
+
+    Note that newer versions of various distributions won't have these problems.
+    
+    Change-Id: Ib5f0d9ffe4a2a574c5cc2299271d3c5f9828dede
+    Reviewed-on: https://code.wireshark.org/review/22914
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit c5569cfa0b985b763608231fe4b2fc976422aa33)
+    Reviewed-on: https://code.wireshark.org/review/22917
+
+commit 918f6cfa5c
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Aug 1 17:41:03 2017 -0700
+
+    macosx-setup.sh doesn't build Qt, it just installs a binary.
+    
+    Say it builds "as needed".
+    
+    Change-Id: I85ce2062da7f168785d0d22160b8f19b85d554e3
+    Reviewed-on: https://code.wireshark.org/review/22909
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 778117c502d9e702327f592784c8d7b94212302c)
+    Reviewed-on: https://code.wireshark.org/review/22912
+
+commit 35682038e6
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Aug 1 10:18:05 2017 -0700
+
+    Qt+Windows: Make Wireshark explicitly DPI-unaware.
+    
+    Set dpiAware=false in Wireshark's manifest. This has the effect of scaling
+    up and pixelating the UI on displays that have font scaling enabled. It's
+    not pretty but it's much more readable, at least on a test machine here.
+    
+    Change-Id: I9e141d885ae1bd6cbd207f95b7fc414c8106b21a
+    Reviewed-on: https://code.wireshark.org/review/22899
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 70db54b06c
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Jul 30 18:19:44 2017 -0700
+
+    Fix calls to dissect_msdp().
+    
+    Change-Id: I4ac32df8cb959ea8e7e3a586c0eacbf2f0c2c27d
+    Reviewed-on: https://code.wireshark.org/review/22884
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 591809fe67
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Jul 30 14:32:06 2017 -0700
+
+    Do more checks for extra data at the end of a TLV.
+    
+    Change-Id: I013b21184f8e539d194b6d7ad880e50674958f32
+    Reviewed-on: https://code.wireshark.org/review/22874
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 7e03e6b4eae2cc5871dda97462d1d43ec4b975b5)
+    Reviewed-on: https://code.wireshark.org/review/22877
+
+commit 6f18ace2a2
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Jul 30 12:01:07 2017 -0700
+
+    Clean up MSDP dissection.
+    
+    It's now an RFC; mention the RFC number.
+    
+    There are no message types in MSDP; the message consists solely of a
+    sequence of TLVs.  Don't speak of TLV types as message types.
+    
+    When dissecting a TLV, don't go past the end of the TLV.  (We should add
+    a bunch of expert infos for length errors.)
+    
+    Note that the Notification TLV was in an I-D but isn't in the RFC.
+    
+    Don't use tvb_new_subset() - tvb_new_subset_length() suffices; let *it*
+    check for the captured length.
+    
+    Clean up dissection of the Notification TLV.
+    
+    Bug: 13933
+    Change-Id: Ia39b98f061957085c9f15fe6b31cd9c18058df35
+    Reviewed-on: https://code.wireshark.org/review/22868
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 33b95883aa4ef7391c05e563243992d35846a633)
+    Reviewed-on: https://code.wireshark.org/review/22870
+    (cherry picked from commit 5ade15dbd675ff88ea177173bf373bfff26bba44)
+    Reviewed-on: https://code.wireshark.org/review/22871
+
+commit 516d4937d5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 30 08:18:59 2017 +0000
+
+    [Automatic update for 2017-07-30]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I9f36591b417b15a5d7eb0075af246bb6e3966a88
+    Reviewed-on: https://code.wireshark.org/review/22857
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit a1ca7341a8
+Author: Ike Gilbert <ike@imgilbert.com>
+Date:   Fri Jul 28 17:23:48 2017 +0200
+
+    Windows: fix generation with CMake 3.9.0
+    
+    By using CMake FindPerl.cmake module, CYGWIN_INSTALL_PATH variable
+    gets overwritten, bypassing our modified FindCygwin.cmake.
+    Let's package our own version FindPerl.cmake to avoid this.
+    
+    Bug: 13922
+    Change-Id: If68e96ba312c2c6fa417721e7aec2ae6e5179a81
+    Reviewed-on: https://code.wireshark.org/review/22834
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 76762d69b55065af69df075ca8bd3425b5b3ca84)
+    Reviewed-on: https://code.wireshark.org/review/22845
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+
+commit a46d54e768
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 23 08:22:00 2017 +0000
+
+    [Automatic update for 2017-07-23]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I013c621bbe85453d31cee9ef0dad29e75149bee1
+    Reviewed-on: https://code.wireshark.org/review/22764
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit a3a3f0cefb
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu Jul 20 11:03:18 2017 -0700
+
+    Give some references.
+    
+    Change-Id: Iaa4912fa50ffde8d5408527f3b4b28a0d2a56cde
+    Reviewed-on: https://code.wireshark.org/review/22737
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 3669a8cc8f64a1874a3d370abccfc6e815b46514)
+    Reviewed-on: https://code.wireshark.org/review/22740
+
+commit ffe5d0a823
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Jul 20 09:37:15 2017 -0700
+
+    CMake: Escape shell command quotes.
+    
+    Escape shell command quotes so that what appears to be "unquoted_legacy"
+    behavior doesn't kick in.
+    
+    Ping-Bug: 12305
+    Change-Id: I4763df2fbc58b80d6e4e3ec15f78c16fa1cf3853
+    Reviewed-on: https://code.wireshark.org/review/22732
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit ab0b3ecf867223d8aeeb9c405dfc7204114b0dbe)
+    Reviewed-on: https://code.wireshark.org/review/22736
+
+commit e433380893
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jul 19 18:06:17 2017 -0700
+
+    Update WinSparkle.
+    
+    Change-Id: I08cee1ba13495b077fea2bd42fdfc2d762405c3a
+    Reviewed-on: https://code.wireshark.org/review/22724
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 6f68bcd87c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Jul 18 11:39:17 2017 -0700
+
+    2.0.14 → 2.0.15.
+    
+    Change-Id: Iadf788785c572d9a62bbe4c06f82fee60d60ce10
+    Reviewed-on: https://code.wireshark.org/review/22705
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
