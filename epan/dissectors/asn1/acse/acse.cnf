@@ -52,7 +52,7 @@ PDV-list/presentation-data-values/octet-aligned		pDVList_octet_aligned
 
 #.FN_BODY Authentication-value-other/other-mechanism-value
   if (actx->external.direct_ref_present) {
-    offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, top_tree, actx->private_data);
+    offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, actx->subtree.top_tree, actx->private_data);
   }
 
 #.FN_BODY PDV-list/presentation-data-values/simple-ASN1-type
@@ -104,12 +104,12 @@ PDV-list/presentation-data-values/octet-aligned		pDVList_octet_aligned
 
 #.FN_BODY EXTERNALt/_untag/encoding/single-ASN1-type
   if (actx->external.direct_ref_present) {
-    offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, actx->private_data);
+    offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, actx->subtree.top_tree ? actx->subtree.top_tree : tree, actx->private_data);
   }
 
 #.FN_BODY EXTERNALt/_untag/encoding/octet-aligned
   if (actx->external.direct_ref_present) {
-    offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, actx->private_data);
+    offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, actx->subtree.top_tree ? actx->subtree.top_tree : tree, actx->private_data);
   }
 
 #.FN_BODY AARQ-apdu

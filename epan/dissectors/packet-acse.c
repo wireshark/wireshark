@@ -242,8 +242,6 @@ static dissector_handle_t acse_handle = NULL;
    kind of data is transferred in SES_DATA_TRANSFER_PDUs */
 static guint32 indir_ref=0;
 
-static proto_tree *top_tree=NULL;
-
 #if NOT_NEEDED
 /* to keep track of presentation context identifiers and protocol-oids */
 typedef struct _acse_ctx_oid_t {
@@ -357,7 +355,7 @@ static int
 dissect_acse_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 106 "./asn1/acse/acse.cnf"
   if (actx->external.direct_ref_present) {
-    offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, actx->private_data);
+    offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, actx->subtree.top_tree ? actx->subtree.top_tree : tree, actx->private_data);
   }
 
 
@@ -371,7 +369,7 @@ static int
 dissect_acse_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 111 "./asn1/acse/acse.cnf"
   if (actx->external.direct_ref_present) {
-    offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, actx->private_data);
+    offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, actx->subtree.top_tree ? actx->subtree.top_tree : tree, actx->private_data);
   }
 
 
@@ -685,7 +683,7 @@ static int
 dissect_acse_T_other_mechanism_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 54 "./asn1/acse/acse.cnf"
   if (actx->external.direct_ref_present) {
-    offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, top_tree, actx->private_data);
+    offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, actx->subtree.top_tree, actx->private_data);
   }
 
 
@@ -1687,7 +1685,7 @@ dissect_acse_AE_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 /*--- End of included file: packet-acse-fn.c ---*/
-#line 140 "./asn1/acse/packet-acse-template.c"
+#line 138 "./asn1/acse/packet-acse-template.c"
 
 
 /*
@@ -1728,7 +1726,7 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 
 	asn1_ctx.private_data = session;
 	/* save parent_tree so subdissectors can create new top nodes */
-	top_tree=parent_tree;
+	asn1_ctx.subtree.top_tree = parent_tree;
 
 	/*  ACSE has only AARQ,AARE,RLRQ,RLRE,ABRT type of pdu */
 	/*  reject everything else                              */
@@ -1749,17 +1747,15 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 				proto_tree_add_expert_format(parent_tree, pinfo, &ei_acse_invalid_oid, tvb, offset, -1,
 				    "Invalid OID: %s", ACSE_APDU_OID);
 			}
-         else {
-            call_ber_oid_callback(oid, tvb, offset, pinfo, parent_tree, NULL);
-         }
+		 else {
+			call_ber_oid_callback(oid, tvb, offset, pinfo, parent_tree, NULL);
+		 }
 		} else {
 			proto_tree_add_expert(parent_tree, pinfo, &ei_acse_dissector_not_available,
-                                    tvb, offset, -1);
+									tvb, offset, -1);
 		}
-		top_tree = NULL;
 		return 0;
 	default:
-		top_tree = NULL;
 		return 0;
 	}
 
@@ -1790,7 +1786,6 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 		}
 	}
 
-	top_tree = NULL;
 	return tvb_captured_length(tvb);
 }
 
@@ -2236,7 +2231,7 @@ void proto_register_acse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-acse-hfarr.c ---*/
-#line 256 "./asn1/acse/packet-acse-template.c"
+#line 251 "./asn1/acse/packet-acse-template.c"
   };
 
   /* List of subtrees */
@@ -2282,7 +2277,7 @@ void proto_register_acse(void) {
     &ett_acse_Authentication_value,
 
 /*--- End of included file: packet-acse-ettarr.c ---*/
-#line 262 "./asn1/acse/packet-acse-template.c"
+#line 257 "./asn1/acse/packet-acse-template.c"
   };
 
   static ei_register_info ei[] = {

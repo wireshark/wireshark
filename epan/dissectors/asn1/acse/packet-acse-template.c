@@ -81,8 +81,6 @@ static dissector_handle_t acse_handle = NULL;
    kind of data is transferred in SES_DATA_TRANSFER_PDUs */
 static guint32 indir_ref=0;
 
-static proto_tree *top_tree=NULL;
-
 #if NOT_NEEDED
 /* to keep track of presentation context identifiers and protocol-oids */
 typedef struct _acse_ctx_oid_t {
@@ -177,7 +175,7 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 
 	asn1_ctx.private_data = session;
 	/* save parent_tree so subdissectors can create new top nodes */
-	top_tree=parent_tree;
+	asn1_ctx.subtree.top_tree = parent_tree;
 
 	/*  ACSE has only AARQ,AARE,RLRQ,RLRE,ABRT type of pdu */
 	/*  reject everything else                              */
@@ -198,17 +196,15 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 				proto_tree_add_expert_format(parent_tree, pinfo, &ei_acse_invalid_oid, tvb, offset, -1,
 				    "Invalid OID: %s", ACSE_APDU_OID);
 			}
-         else {
-            call_ber_oid_callback(oid, tvb, offset, pinfo, parent_tree, NULL);
-         }
+		 else {
+			call_ber_oid_callback(oid, tvb, offset, pinfo, parent_tree, NULL);
+		 }
 		} else {
 			proto_tree_add_expert(parent_tree, pinfo, &ei_acse_dissector_not_available,
-                                    tvb, offset, -1);
+									tvb, offset, -1);
 		}
-		top_tree = NULL;
 		return 0;
 	default:
-		top_tree = NULL;
 		return 0;
 	}
 
@@ -239,7 +235,6 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 		}
 	}
 
-	top_tree = NULL;
 	return tvb_captured_length(tvb);
 }
 
