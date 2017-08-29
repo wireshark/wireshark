@@ -12,35 +12,15 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed:
 
-* ws-salink:2017-38[]
+* ws-salink:2017-42[]
 +
-MSDP dissector infinite loop
-(ws-buglink:13933[])
+A dissector went awry
+(ws-buglink:xxxx[])
 // cve-idlink:2017-xxxx[]
-// Fixed in master: 33b95883aa
-// Fixed in master-2.4: a6d312cce1
-// Fixed in master-2.2: 5ade15dbd6
-// Fixed in master-2.0: 6f18ace2a2
-
-* ws-salink:2017-39[]
-+
-Profinet I/O buffer overrun
-(ws-buglink:13847[])
-// cve-idlink:2017-xxxx[]
-// Fixed in master: 5574b78dae, c9d0554840
-// Fixed in master-2.4: 1c95d45a40, 85d2230f89
-// Fixed in master-2.2: 2096bc1e50, af7b093ca5
-// Fixed in master-2.0: n/a
-
-* ws-salink:2017-41[]
-+
-IrCOMM dissector buffer overrun
-(ws-buglink:13929[])
-// cve-idlink:2017-xxxx[]
-// Fixed in master: c9cb01adbb
-// Fixed in master-2.4: a8668a1561
-// Fixed in master-2.2: cbf91bab71
-// Fixed in master-2.0: 94666d4357
+// Fixed in master: xxxx
+// Fixed in master-2.4: xxxx
+// Fixed in master-2.2: xxxx
+// Fixed in master-2.0: xxxx
 
 The following bugs have been fixed:
 
@@ -49,32 +29,6 @@ The following bugs have been fixed:
 //* cve-idlink:2014-2486[]
 //* Wireshark accepted your prom invitation then cancelled at the last minute. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.2.10rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* Confusing "Apply a display filter <Command/>" keyboard shortcut. (ws-buglink:12450[])
-
-* VNC Protocol disector : Framebuffer Updates. (ws-buglink:13910[])
-
-* DNS LOC RRs with out-of-range longitude or latitude aren't shown as errors. (ws-buglink:13914[])
-
-* DIS Dissector Entity Appearance Record displayed in wrong location. (ws-buglink:13917[])
-
-* Win64 CMake bug - (CYGWIN_INSTALL_PATH redefinition) causing missing packages when using CMake 3.9.0. (ws-buglink:13922[])
-
-* APL records parsed incorrectly for IPv4 prefixes. (ws-buglink:13923[])
-
-* TCAP SRT Analysis incorrectly matched TCAP begins and ends. (ws-buglink:13926[])
-
-* E.212: Check length before trying 3-digits MNC. (ws-buglink:13935[])
-
-* Crash in Wireshark using Dumper:dump() from Lua. (ws-buglink:13944[])
-
-* GTPv2 - decoding issue for Packet Flow ID (type 123). (ws-buglink:13987[])
-
-* [oss-fuzz] BGP memleak: ASAN: 276 byte(s) leaked in 5 allocation(s). (ws-buglink:13995[])
-
-* Some Infiniband Connect Req fields are not decoded correctly. (ws-buglink:13997[])
-
-* 802.11 wlan.ft.subelem.r0kh_id should be sequence of bytes. (ws-buglink:14004[])
 
 
 === New and Updated Features
@@ -94,21 +48,6 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
-APL
-BGP
-DIS
-DNS
-E.212
-GTPv2
-IEEE 802.11
-InfiniBand
-MSDP
-MTP2
-pcapng MIME
-Profinet I/O
-SML
-TCAP
-VNC
 --sort-and-group--
 
 === New and Updated Capture File Support
