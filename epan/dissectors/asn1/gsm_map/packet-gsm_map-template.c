@@ -227,7 +227,6 @@ static gboolean pref_ericsson_proprietary_ext = FALSE;
 /* Global variables */
 static guint32 opcode=0;
 static guint32 errorCode;
-static proto_tree *top_tree;
 static int application_context_version;
 static guint ProtocolId;
 static guint AccessNetworkProtocolId;
@@ -1630,7 +1629,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
   case 126: /*SS-protocol explicitCT no Argument*/
     break;
   default:
-    if(!dissector_try_uint(map_prop_arg_opcode_table, (guint8)opcode, tvb, actx->pinfo, tree)){
+    if(!dissector_try_uint_new(map_prop_arg_opcode_table, (guint8)opcode, tvb, actx->pinfo, tree, TRUE, NULL)){
         proto_tree_add_expert_format(tree, actx->pinfo, &ei_gsm_map_unknown_invokeData,
                                      tvb, offset, -1, "Unknown invokeData %d", opcode);
     }
@@ -1942,7 +1941,7 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
     break;
 
  default:
-   if(!dissector_try_uint(map_prop_res_opcode_table, (guint8)opcode, tvb, actx->pinfo, tree)){
+   if(!dissector_try_uint_new(map_prop_res_opcode_table, (guint8)opcode, tvb, actx->pinfo, tree, TRUE, NULL)){
         proto_tree_add_expert_format(tree, actx->pinfo, &ei_gsm_map_unknown_invokeData,
                                      tvb, offset, -1, "Unknown returnResultData %d", opcode);
    }
@@ -2105,7 +2104,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, 
     offset=dissect_gsm_map_er_InformationNotAvailableParam(FALSE, tvb, offset, actx, tree, -1);
     break;
   default:
-    if(!dissector_try_uint(map_prop_err_opcode_table, (guint8)opcode, tvb, actx->pinfo, tree)){
+    if(!dissector_try_uint_new(map_prop_err_opcode_table, (guint8)opcode, tvb, actx->pinfo, tree, TRUE, NULL)){
         proto_tree_add_expert_format(tree, actx->pinfo, &ei_gsm_map_unknown_invokeData,
                                      tvb, offset, -1, "Unknown returnErrorData %d", opcode);
     }
@@ -2419,7 +2418,7 @@ dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM MAP");
 
-  top_tree = parent_tree;
+  asn1_ctx.subtree.top_tree = parent_tree;
 
   gsm_map_priv = wmem_new0(wmem_packet_scope(), gsm_map_private_info_t);
   gsm_map_priv->tcap_private = (struct tcap_private_t *)data;
@@ -2458,7 +2457,7 @@ dissect_gsm_map_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM MAP");
 
-  top_tree = parent_tree;
+  asn1_ctx.subtree.top_tree = parent_tree;
 
   gsm_map_priv = wmem_new0(wmem_packet_scope(), gsm_map_private_info_t);
   gsm_map_priv->sccp_msg_info = (sccp_msg_info_t *)data;

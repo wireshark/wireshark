@@ -2741,7 +2741,6 @@ static gboolean pref_ericsson_proprietary_ext = FALSE;
 /* Global variables */
 static guint32 opcode=0;
 static guint32 errorCode;
-static proto_tree *top_tree;
 static int application_context_version;
 static guint ProtocolId;
 static guint AccessNetworkProtocolId;
@@ -5788,7 +5787,7 @@ dissect_gsm_map_er_SM_DeliveryFailureCause(gboolean implicit_tag _U_, tvbuff_t *
   /* Detailed diagnostic information contains either a SMS-SUBMIT-REPORT or a SMS-DELIVERY-REPORT */
   oct = tvb_get_guint8(gsm_map_priv->signal_info_tvb, 0);
   actx->pinfo->p2p_dir = ((oct & 0x03) == 0) ? P2P_DIR_RECV : P2P_DIR_SENT;
-  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, top_tree, NULL);
+  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, actx->subtree.top_tree, NULL);
 
 
 
@@ -6944,7 +6943,7 @@ dissect_gsm_map_sm_MO_ForwardSM_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
   if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
     actx->pinfo->p2p_dir = P2P_DIR_RECV;
   }
-  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, top_tree, NULL);
+  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, actx->subtree.top_tree, NULL);
 
 
 
@@ -6972,7 +6971,7 @@ dissect_gsm_map_sm_MO_ForwardSM_Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
   if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
     actx->pinfo->p2p_dir = P2P_DIR_SENT;
   }
-  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, top_tree, NULL);
+  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, actx->subtree.top_tree, NULL);
 
 
 
@@ -7010,7 +7009,7 @@ dissect_gsm_map_sm_MT_ForwardSM_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
   if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
     actx->pinfo->p2p_dir = P2P_DIR_SENT;
   }
-  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, top_tree, NULL);
+  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, actx->subtree.top_tree, NULL);
 
 
 
@@ -7038,7 +7037,7 @@ dissect_gsm_map_sm_MT_ForwardSM_Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
   if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
     actx->pinfo->p2p_dir = P2P_DIR_RECV;
   }
-  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, top_tree, NULL);
+  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, actx->subtree.top_tree, NULL);
 
 
 
@@ -7237,7 +7236,7 @@ dissect_gsm_map_sm_MT_ForwardSM_VGCS_Arg(gboolean implicit_tag _U_, tvbuff_t *tv
   if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
     actx->pinfo->p2p_dir = P2P_DIR_SENT;
   }
-  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, top_tree, NULL);
+  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, actx->subtree.top_tree, NULL);
 
 
 
@@ -7294,7 +7293,7 @@ dissect_gsm_map_sm_MT_ForwardSM_VGCS_Res(gboolean implicit_tag _U_, tvbuff_t *tv
   if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
     actx->pinfo->p2p_dir = P2P_DIR_RECV;
   }
-  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, top_tree, NULL);
+  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, actx->subtree.top_tree, NULL);
 
 
 
@@ -18724,7 +18723,7 @@ dissect_gsm_old_ForwardSM_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
       actx->pinfo->p2p_dir = P2P_DIR_RECV;
     }
   }
-  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, top_tree, NULL);
+  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, actx->subtree.top_tree, NULL);
 
 
 
@@ -21377,7 +21376,7 @@ dissect_NokiaMAP_Extensions_AllowedServiceData(gboolean implicit_tag _U_, tvbuff
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 1111 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 1110 "./asn1/gsm_map/packet-gsm_map-template.c"
 
 /* Specific translation for MAP V3 */
 const value_string gsm_map_V1V2_opr_code_strings[] = {
@@ -21599,7 +21598,7 @@ const value_string gsm_map_opr_code_strings[] = {
 /* Unknown or empty loop list OPERATION */
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 1122 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 1121 "./asn1/gsm_map/packet-gsm_map-template.c"
   { 0, NULL }
 };
 
@@ -21816,7 +21815,7 @@ static const value_string gsm_map_err_code_string_vals[] = {
 /* Unknown or empty loop list OPERATION */
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 1128 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 1127 "./asn1/gsm_map/packet-gsm_map-template.c"
     { 0, NULL }
 };
 #endif
@@ -22322,7 +22321,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
   case 126: /*SS-protocol explicitCT no Argument*/
     break;
   default:
-    if(!dissector_try_uint(map_prop_arg_opcode_table, (guint8)opcode, tvb, actx->pinfo, tree)){
+    if(!dissector_try_uint_new(map_prop_arg_opcode_table, (guint8)opcode, tvb, actx->pinfo, tree, TRUE, NULL)){
         proto_tree_add_expert_format(tree, actx->pinfo, &ei_gsm_map_unknown_invokeData,
                                      tvb, offset, -1, "Unknown invokeData %d", opcode);
     }
@@ -22634,7 +22633,7 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
     break;
 
  default:
-   if(!dissector_try_uint(map_prop_res_opcode_table, (guint8)opcode, tvb, actx->pinfo, tree)){
+   if(!dissector_try_uint_new(map_prop_res_opcode_table, (guint8)opcode, tvb, actx->pinfo, tree, TRUE, NULL)){
         proto_tree_add_expert_format(tree, actx->pinfo, &ei_gsm_map_unknown_invokeData,
                                      tvb, offset, -1, "Unknown returnResultData %d", opcode);
    }
@@ -22797,7 +22796,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, 
     offset=dissect_gsm_map_er_InformationNotAvailableParam(FALSE, tvb, offset, actx, tree, -1);
     break;
   default:
-    if(!dissector_try_uint(map_prop_err_opcode_table, (guint8)opcode, tvb, actx->pinfo, tree)){
+    if(!dissector_try_uint_new(map_prop_err_opcode_table, (guint8)opcode, tvb, actx->pinfo, tree, TRUE, NULL)){
         proto_tree_add_expert_format(tree, actx->pinfo, &ei_gsm_map_unknown_invokeData,
                                      tvb, offset, -1, "Unknown returnErrorData %d", opcode);
     }
@@ -23111,7 +23110,7 @@ dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM MAP");
 
-  top_tree = parent_tree;
+  asn1_ctx.subtree.top_tree = parent_tree;
 
   gsm_map_priv = wmem_new0(wmem_packet_scope(), gsm_map_private_info_t);
   gsm_map_priv->tcap_private = (struct tcap_private_t *)data;
@@ -23150,7 +23149,7 @@ dissect_gsm_map_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM MAP");
 
-  top_tree = parent_tree;
+  asn1_ctx.subtree.top_tree = parent_tree;
 
   gsm_map_priv = wmem_new0(wmem_packet_scope(), gsm_map_private_info_t);
   gsm_map_priv->sccp_msg_info = (sccp_msg_info_t *)data;
@@ -31177,7 +31176,7 @@ void proto_register_gsm_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 3411 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3410 "./asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -31905,7 +31904,7 @@ void proto_register_gsm_map(void) {
     &ett_NokiaMAP_Extensions_AllowedServiceData,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 3447 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3446 "./asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -32049,7 +32048,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 3507 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3506 "./asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );

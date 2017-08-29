@@ -531,7 +531,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
   /* Detailed diagnostic information contains either a SMS-SUBMIT-REPORT or a SMS-DELIVERY-REPORT */
   oct = tvb_get_guint8(gsm_map_priv->signal_info_tvb, 0);
   actx->pinfo->p2p_dir = ((oct & 0x03) == 0) ? P2P_DIR_RECV : P2P_DIR_SENT;
-  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, top_tree, NULL);
+  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, actx->subtree.top_tree, NULL);
 
 #.FN_BODY ForwardSM-Arg
   /* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
@@ -547,7 +547,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
       actx->pinfo->p2p_dir = P2P_DIR_RECV;
     }
   }
-  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, top_tree, NULL);
+  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, actx->subtree.top_tree, NULL);
 
 #.FN_BODY MO-ForwardSM-Arg
   /* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
@@ -559,7 +559,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
   if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
     actx->pinfo->p2p_dir = P2P_DIR_RECV;
   }
-  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, top_tree, NULL);
+  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, actx->subtree.top_tree, NULL);
 
 #.FN_BODY MO-ForwardSM-Res
   /* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
@@ -571,7 +571,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
   if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
     actx->pinfo->p2p_dir = P2P_DIR_SENT;
   }
-  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, top_tree, NULL);
+  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, actx->subtree.top_tree, NULL);
 
 #.FN_BODY MT-ForwardSM-Arg
   /* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
@@ -583,7 +583,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
   if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
     actx->pinfo->p2p_dir = P2P_DIR_SENT;
   }
-  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, top_tree, NULL);
+  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, actx->subtree.top_tree, NULL);
 
 #.FN_BODY MT-ForwardSM-Res
   /* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
@@ -595,7 +595,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
   if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
     actx->pinfo->p2p_dir = P2P_DIR_RECV;
   }
-  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, top_tree, NULL);
+  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, actx->subtree.top_tree, NULL);
 
 #.FN_BODY MT-ForwardSM-VGCS-Arg
   /* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
@@ -607,7 +607,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
   if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
     actx->pinfo->p2p_dir = P2P_DIR_SENT;
   }
-  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, top_tree, NULL);
+  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, actx->subtree.top_tree, NULL);
 
 #.FN_BODY MT-ForwardSM-VGCS-Res
   /* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
@@ -619,7 +619,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
   if (actx->pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
     actx->pinfo->p2p_dir = P2P_DIR_RECV;
   }
-  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, top_tree, NULL);
+  call_dissector_only(gsm_sms_handle, gsm_map_priv->signal_info_tvb, actx->pinfo, actx->subtree.top_tree, NULL);
 
 #.FN_BODY SS-Status VAL_PTR = &parameter_tvb
 
