@@ -1833,7 +1833,6 @@ proto_register_pcapng(void)
             FT_UINT16, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
         },
-
         { &hf_pcapng_option_data_packet_flags_link_layer_errors_symbol,
             { "Symbol Error",                              "pcapng.options.option.data.packet.flags.link_layer_errors.symbol",
             FT_BOOLEAN, 16, NULL, 0x8000,
@@ -1841,42 +1840,42 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_option_data_packet_flags_link_layer_errors_preamble,
             { "Preamble Error",                            "pcapng.options.option.data.packet.flags.link_layer_errors.preamble",
-            FT_BOOLEAN, 16, NULL, 0x8000,
+            FT_BOOLEAN, 16, NULL, 0x4000,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_packet_flags_link_layer_errors_start_frame_delimiter,
-            { "Preamble Error",                            "pcapng.options.option.data.packet.flags.link_layer_errors.preamble",
-            FT_BOOLEAN, 16, NULL, 0x8000,
+            { "Start Frame Delimiter Error",               "pcapng.options.option.data.packet.flags.link_layer_errors.start_frame_delimiter",
+            FT_BOOLEAN, 16, NULL, 0x2000,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_packet_flags_link_layer_errors_unaligned_frame,
-            { "Preamble Error",                            "pcapng.options.option.data.packet.flags.link_layer_errors.preamble",
-            FT_BOOLEAN, 16, NULL, 0x4000,
+            { "Unaligned Frame Error",                     "pcapng.options.option.data.packet.flags.link_layer_errors.unaligned_frame",
+            FT_BOOLEAN, 16, NULL, 0x1000,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_packet_flags_link_layer_errors_wrong_inter_frame_gap,
             { "Wrong Inter Frame Gap",                     "pcapng.options.option.data.packet.flags.link_layer_errors.wrong_inter_frame_gap",
-            FT_BOOLEAN, 16, NULL, 0x2000,
+            FT_BOOLEAN, 16, NULL, 0x0800,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_packet_flags_link_layer_errors_packet_too_short,
             { "Packet Too Short",                          "pcapng.options.option.data.packet.flags.link_layer_errors.packet_too_short",
-            FT_BOOLEAN, 16, NULL, 0x1000,
+            FT_BOOLEAN, 16, NULL, 0x0400,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_packet_flags_link_layer_errors_packet_too_long,
             { "Packet Too Long",                           "pcapng.options.option.data.packet.flags.link_layer_errors.packet_too_long",
-            FT_BOOLEAN, 16, NULL, 0x0800,
+            FT_BOOLEAN, 16, NULL, 0x0200,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_packet_flags_link_layer_errors_crc_error,
             { "CRC Error",                                 "pcapng.options.option.data.packet.flags.link_layer_errors.crc",
-            FT_BOOLEAN, 16, NULL, 0x0400,
+            FT_BOOLEAN, 16, NULL, 0x0100,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_packet_flags_link_layer_errors_reserved,
             { "Reserved",                                  "pcapng.options.option.data.packet.flags.link_layer_errors.reserved",
-            FT_UINT16, BASE_HEX, NULL, 0x03FF,
+            FT_UINT16, BASE_HEX, NULL, 0x00FF,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_packet_flags,
