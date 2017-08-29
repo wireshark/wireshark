@@ -100,9 +100,6 @@ struct tcapsrt_info_t tcapsrt_global_info[MAX_TCAP_INSTANCE];
 static dissector_table_t ber_oid_dissector_table=NULL;
 static const char * cur_oid;
 static const char * tcapext_oid;
-static proto_tree * tcap_top_tree=NULL;
-static proto_tree * tcap_stat_tree=NULL;
-static proto_item * tcap_stat_item=NULL;
 
 static dissector_handle_t ansi_map_handle;
 
@@ -282,7 +279,7 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
                 /* national */
                 guint8 family = (ansi_tcap_private.d.OperationCode_national & 0x7f00)>>8;
                 guint8 specifier = (guint8)(ansi_tcap_private.d.OperationCode_national & 0xff);
-                if(!dissector_try_uint(ansi_tcap_national_opcode_table, ansi_tcap_private.d.OperationCode_national, tvb, actx->pinfo, tcap_top_tree)){
+                if(!dissector_try_uint(ansi_tcap_national_opcode_table, ansi_tcap_private.d.OperationCode_national, tvb, actx->pinfo, actx->subtree.top_tree)){
                         proto_tree_add_expert_format(tree, actx->pinfo, &ei_ansi_tcap_dissector_not_implemented, tvb, 0, -1,
                                         "Dissector for ANSI TCAP NATIONAL code:0x%x(Family %u, Specifier %u) \n"
                                         "not implemented. Contact Wireshark developers if you want this supported(Spec required)",
@@ -309,7 +306,7 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
          * Operation Family is coded as decimal 9. Bit H of the Operation Family is always
          * coded as 0.
          */
-        call_dissector_with_data(ansi_map_handle, tvb, actx->pinfo, tcap_top_tree, &ansi_tcap_private);
+        call_dissector_with_data(ansi_map_handle, tvb, actx->pinfo, actx->subtree.top_tree, &ansi_tcap_private);
 
         return TRUE;
 }
@@ -336,15 +333,13 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
         asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
         ansi_tcap_ctx_init(&ansi_tcap_private);
 
-    tcap_top_tree = parent_tree;
+    asn1_ctx.subtree.top_tree = parent_tree;
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ANSI TCAP");
 
     /* create display subtree for the protocol */
     if(parent_tree){
       item = proto_tree_add_item(parent_tree, proto_ansi_tcap, tvb, 0, -1, ENC_NA);
       tree = proto_item_add_subtree(item, ett_tcap);
-      tcap_stat_item=item;
-      tcap_stat_tree=tree;
     }
     cur_oid = NULL;
     tcapext_oid = NULL;
