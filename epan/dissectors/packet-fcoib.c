@@ -240,7 +240,7 @@ dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 }
 
 static gboolean
-dissect_fcoib_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_fcoib_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     gint        crc_offset;
     gint        eof_offset;
