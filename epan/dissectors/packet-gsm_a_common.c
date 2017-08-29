@@ -1646,7 +1646,7 @@ guint16 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 /*
  * Type (T) element dissector
  */
-guint16 elem_t(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add)
+guint16 elem_t(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add)
 {
     guint8              oct;
     guint32             curr_offset;
@@ -2025,7 +2025,7 @@ mcc_mnc_aux(guint8 *octs, gchar *mcc, gchar *mnc)
  * [3] 10.5.1.1 Cell Identity
  */
 guint16
-de_cell_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len)
+de_cell_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint32 curr_offset;
 
@@ -2068,7 +2068,7 @@ static const value_string gsm_a_key_seq_vals[] = {
 };
 
 static guint16
-de_ciph_key_seq_num( tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_ciph_key_seq_num( tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset, bit_offset;
 
@@ -3199,7 +3199,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 /*
  * [3] 10.5.1.8
  */
-guint16 de_spare_nibble(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+guint16 de_spare_nibble(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
    guint32 curr_offset;
    gint    bit_offset;
