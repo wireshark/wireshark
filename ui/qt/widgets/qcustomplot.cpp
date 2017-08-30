@@ -29,7 +29,11 @@
 
 // Set to nonzero to use device pixel scaling. Uncommenting the debug rects
 // at the bottom of QCPAxisPainterPrivate::draw can be helpful for testing.
+#if Q_OS_MAC
 #define WS_ENABLE_DP_RATIO 1
+#else
+#define WS_ENABLE_DP_RATIO 0
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPPainter
