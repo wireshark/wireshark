@@ -1203,7 +1203,7 @@ void TCPStreamDialog::fillThroughput()
         r_lens.append(seglen);
 
 #ifdef MA_1_SECOND
-        while (ts - r_pkt_times[r_oldest] > ma_window_size_ && r_oldest < r_pkt_times.size()) {
+        while (r_oldest < r_pkt_times.size() && ts - r_pkt_times[r_oldest] > ma_window_size_) {
             r_sum -= r_lens[r_oldest];
             // append points where a packet LEAVES the MA window
             //   (as well as, below, where they ENTER the MA window)
