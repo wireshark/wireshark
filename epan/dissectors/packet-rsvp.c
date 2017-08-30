@@ -342,6 +342,7 @@ static int hf_rsvp_parameter_length = -1;
 static int hf_rsvp_error_value = -1;
 static int hf_rsvp_class = -1;
 static int hf_rsvp_class_length = -1;
+static int hf_rsvp_reserved = -1;
 static int hf_rsvp_switching_granularity = -1;
 static int hf_rsvp_callid_srcaddr_ether = -1;
 static int hf_rsvp_callid_srcaddr_bytes = -1;
@@ -438,6 +439,10 @@ static int hf_rsvp_exclude_route_data = -1;
 static int hf_rsvp_record_route_data = -1;
 static int hf_rsvp_confirm_receiver_address_ipv4 = -1;
 static int hf_rsvp_message_id_list_message_id = -1;
+static int hf_rsvp_template_filter_ipv4_tunnel_sender_address = -1;
+static int hf_rsvp_template_filter_ipv6_tunnel_sender_address = -1;
+static int hf_rsvp_template_filter_sub_group_originator_id = -1;
+static int hf_rsvp_template_filter_sub_group_id = -1;
 static int hf_rsvp_template_filter_data = -1;
 static int hf_rsvp_notify_request_notify_node_address_ipv6 = -1;
 static int hf_rsvp_message_id_ack_data = -1;
@@ -2375,6 +2380,8 @@ static const value_string rsvp_c_type_template_vals[] = {
     {7,  "IPv4 LSP"},
     {8,  "IPv6 LSP"},
     {9,  "IPv4 Aggregate"},
+    {12,  "P2MP_LSP_TUNNEL_IPv4"},
+    {13,  "P2MP_LSP_TUNNEL_IPv6"},
     {0,  NULL }
 };
 
@@ -2548,6 +2555,20 @@ summary_template(tvbuff_t *tvb, int offset)
         return wmem_strdup_printf(wmem_packet_scope(),
                                   "%s: IPv4-Aggregate, Aggregator %s. ", objtype,
                                   tvb_ip_to_str(tvb, offset+4));
+        break;
+    case 12:
+        return wmem_strdup_printf(wmem_packet_scope(),
+                                  "%s: P2MP_LSP_TUNNEL_IPv4, IPv4 tunnel sender address %s, LSP ID: %d, Sub-Group ID %d. ", objtype,
+                                  tvb_ip_to_str(tvb, offset+4),
+                                  tvb_get_ntohs(tvb, offset+10),
+                                  tvb_get_ntohs(tvb, offset+18));
+        break;
+    case 13:
+        return wmem_strdup_printf(wmem_packet_scope(),
+                                  "%s: P2MP_LSP_TUNNEL_IPv6, IPv6 tunnel sender address %s, LSP ID: %d, Sub-Group ID %d. ", objtype,
+                                  tvb_ip_to_str(tvb, offset+4),
+                                  tvb_get_ntohs(tvb, offset+22),
+                                  tvb_get_ntohs(tvb, offset+40));
         break;
     default:
         return wmem_strdup_printf(wmem_packet_scope(),
@@ -3565,6 +3586,58 @@ dissect_rsvp_template_filter(proto_item *ti, proto_tree *rsvp_object_tree,
           * Save this information to build the conversation request key later.
           */
          set_address_tvb(&rsvph->source, AT_IPv4, 4, tvb, offset2);
+         break;
+
+    case 12:
+         proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_template, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+         proto_tree_add_item(rsvp_object_tree,
+                             hf_rsvp_template_filter_ipv4_tunnel_sender_address,
+                             tvb, offset2, 4, ENC_BIG_ENDIAN);
+         offset2 += 4;
+         proto_tree_add_item(rsvp_object_tree, hf_rsvp_reserved,
+                             tvb, offset2, 2, ENC_NA);
+         offset2 += 2;
+         proto_tree_add_item(rsvp_object_tree,
+                             hf_rsvp_filter[RSVPF_SENDER_LSP_ID],
+                             tvb, offset2, 2, ENC_BIG_ENDIAN);
+         offset2 += 2;
+         proto_tree_add_item(rsvp_object_tree,
+                             hf_rsvp_template_filter_sub_group_originator_id,
+                             tvb, offset2, 4, ENC_NA);
+         offset2 += 4;
+         proto_tree_add_item(rsvp_object_tree, hf_rsvp_reserved,
+                             tvb, offset2, 2, ENC_NA);
+         offset2 += 2;
+         proto_tree_add_item(rsvp_object_tree,
+                             hf_rsvp_template_filter_sub_group_id,
+                             tvb, offset2, 2, ENC_BIG_ENDIAN);
+         /*offset += 2;*/
+         break;
+
+    case 13:
+         proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_template, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+         proto_tree_add_item(rsvp_object_tree,
+                             hf_rsvp_template_filter_ipv6_tunnel_sender_address,
+                             tvb, offset2, 16, ENC_NA);
+         offset2 += 16;
+         proto_tree_add_item(rsvp_object_tree, hf_rsvp_reserved,
+                             tvb, offset2, 2, ENC_NA);
+         offset2 += 2;
+         proto_tree_add_item(rsvp_object_tree,
+                             hf_rsvp_filter[RSVPF_SENDER_LSP_ID],
+                             tvb, offset2, 2, ENC_BIG_ENDIAN);
+         offset2 += 2;
+         proto_tree_add_item(rsvp_object_tree,
+                             hf_rsvp_template_filter_sub_group_originator_id,
+                             tvb, offset2, 16, ENC_NA);
+         offset2 += 16;
+         proto_tree_add_item(rsvp_object_tree, hf_rsvp_reserved,
+                             tvb, offset2, 2, ENC_NA);
+         offset2 += 2;
+         proto_tree_add_item(rsvp_object_tree,
+                             hf_rsvp_template_filter_sub_group_id,
+                             tvb, offset2, 2, ENC_BIG_ENDIAN);
+         /*offset += 2;*/
          break;
 
      default:
@@ -8063,6 +8136,12 @@ proto_register_rsvp(void)
            NULL, HFILL }
         },
 
+        {&hf_rsvp_reserved,
+         { "Reserved", "rsvp.ctype.reserved",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }
+        },
+
         {&hf_rsvp_switching_granularity,
          { "Switching granularity", "rsvp.switching_granularity",
            FT_UINT16, BASE_DEC, VALS(rsvp_switching_granularity_vals), 0x0,
@@ -9648,6 +9727,10 @@ proto_register_rsvp(void)
       { &hf_rsvp_ctype_template, { "C-Type", "rsvp.ctype.template", FT_UINT32, BASE_DEC, VALS(rsvp_c_type_template_vals), 0x0, NULL, HFILL }},
       { &hf_rsvp_template_filter_source_address_ipv6, { "Source address", "rsvp.template_filter.source_address_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_template_filter_source_port, { "Source port", "rsvp.template_filter.source_port", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_template_filter_ipv4_tunnel_sender_address, { "IPv4 Tunnel Sender Address", "rsvp.template_filter.ipv4_tunnel_sender_address", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_template_filter_ipv6_tunnel_sender_address, { "IPv6 Tunnel Sender Address", "rsvp.template_filter.ipv4_tunnel_sender_address", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_template_filter_sub_group_originator_id, { "Sub-Group Originator ID", "rsvp.template_filter.sub_group_originator_id", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_template_filter_sub_group_id, { "Sub-Group ID", "rsvp.template_filter.sub_group_originator_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_template_filter_data, { "Data", "rsvp.template_filter.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_eth_tspec_length, { "Length", "rsvp.eth_tspec.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_eth_tspec_profile, { "Profile", "rsvp.eth_tspec.profile", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
