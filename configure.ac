@@ -755,13 +755,6 @@ AC_ARG_ENABLE(extra-compiler-warnings,
 		# never enable this one with -Werror.
 		#
 		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wbad-function-cast, C)
-
-		#
-		# This causes some generated files to fail with -Werror;
-		# fixing that would require the generator to figure
-		# out in which functions use which parameters.
-		#
-		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wused-but-marked-unused, C)
 	fi
 ])
 
