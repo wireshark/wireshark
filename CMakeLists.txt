@@ -606,13 +606,6 @@ else()
 		# never enable this one with -Werror.
 		#
 		-Wbad-function-cast
-
-		#
-		# This causes some generated files to fail with -Werror;
-		# fixing that would require the generator to figure
-		# out in which functions use which parameters.
-		#
-		-Wused-but-marked-unused
 	)
 
 	set(CXX_EXTRA_WARN_FLAGS
