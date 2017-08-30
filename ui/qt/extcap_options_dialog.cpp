@@ -499,9 +499,6 @@ void ExtcapOptionsDialog::storeValues()
         {
             gchar * val = g_strdup(value.length() == 0 ? " " : value.toStdString().c_str());
 
-            /* Setting the internally stored value for the preference to the new value */
-            extcap_pref_store((*iter)->argument(), val);
-
             g_hash_table_insert(entries, g_strdup(key.toStdString().c_str()), val);
         }
     }

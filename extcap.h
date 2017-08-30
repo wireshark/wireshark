@@ -152,9 +152,6 @@ extcap_if_cleanup(capture_options * capture_opts, gchar ** errormsg);
 struct preference *
 extcap_pref_for_argument(const gchar *ifname, struct _extcap_arg * arg);
 
-void
-extcap_pref_store(struct _extcap_arg * arg, const char * newval);
-
 /* Clean up global extcap stuff on program exit */
 void extcap_cleanup(void);
 

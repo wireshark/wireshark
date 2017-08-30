@@ -662,11 +662,9 @@ QString ExtcapArgument::prefValue()
 
 void ExtcapArgument::resetValue()
 {
-    // XXX consider using the preferences API which can store the default value
-    // and put that here instead of an empty value.
     if (_argument->pref_valptr) {
         g_free(*_argument->pref_valptr);
-        *_argument->pref_valptr = NULL;
+        *_argument->pref_valptr = g_strdup("");
     }
 }
 
