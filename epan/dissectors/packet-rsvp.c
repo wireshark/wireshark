@@ -335,6 +335,7 @@ static int hf_rsvp_ctype_juniper = -1;
 static int hf_rsvp_ctype_unknown = -1;
 static int hf_rsvp_ctype_label = -1;
 static int hf_rsvp_ctype_notify_request = -1;
+static int hf_rsvp_ctype_generalized_uni = -1;
 static int hf_rsvp_parameter = -1;
 static int hf_rsvp_parameter_flags = -1;
 static int hf_rsvp_parameter_length = -1;
@@ -5904,6 +5905,10 @@ dissect_rsvp_gen_uni(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object
     proto_tree *rsvp_gen_uni_subtree, *rsvp_session_subtree, *rsvp_template_subtree;
     int         s_len, s_class, s_type, sobj_len, nsap_len;
     int         offset3;
+    proto_item *hidden_item;
+
+    hidden_item = proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     proto_item_set_text(ti, "GENERALIZED UNI: ");
 
@@ -5911,7 +5916,7 @@ dissect_rsvp_gen_uni(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object
     switch(type) {
     case 1: {
         const char *c;
-        proto_tree_add_uint(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1, type);
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_generalized_uni, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         for (i=1, l = 0; l < mylen; i++) {
             sobj_len = tvb_get_ntohs(tvb, offset2+l);
             j = tvb_get_guint8(tvb, offset2+l+2);
@@ -6142,8 +6147,7 @@ dissect_rsvp_gen_uni(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object
     }
 
     default:
-        proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
-                            type, "Unknown (%u)", type);
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_generalized_uni, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_gen_uni_data, tvb, offset2, mylen, ENC_NA);
         break;
     }
@@ -8014,6 +8018,12 @@ proto_register_rsvp(void)
         {&hf_rsvp_ctype_notify_request,
          { "C-type", "rsvp.ctype.notify_request",
            FT_UINT32, BASE_DEC, VALS(rsvp_c_type_notify_request_vals), 0x0,
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_ctype_generalized_uni,
+         { "C-type", "rsvp.ctype.generalized_uni",
+           FT_UINT32, BASE_DEC, NULL, 0x0,
            NULL, HFILL }
         },
 
