@@ -2395,18 +2395,19 @@ ipv6_dissect_next(guint nxt, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         return;
     }
 
-    /* Done with extension header chain */
-    if (pinfo->dst.type == AT_IPv6 && ipv6_pinfo != NULL) {
-        if (ipv6_pinfo->ipv6_tree != NULL) {
-            /* Set IPv6 Header length */
-            proto_item_set_len(proto_tree_get_parent(ipv6_pinfo->ipv6_tree), ipv6_pinfo->ipv6_item_len);
-            ipv6_pinfo->ipv6_tree = NULL;
-        }
+    /*
+     * Done with extension header chain
+     */
 
-        if (iph != NULL) {
-            iph->ip_nxt = nxt; /* upper-layer protocol more useful */
-            tap_queue_packet(ipv6_ws_tap, pinfo, iph);
-        }
+    if (ipv6_pinfo != NULL && ipv6_pinfo->ipv6_tree != NULL) {
+        /* Set IPv6 Header length */
+        proto_item_set_len(proto_tree_get_parent(ipv6_pinfo->ipv6_tree), ipv6_pinfo->ipv6_item_len);
+        ipv6_pinfo->ipv6_tree = NULL;
+    }
+
+    if (iph != NULL && iph->ip_ver == 6) {
+        iph->ip_nxt = nxt; /* upper-layer protocol more useful */
+        tap_queue_packet(ipv6_ws_tap, pinfo, iph);
     }
 
     if (nxt == IP_PROTO_NONE) {
