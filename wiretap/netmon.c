@@ -72,8 +72,8 @@ struct netmon_hdr {
 	guint32	userdatalength;		/* user data size */
 	guint32	commentdataoffset;	/* comment data offset */
 	guint32	commentdatalength;	/* comment data size */
-	guint32	statisticsoffset;	/* offset to statistics structure */
-	guint32	statisticslength;	/* length of statistics structure */
+	guint32	processinfooffset;	/* offset to process info structure */
+	guint32	processinfocount;	/* number of process info structures */
 	guint32	networkinfooffset;	/* offset to network info structure */
 	guint32	networkinfolength;	/* length of network info structure */
 };
@@ -136,6 +136,24 @@ struct netmonrec_comment_header {
 	guint32 titleLength;
 };
 
+union ip_address {
+	guint32 ipv4;
+	struct e_in6_addr ipv6;
+};
+
+struct netmonrec_process_info {
+	guint32 pathSize;
+	guint8* path;				/* A Unicode string of length PathSize */
+	guint32 iconSize;
+	guint8* iconData;
+	guint32 pid;
+	guint16 localPort;
+	guint16 remotePort;
+	gboolean isIPv6;
+	union ip_address localAddr;
+	union ip_address remoteAddr;
+};
+
 /*
  * The link-layer header on ATM packets.
  */
@@ -154,6 +172,7 @@ typedef struct {
 	guint32 *frame_table;
 	guint32 frame_table_size;
 	GHashTable* comment_table;
+	GHashTable* process_info_table;
 	guint current_frame;
 } netmon_t;
 
@@ -210,6 +229,14 @@ static void netmonrec_comment_destroy(gpointer key) {
 	g_free(comment);
 }
 
+static void netmonrec_process_info_destroy(gpointer key) {
+	struct netmonrec_process_info *process_info = (struct netmonrec_process_info*) key;
+
+	g_free(process_info->path);
+	g_free(process_info->iconData);
+	g_free(process_info);
+}
+
 wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 {
 	char magic[MAGIC_SIZE];
@@ -220,10 +247,11 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 	guint32 frame_table_length;
 	guint32 frame_table_size;
 	guint32 *frame_table;
-	guint32 comment_table_offset;
-	guint32 comment_table_size;
-	GHashTable* comment_table;
+	guint32 comment_table_offset, process_info_table_offset;
+	guint32 comment_table_size, process_info_table_count;
+	GHashTable *comment_table, *process_info_table;
 	struct netmonrec_comment* comment_rec;
+	gint64 file_size = wtap_file_size(wth, err);
 #ifdef WORDS_BIGENDIAN
 	unsigned int i;
 #endif
@@ -324,10 +352,13 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 	frame_table_offset = pletoh32(&hdr.frametableoffset);
 
 	/*
-	 * Get the offset and length of the comment index table.
+	 * Get the offset and length of the comment index table and
+	 * process info table.
 	 */
 	comment_table_offset = pletoh32(&hdr.commentdataoffset);
 	comment_table_size = pletoh32(&hdr.commentdatalength);
+	process_info_table_offset = pletoh32(&hdr.processinfooffset);
+	process_info_table_count = pletoh32(&hdr.processinfocount);
 
 	/*
 	 * It appears that some NetMon 2.x files don't have the
@@ -402,17 +433,49 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 			return WTAP_OPEN_ERROR;
 		}
 
-		if (file_seek(wth->fh, comment_table_offset, SEEK_SET, err) == -1) {
-			return WTAP_OPEN_ERROR;
-		}
-
-		/*
-		 * Return back to the frame table offset
-		 */
-		if (file_seek(wth->fh, frame_table_offset, SEEK_SET, err) == -1) {
+		if (comment_table_offset > file_size) {
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = g_strdup_printf("netmon: comment table offset (%u) is larger than file",
+				comment_table_offset);
 			return WTAP_OPEN_ERROR;
 		}
 	}
+
+	/*
+	 * Sanity check the process info table information before we bother to allocate
+	 * large chunks of memory for the frame table
+	 */
+	if ((process_info_table_offset > 0) && (process_info_table_count > 0)) {
+		/*
+		 * XXX - clamp the size of the process info table, so that we don't
+		 * attempt to allocate a huge process info table and fail.
+		 */
+		if (process_info_table_count > 512*1024) {
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = g_strdup_printf("netmon: process info table size is %u, which is larger than we support",
+				process_info_table_count);
+			return WTAP_OPEN_ERROR;
+		}
+
+		if (process_info_table_offset > file_size) {
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = g_strdup_printf("netmon: process info table offset (%u) is larger than file",
+				process_info_table_offset);
+			return WTAP_OPEN_ERROR;
+		}
+	}
+
+	/*
+	 * Return back to the frame table offset
+	 */
+	if (file_seek(wth->fh, frame_table_offset, SEEK_SET, err) == -1) {
+		return WTAP_OPEN_ERROR;
+	}
+
+	/*
+	 * Sanity check the process info table information before we bother to allocate
+	 * large chunks of memory for the frame table
+	 */
 
 	frame_table = (guint32 *)g_try_malloc(frame_table_length);
 	if (frame_table_length != 0 && frame_table == NULL) {
@@ -431,20 +494,17 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 		comment_table = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, netmonrec_comment_destroy);
 		if (comment_table == NULL) {
 				*err = ENOMEM;	/* we assume we're out of memory */
-				g_free(frame_table);
 				return WTAP_OPEN_ERROR;
 		}
 
 		/* Make sure the file contains the full comment section */
 		if (file_seek(wth->fh, comment_table_offset+comment_table_size, SEEK_SET, err) == -1) {
-			g_free(frame_table);
 			g_hash_table_destroy(comment_table);
 			return WTAP_OPEN_ERROR;
 		}
 
 		if (file_seek(wth->fh, comment_table_offset, SEEK_SET, err) == -1) {
 			/* Shouldn't fail... */
-			g_free(frame_table);
 			g_hash_table_destroy(comment_table);
 			return WTAP_OPEN_ERROR;
 		}
@@ -455,7 +515,6 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 
 			/* Read the first 12 bytes of the structure */
 			if (!wtap_read_bytes(wth->fh, &comment_header, 12, err, err_info)) {
-				g_free(frame_table);
 				g_hash_table_destroy(comment_table);
 				return WTAP_OPEN_ERROR;
 			}
@@ -465,7 +524,6 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 			if (pletoh32(&comment_header.titleLength) == 0) {
 				*err = WTAP_ERR_BAD_FILE;
 				*err_info = g_strdup("netmon: comment title size can't be 0");
-				g_free(frame_table);
 				g_hash_table_destroy(comment_table);
 				return WTAP_OPEN_ERROR;
 			}
@@ -473,7 +531,6 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 				*err = WTAP_ERR_BAD_FILE;
 				*err_info = g_strdup_printf("netmon: comment title size is %u, which is larger than the entire comment section (%d)",
 						pletoh32(&comment_header.titleLength), comment_table_size);
-				g_free(frame_table);
 				g_hash_table_destroy(comment_table);
 				return WTAP_OPEN_ERROR;
 			}
@@ -488,7 +545,6 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 
 			/* Read the comment title */
 			if (!wtap_read_bytes(wth->fh, comment_rec->title, comment_rec->titleLength, err, err_info)) {
-				g_free(frame_table);
 				g_hash_table_destroy(comment_table);
 				return WTAP_OPEN_ERROR;
 			}
@@ -497,13 +553,11 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 			if (comment_table_size < 4) {
 				*err = WTAP_ERR_BAD_FILE;
 				*err_info = g_strdup("netmon: corrupt comment section");
-				g_free(frame_table);
 				g_hash_table_destroy(comment_table);
 				return WTAP_OPEN_ERROR;
 			}
 
 			if (!wtap_read_bytes(wth->fh, &desc_length, 4, err, err_info)) {
-				g_free(frame_table);
 				g_hash_table_destroy(comment_table);
 				return WTAP_OPEN_ERROR;
 			}
@@ -516,7 +570,6 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 					*err = WTAP_ERR_BAD_FILE;
 					*err_info = g_strdup_printf("netmon: comment description size is %u, which is larger than the entire comment section (%d)",
 								comment_rec->descLength, comment_table_size);
-					g_free(frame_table);
 					g_hash_table_destroy(comment_table);
 					return WTAP_OPEN_ERROR;
 				}
@@ -525,7 +578,6 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 
 				/* Read the comment description */
 				if (!wtap_read_bytes(wth->fh, comment_rec->description, comment_rec->descLength, err, err_info)) {
-					g_free(frame_table);
 					g_hash_table_destroy(comment_table);
 					return WTAP_OPEN_ERROR;
 				}
@@ -534,6 +586,143 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 			}
 		}
 		netmon->comment_table = comment_table;
+	}
+
+	if ((process_info_table_offset > 0) && (process_info_table_count > 0)) {
+		guint16 version;
+
+		process_info_table = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, netmonrec_process_info_destroy);
+		if (process_info_table == NULL) {
+			*err = ENOMEM;	/* we assume we're out of memory */
+			return WTAP_OPEN_ERROR;
+		}
+
+		/* Read the version (ignored for now) */
+		if (!wtap_read_bytes(wth->fh, &version, 2, err, err_info)) {
+			g_hash_table_destroy(process_info_table);
+			return WTAP_OPEN_ERROR;
+		}
+
+		while (process_info_table_count > 0)
+		{
+			struct netmonrec_process_info* process_info;
+			guint32 tmp32;
+			guint16 tmp16;
+
+			process_info = g_new0(struct netmonrec_process_info, 1);
+
+			/* Read path */
+			if (!wtap_read_bytes(wth->fh, &tmp32, 4, err, err_info)) {
+				g_free(process_info);
+				g_hash_table_destroy(process_info_table);
+				return WTAP_OPEN_ERROR;
+			}
+
+			process_info->pathSize = pletoh32(&tmp32);
+			if (process_info->pathSize > 260) {
+				*err = WTAP_ERR_BAD_FILE;
+				*err_info = g_strdup_printf("netmon: Path size for process info record is %u, which is larger than allowed max value (260)",
+							process_info->pathSize);
+				g_free(process_info);
+				g_hash_table_destroy(process_info_table);
+				return WTAP_OPEN_ERROR;
+			}
+
+			process_info->path = (guint8*)g_malloc(process_info->pathSize);
+			if (!wtap_read_bytes(wth->fh, process_info->path, process_info->pathSize, err, err_info)) {
+				g_free(process_info);
+				g_hash_table_destroy(process_info_table);
+				return WTAP_OPEN_ERROR;
+			}
+
+			/* Read icon (currently not saved) */
+			if (!wtap_read_bytes(wth->fh, &tmp32, 4, err, err_info)) {
+				g_free(process_info);
+				g_hash_table_destroy(process_info_table);
+				return WTAP_OPEN_ERROR;
+			}
+
+			process_info->iconSize = pletoh32(&tmp32);
+
+			/* XXX - skip the icon for now */
+			if (file_seek(wth->fh, process_info->iconSize, SEEK_CUR, err) == -1) {
+				g_free(process_info);
+				g_hash_table_destroy(process_info_table);
+				return WTAP_OPEN_ERROR;
+			}
+			process_info->iconSize = 0;
+
+			if (!wtap_read_bytes(wth->fh, &tmp32, 4, err, err_info)) {
+				g_free(process_info);
+				g_hash_table_destroy(process_info_table);
+				return WTAP_OPEN_ERROR;
+			}
+			process_info->pid = pletoh32(&tmp32);
+
+			/* XXX - Currently index process information by PID */
+			g_hash_table_insert(process_info_table, GUINT_TO_POINTER(process_info->pid), process_info);
+
+			/* Read local port */
+			if (!wtap_read_bytes(wth->fh, &tmp16, 2, err, err_info)) {
+				g_hash_table_destroy(process_info_table);
+				return WTAP_OPEN_ERROR;
+			}
+			process_info->localPort = pletoh16(&tmp16);
+
+			/* Skip padding */
+			if (!wtap_read_bytes(wth->fh, &tmp16, 2, err, err_info)) {
+				g_hash_table_destroy(process_info_table);
+				return WTAP_OPEN_ERROR;
+			}
+
+			/* Read remote port */
+			if (!wtap_read_bytes(wth->fh, &tmp16, 2, err, err_info)) {
+				g_hash_table_destroy(process_info_table);
+				return WTAP_OPEN_ERROR;
+			}
+			process_info->remotePort = pletoh16(&tmp16);
+
+			/* Skip padding */
+			if (!wtap_read_bytes(wth->fh, &tmp16, 2, err, err_info)) {
+				g_hash_table_destroy(process_info_table);
+				return WTAP_OPEN_ERROR;
+			}
+
+			/* Determine IP version */
+			if (!wtap_read_bytes(wth->fh, &tmp32, 4, err, err_info)) {
+				g_hash_table_destroy(process_info_table);
+				return WTAP_OPEN_ERROR;
+			}
+			process_info->isIPv6 = ((pletoh32(&tmp32) == 0) ? FALSE : TRUE);
+
+			if (process_info->isIPv6) {
+				if (!wtap_read_bytes(wth->fh, &process_info->localAddr.ipv6, 16, err, err_info)) {
+					g_hash_table_destroy(process_info_table);
+					return WTAP_OPEN_ERROR;
+				}
+				if (!wtap_read_bytes(wth->fh, &process_info->remoteAddr.ipv6, 16, err, err_info)) {
+					g_hash_table_destroy(process_info_table);
+					return WTAP_OPEN_ERROR;
+				}
+			} else {
+				guint8 ipbuffer[16];
+				if (!wtap_read_bytes(wth->fh, ipbuffer, 16, err, err_info)) {
+					g_hash_table_destroy(process_info_table);
+					return WTAP_OPEN_ERROR;
+				}
+				process_info->localAddr.ipv4 = pletoh32(ipbuffer);
+
+				if (!wtap_read_bytes(wth->fh, ipbuffer, 16, err, err_info)) {
+					g_hash_table_destroy(process_info_table);
+					return WTAP_OPEN_ERROR;
+				}
+				process_info->remoteAddr.ipv4 = pletoh32(ipbuffer);
+			}
+
+			process_info_table_count--;
+		}
+
+		netmon->process_info_table = process_info_table;
 	}
 
 #ifdef WORDS_BIGENDIAN
@@ -1103,6 +1292,11 @@ netmon_close(wtap *wth)
 	if (netmon->comment_table != NULL) {
 		g_hash_table_destroy(netmon->comment_table);
 		netmon->comment_table = NULL;
+	}
+
+	if (netmon->process_info_table != NULL) {
+		g_hash_table_destroy(netmon->process_info_table);
+		netmon->process_info_table = NULL;
 	}
 }
 
