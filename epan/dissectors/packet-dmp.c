@@ -792,7 +792,7 @@ static value_string nat_pol_id[MAX_NATIONAL_VALUES+1];
  * for description we use the Country Name and
  * for value we use the DMP value for National Policy Identifier.
  */
-static const enum_val_t dmp_national_values[MAX_NATIONAL_VALUES+1] = {
+static const enum_val_t dmp_national_values[] = {
   { "???",  "None", 0x00 },
   { "alb",  "Albania", 0x1B },
   { "arm",  "Armenia", 0x20 },
@@ -1062,9 +1062,11 @@ static void build_national_strings (void)
   /*
   ** We use values from dmp_national_values to build value_string for nat_pol_id.
   */
-  while (dmp_national_values[i].name && i < MAX_NATIONAL_VALUES) {
-    nat_pol_id[i].value  = dmp_national_values[i].value;
-    nat_pol_id[i].strptr = dmp_national_values[i].description;
+  while (dmp_national_values[i].name) {
+    if (i < MAX_NATIONAL_VALUES) {
+      nat_pol_id[i].value  = dmp_national_values[i].value;
+      nat_pol_id[i].strptr = dmp_national_values[i].description;
+    }
     i++;
   }
   nat_pol_id[i].value = 0;
