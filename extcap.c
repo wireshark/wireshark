@@ -605,16 +605,6 @@ void extcap_cleanup(void)
         g_hash_table_destroy(_tool_for_ifname);
 }
 
-void extcap_pref_store(extcap_arg *arg, const char *newval)
-{
-    if (arg && arg->pref_valptr != NULL)
-    {
-        g_free(*arg->pref_valptr);
-        *arg->pref_valptr = g_strdup(newval);
-    }
-
-}
-
 /**
  * Obtains a pointer which can store a value for the given preference name.
  * The preference name that can be passed to the prefs API is stored into
