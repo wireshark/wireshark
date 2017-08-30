@@ -3810,15 +3810,7 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     pproto = tvb_get_guint8(tvb, MIP6_PROTO_OFF);
 
     root_tree = tree;
-    if (pinfo->dst.type == AT_IPv6) {
-        ipv6_pinfo_t *ipv6_pinfo = p_get_ipv6_pinfo(pinfo);
-
-        ipv6_pinfo->frag_plen -= len;
-        if (ipv6_pinfo->ipv6_tree != NULL) {
-            root_tree = ipv6_pinfo->ipv6_tree;
-            ipv6_pinfo->ipv6_item_len += len;
-        }
-    }
+    p_update_ipv6_pinfo(pinfo, &root_tree, len);
 
     ti = proto_tree_add_item(root_tree, proto_mip6, tvb, 0, len, ENC_NA);
     mip6_tree = proto_item_add_subtree(ti, ett_mip6);

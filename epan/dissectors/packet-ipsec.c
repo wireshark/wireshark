@@ -1130,15 +1130,7 @@ dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   ah_icv_len = ah_len ? (ah_len - 1) * 4 : 0;
 
   root_tree = tree;
-  if (pinfo->dst.type == AT_IPv6) {
-    ipv6_pinfo_t *ipv6_pinfo = p_get_ipv6_pinfo(pinfo);
-
-    ipv6_pinfo->frag_plen -= ah_hdr_len;
-    if (ipv6_pinfo->ipv6_tree != NULL) {
-      root_tree = ipv6_pinfo->ipv6_tree;
-      ipv6_pinfo->ipv6_item_len += ah_hdr_len;
-    }
-  }
+  p_update_ipv6_pinfo(pinfo, &root_tree, ah_hdr_len);
 
   pi = proto_tree_add_item(root_tree, proto_ah, tvb, 0, -1, ENC_NA);
   ah_tree = proto_item_add_subtree(pi, ett_ah);

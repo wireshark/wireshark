@@ -362,6 +362,27 @@ ipv6_pinfo_t *p_get_ipv6_pinfo(packet_info *pinfo)
     return (ipv6_pinfo_t *)p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_PINFO);
 }
 
+/*
+ * Update tree pointer (for treeroot preference) and
+ * fragmentation length (for all extension headers)
+ */
+ipv6_pinfo_t *p_update_ipv6_pinfo(packet_info *pinfo, proto_tree **tree_ptr, gint hdr_len)
+{
+    ipv6_pinfo_t *p;
+
+    if (pinfo->dst.type != AT_IPv6)
+        return NULL;
+    if ((p = p_get_ipv6_pinfo(pinfo)) == NULL)
+        return NULL;
+
+    p->frag_plen -= hdr_len;
+    if (p->ipv6_tree != NULL) {
+        *tree_ptr = p->ipv6_tree;
+        p->ipv6_item_len += hdr_len;
+    }
+    return p;
+}
+
 static void p_add_ipv6_nxt(packet_info *pinfo, guint8 nxt)
 {
     guint8 *ptr;
@@ -1165,7 +1186,6 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     struct rthdr_proto_item rthdr_ti;
     int                offset = 0;
     tvbuff_t          *next_tvb;
-    ipv6_pinfo_t      *ipv6_pinfo = p_get_ipv6_pinfo(pinfo);
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, " , ", "IPv6 routing");
 
@@ -1173,13 +1193,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     len = (rt.ip6r_len + 1) << 3;
 
     root_tree = tree;
-    if (pinfo->dst.type == AT_IPv6) {
-        ipv6_pinfo->frag_plen -= len;
-        if (ipv6_pinfo->ipv6_tree != NULL) {
-            root_tree = ipv6_pinfo->ipv6_tree;
-            ipv6_pinfo->ipv6_item_len += len;
-        }
-    }
+    p_update_ipv6_pinfo(pinfo, &root_tree, len);
 
     /* !!! specify length */
     pi = proto_tree_add_item(root_tree, proto_ipv6_routing, tvb, offset, len, ENC_NA);
@@ -1245,7 +1259,7 @@ dissect_fraghdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     gboolean         frag_flg;
     guint32          frag_ident;
     gint             offset = 0;
-    ipv6_pinfo_t    *ipv6_pinfo = p_get_ipv6_pinfo(pinfo);
+    ipv6_pinfo_t    *ipv6_pinfo;
     gboolean         show_data = FALSE;
     gboolean         reassembled;
     tvbuff_t        *next_tvb;
@@ -1259,13 +1273,7 @@ dissect_fraghdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         frag_off, frag_flg ? "y" : "n", frag_ident, nxt);
 
     root_tree = tree;
-    if (pinfo->dst.type == AT_IPv6) {
-        ipv6_pinfo->frag_plen -= IPv6_FRAGMENT_HDR_SIZE;
-        if (ipv6_pinfo->ipv6_tree != NULL) {
-            root_tree = ipv6_pinfo->ipv6_tree;
-            ipv6_pinfo->ipv6_item_len += IPv6_FRAGMENT_HDR_SIZE;
-        }
-    }
+    ipv6_pinfo = p_update_ipv6_pinfo(pinfo, &root_tree, IPv6_FRAGMENT_HDR_SIZE);
 
     /* IPv6 Fragmentation Header has fixed length of 8 bytes */
     pi = proto_tree_add_item(root_tree, proto_ipv6_fraghdr, tvb, offset, IPv6_FRAGMENT_HDR_SIZE, ENC_NA);
@@ -1806,7 +1814,6 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
     const gchar    *opt_name;
     gboolean        hopopts;
     struct opt_proto_item opt_ti;
-    ipv6_pinfo_t   *ipv6_pinfo = p_get_ipv6_pinfo(pinfo);
     tvbuff_t       *next_tvb;
 
     hopopts = (exthdr_proto == proto_ipv6_hopopts);
@@ -1816,13 +1823,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
     offset_end = offset + len;
 
     root_tree = tree;
-    if (pinfo->dst.type == AT_IPv6) {
-        ipv6_pinfo->frag_plen -= len;
-        if (ipv6_pinfo->ipv6_tree != NULL) {
-            root_tree = ipv6_pinfo->ipv6_tree;
-            ipv6_pinfo->ipv6_item_len += len;
-        }
-    }
+    p_update_ipv6_pinfo(pinfo, &root_tree, len);
 
     /* !!! specify length */
     ti = proto_tree_add_item(root_tree, exthdr_proto, tvb, offset, len, ENC_NA);
@@ -2373,7 +2374,7 @@ void
 ipv6_dissect_next(guint nxt, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ws_ip *iph)
 {
     dissector_handle_t nxt_handle;
-    ipv6_pinfo_t *ipv6_pinfo;
+    ipv6_pinfo_t *ipv6_pinfo = p_get_ipv6_pinfo(pinfo);
 
     switch (nxt) {
         case IP_PROTO_HOPOPTS:
@@ -2395,8 +2396,7 @@ ipv6_dissect_next(guint nxt, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
 
     /* Done with extension header chain */
-    if (pinfo->dst.type == AT_IPv6) {
-        ipv6_pinfo = p_get_ipv6_pinfo(pinfo);
+    if (pinfo->dst.type == AT_IPv6 && ipv6_pinfo != NULL) {
         if (ipv6_pinfo->ipv6_tree != NULL) {
             /* Set IPv6 Header length */
             proto_item_set_len(proto_tree_get_parent(ipv6_pinfo->ipv6_tree), ipv6_pinfo->ipv6_item_len);

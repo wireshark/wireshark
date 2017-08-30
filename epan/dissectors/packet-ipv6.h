@@ -33,7 +33,7 @@ extern "C" {
 
 typedef ws_ip ipv6_ws_tap_info_t;
 
-/* Packet info for IPv6 header and extensions */
+/* Packet info for shared state between IPv6 header and extensions */
 typedef struct {
     guint32     jumbo_plen;
     guint16     ip6_plen;
@@ -43,6 +43,8 @@ typedef struct {
 } ipv6_pinfo_t;
 
 ipv6_pinfo_t *p_get_ipv6_pinfo(packet_info *pinfo);
+
+ipv6_pinfo_t *p_update_ipv6_pinfo(packet_info *pinfo, proto_tree **tree_ptr, gint hdr_len);
 
 void ipv6_dissect_next(guint nxt, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ws_ip *iph);
 
