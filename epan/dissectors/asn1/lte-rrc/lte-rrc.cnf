@@ -1637,6 +1637,10 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SCPTMConfiguration-r13");
 
+#.FN_HDR SCPTMConfiguration-BR-r14
+
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SCPTMConfiguration-BR-r14");
+
 #.FN_BODY Paging/systemInfoModification
 %(DEFAULT_BODY)s
   col_append_str(actx->pinfo->cinfo, COL_INFO, " (systemInfoModification)");
