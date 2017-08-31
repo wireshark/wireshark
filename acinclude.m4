@@ -131,8 +131,6 @@ AC_DEFUN([AC_WIRESHARK_PCAP_BREAKLOOP_TRY_LINK],
 #
 AC_DEFUN([AC_WIRESHARK_PCAP_CHECK],
 [
-	AC_WIRESHARK_PUSH_FLAGS
-
 	if test -z "$pcap_dir"
 	then
 	  # Pcap header checks
@@ -415,7 +413,6 @@ install a newer version of the header file.])
 	  AC_CHECK_FUNCS(bpf_image pcap_set_tstamp_precision)
 	fi
 
-	AC_WIRESHARK_POP_FLAGS
 	LIBS="$ac_save_LIBS"
 ])
 
