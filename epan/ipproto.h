@@ -30,7 +30,6 @@
  * IP protocol numbers.
  * http://www.iana.org/assignments/protocol-numbers/protocol-numbers.xml
  */
-#define IP_PROTO_IP             0       /* dummy for IP */
 #define IP_PROTO_HOPOPTS        0       /* IP6 hop-by-hop options - RFC1883 */
 #define IP_PROTO_ICMP           1       /* control message protocol - RFC792 */
 #define IP_PROTO_IGMP           2       /* group mgmt protocol - RFC1112 */

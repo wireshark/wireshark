@@ -190,10 +190,14 @@ static const value_string names_socket_type[] = {
 	{	0, NULL	}
 };
 
+#define DTPT_PROTO_IP		0
+#define DTPT_PROTO_TCP		IP_PROTO_TCP
+#define DTPT_PROTO_UDP		IP_PROTO_UDP
+
 static const value_string names_protocol[] = {
-	{	IP_PROTO_IP,	"IPPROTO_IP"	},
-	{	IP_PROTO_TCP,	"IPPROTO_TCP"	},
-	{	IP_PROTO_UDP,	"IPPROTP_UDP"	},
+	{	DTPT_PROTO_IP,	"IPPROTO_IP"	},
+	{	DTPT_PROTO_TCP,	"IPPROTO_TCP"	},
+	{	DTPT_PROTO_UDP,	"IPPROTP_UDP"	},
 	{	0, NULL	}
 };
 
