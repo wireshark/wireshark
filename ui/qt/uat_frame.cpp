@@ -36,6 +36,7 @@
 #include <QLineEdit>
 #include <QKeyEvent>
 #include <QTreeWidgetItemIterator>
+#include <QUrl>
 
 #include <QDebug>
 

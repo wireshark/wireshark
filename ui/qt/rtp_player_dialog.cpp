@@ -94,6 +94,11 @@ enum {
     graph_data_col_ = src_port_col_ // QCPGraph
 };
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+Q_DECLARE_METATYPE(RtpAudioStream *)
+Q_DECLARE_METATYPE(QCPGraph *)
+#endif
+
 #ifdef QT_MULTIMEDIA_LIB
 static const double wf_graph_normal_width_ = 0.5;
 static const double wf_graph_selected_width_ = 2.0;

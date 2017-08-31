@@ -77,6 +77,9 @@ namespace Ui {
     class MainWindow;
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+Q_DECLARE_METATYPE(QToolBar *)
+#endif
 Q_DECLARE_METATYPE(ts_type)
 Q_DECLARE_METATYPE(ts_precision)
 
