@@ -21,7 +21,8 @@
 
 include $(top_srcdir)/Makefile.am.inc
 
-AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) -DWS_BUILD_DLL $(GLIB_CFLAGS)
+AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) -DWS_BUILD_DLL $(GLIB_CFLAGS) \
+		$(PCAP_CFLAGS)
 
 noinst_LTLIBRARIES = libwiretap_generated.la
 lib_LTLIBRARIES = libwiretap.la

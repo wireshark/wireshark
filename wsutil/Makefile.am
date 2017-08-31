@@ -26,7 +26,9 @@ AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) -DWS_BUILD_DLL \
 	-DEXTCAP_DIR=\"$(extcapdir)\" 		\
 	-DPLUGIN_DIR=\"$(pkglibdir)/plugins\"	\
 	-DJSMN_STRICT				\
-	$(GLIB_CFLAGS) $(LIBGCRYPT_CFLAGS)      \
+	$(GLIB_CFLAGS)				\
+	$(PCAP_CFLAGS)				\
+	$(LIBGCRYPT_CFLAGS)			\
 	$(LIBGNUTLS_CFLAGS)
 
 # Optional headers for ABI checking
