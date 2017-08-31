@@ -1909,14 +1909,15 @@ static guint8 wild_card = 0xFF; /* place to store wildcardField */
 static void
 export_h248_pdu(packet_info *pinfo, tvbuff_t *tvb)
 {
-    exp_pdu_data_t *exp_pdu_data = export_pdu_create_common_tags(pinfo, "h248", EXP_PDU_TAG_PROTO_NAME);
+    if (have_tap_listener(exported_pdu_tap)) {
+        exp_pdu_data_t *exp_pdu_data = export_pdu_create_common_tags(pinfo, "h248", EXP_PDU_TAG_PROTO_NAME);
 
-    exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
-    exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
-    exp_pdu_data->pdu_tvb = tvb;
+        exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
+        exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
+        exp_pdu_data->pdu_tvb = tvb;
 
-    tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
-
+        tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+    }
 }
 
 extern void h248_param_ber_integer(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* u _U_, void* implicit) {
@@ -6082,7 +6083,7 @@ dissect_h248_SigParameterV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 2160 "./asn1/h248/packet-h248-template.c"
+#line 2161 "./asn1/h248/packet-h248-template.c"
 
 static int dissect_h248_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     dissect_tpkt_encap(tvb, pinfo, tree, h248_desegment, h248_handle);
@@ -7507,7 +7508,7 @@ void proto_register_h248(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 2328 "./asn1/h248/packet-h248-template.c"
+#line 2329 "./asn1/h248/packet-h248-template.c"
 
         GCP_HF_ARR_ELEMS("h248",h248_arrel)
 
@@ -7673,7 +7674,7 @@ void proto_register_h248(void) {
     &ett_h248_SigParameterV1,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 2346 "./asn1/h248/packet-h248-template.c"
+#line 2347 "./asn1/h248/packet-h248-template.c"
     };
 
     static ei_register_info ei[] = {
