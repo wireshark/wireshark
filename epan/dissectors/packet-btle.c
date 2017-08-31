@@ -52,6 +52,7 @@ static int hf_length_1f = -1;
 static int hf_length_3f = -1;
 static int hf_advertising_header = -1;
 static int hf_advertising_header_pdu_type = -1;
+static int hf_advertising_header_ch_sel = -1;
 static int hf_advertising_header_rfu_1 = -1;
 static int hf_advertising_header_randomized_tx = -1;
 static int hf_advertising_header_randomized_rx = -1;
@@ -287,6 +288,11 @@ static const value_string ll_version_number_vals[] = {
 };
 static value_string_ext ll_version_number_vals_ext = VALUE_STRING_EXT_INIT(ll_version_number_vals);
 
+static const true_false_string tfs_ch_sel = {
+    "#2",
+    "#1"
+};
+
 static const true_false_string tfs_random_public = {
     "Random",
     "Public"
@@ -493,7 +499,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree  *advertising_header_tree;
         proto_item  *link_layer_data_item;
         proto_tree  *link_layer_data_tree;
-        guint8       pdu_type;
+        guint8       pdu_type, ch_sel;
 
         if (crc_status == CRC_INDETERMINATE) {
             /* Advertising channel CRCs can aways be calculated, because CRCInit is always known. */
@@ -504,11 +510,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         advertising_header_tree = proto_item_add_subtree(advertising_header_item, ett_advertising_header);
 
         pdu_type = tvb_get_guint8(tvb, offset) & 0x0F;
-        proto_item_append_text(advertising_header_item, " (PDU Type: %s, TxAdd: %s",
+        ch_sel = (tvb_get_guint8(tvb, offset) & 0x20) >> 5;
+        proto_item_append_text(advertising_header_item, " (PDU Type: %s, ChSel: %s, TxAdd: %s",
                                val_to_str_ext_const(pdu_type, &pdu_type_vals_ext, "Unknown"),
+                               (ch_sel & 0x01) ? tfs_ch_sel.true_string : tfs_ch_sel.false_string,
                                (tvb_get_guint8(tvb, offset) & 0x40) ? tfs_random_public.true_string : tfs_random_public.false_string);
         proto_tree_add_item(advertising_header_tree, hf_advertising_header_pdu_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(advertising_header_tree, hf_advertising_header_ch_sel, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(advertising_header_tree, hf_advertising_header_randomized_tx, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         switch (pdu_type) {
         case 0x00: /* ADV_IND */
@@ -1346,7 +1355,12 @@ proto_register_btle(void)
         },
         { &hf_advertising_header_rfu_1,
             { "RFU",                             "btle.advertising_header.rfu.1",
-            FT_UINT8, BASE_DEC, NULL, 0x30,
+            FT_UINT8, BASE_DEC, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_advertising_header_ch_sel,
+            { "Channel Selection Algorithm",     "btle.advertising_header.ch_sel",
+            FT_BOOLEAN, 8, TFS(&tfs_ch_sel), 0x20,
             NULL, HFILL }
         },
         { &hf_advertising_header_randomized_tx,
