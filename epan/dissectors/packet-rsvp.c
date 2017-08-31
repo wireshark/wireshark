@@ -349,6 +349,11 @@ static int hf_rsvp_callid_srcaddr_bytes = -1;
 static int hf_rsvp_loose_hop = -1;
 static int hf_rsvp_data_length = -1;
 
+static int hf_rsvp_ctype_s2l_sub_lsp = -1;
+static int hf_rsvp_s2l_sub_lsp_destination_ipv4_address = -1;
+static int hf_rsvp_s2l_sub_lsp_destination_ipv6_address = -1;
+static int hf_rsvp_s2l_sub_lsp_data = -1;
+
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_rsvp_message_id_data = -1;
 static int hf_rsvp_ero_rro_subobjects_length = -1;
@@ -928,7 +933,11 @@ enum rsvp_classes {
     RSVP_CLASS_DSBM_TIMER_INTERVALS,
     RSVP_CLASS_SBM_INFO,
 
-    /* 46-62  Unassigned */
+    /* 46-49  Unassigned */
+
+    RSVP_CLASS_S2L_SUB_LSP       = 50,
+
+    /* 51-62  Unassigned */
 
     RSVP_CLASS_DETOUR            = 63,
     RSVP_CLASS_CHALLENGE,
@@ -1050,7 +1059,7 @@ static const value_string rsvp_class_vals[] = {
     RSVP_CLASS_DSBM_TIMER_INTERVALS,
     RSVP_CLASS_SBM_INFO,
 */
-
+    { RSVP_CLASS_S2L_SUB_LSP,           "S2L_SUB_LSP object"},
     { RSVP_CLASS_DETOUR,                "DETOUR object"},
 /*
     RSVP_CLASS_CHALLENGE,
@@ -2444,6 +2453,12 @@ static const value_string rsvp_c_type_label_vals[] = {
 };
 
 static const value_string rsvp_c_type_notify_request_vals[] = {
+    { 1, "IPv4"},
+    { 2, "IPv6"},
+    { 0, NULL }
+};
+
+static const value_string rsvp_c_type_s2l_sub_lsp_vals[] = {
     { 1, "IPv4"},
     { 2, "IPv6"},
     { 0, NULL }
@@ -7052,6 +7067,44 @@ dissect_rsvp_fast_reroute(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_o
 }
 
 /*------------------------------------------------------------------------------
+ * S2L_SUB_LSP
+ *------------------------------------------------------------------------------*/
+static void
+dissect_rsvp_s2l_sub_lsp(proto_tree *ti, packet_info* pinfo _U_, proto_tree *rsvp_object_tree,
+                         tvbuff_t *tvb,
+                         int offset, int obj_length,
+                         int rsvp_class _U_, int type)
+{
+
+    proto_tree *hidden_item;
+
+    hidden_item = proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+
+    proto_item_set_text(ti, "S2L SUB LSP: ");
+    switch(type) {
+    case 1: /* IPv4 */
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_s2l_sub_lsp, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_s2l_sub_lsp_destination_ipv4_address, tvb, offset, 4, ENC_BIG_ENDIAN);
+        break;
+
+    case 2: /* IPv6 */
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_s2l_sub_lsp, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_s2l_sub_lsp_destination_ipv6_address, tvb, offset, 16, ENC_NA);
+        break;
+
+    default:
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_s2l_sub_lsp, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_s2l_sub_lsp_data, tvb, offset+4, obj_length - 4, ENC_NA);
+        break;
+    }
+}
+
+/*------------------------------------------------------------------------------
  * DETOUR
  *------------------------------------------------------------------------------*/
 static void
@@ -7655,6 +7708,10 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         case RSVP_CLASS_FAST_REROUTE:
             dissect_rsvp_fast_reroute(ti, pinfo, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
+            break;
+
+        case RSVP_CLASS_S2L_SUB_LSP:
+            dissect_rsvp_s2l_sub_lsp(ti, pinfo, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
             break;
 
         case RSVP_CLASS_DETOUR:
@@ -9679,6 +9736,32 @@ proto_register_rsvp(void)
            NULL, HFILL
          }
         },
+
+        { &hf_rsvp_ctype_s2l_sub_lsp,
+         { "C-Type", "rsvp.ctype.s2l_sub_lsp",
+           FT_UINT32, BASE_DEC, VALS(rsvp_c_type_s2l_sub_lsp_vals), 0,
+           NULL, HFILL
+         }
+        },
+        { &hf_rsvp_s2l_sub_lsp_destination_ipv4_address,
+         { "IPv4 S2L Sub-LSP destination address", "rsvp.s2l_sub_lsp.destination_ipv4_address",
+           FT_IPv4, BASE_NONE, NULL, 0,
+           NULL, HFILL
+         }
+        },
+        { &hf_rsvp_s2l_sub_lsp_destination_ipv6_address,
+         { "IPv6 S2L Sub-LSP destination address", "rsvp.s2l_sub_lsp.destination_ipv6_address",
+           FT_IPv6, BASE_NONE, NULL, 0,
+           NULL, HFILL
+         }
+        },
+        { &hf_rsvp_s2l_sub_lsp_data,
+         { "Data", "rsvp.s2l_sub_lsp.data",
+           FT_BYTES, BASE_NONE, NULL, 0,
+           NULL, HFILL
+         }
+        },
+
 
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_rsvp_session_flags, { "Flags", "rsvp.session.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
