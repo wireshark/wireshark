@@ -276,6 +276,8 @@ extern "C" {
 #define WTAP_ENCAP_NORDIC_BLE                   186
 #define WTAP_ENCAP_NETMON_NET_NETEVENT          187
 #define WTAP_ENCAP_NETMON_HEADER                188
+#define WTAP_ENCAP_NETMON_NET_FILTER            189
+#define WTAP_ENCAP_NETMON_NETWORK_INFO_EX       190
 /* After adding new item here, please also add new item to encap_table_base array */
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()

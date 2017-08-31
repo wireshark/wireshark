@@ -1059,8 +1059,11 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 				/*
 				 * List of adapters on which the capture
 				 * was done.
+				 * XXX - This could be translated into PCAP-NG blocks
+				 * but for now, just treat as a frame
 				 */
-				return RETRY;
+				pkt_encap = WTAP_ENCAP_NETMON_NETWORK_INFO_EX;
+				break;
 
 			case NETMON_NET_PAYLOAD_HEADER:
 				/*
@@ -1087,7 +1090,8 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 				 * NetMon capture or display filter
 				 * string.
 				 */
-				return RETRY;
+				pkt_encap = WTAP_ENCAP_NETMON_NET_FILTER;
+				break;
 
 			default:
 				*err = WTAP_ERR_UNSUPPORTED;

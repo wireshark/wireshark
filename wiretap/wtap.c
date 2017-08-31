@@ -938,6 +938,12 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_NETMON_HEADER */
 	{ "Network Monitor Header", "netmon_header" },
+
+	/* WTAP_ENCAP_NETMON_NET_FILTER */
+	{ "Network Monitor Filter", "netmon_filter" },
+
+	/* WTAP_ENCAP_NETMON_NETWORK_INFO_EX */
+	{ "Network Monitor Network Info", "netmon_network_info" },
 };
 
 WS_DLL_LOCAL

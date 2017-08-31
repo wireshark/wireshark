@@ -66,9 +66,18 @@ static const value_string event_level_vals[] = {
 	{ 0,	NULL }
 };
 
+static const range_string filter_types[] = {
+	{ 0,	0,	"Display Filter" },
+	{ 1,	1,	"Capture Filter" },
+	{ 2,	0xFFFFFFFF,	"Display Filter" },
+	{ 0, 0, NULL }
+};
+
 /* Initialize the protocol and registered fields */
 static int proto_netmon_header = -1;
 static int proto_netmon_event = -1;
+static int proto_netmon_filter = -1;
+static int proto_netmon_network_info = -1;
 
 static int hf_netmon_header_title_comment = -1;
 static int hf_netmon_header_description_comment = -1;
@@ -116,6 +125,36 @@ static int hf_netmon_event_extended_data_size = -1;
 static int hf_netmon_event_extended_data = -1;
 static int hf_netmon_event_user_data = -1;
 
+static int hf_netmon_filter_version = -1;
+static int hf_netmon_filter_type = -1;
+static int hf_netmon_filter_app_major_version = -1;
+static int hf_netmon_filter_app_minor_version = -1;
+static int hf_netmon_filter_app_name = -1;
+static int hf_netmon_filter_filter = -1;
+
+static int hf_netmon_network_info_version = -1;
+static int hf_netmon_network_info_adapter_count = -1;
+static int hf_netmon_network_info_computer_name = -1;
+static int hf_netmon_network_info_friendly_name = -1;
+static int hf_netmon_network_info_description = -1;
+static int hf_netmon_network_info_miniport_guid = -1;
+static int hf_netmon_network_info_media_type = -1;
+static int hf_netmon_network_info_mtu = -1;
+static int hf_netmon_network_info_link_speed = -1;
+static int hf_netmon_network_info_mac_address = -1;
+static int hf_netmon_network_info_ipv4_count = -1;
+static int hf_netmon_network_info_ipv6_count = -1;
+static int hf_netmon_network_info_gateway_count = -1;
+static int hf_netmon_network_info_dhcp_server_count = -1;
+static int hf_netmon_network_info_dns_ipv4_count = -1;
+static int hf_netmon_network_info_dns_ipv6_count = -1;
+static int hf_netmon_network_info_ipv4 = -1;
+static int hf_netmon_network_info_subnet = -1;
+static int hf_netmon_network_info_ipv6 = -1;
+static int hf_netmon_network_info_gateway = -1;
+static int hf_netmon_network_info_dhcp_server = -1;
+static int hf_netmon_network_info_dns_ipv4 = -1;
+static int hf_netmon_network_info_dns_ipv6 = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_netmon_header = -1;
@@ -124,6 +163,10 @@ static gint ett_netmon_event_desc = -1;
 static gint ett_netmon_event_flags = -1;
 static gint ett_netmon_event_property = -1;
 static gint ett_netmon_event_extended_data = -1;
+static gint ett_netmon_filter = -1;
+static gint ett_netmon_network_info = -1;
+static gint ett_netmon_network_info_list = -1;
+static gint ett_netmon_network_info_adapter = -1;
 
 static dissector_table_t wtap_encap_table;
 
@@ -305,6 +348,176 @@ dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	}
 
 	proto_tree_add_item(event_tree, hf_netmon_event_user_data, tvb, offset, user_data_size, ENC_NA);
+
+	return tvb_captured_length(tvb);
+}
+
+
+static int
+dissect_netmon_filter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+	proto_item *ti;
+	proto_tree *filter_tree;
+	int offset = 0;
+	guint length;
+	const guint8* filter;
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NetMon Filter");
+	/* Clear out stuff in the info column */
+	col_clear(pinfo->cinfo, COL_INFO);
+
+	ti = proto_tree_add_item(tree, proto_netmon_filter, tvb, offset, -1, ENC_NA);
+	filter_tree = proto_item_add_subtree(ti, ett_netmon_filter);
+
+	proto_tree_add_item(filter_tree, hf_netmon_filter_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+	proto_tree_add_item(filter_tree, hf_netmon_filter_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+	proto_tree_add_item(filter_tree, hf_netmon_filter_app_major_version, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+	proto_tree_add_item(filter_tree, hf_netmon_filter_app_minor_version, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+	length = tvb_unicode_strsize(tvb, offset);
+	proto_tree_add_item(filter_tree, hf_netmon_filter_app_name, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+	offset += length;
+	length = tvb_unicode_strsize(tvb, offset);
+	proto_tree_add_item_ret_string(filter_tree, hf_netmon_filter_filter, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16,
+									wmem_packet_scope(), &filter);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Filter: %s", filter);
+
+	return tvb_captured_length(tvb);
+}
+
+
+static int
+dissect_netmon_network_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+	proto_item *ti, *list_item, *adapter_item;
+	proto_tree *network_info_tree, *list_tree, *adapter_tree;
+	int offset = 0, list_start_offset, adapter_start_offset;
+	guint adapter, adapter_count, length;
+	guint64 link_speed;
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NetMon Network Info");
+	/* Clear out stuff in the info column */
+	col_clear(pinfo->cinfo, COL_INFO);
+
+	ti = proto_tree_add_item(tree, proto_netmon_network_info, tvb, offset, -1, ENC_NA);
+	network_info_tree = proto_item_add_subtree(ti, ett_netmon_network_info);
+
+	proto_tree_add_item(network_info_tree, hf_netmon_network_info_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item_ret_uint(network_info_tree, hf_netmon_network_info_adapter_count, tvb, offset, 2, ENC_BIG_ENDIAN, &adapter_count);
+	offset += 2;
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Adapter count: %d", adapter_count);
+
+	length = tvb_unicode_strsize(tvb, offset);
+	proto_tree_add_item(network_info_tree, hf_netmon_network_info_computer_name, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+	offset += length;
+	if (adapter_count > 0)
+	{
+		list_start_offset = offset;
+		list_tree = proto_tree_add_subtree(network_info_tree, tvb, offset, 1, ett_netmon_network_info_list, &list_item, "NetworkInfo");
+		for (adapter = 1; adapter <= adapter_count; adapter++)
+		{
+			guint32 loop, ipv4_count, ipv6_count, gateway_count, dhcp_server_count, dns_ipv4_count, dns_ipv6_count;
+
+			adapter_start_offset = offset;
+			adapter_tree = proto_tree_add_subtree_format(list_tree, tvb, offset, 1, ett_netmon_network_info_adapter, &adapter_item, "Adapter #%d", adapter);
+
+			length = tvb_unicode_strsize(tvb, offset);
+			proto_tree_add_item(adapter_tree, hf_netmon_network_info_friendly_name, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+			offset += length;
+			length = tvb_unicode_strsize(tvb, offset);
+			proto_tree_add_item(adapter_tree, hf_netmon_network_info_description, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+			offset += length;
+			length = tvb_unicode_strsize(tvb, offset);
+			proto_tree_add_item(adapter_tree, hf_netmon_network_info_miniport_guid, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+			offset += length;
+			proto_tree_add_item(adapter_tree, hf_netmon_network_info_media_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(adapter_tree, hf_netmon_network_info_mtu, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			link_speed = tvb_get_ntoh64(tvb, offset);
+			if (link_speed == 0xFFFFFFFFFFFFFFFF)
+			{
+			    proto_tree_add_uint64_format_value(adapter_tree, hf_netmon_network_info_link_speed, tvb, offset, 8, link_speed, "(Unknown)");
+			}
+			else if (link_speed >= 1000 * 1000 * 1024)
+			{
+			    proto_tree_add_uint64_format_value(adapter_tree, hf_netmon_network_info_link_speed, tvb, offset, 8, link_speed, "%" G_GINT64_MODIFIER "u Gbps", link_speed/(1000*1000*1000));
+			}
+			else if (link_speed >= 1000 * 1000)
+			{
+			    proto_tree_add_uint64_format_value(adapter_tree, hf_netmon_network_info_link_speed, tvb, offset, 8, link_speed, "%" G_GINT64_MODIFIER "u Mbps", link_speed/(1000*1000));
+			}
+			else if (link_speed >= 1000 * 1000)
+			{
+			    proto_tree_add_uint64_format_value(adapter_tree, hf_netmon_network_info_link_speed, tvb, offset, 8, link_speed, "%" G_GINT64_MODIFIER "u Kbps", link_speed/1000);
+			}
+			else
+			{
+			    proto_tree_add_uint64_format_value(adapter_tree, hf_netmon_network_info_link_speed, tvb, offset, 8, link_speed, "%" G_GINT64_MODIFIER "u bps", link_speed);
+			}
+			offset += 8;
+			proto_tree_add_item(adapter_tree, hf_netmon_network_info_mac_address, tvb, offset, 6, ENC_NA);
+			offset += 6;
+
+			proto_tree_add_item_ret_uint(adapter_tree, hf_netmon_network_info_ipv4_count, tvb, offset, 2, ENC_BIG_ENDIAN, &ipv4_count);
+			offset += 2;
+			proto_tree_add_item_ret_uint(adapter_tree, hf_netmon_network_info_ipv6_count, tvb, offset, 2, ENC_BIG_ENDIAN, &ipv6_count);
+			offset += 2;
+			proto_tree_add_item_ret_uint(adapter_tree, hf_netmon_network_info_gateway_count, tvb, offset, 2, ENC_BIG_ENDIAN, &gateway_count);
+			offset += 2;
+			proto_tree_add_item_ret_uint(adapter_tree, hf_netmon_network_info_dhcp_server_count, tvb, offset, 2, ENC_BIG_ENDIAN, &dhcp_server_count);
+			offset += 2;
+			proto_tree_add_item_ret_uint(adapter_tree, hf_netmon_network_info_dns_ipv4_count, tvb, offset, 2, ENC_BIG_ENDIAN, &dns_ipv4_count);
+			offset += 2;
+			proto_tree_add_item_ret_uint(adapter_tree, hf_netmon_network_info_dns_ipv6_count, tvb, offset, 2, ENC_BIG_ENDIAN, &dns_ipv6_count);
+			offset += 2;
+
+			for (loop = 0; loop < ipv4_count; loop++)
+			{
+				proto_tree_add_item(adapter_tree, hf_netmon_network_info_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+				offset += 4;
+			}
+			for (loop = 0; loop < ipv4_count; loop++)
+			{
+				proto_tree_add_item(adapter_tree, hf_netmon_network_info_subnet, tvb, offset, 4, ENC_BIG_ENDIAN);
+				offset += 4;
+			}
+			for (loop = 0; loop < ipv6_count; loop++)
+			{
+				proto_tree_add_item(adapter_tree, hf_netmon_network_info_ipv6, tvb, offset, 16, ENC_NA);
+				offset += 16;
+			}
+			for (loop = 0; loop < gateway_count; loop++)
+			{
+				proto_tree_add_item(adapter_tree, hf_netmon_network_info_gateway, tvb, offset, 4, ENC_BIG_ENDIAN);
+				offset += 4;
+			}
+			for (loop = 0; loop < dhcp_server_count; loop++)
+			{
+				proto_tree_add_item(adapter_tree, hf_netmon_network_info_dhcp_server, tvb, offset, 4, ENC_BIG_ENDIAN);
+				offset += 4;
+			}
+			for (loop = 0; loop < dns_ipv4_count; loop++)
+			{
+				proto_tree_add_item(adapter_tree, hf_netmon_network_info_dns_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+				offset += 4;
+			}
+			for (loop = 0; loop < dns_ipv6_count; loop++)
+			{
+				proto_tree_add_item(adapter_tree, hf_netmon_network_info_dns_ipv6, tvb, offset, 16, ENC_NA);
+				offset += 16;
+			}
+
+			proto_item_set_len(adapter_item, offset-adapter_start_offset);
+		}
+
+		proto_item_set_len(list_item, offset-list_start_offset);
+	}
 
 	return tvb_captured_length(tvb);
 }
@@ -494,31 +707,166 @@ void proto_register_netmon(void)
 		},
 	};
 
+	static hf_register_info hf_filter[] = {
+		{ &hf_netmon_filter_version,
+			{ "Version", "netmon_filter.version",
+			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_filter_type,
+			{ "Filter type", "netmon_filter.type",
+			FT_UINT32, BASE_DEC|BASE_RANGE_STRING, RVALS(filter_types), 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_filter_app_major_version,
+			{ "App Major Version", "netmon_filter.app_major_version",
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_filter_app_minor_version,
+			{ "App Minor Version", "netmon_filter.app_minor_version",
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_filter_app_name,
+			{ "Application Name", "netmon_filter.app_name",
+			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_filter_filter,
+			{ "Filter", "netmon_filter.filter",
+			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+		},
+	};
+
+	static hf_register_info hf_network_info[] = {
+		{ &hf_netmon_network_info_version,
+			{ "Version", "netmon_network_info.version",
+			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_network_info_adapter_count,
+			{ "Adapter count", "netmon_network_info.adapter_count",
+			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_network_info_computer_name,
+			{ "Computer name", "netmon_network_info.computer_name",
+			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_network_info_friendly_name,
+			{ "Friendly name", "netmon_network_info.friendly_name",
+			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_network_info_description,
+			{ "Description", "netmon_network_info.description",
+			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_network_info_miniport_guid,
+			{ "Miniport GUID", "netmon_network_info.miniport_guid",
+			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_network_info_media_type,
+			{ "Media type", "netmon_network_info.media_type",
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_network_info_mtu,
+			{ "MTU", "netmon_network_info.mtu",
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_network_info_link_speed,
+			{ "Link speed", "netmon_network_info.link_speed",
+			FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_network_info_mac_address,
+			{ "MAC address", "netmon_network_info.mac_address",
+			FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_network_info_ipv4_count,
+			{ "IPv4 count", "netmon_network_info.ipv4_count",
+			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_network_info_ipv6_count,
+			{ "IPv6 count", "netmon_network_info.ipv6_count",
+			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_network_info_gateway_count,
+			{ "Gateway count", "netmon_network_info.gateway_count",
+			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_network_info_dhcp_server_count,
+			{ "DHCP server count", "netmon_network_info.dhcp_server_count",
+			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_network_info_dns_ipv4_count,
+			{ "DNS IPv4 count", "netmon_network_info.dns_ipv4_count",
+			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_network_info_dns_ipv6_count,
+			{ "DNS IPv6 count", "netmon_network_info.dns_ipv6_count",
+			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_network_info_ipv4,
+			{ "IPv4 address", "netmon_network_info.ipv4",
+			FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_network_info_subnet,
+			{ "Subnet mask", "netmon_network_info.subnet",
+			FT_IPv4, BASE_NETMASK, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_network_info_ipv6,
+			{ "IPv6 address", "netmon_network_info.ipv6",
+			FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_network_info_gateway,
+			{ "Gateway address", "netmon_network_info.gateway",
+			FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_network_info_dhcp_server,
+			{ "DHCP Server", "netmon_network_info.dhcp_server",
+			FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_network_info_dns_ipv4,
+			{ "DNS IPv4 address", "netmon_network_info.dns_ipv4",
+			FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_network_info_dns_ipv6,
+			{ "DNS IPv6 address", "netmon_network_info.dns_ipv6",
+			FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+	};
+
 	static gint *ett[] = {
 		&ett_netmon_header,
 		&ett_netmon_event,
 		&ett_netmon_event_desc,
 		&ett_netmon_event_flags,
 		&ett_netmon_event_property,
-		&ett_netmon_event_extended_data
+		&ett_netmon_event_extended_data,
+		&ett_netmon_filter,
+		&ett_netmon_network_info,
+		&ett_netmon_network_info_list,
+		&ett_netmon_network_info_adapter
 	};
 
 	proto_netmon_header = proto_register_protocol ("Network Monitor Header", "NetMon Header", "netmon_header" );
 	proto_netmon_event = proto_register_protocol ("Network Monitor Event", "NetMon Event", "netmon_event" );
+	proto_netmon_filter = proto_register_protocol ("Network Monitor Filter", "NetMon Filter", "netmon_filter" );
+	proto_netmon_network_info = proto_register_protocol ("Network Monitor Network Info", "NetMon Network Info", "netmon_network_info" );
 
 	proto_register_field_array(proto_netmon_header, hf_header, array_length(hf_header));
 	proto_register_field_array(proto_netmon_event, hf_event, array_length(hf_event));
+	proto_register_field_array(proto_netmon_filter, hf_filter, array_length(hf_filter));
+	proto_register_field_array(proto_netmon_network_info, hf_network_info, array_length(hf_network_info));
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void proto_reg_handoff_netmon(void)
 {
-	dissector_handle_t netmon_event_handle, netmon_header_handle;
+	dissector_handle_t netmon_event_handle, netmon_filter_handle,
+						netmon_network_info_handle, netmon_header_handle;
 
 	netmon_event_handle = create_dissector_handle(dissect_netmon_event, proto_netmon_event);
+	netmon_filter_handle = create_dissector_handle(dissect_netmon_filter, proto_netmon_filter);
+	netmon_network_info_handle = create_dissector_handle(dissect_netmon_network_info, proto_netmon_network_info);
 	netmon_header_handle = create_dissector_handle(dissect_netmon_header, proto_netmon_header);
 
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_NETMON_NET_NETEVENT, netmon_event_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_NETMON_NET_FILTER, netmon_filter_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_NETMON_NETWORK_INFO_EX, netmon_network_info_handle);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_NETMON_HEADER, netmon_header_handle);
 
 	wtap_encap_table = find_dissector_table("wtap_encap");
