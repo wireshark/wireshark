@@ -2024,7 +2024,7 @@ rsvp_hash(gconstpointer k)
     return key->conversation;
 }
 
-static const char* rsvp_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter _U_)
+static const char* rsvp_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
 {
     if ((filter == CONV_FT_SRC_ADDRESS) && (conv->src_address.type == AT_IPv4))
         return "ip.src";
@@ -2052,7 +2052,7 @@ rsvp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
     return 1;
 }
 
-static const char* rsvp_host_get_filter_type(hostlist_talker_t* host _U_, conv_filter_type_e filter)
+static const char* rsvp_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
 {
     if ((filter == CONV_FT_ANY_ADDRESS) && (host->myaddress.type == AT_IPv4))
         return "ip.addr";
@@ -3498,7 +3498,7 @@ static void
 dissect_rsvp_template_filter(proto_item *ti, proto_tree *rsvp_object_tree,
                              tvbuff_t *tvb,
                              int offset, int obj_length,
-                             int rsvp_class _U_, int type,
+                             int rsvp_class, int type,
                              rsvp_conversation_info *rsvph)
 {
     int offset2 = offset + 4;
@@ -4477,7 +4477,7 @@ static const value_string lambda_grid_vals[] = {
 };
 
 static void
-dissect_glabel_lambda(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
+dissect_glabel_lambda(proto_tree *ti, proto_tree *rsvp_object_tree,
                       tvbuff_t *tvb,
                       int offset)
 {
@@ -5609,7 +5609,7 @@ dissect_rsvp_admin_status(proto_tree *ti, proto_tree *rsvp_object_tree,
 static void
 dissect_rsvp_lsp_attributes(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object_tree,
                             tvbuff_t *tvb, int offset, int obj_length,
-                            int rsvp_class _U_, int type)
+                            int rsvp_class, int type)
 {
     int         tlv_off;
     guint32     attributes;
@@ -6422,7 +6422,7 @@ static const value_string rsvp_3gpp_obj_traffic_class_vals[] = {
 };
 
 static void
-dissect_rsvp_3gpp_object(proto_tree *ti _U_, packet_info* pinfo, proto_tree *rsvp_object_tree,
+dissect_rsvp_3gpp_object(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object_tree,
     tvbuff_t *tvb,
     int offset, int obj_length,
     int rsvp_class _U_, int c_type)
