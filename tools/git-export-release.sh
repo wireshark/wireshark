@@ -31,6 +31,32 @@ COMMIT="HEAD"
 if test -n "$1"; then
   COMMIT="$1"
 fi
-VERSION=$(git describe --tags ${COMMIT} | sed 's/^v//')
+
+if [ ! -e "${GIT_DIR:-.git}" ] ; then
+    echo "Must be run from the top-level repository directory."
+    exit 1
+fi
+
+# --abbrev=<n> and --match should match make-version.pl.
+DESCRIPTION=$(git describe --abbrev=8 --match "v[1-9]*" ${COMMIT})
+VERSION=${DESCRIPTION#v}
+STASH_POP=False
+
+if [ "$COMMIT" == "HEAD" ] ; then
+    echo "Adding description $DESCRIPTION"
+    echo "git_description=$DESCRIPTION" >> version.conf
+    git add version.conf
+    git stash --keep-index
+    COMMIT="stash@{0}"
+    STASH_POP=True
+else
+    echo "Not archiving HEAD. Skipping description."
+fi
+
+echo "Creating wireshark-$VERSION.tar.xz"
 
 git archive --prefix=wireshark-${VERSION}/ ${COMMIT}  | xz > wireshark-${VERSION}.tar.xz
+
+if [ "$STASH_POP" == "True" ] ; then
+    git stash pop
+fi

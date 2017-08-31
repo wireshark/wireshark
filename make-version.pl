@@ -207,7 +207,7 @@ sub read_repo_info {
 			}
 
 			# Commits since last annotated tag.
-			chomp($line = qx{$git_executable --git-dir="$srcdir"/.git describe --long --always --match "v*"});
+			chomp($line = qx{$git_executable --git-dir="$srcdir"/.git describe --abbrev=8 --long --always --match "v[1-9]*"});
 			if ($? == 0 && length($line) > 1) {
 				my @parts = split(/-/, $line);
 				$git_description = $line;
