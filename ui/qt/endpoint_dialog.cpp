@@ -394,7 +394,6 @@ public:
                 // using QCollator instead.
                 return text(sort_col) < other.text(sort_col);
             }
-            break;
         }
 #else
         default:
