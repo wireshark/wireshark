@@ -66,7 +66,7 @@
 #include "packet-e164.h"
 #include "packet-e212.h"
 #include "packet-gsm_a_common.h"
-#include "packet-ipv6.h"
+#include "packet-ip.h"
 
 void proto_register_mip6(void);
 void proto_reg_handoff_mip6(void);
@@ -3944,13 +3944,13 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if ((type == MIP6_FNA) && (pproto == IP_PROTO_IPV6)) {
         col_set_str(pinfo->cinfo, COL_INFO, "Fast Neighbor Advertisement[Fast Binding Update]");
         next_tvb = tvb_new_subset_remaining(tvb, len + 8);
-        ipv6_dissect_next(pproto, next_tvb, pinfo, tree, (ws_ip *)data);
+        ipv6_dissect_next(pproto, next_tvb, pinfo, tree, (ws_ip6 *)data);
     }
 
     if ((type == MIP6_FBACK) && (pproto == IP_PROTO_AH)) {
         col_set_str(pinfo->cinfo, COL_INFO, "Fast Binding Acknowledgment");
         next_tvb = tvb_new_subset_remaining(tvb, len + offset);
-        ipv6_dissect_next(pproto, next_tvb, pinfo, tree, (ws_ip *)data);
+        ipv6_dissect_next(pproto, next_tvb, pinfo, tree, (ws_ip6 *)data);
     }
 
     return tvb_captured_length(tvb);

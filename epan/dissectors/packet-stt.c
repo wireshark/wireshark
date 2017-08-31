@@ -524,12 +524,10 @@ dissect_stt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static gboolean
 dissect_stt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                 void *data)
+                 void *iph)
 {
-    ws_ip *iph = (ws_ip*)data;
-
     /* Make sure we at least have a TCP header */
-    if (iph == NULL || iph->ip_nxt != IP_PROTO_TCP ||
+    if (ws_ip_protocol(iph) != IP_PROTO_TCP ||
         tvb_captured_length(tvb) < STT_TCP_HDR_LEN) {
         return FALSE;
     }

@@ -30,7 +30,7 @@
 
 #frame ../dissectors/packet_frame.h void
 
-ip ../dissectors/packet-ip.h ws_ip
+ip ../dissectors/packet-ip.h ws_ip4
 udp ../dissectors/packet-udp.h e_udphdr
 http ../dissectors/packet-http.h http_info_value_t
 # BACnet statistics

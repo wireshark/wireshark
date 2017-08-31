@@ -1618,7 +1618,6 @@ DISSECTOR_INCLUDES = \
 	packet-ip.h		\
 	packet-ipmi.h		\
 	packet-ipsec.h		\
-	packet-ipv6.h		\
 	packet-ipx.h		\
 	packet-isakmp.h		\
 	packet-isis.h		\

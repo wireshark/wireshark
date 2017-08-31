@@ -29,7 +29,6 @@
 #include <epan/packet.h>
 #include <epan/capture_dissectors.h>
 #include "packet-ip.h"
-#include "packet-ipv6.h"
 #include "packet-ppp.h"
 #include <epan/etypes.h>
 #include <epan/aftypes.h>

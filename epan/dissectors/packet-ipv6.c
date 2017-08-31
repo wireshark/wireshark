@@ -48,7 +48,7 @@
 
 #include <wiretap/erf.h>
 #include <wsutil/str_util.h>
-#include "packet-ipv6.h"
+#include "packet-ip.h"
 #include "packet-juniper.h"
 #include "packet-sflow.h"
 #include "packet-vxlan.h"
@@ -111,8 +111,7 @@ void proto_reg_handoff_ipv6(void);
 #define IPV6_PROTO_VALUE            1
 #define IPV6_PROTO_PINFO            2
 
-static int ip6_hdr_tap  = -1;
-static int ipv6_ws_tap  = -1;
+static int ipv6_tap  = -1;
 
 static int proto_ipv6                           = -1;
 static int proto_ipv6_hopopts                   = -1;
@@ -435,14 +434,9 @@ static int
 ipv6_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
-    const struct ws_ip6_hdr *ip6h = (const struct ws_ip6_hdr *)vip;
-    address src;
-    address dst;
+    const ipv6_tap_info_t *ip6 = (const ipv6_tap_info_t *)vip;
 
-    set_address_ipv6(&src, &ip6h->ip6h_src);
-    set_address_ipv6(&dst, &ip6h->ip6h_dst);
-
-    add_conversation_table_data(hash, &src, &dst, 0, 0, 1,
+    add_conversation_table_data(hash, &ip6->ip6_src, &ip6->ip6_dst, 0, 0, 1,
             pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts,
             &ipv6_ct_dissector_info, PT_NONE);
 
@@ -463,17 +457,11 @@ static int
 ipv6_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
-    const struct ws_ip6_hdr *ip6h = (const struct ws_ip6_hdr *)vip;
-    address src;
-    address dst;
+    const ipv6_tap_info_t *ip6 = (const ipv6_tap_info_t *)vip;
 
-    /* Addresses aren't implemented as 'address' type in struct ws_ip6_hdr */
-    set_address_ipv6(&src, &ip6h->ip6h_src);
-    set_address_ipv6(&dst, &ip6h->ip6h_dst);
-
-    add_hostlist_table_data(hash, &src, 0, TRUE, 1,
+    add_hostlist_table_data(hash, &ip6->ip6_src, 0, TRUE, 1,
                 pinfo->fd->pkt_len, &ipv6_host_dissector_info, PT_NONE);
-    add_hostlist_table_data(hash, &dst, 0, FALSE, 1,
+    add_hostlist_table_data(hash, &ip6->ip6_dst, 0, FALSE, 1,
                 pinfo->fd->pkt_len, &ipv6_host_dissector_info, PT_NONE);
 
     return 1;
@@ -1245,7 +1233,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     p_add_ipv6_nxt(pinfo, rt.ip6r_nxt);
 
     next_tvb = tvb_new_subset_remaining(tvb, len);
-    ipv6_dissect_next(rt.ip6r_nxt, next_tvb, pinfo, tree, (ws_ip *)data);
+    ipv6_dissect_next(rt.ip6r_nxt, next_tvb, pinfo, tree, (ws_ip6 *)data);
     return tvb_captured_length(tvb);
 }
 
@@ -1312,7 +1300,7 @@ dissect_fraghdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (reassembled) {
                 ipv6_pinfo->frag_plen = 0;
                 next_tvb = tvb_new_subset_remaining(tvb, offset);
-                ipv6_dissect_next(nxt, next_tvb, pinfo, tree, (ws_ip *)data);
+                ipv6_dissect_next(nxt, next_tvb, pinfo, tree, (ws_ip6 *)data);
                 return tvb_captured_length(tvb);
             }
         }
@@ -1321,7 +1309,7 @@ dissect_fraghdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     p_add_ipv6_nxt(pinfo, nxt);
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    ipv6_dissect_next(nxt, next_tvb, pinfo, tree, (ws_ip *)data);
+    ipv6_dissect_next(nxt, next_tvb, pinfo, tree, (ws_ip6 *)data);
     return tvb_captured_length(tvb);
 }
 
@@ -1464,7 +1452,7 @@ dissect_opt_rtalert(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *
 */
 static gint
 dissect_opt_quickstart(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_tree,
-                        struct opt_proto_item *opt_ti, guint8 opt_len, ws_ip *iph)
+                        struct opt_proto_item *opt_ti, guint8 opt_len, ws_ip6 *iph)
 {
     proto_item *pi = proto_tree_get_parent(opt_tree);
     proto_item *ti;
@@ -1493,7 +1481,7 @@ dissect_opt_quickstart(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tre
         if (iph != NULL) {
             guint8 ttl_diff;
 
-            ttl_diff = (iph->ip_ttl - qs_ttl) % 256;
+            ttl_diff = (iph->ip6_hop - qs_ttl) % 256;
             ti = proto_tree_add_uint(opt_tree, hf_ipv6_opt_qs_ttl_diff, tvb, offset, 1, ttl_diff);
             PROTO_ITEM_SET_GENERATED(ti);
             proto_item_append_text(pi, ", QS TTL diff %u", ttl_diff);
@@ -1801,7 +1789,7 @@ dissect_opt_unknown(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *
 }
 
 static int
-dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws_ip *iph, const int exthdr_proto)
+dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws_ip6 *iph, const int exthdr_proto)
 {
     gint            len, offset_end;
     guint8          nxt;
@@ -1991,7 +1979,7 @@ dissect_hopopts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     col_append_sep_str(pinfo->cinfo, COL_INFO, " , ", "IPv6 hop-by-hop options");
 
-    return dissect_opts(tvb, 0, tree, pinfo, (ws_ip *)data, proto_ipv6_hopopts);
+    return dissect_opts(tvb, 0, tree, pinfo, (ws_ip6 *)data, proto_ipv6_hopopts);
 }
 
 static int
@@ -1999,7 +1987,7 @@ dissect_dstopts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     col_append_sep_str(pinfo->cinfo, COL_INFO, " , ", "IPv6 destination options");
 
-    return dissect_opts(tvb, 0, tree, pinfo, (ws_ip *)data, proto_ipv6_dstopts);
+    return dissect_opts(tvb, 0, tree, pinfo, (ws_ip6 *)data, proto_ipv6_dstopts);
 }
 
 /* return value is > G_MAXUINT16, else zero */
@@ -2198,8 +2186,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     gboolean       save_fragmented;
     ipv6_pinfo_t  *ipv6_pinfo;
     int            version;
-    ws_ip         *iph;
-    struct ws_ip6_hdr *ip6_hdr;
+    ws_ip6        *iph;
 
     offset = 0;
 
@@ -2320,9 +2307,6 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     }
 #endif
 
-    ip6_hdr = (struct ws_ip6_hdr *)tvb_memdup(wmem_packet_scope(), tvb, offset, IPv6_HDR_SIZE);
-    tap_queue_packet(ip6_hdr_tap, pinfo, ip6_hdr);
-
     /* Increment offset to point to next header (may be an extension header) */
     offset += IPv6_HDR_SIZE;
 
@@ -2347,15 +2331,15 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     }
 
     /* Fill in IP header fields for subdissectors */
-    iph = wmem_new0(wmem_packet_scope(), ws_ip);
-    iph->ip_ver = 6;
-    iph->ip_tos = ip6_tcls;
-    iph->ip_flw = ip6_flow;
-    iph->ip_len = plen;
-    iph->ip_nxt = ip6_nxt;
-    iph->ip_ttl = ip6_hlim;
-    alloc_address_wmem_ipv6(wmem_packet_scope(), &iph->ip_src, ip6_src);
-    alloc_address_wmem_ipv6(wmem_packet_scope(), &iph->ip_dst, ip6_dst);
+    iph = wmem_new0(wmem_packet_scope(), ws_ip6);
+    iph->ip6_ver = 6;
+    iph->ip6_tc = ip6_tcls;
+    iph->ip6_flw = ip6_flow;
+    iph->ip6_len = plen;
+    iph->ip6_nxt = ip6_nxt;
+    iph->ip6_hop = ip6_hlim;
+    alloc_address_wmem_ipv6(wmem_packet_scope(), &iph->ip6_src, ip6_src);
+    alloc_address_wmem_ipv6(wmem_packet_scope(), &iph->ip6_dst, ip6_dst);
 
     /* Adjust the length of this tvbuff to include only the IPv6 datagram. */
     set_actual_length(tvb, IPv6_HDR_SIZE + plen);
@@ -2371,7 +2355,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 }
 
 void
-ipv6_dissect_next(guint nxt, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ws_ip *iph)
+ipv6_dissect_next(guint nxt, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ws_ip6 *iph)
 {
     dissector_handle_t nxt_handle;
     ipv6_pinfo_t *ipv6_pinfo = p_get_ipv6_pinfo(pinfo);
@@ -2405,9 +2389,9 @@ ipv6_dissect_next(guint nxt, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         ipv6_pinfo->ipv6_tree = NULL;
     }
 
-    if (iph != NULL && iph->ip_ver == 6) {
-        iph->ip_nxt = nxt; /* upper-layer protocol more useful */
-        tap_queue_packet(ipv6_ws_tap, pinfo, iph);
+    if (iph != NULL && iph->ip6_ver == 6) {
+        iph->ip6_nxt = nxt; /* upper-layer protocol more useful */
+        tap_queue_packet(ipv6_tap, pinfo, iph);
     }
 
     if (nxt == IP_PROTO_NONE) {
@@ -3515,8 +3499,7 @@ proto_register_ipv6(void)
     ipv6_handle = register_dissector("ipv6", dissect_ipv6, proto_ipv6);
     reassembly_table_register(&ipv6_reassembly_table,
                           &addresses_reassembly_table_functions);
-    ip6_hdr_tap = register_tap("ipv6");
-    ipv6_ws_tap = register_tap("ipv6_ws");
+    ipv6_tap = register_tap("ipv6");
 
     register_decode_as(&ipv6_da);
     register_decode_as(&ipv6_hopopts_da);

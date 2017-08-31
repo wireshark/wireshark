@@ -31,7 +31,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/proto_data.h>
 #include <epan/etypes.h>
-#include "packet-ipv6.h"
+#include "packet-ip.h"
 #include "packet-6lowpan.h"
 #include "packet-btl2cap.h"
 #include "packet-zbee.h"

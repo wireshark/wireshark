@@ -45,7 +45,6 @@
 #include <epan/tap.h>
 #include <epan/capture_dissectors.h>
 #include <epan/proto_data.h>
-#include <epan/ipv6.h>
 #include <epan/strutil.h>
 
 #include "packet-ber.h"
@@ -3842,7 +3841,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     tvbuff_t           *next_tvb;
     guint8              icmp6_type, icmp6_code;
     icmp_transaction_t *trans      = NULL;
-    ws_ip *iph = (ws_ip*)data;
+    ws_ip6 *iph = WS_IP6_PTR(data);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICMPv6");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -3949,7 +3948,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             identifier, sequence);
         if (iph != NULL) {
             col_append_fstr(pinfo->cinfo, COL_INFO, ", hop limit=%u",
-                            iph->ip_ttl);
+                            iph->ip6_hop);
         }
 
         if (pinfo->destport == 3544 && icmp6_type == ICMP6_ECHO_REQUEST) {

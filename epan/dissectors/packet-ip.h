@@ -41,20 +41,21 @@
 
 extern const value_string ip_version_vals[];
 
-typedef struct _ws_ip
+typedef struct _ws_ip4
 {
-    guint8  ip_ver;     /* 4 or 6 */
-    guint8  ip_tos;     /* IPv4: type of service;   IPv6: traffic class */
-    guint32 ip_flw;     /* IPv4: (zero);            IPv6: flow label */
-    guint32 ip_len;     /* IPv4: total length;      IPv6: payload length */
-    guint16 ip_id;      /* IPv4: identification;    IPv6: (zero) */
-    guint16 ip_off;     /* IPv4: fragment offset;   IPv6: (zero) */
-    guint8  ip_ttl;     /* IPv4: time-to-live;      IPv6: hop limit */
-    guint8  ip_nxt;     /* IPv4: protocol;          IPv6: next header */
-    guint16 ip_sum;     /* IPv4: checksum;          IPv6: (zero) */
+    guint8  ip_ver;     /* 4 */
+    guint8  ip_tos;     /* type of service */
+    guint32 ip_len;     /* total length */
+    guint16 ip_id;      /* identification */
+    guint16 ip_off;     /* fragment offset */
+    guint8  ip_ttl;     /* time-to-live */
+    guint8  ip_proto;   /* protocol */
+    guint16 ip_sum;     /* checksum */
     address ip_src;     /* source address */
     address ip_dst;     /* destination address */
-} ws_ip;
+} ws_ip4;
+
+#define WS_IP4_PTR(p)         ((ws_ip4 *)(((p) && *(guint8 *)(p) == 4) ? (p) : NULL))
 
 /* Differentiated Services Codepoint  */
 #define IPDSFIELD_DSCP_MASK     0xFC
@@ -65,13 +66,59 @@ typedef struct _ws_ip
 #define IPDSFIELD_ECN(dsfield)  ((dsfield) & IPDSFIELD_ECN_MASK)
 
 gboolean ip_try_dissect(gboolean heur_first, guint nxt, tvbuff_t *tvb,
-                        packet_info *pinfo, proto_tree *tree, ws_ip *iph);
+                        packet_info *pinfo, proto_tree *tree, void *iph);
 
 /* Export the DSCP/ECN extended value-string table for other protocols */
 WS_DLL_PUBLIC value_string_ext dscp_vals_ext;
 WS_DLL_PUBLIC value_string_ext ecn_vals_ext;
 WS_DLL_PUBLIC value_string_ext dscp_short_vals_ext;
 WS_DLL_PUBLIC value_string_ext ecn_short_vals_ext;
+
+typedef struct _ws_ip6
+{
+    guint8  ip6_ver;     /* 6 */
+    guint8  ip6_tc;      /* traffic class */
+    guint32 ip6_flw;     /* flow label */
+    guint32 ip6_len;     /* payload length */
+    guint8  ip6_nxt;     /* next header */
+    guint8  ip6_hop;     /* hop limit */
+    address ip6_src;     /* source address */
+    address ip6_dst;     /* destination address */
+} ws_ip6;
+
+#define WS_IP6_PTR(p)         ((ws_ip6 *)(((p) && *(guint8 *)(p) == 6) ? (p) : NULL))
+
+typedef ws_ip6 ipv6_tap_info_t;
+
+/* Packet info for shared state between IPv6 header and extensions */
+typedef struct {
+    guint32     jumbo_plen;
+    guint16     ip6_plen;
+    gint        frag_plen;
+    proto_tree *ipv6_tree;
+    gint        ipv6_item_len;
+} ipv6_pinfo_t;
+
+ipv6_pinfo_t *p_get_ipv6_pinfo(packet_info *pinfo);
+
+ipv6_pinfo_t *p_update_ipv6_pinfo(packet_info *pinfo, proto_tree **tree_ptr, gint hdr_len);
+
+void ipv6_dissect_next(guint nxt, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ws_ip6 *iph);
+
+static inline int
+ws_ip_protocol(void *iph)
+{
+    ws_ip4 *ip4;
+    ws_ip6 *ip6;
+
+    if (iph != NULL) {
+        if ((ip4 = WS_IP4_PTR(iph)) != NULL)
+            return ip4->ip_proto;
+        if ((ip6 = WS_IP6_PTR(iph)) != NULL)
+            return ip6->ip6_nxt;
+    }
+    return -1;
+}
 
 #endif /* __PACKET_IP_H__ */
 

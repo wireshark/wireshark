@@ -31,7 +31,7 @@
 #include <epan/in_cksum.h>
 #include <epan/ipproto.h>
 
-#include "packet-ipv6.h"
+#include "packet-ip.h"
 
 void proto_register_shim6(void);
 void proto_reg_handoff_shim6(void);
@@ -639,7 +639,7 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data)
     }
 
     next_tvb = tvb_new_subset_remaining(tvb, len);
-    ipv6_dissect_next(shim.ip6s_nxt, next_tvb, pinfo, tree, (ws_ip *)data);
+    ipv6_dissect_next(shim.ip6s_nxt, next_tvb, pinfo, tree, (ws_ip6 *)data);
     return tvb_captured_length(tvb);
 }
 

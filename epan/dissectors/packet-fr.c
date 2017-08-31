@@ -44,7 +44,6 @@
 #include "packet-chdlc.h"
 #include "packet-eth.h"
 #include "packet-ip.h"
-#include "packet-ipv6.h"
 #include "packet-ppp.h"
 #include "packet-juniper.h"
 #include "packet-sflow.h"

@@ -174,7 +174,7 @@ static int
 comparestat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg2)
 {
 	compstat_t *cs=(compstat_t *)arg;
-	const ws_ip *ci=(const ws_ip *)arg2;
+	const ws_ip4 *ci=(const ws_ip4 *)arg2;
 	frame_info *fInfo, *fInfoTemp;
 	vec_t cksum_vec[3];
 	guint16 computed_cksum=0;
@@ -189,7 +189,7 @@ comparestat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	cksum_vec[0].ptr=(const guint8 *)&ci;
 	cksum_vec[0].len=BYTES;
 	/* skip TTL */
-	cksum_vec[1].ptr=&ci->ip_nxt;
+	cksum_vec[1].ptr=&ci->ip_proto;
 	cksum_vec[1].len=1;
 	/* skip header checksum and ip's (because of NAT)*/
 	cksum_vec[2].ptr=(const guint8 *)ci->ip_dst.data;

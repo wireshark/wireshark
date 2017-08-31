@@ -86,7 +86,7 @@ ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
 #include <wsutil/wsgcrypt.h>
 
 #include "packet-ipsec.h"
-#include "packet-ipv6.h"
+#include "packet-ip.h"
 
 void proto_register_ipsec(void);
 void proto_reg_handoff_ipsec(void);
@@ -1155,7 +1155,7 @@ dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   next_tvb = tvb_new_subset_remaining(tvb, ah_hdr_len);
 
   if (pinfo->dst.type == AT_IPv6) {
-    ipv6_dissect_next(ah_nxt, next_tvb, pinfo, tree, (ws_ip *)data);
+    ipv6_dissect_next(ah_nxt, next_tvb, pinfo, tree, (ws_ip6 *)data);
   } else {
     /* do lookup with the subdissector table */
     saved_match_uint  = pinfo->match_uint;
