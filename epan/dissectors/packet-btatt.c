@@ -3990,9 +3990,10 @@ dissect_handle(proto_tree *tree, packet_info *pinfo, gint hf,
     characteristic_uuid = get_characteristic_uuid_from_handle(pinfo, (guint16) handle, bluetooth_data);
     attribute_uuid = get_uuid_from_handle(pinfo, (guint16) handle, bluetooth_data);
 
+    proto_item_append_text(handle_item, " (");
     if (memcmp(&service_uuid, &attribute_uuid, sizeof(attribute_uuid))) {
         if (service_uuid.size == 2 || service_uuid.size == 16) {
-            proto_item_append_text(handle_item, " (%s", print_uuid(&service_uuid));
+            proto_item_append_text(handle_item, "%s: ", print_uuid(&service_uuid));
             sub_tree = proto_item_add_subtree(handle_item, ett_btatt_handle);
 
             if (service_uuid.size == 2)
@@ -4002,13 +4003,11 @@ dissect_handle(proto_tree *tree, packet_info *pinfo, gint hf,
 
             PROTO_ITEM_SET_GENERATED(sub_item);
         }
-    } else {
-        proto_item_append_text(handle_item, " (");
     }
 
     if (memcmp(&characteristic_uuid, &attribute_uuid, sizeof(attribute_uuid))) {
         if (characteristic_uuid.size == 2 || characteristic_uuid.size == 16) {
-            proto_item_append_text(handle_item, ": %s", print_uuid(&characteristic_uuid));
+            proto_item_append_text(handle_item, "%s: ", print_uuid(&characteristic_uuid));
             sub_tree = proto_item_add_subtree(handle_item, ett_btatt_handle);
 
             if (characteristic_uuid.size == 2)
@@ -4020,10 +4019,7 @@ dissect_handle(proto_tree *tree, packet_info *pinfo, gint hf,
         }
     }
 
-    if (memcmp(&service_uuid, &attribute_uuid, sizeof(attribute_uuid)))
-        proto_item_append_text(handle_item, ": %s)", print_uuid(&attribute_uuid));
-    else
-        proto_item_append_text(handle_item, "%s)", print_uuid(&attribute_uuid));
+    proto_item_append_text(handle_item, "%s)", print_uuid(&attribute_uuid));
     if (attribute_uuid.size == 2 || attribute_uuid.size == 16) {
         sub_tree = proto_item_add_subtree(handle_item, ett_btatt_handle);
 
