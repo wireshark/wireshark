@@ -1462,7 +1462,15 @@ if (${GIT_EXECUTABLE})
 	set(GIT_BIN_PARAM "--git-bin ${GIT_EXECUTABLE}")
 endif()
 set( VERSION ${PROJECT_VERSION} )
+if(NOT CMAKE_VERSION VERSION_LESS "3.2.1")
+	# Prevents unnecessary rebuilds by ensuring that dependents are not
+	# built before make-version.pl finishes (which may touch version.h).
+	set(version_byproducts BYPRODUCTS version.h)
+else()
+	set(version_byproducts "")
+endif()
 add_custom_target(version
+	${version_byproducts}
 	COMMAND ${PERL_EXECUTABLE}
 		${CMAKE_SOURCE_DIR}/make-version.pl
 		--set-vcs ${GIT_BIN_PARAM}
