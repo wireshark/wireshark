@@ -81,6 +81,7 @@
 #endif /* _WIN32 */
 
 #include <QAction>
+#include <QApplication>
 #include <QDesktopServices>
 #include <QDir>
 #include <QEvent>
@@ -847,7 +848,7 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     qApp->setStyleSheet(app_style_sheet);
 
     // If our window text is lighter than the window background, assume the theme is dark.
-    QPalette gui_pal = QGuiApplication::palette();
+    QPalette gui_pal = qApp->palette();
     prefs_set_gui_theme_is_dark(gui_pal.windowText().color().value() > gui_pal.window().color().value());
 
 #ifdef HAVE_SOFTWARE_UPDATE

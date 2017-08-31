@@ -218,6 +218,7 @@ static void plugin_if_mainwindow_update_toolbars(gconstpointer user_data)
     }
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
 static void mainwindow_add_toolbar(const iface_toolbar *toolbar_entry)
 {
     if (gbl_cur_main_window_ && toolbar_entry)
@@ -233,6 +234,7 @@ static void mainwindow_remove_toolbar(const gchar *menu_title)
         gbl_cur_main_window_->removeInterfaceToolbar(menu_title);
     }
 }
+#endif
 
 QMenu* MainWindow::findOrAddMenu(QMenu *parent_menu, QString& menu_text) {
     QList<QAction *> actions = parent_menu->actions();
