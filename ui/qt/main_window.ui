@@ -126,7 +126,7 @@
      <widget class="FilterExpressionFrame" name="filterExpressionFrame"/>
     </item>
     <item>
-     <widget class="WirelessTimeline" name="wirelessTimelineWidget"/>
+     <widget class="WirelessTimeline" name="wirelessTimelineWidget" native="true"/>
     </item>
     <item>
      <widget class="QStackedWidget" name="mainStack">
@@ -354,7 +354,7 @@
     <addaction name="actionViewFilterToolbar"/>
     <addaction name="actionViewWirelessToolbar"/>
     <addaction name="menuInterfaceToolbars"/>
-    <addaction name="menuAdditionalToolbars" />
+    <addaction name="menuAdditionalToolbars"/>
     <addaction name="actionViewStatusBar"/>
     <addaction name="separator"/>
     <addaction name="actionViewFullScreen"/>
@@ -633,6 +633,8 @@
      <addaction name="actionEditCopyValue"/>
      <addaction name="separator"/>
      <addaction name="actionEditCopyAsFilter"/>
+     <addaction name="actionHex_Stream"/>
+     <addaction name="actionText_Stream"/>
     </widget>
     <addaction name="menuEditCopy"/>
     <addaction name="actionEditFindPacket"/>
@@ -1151,6 +1153,9 @@
    <property name="toolTip">
     <string>Export specified packets</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
   </action>
   <action name="actionFileExportPacketBytes">
    <property name="text">
@@ -1336,9 +1341,6 @@
    </property>
    <property name="toolTip">
     <string>Copy this item as a display filter</string>
-   </property>
-   <property name="shortcut">
-    <string notr="true">Ctrl+Shift+C</string>
    </property>
   </action>
   <action name="actionAnalyzeAAFSelected">
@@ -2992,6 +2994,22 @@
    </property>
    <property name="text">
     <string>&amp;Full Screen</string>
+   </property>
+  </action>
+  <action name="actionHex_Stream">
+   <property name="text">
+    <string>Hex Stream</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+C</string>
+   </property>
+  </action>
+  <action name="actionText_Stream">
+   <property name="text">
+    <string>Text Stream</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+C</string>
    </property>
   </action>
  </widget>

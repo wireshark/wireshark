@@ -690,6 +690,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(main_ui_->statusBar, SIGNAL(editCaptureComment()),
             this, SLOT(on_actionStatisticsCaptureFileProperties_triggered()));
 
+	connect(main_ui_->actionHex_Stream, SIGNAL(triggered()), this, SLOT(on_actionContextCopyBytesHexStream_triggered()));
+	connect(main_ui_->actionText_Stream, SIGNAL(triggered()), this, SLOT(on_actionContextCopyBytesPrintableText_triggered()));
+
+
 #ifdef HAVE_LIBPCAP
     QTreeWidget *iface_tree = findChild<QTreeWidget *>("interfaceTree");
     if (iface_tree) {

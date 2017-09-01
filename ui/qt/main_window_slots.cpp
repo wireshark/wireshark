@@ -168,6 +168,7 @@ DIAG_ON(frame-larger-than=)
 #include "wireshark_application.h"
 #include "wlan_statistics_dialog.h"
 #include "wireless_timeline.h"
+#include <ui/qt/utils/variant_pointer.h>
 
 #include <QClipboard>
 #include <QFileInfo>
@@ -188,6 +189,7 @@ DIAG_ON(frame-larger-than=)
 //
 // Public slots
 //
+
 
 static const char *dfe_property_ = "display filter expression"; //TODO : Fix Translate
 
@@ -1427,6 +1429,9 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
             can_open_url = true;
             main_ui_->actionContextWikiProtocolPage->setData(field_id);
             main_ui_->actionContextFilterFieldReference->setData(field_id);
+			main_ui_->actionHex_Stream->setData(VariantPointer<field_info>::asQVariant(fi));
+			main_ui_->actionText_Stream->setData(VariantPointer<field_info>::asQVariant(fi));
+
         } else {
             main_ui_->actionContextWikiProtocolPage->setData(QVariant());
             main_ui_->actionContextFilterFieldReference->setData(QVariant());
