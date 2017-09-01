@@ -77,7 +77,8 @@ static icmp_transaction_t *transaction_end(packet_info * pinfo,
 if the packet in the payload has more than 128 bytes */
 static gboolean favor_icmp_mpls_ext = FALSE;
 
-int proto_icmp = -1;
+static int proto_icmp = -1;
+
 static int hf_icmp_type = -1;
 static int hf_icmp_code = -1;
 static int hf_icmp_checksum = -1;

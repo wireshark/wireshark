@@ -23,8 +23,6 @@
 #ifndef __PACKET_ICMP_H__
 #define __PACKET_ICMP_H__
 
-extern int proto_icmp;
-
 /* ICMP echo request/reply transaction statistics ... used by ICMP tap(s) */
 typedef struct _icmp_transaction_t {
     guint32 rqst_frame;

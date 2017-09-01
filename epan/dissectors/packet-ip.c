@@ -96,7 +96,8 @@ static gboolean ip_use_geoip = TRUE;
 /* Interpret the reserved flag as security flag (RFC 3514) */
 static gboolean ip_security_flag = FALSE;
 
-int proto_ip = -1;
+static int proto_ip = -1;
+
 static int proto_ip_option_eol = -1;
 static int proto_ip_option_nop = -1;
 static int proto_ip_option_security = -1;

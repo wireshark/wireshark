@@ -117,6 +117,9 @@ enum mptcp_dsn_conversion {
 static gint tcp_default_window_scaling = (gint)WindowScaling_NotKnown;
 
 static int proto_tcp = -1;
+static int proto_ip = -1;
+static int proto_icmp = -1;
+
 static int proto_tcp_option_nop = -1;
 static int proto_tcp_option_eol = -1;
 static int proto_tcp_option_timestamp = -1;
@@ -7570,6 +7573,9 @@ proto_reg_handoff_tcp(void)
 
     mptcp_tap = register_tap("mptcp");
     exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_4);
+
+    proto_ip = proto_get_id_by_filter_name("ip");
+    proto_icmp = proto_get_id_by_filter_name("icmp");
 }
 
 /*

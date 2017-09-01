@@ -26,8 +26,6 @@
 
 #include "ws_symbol_export.h"
 
-extern int proto_ip;
-
 /*
  * IP Version numbers, from
  *
