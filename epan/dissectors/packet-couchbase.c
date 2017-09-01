@@ -1563,8 +1563,8 @@ dissect_multipath_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (request) {
     gint min_spec_size;
 
-    /* Minimum size is the fixed header plus at least 1 byte for path. */
-    min_spec_size = (is_mutation ? 8 : 4) + 1;
+    /* Minimum size is the fixed header. */
+    min_spec_size = (is_mutation ? 8 : 4);
 
     while (offset + min_spec_size <= end) {
       guint32 path_len;
@@ -1595,9 +1595,11 @@ dissect_multipath_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 4;
       }
 
-      proto_tree_add_item(multipath_tree, hf_multipath_path, tvb, offset, path_len,
-                          ENC_ASCII | ENC_NA);
-      offset += path_len;
+      if (path_len) {
+        proto_tree_add_item(multipath_tree, hf_multipath_path, tvb, offset, path_len,
+                            ENC_ASCII | ENC_NA);
+        offset += path_len;
+      }
 
       if (spec_value_len > 0) {
         proto_tree_add_item(multipath_tree, hf_multipath_value, tvb, offset,
