@@ -368,6 +368,11 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define DSG_DA_TO_DSID_ASSOCIATION_ENTRY 13
 #define CM_STATUS_EVENT_ENABLE_NON_CHANNEL_SPECIFIC_EVENTS 15
 #define EXTENDED_UPSTREAM_TRANSMIT_POWER_SUPPORT 16
+#define CMTS_DOCSIS_VERSION 17
+#define CM_PERIODIC_MAINTENANCE_TIMEOUT_INDICATOR 18
+#define DLS_BROADCAST_AND_MULTICAST_DELIVERY_METHOD 19
+#define CM_STATUS_EVENT_ENABLE_FOR_DOCSIS_3_1_EVENTS 20
+
 
 /*Downstream Active Channel List*/
 #define DOWNSTREAM_ACTIVE_CHANNEL_LIST_CHANNEL_ID 1
@@ -461,6 +466,10 @@ void proto_reg_handoff_docsis_mgmt(void);
 /*Dsg DA to DSID association entry*/
 #define DSG_DA_TO_DSID_ASSOCIATION_DA 1
 #define DSG_DA_TO_DSID_ASSOCIATION_DSID 2
+
+/*CMTS DOCSIS VERSION*/
+#define CMTS_MAJOR_DOCSIS_VERSION 1
+#define CMTS_MINOR_DOCSIS_VERSION 2
 
 /* Define Tukey raised cosine window */
 #define TUKEY_0TS 0
@@ -897,6 +906,26 @@ static int hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_cm_o
 static int hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_cm_returned_to_ac_power = -1;
 static int hf_docsis_mdd_extended_upstream_transmit_power_support = -1;
 
+static int hf_docsis_mdd_cmts_major_docsis_version = -1;
+static int hf_docsis_mdd_cmts_minor_docsis_version = -1;
+
+static int hf_docsis_mdd_cm_periodic_maintenance_timeout_indicator = -1;
+static int hf_docsis_mdd_dls_broadcast_and_multicast_delivery_method = -1;
+static int hf_docsis_mdd_cm_status_event_d31_ofdm_prof_fail = -1;
+static int hf_docsis_mdd_cm_status_event_d31_prim_down_chan_change = -1;
+static int hf_docsis_mdd_cm_status_event_d31_dpd_mismatch = -1;
+static int hf_docsis_mdd_cm_status_event_d31_deprecated = -1;
+static int hf_docsis_mdd_cm_status_event_d31_ncp_prof_fail = -1;
+static int hf_docsis_mdd_cm_status_event_d31_loss_fec_plc = -1;
+static int hf_docsis_mdd_cm_status_event_d31_ncp_prof_recover = -1;
+static int hf_docsis_mdd_cm_status_event_d31_fec_recover_on_plc = -1;
+static int hf_docsis_mdd_cm_status_event_d31_fec_recover_on_ofdm_prof = -1;
+static int hf_docsis_mdd_cm_status_event_d31_ofdma_prof_fail = -1;
+static int hf_docsis_mdd_cm_status_event_d31_map_stor_overflow_ind = -1;
+static int hf_docsis_mdd_cm_status_event_d31_ofdm_map_stor_almost_full_ind = -1;
+static int hf_docsis_mdd_cm_status_event_d31_reserved = -1;
+
+
 static int hf_docsis_bintrngreq_mddsgid = -1;
 static int hf_docsis_bintrngreq_capflags = -1;
 static int hf_docsis_bintrngreq_capflags_frag = -1;
@@ -1080,6 +1109,7 @@ static gint ett_docsis_dcd_tlv = -1;
 static gint ett_docsis_mdd = -1;
 static gint ett_tlv = -1;
 static gint ett_sub_tlv = -1;
+static gint ett_docsis_mdd_cm_status_ev_en_for_docsis31 = -1;
 static gint ett_docsis_mdd_ds_active_channel_list = -1;
 static gint ett_docsis_mdd_ds_service_group = -1;
 static gint ett_docsis_mdd_channel_profile_reporting_control = -1;
@@ -1625,6 +1655,10 @@ static const value_string mdd_tlv_vals[] = {
   {DSG_DA_TO_DSID_ASSOCIATION_ENTRY  ,                   "DSG DA-to-DSID Association Entry"},
   {CM_STATUS_EVENT_ENABLE_NON_CHANNEL_SPECIFIC_EVENTS  , "CM-STATUS Event Enable for Non-Channel-Specific-Events"},
   {EXTENDED_UPSTREAM_TRANSMIT_POWER_SUPPORT  ,           "Extended Upstream Transmit Power Support"},
+  {CMTS_DOCSIS_VERSION  ,                                "CMTS DOCSIS Version"},
+  {CM_PERIODIC_MAINTENANCE_TIMEOUT_INDICATOR  ,          "CM Periodic Maintenance Timeout Indicator"},
+  {DLS_BROADCAST_AND_MULTICAST_DELIVERY_METHOD  ,        "DLS Broadcast and Multicast Delivery Method"},
+  {CM_STATUS_EVENT_ENABLE_FOR_DOCSIS_3_1_EVENTS  ,       "CM-STATUS Event Enable for DOCSIS 3.1 Specific Events"},
   {0, NULL}
 };
 
@@ -1686,6 +1720,20 @@ static const value_string upstream_transmit_power_reporting_vals[] = {
   {CM_REPORTS_TRANSMIT_POWER,       "CM reports transmit power in RNG-REQ, INIT-RNG-REQ, and B-INIT-RNG-REQ messages"},
   {0, NULL}
 };
+
+static const value_string cm_periodic_maintenance_timeout_indicator_vals[] = {
+  {0, "use Unicast Ranging opportunity"},
+  {1, "use Probe opportunity"},
+  {2, "use Unicast Ranging or Probe opportunity"},
+  {0, NULL}
+};
+
+static const value_string dls_broadcast_and_multicast_delivery_method_vals[] = {
+  {1, "delayed selected multicast method"},
+  {2, "selectively replicated multicast method"},
+  {0, NULL}
+};
+
 
 static const value_string mdd_ds_active_channel_list_vals[] = {
   {DOWNSTREAM_ACTIVE_CHANNEL_LIST_CHANNEL_ID, "Channel ID"},
@@ -1954,6 +2002,8 @@ static const value_string ofdma_prof_mod_order[] = {
 
 /* Windows does not allow data copy between dlls */
 static const true_false_string mdd_tfs_on_off = { "On", "Off" };
+static const true_false_string mdd_tfs_en_dis = { "Enabled", "Disabled" };
+
 static const true_false_string tfs_ucd_change_ind_vals = {"Changes", "No changes"};
 
 static const true_false_string tfs_allow_inhibit = { "Inhibit Initial Ranging", "Ranging Allowed" };
@@ -4671,8 +4721,12 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
   proto_tree *mdd_tree;
 
   int pos;
+  guint subpos = 0;
   guint8 type;
   guint32 i, length;
+  guint8 subtype;
+  guint32 sublength;
+
   proto_tree *tlv_tree;
   proto_item *tlv_item;
   static const int * non_channel_events[] = {
@@ -4757,6 +4811,54 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
       break;
     case EXTENDED_UPSTREAM_TRANSMIT_POWER_SUPPORT:
       proto_tree_add_item (tlv_tree, hf_docsis_mdd_extended_upstream_transmit_power_support, tvb, pos, 1, ENC_BIG_ENDIAN);
+      break;
+    case CMTS_DOCSIS_VERSION:
+      subpos = pos;
+      while (subpos < pos + length + 2) {
+        subtype = tvb_get_guint8 (tvb, subpos);
+        sublength = tvb_get_guint8 (tvb, subpos + 1);
+        switch(subtype) {
+          case CMTS_MAJOR_DOCSIS_VERSION:
+            proto_tree_add_item (tlv_tree, hf_docsis_mdd_cmts_major_docsis_version, tvb, subpos + 2, sublength, ENC_NA);
+            break;
+          case CMTS_MINOR_DOCSIS_VERSION:
+            proto_tree_add_item (tlv_tree, hf_docsis_mdd_cmts_minor_docsis_version, tvb, subpos + 2, sublength, ENC_BIG_ENDIAN);
+            break;
+        }
+        subpos += sublength + 2;
+      }
+      break;
+    case CM_PERIODIC_MAINTENANCE_TIMEOUT_INDICATOR:
+      proto_tree_add_item (tlv_tree, hf_docsis_mdd_cm_periodic_maintenance_timeout_indicator, tvb, pos, length, ENC_BIG_ENDIAN);
+      break;
+    case DLS_BROADCAST_AND_MULTICAST_DELIVERY_METHOD:
+      proto_tree_add_item (tlv_tree, hf_docsis_mdd_dls_broadcast_and_multicast_delivery_method, tvb, pos, length, ENC_BIG_ENDIAN);
+      break;
+    case CM_STATUS_EVENT_ENABLE_FOR_DOCSIS_3_1_EVENTS:
+      if (length == 4) {
+        static const int * mdd_cm_status_event_d31[] = {
+          &hf_docsis_mdd_cm_status_event_d31_ofdm_prof_fail,
+          &hf_docsis_mdd_cm_status_event_d31_prim_down_chan_change,
+          &hf_docsis_mdd_cm_status_event_d31_dpd_mismatch,
+          &hf_docsis_mdd_cm_status_event_d31_deprecated,
+          &hf_docsis_mdd_cm_status_event_d31_ncp_prof_fail,
+          &hf_docsis_mdd_cm_status_event_d31_loss_fec_plc,
+          &hf_docsis_mdd_cm_status_event_d31_ncp_prof_recover,
+          &hf_docsis_mdd_cm_status_event_d31_fec_recover_on_plc,
+          &hf_docsis_mdd_cm_status_event_d31_fec_recover_on_ofdm_prof,
+          &hf_docsis_mdd_cm_status_event_d31_ofdma_prof_fail,
+          &hf_docsis_mdd_cm_status_event_d31_map_stor_overflow_ind,
+          &hf_docsis_mdd_cm_status_event_d31_ofdm_map_stor_almost_full_ind,
+          &hf_docsis_mdd_cm_status_event_d31_reserved,
+          NULL
+        };
+
+        proto_tree_add_bitmask_list(tlv_tree, tvb, pos, length, mdd_cm_status_event_d31, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
       break;
     }
 
@@ -7609,6 +7711,92 @@ proto_register_docsis_mgmt (void)
        FT_BOOLEAN, BASE_NONE, TFS(&mdd_tfs_on_off), 0x0,
        "Mdd Extended Upstream Transmit Power Support", HFILL}
     },
+    {&hf_docsis_mdd_cmts_major_docsis_version,
+     { "CMTS Major DOCSIS Version", "docsis_mdd.cmts_major_docsis_version",
+       FT_UINT8, BASE_DEC, NULL, 0x0,
+       NULL, HFILL}
+    },
+    {&hf_docsis_mdd_cmts_minor_docsis_version,
+     { "CMTS Minor DOCSIS Version", "docsis_mdd.cmts_minor_docsis_version",
+       FT_UINT8, BASE_DEC, NULL, 0x0,
+       NULL, HFILL}
+    },
+    {&hf_docsis_mdd_cm_periodic_maintenance_timeout_indicator,
+     { "CM periodic maintenance timeout indicator", "docsis_mdd.cm_periodic_maintenance_timeout_indicator",
+       FT_UINT8, BASE_DEC, VALS(cm_periodic_maintenance_timeout_indicator_vals), 0x0,
+       NULL, HFILL}
+    },
+    {&hf_docsis_mdd_dls_broadcast_and_multicast_delivery_method,
+     { "DLS Broadcast and Multicast Delivery Method", "docsis_mdd.dls_broadcast_and_multicast_delivery_method",
+       FT_UINT8, BASE_DEC, VALS(dls_broadcast_and_multicast_delivery_method_vals), 0x0,
+       NULL, HFILL}
+    },
+    {&hf_docsis_mdd_cm_status_event_d31_ofdm_prof_fail,
+     { "Downstream OFDM Profile Failure", "docsis_mdd.cm_status_event_d31_ofdm_prof_fail",
+       FT_BOOLEAN, 32, TFS(&mdd_tfs_en_dis), 0x01,
+       NULL, HFILL}
+    },
+    {&hf_docsis_mdd_cm_status_event_d31_prim_down_chan_change,
+     { "Primary Downstream Channel Change", "docsis_mdd.cm_status_event_d31_prim_down_chan_change",
+       FT_BOOLEAN, 32, TFS(&mdd_tfs_en_dis), 0x02,
+       NULL, HFILL}
+    },
+    {&hf_docsis_mdd_cm_status_event_d31_dpd_mismatch,
+     { "DPD Mismatch", "docsis_mdd.cm_status_event_d31_dpd_mismatch",
+       FT_BOOLEAN, 32, TFS(&mdd_tfs_en_dis), 0x04,
+       NULL, HFILL}
+    },
+    {&hf_docsis_mdd_cm_status_event_d31_deprecated,
+     { "Deprecated", "docsis_mdd.cm_status_event_d31_deprecated",
+       FT_BOOLEAN, 32, TFS(&mdd_tfs_en_dis), 0x08,
+       NULL, HFILL}
+    },
+    {&hf_docsis_mdd_cm_status_event_d31_ncp_prof_fail,
+     { "NCP Profile Failure", "docsis_mdd.cm_status_event_d31_ncp_prof_fail",
+       FT_BOOLEAN, 32, TFS(&mdd_tfs_en_dis), 0x10,
+       NULL, HFILL}
+    },
+    {&hf_docsis_mdd_cm_status_event_d31_loss_fec_plc,
+     { "Loss of FEC lock on PLC", "docsis_mdd.cm_status_event_d31_loss_fec_plc",
+       FT_BOOLEAN, 32, TFS(&mdd_tfs_en_dis), 0x20,
+       NULL, HFILL}
+    },
+    {&hf_docsis_mdd_cm_status_event_d31_ncp_prof_recover,
+     { "NCP Profile Recovery", "docsis_mdd.cm_status_event_d31_ncp_prof_recover",
+       FT_BOOLEAN, 32, TFS(&mdd_tfs_en_dis), 0x40,
+       NULL, HFILL}
+    },
+    {&hf_docsis_mdd_cm_status_event_d31_fec_recover_on_plc,
+     { "FEC Recovery on PLC", "docsis_mdd.cm_status_event_d31_fec_recover_on_plc",
+       FT_BOOLEAN, 32, TFS(&mdd_tfs_en_dis), 0x80,
+       NULL, HFILL}
+    },
+    {&hf_docsis_mdd_cm_status_event_d31_fec_recover_on_ofdm_prof,
+     { "FEC Recovery on OFDM Profile", "docsis_mdd.cm_status_event_d31_fec_recover_on_ofdm_prof",
+       FT_BOOLEAN, 32, TFS(&mdd_tfs_en_dis), 0x0100,
+       NULL, HFILL}
+    },
+    {&hf_docsis_mdd_cm_status_event_d31_ofdma_prof_fail,
+     { "OFDMA Profile Failure", "docsis_mdd.cm_status_event_d31_ofdma_prof_fail",
+       FT_BOOLEAN, 32, TFS(&mdd_tfs_en_dis), 0x0200,
+       NULL, HFILL}
+    },
+    {&hf_docsis_mdd_cm_status_event_d31_map_stor_overflow_ind,
+     { "MAP Storage Overflow Indicator", "docsis_mdd.cm_status_event_d31_map_stor_overflow_ind",
+       FT_BOOLEAN, 32, TFS(&mdd_tfs_en_dis), 0x0400,
+       NULL, HFILL}
+    },
+    {&hf_docsis_mdd_cm_status_event_d31_ofdm_map_stor_almost_full_ind,
+     { "MAP Storage Almost Full Indicator", "docsis_mdd.cm_status_event_d31_ofdm_map_stor_almost_full_ind",
+       FT_BOOLEAN, 32, TFS(&mdd_tfs_en_dis), 0x0800,
+       NULL, HFILL}
+    },
+    {&hf_docsis_mdd_cm_status_event_d31_reserved,
+     { "Reserved for future use", "docsis_mdd.cm_status_event_d31_reserved",
+       FT_UINT32, BASE_HEX, NULL, 0xFFFFF000,
+       NULL, HFILL}
+    },
+
     /* B_INIT_RNG_REQ */
     {&hf_docsis_bintrngreq_capflags,
      {"Capability Flags", "docsis_bintrngreq.capflags",
@@ -8085,6 +8273,7 @@ proto_register_docsis_mgmt (void)
     &ett_docsis_mdd,
     &ett_tlv,
     &ett_sub_tlv,
+    &ett_docsis_mdd_cm_status_ev_en_for_docsis31,
     &ett_docsis_mdd_ds_active_channel_list,
     &ett_docsis_mdd_ds_service_group,
     &ett_docsis_mdd_channel_profile_reporting_control,
