@@ -212,6 +212,16 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define RNGRSP_RANGING_STATUS 5
 #define RNGRSP_DOWN_FREQ_OVER 6
 #define RNGRSP_UP_CHID_OVER 7
+#define RNGRSP_DYNAMIC_RANGE_WINDOW_UPPER_EDGE 14
+#define RNGRSP_TRANSMIT_EQ_ADJUST_OFDMA_CHANNELS 15
+#define RNGRSP_TRANSMIT_EQ_SET_OFDMA_CHANNELS 16
+#define RNGRSP_COMMANDED_POWER 17
+
+/* Commanded Power Sub TLVs*/
+#define RNGRSP_COMMANDED_POWER_DYNAMIC_RANGE_WINDOW 1
+#define RNGRSP_COMMANDED_POWER_UCID_AND_POWER_LEVEL_LIST 2
+
+
 
 /* BPKM Attributes defined in:
  * http://www.cablemodem.com/downloads/specs/SP-BPI+_I10-030730.pdf
@@ -672,6 +682,18 @@ static int hf_docsis_rngrsp_xmit_eq_adj = -1;
 static int hf_docsis_rngrsp_ranging_status = -1;
 static int hf_docsis_rngrsp_down_freq_over = -1;
 static int hf_docsis_rngrsp_upstream_ch_over = -1;
+static int hf_docsis_rngrsp_dynamic_range_window_upper_edge = -1;
+static int hf_docsis_rngrsp_tlv_unknown = -1;
+static int hf_docsis_rngrsp_trans_eq_data = -1;
+static int hf_docsis_rngrsp_trans_eq_enc_lowest_subc = -1;
+static int hf_docsis_rngrsp_trans_eq_enc_highest_subc = -1;
+static int hf_docsis_rngrsp_trans_eq_enc_coef_real = -1;
+static int hf_docsis_rngrsp_trans_eq_enc_coef_imag = -1;
+static int hf_docsis_rngrsp_commanded_power_data = -1;
+static int hf_docsis_rngrsp_commanded_power_dynamic_range_window = -1;
+static int hf_docsis_rngrsp_commanded_power_ucid = -1;
+static int hf_docsis_rngrsp_commanded_power_trans_pow_lvl = -1;
+
 
 static int hf_docsis_regreq_sid = -1;
 static int hf_docsis_regrsp_sid = -1;
@@ -1000,6 +1022,10 @@ static gint ett_docsis_rngreq = -1;
 
 static gint ett_docsis_rngrsp = -1;
 static gint ett_docsis_rngrsptlv = -1;
+static gint ett_docsis_rngrsp_tlv_transmit_equalization_encodings = -1;
+static gint ett_docsis_rngrsp_tlv_commanded_power_subtlv = -1;
+static gint ett_docsis_rngrsp_tlv_commanded_power = -1;
+
 
 static gint ett_docsis_regreq = -1;
 static gint ett_docsis_regrsp = -1;
@@ -1283,6 +1309,21 @@ static const value_string rng_stat_vals[] = {
   {0, NULL}
 };
 
+static void
+two_compl_frac(
+    char *buf,
+    gint16 value)
+{
+    gint16 frac = value;
+
+
+    g_snprintf(buf, ITEM_LABEL_LENGTH,
+        "%f",
+        frac/16384.0);
+}
+
+
+
 static const value_string rngrsp_tlv_vals[] = {
   {RNGRSP_TIMING,            "Timing Adjust (6.25us/64)"},
   {RNGRSP_PWR_LEVEL_ADJ,     "Power Level Adjust (0.25dB units)"},
@@ -1291,6 +1332,17 @@ static const value_string rngrsp_tlv_vals[] = {
   {RNGRSP_RANGING_STATUS,    "Ranging Status"},
   {RNGRSP_DOWN_FREQ_OVER,    "Downstream Frequency Override (Hz)"},
   {RNGRSP_UP_CHID_OVER,      "Upstream Channel ID Override"},
+  {RNGRSP_DYNAMIC_RANGE_WINDOW_UPPER_EDGE, "Dynamic Range Window Upper Edge"},
+  {RNGRSP_TRANSMIT_EQ_ADJUST_OFDMA_CHANNELS, "Transmit Equalization Adjust for OFDMA Channels"},
+  {RNGRSP_TRANSMIT_EQ_SET_OFDMA_CHANNELS, "Transmit Equalization Set for OFDMA Channels"},
+  {RNGRSP_COMMANDED_POWER, "Commanded Power"},
+  {0, NULL}
+};
+
+
+static const value_string rngrsp_tlv_commanded_power_subtlv_vals[] = {
+  {RNGRSP_COMMANDED_POWER_DYNAMIC_RANGE_WINDOW, "Dynamic Range Window"},
+  {RNGRSP_COMMANDED_POWER_UCID_AND_POWER_LEVEL_LIST, "List of Upstream Channel IDs and Corresponding Transmit Power Levels"},
   {0, NULL}
 };
 
@@ -2660,6 +2712,84 @@ dissect_rngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   return tvb_captured_length(tvb);
 }
 
+static void
+dissect_rngrsp_transmit_equalization_encodings(tvbuff_t * tvb, proto_tree * tree, guint8 start, guint16 len)
+{
+  guint16 i;
+  proto_item *it;
+  proto_tree *transmit_equalization_encodings_tree;
+
+  it = proto_tree_add_item(tree, hf_docsis_rngrsp_trans_eq_data, tvb, start-2, len+2, ENC_NA);
+  transmit_equalization_encodings_tree = proto_item_add_subtree (it, ett_docsis_rngrsp_tlv_transmit_equalization_encodings);
+
+  proto_tree_add_item (transmit_equalization_encodings_tree, hf_docsis_rngrsp_trans_eq_enc_lowest_subc, tvb, start, 3, ENC_BIG_ENDIAN);
+  proto_tree_add_item (transmit_equalization_encodings_tree, hf_docsis_rngrsp_trans_eq_enc_highest_subc, tvb, start, 3, ENC_BIG_ENDIAN);
+  for(i=3; i < len; i+=4) {
+    proto_tree_add_item (transmit_equalization_encodings_tree, hf_docsis_rngrsp_trans_eq_enc_coef_real, tvb, start + i, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item (transmit_equalization_encodings_tree, hf_docsis_rngrsp_trans_eq_enc_coef_imag, tvb, start + i + 2, 2, ENC_BIG_ENDIAN);
+  }
+}
+
+static void
+dissect_rngrsp_commanded_power(tvbuff_t * tvb, proto_tree * tree, guint8 start, guint16 len)
+{
+  guint16 pos;
+  guint16 i;
+  guint8 tlvtype, tlvlen;
+  proto_item *it;
+  proto_tree *commanded_power_tree;
+  proto_tree *commanded_power_subtlv_tree;
+  proto_item *rngrsptlv_commanded_power_subtlv;
+
+
+  it = proto_tree_add_item(tree, hf_docsis_rngrsp_commanded_power_data, tvb, start-2, len+2, ENC_NA);
+  commanded_power_tree = proto_item_add_subtree (it, ett_docsis_rngrsp_tlv_commanded_power);
+
+
+  pos = start;
+  while (pos < start + len)
+  {
+    tlvtype = tvb_get_guint8 (tvb, pos);
+    commanded_power_subtlv_tree = proto_tree_add_subtree(commanded_power_tree, tvb, pos, -1,
+                                  ett_docsis_rngrsp_tlv_commanded_power_subtlv, &rngrsptlv_commanded_power_subtlv,
+                                  val_to_str(tlvtype, rngrsp_tlv_commanded_power_subtlv_vals,
+                                  "Unknown TLV (%u)"));
+    pos++;
+    tlvlen = tvb_get_guint8 (tvb, pos);
+    pos++;
+
+    switch (tlvtype)
+    {
+      case RNGRSP_COMMANDED_POWER_DYNAMIC_RANGE_WINDOW:
+        if (tlvlen == 1)
+        {
+          proto_tree_add_item (commanded_power_subtlv_tree,
+                                    hf_docsis_rngrsp_commanded_power_dynamic_range_window, tvb, pos,
+                                    tlvlen, ENC_BIG_ENDIAN);
+        }
+        break;
+      case RNGRSP_COMMANDED_POWER_UCID_AND_POWER_LEVEL_LIST:
+        if ((tlvlen %3)== 0)
+        {
+          for(i=0; i < tlvlen; i+=3)
+          {
+             proto_tree_add_item (commanded_power_subtlv_tree,
+                                      hf_docsis_rngrsp_commanded_power_ucid, tvb, pos + i,
+                                      1, ENC_BIG_ENDIAN);
+             proto_tree_add_item (commanded_power_subtlv_tree,
+                                      hf_docsis_rngrsp_commanded_power_trans_pow_lvl, tvb, pos + i +1,
+                                      2, ENC_BIG_ENDIAN);
+          }
+        }
+        break;
+      }
+      pos += tlvlen;
+  }
+}
+
+
+
+
 static int
 dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
@@ -2696,9 +2826,14 @@ dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
                                   "Unknown TLV (%u)"));
     proto_tree_add_uint (rngrsptlv_tree, hf_docsis_rngrsp_type, tvb, pos, 1, tlvtype);
     pos++;
-    proto_tree_add_item_ret_uint (rngrsptlv_tree, hf_docsis_rngrsp_length,
-                           tvb, pos, 1, ENC_NA, &tlvlen);
-    pos++;
+    tlvlen = tvb_get_guint8 (tvb, pos);
+    if  (tlvtype == RNGRSP_TRANSMIT_EQ_ADJUST_OFDMA_CHANNELS || tlvtype == RNGRSP_TRANSMIT_EQ_SET_OFDMA_CHANNELS) {
+      proto_tree_add_item_ret_uint (rngrsptlv_tree, hf_docsis_rngrsp_length, tvb, pos, 2, ENC_NA, &tlvlen);
+      pos += 2;
+    } else {
+      proto_tree_add_item_ret_uint (rngrsptlv_tree, hf_docsis_rngrsp_length, tvb, pos, 1, ENC_NA, &tlvlen);
+      pos++;
+    }
     proto_item_set_len(rngrsptlv_item, tlvlen + 2);
     switch (tlvtype)
     {
@@ -2741,8 +2876,26 @@ dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
         proto_tree_add_item (rngrsptlv_tree, hf_docsis_rngrsp_upstream_ch_over, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
       }
       break;
-    default:
-      ;
+     case RNGRSP_DYNAMIC_RANGE_WINDOW_UPPER_EDGE:
+       if (tlvlen == 1)
+         proto_tree_add_item (rngrsptlv_tree, hf_docsis_rngrsp_dynamic_range_window_upper_edge, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+       else
+       {
+         expert_add_info_format(pinfo, rngrsptlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", tlvlen);
+       }
+       break;
+     case RNGRSP_TRANSMIT_EQ_ADJUST_OFDMA_CHANNELS:
+       dissect_rngrsp_transmit_equalization_encodings(tvb, rngrsptlv_tree, pos, tlvlen);
+       break;
+     case RNGRSP_TRANSMIT_EQ_SET_OFDMA_CHANNELS:
+       dissect_rngrsp_transmit_equalization_encodings(tvb, rngrsptlv_tree, pos, tlvlen);
+       break;
+     case RNGRSP_COMMANDED_POWER:
+       dissect_rngrsp_commanded_power(tvb, rngrsptlv_tree, pos, tlvlen);
+       break;
+
+     default:
+       proto_tree_add_item (rngrsp_tree, hf_docsis_rngrsp_tlv_unknown, tvb, pos, tlvlen, ENC_NA);
     }                   /* switch(tlvtype) */
     pos += tlvlen;
   }                       /* while (tvb_reported_length_remaining(tvb, pos) > 0) */
@@ -6103,6 +6256,62 @@ proto_register_docsis_mgmt (void)
       FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL}
      },
+    {&hf_docsis_rngrsp_dynamic_range_window_upper_edge,
+     {"Dynamic Range Window Upper Edge (in units of 0.25 db below the max allowable setting)", "docsis_rngrsp.dynamic_range_window_upper_edge",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Dynamic Range Window Upper EDGE", HFILL}
+     },
+    {&hf_docsis_rngrsp_tlv_unknown,
+     {"Unknown TLV", "docsis_rngrsp.tlv.unknown",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_rngrsp_trans_eq_data,
+     {"Transmit equalization data", "docsis_rngrsp.tlv.trans_eq_data",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_rngrsp_trans_eq_enc_lowest_subc,
+     {"Lowest Subcarrier for this TLV", "docsis_rngrsp.tlv.trans_eq_enc_lowest_subc",
+      FT_UINT24, BASE_DEC, NULL, 0xFFF000,
+      NULL, HFILL}
+    },
+    {&hf_docsis_rngrsp_trans_eq_enc_highest_subc,
+     {"Highest Subcarrier for this TLV", "docsis_rngrsp.tlv.trans_eq_enc_highest_subc",
+      FT_UINT24, BASE_DEC, NULL, 0x0FFF,
+      NULL, HFILL}
+    },
+    {&hf_docsis_rngrsp_trans_eq_enc_coef_real,
+     {"Coefficient (real)", "docsis_rngrsp.tlv.trans_eq_enc_coef_real",
+      FT_INT16, BASE_CUSTOM, CF_FUNC(two_compl_frac), 0x000,
+      NULL, HFILL}
+    },
+    {&hf_docsis_rngrsp_trans_eq_enc_coef_imag,
+     {"Coefficient (imag)", "docsis_rngrsp.tlv.trans_eq_enc_coef_imag",
+      FT_INT16, BASE_CUSTOM, CF_FUNC(two_compl_frac), 0x000,
+      NULL, HFILL}
+    },
+    {&hf_docsis_rngrsp_commanded_power_data,
+     {"Commanded Power Data", "docsis_rngrsp.tlv.comm_pwr_data",
+      FT_BYTES, BASE_NONE, NULL, 0x00,
+      NULL, HFILL}
+    },
+    {&hf_docsis_rngrsp_commanded_power_dynamic_range_window,
+     {"Dynamic Range Window", "docsis_rngrsp.tlv.comm_pwr_dyn_range_window",
+      FT_INT8, BASE_DEC, NULL, 0x00,
+      NULL, HFILL}
+    },
+    {&hf_docsis_rngrsp_commanded_power_ucid,
+     {"UCID", "docsis_rngrsp.tlv.comm_pwr_ucid",
+      FT_INT8, BASE_DEC, NULL, 0x00,
+      NULL, HFILL}
+    },
+    {&hf_docsis_rngrsp_commanded_power_trans_pow_lvl,
+     {"Transmit Power Level (quarter dBmV)", "docsis_rngrsp.tlv.comm_pwr_trans_pow_lvl",
+      FT_INT16, BASE_DEC, NULL, 0x00,
+      NULL, HFILL}
+    },
+
      /* REG_REQ */
     {&hf_docsis_regreq_sid,
      {"Service Identifier", "docsis_regreq.sid",
@@ -7830,6 +8039,9 @@ proto_register_docsis_mgmt (void)
     &ett_docsis_rngreq,
     &ett_docsis_rngrsp,
     &ett_docsis_rngrsptlv,
+    &ett_docsis_rngrsp_tlv_transmit_equalization_encodings,
+    &ett_docsis_rngrsp_tlv_commanded_power,
+    &ett_docsis_rngrsp_tlv_commanded_power_subtlv,
     &ett_docsis_regreq,
     &ett_docsis_regrsp,
     &ett_docsis_uccreq,
