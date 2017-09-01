@@ -88,6 +88,13 @@ typedef struct _ws_ip6
 
 #define WS_IP6_PTR(p)         ((ws_ip6 *)(((p) && *(guint8 *)(p) == 6) ? (p) : NULL))
 
+struct ws_rthdr {
+    struct ip6_rthdr hdr;
+    proto_item *ti_len;
+    proto_item *ti_type;
+    proto_item *ti_segleft;
+};
+
 typedef ws_ip6 ipv6_tap_info_t;
 
 /* Packet info for shared state between IPv6 header and extensions */
