@@ -92,6 +92,7 @@ static int hf_quic_frame_type_msi_stream_id = -1;
 static int hf_quic_frame_type_sb_stream_id = -1;
 static int hf_quic_frame_type_nci_sequence = -1;
 static int hf_quic_frame_type_nci_connection_id = -1;
+static int hf_quic_frame_type_nci_stateless_reset_token = -1;
 
 static int hf_quic_hash = -1;
 
@@ -622,9 +623,12 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
                 proto_tree_add_item(ft_tree, hf_quic_frame_type_nci_connection_id, tvb, offset, 8, ENC_BIG_ENDIAN);
                 offset += 8;
 
-                proto_item_set_len(ti_ft, 1 + 2 + 8);
+                proto_tree_add_item(ft_tree, hf_quic_frame_type_nci_stateless_reset_token, tvb, offset, 16, ENC_NA);
+                offset += 16;
 
-                col_prepend_fstr(pinfo->cinfo, COL_INFO, "Stream Blocked");
+                proto_item_set_len(ti_ft, 1 + 2 + 8 + 16);
+
+                col_prepend_fstr(pinfo->cinfo, COL_INFO, "New Connection ID");
 
             }
             break;
@@ -1021,6 +1025,11 @@ proto_register_quic(void)
         { &hf_quic_frame_type_nci_connection_id,
             { "Connection ID", "quic.frame_type.nci.connection_id",
               FT_UINT64, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_quic_frame_type_nci_stateless_reset_token,
+            { "Stateless Reset Token", "quic.frame_type.stateless_reset_token",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_quic_hash,
