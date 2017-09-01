@@ -1465,15 +1465,6 @@ install_portaudio() {
         gzcat $PORTAUDIO_VERSION.tgz | tar xf - || exit 1
         cd portaudio
         #
-        # Un-comment an include that's required on Lion.
-        #
-        patch -p0 include/pa_mac_core.h <../../macosx-support-lib-patches/portaudio-pa_mac_core.h.patch
-        #
-        # Fix a bug that showed up with clang (but is a bug with any
-        # compiler).
-        #
-        patch -p0 src/hostapi/coreaudio/pa_mac_core.c <../../macosx-support-lib-patches/portaudio-pa_mac_core.c.patch
-        #
         # Disable fat builds - the configure script doesn't work right
         # with Xcode 4 if you leave them enabled, and we don't build
         # any other libraries fat (GLib, for example, would be very
