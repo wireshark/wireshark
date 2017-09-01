@@ -2228,6 +2228,8 @@ static const value_string kerberos_ENCTYPE_vals[] = {
   {  16, "eTYPE-DES3-CBC-SHA1" },
   {  17, "eTYPE-AES128-CTS-HMAC-SHA1-96" },
   {  18, "eTYPE-AES256-CTS-HMAC-SHA1-96" },
+  {  19, "eTYPE-AES128-CTS-HMAC-SHA256-128" },
+  {  20, "eTYPE-AES256-CTS-HMAC-SHA384-192" },
   {  23, "eTYPE-ARCFOUR-HMAC-MD5" },
   {  24, "eTYPE-ARCFOUR-HMAC-MD5-56" },
   {  25, "eTYPE-CAMELLIA128-CTS-CMAC" },
