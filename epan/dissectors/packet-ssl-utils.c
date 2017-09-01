@@ -1408,6 +1408,7 @@ const value_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_IDLE_TIMEOUT, "idle_timeout" },
     { SSL_HND_QUIC_TP_OMIT_CONNECTION_ID, "omit_connection_id" },
     { SSL_HND_QUIC_TP_MAX_PACKET_SIZE, "max_packet_size" },
+    { SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN, "stateless_reset_token" },
     { 0, NULL }
 };
 
@@ -6347,6 +6348,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
      *     idle_timeout(3),
      *     truncate_connection_id(4),
      *     max_packet_size(5),
+     *     stateless_reset_token(6),
      *     (65535)
      *  } TransportParameterId;
      *
@@ -6462,6 +6464,11 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                 proto_item_append_text(parameter_tree, " %u", tvb_get_ntohs(tvb, offset));
                 /*TODO display expert info about invalid value (< 1252 or >65527) ? */
                 offset += 2;
+            break;
+            case SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN:
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_stateless_reset_token,
+                                    tvb, offset, 16, ENC_BIG_ENDIAN);
+                offset += 16;
             break;
             default:
                 offset += parameter_length;

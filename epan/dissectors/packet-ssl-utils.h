@@ -210,6 +210,7 @@ typedef enum {
 #define SSL_HND_QUIC_TP_IDLE_TIMEOUT                    3
 #define SSL_HND_QUIC_TP_OMIT_CONNECTION_ID              4
 #define SSL_HND_QUIC_TP_MAX_PACKET_SIZE                 5
+#define SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN           6
 /*
  * Lookup tables
  */
@@ -842,6 +843,7 @@ typedef struct ssl_common_dissect {
         gint hs_ext_quictp_parameter_initial_max_stream_id;
         gint hs_ext_quictp_parameter_idle_timeout;
         gint hs_ext_quictp_parameter_max_packet_size;
+        gint hs_ext_quictp_parameter_stateless_reset_token;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_HF_LIST! */
     } hf;
@@ -1038,7 +1040,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1,                             \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,                         \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1818,6 +1820,11 @@ ssl_common_dissect_t name = {   \
       { "max_packet_size", prefix ".quic.parameter.max_packet_size",    \
         FT_UINT16, BASE_DEC, NULL, 0x00,                                \
         "Indicates that packets larger than this limit will be dropped", HFILL }    \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_stateless_reset_token,         \
+      { "stateless_reset_token", prefix ".quic.parameter.stateless_reset_token",    \
+        FT_BYTES, BASE_NONE, NULL, 0x00,                                \
+        "Used in verifying a stateless reset", HFILL }                  \
     }
 /* }}} */
 
