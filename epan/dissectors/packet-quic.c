@@ -93,6 +93,8 @@ static int hf_quic_frame_type_sb_stream_id = -1;
 static int hf_quic_frame_type_nci_sequence = -1;
 static int hf_quic_frame_type_nci_connection_id = -1;
 static int hf_quic_frame_type_nci_stateless_reset_token = -1;
+static int hf_quic_frame_type_ss_stream_id = -1;
+static int hf_quic_frame_type_ss_error_code = -1;
 
 static int hf_quic_hash = -1;
 
@@ -152,6 +154,7 @@ static const value_string quic_long_packet_type_vals[] = {
 #define FT_STREAM_BLOCKED   0x09
 #define FT_STREAM_ID_NEEDED 0x0a
 #define FT_NEW_CONNECTION_ID 0x0b
+#define FT_STOP_SENDING     0x0c
 #define FT_ACK_MIN          0xa0
 #define FT_ACK_MAX          0xbf
 #define FT_STREAM_MIN       0xc0
@@ -169,6 +172,7 @@ static const range_string quic_frame_type_vals[] = {
     { 0x09, 0x09,   "STREAM_BLOCKED" },
     { 0x0a, 0x0a,   "STREAM_ID_NEEDED" },
     { 0x0b, 0x0b,   "NEW_CONNECTION_ID" },
+    { 0x0c, 0x0c,   "STOP_SENDING" },
     { 0xa0, 0xbf,   "ACK" },
     { 0xc0, 0xff,   "STREAM" },
     { 0,    0,        NULL },
@@ -632,6 +636,20 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
 
             }
             break;
+            case FT_STOP_SENDING:{
+
+                proto_tree_add_item(ft_tree, hf_quic_frame_type_ss_stream_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+
+                proto_tree_add_item(ft_tree, hf_quic_frame_type_ss_error_code, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+
+                proto_item_set_len(ti_ft, 1 + 4 + 4 + 16);
+
+                col_prepend_fstr(pinfo->cinfo, COL_INFO, "Stop Sending");
+
+            }
+            break;
             default:
                 expert_add_info_format(pinfo, ti_ft, &ei_quic_ft_unknown, "Unknown Frame Type %u", frame_type);
             break;
@@ -1032,6 +1050,18 @@ proto_register_quic(void)
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
+        /* STOP_SENDING */
+        { &hf_quic_frame_type_ss_stream_id,
+            { "Stream ID", "quic.frame_type.ss.stream_id",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              "Stream ID of the stream being ignored", HFILL }
+        },
+        { &hf_quic_frame_type_ss_error_code,
+            { "Error code", "quic.frame_type.ss.error_code",
+              FT_UINT32, BASE_DEC|BASE_EXT_STRING, &quic_error_code_vals_ext, 0x0,
+              "Indicates why the sender is ignoring the stream", HFILL }
+        },
+
         { &hf_quic_hash,
           { "Hash", "quic.hash",
             FT_BYTES, BASE_NONE, NULL, 0x0,
