@@ -672,6 +672,18 @@ typedef struct rsvp_session_ipv4_uni_info {
     guint32 ext_tunnel_id;
 } rsvp_session_ipv4_uni_info;
 
+typedef struct rsvp_session_ipv4_p2mp_lsp_info {
+    address destination;
+    guint16 udp_dest_port;
+    guint32 ext_tunnel_id;
+} rsvp_session_ipv4_p2mp_lsp_info;
+
+typedef struct rsvp_session_ipv6_p2mp_lsp_info {
+    address destination;
+    guint16 udp_dest_port;
+    guint64 ext_tunnel_id;
+} rsvp_session_ipv6_p2mp_lsp_info;
+
 typedef struct rsvp_session_ipv4_enni_info {
     address destination;
     guint16 udp_dest_port;
@@ -702,6 +714,8 @@ struct rsvp_request_key {
         rsvp_session_ipv6_lsp_info session_ipv6_lsp;
         rsvp_session_agg_ipv4_info session_agg_ipv4;
         rsvp_session_ipv4_uni_info session_ipv4_uni;
+        rsvp_session_ipv4_p2mp_lsp_info session_ipv4_p2mp_lsp;
+        rsvp_session_ipv6_p2mp_lsp_info session_ipv6_p2mp_lsp;
         rsvp_session_ipv4_enni_info session_ipv4_enni;
     } u;
 
@@ -1986,6 +2000,38 @@ rsvp_equal(gconstpointer k1, gconstpointer k2)
 
         if (key1->u.session_ipv4_uni.ext_tunnel_id !=
             key2->u.session_ipv4_uni.ext_tunnel_id)
+            return 0;
+
+        break;
+
+    case RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV4:
+        if (addresses_equal(&key1->u.session_ipv4_p2mp_lsp.destination,
+                            &key2->u.session_ipv4_p2mp_lsp.destination) == FALSE)
+            return 0;
+
+        if (key1->u.session_ipv4_p2mp_lsp.udp_dest_port !=
+            key2->u.session_ipv4_p2mp_lsp.udp_dest_port)
+            return 0;
+
+
+        if (key1->u.session_ipv4_p2mp_lsp.ext_tunnel_id !=
+            key2->u.session_ipv4_p2mp_lsp.ext_tunnel_id)
+            return 0;
+
+        break;
+
+    case RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV6:
+        if (addresses_equal(&key1->u.session_ipv6_p2mp_lsp.destination,
+                            &key2->u.session_ipv6_p2mp_lsp.destination) == FALSE)
+            return 0;
+
+        if (key1->u.session_ipv6_p2mp_lsp.udp_dest_port !=
+            key2->u.session_ipv6_p2mp_lsp.udp_dest_port)
+            return 0;
+
+
+        if (key1->u.session_ipv6_p2mp_lsp.ext_tunnel_id !=
+            key2->u.session_ipv6_p2mp_lsp.ext_tunnel_id)
             return 0;
 
         break;
@@ -7869,6 +7915,22 @@ dissect_rsvp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
         request_key.u.session_ipv4_uni.ext_tunnel_id = rsvph->ext_tunnel_id;
         break;
 
+    case RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV4:
+        set_address(&request_key.u.session_ipv4_p2mp_lsp.destination,
+                    rsvph->destination.type, rsvph->destination.len,
+                    rsvph->destination.data);
+        request_key.u.session_ipv4_p2mp_lsp.udp_dest_port = rsvph->udp_dest_port;
+        request_key.u.session_ipv4_p2mp_lsp.ext_tunnel_id = rsvph->ext_tunnel_id;
+        break;
+
+    case RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV6:
+        set_address(&request_key.u.session_ipv6_p2mp_lsp.destination,
+                    rsvph->destination.type, rsvph->destination.len,
+                    rsvph->destination.data);
+        request_key.u.session_ipv6_p2mp_lsp.udp_dest_port = rsvph->udp_dest_port;
+        request_key.u.session_ipv6_p2mp_lsp.ext_tunnel_id = rsvph->ext_tunnel_id_ipv6_pre;
+        break;
+
     case RSVP_SESSION_TYPE_IPV4_E_NNI:
         set_address(&request_key.u.session_ipv4_enni.destination,
                     rsvph->destination.type, rsvph->destination.len,
@@ -7910,6 +7972,14 @@ dissect_rsvp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
         case RSVP_SESSION_TYPE_IPV4_UNI:
             copy_address_wmem(wmem_file_scope(), &new_request_key->u.session_ipv4_uni.destination,
                               &request_key.u.session_ipv4_uni.destination);
+            break;
+        case RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV4:
+            copy_address_wmem(wmem_file_scope(), &new_request_key->u.session_ipv4_p2mp_lsp.destination,
+                              &request_key.u.session_ipv4_p2mp_lsp.destination);
+            break;
+        case RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV6:
+            copy_address_wmem(wmem_file_scope(), &new_request_key->u.session_ipv6_p2mp_lsp.destination,
+                              &request_key.u.session_ipv6_p2mp_lsp.destination);
             break;
         case RSVP_SESSION_TYPE_IPV4_E_NNI:
             copy_address_wmem(wmem_file_scope(), &new_request_key->u.session_ipv4_enni.destination,
