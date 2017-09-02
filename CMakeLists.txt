@@ -3027,6 +3027,26 @@ install(
 		${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}
 )
 
+set(SHARK_PUBLIC_HEADERS
+	cfile.h
+	file.h
+	register.h
+	globals.h
+	log.h
+	ws_symbol_export.h
+	ws_attributes.h
+	ws_diag_control.h
+)
+
+if(NOT WIN32)
+	install(
+		FILES
+			${SHARK_PUBLIC_HEADERS}
+		DESTINATION
+			${CMAKE_INSTALL_INCLUDEDIR}/${CPACK_PACKAGE_NAME}
+	)
+endif()
+
 # Install icons and other desktop files for Freedesktop.org-compliant desktops.
 if(((BUILD_wireshark AND QT_FOUND) OR BUILD_wireshark_gtk) AND NOT (WIN32 OR APPLE))
 	install(FILES wireshark-mime-package.xml

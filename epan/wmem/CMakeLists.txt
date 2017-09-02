@@ -24,6 +24,23 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+set(WMEM_PUBLIC_HEADERS
+	wmem.h
+	wmem_array.h
+	wmem_core.h
+	wmem_list.h
+	wmem_map.h
+	wmem_miscutl.h
+	wmem_queue.h
+	wmem_scopes.h
+	wmem_stack.h
+	wmem_strbuf.h
+	wmem_strutl.h
+	wmem_tree.h
+	wmem_interval_tree.h
+	wmem_user_cb.h
+)
+
 set(WMEM_FILES
 	wmem_array.c
 	wmem_core.c
@@ -69,6 +86,12 @@ set_target_properties(wmem_test PROPERTIES
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
 	COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}"
 )
+
+if(NOT WIN32)
+	install(FILES ${WMEM_PUBLIC_HEADERS}
+		DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${CPACK_PACKAGE_NAME}/epan/wmem"
+	)
+endif()
 
 CHECKAPI(
 	NAME

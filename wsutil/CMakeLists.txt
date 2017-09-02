@@ -21,6 +21,64 @@
 
 include(UseABICheck)
 
+set(WSUTIL_PUBLIC_HEADERS
+	adler32.h
+	base32.h
+	base64.h
+	bits_count_ones.h
+	bits_ctz.h
+	bitswap.h
+	buffer.h
+	clopts_common.h
+	cmdarg_err.h
+	color.h
+	copyright_info.h
+	cpu_info.h
+	crash_info.h
+	crc6.h
+	crc7.h
+	crc8.h
+	crc10.h
+	crc11.h
+	crc16.h
+	crc16-plain.h
+	crc32.h
+	eax.h
+	filesystem.h
+	frequency-utils.h
+	g711.h
+	glib-compat.h
+	inet_addr.h
+	inet_ipv6.h
+	interface.h
+	jsmn.h
+	mpeg-audio.h
+	nstime.h
+	os_version_info.h
+	pint.h
+	plugins.h
+	privileges.h
+	processes.h
+	report_message.h
+	sign_ext.h
+	sober128.h
+	socket.h
+	str_util.h
+	strnatcmp.h
+	strtoi.h
+	tempfile.h
+	time_util.h
+	type_util.h
+	unicode-utils.h
+	utf8_entities.h
+	ws_cpuid.h
+	ws_mempbrk.h
+	ws_mempbrk_int.h
+	ws_printf.h
+	wsjsmn.h
+	xtea.h
+)
+
 set(WSUTIL_COMMON_FILES
 	adler32.c
 	airpdcap_wep.c
@@ -244,6 +302,12 @@ if(NOT ${ENABLE_STATIC})
 		LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 		RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
 		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	)
+endif()
+
+if(NOT WIN32)
+	install(FILES ${WSUTIL_PUBLIC_HEADERS}
+		DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${CPACK_PACKAGE_NAME}/wsutil"
 	)
 endif()
 

@@ -13,11 +13,10 @@ used for troubleshooting, analysis, development and education.
 
 == What's New
 
- * It's now possible to build plugins out-of-tree on Unix-like systems using
-   autotools (i.e. building Wireshark with autotools will install the necessary
-   dependencies). A pkg-config file is provided to help with this. Only epan plugins
-   supported for now, other types will be added in the future. Note you must still
-   rebuild all plugins between minor releases (X.Y).
+* The installation step for Wireshark will now install headers required to
+  build plugins. A pkg-config file is provided to help with this. Only libwireshark
+  plugins supported for now, other types will be added in the future. Note you
+  must still rebuild all plugins between minor releases (X.Y).
 
 //=== Bug Fixes
 

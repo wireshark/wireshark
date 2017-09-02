@@ -72,6 +72,128 @@ add_custom_command(
 		${CMAKE_CURRENT_SOURCE_DIR}/print.ps
 )
 
+set(LIBWIRESHARK_PUBLIC_HEADERS
+	addr_and_mask.h
+	addr_resolv.h
+	address.h
+	address_types.h
+	afn.h
+	aftypes.h
+	app_mem_usage.h
+	arcnet_pids.h
+	arptypes.h
+	asn1.h
+	ax25_pids.h
+	bridged_pids.h
+	capture_dissectors.h
+	charsets.h
+	chdlctypes.h
+	circuit.h
+	color_filters.h
+	column.h
+	column-info.h
+	column-utils.h
+	conversation.h
+	conversation_debug.h
+	conversation_table.h
+	conv_id.h
+	crc10-tvb.h
+	crc16-tvb.h
+	crc32-tvb.h
+	crc6-tvb.h
+	crc8-tvb.h
+	decode_as.h
+	diam_dict.h
+	disabled_protos.h
+	dissector_filters.h
+	dtd.h
+	dtd_parse.h
+	dvb_chartbl.h
+	dwarf.h
+	eap.h
+	eapol_keydes_types.h
+	epan.h
+	epan_dissect.h
+	etypes.h
+	ex-opt.h
+	except.h
+	exceptions.h
+	expert.h
+	export_object.h
+	exported_pdu.h
+	plugin_if.h
+	filter_expressions.h
+	follow.h
+	frame_data.h
+	frame_data_sequence.h
+	funnel.h
+	garrayfix.h
+	geoip_db.h
+	golay.h
+	guid-utils.h
+	iana_charsets.h
+	iax2_codec_type.h
+	in_cksum.h
+	ip_opts.h
+	ipproto.h
+	ipv4.h
+	ipv6.h
+	lapd_sapi.h
+	llcsaps.h
+	media_params.h
+	next_tvb.h
+	nlpid.h
+	oids.h
+	osi-utils.h
+	oui.h
+	packet.h
+	packet_info.h
+	params.h
+	ppptypes.h
+	print.h
+	print_stream.h
+	prefs.h
+	prefs-int.h
+	proto.h
+	proto_data.h
+	ps.h
+	ptvcursor.h
+	range.h
+	reassemble.h
+	reedsolomon.h
+	req_resp_hdrs.h
+	rtd_table.h
+	rtp_pt.h
+	sctpppids.h
+	show_exception.h
+	slow_protocol_subtypes.h
+	sminmpec.h
+	srt_table.h
+	stat_tap_ui.h
+	stat_groups.h
+	stats_tree.h
+	stats_tree_priv.h
+	stream.h
+	strutil.h
+	t35.h
+	tap.h
+	tap-voip.h
+	timestamp.h
+	timestats.h
+	tfs.h
+	time_fmt.h
+	to_str.h
+	tvbparse.h
+	tvbuff.h
+	tvbuff-int.h
+	uat.h
+	uat-int.h
+	unit_strings.h
+	value_string.h
+	x264_prt_id.h
+	xdlc.h
+)
+
 set(LIBWIRESHARK_FILES
 	addr_and_mask.c
 	addr_resolv.c
@@ -307,6 +429,12 @@ if(NOT ${ENABLE_STATIC})
 		LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 		RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
 		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	)
+endif()
+
+if(NOT WIN32)
+	install(FILES ${LIBWIRESHARK_PUBLIC_HEADERS}
+		DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${CPACK_PACKAGE_NAME}/epan"
 	)
 endif()
 

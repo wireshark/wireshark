@@ -24,6 +24,10 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+set(FTYPE_PUBLIC_HEADERS
+	ftypes.h
+)
+
 set(FTYPE_FILES
 	ftypes.c
 	ftype-bytes.c
@@ -56,6 +60,12 @@ set_target_properties(ftypes PROPERTIES
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
 	COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}"
 )
+
+if(NOT WIN32)
+	install(FILES ${FTYPE_PUBLIC_HEADERS}
+		DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${CPACK_PACKAGE_NAME}/epan/ftypes"
+	)
+endif()
 
 CHECKAPI(
 	NAME
