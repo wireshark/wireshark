@@ -1637,7 +1637,7 @@ add_content_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint32 va
             proto_tree_add_string(tree, hf_hdr_content_type,
                     tvb, hdr_start, offset - hdr_start,
                     val_str);
-            *textual_content = g_strdup(val_str);
+            *textual_content = wmem_strdup(pinfo->pool, val_str);
             *well_known_content = 0;
         } else {
             proto_tree_add_string(tree, hf_hdr_content_type,
@@ -1658,7 +1658,7 @@ add_content_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint32 va
                     tvb, hdr_start, offset - hdr_start, val_str);
             }
             /* Following statement: required? */
-            *textual_content = g_strdup(val_str);
+            *textual_content = wmem_strdup(pinfo->pool, val_str);
             *well_known_content = 0;
         } else if (is_integer_value(peek)) {
             get_integer_value(val, tvb, off, len, ok);
