@@ -1535,7 +1535,6 @@ DISSECTOR_INCLUDES = \
 	packet-dcerpc-tapi.h	\
 	packet-dcom.h		\
 	packet-dcom-dispatch.h	\
-	packet-dcm.h		\
 	packet-diameter.h	\
 	packet-diameter_3gpp.h	\
 	packet-diffserv-mpls-common.h	\

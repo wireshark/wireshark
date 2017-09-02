@@ -155,6 +155,14 @@ static dissector_handle_t imf_handle;
 
 static expert_field ei_imf_unknown_param = EI_INIT;
 
+/* Used for IMF Export Object feature */
+typedef struct _imf_eo_t {
+  gchar    *filename;
+  gchar    *sender_data;
+  gchar    *subject_data;
+  guint32  payload_len;
+  gchar    *payload_data;
+} imf_eo_t;
 
 static gboolean
 imf_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)

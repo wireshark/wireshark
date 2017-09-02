@@ -225,8 +225,6 @@
 
 #include "packet-tcp.h"
 
-#include "packet-dcm.h"
-
 void proto_register_dcm(void);
 void proto_reg_handoff_dcm(void);
 
@@ -389,6 +387,16 @@ static const value_string user_identify_type_vals[] = {
     { 4, "SAML Assertion" },
     { 0, NULL }
 };
+
+/* Used for DICOM Export Object feature */
+typedef struct _dicom_eo_t {
+	guint32  pkt_num;
+	gchar   *hostname;
+	gchar   *filename;
+	gchar   *content_type;
+	guint32  payload_len;
+	guint8	*payload_data;
+} dicom_eo_t;
 
 static gboolean
 dcm_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,

@@ -352,6 +352,15 @@ static dissector_table_t port_subdissector_table;
 static dissector_table_t media_type_subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 
+/* Used for HTTP Export Object feature */
+typedef struct _http_eo_t {
+	guint32  pkt_num;
+	gchar   *hostname;
+	gchar   *filename;
+	gchar   *content_type;
+	guint32  payload_len;
+	const guint8 *payload_data;
+} http_eo_t;
 
 static gboolean
 http_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)

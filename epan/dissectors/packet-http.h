@@ -43,16 +43,6 @@ typedef struct _http_info_value_t {
 	const gchar   *request_uri;
 } http_info_value_t;
 
-/* Used for HTTP Export Object feature */
-typedef struct _http_eo_t {
-	guint32  pkt_num;
-	gchar   *hostname;
-	gchar   *filename;
-	gchar   *content_type;
-	guint32  payload_len;
-	const guint8 *payload_data;
-} http_eo_t;
-
 /** information about a request and response on a HTTP conversation. */
 typedef struct _http_req_res_t {
 	/** the running number on the conversation */

@@ -30,13 +30,4 @@ typedef struct file_block_t {
   guint length;
 } file_block_t;
 
-/* Used for TFTP Export Object feature */
-typedef struct _tftp_eo_t {
-	guint32  pkt_num;
-	gchar    *filename;
-	guint32  payload_len;
-	GSList   *block_list;
-} tftp_eo_t;
-
-
 #endif /* __PACKET_TFTP_H__ */

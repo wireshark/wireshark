@@ -34,13 +34,4 @@
  */
 int imf_find_field_end(tvbuff_t *tvb, int offset, gint max_length, gboolean *last_field);
 
-/* Used for IMF Export Object feature */
-typedef struct _imf_eo_t {
-  gchar    *filename;
-  gchar    *sender_data;
-  gchar    *subject_data;
-  guint32  payload_len;
-  gchar    *payload_data;
-} imf_eo_t;
-
 #endif /* __PACKET_IMF_H__ */

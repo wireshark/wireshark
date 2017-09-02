@@ -148,6 +148,14 @@ typedef struct eo_info_dynamic_t {
 } eo_info_dynamic_t;
 static GSList *s_dynamic_info_list = NULL;
 
+/* Used for TFTP Export Object feature */
+typedef struct _tftp_eo_t {
+	guint32  pkt_num;
+	gchar    *filename;
+	guint32  payload_len;
+	GSList   *block_list;
+} tftp_eo_t;
+
 /* Tap function */
 static gboolean
 tftp_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
