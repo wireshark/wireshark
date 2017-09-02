@@ -1129,8 +1129,8 @@ dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   ah_hdr_len = (ah_len + 2) * 4;
   ah_icv_len = ah_len ? (ah_len - 1) * 4 : 0;
 
-  root_tree = tree;
-  p_update_ipv6_pinfo(pinfo, &root_tree, ah_hdr_len);
+  root_tree = p_ipv6_pinfo_select_root(pinfo, tree);
+  p_ipv6_pinfo_add_len(pinfo, ah_hdr_len);
 
   pi = proto_tree_add_item(root_tree, proto_ah, tvb, 0, -1, ENC_NA);
   ah_tree = proto_item_add_subtree(pi, ett_ah);

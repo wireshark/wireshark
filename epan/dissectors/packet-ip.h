@@ -101,7 +101,9 @@ typedef struct {
 
 ipv6_pinfo_t *p_get_ipv6_pinfo(packet_info *pinfo);
 
-ipv6_pinfo_t *p_update_ipv6_pinfo(packet_info *pinfo, proto_tree **tree_ptr, gint hdr_len);
+proto_tree *p_ipv6_pinfo_select_root(packet_info *pinfo, proto_tree *tree);
+
+ipv6_pinfo_t *p_ipv6_pinfo_add_len(packet_info *pinfo, int exthdr_len);
 
 void ipv6_dissect_next(guint nxt, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ws_ip6 *iph);
 

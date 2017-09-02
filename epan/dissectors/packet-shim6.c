@@ -572,8 +572,8 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data)
                         val_to_str_const(shim.ip6s_p & SHIM6_BITMASK_TYPE, shimctrlvals, "Unknown"));
     }
 
-    root_tree = tree;
-    p_update_ipv6_pinfo(pinfo, &root_tree, len);
+    root_tree = p_ipv6_pinfo_select_root(pinfo, tree);
+    p_ipv6_pinfo_add_len(pinfo, len);
 
     ti = proto_tree_add_item(root_tree, proto_shim6, tvb, offset, len, ENC_NA);
     shim_tree = proto_item_add_subtree(ti, ett_shim6_proto);

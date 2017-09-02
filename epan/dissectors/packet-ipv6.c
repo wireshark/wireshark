@@ -361,24 +361,25 @@ ipv6_pinfo_t *p_get_ipv6_pinfo(packet_info *pinfo)
     return (ipv6_pinfo_t *)p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_PINFO);
 }
 
-/*
- * Update tree pointer (for treeroot preference) and
- * fragmentation length (for all extension headers)
- */
-ipv6_pinfo_t *p_update_ipv6_pinfo(packet_info *pinfo, proto_tree **tree_ptr, gint hdr_len)
+/* Return tree pointer (for tree root preference) */
+proto_tree *p_ipv6_pinfo_select_root(packet_info *pinfo, proto_tree *tree)
 {
     ipv6_pinfo_t *p;
 
-    if (pinfo->dst.type != AT_IPv6)
-        return NULL;
+    if ((p = p_get_ipv6_pinfo(pinfo)) != NULL && p->ipv6_tree != NULL)
+        return p->ipv6_tree;
+    return tree;
+}
+
+ipv6_pinfo_t *p_ipv6_pinfo_add_len(packet_info *pinfo, int exthdr_len)
+{
+    ipv6_pinfo_t *p;
+
     if ((p = p_get_ipv6_pinfo(pinfo)) == NULL)
         return NULL;
 
-    p->frag_plen -= hdr_len;
-    if (p->ipv6_tree != NULL) {
-        *tree_ptr = p->ipv6_tree;
-        p->ipv6_item_len += hdr_len;
-    }
+    p->frag_plen -= exthdr_len;
+    p->ipv6_item_len += exthdr_len;
     return p;
 }
 
@@ -1180,8 +1181,8 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     tvb_memcpy(tvb, (guint8 *)&rt, offset, sizeof(rt));
     len = (rt.ip6r_len + 1) << 3;
 
-    root_tree = tree;
-    p_update_ipv6_pinfo(pinfo, &root_tree, len);
+    root_tree = p_ipv6_pinfo_select_root(pinfo, tree);
+    p_ipv6_pinfo_add_len(pinfo, len);
 
     /* !!! specify length */
     pi = proto_tree_add_item(root_tree, proto_ipv6_routing, tvb, offset, len, ENC_NA);
@@ -1260,8 +1261,8 @@ dissect_fraghdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     col_add_fstr(pinfo->cinfo, COL_INFO, "IPv6 fragment (off=%u more=%s ident=0x%08x nxt=%u)",
                         frag_off, frag_flg ? "y" : "n", frag_ident, nxt);
 
-    root_tree = tree;
-    ipv6_pinfo = p_update_ipv6_pinfo(pinfo, &root_tree, IPv6_FRAGMENT_HDR_SIZE);
+    root_tree = p_ipv6_pinfo_select_root(pinfo, tree);
+    ipv6_pinfo = p_ipv6_pinfo_add_len(pinfo, IPv6_FRAGMENT_HDR_SIZE);
 
     /* IPv6 Fragmentation Header has fixed length of 8 bytes */
     pi = proto_tree_add_item(root_tree, proto_ipv6_fraghdr, tvb, offset, IPv6_FRAGMENT_HDR_SIZE, ENC_NA);
@@ -1810,8 +1811,8 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
     len = (tvb_get_guint8(tvb, offset + 1) + 1) << 3;
     offset_end = offset + len;
 
-    root_tree = tree;
-    p_update_ipv6_pinfo(pinfo, &root_tree, len);
+    root_tree = p_ipv6_pinfo_select_root(pinfo, tree);
+    p_ipv6_pinfo_add_len(pinfo, len);
 
     /* !!! specify length */
     ti = proto_tree_add_item(root_tree, exthdr_proto, tvb, offset, len, ENC_NA);

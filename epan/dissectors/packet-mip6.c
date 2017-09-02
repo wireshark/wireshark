@@ -3809,8 +3809,8 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     len = (tvb_get_guint8(tvb, MIP6_HLEN_OFF) + 1) * 8;
     pproto = tvb_get_guint8(tvb, MIP6_PROTO_OFF);
 
-    root_tree = tree;
-    p_update_ipv6_pinfo(pinfo, &root_tree, len);
+    root_tree = p_ipv6_pinfo_select_root(pinfo, tree);
+    p_ipv6_pinfo_add_len(pinfo, len);
 
     ti = proto_tree_add_item(root_tree, proto_mip6, tvb, 0, len, ENC_NA);
     mip6_tree = proto_item_add_subtree(ti, ett_mip6);
