@@ -1880,9 +1880,13 @@ libdissectors_la_SOURCES = \
 	$(PIDL_DISSECTOR_SRC) \
 	$(DISSECTOR_SUPPORT_SRC)
 
+subpkgincludedir = $(pkgincludedir)/epan/dissectors
+
+subpkginclude_HEADERS = \
+	$(DISSECTOR_INCLUDES)
+
 # this target needed for distribution only
 noinst_HEADERS =	\
-	$(DISSECTOR_INCLUDES)	\
 	$(FILE_DISSECTOR_INCLUDES)
 
 # include asn1 in the source tarball. But nothing to build...

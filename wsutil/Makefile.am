@@ -112,8 +112,12 @@ noinst_LTLIBRARIES = libwsutil_sse42.la
 
 lib_LTLIBRARIES = libwsutil.la
 
+subpkgincludedir = $(pkgincludedir)/wsutil
+
+subpkginclude_HEADERS = \
+	$(libwsutil_nonrepl_INCLUDES)
+
 libwsutil_la_SOURCES = \
-	$(libwsutil_nonrepl_INCLUDES)	\
 	adler32.c		\
 	airpdcap_wep.c		\
 	base32.c		\

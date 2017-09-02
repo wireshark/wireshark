@@ -25,6 +25,11 @@ AM_CPPFLAGS = $(INCLUDEDIRS) -I$(top_srcdir)/epan $(WS_CPPFLAGS) \
 
 noinst_LTLIBRARIES = libftypes.la
 
+subpkgincludedir = $(pkgincludedir)/epan/ftypes
+
+subpkginclude_HEADERS = \
+	ftypes.h
+
 libftypes_la_SOURCES = \
 	ftypes.c	\
 	ftype-bytes.c	\
@@ -39,7 +44,6 @@ libftypes_la_SOURCES = \
 	ftype-protocol.c	\
 	ftype-string.c	\
 	ftype-time.c	\
-	ftypes.h	\
 	ftypes-int.h
 
 EXTRA_DIST = \

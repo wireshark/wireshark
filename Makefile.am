@@ -393,29 +393,14 @@ GENERATED_FILES = $(GENERATED_C_FILES) $(GENERATED_HEADER_FILES)
 
 EXTCAP_COMMON_SRC = \
 	extcap.c		\
-	extcap_parser.c	\
+	extcap_parser.c		\
 	extcap_spawn.c
-
-EXTCAP_COMMON_INCLUDES = \
-	extcap.h		\
-	extcap_parser.h	\
-	extcap_spawn.h
 
 # sources common for wireshark, tshark, and rawshark
 SHARK_COMMON_SRC = \
 	cfile.c			\
 	frame_tvbuff.c		\
 	sync_pipe_write.c
-
-# corresponding headers
-SHARK_COMMON_INCLUDES = \
-	cfile.h			\
-	file.h			\
-	fileset.h		\
-	frame_tvbuff.h		\
-	register.h		\
-	ws_symbol_export.h	\
-	ws_attributes.h
 
 # wireshark specifics
 WIRESHARK_COMMON_SRC = \
@@ -426,15 +411,6 @@ WIRESHARK_COMMON_SRC = \
 	fileset.c		\
 	summary.c		\
 	ws_version_info.c
-
-# corresponding headers
-WIRESHARK_COMMON_INCLUDES = \
-	capture_info.h		\
-	capture_opts.h		\
-	globals.h		\
-	log.h			\
-	summary.h		\
-	sync_pipe.h
 
 if HAVE_EXTCAP
 SHARK_COMMON_SRC += $(EXTCAP_COMMON_SRC)
@@ -761,15 +737,30 @@ dumpcap_LDADD = \
 	@LIBCAP_LIBS@			\
 	@LIBNL_LIBS@
 
+pkginclude_HEADERS = \
+	cfile.h			\
+	file.h			\
+	register.h		\
+	globals.h		\
+	log.h			\
+	ws_symbol_export.h	\
+	ws_attributes.h		\
+	ws_diag_control.h
+
 # this target needed for distribution only
 noinst_HEADERS = \
-	$(SHARK_COMMON_INCLUDES)	\
-	$(EXTCAP_COMMON_INCLUDES)	\
-	$(WIRESHARK_COMMON_INCLUDES)	\
+	capture_info.h		\
+	capture_opts.h		\
 	capture_stop_conditions.h	\
-	conditions.h			\
-	ringbuffer.h			\
-	ws_diag_control.h		\
+	conditions.h		\
+	fileset.h		\
+	frame_tvbuff.h		\
+	ringbuffer.h		\
+	summary.h		\
+	sync_pipe.h		\
+	extcap.h		\
+	extcap_parser.h		\
+	extcap_spawn.h		\
 	ws_version_info.h
 
 #

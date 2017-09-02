@@ -28,6 +28,24 @@ noinst_LTLIBRARIES = libwmem.la
 
 EXTRA_PROGRAMS = wmem_test
 
+subpkgincludedir = $(pkgincludedir)/epan/wmem
+
+subpkginclude_HEADERS = \
+	wmem.h				\
+	wmem_array.h			\
+	wmem_core.h			\
+	wmem_list.h			\
+	wmem_map.h			\
+	wmem_miscutl.h			\
+	wmem_queue.h			\
+	wmem_scopes.h			\
+	wmem_stack.h			\
+	wmem_strbuf.h			\
+	wmem_strutl.h			\
+	wmem_tree.h			\
+	wmem_interval_tree.h		\
+	wmem_user_cb.h
+
 libwmem_la_SOURCES = \
 	wmem_array.c			\
 	wmem_core.c			\
@@ -45,27 +63,13 @@ libwmem_la_SOURCES = \
 	wmem_tree.c			\
 	wmem_interval_tree.c		\
 	wmem_user_cb.c			\
-	wmem.h				\
-	wmem_array.h			\
-	wmem_core.h			\
 	wmem_allocator.h		\
 	wmem_allocator_block.h		\
 	wmem_allocator_block_fast.h    	\
 	wmem_allocator_simple.h		\
 	wmem_allocator_strict.h		\
-	wmem_list.h			\
-	wmem_map.h			\
 	wmem_map_int.h			\
-	wmem_miscutl.h			\
-	wmem_queue.h			\
-	wmem_scopes.h			\
-	wmem_stack.h			\
-	wmem_strbuf.h			\
-	wmem_strutl.h			\
-	wmem_tree.h			\
 	wmem_tree-int.h			\
-	wmem_interval_tree.h		\
-	wmem_user_cb.h			\
 	wmem_user_cb_int.h
 
 wmem_test_SOURCES = wmem_test.c
