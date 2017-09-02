@@ -45,8 +45,8 @@ struct interface_values
     QMap<int, QByteArray> value;
     QMap<int, bool> value_changed;
     QMap<int, QList<QByteArray> > list;
-    FunnelTextDialog *log_dialog;
-    QString log_text;
+    QMap<int, FunnelTextDialog *> log_dialog;
+    QMap<int, QString> log_text;
     QMap<int, bool> widget_disabled;
 };
 

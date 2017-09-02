@@ -76,7 +76,6 @@ InterfaceToolbar::InterfaceToolbar(QWidget *parent, const iface_toolbar *toolbar
         QString ifname((gchar *)walker->data);
         interface_[ifname].reader_thread = NULL;
         interface_[ifname].out_fd = -1;
-        interface_[ifname].log_dialog = NULL;
     }
 
     initializeControls(toolbar);
@@ -100,9 +99,12 @@ InterfaceToolbar::~InterfaceToolbar()
 {
     foreach (QString ifname, interface_.keys())
     {
-        if (interface_[ifname].log_dialog)
+        foreach (int num, control_widget_.keys())
         {
-            interface_[ifname].log_dialog->close();
+            if (interface_[ifname].log_dialog.contains(num))
+            {
+                interface_[ifname].log_dialog[num]->close();
+            }
         }
     }
 
@@ -488,19 +490,19 @@ void InterfaceToolbar::setInterfaceValue(QString ifname, QWidget *widget, int nu
     {
         if (command == commandControlSet)
         {
-            if (interface_[ifname].log_dialog)
+            if (interface_[ifname].log_dialog.contains(num))
             {
-                interface_[ifname].log_dialog->clearText();
+                interface_[ifname].log_dialog[num]->clearText();
             }
             interface_[ifname].log_text.clear();
         }
         if (command == commandControlSet || command == commandControlAdd)
         {
-            if (interface_[ifname].log_dialog)
+            if (interface_[ifname].log_dialog.contains(num))
             {
-                interface_[ifname].log_dialog->appendText(payload);
+                interface_[ifname].log_dialog[num]->appendText(payload);
             }
-            interface_[ifname].log_text.append(payload);
+            interface_[ifname].log_text[num].append(payload);
         }
     }
     else if (widget->property(interface_role_property).toInt() == INTERFACE_ROLE_CONTROL)
@@ -671,20 +673,21 @@ void InterfaceToolbar::onLineEditChanged()
 void InterfaceToolbar::onLogButtonPressed()
 {
     const QString &ifname = ui->interfacesComboBox->currentText();
+    QPushButton *button = static_cast<QPushButton *>(sender());
+    int num = control_widget_.key(button);
 
-    if (!interface_[ifname].log_dialog)
+    if (!interface_[ifname].log_dialog.contains(num))
     {
-        QPushButton *button = static_cast<QPushButton *>(sender());
-        interface_[ifname].log_dialog = new FunnelTextDialog(ifname + " " + button->text());
-        connect(interface_[ifname].log_dialog, SIGNAL(accepted()), this, SLOT(closeLog()));
-        connect(interface_[ifname].log_dialog, SIGNAL(rejected()), this, SLOT(closeLog()));
+        interface_[ifname].log_dialog[num] = new FunnelTextDialog(ifname + " " + button->text());
+        connect(interface_[ifname].log_dialog[num], SIGNAL(accepted()), this, SLOT(closeLog()));
+        connect(interface_[ifname].log_dialog[num], SIGNAL(rejected()), this, SLOT(closeLog()));
 
-        interface_[ifname].log_dialog->setText(interface_[ifname].log_text);
+        interface_[ifname].log_dialog[num]->setText(interface_[ifname].log_text[num]);
     }
 
-    interface_[ifname].log_dialog->show();
-    interface_[ifname].log_dialog->raise();
-    interface_[ifname].log_dialog->activateWindow();
+    interface_[ifname].log_dialog[num]->show();
+    interface_[ifname].log_dialog[num]->raise();
+    interface_[ifname].log_dialog[num]->activateWindow();
 }
 
 void InterfaceToolbar::onHelpButtonPressed()
@@ -703,9 +706,12 @@ void InterfaceToolbar::closeLog()
 
     foreach (QString ifname, interface_.keys())
     {
-        if (interface_[ifname].log_dialog == log_dialog)
+        foreach (int num, control_widget_.keys())
         {
-            interface_[ifname].log_dialog = NULL;
+            if (interface_[ifname].log_dialog.value(num) == log_dialog)
+            {
+                interface_[ifname].log_dialog.remove(num);
+            }
         }
     }
 }
@@ -877,11 +883,11 @@ void InterfaceToolbar::onRestoreButtonPressed()
                 break;
 
             case INTERFACE_ROLE_LOGGER:
-                if (interface_[ifname].log_dialog)
+                if (interface_[ifname].log_dialog.contains(num))
                 {
-                    interface_[ifname].log_dialog->clearText();
+                    interface_[ifname].log_dialog[num]->clearText();
                 }
-                interface_[ifname].log_text.clear();
+                interface_[ifname].log_text[num].clear();
                 break;
 
             default:
