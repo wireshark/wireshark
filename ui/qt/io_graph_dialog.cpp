@@ -1135,8 +1135,9 @@ void IOGraphDialog::loadProfileGraphs()
 
         char* err = NULL;
         if (!uat_load(iog_uat_, &err)) {
-            /* XXX - report the error */
+            report_failure("Error while loading %s: %s.  Default graph values will be used", iog_uat_->name, err);
             g_free(err);
+            uat_clear(iog_uat_);
         }
     }
 
