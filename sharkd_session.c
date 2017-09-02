@@ -81,26 +81,10 @@
 
 #include "sharkd.h"
 
-static void
+static gboolean
 json_unescape_str(char *input)
 {
-	char *output = input;
-
-	while (*input)
-	{
-		char ch = *input++;
-
-		if (ch == '\\')
-		{
-			/* TODO, add more escaping rules */
-			ch = *input++;
-		}
-
-		*output = ch;
-		output++;
-	}
-
-	*output = '\0';
+	return wsjsmn_unescape_json_string(input, input);
 }
 
 static const char *
@@ -3646,8 +3630,12 @@ sharkd_session_process(char *buf, const jsmntok_t *tokens, int count)
 		buf[tokens[i + 0].end] = '\0';
 		buf[tokens[i + 1].end] = '\0';
 
-		json_unescape_str(&buf[tokens[i + 0].start]);
-		json_unescape_str(&buf[tokens[i + 1].start]);
+		/* unescape only value, as keys are simple strings */
+		if (!json_unescape_str(&buf[tokens[i + 1].start]))
+		{
+			fprintf(stderr, "sanity check(3a): [%d] cannot unescape string\n", i + 1);
+			return;
+		}
 	}
 
 	{

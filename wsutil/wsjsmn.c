@@ -26,6 +26,8 @@
 
 #include <string.h>
 #include <wsutil/jsmn.h>
+#include <wsutil/str_util.h>
+#include <wsutil/unicode-utils.h>
 #include "log.h"
 
 gboolean jsmn_is_json(const guint8* buf, const size_t len)
@@ -74,6 +76,107 @@ int wsjsmn_parse(const char *buf, jsmntok_t *tokens, unsigned int max_tokens)
 
         jsmn_init(&p);
         return jsmn_parse(&p, buf, strlen(buf), tokens, max_tokens);
+}
+
+gboolean wsjsmn_unescape_json_string(const char *input, char *output)
+{
+        while (*input) {
+                char ch = *input++;
+
+                if (ch == '\\') {
+                        ch = *input++;
+
+                        switch (ch) {
+                                case '\"':
+                                case '\\':
+                                case '/':
+                                        *output++ = ch;
+                                        break;
+
+                                case 'b':
+                                        *output++ = '\b';
+                                        break;
+                                case 'f':
+                                        *output++ = '\f';
+                                        break;
+                                case 'n':
+                                        *output++ = '\n';
+                                        break;
+                                case 'r':
+                                        *output++ = '\r';
+                                        break;
+                                case 't':
+                                        *output++ = '\t';
+                                        break;
+
+                                case 'u':
+                                {
+                                        guint32 unicode_hex = 0;
+                                        int k;
+                                        int bin;
+
+                                        for (k = 0; k < 4; k++) {
+                                                unicode_hex <<= 4;
+
+                                                ch = *input++;
+                                                bin = ws_xton(ch);
+                                                if (bin == -1)
+                                                        return FALSE;
+                                                unicode_hex |= bin;
+                                        }
+
+                                        if ((IS_LEAD_SURROGATE(unicode_hex))) {
+                                                guint16 lead_surrogate = unicode_hex;
+                                                guint16 trail_surrogate = 0;
+
+                                                if (input[0] != '\\' || input[1] != 'u')
+                                                        return FALSE;
+                                                input += 2;
+
+                                                for (k = 0; k < 4; k++) {
+                                                        trail_surrogate <<= 4;
+
+                                                        ch = *input++;
+                                                        bin = ws_xton(ch);
+                                                        if (bin == -1)
+                                                                return FALSE;
+                                                        trail_surrogate |= bin;
+                                                }
+
+                                                if ((!IS_TRAIL_SURROGATE(trail_surrogate)))
+                                                        return FALSE;
+
+                                                unicode_hex = SURROGATE_VALUE(lead_surrogate,trail_surrogate);
+
+                                        } else if ((IS_TRAIL_SURROGATE(unicode_hex))) {
+                                                return FALSE;
+                                        }
+
+                                        if (!g_unichar_validate(unicode_hex))
+                                                return FALSE;
+
+                                        /* Don't allow NUL byte injection. */
+                                        if (unicode_hex == 0)
+                                            return FALSE;
+
+                                        /* \uXXXX => 6 bytes, and g_unichar_to_utf8() requires to have output buffer at least 6 bytes -> OK. */
+                                        k = g_unichar_to_utf8(unicode_hex, output);
+                                        output += k;
+                                        break;
+                                }
+
+                                default:
+                                        return FALSE;
+                        }
+
+                } else {
+                        *output = ch;
+                        output++;
+                }
+        }
+
+        *output = '\0';
+        return TRUE;
 }
 
 /*

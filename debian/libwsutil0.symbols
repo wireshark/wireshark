@@ -185,3 +185,4 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_utf8_char_len@Base 1.12.0~rc1
  ws_xton@Base 1.12.0~rc1
  wsjsmn_parse@Base 2.3.0
+ wsjsmn_unescape_json_string@Base 2.5.0

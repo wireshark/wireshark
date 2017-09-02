@@ -41,6 +41,11 @@ WS_DLL_PUBLIC gboolean jsmn_is_json(const guint8* buf, const size_t len);
 
 WS_DLL_PUBLIC int wsjsmn_parse(const char *buf, jsmntok_t *tokens, unsigned int max_tokens);
 
+/**
+ * Try to unescape input JSON string. output can be the same pointer as input, or must have the same buffer size as input.
+ */
+WS_DLL_PUBLIC gboolean wsjsmn_unescape_json_string(const char *input, char *output);
+
 #ifdef __cplusplus
 }
 #endif
