@@ -29,18 +29,10 @@
 
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
+#include "packet-netmon.h"
 
 void proto_register_netmon(void);
 void proto_reg_handoff_netmon(void);
-
-#define EVENT_HEADER_FLAG_EXTENDED_INFO         0x0001
-#define EVENT_HEADER_FLAG_PRIVATE_SESSION       0x0002
-#define EVENT_HEADER_FLAG_STRING_ONLY           0x0004
-#define EVENT_HEADER_FLAG_TRACE_MESSAGE         0x0008
-#define EVENT_HEADER_FLAG_NO_CPUTIME            0x0010
-#define EVENT_HEADER_FLAG_32_BIT_HEADER         0x0020
-#define EVENT_HEADER_FLAG_64_BIT_HEADER         0x0040
-#define EVENT_HEADER_FLAG_CLASSIC_HEADER        0x0100
 
 #define EVENT_HEADER_PROPERTY_XML               0x0001
 #define EVENT_HEADER_PROPERTY_FORWARDED_XML     0x0002
@@ -66,12 +58,28 @@ static const value_string event_level_vals[] = {
 	{ 0,	NULL }
 };
 
+static const value_string opcode_vals[] = {
+	{ 0,	"Info"},
+	{ 1,	"Start"},
+	{ 2,	"Stop"},
+	{ 3,	"DC Start"},
+	{ 4,	"DC Stop"},
+	{ 5,	"Extension"},
+	{ 6,	"Reply"},
+	{ 7,	"Resume"},
+	{ 8,	"Suspend"},
+	{ 9,	"Transfer"},
+	{ 0,	NULL }
+};
+
 static const range_string filter_types[] = {
 	{ 0,	0,	"Display Filter" },
 	{ 1,	1,	"Capture Filter" },
 	{ 2,	0xFFFFFFFF,	"Display Filter" },
 	{ 0, 0, NULL }
 };
+
+static dissector_table_t provider_id_table;
 
 /* Initialize the protocol and registered fields */
 static int proto_netmon_header = -1;
@@ -117,6 +125,7 @@ static int hf_netmon_event_alignment = -1;
 static int hf_netmon_event_logger_id = -1;
 static int hf_netmon_event_extended_data_count = -1;
 static int hf_netmon_event_user_data_length = -1;
+static int hf_netmon_event_reassembled = -1;
 static int hf_netmon_event_extended_data_reserved = -1;
 static int hf_netmon_event_extended_data_type = -1;
 static int hf_netmon_event_extended_data_linkage = -1;
@@ -244,6 +253,9 @@ dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	int offset = 0, extended_data_count_offset;
 	guint32 i, thread_id, process_id, extended_data_count, extended_data_size, user_data_size;
 	nstime_t timestamp;
+	tvbuff_t *provider_id_tvb;
+	guid_key provider_guid;
+	struct netmon_provider_id_data provider_id_data;
 	static const int * event_flags[] = {
 		&hf_netmon_event_flags_extended_info,
 		&hf_netmon_event_flags_private_session,
@@ -266,6 +278,8 @@ dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	/* Clear out stuff in the info column */
 	col_clear(pinfo->cinfo, COL_INFO);
 
+	memset(&provider_id_data, 0, sizeof(provider_id_data));
+
 	ti = proto_tree_add_item(tree, proto_netmon_event, tvb, offset, -1, ENC_NA);
 	event_tree = proto_item_add_subtree(ti, ett_netmon_event);
 
@@ -273,6 +287,7 @@ dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	offset += 2;
 	proto_tree_add_item(event_tree, hf_netmon_event_header_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
+	provider_id_data.event_flags = tvb_get_letohs(tvb, offset);
 	proto_tree_add_bitmask(event_tree, tvb, offset, hf_netmon_event_flags, ett_netmon_event_flags, event_flags, ENC_LITTLE_ENDIAN);
 	offset += 2;
 	proto_tree_add_bitmask(event_tree, tvb, offset, hf_netmon_event_event_property, ett_netmon_event_property, event_property, ENC_LITTLE_ENDIAN);
@@ -289,12 +304,15 @@ dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	offset += 8;
 
 	proto_tree_add_item(event_tree, hf_netmon_event_provider_id, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+	/* Save the GUID to use in dissector table */
+	tvb_memcpy(tvb, &provider_guid.guid, offset, 16);
+	provider_guid.ver = 0; //version field not used
 	offset += 16;
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Thread ID: %d, Process ID: %d", thread_id, process_id);
 
 	event_desc_tree = proto_tree_add_subtree(event_tree, tvb, offset, 16, ett_netmon_event_desc, NULL, "Event Descriptor");
-	proto_tree_add_item(event_desc_tree, hf_netmon_event_event_desc_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(event_desc_tree, hf_netmon_event_event_desc_id, tvb, offset, 2, ENC_LITTLE_ENDIAN, &provider_id_data.event_id);
 	offset += 2;
 	proto_tree_add_item(event_desc_tree, hf_netmon_event_event_desc_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
@@ -309,12 +327,19 @@ dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	proto_tree_add_item(event_desc_tree, hf_netmon_event_event_desc_keyword, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	offset += 8;
 
-	proto_tree_add_item(event_tree, hf_netmon_event_processor_time, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-	/* Kernel and User time are a union with processor time */
-	proto_tree_add_item(event_tree, hf_netmon_event_kernel_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	offset += 4;
-	proto_tree_add_item(event_tree, hf_netmon_event_user_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	offset += 4;
+	if (provider_id_data.event_flags & (EVENT_HEADER_FLAG_PRIVATE_SESSION | EVENT_HEADER_FLAG_NO_CPUTIME))
+	{
+		/* Kernel and User time are a union with processor time */
+		proto_tree_add_item(event_tree, hf_netmon_event_kernel_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(event_tree, hf_netmon_event_user_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+	}
+	else
+	{
+		proto_tree_add_item(event_tree, hf_netmon_event_processor_time, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		offset += 8;
+	}
 
 	proto_tree_add_item(event_tree, hf_netmon_event_activity_id, tvb, offset, 16, ENC_LITTLE_ENDIAN);
 	offset += 16;
@@ -328,6 +353,8 @@ dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	offset += 2;
 	proto_tree_add_item_ret_uint(event_tree, hf_netmon_event_user_data_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &user_data_size);
 	offset += 2;
+	proto_tree_add_item(event_tree, hf_netmon_event_reassembled, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
 
 	for (i = 1; i <= extended_data_count; i++)
 	{
@@ -347,8 +374,11 @@ dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 		proto_item_set_len(extended_data_item, offset-extended_data_count_offset);
 	}
 
-	proto_tree_add_item(event_tree, hf_netmon_event_user_data, tvb, offset, user_data_size, ENC_NA);
-
+	provider_id_tvb = tvb_new_subset_remaining(tvb, offset);
+	if (!dissector_try_guid_new(provider_id_table, &provider_guid, provider_id_tvb, pinfo, tree, TRUE, &provider_id_data))
+	{
+		proto_tree_add_item(event_tree, hf_netmon_event_user_data, tvb, offset, user_data_size, ENC_NA);
+	}
 	return tvb_captured_length(tvb);
 }
 
@@ -615,15 +645,15 @@ void proto_register_netmon(void)
 		},
 		{ &hf_netmon_event_event_desc_id,
 			{ "ID", "netmon_event.event_desc.id",
-			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+			FT_UINT16, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_event_event_desc_version,
 			{ "Version", "netmon_event.event_desc.version",
-			FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
+			FT_UINT8, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_event_event_desc_channel,
 			{ "Channel", "netmon_event.event_desc.channel",
-			FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
+			FT_UINT8, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_event_event_desc_level,
 			{ "Level", "netmon_event.event_desc.level",
@@ -631,7 +661,7 @@ void proto_register_netmon(void)
 		},
 		{ &hf_netmon_event_event_desc_opcode,
 			{ "Opcode", "netmon_event.event_desc.opcode",
-			FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
+			FT_UINT8, BASE_HEX, VALS(opcode_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_event_event_desc_task,
 			{ "Task", "netmon_event.event_desc.task",
@@ -675,6 +705,10 @@ void proto_register_netmon(void)
 		},
 		{ &hf_netmon_event_user_data_length,
 			{ "User data length", "netmon_event.user_data_length",
+			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_event_reassembled,
+			{ "Reassembled", "netmon_event.reassembled",
 			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_event_extended_data_reserved,
@@ -846,6 +880,8 @@ void proto_register_netmon(void)
 	proto_netmon_event = proto_register_protocol ("Network Monitor Event", "NetMon Event", "netmon_event" );
 	proto_netmon_filter = proto_register_protocol ("Network Monitor Filter", "NetMon Filter", "netmon_filter" );
 	proto_netmon_network_info = proto_register_protocol ("Network Monitor Network Info", "NetMon Network Info", "netmon_network_info" );
+
+	provider_id_table = register_dissector_table("netmon.provider_id", "NetMon Provider IDs", proto_netmon_event, FT_GUID, BASE_HEX);
 
 	proto_register_field_array(proto_netmon_header, hf_header, array_length(hf_header));
 	proto_register_field_array(proto_netmon_event, hf_event, array_length(hf_event));

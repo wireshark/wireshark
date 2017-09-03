@@ -1670,6 +1670,7 @@ DISSECTOR_INCLUDES = \
 	packet-ndps.h		\
 	packet-netbios.h	\
 	packet-netlink.h	\
+	packet-netmon.h		\
 	packet-nfs.h		\
 	packet-nisplus.h	\
 	packet-nlm.h		\
