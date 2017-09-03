@@ -59,6 +59,7 @@ ISOBUS
 AMT (Automatic Multicast Tunneling)
 QUIC (IETF)
 Wi-Fi Device Provisioning Protocol
+PFCP (Packet Forwarding Control Protocol)
 --sort-and-group--
 
 === Updated Protocol Support
