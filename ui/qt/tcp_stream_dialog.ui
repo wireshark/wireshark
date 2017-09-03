@@ -230,6 +230,19 @@
       </spacer>
      </item>
      <item>
+      <widget class="QCheckBox" name="bySeqNumberCheckBox">
+       <property name="toolTip">
+        <string>Display Round Trip Time vs Sequence Number</string>
+       </property>
+       <property name="text">
+        <string>RTT By Sequence Number</string>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::TabFocus</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QCheckBox" name="showSegLengthCheckBox">
        <property name="toolTip">
         <string>Display graph of Segment Length vs Time</string>
