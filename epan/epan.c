@@ -32,6 +32,7 @@
 
 #include <glib.h>
 
+#include <ws_version_info.h>
 #include <wsutil/report_message.h>
 
 #include <epan/exceptions.h>
@@ -94,6 +95,12 @@ static wmem_allocator_t *pinfo_pool_cache = NULL;
 const gchar*
 epan_get_version(void) {
 	return VERSION;
+}
+
+void
+epan_get_version_number(int *major, int *minor, int *micro)
+{
+	get_ws_version_number(major, minor, micro);
 }
 
 #if defined(_WIN32)

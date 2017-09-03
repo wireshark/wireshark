@@ -158,6 +158,8 @@ WS_DLL_PUBLIC void epan_free(epan_t *session);
 WS_DLL_PUBLIC const gchar*
 epan_get_version(void);
 
+WS_DLL_PUBLIC void epan_get_version_number(int *major, int *minor, int *micro);
+
 /**
  * Set/unset the tree to always be visible when epan_dissect_init() is called.
  * This state change sticks until cleared, rather than being done per function call.

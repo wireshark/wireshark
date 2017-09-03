@@ -66,6 +66,11 @@ void show_version(const gchar *prog_name, GString *comp_info_str, GString *runti
  */
 const char *get_ws_vcs_version_info(void);
 
+/*
+ * Return version number as integers.
+ */
+void get_ws_version_number(int *major, int *minor, int *micro);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

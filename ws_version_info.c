@@ -383,6 +383,17 @@ get_ws_vcs_version_info(void)
 #endif
 }
 
+void
+get_ws_version_number(int *major, int *minor, int *micro)
+{
+	if (major)
+		*major = VERSION_MAJOR;
+	if (minor)
+		*minor = VERSION_MINOR;
+	if (micro)
+		*micro = VERSION_MICRO;
+}
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
