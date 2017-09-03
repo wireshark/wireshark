@@ -9327,7 +9327,7 @@ text-decoration: underline;
         <translation>Włącz lub wyłącz wybrane protokoły</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="295"/>
+        <location filename="main_window.cpp" line="297"/>
         <source>Check for Updates</source>
         <oldsource>Check for Updates...</oldsource>
         <translation>Sprawdź aktualizacje</translation>
@@ -9494,57 +9494,57 @@ text-decoration: underline;
         <translation>przed otwarciem nowego pliku</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="785"/>
+        <location filename="main_window_slots.cpp" line="783"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="894"/>
+        <location filename="main_window_slots.cpp" line="892"/>
         <source>Saving %1</source>
         <translation>Zapisywanie %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="940"/>
+        <location filename="main_window_slots.cpp" line="938"/>
         <source>No interface selected</source>
         <translation>Nie wybrano interfejsu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="950"/>
+        <location filename="main_window_slots.cpp" line="948"/>
         <source>Invalid capture filter</source>
         <translation>Niepoprawny filtr przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1198"/>
+        <location filename="main_window_slots.cpp" line="1196"/>
         <source>Clear Menu</source>
         <translation>Wyczyść Menu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1696"/>
+        <location filename="main_window_slots.cpp" line="1694"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Proszę czekać, trwa uruchamianie Wiresharka</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1800"/>
+        <location filename="main_window_slots.cpp" line="1798"/>
         <source> before closing the file</source>
         <translation>przed zapisaniem pliku</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1882"/>
+        <location filename="main_window_slots.cpp" line="1880"/>
         <source>Export Selected Packet Bytes</source>
         <translation>Eksportuj zaznaczony bajty pakietu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1948"/>
+        <location filename="main_window_slots.cpp" line="1946"/>
         <source>No Keys</source>
         <translation>Brak kluczy</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1949"/>
+        <location filename="main_window_slots.cpp" line="1947"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>Nie ma żadnych kluczy sesji SSL do zapisu.</translation>
     </message>
     <message numerus="yes">
-        <location filename="main_window_slots.cpp" line="1955"/>
+        <location filename="main_window_slots.cpp" line="1953"/>
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
         <translation type="unfinished">
@@ -9554,89 +9554,89 @@ text-decoration: underline;
         </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1884"/>
+        <location filename="main_window_slots.cpp" line="1882"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Surowe dane (*.bin *.dat *.raw);;Dowolny plik (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="839"/>
+        <location filename="main_window_slots.cpp" line="837"/>
         <source>Merging files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1959"/>
+        <location filename="main_window_slots.cpp" line="1957"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>Klucze sesji SSL (*.keys *.txt);; Dowolny plik (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2077"/>
+        <location filename="main_window_slots.cpp" line="2075"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Nie można skopiować tekstu. Spróbuj inną pozycję.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2495"/>
-        <location filename="main_window_slots.cpp" line="3606"/>
+        <location filename="main_window_slots.cpp" line="2493"/>
+        <location filename="main_window_slots.cpp" line="3604"/>
         <source>Unable to build conversation filter.</source>
         <translation>Nie można stworzyć filtru konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2653"/>
-        <location filename="main_window_slots.cpp" line="2666"/>
+        <location filename="main_window_slots.cpp" line="2651"/>
+        <location filename="main_window_slots.cpp" line="2664"/>
         <source> before reloading the file</source>
         <translation>przed przeładowaniem pliku</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2700"/>
+        <location filename="main_window_slots.cpp" line="2698"/>
         <source>No filter available. Try another </source>
         <translation>Brak dostępnych filtrów. Spróbuj ponownie</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3613"/>
+        <location filename="main_window_slots.cpp" line="3611"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>Błąd kompilacji filtru dla tej konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3622"/>
+        <location filename="main_window_slots.cpp" line="3620"/>
         <source>No previous/next packet in conversation.</source>
         <translation>Brak poprzedniego i następnego pakietu w konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3699"/>
+        <location filename="main_window_slots.cpp" line="3697"/>
         <source>No Interface Selected</source>
         <translation>Nie wybrano interfejsu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3706"/>
+        <location filename="main_window_slots.cpp" line="3704"/>
         <source> before starting a new capture</source>
         <translation>przed wystartowaniem nowego przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3724"/>
+        <location filename="main_window_slots.cpp" line="3722"/>
         <source> before restarting the capture</source>
         <translation>przed restartem przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3935"/>
+        <location filename="main_window_slots.cpp" line="3933"/>
         <source>Wiki Page for %1</source>
         <translation>Strona Wiki dla %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3936"/>
+        <location filename="main_window_slots.cpp" line="3934"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Strona Wiki Wiresharka jest zarządzania przez społeczność.&lt;/p&gt;&lt;p&gt;Strona którą chcesz wczytać może być wspaniała, niekompletna, błędna lub nie istnieć.&lt;/p&gt;&lt;p&gt;Kontynuować wczytywanie strony Wiki?&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="285"/>
+        <location filename="main_window.h" line="288"/>
         <source>Loading</source>
         <translation>Wczytywanie</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="287"/>
+        <location filename="main_window.h" line="290"/>
         <source>Reloading</source>
         <translation>Przeładowanie</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="288"/>
+        <location filename="main_window.h" line="291"/>
         <source>Rescanning</source>
         <translation>Przeskanowanie</translation>
     </message>
@@ -12263,7 +12263,7 @@ text-decoration: underline;
     <name>RtpPlayerDialog</name>
     <message>
         <location filename="rtp_player_dialog.ui" line="14"/>
-        <location filename="rtp_player_dialog.cpp" line="110"/>
+        <location filename="rtp_player_dialog.cpp" line="115"/>
         <source>RTP Player</source>
         <translation>Odtwarzacz RTP</translation>
     </message>
@@ -12579,42 +12579,42 @@ text-decoration: underline;
         <translation>Spacja</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="170"/>
+        <location filename="rtp_player_dialog.cpp" line="175"/>
         <source>No devices available</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="190"/>
+        <location filename="rtp_player_dialog.cpp" line="195"/>
         <source>Play Streams</source>
         <translation>Odtwarzaj Strumienie</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="296"/>
+        <location filename="rtp_player_dialog.cpp" line="301"/>
         <source>Out of Sequence</source>
         <translation>Poza kolejnością</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="311"/>
+        <location filename="rtp_player_dialog.cpp" line="316"/>
         <source>Jitter Drops</source>
         <translation>Porzucenia Jitter</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="326"/>
+        <location filename="rtp_player_dialog.cpp" line="331"/>
         <source>Wrong Timestamps</source>
         <translation>Błędny znacznik czasu</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="341"/>
+        <location filename="rtp_player_dialog.cpp" line="346"/>
         <source>Inserted Silence</source>
         <translation>Wstawiono ciszę</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="524"/>
+        <location filename="rtp_player_dialog.cpp" line="529"/>
         <source>%1. Press &quot;G&quot; to go to packet %2</source>
         <translation>%1. Naciśnij &quot;G&quot; przejść do pakietu %2</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="711"/>
+        <location filename="rtp_player_dialog.cpp" line="716"/>
         <source>Unknown</source>
         <translation>Nieznany</translation>
     </message>
@@ -15804,22 +15804,22 @@ text-decoration: underline;
 <context>
     <name>WiresharkApplication</name>
     <message>
-        <location filename="wireshark_application.cpp" line="597"/>
+        <location filename="wireshark_application.cpp" line="598"/>
         <source>Dell Backup and Recovery Found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="598"/>
+        <location filename="wireshark_application.cpp" line="599"/>
         <source>You appear to be running Dell Backup and Recovery 1.8.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="599"/>
+        <location filename="wireshark_application.cpp" line="600"/>
         <source>DBAR can make many applications crash &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;including Wireshark&lt;/a&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="603"/>
+        <location filename="wireshark_application.cpp" line="604"/>
         <source>Offending DLL: %1</source>
         <translation type="unfinished"></translation>
     </message>

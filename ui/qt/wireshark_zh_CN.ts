@@ -9313,7 +9313,7 @@ text-decoration: underline;
         <translation>启用和禁用特定的协议</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="295"/>
+        <location filename="main_window.cpp" line="297"/>
         <source>Check for Updates</source>
         <oldsource>Check for Updates...</oldsource>
         <translation>检查更新</translation>
@@ -9480,57 +9480,57 @@ text-decoration: underline;
         <translation>打开另一个文件前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="785"/>
+        <location filename="main_window_slots.cpp" line="783"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="894"/>
+        <location filename="main_window_slots.cpp" line="892"/>
         <source>Saving %1</source>
         <translation>正在保存 %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="940"/>
+        <location filename="main_window_slots.cpp" line="938"/>
         <source>No interface selected</source>
         <translation>未选中接口</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="950"/>
+        <location filename="main_window_slots.cpp" line="948"/>
         <source>Invalid capture filter</source>
         <translation>无效捕获过滤器</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1198"/>
+        <location filename="main_window_slots.cpp" line="1196"/>
         <source>Clear Menu</source>
         <translation>清除菜单</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1696"/>
+        <location filename="main_window_slots.cpp" line="1694"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Wireshark 正在初始化，请稍候</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1800"/>
+        <location filename="main_window_slots.cpp" line="1798"/>
         <source> before closing the file</source>
         <translation>关闭文件前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1882"/>
+        <location filename="main_window_slots.cpp" line="1880"/>
         <source>Export Selected Packet Bytes</source>
         <translation>导出选择分组字节流</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1948"/>
+        <location filename="main_window_slots.cpp" line="1946"/>
         <source>No Keys</source>
         <translation>无密钥</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1949"/>
+        <location filename="main_window_slots.cpp" line="1947"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>没有可以保存的 SSL 会话密钥。</translation>
     </message>
     <message numerus="yes">
-        <location filename="main_window_slots.cpp" line="1955"/>
+        <location filename="main_window_slots.cpp" line="1953"/>
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
         <translation>
@@ -9538,89 +9538,89 @@ text-decoration: underline;
         </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1884"/>
+        <location filename="main_window_slots.cpp" line="1882"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>原始数据 (*.bin *.dat *.raw);;所有文件 (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="839"/>
+        <location filename="main_window_slots.cpp" line="837"/>
         <source>Merging files</source>
         <translation>合并文件</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1959"/>
+        <location filename="main_window_slots.cpp" line="1957"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>SSL 会话密钥 (*.keys *.txt);;所有文件 (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2077"/>
+        <location filename="main_window_slots.cpp" line="2075"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>无法复制文本。请尝试其他对象。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2495"/>
-        <location filename="main_window_slots.cpp" line="3606"/>
+        <location filename="main_window_slots.cpp" line="2493"/>
+        <location filename="main_window_slots.cpp" line="3604"/>
         <source>Unable to build conversation filter.</source>
         <translation>无法建立对话过滤器。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2653"/>
-        <location filename="main_window_slots.cpp" line="2666"/>
+        <location filename="main_window_slots.cpp" line="2651"/>
+        <location filename="main_window_slots.cpp" line="2664"/>
         <source> before reloading the file</source>
         <translation>重新载入文件前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2700"/>
+        <location filename="main_window_slots.cpp" line="2698"/>
         <source>No filter available. Try another </source>
         <translation>无过滤器可用。请尝试其他 </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3613"/>
+        <location filename="main_window_slots.cpp" line="3611"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>为此对话编译过滤器时出错。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3622"/>
+        <location filename="main_window_slots.cpp" line="3620"/>
         <source>No previous/next packet in conversation.</source>
         <translation>此对话中没有上一个/下一个分组。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3699"/>
+        <location filename="main_window_slots.cpp" line="3697"/>
         <source>No Interface Selected</source>
         <translation>未选中接口</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3706"/>
+        <location filename="main_window_slots.cpp" line="3704"/>
         <source> before starting a new capture</source>
         <translation>在开始新捕获前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3724"/>
+        <location filename="main_window_slots.cpp" line="3722"/>
         <source> before restarting the capture</source>
         <translation>重新开始捕获前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3935"/>
+        <location filename="main_window_slots.cpp" line="3933"/>
         <source>Wiki Page for %1</source>
         <translation>%1 的 Wiki 页面</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3936"/>
+        <location filename="main_window_slots.cpp" line="3934"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Wireshark Wiki 由社区进行维护。&lt;/p&gt;&lt;p&gt;您即将加载的页面可能是良好的、不完整的、有错误的，甚至不存在的。&lt;/p&gt;&lt;p&gt;继续访问该 Wiki？&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="285"/>
+        <location filename="main_window.h" line="288"/>
         <source>Loading</source>
         <translation>正在载入</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="287"/>
+        <location filename="main_window.h" line="290"/>
         <source>Reloading</source>
         <translation>正在重新加载</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="288"/>
+        <location filename="main_window.h" line="291"/>
         <source>Rescanning</source>
         <translation>正在重新扫描</translation>
     </message>
@@ -12247,7 +12247,7 @@ text-decoration: underline;
     <name>RtpPlayerDialog</name>
     <message>
         <location filename="rtp_player_dialog.ui" line="14"/>
-        <location filename="rtp_player_dialog.cpp" line="110"/>
+        <location filename="rtp_player_dialog.cpp" line="115"/>
         <source>RTP Player</source>
         <translation>RTP 播放器</translation>
     </message>
@@ -12563,42 +12563,42 @@ text-decoration: underline;
         <translation>空格键</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="170"/>
+        <location filename="rtp_player_dialog.cpp" line="175"/>
         <source>No devices available</source>
         <translation>无可用设备</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="190"/>
+        <location filename="rtp_player_dialog.cpp" line="195"/>
         <source>Play Streams</source>
         <translation>播放流</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="296"/>
+        <location filename="rtp_player_dialog.cpp" line="301"/>
         <source>Out of Sequence</source>
         <translation>乱序</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="311"/>
+        <location filename="rtp_player_dialog.cpp" line="316"/>
         <source>Jitter Drops</source>
         <translation>抖动过滤</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="326"/>
+        <location filename="rtp_player_dialog.cpp" line="331"/>
         <source>Wrong Timestamps</source>
         <translation>错误的时间戳</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="341"/>
+        <location filename="rtp_player_dialog.cpp" line="346"/>
         <source>Inserted Silence</source>
         <translation>插入的静默</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="524"/>
+        <location filename="rtp_player_dialog.cpp" line="529"/>
         <source>%1. Press &quot;G&quot; to go to packet %2</source>
         <translation>%1. 按 &quot;G&quot; 去到数据包 %2</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="711"/>
+        <location filename="rtp_player_dialog.cpp" line="716"/>
         <source>Unknown</source>
         <translation>未知</translation>
     </message>
@@ -15781,22 +15781,22 @@ text-decoration: underline;
 <context>
     <name>WiresharkApplication</name>
     <message>
-        <location filename="wireshark_application.cpp" line="597"/>
+        <location filename="wireshark_application.cpp" line="598"/>
         <source>Dell Backup and Recovery Found</source>
         <translation>发现 Dell Backup and Recovery</translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="598"/>
+        <location filename="wireshark_application.cpp" line="599"/>
         <source>You appear to be running Dell Backup and Recovery 1.8.</source>
         <translation>您似乎正在运行 Dell Backup and Recovery 1.8。</translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="599"/>
+        <location filename="wireshark_application.cpp" line="600"/>
         <source>DBAR can make many applications crash &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;including Wireshark&lt;/a&gt;.</source>
         <translation>DBAR 可能使许多应用程序崩溃，&lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;包括 Wireshark&lt;/a&gt;。</translation>
     </message>
     <message>
-        <location filename="wireshark_application.cpp" line="603"/>
+        <location filename="wireshark_application.cpp" line="604"/>
         <source>Offending DLL: %1</source>
         <translation>违规 DLL：%1</translation>
     </message>
