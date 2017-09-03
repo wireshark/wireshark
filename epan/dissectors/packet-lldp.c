@@ -168,6 +168,10 @@ static int hf_ieee_802_1_vlan_name_length = -1;
 static int hf_ieee_802_1_vlan_name = -1;
 static int hf_ieee_802_1_proto_id_length = -1;
 static int hf_ieee_802_1_proto_id = -1;
+static int hf_ieee_802_1_aggregation_status = -1;
+static int hf_ieee_802_1_aggregation_status_cap = -1;
+static int hf_ieee_802_1_aggregation_status_enabled = -1;
+static int hf_ieee_802_1_aggregated_port_id = -1;
 static int hf_ieee_8021qau_cnpv_prio0 = -1;
 static int hf_ieee_8021qau_cnpv_prio1 = -1;
 static int hf_ieee_8021qau_cnpv_prio2 = -1;
@@ -453,6 +457,7 @@ static gint ett_802_3_flags = -1;
 static gint ett_802_3_autoneg_advertised = -1;
 static gint ett_802_3_power = -1;
 static gint ett_802_3_aggregation = -1;
+static gint ett_802_1_aggregation = -1;
 static gint ett_802_1qbg_capabilities_flags = -1;
 static gint ett_media_capabilities = -1;
 static gint ett_profinet_period = -1;
@@ -466,6 +471,7 @@ static gint ett_org_spc_hytec_trace_reply = -1;
 static expert_field ei_lldp_bad_length = EI_INIT;
 static expert_field ei_lldp_bad_length_excess = EI_INIT;
 static expert_field ei_lldp_bad_type = EI_INIT;
+static expert_field ei_lldp_tlv_deprecated = EI_INIT;
 
 /* TLV Types */
 #define END_OF_LLDPDU_TLV_TYPE		0x00	/* Mandatory */
@@ -570,6 +576,7 @@ static const value_string ieee_802_1_subtypes[] = {
 	{ 0x02, "Port and Protocol VLAN ID" },
 	{ 0x03, "VLAN Name" },
 	{ 0x04, "Protocol Identity" },
+	{ 0x07,	"Link Aggregation" },
 	{ 0x08,	"Congestion Notification" },
 	{ 0x09, "ETS Configuration" },
 	{ 0x0A, "ETS Recommendation" },
@@ -1992,6 +1999,7 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	guint16 dcbApp, appCount;
 
 	proto_tree	*vlan_flags_tree = NULL;
+	proto_tree	*mac_phy_flags = NULL;
 	proto_tree	*apptlv_tree = NULL;
 	proto_item	*tf = NULL;
 
@@ -2065,6 +2073,22 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 			offset += tempByte;
 		}
 
+		break;
+	}
+	case 0x07:	/* Link Aggregation */
+	{
+		/* Get protocol id length */
+		tf = proto_tree_add_item(tree, hf_ieee_802_1_aggregation_status, tvb, offset, 1, ENC_BIG_ENDIAN);
+		mac_phy_flags = proto_item_add_subtree(tf, ett_802_1_aggregation);
+		proto_tree_add_item(mac_phy_flags, hf_ieee_802_1_aggregation_status_cap, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(mac_phy_flags, hf_ieee_802_1_aggregation_status_enabled, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+		offset++;
+
+		/* Get aggregated port id */
+		proto_tree_add_item(tree, hf_ieee_802_1_aggregated_port_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+
+		offset+=4;
 		break;
 	}
 	case 0x8:	/* Congestion Notification */
@@ -2405,12 +2429,12 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	proto_tree	*mac_phy_flags = NULL;
 	proto_tree	*autoneg_advertised_subtree = NULL;
 
-	proto_item	*tf = NULL;
+	proto_item	*tf = NULL, *subitem;
 
 	/* Get subtype */
 	subType = tvb_get_guint8(tvb, offset);
 
-	proto_tree_add_item(tree, hf_ieee_802_3_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+	subitem = proto_tree_add_item(tree, hf_ieee_802_3_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	offset++;
 
@@ -2557,6 +2581,7 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	case 0x03:	/* Link Aggregation */
 	{
 		/* Get aggregation status */
+		expert_add_info(pinfo, subitem, &ei_lldp_tlv_deprecated);
 		tf = proto_tree_add_item(tree, hf_ieee_802_3_aggregation_status, tvb, offset, 1, ENC_BIG_ENDIAN);
 		mac_phy_flags = proto_item_add_subtree(tf, ett_802_3_aggregation);
 		proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_aggregation_status_cap, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4364,6 +4389,22 @@ proto_register_lldp(void)
 			{ "Protocol Identity", "lldp.ieee.802_1.proto.id", FT_STRINGZ, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
+		{ &hf_ieee_802_1_aggregation_status,
+			{ "Aggregation Status", "lldp.ieee.802_1.aggregation_status", FT_UINT8, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1_aggregation_status_cap,
+			{ "Aggregation Capability", "lldp.ieee.802_1.aggregation_status.cap", FT_BOOLEAN, 8,
+			TFS(&tfs_yes_no), 0x01, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1_aggregation_status_enabled,
+			{ "Aggregation Status", "lldp.ieee.802_1.aggregation_status.enabled", FT_BOOLEAN, 8,
+			TFS(&tfs_enabled_disabled), 0x02, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1_aggregated_port_id,
+			{ "Aggregated Port Id", "lldp.ieee.802_1.aggregated_port_id", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
 		{ &hf_ieee_8021qau_cnpv_prio0,
 			{ "Priority 0 CNPV Capability", "lldp.ieee.802_1qau.cnpv.prio0", FT_BOOLEAN, 8,
 			TFS(&tfs_enabled_disabled), 0x01, NULL, HFILL }
@@ -5309,6 +5350,7 @@ proto_register_lldp(void)
 		&ett_802_3_autoneg_advertised,
 		&ett_802_3_power,
 		&ett_802_3_aggregation,
+		&ett_802_1_aggregation,
 		&ett_802_1qbg_capabilities_flags,
 		&ett_media_capabilities,
 		&ett_profinet_period,
@@ -5324,6 +5366,7 @@ proto_register_lldp(void)
 		{ &ei_lldp_bad_length, { "lldp.incorrect_length", PI_MALFORMED, PI_WARN, "Invalid length, too short", EXPFILL }},
 		{ &ei_lldp_bad_length_excess, { "lldp.excess_length", PI_MALFORMED, PI_WARN, "Invalid length, greater than expected", EXPFILL }},
 		{ &ei_lldp_bad_type, { "lldp.bad_type", PI_MALFORMED, PI_WARN, "Incorrect type", EXPFILL }},
+		{ &ei_lldp_tlv_deprecated, { "lldp.tlv_deprecated", PI_PROTOCOL, PI_WARN, "TLV has been deprecated", EXPFILL }},
 	};
 
 	static const enum_val_t column_info_options[] = {
