@@ -188,7 +188,7 @@ endif()
 #
 
 #Defines CMAKE_INSTALL_BINDIR, CMAKE_INSTALL_DATADIR, etc ...
-include(CMakeInstallDirs)
+include(GNUInstallDirs)
 # Make sure our executables can can load our libraries if we install into
 # a non-default directory on Unix-like systems other than macOS.
 # https://cmake.org/Wiki/CMake_RPATH_handling
