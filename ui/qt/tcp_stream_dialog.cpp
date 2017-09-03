@@ -596,6 +596,11 @@ void TCPStreamDialog::fillGraph(bool reset_axes, bool set_focus)
 
 void TCPStreamDialog::showWidgetsForGraphType()
 {
+    if (graph_.type == GRAPH_RTT) {
+        ui->bySeqNumberCheckBox->setVisible(true);
+    } else {
+        ui->bySeqNumberCheckBox->setVisible(false);
+    }
     if (graph_.type == GRAPH_THROUGHPUT) {
 #ifdef MA_1_SECOND
         ui->maWindowSizeLabel->setVisible(true);
@@ -1266,7 +1271,8 @@ void TCPStreamDialog::fillThroughput()
 //        the range from "begin" to "end" are in sequence number order.
 //        (this function would preserve that as an invariant). ]
 static struct rtt_unack *
-rtt_selectively_ack_range(QVector<double>& rel_times, QVector<double>& rtt,
+rtt_selectively_ack_range(QVector<double>& x_vals, bool bySeqNumber,
+                    QVector<double>& rtt,
                     struct rtt_unack **list,
                     struct rtt_unack *begin, struct rtt_unack *end,
                     unsigned int left, unsigned int right, double rt_val) {
@@ -1291,7 +1297,11 @@ rtt_selectively_ack_range(QVector<double>& rel_times, QVector<double>& rtt,
         //   (if so, we can delete it and move on)
         if (left_end_acked && right_end_acked) {
             // ACK the whole segment
-            rel_times.append(cur->time);
+            if (bySeqNumber) {
+                x_vals.append(cur->seqno);
+            } else {
+                x_vals.append(cur->time);
+            }
             rtt.append((rt_val - cur->time) * 1000.0);
             // in this case, we will delete current unack
             // [ update "begin" if necessary - we will return it to the
@@ -1305,7 +1315,11 @@ rtt_selectively_ack_range(QVector<double>& rel_times, QVector<double>& rtt,
         //   (if so, we can just modify it and move on)
         if (left_end_acked) { // and right_end_not_acked
             // ACK the left end
-            rel_times.append(cur->time);
+            if (bySeqNumber) {
+                x_vals.append(cur->seqno);
+            } else {
+                x_vals.append(cur->time);
+            }
             rtt.append((rt_val - cur->time) * 1000.0);
             // in this case, "right" marks the start of remaining bytes
             cur->seqno = right;
@@ -1315,7 +1329,11 @@ rtt_selectively_ack_range(QVector<double>& rel_times, QVector<double>& rtt,
         //   (if so, we can just modify it and move on)
         if (right_end_acked) { // and left_end_not_acked
             // ACK the right end
-            rel_times.append(cur->time);
+            if (bySeqNumber) {
+                x_vals.append(left);
+            } else {
+                x_vals.append(cur->time);
+            }
             rtt.append((rt_val - cur->time) * 1000.0);
             // in this case, "left" is just beyond the remaining bytes
             cur->end_seqno = left;
@@ -1327,7 +1345,11 @@ rtt_selectively_ack_range(QVector<double>& rel_times, QVector<double>& rtt,
         // Therefore, it must intersect the middle, so we must split the unack
         //   into left and right unacked segments:
         // ACK the SACK block
-        rel_times.append(cur->time);
+        if (bySeqNumber) {
+            x_vals.append(left);
+        } else {
+            x_vals.append(cur->time);
+        }
         rtt.append((rt_val - cur->time) * 1000.0);
         // then split cur into two unacked segments
         //   (linking the right-hand unack after the left)
@@ -1345,14 +1367,21 @@ void TCPStreamDialog::fillRoundTripTime()
     title_->setText(dlg_title);
 
     QCustomPlot *sp = ui->streamPlot;
+    bool bySeqNumber = ui->bySeqNumberCheckBox->isChecked();
 
+    if (bySeqNumber) {
+        sequence_num_map_.clear();
+        sp->xAxis->setLabel(sequence_number_label_);
+        sp->xAxis->setNumberFormat("f");
+        sp->xAxis->setNumberPrecision(0);
+    }
     sp->yAxis->setLabel(round_trip_time_ms_label_);
     sp->yAxis->setNumberFormat("gb");
     sp->yAxis->setNumberPrecision(3);
 
     base_graph_->setLineStyle(QCPGraph::lsLine);
 
-    QVector<double> rel_times, rtt;
+    QVector<double> x_vals, rtt;
     guint32 seq_base = 0;
     struct rtt_unack *unack_list = NULL, *u = NULL;
     for (struct segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
@@ -1366,6 +1395,7 @@ void TCPStreamDialog::fillRoundTripTime()
             guint32 seqno = seg->th_seq - seq_base;
             if (seg->th_seglen && !rtt_is_retrans(unack_list, seqno)) {
                 double rt_val = seg->rel_secs + seg->rel_usecs / 1000000.0;
+                rt_val -= ts_offset_;
                 u = rtt_get_new_unack(rt_val, seqno, seg->th_seglen);
                 if (!u) {
                     // make sure to free list before returning!
@@ -1377,12 +1407,18 @@ void TCPStreamDialog::fillRoundTripTime()
         } else {
             guint32 ack_no = seg->th_ack - seq_base;
             double rt_val = seg->rel_secs + seg->rel_usecs / 1000000.0;
+            rt_val -= ts_offset_;
             struct rtt_unack *v;
 
             for (u = unack_list; u; u = v) {
                 if (tcp_seq_after(ack_no, u->seqno)) {
                     // full or partial ack of seg by ack_no
-                    rel_times.append(u->time);
+                    if (bySeqNumber) {
+                        x_vals.append(u->seqno);
+                        sequence_num_map_.insert(u->seqno, seg);
+                    } else {
+                        x_vals.append(u->time);
+                    }
                     rtt.append((rt_val - u->time) * 1000.0);
                     if (tcp_seq_eq_or_after(ack_no, u->end_seqno)) {
                         // fully acked segment - nothing more to see here
@@ -1404,7 +1440,7 @@ void TCPStreamDialog::fillRoundTripTime()
                 for (int i = 0; i < seg->num_sack_ranges; ++i) {
                     guint32 left = seg->sack_left_edge[i] - seq_base;
                     guint32 right = seg->sack_right_edge[i] - seq_base;
-                    u = rtt_selectively_ack_range(rel_times, rtt,
+                    u = rtt_selectively_ack_range(x_vals, bySeqNumber, rtt,
                                                   &unack_list, u, v,
                                                   left, right, rt_val);
                     // if range is empty after selective ack, we can
@@ -1416,7 +1452,7 @@ void TCPStreamDialog::fillRoundTripTime()
     }
     // it's possible there's still unacked segs - so be sure to free list!
     rtt_destroy_unack_list(&unack_list);
-    base_graph_->setData(rel_times, rtt);
+    base_graph_->setData(x_vals, rtt);
 }
 
 void TCPStreamDialog::fillWindowScale()
@@ -1641,9 +1677,13 @@ void TCPStreamDialog::mouseMoved(QMouseEvent *event)
             case GRAPH_TSEQ_TCPTRACE:
             case GRAPH_THROUGHPUT:
             case GRAPH_WSCALE:
-            case GRAPH_RTT:
                 packet_seg = time_stamp_map_.value(tr_key, NULL);
                 break;
+            case GRAPH_RTT:
+                if (ui->bySeqNumberCheckBox->isChecked())
+                    packet_seg = sequence_num_map_.value(tr_key, NULL);
+                else
+                    packet_seg = time_stamp_map_.value(tr_key, NULL);
             default:
                 break;
             }
@@ -1839,6 +1879,11 @@ void TCPStreamDialog::on_zoomRadioButton_toggled(bool checked)
         mouse_drags_ = false;
         ui->streamPlot->setInteractions(0);
     }
+}
+
+void TCPStreamDialog::on_bySeqNumberCheckBox_stateChanged(int /* state */)
+{
+    fillGraph(/*reset_axes=*/true, /*set_focus=*/false);
 }
 
 void TCPStreamDialog::on_showSegLengthCheckBox_stateChanged(int state)

@@ -69,6 +69,7 @@ private:
     QMap<double, struct segment *> time_stamp_map_;
     double ts_offset_;
     bool ts_origin_conn_;
+    QMap<double, struct segment *> sequence_num_map_;
     double seq_offset_;
     bool seq_origin_zero_;
     struct tcp_graph graph_;
@@ -150,6 +151,7 @@ private slots:
     void on_otherDirectionButton_clicked();
     void on_dragRadioButton_toggled(bool checked);
     void on_zoomRadioButton_toggled(bool checked);
+    void on_bySeqNumberCheckBox_stateChanged(int state);
     void on_showSegLengthCheckBox_stateChanged(int state);
     void on_showThroughputCheckBox_stateChanged(int state);
     void on_showGoodputCheckBox_stateChanged(int state);
