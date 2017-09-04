@@ -2593,7 +2593,7 @@ typedef struct lte_rrc_private_data_t
   pdcp_security_info_t pdcp_security;
   meas_capabilities_item_band_mappings_t meas_capabilities_item_band_mappings;
   simult_pucch_pusch_cell_type cell_type;
-  gboolean bcch_dl_sch_msg_br;
+  gboolean bcch_dl_sch_msg;
 } lte_rrc_private_data_t;
 
 /* Helper function to get or create a struct that will be actx->private_data */
@@ -2769,17 +2769,17 @@ static void private_data_set_simult_pucch_pusch_cell_type(asn1_ctx_t *actx, simu
   private_data->cell_type = cell_type;
 }
 
-/* Is top message a BCCH DL-SCH BR */
-static gboolean private_data_get_bcch_dl_sch_msg_br(asn1_ctx_t *actx)
+/* Is top message a BCCH DL-SCH BR/MBMS */
+static gboolean private_data_get_bcch_dl_sch_msg(asn1_ctx_t *actx)
 {
   lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
-  return private_data->bcch_dl_sch_msg_br;
+  return private_data->bcch_dl_sch_msg;
 }
 
-static void private_data_set_bcch_dl_sch_msg_br(asn1_ctx_t *actx, gboolean is_br)
+static void private_data_set_bcch_dl_sch_msg(asn1_ctx_t *actx, gboolean is_bcch_dl_sch)
 {
   lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
-  private_data->bcch_dl_sch_msg_br = is_br;
+  private_data->bcch_dl_sch_msg = is_bcch_dl_sch;
 }
 
 /*****************************************************************************/
