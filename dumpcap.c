@@ -1488,7 +1488,6 @@ cap_pipe_open_live(char *pipename,
 #endif
 #ifdef HAVE_EXTCAP
     gboolean extcap_pipe = FALSE;
-    interface_options interface_opts;
 #endif
     ssize_t  b;
     int      fd = -1, sel_ret;
@@ -1516,14 +1515,9 @@ cap_pipe_open_live(char *pipename,
           return;
        }
     } else {
-
-#ifdef HAVE_EXTCAP
-        interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, 0);
-#endif
-
 #ifndef _WIN32
 #ifdef HAVE_EXTCAP
-        if ( g_strrstr(interface_opts.name, EXTCAP_PIPE_PREFIX) != NULL )
+        if ( g_strrstr(pipename, EXTCAP_PIPE_PREFIX) != NULL )
             extcap_pipe = TRUE;
 #endif
 
@@ -1637,7 +1631,7 @@ cap_pipe_open_live(char *pipename,
         }
 #ifdef HAVE_EXTCAP
         extcap_pipe_name = g_strconcat("\\\\.\\pipe\\", EXTCAP_PIPE_PREFIX, NULL);
-        extcap_pipe = strstr(interface_opts.name, extcap_pipe_name) ? TRUE : FALSE;
+        extcap_pipe = strstr(pipename, extcap_pipe_name) ? TRUE : FALSE;
         g_free(extcap_pipe_name);
 #endif
 
