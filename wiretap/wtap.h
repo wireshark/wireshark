@@ -278,6 +278,13 @@ extern "C" {
 #define WTAP_ENCAP_NETMON_HEADER                188
 #define WTAP_ENCAP_NETMON_NET_FILTER            189
 #define WTAP_ENCAP_NETMON_NETWORK_INFO_EX       190
+#define WTAP_ENCAP_MA_WFP_CAPTURE_V4            191
+#define WTAP_ENCAP_MA_WFP_CAPTURE_V6            192
+#define WTAP_ENCAP_MA_WFP_CAPTURE_2V4           193
+#define WTAP_ENCAP_MA_WFP_CAPTURE_2V6           194
+#define WTAP_ENCAP_MA_WFP_CAPTURE_AUTH_V4       195
+#define WTAP_ENCAP_MA_WFP_CAPTURE_AUTH_V6       196
+
 /* After adding new item here, please also add new item to encap_table_base array */
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()

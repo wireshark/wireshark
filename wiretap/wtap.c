@@ -944,6 +944,24 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_NETMON_NETWORK_INFO_EX */
 	{ "Network Monitor Network Info", "netmon_network_info" },
+
+	/* WTAP_ENCAP_MA_WFP_CAPTURE_V4 */
+	{ "Message Analyzer WFP Capture v4", "message_analyzer_wfp_capture_v4" },
+
+	/* WTAP_ENCAP_MA_WFP_CAPTURE_V6 */
+	{ "Message Analyzer WFP Capture v6", "message_analyzer_wfp_capture_v6" },
+
+	/* WTAP_ENCAP_MA_WFP_CAPTURE_2V4 */
+	{ "Message Analyzer WFP Capture2 v4", "message_analyzer_wfp_capture2_v4" },
+
+	/* WTAP_ENCAP_MA_WFP_CAPTURE_2V6 */
+	{ "Message Analyzer WFP Capture2 v6", "message_analyzer_wfp_capture2_v6" },
+
+	/* WTAP_ENCAP_MA_WFP_CAPTURE_AUTH_V4 */
+	{ "Message Analyzer WFP Capture Auth v4", "message_analyzer_wfp_capture_auth_v4" },
+
+	/* WTAP_ENCAP_MA_WFP_CAPTURE_AUTH_V6 */
+	{ "Message Analyzer WFP Capture Auth v6", "message_analyzer_wfp_capture_auth_v6" },
 };
 
 WS_DLL_LOCAL

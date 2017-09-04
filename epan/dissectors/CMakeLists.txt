@@ -889,6 +889,7 @@ set(DISSECTOR_SRC
 	packet-megaco.c
 	packet-memcache.c
 	packet-mesh.c
+	packet-messageanalyzer.c
 	packet-meta.c
 	packet-metamako.c
 	packet-mgcp.c

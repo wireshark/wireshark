@@ -42,8 +42,8 @@ since version 2.4.0:
   Preferences -> Appearance -> Layout -> Show file load time.
 * Support for G.729 codec in the RTP Player (via the bcg729 library).
 * Support for hardware-timestamping of packets
-* Improved NetMon .cap support with comments, event tracing, network filter
-  and network info types.
+* Improved NetMon .cap support with comments, event tracing, network filter,
+  network info types and some Message Analyzer exported types.
 
 //=== Removed Dissectors
 

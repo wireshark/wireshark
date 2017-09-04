@@ -1016,7 +1016,41 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 			return FAILURE;
 
 		network = pletoh16(trlr.trlr_2_1.network);
-		if ((network & 0xF000) == NETMON_NET_PCAP_BASE) {
+		if ((network >= 0xE080) && (network <= 0xE08A)) {
+			/* These values "violate" the LINKTYPE_ media type values
+			 * in Microsoft Analyzer and are considered a MAExportedMediaType,
+			 * so they need their own WTAP_ types
+			 */
+			switch (network)
+			{
+			case 0xE080:    // "WiFi Message"
+			case 0xE081:    // "Ndis Etw WiFi Channel Message"
+			case 0xE082:    // "Fiddler Netmon Message"
+			case 0xE089:    // "Pef Ndis Msg";
+			case 0xE08A:    // "Pef Ndis Wifi Meta Msg";
+				*err = WTAP_ERR_UNSUPPORTED;
+				*err_info = g_strdup_printf("netmon: network type %u unknown or unsupported", network);
+				return FAILURE;
+			case 0xE083:
+				pkt_encap = WTAP_ENCAP_MA_WFP_CAPTURE_V4;
+				break;
+			case 0xE084:
+				pkt_encap = WTAP_ENCAP_MA_WFP_CAPTURE_V6;
+				break;
+			case 0xE085:
+				pkt_encap = WTAP_ENCAP_MA_WFP_CAPTURE_2V4;
+				break;
+			case 0xE086:
+				pkt_encap = WTAP_ENCAP_MA_WFP_CAPTURE_2V6;
+				break;
+			case 0xE087:
+				pkt_encap = WTAP_ENCAP_MA_WFP_CAPTURE_AUTH_V4;
+				break;
+			case 0xE088:
+				pkt_encap = WTAP_ENCAP_MA_WFP_CAPTURE_AUTH_V6;
+				break;
+			}
+		} else if ((network & 0xF000) == NETMON_NET_PCAP_BASE) {
 			/*
 			 * Converted pcap file - the LINKTYPE_ value
 			 * is the network value with 0xF000 masked off.
