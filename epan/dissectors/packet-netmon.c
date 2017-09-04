@@ -28,6 +28,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/to_str.h>
 #include <wiretap/wtap.h>
 #include "packet-netmon.h"
 
@@ -309,7 +310,8 @@ dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	provider_guid.ver = 0; //version field not used
 	offset += 16;
 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Thread ID: %d, Process ID: %d", thread_id, process_id);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Thread ID: %d, Process ID: %d, Provider ID: %s",
+										thread_id, process_id, guid_to_str(wmem_packet_scope(), &provider_guid.guid));
 
 	event_desc_tree = proto_tree_add_subtree(event_tree, tvb, offset, 16, ett_netmon_event_desc, NULL, "Event Descriptor");
 	proto_tree_add_item_ret_uint(event_desc_tree, hf_netmon_event_event_desc_id, tvb, offset, 2, ENC_LITTLE_ENDIAN, &provider_id_data.event_id);
