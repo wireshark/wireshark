@@ -30,6 +30,9 @@
 #include <wsutil/utf8_entities.h>
 #include <wiretap/wtap.h>
 
+#include "packet-netmon.h"
+#include "packet-windows-common.h"
+
 void proto_register_message_analyzer(void);
 void proto_reg_handoff_message_analyzer(void);
 
@@ -40,6 +43,7 @@ static int proto_ma_wfp_capture_v6 = -1;
 static int proto_ma_wfp_capture2_v6 = -1;
 static int proto_ma_wfp_capture_auth_v4 = -1;
 static int proto_ma_wfp_capture_auth_v6 = -1;
+static int proto_etw_wfp_capture = -1;
 
 static int hf_ma_wfp_capture_flow_context = -1;
 static int hf_ma_wfp_capture_payload_length = -1;
@@ -49,6 +53,18 @@ static int hf_ma_wfp_capture_auth_interface_id = -1;
 static int hf_ma_wfp_capture_auth_direction = -1;
 static int hf_ma_wfp_capture_auth_process_id = -1;
 static int hf_ma_wfp_capture_auth_process_path = -1;
+
+static int hf_etw_wfp_capture_event_id = -1;
+static int hf_etw_wfp_capture_driver_name = -1;
+static int hf_etw_wfp_capture_major_version = -1;
+static int hf_etw_wfp_capture_minor_version = -1;
+static int hf_etw_wfp_capture_callout = -1;
+static int hf_etw_wfp_capture_filter_id = -1;
+static int hf_etw_wfp_capture_filter_weight = -1;
+static int hf_etw_wfp_capture_driver_error_message = -1;
+static int hf_etw_wfp_capture_nt_status = -1;
+static int hf_etw_wfp_capture_callout_error_message = -1;
+
 
 /* Fields used from other common dissectors */
 static int hf_ip_src = -1;
@@ -70,6 +86,14 @@ static int hf_ipv6_dst_host = -1;
 static gint ett_ma_wfp_capture_v4 = -1;
 static gint ett_ma_wfp_capture_v6 = -1;
 static gint ett_ma_wfp_capture_auth = -1;
+static gint ett_etw_wfp_capture = -1;
+
+static dissector_handle_t ma_wfp_capture_v4_handle;
+static dissector_handle_t ma_wfp_capture2_v4_handle;
+static dissector_handle_t ma_wfp_capture_v6_handle;
+static dissector_handle_t ma_wfp_capture2_v6_handle;
+static dissector_handle_t ma_wfp_capture_auth_v4_handle;
+static dissector_handle_t ma_wfp_capture_auth_v6_handle;
 
 static dissector_table_t ip_dissector_table;
 
@@ -384,6 +408,166 @@ dissect_ma_wfp_capture_auth_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	return dissect_ma_wfp_capture_auth_common(tvb, pinfo, tree, proto_ma_wfp_capture_auth_v6);
 }
 
+static const value_string etw_wfp_capture_event_vals[] = {
+	{ 10001, "DriverLoad"},
+	{ 10002, "DriverUnload"},
+	{ 10003, "CalloutRegister"},
+	{ 10004, "CalloutUnregister"},
+	{ 10005, "CalloutNotifyFilterAdd"},
+	{ 10006, "CalloutNotifyFilterDelete"},
+	{ 20001, "DriverLoadError"},
+	{ 20002, "DriverUnloadError"},
+	{ 20003, "CalloutRegisterError"},
+	{ 20004, "CalloutUnregisterError"},
+	{ 20005, "CalloutClassifyError"},
+	{ 60011, "TransportMessageV4"},
+	{ 60012, "TransportMessage2V4"},
+	{ 60021, "TransportMessageV6"},
+	{ 60022, "TransportMessage2V6"},
+	{ 60031, "AleAuthMessageV4"},
+	{ 60041, "AleAuthMessageV6"},
+	{ 60050, "Discard"},
+	{ 0,	NULL }
+};
+
+static const value_string etw_wfp_capture_callout_vals[] = {
+	{ 0, "CALLOUT_INBOUND_TRANSPORT_V4"},
+	{ 1, "CALLOUT_OUTBOUND_TRANSPORT_V4"},
+	{ 2, "CALLOUT_OUTBOUND_TRANSPORT_V6"},
+	{ 3, "CALLOUT_ALE_AUTH_CONNECT_V4"},
+	{ 4, "CALLOUT_ALE_AUTH_CONNECT_V6"},
+	{ 5, "CALLOUT_ALE_AUTH_RECV_ACCEPT_V4"},
+	{ 6, "CALLOUT_ALE_AUTH_RECV_ACCEPT_V6"},
+	{ 7, "CALLOUT_INBOUND_IPPACKET_V4_DISCARD"},
+	{ 8, "CALLOUT_INBOUND_IPPACKET_V6_DISCARD"},
+	{ 9, "CALLOUT_OUTBOUND_IPPACKET_V4_DISCARD"},
+	{ 10, "CALLOUT_OUTBOUND_IPPACKET_V6_DISCARD"},
+	{ 11, "CALLOUT_IPFORWARD_V4_DISCARD"},
+	{ 12, "CALLOUT_IPFORWARD_V6_DISCARD"},
+	{ 13, "CALLOUT_INBOUND_TRANSPORT_V4_DISCARD"},
+	{ 14, "CALLOUT_INBOUND_TRANSPORT_V6_DISCARD"},
+	{ 15, "CALLOUT_OUTBOUND_TRANSPORT_V4_DISCARD"},
+	{ 16, "CALLOUT_OUTBOUND_TRANSPORT_V6_DISCARD"},
+	{ 17, "CALLOUT_DATAGRAM_DATA_V4_DISCARD"},
+	{ 18, "CALLOUT_DATAGRAM_DATA_V6_DISCARD"},
+	{ 19, "CALLOUT_INBOUND_ICMP_ERROR_V4_DISCARD"},
+	{ 20, "CALLOUT_INBOUND_ICMP_ERROR_V6_DISCARD"},
+	{ 21, "CALLOUT_OUTBOUND_ICMP_ERROR_V4_DISCARD"},
+	{ 22, "CALLOUT_OUTBOUND_ICMP_ERROR_V6_DISCARD"},
+	{ 23, "CALLOUT_ALE_RESOURCE_ASSIGNMENT_V4_DISCARD"},
+	{ 24, "CALLOUT_ALE_RESOURCE_ASSIGNMENT_V6_DISCARD"},
+	{ 25, "CALLOUT_ALE_AUTH_LISTEN_V4_DISCARD"},
+	{ 26, "CALLOUT_ALE_AUTH_LISTEN_V6_DISCARD"},
+	{ 27, "CALLOUT_ALE_AUTH_RECV_ACCEPT_V4_DISCARD"},
+	{ 28, "CALLOUT_ALE_AUTH_RECV_ACCEPT_V6_DISCARD"},
+	{ 29, "CALLOUT_ALE_AUTH_CONNECT_V4_DISCARD"},
+	{ 30, "CALLOUT_ALE_AUTH_CONNECT_V6_DISCARD"},
+	{ 31, "CALLOUT_ALE_FLOW_ESTABLISHED_V4_DISCARD"},
+	{ 32, "CALLOUT_ALE_FLOW_ESTABLISHED_V6_DISCARD"},
+	{ 0, NULL }
+};
+
+static int
+dissect_etw_wfp_capture(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+	proto_item *ti, *generated;
+	proto_tree *etw_tree;
+	int offset = 0;
+	struct netmon_provider_id_data *provider_id_data = (struct netmon_provider_id_data*)data;
+	guint length;
+
+	DISSECTOR_ASSERT(provider_id_data != NULL);
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ETW WFP Capture");
+	col_clear(pinfo->cinfo, COL_INFO);
+
+	ti = proto_tree_add_item(tree, proto_etw_wfp_capture, tvb, 0, -1, ENC_NA);
+	etw_tree = proto_item_add_subtree(ti, ett_etw_wfp_capture);
+
+	generated = proto_tree_add_uint(etw_tree, hf_etw_wfp_capture_event_id, tvb, 0, 0, provider_id_data->event_id);
+	PROTO_ITEM_SET_GENERATED(generated);
+	col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(provider_id_data->event_id, etw_wfp_capture_event_vals, "Unknown"));
+
+	switch (provider_id_data->event_id)
+	{
+	case 10001: // DriverLoad
+	case 10002: // DriverUnload
+		length = tvb_unicode_strsize(tvb, offset);
+		proto_tree_add_item(etw_tree, hf_etw_wfp_capture_driver_name, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+		offset += length;
+		proto_tree_add_item(etw_tree, hf_etw_wfp_capture_major_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+		proto_tree_add_item(etw_tree, hf_etw_wfp_capture_minor_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+		break;
+
+	case 10003: // CalloutRegister
+	case 10004: // CalloutUnregister
+		proto_tree_add_item(etw_tree, hf_etw_wfp_capture_callout, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		break;
+
+	case 10005: // CalloutNotifyFilterAdd
+	case 10006: // CalloutNotifyFilterDelete
+		proto_tree_add_item(etw_tree, hf_etw_wfp_capture_filter_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		offset += 8;
+		proto_tree_add_item(etw_tree, hf_etw_wfp_capture_callout, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(etw_tree, hf_etw_wfp_capture_filter_weight, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		offset += 8;
+		break;
+
+	case 20001: // DriverLoadError
+	case 20002: // DriverUnloadError
+		length = tvb_unicode_strsize(tvb, offset);
+		proto_tree_add_item(etw_tree, hf_etw_wfp_capture_driver_error_message, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+		offset += length;
+		proto_tree_add_item(etw_tree, hf_etw_wfp_capture_nt_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		break;
+
+	case 20003: // CalloutRegisterError
+	case 20004: // CalloutUnregisterError
+	case 20005: // CalloutClassifyError
+		proto_tree_add_item(etw_tree, hf_etw_wfp_capture_callout, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		length = tvb_unicode_strsize(tvb, offset);
+		proto_tree_add_item(etw_tree, hf_etw_wfp_capture_callout_error_message, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+		offset += length;
+		proto_tree_add_item(etw_tree, hf_etw_wfp_capture_nt_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		break;
+
+	case 60011: // TransportMessageV4
+		call_dissector(ma_wfp_capture_v4_handle, tvb, pinfo, tree);
+		break;
+
+	case 60012: // TransportMessage2V4
+		call_dissector(ma_wfp_capture2_v4_handle, tvb, pinfo, tree);
+		break;
+
+	case 60021: // TransportMessageV6
+		call_dissector(ma_wfp_capture_v6_handle, tvb, pinfo, tree);
+		break;
+
+	case 60022: // TransportMessage2V6
+		call_dissector(ma_wfp_capture2_v6_handle, tvb, pinfo, tree);
+		break;
+
+	case 60031: // AleAuthMessageV4
+		call_dissector(ma_wfp_capture_auth_v4_handle, tvb, pinfo, tree);
+		break;
+
+	case 60041: // AleAuthMessageV6
+		call_dissector(ma_wfp_capture_auth_v6_handle, tvb, pinfo, tree);
+		break;
+	}
+
+	proto_item_set_len(ti, offset);
+	return tvb_captured_length(tvb);
+}
+
+
 void proto_register_message_analyzer(void)
 {
 	static hf_register_info hf_wfp_capture[] = {
@@ -424,10 +608,54 @@ void proto_register_message_analyzer(void)
 		},
 	};
 
+	static hf_register_info hf_etw_wfp_capture[] = {
+		{ &hf_etw_wfp_capture_event_id,
+			{ "Event ID", "etw.wfp_capture.event_id",
+			FT_UINT32, BASE_DEC_HEX, VALS(etw_wfp_capture_event_vals), 0x0, NULL, HFILL }
+		},
+		{ &hf_etw_wfp_capture_driver_name,
+			{ "Driver Name", "etw.wfp_capture.driver_name",
+			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_etw_wfp_capture_major_version,
+			{ "Major Version", "etw.wfp_capture.major_version",
+			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_etw_wfp_capture_minor_version,
+			{ "Minor Version", "etw.wfp_capture.minor_version",
+			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_etw_wfp_capture_callout,
+			{ "Callout", "etw.wfp_capture.callout",
+			FT_UINT32, BASE_DEC, VALS(etw_wfp_capture_callout_vals), 0x0, NULL, HFILL }
+		},
+		{ &hf_etw_wfp_capture_filter_id,
+			{ "Filter ID", "etw.wfp_capture.filter_id",
+			FT_UINT64, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_etw_wfp_capture_filter_weight,
+			{ "Filter Weight", "etw.wfp_capture.filter_weight",
+			FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_etw_wfp_capture_driver_error_message,
+			{ "Driver Name", "etw.wfp_capture.driver_error_message",
+			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_etw_wfp_capture_callout_error_message,
+			{ "Driver Name", "etw.wfp_capture.callout_error_message",
+			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_etw_wfp_capture_nt_status,
+			{ "NT Status", "etw.wfp_capture.nt_status",
+			FT_UINT32, BASE_HEX|BASE_EXT_STRING, &HRES_errors_ext, 0x0, NULL, HFILL }
+		},
+	};
+
 	static gint *ett[] = {
 		&ett_ma_wfp_capture_v4,
 		&ett_ma_wfp_capture_v6,
 		&ett_ma_wfp_capture_auth,
+		&ett_etw_wfp_capture,
 	};
 
 	proto_ma_wfp_capture_v4 = proto_register_protocol ("Message Analyzer WFP Capture v4", "MA WFP Capture v4", "message_analyzer.wfp_capture.v4" );
@@ -436,17 +664,18 @@ void proto_register_message_analyzer(void)
 	proto_ma_wfp_capture2_v6 = proto_register_protocol ("Message Analyzer WFP Capture2 v6", "MA WFP Capture2 v6", "message_analyzer.wfp_capture2.v6" );
 	proto_ma_wfp_capture_auth_v4 = proto_register_protocol ("Message Analyzer WFP Capture AUTH v4", "MA WFP Capture AUTH v4", "message_analyzer.wfp_capture.auth.v4" );
 	proto_ma_wfp_capture_auth_v6 = proto_register_protocol ("Message Analyzer WFP Capture AUTH v6", "MA WFP Capture AUTH v6", "message_analyzer.wfp_capture.auth.v6" );
+	proto_etw_wfp_capture = proto_register_protocol ("ETW WFP Capture", "ETW WFP Capture", "etw.wfp_capture" );
 
 	proto_register_field_array(proto_ma_wfp_capture_v4, hf_wfp_capture, array_length(hf_wfp_capture));
 	proto_register_field_array(proto_ma_wfp_capture_auth_v4, hf_wfp_capture_auth, array_length(hf_wfp_capture_auth));
+	proto_register_field_array(proto_etw_wfp_capture, hf_etw_wfp_capture, array_length(hf_etw_wfp_capture));
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void proto_reg_handoff_message_analyzer(void)
 {
-	dissector_handle_t ma_wfp_capture_v4_handle, ma_wfp_capture2_v4_handle,
-						ma_wfp_capture_v6_handle, ma_wfp_capture2_v6_handle,
-						ma_wfp_capture_auth_v4_handle, ma_wfp_capture_auth_v6_handle;
+	dissector_handle_t etw_wfp_capture_handle;
+	static guid_key etw_wfp_capture_guid = {{ 0xc22d1b14, 0xc242, 0x49de, { 0x9f, 0x17, 0x1d, 0x76, 0xb8, 0xb9, 0xc4, 0x58 }}, 0 };
 
 	ma_wfp_capture_v4_handle = create_dissector_handle(dissect_ma_wfp_capture_v4, proto_ma_wfp_capture_v4);
 	ma_wfp_capture2_v4_handle = create_dissector_handle(dissect_ma_wfp_capture2_v4, proto_ma_wfp_capture2_v4);
@@ -462,6 +691,9 @@ void proto_reg_handoff_message_analyzer(void)
 
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_MA_WFP_CAPTURE_AUTH_V4, ma_wfp_capture_auth_v4_handle);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_MA_WFP_CAPTURE_AUTH_V6, ma_wfp_capture_auth_v6_handle);
+
+	etw_wfp_capture_handle = create_dissector_handle( dissect_etw_wfp_capture, proto_etw_wfp_capture);
+	dissector_add_guid( "netmon.provider_id", &etw_wfp_capture_guid, etw_wfp_capture_handle);
 
 	ip_dissector_table = find_dissector_table("ip.proto");
 
