@@ -840,7 +840,7 @@
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="NAS-Identifier" code="32" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
-			<type type-name="OctetString"/>
+			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Proxy-State" code="33" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="OctetString"/>
@@ -939,7 +939,7 @@
 			<enum name="Port Administratively Disabled" code="22"/>
 		</avp>
 		<avp name="Accounting-Multi-Session-Id" code="50" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
-			<type type-name="OctetString"/>
+			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Acct-Link-Count" code="51" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
