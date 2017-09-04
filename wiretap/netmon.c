@@ -591,6 +591,11 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 	if ((process_info_table_offset > 0) && (process_info_table_count > 0)) {
 		guint16 version;
 
+		/* Go to the process table offset */
+		if (file_seek(wth->fh, process_info_table_offset, SEEK_SET, err) == -1) {
+			return WTAP_OPEN_ERROR;
+		}
+
 		process_info_table = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, netmonrec_process_info_destroy);
 		if (process_info_table == NULL) {
 			*err = ENOMEM;	/* we assume we're out of memory */
