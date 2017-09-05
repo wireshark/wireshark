@@ -26,6 +26,7 @@
 #include <glib.h>
 
 #include "asm_utils.h"
+#include "ws_attributes.h"
 
 /* String comparison func for dfilter_token GTree */
 gint

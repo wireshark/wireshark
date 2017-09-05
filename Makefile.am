@@ -414,7 +414,8 @@ SHARK_COMMON_INCLUDES = \
 	fileset.h		\
 	frame_tvbuff.h		\
 	register.h		\
-	ws_symbol_export.h
+	ws_symbol_export.h	\
+	ws_attributes.h
 
 # wireshark specifics
 WIRESHARK_COMMON_SRC = \

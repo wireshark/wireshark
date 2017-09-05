@@ -1,9 +1,8 @@
-/* crash_info.h
- * Routines to try to provide more useful information in crash dumps.
+/* ws_attributes.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
- * Copyright 2006 Gerald Combs
+ * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,21 +19,41 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __CRASH_INFO_H__
-#define __CRASH_INFO_H__
-
-#include "ws_symbol_export.h"
-#include "ws_attributes.h"
+#ifndef __WS_ATTRIBUTES_H__
+#define __WS_ATTRIBUTES_H__
 
 #ifdef __cplusplus
 extern "C" {
+#endif /* __cplusplus */
+
+/*
+ * If we're running GCC or clang define _U_ to be "__attribute__((unused))"
+ * so we can use _U_ to flag unused function parameters and not get warnings
+ * about them. Otherwise, define _U_ to be an empty string so that _U_ used
+ * to flag an unused function parameters will compile with other compilers.
+ *
+ * XXX - similar hints for other compilers?
+ */
+
+#if defined(__GNUC__)
+  /* This includes clang */
+  #define _U_ __attribute__((unused))
+#else
+  #define _U_
 #endif
 
-WS_DLL_PUBLIC void ws_add_crash_info(const char *fmt, ...)
-    G_GNUC_PRINTF(1,2);
+/* Hint to the compiler that a function never returns */
+#if defined(__GNUC__)
+  /* This includes clang */
+  #define WS_NORETURN __attribute__((noreturn))
+#elif defined(_MSC_VER)
+  #define WS_NORETURN __declspec(noreturn)
+#else
+  #define WS_NORETURN
+#endif
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* __CRASH_INFO_H__ */
+#endif /* __WS_ATTRIBUTES_H__ */

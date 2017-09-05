@@ -32,6 +32,7 @@
  */
 #include "capture_opts.h"
 #include <gtk/gtk.h>
+#include "ws_attributes.h"
 
 #define CR_MAIN_NB "compile_results_main_notebook"
 

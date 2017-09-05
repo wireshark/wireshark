@@ -51,6 +51,7 @@
 #include "ftypes/ftypes.h"
 #include "register.h"
 #include "ws_symbol_export.h"
+#include "ws_attributes.h"
 
 #ifdef __cplusplus
 extern "C" {

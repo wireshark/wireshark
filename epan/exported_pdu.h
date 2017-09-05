@@ -25,9 +25,8 @@
 #ifndef EXPORTED_PDU_H
 #define EXPORTED_PDU_H
 
-#include <config.h>
-
 #include "ws_symbol_export.h"
+#include "ws_attributes.h"
 
 #include <glib.h>
 

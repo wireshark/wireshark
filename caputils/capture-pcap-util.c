@@ -39,6 +39,8 @@
 #include <sys/socket.h>
 #endif
 
+#include "ws_attributes.h"
+
 /*
  * Linux bonding devices mishandle unknown ioctls; they fail
  * with ENODEV rather than ENOTSUP, EOPNOTSUPP, or ENOTTY,

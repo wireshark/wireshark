@@ -22,8 +22,6 @@
 #ifndef __POPCOUNT_H__
 #define __POPCOUNT_H__
 
-#include "config.h"
-
 #include "ws_symbol_export.h"
 
 WS_DLL_PUBLIC int popcount(unsigned int mask);

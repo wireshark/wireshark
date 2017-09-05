@@ -29,9 +29,8 @@
 #ifndef EPAN_PLUGIN_IF_H
 #define EPAN_PLUGIN_IF_H
 
-#include <config.h>
-
 #include "ws_symbol_export.h"
+#include "ws_attributes.h"
 
 #include <glib.h>
 #include <epan/epan.h>

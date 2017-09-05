@@ -27,6 +27,8 @@
 #include "G711adecode.h"
 #include "G711atable.h"
 
+#include "ws_attributes.h"
+
 void *
 codec_g711a_init(void)
 {

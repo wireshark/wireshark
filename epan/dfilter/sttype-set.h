@@ -24,6 +24,8 @@
 
 #include <glib.h>
 
+#include "ws_attributes.h"
+
 void
 sttype_set_replace_element(stnode_t *node, stnode_t *oldnode, stnode_t *newnode);
 

@@ -23,8 +23,6 @@
 #ifndef __WIN32UTIL_H__
 #define __WIN32UTIL_H__
 
-#include <config.h>
-
 #include "ws_symbol_export.h"
 
 #include <glib.h>

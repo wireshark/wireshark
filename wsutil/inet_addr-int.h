@@ -22,8 +22,6 @@
 #ifndef __WS_INET_ADDR_INT_H__
 #define __WS_INET_ADDR_INT_H__
 
-#include "config.h"
-
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif

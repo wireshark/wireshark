@@ -772,17 +772,6 @@ if( NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	endif()
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
-	set (C_UNUSED	    "__attribute__((unused))" )
-	set (WS_NORETURN    "__attribute__((noreturn))")
-elseif(MSVC)
-	set (C_UNUSED	    "")
-	set (WS_NORETURN    "__declspec(noreturn)")
-else()
-	set (C_UNUSED	    "")
-	set (WS_NORETURN    "")
-endif()
-
 set(WIRESHARK_LD_FLAGS
 	-Wl,--as-needed
 	# -flto

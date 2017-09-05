@@ -27,6 +27,8 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#include "ws_attributes.h"
+
 enum ws80211_channel_type {
 	WS80211_CHAN_NO_HT,
 	WS80211_CHAN_HT20,

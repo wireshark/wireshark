@@ -27,6 +27,8 @@
 #ifndef SNORT_CONFIG_H
 #define SNORT_CONFIG_H
 
+#include "ws_attributes.h"
+
 /************************************************************************/
 /* Rule related data types                                              */
 

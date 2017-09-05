@@ -24,8 +24,6 @@
 #ifndef __WSUTIL_BITS_COUNT_ONES_H__
 #define __WSUTIL_BITS_COUNT_ONES_H__
 
-#include "config.h"
-
 #include <glib.h>
 
 /*

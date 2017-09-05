@@ -38,6 +38,7 @@
 #ifndef HAVE_GETOPT_LONG
     #include "wsutil/wsgetopt.h"
 #endif
+#include "ws_attributes.h"
 
 enum extcap_options {
     EXTCAP_BASE_OPTIONS_ENUM

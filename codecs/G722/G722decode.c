@@ -28,6 +28,8 @@
 #include "spandsp.h"
 #include "G722decode.h"
 
+#include "ws_attributes.h"
+
 void *
 codec_g722_init(void)
 {

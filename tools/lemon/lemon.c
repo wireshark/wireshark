@@ -16,6 +16,8 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#include "ws_attributes.h"
+
 #define ISSPACE(X) isspace((unsigned char)(X))
 #define ISDIGIT(X) isdigit((unsigned char)(X))
 #define ISALNUM(X) isalnum((unsigned char)(X))

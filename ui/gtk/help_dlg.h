@@ -26,6 +26,7 @@
 #define __HELP_DLG_H__
 
 #include "ui/help_url.h"
+#include "ws_attributes.h"
 
 /** @file
  * "Help" dialog box.

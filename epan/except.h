@@ -35,6 +35,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "ws_symbol_export.h"
+#include "ws_attributes.h"
 
 #define XCEPT_GROUP_ANY 0
 #define XCEPT_CODE_ANY  0

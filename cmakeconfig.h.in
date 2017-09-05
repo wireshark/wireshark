@@ -437,13 +437,6 @@
 /* Note: not use in the code */
 #cmakedefine YYTEXT_POINTER
 
-/* _U_ isn't needed for C++, simply don't name the variable.
-   However, we do need it for some headers that are shared between C and C++. */
-#define _U_ ${C_UNUSED}
-
-/* Hint to the compiler that a function never returns */
-#define WS_NORETURN @WS_NORETURN@
-
 #if defined(_WIN32)
 
    /* WpdPack/INclude/pcap/pcap.h checks for "#if defined(WIN32)" */

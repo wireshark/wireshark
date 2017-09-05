@@ -31,6 +31,7 @@
 #include "config.h"
 
 #include "packet-epl.h"
+#include "ws_attributes.h"
 
 #include <wsutil/ws_printf.h>
 #include <epan/range.h>

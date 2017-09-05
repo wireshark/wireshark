@@ -28,6 +28,7 @@
 #include <stdarg.h>
 #include "conditions.h"
 #include "capture_stop_conditions.h"
+#include "ws_attributes.h"
 
 /* predefined classes function prototypes */
 static condition* _cnd_constr_timeout(condition*, va_list);

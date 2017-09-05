@@ -26,6 +26,7 @@
 
 #include <glib.h>
 #include "ws_symbol_export.h"
+#include "ws_attributes.h"
 
 /* Please don't directly manipulate these structs.  Please use
  * the methods provided.  If you REALLY can't do what you need to

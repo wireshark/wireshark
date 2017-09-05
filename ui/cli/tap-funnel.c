@@ -30,6 +30,8 @@
 #include <epan/funnel.h>
 #include <stdio.h>
 
+#include "ws_attributes.h"
+
 void register_tap_listener_funnel(void);
 
 struct _funnel_text_window_t {

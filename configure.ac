@@ -939,22 +939,6 @@ dnl build libwsutil_sse42 only if there is SSE4.2
 AM_CONDITIONAL(SSE42_SUPPORTED, test "x$have_sse42" = "xyes")
 AC_SUBST(CFLAGS_SSE42)
 
-#
-# If we're running GCC or clang define _U_ to be "__attribute__((unused))"
-# so we can use _U_ to flag unused function parameters and not get warnings
-# about them. Otherwise, define _U_ to be an empty string so that _U_ used
-# to flag an unused function parameters will compile with other compilers.
-#
-# XXX - similar hints for other compilers?
-#
-if test "x$GCC" = "xyes" -o "x$CC" = "xclang" ; then
-  AC_DEFINE(_U_, __attribute__((unused)), [Hint to the compiler that a function parameters is not used])
-  AC_DEFINE(WS_NORETURN, __attribute((noreturn)), [Hint to the compiler that a function never returns])
-else
-  AC_DEFINE(_U_, , [Hint to the compiler that a function parameters is not used])
-  AC_DEFINE(WS_NORETURN, , [Hint to the compiler that a function never returns])
-fi
-
 # If we're running GCC or CLang, use FORTIFY_SOURCE=2
 #  (only if the GCC 'optimization level' > 0).
 #

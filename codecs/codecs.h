@@ -23,10 +23,9 @@
 #ifndef _CODECS_H_
 #define _CODECS_H_
 
-#include <config.h>
-
 #include <epan/epan.h>
 #include "ws_symbol_export.h"
+#include "ws_attributes.h"
 
 #ifdef __cplusplus
 extern "C" {

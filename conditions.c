@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include "conditions.h"
+#include "ws_attributes.h"
 
 /* container for condition classes */
 static GHashTable *classes = NULL;

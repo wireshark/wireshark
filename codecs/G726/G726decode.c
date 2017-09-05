@@ -27,6 +27,8 @@
 #include "spandsp.h"
 #include "G726decode.h"
 
+#include "ws_attributes.h"
+
 typedef struct _g726_codec_ctx {
     g726_state_t *state;
     int bit_rate;

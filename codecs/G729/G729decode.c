@@ -27,6 +27,8 @@
 #include "bcg729/decoder.h"
 #include "G729decode.h"
 
+#include "ws_attributes.h"
+
 void *
 codec_g729_init(void)
 {
