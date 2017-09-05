@@ -14544,7 +14544,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
    * present in that list. Otherwise stop decoding the value to prevent possible
    * infinite recursions due to unexpected elements. */
   if (valid_element_ids_count) {
-    gboolean valid_tag_no;
+    gboolean valid_tag_no = FALSE;
     guint i;
 
     for (i = 0; i < valid_element_ids_count; i++) {

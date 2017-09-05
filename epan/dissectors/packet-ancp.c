@@ -634,7 +634,7 @@ dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     struct ancp_tap_t *ancp_info;
     proto_item        *ti;
     proto_item        *sti;
-    proto_item        *tti;
+    proto_item        *tti = NULL;
     proto_tree        *ancp_tree;
     proto_tree        *tlv_tree;
     guint8             byte;

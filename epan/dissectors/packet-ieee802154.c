@@ -2243,7 +2243,7 @@ dissect_ietf_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ies_tree, voi
     guint8     version;
     guint8     type;
     guint8     code;
-    guint8     num_cells;
+    guint8     num_cells = 0;
     gboolean   have_cell_list = FALSE;
     int        i;
     proto_item *sixtop_item = NULL;

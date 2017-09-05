@@ -695,7 +695,7 @@ dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int s
 {
     proto_item *message_ti, *decrypt_item;
     proto_tree *subtree;
-    tvbuff_t   *raw, *payload;
+    tvbuff_t   *raw, *payload = NULL;
     int         offset = start_offset;
     gint8       magic_byte;
     guint8      codec;

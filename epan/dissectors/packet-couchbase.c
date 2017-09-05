@@ -1774,7 +1774,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     } else if (request && opcode == PROTOCOL_BINARY_CMD_CREATE_BUCKET) {
       gint sep, equals_pos, sep_pos, config_len;
-      proto_tree *key_tree, *config_tree;
+      proto_tree *key_tree, *config_tree = NULL;
 
       /* There are 2 main items stored in the value. The bucket type (represented by a path to the engine) and the
        * bucket config. These are separated by a NULL byte with the bucket type coming first.*/

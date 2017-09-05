@@ -222,7 +222,7 @@ tap_init(void)
 int
 register_tap(const char *name)
 {
-	tap_dissector_t *td, *tdl = NULL, *tdl_prev;
+	tap_dissector_t *td, *tdl = NULL, *tdl_prev = NULL;
 	int i=0;
 
 	if(tap_dissector_list){

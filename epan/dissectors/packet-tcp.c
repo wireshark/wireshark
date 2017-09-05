@@ -867,7 +867,7 @@ check_follow_fragments(follow_info_t *follow_info, gboolean is_server, guint32 a
 {
     GList *fragment_entry;
     follow_record_t *fragment, *follow_record;
-    guint32 lowest_seq;
+    guint32 lowest_seq = 0;
     gchar *dummy_str;
 
     fragment_entry = g_list_first(follow_info->fragments[is_server]);
