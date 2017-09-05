@@ -4862,7 +4862,7 @@ dissect_gtpv2_pkt_flow_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     offset += 1;
 
     /* Packet Flow ID */
-    proto_tree_add_item(tree, hf_gtpv2_packet_flow_id, tvb, offset, length, ENC_NA);
+    proto_tree_add_item(tree, hf_gtpv2_packet_flow_id, tvb, offset, length - 1, ENC_NA);
 
 }
 /*
