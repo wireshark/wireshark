@@ -205,6 +205,9 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define IUC_RESERVED14 14
 #define IUC_EXPANSION 15
 
+#define MAP_v1 1
+#define MAP_v5 5
+
 #define RNGRSP_TIMING 1
 #define RNGRSP_PWR_LEVEL_ADJ 2
 #define RNGRSP_OFFSET_FREQ_ADJ 3
@@ -536,7 +539,8 @@ void proto_reg_handoff_docsis_mgmt(void);
 static int proto_docsis_mgmt = -1;
 static int proto_docsis_sync = -1;
 static int proto_docsis_ucd = -1;
-static int proto_docsis_map = -1;
+static int proto_docsis_map_v1 = -1;
+static int proto_docsis_map_v5 = -1;
 static int proto_docsis_rngreq = -1;
 static int proto_docsis_rngrsp = -1;
 static int proto_docsis_regreq = -1;
@@ -666,6 +670,7 @@ static int hf_docsis_ofdma_ir_pow_ctrl_step_size = -1;
 
 static int hf_docsis_map_ucd_count = -1;
 static int hf_docsis_map_numie = -1;
+static int hf_docsis_map_numie_v5 = -1;
 static int hf_docsis_map_alloc_start = -1;
 static int hf_docsis_map_ack_time = -1;
 static int hf_docsis_map_rng_start = -1;
@@ -673,10 +678,24 @@ static int hf_docsis_map_rng_end = -1;
 static int hf_docsis_map_data_start = -1;
 static int hf_docsis_map_data_end = -1;
 static int hf_docsis_map_ie = -1;
+static int hf_docsis_map_probe_ie = -1;
+
 static int hf_docsis_map_rsvd = -1;
+static int hf_docsis_map_rsvd_v5 = -1;
+static int hf_docsis_map_cat = -1;
+
 static int hf_docsis_map_sid = -1;
 static int hf_docsis_map_iuc = -1;
 static int hf_docsis_map_offset = -1;
+static int hf_docsis_map_mer = -1;
+static int hf_docsis_map_pw = -1;
+static int hf_docsis_map_eq = -1;
+static int hf_docsis_map_st = -1;
+static int hf_docsis_map_probe_frame = -1;
+static int hf_docsis_map_symbol_in_frame = -1;
+static int hf_docsis_map_start_subc = -1;
+static int hf_docsis_map_subc_skip = -1;
+
 
 static int hf_docsis_rngreq_sid = -1;
 static int hf_docsis_rngreq_pend_compl = -1;
@@ -1046,6 +1065,8 @@ static gint ett_docsis_burst_tlv = -1;
 
 static gint ett_docsis_map = -1;
 static gint ett_docsis_map_ie = -1;
+static gint ett_docsis_map_probe_ie = -1;
+
 
 static gint ett_docsis_rngreq = -1;
 
@@ -1156,6 +1177,7 @@ static gint ett_mgmt_pay = -1;
 
 static expert_field ei_docsis_mgmt_tlvlen_bad = EI_INIT;
 static expert_field ei_docsis_mgmt_tlvtype_unknown = EI_INIT;
+static expert_field ei_docsis_mgmt_version_unknown = EI_INIT;
 
 static dissector_table_t docsis_mgmt_dissector_table;
 static dissector_handle_t docsis_tlv_handle;
@@ -1318,6 +1340,14 @@ static const value_string iuc_vals[] = {
   {IUC_EXPANSION,                "Expanded IUC"},
   {0, NULL}
 };
+
+static const true_false_string mer_vals = {"measure RxMER at the CMTS on this probe", "do not measure RxMER at the CMTS on this probe"};
+
+static const true_false_string pw_vals = {"transmit using alternate power setting specified by the Start Subc field.", "transmit using normal power settings"};
+
+static const true_false_string eq_vals = {"equalizer disabled", "equalizer enabled"};
+
+static const true_false_string st_vals = {"stagger", "no stagger"};
 
 static const value_string last_cw_len_vals[] = {
   {1, "Fixed"},
@@ -2692,9 +2722,9 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
 }
 
 static int
-dissect_map (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
+dissect_any_map (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint8 version, void* data _U_)
 {
-  guint32 i, numie, upchid, ucd_count;
+  guint32 i, numie, upchid, ucd_count, cat;
   int pos;
   proto_item *it;
   proto_tree *map_tree;
@@ -2705,38 +2735,95 @@ dissect_map (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
     NULL
   };
 
-  it = proto_tree_add_item(tree, proto_docsis_map, tvb, 0, -1, ENC_NA);
+  static const int * probe_ies[] = {
+    &hf_docsis_map_sid,
+    &hf_docsis_map_mer,
+    &hf_docsis_map_pw,
+    &hf_docsis_map_eq,
+    &hf_docsis_map_st,
+    &hf_docsis_map_probe_frame,
+    &hf_docsis_map_symbol_in_frame,
+    &hf_docsis_map_start_subc,
+    &hf_docsis_map_subc_skip,
+    NULL
+  };
+
+  switch (version) {
+    case 1:
+      it = proto_tree_add_item(tree, proto_docsis_map_v1, tvb, 0, -1, ENC_NA);
+      break;
+    case 5:
+      it = proto_tree_add_item(tree, proto_docsis_map_v5, tvb, 0, -1, ENC_NA);
+      break;
+    default:
+      it = proto_tree_add_item(tree, proto_docsis_map_v1, tvb, 0, -1, ENC_NA);
+      expert_add_info_format(pinfo, it, &ei_docsis_mgmt_version_unknown, "Unknown MAP Mac Management version: %u", version);
+      return tvb_captured_length(tvb);
+  }
+
   map_tree = proto_item_add_subtree (it, ett_docsis_map);
 
   proto_tree_add_item_ret_uint (map_tree, hf_docsis_mgt_upstream_chid, tvb, 0, 1, ENC_BIG_ENDIAN, &upchid);
   proto_tree_add_item_ret_uint (map_tree, hf_docsis_map_ucd_count, tvb, 1, 1, ENC_BIG_ENDIAN, &ucd_count);
-  proto_tree_add_item_ret_uint (map_tree, hf_docsis_map_numie, tvb, 2, 1, ENC_BIG_ENDIAN, &numie);
+  switch (version) {
+    case 1:
+      proto_tree_add_item_ret_uint (map_tree, hf_docsis_map_numie, tvb, 2, 1, ENC_BIG_ENDIAN, &numie);
+      proto_tree_add_item (map_tree, hf_docsis_map_rsvd, tvb, 3, 1, ENC_BIG_ENDIAN);
+      break;
+    case 5:
+      proto_tree_add_item_ret_uint (map_tree, hf_docsis_map_numie_v5, tvb, 2, 2, ENC_BIG_ENDIAN, &numie);
+      proto_tree_add_item (map_tree, hf_docsis_map_rsvd_v5, tvb, 3, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item_ret_uint (map_tree, hf_docsis_map_cat, tvb, 3, 1, ENC_BIG_ENDIAN, &cat);
+      break;
+    default:
+      it = proto_tree_add_item(tree, proto_docsis_map_v1, tvb, 0, -1, ENC_NA);
+      expert_add_info_format(pinfo, it, &ei_docsis_mgmt_version_unknown, "Unknown MAP Mac Management version: %u", version);
+      return tvb_captured_length(tvb);
+  }
 
   if (upchid > 0)
     col_add_fstr (pinfo->cinfo, COL_INFO,
-                  "Map Message:  Channel ID = %u (U%u), UCD Count = %u,  # IE's = %u",
-                  upchid, upchid - 1, ucd_count, numie);
+                  "Map Message:  Version: %d, Channel ID = %u (U%u), UCD Count = %u,  # IE's = %u",
+                  version, upchid, upchid - 1, ucd_count, numie);
   else
     col_add_fstr (pinfo->cinfo, COL_INFO,
-                  "Map Message:  Channel ID = %u (Telephony Return), UCD Count = %u, # IE's = %u",
-                  upchid, ucd_count, numie);
+                  "Map Message:  Version: %d, Channel ID = %u (Telephony Return), UCD Count = %u, # IE's = %u",
+                  version, upchid, ucd_count, numie);
 
-  proto_tree_add_item (map_tree, hf_docsis_map_rsvd, tvb, 3, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item (map_tree, hf_docsis_map_alloc_start, tvb, 4, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item (map_tree, hf_docsis_map_ack_time, tvb, 8, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item (map_tree, hf_docsis_map_rng_start, tvb, 12, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item (map_tree, hf_docsis_map_rng_end, tvb, 13, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item (map_tree, hf_docsis_map_data_start, tvb, 14, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item (map_tree, hf_docsis_map_data_end, tvb, 15, 1, ENC_BIG_ENDIAN);
+  if (cat == 0) {
+    proto_tree_add_item (map_tree, hf_docsis_map_ack_time, tvb, 8, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item (map_tree, hf_docsis_map_rng_start, tvb, 12, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (map_tree, hf_docsis_map_rng_end, tvb, 13, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (map_tree, hf_docsis_map_data_start, tvb, 14, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (map_tree, hf_docsis_map_data_end, tvb, 15, 1, ENC_BIG_ENDIAN);
 
-  pos = 16;
-  for (i = 0; i < numie; i++)
-  {
-    proto_tree_add_bitmask_with_flags(map_tree, tvb, pos, hf_docsis_map_ie, ett_docsis_map_ie, ies, ENC_BIG_ENDIAN, BMT_NO_FLAGS);
-    pos = pos + 4;
+    pos = 16;
+    for (i = 0; i < numie; i++)
+    {
+      proto_tree_add_bitmask_with_flags(map_tree, tvb, pos, hf_docsis_map_ie, ett_docsis_map_ie, ies, ENC_BIG_ENDIAN, BMT_NO_FLAGS);
+      pos = pos + 4;
+    }
+  }
+  if (cat == 1) {
+    pos = 8;
+    for (i = 0; i < numie; i++)
+    {
+      proto_tree_add_bitmask_with_flags(map_tree, tvb, pos, hf_docsis_map_probe_ie, ett_docsis_map_probe_ie, probe_ies, ENC_BIG_ENDIAN, BMT_NO_FLAGS);
+      pos = pos + 4;
+    }
   }
 
   return tvb_captured_length(tvb);
+}
+
+
+static int dissect_map_v1 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_) {
+  return dissect_any_map(tvb, pinfo, tree, MAP_v1, data);
+}
+
+static int dissect_map_v5 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_) {
+  return dissect_any_map(tvb, pinfo, tree, MAP_v5, data);
 }
 
 static int
@@ -5757,7 +5844,7 @@ dissect_type51ucd(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
 static int
 dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
-  guint32 type, msg_len;
+  guint32 type, version, msg_len;
   proto_item *mgt_hdr_it;
   proto_tree *mgt_hdr_tree;
   tvbuff_t *payload_tvb;
@@ -5779,7 +5866,7 @@ dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* d
   proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_dsap, tvb, 14, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_ssap, tvb, 15, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_control, tvb, 16, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_version, tvb, 17, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint (mgt_hdr_tree, hf_docsis_mgt_version, tvb, 17, 1, ENC_BIG_ENDIAN, &version);
   proto_tree_add_item_ret_uint (mgt_hdr_tree, hf_docsis_mgt_type, tvb, 18, 1, ENC_BIG_ENDIAN, &type);
   proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_rsvd, tvb, 19, 1, ENC_BIG_ENDIAN);
 
@@ -5787,8 +5874,16 @@ dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* d
   /* sub-dissectors are based on the type field */
   payload_tvb = tvb_new_subset_length (tvb, 20, msg_len - 6);
 
-  if (!dissector_try_uint(docsis_mgmt_dissector_table, type, payload_tvb, pinfo, tree))
-    call_data_dissector(payload_tvb, pinfo, tree);
+  /* Special case: map needs version. Two types of MAPs exist, with some difference in encoding: MAPv1 and MAPv5. See also DOCSIS3.1 MULPI spec */
+  if (type == MGT_MAP) {
+    if (!dissector_try_uint(docsis_mgmt_dissector_table, 256*version + type, payload_tvb, pinfo, tree)) {
+      call_data_dissector(payload_tvb, pinfo, tree);
+    }
+  } else {
+    if (!dissector_try_uint(docsis_mgmt_dissector_table, type, payload_tvb, pinfo, tree)) {
+      call_data_dissector(payload_tvb, pinfo, tree);
+    }
+  }
 
   return tvb_captured_length(tvb);
 }
@@ -6241,6 +6336,22 @@ proto_register_docsis_mgmt (void)
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Number of Information Elements", HFILL}
     },
+    {&hf_docsis_map_numie_v5,
+     {"Number of IE's", "docsis_map.numie",
+      FT_UINT16, BASE_DEC, NULL, 0xFF80,
+      "Number of Information Elements", HFILL}
+    },
+    {&hf_docsis_map_rsvd_v5,
+     {"Reserved [0x00]", "docsis_map.rsvd",
+      FT_UINT8, BASE_HEX, NULL, 0x70,
+      "Reserved Byte", HFILL}
+    },
+    {&hf_docsis_map_cat,
+     {"CAT", "docsis_map.cat",
+      FT_UINT8, BASE_HEX, NULL, 0x0F,
+      NULL, HFILL}
+    },
+
     {&hf_docsis_map_alloc_start,
      {"Alloc Start Time (minislots)", "docsis_map.allocstart",
       FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -6276,6 +6387,11 @@ proto_register_docsis_mgmt (void)
       FT_UINT32, BASE_HEX, NULL, 0x0,
       NULL, HFILL}
     },
+    {&hf_docsis_map_probe_ie,
+     {"Probe Information Element", "docsis_map.probe_ie",
+      FT_UINT32, BASE_HEX, NULL, 0x0,
+      NULL, HFILL}
+    },
     {&hf_docsis_map_rsvd,
      {"Reserved", "docsis_map.rsvd",
       FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -6296,6 +6412,47 @@ proto_register_docsis_mgmt (void)
       FT_UINT32, BASE_DEC, NULL, 0x00003fff,
       NULL, HFILL}
     },
+    {&hf_docsis_map_mer,
+     {"MER", "docsis_map.mer",
+      FT_BOOLEAN, 32, TFS(&mer_vals), 0x00020000,
+      NULL, HFILL}
+    },
+    {&hf_docsis_map_pw,
+     {"PW (Power)", "docsis_map.pw",
+      FT_BOOLEAN, 32, TFS(&pw_vals), 0x00010000,
+      NULL, HFILL}
+    },
+    {&hf_docsis_map_eq,
+     {"EQ (TX Equalization)", "docsis_map.eq",
+      FT_BOOLEAN, 32, TFS(&eq_vals), 0x00008000,
+      NULL, HFILL}
+    },
+    {&hf_docsis_map_st,
+     {"St (Stagger)", "docsis_map.st",
+      FT_BOOLEAN, 32, TFS(&st_vals), 0x00004000,
+      NULL, HFILL}
+    },
+    {&hf_docsis_map_probe_frame,
+     {"Probe Frame", "docsis_map.probe_frame",
+      FT_UINT32, BASE_DEC, NULL, 0x00003000,
+      NULL, HFILL}
+    },
+    {&hf_docsis_map_symbol_in_frame,
+     {"Symbol in Frame", "docsis_map.symbol_in_frame",
+      FT_UINT32, BASE_DEC, NULL, 0x00000fc0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_map_start_subc,
+     {"Start Subc", "docsis_map.start_subc",
+      FT_UINT32, BASE_DEC, NULL, 0x00000038,
+      NULL, HFILL}
+    },
+    {&hf_docsis_map_subc_skip,
+     {"Subc Skip", "docsis_map.subc_skip",
+      FT_UINT32, BASE_DEC, NULL, 0x00000007,
+      NULL, HFILL}
+    },
+
     /* RNG-REQ */
     {&hf_docsis_rngreq_sid,
      {"Service Identifier", "docsis_rngreq.sid",
@@ -8224,6 +8381,7 @@ proto_register_docsis_mgmt (void)
     &ett_docsis_burst_tlv,
     &ett_docsis_map,
     &ett_docsis_map_ie,
+    &ett_docsis_map_probe_ie,
     &ett_docsis_rngreq,
     &ett_docsis_rngrsp,
     &ett_docsis_rngrsptlv,
@@ -8313,6 +8471,7 @@ proto_register_docsis_mgmt (void)
   static ei_register_info ei[] = {
     {&ei_docsis_mgmt_tlvlen_bad, {"docsis_mgmt.tlvlenbad", PI_MALFORMED, PI_ERROR, "Bad TLV length", EXPFILL}},
     {&ei_docsis_mgmt_tlvtype_unknown, { "docsis_mgmt.tlvtypeunknown", PI_PROTOCOL, PI_WARN, "Unknown TLV type", EXPFILL}},
+    {&ei_docsis_mgmt_version_unknown, { "docsis_mgmt.versionunknown", PI_PROTOCOL, PI_WARN, "Unknown mac management version", EXPFILL}},
    };
 
   expert_module_t* expert_docsis_mgmt;
@@ -8331,7 +8490,8 @@ proto_register_docsis_mgmt (void)
   /* Register Mac Management commands as their own protocols so we can get the name of the option */
   proto_docsis_sync = proto_register_protocol_in_name_only("DOCSIS Synchronisation Message", "SYNC Message", "docsis_sync", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_ucd = proto_register_protocol_in_name_only("DOCSIS Upstream Channel Descriptor", "DOCSIS UCD", "docsis_ucd", proto_docsis_mgmt, FT_BYTES);
-  proto_docsis_map = proto_register_protocol_in_name_only("DOCSIS Upstream Bandwidth Allocation", "DOCSIS MAP", "docsis_map", proto_docsis_mgmt, FT_BYTES);
+  proto_docsis_map_v1 = proto_register_protocol_in_name_only("DOCSIS Upstream Bandwidth Allocation - version 1", "DOCSIS MAP", "docsis_map", proto_docsis_mgmt, FT_BYTES);
+  proto_docsis_map_v5 = proto_register_protocol_in_name_only("DOCSIS Upstream Bandwidth Allocation - version 5", "DOCSIS MAP", "docsis_map", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_rngreq = proto_register_protocol_in_name_only("DOCSIS Range Request Message", "DOCSIS RNG-REQ", "docsis_rngreq", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_rngrsp = proto_register_protocol_in_name_only("DOCSIS Ranging Response", "DOCSIS RNG-RSP", "docsis_rngrsp", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_regreq = proto_register_protocol_in_name_only("DOCSIS Registration Requests", "DOCSIS REG-REQ", "docsis_regreq", proto_docsis_mgmt, FT_BYTES);
@@ -8381,7 +8541,8 @@ proto_reg_handoff_docsis_mgmt (void)
   /* Create dissection function handles for all Mac Management commands */
   dissector_add_uint ("docsis_mgmt", MGT_SYNC, create_dissector_handle( dissect_sync, proto_docsis_sync ));
   dissector_add_uint ("docsis_mgmt", MGT_UCD, create_dissector_handle( dissect_ucd, proto_docsis_ucd ));
-  dissector_add_uint ("docsis_mgmt", MGT_MAP, create_dissector_handle( dissect_map, proto_docsis_map ));
+  dissector_add_uint ("docsis_mgmt", 256*MAP_v1 + MGT_MAP, create_dissector_handle( dissect_map_v1, proto_docsis_map_v1 ));
+  dissector_add_uint ("docsis_mgmt", 256*MAP_v5 + MGT_MAP, create_dissector_handle( dissect_map_v5, proto_docsis_map_v5 ));
   dissector_add_uint ("docsis_mgmt", MGT_RNG_REQ, create_dissector_handle( dissect_rngreq, proto_docsis_rngreq ));
   dissector_add_uint ("docsis_mgmt", MGT_RNG_RSP, create_dissector_handle( dissect_rngrsp, proto_docsis_rngrsp ));
   dissector_add_uint ("docsis_mgmt", MGT_REG_REQ, create_dissector_handle( dissect_regreq, proto_docsis_regreq ));
