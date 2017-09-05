@@ -9411,7 +9411,7 @@ void proto_register_asterix (void)
         { &hf_048_040_THETA, { "THETA[deg]", "asterix.048_040_THETA", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_048_042, { "042, Calculated Position in Cartesian Co-ordinates", "asterix.048_042", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_048_042_X, { "X[NM]", "asterix.048_042_X", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_048_042_Y, { "Y[deg]", "asterix.048_042_Y", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_048_042_Y, { "Y[NM]", "asterix.048_042_Y", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_048_050, { "050, Mode-2 Code in Octal Representation", "asterix.048_050", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_048_050_V, { "V", "asterix.048_050_V", FT_UINT8, BASE_DEC, VALS (valstr_048_050_V), 0x80, NULL, HFILL } },
         { &hf_048_050_G, { "G", "asterix.048_050_G", FT_UINT8, BASE_DEC, VALS (valstr_048_050_G), 0x40, NULL, HFILL } },
