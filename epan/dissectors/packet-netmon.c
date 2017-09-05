@@ -212,6 +212,7 @@ static gint ett_netmon_network_info = -1;
 static gint ett_netmon_network_info_list = -1;
 static gint ett_netmon_network_info_adapter = -1;
 static gint ett_netmon_system_trace = -1;
+static gint ett_netmon_event_buffer_context = -1;
 
 static dissector_table_t wtap_encap_table;
 
@@ -299,7 +300,7 @@ static int
 dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *ti, *extended_data_item;
-	proto_tree *event_tree, *event_desc_tree, *extended_data_tree;
+	proto_tree *event_tree, *event_desc_tree, *extended_data_tree, *buffer_context_tree;
 	int offset = 0, extended_data_count_offset;
 	guint32 i, thread_id, process_id, extended_data_count, extended_data_size, user_data_size;
 	nstime_t timestamp;
@@ -375,7 +376,7 @@ dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	offset += 1;
 	proto_tree_add_item(event_desc_tree, hf_netmon_event_event_desc_task, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
-	proto_tree_add_item(event_desc_tree, hf_netmon_event_event_desc_keyword, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint64(event_desc_tree, hf_netmon_event_event_desc_keyword, tvb, offset, 8, ENC_LITTLE_ENDIAN, &provider_id_data.keyword);
 	offset += 8;
 
 	if (provider_id_data.event_flags & (EVENT_HEADER_FLAG_PRIVATE_SESSION | EVENT_HEADER_FLAG_NO_CPUTIME))
@@ -394,12 +395,15 @@ dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
 	proto_tree_add_item(event_tree, hf_netmon_event_activity_id, tvb, offset, 16, ENC_LITTLE_ENDIAN);
 	offset += 16;
-	proto_tree_add_item(event_tree, hf_netmon_event_processor_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
+	buffer_context_tree = proto_tree_add_subtree(event_tree, tvb, offset, 4, ett_netmon_event_buffer_context, NULL, "BufferContext");
+	proto_tree_add_item(buffer_context_tree, hf_netmon_event_processor_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(event_tree, hf_netmon_event_alignment, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(buffer_context_tree, hf_netmon_event_alignment, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(event_tree, hf_netmon_event_logger_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(buffer_context_tree, hf_netmon_event_logger_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
+
 	proto_tree_add_item_ret_uint(event_tree, hf_netmon_event_extended_data_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &extended_data_count);
 	offset += 2;
 	proto_tree_add_item_ret_uint(event_tree, hf_netmon_event_user_data_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &user_data_size);
@@ -1167,6 +1171,7 @@ void proto_register_netmon(void)
 		&ett_netmon_network_info_list,
 		&ett_netmon_network_info_adapter,
 		&ett_netmon_system_trace,
+		&ett_netmon_event_buffer_context,
 	};
 
 	proto_netmon_header = proto_register_protocol ("Network Monitor Header", "NetMon Header", "netmon_header" );
