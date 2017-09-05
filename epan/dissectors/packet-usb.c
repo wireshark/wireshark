@@ -4426,20 +4426,6 @@ dissect_freebsd_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent, void 
     return tvb_captured_length(tvb);
 }
 
-static void
-netmon_etl_field(proto_tree *tree, tvbuff_t *tvb, int* offset, int hf, guint16 flags)
-{
-    if (flags & EVENT_HEADER_FLAG_64_BIT_HEADER) {
-        /* XXX - This seems to be how values are displayed in Network Monitor */
-        guint64 value = tvb_get_letoh64(tvb, *offset) & 0xFFFFFFFF;
-        proto_tree_add_uint64(tree, hf, tvb, *offset, 8, value);
-        (*offset) += 8;
-    } else {
-        proto_tree_add_item(tree, hf, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
-        (*offset) += 4;
-    }
-}
-
 static int
 netmon_HostController2(proto_tree *tree, tvbuff_t *tvb, int offset, guint16 flags)
 {

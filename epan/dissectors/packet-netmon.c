@@ -87,6 +87,7 @@ static int proto_netmon_header = -1;
 static int proto_netmon_event = -1;
 static int proto_netmon_filter = -1;
 static int proto_netmon_network_info = -1;
+static int proto_netmon_system_trace = -1;
 
 static int hf_netmon_header_title_comment = -1;
 static int hf_netmon_header_description_comment = -1;
@@ -166,6 +167,39 @@ static int hf_netmon_network_info_dhcp_server = -1;
 static int hf_netmon_network_info_dns_ipv4 = -1;
 static int hf_netmon_network_info_dns_ipv6 = -1;
 
+static int hf_netmon_system_trace_buffer_size = -1;
+static int hf_netmon_system_trace_version = -1;
+static int hf_netmon_system_trace_provider_version = -1;
+static int hf_netmon_system_trace_num_processors = -1;
+static int hf_netmon_system_trace_end_time = -1;
+static int hf_netmon_system_trace_timer_resolution = -1;
+static int hf_netmon_system_trace_max_file_size = -1;
+static int hf_netmon_system_trace_log_file_mode = -1;
+static int hf_netmon_system_trace_buffers_written = -1;
+static int hf_netmon_system_trace_start_buffers = -1;
+static int hf_netmon_system_trace_pointers_size = -1;
+static int hf_netmon_system_trace_events_lost = -1;
+static int hf_netmon_system_trace_cpu_speed = -1;
+static int hf_netmon_system_trace_logger_name = -1;
+static int hf_netmon_system_trace_log_file_name_ptr = -1;
+static int hf_netmon_system_trace_time_zone_info = -1;
+static int hf_netmon_system_trace_boot_time = -1;
+static int hf_netmon_system_trace_perf_freq = -1;
+static int hf_netmon_system_trace_start_time = -1;
+static int hf_netmon_system_trace_reserved_flags = -1;
+static int hf_netmon_system_trace_buffers_lost = -1;
+static int hf_netmon_system_trace_session_name = -1;
+static int hf_netmon_system_trace_log_file_name = -1;
+static int hf_netmon_system_trace_group_mask1 = -1;
+static int hf_netmon_system_trace_group_mask2 = -1;
+static int hf_netmon_system_trace_group_mask3 = -1;
+static int hf_netmon_system_trace_group_mask4 = -1;
+static int hf_netmon_system_trace_group_mask5 = -1;
+static int hf_netmon_system_trace_group_mask6 = -1;
+static int hf_netmon_system_trace_group_mask7 = -1;
+static int hf_netmon_system_trace_group_mask8 = -1;
+static int hf_netmon_system_trace_kernel_event_version = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_netmon_header = -1;
 static gint ett_netmon_event = -1;
@@ -177,8 +211,23 @@ static gint ett_netmon_filter = -1;
 static gint ett_netmon_network_info = -1;
 static gint ett_netmon_network_info_list = -1;
 static gint ett_netmon_network_info_adapter = -1;
+static gint ett_netmon_system_trace = -1;
 
 static dissector_table_t wtap_encap_table;
+
+void
+netmon_etl_field(proto_tree *tree, tvbuff_t *tvb, int* offset, int hf, guint16 flags)
+{
+	if (flags & EVENT_HEADER_FLAG_64_BIT_HEADER) {
+		/* XXX - This seems to be how values are displayed in Network Monitor */
+		guint64 value = tvb_get_letoh64(tvb, *offset) & 0xFFFFFFFF;
+		proto_tree_add_uint64(tree, hf, tvb, *offset, 8, value);
+		(*offset) += 8;
+	} else {
+		proto_tree_add_item(tree, hf, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+		(*offset) += 4;
+	}
+}
 
 /* Code to actually dissect the packets */
 static int
@@ -554,6 +603,116 @@ dissect_netmon_network_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return tvb_captured_length(tvb);
 }
 
+static int
+dissect_netmon_system_trace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+	proto_item *ti;
+	proto_tree *system_tree;
+	int offset = 0;
+	struct netmon_provider_id_data *provider_id_data = (struct netmon_provider_id_data*)data;
+	guint length;
+	nstime_t timestamp;
+
+	DISSECTOR_ASSERT(provider_id_data != NULL);
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NetMon System Trace");
+	col_clear(pinfo->cinfo, COL_INFO);
+
+	ti = proto_tree_add_item(tree, proto_netmon_system_trace, tvb, 0, -1, ENC_NA);
+	system_tree = proto_item_add_subtree(ti, ett_netmon_system_trace);
+
+	switch (provider_id_data->event_id)
+	{
+	case 0:
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_buffer_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_provider_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_num_processors, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+
+		timestamp.secs = 0;
+		timestamp.nsecs = 0;
+		filetime_to_nstime(&timestamp, tvb_get_letoh64(tvb, offset));
+		proto_tree_add_time(system_tree, hf_netmon_system_trace_end_time, tvb, offset, 8, &timestamp);
+		offset += 8;
+
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_timer_resolution, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_max_file_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_log_file_mode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_buffers_written, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_start_buffers, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_pointers_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_events_lost, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_cpu_speed, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		netmon_etl_field(system_tree, tvb, &offset, hf_netmon_system_trace_logger_name, provider_id_data->event_flags);
+		netmon_etl_field(system_tree, tvb, &offset, hf_netmon_system_trace_log_file_name_ptr, provider_id_data->event_flags);
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_time_zone_info, tvb, offset, 176, ENC_NA);
+		offset += 176;
+
+		timestamp.secs = 0;
+		timestamp.nsecs = 0;
+		filetime_to_nstime(&timestamp, tvb_get_letoh64(tvb, offset));
+		proto_tree_add_time(system_tree, hf_netmon_system_trace_boot_time, tvb, offset, 8, &timestamp);
+		offset += 8;
+
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_perf_freq, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		offset += 8;
+
+		timestamp.secs = 0;
+		timestamp.nsecs = 0;
+		filetime_to_nstime(&timestamp, tvb_get_letoh64(tvb, offset));
+		proto_tree_add_time(system_tree, hf_netmon_system_trace_start_time, tvb, offset, 8, &timestamp);
+		offset += 8;
+
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_reserved_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_buffers_lost, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		length = tvb_unicode_strsize(tvb, offset);
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_session_name, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+		offset += length;
+		length = tvb_unicode_strsize(tvb, offset);
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_log_file_name, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+		break;
+	case 5:
+	case 32:
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_group_mask1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_group_mask2, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_group_mask3, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_group_mask4, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_group_mask5, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_group_mask6, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_group_mask7, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_group_mask8, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(system_tree, hf_netmon_system_trace_kernel_event_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		break;
+	case 8: // EventTrace_RDComplete
+		break;
+	}
+
+	return tvb_captured_length(tvb);
+}
+
 void proto_register_netmon(void)
 {
 	static hf_register_info hf_header[] = {
@@ -865,6 +1024,137 @@ void proto_register_netmon(void)
 		},
 	};
 
+	static hf_register_info hf_system_trace[] = {
+		{ &hf_netmon_system_trace_buffer_size,
+			{ "Buffer size", "netmon_system_trace.buffer_size",
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_version,
+			{ "Version", "netmon_system_trace.version",
+			FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_provider_version,
+			{ "Provider version", "netmon_system_trace.provider_version",
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_num_processors,
+			{ "Number of processors", "netmon_system_trace.num_processors",
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_end_time,
+			{ "End time", "netmon_system_trace.end_time",
+			FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_timer_resolution,
+			{ "Timer resolution", "netmon_system_trace.timer_resolution",
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_max_file_size,
+			{ "Max file size", "netmon_system_trace.max_file_size",
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_log_file_mode,
+			{ "Log file mode", "netmon_system_trace.log_file_mode",
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_buffers_written,
+			{ "Buffers written", "netmon_system_trace.buffers_written",
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_start_buffers,
+			{ "Start buffers", "netmon_system_trace.start_buffers",
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_pointers_size,
+			{ "Pointers size", "netmon_system_trace.pointers_size",
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_events_lost,
+			{ "Events lost", "netmon_system_trace.events_lost",
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_cpu_speed,
+			{ "CPU speed", "netmon_system_trace.cpu_speed",
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_logger_name,
+			{ "Logger name", "netmon_system_trace.logger_name",
+			FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_log_file_name_ptr,
+			{ "Log file name", "netmon_system_trace.log_file_name_ptr",
+			FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_time_zone_info,
+			{ "Time zone info", "netmon_system_trace.time_zone_info",
+			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_boot_time,
+			{ "Boot time", "netmon_system_trace.boot_time",
+			FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_perf_freq,
+			{ "Perf freq", "netmon_system_trace.pref_freq",
+			FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_start_time,
+			{ "Start time", "netmon_system_trace.start_time",
+			FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_reserved_flags,
+			{ "Reserved Flags", "netmon_system_trace.reserved_flags",
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_buffers_lost,
+			{ "Buffers lost", "netmon_system_trace.buffers_lost",
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_session_name,
+			{ "Session name", "netmon_system_trace.session_name",
+			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_log_file_name,
+			{ "Log file name", "netmon_system_trace.log_file_name",
+			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_group_mask1,
+			{ "Group Mask1", "netmon_system_trace.group_mask1",
+			FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_group_mask2,
+			{ "Group Mask2", "netmon_system_trace.group_mask2",
+			FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_group_mask3,
+			{ "Group Mask3", "netmon_system_trace.group_mask3",
+			FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_group_mask4,
+			{ "Group Mask4", "netmon_system_trace.group_mask4",
+			FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_group_mask5,
+			{ "Group Mask5", "netmon_system_trace.group_mask5",
+			FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_group_mask6,
+			{ "Group Mask6", "netmon_system_trace.group_mask6",
+			FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_group_mask7,
+			{ "Group Mask7", "netmon_system_trace.group_mask7",
+			FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_group_mask8,
+			{ "Group Mask8", "netmon_system_trace.group_mask8",
+			FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_netmon_system_trace_kernel_event_version,
+			{ "Kernel event version", "netmon_system_trace.kernel_event_version",
+			FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
+		},
+	};
+
 	static gint *ett[] = {
 		&ett_netmon_header,
 		&ett_netmon_event,
@@ -875,13 +1165,15 @@ void proto_register_netmon(void)
 		&ett_netmon_filter,
 		&ett_netmon_network_info,
 		&ett_netmon_network_info_list,
-		&ett_netmon_network_info_adapter
+		&ett_netmon_network_info_adapter,
+		&ett_netmon_system_trace,
 	};
 
 	proto_netmon_header = proto_register_protocol ("Network Monitor Header", "NetMon Header", "netmon_header" );
 	proto_netmon_event = proto_register_protocol ("Network Monitor Event", "NetMon Event", "netmon_event" );
 	proto_netmon_filter = proto_register_protocol ("Network Monitor Filter", "NetMon Filter", "netmon_filter" );
 	proto_netmon_network_info = proto_register_protocol ("Network Monitor Network Info", "NetMon Network Info", "netmon_network_info" );
+	proto_netmon_system_trace = proto_register_protocol ("Network Monitor System Trace", "NetMon System Trace", "netmon_system_trace" );
 
 	provider_id_table = register_dissector_table("netmon.provider_id", "NetMon Provider IDs", proto_netmon_event, FT_GUID, BASE_HEX);
 
@@ -889,23 +1181,30 @@ void proto_register_netmon(void)
 	proto_register_field_array(proto_netmon_event, hf_event, array_length(hf_event));
 	proto_register_field_array(proto_netmon_filter, hf_filter, array_length(hf_filter));
 	proto_register_field_array(proto_netmon_network_info, hf_network_info, array_length(hf_network_info));
+	proto_register_field_array(proto_netmon_system_trace, hf_system_trace, array_length(hf_system_trace));
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void proto_reg_handoff_netmon(void)
 {
 	dissector_handle_t netmon_event_handle, netmon_filter_handle,
-						netmon_network_info_handle, netmon_header_handle;
+						netmon_network_info_handle, netmon_header_handle,
+						system_trace_handle;
+
+	static guid_key system_trace_guid = {{ 0x68fdd900, 0x4a3e, 0x11d1, { 0x84, 0xf4, 0x00, 0x00, 0xf8, 0x04, 0x64, 0xe3 }}, 0 };
 
 	netmon_event_handle = create_dissector_handle(dissect_netmon_event, proto_netmon_event);
 	netmon_filter_handle = create_dissector_handle(dissect_netmon_filter, proto_netmon_filter);
 	netmon_network_info_handle = create_dissector_handle(dissect_netmon_network_info, proto_netmon_network_info);
 	netmon_header_handle = create_dissector_handle(dissect_netmon_header, proto_netmon_header);
+	system_trace_handle = create_dissector_handle(dissect_netmon_system_trace, proto_netmon_system_trace);
 
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_NETMON_NET_NETEVENT, netmon_event_handle);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_NETMON_NET_FILTER, netmon_filter_handle);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_NETMON_NETWORK_INFO_EX, netmon_network_info_handle);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_NETMON_HEADER, netmon_header_handle);
+
+	dissector_add_guid( "netmon.provider_id", &system_trace_guid, system_trace_handle);
 
 	wtap_encap_table = find_dissector_table("wtap_encap");
 }

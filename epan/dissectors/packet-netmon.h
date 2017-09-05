@@ -38,6 +38,9 @@ struct netmon_provider_id_data
     guint16 event_flags;
 };
 
+
+void netmon_etl_field(proto_tree *tree, tvbuff_t *tvb, int* offset, int hf, guint16 flags);
+
 #endif /* PACKET_NETMON_H */
 
 /*
