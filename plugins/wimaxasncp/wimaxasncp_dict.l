@@ -794,7 +794,7 @@ wimaxasncp_dict_t *wimaxasncp_dict_scan(
 void wimaxasncp_dict_free(wimaxasncp_dict_t *d) {
 	wimaxasncp_dict_tlv_t *t, *tn;
 
-#define FREE_NAMEANDOBJ(n) do { if(n->name) g_free(n->name); g_free(n); } while(0)
+#define FREE_NAMEANDOBJ(n) do { g_free(n->name); g_free(n); } while(0)
 
 	for (t = d->tlvs; t; t = tn) {
 		wimaxasncp_dict_enum_t *e, *en;
@@ -805,7 +805,7 @@ void wimaxasncp_dict_free(wimaxasncp_dict_t *d) {
 			FREE_NAMEANDOBJ(e);
 		}
 
-		if (!t->description)  g_free(t->description);
+		g_free(t->description);
 		FREE_NAMEANDOBJ(t);
 	}
 
