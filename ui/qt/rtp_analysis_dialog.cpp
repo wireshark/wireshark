@@ -1371,8 +1371,8 @@ void RtpAnalysisDialog::saveCsv(RtpAnalysisDialog::StreamDirection direction)
     if (direction == dir_reverse_ || direction == dir_both_) {
         save_file.write("Reverse\n");
 
-        for (int row = 0; row < ui->forwardTreeWidget->topLevelItemCount(); row++) {
-            QTreeWidgetItem *ti = ui->forwardTreeWidget->topLevelItem(row);
+        for (int row = 0; row < ui->reverseTreeWidget->topLevelItemCount(); row++) {
+            QTreeWidgetItem *ti = ui->reverseTreeWidget->topLevelItem(row);
             if (ti->type() != rtp_analysis_type_) continue;
             RtpAnalysisTreeWidgetItem *ra_ti = dynamic_cast<RtpAnalysisTreeWidgetItem *>((RtpAnalysisTreeWidgetItem *)ti);
             QStringList values;
