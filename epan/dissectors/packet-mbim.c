@@ -24,6 +24,7 @@
 /* Dissector based on MBIM specification 1.0 Errata-1
  * http://www.usb.org/developers/devclass_docs/MBIM10Errata1_073013.zip
  * http://compliance.usb.org/mbim/
+ * http://www.usb.org/developers/docs/devclass_docs/MBIMMultiflow10.zip
  */
 
 #include "config.h"
@@ -74,6 +75,7 @@ static int hf_mbim_uuid_intel_nrtc_cid = -1;
 static int hf_mbim_uuid_intel_usb_profile_cid = -1;
 static int hf_mbim_uuid_intel_ciq_cid = -1;
 static int hf_mbim_uuid_atds_cid = -1;
+static int hf_mbim_uuid_multiflow_cid = -1;
 static int hf_mbim_cid = -1;
 static int hf_mbim_command_type = -1;
 static int hf_mbim_info_buffer_len = -1;
@@ -660,6 +662,15 @@ static int hf_mbim_atds_projection_table_b0 = -1;
 static int hf_mbim_atds_projection_tables_elem_count = -1;
 static int hf_mbim_atds_projection_tables_projection_table_offset = -1;
 static int hf_mbim_atds_projection_tables_projection_table_size = -1;
+static int hf_mbim_multiflow_caps_info_control_caps = -1;
+static int hf_mbim_multiflow_caps_info_control_caps_uplink = -1;
+static int hf_mbim_multiflow_caps_info_control_caps_downlink = -1;
+static int hf_mbim_set_multiflow_state_state = -1;
+static int hf_mbim_multiflow_state_info_state = -1;
+static int hf_mbim_multiflow_tft_info_session_id = -1;
+static int hf_mbim_multiflow_tft_info_elem_count = -1;
+static int hf_mbim_multiflow_tft_info_tft_list_offset = -1;
+static int hf_mbim_multiflow_tft_info_tft_list_size = -1;
 static int hf_mbim_fragmented_payload = -1;
 static int hf_mbim_request_in = -1;
 static int hf_mbim_response_in = -1;
@@ -685,7 +696,9 @@ static int hf_mbim_bulk_nth_ndp_index = -1;
 static int hf_mbim_bulk_nth_ndp_index_32 = -1;
 static int hf_mbim_bulk_ndp_signature = -1;
 static int hf_mbim_bulk_ndp_signature_ips_session_id = -1;
+static int hf_mbim_bulk_ndp_signature_ipc_session_id = -1;
 static int hf_mbim_bulk_ndp_signature_dss_session_id = -1;
+static int hf_mbim_bulk_ndp_signature_dsc_session_id = -1;
 static int hf_mbim_bulk_ndp_length = -1;
 static int hf_mbim_bulk_ndp_next_ndp_index = -1;
 static int hf_mbim_bulk_ndp_next_ndp_index_32 = -1;
@@ -698,6 +711,12 @@ static int hf_mbim_bulk_ndp_datagram_length_32 = -1;
 static int hf_mbim_bulk_ndp_datagram = -1;
 static int hf_mbim_bulk_ndp_nb_datagrams = -1;
 static int hf_mbim_bulk_total_nb_datagrams = -1;
+static int hf_mbim_bulk_ndp_ctrl = -1;
+static int hf_mbim_bulk_ndp_ctrl_message_type = -1;
+static int hf_mbim_bulk_ndp_ctrl_message_length = -1;
+static int hf_mbim_bulk_ndp_ctrl_multiflow_status = -1;
+static int hf_mbim_bulk_ndp_ctrl_multiflow_watermark = -1;
+static int hf_mbim_bulk_ndp_ctrl_message_payload = -1;
 static int hf_mbim_fragments = -1;
 static int hf_mbim_fragment = -1;
 static int hf_mbim_fragment_overlap = -1;
@@ -737,6 +756,7 @@ static gint ett_mbim_pac = -1;
 static gint ett_mbim_thermal_threshold_setting = -1;
 static gint ett_mbim_fragment = -1;
 static gint ett_mbim_fragments = -1;
+static gint ett_mbim_bulk_ndp_ctrl = -1;
 
 static dissector_table_t dss_dissector_table;
 static dissector_handle_t bertlv_handle;
@@ -747,6 +767,7 @@ static dissector_handle_t eth_handle;
 static dissector_handle_t eth_fcs_handle;
 static dissector_handle_t ip_handle;
 static dissector_handle_t data_handle;
+static dissector_handle_t bulk_ndp_ctrl_handle;
 static dissector_handle_t mbim_control_handle;
 
 static gboolean mbim_control_decode_unknown_itf = FALSE;
@@ -915,7 +936,8 @@ struct mbim_uuid {
 #define UUID_INTEL_USB_PROFILE 17 /* Intel USB profile proprietary UUID */
 #define UUID_INTEL_CIQ         18 /* Intel proprietary UUID */
 #define UUID_ATDS              19 /* AT&T extensions proprietary UUID */
-#define UUID_MAX               20
+#define UUID_MULTIFLOW         20
+#define UUID_MAX               21
 #define UUID_EXT_IDX           255
 
 static const struct mbim_uuid mbim_uuid_service_id_vals[UUID_MAX] = {
@@ -938,7 +960,8 @@ static const struct mbim_uuid mbim_uuid_service_id_vals[UUID_MAX] = {
     { UUID_INTEL_NRTC, {0x2b6d8c5a, 0x0ca9, 0x418f, {0x8a, 0xac, 0x1a, 0x9d, 0xc8, 0xe3, 0x28, 0x66}}},
     { UUID_INTEL_USB_PROFILE, {0xfa142322, 0x166b, 0x4fd9, {0x89, 0xf0, 0x99, 0xbe, 0x90, 0xae, 0x8e, 0x3d}}},
     { UUID_INTEL_CIQ, {0x6A2A8150, 0xABCA, 0x4b11, {0xA4, 0xE2, 0xF2, 0xFC, 0x87, 0x9F, 0x54, 0x81}}},
-    { UUID_ATDS, {0x5967bdcc, 0x7fd2, 0x49a2, {0x9f, 0x5c, 0xb2, 0xe7, 0x0e, 0x52, 0x7d, 0xb3}}}
+    { UUID_ATDS, {0x5967bdcc, 0x7fd2, 0x49a2, {0x9f, 0x5c, 0xb2, 0xe7, 0x0e, 0x52, 0x7d, 0xb3}}},
+    { UUID_MULTIFLOW, {0x8d8f32d9, 0xf7c2, 0x4419, {0xb2, 0x8b, 0xde, 0xdc, 0xde, 0x20, 0x5e, 0xd8}}}
 };
 
 static const value_string mbim_service_id_vals[] = {
@@ -962,6 +985,7 @@ static const value_string mbim_service_id_vals[] = {
     { UUID_INTEL_USB_PROFILE, "UUID_INTEL_USB_PROFILE"},
     { UUID_INTEL_CIQ, "UUID_INTEL_CIQ"},
     { UUID_ATDS, "UUID_ATDS"},
+    { UUID_MULTIFLOW, "UUID_MULTIFLOW"},
     { 0, NULL}
 };
 static value_string_ext mbim_service_id_vals_ext = VALUE_STRING_EXT_INIT(mbim_service_id_vals);
@@ -1189,6 +1213,19 @@ static const value_string mbim_uuid_atds_cid_vals[] = {
     { 0, NULL}
 };
 
+#define MBIM_CID_MULTIFLOW_CAPS     1
+#define MBIM_CID_MULTIFLOW_UPLINK   2
+#define MBIM_CID_MULTIFLOW_DOWNLINK 3
+#define MBIM_CID_MULTIFLOW_TFT      4
+
+static const value_string mbim_uuid_multiflow_cid_vals[] = {
+    { MBIM_CID_MULTIFLOW_CAPS, "MULTIFLOW_CAPS"},
+    { MBIM_CID_MULTIFLOW_UPLINK, "MULTIFLOW_UPLINK"},
+    { MBIM_CID_MULTIFLOW_DOWNLINK, "MULTIFLOW_DOWNLINK"},
+    { MBIM_CID_MULTIFLOW_TFT, "MULTIFLOW_TFT"},
+    { 0, NULL}
+};
+
 struct mbim_uuid_info_ {
     int *hf_entry;
     const value_string *cid_list;
@@ -1215,7 +1252,8 @@ static const struct mbim_uuid_info_ mbim_uuid_info[UUID_MAX] = {
     { &hf_mbim_uuid_intel_nrtc_cid, mbim_uuid_intel_nrtc_cid_vals, NULL}, /* UUID_INTEL_NRTC */
     { &hf_mbim_uuid_intel_usb_profile_cid, mbim_uuid_intel_usb_profile_cid_vals, NULL}, /* UUID_INTEL_USB_PROFILE */
     { &hf_mbim_uuid_intel_ciq_cid, mbim_uuid_intel_ciq_cid_vals, NULL}, /* UUID_INTEL_CIQ */
-    { &hf_mbim_uuid_atds_cid, mbim_uuid_atds_cid_vals, NULL}  /* UUID_ATDS */
+    { &hf_mbim_uuid_atds_cid, mbim_uuid_atds_cid_vals, NULL}, /* UUID_ATDS */
+    { &hf_mbim_uuid_multiflow_cid, mbim_uuid_multiflow_cid_vals, NULL} /* UUID_MULTIFLOW */
 };
 
 static const value_string mbim_device_caps_info_device_type_vals[] = {
@@ -1386,14 +1424,14 @@ mbim_rssi_fmt(gchar *s, guint32 val)
 }
 
 static const value_string mbim_error_rate_vals[] = {
-    {  0, "Frame error rate < 0.01%"},
-    {  1, "Frame error rate 0.01-0.1%"},
-    {  2, "Frame error rate 0.1-0.5%"},
-    {  3, "Frame error rate 0.5-1.0%"},
-    {  4, "Frame error rate 1.0-2.0%"},
-    {  5, "Frame error rate 2.0-4.0%"},
-    {  6, "Frame error rate 4.0-8.0%"},
-    {  7, "Frame error rate > 8.0%"},
+    {  0, "Frame error rate < 0.01%%"},
+    {  1, "Frame error rate 0.01-0.1%%"},
+    {  2, "Frame error rate 0.1-0.5%%"},
+    {  3, "Frame error rate 0.5-1.0%%"},
+    {  4, "Frame error rate 1.0-2.0%%"},
+    {  5, "Frame error rate 2.0-4.0%%"},
+    {  6, "Frame error rate 4.0-8.0%%"},
+    {  7, "Frame error rate > 8.0%%"},
     { 99, "Unknown or undetectable"},
     { 0, NULL}
 };
@@ -2032,14 +2070,14 @@ static const value_string mbim_trace_config_vals[] = {
 };
 
 static const value_string mbim_ber_vals[] = {
-    { 0, "BER < 0,2%"},
-    { 1, "0,2% < BER < 0,4%"},
-    { 2, "0,4% < BER < 0,8%"},
-    { 3, "0,8% < BER < 1,6%"},
-    { 4, "1,6% < BER < 3,2%"},
-    { 5, "3,2% < BER < 6,4%"},
-    { 6, "6,4% < BER < 12,8%"},
-    { 7, "12,8% < BER"},
+    { 0, "BER < 0,2%%"},
+    { 1, "0,2%% < BER < 0,4%%"},
+    { 2, "0,4%% < BER < 0,8%%"},
+    { 3, "0,8%% < BER < 1,6%%"},
+    { 4, "1,6%% < BER < 3,2%%"},
+    { 5, "3,2%% < BER < 6,4%%"},
+    { 6, "6,4%% < BER < 12,8%%"},
+    { 7, "12,8%% < BER"},
     { 99, "Unknown or undetectable"},
     { 0, NULL}
 };
@@ -2155,6 +2193,32 @@ mbim_projection_table_coeff_fmt(gchar *s, guint32 val)
 
     g_snprintf(s, ITEM_LABEL_LENGTH, "%.3f (%d)", ((float)coeff)/1000, coeff);
 }
+
+#define MBIM_NDP_CTRL_MULTIFLOW_STATUS 0
+
+static const value_string mbim_ndp_ctrl_msg_type_vals[] = {
+    { MBIM_NDP_CTRL_MULTIFLOW_STATUS, "MULTIFLOW_STATUS"},
+    { 0, NULL}
+};
+
+static const value_string mbim_ndp_ctrl_multiflow_status_vals[] = {
+    { 0, "OK"},
+    { 1, "High Watermark"},
+    { 2, "Low Watermark"},
+    { 0, NULL}
+};
+
+static const int *mbim_multiflow_caps_info_control_caps_fields[] = {
+    &hf_mbim_multiflow_caps_info_control_caps_uplink,
+    &hf_mbim_multiflow_caps_info_control_caps_downlink,
+    NULL
+};
+
+static const value_string mbim_multiflow_state_vals[] = {
+    { 0, "Off"},
+    { 1, "On"},
+    { 0, NULL}
+};
 
 static guint8
 mbim_dissect_service_id_uuid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint hf,
@@ -4370,6 +4434,43 @@ mbim_dissect_atds_projection_tables(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     }
 }
 
+static void
+mbim_dissect_multiflow_tft_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+    proto_tree *subtree;
+    gint base_offset;
+    guint32 i, elem_count;
+    wmem_array_t *pair_list;
+    struct mbim_pair_list pair_list_item, *p_pair_list_item;
+
+    base_offset = offset;
+    proto_tree_add_item(tree, hf_mbim_multiflow_tft_info_session_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_multiflow_tft_info_elem_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &elem_count);
+    offset += 4;
+    if (elem_count) {
+        pair_list = wmem_array_sized_new(wmem_packet_scope(), sizeof(struct mbim_pair_list), elem_count);
+        subtree = proto_tree_add_subtree(tree, tvb, offset, 8*elem_count, ett_mbim_pair_list, NULL, "TFT List");
+        for (i = 0; i < elem_count; i++) {
+            proto_tree_add_item_ret_uint(subtree, hf_mbim_multiflow_tft_info_tft_list_offset,
+                                         tvb, offset, 4, ENC_LITTLE_ENDIAN, &pair_list_item.offset);
+            offset += 4;
+            proto_tree_add_item_ret_uint(subtree, hf_mbim_multiflow_tft_info_tft_list_size,
+                                         tvb, offset, 4, ENC_LITTLE_ENDIAN, &pair_list_item.size);
+            offset += 4;
+            wmem_array_append_one(pair_list, pair_list_item);
+        }
+        for (i = 0; i < elem_count; i++) {
+            p_pair_list_item = (struct mbim_pair_list*)wmem_array_index(pair_list, i);
+            if (p_pair_list_item->offset && p_pair_list_item->size) {
+                subtree = proto_tree_add_subtree_format(tree, tvb, base_offset + p_pair_list_item->offset, p_pair_list_item->size,
+                            ett_mbim_pair_list, NULL, "TFT #%u", i+1);
+                de_sm_tflow_temp(tvb, subtree, pinfo, base_offset + p_pair_list_item->offset, p_pair_list_item->size, NULL, 0);
+            }
+        }
+    }
+}
+
 static int
 dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -5111,6 +5212,35 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 break;
                         }
                         break;
+                    case UUID_MULTIFLOW:
+                        switch (cid) {
+                            case MBIM_CID_MULTIFLOW_CAPS:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                } else if (info_buff_len) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
+                                }
+                                break;
+                            case MBIM_CID_MULTIFLOW_UPLINK:
+                            case MBIM_CID_MULTIFLOW_DOWNLINK:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    proto_tree_add_item(subtree, hf_mbim_set_multiflow_state_state, frag_tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                                } else if (info_buff_len) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
+                                }
+                                break;
+                            case MBIM_CID_MULTIFLOW_TFT:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                } else if (info_buff_len) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
+                                }
+                                break;
+                            default:
+                                proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                break;
+                        }
+                        break;
                     case UUID_EXT_IDX:
                         {
                             gint cid_idx;
@@ -5818,6 +5948,40 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 break;
                         }
                         break;
+                    case UUID_MULTIFLOW:
+                        switch (cid) {
+                            case MBIM_CID_MULTIFLOW_CAPS:
+                                if (msg_type == MBIM_COMMAND_DONE) {
+                                    if (mbim_info && (mbim_info->cmd_type == MBIM_COMMAND_SET)) {
+                                        proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                    } else {
+                                        proto_tree_add_bitmask(subtree, frag_tvb, offset, hf_mbim_multiflow_caps_info_control_caps,
+                                                               ett_mbim_bitmap, mbim_multiflow_caps_info_control_caps_fields, ENC_LITTLE_ENDIAN);
+                                    }
+                                } else {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, info_buff_len);
+                                }
+                                break;
+                            case MBIM_CID_MULTIFLOW_UPLINK:
+                            case MBIM_CID_MULTIFLOW_DOWNLINK:
+                                if (msg_type == MBIM_COMMAND_DONE) {
+                                    proto_tree_add_item(subtree, hf_mbim_multiflow_state_info_state, frag_tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                                } else {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, info_buff_len);
+                                }
+                                break;
+                            case MBIM_CID_MULTIFLOW_TFT:
+                                if (mbim_info && (mbim_info->cmd_type == MBIM_COMMAND_SET)) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                } else {
+                                    mbim_dissect_multiflow_tft_info(frag_tvb, pinfo, subtree, offset);
+                                }
+                                break;
+                            default:
+                                proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                break;
+                        }
+                        break;
                      case UUID_EXT_IDX:
                         {
                             gint cid_idx;
@@ -5962,6 +6126,16 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%c%c%c%u", signature[0], signature[1],
                                 signature[2], signature[3]);
             dissector = ip_handle;
+        } else if ((!is_32bits && !strncmp(signature, "IPC", 3)) ||
+                   (is_32bits && !strncmp(signature, "ipc", 3))) {
+            sig_ti = proto_tree_add_uint_format_value(subtree, hf_mbim_bulk_ndp_signature, tvb, offset,
+                                                      4, tvb_get_letohl(tvb, offset), "%c%c%c%u", signature[0],
+                                                      signature[1], signature[2], signature[3]);
+            sig_tree = proto_item_add_subtree(sig_ti, ett_mbim_msg_header);
+            proto_tree_add_item(sig_tree, hf_mbim_bulk_ndp_signature_ipc_session_id, tvb, offset+3, 1, ENC_NA);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%c%c%c%u", signature[0], signature[1],
+                                signature[2], signature[3]);
+            dissector = bulk_ndp_ctrl_handle;
         } else if ((!is_32bits && !strncmp(signature, "DSS", 3)) ||
                    (is_32bits && !strncmp(signature, "dss", 3))) {
             sig_ti = proto_tree_add_uint_format_value(subtree, hf_mbim_bulk_ndp_signature, tvb, offset,
@@ -5976,6 +6150,16 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             if (dissector == NULL) {
                 dissector = data_handle;
             }
+        } else if ((!is_32bits && !strncmp(signature, "DSC", 3)) ||
+                   (is_32bits && !strncmp(signature, "dsc", 3))) {
+            sig_ti = proto_tree_add_uint_format_value(subtree, hf_mbim_bulk_ndp_signature, tvb, offset,
+                                                      4, tvb_get_letohl(tvb, offset), "%c%c%c%u", signature[0],
+                                                      signature[1], signature[2], signature[3]);
+            sig_tree = proto_item_add_subtree(sig_ti, ett_mbim_msg_header);
+            proto_tree_add_item(sig_tree, hf_mbim_bulk_ndp_signature_dsc_session_id, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%c%c%c%u", signature[0], signature[1],
+                                signature[2], signature[3]);
+            dissector = bulk_ndp_ctrl_handle;
         } else if ((!is_32bits && !strcmp(signature, "NCM0")) ||
                    (is_32bits && !strcmp(signature, "ncm0"))) {
             proto_tree_add_uint_format_value(subtree, hf_mbim_bulk_ndp_signature, tvb, offset, 4,
@@ -6132,6 +6316,52 @@ dissect_mbim_decode_as(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             break;
     }
     return 0;
+}
+
+static int
+dissect_mbim_bulk_ndp_ctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    proto_tree *ndp_ctrl_tree;
+    proto_item *ti;
+    gint offset = 0;
+    guint32 msg_type, msg_len;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MBIM NDP Control");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    ti = proto_tree_add_protocol_format(tree, proto_mbim, tvb, 0, -1, "MBIM NDP Control");
+    ndp_ctrl_tree = proto_item_add_subtree(ti, ett_mbim_bulk_ndp_ctrl);
+    ti = proto_tree_add_item(ndp_ctrl_tree, hf_mbim_bulk_ndp_ctrl, tvb, offset, 0, ENC_NA);
+    PROTO_ITEM_SET_HIDDEN(ti);
+
+    proto_tree_add_item_ret_uint(ndp_ctrl_tree, hf_mbim_bulk_ndp_ctrl_message_type, tvb, offset, 2, ENC_LITTLE_ENDIAN, &msg_type);
+    offset += 2;
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(msg_type, mbim_ndp_ctrl_msg_type_vals, "Unknown"));
+    proto_tree_add_item_ret_uint(ndp_ctrl_tree, hf_mbim_bulk_ndp_ctrl_message_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &msg_len);
+    offset += 2;
+
+    switch (msg_type) {
+        case MBIM_NDP_CTRL_MULTIFLOW_STATUS:
+            {
+                guint32 watermark;
+
+                proto_tree_add_item(ndp_ctrl_tree, hf_mbim_bulk_ndp_ctrl_multiflow_status, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+                watermark = tvb_get_letohl(tvb, offset);
+                if (watermark == 0xffffffff) {
+                    proto_tree_add_uint_format_value(ndp_ctrl_tree, hf_mbim_bulk_ndp_ctrl_multiflow_watermark, tvb, offset, 4,
+                                                     watermark, "Not reported (0xffffffff)");
+                } else {
+                    proto_tree_add_uint_format_value(ndp_ctrl_tree, hf_mbim_bulk_ndp_ctrl_multiflow_watermark, tvb, offset, 4,
+                                                     watermark, "%u payload bytes", watermark);
+                }
+            }
+            break;
+        default:
+            proto_tree_add_item(ndp_ctrl_tree, hf_mbim_bulk_ndp_ctrl_message_payload, tvb, offset, msg_len-4, ENC_NA);
+            break;
+    }
+    return tvb_captured_length(tvb);
 }
 
 static guint
@@ -6310,6 +6540,11 @@ proto_register_mbim(void)
         { &hf_mbim_uuid_atds_cid,
             { "CID", "mbim.control.cid",
                FT_UINT32, BASE_DEC, VALS(mbim_uuid_atds_cid_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_uuid_multiflow_cid,
+            { "CID", "mbim.control.cid",
+               FT_UINT32, BASE_DEC, VALS(mbim_uuid_multiflow_cid_vals), 0,
               NULL, HFILL }
         },
         { &hf_mbim_cid,
@@ -9242,6 +9477,51 @@ proto_register_mbim(void)
                FT_UINT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
+        { &hf_mbim_multiflow_caps_info_control_caps,
+            { "Control Caps", "mbim.control.multiflow_caps_info.control_caps",
+               FT_UINT32, BASE_HEX, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_multiflow_caps_info_control_caps_uplink,
+            { "Uplink", "mbim.control.multiflow_caps_info.control_caps.uplink",
+               FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000001,
+              NULL, HFILL }
+        },
+        { &hf_mbim_multiflow_caps_info_control_caps_downlink,
+            { "Downlink", "mbim.control.multiflow_caps_info.control_caps.downlink",
+               FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000002,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_multiflow_state_state,
+            { "State", "mbim.control.set_multiflow_state.state",
+               FT_UINT32, BASE_DEC, VALS(mbim_multiflow_state_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_multiflow_state_info_state,
+            { "State", "mbim.control.multiflow_state_info.state",
+               FT_UINT32, BASE_DEC, VALS(mbim_multiflow_state_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_multiflow_tft_info_session_id,
+            { "Session Id", "mbim.control.multiflow_tft_info.session_id",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_multiflow_tft_info_elem_count,
+            { "Element Count", "mbim.control.multiflow_tft_info.elem_count",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_multiflow_tft_info_tft_list_offset,
+            { "TFT List Offset", "mbim.control.multiflow_tft_info.tft_list_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_multiflow_tft_info_tft_list_size,
+            { "TFT List Size", "mbim.control.multiflow_tft_info.tft_list_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
         { &hf_mbim_fragmented_payload,
             { "Fragmented Payload", "mbim.control.fragmented_payload",
                FT_BYTES, BASE_NONE, NULL, 0,
@@ -9367,8 +9647,18 @@ proto_register_mbim(void)
                FT_UINT8, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
+        { &hf_mbim_bulk_ndp_signature_ipc_session_id,
+            { "IPC Session Id", "mbim.bulk.ndp.signature.ipc_session_id",
+               FT_UINT8, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
         { &hf_mbim_bulk_ndp_signature_dss_session_id,
             { "DSS Session Id", "mbim.bulk.ndp.signature.dss_session_id",
+               FT_UINT8, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_ndp_signature_dsc_session_id,
+            { "DSC Session Id", "mbim.bulk.ndp.signature.dsc_session_id",
                FT_UINT8, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
@@ -9430,6 +9720,36 @@ proto_register_mbim(void)
         { &hf_mbim_bulk_total_nb_datagrams,
             { "Total Number Of Datagrams", "mbim.bulk.total_nb_datagrams",
                FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_ndp_ctrl,
+            { "NDP Control", "mbim.bulk.ndp_control",
+               FT_NONE, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_ndp_ctrl_message_type,
+            { "Message Type", "mbim.bulk.ndp_control.message_type",
+               FT_UINT16, BASE_HEX, VALS(mbim_ndp_ctrl_msg_type_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_ndp_ctrl_message_length,
+            { "Message Length", "mbim.bulk.ndp_control.message_length",
+               FT_UINT16, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_ndp_ctrl_multiflow_status,
+            { "Multiflow Status", "mbim.bulk.ndp_control.multiflow.status",
+               FT_UINT16, BASE_DEC, VALS(mbim_ndp_ctrl_multiflow_status_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_ndp_ctrl_multiflow_watermark,
+            { "Multiflow Watermark", "mbim.bulk.ndp_control.multiflow.watermark",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_bulk_ndp_ctrl_message_payload,
+            { "Message Payload", "mbim.bulk.ndp_control.message_payload",
+               FT_BYTES, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
         { &hf_mbim_fragments,
@@ -9502,7 +9822,8 @@ proto_register_mbim(void)
         &ett_mbim_pac,
         &ett_mbim_thermal_threshold_setting,
         &ett_mbim_fragment,
-        &ett_mbim_fragments
+        &ett_mbim_fragments,
+        &ett_mbim_bulk_ndp_ctrl
     };
 
     static ei_register_info ei[] = {
@@ -9589,6 +9910,7 @@ proto_reg_handoff_mbim(void)
         eth_fcs_handle = find_dissector_add_dependency("eth_withfcs", proto_mbim);
         ip_handle = find_dissector_add_dependency("ip", proto_mbim);
         data_handle = find_dissector("data");
+        bulk_ndp_ctrl_handle = create_dissector_handle(dissect_mbim_bulk_ndp_ctrl, proto_mbim);
         heur_dissector_add("usb.bulk", dissect_mbim_bulk_heur, "MBIM USB bulk endpoint", "mbim_usb_bulk", proto_mbim, HEURISTIC_ENABLE);
         dissector_add_for_decode_as("usb.device", mbim_decode_as_handle);
         dissector_add_for_decode_as("usb.product", mbim_decode_as_handle);
