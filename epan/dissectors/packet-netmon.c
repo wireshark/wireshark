@@ -372,7 +372,7 @@ dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	offset += 1;
 	proto_tree_add_item(event_desc_tree, hf_netmon_event_event_desc_level, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
-    provider_id_data.opcode = tvb_get_guint8(tvb, offset);
+	provider_id_data.opcode = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(event_desc_tree, hf_netmon_event_event_desc_opcode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 	proto_tree_add_item(event_desc_tree, hf_netmon_event_event_desc_task, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -617,7 +617,7 @@ dissect_netmon_system_trace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	struct netmon_provider_id_data *provider_id_data = (struct netmon_provider_id_data*)data;
 	guint length;
 	nstime_t timestamp;
-    guint64 raw_timestamp;
+	guint64 raw_timestamp;
 
 	DISSECTOR_ASSERT(provider_id_data != NULL);
 
@@ -639,18 +639,18 @@ dissect_netmon_system_trace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_item(system_tree, hf_netmon_system_trace_num_processors, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-        raw_timestamp = tvb_get_letoh64(tvb, offset);
-        if (raw_timestamp != 0)
-        {
-		    timestamp.secs = 0;
-		    timestamp.nsecs = 0;
-		    filetime_to_nstime(&timestamp, raw_timestamp);
-		    proto_tree_add_time(system_tree, hf_netmon_system_trace_end_time, tvb, offset, 8, &timestamp);
-        }
-        else
-        {
-		    proto_tree_add_time_format_value(system_tree, hf_netmon_system_trace_end_time, tvb, offset, 8, &timestamp, "(None)");
-        }
+		raw_timestamp = tvb_get_letoh64(tvb, offset);
+		if (raw_timestamp != 0)
+		{
+			timestamp.secs = 0;
+			timestamp.nsecs = 0;
+			filetime_to_nstime(&timestamp, raw_timestamp);
+			proto_tree_add_time(system_tree, hf_netmon_system_trace_end_time, tvb, offset, 8, &timestamp);
+		}
+		else
+		{
+			proto_tree_add_time_format_value(system_tree, hf_netmon_system_trace_end_time, tvb, offset, 8, &timestamp, "(None)");
+		}
 		offset += 8;
 
 		proto_tree_add_item(system_tree, hf_netmon_system_trace_timer_resolution, tvb, offset, 4, ENC_LITTLE_ENDIAN);
