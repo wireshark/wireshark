@@ -37,6 +37,7 @@ struct netmon_provider_id_data
     guint32 event_id;
     guint16 event_flags;
     guint64 keyword;
+    guint8 opcode;
 };
 
 
