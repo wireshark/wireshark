@@ -35,6 +35,15 @@ endif()
 
 set(PROJECT_VERSION "${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}${PROJECT_VERSION_EXTENSION}")
 
+# packaging information
+if(WIN32)
+        set(CPACK_PACKAGE_NAME Wireshark)
+else()
+        set(CPACK_PACKAGE_NAME wireshark)
+endif()
+
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+
 message(STATUS "Generating build using CMake ${CMAKE_VERSION}")
 if(WIN32)
 	# Needed for GREATER_EQUAL operator
@@ -1063,24 +1072,6 @@ endforeach()
 
 # Provide Windows system lib names
 include( UseWinLibs )
-
-#packaging information
-# XXX The CMake documentation recommends setting CPACK_PROJECT_CONFIG_FILE
-# instead.
-if(WIN32)
-        # To do:
-        # - Add WinPCap
-        # - Add USBPcap
-        # - Add CLI DLLs
-        # - Add common (Glib, etc) DLLs
-        # - Add Qt DLLs
-        # - Add
-        set(CPACK_PACKAGE_NAME Wireshark)
-else()
-        set(CPACK_PACKAGE_NAME wireshark)
-endif()
-
-set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
 
 # dist target that prepares source dir
 add_custom_target(dist
