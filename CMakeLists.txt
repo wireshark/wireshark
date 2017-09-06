@@ -1355,10 +1355,12 @@ if(LIBSSH_FOUND)
 endif()
 
 # Directory where plugins and Lua dissectors can be found.
+set(PLUGIN_VERSION_DIR "plugins/${CPACK_PACKAGE_VERSION}")
+set(PLUGIN_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME}/${PLUGIN_VERSION_DIR}")
 if (WIN32)
-	set(PLUGIN_INSTALL_DIR "plugins/${CPACK_PACKAGE_VERSION}")
+	set(PLUGIN_INSTALL_DIR "${PLUGIN_VERSION_DIR}")
 else ()
-	set(PLUGIN_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME}/plugins/${CPACK_PACKAGE_VERSION}")
+	set(PLUGIN_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/${PLUGIN_INSTALL_LIBDIR}")
 endif()
 
 # Location of our plugins. PLUGIN_DIR should allow running
@@ -1465,7 +1467,7 @@ set( prefix "${CMAKE_INSTALL_PREFIX}" )
 set( exec_prefix "\${prefix}" )
 set( libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}" )
 set( includedir  "\${prefix}/include" )
-set( plugindir "\${libdir}/wireshark/plugins/${CPACK_PACKAGE_VERSION}" )
+set( plugindir "\${libdir}/wireshark/${PLUGIN_VERSION_DIR}" )
 
 set(ICON_PATH "${CMAKE_SOURCE_DIR}/image/")
 set( IN_FILES
