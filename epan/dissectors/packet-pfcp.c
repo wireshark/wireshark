@@ -65,6 +65,7 @@ static int hf_pfcp_spare_b7 = -1;
 static int hf_pfcp_spare_oct = -1;
 static int hf_pfcp_spare_h0 = -1;
 static int hf_pfcp_spare_h1 = -1;
+static int hf_pfcp_spare = -1;
 
 static int hf_pfcp2_cause = -1;
 static int hf_pfcp_node_id_type = -1;
@@ -95,6 +96,23 @@ static int hf_pfcp_ue_ip_address_flag_b2 = -1;
 static int hf_pfcp_ue_ip_addr_ipv4 = -1;
 static int hf_pfcp_ue_ip_add_ipv6 = -1;
 static int hf_pfcp_application_id = -1;
+static int hf_pfcp_sdf_filter_flags = -1;
+static int hf_pfcp_sdf_filter_b0_fd = -1;
+static int hf_pfcp_sdf_filter_b1_ttc = -1;
+static int hf_pfcp_sdf_filter_b2_spi = -1;
+static int hf_pfcp_sdf_filter_b3_fl = -1;
+static int hf_pfcp_flow_desc_len = -1;
+static int hf_pfcp_fd = -1;
+static int hf_pfcp_ttc = -1;
+static int hf_pfcp_spi = -1;
+static int hf_pfcp_fl = -1;
+static int hf_pfcp_out_hdr_desc = -1;
+static int hf_pfcp_far_id_flg = -1;
+static int hf_pfcp_far_id = -1;
+static int hf_pfcp_urr_id_flg = -1;
+static int hf_pfcp_urr_id = -1;
+static int hf_pfcp_qer_id_flg = -1;
+static int hf_pfcp_qer_id = -1;
 
 static int ett_pfcp = -1;
 static int ett_pfcp_flags = -1;
@@ -103,6 +121,7 @@ static int ett_pfcp_grouped_ie = -1;
 static int ett_pfcp_f_seid_flags = -1;
 static int ett_f_teid_flags = -1;
 static int ett_pfcp_ue_ip_address_flags = -1;
+static int ett_pfcp_sdf_filter_flags = -1;
 
 static expert_field ei_pfcp_ie_reserved = EI_INIT;
 static expert_field ei_pfcp_ie_data_not_decoded = EI_INIT;
@@ -135,6 +154,10 @@ static void dissect_pfcp_remove_far(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 static void dissect_pfcp_remove_urr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type);
 static void dissect_pfcp_remove_qer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type);
 
+static const true_false_string pfcp_id_predef_dynamic_tfs = {
+    "Predefined by UP",
+    "Dynamic by CP",
+};
 
 #define PFCP_MSG_RESERVED_0    0
 
@@ -399,7 +422,7 @@ dissect_pfcp_f_teid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
     };
     /* Octet 5  Spare   CH  V6  V4*/
     proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_f_teid_flags,
-        ett_f_teid_flags, pfcp_fteid_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &fteid_flags_val);
+        ett_f_teid_flags, pfcp_fteid_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS, &fteid_flags_val);
     offset += 1;
     /* The following flags are coded within Octet 5:
      * Bit 1 - V4: If this bit is set to "1" and the CH bit is not set, then the IPv4 address field shall be present,
@@ -443,6 +466,70 @@ dissect_pfcp_pdn_instance(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 /*
  * 8.2.5    SDF Filter
  */
+static void
+dissect_pfcp_sdf_filter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint64 flags_val;
+    guint32 fd_length;
+
+    static const int * pfcp_sdf_filter_flags[] = {
+        &hf_pfcp_spare_h1,
+        &hf_pfcp_sdf_filter_b3_fl,
+        &hf_pfcp_sdf_filter_b2_spi,
+        &hf_pfcp_sdf_filter_b1_ttc,
+        &hf_pfcp_sdf_filter_b0_fd,
+        NULL
+    };
+    /* Octet 5  Spare   FL  SPI TTC FD*/
+    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_sdf_filter_flags,
+        ett_pfcp_sdf_filter_flags, pfcp_sdf_filter_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS, &flags_val);
+    offset += 1;
+    /* Octet 6 Spare*/
+    proto_tree_add_item(tree, hf_pfcp_spare, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if ((flags_val & 0x1) == 1) {
+        /* FD (Flow Description): If this bit is set to "1",
+         * then the Length of Flow Description and the Flow Description fields shall be present
+         */
+        /* m to (m+1)	Length of Flow Description */
+        proto_tree_add_item_ret_uint(tree, hf_pfcp_flow_desc_len, tvb, offset, 1, ENC_BIG_ENDIAN, &fd_length);
+        offset += 1;
+        /* Flow Description
+         * The Flow Description field, when present, shall be encoded as an OctetString
+         * as specified in subclause 5.4.2 of 3GPP TS 29.212
+         */
+        proto_tree_add_item(tree, hf_pfcp_fd, tvb, offset, fd_length, ENC_NA);
+        offset += fd_length;
+    }
+    if ((flags_val & 0x2) == 2) {
+        /* TTC (ToS Traffic Class): If this bit is set to "1", then the ToS Traffic Class field shall be present */
+        /* ToS Traffic Class field, when present, shall be encoded as an OctetString on two octets
+         * as specified in subclause 5.3.15 of 3GPP TS 29.212
+         */
+        proto_tree_add_item(tree, hf_pfcp_ttc, tvb, offset, 2, ENC_NA);
+        offset += 2;
+    }
+
+    if ((flags_val & 0x4) == 4) {
+        /* SPI (The Security Parameter Index) field, when present, shall be encoded as an OctetString on four octets and shall
+         * contain the IPsec security parameter index (which is a 32-bit field),
+         * as specified in subclause 5.3.51 of 3GPP TS 29.212
+         */
+        proto_tree_add_item(tree, hf_pfcp_spi, tvb, offset, 4, ENC_NA);
+        offset += 4;
+    }
+    if ((flags_val & 0x8) == 8) {
+        /* FL (Flow Label), when present, shall be encoded as an OctetString on 3 octets as specified in
+         * subclause 5.3.52 of 3GPP TS 29.212 and shall contain an IPv6 flow label (which is a 20-bit field).
+         * The bits 8 to 5 of the octet "v" shall be spare and set to zero, and the remaining 20 bits shall
+         * contain the IPv6 flow label.*/
+        proto_tree_add_item(tree, hf_pfcp_fl, tvb, offset, 3, ENC_NA);
+        offset += 3;
+    }
+
+}
 /*
  * 8.2.6    Application ID
  */
@@ -450,8 +537,8 @@ static void
 dissect_pfcp_application_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
 {
     int offset = 0;
-    /* Octet 5 5 to (n+4)   PDN Instance
-    * The PDN instance field shall be encoded as an OctetString
+    /* Octet 5 to (n+4) Application Identifier
+    * The Application Identifier shall be encoded as an OctetString (see 3GPP TS 29.212)
     */
     proto_tree_add_item(tree, hf_pfcp_application_id, tvb, offset, length, ENC_NA);
 }
@@ -514,7 +601,7 @@ dissect_pfcp_precedence(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
  * 8.2.36   Packet Detection Rule ID (PDR ID)
  */
 static void
-dissect_pfcp_pdr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+dissect_pfcp_pdr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_)
 {
     int offset = 0;
     guint32 rule_id;
@@ -527,7 +614,6 @@ dissect_pfcp_pdr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
     }
-
 }
 /*
  * 8.2.37   F-SEID
@@ -663,7 +749,34 @@ dissect_pfcp_node_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
  * 8.2.51   Time Quota
  * 8.2.52   Start Time
  * 8.2.53   End Time
+ */
+/*
  * 8.2.54   URR ID
+ */
+static void
+dissect_pfcp_urr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint32 urr_id;
+    /* Octet 5 to 8 URR ID value
+    * The bit 8 of octet 5 is used to indicate if the Rule ID is dynamically allocated by the CP function
+    * or predefined in the UP function. If set to 0, it indicates that the Rule is dynamically provisioned
+    * by the CP Function. If set to 1, it indicates that the Rule is predefined in the UP Function
+    */
+    proto_tree_add_item(tree, hf_pfcp_urr_id_flg, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_urr_id, tvb, offset, 4, ENC_BIG_ENDIAN, &urr_id);
+    offset += 4;
+
+    proto_item_append_text(item, "%s %u",
+        ((urr_id & 80000000) ? pfcp_id_predef_dynamic_tfs.true_string : pfcp_id_predef_dynamic_tfs.false_string),
+        (urr_id & 0x7fffffff));
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
+/*
  * 8.2.55   Linked URR ID IE
  * 8.2.56   Outer Header Creation
  * 8.2.57   BAR ID
@@ -718,6 +831,31 @@ dissect_pfcp_ue_ip_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 /*
  * 8.2.64   Outer Header Removal
  */
+static const value_string pfcp_out_hdr_desc_vals[] = {
+    { 0, "GTP-U/UDP/IPv4" },
+    { 1, "GTP-U/UDP/IPv6" },
+    { 2, "UDP/IPv4" },
+    { 3, "UDP/IPv6 " },
+    { 0, NULL }
+};
+
+static void
+dissect_pfcp_outer_hdr_rem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint32 value;
+    /* Octet 5 to (n+4) Application Identifier
+    * The Application Identifier shall be encoded as an OctetString (see 3GPP TS 29.212)
+    */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_out_hdr_desc, tvb, offset, 1, ENC_BIG_ENDIAN, &value);
+    offset++;
+
+    proto_item_append_text(item, "%s", val_to_str_const(value, pfcp_out_hdr_desc_vals, "Unknown"));
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
  /*
  * 8.2.65   Recovery Time Stamp
  */
@@ -743,19 +881,90 @@ dissect_pfcp_recovery_time_stamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 }
 /*
  * 8.2.66   DL Flow Level Marking
+ */
+/*
  * 8.2.67   Header Enrichment
+ */
+/*
  * 8.2.68   Measurement Information
+ */
+/*
  * 8.2.69   Node Report Type
+ */
+/*
  * 8.2.70   Remote GTP-U Peer
+ */
+/*
  * 8.2.71   UR-SEQN
+ */
+/*
  * 8.2.72   Activate Predefined Rules
+ */
+/*
  * 8.2.73   Deactivate Predefined Rules
+ */
+/*
  * 8.2.74   FAR ID
+ */
+static void
+dissect_pfcp_far_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint32 far_id;
+    /* Octet 5 to 8 FAR ID value
+     * The bit 8 of octet 5 is used to indicate if the Rule ID is dynamically allocated
+     * by the CP function or predefined in the UP function. If set to 0, it indicates that
+     * the Rule is dynamically provisioned by the CP Function. If set to 1, it indicates that
+     * the Rule is predefined in the UP Function.
+     */
+    proto_tree_add_item(tree, hf_pfcp_far_id_flg, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_far_id, tvb, offset, 4, ENC_BIG_ENDIAN, &far_id);
+    offset += 4;
+
+    proto_item_append_text(item, "%s %u",
+        ((far_id&80000000)? pfcp_id_predef_dynamic_tfs.true_string : pfcp_id_predef_dynamic_tfs.false_string),
+        (far_id & 0x7fffffff));
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
+/*
  * 8.2.75   QER ID
+ */
+static void
+dissect_pfcp_qer_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint32 qer_id;
+    /* Octet 5 to 8 URR ID value
+    * The bit 8 of octet 5 is used to indicate if the Rule ID is dynamically allocated by the CP function
+    * or predefined in the UP function. If set to 0, it indicates that the Rule is dynamically provisioned
+    * by the CP Function. If set to 1, it indicates that the Rule is predefined in the UP Function
+    */
+    proto_tree_add_item(tree, hf_pfcp_qer_id_flg, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_qer_id, tvb, offset, 4, ENC_BIG_ENDIAN, &qer_id);
+    offset += 4;
+
+    proto_item_append_text(item, "%s %u",
+        ((qer_id & 80000000) ? pfcp_id_predef_dynamic_tfs.true_string : pfcp_id_predef_dynamic_tfs.false_string),
+        (qer_id & 0x7fffffff));
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
+/*
  * 8.2.76   OCI Flag
+ */
+/*
  * 8.2.77   Sx Association Release Request
+ */
+/*
  * 8.2.78   Graceful Release Period
-*/
+ */
 
 
 
@@ -790,8 +999,8 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*     20 */    { dissect_pfcp_source_interface },                              /* Source Interface                                 Extendable / Subclause 8.2.2 */
 /*     21 */    { dissect_pfcp_f_teid },                                        /* F-TEID                                           Extendable / Subclause 8.2.3 */
 /*     22 */    { dissect_pfcp_pdn_instance },                                  /* PDN Instance                                     Variable Length / Subclause 8.2.4 */
-/*     23 */    { NULL },    /* SDF Filter                                      Extendable / Subclause 8.2.5 */
-/*     24 */    { dissect_pfcp_application_id },                                /* Application ID                                  Variable Length / Subclause 8.2.6 */
+/*     23 */    { dissect_pfcp_sdf_filter },                                    /* SDF Filter                                       Extendable / Subclause 8.2.5 */
+/*     24 */    { dissect_pfcp_application_id },                                /* Application ID                                   Variable Length / Subclause 8.2.6 */
 /*     25 */    { NULL },    /* Gate Status                                     Extendable / Subclause 8.2.7 */
 /*     26 */    { NULL },    /* MBR                                             Extendable / Subclause 8.2.8 */
 /*     27 */    { NULL },    /* GBR                                             Extendable / Subclause 8.2.9 */
@@ -848,7 +1057,7 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*     78 */    { NULL },    /* Usage Report (in Session Modification Response) Extendable / Table 7.5.5.2-1 */
 /*     79 */    { NULL },    /* Usage Report (Session Deletion Response)        Extendable / Table 7.5.7.2-1 */
 /*     80 */    { NULL },    /* Usage Report (Session Report Request)           Extendable / Table 7.5.8.3-1 */
-/*     81 */    { NULL },    /* URR ID                                          Extendable / Subclause 8.2.54 */
+/*     81 */    { dissect_pfcp_urr_id },                                        /* URR ID                                          Extendable / Subclause 8.2.54 */
 /*     82 */    { NULL },    /* Linked URR ID                                   Extendable / Subclause 8.2.55 */
 /*     83 */    { NULL },    /* Downlink Data Report                            Extendable / Table 7.5.8.2-1 */
 /*     84 */    { NULL },    /* Outer Header Creation                           Extendable / Subclause 8.2.56 */
@@ -862,7 +1071,7 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*     92 */    { NULL },    /* Flow Information                                Extendable / Subclause 8.2.61 */
 /*     93 */    { dissect_pfcp_ue_ip_address },                                 /* UE IP Address                                   Extendable / Subclause 8.2.62 */
 /*     94 */    { NULL },    /* Packet Rate                                     Extendable / Subclause 8.2.63 */
-/*     95 */    { NULL },    /* Outer Header Removal                            Extendable / Subclause 8.2.64 */
+/*     95 */    { dissect_pfcp_outer_hdr_rem },                                 /* Outer Header Removal                            Extendable / Subclause 8.2.64 */
 /*     96 */    { dissect_pfcp_recovery_time_stamp },                           /* Recovery Time Stamp              Extendable / Subclause 8.2.65 */
 /*     97 */    { NULL },    /* DL Flow Level Marking                           Extendable / Subclause 8.2.66 */
 /*     98 */    { NULL },    /* Header Enrichment                               Extendable / Subclause 8.2.67 */
@@ -875,8 +1084,8 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    105 */    { NULL },    /* Update Duplicating Parameters                  Extendable / Table 7.5.4.3-3 */
 /*    106 */    { NULL },    /* Activate Predefined Rules                      Variable Length / Subclause 8.2.72 */
 /*    107 */    { NULL },    /* Deactivate Predefined Rules                    Variable Length / Subclause 8.2.73 */
-/*    108 */    { NULL },    /* FAR ID                                         Extendable / Subclause 8.2.74 */
-/*    109 */    { NULL },    /* QER ID                                         Extendable / Subclause 8.2.75 */
+/*    108 */    { dissect_pfcp_far_id },                                        /* FAR ID                                         Extendable / Subclause 8.2.74 */
+/*    109 */    { dissect_pfcp_qer_id },                                        /* QER ID                                         Extendable / Subclause 8.2.75 */
 /*    110 */    { NULL },    /* OCI Flags                                      Extendable / Subclause 8.2.76 */
 /*    111 */    { NULL },    /* Sx Association Release Request                 Extendable / Subclause 8.2.77 */
 /*    112 */    { NULL },    /* Graceful Release Period                        Extendable / Subclause 8.2.78 */
@@ -1282,7 +1491,11 @@ proto_register_pfcp(void)
         FT_UINT8, BASE_DEC, NULL, 0xf0,
         NULL, HFILL }
         },
-
+        { &hf_pfcp_spare,
+        { "Spare", "pfcp.spare",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+        },
         { &hf_pfcp_seid,
         { "SEID", "pfcp.seid",
         FT_UINT64, BASE_DEC, NULL, 0x0,
@@ -1462,10 +1675,95 @@ proto_register_pfcp(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_pfcp_sdf_filter_flags,
+        { "Flags", "pfcp.sdf_filter_flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_sdf_filter_b0_fd,
+        { "FD (Flow Description)", "pfcp.sdf_filter.fd",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_sdf_filter_b1_ttc,
+        { "TTC (ToS Traffic Class)", "pfcp.sdf_filter.ttc",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_sdf_filter_b2_spi,
+        { "SPI (Security Parameter Index)", "pfcp.sdf_filter.spi",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_sdf_filter_b3_fl,
+        { "FL (Flow Label)", "pfcp.sdf_filter.fl",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_flow_desc_len,
+        { "Length of Flow Description", "pfcp.flow_desc_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_fd,
+        { "Flow Description field", "pfcp.fd",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_ttc,
+        { "ToS Traffic Class field", "pfcp.ttc",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_spi,
+        { "Security Parameter Index field", "pfcp.spi",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_fl,
+        { "Flow Label field", "pfcp.fl",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_out_hdr_desc,
+        { "Outer Header Removal Description", "pfcp.out_hdr_desc",
+            FT_UINT8, BASE_DEC, VALS(pfcp_out_hdr_desc_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_far_id_flg,
+        { "Allocation type", "pfcp.far_id_flg",
+            FT_BOOLEAN, 32, TFS(&pfcp_id_predef_dynamic_tfs), 0x80000000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_far_id,
+        { "FAR ID", "pfcp.far_id",
+            FT_UINT32, BASE_DEC, NULL, 0x7fffffff,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_urr_id_flg,
+        { "Allocation type", "pfcp.urr_id_flg",
+            FT_BOOLEAN, 32, TFS(&pfcp_id_predef_dynamic_tfs), 0x80000000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_urr_id,
+        { "URR ID", "pfcp.urr_id",
+            FT_UINT32, BASE_DEC, NULL, 0x7fffffff,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_qer_id_flg,
+        { "Allocation type", "pfcp.qer_id_flg",
+            FT_BOOLEAN, 32, TFS(&pfcp_id_predef_dynamic_tfs), 0x80000000,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_qer_id,
+        { "QER ID", "pfcp.qer_id",
+            FT_UINT32, BASE_DEC, NULL, 0x7fffffff,
+            NULL, HFILL }
+        },
     };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS_PFCP    7
+#define NUM_INDIVIDUAL_ELEMS_PFCP    8
     gint *ett[NUM_INDIVIDUAL_ELEMS_PFCP +
         (NUM_PFCP_IES - 1)];
 
@@ -1476,6 +1774,7 @@ proto_register_pfcp(void)
     ett[4] = &ett_pfcp_f_seid_flags;
     ett[5] = &ett_f_teid_flags;
     ett[6] = &ett_pfcp_ue_ip_address_flags;
+    ett[7] = &ett_pfcp_sdf_filter_flags;
 
     static ei_register_info ei[] = {
         { &ei_pfcp_ie_reserved,{ "pfcp.ie_id_reserved", PI_PROTOCOL, PI_ERROR, "Reserved IE value used", EXPFILL } },
