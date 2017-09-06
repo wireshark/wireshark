@@ -297,6 +297,11 @@ static int hf_usbport_urb_transfer_buffer_mdl = -1;
 static int hf_usbport_urb_reserved_mbz = -1;
 static int hf_usbport_urb_reserved_hcd = -1;
 static int hf_usbport_urb_reserved = -1;
+static int hf_usbport_keyword = -1;
+static int hf_usbport_keyword_diagnostic = -1;
+static int hf_usbport_keyword_power_diagnostics = -1;
+static int hf_usbport_keyword_perf_diagnostics = -1;
+static int hf_usbport_keyword_reserved1 = -1;
 
 static gint ett_usb_hdr = -1;
 static gint ett_usb_setup_hdr = -1;
@@ -321,6 +326,7 @@ static gint ett_usbport_device = -1;
 static gint ett_usbport_endpoint = -1;
 static gint ett_usbport_endpoint_desc = -1;
 static gint ett_usbport_urb = -1;
+static gint ett_usbport_keyword = -1;
 
 static expert_field ei_usb_bLength_even = EI_INIT;
 static expert_field ei_usb_bLength_too_short = EI_INIT;
@@ -4644,6 +4650,11 @@ netmon_URB(proto_tree *tree, tvbuff_t *tvb, int offset, guint16 flags)
     return offset;
 }
 
+#define USBPORT_KEYWORD_DIAGNOSTIC         0x0000000000000001
+#define USBPORT_KEYWORD_POWER_DIAGNOSTICS  0x0000000000000002
+#define USBPORT_KEYWORD_PERF_DIAGNOSTICS   0x0000000000000004
+#define USBPORT_KEYWORD_RESERVED1          0xFFFFFFFFFFFFFFF8
+
 static int
 dissect_netmon_usb_port(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent, void* data)
 {
@@ -4651,6 +4662,13 @@ dissect_netmon_usb_port(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent, v
     proto_tree *usb_port_tree;
     int offset = 0;
     struct netmon_provider_id_data *provider_id_data = (struct netmon_provider_id_data*)data;
+    static const int *keyword_fields[] = {
+        &hf_usbport_keyword_diagnostic,
+        &hf_usbport_keyword_power_diagnostics,
+        &hf_usbport_keyword_perf_diagnostics,
+        &hf_usbport_keyword_reserved1,
+        NULL
+    };
 
     DISSECTOR_ASSERT(provider_id_data != NULL);
 
@@ -4661,6 +4679,8 @@ dissect_netmon_usb_port(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent, v
     usb_port_tree = proto_item_add_subtree(ti, ett_usbport);
 
     generated = proto_tree_add_uint(usb_port_tree, hf_usbport_event_id, tvb, 0, 0, provider_id_data->event_id);
+    PROTO_ITEM_SET_GENERATED(generated);
+    generated = proto_tree_add_bitmask_value(usb_port_tree, tvb, 0, hf_usbport_keyword, ett_usbport_keyword, keyword_fields, provider_id_data->keyword);
     PROTO_ITEM_SET_GENERATED(generated);
 
     switch (provider_id_data->event_id)
@@ -6219,6 +6239,31 @@ proto_register_usb(void)
             FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_usbport_keyword,
+            { "Keyword",          "usbport.keyword",
+            FT_UINT64, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_usbport_keyword_diagnostic,
+            { "USBPORT_ETW_KEYWORD_DIAGNOSTIC",          "usbport.keyword.diagnostic",
+            FT_BOOLEAN, 64, NULL, USBPORT_KEYWORD_DIAGNOSTIC,
+            NULL, HFILL }
+        },
+        { &hf_usbport_keyword_power_diagnostics,
+            { "USBPORT_ETW_KEYWORD_POWER_DIAGNOSTICS",          "usbport.keyword.power_diagnostics",
+            FT_BOOLEAN, 64, NULL, USBPORT_KEYWORD_POWER_DIAGNOSTICS,
+            NULL, HFILL }
+        },
+        { &hf_usbport_keyword_perf_diagnostics,
+            { "USBPORT_ETW_KEYWORD_PERF_DIAGNOSTICS",          "usbport.keyword.perf_diagnostics",
+            FT_BOOLEAN, 64, NULL, USBPORT_KEYWORD_PERF_DIAGNOSTICS,
+            NULL, HFILL }
+        },
+        { &hf_usbport_keyword_reserved1,
+            { "Reserved1",          "usbport.keyword.reserved1",
+            FT_UINT64, BASE_HEX, NULL, USBPORT_KEYWORD_RESERVED1,
+            NULL, HFILL }
+        },
     };
 
     static gint *usb_subtrees[] = {
@@ -6248,6 +6293,7 @@ proto_register_usb(void)
         &ett_usbport_endpoint,
         &ett_usbport_endpoint_desc,
         &ett_usbport_urb,
+        &ett_usbport_keyword,
     };
 
     static ei_register_info ei[] = {
