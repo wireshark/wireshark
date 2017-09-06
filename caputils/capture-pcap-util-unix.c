@@ -24,6 +24,8 @@
 
 #include <glib.h>
 
+#include <ws_attributes.h>
+
 #ifdef HAVE_LIBPCAP
 
 #include <wsutil/wspcap.h>
