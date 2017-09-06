@@ -1029,6 +1029,8 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 			switch (network)
 			{
 			case 0xE080:    // "WiFi Message"
+				pkt_encap = WTAP_ENCAP_IEEE_802_11;
+				break;
 			case 0xE081:    // "Ndis Etw WiFi Channel Message"
 			case 0xE082:    // "Fiddler Netmon Message"
 			case 0xE089:    // "Pef Ndis Msg";
