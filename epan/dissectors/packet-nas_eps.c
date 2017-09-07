@@ -3032,8 +3032,9 @@ de_esm_re_attempt_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 static const value_string nas_eps_esm_request_type_values[] = {
     { 0x1,      "Initial request" },
     { 0x2,      "Handover" },
-    { 0x3,      "Unused; shall be interpreted as initial request if received by the network" },
+    { 0x3,      "Unused. If received, the network shall interpret this as 'initial request'" },
     { 0x4,      "Emergency" },
+    { 0x6,      "Handover of emergency bearer services" },
     { 0, NULL }
  };
 
