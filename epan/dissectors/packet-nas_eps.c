@@ -21,7 +21,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * References: 3GPP TS 24.301 V13.10.0 (2017-06)
+ * References: 3GPP TS 24.301 V14.4.0 (2017-06)
  */
 
 #include "config.h"
