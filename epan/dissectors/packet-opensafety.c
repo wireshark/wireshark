@@ -545,10 +545,10 @@ static gboolean findSafetyFrame ( tvbuff_t *message_tvb, guint u_Offset, gboolea
         guint *u_frameOffset, guint *u_frameLength, opensafety_packet_info *packet )
 {
     guint     ctr, rem_length;
-    guint16   crc, f2crc, calcCrc;
-    guint8    b_Length, b_CTl, crcOffset, crc1Type;
+    guint16   crc, f2crc, calcCrc = 0;
+    guint8    b_Length = 0, b_CTl = 0, crcOffset = 0, crc1Type = 0;
     guint8   *bytes;
-    guint     b_ID;
+    guint     b_ID = 0;
     gboolean  found;
 
     found = FALSE;

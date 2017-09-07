@@ -1056,6 +1056,9 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 			case 0xE088:
 				pkt_encap = WTAP_ENCAP_MA_WFP_CAPTURE_AUTH_V6;
 				break;
+			default:
+				pkt_encap = WTAP_ENCAP_UNKNOWN;
+				break;
 			}
 		} else if ((network & 0xF000) == NETMON_NET_PCAP_BASE) {
 			/*
