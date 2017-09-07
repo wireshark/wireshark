@@ -521,15 +521,6 @@ if(ENABLE_EXTCAP)
 	)
 endif()
 
-set(WIRESHARK_QT_QRC
-	../../image/about.qrc
-	../../image/languages/languages.qrc
-	../../image/layout.qrc
-	../../image/toolbar.qrc
-	../../image/wsicon.qrc
-	${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc
-)
-
 set(WIRESHARK_QT_TS
 	wireshark_de.ts
 	wireshark_en.ts # lupdate -pluralonly
@@ -538,6 +529,23 @@ set(WIRESHARK_QT_TS
 	wireshark_ja_JP.ts
 	wireshark_pl.ts
 	wireshark_zh_CN.ts
+)
+
+foreach(_file ${WIRESHARK_QT_TS})
+	get_filename_component(_qresource ${_file} NAME_WE)
+	set(_qresource_qm "${_qresource}.qm")
+	set(i18n_qresource "${i18n_qresource}\n    <file>${_qresource_qm}</file>")
+	set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc PROPERTIES OBJECT_DEPENDS ${_qresource_qm})
+endforeach()
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/i18n.qrc.in ${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc)
+
+set(WIRESHARK_QT_QRC
+	../../image/about.qrc
+	../../image/languages/languages.qrc
+	../../image/layout.qrc
+	../../image/toolbar.qrc
+	../../image/wsicon.qrc
+	${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc
 )
 
 include_directories(
@@ -556,13 +564,6 @@ else()
 	QT4_ADD_RESOURCES(WIRESHARK_QT_QRC_SRC ${WIRESHARK_QT_QRC})
 	QT4_WRAP_UI(WIRESHARK_QT_UI_SRC ${WIRESHARK_QT_UI})
 endif()
-
-foreach(_file ${WIRESHARK_QT_QM})
-	get_filename_component(_qresource ${_file} NAME)
-	set(i18n_qresource "${i18n_qresource}\n    <file>${_qresource}</file>")
-	set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc PROPERTIES OBJECT_DEPENDS ${_file})
-endforeach()
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/i18n.qrc.in ${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc)
 
 add_custom_target(
 	translations ALL
