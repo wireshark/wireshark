@@ -50,7 +50,7 @@ private:
     void updateStyleSheet(bool is_valid);
 
     StockIconToolButton *apply_button_;
-    QString validation_regex_;
+    QRegExp regex_expr_;
     bool is_required_;
     bool text_edited_;
 };
