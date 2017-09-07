@@ -366,7 +366,7 @@ static int hf_gprscdr_maxRequestedBandwithUL = -1;  /* INTEGER */
 static int hf_gprscdr_maxRequestedBandwithDL = -1;  /* INTEGER */
 static int hf_gprscdr_guaranteedBitrateUL = -1;   /* INTEGER */
 static int hf_gprscdr_guaranteedBitrateDL = -1;   /* INTEGER */
-static int hf_gprscdr_aRP = -1;                   /* INTEGER */
+static int hf_gprscdr_aRP = -1;                   /* T_aRP */
 static int hf_gprscdr_aPNAggregateMaxBitrateUL = -1;  /* INTEGER */
 static int hf_gprscdr_aPNAggregateMaxBitrateDL = -1;  /* INTEGER */
 static int hf_gprscdr_numberOfEvents = -1;        /* INTEGER */
@@ -492,6 +492,7 @@ static int hf_gprscdr_ServiceConditionChange_aPNRateControlChange = -1;
 static int ett_gprscdr = -1;
 static int ett_gprscdr_timestamp = -1;
 static int ett_gprscdr_plmn_id = -1;
+static int ett_gprscdr_eps_qos_arp = -1;
 static int ett_gprscdr_managementextension_information = -1;
 static int ett_gprscdr_userlocationinformation = -1;
 
@@ -585,7 +586,7 @@ static gint ett_gprscdr_UserCSGInformation = -1;
 static gint ett_gprscdr_UWANUserLocationInfo = -1;
 
 /*--- End of included file: packet-gprscdr-ett.c ---*/
-#line 54 "./asn1/gprscdr/packet-gprscdr-template.c"
+#line 55 "./asn1/gprscdr/packet-gprscdr-template.c"
 
 static expert_field ei_gprscdr_not_dissected = EI_INIT;
 static expert_field ei_gprscdr_choice_not_found = EI_INIT;
@@ -1826,7 +1827,7 @@ dissect_gprscdr_FailureHandlingContinue(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 static int
 dissect_gprscdr_T_userLocationInformation_04(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 160 "./asn1/gprscdr/gprscdr.cnf"
+#line 177 "./asn1/gprscdr/gprscdr.cnf"
 
   offset = dissect_gprscdr_uli(tvb, actx, tree, 1);
 
@@ -2171,7 +2172,7 @@ dissect_gprscdr_PLMN_Id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_gprscdr_T_userLocationInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 144 "./asn1/gprscdr/gprscdr.cnf"
+#line 161 "./asn1/gprscdr/gprscdr.cnf"
 
   offset = dissect_gprscdr_uli(tvb, actx, tree, 1);
 
@@ -2470,7 +2471,7 @@ dissect_gprscdr_PSFurnishChargingInformation(gboolean implicit_tag _U_, tvbuff_t
 
 static int
 dissect_gprscdr_T_userLocationInformation_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 152 "./asn1/gprscdr/gprscdr.cnf"
+#line 169 "./asn1/gprscdr/gprscdr.cnf"
 
   offset = dissect_gprscdr_uli(tvb, actx, tree, 1);
 
@@ -2678,7 +2679,7 @@ dissect_gprscdr_GPRSCallEventRecord(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_gprscdr_T_userLocationInformation_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 148 "./asn1/gprscdr/gprscdr.cnf"
+#line 165 "./asn1/gprscdr/gprscdr.cnf"
 
   offset = dissect_gprscdr_uli(tvb, actx, tree, 1);
 
@@ -2735,7 +2736,7 @@ dissect_gprscdr_GGSNPDPRecordV750(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_gprscdr_T_userLocationInformation_03(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 156 "./asn1/gprscdr/gprscdr.cnf"
+#line 173 "./asn1/gprscdr/gprscdr.cnf"
 
   offset = dissect_gprscdr_uli(tvb, actx, tree, 1);
 
@@ -2857,7 +2858,7 @@ dissect_gprscdr_SEQUENCE_OF_AFRecordInformation(gboolean implicit_tag _U_, tvbuf
 
 static int
 dissect_gprscdr_T_userLocationInformation_05(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 164 "./asn1/gprscdr/gprscdr.cnf"
+#line 181 "./asn1/gprscdr/gprscdr.cnf"
 
   offset = dissect_gprscdr_uli(tvb, actx, tree, 1);
 
@@ -3054,9 +3055,35 @@ dissect_gprscdr_ChangeCondition(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_gprscdr_T_userLocationInformation_08(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 184 "./asn1/gprscdr/gprscdr.cnf"
+#line 201 "./asn1/gprscdr/gprscdr.cnf"
 
   offset = dissect_gprscdr_uli(tvb, actx, tree, 2);
+
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_gprscdr_T_aRP(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 144 "./asn1/gprscdr/gprscdr.cnf"
+  proto_tree *ext_tree_arp;
+  guint length;
+
+  /*
+   * 8.86 Allocation/Retention Priority (ARP)
+   * 3GPP TS 29.274
+   */
+
+  length = tvb_reported_length(tvb);
+  ext_tree_arp = proto_tree_add_subtree(tree, tvb, 0, length, ett_gprscdr_eps_qos_arp, NULL, "aRP");
+
+  dissect_gtpv2_arp(tvb, actx->pinfo, ext_tree_arp, NULL, length, 0, 0, NULL);
+
+  offset = length;
+
 
 
 
@@ -3070,7 +3097,7 @@ static const ber_sequence_t EPCQoSInformation_sequence[] = {
   { &hf_gprscdr_maxRequestedBandwithDL, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_INTEGER },
   { &hf_gprscdr_guaranteedBitrateUL, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_INTEGER },
   { &hf_gprscdr_guaranteedBitrateDL, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_INTEGER },
-  { &hf_gprscdr_aRP         , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_INTEGER },
+  { &hf_gprscdr_aRP         , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_T_aRP },
   { &hf_gprscdr_aPNAggregateMaxBitrateUL, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_INTEGER },
   { &hf_gprscdr_aPNAggregateMaxBitrateDL, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_INTEGER },
   { NULL, 0, 0, 0, NULL }
@@ -3183,7 +3210,7 @@ dissect_gprscdr_UWANUserLocationInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 static int
 dissect_gprscdr_T_userLocationInformation_10(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 192 "./asn1/gprscdr/gprscdr.cnf"
+#line 209 "./asn1/gprscdr/gprscdr.cnf"
 
   offset = dissect_gprscdr_uli(tvb, actx, tree, 2);
 
@@ -3686,7 +3713,7 @@ dissect_gprscdr_GGSNMBMSRecord(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_gprscdr_T_userLocationInformation_06(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 168 "./asn1/gprscdr/gprscdr.cnf"
+#line 185 "./asn1/gprscdr/gprscdr.cnf"
 
   offset = dissect_gprscdr_uli(tvb, actx, tree, 2);
 
@@ -3736,7 +3763,7 @@ dissect_gprscdr_PresenceReportingAreaInfo(gboolean implicit_tag _U_, tvbuff_t *t
 
 static int
 dissect_gprscdr_T_lastUserLocationInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 172 "./asn1/gprscdr/gprscdr.cnf"
+#line 189 "./asn1/gprscdr/gprscdr.cnf"
 
   offset = dissect_gprscdr_uli(tvb, actx, tree, 2);
 
@@ -3851,7 +3878,7 @@ dissect_gprscdr_SGWRecord(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_gprscdr_T_userLocationInformation_07(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 176 "./asn1/gprscdr/gprscdr.cnf"
+#line 193 "./asn1/gprscdr/gprscdr.cnf"
 
   offset = dissect_gprscdr_uli(tvb, actx, tree, 2);
 
@@ -3916,7 +3943,7 @@ dissect_gprscdr_ServiceConditionChange(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 static int
 dissect_gprscdr_T_userLocationInformation_09(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 188 "./asn1/gprscdr/gprscdr.cnf"
+#line 205 "./asn1/gprscdr/gprscdr.cnf"
 
   offset = dissect_gprscdr_uli(tvb, actx, tree, 2);
 
@@ -3953,7 +3980,7 @@ dissect_gprscdr_ADCRuleBaseName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_gprscdr_T_userLocationInformation_11(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 196 "./asn1/gprscdr/gprscdr.cnf"
+#line 213 "./asn1/gprscdr/gprscdr.cnf"
 
   offset = dissect_gprscdr_uli(tvb, actx, tree, 2);
 
@@ -4136,7 +4163,7 @@ dissect_gprscdr_TWANUserLocationInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 static int
 dissect_gprscdr_T_lastUserLocationInformation_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 180 "./asn1/gprscdr/gprscdr.cnf"
+#line 197 "./asn1/gprscdr/gprscdr.cnf"
 
   offset = dissect_gprscdr_uli(tvb, actx, tree, 2);
 
@@ -4626,7 +4653,7 @@ static const ber_choice_t GPRSRecord_choice[] = {
 
 int
 dissect_gprscdr_GPRSRecord(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 200 "./asn1/gprscdr/gprscdr.cnf"
+#line 217 "./asn1/gprscdr/gprscdr.cnf"
 proto_item *item;
 gint branch_taken, t_offset = offset;
 gint32   tag;
@@ -4667,7 +4694,7 @@ int dissect_gprscdr_GPRSRecord_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-gprscdr-fn.c ---*/
-#line 122 "./asn1/gprscdr/packet-gprscdr-template.c"
+#line 123 "./asn1/gprscdr/packet-gprscdr-template.c"
 
 
 
@@ -5931,7 +5958,7 @@ proto_register_gprscdr(void)
     { &hf_gprscdr_aRP,
       { "aRP", "gprscdr.aRP",
         FT_INT32, BASE_DEC, NULL, 0,
-        "INTEGER", HFILL }},
+        NULL, HFILL }},
     { &hf_gprscdr_aPNAggregateMaxBitrateUL,
       { "aPNAggregateMaxBitrateUL", "gprscdr.aPNAggregateMaxBitrateUL",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -6402,7 +6429,7 @@ proto_register_gprscdr(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-gprscdr-hfarr.c ---*/
-#line 132 "./asn1/gprscdr/packet-gprscdr-template.c"
+#line 133 "./asn1/gprscdr/packet-gprscdr-template.c"
   };
 
   /* List of subtrees */
@@ -6410,6 +6437,7 @@ proto_register_gprscdr(void)
     &ett_gprscdr,
     &ett_gprscdr_timestamp,
     &ett_gprscdr_plmn_id,
+    &ett_gprscdr_eps_qos_arp,
     &ett_gprscdr_managementextension_information,
     &ett_gprscdr_userlocationinformation,
 
@@ -6503,7 +6531,7 @@ proto_register_gprscdr(void)
     &ett_gprscdr_UWANUserLocationInfo,
 
 /*--- End of included file: packet-gprscdr-ettarr.c ---*/
-#line 142 "./asn1/gprscdr/packet-gprscdr-template.c"
+#line 144 "./asn1/gprscdr/packet-gprscdr-template.c"
         };
 
   static ei_register_info ei[] = {

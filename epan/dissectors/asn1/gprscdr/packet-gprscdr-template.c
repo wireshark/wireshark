@@ -48,6 +48,7 @@ static int proto_gprscdr = -1;
 static int ett_gprscdr = -1;
 static int ett_gprscdr_timestamp = -1;
 static int ett_gprscdr_plmn_id = -1;
+static int ett_gprscdr_eps_qos_arp = -1;
 static int ett_gprscdr_managementextension_information = -1;
 static int ett_gprscdr_userlocationinformation = -1;
 #include "packet-gprscdr-ett.c"
@@ -136,6 +137,7 @@ proto_register_gprscdr(void)
     &ett_gprscdr,
     &ett_gprscdr_timestamp,
     &ett_gprscdr_plmn_id,
+    &ett_gprscdr_eps_qos_arp,
     &ett_gprscdr_managementextension_information,
     &ett_gprscdr_userlocationinformation,
 #include "packet-gprscdr-ettarr.c"

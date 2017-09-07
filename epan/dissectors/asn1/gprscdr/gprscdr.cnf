@@ -140,6 +140,23 @@ GPRSRecord
 
   offset = decode_qos_umts(tvb, 0, actx->pinfo, tree, hfi->name, 0);
 
+#.FN_BODY EPCQoSInformation/aRP
+  proto_tree *ext_tree_arp;
+  guint length;
+
+  /*
+   * 8.86 Allocation/Retention Priority (ARP)
+   * 3GPP TS 29.274
+   */
+
+  length = tvb_reported_length(tvb);
+  ext_tree_arp = proto_tree_add_subtree(tree, tvb, 0, length, ett_gprscdr_eps_qos_arp, NULL, "aRP");
+
+  dissect_gtpv2_arp(tvb, actx->pinfo, ext_tree_arp, NULL, length, 0, 0, NULL);
+
+  offset = length;
+
+
 #.FN_BODY GGSNPDPRecord/userLocationInformation
 
   offset = dissect_gprscdr_uli(tvb, actx, tree, 1);
