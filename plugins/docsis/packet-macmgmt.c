@@ -2725,7 +2725,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
 static int
 dissect_any_map (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint8 version, void* data _U_)
 {
-  guint32 i, numie, upchid, ucd_count, cat;
+  guint32 i, numie, upchid, ucd_count, cat = 0;
   int pos;
   proto_item *it;
   proto_tree *map_tree;
