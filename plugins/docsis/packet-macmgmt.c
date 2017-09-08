@@ -1103,6 +1103,7 @@ static expert_field ei_docsis_mgmt_tlvtype_unknown = EI_INIT;
 
 static dissector_table_t docsis_mgmt_dissector_table;
 static dissector_handle_t docsis_tlv_handle;
+static dissector_handle_t docsis_ucd_handle;
 
 static const value_string channel_tlv_vals[] = {
   {UCD_SYMBOL_RATE,  "Symbol Rate"},
@@ -7972,6 +7973,7 @@ proto_register_docsis_mgmt (void)
   proto_docsis_type51ucd = proto_register_protocol_in_name_only("DOCSIS Upstream Channel Descriptor Type 51", "DOCSIS type51ucd", "docsis_type51ucd", proto_docsis_mgmt, FT_BYTES);
 
   register_dissector ("docsis_mgmt", dissect_macmgmt, proto_docsis_mgmt);
+  docsis_ucd_handle = register_dissector ("docsis_ucd", dissect_ucd, proto_docsis_ucd);
 }
 
 void
@@ -7979,7 +7981,7 @@ proto_reg_handoff_docsis_mgmt (void)
 {
   /* Create dissection function handles for all Mac Management commands */
   dissector_add_uint ("docsis_mgmt", MGT_SYNC, create_dissector_handle( dissect_sync, proto_docsis_sync ));
-  dissector_add_uint ("docsis_mgmt", MGT_UCD, create_dissector_handle( dissect_ucd, proto_docsis_ucd ));
+  dissector_add_uint ("docsis_mgmt", MGT_UCD, docsis_ucd_handle);
   dissector_add_uint ("docsis_mgmt", MGT_MAP, create_dissector_handle( dissect_map, proto_docsis_map ));
   dissector_add_uint ("docsis_mgmt", MGT_RNG_REQ, create_dissector_handle( dissect_rngreq, proto_docsis_rngreq ));
   dissector_add_uint ("docsis_mgmt", MGT_RNG_RSP, create_dissector_handle( dissect_rngrsp, proto_docsis_rngrsp ));
