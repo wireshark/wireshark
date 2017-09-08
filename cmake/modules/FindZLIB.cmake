@@ -100,7 +100,9 @@ IF(WIN32)
     MESSAGE(STATUS "Zlib might not be built yet; assume it contains inflatePrime")
     SET(HAVE_INFLATEPRIME ON)
 ELSE()
+    INCLUDE(CMakePushCheckState)
     INCLUDE(CheckFunctionExists)
+    CMAKE_PUSH_CHECK_STATE()
     SET(CMAKE_REQUIRED_LIBRARIES ${ZLIB_LIBRARY})
     #
     # Check for inflate() in zlib, to make sure the zlib library is
@@ -120,7 +122,7 @@ ELSE()
     ENDIF()
     CHECK_FUNCTION_EXISTS("inflatePrime" HAVE_INFLATEPRIME)
     # reset
-    SET(CMAKE_REQUIRED_LIBRARIES "")
+    CMAKE_POP_CHECK_STATE()
 ENDIF()
 
 # handle the QUIETLY and REQUIRED arguments and set ZLIB_FOUND to TRUE if
