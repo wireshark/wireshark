@@ -1837,7 +1837,6 @@ DISSECTOR_INCLUDES = \
 	packet-zbee-security.h	\
 	packet-zbee-zcl.h	\
 	packet-zbee-zdp.h	\
-	packet-zep.h		\
 	packet-ziop.h		\
 	read_keytab_file.h	\
 	snort-config.h		\
