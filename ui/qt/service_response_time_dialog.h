@@ -23,6 +23,7 @@
 #define __SERVICE_RESPONSE_TIME_DIALOG_H__
 
 #include "tap_parameter_dialog.h"
+#include <epan/srt_table.h>
 
 struct register_srt;
 struct _srt_stat_table;
@@ -36,6 +37,9 @@ class ServiceResponseTimeDialog : public TapParameterDialog
 public:
     ServiceResponseTimeDialog(QWidget &parent, CaptureFile &cf, struct register_srt *srt, const QString filter, int help_topic = 0);
     static TapParameterDialog *createSrtDialog(QWidget &parent, const QString cfg_str, const QString filter, CaptureFile &cf);
+
+public slots:
+    void endRetapPackets();
 
 protected:
     struct register_srt *srt_;
@@ -60,6 +64,8 @@ private:
 
     virtual QList<QVariant> treeItemData(QTreeWidgetItem *ti) const;
     virtual const QString filterExpression();
+
+    srt_data_t srt_data_;
 
 private slots:
     void statsTreeWidgetItemChanged();

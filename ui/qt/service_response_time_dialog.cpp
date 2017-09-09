@@ -231,10 +231,6 @@ void ServiceResponseTimeDialog::tapReset(void *srtd_ptr)
     reset_srt_table(srtd->srt_array, NULL, NULL);
 
     srt_dlg->statsTreeWidget()->clear();
-    for (guint i = 0; i < srtd->srt_array->len; i++) {
-        srt_stat_table *srt_table = g_array_index(srtd->srt_array, srt_stat_table*, i);
-        srt_dlg->addSrtTable(srt_table);
-    }
 }
 
 void ServiceResponseTimeDialog::tapDraw(void *srtd_ptr)
@@ -257,17 +253,25 @@ void ServiceResponseTimeDialog::tapDraw(void *srtd_ptr)
     }
 }
 
+void ServiceResponseTimeDialog::endRetapPackets()
+{
+    for (guint i = 0; i < srt_data_.srt_array->len; i++) {
+        srt_stat_table *srt_table = g_array_index(srt_data_.srt_array, srt_stat_table*, i);
+        addSrtTable(srt_table);
+    }
+    WiresharkDialog::endRetapPackets();
+}
+
 void ServiceResponseTimeDialog::fillTree()
 {
-    srt_data_t srt_data;
-    srt_data.srt_array = g_array_new(FALSE, TRUE, sizeof(srt_stat_table*));
-    srt_data.user_data = this;
+    srt_data_.srt_array = g_array_new(FALSE, TRUE, sizeof(srt_stat_table*));
+    srt_data_.user_data = this;
 
-    srt_table_dissector_init(srt_, srt_data.srt_array, NULL, NULL);
+    srt_table_dissector_init(srt_, srt_data_.srt_array, NULL, NULL);
 
     QString display_filter = displayFilter();
     if (!registerTapListener(get_srt_tap_listener_name(srt_),
-                        &srt_data,
+                        &srt_data_,
                         display_filter.toUtf8().constData(),
                         0,
                         tapReset,
@@ -286,14 +290,14 @@ void ServiceResponseTimeDialog::fillTree()
         statsTreeWidget()->setRootIndex(statsTreeWidget()->model()->index(0, 0));
     }
 
-    tapDraw(&srt_data);
+    tapDraw(&srt_data_);
 
     statsTreeWidget()->sortItems(SRT_COLUMN_PROCEDURE, Qt::AscendingOrder);
     statsTreeWidget()->setSortingEnabled(true);
 
     removeTapListeners();
 
-    g_array_free(srt_data.srt_array, TRUE);
+    g_array_free(srt_data_.srt_array, TRUE);
 }
 
 QList<QVariant> ServiceResponseTimeDialog::treeItemData(QTreeWidgetItem *ti) const
