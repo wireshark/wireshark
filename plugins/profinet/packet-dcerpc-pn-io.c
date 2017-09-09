@@ -9688,6 +9688,12 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
                 fp = NULL;
             }
 
+            if(fp != NULL)
+            {
+                fclose(fp);
+                fp = NULL;
+            }
+
             switch (u16SubmoduleProperties & 0x03) {
             case(0x00): /* no input and no output data (one Input DataDescription Block follows) */
                 offset = dissect_DataDescription(tvb, offset, pinfo, sub_tree, drep, io_data_object);
