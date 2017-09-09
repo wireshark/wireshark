@@ -34,8 +34,8 @@
  * the character list over HTTPS. It's possible this is done in the same manner
  * as in the native client from 10.74 up. We don't support the Flash client.
  *
- * The dissector supports Tibia versions from 7.0 (2001) till current
- * 11.42 (2017-08-12). Tibia has an active open source server emulator
+ * The dissector supports Tibia versions from 7.0 (2001) till
+ * 11.00 (2016-10-12). Tibia has an active open source server emulator
  * community (OTServ) that still makes use of older versions and surpasses
  * the official servers in popularity, therefore compatibility with older
  * protocol iterations should be maintained.
@@ -57,6 +57,11 @@
  * Starting with Tibia 7.61, login server requests can't be reliably
  * differentiated from game server requests. Therefore we apply some heuristics
  * to classify packets.
+ *
+ * Starting with Tibia 11.01, a web service takes the role of the login server.
+ * Starting with Tibia 11.11, the Adler32 checksum was replaced by a 32-bit
+ * sequence number. The most significant bit indicates whether the packet was
+ * DEFLATE-compressed. These features are not yet supported.
  *
  * Packets from and to the game server contain commands. Commands are
  * identified by the first octet and are variable in length. The dissector has
@@ -370,7 +375,7 @@ struct rsakey {
 GHashTable *rsakeys, *xteakeys;
 
 struct proto_traits {
-    guint32 adler32:1, rsa:1, xtea:1, acc_name:1, nonce:1,
+    guint32 adler32:1, rsa:1, compression:1, xtea:1, login_webservice:1, acc_name:1, nonce:1,
             extra_gpu_info:1, gmbyte:1, hwinfo:1;
     guint32 outfit_addons:1, stamina:1, lvl_on_msg:1;
     guint32 ping:1, client_version:1, game_preview:1, auth_token:1, session_key:1;
@@ -422,6 +427,12 @@ get_version_traits(guint16 version)
         has.auth_token = TRUE;
     if (version >= 1074)
         has.session_key = TRUE;
+    if (version >= 1101)
+        has.login_webservice = TRUE;
+    if (version >= 1111) {
+        has.compression = TRUE; /* with DEFLATE */
+        has.adler32 = FALSE;
+    }
 #if 0 /* With the legacy client being phased out, maybe Unicode support incoming? */
     if (version >= 11xy)
         has.string_enc = ENC_UTF_8;
@@ -434,7 +445,7 @@ static guint16
 get_version_get_charlist_packet_size(struct proto_traits *has)
 {
     guint16 size = 2;
-    if (has->adler32)
+    if (has->adler32 || has->compression)
         size += 4;
     size += 17;
     if (has->extra_gpu_info)
@@ -448,7 +459,7 @@ static guint16
 get_version_char_login_packet_size(struct proto_traits *has)
 {
     guint16 size = 2;
-    if (has->adler32)
+    if (has->adler32 || has->compression)
         size += 4;
     size += 5;
     if (has->client_version)
@@ -1309,6 +1320,8 @@ dissect_tibia(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *fragmen
     if (convo->has.adler32)
         offset += sizeof(guint32);
 
+    /* FIXME Tibia >=11.11 has a sequence number instead, this is yet unhandled */
+
     /* Is it a nonce? */
     if (tvb_get_letohs(tvb, offset) == plen - offset - sizeof(guint16)
             && tvb_get_guint8(tvb, offset+sizeof(guint16)) == S_NONCE) {
@@ -1366,6 +1379,8 @@ dissect_tibia(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *fragmen
     offset += 2;
     if (convo->has.adler32) {
         proto_tree_add_checksum(tibia_tree, tvb, offset, hf_tibia_adler32, hf_tibia_adler32_status, &ei_adler32_checksum_bad, pinfo, computed_cksum, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+        offset += 4;
+    } else if (convo->has.compression) {
         offset += 4;
     }
 
@@ -1441,8 +1456,7 @@ dissect_tibia(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *fragmen
             return offset;
         }
 
-        if (tibia_tree) /* don't reset offset if we are exiting anyway */
-            offset = 1;
+        offset = 1;
 
         tvb_memcpy(tvb_decrypted, convo->xtea_key, 1, XTEA_KEY_LEN);
         proto_tree_add_item(tibia_tree, hf_tibia_xtea_key, tvb_decrypted, 1, XTEA_KEY_LEN, ENC_NA);
