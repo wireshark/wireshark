@@ -27,6 +27,8 @@
  * the ws_cpuid() routine will return 0 if cpuinfo isn't available.
  */
 
+#include "ws_attributes.h"
+
 #if defined(_MSC_VER)     /* MSVC */
 static gboolean
 ws_cpuid(guint32 *CPUInfo, guint32 selector)
