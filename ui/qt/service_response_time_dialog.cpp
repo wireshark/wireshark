@@ -299,6 +299,7 @@ void ServiceResponseTimeDialog::fillTree()
 
     removeTapListeners();
 
+    free_srt_table(srt_, srt_data_.srt_array, NULL, NULL);
     g_array_free(srt_data_.srt_array, TRUE);
 }
 
