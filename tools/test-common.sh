@@ -127,7 +127,7 @@ export ASAN_OPTIONS=detect_leaks=0
 CONFIGURED_WITH_ASAN=0
 # If tshark is built with ASAN this will generate an error. We could
 # also pass help=1 and look for help text.
-ASAN_OPTIONS=Invalid_Option_Flag $TSHARK -h > /devnull 2>&1
+ASAN_OPTIONS=Invalid_Option_Flag $TSHARK -h > /dev/null 2>&1
 if [ $? -ne 0 ] ; then
     CONFIGURED_WITH_ASAN=1
 fi
