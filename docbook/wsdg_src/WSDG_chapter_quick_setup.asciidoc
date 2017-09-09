@@ -72,7 +72,7 @@ Uncheck all the optional components (unless you want to use them for purposes ot
 You can use Chocolatey to install Visual Studio:
 
 ----
-PS$>choco install VisualStudioCommunity2015
+PS$>choco install VisualStudio2015Community
 ----
 
 You can use other Microsoft C compiler variants, but VS2015 is used to
