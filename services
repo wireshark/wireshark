@@ -4554,6 +4554,7 @@ cssc		5637/tcp	# Symantec CSSC
 flcrs		5638/tcp	# Symantec Fingerprint Lookup and Container Reference Service
 ics		5639/tcp	# Symantec Integrity Checking Service
 vfmobile	5646/tcp	# Ventureforth Mobile
+nrpe		5666/tcp	# Nagios Remote Plugin Executor
 filemq		5670/tcp	# ZeroMQ file publish-subscribe protocol
 zre-disc	5670/udp	# Local area discovery and messaging over ZeroMQ
 amqps		5671/tcp/udp	# amqp protocol over TLS/SSL
