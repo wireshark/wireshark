@@ -2172,7 +2172,7 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 		addresses_equal(&conv_data->server_addr, &pinfo->src);
 
 	/* Grab the destination port number from the request URI to find the right subdissector */
-	strings = g_strsplit(conv_data->request_uri, ":", 2);
+	strings = wmem_strsplit(wmem_packet_scope(), conv_data->request_uri, ":", 2);
 
 	if(strings[0] != NULL && strings[1] != NULL) {
 		/*
@@ -2234,7 +2234,6 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 			*ptr = saved_port;
 		}
 	}
-	g_strfreev(strings); /* Free the result of g_strsplit() above */
 }
 
 
