@@ -959,6 +959,7 @@ get_datafile_dir(void)
  *    configure script.
  */
 static char *plugin_dir = NULL;
+static char *plugin_pers_dir = NULL;
 
 static void
 init_plugin_dir(void)
@@ -1034,6 +1035,12 @@ init_plugin_dir(void)
 }
 #endif /* HAVE_PLUGINS || HAVE_LUA */
 
+static void
+init_plugin_pers_dir(void)
+{
+    plugin_pers_dir = get_persconffile_path(PLUGINS_DIR_NAME, FALSE);
+}
+
 /*
  * Get the directory in which the plugins are stored.
  */
@@ -1046,6 +1053,15 @@ get_plugin_dir(void)
 #else
     return NULL;
 #endif
+}
+
+/* Get the personal plugin dir */
+const char *
+get_plugins_pers_dir(void)
+{
+    if (!plugin_pers_dir)
+        init_plugin_pers_dir();
+    return plugin_pers_dir;
 }
 
 #if defined(HAVE_EXTCAP)
@@ -1883,14 +1899,6 @@ get_datafile_path(const char *filename)
     }
 }
 
-/* Get the personal plugin dir */
-/* Return value is malloced so the caller should g_free() it. */
-char *
-get_plugins_pers_dir(void)
-{
-    return get_persconffile_path(PLUGINS_DIR_NAME, FALSE);
-}
-
 /*
  * Return an error message for UNIX-style errno indications on open or
  * create operations.
@@ -2227,6 +2235,8 @@ free_progdirs(void)
 #if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
     g_free(plugin_dir);
     plugin_dir = NULL;
+    g_free(plugin_pers_dir);
+    plugin_pers_dir = NULL;
 #endif
 #ifdef HAVE_EXTCAP
     g_free(extcap_dir);

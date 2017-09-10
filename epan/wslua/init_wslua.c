@@ -475,7 +475,6 @@ static int lua_script_push_args(const int script_num) {
 /* assumes a loaded chunk's function is on top of stack */
 static void set_file_environment(const gchar* filename, const gchar* dirname) {
     const char* path;
-    char* personal = get_plugins_pers_dir();
 
     lua_newtable(L); /* environment for script (index 3) */
 
@@ -502,7 +501,7 @@ static void set_file_environment(const gchar* filename, const gchar* dirname) {
     lua_pop(L, 1);                  /* pop the path string */
     /* prepend the various paths */
     lua_pushfstring(L, "%s" G_DIR_SEPARATOR_S "?.lua;%s" G_DIR_SEPARATOR_S "?.lua;%s" G_DIR_SEPARATOR_S "?.lua;%s",
-                    dirname, personal, get_plugin_dir(), path);
+                    dirname, get_plugins_pers_dir(), get_plugin_dir(), path);
     lua_setfield(L, -2, "path");    /* set the new string to be the path field of the package table */
     lua_setfield(L, -2, "package"); /* set the package table to be the package field of the global */
 
@@ -515,8 +514,6 @@ static void set_file_environment(const gchar* filename, const gchar* dirname) {
 #else
     lua_setfenv(L, -2); /* pop environment and set it as the func's environment */
 #endif
-
-    g_free(personal);
 }
 
 
@@ -677,9 +674,7 @@ int wslua_count_plugins(void) {
     g_free(filename);
 
     /* count user scripts */
-    filename = get_plugins_pers_dir();
-    plugins_counter += lua_load_plugins(filename, NULL, NULL, TRUE, TRUE);
-    g_free(filename);
+    plugins_counter += lua_load_plugins(get_plugins_pers_dir(), NULL, NULL, TRUE, TRUE);
 
     /* count scripts from command line */
     plugins_counter += ex_opt_count("lua_script");
@@ -949,9 +944,7 @@ void wslua_init(register_cb cb, gpointer client_data) {
         g_free(filename);
 
         /* load user scripts */
-        filename = get_plugins_pers_dir();
-        lua_load_plugins(filename, cb, client_data, FALSE, TRUE);
-        g_free(filename);
+        lua_load_plugins(get_plugins_pers_dir(), cb, client_data, FALSE, TRUE);
 
         /* load scripts from command line */
         for (i = 0; i < ex_opt_count("lua_script"); i++) {

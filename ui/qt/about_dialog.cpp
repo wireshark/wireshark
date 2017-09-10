@@ -226,8 +226,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
 #if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
     /* pers plugins */
-    message += about_folders_row("Personal Plugins", gchar_free_to_qstring(get_plugins_pers_dir()),
-                      "dissector plugins");
+    message += about_folders_row("Personal Plugins", get_plugins_pers_dir(), "dissector plugins");
 
     /* global plugins */
     message += about_folders_row("Global Plugins", get_plugin_dir(), "dissector plugins");

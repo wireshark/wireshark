@@ -285,7 +285,6 @@ scan_plugins(plugin_load_failure_mode mode)
     const char *plugin_dir;
     const char *name;
     char *plugin_dir_path;
-    char *plugins_pers_dir;
     WS_DIR *dir;                /* scanned directory */
     WS_DIRENT *file;            /* current file */
 
@@ -353,9 +352,7 @@ scan_plugins(plugin_load_failure_mode mode)
          */
         if (!started_with_special_privs())
         {
-            plugins_pers_dir = get_plugins_pers_dir();
-            plugins_scan_dir(plugins_pers_dir, mode);
-            g_free(plugins_pers_dir);
+            plugins_scan_dir(get_plugins_pers_dir(), mode);
         }
     }
 }

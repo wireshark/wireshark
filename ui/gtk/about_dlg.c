@@ -460,10 +460,8 @@ about_folders_page_new(void)
 
 #if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
   /* pers plugins */
-  path = get_plugins_pers_dir();
-  about_folders_row(table, "Personal Plugins", path,
+  about_folders_row(table, "Personal Plugins", get_plugins_pers_dir(),
       "dissector plugins");
-  g_free(path);
 
   /* global plugins */
   about_folders_row(table, "Global Plugins", get_plugin_dir(),

@@ -324,9 +324,7 @@ WSLUA_CONSTRUCTOR Dir_personal_plugins_path(lua_State* L) {
 
        @since 1.11.3
     */
-    char* filename = get_plugins_pers_dir();
-    lua_pushstring(L,filename);
-    g_free(filename);
+    lua_pushstring(L, get_plugins_pers_dir());
     WSLUA_RETURN(1); /* The pathname for the personal plugins directory. */
 }
 

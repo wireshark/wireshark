@@ -613,11 +613,7 @@ about_folders(void)
 
 #if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
   /* pers plugins */
-  path = get_plugins_pers_dir();
-
-  printf("%-21s\t%s\n", "Personal Plugins:", path);
-
-  g_free(path);
+  printf("%-21s\t%s\n", "Personal Plugins:", get_plugins_pers_dir());
 
   /* global plugins */
   printf("%-21s\t%s\n", "Global Plugins:", get_plugin_dir());
