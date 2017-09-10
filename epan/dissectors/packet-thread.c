@@ -2124,12 +2124,11 @@ dissect_thread_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     coinfo = (coap_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_coap, 0);
     uri = (gchar *)wmem_strbuf_get_str(coinfo->uri_str_strbuf);
 
-    tokens = g_strsplit(uri, "/", 3);
+    tokens = wmem_strsplit(wmem_packet_scope(), uri, "/", 3);
     if ((tokens[0] != NULL) && (tokens[1] != NULL)) {
         /* No need to create a subset as we are dissecting the tvb as it is */
         dissector_try_string(thread_coap_namespace, tokens[1], tvb, pinfo, tree, NULL);
     }
-    g_strfreev(tokens);
 
     return tvb_captured_length(tvb);
 }
