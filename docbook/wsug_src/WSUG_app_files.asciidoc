@@ -461,7 +461,7 @@ machine code.
 Wireshark looks for plugins in both a personal plugin folder and a
 global plugin folder.  Lua plugins are stored in the plugin folders;
 compiled plugins are stored in subfolders of the plugin folders, with
-the subfolder name being the Wireshark version number.
+the subfolder name being the Wireshark minor version number (X.Y).
 
 On Windows:
 

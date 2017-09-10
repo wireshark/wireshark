@@ -2608,7 +2608,7 @@ dnl check whether plugins should be enabled and, if they should be,
 dnl check for plugins directory - stolen from Amanda's configure.ac
 dnl
 dnl we don't wish to expand ${libdir} yet
-plugindir="\${libdir}/wireshark/plugins/${VERSION}"
+plugindir="\${libdir}/wireshark/plugins/version_major.version_minor"
 AC_ARG_WITH(plugins,
   AC_HELP_STRING( [--with-plugins@<:@=DIR@:>@],
 		  [support plugins (installed in DIR, if supplied) @<:@default=yes, if possible@:>@]),

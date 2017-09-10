@@ -1360,7 +1360,7 @@ if(LIBSSH_FOUND)
 endif()
 
 # Directory where plugins and Lua dissectors can be found.
-set(PLUGIN_VERSION_DIR "plugins/${CPACK_PACKAGE_VERSION}")
+set(PLUGIN_VERSION_DIR "plugins/${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}")
 set(PLUGIN_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME}/${PLUGIN_VERSION_DIR}")
 # Used by the WiresharkConfig.cmake.in module
 if (WIN32)
