@@ -104,6 +104,7 @@ static expert_field ei_nt_ace_extends_beyond_capture = EI_INIT;
 static expert_field ei_nt_group_sid_beyond_reassembled_data = EI_INIT;
 static expert_field ei_nt_group_sid_beyond_captured_data = EI_INIT;
 static expert_field ei_nt_owner_sid_beyond_captured_data = EI_INIT;
+static expert_field ei_nt_item_offs_out_of_range = EI_INIT;
 
 
 /* WERR error codes */
@@ -2363,9 +2364,13 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 	volatile int end_offset;
 	volatile int item_offset;
 	guint32 owner_sid_offset;
+	proto_item *it_owner_sid_offs = NULL;
 	volatile guint32 group_sid_offset;
+	proto_item *it_gr_sid_offs = NULL;
 	volatile guint32 sacl_offset;
+	proto_item *it_sacl_offs = NULL;
 	volatile guint32 dacl_offset;
+	proto_item *it_dacl_offs = NULL;
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset_v, -1,
 				   ett_nt_sec_desc, &item, "NT Security Descriptor");
@@ -2388,7 +2393,7 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 	    proto_tree_add_uint_format_value(tree, hf_nt_offset_to_owner_sid, tvb, offset_v, 4, owner_sid_offset, "%u (bogus, must be >= 20)", owner_sid_offset);
 	    owner_sid_offset = 0;
 	  } else
-	    proto_tree_add_item(tree, hf_nt_offset_to_owner_sid, tvb, offset_v, 4, ENC_LITTLE_ENDIAN);
+	    it_owner_sid_offs = proto_tree_add_item(tree, hf_nt_offset_to_owner_sid, tvb, offset_v, 4, ENC_LITTLE_ENDIAN);
 	  offset_v += 4;
 
 	  /* offset to group sid */
@@ -2398,7 +2403,7 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 	    proto_tree_add_uint_format_value(tree, hf_nt_offset_to_group_sid, tvb, offset_v, 4, group_sid_offset, "%u (bogus, must be >= 20)", group_sid_offset);
 	    group_sid_offset = 0;
 	  } else
-	    proto_tree_add_item(tree, hf_nt_offset_to_group_sid, tvb, offset_v, 4, ENC_LITTLE_ENDIAN);
+	    it_gr_sid_offs = proto_tree_add_item(tree, hf_nt_offset_to_group_sid, tvb, offset_v, 4, ENC_LITTLE_ENDIAN);
 	  offset_v += 4;
 
 	  /* offset to sacl */
@@ -2408,7 +2413,7 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 	    proto_tree_add_uint_format_value(tree, hf_nt_offset_to_sacl, tvb, offset_v, 4, sacl_offset, "%u (bogus, must be >= 20)", sacl_offset);
 	    sacl_offset = 0;
 	  } else
-	    proto_tree_add_item(tree, hf_nt_offset_to_sacl, tvb, offset_v, 4, ENC_LITTLE_ENDIAN);
+	    it_sacl_offs = proto_tree_add_item(tree, hf_nt_offset_to_sacl, tvb, offset_v, 4, ENC_LITTLE_ENDIAN);
 	  offset_v += 4;
 
 	  /* offset to dacl */
@@ -2418,7 +2423,7 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 	    proto_tree_add_uint_format_value(tree, hf_nt_offset_to_dacl, tvb, offset_v, 4, dacl_offset, "%u (bogus, must be >= 20)", dacl_offset);
 	    dacl_offset = 0;
 	  } else
-	    proto_tree_add_item(tree, hf_nt_offset_to_dacl, tvb, offset_v, 4, ENC_LITTLE_ENDIAN);
+	    it_dacl_offs = proto_tree_add_item(tree, hf_nt_offset_to_dacl, tvb, offset_v, 4, ENC_LITTLE_ENDIAN);
 	  offset_v += 4;
 
 	  end_offset = offset_v;
@@ -2427,10 +2432,9 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 	  if(owner_sid_offset){
 	    item_offset = start_offset+owner_sid_offset;
 	    if (item_offset < start_offset) {
-	      /*
-	       * Overflow - throw an exception.
-	       */
-	      THROW(ReportedBoundsError);
+		    expert_add_info(pinfo, it_owner_sid_offs,
+				    &ei_nt_item_offs_out_of_range);
+		    break;
 	    }
 	    TRY{
 	      offset_v = dissect_nt_sid(tvb, item_offset, tree, "Owner", NULL, -1);
@@ -2453,10 +2457,9 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 	  if(group_sid_offset){
 	    item_offset = start_offset+group_sid_offset;
 	    if (item_offset < start_offset) {
-	      /*
-	       * Overflow - throw an exception.
-	       */
-	      THROW(ReportedBoundsError);
+		    expert_add_info(pinfo, it_gr_sid_offs,
+				    &ei_nt_item_offs_out_of_range);
+		    break;
 	    }
 	    TRY {
 	      offset_v = dissect_nt_sid(tvb, item_offset, tree, "Group", NULL, -1);
@@ -2479,10 +2482,9 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 	  if(sacl_offset){
 	    item_offset = start_offset+sacl_offset;
 	    if (item_offset < start_offset) {
-	      /*
-	       * Overflow - throw an exception.
-	       */
-	      THROW(ReportedBoundsError);
+		    expert_add_info(pinfo, it_sacl_offs,
+				    &ei_nt_item_offs_out_of_range);
+		    break;
 	    }
 	    offset_v = dissect_nt_acl(tvb, item_offset, pinfo, tree,
 				    drep, "System (SACL)", ami);
@@ -2494,10 +2496,9 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 	  if(dacl_offset){
 	    item_offset = start_offset+dacl_offset;
 	    if (item_offset < start_offset) {
-	      /*
-	       * Overflow - throw an exception.
-	       */
-	      THROW(ReportedBoundsError);
+		    expert_add_info(pinfo, it_dacl_offs,
+				    &ei_nt_item_offs_out_of_range);
+		    break;
 	    }
 	    offset_v = dissect_nt_acl(tvb, item_offset, pinfo, tree,
 				    drep, "User (DACL)", ami);
@@ -2905,6 +2906,7 @@ proto_do_register_windows_common(int proto_smb)
 		{ &ei_nt_owner_sid_beyond_reassembled_data, { "nt.owner_sid.beyond_reassembled_data", PI_MALFORMED, PI_ERROR, "Owner SID beyond end of reassembled data", EXPFILL }},
 		{ &ei_nt_group_sid_beyond_captured_data, { "nt.group_sid.beyond_captured_data", PI_MALFORMED, PI_ERROR, "Group SID beyond end of captured data", EXPFILL }},
 		{ &ei_nt_group_sid_beyond_reassembled_data, { "nt.group_sid.beyond_reassembled_data", PI_MALFORMED, PI_ERROR, "Group SID beyond end of reassembled data", EXPFILL }},
+		{ &ei_nt_item_offs_out_of_range, { "nt.item_offset.out_of_range", PI_MALFORMED, PI_ERROR, "Item offset is out of range", EXPFILL }},
 	};
 
 	expert_module_t* expert_nt;
