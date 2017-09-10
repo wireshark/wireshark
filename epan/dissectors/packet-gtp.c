@@ -3834,8 +3834,17 @@ dissect_radius_selection_mode(proto_tree * tree, tvbuff_t * tvb, packet_info* pi
 static int
 decode_gtp_sel_mode(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
+    proto_tree *ext_tree;
+    proto_item *te;
+    guint8 sel_mode;
 
-    proto_tree_add_item(tree, hf_gtp_sel_mode, tvb, offset, 2, ENC_BIG_ENDIAN);
+    sel_mode = tvb_get_guint8(tvb, offset + 1) & 0x03;
+
+    ext_tree = proto_tree_add_subtree(tree, tvb, offset, 2, ett_gtp_ies[GTP_EXT_SEL_MODE], &te,
+                            val_to_str_ext_const(GTP_EXT_SEL_MODE, &gtp_val_ext, "Unknown message"));
+    proto_item_append_text(te, ": %s", val_to_str_const(sel_mode, sel_mode_type, "Unknown"));
+    proto_tree_add_item(ext_tree, hf_gtp_sel_mode, tvb, offset, 2, ENC_BIG_ENDIAN);
+
     return 2;
 }
 
