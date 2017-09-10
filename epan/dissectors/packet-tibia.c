@@ -131,6 +131,15 @@ static gboolean try_otserv_key          = TRUE,
                 reassemble_tcp_segments = TRUE;
 
 /* User Access Tables */
+#if HAVE_LIBGNUTLS
+struct rsakey {
+    address addr;
+    guint16 port;
+
+    gcry_sexp_t privkey;
+};
+GHashTable *rsakeys;
+
 struct rsakeys_assoc {
     char *ipaddr;
     char *port;
@@ -144,6 +153,13 @@ UAT_CSTRING_CB_DEF(rsakeylist_uats,  port,     struct rsakeys_assoc)
 UAT_FILENAME_CB_DEF(rsakeylist_uats, keyfile,  struct rsakeys_assoc)
 UAT_CSTRING_CB_DEF(rsakeylist_uats,  password, struct rsakeys_assoc)
 
+static void rsakey_free(void *_rsakey);
+
+static uat_t *rsakeys_uat = NULL;
+static struct rsakeys_assoc  *rsakeylist_uats = NULL;
+static guint nrsakeys = 0;
+#endif
+
 #define XTEA_KEY_LEN 16
 
 struct xteakeys_assoc {
@@ -151,6 +167,7 @@ struct xteakeys_assoc {
 
     char *key;
 };
+GHashTable *xteakeys;
 
 static void *xteakeys_copy_cb(void *, const void *, size_t);
 static void xteakeys_free_cb(void *);
@@ -160,6 +177,9 @@ static gboolean xteakeys_uat_fld_key_chk_cb(void *, const char *, guint, const v
 UAT_DEC_CB_DEF(xteakeylist_uats, framenum, struct xteakeys_assoc)
 UAT_CSTRING_CB_DEF(xteakeylist_uats, key, struct xteakeys_assoc)
 
+static uat_t *xteakeys_uat = NULL;
+static struct xteakeys_assoc *xteakeylist_uats = NULL;
+static guint nxteakeys = 0;
 
 #define COND_POISONED     0x1
 #define COND_BURNING      0x2
@@ -188,10 +208,6 @@ UAT_CSTRING_CB_DEF(xteakeylist_uats, key, struct xteakeys_assoc)
 #define TIBIA_DEFAULT_TCP_PORT_RANGE "7171,7172"
 
 static gint proto_tibia = -1;
-static uat_t *rsakeys_uat = NULL, *xteakeys_uat = NULL;
-static struct rsakeys_assoc  *rsakeylist_uats = NULL;
-static struct xteakeys_assoc *xteakeylist_uats = NULL;
-static guint nrsakeys = 0, nxteakeys = 0;
 
 static gint hf_tibia_len                     = -1;
 static gint hf_tibia_nonce                   = -1;
@@ -366,14 +382,6 @@ static expert_field ei_rsa_ciphertext_too_short      = EI_INIT;
 static expert_field ei_rsa_decrypt_failed            = EI_INIT;
 
 
-struct rsakey {
-    address addr;
-    guint16 port;
-
-    gcry_sexp_t privkey;
-};
-GHashTable *rsakeys, *xteakeys;
-
 struct proto_traits {
     guint32 adler32:1, rsa:1, compression:1, xtea:1, login_webservice:1, acc_name:1, nonce:1,
             extra_gpu_info:1, gmbyte:1, hwinfo:1;
@@ -486,7 +494,7 @@ tibia_get_convo(packet_info *pinfo)
     struct tibia_convo *convo = (struct tibia_convo*)conversation_get_proto_data(epan_conversation, proto_tibia);
 
     if (!convo) {
-        struct rsakey rsa_key;
+        address *servaddr;
         convo = wmem_new0(wmem_file_scope(), struct tibia_convo);
 
         /* FIXME there gotta be a cleaner way... */
@@ -494,15 +502,20 @@ tibia_get_convo(packet_info *pinfo)
             convo->clientport = pinfo->srcport;
 
             convo->servport = pinfo->destport;
-            rsa_key.addr = pinfo->dst;
+            servaddr = &pinfo->dst;
         } else {
             convo->clientport = pinfo->destport;
 
             convo->servport = pinfo->srcport;
-            rsa_key.addr = pinfo->src;
+            servaddr = &pinfo->src;
         }
+        (void)servaddr;
+#ifdef HAVE_LIBGNUTLS
+        struct rsakey rsa_key;
         rsa_key.port = convo->servport;
+        rsa_key.addr = *servaddr;
         convo->privkey = (gcry_sexp_t)g_hash_table_lookup(rsakeys, &rsa_key);
+#endif
         convo->xtea_framenum = XTEA_UNKNOWN;
 
         conversation_add_proto_data(epan_conversation, proto_tibia, (void *)convo);
@@ -530,11 +543,11 @@ ipv4tonl(const char *str)
         return ipaddr;
 }
 
-static void rsakey_free(void *_rsakey);
-
 static void
 register_gameserv_addr(struct tibia_convo *convo, guint32 ipaddr, guint16 port)
 {
+    (void)convo; (void)ipaddr; (void)port;
+#if HAVE_LIBGNUTLS
     /* Game servers in the list inherit the same RSA key as the login server */
     if (convo->has.rsa) {
         struct rsakey *entry = g_new(struct rsakey, 1);
@@ -552,6 +565,7 @@ register_gameserv_addr(struct tibia_convo *convo, guint32 ipaddr, guint16 port)
     /* TODO Mark all communication with the IP/Port pair above
      * as Tibia communication. How?
      */
+#endif
 }
 
 static gcry_sexp_t otserv_key;
@@ -1620,6 +1634,7 @@ static const value_string speech_types[] = {
     { 0, NULL }
 };
 
+#if defined(HAVE_LIBGNUTLS)
 static guint
 rsakey_hash(gconstpointer _rsakey)
 {
@@ -1644,7 +1659,6 @@ rsakey_free(void *_rsakey)
     g_free(rsakey);
 }
 
-#if defined(HAVE_LIBGNUTLS)
 static void
 rsa_parse_uat(void)
 {
@@ -1704,13 +1718,6 @@ end:
         gnutls_x509_privkey_deinit(priv_key);
     }
 }
-#else
-static void
-rsa_parse_uat(void)
-{
-    report_failure("Can't load private key files, GnuTLS support is not compiled in.");
-}
-#endif
 
 static void
 rsakeys_free_cb(void *r)
@@ -1780,7 +1787,6 @@ rsakeys_uat_fld_fileopen_chk_cb(void* r _U_, const char* p, guint len _U_, const
     return TRUE;
 }
 
-#ifdef HAVE_LIBGNUTLS
 static gboolean
 rsakeys_uat_fld_password_chk_cb(void *r, const char *p, guint len _U_, const void *u1 _U_, const void *u2 _U_, char **err)
 {
@@ -1807,13 +1813,6 @@ rsakeys_uat_fld_password_chk_cb(void *r, const char *p, guint len _U_, const voi
 
     *err = NULL;
     return TRUE;
-}
-#else
-static gboolean
-rsakeys_uat_fld_password_chk_cb(void *r _U_, const char *p _U_, guint len _U_, const void *u1 _U_, const void *u2 _U_, char **err)
-{
-    *err = g_strdup("Cannot load key files, support is not compiled in.");
-    return FALSE;
 }
 #endif
 
@@ -2571,20 +2570,6 @@ proto_register_tibia(void)
         },
     };
 
-    static uat_field_t rsakeylist_uats_flds[] = {
-        UAT_FLD_CSTRING_OTHER(rsakeylist_uats, ipaddr, "IP address", rsakeys_uat_fld_ip_chk_cb, "IPv4 address"),
-        UAT_FLD_CSTRING_OTHER(rsakeylist_uats, port, "Port", rsakeys_uat_fld_port_chk_cb, "Port Number"),
-        UAT_FLD_FILENAME_OTHER(rsakeylist_uats, keyfile, "Key File", rsakeys_uat_fld_fileopen_chk_cb, "Private keyfile."),
-        UAT_FLD_CSTRING_OTHER(rsakeylist_uats, password,"Password", rsakeys_uat_fld_password_chk_cb, "Password (for keyfile)"),
-        UAT_END_FIELDS
-    };
-
-    static uat_field_t xteakeylist_uats_flds[] = {
-        UAT_FLD_DEC(xteakeylist_uats, framenum, "Frame Number", "XTEA key"),
-        UAT_FLD_CSTRING_OTHER(xteakeylist_uats, key, "XTEA Key", xteakeys_uat_fld_key_chk_cb, "Symmetric (XTEA) key"),
-        UAT_END_FIELDS
-    };
-
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_tibia,
@@ -2655,7 +2640,14 @@ proto_register_tibia(void)
                                    &reassemble_tcp_segments);
 
 
-    rsakeys = g_hash_table_new_full(rsakey_hash, rsakey_equal, rsakey_free, NULL);
+#ifdef HAVE_LIBGNUTLS
+    static uat_field_t rsakeylist_uats_flds[] = {
+        UAT_FLD_CSTRING_OTHER(rsakeylist_uats, ipaddr, "IP address", rsakeys_uat_fld_ip_chk_cb, "IPv4 address"),
+        UAT_FLD_CSTRING_OTHER(rsakeylist_uats, port, "Port", rsakeys_uat_fld_port_chk_cb, "Port Number"),
+        UAT_FLD_FILENAME_OTHER(rsakeylist_uats, keyfile, "Key File", rsakeys_uat_fld_fileopen_chk_cb, "Private keyfile."),
+        UAT_FLD_CSTRING_OTHER(rsakeylist_uats, password,"Password", rsakeys_uat_fld_password_chk_cb, "Password (for keyfile)"),
+        UAT_END_FIELDS
+    };
 
     rsakeys_uat = uat_new("RSA Keys",
             sizeof(struct rsakeys_assoc),
@@ -2677,7 +2669,14 @@ proto_register_tibia(void)
             rsakeys_uat
     );
 
-    xteakeys = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
+    rsakeys = g_hash_table_new_full(rsakey_hash, rsakey_equal, rsakey_free, NULL);
+#endif
+
+    static uat_field_t xteakeylist_uats_flds[] = {
+        UAT_FLD_DEC(xteakeylist_uats, framenum, "Frame Number", "XTEA key"),
+        UAT_FLD_CSTRING_OTHER(xteakeylist_uats, key, "XTEA Key", xteakeys_uat_fld_key_chk_cb, "Symmetric (XTEA) key"),
+        UAT_END_FIELDS
+    };
 
     xteakeys_uat = uat_new("XTEA Keys",
             sizeof(struct xteakeys_assoc),
@@ -2699,6 +2698,7 @@ proto_register_tibia(void)
             xteakeys_uat
     );
 
+    xteakeys = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
 
     /* TODO best way to store this in source? */
     const char sexp[] =
