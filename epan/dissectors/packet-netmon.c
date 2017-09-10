@@ -1080,7 +1080,6 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		case 15:
 			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_service_name, tvb, offset, 68, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field1);
 			offset += 68;
-			length = tvb_unicode_strsize(tvb, offset);
 			proto_tree_add_item(system_tree, hf_netmon_system_config_display_name, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16);
 			offset += 512;
 			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_process_name, tvb, offset, 68, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field2);
@@ -1293,7 +1292,6 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		case 15:
 			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_service_name, tvb, offset, 68, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field1);
 			offset += 68;
-			length = tvb_unicode_strsize(tvb, offset);
 			proto_tree_add_item(system_tree, hf_netmon_system_config_display_name, tvb, offset, 512, ENC_LITTLE_ENDIAN|ENC_UTF_16);
 			offset += 512;
 			proto_tree_add_item_ret_string(system_tree, hf_netmon_system_config_process_name, tvb, offset, 68, ENC_LITTLE_ENDIAN|ENC_UTF_16, wmem_packet_scope(), &str_field2);
