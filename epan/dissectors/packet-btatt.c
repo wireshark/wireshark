@@ -3635,14 +3635,18 @@ get_request(tvbuff_t *tvb, gint offset, packet_info *pinfo, guint8 opcode,
     request_data_t  *request_data;
     wmem_tree_key_t  key[4];
     wmem_tree_t     *sub_wmemtree;
-    gint             frame_number;
+    guint32          frame_number, curr_layer_num;
+
+    curr_layer_num = pinfo->curr_layer_num;
 
     key[0].length = 1;
     key[0].key    = &bluetooth_data->interface_id;
     key[1].length = 1;
     key[1].key    = &bluetooth_data->adapter_id;
-    key[2].length = 0;
-    key[2].key    = NULL;
+    key[2].length = 1;
+    key[2].key    = &curr_layer_num;
+    key[3].length = 0;
+    key[3].key    = NULL;
 
     frame_number = pinfo->num;
 
@@ -3741,20 +3745,23 @@ static void
 save_request(packet_info *pinfo, guint8 opcode, union request_parameters_union parameters,
         bluetooth_data_t *bluetooth_data)
 {
-    wmem_tree_key_t  key[4];
-    guint32          frame_number;
+    wmem_tree_key_t  key[5];
+    guint32          frame_number, curr_layer_num;
     request_data_t  *request_data;
 
     frame_number = pinfo->num;
+    curr_layer_num = pinfo->curr_layer_num;
 
     key[0].length = 1;
     key[0].key    = &bluetooth_data->interface_id;
     key[1].length = 1;
     key[1].key    = &bluetooth_data->adapter_id;
     key[2].length = 1;
-    key[2].key    = &frame_number;
-    key[3].length = 0;
-    key[3].key    = NULL;
+    key[2].key    = &curr_layer_num;
+    key[3].length = 1;
+    key[3].key    = &frame_number;
+    key[4].length = 0;
+    key[4].key    = NULL;
 
     request_data = wmem_new(wmem_file_scope(), request_data_t);
     request_data->opcode = opcode;
