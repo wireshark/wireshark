@@ -4386,6 +4386,7 @@ static void read_object_id_file(void)
         object_id_strings[item_count].value = (guint32)g_ascii_strtoll(split_string[0], NULL, 10);
         object_id_strings[item_count].strptr = wmem_strdup(wmem_epan_scope(), split_string[1]);
 
+        g_strfreev(split_string);
         item_count++;
     }
 
