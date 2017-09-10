@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2017-09-01)
+(last updated 2017-09-09)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -31360,7 +31360,7 @@ Decimal
 7851
   Software Munitions
     Dennis Glatting
-      dennis.glatting&software-munitions.com
+      oid&pki2.com
 7852
   CyberElves
     Simon Lockington
@@ -38530,9 +38530,9 @@ Decimal
     Augusto Jun Devegili
       devegili&ulbra-to.br
 9644
-  Cornwall Internet Limited
-    Clive Goodhead
-      enquiries&cornwallinternet.com
+  Unassigned
+    Returned 2017-09-07
+      ---none---
 9645
   courtade.net
     Jeff Courtade
@@ -44262,9 +44262,9 @@ Decimal
     Angel Redondo
       anredondo&banesto.es
 11077
-  C.net d.o.o.
+  Andrej Ota (formerly 'C.net d.o.o.')
     Andrej Ota
-      andrej&cnet.si
+      iana&ota.si
 11078
   Centralworks LLC
     Andy Smith
@@ -73137,7 +73137,7 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
 18396
   Dassault Aviation
     Matthieu WILLM
-      matthieu.willm&dassault-aviation.fr
+      matthieu.willm&dassault-aviation.com
 18397
   InfoSys
     Erik Campos M.
@@ -89080,9 +89080,9 @@ Limited
     Alfredo Campos Enríquez
       acampos&i-novaweb.com
 22380
-  Vincent Defert Consulting
+  Vincent DEFERT
     Vincent DEFERT
-      vincent&defert.com
+      vincent&defert.net
 22381
   Linux User Group Roma
     Cristiano Paris
@@ -101266,9 +101266,9 @@ de Bruxelles, asbl
     Andreas Ekman
       administrator&babspaylink.se
 25424
-  Norcontrol IT (Pty) Ltd
-    Brendan Mitchell
-      brendan.mitchell&norcontrolit.com
+  Kongsberg Norcontrol AS
+    Head Technology & Products Department
+      knc.support&kongsberg.com
 25425
   Condor LebensversicherungsAG
     Andreas Matthees
@@ -104768,7 +104768,7 @@ Auswertungsstelle
       manpreet&electionmall.com
 26299
   EasternGraphics GmbH
-    Adam Minskii
+    Adam Minski
       admin&easterngraphics.com
 26300
   Genera Oy
@@ -169129,7 +169129,7 @@ Decentralization / Helenic Public Administra
       mail&dylanharris.org
 42387
   CompuTEK Industries
-    Dwight Spencer
+    Da Planet Security
       support&dapla.net
 42388
   TEL-STER sp. z o.o.
@@ -180232,7 +180232,7 @@ Decentralization / Helenic Public Administra
     PAN HONGKAI
       13922302687&163.com
 45163
-  Hafen-Entwicklungsgesellschaft Rostock mbH
+  ROSTOCK PORT GmbH (formerly 'Hafen-Entwicklungsgesellschaft Rostock mbH')
     Rayk Zimmermann
       r.zimmermann&rostock-port.de
 45164
@@ -180496,7 +180496,7 @@ Decentralization / Helenic Public Administra
     Tobias Wold
       tobias.wold&lumagate.com
 45229
-  nyantec UG (haftungsbeschränkt)
+  nyantec GmbH
     Mikael Voss
       mvs&nyantec.com
 45230
@@ -201909,7 +201909,7 @@ Decentralization / Helenic Public Administra
       marinoholguin&gmail.com
 50582
   U-NMS
-    Hamdamboy
+    Kookmin University, SCRC, Hamdamboy Urunov, Soo-Hyun Park
       hamdamboy.urunov&gmail.com
 50583
   Omnipresent Friki Enviroment
@@ -202155,6 +202155,142 @@ Decentralization / Helenic Public Administra
   "ИП" Kostakov Dmitry
     Dmitry Kostakov
       dmitrybarynov&yandex.ru
+50644
+  Elumbus GmbH
+    Joern Eble
+      technik&elumbus-reisen.de
+50645
+  Salvage Management & Disposals (Pty) Ltd.
+    Jean-Francois du Toit
+      jean-francois&smd.co.za
+50646
+  Signaturit Solutions, S.L.
+    Edwin Mata Navarro
+      edwin.mata&signaturit.com
+50647
+  Beispielsfall
+    Mark Broecker
+      pen.iana.org&beispielsfall.de
+50648
+  ENVOY Group, LLC
+    Aaron Picht
+      it-iana&weareenvoy.com
+50649
+  Trailing Bits
+    Erik Johansson
+      erik&trailingbits.com
+50650
+  Xerox Belgium - Luxembourg
+    Wesley Biart
+      wesley.biart&xerox.com
+50651
+  5F Soluções em TI
+    Eduardo Hirochi Inoue
+      hiro&5f.com.br
+50652
+  Communal Hydro Energy, Inc.
+    KIKUCHI Yutaka
+      yu&communalhydro.com
+50653
+  Huaxin SM Optics (HSMO)
+    Fan Chunquan
+      chunquan.fan&hsmoptics.com
+50654
+  Pioneer Service Corporation
+    Luxinglin
+      luxinglin&pioneerservice.cn
+50655
+  SUNTOR ELECTRONICS CO.,LIMITED
+    zhouqi
+      67761121&qq.com
+50656
+  Somerset Partnership NHS Foundation Trust
+    Darren Thomas
+      darren.thomas&sompar.nhs.uk
+50657
+  Direction interministérielle du numérique et du système d'information et de communication de l'Etat
+    Jérôme Ploquin
+      jerome.ploquin&modernisation.gouv.fr
+50658
+  Aviator
+    Dimitri Karapetian
+      dimitri.karapetian&adjaragroup.com
+50659
+  Department of the Prime Minister and Cabinet
+    Ben Coutts
+      it&help.pmc.gov.au
+50660
+  RNLI
+    Nick Royley
+      nick_royley&rnli.org.uk
+50661
+  Spencer First Church of the Nazarene
+    Mark Braker
+      systemsadmin&spencernazarene.org
+50662
+  Maryland Department of Human Services
+    Chip Crawford
+      chip.crawford2&maryland.gov
+50663
+  Birmingham Open Source Solutions Ltd
+    Richard Wallman
+      richard.wallman&bossolutions.co.uk
+50664
+  Internalog LLC 
+    Vladimir Plotnikov
+      mail&internalog.ru
+50665
+  HILLS HEALTH SOLUTIONS
+    Emanuele Lagana
+      emanuele.lagana&hills.com.au
+50666
+  Trade FIDES, a.s.
+    Martin Tureček
+      mturecek&fides.cz
+50667
+  Betterservers
+    Jason Borden
+      jason&betterservers.com
+50668
+  igloonet s.r.o.
+    Ondřej Kudlík
+      kudlik&igloonet.cz
+50669
+  National Bank of Belgium
+    John Deckers
+      john.deckers&nbb.be
+50670
+  Innovametro
+    Felix Lechner
+      felix.lechner&innovametro.com
+50671
+  TVT
+    liao weijian
+      liaoweijian&tvt.net.cn
+50672
+  LayTec AG
+    Bjoern Alan Dresen
+      bjoern.dresen&laytec.de
+50673
+  Tessenderlo Chemie International
+    Dirk Baekelant
+      dirk.baekelant&tessenderlo.com
+50674
+  Gosteleradiofond
+    Sinyakov Roman
+      sysadmin&gtrf.ru
+50675
+  TRANSMASH-TOMSK
+    ILDAR VALETOV
+      ildar.valetov&gmail.com
+50676
+  Essenjay Technology
+    Rodney McKay
+      pen-admin&essenjay-technology.uk
+50677
+  datacrumbs
+    Mario Hirt
+      oid&datacrumbs.de
 
 
 End of Document
