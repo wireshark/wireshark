@@ -862,7 +862,7 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         proto_item *jxta_welcome_tree_item = NULL;
         proto_tree *jxta_welcome_tree = NULL;
 
-        tokens = g_strsplit(welcomeline, " ", 255);
+        tokens = wmem_strsplit(wmem_packet_scope(), welcomeline, " ", 255);
         current_token = tokens;
 
         if (tree) {
@@ -1005,8 +1005,6 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     }
 
 Common_Exit:
-    g_strfreev(tokens);
-
     col_set_writable(pinfo->cinfo, -1, FALSE);
 
     return afterwelcome;
