@@ -101,6 +101,7 @@ void free_srt_table(register_srt_t *srt, GArray* srt_array, srt_gui_free_cb gui_
             gui_callback(srt_table, callback_data);
 
         free_srt_table_data(srt_table);
+        g_free(srt_table);
     }
 
     /* Clear the tables */
