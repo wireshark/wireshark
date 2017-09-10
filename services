@@ -8907,6 +8907,7 @@ cssc             5637/tcp # Symantec CSSC [Amol_P_Tambe] [Amol_P_Tambe] 2011-02-
 flcrs            5638/tcp # Symantec Fingerprint Lookup and Container Reference Service [Symantec_Corp] [Neel_A_Bhatt] 2012-01-03
 ics              5639/tcp # Symantec Integrity Checking Service [Symantec_Corp2] [Danzhou_Liu] 2012-05-07
 vfmobile         5646/tcp # Ventureforth Mobile [Ventureforth_Inc] [Blakely_Snyder] 2011-11-03
+nrpe             5666/tcp # Nagios Remote Plugin Executor [Nagios_Enterprises_LLC] [Bryan_Heden] 2017-09-06
 filemq           5670/tcp # ZeroMQ file publish-subscribe protocol [Pieter_Hintjens2] [Pieter_Hintjens2] 2012-11-01 2013-02-25
 zre-disc         5670/udp # Local area discovery and messaging over ZeroMQ [Pieter_Hintjens_3] [Pieter_Hintjens_3] 2012-12-17
 amqps            5671/tcp # amqp protocol over TLS/SSL [Ted_Ross_2] [Ted_Ross_2] 2008-03-26
@@ -11065,9 +11066,9 @@ tmophl7mts      20046/tcp # TMOP HL7 Message Transfer Service [Tim_Riley] [Tim_R
 tmophl7mts      20046/udp # TMOP HL7 Message Transfer Service [Tim_Riley] [Tim_Riley] 2009-07-31
 mountd          20048/tcp # NFS mount protocol [Nicolas_Williams] [Nicolas_Williams] 2010-08-09
 mountd          20048/udp # NFS mount protocol [Nicolas_Williams] [Nicolas_Williams] 2010-08-09
-nfsrdma         20049/tcp # Network File System (NFS) over RDMA [RFC5666]
-nfsrdma         20049/udp # Network File System (NFS) over RDMA [RFC5666]
-nfsrdma         20049/sctp # Network File System (NFS) over RDMA [RFC5666]
+nfsrdma         20049/tcp # Network File System (NFS) over RDMA 2017-09-05 [RFC-ietf-nfsv4-rfc5667bis-13]
+nfsrdma         20049/udp # Network File System (NFS) over RDMA 2017-09-05 [RFC-ietf-nfsv4-rfc5667bis-13]
+nfsrdma         20049/sctp # Network File System (NFS) over RDMA 2017-09-05 [RFC-ietf-nfsv4-rfc5667bis-13]
 avesterra       20057/tcp # AvesTerra Hypergraph Transfer Protocol (HGTP) [Georgetown_University] [J.C._Smart] 2016-06-06
 tolfab          20167/tcp # TOLfab Data Change [Pierre_Couderc] [Pierre_Couderc] 2006-03
 tolfab          20167/udp # TOLfab Data Change [Pierre_Couderc] [Pierre_Couderc] 2006-03
