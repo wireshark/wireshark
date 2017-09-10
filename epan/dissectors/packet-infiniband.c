@@ -5159,7 +5159,8 @@ static void parse_RID(proto_tree* SA_header_tree, tvbuff_t* tvb, gint *offset, M
                 /* NodeRecord */
                 proto_tree_add_item(SA_header_tree, hf_infiniband_SA_LID,   tvb, local_offset, 2, ENC_BIG_ENDIAN);
                 local_offset += 2;
-                local_offset += 2; /* Reserved bits */
+                proto_tree_add_item(SA_header_tree, hf_infiniband_reserved, tvb, local_offset, 2, ENC_NA);
+                local_offset += 2;
                 break;
             case 0x0012:
                 /* PortInfoRecord */
@@ -5167,7 +5168,8 @@ static void parse_RID(proto_tree* SA_header_tree, tvbuff_t* tvb, gint *offset, M
                 local_offset += 2;
                 proto_tree_add_item(SA_header_tree, hf_infiniband_SA_PortNum,       tvb, local_offset, 1, ENC_BIG_ENDIAN);
                 local_offset += 1;
-                local_offset += 1; /* Reserved bits */
+                proto_tree_add_item(SA_header_tree, hf_infiniband_reserved,         tvb, local_offset, 1, ENC_NA);
+                local_offset += 1;
                 break;
             case 0x0013:
                 /* SLtoVLMappingTableRecord */
@@ -5177,13 +5179,15 @@ static void parse_RID(proto_tree* SA_header_tree, tvbuff_t* tvb, gint *offset, M
                 local_offset += 1;
                 proto_tree_add_item(SA_header_tree, hf_infiniband_SA_OutputPortNum, tvb, local_offset, 1, ENC_BIG_ENDIAN);
                 local_offset += 1;
-                local_offset += 4; /* Reserved bits */
+                proto_tree_add_item(SA_header_tree, hf_infiniband_reserved,         tvb, local_offset, 4, ENC_NA);
+                local_offset += 4;
                 break;
             case 0x0014:
                 /* SwitchInfoRecord */
                 proto_tree_add_item(SA_header_tree, hf_infiniband_SA_LID,           tvb, local_offset, 2, ENC_BIG_ENDIAN);
                 local_offset += 2;
-                local_offset += 2; /* Reserved bits */
+                proto_tree_add_item(SA_header_tree, hf_infiniband_reserved,         tvb, local_offset, 2, ENC_NA);
+                local_offset += 2;
                 break;
             case 0x0015:
                 /* LinearForwardingTableRecord */
@@ -5191,7 +5195,8 @@ static void parse_RID(proto_tree* SA_header_tree, tvbuff_t* tvb, gint *offset, M
                 local_offset += 2;
                 proto_tree_add_item(SA_header_tree, hf_infiniband_SA_BlockNum_SixteenBit,   tvb, local_offset, 2, ENC_BIG_ENDIAN);
                 local_offset += 2;
-                local_offset += 4; /* Reserved bits */
+                proto_tree_add_item(SA_header_tree, hf_infiniband_reserved,                 tvb, local_offset, 4, ENC_NA);
+                local_offset += 4;
                 break;
             case 0x0016:
                 /* RandomForwardingTableRecord */
@@ -5199,7 +5204,8 @@ static void parse_RID(proto_tree* SA_header_tree, tvbuff_t* tvb, gint *offset, M
                 local_offset += 2;
                 proto_tree_add_item(SA_header_tree, hf_infiniband_SA_BlockNum_SixteenBit,   tvb, local_offset, 2, ENC_BIG_ENDIAN);
                 local_offset += 2;
-                local_offset += 4; /* Reserved bits */
+                proto_tree_add_item(SA_header_tree, hf_infiniband_reserved,                 tvb, local_offset, 4, ENC_NA);
+                local_offset += 4;
                 break;
             case 0x0017:
                 /* MulticastForwardingTableRecord */
@@ -5208,7 +5214,8 @@ static void parse_RID(proto_tree* SA_header_tree, tvbuff_t* tvb, gint *offset, M
                 proto_tree_add_item(SA_header_tree, hf_infiniband_SA_Position,          tvb, local_offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(SA_header_tree, hf_infiniband_SA_BlockNum_NineBit,  tvb, local_offset, 2, ENC_BIG_ENDIAN);
                 local_offset += 2;
-                local_offset += 4; /* Reserved bits */
+                proto_tree_add_item(SA_header_tree, hf_infiniband_reserved,             tvb, local_offset, 4, ENC_NA);
+                local_offset += 4;
                 break;
             case 0x0036:
                 /*VLArbitrationTableRecord */
@@ -5218,13 +5225,15 @@ static void parse_RID(proto_tree* SA_header_tree, tvbuff_t* tvb, gint *offset, M
                 local_offset += 1;
                 proto_tree_add_item(SA_header_tree, hf_infiniband_SA_BlockNum_EightBit,     tvb, local_offset, 1, ENC_BIG_ENDIAN);
                 local_offset += 1;
-                local_offset += 4; /* Reserved bits */
+                proto_tree_add_item(SA_header_tree, hf_infiniband_reserved,                 tvb, local_offset, 4, ENC_NA);
+                local_offset += 4;
                 break;
             case 0x0018:
                 /* SMInfoRecord */
                 proto_tree_add_item(SA_header_tree, hf_infiniband_SA_LID,               tvb, local_offset, 2, ENC_BIG_ENDIAN);
                 local_offset += 2;
-                local_offset += 2; /* Reserved bits */
+                proto_tree_add_item(SA_header_tree, hf_infiniband_reserved,             tvb, local_offset, 2, ENC_NA);
+                local_offset += 2;
                 break;
             case 0x0033:
                 /* P_KeyTableRecord */
@@ -5234,7 +5243,8 @@ static void parse_RID(proto_tree* SA_header_tree, tvbuff_t* tvb, gint *offset, M
                 local_offset += 2;
                 proto_tree_add_item(SA_header_tree, hf_infiniband_SA_PortNum,               tvb, local_offset, 1, ENC_BIG_ENDIAN);
                 local_offset += 1;
-                local_offset += 3; /* Reserved bits */
+                proto_tree_add_item(SA_header_tree, hf_infiniband_reserved,                 tvb, local_offset, 3, ENC_NA);
+                local_offset += 3;
                 break;
             case 0x00F3:
                 /* InformInfoRecord */
@@ -5242,7 +5252,8 @@ static void parse_RID(proto_tree* SA_header_tree, tvbuff_t* tvb, gint *offset, M
                 local_offset += 16;
                 proto_tree_add_item(SA_header_tree, hf_infiniband_InformInfoRecord_Enum,            tvb, local_offset, 2, ENC_BIG_ENDIAN);
                 local_offset += 2;
-                local_offset += 6; /* Reserved bits */
+                proto_tree_add_item(SA_header_tree, hf_infiniband_reserved,                         tvb, local_offset, 6, ENC_NA);
+                local_offset += 6;
                 break;
             case 0x0020:
                 /* LinkRecord */
@@ -5274,6 +5285,7 @@ static void parse_RID(proto_tree* SA_header_tree, tvbuff_t* tvb, gint *offset, M
                 local_offset += 2;
                 proto_tree_add_item(SA_header_tree, hf_infiniband_SA_BlockNum_EightBit, tvb, local_offset, 1, ENC_BIG_ENDIAN);
                 local_offset += 2;
+                proto_tree_add_item(SA_header_tree, hf_infiniband_reserved,             tvb, local_offset, 4, ENC_NA);
                 local_offset += 4;
                 break;
             default:
@@ -5308,7 +5320,8 @@ static int parse_InformInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
     local_offset += 2;
     proto_tree_add_item(InformInfo_header_tree, hf_infiniband_InformInfo_LIDRangeEnd,           tvb, local_offset, 2, ENC_BIG_ENDIAN);
     local_offset += 2;
-    local_offset += 2; /* Reserved Bits */
+    proto_tree_add_item(InformInfo_header_tree, hf_infiniband_reserved,                         tvb, local_offset, 2, ENC_NA);
+    local_offset += 2;
     proto_tree_add_item(InformInfo_header_tree, hf_infiniband_InformInfo_IsGeneric,             tvb, local_offset, 1, ENC_BIG_ENDIAN);
     local_offset += 1;
     proto_tree_add_item(InformInfo_header_tree, hf_infiniband_InformInfo_Subscribe,             tvb, local_offset, 1, ENC_BIG_ENDIAN);
@@ -5321,6 +5334,7 @@ static int parse_InformInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
     local_offset += 3;
     proto_tree_add_item(InformInfo_header_tree, hf_infiniband_InformInfo_RespTimeValue,         tvb, local_offset, 1, ENC_BIG_ENDIAN);
     local_offset += 1;
+    proto_tree_add_item(InformInfo_header_tree, hf_infiniband_reserved,                         tvb, local_offset, 1, ENC_NA);
     local_offset += 1;
     proto_tree_add_item(InformInfo_header_tree, hf_infiniband_InformInfo_ProducerTypeVendorID,  tvb, local_offset, 3, ENC_BIG_ENDIAN);
     local_offset += 3;
@@ -5418,7 +5432,8 @@ static int parse_PathRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
     PathRecord_header_item = proto_tree_add_item(parentTree, hf_infiniband_SA, tvb, local_offset, 64, ENC_NA);
     proto_item_set_text(PathRecord_header_item, "%s", "PathRecord");
     PathRecord_header_tree = proto_item_add_subtree(PathRecord_header_item, ett_pathrecord);
-    local_offset += 8; /* Reserved Bits */
+    proto_tree_add_item(PathRecord_header_tree, hf_infiniband_reserved,                 tvb, local_offset, 8, ENC_NA);
+    local_offset += 8;
 
     proto_tree_add_item(PathRecord_header_tree, hf_infiniband_PathRecord_DGID,          tvb, local_offset, 16, ENC_NA);
     local_offset += 16;
@@ -5531,7 +5546,8 @@ static int parse_TraceRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset
     local_offset += 8;
     proto_tree_add_item(TraceRecord_header_tree, hf_infiniband_TraceRecord_IDGeneration,    tvb, local_offset, 2, ENC_BIG_ENDIAN);
     local_offset += 2;
-    local_offset += 1; /* Reserved Bits */
+    proto_tree_add_item(TraceRecord_header_tree, hf_infiniband_reserved,                    tvb, local_offset, 1, ENC_NA);
+    local_offset += 1;
     proto_tree_add_item(TraceRecord_header_tree, hf_infiniband_TraceRecord_NodeType,        tvb, local_offset, 1, ENC_BIG_ENDIAN);
     local_offset += 1;
     proto_tree_add_item(TraceRecord_header_tree, hf_infiniband_TraceRecord_NodeID,          tvb, local_offset, 8, ENC_BIG_ENDIAN);
@@ -5596,7 +5612,8 @@ static int parse_MultiPathRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *of
     proto_tree_add_item(MultiPathRecord_header_tree, hf_infiniband_MultiPathRecord_PacketLifeTimeSelector,  tvb, local_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(MultiPathRecord_header_tree, hf_infiniband_MultiPathRecord_PacketLifeTime,          tvb, local_offset, 1, ENC_BIG_ENDIAN);
     local_offset += 1;
-    local_offset += 1; /* Reserved Bits */
+    proto_tree_add_item(MultiPathRecord_header_tree, hf_infiniband_reserved,                                 tvb, local_offset, 1, ENC_NA);
+    local_offset += 1;
     proto_tree_add_item(MultiPathRecord_header_tree, hf_infiniband_MultiPathRecord_IndependenceSelector,    tvb, local_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(MultiPathRecord_header_tree, hf_infiniband_MultiPathRecord_GIDScope,                tvb, local_offset, 1, ENC_BIG_ENDIAN);
     local_offset += 1;
@@ -5607,7 +5624,8 @@ static int parse_MultiPathRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *of
     DGIDCount = tvb_get_guint8(tvb, local_offset);
     proto_tree_add_item(MultiPathRecord_header_tree, hf_infiniband_MultiPathRecord_DGIDCount,       tvb, local_offset, 1, ENC_BIG_ENDIAN);
     local_offset += 1;
-    local_offset += 7; /*Reserved Bits */
+    proto_tree_add_item(MultiPathRecord_header_tree, hf_infiniband_reserved,                        tvb, local_offset, 7, ENC_NA);
+    local_offset += 7;
 
     for (i = 0; i < SDGIDCount; i++)
     {
@@ -5668,8 +5686,10 @@ static int parse_PERF_PortCounters(proto_tree* parentTree, tvbuff_t* tvb, packet
     perf_item = proto_tree_add_item(parentTree, hf_infiniband_PortCounters, tvb, local_offset, 40, ENC_NA);
     perf_tree = proto_item_add_subtree(perf_item, ett_perfclass);
 
-    local_offset += 40; /* skip reserved field */
-    local_offset += 1;  /* skip reserved field */
+    proto_tree_add_item(perf_tree, hf_infiniband_reserved, tvb, local_offset, 40, ENC_NA);
+    local_offset += 40;
+    proto_tree_add_item(perf_tree, hf_infiniband_reserved, tvb, local_offset, 1, ENC_NA);
+    local_offset += 1;
     proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_PortSelect,  tvb, local_offset, 1, ENC_BIG_ENDIAN);
     local_offset += 1;
     proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_CounterSelect, tvb, local_offset, 2, ENC_BIG_ENDIAN);
@@ -5692,11 +5712,13 @@ static int parse_PERF_PortCounters(proto_tree* parentTree, tvbuff_t* tvb, packet
     local_offset += 1;
     proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_PortRcvConstraintErrors, tvb, local_offset, 1, ENC_BIG_ENDIAN);
     local_offset += 1;
-    local_offset += 1;  /* skip reserved field */
+    proto_tree_add_item(perf_tree, hf_infiniband_reserved, tvb, local_offset, 1, ENC_NA);
+    local_offset += 1;
     proto_tree_add_bits_item(perf_tree, hf_infiniband_PortCounters_LocalLinkIntegrityErrors, tvb, local_offset*8, 4, ENC_BIG_ENDIAN);
     proto_tree_add_bits_item(perf_tree, hf_infiniband_PortCounters_ExcessiveBufferOverrunErrors, tvb, local_offset*8 + 4, 4, ENC_BIG_ENDIAN);
     local_offset += 1;
-    local_offset += 2;  /* skip reserved field */
+    proto_tree_add_item(perf_tree, hf_infiniband_reserved, tvb, local_offset, 2, ENC_NA);
+    local_offset += 2;
     proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_VL15Dropped, tvb, local_offset, 2, ENC_BIG_ENDIAN);
     local_offset += 2;
     proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_PortXmitData, tvb, local_offset, 4, ENC_BIG_ENDIAN);
@@ -5728,13 +5750,16 @@ static int parse_PERF_PortCountersExtended(proto_tree* parentTree, tvbuff_t* tvb
     perf_item = proto_tree_add_item(parentTree, hf_infiniband_PortCountersExt, tvb, local_offset, 72, ENC_NA);
     perf_tree = proto_item_add_subtree(perf_item, ett_perfclass);
 
-    local_offset += 40; /* skip reserved field */
-    local_offset += 1;  /* skip reserved field */
+    proto_tree_add_item(perf_tree, hf_infiniband_reserved, tvb, local_offset, 40, ENC_NA);
+    local_offset += 40;
+    proto_tree_add_item(perf_tree, hf_infiniband_reserved, tvb, local_offset, 1, ENC_NA);
+    local_offset += 1;
     proto_tree_add_item(perf_tree, hf_infiniband_PortCountersExt_PortSelect,  tvb, local_offset, 1, ENC_BIG_ENDIAN);
     local_offset += 1;
     proto_tree_add_item(perf_tree, hf_infiniband_PortCountersExt_CounterSelect, tvb, local_offset, 2, ENC_BIG_ENDIAN);
     local_offset += 2;
-    local_offset += 4;  /* skip reserved field */
+    proto_tree_add_item(perf_tree, hf_infiniband_reserved, tvb, local_offset, 4, ENC_NA);
+    local_offset += 4;
     proto_tree_add_item(perf_tree, hf_infiniband_PortCountersExt_PortXmitData, tvb, local_offset, 8, ENC_BIG_ENDIAN);
     local_offset += 8;
     proto_tree_add_item(perf_tree, hf_infiniband_PortCountersExt_PortRcvData, tvb, local_offset, 8, ENC_BIG_ENDIAN);
