@@ -50,6 +50,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>
+#include <wsutil/file_util.h>
 #include <wiretap/wtap-int.h>
 
 #include "snort-config.h"
@@ -142,7 +143,6 @@ static gboolean snort_show_alert_expert_info = FALSE;
 
 /* Should we try to attach the alert to the tcp.reassembled_in frame instead of current one? */
 static gboolean snort_alert_in_reassembled_frame = FALSE;
-
 
 
 /********************************************************/
@@ -791,6 +791,8 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
         }
     }
 
+    snort_debug_printf("Showing alert (sid=%u) in frame %u\n", alert->sid, pinfo->num);
+
     /* Show in expert info if configured to. */
     if (snort_show_alert_expert_info) {
         expert_add_info_format(pinfo, alert_ti, &ei_snort_alert, "Alert %u: \"%s\"", alert->sid, alert->msg);
@@ -1279,7 +1281,7 @@ static void snort_start(void)
     if (current_session.running) {
         return;
     }
-    current_session.running = TRUE;
+    current_session.running = FALSE;
 
     /* Reset global stats */
     reset_global_rule_stats(g_snort_config);
@@ -1287,12 +1289,32 @@ static void snort_start(void)
     /* Need to test that we can run snort --version and that config can be parsed... */
     /* Does nothing at present */
     if (!snort_config_ok) {
-        current_session.running = FALSE;
         /* Can carry on without snort... */
         return;
     }
 
+    /* About to run snort, so check that configured files exist, and that binary could be executed. */
+    ws_statb64 binary_stat, config_stat;
+
+    if (ws_stat64(pref_snort_binary_filename, &binary_stat) != 0) {
+        snort_debug_printf("Can't run snort - executable '%s' not found\n", pref_snort_binary_filename);
+        return;
+    }
+
+    if (ws_stat64(pref_snort_config_filename, &config_stat) != 0) {
+        snort_debug_printf("Can't run snort - config file '%s' not found\n", pref_snort_config_filename);
+        return;
+    }
+
+#ifdef S_IXUSR
+    if (!(binary_stat.st_mode & S_IXUSR)) {
+        snort_debug_printf("Snort binary '%s' is not executable\n", pref_snort_binary_filename);
+        return;
+    }
+#endif
+
     /* Create snort process and set up pipes */
+    snort_debug_printf("\nRunning %s with config file %s\n", pref_snort_binary_filename, pref_snort_config_filename);
     if (!g_spawn_async_with_pipes(NULL,          /* working_directory */
                                   (char **)argv,
                                   NULL,          /* envp */
@@ -1308,6 +1330,10 @@ static void snort_start(void)
         current_session.running = FALSE;
         current_session.working = FALSE;
         return;
+    }
+    else {
+        current_session.running = TRUE;
+        current_session.working = TRUE;
     }
 
     /* Setup handler for when process goes away */
@@ -1531,7 +1557,6 @@ proto_register_snort(void)
                                    "Try to show alerts in reassembled frame",
                                    "Attempt to show alert in reassembled frame where possible",
                                    &snort_alert_in_reassembled_frame);
-
 
     snort_handle = create_dissector_handle(snort_dissector, proto_snort);
 

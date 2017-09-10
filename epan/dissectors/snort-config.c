@@ -33,19 +33,12 @@
 
 #include "snort-config.h"
 
-/* #define SNORT_CONFIG_DEBUG */
-#ifdef  SNORT_CONFIG_DEBUG
-#define snort_debug_printf printf
-#else
-#define snort_debug_printf(...)
-#endif
 
 #ifndef _WIN32
 const char* g_file_separator = "/";
 #else
 const char* g_file_separator = "\\";
 #endif
-
 
 /* Forward declaration */
 static void parse_config_file(SnortConfig_t *snort_config, FILE *config_file_fd, const char *filename, const char *dirname, int recursion_level);
@@ -320,12 +313,10 @@ void rule_set_relevant_vars(SnortConfig_t *snort_config, Rule_t *rule)
 
     /* Read source address */
     field = read_token(rule->rule_string+accumulated_length, ' ', &length, &accumulated_length, FALSE);
-    snort_debug_printf("source address is (%s)\n", field);
     rule_check_ip_vars(snort_config, rule, field);
 
     /* Read source port */
     field = read_token(rule->rule_string+accumulated_length, ' ', &length, &accumulated_length, FALSE);
-    snort_debug_printf("source port is (%s)\n", field);
     rule_check_port_vars(snort_config, rule, field);
 
     /* Read direction */
@@ -333,12 +324,10 @@ void rule_set_relevant_vars(SnortConfig_t *snort_config, Rule_t *rule)
 
     /* Dest address */
     field = read_token(rule->rule_string+accumulated_length, ' ', &length, &accumulated_length, FALSE);
-    snort_debug_printf("dest address is (%s)\n", field);
     rule_check_ip_vars(snort_config, rule, field);
 
     /* Dest port */
     field = read_token(rule->rule_string+accumulated_length, ' ', &length, &accumulated_length, FALSE);
-    snort_debug_printf("dest port is (%s)\n", field);
     rule_check_port_vars(snort_config, rule, field);
 
     /* Set flag so won't do again for this rule */
@@ -557,7 +546,7 @@ static gboolean parse_include_file(SnortConfig_t *snort_config, char *line, cons
                 g_snprintf(substituted_filename, 512, "%s%s%s",
                            snort_config->rule_path,
                            g_file_separator,
-                           include_filename + 10);
+                           include_filename + 11);
             }
             else {
                 /* Rule path is relative to config directory, so it goes first */
@@ -566,7 +555,7 @@ static gboolean parse_include_file(SnortConfig_t *snort_config, char *line, cons
                            g_file_separator,
                            snort_config->rule_path,
                            g_file_separator,
-                           include_filename + 10);
+                           include_filename + 11);
             }
             is_rule_file = TRUE;
         }
@@ -582,7 +571,6 @@ static gboolean parse_include_file(SnortConfig_t *snort_config, char *line, cons
         }
 
         /* Try to open the file. */
-        snort_debug_printf("Trying to open: %s\n", substituted_filename);
         new_config_fd = ws_fopen(substituted_filename, "r");
         if (new_config_fd == NULL) {
             snort_debug_printf("Failed to open config file %s\n", substituted_filename);
@@ -823,6 +811,7 @@ static gboolean parse_rule(SnortConfig_t *snort_config, char *line, const char *
 
     /* Add rule to map of rules. */
     g_hash_table_insert(snort_config->rules, GUINT_TO_POINTER((guint)rule->sid), rule);
+    snort_debug_printf("Snort rule with SID=%u added to table\n", rule->sid);
 
     return TRUE;
 }
@@ -834,8 +823,6 @@ static gboolean delete_rule(gpointer  key _U_,
 {
     Rule_t *rule = (Rule_t*)value;
     unsigned int n;
-
-    snort_debug_printf("delete_rule(value=%p)\n", value);
 
     /* Delete strings on heap. */
     g_free(rule->rule_string);

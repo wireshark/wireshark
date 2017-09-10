@@ -29,6 +29,13 @@
 
 #include "ws_attributes.h"
 
+/* #define SNORT_CONFIG_DEBUG */
+#ifdef  SNORT_CONFIG_DEBUG
+#define snort_debug_printf printf
+#else
+#define snort_debug_printf(...)
+#endif
+
 /************************************************************************/
 /* Rule related data types                                              */
 
@@ -160,6 +167,7 @@ typedef struct SnortConfig_t
 
 /*************************************************************************************/
 /* API functions                                                                     */
+
 void create_config(SnortConfig_t **snort_config, const char *snort_config_file);
 void delete_config(SnortConfig_t **snort_config);
 
