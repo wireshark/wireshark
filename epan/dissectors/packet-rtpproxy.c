@@ -349,7 +349,7 @@ rtpproxy_add_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_t
             case 'c':
                 new_offset = (gint)strspn(rawstr+offset, "0123456789,");
                 another_tree = proto_item_add_subtree(ti, ett_rtpproxy_command_parameters_codecs);
-                codecs = g_strsplit(tvb_get_string_enc(wmem_packet_scope(), tvb, begin+offset, new_offset, ENC_ASCII), ",", 0);
+                codecs = wmem_strsplit(wmem_packet_scope(), tvb_get_string_enc(wmem_packet_scope(), tvb, begin+offset, new_offset, ENC_ASCII), ",", 0);
                 i = 0;
                 while(codecs[i]){
                     /* We assume strings < 2^32-1 bytes long. :-) */
@@ -362,7 +362,6 @@ rtpproxy_add_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_t
                         offset++; /* skip comma */
                     i++;
                 };
-                g_strfreev(codecs);
                 break;
             case 'l':
                 /* That's another one protocol shortcoming - the same parameter used twice. */
