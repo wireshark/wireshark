@@ -1734,7 +1734,8 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
     proto_tree_add_item(local_route_header_tree, hf_infiniband_virtual_lane,            tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    proto_tree_add_item(local_route_header_tree, hf_infiniband_link_version,            tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
+    proto_tree_add_item(local_route_header_tree, hf_infiniband_link_version,            tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
     proto_tree_add_item(local_route_header_tree, hf_infiniband_service_level,           tvb, offset, 1, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(local_route_header_tree, hf_infiniband_reserved2,               tvb, offset, 1, ENC_NA);
@@ -1764,7 +1765,8 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     packetLength = packetLength * 4;           /* Multiply by 4 to get true byte length. This is by specification.  */
                                                /*   PktLen is size in 4 byte words (byteSize /4). */
 
-    proto_tree_add_item(local_route_header_tree, hf_infiniband_packet_length,           tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
+    proto_tree_add_item(local_route_header_tree, hf_infiniband_packet_length,           tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
     proto_tree_add_item(local_route_header_tree, hf_infiniband_source_local_id,         tvb, offset, 2, ENC_BIG_ENDIAN);
 
     /* Set Source in packet view. */
@@ -1790,14 +1792,18 @@ skip_lrh:
 
             proto_tree_add_item(global_route_header_tree, hf_infiniband_ip_version,         tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(global_route_header_tree, hf_infiniband_traffic_class,      tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(global_route_header_tree, hf_infiniband_flow_label,         tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+            proto_tree_add_item(global_route_header_tree, hf_infiniband_flow_label,         tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
 
-            proto_tree_add_item(global_route_header_tree, hf_infiniband_payload_length,     tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
+            proto_tree_add_item(global_route_header_tree, hf_infiniband_payload_length,     tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
 
             nxtHdr = tvb_get_guint8(tvb, offset);
 
-            proto_tree_add_item(global_route_header_tree, hf_infiniband_next_header,        tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
-            proto_tree_add_item(global_route_header_tree, hf_infiniband_hop_limit,          tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
+            proto_tree_add_item(global_route_header_tree, hf_infiniband_next_header,        tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(global_route_header_tree, hf_infiniband_hop_limit,          tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
             proto_tree_add_item(global_route_header_tree, hf_infiniband_source_gid,         tvb, offset, 16, ENC_NA);
 
             /* set source GID in packet view*/
@@ -2111,16 +2117,20 @@ skip_lrh:
     crc_length = tvb_reported_length_remaining(tvb, offset);
     if (crc_length == 6)
     {
-        proto_tree_add_item(all_headers_tree, hf_infiniband_invariant_crc, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-        proto_tree_add_item(all_headers_tree, hf_infiniband_variant_crc,   tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
+        proto_tree_add_item(all_headers_tree, hf_infiniband_invariant_crc, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(all_headers_tree, hf_infiniband_variant_crc,   tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
     }
     else if (crc_length == 4)
     {
-        proto_tree_add_item(all_headers_tree, hf_infiniband_invariant_crc, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+        proto_tree_add_item(all_headers_tree, hf_infiniband_invariant_crc, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
     }
     else if (crc_length == 2)
     {
-        proto_tree_add_item(all_headers_tree, hf_infiniband_variant_crc,   tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
+        proto_tree_add_item(all_headers_tree, hf_infiniband_variant_crc,   tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
     }
 
 }
