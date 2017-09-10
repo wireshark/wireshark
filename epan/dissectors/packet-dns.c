@@ -1478,7 +1478,7 @@ add_rr_to_tree(proto_tree  *rr_tree, tvbuff_t *tvb, int offset,
   gchar      **srv_rr_info;
 
   if (type == T_SRV) {
-    srv_rr_info = g_strsplit(name, ".", 3);
+    srv_rr_info = wmem_strsplit(wmem_packet_scope(), name, ".", 3);
 
     /* The + 1 on the strings is to skip the leading '_' */
 
@@ -1494,8 +1494,6 @@ add_rr_to_tree(proto_tree  *rr_tree, tvbuff_t *tvb, int offset,
                               namelen, srv_rr_info[2]);
       }
     }
-
-    g_strfreev(srv_rr_info);
   } else {
     proto_tree_add_string(rr_tree, hf_dns_rr_name, tvb, offset, namelen, name);
   }
