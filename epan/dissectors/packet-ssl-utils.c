@@ -1275,6 +1275,24 @@ const value_string tls_signature_algorithm[] = {
     { 0, NULL }
 };
 
+/* https://tools.ietf.org/html/draft-ietf-tls-tls13-21#section-4.2.3 */
+const value_string tls13_signature_algorithm[] = {
+    { 0x0201, "rsa_pkcs1_sha1" },
+    { 0x0203, "ecdsa_sha1" },
+    { 0x0401, "rsa_pkcs1_sha256" },
+    { 0x0403, "ecdsa_secp256r1_sha256" },
+    { 0x0501, "rsa_pkcs1_sha384" },
+    { 0x0503, "ecdsa_secp384r1_sha384" },
+    { 0x0601, "rsa_pkcs1_sha512" },
+    { 0x0603, "ecdsa_secp521r1_sha512" },
+    { 0x0804, "rsa_pss_sha256" },
+    { 0x0805, "rsa_pss_sha384" },
+    { 0x0806, "rsa_pss_sha512" },
+    { 0x0807, "ed25519" },
+    { 0x0808, "ed448" },
+    { 0, NULL }
+};
+
 /* RFC 6091 3.1 */
 const value_string tls_certificate_type[] = {
     { 0, "X.509" },
@@ -5942,6 +5960,35 @@ ssl_dissect_change_cipher_spec(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 }
 
 /** Begin of handshake(22) record dissections */
+
+/* Dissects a SignatureScheme (TLS 1.3) or SignatureAndHashAlgorithm (TLS 1.2).
+ * {{{ */
+static void
+tls_dissect_signature_algorithm(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+{
+    guint32     sighash, hashalg, sigalg;
+    proto_item *ti_sigalg;
+    proto_tree *sigalg_tree;
+
+    ti_sigalg = proto_tree_add_item_ret_uint(tree, hf->hf.hs_sig_hash_alg, tvb,
+                                             offset, 2, ENC_BIG_ENDIAN, &sighash);
+    sigalg_tree = proto_item_add_subtree(ti_sigalg, hf->ett.hs_sig_hash_alg);
+
+    /* TLS 1.2: SignatureAndHashAlgorithm { hash, signature } */
+    proto_tree_add_item_ret_uint(sigalg_tree, hf->hf.hs_sig_hash_hash, tvb,
+                                 offset, 1, ENC_BIG_ENDIAN, &hashalg);
+    proto_tree_add_item_ret_uint(sigalg_tree, hf->hf.hs_sig_hash_sig, tvb,
+                                 offset + 1, 1, ENC_BIG_ENDIAN, &sigalg);
+
+    /* No TLS 1.3 SignatureScheme? Fallback to TLS 1.2 interpretation. */
+    if (!try_val_to_str(sighash, tls13_signature_algorithm)) {
+        proto_item_set_text(ti_sigalg, "Signature Algorithm: %s %s (0x%04x)",
+                val_to_str_const(hashalg, tls_hash_algorithm, "Unknown"),
+                val_to_str_const(sigalg, tls_signature_algorithm, "Unknown"),
+                sighash);
+    }
+} /* }}} */
+
 /* dissect a list of hash algorithms, return the number of bytes dissected
    this is used for the signature algorithms extension and for the
    TLS1.2 certificate request. {{{ */
@@ -5956,7 +6003,7 @@ ssl_dissect_hash_alg_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
      *  } SignatureAndHashAlgorithm;
      *  SignatureAndHashAlgorithm supported_signature_algorithms<2..2^16-2>;
      */
-    proto_tree *subtree, *alg_tree;
+    proto_tree *subtree;
     proto_item *ti;
     guint sh_alg_length;
     guint32     next_offset;
@@ -5975,15 +6022,7 @@ ssl_dissect_hash_alg_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
     subtree = proto_item_add_subtree(ti, hf->ett.hs_sig_hash_algs);
 
     while (offset + 2 <= next_offset) {
-        ti = proto_tree_add_item(subtree, hf->hf.hs_sig_hash_alg,
-                                 tvb, offset, 2, ENC_BIG_ENDIAN);
-        alg_tree = proto_item_add_subtree(ti, hf->ett.hs_sig_hash_alg);
-
-        proto_tree_add_item(alg_tree, hf->hf.hs_sig_hash_hash,
-                            tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(alg_tree, hf->hf.hs_sig_hash_sig,
-                            tvb, offset+1, 1, ENC_BIG_ENDIAN);
-
+        tls_dissect_signature_algorithm(hf, tvb, subtree, offset);
         offset += 2;
     }
 
@@ -8200,22 +8239,12 @@ ssl_dissect_digitally_signed(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_inf
                              guint16 version, gint hf_sig_len, gint hf_sig)
 {
     guint32     sig_len;
-    proto_item *ti_algo;
-    proto_tree *ssl_algo_tree;
 
     switch (version) {
     case TLSV1DOT2_VERSION:
     case DTLSV1DOT2_VERSION:
-    case TLSV1DOT3_VERSION: /* XXX merge both fields into one SignatureScheme? */
-        ti_algo = proto_tree_add_item(tree, hf->hf.hs_sig_hash_alg, tvb,
-                                      offset, 2, ENC_BIG_ENDIAN);
-        ssl_algo_tree = proto_item_add_subtree(ti_algo, hf->ett.hs_sig_hash_alg);
-
-        /* SignatureAndHashAlgorithm { hash, signature } */
-        proto_tree_add_item(ssl_algo_tree, hf->hf.hs_sig_hash_hash, tvb,
-                            offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(ssl_algo_tree, hf->hf.hs_sig_hash_sig, tvb,
-                            offset + 1, 1, ENC_BIG_ENDIAN);
+    case TLSV1DOT3_VERSION:
+        tls_dissect_signature_algorithm(hf, tvb, tree, offset);
         offset += 2;
         break;
 
