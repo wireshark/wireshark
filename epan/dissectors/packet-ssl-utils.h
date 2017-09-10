@@ -242,6 +242,7 @@ extern const value_string pct_error_code[];
 extern const value_string tls_hello_extension_types[];
 extern const value_string tls_hash_algorithm[];
 extern const value_string tls_signature_algorithm[];
+extern const value_string tls13_signature_algorithm[];
 extern const value_string tls_certificate_type[];
 extern const value_string tls_cert_chain_type[];
 extern const value_string tls_cert_status_type[];
@@ -1330,24 +1331,24 @@ ssl_common_dissect_t name = {   \
         "Length of Signature Hash Algorithms", HFILL }                  \
     },                                                                  \
     { & name .hf.hs_sig_hash_algs,                                      \
-      { "Signature Hash Algorithms", prefix ".handshake.sig_hash_algs", \
+      { "Signature Algorithms", prefix ".handshake.sig_hash_algs",      \
         FT_NONE, BASE_NONE, NULL, 0x0,                                  \
-        "List of Signature Hash Algorithms", HFILL }                    \
+        "List of supported Signature Algorithms", HFILL }               \
     },                                                                  \
     { & name .hf.hs_sig_hash_alg,                                       \
-      { "Signature Hash Algorithm", prefix ".handshake.sig_hash_alg",   \
-        FT_UINT16, BASE_HEX, NULL, 0x0,                                 \
+      { "Signature Algorithm", prefix ".handshake.sig_hash_alg",        \
+        FT_UINT16, BASE_HEX, VALS(tls13_signature_algorithm), 0x0,      \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_sig_hash_hash,                                      \
       { "Signature Hash Algorithm Hash", prefix ".handshake.sig_hash_hash",            \
         FT_UINT8, BASE_DEC, VALS(tls_hash_algorithm), 0x0,              \
-        NULL, HFILL }                                                   \
+        "Hash algorithm (TLS 1.2)", HFILL }                             \
     },                                                                  \
     { & name .hf.hs_sig_hash_sig,                                       \
       { "Signature Hash Algorithm Signature", prefix ".handshake.sig_hash_sig",        \
         FT_UINT8, BASE_DEC, VALS(tls_signature_algorithm), 0x0,         \
-        NULL, HFILL }                                                   \
+        "Signature algorithm (TLS 1.2)", HFILL }                        \
     },                                                                  \
     { & name .hf.hs_client_keyex_epms_len,                              \
       { "Encrypted PreMaster length", prefix ".handshake.epms_len",     \
