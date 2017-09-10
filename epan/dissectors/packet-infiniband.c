@@ -487,8 +487,7 @@ static const value_string OperationalVLs[]= {
 };
 
 /* For reserved fields in various packets */
-static int hf_infiniband_reserved1 = -1;
-static int hf_infiniband_reserved4 = -1;
+static int hf_infiniband_reserved = -1;
 /* Local Route Header (LRH) */
 static int hf_infiniband_LRH = -1;
 static int hf_infiniband_virtual_lane = -1;
@@ -518,23 +517,19 @@ static int hf_infiniband_migreq = -1;
 static int hf_infiniband_pad_count = -1;
 static int hf_infiniband_transport_header_version = -1;
 static int hf_infiniband_partition_key = -1;
-static int hf_infiniband_reserved8 = -1;
 static int hf_infiniband_destination_qp = -1;
 static int hf_infiniband_acknowledge_request = -1;
 static int hf_infiniband_reserved7 = -1;
 static int hf_infiniband_packet_sequence_number = -1;
 /* Raw Header (RWH) */
 static int hf_infiniband_RWH = -1;
-static int hf_infiniband_reserved16_RWH = -1;
 static int hf_infiniband_etype = -1;
 /* Reliable Datagram Extended Transport Header (RDETH) */
 static int hf_infiniband_RDETH = -1;
-static int hf_infiniband_reserved8_RDETH = -1;
 static int hf_infiniband_ee_context = -1;
 /* Datagram Extended Transport Header (DETH) */
 static int hf_infiniband_DETH = -1;
 static int hf_infiniband_queue_key = -1;
-static int hf_infiniband_reserved8_DETH = -1;
 static int hf_infiniband_source_qp = -1;
 /* RDMA Extended Transport Header (RETH) */
 static int hf_infiniband_RETH = -1;
@@ -684,7 +679,6 @@ static int hf_infiniband_status = -1;
 static int hf_infiniband_class_specific = -1;
 static int hf_infiniband_transaction_id = -1;
 static int hf_infiniband_attribute_id = -1;
-static int hf_infiniband_reserved16 = -1;
 static int hf_infiniband_attribute_modifier = -1;
 static int hf_infiniband_data = -1;
 /* RMPP Header */
@@ -702,17 +696,13 @@ static int hf_infiniband_segment_number = -1;
 static int hf_infiniband_payload_length32 = -1;
 static int hf_infiniband_transferred_data = -1;
 /* RMPP ACK */
-static int hf_infiniband_new_window_last = -1;
-static int hf_infiniband_reserved220 = -1;
+static int hf_infiniband_new_window_last = -1;;
 /* RMPP ABORT and STOP */
-static int hf_infiniband_reserved32 = -1;
 static int hf_infiniband_optional_extended_error_data = -1;
 /* SMP Data LID Routed */
 static int hf_infiniband_SMP_LID = -1;
 static int hf_infiniband_m_key = -1;
 static int hf_infiniband_smp_data = -1;
-static int hf_infiniband_reserved1024 = -1;
-static int hf_infiniband_reserved256 = -1;
 /* SMP Data Directed Route */
 static int hf_infiniband_SMP_DIRECTED = -1;
 static int hf_infiniband_smp_status = -1;
@@ -720,7 +710,6 @@ static int hf_infiniband_hop_pointer = -1;
 static int hf_infiniband_hop_count = -1;
 static int hf_infiniband_dr_slid = -1;
 static int hf_infiniband_dr_dlid = -1;
-static int hf_infiniband_reserved28 = -1;
 static int hf_infiniband_d = -1;
 static int hf_infiniband_initial_path = -1;
 static int hf_infiniband_return_path = -1;
@@ -1748,7 +1737,7 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     proto_tree_add_item(local_route_header_tree, hf_infiniband_link_version,            tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
     proto_tree_add_item(local_route_header_tree, hf_infiniband_service_level,           tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    proto_tree_add_item(local_route_header_tree, hf_infiniband_reserved2,               tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(local_route_header_tree, hf_infiniband_reserved2,               tvb, offset, 1, ENC_NA);
     proto_tree_add_item(local_route_header_tree, hf_infiniband_link_next_header,        tvb, offset, 1, ENC_BIG_ENDIAN);
 
 
@@ -1864,7 +1853,7 @@ skip_lrh:
             offset += 1;
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_partition_key,                tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            proto_tree_add_item(base_transport_header_tree, hf_infiniband_reserved8,                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(base_transport_header_tree, hf_infiniband_reserved,                     tvb, offset, 1, ENC_NA);
             offset += 1;
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_destination_qp,               tvb, offset, 3, ENC_BIG_ENDIAN);
             pinfo->destport = tvb_get_ntoh24(tvb, offset);
@@ -2305,7 +2294,7 @@ parse_RDETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
     proto_item_set_text(RDETH_header_item, "%s", "RDETH - Reliable Datagram Extended Transport Header");
     RDETH_header_tree = proto_item_add_subtree(RDETH_header_item, ett_rdeth);
 
-    proto_tree_add_item(RDETH_header_tree, hf_infiniband_reserved8_RDETH,   tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(RDETH_header_tree, hf_infiniband_reserved,          tvb, local_offset, 1, ENC_NA);
     local_offset += 1;
     proto_tree_add_item(RDETH_header_tree, hf_infiniband_ee_context,        tvb, local_offset, 3, ENC_BIG_ENDIAN);
     local_offset += 3;
@@ -2330,7 +2319,7 @@ parse_DETH(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offs
 
     proto_tree_add_item(DETH_header_tree, hf_infiniband_queue_key,                  tvb, local_offset, 4, ENC_BIG_ENDIAN);
     local_offset += 4;
-    proto_tree_add_item(DETH_header_tree, hf_infiniband_reserved8_DETH,             tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(DETH_header_tree, hf_infiniband_reserved,                   tvb, local_offset, 1, ENC_NA);
     local_offset += 1;
     proto_tree_add_item(DETH_header_tree, hf_infiniband_source_qp,                  tvb, local_offset, 3, ENC_BIG_ENDIAN);
     pinfo->srcport = tvb_get_ntoh24(tvb, local_offset);
@@ -2714,8 +2703,8 @@ static void parse_RWH(proto_tree *ah_tree, tvbuff_t *tvb, gint *offset, packet_i
     proto_item_set_text(RWH_header_item, "%s", "RWH - Raw Header");
     RWH_header_tree = proto_item_add_subtree(RWH_header_item, ett_rwh);
 
-    proto_tree_add_item(RWH_header_tree, hf_infiniband_reserved16_RWH, tvb,
-            *offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(RWH_header_tree, hf_infiniband_reserved, tvb,
+            *offset, 2, ENC_NA);
 
     *offset += 2;
 
@@ -2866,7 +2855,7 @@ static gboolean dissect_eth_over_ib(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         PAYLOAD_header_tree = proto_item_add_subtree(PAYLOAD_header_item, ett_payload);
 
         proto_tree_add_uint(PAYLOAD_header_tree, hf_infiniband_etype, tvb, 0, 2, etype);
-        proto_tree_add_uint(PAYLOAD_header_tree, hf_infiniband_reserved16_RWH, tvb, 2, 2, reserved);
+        proto_tree_add_uint(PAYLOAD_header_tree, hf_infiniband_reserved, tvb, 2, 2, reserved);
     }
 
     return dissector_found;
@@ -2899,7 +2888,7 @@ static void parse_SUBN_LID_ROUTED(proto_tree *parentTree, packet_info *pinfo, tv
     SUBN_LID_ROUTED_header_tree = proto_item_add_subtree(SUBN_LID_ROUTED_header_item, ett_subn_lid_routed);
     proto_tree_add_item(SUBN_LID_ROUTED_header_tree, hf_infiniband_m_key,           tvb, local_offset, 8, ENC_BIG_ENDIAN);
     local_offset += 8;
-    proto_tree_add_item(SUBN_LID_ROUTED_header_tree, hf_infiniband_reserved256,     tvb, local_offset, 32, ENC_NA);
+    proto_tree_add_item(SUBN_LID_ROUTED_header_tree, hf_infiniband_reserved,        tvb, local_offset, 32, ENC_NA);
     local_offset += 32;
 
     label_SUBM_Method(SUBN_LID_ROUTED_header_item, &MadData, pinfo);
@@ -2912,7 +2901,7 @@ static void parse_SUBN_LID_ROUTED(proto_tree *parentTree, packet_info *pinfo, tv
     local_offset += 64;
     }
 
-    proto_tree_add_item(SUBN_LID_ROUTED_header_tree, hf_infiniband_reserved1024,    tvb, local_offset, 128, ENC_NA);
+    proto_tree_add_item(SUBN_LID_ROUTED_header_tree, hf_infiniband_reserved,        tvb, local_offset, 128, ENC_NA);
     local_offset += 128;
     *offset = local_offset;
 }
@@ -2962,7 +2951,7 @@ static void parse_SUBN_DIRECTED_ROUTE(proto_tree *parentTree, packet_info *pinfo
     local_offset += 2;
     proto_tree_add_item(SUBN_DIRECTED_ROUTE_header_tree, hf_infiniband_dr_dlid,         tvb, local_offset, 2, ENC_BIG_ENDIAN);
     local_offset += 2;
-    proto_tree_add_item(SUBN_DIRECTED_ROUTE_header_tree, hf_infiniband_reserved28,      tvb, local_offset, 28, ENC_NA);
+    proto_tree_add_item(SUBN_DIRECTED_ROUTE_header_tree, hf_infiniband_reserved,        tvb, local_offset, 28, ENC_NA);
     local_offset += 28;
 
     /* Try to do the detail parse of the attribute.  If there is an error, or the attribute is unknown, we'll just highlight the generic data. */
@@ -3012,7 +3001,7 @@ static void parse_SUBNADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
     local_offset += 8;
     proto_tree_add_item(SUBNADMN_header_tree, hf_infiniband_attribute_offset,   tvb, local_offset, 2, ENC_BIG_ENDIAN);
     local_offset += 2;
-    proto_tree_add_item(SUBNADMN_header_tree, hf_infiniband_reserved16,         tvb, local_offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(SUBNADMN_header_tree, hf_infiniband_reserved,           tvb, local_offset, 2, ENC_NA);
     local_offset += 2;
     proto_tree_add_item(SUBNADMN_header_tree, hf_infiniband_component_mask,     tvb, local_offset, 8, ENC_BIG_ENDIAN);
     local_offset += 8;
@@ -3307,7 +3296,7 @@ static void parse_CM_Req(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb
 
     proto_tree_add_item(CM_header_tree, hf_cm_req_local_comm_id, tvb, local_offset, 4, ENC_BIG_ENDIAN);
     local_offset += 4;
-    proto_tree_add_item(CM_header_tree, hf_infiniband_reserved4, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(CM_header_tree, hf_infiniband_reserved, tvb, local_offset, 4, ENC_NA);
     local_offset += 4;
 
     serviceid = tvb_get_ntoh64(tvb, local_offset);
@@ -3315,7 +3304,7 @@ static void parse_CM_Req(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb
 
     proto_tree_add_item(CM_header_tree, hf_cm_req_local_ca_guid, tvb, local_offset, 8, ENC_BIG_ENDIAN);
     local_offset += 8;
-    proto_tree_add_item(CM_header_tree, hf_infiniband_reserved4, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(CM_header_tree, hf_infiniband_reserved, tvb, local_offset, 4, ENC_NA);
     local_offset += 4;
     proto_tree_add_item(CM_header_tree, hf_cm_req_local_qkey, tvb, local_offset, 4, ENC_BIG_ENDIAN);
     local_offset += 4;
@@ -3547,15 +3536,15 @@ static void parse_CM_Rsp(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb
     proto_tree_add_item(CM_header_tree, hf_cm_rep_localqpn, tvb, local_offset, 3, ENC_BIG_ENDIAN);
     remote_qpn = tvb_get_ntoh24(tvb, local_offset);
     local_offset += 3;
-    proto_tree_add_item(CM_header_tree, hf_infiniband_reserved1, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(CM_header_tree, hf_infiniband_reserved, tvb, local_offset, 1, ENC_NA);
     local_offset += 1;
     proto_tree_add_item(CM_header_tree, hf_cm_rep_localeecontnum, tvb, local_offset, 3, ENC_BIG_ENDIAN);
     local_offset += 3;
-    proto_tree_add_item(CM_header_tree, hf_infiniband_reserved1, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(CM_header_tree, hf_infiniband_reserved, tvb, local_offset, 1, ENC_NA);
     local_offset += 1;
     proto_tree_add_item(CM_header_tree, hf_cm_rep_startingpsn, tvb, local_offset, 3, ENC_BIG_ENDIAN);
     local_offset += 3;
-    proto_tree_add_item(CM_header_tree, hf_infiniband_reserved1, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(CM_header_tree, hf_infiniband_reserved, tvb, local_offset, 1, ENC_NA);
     local_offset += 1;
     proto_tree_add_item(CM_header_tree, hf_cm_rep_responderres, tvb, local_offset, 1, ENC_BIG_ENDIAN);
     local_offset += 1;
@@ -3658,7 +3647,7 @@ static void parse_CM_DReq(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tv
     local_offset += 4;
     proto_tree_add_item(CM_header_tree, hf_cm_dreq_remote_qpn, tvb, local_offset, 3, ENC_BIG_ENDIAN);
     local_offset += 3;
-    proto_tree_add_item(CM_header_tree, hf_infiniband_reserved1, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(CM_header_tree, hf_infiniband_reserved, tvb, local_offset, 1, ENC_NA);
     local_offset += 1;
     proto_tree_add_item(CM_header_tree, hf_cm_dreq_privatedata, tvb, local_offset, 220, ENC_NA);
     try_connection_dissectors(top_tree, pinfo, tvb, &pinfo->src, MadData, info, local_offset, 220);
@@ -3901,7 +3890,7 @@ static gboolean parse_MAD_Common(proto_tree *parentTree, tvbuff_t *tvb, gint *of
     local_offset += 8;
     proto_tree_add_item(MAD_header_tree, hf_infiniband_attribute_id,        tvb, local_offset, 2, ENC_BIG_ENDIAN);
     local_offset += 2;
-    proto_tree_add_item(MAD_header_tree, hf_infiniband_reserved16,          tvb, local_offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(MAD_header_tree, hf_infiniband_reserved,            tvb, local_offset, 2, ENC_NA);
     local_offset += 2;
     proto_tree_add_item(MAD_header_tree, hf_infiniband_attribute_modifier,  tvb, local_offset, 4, ENC_BIG_ENDIAN);
     local_offset += 4;
@@ -3955,13 +3944,13 @@ static gboolean parse_RMPP(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
             local_offset += 4;
             proto_tree_add_item(RMPP_header_tree, hf_infiniband_new_window_last,    tvb, local_offset, 4, ENC_BIG_ENDIAN);
             local_offset += 4;
-            proto_tree_add_item(RMPP_header_tree, hf_infiniband_reserved220,        tvb, local_offset, 220, ENC_NA);
+            proto_tree_add_item(RMPP_header_tree, hf_infiniband_reserved,           tvb, local_offset, 220, ENC_NA);
             break;
         case RMPP_STOP:
         case RMPP_ABORT:
-            proto_tree_add_item(RMPP_header_tree, hf_infiniband_reserved32,                     tvb, local_offset, 4, ENC_NA);
+            proto_tree_add_item(RMPP_header_tree, hf_infiniband_reserved,                       tvb, local_offset, 4, ENC_NA);
             local_offset += 4;
-            proto_tree_add_item(RMPP_header_tree, hf_infiniband_reserved32,                     tvb, local_offset, 4, ENC_NA);
+            proto_tree_add_item(RMPP_header_tree, hf_infiniband_reserved,                       tvb, local_offset, 4, ENC_NA);
             local_offset += 4;
             proto_tree_add_item(RMPP_header_tree, hf_infiniband_optional_extended_error_data,   tvb, local_offset, 220, ENC_NA);
             break;
@@ -6153,10 +6142,6 @@ void proto_register_infiniband(void)
                 "Partition Key", "infiniband.bth.p_key",
                 FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
-        { &hf_infiniband_reserved8, {
-                "Reserved (8 bits)", "infiniband.bth.reserved8",
-                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
-        },
         { &hf_infiniband_destination_qp, {
                 "Destination Queue Pair", "infiniband.bth.destqp",
                 FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL}
@@ -6179,10 +6164,6 @@ void proto_register_infiniband(void)
                 "Raw Header", "infiniband.rwh",
                 FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
-        { &hf_infiniband_reserved16_RWH, {
-                "Reserved (16 bits)", "infiniband.rwh.reserved",
-                FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
-        },
         { &hf_infiniband_etype, {
                 "Ethertype", "infiniband.rwh.etype",
                 FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0, "Type", HFILL }
@@ -6192,10 +6173,6 @@ void proto_register_infiniband(void)
         { &hf_infiniband_RDETH, {
                 "Reliable Datagram Extended Transport Header", "infiniband.rdeth",
                 FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
-        },
-        { &hf_infiniband_reserved8_RDETH, {
-                "Reserved (8 bits)", "infiniband.rdeth.reserved8",
-                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         { &hf_infiniband_ee_context, {
                 "E2E Context", "infiniband.rdeth.eecnxt",
@@ -6210,10 +6187,6 @@ void proto_register_infiniband(void)
         { &hf_infiniband_queue_key, {
                 "Queue Key", "infiniband.deth.q_key",
                 FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
-        },
-        { &hf_infiniband_reserved8_DETH, {
-                "Reserved (8 bits)", "infiniband.deth.reserved8",
-                FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         { &hf_infiniband_source_qp, {
                 "Source Queue Pair", "infiniband.deth.srcqp",
@@ -6322,13 +6295,9 @@ void proto_register_infiniband(void)
         },
 
         /* Common Reserved fields */
-        { &hf_infiniband_reserved1, {
-                "Reserved", "infiniband.reserved1",
-                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
-        },
-        { &hf_infiniband_reserved4, {
-                "Reserved", "infiniband.reserved4",
-                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        { &hf_infiniband_reserved, {
+                "Reserved", "infiniband.reserved",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         /* CM REQ Header */
         {&hf_cm_req_local_comm_id, {
@@ -6782,10 +6751,6 @@ void proto_register_infiniband(void)
                 "Attribute ID", "infiniband.mad.attributeid",
                 FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
-        { &hf_infiniband_reserved16, {
-                "Reserved", "infiniband.mad.reserved16",
-                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
-        },
         { &hf_infiniband_attribute_modifier, {
                 "Attribute Modifier", "infiniband.mad.attributemodifier",
                 FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
@@ -6854,16 +6819,8 @@ void proto_register_infiniband(void)
                 "New Window Last", "infiniband.rmpp.newwindowlast",
                 FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
-        { &hf_infiniband_reserved220, {
-                "Segment Number", "infiniband.rmpp.reserved220",
-                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
-        },
 
         /* RMPP ABORT/STOP */
-        { &hf_infiniband_reserved32, {
-                "Reserved (32 bits)", "infiniband.rmpp.reserved32",
-                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
-        },
         { &hf_infiniband_optional_extended_error_data, {
                 "Optional Extended Error Data", "infiniband.rmpp.extendederrordata",
                 FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
@@ -6880,14 +6837,6 @@ void proto_register_infiniband(void)
         },
         { &hf_infiniband_smp_data, {
                 "SMP Data", "infiniband.smplid.smpdata",
-                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
-        },
-        { &hf_infiniband_reserved1024, {
-                "Reserved (1024 bits)", "infiniband.smplid.reserved1024",
-                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
-        },
-        { &hf_infiniband_reserved256, {
-                "Reserved (256 bits)", "infiniband.smplid.reserved256",
                 FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
 
@@ -6916,10 +6865,6 @@ void proto_register_infiniband(void)
         { &hf_infiniband_dr_dlid, {
                 "DrDLID", "infiniband.smpdirected.drdlid",
                 FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
-        },
-        { &hf_infiniband_reserved28, {
-                "Reserved (224 bits)", "infiniband.smpdirected.reserved28",
-                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_infiniband_d, {
                 "D (Direction Bit)", "infiniband.smpdirected.d",
