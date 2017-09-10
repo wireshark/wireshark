@@ -526,7 +526,7 @@ dissect_pfcp_sdf_filter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
          * The bits 8 to 5 of the octet "v" shall be spare and set to zero, and the remaining 20 bits shall
          * contain the IPv6 flow label.*/
         proto_tree_add_item(tree, hf_pfcp_fl, tvb, offset, 3, ENC_NA);
-        offset += 3;
+        /*offset += 3;*/
     }
 
 }
