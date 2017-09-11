@@ -765,15 +765,15 @@ typedef struct {
  */
 #define MAX_HT_MCS 76
 static guint nss_for_mcs[MAX_HT_MCS+1] = {
-	1, 1, 1, 1, 1, 1, 1, 1,                               /* 0-7 */
-	2, 2, 2, 2, 2, 2, 2, 2,                               /* 8-15 */
-	3, 3, 3, 3, 3, 3, 3, 3,                               /* 16-23 */
-	4, 4, 4, 4, 4, 4, 4, 4,                               /* 24-31 */
-	1,                                                    /* 32 */
-	2, 2, 2, 2, 2, 2,                                     /* 33-38 */
-	3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,             /* 39-52 */
-	4, 4, 4, 4, 4, 4,                                     /* 53-58 */
-	4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4  /* 59-76 */
+        1, 1, 1, 1, 1, 1, 1, 1,                               /* 0-7 */
+        2, 2, 2, 2, 2, 2, 2, 2,                               /* 8-15 */
+        3, 3, 3, 3, 3, 3, 3, 3,                               /* 16-23 */
+        4, 4, 4, 4, 4, 4, 4, 4,                               /* 24-31 */
+        1,                                                    /* 32 */
+        2, 2, 2, 2, 2, 2,                                     /* 33-38 */
+        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,             /* 39-52 */
+        4, 4, 4, 4, 4, 4,                                     /* 53-58 */
+        4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4  /* 59-76 */
 };
 
 /* internal utility functions */
@@ -1237,12 +1237,15 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
      * least 4 octets worth of FCS.
      */
     if (actual_octets < 4) {
-        *err_info = g_strdup_printf("vwr: Invalid data length %u (too short to include %u-byte PLCP header and 4 bytes of FCS)",
-                                    actual_octets, plcp_hdr_len);
-        *err = WTAP_ERR_BAD_FILE;
-        return FALSE;
+        if (actual_octets != 0) {
+            *err_info = g_strdup_printf("vwr: Invalid data length %u (too short to include %u-byte PLCP header and 4 bytes of FCS)",
+                                        actual_octets, plcp_hdr_len);
+            *err = WTAP_ERR_BAD_FILE;
+            return FALSE;
+        }
+    } else {
+        actual_octets -= 4;
     }
-    actual_octets -= 4;
 
     /* Calculate start & end times (in sec/usec), converting 64-bit times to usec. */
     /* 64-bit times are "Corey-endian" */
@@ -1632,12 +1635,13 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
      * least 4 octets worth of FCS.
      */
     if (actual_octets < 4) {
-        *err_info = g_strdup_printf("vwr: Invalid data length %u (too short to include 4 bytes of FCS)",
-                                    actual_octets);
-        *err = WTAP_ERR_BAD_FILE;
-        return FALSE;
-    }
-    if (actual_octets > 4) {
+        if (actual_octets != 0) {
+            *err_info = g_strdup_printf("vwr: Invalid data length %u (too short to include 4 bytes of FCS)",
+                                        actual_octets);
+            *err = WTAP_ERR_BAD_FILE;
+            return FALSE;
+        }
+    } else if (actual_octets > 4) {
         actual_octets -= 4;
     }
 
@@ -2117,16 +2121,16 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
              * if log_mode isn't 3?
              */
             if (actual_octets < 4) {
-                *err_info = g_strdup_printf("vwr: Invalid data length %u (too short to include 4 bytes of FCS)",
-                                            actual_octets);
-                *err = WTAP_ERR_BAD_FILE;
-                return FALSE;
-            }
-            if (actual_octets > 4 && (frame_size >= (int) msdu_length))
+                if (actual_octets != 0) {
+                    *err_info = g_strdup_printf("vwr: Invalid data length %u (too short to include 4 bytes of FCS)",
+                                                actual_octets);
+                    *err = WTAP_ERR_BAD_FILE;
+                    return FALSE;
+                }
+            } else if (actual_octets > 4 && (frame_size >= (int) msdu_length))
                 actual_octets -=4;
             ver_fpga = 0x11;
-        }
-        else {
+        } else {
             ver_fpga = 0x01;
         }
 
@@ -2622,14 +2626,19 @@ static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
      *
      * We'll be stripping off an FCS (?), so make sure we have at
      * least 4 octets worth of FCS.
+     *
+     * There seems to be a special case of a length of 0.
      */
     if (actual_octets < 4) {
-        *err_info = g_strdup_printf("vwr: Invalid data length %u (too short to include 4 bytes of FCS)",
-                                    actual_octets);
-        *err = WTAP_ERR_BAD_FILE;
-        return FALSE;
+        if (actual_octets != 0) {
+            *err_info = g_strdup_printf("vwr: Invalid data length %u (too short to include 4 bytes of FCS)",
+                                        actual_octets);
+            *err = WTAP_ERR_BAD_FILE;
+            return FALSE;
+        }
+    } else {
+        actual_octets -= 4;
     }
-    actual_octets -= 4;
 
     /* Calculate start & end times (in sec/usec), converting 64-bit times to usec. */
     /* 64-bit times are "Corey-endian"                                             */
