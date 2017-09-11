@@ -101,6 +101,7 @@
 #define BUNDLE_BLOCK_TYPE_EXTENSION_SECURITY    0x09 /* RFC6257 */
 #define BUNDLE_BLOCK_TYPE_CUSTODY_TRANSFER      0x0a /* http://bioserve.colorado.edu/bp-acs/ */
 #define BUNDLE_BLOCK_TYPE_EXTENDED_COS          0x13 /* http://tools.ietf.org/html/draft-irtf-dtnrg-ecos-02 */
+#define BUNDLE_BLOCK_TYPE_BUNDLE_AGE_EXTENSION  0x14 /* ION NASA specific */
 
 /* Payload Header Processing Flags */
 #define PAYLOAD_PROCFLAGS_REPLICATE_MASK        0x01

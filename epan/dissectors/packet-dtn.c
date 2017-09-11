@@ -204,6 +204,7 @@ static int hf_block_control_block_cteb_creator_custodian_eid = -1;
 
 /* Non-Primary Block Type Code Variable */
 static int hf_bundle_block_type_code = -1;
+static int hf_bundle_age_extension_block_code = -1;
 static int hf_bundle_unprocessed_block_data = -1;
 
 /* ECOS Flag Variables */
@@ -368,6 +369,7 @@ static const value_string bundle_block_type_codes[] = {
     {0x09, "Extension Security Block"},
     {0x0a, "Custody Transfer Enhancement Block"},
     {0x13, "Extended Class of Service Block"},
+    {0x14, "Bundle Age Extension Block"},
     {0, NULL}
 };
 
@@ -1509,6 +1511,7 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
     int           sdnv_length;
     int           block_length;
     int           block_overhead;
+    int           bundle_age;
     guint8        type;
     unsigned int  control_flags;
     proto_tree   *block_flag_tree;
@@ -1595,6 +1598,13 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
     {
         proto_tree_add_string(block_tree, hf_bundle_unprocessed_block_data, tvb, offset, block_length, "Block data");
         /* not yet dissected, skip past data */
+        offset += block_length;
+        break;
+    }
+    case BUNDLE_BLOCK_TYPE_BUNDLE_AGE_EXTENSION:
+    {
+        bundle_age = evaluate_sdnv(tvb, offset, &sdnv_length);
+        proto_tree_add_int(block_tree, hf_bundle_age_extension_block_code, tvb, offset, sdnv_length, bundle_age/1000000);
         offset += block_length;
         break;
     }
@@ -2854,6 +2864,10 @@ proto_register_bundle(void)
         {&hf_bundle_block_type_code,
          {"Block Type Code", "bundle.block_type_code",
           FT_UINT8, BASE_DEC, VALS(bundle_block_type_codes), 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_age_extension_block_code,
+         {"Bundle Age in seconds", "bundle.age_extension_block_code",
+          FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_unprocessed_block_data,
          {"Block Data", "bundle.block_data",
