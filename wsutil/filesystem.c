@@ -1037,7 +1037,11 @@ init_plugin_dir(void)
 static void
 init_plugin_pers_dir(void)
 {
+#ifdef _WIN32
     plugin_pers_dir = get_persconffile_path(PLUGINS_DIR_NAME, FALSE);
+#else
+    plugin_pers_dir = g_build_filename(g_get_home_dir(), ".local/lib/wireshark/" PLUGINS_DIR_NAME, (gchar *)NULL);
+#endif
 }
 
 #endif /* HAVE_PLUGINS || HAVE_LUA */

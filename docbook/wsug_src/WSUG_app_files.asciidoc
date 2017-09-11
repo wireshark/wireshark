@@ -471,10 +471,7 @@ On Windows:
 
 On Unix-like systems:
 
-* The personal plugin folder is
-__XDG_CONFIG_HOME__++/wireshark/plugins++ or, if
-__XDG_CONFIG_HOME__++/wireshark++ does not exist and
-$HOME++/.wireshark++ is present, $HOME++/.wireshark/plugins++.
+* The personal plugin folder is ++~/.local/lib/wireshark/plugins++.
 
 * If you are running on macOS and Wireshark is installed as an
 application bundle, the global plugin folder is

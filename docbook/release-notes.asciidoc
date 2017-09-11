@@ -49,6 +49,7 @@ since version 2.4.0:
 * Support for hardware-timestamping of packets
 * Improved NetMon .cap support with comments, event tracing, network filter,
   network info types and some Message Analyzer exported types.
+* Personal plugins folder on Linux/Unix is now ~/.local/lib/wireshark/plugins.
 
 //=== Removed Dissectors
 
