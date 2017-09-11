@@ -537,6 +537,10 @@ extern "C" {
 #define ETHERTYPE_FIP			0x8914	/* FCoE Initialization Protocol */
 #endif
 
+#ifndef ETHERTYPE_ROCE
+#define ETHERTYPE_ROCE			0x8915	/* Infiniband RDMA over Converged Ethernet */
+#endif
+
 #ifndef ETHERTYPE_MIH
 #define ETHERTYPE_MIH			0x8917	/* Media Independent Handover Protocol */
 #endif
@@ -551,6 +555,10 @@ extern "C" {
 
 #ifndef ETHERTYPE_SEL_L2
 #define ETHERTYPE_SEL_L2		0x892B	/* Schweitzer Engineering Labs Layer 2 */
+#endif
+
+#ifndef ETHERTYPE_BLUECOM
+#define ETHERTYPE_BLUECOM		0x892D	/* Bachmann bluecom protocol */
 #endif
 
 #ifndef ETHERTYPE_HSR
@@ -608,15 +616,6 @@ extern "C" {
 #ifndef ETHERTYPE_FCFT
 #define ETHERTYPE_FCFT			0xFCFC	/* used to transport FC frames+MDS hdr internal to Cisco's MDS switch */
 #endif
-
-#ifndef ETHERTYPE_ROCE
-#define ETHERTYPE_ROCE			0x8915	/* Infiniband RDMA over Converged Ethernet */
-#endif
-
-#ifndef ETHERTYPE_BLUECOM
-#define ETHERTYPE_BLUECOM		0x892D	/* Bachmann bluecom protocol */
-#endif
-
 
 WS_DLL_PUBLIC const value_string etype_vals[];
 
