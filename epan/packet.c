@@ -710,11 +710,12 @@ static int
 call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo_arg,
 		    proto_tree *tree, gboolean add_proto_name, void *data)
 {
- 	packet_info *pinfo = pinfo_arg;
+	packet_info *pinfo = pinfo_arg;
 	const char  *saved_proto;
 	guint16      saved_can_desegment;
 	int          len;
 	guint        saved_layers_len = 0;
+	int          saved_tree_count = tree ? tree->tree_data->count : 0;
 
 	if (handle->protocol != NULL &&
 	    !proto_is_protocol_enabled(handle->protocol)) {
@@ -747,9 +748,11 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo
 			proto_get_protocol_short_name(handle->protocol);
 
 		/*
-		 * Add the protocol name to the layers
-		 * if not told not to. Asn2wrs generated dissectors may be added multiple times otherwise.
+		 * Add the protocol name to the layers only if told to
+		 * do so. Asn2wrs generated dissectors may be added
+		 * multiple times otherwise.
 		 */
+		/* XXX Should we check for a duplicate layer here? */
 		if (add_proto_name) {
 			pinfo->curr_layer_num++;
 			wmem_list_append(pinfo->layers, GINT_TO_POINTER(proto_get_id(handle->protocol)));
@@ -760,22 +763,24 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo
 		len = call_dissector_work_error(handle, tvb, pinfo, tree, data);
 	} else {
 		/*
- 		 * Just call the subdissector.
- 		 */
+		 * Just call the subdissector.
+		 */
 		len = call_dissector_through_handle(handle, tvb, pinfo, tree, data);
 	}
-	if (len == 0) {
+	if (add_proto_name &&
+		(len == 0 || (tree && saved_tree_count == tree->tree_data->count))) {
 		/*
- 		 * That dissector didn't accept the packet, so
- 		 * remove its protocol's name from the list
- 		 * of protocols.
+		 * We've added a layer and either the dissector didn't
+		 * accept the packet or we didn't add any items to the
+		 * tree. Remove it.
 		 */
 		while (wmem_list_count(pinfo->layers) > saved_layers_len) {
+			pinfo->curr_layer_num--;
 			wmem_list_remove_frame(pinfo->layers, wmem_list_tail(pinfo->layers));
 		}
- 	}
- 	pinfo->current_proto = saved_proto;
- 	pinfo->can_desegment = saved_can_desegment;
+	}
+	pinfo->current_proto = saved_proto;
+	pinfo->can_desegment = saved_can_desegment;
 	return len;
 }
 
@@ -2614,6 +2619,8 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 	guint              saved_layers_len = 0;
 	heur_dtbl_entry_t *hdtbl_entry;
 	int                proto_id;
+	int                len;
+	int                saved_tree_count = tree ? tree->tree_data->count : 0;
 
 	/* can_desegment is set to 2 by anyone which offers this api/service.
 	   then everytime a subdissector is called it is decremented by one.
@@ -2660,22 +2667,27 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 			 * Add the protocol name to the layers; we'll remove it
 			 * if the dissector fails.
 			 */
+			pinfo->curr_layer_num++;
 			wmem_list_append(pinfo->layers, GINT_TO_POINTER(proto_id));
 		}
 
 		pinfo->heur_list_name = hdtbl_entry->list_name;
 
-		if ((hdtbl_entry->dissector)(tvb, pinfo, tree, data)) {
+		len = (hdtbl_entry->dissector)(tvb, pinfo, tree, data);
+		if (len) {
 			*heur_dtbl_entry = hdtbl_entry;
 			status = TRUE;
 			break;
-		} else {
+		}
+		if (hdtbl_entry->protocol != NULL &&
+			(len == 0 || (tree && saved_tree_count == tree->tree_data->count))) {
 			/*
-			 * That dissector didn't accept the packet, so
-			 * remove its protocol's name from the list
-			 * of protocols.
+			 * We added a protocol layer above. The dissector
+			 * didn't accept the packet or it didn't add any
+			 * items to the tree so remove it from the list.
 			 */
 			while (wmem_list_count(pinfo->layers) > saved_layers_len) {
+				pinfo->curr_layer_num--;
 				wmem_list_remove_frame(pinfo->layers, wmem_list_tail(pinfo->layers));
 			}
 		}
