@@ -601,7 +601,7 @@ $HOME++/.wireshark++ is present, $HOME++/.wireshark/plugins++.
 * If you are running on macOS and Wireshark is installed as an
 application bundle, the global plugin folder is
 _APPDIR_`/Contents/PlugIns/wireshark`, otherwise it's
-_INSTALLDIR_`/share/wireshark/plugins`.
+_INSTALLDIR_`/lib/wireshark/plugins`.
 
 [[ChWindowsFolder]]
 
