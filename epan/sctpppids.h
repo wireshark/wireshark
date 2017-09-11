@@ -89,5 +89,10 @@
 #define PROTO_3GPP_PUA_PAYLOAD_PROTOCOL_ID             55
 #define WEBRTC_STRING_EMPTY_PAYLOAD_PROTOCOL_ID        56
 #define WEBRTC_BINARY_EMPTY_PAYLOAD_PROTOCOL_ID        57
+#define XWAP_PROTOCOL_ID                               58
+#define XW_CONTROL_PLANE_PROTOCOL_ID                   59
+#define NGAP_PROTOCOL_ID                               60
+#define XNAP_PROTOCOL_ID                               61
+#define F1AP_PROTOCOL_ID                               62
 
 #endif /* sctpppids.h */
