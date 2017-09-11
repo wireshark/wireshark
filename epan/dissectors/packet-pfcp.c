@@ -62,9 +62,10 @@ static int hf_pfcp_spare_b4 = -1;
 static int hf_pfcp_spare_b5 = -1;
 static int hf_pfcp_spare_b6 = -1;
 static int hf_pfcp_spare_b7 = -1;
-static int hf_pfcp_spare_oct = -1;
+static int hf_pfcp_spare_b7_b5 = -1;
 static int hf_pfcp_spare_h0 = -1;
 static int hf_pfcp_spare_h1 = -1;
+static int hf_pfcp_spare_oct = -1;
 static int hf_pfcp_spare = -1;
 
 static int hf_pfcp2_cause = -1;
@@ -113,6 +114,14 @@ static int hf_pfcp_urr_id_flg = -1;
 static int hf_pfcp_urr_id = -1;
 static int hf_pfcp_qer_id_flg = -1;
 static int hf_pfcp_qer_id = -1;
+static int hf_pfcp_predef_rules_name = -1;
+static int hf_pfcp_apply_action_flags = -1;
+static int hf_pfcp_apply_action_b4_dupl = -1;
+static int hf_pfcp_apply_action_b3_nocp = -1;
+static int hf_pfcp_apply_action_b2_buff = -1;
+static int hf_pfcp_apply_action_b1_forw = -1;
+static int hf_pfcp_apply_action_b0_drop = -1;
+static int hf_pfcp_bar_id = -1;
 
 static int ett_pfcp = -1;
 static int ett_pfcp_flags = -1;
@@ -122,6 +131,7 @@ static int ett_pfcp_f_seid_flags = -1;
 static int ett_f_teid_flags = -1;
 static int ett_pfcp_ue_ip_address_flags = -1;
 static int ett_pfcp_sdf_filter_flags = -1;
+static int ett_pfcp_apply_action_flags = -1;
 
 static expert_field ei_pfcp_ie_reserved = EI_INIT;
 static expert_field ei_pfcp_ie_data_not_decoded = EI_INIT;
@@ -588,7 +598,36 @@ dissect_pfcp_precedence(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
  * 8.2.23   Forwarding Policy
  * 8.2.24   Destination Interface
  * 8.2.25   UP Function Features
+ */
+/*
  * 8.2.26   Apply Action
+ */
+static void
+dissect_pfcp_apply_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint64 flags_val;
+
+    static const int * pfcp_apply_action_flags[] = {
+        &hf_pfcp_spare_b7_b5,
+        &hf_pfcp_apply_action_b4_dupl,
+        &hf_pfcp_apply_action_b3_nocp,
+        &hf_pfcp_apply_action_b2_buff,
+        &hf_pfcp_apply_action_b1_forw,
+        &hf_pfcp_apply_action_b0_drop,
+        NULL
+    };
+    /* Octet 5  Spare   Spare   Spare   DUPL    NOCP    BUFF    FORW    DROP */
+    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_apply_action_flags,
+        ett_pfcp_apply_action_flags, pfcp_apply_action_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS, &flags_val);
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
+/*
  * 8.2.27   Downlink Data Service Information
  * 8.2.28   Downlink Data Notification Delay
  * 8.2.29   DL Buffering Duration
@@ -779,10 +818,36 @@ dissect_pfcp_urr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
 /*
  * 8.2.55   Linked URR ID IE
  * 8.2.56   Outer Header Creation
+ */
+/*
  * 8.2.57   BAR ID
+ */
+static void
+dissect_pfcp_bar_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    /* Octet 5 BAR ID value
+    * The BAR ID value shall be encoded as a binary integer value
+    */
+    proto_tree_add_item(tree, hf_pfcp_bar_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
+
+/*
  * 8.2.58   CP Function Features
+ */
+/*
  * 8.2.59   Usage Information
+ */
+/*
  * 8.2.60   Application Instance ID
+ */
+/*
  * 8.2.61   Flow Information
  */
 /*
@@ -900,9 +965,27 @@ dissect_pfcp_recovery_time_stamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 /*
  * 8.2.72   Activate Predefined Rules
  */
+static void
+dissect_pfcp_act_predef_rules(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    /* Octet 5 to (n+4) Predefined Rules Name
+    * The Predefined Rules Name field shall be encoded as an OctetString
+    */
+    proto_tree_add_item(tree, hf_pfcp_predef_rules_name, tvb, offset, length, ENC_NA);
+}
 /*
  * 8.2.73   Deactivate Predefined Rules
  */
+static void
+dissect_pfcp_deact_predef_rules(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    /* Octet 5 to (n+4) Predefined Rules Name
+    * The Predefined Rules Name field shall be encoded as an OctetString
+    */
+    proto_tree_add_item(tree, hf_pfcp_predef_rules_name, tvb, offset, length, ENC_NA);
+}
 /*
  * 8.2.74   FAR ID
  */
@@ -1020,7 +1103,7 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*     41 */    { NULL },    /* Forwarding Policy                               Extendable / Subclause 8.2.23 */
 /*     42 */    { NULL },    /* Destination Interface                           Extendable / Subclause 8.2.24 */
 /*     43 */    { NULL },    /* UP Function Features                            Extendable / Subclause 8.2.25 */
-/*     44 */    { NULL },    /* Apply Action                                    Extendable / Subclause 8.2.26 */
+/*     44 */    { dissect_pfcp_apply_action },                                  /* Apply Action                                    Extendable / Subclause 8.2.26 */
 /*     45 */    { NULL },    /* Downlink Data Service Information               Extendable / Subclause 8.2.27 */
 /*     46 */    { NULL },    /* Downlink Data Notification Delay                Extendable / Subclause 8.2.28 */
 /*     47 */    { NULL },    /* DL Buffering Duration                           Extendable / Subclause 8.2.29 */
@@ -1064,7 +1147,7 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*     85 */    { NULL },    /* Create BAR                                      Extendable / Table 7.5.2.6-1 */
 /*     86 */    { NULL },    /* Update BAR (Session Modification Request)       Extendable / Table 7.5.4.11-1 */
 /*     87 */    { NULL },    /* Remove BAR                                      Extendable / Table 7.5.4.12-1 */
-/*     88 */    { NULL },    /* BAR ID                                          Extendable / Subclause 8.2.57 */
+/*     88 */    { dissect_pfcp_bar_id },                                        /* BAR ID                                          Extendable / Subclause 8.2.57 */
 /*     89 */    { NULL },    /* CP Function Features                            Extendable / Subclause 8.2.58 */
 /*     90 */    { NULL },    /* Usage Information                               Extendable / Subclause 8.2.59 */
 /*     91 */    { NULL },    /* Application Instance ID                         Variable Length / Subclause 8.2.60 */
@@ -1082,8 +1165,8 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    103 */    { NULL },    /* Remote GTP-U Peer                              Extendable / Subclause 8.2.70 */
 /*    104 */    { NULL },    /* UR-SEQN                                        Fixed Length / Subclause 8.2.71 */
 /*    105 */    { NULL },    /* Update Duplicating Parameters                  Extendable / Table 7.5.4.3-3 */
-/*    106 */    { NULL },    /* Activate Predefined Rules                      Variable Length / Subclause 8.2.72 */
-/*    107 */    { NULL },    /* Deactivate Predefined Rules                    Variable Length / Subclause 8.2.73 */
+/*    106 */    { dissect_pfcp_act_predef_rules },                              /* Activate Predefined Rules                      Variable Length / Subclause 8.2.72 */
+/*    107 */    { dissect_pfcp_deact_predef_rules },                            /* Deactivate Predefined Rules                    Variable Length / Subclause 8.2.73 */
 /*    108 */    { dissect_pfcp_far_id },                                        /* FAR ID                                         Extendable / Subclause 8.2.74 */
 /*    109 */    { dissect_pfcp_qer_id },                                        /* QER ID                                         Extendable / Subclause 8.2.75 */
 /*    110 */    { NULL },    /* OCI Flags                                      Extendable / Subclause 8.2.76 */
@@ -1476,6 +1559,11 @@ proto_register_pfcp(void)
         FT_UINT8, BASE_DEC, NULL, 0x80,
         NULL, HFILL }
         },
+        { &hf_pfcp_spare_b7_b5,
+        { "Spare", "pfcp.spare_b7_b5",
+        FT_UINT8, BASE_DEC, NULL, 0xe0,
+        NULL, HFILL }
+        },
         { &hf_pfcp_spare_oct,
         { "Spare", "pfcp.spare_oct",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -1760,10 +1848,50 @@ proto_register_pfcp(void)
             FT_UINT32, BASE_DEC, NULL, 0x7fffffff,
             NULL, HFILL }
         },
+        { &hf_pfcp_predef_rules_name,
+        { "Predefined Rules Name", "pfcp.predef_rules_name",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_apply_action_flags,
+        { "Flags", "pfcp.apply_action_flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_apply_action_b0_drop,
+        { "DROP (Drop)", "pfcp.apply_action.drop",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_apply_action_b1_forw,
+        { "FORW (Forward)", "pfcp.apply_action.forw",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_apply_action_b2_buff,
+        { "BUFF (Buffer)", "pfcp.apply_action.buff",
+            FT_BOOLEAN, 8, NULL, 0x03,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_apply_action_b3_nocp,
+        { "NOCP (Notify the CP function)", "pfcp.apply_action.nocp",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_apply_action_b4_dupl,
+        { "DUPL (Duplicate)", "pfcp.apply_action.dupl",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_bar_id,
+        { "BAR ID", "pfcp.bar_id",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS_PFCP    8
+#define NUM_INDIVIDUAL_ELEMS_PFCP    9
     gint *ett[NUM_INDIVIDUAL_ELEMS_PFCP +
         (NUM_PFCP_IES - 1)];
 
@@ -1775,6 +1903,7 @@ proto_register_pfcp(void)
     ett[5] = &ett_f_teid_flags;
     ett[6] = &ett_pfcp_ue_ip_address_flags;
     ett[7] = &ett_pfcp_sdf_filter_flags;
+    ett[8] = &ett_pfcp_apply_action_flags;
 
     static ei_register_info ei[] = {
         { &ei_pfcp_ie_reserved,{ "pfcp.ie_id_reserved", PI_PROTOCOL, PI_ERROR, "Reserved IE value used", EXPFILL } },
