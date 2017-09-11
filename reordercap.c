@@ -38,6 +38,7 @@
 #include "wsutil/wsgetopt.h"
 #endif
 
+#include <wsutil/cmdarg_err.h>
 #include <wsutil/crash_info.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
@@ -147,7 +148,6 @@ frames_compare(gconstpointer a, gconstpointer b)
     return nstime_cmp(time1, time2);
 }
 
-#ifdef HAVE_PLUGINS
 /*
  * General errors and warnings are reported with an console message
  * in reordercap.
@@ -159,7 +159,16 @@ failure_warning_message(const char *msg_format, va_list ap)
     vfprintf(stderr, msg_format, ap);
     fprintf(stderr, "\n");
 }
-#endif
+
+/*
+ * Report additional information for an error in command-line arguments.
+ */
+static void
+failure_message_cont(const char *msg_format, va_list ap)
+{
+    vfprintf(stderr, msg_format, ap);
+    fprintf(stderr, "\n");
+}
 
 /********************************************************************/
 /* Main function.                                                   */
@@ -198,6 +207,8 @@ main(int argc, char *argv[])
     int file_count;
     char *infile;
     const char *outfile;
+
+    cmdarg_err_init(failure_warning_message, failure_message_cont);
 
     /* Get the compile-time version information string */
     comp_info_str = get_compiled_version_info(NULL, NULL);
