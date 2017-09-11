@@ -189,7 +189,7 @@ dissect_wifi_dpp_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
   return tvb_captured_length(tvb);
 }
 
-int
+static int
 dissect_wifi_dpp_attributes(packet_info *pinfo _U_, proto_tree *tree,
                             tvbuff_t *tvb, int offset _U_)
 {
@@ -295,6 +295,28 @@ dissect_wifi_dpp_attributes(packet_info *pinfo _U_, proto_tree *tree,
   }
 
   return attributes_len; // We return the attribute length plus hdr!
+}
+
+int
+dissect_wifi_dpp_config_proto(packet_info *pinfo _U_, proto_tree *tree,
+                             tvbuff_t *tvb, int offset _U_)
+{
+  proto_item *dpp_item;
+  proto_tree *dpp_tree, *attr_tree;
+  guint remaining_len = tvb_reported_length_remaining(tvb, offset);
+
+  dpp_item = proto_tree_add_item(tree, proto_wifi_dpp, tvb, offset, -1, ENC_NA);
+  dpp_tree = proto_item_add_subtree(dpp_item, ett_wifi_dpp_pa);
+  proto_item_append_text(dpp_item, " Configuration");
+
+  attr_tree = proto_tree_add_subtree_format(dpp_tree, tvb, offset,
+                                            remaining_len,
+                                            ett_wifi_dpp_attributes, NULL,
+                                            "DPP Attributes");
+
+  offset = dissect_wifi_dpp_attributes(pinfo, attr_tree, tvb, offset);
+
+  return offset;
 }
 
 static int

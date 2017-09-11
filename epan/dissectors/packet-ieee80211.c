@@ -6866,7 +6866,7 @@ dissect_gas_initial_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     if (subtype == ((DPP_CONFIGURATION_PROTOCOL << 8) | WFA_SUBTYPE_DPP)) {
        col_append_fstr(pinfo->cinfo, COL_INFO, ", DPP - %s",
                        val_to_str(subtype >> 8, dpp_subtype_vals, "Unknown (%u)"));
-      dissect_wifi_dpp_attributes(pinfo, query, tvb, offset);
+      dissect_wifi_dpp_config_proto(pinfo, query, tvb, offset);
     }
     break;
   default:
@@ -6910,7 +6910,7 @@ dissect_gas_initial_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
       if (subtype == ((DPP_CONFIGURATION_PROTOCOL << 8) | WFA_SUBTYPE_DPP)) {
          col_append_fstr(pinfo->cinfo, COL_INFO, ", DPP - %s",
                          val_to_str(subtype >> 8, dpp_subtype_vals, "Unknown (%u)"));
-        dissect_wifi_dpp_attributes(pinfo, query, tvb, offset);
+        dissect_wifi_dpp_config_proto(pinfo, query, tvb, offset);
       }
       break;
     default:
