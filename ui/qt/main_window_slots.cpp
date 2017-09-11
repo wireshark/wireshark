@@ -2995,8 +2995,6 @@ void MainWindow::on_actionAnalyzeExpertInfo_triggered()
 void MainWindow::on_actionStatisticsFlowGraph_triggered()
 {
     SequenceDialog *sequence_dialog = new SequenceDialog(*this, capture_file_);
-    connect(sequence_dialog, SIGNAL(goToPacket(int)),
-            packet_list_, SLOT(goToPacket(int)));
     sequence_dialog->show();
 }
 
