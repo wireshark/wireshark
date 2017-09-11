@@ -122,7 +122,8 @@ static int dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     guint8        zep_header_len;
     guint8        version;
     guint8        type;
-    guint32       channel_id, lqi_mode = 0, seqno;
+    guint32       channel_id, seqno;
+    gboolean      lqi_mode = FALSE;
 
     dissector_handle_t  next_dissector;
 
@@ -188,7 +189,7 @@ static int dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         proto_item_append_text(proto_root, ", Channel: %u, Length: %u", channel_id, ieee_packet_len);
 
         proto_tree_add_item(zep_tree, hf_zep_device_id, tvb, 4, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item_ret_uint(zep_tree, hf_zep_lqi_mode, tvb, 6, 1, ENC_NA, &lqi_mode);
+        proto_tree_add_item_ret_boolean(zep_tree, hf_zep_lqi_mode, tvb, 6, 1, ENC_NA, &lqi_mode);
         if (lqi_mode != 0) {
             proto_tree_add_item(zep_tree, hf_zep_lqi, tvb, 7, 1, ENC_NA);
             proto_tree_add_item(zep_tree, hf_zep_reserved_field, tvb, 8, 8, ENC_NA);
@@ -211,7 +212,7 @@ static int dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             col_add_fstr(pinfo->cinfo, COL_INFO, "Encapsulated ZigBee Packet [Channel]=%u [Length]=%u", channel_id, ieee_packet_len);
             proto_item_append_text(proto_root, ", Channel: %u, Length: %u", channel_id, ieee_packet_len);
             proto_tree_add_item(zep_tree, hf_zep_device_id, tvb, 5, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item_ret_uint(zep_tree, hf_zep_lqi_mode, tvb, 7, 1, ENC_NA, &lqi_mode);
+            proto_tree_add_item_ret_boolean(zep_tree, hf_zep_lqi_mode, tvb, 7, 1, ENC_NA, &lqi_mode);
             if (lqi_mode != 0) {
                 proto_tree_add_item(zep_tree, hf_zep_lqi, tvb, 8, 1, ENC_NA);
             }
