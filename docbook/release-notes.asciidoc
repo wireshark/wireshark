@@ -103,6 +103,7 @@ Protobuf (Protocol Buffers)
 QUIC (IETF)
 SolarEdge monitoring protocol
 Session Multiplex Protocol
+Steam In-Home Streaming Discovery Protocol
 Tibia
 TWAMP and OWAMP
 Wi-Fi Device Provisioning Protocol
