@@ -2366,11 +2366,11 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 	guint32 owner_sid_offset;
 	proto_item *it_owner_sid_offs = NULL;
 	volatile guint32 group_sid_offset;
-	proto_item *it_gr_sid_offs = NULL;
+	proto_item * volatile it_gr_sid_offs = NULL;
 	volatile guint32 sacl_offset;
-	proto_item *it_sacl_offs = NULL;
+	proto_item * volatile it_sacl_offs = NULL;
 	volatile guint32 dacl_offset;
-	proto_item *it_dacl_offs = NULL;
+	proto_item * volatile it_dacl_offs = NULL;
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset_v, -1,
 				   ett_nt_sec_desc, &item, "NT Security Descriptor");
