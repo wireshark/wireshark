@@ -392,6 +392,7 @@ struct previous_frame_info {
   gboolean has_tsf_timestamp;
   guint64 tsf_timestamp;
   guint phy;
+  union ieee_802_11_phy_info phy_info;
   guint prev_length;
   struct wlan_radio *radio_info;
 };
@@ -522,9 +523,8 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
         /* this is the second frame in an aggregate
          * where we first detect the aggregate */
         current_aggregate = wmem_new0(wmem_file_scope(), struct aggregate);
-        /* TODO work around macbook FCS frame PHY errors here */
-        current_aggregate->phy = phdr->phy;
-        current_aggregate->phy_info = phdr->phy_info;
+        current_aggregate->phy = previous_frame.phy;
+        current_aggregate->phy_info = previous_frame.phy_info;
 
         /* go back to the first frame in the aggregate,
          * and mark it as part of this aggregate */
@@ -544,9 +544,34 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
       wlan_radio_info->prior_aggregate_data = previous_frame.prev_length;
       previous_frame.prev_length += frame_length;
 
-      /* TODO work around macbook FCS frame PHY errors - check phy/fcs and
-       * update if necessary */
+      /* work around macbook/QCA FCS error frame PHY rate bug here
+       * Some Macbook generators and some QCA generators erroneously report
+       * low PHY rates for some subframes within an aggregate that have FCS errors.
+       * All subframes must have the same PHY rate.
+       * Here we take the highest reported rate for the aggregate. */
+      switch (phdr->phy) {
+      case PHDR_802_11_PHY_11N:
+        {
+          struct ieee_802_11n *info_n = &phy_info->info_11n;
+          struct ieee_802_11n *agg_info_n = &current_aggregate->phy_info.info_11n;
 
+          if (info_n->has_mcs_index && agg_info_n->has_mcs_index &&
+              info_n->mcs_index > agg_info_n->mcs_index)
+              current_aggregate->phy_info = *phy_info;
+        }
+        break;
+
+      case PHDR_802_11_PHY_11AC:
+        {
+          struct ieee_802_11ac *info_ac = &phy_info->info_11ac;
+          struct ieee_802_11ac *agg_info_ac = &current_aggregate->phy_info.info_11ac;
+
+          if (info_ac->mcs[0] > agg_info_ac->mcs[0])
+              current_aggregate->phy_info = *phy_info;
+        }
+        break;
+      }
+      /* TODO record a warning if the PHY rate does not match the aggregate */
       phy = current_aggregate->phy;
       phy_info = &current_aggregate->phy_info;
     } else {
@@ -556,6 +581,7 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     previous_frame.has_tsf_timestamp = phdr->has_tsf_timestamp;
     previous_frame.tsf_timestamp = phdr->tsf_timestamp;
     previous_frame.phy = phdr->phy;
+    previous_frame.phy_info = phdr->phy_info;
   } else {
     /* this frame has already been seen, so get its info structure */
     wlan_radio_info = (struct wlan_radio *) p_get_proto_data(wmem_file_scope(), pinfo, proto_wlan_radio, 0);
@@ -944,7 +970,7 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
     case PHDR_802_11_PHY_11N:
     {
-      struct ieee_802_11n *info_n = &phdr->phy_info.info_11n;
+      struct ieee_802_11n *info_n = &phy_info->info_11n;
 
       /* We have all the fields required to calculate the duration */
       static const guint Nhtdltf[4] = {1, 2, 4, 4};

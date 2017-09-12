@@ -61,6 +61,15 @@
 
 #include "ui/main_statusbar.h"
 
+/* we start rendering this number of microseconds left of the left edge - to ensure
+ * NAV lines are drawn correctly, and that small errors in time order don't prevent some
+ * frames from being rendered.
+ * These errors in time order can come from generators that record PHY rate incorrectly
+ * in some circumstances.
+ */
+#define RENDER_EARLY 40000
+
+
 const float fraction = 0.8F;
 const float base = 0.1F;
 class pcolor : public QColor
@@ -277,7 +286,7 @@ void WirelessTimeline::captureFileReadFinished()
             statusbar_push_temporary_msg("Packet number %u does not include TSF timestamp, not showing timeline.", n);
             return;
         }
-        if (w->ifs < -15000) {
+        if (w->ifs < -RENDER_EARLY) {
             statusbar_push_temporary_msg("Packet number %u has large negative jump in TSF, not showing timeline. Perhaps TSF reference point is set wrong?", n);
             return;
         }
@@ -525,7 +534,7 @@ WirelessTimeline::paintEvent(QPaintEvent *qpe)
     }
 
     QGraphicsScene qs;
-    for (packet = find_packet_tsf(start_tsf + left/zoom - 40000); packet <= cfile.count; packet++) {
+    for (packet = find_packet_tsf(start_tsf + left/zoom - RENDER_EARLY); packet <= cfile.count; packet++) {
         frame_data *fdata = frame_data_sequence_find(cfile.frames, packet);
         struct wlan_radio *ri = get_wlan_radio(fdata->num);
         float x, width, red, green, blue;
