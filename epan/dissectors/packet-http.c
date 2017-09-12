@@ -2444,17 +2444,18 @@ typedef struct {
 	int		special;
 } header_info;
 
-#define HDR_NO_SPECIAL		0
-#define HDR_AUTHORIZATION	1
-#define HDR_AUTHENTICATE	2
-#define HDR_CONTENT_TYPE	3
-#define HDR_CONTENT_LENGTH	4
-#define HDR_CONTENT_ENCODING	5
-#define HDR_TRANSFER_ENCODING	6
-#define HDR_HOST		7
-#define HDR_UPGRADE		8
-#define HDR_COOKIE		9
-#define HDR_WEBSOCKET_PROTOCOL	10
+#define HDR_NO_SPECIAL			0
+#define HDR_AUTHORIZATION		1
+#define HDR_AUTHENTICATE		2
+#define HDR_CONTENT_TYPE		3
+#define HDR_CONTENT_LENGTH		4
+#define HDR_CONTENT_ENCODING		5
+#define HDR_TRANSFER_ENCODING		6
+#define HDR_HOST			7
+#define HDR_UPGRADE			8
+#define HDR_COOKIE			9
+#define HDR_WEBSOCKET_PROTOCOL		10
+#define HDR_WEBSOCKET_EXTENSIONS	11
 
 static const header_info headers[] = {
 	{ "Authorization", &hf_http_authorization, HDR_AUTHORIZATION },
@@ -2479,7 +2480,7 @@ static const header_info headers[] = {
 	{ "Server", &hf_http_server, HDR_NO_SPECIAL },
 	{ "Location", &hf_http_location, HDR_NO_SPECIAL },
 	{ "Sec-WebSocket-Accept", &hf_http_sec_websocket_accept, HDR_NO_SPECIAL },
-	{ "Sec-WebSocket-Extensions", &hf_http_sec_websocket_extensions, HDR_NO_SPECIAL },
+	{ "Sec-WebSocket-Extensions", &hf_http_sec_websocket_extensions, HDR_WEBSOCKET_EXTENSIONS },
 	{ "Sec-WebSocket-Key", &hf_http_sec_websocket_key, HDR_NO_SPECIAL },
 	{ "Sec-WebSocket-Protocol", &hf_http_sec_websocket_protocol, HDR_WEBSOCKET_PROTOCOL },
 	{ "Sec-WebSocket-Version", &hf_http_sec_websocket_version, HDR_NO_SPECIAL },
@@ -2932,6 +2933,11 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			}
 			break;
 
+		case HDR_WEBSOCKET_EXTENSIONS:
+			if (http_type == HTTP_RESPONSE) {
+				conv_data->websocket_extensions = wmem_strndup(wmem_file_scope(), value, value_len);
+			}
+			break;
 		}
 	}
 }
