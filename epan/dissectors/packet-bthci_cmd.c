@@ -1532,6 +1532,7 @@ static const value_string bthci_cmd_cod_minor_device_class_health_vals[] = {
 };
 value_string_ext bthci_cmd_cod_minor_device_class_health_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_health_vals);
 
+/* https://www.bluetooth.com/specifications/assigned-numbers/generic-access-profile */
 static const value_string bthci_cmd_eir_data_type_vals[] = {
     {0x01, "Flags" },
     {0x02, "16-bit Service Class UUIDs (incomplete)" },
@@ -1572,6 +1573,9 @@ static const value_string bthci_cmd_eir_data_type_vals[] = {
     {0x26, "Transport Discovery Data" },
     {0x27, "LE Supported Features" },
     {0x28, "Channel Map Update Indication" },
+    {0x29, "PB-ADV" },
+    {0x2A, "Mesh Message" },
+    {0x2B, "Mesh Beacon" },
     {0x3D, "3D Information Data" },
     {0xFF, "Manufacturer Specific" },
     {   0, NULL }
