@@ -24,7 +24,7 @@ AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) -DWS_BUILD_DLL \
 	-DTOP_SRCDIR=\"$(abs_top_srcdir)\" 	\
 	-DDATAFILE_DIR=\"$(pkgdatadir)\" 	\
 	-DEXTCAP_DIR=\"$(extcapdir)\" 		\
-	-DPLUGIN_INSTALL_DIR=\"$(plugindir)\"	\
+	-DPLUGIN_DIR=\"$(pkglibdir)/plugins\"	\
 	-DJSMN_STRICT				\
 	$(GLIB_CFLAGS) $(LIBGCRYPT_CFLAGS)      \
 	$(LIBGNUTLS_CFLAGS)

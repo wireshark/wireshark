@@ -21,6 +21,10 @@
 
 include(UseABICheck)
 
+if(NOT WIN32)
+	add_definitions(-DPLUGIN_DIR=\"${CMAKE_INSTALL_FULL_LIBDIR}/wireshark/plugins\")
+endif()
+
 set(WSUTIL_PUBLIC_HEADERS
 	adler32.h
 	base32.h

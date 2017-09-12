@@ -340,7 +340,11 @@ scan_plugins(plugin_load_failure_mode mode)
             }
         }
         else
-            plugins_scan_dir(plugin_dir, mode);
+        {
+            plugin_dir_path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", get_plugin_dir(), VERSION);
+            plugins_scan_dir(plugin_dir_path, mode);
+            g_free(plugin_dir_path);
+        }
 
         /*
          * If the program wasn't started with special privileges,
@@ -352,7 +356,9 @@ scan_plugins(plugin_load_failure_mode mode)
          */
         if (!started_with_special_privs())
         {
-            plugins_scan_dir(get_plugins_pers_dir(), mode);
+            plugin_dir_path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", get_plugins_pers_dir(), VERSION);
+            plugins_scan_dir(plugin_dir_path, mode);
+            g_free(plugin_dir_path);
         }
     }
 }

@@ -1362,6 +1362,7 @@ endif()
 # Directory where plugins and Lua dissectors can be found.
 set(PLUGIN_VERSION_DIR "plugins/${CPACK_PACKAGE_VERSION}")
 set(PLUGIN_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME}/${PLUGIN_VERSION_DIR}")
+# Used by the WiresharkConfig.cmake.in module
 if (WIN32)
 	set(PLUGIN_INSTALL_DIR "${PLUGIN_VERSION_DIR}")
 else ()

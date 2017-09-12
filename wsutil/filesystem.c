@@ -955,7 +955,7 @@ get_datafile_dir(void)
  *    otherwise, if we're running from an app bundle in macOS, we
  *    use the Contents/PlugIns/wireshark subdirectory of the app bundle;
  *
- *    otherwise, we use the PLUGIN_INSTALL_DIR value supplied by the
+ *    otherwise, we use the PLUGIN_DIR value supplied by the
  *    configure script.
  */
 static char *plugin_dir = NULL;
@@ -1028,7 +1028,7 @@ init_plugin_dir(void)
         }
 #endif
         else {
-            plugin_dir = g_strdup(PLUGIN_INSTALL_DIR);
+            plugin_dir = g_strdup(PLUGIN_DIR);
         }
     }
 #endif
