@@ -960,6 +960,7 @@ dissect_pfcp_fq_csid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
         proto_tree_add_item(tree, hf_pfcp_fq_csid_node_id_mcc_mnc, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_pfcp_fq_csid_node_id_int, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
+        break;
     default:
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
         break;
@@ -2253,7 +2254,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_fq_csid_node_id_type,
         { "FQ-CSID Node-ID Type", "pfcp.fq_csid_node_id_type",
-            FT_UINT8, BASE_DEC, NULL, 0xf0,
+            FT_UINT8, BASE_DEC, VALS(pfcp_fq_csid_node_id_type_vals), 0xf0,
             NULL, HFILL }
         },
         { &hf_pfcp_num_csid,
