@@ -63,6 +63,7 @@ static int hf_pfcp_spare_b5 = -1;
 static int hf_pfcp_spare_b6 = -1;
 static int hf_pfcp_spare_b7 = -1;
 static int hf_pfcp_spare_b7_b5 = -1;
+static int hf_pfcp_spare_b7_b3 = -1;
 static int hf_pfcp_spare_h0 = -1;
 static int hf_pfcp_spare_h1 = -1;
 static int hf_pfcp_spare_oct = -1;
@@ -137,6 +138,88 @@ static int hf_pfcp_dst_interface = -1;
 static int hf_pfcp_redirect_address_type = -1;
 static int hf_pfcp_redirect_server_addr_len = -1;
 static int hf_pfcp_redirect_server_address = -1;
+static int hf_pfcp_linked_urr_id = -1;
+static int hf_pfcp_outer_hdr_desc = -1;
+static int hf_pfcp_outer_hdr_creation_teid = -1;
+static int hf_pfcp_outer_hdr_creation_ipv4 = -1;
+static int hf_pfcp_outer_hdr_creation_ipv6 = -1;
+static int hf_pfcp_outer_hdr_creation_port = -1;
+static int hf_pfcp_tos_traf_class = -1;
+static int hf_pfcp_time_threshold = -1;
+static int hf_pfcp_forwarding_policy_id_len = -1;
+static int hf_pfcp_forwarding_policy_id = -1;
+static int hf_pfcp_measurement_method_flags = -1;
+static int hf_pfcp_b0_durat = -1;
+static int hf_pfcp_b1_volume = -1;
+static int hf_pfcp_b2_event = -1;
+static int hf_pfcp_subsequent_time_threshold = -1;
+static int hf_pfcp_inactivity_detection_time = -1;
+static int hf_pfcp_monitoring_time = -1;
+static int hf_pfcp_reporting_triggers = -1;
+static int hf_pfcp_b9_timqu = -1;
+static int hf_pfcp_b8_volqu = -1;
+static int hf_pfcp_b7_liusa = -1;
+static int hf_pfcp_b6_droth = -1;
+static int hf_pfcp_b5_stopt = -1;
+static int hf_pfcp_b4_start = -1;
+static int hf_pfcp_b3_quhti = -1;
+static int hf_pfcp_b2_timth = -1;
+static int hf_pfcp_b1_volth = -1;
+static int hf_pfcp_b0_perio = -1;
+static int hf_pfcp_volume_threshold = -1;
+static int hf_pfcp_b2_dlvol = -1;
+static int hf_pfcp_b1_ulvol = -1;
+static int hf_pfcp_b0_tovol = -1;
+static int hf_pfcp_volume_threshold_tovol = -1;
+static int hf_pfcp_volume_threshold_ulvol = -1;
+static int hf_pfcp_volume_threshold_dlvol = -1;
+
+static int hf_pfcp_volume_quota = -1;
+static int hf_pfcp_volume_quota_b2_dlvol = -1;
+static int hf_pfcp_volume_quota_b1_ulvol = -1;
+static int hf_pfcp_volume_quota_b0_tovol = -1;
+static int hf_pfcp_volume_quota_tovol = -1;
+static int hf_pfcp_volume_quota_ulvol = -1;
+static int hf_pfcp_volume_quota_dlvol = -1;
+
+static int hf_pfcp_subseq_volume_threshold = -1;
+static int hf_pfcp_subseq_volume_threshold_b2_dlvol = -1;
+static int hf_pfcp_subseq_volume_threshold_b1_ulvol = -1;
+static int hf_pfcp_subseq_volume_threshold_b0_tovol = -1;
+static int hf_pfcp_subseq_volume_threshold_tovol = -1;
+static int hf_pfcp_subseq_volume_threshold_ulvol = -1;
+static int hf_pfcp_subseq_volume_threshold_dlvol = -1;
+static int hf_pfcp_time_quota = -1;
+static int hf_pfcp_start_time = -1;
+static int hf_pfcp_end_time = -1;
+static int hf_pfcp_quota_holding_time = -1;
+static int hf_pfcp_dropped_dl_traffic_threshold = -1;
+static int hf_pfcp_dropped_dl_traffic_threshold_b0_dlpa = -1;
+static int hf_pfcp_downlink_packets = -1;
+static int hf_pfcp_qer_correlation_id = -1;
+static int hf_pfcp_gate_status = -1;
+static int hf_pfcp_gate_status_b0b1_dlgate = -1;
+static int hf_pfcp_gate_status_b3b2_ulgate = -1;
+static int hf_pfcp_ul_mbr = -1;
+static int hf_pfcp_dl_mbr = -1;
+static int hf_pfcp_ul_gbr = -1;
+static int hf_pfcp_dl_gbr = -1;
+static int hf_pfcp_report_type = -1;
+static int hf_pfcp_b2_erir = -1;
+static int hf_pfcp_b1_usar = -1;
+static int hf_pfcp_b0_dldr = -1;
+static int hf_pfcp_offending_ie = -1;
+
+static int hf_pfcp_up_function_features = -1;
+static int hf_pfcp_b8_empu = -1;
+static int hf_pfcp_b7_treu = -1;
+static int hf_pfcp_b6_heeu = -1;
+static int hf_pfcp_b5_pfdm = -1;
+static int hf_pfcp_b4_ftup = -1;
+static int hf_pfcp_b3_trst = -1;
+static int hf_pfcp_b2_dlbd = -1;
+static int hf_pfcp_b1_ddnd = -1;
+static int hf_pfcp_b0_bucp = -1;
 
 static int ett_pfcp = -1;
 static int ett_pfcp_flags = -1;
@@ -147,6 +230,15 @@ static int ett_f_teid_flags = -1;
 static int ett_pfcp_ue_ip_address_flags = -1;
 static int ett_pfcp_sdf_filter_flags = -1;
 static int ett_pfcp_apply_action_flags = -1;
+static int ett_pfcp_measurement_method_flags = -1;
+static int ett_pfcp_reporting_triggers = -1;
+static int ett_pfcp_volume_threshold = -1;
+static int ett_pfcp_volume_quota = -1;
+static int ett_pfcp_subseq_volume_threshold = -1;
+static int ett_pfcp_dropped_dl_traffic_threshold = -1;
+static int ett_pfcp_gate_status = -1;
+static int ett_pfcp_report_type = -1;
+static int ett_pfcp_up_function_features = -1;
 
 static expert_field ei_pfcp_ie_reserved = EI_INIT;
 static expert_field ei_pfcp_ie_data_not_decoded = EI_INIT;
@@ -601,15 +693,100 @@ dissect_pfcp_application_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 /*
  * 8.2.7    Gate Status
  */
+static const value_string pfcp_gate_status_vals[] = {
+    { 0, "OPEN" },
+    { 1, "CLOSED" },
+    { 0, NULL }
+};
+
+
+static void
+dissect_pfcp_gate_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+
+    static const int * pfcp_gate_status_flags[] = {
+        &hf_pfcp_gate_status_b3b2_ulgate,
+        &hf_pfcp_gate_status_b0b1_dlgate,
+        NULL
+    };
+    /* Octet 5  Spare   UL Gate DL Gate */
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_gate_status,
+        ett_pfcp_gate_status, pfcp_gate_status_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
+
+
 /*
  * 8.2.8    MBR
  */
+static void
+dissect_pfcp_mbr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    /* 5 to 9   UL MBR
+    * The UL/DL MBR fields shall be encoded as kilobits per second (1 kbps = 1000 bps) in binary value
+    */
+    proto_tree_add_item(tree, hf_pfcp_ul_mbr, tvb, 5, length, ENC_BIG_ENDIAN);
+    offset += 5;
+
+    /* 10 to 14 DL MBR */
+    proto_tree_add_item(tree, hf_pfcp_dl_mbr, tvb, 5, length, ENC_BIG_ENDIAN);
+    offset += 5;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
+
 /*
  * 8.2.9    GBR
  */
+static void
+dissect_pfcp_gbr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    /* 5 to 9   UL MBR
+    * The UL/DL MBR fields shall be encoded as kilobits per second (1 kbps = 1000 bps) in binary value
+    */
+    proto_tree_add_item(tree, hf_pfcp_ul_gbr, tvb, 5, length, ENC_BIG_ENDIAN);
+    offset += 5;
+
+    /* 10 to 14 DL MBR */
+    proto_tree_add_item(tree, hf_pfcp_dl_gbr, tvb, 5, length, ENC_BIG_ENDIAN);
+    offset += 5;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
+
 /*
  * 8.2.10   QER Correlation ID
  */
+static void
+dissect_pfcp_qer_correlation_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint32 value;
+    /* 5 to 8   QER Correlation ID value */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_qer_correlation_id, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
+    offset += 4;
+
+    proto_item_append_text(item, "%u", value);
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
 /*
  * 8.2.11   Precedence
  */
@@ -632,17 +809,240 @@ dissect_pfcp_precedence(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 /*
  * 8.2.12   DL Transport Level Marking
  */
+static void
+dissect_pfcp_dl_transport_level_marking(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    /* Octet 5 to 6	ToS/Traffic Class
+    * The ToS/Traffic Class shall be encoded on two octets as an OctetString.
+    * The first octet shall contain the IPv4 Type-of-Service or the IPv6 Traffic-Class field and the second octet shall contain the ToS/Traffic Class mask field
+    */
+    proto_tree_add_item(tree, hf_pfcp_tos_traf_class, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
+
 /*
  * 8.2.13   Volume Threshold
  */
+static void
+dissect_pfcp_volume_threshold(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint64 flags_val;
+
+    static const int * pfcp_volume_threshold_flags[] = {
+        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_b2_dlvol,
+        &hf_pfcp_b1_ulvol,
+        &hf_pfcp_b0_tovol,
+        NULL
+    };
+    /* Octet 5  Spare   DLVOL   ULVOL   TOVOL*/
+    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_volume_threshold,
+        ett_pfcp_volume_threshold, pfcp_volume_threshold_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &flags_val);
+    offset += 1;
+
+    /* The Total Volume, Uplink Volume and Downlink Volume fields shall be encoded as an Unsigned64 binary integer value.
+    * They shall contain the total, uplink or downlink number of octets respectively.
+    */
+    if ((flags_val & 0x1) == 1) {
+        /* m to (m+7)   Total Volume
+        * TOVOL: If this bit is set to "1", then the Total Volume field shall be present
+        */
+        proto_tree_add_item(tree, hf_pfcp_volume_threshold_tovol, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+    if ((flags_val & 0x2) == 2) {
+        /* p to (p+7)	Uplink Volume
+        * ULVOL: If this bit is set to "1", then the Uplink Volume field shall be present
+        */
+        proto_tree_add_item(tree, hf_pfcp_volume_threshold_ulvol, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+    if ((flags_val & 0x4) == 4) {
+        /* q to (q+7)   Downlink Volume
+        * DLVOL: If this bit is set to "1", then the Downlink Volume field shall be present
+        */
+        proto_tree_add_item(tree, hf_pfcp_volume_threshold_dlvol, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
 /*
  * 8.2.14   Time Threshold
+ */
+static void
+dissect_pfcp_time_threshold(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint value;
+
+    /* Octet 5 to 8	Time Threshold
+    * The Time Threshold field shall be encoded as an Unsigned32 binary integer value.
+    * It shall contain the duration in seconds.
+    */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_time_threshold, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
+    offset += 4;
+
+    proto_item_append_text(item, "%u s", value);
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
+
+/*
  * 8.2.15   Monitoring Time
+ */
+static void
+dissect_pfcp_monitoring_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_)
+{
+    const gchar *time_str;
+    int offset = 0;
+
+    /* The Monitoring Time field shall indicate the monitoring time in UTC time.
+    * Octets 5 to 8 shall be encoded in the same format as the first four octets
+    * of the 64-bit timestamp format as defined in section 6 of IETF RFC 5905.
+    */
+    time_str = tvb_ntp_fmt_ts_sec(tvb, 0);
+    proto_tree_add_string(tree, hf_pfcp_monitoring_time, tvb, offset, 4, time_str);
+    proto_item_append_text(item, "%s", time_str);
+    offset += 4;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
+/*
  * 8.2.16   Subsequent Volume Threshold
+ */
+static void
+dissect_pfcp_subseq_volume_threshold(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint64 flags_val;
+
+    static const int * pfcp_subseq_volume_threshold_flags[] = {
+        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_subseq_volume_threshold_b2_dlvol,
+        &hf_pfcp_subseq_volume_threshold_b1_ulvol,
+        &hf_pfcp_subseq_volume_threshold_b0_tovol,
+        NULL
+    };
+    /* Octet 5  Spare   DLVOL   ULVOL   TOVOL*/
+    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_subseq_volume_threshold,
+        ett_pfcp_subseq_volume_threshold, pfcp_subseq_volume_threshold_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &flags_val);
+    offset += 1;
+
+    /* The Total Volume, Uplink Volume and Downlink Volume fields shall be encoded as an Unsigned64 binary integer value.
+    * They shall contain the total, uplink or downlink number of octets respectively.
+    */
+    if ((flags_val & 0x1) == 1) {
+        /* m to (m+7)   Total Volume
+        * TOVOL: If this bit is set to "1", then the Total Volume field shall be present
+        */
+        proto_tree_add_item(tree, hf_pfcp_subseq_volume_threshold_tovol, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+    if ((flags_val & 0x2) == 2) {
+        /* p to (p+7)	Uplink Volume
+        * ULVOL: If this bit is set to "1", then the Uplink Volume field shall be present
+        */
+        proto_tree_add_item(tree, hf_pfcp_subseq_volume_threshold_ulvol, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+    if ((flags_val & 0x4) == 4) {
+        /* q to (q+7)   Downlink Volume
+        * DLVOL: If this bit is set to "1", then the Downlink Volume field shall be present
+        */
+        proto_tree_add_item(tree, hf_pfcp_subseq_volume_threshold_dlvol, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+
+/*
  * 8.2.17   Subsequent Time Threshold
+ */
+static void
+dissect_pfcp_subsequent_time_threshold(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint32 value;
+    /* 5 to 8   Subsequent Time Threshold */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_subsequent_time_threshold, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
+    offset += 4;
+
+    proto_item_append_text(item, "%u s", value);
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+/*
  * 8.2.18   Inactivity Detection Time
+ */
+static void
+dissect_pfcp_inactivity_detection_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint32 value;
+    /* 5 to 8   Inactivity Detection Time */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_inactivity_detection_time, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
+    offset += 4;
+
+    proto_item_append_text(item, "%u s", value);
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+
+/*
  * 8.2.19   Reporting Triggers
  */
+static void
+dissect_pfcp_reporting_triggers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+
+    static const int * pfcp_reporting_triggers_flags[] = {
+        &hf_pfcp_b9_timqu,
+        &hf_pfcp_b8_volqu,
+        &hf_pfcp_b7_liusa,
+        &hf_pfcp_b6_droth,
+        &hf_pfcp_b5_stopt,
+        &hf_pfcp_b4_start,
+        &hf_pfcp_b3_quhti,
+        &hf_pfcp_b2_timth,
+        &hf_pfcp_b1_volth,
+        &hf_pfcp_b0_perio,
+        NULL
+    };
+    /* Octet 5  LIUSA   DROTH   STOPT   START   QUHTI   TIMTH   VOLTH   PERIO*/
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_reporting_triggers,
+        ett_pfcp_reporting_triggers, pfcp_reporting_triggers_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    offset += 2;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
+
 /*
  * 8.2.20   Redirect Information
  */
@@ -681,12 +1081,62 @@ dissect_pfcp_redirect_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 /*
  * 8.2.21   Report Type
  */
+static void
+dissect_pfcp_report_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+
+    static const int * pfcp_report_type_flags[] = {
+        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_b2_erir,
+        &hf_pfcp_b1_usar,
+        &hf_pfcp_b0_dldr,
+        NULL
+    };
+    /* Octet 5  Spare   ERIR    USAR    DLDR */
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_report_type,
+        ett_pfcp_report_type, pfcp_report_type_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
 /*
  * 8.2.22   Offending IE
  */
+static void
+dissect_pfcp_offending_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_)
+{
+    guint32 value;
+    /* Octet 5 to 6 Type of the offending IE */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_offending_ie, tvb, 0, 2, ENC_BIG_ENDIAN, &value);
+
+    proto_item_append_text(item, "%s", val_to_str_const(value, pfcp_ie_type, "Unknown"));
+
+}
 /*
  * 8.2.23   Forwarding Policy
  */
+static void
+dissect_pfcp_forwarding_policy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint32 id_len;
+
+    /* Octet Forwarding Policy Identifier Length */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_forwarding_policy_id_len, tvb, offset, 1, ENC_BIG_ENDIAN, &id_len);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_pfcp_forwarding_policy_id, tvb, offset, id_len, ENC_NA);
+    offset += id_len;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
 /*
  * 8.2.24   Destination Interface
  */
@@ -721,6 +1171,33 @@ dissect_pfcp_destination_interface(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 /*
  * 8.2.25   UP Function Features
  */
+static void
+dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+
+    static const int * pfcp_up_function_features_flags[] = {
+        &hf_pfcp_b8_empu,
+        &hf_pfcp_b7_treu,
+        &hf_pfcp_b6_heeu,
+        &hf_pfcp_b5_pfdm,
+        &hf_pfcp_b4_ftup,
+        &hf_pfcp_b3_trst,
+        &hf_pfcp_b2_dlbd,
+        &hf_pfcp_b1_ddnd,
+        &hf_pfcp_b0_bucp,
+        NULL
+    };
+    /* Octet 5  LIUSA   DROTH   STOPT   START   QUHTI   TIMTH   VOLTH   PERIO*/
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_up_function_features,
+        ett_pfcp_up_function_features, pfcp_up_function_features_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    offset += 2;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
 /*
  * 8.2.26   Apply Action
  */
@@ -728,7 +1205,6 @@ static void
 dissect_pfcp_apply_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
 {
     int offset = 0;
-    guint64 flags_val;
 
     static const int * pfcp_apply_action_flags[] = {
         &hf_pfcp_spare_b7_b5,
@@ -740,8 +1216,8 @@ dissect_pfcp_apply_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
         NULL
     };
     /* Octet 5  Spare   Spare   Spare   DUPL    NOCP    BUFF    FORW    DROP */
-    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_apply_action_flags,
-        ett_pfcp_apply_action_flags, pfcp_apply_action_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS, &flags_val);
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_apply_action_flags,
+        ett_pfcp_apply_action_flags, pfcp_apply_action_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS);
     offset += 1;
 
     if (offset < length) {
@@ -751,6 +1227,8 @@ dissect_pfcp_apply_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 }
 /*
  * 8.2.27   Downlink Data Service Information
+ */
+/*
  * 8.2.28   Downlink Data Notification Delay
  * 8.2.29   DL Buffering Duration
  * 8.2.30   DL Buffering Suggested Packet Count
@@ -896,7 +1374,34 @@ dissect_pfcp_node_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
 }
 /*
  * 8.2.39   PFD Contents
+ */
+/*
  * 8.2.40   Measurement Method
+ */
+static void
+dissect_pfcp_measurement_method(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+
+    static const int * pfcp_measurement_method_flags[] = {
+        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_b2_event,
+        &hf_pfcp_b1_volume,
+        &hf_pfcp_b0_durat,
+        NULL
+    };
+    /* Octet 5  Spare   Spare   Spare   Spare   Spare   EVENT   VOLUM   DURAT*/
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_measurement_method_flags,
+        ett_pfcp_measurement_method_flags, pfcp_measurement_method_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
+
+/*
  * 8.2.41   Usage Report Trigger
  */
 /*
@@ -987,7 +1492,7 @@ dissect_pfcp_duration_measurement(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 {
     int offset = 0;
     guint32 value;
-    /* 5 to 8   Measurement Period*/
+    /* 5 to 8   Duration value*/
     proto_tree_add_item_ret_uint(tree, hf_pfcp_duration_measurement, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
     offset += 4;
 
@@ -1044,21 +1549,170 @@ dissect_pfcp_time_of_last_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 /*
  * 8.2.48   Quota Holding Time
  */
+static void
+dissect_pfcp_quota_holding_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint32 value;
+    /* Octet 5 to 8	Time Quota value
+    * TThe Time Quota value shall be encoded as an Unsigned32 binary integer value. It contains a duration in seconds
+    */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_quota_holding_time, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
+    offset += 4;
+
+    proto_item_append_text(item, "%u s", value);
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
+
 /*
  * 8.2.49   Dropped DL Traffic Threshold
  */
+static void
+dissect_pfcp_dropped_dl_traffic_threshold(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint64 flags_val;
+
+    static const int * pfcp_dropped_dl_traffic_threshold_flags[] = {
+        &hf_pfcp_dropped_dl_traffic_threshold_b0_dlpa,
+        NULL
+    };
+    /* Octet 5  Spare   DLPA*/
+    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_dropped_dl_traffic_threshold,
+        ett_pfcp_dropped_dl_traffic_threshold, pfcp_dropped_dl_traffic_threshold_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &flags_val);
+    offset += 1;
+
+    if ((flags_val & 0x1) == 1) {
+        /* m to (m+7)   Downlink Packets
+        * DLPA: If this bit is set to "1", then the Downlink Packets field shall be present
+        */
+        proto_tree_add_item(tree, hf_pfcp_downlink_packets, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
 /*
  * 8.2.50   Volume Quota
  */
+static void
+dissect_pfcp_volume_quota(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint64 flags_val;
+
+    static const int * pfcp_volume_quota_flags[] = {
+        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_volume_quota_b2_dlvol,
+        &hf_pfcp_volume_quota_b1_ulvol,
+        &hf_pfcp_volume_quota_b0_tovol,
+        NULL
+    };
+    /* Octet 5  Spare   DLVOL   ULVOL   TOVOL*/
+    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_volume_quota,
+        ett_pfcp_volume_quota, pfcp_volume_quota_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &flags_val);
+    offset += 1;
+
+    /* The Total Volume, Uplink Volume and Downlink Volume fields shall be encoded as an Unsigned64 binary integer value.
+    * They shall contain the total, uplink or downlink number of octets respectively.
+    */
+    if ((flags_val & 0x1) == 1) {
+        /* m to (m+7)   Total Volume
+        * TOVOL: If this bit is set to "1", then the Total Volume field shall be present
+        */
+        proto_tree_add_item(tree, hf_pfcp_volume_quota_tovol, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+    if ((flags_val & 0x2) == 2) {
+        /* p to (p+7)	Uplink Volume
+        * ULVOL: If this bit is set to "1", then the Uplink Volume field shall be present
+        */
+        proto_tree_add_item(tree, hf_pfcp_volume_quota_ulvol, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+    if ((flags_val & 0x4) == 4) {
+        /* q to (q+7)   Downlink Volume
+        * DLVOL: If this bit is set to "1", then the Downlink Volume field shall be present
+        */
+        proto_tree_add_item(tree, hf_pfcp_volume_quota_dlvol, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
 /*
  * 8.2.51   Time Quota
  */
+static void
+dissect_pfcp_time_quota(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint32 value;
+    /* Octet 5 to 8	Time Quota value
+    * TThe Time Quota value shall be encoded as an Unsigned32 binary integer value. It contains a duration in seconds
+    */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_time_quota, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
+    offset += 4;
+
+    proto_item_append_text(item, "%u s", value);
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
 /*
  * 8.2.52   Start Time
  */
+static void
+dissect_pfcp_start_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_)
+{
+    const gchar *time_str;
+    int offset = 0;
+
+    /* The Start Time field shall contain a UTC time. Octets 5 to 8 are encoded in the same format as
+    * the first four octets of the 64-bit timestamp format as defined in section 6 of IETF RFC 5905 [26].
+    */
+    time_str = tvb_ntp_fmt_ts_sec(tvb, 0);
+    proto_tree_add_string(tree, hf_pfcp_start_time, tvb, offset, 4, time_str);
+    proto_item_append_text(item, "%s", time_str);
+    offset += 4;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
 /*
  * 8.2.53   End Time
  */
+static void
+dissect_pfcp_end_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_)
+{
+    const gchar *time_str;
+    int offset = 0;
+
+    /* The End Time field shall contain a UTC time. Octets 5 to 8 are encoded in the same format as
+    * the first four octets of the 64-bit timestamp format as defined in section 6 of IETF RFC 5905 [26].
+    */
+    time_str = tvb_ntp_fmt_ts_sec(tvb, 0);
+    proto_tree_add_string(tree, hf_pfcp_end_time, tvb, offset, 4, time_str);
+    proto_item_append_text(item, "%s", time_str);
+    offset += 4;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
+
 /*
  * 8.2.54   URR ID
  */
@@ -1088,9 +1742,79 @@ dissect_pfcp_urr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
 /*
  * 8.2.55   Linked URR ID IE
  */
+static void
+dissect_pfcp_linked_urr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint32 value;
+    /* Octet 5 to 8 Linked URR ID value
+    * The Linked URR ID value shall be encoded as an Unsigned32 binary integer value
+    */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_linked_urr_id, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
+    offset += 4;
+
+    proto_item_append_text(item, "%u s", value);
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
 /*
  * 8.2.56   Outer Header Creation
  */
+
+static const value_string pfcp_outer_hdr_desc_vals[] = {
+
+    { 0, "GTP-U/UDP/IPv4 " },
+    { 1, "GTP-U/UDP/IPv6 " },
+    { 2, "UDP/IPv4 " },
+    { 3, "UDP/IPv6 " },
+    { 0, NULL }
+};
+
+static void
+dissect_pfcp_outer_header_creation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint32 value;
+
+    /* Octet 5  Outer Header Creation Description */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_outer_hdr_desc, tvb, offset, 1, ENC_BIG_ENDIAN, &value);
+    offset += 1;
+
+    /* m to (m+3)   TEID
+     * The TEID field shall be present if the Outer Header Creation Description requests the creation of a GTP-U header.
+     * Otherwise it shall not be present
+     */
+    if ((value == 0) || (value == 1)) {
+        proto_tree_add_item(tree, hf_pfcp_outer_hdr_creation_teid, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
+    /* The IPv4 Address field shall be present if the Outer Header Creation Description requests the creation of a IPv4 header */
+    if ((value == 0) || (value == 2)) {
+        proto_tree_add_item(tree, hf_pfcp_outer_hdr_creation_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
+    /* The IPv6 Address field shall be present if the Outer Header Creation Description requests the creation of a IPv6 header */
+    if ((value == 1) || (value == 3)) {
+        proto_tree_add_item(tree, hf_pfcp_outer_hdr_creation_ipv6, tvb, offset, 16, ENC_NA);
+        offset += 16;
+    }
+
+    /* The Port Number field shall be present if the Outer Header Creation Description requests the creation of a UDP/IP header */
+    if ((value == 0) || (value == 2)) {
+        proto_tree_add_item(tree, hf_pfcp_outer_hdr_creation_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+    }
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
 /*
  * 8.2.57   BAR ID
  */
@@ -1293,7 +2017,7 @@ dissect_pfcp_qer_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
 {
     int offset = 0;
     guint32 qer_id;
-    /* Octet 5 to 8 URR ID value
+    /* Octet 5 to 8 QER ID value
     * The bit 8 of octet 5 is used to indicate if the Rule ID is dynamically allocated by the CP function
     * or predefined in the UP function. If set to 0, it indicates that the Rule is dynamically provisioned
     * by the CP Function. If set to 1, it indicates that the Rule is predefined in the UP Function
@@ -1356,25 +2080,25 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*     22 */    { dissect_pfcp_pdn_instance },                                  /* PDN Instance                                     Variable Length / Subclause 8.2.4 */
 /*     23 */    { dissect_pfcp_sdf_filter },                                    /* SDF Filter                                       Extendable / Subclause 8.2.5 */
 /*     24 */    { dissect_pfcp_application_id },                                /* Application ID                                   Variable Length / Subclause 8.2.6 */
-/*     25 */    { NULL },    /* Gate Status                                     Extendable / Subclause 8.2.7 */
-/*     26 */    { NULL },    /* MBR                                             Extendable / Subclause 8.2.8 */
-/*     27 */    { NULL },    /* GBR                                             Extendable / Subclause 8.2.9 */
-/*     28 */    { NULL },    /* QER Correlation ID                              Extendable / Subclause 8.2.10 */
+/*     25 */    { dissect_pfcp_gate_status },                                   /* Gate Status                                     Extendable / Subclause 8.2.7 */
+/*     26 */    { dissect_pfcp_mbr },                                           /* MBR                                             Extendable / Subclause 8.2.8 */
+/*     27 */    { dissect_pfcp_gbr },                                           /* GBR                                             Extendable / Subclause 8.2.9 */
+/*     28 */    { dissect_pfcp_qer_correlation_id },                            /* QER Correlation ID                              Extendable / Subclause 8.2.10 */
 /*     29 */    { dissect_pfcp_precedence },                                    /* Precedence                                      Extendable / Subclause 8.2.11 */
-/*     30 */    { NULL },    /* DL Transport Level Marking                      Extendable / Subclause 8.2.12 */
-/*     31 */    { NULL },    /* Volume Threshold                                Extendable /Subclause 8.2.13 */
-/*     32 */    { NULL },    /* Time Threshold                                  Extendable /Subclause 8.2.14 */
-/*     33 */    { NULL },    /* Monitoring Time                                 Extendable /Subclause 8.2.15 */
-/*     34 */    { NULL },    /* Subsequent Volume Threshold                     Extendable /Subclause 8.2.16 */
-/*     35 */    { NULL },    /* Subsequent Time Threshold                       Extendable /Subclause 8.2.17 */
-/*     36 */    { NULL },    /* Inactivity Detection Time                       Extendable /Subclause 8.2.18 */
-/*     37 */    { NULL },    /* Reporting Triggers                              Extendable /Subclause 8.2.19 */
+/*     30 */    { dissect_pfcp_dl_transport_level_marking },                    /* DL Transport Level Marking                      Extendable / Subclause 8.2.12 */
+/*     31 */    { dissect_pfcp_volume_threshold },                              /* Volume Threshold                                Extendable /Subclause 8.2.13 */
+/*     32 */    { dissect_pfcp_time_threshold },                                /* Time Threshold                                  Extendable /Subclause 8.2.14 */
+/*     33 */    { dissect_pfcp_monitoring_time },                               /* Monitoring Time                                 Extendable /Subclause 8.2.15 */
+/*     34 */    { dissect_pfcp_subseq_volume_threshold },                       /* Subsequent Volume Threshold                     Extendable /Subclause 8.2.16 */
+/*     35 */    { dissect_pfcp_subsequent_time_threshold },                     /* Subsequent Time Threshold                       Extendable /Subclause 8.2.17 */
+/*     36 */    { dissect_pfcp_inactivity_detection_time },                     /* Inactivity Detection Time                       Extendable /Subclause 8.2.18 */
+/*     37 */    { dissect_pfcp_reporting_triggers },                            /* Reporting Triggers                              Extendable /Subclause 8.2.19 */
 /*     38 */    { dissect_pfcp_redirect_information },                          /* Redirect Information                            Extendable /Subclause 8.2.20 */
-/*     39 */    { NULL },    /* Report Type                                     Extendable / Subclause 8.2.21 */
-/*     40 */    { NULL },    /* Offending IE                                    Fixed / Subclause 8.2.22 */
-/*     41 */    { NULL },    /* Forwarding Policy                               Extendable / Subclause 8.2.23 */
+/*     39 */    { dissect_pfcp_report_type },                                   /* Report Type                                     Extendable / Subclause 8.2.21 */
+/*     40 */    { dissect_pfcp_offending_ie },                                  /* Offending IE                                    Fixed / Subclause 8.2.22 */
+/*     41 */    { dissect_pfcp_forwarding_policy },                             /* Forwarding Policy                               Extendable / Subclause 8.2.23 */
 /*     42 */    { dissect_pfcp_destination_interface },                         /* Destination Interface                           Extendable / Subclause 8.2.24 */
-/*     43 */    { NULL },    /* UP Function Features                            Extendable / Subclause 8.2.25 */
+/*     43 */    { dissect_pfcp_up_function_features },                          /* UP Function Features                            Extendable / Subclause 8.2.25 */
 /*     44 */    { dissect_pfcp_apply_action },                                  /* Apply Action                                    Extendable / Subclause 8.2.26 */
 /*     45 */    { NULL },    /* Downlink Data Service Information               Extendable / Subclause 8.2.27 */
 /*     46 */    { NULL },    /* Downlink Data Notification Delay                Extendable / Subclause 8.2.28 */
@@ -1393,7 +2117,7 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*     59 */    { NULL },    /* PFD context                                     Extendable / Table 7.4.3.1-3 */
 /*     60 */    { dissect_pfcp_node_id },                                       /* Node ID                                         Extendable / Subclause 8.2.38 */
 /*     61 */    { NULL },    /* PFD contents                                    Extendable / Subclause 8.2.39 */
-/*     62 */    { NULL },    /* Measurement Method                              Extendable / Subclause 8.2.40 */
+/*     62 */    { dissect_pfcp_measurement_method },                            /* Measurement Method                              Extendable / Subclause 8.2.40 */
 /*     63 */    { NULL },    /* Usage Report Trigger                            Extendable / Subclause 8.2.41 */
 /*     64 */    { dissect_pfcp_measurement_period },                            /* Measurement Period                              Extendable / Subclause 8.2.42 */
 /*     65 */    { dissect_pfcp_fq_csid },                                       /* FQ-CSID                                         Extendable / Subclause 8.2.43 */
@@ -1402,20 +2126,20 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*     68 */    { dissect_pfcp_application_detection_inf },                     /* Application Detection Information               Extendable / Table 7.5.8.3-2 */
 /*     69 */    { dissect_pfcp_time_of_first_packet },                          /* Time of First Packet                            Extendable / Subclause 8.2.46 */
 /*     70 */    { dissect_pfcp_time_of_last_packet },                           /* Time of Last Packet                             Extendable / Subclause 8.2.47 */
-/*     71 */    { NULL },    /* Quota Holding Time                              Extendable / Subclause 8.2.48 */
-/*     72 */    { NULL },    /* Dropped DL Traffic Threshold                    Extendable / Subclause 8.2.49 */
-/*     73 */    { NULL },    /* Volume Quota                                    Extendable / Subclause 8.2.50 */
-/*     74 */    { NULL },    /* Time Quota                                      Extendable / Subclause 8.2.51 */
-/*     75 */    { NULL },    /* Start Time                                      Extendable / Subclause 8.2.52 */
-/*     76 */    { NULL },    /* End Time                                        Extendable / Subclause 8.2.53 */
+/*     71 */    { dissect_pfcp_quota_holding_time },                            /* Quota Holding Time                              Extendable / Subclause 8.2.48 */
+/*     72 */    { dissect_pfcp_dropped_dl_traffic_threshold },                  /* Dropped DL Traffic Threshold                    Extendable / Subclause 8.2.49 */
+/*     73 */    { dissect_pfcp_volume_quota },                                  /* Volume Quota                                    Extendable / Subclause 8.2.50 */
+/*     74 */    { dissect_pfcp_time_quota },                                    /* Time Quota                                      Extendable / Subclause 8.2.51 */
+/*     75 */    { dissect_pfcp_start_time },                                    /* Start Time                                      Extendable / Subclause 8.2.52 */
+/*     76 */    { dissect_pfcp_end_time },                                      /* End Time                                        Extendable / Subclause 8.2.53 */
 /*     77 */    { dissect_pfcp_pfcp_query_urr },                                /* Query URR                                       Extendable / Table 7.5.4.10-1 */
 /*     78 */    { dissect_pfcp_usage_report_smr },                              /* Usage Report (in Session Modification Response) Extendable / Table 7.5.5.2-1 */
 /*     79 */    { dissect_pfcp_usage_report_sdr },                              /* Usage Report (Session Deletion Response)        Extendable / Table 7.5.7.2-1 */
 /*     80 */    { dissect_pfcp_usage_report_srr },                              /* Usage Report (Session Report Request)           Extendable / Table 7.5.8.3-1 */
 /*     81 */    { dissect_pfcp_urr_id },                                        /* URR ID                                          Extendable / Subclause 8.2.54 */
-/*     82 */    { NULL },    /* Linked URR ID                                   Extendable / Subclause 8.2.55 */
+/*     82 */    { dissect_pfcp_linked_urr_id },                                 /* Linked URR ID                                   Extendable / Subclause 8.2.55 */
 /*     83 */    { dissect_pfcp_downlink_data_report },                          /* Downlink Data Report                            Extendable / Table 7.5.8.2-1 */
-/*     84 */    { NULL },    /* Outer Header Creation                           Extendable / Subclause 8.2.56 */
+/*     84 */    { dissect_pfcp_outer_header_creation },                         /* Outer Header Creation                           Extendable / Subclause 8.2.56 */
 /*     85 */    { dissect_pfcp_create_bar },                                    /* Create BAR                                      Extendable / Table 7.5.2.6-1 */
 /*     86 */    { dissect_pfcp_update_bar_smr },                                /* Update BAR (Session Modification Request)       Extendable / Table 7.5.4.11-1 */
 /*     87 */    { dissect_pfcp_remove_bar },                                    /* Remove BAR                                      Extendable / Table 7.5.4.12-1 */
@@ -1928,6 +2652,11 @@ proto_register_pfcp(void)
         FT_UINT8, BASE_DEC, NULL, 0xe0,
         NULL, HFILL }
         },
+        { &hf_pfcp_spare_b7_b3,
+        { "Spare", "pfcp.spare_b7_b3",
+        FT_UINT8, BASE_DEC, NULL, 0xf8,
+        NULL, HFILL }
+        },
         { &hf_pfcp_spare_oct,
         { "Spare", "pfcp.spare_oct",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -2327,10 +3056,407 @@ proto_register_pfcp(void)
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_pfcp_linked_urr_id,
+        { "Linked URR ID", "pfcp.linked_urr_id",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_outer_hdr_desc,
+        { "Outer Header Creation Description", "pfcp.outer_hdr_desc",
+            FT_UINT8, BASE_DEC, VALS(pfcp_outer_hdr_desc_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_outer_hdr_creation_teid,
+        { "TEID", "pfcp.outer_hdr_creation.teid",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_outer_hdr_creation_ipv4,
+        { "IPv4 Address", "pfcp.outer_hdr_creation.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_outer_hdr_creation_ipv6,
+        { "IPv6 Address", "pfcp.outer_hdr_creation.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_outer_hdr_creation_port,
+        { "Port Number", "pfcp.outer_hdr_creation.port",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_tos_traf_class,
+        { "ToS/Traffic Class", "pfcp.tos_traf_class.port",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_time_threshold,
+        { "Time Threshold", "pfcp.time_threshold",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_forwarding_policy_id_len,
+        { "Forwarding Policy Identifier Length", "pfcp.forwarding_policy_id_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_forwarding_policy_id,
+        { "Forwarding Policy Identifier", "pfcp.forwarding_policy_id",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_measurement_method_flags,
+        { "Flags", "pfcp.measurement_method_flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b0_durat,
+        { "DURAT (Duration)", "pfcp.measurement_method_flags.durat",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b1_volume,
+        { "VOLUM (Volume)", "pfcp.measurement_method_flags.volume",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b2_event,
+        { "EVENT (Event)", "pfcp.measurement_method_flags.event",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_subsequent_time_threshold,
+        { "Subsequent Time Threshold", "pfcp.subsequent_time_threshold",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_inactivity_detection_time,
+        { "Inactivity Detection Time", "pfcp.inactivity_detection_time",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_monitoring_time,
+        { "Monitoring Time", "pfcp.monitoring_time",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_reporting_triggers,
+        { "Flags", "pfcp.reporting_triggers_flags",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b0_perio,
+        { "PERIO (Periodic Reporting)", "pfcp.reporting_triggers_flags.perio",
+            FT_BOOLEAN, 16, NULL, 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b1_volth,
+        { "VOLTH (Volume Threshold)", "pfcp.reporting_triggers_flags.volth",
+            FT_BOOLEAN, 16, NULL, 0x0002,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b2_timth,
+        { "TIMTH (Time Threshold)", "pfcp.reporting_triggers_flags.timth",
+            FT_BOOLEAN, 16, NULL, 0x0004,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b3_quhti,
+        { "QUHTI (Quota Holding Time)", "pfcp.reporting_triggers_flags.quhti",
+            FT_BOOLEAN, 16, NULL, 0x0008,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b4_start,
+        { "START (Start of Traffic)", "pfcp.reporting_triggers_flags.start",
+            FT_BOOLEAN, 16, NULL, 0x0010,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b5_stopt,
+        { "STOPT (Stop of Traffic)", "pfcp.reporting_triggers_flags.stopt",
+            FT_BOOLEAN, 16, NULL, 0x0020,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b6_droth,
+        { "DROTH (Dropped DL Traffic Threshold)", "pfcp.reporting_triggers_flags.droth",
+            FT_BOOLEAN, 16, NULL, 0x0040,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b7_liusa,
+        { "LIUSA (Linked Usage Reporting)", "pfcp.reporting_triggers_flags.liusa",
+            FT_BOOLEAN, 16, NULL, 0x0080,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b8_volqu,
+        { "VOLQU (Volume Quota)", "pfcp.reporting_triggers_flags.volqu",
+            FT_BOOLEAN, 16, NULL, 0x0100,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b9_timqu,
+        { "TIMQU (Time Quota)", "pfcp.reporting_triggers_flags.timqu",
+            FT_BOOLEAN, 16, NULL, 0x0200,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_volume_threshold,
+        { "Flags", "pfcp.volume_threshold",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b0_tovol,
+        { "TOVOL", "pfcp.volume_threshold.tovol_flg",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b1_ulvol,
+        { "ULVOL", "pfcp.volume_threshold.ulvol_flg",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b2_dlvol,
+        { "DLVOL", "pfcp.volume_threshold.dlvol_flg",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_volume_threshold_tovol,
+        { "Total Volume", "pfcp.volume_threshold.tovol",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_volume_threshold_ulvol,
+        { "Uplink Volume", "pfcp.volume_threshold.ulvol",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_volume_threshold_dlvol,
+        { "Downlink Volume", "pfcp.volume_threshold.dlvol",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_volume_quota,
+        { "Flags", "pfcp.volume_quota",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_volume_quota_b0_tovol,
+        { "TOVOL", "pfcp.volume_quota.tovol_flg",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_volume_quota_b1_ulvol,
+        { "ULVOL", "pfcp.volume_quota.ulvol_flg",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_volume_quota_b2_dlvol,
+        { "DLVOL", "pfcp.volume_quota.dlvol_flg",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_volume_quota_tovol,
+        { "Total Volume", "pfcp.volume_quota.tovol",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_volume_quota_ulvol,
+        { "Uplink Volume", "pfcp.volume_quota.ulvol",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_volume_quota_dlvol,
+        { "Downlink Volume", "pfcp.volume_quota.dlvol",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_subseq_volume_threshold,
+        { "Flags", "pfcp.subseq_volume_threshold",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_subseq_volume_threshold_b0_tovol,
+        { "TOVOL", "pfcp.subseq_volume_threshold.tovol_flg",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_subseq_volume_threshold_b1_ulvol,
+        { "ULVOL", "pfcp.subseq_volume_threshold.ulvol_flg",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_subseq_volume_threshold_b2_dlvol,
+        { "DLVOL", "pfcp.subseq_volume_threshold.dlvol_flg",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_subseq_volume_threshold_tovol,
+        { "Total Volume", "pfcp.subseq_volume_threshold.tovol",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_subseq_volume_threshold_ulvol,
+        { "Uplink Volume", "pfcp.subseq_volume_threshold.ulvol",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_subseq_volume_threshold_dlvol,
+        { "Downlink Volume", "pfcp.subseq_volume_threshold.dlvol",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_time_quota,
+        { "Time Quota", "pfcp.time_quota",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_start_time,
+        { "Start Time", "pfcp.start_time",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_end_time,
+        { "End Time", "pfcp.start_time",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_quota_holding_time,
+        { "Quota Holding Time", "pfcp.quota_holding_time",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_dropped_dl_traffic_threshold,
+        { "Flags", "pfcp.dropped_dl_traffic_threshold",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_dropped_dl_traffic_threshold_b0_dlpa,
+        { "DLPA", "pfcp.dropped_dl_traffic_threshold.dlpa_flg",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_downlink_packets,
+        { "Downlink Packets", "pfcp.downlink_packets",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_qer_correlation_id,
+        { "QER Correlation ID", "pfcp.qer_correlation_id",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_gate_status,
+        { "Flags", "pfcp.gate_status",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_gate_status_b0b1_dlgate,
+        { "DL Gate", "pfcp.gate_status.ulgate",
+            FT_UINT8, BASE_DEC, VALS(pfcp_gate_status_vals), 0x03,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_gate_status_b3b2_ulgate,
+        { "UL Gate", "pfcp.gate_status.ulgate",
+            FT_UINT8, BASE_DEC, VALS(pfcp_gate_status_vals), 0x0e,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_ul_mbr,
+        { "UL MBR", "pfcp.ul_mbr",
+            FT_UINT40, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_dl_mbr,
+        { "DL MBR", "pfcp.dl_mbr",
+            FT_UINT40, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_ul_gbr,
+        { "UL GBR", "pfcp.ul_gbr",
+            FT_UINT40, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_dl_gbr,
+        { "DL GBR", "pfcp.dl_gbr",
+            FT_UINT40, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_report_type,
+        { "Flags", "pfcp.report_type",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b2_erir,
+        { "DLDR (Downlink Data Report)", "pfcp.report_type.erir",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b1_usar,
+        { "USAR (Usage Report)", "pfcp.report_type.usar",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b0_dldr,
+        { "ERIR (Error Indication Report)", "pfcp.report_type.dldr",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_offending_ie,
+        { "Type of the offending IE", "pfcp.offending_ie",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &pfcp_ie_type_ext, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_up_function_features,
+        { "Flags", "pfcp.up_function_features",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b0_bucp,
+        { "BUCP", "pfcp.up_function_features.bucp",
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0001,
+            "Downlink Data Buffering in CP function", HFILL }
+        },
+        { &hf_pfcp_b1_ddnd,
+        { "DDND", "pfcp.up_function_features.ddnd",
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0002,
+            "Buffering parameter 'Downlink Data Notification Delay", HFILL }
+        },
+        { &hf_pfcp_b2_dlbd,
+        { "DLBD", "pfcp.up_function_features.dlbd",
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0004,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b3_trst,
+        { "TRST", "pfcp.up_function_features.trst",
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0008,
+            "Traffic Steering", HFILL }
+        },
+        { &hf_pfcp_b4_ftup,
+        { "FTUP", "pfcp.up_function_features.ftup",
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0010,
+            "F-TEID allocation / release in the UP function", HFILL }
+        },
+        { &hf_pfcp_b5_pfdm,
+        { "PFDM", "pfcp.up_function_features.pfdm",
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0020,
+            "PFD Management procedure", HFILL }
+        },
+        { &hf_pfcp_b6_heeu,
+        { "HEEU", "pfcp.up_function_features.heeu",
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0040,
+            "Header Enrichment of Uplink traffic", HFILL }
+        },
+        { &hf_pfcp_b7_treu,
+        { "TREU", "pfcp.up_function_features.treu",
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0080,
+            "Traffic Redirection Enforcement in the UP function", HFILL }
+        },
+        { &hf_pfcp_b8_empu,
+        { "EMPU", "pfcp.up_function_features.empu",
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0100,
+            "Sending of End Marker packets", HFILL }
+        },
+
     };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS_PFCP    9
+#define NUM_INDIVIDUAL_ELEMS_PFCP    18
     gint *ett[NUM_INDIVIDUAL_ELEMS_PFCP +
         (NUM_PFCP_IES - 1)];
 
@@ -2343,6 +3469,17 @@ proto_register_pfcp(void)
     ett[6] = &ett_pfcp_ue_ip_address_flags;
     ett[7] = &ett_pfcp_sdf_filter_flags;
     ett[8] = &ett_pfcp_apply_action_flags;
+    ett[9] = &ett_pfcp_measurement_method_flags;
+    ett[10] = &ett_pfcp_reporting_triggers;
+    ett[11] = &ett_pfcp_volume_threshold;
+    ett[12] = &ett_pfcp_volume_quota;
+    ett[13] = &ett_pfcp_subseq_volume_threshold;
+    ett[14] = &ett_pfcp_dropped_dl_traffic_threshold;
+    ett[15] = &ett_pfcp_gate_status;
+    ett[16] = &ett_pfcp_report_type;
+    ett[17] = &ett_pfcp_up_function_features;
+
+
 
     static ei_register_info ei[] = {
         { &ei_pfcp_ie_reserved,{ "pfcp.ie_id_reserved", PI_PROTOCOL, PI_ERROR, "Reserved IE value used", EXPFILL } },
