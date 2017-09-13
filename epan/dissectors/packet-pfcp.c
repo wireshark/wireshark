@@ -133,6 +133,10 @@ static int hf_pfcp_measurement_period = -1;
 static int hf_pfcp_duration_measurement = -1;
 static int hf_pfcp_time_of_first_packet = -1;
 static int hf_pfcp_time_of_last_packet = -1;
+static int hf_pfcp_dst_interface = -1;
+static int hf_pfcp_redirect_address_type = -1;
+static int hf_pfcp_redirect_server_addr_len = -1;
+static int hf_pfcp_redirect_server_address = -1;
 
 static int ett_pfcp = -1;
 static int ett_pfcp_flags = -1;
@@ -627,18 +631,94 @@ dissect_pfcp_precedence(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 }
 /*
  * 8.2.12   DL Transport Level Marking
+ */
+/*
  * 8.2.13   Volume Threshold
+ */
+/*
  * 8.2.14   Time Threshold
  * 8.2.15   Monitoring Time
  * 8.2.16   Subsequent Volume Threshold
  * 8.2.17   Subsequent Time Threshold
  * 8.2.18   Inactivity Detection Time
  * 8.2.19   Reporting Triggers
+ */
+/*
  * 8.2.20   Redirect Information
+ */
+static const value_string pfcp_redirect_address_type_vals[] = {
+
+    { 0, "IPv4 address" },
+    { 1, "IPv6 address" },
+    { 2, "URL" },
+    { 3, "SIP URI" },
+    { 0, NULL }
+};
+
+static void
+dissect_pfcp_redirect_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint32 value, addr_len;
+
+    /* Octet Spare  Redirect Address Type */
+    proto_tree_add_item(tree, hf_pfcp_spare_h1, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_redirect_address_type, tvb, offset, 1, ENC_BIG_ENDIAN, &value);
+    offset++;
+
+    /* 6-7  Redirect Server Address Length=a */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_redirect_server_addr_len, tvb, offset, 2, ENC_BIG_ENDIAN, &addr_len);
+    offset+=2;
+
+    /* 8-(8+a)  Redirect Server Address */
+    proto_tree_add_item(tree, hf_pfcp_redirect_server_address, tvb, offset, addr_len, ENC_UTF_8 | ENC_NA);
+    offset += addr_len;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+/*
  * 8.2.21   Report Type
+ */
+/*
  * 8.2.22   Offending IE
+ */
+/*
  * 8.2.23   Forwarding Policy
+ */
+/*
  * 8.2.24   Destination Interface
+ */
+static const value_string pfcp_dst_interface_vals[] = {
+
+    { 0, "Access" },
+    { 1, "Core" },
+    { 2, "SGi-LAN" },
+    { 3, "CP- Function" },
+    { 4, "LI Function" },
+    { 0, NULL }
+};
+
+static void
+dissect_pfcp_destination_interface(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint32 value;
+
+    /* Octet 5    Spare	Interface value*/
+    proto_tree_add_item(tree, hf_pfcp_spare_h1, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_dst_interface, tvb, offset, 1, ENC_BIG_ENDIAN, &value);
+    offset++;
+
+    proto_item_append_text(item, "%s", val_to_str_const(value, pfcp_dst_interface_vals, "Unknown"));
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
+/*
  * 8.2.25   UP Function Features
  */
 /*
@@ -880,7 +960,6 @@ dissect_pfcp_fq_csid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
         proto_tree_add_item(tree, hf_pfcp_fq_csid_node_id_mcc_mnc, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_pfcp_fq_csid_node_id_int, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
-        break;
     default:
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
         break;
@@ -1007,6 +1086,8 @@ dissect_pfcp_urr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
 }
 /*
  * 8.2.55   Linked URR ID IE
+ */
+/*
  * 8.2.56   Outer Header Creation
  */
 /*
@@ -1287,11 +1368,11 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*     35 */    { NULL },    /* Subsequent Time Threshold                       Extendable /Subclause 8.2.17 */
 /*     36 */    { NULL },    /* Inactivity Detection Time                       Extendable /Subclause 8.2.18 */
 /*     37 */    { NULL },    /* Reporting Triggers                              Extendable /Subclause 8.2.19 */
-/*     38 */    { NULL },    /* Redirect Information                            Extendable /Subclause 8.2.20 */
+/*     38 */    { dissect_pfcp_redirect_information },                          /* Redirect Information                            Extendable /Subclause 8.2.20 */
 /*     39 */    { NULL },    /* Report Type                                     Extendable / Subclause 8.2.21 */
 /*     40 */    { NULL },    /* Offending IE                                    Fixed / Subclause 8.2.22 */
 /*     41 */    { NULL },    /* Forwarding Policy                               Extendable / Subclause 8.2.23 */
-/*     42 */    { NULL },    /* Destination Interface                           Extendable / Subclause 8.2.24 */
+/*     42 */    { dissect_pfcp_destination_interface },                         /* Destination Interface                           Extendable / Subclause 8.2.24 */
 /*     43 */    { NULL },    /* UP Function Features                            Extendable / Subclause 8.2.25 */
 /*     44 */    { dissect_pfcp_apply_action },                                  /* Apply Action                                    Extendable / Subclause 8.2.26 */
 /*     45 */    { NULL },    /* Downlink Data Service Information               Extendable / Subclause 8.2.27 */
@@ -2172,7 +2253,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_fq_csid_node_id_type,
         { "FQ-CSID Node-ID Type", "pfcp.fq_csid_node_id_type",
-            FT_UINT8, BASE_DEC, VALS(pfcp_fq_csid_node_id_type_vals), 0xf0,
+            FT_UINT8, BASE_DEC, NULL, 0xf0,
             NULL, HFILL }
         },
         { &hf_pfcp_num_csid,
@@ -2223,6 +2304,26 @@ proto_register_pfcp(void)
         { &hf_pfcp_time_of_last_packet,
         { "Time of Last Packet", "pfcp.time_of_last_packet",
             FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_dst_interface,
+        { "Interface", "pfcp.dst_interface",
+            FT_UINT8, BASE_DEC, VALS(pfcp_dst_interface_vals), 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_redirect_address_type,
+        { "Redirect Address Type", "pfcp.redirect_address_type",
+            FT_UINT8, BASE_DEC, VALS(pfcp_redirect_address_type_vals), 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_redirect_server_addr_len,
+        { "Redirect Server Address Length", "pfcp.redirect_server_addr_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_redirect_server_address,
+        { "Redirect Server Address", "pfcp.redirect_server_address",
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
     };
