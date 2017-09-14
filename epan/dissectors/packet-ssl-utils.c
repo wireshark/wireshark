@@ -7129,11 +7129,10 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     /* This version is always better than the guess at the Record Layer */
     server_version = tvb_get_ntohs(tvb, offset);
-    if((server_version & 0xFF00) == 0x7f00) { /* if server_version start with 0x7f, it is (and force) TLS 1.3 */
-        session->tls13_draft_version = server_version & 0xff;
+    session->tls13_draft_version = tls13_draft_version(server_version);
+    if (session->tls13_draft_version != 0) {
+        /* This is TLS 1.3 (a draft version). */
         server_version = TLSV1DOT3_VERSION;
-    } else {
-        session->tls13_draft_version = 0;
     }
     ssl_try_set_version(session, ssl, SSL_ID_HANDSHAKE, SSL_HND_SERVER_HELLO,
             is_dtls, server_version);
@@ -7286,17 +7285,23 @@ ssl_dissect_hnd_hello_retry_request(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     /* https://tools.ietf.org/html/draft-ietf-tls-tls13-19#section-4.1.4
      * struct {
      *     ProtocolVersion server_version;
-     *     CipherSuite cipher_suite;
+     *     CipherSuite cipher_suite;        // not before draft -19
      *     Extension extensions<2..2^16-1>;
      * } HelloRetryRequest;
      */
-    proto_tree_add_item(tree, hf->hf.hs_server_version, tvb,
-                        offset, 2, ENC_BIG_ENDIAN);
+    guint32     version;
+    guint8      draft_version;
+
+    proto_tree_add_item_ret_uint(tree, hf->hf.hs_server_version, tvb,
+                                 offset, 2, ENC_BIG_ENDIAN, &version);
+    draft_version = tls13_draft_version(version);
     offset += 2;
 
-    proto_tree_add_item(tree, hf->hf.hs_cipher_suite,
-                        tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
+    if (draft_version == 0 || draft_version >= 19) {
+        proto_tree_add_item(tree, hf->hf.hs_cipher_suite,
+                            tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+    }
 
     ssl_dissect_hnd_extension(hf, tvb, tree, pinfo, offset,
                               offset_end, SSL_HND_HELLO_RETRY_REQUEST,

@@ -277,6 +277,14 @@ typedef struct _StringInfo {
 #define DTLSV1DOT0_OPENSSL_VERSION 0x100
 #define DTLSV1DOT2_VERSION     0xfefd
 
+/* Returns the TLS 1.3 draft version or 0 if not applicable. */
+static inline guint8 tls13_draft_version(guint32 version) {
+    if ((version & 0xff00) == 0x7f00) {
+        return (guint8) version;
+    }
+    return 0;
+}
+
 
 #define SSL_CLIENT_RANDOM       (1<<0)
 #define SSL_SERVER_RANDOM       (1<<1)
