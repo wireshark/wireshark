@@ -2112,29 +2112,32 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
          * lsb nibble is set to 1 always as this function is applicable for only FPGA version >= 48
          */
         if (log_mode == 3) {
-            /*
-             * The MSDU length includes the FCS.
-             *
-             * The packet data does *not* include the FCS - it's just 4 bytes
-             * of junk - so we have to remove it.
-             *
-             * We'll be stripping off that junk, so make sure we have at
-             * least 4 octets worth of packet data.
-             *
-             * XXX - is the FCS actually present here, as it appears to be
-             * if log_mode isn't 3?
-             *
-             * There seems to be a special case of a length of 0.
-             */
-            if (actual_octets < 4) {
-                if (actual_octets != 0) {
-                    *err_info = g_strdup_printf("vwr: Invalid data length %u (too short to include 4 bytes of FCS)",
-                                                actual_octets);
-                    *err = WTAP_ERR_BAD_FILE;
-                    return FALSE;
+            if (frame_size >= (int) msdu_length) {
+                /*
+                 * The MSDU length includes the FCS.
+                 *
+                 * The packet data does *not* include the FCS - it's just 4
+                 * bytes of junk - so we have to remove it.
+                 *
+                 * We'll be stripping off that junk, so make sure we have at
+                 * least 4 octets worth of packet data.
+                 *
+                 * XXX - is the FCS actually present here, as it appears to be
+                 * if log_mode isn't 3?
+                 *
+                 * There seems to be a special case of a length of 0.
+                 */
+                if (actual_octets < 4) {
+                    if (actual_octets != 0) {
+                        *err_info = g_strdup_printf("vwr: Invalid data length %u (too short to include 4 bytes of FCS)",
+                                                    actual_octets);
+                        *err = WTAP_ERR_BAD_FILE;
+                        return FALSE;
+                    }
+                } else {
+                    actual_octets -= 4;
                 }
-            } else if (frame_size >= (int) msdu_length)
-                actual_octets -= 4;
+            }
             ver_fpga = 0x11;
         } else {
             ver_fpga = 0x01;
