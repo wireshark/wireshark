@@ -1233,8 +1233,10 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
      * The packet data does *not* include the FCS - it's just 4 bytes
      * of junk - so we have to remove it.
      *
-     * We'll be stripping off an FCS (?), so make sure we have at
-     * least 4 octets worth of FCS.
+     * We'll be stripping off that junk, so make sure we have at least
+     * 4 octets worth of packet data.
+     *
+     * There seems to be a special case of a length of 0.
      */
     if (actual_octets < 4) {
         if (actual_octets != 0) {
@@ -1631,8 +1633,10 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
      * The packet data does *not* include the FCS - it's just 4 bytes
      * of junk - so we have to remove it.
      *
-     * We'll be stripping off an FCS (?), so make sure we have at
-     * least 4 octets worth of FCS.
+     * We'll be stripping off that junk, so make sure we have at least
+     * 4 octets worth of packet data.
+     *
+     * There seems to be a special case of a length of 0.
      */
     if (actual_octets < 4) {
         if (actual_octets != 0) {
@@ -2114,11 +2118,13 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
              * The packet data does *not* include the FCS - it's just 4 bytes
              * of junk - so we have to remove it.
              *
-             * We'll be stripping off an FCS (?), so make sure we have at
-             * least 4 octets worth of FCS.
+             * We'll be stripping off that junk, so make sure we have at
+             * least 4 octets worth of packet data.
              *
              * XXX - is the FCS actually present here, as it appears to be
              * if log_mode isn't 3?
+             *
+             * There seems to be a special case of a length of 0.
              */
             if (actual_octets < 4) {
                 if (actual_octets != 0) {
@@ -2624,8 +2630,8 @@ static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
      * The packet data does *not* include the FCS - it's just 4 bytes
      * of junk - so we have to remove it.
      *
-     * We'll be stripping off an FCS (?), so make sure we have at
-     * least 4 octets worth of FCS.
+     * We'll be stripping off that junk, so make sure we have at least
+     * 4 octets worth of packet data.
      *
      * There seems to be a special case of a length of 0.
      */
