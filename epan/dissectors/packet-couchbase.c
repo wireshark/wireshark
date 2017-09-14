@@ -1917,6 +1917,15 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 }
 
+static gboolean
+is_xerror(guint8 datatype, guint16 status)
+{
+  if ((datatype & DT_JSON) && status != PROTOCOL_BINARY_RESPONSE_SUBDOC_MULTI_PATH_FAILURE) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
 static int
 dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -2030,7 +2039,7 @@ dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   } else if (bodylen) {
     proto_tree_add_item(couchbase_tree, hf_value, tvb, offset, bodylen,
                         ENC_ASCII | ENC_NA);
-    if (status == PROTOCOL_BINARY_RESPONSE_NOT_MY_VBUCKET) {
+    if (status == PROTOCOL_BINARY_RESPONSE_NOT_MY_VBUCKET || is_xerror(datatype, status)) {
       tvbuff_t *json_tvb;
       json_tvb = tvb_new_subset_length_caplen(tvb, offset, bodylen, bodylen);
       call_dissector(json_handle, json_tvb, pinfo, couchbase_tree);
