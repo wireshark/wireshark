@@ -487,6 +487,7 @@ int main(int argc, char *qt_argv[])
     }
 
     profile_store_persconffiles(TRUE);
+    recent_init();
 
     /* Read the profile independent recent file.  We have to do this here so we can */
     /* set the profile before it can be set from the command line parameter */
@@ -938,6 +939,7 @@ int main(int argc, char *qt_argv[])
 
     ret_val = wsApp->exec();
 
+    recent_cleanup();
     epan_cleanup();
 
 #ifdef HAVE_EXTCAP

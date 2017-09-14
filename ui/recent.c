@@ -121,16 +121,17 @@ static const value_string ts_seconds_values[] = {
 };
 
 static void
+free_col_width_data(gpointer data, gpointer user_data _U_)
+{
+  col_width_data *cfmt = (col_width_data *)data;
+  g_free(cfmt->cfield);
+  g_free(cfmt);
+}
+
+static void
 free_col_width_info(recent_settings_t *rs)
 {
-  col_width_data *cfmt;
-
-  while (rs->col_width_list != NULL) {
-    cfmt = (col_width_data *)rs->col_width_list->data;
-    g_free(cfmt->cfield);
-    g_free(cfmt);
-    rs->col_width_list = g_list_remove_link(rs->col_width_list, rs->col_width_list);
-  }
+  g_list_foreach(rs->col_width_list, free_col_width_data, NULL);
   g_list_free(rs->col_width_list);
   rs->col_width_list = NULL;
 }
@@ -1522,6 +1523,24 @@ recent_set_column_xalign(gint col, gchar xalign)
     col_w->xalign = xalign;
     recent.col_width_list = g_list_append(recent.col_width_list, col_w);
   }
+}
+
+void
+recent_init(void)
+{
+  memset(&recent, 0, sizeof(recent_settings_t));
+}
+
+void
+recent_cleanup(void)
+{
+  free_col_width_info(&recent);
+  g_free(recent.gui_fileopen_remembered_dir);
+  g_list_free_full(recent.gui_additional_toolbars, g_free);
+  g_list_free_full(recent.interface_toolbars, g_free);
+  prefs_clear_string_list(recent.conversation_tabs);
+  prefs_clear_string_list(recent.endpoint_tabs);
+  prefs_clear_string_list(recent.custom_colors);
 }
 
 /*

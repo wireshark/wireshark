@@ -117,6 +117,12 @@ typedef struct recent_settings_tag {
 /** Global recent settings. */
 extern recent_settings_t recent;
 
+/** Initialize recent settings module (done at startup) */
+extern void recent_init(void);
+
+/** Cleanup/Frees recent settings (done at shutdown) */
+extern void recent_cleanup(void);
+
 /** Write recent settings file.
  *
  * @return TRUE if succeeded, FALSE if failed
