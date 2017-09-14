@@ -3636,6 +3636,8 @@ prefs_get_string_list(const gchar *str)
             slstr[j] = '\0';
             if (j > 0)
                 sl = g_list_append(sl, slstr);
+            else
+                g_free(slstr);
             break;
         }
         if (cur_c == '"' && ! backslash) {
@@ -3671,12 +3673,13 @@ prefs_get_string_list(const gchar *str)
                and it wasn't preceded by a backslash; it's the end of
                the string we were working on...  */
             slstr[j] = '\0';
-            if (j > 0)
+            if (j > 0) {
                 sl = g_list_append(sl, slstr);
+                slstr = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
+            }
 
             /* ...and the beginning of a new string.  */
             state = PRE_STRING;
-            slstr = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
             j = 0;
         } else if (!g_ascii_isspace(cur_c) || state != PRE_STRING) {
             /* Either this isn't a white-space character, or we've started a
