@@ -1641,7 +1641,7 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
             *err = WTAP_ERR_BAD_FILE;
             return FALSE;
         }
-    } else if (actual_octets > 4) {
+    } else {
         actual_octets -= 4;
     }
 
@@ -2127,8 +2127,8 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
                     *err = WTAP_ERR_BAD_FILE;
                     return FALSE;
                 }
-            } else if (actual_octets > 4 && (frame_size >= (int) msdu_length))
-                actual_octets -=4;
+            } else if (frame_size >= (int) msdu_length)
+                actual_octets -= 4;
             ver_fpga = 0x11;
         } else {
             ver_fpga = 0x01;
