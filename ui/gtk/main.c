@@ -1989,6 +1989,7 @@ main(int argc, char *argv[])
     int                  err;
 #ifdef HAVE_LIBPCAP
     gchar               *err_str;
+    int                  caps_queries = 0;
 #else
 #ifdef _WIN32
 #ifdef HAVE_AIRPCAP
@@ -1996,7 +1997,6 @@ main(int argc, char *argv[])
 #endif
 #endif
 #endif
-    int                  caps_queries = 0;
     gint                 pl_size = 280, tv_size = 95, bv_size = 75;
     gchar               *rc_file;
     dfilter_t           *rfcode = NULL;

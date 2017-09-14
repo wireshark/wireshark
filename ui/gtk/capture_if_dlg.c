@@ -22,6 +22,8 @@
 
 #include "config.h"
 
+#include "ws_attributes.h"
+
 #include <glib.h>
 
 #ifdef HAVE_LIBPCAP
