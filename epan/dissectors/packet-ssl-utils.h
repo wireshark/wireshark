@@ -173,6 +173,7 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_SUPPORTED_VERSIONS            43
 #define SSL_HND_HELLO_EXT_COOKIE                        44
 #define SSL_HND_HELLO_EXT_PSK_KEY_EXCHANGE_MODES        45
+#define SSL_HND_HELLO_EXT_TICKET_EARLY_DATA_INFO        46 /* draft-ietf-tls-tls13-18 (removed in -19) */
 #define SSL_HND_HELLO_EXT_CERTIFICATE_AUTHORITIES       47
 #define SSL_HND_HELLO_EXT_OID_FILTERS                   48
 #define SSL_HND_HELLO_EXT_POST_HANDSHAKE_AUTH           49
