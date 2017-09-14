@@ -5098,7 +5098,7 @@ proto_tree_set_representation_value(proto_item *pi, const char *format, va_list 
 			guint64 val;
 			char *p;
 
-			if (IS_FT_UINT(hf->type))
+			if (IS_FT_UINT32(hf->type))
 				val = fvalue_get_uinteger(&fi->value);
 			else
 				val = fvalue_get_uinteger64(&fi->value);
