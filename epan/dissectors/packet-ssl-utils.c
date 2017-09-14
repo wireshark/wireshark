@@ -7522,6 +7522,15 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *p
      *        DistinguishedName certificate_authorities<0..2^16-1>;
      *    } CertificateRequest;
      *
+     * draft-ietf-tls-tls13-18:
+     *    struct {
+     *        opaque certificate_request_context<0..2^8-1>;
+     *        SignatureScheme
+     *          supported_signature_algorithms<2..2^16-2>;
+     *        DistinguishedName certificate_authorities<0..2^16-1>;
+     *        CertificateExtension certificate_extensions<0..2^16-1>;
+     *    } CertificateRequest;
+     *
      * draft-ietf-tls-tls13-19:
      *
      *    struct {
@@ -7533,13 +7542,15 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *p
     proto_tree *subtree;
     guint32     next_offset;
     asn1_ctx_t  asn1_ctx;
+    gboolean    is_tls13 = session->version == TLSV1DOT3_VERSION;
+    guchar      draft_version = session->tls13_draft_version;
 
     if (!tree)
         return;
 
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-    if (session->version == TLSV1DOT3_VERSION) {
+    if (is_tls13) {
         guint32 context_length;
         /* opaque certificate_request_context<0..2^8-1> */
         if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &context_length,
@@ -7576,24 +7587,27 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *p
         }
     }
 
-    switch (session->version) {
-        case TLSV1DOT2_VERSION:
-        case DTLSV1DOT2_VERSION:
-            offset = ssl_dissect_hash_alg_list(hf, tvb, tree, pinfo, offset, offset_end);
-            break;
-
-        default:
-            break;
+    if (session->version == TLSV1DOT2_VERSION || session->version == DTLSV1DOT2_VERSION ||
+            (is_tls13 && (draft_version > 0 && draft_version < 19))) {
+        offset = ssl_dissect_hash_alg_list(hf, tvb, tree, pinfo, offset, offset_end);
     }
 
-    if (session->version == TLSV1DOT3_VERSION) {
+    if (is_tls13 && (draft_version == 0 || draft_version >= 19)) {
         /*
+         * TLS 1.3 draft 19 and newer: Extensions.
          * SslDecryptSession pointer is NULL because Certificate Extensions
          * should not influence decryption state.
          */
         ssl_dissect_hnd_extension(hf, tvb, tree, pinfo, offset,
                                   offset_end, SSL_HND_CERT_REQUEST,
                                   session, NULL, is_dtls);
+    } else if (is_tls13 && draft_version <= 18) {
+        /*
+         * TLS 1.3 draft 18 and older: certificate_authorities and
+         * certificate_extensions (a vector of OID mappings).
+         */
+        offset = tls_dissect_certificate_authorities(hf, tvb, pinfo, tree, offset, offset_end);
+        ssl_dissect_hnd_hello_ext_oid_filters(hf, tvb, pinfo, tree, offset, offset_end);
     } else {
         /* for TLS 1.2 and older, the certificate_authorities field. */
         tls_dissect_certificate_authorities(hf, tvb, pinfo, tree, offset, offset_end);
