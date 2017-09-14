@@ -48,8 +48,7 @@ static int hf_access_address = -1;
 static int hf_crc = -1;
 static int hf_master_bd_addr = -1;
 static int hf_slave_bd_addr = -1;
-static int hf_length_1f = -1;
-static int hf_length_3f = -1;
+static int hf_length = -1;
 static int hf_advertising_header = -1;
 static int hf_advertising_header_pdu_type = -1;
 static int hf_advertising_header_ch_sel = -1;
@@ -58,7 +57,6 @@ static int hf_advertising_header_randomized_tx = -1;
 static int hf_advertising_header_randomized_rx = -1;
 static int hf_advertising_header_reserved = -1;
 static int hf_advertising_header_length = -1;
-static int hf_advertising_header_rfu_2 = -1;
 static int hf_advertising_address = -1;
 static int hf_initiator_addresss = -1;
 static int hf_scanning_address = -1;
@@ -99,6 +97,16 @@ static int hf_control_feature_set_le_ping = -1;
 static int hf_control_feature_set_le_pkt_len_ext = -1;
 static int hf_control_feature_set_ll_privacy = -1;
 static int hf_control_feature_set_ext_scan_flt_pol = -1;
+static int hf_control_feature_set_le_2m_phy = -1;
+static int hf_control_feature_set_stable_modulation_index_transmitter = -1;
+static int hf_control_feature_set_stable_modulation_index_receiver = -1;
+static int hf_control_feature_set_le_coded_phy = -1;
+static int hf_control_feature_set_le_extended_advertising = -1;
+static int hf_control_feature_set_le_periodic_advertising = -1;
+static int hf_control_feature_set_channel_selection_algorithm_2 = -1;
+static int hf_control_feature_set_le_power_class_1 = -1;
+static int hf_control_feature_set_minimum_number_of_used_channels_procedure = -1;
+static int hf_control_feature_set_reserved_bits = -1;
 static int hf_control_feature_set_reserved = -1;
 static int hf_control_window_size = -1;
 static int hf_control_window_offset = -1;
@@ -127,6 +135,22 @@ static int hf_control_max_rx_octets = -1;
 static int hf_control_max_rx_time = -1;
 static int hf_control_max_tx_octets = -1;
 static int hf_control_max_tx_time = -1;
+static int hf_control_phys_sender_le_1m_phy = -1;
+static int hf_control_phys_sender_le_2m_phy = -1;
+static int hf_control_phys_sender_le_coded_phy = -1;
+static int hf_control_phys_update_le_1m_phy = -1;
+static int hf_control_phys_update_le_2m_phy = -1;
+static int hf_control_phys_update_le_coded_phy = -1;
+static int hf_control_phys_reserved_bits = -1;
+static int hf_control_tx_phys = -1;
+static int hf_control_rx_phys = -1;
+static int hf_control_m_to_s_phy = -1;
+static int hf_control_s_to_m_phy = -1;
+static int hf_control_phys = -1;
+static int hf_control_phys_le_1m_phy = -1;
+static int hf_control_phys_le_2m_phy = -1;
+static int hf_control_phys_le_coded_phy = -1;
+static int hf_control_min_used_channels = -1;
 static int hf_btle_l2cap_msg_fragments = -1;
 static int hf_btle_l2cap_msg_fragment = -1;
 static int hf_btle_l2cap_msg_fragment_overlap = -1;
@@ -144,10 +168,70 @@ static gint ett_advertising_header = -1;
 static gint ett_link_layer_data = -1;
 static gint ett_data_header = -1;
 static gint ett_features = -1;
+static gint ett_tx_phys = -1;
+static gint ett_rx_phys = -1;
+static gint ett_m_to_s_phy = -1;
+static gint ett_s_to_m_phy = -1;
+static gint ett_phys = -1;
 static gint ett_channel_map = -1;
 static gint ett_scan_response_data = -1;
 static gint ett_btle_l2cap_msg_fragment = -1;
 static gint ett_btle_l2cap_msg_fragments = -1;
+
+
+static const int *hfx_control_feature_set_1[] = {
+    &hf_control_feature_set_le_encryption,
+    &hf_control_feature_set_connection_parameters_request_procedure,
+    &hf_control_feature_set_extended_reject_indication,
+    &hf_control_feature_set_slave_initiated_features_exchange,
+    &hf_control_feature_set_le_ping,
+    &hf_control_feature_set_le_pkt_len_ext,
+    &hf_control_feature_set_ll_privacy,
+    &hf_control_feature_set_ext_scan_flt_pol,
+    NULL
+};
+
+static const int *hfx_control_feature_set_2[] = {
+    &hf_control_feature_set_le_2m_phy,
+    &hf_control_feature_set_stable_modulation_index_transmitter,
+    &hf_control_feature_set_stable_modulation_index_receiver,
+    &hf_control_feature_set_le_coded_phy,
+    &hf_control_feature_set_le_extended_advertising,
+    &hf_control_feature_set_le_periodic_advertising,
+    &hf_control_feature_set_channel_selection_algorithm_2,
+    &hf_control_feature_set_le_power_class_1,
+    NULL
+};
+
+static const int *hfx_control_feature_set_3[] = {
+    &hf_control_feature_set_minimum_number_of_used_channels_procedure,
+    &hf_control_feature_set_reserved_bits,
+    NULL
+};
+
+static const int *hfx_control_phys_sender[] = {
+    &hf_control_phys_sender_le_1m_phy,
+    &hf_control_phys_sender_le_2m_phy,
+    &hf_control_phys_sender_le_coded_phy,
+    &hf_control_phys_reserved_bits,
+    NULL
+};
+
+static const int *hfx_control_phys_update[] = {
+    &hf_control_phys_update_le_1m_phy,
+    &hf_control_phys_update_le_2m_phy,
+    &hf_control_phys_update_le_coded_phy,
+    &hf_control_phys_reserved_bits,
+    NULL
+};
+
+static const int *hfx_control_phys[] = {
+    &hf_control_phys_le_1m_phy,
+    &hf_control_phys_le_2m_phy,
+    &hf_control_phys_le_coded_phy,
+    &hf_control_phys_reserved_bits,
+    NULL
+};
 
 
 static expert_field ei_unknown_data = EI_INIT;
@@ -274,6 +358,10 @@ static const value_string control_opcode_vals[] = {
     { 0x13, "LL_PING_RSP" },
     { 0x14, "LL_LENGTH_REQ" },
     { 0x15, "LL_LENGTH_RSP" },
+    { 0x16, "LL_PHY_REQ" },
+    { 0x17, "LL_PHY_RSP" },
+    { 0x18, "LL_PHY_UPDATE_IND" },
+    { 0x19, "LL_MIN_USED_CHANNELS_IND" },
     { 0, NULL }
 };
 static value_string_ext control_opcode_vals_ext = VALUE_STRING_EXT_INIT(control_opcode_vals);
@@ -537,8 +625,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         col_set_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(pdu_type, &pdu_type_vals_ext, "Unknown"));
 
         proto_tree_add_item(advertising_header_tree, hf_advertising_header_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        item = proto_tree_add_item_ret_uint(btle_tree, hf_length_3f, tvb, offset, 1, ENC_LITTLE_ENDIAN, &length);
+        item = proto_tree_add_item_ret_uint(btle_tree, hf_length, tvb, offset, 1, ENC_LITTLE_ENDIAN, &length);
         PROTO_ITEM_SET_HIDDEN(item);
         offset += 1;
 
@@ -920,8 +1007,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         offset += 1;
 
         proto_tree_add_item(data_header_tree, hf_data_header_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(data_header_tree, hf_data_header_rfu, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        item = proto_tree_add_item_ret_uint(btle_tree, hf_length_1f, tvb, offset, 1, ENC_LITTLE_ENDIAN, &length);
+        item = proto_tree_add_item_ret_uint(btle_tree, hf_length, tvb, offset, 1, ENC_LITTLE_ENDIAN, &length);
         PROTO_ITEM_SET_HIDDEN(item);
         offset += 1;
 
@@ -1173,18 +1259,17 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 sub_item = proto_tree_add_item(btle_tree, hf_control_feature_set, tvb, offset, 8, ENC_LITTLE_ENDIAN);
                 sub_tree = proto_item_add_subtree(sub_item, ett_features);
 
-                proto_tree_add_item(sub_tree, hf_control_feature_set_le_encryption, tvb, offset, 1, ENC_NA);
-                proto_tree_add_item(sub_tree, hf_control_feature_set_connection_parameters_request_procedure, tvb, offset, 1, ENC_NA);
-                proto_tree_add_item(sub_tree, hf_control_feature_set_extended_reject_indication, tvb, offset, 1, ENC_NA);
-                proto_tree_add_item(sub_tree, hf_control_feature_set_slave_initiated_features_exchange, tvb, offset, 1, ENC_NA);
-                proto_tree_add_item(sub_tree, hf_control_feature_set_le_ping, tvb, offset, 1, ENC_NA);
-                proto_tree_add_item(sub_tree, hf_control_feature_set_le_pkt_len_ext, tvb, offset, 1, ENC_NA);
-                proto_tree_add_item(sub_tree, hf_control_feature_set_ll_privacy, tvb, offset, 1, ENC_NA);
-                proto_tree_add_item(sub_tree, hf_control_feature_set_ext_scan_flt_pol, tvb, offset, 1, ENC_NA);
+                proto_tree_add_bitmask_list(sub_tree, tvb, offset, 1, hfx_control_feature_set_1, ENC_NA);
                 offset += 1;
 
-                proto_tree_add_item(sub_tree, hf_control_feature_set_reserved, tvb, offset, 7, ENC_NA);
-                offset += 7;
+                proto_tree_add_bitmask_list(sub_tree, tvb, offset, 1, hfx_control_feature_set_2, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_bitmask_list(sub_tree, tvb, offset, 1, hfx_control_feature_set_3, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(sub_tree, hf_control_feature_set_reserved, tvb, offset, 5, ENC_NA);
+                offset += 5;
 
                 break;
             case 0x0C: /* LL_VERSION_IND */
@@ -1260,6 +1345,34 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 2;
 
                 break;
+            case 0x16: /* LL_PHY_REQ */
+            case 0x17: /* LL_PYH_RSP */
+                proto_tree_add_bitmask(btle_tree, tvb, offset, hf_control_tx_phys, ett_tx_phys, hfx_control_phys_sender, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_bitmask(btle_tree, tvb, offset, hf_control_rx_phys, ett_rx_phys, hfx_control_phys_sender, ENC_NA);
+                offset += 1;
+
+                break;
+            case 0x18: /* LL_PHY_UPDATE_IND */
+                proto_tree_add_bitmask(btle_tree, tvb, offset, hf_control_m_to_s_phy, ett_m_to_s_phy, hfx_control_phys_update, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_bitmask(btle_tree, tvb, offset, hf_control_s_to_m_phy, ett_s_to_m_phy, hfx_control_phys_update, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(btle_tree, hf_control_instant, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                break;
+            case 0x19: /* LL_MIN_USED_CHANNELS_IND */
+                proto_tree_add_bitmask(btle_tree, tvb, offset, hf_control_phys, ett_phys, hfx_control_phys, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(btle_tree, hf_control_min_used_channels, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset += 1;
+
+                break;
             default:
                 if (tvb_reported_length_remaining(tvb, offset) > 3) {
                     proto_tree_add_expert(btle_tree, pinfo, &ei_unknown_data, tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
@@ -1333,14 +1446,9 @@ proto_register_btle(void)
             FT_ETHER, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_length_1f,
+        { &hf_length,
             { "Length",                          "btle.length",
-            FT_UINT8, BASE_DEC, NULL, 0x1F,
-            NULL, HFILL }
-        },
-        { &hf_length_3f,
-            { "Length",                          "btle.length",
-            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_advertising_header,
@@ -1380,12 +1488,7 @@ proto_register_btle(void)
         },
         { &hf_advertising_header_length,
             { "Length",                          "btle.advertising_header.length",
-            FT_UINT8, BASE_DEC, NULL, 0x03f,
-            NULL, HFILL }
-        },
-        { &hf_advertising_header_rfu_2,
-            { "RFU",                             "btle.advertising_header.rfu.2",
-            FT_UINT8, BASE_DEC, NULL, 0xC0,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_advertising_address,
@@ -1490,7 +1593,7 @@ proto_register_btle(void)
         },
         { &hf_data_header_length,
             { "Length",                          "btle.data_header.length",
-            FT_UINT8, BASE_DEC, NULL, 0x1F,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_data_header_rfu,
@@ -1576,6 +1679,56 @@ proto_register_btle(void)
         { &hf_control_feature_set_ext_scan_flt_pol,
         { "Extended Scanner Filter Policies",          "btle.control.feature_set.ext_scan_flt_pol",
             FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_le_2m_phy,
+        { "LE 2M PHY", "btle.control.feature_set.le_2m_phy",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_stable_modulation_index_transmitter,
+        { "Stable Modulation Index - Transmitter", "btle.control.feature_set.st_mod_idx_tx",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_stable_modulation_index_receiver,
+        { "Stable Modulation Index - Receiver", "btle.control.feature_set.st_mod_idx_rx",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_le_coded_phy,
+        { "LE Coded PHY", "btle.control.feature_set.le_coded_phy",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_le_extended_advertising,
+        { "LE Extended Advertising", "btle.control.feature_set.le_extended_adv",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_le_periodic_advertising,
+        { "LE Periodic Advertising", "btle.control.feature_set.periodic_adv",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_channel_selection_algorithm_2,
+        { "Channel Selection Algorithm #2", "btle.control.feature_set.ch_sel_2",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_le_power_class_1,
+        { "LE Power Class 1", "btle.control.feature_set.le_power_class_1",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_minimum_number_of_used_channels_procedure,
+        { "Minimum Number of Used Channels Procedure", "btle.control.feature_set.min_num_used_ch_proc",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_reserved_bits,
+            { "Reserved", "btle.control.feature_set.reserved_bits",
+            FT_UINT8, BASE_DEC, NULL, 0xFE,
             NULL, HFILL }
         },
         { &hf_control_feature_set_reserved,
@@ -1718,6 +1871,86 @@ proto_register_btle(void)
             FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_microsecond_microseconds, 0x0,
             NULL, HFILL }
         },
+        { &hf_control_phys_sender_le_1m_phy,
+            { "Sender prefers to use the LE 1M PHY", "btle.control.phys.le_1m_phy",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_phys_sender_le_2m_phy,
+            { "Sender prefers to use the LE 2M PHY", "btle.control.phys.le_2m_phy",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_control_phys_sender_le_coded_phy,
+            { "Sender prefers to use the LE Coded PHY", "btle.control.phys.le_coded_phy",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_control_phys_update_le_1m_phy,
+            { "The LE 1M PHY shall be used", "btle.control.phys.le_1m_phy",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_phys_update_le_2m_phy,
+            { "The LE 2M PHY shall be used", "btle.control.phys.le_2m_phy",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_control_phys_update_le_coded_phy,
+            { "The LE Coded PHY shall be used", "btle.control.phys.le_coded_phy",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_control_phys_reserved_bits,
+            { "Reserved for future use", "btle.control.phys.reserved",
+            FT_UINT8, BASE_DEC, NULL, 0xF8,
+            NULL, HFILL }
+        },
+        { &hf_control_tx_phys,
+            { "TX PHYs", "btle.control.tx_phys",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_rx_phys,
+            { "RX PHYs", "btle.control.rx_phys",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_m_to_s_phy,
+            { "Master to Slave PHY", "btle.control.m_to_s_phy",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_s_to_m_phy,
+            { "Slave to Master PHY", "btle.control.s_to_m_phy",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_phys,
+            { "PHYs", "btle.control.phys",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_phys_le_1m_phy,
+            { "LE 1M PHY", "btle.control.phys.le_1m_phy",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_phys_le_2m_phy,
+            { "LE 2M PHY", "btle.control.phys.le_2m_phy",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_control_phys_le_coded_phy,
+            { "LE Coded PHY", "btle.control.phys.le_coded_phy",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_control_min_used_channels,
+            { "Minimum Used Channels", "btle.control.min_used_channels",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_l2cap_index,
             { "L2CAP Index",                     "btle.l2cap_index",
             FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -1809,6 +2042,11 @@ proto_register_btle(void)
         &ett_link_layer_data,
         &ett_data_header,
         &ett_features,
+        &ett_tx_phys,
+        &ett_rx_phys,
+        &ett_m_to_s_phy,
+        &ett_s_to_m_phy,
+        &ett_phys,
         &ett_channel_map,
         &ett_scan_response_data,
         &ett_btle_l2cap_msg_fragment,
