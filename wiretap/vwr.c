@@ -1987,7 +1987,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
 
         /*** Add the PLCP length for S3_W_FPGA version VHT frames for Beamforming decode ***/
         if (log_mode == 3) {
-            frame_size = rec_size - 80 - stats_offset;
+            frame_size = rec_size - (stats_offset + vwr->MPDU_OFF + vVW510021_W_STATS_TRAILER_LEN);
             if (frame_size > ((int) msdu_length))
                 actual_octets = msdu_length;
             else
