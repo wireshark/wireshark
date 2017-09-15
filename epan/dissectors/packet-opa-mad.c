@@ -864,7 +864,6 @@ static gint ett_ledinfo = -1;
 static gint ett_cableinfo = -1;
 static gint ett_aggregate = -1;
 static gint ett_buffercontroltable = -1;
-static gint ett_buffercontroltable_port = -1;
 static gint ett_congestioninfo = -1;
 static gint ett_switchcongestionlog = -1;
 static gint ett_switchcongestionlog_entry = -1;
@@ -3446,6 +3445,8 @@ static gint parse_PortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, 
     proto_item *temp_item;
     guint p, i, Num_ports, Port_num;
     guint16 active;
+    gint block_length = 242;
+    gint block_pad_len = 8 - (block_length & 7); /* Padding to add */
 
     if (MAD->MgmtClass == SUBNADMN) {
         Num_ports = 1;
@@ -3458,8 +3459,8 @@ static gint parse_PortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
 
-    for (p = Port_num; p < (Port_num + Num_ports); p++) {
-        PortInfo_header_item = proto_tree_add_item(parentTree, hf_opa_PortInfo, tvb, local_offset, 242, ENC_NA);
+    for (p = Port_num; p < (Port_num + Num_ports);) {
+        PortInfo_header_item = proto_tree_add_item(parentTree, hf_opa_PortInfo, tvb, local_offset, block_length, ENC_NA);
         proto_item_set_text(PortInfo_header_item, "PortInfo on Port %d", p);
         PortInfo_header_tree = proto_item_add_subtree(PortInfo_header_item, ett_portinfo);
 
@@ -3770,9 +3771,10 @@ static gint parse_PortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, 
 
         proto_tree_add_item(PortInfo_header_tree, hf_opa_reserved16, tvb, local_offset, 2, ENC_BIG_ENDIAN);
         local_offset += 2;
-        if (Num_ports > 1) {
-            /* 8 Byte Padding offset */
-            local_offset += 8 - (242 % 8);
+
+        /* If Not last block add byte padding */
+        if ((++p) < (Port_num + Num_ports)) {
+            local_offset += block_pad_len;
         }
     }
 
@@ -4303,12 +4305,13 @@ static gint parse_CableInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset,
 static gint parse_BufferControlTable(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
 {
     gint local_offset = *offset;
-    proto_item *BufferControlTable_header_item;
-    proto_tree *BufferControlTable_header_tree;
+    proto_item *BCT_header_item;
+    proto_tree *BCT_header_tree;
     proto_item *tempItemLow;
     proto_item *tempItemHigh;
-    proto_tree *tempBlock_tree;
     guint p, i, Port_num, Num_ports;
+    gint block_length = 4 + (32 * 4);
+    gint block_pad_len = 8 - (block_length & 7); /* Padding to add */
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
@@ -4321,24 +4324,27 @@ static gint parse_BufferControlTable(proto_tree *parentTree, tvbuff_t *tvb, gint
         Port_num = (MAD->AttributeModifier & 0x000000FF);
     }
 
-    BufferControlTable_header_item = proto_tree_add_item(parentTree, hf_opa_BufferControlTable, tvb, local_offset, (4 + 32 * 4) * Num_ports, ENC_NA);
-    BufferControlTable_header_tree = proto_item_add_subtree(BufferControlTable_header_item, ett_buffercontroltable);
+    for (p = Port_num; p < (Port_num + Num_ports);) {
+        BCT_header_item = proto_tree_add_item(parentTree, hf_opa_BufferControlTable, tvb, local_offset, block_length, ENC_NA);
+        proto_item_append_text(BCT_header_item, " Port %u", p);
+        BCT_header_tree = proto_item_add_subtree(BCT_header_item, ett_buffercontroltable);
 
-    for (p = Port_num; p < Port_num + Num_ports; p++) {
-        tempBlock_tree = proto_tree_add_subtree_format(BufferControlTable_header_tree, tvb, local_offset, (4 + 32 * 4),
-            ett_buffercontroltable_port, NULL, "Buffer Control Table Port %u", p);
-
-        proto_tree_add_item(tempBlock_tree, hf_opa_reserved16, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(BCT_header_tree, hf_opa_reserved16, tvb, local_offset, 2, ENC_BIG_ENDIAN);
         local_offset += 2;
-        proto_tree_add_item(tempBlock_tree, hf_opa_BufferControlTable_TxOverallSharedLimit, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(BCT_header_tree, hf_opa_BufferControlTable_TxOverallSharedLimit, tvb, local_offset, 2, ENC_BIG_ENDIAN);
         local_offset += 2;
         for (i = 0; i < 32; i++) {
-            tempItemHigh = proto_tree_add_item(tempBlock_tree, hf_opa_BufferControlTable_TxSharedLimit, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+            tempItemHigh = proto_tree_add_item(BCT_header_tree, hf_opa_BufferControlTable_TxSharedLimit, tvb, local_offset, 2, ENC_BIG_ENDIAN);
             local_offset += 2;
-            tempItemLow = proto_tree_add_item(tempBlock_tree, hf_opa_BufferControlTable_TxDedicatedLimit, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+            tempItemLow = proto_tree_add_item(BCT_header_tree, hf_opa_BufferControlTable_TxDedicatedLimit, tvb, local_offset, 2, ENC_BIG_ENDIAN);
             local_offset += 2;
             proto_item_prepend_text(tempItemHigh, "VL %2u: ", i);
             proto_item_prepend_text(tempItemLow, "       ");
+        }
+
+        /* If Not last block add byte padding */
+        if ((++p) < (Port_num + Num_ports)) {
+            local_offset += block_pad_len;
         }
     }
     return local_offset;
@@ -13517,8 +13523,6 @@ void proto_register_opa_mad(void)
         &ett_cableinfo,
         &ett_aggregate,
         &ett_buffercontroltable,
-        &ett_buffercontroltable_port,
-        &ett_fabricinforecord,
         &ett_congestioninfo,
         &ett_switchcongestionlog,
         &ett_switchcongestionlog_entry,
@@ -13551,6 +13555,7 @@ void proto_register_opa_mad(void)
         &ett_portgroupforwardingtablerecord,
         &ett_vfinforecord,
         &ett_quarantinednoderecord,
+        &ett_fabricinforecord,
         /* PM */
         &ett_portstatus,
         &ett_portstatus_vl,
