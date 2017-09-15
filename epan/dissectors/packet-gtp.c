@@ -257,14 +257,14 @@ static int hf_gtp_sapi = -1;
 static int hf_gtp_xid_par_len = -1;
 static int hf_gtp_rep_act_type = -1;
 static int hf_gtp_correlation_id = -1;
-static int hf_gtp_earp_pvi = -1;
+static int hf_gtp_earp_pci = -1;
 static int hf_gtp_earp_pl = -1;
+static int hf_gtp_earp_pvi = -1;
 static int hf_gtp_ext_comm_flags_uasi = -1;
 static int hf_gtp_ext_comm_flags_II_pnsi = -1;
 static int hf_gtp_ext_comm_flags_II_dtci = -1;
 static int hf_gtp_ext_comm_flags_II_pmtsmi = -1;
 static int hf_gtp_ext_comm_flags_II_spare = -1;
-static int hf_gtp_earp_pci = -1;
 static int hf_gtp_cdr_app = -1;
 static int hf_gtp_cdr_rel = -1;
 static int hf_gtp_cdr_ver = -1;
@@ -7390,9 +7390,9 @@ decode_gtp_evolved_allc_rtn_p1(tvbuff_t * tvb, int offset, packet_info * pinfo _
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(ext_tree, hf_gtp_earp_pvi,   tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ext_tree, hf_gtp_earp_pl,    tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ext_tree, hf_gtp_earp_pci,   tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_earp_pl,    tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_earp_pvi,   tvb, offset, 1, ENC_BIG_ENDIAN);
 
     return 3 + length;
 
@@ -7421,9 +7421,9 @@ decode_gtp_evolved_allc_rtn_p2(tvbuff_t * tvb, int offset, packet_info * pinfo _
     proto_tree_add_item(ext_tree, hf_gtp_nsapi, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(ext_tree, hf_gtp_earp_pvi, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ext_tree, hf_gtp_earp_pl,  tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ext_tree, hf_gtp_earp_pci, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_earp_pl,  tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_earp_pvi, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     return 3 + length;
 
@@ -9748,14 +9748,19 @@ proto_register_gtp(void)
            FT_UINT8, BASE_DEC, NULL, 0,
            NULL, HFILL}
         },
-        {&hf_gtp_earp_pvi,
-         { "PVI Pre-emption Vulnerability", "gtp.EARP_pre_emption_par_vulnerability",
-           FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x01,
+        {&hf_gtp_earp_pci,
+         { "PCI Pre-emption Capability", "gtp.EARP_pre_emption_Capability",
+           FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x40,
            NULL, HFILL}
         },
         {&hf_gtp_earp_pl,
          { "PL Priority Level", "gtp.EARP_priority_level",
            FT_UINT8, BASE_DEC, NULL, 0x3C,
+           NULL, HFILL}
+        },
+        {&hf_gtp_earp_pvi,
+         { "PVI Pre-emption Vulnerability", "gtp.EARP_pre_emption_par_vulnerability",
+           FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x01,
            NULL, HFILL}
         },
         {&hf_gtp_ext_comm_flags_uasi,
@@ -9781,11 +9786,6 @@ proto_register_gtp(void)
         {&hf_gtp_ext_comm_flags_II_spare,
          { "SPARE", "gtp.ext_comm_flags_II_spare",
            FT_UINT8, BASE_HEX, NULL, 0xF8,
-           NULL, HFILL}
-        },
-        {&hf_gtp_earp_pci,
-         { "PCI Pre-emption Capability", "gtp.EARP_pre_emption_Capability",
-           FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x40,
            NULL, HFILL}
         },
         {&hf_gtp_cdr_app,
