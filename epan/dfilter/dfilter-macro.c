@@ -71,7 +71,7 @@ static gboolean fvt_cache_cb(proto_node * node, gpointer data _U_) {
 				break;
 		}
 		e = g_new(fvt_cache_entry_t,1);
-		e->name = finfo->hfinfo->abbrev,
+		e->name = finfo->hfinfo->abbrev;
 		e->repr = fvalue_to_string_repr(NULL, &(finfo->value), FTREPR_DFILTER, finfo->hfinfo->display);
 		e->usable = TRUE;
 		g_hash_table_insert(fvt_cache,(void*)finfo->hfinfo->abbrev,e);

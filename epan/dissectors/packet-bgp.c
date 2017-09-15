@@ -4764,7 +4764,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
 
         decode_evpn_nlri_esi(prefix_tree, tvb, reader_offset, pinfo);
         /* move to next field */
-        reader_offset += 10,
+        reader_offset += 10;
 
         ip_len = tvb_get_guint8(tvb, reader_offset) / 8;
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_iplen, tvb, reader_offset,

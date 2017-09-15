@@ -9697,7 +9697,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             if (format == 1) {
                 while( tvb_reported_length_remaining(tvb, offset) > 0) {
-                    sub_item = proto_tree_add_item(main_tree, hf_btatt_information_data, tvb, offset, 4, ENC_NA),
+                    sub_item = proto_tree_add_item(main_tree, hf_btatt_information_data, tvb, offset, 4, ENC_NA);
                     sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
 
                     offset = dissect_handle(sub_tree, pinfo, hf_btatt_handle, tvb, offset, bluetooth_data, NULL, HANDLE_TVB);
@@ -9718,7 +9718,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
             else if (format == 2) {
                 while( tvb_reported_length_remaining(tvb, offset) > 0) {
-                    sub_item = proto_tree_add_item(main_tree, hf_btatt_information_data, tvb, offset, 4, ENC_NA),
+                    sub_item = proto_tree_add_item(main_tree, hf_btatt_information_data, tvb, offset, 4, ENC_NA);
                     sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
 
                     offset = dissect_handle(sub_tree, pinfo, hf_btatt_handle, tvb, offset, bluetooth_data, NULL, HANDLE_TVB);

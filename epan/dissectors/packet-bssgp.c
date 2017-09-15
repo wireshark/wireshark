@@ -7563,9 +7563,9 @@ proto_register_bssgp(void)
     ett[6] = &ett_bssgp_pfcs_to_be_set_up_list;
     ett[7] = &ett_bssgp_new;
     ett[8] = &ett_bssgp_pfc_flow_control_parameters_pfc;
-    ett[9] = &ett_bssgp_ra_id,
-    ett[10] = &ett_bssgp_extended_feature_bitmap,
-    ett[11] = &ett_bssgp_prio_class_ind,
+    ett[9] = &ett_bssgp_ra_id;
+    ett[10] = &ett_bssgp_extended_feature_bitmap;
+    ett[11] = &ett_bssgp_prio_class_ind;
 
         last_offset = NUM_INDIVIDUAL_ELEMS;
 
