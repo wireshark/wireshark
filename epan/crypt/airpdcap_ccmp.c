@@ -259,7 +259,8 @@ INT AirPDcapCcmpDecrypt(
 		space = (UINT)data_len;
 	while (space >= AES_BLOCK_LEN) {
 		CCMP_DECRYPT(i, b, b0, pos, a, AES_BLOCK_LEN);
-		pos += AES_BLOCK_LEN, space -= AES_BLOCK_LEN;
+		pos += AES_BLOCK_LEN;
+		space -= AES_BLOCK_LEN;
 		i++;
 	}
 

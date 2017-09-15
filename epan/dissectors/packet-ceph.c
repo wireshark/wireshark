@@ -6840,8 +6840,10 @@ guint c_dissect_msgr(proto_tree *tree,
 		*/
 
 		/* Batch multiple unknowns together. */
-		while (c_unknowntagnext(tvb, off))
-			off++, unknowntagcount++;
+		while (c_unknowntagnext(tvb, off)) {
+			off++;
+			unknowntagcount++;
+		}
 
 		c_set_type(data, wmem_strdup_printf(wmem_packet_scope(),
 						    "UNKNOWN x%u",
