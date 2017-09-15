@@ -33,6 +33,7 @@
 #include <lauxlib.h>
 
 #include "lua_bitop.h"
+#include "ws_diag_control.h"
 
 #ifdef _MSC_VER
 /* MSVC is stuck in the last century and doesn't have C99's stdint.h. */
@@ -177,8 +178,10 @@ LUALIB_API int luaopen_bit(lua_State *L)
     if (b == (UBits)1127743488L)
       msg = "not compiled with SWAPPED_DOUBLE";
 #endif
+DIAG_OFF(unreachable-code)
     if (BAD_SAR)
       msg = "arithmetic right-shift broken";
+DIAG_ON(unreachable-code)
     luaL_error(L, "bit library self-test failed (%s)", msg);
   }
 #if LUA_VERSION_NUM < 502
