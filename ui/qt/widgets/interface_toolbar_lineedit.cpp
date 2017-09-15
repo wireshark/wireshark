@@ -118,7 +118,7 @@ void InterfaceToolbarLineEdit::updateStyleSheet(bool is_valid)
             "}"
             )
             .arg(apsz.width() + frameWidth)
-            .arg(is_valid ? QString("") : ColorUtils::fromColorT(prefs.gui_text_invalid).name());
+            .arg(is_valid || !isEnabled() ? QString("") : ColorUtils::fromColorT(prefs.gui_text_invalid).name());
 
     setStyleSheet(style_sheet);
 }
