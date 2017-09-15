@@ -1033,13 +1033,14 @@ init_plugin_dir(void)
     }
 #endif
 }
-#endif /* HAVE_PLUGINS || HAVE_LUA */
 
 static void
 init_plugin_pers_dir(void)
 {
     plugin_pers_dir = get_persconffile_path(PLUGINS_DIR_NAME, FALSE);
 }
+
+#endif /* HAVE_PLUGINS || HAVE_LUA */
 
 /*
  * Get the directory in which the plugins are stored.
@@ -1059,9 +1060,13 @@ get_plugin_dir(void)
 const char *
 get_plugins_pers_dir(void)
 {
+#if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
     if (!plugin_pers_dir)
         init_plugin_pers_dir();
     return plugin_pers_dir;
+#else
+    return NULL;
+#endif
 }
 
 #if defined(HAVE_EXTCAP)
