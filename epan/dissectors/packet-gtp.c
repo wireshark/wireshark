@@ -1622,7 +1622,9 @@ static const value_string tr_comm_type[] = {
     {0, NULL}
 };
 
-/* TODO: CHeck if all ms_reasons are included */
+/*
+ * UMTS:   23.040 v14.0.0, chapter 3.3.2
+ */
 static const value_string ms_not_reachable_type[] = {
     { 0, "No paging response via the MSC"},
     { 1, "IMSI detached"},
@@ -1637,7 +1639,8 @@ static const value_string ms_not_reachable_type[] = {
     {10, "Unidentified subscriber via the SGSN"},
     {11, "Deregistered in the HSS/HLR for IMS"},
     {12, "No response via the IP-SM-GW"},
-    {0, NULL}
+    {13, "The MS is temporarily unavailable"},
+    {0, NULL}             /* All other values are reserved */
 };
 
 /* UMTS:   25.413 v3.4.0, chapter 9.2.1.4, page 80
