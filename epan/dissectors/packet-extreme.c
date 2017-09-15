@@ -387,7 +387,7 @@ dissect_tlv_header(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length
 	guint8		tlv_type;
 	guint16		tlv_length;
 
-	tlv_marker = tvb_get_guint8(tvb, offset),
+	tlv_marker = tvb_get_guint8(tvb, offset);
 	tlv_type = tvb_get_guint8(tvb, offset + 1);
 	tlv_length = tvb_get_ntohs(tvb, offset + 2);
 

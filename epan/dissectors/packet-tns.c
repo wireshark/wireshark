@@ -632,10 +632,16 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 				 */
 				                                  /* Orac[le.+] */
 				if ( tvb_get_ntohl(tvb, offset+2) == 0x4f726163 )
-					opi = OPI_VERSION2, skip = 1;
+				{
+					opi = OPI_VERSION2;
+					skip = 1;
+				}
 
 				else if ( tvb_get_ntohl(tvb, offset+3) == 0x4f726163 )
-					opi = OPI_VERSION2, skip = 2;
+				{
+					opi = OPI_VERSION2;
+					skip = 2;
+				}
 
 				/*
 				 * OPI_OSESSKEY response has a following pattern:
@@ -650,10 +656,16 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 				 */
 				                                          /*  ....AUTH (v1) */
 				else if ( tvb_get_ntoh64(tvb, offset+3) == 0x0000000c41555448 )
-					opi = OPI_OSESSKEY, skip = 1;
+				{
+					opi = OPI_OSESSKEY;
+					skip = 1;
+				}
 				                                          /*  ..AUTH_V (v2) */
 				else if ( tvb_get_ntoh64(tvb, offset+3) == 0x0c0c415554485f53 )
-					opi = OPI_OSESSKEY, skip = 2;
+				{
+					opi = OPI_OSESSKEY;
+					skip = 2;
+				}
 
 				/*
 				 * OPI_OAUTH response has a following pattern:
@@ -669,11 +681,16 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 				                                          /*  ....AUTH (v1) */
 				else if ( tvb_get_ntoh64(tvb, offset+3) == 0x0000001341555448 )
-					opi = OPI_OAUTH, skip = 1;
+				{
+					opi = OPI_OAUTH;
+					skip = 1;
+				}
 			                                                  /*  ..AUTH_V (v2) */
 				else if ( tvb_get_ntoh64(tvb, offset+3) == 0x1313415554485f56 )
-					opi = OPI_OAUTH, skip = 2;
-
+				{
+					opi = OPI_OAUTH;
+					skip = 2;
+				}
 			}
 
 			if ( opi == OPI_VERSION2 )

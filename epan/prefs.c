@@ -662,7 +662,7 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
                  * being the name (if it's later registered explicitly
                  * with a description, that will override it).
                  */
-                ptr = wmem_strdup(wmem_epan_scope(), ptr),
+                ptr = wmem_strdup(wmem_epan_scope(), ptr);
                 new_module = prefs_register_subtree(subtree_module, ptr, ptr, NULL);
             }
 

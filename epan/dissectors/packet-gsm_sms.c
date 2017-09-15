@@ -926,27 +926,27 @@ dis_field_scts_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     char   sign;
 
     oct = tvb_get_guint8(tvb, offset);
-    value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4),
+    value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
     proto_tree_add_uint(tree, hf_gsm_sms_scts_year, tvb, offset, 1, value);
     offset++;
     oct = tvb_get_guint8(tvb, offset);
-    value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4),
+    value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
     proto_tree_add_uint(tree, hf_gsm_sms_scts_month, tvb, offset, 1, value);
     offset++;
     oct = tvb_get_guint8(tvb, offset);
-    value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4),
+    value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
     proto_tree_add_uint(tree, hf_gsm_sms_scts_day, tvb, offset, 1, value);
     offset++;
     oct = tvb_get_guint8(tvb, offset);
-    value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4),
+    value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
     proto_tree_add_uint(tree, hf_gsm_sms_scts_hour, tvb, offset, 1, value);
     offset++;
     oct = tvb_get_guint8(tvb, offset);
-    value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4),
+    value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
     proto_tree_add_uint(tree, hf_gsm_sms_scts_minutes, tvb, offset, 1, value);
     offset++;
     oct = tvb_get_guint8(tvb, offset);
-    value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4),
+    value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
     proto_tree_add_uint(tree, hf_gsm_sms_scts_seconds, tvb, offset, 1, value);
     offset++;
 
@@ -1081,15 +1081,15 @@ dis_field_vp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *offse
             case 0x03:
                 offset++;
                 oct = tvb_get_guint8(tvb, offset);
-                value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4),
+                value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
                 proto_tree_add_uint(subtree, hf_gsm_sms_vp_validity_period_hour, tvb, offset, 1, value);
                 offset++;
                 oct = tvb_get_guint8(tvb, offset);
-                value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4),
+                value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
                 proto_tree_add_uint(subtree, hf_gsm_sms_vp_validity_period_minutes, tvb, offset, 1, value);
                 offset++;
                 oct = tvb_get_guint8(tvb, offset);
-                value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4),
+                value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
                 proto_tree_add_uint(subtree, hf_gsm_sms_vp_validity_period_seconds, tvb, offset, 1, value);
                 offset++;
                 done = TRUE;

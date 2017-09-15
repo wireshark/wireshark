@@ -8057,8 +8057,8 @@ proto_register_gsm_a_bssmap(void)
     ett[0] = &ett_bssmap_msg;
     ett[1] = &ett_cell_list;
     ett[2] = &ett_dlci;
-    ett[3] = &ett_codec_lst,
-    ett[4] = &ett_bss_to_bss_info,
+    ett[3] = &ett_codec_lst;
+    ett[4] = &ett_bss_to_bss_info;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 

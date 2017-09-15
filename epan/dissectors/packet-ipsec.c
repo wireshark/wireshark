@@ -1317,7 +1317,8 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
    * populate a tree in the second pane with the status of the link layer
    * (ie none)
    */
-  len = 0, encapsulated_protocol = 0;
+  len = 0;
+  encapsulated_protocol = 0;
   decrypt_dissect_ok = FALSE;
 
   ti = proto_tree_add_item(tree, proto_esp, tvb, 0, -1, ENC_NA);

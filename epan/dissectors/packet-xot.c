@@ -127,7 +127,7 @@ static guint get_xot_pdu_len_mult(packet_info *pinfo _U_, tvbuff_t *tvb,
    int offset_next = offset + XOT_HEADER_LENGTH + X25_MIN_HEADER_LENGTH;
    int tvb_len;
 
-   while (tvb_len = tvb_captured_length_remaining(tvb, offset), tvb_len>0){
+   while ((tvb_len = tvb_captured_length_remaining(tvb, offset)) > 0){
       guint16 plen = 0;
       int modulo;
       guint16 bytes0_1;

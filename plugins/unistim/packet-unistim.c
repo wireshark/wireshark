@@ -2364,7 +2364,7 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
    /*Configure Vocoder Parameters*/
          proto_tree_add_item(msg_tree,hf_audio_mgr_stream_id,tvb,offset,1,ENC_LITTLE_ENDIAN);
          offset+=1;msg_len-=1;
-         proto_tree_add_item(msg_tree,hf_audio_vocoder_id,tvb,offset,1,ENC_BIG_ENDIAN),
+         proto_tree_add_item(msg_tree,hf_audio_vocoder_id,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          while(msg_len>0){
             param_tree=proto_tree_add_subtree(msg_tree,tvb,offset,0,ett_unistim,NULL,"Param");
