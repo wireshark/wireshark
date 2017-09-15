@@ -4916,14 +4916,34 @@ dissect_udp_s_port_nr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
 /*
  * 8.57 APN Restriction
  */
+
+/* Table 8.57-1: Valid Combinations of APN Restriction */
+static const value_string gtpv2_apn_restriction_vals[] = {
+    {0, "No Existing Contexts or Restriction"},
+    {1, "Public-1"},
+    {2, "Public-2"},
+    {3, "Private-1"},
+    {4, "Private-2"},
+    {0, NULL}
+};
+value_string_ext gtpv2_apn_restriction_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_apn_restriction_vals);
+
 static void
 dissect_gtpv2_apn_rest(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
     guint8 type_value;
+    int    offset = 0;
 
-    type_value = tvb_get_guint8(tvb, 0);
-    proto_tree_add_item(tree, hf_gtpv2_apn_rest, tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_item_append_text(item, "value %u", type_value);
+    /* APN restriction value octet 5 */
+    type_value = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_gtpv2_apn_rest, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    /* Add APN restriction to ie_tree */
+    proto_item_append_text(item, "%s (%u)", val_to_str_ext_const(type_value, &gtpv2_apn_restriction_vals_ext, "Unknown"), type_value);
+    offset += 1;
+
+    if (length > offset)
+        proto_tree_add_item(tree, hf_gtpv2_spare_bytes, tvb, offset, length-offset, ENC_NA);
 }
 
 /*
@@ -8811,7 +8831,7 @@ void proto_register_gtpv2(void)
         },
         {&hf_gtpv2_apn_rest,
          {"APN Restriction", "gtpv2.apn_rest",
-          FT_UINT8, BASE_DEC, NULL, 0x0,
+          FT_UINT8, BASE_DEC|BASE_EXT_STRING, &gtpv2_apn_restriction_vals_ext, 0x0,
           NULL, HFILL}
         },
         {&hf_gtpv2_selec_mode,
