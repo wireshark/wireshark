@@ -184,6 +184,9 @@ ServiceResponseTimeDialog::ServiceResponseTimeDialog(QWidget &parent, CaptureFil
     setWindowSubtitle(subtitle);
     loadGeometry(0, 0, "ServiceResponseTimeDialog");
 
+    srt_data_.srt_array = NULL;
+    srt_data_.user_data = NULL;
+
     // Add number of columns for this stats_tree
     QStringList header_labels;
     for (int col = 0; col < NUM_SRT_COLUMNS; col++) {
