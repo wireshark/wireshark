@@ -3084,20 +3084,30 @@ proto_register_rlc(void)
         "When enabled, RLC will assume all payloads in RLC frames are ciphered",
         &global_rlc_ciphered);
 
+#ifdef HAVE_UMTS_KASUMI
     prefs_register_bool_preference(rlc_module, "try_decipher",
         "Try to decipher data",
         "When enabled, RLC will try to decipher data. (Experimental)",
         &global_rlc_try_decipher);
 
+    prefs_register_string_preference(rlc_module, "kasumi_key",
+        "KASUMI key", "Key for kasumi 32 characters long hex-string", &global_rlc_kasumi_key);
+#else
+    /* If Wireshark isn't compiled with KASUMI we still want to register the above preferences
+     * We are doing so for two reasons:
+     * 1. To inform the user about the disabled preferences (using static text preference)
+     * 2. To prevent errors when Wireshark reads a preferences file which includes records for these preferences
+     */
+    prefs_register_static_text_preference(rlc_module, "try_decipher",
+        "Data deciphering is disabled", "Wireshark was compiled without the KASUMI decryption algorithm");
+
+    prefs_register_obsolete_preference(rlc_module, "kasumi_key");
+#endif /* HAVE_UMTS_KASUMI */
+
     prefs_register_enum_preference(rlc_module, "li_size",
         "LI size",
         "LI size in bits, either 7 or 15 bit",
         &global_rlc_li_size, li_size_enumvals, FALSE);
-
-#ifdef HAVE_UMTS_KASUMI
-    prefs_register_string_preference(rlc_module, "kasumi_key",
-        "KASUMI key", "Key for kasumi 32 characters long hex-string", &global_rlc_kasumi_key);
-#endif /* HAVE_UMTS_KASUMI */
 
     register_init_routine(fragment_table_init);
     register_cleanup_routine(fragment_table_cleanup);
