@@ -475,8 +475,10 @@ static int finish_generic_find (lua_State *L, TUserdata *ud, TArgExec *argE,
     }
     return (method == METHOD_FIND) ? ALG_NSUB(ud) + 2 : ALG_NSUB(ud);
   }
-  else if (ALG_NOMATCH (res))
-    return lua_pushnil (L), 1;
+  else if (ALG_NOMATCH (res)) {
+    lua_pushnil (L);
+    return 1;
+  }
   else
     return generate_error (L, ud, res);
 }
@@ -489,8 +491,10 @@ static int generic_find_func (lua_State *L, int method) {
   int res;
 
   checkarg_find_func (L, &argC, &argE);
-  if (argE.startoffset > (int)argE.textlen)
-    return lua_pushnil (L), 1;
+  if (argE.startoffset > (int)argE.textlen) {
+    lua_pushnil (L);
+    return 1;
+  }
 
   if (argC.ud) {
     ud = (TUserdata*) argC.ud;
@@ -700,8 +704,10 @@ static int generic_find_method (lua_State *L, int method) {
   int res;
 
   checkarg_find_method (L, &argE, &ud);
-  if (argE.startoffset > (int)argE.textlen)
-    return lua_pushnil(L), 1;
+  if (argE.startoffset > (int)argE.textlen) {
+      lua_pushnil(L);
+      return 1;
+  }
 
   res = findmatch_exec (ud, &argE);
   if (ALG_ISMATCH (res)) {
@@ -722,8 +728,10 @@ static int generic_find_method (lua_State *L, int method) {
     }
     return 0;
   }
-  else if (ALG_NOMATCH (res))
-    return lua_pushnil (L), 1;
+  else if (ALG_NOMATCH (res)) {
+      lua_pushnil (L);
+      return 1;
+  }
   else
     return generate_error(L, ud, res);
 }

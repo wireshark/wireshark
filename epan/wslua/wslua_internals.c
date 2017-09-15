@@ -535,7 +535,8 @@ void wslua_register_classinstance_meta(lua_State *L, const wslua_class *cls_def)
     lua_pushstring(L, cls_def->name);                       /* upval 1: class name */
     wslua_push_attributes(L, cls_def->attrs, TRUE, -2);     /* upval 2: getters table */
 #ifdef WSLUA_WITH_INTROSPECTION
-    lua_pushvalue(L, -1), lua_rawsetfield(L, -5, "__getters"); /* set (transition) property on mt, remove later! */
+    lua_pushvalue(L, -1);
+    lua_rawsetfield(L, -5, "__getters"); /* set (transition) property on mt, remove later! */
 #endif
     lua_rawgetfield(L, -4, "__index");                      /* upval 3: fallback __index method from metatable */
     lua_pushvalue(L, -4);                                   /* upval 4: class methods table */
@@ -546,7 +547,8 @@ void wslua_register_classinstance_meta(lua_State *L, const wslua_class *cls_def)
     lua_pushstring(L, cls_def->name);                       /* upval 1: class name */
     wslua_push_attributes(L, cls_def->attrs, FALSE, -2);    /* upval 2: setters table */
 #ifdef WSLUA_WITH_INTROSPECTION
-    lua_pushvalue(L, -1), lua_rawsetfield(L, -5, "__setters"); /* set (transition) property on mt, remove later! */
+    lua_pushvalue(L, -1);
+    lua_rawsetfield(L, -5, "__setters"); /* set (transition) property on mt, remove later! */
 #endif
     lua_rawgetfield(L, -4, "__newindex");                   /* upval 3: fallback __newindex method from metatable */
     lua_pushcclosure(L, wslua_instancemeta_newindex, 3);

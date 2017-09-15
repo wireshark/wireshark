@@ -310,8 +310,10 @@ static int Gregex_dfa_exec (lua_State *L)
   }
   else {
     minfo_free (ud);
-    if (ALG_NOMATCH (res))
-      return lua_pushnil (L), 1;
+    if (ALG_NOMATCH (res)) {
+      lua_pushnil (L);
+      return 1;
+    }
     else
       return generate_error (L, ud, 0);
   }
