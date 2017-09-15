@@ -3119,7 +3119,7 @@ static gint parse_NoticesAndTraps(proto_tree *parentTree, tvbuff_t *tvb, gint *o
     if (!parentTree)
         return *offset;
 
-    NoticesAndTraps_header_item = proto_tree_add_item(parentTree, hf_opa_Notice, tvb, local_offset, 64, ENC_NA);
+    NoticesAndTraps_header_item = proto_tree_add_item(parentTree, hf_opa_Notice, tvb, local_offset, 96, ENC_NA);
     proto_item_set_text(NoticesAndTraps_header_item, "%s", val_to_str(trapNumber, Trap_Description, "Unknown or Vendor Specific Trap Number! (0x%02x)"));
     NoticesAndTraps_header_tree = proto_item_add_subtree(NoticesAndTraps_header_item, ett_noticestraps);
 
@@ -3147,9 +3147,15 @@ static gint parse_NoticesAndTraps(proto_tree *parentTree, tvbuff_t *tvb, gint *o
     proto_tree_add_item(NoticesAndTraps_header_tree, hf_opa_Notice_IssuerGID, tvb, local_offset, 16, ENC_NA);
     local_offset += 16;
 
-    parse_NoticeDataDetails(NoticesAndTraps_header_tree, tvb, &local_offset, trapNumber);
-    local_offset += 64;
-    proto_tree_add_item(NoticesAndTraps_header_tree, hf_opa_Notice_ClassDataDetails, tvb, local_offset, -1, ENC_NA);
+    if (isGeneric) {
+        parse_NoticeDataDetails(NoticesAndTraps_header_tree, tvb, &local_offset, trapNumber);
+        local_offset += 64;
+        if (tvb_bytes_exist(tvb, local_offset, 8)) {
+            proto_tree_add_item(NoticesAndTraps_header_tree, hf_opa_Notice_ClassDataDetails, tvb, local_offset, -1, ENC_NA);
+        }
+    } else {
+        local_offset += 64;
+    }
     return local_offset;
 }
 
