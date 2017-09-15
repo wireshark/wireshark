@@ -500,6 +500,32 @@ sub update_attributes_asciidoc
 	print "$filepath has been updated.\n";
 }
 
+sub update_docinfo_asciidoc
+{
+	my $line;
+	my @paths = ("$srcdir/docbook/developer-guide-docinfo.xml",
+			"$srcdir/docbook/user-guide-docinfo.xml");
+
+	foreach my $filepath (@paths) {
+		my $contents = "";
+		open(DOCINFO_XML, "< $filepath") || die "Can't read $filepath!";
+		while ($line = <DOCINFO_XML>) {
+			if ($line =~ /^<subtitle>For Wireshark \d.\d<\/subtitle>([\r\n]+)$/) {
+				$line = sprintf("<subtitle>For Wireshark %d.%d</subtitle>$1",
+						$version_pref{"version_major"},
+						$version_pref{"version_minor"},
+						);
+			}
+			$contents .= $line
+		}
+
+		open(DOCINFO_XML, "> $filepath") || die "Can't write $filepath!";
+		print(DOCINFO_XML $contents);
+		close(DOCINFO_XML);
+		print "$filepath has been updated.\n";
+	}
+}
+
 # Read debian/changelog, then write back out an updated version.
 sub update_debian_changelog
 {
@@ -604,6 +630,7 @@ sub update_versioned_files
 	&update_configure_ac;
 	if ($set_version) {
 		&update_attributes_asciidoc;
+		&update_docinfo_asciidoc;
 		&update_debian_changelog;
 		&update_automake_lib_releases;
 		&update_cmake_lib_releases;
