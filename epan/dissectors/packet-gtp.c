@@ -9069,7 +9069,7 @@ proto_register_gtp(void)
         },
         {&hf_gtp_chrg_id,
          { "Charging ID", "gtp.chrg_id",
-           FT_UINT32, BASE_HEX, NULL, 0,
+           FT_UINT32, BASE_HEX_DEC, NULL, 0,
            NULL, HFILL}
         },
         {&hf_gtp_chrg_ipv4,
@@ -9560,7 +9560,7 @@ proto_register_gtp(void)
         },
         {&hf_gtp_seq_number,
          { "Sequence number", "gtp.seq_number",
-           FT_UINT16, BASE_HEX, NULL, 0,
+           FT_UINT16, BASE_HEX_DEC, NULL, 0,
            NULL, HFILL}
         },
         { &hf_gtp_session,
@@ -9580,32 +9580,32 @@ proto_register_gtp(void)
         },
         {&hf_gtp_teid,
          { "TEID", "gtp.teid",
-           FT_UINT32, BASE_HEX, NULL, 0,
+           FT_UINT32, BASE_HEX_DEC, NULL, 0,
            "Tunnel Endpoint Identifier", HFILL}
         },
         {&hf_gtp_teid_cp,
          { "TEID Control Plane", "gtp.teid_cp",
-           FT_UINT32, BASE_HEX, NULL, 0,
+           FT_UINT32, BASE_HEX_DEC, NULL, 0,
            "Tunnel Endpoint Identifier Control Plane", HFILL}
         },
         {&hf_gtp_ulink_teid_cp,
          { "Uplink TEID Control Plane", "gtp.ulink_teid_cp",
-           FT_UINT32, BASE_HEX, NULL, 0,
+           FT_UINT32, BASE_HEX_DEC, NULL, 0,
            "Uplink Tunnel Endpoint Identifier Control Plane", HFILL}
         },
         {&hf_gtp_teid_data,
          { "TEID Data I", "gtp.teid_data",
-           FT_UINT32, BASE_HEX, NULL, 0,
+           FT_UINT32, BASE_HEX_DEC, NULL, 0,
            "Tunnel Endpoint Identifier Data I", HFILL}
         },
         {&hf_gtp_ulink_teid_data,
          { "Uplink TEID Data I", "gtp.ulink_teid_data",
-           FT_UINT32, BASE_HEX, NULL, 0,
+           FT_UINT32, BASE_HEX_DEC, NULL, 0,
            "UplinkTunnel Endpoint Identifier Data I", HFILL}
         },
         {&hf_gtp_teid_ii,
          { "TEID Data II", "gtp.teid_ii",
-           FT_UINT32, BASE_HEX, NULL, 0,
+           FT_UINT32, BASE_HEX_DEC, NULL, 0,
            "Tunnel Endpoint Identifier Data II", HFILL}
         },
         {&hf_gtp_tid,
