@@ -514,6 +514,7 @@ typedef struct mimo_control
 #define TAG_CHANNEL_SWITCH_WRAPPER   196  /* IEEE Std 802.11ac */
 #define TAG_OPERATING_MODE_NOTIFICATION 199  /* IEEE Std 802.11ac */
 #define TAG_VENDOR_SPECIFIC_IE       221
+#define TAG_ELEMENT_ID_EXTENSION     255  /* IEEE Std 802.11ai */
 
 static const value_string tag_num_vals[] = {
   { TAG_SSID,                                 "SSID parameter set" },
@@ -681,9 +682,44 @@ static const value_string tag_num_vals[] = {
   { TAG_CHANNEL_SWITCH_WRAPPER,               "Channel Switch Wrapper" },
   { TAG_OPERATING_MODE_NOTIFICATION,          "Operating Mode Notification" },
   { TAG_VENDOR_SPECIFIC_IE,                   "Vendor Specific" },
+  { TAG_ELEMENT_ID_EXTENSION,                 "Element ID Extension" },
   { 0, NULL }
 };
 static value_string_ext tag_num_vals_ext = VALUE_STRING_EXT_INIT(tag_num_vals);
+
+#define ETAG_ASSOC_DELAY_INFO          1
+#define ETAG_FILS_REQ_PARAMS           2
+#define ETAG_FILS_KEY_CONFIRM          3
+#define ETAG_FILS_SESSION              4
+#define ETAG_FILS_HLP_CONTAINER        5
+#define ETAG_FILS_IP_ADDRESS_ASSIGN    6
+#define ETAG_KEY_DELIVERY              7
+#define ETAG_FILS_WRAPPED_DATA         8
+#define ETAG_FTM_SYNC_INFO             9
+#define ETAG_EXTENDED_REQUEST          10
+#define ETAG_ESTIMATED_SERVICE_PARAM   11
+#define ETAG_FILS_PUBLIC_KEY           12
+#define ETAG_FILS_NONCE                13
+#define ETAG_FUTURE_CHANNEL_GUIDANCE   14
+
+static const value_string tag_num_vals_eid_ext[] = {
+  { ETAG_ASSOC_DELAY_INFO,                    "Association Delay Info" },
+  { ETAG_FILS_REQ_PARAMS,                     "FILS Request Parameters" },
+  { ETAG_FILS_KEY_CONFIRM,                    "FILS Key Confirmation" },
+  { ETAG_FILS_SESSION,                        "FILS Session" },
+  { ETAG_FILS_HLP_CONTAINER,                  "FILS HLP Container" },
+  { ETAG_FILS_IP_ADDRESS_ASSIGN,              "FILS IP Address Assignment" },
+  { ETAG_KEY_DELIVERY,                        "Key Delivery" },
+  { ETAG_FILS_WRAPPED_DATA,                   "FILS Wrapped Data" },
+  { ETAG_FTM_SYNC_INFO,                       "FTM Synchronization Information" },
+  { ETAG_EXTENDED_REQUEST,                    "Extended Request" },
+  { ETAG_ESTIMATED_SERVICE_PARAM,             "Estimated Service Parameters" },
+  { ETAG_FILS_PUBLIC_KEY,                     "FILS Public Key" },
+  { ETAG_FILS_NONCE,                          "FILS Nonce" },
+  { ETAG_FUTURE_CHANNEL_GUIDANCE,             "Future Channel Guidance" },
+  { 0, NULL }
+};
+static value_string_ext tag_num_vals_eid_ext_ext = VALUE_STRING_EXT_INIT(tag_num_vals_eid_ext);
 
 static const value_string wfa_subtype_vals[] = {
   { WFA_SUBTYPE_P2P, "P2P" },
@@ -4862,6 +4898,13 @@ static int hf_ieee80211_tag_switching_stream_new_valid_id = -1;
 static int hf_ieee80211_tag_switching_stream_llt_type = -1;
 
 static int hf_ieee80211_mysterious_olpc_stuff = -1;
+
+static int hf_ieee80211_ext_tag = -1;
+static int hf_ieee80211_ext_tag_number = -1;
+static int hf_ieee80211_ext_tag_length = -1;
+static int hf_ieee80211_fils_session = -1;
+static int hf_ieee80211_fils_wrapped_data = -1;
+static int hf_ieee80211_fils_nonce = -1;
 
 /* ************************************************************************* */
 /*                               Protocol trees                              */
@@ -14517,6 +14560,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 {
   tvbuff_t     *tag_tvb;
   guint32       tag_no, tag_len;
+  guint32       ext_tag_no, ext_tag_len;
   proto_tree   *orig_tree = tree;
   proto_item   *ti        = NULL;
   proto_item   *ti_len, *ti_tag;
@@ -14529,15 +14573,27 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
   tag_len = tvb_get_guint8(tvb, offset + 1);
 
   if (tree) {
-    ti = proto_tree_add_item(orig_tree, hf_ieee80211_tag, tvb, offset, 2 + tag_len , ENC_NA);
-    proto_item_append_text(ti, ": %s", val_to_str_ext(tag_no, &tag_num_vals_ext, "Reserved (%d)"));
+    if (tag_no == TAG_ELEMENT_ID_EXTENSION) {
+      ext_tag_no  = tvb_get_guint8(tvb, offset + 2);
+      ti = proto_tree_add_item(orig_tree, hf_ieee80211_ext_tag, tvb, offset + 2, tag_len , ENC_NA);
+      proto_item_append_text(ti, ": %s", val_to_str_ext(ext_tag_no, &tag_num_vals_eid_ext_ext, "Reserved (%d)"));
+    } else {
+      ti = proto_tree_add_item(orig_tree, hf_ieee80211_tag, tvb, offset, 2 + tag_len , ENC_NA);
+      proto_item_append_text(ti, ": %s", val_to_str_ext(tag_no, &tag_num_vals_ext, "Reserved (%d)"));
+    }
 
     tree = proto_item_add_subtree(ti, ett_80211_mgt_ie);
 
   }
 
-  ti_tag = proto_tree_add_item(tree, hf_ieee80211_tag_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  ti_len = proto_tree_add_uint(tree, hf_ieee80211_tag_length, tvb, offset + 1, 1, tag_len);
+  if (tag_no == TAG_ELEMENT_ID_EXTENSION) {
+    ext_tag_len = tag_len - 1;
+    ti_tag = proto_tree_add_item(tree, hf_ieee80211_ext_tag_number, tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
+    ti_len = proto_tree_add_uint(tree, hf_ieee80211_ext_tag_length, tvb, offset + 1, 1, ext_tag_len);
+  } else {
+    ti_tag = proto_tree_add_item(tree, hf_ieee80211_tag_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    ti_len = proto_tree_add_uint(tree, hf_ieee80211_tag_length, tvb, offset + 1, 1, tag_len);
+  }
   if (tag_len > (guint)tvb_reported_length_remaining(tvb, offset)) {
     expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "Tag Length is longer than remaining payload");
@@ -15912,6 +15968,40 @@ ieee80211_tag_vendor_specific_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
       break;
     default:
       proto_tree_add_item(tree, hf_ieee80211_tag_vendor_data, tvb, offset, tag_vs_len, ENC_NA);
+      break;
+  }
+
+  return tvb_captured_length(tvb);
+}
+
+static int
+ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+  int tag_len = tvb_reported_length(tvb);
+  ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
+  int offset = 0;
+  guint32 ext_tag_len;
+  guint8 ext_tag_no;
+
+  if (tag_len < 1)
+  {
+    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be >= 1", tag_len);
+    return tvb_captured_length(tvb);
+  }
+  ext_tag_no = tvb_get_guint8(tvb, offset++);
+  ext_tag_len = tag_len - 1;
+
+  switch (ext_tag_no) {
+    case ETAG_FILS_SESSION:
+      proto_tree_add_item(tree, hf_ieee80211_fils_session, tvb, offset, ext_tag_len, ENC_NA);
+      break;
+    case ETAG_FILS_WRAPPED_DATA:
+      proto_tree_add_item(tree, hf_ieee80211_fils_wrapped_data, tvb, offset, ext_tag_len, ENC_NA);
+      break;
+    case ETAG_FILS_NONCE:
+      proto_tree_add_item(tree, hf_ieee80211_fils_nonce, tvb, offset, ext_tag_len, ENC_NA);
+      break;
+    default:
       break;
   }
 
@@ -27884,8 +27974,37 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_mysterious_olpc_stuff,
      {"Mysterious OLPC stuff", "wlan.mysterious_olpc_stuff",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }}
+      NULL, HFILL }},
 
+    {&hf_ieee80211_ext_tag,
+     {"Ext Tag", "wlan.ext_tag",
+      FT_NONE, BASE_NONE, 0x0, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ext_tag_number,
+     {"Ext Tag Number", "wlan.ext_tag.number",
+      FT_UINT8, BASE_DEC|BASE_EXT_STRING, &tag_num_vals_eid_ext_ext, 0,
+      "Element ID", HFILL }},
+
+    {&hf_ieee80211_ext_tag_length,
+     {"Ext Tag length", "wlan.ext_tag.length",
+      FT_UINT32, BASE_DEC, NULL, 0,
+      "Length of tag", HFILL }},
+
+    {&hf_ieee80211_fils_session,
+     {"FILS Session", "wlan.ext_tag.fils.session",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_fils_wrapped_data,
+     {"FILS Wrapped Data", "wlan.ext_tag.fils.wrapped_data",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_fils_nonce,
+     {"FILS Nonce", "wlan.ext_tag.fils.nonce",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }}
   };
 
   static hf_register_info aggregate_fields[] = {
@@ -28691,6 +28810,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.tag.number", TAG_DMG_LINK_MARGIN, create_dissector_handle(ieee80211_tag_dmg_link_margin, -1));
   dissector_add_uint("wlan.tag.number", TAG_DMG_LINK_ADAPTION_ACK, create_dissector_handle(ieee80211_tag_dmg_link_adaption_ack, -1));
   dissector_add_uint("wlan.tag.number", TAG_SWITCHING_STREAM, create_dissector_handle(ieee80211_tag_switching_stream, -1));
+  dissector_add_uint("wlan.tag.number", TAG_ELEMENT_ID_EXTENSION, create_dissector_handle(ieee80211_tag_element_id_extension, -1));
 
   /* Vendor specific actions */
   dissector_add_uint("wlan.action.vendor_specific", OUI_MARVELL, create_dissector_handle(dissect_vendor_action_marvell, -1));
