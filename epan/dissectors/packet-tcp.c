@@ -35,6 +35,7 @@
 #include <epan/show_exception.h>
 #include <epan/conversation_table.h>
 #include <epan/dissector_filters.h>
+#include <epan/sequence_analysis.h>
 #include <epan/reassemble.h>
 #include <epan/decode_as.h>
 #include <epan/exported_pdu.h>
@@ -618,6 +619,60 @@ static const int *tcp_option_mptcp_dss_flags[] = {
 
 const unit_name_string units_64bit_version = { " (64bits version)", NULL };
 
+
+static const char *
+tcp_flags_to_str(wmem_allocator_t *scope, const struct tcpheader *tcph)
+{
+    static const char flags[][4] = { "FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR", "NS" };
+    const int maxlength = 64; /* upper bounds, max 53B: 8 * 3 + 2 + strlen("Reserved") + 9 * 2 + 1 */
+
+    char *pbuf;
+    const char *buf;
+
+    int i;
+
+    buf = pbuf = (char *) wmem_alloc(scope, maxlength);
+    *pbuf = '\0';
+
+    for (i = 0; i < 9; i++) {
+        if (tcph->th_flags & (1 << i)) {
+            if (buf[0])
+                pbuf = g_stpcpy(pbuf, ", ");
+            pbuf = g_stpcpy(pbuf, flags[i]);
+        }
+    }
+
+    if (tcph->th_flags & TH_RES) {
+        if (buf[0])
+            pbuf = g_stpcpy(pbuf, ", ");
+        g_stpcpy(pbuf, "Reserved");
+    }
+
+    if (buf[0] == '\0')
+        buf = "<None>";
+
+    return buf;
+}
+static const char *
+tcp_flags_to_str_first_letter(const struct tcpheader *tcph)
+{
+    wmem_strbuf_t *buf = wmem_strbuf_new(wmem_packet_scope(), "");
+    unsigned i;
+    const unsigned flags_count = 12;
+    const char first_letters[] = "RRRNCEUAPRSF";
+
+    /* upper three bytes are marked as reserved ('R'). */
+    for (i = 0; i < flags_count; i++) {
+        if (((tcph->th_flags >> (flags_count - 1 - i)) & 1)) {
+            wmem_strbuf_append_c(buf, first_letters[i]);
+        } else {
+            wmem_strbuf_append(buf, UTF8_MIDDLE_DOT);
+        }
+    }
+
+    return wmem_strbuf_finalize(buf);
+}
+
 static void
 tcp_src_prompt(packet_info *pinfo, gchar *result)
 {
@@ -805,6 +860,59 @@ tcp_build_filter(packet_info *pinfo)
 
     return NULL;
 }
+
+/****************************************************************************/
+/* whenever a TCP packet is seen by the tap listener */
+/* Add a new tcp frame into the graph */
+static gboolean
+tcp_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *tcp_info)
+{
+    seq_analysis_info_t *sainfo = (seq_analysis_info_t *) ptr;
+    const struct tcpheader *tcph = (const struct tcpheader *)tcp_info;
+
+    if ((sainfo->all_packets)||(pinfo->fd->flags.passed_dfilter==1)){
+        const char* flags;
+        seq_analysis_item_t *sai;
+
+        sai = g_new0(seq_analysis_item_t, 1);
+        sai->frame_number = pinfo->num;
+        if (sainfo->any_addr) {
+            copy_address(&(sai->src_addr),&(pinfo->net_src));
+            copy_address(&(sai->dst_addr),&(pinfo->net_dst));
+        } else {
+            copy_address(&(sai->src_addr),&(pinfo->src));
+            copy_address(&(sai->dst_addr),&(pinfo->dst));
+        }
+        sai->port_src=pinfo->srcport;
+        sai->port_dst=pinfo->destport;
+        sai->protocol=g_strdup(port_type_to_str(pinfo->ptype));
+
+        flags = tcp_flags_to_str(NULL, tcph);
+
+        if ((tcph->th_have_seglen)&&(tcph->th_seglen!=0)){
+            sai->frame_label = g_strdup_printf("%s - Len: %u",flags, tcph->th_seglen);
+        }
+        else{
+            sai->frame_label = g_strdup(flags);
+        }
+
+        wmem_free(NULL, (void*)flags);
+
+        if (tcph->th_flags & TH_ACK)
+            sai->comment = g_strdup_printf("Seq = %u Ack = %u",tcph->th_seq, tcph->th_ack);
+        else
+            sai->comment = g_strdup_printf("Seq = %u",tcph->th_seq);
+
+        sai->line_style = 1;
+        sai->conv_num = (guint16) tcph->th_stream;
+        sai->display = TRUE;
+
+        g_queue_push_tail(sainfo->items, sai);
+    }
+
+    return TRUE;
+}
+
 
 gchar* tcp_follow_conv_filter(packet_info* pinfo, int* stream)
 {
@@ -5603,59 +5711,6 @@ dissect_tcp_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 seq,
     }
 }
 
-static const char *
-tcp_flags_to_str(const struct tcpheader *tcph)
-{
-    static const char flags[][4] = { "FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR", "NS" };
-    const int maxlength = 64; /* upper bounds, max 53B: 8 * 3 + 2 + strlen("Reserved") + 9 * 2 + 1 */
-
-    char *pbuf;
-    const char *buf;
-
-    int i;
-
-    buf = pbuf = (char *) wmem_alloc(wmem_packet_scope(), maxlength);
-    *pbuf = '\0';
-
-    for (i = 0; i < 9; i++) {
-        if (tcph->th_flags & (1 << i)) {
-            if (buf[0])
-                pbuf = g_stpcpy(pbuf, ", ");
-            pbuf = g_stpcpy(pbuf, flags[i]);
-        }
-    }
-
-    if (tcph->th_flags & TH_RES) {
-        if (buf[0])
-            pbuf = g_stpcpy(pbuf, ", ");
-        g_stpcpy(pbuf, "Reserved");
-    }
-
-    if (buf[0] == '\0')
-        buf = "<None>";
-
-    return buf;
-}
-static const char *
-tcp_flags_to_str_first_letter(const struct tcpheader *tcph)
-{
-    wmem_strbuf_t *buf = wmem_strbuf_new(wmem_packet_scope(), "");
-    unsigned i;
-    const unsigned flags_count = 12;
-    const char first_letters[] = "RRRNCEUAPRSF";
-
-    /* upper three bytes are marked as reserved ('R'). */
-    for (i = 0; i < flags_count; i++) {
-        if (((tcph->th_flags >> (flags_count - 1 - i)) & 1)) {
-            wmem_strbuf_append_c(buf, first_letters[i]);
-        } else {
-            wmem_strbuf_append(buf, UTF8_MIDDLE_DOT);
-        }
-    }
-
-    return wmem_strbuf_finalize(buf);
-}
-
 static gboolean
 capture_tcp(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
@@ -5950,7 +6005,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     } else
         tcph->th_have_seglen = FALSE;
 
-    flags_str = tcp_flags_to_str(tcph);
+    flags_str = tcp_flags_to_str(wmem_packet_scope(), tcph);
     flags_str_first_letter = tcp_flags_to_str_first_letter(tcph);
 
     col_append_lstr(pinfo->cinfo, COL_INFO,
@@ -7493,6 +7548,7 @@ proto_register_tcp(void)
     register_conversation_table(proto_tcp, FALSE, tcpip_conversation_packet, tcpip_hostlist_packet);
     register_conversation_filter("tcp", "TCP", tcp_filter_valid, tcp_build_filter);
 
+    register_seq_analysis("tcp", "TCP Flows", proto_tcp, NULL, 0, tcp_seq_analysis_packet);
 
     /* considers MPTCP as a distinct protocol (even if it's a TCP option) */
     proto_mptcp = proto_register_protocol("Multipath Transmission Control Protocol", "MPTCP", "mptcp");

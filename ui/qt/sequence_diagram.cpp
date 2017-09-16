@@ -263,7 +263,7 @@ void SequenceDiagram::draw(QCPPainter *painter)
             fg_pen.setColor(sel_pal.color(QPalette::HighlightedText));
             bg_color = sel_pal.color(QPalette::Highlight);
             selected_key_ = cur_key;
-        } else if (sainfo_->type == SEQ_ANALYSIS_ANY) {
+        } else if (strcmp(sainfo_->name, "any") == 0) {
             if (sai->has_color_filter) {
                 fg_pen.setColor(QColor().fromRgb(sai->fg_color));
                 bg_color = QColor().fromRgb(sai->bg_color);

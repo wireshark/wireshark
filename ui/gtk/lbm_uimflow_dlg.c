@@ -58,7 +58,7 @@ static lbm_uimflow_dialog_t dialog_data = { FALSE, -1, NULL, NULL, NULL, select_
 static void lbmc_uim_flow_graph_data_init(void)
 {
     dialog_data.graph_analysis = sequence_analysis_info_new();
-    dialog_data.graph_analysis->type = SEQ_ANALYSIS_ANY;
+    dialog_data.graph_analysis->name = "any";
     dialog_data.graph_analysis->all_packets = TRUE;
     dialog_data.graph_analysis->any_addr = TRUE;
 }

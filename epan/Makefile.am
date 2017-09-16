@@ -106,6 +106,7 @@ LIBWIRESHARK_SRC = \
 	reedsolomon.c		\
 	req_resp_hdrs.c		\
 	rtd_table.c		\
+	sequence_analysis.c	\
 	show_exception.c	\
 	srt_table.c		\
 	stat_tap_ui.c		\
@@ -263,6 +264,7 @@ LIBWIRESHARK_INCLUDES_PUBLIC = \
 	rtd_table.h		\
 	rtp_pt.h		\
 	sctpppids.h		\
+	sequence_analysis.h	\
 	show_exception.h	\
 	slow_protocol_subtypes.h \
 	sminmpec.h		\

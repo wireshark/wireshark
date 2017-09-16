@@ -256,6 +256,7 @@ set(LIBWIRESHARK_FILES
 	reedsolomon.c
 	req_resp_hdrs.c
 	rtd_table.c
+	sequence_analysis.c
 	show_exception.c
 	srt_table.c
 	stat_tap_ui.c

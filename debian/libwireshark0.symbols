@@ -1293,6 +1293,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  register_postdissector@Base 1.9.1
  register_postseq_cleanup_routine@Base 1.9.1
  register_rtd_table@Base 1.99.8
+ register_seq_analysis@Base 2.5.0
  register_shutdown_routine@Base 2.3.0
  register_srt_table@Base 1.99.8
  register_stat_tap_table_ui@Base 2.1.0
@@ -1364,6 +1365,19 @@ libwireshark.so.0 libwireshark0 #MINVER#
  scsi_smc_vals_ext@Base 1.12.0~rc1
  scsi_ssc_vals_ext@Base 1.12.0~rc1
  sctp_port_to_display@Base 1.99.2
+ sequence_analysis_find_by_name@Base 2.5.0
+ sequence_analysis_free_nodes@Base 2.5.0
+ sequence_analysis_get_name@Base 2.5.0
+ sequence_analysis_get_nodes@Base 2.5.0
+ sequence_analysis_get_packet_func@Base 2.5.0
+ sequence_analysis_get_tap_flags@Base 2.5.0
+ sequence_analysis_get_tap_listener_name@Base 2.5.0
+ sequence_analysis_get_ui_name@Base 2.5.0
+ sequence_analysis_info_free@Base 2.5.0
+ sequence_analysis_info_new@Base 2.5.0
+ sequence_analysis_list_free@Base 2.5.0
+ sequence_analysis_list_sort@Base 2.5.0
+ sequence_analysis_table_iterate_tables@Base 2.5.0
  serv_name_lookup@Base 2.1.0
  set_actual_length@Base 1.9.1
  set_column_custom_fields@Base 2.1.0

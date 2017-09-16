@@ -33,6 +33,7 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "sequence_diagram.h"
 #include "wireshark_application.h"
+#include <ui/qt/utils/variant_pointer.h>
 
 #include <QDir>
 #include <QFileDialog>
@@ -65,6 +66,12 @@
 static const double min_top_ = -1.0;
 static const double min_left_ = -0.5;
 
+typedef struct {
+    int curr_index;
+    QComboBox *flow;
+    SequenceInfo *info;
+} sequence_items_t;
+
 SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *info) :
     WiresharkDialog(parent, cf),
     ui(new Ui::SequenceDialog),
@@ -80,7 +87,7 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
 
     if (!info_) {
         info_ = new SequenceInfo(sequence_analysis_info_new());
-        info_->sainfo()->type = SEQ_ANALYSIS_ANY;
+        info_->sainfo()->name = "any";
         info_->sainfo()->all_packets = TRUE;
     } else {
         info_->ref();
@@ -153,13 +160,16 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     ui->showComboBox->setCurrentIndex(0);
     ui->addressComboBox->setCurrentIndex(0);
 
-    QComboBox *fcb = ui->flowComboBox;
-    fcb->addItem(ui->actionFlowAny->text(), SEQ_ANALYSIS_ANY);
-    fcb->addItem(ui->actionFlowTcp->text(), SEQ_ANALYSIS_TCP);
+    sequence_items_t item_data;
 
-    ui->flowComboBox->setCurrentIndex(info_->sainfo()->type);
+    item_data.curr_index = 0;
+    item_data.flow = ui->flowComboBox;
+    item_data.info = info_;
 
-    if (info_->sainfo()->type == SEQ_ANALYSIS_VOIP) {
+    //Add all registered analysis to combo box
+    sequence_analysis_table_iterate_tables(addFlowSequenceItem, &item_data);
+
+    if (strcmp(info_->sainfo()->name, "voip") == 0) {
         ui->flowComboBox->blockSignals(true);
         ui->controlFrame->hide();
     }
@@ -405,7 +415,7 @@ void SequenceDialog::fillDiagram()
 
     QCustomPlot *sp = ui->sequencePlot;
 
-    if (info_->sainfo()->type == SEQ_ANALYSIS_VOIP) {
+    if (strcmp(info_->sainfo()->name, "voip") == 0) {
         seq_diagram_->setData(info_->sainfo());
     } else {
         seq_diagram_->clearData();
@@ -587,9 +597,12 @@ void SequenceDialog::on_showComboBox_activated(int index)
 
 void SequenceDialog::on_flowComboBox_activated(int index)
 {
-    if (!info_->sainfo() || info_->sainfo()->type == SEQ_ANALYSIS_VOIP || index < 0) return;
+    if (!info_->sainfo() || (strcmp(info_->sainfo()->name, "voip") == 0) || index < 0)
+        return;
 
-    info_->sainfo()->type = static_cast<seq_analysis_type>(ui->flowComboBox->itemData(index).toInt());
+    register_analysis_t* analysis = VariantPointer<register_analysis_t>::asPtr(ui->flowComboBox->itemData(index));
+    info_->sainfo()->name = sequence_analysis_get_name(analysis);
+
     fillDiagram();
 }
 
@@ -671,6 +684,27 @@ void SequenceDialog::zoomXAxis(bool in)
 
     sp->xAxis2->scaleRange(h_factor, sp->xAxis->range().lower);
     sp->replot();
+}
+
+gboolean SequenceDialog::addFlowSequenceItem(const void* key, void *value, void *userdata)
+{
+    const char* name = (const char*)key;
+    register_analysis_t* analysis = (register_analysis_t*)value;
+    sequence_items_t* item_data = (sequence_items_t*)userdata;
+
+    /* XXX - Although "voip" isn't a registered name yet, it appears to have special
+       handling that will be done outside of registered data */
+    if (strcmp(name, "voip") == 0)
+        return FALSE;
+
+    item_data->flow->addItem(sequence_analysis_get_ui_name(analysis), VariantPointer<register_analysis_t>::asQVariant(analysis));
+
+    if (item_data->flow->itemData(item_data->curr_index).toString().compare(item_data->info->sainfo()->name) == 0)
+        item_data->flow->setCurrentIndex(item_data->curr_index);
+
+    item_data->curr_index++;
+
+    return FALSE;
 }
 
 SequenceInfo::SequenceInfo(seq_analysis_info_t *sainfo) :

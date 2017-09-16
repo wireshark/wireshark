@@ -103,7 +103,7 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
     tapinfo_.h225_cstype = H225_OTHER;
     tapinfo_.fs_option = all_flows ? FLOW_ALL : FLOW_ONLY_INVITES; /* flow show option */
     tapinfo_.graph_analysis = sequence_analysis_info_new();
-    tapinfo_.graph_analysis->type = SEQ_ANALYSIS_VOIP;
+    tapinfo_.graph_analysis->name = "voip";
     sequence_info_ = new SequenceInfo(tapinfo_.graph_analysis);
 
     voip_calls_init_all_taps(&tapinfo_);

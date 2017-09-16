@@ -117,6 +117,8 @@ private:
     void panAxes(int x_pixels, int y_pixels);
     void resetAxes(bool keep_lower = false);
     void goToAdjacentPacket(bool next);
+
+    static gboolean addFlowSequenceItem(const void *key, void *value, void *userdata);
 };
 
 #endif // SEQUENCE_DIALOG_H
