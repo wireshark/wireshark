@@ -479,7 +479,7 @@ else()
 	#
 	# Code that may be worth looking into (coding practices)
 	#
-	if((NOT ENABLE_ASAN) AND (NOT ENABLE_UBSAN))
+	if((NOT ENABLE_ASAN) AND (NOT ENABLE_UBSAN) AND (NOT DISABLE_FRAME_LARGER_THAN_WARNING))
 		#
 		# Only do this if neither ASan nor UBSan are
 		# enabled; the instrumentation they add increases
