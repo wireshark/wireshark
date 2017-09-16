@@ -32,11 +32,7 @@ public:
     void setModelData(QWidget *editor, QAbstractItemModel *model,
                       const QModelIndex &index) const;
 
-    void updateEditorGeometry(QWidget *editor,
-            const QStyleOptionViewItem &option, const QModelIndex &index) const;
-
 private slots:
-    void applyDirectory(const QModelIndex& index);
     void applyFilename(const QModelIndex& index);
     void applyColor(const QModelIndex& index);
 

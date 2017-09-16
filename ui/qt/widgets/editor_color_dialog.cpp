@@ -10,24 +10,67 @@
 
 #include <ui/qt/widgets/editor_color_dialog.h>
 
-EditorColorDialog::EditorColorDialog(const QModelIndex& index, QWidget* parent)
-    : QColorDialog(parent)
-    , index_(index)
-{
-
-}
+#include <QColorDialog>
+#include <QKeyEvent>
+#include <QStyle>
 
 EditorColorDialog::EditorColorDialog(const QModelIndex& index, const QColor& initial, QWidget* parent)
-    : QColorDialog(initial, parent)
+    : QLineEdit(parent)
+    , color_button_(new QPushButton(this))
     , index_(index)
+    , current_(initial)
 {
-
+    connect(color_button_, SIGNAL(clicked()), this, SLOT(applyColor()));
 }
 
-void EditorColorDialog::accept()
+// QAbstractItemView installs QAbstractItemDelegate's event filter after
+// we've been created. We need to install our own event filter after that
+// happens so that we can steal tab keypresses.
+void EditorColorDialog::focusInEvent(QFocusEvent *event)
 {
-    emit acceptEdit(index_);
-    QColorDialog::accept();
+    installEventFilter(this);
+    QLineEdit::focusInEvent(event);
+}
+
+void EditorColorDialog::focusOutEvent(QFocusEvent *event)
+{
+    removeEventFilter(this);
+    QLineEdit::focusOutEvent(event);
+}
+
+bool EditorColorDialog::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::KeyPress) {
+        QKeyEvent* key = static_cast<QKeyEvent*>(event);
+        if ( (key->key() == Qt::Key_Tab) && !color_button_->hasFocus()) {
+            color_button_->setFocus();
+            return true;
+        }
+    }
+    return QLineEdit::eventFilter(obj, event);
+}
+
+void EditorColorDialog::resizeEvent(QResizeEvent *)
+{
+    // Move the button to the end of the line edit and set its height.
+    QSize sz = color_button_->sizeHint();
+    int frame_width = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+    color_button_->move(rect().right() - frame_width - sz.width(),
+                        contentsRect().top());
+    color_button_->setMinimumHeight(contentsRect().height());
+    color_button_->setMaximumHeight(contentsRect().height());
+}
+
+void EditorColorDialog::applyColor()
+{
+    QColorDialog color_dlg;
+
+    color_dlg.setCurrentColor(current_);
+    if (color_dlg.exec() == QDialog::Accepted) {
+        current_ = color_dlg.currentColor();
+        emit acceptEdit(index_);
+    }
+
 }
 
 /*

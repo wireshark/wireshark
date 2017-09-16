@@ -11,23 +11,33 @@
 #ifndef EDITOR_COLOR_DIALOG_H_
 #define EDITOR_COLOR_DIALOG_H_
 
-#include <QColorDialog>
+#include <QLineEdit>
+#include <QPushButton>
 #include <QModelIndex>
 
-class EditorColorDialog : public QColorDialog
+class EditorColorDialog : public QLineEdit
 {
     Q_OBJECT
 public:
-    EditorColorDialog(const QModelIndex& index, QWidget* parent = 0);
     EditorColorDialog(const QModelIndex& index, const QColor& initial, QWidget* parent = 0);
 
-    void accept();
+    QColor currentColor() { return current_; }
+    virtual void focusInEvent(QFocusEvent *event);
+    virtual void focusOutEvent(QFocusEvent *event);
+    virtual bool eventFilter(QObject *obj, QEvent *event);
 
 signals:
     void acceptEdit(const QModelIndex& index);
 
+private slots:
+    void applyColor();
+
 protected:
+    void resizeEvent(QResizeEvent *);
+
+    QPushButton* color_button_;
     const QModelIndex index_; //saved index of table cell
+    QColor current_; //initial color in edit
 };
 
 #endif /* EDITOR_COLOR_DIALOG_H_ */
