@@ -1667,6 +1667,9 @@ static const value_string auth_alg[] = {
   {0x01, "Shared key"},
   {0x02, "Fast BSS Transition"},
   {0x03, "Simultaneous Authentication of Equals (SAE)"},
+  {0x04, "FILS Shared Key authentication without PFS"},
+  {0x05, "FILS Shared Key authentication with PFS"},
+  {0x06, "FILS Public Key authentication"},
   {0x80, "Network EAP"},  /* Cisco proprietary? */
   {0, NULL}
 };
