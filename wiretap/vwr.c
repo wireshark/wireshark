@@ -1990,8 +1990,13 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
             frame_size = rec_size - (stats_offset + vwr->MPDU_OFF + vVW510021_W_STATS_TRAILER_LEN);
             if (frame_size > ((int) msdu_length))
                 actual_octets = msdu_length;
-            else
+            else {
+                /*
+                 * XXX - does this mean "the packet was cut short during
+                 * capture" or "this is a malformed record"?
+                 */
                 actual_octets = frame_size;
+            }
         }
         else
         {
