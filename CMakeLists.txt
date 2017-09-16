@@ -473,6 +473,7 @@ else()
 		-Wno-overlength-strings
 		-Wno-long-long
 		-Wheader-guard
+		-Wcomma
 	)
 
 	#
