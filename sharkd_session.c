@@ -48,6 +48,7 @@
 #include <epan/stats_tree_priv.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/conversation_table.h>
+#include <epan/sequence_analysis.h>
 #include <epan/expert.h>
 #include <epan/export_object.h>
 #include <epan/follow.h>
@@ -318,6 +319,21 @@ sharkd_session_process_info_conv_cb(const void* key, void* value, void* userdata
 }
 
 static gboolean
+sharkd_session_seq_analysis_cb(const void *key, void *value, void *userdata)
+{
+	register_analysis_t *analysis = (register_analysis_t*) value;
+	int *pi = (int *) userdata;
+
+	printf("%s{", (*pi) ? "," : "");
+		printf("\"name\":\"%s\"", sequence_analysis_get_ui_name(analysis));
+		printf(",\"tap\":\"seqa:%s\"", (const char *) key);
+	printf("}");
+
+	*pi = *pi + 1;
+	return FALSE;
+}
+
+static gboolean
 sharkd_export_object_visit_cb(const void *key _U_, void *value, void *user_data)
 {
 	register_eo_t *eo = (register_eo_t*)value;
@@ -423,6 +439,10 @@ sharkd_follower_visit_cb(const void *key _U_, void *value, void *user_data)
  *                  'name' - response time delay name
  *                  'tap'  - sharkd tap-name for rtd
  *
+ *   (m) seqa    - available sequence analysis (flow) list, array of object with attributes:
+ *                  'name' - sequence analysis name
+ *                  'tap'  - sharkd tap-name
+ *
  *   (m) taps - available taps, array of object with attributes:
  *                  'name' - tap name
  *                  'tap'  - sharkd tap-name
@@ -492,6 +512,11 @@ sharkd_session_process_info(void)
 	printf(",\"convs\":[");
 	i = 0;
 	conversation_table_iterate_tables(sharkd_session_process_info_conv_cb, &i);
+	printf("]");
+
+	printf(",\"seqa\":[");
+	i = 0;
+	sequence_analysis_table_iterate_tables(sharkd_session_seq_analysis_cb, &i);
 	printf("]");
 
 	printf(",\"taps\":[");
@@ -973,6 +998,101 @@ sharkd_session_free_tap_expert_cb(void *tapdata)
 	g_slist_free_full(etd->details, g_free);
 	g_string_chunk_free(etd->text);
 	g_free(etd);
+}
+
+/**
+ * sharkd_session_process_tap_flow_cb()
+ *
+ * Output flow tap:
+ *   (m) tap         - tap name
+ *   (m) type:flow   - tap output type
+ *   (m) nodes       - array of strings with node address
+ *   (m) flows       - array of object with attributes:
+ *                  (m) t  - frame time string
+ *                  (m) n  - array of two numbers with source node index and destination node index
+ *                  (m) pn - array of two numbers with source and destination port
+ *                  (o) p  - protocol
+ *                  (o) c  - comment
+ */
+static void
+sharkd_session_process_tap_flow_cb(void *tapdata)
+{
+	seq_analysis_info_t *graph_analysis = (seq_analysis_info_t *) tapdata;
+	GList *flow_list;
+	guint i;
+
+	char time_str[COL_MAX_LEN];
+	const char *sepa = "";
+
+	sequence_analysis_get_nodes(graph_analysis);
+
+	printf("{\"tap\":\"seqa:%s\",\"type\":\"%s\"", graph_analysis->name, "flow");
+
+	printf(",\"nodes\":[");
+	for (i = 0; i < graph_analysis->num_nodes; i++)
+	{
+		char *addr_str;
+
+		if (i)
+			printf(",");
+
+		addr_str = address_to_display(NULL, &(graph_analysis->nodes[i]));
+		json_puts_string(addr_str);
+		wmem_free(NULL, addr_str);
+	}
+	printf("]");
+
+	printf(",\"flows\":[");
+
+	flow_list = g_queue_peek_nth_link(graph_analysis->items, 0);
+	while (flow_list)
+	{
+		seq_analysis_item_t *sai = (seq_analysis_item_t *) flow_list->data;
+		frame_data *fdata;
+
+		flow_list = g_list_next(flow_list);
+
+		if (!sai->display)
+			continue;
+
+		printf("%s{", sepa);
+
+		fdata = frame_data_sequence_find(cfile.frames, sai->frame_number);
+
+		/* XXX, sequence_analysis_item_set_timestamp not called, do it manually */
+		set_fd_time(cfile.epan, fdata, time_str);
+		printf("\"t\":\"%s\"", time_str);
+
+		printf(",\"n\":[%u,%u]", sai->src_node, sai->dst_node);
+		printf(",\"pn\":[%u,%u]", sai->port_src, sai->port_dst);
+
+		if (sai->protocol)
+		{
+			printf(",\"p\":");
+			json_puts_string(sai->protocol);
+		}
+
+		if (sai->comment)
+		{
+			printf(",\"c\":");
+			json_puts_string(sai->comment);
+		}
+
+		printf("}");
+		sepa = ",";
+	}
+
+	printf("]");
+
+	printf("},");
+}
+
+static void
+sharkd_session_free_tap_flow_cb(void *tapdata)
+{
+	seq_analysis_info_t *graph_analysis = (seq_analysis_info_t *) tapdata;
+
+	sequence_analysis_info_free(graph_analysis);
 }
 
 struct sharkd_conv_tap_data
@@ -1987,6 +2107,7 @@ sharkd_session_process_tap_rtp_cb(void *arg)
  *                  for type:expert see sharkd_session_process_tap_expert_cb()
  *                  for type:rtd see sharkd_session_process_tap_rtd_cb()
  *                  for type:srt see sharkd_session_process_tap_srt_cb()
+ *                  for type:flow see sharkd_session_process_tap_flow_cb()
  *
  *   (m) err   - error code
  */
@@ -2048,6 +2169,36 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 
 			tap_data = expert_tap;
 			tap_free = sharkd_session_free_tap_expert_cb;
+		}
+		else if (!strncmp(tok_tap, "seqa:", 5))
+		{
+			seq_analysis_info_t *graph_analysis;
+			register_analysis_t *analysis;
+			const char *tap_name;
+			tap_packet_cb tap_func;
+			guint tap_flags;
+
+			analysis = sequence_analysis_find_by_name(tok_tap + 5);
+			if (!analysis)
+			{
+				fprintf(stderr, "sharkd_session_process_tap() seq analysis %s not found\n", tok_tap + 5);
+				continue;
+			}
+
+			graph_analysis = sequence_analysis_info_new();
+			graph_analysis->name = tok_tap + 5;
+			graph_analysis->all_packets = TRUE;
+			/* TODO, make configurable */
+			graph_analysis->any_addr = FALSE;
+
+			tap_name  = sequence_analysis_get_tap_listener_name(analysis);
+			tap_flags = sequence_analysis_get_tap_flags(analysis);
+			tap_func  = sequence_analysis_get_packet_func(analysis);
+
+			tap_error = register_tap_listener(tap_name, graph_analysis, NULL, tap_flags, NULL, tap_func, sharkd_session_process_tap_flow_cb);
+
+			tap_data = graph_analysis;
+			tap_free = sharkd_session_free_tap_flow_cb;
 		}
 		else if (!strncmp(tok_tap, "conv:", 5) || !strncmp(tok_tap, "endpt:", 6))
 		{
