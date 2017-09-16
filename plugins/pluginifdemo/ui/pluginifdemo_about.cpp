@@ -42,9 +42,8 @@ PluginIFDemo_About::~PluginIFDemo_About()
     delete ui;
 }
 
-void PluginIFDemo_About::on_buttonBox_clicked(QAbstractButton *button)
+void PluginIFDemo_About::on_buttonBox_clicked(QAbstractButton *)
 {
-    Q_UNUSED(button);
     this->close();
 }
 
