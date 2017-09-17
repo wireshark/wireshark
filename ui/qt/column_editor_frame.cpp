@@ -52,6 +52,9 @@ ColumnEditorFrame::ColumnEditorFrame(QWidget *parent) :
     for (int i = 0; i < NUM_COL_FMTS; i++) {
         ui->typeComboBox->addItem(col_format_desc(i), QVariant(i));
     }
+
+    connect(ui->fieldsNameLineEdit, SIGNAL(textChanged(QString)),
+            ui->fieldsNameLineEdit, SLOT(checkCustomColumn(QString)));
 }
 
 ColumnEditorFrame::~ColumnEditorFrame()
