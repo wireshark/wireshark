@@ -34,6 +34,7 @@
 
 #include <QPushButton>
 #include <QComboBox>
+#include <QKeyEvent>
 
 ColumnEditorFrame::ColumnEditorFrame(QWidget *parent) :
     AccordionFrame(parent),
@@ -153,6 +154,25 @@ void ColumnEditorFrame::on_buttonBox_accepted()
     }
 
     on_buttonBox_rejected();
+}
+
+void ColumnEditorFrame::keyPressEvent(QKeyEvent *event)
+{
+    if (event->modifiers() == Qt::NoModifier) {
+        if (event->key() == Qt::Key_Escape) {
+            on_buttonBox_rejected();
+        } else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
+            if (ui->buttonBox->button(QDialogButtonBox::Ok)->isEnabled()) {
+                on_buttonBox_accepted();
+            } else if (ui->fieldsNameLineEdit->syntaxState() == SyntaxLineEdit::Empty) {
+                emit pushFilterSyntaxStatus(tr("Missing fields."));
+            } else if (ui->fieldsNameLineEdit->syntaxState() != SyntaxLineEdit::Valid) {
+                emit pushFilterSyntaxStatus(tr("Invalid fields."));
+            } else if (ui->occurrenceLineEdit->syntaxState() == SyntaxLineEdit::Invalid) {
+                emit pushFilterSyntaxStatus(tr("Invalid occurrence value."));
+            }
+        }
+    }
 }
 
 /*
