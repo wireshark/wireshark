@@ -1250,7 +1250,7 @@ void zbee_sec_add_key_to_keyring(packet_info *pinfo, const guint8 *key)
 
         if ( nwk_keyring ) {
             if ( !*nwk_keyring ||
-                    memcmp( ((key_record_t *)((GSList *)(*nwk_keyring))->data)->key, &key,
+                    memcmp( ((key_record_t *)((GSList *)(*nwk_keyring))->data)->key, key,
                         ZBEE_APS_CMD_KEY_LENGTH) ) {
                 /* Store a new or different key in the key ring */
                 key_record.frame_num = pinfo->num;
