@@ -753,7 +753,6 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 
 #.FN_BODY Digit VAL_PTR = &digit
   guint32 digit;
-  gchar digit_char;
   wmem_strbuf_t* digits_strbuf; /* The string of either an IMSI or a MCC-MNC pair */
 %(DEFAULT_BODY)s
 
@@ -762,16 +761,20 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   }
 
   digits_strbuf = private_data_get_digits_strbuf(actx);
-  if(digit > 9) {
-    private_data_set_digits_strbuf_parsing_failed_flag(actx, TRUE);
-    return offset;
+  if (digits_strbuf) {
+    gchar digit_char;
+
+    if(digit > 9) {
+      private_data_set_digits_strbuf_parsing_failed_flag(actx, TRUE);
+      return offset;
+    }
+
+    /* Converting to the matching gchar */
+    digit_char = (gchar)(digit + '0');
+
+    /* Appending to the digits string */
+    wmem_strbuf_append_c(digits_strbuf, digit_char);
   }
-
-  /* Converting to the matching gchar */
-  digit_char = (gchar)(digit + '0');
-
-  /* Appending to the digits string */
-  wmem_strbuf_append_c(digits_strbuf, digit_char);
 
 #.FN_BODY RSR-VCC-Info/ims-Information VAL_PTR = &imsInformation_tvb
   tvbuff_t *imsInformation_tvb=NULL;
