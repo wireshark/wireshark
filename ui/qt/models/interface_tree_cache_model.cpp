@@ -346,7 +346,7 @@ const interface_t * InterfaceTreeCacheModel::lookup(const QModelIndex &index) co
 bool InterfaceTreeCacheModel::isAllowedToBeEdited(const QModelIndex &index) const
 {
 #ifndef HAVE_LIBPCAP
-    Q_UNUSED index;
+    Q_UNUSED(index);
 #else
     const interface_t * device = lookup(index);
     if ( device == 0 )
@@ -374,7 +374,7 @@ bool InterfaceTreeCacheModel::isAllowedToBeEdited(const QModelIndex &index) cons
 bool InterfaceTreeCacheModel::isAvailableField(const QModelIndex &index) const
 {
 #ifndef HAVE_LIBPCAP
-    Q_UNUSED index;
+    Q_UNUSED(index);
 #else
     const interface_t * device = lookup(index);
 
