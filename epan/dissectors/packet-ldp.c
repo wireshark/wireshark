@@ -349,203 +349,278 @@ static gboolean ldp_desegment = TRUE;
  * The following define all the TLV types I know about
  * http://www.iana.org/assignments/ldp-namespaces
  */
+#define TLV_SEQUENCE_NUMBER                     0x0001  /* [RFC7769] */
+#define TLV_FEC                                 0x0100  /* [RFC5036] */
+#define TLV_ADDRESS_LIST                        0x0101  /* [RFC5036] */
+#define TLV_HOP_COUNT                           0x0103  /* [RFC5036] */
+#define TLV_PATH_VECTOR                         0x0104  /* [RFC5036] */
+#define TLV_GENERIC_LABEL                       0x0200  /* [RFC5036] */
+#define TLV_ATM_LABEL                           0x0201  /* [RFC5036] */
+#define TLV_FRAME_RELAY_LABEL                   0x0202  /* [RFC5036] */
+#define TLV_FT_PROTECTION                       0x0203  /* [RFC3479] */
+#define TLV_LDP_UPSTREAM_ASSIGNED_LABEL         0x0204  /* [RFC6389] */
+#define TLV_LDP_UPSTREAM_ASSIGNED_LABEL_REQUEST 0x0205  /* [RFC6389] */
+#define TLV_ENTROPY_LABEL_CAPA                  0x0206  /* [RFC6790] */
+#define TLV_STATUS                              0x0300  /* [RFC5036] */
+#define TLV_EXTENDED_STATUS                     0x0301  /* [RFC5036] */
+#define TLV_RETURNED_PDU                        0x0302  /* [RFC5036] */
+#define TLV_RETURNED_MESSAGE                    0x0303  /* [RFC5036] */
+#define TLV_RETURNED_TLVS                       0x0304  /* [RFC5561] */
+#define TLV_COMMON_HELLO_PARAMS                 0x0400  /* [RFC5036] */
+#define TLV_IPV4_TRANSPORT_ADDRESS              0x0401  /* [RFC5036] */
+#define TLV_CONFIGURATION_SEQUENCE_NUMBER       0x0402  /* [RFC5036] */
+#define TLV_IPV6_TRANSPORT_ADDRESS              0x0403  /* [RFC5036] */
+#define TLV_MAC                                 0x0404  /* [RFC4762] */
+#define TLV_CRYPTOGRAPHIC_AUTHENTICATION        0x0405  /* [RFC7349] */
+#define TLV_MAC_FLUSH_PARAMS                    0x0406  /* [RFC7361] */
+#define TLV_PBB_B_MAC_LIST_SUB                  0x0407  /* [RFC7361] */
+#define TLV_PBB_I_SID_LIST_SUB                  0x0408  /* [RFC7361] */
+#define TLV_COMMON_SESSION_PARAMS               0x0500  /* [RFC5036] */
+#define TLV_ATM_SESSION_PARAMS                  0x0501  /* [RFC5036] */
+#define TLV_FRAME_RELAY_SESSION_PARAMS          0x0502  /* [RFC5036] */
+#define TLV_FT_SESSION                          0x0503  /* [RFC3479] */
+#define TLV_FT_ACK                              0x0504  /* [RFC3479] */
+#define TLV_FT_CORK                             0x0505  /* [RFC3479] */
+#define TLV_DYNAMIC_CAPA_ANNOUNCEMENT           0x0506  /* [RFC5561] */
+#define TLV_LDP_UPSTREAM_LABEL_ASSIGNMENT_CAPA  0x0507  /* [RFC6389] */
+#define TLV_P2MP_CAPA_PARAM                     0x0508  /* [RFC6388] */
+#define TLV_MP2MP_CAPA_PARAM                    0x0509  /* [RFC6388] */
+#define TLV_MBB_CAPA_PARAM                      0x050A  /* [RFC6388] */
+#define TLV_TYPED_WILDCARD_FEC_CAPA             0x050B  /* [RFC5918] */
+#define TLV_MULTI_TOPOLOGY_CAPA                 0x050C  /* [RFC7307] */
+#define TLV_STATE_ADVERTISEMENT_CONTROL_CAPA    0x050D  /* [RFC7473] */
+#define TLV_MRT_CAPA                            0x050E  /* draft-iefp-mpls-ldp-mrt */
+#define TLV_TARGETED_APPLICATION_CAPA           0x050F  /* [RFC8223] */
+#define TLV_LABEL_REQUEST_MESSAGE_ID            0x0600  /* [RFC5036] */
+#define TLV_MTU                                 0x0601  /* [RFC3988] */
+#define TLV_UNRECOGNIZED_NOTIFICATION_CAPA      0x0603  /* [RFC5919] */
+#define TLV_ICCP_CAPA                           0x0700  /* [RFC7275] */
+#define TLV_DUAL_STACK_CAPA                     0x0701  /* [RFC7552] */
+#define TLV_EXPLICIT_ROUTE                      0x0800  /* [RFC3212] */
+#define TLV_IPV4_PREFIX_ER_HOP                  0x0801  /* [RFC3212] */
+#define TLV_IPV6_PREFIX_ER_HOP                  0x0802  /* [RFC3212] */
+#define TLV_AUTONOMOUS_SYSTEM_NUMBER_ER_HOP     0x0803  /* [RFC3212] */
+#define TLV_LSP_ID_ER_HOP                       0x0804  /* [RFC3212] */
+#define TLV_L2_PW_ADDRESS_OF_SWITCHING_POINT    0x0805  /* [RFC7392] */
+#define TLV_TRAFFIC_PARAMS                      0x0810  /* [RFC3212] */
+#define TLV_PREEMPTION                          0x0820  /* [RFC3212] */
+#define TLV_LSPID                               0x0821  /* [RFC3212] */
+#define TLV_RESOURCE_CLASS                      0x0822  /* [RFC3212] */
+#define TLV_ROUTE_PINNING                       0x0823  /* [RFC3212] */
+#define TLV_GENERALIZED_LABEL_REQUEST           0x0824  /* [RFC3472] */
+#define TLV_GENERALIZED_LABEL                   0x0825  /* [RFC3472] */
+#define TLV_UPSTREAM_LABEL                      0x0826  /* [RFC3472] */
+#define TLV_LABEL_SET                           0x0827  /* [RFC3472] */
+#define TLV_WAVEBAND_LABEL                      0x0828  /* [RFC3472] */
+#define TLV_ER_HOP                              0x0829  /* [RFC3472] */
+#define TLV_ACCEPTABLE_LABEL_SET                0x082A  /* [RFC3472] */
+#define TLV_ADMIN_STATUS                        0x082B  /* [RFC3472] */
+#define TLV_INTERFACE_ID                        0x082C  /* [RFC3472] */
+#define TLV_IPV4_INTERFACE_ID                   0x082D  /* [RFC3472] */
+#define TLV_IPV6_INTERFACE_ID                   0x082E  /* [RFC3472] */
+#define TLV_IPV4_IF_ID_STATUS                   0x082F  /* [RFC3472] */
+#define TLV_IPV6_IF_ID_STATUS                   0x0830  /* [RFC3472] */
+#define TLV_OP_SP_CALL_ID                       0x0831  /* [RFC3475] */
+#define TLV_GU_CALL_ID                          0x0832  /* [RFC3475] */
+#define TLV_CALL_CAPA                           0x0833  /* [RFC3475] */
+#define TLV_CRANKBACK                           0x0834  /* [RFC3475] */
+#define TLV_PROTECTION                          0x0835  /* [RFC3472] */
+#define TLV_LSP_TUNNEL_INTERFACE_ID             0x0836  /* [RFC3480] */
+#define TLV_UNNUMBERED_INTERFACE_ID             0x0837  /* [RFC3480] */
+#define TLV_SONET_SDH_TRAFFIC_PARAMS            0x0838  /* [RFC4606] */
+#define TLV_DIFF_SERV                           0x0901  /* [RFC3270] */
+#define TLV_HSMP_LSP_CAPA_PARAM                 0x0902  /* [RFC7140] */
+#define TLV_IPV4_SOURCE_ID                      0x0960  /* [RFC3476] */
+#define TLV_IPV6_SOURCE_ID                      0x0961  /* [RFC3476] */
+#define TLV_NSAP_SOURCE_ID                      0x0962  /* [RFC3476] */
+#define TLV_IPV4_DESTINATION_ID                 0x0963  /* [RFC3476] */
+#define TLV_IPV6_DESTINATION_ID                 0x0964  /* [RFC3476] */
+#define TLV_NSAP_DESTINATION_ID                 0x0965  /* [RFC3476] */
+#define TLV_EGRESS_LABEL                        0x0966  /* [RFC3476] */
+#define TLV_LOCAL_CONNECTION_ID                 0x0967  /* [RFC3476] */
+#define TLV_DIVERSITY                           0x0968  /* [RFC3476] */
+#define TLV_CONTRACT_ID                         0x0969  /* [RFC3476] */
+#define TLV_PW_STATUS                           0x096A  /* [RFC8077] */
+#define TLV_PW_INTERFACE_PARAMS                 0x096B  /* [RFC8077] */
+#define TLV_PW_GROUP_ID                         0x096C  /* [RFC8077] */
+#define TLV_PSEUDOWIRE_SWITCHING_POINT_PE       0x096D  /* [RFC6073] */
+#define TLV_BANDWIDTH                           0x096E  /* [RFC7267] */
+#define TLV_LDP_MP_STATUS_TLV_TYPE              0x096F  /* [RFC6388] */
+#define TLV_UNI_SERVICE_LEVEL                   0x0970  /* [RFC3476] */
+#define TLV_QUEUE_REQUEST                       0x0971  /* [RFC7032] */
+#define TLV_MP_NODE_PROTECTION_CAPA             0x0972  /* [RFC7715] */
+#define TLV_PSN_TUNNEL_BINDING                  0x0973  /* [RFC7965] */
+#define TLV_EGRESS_PROTECTION_CAPA              0x0974  /* [RFC8104] */
 
-#define TLV_FEC                       0x0100
-#define TLV_ADDRESS_LIST              0x0101
-#define TLV_HOP_COUNT                 0x0103
-#define TLV_PATH_VECTOR               0x0104
-#define TLV_GENERIC_LABEL             0x0200
-#define TLV_ATM_LABEL                 0x0201
-#define TLV_FRAME_LABEL               0x0202
-#define TLV_FT_PROTECTION             0x0203
-#define TLV_ENTROPY_LABEL             0x0206
-#define TLV_STATUS                    0x0300
-#define TLV_EXTENDED_STATUS           0x0301
-#define TLV_RETURNED_PDU              0x0302
-#define TLV_RETURNED_MESSAGE          0x0303
-#define TLV_COMMON_HELLO_PARMS        0x0400
-#define TLV_IPV4_TRANSPORT_ADDRESS    0x0401
-#define TLV_CONFIGURATION_SEQNO       0x0402
-#define TLV_IPV6_TRANSPORT_ADDRESS    0x0403
-#define TLV_MAC                       0x0404
-#define TLV_COMMON_SESSION_PARMS      0x0500
-#define TLV_ATM_SESSION_PARMS         0x0501
-#define TLV_FRAME_RELAY_SESSION_PARMS 0x0502
-#define TLV_FT_SESSION                0x0503
-#define TLV_FT_ACK                    0x0504
-#define TLV_FT_CORK                   0x0505
-#define TLV_LABEL_REQUEST_MESSAGE_ID  0x0600    /* RFC5036 */
-#define TLV_MTU                       0x0601    /* RFC3988 */
-#define TLV_ER                        0x0800
-#define TLV_ER_HOP_IPV4               0x0801
-#define TLV_ER_HOP_IPV6               0x0802
-#define TLV_ER_HOP_AS                 0x0803
-#define TLV_ER_HOP_LSPID              0x0804
-#define TLV_TRAFFIC_PARAM             0x0810
-#define TLV_PREEMPTION                0x0820
-#define TLV_LSPID                     0x0821
-#define TLV_RESOURCE_CLASS            0x0822
-#define TLV_ROUTE_PINNING             0x0823
-#define TLV_UPSTRM_LBL_ASS_CAP        0x0507
-#define TLV_UPSTRM_ASS_LBL_REQ        0x0205
-#define TLV_UPSTRM_ASS_LBL            0x0204
-#define TLV_IP_MULTICAST_TUNNEL       0x001E
-#define TLV_MPLS_CONTEXT_LBL          0x001F
-#define TLV_LDP_P2MP_LSP              0x001D
-#define TLV_RSVP_TE_P2MP_LSP          0x001C
-/*
-0x0824             Generalized Label Request TLV        [RFC3472]
-0x0825             Generalized Label TLV                [RFC3472]
-0x0826             Upstream Label TLV                   [RFC3472]
-0x0827             Label Set TLV                        [RFC3472]
-0x0828             Waveband Label TLV                   [RFC3472]
-0x0829             ER-Hop TLV                           [RFC3472]
-0x082a             Acceptable Label Set TLV             [RFC3472]
-0x082b             Admin Status TLV                     [RFC3472]
-0x082c             Interface ID TLV                     [RFC3472]
-0x082d             IPV4 Interface ID TLV                [RFC3472]
-0x082e             IPV6 Interface ID TLV                [RFC3472]
-0x082f             IPv4 IF_ID Status TLV                [RFC3472]
-0x0830             IPv6 IF_ID Status TLV                [RFC3472]
-0x0831             Op-Sp Call ID TLV                    [RFC3475]
-0x0832             GU Call ID TLV                       [RFC3475]
-0x0833             Call Capability TLV                  [RFC3475]
-0x0834             Crankback TLV                        [RFC3475]
-0x0835             Protection TLV                       [RFC3472]
-0x0836             LSP_TUNNEL_INTERFACE_ID TLV          [RFC3480]
-0x0837             Unnumbered Interface ID TLV          [RFC3480]
-0x0838             SONET/SDH Traffic Parameters TLV     [RFC4606]
-*/
-#define TLV_IPV4_INTERFACE_ID        0x082D
-#define TLV_DIFFSERV                 0x0901
+/* Not in IANA list */
+#define TLV_RSVP_TE_P2MP_LSP         0x001C
+#define TLV_LDP_P2MP_LSP             0x001D
+#define TLV_IP_MULTICAST_TUNNEL      0x001E
+#define TLV_MPLS_CONTEXT_LBL         0x001F
 #define TLV_VENDOR_PRIVATE_START     0x3E00
 #define TLV_VENDOR_PRIVATE_END       0x3EFF
 #define TLV_EXPERIMENTAL_START       0x3F00
 #define TLV_EXPERIMENTAL_END         0x3FFF
-#define TLV_PW_STATUS                0x096A
-#define TLV_PW_INTERFACE_PARAMETERS  0x096B
-#define TLV_PW_GROUPING              0x096C
 
 static const value_string tlv_type_names[] = {
-    { TLV_FEC,                       "Forwarding Equivalence Classes TLV" },
-    { TLV_ADDRESS_LIST,              "Address List TLV"},
-    { TLV_HOP_COUNT,                 "Hop Count TLV"},
-    { TLV_PATH_VECTOR,               "Path Vector TLV"},
-    { TLV_GENERIC_LABEL,             "Generic Label TLV"},
-    { TLV_ATM_LABEL,                 "ATM Label TLV"},
-    { TLV_FRAME_LABEL,               "Frame Label TLV"},
-    { TLV_FT_PROTECTION,             "FT Protection TLV"},
-    { TLV_ENTROPY_LABEL,             "Entropy Label Capability TLV"},
-    { TLV_STATUS,                    "Status TLV"},
-    { TLV_EXTENDED_STATUS,           "Extended Status TLV"},
-    { TLV_RETURNED_PDU,              "Returned PDU TLV"},
-    { TLV_RETURNED_MESSAGE,          "Returned Message TLV"},
-    { TLV_COMMON_HELLO_PARMS,        "Common Hello Parameters TLV"},
-    { TLV_IPV4_TRANSPORT_ADDRESS,    "IPv4 Transport Address TLV"},
-    { TLV_CONFIGURATION_SEQNO,       "Configuration Sequence Number TLV"},
-    { TLV_IPV6_TRANSPORT_ADDRESS,    "IPv6 Transport Address TLV"},
-    { TLV_MAC,                       "MAC TLV"},
-    { TLV_COMMON_SESSION_PARMS,      "Common Session Parameters TLV"},
-    { TLV_ATM_SESSION_PARMS,         "ATM Session Parameters TLV"},
-    { TLV_FRAME_RELAY_SESSION_PARMS, "Frame Relay Session Parameters TLV"},
-    { TLV_FT_SESSION,                "FT Session TLV"},
-    { TLV_FT_ACK,                    "FT ACK TLV"},
-    { TLV_FT_CORK,                   "FT Cork TLV"},
-    { TLV_LABEL_REQUEST_MESSAGE_ID,  "Label Request Message ID TLV"},
-    { TLV_MTU,                       "MTU TLV"},
-    { TLV_LSPID,                     "LSP ID TLV"},
-    { TLV_ER,                        "Explicit route TLV"},
-    { TLV_ER_HOP_IPV4,               "ER hop IPv4 prefix TLV"},
-    { TLV_ER_HOP_IPV6,               "ER hop IPv6 prefix TLV"},
-    { TLV_ER_HOP_AS,                 "ER hop Autonomous system number prefix TLV"},
-    { TLV_TRAFFIC_PARAM,             "Traffic parameters TLV"},
-    { TLV_PREEMPTION,                "Preemption TLV"},
-    { TLV_ER_HOP_LSPID,              "ER hop LSPID prefix TLV"},
-    { TLV_RESOURCE_CLASS,            "Resource Class (Color) TLV"},
-    { TLV_ROUTE_PINNING,             "Route Pinning TLV"},
-    { 0x0824,                        "Generalized Label Request TLV"},        /* RFC3472 */
-    { 0x0825,                        "Generalized Label TLV"},                /* RFC3472 */
-    { 0x0826,                        "Upstream Label TLV"},                   /* RFC3472 */
-    { 0x0827,                        "Label Set TLV"},                        /* RFC3472 */
-    { 0x0828,                        "Waveband Label TLV"},                   /* RFC3472 */
-    { 0x0829,                        "ER-Hop TLV"},                           /* RFC3472 */
-    { 0x082a,                        "Acceptable Label Set TLV"},             /* RFC3472 */
-    { 0x082b,                        "Admin Status TLV"},                     /* RFC3472 */
-    { 0x082c,                        "Interface ID TLV"},                     /* RFC3472 */
-    { TLV_IPV4_INTERFACE_ID,         "IPV4 Interface ID TLV"},                /* RFC3472 */
-    { 0x082e,                        "IPV6 Interface ID TLV"},                /* RFC3472 */
-    { 0x082f,                        "IPv4 IF_ID Status TLV"},                /* RFC3472 */
-    { 0x0830,                        "IPv6 IF_ID Status TLV"},                /* RFC3472 */
-    { 0x0831,                        "Op-Sp Call ID TLV"},                    /* RFC3475 */
-    { 0x0832,                        "GU Call ID TLV"},                       /* RFC3475 */
-    { 0x0833,                        "Call Capability TLV"},                  /* RFC3475 */
-    { 0x0834,                        "Crankback TLV"},                        /* RFC3475 */
-    { 0x0835,                        "Protection TLV"},                       /* RFC3472 */
-    { 0x0836,                        "LSP_TUNNEL_INTERFACE_ID TLV"},          /* RFC3480 */
-    { 0x0837,                        "Unnumbered Interface ID TLV"},          /* RFC3480 */
-    { 0x0838,                        "SONET/SDH Traffic Parameters TLV"},     /* RFC4606]*/
-    { 0x0960,                        "IPv4 Source ID TLV"},                   /*[RFC3476]*/
-    { 0x0961,                        "IPv6 Source ID TLV"},                   /*[RFC3476]*/
-    { 0x0962,                        "NSAP Source ID TLV"},                   /*[RFC3476]*/
-    { 0x0963,                        "IPv4 Destination ID TLV"},              /*[RFC3476]*/
-    { 0x0964,                        "IPv6 Destination ID TLV"},              /*[RFC3476]*/
-    { 0x0965,                        "NSAP Destination ID TLV"},              /*[RFC3476]*/
-    { 0x0966,                        "Egress Label TLV"},                     /*[RFC3476]*/
-    { 0x0967,                        "Local Connection ID TLV"},              /*[RFC3476]*/
-    { 0x0968,                        "Diversity TLV"},                        /*[RFC3476]*/
-    { 0x0969,                        "Contract ID TLV"},                      /*[RFC3476]*/
-    { TLV_PW_STATUS,                 "PW Status TLV"},                        /*[RFC4447]*/
-    { TLV_PW_INTERFACE_PARAMETERS,   "PW Interface Parameters TLV"},          /*[RFC4447]*/
-    { TLV_PW_GROUPING,               "Group ID TLV"},                         /*[RFC4447]*/
-    { 0x096E,                        "Bandwidth TLV"},                        /*[draft-ietf-pwe3-dynamic-ms-pw](TEMPORARY - Expires 2008-11-21)*/
-    { 0x0970,                        "UNI Service Level TLV"},                /*[RFC3476]*/
-    { TLV_DIFFSERV,                  "Diff-Serv TLV"},
-    { TLV_VENDOR_PRIVATE_START,      "Vendor Private TLV"},
-    { TLV_EXPERIMENTAL_START,        "Experimental TLV"},
-    { TLV_UPSTRM_LBL_ASS_CAP,        "LDP Upstream Label Assignment Capability TLV"},
-    { TLV_UPSTRM_ASS_LBL_REQ,        "Upstream-Assigned Label Request TLV"},
-    { TLV_UPSTRM_ASS_LBL,            "Upstream-Assigned Label TLV"},
-    { TLV_IP_MULTICAST_TUNNEL,       "IP Multicast Tunnel TLV"},
-    { TLV_MPLS_CONTEXT_LBL,          "MPLS Context Label TLV"},
-    { TLV_LDP_P2MP_LSP,              "LDP P2MP LSP TLV"},
-    { TLV_RSVP_TE_P2MP_LSP,          "RSVP-TE P2MP LSP TLV"},
+    { TLV_SEQUENCE_NUMBER,                     "Sequence Number TLV"                    },
+    { TLV_FEC,                                 "FEC"                                    },
+    { TLV_ADDRESS_LIST,                        "Address List"                           },
+    { TLV_HOP_COUNT,                           "Hop Count"                              },
+    { TLV_PATH_VECTOR,                         "Path Vector"                            },
+    { TLV_GENERIC_LABEL,                       "Generic Label"                          },
+    { TLV_ATM_LABEL,                           "ATM Label"                              },
+    { TLV_FRAME_RELAY_LABEL,                   "Frame Relay Label"                      },
+    { TLV_FT_PROTECTION,                       "FT Protection TLV"                      },
+    { TLV_LDP_UPSTREAM_ASSIGNED_LABEL,         "LDP Upstream-Assigned Label TLV"        },
+    { TLV_LDP_UPSTREAM_ASSIGNED_LABEL_REQUEST, "LDP Upstream-Assigned Label Request TLV" },
+    { TLV_ENTROPY_LABEL_CAPA,                  "Entropy Label Capability TLV"           },
+    { TLV_STATUS,                              "Status"                                 },
+    { TLV_EXTENDED_STATUS,                     "Extended Status"                        },
+    { TLV_RETURNED_PDU,                        "Returned PDU"                           },
+    { TLV_RETURNED_MESSAGE,                    "Returned Message"                       },
+    { TLV_RETURNED_TLVS,                       "Returned TLVs"                          },
+    { TLV_COMMON_HELLO_PARAMS,                 "Common Hello Parameters"                },
+    { TLV_IPV4_TRANSPORT_ADDRESS,              "IPv4 Transport Address"                 },
+    { TLV_CONFIGURATION_SEQUENCE_NUMBER,       "Configuration Sequence Number"          },
+    { TLV_IPV6_TRANSPORT_ADDRESS,              "IPv6 Transport Address"                 },
+    { TLV_MAC,                                 "MAC TLV"                                },
+    { TLV_CRYPTOGRAPHIC_AUTHENTICATION,        "Cryptographic Authentication TLV"       },
+    { TLV_MAC_FLUSH_PARAMS,                    "MAC Flush Parameters TLV"               },
+    { TLV_PBB_B_MAC_LIST_SUB,                  "PBB B-MAC List Sub-TLV"                 },
+    { TLV_PBB_I_SID_LIST_SUB,                  "PBB I-SID List Sub-TLV"                 },
+    { TLV_COMMON_SESSION_PARAMS,               "Common Session Parameters"              },
+    { TLV_ATM_SESSION_PARAMS,                  "ATM Session Parameters"                 },
+    { TLV_FRAME_RELAY_SESSION_PARAMS,          "Frame Relay Session Parameters"         },
+    { TLV_FT_SESSION,                          "FT Session TLV"                         },
+    { TLV_FT_ACK,                              "FT Ack TLV"                             },
+    { TLV_FT_CORK,                             "FT Cork TLV"                            },
+    { TLV_DYNAMIC_CAPA_ANNOUNCEMENT,           "Dynamic Capability Announcement"        },
+    { TLV_LDP_UPSTREAM_LABEL_ASSIGNMENT_CAPA,  "LDP Upstream Label Assignment Capability TLV" },
+    { TLV_P2MP_CAPA_PARAM,                     "P2MP Capability Parameter"              },
+    { TLV_MP2MP_CAPA_PARAM,                    "MP2MP Capability Parameter"             },
+    { TLV_MBB_CAPA_PARAM,                      "MBB Capability Parameter"               },
+    { TLV_TYPED_WILDCARD_FEC_CAPA,             "Typed Wildcard FEC Capability"          },
+    { TLV_MULTI_TOPOLOGY_CAPA,                 "Multi-Topology Capability"              },
+    { TLV_STATE_ADVERTISEMENT_CONTROL_CAPA,    "State Advertisement Control Capability" },
+    { TLV_TARGETED_APPLICATION_CAPA,           "Targeted Application Capability"        },
+    { TLV_LABEL_REQUEST_MESSAGE_ID,            "Label Request Message ID"               },
+    { TLV_MTU,                                 "MTU TLV"                                },
+    { TLV_UNRECOGNIZED_NOTIFICATION_CAPA,      "Unrecognized Notification Capability"   },
+    { TLV_ICCP_CAPA,                           "ICCP capability TLV"                    },
+    { TLV_DUAL_STACK_CAPA,                     "Dual-Stack capability"                  },
+    { TLV_EXPLICIT_ROUTE,                      "Explicit Route TLV"                     },
+    { TLV_IPV4_PREFIX_ER_HOP,                  "Ipv4 Prefix ER-Hop TLV"                 },
+    { TLV_IPV6_PREFIX_ER_HOP,                  "Ipv6 Prefix ER-Hop TLV"                 },
+    { TLV_AUTONOMOUS_SYSTEM_NUMBER_ER_HOP,     "Autonomous System Number ER-Hop TLV"    },
+    { TLV_LSP_ID_ER_HOP,                       "LSP-ID ER-HOP TLV"                      },
+    { TLV_L2_PW_ADDRESS_OF_SWITCHING_POINT,    "L2 PW Address of Switching Point"       },
+    { TLV_TRAFFIC_PARAMS,                      "Traffic Parameters TLV"                 },
+    { TLV_PREEMPTION,                          "Preemption TLV"                         },
+    { TLV_LSPID,                               "LSPID TLV"                              },
+    { TLV_RESOURCE_CLASS,                      "Resource Class TLV"                     },
+    { TLV_ROUTE_PINNING,                       "Route Pinning TLV"                      },
+    { TLV_GENERALIZED_LABEL_REQUEST,           "Generalized Label Request TLV"          },
+    { TLV_GENERALIZED_LABEL,                   "Generalized Label TLV"                  },
+    { TLV_UPSTREAM_LABEL,                      "Upstream Label TLV"                     },
+    { TLV_LABEL_SET,                           "Label Set TLV"                          },
+    { TLV_WAVEBAND_LABEL,                      "Waveband Label TLV"                     },
+    { TLV_ER_HOP,                              "ER-Hop TLV"                             },
+    { TLV_ACCEPTABLE_LABEL_SET,                "Acceptable Label Set TLV"               },
+    { TLV_ADMIN_STATUS,                        "Admin Status TLV"                       },
+    { TLV_INTERFACE_ID,                        "Interface ID TLV"                       },
+    { TLV_IPV4_INTERFACE_ID,                   "IPV4 Interface ID TLV"                  },
+    { TLV_IPV6_INTERFACE_ID,                   "IPV6 Interface ID TLV"                  },
+    { TLV_IPV4_IF_ID_STATUS,                   "IPv4 IF_ID Status TLV"                  },
+    { TLV_IPV6_IF_ID_STATUS,                   "IPv6 IF_ID Status TLV"                  },
+    { TLV_OP_SP_CALL_ID,                       "Op-Sp Call ID TLV"                      },
+    { TLV_GU_CALL_ID,                          "GU Call ID TLV"                         },
+    { TLV_CALL_CAPA,                           "Call Capability TLV"                    },
+    { TLV_CRANKBACK,                           "Crankback TLV"                          },
+    { TLV_PROTECTION,                          "Protection TLV"                         },
+    { TLV_LSP_TUNNEL_INTERFACE_ID,             "LSP_TUNNEL_INTERFACE_ID TLV"            },
+    { TLV_UNNUMBERED_INTERFACE_ID,             "Unnumbered Interface ID TLV"            },
+    { TLV_SONET_SDH_TRAFFIC_PARAMS,            "SONET/SDH Traffic Parameters TLV"       },
+    { TLV_DIFF_SERV,                           "Diff-Serv TLV"                          },
+    { TLV_HSMP_LSP_CAPA_PARAM,                 "HSMP LSP Capability Parameter"          },
+    { TLV_IPV4_SOURCE_ID,                      "IPv4 Source ID TLV"                     },
+    { TLV_IPV6_SOURCE_ID,                      "IPv6 Source ID TLV"                     },
+    { TLV_NSAP_SOURCE_ID,                      "NSAP Source ID TLV"                     },
+    { TLV_IPV4_DESTINATION_ID,                 "IPv4 Destination ID TLV"                },
+    { TLV_IPV6_DESTINATION_ID,                 "IPv6 Destination ID TLV"                },
+    { TLV_NSAP_DESTINATION_ID,                 "NSAP Destination ID TLV"                },
+    { TLV_EGRESS_LABEL,                        "Egress Label TLV"                       },
+    { TLV_LOCAL_CONNECTION_ID,                 "Local Connection ID TLV"                },
+    { TLV_DIVERSITY,                           "Diversity TLV"                          },
+    { TLV_CONTRACT_ID,                         "Contract ID TLV"                        },
+    { TLV_PW_STATUS,                           "PW Status TLV"                          },
+    { TLV_PW_INTERFACE_PARAMS,                 "PW Interface Parameters TLV"            },
+    { TLV_PW_GROUP_ID,                         "PW Group ID TLV"                        },
+    { TLV_PSEUDOWIRE_SWITCHING_POINT_PE,       "Pseudowire Switching Point PE TLV"      },
+    { TLV_BANDWIDTH,                           "Bandwidth TLV"                          },
+    { TLV_LDP_MP_STATUS_TLV_TYPE,              "LDP MP Status TLV Type"                 },
+    { TLV_UNI_SERVICE_LEVEL,                   "UNI Service Level TLV"                  },
+    { TLV_QUEUE_REQUEST,                       "Queue Request TLV"                      },
+    { TLV_MP_NODE_PROTECTION_CAPA,             "MP Node Protection Capability"          },
+    { TLV_PSN_TUNNEL_BINDING,                  "PSN Tunnel Binding TLV"                 },
+    { TLV_EGRESS_PROTECTION_CAPA,              "Egress Protection Capability"           },
+
+    { TLV_RSVP_TE_P2MP_LSP,                    "RSVP-TE P2MP LSP TLV"                   },
+    { TLV_LDP_P2MP_LSP,                        "LDP P2MP LSP TLV"                       },
+    { TLV_IP_MULTICAST_TUNNEL,                 "IP Multicast Tunnel TLV"                },
+    { TLV_IP_MULTICAST_TUNNEL,                 "IP Multicast Tunnel TLV"                },
+
     { 0, NULL}
 };
 
 /*
- * The following define all the message types I know about
+ * https://www.iana.org/assignments/ldp-namespaces
  */
 
-#define LDP_NOTIFICATION                0x0001
-#define LDP_HELLO                       0x0100
-#define LDP_INITIALIZATION              0x0200
-#define LDP_KEEPALIVE                   0x0201
-#define LDP_ADDRESS                     0x0300
-#define LDP_ADDRESS_WITHDRAWAL          0x0301
-#define LDP_LABEL_MAPPING               0x0400
-#define LDP_LABEL_REQUEST               0x0401
-#define LDP_LABEL_WITHDRAWAL            0x0402
-#define LDP_LABEL_RELEASE               0x0403
-#define LDP_LABEL_ABORT_REQUEST         0x0404
+#define LDP_NOTIFICATION                0x0001  /* [RFC5036] */
+#define LDP_HELLO                       0x0100  /* [RFC5036] */
+#define LDP_INITIALIZATION              0x0200  /* [RFC5036] */
+#define LDP_KEEPALIVE                   0x0201  /* [RFC5036] */
+#define LDP_CAPABILITY                  0x0202  /* [RFC5561] */
+#define LDP_ADDRESS                     0x0300  /* [RFC5036] */
+#define LDP_ADDRESS_WITHDRAWAL          0x0301  /* [RFC5036] */
+#define LDP_LABEL_MAPPING               0x0400  /* [RFC5036] */
+#define LDP_LABEL_REQUEST               0x0401  /* [RFC5036] */
+#define LDP_LABEL_WITHDRAWAL            0x0402  /* [RFC5036] */
+#define LDP_LABEL_RELEASE               0x0403  /* [RFC5036] */
+#define LDP_LABEL_ABORT_REQUEST         0x0404  /* [RFC5036] */
+#define LDP_CALL_SETUP                  0x0500  /* [RFC3475] */
+#define LDP_CALL_RELEASE                0x0501  /* [RFC3475] */
+#define LDP_RG_CONNECT_MESSAGE          0x0700  /* [RFC7275] */
+#define LDP_RG_DISCONNECT_MESSAGE       0x0701  /* [RFC7275] */
+#define LDP_RG_NOTIFICATION_MESSAGE     0x0702  /* [RFC7275] */
+#define LDP_RG_APPLICATION_DATA_MESSAGE 0x0703  /* [RFC7275] */
 #define LDP_VENDOR_PRIVATE_START        0x3E00
 #define LDP_VENDOR_PRIVATE_END          0x3EFF
 #define LDP_EXPERIMENTAL_MESSAGE_START  0x3F00
 #define LDP_EXPERIMENTAL_MESSAGE_END    0x3FFF
 
 static const value_string ldp_message_types[] = {
-    {LDP_NOTIFICATION,               "Notification Message"},
-    {LDP_HELLO,                      "Hello Message"},
-    {LDP_INITIALIZATION,             "Initialization Message"},
-    {LDP_KEEPALIVE,                  "Keep Alive Message"},
-    {LDP_ADDRESS,                    "Address Message"},
-    {LDP_ADDRESS_WITHDRAWAL,         "Address Withdrawal Message"},
-    {LDP_LABEL_MAPPING,              "Label Mapping Message"},
-    {LDP_LABEL_REQUEST,              "Label Request Message"},
-    {LDP_LABEL_WITHDRAWAL,           "Label Withdrawal Message"},
-    {LDP_LABEL_RELEASE,              "Label Release Message"},
-    {LDP_LABEL_ABORT_REQUEST,        "Label Abort Request Message"},
-    {LDP_VENDOR_PRIVATE_START,       "Vendor-Private Message"},
-    {LDP_EXPERIMENTAL_MESSAGE_START, "Experimental Message"},
+    {LDP_NOTIFICATION,                 "Notification Message"},
+    {LDP_HELLO,                        "Hello Message"},
+    {LDP_INITIALIZATION,               "Initialization Message"},
+    {LDP_KEEPALIVE,                    "Keep Alive Message"},
+    {LDP_CAPABILITY,                   "Capability Message"},
+    {LDP_ADDRESS,                      "Address Message"},
+    {LDP_ADDRESS_WITHDRAWAL,           "Address Withdrawal Message"},
+    {LDP_LABEL_MAPPING,                "Label Mapping Message"},
+    {LDP_LABEL_REQUEST,                "Label Request Message"},
+    {LDP_LABEL_WITHDRAWAL,             "Label Withdrawal Message"},
+    {LDP_LABEL_RELEASE,                "Label Release Message"},
+    {LDP_LABEL_ABORT_REQUEST,          "Label Abort Request Message"},
+    {LDP_CALL_SETUP,                   "Call Setup Message"},
+    {LDP_CALL_RELEASE,                 "Call Release Message"},
+    {LDP_RG_CONNECT_MESSAGE,           "RG Connect Message"},
+    {LDP_RG_DISCONNECT_MESSAGE,        "RG Disconnect Message"},
+    {LDP_RG_NOTIFICATION_MESSAGE,      "RG Notification Message"},
+    {LDP_RG_APPLICATION_DATA_MESSAGE,  "RG Application Data Message"},
+    {LDP_VENDOR_PRIVATE_START,         "Vendor-Private Message"},
+    {LDP_EXPERIMENTAL_MESSAGE_START,   "Experimental Message"},
     {0, NULL}
 };
 
@@ -567,26 +642,39 @@ static const value_string tlv_unknown_vals[] = {
     {0, NULL}
 };
 
-#define WILDCARD_FEC    1
-#define PREFIX_FEC      2
-#define HOST_FEC        3
-#define CRLSP_FEC       4
-#define VC_FEC          0x80    /* draft-martini-l2circuit-trans-mpls */
-#define GEN_FEC         0x81
-#define P2MP_FEC        0x06
-#define MP2MP_FEC_UP    0x07
-#define MP2MP_FEC_DOWN  0x08
+#define WILDCARD_FEC                  0x01    /* [RFC5036][RFC7358] */
+#define PREFIX_FEC                    0x02    /* [RFC5036][RFC7358] */
+#define HOST_FEC                      0x03    /* "Unassigned" according to IANA */
+#define CRLSP_FEC                     0x04    /* [RFC3212][RFC7358] */
+#define TYPED_WILDCARD_FEC            0x05    /* [RFC5918][RFC7358] */
+#define P2MP_FEC                      0x06    /* [RFC6388][RFC7358] */
+#define MP2MP_FEC_UP                  0x07    /* [RFC6388][RFC7358] */
+#define MP2MP_FEC_DOWN                0x08    /* [RFC6388][RFC7358] */
+#define HSMP_UPSTREAM                 0x09    /* [RFC7140][RFC7358] */
+#define HSMP_DOWNSTREAM               0x0A    /* [RFC7140][RFC7358] */
+#define PWID_FEC_ELEMENT              0x80    /* [RFC8077][RFC7358] */
+#define GENERALIZED_PWID_FEC          0x81    /* [RFC8077][RFC7358] */
+#define P2MP_PW_UPSTREAM_FEC          0x82    /* [draft-ietf-pwe3-p2mp-pw][RFC7358] */
+#define PROTECTION_FEC                0x83    /* [RFC8104][RFC7358] */
+#define P2MP_PW_DOWNSTREAM_FEC        0x84    /* [draft-ietf-pwe3-p2mp-pw][RFC7358] */
 
 const value_string fec_types_vals[] = {
-  {WILDCARD_FEC,        "Wildcard FEC"},
-  {PREFIX_FEC,          "Prefix FEC"},
-  {HOST_FEC,            "Host Address FEC"},
-  {CRLSP_FEC,           "CR LSP FEC"},
-  {VC_FEC,              "Virtual Circuit FEC"},
-  {GEN_FEC,             "Generalized PWid FEC"},
-  {P2MP_FEC,            "P2MP FEC"},
-  {MP2MP_FEC_UP,        "MP2MP FEC upstream"},
-  {MP2MP_FEC_DOWN,      "MP2MP FEC Downstream"},
+  {WILDCARD_FEC,                      "Wildcard FEC"},
+  {PREFIX_FEC,                        "Prefix FEC"},
+  {HOST_FEC,                          "Host Address FEC"},
+  {CRLSP_FEC,                         "CR LSP FEC"},
+  {TYPED_WILDCARD_FEC,                "Typed Wildcard FEC Element"},
+  {P2MP_FEC,                          "P2MP"},
+  {MP2MP_FEC_UP,                      "MP2MP-up"},
+  {MP2MP_FEC_DOWN,                    "MP2MP-down"},
+  {HSMP_UPSTREAM,                     "HSMP-upstream"},
+  {HSMP_DOWNSTREAM,                   "HSMP-downstream"},
+  {PWID_FEC_ELEMENT,                  "PWid FEC Element"},
+  {GENERALIZED_PWID_FEC,              "Generalized PWid FEC Element"},
+  {P2MP_PW_UPSTREAM_FEC,              "P2MP PW Upstream FEC Element"},
+  {PROTECTION_FEC,                    "Protection FEC Element"},
+  {P2MP_PW_DOWNSTREAM_FEC,            "P2MP_PW_DOWNSTREAM_FEC"},
+
   {0, NULL}
 };
 
@@ -602,7 +690,7 @@ const value_string fec_vc_types_vals[] = {
     {0x0001, "Frame Relay DLCI (Martini Mode)"},
     {0x0002, "ATM AAL5 SDU VCC transport"},
     {0x0003, "ATM transparent cell transport"},
-    {0x0004, "Ethernet VLAN"},
+    {0x0004, "Ethernet Tagged Mode"},
     {0x0005, "Ethernet"},
     {0x0006, "HDLC"},
     {0x0007, "PPP"},
@@ -620,10 +708,17 @@ const value_string fec_vc_types_vals[] = {
     {0x0013, "Structure-agnostic E3 over Packet"},
     {0x0014, "Structure-agnostic T3 (DS3) over Packet"},
     {0x0015, "CESoPSN basic mode"},
-    {0x0016, "TDMoIP basic mode"},
+    {0x0016, "TDMoIP AAL1 Mode"},
     {0x0017, "CESoPSN TDM with CAS"},
-    {0x0018, "TDMoIP TDM with CAS"},
+    {0x0018, "TDMoIP AAL2 Mode"},
     {0x0019, "Frame Relay DLCI"},
+    {0x001A, "ROHC Transport Header-compressed Packets"},
+    {0x001B, "ECRTP Transport Header-compressed Packets"},
+    {0x001C, "IPHC Transport Header-compressed Packets"},
+    {0x001D, "cRTP Transport Header-compressed Packets"},
+    {0x001E, "ATM VP Virtual Trunk"},
+    {0x001F, "FC Port Mode"},
+
     {0, NULL}
 };
 
@@ -663,10 +758,21 @@ static const true_false_string fec_vc_tdmopt_f = {
 #define FEC_VC_INTERFACEPARAM_FCSRETENT    0x0A
 #define FEC_VC_INTERFACEPARAM_TDMOPTION    0x0B
 #define FEC_VC_INTERFACEPARAM_VCCV         0x0C
+#define FEC_VC_INTERFACEPARAM_ROHCOMPLS    0x0D
+#define FEC_VC_INTERFACEPARAM_TDMOIPAAL1C  0x0E
+#define FEC_VC_INTERFACEPARAM_CEIOMPLS     0x0F
+#define FEC_VC_INTERFACEPARAM_TDMOIPAAL1   0x10
+#define FEC_VC_INTERFACEPARAM_TDMOIPAAL2   0x11
+#define FEC_VC_INTERFACEPARAM_STACK        0x16
 #define FEC_VC_INTERFACEPARAM_FLOWLABEL    0x17
+#define FEC_VC_INTERFACEPARAM_PWGENFLAGS   0x18
+#define FEC_VC_INTERFACEPARAM_VCCVEXTCV    0x19
+#define FEC_VC_INTERFACEPARAM_ETREE        0x1A
+#define FEC_VC_INTERFACEPARAM_ZTEPRIVATE   0xFD
+
 
 static const value_string fec_vc_interfaceparm[] = {
-  {FEC_VC_INTERFACEPARAM_MTU,           "MTU"},
+  {FEC_VC_INTERFACEPARAM_MTU,           "Interface MTU"},
   {FEC_VC_INTERFACEPARAM_MAXCATMCELLS,  "Max Concatenated ATM cells"},
   {FEC_VC_INTERFACEPARAM_DESCRIPTION,   "Interface Description"},
   {FEC_VC_INTERFACEPARAM_CEPBYTES,      "CEP/TDM Payload Bytes"},
@@ -678,7 +784,18 @@ static const value_string fec_vc_interfaceparm[] = {
   {FEC_VC_INTERFACEPARAM_FCSRETENT,     "FCS retention indicator"},
   {FEC_VC_INTERFACEPARAM_TDMOPTION,     "TDM options"},
   {FEC_VC_INTERFACEPARAM_VCCV,          "VCCV"},
+  {FEC_VC_INTERFACEPARAM_ROHCOMPLS,     "ROHC over MPLS configuration"},
+  {FEC_VC_INTERFACEPARAM_TDMOIPAAL1C,   "TDMoIP AAL1 cells per packet"},
+  {FEC_VC_INTERFACEPARAM_CEIOMPLS,      "CRTP/ECRTP/IPHC HC over MPLS configuration"},
+  {FEC_VC_INTERFACEPARAM_TDMOIPAAL1,    "TDMoIP AAL1 mode"},
+  {FEC_VC_INTERFACEPARAM_TDMOIPAAL2,    "TDMoIP AAL2 Options"},
+  {FEC_VC_INTERFACEPARAM_STACK,         "Stack capability"},
   {FEC_VC_INTERFACEPARAM_FLOWLABEL,     "Flow Label"},
+  {FEC_VC_INTERFACEPARAM_PWGENFLAGS,    "PW Generic Protocol Flags"},
+  {FEC_VC_INTERFACEPARAM_VCCVEXTCV,     "VCCV Extended CV Parameter"},
+  {FEC_VC_INTERFACEPARAM_ETREE,         "E-Tree"},
+  {FEC_VC_INTERFACEPARAM_ZTEPRIVATE,    "Zte optional Supplier private interface parameters"},
+
   {0, NULL},
 };
 
@@ -838,58 +955,115 @@ static const true_false_string tlv_status_fbit = {
 };
 
 static const value_string tlv_status_data[] = {
-    { 0, "Success"},
-    { 1, "Bad LDP Identifier"},
-    { 2, "Bad Protocol Version"},
-    { 3, "Bad PDU Length"},
-    { 4, "Unknown Message Type"},
-    { 5, "Bad Message Length"},
-    { 6, "Unknown TLV"},
-    { 7, "Bad TLV Length"},
-    { 8, "Malformed TLV Value"},
-    { 9, "Hold Timer Expired"},
-    {10, "Shutdown"},
-    {11, "Loop Detected"},
-    {12, "Unknown FEC"},
-    {13, "No Route"},
-    {14, "No Label Resources"},
-    {15, "Label Resources / Available"},
-    {16, "Session Rejected / No Hello"},
-    {17, "Session Rejected / Parameters Advertisement Mode"},
-    {18, "Session Rejected / Parameters Max PDU Length"},
-    {19, "Session Rejected / Parameters Label Range"},
-    {20, "KeepAlive Timer Expired"},
-    {21, "Label Request Aborted"},
-    {22, "Missing Message Parameters"},
-    {23, "Unsupported Address Family"},
-    {24, "Session Rejected / Bad KeepAlive Time"},
-    {25, "Internal Error"},
-    {26, "No LDP Session"},
-    {27, "Zero FT seqnum"},
-    {28, "Unexpected TLV / Session Not FT"},
-    {29, "Unexpected TLV / Label Not FT"},
-    {30, "Missing FT Protection TLV"},
-    {31, "FT ACK sequence error"},
-    {32, "Temporary Shutdown"},
-    {33, "FT Seq Numbers Exhausted"},
-    {34, "FT Session parameters / changed"},
-    {35, "Unexpected FT Cork TLV"},
-    {0x01000001, "Unexpected Diff-Serv TLV"},
-    {0x01000002, "Unsupported PHB"},
-    {0x01000003, "Invalid EXP<->PHB Mapping"},
-    {0x01000004, "Unsupported PSC"},
-    {0x01000005, "Per-LSP context allocation failure"},
-    {0x04000001, "Bad Explicit Routing TLV Error"},
-    {0x04000002, "Bad Strict Node Error"},
-    {0x04000003, "Bad Strict Node Error"},
-    {0x04000004, "Bad Initial ER-Hop Error"},
-    {0x04000005, "Resource Unavailable"},
-    {0x04000006, "Traffic Parameters Unavailable"},
-    {0x04000007, "LSP Preempted"},
-    {0x04000008, "Modify Request Not Supported"},
-    {0x20000001, "Illegal C-Bit"},
-    {0x20000002, "Wrong C-Bit"},
-    {0x00000028,  "PW status"},
+    { 0x00000000, "Success"                                },
+    { 0x00000001, "Bad LDP Identifier"                     },
+    { 0x00000002, "Bad Protocol Version"                   },
+    { 0x00000003, "Bad PDU Length"                         },
+    { 0x00000004, "Unknown Message Type"                   },
+    { 0x00000005, "Bad Message Length"                     },
+    { 0x00000006, "Unknown TLV"                            },
+    { 0x00000007, "Bad TLV Length"                         },
+    { 0x00000008, "Malformted TLV Value"                   },
+    { 0x00000009, "Hold Timer Expired"                     },
+    { 0x0000000A, "Shutdown"                               },
+    { 0x0000000B, "Loop Detected"                          },
+    { 0x0000000C, "Unknown FEC"                            },
+    { 0x0000000D, "No Route"                               },
+    { 0x0000000E, "No Label Resources"                     },
+    { 0x0000000F, "Label Resources/Available"              },
+    { 0x00000010, "Session Rejected/No Hello"              },
+    { 0x00000011, "Session Rejected/Parameters Advertisement Mode" },
+    { 0x00000012, "Session Rejected/Parameters Max PDU Length" },
+    { 0x00000013, "Session Rejected/Parameters Label Range" },
+    { 0x00000014, "KeepAlive Timer Expired"                },
+    { 0x00000015, "Label Request Aborted"                  },
+    { 0x00000016, "Missing Message Parameters"             },
+    { 0x00000017, "Unsupported Address Family"             },
+    { 0x00000018, "Session Rejected/Bad KeepAlive Time"    },
+    { 0x00000019, "Internal Error"                         },
+    { 0x0000001A, "No LDP Session"                         },
+    { 0x0000001B, "Zero FT seqnum"                         },
+    { 0x0000001C, "Unexpected TLV / Session Not FT"        },
+    { 0x0000001D, "Unexpected TLV / Label Not FT"          },
+    { 0x0000001E, "Missing FT Protection TLV"              },
+    { 0x0000001F, "FT ACK sequence error"                  },
+    { 0x00000020, "Temporary Shutdown"                     },
+    { 0x00000021, "FT Seq Numbers Exhausted"               },
+    { 0x00000022, "FT Session parameters / changed"        },
+    { 0x00000023, "Unexpected FT Cork TLV"                 },
+    { 0x00000024, "Illegal C-Bit"                          },
+    { 0x00000025, "Wrong C-Bit"                            },
+    { 0x00000026, "Incompatible bit-rate"                  },
+    { 0x00000027, "CEP-TDM mis-configuration"              },
+    { 0x00000028, "PW Status"                              },
+    { 0x0000002A, "Generic Misconfiguration Error"         },
+    { 0x0000002B, "Label Withdraw PW Status Method Not Supported" },
+    { 0x0000002C, "IP Address of CE"                       },
+    { 0x0000002D, "Attachment Circuit bound to different remote Attachment Circuit" },
+    { 0x0000002E, "Unsupported Capability"                 },
+    { 0x0000002F, "End-of-LIB"                             },
+    { 0x00000030, "Attachment Circuit bound to different PE" },
+    { 0x00000031, "Invalid Topology ID"                    },
+    { 0x00000032, "Transport Connection Mismatch"          },
+    { 0x00000033, "Dual-Stack Noncompliance"               },
+    { 0x00000034, "MRT Capability negotiated without MT Capability" },
+    { 0x00000035, "VCCV Type Error"                        },
+    { 0x00000037, "Bandwidth resources unavailable"        },
+    { 0x00000038, "Resources Unavailable"                  },
+    { 0x00000039, "AII Unreachable"                        },
+    { 0x0000003A, "PW Loop Detected"                       },
+    { 0x0000003B, "Reject - unable to use the suggested tunnel/LSPs" },
+    { 0x0000003C, "The C-bit or S-bit unknown"             },
+    { 0x00000040, "LDP MP status"                          },
+    { 0x0000004A, "IP Address Type Mismatch"               },
+    { 0x0000004B, "Wrong IP Address Type"                  },
+    { 0x0000004C, "Session Rejected/Targeted Application Capability Mismatch" },
+    { 0x00010001, "Unknown ICCP RG"                        },
+    { 0x00010002, "ICCP Connection Count Exceeded"         },
+    { 0x00010003, "ICCP Application Connection Count Exceeded" },
+    { 0x00010004, "ICCP Application not in RG"             },
+    { 0x00010005, "Incompatible ICCP Protocol Version"     },
+    { 0x00010006, "ICCP Rejected Message"                  },
+    { 0x00010007, "ICCP Administratively Disabled"         },
+    { 0x00010010, "ICCP RG Removed"                        },
+    { 0x00010011, "ICCP Application Removed from RG"       },
+    { 0x01000001, "Unexpected Diff-Serv TLV"               },
+    { 0x01000002, "Unsupported PHB"                        },
+    { 0x01000003, "Invalid EXP<-->PHB mapping"             },
+    { 0x01000004, "Unsupported PSC"                        },
+    { 0x01000005, "Per-LSP context allocation failure"     },
+    { 0x04000001, "Bad Explicit Routing TLV Error"         },
+    { 0x04000002, "Bad Strict Node Error"                  },
+    { 0x04000003, "Bad Loose Node Error"                   },
+    { 0x04000004, "Bad Initial ER-Hop Error"               },
+    { 0x04000005, "Resource Unavailable"                   },
+    { 0x04000006, "Traffic Parameters Unavailable"         },
+    { 0x04000007, "LSP Preempted"                          },
+    { 0x04000008, "Modify Request Not Supported"           },
+    { 0x04000009, "Invalid SNP ID"                         },
+    { 0x0400000A, "Calling Party busy"                     },
+    { 0x0400000B, "Unavailable SNP ID"                     },
+    { 0x0400000C, "Invalid SNPP ID"                        },
+    { 0x0400000D, "Unavailable SNPP ID"                    },
+    { 0x0400000E, "Failed to create SNC"                   },
+    { 0x0400000F, "Failed to establish LC"                 },
+    { 0x04000010, "Invalid A End-User Name"                },
+    { 0x04000011, "Invalid Z End-User Name"                },
+    { 0x04000012, "Invalid CoS"                            },
+    { 0x04000013, "Unavailable CoS"                        },
+    { 0x04000014, "Invalid GoS"                            },
+    { 0x04000015, "Unavailable GoS"                        },
+    { 0x04000016, "Failed Security Check"                  },
+    { 0x04000017, "TimeOut"                                },
+    { 0x04000018, "Invalid Call Name"                      },
+    { 0x04000019, "Failed to Release SNC"                  },
+    { 0x0400001A, "Failed to Free LC"                      },
+    { 0x20000000, "Unknown VPN ID"                         },
+    { 0x20000001, "Illegal C-Bit"                          },
+    { 0x20000002, "Wrong C-Bit"                            },
+    { 0x20000003, "E-Tree VLAN mapping not supported"      },
+    { 0x20000004, "Leaf-to-Leaf PW released"               },
+
     {0, NULL}
 };
 
@@ -1131,8 +1305,8 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
             rem -= 4+host_len;
             break;
 
-        case VC_FEC:
-            if ( rem < 8 ){/*not enough bytes for a minimal VC_FEC*/
+        case TYPED_WILDCARD_FEC:
+            if ( rem < 8 ){/*not enough bytes for a minimal TYPED_WILDCARD_FEC*/
                 proto_tree_add_expert_format(val_tree, pinfo, &ei_ldp_tlv_fec, tvb, offset, rem, "Error in FEC Element %u", ix);
                 return;
             }
@@ -1178,10 +1352,10 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
                 offset += intparam_len;
             }
             break;
-        case GEN_FEC:
+        case P2MP_PW_UPSTREAM_FEC:
         {
             /* Ref: RFC 4447 */
-            if ( rem < 4 ){/*not enough bytes for a minimal VC_FEC*/
+            if ( rem < 4 ){/*not enough bytes for a minimal TYPED_WILDCARD_FEC*/
                 proto_tree_add_expert_format(val_tree, pinfo, &ei_ldp_tlv_fec, tvb, offset, rem, "Error in FEC Element %u", ix);
                 return;
             }
@@ -2413,7 +2587,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
             dissect_tlv_atm_label(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
-        case TLV_FRAME_LABEL:
+        case TLV_FRAME_RELAY_LABEL:
             dissect_tlv_frame_label(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
@@ -2427,7 +2601,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
                                     offset + 4,length, ENC_BIG_ENDIAN);
             break;
 
-        case TLV_ENTROPY_LABEL:
+        case TLV_ENTROPY_LABEL_CAPA:
             if( length != 0 ) /* Length must be 0 bytes */
                 proto_tree_add_expert_format(tlv_tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset + 4, length,
                                     "Error processing Entropy Label Capability TLV: length is %d, should be 0",
@@ -2456,7 +2630,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
             dissect_tlv_returned_message(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
-        case TLV_COMMON_HELLO_PARMS:
+        case TLV_COMMON_HELLO_PARAMS:
 #if 0
             dissect_tlv_common_hello_parms(tvb, pinfo, offset + 4, tlv_tree, length);
 #else
@@ -2474,7 +2648,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
             }
             break;
 
-        case TLV_CONFIGURATION_SEQNO:
+        case TLV_CONFIGURATION_SEQUENCE_NUMBER:
             if( length != 4 ) /*error, need only seq_num(guint32)*/
                 proto_tree_add_expert_format(tlv_tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset + 4, length,
                                     "Error processing Configuration Sequence Number TLV: length is %d, should be 4",
@@ -2498,15 +2672,15 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
             dissect_tlv_mac(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
-        case TLV_COMMON_SESSION_PARMS:
+        case TLV_COMMON_SESSION_PARAMS:
             dissect_tlv_common_session_parms(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
-        case TLV_ATM_SESSION_PARMS:
+        case TLV_ATM_SESSION_PARAMS:
             dissect_tlv_atm_session_parms(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
-        case TLV_FRAME_RELAY_SESSION_PARMS:
+        case TLV_FRAME_RELAY_SESSION_PARAMS:
             dissect_tlv_frame_relay_session_parms(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
@@ -2545,27 +2719,27 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
             dissect_tlv_lspid(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
-        case TLV_ER:
+        case TLV_ER_HOP:
             dissect_tlv_er(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
-        case TLV_ER_HOP_IPV4:
+        case TLV_IPV4_PREFIX_ER_HOP:
             dissect_tlv_er_hop_ipv4(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
-        case TLV_ER_HOP_IPV6:
+        case TLV_IPV6_PREFIX_ER_HOP:
             dissect_tlv_er_hop_ipv6(tvb, pinfo, offset +4, tlv_tree, length);
             break;
 
-        case TLV_ER_HOP_AS:
+        case TLV_AUTONOMOUS_SYSTEM_NUMBER_ER_HOP:
             dissect_tlv_er_hop_as(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
-        case TLV_ER_HOP_LSPID:
+        case TLV_LSP_ID_ER_HOP:
             dissect_tlv_er_hop_lspid(tvb, pinfo, offset +4, tlv_tree, length);
             break;
 
-        case TLV_TRAFFIC_PARAM:
+        case TLV_TRAFFIC_PARAMS:
             dissect_tlv_traffic(tvb, pinfo, offset +4, tlv_tree, length);
             break;
 
@@ -2581,7 +2755,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
             dissect_tlv_route_pinning(tvb, pinfo, offset +4, tlv_tree, length);
             break;
 
-        case TLV_DIFFSERV:
+        case TLV_DIFF_SERV:
             dissect_tlv_diffserv(tvb, pinfo, offset +4, tlv_tree, length);
             break;
 
@@ -2615,7 +2789,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
             dissect_tlv_pw_status(tvb, pinfo, offset +4, tlv_tree, length);
             break;
         }
-        case TLV_PW_INTERFACE_PARAMETERS:
+        case TLV_PW_INTERFACE_PARAMS:
         {
             /* Ref: RFC 4447 */
             static int *interface_params_header_fields[] = {
@@ -2680,19 +2854,19 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
             }
             break;
         }
-        case TLV_PW_GROUPING:
+        case TLV_PW_GROUP_ID:
         {
             /* Ref: RFC 4447 */
             dissect_tlv_pw_grouping(tvb, offset +4, tlv_tree, length);
             break;
         }
-        case TLV_UPSTRM_LBL_ASS_CAP:
+        case TLV_LDP_UPSTREAM_LABEL_ASSIGNMENT_CAPA:
             dissect_tlv_upstrm_lbl_ass_cap(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
-        case TLV_UPSTRM_ASS_LBL_REQ:
+        case TLV_LDP_UPSTREAM_ASSIGNED_LABEL_REQUEST:
             dissect_tlv_upstrm_ass_lbl_req(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
-        case TLV_UPSTRM_ASS_LBL:
+        case TLV_LDP_UPSTREAM_ASSIGNED_LABEL:
             dissect_tlv_upstrm_ass_lbl(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
         case TLV_IPV4_INTERFACE_ID:
