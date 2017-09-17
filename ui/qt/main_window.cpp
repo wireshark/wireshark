@@ -409,6 +409,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     main_ui_->addressEditorFrame->hide();
     main_ui_->columnEditorFrame->hide();
+    connect(main_ui_->columnEditorFrame, SIGNAL(pushFilterSyntaxStatus(const QString&)),
+            main_ui_->statusBar, SLOT(pushTemporaryStatus(const QString&)));
     main_ui_->preferenceEditorFrame->hide();
     main_ui_->filterExpressionFrame->hide();
 

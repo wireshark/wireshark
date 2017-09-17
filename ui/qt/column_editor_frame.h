@@ -39,6 +39,10 @@ public:
 
 signals:
     void columnEdited();
+    void pushFilterSyntaxStatus(const QString&);
+
+protected:
+    void keyPressEvent(QKeyEvent *event);
 
 private slots:
     void on_typeComboBox_activated(int index);
