@@ -1518,39 +1518,39 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <name>DecodeAsDialog</name>
     <message>
         <source>Field</source>
-        <translation>Feld</translation>
+        <translation type="vanished">Feld</translation>
     </message>
     <message>
         <source>Match using this field</source>
-        <translation>Übereinstimmend mit diesem Feld</translation>
+        <translation type="vanished">Übereinstimmend mit diesem Feld</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation>Wert</translation>
+        <translation type="vanished">Wert</translation>
     </message>
     <message>
         <source>Current &quot;Decode As&quot; behavior</source>
-        <translation>Aktuelles &quot;Dekodieren als&quot;-Verhalten</translation>
+        <translation type="vanished">Aktuelles &quot;Dekodieren als&quot;-Verhalten</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>Typ</translation>
+        <translation type="vanished">Typ</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation>Standard</translation>
+        <translation type="vanished">Standard</translation>
     </message>
     <message>
         <source>Default &quot;Decode As&quot; behavior</source>
-        <translation>Standard &quot;Dekodieren als&quot;-Verhalten</translation>
+        <translation type="vanished">Standard &quot;Dekodieren als&quot;-Verhalten</translation>
     </message>
     <message>
         <source>Current</source>
-        <translation>Aktuell</translation>
+        <translation type="vanished">Aktuell</translation>
     </message>
     <message>
         <source>Change behavior when the protocol field matches this value</source>
-        <translation>Wenn dieser Wert auf das Protokollfeld zutrifft, soll das Verhalten geändert werden</translation>
+        <translation type="vanished">Wenn dieser Wert auf das Protokollfeld zutrifft, soll das Verhalten geändert werden</translation>
     </message>
     <message>
         <source>Change the dissection behavior for a protocol.</source>
@@ -1570,15 +1570,15 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>String</source>
-        <translation>Zeichenkette</translation>
+        <translation type="vanished">Zeichenkette</translation>
     </message>
     <message>
         <source>Integer, base </source>
-        <translation>Integer, base</translation>
+        <translation type="vanished">Integer, base</translation>
     </message>
     <message>
         <source>unknown</source>
-        <translation>unbekannt</translation>
+        <translation type="vanished">unbekannt</translation>
     </message>
 </context>
 <context>

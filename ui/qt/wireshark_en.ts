@@ -1514,42 +1514,6 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>DecodeAsDialog</name>
     <message>
-        <source>Field</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Match using this field</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Current &quot;Decode As&quot; behavior</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Default</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Default &quot;Decode As&quot; behavior</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Current</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Change behavior when the protocol field matches this value</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Change the dissection behavior for a protocol.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1563,18 +1527,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Decode As</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>String</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Integer, base </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>unknown</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

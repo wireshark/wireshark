@@ -1519,39 +1519,39 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <name>DecodeAsDialog</name>
     <message>
         <source>Field</source>
-        <translation>Pole</translation>
+        <translation type="vanished">Pole</translation>
     </message>
     <message>
         <source>Match using this field</source>
-        <translation>Porówuje używając tego pola</translation>
+        <translation type="vanished">Porówuje używając tego pola</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation>Wartość</translation>
+        <translation type="vanished">Wartość</translation>
     </message>
     <message>
         <source>Current &quot;Decode As&quot; behavior</source>
-        <translation>Obecne ustawienia dekodowania</translation>
+        <translation type="vanished">Obecne ustawienia dekodowania</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>Typ</translation>
+        <translation type="vanished">Typ</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation>Domyślne</translation>
+        <translation type="vanished">Domyślne</translation>
     </message>
     <message>
         <source>Default &quot;Decode As&quot; behavior</source>
-        <translation>Obecne ustawiania dekodowania</translation>
+        <translation type="vanished">Obecne ustawiania dekodowania</translation>
     </message>
     <message>
         <source>Current</source>
-        <translation>Obecnie</translation>
+        <translation type="vanished">Obecnie</translation>
     </message>
     <message>
         <source>Change behavior when the protocol field matches this value</source>
-        <translation>Zmienia dekodowanie gdy pole protokołu będzie mieć zadaną wartość</translation>
+        <translation type="vanished">Zmienia dekodowanie gdy pole protokołu będzie mieć zadaną wartość</translation>
     </message>
     <message>
         <source>Change the dissection behavior for a protocol.</source>
@@ -1571,15 +1571,15 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>String</source>
-        <translation>String</translation>
+        <translation type="vanished">String</translation>
     </message>
     <message>
         <source>Integer, base </source>
-        <translation>Integer, o podstawie </translation>
+        <translation type="vanished">Integer, o podstawie </translation>
     </message>
     <message>
         <source>unknown</source>
-        <translation>nieznany</translation>
+        <translation type="vanished">nieznany</translation>
     </message>
 </context>
 <context>

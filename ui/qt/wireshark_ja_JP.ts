@@ -1513,39 +1513,39 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>DecodeAsDialog</name>
     <message>
         <source>Field</source>
-        <translation>フィールド</translation>
+        <translation type="vanished">フィールド</translation>
     </message>
     <message>
         <source>Match using this field</source>
-        <translation>このフィールドを利用して照合します</translation>
+        <translation type="vanished">このフィールドを利用して照合します</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation>値</translation>
+        <translation type="vanished">値</translation>
     </message>
     <message>
         <source>Current &quot;Decode As&quot; behavior</source>
-        <translation>現在の &quot;としてデコード&quot; の振る舞い</translation>
+        <translation type="vanished">現在の &quot;としてデコード&quot; の振る舞い</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>種別</translation>
+        <translation type="vanished">種別</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation>デフォルト</translation>
+        <translation type="vanished">デフォルト</translation>
     </message>
     <message>
         <source>Default &quot;Decode As&quot; behavior</source>
-        <translation>デフォルトの &quot;としてデコード &quot; の振る舞い</translation>
+        <translation type="vanished">デフォルトの &quot;としてデコード &quot; の振る舞い</translation>
     </message>
     <message>
         <source>Current</source>
-        <translation>現在</translation>
+        <translation type="vanished">現在</translation>
     </message>
     <message>
         <source>Change behavior when the protocol field matches this value</source>
-        <translation>プロトコルフィールドがこの値に一致した際の振る舞いを変更します</translation>
+        <translation type="vanished">プロトコルフィールドがこの値に一致した際の振る舞いを変更します</translation>
     </message>
     <message>
         <source>Change the dissection behavior for a protocol.</source>
@@ -1565,15 +1565,15 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>String</source>
-        <translation>文字列</translation>
+        <translation type="vanished">文字列</translation>
     </message>
     <message>
         <source>Integer, base </source>
-        <translation>整数型, 基数</translation>
+        <translation type="vanished">整数型, 基数</translation>
     </message>
     <message>
         <source>unknown</source>
-        <translation>不明</translation>
+        <translation type="vanished">不明</translation>
     </message>
 </context>
 <context>

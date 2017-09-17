@@ -1514,39 +1514,39 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>DecodeAsDialog</name>
     <message>
         <source>Field</source>
-        <translation>字段</translation>
+        <translation type="vanished">字段</translation>
     </message>
     <message>
         <source>Match using this field</source>
-        <translation>使用此字段匹配</translation>
+        <translation type="vanished">使用此字段匹配</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation>值</translation>
+        <translation type="vanished">值</translation>
     </message>
     <message>
         <source>Current &quot;Decode As&quot; behavior</source>
-        <translation>当前“解码”行为</translation>
+        <translation type="vanished">当前“解码”行为</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>类型</translation>
+        <translation type="vanished">类型</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation>默认</translation>
+        <translation type="vanished">默认</translation>
     </message>
     <message>
         <source>Default &quot;Decode As&quot; behavior</source>
-        <translation>默认“解码”行为</translation>
+        <translation type="vanished">默认“解码”行为</translation>
     </message>
     <message>
         <source>Current</source>
-        <translation>当前</translation>
+        <translation type="vanished">当前</translation>
     </message>
     <message>
         <source>Change behavior when the protocol field matches this value</source>
-        <translation>当协议字段匹配此值时变更行为</translation>
+        <translation type="vanished">当协议字段匹配此值时变更行为</translation>
     </message>
     <message>
         <source>Change the dissection behavior for a protocol.</source>
@@ -1566,15 +1566,15 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>String</source>
-        <translation>字符串</translation>
+        <translation type="vanished">字符串</translation>
     </message>
     <message>
         <source>Integer, base </source>
-        <translation>整数，底数 </translation>
+        <translation type="vanished">整数，底数 </translation>
     </message>
     <message>
         <source>unknown</source>
-        <translation>未知</translation>
+        <translation type="vanished">未知</translation>
     </message>
 </context>
 <context>
