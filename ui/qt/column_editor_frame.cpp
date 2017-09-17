@@ -58,6 +58,14 @@ ColumnEditorFrame::~ColumnEditorFrame()
     delete ui;
 }
 
+bool ColumnEditorFrame::syntaxIsValid(void)
+{
+    // Fields must be a valid filter.
+    // Occurrence must be empty or valid.
+    return ((ui->fieldsNameLineEdit->syntaxState() == SyntaxLineEdit::Valid) &&
+            (ui->occurrenceLineEdit->syntaxState() != SyntaxLineEdit::Invalid));
+}
+
 void ColumnEditorFrame::setFields(int index)
 {
     bool ok = true;
@@ -67,10 +75,7 @@ void ColumnEditorFrame::setFields(int index)
         ui->fieldsNameLineEdit->checkCustomColumn(saved_fields_);
         ui->occurrenceLineEdit->setText(saved_occurrence_);
         ui->occurrenceLineEdit->checkInteger(saved_occurrence_);
-        if ((ui->fieldsNameLineEdit->syntaxState() != SyntaxLineEdit::Valid) ||
-            (ui->occurrenceLineEdit->syntaxState() != SyntaxLineEdit::Valid)) {
-            ok = false;
-        }
+        ok = syntaxIsValid();
     } else {
         ui->fieldsNameLineEdit->clear();
         ui->fieldsNameLineEdit->setSyntaxState(SyntaxLineEdit::Empty);
@@ -103,12 +108,7 @@ void ColumnEditorFrame::on_fieldsNameLineEdit_textEdited(const QString &fields)
         ui->occurrenceLineEdit->setText(saved_occurrence_);
     }
 
-    bool ok = true;
-    if ((ui->fieldsNameLineEdit->syntaxState() == SyntaxLineEdit::Invalid) ||
-        ((ui->typeComboBox->currentIndex() == COL_CUSTOM) &&
-        (ui->occurrenceLineEdit->syntaxState() == SyntaxLineEdit::Empty)))
-        ok = false;
-    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(ok);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(syntaxIsValid());
 
     saved_fields_ = fields;
 }
@@ -121,12 +121,7 @@ void ColumnEditorFrame::on_occurrenceLineEdit_textEdited(const QString &occurren
         ui->fieldsNameLineEdit->setText(saved_fields_);
     }
 
-    bool ok = true;
-    if ((ui->occurrenceLineEdit->syntaxState() == SyntaxLineEdit::Invalid) ||
-        ((ui->typeComboBox->currentIndex() == COL_CUSTOM) &&
-        (ui->occurrenceLineEdit->syntaxState() == SyntaxLineEdit::Empty)))
-        ok = false;
-    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(ok);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(syntaxIsValid());
 
     saved_occurrence_ = occurrence;
 }
