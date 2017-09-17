@@ -82,6 +82,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_INTEL_ANS,            "Intel ANS probe" },
 	{ ETHERTYPE_MS_NLB_HEARTBEAT,     "MS NLB heartbeat" },
 	{ ETHERTYPE_JUMBO_LLC,            "Jumbo LLC" },
+	{ ETHERTYPE_BRCM_TYPE,            "Broadcom tag" },
 	{ ETHERTYPE_HOMEPLUG,             "Homeplug" },
 	{ ETHERTYPE_HOMEPLUG_AV,          "Homeplug AV" },
 	{ ETHERTYPE_MRP,                  "MRP" },

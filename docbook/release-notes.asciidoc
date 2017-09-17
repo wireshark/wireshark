@@ -67,6 +67,7 @@ QUIC (IETF)
 Wi-Fi Device Provisioning Protocol
 PFCP (Packet Forwarding Control Protocol)
 Tibia
+Broadcom tags (Broadcom Ethernet switch management frames)
 --sort-and-group--
 
 === Updated Protocol Support

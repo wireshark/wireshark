@@ -334,6 +334,7 @@ DISSECTOR_SRC = \
 	packet-bootparams.c	\
 	packet-bpdu.c		\
 	packet-bpq.c		\
+	packet-brcm-tag.c	\
 	packet-brdwlk.c		\
 	packet-brp.c		\
 	packet-bssap.c		\
