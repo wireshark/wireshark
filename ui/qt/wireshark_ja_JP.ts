@@ -8796,108 +8796,108 @@ a:hover {
         <translation>%1 からキャプチャ中</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="710"/>
+        <location filename="main_window_slots.cpp" line="713"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="799"/>
+        <location filename="main_window_slots.cpp" line="802"/>
         <source>Saving %1</source>
         <translation>保存中 %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="839"/>
+        <location filename="main_window_slots.cpp" line="842"/>
         <source>No interface selected</source>
         <translation>インターフェースが選択されていません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="849"/>
+        <location filename="main_window_slots.cpp" line="852"/>
         <source>Invalid capture filter</source>
         <translation>無効なキャプチャフィルタ</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1063"/>
+        <location filename="main_window_slots.cpp" line="1066"/>
         <source>Clear Menu</source>
         <translation>メニューをクリア</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1482"/>
+        <location filename="main_window_slots.cpp" line="1485"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Wiresharkが初期化している間お待ちください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1639"/>
+        <location filename="main_window_slots.cpp" line="1642"/>
         <source>Export Selected Packet Bytes</source>
         <translation>選択したパケットバイト列をエクスポート</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1698"/>
+        <location filename="main_window_slots.cpp" line="1701"/>
         <source>No Keys</source>
         <translation>キーはありません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1699"/>
+        <location filename="main_window_slots.cpp" line="1702"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>保存するSSLセッション鍵はありません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1705"/>
+        <location filename="main_window_slots.cpp" line="1708"/>
         <source>Export SSL Session Keys (%1 key%2</source>
         <translation>SSLセッション鍵をエキスポート (%1 鍵%2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1641"/>
+        <location filename="main_window_slots.cpp" line="1644"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Raw(無加工)データ形式 (*.bin *.dat *.raw);;すべてのファイル(</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1710"/>
+        <location filename="main_window_slots.cpp" line="1713"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>SSLセッション鍵 (*.keys *.txt);;すべてのファイル (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1848"/>
+        <location filename="main_window_slots.cpp" line="1851"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>テキストをコピーできません 別の項目を試してみてください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2257"/>
-        <location filename="main_window_slots.cpp" line="3312"/>
+        <location filename="main_window_slots.cpp" line="2260"/>
+        <location filename="main_window_slots.cpp" line="3315"/>
         <source>Unable to build conversation filter.</source>
         <translation>会話フィルタを作成できません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2415"/>
+        <location filename="main_window_slots.cpp" line="2418"/>
         <source>No filter available. Try another </source>
         <translation>フィルタが利用できません 別のものを試してください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3319"/>
+        <location filename="main_window_slots.cpp" line="3322"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>この対話の間のフィルタ翻訳エラー</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3328"/>
+        <location filename="main_window_slots.cpp" line="3331"/>
         <source>No previous/next packet in conversation.</source>
         <translation>対話の前/次のパケットがありません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3405"/>
+        <location filename="main_window_slots.cpp" line="3408"/>
         <source>No Interface Selected</source>
         <translation>インターフェースが選択されていません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3412"/>
+        <location filename="main_window_slots.cpp" line="3415"/>
         <source> before starting a new capture</source>
         <translation>新規キャプチャを開始する前に</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3618"/>
+        <location filename="main_window_slots.cpp" line="3621"/>
         <source>Wiki Page for %1</source>
         <translation>%1 の Wikiページ</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3619"/>
+        <location filename="main_window_slots.cpp" line="3622"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;ワイヤーシャークWikiはコミュニティによって運営されています &lt;/p&gt;&lt;p&gt;いま見ているページはすばらしかったり、不完全だったり、間違っていたり、存在しないかもしれません。&lt;/p&gt;&lt;p&gt;Wikiに移動しますか？&lt;/p&gt;</translation>
     </message>
