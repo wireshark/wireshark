@@ -153,6 +153,7 @@ QVariant DecodeAsModel::data(const QModelIndex &index, int role) const
             } else if (selector_type == FT_NONE) {
                 return tr("<none>");
             }
+            break;
         }
         case colDefault:
             return item->default_proto_;
