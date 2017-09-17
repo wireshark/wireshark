@@ -1652,20 +1652,25 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
 
 static gchar *dissect_7bit_string (tvbuff_t *tvb, gint offset, gint length, guchar *byte_rest)
 {
-  guchar *encoded = (guchar *)tvb_memdup (wmem_packet_scope(), tvb, offset, length);
-  guchar *decoded = (guchar *)wmem_alloc0 (wmem_packet_scope(), (size_t)(length * 1.2) + 1);
+  guchar *encoded, *decoded;
   guchar  rest = 0, bits = 1;
   gint    len = 0, i;
 
-  for (i = 0; i < length; i++) {
-    decoded[len++] = encoded[i] >> bits | rest;
-    rest = (encoded[i] << (7 - bits) & 0x7F);
-    if (bits == 7) {
-      decoded[len++] = rest;
-      bits = 1;
-      rest = 0;
-    } else {
-      bits++;
+  if (length <= 0) {
+    decoded = "";
+  } else {
+    encoded = (guchar *)tvb_memdup (wmem_packet_scope(), tvb, offset, length);
+    decoded = (guchar *)wmem_alloc0 (wmem_packet_scope(), (size_t)(length * 1.2) + 1);
+    for (i = 0; i < length; i++) {
+      decoded[len++] = encoded[i] >> bits | rest;
+      rest = (encoded[i] << (7 - bits) & 0x7F);
+      if (bits == 7) {
+        decoded[len++] = rest;
+        bits = 1;
+        rest = 0;
+      } else {
+        bits++;
+      }
     }
   }
 
