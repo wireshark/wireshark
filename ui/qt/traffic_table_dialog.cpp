@@ -19,6 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "log.h"
 #include "traffic_table_dialog.h"
 #include <ui_traffic_table_dialog.h>
 
@@ -66,9 +67,9 @@ TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const c
     ui->absoluteTimeCheckBox->hide();
     setWindowSubtitle(QString("%1s").arg(table_name));
 
-    QMenu *copy_menu = new QMenu();
-    QAction *ca;
     copy_bt_ = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
+    QMenu *copy_menu = new QMenu(copy_bt_);
+    QAction *ca;
     ca = copy_menu->addAction(tr("as CSV"));
     ca->setToolTip(tr("Copy all values of this page to the clipboard in CSV (Comma Separated Values) format."));
     connect(ca, SIGNAL(triggered()), this, SLOT(copyAsCsv()));

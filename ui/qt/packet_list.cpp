@@ -281,7 +281,7 @@ PacketList::PacketList(QWidget *parent) :
     ctx_menu_.addSeparator();
 
     main_menu_item = window()->findChild<QMenu *>("menuApplyAsFilter");
-    submenu = new QMenu(main_menu_item->title());
+    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
     ctx_menu_.addMenu(submenu);
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFSelected"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFNotSelected"));
@@ -291,7 +291,7 @@ PacketList::PacketList(QWidget *parent) :
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrNotSelected"));
 
     main_menu_item = window()->findChild<QMenu *>("menuPrepareAFilter");
-    submenu = new QMenu(main_menu_item->title());
+    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
     ctx_menu_.addMenu(submenu);
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFSelected"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFNotSelected"));
@@ -313,14 +313,14 @@ PacketList::PacketList(QWidget *parent) :
     ctx_menu_.addMenu(&colorize_menu_);
 
     main_menu_item = window()->findChild<QMenu *>("menuSCTP");
-    submenu = new QMenu(main_menu_item->title());
+    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
     ctx_menu_.addMenu(submenu);
     submenu->addAction(window()->findChild<QAction *>("actionSCTPAnalyseThisAssociation"));
     submenu->addAction(window()->findChild<QAction *>("actionSCTPShowAllAssociations"));
     submenu->addAction(window()->findChild<QAction *>("actionSCTPFilterThisAssociation"));
 
     main_menu_item = window()->findChild<QMenu *>("menuFollow");
-    submenu = new QMenu(main_menu_item->title());
+    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
     ctx_menu_.addMenu(submenu);
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTCPStream"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowUDPStream"));
@@ -330,7 +330,7 @@ PacketList::PacketList(QWidget *parent) :
     ctx_menu_.addSeparator();
 
     main_menu_item = window()->findChild<QMenu *>("menuEditCopy");
-    submenu = new QMenu(main_menu_item->title());
+    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
     ctx_menu_.addMenu(submenu);
 
     action = submenu->addAction(tr("Summary as Text"));

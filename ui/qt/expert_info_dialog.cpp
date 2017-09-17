@@ -213,7 +213,7 @@ ExpertInfoDialog::ExpertInfoDialog(QWidget &parent, CaptureFile &capture_file) :
                                            << ui->actionShowNote << ui->actionShowChat
                                            << ui->actionShowComment;
     QList<int> severities = QList<int>() << PI_ERROR << PI_WARN << PI_NOTE << PI_CHAT << PI_COMMENT;
-    QMenu *severity_menu = new QMenu();
+    QMenu *severity_menu = new QMenu(ui->severitiesPushButton);
 
     // It might be nice to color each menu item to match each severity. It
     // might also be nice if Qt supported that...

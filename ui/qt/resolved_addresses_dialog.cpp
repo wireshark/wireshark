@@ -281,7 +281,7 @@ void ResolvedAddressesDialog::fillShowMenu()
     show_bt->setText(tr("Show"));
 
     if (!show_bt->menu()) {
-        show_bt->setMenu(new QMenu());
+        show_bt->setMenu(new QMenu(show_bt));
     }
 
     QMenu *show_menu = show_bt->menu();

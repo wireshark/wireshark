@@ -180,7 +180,7 @@ ProtoTree::ProtoTree(QWidget *parent) :
         ctx_menu_.addSeparator();
 
         main_menu_item = window()->findChild<QMenu *>("menuApplyAsFilter");
-        submenu = new QMenu(main_menu_item->title());
+        submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
         ctx_menu_.addMenu(submenu);
         submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFSelected"));
         submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFNotSelected"));
@@ -190,7 +190,7 @@ ProtoTree::ProtoTree(QWidget *parent) :
         submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrNotSelected"));
 
         main_menu_item = window()->findChild<QMenu *>("menuPrepareAFilter");
-        submenu = new QMenu(main_menu_item->title());
+        submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
         ctx_menu_.addMenu(submenu);
         submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFSelected"));
         submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFNotSelected"));
@@ -207,7 +207,7 @@ ProtoTree::ProtoTree(QWidget *parent) :
         ctx_menu_.addMenu(&colorize_menu_);
 
         main_menu_item = window()->findChild<QMenu *>("menuFollow");
-        submenu = new QMenu(main_menu_item->title());
+        submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
         ctx_menu_.addMenu(submenu);
         submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTCPStream"));
         submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowUDPStream"));
@@ -216,7 +216,7 @@ ProtoTree::ProtoTree(QWidget *parent) :
         ctx_menu_.addSeparator();
 
         main_menu_item = window()->findChild<QMenu *>("menuEditCopy");
-        submenu = new QMenu(main_menu_item->title());
+        submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
         ctx_menu_.addMenu(submenu);
         submenu->addAction(window()->findChild<QAction *>("actionCopyAllVisibleItems"));
         submenu->addAction(window()->findChild<QAction *>("actionCopyAllVisibleSelectedTreeItems"));
