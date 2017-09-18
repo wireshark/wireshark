@@ -70,8 +70,8 @@
  * http://www.freetds.org/tds.html
  *
  * Some more information can be found in
- * http://www.sybase.com/content/1013412/tds34.pdf
- * http://www.sybase.com/content/1040983/Sybase-tds38-102306.pdf
+ * https://wayback.archive.org/web/20140611233513/http://www.sybase.com/content/1013412/tds34.pdf
+ * https://wayback.archive.org/web/20140611233501/http://www.sybase.com/content/1040983/Sybase-tds38-102306.pdf
  * Microsoft's [MS-TDS] protocol specification
  *
  * This document is no longer available here:
@@ -2395,6 +2395,11 @@ netlib_check_login_pkt(tvbuff_t *tvb, guint offset, packet_info *pinfo, guint8 t
     if (type==TDS_LOGIN_PKT) {
         /* Use major version number to validate TDS 4/5 login
          * packet */
+
+        /* According to http://www.freetds.org/tds.html#login there are
+         * a bunch of strings at the beginning of the packet. We might
+         * be able to improve our accuracy by seeing if host_name_length,
+         * user_name_length, password_length, etc are all <= 30. */
 
         /* Login packet is first in stream and should not be fragmented...
          * if it is we are screwed */
