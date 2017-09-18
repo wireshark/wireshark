@@ -458,14 +458,36 @@ about_folders_page_new(void)
   about_folders_row(table, "Program", constpath,
       "program files");
 
-#if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
+#ifdef HAVE_PLUGINS
   /* pers plugins */
-  about_folders_row(table, "Personal Plugins", get_plugins_pers_dir(),
-      "dissector plugins");
+  about_folders_row(table, "Personal Plugins", get_plugins_pers_dir_with_version(),
+      "binary plugins");
 
   /* global plugins */
-  about_folders_row(table, "Global Plugins", get_plugins_dir(),
-      "dissector plugins");
+  about_folders_row(table, "Global Plugins", get_plugins_dir_with_version(),
+      "binary plugins");
+#endif
+
+#ifdef HAVE_LUA
+  /* pers plugins */
+  about_folders_row(table, "Personal Lua Plugins", get_plugins_pers_dir(),
+      "lua scripts");
+
+  /* global plugins */
+  about_folders_row(table, "Global Lua Plugins", get_plugins_dir(),
+      "lua scripts");
+#endif
+
+#ifdef HAVE_EXTCAP
+  /* extcap */
+  constpath = get_extcap_dir();
+
+  resultArray = g_strsplit(constpath, G_SEARCHPATH_SEPARATOR_S, 10);
+
+  for(i = 0; resultArray[i]; i++)
+    about_folders_row(table, "Extcap path", g_strstrip(resultArray[i]),
+                      "Extcap Plugins search path");
+  g_strfreev(resultArray);
 #endif
 
 #ifdef HAVE_GEOIP
@@ -492,18 +514,6 @@ about_folders_page_new(void)
                       "SMI MIB/PIB search path");
   g_strfreev(resultArray);
   g_free(path);
-#endif
-
-#ifdef HAVE_EXTCAP
-  /* extcap */
-  constpath = get_extcap_dir();
-
-  resultArray = g_strsplit(constpath, G_SEARCHPATH_SEPARATOR_S, 10);
-
-  for(i = 0; resultArray[i]; i++)
-    about_folders_row(table, "Extcap path", g_strstrip(resultArray[i]),
-                      "Extcap Plugins search path");
-  g_strfreev(resultArray);
 #endif
 
   gtk_container_add(GTK_CONTAINER(scrolledwindow), table);

@@ -341,10 +341,7 @@ scan_plugins(plugin_load_failure_mode mode)
         }
         else
         {
-            plugin_dir_path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%d.%d",
-                                                get_plugins_dir(), VERSION_MAJOR, VERSION_MINOR);
-            plugins_scan_dir(plugin_dir_path, mode);
-            g_free(plugin_dir_path);
+            plugins_scan_dir(get_plugins_dir_with_version(), mode);
         }
 
         /*
@@ -357,10 +354,7 @@ scan_plugins(plugin_load_failure_mode mode)
          */
         if (!started_with_special_privs())
         {
-            plugin_dir_path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%d.%d",
-                                                get_plugins_pers_dir(), VERSION_MAJOR, VERSION_MINOR);
-            plugins_scan_dir(plugin_dir_path, mode);
-            g_free(plugin_dir_path);
+            plugins_scan_dir(get_plugins_pers_dir_with_version(), mode);
         }
     }
 }

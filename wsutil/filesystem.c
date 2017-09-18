@@ -935,7 +935,6 @@ get_datafile_dir(void)
     return datafile_dir;
 }
 
-#if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
 /*
  * Find the directory where the plugins are stored.
  *
@@ -959,11 +958,14 @@ get_datafile_dir(void)
  *    configure script.
  */
 static char *plugin_dir = NULL;
+static char *plugin_dir_with_version = NULL;
 static char *plugin_pers_dir = NULL;
+static char *plugin_pers_dir_with_version = NULL;
 
 static void
 init_plugin_dir(void)
 {
+#if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
 #ifdef _WIN32
     /*
      * On Windows, the data file directory is the installation
@@ -1032,19 +1034,20 @@ init_plugin_dir(void)
         }
     }
 #endif
+#endif /* defined(HAVE_PLUGINS) || defined(HAVE_LUA) */
 }
 
 static void
 init_plugin_pers_dir(void)
 {
+#if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
 #ifdef _WIN32
     plugin_pers_dir = get_persconffile_path(PLUGINS_DIR_NAME, FALSE);
 #else
     plugin_pers_dir = g_build_filename(g_get_home_dir(), ".local/lib/wireshark/" PLUGINS_DIR_NAME, (gchar *)NULL);
 #endif
+#endif /* defined(HAVE_PLUGINS) || defined(HAVE_LUA) */
 }
-
-#endif /* HAVE_PLUGINS || HAVE_LUA */
 
 /*
  * Get the directory in which the plugins are stored.
@@ -1052,25 +1055,40 @@ init_plugin_pers_dir(void)
 const char *
 get_plugins_dir(void)
 {
-#if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
-    if (!plugin_dir) init_plugin_dir();
+    if (!plugin_dir)
+        init_plugin_dir();
     return plugin_dir;
-#else
-    return NULL;
-#endif
+}
+
+const char *
+get_plugins_dir_with_version(void)
+{
+    if (!plugin_dir)
+        init_plugin_dir();
+    if (plugin_dir && !plugin_dir_with_version)
+        plugin_dir_with_version = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%d.%d",
+                                        plugin_dir, VERSION_MAJOR, VERSION_MINOR);
+    return plugin_dir_with_version;
 }
 
 /* Get the personal plugin dir */
 const char *
 get_plugins_pers_dir(void)
 {
-#if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
     if (!plugin_pers_dir)
         init_plugin_pers_dir();
     return plugin_pers_dir;
-#else
-    return NULL;
-#endif
+}
+
+const char *
+get_plugins_pers_dir_with_version(void)
+{
+    if (!plugin_pers_dir)
+        init_plugin_pers_dir();
+    if (plugin_pers_dir && !plugin_pers_dir_with_version)
+        plugin_pers_dir_with_version = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%d.%d",
+                                        plugin_pers_dir, VERSION_MAJOR, VERSION_MINOR);
+    return plugin_pers_dir_with_version;
 }
 
 #if defined(HAVE_EXTCAP)
@@ -2244,8 +2262,12 @@ free_progdirs(void)
 #if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
     g_free(plugin_dir);
     plugin_dir = NULL;
+    g_free(plugin_dir_with_version);
+    plugin_dir_with_version = NULL;
     g_free(plugin_pers_dir);
     plugin_pers_dir = NULL;
+    g_free(plugin_pers_dir_with_version);
+    plugin_pers_dir_with_version = NULL;
 #endif
 #ifdef HAVE_EXTCAP
     g_free(extcap_dir);

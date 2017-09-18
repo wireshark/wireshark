@@ -611,12 +611,31 @@ about_folders(void)
   constpath = get_progfile_dir();
   printf("%-21s\t%s\n", "Program:", constpath);
 
-#if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
+#ifdef HAVE_PLUGINS
   /* pers plugins */
-  printf("%-21s\t%s\n", "Personal Plugins:", get_plugins_pers_dir());
+  printf("%-21s\t%s\n", "Personal Plugins:", get_plugins_pers_dir_with_version());
 
   /* global plugins */
-  printf("%-21s\t%s\n", "Global Plugins:", get_plugins_dir());
+  printf("%-21s\t%s\n", "Global Plugins:", get_plugins_dir_with_version());
+#endif
+
+#ifdef HAVE_LUA
+  /* pers lua plugins */
+  printf("%-21s\t%s\n", "Personal Lua Plugins:", get_plugins_pers_dir());
+
+  /* global lua plugins */
+  printf("%-21s\t%s\n", "Global Lua Plugins:", get_plugins_dir());
+#endif
+
+#ifdef HAVE_EXTCAP
+  /* Extcap */
+  constpath = get_extcap_dir();
+
+  resultArray = g_strsplit(constpath, G_SEARCHPATH_SEPARATOR_S, 10);
+  for(i = 0; resultArray[i]; i++)
+    printf("%-21s\t%s\n", "Extcap path:", g_strstrip(resultArray[i]));
+
+  g_strfreev(resultArray);
 #endif
 
 #ifdef HAVE_GEOIP
@@ -642,17 +661,6 @@ about_folders(void)
 
   g_strfreev(resultArray);
   g_free(path);
-#endif
-
-#ifdef HAVE_EXTCAP
-  /* Extcap */
-  constpath = get_extcap_dir();
-
-  resultArray = g_strsplit(constpath, G_SEARCHPATH_SEPARATOR_S, 10);
-  for(i = 0; resultArray[i]; i++)
-    printf("%-21s\t%s\n", "Extcap path:", g_strstrip(resultArray[i]));
-
-  g_strfreev(resultArray);
 #endif
 
 }

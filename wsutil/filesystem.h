@@ -56,9 +56,19 @@ WS_DLL_PUBLIC const char *get_progfile_dir(void);
 WS_DLL_PUBLIC const char *get_plugins_dir(void);
 
 /*
+ * Append VERSION_MAJOR.VERSION_MINOR to the plugin dir.
+ */
+WS_DLL_PUBLIC const char *get_plugins_dir_with_version(void);
+
+/*
  * Get the personal plugin dir.
  */
 WS_DLL_PUBLIC const char *get_plugins_pers_dir(void);
+
+/*
+ * Append VERSION_MAJOR.VERSION_MINOR to the plugin personal dir.
+ */
+WS_DLL_PUBLIC const char *get_plugins_pers_dir_with_version(void);
 
 /*
  * Get the directory in which extcap hooks are stored; this must not be called

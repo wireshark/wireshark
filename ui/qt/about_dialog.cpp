@@ -224,12 +224,33 @@ AboutDialog::AboutDialog(QWidget *parent) :
     /* program */
     message += about_folders_row("Program", get_progfile_dir(), "program files");
 
-#if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
+#ifdef HAVE_PLUGINS
     /* pers plugins */
-    message += about_folders_row("Personal Plugins", get_plugins_pers_dir(), "dissector plugins");
+    message += about_folders_row("Personal Plugins", get_plugins_pers_dir_with_version(), "binary plugins");
 
     /* global plugins */
-    message += about_folders_row("Global Plugins", get_plugins_dir(), "dissector plugins");
+    message += about_folders_row("Global Plugins", get_plugins_dir_with_version(), "binary plugins");
+#endif
+
+#ifdef HAVE_LUA
+    /* pers plugins */
+    message += about_folders_row("Personal Lua Plugins", get_plugins_pers_dir(), "lua scripts");
+
+    /* global plugins */
+    message += about_folders_row("Global Lua Plugins", get_plugins_dir(), "lua scripts");
+#endif
+
+#ifdef HAVE_EXTCAP
+    /* Extcap */
+    constpath = get_extcap_dir();
+
+    resultArray = g_strsplit(constpath, G_SEARCHPATH_SEPARATOR_S, 10);
+
+    for(i = 0; resultArray[i]; i++) {
+        message += about_folders_row("Extcap path", g_strstrip(resultArray[i]),
+                                     "Extcap Plugins search path");
+    }
+    g_strfreev(resultArray);
 #endif
 
 #ifdef HAVE_GEOIP
@@ -258,19 +279,6 @@ AboutDialog::AboutDialog(QWidget *parent) :
     }
     g_strfreev(resultArray);
     g_free(path);
-#endif
-
-#ifdef HAVE_EXTCAP
-    /* Extcap */
-    constpath = get_extcap_dir();
-
-    resultArray = g_strsplit(constpath, G_SEARCHPATH_SEPARATOR_S, 10);
-
-    for(i = 0; resultArray[i]; i++) {
-        message += about_folders_row("Extcap path", g_strstrip(resultArray[i]),
-                                     "Extcap Plugins search path");
-    }
-    g_strfreev(resultArray);
 #endif
 
     message += "</table>";
