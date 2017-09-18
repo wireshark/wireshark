@@ -412,6 +412,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(main_ui_->columnEditorFrame, SIGNAL(pushFilterSyntaxStatus(const QString&)),
             main_ui_->statusBar, SLOT(pushTemporaryStatus(const QString&)));
     main_ui_->preferenceEditorFrame->hide();
+    connect(main_ui_->preferenceEditorFrame, SIGNAL(pushFilterSyntaxStatus(const QString&)),
+            main_ui_->statusBar, SLOT(pushTemporaryStatus(const QString&)));
     main_ui_->filterExpressionFrame->hide();
 
 #ifndef HAVE_LIBPCAP

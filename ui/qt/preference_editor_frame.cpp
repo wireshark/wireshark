@@ -39,6 +39,7 @@
 #include "wireshark_application.h"
 
 #include <QPushButton>
+#include <QKeyEvent>
 
 // To do:
 // - Handle PREF_SAVE_FILENAME, PREF_OPEN_FILENAME and PREF_DIRNAME.
@@ -237,6 +238,21 @@ void PreferenceEditorFrame::on_buttonBox_rejected()
     wmem_free(NULL, new_range_);
     new_range_ = NULL;
     animatedHide();
+}
+
+void PreferenceEditorFrame::keyPressEvent(QKeyEvent *event)
+{
+    if (event->modifiers() == Qt::NoModifier) {
+        if (event->key() == Qt::Key_Escape) {
+            on_buttonBox_rejected();
+        } else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
+            if (ui->buttonBox->button(QDialogButtonBox::Ok)->isEnabled()) {
+                on_buttonBox_accepted();
+            } else if (ui->preferenceLineEdit->syntaxState() == SyntaxLineEdit::Invalid) {
+                emit pushFilterSyntaxStatus(tr("Invalid value."));
+            }
+        }
+    }
 }
 
 /*
