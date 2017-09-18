@@ -42,9 +42,11 @@ public:
 signals:
     void showPreferencesDialog(PreferencesDialog::PreferencesPane start_pane);
     void filterExpressionsChanged();
+    void pushFilterSyntaxStatus(const QString&);
 
 protected:
     virtual void showEvent(QShowEvent *event);
+    void keyPressEvent(QKeyEvent *event);
 
 private:
     Ui::FilterExpressionFrame *ui;
@@ -53,6 +55,7 @@ private slots:
     void updateWidgets();
     void on_filterExpressionPreferencesToolButton_clicked();
     void on_labelLineEdit_textChanged(const QString);
+    void on_displayFilterLineEdit_textChanged(const QString);
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
 };
