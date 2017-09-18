@@ -45,6 +45,10 @@ public slots:
 
 signals:
     void showProtocolPreferences(const QString module_name);
+    void pushFilterSyntaxStatus(const QString&);
+
+protected:
+    void keyPressEvent(QKeyEvent *event);
 
 private slots:
     // Similar to ModulePreferencesScrollArea
