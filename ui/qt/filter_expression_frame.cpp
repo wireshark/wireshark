@@ -29,6 +29,7 @@
 #include <ui/qt/models/uat_model.h>
 
 #include <QPushButton>
+#include <QKeyEvent>
 
 // To do:
 // - Add the ability to edit current expressions.
@@ -102,7 +103,7 @@ void FilterExpressionFrame::updateWidgets()
 {
     bool ok_enable = true;
 
-    if (ui->labelLineEdit->text().isEmpty() || ui->displayFilterLineEdit->text().isEmpty())
+    if (ui->labelLineEdit->text().isEmpty() || ui->displayFilterLineEdit->syntaxState() != SyntaxLineEdit::Valid)
         ok_enable = false;
 
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(ok_enable);
@@ -168,6 +169,24 @@ void FilterExpressionFrame::on_buttonBox_rejected()
     animatedHide();
 }
 
+void FilterExpressionFrame::keyPressEvent(QKeyEvent *event)
+{
+    if (event->modifiers() == Qt::NoModifier) {
+        if (event->key() == Qt::Key_Escape) {
+            on_buttonBox_rejected();
+        } else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
+            if (ui->buttonBox->button(QDialogButtonBox::Ok)->isEnabled()) {
+                on_buttonBox_accepted();
+            } else if (ui->labelLineEdit->text().length() == 0) {
+                emit pushFilterSyntaxStatus(tr("Missing label."));
+            } else if (ui->displayFilterLineEdit->syntaxState() == SyntaxLineEdit::Empty) {
+                emit pushFilterSyntaxStatus(tr("Missing filter expression."));
+            } else if (ui->displayFilterLineEdit->syntaxState() != SyntaxLineEdit::Valid) {
+                emit pushFilterSyntaxStatus(tr("Invalid filter expression."));
+            }
+        }
+    }
+}
 /*
  * Editor modelines
  *

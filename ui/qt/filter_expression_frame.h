@@ -43,9 +43,11 @@ public:
 signals:
     void showPreferencesDialog(PreferencesDialog::PreferencesPane start_pane);
     void filterExpressionsChanged();
+    void pushFilterSyntaxStatus(const QString&);
 
 protected:
     virtual void showEvent(QShowEvent *event);
+    void keyPressEvent(QKeyEvent *event);
 
 private:
     Ui::FilterExpressionFrame *ui;
