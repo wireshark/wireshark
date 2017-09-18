@@ -229,7 +229,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     message += about_folders_row("Personal Plugins", get_plugins_pers_dir(), "dissector plugins");
 
     /* global plugins */
-    message += about_folders_row("Global Plugins", get_plugin_dir(), "dissector plugins");
+    message += about_folders_row("Global Plugins", get_plugins_dir(), "dissector plugins");
 #endif
 
 #ifdef HAVE_GEOIP

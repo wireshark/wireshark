@@ -616,7 +616,7 @@ about_folders(void)
   printf("%-21s\t%s\n", "Personal Plugins:", get_plugins_pers_dir());
 
   /* global plugins */
-  printf("%-21s\t%s\n", "Global Plugins:", get_plugin_dir());
+  printf("%-21s\t%s\n", "Global Plugins:", get_plugins_dir());
 #endif
 
 #ifdef HAVE_GEOIP

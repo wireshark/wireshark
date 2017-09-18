@@ -1050,7 +1050,7 @@ init_plugin_pers_dir(void)
  * Get the directory in which the plugins are stored.
  */
 const char *
-get_plugin_dir(void)
+get_plugins_dir(void)
 {
 #if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
     if (!plugin_dir) init_plugin_dir();

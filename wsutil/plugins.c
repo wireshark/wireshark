@@ -297,7 +297,7 @@ scan_plugins(plugin_load_failure_mode mode)
          * out-of-tree build. If we find subdirectories scan those since
          * they will contain plugins in the case of an in-tree build.
          */
-        plugin_dir = get_plugin_dir();
+        plugin_dir = get_plugins_dir();
         if (plugin_dir == NULL)
         {
             /* We couldn't find the plugin directory. */
@@ -342,7 +342,7 @@ scan_plugins(plugin_load_failure_mode mode)
         else
         {
             plugin_dir_path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%d.%d",
-                                                get_plugin_dir(), VERSION_MAJOR, VERSION_MINOR);
+                                                get_plugins_dir(), VERSION_MAJOR, VERSION_MINOR);
             plugins_scan_dir(plugin_dir_path, mode);
             g_free(plugin_dir_path);
         }

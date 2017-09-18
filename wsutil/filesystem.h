@@ -53,7 +53,7 @@ WS_DLL_PUBLIC const char *get_progfile_dir(void);
  * before init_progfile_dir() is called, as they might be stored in a
  * subdirectory of the program file directory.
  */
-WS_DLL_PUBLIC const char *get_plugin_dir(void);
+WS_DLL_PUBLIC const char *get_plugins_dir(void);
 
 /*
  * Get the personal plugin dir.

@@ -333,7 +333,7 @@ WSLUA_CONSTRUCTOR Dir_global_plugins_path(lua_State* L) {
 
        @since 1.11.3
     */
-    lua_pushstring(L, get_plugin_dir());
+    lua_pushstring(L, get_plugins_dir());
     WSLUA_RETURN(1); /* The pathname for the global plugins directory. */
 }
 

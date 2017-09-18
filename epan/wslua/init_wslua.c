@@ -501,7 +501,7 @@ static void set_file_environment(const gchar* filename, const gchar* dirname) {
     lua_pop(L, 1);                  /* pop the path string */
     /* prepend the various paths */
     lua_pushfstring(L, "%s" G_DIR_SEPARATOR_S "?.lua;%s" G_DIR_SEPARATOR_S "?.lua;%s" G_DIR_SEPARATOR_S "?.lua;%s",
-                    dirname, get_plugins_pers_dir(), get_plugin_dir(), path);
+                    dirname, get_plugins_pers_dir(), get_plugins_dir(), path);
     lua_setfield(L, -2, "path");    /* set the new string to be the path field of the package table */
     lua_setfield(L, -2, "package"); /* set the package table to be the package field of the global */
 
@@ -664,7 +664,7 @@ int wslua_count_plugins(void) {
     int plugins_counter;
 
     /* count global scripts */
-    plugins_counter = lua_load_plugins(get_plugin_dir(), NULL, NULL, TRUE, FALSE);
+    plugins_counter = lua_load_plugins(get_plugins_dir(), NULL, NULL, TRUE, FALSE);
 
     /* count users init.lua */
     filename = get_persconffile_path("init.lua", FALSE);
@@ -922,7 +922,7 @@ void wslua_init(register_cb cb, gpointer client_data) {
     lua_pop(L,1);  /* pop the getglobal result */
 
     /* load global scripts */
-    lua_load_plugins(get_plugin_dir(), cb, client_data, FALSE, FALSE);
+    lua_load_plugins(get_plugins_dir(), cb, client_data, FALSE, FALSE);
 
     /* check whether we should run other scripts even if running superuser */
     lua_getglobal(L,"run_user_scripts_when_superuser");

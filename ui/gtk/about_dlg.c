@@ -464,7 +464,7 @@ about_folders_page_new(void)
       "dissector plugins");
 
   /* global plugins */
-  about_folders_row(table, "Global Plugins", get_plugin_dir(),
+  about_folders_row(table, "Global Plugins", get_plugins_dir(),
       "dissector plugins");
 #endif
 
