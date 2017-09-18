@@ -25,7 +25,6 @@
 
 #include <QMouseEvent>
 #include <QPainter>
-#include <QProxyStyle>
 #include <QResizeEvent>
 #include <QStyleOptionSlider>
 
@@ -81,17 +80,25 @@ OverlayScrollBar::OverlayScrollBar(Qt::Orientation orientation, QWidget *parent)
     end_pos_(-1),
     selected_pos_(-1)
 {
-    setStyle(new OsbProxyStyle);
+    style_ = new OsbProxyStyle();
+    setStyle(style_);
 
+    child_style_ = new OsbProxyStyle();
     child_sb_.raise();
     child_sb_.installEventFilter(this);
-    child_sb_.setStyle(new OsbProxyStyle);
+    child_sb_.setStyle(child_style_);
 
     // XXX Do we need to connect anything else?
     connect(this, SIGNAL(rangeChanged(int,int)), this, SLOT(setChildRange(int,int)));
     connect(this, SIGNAL(valueChanged(int)), &child_sb_, SLOT(setValue(int)));
 
     connect(&child_sb_, SIGNAL(valueChanged(int)), this, SLOT(setValue(int)));
+}
+
+OverlayScrollBar::~OverlayScrollBar()
+{
+    delete child_style_;
+    delete style_;
 }
 
 QSize OverlayScrollBar::sizeHint() const

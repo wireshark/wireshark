@@ -23,6 +23,7 @@
 #define __OVERLAY_SCROLL_BAR_H__
 
 #include <QScrollBar>
+#include <QProxyStyle>
 
 class OverlayScrollBar : public QScrollBar
 {
@@ -30,6 +31,7 @@ class OverlayScrollBar : public QScrollBar
 
 public:
     OverlayScrollBar(Qt::Orientation orientation, QWidget * parent = 0);
+    virtual ~OverlayScrollBar();
 
     virtual QSize sizeHint() const;
 
@@ -72,6 +74,8 @@ protected:
     virtual void mouseReleaseEvent(QMouseEvent * event);
 
 private:
+    QProxyStyle* style_;
+    QProxyStyle* child_style_;
     QScrollBar child_sb_;
     QImage packet_map_img_;
     QImage marked_packet_img_;
