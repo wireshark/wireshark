@@ -536,7 +536,9 @@ dissect_websocket_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     if (http_conv) {
       websocket_conv->subprotocol = http_conv->websocket_protocol;
       websocket_conv->server_port = http_conv->server_port;
-      websocket_parse_extensions(websocket_conv, http_conv->websocket_extensions);
+      if ( http_conv->websocket_extensions) {
+        websocket_parse_extensions(websocket_conv, http_conv->websocket_extensions);
+      }
     }
 
     conversation_add_proto_data(conv, proto_websocket, websocket_conv);
