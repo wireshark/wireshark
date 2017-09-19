@@ -38,6 +38,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/in_cksum.h>
+#include <epan/sequence_analysis.h>
 #include <epan/to_str.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
@@ -371,6 +372,48 @@ static const value_string interface_role_str[] = {
 
 #define ADDR_IS_NOT_UNICAST(addr) \
 	(ADDR_IS_MULTICAST(addr) || ADDR_IS_BROADCAST(addr))
+
+
+/* whenever a ICMP packet is seen by the tap listener */
+/* Add a new frame into the graph */
+static gboolean
+icmp_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *dummy _U_)
+{
+	seq_analysis_info_t *sainfo = (seq_analysis_info_t *) ptr;
+
+	if ((sainfo->all_packets) || (pinfo->fd->flags.passed_dfilter == 1)) {
+
+		seq_analysis_item_t *sai = sequence_analysis_create_sai_with_addresses(pinfo, sainfo);
+		if (!sai)
+			return FALSE;
+
+		sai->frame_number = pinfo->num;
+
+		sequence_analysis_use_color_filter(pinfo, sai);
+
+		sai->port_src=pinfo->srcport;
+		sai->port_dst=pinfo->destport;
+
+		sequence_analysis_use_col_info_as_label_comment(pinfo, sai);
+
+		if (pinfo->ptype == PT_NONE) {
+			icmp_info_t *p_icmp_info = (icmp_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_icmp, 0);
+
+			if (p_icmp_info != NULL) {
+				sai->port_src = 0;
+				sai->port_dst = p_icmp_info->type * 256 + p_icmp_info->code;
+			}
+		}
+
+		sai->line_style = 1;
+		sai->conv_num = 0;
+		sai->display = TRUE;
+
+		g_queue_push_tail(sainfo->items, sai);
+	}
+
+	return TRUE;
+}
 
 static conversation_t *_find_or_create_conversation(packet_info * pinfo)
 {
@@ -2028,6 +2071,7 @@ void proto_register_icmp(void)
 				       "Whether the 128th and following bytes of the ICMP payload should be decoded as MPLS extensions or as a portion of the original packet",
 				       &favor_icmp_mpls_ext);
 
+	register_seq_analysis("icmp", "ICMP Flows", proto_icmp, NULL, TL_REQUIRES_COLUMNS, icmp_seq_analysis_packet);
 	icmp_handle = register_dissector("icmp", dissect_icmp, proto_icmp);
 	icmp_tap = register_tap("icmp");
 }

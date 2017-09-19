@@ -184,18 +184,6 @@ frame_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U
 
 		sequence_analysis_use_col_info_as_label_comment(pinfo, sai);
 
-		if (pinfo->ptype == PT_NONE) {
-			icmp_info_t *p_icmp_info;
-
-			if ((p_icmp_info = (icmp_info_t *) p_get_proto_data(wmem_file_scope(), pinfo, proto_get_id_by_short_name("ICMP"), 0))) {
-				sai->port_src = 0;
-				sai->port_dst = p_icmp_info->type * 256 + p_icmp_info->code;
-			} else if ((p_icmp_info = (icmp_info_t *) p_get_proto_data(wmem_file_scope(), pinfo, proto_get_id_by_short_name("ICMPv6"), 0))) {
-				sai->port_src = 0;
-				sai->port_dst = p_icmp_info->type * 256 + p_icmp_info->code;
-			}
-		}
-
 		sai->line_style = 1;
 		sai->conv_num = 0;
 		sai->display = TRUE;

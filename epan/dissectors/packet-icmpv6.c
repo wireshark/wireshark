@@ -42,6 +42,7 @@
 #include <epan/ipproto.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
+#include <epan/sequence_analysis.h>
 #include <epan/tap.h>
 #include <epan/capture_dissectors.h>
 #include <epan/proto_data.h>
@@ -1301,6 +1302,48 @@ static const value_string rdnss_infinity[] = {
     { 0xffffffff, "Infinity" },
     { 0, NULL}
 };
+
+/* whenever a ICMPv6 packet is seen by the tap listener */
+/* Add a new frame into the graph */
+static gboolean
+icmpv6_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *dummy _U_)
+{
+    seq_analysis_info_t *sainfo = (seq_analysis_info_t *) ptr;
+
+    if ((sainfo->all_packets) || (pinfo->fd->flags.passed_dfilter == 1)) {
+
+        seq_analysis_item_t *sai = sequence_analysis_create_sai_with_addresses(pinfo, sainfo);
+        if (!sai)
+            return FALSE;
+
+        sai->frame_number = pinfo->num;
+
+        sequence_analysis_use_color_filter(pinfo, sai);
+
+        sai->port_src=pinfo->srcport;
+        sai->port_dst=pinfo->destport;
+
+        sequence_analysis_use_col_info_as_label_comment(pinfo, sai);
+
+        if (pinfo->ptype == PT_NONE) {
+            icmp_info_t *p_icmp_info = (icmp_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_icmpv6, 0);
+
+            if (p_icmp_info != NULL) {
+                sai->port_src = 0;
+                sai->port_dst = p_icmp_info->type * 256 + p_icmp_info->code;
+            }
+        }
+
+        sai->line_style = 1;
+        sai->conv_num = 0;
+        sai->display = TRUE;
+
+        g_queue_push_tail(sainfo->items, sai);
+    }
+
+    return TRUE;
+}
+
 
 static int
 dissect_contained_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -5870,8 +5913,8 @@ proto_register_icmpv6(void)
     expert_icmpv6 = expert_register_protocol(proto_icmpv6);
     expert_register_field_array(expert_icmpv6, ei, array_length(ei));
 
+    register_seq_analysis("icmpv6", "ICMPv6 Flows", proto_icmpv6, NULL, TL_REQUIRES_COLUMNS, icmpv6_seq_analysis_packet);
     icmpv6_handle = register_dissector("icmpv6", dissect_icmpv6, proto_icmpv6);
-
     icmpv6_tap = register_tap("icmpv6");
 }
 
