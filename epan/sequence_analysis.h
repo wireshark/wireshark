@@ -63,7 +63,6 @@ typedef struct _seq_analysis_item {
     guint src_node;                     /**< this is used by graph_analysis.c to identify the node */
     guint dst_node;                     /**< a node is an IP address that will be displayed in columns */
     guint16 line_style;                 /**< the arrow line width in pixels*/
-    gchar *protocol;                    /**< the label of the protocol defined in the IP packet */
 } seq_analysis_item_t;
 
 /** defines the graph analysis structure */
@@ -127,6 +126,30 @@ WS_DLL_PUBLIC tap_packet_cb sequence_analysis_get_packet_func(register_analysis_
  * @return sequence analysis tap flags
  */
 WS_DLL_PUBLIC guint sequence_analysis_get_tap_flags(register_analysis_t* analysis);
+
+/** Helper function to create a sequence analysis item with address fields populated
+ * Allocate a seq_analysis_item_t to return and populate the src_addr and dst_addr
+ * members based on seq_analysis_info_t any_addr member
+ *
+ * @param pinfo packet info
+ * @param sainfo info determining address type
+ * @return sequence analysis tap flags
+ */
+WS_DLL_PUBLIC seq_analysis_item_t* sequence_analysis_create_sai_with_addresses(packet_info *pinfo, seq_analysis_info_t *sainfo);
+
+/** Helper function to set colors for analysis the same as Wireshark display
+ *
+ * @param pinfo packet info
+ * @param sai item to set color
+ */
+WS_DLL_PUBLIC void sequence_analysis_use_color_filter(packet_info *pinfo, seq_analysis_item_t *sai);
+
+/** Helper function to set frame label and comments to use protocol and info column data
+ *
+ * @param pinfo packet info
+ * @param sai item to set label and comments
+ */
+WS_DLL_PUBLIC void sequence_analysis_use_col_info_as_label_comment(packet_info *pinfo, seq_analysis_item_t *sai);
 
 /** Find a registered sequence analysis "protocol" by name
  *

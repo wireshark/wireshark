@@ -28,6 +28,8 @@
 
 #include "addr_resolv.h"
 #include "proto.h"
+#include "color_filters.h"
+#include "column-info.h"
 #include "tap.h"
 #include "wmem/wmem.h"
 
@@ -105,6 +107,63 @@ void sequence_analysis_table_iterate_tables(wmem_foreach_func func, gpointer use
     wmem_tree_foreach(registered_seq_analysis, func, user_data);
 }
 
+seq_analysis_item_t* sequence_analysis_create_sai_with_addresses(packet_info *pinfo, seq_analysis_info_t *sainfo)
+{
+    seq_analysis_item_t *sai = NULL;
+
+    if (sainfo->any_addr) {
+        if (pinfo->net_src.type!=AT_NONE && pinfo->net_dst.type!=AT_NONE) {
+            sai = g_new0(seq_analysis_item_t, 1);
+            copy_address(&(sai->src_addr),&(pinfo->net_src));
+            copy_address(&(sai->dst_addr),&(pinfo->net_dst));
+        }
+
+    } else {
+        if (pinfo->src.type!=AT_NONE && pinfo->dst.type!=AT_NONE) {
+            sai = g_new0(seq_analysis_item_t, 1);
+            copy_address(&(sai->src_addr),&(pinfo->src));
+            copy_address(&(sai->dst_addr),&(pinfo->dst));
+        }
+    }
+
+    return sai;
+}
+
+void sequence_analysis_use_color_filter(packet_info *pinfo, seq_analysis_item_t *sai)
+{
+    if (pinfo->fd->color_filter) {
+        sai->bg_color = color_t_to_rgb(&pinfo->fd->color_filter->bg_color);
+        sai->fg_color = color_t_to_rgb(&pinfo->fd->color_filter->fg_color);
+        sai->has_color_filter = TRUE;
+    }
+}
+
+void sequence_analysis_use_col_info_as_label_comment(packet_info *pinfo, seq_analysis_item_t *sai)
+{
+    const gchar *protocol = NULL;
+    const gchar *colinfo = NULL;
+
+    if (pinfo->cinfo) {
+        colinfo = col_get_text(pinfo->cinfo, COL_INFO);
+        protocol = col_get_text(pinfo->cinfo, COL_PROTOCOL);
+    }
+
+    if (colinfo != NULL) {
+        sai->frame_label = g_strdup(colinfo);
+        if (protocol != NULL) {
+            sai->comment = g_strdup_printf("%s: %s", protocol, colinfo);
+        } else {
+            sai->comment = g_strdup(colinfo);
+        }
+    } else {
+        /* This will probably never happen...*/
+        if (protocol != NULL) {
+            sai->frame_label = g_strdup(protocol);
+            sai->comment = g_strdup(protocol);
+        }
+    }
+}
+
 seq_analysis_info_t *
 sequence_analysis_info_new(void)
 {
@@ -135,7 +194,6 @@ static void sequence_analysis_item_free(gpointer data)
     g_free(seq_item->frame_label);
     g_free(seq_item->time_str);
     g_free(seq_item->comment);
-    g_free(seq_item->protocol);
     free_address(&seq_item->src_addr);
     free_address(&seq_item->dst_addr);
     g_free(data);

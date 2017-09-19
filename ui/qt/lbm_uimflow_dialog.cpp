@@ -128,7 +128,6 @@ static gboolean lbm_uimflow_add_to_graph(seq_analysis_info_t * seq_info, packet_
     item->frame_number = pinfo->num;
     item->port_src = pinfo->srcport;
     item->port_dst = pinfo->destport;
-    item->protocol = g_strdup(port_type_to_str(pinfo->ptype));
     if (stream_info->description == NULL)
     {
         item->frame_label = g_strdup_printf("(%" G_GUINT32_FORMAT ")", stream_info->sqn);

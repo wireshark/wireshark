@@ -342,7 +342,6 @@ add_to_graph(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *
 
     gai->port_src=pinfo->srcport;
     gai->port_dst=pinfo->destport;
-    gai->protocol = g_strdup(port_type_to_str(pinfo->ptype));
 
     if (frame_label != NULL)
         gai->frame_label = g_strdup(frame_label);
@@ -463,7 +462,6 @@ static void insert_to_graph_t38(voip_calls_tapinfo_t *tapinfo, packet_info *pinf
 
     new_gai->port_src=pinfo->srcport;
     new_gai->port_dst=pinfo->destport;
-    new_gai->protocol = g_strdup(port_type_to_str(pinfo->ptype));
     if (frame_label != NULL)
         new_gai->frame_label = g_strdup(frame_label);
     else

@@ -170,7 +170,6 @@ static int lbmc_uim_flow_graph_add_to_graph(packet_info * pinfo, const lbm_uim_s
     item->frame_number = pinfo->num;
     item->port_src = pinfo->srcport;
     item->port_dst = pinfo->destport;
-    item->protocol = g_strdup(port_type_to_str(pinfo->ptype));
     if (stream_info->description == NULL)
     {
         item->frame_label = g_strdup_printf("(%" G_GUINT32_FORMAT ")", stream_info->sqn);

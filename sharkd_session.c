@@ -1066,12 +1066,6 @@ sharkd_session_process_tap_flow_cb(void *tapdata)
 		printf(",\"n\":[%u,%u]", sai->src_node, sai->dst_node);
 		printf(",\"pn\":[%u,%u]", sai->port_src, sai->port_dst);
 
-		if (sai->protocol)
-		{
-			printf(",\"p\":");
-			json_puts_string(sai->protocol);
-		}
-
 		if (sai->comment)
 		{
 			printf(",\"c\":");

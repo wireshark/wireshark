@@ -263,12 +263,10 @@ void SequenceDiagram::draw(QCPPainter *painter)
             fg_pen.setColor(sel_pal.color(QPalette::HighlightedText));
             bg_color = sel_pal.color(QPalette::Highlight);
             selected_key_ = cur_key;
-        } else if (strcmp(sainfo_->name, "any") == 0) {
-            if (sai->has_color_filter) {
-                fg_pen.setColor(QColor().fromRgb(sai->fg_color));
-                bg_color = QColor().fromRgb(sai->bg_color);
-            }
-        } else { // SEQ_ANALYSIS_VOIP, SEQ_ANALYSIS_TCP
+        } else if (sai->has_color_filter) {
+            fg_pen.setColor(QColor().fromRgb(sai->fg_color));
+            bg_color = QColor().fromRgb(sai->bg_color);
+        } else {
             fg_pen.setColor(Qt::black);
             bg_color = ColorUtils::sequenceColor(sai->conv_num);
         }

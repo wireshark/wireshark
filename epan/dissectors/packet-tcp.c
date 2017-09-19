@@ -872,20 +872,15 @@ tcp_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_,
 
     if ((sainfo->all_packets)||(pinfo->fd->flags.passed_dfilter==1)){
         const char* flags;
-        seq_analysis_item_t *sai;
+        seq_analysis_item_t *sai = sequence_analysis_create_sai_with_addresses(pinfo, sainfo);
 
-        sai = g_new0(seq_analysis_item_t, 1);
+        if (!sai)
+            return FALSE;
+
         sai->frame_number = pinfo->num;
-        if (sainfo->any_addr) {
-            copy_address(&(sai->src_addr),&(pinfo->net_src));
-            copy_address(&(sai->dst_addr),&(pinfo->net_dst));
-        } else {
-            copy_address(&(sai->src_addr),&(pinfo->src));
-            copy_address(&(sai->dst_addr),&(pinfo->dst));
-        }
+
         sai->port_src=pinfo->srcport;
         sai->port_dst=pinfo->destport;
-        sai->protocol=g_strdup(port_type_to_str(pinfo->ptype));
 
         flags = tcp_flags_to_str(NULL, tcph);
 

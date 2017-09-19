@@ -170,98 +170,31 @@ frame_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U
 	seq_analysis_info_t *sainfo = (seq_analysis_info_t *) ptr;
 
 	if ((sainfo->all_packets) || (pinfo->fd->flags.passed_dfilter == 1)) {
-		gchar *protocol = NULL;
-		gchar *colinfo = NULL;
-		seq_analysis_item_t *sai = NULL;
 
-		if (sainfo->any_addr) {
-			if (pinfo->net_src.type!=AT_NONE && pinfo->net_dst.type!=AT_NONE) {
-				sai = g_new0(seq_analysis_item_t, 1);
-				copy_address(&(sai->src_addr),&(pinfo->net_src));
-				copy_address(&(sai->dst_addr),&(pinfo->net_dst));
-			}
-
-		} else {
-			if (pinfo->src.type!=AT_NONE && pinfo->dst.type!=AT_NONE) {
-				sai = g_new0(seq_analysis_item_t, 1);
-				copy_address(&(sai->src_addr),&(pinfo->src));
-				copy_address(&(sai->dst_addr),&(pinfo->dst));
-			}
-		}
-
+		seq_analysis_item_t *sai = sequence_analysis_create_sai_with_addresses(pinfo, sainfo);
 		if (!sai)
 			return FALSE;
 
 		sai->frame_number = pinfo->num;
 
-		if (pinfo->fd->color_filter) {
-			sai->bg_color = color_t_to_rgb(&pinfo->fd->color_filter->bg_color);
-			sai->fg_color = color_t_to_rgb(&pinfo->fd->color_filter->fg_color);
-			sai->has_color_filter = TRUE;
-		}
+		sequence_analysis_use_color_filter(pinfo, sai);
 
 		sai->port_src=pinfo->srcport;
 		sai->port_dst=pinfo->destport;
-		sai->protocol = g_strdup(port_type_to_str(pinfo->ptype));
 
-		if (pinfo->cinfo) {
-			col_item_t *col_item;
-			int i;
-
-			if (pinfo->cinfo->col_first[COL_INFO] >= 0) {
-				for (i = pinfo->cinfo->col_first[COL_INFO]; i <= pinfo->cinfo->col_last[COL_INFO]; i++) {
-					col_item = &pinfo->cinfo->columns[i];
-					if (col_item->fmt_matx[COL_INFO]) {
-						colinfo = g_strdup(col_item->col_data);
-						/* break; ? or g_free(colinfo); before g_strdup() */
-					}
-				}
-			}
-
-			if (pinfo->cinfo->col_first[COL_PROTOCOL] >= 0) {
-				for (i = pinfo->cinfo->col_first[COL_PROTOCOL]; i <= pinfo->cinfo->col_last[COL_PROTOCOL]; i++) {
-					col_item = &pinfo->cinfo->columns[i];
-					if (col_item->fmt_matx[COL_PROTOCOL]) {
-						protocol = g_strdup(col_item->col_data);
-						/* break; ? or g_free(protocol); before g_strdup() */
-					}
-				}
-			}
-		}
-
-		if (colinfo != NULL) {
-			sai->frame_label = g_strdup(colinfo);
-			if (protocol != NULL) {
-				sai->comment = g_strdup_printf("%s: %s", protocol, colinfo);
-			} else {
-				sai->comment = g_strdup(colinfo);
-			}
-		} else {
-			/* This will probably never happen...*/
-			if (protocol != NULL) {
-				sai->frame_label = g_strdup(protocol);
-				sai->comment = g_strdup(protocol);
-			}
-		}
+		sequence_analysis_use_col_info_as_label_comment(pinfo, sai);
 
 		if (pinfo->ptype == PT_NONE) {
 			icmp_info_t *p_icmp_info;
 
 			if ((p_icmp_info = (icmp_info_t *) p_get_proto_data(wmem_file_scope(), pinfo, proto_get_id_by_short_name("ICMP"), 0))) {
-				g_free(sai->protocol);
-				sai->protocol = g_strdup("ICMP");
 				sai->port_src = 0;
 				sai->port_dst = p_icmp_info->type * 256 + p_icmp_info->code;
 			} else if ((p_icmp_info = (icmp_info_t *) p_get_proto_data(wmem_file_scope(), pinfo, proto_get_id_by_short_name("ICMPv6"), 0))) {
-				g_free(sai->protocol);
-				sai->protocol = g_strdup("ICMPv6");
 				sai->port_src = 0;
 				sai->port_dst = p_icmp_info->type * 256 + p_icmp_info->code;
 			}
 		}
-
-		g_free(protocol);
-		g_free(colinfo);
 
 		sai->line_style = 1;
 		sai->conv_num = 0;
