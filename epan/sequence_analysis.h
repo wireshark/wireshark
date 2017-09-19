@@ -128,7 +128,7 @@ WS_DLL_PUBLIC tap_packet_cb sequence_analysis_get_packet_func(register_analysis_
 WS_DLL_PUBLIC guint sequence_analysis_get_tap_flags(register_analysis_t* analysis);
 
 /** Helper function to create a sequence analysis item with address fields populated
- * Allocate a seq_analysis_item_t to return and populate the src_addr and dst_addr
+ * Allocate a seq_analysis_item_t to return and populate the time_str and src_addr and dst_addr
  * members based on seq_analysis_info_t any_addr member
  *
  * @param pinfo packet info

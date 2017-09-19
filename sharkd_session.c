@@ -1011,7 +1011,6 @@ sharkd_session_free_tap_expert_cb(void *tapdata)
  *                  (m) t  - frame time string
  *                  (m) n  - array of two numbers with source node index and destination node index
  *                  (m) pn - array of two numbers with source and destination port
- *                  (o) p  - protocol
  *                  (o) c  - comment
  */
 static void
@@ -1021,7 +1020,6 @@ sharkd_session_process_tap_flow_cb(void *tapdata)
 	GList *flow_list;
 	guint i;
 
-	char time_str[COL_MAX_LEN];
 	const char *sepa = "";
 
 	sequence_analysis_get_nodes(graph_analysis);
@@ -1048,7 +1046,6 @@ sharkd_session_process_tap_flow_cb(void *tapdata)
 	while (flow_list)
 	{
 		seq_analysis_item_t *sai = (seq_analysis_item_t *) flow_list->data;
-		frame_data *fdata;
 
 		flow_list = g_list_next(flow_list);
 
@@ -1057,12 +1054,7 @@ sharkd_session_process_tap_flow_cb(void *tapdata)
 
 		printf("%s{", sepa);
 
-		fdata = frame_data_sequence_find(cfile.frames, sai->frame_number);
-
-		/* XXX, sequence_analysis_item_set_timestamp not called, do it manually */
-		set_fd_time(cfile.epan, fdata, time_str);
-		printf("\"t\":\"%s\"", time_str);
-
+		printf("\"t\":\"%s\"", sai->time_str);
 		printf(",\"n\":[%u,%u]", sai->src_node, sai->dst_node);
 		printf(",\"pn\":[%u,%u]", sai->port_src, sai->port_dst);
 

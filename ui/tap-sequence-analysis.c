@@ -44,16 +44,6 @@
 #define CONV_TIME_HEADER_LENGTH 16
 #define TIME_HEADER_LENGTH 10
 
-static void sequence_analysis_item_set_timestamp(gpointer data, gpointer user_data)
-{
-    gchar time_str[COL_MAX_LEN];
-    seq_analysis_item_t *seq_item = (seq_analysis_item_t *)data;
-    const capture_file *cf = (const capture_file *)user_data;
-    frame_data *fd = frame_data_sequence_find(cf->frames, seq_item->frame_number);
-    set_fd_time(cf->epan, fd, time_str);
-    seq_item->time_str = g_strdup(time_str);
-}
-
 void
 sequence_analysis_list_get(capture_file *cf, seq_analysis_info_t *sainfo)
 {
@@ -73,8 +63,6 @@ sequence_analysis_list_get(capture_file *cf, seq_analysis_info_t *sainfo)
     remove_tap_listener(sainfo);
 
     /* SEQ_ANALYSIS_DEBUG("%d items", g_queue_get_length(sainfo->items)); */
-    /* Fill in the timestamps */
-    g_queue_foreach(sainfo->items, sequence_analysis_item_set_timestamp, cf);
 }
 
 /****************************************************************************/

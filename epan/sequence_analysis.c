@@ -110,6 +110,7 @@ void sequence_analysis_table_iterate_tables(wmem_foreach_func func, gpointer use
 seq_analysis_item_t* sequence_analysis_create_sai_with_addresses(packet_info *pinfo, seq_analysis_info_t *sainfo)
 {
     seq_analysis_item_t *sai = NULL;
+    char time_str[COL_MAX_LEN];
 
     if (sainfo->any_addr) {
         if (pinfo->net_src.type!=AT_NONE && pinfo->net_dst.type!=AT_NONE) {
@@ -124,6 +125,12 @@ seq_analysis_item_t* sequence_analysis_create_sai_with_addresses(packet_info *pi
             copy_address(&(sai->src_addr),&(pinfo->src));
             copy_address(&(sai->dst_addr),&(pinfo->dst));
         }
+    }
+
+    if (sai) {
+        /* Fill in the timestamps */
+        set_fd_time(pinfo->epan, pinfo->fd, time_str);
+        sai->time_str = g_strdup(time_str);
     }
 
     return sai;
