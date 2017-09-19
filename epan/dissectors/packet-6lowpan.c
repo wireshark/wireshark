@@ -508,6 +508,7 @@ static gboolean     lowpan_dlsrc_to_ifcid   (packet_info *pinfo, guint8 *ifcid);
 static gboolean     lowpan_dldst_to_ifcid   (packet_info *pinfo, guint8 *ifcid);
 static void         lowpan_addr16_to_ifcid  (guint16 addr, guint8 *ifcid);
 static void         lowpan_addr16_with_panid_to_ifcid(guint16 panid, guint16 addr, guint8 *ifcid);
+static void         lowpan_addr48_to_ifcid    (guint8 *addr, guint8 *ifcid);
 static tvbuff_t *   lowpan_reassemble_ipv6  (tvbuff_t *tvb, packet_info *pinfo, struct ws_ip6_hdr *ipv6, struct lowpan_nhdr *nhdr_list);
 static guint8       lowpan_parse_nhc_proto  (tvbuff_t *tvb, gint offset);
 
@@ -741,6 +742,39 @@ lowpan_addr16_with_panid_to_ifcid(guint16 panid, guint16 addr, guint8 *ifcid)
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
+ *      lowpan_addr48_to_ifcid
+ *  DESCRIPTION
+ *      Converts an IEEE 48-bit MAC identifier to an interface
+ *      identifier as per RFC 4291 Appendix A.
+ *  PARAMETERS
+ *      addr            ; 48-bit MAC identifier.
+ *      ifcid           ; interface identifier (output).
+ *  RETURNS
+ *      void            ;
+ *---------------------------------------------------------------
+ */
+static void
+lowpan_addr48_to_ifcid(guint8 *addr, guint8 *ifcid)
+{
+    static const guint8 unknown_addr[] = { 0, 0, 0, 0, 0, 0 };
+
+    /* Don't convert unknown addresses */
+    if (memcmp (addr, unknown_addr, sizeof(unknown_addr)) != 0) {
+        ifcid[0] = addr[0] | 0x02; /* Set the U/L bit. */
+        ifcid[1] = addr[1];
+        ifcid[2] = addr[2];
+        ifcid[3] = 0xff;
+        ifcid[4] = 0xfe;
+        ifcid[5] = addr[3];
+        ifcid[6] = addr[4];
+        ifcid[7] = addr[5];
+    } else {
+        memset(ifcid, 0, LOWPAN_IFC_ID_LEN);
+    }
+} /* lowpan_ether_to_ifcid */
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
  *      lowpan_dlsrc_to_ifcid
  *  DESCRIPTION
  *      Finds an interface identifier from the data-link source
@@ -763,6 +797,9 @@ lowpan_dlsrc_to_ifcid(packet_info *pinfo, guint8 *ifcid)
         memcpy(ifcid, pinfo->dl_src.data, LOWPAN_IFC_ID_LEN);
         /* RFC2464: Invert the U/L bit when using an EUI64 address. */
         ifcid[0] ^= 0x02;
+        return TRUE;
+    } else if (pinfo->dl_src.type == AT_ETHER) {
+        lowpan_addr48_to_ifcid((guint8 *)pinfo->dl_src.data, ifcid);
         return TRUE;
     }
 
@@ -810,6 +847,9 @@ lowpan_dldst_to_ifcid(packet_info *pinfo, guint8 *ifcid)
         memcpy(ifcid, pinfo->dl_dst.data, LOWPAN_IFC_ID_LEN);
         /* RFC2464: Invert the U/L bit when using an EUI64 address. */
         ifcid[0] ^= 0x02;
+        return TRUE;
+    } else if (pinfo->dl_dst.type == AT_ETHER) {
+        lowpan_addr48_to_ifcid((guint8 *)pinfo->dl_dst.data, ifcid);
         return TRUE;
     }
 
