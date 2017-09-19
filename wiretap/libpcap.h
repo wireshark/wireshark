@@ -41,6 +41,10 @@
 
    applied; PCAP_SWAPPED_MODIFIED_MAGIC is the byte-swapped version.
 
+   PCAP_IXIAMODIFIED_MAGIC is used by IXIA's lcap file format. It adds
+   a length field at the end of the file header (size of all records).
+   PCAP_SWAPPED_IXIAMODIFIED_MAGIC is the byte-swapped version.
+
    PCAP_NSEC_MAGIC is for Ulf Lamping's modified "libpcap" format,
    which uses the same common file format as PCAP_MAGIC, but the
    timestamps are saved in nanosecond resolution instead of microseconds.
@@ -49,6 +53,10 @@
 #define	PCAP_SWAPPED_MAGIC		0xd4c3b2a1
 #define	PCAP_MODIFIED_MAGIC		0xa1b2cd34
 #define	PCAP_SWAPPED_MODIFIED_MAGIC	0x34cdb2a1
+#define PCAP_IXIAHW_MAGIC		0x1c0001ac
+#define PCAP_SWAPPED_IXIAHW_MAGIC	0xac01001c
+#define PCAP_IXIASW_MAGIC		0x1c0001ab
+#define PCAP_SWAPPED_IXIASW_MAGIC	0xab01001c
 #define	PCAP_NSEC_MAGIC			0xa1b23c4d
 #define	PCAP_SWAPPED_NSEC_MAGIC		0x4d3cb2a1
 

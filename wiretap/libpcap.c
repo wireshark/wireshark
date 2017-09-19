@@ -99,6 +99,8 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 	int n_subtypes;
 	int best_subtype;
 	int i;
+	int skip_size = 0;
+	int sizebytes;
 
 	/* Read in the number that should be at the start of a "libpcap" file */
 	if (!wtap_read_bytes(wth->fh, &magic, sizeof magic, err, err_info)) {
@@ -109,6 +111,10 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 
 	switch (magic) {
 
+	case PCAP_IXIAHW_MAGIC:
+	case PCAP_IXIASW_MAGIC:
+		skip_size = 1;
+		/* FALLTHROUGH */
 	case PCAP_MAGIC:
 		/* Host that wrote it has our byte order, and was running
 		   a program using either standard or ss990417 libpcap. */
@@ -125,6 +131,10 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 		wth->file_tsprec = WTAP_TSPREC_USEC;
 		break;
 
+	case PCAP_SWAPPED_IXIAHW_MAGIC:
+	case PCAP_SWAPPED_IXIASW_MAGIC:
+		skip_size = 1;
+		/* FALLTHROUGH */
 	case PCAP_SWAPPED_MAGIC:
 		/* Host that wrote it has a byte order opposite to ours,
 		   and was running a program using either standard or
@@ -169,6 +179,8 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Read the rest of the header. */
 	if (!wtap_read_bytes(wth->fh, &hdr, sizeof hdr, err, err_info))
+		return WTAP_OPEN_ERROR;
+	if (skip_size==1 && !wtap_read_bytes(wth->fh, &sizebytes, sizeof sizebytes, err, err_info))
 		return WTAP_OPEN_ERROR;
 
 	if (byte_swapped) {
