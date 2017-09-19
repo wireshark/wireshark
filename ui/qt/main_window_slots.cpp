@@ -2877,8 +2877,6 @@ void MainWindow::on_actionAnalyzeDecodeAs_triggered()
     }
 
     DecodeAsDialog da_dialog(this, capture_file_.capFile(), create_new);
-    connect(this, SIGNAL(setCaptureFile(capture_file*)),
-            &da_dialog, SLOT(setCaptureFile(capture_file*)));
     da_dialog.exec();
 
     // Emitting PacketDissectionChanged directly from a QDialog can cause
