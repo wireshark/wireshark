@@ -62,9 +62,12 @@ static int hf_pfcp_spare_b4 = -1;
 static int hf_pfcp_spare_b5 = -1;
 static int hf_pfcp_spare_b6 = -1;
 static int hf_pfcp_spare_b7 = -1;
+static int hf_pfcp_spare_b7_b6 = -1;
 static int hf_pfcp_spare_b7_b5 = -1;
+static int hf_pfcp_spare_b7_b4 = -1;
 static int hf_pfcp_spare_b7_b3 = -1;
 static int hf_pfcp_spare_b7_b2 = -1;
+static int hf_pfcp_spare_b7_b1 = -1;
 static int hf_pfcp_spare_h0 = -1;
 static int hf_pfcp_spare_h1 = -1;
 static int hf_pfcp_spare_oct = -1;
@@ -252,6 +255,24 @@ static int hf_pfcp_b1_sci = -1;
 static int hf_pfcp_sci = -1;
 static int hf_pfcp_dl_data_notification_delay = -1;
 static int hf_pfcp_packet_count = -1;
+static int hf_pfcp_pfcp_dl_data_service_inf_flags = -1;
+static int hf_pfcp_b0_ppi = -1;
+static int hf_pfcp_ppi = -1;
+static int hf_pfcp_sxsmreq_flags = -1;
+static int hf_pfcp_b0_drobu = -1;
+static int hf_pfcp_b1_sndem = -1;
+static int hf_pfcp_sxsrrsp_flags = -1;
+static int hf_pfcp_pfd_contents_flags = -1;
+static int hf_pfcp_b0_fd = -1;
+static int hf_pfcp_b3_cp = -1;
+static int hf_pfcp_b2_dn = -1;
+static int hf_pfcp_b1_url = -1;
+static int hf_pfcp_url_len = -1;
+static int hf_pfcp_url = -1;
+static int hf_pfcp_dn_len = -1;
+static int hf_pfcp_dn = -1;
+static int hf_pfcp_cp_len = -1;
+static int hf_pfcp_cp = -1;
 
 static int ett_pfcp = -1;
 static int ett_pfcp_flags = -1;
@@ -277,6 +298,9 @@ static int ett_pfcp_cp_function_features = -1;
 static int ett_pfcp_usage_information = -1;
 static int ett_pfcp_packet_rate = -1;
 static int ett_pfcp_pfcp_dl_flow_level_marking = -1;
+static int ett_pfcp_dl_data_service_inf = -1;
+static int ett_pfcp_sxsmreq = -1;
+static int ett_pfcp_sxsrrsp = -1;
 
 static expert_field ei_pfcp_ie_reserved = EI_INIT;
 static expert_field ei_pfcp_ie_data_not_decoded = EI_INIT;
@@ -1268,6 +1292,37 @@ dissect_pfcp_apply_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 /*
  * 8.2.27   Downlink Data Service Information
  */
+static void
+dissect_pfcp_dl_data_service_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint64 flags;
+
+    static const int * pfcp_dl_data_service_inf_flags[] = {
+        &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_b0_ppi,
+        NULL
+    };
+    /* Octet 5  Spare   PPI */
+    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_pfcp_dl_data_service_inf_flags,
+        ett_pfcp_dl_data_service_inf, pfcp_dl_data_service_inf_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS, &flags);
+    offset += 1;
+    /* The PPI flag in octet 5 indicates whether the Paging Policy Indication value in octet 'm' shall be present */
+    if ((flags & 0x1) == 1) {
+        /* m    Spare   Paging Policy Indication value
+         * encoded as the DSCP in TOS (IPv4) or TC (IPv6) information received in the IP payload of the GTP-U packet
+         * from the PGW (see IETF RFC 2474
+         */
+        proto_tree_add_item(tree, hf_pfcp_spare_b7_b6, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pfcp_ppi, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+    }
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
 /*
  * 8.2.28   Downlink Data Notification Delay
  */
@@ -1362,9 +1417,51 @@ dissect_pfcp_dl_buffering_suggested_packet_count(tvbuff_t *tvb, packet_info *pin
 /*
  * 8.2.31   SxSMReq-Flags
  */
+static void
+dissect_pfcp_sxsmreq_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+
+    static const int * pfcp_sxsmreq_flags[] = {
+        &hf_pfcp_spare_b7_b2,
+        &hf_pfcp_b1_sndem,
+        &hf_pfcp_b0_drobu,
+        NULL
+    };
+    /* Octet 5  Spare   Spare   Spare   Spare   Spare   Spare   SNDEM   DROBU */
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_sxsmreq_flags,
+        ett_pfcp_sxsmreq, pfcp_sxsmreq_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
 /*
  * 8.2.32   SxSRRsp-Flags
  */
+static void
+dissect_pfcp_sxsrrsp_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+
+    static const int * pfcp_sxsrrsp_flags[] = {
+        &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_b0_drobu,
+        NULL
+    };
+    /* Octet 5  Spare   Spare   Spare   Spare   Spare   Spare   Spare   DROBU */
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_sxsrrsp_flags,
+        ett_pfcp_sxsrrsp, pfcp_sxsrrsp_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
+
 /*
  * 8.2.33   Sequence Number
  */
@@ -1581,6 +1678,83 @@ dissect_pfcp_node_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
 /*
  * 8.2.39   PFD Contents
  */
+static void
+dissect_pfcp_pfd_contents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint64 flags;
+    guint32 len;
+
+    static const int * pfcp_pfd_contents_flags[] = {
+        &hf_pfcp_spare_b7_b4,
+        &hf_pfcp_b3_cp,
+        &hf_pfcp_b2_dn,
+        &hf_pfcp_b1_url,
+        &hf_pfcp_b0_fd,
+        NULL
+    };
+    /* Octet 5  Spare   CP  DN  URL FD*/
+    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_pfd_contents_flags,
+        ett_pfcp_measurement_method_flags, pfcp_pfd_contents_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &flags);
+    offset += 1;
+
+    /* Bit 1 - FD (Flow Description): If this bit is set to "1", then the Length of Flow Description
+     * and the Flow Description fields shall be present
+     */
+    if ((flags & 0x1) == 1) {
+        /* The Flow Description field, when present, shall be encoded as an OctetString
+        * as specified in subclause 6.4.3.7 of 3GPP TS 29.251
+        */
+        /* m to (m+1)   Length of Flow Description */
+        proto_tree_add_item_ret_uint(tree, hf_pfcp_flow_desc_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+        offset += 2;
+
+        /* (m+2) to p   Flow Description */
+        proto_tree_add_item(tree, hf_pfcp_fd, tvb, offset, len, ENC_NA);
+        offset += len;
+    }
+
+
+    /* Bit 2 - URL (URL): If this bit is set to "1", then the Length of URL and the URL fields shall be present */
+    if ((flags & 0x2) == 2) {
+        /* q to (q+1)   Length of URL */
+        proto_tree_add_item_ret_uint(tree, hf_pfcp_url_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+        offset += 2;
+        /* (q+2) to r   URL */
+        proto_tree_add_item(tree, hf_pfcp_url, tvb, offset, len, ENC_NA);
+        offset += len;
+
+    }
+
+    /* Bit 3 - DN (Domain Name): If this bit is set to "1", then the Length of Domain Name and
+    * the Domain Name fields shall be present
+    */
+    if ((flags & 0x4) == 4) {
+        /* s to (s+1)   Length of Domain Name */
+        proto_tree_add_item_ret_uint(tree, hf_pfcp_dn_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+        offset += 2;
+        /* (s+2) to t   Domain Name */
+        proto_tree_add_item(tree, hf_pfcp_dn, tvb, offset, len, ENC_NA);
+        offset += len;
+    }
+
+    /* Bit 4 - CP (Custom PFD Content): If this bit is set to "1", then the Length of Custom PFD Content and
+     * the Custom PFD Content fields shall be present
+     */
+    if ((flags & 0x8) == 8) {
+        /* u to (u+1)   Length of Custom PFD Content */
+        proto_tree_add_item_ret_uint(tree, hf_pfcp_cp_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+        offset += 2;
+        /* (u+2) to v   Custom PFD Content */
+        proto_tree_add_item(tree, hf_pfcp_cp, tvb, offset, len, ENC_NA);
+        offset += len;
+    }
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
 /*
  * 8.2.40   Measurement Method
  */
@@ -2514,7 +2688,51 @@ dissect_pfcp_qer_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
 /*
  * 8.2.78   Graceful Release Period
  */
+static void
+dissect_pfcp_graceful_release_period(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint32 unit, value;
 
+    /* Octet 5  Timer unit  Timer value */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_timer_unit, tvb, offset, 1, ENC_BIG_ENDIAN, &unit);
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_timer_value, tvb, offset, 1, ENC_BIG_ENDIAN, &value);
+    offset++;
+
+    unit = unit >> 5;
+    switch (unit) {
+    case 0:
+        proto_item_append_text(item, "%u s", value * 2);
+        break;
+    case 1:
+        proto_item_append_text(item, "%u min", value);
+        break;
+    case 2:
+        proto_item_append_text(item, "%u min", value * 10);
+        break;
+    case 3:
+        proto_item_append_text(item, "%u hours", value);
+        break;
+    case 4:
+        proto_item_append_text(item, "%u hours", value * 10);
+        break;
+    case 7:
+        proto_item_append_text(item, "%u Infinite", value);
+        break;
+        /* Value 5 and 6 */
+    default:
+        proto_item_append_text(item, "%u min", value * 10);
+        break;
+    }
+    if ((unit != 7) && (value == 0)) {
+        proto_item_append_text(item, " Stopped");
+    }
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
 
 
 /* Array of functions to dissect IEs
@@ -2570,12 +2788,12 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*     42 */    { dissect_pfcp_destination_interface },                         /* Destination Interface                           Extendable / Subclause 8.2.24 */
 /*     43 */    { dissect_pfcp_up_function_features },                          /* UP Function Features                            Extendable / Subclause 8.2.25 */
 /*     44 */    { dissect_pfcp_apply_action },                                  /* Apply Action                                    Extendable / Subclause 8.2.26 */
-/*     45 */    { NULL },    /* Downlink Data Service Information               Extendable / Subclause 8.2.27 */
+/*     45 */    { dissect_pfcp_dl_data_service_inf },                           /* Downlink Data Service Information               Extendable / Subclause 8.2.27 */
 /*     46 */    { dissect_pfcp_dl_data_notification_delay },                    /* Downlink Data Notification Delay                Extendable / Subclause 8.2.28 */
 /*     47 */    { dissect_pfcp_dl_buffering_dur },                              /* DL Buffering Duration                           Extendable / Subclause 8.2.29 */
 /*     48 */    { dissect_pfcp_dl_buffering_suggested_packet_count },           /* DL Buffering Suggested Packet Count             Variable / Subclause 8.2.30 */
-/*     49 */    { NULL },    /* SxSMReq-Flags                                   Extendable / Subclause 8.2.31 */
-/*     50 */    { NULL },    /* SxSRRsp-Flags                                   Extendable / Subclause 8.2.32 */
+/*     49 */    { dissect_pfcp_sxsmreq_flags },                                 /* SxSMReq-Flags                                   Extendable / Subclause 8.2.31 */
+/*     50 */    { dissect_pfcp_sxsrrsp_flags },                                 /* SxSRRsp-Flags                                   Extendable / Subclause 8.2.32 */
 /*     51 */    { dissect_pfcp_load_control_information },                      /* Load Control Information                        Extendable / Table 7.5.3.3-1 */
 /*     52 */    { dissect_pfcp_sequence_number },                               /* Sequence Number                                 Fixed Length / Subclause 8.2.33 */
 /*     53 */    { dissect_pfcp_metric },                                        /* Metric                                          Fixed Length / Subclause 8.2.34 */
@@ -2586,7 +2804,7 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*     58 */    { dissect_pfcp_application_ids_pfds },                          /* Application ID's PFDs                           Extendable / Table 7.4.3.1-2 */
 /*     59 */    { dissect_pfcp_pfd_context },                                   /* PFD context                                     Extendable / Table 7.4.3.1-3 */
 /*     60 */    { dissect_pfcp_node_id },                                       /* Node ID                                         Extendable / Subclause 8.2.38 */
-/*     61 */    { NULL },    /* PFD contents                                    Extendable / Subclause 8.2.39 */
+/*     61 */    { dissect_pfcp_pfd_contents },                                  /* PFD contents                                    Extendable / Subclause 8.2.39 */
 /*     62 */    { dissect_pfcp_measurement_method },                            /* Measurement Method                              Extendable / Subclause 8.2.40 */
 /*     63 */    { dissect_pfcp_usage_report_trigger },                          /* Usage Report Trigger                            Extendable / Subclause 8.2.41 */
 /*     64 */    { dissect_pfcp_measurement_period },                            /* Measurement Period                              Extendable / Subclause 8.2.42 */
@@ -2637,7 +2855,7 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    109 */    { dissect_pfcp_qer_id },                                        /* QER ID                                         Extendable / Subclause 8.2.75 */
 /*    110 */    { NULL },    /* OCI Flags                                      Extendable / Subclause 8.2.76 */
 /*    111 */    { NULL },    /* Sx Association Release Request                 Extendable / Subclause 8.2.77 */
-/*    112 */    { NULL },    /* Graceful Release Period                        Extendable / Subclause 8.2.78 */
+/*    112 */    { dissect_pfcp_graceful_release_period },                       /* Graceful Release Period                        Extendable / Subclause 8.2.78 */
     { NULL },                                                        /* End of List */
 };
 
@@ -3123,9 +3341,19 @@ proto_register_pfcp(void)
         FT_UINT8, BASE_DEC, NULL, 0x80,
         NULL, HFILL }
         },
+        { &hf_pfcp_spare_b7_b6,
+        { "Spare", "pfcp.spare_b7_b6",
+        FT_UINT8, BASE_DEC, NULL, 0xc0,
+        NULL, HFILL }
+        },
         { &hf_pfcp_spare_b7_b5,
         { "Spare", "pfcp.spare_b7_b5",
         FT_UINT8, BASE_DEC, NULL, 0xe0,
+        NULL, HFILL }
+        },
+        { &hf_pfcp_spare_b7_b4,
+        { "Spare", "pfcp.spare_b7_b4",
+        FT_UINT8, BASE_DEC, NULL, 0xf0,
         NULL, HFILL }
         },
         { &hf_pfcp_spare_b7_b3,
@@ -3136,6 +3364,11 @@ proto_register_pfcp(void)
         { &hf_pfcp_spare_b7_b2,
         { "Spare", "pfcp.spare_b7_b2",
         FT_UINT8, BASE_DEC, NULL, 0xfc,
+        NULL, HFILL }
+        },
+        { &hf_pfcp_spare_b7_b1,
+        { "Spare", "pfcp.spare_b7_b1",
+        FT_UINT8, BASE_DEC, NULL, 0xfe,
         NULL, HFILL }
         },
         { &hf_pfcp_spare_oct,
@@ -4088,11 +4321,101 @@ proto_register_pfcp(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_pfcp_pfcp_dl_data_service_inf_flags,
+        { "Flags", "pfcp.dl_data_service_inf_flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b0_ppi,
+        { "PPI(Paging Policy Indication)", "pfcp.dl_data_service_inf.ppi",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_ppi,
+        { "Paging Policy Indication", "pfcp.ppi",
+            FT_UINT16, BASE_DEC, NULL, 0x7f,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_sxsmreq_flags,
+        { "Flags", "pfcp.sxsmreq_flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b0_drobu,
+        { "DROBU (Drop Buffered Packets)", "pfcp.sxsmreq_flags.drobu",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b1_sndem,
+        { "SNDEM (Send End Marker Packets)", "pfcp.sxsmreq_flags.sndem",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_sxsrrsp_flags,
+        { "Flags", "pfcp.sxsrrsp_flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_pfd_contents_flags,
+        { "Flags", "pfcp.pfd_contents_flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b0_fd,
+        { "FD (Flow Description)", "pfcp.pfd_contents_flags.fd",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b1_url,
+        { "URL (URL)", "pfcp.pfd_contents_flags.url",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b2_dn,
+        { "DN (Domain Name)", "pfcp.pfd_contents_flags.dn",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b3_cp,
+        { "CP (Custom PFD Content)", "pfcp.pfd_contents_flags.cp",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_url_len,
+        { "Length of URL", "pfcp.url_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_url,
+        { "URL", "pfcp.url",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_dn_len,
+        { "Length of Domain Name", "pfcp.dn_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_dn,
+        { "Domain Name", "pfcp.dn",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_cp_len,
+        { "Length of Custom PFD Content", "pfcp.cp_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_cp,
+        { "Custom PFD Content", "pfcp.cp",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
 
     };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS_PFCP    24
+#define NUM_INDIVIDUAL_ELEMS_PFCP    27
     gint *ett[NUM_INDIVIDUAL_ELEMS_PFCP +
         (NUM_PFCP_IES - 1)];
 
@@ -4120,6 +4443,9 @@ proto_register_pfcp(void)
     ett[21] = &ett_pfcp_usage_information;
     ett[22] = &ett_pfcp_packet_rate;
     ett[23] = &ett_pfcp_pfcp_dl_flow_level_marking;
+    ett[24] = &ett_pfcp_dl_data_service_inf;
+    ett[25] = &ett_pfcp_sxsmreq;
+    ett[26] = &ett_pfcp_sxsrrsp;
 
 
 
