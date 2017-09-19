@@ -928,24 +928,28 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 case BTLE_DIR_MASTER_SLAVE:
                     g_snprintf(str_addr_src, str_addr_len, "Master_0x%08x", connection_info->access_address);
                     g_snprintf(str_addr_dst, str_addr_len, "Slave_0x%08x", connection_info->access_address);
+                    set_address(&pinfo->dl_src, AT_ETHER, sizeof(connection_info->master_bd_addr), connection_info->master_bd_addr);
+                    set_address(&pinfo->dl_dst, AT_ETHER, sizeof(connection_info->slave_bd_addr), connection_info->slave_bd_addr);
                     break;
                 case BTLE_DIR_SLAVE_MASTER:
                     g_snprintf(str_addr_src, str_addr_len, "Slave_0x%08x", connection_info->access_address);
                     g_snprintf(str_addr_dst, str_addr_len, "Master_0x%08x", connection_info->access_address);
+                    set_address(&pinfo->dl_src, AT_ETHER, sizeof(connection_info->slave_bd_addr), connection_info->slave_bd_addr);
+                    set_address(&pinfo->dl_dst, AT_ETHER, sizeof(connection_info->master_bd_addr), connection_info->master_bd_addr);
                     break;
                 default:
                     /* BTLE_DIR_UNKNOWN */
                     g_snprintf(str_addr_src, str_addr_len, "Unknown_0x%08x", connection_info->access_address);
                     g_snprintf(str_addr_dst, str_addr_len, "Unknown_0x%08x", connection_info->access_address);
+                    clear_address(&pinfo->dl_src);
+                    clear_address(&pinfo->dl_dst);
                     break;
                 }
 
                 set_address(&pinfo->net_src, AT_STRINGZ, (int)strlen(str_addr_src)+1, str_addr_src);
-                copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
                 copy_address_shallow(&pinfo->src, &pinfo->net_src);
 
                 set_address(&pinfo->net_dst, AT_STRINGZ, (int)strlen(str_addr_dst)+1, str_addr_dst);
-                copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
                 copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
                 if (!pinfo->fd->flags.visited) {
