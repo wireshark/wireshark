@@ -473,6 +473,15 @@ On Unix-like systems:
 
 * The personal plugin folder is ++~/.local/lib/wireshark/plugins++.
 
+[NOTE]
+====
+To provide better support for binary plugins this folder changed in Wireshark 2.5.
+It is recommended to use the new folder but *for lua scripts only* you may
+continue to use __XDG_CONFIG_HOME__++/wireshark/plugins++ for backward-compatibility.
+This is useful to have older versions of Wireshark installed side-by-side. In case
+of duplicate file names between old and new the new folder wins.
+====
+
 * If you are running on macOS and Wireshark is installed as an
 application bundle, the global plugin folder is
 _APPDIR_`/Contents/PlugIns/wireshark`, otherwise it's

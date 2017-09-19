@@ -608,7 +608,7 @@ static int wslua_panic(lua_State* LS) {
 }
 
 static int lua_load_plugins(const char *dirname, register_cb cb, gpointer client_data,
-                            gboolean count_only, const gboolean is_user)
+                            gboolean count_only, const gboolean is_user, GHashTable *loaded_files)
 {
     WS_DIR        *dir;             /* scanned directory */
     WS_DIRENT     *file;            /* current file */
@@ -625,7 +625,7 @@ static int lua_load_plugins(const char *dirname, register_cb cb, gpointer client
 
             filename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", dirname, name);
             if (test_for_directory(filename) == EISDIR) {
-                plugins_counter += lua_load_plugins(filename, cb, client_data, count_only, is_user);
+                plugins_counter += lua_load_plugins(filename, cb, client_data, count_only, is_user, loaded_files);
                 g_free(filename);
                 continue;
             }
@@ -643,11 +643,20 @@ static int lua_load_plugins(const char *dirname, register_cb cb, gpointer client
                 continue;
             }
 
+            /* Check if we have already loaded this file name, if provided with a set */
+            if (loaded_files && g_hash_table_lookup_extended(loaded_files, name, NULL, NULL)) {
+                g_free(filename);
+                continue;
+            }
+
             if (file_exists(filename)) {
                 if (!count_only) {
                     if (cb)
                         (*cb)(RA_LUA_PLUGINS, name, client_data);
                     lua_load_plugin_script(name, filename, is_user ? dirname : NULL, 0);
+                }
+                if (loaded_files) {
+                    g_hash_table_insert(loaded_files, g_strdup(name), NULL);
                 }
                 plugins_counter++;
             }
@@ -659,12 +668,41 @@ static int lua_load_plugins(const char *dirname, register_cb cb, gpointer client
     return plugins_counter;
 }
 
+static int lua_load_global_plugins(register_cb cb, gpointer client_data,
+                                    gboolean count_only)
+{
+    return lua_load_plugins(get_plugins_dir(), cb, client_data, count_only, FALSE, NULL);
+}
+
+static int lua_load_pers_plugins(register_cb cb, gpointer client_data,
+                                    gboolean count_only)
+{
+    int plugins_counter = 0;
+
+    /* aux table (set) to make sure we only load each file once (by name) */
+    GHashTable *loaded_user_scripts = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+
+    /* load user scripts */
+    plugins_counter += lua_load_plugins(get_plugins_pers_dir(), cb, client_data, count_only, TRUE, loaded_user_scripts);
+
+    /* for backward compatibility check old plugin directory */
+    char *old_path = get_persconffile_path("plugins", FALSE);
+    if (strcmp(get_plugins_pers_dir(), old_path) != 0) {
+        plugins_counter += lua_load_plugins(old_path, cb, client_data, count_only, TRUE, loaded_user_scripts);
+    }
+    g_free(old_path);
+
+    g_hash_table_destroy(loaded_user_scripts);
+
+    return plugins_counter;
+}
+
 int wslua_count_plugins(void) {
     gchar* filename;
     int plugins_counter;
 
     /* count global scripts */
-    plugins_counter = lua_load_plugins(get_plugins_dir(), NULL, NULL, TRUE, FALSE);
+    plugins_counter = lua_load_global_plugins(NULL, NULL, TRUE);
 
     /* count users init.lua */
     filename = get_persconffile_path("init.lua", FALSE);
@@ -674,7 +712,7 @@ int wslua_count_plugins(void) {
     g_free(filename);
 
     /* count user scripts */
-    plugins_counter += lua_load_plugins(get_plugins_pers_dir(), NULL, NULL, TRUE, TRUE);
+    plugins_counter += lua_load_pers_plugins(NULL, NULL, TRUE);
 
     /* count scripts from command line */
     plugins_counter += ex_opt_count("lua_script");
@@ -922,7 +960,7 @@ void wslua_init(register_cb cb, gpointer client_data) {
     lua_pop(L,1);  /* pop the getglobal result */
 
     /* load global scripts */
-    lua_load_plugins(get_plugins_dir(), cb, client_data, FALSE, FALSE);
+    lua_load_global_plugins(cb, client_data, FALSE);
 
     /* check whether we should run other scripts even if running superuser */
     lua_getglobal(L,"run_user_scripts_when_superuser");
@@ -944,7 +982,7 @@ void wslua_init(register_cb cb, gpointer client_data) {
         g_free(filename);
 
         /* load user scripts */
-        lua_load_plugins(get_plugins_pers_dir(), cb, client_data, FALSE, TRUE);
+        lua_load_pers_plugins(cb, client_data, FALSE);
 
         /* load scripts from command line */
         for (i = 0; i < ex_opt_count("lua_script"); i++) {
