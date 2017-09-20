@@ -103,7 +103,6 @@
 
 #include "ui/gtk/packet_list.h"
 #include "ui/gtk/lbm_stream_dlg.h"
-#include "ui/gtk/lbm_uimflow_dlg.h"
 
 #ifdef HAVE_LIBPCAP
 #include "capture_opts.h"
@@ -1431,7 +1430,6 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Statistics/29West/Queues/lbmr_queue_queries_receiver",         NULL,                       "Queries by Receiver",          NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
    { "/Statistics/29West/UIM",                                        NULL,                       "UIM",                          NULL, NULL, NULL },
    { "/Statistics/29West/UIM/Streams",                                NULL,                       "Streams",                      NULL, NULL, G_CALLBACK(lbmc_stream_dlg_stream_menu_cb) },
-   { "/Statistics/29West/UIM/StreamFlowGraph",                        WIRESHARK_STOCK_FLOW_GRAPH, "Stream Flow Graph",            NULL, NULL, G_CALLBACK(lbmc_uim_flow_menu_cb) },
 
    { "/Statistics/ancp",                            NULL,       "ANCP",                             NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
    { "/Statistics/BACnet",                          NULL,       "BACnet",                           NULL, NULL, NULL },

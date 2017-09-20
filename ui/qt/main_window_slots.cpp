@@ -132,7 +132,6 @@ DIAG_ON(frame-larger-than=)
 #include "io_graph_dialog.h"
 #include <ui/qt/widgets/additional_toolbar.h>
 #include "lbm_stream_dialog.h"
-#include "lbm_uimflow_dialog.h"
 #include "lbm_lbtrm_transport_dialog.h"
 #include "lbm_lbtru_transport_dialog.h"
 #include "lte_mac_statistics_dialog.h"
@@ -3142,16 +3141,6 @@ void MainWindow::on_actionStatistics29WestUIM_Streams_triggered()
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
             stream_dialog, SLOT(setCaptureFile(capture_file*)));
     stream_dialog->show();
-}
-
-void MainWindow::on_actionStatistics29WestUIM_Stream_Flow_Graph_triggered()
-{
-    LBMUIMFlowDialog * uimflow_dialog = new LBMUIMFlowDialog(this, capture_file_.capFile());
-    connect(uimflow_dialog, SIGNAL(goToPacket(int)),
-            packet_list_, SLOT(goToPacket(int)));
-    connect(this, SIGNAL(setCaptureFile(capture_file*)),
-            uimflow_dialog, SLOT(setCaptureFile(capture_file*)));
-    uimflow_dialog->show();
 }
 
 void MainWindow::on_actionStatistics29WestLBTRM_triggered()

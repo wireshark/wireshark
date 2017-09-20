@@ -202,7 +202,6 @@ set(WIRESHARK_TAP_SRC
 	iax2_analysis.c
 	io_stat.c
 	lbm_stream_dlg.c
-	lbm_uimflow_dlg.c
 	mac_lte_stat_dlg.c
 	mcast_stream_dlg.c
 	mtp3_summary.c

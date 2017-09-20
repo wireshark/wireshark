@@ -134,7 +134,6 @@ WIRESHARK_TAP_SRC = \
 	iax2_analysis.c		\
 	io_stat.c		\
 	lbm_stream_dlg.c	\
-	lbm_uimflow_dlg.c	\
 	mac_lte_stat_dlg.c	\
 	mcast_stream_dlg.c	\
 	mtp3_summary.c		\
@@ -199,7 +198,6 @@ WIRESHARK_COMMON_GTK_HDRS = \
 	hostlist_table.h	\
 	keys.h			\
 	lbm_stream_dlg.h	\
-	lbm_uimflow_dlg.h	\
 	macros_dlg.h		\
 	main.h			\
 	main_filter_toolbar.h	\

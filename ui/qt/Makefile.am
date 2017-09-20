@@ -261,7 +261,6 @@ MOC_HDRS = \
 	lbm_lbtrm_transport_dialog.h			\
 	lbm_lbtru_transport_dialog.h			\
 	lbm_stream_dialog.h				\
-	lbm_uimflow_dialog.h				\
 	lte_mac_statistics_dialog.h			\
 	lte_rlc_graph_dialog.h				\
 	lte_rlc_statistics_dialog.h			\
@@ -372,7 +371,6 @@ UI_FILES = \
 	lbm_lbtrm_transport_dialog.ui			\
 	lbm_lbtru_transport_dialog.ui			\
 	lbm_stream_dialog.ui				\
-	lbm_uimflow_dialog.ui				\
 	lte_rlc_graph_dialog.ui				\
 	main_welcome.ui					\
 	main_window.ui					\
@@ -566,7 +564,6 @@ WIRESHARK_QT_SRC = \
 	lbm_lbtrm_transport_dialog.cpp			\
 	lbm_lbtru_transport_dialog.cpp			\
 	lbm_stream_dialog.cpp				\
-	lbm_uimflow_dialog.cpp				\
 	lte_mac_statistics_dialog.cpp			\
 	lte_rlc_graph_dialog.cpp			\
 	lte_rlc_statistics_dialog.cpp			\
@@ -877,8 +874,6 @@ lbm_lbtrm_transport_dialog.$(OBJEXT): ui_lbm_lbtrm_transport_dialog.h
 lbm_lbtru_transport_dialog.$(OBJEXT): ui_lbm_lbtru_transport_dialog.h
 
 lbm_stream_dialog.$(OBJEXT): ui_lbm_stream_dialog.h
-
-lbm_uimflow_dialog.$(OBJEXT): ui_lbm_uimflow_dialog.h
 
 lte_rlc_graph_dialog.$(OBJEXT): ui_lte_rlc_graph_dialog.h
 

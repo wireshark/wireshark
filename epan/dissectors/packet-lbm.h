@@ -220,15 +220,6 @@ typedef struct
 typedef struct
 {
     guint64 channel;
-    guint32 sqn;
-    lbm_uim_stream_endpoint_t endpoint_a;
-    lbm_uim_stream_endpoint_t endpoint_b;
-    const gchar * description;
-} lbm_uim_stream_info_t;
-
-typedef struct
-{
-    guint64 channel;
     guint32 substream_id;
     guint32 bytes;
     lbm_uim_stream_endpoint_t endpoint_a;

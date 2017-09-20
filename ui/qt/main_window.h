@@ -597,7 +597,6 @@ private slots:
     void on_actionStatistics29WestQueues_Queries_by_Queue_triggered();
     void on_actionStatistics29WestQueues_Queries_by_Receiver_triggered();
     void on_actionStatistics29WestUIM_Streams_triggered();
-    void on_actionStatistics29WestUIM_Stream_Flow_Graph_triggered();
     void on_actionStatistics29WestLBTRM_triggered();
     void on_actionStatistics29WestLBTRU_triggered();
     void on_actionStatisticsANCP_triggered();

@@ -513,7 +513,6 @@
        <string>UIM</string>
       </property>
       <addaction name="actionStatistics29WestUIM_Streams"/>
-      <addaction name="actionStatistics29WestUIM_Stream_Flow_Graph"/>
      </widget>
      <addaction name="menu29WestTopics"/>
      <addaction name="menu29WestQueues"/>
@@ -2049,11 +2048,6 @@
   <action name="actionStatistics29WestUIM_Streams">
    <property name="text">
     <string>Streams</string>
-   </property>
-  </action>
-  <action name="actionStatistics29WestUIM_Stream_Flow_Graph">
-   <property name="text">
-    <string>Stream Flow Graph</string>
    </property>
   </action>
   <action name="actionStatistics29WestLBTRM">
