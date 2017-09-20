@@ -2461,7 +2461,7 @@ proto_register_tibia(void)
                 NULL, HFILL }
         },
         { &hf_tibia_vip_online,
-            { "Online", "tibia.vip",
+            { "Online", "tibia.vip.online",
                 FT_BOOLEAN, 8,
                 NULL, 0x1,
                 NULL, HFILL }
