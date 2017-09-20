@@ -2931,14 +2931,6 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         /* rlcinf->mode[0] = RLC_AM;*/
                         rlcinf->li_size[macd_idx] = RLC_LI_7BITS;
 
-#if 0
-                        /*If this entry exists, SECRUITY_MODE is completed*/
-                        if ( rrc_ciph_inf && g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER((gint)p_fp_info->com_context_id)) ) {
-                            rlcinf->ciphered[macd_idx] = TRUE;
-                        } else {
-                            rlcinf->ciphered[macd_idx] = FALSE;
-                        }
-#endif
                         rlcinf->ciphered[macd_idx] = FALSE;
                         rlcinf->deciphered[macd_idx] = FALSE;
                         p_fp_info->cur_tb = macd_idx;    /*Set the transport block index (NOTE: This and not subnum is used in MAC dissector!)*/
@@ -5306,14 +5298,6 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                     /* Set RLC data */
                     rlcinf->ueid[j + chan] = get_ue_id_from_conv(p_conv_data);
                     rlcinf->li_size[j+chan] = RLC_LI_7BITS;
-#if 0
-                    /*If this entry exists, SECRUITY_MODE is completed (signled by RRC)*/
-                    if ( rrc_ciph_inf && g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER((gint)p_conv_data->com_context_id)) != NULL ) {
-                        rlcinf->ciphered[j+chan] = TRUE;
-                    } else {
-                        rlcinf->ciphered[j+chan] = FALSE;
-                    }
-#endif
                     rlcinf->ciphered[j+chan] = FALSE;
                     rlcinf->deciphered[j+chan] = FALSE;
                     rlcinf->rbid[j+chan] = macinf->lchid[j+chan];
