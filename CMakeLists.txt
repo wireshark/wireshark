@@ -1291,6 +1291,10 @@ if(ENABLE_CCACHE AND (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Cl
 	if(CCACHE_EXECUTABLE)
 		set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_EXECUTABLE}")
 		set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK "${CCACHE_EXECUTABLE}")
+		# http://peter.eisentraut.org/blog/2014/12/01/ccache-and-clang-part-3/
+		if(CMAKE_C_COMPILER_ID MATCHES "Clang" AND NOT DEFINED(ENV{CCACHE_CPP2}))
+			message(WARNING "You're compiling using clang and ccache but CCACHE_CPP2 unset. This might produce unwanted warnings.")
+		endif()
 	endif()
 endif()
 
