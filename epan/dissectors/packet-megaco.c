@@ -1994,7 +1994,6 @@ dissect_megaco_eventsdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
     gint tvb_events_end_offset, tvb_LBRKT;
     proto_tree  *megaco_eventsdescriptor_tree, *megaco_requestedevent_tree;
     proto_item  *megaco_eventsdescriptor_ti, *megaco_requestedevent_ti, *ti;
-    guint8 tempchar;
 
     gint requested_event_start_offset = 0,
          requested_event_end_offset = 0;
@@ -2085,12 +2084,11 @@ dissect_megaco_eventsdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
             if ( tvb_help_offset < tvb_RBRKT && tvb_help_offset != -1 ){
 
                 tvb_help_offset = megaco_tvb_skip_wsp(tvb, requested_event_start_offset +1);
-                tempchar = tvb_get_guint8(tvb, tvb_help_offset);
 
                 requested_event_start_offset = megaco_tvb_skip_wsp(tvb, requested_event_start_offset +1);
                 requested_event_end_offset = megaco_tvb_skip_wsp_return(tvb, requested_event_end_offset-1);
 
-                if ( tempchar == 'D' || tempchar == 'd'){
+                if (!tvb_strncaseeql(tvb, requested_event_start_offset, "dm", 2)) {
                     dissect_megaco_digitmapdescriptor(tvb, megaco_requestedevent_tree, requested_event_end_offset, requested_event_start_offset);
                 }
                 else{
