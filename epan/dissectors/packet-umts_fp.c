@@ -5092,7 +5092,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
     guint8    tfi, c_t;
     int       offset = 0, i=0, j=0, num_tbs, chan, tb_size, tb_bit_off;
     gboolean  is_control_frame;
-    gboolean  is_known_dcch_tf,is_special_case_dch_24;
+    gboolean  is_known_dcch_tf,is_stndalone_ps_rab_tf,is_muxed_cs_ps_tf;
     umts_mac_info *macinf;
     rlc_info *rlcinf;
     guint8 fake_lchid=0;
@@ -5274,12 +5274,14 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                     /* Set transport channel id (useful for debugging) */
                     macinf->trchid[j+chan] = p_conv_data->dch_ids_in_flow_list[chan];
 
-                    /* Checking for the common Transport Format of DCCH over DCH ( See 3GPP TR 25.944 / 4.1.1.3.1.1 ) */
+                    /* Checking for the common Transport Format of 3.4 kbps SRBs for DCCH ( See 3GPP TR 25.944 / 4.1.1.3.1.1 ) */
                     is_known_dcch_tf = (tfi == 1 && num_tbs == 1 && tb_size == 148);
-                    /* Checking for DCH ID 24 and tb size of 340 bits */
-                    is_special_case_dch_24 = (p_conv_data->dch_ids_in_flow_list[chan] == 24 && tb_size == 340);
+                    /* Checking for Transport Format of interactive or background PS RAB ( See 3GPP TS 34.108 / 6.10.2.4.1.23 -> 6.10.2.4.1.35 ) */
+                    is_stndalone_ps_rab_tf = tb_size == 336;
+                    /* Checking for Transport Format of muxed CS & PS RABs ( See 3GPP TS 34.108 / 6.10.2.4.1.38 -> 6.10.2.4.1.51 ) */
+                    is_muxed_cs_ps_tf = (p_conv_data->dch_ids_in_flow_list[chan] == 24 && tb_size == 340);
 
-                    if (is_known_dcch_tf || is_special_case_dch_24) {
+                    if (is_known_dcch_tf || is_muxed_cs_ps_tf) {
                         /* Channel is multiplexed (ie. C/T flag present) */
                         macinf->ctmux[j+chan] = TRUE;
 
@@ -5289,6 +5291,17 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                         macinf->lchid[j+chan] = c_t;                     /* Logical Channel ID is the value in C/T */
                         macinf->content[j+chan] = lchId_type_table[c_t]; /* Base MAC content on logical channel id (Table is in packet-nbap.h) */
                         rlcinf->mode[j+chan] = lchId_rlc_map[c_t];       /* Base RLC mode on logical channel id */
+                    }
+                    else if (is_stndalone_ps_rab_tf) {
+                        /* Channel isn't multiplexed (ie. C/T flag not present) */
+                        macinf->ctmux[j+chan] = FALSE;
+
+                        /* Using a fake 'interactive PS' DTCH logical channel id */
+                        /* TODO: Once proper lchid is always set, this has to be changed */
+                        macinf->fake_chid[j+chan] = TRUE;
+                        macinf->lchid[j+chan] = 11;
+                        macinf->content[j+chan] = MAC_CONTENT_PS_DTCH;
+                        rlcinf->mode[j+chan] = RLC_AM;
                     }
                     else {
                         /* Unfamiliar DCH format, faking LCHID */
