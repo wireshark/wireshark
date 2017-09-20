@@ -3302,7 +3302,7 @@ proto_register_pfcp(void)
         NULL, HFILL }
         },
         { &hf_pfcp_mp_flag,
-        { "MP", "pfcp.mp",
+        { "MP", "pfcp.mp_flag",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }
         },
