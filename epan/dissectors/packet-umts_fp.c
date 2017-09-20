@@ -3880,7 +3880,7 @@ void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
                     rlcinf->ciphered[j] = FALSE;
                     rlcinf->deciphered[j] = FALSE;
                     rlcinf->rbid[j] = (guint8)lchid[n]+1;
-                    rlcinf->ueid[j] = p_fp_info->channel; /*We need to fake urnti*/
+                    rlcinf->ueid[j] = p_fp_info->channel; /*We need to fake "UE ID"*/
 
                     next_tvb = tvb_new_subset_length(tvb, offset, (gint)pdu_length[n]);
                     call_dissector_with_data(mac_fdd_hsdsch_handle, next_tvb, pinfo, top_level_tree, data);
@@ -5060,7 +5060,7 @@ make_fake_lchid(packet_info *pinfo _U_, gint trchld)
     return fake_map[trchld];
 }
 
-/* Figures the best UE-ID to use in RLC re-assembly logic */
+/* Figures the best "UE ID" to use in RLC reassembly logic */
 static guint32 get_ue_id_from_conv(umts_fp_conversation_info_t *p_conv_data)
 {
     guint32 user_identity;
@@ -5072,7 +5072,7 @@ static guint32 get_ue_id_from_conv(umts_fp_conversation_info_t *p_conv_data)
             p_conv_data->urnti = GPOINTER_TO_UINT(mapped_urnti);
         }
     }
-    /* Choosing RLC 'UE-ID': */
+    /* Choosing RLC 'UE ID': */
     /* 1. Preferring the U-RNTI if attached */
     /* 2. Fallback - Using the 'C-RNC Communication Context' used in NBAP for this user */
     user_identity = p_conv_data->com_context_id;
@@ -5172,29 +5172,11 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
 
                 }
             }
-            /* Make configurable ?(available in NBAP?) */
-            /*
-            switch (p_conv_data->rlc_mode) {
-                case FP_RLC_TM:
-                    rlcinf->mode[0] = RLC_TM;
-                    break;
-                case FP_RLC_UM:
-                    rlcinf->mode[0] = RLC_UM;
-                    break;
-                case FP_RLC_AM:
-                    rlcinf->mode[0] = RLC_AM;
-                    break;
-                case FP_RLC_MODE_UNKNOWN:
-                default:
-                    rlcinf->mode[0] = RLC_UNKNOWN_MODE;
-                    break;
-            }*/
             rlcinf->ueid[0] = get_ue_id_from_conv(p_conv_data);
             rlcinf->li_size[0] = RLC_LI_7BITS;
             rlcinf->ciphered[0] = FALSE;
             rlcinf->deciphered[0] = FALSE;
             p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0, rlcinf);
-
 
             return fpi;
 
@@ -5321,7 +5303,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                         /************************/
                     }
 
-                    /*** Set RLC info ***/
+                    /* Set RLC data */
                     rlcinf->ueid[j + chan] = get_ue_id_from_conv(p_conv_data);
                     rlcinf->li_size[j+chan] = RLC_LI_7BITS;
 #if 0
@@ -5369,7 +5351,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
             p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, macinf);
             /* Set RLC data */
             rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
-            /* For RLC re-assembly to work we need to fake a "U-RNTI" as an identifier of this stream.*/
+            /* For RLC reassembly to work we need to fake a "UE ID" as an identifier of this stream.*/
             /* Using the (UDP) conversation's ID and the prefix of 0xFFF */
             rlcinf->ueid[0] = (p_conv->conv_index | 0xFFF00000);
             rlcinf->mode[0] = RLC_AM;
@@ -5394,15 +5376,15 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
             }
             /* Set offset to TFI */
             offset = 2;
-            /* set MAC data */
+            /* set MAC & RLC data */
             macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
             rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
             for ( chan = 0; chan < fpi->num_chans; chan++ ) {
                 macinf->ctmux[chan]   = 1;
                 macinf->content[chan] = MAC_CONTENT_DCCH;
-                /* RLC dissector requires a non-zero stream identifier ('UE ID') to work */
+                /* RLC dissector's reassembly requires a non-zero stream identifier ('UE ID') to work */
                 /* For DCCH: MAC dissector will override this with C-RNTI/U-RNTI */
-                /* For CCCH: RLC's mode is TM and the dissector does not need the ID for reassembly - showing 0 in the UI to indicate that */
+                /* For CCCH: RLC's mode is TM and the dissector does not reassemble at all - showing 0 in the UI to indicate that */
                 rlcinf->ueid[chan] = 0;
             }
             p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, macinf);
