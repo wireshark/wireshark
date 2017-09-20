@@ -530,6 +530,7 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
     gboolean  is_video      = FALSE; /* FIX ME - need to indicate video or not */
     address   src_addr;
     address   dst_addr;
+    guint32   ip4_addr;
 
     if (rtsp_type_packet != RTSP_REPLY) {
         return;
@@ -599,7 +600,6 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
         else if (sscanf(tmp, "\"%u.%u.%u.%u:%u\"", &ipv4_1, &ipv4_2, &ipv4_3, &ipv4_4, &s_data_port) == 5) {
             guchar *tmp2;
             guchar *tmp3;
-            guint32 ip4_addr;
 
             /* Skip leading " */
             tmp++;
@@ -616,7 +616,6 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
         else if (sscanf(tmp, "\"%u.%u.%u.%u\"", &ipv4_1, &ipv4_2, &ipv4_3, &ipv4_4) == 4) {
             guchar *tmp2;
             guchar *tmp3;
-            guint32 ip4_addr;
 
             /* Skip leading " */
             tmp++;
@@ -651,7 +650,6 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
         if (sscanf(tmp, "\"%u.%u.%u.%u:%u\"", &ipv4_1, &ipv4_2, &ipv4_3, &ipv4_4, &c_data_port) == 5) {
             guchar *tmp2;
             guchar *tmp3;
-            guint32 ip4_addr;
 
             /* Skip leading " */
             tmp++;
