@@ -8270,7 +8270,7 @@ void proto_register_gtpv2(void)
            NULL, HFILL}
         },
         { &hf_gtpv2_uli_spare,
-        { "Spare", "gtpv2.uli_lai_flg",
+        { "Spare", "gtpv2.uli_spare_flg",
             FT_UINT8, BASE_HEX, NULL, 0xc0,
             NULL, HFILL }
         },
