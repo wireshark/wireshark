@@ -40,8 +40,17 @@ static int proto_packetlogger = -1;
 
 static int hf_type = -1;
 static int hf_info = -1;
+static int hf_syslog = -1;
+static int hf_syslog_process_id = -1;
+static int hf_syslog_message_type = -1;
+static int hf_syslog_process = -1;
+static int hf_syslog_sender = -1;
+static int hf_syslog_subsystem = -1;
+static int hf_syslog_category = -1;
+static int hf_syslog_message = -1;
 
 static gint ett_packetlogger = -1;
+static gint ett_syslog = -1;
 
 static dissector_handle_t packetlogger_handle;
 static dissector_table_t hci_h1_table;
@@ -52,11 +61,13 @@ static dissector_table_t hci_h1_table;
 #define PKT_RECV_ACL_DATA   0x03
 #define PKT_LMP_SEND        0x0A
 #define PKT_LMP_RECV        0x0B
+#define PKT_SYSLOG          0xF7
 #define PKT_KERNEL          0xF8
 #define PKT_KERNEL_DEBUG    0xF9
 #define PKT_ERROR           0xFA
 #define PKT_POWER           0xFB
 #define PKT_NOTE            0xFC
+#define PKT_CONFIG          0xFD
 #define PKT_NEW_CONTROLLER  0xFE
 
 static const value_string type_vals[] = {
@@ -66,14 +77,53 @@ static const value_string type_vals[] = {
   { PKT_RECV_ACL_DATA,   "Recv ACL Data"   },
   { PKT_LMP_SEND,        "Sent LMP Data"   },
   { PKT_LMP_RECV,        "Recv LMP Data"   },
+  { PKT_SYSLOG,          "Syslog"          },
   { PKT_KERNEL,          "Kernel"          },
   { PKT_KERNEL_DEBUG,    "Kernel Debug"    },
   { PKT_ERROR,           "Error"           },
   { PKT_POWER,           "Power"           },
   { PKT_NOTE,            "Note"            },
+  { PKT_CONFIG,          "Config"          },
   { PKT_NEW_CONTROLLER,  "New Controller"  },
   { 0, NULL }
 };
+
+static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    proto_item *ti = NULL;
+    proto_tree *sub_tree = NULL;
+    gint        offset = 0;
+    gint        len;
+
+    ti = proto_tree_add_item (tree, hf_syslog, tvb, 0, -1, ENC_NA);
+    sub_tree = proto_item_add_subtree (ti, ett_syslog);
+
+    proto_tree_add_item (sub_tree, hf_syslog_process_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item (sub_tree, hf_syslog_message_type, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    len = tvb_strsize (tvb, offset);
+    proto_tree_add_item (sub_tree, hf_syslog_process, tvb, offset, len, ENC_ASCII|ENC_NA);
+    offset += len;
+
+    len = tvb_strsize (tvb, offset);
+    proto_tree_add_item (sub_tree, hf_syslog_sender, tvb, offset, len, ENC_ASCII|ENC_NA);
+    offset += len;
+
+    len = tvb_strsize (tvb, offset);
+    proto_tree_add_item (sub_tree, hf_syslog_subsystem, tvb, offset, len, ENC_ASCII|ENC_NA);
+    offset += len;
+
+    len = tvb_strsize (tvb, offset);
+    proto_tree_add_item (sub_tree, hf_syslog_category, tvb, offset, len, ENC_ASCII|ENC_NA);
+    offset += len;
+
+    len = tvb_strsize (tvb, offset);
+    proto_tree_add_item (sub_tree, hf_syslog_message, tvb, offset, len, ENC_ASCII|ENC_NA);
+    col_add_fstr (pinfo->cinfo, COL_INFO, "%s", tvb_format_stringzpad_wsp (wmem_packet_scope(), tvb, offset, len));
+}
 
 static int dissect_packetlogger(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data)
@@ -141,11 +191,15 @@ static int dissect_packetlogger(tvbuff_t *tvb, packet_info *pinfo,
   } else {
     /* PacketLogger data */
     switch (pl_type) {
+    case PKT_SYSLOG:
+      dissect_syslog (next_tvb, pinfo, packetlogger_tree);
+      break;
     case PKT_KERNEL:
     case PKT_KERNEL_DEBUG:
     case PKT_ERROR:
     case PKT_POWER:
     case PKT_NOTE:
+    case PKT_CONFIG:
     case PKT_NEW_CONTROLLER:
       proto_tree_add_item (packetlogger_tree, hf_info, next_tvb, 0, len, ENC_ASCII|ENC_NA);
       col_add_fstr (pinfo->cinfo, COL_INFO, "%s", tvb_format_stringzpad_wsp (wmem_packet_scope(), next_tvb, 0, len));
@@ -167,10 +221,27 @@ void proto_register_packetlogger (void)
       { "Type", "packetlogger.type", FT_UINT8, BASE_HEX, VALS(type_vals), 0x0, NULL, HFILL } },
     { &hf_info,
       { "Info", "packetlogger.info", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_syslog,
+      { "Syslog", "packetlogger.syslog", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
+    { &hf_syslog_process_id,
+      { "ProcessID", "packetlogger.syslog.process_id", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
+    { &hf_syslog_message_type,
+      { "Message Type", "packetlogger.syslog.message_type", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+    { &hf_syslog_process,
+      { "Process", "packetlogger.syslog.process", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL } },
+    { &hf_syslog_sender,
+      { "Sender", "packetlogger.syslog.sender", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL } },
+    { &hf_syslog_subsystem,
+      { "Subsystem", "packetlogger.syslog.subsystem", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL } },
+    { &hf_syslog_category,
+      { "Category", "packetlogger.syslog.category", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL } },
+    { &hf_syslog_message,
+      { "Message", "packetlogger.syslog.message", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL } }
   };
 
   static gint *ett[] = {
-    &ett_packetlogger
+    &ett_packetlogger,
+    &ett_syslog
   };
 
   proto_packetlogger = proto_register_protocol (PNAME, PSNAME, PFNAME);
