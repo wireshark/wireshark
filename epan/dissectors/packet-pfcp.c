@@ -273,6 +273,26 @@ static int hf_pfcp_dn_len = -1;
 static int hf_pfcp_dn = -1;
 static int hf_pfcp_cp_len = -1;
 static int hf_pfcp_cp = -1;
+static int hf_pfcp_header_type = -1;
+static int hf_pfcp_hf_len = -1;
+static int hf_pfcp_hf_name = -1;
+static int hf_pfcp_hf_val_len = -1;
+static int hf_pfcp_hf_val = -1;
+static int hf_pfcp_measurement_info = -1;
+static int hf_pfcp_b0_mbqe = -1;
+static int hf_pfcp_b1_inam = -1;
+static int hf_pfcp_node_report_type = -1;
+static int hf_pfcp_b0_upfr = -1;
+static int hf_pfcp_remote_gtp_u_peer = -1;
+static int hf_pfcp_gtp_u_peer_flag_b0 = -1;
+static int hf_pfcp_gtp_u_peer_flag_b1 = -1;
+static int hf_pfcp_remote_gtp_u_peer_ipv4 = -1;
+static int hf_pfcp_remote_gtp_u_peer_ipv6 = -1;
+static int hf_pfcp_ur_seqn = -1;
+static int hf_pfcp_oci_flags = -1;
+static int hf_pfcp_b0_aoci = -1;
+static int hf_pfcp_sx_assoc_rel_req_flags = -1;
+static int hf_pfcp_b0_sarr = -1;
 
 static int ett_pfcp = -1;
 static int ett_pfcp_flags = -1;
@@ -301,6 +321,11 @@ static int ett_pfcp_pfcp_dl_flow_level_marking = -1;
 static int ett_pfcp_dl_data_service_inf = -1;
 static int ett_pfcp_sxsmreq = -1;
 static int ett_pfcp_sxsrrsp = -1;
+static int ett_pfcp_measurement_info = -1;
+static int ett_pfcp_node_report_type = -1;
+static int ett_pfcp_remote_gtp_u_peer = -1;
+static int ett_pfcp_oci_flags = -1;
+static int ett_sx_assoc_rel_req_flags = -1;
 
 static expert_field ei_pfcp_ie_reserved = EI_INIT;
 static expert_field ei_pfcp_ie_data_not_decoded = EI_INIT;
@@ -2405,12 +2430,13 @@ dissect_pfcp_ue_ip_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     guint64 ue_ip_address_flags;
 
     static const int * pfcp_ue_ip_address_flags[] = {
+        &hf_pfcp_spare_b7_b3,
         &hf_pfcp_ue_ip_address_flag_b2,
         &hf_pfcp_ue_ip_address_flag_b1,
         &hf_pfcp_ue_ip_address_flag_b0,
         NULL
     };
-    /* Octet 5  Spare   Spare   Spare   Spare   Spare   Spare   V4  V6*/
+    /* Octet 5  Spare   S/D V4  V6*/
     proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_ue_ip_address_flags,
         ett_pfcp_ue_ip_address_flags, pfcp_ue_ip_address_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &ue_ip_address_flags);
     offset += 1;
@@ -2590,18 +2616,149 @@ dissect_pfcp_dl_flow_level_marking(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 /*
  * 8.2.67   Header Enrichment
  */
+static const value_string pfcp_header_type_vals[] = {
+    { 0, "HTTP" },
+    { 0, NULL }
+};
+
+static void
+dissect_pfcp_header_enrichment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint32 len;
+    /* Octet 5 Spare    Header Type
+    */
+    proto_tree_add_item(tree, hf_pfcp_spare_b7_b5, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_pfcp_header_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    /* 6    Length of Header Field Name */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_hf_len, tvb, offset, 1, ENC_BIG_ENDIAN, &len);
+    offset++;
+
+    /* 7 to m Header Field Name
+     * Header Field Name shall be encoded as an OctetString
+     */
+    proto_tree_add_item(tree, hf_pfcp_hf_name, tvb, offset, 1, ENC_NA);
+    offset+= len;
+
+    /* p    Length of Header Field Value*/
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_hf_val_len, tvb, offset, 1, ENC_BIG_ENDIAN, &len);
+    offset++;
+
+    /* (p+1) to q   Header Field Value */
+    proto_tree_add_item(tree, hf_pfcp_hf_val, tvb, offset, 1, ENC_NA);
+    offset += len;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+
 /*
  * 8.2.68   Measurement Information
  */
+static void
+dissect_pfcp_measurement_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+
+    static const int * pfcp_measurement_info_flags[] = {
+        &hf_pfcp_spare_b7_b2,
+        &hf_pfcp_b1_inam,
+        &hf_pfcp_b0_mbqe,
+        NULL
+    };
+    /* Octet 5  Spare   INAM    MBQE */
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_measurement_info,
+        ett_pfcp_measurement_info, pfcp_measurement_info_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
 /*
  * 8.2.69   Node Report Type
  */
+static void
+dissect_pfcp_node_report_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+
+    static const int * pfcp_node_report_type_flags[] = {
+        &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_b0_upfr,
+        NULL
+    };
+    /* Octet 5  Spare   INAM    MBQE */
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_node_report_type,
+        ett_pfcp_node_report_type, pfcp_node_report_type_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
 /*
  * 8.2.70   Remote GTP-U Peer
  */
+static void
+dissect_pfcp_remote_gtp_u_peer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint64 flags;
+
+    static const int * pfcp_remote_gtp_u_peer_flags[] = {
+        &hf_pfcp_spare_b7_b2,
+        &hf_pfcp_gtp_u_peer_flag_b1,
+        &hf_pfcp_gtp_u_peer_flag_b0,
+        NULL
+    };
+    /* Octet 5  Spare   V4  V6*/
+    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_remote_gtp_u_peer,
+        ett_pfcp_remote_gtp_u_peer, pfcp_remote_gtp_u_peer_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &flags);
+    offset += 1;
+
+    /* IPv6 address (if present)*/
+    if ((flags & 0x1) == 1) {
+        proto_tree_add_item(tree, hf_pfcp_remote_gtp_u_peer_ipv6, tvb, offset, 16, ENC_NA);
+        proto_item_append_text(item, "IPv6 %s", tvb_ip6_to_str(tvb, offset));
+        offset += 16;
+    }
+    /* IPv4 address (if present)*/
+    if ((flags & 0x2) == 2) {
+        proto_tree_add_item(tree, hf_pfcp_remote_gtp_u_peer_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_item_append_text(item, "IPv4 %s", tvb_ip_to_str(tvb, offset));
+        offset += 4;
+    }
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
+
 /*
  * 8.2.71   UR-SEQN
  */
+static void
+dissect_pfcp_ur_seqn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_)
+{
+    guint value;
+
+    /* 5 to 8   UR-SEQN
+    * The UR-SEQN value shall be encoded as an Unsigned32 binary integer value
+    */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_ur_seqn, tvb, 0, 4, ENC_BIG_ENDIAN, &value);
+
+    proto_item_append_text(item, "%u", value);
+
+
+}
+
 /*
  * 8.2.72   Activate Predefined Rules
  */
@@ -2680,11 +2837,53 @@ dissect_pfcp_qer_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
 
 }
 /*
- * 8.2.76   OCI Flag
+ * 8.2.76   OCI Flags
  */
+static void
+dissect_pfcp_oci_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+
+    static const int * pfcp_oci_flags_flags[] = {
+        &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_b0_aoci,
+        NULL
+    };
+    /* Octet 5  Spare   AOCI */
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_oci_flags,
+        ett_pfcp_oci_flags, pfcp_oci_flags_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
+
 /*
  * 8.2.77   Sx Association Release Request
  */
+static void
+dissect_pfcp_sx_assoc_rel_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+
+    static const int * pfcp_sx_assoc_rel_req_flags[] = {
+        &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_b0_sarr,
+        NULL
+    };
+    /* Octet 5  Spare    SARR */
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_sx_assoc_rel_req_flags,
+        ett_sx_assoc_rel_req_flags, pfcp_sx_assoc_rel_req_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    offset += 1;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
+
 /*
  * 8.2.78   Graceful Release Period
  */
@@ -2839,23 +3038,23 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*     93 */    { dissect_pfcp_ue_ip_address },                                 /* UE IP Address                                   Extendable / Subclause 8.2.62 */
 /*     94 */    { dissect_pfcp_packet_rate },                                   /* Packet Rate                                     Extendable / Subclause 8.2.63 */
 /*     95 */    { dissect_pfcp_outer_hdr_rem },                                 /* Outer Header Removal                            Extendable / Subclause 8.2.64 */
-/*     96 */    { dissect_pfcp_recovery_time_stamp },                           /* Recovery Time Stamp              Extendable / Subclause 8.2.65 */
+/*     96 */    { dissect_pfcp_recovery_time_stamp },                           /* Recovery Time Stamp                             Extendable / Subclause 8.2.65 */
 /*     97 */    { dissect_pfcp_dl_flow_level_marking },                         /* DL Flow Level Marking                           Extendable / Subclause 8.2.66 */
-/*     98 */    { NULL },    /* Header Enrichment                               Extendable / Subclause 8.2.67 */
+/*     98 */    { dissect_pfcp_header_enrichment },                             /* Header Enrichment                               Extendable / Subclause 8.2.67 */
 /*     99 */    { dissect_pfcp_error_indication_report },                       /* Error Indication Report                         Extendable / Table 7.5.8.4-1 */
-/*    100 */    { NULL },                /* Measurement Information                        Extendable / Subclause 8.2.68 */
-/*    101 */    { NULL },    /* Node Report Type                               Extendable / Subclause 8.2.69 */
-/*    102 */    { dissect_pfcp_user_plane_path_failure_report },                /* User Plane Path Failure Report                 Extendable / Table 7.4.5.1.2-1 */
-/*    103 */    { NULL },    /* Remote GTP-U Peer                              Extendable / Subclause 8.2.70 */
-/*    104 */    { NULL },    /* UR-SEQN                                        Fixed Length / Subclause 8.2.71 */
-/*    105 */    { dissect_pfcp_update_duplicating_parameters },                 /* Update Duplicating Parameters                  Extendable / Table 7.5.4.3-3 */
-/*    106 */    { dissect_pfcp_act_predef_rules },                              /* Activate Predefined Rules                      Variable Length / Subclause 8.2.72 */
-/*    107 */    { dissect_pfcp_deact_predef_rules },                            /* Deactivate Predefined Rules                    Variable Length / Subclause 8.2.73 */
-/*    108 */    { dissect_pfcp_far_id },                                        /* FAR ID                                         Extendable / Subclause 8.2.74 */
-/*    109 */    { dissect_pfcp_qer_id },                                        /* QER ID                                         Extendable / Subclause 8.2.75 */
-/*    110 */    { NULL },    /* OCI Flags                                      Extendable / Subclause 8.2.76 */
-/*    111 */    { NULL },    /* Sx Association Release Request                 Extendable / Subclause 8.2.77 */
-/*    112 */    { dissect_pfcp_graceful_release_period },                       /* Graceful Release Period                        Extendable / Subclause 8.2.78 */
+/*    100 */    { dissect_pfcp_measurement_info },                              /* Measurement Information                         Extendable / Subclause 8.2.68 */
+/*    101 */    { dissect_pfcp_node_report_type },                              /* Node Report Type                                Extendable / Subclause 8.2.69 */
+/*    102 */    { dissect_pfcp_user_plane_path_failure_report },                /* User Plane Path Failure Report                  Extendable / Table 7.4.5.1.2-1 */
+/*    103 */    { dissect_pfcp_remote_gtp_u_peer },                             /* Remote GTP-U Peer                               Extendable / Subclause 8.2.70 */
+/*    104 */    { dissect_pfcp_ur_seqn },                                       /* UR-SEQN                                         Fixed Length / Subclause 8.2.71 */
+/*    105 */    { dissect_pfcp_update_duplicating_parameters },                 /* Update Duplicating Parameters                   Extendable / Table 7.5.4.3-3 */
+/*    106 */    { dissect_pfcp_act_predef_rules },                              /* Activate Predefined Rules                       Variable Length / Subclause 8.2.72 */
+/*    107 */    { dissect_pfcp_deact_predef_rules },                            /* Deactivate Predefined Rules                     Variable Length / Subclause 8.2.73 */
+/*    108 */    { dissect_pfcp_far_id },                                        /* FAR ID                                          Extendable / Subclause 8.2.74 */
+/*    109 */    { dissect_pfcp_qer_id },                                        /* QER ID                                          Extendable / Subclause 8.2.75 */
+/*    110 */    { dissect_pfcp_oci_flags },                                     /* OCI Flags                                       Extendable / Subclause 8.2.76 */
+/*    111 */    { dissect_pfcp_sx_assoc_rel_req },                              /* Sx Association Release Request                  Extendable / Subclause 8.2.77 */
+/*    112 */    { dissect_pfcp_graceful_release_period },                       /* Graceful Release Period                         Extendable / Subclause 8.2.78 */
     { NULL },                                                        /* End of List */
 };
 
@@ -4411,11 +4610,111 @@ proto_register_pfcp(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_pfcp_header_type,
+        { "Header Type", "pfcp.header_type",
+            FT_UINT8, BASE_DEC, VALS(pfcp_header_type_vals), 0x1f,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_hf_len,
+        { "Length of Header Field Name", "pfcp.hf_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_hf_name,
+        { "Header Field Name", "pfcp.hf_name",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_hf_val_len,
+        { "Length of Header Field Value", "pfcp.hf_val_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_hf_val,
+        { "Header Field Value", "pfcp.hf_val",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_measurement_info,
+        { "Flags", "pfcp.measurement_info",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b0_mbqe,
+        { "MBQE (Measurement Before QoS Enforcement)", "pfcp.measurement_info.fd",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b1_inam,
+        { "INAM (Inactive Measurement)", "pfcp.measurement_info.inam",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_node_report_type,
+        { "Flags", "pfcp.node_report_type",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b0_upfr,
+        { "UPFR (User Plane Path Failure Report)", "pfcp.node_report_type.upfr",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_remote_gtp_u_peer,
+        { "Flags", "pfcp.remote_gtp_u_peer",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_gtp_u_peer_flag_b0,
+        { "V6", "pfcp.gtp_u_peer_flag.v6",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_gtp_u_peer_flag_b1,
+        { "V6", "pfcp.gtp_u_peer_flag.v4",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_remote_gtp_u_peer_ipv4,
+        { "IPv4 address", "pfcp.node_id_ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_remote_gtp_u_peer_ipv6,
+        { "IPv6 address", "pfcp.node_id_ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_ur_seqn,
+        { "UR-SEQN", "pfcp.ur_seqn",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_oci_flags,
+        { "Flags", "pfcp.oci_flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b0_aoci,
+        { "AOCI: Associate OCI with Node ID", "pfcp.oci_flags.aoci",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_sx_assoc_rel_req_flags,
+        { "Flags", "pfcp.sx_assoc_rel_req",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_b0_sarr,
+        { "SARR (Sx Association Release Request)", "pfcp.sx_assoc_rel_req.sarr",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
 
     };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS_PFCP    27
+#define NUM_INDIVIDUAL_ELEMS_PFCP    31
     gint *ett[NUM_INDIVIDUAL_ELEMS_PFCP +
         (NUM_PFCP_IES - 1)];
 
@@ -4446,7 +4745,11 @@ proto_register_pfcp(void)
     ett[24] = &ett_pfcp_dl_data_service_inf;
     ett[25] = &ett_pfcp_sxsmreq;
     ett[26] = &ett_pfcp_sxsrrsp;
-
+    ett[27] = &ett_pfcp_measurement_info;
+    ett[28] = &ett_pfcp_node_report_type;
+    ett[28] = &ett_pfcp_remote_gtp_u_peer;
+    ett[29] = &ett_pfcp_oci_flags;
+    ett[30] = &ett_sx_assoc_rel_req_flags;
 
 
     static ei_register_info ei[] = {
