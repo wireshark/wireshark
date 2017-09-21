@@ -27,6 +27,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/sequence_analysis.h>
+#include <epan/column-info.h>
 #include <epan/to_str.h>
 #include <epan/tap.h>
 #include "packet-lbm.h"
@@ -6084,6 +6085,7 @@ lbm_uim_seq_analysis_packet(void *ptr, packet_info *pinfo, epan_dissect_t *edt _
     gchar * ctxinst2;
     gboolean swap_endpoints = FALSE;
     seq_analysis_item_t* sai;
+    char time_str[COL_MAX_LEN];
     int rc;
 
     if ((sainfo->all_packets)||(pinfo->fd->flags.passed_dfilter==1))
@@ -6188,6 +6190,11 @@ lbm_uim_seq_analysis_packet(void *ptr, packet_info *pinfo, epan_dissect_t *edt _
                 epb.stream_info.dest.port,
                 stream_info->channel);
         }
+
+        /* Fill in the timestamps */
+        set_fd_time(pinfo->epan, pinfo->fd, time_str);
+        sai->time_str = g_strdup(time_str);
+
         sai->conv_num = (guint16)LBM_CHANNEL_ID(stream_info->channel);
         sai->display = TRUE;
         sai->line_style = 1;

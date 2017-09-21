@@ -147,12 +147,21 @@ toggle_select_netsrcdst(GtkWidget *widget _U_, gpointer user_data _U_)
 
 /****************************************************************************/
 static void
-flow_graph_on_ok(GtkButton       *button _U_,
-		 gpointer         user_data)
+flow_graph_on_ok(GtkButton *button _U_, gpointer user_data)
 {
+	register_analysis_t* analysis = sequence_analysis_find_by_name(graph_analysis->name);
+
 	/* Scan for displayed packets (retap all packets) */
 	sequence_analysis_list_free(graph_analysis);
-	sequence_analysis_list_get(&cfile, graph_analysis);
+
+	if (analysis != NULL)
+	{
+		register_tap_listener(sequence_analysis_get_tap_listener_name(analysis), graph_analysis, NULL, sequence_analysis_get_tap_flags(analysis),
+								NULL, sequence_analysis_get_packet_func(analysis), NULL);
+
+		cf_retap_packets(&cfile);
+		remove_tap_listener(graph_analysis);
+	}
 
 	if (graph_analysis_data->dlg.window != NULL){ /* if we still have a window */
 		graph_analysis_update(graph_analysis_data);		/* refresh it xxx */

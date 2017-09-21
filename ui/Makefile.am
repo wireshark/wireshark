@@ -83,7 +83,6 @@ WIRESHARK_UI_SRC = \
 	tap-rlc-graph.c		\
 	tap-rtp-common.c	\
 	tap-sctp-analysis.c	\
-	tap-sequence-analysis.c	\
 	tap-tcp-stream.c	\
 	text_import.c		\
 	time_shift.c		\
@@ -136,7 +135,6 @@ WIRESHARK_UI_INCLUDES = \
 	tap-rtp-analysis.h	\
 	tap-rtp-common.h	\
 	tap-sctp-analysis.h	\
-	tap-sequence-analysis.h	\
 	tap-tcp-stream.h	\
 	text_import.h		\
 	text_import_scanner.h	\

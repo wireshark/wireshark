@@ -51,8 +51,7 @@ extern "C" {
 #include "epan/guid-utils.h"
 #include "epan/tap.h"
 #include "epan/tap-voip.h"
-
-#include "ui/tap-sequence-analysis.h"
+#include "epan/sequence_analysis.h"
 
 /****************************************************************************/
 extern const char *voip_call_state_name[8];

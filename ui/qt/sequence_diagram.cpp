@@ -22,8 +22,7 @@
 #include "sequence_diagram.h"
 
 #include "epan/addr_resolv.h"
-
-#include "ui/tap-sequence-analysis.h"
+#include "epan/sequence_analysis.h"
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>

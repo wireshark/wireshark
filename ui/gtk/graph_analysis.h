@@ -32,7 +32,7 @@
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <epan/address.h>
-#include <ui/tap-sequence-analysis.h>
+#include <epan/sequence_analysis.h>
 
 /** max number of nodes to display, each node will be an IP address */
 #define MAX_NUM_COL_CONV 10

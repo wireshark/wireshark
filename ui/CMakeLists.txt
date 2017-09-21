@@ -55,7 +55,6 @@ set(COMMON_UI_SRC
 	tap-iax2-analysis.c
 	tap-rtp-common.c
 	tap-sctp-analysis.c
-	tap-sequence-analysis.c
 	tap-rlc-graph.c
 	tap-tcp-stream.c
 	text_import.c

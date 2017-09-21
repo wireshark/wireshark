@@ -34,6 +34,7 @@
 #include "sequence_diagram.h"
 #include "wireshark_application.h"
 #include <ui/qt/utils/variant_pointer.h>
+#include <ui/alert_box.h>
 
 #include <QDir>
 #include <QFileDialog>
@@ -399,12 +400,14 @@ void SequenceDialog::on_buttonBox_accepted()
         } else if (extension.compare(jpeg_filter) == 0) {
             save_ok = ui->sequencePlot->saveJpg(file_name);
         } else if (extension.compare(ascii_filter) == 0 && !file_closed_ && info_->sainfo()) {
-            save_ok = sequence_analysis_dump_to_file(file_name.toUtf8().constData(), info_->sainfo(), cap_file_.capFile(), 0);
+            save_ok = sequence_analysis_dump_to_file(file_name.toUtf8().constData(), info_->sainfo(), 0);
         }
         // else error dialog?
         if (save_ok) {
             path = QDir(file_name);
             wsApp->setLastOpenDir(path.canonicalPath().toUtf8().constData());
+        } else {
+            open_failure_alert_box(file_name.toUtf8().constData(), errno, TRUE);
         }
     }
 }
@@ -420,9 +423,19 @@ void SequenceDialog::fillDiagram()
     } else {
         seq_diagram_->clearData();
         sequence_analysis_list_free(info_->sainfo());
-        sequence_analysis_list_get(cap_file_.capFile(), info_->sainfo());
-        num_items_ = sequence_analysis_get_nodes(info_->sainfo());
-        seq_diagram_->setData(info_->sainfo());
+
+        register_analysis_t* analysis = sequence_analysis_find_by_name(info_->sainfo()->name);
+        if (analysis != NULL)
+        {
+            register_tap_listener(sequence_analysis_get_tap_listener_name(analysis), info_->sainfo(), NULL, sequence_analysis_get_tap_flags(analysis),
+                                       NULL, sequence_analysis_get_packet_func(analysis), NULL);
+
+            cf_retap_packets(cap_file_.capFile());
+            remove_tap_listener(info_->sainfo());
+
+            num_items_ = sequence_analysis_get_nodes(info_->sainfo());
+            seq_diagram_->setData(info_->sainfo());
+        }
     }
 
     sequence_w_ = one_em_ * 15; // Arbitrary

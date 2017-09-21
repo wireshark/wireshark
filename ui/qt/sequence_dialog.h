@@ -29,8 +29,7 @@
 #include "cfile.h"
 
 #include "epan/packet.h"
-
-#include "ui/tap-sequence-analysis.h"
+#include "epan/sequence_analysis.h"
 
 #include <ui/qt/widgets/qcustomplot.h>
 #include "wireshark_dialog.h"
