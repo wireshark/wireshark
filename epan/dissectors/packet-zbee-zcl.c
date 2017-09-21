@@ -1017,6 +1017,9 @@ void dissect_zcl_read_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
             /* Dissect the attribute data type and data */
             dissect_zcl_attr_data_type_val(tvb, sub_tree, offset, attr_id, cluster_id);
         }
+
+        /* Set end for subtree */
+        proto_item_set_end(proto_tree_get_parent(sub_tree), tvb, *offset);
     }
 } /* dissect_zcl_read_attr_resp */
 
@@ -1050,6 +1053,9 @@ void dissect_zcl_write_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
         /* Dissect the attribute data type and data */
         dissect_zcl_attr_data_type_val(tvb, sub_tree, offset, attr_id, cluster_id);
+
+        /* Set end for subtree */
+        proto_item_set_end(proto_tree_get_parent(sub_tree), tvb, *offset);
     }
 } /* dissect_zcl_write_attr */
 
@@ -1083,6 +1089,9 @@ static void dissect_zcl_write_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, p
             /* Dissect the failed attribute identifier */
             dissect_zcl_attr_id(tvb, sub_tree, offset, cluster_id);
         }
+
+        /* Set end for subtree */
+        proto_item_set_end(proto_tree_get_parent(sub_tree), tvb, *offset);
     }
 
 } /* dissect_zcl_write_attr_resp */
