@@ -72,6 +72,7 @@ PFCP (Packet Forwarding Control Protocol)
 Tibia
 Broadcom tags (Broadcom Ethernet switch management frames)
 GRPC (gRPC)
+SolarEdge monitoring protocol
 --sort-and-group--
 
 === Updated Protocol Support

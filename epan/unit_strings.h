@@ -101,6 +101,9 @@ WS_DLL_PUBLIC const unit_name_string units_revolutions_per_minute;
 WS_DLL_PUBLIC const unit_name_string units_kilopascal;
 WS_DLL_PUBLIC const unit_name_string units_newton_metre;
 WS_DLL_PUBLIC const unit_name_string units_liter_per_hour;
+WS_DLL_PUBLIC const unit_name_string units_amp;
+WS_DLL_PUBLIC const unit_name_string units_watthour;
+WS_DLL_PUBLIC const unit_name_string units_watt;
 
 #ifdef __cplusplus
 }

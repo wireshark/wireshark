@@ -1601,6 +1601,7 @@ set(DISSECTOR_SRC
 	packet-snort.c
 	packet-socketcan.c
 	packet-socks.c
+	packet-solaredge.c
 	packet-soupbintcp.c
 	packet-spdy.c
 	packet-spice.c

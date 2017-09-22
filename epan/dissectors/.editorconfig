@@ -1905,6 +1905,10 @@ indent_size = tab
 [packet-sndcp.[ch]]
 indent_size = 2
 
+[packet-solaredge.[ch]]
+indent_style = tab
+indent_size = tab
+
 [packet-socketcan.[ch]]
 indent_style = tab
 indent_size = tab

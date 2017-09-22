@@ -109,6 +109,9 @@ const unit_name_string units_revolutions_per_minute = { "rpm", NULL };
 const unit_name_string units_kilopascal = { "kPa", NULL };
 const unit_name_string units_newton_metre = { "Nm", NULL };
 const unit_name_string units_liter_per_hour = { "L/h", NULL };
+const unit_name_string units_amp = { "A", NULL };
+const unit_name_string units_watthour = { "Wh", NULL };
+const unit_name_string units_watt = { "W", NULL };
 
 
 /*
