@@ -47,8 +47,8 @@
                     <RadioButton Value="2" X="5" Y="35" Height="15" Width="235" Text="None" />
                   </RadioButtonGroup>
                 </Control>
-                <Control Id="FileExtensionsText1" Type="Text" X="20" Y="250" Width="235" Height="15" Transparent="yes" NoPrefix="yes" Text="Extensions: 5vw, acp, apc, atc, bfr, cap, enc, erf, fdc, mplog, out, pcap," />
-                <Control Id="FileExtensionsText2" Type="Text" X="20" Y="265" Width="235" Height="15" Transparent="yes" NoPrefix="yes" Text="pcapng, pkt, rf5, snoop, syc, tpc, tr1, trace, trc, vwr, wpc, wpz" />
+                <Control Id="FileExtensionsText1" Type="Text" X="20" Y="250" Width="235" Height="15" Transparent="yes" NoPrefix="yes" Text="Extensions: 5vw, acp, apc, atc, bfr, cap, enc, erf, fdc, lcap, mplog, ntar, out," />
+                <Control Id="FileExtensionsText2" Type="Text" X="20" Y="265" Width="235" Height="15" Transparent="yes" NoPrefix="yes" Text="pcap, pcapng, pkt, rf5, snoop, syc, tpc, tr1, trace, trc, vwr, wpc, wpz" />
 
                 <Control Id="BottomLine" Type="Line" X="0" Y="284" Width="370" Height="0" />
                 <Control Id="Back" Type="PushButton" X="180" Y="293" Width="56" Height="17" Text="!(loc.WixUIBack)" />

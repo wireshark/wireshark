@@ -111,6 +111,7 @@ Exec '"$SYSDIR\ie4uinit.exe" -ClearIconCache'
     Push ".out"
     Push ".ntar"
     Push ".mplog"
+    Push ".lcap"
     Push ".ipfix"
     Push ".fdc"
     Push ".erf"
