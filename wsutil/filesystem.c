@@ -975,7 +975,7 @@ init_plugin_dir(void)
      * on Windows, the data file directory is the directory
      * in which the Wireshark binary resides.
      */
-    plugin_dir = g_build_filename(get_datafile_dir(), "plugins", VERSION, (gchar *)NULL);
+    plugin_dir = g_build_filename(get_datafile_dir(), "plugins", (gchar *)NULL);
 
     /*
      * Make sure that pathname refers to a directory.

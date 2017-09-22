@@ -1009,7 +1009,7 @@ SectionGroup "Plugins & Extensions" SecPluginsGroup
 
 Section "Dissector Plugins" SecPlugins
 ;-------------------------------------------
-SetOutPath '$INSTDIR\plugins\${VERSION}'
+SetOutPath '$INSTDIR\plugins\${VERSION_MAJOR}.${VERSION_MINOR}'
 File "${STAGING_DIR}\plugins\docsis.dll"
 File "${STAGING_DIR}\plugins\ethercat.dll"
 File "${STAGING_DIR}\plugins\gryphon.dll"
@@ -1026,20 +1026,20 @@ SectionEnd
 
 Section "Tree Statistics Plugin" SecStatsTree
 ;-------------------------------------------
-SetOutPath '$INSTDIR\plugins\${VERSION}'
+SetOutPath '$INSTDIR\plugins\${VERSION_MAJOR}.${VERSION_MINOR}'
 File "${STAGING_DIR}\plugins\stats_tree.dll"
 SectionEnd
 
 Section "Mate - Meta Analysis and Tracing Engine" SecMate
 ;-------------------------------------------
-SetOutPath '$INSTDIR\plugins\${VERSION}'
+SetOutPath '$INSTDIR\plugins\${VERSION_MAJOR}.${VERSION_MINOR}'
 File "${STAGING_DIR}\plugins\mate.dll"
 SectionEnd
 
 
 Section "TRANSUM - network and application performance analysis" SecTransum
 ;-------------------------------------------
-SetOutPath '$INSTDIR\plugins\${VERSION}'
+SetOutPath '$INSTDIR\plugins\${VERSION_MAJOR}.${VERSION_MINOR}'
 File "${STAGING_DIR}\plugins\transum.dll"
 SectionEnd
 

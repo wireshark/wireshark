@@ -50,7 +50,7 @@ macro(ADD_PLUGIN_LIBRARY _plugin)
 	foreach(_config_type ${CMAKE_CONFIGURATION_TYPES})
 		string(TOUPPER ${_config_type} _config_upper)
 		set_target_properties(${_plugin} PROPERTIES
-			LIBRARY_OUTPUT_DIRECTORY_${_config_upper} ${CMAKE_BINARY_DIR}/run/${_config_type}/plugins
+			LIBRARY_OUTPUT_DIRECTORY_${_config_upper} ${CMAKE_BINARY_DIR}/run/${_config_type}/${PLUGIN_VERSION_DIR}
 		)
 	endforeach()
 

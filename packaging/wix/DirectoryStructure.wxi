@@ -28,7 +28,7 @@
           </Directory>
           <Directory Id="dirRadius" Name="radius"/>
           <Directory Id="dirPlugins" Name="plugins">
-            <Directory Id="dirPluginsVersion" Name="$(var.WiresharkVersion)"/>
+            <Directory Id="dirPluginsVersion" Name="$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)"/>
           </Directory>
           <Directory Id="dirProfiles" Name="profiles"/>
           <Directory Id="dirSnmp" Name="snmp">

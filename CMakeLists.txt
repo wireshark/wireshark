@@ -1425,13 +1425,12 @@ else()
 endif()
 
 if(ENABLE_APPLICATION_BUNDLE)
-	set(_plugin_dir "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/PlugIns/wireshark")
+	set(_plugin_dir "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/PlugIns/wireshark/${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}")
 else()
 	get_target_property(_libwireshark_location epan LOCATION)
 	get_filename_component(_plugin_dir "${_libwireshark_location}" PATH)
-	set(_plugin_dir "${_plugin_dir}/plugins")
+	set(_plugin_dir "${_plugin_dir}/${PLUGIN_VERSION_DIR}")
 endif()
-# XXX The NMake environment appends the version. Should we do so here?
 set (PLUGIN_DIR ${_plugin_dir} CACHE INTERNAL "Build time plugin location.")
 
 foreach(_plugin_src_dir ${PLUGIN_SRC_DIRS})
