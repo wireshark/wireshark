@@ -755,6 +755,9 @@ File "${STAGING_DIR}\dtds\xcap-error.dtd"
 File "${STAGING_DIR}\dtds\watcherinfo.dtd"
 SetOutPath $INSTDIR
 
+; Create the extcap directory
+CreateDirectory $INSTDIR\extcap
+
 ; Install the TPNCP DAT file in the "tpncp" subdirectory
 ; of the installation directory.
 SetOutPath $INSTDIR\tpncp
@@ -878,7 +881,6 @@ ${If} $0 == "0"
         ${EnableX64FSRedirection}
         SetRegView 32
     ${EndIf}
-    CreateDirectory $INSTDIR\extcap
     ${StrRep} $0 '$USBPCAP_UNINSTALL' 'Uninstall.exe' 'USBPcapCMD.exe'
     ${StrRep} $1 '$0' '"' ''
     CopyFiles  /SILENT $1 $INSTDIR\extcap
