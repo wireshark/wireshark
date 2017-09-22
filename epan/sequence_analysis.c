@@ -32,7 +32,6 @@
 #include "column-info.h"
 #include "tap.h"
 #include "wmem/wmem.h"
-#include "wsutil/file_util.h"
 
 #define NODE_OVERFLOW MAX_NUM_NODES+1
 
@@ -191,7 +190,8 @@ void sequence_analysis_info_free(seq_analysis_info_t *sainfo)
     sequence_analysis_list_free(sainfo);
 
     g_queue_free(sainfo->items);
-    g_hash_table_destroy(sainfo->ht);
+    if (sainfo->ht != NULL)
+        g_hash_table_destroy(sainfo->ht);
 
     g_free(sainfo);
 }
@@ -241,7 +241,8 @@ sequence_analysis_list_free(seq_analysis_info_t *sainfo)
     /* free the graph data items */
 
 #if GLIB_CHECK_VERSION (2, 32, 0)
-       g_queue_free_full(sainfo->items, sequence_analysis_item_free);
+       if (sainfo->items != NULL)
+            g_queue_free_full(sainfo->items, sequence_analysis_item_free);
        sainfo->items = g_queue_new();
 #else
     {
@@ -399,8 +400,8 @@ static void overwrite (GString *gstr, char *text_to_insert, guint32 p1, guint32 
 }
 
 
-gboolean
-sequence_analysis_dump_to_file(const char *pathname, seq_analysis_info_t *sainfo, unsigned int first_node)
+void
+sequence_analysis_dump_to_file(FILE  *of, seq_analysis_info_t *sainfo, unsigned int first_node)
 {
     guint32  i, display_items, display_nodes;
     guint32  start_position, end_position, item_width, header_length;
@@ -412,18 +413,13 @@ sequence_analysis_dump_to_file(const char *pathname, seq_analysis_info_t *sainfo
     GString    *label_string, *empty_line, *separator_line, *tmp_str, *tmp_str2;
     const char *empty_header;
     char        src_port[8], dst_port[8];
-    GList      *list;
+    GList      *list = NULL;
     char       *addr_str;
 
-    FILE  *of;
-
-    of = ws_fopen(pathname, "w");
-    if (of==NULL) {
-        return FALSE;
-    }
-
     display_items = 0;
-    list = g_queue_peek_nth_link(sainfo->items, 0);
+    if (sainfo->items != NULL)
+        list = g_queue_peek_nth_link(sainfo->items, 0);
+
     while (list)
     {
         sai = (seq_analysis_item_t *)list->data;
@@ -444,8 +440,7 @@ sequence_analysis_dump_to_file(const char *pathname, seq_analysis_info_t *sainfo
 
     /* if not items to display */
     if (display_items == 0) {
-        fclose (of);
-        return TRUE;
+        return;
     }
 
     label_string   = g_string_new("");
@@ -610,9 +605,6 @@ sequence_analysis_dump_to_file(const char *pathname, seq_analysis_info_t *sainfo
     g_string_free(separator_line, TRUE);
     g_string_free(tmp_str, TRUE);
     g_string_free(tmp_str2, TRUE);
-    fclose (of);
-    return TRUE;
-
 }
 
 /*

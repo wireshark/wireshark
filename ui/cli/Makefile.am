@@ -50,6 +50,7 @@ TSHARK_TAP_SRC = \
 	tap-endpoints.c		\
 	tap-expert.c		\
 	tap-exportobject.c	\
+	tap-flow.c			\
 	tap-follow.c		\
 	tap-funnel.c		\
 	tap-gsm_astat.c		\

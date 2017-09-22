@@ -50,6 +50,7 @@ since version 2.4.0:
 * Improved NetMon .cap support with comments, event tracing, network filter,
   network info types and some Message Analyzer exported types.
 * Personal plugins folder on Linux/Unix is now ~/.local/lib/wireshark/plugins.
+* Add Flow Graph functionality to TShark using -z
 
 //=== Removed Dissectors
 

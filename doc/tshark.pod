@@ -1109,6 +1109,26 @@ on those calls that match that filter.
 Example: B<-z "expert,note,tcp"> will only collect expert items for frames that
 include the tcp protocol, with a severity of note or higher.
 
+=item B<-z> flow,I<name>,I<mode>,[I<filter>]
+
+Displays the flow of data between two nodes. Output is the same as ASCII format
+saved from GUI.
+
+I<name> specifies the flow name.  It can be one of:
+
+  any      All frames
+  icmp     ICMP
+  icmpv6   ICMPv6
+  lbm_uim  UIM
+  tcp      TCP
+
+I<mode> specifies the address type.  It can be one of:
+
+  standard   Any address
+  network    Network address
+
+Example: B<-z flow,tcp,network> will show data flow for all TCP frames
+
 =item B<-z> follow,I<prot>,I<mode>,I<filter>[I<,range>]
 
 Displays the contents of a TCP or UDP stream between two nodes.  The data

@@ -27,6 +27,7 @@
 #include "file.h"
 #include "wsutil/nstime.h"
 #include "wsutil/utf8_entities.h"
+#include "wsutil/file_util.h"
 
 #include <ui/qt/utils/color_utils.h>
 #include "progress_frame.h"
@@ -400,7 +401,13 @@ void SequenceDialog::on_buttonBox_accepted()
         } else if (extension.compare(jpeg_filter) == 0) {
             save_ok = ui->sequencePlot->saveJpg(file_name);
         } else if (extension.compare(ascii_filter) == 0 && !file_closed_ && info_->sainfo()) {
-            save_ok = sequence_analysis_dump_to_file(file_name.toUtf8().constData(), info_->sainfo(), 0);
+            FILE  *outfile = ws_fopen(file_name.toUtf8().constData(), "w");
+            if (outfile != NULL) {
+                sequence_analysis_dump_to_file(outfile, info_->sainfo(), 0);
+                save_ok = true;
+            } else {
+                save_ok = false;
+            }
         }
         // else error dialog?
         if (save_ok) {
