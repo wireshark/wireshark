@@ -90,7 +90,6 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     if (!info_) {
         info_ = new SequenceInfo(sequence_analysis_info_new());
         info_->sainfo()->name = "any";
-        info_->sainfo()->all_packets = TRUE;
     } else {
         info_->ref();
         sequence_analysis_free_nodes(info_->sainfo());
@@ -159,7 +158,6 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     ctx_menu_.addAction(ui->actionGoToNextPacket);
     ctx_menu_.addAction(ui->actionGoToPreviousPacket);
 
-    ui->showComboBox->setCurrentIndex(0);
     ui->addressComboBox->setCurrentIndex(0);
 
     sequence_items_t item_data;
@@ -434,7 +432,11 @@ void SequenceDialog::fillDiagram()
         register_analysis_t* analysis = sequence_analysis_find_by_name(info_->sainfo()->name);
         if (analysis != NULL)
         {
-            register_tap_listener(sequence_analysis_get_tap_listener_name(analysis), info_->sainfo(), NULL, sequence_analysis_get_tap_flags(analysis),
+            const char *filter = NULL;
+            if (ui->displayFilterCheckBox->checkState() == Qt::Checked)
+                filter = cap_file_.capFile()->dfilter;
+
+            register_tap_listener(sequence_analysis_get_tap_listener_name(analysis), info_->sainfo(), filter, sequence_analysis_get_tap_flags(analysis),
                                        NULL, sequence_analysis_get_packet_func(analysis), NULL);
 
             cf_retap_packets(cap_file_.capFile());
@@ -603,15 +605,8 @@ void SequenceDialog::goToAdjacentPacket(bool next)
     }
 }
 
-void SequenceDialog::on_showComboBox_activated(int index)
+void SequenceDialog::on_displayFilterCheckBox_toggled(bool)
 {
-    if (!info_->sainfo()) return;
-
-    if (index == 0) {
-        info_->sainfo()->all_packets = TRUE;
-    } else {
-        info_->sainfo()->all_packets = FALSE;
-    }
     fillDiagram();
 }
 

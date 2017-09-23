@@ -168,28 +168,25 @@ static gboolean
 frame_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *dummy _U_)
 {
 	seq_analysis_info_t *sainfo = (seq_analysis_info_t *) ptr;
+	seq_analysis_item_t *sai = sequence_analysis_create_sai_with_addresses(pinfo, sainfo);
 
-	if ((sainfo->all_packets) || (pinfo->fd->flags.passed_dfilter == 1)) {
+	if (!sai)
+		return FALSE;
 
-		seq_analysis_item_t *sai = sequence_analysis_create_sai_with_addresses(pinfo, sainfo);
-		if (!sai)
-			return FALSE;
+	sai->frame_number = pinfo->num;
 
-		sai->frame_number = pinfo->num;
+	sequence_analysis_use_color_filter(pinfo, sai);
 
-		sequence_analysis_use_color_filter(pinfo, sai);
+	sai->port_src=pinfo->srcport;
+	sai->port_dst=pinfo->destport;
 
-		sai->port_src=pinfo->srcport;
-		sai->port_dst=pinfo->destport;
+	sequence_analysis_use_col_info_as_label_comment(pinfo, sai);
 
-		sequence_analysis_use_col_info_as_label_comment(pinfo, sai);
+	sai->line_style = 1;
+	sai->conv_num = 0;
+	sai->display = TRUE;
 
-		sai->line_style = 1;
-		sai->conv_num = 0;
-		sai->display = TRUE;
-
-		g_queue_push_tail(sainfo->items, sai);
-	}
+	g_queue_push_tail(sainfo->items, sai);
 
 	return TRUE;
 }

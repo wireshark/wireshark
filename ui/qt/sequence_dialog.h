@@ -85,7 +85,7 @@ private slots:
     void on_actionGoToPacket_triggered();
     void on_actionGoToNextPacket_triggered() { goToAdjacentPacket(true); }
     void on_actionGoToPreviousPacket_triggered() { goToAdjacentPacket(false); }
-    void on_showComboBox_activated(int index);
+    void on_displayFilterCheckBox_toggled(bool checked);
     void on_flowComboBox_activated(int index);
     void on_addressComboBox_activated(int index);
     void on_actionReset_triggered();

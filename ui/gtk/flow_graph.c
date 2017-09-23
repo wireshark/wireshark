@@ -37,11 +37,13 @@
 #include "ui/gtk/main.h"
 #include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/old-gtk-compat.h"
+#include "ui/gtk/gtkglobals.h"
 
 void register_tap_listener_flow_graph(void);
 
 static seq_analysis_info_t *graph_analysis	  = NULL;
 static graph_analysis_data_t *graph_analysis_data = NULL;
+static const char* display_filter = NULL;
 
 static GtkWidget *flow_graph_dlg = NULL;
 
@@ -57,7 +59,7 @@ static void
 flow_graph_data_init(void) {
 	graph_analysis = sequence_analysis_info_new();
 	graph_analysis->name = "any";
-	graph_analysis->all_packets = TRUE;
+	display_filter = NULL;
 }
 
 
@@ -111,7 +113,7 @@ toggle_select_all(GtkWidget *widget _U_, gpointer user_data _U_)
 {
 	/* is the button now active? */
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(select_all_rb))) {
-		graph_analysis->all_packets = TRUE;
+		display_filter = NULL;
 	}
 }
 
@@ -121,7 +123,7 @@ toggle_select_displayed(GtkWidget *widget _U_, gpointer user_data _U_)
 {
 	/* is the button now active? */
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(select_displayed_rb))) {
-		graph_analysis->all_packets = FALSE;
+		display_filter = gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
 	}
 }
 
@@ -156,7 +158,7 @@ flow_graph_on_ok(GtkButton *button _U_, gpointer user_data)
 
 	if (analysis != NULL)
 	{
-		register_tap_listener(sequence_analysis_get_tap_listener_name(analysis), graph_analysis, NULL, sequence_analysis_get_tap_flags(analysis),
+		register_tap_listener(sequence_analysis_get_tap_listener_name(analysis), graph_analysis, display_filter, sequence_analysis_get_tap_flags(analysis),
 								NULL, sequence_analysis_get_packet_func(analysis), NULL);
 
 		cf_retap_packets(&cfile);
@@ -248,7 +250,7 @@ flow_graph_dlg_create(void)
 	g_signal_connect(select_all_rb, "toggled", G_CALLBACK(toggle_select_all), NULL);
 	ws_gtk_grid_attach_extended(GTK_GRID(range_grid), select_all_rb, 0, 0, 1, 1,
 				    (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(0), 0, 0);
-	if (graph_analysis->all_packets) {
+	if (display_filter == NULL) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(select_all_rb),TRUE);
 	}
 	gtk_widget_show(select_all_rb);
@@ -260,7 +262,7 @@ flow_graph_dlg_create(void)
 	g_signal_connect(select_displayed_rb, "toggled", G_CALLBACK(toggle_select_displayed), NULL);
 	ws_gtk_grid_attach_extended(GTK_GRID(range_grid), select_displayed_rb, 0, 1, 1, 1,
 				    (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(0), 0, 0);
-	if (!graph_analysis->all_packets) {
+	if (display_filter != NULL) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(select_displayed_rb),TRUE);
 	}
  	gtk_widget_show(select_displayed_rb);

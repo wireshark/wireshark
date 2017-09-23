@@ -102,24 +102,13 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>Show:</string>
+         <widget class="QCheckBox" name="displayFilterCheckBox">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show flows matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="showComboBox">
-          <item>
            <property name="text">
-            <string>All packets</string>
+            <string>Limit to display filter</string>
            </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Displayed packets</string>
-           </property>
-          </item>
          </widget>
         </item>
         <item>

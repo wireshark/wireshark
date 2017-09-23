@@ -2173,7 +2173,6 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 
 			graph_analysis = sequence_analysis_info_new();
 			graph_analysis->name = tok_tap + 5;
-			graph_analysis->all_packets = TRUE;
 			/* TODO, make configurable */
 			graph_analysis->any_addr = FALSE;
 

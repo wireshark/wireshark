@@ -103,8 +103,6 @@ flow_init(const char *opt_argp, void *userdata)
         filter = opt_argp + 1;
     }
 
-    flow_info->all_packets = TRUE;
-
     sequence_analysis_list_free(flow_info);
 
     errp = register_tap_listener(sequence_analysis_get_tap_listener_name(analysis), flow_info, filter, sequence_analysis_get_tap_flags(analysis),

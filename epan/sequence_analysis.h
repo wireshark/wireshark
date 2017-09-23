@@ -69,7 +69,6 @@ typedef struct _seq_analysis_item {
 /** defines the graph analysis structure */
 typedef struct _seq_analysis_info {
     const char* name;  /**< Name of sequence analysis */
-    gboolean    all_packets; /**< all packets vs only displayed */
     gboolean    any_addr;    /**< any addr (DL+net) vs net-only */
     int         nconv;       /**< number of conversations in the list */
     GQueue*     items;       /**< list of seq_analysis_info_t */

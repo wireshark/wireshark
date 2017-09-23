@@ -6088,119 +6088,116 @@ lbm_uim_seq_analysis_packet(void *ptr, packet_info *pinfo, epan_dissect_t *edt _
     char time_str[COL_MAX_LEN];
     int rc;
 
-    if ((sainfo->all_packets)||(pinfo->fd->flags.passed_dfilter==1))
+    if (stream_info->endpoint_a.type != stream_info->endpoint_b.type)
     {
-        if (stream_info->endpoint_a.type != stream_info->endpoint_b.type)
+        return TRUE;
+    }
+    if (stream_info->endpoint_a.type == lbm_uim_instance_stream)
+    {
+        rc = memcmp((void *)stream_info->endpoint_a.stream_info.ctxinst.ctxinst,
+            (void *)stream_info->endpoint_b.stream_info.ctxinst.ctxinst,
+            LBM_CONTEXT_INSTANCE_BLOCK_SZ);
+        if (rc <= 0)
         {
-            return (1);
-        }
-        if (stream_info->endpoint_a.type == lbm_uim_instance_stream)
-        {
-            rc = memcmp((void *)stream_info->endpoint_a.stream_info.ctxinst.ctxinst,
-                (void *)stream_info->endpoint_b.stream_info.ctxinst.ctxinst,
-                LBM_CONTEXT_INSTANCE_BLOCK_SZ);
-            if (rc <= 0)
-            {
-                swap_endpoints = FALSE;
-            }
-            else
-            {
-                swap_endpoints = TRUE;
-            }
+            swap_endpoints = FALSE;
         }
         else
         {
-            if (stream_info->endpoint_a.stream_info.dest.domain < stream_info->endpoint_b.stream_info.dest.domain)
+            swap_endpoints = TRUE;
+        }
+    }
+    else
+    {
+        if (stream_info->endpoint_a.stream_info.dest.domain < stream_info->endpoint_b.stream_info.dest.domain)
+        {
+            swap_endpoints = FALSE;
+        }
+        else if (stream_info->endpoint_a.stream_info.dest.domain > stream_info->endpoint_b.stream_info.dest.domain)
+        {
+            swap_endpoints = TRUE;
+        }
+        else
+        {
+            int compare;
+
+            compare = cmp_address(&(stream_info->endpoint_a.stream_info.dest.addr), &(stream_info->endpoint_b.stream_info.dest.addr));
+            if (compare < 0)
             {
                 swap_endpoints = FALSE;
             }
-            else if (stream_info->endpoint_a.stream_info.dest.domain > stream_info->endpoint_b.stream_info.dest.domain)
+            else if (compare > 0)
             {
                 swap_endpoints = TRUE;
             }
             else
             {
-                int compare;
-
-                compare = cmp_address(&(stream_info->endpoint_a.stream_info.dest.addr), &(stream_info->endpoint_b.stream_info.dest.addr));
-                if (compare < 0)
+                if (stream_info->endpoint_a.stream_info.dest.port <= stream_info->endpoint_b.stream_info.dest.port)
                 {
                     swap_endpoints = FALSE;
                 }
-                else if (compare > 0)
+                else
                 {
                     swap_endpoints = TRUE;
                 }
-                else
-                {
-                    if (stream_info->endpoint_a.stream_info.dest.port <= stream_info->endpoint_b.stream_info.dest.port)
-                    {
-                        swap_endpoints = FALSE;
-                    }
-                    else
-                    {
-                        swap_endpoints = TRUE;
-                    }
-                }
             }
         }
-        if (swap_endpoints == FALSE)
-        {
-            epa = stream_info->endpoint_a;
-            epb = stream_info->endpoint_b;
-        }
-        else
-        {
-            epb = stream_info->endpoint_a;
-            epa = stream_info->endpoint_b;
-        }
-
-        sai = g_new0(seq_analysis_item_t, 1);
-        copy_address(&(sai->src_addr), &(pinfo->src));
-        copy_address(&(sai->dst_addr), &(pinfo->dst));
-        sai->frame_number = pinfo->num;
-        sai->port_src = pinfo->srcport;
-        sai->port_dst = pinfo->destport;
-
-        if (stream_info->description == NULL)
-        {
-            sai->frame_label = g_strdup_printf("(%" G_GUINT32_FORMAT ")", stream_info->sqn);
-        }
-        else
-        {
-            sai->frame_label = g_strdup_printf("%s (%" G_GUINT32_FORMAT ")", stream_info->description, stream_info->sqn);
-        }
-        if (epa.type == lbm_uim_instance_stream)
-        {
-            ctxinst1 = bytes_to_str(pinfo->pool, epa.stream_info.ctxinst.ctxinst, sizeof(epa.stream_info.ctxinst.ctxinst));
-            ctxinst2 = bytes_to_str(pinfo->pool, epb.stream_info.ctxinst.ctxinst, sizeof(epb.stream_info.ctxinst.ctxinst));
-            sai->comment = g_strdup_printf("%s <-> %s [%" G_GUINT64_FORMAT "]",
-                ctxinst1,
-                ctxinst2,
-                stream_info->channel);
-        }
-        else
-        {
-            sai->comment = g_strdup_printf("%" G_GUINT32_FORMAT ":%s:%" G_GUINT16_FORMAT " <-> %" G_GUINT32_FORMAT ":%s:%" G_GUINT16_FORMAT " [%" G_GUINT64_FORMAT "]",
-                epa.stream_info.dest.domain,
-                address_to_str(pinfo->pool, &(epa.stream_info.dest.addr)),
-                epa.stream_info.dest.port,
-                epb.stream_info.dest.domain,
-                address_to_str(pinfo->pool, &(epb.stream_info.dest.addr)),
-                epb.stream_info.dest.port,
-                stream_info->channel);
-        }
-
-        /* Fill in the timestamps */
-        set_fd_time(pinfo->epan, pinfo->fd, time_str);
-        sai->time_str = g_strdup(time_str);
-
-        sai->conv_num = (guint16)LBM_CHANNEL_ID(stream_info->channel);
-        sai->display = TRUE;
-        sai->line_style = 1;
-
-        g_queue_push_tail(sainfo->items, sai);
     }
+    if (swap_endpoints == FALSE)
+    {
+        epa = stream_info->endpoint_a;
+        epb = stream_info->endpoint_b;
+    }
+    else
+    {
+        epb = stream_info->endpoint_a;
+        epa = stream_info->endpoint_b;
+    }
+
+    sai = g_new0(seq_analysis_item_t, 1);
+    copy_address(&(sai->src_addr), &(pinfo->src));
+    copy_address(&(sai->dst_addr), &(pinfo->dst));
+    sai->frame_number = pinfo->num;
+    sai->port_src = pinfo->srcport;
+    sai->port_dst = pinfo->destport;
+
+    if (stream_info->description == NULL)
+    {
+        sai->frame_label = g_strdup_printf("(%" G_GUINT32_FORMAT ")", stream_info->sqn);
+    }
+    else
+    {
+        sai->frame_label = g_strdup_printf("%s (%" G_GUINT32_FORMAT ")", stream_info->description, stream_info->sqn);
+    }
+    if (epa.type == lbm_uim_instance_stream)
+    {
+        ctxinst1 = bytes_to_str(pinfo->pool, epa.stream_info.ctxinst.ctxinst, sizeof(epa.stream_info.ctxinst.ctxinst));
+        ctxinst2 = bytes_to_str(pinfo->pool, epb.stream_info.ctxinst.ctxinst, sizeof(epb.stream_info.ctxinst.ctxinst));
+        sai->comment = g_strdup_printf("%s <-> %s [%" G_GUINT64_FORMAT "]",
+            ctxinst1,
+            ctxinst2,
+            stream_info->channel);
+    }
+    else
+    {
+        sai->comment = g_strdup_printf("%" G_GUINT32_FORMAT ":%s:%" G_GUINT16_FORMAT " <-> %" G_GUINT32_FORMAT ":%s:%" G_GUINT16_FORMAT " [%" G_GUINT64_FORMAT "]",
+            epa.stream_info.dest.domain,
+            address_to_str(pinfo->pool, &(epa.stream_info.dest.addr)),
+            epa.stream_info.dest.port,
+            epb.stream_info.dest.domain,
+            address_to_str(pinfo->pool, &(epb.stream_info.dest.addr)),
+            epb.stream_info.dest.port,
+            stream_info->channel);
+    }
+
+    /* Fill in the timestamps */
+    set_fd_time(pinfo->epan, pinfo->fd, time_str);
+    sai->time_str = g_strdup(time_str);
+
+    sai->conv_num = (guint16)LBM_CHANNEL_ID(stream_info->channel);
+    sai->display = TRUE;
+    sai->line_style = 1;
+
+    g_queue_push_tail(sainfo->items, sai);
 
     return TRUE;
 }
