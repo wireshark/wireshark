@@ -340,7 +340,7 @@ dissect_websocket_data_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   }
 
 #ifdef HAVE_ZLIB
-  if (websocket_conv && websocket_conv->permessage_deflate_ok && pmc) {
+  if (websocket_conv->permessage_deflate_ok && pmc) {
     tvbuff_t   *uncompressed = NULL;
     gboolean    uncompress_ok = FALSE;
 
@@ -571,7 +571,7 @@ dissect_websocket_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   proto_tree_add_item(ws_tree, hf_ws_fin, tvb, 0, 1, ENC_NA);
   fin = (tvb_get_guint8(tvb, 0) & MASK_WS_FIN) >> 4;
   proto_tree_add_item(ws_tree, hf_ws_reserved, tvb, 0, 1, ENC_BIG_ENDIAN);
-  if (websocket_conv && websocket_conv->permessage_deflate) {
+  if (websocket_conv->permessage_deflate) {
     /* RSV1 is Per-Message Compressed bit (RFC 7692). */
     pmc = !!(tvb_get_guint8(tvb, 0) & MASK_WS_RSV1);
     proto_tree_add_item(ws_tree, hf_ws_pmc, tvb, 0, 1, ENC_BIG_ENDIAN);
