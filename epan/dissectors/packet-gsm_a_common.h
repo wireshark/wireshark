@@ -699,6 +699,7 @@ guint16 de_serv_cat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 WS_DLL_PUBLIC
 guint16 de_sm_apn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
 WS_DLL_PUBLIC
 guint16 de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 WS_DLL_PUBLIC

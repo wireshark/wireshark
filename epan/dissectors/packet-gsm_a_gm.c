@@ -4615,7 +4615,7 @@ static const value_string gsm_a_sm_pdp_type_org_vals[] = {
 	{ 0, NULL }
 };
 
-static guint16
+guint16
 de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32      curr_offset;

@@ -213,6 +213,33 @@ GPRSRecord
 
   offset = dissect_gprscdr_uli(tvb, actx, tree, 2);
 
+#.FN_BODY PDPType
+  proto_tree *ext_tree_pdp_pdn_type;
+  guint length;
+
+  length = tvb_reported_length(tvb);
+
+  if(length == 1) {
+    /*
+     * PDN/EPS Bearer
+     * TS 29.274
+     * 8.34 PDN Type
+     */
+    ext_tree_pdp_pdn_type = proto_tree_add_subtree(tree, tvb, 0, length, ett_gprscdr_pdp_pdn_type, NULL, "pDNType");
+    dissect_gtpv2_pdn_type(tvb, actx->pinfo, ext_tree_pdp_pdn_type, NULL, length, 0, 0, NULL);
+    offset = length;
+  }
+  else {
+    /* PDP context
+     * TS 29.060
+     * 7.7.27 End User Address
+     * Octet 4-5
+     */
+    ext_tree_pdp_pdn_type = proto_tree_add_subtree(tree, tvb, 0, length, ett_gprscdr_pdp_pdn_type, NULL, "pDPType");
+    offset = de_sm_pdp_addr(tvb, ext_tree_pdp_pdn_type, actx->pinfo, 0, length, NULL, 0);
+  }
+
+
 #.FN_BODY GPRSRecord VAL_PTR = &branch_taken
 proto_item *item;
 gint branch_taken, t_offset = offset;

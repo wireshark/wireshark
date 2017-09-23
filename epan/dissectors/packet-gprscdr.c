@@ -37,6 +37,7 @@
 
 #include "packet-ber.h"
 #include "packet-gsm_map.h"
+#include "packet-gsm_a_common.h"
 #include "packet-e212.h"
 #include "packet-gprscdr.h"
 #include "packet-gtp.h"
@@ -487,11 +488,12 @@ static int hf_gprscdr_ServiceConditionChange_servingPLMNRateControlChange = -1;
 static int hf_gprscdr_ServiceConditionChange_aPNRateControlChange = -1;
 
 /*--- End of included file: packet-gprscdr-hf.c ---*/
-#line 47 "./asn1/gprscdr/packet-gprscdr-template.c"
+#line 48 "./asn1/gprscdr/packet-gprscdr-template.c"
 
 static int ett_gprscdr = -1;
 static int ett_gprscdr_timestamp = -1;
 static int ett_gprscdr_plmn_id = -1;
+static int ett_gprscdr_pdp_pdn_type = -1;
 static int ett_gprscdr_eps_qos_arp = -1;
 static int ett_gprscdr_managementextension_information = -1;
 static int ett_gprscdr_userlocationinformation = -1;
@@ -586,7 +588,7 @@ static gint ett_gprscdr_UserCSGInformation = -1;
 static gint ett_gprscdr_UWANUserLocationInfo = -1;
 
 /*--- End of included file: packet-gprscdr-ett.c ---*/
-#line 55 "./asn1/gprscdr/packet-gprscdr-template.c"
+#line 57 "./asn1/gprscdr/packet-gprscdr-template.c"
 
 static expert_field ei_gprscdr_not_dissected = EI_INIT;
 static expert_field ei_gprscdr_choice_not_found = EI_INIT;
@@ -1733,8 +1735,34 @@ dissect_gprscdr_AccessPointNameNI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_gprscdr_PDPType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+#line 217 "./asn1/gprscdr/gprscdr.cnf"
+  proto_tree *ext_tree_pdp_pdn_type;
+  guint length;
+
+  length = tvb_reported_length(tvb);
+
+  if(length == 1) {
+    /*
+     * PDN/EPS Bearer
+     * TS 29.274
+     * 8.34 PDN Type
+     */
+    ext_tree_pdp_pdn_type = proto_tree_add_subtree(tree, tvb, 0, length, ett_gprscdr_pdp_pdn_type, NULL, "pDNType");
+    dissect_gtpv2_pdn_type(tvb, actx->pinfo, ext_tree_pdp_pdn_type, NULL, length, 0, 0, NULL);
+    offset = length;
+  }
+  else {
+    /* PDP context
+     * TS 29.060
+     * 7.7.27 End User Address
+     * Octet 4-5
+     */
+    ext_tree_pdp_pdn_type = proto_tree_add_subtree(tree, tvb, 0, length, ett_gprscdr_pdp_pdn_type, NULL, "pDPType");
+    offset = de_sm_pdp_addr(tvb, ext_tree_pdp_pdn_type, actx->pinfo, 0, length, NULL, 0);
+  }
+
+
+
 
   return offset;
 }
@@ -4653,7 +4681,7 @@ static const ber_choice_t GPRSRecord_choice[] = {
 
 int
 dissect_gprscdr_GPRSRecord(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 217 "./asn1/gprscdr/gprscdr.cnf"
+#line 244 "./asn1/gprscdr/gprscdr.cnf"
 proto_item *item;
 gint branch_taken, t_offset = offset;
 gint32   tag;
@@ -4694,7 +4722,7 @@ int dissect_gprscdr_GPRSRecord_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-gprscdr-fn.c ---*/
-#line 123 "./asn1/gprscdr/packet-gprscdr-template.c"
+#line 125 "./asn1/gprscdr/packet-gprscdr-template.c"
 
 
 
@@ -6429,7 +6457,7 @@ proto_register_gprscdr(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-gprscdr-hfarr.c ---*/
-#line 133 "./asn1/gprscdr/packet-gprscdr-template.c"
+#line 135 "./asn1/gprscdr/packet-gprscdr-template.c"
   };
 
   /* List of subtrees */
@@ -6437,6 +6465,7 @@ proto_register_gprscdr(void)
     &ett_gprscdr,
     &ett_gprscdr_timestamp,
     &ett_gprscdr_plmn_id,
+    &ett_gprscdr_pdp_pdn_type,
     &ett_gprscdr_eps_qos_arp,
     &ett_gprscdr_managementextension_information,
     &ett_gprscdr_userlocationinformation,
@@ -6531,7 +6560,7 @@ proto_register_gprscdr(void)
     &ett_gprscdr_UWANUserLocationInfo,
 
 /*--- End of included file: packet-gprscdr-ettarr.c ---*/
-#line 144 "./asn1/gprscdr/packet-gprscdr-template.c"
+#line 147 "./asn1/gprscdr/packet-gprscdr-template.c"
         };
 
   static ei_register_info ei[] = {
