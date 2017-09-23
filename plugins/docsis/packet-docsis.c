@@ -697,6 +697,13 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
           /* Pass off to the DOCSIS Management dissector/s */
           mgt_tvb = tvb_new_subset_remaining(tvb, hdrlen);
           call_dissector (docsis_mgmt_handle, mgt_tvb, pinfo, docsis_tree);
+
+          if (concatlen > 0)
+          {
+            concatlen = concatlen - framelen;
+            concatpos += framelen;
+          }
+
           break;
         }
         case FCPARM_RQST_FRM:
@@ -776,6 +783,13 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
           proto_tree_add_checksum(docsis_tree, tvb, (hdrlen + len_sid - 4), hf_docsis_frag_fcs, hf_docsis_frag_fcs_status, &ei_docsis_frag_fcs_bad, pinfo, fcs, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
           pinfo->fragmented = save_fragmented;
+
+          if (concatlen > 0)
+          {
+            concatlen = concatlen - framelen;
+            concatpos += framelen;
+          }
+
           break;
         }
         case FCPARM_QUEUE_DEPTH_REQ_FRM:
