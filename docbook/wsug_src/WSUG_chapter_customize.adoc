@@ -738,6 +738,10 @@ Configuration files stored in each profile include:
 * User DLTs Table (user_dlts) (<<ChUserDLTsSection>>)
 
 * IKEv2 decryption table (ikev2_decryption_table) (<<ChIKEv2DecryptionSection>>)
+
+* Protobuf Search Paths (protobuf_search_paths) (<<ChProtobufSearchPaths>>)
+
+* Protobuf UDP Message Types (protobuf_udp_message_types) (<<ChProtobufUDPMessageTypes>>)
 --
 
 * Changed dissector assignments (__decode_as_entries__), which can be set in the “Decode
@@ -1147,5 +1151,79 @@ size this trailer is. A value of 0 disables the trailer protocol.
 
 Trailer protocol::
 The name of the trailer protocol to be used (uses “data” as default).
+
+[[ChProtobufSearchPaths]]
+
+=== Protobuf Search Paths
+
+The
+https://developers.google.com/protocol-buffers/docs/encoding[binary wire format]
+of Protocol Buffers (Protobuf) messages are not self-described protocol. For
+example, the `varint` wire type in protobuf packet may be converted to int32, int64,
+uint32, uint64, sint32, sint64, bool or enum field types of
+https://developers.google.com/protocol-buffers/docs/proto3[protocol buffers language].
+Wireshark should be configured with Protocol Buffers language files (*.proto) to
+enable proper dissection of protobuf data (which may be payload of
+https://grpc.io/[gRPC]) based on the message, enum and field definitions.
+
+You can specify protobuf search paths at the Protobuf protocol preferences.
+For example, if you defined a proto file with path `d:/my_proto_files/helloworld.proto`
+and the `helloworld.proto` contains a line of `import "google/protobuf/any.proto";`
+because the `any` type of offical protobuf library is used. And the real path of
+`any.proto` is `d:/protobuf-3.4.1/include/google/protobuf/any.proto`. You should
+add the `d:/protobuf-3.4.1/include/` and `d:/my_proto_files` paths into protobuf
+search paths.
+
+The configuration for the protobuf search paths is a user table, as described
+in <<ChUserTable>>, with the following fields:
+
+Protobuf source directory::
+This specifies a directory containing protobuf source files. For example,
+`d:/protobuf-3.4.1/include/` and `d:/my_proto_files` in Windows, or
+`/usr/include/` and `/home/alice/my_proto_files` in Linux/UNIX.
+
+Load all files::
+If this option is enabled, Wireshark will load all *.proto files in this directory
+and its subdirectories when Wireshark startup or protobuf search paths preferences
+changed. Note that the source directories that configured to protobuf offical or third
+libraries path (like `d:/protobuf-3.4.1/include/`) should not be set to load all
+files, that may cause memory unnecessary occuption.
+
+[[ChProtobufUDPMessageTypes]]
+
+=== Protobuf UDP Message Types
+
+If the payload of UDP on certain ports is Protobuf encoding, Wireshark use this table
+to know which Protobuf message type should be used to parsing the data on the specified
+UDP port(s).
+
+The configuration for UDP Port(s) to Protobuf message type maps is a user table, as
+described in <<ChUserTable>>, with the following fields:
+
+UDP Ports::
+The range of UDP ports. The format may be "8000" or "8000,8008-8088,9080".
+
+Message Type::
+The Protobuf message type as which the data on the specified udp port(s) should be parsed.
+The message type is allowed to be empty, that means let Protobuf to dissect the data on
+specified UDP ports as normal wire type without precise definitions.
+
+Tips: You can create your own dissector to call Protobuf dissector. If your dissector is
+written in C language, you can pass the message type to Protobuf dissector by `data`
+parameter of call_dissector_with_data() function. If your dissector is written in Lua, you
+can pass the message type to Protobuf dissector by `pinfo.private["pb_msg_type"]`. The format
+of `data` and `pinfo.private["pb_msg_type"]` is
+
+----
+    "message," message_type_name
+----
+
+For example:
+
+----
+    message,helloworld.HelloRequest
+----
+
+the `helloworld` is package name, `HelloRequest` is message type.
 
 // End of WSUG Chapter Customizing

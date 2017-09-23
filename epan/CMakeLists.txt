@@ -276,6 +276,8 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	value_string.c
 	unit_strings.c
 	xdlc.c
+	protobuf-helper.c
+	protobuf_lang_tree.c
 	${CMAKE_CURRENT_BINARY_DIR}/ps.c
 )
 
@@ -287,10 +289,15 @@ add_lex_files(LEX_FILES LIBWIRESHARK_FILES
 	dtd_preparse.l
 	radius_dict.l
 	uat_load.l
+	protobuf_lang_scanner.l
 )
 
 add_lemon_files(LEMON_FILES LIBWIRESHARK_FILES
 	dtd_grammar.lemon
+)
+
+add_yacc_files(YACC_FILES LIBWIRESHARK_FILES
+	protobuf_lang.y
 )
 
 set_source_files_properties(

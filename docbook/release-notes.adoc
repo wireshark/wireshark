@@ -61,6 +61,7 @@ since version 3.0.0:
   .exe installers are still dual-signed using SHA-1 and SHA-2.
 * The “Enabled Protocols” Dialog now only enables, disables and inverts protocols based on the set filter selection. The protocol type (standard or heuristic) may also be choosen as a filter value.
 * The “Analyze -> Apply as Filter” and “Analyze -> Prepare a Filter” packet list and detail popup menus now show a preview of their respective filters.
+* Protobuf files (*.proto) can now be configured to enable more precise parsing of serialized Protobuf data (such as gRPC).
 
 // === Removed Features and Support
 
