@@ -4714,7 +4714,7 @@ proto_register_pfcp(void)
     };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS_PFCP    31
+#define NUM_INDIVIDUAL_ELEMS_PFCP    32
     gint *ett[NUM_INDIVIDUAL_ELEMS_PFCP +
         (NUM_PFCP_IES - 1)];
 
@@ -4747,9 +4747,9 @@ proto_register_pfcp(void)
     ett[26] = &ett_pfcp_sxsrrsp;
     ett[27] = &ett_pfcp_measurement_info;
     ett[28] = &ett_pfcp_node_report_type;
-    ett[28] = &ett_pfcp_remote_gtp_u_peer;
-    ett[29] = &ett_pfcp_oci_flags;
-    ett[30] = &ett_sx_assoc_rel_req_flags;
+    ett[29] = &ett_pfcp_remote_gtp_u_peer;
+    ett[30] = &ett_pfcp_oci_flags;
+    ett[31] = &ett_sx_assoc_rel_req_flags;
 
 
     static ei_register_info ei[] = {
