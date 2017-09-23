@@ -1189,6 +1189,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_tree_add_item_ret_string_and_length@Base 2.1.0
  proto_tree_add_item_ret_uint@Base 1.99.6
  proto_tree_add_item_ret_uint64@Base 2.3.0
+ proto_tree_add_item_ret_varint@Base 2.5.0
  proto_tree_add_none_format@Base 1.9.1
  proto_tree_add_protocol_format@Base 1.9.1
  proto_tree_add_split_bits_item_ret_val@Base 2.3.0
@@ -1672,6 +1673,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvb_get_stringz_enc@Base 1.9.1
  tvb_get_stringzpad@Base 1.12.0~rc1
  tvb_get_ts_23_038_7bits_string@Base 1.12.0~rc1
+ tvb_get_varint@Base 2.5.0
  tvb_memcpy@Base 1.9.1
  tvb_memdup@Base 1.9.1
  tvb_memeql@Base 1.9.1

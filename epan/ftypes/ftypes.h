@@ -99,6 +99,7 @@ enum ftenum {
 #define FT_AX25_ADDR_LEN	7
 #define FT_VINES_ADDR_LEN	6
 #define FT_FCWWN_LEN		8
+#define FT_VARINT_MAX_LEN	10	/* Because 64 / 7 = 9 and 64 % 7 = 1, get an uint64 varint need reads up to 10 bytes. */
 
 typedef enum ftenum ftenum_t;
 

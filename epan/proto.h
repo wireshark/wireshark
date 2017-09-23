@@ -525,6 +525,8 @@ WS_DLL_PUBLIC WS_NORETURN void proto_report_dissector_bug(const char *message);
 /* this can't collide with ENC_SEP_* because they can be used simultaneously */
 #define ENC_NUM_PREF    0x00200000
 
+#define ENC_VARINT_PROTOBUF      0x00000002
+
 /* For cases where a string encoding contains hex, bit-or one or more
  * of these for the allowed separator(s), as well as with ENC_STR_HEX.
  * See hex_str_to_bytes_encoding() in epan/strutil.h for details.
@@ -728,6 +730,8 @@ typedef struct
 #define FI_LITTLE_ENDIAN        0x00000008
 /** The protocol field value is in big endian */
 #define FI_BIG_ENDIAN           0x00000010
+/** The protocol field value is a varint */
+#define FI_VARINT               0x00000020
 /** Field value start from nth bit (values from 0x20 - 0x100) */
 #define FI_BITS_OFFSET(n)       (((n) & 7) << 5)
 /** Field value takes n bits (values from 0x100 - 0x4000) */
@@ -1135,6 +1139,10 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     const gint start, gint length, const guint encoding, guint64 *retval);
+
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_item_ret_varint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+    const gint start, gint length, const guint encoding, guint64 *retval, gint *lenretval);
 
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb,

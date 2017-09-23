@@ -3648,6 +3648,26 @@ tvb_get_ds_tvb(tvbuff_t *tvb)
 	return(tvb->ds_tvb);
 }
 
+guint
+tvb_get_varint(tvbuff_t *tvb, guint offset, guint maxlen, guint64 *value)
+{
+	guint i;
+	guint64 b; /* current byte */
+	*value = 0;
+
+	for (i = 0; ((i < FT_VARINT_MAX_LEN) && (i < maxlen)); ++i) {
+		b = tvb_get_guint8(tvb, offset++);
+		*value |= ((b & 0x7F) << (i * 7)); /* add lower 7 bits to val */
+
+		if (b < 0x80) {
+			/* end successfully becauseof last byte's msb(most significant bit) is zero */
+			return i + 1;
+		}
+	}
+
+	return 0; /* 10 bytes scanned, but no bytes' msb is zero */
+}
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *

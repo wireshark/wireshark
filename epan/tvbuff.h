@@ -886,6 +886,20 @@ WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb,
  */
 extern tvbuff_t* base64_to_tvb(tvbuff_t *parent, const char *base64);
 
+/**
+ * Extract a variable length integer from a tvbuff.
+ * Each byte in a varint, except the last byte, has the most significant bit (msb)
+ * set -- this indicates that there are further bytes to come. For example,
+ *   1010 1100 0000 0010 is 300
+ *
+ * @param tvb The tvbuff in which we are extracting integer.
+ * @param offset The offset in tvb from which we begin trying to extract integer.
+ * @param maxlen The maximum distance from offset that we may try to extract integer
+ * @param value  if parsing succeeds, parsed varint will store here.
+ * @return   the length of this varint in tvb. 0 means parsing failed.
+ */
+WS_DLL_PUBLIC guint tvb_get_varint(tvbuff_t *tvb, guint offset, guint maxlen, guint64 *value);
+
 /************** END OF ACCESSORS ****************/
 
 /** @} */
