@@ -112,7 +112,6 @@ NONGENERATED_HEADER_FILES = \
 	dct3trace.h		\
 	erf.h			\
 	eyesdn.h		\
-	file_wrappers.h		\
 	hcidump.h		\
 	i4btrace.h		\
 	i4b_trace.h		\
@@ -126,7 +125,6 @@ NONGENERATED_HEADER_FILES = \
 	libpcap.h		\
 	logcat.h		\
 	logcat_text.h		\
-	merge.h			\
 	mpeg.h			\
 	mplog.h			\
 	mp2t.h			\
@@ -140,9 +138,7 @@ NONGENERATED_HEADER_FILES = \
 	ngsniffer.h		\
 	packetlogger.h		\
 	pcap-common.h		\
-	pcap-encap.h		\
 	pcapng.h		\
-	pcapng_module.h		\
 	peekclassic.h           \
 	peektagged.h		\
 	pppdump.h		\
@@ -154,9 +150,15 @@ NONGENERATED_HEADER_FILES = \
 	visual.h		\
 	vms.h			\
 	vwr.h			\
-	wtap.h			\
-	wtap_opttypes.h		\
 	wtap-int.h
+
+PUBLIC_HEADER_FILES = \
+	file_wrappers.h		\
+	merge.h			\
+	pcap-encap.h		\
+	pcapng_module.h		\
+	wtap.h			\
+	wtap_opttypes.h
 
 # Files that generate compileable files
 GENERATOR_FILES = \
@@ -199,6 +201,10 @@ libwiretap_generated_la_SOURCES = \
 	$(GENERATED_C_FILES)
 
 libwiretap_generated_la_CFLAGS = $(GENERATED_CFLAGS)
+
+subpkgincludedir = $(pkgincludedir)/wiretap
+
+subpkginclude_HEADERS = $(PUBLIC_HEADER_FILES)
 
 CLEANFILES = \
 	libwiretap.a		\

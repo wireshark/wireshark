@@ -21,6 +21,15 @@
 
 include(UseABICheck)
 
+set(WIRETAP_PUBLIC_HEADERS
+	file_wrappers.h
+	merge.h
+	pcap-encap.h
+	pcapng_module.h
+	wtap.h
+	wtap_opttypes.h
+)
+
 set(WIRETAP_FILES
 	5views.c
 	aethra.c
@@ -151,6 +160,12 @@ if(NOT ${ENABLE_STATIC})
 		RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
 		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	)
+
+	if(NOT WIN32)
+		install(FILES ${WIRETAP_PUBLIC_HEADERS}
+			DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${CPACK_PACKAGE_NAME}/wiretap"
+		)
+	endif()
 endif()
 
 CHECKAPI(

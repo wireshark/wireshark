@@ -19,6 +19,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+set(WSCODECS_PUBLIC_HEADERS
+  codecs.h
+)
+
 set(WSCODECS_FILES
   codecs.c
   G711a/G711adecode.c
@@ -87,6 +91,12 @@ if(NOT ${ENABLE_STATIC})
     RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
+
+  if(NOT WIN32)
+    install(FILES ${WSCODECS_PUBLIC_HEADERS}
+      DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${CPACK_PACKAGE_NAME}/codecs"
+    )
+  endif()
 endif()
 
 CHECKAPI(

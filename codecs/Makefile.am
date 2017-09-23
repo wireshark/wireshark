@@ -56,8 +56,12 @@ libwscodecs_la_LIBADD = $(top_builddir)/wsutil/libwsutil.la $(GLIB_LIBS) \
 
 libwscodecs_la_DEPENDENCIES = $(top_builddir)/wsutil/libwsutil.la
 
+subpkgincludedir = $(pkgincludedir)/codecs
+
+subpkginclude_HEADERS = \
+	codecs.h
+
 noinst_HEADERS = \
-	codecs.h \
 	G711a/G711adecode.h \
 	G711a/G711atable.h \
 	G711u/G711udecode.h \
