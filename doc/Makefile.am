@@ -342,6 +342,10 @@ EXTRA_DIST =				\
 	mergecap.pod			\
 	packet-PROTOABBREV.c		\
 	perlnoutf.pl			\
+	plugins.example/configure.ac	\
+	plugins.example/hello.c		\
+	plugins.example/Makefile.am	\
+	plugins.example/README		\
 	randpkt.pod			\
 	randpkt.txt			\
 	randpktdump.pod			\

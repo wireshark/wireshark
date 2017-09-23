@@ -14,8 +14,9 @@ used for troubleshooting, analysis, development and education.
 == What's New
 
 * The installation step for Wireshark will now install headers required to
-  build plugins. A pkg-config file is provided to help with this. Note you
-  must still rebuild all plugins between minor releases (X.Y).
+  build plugins. A pkg-config file is provided to help with this
+  (see doc/plugins.example for details). Note you must still rebuild all
+  plugins between minor releases (X.Y).
 
 //=== Bug Fixes
 

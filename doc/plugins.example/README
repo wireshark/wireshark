@@ -1,0 +1,13 @@
+
+This is an example of how to build a Wireshark plugin out-of-tree.
+
+Tested on Linux using GCC 7. Note this builds against Wireshark's *installed*
+version. You should of course adapt to your own needs.
+
+To build/install the plugin:
+
+$ autoreconf -v -i
+$ PREFIX=/usr/local
+$ ./configure --prefix="$PREFIX" PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig"
+$ make
+$ sudo make install # or single-user: make install-home
