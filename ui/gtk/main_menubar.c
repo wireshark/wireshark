@@ -1008,7 +1008,6 @@ static const char *ui_desc_menubar =
 "        </menu>\n"
 "        <menu name= '29WestUIMMenu' action='/Statistics/29West/UIM'>\n"
 "          <menuitem name='29WestUIMStreams' action='/Statistics/29West/UIM/Streams' />\n"
-"          <menuitem name='29WestUIMStreamFlowGraph' action='/Statistics/29West/UIM/StreamFlowGraph' />\n"
 "        </menu>\n"
 "      </menu>\n"
 "      <menuitem name='ANCP' action='/Statistics/ancp'/>\n"
