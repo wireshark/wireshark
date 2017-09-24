@@ -1437,6 +1437,18 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <oldsource>Occurrence</oldsource>
         <translation>événement</translation>
     </message>
+    <message>
+        <source>Missing fields.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid fields.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid occurrence value.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ColumnPreferencesFrame</name>
@@ -1517,42 +1529,6 @@ NOTE: Une option DOIT être sélectionnée.</translation>
 <context>
     <name>DecodeAsDialog</name>
     <message>
-        <source>Field</source>
-        <translation type="vanished">Champs</translation>
-    </message>
-    <message>
-        <source>Match using this field</source>
-        <translation type="vanished">Correspondre à l&apos;utilisation de ce champs</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation type="vanished">Valeur</translation>
-    </message>
-    <message>
-        <source>Current &quot;Decode As&quot; behavior</source>
-        <translation type="vanished">Status &quot;Decoder comme&quot; </translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="vanished">Type</translation>
-    </message>
-    <message>
-        <source>Default</source>
-        <translation type="vanished">Défaut</translation>
-    </message>
-    <message>
-        <source>Default &quot;Decode As&quot; behavior</source>
-        <translation type="vanished">&quot;Decodé comme&quot; : défaut</translation>
-    </message>
-    <message>
-        <source>Current</source>
-        <translation type="vanished">actuel</translation>
-    </message>
-    <message>
-        <source>Change behavior when the protocol field matches this value</source>
-        <translation type="vanished">Modifer le comportement lorsque le champ de protocole correspond à cette valeur</translation>
-    </message>
-    <message>
         <source>Change the dissection behavior for a protocol.</source>
         <translation>Modifier le comportement de dissection d&apos;un protocole.</translation>
     </message>
@@ -1567,18 +1543,6 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <message>
         <source>Decode As</source>
         <translation>Décoder comme</translation>
-    </message>
-    <message>
-        <source>String</source>
-        <translation type="vanished">Chaine de Caractères</translation>
-    </message>
-    <message>
-        <source>Integer, base </source>
-        <translation type="vanished">Nombre</translation>
-    </message>
-    <message>
-        <source>unknown</source>
-        <translation type="vanished">inconnu</translation>
     </message>
 </context>
 <context>
@@ -2163,6 +2127,18 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     </message>
     <message>
         <source>Enter a comment for the filter button</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Missing label.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Missing filter expression.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid filter expression.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4390,7 +4366,7 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <name>LBMUIMFlowDialog</name>
     <message>
         <source>LBM UIM Flows</source>
-        <translation>Flux LBM UIM</translation>
+        <translation type="vanished">Flux LBM UIM</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -4413,7 +4389,7 @@ NOTE: Une option DOIT être sélectionnée.</translation>
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
 &lt;h3&gt;Raccourcis-clavier précieux pour gains de temps surprenants&lt;/h3&gt;
 &lt;table&gt;&lt;tbody&gt;
@@ -4436,206 +4412,192 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint&lt;/i&gt;&lt;/small&gt;</source>
-        <translation>&lt;small&gt;&lt;i&gt;Astuce&lt;/i&gt;&lt;/small&gt;</translation>
+        <translation type="vanished">&lt;small&gt;&lt;i&gt;Astuce&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Show:</source>
-        <translation>Afficher:</translation>
+        <translation type="vanished">Afficher:</translation>
     </message>
     <message>
         <source>All packets</source>
-        <translation>Tous les paquets</translation>
+        <translation type="vanished">Tous les paquets</translation>
     </message>
     <message>
         <source>Displayed packets</source>
-        <translation>Paquets affichés</translation>
+        <translation type="vanished">Paquets affichés</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation>Réinitialiser</translation>
+        <translation type="vanished">Réinitialiser</translation>
     </message>
     <message>
         <source>Reset Diagram</source>
-        <translation>Réinitialiser Diagramme</translation>
+        <translation type="vanished">Réinitialiser Diagramme</translation>
     </message>
     <message>
         <source>Reset the diagram to its initial state.</source>
-        <translation>Réinitialiser le diagramme à son état initial.</translation>
+        <translation type="vanished">Réinitialiser le diagramme à son état initial.</translation>
     </message>
     <message>
         <source>0</source>
-        <translation>0</translation>
+        <translation type="vanished">0</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation>Monter de 10 Pixels</translation>
+        <translation type="vanished">Monter de 10 Pixels</translation>
     </message>
     <message>
         <source>Move up 10 pixels</source>
-        <translation>Monter de 10 Pixels</translation>
+        <translation type="vanished">Monter de 10 Pixels</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation>Monter</translation>
+        <translation type="vanished">Monter</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation>Déplacer à Gauche de 10 Pixels</translation>
+        <translation type="vanished">Déplacer à Gauche de 10 Pixels</translation>
     </message>
     <message>
         <source>Move left 10 pixels</source>
-        <translation>Déplacer à Gauche de 10 Pixels</translation>
+        <translation type="vanished">Déplacer à Gauche de 10 Pixels</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation>Gauche</translation>
+        <translation type="vanished">Gauche</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation>Déplacer à Droite de 10 Pixels</translation>
+        <translation type="vanished">Déplacer à Droite de 10 Pixels</translation>
     </message>
     <message>
         <source>Move right 10 pixels</source>
-        <translation>Déplacer à Droite de 10 Pixels</translation>
+        <translation type="vanished">Déplacer à Droite de 10 Pixels</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation>Droite</translation>
+        <translation type="vanished">Droite</translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation>Descendre de 10 Pixels</translation>
+        <translation type="vanished">Descendre de 10 Pixels</translation>
     </message>
     <message>
         <source>Move down 10 pixels</source>
-        <translation>Descendre de 10 pixels</translation>
+        <translation type="vanished">Descendre de 10 pixels</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation>Descendre</translation>
+        <translation type="vanished">Descendre</translation>
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation>Monter d&apos;1 Pixel</translation>
+        <translation type="vanished">Monter d&apos;1 Pixel</translation>
     </message>
     <message>
         <source>Move up 1 pixel</source>
-        <translation>Monter d&apos;1 Pixel</translation>
+        <translation type="vanished">Monter d&apos;1 Pixel</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation>Maj+Haut</translation>
+        <translation type="vanished">Maj+Haut</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation>Déplacer à Gauche d&apos;1 Pixel</translation>
+        <translation type="vanished">Déplacer à Gauche d&apos;1 Pixel</translation>
     </message>
     <message>
         <source>Move left 1 pixel</source>
-        <translation>Déplacer à Gauche d&apos;1 Pixel</translation>
+        <translation type="vanished">Déplacer à Gauche d&apos;1 Pixel</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation>Maj+Gauche</translation>
+        <translation type="vanished">Maj+Gauche</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation>Déplacer à Droite d&apos;1 Pixel</translation>
+        <translation type="vanished">Déplacer à Droite d&apos;1 Pixel</translation>
     </message>
     <message>
         <source>Move right 1 pixel</source>
-        <translation>Déplacer à Droite d&apos;1 Pixel</translation>
+        <translation type="vanished">Déplacer à Droite d&apos;1 Pixel</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation>Maj+Droite</translation>
+        <translation type="vanished">Maj+Droite</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation>Descendre d&apos;1 Pixel</translation>
+        <translation type="vanished">Descendre d&apos;1 Pixel</translation>
     </message>
     <message>
         <source>Move down 1 pixel</source>
-        <translation>Descendre d&apos;1 pixel</translation>
+        <translation type="vanished">Descendre d&apos;1 pixel</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation>Maj+Bas</translation>
+        <translation type="vanished">Maj+Bas</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation>Aller au paquet sous le curseur</translation>
+        <translation type="vanished">Aller au paquet sous le curseur</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation>Aller au paquet actuellement sous le curseur</translation>
+        <translation type="vanished">Aller au paquet actuellement sous le curseur</translation>
     </message>
     <message>
         <source>G</source>
-        <translation>G</translation>
+        <translation type="vanished">G</translation>
     </message>
     <message>
         <source>All Flows</source>
-        <translation>Tous les flux</translation>
+        <translation type="vanished">Tous les flux</translation>
     </message>
     <message>
         <source>Show flows for all packets</source>
-        <translation>Affichers tous les flux de tous les paquets</translation>
+        <translation type="vanished">Affichers tous les flux de tous les paquets</translation>
     </message>
     <message>
         <source>1</source>
-        <translation>1</translation>
+        <translation type="vanished">1</translation>
     </message>
     <message>
         <source>TCP Flows</source>
-        <translation>Flux TCP</translation>
+        <translation type="vanished">Flux TCP</translation>
     </message>
     <message>
         <source>Show only TCP flow information</source>
-        <translation>Afficher seulement les informations des flux TCP</translation>
+        <translation type="vanished">Afficher seulement les informations des flux TCP</translation>
     </message>
     <message>
         <source>Save As</source>
         <oldsource>Save As...</oldsource>
-        <translation>Enregistrer sous</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln node(s)</source>
-        <translation type="unfinished">
-            <numerusform>%n noeud</numerusform>
-            <numerusform>%n noeuds</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln item(s)</source>
-        <translation type="unfinished">
-            <numerusform>%n item</numerusform>
-            <numerusform>%n items</numerusform>
-        </translation>
+        <translation type="vanished">Enregistrer sous</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation>Portable Document Format (*.pdf)</translation>
+        <translation type="vanished">Portable Document Format (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation>Portable Network Graphics (*.png)</translation>
+        <translation type="vanished">Portable Network Graphics (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation>Windows Bitmap (*.bmp)</translation>
+        <translation type="vanished">Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation>Format d&apos;2change de Fichier JPEG </translation>
+        <translation type="vanished">Format d&apos;2change de Fichier JPEG </translation>
     </message>
     <message>
         <source>ASCII (*.txt)</source>
-        <translation>ASCII (*.txt)</translation>
+        <translation type="vanished">ASCII (*.txt)</translation>
     </message>
     <message>
         <source>Save Graph As</source>
-        <translation>Sauvegarder le Graphique Sous...</translation>
+        <translation type="vanished">Sauvegarder le Graphique Sous...</translation>
     </message>
 </context>
 <context>
@@ -6329,10 +6291,6 @@ a:hover {
         <translation>Flux</translation>
     </message>
     <message>
-        <source>Stream Flow Graph</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>LBT-RM</source>
         <translation>LBT-RM</translation>
     </message>
@@ -7967,6 +7925,10 @@ a:hover {
         <source>Open %1 preferences</source>
         <translation>Ouvrir les préférences %1</translation>
     </message>
+    <message>
+        <source>Invalid value.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog</name>
@@ -8283,7 +8245,7 @@ a:hover {
     <name>QObject</name>
     <message>
         <source>Default</source>
-        <translation type="unfinished">Défaut</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Changed</source>
@@ -10772,15 +10734,23 @@ a:hover {
     </message>
     <message>
         <source>Show:</source>
-        <translation>Afficher:</translation>
+        <translation type="vanished">Afficher:</translation>
     </message>
     <message>
         <source>All packets</source>
-        <translation>Tous les paquets</translation>
+        <translation type="vanished">Tous les paquets</translation>
     </message>
     <message>
         <source>Displayed packets</source>
-        <translation>Paquets affichés</translation>
+        <translation type="vanished">Paquets affichés</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show flows matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Limit to display filter</source>
+        <translation type="unfinished">Limiter au Filtre d&apos;Affichage</translation>
     </message>
     <message>
         <source>Flow type:</source>
@@ -11380,6 +11350,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Zoom</translation>
     </message>
     <message>
+        <source>RTT By Sequence Number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Display graph of Segment Length vs Time</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11779,6 +11753,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Save Graph As</source>
         <translation>Sauvegarder le Graphique Sous</translation>
+    </message>
+    <message>
+        <source>Display Round Trip Time vs Sequence Number</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

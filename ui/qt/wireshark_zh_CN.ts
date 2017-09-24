@@ -1433,6 +1433,18 @@ PLEASE NOTE: One option MUST be selected.</source>
         <oldsource>Occurrence</oldsource>
         <translation>发生:</translation>
     </message>
+    <message>
+        <source>Missing fields.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid fields.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid occurrence value.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ColumnPreferencesFrame</name>
@@ -1513,42 +1525,6 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>DecodeAsDialog</name>
     <message>
-        <source>Field</source>
-        <translation type="vanished">字段</translation>
-    </message>
-    <message>
-        <source>Match using this field</source>
-        <translation type="vanished">使用此字段匹配</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation type="vanished">值</translation>
-    </message>
-    <message>
-        <source>Current &quot;Decode As&quot; behavior</source>
-        <translation type="vanished">当前“解码”行为</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="vanished">类型</translation>
-    </message>
-    <message>
-        <source>Default</source>
-        <translation type="vanished">默认</translation>
-    </message>
-    <message>
-        <source>Default &quot;Decode As&quot; behavior</source>
-        <translation type="vanished">默认“解码”行为</translation>
-    </message>
-    <message>
-        <source>Current</source>
-        <translation type="vanished">当前</translation>
-    </message>
-    <message>
-        <source>Change behavior when the protocol field matches this value</source>
-        <translation type="vanished">当协议字段匹配此值时变更行为</translation>
-    </message>
-    <message>
         <source>Change the dissection behavior for a protocol.</source>
         <translation>修改协议的解析行为。</translation>
     </message>
@@ -1563,18 +1539,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Decode As</source>
         <translation>解码</translation>
-    </message>
-    <message>
-        <source>String</source>
-        <translation type="vanished">字符串</translation>
-    </message>
-    <message>
-        <source>Integer, base </source>
-        <translation type="vanished">整数，底数 </translation>
-    </message>
-    <message>
-        <source>unknown</source>
-        <translation type="vanished">未知</translation>
     </message>
 </context>
 <context>
@@ -2158,6 +2122,18 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Enter a comment for the filter button</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Missing label.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Missing filter expression.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid filter expression.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4376,7 +4352,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>LBMUIMFlowDialog</name>
     <message>
         <source>LBM UIM Flows</source>
-        <translation>LBM UIM流</translation>
+        <translation type="vanished">LBM UIM流</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -4399,7 +4375,7 @@ PLEASE NOTE: One option MUST be selected.</source>
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
 &lt;h3&gt;有价值的节省时间的快捷键&lt;/h3&gt;
 &lt;table&gt;&lt;tbody&gt;
@@ -4422,204 +4398,204 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint&lt;/i&gt;&lt;/small&gt;</source>
-        <translation>&lt;small&gt;&lt;i&gt;提示&lt;/i&gt;&lt;/small&gt;</translation>
+        <translation type="vanished">&lt;small&gt;&lt;i&gt;提示&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Show:</source>
-        <translation>显示:</translation>
+        <translation type="vanished">显示:</translation>
     </message>
     <message>
         <source>All packets</source>
-        <translation>所有分组</translation>
+        <translation type="vanished">所有分组</translation>
     </message>
     <message>
         <source>Displayed packets</source>
-        <translation>显示的分组</translation>
+        <translation type="vanished">显示的分组</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation>复位</translation>
+        <translation type="vanished">复位</translation>
     </message>
     <message>
         <source>Reset Diagram</source>
-        <translation>复位图表</translation>
+        <translation type="vanished">复位图表</translation>
     </message>
     <message>
         <source>Reset the diagram to its initial state.</source>
-        <translation>复位图表到初始状态。</translation>
+        <translation type="vanished">复位图表到初始状态。</translation>
     </message>
     <message>
         <source>0</source>
-        <translation>0</translation>
+        <translation type="vanished">0</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation>上移10像素</translation>
+        <translation type="vanished">上移10像素</translation>
     </message>
     <message>
         <source>Move up 10 pixels</source>
-        <translation>上移10像素</translation>
+        <translation type="vanished">上移10像素</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation>上方向键</translation>
+        <translation type="vanished">上方向键</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation>左移10像素</translation>
+        <translation type="vanished">左移10像素</translation>
     </message>
     <message>
         <source>Move left 10 pixels</source>
-        <translation>左移10像素</translation>
+        <translation type="vanished">左移10像素</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation>左方向键</translation>
+        <translation type="vanished">左方向键</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation>右移10像素</translation>
+        <translation type="vanished">右移10像素</translation>
     </message>
     <message>
         <source>Move right 10 pixels</source>
-        <translation>右移10像素</translation>
+        <translation type="vanished">右移10像素</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation>右方向键</translation>
+        <translation type="vanished">右方向键</translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation>下移10像素</translation>
+        <translation type="vanished">下移10像素</translation>
     </message>
     <message>
         <source>Move down 10 pixels</source>
-        <translation>下移10像素</translation>
+        <translation type="vanished">下移10像素</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation>下方向键</translation>
+        <translation type="vanished">下方向键</translation>
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation>上移1像素</translation>
+        <translation type="vanished">上移1像素</translation>
     </message>
     <message>
         <source>Move up 1 pixel</source>
-        <translation>上移1像素</translation>
+        <translation type="vanished">上移1像素</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation>Shift+上方向键</translation>
+        <translation type="vanished">Shift+上方向键</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation>左移1像素</translation>
+        <translation type="vanished">左移1像素</translation>
     </message>
     <message>
         <source>Move left 1 pixel</source>
-        <translation>左移1像素</translation>
+        <translation type="vanished">左移1像素</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation>Shift+右方向键</translation>
+        <translation type="vanished">Shift+右方向键</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation>右移1像素</translation>
+        <translation type="vanished">右移1像素</translation>
     </message>
     <message>
         <source>Move right 1 pixel</source>
-        <translation>右移1像素</translation>
+        <translation type="vanished">右移1像素</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation>Shift+右方向键</translation>
+        <translation type="vanished">Shift+右方向键</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation>下移1像素</translation>
+        <translation type="vanished">下移1像素</translation>
     </message>
     <message>
         <source>Move down 1 pixel</source>
-        <translation>下移1像素</translation>
+        <translation type="vanished">下移1像素</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation>Shift+下方向键</translation>
+        <translation type="vanished">Shift+下方向键</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation>跳转到光标所在的分组</translation>
+        <translation type="vanished">跳转到光标所在的分组</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation>跳转到当前光标所在的分组</translation>
+        <translation type="vanished">跳转到当前光标所在的分组</translation>
     </message>
     <message>
         <source>G</source>
-        <translation>G</translation>
+        <translation type="vanished">G</translation>
     </message>
     <message>
         <source>All Flows</source>
-        <translation>所有流</translation>
+        <translation type="vanished">所有流</translation>
     </message>
     <message>
         <source>Show flows for all packets</source>
-        <translation>显示所有分组</translation>
+        <translation type="vanished">显示所有分组</translation>
     </message>
     <message>
         <source>1</source>
-        <translation>1</translation>
+        <translation type="vanished">1</translation>
     </message>
     <message>
         <source>TCP Flows</source>
-        <translation>TCP流</translation>
+        <translation type="vanished">TCP流</translation>
     </message>
     <message>
         <source>Show only TCP flow information</source>
-        <translation>只显示 TCP 流的信息</translation>
+        <translation type="vanished">只显示 TCP 流的信息</translation>
     </message>
     <message>
         <source>Save As</source>
         <oldsource>Save As...</oldsource>
-        <translation>另存为</translation>
+        <translation type="vanished">另存为</translation>
     </message>
     <message numerus="yes">
         <source>%Ln node(s)</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>%Ln 节点</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln item(s)</source>
-        <translation>
+        <translation type="vanished">
             <numerusform>%Ln 项目</numerusform>
         </translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation>便携式文档格式 (*.pdf)</translation>
+        <translation type="vanished">便携式文档格式 (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation>便携式网络图形格式 (*.png)</translation>
+        <translation type="vanished">便携式网络图形格式 (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation>Windows 位图 (*.bmp)</translation>
+        <translation type="vanished">Windows 位图 (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation>JPEG 文件交换格式 (*.jpeg *.jpg)</translation>
+        <translation type="vanished">JPEG 文件交换格式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>ASCII (*.txt)</source>
-        <translation>ASCII (*.txt)</translation>
+        <translation type="vanished">ASCII (*.txt)</translation>
     </message>
     <message>
         <source>Save Graph As</source>
-        <translation>保存图形为</translation>
+        <translation type="vanished">保存图形为</translation>
     </message>
 </context>
 <context>
@@ -6344,7 +6320,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Stream Flow Graph</source>
-        <translation>流图</translation>
+        <translation type="vanished">流图</translation>
     </message>
     <message>
         <source>LBT-RM</source>
@@ -7976,6 +7952,10 @@ text-decoration: underline;
     <message>
         <source>Open %1 preferences</source>
         <translation>打开 %1 首选项</translation>
+    </message>
+    <message>
+        <source>Invalid value.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10809,15 +10789,23 @@ text-decoration: underline;
     </message>
     <message>
         <source>Show:</source>
-        <translation>显示:</translation>
+        <translation type="vanished">显示:</translation>
     </message>
     <message>
         <source>All packets</source>
-        <translation>所有分组</translation>
+        <translation type="vanished">所有分组</translation>
     </message>
     <message>
         <source>Displayed packets</source>
-        <translation>显示的分组</translation>
+        <translation type="vanished">显示的分组</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show flows matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Limit to display filter</source>
+        <translation type="unfinished">显示过滤器的限制</translation>
     </message>
     <message>
         <source>Flow type:</source>
@@ -11410,6 +11398,10 @@ text-decoration: underline;
         <translation>缩放</translation>
     </message>
     <message>
+        <source>RTT By Sequence Number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Display graph of Segment Length vs Time</source>
         <translation>显示段长度与时间的图表</translation>
     </message>
@@ -11809,6 +11801,10 @@ text-decoration: underline;
     <message>
         <source>Save Graph As</source>
         <translation>保存图形为</translation>
+    </message>
+    <message>
+        <source>Display Round Trip Time vs Sequence Number</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
