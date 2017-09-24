@@ -1260,12 +1260,6 @@ if(ENABLE_CHECKHF_CONFLICT)
 	set(ENABLE_CHECK_FILTER 1)
 endif()
 
-string(REPLACE ";" " " _warnings_c_flags "${WS_WARNINGS_C_FLAGS}")
-message(STATUS "C-Flags: ${CMAKE_C_FLAGS} ${_warnings_c_flags}")
-string(REPLACE ";" " " _warnings_cxx_flags "${WS_WARNINGS_CXX_FLAGS}")
-message(STATUS "CXX-Flags: ${CMAKE_CXX_FLAGS} ${_warnings_cxx_flags}")
-message(STATUS "Warnings as errors: ${WERROR_COMMON_FLAGS}")
-
 if(APPLE)
 	#
 	# We assume that APPLE means macOS so that we have the macOS
@@ -1569,6 +1563,13 @@ set_package_properties(YAPP PROPERTIES
 	URL "http://search.cpan.org/dist/Parse-Yapp/"
 	PURPOSE "tpg plugin"
 )
+
+string(REPLACE ";" " " _warnings_c_flags "${WS_WARNINGS_C_FLAGS}")
+message(STATUS "C-Flags: ${CMAKE_C_FLAGS} ${_warnings_c_flags}")
+string(REPLACE ";" " " _warnings_cxx_flags "${WS_WARNINGS_CXX_FLAGS}")
+message(STATUS "CXX-Flags: ${CMAKE_CXX_FLAGS} ${_warnings_cxx_flags}")
+message(STATUS "Warnings as errors: ${WERROR_COMMON_FLAGS}")
+
 feature_summary(WHAT ALL)
 
 link_directories(
