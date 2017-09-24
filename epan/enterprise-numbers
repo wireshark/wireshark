@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2017-09-16)
+(last updated 2017-09-22)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -843,8 +843,8 @@ Decimal
       laurie.ellims&vuw.ac.nz
 207
   Allied Telesis, Inc.
-    Scott Holley
-      SCOTT_CLINTON_HOLLEY&cup.portal.com
+    Hermin Anggawijaya
+      hermin.anggawijaya&alliedtelesis.co.nz
 208
   Cray Communications A/S
     Hartvig Ekner
@@ -1686,9 +1686,9 @@ Decimal
     Michael A. Petonic
       petonic&hal.com
 418
-  Lawrence Berkeley Laboratory
-    Russ Wright
-      wright&lbl.gov
+  Lawrence Berkeley National Laboratory
+    Greg Haverkamp
+      gahaverkamp&lbl.gov
 419
   Dale Computer Corporation
     Dean Craven
@@ -39794,7 +39794,7 @@ Decimal
     Reyes Patrick
       reyespatrick&hotmail.com
 9960
-  nuisys.com
+  iOpsMon (formerly 'nuisys.com')
     Deepak Chohan
       deepak_chohan&hotmail.com
 9961
@@ -50547,8 +50547,8 @@ Decimal
       ayotte&teamsoft.com
 12748
   Telenor ASA
-    Heming Harnæs
-      group-infrastructure&telenor.com
+    Ørjan Nordvik
+      orjan.nordvik&telenor.com
 12749
   UTA Telekom AG
     Heinz Ekker
@@ -86273,8 +86273,8 @@ Information Security of Pr
       pavesi&screen.it
 21679
   Bundesagentur für Arbeit
-    Peter Neuhauser
-      IT-Systemhaus.zertifizierungsdienst&arbeitsagentur.de
+    Holger Scheetz
+      it-systemhaus.vertrauensdienste&arbeitsagentur.de
 21680
   MeadWestvaco Intelligent Systems
     Susan Grauel
@@ -110550,9 +110550,9 @@ Decentralization / Helenic Public Administra
     Greg Ball
       gball&flyinghorsestudios.com
 27743
-  Shaney
+  Daftano (formerly 'Shaney')
     Davide Fiorentino
-      davide.fiorentino&shaney.net
+      email&daftano.com
 27744
   Majik Networks Inc.
     Taylor Dondich
@@ -133160,7 +133160,7 @@ Decentralization / Helenic Public Administra
       naoki&miolab.com
 33395
   Washington State Consolidated Technology Services
-    Internal Certificate Authority Administrator
+    Jeff Oster
       CTSDLPKIAdmin&watech.wa.gov
 33396
   Ferpa Consultoria e Sistemas Ltda.
@@ -202383,6 +202383,178 @@ Decentralization / Helenic Public Administra
   Ulrich Busch
     Ulrich Busch
       ulrich.busch&bluewin.ch
+50701
+  PI SYSTEM co.,ltd.
+    Kuwabara Hiroshi
+      hrkuwaba&pi-system.co.jp
+50702
+  DIEHL Informatik GmbH
+    Michael Schieber
+      michael.schieber&diehl.com
+50703
+  Acteon Group Limited
+    Robert Brock
+      hostmaster&acteon.com
+50704
+  star.Energiewerke GmbH & Co. KG
+    Volker Scherrer
+      v.scherrer&star-energiewerke.de
+50705
+  NPAW (Nice People At Work)
+    Marc Rodon
+      mrodon&nicepeopleatwork.com
+50706
+  Fiducia & GAD IT AG
+    Hermann Amann
+      hermann.amann&fiduciagad.de
+50707
+  Nextragen Solutions GmbH
+    Sascha Mahmood
+      sascha.mahmood&nextragen-solutions.de
+50708
+  Point Core SAS
+    Nicolas BOUQUET
+      nicolas&point-core.com
+50709
+  JJIM.de Network Exploration Task-Force
+    Joel Brunenberg
+      joel.brunenberg&org.jjim.de
+50710
+  zhaoqing medical college
+    Eason Wu
+      vistahome&qq.com
+50711
+  Goldberg & Mathew Medical associates
+    hope friedman
+      hopestacy6&gmail.com
+50712
+  Connexys
+    Camiel Kluver
+      kluver&connexys.com
+50713
+  KT IT Planning Group
+    Jungmo Koo
+      jungmo.koo&kt.com
+50714
+  Jones Lang LaSalle IP, Inc.
+    Perry Harris
+      CertManager&am.jll.com
+50715
+  Bluink Ltd
+    Laurence Hamid
+      lhamid&bluink.ca
+50716
+  Huaqin Telecom Technology Co.,Ltd.
+    Zane Chen
+      chenzhao5&huaqin.com
+50717
+  FTI "ROSTRANSMODERNIZATSIYA"
+    Alexander Korolev
+      lic&asutk.ru
+50718
+  BPO Advisors SpA
+    Marco Mosca
+      marco.mosca&bpo-advisors.net
+50719
+  RNLI
+    Nick Royley
+      nick_royley&rnli.org.uk
+50720
+  Hawaii Oncology, Inc.
+    Selina Lewis
+      slewis&hioncology.com
+50721
+  St Marys Oncology Center, LLC
+    Shannan Robenalt
+      shannan&drtriponc.com
+50722
+  Practice Provider Corporation
+    John Carbone
+      john&practiceprovider.com
+50723
+  RF Solutions LLC
+    Chris Godwin
+      cgodwin&rf-solutions.com
+50724
+  Iowa Student Loan
+    Blake Norton
+      bnorton&studentloan.org
+50725
+  ROCAS SI
+    Arcade AGBECI
+      contact&rocas-si.fr
+50726
+  Tekon-Avtomatika
+    Alexander Ivanov
+      ivanov&tekon.ru
+50727
+  Civil Aviation University of China
+    刘中 (Liu Zhong)
+      liuzhong_18&163.com
+50728
+  Nemon
+    HongJe Kim
+      support&nemon.co.kr
+50729
+  Stichting Groningen Groningen Declaration Network
+    Herman de Leeuw
+      gdn&groningendeclaration.org
+50730
+  TELCAT MULTICOM GmbH
+    Efstratios Daskalopoulos
+      efstratios.daskalopoulos&telcat.de
+50731
+  NAES Corporation
+    Mike Leinweber
+      mike.leinweber&naes.com
+50732
+  HIAG Data
+    Thomas Maurer
+      thomas.maurer&itnetx.ch
+50733
+  bluebyteIT Sven Treiber
+    Sven Treiber
+      sven.treiber&bluebyte-it.de
+50734
+  HHGL Limited
+    Jason Hampton 
+      Jason.Hampton&homebase.co.uk
+50735
+  Vricon Systems
+    Anders Rönnbrant
+      anders.ronnbrant&vricon.com
+50736
+  Axcella, LLC
+    Nick Avgerinos
+      nicka&axcella.com
+50737
+  Chaitin Tech
+    yang.li
+      yang.li&chaitin.com
+50738
+  HomeLABs
+    Ivan Kotiv
+      zlojkota&gmail.com
+50739
+  lmu 
+    david planner
+      david.planner&iaag.geo.uni-muenchen.de
+50740
+  AIRSYS GmbH
+    Ronny Bunke
+      ronny.bunke&bertelsmann.de
+50741
+  Dust Devil Hosting, LLP
+    Emily Heginbotham
+      admin&cheetahdesigns.org
+50742
+  Optus Yes Lab
+    Guillaume Poulet-Mathis
+      yeslab&optus.com.au
+50743
+  nihon communication solutions
+    ANGURU SURESH
+      suresh.anguru&ncs-in.com
 
 
 End of Document
