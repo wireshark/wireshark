@@ -680,7 +680,7 @@ dissect_rpc_uint64(tvbuff_t *tvb, proto_tree *tree,
 	header_field_info	*hfinfo;
 
 	hfinfo = proto_registrar_get_nth(hfindex);
-	DISSECTOR_ASSERT(hfinfo->type == FT_UINT64);
+	DISSECTOR_ASSERT_FIELD_TYPE(hfinfo, FT_UINT64);
 	proto_tree_add_item(tree, hfindex, tvb, offset, 8, ENC_BIG_ENDIAN);
 
 	return offset + 8;
