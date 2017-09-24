@@ -1024,7 +1024,8 @@ set(PROGLIST)
 
 # Sort the package list
 list(SORT PACKAGELIST)
-message(STATUS "Packagelist: ${PACKAGELIST}")
+string(REPLACE ";" " " _package_list "${PACKAGELIST}")
+message(STATUS "Package List: ${_package_list}")
 # Let's loop the package list
 foreach(PACKAGE ${PACKAGELIST})
 	if(${PACKAGE} STREQUAL "Qt4")
