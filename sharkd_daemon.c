@@ -182,7 +182,7 @@ sharkd_init(int argc, char **argv)
 
 	if (argc != 2)
 	{
-		fprintf(stderr, "Usage: %s <socket>\n", argv[0]);
+		fprintf(stderr, "Usage: %s <-|socket>\n", argv[0]);
 		fprintf(stderr, "\n");
 
 		fprintf(stderr, "<socket> examples:\n");
@@ -212,18 +212,21 @@ sharkd_init(int argc, char **argv)
 		_server_fd = fd;
 	}
 
-#ifndef _WIN32
-	/* all good - try to daemonize */
-	pid = fork();
-	if (pid == -1)
-		fprintf(stderr, "cannot go to background fork() failed: %s\n", g_strerror(errno));
-
-	if (pid != 0)
+	if (!_use_stdinout)
 	{
-		/* parent */
-		exit(0);
-	}
+		/* all good - try to daemonize */
+#ifndef _WIN32
+		pid = fork();
+		if (pid == -1)
+			fprintf(stderr, "cannot go to background fork() failed: %s\n", g_strerror(errno));
+
+		if (pid != 0)
+		{
+			/* parent */
+			exit(0);
+		}
 #endif
+	}
 
 	return 0;
 }
