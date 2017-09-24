@@ -2562,7 +2562,7 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     /* Make sure this really is a string field. */
     hfinfo = proto_registrar_get_nth(hfindex);
-    DISSECTOR_ASSERT(hfinfo->type == FT_STRING);
+    DISSECTOR_ASSERT_FIELD_TYPE(hfinfo, FT_STRING);
 
     if (di->conformant_run) {
         /* just a run to handle conformant arrays, no scalars to dissect */
@@ -2747,7 +2747,7 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     /* Make sure this really is a string field. */
     hfinfo = proto_registrar_get_nth(hfindex);
-    DISSECTOR_ASSERT(hfinfo->type == FT_STRING);
+    DISSECTOR_ASSERT_FIELD_TYPE(hfinfo, FT_STRING);
 
     if (di->conformant_run) {
         /* just a run to handle conformant arrays, no scalars to dissect */

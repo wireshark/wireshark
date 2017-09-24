@@ -10082,7 +10082,7 @@ proto_tree_add_boolean_bits_format_value64(proto_tree *tree, const int hfindex,
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hf_field);
 
-	DISSECTOR_ASSERT(hf_field->type == FT_BOOLEAN);
+	DISSECTOR_ASSERT_FIELD_TYPE(hf_field, FT_BOOLEAN);
 
 	CREATE_VALUE_STRING(dst, format, ap);
 
