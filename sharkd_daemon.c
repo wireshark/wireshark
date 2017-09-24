@@ -263,6 +263,7 @@ sharkd_loop(void)
 		pid = fork();
 		if (pid == 0)
 		{
+			closesocket(_server_fd);
 			/* redirect stdin, stdout to socket */
 			dup2(fd, 0);
 			dup2(fd, 1);
