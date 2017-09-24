@@ -281,13 +281,6 @@ WS_DLL_PUBLIC WS_NORETURN void proto_report_dissector_bug(const char *message);
    __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(IS_FT_INT((hfinfo)->type) || \
                                            IS_FT_UINT((hfinfo)->type))
 
-#define DISSECTOR_ASSERT_FIELD_TYPE_IS_TIME(hfinfo)  \
-  ((void) (((hfinfo)->type == FT_ABSOLUTE_TIME || \
-            (hfinfo)->type == FT_RELATIVE_TIME) ? (void)0 : \
-   __DISSECTOR_ASSERT_FIELD_TYPE_IS_TIME ((hfinfo)))) \
-   __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT((hfinfo)->type == FT_ABSOLUTE_TIME || \
-                                           (hfinfo)->type == FT_RELATIVE_TIME)
-
 #define __DISSECTOR_ASSERT_FIELD_TYPE_IS_STRING(hfinfo) \
   (REPORT_DISSECTOR_BUG( \
     wmem_strdup_printf(wmem_packet_scope(), \
@@ -307,6 +300,13 @@ WS_DLL_PUBLIC WS_NORETURN void proto_report_dissector_bug(const char *message);
     wmem_strdup_printf(wmem_packet_scope(), \
         "%s:%u: field %s is not of type FT_ABSOLUTE_TIME or FT_RELATIVE_TIME", \
         __FILE__, __LINE__, (hfinfo)->abbrev)))
+
+#define DISSECTOR_ASSERT_FIELD_TYPE_IS_TIME(hfinfo)  \
+  ((void) (((hfinfo)->type == FT_ABSOLUTE_TIME || \
+            (hfinfo)->type == FT_RELATIVE_TIME) ? (void)0 : \
+   __DISSECTOR_ASSERT_FIELD_TYPE_IS_TIME ((hfinfo)))) \
+   __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT((hfinfo)->type == FT_ABSOLUTE_TIME || \
+                                           (hfinfo)->type == FT_RELATIVE_TIME)
 
 /*
  * The encoding of a field of a particular type may involve more
