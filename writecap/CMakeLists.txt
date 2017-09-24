@@ -39,9 +39,9 @@ add_library(writecap STATIC
 )
 
 set_target_properties(writecap PROPERTIES
-	COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}"
 	LINK_FLAGS "${WS_LINK_FLAGS}"
-	FOLDER "Libs")
+	FOLDER "Libs"
+)
 
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html

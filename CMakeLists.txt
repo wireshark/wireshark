@@ -693,10 +693,10 @@ foreach(THIS_FLAG ${C_WARN_TESTS})
 	message(STATUS "Checking for c-compiler flag: ${THIS_FLAG}")
 	check_c_compiler_flag("${C_FLAG_TESTS} ${${F}}" ${V})
 	if (${${V}})
-		set(ADDED_WARN_C_FLAGS ${ADDED_WARN_C_FLAGS} ${${F}})
+		set(ADDED_WARN_C_FLAGS "${ADDED_WARN_C_FLAGS} ${${F}}")
 	endif()
 endforeach()
-set(WS_WARNINGS_C_FLAGS ${ADDED_WARN_C_FLAGS})
+set(CMAKE_C_FLAGS "${ADDED_WARN_C_FLAGS} ${CMAKE_C_FLAGS}")
 
 foreach(THIS_FLAG ${CXX_WARN_TESTS})
 	string( REGEX REPLACE "[^a-zA-Z0-9_]+" "_" F ${THIS_FLAG} )
@@ -705,10 +705,10 @@ foreach(THIS_FLAG ${CXX_WARN_TESTS})
 	message(STATUS "Checking for c++-compiler flag: ${THIS_FLAG}")
 	check_cxx_compiler_flag("${CXX_FLAG_TESTS} ${${F}}" ${V})
 	if (${${V}})
-		set(ADDED_WARN_CXX_FLAGS ${ADDED_WARN_CXX_FLAGS} ${${F}})
+		set(ADDED_WARN_CXX_FLAGS "${ADDED_WARN_CXX_FLAGS} ${${F}}")
 	endif()
 endforeach()
-set(WS_WARNINGS_CXX_FLAGS ${ADDED_WARN_CXX_FLAGS})
+set(CMAKE_CXX_FLAGS "${ADDED_WARN_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
 
 include(CMakePushCheckState)
 
@@ -773,14 +773,14 @@ if( NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	#
 	check_c_compiler_flag(-fvisibility=hidden FVHIDDEN)
 	if(FVHIDDEN)
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
+		set(CMAKE_C_FLAGS "-fvisibility=hidden ${CMAKE_C_FLAGS}")
 	else()
 		#
 		# OK, try the Sun^WOracle C -xldscope=hidden
 		#
 		check_c_compiler_flag(-xldscope=hidden XLDSCOPEHIDDEN)
 		if(XLDSCOPEHIDDEN)
-			set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -xldscope=hidden")
+			set(CMAKE_C_FLAGS "-xldscope=hidden ${CMAKE_C_FLAGS}")
 		else()
 			#
 			# Anything else?
@@ -1203,9 +1203,9 @@ if (Qt5Widgets_FOUND)
 		if(NOT CXX__std_c__11_VALID)
 			message(FATAL_ERROR "Qt ${Qt5Widgets_VERSION} requires C++ 11")
 		endif()
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+		set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 	endif()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
+	set(CMAKE_CXX_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} ${CMAKE_CXX_FLAGS}")
 	set (QT_FOUND ON)
 	set (QT_LIBRARIES ${Qt5Widgets_LIBRARIES} ${Qt5PrintSupport_LIBRARIES})
 	if(Qt5Multimedia_FOUND)
@@ -1550,10 +1550,8 @@ set_package_properties(NGHTTP2 PROPERTIES
 	PURPOSE "Header decompression in HTTP2"
 )
 
-string(REPLACE ";" " " _warnings_c_flags "${WS_WARNINGS_C_FLAGS}")
-message(STATUS "C-Flags: ${CMAKE_C_FLAGS} ${_warnings_c_flags}")
-string(REPLACE ";" " " _warnings_cxx_flags "${WS_WARNINGS_CXX_FLAGS}")
-message(STATUS "CXX-Flags: ${CMAKE_CXX_FLAGS} ${_warnings_cxx_flags}")
+message(STATUS "C-Flags: ${CMAKE_C_FLAGS}")
+message(STATUS "CXX-Flags: ${CMAKE_CXX_FLAGS}")
 message(STATUS "Warnings as errors: ${WERROR_COMMON_FLAGS}")
 
 feature_summary(WHAT ALL)
@@ -2213,9 +2211,10 @@ if(BUILD_wireshark AND QT_FOUND)
 	add_executable(wireshark WIN32 MACOSX_BUNDLE wireshark-qt.cpp ${wireshark_FILES} ${EXTRA_BUNDLE_FILES})
 	add_dependencies(wireshark version)
 	set(PROGLIST ${PROGLIST} wireshark)
-	set_target_properties(wireshark PROPERTIES COMPILE_OPTIONS "${WS_WARNINGS_CXX_FLAGS}")
-	set_target_properties(wireshark PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-	set_target_properties(wireshark PROPERTIES FOLDER "Executables")
+	set_target_properties(wireshark PROPERTIES
+		LINK_FLAGS "${WS_LINK_FLAGS}"
+		FOLDER "Executables"
+	)
 	if(ENABLE_APPLICATION_BUNDLE OR WIN32)
 		set_target_properties(wireshark PROPERTIES OUTPUT_NAME Wireshark)
 	endif()
@@ -2293,7 +2292,6 @@ endif()
 # Common properties for CLI executables
 macro(set_extra_executable_properties _executable _folder)
 	set_target_properties(${_executable} PROPERTIES
-		COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}"
 		LINK_FLAGS "${WS_LINK_FLAGS}"
 		FOLDER ${_folder}
 	)
@@ -2321,7 +2319,6 @@ macro(set_extcap_executable_properties _executable)
 
 	if(WIN32)
 		set_target_properties(${_executable} PROPERTIES
-			COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}"
 			LINK_FLAGS "${WS_LINK_FLAGS}"
 			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap
 			RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/run/Debug/extcap
@@ -2331,7 +2328,6 @@ macro(set_extcap_executable_properties _executable)
 		)
 	else()
 		set_target_properties(${_executable} PROPERTIES
-			COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}"
 			LINK_FLAGS "${WS_LINK_FLAGS}"
 			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap
 		)
@@ -2373,9 +2369,10 @@ if(BUILD_wireshark_gtk AND GTK_FOUND)
 	add_executable(wireshark-gtk WIN32 ${wireshark_FILES})
 	add_dependencies(wireshark-gtk version)
 	set(PROGLIST ${PROGLIST} wireshark-gtk)
-	set_target_properties(wireshark-gtk PROPERTIES COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}")
-	set_target_properties(wireshark-gtk PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-	set_target_properties(wireshark-gtk PROPERTIES FOLDER "Executables")
+	set_target_properties(wireshark-gtk PROPERTIES
+		LINK_FLAGS "${WS_LINK_FLAGS}"
+		FOLDER "Executables"
+	)
 	target_link_libraries(wireshark-gtk ${wireshark_gtk_LIBS})
 	install(TARGETS wireshark-gtk RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 

@@ -70,7 +70,6 @@ add_library(dfilter OBJECT
 set_target_properties(dfilter PROPERTIES
 	FOLDER "Libs/epan/dfilter"
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
-	COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}"
 )
 
 if(NOT WIN32)

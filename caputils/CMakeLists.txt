@@ -64,7 +64,6 @@ add_library(caputils STATIC
 )
 
 set_target_properties(caputils PROPERTIES
-	COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}"
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "Libs")
 

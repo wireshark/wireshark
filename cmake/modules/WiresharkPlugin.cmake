@@ -33,7 +33,6 @@ macro(ADD_PLUGIN_LIBRARY _plugin)
 
 	set_target_properties(${_plugin} PROPERTIES
 		PREFIX ""
-		COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}"
 		LINK_FLAGS "${WS_LINK_FLAGS}"
 		FOLDER "Plugins"
 	)

@@ -196,7 +196,6 @@ add_library(dissectors-corba OBJECT
 set_target_properties(dissectors-corba PROPERTIES
 	FOLDER "Libs/epan/dissectors"
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
-	COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}"
 )
 
 if(WIN32 AND "${CMAKE_GENERATOR}" STREQUAL "Visual Studio 12 2013 Win64")
@@ -1857,7 +1856,6 @@ add_library(dissectors OBJECT
 set_target_properties(dissectors PROPERTIES
 	FOLDER "Libs/epan/dissectors"
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
-	COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}"
 )
 
 if(NOT WIN32)

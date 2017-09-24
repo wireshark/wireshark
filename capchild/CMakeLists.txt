@@ -43,7 +43,6 @@ add_library(capchild STATIC
 )
 
 set_target_properties(capchild PROPERTIES
-	COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}"
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "Libs")
 

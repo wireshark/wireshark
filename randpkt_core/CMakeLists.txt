@@ -41,7 +41,6 @@ add_library(randpkt_core STATIC
 )
 
 set_target_properties(randpkt_core PROPERTIES
-	COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}"
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "Libs")
 

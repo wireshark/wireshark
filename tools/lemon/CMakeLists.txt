@@ -38,9 +38,11 @@ set(lemon_LIBS
 )
 
 add_executable(lemon ${lemon_FILES})
-set_target_properties(lemon PROPERTIES FOLDER "tools")
-set_target_properties(lemon PROPERTIES COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}")
-set_target_properties(lemon PROPERTIES LINK_FLAGS "${NO_SANITIZE_LDFLAGS}")
+
+set_target_properties(lemon PROPERTIES
+	FOLDER "tools"
+	LINK_FLAGS "${NO_SANITIZE_LDFLAGS}"
+)
 
 target_link_libraries(lemon ${lemon_LIBS})
 

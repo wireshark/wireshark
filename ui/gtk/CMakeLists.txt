@@ -315,9 +315,9 @@ add_library(gtkui STATIC
 	${PIXBUF_SRC}
 )
 set_target_properties(gtkui PROPERTIES
-	COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}"
 	LINK_FLAGS "${WS_LINK_FLAGS}"
-	FOLDER "UI")
+	FOLDER "UI"
+)
 
 CHECKAPI(
 	NAME

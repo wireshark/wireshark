@@ -160,7 +160,6 @@ add_library(wslua OBJECT
 set_target_properties(wslua PROPERTIES
 	FOLDER "Libs/epan/wslua"
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
-	COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}"
 )
 
 CHECKAPI(
