@@ -2863,7 +2863,7 @@ static gboolean dissect_eth_over_ib(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         PAYLOAD_header_tree = proto_item_add_subtree(PAYLOAD_header_item, ett_payload);
 
         proto_tree_add_uint(PAYLOAD_header_tree, hf_infiniband_etype, tvb, 0, 2, etype);
-        proto_tree_add_uint(PAYLOAD_header_tree, hf_infiniband_reserved, tvb, 2, 2, reserved);
+        proto_tree_add_item(PAYLOAD_header_tree, hf_infiniband_reserved, tvb, 2, 2, ENC_NA);
     }
 
     return dissector_found;
