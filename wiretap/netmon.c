@@ -352,13 +352,24 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 	frame_table_offset = pletoh32(&hdr.frametableoffset);
 
 	/*
-	 * Get the offset and length of the comment index table and
-	 * process info table.
+	 * For NetMon 2.2 format and later, get the offset and length of
+	 * the comment index table and process info table.
+	 *
+	 * For earlier versions, set them to zero; they appear to be
+	 * uninitialized, so they're not necessarily zero.
 	 */
-	comment_table_offset = pletoh32(&hdr.commentdataoffset);
-	comment_table_size = pletoh32(&hdr.commentdatalength);
-	process_info_table_offset = pletoh32(&hdr.processinfooffset);
-	process_info_table_count = pletoh32(&hdr.processinfocount);
+	if ((netmon->version_major == 2 && netmon->version_minor >= 2) ||
+	    netmon->version_major > 2) {
+		comment_table_offset = pletoh32(&hdr.commentdataoffset);
+		comment_table_size = pletoh32(&hdr.commentdatalength);
+		process_info_table_offset = pletoh32(&hdr.processinfooffset);
+		process_info_table_count = pletoh32(&hdr.processinfocount);
+	} else {
+		comment_table_offset = 0;
+		comment_table_size = 0;
+		process_info_table_offset = 0;
+		process_info_table_count = 0;
+	}
 
 	/*
 	 * It appears that some NetMon 2.x files don't have the
