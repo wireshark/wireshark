@@ -1010,37 +1010,37 @@ SectionGroup "Plugins & Extensions" SecPluginsGroup
 Section "Dissector Plugins" SecPlugins
 ;-------------------------------------------
 SetOutPath '$INSTDIR\plugins\${VERSION_MAJOR}.${VERSION_MINOR}'
-File "${STAGING_DIR}\plugins\docsis.dll"
-File "${STAGING_DIR}\plugins\ethercat.dll"
-File "${STAGING_DIR}\plugins\gryphon.dll"
-File "${STAGING_DIR}\plugins\irda.dll"
-File "${STAGING_DIR}\plugins\m2m.dll"
-File "${STAGING_DIR}\plugins\opcua.dll"
-File "${STAGING_DIR}\plugins\profinet.dll"
-File "${STAGING_DIR}\plugins\unistim.dll"
-File "${STAGING_DIR}\plugins\wimax.dll"
-File "${STAGING_DIR}\plugins\wimaxasncp.dll"
-File "${STAGING_DIR}\plugins\wimaxmacphy.dll"
+File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\docsis.dll"
+File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\ethercat.dll"
+File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\gryphon.dll"
+File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\irda.dll"
+File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\m2m.dll"
+File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\opcua.dll"
+File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\profinet.dll"
+File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\unistim.dll"
+File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\wimax.dll"
+File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\wimaxasncp.dll"
+File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\wimaxmacphy.dll"
 !include "custom_plugins.txt"
 SectionEnd
 
 Section "Tree Statistics Plugin" SecStatsTree
 ;-------------------------------------------
 SetOutPath '$INSTDIR\plugins\${VERSION_MAJOR}.${VERSION_MINOR}'
-File "${STAGING_DIR}\plugins\stats_tree.dll"
+File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\stats_tree.dll"
 SectionEnd
 
 Section "Mate - Meta Analysis and Tracing Engine" SecMate
 ;-------------------------------------------
 SetOutPath '$INSTDIR\plugins\${VERSION_MAJOR}.${VERSION_MINOR}'
-File "${STAGING_DIR}\plugins\mate.dll"
+File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\mate.dll"
 SectionEnd
 
 
 Section "TRANSUM - network and application performance analysis" SecTransum
 ;-------------------------------------------
 SetOutPath '$INSTDIR\plugins\${VERSION_MAJOR}.${VERSION_MINOR}'
-File "${STAGING_DIR}\plugins\transum.dll"
+File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\transum.dll"
 SectionEnd
 
 Section "Configuration Profiles" SecProfiles
