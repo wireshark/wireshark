@@ -320,7 +320,7 @@ sub PythonStruct($$$$$$)
 		$self->pidl("PyObject *allow_remaining_obj = NULL;");
 		$self->pidl("bool allow_remaining = false;");
 		$self->pidl("");
-		$self->pidl("if (!PyArg_ParseTupleAndKeywords(args, kwargs, \"s#|O:__ndr_unpack__\",");
+		$self->pidl("if (!PyArg_ParseTupleAndKeywords(args, kwargs, PYARG_BYTES_LEN \"|O:__ndr_unpack__\",");
 		$self->indent;
 		$self->pidl("discard_const_p(char *, kwnames),");
 		$self->pidl("&blob.data, &blob_length,");
@@ -705,7 +705,7 @@ sub PythonFunctionStruct($$$$)
 	$self->pidl("PyObject *allow_remaining_obj = NULL;");
 	$self->pidl("bool allow_remaining = false;");
 	$self->pidl("");
-	$self->pidl("if (!PyArg_ParseTupleAndKeywords(args, kwargs, \"s#|OOO:__ndr_unpack_in__\",");
+	$self->pidl("if (!PyArg_ParseTupleAndKeywords(args, kwargs, PYARG_BYTES_LEN \"|OOO:__ndr_unpack_in__\",");
 	$self->indent;
 	$self->pidl("discard_const_p(char *, kwnames),");
 	$self->pidl("&blob.data, &blob_length,");
@@ -753,7 +753,7 @@ sub PythonFunctionStruct($$$$)
 	$self->pidl("PyObject *allow_remaining_obj = NULL;");
 	$self->pidl("bool allow_remaining = false;");
 	$self->pidl("");
-	$self->pidl("if (!PyArg_ParseTupleAndKeywords(args, kwargs, \"s#|OOO:__ndr_unpack_out__\",");
+	$self->pidl("if (!PyArg_ParseTupleAndKeywords(args, kwargs, PYARG_BYTES_LEN \"|OOO:__ndr_unpack_out__\",");
 	$self->indent;
 	$self->pidl("discard_const_p(char *, kwnames),");
 	$self->pidl("&blob.data, &blob_length,");
