@@ -192,7 +192,7 @@ static NTSTATUS $name\__op_ndr_push(struct dcesrv_call_state *dce_call, TALLOC_C
 	return NT_STATUS_OK;
 }
 
-const struct dcesrv_interface dcesrv\_$name\_interface = {
+static const struct dcesrv_interface dcesrv\_$name\_interface = {
 	.name		= \"$name\",
 	.syntax_id  = {".print_uuid($uuid).",$if_version},
 	.bind		= $name\__op_bind,
