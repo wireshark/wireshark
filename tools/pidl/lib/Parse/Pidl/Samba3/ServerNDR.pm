@@ -252,7 +252,7 @@ sub ParseInterface($)
 
 	pidl "";
 	pidl "/* Tables */";
-	pidl "static struct api_struct api_$if->{NAME}_cmds[] = ";
+	pidl "static const struct api_struct api_$if->{NAME}_cmds[] = ";
 	pidl "{";
 	indent;
 
