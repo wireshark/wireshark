@@ -624,7 +624,7 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 	done
 
 	echo "Signing plugins"
-	for plugin in $pkgplugin/*.so ; do
+	find $pkgplugin -type f -name "*.so" | while read plugin ; do
 		codesign_file "$plugin"
 	done
 
