@@ -570,6 +570,12 @@ sub PythonFunctionPackIn($$$)
 			my $val = "PyList_GET_SIZE($py_var)";
 			if ($e->{LEVELS}[0]->{TYPE} eq "POINTER") {
 				$self->pidl("r->in.$e->{NAME} = talloc_ptrtype(r, r->in.$e->{NAME});");
+				$self->pidl("if (r->in.$e->{NAME} == NULL) {");
+				$self->indent;
+				$self->pidl("PyErr_NoMemory();");
+				$self->pidl($fail);
+				$self->deindent;
+				$self->pidl("}");
 				$self->pidl("*r->in.$e->{NAME} = $val;");
 			} else {
 				$self->pidl("r->in.$e->{NAME} = $val;");
@@ -1239,9 +1245,21 @@ sub ConvertObjectFromPythonLevel($$$$$$$$)
 		# then this is where we would need to allocate it
 		if ($l->{POINTER_TYPE} eq "ref") {
 			$self->pidl("$var_name = talloc_ptrtype($mem_ctx, $var_name);");
+			$self->pidl("if ($var_name == NULL) {");
+			$self->indent;
+			$self->pidl("PyErr_NoMemory();");
+			$self->pidl($fail);
+			$self->deindent;
+			$self->pidl("}");
 		} elsif ($nl->{TYPE} eq "DATA" and Parse::Pidl::Typelist::is_scalar($nl->{DATA_TYPE})
 			 and not Parse::Pidl::Typelist::scalar_is_reference($nl->{DATA_TYPE})) {
 			$self->pidl("$var_name = talloc_ptrtype($mem_ctx, $var_name);");
+			$self->pidl("if ($var_name == NULL) {");
+			$self->indent;
+			$self->pidl("PyErr_NoMemory();");
+			$self->pidl($fail);
+			$self->deindent;
+			$self->pidl("}");
 		} else {
 			$self->pidl("$var_name = NULL;");
 		}
