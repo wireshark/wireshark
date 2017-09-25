@@ -192,6 +192,40 @@ sub FromPythonToUnionFunction($$$$$)
 	$self->pidl("return ret;");
 }
 
+sub PythonElementGetSet($$$$$$) {
+	my ($self, $name, $cname, $ename, $e, $env) = @_;
+
+	my $varname = "object->$ename";
+	$self->pidl("static PyObject *py_$name\_get_$e->{NAME}(PyObject *obj, void *closure)");
+	$self->pidl("{");
+	$self->indent;
+	$self->pidl("$cname *object = ($cname *)pytalloc_get_ptr(obj);");
+	$self->pidl("PyObject *py_$e->{NAME};");
+	$self->ConvertObjectToPython("pytalloc_get_mem_ctx(obj)", $env, $e, $varname, "py_$e->{NAME}", "return NULL;");
+	$self->pidl("return py_$e->{NAME};");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+
+	$self->pidl("static int py_$name\_set_$e->{NAME}(PyObject *py_obj, PyObject *value, void *closure)");
+	$self->pidl("{");
+	$self->indent;
+	$self->pidl("$cname *object = ($cname *)pytalloc_get_ptr(py_obj);");
+	my $mem_ctx = "pytalloc_get_mem_ctx(py_obj)";
+	my $l = $e->{LEVELS}[0];
+	my $nl = GetNextLevel($e, $l);
+	if ($l->{TYPE} eq "POINTER" and
+		not ($nl->{TYPE} eq "ARRAY" and ($nl->{IS_FIXED} or is_charset_array($e, $nl))) and
+		not ($nl->{TYPE} eq "DATA" and Parse::Pidl::Typelist::scalar_is_reference($nl->{DATA_TYPE}))) {
+		$self->pidl("talloc_unlink($mem_ctx, discard_const($varname));");
+	}
+	$self->ConvertObjectFromPython($env, $mem_ctx, $e, "value", $varname, "return -1;");
+	$self->pidl("return 0;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+}
+
 sub PythonStruct($$$$$$)
 {
 	my ($self, $modulename, $prettyname, $name, $cname, $d) = @_;
@@ -204,35 +238,7 @@ sub PythonStruct($$$$$$)
 
 	if ($#{$d->{ELEMENTS}} > -1) {
 		foreach my $e (@{$d->{ELEMENTS}}) {
-			my $varname = "object->$e->{NAME}";
-			$self->pidl("static PyObject *py_$name\_get_$e->{NAME}(PyObject *obj, void *closure)");
-			$self->pidl("{");
-			$self->indent;
-			$self->pidl("$cname *object = ($cname *)pytalloc_get_ptr(obj);");
-			$self->pidl("PyObject *py_$e->{NAME};");
-			$self->ConvertObjectToPython("pytalloc_get_mem_ctx(obj)", $env, $e, $varname, "py_$e->{NAME}", "return NULL;");
-			$self->pidl("return py_$e->{NAME};");
-			$self->deindent;
-			$self->pidl("}");
-			$self->pidl("");
-
-			$self->pidl("static int py_$name\_set_$e->{NAME}(PyObject *py_obj, PyObject *value, void *closure)");
-			$self->pidl("{");
-			$self->indent;
-			$self->pidl("$cname *object = ($cname *)pytalloc_get_ptr(py_obj);");
-			my $mem_ctx = "pytalloc_get_mem_ctx(py_obj)";
-			my $l = $e->{LEVELS}[0];
-			my $nl = GetNextLevel($e, $l);
-			if ($l->{TYPE} eq "POINTER" and
-				not ($nl->{TYPE} eq "ARRAY" and ($nl->{IS_FIXED} or is_charset_array($e, $nl))) and
-				not ($nl->{TYPE} eq "DATA" and Parse::Pidl::Typelist::scalar_is_reference($nl->{DATA_TYPE}))) {
-				$self->pidl("talloc_unlink($mem_ctx, discard_const($varname));");
-			}
-			$self->ConvertObjectFromPython($env, $mem_ctx, $e, "value", $varname, "return -1;");
-			$self->pidl("return 0;");
-			$self->deindent;
-			$self->pidl("}");
-			$self->pidl("");
+			$self->PythonElementGetSet($name, $cname, $e->{NAME}, $e, $env);
 		}
 
 		$getsetters = "py_$name\_getsetters";
