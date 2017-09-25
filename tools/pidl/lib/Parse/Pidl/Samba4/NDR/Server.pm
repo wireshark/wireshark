@@ -257,17 +257,16 @@ static bool $name\__op_interface_by_name(struct dcesrv_interface *iface, const c
 NTSTATUS dcerpc_server_$name\_init(void)
 {
 	NTSTATUS ret;
-	struct dcesrv_endpoint_server ep_server;
+	static const struct dcesrv_endpoint_server ep_server = {
+	    /* fill in our name */
+	    .name = \"$name\",
 
-	/* fill in our name */
-	ep_server.name = \"$name\";
+	    /* fill in all the operations */
+	    .init_server = $name\__op_init_server,
 
-	/* fill in all the operations */
-	ep_server.init_server = $name\__op_init_server;
-
-	ep_server.interface_by_uuid = $name\__op_interface_by_uuid;
-	ep_server.interface_by_name = $name\__op_interface_by_name;
-
+	    .interface_by_uuid = $name\__op_interface_by_uuid,
+	    .interface_by_name = $name\__op_interface_by_name
+	};
 	/* register ourselves with the DCERPC subsystem. */
 	ret = dcerpc_register_ep_server(&ep_server);
 
