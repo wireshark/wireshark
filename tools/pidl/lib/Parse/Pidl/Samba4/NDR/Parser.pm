@@ -636,7 +636,11 @@ sub ParseElementPushLevel
 
 			# Allow speedups for arrays of scalar types
 			if (is_charset_array($e,$l)) {
-				$self->pidl("NDR_CHECK(ndr_push_charset($ndr, $ndr_flags, $var_name, $length, sizeof(" . mapTypeName($nl->{DATA_TYPE}) . "), CH_$e->{PROPERTIES}->{charset}));");
+				if ($l->{IS_TO_NULL}) {
+					$self->pidl("NDR_CHECK(ndr_push_charset_to_null($ndr, $ndr_flags, $var_name, $length, sizeof(" . mapTypeName($nl->{DATA_TYPE}) . "), CH_$e->{PROPERTIES}->{charset}));");
+				} else {
+					$self->pidl("NDR_CHECK(ndr_push_charset($ndr, $ndr_flags, $var_name, $length, sizeof(" . mapTypeName($nl->{DATA_TYPE}) . "), CH_$e->{PROPERTIES}->{charset}));");
+				}
 				return;
 			} elsif (has_fast_array($e,$l)) {
 				$self->pidl("NDR_CHECK(ndr_push_array_$nl->{DATA_TYPE}($ndr, $ndr_flags, $var_name, $length));");
