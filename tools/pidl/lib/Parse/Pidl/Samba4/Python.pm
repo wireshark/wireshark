@@ -676,8 +676,7 @@ sub PythonType($$$$)
 		my $docstring = $self->DocString($d, $d->{NAME});
 		my $cname = "union $d->{NAME}";
 
-		$self->pidl("PyObject *py_import_$d->{NAME}(TALLOC_CTX *mem_ctx, int level, " .mapTypeName($d) . " *in)");
-		$self->pidl_hdr("PyObject *py_import_$d->{NAME}(TALLOC_CTX *mem_ctx, int level, " .mapTypeName($d) . " *in);\n");
+		$self->pidl("static PyObject *py_import_$d->{NAME}(TALLOC_CTX *mem_ctx, int level, " .mapTypeName($d) . " *in)");
 		$self->pidl("{");
 		$self->indent;
 		$self->FromUnionToPythonFunction("mem_ctx", $actual_ctype, "level", "in") if ($actual_ctype->{TYPE} eq "UNION");
@@ -685,8 +684,7 @@ sub PythonType($$$$)
 		$self->pidl("}");
 		$self->pidl("");
 
-		$self->pidl(mapTypeName($d) . " *py_export_$d->{NAME}(TALLOC_CTX *mem_ctx, int level, PyObject *in)");
-		$self->pidl_hdr(mapTypeName($d) . " *py_export_$d->{NAME}(TALLOC_CTX *mem_ctx, int level, PyObject *in);\n");
+		$self->pidl("static ".mapTypeName($d) . " *py_export_$d->{NAME}(TALLOC_CTX *mem_ctx, int level, PyObject *in)");
 		$self->pidl("{");
 		$self->indent;
 		$self->FromPythonToUnionFunction($actual_ctype, mapTypeName($d), "level", "mem_ctx", "in") if ($actual_ctype->{TYPE} eq "UNION");
