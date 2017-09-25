@@ -44,9 +44,9 @@ sub ParseRegFunc($)
 {
 	my $interface = shift;
 
-	$res .= "static NTSTATUS dcom_proxy_$interface->{NAME}_init(void)
+	$res .= "static NTSTATUS dcom_proxy_$interface->{NAME}_init(TALLOC_CTX *ctx)
 {
-	struct $interface->{NAME}_vtable *proxy_vtable = talloc(talloc_autofree_context(), struct $interface->{NAME}_vtable);
+	struct $interface->{NAME}_vtable *proxy_vtable = talloc(ctx, struct $interface->{NAME}_vtable);
 ";
 
 	if (defined($interface->{BASE})) {
@@ -75,7 +75,7 @@ sub ParseRegFunc($)
 	$res.= "
 	proxy_vtable->iid = ndr_table_$interface->{NAME}.syntax_id.uuid;
 
-	return dcom_register_proxy((struct IUnknown_vtable *)proxy_vtable);
+	return dcom_register_proxy(ctx, (struct IUnknown_vtable *)proxy_vtable);
 }\n\n";
 }
 
