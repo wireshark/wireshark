@@ -12,7 +12,7 @@ use strict;
 use Parse::Pidl qw(warning fatal error);
 use Parse::Pidl::Typelist qw(hasType resolveType getType mapTypeName expandAlias bitmap_type_fn enum_type_fn);
 use Parse::Pidl::Util qw(has_property ParseExpr unmake_str);
-use Parse::Pidl::NDR qw(GetPrevLevel GetNextLevel ContainsDeferred ContainsPipe is_charset_array);
+use Parse::Pidl::NDR qw(ReturnTypeElement GetPrevLevel GetNextLevel ContainsDeferred ContainsPipe is_charset_array);
 use Parse::Pidl::CUtil qw(get_value_of get_pointer_to);
 use Parse::Pidl::Samba4 qw(ArrayDynamicallyAllocated);
 use Parse::Pidl::Samba4::Header qw(GenerateFunctionInEnv GenerateFunctionOutEnv EnvSubstituteValue GenerateStructEnv);
@@ -384,6 +384,479 @@ sub PythonStruct($$$$$$)
 	$self->pidl_hdr("static PyTypeObject $name\_Type;\n");
 	$self->pidl("");
 	my $docstring = $self->DocString($d, $name);
+	my $typeobject = "$name\_Type";
+	$self->pidl("static PyTypeObject $typeobject = {");
+	$self->indent;
+	$self->pidl("PyObject_HEAD_INIT(NULL) 0,");
+	$self->pidl(".tp_name = \"$modulename.$prettyname\",");
+	$self->pidl(".tp_getset = $getsetters,");
+	if ($docstring) {
+		$self->pidl(".tp_doc = $docstring,");
+	}
+	$self->pidl(".tp_methods = $py_methods,");
+	$self->pidl(".tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,");
+	$self->pidl(".tp_new = py_$name\_new,");
+	$self->deindent;
+	$self->pidl("};");
+
+	$self->pidl("");
+
+	my $talloc_typename = $self->import_type_variable("talloc", "BaseObject");
+	$self->register_module_prereadycode(["$name\_Type.tp_base = $talloc_typename;",
+					     "$name\_Type.tp_basicsize = pytalloc_BaseObject_size();",
+					     ""]);
+
+	return "&$typeobject";
+}
+
+sub PythonFunctionStruct($$$$)
+{
+	my ($self, $modulename, $fn, $iface, $prettyname) = @_;
+
+	my $inenv = GenerateFunctionInEnv($fn, "object->");
+	my $outenv = GenerateFunctionOutEnv($fn, "object->");
+
+	my $name = "$fn->{NAME}";
+	my $cname = "struct $name";
+
+	$self->pidl("");
+
+	my $getsetters = "NULL";
+
+	foreach my $e (@{$fn->{ELEMENTS}}) {
+		if (grep(/in/,@{$e->{DIRECTION}})) {
+			my $inname = "$name\_in";
+			my $ename = "in.$e->{NAME}";
+			$self->PythonElementGetSet($inname, $cname, $ename, $e, $inenv);
+		}
+		if (grep(/out/,@{$e->{DIRECTION}})) {
+			my $outname = "$name\_out";
+			my $ename = "out.$e->{NAME}";
+			$self->PythonElementGetSet($outname, $cname, $ename, $e, $outenv);
+		}
+	}
+
+	if (defined($fn->{RETURN_TYPE})) {
+		my $e = ReturnTypeElement($fn);
+		my $ename = "out.result";
+		$self->PythonElementGetSet($name, $cname, $ename, $e, $outenv);
+	}
+
+	$getsetters = "py_$name\_getsetters";
+	$self->pidl("static PyGetSetDef ".$getsetters."[] = {");
+	$self->indent;
+	foreach my $e (@{$fn->{ELEMENTS}}) {
+		if (grep(/in/,@{$e->{DIRECTION}})) {
+			$self->pidl("{");
+			$self->indent;
+			$self->pidl(".name = discard_const_p(char, \"in_$e->{NAME}\"),");
+			$self->pidl(".get = py_$name\_in_get_$e->{NAME},");
+			$self->pidl(".set = py_$name\_in_set_$e->{NAME},");
+			$self->pidl(".doc = discard_const_p(char, \"PIDL-generated element of base type $e->{TYPE}\")");
+			$self->deindent;
+			$self->pidl("},");
+		}
+		if (grep(/out/,@{$e->{DIRECTION}})) {
+			$self->pidl("{");
+			$self->indent;
+			$self->pidl(".name = discard_const_p(char, \"out_$e->{NAME}\"),");
+			$self->pidl(".get = py_$name\_out_get_$e->{NAME},");
+			$self->pidl(".set = py_$name\_out_set_$e->{NAME},");
+			$self->pidl(".doc = discard_const_p(char, \"PIDL-generated element of base type $e->{TYPE}\")");
+			$self->deindent;
+			$self->pidl("},");
+		}
+	}
+	if (defined($fn->{RETURN_TYPE})) {
+		$self->pidl("{");
+		$self->indent;
+		$self->pidl(".name = discard_const_p(char, \"result\"),");
+		$self->pidl(".get = py_$name\_get_result,");
+		$self->pidl(".set = py_$name\_set_result,");
+		$self->pidl(".doc = discard_const_p(char, \"PIDL-generated element of type $fn->{RETURN_TYPE}\")");
+		$self->deindent;
+		$self->pidl("},");
+	}
+	$self->pidl("{ .name = NULL }");
+	$self->deindent;
+	$self->pidl("};");
+	$self->pidl("");
+
+	$self->pidl("static PyObject *py_$name\_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)");
+	$self->pidl("{");
+	$self->indent;
+	$self->pidl("return pytalloc_new($cname, type);");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+
+	my $py_methods = "NULL";
+
+	my $ndr_call = "const struct ndr_interface_call *call = NULL;";
+	my $object_ptr = "$cname *object = ($cname *)pytalloc_get_ptr(py_obj);";
+
+	$self->pidl("static PyObject *py_$name\_ndr_opnum(PyTypeObject *type)");
+	$self->pidl("{");
+	$self->indent;
+	$self->pidl("");
+	$self->pidl("");
+	$self->pidl("return PyInt_FromLong($fn->{OPNUM});");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+
+	$self->pidl("static PyObject *py_$name\_ndr_pack(PyObject *py_obj, int ndr_inout_flags, uint32_t ndr_push_flags)");
+	$self->pidl("{");
+	$self->indent;
+	$self->pidl("$ndr_call");
+	$self->pidl("$object_ptr");
+	$self->pidl("PyObject *ret = NULL;");
+	$self->pidl("struct ndr_push *push = NULL;");
+	$self->pidl("DATA_BLOB blob;");
+	$self->pidl("enum ndr_err_code err;");
+	$self->pidl("");
+	$self->pidl("if (ndr_table_$iface\.num_calls < $fn->{OPNUM}) {");
+	$self->indent;
+	$self->pidl("PyErr_SetString(PyExc_TypeError, \"Internal Error, ndr_interface_call missing for py_$name\_ndr_pack\");");
+	$self->pidl("return NULL;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("call = &ndr_table_$iface\.calls[$fn->{OPNUM}];");
+	$self->pidl("");
+	$self->pidl("push = ndr_push_init_ctx(pytalloc_get_mem_ctx(py_obj));");
+	$self->pidl("if (push == NULL) {");
+	$self->indent;
+	$self->pidl("PyErr_SetNdrError(NDR_ERR_ALLOC);");
+	$self->pidl("return NULL;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+	$self->pidl("push->flags |= ndr_push_flags;");
+	$self->pidl("");
+	$self->pidl("err = call->ndr_push(push, ndr_inout_flags, object);");
+	$self->pidl("if (!NDR_ERR_CODE_IS_SUCCESS(err)) {");
+	$self->indent;
+	$self->pidl("TALLOC_FREE(push);");
+	$self->pidl("PyErr_SetNdrError(err);");
+	$self->pidl("return NULL;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("blob = ndr_push_blob(push);");
+	$self->pidl("ret = PyString_FromStringAndSize((char *)blob.data, blob.length);");
+	$self->pidl("TALLOC_FREE(push);");
+	$self->pidl("return ret;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+
+	$self->pidl("static PyObject *py_$name\_ndr_pack_in(PyObject *py_obj, PyObject *args, PyObject *kwargs)");
+	$self->pidl("{");
+	$self->indent;
+	$self->pidl("const char * const kwnames[] = { \"bigendian\", \"ndr64\", NULL };");
+	$self->pidl("PyObject *bigendian_obj = NULL;");
+	$self->pidl("PyObject *ndr64_obj = NULL;");
+	$self->pidl("uint32_t ndr_push_flags = 0;");
+	$self->pidl("");
+	$self->pidl("if (!PyArg_ParseTupleAndKeywords(args, kwargs, \"|OO:__ndr_pack_in__\",");
+	$self->indent;
+	$self->pidl("discard_const_p(char *, kwnames),");
+	$self->pidl("&bigendian_obj,");
+	$self->pidl("&ndr64_obj)) {");
+	$self->deindent;
+	$self->indent;
+	$self->pidl("return NULL;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+	$self->pidl("if (bigendian_obj && PyObject_IsTrue(bigendian_obj)) {");
+	$self->indent;
+	$self->pidl("ndr_push_flags |= LIBNDR_FLAG_BIGENDIAN;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("if (ndr64_obj && PyObject_IsTrue(ndr64_obj)) {");
+	$self->indent;
+	$self->pidl("ndr_push_flags |= LIBNDR_FLAG_NDR64;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+	$self->pidl("return py_$name\_ndr_pack(py_obj, NDR_IN, ndr_push_flags);");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+
+	$self->pidl("static PyObject *py_$name\_ndr_pack_out(PyObject *py_obj, PyObject *args, PyObject *kwargs)");
+	$self->pidl("{");
+	$self->indent;
+	$self->pidl("const char * const kwnames[] = { \"bigendian\", \"ndr64\", NULL };");
+	$self->pidl("PyObject *bigendian_obj = NULL;");
+	$self->pidl("PyObject *ndr64_obj = NULL;");
+	$self->pidl("uint32_t ndr_push_flags = 0;");
+	$self->pidl("");
+	$self->pidl("if (!PyArg_ParseTupleAndKeywords(args, kwargs, \"|OO:__ndr_pack_out__\",");
+	$self->indent;
+	$self->pidl("discard_const_p(char *, kwnames),");
+	$self->pidl("&bigendian_obj,");
+	$self->pidl("&ndr64_obj)) {");
+	$self->deindent;
+	$self->indent;
+	$self->pidl("return NULL;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+	$self->pidl("if (bigendian_obj && PyObject_IsTrue(bigendian_obj)) {");
+	$self->indent;
+	$self->pidl("ndr_push_flags |= LIBNDR_FLAG_BIGENDIAN;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("if (ndr64_obj && PyObject_IsTrue(ndr64_obj)) {");
+	$self->indent;
+	$self->pidl("ndr_push_flags |= LIBNDR_FLAG_NDR64;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+	$self->pidl("return py_$name\_ndr_pack(py_obj, NDR_OUT, ndr_push_flags);");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+
+	$self->pidl("static PyObject *py_$name\_ndr_unpack(PyObject *py_obj, const DATA_BLOB *blob, int ndr_inout_flags, uint32_t ndr_pull_flags, bool allow_remaining)");
+	$self->pidl("{");
+	$self->indent;
+	$self->pidl("$ndr_call");
+	$self->pidl("$object_ptr");
+	$self->pidl("struct ndr_pull *pull = NULL;");
+	$self->pidl("enum ndr_err_code err;");
+	$self->pidl("");
+	$self->pidl("if (ndr_table_$iface\.num_calls < $fn->{OPNUM}) {");
+	$self->indent;
+	$self->pidl("PyErr_SetString(PyExc_TypeError, \"Internal Error, ndr_interface_call missing for py_$name\_ndr_unpack\");");
+	$self->pidl("return NULL;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("call = &ndr_table_$iface\.calls[$fn->{OPNUM}];");
+	$self->pidl("");
+	$self->pidl("pull = ndr_pull_init_blob(blob, object);");
+	$self->pidl("if (pull == NULL) {");
+	$self->indent;
+	$self->pidl("PyErr_SetNdrError(NDR_ERR_ALLOC);");
+	$self->pidl("return NULL;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+	$self->pidl("pull->flags |= ndr_pull_flags;");
+	$self->pidl("");
+	$self->pidl("err = call->ndr_pull(pull, ndr_inout_flags, object);");
+	$self->pidl("if (!NDR_ERR_CODE_IS_SUCCESS(err)) {");
+	$self->indent;
+	$self->pidl("TALLOC_FREE(pull);");
+	$self->pidl("PyErr_SetNdrError(err);");
+	$self->pidl("return NULL;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("if (!allow_remaining) {");
+	$self->indent;
+	$self->pidl("uint32_t highest_ofs;");
+	$self->pidl("");
+	$self->pidl("if (pull->offset > pull->relative_highest_offset) {");
+	$self->indent;
+	$self->pidl("highest_ofs = pull->offset;");
+	$self->deindent;
+	$self->pidl("} else {");
+	$self->indent;
+	$self->pidl("highest_ofs = pull->relative_highest_offset;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("if (highest_ofs < pull->data_size) {");
+	$self->indent;
+	$self->pidl("err = ndr_pull_error(pull, NDR_ERR_UNREAD_BYTES,");
+	$self->indent;
+	$self->pidl("\"not all bytes consumed ofs[%u] size[%u]\",");
+	$self->pidl("highest_ofs, pull->data_size);");
+	$self->deindent;
+	$self->pidl("TALLOC_FREE(pull);");
+	$self->pidl("PyErr_SetNdrError(err);");
+	$self->pidl("return NULL;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+	$self->pidl("TALLOC_FREE(pull);");
+	$self->pidl("Py_RETURN_NONE;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+
+	$self->pidl("static PyObject *py_$name\_ndr_unpack_in(PyObject *py_obj, PyObject *args, PyObject *kwargs)");
+	$self->pidl("{");
+	$self->indent;
+	$self->pidl("DATA_BLOB blob;");
+	$self->pidl("Py_ssize_t blob_length = 0;");
+	$self->pidl("const char * const kwnames[] = { \"data_blob\", \"bigendian\", \"ndr64\", \"allow_remaining\", NULL };");
+	$self->pidl("PyObject *bigendian_obj = NULL;");
+	$self->pidl("PyObject *ndr64_obj = NULL;");
+	$self->pidl("uint32_t ndr_pull_flags = LIBNDR_FLAG_REF_ALLOC;");
+	$self->pidl("PyObject *allow_remaining_obj = NULL;");
+	$self->pidl("bool allow_remaining = false;");
+	$self->pidl("");
+	$self->pidl("if (!PyArg_ParseTupleAndKeywords(args, kwargs, \"s#|OOO:__ndr_unpack_in__\",");
+	$self->indent;
+	$self->pidl("discard_const_p(char *, kwnames),");
+	$self->pidl("&blob.data, &blob_length,");
+	$self->pidl("&bigendian_obj,");
+	$self->pidl("&ndr64_obj,");
+	$self->pidl("&allow_remaining_obj)) {");
+	$self->deindent;
+	$self->indent;
+	$self->pidl("return NULL;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("blob.length = blob_length;");
+	$self->pidl("");
+	$self->pidl("if (bigendian_obj && PyObject_IsTrue(bigendian_obj)) {");
+	$self->indent;
+	$self->pidl("ndr_pull_flags |= LIBNDR_FLAG_BIGENDIAN;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("if (ndr64_obj && PyObject_IsTrue(ndr64_obj)) {");
+	$self->indent;
+	$self->pidl("ndr_pull_flags |= LIBNDR_FLAG_NDR64;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+	$self->pidl("if (allow_remaining_obj && PyObject_IsTrue(allow_remaining_obj)) {");
+	$self->indent;
+	$self->pidl("allow_remaining = true;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+	$self->pidl("return py_$name\_ndr_unpack(py_obj, &blob, NDR_IN, ndr_pull_flags, allow_remaining);");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+
+	$self->pidl("static PyObject *py_$name\_ndr_unpack_out(PyObject *py_obj, PyObject *args, PyObject *kwargs)");
+	$self->pidl("{");
+	$self->indent;
+	$self->pidl("DATA_BLOB blob;");
+	$self->pidl("Py_ssize_t blob_length = 0;");
+	$self->pidl("const char * const kwnames[] = { \"data_blob\", \"bigendian\", \"ndr64\", \"allow_remaining\", NULL };");
+	$self->pidl("PyObject *bigendian_obj = NULL;");
+	$self->pidl("PyObject *ndr64_obj = NULL;");
+	$self->pidl("uint32_t ndr_pull_flags = LIBNDR_FLAG_REF_ALLOC;");
+	$self->pidl("PyObject *allow_remaining_obj = NULL;");
+	$self->pidl("bool allow_remaining = false;");
+	$self->pidl("");
+	$self->pidl("if (!PyArg_ParseTupleAndKeywords(args, kwargs, \"s#|OOO:__ndr_unpack_out__\",");
+	$self->indent;
+	$self->pidl("discard_const_p(char *, kwnames),");
+	$self->pidl("&blob.data, &blob_length,");
+	$self->pidl("&bigendian_obj,");
+	$self->pidl("&ndr64_obj,");
+	$self->pidl("&allow_remaining_obj)) {");
+	$self->deindent;
+	$self->indent;
+	$self->pidl("return NULL;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("blob.length = blob_length;");
+	$self->pidl("");
+	$self->pidl("if (bigendian_obj && PyObject_IsTrue(bigendian_obj)) {");
+	$self->indent;
+	$self->pidl("ndr_pull_flags |= LIBNDR_FLAG_BIGENDIAN;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("if (ndr64_obj && PyObject_IsTrue(ndr64_obj)) {");
+	$self->indent;
+	$self->pidl("ndr_pull_flags |= LIBNDR_FLAG_NDR64;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+	$self->pidl("if (allow_remaining_obj && PyObject_IsTrue(allow_remaining_obj)) {");
+	$self->indent;
+	$self->pidl("allow_remaining = true;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+	$self->pidl("return py_$name\_ndr_unpack(py_obj, &blob, NDR_OUT, ndr_pull_flags, allow_remaining);");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+
+	$self->pidl("static PyObject *py_$name\_ndr_print(PyObject *py_obj, const char *name, int ndr_inout_flags)");
+	$self->pidl("{");
+	$self->indent;
+	$self->pidl("$ndr_call");
+	$self->pidl("$object_ptr");
+	$self->pidl("PyObject *ret;");
+	$self->pidl("char *retstr;");
+	$self->pidl("");
+	$self->pidl("if (ndr_table_$iface\.num_calls < $fn->{OPNUM}) {");
+	$self->indent;
+	$self->pidl("PyErr_SetString(PyExc_TypeError, \"Internal Error, ndr_interface_call missing for py_$name\_ndr_print\");");
+	$self->pidl("return NULL;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("call = &ndr_table_$iface\.calls[$fn->{OPNUM}];");
+	$self->pidl("");
+	$self->pidl("retstr = ndr_print_function_string(pytalloc_get_mem_ctx(py_obj), call->ndr_print, name, ndr_inout_flags, object);");
+	$self->pidl("ret = PyString_FromString(retstr);");
+	$self->pidl("TALLOC_FREE(retstr);");
+	$self->pidl("");
+	$self->pidl("return ret;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+
+	$self->pidl("static PyObject *py_$name\_ndr_print_in(PyObject *py_obj)");
+	$self->pidl("{");
+	$self->indent;
+	$self->pidl("return py_$name\_ndr_print(py_obj, \"$name\_in\", NDR_IN);");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+
+	$self->pidl("static PyObject *py_$name\_ndr_print_out(PyObject *py_obj)");
+	$self->pidl("{");
+	$self->indent;
+	$self->pidl("return py_$name\_ndr_print(py_obj, \"$name\_out\", NDR_OUT);");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+
+	$py_methods = "py_$name\_methods";
+	$self->pidl("static PyMethodDef $py_methods\[] = {");
+	$self->indent;
+	$self->pidl("{ \"opnum\", (PyCFunction)py_$name\_ndr_opnum, METH_NOARGS|METH_CLASS,");
+	$self->indent;
+	$self->pidl("\"$modulename.$prettyname.opnum() -> ".sprintf("%d (0x%02x)", $fn->{OPNUM}, $fn->{OPNUM})." \" },");
+	$self->deindent;
+	$self->pidl("{ \"__ndr_pack_in__\", (PyCFunction)py_$name\_ndr_pack_in, METH_VARARGS|METH_KEYWORDS,");
+	$self->indent;
+	$self->pidl("\"S.ndr_pack_in(object, bigendian=False, ndr64=False) -> blob\\nNDR pack input\" },");
+	$self->deindent;
+	$self->pidl("{ \"__ndr_pack_out__\", (PyCFunction)py_$name\_ndr_pack_out, METH_VARARGS|METH_KEYWORDS,");
+	$self->indent;
+	$self->pidl("\"S.ndr_pack_out(object, bigendian=False, ndr64=False) -> blob\\nNDR pack output\" },");
+	$self->deindent;
+	$self->pidl("{ \"__ndr_unpack_in__\", (PyCFunction)py_$name\_ndr_unpack_in, METH_VARARGS|METH_KEYWORDS,");
+	$self->indent;
+	$self->pidl("\"S.ndr_unpack_in(class, blob, bigendian=False, ndr64=False, allow_remaining=False) -> None\\nNDR unpack input\" },");
+	$self->deindent;
+	$self->pidl("{ \"__ndr_unpack_out__\", (PyCFunction)py_$name\_ndr_unpack_out, METH_VARARGS|METH_KEYWORDS,");
+	$self->indent;
+	$self->pidl("\"S.ndr_unpack_out(class, blob, bigendian=False, ndr64=False, allow_remaining=False) -> None\\nNDR unpack output\" },");
+	$self->deindent;
+	$self->pidl("{ \"__ndr_print_in__\", (PyCFunction)py_$name\_ndr_print_in, METH_NOARGS, \"S.ndr_print_in(object) -> None\\nNDR print input\" },");
+	$self->pidl("{ \"__ndr_print_out__\", (PyCFunction)py_$name\_ndr_print_out, METH_NOARGS, \"S.ndr_print_out(object) -> None\\nNDR print output\" },");
+	$self->pidl("{ NULL, NULL, 0, NULL }");
+	$self->deindent;
+	$self->pidl("};");
+	$self->pidl("");
+
+	$self->pidl_hdr("static PyTypeObject $name\_Type;\n");
+	$self->pidl("");
+	my $docstring = $self->DocString($fn, $name);
 	my $typeobject = "$name\_Type";
 	$self->pidl("static PyTypeObject $typeobject = {");
 	$self->indent;
@@ -961,6 +1434,9 @@ sub Interface($$$)
 
 			$prettyname =~ s/^$interface->{NAME}_//;
 			$prettyname =~ s/^$basename\_//;
+
+			my $typeobject = $self->PythonFunctionStruct($basename, $d, $interface->{NAME}, $prettyname);
+			$self->register_module_typeobject($prettyname, $typeobject, $d->{ORIGINAL});
 
 			my ($infn, $outfn, $fndocstring) = $self->PythonFunction($d, $interface->{NAME}, $prettyname);
 
