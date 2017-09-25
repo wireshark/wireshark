@@ -1933,12 +1933,12 @@ sub ConvertObjectFromPythonData($$$$$$;$$)
 	}
 
 	if ($actual_ctype->{TYPE} eq "SCALAR" and $actual_ctype->{NAME} eq "string_array") {
-		$self->pidl("$target = PyCObject_AsVoidPtr($cvar);");
+		$self->pidl("$target = pytalloc_get_ptr($cvar);");
 		return;
 	}
 
 	if ($actual_ctype->{TYPE} eq "SCALAR" and $actual_ctype->{NAME} eq "pointer") {
-		$self->assign($target, "PyCObject_AsVoidPtr($cvar)");
+		$self->assign($target, "pytalloc_get_ptr($cvar)");
 		return;
 	}
 
@@ -2070,9 +2070,9 @@ sub ConvertObjectFromPython($$$$$$$)
 	$self->ConvertObjectFromPythonLevel($env, $mem_ctx, $cvar, $ctype, $ctype->{LEVELS}[0], $target, $fail);
 }
 
-sub ConvertScalarToPython($$$)
+sub ConvertScalarToPython($$$$)
 {
-	my ($self, $ctypename, $cvar) = @_;
+	my ($self, $ctypename, $cvar, $mem_ctx) = @_;
 
 	die("expected string for $cvar, not $ctypename") if (ref($ctypename) eq "HASH");
 
@@ -2127,13 +2127,15 @@ sub ConvertScalarToPython($$$)
 	}
 
 	# Not yet supported
-	if ($ctypename eq "string_array") { return "pytalloc_CObject_FromTallocPtr($cvar)"; }
+	if ($ctypename eq "string_array") {
+		return "pytalloc_GenericObject_reference_ex($mem_ctx, $cvar)";
+	}
 	if ($ctypename eq "ipv4address") { return "PyString_FromStringOrNULL($cvar)"; }
 	if ($ctypename eq "ipv6address") { return "PyString_FromStringOrNULL($cvar)"; }
 	if ($ctypename eq "dnsp_name") { return "PyString_FromStringOrNULL($cvar)"; }
 	if ($ctypename eq "dnsp_string") { return "PyString_FromStringOrNULL($cvar)"; }
 	if ($ctypename eq "pointer") {
-		return "pytalloc_CObject_FromTallocPtr($cvar)";
+		return "pytalloc_GenericObject_reference_ex($mem_ctx, $cvar)";
 	}
 
 	die("Unknown scalar type $ctypename");
@@ -2153,11 +2155,11 @@ sub ConvertObjectToPythonData($$$$$;$$)
 	}
 
 	if ($actual_ctype->{TYPE} eq "ENUM") {
-		return $self->ConvertScalarToPython(Parse::Pidl::Typelist::enum_type_fn($actual_ctype), $cvar);
+		return $self->ConvertScalarToPython(Parse::Pidl::Typelist::enum_type_fn($actual_ctype), $cvar, $mem_ctx);
 	} elsif ($actual_ctype->{TYPE} eq "BITMAP") {
-		return $self->ConvertScalarToPython(Parse::Pidl::Typelist::bitmap_type_fn($actual_ctype), $cvar);
+		return $self->ConvertScalarToPython(Parse::Pidl::Typelist::bitmap_type_fn($actual_ctype), $cvar, $mem_ctx);
 	} elsif ($actual_ctype->{TYPE} eq "SCALAR") {
-		return $self->ConvertScalarToPython($actual_ctype->{NAME}, $cvar);
+		return $self->ConvertScalarToPython($actual_ctype->{NAME}, $cvar, $mem_ctx);
 	} elsif ($actual_ctype->{TYPE} eq "UNION") {
 		my $ctype_name = $self->use_type_variable($ctype);
 		unless (defined($ctype_name)) {
