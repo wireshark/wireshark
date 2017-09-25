@@ -193,14 +193,19 @@ static NTSTATUS $name\__op_ndr_push(struct dcesrv_call_state *dce_call, TALLOC_C
 }
 
 static const struct dcesrv_interface dcesrv\_$name\_interface = {
-	.name		= \"$name\",
-	.syntax_id  = {".print_uuid($uuid).",$if_version},
-	.bind		= $name\__op_bind,
-	.unbind		= $name\__op_unbind,
-	.ndr_pull	= $name\__op_ndr_pull,
-	.dispatch	= $name\__op_dispatch,
-	.reply		= $name\__op_reply,
-	.ndr_push	= $name\__op_ndr_push
+	.name		    = \"$name\",
+	.syntax_id          = {".print_uuid($uuid).",$if_version},
+	.bind		    = $name\__op_bind,
+	.unbind		    = $name\__op_unbind,
+	.ndr_pull	    = $name\__op_ndr_pull,
+	.dispatch	    = $name\__op_dispatch,
+	.reply		    = $name\__op_reply,
+	.ndr_push	    = $name\__op_ndr_push,
+#ifdef DCESRV_INTERFACE_$uname\_FLAGS
+	.flags              = DCESRV_INTERFACE_$uname\_FLAGS
+#else
+	.flags              = 0
+#endif
 };
 
 ";
