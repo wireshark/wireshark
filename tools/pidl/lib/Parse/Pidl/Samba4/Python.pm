@@ -242,7 +242,7 @@ sub PythonStruct($$$$$$)
 			$self->pidl(".name = discard_const_p(char, \"$e->{NAME}\"),");
 			$self->pidl(".get = py_$name\_get_$e->{NAME},");
 			$self->pidl(".set = py_$name\_set_$e->{NAME},");
-			$self->pidl(".doc = discard_const_p(char, \"PIDL-generated element $e->{NAME}\")");
+			$self->pidl(".doc = discard_const_p(char, \"PIDL-generated element of base type $e->{TYPE}\")");
 			$self->deindent;
 			$self->pidl("},");
 		}
