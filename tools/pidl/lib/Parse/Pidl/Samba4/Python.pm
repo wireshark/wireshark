@@ -24,7 +24,9 @@ sub new($) {
 	my ($class) = @_;
 	my $self = { res => "", res_hdr => "", tabs => "",
 				 constants => [], constants_uniq => {},
-	             module_methods => [], module_objects => [], ready_types => [],
+				 module_methods => [],
+				 module_objects => [], module_objects_uniq => {},
+				 ready_types => [],
 				 module_imports => [], module_imports_uniq => {},
 				 type_imports => [], type_imports_uniq => {},
 				 patch_type_calls => [], prereadycode => [],
@@ -657,7 +659,7 @@ sub PythonType($$$$)
 			$typeobject = $self->PythonStruct($modulename, $fn_name, $d->{NAME}, mapTypeName($d), $d->{DATA});
 		}
 
-		$self->register_module_typeobject($fn_name, $typeobject);
+		$self->register_module_typeobject($fn_name, $typeobject, $d->{ORIGINAL});
 	}
 
 	if ($d->{TYPE} eq "ENUM" or $d->{TYPE} eq "BITMAP") {
@@ -797,7 +799,7 @@ sub Interface($$$)
 
 		$self->pidl("");
 
-		$self->register_module_typeobject($interface->{NAME}, "&$if_typename");
+		$self->register_module_typeobject($interface->{NAME}, "&$if_typename", $interface->{ORIGINAL});
 		my $dcerpc_typename = $self->import_type_variable("samba.dcerpc.base", "ClientConnection");
 		$self->register_module_prereadycode(["$if_typename.tp_base = $dcerpc_typename;", ""]);
 		$self->register_module_postreadycode(["if (!PyInterface_AddNdrRpcMethods(&$if_typename, py_ndr_$interface->{NAME}\_methods))", "\treturn;", ""]);
@@ -812,7 +814,7 @@ sub Interface($$$)
 
 		$self->pidl("");
 
-		my $signature = "\"abstract_syntax()\\n\"";
+		my $signature = "\"$interface->{NAME}_abstract_syntax()\\n\"";
 
 		my $docstring = $self->DocString($interface, $interface->{NAME}."_syntax");
 
@@ -827,7 +829,7 @@ sub Interface($$$)
 		$self->pidl("static PyTypeObject $syntax_typename = {");
 		$self->indent;
 		$self->pidl("PyObject_HEAD_INIT(NULL) 0,");
-		$self->pidl(".tp_name = \"$basename.$interface->{NAME}\",");
+		$self->pidl(".tp_name = \"$basename.$interface->{NAME}_abstract_syntax\",");
 		$self->pidl(".tp_doc = $docstring,");
 		$self->pidl(".tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,");
 		$self->pidl(".tp_new = syntax_$interface->{NAME}_new,");
@@ -836,7 +838,12 @@ sub Interface($$$)
 
 		$self->pidl("");
 
-		$self->register_module_typeobject("abstract_syntax", "&$syntax_typename");
+		$self->register_module_typeobject("$interface->{NAME}_abstract_syntax", "&$syntax_typename", $interface->{ORIGINAL});
+		if (not defined($self->existing_module_object("abstract_syntax"))) {
+			# Only the first syntax gets registered with the legacy
+			# "abstract_syntax" name
+			$self->register_module_typeobject("abstract_syntax", "&$syntax_typename", $interface->{ORIGINAL});
+		}
 		my $ndr_typename = $self->import_type_variable("samba.dcerpc.misc", "ndr_syntax_id");
 		$self->register_module_prereadycode(["$syntax_typename.tp_base = $ndr_typename;",
 						     "$syntax_typename.tp_basicsize = pytalloc_BaseObject_size();",
@@ -853,11 +860,11 @@ sub register_module_method($$$$$)
 	push (@{$self->{module_methods}}, [$fn_name, $pyfn_name, $flags, $doc])
 }
 
-sub register_module_typeobject($$$)
+sub register_module_typeobject($$$$)
 {
-	my ($self, $name, $py_name) = @_;
+	my ($self, $name, $py_name, $location) = @_;
 
-	$self->register_module_object($name, "(PyObject *)(void *)$py_name");
+	$self->register_module_object($name, "(PyObject *)(void *)$py_name", $location);
 
 	$self->check_ready_type($py_name);
 
@@ -946,11 +953,26 @@ sub register_module_postreadycode($$)
 	push (@{$self->{postreadycode}}, @$code);
 }
 
-sub register_module_object($$$)
+sub existing_module_object($$)
 {
-	my ($self, $name, $py_name) = @_;
+	my ($self, $name) = @_;
 
-	push (@{$self->{module_objects}}, [$name, $py_name])
+	if (defined($self->{module_object_uniq}->{$name})) {
+		return $self->{module_object_uniq}->{$name};
+	}
+
+	return undef;
+}
+
+sub register_module_object($$$$)
+{
+	my ($self, $name, $py_name, $location) = @_;
+
+	my $existing = $self->existing_module_object($name);
+	fatal($location, "module_object($name, $py_name) registered twice! $existing.") if defined($existing);
+
+	push (@{$self->{module_objects}}, [$name, $py_name]);
+	$self->{module_object_uniq}->{$name} = $py_name;
 }
 
 sub assign($$$)
