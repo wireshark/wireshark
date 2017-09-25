@@ -107,7 +107,7 @@ list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
 list(APPEND WSUG_TOOLS_PHONY_DEPS ${th_phony})
 add_custom_command(
 	OUTPUT ${th_phony}
-	COMMAND ${CMAKE_BINARY_DIR}/run/editcap -F > ${th_file} 2>&1 || true
+	COMMAND ${CMAKE_BINARY_DIR}/run/editcap -F > ${th_file}
 )
 set(th_file ${CMAKE_CURRENT_SOURCE_DIR}/wsug_src/editcap-T.txt)
 set(th_phony editcap_T_tools_help)
@@ -115,7 +115,7 @@ list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
 list(APPEND WSUG_TOOLS_PHONY_DEPS ${th_phony})
 add_custom_command(
 	OUTPUT ${th_phony}
-	COMMAND ${CMAKE_BINARY_DIR}/run/editcap -T > ${th_file} 2>&1 || true
+	COMMAND ${CMAKE_BINARY_DIR}/run/editcap -T > ${th_file}
 )
 
 add_custom_target(update_tools_help

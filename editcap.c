@@ -852,21 +852,21 @@ string_nat_compare(gconstpointer a, gconstpointer b)
 }
 
 static void
-string_elem_print(gpointer data, gpointer not_used _U_)
+string_elem_print(gpointer data, gpointer stream_ptr)
 {
-    fprintf(stderr, "    %s - %s\n",
+    fprintf((FILE *) stream_ptr, "    %s - %s\n",
         ((struct string_elem *)data)->sstr,
         ((struct string_elem *)data)->lstr);
 }
 
 static void
-list_capture_types(void) {
+list_capture_types(FILE *stream) {
     int i;
     struct string_elem *captypes;
     GSList *list = NULL;
 
     captypes = g_new(struct string_elem,WTAP_NUM_FILE_TYPES_SUBTYPES);
-    fprintf(stderr, "editcap: The available capture file types for the \"-F\" flag are:\n");
+    fprintf(stream, "editcap: The available capture file types for the \"-F\" flag are:\n");
     for (i = 0; i < WTAP_NUM_FILE_TYPES_SUBTYPES; i++) {
         if (wtap_dump_can_open(i)) {
             captypes[i].sstr = wtap_file_type_subtype_short_string(i);
@@ -874,19 +874,19 @@ list_capture_types(void) {
             list = g_slist_insert_sorted(list, &captypes[i], string_compare);
         }
     }
-    g_slist_foreach(list, string_elem_print, NULL);
+    g_slist_foreach(list, string_elem_print, stream);
     g_slist_free(list);
     g_free(captypes);
 }
 
 static void
-list_encap_types(void) {
+list_encap_types(FILE *stream) {
     int i;
     struct string_elem *encaps;
     GSList *list = NULL;
 
     encaps = (struct string_elem *)g_malloc(sizeof(struct string_elem) * WTAP_NUM_ENCAP_TYPES);
-    fprintf(stderr, "editcap: The available encapsulation types for the \"-T\" flag are:\n");
+    fprintf(stream, "editcap: The available encapsulation types for the \"-T\" flag are:\n");
     for (i = 0; i < WTAP_NUM_ENCAP_TYPES; i++) {
         encaps[i].sstr = wtap_encap_short_string(i);
         if (encaps[i].sstr != NULL) {
@@ -894,7 +894,7 @@ list_encap_types(void) {
             list = g_slist_insert_sorted(list, &encaps[i], string_nat_compare);
         }
     }
-    g_slist_foreach(list, string_elem_print, NULL);
+    g_slist_foreach(list, string_elem_print, stream);
     g_slist_free(list);
     g_free(encaps);
 }
@@ -1204,7 +1204,7 @@ main(int argc, char *argv[])
             if (out_file_type_subtype < 0) {
                 fprintf(stderr, "editcap: \"%s\" isn't a valid capture file type\n\n",
                         optarg);
-                list_capture_types();
+                list_capture_types(stderr);
                 ret = INVALID_OPTION;
                 goto clean_exit;
             }
@@ -1263,7 +1263,7 @@ main(int argc, char *argv[])
             if (out_frame_type < 0) {
                 fprintf(stderr, "editcap: \"%s\" isn't a valid encapsulation type\n\n",
                         optarg);
-                list_encap_types();
+                list_encap_types(stderr);
                 ret = INVALID_OPTION;
                 goto clean_exit;
             }
@@ -1295,16 +1295,16 @@ main(int argc, char *argv[])
         case '?':              /* Bad options if GNU getopt */
             switch(optopt) {
             case'F':
-                list_capture_types();
+                list_capture_types(stdout);
                 break;
             case'T':
-                list_encap_types();
+                list_encap_types(stdout);
                 break;
             default:
                 print_usage(stderr);
+                ret = INVALID_OPTION;
                 break;
             }
-            ret = INVALID_OPTION;
             goto clean_exit;
             break;
         }
