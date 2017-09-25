@@ -721,7 +721,7 @@ sub ParseElementPush($$$$$$)
 
 	my $var_name = $env->{$e->{NAME}};
 
-	if (has_property($e, "skip")) {
+	if (has_property($e, "skip") or has_property($e, "skip_noinit")) {
 		$self->pidl("/* [skip] '$var_name' */");
 		return;
 	}
@@ -1126,7 +1126,7 @@ sub ParseElementPullLevel
 	my $ndr_flags = CalcNdrFlags($l, $primitives, $deferred);
 	my $array_length = undef;
 
-	if (has_property($e, "skip")) {
+	if (has_property($e, "skip") or has_property($e, "skip_noinit")) {
 		$self->pidl("/* [skip] '$var_name' */");
 		return;
 	}
@@ -1655,7 +1655,7 @@ sub DeclarePtrVariables($$)
 {
 	my ($self,$e) = @_;
 
-	if (has_property($e, "skip")) {
+	if (has_property($e, "skip") or has_property($e, "skip_noinit")) {
 		return;
 	}
 
@@ -1676,7 +1676,7 @@ sub DeclareArrayVariables($$;$)
 {
 	my ($self,$e,$pull) = @_;
 
-	if (has_property($e, "skip")) {
+	if (has_property($e, "skip") or has_property($e, "skip_noinit")) {
 		return;
 	}
 
@@ -1698,7 +1698,7 @@ sub DeclareArrayVariablesNoZero($$$)
 {
 	my ($self,$e,$env) = @_;
 
-	if (has_property($e, "skip")) {
+	if (has_property($e, "skip") or has_property($e, "skip_noinit")) {
 		return;
 	}
 
@@ -1719,7 +1719,7 @@ sub DeclareMemCtxVariables($$)
 {
 	my ($self,$e) = @_;
 
-	if (has_property($e, "skip")) {
+	if (has_property($e, "skip") or has_property($e, "skip_noinit")) {
 		return;
 	}
 

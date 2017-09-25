@@ -1104,6 +1104,7 @@ my %property_list = (
 	"nopython"		=> ["FUNCTION", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP"],
 	"todo"			=> ["FUNCTION"],
 	"skip"			=> ["ELEMENT"],
+	"skip_noinit"		=> ["ELEMENT"],
 
 	# union
 	"switch_is"		=> ["ELEMENT"],
