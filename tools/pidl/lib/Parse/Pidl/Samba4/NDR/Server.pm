@@ -262,8 +262,11 @@ NTSTATUS dcerpc_server_$name\_init(void)
 	    .name = \"$name\",
 
 	    /* fill in all the operations */
+#ifdef DCESRV_INTERFACE_$uname\_INIT_SERVER
+	    .init_server = DCESRV_INTERFACE_$uname\_INIT_SERVER,
+#else
 	    .init_server = $name\__op_init_server,
-
+#endif
 	    .interface_by_uuid = $name\__op_interface_by_uuid,
 	    .interface_by_name = $name\__op_interface_by_name
 	};
