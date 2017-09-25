@@ -32,14 +32,14 @@ extern "C" {
 
 #include "ws_symbol_export.h"
 
-typedef gboolean (*plugin_callback)(GModule *handle);
+typedef gboolean (*plugin_check_type_callback)(GModule *handle);
 
 typedef enum {
     REPORT_LOAD_FAILURE,
     DONT_REPORT_LOAD_FAILURE
 } plugin_load_failure_mode;
 WS_DLL_PUBLIC void scan_plugins(plugin_load_failure_mode mode);
-WS_DLL_PUBLIC void add_plugin_type(const char *type, plugin_callback callback);
+WS_DLL_PUBLIC void add_plugin_type(const char *type, plugin_check_type_callback callback);
 typedef void (*plugin_description_callback)(const char *, const char *,
                                             const char *, const char *,
                                             void *);

@@ -62,14 +62,14 @@ static plugin *plugin_list = NULL;
  */
 typedef struct {
     const char *type;
-    plugin_callback callback;
+    plugin_check_type_callback callback;
     guint type_val;
 } plugin_type;
 
 static GSList *plugin_types = NULL;
 
 void
-add_plugin_type(const char *type, plugin_callback callback)
+add_plugin_type(const char *type, plugin_check_type_callback callback)
 {
     plugin_type *new_type;
     static guint type_val;
@@ -93,11 +93,8 @@ add_plugin_type(const char *type, plugin_callback callback)
 
 /*
  * add a new plugin to the list
- * returns :
- * - 0 : OK
- * - EEXIST : the same plugin (i.e. name/version) was already registered.
  */
-static int
+static void
 add_plugin(plugin *new_plug)
 {
     plugin *pt_plug;
@@ -111,13 +108,6 @@ add_plugin(plugin *new_plug)
     {
         while (1)
         {
-            /* check if the same name/version is already registered */
-            if (strcmp(pt_plug->name, new_plug->name) == 0 &&
-                strcmp(pt_plug->version, new_plug->version) == 0)
-            {
-                return EEXIST;
-            }
-
             /* we found the last plugin in the list */
             if (pt_plug->next == NULL)
                 break;
@@ -126,8 +116,17 @@ add_plugin(plugin *new_plug)
         }
         pt_plug->next = new_plug;
     }
+}
 
-    return 0;
+static gboolean
+check_if_plugin_exists(const char *name)
+{
+    for (plugin *p = plugin_list; p != NULL; p = p->next) {
+        if (strcmp(p->name, name) == 0) {
+            return TRUE;
+        }
+    }
+    return FALSE;
 }
 
 static void
@@ -154,7 +153,6 @@ plugins_scan_dir(const char *dirname, plugin_load_failure_mode mode)
     gpointer       gp;
     plugin        *new_plug;
     gchar         *dot;
-    int            cr;
 
     if (!g_file_test(dirname, G_FILE_TEST_EXISTS) || !g_file_test(dirname, G_FILE_TEST_IS_DIR)) {
         return;
@@ -184,6 +182,18 @@ plugins_scan_dir(const char *dirname, plugin_load_failure_mode mode)
 #endif
             g_snprintf(filename, FILENAME_LEN, "%s" G_DIR_SEPARATOR_S "%s",
                        dirname, name);
+
+            /*
+             * Check if the same name is already registered.
+             */
+            if (check_if_plugin_exists(name)) {
+                /* Yes, it is. */
+                if (mode == REPORT_LOAD_FAILURE) {
+                    report_warning("The plugin '%s' was found "
+                            "in multiple directories.\n", name);
+                }
+                continue;
+            }
 
             if ((handle = g_module_open(filename, G_MODULE_BIND_LOCAL)) == NULL)
             {
@@ -256,20 +266,9 @@ plugins_scan_dir(const char *dirname, plugin_load_failure_mode mode)
             }
 
             /*
-             * OK, attempt to add it to the list of plugins.
+             * OK, add it to the list of plugins.
              */
-            cr = add_plugin(new_plug);
-            if (cr != 0)
-            {
-                g_assert(cr == EEXIST);
-                fprintf(stderr, "The plugin '%s' version %s "
-                        "was found in multiple directories.\n",
-                        new_plug->name, new_plug->version);
-                g_module_close(handle);
-                g_free(new_plug->name);
-                g_free(new_plug);
-                continue;
-            }
+            add_plugin(new_plug);
         }
         ws_dir_close(dir);
     }
