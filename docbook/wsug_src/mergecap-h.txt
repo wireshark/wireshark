@@ -1,0 +1,19 @@
+Mergecap (Wireshark) 2.5.0 (v2.5.0rc0-1171-g33c00a67)
+Merge two or more capture files into one.
+See https://www.wireshark.org for more information.
+
+Usage: mergecap [options] -w <outfile>|- <infile> [<infile> ...]
+
+Output:
+  -a                concatenate rather than merge files.
+                    default is to merge based on frame timestamps.
+  -s <snaplen>      truncate packets to <snaplen> bytes of data.
+  -w <outfile>|-    set the output filename to <outfile> or '-' for stdout.
+  -F <capture type> set the output file type; default is pcapng.
+                    an empty "-F" option will list the file types.
+  -I <IDB merge mode> set the merge mode for Interface Description Blocks; default is 'all'.
+                    an empty "-I" option will list the merge modes.
+
+Miscellaneous:
+  -h                display this help and exit.
+  -v                verbose output.

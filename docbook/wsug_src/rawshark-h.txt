@@ -1,0 +1,31 @@
+Rawshark (Wireshark) 2.5.0 (v2.5.0rc0-1171-g33c00a67)
+Dump and analyze network traffic.
+See https://www.wireshark.org for more information.
+
+Usage: rawshark [options] ...
+
+Input file:
+  -r <infile>              set the pipe or file name to read from
+
+Processing:
+  -d <encap:linktype>|<proto:protoname>
+                           packet encapsulation or protocol
+  -F <field>               field to display
+  -m                       virtual memory limit, in bytes
+  -n                       disable all name resolution (def: all enabled)
+  -N <name resolve flags>  enable specific name resolution(s): "mnNtd"
+  -p                       use the system's packet header format
+                           (which may have 64-bit timestamps)
+  -R <read filter>         packet filter in Wireshark display filter syntax
+  -s                       skip PCAP header on input
+
+Output:
+  -l                       flush output after each packet
+  -S                       format string for fields
+                           (%D - name, %S - stringval, %N numval)
+  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)
+
+Miscellaneous:
+  -h                       display this help and exit
+  -o <name>:<value> ...    override preference setting
+  -v                       display version info and exit

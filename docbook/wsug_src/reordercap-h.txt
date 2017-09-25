@@ -1,0 +1,9 @@
+Reordercap (Wireshark) 2.5.0 (v2.5.0rc0-1171-g33c00a67)
+Reorder timestamps of input file frames into output file.
+See https://www.wireshark.org for more information.
+
+Usage: reordercap [options] <infile> <outfile>
+
+Options:
+  -n        don't write to output file if the input file is ordered.
+  -h        display this help and exit.

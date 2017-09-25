@@ -205,7 +205,7 @@ print_usage(FILE *output)
     fprintf(output, "                           packet encapsulation or protocol\n");
     fprintf(output, "  -F <field>               field to display\n");
 #ifndef _WIN32
-    fprintf(output, "  -m                       virtual memory limit, in bytes \n");
+    fprintf(output, "  -m                       virtual memory limit, in bytes\n");
 #endif
     fprintf(output, "  -n                       disable all name resolution (def: all enabled)\n");
     fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mnNtd\"\n");

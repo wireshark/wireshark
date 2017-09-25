@@ -1241,7 +1241,7 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	  libpcap_dump_can_write_encap, libpcap_dump_open, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_PCAP_NOKIA */
-	{ "Nokia tcpdump - pcap ", "nokiapcap", "pcap", "cap;dmp",
+	{ "Nokia tcpdump - pcap", "nokiapcap", "pcap", "cap;dmp",
 	  FALSE, FALSE, 0,
 	  libpcap_dump_can_write_encap, libpcap_dump_open, NULL },
 

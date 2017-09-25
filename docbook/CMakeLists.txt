@@ -67,6 +67,61 @@ set(COMMON_GRAPHICS
 	common_graphics/warning.svg
 )
 
+set(WSUG_TOOLS_HELP_COMMANDS
+	capinfos
+	dumpcap
+	editcap
+	mergecap
+	rawshark
+	reordercap
+	text2pcap
+	tshark
+)
+
+# We want the wsug_* targets to depend on the tools help files.
+# We want update_tools_help to be an independent target.
+# We don't necessarily want to depend on building our executables before
+# being able to build our documentation.
+set(WSUG_TOOLS_HELP_FILES)
+set(WSUG_TOOLS_PHONY_DEPS)
+
+# General help output
+foreach(th_command ${WSUG_TOOLS_HELP_COMMANDS})
+	set(th_file ${CMAKE_CURRENT_SOURCE_DIR}/wsug_src/${th_command}-h.txt)
+	set(th_phony ${th_command}_h_tools_help)
+	list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
+	list(APPEND WSUG_TOOLS_PHONY_DEPS ${th_phony})
+	add_custom_command(
+		OUTPUT ${th_phony}
+		COMMAND ${CMAKE_BINARY_DIR}/run/${th_command} -h > ${th_file}
+		DEPENDS ${CMAKE_BINARY_DIR}/run/${th_command}
+	)
+endforeach()
+
+# Extra command output
+# Note that these won't work on Windows unless we make -F and -T write
+# to stdout and return 0 or wrap the commands similar to hhc.exe.
+set(th_file ${CMAKE_CURRENT_SOURCE_DIR}/wsug_src/editcap-F.txt)
+set(th_phony editcap_F_tools_help)
+list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
+list(APPEND WSUG_TOOLS_PHONY_DEPS ${th_phony})
+add_custom_command(
+	OUTPUT ${th_phony}
+	COMMAND ${CMAKE_BINARY_DIR}/run/editcap -F > ${th_file} 2>&1 || true
+)
+set(th_file ${CMAKE_CURRENT_SOURCE_DIR}/wsug_src/editcap-T.txt)
+set(th_phony editcap_T_tools_help)
+list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
+list(APPEND WSUG_TOOLS_PHONY_DEPS ${th_phony})
+add_custom_command(
+	OUTPUT ${th_phony}
+	COMMAND ${CMAKE_BINARY_DIR}/run/editcap -T > ${th_file} 2>&1 || true
+)
+
+add_custom_target(update_tools_help
+	DEPENDS ${WSUG_TOOLS_PHONY_DEPS}
+)
+
 set(WSUG_FILES
 	wsug_src/WSUG_app_files.asciidoc
 	wsug_src/WSUG_app_howitworks.asciidoc
@@ -265,7 +320,7 @@ if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
 	)
 endif()
 
-set( WSUG_BUILT_DEPS ws.css )
+set( WSUG_BUILT_DEPS ws.css ${WSUG_TOOLS_HELP_FILES})
 
 set(WSDG_SOURCE
 	${WSDG_FILES}

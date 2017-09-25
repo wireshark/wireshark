@@ -1,0 +1,79 @@
+Text2pcap (Wireshark) 2.5.0 (v2.5.0rc0-1171-g33c00a67)
+Generate a capture file from an ASCII hexdump of packets.
+See https://www.wireshark.org for more information.
+
+Usage: text2pcap [options] <infile> <outfile>
+
+where  <infile> specifies input  filename (use - for standard input)
+      <outfile> specifies output filename (use - for standard output)
+
+Input:
+  -o hex|oct|dec         parse offsets as (h)ex, (o)ctal or (d)ecimal;
+                         default is hex.
+  -t <timefmt>           treat the text before the packet as a date/time code;
+                         the specified argument is a format string of the sort
+                         supported by strptime.
+                         Example: The time "10:15:14.5476" has the format code
+                         "%H:%M:%S."
+                         NOTE: The subsecond component delimiter, '.', must be
+                         given, but no pattern is required; the remaining
+                         number is assumed to be fractions of a second.
+                         NOTE: Date/time fields from the current date/time are
+                         used as the default for unspecified fields.
+  -D                     the text before the packet starts with an I or an O,
+                         indicating that the packet is inbound or outbound.
+                         This is only stored if the output format is PCAP-NG.
+  -a                     enable ASCII text dump identification.
+                         The start of the ASCII text dump can be identified
+                         and excluded from the packet data, even if it looks
+                         like a HEX dump.
+                         NOTE: Do not enable it if the input file does not
+                         contain the ASCII text dump.
+
+Output:
+  -l <typenum>           link-layer type number; default is 1 (Ethernet).  See
+                         http://www.tcpdump.org/linktypes.html for a list of
+                         numbers.  Use this option if your dump is a complete
+                         hex dump of an encapsulated packet and you wish to
+                         specify the exact type of encapsulation.
+                         Example: -l 7 for ARCNet packets.
+  -m <max-packet>        max packet length in output; default is 262144
+
+Prepend dummy header:
+  -e <l3pid>             prepend dummy Ethernet II header with specified L3PID
+                         (in HEX).
+                         Example: -e 0x806 to specify an ARP packet.
+  -i <proto>             prepend dummy IP header with specified IP protocol
+                         (in DECIMAL).
+                         Automatically prepends Ethernet header as well.
+                         Example: -i 46
+  -4 <srcip>,<destip>    prepend dummy IPv4 header with specified
+                         dest and source address.
+                         Example: -4 10.0.0.1,10.0.0.2
+  -6 <srcip>,<destip>    replace IPv6 header with specified
+                         dest and source address.
+                         Example: -6 fe80:0:0:0:202:b3ff:fe1e:8329,2001:0db8:85a3:0000:0000:8a2e:0370:7334
+  -u <srcp>,<destp>      prepend dummy UDP header with specified
+                         source and destination ports (in DECIMAL).
+                         Automatically prepends Ethernet & IP headers as well.
+                         Example: -u 1000,69 to make the packets look like
+                         TFTP/UDP packets.
+  -T <srcp>,<destp>      prepend dummy TCP header with specified
+                         source and destination ports (in DECIMAL).
+                         Automatically prepends Ethernet & IP headers as well.
+                         Example: -T 50,60
+  -s <srcp>,<dstp>,<tag> prepend dummy SCTP header with specified
+                         source/dest ports and verification tag (in DECIMAL).
+                         Automatically prepends Ethernet & IP headers as well.
+                         Example: -s 30,40,34
+  -S <srcp>,<dstp>,<ppi> prepend dummy SCTP header with specified
+                         source/dest ports and verification tag 0.
+                         Automatically prepends a dummy SCTP DATA
+                         chunk header with payload protocol identifier ppi.
+                         Example: -S 30,40,34
+
+Miscellaneous:
+  -h                     display this help and exit.
+  -d                     show detailed debug of parser states.
+  -q                     generate no output at all (automatically disables -d).
+  -n                     use PCAP-NG instead of PCAP as output format.

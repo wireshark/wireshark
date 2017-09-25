@@ -36,6 +36,18 @@ WSUG_FILES =	\
 	wsug_src/WSUG_preface.asciidoc			\
 	ws.css
 
+WSUG_TOOLS_HELP_FILES =	\
+	wsug_src/capinfos-h.txt
+	wsug_src/dumpcap-h.txt
+	wsug_src/editcap-F.txt
+	wsug_src/editcap-T.txt
+	wsug_src/editcap-h.txt
+	wsug_src/mergecap-h.txt
+	wsug_src/rawshark-h.txt
+	wsug_src/reordercap-h.txt
+	wsug_src/text2pcap-h.txt
+	wsug_src/tshark-h.txt
+
 WSUG_GENERATED_SOURCE = \
 	user-guide.xml
 
@@ -229,6 +241,7 @@ WSUG_DIST =	\
 	custom_layer_chm.xsl	\
 	custom_layer_pdf.xsl	\
 	$(WSUG_FILES)		\
+	$(WSUG_TOOLS_HELP_FILES)	\
 	$(WSUG_GRAPHICS)	\
 	$(COMMON_FILES)		\
 	$(COMMON_GRAPHICS)
@@ -357,7 +370,7 @@ wsug: wsug_html_chunked wsug_html
 
 wsug-pdf: wsug user-guide-a4.pdf user-guide-us.pdf
 
-user-guide.xml: user-guide.asciidoc $(WSUG_FILES)
+user-guide.xml: user-guide.asciidoc $(WSUG_FILES) $(WSUG_TOOLS_HELP_FILES)
 	$(A2X) --verbose \
 		--attribute=docinfo \
 		--asciidoc-opts="--conf-file=$(srcdir)/asciidoc.conf --conf-file=$(srcdir)/asciidoctor-asciidoc.conf" \
