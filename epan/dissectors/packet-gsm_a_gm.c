@@ -63,7 +63,7 @@
  *   Mobile radio interface Layer 3 specification;
  *   Core network protocols;
  *   Stage 3
- *   (3GPP TS 24.008 version 14.4.0 Release 14)
+ *   (3GPP TS 24.008 version 14.5.0 Release 14)
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -352,12 +352,16 @@ static int hf_gsm_a_gm_pco_pid = -1;
 static int hf_gsm_a_gm_pco_app_spec_info = -1;
 static int hf_gsm_a_gm_type_of_identity = -1;
 int hf_gsm_a_gm_rac = -1;
+static int hf_gsm_a_gm_mta_e = -1;
+static int hf_gsm_a_gm_mta_r = -1;
 static int hf_gsm_a_gm_apc = -1;
 static int hf_gsm_a_gm_otd_a = -1;
 static int hf_gsm_a_gm_otd_b = -1;
 static int hf_gsm_a_gm_gps_a = -1;
 static int hf_gsm_a_gm_gps_b = -1;
 static int hf_gsm_a_gm_gps_c = -1;
+static int hf_gsm_a_gm_motd = -1;
+static int hf_gsm_a_gm_mta_a = -1;
 static int hf_gsm_a_gm_lcs_molr = -1;
 static int hf_gsm_a_gm_mbms = -1;
 static int hf_gsm_a_gm_ims_vops = -1;
@@ -482,7 +486,9 @@ static int hf_gsm_a_gm_rac_dlmc_max_nb_dl_ts = -1;
 static int hf_gsm_a_gm_rac_dlmc_max_nb_dl_carriers = -1;
 static int hf_gsm_a_gm_rac_ext_tsc_set_cap_support = -1;
 static int hf_gsm_a_gm_rac_ext_earfcn_value_range = -1;
-static int hf_gsm_a_gm_rac_ext_ec_pch_mon_support = -1;
+static int hf_gsm_a_gm_rac_ec_pch_mon_support = -1;
+static int hf_gsm_a_gm_rac_ms_sync_accuracy = -1;
+static int hf_gsm_a_gm_rac_ext_ec_ul_cov_enh_support = -1;
 static int hf_gsm_a_sm_ti_flag = -1;
 static int hf_gsm_a_sm_ext = -1;
 
@@ -3254,7 +3260,45 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		 */
 		bits_needed = 2;
 		GET_DATA;
-		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_ext_ec_pch_mon_support, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_ec_pch_mon_support, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+		bit_offset += bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+
+		/*
+		 * Release 14
+		 */
+
+		/*
+		 * MS Sync Accuracy
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		if ((oct>>(32-bits_needed)) == 0)
+		{
+			bit_offset += bits_needed;
+			curr_bits_length -= bits_needed;
+			oct <<= bits_needed;
+			bits_in_oct -= bits_needed;
+		}
+		else
+		{
+			bits_needed = 4;
+			GET_DATA;
+			proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_ms_sync_accuracy, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
+			bit_offset += bits_needed;
+			curr_bits_length -= bits_needed;
+			oct <<= bits_needed;
+			bits_in_oct -= bits_needed;
+		}
+
+		/*
+		 * EC uplink coverage enhancement support
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_ext_ec_ul_cov_enh_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset += bits_needed;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -3535,6 +3579,16 @@ de_gmm_service_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 /*
  * [9] 10.5.5.22 PS LCS Capability
  */
+static const true_false_string gsm_a_gm_mta_e_vals = {
+	"Multilateration Timing Advance using Extended Access Burst method supported",
+	"Multilateration Timing Advance using Extended Access Burst method not supported"
+};
+
+static const true_false_string gsm_a_gm_mta_r_vals = {
+	"Multilateration Timing Advance using RLC data block method supported",
+	"Multilateration Timing Advance using RLC data block method not supported"
+};
+
 static const true_false_string gsm_a_gm_apc_vals = {
 	"Additional Positioning Capabilities which can be retrieved by RRLP are supported",
 	"Additional Positioning Capabilities which can be retrieved by RRLP are not supported"
@@ -3565,13 +3619,24 @@ static const true_false_string gsm_a_gm_gps_c_vals = {
 	"Conventional GPS not supported"
 };
 
+static const true_false_string gsm_a_gm_motd_vals = {
+	"Multilateration Observed Time Difference supported",
+	"Multilateration Observed Time Difference not supported"
+};
+
+static const true_false_string gsm_a_gm_mta_a_vals = {
+	"Multilateration Timing Advance using Access Burst method supported",
+	"Multilateration Timing Advance using Access Burst method not supported"
+};
+
 static guint16
 de_gmm_ps_lcs_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
 	curr_offset = offset;
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset << 3, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_gm_mta_e, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_gm_mta_r, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_gsm_a_gm_apc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_gsm_a_gm_otd_a, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_gsm_a_gm_otd_b, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -3580,6 +3645,12 @@ de_gmm_ps_lcs_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 	proto_tree_add_item(tree, hf_gsm_a_gm_gps_c, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	curr_offset++;
+
+	if (len > 2) {
+		proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset << 3, 6, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_a_gm_motd, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_a_gm_mta_a, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	}
 
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
 
@@ -8203,6 +8274,16 @@ proto_register_gsm_a_gm(void)
 		    FT_UINT8, BASE_HEX_DEC, NULL, 0x00,
 		    NULL, HFILL }
 		},
+		{ &hf_gsm_a_gm_mta_e,
+		  { "MTA-E", "gsm_a.gm.gmm.mta_e",
+		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_mta_e_vals), 0x80,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_mta_r,
+		  { "MTA-R", "gsm_a.gm.gmm.mta_r",
+		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_mta_r_vals), 0x40,
+		    NULL, HFILL }
+		},
 		{ &hf_gsm_a_gm_apc,
 		  { "APC", "gsm_a.gm.gmm.apc",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_apc_vals), 0x20,
@@ -8231,6 +8312,16 @@ proto_register_gsm_a_gm(void)
 		{ &hf_gsm_a_gm_gps_c,
 		  { "GPS-C", "gsm_a.gm.gmm.gps_c",
 		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_gps_c_vals), 0x01,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_motd,
+		  { "MOTD", "gsm_a.gm.gmm.motd",
+		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_motd_vals), 0x02,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_mta_a,
+		  { "MTA-A", "gsm_a.gm.gmm.mta_a",
+		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_mta_a_vals), 0x01,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_lcs_molr,
@@ -9003,9 +9094,19 @@ proto_register_gsm_a_gm(void)
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_gm_rac_ext_ec_pch_mon_support,
+		{ &hf_gsm_a_gm_rac_ec_pch_mon_support,
 		  { "(EC-)PCH monitoring support", "gsm_a.gm.gmm.rac.ec_pch_mon_support",
-		    FT_UINT8, BASE_NONE, VALS(gsm_a_gm_ec_pch_mon_support_vals), 0x0,
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_ec_pch_mon_support_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_rac_ms_sync_accuracy,
+		  { "MS Sync Accuracy", "gsm_a.gm.gmm.rac.ms_sync_accuracy",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_rac_ext_ec_ul_cov_enh_support,
+		  { "EC uplink coverage enhancement support", "gsm_a.gm.gmm.rac.ec_ul_cov_enh_support",
+		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_ti_flag,
