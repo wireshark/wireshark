@@ -521,7 +521,8 @@ sub PythonFunctionStruct($$$$)
 	$self->pidl("DATA_BLOB blob;");
 	$self->pidl("enum ndr_err_code err;");
 	$self->pidl("");
-	$self->pidl("if (ndr_table_$iface\.num_calls < $fn->{OPNUM}) {");
+	$self->pidl("if (ndr_table_$iface\.num_calls < " . ($fn->{OPNUM}+1) .
+		    ") {");
 	$self->indent;
 	$self->pidl("PyErr_SetString(PyExc_TypeError, \"Internal Error, ndr_interface_call missing for py_$name\_ndr_pack\");");
 	$self->pidl("return NULL;");
@@ -633,7 +634,8 @@ sub PythonFunctionStruct($$$$)
 	$self->pidl("struct ndr_pull *pull = NULL;");
 	$self->pidl("enum ndr_err_code err;");
 	$self->pidl("");
-	$self->pidl("if (ndr_table_$iface\.num_calls < $fn->{OPNUM}) {");
+	$self->pidl("if (ndr_table_$iface\.num_calls < " . ($fn->{OPNUM}+1) .
+		    ") {");
 	$self->indent;
 	$self->pidl("PyErr_SetString(PyExc_TypeError, \"Internal Error, ndr_interface_call missing for py_$name\_ndr_unpack\");");
 	$self->pidl("return NULL;");
@@ -797,7 +799,8 @@ sub PythonFunctionStruct($$$$)
 	$self->pidl("PyObject *ret;");
 	$self->pidl("char *retstr;");
 	$self->pidl("");
-	$self->pidl("if (ndr_table_$iface\.num_calls < $fn->{OPNUM}) {");
+	$self->pidl("if (ndr_table_$iface\.num_calls < " . ($fn->{OPNUM}+1) .
+		    ") {");
 	$self->indent;
 	$self->pidl("PyErr_SetString(PyExc_TypeError, \"Internal Error, ndr_interface_call missing for py_$name\_ndr_print\");");
 	$self->pidl("return NULL;");
