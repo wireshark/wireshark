@@ -848,8 +848,10 @@ sub ParseElementPrint($$$$$)
 	my $cur_depth = 0;
 	my $ignore_depth = 0xFFFF;
 
+	$self->start_flags($e, $ndr);
 	if ($e->{REPRESENTATION_TYPE} ne $e->{TYPE}) {
 		$self->pidl("ndr_print_$e->{REPRESENTATION_TYPE}($ndr, \"$e->{NAME}\", $var_name);");
+		$self->end_flags($e, $ndr);
 		return;
 	}
 
@@ -944,6 +946,8 @@ sub ParseElementPrint($$$$$)
 			$self->pidl("$ndr->depth--;");
 		}
 	}
+
+	$self->end_flags($e, $ndr);
 }
 
 #####################################################################
