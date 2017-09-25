@@ -259,7 +259,7 @@ static bool $name\__op_interface_by_name(struct dcesrv_interface *iface, const c
 	return false;
 }
 
-NTSTATUS dcerpc_server_$name\_init(void)
+NTSTATUS dcerpc_server_$name\_init(TALLOC_CTX *ctx)
 {
 	NTSTATUS ret;
 	static const struct dcesrv_endpoint_server ep_server = {
@@ -296,7 +296,7 @@ sub ParseInterface($)
 	my($interface) = shift;
 	my $count = 0;
 
-	$res .= "NTSTATUS dcerpc_server_$interface->{NAME}\_init(void);\n";
+	$res .= "NTSTATUS dcerpc_server_$interface->{NAME}\_init(TALLOC_CTX *);\n";
 	$res .= "\n";
 
 	if (!defined $interface->{PROPERTIES}->{uuid}) {
