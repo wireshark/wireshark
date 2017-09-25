@@ -1251,9 +1251,9 @@ sub ConvertStringFromPythonData($$$$$)
 	$self->pidl("}");
 }
 
-sub ConvertObjectFromPythonData($$$$$$;$)
+sub ConvertObjectFromPythonData($$$$$$;$$)
 {
-	my ($self, $mem_ctx, $cvar, $ctype, $target, $fail, $location) = @_;
+	my ($self, $mem_ctx, $cvar, $ctype, $target, $fail, $location, $switch) = @_;
 
 	fatal($location, "undef type for $cvar") unless(defined($ctype));
 
@@ -1396,6 +1396,18 @@ sub ConvertObjectFromPythonData($$$$$$;$)
 		$self->deindent;
 		$self->pidl("}");
 		$self->assign($target, "(".mapTypeName($ctype)." *)pytalloc_get_ptr($cvar)");
+		return;
+	}
+
+	if ($actual_ctype->{TYPE} eq "UNION") {
+		my $ctype_name = $self->use_type_variable($ctype);
+		unless (defined ($ctype_name)) {
+			error($location, "Unable to determine origin of type `" . mapTypeName($ctype) . "'");
+			$self->pidl("PyErr_SetString(PyExc_TypeError, \"Can not convert C Type " . mapTypeName($ctype) . " from Python\");");
+			return;
+		}
+		my $export = "pyrpc_export_union($ctype_name, $mem_ctx, $switch, $cvar, \"".mapTypeName($ctype)."\")";
+		$self->assign($target, "(".mapTypeName($ctype)." *)$export");
 		return;
 	}
 
@@ -1553,7 +1565,7 @@ sub ConvertObjectFromPythonLevel($$$$$$$$)
 		$self->indent;
 		my $union_type = mapTypeName($nl->{DATA_TYPE});
 		$self->pidl("$union_type *$switch_ptr;");
-		$self->pidl("$switch_ptr = py_export_" . $nl->{DATA_TYPE} . "($mem_ctx, $switch, $py_var);");
+		$self->ConvertObjectFromPythonData($mem_ctx, $py_var, $nl->{DATA_TYPE}, $switch_ptr, $fail, $e->{ORIGINAL}, $switch);
 		$self->fail_on_null($switch_ptr, $fail);
 		$self->assign($var_name, "$switch_ptr");
 		$self->deindent;
@@ -1641,9 +1653,9 @@ sub ConvertScalarToPython($$$)
 	die("Unknown scalar type $ctypename");
 }
 
-sub ConvertObjectToPythonData($$$$$;$)
+sub ConvertObjectToPythonData($$$$$;$$)
 {
-	my ($self, $mem_ctx, $ctype, $cvar, $location) = @_;
+	my ($self, $mem_ctx, $ctype, $cvar, $location, $switch) = @_;
 
 	die("undef type for $cvar") unless(defined($ctype));
 
@@ -1661,7 +1673,12 @@ sub ConvertObjectToPythonData($$$$$;$)
 	} elsif ($actual_ctype->{TYPE} eq "SCALAR") {
 		return $self->ConvertScalarToPython($actual_ctype->{NAME}, $cvar);
 	} elsif ($actual_ctype->{TYPE} eq "UNION") {
-		fatal($ctype, "union without discriminant: " . mapTypeName($ctype) . ": $cvar");
+		my $ctype_name = $self->use_type_variable($ctype);
+		unless (defined($ctype_name)) {
+			error($location, "Unable to determine origin of type `" . mapTypeName($ctype) . "'");
+			return "NULL"; # FIXME!
+		}
+		return "pyrpc_import_union($ctype_name, $mem_ctx, $switch, $cvar, \"".mapTypeName($ctype)."\")";
 	} elsif ($actual_ctype->{TYPE} eq "STRUCT" or $actual_ctype->{TYPE} eq "INTERFACE") {
 		my $ctype_name = $self->use_type_variable($ctype);
 		unless (defined($ctype_name)) {
@@ -1760,7 +1777,8 @@ sub ConvertObjectToPythonLevel($$$$$$)
 	} elsif ($l->{TYPE} eq "SWITCH") {
 		$var_name = get_pointer_to($var_name);
 		my $switch = ParseExpr($l->{SWITCH_IS}, $env, $e);
-		$self->pidl("$py_var = py_import_" . $nl->{DATA_TYPE} . "($mem_ctx, $switch, $var_name);");
+		my $conv = $self->ConvertObjectToPythonData($mem_ctx, $nl->{DATA_TYPE}, $var_name, $e->{ORIGINAL}, $switch);
+		$self->pidl("$py_var = $conv;");
 		$self->fail_on_null($py_var, $fail);
 
 	} elsif ($l->{TYPE} eq "DATA") {
