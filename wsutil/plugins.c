@@ -334,21 +334,27 @@ scan_plugins(plugin_load_failure_mode mode)
 }
 
 struct plugin_description {
-    plugin_description_callback callback;
-    void *user_data;
+    const char *name;
+    const char *version;
+    GString *types;
+    const char *filename;
 };
 
 static void
 add_plugin_type_description(gpointer key _U_, gpointer value, gpointer user_data)
 {
-    struct plugin_description *description = (struct plugin_description *)user_data;
+    GPtrArray *descriptions = (GPtrArray *)user_data;
+    struct plugin_description *plug_desc;
     plugin *plug = (plugin *)value;
-    GString *types_str;
     plugin_type *type;
     const char *sep;
 
     sep = "";
-    types_str = g_string_new("");
+    plug_desc = g_new(struct plugin_description, 1);
+    plug_desc->name = plug->name;
+    plug_desc->version = plug->version;
+    plug_desc->types = g_string_new(NULL);
+    plug_desc->filename = g_module_name(plug->handle);
 
     for (GSList *l = plugin_types; l != NULL; l = l->next) {
         /*
@@ -356,28 +362,38 @@ add_plugin_type_description(gpointer key _U_, gpointer value, gpointer user_data
          */
         type = (plugin_type *)l->data;
         if (plug->types & (1 << type->type_val)) {
-            g_string_append_printf(types_str, "%s%s", sep, type->type);
+            g_string_append_printf(plug_desc->types, "%s%s", sep, type->type);
             sep = ", ";
         }
     }
 
-    /*
-     * And hand the information to the callback.
-     */
-    description->callback(plug->name, plug->version, types_str->str,
-             g_module_name(plug->handle), description->user_data);
+    g_ptr_array_add(descriptions, plug_desc);
+}
 
-    g_string_free(types_str, TRUE);
+static int
+compare_descriptions(gconstpointer _a, gconstpointer _b)
+{
+    const struct plugin_description *a = *(const struct plugin_description **)_a;
+    const struct plugin_description *b = *(const struct plugin_description **)_b;
+
+    return strcmp(a->name, b->name);
 }
 
 WS_DLL_PUBLIC void
 plugins_get_descriptions(plugin_description_callback callback, void *user_data)
 {
-    struct plugin_description pd;
+    GPtrArray *descriptions;
+    struct plugin_description *desc;
 
-    pd.callback = callback;
-    pd.user_data = user_data;
-    g_hash_table_foreach(plugins_table, add_plugin_type_description, &pd);
+    descriptions = g_ptr_array_sized_new(g_hash_table_size(plugins_table));
+    g_hash_table_foreach(plugins_table, add_plugin_type_description, descriptions);
+    g_ptr_array_sort(descriptions, compare_descriptions);
+    for (guint i = 0; i < descriptions->len; i++) {
+        desc = (struct plugin_description *)descriptions->pdata[i];
+        callback(desc->name, desc->version, desc->types->str, desc->filename, user_data);
+        g_string_free(desc->types, TRUE);
+    }
+    g_ptr_array_free(descriptions, TRUE);
 }
 
 static void

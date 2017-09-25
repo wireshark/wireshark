@@ -40,9 +40,9 @@ typedef enum {
 } plugin_load_failure_mode;
 WS_DLL_PUBLIC void scan_plugins(plugin_load_failure_mode mode);
 WS_DLL_PUBLIC void add_plugin_type(const char *type, plugin_check_type_callback callback);
-typedef void (*plugin_description_callback)(const char *, const char *,
-                                            const char *, const char *,
-                                            void *);
+typedef void (*plugin_description_callback)(const char *name, const char *version,
+                                            const char *types, const char *filename,
+                                            void *user_data);
 WS_DLL_PUBLIC void plugins_get_descriptions(plugin_description_callback callback, void *user_data);
 WS_DLL_PUBLIC void plugins_dump_all(void);
 WS_DLL_PUBLIC void plugins_cleanup(void);
