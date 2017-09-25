@@ -891,7 +891,8 @@ sub ParseInterface($)
 		FUNCTIONS => \@functions,
 		CONSTS => \@consts,
 		TYPES => \@types,
-		ENDPOINTS => \@endpoints
+		ENDPOINTS => \@endpoints,
+		ORIGINAL => $idl
 	};
 }
 
