@@ -280,7 +280,7 @@ sub PythonStruct($$$$$$)
 		$self->deindent;
 		$self->pidl("}");
 		$self->pidl("err = ndr_push_struct_blob(&blob, tmp_ctx, object, (ndr_push_flags_fn_t)ndr_push_$name);");
-		$self->pidl("if (err != NDR_ERR_SUCCESS) {");
+		$self->pidl("if (!NDR_ERR_CODE_IS_SUCCESS(err)) {");
 		$self->indent;
 		$self->pidl("TALLOC_FREE(tmp_ctx);");
 		$self->pidl("PyErr_SetNdrError(err);");
@@ -333,7 +333,7 @@ sub PythonStruct($$$$$$)
 		$self->pidl("err = ndr_pull_struct_blob_all(&blob, pytalloc_get_mem_ctx(py_obj), object, (ndr_pull_flags_fn_t)ndr_pull_$name);");
 		$self->deindent;
 		$self->pidl("}");
-		$self->pidl("if (err != NDR_ERR_SUCCESS) {");
+		$self->pidl("if (!NDR_ERR_CODE_IS_SUCCESS(err)) {");
 		$self->indent;
 		$self->pidl("PyErr_SetNdrError(err);");
 		$self->pidl("return NULL;");
