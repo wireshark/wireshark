@@ -85,6 +85,7 @@ WirelessFrame::WirelessFrame(QWidget *parent) :
 
 WirelessFrame::~WirelessFrame()
 {
+    ws80211_free_interfaces(interfaces_);
     delete ui;
 }
 
