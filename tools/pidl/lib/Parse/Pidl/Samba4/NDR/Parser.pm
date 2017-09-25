@@ -525,11 +525,12 @@ sub ParseCompressionPullStart($$$$$)
 	my $comndr = "$ndr\_compressed";
 	my $alg = compression_alg($e, $l);
 	my $dlen = compression_dlen($e, $l, $env);
+	my $clen = compression_clen($e, $l, $env);
 
 	$self->pidl("{");
 	$self->indent;
 	$self->pidl("struct ndr_pull *$comndr;");
-	$self->pidl("NDR_CHECK(ndr_pull_compression_start($ndr, &$comndr, $alg, $dlen));");
+	$self->pidl("NDR_CHECK(ndr_pull_compression_start($ndr, &$comndr, $alg, $dlen, $clen));");
 
 	return $comndr;
 }
