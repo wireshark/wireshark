@@ -245,12 +245,18 @@ sub PythonStruct($$$$$$)
 		$self->pidl("static PyGetSetDef ".$getsetters."[] = {");
 		$self->indent;
 		foreach my $e (@{$d->{ELEMENTS}}) {
+			my $etype = "";
+			if (ref($e->{TYPE}) eq "HASH") {
+				$etype = $e->{TYPE}->{NAME};
+			} else {
+				$etype = $e->{TYPE};
+			}
 			$self->pidl("{");
 			$self->indent;
 			$self->pidl(".name = discard_const_p(char, \"$e->{NAME}\"),");
 			$self->pidl(".get = py_$name\_get_$e->{NAME},");
 			$self->pidl(".set = py_$name\_set_$e->{NAME},");
-			$self->pidl(".doc = discard_const_p(char, \"PIDL-generated element of base type $e->{TYPE}\")");
+			$self->pidl(".doc = discard_const_p(char, \"PIDL-generated element of base type $etype\")");
 			$self->deindent;
 			$self->pidl("},");
 		}
