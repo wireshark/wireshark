@@ -736,6 +736,16 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    disconnect(main_ui_->mainStack, 0, 0, 0);
+
+#ifndef Q_OS_MAC
+    // file_set_dialog_ is a subclass of GeometryStateDialog.
+    // For reasons described in geometry_state_dialog.h no parent is set when
+    // instantiating the dialog and as a result the object is not automatically
+    // freed by its parent. Free it here explicitly to avoid leak and numerous
+    // Valgrind complaints.
+    delete file_set_dialog_;
+#endif
     delete main_ui_;
 }
 
