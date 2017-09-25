@@ -46,7 +46,7 @@ typedef struct _plugin {
     GModule        *handle;       /* handle returned by g_module_open */
     gchar          *name;         /* plugin name */
     const gchar    *version;      /* plugin version */
-    guint32         types;        /* bitmask of plugin types this plugin supports */
+    GString        *types;        /* description with types this plugin supports */
 } plugin;
 
 static GHashTable *plugins_table = NULL;
@@ -57,6 +57,7 @@ free_plugin(gpointer _p)
     plugin *p = (plugin *)_p;
     g_module_close(p->handle);
     g_free(p->name);
+    g_string_free(p->types, TRUE);
     g_free(p);
 }
 
@@ -68,9 +69,8 @@ free_plugin(gpointer _p)
  * it's a plugin for that type and FALSE if not.
  */
 typedef struct {
-    const char *type;
-    plugin_check_type_callback callback;
-    guint type_val;
+    const char *name;
+    plugin_check_type_callback check_type;
 } plugin_type;
 
 static GSList *plugin_types = NULL;
@@ -82,26 +82,14 @@ free_plugin_type(gpointer p, gpointer user_data _U_)
 }
 
 void
-add_plugin_type(const char *type, plugin_check_type_callback callback)
+add_plugin_type(const char *name, plugin_check_type_callback check_type)
 {
     plugin_type *new_type;
-    static guint type_val;
 
-    if (type_val >= 32) {
-        /*
-         * There's a bitmask of types that a plugin provides, and it's
-         * 32 bits, so we don't support types > 31.
-         */
-        report_failure("At most 32 plugin types can be supported, so the plugin type '%s' won't be supported.",
-                       type);
-        return;
-    }
     new_type = (plugin_type *)g_malloc(sizeof (plugin_type));
-    new_type->type = type;
-    new_type->callback = callback;
-    new_type->type_val = type_val;
-    plugin_types = g_slist_append(plugin_types, new_type);
-    type_val++;
+    new_type->name = name;
+    new_type->check_type = check_type;
+    plugin_types = g_slist_prepend(plugin_types, new_type);
 }
 
 static void
@@ -110,9 +98,11 @@ call_plugin_callback(gpointer data, gpointer user_data)
     plugin_type *type = (plugin_type *)data;
     plugin *new_plug = (plugin *)user_data;
 
-    if ((*type->callback)(new_plug->handle)) {
+    if (type->check_type(new_plug->handle)) {
         /* The plugin supports this type */
-        new_plug->types |= 1 << type->type_val;
+        if (new_plug->types->len > 0)
+            g_string_append(new_plug->types, ", ");
+        g_string_append(new_plug->types, type->name);
     }
 }
 
@@ -201,7 +191,7 @@ plugins_scan_dir(const char *dirname, plugin_load_failure_mode mode)
             new_plug->handle = handle;
             new_plug->name = g_strdup(name);
             new_plug->version = (char *)gp;
-            new_plug->types = 0;
+            new_plug->types = g_string_new(NULL);
 
             /*
              * Hand the plugin to each of the plugin type callbacks.
@@ -211,7 +201,7 @@ plugins_scan_dir(const char *dirname, plugin_load_failure_mode mode)
             /*
              * Does this dissector do anything useful?
              */
-            if (new_plug->types == 0)
+            if (new_plug->types->len == 0)
             {
                 /*
                  * No.
@@ -233,9 +223,7 @@ plugins_scan_dir(const char *dirname, plugin_load_failure_mode mode)
                     report_failure("The plugin '%s' has no registration routines",
                                    name);
                 }
-                g_module_close(handle);
-                g_free(new_plug->name);
-                g_free(new_plug);
+                free_plugin(new_plug);
                 continue;
             }
 
@@ -336,7 +324,7 @@ scan_plugins(plugin_load_failure_mode mode)
 struct plugin_description {
     const char *name;
     const char *version;
-    GString *types;
+    const char *types;
     const char *filename;
 };
 
@@ -346,26 +334,12 @@ add_plugin_type_description(gpointer key _U_, gpointer value, gpointer user_data
     GPtrArray *descriptions = (GPtrArray *)user_data;
     struct plugin_description *plug_desc;
     plugin *plug = (plugin *)value;
-    plugin_type *type;
-    const char *sep;
 
-    sep = "";
     plug_desc = g_new(struct plugin_description, 1);
     plug_desc->name = plug->name;
     plug_desc->version = plug->version;
-    plug_desc->types = g_string_new(NULL);
+    plug_desc->types = plug->types->str;
     plug_desc->filename = g_module_name(plug->handle);
-
-    for (GSList *l = plugin_types; l != NULL; l = l->next) {
-        /*
-         * If the plugin handles this type, add the type to the list of types.
-         */
-        type = (plugin_type *)l->data;
-        if (plug->types & (1 << type->type_val)) {
-            g_string_append_printf(plug_desc->types, "%s%s", sep, type->type);
-            sep = ", ";
-        }
-    }
 
     g_ptr_array_add(descriptions, plug_desc);
 }
@@ -390,8 +364,7 @@ plugins_get_descriptions(plugin_description_callback callback, void *user_data)
     g_ptr_array_sort(descriptions, compare_descriptions);
     for (guint i = 0; i < descriptions->len; i++) {
         desc = (struct plugin_description *)descriptions->pdata[i];
-        callback(desc->name, desc->version, desc->types->str, desc->filename, user_data);
-        g_string_free(desc->types, TRUE);
+        callback(desc->name, desc->version, desc->types, desc->filename, user_data);
     }
     g_ptr_array_free(descriptions, TRUE);
 }
