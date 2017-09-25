@@ -1694,7 +1694,7 @@ static inline PyObject *ndr_PyLong_FromUnsignedLongLong(unsigned long long v)
 	$self->pidl("\treturn;");
 	$self->pidl("");
 	foreach my $h (@{$self->{constants}}) {
-		my $name = $h->{'key'};
+		my $pretty_name = PrettifyTypeName($h->{'key'}, $basename);
 		my $py_obj;
 		my ($ctype, $cvar) = @{$h->{'val'}};
 		if ($cvar =~ /^[0-9]+$/ or $cvar =~ /^0x[0-9a-fA-F]+$/) {
@@ -1705,7 +1705,7 @@ static inline PyObject *ndr_PyLong_FromUnsignedLongLong(unsigned long long v)
 			$py_obj = $self->ConvertObjectToPythonData("NULL", expandAlias($ctype), $cvar, undef);
 		}
 
-		$self->pidl("PyModule_AddObject(m, \"$name\", $py_obj);");
+		$self->pidl("PyModule_AddObject(m, \"$pretty_name\", $py_obj);");
 	}
 
 	foreach (@{$self->{module_objects}}) {
