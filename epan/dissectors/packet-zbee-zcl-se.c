@@ -4739,6 +4739,13 @@ void proto_reg_handoff_zbee_zcl_events(void);
 /* Attribute Dissector Helpers */
 static void dissect_zcl_events_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
 
+/* Command Dissector Helpers */
+static void dissect_zcl_events_get_event_log                    (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_events_clear_event_log_request          (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_events_publish_event                    (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_events_publish_event_log                (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_events_clear_event_log_response         (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+
 /*************************/
 /* Global Variables      */
 /*************************/
@@ -4752,9 +4759,35 @@ static int hf_zbee_zcl_events_srv_tx_cmd_id = -1;
 static int hf_zbee_zcl_events_srv_rx_cmd_id = -1;
 static int hf_zbee_zcl_events_attr_id = -1;
 static int hf_zbee_zcl_events_attr_reporting_status = -1;
+static int hf_zbee_zcl_events_get_event_log_event_control_log_id = -1;
+static int hf_zbee_zcl_events_get_event_log_event_id = -1;
+static int hf_zbee_zcl_events_get_event_log_start_time = -1;
+static int hf_zbee_zcl_events_get_event_log_end_time = -1;
+static int hf_zbee_zcl_events_get_event_log_number_of_events = -1;
+static int hf_zbee_zcl_events_get_event_log_event_offset = -1;
+static int hf_zbee_zcl_events_clear_event_log_request_log_id = -1;
+static int hf_zbee_zcl_events_publish_event_log_id = -1;
+static int hf_zbee_zcl_events_publish_event_event_id = -1;
+static int hf_zbee_zcl_events_publish_event_event_time = -1;
+static int hf_zbee_zcl_events_publish_event_event_control = -1;
+static int hf_zbee_zcl_events_publish_event_event_data = -1;
+static int hf_zbee_zcl_events_publish_event_log_total_number_of_matching_events = -1;
+static int hf_zbee_zcl_events_publish_event_log_command_index = -1;
+static int hf_zbee_zcl_events_publish_event_log_total_commands = -1;
+static int hf_zbee_zcl_events_publish_event_log_number_of_events_log_payload_control = -1;
+static int hf_zbee_zcl_events_publish_event_log_log_id = -1;
+static int hf_zbee_zcl_events_publish_event_log_event_id = -1;
+static int hf_zbee_zcl_events_publish_event_log_event_time = -1;
+static int hf_zbee_zcl_events_publish_event_log_event_data = -1;
+static int hf_zbee_zcl_events_clear_event_log_response_cleared_event_logs = -1;
 
 /* Initialize the subtree pointers */
+#define ZBEE_ZCL_SE_EVENTS_NUM_INDIVIDUAL_ETT             1
+#define ZBEE_ZCL_SE_EVENTS_NUM_PUBLISH_EVENT_LOG_ETT      15
+#define ZBEE_ZCL_SE_EVENTS_NUM_TOTAL_ETT                  (ZBEE_ZCL_SE_EVENTS_NUM_INDIVIDUAL_ETT + ZBEE_ZCL_SE_EVENTS_NUM_PUBLISH_EVENT_LOG_ETT)
+
 static gint ett_zbee_zcl_events = -1;
+static gint ett_zbee_zcl_events_publish_event_log_entry[ZBEE_ZCL_SE_EVENTS_NUM_PUBLISH_EVENT_LOG_ETT];
 
 /*************************/
 /* Function Bodies       */
@@ -4795,6 +4828,7 @@ dissect_zcl_events_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, gui
 static int
 dissect_zbee_zcl_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
+    proto_tree        *payload_tree;
     zbee_zcl_packet   *zcl;
     guint             offset = 0;
     guint8            cmd_id;
@@ -4819,17 +4853,17 @@ dissect_zbee_zcl_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
         if (rem_len > 0) {
-            proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_events, NULL, "Payload");
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_events, NULL, "Payload");
 
             /* Call the appropriate command dissector */
             switch (cmd_id) {
 
                 case ZBEE_ZCL_CMD_ID_EVENTS_GET_EVENT_LOG:
-                    /* Add function to dissect payload */
+                    dissect_zcl_events_get_event_log(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_EVENTS_CLEAR_EVENT_LOG_REQUEST:
-                    /* Add function to dissect payload */
+                    dissect_zcl_events_clear_event_log_request(tvb, payload_tree, &offset);
                     break;
 
                 default:
@@ -4849,21 +4883,21 @@ dissect_zbee_zcl_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
         if (rem_len > 0) {
-            proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_events, NULL, "Payload");
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_events, NULL, "Payload");
 
             /* Call the appropriate command dissector */
             switch (cmd_id) {
 
                 case ZBEE_ZCL_CMD_ID_EVENTS_PUBLISH_EVENT:
-                    /* Add function to dissect payload */
+                    dissect_zcl_events_publish_event(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_EVENTS_PUBLISH_EVENT_LOG:
-                    /* Add function to dissect payload */
+                    dissect_zcl_events_publish_event_log(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_EVENTS_CLEAR_EVENT_LOG_RESPONSE:
-                    /* Add function to dissect payload */
+                    dissect_zcl_events_clear_event_log_response(tvb, payload_tree, &offset);
                     break;
 
                 default:
@@ -4874,6 +4908,175 @@ dissect_zbee_zcl_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_events*/
+
+/**
+ *This function manages the Get Event Log payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_events_get_event_log(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t    start_time;
+    nstime_t    end_time;
+
+    /* Event Control / Log ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_events_get_event_log_event_control_log_id, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_events_get_event_log_event_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Start Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_events_get_event_log_start_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    /* End Time */
+    end_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    end_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_events_get_event_log_end_time, tvb, *offset, 4, &end_time);
+    *offset += 4;
+
+    /* Number of Events */
+    proto_tree_add_item(tree, hf_zbee_zcl_events_get_event_log_number_of_events, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Event Offset */
+    proto_tree_add_item(tree, hf_zbee_zcl_events_get_event_log_event_offset, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+} /*dissect_zcl_events_get_event_log*/
+
+/**
+ *This function manages the Clear Event Log Request payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_events_clear_event_log_request(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Log ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_events_clear_event_log_request_log_id, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+} /*dissect_zcl_events_clear_event_log_request*/
+
+/**
+ *This function manages the Publish Event payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_events_publish_event(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t    event_time;
+    guint8      event_data_len;
+
+    /* Log ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_events_publish_event_log_id, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_events_publish_event_event_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Event Time */
+    event_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    event_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_events_publish_event_event_time, tvb, *offset, 4, &event_time);
+    *offset += 4;
+
+    /* Event Control */
+    proto_tree_add_item(tree, hf_zbee_zcl_events_publish_event_event_control, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Event Data */
+    event_data_len = tvb_get_guint8(tvb, *offset);
+    proto_tree_add_item(tree, hf_zbee_zcl_events_publish_event_event_data, tvb, *offset, event_data_len + 1, ENC_NA);
+    *offset += event_data_len + 1;
+} /*dissect_zcl_events_publish_event*/
+
+/**
+ *This function manages the Publish Event Log payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_events_publish_event_log(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    proto_tree* event_log_tree;
+    nstime_t    event_time;
+    guint8      event_data_len;
+    guint8      number_of_events;
+
+    /* Total Number of Matching Events */
+    proto_tree_add_item(tree, hf_zbee_zcl_events_publish_event_log_total_number_of_matching_events, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Command Index */
+    proto_tree_add_item(tree, hf_zbee_zcl_events_publish_event_log_command_index, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Total Commands */
+    proto_tree_add_item(tree, hf_zbee_zcl_events_publish_event_log_total_commands, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Number of Events / Log Payload Control */
+    number_of_events = tvb_get_guint8(tvb, *offset) >> 4;
+    proto_tree_add_item(tree, hf_zbee_zcl_events_publish_event_log_number_of_events_log_payload_control, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    for (guint8 i = 0; i < number_of_events && i < ZBEE_ZCL_SE_EVENTS_NUM_PUBLISH_EVENT_LOG_ETT; i++) {
+        /* Add subtree */
+        event_log_tree = proto_tree_add_subtree(tree, tvb, *offset, 0, ett_zbee_zcl_events_publish_event_log_entry[i], NULL, "Event Log");
+
+        /* Log ID */
+        proto_tree_add_item(event_log_tree, hf_zbee_zcl_events_publish_event_log_log_id, tvb, *offset, 1, ENC_NA);
+        *offset += 1;
+
+        /* Event ID */
+        proto_tree_add_item(event_log_tree, hf_zbee_zcl_events_publish_event_log_event_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+
+        /* Event Time */
+        event_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+        event_time.nsecs = 0;
+        proto_tree_add_time(event_log_tree, hf_zbee_zcl_events_publish_event_log_event_time, tvb, *offset, 4, &event_time);
+        *offset += 4;
+
+        /* Event Data */
+        event_data_len = tvb_get_guint8(tvb, *offset);
+        proto_tree_add_item(event_log_tree, hf_zbee_zcl_events_publish_event_log_event_data, tvb, *offset, event_data_len + 1, ENC_NA);
+        *offset += event_data_len + 1;
+
+        /* Set length of subtree */
+        proto_item_set_end(proto_tree_get_parent(event_log_tree), tvb, *offset);
+    }
+} /*dissect_zcl_events_publish_event_log*/
+
+/**
+ *This function manages the Clear Event Log Response payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_events_clear_event_log_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Cleared Event Logs */
+    proto_tree_add_item(tree, hf_zbee_zcl_events_clear_event_log_response_cleared_event_logs, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+} /*dissect_zcl_events_clear_event_log_response*/
 
 /**
  *This function registers the ZCL Events dissector
@@ -4900,12 +5103,103 @@ proto_register_zbee_zcl_events(void)
             { "Command", "zbee_zcl_se.events.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_events_srv_rx_cmd_names),
             0x00, NULL, HFILL } },
 
+        { &hf_zbee_zcl_events_get_event_log_event_control_log_id,
+            { "Event Control / Log ID", "zbee_zcl_se.events.get_event_log.event_control_log_id", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_events_get_event_log_event_id,
+            { "Event ID", "zbee_zcl_se.events.get_event_log.event_id", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_events_get_event_log_start_time,
+            { "Start Time", "zbee_zcl_se.events.get_event_log.start_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_events_get_event_log_end_time,
+            { "End Time", "zbee_zcl_se.events.get_event_log.end_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_events_get_event_log_number_of_events,
+            { "Number of Events", "zbee_zcl_se.events.get_event_log.number_of_events", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_events_get_event_log_event_offset,
+            { "Event Offset", "zbee_zcl_se.events.get_event_log.number_of_events", FT_UINT16, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_events_clear_event_log_request_log_id,
+            { "Log ID", "zbee_zcl_se.events.clear_event_log_request.log_id", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_events_publish_event_log_id,
+            { "Log ID", "zbee_zcl_se.events.publish_event.log_id", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_events_publish_event_event_id,
+            { "Event ID", "zbee_zcl_se.events.publish_event.event_id", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_events_publish_event_event_time,
+            { "Event Time", "zbee_zcl_se.events.publish_event.event_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_events_publish_event_event_control,
+            { "Event Control", "zbee_zcl_se.events.publish_event.event_control", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_events_publish_event_event_data,
+            { "Event Data", "zbee_zcl_se.events.publish_event.event_data", FT_BYTES, BASE_NONE, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_events_publish_event_log_total_number_of_matching_events,
+            { "Total Number of Matching Events", "zbee_zcl_se.events.publish_event_log.event_id", FT_UINT16, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_events_publish_event_log_command_index,
+            { "Command Index", "zbee_zcl_se.events.publish_event_log.command_index", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_events_publish_event_log_total_commands,
+            { "Total Commands", "zbee_zcl_se.events.publish_event_log.total_commands", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_events_publish_event_log_number_of_events_log_payload_control,
+            { "Number of Events / Log Payload Control", "zbee_zcl_se.events.publish_event_log.number_of_events_log_payload_control", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_events_publish_event_log_log_id,
+            { "Log ID", "zbee_zcl_se.events.publish_event_log.log_id", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_events_publish_event_log_event_id,
+            { "Event ID", "zbee_zcl_se.events.publish_event_log.event_id", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_events_publish_event_log_event_time,
+            { "Event Time", "zbee_zcl_se.events.publish_event_log.event_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_events_publish_event_log_event_data,
+            { "Event Data", "zbee_zcl_se.events.publish_event_log.event_data", FT_BYTES, BASE_NONE, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_events_clear_event_log_response_cleared_event_logs,
+            { "Cleared Event Logs", "zbee_zcl_se.events.clear_event_log_response.cleared_event_logs", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
     };
 
     /* ZCL Events subtrees */
-    gint *ett[] = {
-        &ett_zbee_zcl_events,
-    };
+    gint *ett[ZBEE_ZCL_SE_EVENTS_NUM_TOTAL_ETT];
+    ett[0] = &ett_zbee_zcl_events;
+
+    guint j = ZBEE_ZCL_SE_EVENTS_NUM_INDIVIDUAL_ETT;
+
+    /* Initialize Publish Event Log subtrees */
+    for (guint i = 0; i < ZBEE_ZCL_SE_EVENTS_NUM_PUBLISH_EVENT_LOG_ETT; i++, j++) {
+        ett_zbee_zcl_events_publish_event_log_entry[i] = -1;
+        ett[j] = &ett_zbee_zcl_events_publish_event_log_entry[i];
+    }
 
     /* Register the ZigBee ZCL Events cluster protocol name and description */
     proto_zbee_zcl_events = proto_register_protocol("ZigBee ZCL Events", "ZCL Events", ZBEE_PROTOABBREV_ZCL_EVENTS);
