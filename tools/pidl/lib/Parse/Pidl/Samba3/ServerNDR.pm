@@ -266,12 +266,12 @@ sub ParseInterface($)
 
 	pidl "";
 
-	pidl_hdr "void $if->{NAME}_get_pipe_fns(struct api_struct **fns, int *n_fns);";
-	pidl "void $if->{NAME}_get_pipe_fns(struct api_struct **fns, int *n_fns)";
+	pidl_hdr "const struct api_struct *$if->{NAME}_get_pipe_fns(int *n_fns);";
+	pidl "const struct api_struct *$if->{NAME}_get_pipe_fns(int *n_fns)";
 	pidl "{";
 	indent;
-	pidl "*fns = api_$if->{NAME}_cmds;";
 	pidl "*n_fns = sizeof(api_$if->{NAME}_cmds) / sizeof(struct api_struct);";
+	pidl "return api_$if->{NAME}_cmds;";
 	deindent;
 	pidl "}";
 	pidl "";
