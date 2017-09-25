@@ -1875,9 +1875,9 @@ sub ConvertObjectFromPythonData($$$$$$;$$)
 
 }
 
-sub ConvertObjectFromPythonLevel($$$$$$$$)
+sub ConvertObjectFromPythonLevel($$$$$$$$$)
 {
-	my ($self, $env, $mem_ctx, $py_var, $e, $l, $var_name, $fail) = @_;
+	my ($self, $env, $mem_ctx, $py_var, $e, $l, $var_name, $fail, $recurse) = @_;
 	my $nl = GetNextLevel($e, $l);
 	if ($nl and $nl->{TYPE} eq "SUBCONTEXT") {
 		$nl = GetNextLevel($e, $nl);
@@ -1887,13 +1887,16 @@ sub ConvertObjectFromPythonLevel($$$$$$$$)
 		$pl = GetPrevLevel($e, $pl);
 	}
 
-        $self->pidl("if ($py_var == NULL) {");
-        $self->indent;
-        $self->pidl("PyErr_Format(PyExc_AttributeError, \"Cannot delete NDR object: " .
+	if ($recurse == 0) {
+	        $self->pidl("if ($py_var == NULL) {");
+		$self->indent;
+		$self->pidl("PyErr_Format(PyExc_AttributeError, \"Cannot delete NDR object: " .
                     mapTypeName($var_name) . "\");");
-        $self->pidl($fail);
-        $self->deindent;
-        $self->pidl("}");
+		$self->pidl($fail);
+		$self->deindent;
+		$self->pidl("}");
+	}
+	$recurse = $recurse + 1;
 
 	if ($l->{TYPE} eq "POINTER") {
 		if ($l->{POINTER_TYPE} ne "ref") {
@@ -1929,7 +1932,7 @@ sub ConvertObjectFromPythonLevel($$$$$$$$)
 		unless ($nl->{TYPE} eq "DATA" and Parse::Pidl::Typelist::scalar_is_reference($nl->{DATA_TYPE})) {
 			$var_name = get_value_of($var_name);
 		}
-		$self->ConvertObjectFromPythonLevel($env, $mem_ctx, $py_var, $e, $nl, $var_name, $fail);
+		$self->ConvertObjectFromPythonLevel($env, $mem_ctx, $py_var, $e, $nl, $var_name, $fail, $recurse);
 		if ($l->{POINTER_TYPE} ne "ref") {
 			$self->deindent;
 			$self->pidl("}");
@@ -1961,7 +1964,7 @@ sub ConvertObjectFromPythonLevel($$$$$$$$)
 			}
 			$self->pidl("for ($counter = 0; $counter < PyList_GET_SIZE($py_var); $counter++) {");
 			$self->indent;
-			$self->ConvertObjectFromPythonLevel($env, $var_name, "PyList_GET_ITEM($py_var, $counter)", $e, $nl, $var_name."[$counter]", $fail);
+			$self->ConvertObjectFromPythonLevel($env, $var_name, "PyList_GET_ITEM($py_var, $counter)", $e, $nl, $var_name."[$counter]", $fail, 0);
 			$self->deindent;
 			$self->pidl("}");
 			$self->deindent;
@@ -1986,7 +1989,7 @@ sub ConvertObjectFromPythonLevel($$$$$$$$)
 		$self->deindent;
 		$self->pidl("}");
 	} elsif ($l->{TYPE} eq "SUBCONTEXT") {
-		$self->ConvertObjectFromPythonLevel($env, $mem_ctx, $py_var, $e, $nl, $var_name, $fail);
+		$self->ConvertObjectFromPythonLevel($env, $mem_ctx, $py_var, $e, $nl, $var_name, $fail, $recurse);
 	} else {
 		fatal($e->{ORIGINAL}, "unknown level type $l->{TYPE}");
 	}
@@ -1995,8 +1998,9 @@ sub ConvertObjectFromPythonLevel($$$$$$$$)
 sub ConvertObjectFromPython($$$$$$$)
 {
 	my ($self, $env, $mem_ctx, $ctype, $cvar, $target, $fail) = @_;
+	my $recurse = 0;
 
-	$self->ConvertObjectFromPythonLevel($env, $mem_ctx, $cvar, $ctype, $ctype->{LEVELS}[0], $target, $fail);
+	$self->ConvertObjectFromPythonLevel($env, $mem_ctx, $cvar, $ctype, $ctype->{LEVELS}[0], $target, $fail, $recurse);
 }
 
 sub ConvertScalarToPython($$$$)
@@ -2118,9 +2122,9 @@ sub fail_on_null($$$)
 	$self->pidl("}");
 }
 
-sub ConvertObjectToPythonLevel($$$$$$)
+sub ConvertObjectToPythonLevel($$$$$$$)
 {
-	my ($self, $mem_ctx, $env, $e, $l, $var_name, $py_var, $fail) = @_;
+	my ($self, $mem_ctx, $env, $e, $l, $var_name, $py_var, $fail, $recurse) = @_;
 	my $nl = GetNextLevel($e, $l);
 	if ($nl and $nl->{TYPE} eq "SUBCONTEXT") {
 		$nl = GetNextLevel($e, $nl);
@@ -2132,19 +2136,27 @@ sub ConvertObjectToPythonLevel($$$$$$)
 
 	if ($l->{TYPE} eq "POINTER") {
 		if ($l->{POINTER_TYPE} ne "ref") {
-			$self->pidl("if ($var_name == NULL) {");
-			$self->indent;
-			$self->pidl("$py_var = Py_None;");
-			$self->pidl("Py_INCREF($py_var);");
-			$self->deindent;
-			$self->pidl("} else {");
-			$self->indent;
+			if ($recurse == 0) {
+				$self->pidl("if ($var_name == NULL) {");
+				$self->indent;
+				$self->pidl("$py_var = Py_None;");
+				$self->pidl("Py_INCREF($py_var);");
+				$self->deindent;
+				$self->pidl("} else {");
+				$self->indent;
+			} else {
+				$self->pidl("{");
+				$self->indent;
+			}
+			$recurse = $recurse + 1;
 		}
 		my $var_name2 = $var_name;
+		my $recurse2 = $recurse;
 		unless ($nl->{TYPE} eq "DATA" and Parse::Pidl::Typelist::scalar_is_reference($nl->{DATA_TYPE})) {
 			$var_name2 = get_value_of($var_name);
+			$recurse2 = 0;
 		}
-		$self->ConvertObjectToPythonLevel($var_name, $env, $e, $nl, $var_name2, $py_var, $fail);
+		$self->ConvertObjectToPythonLevel($var_name, $env, $e, $nl, $var_name2, $py_var, $fail, $recurse2);
 		if ($l->{POINTER_TYPE} ne "ref") {
 			$self->deindent;
 			$self->pidl("}");
@@ -2184,7 +2196,7 @@ sub ConvertObjectToPythonLevel($$$$$$)
 			$self->indent;
 			my $member_var = "py_$e->{NAME}_$l->{LEVEL_INDEX}";
 			$self->pidl("PyObject *$member_var;");
-			$self->ConvertObjectToPythonLevel($var_name, $env, $e, $nl, $var_name."[$counter]", $member_var, $fail);
+			$self->ConvertObjectToPythonLevel($var_name, $env, $e, $nl, $var_name."[$counter]", $member_var, $fail, $recurse);
 			$self->pidl("PyList_SetItem($py_var, $counter, $member_var);");
 			$self->deindent;
 			$self->pidl("}");
@@ -2205,7 +2217,7 @@ sub ConvertObjectToPythonLevel($$$$$$)
 		my $conv = $self->ConvertObjectToPythonData($mem_ctx, $l->{DATA_TYPE}, $var_name, $e->{ORIGINAL});
 		$self->pidl("$py_var = $conv;");
 	} elsif ($l->{TYPE} eq "SUBCONTEXT") {
-		$self->ConvertObjectToPythonLevel($mem_ctx, $env, $e, $nl, $var_name, $py_var, $fail);
+		$self->ConvertObjectToPythonLevel($mem_ctx, $env, $e, $nl, $var_name, $py_var, $fail, $recurse);
 	} else {
 		fatal($e->{ORIGINAL}, "Unknown level type $l->{TYPE} $var_name");
 	}
@@ -2214,8 +2226,9 @@ sub ConvertObjectToPythonLevel($$$$$$)
 sub ConvertObjectToPython($$$$$$)
 {
 	my ($self, $mem_ctx, $env, $ctype, $cvar, $py_var, $fail) = @_;
+	my $recurse = 0;
 
-	$self->ConvertObjectToPythonLevel($mem_ctx, $env, $ctype, $ctype->{LEVELS}[0], $cvar, $py_var, $fail);
+	$self->ConvertObjectToPythonLevel($mem_ctx, $env, $ctype, $ctype->{LEVELS}[0], $cvar, $py_var, $fail, $recurse);
 }
 
 sub Parse($$$$$)
