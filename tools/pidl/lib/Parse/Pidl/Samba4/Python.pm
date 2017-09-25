@@ -671,6 +671,11 @@ sub PythonType($$$$)
 	}
 
 	if ($actual_ctype->{TYPE} eq "UNION" and defined($actual_ctype->{ELEMENTS})) {
+		my $prettyname = PrettifyTypeName($d->{NAME}, $basename);
+		my $typeobject = "$d->{NAME}\_Type";
+		my $docstring = $self->DocString($d, $d->{NAME});
+		my $cname = "union $d->{NAME}";
+
 		$self->pidl("PyObject *py_import_$d->{NAME}(TALLOC_CTX *mem_ctx, int level, " .mapTypeName($d) . " *in)");
 		$self->pidl_hdr("PyObject *py_import_$d->{NAME}(TALLOC_CTX *mem_ctx, int level, " .mapTypeName($d) . " *in);\n");
 		$self->pidl("{");
@@ -688,6 +693,215 @@ sub PythonType($$$$)
 		$self->deindent;
 		$self->pidl("}");
 		$self->pidl("");
+
+		my $getsetters = "NULL";
+		my $py_methods = "NULL";
+		my $typename = mapTypeName($d);
+
+		##
+		## PyCapsule (starting with 2.7) vs. PyCObject (up to 3.2)
+		##
+		## As we need to support python 2.6, we can't use PyCapsule yet.
+		##
+		## When we'll get support fpr Python3 we'll have to emulate
+		## PyCObject using PyCapsule and convert these functions to
+		## use PyCapsule.
+		##
+		$self->pidl("static PyObject *py_$d->{NAME}\_import(PyTypeObject *type, PyObject *args, PyObject *kwargs)");
+		$self->pidl("{");
+		$self->indent;
+		$self->pidl("const char * const kwnames[] = { \"mem_ctx\", \"level\", \"in\", NULL };");
+		$self->pidl("PyObject *mem_ctx_obj = NULL;");
+		$self->pidl("static const char *mem_ctx_type = \"TALLOC_CTX\";");
+		$self->pidl("const char *mem_ctx_desc = NULL;");
+		$self->pidl("TALLOC_CTX *mem_ctx = NULL;");
+		$self->pidl("int level = 0;");
+		$self->pidl("PyObject *in_obj = NULL;");
+		$self->pidl("static const char *in_type = \"$typename\";");
+		$self->pidl("const char *in_desc = NULL;");
+		$self->pidl("$typename *in = NULL;");
+		$self->pidl("int cmp;");
+		$self->pidl("");
+		$self->pidl("if (!PyArg_ParseTupleAndKeywords(args, kwargs, \"OiO:import\",");
+		$self->indent;
+		$self->pidl("discard_const_p(char *, kwnames),");
+		$self->pidl("&mem_ctx_obj,");
+		$self->pidl("&level,");
+		$self->pidl("&in_obj)) {");
+		$self->deindent;
+		$self->indent;
+		$self->pidl("return NULL;");
+		$self->deindent;
+		$self->pidl("}");
+		$self->pidl("if (!PyCObject_Check(mem_ctx_obj)) {");
+		$self->indent;
+		$self->pidl("PyErr_SetString(PyExc_TypeError, \"mem_ctx needs to be of type PyCObject!\");");
+		$self->pidl("return NULL;");
+		$self->deindent;
+		$self->pidl("}");
+		$self->pidl("mem_ctx_desc = (const char *)PyCObject_GetDesc(mem_ctx_obj);");
+		$self->indent;
+		$self->pidl("if (mem_ctx_desc == NULL) {");
+		$self->pidl("PyErr_SetString(PyExc_TypeError, \"mem_ctx hash no PyCObject_GetDesc()!\");");
+		$self->pidl("return NULL;");
+		$self->deindent;
+		$self->pidl("}");
+		$self->pidl("cmp = strncmp(mem_ctx_type, mem_ctx_desc, strlen(mem_ctx_type) + 1);");
+		$self->pidl("if (cmp != 0) {");
+		$self->indent;
+		$self->pidl("PyErr_Format(PyExc_TypeError, \"mem_ctx should have PyCObject_GetDesc() = %s!\", mem_ctx_type);");
+		$self->pidl("return NULL;");
+		$self->deindent;
+		$self->pidl("}");
+		$self->pidl("mem_ctx = PyCObject_AsVoidPtr(mem_ctx_obj);");
+		$self->pidl("if (mem_ctx == NULL) {");
+		$self->indent;
+		$self->pidl("PyErr_SetString(PyExc_TypeError, \"mem_ctx is NULL)!\");");
+		$self->pidl("return NULL;");
+		$self->deindent;
+		$self->pidl("}");
+		$self->pidl("if (!PyCObject_Check(in_obj)) {");
+		$self->indent;
+		$self->pidl("PyErr_SetString(PyExc_TypeError, \"in needs to be of type PyCObject!\");");
+		$self->pidl("return NULL;");
+		$self->deindent;
+		$self->pidl("}");
+		$self->pidl("in_desc = (const char *)PyCObject_GetDesc(in_obj);");
+		$self->indent;
+		$self->pidl("if (in_desc == NULL) {");
+		$self->pidl("PyErr_SetString(PyExc_TypeError, \"in hash no PyCObject_GetDesc()!\");");
+		$self->pidl("return NULL;");
+		$self->deindent;
+		$self->pidl("}");
+		$self->pidl("cmp = strncmp(in_type, in_desc, strlen(in_type) + 1);");
+		$self->pidl("if (cmp != 0) {");
+		$self->indent;
+		$self->pidl("PyErr_Format(PyExc_TypeError, \"in should have PyCObject_GetDesc() = %s!\", in_type);");
+		$self->pidl("return NULL;");
+		$self->deindent;
+		$self->pidl("}");
+		$self->pidl("in = ($typename *)PyCObject_AsVoidPtr(in_obj);");
+		$self->pidl("");
+		$self->pidl("return py_import_$d->{NAME}(mem_ctx, level, in);");
+		$self->deindent;
+		$self->pidl("}");
+		$self->pidl("");
+
+		$self->pidl("static PyObject *py_$d->{NAME}\_export(PyTypeObject *type, PyObject *args, PyObject *kwargs)");
+		$self->pidl("{");
+		$self->indent;
+		$self->pidl("const char * const kwnames[] = { \"mem_ctx\", \"level\", \"in\", NULL };");
+		$self->pidl("PyObject *mem_ctx_obj = NULL;");
+		$self->pidl("static const char *mem_ctx_type = \"TALLOC_CTX\";");
+		$self->pidl("const char *mem_ctx_desc = NULL;");
+		$self->pidl("TALLOC_CTX *mem_ctx = NULL;");
+		$self->pidl("int level = 0;");
+		$self->pidl("PyObject *in = NULL;");
+		$self->pidl("static const char *out_type = \"$typename\";");
+		$self->pidl("$typename *out = NULL;");
+		$self->pidl("int cmp;");
+		$self->pidl("");
+		$self->pidl("if (!PyArg_ParseTupleAndKeywords(args, kwargs, \"OiO:import\",");
+		$self->indent;
+		$self->pidl("discard_const_p(char *, kwnames),");
+		$self->pidl("&mem_ctx_obj,");
+		$self->pidl("&level,");
+		$self->pidl("&in)) {");
+		$self->deindent;
+		$self->indent;
+		$self->pidl("return NULL;");
+		$self->deindent;
+		$self->pidl("}");
+		$self->pidl("if (!PyCObject_Check(mem_ctx_obj)) {");
+		$self->indent;
+		$self->pidl("PyErr_SetString(PyExc_TypeError, \"mem_ctx needs to be of type PyCObject!\");");
+		$self->pidl("return NULL;");
+		$self->deindent;
+		$self->pidl("}");
+		$self->pidl("mem_ctx_desc = (const char *)PyCObject_GetDesc(mem_ctx_obj);");
+		$self->indent;
+		$self->pidl("if (mem_ctx_desc == NULL) {");
+		$self->pidl("PyErr_SetString(PyExc_TypeError, \"mem_ctx hash no PyCObject_GetDesc()!\");");
+		$self->pidl("return NULL;");
+		$self->deindent;
+		$self->pidl("}");
+		$self->pidl("cmp = strncmp(mem_ctx_type, mem_ctx_desc, strlen(mem_ctx_type) + 1);");
+		$self->pidl("if (cmp != 0) {");
+		$self->indent;
+		$self->pidl("PyErr_Format(PyExc_TypeError, \"mem_ctx should have PyCObject_GetDesc() = %s!\", mem_ctx_type);");
+		$self->pidl("return NULL;");
+		$self->deindent;
+		$self->pidl("}");
+		$self->pidl("mem_ctx = PyCObject_AsVoidPtr(mem_ctx_obj);");
+		$self->pidl("if (mem_ctx == NULL) {");
+		$self->indent;
+		$self->pidl("PyErr_SetString(PyExc_TypeError, \"mem_ctx is NULL)!\");");
+		$self->pidl("return NULL;");
+		$self->deindent;
+		$self->pidl("}");
+		$self->pidl("");
+		$self->pidl("out = py_export_$d->{NAME}(mem_ctx, level, in);");
+		$self->pidl("if (out == NULL) {");
+		$self->indent;
+		$self->pidl("return NULL;");
+		$self->deindent;
+		$self->pidl("}");
+		$self->pidl("return PyCObject_FromVoidPtrAndDesc(out, discard_const_p(char, out_type), NULL);");
+		$self->deindent;
+		$self->pidl("}");
+		$self->pidl("");
+
+		$py_methods = "py_$d->{NAME}_methods";
+		$self->pidl("static PyMethodDef $py_methods\[] = {");
+		$self->indent;
+		$self->pidl("{ \"__import__\", (PyCFunction)py_$d->{NAME}\_import,");
+		$self->indent;
+		$self->pidl("METH_VARARGS|METH_KEYWORDS|METH_CLASS,");
+		$self->pidl("\"T.__import__(mem_ctx, level, in) => ret.\" },");
+		$self->deindent;
+		$self->pidl("{ \"__export__\", (PyCFunction)py_$d->{NAME}\_export,");
+		$self->indent;
+		$self->pidl("METH_VARARGS|METH_KEYWORDS|METH_CLASS,");
+		$self->pidl("\"T.__export__(mem_ctx, level, in) => ret.\" },");
+		$self->deindent;
+		$self->pidl("{ NULL, NULL, 0, NULL }");
+		$self->deindent;
+		$self->pidl("};");
+		$self->pidl("");
+
+		$self->pidl("static PyObject *py_$d->{NAME}\_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)");
+		$self->pidl("{");
+		$self->indent;
+		$self->pidl("PyErr_Format(PyExc_TypeError, \"New %s Objects are not supported\", type->tp_name);");
+		$self->pidl("return NULL;");
+		$self->deindent;
+		$self->pidl("}");
+		$self->pidl("");
+
+		$self->pidl("");
+		$self->pidl_hdr("static PyTypeObject $typeobject;\n");
+		$self->pidl("static PyTypeObject $typeobject = {");
+		$self->indent;
+		$self->pidl("PyObject_HEAD_INIT(NULL) 0,");
+		$self->pidl(".tp_name = \"$modulename.$prettyname\",");
+		$self->pidl(".tp_getset = $getsetters,");
+		if ($docstring) {
+			$self->pidl(".tp_doc = $docstring,");
+		}
+		$self->pidl(".tp_methods = $py_methods,");
+		$self->pidl(".tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,");
+		$self->pidl(".tp_new = py_$d->{NAME}\_new,");
+		$self->deindent;
+		$self->pidl("};");
+
+		$self->pidl("");
+
+		my $talloc_typename = $self->import_type_variable("talloc", "BaseObject");
+		$self->register_module_prereadycode(["$typeobject.tp_base = $talloc_typename;",
+						     "$typeobject.tp_basicsize = pytalloc_BaseObject_size();",
+						     ""]);
+
+		$self->register_module_typeobject($prettyname, "&$typeobject", $d->{ORIGINAL});
 	}
 }
 
