@@ -42,16 +42,23 @@
 #include <wsutil/plugins.h>
 #include <wsutil/ws_printf.h> /* ws_debug_printf */
 
-/* linked list of all plugins */
 typedef struct _plugin {
     GModule        *handle;       /* handle returned by g_module_open */
     gchar          *name;         /* plugin name */
-    gchar          *version;      /* plugin version */
+    const gchar    *version;      /* plugin version */
     guint32         types;        /* bitmask of plugin types this plugin supports */
-    struct _plugin *next;         /* forward link */
 } plugin;
 
-static plugin *plugin_list = NULL;
+static GHashTable *plugins_table = NULL;
+
+static void
+free_plugin(gpointer _p)
+{
+    plugin *p = (plugin *)_p;
+    g_module_close(p->handle);
+    g_free(p->name);
+    g_free(p);
+}
 
 /*
  * Add a new plugin type.
@@ -67,6 +74,12 @@ typedef struct {
 } plugin_type;
 
 static GSList *plugin_types = NULL;
+
+static void
+free_plugin_type(gpointer p, gpointer user_data _U_)
+{
+    g_free(p);
+}
 
 void
 add_plugin_type(const char *type, plugin_check_type_callback callback)
@@ -89,44 +102,6 @@ add_plugin_type(const char *type, plugin_check_type_callback callback)
     new_type->type_val = type_val;
     plugin_types = g_slist_append(plugin_types, new_type);
     type_val++;
-}
-
-/*
- * add a new plugin to the list
- */
-static void
-add_plugin(plugin *new_plug)
-{
-    plugin *pt_plug;
-
-    pt_plug = plugin_list;
-    if (!pt_plug) /* the list is empty */
-    {
-        plugin_list = new_plug;
-    }
-    else
-    {
-        while (1)
-        {
-            /* we found the last plugin in the list */
-            if (pt_plug->next == NULL)
-                break;
-
-            pt_plug = pt_plug->next;
-        }
-        pt_plug->next = new_plug;
-    }
-}
-
-static gboolean
-check_if_plugin_exists(const char *name)
-{
-    for (plugin *p = plugin_list; p != NULL; p = p->next) {
-        if (strcmp(p->name, name) == 0) {
-            return TRUE;
-        }
-    }
-    return FALSE;
 }
 
 static void
@@ -186,7 +161,7 @@ plugins_scan_dir(const char *dirname, plugin_load_failure_mode mode)
             /*
              * Check if the same name is already registered.
              */
-            if (check_if_plugin_exists(name)) {
+            if (g_hash_table_lookup(plugins_table, name)) {
                 /* Yes, it is. */
                 if (mode == REPORT_LOAD_FAILURE) {
                     report_warning("The plugin '%s' was found "
@@ -227,7 +202,6 @@ plugins_scan_dir(const char *dirname, plugin_load_failure_mode mode)
             new_plug->name = g_strdup(name);
             new_plug->version = (char *)gp;
             new_plug->types = 0;
-            new_plug->next = NULL;
 
             /*
              * Hand the plugin to each of the plugin type callbacks.
@@ -268,7 +242,7 @@ plugins_scan_dir(const char *dirname, plugin_load_failure_mode mode)
             /*
              * OK, add it to the list of plugins.
              */
-            add_plugin(new_plug);
+            g_hash_table_insert(plugins_table, new_plug->name, new_plug);
         }
         ws_dir_close(dir);
     }
@@ -287,8 +261,9 @@ scan_plugins(plugin_load_failure_mode mode)
     WS_DIR *dir;                /* scanned directory */
     WS_DIRENT *file;            /* current file */
 
-    if (plugin_list == NULL)    /* only scan for plugins once */
+    if (plugins_table == NULL)    /* only scan for plugins once */
     {
+        plugins_table = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, free_plugin);
         /*
          * Scan the global plugin directory.
          * If we're running from a build directory, scan the "plugins"
@@ -358,56 +333,51 @@ scan_plugins(plugin_load_failure_mode mode)
     }
 }
 
-/*
- * Iterate over all plugins, calling a callback with information about
- * the plugin.
- */
-typedef struct {
-    plugin  *pt_plug;
-    GString *types;
-    const char *sep;
-} type_callback_info;
+struct plugin_description {
+    plugin_description_callback callback;
+    void *user_data;
+};
 
 static void
-add_plugin_type_description(gpointer data, gpointer user_data)
+add_plugin_type_description(gpointer key _U_, gpointer value, gpointer user_data)
 {
-    plugin_type *type = (plugin_type *)data;
-    type_callback_info *info = (type_callback_info *)user_data;
+    struct plugin_description *description = (struct plugin_description *)user_data;
+    plugin *plug = (plugin *)value;
+    GString *types_str;
+    plugin_type *type;
+    const char *sep;
+
+    sep = "";
+    types_str = g_string_new("");
+
+    for (GSList *l = plugin_types; l != NULL; l = l->next) {
+        /*
+         * If the plugin handles this type, add the type to the list of types.
+         */
+        type = (plugin_type *)l->data;
+        if (plug->types & (1 << type->type_val)) {
+            g_string_append_printf(types_str, "%s%s", sep, type->type);
+            sep = ", ";
+        }
+    }
 
     /*
-     * If the plugin handles this type, add the type to the list of types.
+     * And hand the information to the callback.
      */
-    if (info->pt_plug->types & (1 << type->type_val)) {
-        g_string_append_printf(info->types, "%s%s", info->sep, type->type);
-        info->sep = ", ";
-    }
+    description->callback(plug->name, plug->version, types_str->str,
+             g_module_name(plug->handle), description->user_data);
+
+    g_string_free(types_str, TRUE);
 }
 
 WS_DLL_PUBLIC void
 plugins_get_descriptions(plugin_description_callback callback, void *user_data)
 {
-    type_callback_info info;
+    struct plugin_description pd;
 
-    info.types = NULL; /* Certain compiler suites need a init state for this variable */
-    for (info.pt_plug = plugin_list; info.pt_plug != NULL;
-         info.pt_plug = info.pt_plug->next)
-    {
-        info.sep = "";
-        info.types = g_string_new("");
-
-        /*
-         * Build a list of all the plugin types.
-         */
-        g_slist_foreach(plugin_types, add_plugin_type_description, &info);
-
-        /*
-         * And hand the information to the callback.
-         */
-        callback(info.pt_plug->name, info.pt_plug->version, info.types->str,
-                 g_module_name(info.pt_plug->handle), user_data);
-
-        g_string_free(info.types, TRUE);
-    }
+    pd.callback = callback;
+    pd.user_data = user_data;
+    g_hash_table_foreach(plugins_table, add_plugin_type_description, &pd);
 }
 
 static void
@@ -424,23 +394,10 @@ plugins_dump_all(void)
     plugins_get_descriptions(print_plugin_description, NULL);
 }
 
-static void
-free_plugin_type(gpointer p, gpointer user_data _U_)
-{
-    g_free(p);
-}
-
 void
 plugins_cleanup(void)
 {
-    plugin* cur, *next;
-
-    for (cur = plugin_list; cur != NULL; cur = next) {
-        next = cur->next;
-        g_free(cur->name);
-        g_free(cur);
-    }
-
+    g_hash_table_destroy(plugins_table);
     g_slist_foreach(plugin_types, free_plugin_type, NULL);
     g_slist_free(plugin_types);
 }
