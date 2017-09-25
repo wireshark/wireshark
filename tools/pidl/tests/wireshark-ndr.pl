@@ -14,7 +14,7 @@ use strict;
 use Parse::Pidl::Wireshark::NDR qw(field2name %res PrintIdl StripPrefixes RegisterInterfaceHandoff register_hf_field ProcessImport ProcessInclude find_type DumpEttList DumpEttDeclaration DumpHfList DumpHfDeclaration DumpFunctionTable register_type register_ett);
 
 is("Access Mask", field2name("access_mask"));
-is("Accessmask", field2name("AccessMask"));
+is("AccessMask", field2name("AccessMask"));
 
 my $x = new Parse::Pidl::Wireshark::NDR();
 $x->PrintIdl("foo\nbar\n");
