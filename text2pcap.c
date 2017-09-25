@@ -1881,7 +1881,10 @@ main(int argc, char *argv[])
 {
     int ret = EXIT_SUCCESS;
 
-    parse_options(argc, argv);
+    if (parse_options(argc, argv) != EXIT_SUCCESS) {
+        ret = EXIT_FAILURE;
+        goto clean_exit;
+    }
 
     assert(input_file  != NULL);
     assert(output_file != NULL);
@@ -1933,8 +1936,12 @@ main(int argc, char *argv[])
     }
 clean_exit:
     text2pcap_lex_destroy();
-    fclose(input_file);
-    fclose(output_file);
+    if (input_file) {
+        fclose(input_file);
+    }
+    if (output_file) {
+        fclose(output_file);
+    }
     return ret;
 }
 
