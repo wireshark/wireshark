@@ -21,7 +21,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * References: 3GPP TS 24.301 V14.4.0 (2017-06)
+ * References: 3GPP TS 24.301 V14.5.0 (2017-09)
  */
 
 #include "config.h"
@@ -203,7 +203,6 @@ static int hf_nas_eps_emm_apn_ambr_dl_ext2 = -1;
 static int hf_nas_eps_emm_apn_ambr_ul_total = -1;
 static int hf_nas_eps_emm_apn_ambr_dl_total = -1;
 static int hf_nas_eps_emm_guti_type = -1;
-static int hf_nas_eps_non_3gpp_emerg_nb_ind = -1;
 static int hf_nas_eps_hash_mme = -1;
 static int hf_nas_eps_replayed_nas_msg_cont = -1;
 static int hf_nas_eps_emm_detach_req_UL = -1;
@@ -766,7 +765,7 @@ static const value_string nas_emm_elem_strings[] = {
     { DE_EMM_EXT_DRX_PARAMS, "Extended DRX parameters" },                      /* 9.9.3.46 Extended DRX parameters */
     { DE_EMM_DATA_SERV_TYPE, "Data service type" },                            /* 9.9.3.47 Data service type */
     { DE_EMM_DCN_ID, "DCN-ID" },                                               /* 9.9.3.48 DCN-ID */
-    { DE_EMM_NON_3GPP_ACCESS_PROV_EMERG_NB_POL, "Non-3GPP access provided emergency numbers policy" },/* 9.9.3.49 Non-3GPP access provided emergency numbers policy */
+    { DE_EMM_NON_3GPP_NW_PROV_POL, "Non-3GPP NW provided policies" },          /* 9.9.3.49 Non-3GPP NW provided policies */
     { DE_EMM_HASH_MME, "HashMME" },                                            /* 9.9.3.50 HashMME */
     { DE_EMM_REPLAYED_NAS_MSG_CONT, "Replayed NAS message container" },        /* 9.9.3.51 Replayed NAS message container */
     { 0, NULL }
@@ -845,7 +844,7 @@ typedef enum
     DE_EMM_EXT_DRX_PARAMS,      /* 9.9.3.46 Extended DRX parameters */
     DE_EMM_DATA_SERV_TYPE,      /* 9.9.3.47 Data service type */
     DE_EMM_DCN_ID,              /* 9.9.3.48 DCN-ID */
-    DE_EMM_NON_3GPP_ACCESS_PROV_EMERG_NB_POL /* 9.9.3.49 Non-3GPP access provided emergency numbers policy */
+    DE_EMM_NON_3GPP_NW_PROV_POL /* 9.9.3.49 Non-3GPP NW provided policies */
     DE_EMM_HASH_MME,            /* 9.9.3.50 HashMME */
     DE_EMM_REPLAYED_NAS_MSG_CONT, /* 9.9.3.51 Replayed NAS message container */
     DE_EMM_NONE                 /* NONE */
@@ -2388,22 +2387,9 @@ de_emm_guti_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  */
 
 /*
- * 9.9.3.49 Non-3GPP access provided emergency numbers policy
+ * 9.9.3.49 Non-3GPP NW provided policies
+ * See subclause 10.5.5.37 in 3GPP TS 24.008
  */
-const true_false_string nas_eps_permitted_not_permitted_value = {
-    "Permitted",
-    "Not permitted"
-};
-
-static guint16
-de_emm_non_3gpp_access_prov_emerg_nb_pol(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
-{
-    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (offset << 3) + 4, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(tree, hf_nas_eps_non_3gpp_emerg_nb_ind, tvb, (offset << 3) + 7, 1, ENC_BIG_ENDIAN);
-
-    /* no length check possible */
-    return (1);
-}
 
 /*
  * 9.9.3.50 HashMME
@@ -3450,7 +3436,7 @@ guint16 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     NULL,                       /* 9.9.3.46 Extended DRX parameters */
     NULL,                       /* 9.9.3.47 Data service type */
     NULL,                       /* 9.9.3.48 DCN-ID */
-    de_emm_non_3gpp_access_prov_emerg_nb_pol, /* 9.9.3.49 Non-3GPP access provided emergency numbers policy */
+    NULL,                       /* 9.9.3.49 Non-3GPP NW provided policies */
     de_emm_hash_mme,            /* 9.9.3.50 HashMME */
     de_emm_replayed_nas_msg_cont, /* 9.9.3.51 Replayed NAS message container */
     NULL,   /* NONE */
@@ -3634,8 +3620,8 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     ELEM_OPT_TLV(0x65, GSM_A_PDU_TYPE_GM, DE_DCN_ID, NULL);
     /* E-   SMS services status SMS services status 9.9.3.4B O TV 1 */
     ELEM_OPT_TV_SHORT(0xE0, NAS_PDU_TYPE_EMM, DE_EMM_SMS_SERVICES_STATUS, NULL);
-    /* D-   Non-3GPP access provided emergency numbers policy Non-3GPP access provided emergency numbers policy O   TV  1 */
-    ELEM_OPT_TV_SHORT(0xD0, NAS_PDU_TYPE_EMM, DE_EMM_NON_3GPP_ACCESS_PROV_EMERG_NB_POL, NULL);
+    /* D-   Non-3GPP NW provided policies Non-3GPP NW provided policies O   TV  1 */
+    ELEM_OPT_TV_SHORT(0xD0, GSM_A_PDU_TYPE_GM, DE_NON_3GPP_NW_PROV_POL, NULL);
     /* 6B   T3448 value GPRS timer 2 9.9.3.16A O   TLV  3 */
     ELEM_OPT_TLV(0x6B, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3448 value");
 
@@ -4400,8 +4386,8 @@ nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     ELEM_OPT_TLV(0x65, GSM_A_PDU_TYPE_GM, DE_DCN_ID, NULL);
     /* E-   SMS services status SMS services status 9.9.3.4B O TV 1 */
     ELEM_OPT_TV_SHORT(0xE0, NAS_PDU_TYPE_EMM, DE_EMM_SMS_SERVICES_STATUS, NULL);
-    /* D-   Non-3GPP access provided emergency numbers policy Non-3GPP access provided emergency numbers policy O   TV  1 */
-    ELEM_OPT_TV_SHORT(0xD0, NAS_PDU_TYPE_EMM, DE_EMM_NON_3GPP_ACCESS_PROV_EMERG_NB_POL, NULL);
+    /* D-   Non-3GPP NW provided policies Non-3GPP NW provided policies O   TV  1 */
+    ELEM_OPT_TV_SHORT(0xD0, GSM_A_PDU_TYPE_GM, DE_NON_3GPP_NW_PROV_POL, NULL);
     /* 6B   T3448 value GPRS timer 2 9.9.3.16A O   TLV  3 */
     ELEM_OPT_TLV(0x6B, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3448 value");
 
@@ -6696,11 +6682,6 @@ proto_register_nas_eps(void)
     { &hf_nas_eps_emm_guti_type,
         { "GUTI type", "nas_eps.emm.guti_type",
         FT_BOOLEAN, BASE_NONE, TFS(&nas_eps_emm_guti_type_value), 0x0,
-        NULL, HFILL }
-    },
-    { &hf_nas_eps_non_3gpp_emerg_nb_ind,
-        { "Non-3GPP emergency number indicator", "nas_eps.emm.non_3gpp_emerg_nb_ind",
-        FT_BOOLEAN, BASE_NONE, TFS(&nas_eps_permitted_not_permitted_value), 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_hash_mme,
