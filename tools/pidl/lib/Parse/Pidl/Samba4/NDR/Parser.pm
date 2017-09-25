@@ -1128,6 +1128,9 @@ sub ParseElementPullLevel
 
 	if (has_property($e, "skip") or has_property($e, "skip_noinit")) {
 		$self->pidl("/* [skip] '$var_name' */");
+		if (not has_property($e, "skip_noinit")) {
+			$self->pidl("ZERO_STRUCT($var_name);");
+		}
 		return;
 	}
 
