@@ -3305,8 +3305,8 @@ static int hf_zbee_zcl_pp_publish_debt_log_outstanding_debt = -1;
 
 /* Initialize the subtree pointers */
 #define ZBEE_ZCL_SE_PP_NUM_INDIVIDUAL_ETT             1
-#define ZBEE_ZCL_SE_PP_NUM_PUBLISH_TOP_UP_LOG_ETT     10
-#define ZBEE_ZCL_SE_PP_NUM_PUBLISH_DEBT_LOG_ETT       10
+#define ZBEE_ZCL_SE_PP_NUM_PUBLISH_TOP_UP_LOG_ETT     30
+#define ZBEE_ZCL_SE_PP_NUM_PUBLISH_DEBT_LOG_ETT       30
 #define ZBEE_ZCL_SE_PP_NUM_TOTAL_ETT                  (ZBEE_ZCL_SE_PP_NUM_INDIVIDUAL_ETT + \
                                                        ZBEE_ZCL_SE_PP_NUM_PUBLISH_TOP_UP_LOG_ETT + \
                                                        ZBEE_ZCL_SE_PP_NUM_PUBLISH_DEBT_LOG_ETT)
