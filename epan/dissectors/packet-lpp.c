@@ -28,7 +28,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Ref 3GPP TS 36.355 version 14.2.0 Release 14
+ * Ref 3GPP TS 36.355 version 14.3.0 Release 14
  * http://www.3gpp.org
  */
 
@@ -449,6 +449,7 @@ static int hf_lpp_maxSupportedPrsConfigs_r14 = -1;  /* T_maxSupportedPrsConfigs_
 static int hf_lpp_periodicalReporting_r14 = -1;   /* T_periodicalReporting_r14 */
 static int hf_lpp_multiPrbNprs_r14 = -1;          /* T_multiPrbNprs_r14 */
 static int hf_lpp_idleStateForMeasurements_r14 = -1;  /* T_idleStateForMeasurements_r14 */
+static int hf_lpp_numberOfRXantennas_r14 = -1;    /* T_numberOfRXantennas_r14 */
 static int hf_lpp_bandEUTRA = -1;                 /* INTEGER_1_maxFBI */
 static int hf_lpp_bandEUTRA_v9a0 = -1;            /* INTEGER_maxFBI_Plus1_maxFBI2 */
 static int hf_lpp_locationServerErrorCauses = -1;  /* OTDOA_LocationServerErrorCauses */
@@ -5137,6 +5138,21 @@ dissect_lpp_T_idleStateForMeasurements_r14(tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
+static const value_string lpp_T_numberOfRXantennas_r14_vals[] = {
+  {   0, "rx1" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lpp_T_numberOfRXantennas_r14(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
 static const per_sequence_t OTDOA_ProvideCapabilities_sequence[] = {
   { &hf_lpp_otdoa_Mode      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_otdoa_Mode },
   { &hf_lpp_supportedBandListEUTRA, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_lpp_SEQUENCE_SIZE_1_maxBands_OF_SupportedBandEUTRA },
@@ -5156,6 +5172,7 @@ static const per_sequence_t OTDOA_ProvideCapabilities_sequence[] = {
   { &hf_lpp_periodicalReporting_r14, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_lpp_T_periodicalReporting_r14 },
   { &hf_lpp_multiPrbNprs_r14, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_lpp_T_multiPrbNprs_r14 },
   { &hf_lpp_idleStateForMeasurements_r14, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_lpp_T_idleStateForMeasurements_r14 },
+  { &hf_lpp_numberOfRXantennas_r14, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_lpp_T_numberOfRXantennas_r14 },
   { NULL, 0, 0, NULL }
 };
 
@@ -16821,6 +16838,10 @@ void proto_register_lpp(void) {
     { &hf_lpp_idleStateForMeasurements_r14,
       { "idleStateForMeasurements-r14", "lpp.idleStateForMeasurements_r14",
         FT_UINT32, BASE_DEC, VALS(lpp_T_idleStateForMeasurements_r14_vals), 0,
+        NULL, HFILL }},
+    { &hf_lpp_numberOfRXantennas_r14,
+      { "numberOfRXantennas-r14", "lpp.numberOfRXantennas_r14",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_numberOfRXantennas_r14_vals), 0,
         NULL, HFILL }},
     { &hf_lpp_bandEUTRA,
       { "bandEUTRA", "lpp.bandEUTRA",

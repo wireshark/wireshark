@@ -1,4 +1,4 @@
--- 3GPP TS 36.355 V14.2.0 (2017-06)
+-- 3GPP TS 36.355 V14.3.0 (2017-09)
 --
 
 LPP-PDU-Definitions {
@@ -182,7 +182,6 @@ RequestLocationInformation-r9-IEs ::= SEQUENCE {
 	wlan-RequestLocationInformation-r13	WLAN-RequestLocationInformation-r13	OPTIONAL,	-- Need ON
 	bt-RequestLocationInformation-r13	BT-RequestLocationInformation-r13	OPTIONAL	-- Need ON
 	]]
-
 }
 
 
@@ -198,7 +197,7 @@ ProvideLocationInformation ::= SEQUENCE {
 
 ProvideLocationInformation-r9-IEs ::= SEQUENCE {
 	commonIEsProvideLocationInformation
-									CommonIEsProvideLocationInformation		OPTIONAL,
+										CommonIEsProvideLocationInformation	OPTIONAL,
 	a-gnss-ProvideLocationInformation	A-GNSS-ProvideLocationInformation	OPTIONAL,
 	otdoa-ProvideLocationInformation	OTDOA-ProvideLocationInformation	OPTIONAL,
 	ecid-ProvideLocationInformation		ECID-ProvideLocationInformation		OPTIONAL,
@@ -719,9 +718,9 @@ PRS-Info ::= SEQUENCE {
 		po512-v1420				BIT STRING (SIZE(512)),
 		po1024-v1420			BIT STRING (SIZE(1024))
 	}														OPTIONAL,				-- Need OP
-	[[ prsID-r14			INTEGER (0..4095)				OPTIONAL,				-- Need ON
+	[[	prsID-r14				INTEGER (0..4095)			OPTIONAL,				-- Need ON
 		add-numDL-Frames-r14	INTEGER (1..160)			OPTIONAL,				-- Cond sf-add
-		prsOccGroupLen-r14	ENUMERATED {g2, g4, g8, g16, g32, g64, g128,... }
+		prsOccGroupLen-r14		ENUMERATED {g2, g4, g8, g16, g32, g64, g128,... }
 															OPTIONAL, 				-- Cond Occ-Grp
 		prsHoppingInfo-r14	CHOICE {
 			nb2-r14				INTEGER (0.. maxAvailNarrowBands-Minus1-r14),
@@ -1004,7 +1003,8 @@ OTDOA-ProvideCapabilities ::= SEQUENCE {
 	maxSupportedPrsConfigs-r14			ENUMERATED { c2, c3 }							OPTIONAL,
 	periodicalReporting-r14				ENUMERATED { supported }						OPTIONAL,
 	multiPrbNprs-r14					ENUMERATED { supported }						OPTIONAL,
-	idleStateForMeasurements-r14		ENUMERATED { required }							OPTIONAL
+	idleStateForMeasurements-r14		ENUMERATED { required }							OPTIONAL,
+	numberOfRXantennas-r14				ENUMERATED { rx1, ... }							OPTIONAL
 }
 
 maxBands INTEGER ::= 64
@@ -2811,8 +2811,8 @@ WLAN-MeasurementElement-r13 ::= SEQUENCE {
 }
 
 WLAN-AP-Identifier-r13 ::= SEQUENCE {
-	bssid-r13							OCTET STRING (SIZE (6)),
-	ssid-r13							OCTET STRING (SIZE (1..32))	OPTIONAL,
+	bssid-r13					OCTET STRING (SIZE (6)),
+	ssid-r13					OCTET STRING (SIZE (1..32))			OPTIONAL,
 	...
 }
 
