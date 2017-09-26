@@ -24,7 +24,8 @@ link:{wireshark-man-page-url}[the web site].
 TShark is a terminal oriented version of Wireshark designed for capturing and
 displaying packets when an interactive user interface isn't necessary or
 available. It supports the same options as `wireshark`. For more information on
-`tshark` see the manual pages (`man tshark`).
+`tshark` consult your local manual page (`man tshark`) or
+link:{wireshark-man-page-url}tshark.html[the online version].
 
 [[AppToolstsharkEx]]
 .Help information available from `tshark`
@@ -53,6 +54,8 @@ believe you have captured enough packets.
 
 +tcpdump+ is not part of the Wireshark distribution. You can get it from
 {tcpdump-main-url} or as a standard package in most Linux distributions.
+For more information on +tcpdump+ consult your local manual page (`man
+tcpdump`) or link:{tcpdump-man-page-url}[the online version].
 
 [[AppToolsdumpcap]]
 
@@ -62,10 +65,12 @@ Dumpcap is a network traffic dump tool. It captures packet data from a live
 network and writes the packets to a file. Dumpcap's native capture file format
 is pcapng, which is also the format used by Wireshark.
 
-Without any options set it will use the pcap library to capture traffic from the
-first available network interface and write the received raw packet data, along
-with the packets' time stamps into a pcapng file. The capture filter syntax
-follows the rules of the pcap library.
+Without any options set it will use the pcap library to capture traffic
+from the first available network interface and write the received raw
+packet data, along with the packets' time stamps into a pcapng file. The
+capture filter syntax follows the rules of the pcap library. For more
+information on `dumpcap` consult your local manual page (`man dumpcap`)
+or link:{wireshark-man-page-url}dumpcap.html[the online version].
 
 [[AppToolsdumpcapEx]]
 .Help information available from `dumpcap`
@@ -77,7 +82,12 @@ include::dumpcap-h.txt[]
 
 === __capinfos__: Print information about capture files
 
-+capinfos+ can print information about binary capture files.
++capinfos+ can print information about capture files including the file
+type, number of packets, date and time information, and file hashes.
+Information can be printed in human and machine readable formats. For
+more information on `capinfos` consult your local manual page (`man
+capinfos`) or link:{wireshark-man-page-url}capinfos.html[the online
+version].
 
 [[AppToolscapinfosEx]]
 .Help information available from `capinfos`
@@ -89,9 +99,11 @@ include::capinfos-h.txt[]
 
 === __rawshark__: Dump and analyze network traffic.
 
-Rawshark reads a stream of packets from a file or pipe, and prints a line
-describing its output, followed by a set of matching fields for each packet on
-stdout.
+Rawshark reads a stream of packets from a file or pipe, and prints a
+line describing its output, followed by a set of matching fields for
+each packet on stdout. For more information on `rawshark` consult your
+local manual page (`man rawshark`) or
+link:{wireshark-man-page-url}rawshark.html[the online version].
 
 [[AppToolsrawsharkEx]]
 .Help information available from `rawshark`
@@ -103,10 +115,12 @@ include::rawshark-h.txt[]
 
 === __editcap__: Edit capture files
 
-+editcap+ is a general-purpose utility for modifying capture files. Its main
-function is to remove packets from capture files, but it can also be used to
-convert capture files from one format to another, as well as to print
-information about capture files.
++editcap+ is a general-purpose utility for modifying capture files. Its
+main function is to remove packets from capture files, but it can also
+be used to convert capture files from one format to another, as well as
+to print information about capture files. For more information on
+`editcap` consult your local manual page (`man editcap`) or
+link:{wireshark-man-page-url}editcap.html[the online version].
 
 [[AppToolseditcapEx]]
 .Help information available from editcap
@@ -175,6 +189,10 @@ be the specified type; the packet headers of the packets will not be translated
 from the encapsulation type of the input capture file to the specified
 encapsulation type (for example, it will not translate an Ethernet capture to an
 FDDI capture if an Ethernet capture is read and `-T fddi` is specified).
+
+For more information on `mergecap` consult your local manual page (`man
+mergecap`) or link:{wireshark-man-page-url}mergecap.html[the online
+version].
 
 [[AppToolsmergecapEx]]
 .Help information available from `mergecap`
@@ -250,18 +268,25 @@ inserting headers such as Ethernet, Ethernet + IP, Ethernet + IP + UDP, or
 Ethernet + Ip + TCP before each packet. This allows Wireshark or any other
 full-packet decoder to handle these dumps.
 
+For more information on `text2pcap` consult your local manual page (`man
+text2pcap`) or link:{wireshark-man-page-url}text2pcap.html[the online
+version].
+
 [[AppToolstext2pcapEx]]
 .Help information available from text2pcap
 
 ----
-include::mergecap-h.txt[]
+include::text2pcap-h.txt[]
 ----
 
 [[AppToolsreordercap]]
 
 === __reordercap__: Reorder a capture file
 
-+reordercap+ lets you reorder a capture file according to the packets timestamp.
++reordercap+ lets you reorder a capture file according to the packets
+timestamp. For more information on `reordercap` consult your local
+manual page (`man reordercap`) or
+link:{wireshark-man-page-url}reordercap.html[the online version].
 
 [[AppToolsreordercapEx]]
 .Help information available from reordercap

@@ -32,6 +32,7 @@
 // External URLs
 :tcpdump-main-url: http://www.tcpdump.org/
 :pcap-filter-man-page-url: {tcpdump-main-url}manpages/pcap-filter.7.html
+:tcpdump-man-page-url: {tcpdump-main-url}manpages/tcpdump.1.html
 
 :winpcap-main-url: https://www.winpcap.org/
 :winpcap-download-url: {winpcap-main-url}install/

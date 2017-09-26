@@ -472,7 +472,6 @@ print_usage(FILE *output)
   fprintf(output, "WARNING: dumpcap will enable kernel BPF JIT compiler if available.\n");
   fprintf(output, "You might want to reset it\n");
   fprintf(output, "By doing \"echo 0 > /proc/sys/net/core/bpf_jit_enable\"\n");
-  fprintf(output, "\n");
 #endif
 
 }
