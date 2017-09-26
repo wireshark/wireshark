@@ -1300,8 +1300,8 @@ radius_tlv(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, tvbu
 		}
 
 		tlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, tlv_length,
-					       dictionary_entry->ett, &tlv_item, "TLV: l=%u t=%s(%u)", tlv_length,
-					       dictionary_entry->name, tlv_type);
+					       dictionary_entry->ett, &tlv_item, "TLV: t=%s(%u) l=%u ", dictionary_entry->name, tlv_type,
+					       tlv_length);
 
 		tlv_length -= 2;
 		offset += 2;
@@ -1361,7 +1361,7 @@ add_avp_to_tree(proto_tree *avp_tree, proto_item *avp_item, packet_info *pinfo, 
 		}
 	}
 
-	proto_item_append_text(avp_item, ": ");
+	proto_item_append_text(avp_item, " val=");
 
 	if (dictionary_entry->dissector) {
 		add_avp_to_tree_with_dissector(avp_tree, avp_item, pinfo, tvb, dictionary_entry->dissector, avp_length, offset);
@@ -1473,12 +1473,13 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 		}
 
 		avp_item = proto_tree_add_bytes_format_value(tree, hf_radius_avp, tvb, offset, avp_length,
-					       NULL, "l=%u t=%s", avp_length,
-					       dictionary_entry->name);
+					       NULL, "t=%s", dictionary_entry->name);
 		if (avp_is_extended)
 			proto_item_append_text(avp_item, "(%u.%u)", avp_type0, avp_type1);
 		else
 			proto_item_append_text(avp_item, "(%u)", avp_type0);
+
+		proto_item_append_text(avp_item, " l=%u", avp_length);
 
 		avp_length -= 2;
 		offset += 2;
@@ -1515,7 +1516,7 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 			if (!vendor) {
 				vendor = &no_vendor;
 			}
-			proto_item_append_text(avp_item, " v=%s(%u)", vendor_str,
+			proto_item_append_text(avp_item, " vnd=%s(%u)", vendor_str,
 					       vendor_id);
 
 			vendor_tree = proto_item_add_subtree(avp_item, vendor->ett);
@@ -1615,16 +1616,16 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 
 				if (vendor->has_flags) {
 					avp_tree = proto_tree_add_subtree_format(vendor_tree, tvb, offset-avp_vsa_header_len, avp_vsa_len+avp_vsa_header_len,
-								       dictionary_entry->ett, &avp_item, "VSA: l=%u t=%s(%u) C=0x%02x",
-								       avp_vsa_len+avp_vsa_header_len, dictionary_entry->name, avp_vsa_type, avp_vsa_flags);
+								       dictionary_entry->ett, &avp_item, "VSA: t=%s(%u) l=%u C=0x%02x",
+								       dictionary_entry->name, avp_vsa_type, avp_vsa_len+avp_vsa_header_len, avp_vsa_flags);
 				} else if (avp_is_extended) {
 					avp_tree = proto_tree_add_subtree_format(vendor_tree, tvb, offset-avp_vsa_header_len, avp_vsa_len+avp_vsa_header_len,
-								       dictionary_entry->ett, &avp_item, "EVS: l=%u t=%s(%u)",
-								       avp_vsa_len+avp_vsa_header_len, dictionary_entry->name, avp_vsa_type);
+								       dictionary_entry->ett, &avp_item, "EVS: t=%s(%u) l=%u",
+								        dictionary_entry->name, avp_vsa_type, avp_vsa_len+avp_vsa_header_len);
 				} else {
 					avp_tree = proto_tree_add_subtree_format(vendor_tree, tvb, offset-avp_vsa_header_len, avp_vsa_len+avp_vsa_header_len,
-								       dictionary_entry->ett, &avp_item, "VSA: l=%u t=%s(%u)",
-								       avp_vsa_len+avp_vsa_header_len, dictionary_entry->name, avp_vsa_type);
+								       dictionary_entry->ett, &avp_item, "VSA: t=%s(%u) l=%u",
+								       dictionary_entry->name, avp_vsa_type, avp_vsa_len+avp_vsa_header_len);
 				}
 
 				proto_tree_add_item(avp_tree, hf_radius_avp_vendor_type, tvb, vendor_offset, vendor->type_octets, ENC_BIG_ENDIAN);
@@ -1980,9 +1981,9 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	rad_info->ident = rh.rh_ident;
 	tap_queue_packet(radius_tap, pinfo, rad_info);
 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s(%d) (id=%d, l=%d)",
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s id=%d",
 			val_to_str_ext_const(rh.rh_code, &radius_pkt_type_codes_ext, "Unknown Packet"),
-			rh.rh_code, rh.rh_ident, rh.rh_pktlength);
+			rh.rh_ident);
 
 	/* Load header fields if not already done */
 	if (hf_radius_code == -1)
