@@ -152,7 +152,7 @@ DIAG_ON(pedantic)
 	 */
 	plugin = (tap_plugin *)g_malloc(sizeof (tap_plugin));
 	plugin->register_tap_listener_fn = register_tap_listener_fn;
-	tap_plugins = g_slist_append(tap_plugins, plugin);
+	tap_plugins = g_slist_prepend(tap_plugins, plugin);
 	return TRUE;
 }
 

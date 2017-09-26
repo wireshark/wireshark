@@ -84,7 +84,7 @@ check_for_codec_plugin(GModule *handle)
      */
     plugin = (codec_plugin *)g_malloc(sizeof (codec_plugin));
     plugin->register_codec_module = register_codec_module;
-    codec_plugins = g_slist_append(codec_plugins, plugin);
+    codec_plugins = g_slist_prepend(codec_plugins, plugin);
     return TRUE;
 }
 

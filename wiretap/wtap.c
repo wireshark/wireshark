@@ -73,7 +73,7 @@ check_for_wtap_plugin(GModule *handle)
 DIAG_OFF(pedantic)
 	plugin->register_wtap_module = (void (*)(void))gp;
 DIAG_ON(pedantic)
-	wtap_plugins = g_slist_append(wtap_plugins, plugin);
+	wtap_plugins = g_slist_prepend(wtap_plugins, plugin);
 	return TRUE;
 }
 
