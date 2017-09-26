@@ -159,17 +159,18 @@ static gboolean cap_order          = TRUE;  /* Report if packets are in chronolo
 
 static gboolean cap_file_hashes    = TRUE;  /* Calculate file hashes */
 
-#define HASH_SIZE_SHA1   20
+// Strongest to weakest
+#define HASH_SIZE_SHA256 32
 #define HASH_SIZE_RMD160 20
-#define HASH_SIZE_MD5    16
+#define HASH_SIZE_SHA1   20
 
-#define HASH_STR_SIZE (41) /* Max hash size * 2 + '\0' */
+#define HASH_STR_SIZE (65) /* Max hash size * 2 + '\0' */
 #define HASH_BUF_SIZE (1024 * 1024)
 
 
-static gchar file_sha1[HASH_STR_SIZE];
+static gchar file_sha256[HASH_STR_SIZE];
 static gchar file_rmd160[HASH_STR_SIZE];
-static gchar file_md5[HASH_STR_SIZE];
+static gchar file_sha1[HASH_STR_SIZE];
 
 /*
  * If we have at least two packets with time stamps, and they're not in
@@ -698,9 +699,9 @@ print_stats(const gchar *filename, capture_info *cf_info)
     }
   }
   if (cap_file_hashes) {
-    printf     ("SHA1:                %s\n", file_sha1);
+    printf     ("SHA256:              %s\n", file_sha256);
     printf     ("RIPEMD160:           %s\n", file_rmd160);
-    printf     ("MD5:                 %s\n", file_md5);
+    printf     ("SHA1:                %s\n", file_sha1);
   }
   if (cap_order)          printf     ("Strict time order:   %s\n", order_string(cf_info->order));
 
@@ -786,9 +787,9 @@ print_stats_table_header(void)
   if (cap_packet_size)    print_stats_table_header_label("Average packet size (bytes)");
   if (cap_packet_rate)    print_stats_table_header_label("Average packet rate (packets/sec)");
   if (cap_file_hashes) {
-    print_stats_table_header_label("SHA1");
+    print_stats_table_header_label("SHA256");
     print_stats_table_header_label("RIPEMD160");
-    print_stats_table_header_label("MD5");
+    print_stats_table_header_label("SHA1");
   }
   if (cap_order)          print_stats_table_header_label("Strict time order");
   if (cap_file_more_info) {
@@ -954,7 +955,7 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
   if (cap_file_hashes) {
     putsep();
     putquote();
-    printf("%s", file_sha1);
+    printf("%s", file_sha256);
     putquote();
 
     putsep();
@@ -964,7 +965,7 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
 
     putsep();
     putquote();
-    printf("%s", file_md5);
+    printf("%s", file_sha1);
     putquote();
   }
 
@@ -1323,7 +1324,7 @@ print_usage(FILE *output)
   fprintf(output, "  -E display the capture file encapsulation\n");
   fprintf(output, "  -I display the capture file interface information\n");
   fprintf(output, "  -F display additional capture file information\n");
-  fprintf(output, "  -H display the SHA1, RMD160, and MD5 hashes of the file\n");
+  fprintf(output, "  -H display the SHA256, RMD160, and SHA1 hashes of the file\n");
   fprintf(output, "  -k display the capture comment\n");
   fprintf(output, "\n");
   fprintf(output, "Size infos:\n");
@@ -1686,10 +1687,10 @@ main(int argc, char *argv[])
 
   if (cap_file_hashes) {
     gcry_check_version(NULL);
-    gcry_md_open(&hd, GCRY_MD_SHA1, 0);
+    gcry_md_open(&hd, GCRY_MD_SHA256, 0);
     if (hd) {
       gcry_md_enable(hd, GCRY_MD_RMD160);
-      gcry_md_enable(hd, GCRY_MD_MD5);
+      gcry_md_enable(hd, GCRY_MD_SHA1);
     }
     hash_buf = (char *)g_malloc(HASH_BUF_SIZE);
   }
@@ -1698,9 +1699,9 @@ main(int argc, char *argv[])
 
   for (opt = optind; opt < argc; opt++) {
 
-    g_strlcpy(file_sha1, "<unknown>", HASH_STR_SIZE);
+    g_strlcpy(file_sha256, "<unknown>", HASH_STR_SIZE);
     g_strlcpy(file_rmd160, "<unknown>", HASH_STR_SIZE);
-    g_strlcpy(file_md5, "<unknown>", HASH_STR_SIZE);
+    g_strlcpy(file_sha1, "<unknown>", HASH_STR_SIZE);
 
     if (cap_file_hashes) {
       fh = ws_fopen(argv[opt], "rb");
@@ -1709,9 +1710,9 @@ main(int argc, char *argv[])
           gcry_md_write(hd, hash_buf, hash_bytes);
         }
         gcry_md_final(hd);
-        hash_to_str(gcry_md_read(hd, GCRY_MD_SHA1), HASH_SIZE_SHA1, file_sha1);
+        hash_to_str(gcry_md_read(hd, GCRY_MD_SHA256), HASH_SIZE_SHA256, file_sha256);
         hash_to_str(gcry_md_read(hd, GCRY_MD_RMD160), HASH_SIZE_RMD160, file_rmd160);
-        hash_to_str(gcry_md_read(hd, GCRY_MD_MD5), HASH_SIZE_MD5, file_md5);
+        hash_to_str(gcry_md_read(hd, GCRY_MD_SHA1), HASH_SIZE_SHA1, file_sha1);
       }
       if (fh) fclose(fh);
       if (hd) gcry_md_reset(hd);

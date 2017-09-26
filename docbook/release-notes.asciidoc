@@ -51,6 +51,8 @@ since version 2.4.0:
   network info types and some Message Analyzer exported types.
 * Personal plugins folder on Linux/Unix is now ~/.local/lib/wireshark/plugins.
 * Add Flow Graph functionality to TShark using -z
+* Capinfos now prints SHA256 hashes in addition to RIPEMD160 and SHA1. MD5 output
+  has been removed.
 
 //=== Removed Dissectors
 
