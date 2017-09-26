@@ -470,10 +470,6 @@ plugin_src = \
 	../plugins/docsis/packet-tlv.c \
 	../plugins/docsis/packet-vendor.c \
 	../plugins/docsis/plugin.c \
-	../plugins/easy_codec/codec-g722.c \
-	../plugins/easy_codec/codec-g7231.c \
-	../plugins/easy_codec/codec-g729a.c \
-	../plugins/easy_codec/easy_codec_plugin.c \
 	../plugins/ethercat/packet-ams.c \
 	../plugins/ethercat/packet-ecatmb.c \
 	../plugins/ethercat/packet-esl.c \

@@ -3027,7 +3027,6 @@ AC_CONFIG_FILES(
   packaging/wix/Makefile
   plugins/Makefile
   plugins/docsis/Makefile
-  plugins/easy_codec/Makefile
   plugins/ethercat/Makefile
   plugins/gryphon/Makefile
   plugins/irda/Makefile
