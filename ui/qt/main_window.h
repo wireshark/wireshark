@@ -63,6 +63,7 @@ class AccordionFrame;
 class ByteViewTab;
 class CaptureInterfacesDialog;
 class FileSetDialog;
+class FilterDialog;
 class FunnelStatistics;
 class MainWelcome;
 class PacketList;
@@ -179,6 +180,8 @@ private:
     CaptureInterfacesDialog *capture_interfaces_dialog_;
     info_data_t info_data_;
 #endif
+    FilterDialog *display_filter_dlg_;
+    FilterDialog *capture_filter_dlg_;
 
     // Pipe input
     gint                pipe_source_;

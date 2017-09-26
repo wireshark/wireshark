@@ -66,6 +66,7 @@ DIAG_ON(frame-larger-than=)
 #include <ui/qt/widgets/display_filter_edit.h>
 #include "export_dissection_dialog.h"
 #include "file_set_dialog.h"
+#include "filter_dialog.h"
 #include "funnel_statistics.h"
 #include "import_text_dialog.h"
 #include "interface_toolbar.h"
@@ -271,6 +272,8 @@ MainWindow::MainWindow(QWidget *parent) :
     , capture_interfaces_dialog_(NULL)
     , info_data_()
 #endif
+    , display_filter_dlg_(NULL)
+    , capture_filter_dlg_(NULL)
 #ifdef _WIN32
     , pipe_timer_(NULL)
 #else
@@ -739,12 +742,18 @@ MainWindow::~MainWindow()
     disconnect(main_ui_->mainStack, 0, 0, 0);
 
 #ifndef Q_OS_MAC
-    // file_set_dialog_ is a subclass of GeometryStateDialog.
+    // Below dialogs inherit GeometryStateDialog
     // For reasons described in geometry_state_dialog.h no parent is set when
-    // instantiating the dialog and as a result the object is not automatically
-    // freed by its parent. Free it here explicitly to avoid leak and numerous
+    // instantiating the dialogs and as a resul objects are not automatically
+    // freed by its parent. Free then here explicitly to avoid leak and numerous
     // Valgrind complaints.
     delete file_set_dialog_;
+    delete capture_filter_dlg_;
+    delete display_filter_dlg_;
+#ifdef HAVE_LIBPCAP
+    delete capture_interfaces_dialog_;
+#endif
+
 #endif
     delete main_ui_;
 }

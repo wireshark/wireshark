@@ -83,7 +83,7 @@ DissectorTablesDialog::DissectorTablesDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     if (parent) loadGeometry(parent->width() * 3 / 4, parent->height() * 3 / 4);
-
+    setAttribute(Qt::WA_DeleteOnClose, true);
     setWindowTitle(wsApp->windowTitleString(tr("Dissector Tables")));
 
     on_tableTreeWidget_itemSelectionChanged();

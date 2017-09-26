@@ -71,6 +71,7 @@ DisplayFilterExpressionDialog::DisplayFilterExpressionDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     if (parent) loadGeometry(parent->width() * 2 / 3, parent->height());
+    setAttribute(Qt::WA_DeleteOnClose, true);
 
     setWindowTitle(wsApp->windowTitleString(tr("Display Filter Expression")));
     setWindowIcon(wsApp->normalIcon());

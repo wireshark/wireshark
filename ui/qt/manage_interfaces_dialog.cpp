@@ -87,6 +87,7 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     loadGeometry();
+    setAttribute(Qt::WA_DeleteOnClose, true);
 
 #ifdef Q_OS_MAC
     ui->addPipe->setAttribute(Qt::WA_MacSmallSize, true);

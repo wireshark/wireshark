@@ -53,6 +53,7 @@ SupportedProtocolsDialog::SupportedProtocolsDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     if (parent) loadGeometry(parent->width() * 3 / 4, parent->height());
+    setAttribute(Qt::WA_DeleteOnClose, true);
     setWindowTitle(wsApp->windowTitleString(tr("Supported Protocols")));
 
     // Some of our names are unreasonably long.

@@ -2728,7 +2728,6 @@ void MainWindow::matchFieldFilter(FilterAction::Action action, FilterAction::Act
     emit filterAction(field_filter, action, filter_type);
 }
 
-static FilterDialog *display_filter_dlg_ = NULL;
 void MainWindow::on_actionAnalyzeDisplayFilters_triggered()
 {
     if (!display_filter_dlg_) {
@@ -3736,7 +3735,6 @@ void MainWindow::on_actionCaptureRestart_triggered()
     startCapture();
 }
 
-static FilterDialog *capture_filter_dlg_ = NULL;
 void MainWindow::on_actionCaptureCaptureFilters_triggered()
 {
     if (!capture_filter_dlg_) {
