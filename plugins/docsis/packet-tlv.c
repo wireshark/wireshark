@@ -222,6 +222,9 @@ static int hf_docsis_tlv_sflow_min_traf = -1;
 static int hf_docsis_tlv_sflow_ass_min_pkt_size = -1;
 static int hf_docsis_tlv_sflow_timeout_active = -1;
 static int hf_docsis_tlv_sflow_timeout_admitted = -1;
+static int hf_docsis_tlv_sflow_req_attr_mask = -1;
+static int hf_docsis_tlv_sflow_forb_attr_mask = -1;
+static int hf_docsis_tlv_sflow_attr_aggr_rule_mask = -1;
 static int hf_docsis_tlv_sflow_vendor_spec = -1;
 static int hf_docsis_tlv_sflow_max_concat_burst = -1;
 static int hf_docsis_tlv_sflow_sched_type = -1;
@@ -1290,6 +1293,43 @@ dissect_sflow (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start,
                 proto_tree_add_item (sflow_tree,
                                      hf_docsis_tlv_sflow_timeout_admitted, tvb,
                                      pos, length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case SFW_REQUIRED_ATTRIBUTE_MASK:
+            if (length == 4)
+              {
+                proto_tree_add_item (sflow_tree,
+                                     hf_docsis_tlv_sflow_req_attr_mask, tvb,
+                                     pos, length, ENC_NA);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+
+              }
+            break;
+          case SFW_FORBIDDEN_ATTRIBUTE_MASK:
+            if (length == 4)
+              {
+                proto_tree_add_item (sflow_tree,
+                                     hf_docsis_tlv_sflow_forb_attr_mask, tvb,
+                                     pos, length, ENC_NA);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case SFW_ATTRIBUTE_AGGREGATION_RULE_MASK:
+            if (length == 4)
+              {
+                proto_tree_add_item (sflow_tree,
+                                     hf_docsis_tlv_sflow_attr_aggr_rule_mask, tvb,
+                                     pos, length, ENC_NA);
               }
             else
               {
@@ -5159,6 +5199,21 @@ proto_register_docsis_tlv (void)
      {".24 UGS Time Reference", "docsis_tlv.sflow.ugs_timeref",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "UGS Time Reference", HFILL}
+    },
+    {&hf_docsis_tlv_sflow_req_attr_mask,
+     {".31 Required Attribute Mask", "docsis_tlv.sflow.req_attr_mask",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Required Attribute Mask", HFILL}
+    },
+    {&hf_docsis_tlv_sflow_forb_attr_mask,
+     {".32 Forbidden Attribute Mask", "docsis_tlv.sflow.forb_attr_mask",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Forbidden Attribute Mask", HFILL}
+    },
+    {&hf_docsis_tlv_sflow_attr_aggr_rule_mask,
+     {".33 Attribute Aggregation Rule Mask", "docsis_tlv.sflow.attr_aggr_rule_mask",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Attribute Aggregation Rule Mask", HFILL}
     },
     {&hf_docsis_tlv_sflow_vendor_spec,
      {".43 Vendor Specific Encodings", "docsis_tlv.sflow.vendorspec",
