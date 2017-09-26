@@ -595,7 +595,6 @@ static int hf_nfs4_lrs_present = -1;
 static int hf_nfs4_nfl_mirrors = -1;
 static int hf_nfs4_nfl_util = -1;
 static int hf_nfs4_nfl_fhs = -1;
-static int hf_nfs4_mirror_index = -1;
 static int hf_nfs4_mirror_eff = -1;
 static int hf_nfs4_nfl_first_stripe_index = -1;
 static int hf_nfs4_lrf_body_content = -1;
@@ -9249,9 +9248,10 @@ dissect_nfs4_layoutget(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 						civ);
 		} else if (layout_type == LAYOUT4_FLEX_FILES) {
 			guint	ds_count, fh_count;
-			proto_tree *ds_tree;
-			proto_item *ds_fitem;
+			proto_item *ds_item, *mirrors_item, *subitem;
+			proto_tree *ds_tree, *mirrors_tree;
 			int end_offset = offset;
+			int mirror_start_offset, ds_start_offset;
 
 			/* NFS Flex Files */
 			end_offset += tvb_get_ntohl(tvb, offset) + 4;
@@ -9262,27 +9262,28 @@ dissect_nfs4_layoutget(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 			/* Len of mirror list */
 			sub_num = tvb_get_ntohl(tvb, offset);
+			mirrors_item = proto_tree_add_uint_format(newtree, hf_nfs4_nfl_mirrors,
+				tvb, offset, 4, sub_num, "Mirrors (%u)", sub_num);
 			offset += 4;
 
+			mirrors_tree = proto_item_add_subtree(mirrors_item, ett_nfs4_layoutseg_sub);
+
 			for (i = 0; i < sub_num; i++) {
-				sub_fitem = proto_tree_add_item(newtree,
-						hf_nfs4_nfl_mirrors, tvb,
-						offset, 4, i);
+
+				mirror_start_offset = offset;
+				subtree = proto_tree_add_subtree_format(mirrors_tree, tvb, offset, -1,
+						ett_nfs4_layoutseg_sub, &subitem,
+						"Mirror: %u", i);
 
 				/* data server count */
 				ds_count = tvb_get_ntohl(tvb, offset);
 				offset += 4;
 
-				subtree = proto_item_add_subtree(sub_fitem,
-						ett_nfs4_layoutseg_sub);
-
 				for (j = 0; j < ds_count; j++) {
-					ds_fitem = proto_tree_add_item(subtree,
-							hf_nfs4_mirror_index, tvb,
-							offset, 4, j);
-
-					ds_tree = proto_item_add_subtree(ds_fitem,
-							ett_nfs4_layoutseg_sub);
+					ds_start_offset = offset;
+					ds_tree = proto_tree_add_subtree_format(subtree, tvb, offset, -1,
+							ett_nfs4_layoutseg_sub, &ds_item,
+							"Data Server: %u", j);
 
 					offset = dissect_nfs4_deviceid(tvb, offset,
 							ds_tree);
@@ -9304,7 +9305,11 @@ dissect_nfs4_layoutget(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 					offset = dissect_nfs_utf8string(tvb, offset,
 							ds_tree, hf_nfs4_ff_synthetic_owner_group,
 							NULL);
+
+					proto_item_set_len(ds_item, offset - ds_start_offset);
 				}
+
+				proto_item_set_len(subitem, offset - mirror_start_offset);
 			}
 
 			proto_tree_add_bitmask(newtree, tvb, offset, hf_nfs4_ff_layout_flags,
@@ -10363,7 +10368,7 @@ dissect_nfs4_offload_status_res(tvbuff_t *tvb, int offset, proto_tree *tree)
 	for (i = 0; i < count; i++) {
 		ss_fitem = proto_tree_add_item(subtree,
 				hf_nfs4_offload_status_index,
-				tvb, offset, 4, i);
+				tvb, offset, 4, ENC_BIG_ENDIAN);
 
 		ss_tree = proto_item_add_subtree(ss_fitem,
 				ett_nfs4_osr_complete_sub);
@@ -13132,10 +13137,6 @@ proto_register_nfs(void)
 			"file handles", "nfs.nfl_fhs", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 
-		{ &hf_nfs4_mirror_index, {
-			"Data Server", "nfs.nff_mirror_index", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
-
 		{ &hf_nfs4_mirror_eff, {
 			"mirror efficiency", "nfs.nff_mirror_eff", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
@@ -14171,6 +14172,7 @@ proto_register_nfs(void)
 		&ett_nfs4_write_same,
 		&ett_nfs4_fh_pd_flags,
 		&ett_nfs4_listxattr_names
+
 	};
 
 	static ei_register_info ei[] = {
