@@ -236,12 +236,11 @@ plugins_scan_dir(const char *dirname, plugin_load_failure_mode mode)
     }
 }
 
-
 /*
- * Scan for plugins.
+ * Scan the buildir for plugins.
  */
-void
-scan_plugins(plugin_load_failure_mode mode)
+static void
+scan_plugins_build_dir(plugin_load_failure_mode mode)
 {
     const char *plugin_dir;
     const char *name;
@@ -249,75 +248,76 @@ scan_plugins(plugin_load_failure_mode mode)
     WS_DIR *dir;                /* scanned directory */
     WS_DIRENT *file;            /* current file */
 
-    if (plugins_table == NULL)    /* only scan for plugins once */
-    {
-        plugins_table = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, free_plugin);
-        /*
-         * Scan the global plugin directory.
-         * If we're running from a build directory, scan the "plugins"
-         * subdirectory, as that's where plugins are located in an
-         * out-of-tree build. If we find subdirectories scan those since
-         * they will contain plugins in the case of an in-tree build.
-         */
-        plugin_dir = get_plugins_dir();
-        if (plugin_dir == NULL)
-        {
-            /* We couldn't find the plugin directory. */
-            return;
-        }
-        if (running_in_build_directory())
-        {
-            if ((dir = ws_dir_open(plugin_dir, 0, NULL)) != NULL)
-            {
-                plugins_scan_dir(plugin_dir, mode);
-                while ((file = ws_dir_read_name(dir)) != NULL)
-                {
-                    name = ws_dir_get_name(file);
-                    if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
-                        continue;        /* skip "." and ".." */
-                    /*
-                     * Get the full path of a ".libs" subdirectory of that
-                     * directory.
-                     */
-                    plugin_dir_path = g_strdup_printf(
-                        "%s" G_DIR_SEPARATOR_S "%s" G_DIR_SEPARATOR_S ".libs",
-                        plugin_dir, name);
-                    if (test_for_directory(plugin_dir_path) != EISDIR) {
-                        /*
-                         * Either it doesn't refer to a directory or it
-                         * refers to something that doesn't exist.
-                         *
-                         * Assume that means that the plugins are in
-                         * the subdirectory of the plugin directory, not
-                         * a ".libs" subdirectory of that subdirectory.
-                         */
-                        g_free(plugin_dir_path);
-                        plugin_dir_path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
-                            plugin_dir, name);
-                    }
-                    plugins_scan_dir(plugin_dir_path, mode);
-                    g_free(plugin_dir_path);
-                }
-                ws_dir_close(dir);
-            }
-        }
-        else
-        {
-            plugins_scan_dir(get_plugins_dir_with_version(), mode);
-        }
+    plugin_dir = get_plugins_dir();
+    if ((dir = ws_dir_open(plugin_dir, 0, NULL)) == NULL)
+        return;
 
+    plugins_scan_dir(plugin_dir, mode);
+    while ((file = ws_dir_read_name(dir)) != NULL)
+    {
+        name = ws_dir_get_name(file);
+        if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
+            continue;        /* skip "." and ".." */
         /*
-         * If the program wasn't started with special privileges,
-         * scan the users plugin directory.  (Even if we relinquish
-         * them, plugins aren't safe unless we've *permanently*
-         * relinquished them, and we can't do that in Wireshark as,
-         * if we need privileges to start capturing, we'd need to
-         * reclaim them before each time we start capturing.)
+         * Get the full path of a ".libs" subdirectory of that
+         * directory.
          */
-        if (!started_with_special_privs())
-        {
-            plugins_scan_dir(get_plugins_pers_dir_with_version(), mode);
+        plugin_dir_path = g_build_filename(plugin_dir, name, ".libs", (gchar *)NULL);
+        if (test_for_directory(plugin_dir_path) != EISDIR) {
+            /*
+             * Either it doesn't refer to a directory or it
+             * refers to something that doesn't exist.
+             *
+             * Assume that means that the plugins are in
+             * the subdirectory of the plugin directory, not
+             * a ".libs" subdirectory of that subdirectory.
+             */
+            g_free(plugin_dir_path);
+            plugin_dir_path = g_build_filename(plugin_dir, name, (gchar *)NULL);
         }
+        plugins_scan_dir(plugin_dir_path, mode);
+        g_free(plugin_dir_path);
+    }
+    ws_dir_close(dir);
+}
+
+/*
+ * Scan for plugins.
+ */
+void
+scan_plugins(plugin_load_failure_mode mode)
+{
+    if (plugins_table != NULL)
+        return; /* only scan for plugins once */
+
+    plugins_table = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, free_plugin);
+    /*
+     * Scan the global plugin directory.
+     * If we're running from a build directory, scan the "plugins"
+     * subdirectory, as that's where plugins are located in an
+     * out-of-tree build. If we find subdirectories scan those since
+     * they will contain plugins in the case of an in-tree build.
+     */
+    if (running_in_build_directory())
+    {
+        scan_plugins_build_dir(mode);
+    }
+    else
+    {
+        plugins_scan_dir(get_plugins_dir_with_version(), mode);
+    }
+
+    /*
+     * If the program wasn't started with special privileges,
+     * scan the users plugin directory.  (Even if we relinquish
+     * them, plugins aren't safe unless we've *permanently*
+     * relinquished them, and we can't do that in Wireshark as,
+     * if we need privileges to start capturing, we'd need to
+     * reclaim them before each time we start capturing.)
+     */
+    if (!started_with_special_privs())
+    {
+        plugins_scan_dir(get_plugins_pers_dir_with_version(), mode);
     }
 }
 
