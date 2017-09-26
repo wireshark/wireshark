@@ -125,6 +125,7 @@ static GSList *tap_plugins = NULL;
 /*
  * Callback for each plugin found.
  */
+DIAG_OFF(pedantic)
 static gboolean
 check_for_tap_plugin(GModule *handle)
 {
@@ -143,9 +144,7 @@ check_for_tap_plugin(GModule *handle)
 	/*
 	 * Yes - this plugin includes one or more taps.
 	 */
-DIAG_OFF(pedantic)
 	register_tap_listener_fn = (void (*)(void))gp;
-DIAG_ON(pedantic)
 
 	/*
 	 * Add this one to the list of tap plugins.
@@ -155,6 +154,7 @@ DIAG_ON(pedantic)
 	tap_plugins = g_slist_prepend(tap_plugins, plugin);
 	return TRUE;
 }
+DIAG_ON(pedantic)
 
 void
 register_tap_plugin_type(void)

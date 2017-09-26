@@ -59,6 +59,7 @@ static GSList *codec_plugins = NULL;
 /*
  * Callback for each plugin found.
  */
+DIAG_OFF(pedantic)
 static gboolean
 check_for_codec_plugin(GModule *handle)
 {
@@ -87,6 +88,7 @@ check_for_codec_plugin(GModule *handle)
     codec_plugins = g_slist_prepend(codec_plugins, plugin);
     return TRUE;
 }
+DIAG_ON(pedantic)
 
 void
 codec_register_plugin_types(void)

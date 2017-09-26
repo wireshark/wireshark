@@ -433,6 +433,7 @@ static GSList *dissector_plugins = NULL;
 /*
  * Callback for each plugin found.
  */
+DIAG_OFF(pedantic)
 static gboolean
 check_for_dissector_plugin(GModule *handle)
 {
@@ -445,9 +446,7 @@ check_for_dissector_plugin(GModule *handle)
 	 * Do we have a register routine?
 	 */
 	if (g_module_symbol(handle, "plugin_register", &gp)) {
-DIAG_OFF(pedantic)
 		register_protoinfo = (void (*)(void))gp;
-DIAG_ON(pedantic)
 	}
 	else {
 		register_protoinfo = NULL;
@@ -457,9 +456,7 @@ DIAG_ON(pedantic)
 	 * Do we have a reg_handoff routine?
 	 */
 	if (g_module_symbol(handle, "plugin_reg_handoff", &gp)) {
-DIAG_OFF(pedantic)
 		reg_handoff = (void (*)(void))gp;
-DIAG_ON(pedantic)
 	}
 	else {
 		reg_handoff = NULL;
@@ -480,6 +477,7 @@ DIAG_ON(pedantic)
 	dissector_plugins = g_slist_prepend(dissector_plugins, plugin);
 	return TRUE;
 }
+DIAG_ON(pedantic)
 
 static void
 register_dissector_plugin(gpointer data, gpointer user_data _U_)
