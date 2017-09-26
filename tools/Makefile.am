@@ -89,7 +89,6 @@ EXTRA_DIST = \
 	test-common.sh					\
 	test-captures.sh				\
 	textify.ps1					\
-	tpg						\
 	usb-ptp-extract-models.pl			\
 	usb-ptp-extract-models.txt			\
 	valgrind-wireshark.sh				\

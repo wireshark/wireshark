@@ -522,7 +522,6 @@ plugin_src = \
 	../plugins/profinet/plugin.c \
 	../plugins/stats_tree/pinfo_stats_tree.c \
 	../plugins/stats_tree/stats_tree_plugin.c \
-	../plugins/tpg/packet-http.c \
 	../plugins/transum/decoders.c \
 	../plugins/transum/extractors.c \
 	../plugins/transum/packet-transum.c \

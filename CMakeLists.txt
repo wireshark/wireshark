@@ -1012,8 +1012,6 @@ if(ENABLE_WINSPARKLE)
 	set(PACKAGELIST ${PACKAGELIST} WINSPARKLE)
 endif()
 
-set(PACKAGELIST ${PACKAGELIST} YAPP)
-
 set(PACKAGELIST ${PACKAGELIST} POD)
 
 if(ENABLE_HTML_GUIDES)
@@ -1408,13 +1406,6 @@ if(ENABLE_PLUGINS)
 		)
 	endif()
 
-# It seems this stuff doesn't build with autofoo either...
-#	if(YAPP_FOUND)
-#		set(PLUGIN_SRC_DIRS
-#			${PLUGIN_SRC_DIRS}
-#			plugins/tpg
-#		)
-#	endif()
 else()
 	set(PLUGIN_SRC_DIRS )
 endif()
@@ -1556,12 +1547,6 @@ set_package_properties(NGHTTP2 PROPERTIES
 	DESCRIPTION "HTTP/2 C library and tools"
 	URL "https://nghttp2.org"
 	PURPOSE "Header decompression in HTTP2"
-)
-# XXX tpg plugin is not added in CMakeLists/Makefile.am, remove plugins/tpg/?
-set_package_properties(YAPP PROPERTIES
-	DESCRIPTION "Yet Another Perl Parser compiler"
-	URL "http://search.cpan.org/dist/Parse-Yapp/"
-	PURPOSE "tpg plugin"
 )
 
 string(REPLACE ";" " " _warnings_c_flags "${WS_WARNINGS_C_FLAGS}")
