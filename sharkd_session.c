@@ -725,10 +725,11 @@ sharkd_session_process_analyse(void)
  * Output array of frames with attributes:
  *   (m) c   - array of column data
  *   (m) num - frame number
- *   (m) i   - if frame is ignored
- *   (m) m   - if frame is marked
- *   (m) bg  - color filter - background color in hex
- *   (m) fg  - color filter - foreground color in hex
+ *   (o) i   - if frame is ignored
+ *   (o) m   - if frame is marked
+ *   (o) ct  - if frame is commented
+ *   (o) bg  - color filter - background color in hex
+ *   (o) fg  - color filter - foreground color in hex
  */
 static void
 sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int count)
@@ -796,6 +797,9 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 			json_puts_string(col_item->col_data);
 		}
 		printf("],\"num\":%u", framenum);
+
+		if (fdata->flags.has_phdr_comment)
+			printf(",\"ct\":true");
 
 		if (fdata->flags.ignored)
 			printf(",\"i\":true");
@@ -2672,12 +2676,23 @@ sharkd_follower_visit_layers_cb(const void *key _U_, void *value, void *user_dat
 static void
 sharkd_session_process_frame_cb(packet_info *pi, proto_tree *tree, struct epan_column_info *cinfo, const GSList *data_src, void *data)
 {
-	(void) pi;
+	frame_data *fdata = pi->fd;
+	const char *pkt_comment = NULL;
+
 	(void) data;
 
 	printf("{");
 
 	printf("\"err\":0");
+
+	if (fdata->flags.has_phdr_comment)
+		pkt_comment = pi->phdr->opt_comment;
+
+	if (pkt_comment)
+	{
+		printf(",\"comment\":");
+		json_puts_string(pkt_comment);
+	}
 
 	if (tree)
 	{
@@ -2943,6 +2958,7 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
  *   (o) col   - array of column data
  *   (o) bytes - base64 of frame bytes
  *   (o) ds    - array of other data srcs
+ *   (o) comment - frame comment
  *   (o) fol   - array of follow filters:
  *                  [0] - protocol
  *                  [1] - filter string
@@ -3423,7 +3439,7 @@ sharkd_session_process_dumpconf(char *buf, const jsmntok_t *tokens, int count)
 		printf("{\"prefs\":{");
 		prefs_pref_foreach(pref_mod, sharkd_session_process_dumpconf_cb, &data);
 		printf("}}\n");
-    }
+	}
 }
 
 struct sharkd_download_rtp
