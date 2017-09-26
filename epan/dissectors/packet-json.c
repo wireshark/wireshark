@@ -663,6 +663,7 @@ proto_reg_handoff_json(void)
 	dissector_add_string("media_type", "application/json-rpc", json_handle); /* JSON-RPC over HTTP */
 	dissector_add_string("media_type", "application/jsonrequest", json_handle); /* JSON-RPC over HTTP */
 	dissector_add_string("media_type", "application/dds-web+json", json_handle); /* DDS Web Integration Service over HTTP */
+	dissector_add_string("media_type", "application/vnd.oma.lwm2m+json", json_handle); /* LWM2M JSON over CoAP */
 	dissector_add_string("grpc_message_type", "application/grpc+json", json_handle);
 
 	text_lines_handle = find_dissector_add_dependency("data-text-lines", proto_json);
