@@ -54,7 +54,6 @@ plugin.c
 plugins/mate/mate_parser.c
 version.h
 tools/lemon/lemon
-tools/setuid-root.pl
 tshark-tap-register.c
 wiretap/ascend.c
 wiretap/ascend.h

@@ -85,7 +85,6 @@ EXTRA_DIST = \
 	rdps.py						\
 	rpm_setup.sh 					\
 	runa2x.sh					\
-	setuid-root.pl.in				\
 	test-common.sh					\
 	test-captures.sh				\
 	textify.ps1					\
@@ -101,18 +100,5 @@ EXTRA_DIST = \
 	ws-coding-style.cfg				\
 	yacc.py
 
-noinst_SCRIPTS = setuid-root.pl
-
-setuid-root.pl: setuid-root.pl.in Makefile
-	$(AM_V_SED)$(SED) \
-		-e 's,@BIN_PREFIX\@,$(bindir),' \
-		-e 's,@TSHARK_BIN\@,$(tshark_bin)$(EEXT),' \
-		-e 's,@DUMPCAP_BIN\@,$(dumpcap_bin)$(EEXT),' \
-		< $(srcdir)/setuid-root.pl.in > setuid-root.pl; \
-	chmod +x setuid-root.pl
-
 CLEANFILES = \
 	*.pyc
-
-DISTCLEANFILES = \
-	setuid-root.pl
