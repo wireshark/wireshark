@@ -139,7 +139,11 @@
 #define NFS4_OP_SEEK                        69
 #define NFS4_OP_WRITE_SAME                  70
 #define NFS4_OP_CLONE                       71
-#define NFS4_LAST_OP                        71
+#define NFS4_OP_GETXATTR                    72
+#define NFS4_OP_SETXATTR                    73
+#define NFS4_OP_LISTXATTRS                  74
+#define NFS4_OP_REMOVEXATTR                 75
+#define NFS4_LAST_OP                        75
 #define NFS4_OP_ILLEGAL                  10044
 
 /*

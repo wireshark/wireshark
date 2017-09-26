@@ -419,6 +419,7 @@ static int hf_nfs4_fattr_security_label_lfs = -1;
 static int hf_nfs4_fattr_security_label_pi = -1;
 static int hf_nfs4_fattr_security_label_context = -1;
 static int hf_nfs4_fattr_umask_mask = -1;
+static int hf_nfs4_fattr_xattr_support = -1;
 static int hf_nfs4_who = -1;
 static int hf_nfs4_server = -1;
 static int hf_nfs4_fslocation = -1;
@@ -678,6 +679,12 @@ static int hf_nfs4_reloff_blocknum = -1;
 static int hf_nfs4_blocknum = -1;
 static int hf_nfs4_reloff_pattern = -1;
 static int hf_nfs4_pattern_hash = -1;
+static int hf_nfs4_setxattr_options = -1;
+static int hf_nfs4_listxattr_maxcount = -1;
+static int hf_nfs4_listxattr_cookie = -1;
+static int hf_nfs4_listxattr_names_len = -1;
+static int hf_nfs4_xattrkey = -1;
+static int hf_nfs4_listxattr_eof = -1;
 
 static gint ett_nfs = -1;
 static gint ett_nfs_fh_encoding = -1;
@@ -878,6 +885,10 @@ static gint ett_nfs4_layouterror = -1;
 static gint ett_nfs4_ff_ioerrs_sub = -1;
 static gint ett_nfs4_ff_iostats_sub = -1;
 static gint ett_nfs4_clone = -1;
+static gint ett_nfs4_getxattr = -1;
+static gint ett_nfs4_setxattr = -1;
+static gint ett_nfs4_listxattr = -1;
+static gint ett_nfs4_removexattr = -1;
 static gint ett_nfs4_offload_cancel = -1;
 static gint ett_nfs4_offload_status = -1;
 static gint ett_nfs4_osr_complete_sub = -1;
@@ -885,6 +896,7 @@ static gint ett_nfs4_io_advise = -1;
 static gint ett_nfs4_read_plus = -1;
 static gint ett_nfs4_read_plus_content_sub = -1;
 static gint ett_nfs4_write_same = -1;
+static gint ett_nfs4_listxattr_names = -1;
 
 static expert_field ei_nfs_too_many_ops = EI_INIT;
 static expert_field ei_nfs_not_vnx_file = EI_INIT;
@@ -5918,6 +5930,8 @@ static const value_string names_nfs4_status[] = {
 	{	10092,	"NFS4ERR_WRONG_LFS"		    },
 	{	10093,	"NFS4ERR_BADLABEL"		    },
 	{	10094,	"NFS4ERR_OFFLOAD_NO_REQS"	    },
+	{	10095,	"NFS4ERR_NOXATTR"		    },
+	{	10096,	"NFS4ERR_XATTR2BIG"		    },
 	{	0,	NULL }
 };
 static value_string_ext names_nfs4_status_ext = VALUE_STRING_EXT_INIT(names_nfs4_status);
@@ -6086,6 +6100,8 @@ static const value_string fattr4_names[] = {
 	{	FATTR4_SECURITY_LABEL,     "Security_Label"		},
 #define FATTR4_MODE_UMASK          81
 	{	FATTR4_MODE_UMASK,         "Mode_Umask"			},
+#define FATTR4_XATTR_SUPPORT       82
+	{	FATTR4_XATTR_SUPPORT,      "Xattr_Support"		},
 	{	0,	NULL	}
 };
 static value_string_ext fattr4_names_ext = VALUE_STRING_EXT_INIT(fattr4_names);
@@ -7065,6 +7081,11 @@ dissect_nfs4_fattrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 						offset = dissect_nfs4_mode_umask(tvb, attr_tree, offset);
 						break;
 
+					case FATTR4_XATTR_SUPPORT:
+						offset = dissect_rpc_bool(tvb,
+							attr_tree, hf_nfs4_fattr_xattr_support, offset);
+						break;
+
 					default:
 						break;
 					}
@@ -7438,6 +7459,30 @@ static const value_string names_data_content[] = {
 	{	0, NULL }
 };
 
+static const value_string names_setxattr_options[] = {
+	{	0,	"EITHER"  },
+	{	1,	"CREATE"  },
+	{	2,	"REPLACE"  },
+	{	0, NULL }
+};
+
+static int
+dissect_nfs4_listxattr_names(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	guint32	    comp_count, i;
+	proto_item *fitem;
+	proto_tree *newftree;
+
+	fitem = proto_tree_add_item_ret_uint(tree, hf_nfs4_listxattr_names_len, tvb, offset, 4, ENC_BIG_ENDIAN, &comp_count);
+	offset += 4;
+
+	newftree = proto_item_add_subtree(fitem, ett_nfs4_listxattr_names);
+
+	for (i = 0; i < comp_count; i++)
+		offset = dissect_nfs_utf8string(tvb, offset, newftree, hf_nfs4_xattrkey, NULL);
+	return offset;
+}
+
 /* NFSv4 Operations  */
 static const value_string names_nfs4_operation[] = {
 	{	NFS4_OP_ACCESS,                "ACCESS"  },
@@ -7508,7 +7553,10 @@ static const value_string names_nfs4_operation[] = {
 	{	NFS4_OP_READ_PLUS,             "READ_PLUS"  },
 	{	NFS4_OP_SEEK,                  "SEEK"  },
 	{	NFS4_OP_WRITE_SAME,            "WRITE_SAME"  },
-	{	NFS4_OP_CLONE,                 "CLONE"  },
+	{	NFS4_OP_GETXATTR,              "GETXATTR"  },
+	{	NFS4_OP_SETXATTR,              "SETXATTR"  },
+	{	NFS4_OP_LISTXATTRS,            "LISTXATTRS"  },
+	{	NFS4_OP_REMOVEXATTR,           "REMOVEXATTR"  },
 	{	NFS4_OP_ILLEGAL,               "ILLEGAL"  },
 	{	0, NULL  }
 };
@@ -7588,6 +7636,10 @@ static gint *nfs4_operation_ett[] =
 	 &ett_nfs4_seek,
 	 &ett_nfs4_write_same,
 	 &ett_nfs4_clone,
+	 &ett_nfs4_getxattr,
+	 &ett_nfs4_setxattr,
+	 &ett_nfs4_listxattr,
+	 &ett_nfs4_removexattr,
 };
 
 
@@ -9430,6 +9482,10 @@ static int nfs4_operation_tiers[] = {
 		 1 /* 69, NFS4_OP_SEEK */,
 		 1 /* 70, NFS4_OP_WRITE_SAME */,
 		 1 /* 71, NFS4_OP_CLONE */,
+		 1 /* 72, NFS4_OP_GETXATTR */,
+		 1 /* 73, NFS4_OP_SETXATTR */,
+		 1 /* 74, NFS4_OP_LISTXATTRS */,
+		 1 /* 75, NFS4_OP_REMOVEXATTR */,
 };
 
 #define NFS4_OPERATION_TIER(op) \
@@ -10139,6 +10195,26 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 					" Dst StateID: 0x%04x"
 					" Offset: %" G_GINT64_MODIFIER "u",
 					dst_sid_hash, dst_file_offset);
+
+			break;
+
+		case NFS4_OP_GETXATTR:
+			offset = dissect_nfs_utf8string(tvb, offset, newftree, hf_nfs4_xattrkey, NULL);
+			break;
+
+		case NFS4_OP_SETXATTR:
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_setxattr_options, offset);
+			offset = dissect_nfs_utf8string(tvb, offset, newftree, hf_nfs4_xattrkey, NULL);
+			offset = dissect_nfsdata(tvb, offset, newftree, hf_nfs_data);
+			break;
+
+		case NFS4_OP_LISTXATTRS:
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_listxattr_cookie, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_listxattr_maxcount, offset);
+			break;
+
+		case NFS4_OP_REMOVEXATTR:
+			offset = dissect_nfs_utf8string(tvb, offset, newftree, hf_nfs4_xattrkey, NULL);
 			break;
 
 		/* In theory, it's possible to get this opcode */
@@ -10642,6 +10718,32 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 			break;
 
 		case NFS4_OP_CLONE:
+			break;
+
+		case NFS4_OP_GETXATTR:
+			if (status == NFS4_OK) {
+				offset = dissect_nfsdata(tvb, offset, newftree, hf_nfs_data);
+			}
+			break;
+
+		case NFS4_OP_SETXATTR:
+			if (status == NFS4_OK) {
+				offset = dissect_nfs4_change_info(tvb, offset, newftree, "cinfo");
+			}
+			break;
+
+		case NFS4_OP_LISTXATTRS:
+			if (status == NFS4_OK) {
+				offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_listxattr_cookie, offset);
+				offset = dissect_nfs4_listxattr_names(tvb, offset, newftree);
+				offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_listxattr_eof, offset);
+			}
+			break;
+
+		case NFS4_OP_REMOVEXATTR:
+			if (status == NFS4_OK) {
+				offset = dissect_nfs4_change_info(tvb, offset, newftree, "cinfo");
+			}
 			break;
 
 		default:
@@ -12487,6 +12589,10 @@ proto_register_nfs(void)
 			"umask", "nfs.fattr4.umask", FT_UINT32, BASE_OCT,
 			NULL, 0, NULL, HFILL }},
 
+		{ &hf_nfs4_fattr_xattr_support, {
+			"fattr4_xattr_support", "nfs.fattr4_xattr_support", FT_BOOLEAN, BASE_NONE,
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
+
 		{ &hf_nfs4_fattr_security_label_pi, {
 			"policy_id", "nfs.fattr4.security_label.pi", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
@@ -13674,6 +13780,30 @@ proto_register_nfs(void)
 			"hash (CRC-32)", "nfs.adb.pattern_hash", FT_UINT32, BASE_HEX,
 			NULL, 0, "ADB pattern hash", HFILL }},
 
+		{ &hf_nfs4_xattrkey, {
+			"Name", "nfs.xattr.key", FT_STRING, BASE_NONE,
+			NULL, 0, "Xattr key", HFILL }},
+
+		{ &hf_nfs4_setxattr_options, {
+			"setxattr options", "nfs.setxattr.options", FT_UINT32, BASE_DEC,
+			VALS(names_setxattr_options), 0, NULL, HFILL }},
+
+		{ &hf_nfs4_listxattr_maxcount, {
+			"maxcount", "nfs.lisxtattr.maxcount", FT_UINT32, BASE_DEC,
+			NULL, 0, "Lixtxattr maxcount", HFILL }},
+
+		{ &hf_nfs4_listxattr_cookie, {
+			"cookie", "nfs.lisxtattr.cookie", FT_UINT64, BASE_DEC,
+			NULL, 0, "Lixtxattr cookie", HFILL }},
+
+		{ &hf_nfs4_listxattr_names_len, {
+			"xattr names count", "nfs.listxattr.names.count", FT_UINT32, BASE_DEC,
+			NULL, 0, "Number of xattrkey names", HFILL }},
+
+		{ &hf_nfs4_listxattr_eof, {
+			"eof", "nfs.lisxtattr.eof", FT_UINT32, BASE_DEC,
+			NULL, 0, "Lixtxattr eof", HFILL }},
+
 		{ &hf_nfs4_ff_local, {
 			"client used cache?", "nfs.ff.local", FT_BOOLEAN, BASE_NONE,
 			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
@@ -13968,6 +14098,10 @@ proto_register_nfs(void)
 		&ett_nfs4_ff_ioerrs_sub,
 		&ett_nfs4_ff_iostats_sub,
 		&ett_nfs4_clone,
+		&ett_nfs4_getxattr,
+		&ett_nfs4_setxattr,
+		&ett_nfs4_listxattr,
+		&ett_nfs4_removexattr,
 		&ett_nfs4_offload_cancel,
 		&ett_nfs4_offload_status,
 		&ett_nfs4_osr_complete_sub,
@@ -13975,7 +14109,8 @@ proto_register_nfs(void)
 		&ett_nfs4_read_plus,
 		&ett_nfs4_read_plus_content_sub,
 		&ett_nfs4_write_same,
-		&ett_nfs4_fh_pd_flags
+		&ett_nfs4_fh_pd_flags,
+		&ett_nfs4_listxattr_names
 	};
 
 	static ei_register_info ei[] = {
