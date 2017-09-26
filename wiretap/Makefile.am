@@ -189,7 +189,7 @@ GENERATED_FILES = $(GENERATED_C_FILES) $(GENERATED_HEADER_FILES)
 libwiretap_la_SOURCES = \
 	$(NONGENERATED_C_FILES)		\
 	$(NONGENERATED_HEADER_FILES)	\
-	ws_version_info.c
+	version_info.c
 
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 libwiretap_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
@@ -215,13 +215,13 @@ CLEANFILES = \
 	*~
 
 DISTCLEANFILES = \
-	ws_version_info.c
+	version_info.c
 
 MAINTAINERCLEANFILES = \
 	$(GENERATED_FILES)	\
 	Makefile.in
 
-BUILT_SOURCES = $(GENERATED_HEADER_FILES) ws_version_info.c
+BUILT_SOURCES = $(GENERATED_HEADER_FILES) version_info.c
 
 EXTRA_DIST = \
 	.editorconfig		\
@@ -244,7 +244,7 @@ ascend.c: $(srcdir)/ascend.y ascend_scanner_lex.h
 	fi
 	$(AM_V_YACC)$(YACC) -d -p ascend -o ascend.c $(srcdir)/ascend.y
 
-ws_version_info.c: $(top_srcdir)/ws_version_info.c
+version_info.c: $(top_srcdir)/version_info.c
 	$(AM_V_LN_S)$(LN_S) $<
 
 # ABI compliance checker can be obtained from

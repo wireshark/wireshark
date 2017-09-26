@@ -280,7 +280,7 @@ set(LIBWIRESHARK_FILES
 	value_string.c
 	unit_strings.c
 	xdlc.c
-	${CMAKE_SOURCE_DIR}/ws_version_info.c
+	${CMAKE_SOURCE_DIR}/version_info.c
 )
 
 set(LIBWIRESHARK_CLEAN_FILES

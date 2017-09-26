@@ -32,7 +32,7 @@
 
 #include <glib.h>
 
-#include <ws_version_info.h>
+#include <version_info.h>
 #include <wsutil/report_message.h>
 
 #include <epan/exceptions.h>

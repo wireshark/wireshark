@@ -51,7 +51,7 @@
 #endif
 #include <wsutil/report_message.h>
 #include <wsutil/unicode-utils.h>
-#include <ws_version_info.h>
+#include <version_info.h>
 
 #include <epan/addr_resolv.h>
 #include <epan/ex-opt.h>

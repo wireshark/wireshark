@@ -1,4 +1,4 @@
-/* ws_version_info.h
+/* version_info.h
  * Declarations of routines to report version information for Wireshark
  * programs
  *

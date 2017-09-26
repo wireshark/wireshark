@@ -32,7 +32,7 @@
 #include "gui_utils.h"
 #include "main_titlebar.h"
 
-#include <ws_version_info.h>
+#include <version_info.h>
 
 /*
  * Key to attach the "un-decorated" title to the window, so that if the

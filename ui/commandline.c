@@ -36,7 +36,7 @@
 #include "wsutil/wsgetopt.h"
 #endif
 
-#include <ws_version_info.h>
+#include <version_info.h>
 
 #include <wsutil/clopts_common.h>
 #include <wsutil/cmdarg_err.h>

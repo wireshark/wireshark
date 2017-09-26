@@ -51,7 +51,7 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/rsa.h>
-#include <ws_version_info.h>
+#include <version_info.h>
 #include "packet-ber.h"
 #include "packet-x509af.h"
 #include "packet-x509if.h"

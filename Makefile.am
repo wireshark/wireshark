@@ -410,7 +410,7 @@ WIRESHARK_COMMON_SRC = \
 	file.c			\
 	fileset.c		\
 	summary.c		\
-	ws_version_info.c
+	version_info.c
 
 if HAVE_EXTCAP
 SHARK_COMMON_SRC += $(EXTCAP_COMMON_SRC)
@@ -488,7 +488,7 @@ tshark_SOURCES = \
 	$(SHARK_COMMON_SRC)	\
 	capture_opts.c		\
 	tshark.c		\
-	ws_version_info.c
+	version_info.c
 
 tshark_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -513,7 +513,7 @@ tshark_LDADD = \
 tfshark_SOURCES = \
 	$(SHARK_COMMON_SRC)	\
 	tfshark.c		\
-	ws_version_info.c
+	version_info.c
 
 tfshark_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -536,7 +536,7 @@ tfshark_LDADD = \
 rawshark_SOURCES = \
 	$(SHARK_COMMON_SRC)	\
 	rawshark.c		\
-	ws_version_info.c
+	version_info.c
 
 rawshark_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -562,7 +562,7 @@ sharkd_SOURCES = \
 	sharkd.h		\
 	sharkd_daemon.c		\
 	sharkd_session.c	\
-	ws_version_info.c
+	version_info.c
 
 sharkd_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -594,7 +594,7 @@ endif
 text2pcap_SOURCES = \
 	text2pcap.c		\
 	text2pcap-scanner.l	\
-	ws_version_info.c
+	version_info.c
 
 text2pcap_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -612,7 +612,7 @@ text2pcap_LDADD = \
 
 mergecap_SOURCES = \
 	mergecap.c	\
-	ws_version_info.c
+	version_info.c
 
 mergecap_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -625,7 +625,7 @@ mergecap_LDADD = \
 
 capinfos_SOURCES = \
 	capinfos.c	\
-	ws_version_info.c
+	version_info.c
 
 capinfos_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -639,7 +639,7 @@ capinfos_LDADD = \
 
 captype_SOURCES = \
 	captype.c	\
-	ws_version_info.c
+	version_info.c
 
 captype_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -652,7 +652,7 @@ captype_LDADD = \
 
 editcap_SOURCES = \
 	editcap.c	\
-	ws_version_info.c
+	version_info.c
 
 editcap_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -666,7 +666,7 @@ editcap_LDADD = \
 
 reordercap_SOURCES = \
 	reordercap.c	\
-	ws_version_info.c
+	version_info.c
 
 reordercap_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -679,7 +679,7 @@ reordercap_LDADD = \
 
 randpkt_SOURCES = \
 	randpkt.c	\
-	ws_version_info.c
+	version_info.c
 
 randpkt_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -716,7 +716,7 @@ dumpcap_SOURCES = \
 	dumpcap.c			\
 	ringbuffer.c			\
 	sync_pipe_write.c		\
-	ws_version_info.c
+	version_info.c
 
 dumpcap_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -761,7 +761,7 @@ noinst_HEADERS = \
 	extcap.h		\
 	extcap_parser.h		\
 	extcap_spawn.h		\
-	ws_version_info.h
+	version_info.h
 
 #
 # Build the version string

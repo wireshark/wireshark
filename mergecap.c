@@ -49,7 +49,7 @@
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
 #include <wsutil/strnatcmp.h>
-#include <ws_version_info.h>
+#include <version_info.h>
 
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>

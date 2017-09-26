@@ -33,7 +33,7 @@
 
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>
-#include <ws_version_info.h>
+#include <version_info.h>
 
 #ifdef HAVE_LIBPCAP
 #include "ui/capture_ui_utils.h"

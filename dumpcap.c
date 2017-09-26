@@ -57,7 +57,7 @@
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/crash_info.h>
 #include <wsutil/strtoi.h>
-#include <ws_version_info.h>
+#include <version_info.h>
 
 #ifndef HAVE_GETOPT_LONG
 #include "wsutil/wsgetopt.h"

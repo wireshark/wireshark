@@ -33,7 +33,7 @@ DIAG_ON(frame-larger-than=)
 #include "epan/dissector_filters.h"
 #include <epan/epan_dissect.h>
 #include <wsutil/filesystem.h>
-#include <ws_version_info.h>
+#include <version_info.h>
 #include <epan/prefs.h>
 #include <epan/stats_tree_priv.h>
 #include <epan/plugin_if.h>

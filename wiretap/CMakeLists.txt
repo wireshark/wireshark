@@ -90,7 +90,7 @@ set(WIRETAP_FILES
 	vwr.c
 	wtap.c
 	wtap_opttypes.c
-	${CMAKE_SOURCE_DIR}/ws_version_info.c
+	${CMAKE_SOURCE_DIR}/version_info.c
 )
 
 set_source_files_properties(

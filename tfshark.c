@@ -52,7 +52,7 @@
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
 #include <wsutil/report_message.h>
-#include <ws_version_info.h>
+#include <version_info.h>
 
 #include "globals.h"
 #include <epan/timestamp.h>

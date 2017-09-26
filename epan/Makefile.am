@@ -308,7 +308,7 @@ subpkginclude_HEADERS = $(LIBWIRESHARK_INCLUDES_PUBLIC)
 libwireshark_la_SOURCES = \
 	$(LIBWIRESHARK_SRC)		\
 	$(LIBWIRESHARK_INCLUDES_PRIVATE)	\
-	ws_version_info.c
+	version_info.c
 
 libwireshark_la_CPPFLAGS = $(AM_CPPFLAGS) -DWS_BUILD_DLL
 
@@ -402,7 +402,7 @@ DISTCLEANFILES = \
 	$(NODIST_LIBWIRESHARK_GENERATED_C_FILES) \
 	$(NODIST_LIBWIRESHARK_GENERATED_HEADER_FILES) \
 	dtd_grammar.out \
-	ws_version_info.c
+	version_info.c
 
 MAINTAINERCLEANFILES = \
 	$(LIBWIRESHARK_GENERATED_C_FILES) \
@@ -412,7 +412,7 @@ MAINTAINERCLEANFILES = \
 BUILT_SOURCES = \
 	$(LIBWIRESHARK_GENERATED_HEADER_FILES) \
 	$(NODIST_LIBWIRESHARK_GENERATED_HEADER_FILES) \
-	ws_version_info.c
+	version_info.c
 
 EXTRA_PROGRAMS = reassemble_test tvbtest oids_test exntest
 
@@ -452,7 +452,7 @@ dtd_grammar.h: dtd_grammar.c
 dtd_grammar.c : $(LEMON) $(lemon_srcdir)/lempar.c $(srcdir)/dtd_grammar.lemon
 	$(AM_V_LEMON)$(LEMON) T=$(lemon_srcdir)/lempar.c $(srcdir)/dtd_grammar.lemon
 
-ws_version_info.c: $(top_srcdir)/ws_version_info.c
+version_info.c: $(top_srcdir)/version_info.c
 	$(AM_V_LN_S)$(LN_S) $<
 
 tvbtest.o exntest.o oids_test.o: exceptions.h

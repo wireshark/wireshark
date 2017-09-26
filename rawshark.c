@@ -99,7 +99,7 @@
 #include <wiretap/pcap-encap.h>
 
 #include <wsutil/clopts_common.h>
-#include <ws_version_info.h>
+#include <version_info.h>
 
 #include "caputils/capture-pcap-util.h"
 

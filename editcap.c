@@ -86,7 +86,7 @@
 #include <wsutil/report_message.h>
 #include <wsutil/strnatcmp.h>
 #include <wsutil/str_util.h>
-#include <ws_version_info.h>
+#include <version_info.h>
 #include <wsutil/pint.h>
 #include <wsutil/strtoi.h>
 #include <wiretap/wtap_opttypes.h>

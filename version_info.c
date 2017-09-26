@@ -1,4 +1,4 @@
-/* ws_version_info.c
+/* version_info.c
  * Routines to report version information for Wireshark programs
  *
  * Wireshark - Network traffic analyzer
@@ -44,7 +44,7 @@
 
 #include "version.h"
 
-#include "ws_version_info.h"
+#include "version_info.h"
 
 #include <wsutil/cpu_info.h>
 #include <wsutil/copyright_info.h>

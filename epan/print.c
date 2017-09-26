@@ -38,7 +38,7 @@
 #include <epan/print.h>
 #include <epan/charsets.h>
 #include <wsutil/filesystem.h>
-#include <ws_version_info.h>
+#include <version_info.h>
 #include <wsutil/utf8_entities.h>
 #include <ftypes/ftypes-int.h>
 #include <wsutil/glib-compat.h>
