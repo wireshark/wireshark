@@ -5,6 +5,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
+ * Copyright 2017, Eugene Adell <eugene.adell@gmail.com>
  * Copyright 2004, Jerry Talkington <jtalkington@users.sourceforge.net>
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
@@ -81,7 +82,8 @@ static int hf_http_request_full_uri = -1;
 static int hf_http_request_path = -1;
 static int hf_http_request_query = -1;
 static int hf_http_request_query_parameter = -1;
-static int hf_http_version = -1;
+static int hf_http_request_version = -1;
+static int hf_http_response_version = -1;
 static int hf_http_response_code = -1;
 static int hf_http_response_code_desc = -1;
 static int hf_http_response_phrase = -1;
@@ -1730,7 +1732,7 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 	/* Everything to the end of the line is the version. */
 	tokenlen = (int) (lineend - line);
-	proto_tree_add_item(tree, hf_http_version, tvb, offset, tokenlen,
+	proto_tree_add_item(tree, hf_http_request_version, tvb, offset, tokenlen,
 	    ENC_ASCII|ENC_NA);
 }
 
@@ -1750,7 +1752,7 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	tokenlen = get_token_len(line, lineend, &next_token);
 	if (tokenlen == 0)
 		return;
-	proto_tree_add_item(tree, hf_http_version, tvb, offset, tokenlen,
+	proto_tree_add_item(tree, hf_http_response_version, tvb, offset, tokenlen,
 			    ENC_ASCII|ENC_NA);
 	/* Advance to the start of the next token. */
 	offset += (int) (next_token - line);
@@ -3406,10 +3408,14 @@ proto_register_http(void)
 	      { "Request URI Query Parameter",	"http.request.uri.query.parameter",
 		FT_STRING, STR_UNICODE, NULL, 0x0,
 		"HTTP Request-URI Query Parameter", HFILL }},
-	    { &hf_http_version,
+	    { &hf_http_request_version,
 	      { "Request Version",	"http.request.version",
 		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP Request HTTP-Version", HFILL }},
+	    { &hf_http_response_version,
+	      { "Response Version",	"http.response.version",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Response HTTP-Version", HFILL }},
 	    { &hf_http_request_full_uri,
 	      { "Full request URI",	"http.request.full_uri",
 		FT_STRING, BASE_NONE, NULL, 0x0,
