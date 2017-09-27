@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V14.3.0 (2017-06)
+-- 3GPP TS 36.331 V14.4.0 (2017-09)
 --
 EUTRA-Sidelink-Preconf DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -6,6 +6,7 @@ BEGIN
 
 IMPORTS
 	AdditionalSpectrumEmission,
+	AdditionalSpectrumEmission-v10l0,
 	ARFCN-ValueEUTRA-r9,
 	FilterCoefficient,
 	maxCBR-Level-r14,
@@ -88,7 +89,9 @@ SL-PreconfigGeneral-r12 ::=		SEQUENCE {
 	sl-bandwidth-r12					ENUMERATED {n6, n15, n25, n50, n75, n100},
 	tdd-ConfigSL-r12					TDD-ConfigSL-r12,
 	reserved-r12						BIT STRING (SIZE (19)),
-	...
+	...,
+	[[	additionalSpectrumEmission-v1440		AdditionalSpectrumEmission-v10l0		OPTIONAL
+	]]
 }
 
 SL-PreconfigSync-r12 ::=	SEQUENCE {

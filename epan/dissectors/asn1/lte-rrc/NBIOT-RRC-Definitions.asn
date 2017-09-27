@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V14.3.0 (2017-06)
+-- 3GPP TS 36.331 V14.4.0 (2017-09)
 --
 NBIOT-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -216,7 +216,7 @@ ChannelRasterOffset-NB-r13 ::= ENUMERATED {khz-7dot5, khz-2dot5, khz2dot5, khz7d
 
 Guardband-NB-r13 ::=			SEQUENCE {
 	rasterOffset-r13				ChannelRasterOffset-NB-r13,
-	spare							 BIT STRING (SIZE (3))
+	spare							BIT STRING (SIZE (3))
 }
 
 Inband-SamePCI-NB-r13 ::=		SEQUENCE {
@@ -271,7 +271,7 @@ RRCConnectionReconfiguration-NB-r13-IEs ::= SEQUENCE {
 
 
 RRCConnectionReconfigurationComplete-NB ::= SEQUENCE {
-	rrc-TransactionIdentifier			RRC-TransactionIdentifier,
+	rrc-TransactionIdentifier				RRC-TransactionIdentifier,
 	criticalExtensions						CHOICE {
 		rrcConnectionReconfigurationComplete-r13	RRCConnectionReconfigurationComplete-NB-r13-IEs,
 		criticalExtensionsFuture					SEQUENCE {}
@@ -310,7 +310,7 @@ RRCConnectionReestablishment-NB-v1430-IEs ::=	SEQUENCE {
 
 
 RRCConnectionReestablishmentComplete-NB ::= SEQUENCE {
-	rrc-TransactionIdentifier			RRC-TransactionIdentifier,
+	rrc-TransactionIdentifier				RRC-TransactionIdentifier,
 	criticalExtensions						CHOICE {
 		rrcConnectionReestablishmentComplete-r13	RRCConnectionReestablishmentComplete-NB-r13-IEs,
 		criticalExtensionsFuture					SEQUENCE {}
@@ -327,23 +327,23 @@ RRCConnectionReestablishmentRequest-NB ::= SEQUENCE {
 	criticalExtensions					CHOICE {
 		rrcConnectionReestablishmentRequest-r13
 											RRCConnectionReestablishmentRequest-NB-r13-IEs,
-		later	CHOICE {
-					rrcConnectionReestablishmentRequest-r14
+		later								CHOICE {
+			rrcConnectionReestablishmentRequest-r14
 											RRCConnectionReestablishmentRequest-NB-r14-IEs,
-					criticalExtensionsFuture	SEQUENCE {}
+			criticalExtensionsFuture		SEQUENCE {}
 		}
 	}
 }
 
 RRCConnectionReestablishmentRequest-NB-r13-IEs ::= SEQUENCE {
 	ue-Identity-r13						ReestabUE-Identity,
-	reestablishmentCause-r13				ReestablishmentCause-NB-r13,
+	reestablishmentCause-r13			ReestablishmentCause-NB-r13,
 	spare								BIT STRING (SIZE (25))
 }
 
 RRCConnectionReestablishmentRequest-NB-r14-IEs ::= SEQUENCE {
 	ue-Identity-r14						ReestabUE-Identity-CP-NB-r14,
-	reestablishmentCause-r14				ReestablishmentCause-NB-r13,
+	reestablishmentCause-r14			ReestablishmentCause-NB-r13,
 	spare								BIT STRING (SIZE (4))
 }
 
@@ -351,9 +351,9 @@ ReestablishmentCause-NB-r13 ::=			ENUMERATED {
 											reconfigurationFailure, otherFailure,
 											spare2, spare1}
 
-ReestabUE-Identity-CP-NB-r14 ::=			SEQUENCE {
-	s-TMSI-r14							S-TMSI,
-	ul-NAS-MAC-r14						BIT STRING (SIZE (16)),
+ReestabUE-Identity-CP-NB-r14 ::=		SEQUENCE {
+	s-TMSI-r14								S-TMSI,
+	ul-NAS-MAC-r14							BIT STRING (SIZE (16)),
 	ul-NAS-Count-r14						BIT STRING (SIZE (5))
 }
 
@@ -398,7 +398,7 @@ RRCConnectionRelease-NB-r13-IEs ::=	SEQUENCE {
 
 RRCConnectionRelease-NB-v1430-IEs ::=	SEQUENCE {
 	redirectedCarrierInfo-v1430			RedirectedCarrierInfo-NB-v1430	OPTIONAL,	-- Cond Redirection
-	extendedWaitTime-CPdata-r14 			INTEGER (1..1800)	OPTIONAL,	-- Cond NoExtendedWaitTime
+	extendedWaitTime-CPdata-r14 		INTEGER (1..1800)	OPTIONAL,	-- Cond NoExtendedWaitTime
 	nonCriticalExtension				SEQUENCE {}						OPTIONAL
 }
 
@@ -521,13 +521,13 @@ RRCConnectionSetupComplete-NB-r13-IEs ::= SEQUENCE {
 }
 
 RRCConnectionSetupComplete-NB-v1430-IEs ::= SEQUENCE {
-	gummei-Type-r14							ENUMERATED { mapped}	OPTIONAL,
-	dcn-ID-r14								INTEGER (0..65535)			OPTIONAL,
+	gummei-Type-r14								ENUMERATED { mapped}	OPTIONAL,
+	dcn-ID-r14									INTEGER (0..65535)			OPTIONAL,
 	nonCriticalExtension						SEQUENCE {}					OPTIONAL
 }
 
 
-SCPTMConfiguration-NB-r14 ::=		SEQUENCE {
+SCPTMConfiguration-NB-r14 ::=	SEQUENCE {
 	sc-mtch-InfoList-r14			SC-MTCH-InfoList-NB-r14,
 	scptm-NeighbourCellList-r14		SCPTM-NeighbourCellList-NB-r14		OPTIONAL,	-- Need OP
 	lateNonCriticalExtension		OCTET STRING						OPTIONAL,
@@ -616,10 +616,9 @@ SchedulingInfoList-NB-r13 ::= SEQUENCE (SIZE (1..maxSI-Message-NB-r13)) OF Sched
 SchedulingInfo-NB-r13::=		SEQUENCE {
 	si-Periodicity-r13				ENUMERATED {rf64, rf128, rf256, rf512,
 												rf1024, rf2048, rf4096, spare},
-	si-RepetitionPattern-r13			ENUMERATED {every2ndRF, every4thRF,
-													every8thRF,  every16thRF},
+	si-RepetitionPattern-r13		ENUMERATED {every2ndRF, every4thRF, every8thRF, every16thRF},
 	sib-MappingInfo-r13				SIB-MappingInfo-NB-r13,
-	si-TB-r13			ENUMERATED {b56, b120, b208, b256, b328, b440, b552, b680}
+	si-TB-r13						ENUMERATED {b56, b120, b208, b256, b328, b440, b552, b680}
 }
 
 SystemInfoValueTagList-NB-r13 ::= 	SEQUENCE (SIZE (1.. maxSI-Message-NB-r13)) OF
@@ -629,8 +628,8 @@ SIB-MappingInfo-NB-r13 ::= 			SEQUENCE (SIZE (0..maxSIB-1)) OF SIB-Type-NB-r13
 
 SIB-Type-NB-r13 ::=					ENUMERATED {
 										sibType3-NB-r13, sibType4-NB-r13, sibType5-NB-r13,
-										sibType14-NB-r13, sibType16-NB-r13, sibType15-NB-r14, sibType20-NB-r14,
-										sibType22-NB-r14}
+										sibType14-NB-r13, sibType16-NB-r13, sibType15-NB-r14,
+										sibType20-NB-r14, sibType22-NB-r14}
 
 CellSelectionInfo-NB-v1350 ::=		SEQUENCE {
 	delta-RxLevMin-v1350				INTEGER (-8..-1)
@@ -698,7 +697,7 @@ SystemInformationBlockType2-NB-r13 ::=	SEQUENCE {
 	},
 	timeAlignmentTimerCommon-r13			TimeAlignmentTimer,
 	multiBandInfoList-r13	SEQUENCE (SIZE (1..maxMultiBands)) OF AdditionalSpectrumEmission		OPTIONAL,	-- Need OR
-	lateNonCriticalExtension					OCTET STRING					OPTIONAL,
+	lateNonCriticalExtension				OCTET STRING					OPTIONAL,
 	...,
 	[[	cp-Reestablishment-r14				ENUMERATED {true}				OPTIONAL		-- Need OP
 	]]
@@ -727,9 +726,9 @@ SystemInformationBlockType3-NB-r13 ::=	SEQUENCE {
 												NS-PmaxList-NB-r13			OPTIONAL,	-- Need OR
 	lateNonCriticalExtension					OCTET STRING				OPTIONAL,
 	...,
-	[[	intraFreqCellReselectionInfo-v1350		IntraFreqCellReselectionInfo-NB-v1350 OPTIONAL 	-- Cond Qrxlevmin
+	[[	intraFreqCellReselectionInfo-v1350	IntraFreqCellReselectionInfo-NB-v1350 OPTIONAL 	-- Cond Qrxlevmin
 	]],
-	[[	intraFreqCellReselectionInfo-v1360		IntraFreqCellReselectionInfo-NB-v1360 OPTIONAL 	-- Need OR
+	[[	intraFreqCellReselectionInfo-v1360	IntraFreqCellReselectionInfo-NB-v1360 OPTIONAL 	-- Need OR
 	]],
 	[[ 	intraFreqCellReselectionInfo-v1430	IntraFreqCellReselectionInfo-NB-v1430 OPTIONAL 	-- Need OR
 	]]
@@ -781,7 +780,7 @@ InterFreqCarrierFreqInfo-NB-r13 ::=	SEQUENCE {
 	interFreqBlackCellList-r13			InterFreqBlackCellList-NB-r13	OPTIONAL, 		-- Need OR
 	multiBandInfoList-r13				MultiBandInfoList-NB-r13		OPTIONAL,		-- Need OR
 	...,
-	[[	delta-RxLevMin-v1350					INTEGER (-8..-1)		OPTIONAL 	-- Cond Qrxlevmin
+	[[	delta-RxLevMin-v1350			INTEGER (-8..-1)		OPTIONAL 	-- Cond Qrxlevmin
 	]],
 	[[	powerClass14dBm-Offset-r14		ENUMERATED {dB-6, dB-3, dB3, dB6, dB9, dB12} OPTIONAL,	--	Need OP
 		ce-AuthorisationOffset-r14		ENUMERATED {dB5, dB10, dB15, dB20, dB25, dB30, dB35}	OPTIONAL	-- Need OP
@@ -838,10 +837,10 @@ SystemInformationBlockType16-NB-r13 ::= SystemInformationBlockType16-r11
 SystemInformationBlockType20-NB-r14 ::=	SEQUENCE {
 	npdcch-SC-MCCH-Config-r14				NPDCCH-SC-MCCH-Config-NB-r14,
 	sc-mcch-CarrierConfig-r14				CHOICE {
-		dl-CarrierConfig-r14						DL-CarrierConfigCommon-NB-r14,
+		dl-CarrierConfig-r14					DL-CarrierConfigCommon-NB-r14,
 		dl-CarrierIndex-r14						INTEGER (0.. maxNonAnchorCarriers-NB-r14)
 	},
-	sc-mcch-RepetitionPeriod-r14				ENUMERATED {rf32, rf128, rf512, rf1024,
+	sc-mcch-RepetitionPeriod-r14			ENUMERATED {rf32, rf128, rf512, rf1024,
 														rf2048, rf4096, rf8192, rf16384},
 	sc-mcch-Offset-r14						INTEGER (0..10),
 	sc-mcch-ModificationPeriod-r14			ENUMERATED { rf32, rf128, rf256, rf512, rf1024,
@@ -849,7 +848,7 @@ SystemInformationBlockType20-NB-r14 ::=	SEQUENCE {
 													rf65536, rf131072, rf262144, rf524288,
 													rf1048576, spare1},
 	sc-mcch-SchedulingInfo-r14				SC-MCCH-SchedulingInfo-NB-r14		OPTIONAL, 	-- Need OP
-	lateNonCriticalExtension					OCTET STRING						OPTIONAL,
+	lateNonCriticalExtension				OCTET STRING						OPTIONAL,
 	...
 }
 
@@ -878,16 +877,16 @@ SC-MCCH-SchedulingInfo-NB-r14::=	SEQUENCE	{
 		sf40										INTEGER(0..39),
 		sf64										INTEGER(0..63),
 		sf80										INTEGER(0..79),
-		sf128									INTEGER(0..127),
-		sf160									INTEGER(0..159),
-		sf256									INTEGER(0..255),
-		sf320									INTEGER(0..319),
-		sf512									INTEGER(0..511),
-		sf640									INTEGER(0..639),
-		sf1024									INTEGER(0..1023),
-		sf2048									INTEGER(0..2047),
-		sf4096									INTEGER(0..4095),
-		sf8192									INTEGER(0..8191)
+		sf128										INTEGER(0..127),
+		sf160										INTEGER(0..159),
+		sf256										INTEGER(0..255),
+		sf320										INTEGER(0..319),
+		sf512										INTEGER(0..511),
+		sf640										INTEGER(0..639),
+		sf1024										INTEGER(0..1023),
+		sf2048										INTEGER(0..2047),
+		sf4096										INTEGER(0..4095),
+		sf8192										INTEGER(0..8191)
 	},
 	...
 }
@@ -897,7 +896,7 @@ SystemInformationBlockType22-NB-r14 ::=	SEQUENCE {
 	dl-ConfigList-r14  					DL-ConfigCommonList-NB-r14	 OPTIONAL,	-- Need OR
 	ul-ConfigList-r14  					UL-ConfigCommonList-NB-r14	 OPTIONAL,	-- Need OR
 	pagingWeightAnchor-r14				PagingWeight-NB-r14			OPTIONAL,	-- Cond pcch-config
-	nprach-ProbabilityAnchorList-r14		NPRACH-ProbabilityAnchorList-NB-r14	OPTIONAL,	-- Cond nprach-config
+	nprach-ProbabilityAnchorList-r14	NPRACH-ProbabilityAnchorList-NB-r14	OPTIONAL,	-- Cond nprach-config
 	lateNonCriticalExtension			OCTET STRING					OPTIONAL,
 	...
 }
@@ -910,7 +909,7 @@ UL-ConfigCommonList-NB-r14 ::=		SEQUENCE (SIZE (1.. maxNonAnchorCarriers-NB-r14)
 
 
 DL-ConfigCommon-NB-r14 ::=			SEQUENCE {
-	dl-CarrierConfig-r14					DL-CarrierConfigCommon-NB-r14,
+	dl-CarrierConfig-r14				DL-CarrierConfigCommon-NB-r14,
 	pcch-Config-r14  					PCCH-Config-NB-r14			OPTIONAL, -- Need OR
 	...
 }
@@ -938,26 +937,26 @@ NPRACH-ParametersList-NB-r14 ::=		SEQUENCE (SIZE (1.. maxNPRACH-Resources-NB-r13
 
 
 NPRACH-Parameters-NB-r14 ::=			SEQUENCE {
-	nprach-Parameters-r14				SEQUENCE {
+	nprach-Parameters-r14					SEQUENCE {
 		nprach-Periodicity-r14 					ENUMERATED {ms40, ms80, ms160, ms240,
 															ms320, ms640, ms1280, ms2560}
 													OPTIONAL,	-- NEED OP
-		nprach-StartTime-r14						ENUMERATED {ms8, ms16, ms32, ms64,
+		nprach-StartTime-r14					ENUMERATED {ms8, ms16, ms32, ms64,
 															ms128, ms256, ms512, ms1024}
 													OPTIONAL,	-- NEED OP
 		nprach-SubcarrierOffset-r14				ENUMERATED {n0, n12, n24, n36, n2, n18, n34, spare1}
 													OPTIONAL,	-- NEED OP
 		nprach-NumSubcarriers-r14				ENUMERATED {n12, n24, n36, n48}
 													 OPTIONAL,	-- NEED OP
-		nprach-SubcarrierMSG3-RangeStart-r14		ENUMERATED {zero, oneThird, twoThird, one}
+		nprach-SubcarrierMSG3-RangeStart-r14	ENUMERATED {zero, oneThird, twoThird, one}
 													OPTIONAL,	-- NEED OP
-		npdcch-NumRepetitions-RA-r14				ENUMERATED {r1, r2, r4, r8, r16, r32, r64, r128,
+		npdcch-NumRepetitions-RA-r14			ENUMERATED {r1, r2, r4, r8, r16, r32, r64, r128,
 															r256, r512, r1024, r2048,
 															spare4, spare3, spare2, spare1}
 													OPTIONAL,	-- NEED OP
 		npdcch-StartSF-CSS-RA-r14				ENUMERATED {v1dot5, v2, v4, v8, v16, v32, v48, v64}
 														OPTIONAL,	-- NEED OP
-		npdcch-Offset-RA-r14						ENUMERATED {zero, oneEighth, oneFourth, threeEighth}
+		npdcch-Offset-RA-r14					ENUMERATED {zero, oneEighth, oneFourth, threeEighth}
 													OPTIONAL,	-- NEED OP
 		nprach-NumCBRA-StartSubcarriers-r14		ENUMERATED {n8, n10, n11, n12, n20, n22, n23, n24,
 															n32, n34, n35, n36, n40, n44, n46, n48}
@@ -972,10 +971,10 @@ NPRACH-ProbabilityAnchorList-NB-r14 ::=	SEQUENCE (SIZE (1.. maxNPRACH-Resources-
 												NPRACH-ProbabilityAnchor-NB-r14
 
 NPRACH-ProbabilityAnchor-NB-r14 ::=		SEQUENCE {
-	nprach-ProbabilityAnchor-r14				ENUMERATED {
+	nprach-ProbabilityAnchor-r14			ENUMERATED {
 												zero, oneSixteenth, oneFifteenth, oneFourteenth,
 												oneThirteenth, oneTwelfth, oneEleventh, oneTenth,
-												oneNinth, oneEightth, oneSeventh, oneSixth,
+												oneNinth, oneEighth, oneSeventh, oneSixth,
 												oneFifth, oneFourth, oneThird, oneHalf}
 														OPTIONAL 	-- Need OP
 }
@@ -1000,16 +999,16 @@ DL-CarrierConfigDedicated-NB-r13 ::=	SEQUENCE {
 		explicitGapConfiguration-r13			DL-GapConfig-NB-r13,
 		spare									NULL
 	}		OPTIONAL,	 -- Need ON
-	inbandCarrierInfo-r13			SEQUENCE {
-		samePCI-Indicator-r13			CHOICE	{
-			samePCI-r13						SEQUENCE {
-				indexToMidPRB-r13				INTEGER (-55..54)
+	inbandCarrierInfo-r13					SEQUENCE {
+		samePCI-Indicator-r13					CHOICE	{
+			samePCI-r13								SEQUENCE {
+				indexToMidPRB-r13						INTEGER (-55..54)
 			},
-			differentPCI-r13				SEQUENCE {
-				eutra-NumCRS-Ports-r13			ENUMERATED {same, four}
+			differentPCI-r13						SEQUENCE {
+				eutra-NumCRS-Ports-r13					ENUMERATED {same, four}
 			}
 		} 							OPTIONAL,		-- Cond anchor-guardband
-		eutraControlRegionSize-r13			ENUMERATED {n1, n2, n3}
+		eutraControlRegionSize-r13				ENUMERATED {n1, n2, n3}
 	}								OPTIONAL,		-- Cond non-anchor-inband
 	...,
 	[[	nrs-PowerOffsetNonAnchor-v1330		ENUMERATED {dB-12, dB-10, dB-8, dB-6,
@@ -1028,7 +1027,7 @@ CarrierFreq-NB-r13 ::=		SEQUENCE {
 	carrierFreq-r13				ARFCN-ValueEUTRA-r9,
 	carrierFreqOffset-r13		ENUMERATED {
 									v-10, v-9, v-8,	v-7, v-6, v-5, v-4, v-3, v-2, v-1, v-0dot5,
-									v0,  v1,	v2,	 v3,  v4,  v5, 	v6,  v7,  v8,  v9
+									v0, v1, v2, v3, v4, v5, v6, v7, v8, v9
 									}	OPTIONAL	-- Need ON
 }
 
@@ -1060,7 +1059,7 @@ DL-CarrierConfigCommon-NB-r14 ::=	SEQUENCE {
 				eutra-NumCRS-Ports-r14				ENUMERATED {same, four}
 			}
 		} 	OPTIONAL,		-- Cond anchor-guardband
-		eutraControlRegionSize-r14		ENUMERATED {n1, n2, n3}
+		eutraControlRegionSize-r14			ENUMERATED {n1, n2, n3}
 	}	OPTIONAL,		-- Cond non-anchor-inband
 	nrs-PowerOffsetNonAnchor-r14 		ENUMERATED {dB-12, dB-10, dB-8, dB-6,
 													dB-4, dB-2, dB0, dB3}	DEFAULT dB0,
@@ -1083,10 +1082,10 @@ LogicalChannelConfig-NB-r13 ::=		SEQUENCE {
 }
 
 
-MAC-MainConfig-NB-r13 ::=		SEQUENCE {
-	ul-SCH-Config-r13				SEQUENCE {
-		periodicBSR-Timer-r13			PeriodicBSR-Timer-NB-r13		OPTIONAL,	-- Need ON
-		retxBSR-Timer-r13				RetxBSR-Timer-NB-r13
+MAC-MainConfig-NB-r13 ::=			SEQUENCE {
+	ul-SCH-Config-r13					SEQUENCE {
+		periodicBSR-Timer-r13				PeriodicBSR-Timer-NB-r13		OPTIONAL,	-- Need ON
+		retxBSR-Timer-r13					RetxBSR-Timer-NB-r13
 	}																	OPTIONAL,	-- Need ON
 	drx-Config-r13						DRX-Config-NB-r13				OPTIONAL,	-- Need ON
 	timeAlignmentTimerDedicated-r13		TimeAlignmentTimer,
@@ -1099,18 +1098,19 @@ MAC-MainConfig-NB-r13 ::=		SEQUENCE {
 		}
 	}																	OPTIONAL,	-- Need ON
 	...,
-	[[	rai-Activation-r14					ENUMERATED {true} 			OPTIONAL,	-- Need OR
-	dataInactivityTimerConfig-r14	CHOICE {
+	[[	rai-Activation-r14						ENUMERATED {true} 			OPTIONAL,	-- Need OR
+		dataInactivityTimerConfig-r14	CHOICE {
 			release								NULL,
 			setup								SEQUENCE {
 				dataInactivityTimer-r14				DataInactivityTimer-r14
 			}
 		}																OPTIONAL	-- Need ON
 	]],
-	[[	drx-Cycle-v1430			ENUMERATED {
+	[[	drx-Cycle-v1430					ENUMERATED {
 									sf1280, sf2560, sf5120, sf10240}	OPTIONAL	-- Need ON
+	]],
+	[[	ra-CFRA-Config-r14		ENUMERATED {true}			OPTIONAL		-- Need ON
 	]]
-
 }
 
 PeriodicBSR-Timer-NB-r13 ::=		ENUMERATED {
@@ -1173,7 +1173,7 @@ NPRACH-ParametersList-NB-r13 ::=	SEQUENCE (SIZE (1.. maxNPRACH-Resources-NB-r13)
 
 NPRACH-ParametersList-NB-v1330 ::=	SEQUENCE (SIZE (1.. maxNPRACH-Resources-NB-r13)) OF NPRACH-Parameters-NB-v1330
 
-NPRACH-Parameters-NB-r13::=		SEQUENCE {
+NPRACH-Parameters-NB-r13::=			SEQUENCE {
 	nprach-Periodicity-r13 					ENUMERATED {ms40, ms80, ms160, ms240,
 														ms320, ms640, ms1280, ms2560},
 	nprach-StartTime-r13					ENUMERATED {ms8, ms16, ms32, ms64,
@@ -1262,6 +1262,8 @@ PhysicalConfigDedicated-NB-r13 ::=	SEQUENCE {
 	uplinkPowerControlDedicated-r13		UplinkPowerControlDedicated-NB-r13 	OPTIONAL,	-- Need ON
 	...,
 	[[	twoHARQ-ProcessesConfig-r14		ENUMERATED {true}	OPTIONAL	-- Need OR
+	]],
+	[[	interferenceRandomisationConfig-r14	ENUMERATED {true}	OPTIONAL 	-- Need OR
 	]]
 }
 
@@ -1473,8 +1475,14 @@ UE-Capability-NB-r13 ::=		SEQUENCE {
 
 UE-Capability-NB-v1430-IEs ::=		SEQUENCE {
 	ue-Category-NB-r14					ENUMERATED {nb2}				OPTIONAL,
-	mac-Parameters-r14					MAC-Parameters-NB-r14			OPTIONAL,	phyLayerParameters-v1430			PhyLayerParameters-NB-v1430	OPTIONAL,
+	mac-Parameters-r14					MAC-Parameters-NB-r14			OPTIONAL,
+	phyLayerParameters-v1430			PhyLayerParameters-NB-v1430		OPTIONAL,
 	rf-Parameters-v1430					RF-Parameters-NB-v1430,
+	nonCriticalExtension				UE-Capability-NB-v1440-IEs		OPTIONAL
+}
+
+UE-Capability-NB-v1440-IEs ::=		SEQUENCE {
+	phyLayerParameters-v1440			PhyLayerParameters-NB-v1440		OPTIONAL,
 	nonCriticalExtension				SEQUENCE {}						OPTIONAL
 }
 
@@ -1507,6 +1515,10 @@ PhyLayerParameters-NB-r13	::=		SEQUENCE {
 PhyLayerParameters-NB-v1430	::=		SEQUENCE {
 	multiCarrier-NPRACH-r14				ENUMERATED {supported}			OPTIONAL,
 	twoHARQ-Processes-r14				ENUMERATED {supported}			OPTIONAL
+}
+
+PhyLayerParameters-NB-v1440	::=		SEQUENCE {
+	interferenceRandomisation-r14		ENUMERATED {supported}			OPTIONAL
 }
 
 RF-Parameters-NB-r13 	::=			SEQUENCE {
@@ -1576,9 +1588,9 @@ SC-MTCH-Info-NB-r14 ::= 				SEQUENCE	{
 													spare3, spare2, spare1},
 	npdcch-StartSF-SC-MTCH-r14			ENUMERATED {v1dot5, v2, v4, v8,
 													v16, v32, v48, v64},
-	npdcch-Offset-SC-MTCH-r14			ENUMERATED {zero, oneEight, oneQuarter,
-													threeEight, oneHalf, fiveEight,
-													threeQuarter, sevenEight},
+	npdcch-Offset-SC-MTCH-r14			ENUMERATED {zero, oneEighth, oneQuarter,
+													threeEighth, oneHalf, fiveEighth,
+													threeQuarter, sevenEighth},
 	...
 }
 
@@ -1590,12 +1602,12 @@ SC-MTCH-SchedulingInfo-NB-r14 ::=		SEQUENCE	{
 												pp0, pp1, pp2, pp3,
 												pp4, pp8, pp16, pp32},
 	schedulingPeriodStartOffsetSCPTM-r14	CHOICE {
-		sf10										INTEGER(0..9),
-		sf20										INTEGER(0..19),
-		sf32										INTEGER(0..31),
-		sf40										INTEGER(0..39),
-		sf64										INTEGER(0..63),
-		sf80										INTEGER(0..79),
+		sf10									INTEGER(0..9),
+		sf20									INTEGER(0..19),
+		sf32									INTEGER(0..31),
+		sf40									INTEGER(0..39),
+		sf64									INTEGER(0..63),
+		sf80									INTEGER(0..79),
 		sf128									INTEGER(0..127),
 		sf160									INTEGER(0..159),
 		sf256									INTEGER(0..255),
@@ -1611,11 +1623,11 @@ SC-MTCH-SchedulingInfo-NB-r14 ::=		SEQUENCE	{
 }
 
 
-SCPTM-NeighbourCellList-NB-r14 ::=		SEQUENCE (SIZE (1..maxNeighCell-SCPTM-NB-r14)) OF PCI-ARFCN-NB-r14
+SCPTM-NeighbourCellList-NB-r14 ::=	SEQUENCE (SIZE (1..maxNeighCell-SCPTM-NB-r14)) OF PCI-ARFCN-NB-r14
 
-PCI-ARFCN-NB-r14 ::=					SEQUENCE {
-		physCellId-r14						PhysCellId,
-		carrierFreq-r14						CarrierFreq-NB-r13		OPTIONAL	-- Need OP
+PCI-ARFCN-NB-r14 ::=				SEQUENCE {
+	physCellId-r14						PhysCellId,
+	carrierFreq-r14						CarrierFreq-NB-r13		OPTIONAL	-- Need OP
 }
 
 
