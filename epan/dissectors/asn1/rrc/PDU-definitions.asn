@@ -1,4 +1,4 @@
--- 3GPP TS 25.331 V14.3.0 (2017-06)
+-- 3GPP TS 25.331 V14.4.0 (2017-09)
 --
 -- 11.2	PDU definitions
 --
@@ -497,7 +497,7 @@ IMPORTS
 	MeasuredResults-v920ext,
 	MeasuredResults-vc50ext,
 	MeasuredResults-vd20ext,
-	MeasuredResults-vexyext,
+	MeasuredResults-ve30ext,
 	MeasuredResultsOnSecUlFreq,
 	MeasuredResultsOnSecUlFreq-vc50ext,
 	MeasuredResultsListOnSecUlFreq,
@@ -1409,7 +1409,7 @@ CellUpdate ::= SEQUENCE {
 										cellUpdate-vb50ext				CellUpdate-vb50ext-IEs,
 										vc50NonCriticalExtensions		SEQUENCE {
 											cellUpdate-vc50ext				CellUpdate-vc50ext-IEs,
-											vexyLaterNonCriticalExtensions CellUpdate-vexyext-IEs	OPTIONAL
+											ve30LaterNonCriticalExtensions CellUpdate-ve30ext-IEs	OPTIONAL
 										}		OPTIONAL
 									}		OPTIONAL
 								}		OPTIONAL
@@ -1421,7 +1421,7 @@ CellUpdate ::= SEQUENCE {
 		}	OPTIONAL
 }
 
-CellUpdate-vexyext-IEs ::= SEQUENCE {
+CellUpdate-ve30ext-IEs ::= SEQUENCE {
 	-- User equipment IEs
 		cellUpdateCause-ext2			CellUpdateCause-ext2			OPTIONAL,
 		nonCriticalExtensions			SEQUENCE {}					OPTIONAL
@@ -3808,7 +3808,7 @@ InitialDirectTransfer ::= SEQUENCE {
 									initialDirectTransfer-vb50ext	InitialDirectTransfer-vb50ext-IEs,
 									vc50NonCriticalExtensions		SEQUENCE {
 										initialDirectTransfer-vc50ext	InitialDirectTransfer-vc50ext-IEs,
-										vexyNonCriticalExtensions		InitialDirectTransfer-vexyext-IEs		OPTIONAL
+										ve30NonCriticalExtensions		InitialDirectTransfer-ve30ext-IEs		OPTIONAL
 									}		OPTIONAL
 								}		OPTIONAL
 							}		OPTIONAL
@@ -3864,7 +3864,7 @@ InitialDirectTransfer-vc50ext-IEs ::= SEQUENCE {
 		measuredResultsOnRACH					MeasuredResultsOnRACH-vc50ext			OPTIONAL
 }
 
-InitialDirectTransfer-vexyext-IEs ::= SEQUENCE {
+InitialDirectTransfer-ve30ext-IEs ::= SEQUENCE {
 	-- Other IEs
 		dcnIdentity						INTEGER (0..65535)					OPTIONAL,
 		nonCriticalExtensions				SEQUENCE {}						OPTIONAL
@@ -4986,7 +4986,7 @@ MeasurementReport-LaterNonCriticalExtensions ::=	SEQUENCE {
 	measurementReport-vc50ext			MeasurementReport-vc50ext-IEs,
 	vd20NonCriticalExtensions			SEQUENCE {
 		measurementReport-vd20ext			MeasurementReport-vd20ext-IEs,
-		vexyNonCriticalExtensions			MeasurementReport-vexyext-IEs		OPTIONAL
+		ve30NonCriticalExtensions			MeasurementReport-ve30ext-IEs		OPTIONAL
 	}	OPTIONAL
 }
 
@@ -5008,9 +5008,9 @@ MeasurementReport-vd20ext-IEs ::=	SEQUENCE {
 	measuredResults						MeasuredResults-vd20ext					OPTIONAL
 }
 
-MeasurementReport-vexyext-IEs ::=	SEQUENCE {
+MeasurementReport-ve30ext-IEs ::=	SEQUENCE {
 	-- Measurement IEs
-	measuredResults						MeasuredResults-vexyext					OPTIONAL,
+	measuredResults						MeasuredResults-ve30ext					OPTIONAL,
 	applicationLayerMeasurementReporting		ApplicationLayerMeasurementReporting	OPTIONAL,
 	nonCriticalExtensions				SEQUENCE {}								OPTIONAL
 }

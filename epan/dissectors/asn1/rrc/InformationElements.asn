@@ -1,4 +1,4 @@
--- 3GPP TS 25.331 V14.3.0 (2017-06)
+-- 3GPP TS 25.331 V14.4.0 (2017-09)
 --
 -- 11.3	Information element definitions
 --
@@ -1216,7 +1216,7 @@ DL-PhysChCapabilityFDD-vd20ext ::=	SEQUENCE {
 	supportofBlindHarqRetransmissionsforHsdpa		ENUMERATED { true }				OPTIONAL
 }
 
-DL-PhysChCapabilityFDD-vexyext ::=	SEQUENCE {
+DL-PhysChCapabilityFDD-ve30ext ::=	SEQUENCE {
 	supportofHS-SCCHDrxOperation			ENUMERATED { true }				OPTIONAL
 }
 
@@ -1738,7 +1738,7 @@ MeasurementCapability-vc50ext ::=	SEQUENCE {
 	enhancedUPHReporting							ENUMERATED { true }		OPTIONAL
 }
 
-MeasurementCapability-vexyext ::=	SEQUENCE {
+MeasurementCapability-ve30ext ::=	SEQUENCE {
 	rrcEventsforUPHReporting							ENUMERATED { true }			OPTIONAL,
 	qoEMeasurementCollectionForStreamingServices	ENUMERATED { true }			OPTIONAL
 }
@@ -2067,10 +2067,10 @@ PhysicalChannelCapability-vd20ext ::=	SEQUENCE {
 		uplinkPhysChCapability					UL-PhysChCapabilityFDD-vd20ext	OPTIONAL
 	}		OPTIONAL
 }
-PhysicalChannelCapability-vexyext ::=	SEQUENCE {
+PhysicalChannelCapability-ve30ext ::=	SEQUENCE {
 	fddPhysChCapability						SEQUENCE {
-		downlinkPhysChCapability					DL-PhysChCapabilityFDD-vexyext	OPTIONAL,
-		uplinkPhysChCapability					UL-PhysChCapabilityFDD-vexyext	OPTIONAL
+		downlinkPhysChCapability					DL-PhysChCapabilityFDD-ve30ext	OPTIONAL,
+		uplinkPhysChCapability					UL-PhysChCapabilityFDD-ve30ext	OPTIONAL
 	}		OPTIONAL
 }
 
@@ -2926,7 +2926,7 @@ UE-RadioAccessCapability-LaterNonCriticalExtensions ::=	SEQUENCE {
 								vd20NonCriticalExtensions			SEQUENCE {
 									ue-RadioAccessCapability-vd20ext
 											UE-RadioAccessCapability-vd20ext-IEs,
-									vexyNonCriticalExtensions		UE-RadioAccessCapability-vexyext-IEs OPTIONAL
+									ve30NonCriticalExtensions		UE-RadioAccessCapability-ve30ext-IEs OPTIONAL
 								}		OPTIONAL
 							}		OPTIONAL
 						}		OPTIONAL
@@ -3030,10 +3030,10 @@ UE-RadioAccessCapability-vd20ext-IEs ::=		SEQUENCE {
 	supportofEnhancedStateTransition			ENUMERATED { true }						OPTIONAL
 }
 
-UE-RadioAccessCapability-vexyext-IEs ::=		SEQUENCE {
-	measurementCapability							MeasurementCapability-vexyext		OPTIONAL,
+UE-RadioAccessCapability-ve30ext-IEs ::=		SEQUENCE {
+	measurementCapability							MeasurementCapability-ve30ext		OPTIONAL,
 	supportofSimultaneousSetupandReleaseofRABsRBs	ENUMERATED { true }					OPTIONAL,
-	physicalChannelCapability						PhysicalChannelCapability-vexyext	OPTIONAL,
+	physicalChannelCapability						PhysicalChannelCapability-ve30ext	OPTIONAL,
 	nonCriticalExtensions						SEQUENCE {}							OPTIONAL
 }
 
@@ -3731,7 +3731,7 @@ UL-PhysChCapabilityFDD-vd20ext ::=		SEQUENCE {
 	supportOfDualCellEDCHwithDPDCH			ENUMERATED { true }				OPTIONAL
 }
 
-UL-PhysChCapabilityFDD-vexyext ::=		SEQUENCE {
+UL-PhysChCapabilityFDD-ve30ext ::=		SEQUENCE {
 	supportOfDualCellEDCHOperationEnhancements			ENUMERATED { true }				OPTIONAL
 }
 
@@ -18587,8 +18587,8 @@ MeasuredResults-vd20ext ::= CHOICE {
 	ue-positioning-MeasuredResults		UE-Positioning-MeasuredResults-vd20ext
 }
 
-MeasuredResults-vexyext ::= CHOICE {
-	ueInternalMeasuredResults				UE-InternalMeasuredResults-vexyext
+MeasuredResults-ve30ext ::= CHOICE {
+	ueInternalMeasuredResults				UE-InternalMeasuredResults-ve30ext
 }
 
 
@@ -20752,10 +20752,10 @@ UE-InternalEventResults ::=			CHOICE {
 	event6e								NULL,
 	event6f								PrimaryCPICH-Info,
 	event6g								PrimaryCPICH-Info,
-	ue-InternalEventResults-vxyext				UE-InternalEventResults-vxyext-IEs
+	ue-InternalEventResults-v30ext				UE-InternalEventResults-v30ext-IEs
 }
 
-UE-InternalEventResults-vxyext-IEs ::=	CHOICE {
+UE-InternalEventResults-v30ext-IEs ::=	CHOICE {
 	event6h								NULL,
 	event6i								NULL,
 	spare6								NULL,
@@ -20789,7 +20789,7 @@ UE-InternalMeasuredResults ::=		SEQUENCE {
 	}
 }
 
-UE-InternalMeasuredResults-vexyext ::=	SEQUENCE {
+UE-InternalMeasuredResults-ve30ext ::=	SEQUENCE {
 	modeSpecificInfo					CHOICE {
 		fdd									SEQUENCE {
 			ue-powerheadroom					UE-PowerHeadroom			OPTIONAL
