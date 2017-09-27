@@ -331,8 +331,6 @@ dissect_grpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
         if (http2_path) {
             proto_item_append_text(ti, ": %s, %s", http2_path, (is_request ? "Request" : "Response"));
-        } else {
-            proto_item_append_text(ti, ": %s", (is_request ? "Request" : "Response"));
         }
 
         offset = dissect_grpc_message(tvb, offset, GRPC_MESSAGE_HEAD_LEN + message_length, pinfo, grpc_tree, http2_path, is_request);
