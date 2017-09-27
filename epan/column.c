@@ -808,22 +808,15 @@ get_column_tooltip(const gint col)
 }
 
 void
-build_column_format_array(column_info *cinfo, const gint num_cols, const gboolean reset_fences)
+col_finalize(column_info *cinfo)
 {
   int i;
   col_item_t* col_item;
 
-  /* Build the column format array */
-  col_setup(cinfo, num_cols);
-
   for (i = 0; i < cinfo->num_cols; i++) {
     col_item = &cinfo->columns[i];
-    col_item->col_fmt = get_column_format(i);
-    col_item->col_title = g_strdup(get_column_title(i));
 
     if (col_item->col_fmt == COL_CUSTOM) {
-      col_item->col_custom_fields = g_strdup(get_column_custom_fields(i));
-      col_item->col_custom_occurrence = get_column_custom_occurrence(i);
       if(!dfilter_compile(col_item->col_custom_fields, &col_item->col_custom_dfilter, NULL)) {
         /* XXX: Should we issue a warning? */
         g_free(col_item->col_custom_fields);
@@ -863,9 +856,6 @@ build_column_format_array(column_info *cinfo, const gint num_cols, const gboolea
     else
       col_item->col_buf = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
 
-    if(reset_fences)
-      col_item->col_fence = 0;
-
     cinfo->col_expr.col_expr[i] = "";
     cinfo->col_expr.col_expr_val[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
   }
@@ -886,6 +876,31 @@ build_column_format_array(column_info *cinfo, const gint num_cols, const gboolea
       cinfo->col_last[j] = i;
     }
   }
+}
+
+void
+build_column_format_array(column_info *cinfo, const gint num_cols, const gboolean reset_fences)
+{
+  int i;
+  col_item_t* col_item;
+
+  /* Build the column format array */
+  col_setup(cinfo, num_cols);
+
+  for (i = 0; i < cinfo->num_cols; i++) {
+    col_item = &cinfo->columns[i];
+    col_item->col_fmt = get_column_format(i);
+    col_item->col_title = g_strdup(get_column_title(i));
+    if (col_item->col_fmt == COL_CUSTOM) {
+      col_item->col_custom_fields = g_strdup(get_column_custom_fields(i));
+      col_item->col_custom_occurrence = get_column_custom_occurrence(i);
+    }
+
+    if(reset_fences)
+      col_item->col_fence = 0;
+  }
+
+  col_finalize(cinfo);
 }
 
 /*

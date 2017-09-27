@@ -80,6 +80,10 @@ gchar               *get_column_tooltip(const gint col);
 
 WS_DLL_PUBLIC
 void
+col_finalize(column_info *cinfo);
+
+WS_DLL_PUBLIC
+void
 build_column_format_array(column_info *cinfo, const gint num_cols, const gboolean reset_fences);
 
 WS_DLL_PUBLIC
