@@ -712,12 +712,84 @@ sharkd_session_process_analyse(void)
 	g_hash_table_destroy(analyser.protocols_set);
 }
 
+static column_info *
+sharkd_session_create_columns(column_info *cinfo, const char *buf, const jsmntok_t *tokens, int count)
+{
+	const char *columns_custom[32];
+	guint16 columns_fmt[32];
+	gint16 columns_occur[32];
+
+	int i, cols;
+
+	for (i = 0; i < 32; i++)
+	{
+		const char *tok_column;
+		char tok_column_name[64];
+		char *custom_sepa;
+
+		ws_snprintf(tok_column_name, sizeof(tok_column_name), "column%d", i);
+		tok_column = json_find_attr(buf, tokens, count, tok_column_name);
+		if (tok_column == NULL)
+			break;
+
+		if ((custom_sepa = strchr(tok_column, ':')))
+		{
+			*custom_sepa = '\0'; /* XXX, C abuse: discarding-const */
+
+			columns_fmt[i] = COL_CUSTOM;
+			columns_custom[i] = tok_column;
+			columns_occur[i] = 0;
+
+			if (!ws_strtoi16(custom_sepa + 1, NULL, &columns_occur[i]))
+				return NULL;
+		}
+		else
+		{
+			if (!ws_strtou16(tok_column, NULL, &columns_fmt[i]))
+				return NULL;
+
+			if (columns_fmt[i] >= NUM_COL_FMTS)
+				return NULL;
+
+			/* if custom, that it shouldn't be just custom number -> error */
+			if (columns_fmt[i] == COL_CUSTOM)
+				return NULL;
+		}
+	}
+
+	cols = i;
+
+	col_setup(cinfo, cols);
+
+	for (i = 0; i < cols; i++)
+	{
+		col_item_t *col_item = &cinfo->columns[i];
+
+		col_item->col_fmt = columns_fmt[i];
+		col_item->col_title = NULL; /* no need for title */
+
+		if (col_item->col_fmt == COL_CUSTOM)
+		{
+			col_item->col_custom_fields = g_strdup(columns_custom[i]);
+			col_item->col_custom_occurrence = columns_occur[i];
+		}
+
+		col_item->col_fence = 0;
+	}
+
+	col_finalize(cinfo);
+
+	return cinfo;
+}
+
 /**
  * sharkd_session_process_frames()
  *
  * Process frames request
  *
  * Input:
+ *   (o) column0...columnXX - requested columns either number in range [0..NUM_COL_FMTS), or custom (syntax <dfilter>:<occurence>).
+ *                            If column0 is not specified default column set will be used.
  *   (o) filter - filter to be used
  *   (o) skip=N   - skip N frames
  *   (o) limit=N  - show only N frames
@@ -735,6 +807,7 @@ static void
 sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int count)
 {
 	const char *tok_filter = json_find_attr(buf, tokens, count, "filter");
+	const char *tok_column = json_find_attr(buf, tokens, count, "column0");
 	const char *tok_skip   = json_find_attr(buf, tokens, count, "skip");
 	const char *tok_limit  = json_find_attr(buf, tokens, count, "limit");
 
@@ -748,6 +821,15 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 	guint32 limit;
 
 	column_info *cinfo = &cfile.cinfo;
+	column_info user_cinfo;
+
+	if (tok_column)
+	{
+		memset(&user_cinfo, 0, sizeof(user_cinfo));
+		cinfo = sharkd_session_create_columns(&user_cinfo, buf, tokens, count);
+		if (!cinfo)
+			return;
+	}
 
 	if (tok_filter)
 	{
