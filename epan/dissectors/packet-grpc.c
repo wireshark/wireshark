@@ -170,10 +170,11 @@ dissect_body_data(proto_tree *grpc_tree, packet_info *pinfo, tvbuff_t *tvb, cons
     if (grpc_detect_json_automatically && length > 3
         && tvb_get_guint8(next_tvb, 0) == '{')  /* start with '{' */
     {
-        guint32 end_bytes = tvb_get_guint24(next_tvb, length - 3, ENC_BIG_ENDIAN);
-        if ((end_bytes & 0x0000FF) == '}'   /* end with '}' */
-            || (end_bytes & 0x00FF00) == '}' /* or "}\n" */
-            || (end_bytes & 0xFF0000) == '}') /* or "}\n\r" or " }\r\n" */
+        guint8 end_bytes[3];
+        tvb_memcpy(next_tvb, end_bytes, length - 3, 3);
+        if (end_bytes[2] == '}'     /* end with '}' */
+            || end_bytes[1] == '}'  /* or "}\n" */
+            || end_bytes[0] == '}') /* or "}\n\r" or " }\r\n" */
         {
             /* We just replace content-type with "application/grpc+json" insteadof calling
             JSON dissector directly. Because someone may want to use his own dissector to
