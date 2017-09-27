@@ -433,7 +433,7 @@ proto_register_zbee_zcl_price(void)
 } /*proto_register_zbee_zcl_price*/
 
 /**
- *Hands off the Zcl Price dissector.
+ *Hands off the ZCL Price dissector.
  *
 */
 void
@@ -1856,7 +1856,7 @@ proto_register_zbee_zcl_met(void)
 } /*proto_register_zbee_zcl_met*/
 
 /**
- *Hands off the Zcl Metering dissector.
+ *Hands off the ZCL Metering dissector.
  *
 */
 void
@@ -2222,9 +2222,8 @@ dissect_zcl_msg_cancel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 
 } /* dissect_zcl_msg_cancel */
 
-
 /**
- *Send Cancel All command
+ *This function manages the Cancel All Messages payload
  *
  *@param tvb pointer to buffer containing raw packet.
  *@param tree pointer to data tree Wireshark uses to display packet.
@@ -2235,7 +2234,7 @@ dissect_zcl_msg_cancel_all(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
     nstime_t impl_time;
 
-    /* Retrieve "Confirmation Time" field */
+    /* Implementation Date/Time */
     impl_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
     impl_time.nsecs = 0;
     proto_tree_add_time(tree, hf_zbee_zcl_msg_implementation_time, tvb, *offset, 4, &impl_time);
@@ -2244,7 +2243,7 @@ dissect_zcl_msg_cancel_all(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 } /* dissect_zcl_msg_cancel_all */
 
 /**
- *Send Cancel All command
+ *This function manages the Get Message Cancellation payload
  *
  *@param tvb pointer to buffer containing raw packet.
  *@param tree pointer to data tree Wireshark uses to display packet.
@@ -2278,11 +2277,11 @@ dissect_zcl_msg_confirm(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     guint8 *msg_data;
     nstime_t confirm_time;
 
-    /* Retrieve "Message ID" field */
+    /* Message ID */
     proto_tree_add_item(tree, hf_zbee_zcl_msg_message_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
 
-    /* Retrieve "Confirmation Time" field */
+    /* Confirmation Time */
     confirm_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
     confirm_time.nsecs = 0;
     proto_tree_add_time(tree, hf_zbee_zcl_msg_confirm_time, tvb, *offset, 4, &confirm_time);
@@ -2476,7 +2475,7 @@ proto_register_zbee_zcl_msg(void)
 } /*proto_register_zbee_zcl_msg*/
 
 /**
- *Hands off the Zcl Messaging dissector.
+ *Hands off the ZCL Messaging dissector.
  *
 */
 void
@@ -2651,7 +2650,7 @@ dissect_zcl_tun_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint1
 } /*dissect_zcl_ias_zone_attr_data*/
 
 /**
- *This function manages the Display Message payload
+ *This function manages the Request Tunnel payload
  *
  *@param tvb pointer to buffer containing raw packet.
  *@param tree pointer to data tree Wireshark uses to display packet.
@@ -2674,7 +2673,7 @@ dissect_zcl_tun_request_tunnel(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 }
 
 /**
- *This function manages the Display Message payload
+ *This function manages the Close Tunnel payload
  *
  *@param tvb pointer to buffer containing raw packet.
  *@param tree pointer to data tree Wireshark uses to display packet.
@@ -2688,7 +2687,7 @@ dissect_zcl_tun_close_tunnel(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 }
 
 /**
- *This function manages the Display Message payload
+ *This function manages the Transfer Data payload
  *
  *@param tvb pointer to buffer containing raw packet.
  *@param tree pointer to data tree Wireshark uses to display packet.
@@ -2708,7 +2707,7 @@ dissect_zcl_tun_transfer_data(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 }
 
 /**
- *This function manages the Display Message payload
+ *This function manages the Transfer Data Error payload
  *
  *@param tvb pointer to buffer containing raw packet.
  *@param tree pointer to data tree Wireshark uses to display packet.
@@ -2725,7 +2724,7 @@ dissect_zcl_tun_transfer_data_error(tvbuff_t *tvb, proto_tree *tree, guint *offs
 }
 
 /**
- *This function manages the Display Message payload
+ *This function manages the Ack Transfer Data payload
  *
  *@param tvb pointer to buffer containing raw packet.
  *@param tree pointer to data tree Wireshark uses to display packet.
@@ -2742,7 +2741,7 @@ dissect_zcl_tun_ack_transfer_data(tvbuff_t *tvb, proto_tree *tree, guint *offset
 }
 
 /**
- *This function manages the Display Message payload
+ *This function manages the Ready Data payload
  *
  *@param tvb pointer to buffer containing raw packet.
  *@param tree pointer to data tree Wireshark uses to display packet.
@@ -2759,7 +2758,7 @@ dissect_zcl_tun_ready_data(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 }
 
 /**
- *This function manages the Display Message payload
+ *This function manages the Get Supported Tunnel Protocols payload
  *
  *@param tvb pointer to buffer containing raw packet.
  *@param tree pointer to data tree Wireshark uses to display packet.
@@ -2773,7 +2772,7 @@ dissect_zcl_tun_get_supported(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 }
 
 /**
- *This function manages the Display Message payload
+ *This function manages the Request Tunnel Response payload
  *
  *@param tvb pointer to buffer containing raw packet.
  *@param tree pointer to data tree Wireshark uses to display packet.
@@ -2793,7 +2792,7 @@ dissect_zcl_tun_request_tunnel_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offse
 }
 
 /**
- *This function manages the Display Message payload
+ *This function manages the Supported Tunnel Protocols Response payload
  *
  *@param tvb pointer to buffer containing raw packet.
  *@param tree pointer to data tree Wireshark uses to display packet.
@@ -2826,7 +2825,7 @@ dissect_zcl_tun_get_supported_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset
 }
 
 /**
- *This function manages the Display Message payload
+ *This function manages the Tunnel Closure Notification payload
  *
  *@param tvb pointer to buffer containing raw packet.
  *@param tree pointer to data tree Wireshark uses to display packet.
@@ -2840,7 +2839,7 @@ dissect_zcl_tun_closure_notify(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 }
 
 /**
- *ZigBee ZCL Messaging cluster dissector for wireshark.
+ *ZigBee ZCL Tunneling cluster dissector for wireshark.
  *
  *@param tvb pointer to buffer containing raw packet.
  *@param pinfo pointer to packet information fields
@@ -2967,7 +2966,7 @@ dissect_zbee_zcl_tun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 } /*dissect_zbee_zcl_tun*/
 
 /**
- *This function registers the ZCL Messaging dissector
+ *This function registers the ZCL Tunneling dissector
  *
 */
 void
@@ -3045,23 +3044,23 @@ proto_register_zbee_zcl_tun(void)
 
     };
 
-    /* ZCL Messaging subtrees */
+    /* ZCL Tunneling subtrees */
     gint *ett[] = {
         &ett_zbee_zcl_tun,
     };
 
-    /* Register the ZigBee ZCL Messaging cluster protocol name and description */
+    /* Register the ZigBee ZCL Tunneling cluster protocol name and description */
     proto_zbee_zcl_tun = proto_register_protocol("ZigBee ZCL Tunneling", "ZCL Tunneling", ZBEE_PROTOABBREV_ZCL_TUN);
     proto_register_field_array(proto_zbee_zcl_tun, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    /* Register the ZigBee ZCL Messaging dissector. */
+    /* Register the ZigBee ZCL Tunneling dissector. */
     tun_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_TUN, dissect_zbee_zcl_tun, proto_zbee_zcl_tun);
 
 } /* proto_register_zbee_zcl_tun */
 
 /**
- *Hands off the Zcl Messaging dissector.
+ *Hands off the ZCL Tunneling dissector.
  *
 */
 void
@@ -4029,7 +4028,7 @@ dissect_zcl_pp_publish_debt_log(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     /* Debt Payload */
     rem_len = tvb_reported_length_remaining(tvb, *offset);
     while (rem_len > 0 && i < ZBEE_ZCL_SE_PP_NUM_PUBLISH_DEBT_LOG_ETT) {
-        // Create subtree for top up code
+        // Create subtree for debt payload
         sub_tree = proto_tree_add_subtree(tree, tvb, *offset, 4 + 4 + 1 + 4, ett_zbee_zcl_pp_publish_debt_log_entry[i], NULL, "Debt Payload");
         i++;
 
@@ -4403,7 +4402,7 @@ proto_register_zbee_zcl_pp(void)
 } /*proto_register_zbee_zcl_pp*/
 
 /**
- *Hands off the Zcl Prepayment dissector.
+ *Hands off the ZCL Prepayment dissector.
  *
 */
 void
@@ -4682,7 +4681,7 @@ proto_register_zbee_zcl_calendar(void)
 } /*proto_register_zbee_zcl_calendar*/
 
 /**
- *Hands off the Zcl Calendar dissector.
+ *Hands off the ZCL Calendar dissector.
  *
 */
 void
@@ -5211,7 +5210,7 @@ proto_register_zbee_zcl_events(void)
 } /*proto_register_zbee_zcl_events*/
 
 /**
- *Hands off the Zcl Events dissector.
+ *Hands off the ZCL Events dissector.
  *
 */
 void
@@ -5659,7 +5658,7 @@ dissect_zbee_zcl_ke(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
 
 /**
- *This function registers the ZCL Messaging dissector
+ *This function registers the ZCL Key Establishment dissector
  *
 */
 void
@@ -5771,17 +5770,17 @@ proto_register_zbee_zcl_ke(void)
         &ett_zbee_zcl_ke_key_usage,
     };
 
-    /* Register the ZigBee ZCL Messaging cluster protocol name and description */
+    /* Register the ZigBee ZCL Key Establishment cluster protocol name and description */
     proto_zbee_zcl_ke = proto_register_protocol("ZigBee ZCL Key Establishment", "ZCL Key Establishment", ZBEE_PROTOABBREV_ZCL_KE);
     proto_register_field_array(proto_zbee_zcl_ke, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    /* Register the ZigBee ZCL Messaging dissector. */
+    /* Register the ZigBee ZCL Key Establishment dissector. */
     ke_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_KE, dissect_zbee_zcl_ke, proto_zbee_zcl_ke);
 } /*proto_register_zbee_zcl_ke*/
 
 /**
- *Hands off the Zcl Key Establishment dissector.
+ *Hands off the ZCL Key Establishment dissector.
  *
 */
 void
