@@ -241,6 +241,7 @@ static expert_field ei_access_address_illegal = EI_INIT;
 static expert_field ei_crc_cannot_be_determined = EI_INIT;
 static expert_field ei_crc_incorrect = EI_INIT;
 static expert_field ei_missing_fragment_start = EI_INIT;
+static expert_field ei_retransmit = EI_INIT;
 
 static dissector_handle_t btle_handle;
 static dissector_handle_t btcommon_ad_handle;
@@ -276,7 +277,15 @@ static const fragment_items btle_l2cap_msg_frag_items = {
     "BTLE L2CAP fragments"
 };
 
-/* Store information about a connection*/
+/* Store information about a connection direction */
+typedef struct _direction_info_t {
+    guint    prev_seq_num : 1;          /* Previous sequence number for this direction */
+    guint    segmentation_started : 1;  /* 0 = No, 1 = Yes */
+    guint    segment_len_rem;           /* The remaining segment length, used to find last segment */
+    guint32  l2cap_index;               /* Unique identifier for each L2CAP message */
+} direction_info_t;
+
+/* Store information about a connection */
 typedef struct _connection_info_t {
     /* Address information */
     guint32  interface_id;
@@ -286,12 +295,10 @@ typedef struct _connection_info_t {
     guint8   master_bd_addr[6];
     guint8   slave_bd_addr[6];
     /* Connection information */
-    /* Data used on the first pass to get info from previos frame, result will be in per_packet_data */
+    /* Data used on the first pass to get info from previous frame, result will be in per_packet_data */
     guint    first_data_frame_seen : 1;
     guint    nextexpectedseqnum : 1;
-    guint    segmentation_started : 1;  /* 0 = No, 1 = Yes */
-    guint    segment_len_rem;           /* The remaining segment length, used to find last segment */
-    guint32  l2cap_index;               /* Unique identifier for each L2CAP message */
+    direction_info_t direction_info[3];  /* UNKNOWN, MASTER_SLAVE and SLAVE_MASTER */
 } connection_info_t;
 
 /* */
@@ -497,7 +504,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     static const guint8    broadcast_addr[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
     connection_info_t     *connection_info = NULL;
     wmem_tree_t           *wmem_tree;
-    wmem_tree_key_t        key[6];
+    wmem_tree_key_t        key[5];
     guint32                interface_id;
     guint32                adapter_id;
     guint32                connection_access_address;
@@ -817,15 +824,6 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             offset += 1;
 
             if (!pinfo->fd->flags.visited) {
-                guint32 direction = BTLE_DIR_UNKNOWN;
-
-                /*
-                 * If having BTLE context we create one connection_info_tree for each direction.
-                 */
-                if (btle_context) {
-                    direction = BTLE_DIR_MASTER_SLAVE;
-                }
-
                 key[0].length = 1;
                 key[0].key = &interface_id;
                 key[1].length = 1;
@@ -833,11 +831,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 key[2].length = 1;
                 key[2].key = &connection_access_address;
                 key[3].length = 1;
-                key[3].key = &direction;
-                key[4].length = 1;
-                key[4].key = &frame_number;
-                key[5].length = 0;
-                key[5].key = NULL;
+                key[3].key = &frame_number;
+                key[4].length = 0;
+                key[4].key = NULL;
 
                 connection_info = wmem_new0(wmem_file_scope(), connection_info_t);
                 connection_info->interface_id   = interface_id;
@@ -848,22 +844,6 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 memcpy(connection_info->slave_bd_addr,  dst_bd_addr, 6);
 
                 wmem_tree_insert32_array(connection_info_tree, key, connection_info);
-
-                if (btle_context) {
-                    direction = BTLE_DIR_SLAVE_MASTER;
-                    key[3].length = 1;
-                    key[3].key = &direction;
-
-                    connection_info = wmem_new0(wmem_file_scope(), connection_info_t);
-                    connection_info->interface_id   = interface_id;
-                    connection_info->adapter_id     = adapter_id;
-                    connection_info->access_address = connection_access_address;
-
-                    memcpy(connection_info->master_bd_addr, src_bd_addr, 6);
-                    memcpy(connection_info->slave_bd_addr,  dst_bd_addr, 6);
-
-                    wmem_tree_insert32_array(connection_info_tree, key, connection_info);
-                }
             }
 
             break;
@@ -896,16 +876,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         key[1].key = &adapter_id;
         key[2].length = 1;
         key[2].key = &access_address;
-        key[3].length = 1;
-        key[3].key = &direction;
-        key[4].length = 0;
-        key[4].key = NULL;
+        key[3].length = 0;
+        key[3].key = NULL;
 
         oct = tvb_get_guint8(tvb, offset);
         wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(connection_info_tree, key);
         if (wmem_tree) {
             connection_info = (connection_info_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
-            if (connection_info) {
+            if (connection_info && crc_status != CRC_INCORRECT) {
                 gchar  *str_addr_src, *str_addr_dst;
                 gint tmp_dir = 0;
                 /* Holds "unknown" + access_address + NULL, which is the longest string */
@@ -956,7 +934,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     address *addr;
 
                     btle_frame_info = wmem_new0(wmem_file_scope(), btle_frame_info_t);
-                    btle_frame_info->l2cap_index = connection_info->l2cap_index;
+                    btle_frame_info->l2cap_index = connection_info->direction_info[direction].l2cap_index;
 
                     addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
                     addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_src.data, pinfo->dl_src.len);
@@ -972,14 +950,22 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         connection_info->nextexpectedseqnum = 0;
                     }
                     else {
-                        if (connection_info->nextexpectedseqnum == !!(oct & 0x8)) {
-                            /* Seq = nextexpectedseqnum */
+                        guint8 nextexpectedseqnum = !!(oct & 0x4);
+                        guint8 seq_num = !!(oct & 0x8);
+
+                        if ((seq_num == connection_info->nextexpectedseqnum) &&
+                            (seq_num != connection_info->direction_info[direction].prev_seq_num)) {
+                            /*
+                             * SN is equal to previous packet (in connection) NESN and
+                             * SN is not equal to previous packet (in same direction) SN.
+                             */
                             btle_frame_info->retransmit = 0;
-                            connection_info->nextexpectedseqnum = !!(oct & 0x4);
+                            connection_info->nextexpectedseqnum = nextexpectedseqnum;
                         }
                         else {
                             btle_frame_info->retransmit = 1;
                         }
+                        connection_info->direction_info[direction].prev_seq_num = seq_num;
                     }
                     p_add_proto_data(wmem_file_scope(), pinfo, proto_btle, pinfo->curr_layer_num, btle_frame_info);
                 }
@@ -1003,7 +989,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_item_append_text(seq_item, " [OK]");
         }
         else {
-            proto_item_append_text(seq_item, " [Wrong SEQ (Retransmitt?)]");
+            proto_item_append_text(seq_item, " [Wrong SEQ]");
+            expert_add_info(pinfo, seq_item, &ei_retransmit);
         }
         proto_tree_add_item(data_header_tree, hf_data_header_more_data, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(data_header_tree, hf_data_header_rfu, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1021,11 +1008,11 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 tvbuff_t *new_tvb = NULL;
 
                 pinfo->fragmented = TRUE;
-                if (connection_info) {
+                if (connection_info && btle_frame_info->retransmit == 0 && crc_status != CRC_INCORRECT) {
                     if (!pinfo->fd->flags.visited) {
-                        if (connection_info->segmentation_started == 1) {
-                            if (connection_info->segment_len_rem >= length) {
-                                connection_info->segment_len_rem = connection_info->segment_len_rem - length;
+                        if (connection_info->direction_info[direction].segmentation_started == 1) {
+                            if (connection_info->direction_info[direction].segment_len_rem >= length) {
+                                connection_info->direction_info[direction].segment_len_rem = connection_info->direction_info[direction].segment_len_rem - length;
                             } else {
                                 /*
                                  * Missing fragment for previous L2CAP and fragment start for this.
@@ -1035,13 +1022,13 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                 btle_frame_info->l2cap_index = l2cap_index;
                                 l2cap_index++;
                             }
-                            if (connection_info->segment_len_rem > 0) {
+                            if (connection_info->direction_info[direction].segment_len_rem > 0) {
                                 btle_frame_info->more_fragments = 1;
                             }
                             else {
                                 btle_frame_info->more_fragments = 0;
-                                connection_info->segmentation_started = 0;
-                                connection_info->segment_len_rem = 0;
+                                connection_info->direction_info[direction].segmentation_started = 0;
+                                connection_info->direction_info[direction].segment_len_rem = 0;
                             }
                         } else {
                             /*
@@ -1085,6 +1072,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     acl_data->remote_bd_addr_oui = 0;
                     acl_data->remote_bd_addr_id = 0;
                     acl_data->is_btle = TRUE;
+                    acl_data->is_btle_retransmit = (btle_frame_info->retransmit == 1);
 
                     next_tvb = tvb_new_subset_length(tvb, offset, length);
                     if (next_tvb) {
@@ -1110,14 +1098,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 guint le_frame_len = tvb_get_letohs(tvb, offset);
                 if (le_frame_len > length) {
                     pinfo->fragmented = TRUE;
-                    if (connection_info) {
+                    if (connection_info && btle_frame_info->retransmit == 0 && crc_status != CRC_INCORRECT) {
                         if (!pinfo->fd->flags.visited) {
-                            connection_info->segmentation_started = 1;
+                            connection_info->direction_info[direction].segmentation_started = 1;
                             /* The first two octets in the L2CAP PDU contain the length of the entire
                              * L2CAP PDU in octets, excluding the Length and CID fields(4 octets).
                              */
-                            connection_info->segment_len_rem = le_frame_len + 4 - length;
-                            connection_info->l2cap_index = l2cap_index;
+                            connection_info->direction_info[direction].segment_len_rem = le_frame_len + 4 - length;
+                            connection_info->direction_info[direction].l2cap_index = l2cap_index;
                             btle_frame_info->more_fragments = 1;
                             btle_frame_info->l2cap_index = l2cap_index;
                             l2cap_index++;
@@ -1165,6 +1153,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     acl_data->remote_bd_addr_oui = 0;
                     acl_data->remote_bd_addr_id  = 0;
                     acl_data->is_btle = TRUE;
+                    acl_data->is_btle_retransmit = (btle_frame_info->retransmit == 1);
 
                     next_tvb = tvb_new_subset_length(tvb, offset, length);
                     call_dissector_with_data(btl2cap_handle, next_tvb, pinfo, tree, acl_data);
@@ -2038,6 +2027,8 @@ proto_register_btle(void)
             { "btle.crc.incorrect",             PI_CHECKSUM, PI_WARN,  "Incorrect CRC", EXPFILL }},
         { &ei_missing_fragment_start,
             { "btle.missing_fragment_start",    PI_SEQUENCE, PI_WARN,  "Missing Fragment Start", EXPFILL }},
+        { &ei_retransmit,
+            { "btle.retransmit",                PI_SEQUENCE, PI_WARN,  "Retransmission", EXPFILL }},
     };
 
     static gint *ett[] = {
