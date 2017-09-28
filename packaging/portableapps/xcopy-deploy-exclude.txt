@@ -1,2 +1,4 @@
+.exp
 .ilk
+.lib
 .pdb
