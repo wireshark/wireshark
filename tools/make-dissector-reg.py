@@ -164,7 +164,7 @@ for filename in filenames:
 #                               print "Caching %s for %s: %s" % (sym_type, filename, symbol)
                 cache[filename][sym_type].append(symbol)
     # We're done with the file contents
-    contets = ""
+    del contents
     file.close()
 
 
