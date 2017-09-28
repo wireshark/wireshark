@@ -1654,7 +1654,7 @@ static gchar *dissect_7bit_string (tvbuff_t *tvb, gint offset, gint length)
   gint    len = 0, i;
 
   if (length <= 0) {
-    decoded = "";
+    decoded = (guchar *) "";
   } else {
     encoded = (guchar *)tvb_memdup (wmem_packet_scope(), tvb, offset, length);
     decoded = (guchar *)wmem_alloc0 (wmem_packet_scope(), (size_t)(length * 1.2) + 1);
