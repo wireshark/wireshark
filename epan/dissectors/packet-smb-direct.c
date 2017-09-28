@@ -334,7 +334,7 @@ dissect_smb_direct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 				    tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_bitmask(tree, tvb, offset, hf_smb_direct_flags,
+		proto_tree_add_bitmask(data_tree, tvb, offset, hf_smb_direct_flags,
 			       ett_smb_direct_flags, flags, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
