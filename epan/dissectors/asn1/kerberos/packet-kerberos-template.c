@@ -54,6 +54,7 @@
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>
+#include <wsutil/pint.h>
 #include "packet-kerberos.h"
 #include "packet-netbios.h"
 #include "packet-tcp.h"
@@ -295,6 +296,22 @@ static void used_encryption_key(proto_tree *tree, packet_info *pinfo,
 				     ek->keyvalue[2] & 0xFF, ek->keyvalue[3] & 0xFF);
 }
 
+#ifdef HAVE_MIT_KERBEROS
+static void used_signing_key(proto_tree *tree, packet_info *pinfo,
+			     enc_key_t *ek, tvbuff_t *tvb,
+			     krb5_cksumtype checksum,
+			     const char *reason)
+{
+	proto_tree_add_expert_format(tree, pinfo, &ei_kerberos_decrypted_keytype,
+				     tvb, 0, 0,
+				     "%s checksum %d keytype %d in frame %u "
+				     "using %s (%02x%02x%02x%02x...)",
+				     reason, checksum, ek->keytype, pinfo->fd->num, ek->key_origin,
+				     ek->keyvalue[0] & 0xFF, ek->keyvalue[1] & 0xFF,
+				     ek->keyvalue[2] & 0xFF, ek->keyvalue[3] & 0xFF);
+}
+#endif /* HAVE_MIT_KERBEROS */
+
 #endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
 
 #if defined(HAVE_MIT_KERBEROS)
@@ -442,6 +459,101 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 	return NULL;
 }
 USES_APPLE_RST
+
+extern krb5_error_code
+krb5int_c_mandatory_cksumtype(krb5_context, krb5_enctype, krb5_cksumtype *);
+
+static void
+verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
+{
+	krb5_error_code ret;
+	enc_key_t *ek = NULL;;
+	krb5_data checksum_data = {0,0,NULL};
+	krb5_cksumtype server_checksum = 0;
+	krb5_cksumtype kdc_checksum = 0;
+	int length = tvb_captured_length(pactvb);
+	const guint8 *pacbuffer = NULL;
+	krb5_pac pac;
+
+	/* don't do anything if we are not attempting to decrypt data */
+	if(!krb_decrypt || length < 1){
+		return;
+	}
+
+	/* make sure we have all the data we need */
+	if (tvb_captured_length(pactvb) < tvb_reported_length(pactvb)) {
+		return;
+	}
+
+	pacbuffer = tvb_get_ptr(pactvb, 0, length);
+
+	ret = krb5_pac_parse(krb5_ctx, pacbuffer, length, &pac);
+	if (ret != 0) {
+		proto_tree_add_expert_format(tree, actx->pinfo, &ei_kerberos_decrypted_keytype,
+					     pactvb, 0, 0,
+					     "Failed to parse PAC buffer %d in frame %u",
+					     ret, actx->pinfo->fd->num);
+		return;
+	}
+
+	ret = krb5_pac_get_buffer(krb5_ctx, pac, KRB5_PAC_SERVER_CHECKSUM,
+				  &checksum_data);
+	if (ret == 0) {
+		server_checksum = pletoh32(checksum_data.data);
+		krb5_free_data_contents(krb5_ctx, &checksum_data);
+	};
+	ret = krb5_pac_get_buffer(krb5_ctx, pac, KRB5_PAC_PRIVSVR_CHECKSUM,
+				  &checksum_data);
+	if (ret == 0) {
+		kdc_checksum = pletoh32(checksum_data.data);
+		krb5_free_data_contents(krb5_ctx, &checksum_data);
+	};
+
+	read_keytab_file_from_preferences();
+
+	for(ek=enc_key_list;ek;ek=ek->next){
+		krb5_keyblock keyblock;
+		krb5_cksumtype checksumtype = 0;
+
+		if (server_checksum == 0 && kdc_checksum == 0) {
+			break;
+		}
+
+		ret = krb5int_c_mandatory_cksumtype(krb5_ctx, ek->keytype,
+						    &checksumtype);
+		if (ret != 0) {
+			continue;
+		}
+
+		keyblock.magic = KV5M_KEYBLOCK;
+		keyblock.enctype = ek->keytype;
+		keyblock.length = ek->keylength;
+		keyblock.contents = (guint8 *)ek->keyvalue;
+
+		if (checksumtype == server_checksum) {
+			ret = krb5_pac_verify(krb5_ctx, pac, 0, NULL,
+					      &keyblock, NULL);
+			if (ret == 0) {
+				used_signing_key(tree, actx->pinfo, ek, pactvb,
+						 server_checksum, "Verified Server");
+				server_checksum = 0;
+			}
+		}
+
+		if (checksumtype == kdc_checksum) {
+			ret = krb5_pac_verify(krb5_ctx, pac, 0, NULL,
+					      NULL, &keyblock);
+			if (ret == 0) {
+				used_signing_key(tree, actx->pinfo, ek, pactvb,
+						 kdc_checksum, "Verified KDC");
+				kdc_checksum = 0;
+			}
+		}
+
+	}
+
+	krb5_pac_free(krb5_ctx, pac);
+}
 
 #elif defined(HAVE_HEIMDAL_KERBEROS)
 static krb5_context krb5_ctx;
@@ -1896,6 +2008,10 @@ dissect_krb5_AD_WIN2K_PAC(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 	guint32 entries;
 	guint32 version;
 	guint32 i;
+
+#ifdef HAVE_MIT_KERBEROS
+	verify_krb5_pac(tree, actx, tvb);
+#endif
 
 	/* first in the PAC structure comes the number of entries */
 	entries=tvb_get_letohl(tvb, offset);
