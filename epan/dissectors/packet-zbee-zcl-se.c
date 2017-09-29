@@ -4782,7 +4782,7 @@ static int hf_zbee_zcl_events_clear_event_log_response_cleared_event_logs = -1;
 
 /* Initialize the subtree pointers */
 #define ZBEE_ZCL_SE_EVENTS_NUM_INDIVIDUAL_ETT             1
-#define ZBEE_ZCL_SE_EVENTS_NUM_PUBLISH_EVENT_LOG_ETT      15
+#define ZBEE_ZCL_SE_EVENTS_NUM_PUBLISH_EVENT_LOG_ETT      100 // The Great Britain Companion Specification (GBCS) allows up to 100 even though ZigBee only allows 15
 #define ZBEE_ZCL_SE_EVENTS_NUM_TOTAL_ETT                  (ZBEE_ZCL_SE_EVENTS_NUM_INDIVIDUAL_ETT + ZBEE_ZCL_SE_EVENTS_NUM_PUBLISH_EVENT_LOG_ETT)
 
 static gint ett_zbee_zcl_events = -1;
@@ -5015,7 +5015,6 @@ dissect_zcl_events_publish_event_log(tvbuff_t *tvb, proto_tree *tree, guint *off
     proto_tree* event_log_tree;
     nstime_t    event_time;
     guint8      event_data_len;
-    guint8      number_of_events;
 
     /* Total Number of Matching Events */
     proto_tree_add_item(tree, hf_zbee_zcl_events_publish_event_log_total_number_of_matching_events, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
@@ -5030,11 +5029,10 @@ dissect_zcl_events_publish_event_log(tvbuff_t *tvb, proto_tree *tree, guint *off
     *offset += 1;
 
     /* Number of Events / Log Payload Control */
-    number_of_events = tvb_get_guint8(tvb, *offset) >> 4;
     proto_tree_add_item(tree, hf_zbee_zcl_events_publish_event_log_number_of_events_log_payload_control, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
-    for (guint8 i = 0; i < number_of_events && i < ZBEE_ZCL_SE_EVENTS_NUM_PUBLISH_EVENT_LOG_ETT; i++) {
+    for (gint i = 0; tvb_reported_length_remaining(tvb, *offset) > 0 && i < ZBEE_ZCL_SE_EVENTS_NUM_PUBLISH_EVENT_LOG_ETT; i++) {
         /* Add subtree */
         event_log_tree = proto_tree_add_subtree(tree, tvb, *offset, 0, ett_zbee_zcl_events_publish_event_log_entry[i], NULL, "Event Log");
 
@@ -5043,6 +5041,7 @@ dissect_zcl_events_publish_event_log(tvbuff_t *tvb, proto_tree *tree, guint *off
         *offset += 1;
 
         /* Event ID */
+        proto_item_append_text(event_log_tree, ", Event ID: 0x%04x", tvb_get_guint16(tvb, *offset, ENC_LITTLE_ENDIAN));
         proto_tree_add_item(event_log_tree, hf_zbee_zcl_events_publish_event_log_event_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
         *offset += 2;
 
