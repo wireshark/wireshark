@@ -297,7 +297,6 @@ typedef struct _connection_info_t {
     /* Connection information */
     /* Data used on the first pass to get info from previous frame, result will be in per_packet_data */
     guint    first_data_frame_seen : 1;
-    guint    nextexpectedseqnum : 1;
     direction_info_t direction_info[3];  /* UNKNOWN, MASTER_SLAVE and SLAVE_MASTER */
 } connection_info_t;
 
@@ -947,20 +946,15 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     if (!connection_info->first_data_frame_seen) {
                         connection_info->first_data_frame_seen = 1;
                         btle_frame_info->retransmit = 0;
-                        connection_info->nextexpectedseqnum = 0;
+                        connection_info->direction_info[BTLE_DIR_MASTER_SLAVE].prev_seq_num = 0;
+                        connection_info->direction_info[BTLE_DIR_SLAVE_MASTER].prev_seq_num = 1;
                     }
                     else {
-                        guint8 nextexpectedseqnum = !!(oct & 0x4);
                         guint8 seq_num = !!(oct & 0x8);
 
-                        if ((seq_num == connection_info->nextexpectedseqnum) &&
-                            (seq_num != connection_info->direction_info[direction].prev_seq_num)) {
-                            /*
-                             * SN is equal to previous packet (in connection) NESN and
-                             * SN is not equal to previous packet (in same direction) SN.
-                             */
+                        if (seq_num != connection_info->direction_info[direction].prev_seq_num) {
+                            /* SN is not equal to previous packet (in same direction) SN */
                             btle_frame_info->retransmit = 0;
-                            connection_info->nextexpectedseqnum = nextexpectedseqnum;
                         }
                         else {
                             btle_frame_info->retransmit = 1;
@@ -2028,7 +2022,7 @@ proto_register_btle(void)
         { &ei_missing_fragment_start,
             { "btle.missing_fragment_start",    PI_SEQUENCE, PI_WARN,  "Missing Fragment Start", EXPFILL }},
         { &ei_retransmit,
-            { "btle.retransmit",                PI_SEQUENCE, PI_WARN,  "Retransmission", EXPFILL }},
+            { "btle.retransmit",                PI_SEQUENCE, PI_NOTE,  "Retransmission", EXPFILL }},
     };
 
     static gint *ett[] = {
