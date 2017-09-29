@@ -1081,17 +1081,9 @@ stats_tree_sort_compare (const stat_node *a, const stat_node *b, gint sort_colum
             break;
 
         case COL_AVERAGE:
-            if (a->counter) {
-                result= 1;      /* assume a>b */
-                if (b->counter) {
-                    avg_a= ((float)a->total)/a->counter;
-                    avg_b= ((float)b->total)/b->counter;
-                    result= (avg_a>avg_b)?1:((avg_a<avg_b)?-1:0);
-                }
-            }
-            else {
-                result= -1;     /* let b>a */
-            }
+            avg_a = a->counter ? ((float)a->total)/a->counter : 0;
+            avg_b = b->counter ? ((float)b->total)/b->counter : 0;
+            result = (avg_a>avg_b) ? 1 : ( (avg_a<avg_b) ? -1 : 0);
             break;
 
         case COL_MIN:
