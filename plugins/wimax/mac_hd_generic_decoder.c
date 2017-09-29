@@ -43,9 +43,9 @@
 #include <epan/expert.h>
 #include <epan/reassemble.h>
 #include "crc.h"
+#include "wimax-int.h"
 #include "wimax_utils.h"
 
-void proto_register_mac_header_generic(void);
 void proto_reg_handoff_mac_header_generic(void);
 
 extern gint proto_wimax;
@@ -1480,7 +1480,7 @@ static gint arq_feedback_payload_decoder(tvbuff_t *tvb, packet_info *pinfo, prot
 }
 
 /* Register Wimax Generic Mac Header Protocol and Dissector */
-void proto_register_mac_header_generic(void)
+void wimax_proto_register_mac_header_generic(void)
 {
 	/* Generic MAC header display */
 	static hf_register_info hf[] =

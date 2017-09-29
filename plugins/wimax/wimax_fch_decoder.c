@@ -31,12 +31,11 @@
 #include <string.h>
 
 #include <epan/packet.h>
+#include "wimax-int.h"
 
 extern gint proto_wimax;
 
 extern address bs_address;	/* declared in packet-wmx.c */
-
-void proto_register_wimax_fch(void);
 
 static int proto_wimax_fch_decoder = -1;
 static gint ett_wimax_fch_decoder = -1;
@@ -135,7 +134,7 @@ static int dissect_wimax_fch_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 }
 
 /* Register Wimax FCH Protocol */
-void proto_register_wimax_fch(void)
+void wimax_proto_register_wimax_fch(void)
 {
 	/* TLV display */
 	static hf_register_info hf[] =

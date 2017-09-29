@@ -29,10 +29,9 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include "wimax-int.h"
 
 extern gint proto_wimax;
-
-void proto_register_wimax_ffb(void);
 
 static gint proto_wimax_ffb_decoder = -1;
 static gint ett_wimax_ffb_decoder = -1;
@@ -80,7 +79,7 @@ static int dissect_wimax_ffb_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 }
 
 /* Register Wimax FFB Protocol */
-void proto_register_wimax_ffb(void)
+void wimax_proto_register_wimax_ffb(void)
 {
 	/* FFB display */
 	static hf_register_info hf[] =

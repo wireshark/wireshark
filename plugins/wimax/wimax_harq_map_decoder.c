@@ -31,12 +31,11 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include "crc.h"
+#include "wimax-int.h"
 #include "wimax_compact_dlmap_ie_decoder.h"
 #include "wimax_compact_ulmap_ie_decoder.h"
 
 extern gint proto_wimax;
-
-void proto_register_wimax_harq_map(void);
 
 static gint proto_wimax_harq_map_decoder = -1;
 static gint ett_wimax_harq_map_decoder = -1;
@@ -172,7 +171,7 @@ static int dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 }
 
 /* Register Wimax HARQ MAP Protocol */
-void proto_register_wimax_harq_map(void)
+void wimax_proto_register_wimax_harq_map(void)
 {
 	/* HARQ MAP display */
 	static hf_register_info hf_harq_map[] =

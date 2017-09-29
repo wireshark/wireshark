@@ -30,11 +30,11 @@
 
 #include <epan/packet.h>
 #include "crc.h"
+#include "wimax-int.h"
 #include "wimax_utils.h"
 
 extern gint proto_wimax;
 
-void proto_register_wimax_pdu(void);
 void proto_reg_handoff_wimax_pdu(void);
 
 static dissector_handle_t mac_generic_decoder_handle = NULL;
@@ -216,7 +216,7 @@ static int dissect_wimax_pdu_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 }
 
 /* Register Wimax PDU Burst Protocol */
-void proto_register_wimax_pdu(void)
+void wimax_proto_register_wimax_pdu(void)
 {
 	/* PDU display */
 	static hf_register_info hf[] =

@@ -32,12 +32,11 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include "wimax-int.h"
 #include "wimax_tlv.h"
 #include "wimax_mac.h"
 
 #include "wimax_utils.h"
-
-void proto_register_wimax_utility_decoders(void);
 
 extern gint proto_mac_mgmt_msg_rng_req_decoder;
 extern gint proto_mac_mgmt_msg_reg_req_decoder;
@@ -704,7 +703,7 @@ static gint hf_common_current_transmitted_power = -1;
 static expert_field ei_common_tlv_info = EI_INIT;
 
 /* Register WiMax Utility Routines */
-void proto_register_wimax_utility_decoders(void)
+void wimax_proto_register_wimax_utility_decoders(void)
 {
 	/* WiMax Service Flow Encodings display */
 	static hf_register_info hf_sfe[] =

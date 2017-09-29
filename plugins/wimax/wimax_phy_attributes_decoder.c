@@ -29,10 +29,9 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include "wimax-int.h"
 
 extern gint proto_wimax;
-
-void proto_register_wimax_phy_attributes(void);
 
 static gint proto_wimax_phy_attributes_decoder = -1;
 static gint ett_wimax_phy_attributes_decoder = -1;
@@ -124,7 +123,7 @@ static int dissect_wimax_phy_attributes_decoder(tvbuff_t *tvb, packet_info *pinf
 }
 
 /* Register Wimax PDU Burst Physical Attributes Protocol */
-void proto_register_wimax_phy_attributes(void)
+void wimax_proto_register_wimax_phy_attributes(void)
 {
 	/* Physical Attributes display */
 	static hf_register_info hf[] =

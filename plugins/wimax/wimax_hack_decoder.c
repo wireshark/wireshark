@@ -29,10 +29,9 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include "wimax-int.h"
 
 extern gint proto_wimax;
-
-void proto_register_wimax_hack(void);
 
 static gint proto_wimax_hack_decoder = -1;
 static gint ett_wimax_hack_decoder = -1;
@@ -93,7 +92,7 @@ static int dissect_wimax_hack_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 }
 
 /* Register Wimax HARQ ACK Protocol */
-void proto_register_wimax_hack(void)
+void wimax_proto_register_wimax_hack(void)
 {
 	/* HARQ ACK display */
 	static hf_register_info hf[] =

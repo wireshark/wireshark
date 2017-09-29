@@ -38,10 +38,9 @@
 */
 
 #include <epan/packet.h>
+#include "wimax-int.h"
 
 extern gint proto_mac_header_generic_decoder;
-
-void proto_register_mac_header_type_1(void);
 
 static gint proto_mac_header_type_1_decoder = -1;
 static gint ett_mac_header_type_1_decoder = -1;
@@ -330,7 +329,7 @@ static int dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo, 
 }
 
 /* Register Wimax Mac Header Type II Protocol and Dissector */
-void proto_register_mac_header_type_1(void)
+void wimax_proto_register_mac_header_type_1(void)
 {
 	/* TLV display */
 	static hf_register_info hf[] =

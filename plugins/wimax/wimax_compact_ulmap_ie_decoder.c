@@ -29,6 +29,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include "wimax-int.h"
 #include "wimax_compact_ulmap_ie_decoder.h"
 
 /* MASKs */
@@ -39,8 +40,6 @@
 #define CID_TYPE_RCID11      1
 #define CID_TYPE_RCID7       2
 #define CID_TYPE_RCID3       3
-
-void proto_register_wimax_compact_ulmap_ie(void);
 
 /* Global Variables */
 extern guint cid_type;
@@ -1496,7 +1495,7 @@ guint wimax_extended_uiuc_dependent_ie_decoder(proto_tree *tree, packet_info *pi
 }
 
 /* Register Wimax Compact UL-MAP IE Protocol */
-void proto_register_wimax_compact_ulmap_ie(void)
+void wimax_proto_register_wimax_compact_ulmap_ie(void)
 {
 	/* Compact UL-MAP IE display */
 	static hf_register_info hf_compact_ulmap[] =

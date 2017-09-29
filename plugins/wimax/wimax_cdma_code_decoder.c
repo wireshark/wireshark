@@ -29,8 +29,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-
-void proto_register_wimax_cdma(void);
+#include "wimax-int.h"
 
 static int proto_wimax_cdma_code_decoder = -1;
 static gint ett_wimax_cdma_code_decoder = -1;
@@ -64,7 +63,7 @@ static int dissect_wimax_cdma_code_decoder(tvbuff_t *tvb, packet_info *pinfo, pr
 }
 
 /* Register Wimax CDMA Protocol */
-void proto_register_wimax_cdma(void)
+void wimax_proto_register_wimax_cdma(void)
 {
 	/* TLV display */
 	static hf_register_info hf[] =

@@ -32,6 +32,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include "wimax-int.h"
 #include "wimax_tlv.h"
 #include "wimax_utils.h"
 
@@ -330,6 +331,24 @@ void proto_register_wimax(void)
 				       &include_cor2_changes);
 	prefs_register_obsolete_preference(wimax_module, "wimax.basic_cid_max");
 	prefs_register_obsolete_preference(wimax_module, "wimax.corrigendum_2_version");
+
+	/*
+	 * Call sub-registrations in the correct order because they depend
+	 * on proto_register_wimax() being run first.
+	 */
+	wimax_proto_register_wimax_cdma();
+	wimax_proto_register_wimax_compact_dlmap_ie();
+	wimax_proto_register_wimax_compact_ulmap_ie();
+	wimax_proto_register_wimax_fch();
+	wimax_proto_register_wimax_ffb();
+	wimax_proto_register_wimax_hack();
+	wimax_proto_register_wimax_harq_map();
+	wimax_proto_register_wimax_pdu();
+	wimax_proto_register_wimax_phy_attributes();
+	wimax_proto_register_wimax_utility_decoders();
+	wimax_proto_register_mac_header_generic();
+	wimax_proto_register_mac_header_type_1();
+	wimax_proto_register_mac_header_type_2();
 }
 
 /*
