@@ -89,7 +89,7 @@ stats_tree_branch_max_namelen(const stat_node *node, guint indent)
     }
 
     if (node->st_flags&ST_FLG_ROOTCHILD) {
-        gchar *display_name= stats_tree_get_displayname(node->name);
+        gchar *display_name = stats_tree_get_displayname(node->name);
         len = (guint) strlen(display_name) + indent;
         g_free(display_name);
     }
@@ -238,7 +238,7 @@ stats_tree_reinit(void *p)
     /* Do not update st_flags for the tree (sorting) - leave as was */
     st->num_columns = N_COLUMNS;
     g_free(st->display_name);
-    st->display_name= stats_tree_get_displayname(st->cfg->name);
+    st->display_name = stats_tree_get_displayname(st->cfg->name);
 
     if (st->cfg->init) {
         st->cfg->init(st);
@@ -349,7 +349,7 @@ stats_tree_new(stats_tree_cfg *cfg, tree_pres *pr, const char *filter)
         }
     }
     st->num_columns = N_COLUMNS;
-    st->display_name= stats_tree_get_displayname(st->cfg->name);
+    st->display_name = stats_tree_get_displayname(st->cfg->name);
 
     g_ptr_array_add(st->parents,&st->root);
 
@@ -542,8 +542,8 @@ update_burst_calc(stat_node *node, gint value)
 
     /* NB thebucket list should always contain at least one node - even if it is */
     /* the dummy created at init time. Head and tail should never be NULL!       */
-    current_bucket= floor(node->st->now/prefs.st_burst_resolution);
-    burstwin= prefs.st_burst_windowlen/prefs.st_burst_resolution;
+    current_bucket = floor(node->st->now/prefs.st_burst_resolution);
+    burstwin = prefs.st_burst_windowlen/prefs.st_burst_resolution;
     if (current_bucket>node->bt->bucket_no) {
         /* Must add a new bucket at the burst list tail */
         bn = (burst_bucket*)g_malloc0(sizeof(burst_bucket));
@@ -1018,28 +1018,28 @@ stats_tree_get_values_from_node (const stat_node* node)
 {
     gchar **values = (gchar**) g_malloc0(sizeof(gchar*)*(node->st->num_columns));
 
-    values[COL_NAME]= (node->st_flags&ST_FLG_ROOTCHILD)?stats_tree_get_displayname(node->name):g_strdup(node->name);
-    values[COL_COUNT]= g_strdup_printf("%u",node->counter);
-    values[COL_AVERAGE]= ((node->st_flags&ST_FLG_AVERAGE)||node->rng)?
+    values[COL_NAME] = (node->st_flags&ST_FLG_ROOTCHILD)?stats_tree_get_displayname(node->name):g_strdup(node->name);
+    values[COL_COUNT] = g_strdup_printf("%u",node->counter);
+    values[COL_AVERAGE] = ((node->st_flags&ST_FLG_AVERAGE)||node->rng)?
                 (node->counter?g_strdup_printf("%.2f",((float)node->total)/node->counter):g_strdup("-")):
                 g_strdup("");
-    values[COL_MIN]= ((node->st_flags&ST_FLG_AVERAGE)||node->rng)?
+    values[COL_MIN] = ((node->st_flags&ST_FLG_AVERAGE)||node->rng)?
                 (node->counter?g_strdup_printf("%u",node->minvalue):g_strdup("-")):
                 g_strdup("");
-    values[COL_MAX]= ((node->st_flags&ST_FLG_AVERAGE)||node->rng)?
+    values[COL_MAX] = ((node->st_flags&ST_FLG_AVERAGE)||node->rng)?
                 (node->counter?g_strdup_printf("%u",node->maxvalue):g_strdup("-")):
                 g_strdup("");
-    values[COL_RATE]= (node->st->elapsed)?g_strdup_printf("%.4f",((float)node->counter)/node->st->elapsed):g_strdup("");
-    values[COL_PERCENT]= ((node->parent)&&(node->parent->counter))?
+    values[COL_RATE] = (node->st->elapsed)?g_strdup_printf("%.4f",((float)node->counter)/node->st->elapsed):g_strdup("");
+    values[COL_PERCENT] = ((node->parent)&&(node->parent->counter))?
                 g_strdup_printf("%.2f%%",(node->counter*100.0)/node->parent->counter):
                 (node->parent==&(node->st->root)?g_strdup("100%"):g_strdup(""));
     if (node->st->num_columns>COL_BURSTTIME) {
-        values[COL_BURSTRATE]= (!prefs.st_enable_burstinfo)?g_strdup(""):
+        values[COL_BURSTRATE] = (!prefs.st_enable_burstinfo)?g_strdup(""):
                 (node->max_burst?(prefs.st_burst_showcount?
                                 g_strdup_printf("%d",node->max_burst):
                                 g_strdup_printf("%.4f",((double)node->max_burst)/prefs.st_burst_windowlen)):
                 g_strdup("-"));
-        values[COL_BURSTTIME]= (!prefs.st_enable_burstinfo)?g_strdup(""):
+        values[COL_BURSTTIME] = (!prefs.st_enable_burstinfo)?g_strdup(""):
                 (node->max_burst?g_strdup_printf("%.3f",((double)node->burst_time/1000.0)):g_strdup("-"));
     }
     return values;
@@ -1056,7 +1056,7 @@ stats_tree_sort_compare (const stat_node *a, const stat_node *b, gint sort_colum
         /* always sort ranges by range name */
         result = a->rng->floor - b->rng->floor;
         if (sort_descending&&(!prefs.st_sort_rng_fixorder)) {
-            result= -result;
+            result = -result;
         }
         return result;
     }
@@ -1127,12 +1127,12 @@ stats_tree_sort_compare (const stat_node *a, const stat_node *b, gint sort_colum
 
     /* take into account sort order */
     if (sort_descending) {
-        result= -result;
+        result = -result;
     }
 
     if ((a->st_flags&ST_FLG_SORT_TOP)!=(b->st_flags&ST_FLG_SORT_TOP)) {
         /* different sort groups top vs non-top */
-        result= (a->st_flags&ST_FLG_SORT_TOP)?-1:1;
+        result = (a->st_flags&ST_FLG_SORT_TOP)?-1:1;
     }
     return result;
 }
@@ -1141,7 +1141,7 @@ extern GString*
 stats_tree_format_as_str(const stats_tree* st, st_format_type format_type,
                     gint sort_column, gboolean sort_descending)
 {
-    int maxnamelen= stats_tree_branch_max_namelen(&st->root,0);
+    int maxnamelen = stats_tree_branch_max_namelen(&st->root,0);
     stat_node *child;
     GString *s;
     int count;
@@ -1166,7 +1166,7 @@ stats_tree_format_as_str(const stats_tree* st, st_format_type format_type,
             char fmt[16];
             int sep_length;
 
-            sep_length= maxnamelen;
+            sep_length = maxnamelen;
             for (count = 1; count<st->num_columns; count++) {
                 sep_length += stats_tree_get_column_size(count)+2;
             }
@@ -1240,8 +1240,8 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
                          gboolean sort_descending)
 {
     int count;
-    int num_columns= node->st->num_columns;
-    gchar **values= stats_tree_get_values_from_node(node);
+    int num_columns = node->st->num_columns;
+    gchar **values = stats_tree_get_values_from_node(node);
     stat_node *child;
     sortinfo si;
     gchar *full_path;
@@ -1273,7 +1273,7 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
                     node->rng?" isrange=\"true\"":"");
             g_free(itemname);
             for (count = 1; count<num_columns; count++) {
-                gchar *colname= g_strdup(stats_tree_get_column_name(count));
+                gchar *colname = g_strdup(stats_tree_get_column_name(count));
                 g_string_append_printf(s,"<%s>",clean_for_xml_tag(colname));
                 g_string_append_printf(s,"%s</%s>\n",values[count],colname);
                 g_free(colname);
@@ -1300,7 +1300,7 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
 
     indent++;
     indent = indent > INDENT_MAX ? INDENT_MAX : indent;
-    full_path= g_strdup_printf ("%s/%s",path,values[0]);
+    full_path = g_strdup_printf ("%s/%s",path,values[0]);
 
     for (count = 0; count<num_columns; count++) {
         g_free(values[count]);
@@ -1308,7 +1308,7 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
     g_free(values);
 
     if (node->children) {
-        GArray *Children= g_array_new(FALSE,FALSE,sizeof(child));
+        GArray *Children = g_array_new(FALSE,FALSE,sizeof(child));
         for (child = node->children; child; child = child->next ) {
             g_array_append_val(Children,child);
         }
