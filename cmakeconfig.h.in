@@ -13,6 +13,7 @@
 #define VERSION_MINOR ${PROJECT_MINOR_VERSION}
 #define VERSION_MICRO ${PROJECT_PATCH_VERSION}
 
+#define VERSION_RELEASE "${PROJECT_RELEASE_VERSION}"
 #define VERSION_FLAVOR "${VERSION_FLAVOR}"
 
 /* FIXME: Move the path stuff to the CMakeInstallDirs.cmake file */

@@ -115,6 +115,7 @@ plugins_scan_dir(const char *dirname, plugin_load_failure_mode mode)
     gchar         *filename;        /* current file name */
     GModule       *handle;          /* handle returned by g_module_open */
     gpointer       symbol;
+    const char    *plug_version, *plug_release;
     plugin        *new_plug;
     gchar         *dot;
 
@@ -182,9 +183,23 @@ plugins_scan_dir(const char *dirname, plugin_load_failure_mode mode)
                 continue;
             }
 
-            if (!g_module_symbol(handle, "version", &symbol))
+            if (!g_module_symbol(handle, "plugin_version", &symbol))
             {
-                report_failure("The plugin '%s' has no \"version\" symbol", name);
+                report_failure("The plugin '%s' has no \"plugin_version\" symbol", name);
+                g_module_close(handle);
+                continue;
+            }
+            plug_version = (const char *)symbol;
+
+            if (!g_module_symbol(handle, "plugin_release", &symbol))
+            {
+                report_failure("The plugin '%s' has no \"plugin_release\" symbol", name);
+                g_module_close(handle);
+                continue;
+            }
+            plug_release = (const char *)symbol;
+            if (strcmp(plug_release, VERSION_RELEASE) != 0) {
+                report_failure("The plugin '%s' was compiled for Wireshark version %s", name, plug_release);
                 g_module_close(handle);
                 continue;
             }
@@ -192,7 +207,7 @@ plugins_scan_dir(const char *dirname, plugin_load_failure_mode mode)
             new_plug = (plugin *)g_malloc(sizeof(plugin));
             new_plug->handle = handle;
             new_plug->name = g_strdup(name);
-            new_plug->version = (char *)symbol;
+            new_plug->version = plug_version;
             new_plug->types = g_string_new(NULL);
 
             /*

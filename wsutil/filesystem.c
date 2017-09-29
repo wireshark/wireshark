@@ -1066,8 +1066,7 @@ get_plugins_dir_with_version(void)
     if (!plugin_dir)
         init_plugin_dir();
     if (plugin_dir && !plugin_dir_with_version)
-        plugin_dir_with_version = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%d.%d",
-                                        plugin_dir, VERSION_MAJOR, VERSION_MINOR);
+        plugin_dir_with_version = g_build_filename(plugin_dir, VERSION_RELEASE, (gchar *)NULL);
     return plugin_dir_with_version;
 }
 
@@ -1086,8 +1085,7 @@ get_plugins_pers_dir_with_version(void)
     if (!plugin_pers_dir)
         init_plugin_pers_dir();
     if (plugin_pers_dir && !plugin_pers_dir_with_version)
-        plugin_pers_dir_with_version = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%d.%d",
-                                        plugin_pers_dir, VERSION_MAJOR, VERSION_MINOR);
+        plugin_pers_dir_with_version = g_build_filename(plugin_pers_dir, VERSION_RELEASE, (gchar *)NULL);
     return plugin_pers_dir_with_version;
 }
 

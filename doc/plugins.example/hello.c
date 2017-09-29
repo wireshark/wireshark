@@ -32,7 +32,8 @@
 
 #define DLL_PUBLIC __attribute__((__visibility__("default")))
 
-DLL_PUBLIC const gchar version[] = VERSION;
+DLL_PUBLIC const gchar plugin_version[] = VERSION;
+DLL_PUBLIC const gchar plugin_release[] = VERSION_RELEASE;
 
 DLL_PUBLIC void plugin_register(void);
 
@@ -45,7 +46,7 @@ static dissector_handle_t handle_hello;
 static int
 dissect_hello(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    proto_tree_add_protocol_format(tree, proto_hello, tvb, 0, -1, "This is Hello version %s, a Wireshark postdissector plugin prototype", version);
+    proto_tree_add_protocol_format(tree, proto_hello, tvb, 0, -1, "This is Hello version %s, a Wireshark postdissector plugin prototype", plugin_version);
     return tvb_captured_length(tvb);
 }
 

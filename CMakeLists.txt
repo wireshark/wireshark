@@ -28,6 +28,7 @@ set(PROJECT_MINOR_VERSION 5)
 set(PROJECT_PATCH_VERSION 0)
 set(PROJECT_BUILD_VERSION ${GIT_REVISION})
 set(PROJECT_VERSION_EXTENSION "")
+set(PROJECT_RELEASE_VERSION "${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}")
 
 if(DEFINED ENV{WIRESHARK_VERSION_EXTRA})
 	set(PROJECT_VERSION_EXTENSION "$ENV{WIRESHARK_VERSION_EXTRA}")
@@ -1360,7 +1361,7 @@ if(LIBSSH_FOUND)
 endif()
 
 # Directory where plugins and Lua dissectors can be found.
-set(PLUGIN_VERSION_DIR "plugins/${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}")
+set(PLUGIN_VERSION_DIR "plugins/${PROJECT_RELEASE_VERSION}")
 set(PLUGIN_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME}/${PLUGIN_VERSION_DIR}")
 # Used by the WiresharkConfig.cmake.in module
 if (WIN32)
@@ -1410,7 +1411,7 @@ else()
 endif()
 
 if(ENABLE_APPLICATION_BUNDLE)
-	set(_plugin_dir "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/PlugIns/wireshark/${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}")
+	set(_plugin_dir "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/PlugIns/wireshark/${PROJECT_RELEASE_VERSION}")
 else()
 	get_target_property(_libwireshark_location epan LOCATION)
 	get_filename_component(_plugin_dir "${_libwireshark_location}" PATH)

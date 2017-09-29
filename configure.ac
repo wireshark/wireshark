@@ -16,6 +16,10 @@ AC_INIT(Wireshark, [version_major.version_minor.version_micro_extra], http://bug
 CONFIG_ARGS="$*"
 AC_SUBST(CONFIG_ARGS)
 
+VERSION_RELEASE="version_major.version_minor"
+AC_SUBST(VERSION_RELEASE)
+AC_DEFINE_UNQUOTED([VERSION_RELEASE], ["$VERSION_RELEASE"], [Wireshark feature release version (X.Y)])
+
 # Minimum autoconf version we require.
 AC_PREREQ(2.64)
 # Variable expansion doesn't work in AC_PREREQ()
@@ -2596,7 +2600,7 @@ dnl check whether plugins should be enabled and, if they should be,
 dnl check for plugins directory - stolen from Amanda's configure.ac
 dnl
 dnl we don't wish to expand ${libdir} yet
-plugindir="\${libdir}/wireshark/plugins/version_major.version_minor"
+plugindir="\${libdir}/wireshark/plugins/$VERSION_RELEASE"
 AC_ARG_WITH(plugins,
   AC_HELP_STRING( [--with-plugins@<:@=DIR@:>@],
 		  [support plugins (installed in DIR, if supplied) @<:@default=yes, if possible@:>@]),
