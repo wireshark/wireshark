@@ -882,7 +882,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(connection_info_tree, key);
         if (wmem_tree) {
             connection_info = (connection_info_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
-            if (connection_info && crc_status != CRC_INCORRECT) {
+            if (connection_info) {
                 gchar  *str_addr_src, *str_addr_dst;
                 gint tmp_dir = 0;
                 /* Holds "unknown" + access_address + NULL, which is the longest string */
@@ -1002,7 +1002,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 tvbuff_t *new_tvb = NULL;
 
                 pinfo->fragmented = TRUE;
-                if (connection_info && btle_frame_info->retransmit == 0 && crc_status != CRC_INCORRECT) {
+                if (connection_info && btle_frame_info->retransmit == 0) {
                     if (!pinfo->fd->flags.visited) {
                         if (connection_info->direction_info[direction].segmentation_started == 1) {
                             if (connection_info->direction_info[direction].segment_len_rem >= length) {
@@ -1092,7 +1092,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 guint le_frame_len = tvb_get_letohs(tvb, offset);
                 if (le_frame_len > length) {
                     pinfo->fragmented = TRUE;
-                    if (connection_info && btle_frame_info->retransmit == 0 && crc_status != CRC_INCORRECT) {
+                    if (connection_info && btle_frame_info->retransmit == 0) {
                         if (!pinfo->fd->flags.visited) {
                             connection_info->direction_info[direction].segmentation_started = 1;
                             /* The first two octets in the L2CAP PDU contain the length of the entire
