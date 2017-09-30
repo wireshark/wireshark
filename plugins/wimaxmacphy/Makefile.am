@@ -42,7 +42,7 @@ CLEAN_HEADER_FILES = \
 HEADER_FILES = \
 	$(CLEAN_HEADER_FILES)
 
-plugin_LTLIBRARIES = wimaxmacphy.la
+epan_plugin_LTLIBRARIES = wimaxmacphy.la
 
 wimaxmacphy_la_SOURCES = \
 	moduleinfo.h \

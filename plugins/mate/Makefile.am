@@ -74,7 +74,7 @@ HEADER_FILES = \
 #AM_CFLAGS += -Werror
 #endif
 
-plugin_LTLIBRARIES = mate.la
+epan_plugin_LTLIBRARIES = mate.la
 
 mate_la_SOURCES = \
 	moduleinfo.h	\

@@ -91,7 +91,7 @@ CLEAN_HEADER_FILES = \
 HEADER_FILES = \
 	$(CLEAN_HEADER_FILES)
 
-plugin_LTLIBRARIES = wimax.la
+epan_plugin_LTLIBRARIES = wimax.la
 
 wimax_la_SOURCES = \
 	moduleinfo.h \

@@ -39,13 +39,9 @@ set_source_files_properties(
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
-add_plugin_library(stats_tree)
+add_plugin_library(stats_tree epan)
 
-install(TARGETS stats_tree
-	LIBRARY DESTINATION ${PLUGIN_INSTALL_LIBDIR} NAMELINK_SKIP
-	RUNTIME DESTINATION ${PLUGIN_INSTALL_LIBDIR}
-	ARCHIVE DESTINATION ${PLUGIN_INSTALL_LIBDIR}
-)
+install_plugin(stats_tree epan)
 
 file(GLOB PLUGIN_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
 CHECKAPI(

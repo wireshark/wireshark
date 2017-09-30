@@ -163,20 +163,6 @@ main(int argc, char *argv[])
 
   wtap_init();
 
-#ifdef HAVE_PLUGINS
-  /* Register all the plugin types we have. */
-  epan_register_plugin_types(); /* Types known to libwireshark */
-
-  /* Scan for plugins.  This does *not* call their registration routines;
-     that's done later. */
-  scan_plugins(REPORT_LOAD_FAILURE);
-
-  /* Register all libwiretap plugin modules. */
-  register_all_wiretap_modules();
-#endif
-
-  register_all_codecs();
-
   /* Register all dissectors; we must do this before checking for the
      "-G" flag, as the "-G" flag dumps information registered by the
      dissectors, and we must do it before we read the preferences, in
@@ -186,6 +172,8 @@ main(int argc, char *argv[])
     ret = EPAN_INIT_FAIL;
     goto clean_exit;
   }
+
+  codecs_init();
 
   /* Load libwireshark settings from the current profile. */
   prefs_p = epan_load_settings();
@@ -211,11 +199,9 @@ main(int argc, char *argv[])
 clean_exit:
   col_cleanup(&cfile.cinfo);
   free_filter_lists();
+  codecs_cleanup();
   wtap_cleanup();
   free_progdirs();
-#ifdef HAVE_PLUGINS
-  plugins_cleanup();
-#endif
   return ret;
 }
 

@@ -46,7 +46,7 @@ HEADER_FILES = \
 	$(FLEX_GENERATED_HEADER_FILES) \
 	$(CLEAN_HEADER_FILES)
 
-plugin_LTLIBRARIES = docsis.la
+epan_plugin_LTLIBRARIES = docsis.la
 
 docsis_la_SOURCES = \
 	moduleinfo.h \

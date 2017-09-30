@@ -2196,22 +2196,6 @@ main(int argc, char *argv[])
 
     wtap_init();
 
-#ifdef HAVE_PLUGINS
-    /* Register all the plugin types we have. */
-    epan_register_plugin_types(); /* Types known to libwireshark */
-    codec_register_plugin_types(); /* Types known to libwscodecs */
-
-    /* Scan for plugins.  This does *not* call their registration routines;
-       that's done later. */
-    scan_plugins(REPORT_LOAD_FAILURE);
-
-    /* Register all libwiretap plugin modules. */
-    register_all_wiretap_modules();
-#endif
-
-    /* Register all audio codec plugins. */
-    register_all_codecs();
-
     splash_update(RA_DISSECTORS, NULL, (gpointer)splash_win);
 
     /* Register all dissectors; we must do this before checking for the
@@ -2223,6 +2207,9 @@ main(int argc, char *argv[])
         ret = INIT_FAILED;
         goto clean_exit;
     }
+
+    /* Register all audio codecs. */
+    codecs_init();
 
     splash_update(RA_LISTENERS, NULL, (gpointer)splash_win);
 
@@ -2680,11 +2667,9 @@ clean_exit:
 #endif
     col_cleanup(&cfile.cinfo);
     free_filter_lists();
+    codecs_cleanup();
     wtap_cleanup();
     free_progdirs();
-#ifdef HAVE_PLUGINS
-    plugins_cleanup();
-#endif
     return ret;
 }
 

@@ -30,15 +30,17 @@
 #include "ws_symbol_export.h"
 
 #include <epan/stats_tree.h>
-
 #include "pinfo_stats_tree.h"
 
 WS_DLL_PUBLIC_DEF const gchar plugin_version[] = "0.0.1";
 WS_DLL_PUBLIC_DEF const gchar plugin_release[] = VERSION_RELEASE;
 
-WS_DLL_PUBLIC_DEF void plugin_register_tap_listener(void)
+WS_DLL_PUBLIC_DEF void plugin_register(void)
 {
-	register_pinfo_stat_trees();
+	static tap_plugin plug;
+
+	plug.register_tap_listener = register_pinfo_stat_trees;
+	tap_register_plugin(&plug);
 }
 
 /*

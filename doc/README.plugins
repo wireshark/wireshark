@@ -42,8 +42,8 @@ For your plugins/foo/Makefile.am file, see the corresponding file in
 plugins/gryphon.  Replace all occurrences of "gryphon" in those files
 with "foo".
 
-Your plugins/foo/Makefile.am also needs to list the main source file(s),
-which exports register_*() and handoff_*(), for your dissector in the
+Your plugins/foo/Makefile.am also needs to list the main source file
+which exports plugin_register() for your dissector in the
 DISSECTOR_SRC variable.  All other supporting source files should be
 listed in the DISSECTOR_SUPPORT_SRC variable.
 The header files for your dissector, if any, must be listed in the
@@ -236,7 +236,39 @@ make install
 
 5. Update "old style" plugins
 
-5.1 How to update an "old style" plugin (using plugin_register and
+5.1 How to update an "old style" plugin (since Wireshark 2.5)
+
+Plugins need exactly three visible symbols: plugin_version, plugin_release and
+plugin_register. Each plugin is either a libwscodecs plugin, libwiretap plugin or
+libwireshark plugin and the library will call "plugin_register" after
+loading the plugin. "plugin_register" in turn calls all the hooks necessary
+to enable the plugin. So if you had two function like so:
+
+    WS_DLL_PUBLIC void plugin_register(void);
+    WS_DLL_PUBLIC void plugin_reg_handoff(void);
+
+    void plugin_register(void) {...};
+    void plugin_reg_handoff(void) {...};
+
+You'll have to rewrite it as:
+
+    WS_DLL_PUBLIC void plugin_register(void);
+
+    static void proto_register_foo(void) {...};
+    static void proto_reg_handoff_foo(void) {...};
+
+    void plugin_register(void)
+    {
+	static proto_plugin plugin_foo;
+
+	plugin_foo.register_protoinfo = proto_register_foo;
+	plugin_foo.register_handoff = proto_reg_handoff_foo;
+	proto_register_plugin(&plugin_foo);
+    }
+
+See doc/plugins.example for an example.
+
+5.2 How to update an "old style" plugin (using plugin_register and
     plugin_reg_handoff functions).
 
 The plugin registration has changed with the extension of the build
@@ -269,7 +301,7 @@ stips the parts outlined below:
 
 This will leave a clean dissector source file without plugin specifics.
 
-5.2 How to update an "old style" plugin (using plugin_init function)
+5.3 How to update an "old style" plugin (using plugin_init function)
 
 The plugin registering has changed between 0.10.9 and 0.10.10; everyone
 is encouraged to update their plugins as outlined below:
@@ -282,7 +314,6 @@ is encouraged to update their plugins as outlined below:
     o Remove the init function.
 
     o Change the Makefile.am file to match the one of the DOCSIS plugin.
-
 
 6 How to plugin related interface options
 

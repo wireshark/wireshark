@@ -25,7 +25,7 @@ macro(SET_MODULE_INFO _plugin _ver_major _ver_minor _ver_micro _ver_extra)
 	configure_file(plugin.rc.in plugin.rc @ONLY)
 endmacro()
 
-macro(ADD_PLUGIN_LIBRARY _plugin)
+macro(ADD_PLUGIN_LIBRARY _plugin _subfolder)
 	add_library(${_plugin} MODULE
 		${PLUGIN_FILES}
 		${CMAKE_CURRENT_BINARY_DIR}/plugin.rc
@@ -49,10 +49,18 @@ macro(ADD_PLUGIN_LIBRARY _plugin)
 	foreach(_config_type ${CMAKE_CONFIGURATION_TYPES})
 		string(TOUPPER ${_config_type} _config_upper)
 		set_target_properties(${_plugin} PROPERTIES
-			LIBRARY_OUTPUT_DIRECTORY_${_config_upper} ${CMAKE_BINARY_DIR}/run/${_config_type}/${PLUGIN_VERSION_DIR}
+			LIBRARY_OUTPUT_DIRECTORY_${_config_upper} ${CMAKE_BINARY_DIR}/run/${_config_type}/${PLUGIN_VERSION_DIR}/${_subfolder}
 		)
 	endforeach()
 
 	target_link_libraries(${_plugin} epan)
 	add_dependencies(plugins ${_plugin})
+endmacro()
+
+macro(INSTALL_PLUGIN _plugin _subfolder)
+	install(TARGETS ${_plugin}
+		LIBRARY DESTINATION ${PLUGIN_INSTALL_LIBDIR}/${_subfolder} NAMELINK_SKIP
+		RUNTIME DESTINATION ${PLUGIN_INSTALL_LIBDIR}
+		ARCHIVE DESTINATION ${PLUGIN_INSTALL_LIBDIR}
+)
 endmacro()

@@ -3,11 +3,12 @@ libwscodecs.so.0 libwscodecs0 #MINVER#
  codec_get_channels@Base 2.1.0
  codec_get_frequency@Base 2.1.0
  codec_init@Base 2.1.0
- codec_register_plugin_types@Base 2.1.0
  codec_release@Base 2.1.0
  deregister_codec@Base 2.1.0
  find_codec@Base 2.1.0
- register_all_codecs@Base 2.1.0
+ codecs_init@Base 2.5.0
+ codecs_cleanup@Base 2.5.0
+ codecs_register_plugin@Base 2.5.0
  codec_get_compiled_version_info@Base 2.3.0
  register_codec@Base 2.1.0
  ws_codec_resampler_destroy@Base 2.1.0

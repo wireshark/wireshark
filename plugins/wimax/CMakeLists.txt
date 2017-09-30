@@ -97,13 +97,9 @@ register_plugin_files(plugin.c
 	${DISSECTOR_SUPPORT_SRC}
 )
 
-add_plugin_library(wimax)
+add_plugin_library(wimax epan)
 
-install(TARGETS wimax
-	LIBRARY DESTINATION ${PLUGIN_INSTALL_LIBDIR} NAMELINK_SKIP
-	RUNTIME DESTINATION ${PLUGIN_INSTALL_LIBDIR}
-	ARCHIVE DESTINATION ${PLUGIN_INSTALL_LIBDIR}
-)
+install_plugin(wimax epan)
 
 file(GLOB DISSECTOR_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
 CHECKAPI(

@@ -54,13 +54,9 @@ register_plugin_files(plugin.c
 	${DISSECTOR_SRC}
 )
 
-add_plugin_library(docsis)
+add_plugin_library(docsis epan)
 
-install(TARGETS docsis
-	LIBRARY DESTINATION ${PLUGIN_INSTALL_LIBDIR} NAMELINK_SKIP
-	RUNTIME DESTINATION ${PLUGIN_INSTALL_LIBDIR}
-	ARCHIVE DESTINATION ${PLUGIN_INSTALL_LIBDIR}
-)
+install_plugin(docsis epan)
 
 file(GLOB DISSECTOR_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
 CHECKAPI(

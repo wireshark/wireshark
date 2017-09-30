@@ -1,7 +1,6 @@
 libwsutil.so.0 libwsutil0 #MINVER#
  AirPDcapWepDecrypt@Base 1.10.0
  Eax_Decrypt@Base 1.12.0~rc1
- add_plugin_type@Base 1.12.0~rc1
  adler32_bytes@Base 1.12.0~rc1
  adler32_str@Base 1.12.0~rc1
  alaw2linear@Base 1.12.0~rc1
@@ -139,7 +138,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  rsa_privkey_to_sexp@Base 2.5.0
  running_in_build_directory@Base 1.12.0~rc1
  running_with_special_privs@Base 1.10.0
- scan_plugins@Base 1.12.0~rc1
+ plugins_init@Base 2.5.0
  set_persconffile_dir@Base 1.12.0~rc1
  set_persdatafile_dir@Base 1.12.0~rc1
  set_profile_name@Base 1.12.0~rc1

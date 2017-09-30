@@ -432,9 +432,6 @@ static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
     int err = 0;
 
     wtap_init();
-#ifdef HAVE_PLUGINS
-    register_all_wiretap_modules();
-#endif
 
     extcap_dumper.dumper.wtap = wtap_dump_open(fifo, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC, encap, PACKET_LENGTH, FALSE, &err);
     if (!extcap_dumper.dumper.wtap) {

@@ -299,6 +299,19 @@ WS_DLL_PUBLIC module_t *prefs_register_stat(const char *name, const char *title,
     const char *description, void (*apply_cb)(void));
 
 /*
+ * Register that a codec has preferences.
+ *
+ * "name" is a name for the codec to use on the command line with "-o"
+ * and in preference files.
+ *
+ * "title" is a short human-readable name for the codec.
+ *
+ * "description" is a longer human-readable description of the codec.
+ */
+WS_DLL_PUBLIC module_t *prefs_register_codec(const char *name, const char *title,
+    const char *description, void (*apply_cb)(void));
+
+/*
  * Register that a protocol has preferences and group it under a single
  * subtree
  */

@@ -37,72 +37,24 @@
 
 #ifdef HAVE_PLUGINS
 
-#include <wsutil/plugins.h>
 
-/*
- * List of wiretap plugins.
- */
-typedef struct {
-	void (*register_wtap_module)(void);  /* routine to call to register a wiretap module */
-} wtap_plugin;
-
+static plugins_t *libwiretap_plugins;
 static GSList *wtap_plugins = NULL;
 
-/*
- * Callback for each plugin found.
- */
-DIAG_OFF(pedantic)
-static gboolean
-check_for_wtap_plugin(GModule *handle)
-{
-	gpointer gp;
-	void (*register_wtap_module)(void);
-	wtap_plugin *plugin;
-
-	/*
-	 * Do we have a register_wtap_module routine?
-	 */
-	if (!g_module_symbol(handle, "register_wtap_module", &gp)) {
-		/* No, so this isn't a wiretap module plugin. */
-		return FALSE;
-	}
-
-	/*
-	 * Yes - this plugin includes one or more wiretap modules.
-	 */
-	register_wtap_module = (void (*)(void))gp;
-
-	/*
-	 * Add this one to the list of wiretap module plugins.
-	 */
-	plugin = (wtap_plugin *)g_malloc(sizeof (wtap_plugin));
-	plugin->register_wtap_module = register_wtap_module;
-	wtap_plugins = g_slist_prepend(wtap_plugins, plugin);
-	return TRUE;
-}
-DIAG_ON(pedantic)
-
-static void
-wtap_register_plugin_types(void)
-{
-	add_plugin_type("libwiretap", check_for_wtap_plugin);
-}
-
-static void
-register_wtap_module_plugin(gpointer data, gpointer user_data _U_)
-{
-	wtap_plugin *plugin = (wtap_plugin *)data;
-
-	(plugin->register_wtap_module)();
-}
-
-/*
- * For all wiretap module plugins, call their register routines.
- */
 void
-register_all_wiretap_modules(void)
+wtap_register_plugin(const wtap_plugin *plug)
 {
-	g_slist_foreach(wtap_plugins, register_wtap_module_plugin, NULL);
+	wtap_plugins = g_slist_prepend(wtap_plugins, (wtap_plugin *)plug);
+}
+
+static void
+call_plugin_register_wtap_module(gpointer data, gpointer user_data _U_)
+{
+	wtap_plugin *plug = (wtap_plugin *)data;
+
+	if (plug->register_wtap_module) {
+		plug->register_wtap_module();
+	}
 }
 #endif /* HAVE_PLUGINS */
 
@@ -1481,7 +1433,8 @@ wtap_init(void)
 	wtap_opttypes_initialize();
 	wtap_init_encap_types();
 #ifdef HAVE_PLUGINS
-	wtap_register_plugin_types();
+	libwiretap_plugins = plugins_init("wiretap");
+	g_slist_foreach(wtap_plugins, call_plugin_register_wtap_module, NULL);
 #endif
 }
 
@@ -1495,6 +1448,12 @@ wtap_cleanup(void)
 	wtap_opttypes_cleanup();
 	ws_buffer_cleanup();
 	cleanup_open_routines();
+#ifdef HAVE_PLUGINS
+	g_slist_free(wtap_plugins);
+	wtap_plugins = NULL;
+	plugins_cleanup(libwiretap_plugins);
+	libwiretap_plugins = NULL;
+#endif
 }
 
 /*

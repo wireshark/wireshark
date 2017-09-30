@@ -28,6 +28,12 @@ PLUGIN_CFLAGS =
 
 PLUGIN_LDFLAGS = -module -avoid-version
 
+epan_plugindir = $(plugindir)/epan
+
+wiretap_plugindir = $(plugindir)/wiretap
+
+codecs_plugindir = $(plugindir)/codecs
+
 #
 # Source files are divided up along several axes:
 #

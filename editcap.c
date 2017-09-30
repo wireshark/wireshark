@@ -1027,24 +1027,10 @@ main(int argc, char *argv[])
         g_free(init_progfile_dir_error);
     }
 
-    wtap_init();
-
-#ifdef HAVE_PLUGINS
-    /* Register wiretap plugins */
     init_report_message(failure_warning_message, failure_warning_message,
                         NULL, NULL, NULL);
 
-    /* Scan for plugins.  This does *not* call their registration routines;
-       that's done later.
-
-       Don't report failures to load plugins because most (non-wiretap)
-       plugins *should* fail to load (because we're not linked against
-       libwireshark and dissector plugins need libwireshark). */
-    scan_plugins(DONT_REPORT_LOAD_FAILURE);
-
-    /* Register all libwiretap plugin modules. */
-    register_all_wiretap_modules();
-#endif
+    wtap_init();
 
     /* Process the options */
     while ((opt = getopt_long(argc, argv, ":a:A:B:c:C:dD:E:F:hi:I:Lo:rs:S:t:T:vVw:", long_options, NULL)) != -1) {
@@ -1846,9 +1832,6 @@ clean_exit:
         wtap_close(wth);
     wtap_cleanup();
     free_progdirs();
-#ifdef HAVE_PLUGINS
-    plugins_cleanup();
-#endif
     return ret;
 }
 

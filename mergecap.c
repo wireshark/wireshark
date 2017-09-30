@@ -117,7 +117,6 @@ string_elem_print(gpointer data, gpointer not_used _U_)
           ((struct string_elem *)data)->lstr);
 }
 
-#ifdef HAVE_PLUGINS
 /*
  * General errors and warnings are reported with an console message
  * in mergecap.
@@ -129,7 +128,6 @@ failure_warning_message(const char *msg_format, va_list ap)
   vfprintf(stderr, msg_format, ap);
   fprintf(stderr, "\n");
 }
-#endif
 
 static void
 list_capture_types(void) {
@@ -298,23 +296,10 @@ main(int argc, char *argv[])
     g_free(init_progfile_dir_error);
   }
 
-  wtap_init();
-
-#ifdef HAVE_PLUGINS
   init_report_message(failure_warning_message, failure_warning_message,
                       NULL, NULL, NULL);
 
-  /* Scan for plugins.  This does *not* call their registration routines;
-     that's done later.
-
-     Don't report failures to load plugins because most (non-wiretap)
-     plugins *should* fail to load (because we're not linked against
-     libwireshark and dissector plugins need libwireshark).*/
-  scan_plugins(DONT_REPORT_LOAD_FAILURE);
-
-  /* Register all libwiretap plugin modules. */
-  register_all_wiretap_modules();
-#endif
+  wtap_init();
 
   /* Process the options first */
   while ((opt = getopt_long(argc, argv, "aF:hI:s:vVw:", long_options, NULL)) != -1) {
@@ -485,9 +470,6 @@ main(int argc, char *argv[])
 clean_exit:
   wtap_cleanup();
   free_progdirs();
-#ifdef HAVE_PLUGINS
-  plugins_cleanup();
-#endif
   return (status == MERGE_OK) ? 0 : 2;
 }
 

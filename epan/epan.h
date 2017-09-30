@@ -30,6 +30,7 @@ extern "C" {
 #include <epan/tvbuff.h>
 #include <epan/prefs.h>
 #include <epan/frame_data.h>
+#include <wsutil/plugins.h>
 #include "register.h"
 #include "ws_symbol_export.h"
 
@@ -56,6 +57,10 @@ struct packet_provider_funcs {
 	const char *(*get_interface_description)(struct packet_provider_data *prov, guint32 interface_id);
 	const char *(*get_user_comment)(struct packet_provider_data *prov, const frame_data *fd);
 };
+
+#ifdef HAVE_PLUGINS
+extern plugins_t *libwireshark_plugins;
+#endif
 
 /**
 	@mainpage Wireshark EPAN the packet analyzing engine. Source code can be found in the epan directory
@@ -100,15 +105,6 @@ Ref2 for further edits - delete when done
 	- \ref airpcapdefs
 	- \ref radiotap
 */
-/*
- * Register all the plugin types that are part of libwireshark.
- *
- * Must be called before init_plugins(), which must be called before
- * any registration routines are called, i.e. before epan_init().
- *
- * Must be called only once in a program.
- */
-WS_DLL_PUBLIC void epan_register_plugin_types(void);
 
 /**
  * Init the whole epan module.

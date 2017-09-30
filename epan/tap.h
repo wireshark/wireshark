@@ -26,6 +26,9 @@
 #include <epan/epan.h>
 #include <epan/packet_info.h>
 #include "ws_symbol_export.h"
+#ifdef HAVE_PLUGINS
+#include "wsutil/plugins.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,14 +50,17 @@ typedef void (*tap_draw_cb)(void *tapdata);
 						                         ** but does not, itself, require dissection */
 
 #ifdef HAVE_PLUGINS
-/** Register tap plugin type with the plugin system.
-    Called by epan_register_plugin_types(); do not call it yourself. */
-extern void register_tap_plugin_type(void);
+typedef struct {
+	void (*register_tap_listener)(void);   /* routine to call to register tap listener */
+} tap_plugin;
+
+/** Register tap plugin with the plugin system. */
+WS_DLL_PUBLIC void tap_register_plugin(const tap_plugin *plug);
 #endif
 
 /*
  * For all tap plugins, call their register routines.
- * Must be called after init_plugins(), and must be called only once in
+ * Must be called after plugins_init(), and must be called only once in
  * a program.
  *
  * XXX - should probably be handled by epan_init(), as the tap mechanism

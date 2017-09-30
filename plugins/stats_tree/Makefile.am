@@ -37,7 +37,7 @@ CLEAN_HEADER_FILES = \
 HEADER_FILES = \
 	$(CLEAN_HEADER_FILES)
 
-plugin_LTLIBRARIES = stats_tree.la
+epan_plugin_LTLIBRARIES = stats_tree.la
 
 stats_tree_la_SOURCES = \
 	$(SRC_FILES)	\

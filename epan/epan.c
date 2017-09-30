@@ -94,6 +94,10 @@
 
 static wmem_allocator_t *pinfo_pool_cache = NULL;
 
+#ifdef HAVE_PLUGINS
+plugins_t *libwireshark_plugins = NULL;
+#endif
+
 const gchar*
 epan_get_version(void) {
 	return VERSION;
@@ -136,22 +140,6 @@ quiet_gcrypt_logger (void *dummy _U_, int level, const char *format, va_list arg
 }
 #endif // _WIN32
 
-/*
- * Register all the plugin types that are part of libwireshark, namely
- * dissector and tap plugins.
- *
- * Must be called before init_plugins(), which must be called before
- * any registration routines are called.
- */
-void
-epan_register_plugin_types(void)
-{
-#ifdef HAVE_PLUGINS
-	register_dissector_plugin_type();
-	register_tap_plugin_type();
-#endif
-}
-
 gboolean
 epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_data),
 	  void (*register_all_handoffs_func)(register_cb cb, gpointer client_data),
@@ -170,8 +158,12 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 	addr_resolv_init();
 
 	except_init();
-	/* initialize libgcrypt (beware, it won't be thread-safe) */
 
+#ifdef HAVE_PLUGINS
+	libwireshark_plugins = plugins_init("epan");
+#endif
+
+	/* initialize libgcrypt (beware, it won't be thread-safe) */
 	gcry_check_version(NULL);
 #if defined(_WIN32)
 	gcry_set_log_handler (quiet_gcrypt_logger, NULL);
@@ -277,6 +269,11 @@ epan_cleanup(void)
 #endif
 	except_deinit();
 	addr_resolv_cleanup();
+
+#ifdef HAVE_PLUGINS
+	plugins_cleanup(libwireshark_plugins);
+	libwireshark_plugins = NULL;
+#endif
 
 	if (pinfo_pool_cache != NULL) {
 		wmem_destroy_allocator(pinfo_pool_cache);

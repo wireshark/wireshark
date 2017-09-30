@@ -61,7 +61,7 @@ HEADER_FILES = \
 #AM_CFLAGS += -Werror
 #endif
 
-plugin_LTLIBRARIES = wimaxasncp.la
+epan_plugin_LTLIBRARIES = wimaxasncp.la
 
 wimaxasncp_la_SOURCES = \
 	moduleinfo.h \

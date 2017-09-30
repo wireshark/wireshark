@@ -598,22 +598,6 @@ int main(int argc, char *qt_argv[])
 
     wtap_init();
 
-#ifdef HAVE_PLUGINS
-    /* Register all the plugin types we have. */
-    epan_register_plugin_types(); /* Types known to libwireshark */
-    codec_register_plugin_types(); /* Types known to libwscodecs */
-
-    /* Scan for plugins.  This does *not* call their registration routines;
-       that's done later. */
-    scan_plugins(REPORT_LOAD_FAILURE);
-
-    /* Register all libwiretap plugin modules. */
-    register_all_wiretap_modules();
-#endif
-
-    /* Register all audio codec plugins. */
-    register_all_codecs();
-
     splash_update(RA_DISSECTORS, NULL, NULL);
 #ifdef DEBUG_STARTUP_TIME
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Calling epan init, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
@@ -634,6 +618,9 @@ int main(int argc, char *qt_argv[])
     prefs.gui_console_open = console_open_always;
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "epan done, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
 #endif
+
+    /* Register all audio codecs. */
+    codecs_init();
 
     // Read the dynamic part of the recent file. This determines whether or
     // not the recent list appears in the main window so the earlier we can
@@ -958,11 +945,9 @@ clean_exit:
     capture_opts_cleanup(&global_capture_opts);
 #endif
     col_cleanup(&CaptureFile::globalCapFile()->cinfo);
+    codecs_cleanup();
     wtap_cleanup();
     free_progdirs();
-#ifdef HAVE_PLUGINS
-    plugins_cleanup();
-#endif
     return ret_val;
 }
 

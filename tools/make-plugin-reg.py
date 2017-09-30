@@ -54,11 +54,11 @@ regs = {
 
 # For those that don't know Python, r"" indicates a raw string,
 # devoid of Python escapes.
-proto_regex = r"(?P<symbol>\bproto_register_[_A-Za-z0-9]+)\s*\(\s*void\s*\)[^;]*$"
+proto_regex = r"\bproto_register_(?P<symbol>[_A-Za-z0-9]+)\s*\(\s*void\s*\)[^;]*$"
 
-handoff_regex = r"(?P<symbol>\bproto_reg_handoff_[_A-Za-z0-9]+)\s*\(\s*void\s*\)[^;]*$"
+handoff_regex = r"\bproto_reg_handoff_(?P<symbol>[_A-Za-z0-9]+)\s*\(\s*void\s*\)[^;]*$"
 
-wtap_reg_regex = r"(?P<symbol>\bwtap_register_[_A-Za-z0-9]+)\s*\([^;]+$"
+wtap_reg_regex = r"\bwtap_register_(?P<symbol>[_A-Za-z0-9]+)\s*\([^;]+$"
 
 # This table drives the pattern-matching and symbol-harvesting
 patterns = [
@@ -107,52 +107,44 @@ reg_code += """
 #define WS_BUILD_DLL
 #include "ws_symbol_export.h"
 
-WS_DLL_PUBLIC_DEF void plugin_register (void);
+"""
 
+if registertype == "plugin":
+    reg_code += "#include <epan/proto.h>\n\n"
+if registertype == "plugin_wtap":
+    reg_code += "#include <wiretap/wtap.h>\n\n"
+
+for symbol in regs['proto_reg']:
+    reg_code += "void proto_register_%s(void);\n" % (symbol)
+for symbol in regs['handoff_reg']:
+    reg_code += "void proto_reg_handoff_%s(void);\n" % (symbol)
+for symbol in regs['wtap_register']:
+    reg_code += "void wtap_register_%s(void);\n" % (symbol)
+
+reg_code += """
 WS_DLL_PUBLIC_DEF const gchar plugin_version[] = VERSION;
 WS_DLL_PUBLIC_DEF const gchar plugin_release[] = VERSION_RELEASE;
 
-"""
-
-for symbol in regs['proto_reg']:
-    reg_code += "extern void %s(void);\n" % (symbol)
-
-reg_code += """
-WS_DLL_PUBLIC_DEF void
-plugin_register (void)
+WS_DLL_PUBLIC_DEF void plugin_register(void)
 {
 """
 
-for symbol in regs['proto_reg']:
-    reg_code += "    %s();\n" % (symbol)
-
-reg_code += "}\n\n"
-
-for symbol in regs['handoff_reg']:
-    reg_code += "extern void %s(void);\n" % (symbol)
-
-reg_code += """
-WS_DLL_PUBLIC_DEF void plugin_reg_handoff(void);
-
-WS_DLL_PUBLIC_DEF void
-plugin_reg_handoff(void)
-{
-"""
-
-for symbol in regs['handoff_reg']:
-    reg_code += "    %s();\n" % (symbol)
-reg_code += "}\n"
-
-if registertype == "plugin_wtap":
-    reg_code += """
-WS_DLL_PUBLIC_DEF void
-register_wtap_module(void)
-{
-"""
-
+if registertype == "plugin":
+    for symbol in regs['proto_reg']:
+        reg_code +="    static proto_plugin plug_%s;\n\n" % (symbol)
+        reg_code +="    plug_%s.register_protoinfo = proto_register_%s;\n" % (symbol, symbol)
+        if symbol in regs['handoff_reg']:
+            reg_code +="    plug_%s.register_handoff = proto_reg_handoff_%s;\n" % (symbol, symbol)
+        else:
+            reg_code +="    plug_%s.register_handoff = NULL;\n" % (symbol)
+        reg_code += "    proto_register_plugin(&plug_%s);\n" % (symbol)
+else:
     for symbol in regs['wtap_register']:
-        reg_code += "    {extern void %s (void); %s ();}\n" % (symbol, symbol)
-    reg_code += "}"
+        reg_code += "    static wtap_plugin plug_%s;\n\n" % (symbol)
+        reg_code += "    plug_%s.register_wtap_module = wtap_register_%s;\n" % (symbol, symbol)
+        reg_code += "    wtap_register_plugin(&plug_%s);\n" % (symbol)
+
+reg_code += "};\n"
 
 try:
     print(('Updating ' + final_filename))

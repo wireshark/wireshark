@@ -55,7 +55,6 @@
 #include "show_exception.h"
 #include "in_cksum.h"
 
-#include <wsutil/plugins.h>
 #include <wsutil/ws_printf.h> /* ws_debug_printf/ws_g_warning */
 #include <wsutil/glib-compat.h>
 
@@ -434,98 +433,37 @@ check_charset(const guint8 table[256], const char *str)
 }
 
 #ifdef HAVE_PLUGINS
-/*
- * List of dissector plugins.
- */
-typedef struct {
-	void (*register_protoinfo)(void);	/* routine to call to register protocol information */
-	void (*reg_handoff)(void);		/* routine to call to register dissector handoff */
-} dissector_plugin;
-
 static GSList *dissector_plugins = NULL;
 
-/*
- * Callback for each plugin found.
- */
-DIAG_OFF(pedantic)
-static gboolean
-check_for_dissector_plugin(GModule *handle)
-{
-	gpointer gp;
-	void (*register_protoinfo)(void);
-	void (*reg_handoff)(void);
-	dissector_plugin *plugin;
-
-	/*
-	 * Do we have a register routine?
-	 */
-	if (g_module_symbol(handle, "plugin_register", &gp)) {
-		register_protoinfo = (void (*)(void))gp;
-	}
-	else {
-		register_protoinfo = NULL;
-	}
-
-	/*
-	 * Do we have a reg_handoff routine?
-	 */
-	if (g_module_symbol(handle, "plugin_reg_handoff", &gp)) {
-		reg_handoff = (void (*)(void))gp;
-	}
-	else {
-		reg_handoff = NULL;
-	}
-
-	/*
-	 * If we have neither, we're not a dissector plugin.
-	 */
-	if (register_protoinfo == NULL && reg_handoff == NULL)
-		return FALSE;
-
-	/*
-	 * Add this one to the list of dissector plugins.
-	 */
-	plugin = (dissector_plugin *)g_malloc(sizeof (dissector_plugin));
-	plugin->register_protoinfo = register_protoinfo;
-	plugin->reg_handoff = reg_handoff;
-	dissector_plugins = g_slist_prepend(dissector_plugins, plugin);
-	return TRUE;
-}
-DIAG_ON(pedantic)
-
-static void
-register_dissector_plugin(gpointer data, gpointer user_data _U_)
-{
-	dissector_plugin *plugin = (dissector_plugin *)data;
-
-	if (plugin->register_protoinfo)
-		(plugin->register_protoinfo)();
-}
-
-static void
-reg_handoff_dissector_plugin(gpointer data, gpointer user_data _U_)
-{
-	dissector_plugin *plugin = (dissector_plugin *)data;
-
-	if (plugin->reg_handoff)
-		(plugin->reg_handoff)();
-}
-
-/*
- * Register dissector plugin type.
- */
 void
-register_dissector_plugin_type(void)
+proto_register_plugin(const proto_plugin *plug)
 {
-	add_plugin_type("dissector", check_for_dissector_plugin);
+	if (!plug) {
+		/* XXX print useful warning */
+		return;
+	}
+	dissector_plugins = g_slist_prepend(dissector_plugins, (proto_plugin *)plug);
 }
 
 static void
-dissector_plugin_destroy(gpointer p)
+call_plugin_register_protoinfo(gpointer data, gpointer user_data _U_)
 {
-	g_free(p);
+	proto_plugin *plug = (proto_plugin *)data;
+
+	if (plug->register_protoinfo) {
+		plug->register_protoinfo();
+	}
 }
 
+static void
+call_plugin_register_handoff(gpointer data, gpointer user_data _U_)
+{
+	proto_plugin *plug = (proto_plugin *)data;
+
+	if (plug->register_handoff) {
+		plug->register_handoff();
+	}
+}
 #endif /* HAVE_PLUGINS */
 
 /* initialize data structures and register protocols and fields */
@@ -578,7 +516,7 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 	   plugins. */
 	if (cb)
 		(*cb)(RA_PLUGIN_REGISTER, NULL, client_data);
-	g_slist_foreach(dissector_plugins, register_dissector_plugin, NULL);
+	g_slist_foreach(dissector_plugins, call_plugin_register_protoinfo, NULL);
 #endif
 
 	/* Now call the "handoff registration" routines of all built-in
@@ -591,7 +529,7 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 	/* Now do the same with plugins. */
 	if (cb)
 		(*cb)(RA_PLUGIN_HANDOFF, NULL, client_data);
-	g_slist_foreach(dissector_plugins, reg_handoff_dissector_plugin, NULL);
+	g_slist_foreach(dissector_plugins, call_plugin_register_handoff, NULL);
 #endif
 
 	/* sort the protocols by protocol name */
@@ -686,10 +624,8 @@ proto_cleanup(void)
 	proto_cleanup_base();
 
 #ifdef HAVE_PLUGINS
-	if (dissector_plugins) {
-		g_slist_free_full(dissector_plugins, dissector_plugin_destroy);
-		dissector_plugins = NULL;
-	}
+	g_slist_free(dissector_plugins);
+	dissector_plugins = NULL;
 #endif
 }
 

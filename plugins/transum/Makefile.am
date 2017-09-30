@@ -47,7 +47,7 @@ CLEAN_HEADER_FILES = \
 HEADER_FILES = \
 	$(CLEAN_HEADER_FILES)
 
-plugin_LTLIBRARIES = transum.la
+epan_plugin_LTLIBRARIES = transum.la
 
 transum_la_SOURCES = \
 	moduleinfo.h \

@@ -12,6 +12,7 @@
 #endif
 
 #include <epan/packet.h>
+#include <epan/proto.h>
 #include <ws_attributes.h>
 
 #ifndef VERSION
@@ -25,8 +26,6 @@ DLL_PUBLIC const gchar plugin_release[] = VERSION_RELEASE;
 
 DLL_PUBLIC void plugin_register(void);
 
-DLL_PUBLIC void plugin_reg_handoff(void);
-
 
 static int proto_hello = -1;
 static dissector_handle_t handle_hello;
@@ -38,14 +37,26 @@ dissect_hello(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *dat
     return tvb_captured_length(tvb);
 }
 
-void plugin_register(void)
+static void
+proto_register_hello(void)
 {
-    proto_hello = proto_register_protocol("Wireshark Hello Plugin", "Hello", "hello");
+    proto_hello = proto_register_protocol("Wireshark Hello Plugin", "Hello WS", "hello_ws");
     handle_hello = create_dissector_handle(dissect_hello, proto_hello);
     register_postdissector(handle_hello);
 }
 
-void plugin_reg_handoff(void)
+static void
+proto_reg_handoff_hello(void)
 {
     /* empty */
+}
+
+void
+plugin_register(void)
+{
+    static proto_plugin plug;
+
+    plug.register_protoinfo = proto_register_hello;
+    plug.register_handoff = proto_reg_handoff_hello; /* or NULL */
+    proto_register_plugin(&plug);
 }

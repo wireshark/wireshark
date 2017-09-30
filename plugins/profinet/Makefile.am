@@ -52,7 +52,7 @@ CLEAN_HEADER_FILES = \
 HEADER_FILES = \
 	$(CLEAN_HEADER_FILES)
 
-plugin_LTLIBRARIES = profinet.la
+epan_plugin_LTLIBRARIES = profinet.la
 
 profinet_la_SOURCES = \
 	moduleinfo.h \

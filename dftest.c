@@ -72,15 +72,6 @@ main(int argc, char **argv)
 	timestamp_set_type(TS_RELATIVE);
 	timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
 
-#ifdef HAVE_PLUGINS
-	/* Register all the plugin types we have. */
-	epan_register_plugin_types(); /* Types known to libwireshark */
-
-	/* Scan for plugins.  This does *not* call their registration routines;
-	   that's done later. */
-	scan_plugins(REPORT_LOAD_FAILURE);
-#endif
-
 	wtap_init();
 
 	/* Register all dissectors; we must do this before checking for the

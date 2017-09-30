@@ -16,7 +16,6 @@ libwiretap.so.0 libwiretap0 #MINVER#
  merge_string_to_idb_merge_mode@Base 1.99.9
  open_info_name_to_type@Base 1.12.0~rc1
  open_routines@Base 1.12.0~rc1
- register_all_wiretap_modules@Base 1.12.0~rc1
  register_pcapng_block_type_handler@Base 1.99.0
  register_pcapng_option_handler@Base 1.99.2
  wtap_block_add_custom_option@Base 2.1.2
@@ -127,6 +126,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_register_file_type_extension@Base 1.12.0~rc1
  wtap_register_file_type_subtypes@Base 1.12.0~rc1
  wtap_register_open_info@Base 1.12.0~rc1
+ wtap_register_plugin@Base 2.5.0
  wtap_seek_read@Base 1.9.1
  wtap_sequential_close@Base 1.9.1
  wtap_set_bytes_dumped@Base 1.9.1

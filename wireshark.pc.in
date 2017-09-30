@@ -4,6 +4,7 @@ libdir=@libdir@
 includedir=@includedir@
 sharedlibdir=${libdir}
 plugindir=@plugindir@
+VERSION_RELEASE=@VERSION_RELEASE@
 
 Name: Wireshark
 Description: Network Packet Dissection Library

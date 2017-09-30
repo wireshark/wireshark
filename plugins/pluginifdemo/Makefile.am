@@ -42,7 +42,7 @@ CLEAN_HEADER_FILES = \
 HEADER_FILES = \
 	$(CLEAN_HEADER_FILES)
 
-plugin_LTLIBRARIES = pluginifdemo.la
+epan_plugin_LTLIBRARIES = pluginifdemo.la
 
 pluginifdemo_la_SOURCES = \
 	moduleinfo.h \

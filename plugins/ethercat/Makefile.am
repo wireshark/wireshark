@@ -53,7 +53,7 @@ CLEAN_HEADER_FILES = \
 HEADER_FILES = \
 	$(CLEAN_HEADER_FILES)
 
-plugin_LTLIBRARIES = ethercat.la
+epan_plugin_LTLIBRARIES = ethercat.la
 
 ethercat_la_SOURCES = \
 	moduleinfo.h \

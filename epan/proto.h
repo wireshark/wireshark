@@ -52,6 +52,9 @@
 #include "register.h"
 #include "ws_symbol_export.h"
 #include "ws_attributes.h"
+#ifdef HAVE_PLUGINS
+#include "wsutil/plugins.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -908,9 +911,13 @@ WS_DLL_PUBLIC void proto_tree_children_foreach(proto_tree *tree,
 #define PNODE_POOL(proto_node)   ((proto_node)->tree_data->pinfo->pool)
 
 #ifdef HAVE_PLUGINS
-/** Register dissector plugin type with the plugin system.
-    Called by epan_register_plugin_types(); do not call it yourself. */
-extern void register_dissector_plugin_type(void);
+typedef struct {
+	void (*register_protoinfo)(void);	/* routine to call to register protocol information */
+	void (*register_handoff)(void);		/* routine to call to register dissector handoff */
+} proto_plugin;
+
+/** Register dissector plugin with the plugin system. */
+WS_DLL_PUBLIC void proto_register_plugin(const proto_plugin *plugin);
 #endif
 
 /** Sets up memory used by proto routines. Called at program startup */

@@ -135,6 +135,9 @@ main(int argc, char **argv)
 		g_free(init_progfile_dir_error);
 	}
 
+	init_report_message(failure_warning_message, failure_warning_message,
+				NULL, NULL, NULL);
+
 	wtap_init();
 
 	cmdarg_err_init(failure_warning_message, failure_message_cont);
@@ -143,24 +146,6 @@ main(int argc, char **argv)
 	arg_list_utf_16to8(argc, argv);
 	create_app_running_mutex();
 #endif /* _WIN32 */
-
-#ifdef HAVE_PLUGINS
-	/* Register wiretap plugins */
-	init_report_message(failure_warning_message, failure_warning_message,
-	    NULL, NULL, NULL);
-
-	/* Scan for plugins.  This does *not* call their registration routines;
-	   that's done later.
-
-	   Don't report failures to load plugins because most
-	   (non-wiretap) plugins *should* fail to load (because
-	   we're not linked against libwireshark and dissector
-	   plugins need libwireshark). */
-	scan_plugins(DONT_REPORT_LOAD_FAILURE);
-
-	/* Register all libwiretap plugin modules. */
-	register_all_wiretap_modules();
-#endif
 
 	while ((opt = getopt_long(argc, argv, "b:c:ht:r", long_options, NULL)) != -1) {
 		switch (opt) {

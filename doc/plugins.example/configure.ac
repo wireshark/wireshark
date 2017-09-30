@@ -22,6 +22,15 @@ AC_CONFIG_SRCDIR([hello.c])
 dnl Requires Wireshark 2.5.0 or greater.
 PKG_CHECK_MODULES([WIRESHARK], [wireshark >= 2.5])
 
+saved_CFLAGS="$CFLAGS"; saved_LIBS="$LIBS";
+CFLAGS="$WIRESHARK_CFLAGS"
+LIBS="$WIRESHARK_LIBS"
+AC_CHECK_FUNCS([proto_register_plugin],
+	[AC_DEFINE([HAVE_PLUGINS], 1, [Define to 1 if Wireshark supports loading plugins])],
+	[AC_MSG_ERROR([Wireshark was compiled without support for plugins])]
+)
+CFLAGS="$saved_CFLAGS"; LIBS="$saved_LIBS"
+
 AC_CONFIG_HEADER([config.h])
 
 AC_CONFIG_FILES([Makefile])

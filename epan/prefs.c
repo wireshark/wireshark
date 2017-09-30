@@ -737,6 +737,38 @@ prefs_register_stat(const char *name, const char *title,
                                  apply_cb, TRUE);
 }
 
+/*
+ * Register that a codec has preferences.
+ *
+ * "name" is a name for the codec to use on the command line with "-o"
+ * and in preference files.
+ *
+ * "title" is a short human-readable name for the codec.
+ *
+ * "description" is a longer human-readable description of the codec.
+ */
+module_t *codecs_module = NULL;
+
+module_t *
+prefs_register_codec(const char *name, const char *title,
+                     const char *description, void (*apply_cb)(void))
+{
+    /*
+     * Have we yet created the "Codecs" subtree?
+     */
+    if (codecs_module == NULL) {
+        /*
+         * No.  Register Codecs subtree as well as any preferences
+         * for non-dissector modules.
+         */
+        pre_init_prefs();
+        prefs_register_modules();
+    }
+
+    return prefs_register_module(codecs_module, name, title, description,
+                                 apply_cb, TRUE);
+}
+
 module_t *
 prefs_find_module(const char *name)
 {
@@ -3478,6 +3510,10 @@ prefs_register_modules(void)
     register_string_like_preference(printing, "file", "File",
         "This is the file that gets written to when the destination is set to \"file\"",
         &prefs.pr_file, PREF_SAVE_FILENAME, NULL, TRUE);
+
+    /* Codecs */
+    codecs_module = prefs_register_module(NULL, "codecs", "Codecs",
+        "Codecs", NULL, TRUE);
 
     /* Statistics */
     stats_module = prefs_register_module(NULL, "statistics", "Statistics",

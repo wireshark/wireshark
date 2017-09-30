@@ -51,7 +51,7 @@ CLEAN_HEADER_FILES = \
 HEADER_FILES = \
 	$(CLEAN_HEADER_FILES)
 
-plugin_LTLIBRARIES = unistim.la
+epan_plugin_LTLIBRARIES = unistim.la
 
 unistim_la_SOURCES = \
 	moduleinfo.h \

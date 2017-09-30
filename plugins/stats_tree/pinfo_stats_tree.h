@@ -23,5 +23,3 @@
 */
 
 extern void register_pinfo_stat_trees(void);
-
-WS_DLL_PUBLIC void plugin_register_tap_listener(void);

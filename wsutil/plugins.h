@@ -20,21 +20,23 @@ extern "C" {
 
 #include "ws_symbol_export.h"
 
-typedef gboolean (*plugin_check_type_callback)(GModule *handle);
+typedef void (*plugin_register_func)(void);
 
-typedef enum {
-    REPORT_LOAD_FAILURE,
-    DONT_REPORT_LOAD_FAILURE
-} plugin_load_failure_mode;
-WS_DLL_PUBLIC void scan_plugins(plugin_load_failure_mode mode);
-WS_DLL_PUBLIC void add_plugin_type(const char *type, plugin_check_type_callback callback);
+typedef void plugins_t;
+
+WS_DLL_PUBLIC plugins_t *plugins_init(const char *type_name);
+
 typedef void (*plugin_description_callback)(const char *name, const char *version,
                                             const char *types, const char *filename,
                                             void *user_data);
+
 WS_DLL_PUBLIC void plugins_get_descriptions(plugin_description_callback callback, void *user_data);
+
 WS_DLL_PUBLIC void plugins_dump_all(void);
+
 WS_DLL_PUBLIC int plugins_get_count(void);
-WS_DLL_PUBLIC void plugins_cleanup(void);
+
+WS_DLL_PUBLIC void plugins_cleanup(plugins_t *plugins);
 
 #ifdef __cplusplus
 }

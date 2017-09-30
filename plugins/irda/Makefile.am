@@ -44,7 +44,7 @@ CLEAN_HEADER_FILES = \
 HEADER_FILES = \
 	$(CLEAN_HEADER_FILES)
 
-plugin_LTLIBRARIES = irda.la
+epan_plugin_LTLIBRARIES = irda.la
 
 irda_la_SOURCES = \
 	moduleinfo.h \
