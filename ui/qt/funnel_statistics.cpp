@@ -69,8 +69,8 @@ static void progress_window_destroy(struct progdlg *progress_dialog);
 class FunnelAction : public QAction
 {
 public:
-    FunnelAction(const QString title, funnel_menu_callback callback, gpointer callback_data, gboolean retap) :
-        QAction(NULL),
+    FunnelAction(const QString title, funnel_menu_callback callback, gpointer callback_data, gboolean retap, QObject *parent = 0) :
+        QAction(parent),
         title_(title),
         callback_(callback),
         callback_data_(callback_data),
@@ -310,7 +310,7 @@ static void register_menu_cb(const char *name,
                              gpointer callback_data,
                              gboolean retap)
 {
-    FunnelAction *funnel_action = new FunnelAction(name, callback, callback_data, retap);
+    FunnelAction *funnel_action = new FunnelAction(name, callback, callback_data, retap, wsApp);
     if (menus_registered) {
         wsApp->appendDynamicMenuGroupItem(group, funnel_action);
     } else {

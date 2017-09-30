@@ -161,6 +161,7 @@ private:
     unsigned int fileVersion(QString file_path);
     void checkForDbar();
 #endif
+    void clearDynamicMenuGroupItems();
 
 protected:
     bool event(QEvent *event);

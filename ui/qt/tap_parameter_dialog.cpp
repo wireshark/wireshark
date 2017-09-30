@@ -129,7 +129,7 @@ void TapParameterDialog::registerDialog(const QString title, const char *cfg_abb
     QString cfg_str = cfg_abbr;
     cfg_str_to_creator_[cfg_str] = creator;
 
-    QAction *tpd_action = new QAction(title, NULL);
+    QAction *tpd_action = new QAction(title, wsApp);
     tpd_action->setObjectName(action_name_);
     tpd_action->setData(cfg_str);
     wsApp->addDynamicMenuGroupItem(group, tpd_action);

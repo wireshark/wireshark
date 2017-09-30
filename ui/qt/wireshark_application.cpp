@@ -864,6 +864,7 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
 
 WiresharkApplication::~WiresharkApplication()
 {
+    clearDynamicMenuGroupItems();
     free_filter_lists();
 }
 
@@ -968,6 +969,13 @@ void WiresharkApplication::removeDynamicMenuGroupItem(int group, QAction *sg_act
     }
     removed_menu_groups_[group] << sg_action;
     dynamic_menu_groups_[group].removeAll(sg_action);
+}
+
+void WiresharkApplication::clearDynamicMenuGroupItems()
+{
+    foreach (int group, dynamic_menu_groups_.uniqueKeys()) {
+        dynamic_menu_groups_[group].clear();
+    }
 }
 
 QList<QAction *> WiresharkApplication::dynamicMenuGroupItems(int group)
