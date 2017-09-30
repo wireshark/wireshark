@@ -22,9 +22,10 @@
 include(WiresharkPlugin)
 
 # Plugin name and version info (major minor micro extra)
-set_module_info(wimax 1 1 0 0)
+set_module_info(wimax 1 2 0 0)
 
 set(DISSECTOR_SRC
+	packet-m2m.c
 	packet-wmx.c
 )
 

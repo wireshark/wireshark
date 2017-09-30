@@ -26,7 +26,8 @@ PLUGIN_NAME = wimax
 
 # Non-generated sources to be scanned for registration routines
 NONGENERATED_REGISTER_C_FILES = \
-	packet-wmx.c \
+	packet-m2m.c	\
+	packet-wmx.c	\
 	wimax_cdma_code_decoder.c	\
 	wimax_compact_dlmap_ie_decoder.c	\
 	wimax_compact_ulmap_ie_decoder.c	\

@@ -1,3 +1,0 @@
-Splited the code into two plugins: wimax and m2m.
-wimax contains all the WiMax Protocol related dissectors
-m2m contains only the WiMax MAC to MAC Protocol TLV packet dissector. 

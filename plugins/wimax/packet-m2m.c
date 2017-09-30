@@ -32,7 +32,7 @@
 #include <epan/reassemble.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
-#include <plugins/wimax/wimax_tlv.h>
+#include "wimax_tlv.h"
 
 /* forward reference */
 void proto_reg_handoff_m2m(void);

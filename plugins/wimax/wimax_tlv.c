@@ -24,14 +24,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/*************************************************************/
-/*   ----------------------- NOTE -------------------------  */
-/* There is an identical copy of this file, wimax_tlv.c, in  */
-/* both .../plugins/m2m and .../plugins/wimax.  If either    */
-/* one needs to be modified, please be sure to copy the file */
-/* to the sister directory and check it in there also.       */
-/*************************************************************/
-
 #include "config.h"
 
 #include "wimax_tlv.h"

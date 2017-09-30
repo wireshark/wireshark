@@ -484,9 +484,6 @@ plugin_src = \
 	../plugins/irda/packet-irda.c \
 	../plugins/irda/packet-sir.c \
 	../plugins/irda/plugin.c \
-	../plugins/m2m/packet-m2m.c \
-	../plugins/m2m/plugin.c \
-	../plugins/m2m/wimax_tlv.c \
 	../plugins/Makefile.am.inc \
 	../plugins/mate/mate_grammar.c \
 	../plugins/mate/mate_parser.c \

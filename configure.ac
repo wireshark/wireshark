@@ -3030,7 +3030,6 @@ AC_CONFIG_FILES(
   plugins/ethercat/Makefile
   plugins/gryphon/Makefile
   plugins/irda/Makefile
-  plugins/m2m/Makefile
   plugins/mate/Makefile
   plugins/opcua/Makefile
   plugins/profinet/Makefile

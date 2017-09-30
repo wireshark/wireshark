@@ -1385,7 +1385,6 @@ if(ENABLE_PLUGINS)
 		plugins/ethercat
 		plugins/gryphon
 		plugins/irda
-		plugins/m2m
 		plugins/mate
 		plugins/opcua
 		plugins/profinet

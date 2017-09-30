@@ -44,5 +44,5 @@
 #define BUILD_NUMBER 0
 #endif
 
-#define VERSION "1.1." stringize(BUILD_NUMBER)
+#define VERSION "1.2." stringize(BUILD_NUMBER)
 

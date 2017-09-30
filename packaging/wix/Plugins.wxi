@@ -16,9 +16,6 @@
             <Component Id="cmpIrda_dll" Guid="*">
                 <File Id="filIrda_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\irda.dll" />
             </Component>
-            <Component Id="cmpM2m_dll" Guid="*">
-                <File Id="filM2m_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\m2m.dll" />
-            </Component>
             <Component Id="cmpOpcua_dll" Guid="*">
                 <File Id="filOpcua_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\opcua.dll" />
             </Component>

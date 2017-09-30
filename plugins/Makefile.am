@@ -26,7 +26,6 @@ SUBDIRS = $(_CUSTOM_SUBDIRS_) \
 	ethercat \
 	gryphon \
 	irda \
-	m2m \
 	mate \
 	opcua \
 	profinet \

@@ -11,8 +11,8 @@ dissectors will be called by the Wireshark because there is no any
 packet type hookup to the plugin.  However, it is very simple to add
 the WiMax Protocol decoding capability into any of the packet decoder
 by searching and calling the WiMax Protocol dissectors since they are
-registered to Wireshark already.  m2m plugin is an example that uses
-the wimax plugin to decode the WiMax MAC to MAC Protocol TLV packet.
+registered to Wireshark already (see WiMAX M2M Encapsulation Protocol
+for an example).
 
 
 WiMax Protocol dissector list
