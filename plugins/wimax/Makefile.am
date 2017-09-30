@@ -81,7 +81,8 @@ CLEAN_HEADER_FILES = \
 	wimax_compact_ulmap_ie_decoder.h	\
 	wimax_mac.h	\
 	wimax_tlv.h	\
-	wimax_utils.h
+	wimax_utils.h	\
+	wimax-int.h
 
 HEADER_FILES = \
 	$(CLEAN_HEADER_FILES)
