@@ -43,7 +43,6 @@
             <ComponentRef Id="cmpEthercat_dll" />
             <ComponentRef Id="cmpGryphon_dll" />
             <ComponentRef Id="cmpIrda_dll" />
-            <ComponentRef Id="cmpM2m_dll" />
             <ComponentRef Id="cmpOpcua_dll" />
             <ComponentRef Id="cmpProfinet_dll" />
             <ComponentRef Id="cmpUnistim_dll" />
