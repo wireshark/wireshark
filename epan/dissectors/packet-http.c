@@ -2269,7 +2269,8 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 	 * From draft-ietf-dasl-protocol-00.txt, a now vanished Microsoft draft:
 	 *	SEARCH
 	 */
-	if (linelen >= 5 && strncmp(data, "HTTP/", 5) == 0) {
+	if ((linelen >= 5 && strncmp(data, "HTTP/", 5) == 0) ||
+		(linelen >= 3 && strncmp(data, "ICY", 3) == 0)) {
 		*type = HTTP_RESPONSE;
 		isHttpRequestOrReply = TRUE;	/* response */
 		if (reqresp_dissector)
@@ -2295,10 +2296,6 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 			if (strncmp(data, "GET", indx) == 0 ||
 			    strncmp(data, "PUT", indx) == 0) {
 				*type = HTTP_REQUEST;
-				isHttpRequestOrReply = TRUE;
-			}
-			else if (strncmp(data, "ICY", indx) == 0) {
-				*type = HTTP_RESPONSE;
 				isHttpRequestOrReply = TRUE;
 			}
 			break;
