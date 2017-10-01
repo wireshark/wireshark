@@ -1347,7 +1347,7 @@ if(ENABLE_EXTCAP)
 	if (WIN32)
 		set(EXTCAP_DIR "extcap")
 	else ()
-		set(EXTCAP_DIR "${CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME}/extcap")
+		set(EXTCAP_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/${CPACK_PACKAGE_NAME}/extcap")
 	endif()
 endif()
 
