@@ -596,7 +596,6 @@ static int hf_gtpv2_uli_flags = -1;
 
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
-static gint ett_gtpv2_ie = -1;
 static gint ett_gtpv2_uli_flags = -1;
 static gint ett_gtpv2_uli_field = -1;
 static gint ett_gtpv2_bearer_ctx = -1;
@@ -843,6 +842,9 @@ static const value_string gtpv2_message_type_vals[] = {
     {0, NULL}
 };
 static value_string_ext gtpv2_message_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_message_type_vals);
+
+#define NUM_GTPV2_IES 255
+static gint ett_gtpv2_ies[NUM_GTPV2_IES];
 
 #define GTPV2_IE_RESERVED                 0
 #define GTPV2_IE_IMSI                     1
@@ -7009,7 +7011,7 @@ dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
 
         type    = tvb_get_guint8(tvb, offset);
         length  = tvb_get_ntohs(tvb, offset + 1);
-        ie_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 + length, ett_gtpv2_ie, &ti, "%s : ",
+        ie_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 + length, ett_gtpv2_ies[type], &ti, "%s : ",
                                       val_to_str_ext_const(type, &gtpv2_element_type_vals_ext, "Unknown"));
 
         /* Octet 1 */
@@ -7233,6 +7235,8 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
 
 void proto_register_gtpv2(void)
 {
+    guint     i, last_offset;
+
     static hf_register_info hf_gtpv2[] = {
         { &hf_gtpv2_response_in,
         { "Response In", "gtpv2.response_in",
@@ -9438,66 +9442,75 @@ void proto_register_gtpv2(void)
       },
     };
 
-    static gint *ett_gtpv2_array[] = {
-        &ett_gtpv2,
-        &ett_gtpv2_flags,
-        &ett_gtpv2_ie,
-        &ett_gtpv2_uli_flags,
-        &ett_gtpv2_uli_field,
-        &ett_gtpv2_bearer_ctx,
-        &ett_gtpv2_PDN_conn,
-        &ett_gtpv2_overload_control_information,
-        &ett_gtpv2_mm_context_flag,
-        &ett_gtpv2_pdn_numbers_nsapi,
-        &ett_gtpv2_tra_info_trigg,
-        &ett_gtpv2_tra_info_trigg_msc_server,
-        &ett_gtpv2_tra_info_trigg_mgw,
-        &ett_gtpv2_tra_info_trigg_sgsn,
-        &ett_gtpv2_tra_info_trigg_ggsn,
-        &ett_gtpv2_tra_info_trigg_bm_sc,
-        &ett_gtpv2_tra_info_trigg_sgw_mme,
-        &ett_gtpv2_tra_info_trigg_sgw,
-        &ett_gtpv2_tra_info_trigg_pgw,
-        &ett_gtpv2_tra_info_interfaces,
-        &ett_gtpv2_tra_info_interfaces_imsc_server,
-        &ett_gtpv2_tra_info_interfaces_lmgw,
-        &ett_gtpv2_tra_info_interfaces_lsgsn,
-        &ett_gtpv2_tra_info_interfaces_lggsn,
-        &ett_gtpv2_tra_info_interfaces_lrnc,
-        &ett_gtpv2_tra_info_interfaces_lbm_sc,
-        &ett_gtpv2_tra_info_interfaces_lmme,
-        &ett_gtpv2_tra_info_interfaces_lsgw,
-        &ett_gtpv2_tra_info_interfaces_lpdn_gw,
-        &ett_gtpv2_tra_info_interfaces_lpdn_lenb,
-        &ett_gtpv2_tra_info_ne_types,
-        &ett_gtpv2_rai,
-        &ett_gtpv2_stn_sr,
-        &ett_gtpv2_ms_mark,
-        &ett_gtpv2_supp_codec_list,
-        &ett_gtpv2_bss_con,
-        &ett_gtpv2_utran_con,
-        &ett_gtpv2_eutran_con,
-        &ett_gtpv2_mm_context_auth_qua,
-        &ett_gtpv2_mm_context_auth_qui,
-        &ett_gtpv2_mm_context_auth_tri,
-        &ett_gtpv2_mm_context_net_cap,
-        &ett_gtpv2_ms_network_capability,
-        &ett_gtpv2_vd_pref,
-        &ett_gtpv2_access_rest_data,
-        &ett_gtpv2_qua,
-        &ett_gtpv2_qui,
-        &ett_gtpv2_preaa_tais,
-        &ett_gtpv2_preaa_menbs,
-        &ett_gtpv2_preaa_henbs,
-        &ett_gtpv2_preaa_ecgis,
-        &ett_gtpv2_preaa_rais,
-        &ett_gtpv2_preaa_sais,
-        &ett_gtpv2_preaa_cgis,
-        &ett_gtpv2_load_control_inf,
-        &ett_gtpv2_eci,
-        &ett_gtpv2_twan_flags,
-        &ett_gtpv2_ciot_support_ind,
-    };
+    /* Setup protocol subtree array */
+#define GTPV2_NUM_INDIVIDUAL_ELEMS    57
+    static gint *ett_gtpv2_array[GTPV2_NUM_INDIVIDUAL_ELEMS + NUM_GTPV2_IES];
+
+    ett_gtpv2_array[0] = &ett_gtpv2;
+    ett_gtpv2_array[1] = &ett_gtpv2_flags;
+    ett_gtpv2_array[2] = &ett_gtpv2_uli_flags;
+    ett_gtpv2_array[3] = &ett_gtpv2_uli_field;
+    ett_gtpv2_array[4] = &ett_gtpv2_bearer_ctx;
+    ett_gtpv2_array[5] = &ett_gtpv2_PDN_conn;
+    ett_gtpv2_array[6] = &ett_gtpv2_overload_control_information;
+    ett_gtpv2_array[7] = &ett_gtpv2_mm_context_flag;
+    ett_gtpv2_array[8] = &ett_gtpv2_pdn_numbers_nsapi;
+    ett_gtpv2_array[9] = &ett_gtpv2_tra_info_trigg;
+    ett_gtpv2_array[10] = &ett_gtpv2_tra_info_trigg_msc_server;
+    ett_gtpv2_array[11] = &ett_gtpv2_tra_info_trigg_mgw;
+    ett_gtpv2_array[12] = &ett_gtpv2_tra_info_trigg_sgsn;
+    ett_gtpv2_array[13] = &ett_gtpv2_tra_info_trigg_ggsn;
+    ett_gtpv2_array[14] = &ett_gtpv2_tra_info_trigg_bm_sc;
+    ett_gtpv2_array[15] = &ett_gtpv2_tra_info_trigg_sgw_mme;
+    ett_gtpv2_array[16] = &ett_gtpv2_tra_info_trigg_sgw;
+    ett_gtpv2_array[17] = &ett_gtpv2_tra_info_trigg_pgw;
+    ett_gtpv2_array[18] = &ett_gtpv2_tra_info_interfaces;
+    ett_gtpv2_array[19] = &ett_gtpv2_tra_info_interfaces_imsc_server;
+    ett_gtpv2_array[20] = &ett_gtpv2_tra_info_interfaces_lmgw;
+    ett_gtpv2_array[21] = &ett_gtpv2_tra_info_interfaces_lsgsn;
+    ett_gtpv2_array[22] = &ett_gtpv2_tra_info_interfaces_lggsn;
+    ett_gtpv2_array[23] = &ett_gtpv2_tra_info_interfaces_lrnc;
+    ett_gtpv2_array[24] = &ett_gtpv2_tra_info_interfaces_lbm_sc;
+    ett_gtpv2_array[25] = &ett_gtpv2_tra_info_interfaces_lmme;
+    ett_gtpv2_array[26] = &ett_gtpv2_tra_info_interfaces_lsgw;
+    ett_gtpv2_array[27] = &ett_gtpv2_tra_info_interfaces_lpdn_gw;
+    ett_gtpv2_array[28] = &ett_gtpv2_tra_info_interfaces_lpdn_lenb;
+    ett_gtpv2_array[29] = &ett_gtpv2_tra_info_ne_types;
+    ett_gtpv2_array[30] = &ett_gtpv2_rai;
+    ett_gtpv2_array[31] = &ett_gtpv2_stn_sr;
+    ett_gtpv2_array[32] = &ett_gtpv2_ms_mark;
+    ett_gtpv2_array[33] = &ett_gtpv2_supp_codec_list;
+    ett_gtpv2_array[34] = &ett_gtpv2_bss_con;
+    ett_gtpv2_array[35] = &ett_gtpv2_utran_con;
+    ett_gtpv2_array[36] = &ett_gtpv2_eutran_con;
+    ett_gtpv2_array[37] = &ett_gtpv2_mm_context_auth_qua;
+    ett_gtpv2_array[38] = &ett_gtpv2_mm_context_auth_qui;
+    ett_gtpv2_array[39] = &ett_gtpv2_mm_context_auth_tri;
+    ett_gtpv2_array[40] = &ett_gtpv2_mm_context_net_cap;
+    ett_gtpv2_array[41] = &ett_gtpv2_ms_network_capability;
+    ett_gtpv2_array[42] = &ett_gtpv2_vd_pref;
+    ett_gtpv2_array[43] = &ett_gtpv2_access_rest_data;
+    ett_gtpv2_array[44] = &ett_gtpv2_qua;
+    ett_gtpv2_array[45] = &ett_gtpv2_qui;
+    ett_gtpv2_array[46] = &ett_gtpv2_preaa_tais;
+    ett_gtpv2_array[47] = &ett_gtpv2_preaa_menbs;
+    ett_gtpv2_array[48] = &ett_gtpv2_preaa_henbs;
+    ett_gtpv2_array[49] = &ett_gtpv2_preaa_ecgis;
+    ett_gtpv2_array[50] = &ett_gtpv2_preaa_rais;
+    ett_gtpv2_array[51] = &ett_gtpv2_preaa_sais;
+    ett_gtpv2_array[52] = &ett_gtpv2_preaa_cgis;
+    ett_gtpv2_array[53] = &ett_gtpv2_load_control_inf;
+    ett_gtpv2_array[54] = &ett_gtpv2_eci;
+    ett_gtpv2_array[55] = &ett_gtpv2_twan_flags;
+    ett_gtpv2_array[56] = &ett_gtpv2_ciot_support_ind;
+
+    last_offset = GTPV2_NUM_INDIVIDUAL_ELEMS;
+
+    for (i=0; i < NUM_GTPV2_IES; i++, last_offset++)
+    {
+        ett_gtpv2_ies[i] = -1;
+        ett_gtpv2_array[last_offset] = &ett_gtpv2_ies[i];
+    }
 
     static ei_register_info ei[] = {
         { &ei_gtpv2_ie_data_not_dissected, { "gtpv2.ie_data_not_dissected", PI_UNDECODED, PI_NOTE, "IE data not dissected yet", EXPFILL }},
