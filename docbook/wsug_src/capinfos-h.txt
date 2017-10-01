@@ -1,4 +1,4 @@
-Capinfos (Wireshark) 2.5.0 (v2.5.0rc0-1171-g33c00a67)
+Capinfos (Wireshark) 2.5.0 (v2.5.0rc0-1220-g23e2b1f9)
 Print various information (infos) about capture files.
 See https://www.wireshark.org for more information.
 
@@ -9,7 +9,7 @@ General infos:
   -E display the capture file encapsulation
   -I display the capture file interface information
   -F display additional capture file information
-  -H display the SHA1, RMD160, and MD5 hashes of the file
+  -H display the SHA256, RMD160, and SHA1 hashes of the file
   -k display the capture comment
 
 Size infos:

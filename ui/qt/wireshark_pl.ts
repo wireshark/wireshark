@@ -4362,256 +4362,21 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
 </context>
 <context>
     <name>LBMUIMFlowDialog</name>
-    <message>
-        <source>LBM UIM Flows</source>
-        <translation type="vanished">Przepływy LBM UIM</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-
-&lt;h3&gt;Valuable and amazing time-saving keyboard shortcuts&lt;/h3&gt;
-&lt;table&gt;&lt;tbody&gt;
-
-&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Reset graph to its initial state&lt;/td&gt;&lt;/th&gt;
-
-&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Move right 10 pixels&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Move left 10 pixels&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Move up 10 pixels&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Move down 10 pixels&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Move right 1 pixel&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Move left 1 pixel&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Move up 1 pixel&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Move down 1 pixel&lt;/td&gt;&lt;/th&gt;
-
-&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Go to packet under cursor&lt;/td&gt;&lt;/th&gt;
-
-&lt;/tbody&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-
-&lt;h3&gt;Przydatne skróty klawiaturowe&lt;/h3&gt;
-&lt;table&gt;&lt;tbody&gt;
-
-&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Resetuj wykres do stanu początkowego&lt;/td&gt;&lt;/th&gt;
-
-&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Przesuń w prawo o 10 pikseli&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Przesuń w lewo o 10 pikseli&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Przesuń w górę o 10 pikseli&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Move down 10 pixels&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Przesuń w prawo o 1 piksel&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Przesuń w lewo o 1 piksel&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Przesuń w górę o 1 piksel&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Przesuń w dół o 1 piksel&lt;/td&gt;&lt;/th&gt;
-
-&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Idź do pakietu pod kursorem&lt;/td&gt;&lt;/th&gt;
-
-&lt;/tbody&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;small&gt;&lt;i&gt;A hint&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="vanished">&lt;small&gt;&lt;i&gt;Podpowiedź&lt;/i&gt;&lt;/small&gt;</translation>
-    </message>
-    <message>
-        <source>Show:</source>
-        <translation type="vanished">Pokaż: </translation>
-    </message>
-    <message>
-        <source>All packets</source>
-        <translation type="vanished">Wszystkie pakiety</translation>
-    </message>
-    <message>
-        <source>Displayed packets</source>
-        <translation type="vanished">Wyświetlane pakiety</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation type="vanished">Resetuj</translation>
-    </message>
-    <message>
-        <source>Reset Diagram</source>
-        <translation type="vanished">Resetuj diagram</translation>
-    </message>
-    <message>
-        <source>Reset the diagram to its initial state.</source>
-        <translation type="vanished">Resetuj diagram do stanu początkowego.</translation>
-    </message>
-    <message>
-        <source>0</source>
-        <translation type="vanished">0</translation>
-    </message>
-    <message>
-        <source>Move Up 10 Pixels</source>
-        <translation type="vanished">Przesuń w górę o 10 pikseli</translation>
-    </message>
-    <message>
-        <source>Move up 10 pixels</source>
-        <translation type="vanished">Przesuń w górę o 10 pikseli</translation>
-    </message>
-    <message>
-        <source>Up</source>
-        <translation type="vanished">W górę</translation>
-    </message>
-    <message>
-        <source>Move Left 10 Pixels</source>
-        <translation type="vanished">Przesuń w lewo o 10 pikseli</translation>
-    </message>
-    <message>
-        <source>Move left 10 pixels</source>
-        <translation type="vanished">Przesuń w lewo o 10 pikseli</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="vanished">W lewo</translation>
-    </message>
-    <message>
-        <source>Move Right 10 Pixels</source>
-        <translation type="vanished">Przesuń w prawo o 10 pikseli</translation>
-    </message>
-    <message>
-        <source>Move right 10 pixels</source>
-        <translation type="vanished">Przesuń w prawo o 10 pikseli</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation type="vanished">W prawo</translation>
-    </message>
-    <message>
-        <source>Move Down 10 Pixels</source>
-        <translation type="vanished">Przesuń w dół o 10 pikseli</translation>
-    </message>
-    <message>
-        <source>Move down 10 pixels</source>
-        <translation type="vanished">Przesuń w dół o 10 pikseli</translation>
-    </message>
-    <message>
-        <source>Down</source>
-        <translation type="vanished">W dół</translation>
-    </message>
-    <message>
-        <source>Move Up 1 Pixel</source>
-        <translation type="vanished">Przesuń w górę o 1 piksel</translation>
-    </message>
-    <message>
-        <source>Move up 1 pixel</source>
-        <translation type="vanished">Przesuń w górę o 1 piksel</translation>
-    </message>
-    <message>
-        <source>Shift+Up</source>
-        <translation type="vanished">Shift+w górę</translation>
-    </message>
-    <message>
-        <source>Move Left 1 Pixel</source>
-        <translation type="vanished">Przesuń w lewo o 1 piksel</translation>
-    </message>
-    <message>
-        <source>Move left 1 pixel</source>
-        <translation type="vanished">Przesuń w lewo o 1 piksel</translation>
-    </message>
-    <message>
-        <source>Shift+Left</source>
-        <translation type="vanished">Shift+w lewo</translation>
-    </message>
-    <message>
-        <source>Move Right 1 Pixel</source>
-        <translation type="vanished">Przesuń w prawo o 1 piksel</translation>
-    </message>
-    <message>
-        <source>Move right 1 pixel</source>
-        <translation type="vanished">Przesuń w prawo o 1 piksel</translation>
-    </message>
-    <message>
-        <source>Shift+Right</source>
-        <translation type="vanished">Shift+w prawo</translation>
-    </message>
-    <message>
-        <source>Move Down 1 Pixel</source>
-        <translation type="vanished">Przesuń w dół o 1 piksel</translation>
-    </message>
-    <message>
-        <source>Move down 1 pixel</source>
-        <translation type="vanished">Przesuń w dół o 1 piksel</translation>
-    </message>
-    <message>
-        <source>Shift+Down</source>
-        <translation type="vanished">Shift+w dół</translation>
-    </message>
-    <message>
-        <source>Go To Packet Under Cursor</source>
-        <translation type="vanished">Idź do pakietu pod kursorem</translation>
-    </message>
-    <message>
-        <source>Go to packet currently under the cursor</source>
-        <translation type="vanished">Idź do pakietu pod kursorem</translation>
-    </message>
-    <message>
-        <source>G</source>
-        <translation type="vanished">G</translation>
-    </message>
-    <message>
-        <source>All Flows</source>
-        <translation type="vanished">Wszystkie przepływy</translation>
-    </message>
-    <message>
-        <source>Show flows for all packets</source>
-        <translation type="vanished">Pokazuj przepływy dla wszystkich pakietów</translation>
-    </message>
-    <message>
-        <source>1</source>
-        <translation type="vanished">1</translation>
-    </message>
-    <message>
-        <source>TCP Flows</source>
-        <translation type="vanished">Przepływy TCP</translation>
-    </message>
-    <message>
-        <source>Show only TCP flow information</source>
-        <translation type="vanished">Pokazuj tylko przepływy dla TCP</translation>
-    </message>
-    <message>
-        <source>Save As</source>
-        <oldsource>Save As...</oldsource>
-        <translation type="vanished">Zapisz jako</translation>
-    </message>
     <message numerus="yes">
         <source>%Ln node(s)</source>
-        <translation type="vanished">
-            <numerusform>%Ln węzłów</numerusform>
-            <numerusform>%Ln węzłów</numerusform>
-            <numerusform>%Ln węzłów</numerusform>
+        <translation type="obsolete">
+            <numerusform>%Ln node</numerusform>
+            <numerusform>%Ln nodes</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln item(s)</source>
-        <translation type="vanished">
-            <numerusform>%Ln obiekt(ów)</numerusform>
-            <numerusform>%Ln obiektów</numerusform>
-            <numerusform>%Ln obiektów</numerusform>
+        <translation type="obsolete">
+            <numerusform>%Ln item</numerusform>
+            <numerusform>%Ln items</numerusform>
+            <numerusform></numerusform>
         </translation>
-    </message>
-    <message>
-        <source>Portable Document Format (*.pdf)</source>
-        <translation type="vanished">Dokument PDF (*.pdf)</translation>
-    </message>
-    <message>
-        <source>Portable Network Graphics (*.png)</source>
-        <translation type="vanished">Obraz PNG (*.png)</translation>
-    </message>
-    <message>
-        <source>Windows Bitmap (*.bmp)</source>
-        <translation type="vanished">Bitmapa Windows (*.bmp)</translation>
-    </message>
-    <message>
-        <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="vanished">Obraz JPEG (*.jpeg *.jpg)</translation>
-    </message>
-    <message>
-        <source>ASCII (*.txt)</source>
-        <translation type="vanished">ASCII (*.txt)</translation>
-    </message>
-    <message>
-        <source>Save Graph As</source>
-        <translation type="vanished">Zapisz wykres jako</translation>
     </message>
 </context>
 <context>
@@ -6335,10 +6100,6 @@ text-decoration: underline;
     <message>
         <source>Streams</source>
         <translation>Strumienie</translation>
-    </message>
-    <message>
-        <source>Stream Flow Graph</source>
-        <translation type="vanished">Graf przepływu strumieni</translation>
     </message>
     <message>
         <source>LBT-RM</source>
@@ -10812,18 +10573,6 @@ text-decoration: underline;
         <translation>&lt;small&gt;&lt;i&gt;Podpowiedź&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <source>Show:</source>
-        <translation type="vanished">Pokaż: </translation>
-    </message>
-    <message>
-        <source>All packets</source>
-        <translation type="vanished">Wszystkie pakiety</translation>
-    </message>
-    <message>
-        <source>Displayed packets</source>
-        <translation type="vanished">Wyświetlane pakiety</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show flows matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11425,6 +11174,10 @@ text-decoration: underline;
         <translation>zmiana rozmiaru</translation>
     </message>
     <message>
+        <source>Display Round Trip Time vs Sequence Number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>RTT By Sequence Number</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11828,10 +11581,6 @@ text-decoration: underline;
     <message>
         <source>Save Graph As</source>
         <translation>Zapisz wykres jako</translation>
-    </message>
-    <message>
-        <source>Display Round Trip Time vs Sequence Number</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -1,4 +1,3 @@
-editcap: option requires an argument -- T
 editcap: The available encapsulation types for the "-T" flag are:
     ap1394 - Apple IP-over-IEEE 1394
     arcnet - ARCNET

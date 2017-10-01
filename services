@@ -3815,6 +3815,7 @@ smartcard-tls	4116/tcp/udp	# smartcard-TLS
 hillrserv	4117/tcp/udp	# Hillr Connection Manager
 netscript	4118/tcp/udp	# Netadmin Systems NETscript service
 assuria-slm	4119/tcp/udp	# Assuria Log Manager
+minirem		4120/tcp	# MiniRem Remote Telemetry and Control
 e-builder	4121/tcp/udp	# e-Builder Application Communication
 fprams		4122/tcp/udp	# Fiber Patrol Alarm Service
 z-wave		4123/tcp/udp	# Z-Wave Protocol

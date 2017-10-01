@@ -1,4 +1,3 @@
-editcap: option requires an argument -- F
 editcap: The available capture file types for the "-F" flag are:
     5views - InfoVista 5View capture
     btsnoop - Symbian OS btsnoop

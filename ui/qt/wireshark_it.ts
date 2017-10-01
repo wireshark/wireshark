@@ -1439,15 +1439,15 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Missing fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>Campi mancanti.</translation>
     </message>
     <message>
         <source>Invalid fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>Campi non validi.</translation>
     </message>
     <message>
         <source>Invalid occurrence value.</source>
-        <translation type="unfinished"></translation>
+        <translation>Valore dell&apos;occorrenza non valido.</translation>
     </message>
 </context>
 <context>
@@ -2133,15 +2133,15 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Missing label.</source>
-        <translation type="unfinished"></translation>
+        <translation>Etichetta mancante.</translation>
     </message>
     <message>
         <source>Missing filter expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>Espressione di filtro mancante.</translation>
     </message>
     <message>
         <source>Invalid filter expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>Espressioni di filtro non valida.</translation>
     </message>
 </context>
 <context>
@@ -4363,254 +4363,19 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
 </context>
 <context>
     <name>LBMUIMFlowDialog</name>
-    <message>
-        <source>LBM UIM Flows</source>
-        <translation type="vanished">Flussi LBM UIM</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-
-&lt;h3&gt;Valuable and amazing time-saving keyboard shortcuts&lt;/h3&gt;
-&lt;table&gt;&lt;tbody&gt;
-
-&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Reset graph to its initial state&lt;/td&gt;&lt;/th&gt;
-
-&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Move right 10 pixels&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Move left 10 pixels&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Move up 10 pixels&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Move down 10 pixels&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Move right 1 pixel&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Move left 1 pixel&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Move up 1 pixel&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Move down 1 pixel&lt;/td&gt;&lt;/th&gt;
-
-&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Go to packet under cursor&lt;/td&gt;&lt;/th&gt;
-
-&lt;/tbody&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-
-&lt;h3&gt;Scorciatoie per la tastiera di valore e meravigliose per risparmiare tempo&lt;/h3&gt;
-&lt;table&gt;&lt;tbody&gt;
-
-&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Ripristina il grafico al suo stato iniziale&lt;/td&gt;&lt;/th&gt;
-
-&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Sposta a destra 10 pixels&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Sposta a sinistra 10 pixels&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Sposta in su 10 pixels&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Sposta in giù 10 pixels&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Sposta a destra 1 pixel&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Sposta a sinistra 1 pixel&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Sposta in su 1 pixel&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Sposta in giù 1 pixel&lt;/td&gt;&lt;/th&gt;
-
-&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Vai al pacchetto sotto il cursore&lt;/td&gt;&lt;/th&gt;
-
-&lt;/tbody&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;small&gt;&lt;i&gt;A hint&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="vanished">&lt;small&gt;&lt;i&gt;Un suggerimento&lt;/i&gt;&lt;/small&gt;</translation>
-    </message>
-    <message>
-        <source>Show:</source>
-        <translation type="vanished">Mostra:</translation>
-    </message>
-    <message>
-        <source>All packets</source>
-        <translation type="vanished">Tutti i pacchetti</translation>
-    </message>
-    <message>
-        <source>Displayed packets</source>
-        <translation type="vanished">Pacchetti visualizzati</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation type="vanished">Ripristina</translation>
-    </message>
-    <message>
-        <source>Reset Diagram</source>
-        <translation type="vanished">Ripristina diagramma</translation>
-    </message>
-    <message>
-        <source>Reset the diagram to its initial state.</source>
-        <translation type="vanished">Ripristina il diagramma al suo stato iniziale.</translation>
-    </message>
-    <message>
-        <source>0</source>
-        <translation type="vanished">0</translation>
-    </message>
-    <message>
-        <source>Move Up 10 Pixels</source>
-        <translation type="vanished">Sposta in su di 10 pixel</translation>
-    </message>
-    <message>
-        <source>Move up 10 pixels</source>
-        <translation type="vanished">Sposta in su di 10 pixel</translation>
-    </message>
-    <message>
-        <source>Up</source>
-        <translation type="vanished">Su</translation>
-    </message>
-    <message>
-        <source>Move Left 10 Pixels</source>
-        <translation type="vanished">Sposta a sinistra di 10 pixel</translation>
-    </message>
-    <message>
-        <source>Move left 10 pixels</source>
-        <translation type="vanished">Sposta a sinistra di 10 pixel</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="vanished">Sinistra</translation>
-    </message>
-    <message>
-        <source>Move Right 10 Pixels</source>
-        <translation type="vanished">Sposta a destra di 10 pixel</translation>
-    </message>
-    <message>
-        <source>Move right 10 pixels</source>
-        <translation type="vanished">Sposta a destra di 10 pixel</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation type="vanished">Destra</translation>
-    </message>
-    <message>
-        <source>Move Down 10 Pixels</source>
-        <translation type="vanished">Sposta in giù di 10 pixel</translation>
-    </message>
-    <message>
-        <source>Move down 10 pixels</source>
-        <translation type="vanished">Sposta in giù di 10 pixel</translation>
-    </message>
-    <message>
-        <source>Down</source>
-        <translation type="vanished">Giù</translation>
-    </message>
-    <message>
-        <source>Move Up 1 Pixel</source>
-        <translation type="vanished">Sposta in su di 1 pixel</translation>
-    </message>
-    <message>
-        <source>Move up 1 pixel</source>
-        <translation type="vanished">Sposta in su di 1 pixel</translation>
-    </message>
-    <message>
-        <source>Shift+Up</source>
-        <translation type="vanished">Shift+Su</translation>
-    </message>
-    <message>
-        <source>Move Left 1 Pixel</source>
-        <translation type="vanished">Sposta a sinistra di 1 pixel</translation>
-    </message>
-    <message>
-        <source>Move left 1 pixel</source>
-        <translation type="vanished">Sposta a sinistra di 1 pixel</translation>
-    </message>
-    <message>
-        <source>Shift+Left</source>
-        <translation type="vanished">Shift+Sinistra</translation>
-    </message>
-    <message>
-        <source>Move Right 1 Pixel</source>
-        <translation type="vanished">Sposta a sinistra di 1 pixel</translation>
-    </message>
-    <message>
-        <source>Move right 1 pixel</source>
-        <translation type="vanished">Sposta a destra di 1 pixel</translation>
-    </message>
-    <message>
-        <source>Shift+Right</source>
-        <translation type="vanished">Shift+Destra</translation>
-    </message>
-    <message>
-        <source>Move Down 1 Pixel</source>
-        <translation type="vanished">Sposta in giù di 1 pixel</translation>
-    </message>
-    <message>
-        <source>Move down 1 pixel</source>
-        <translation type="vanished">Sposta in giù di 1 pixel</translation>
-    </message>
-    <message>
-        <source>Shift+Down</source>
-        <translation type="vanished">Shift+Giù</translation>
-    </message>
-    <message>
-        <source>Go To Packet Under Cursor</source>
-        <translation type="vanished">Vai al pacchetto sotto il cursore</translation>
-    </message>
-    <message>
-        <source>Go to packet currently under the cursor</source>
-        <translation type="vanished">Vai al pacchetto attualmente sotto il cursore</translation>
-    </message>
-    <message>
-        <source>G</source>
-        <translation type="vanished">G</translation>
-    </message>
-    <message>
-        <source>All Flows</source>
-        <translation type="vanished">Tutti i flussi</translation>
-    </message>
-    <message>
-        <source>Show flows for all packets</source>
-        <translation type="vanished">Mostra i flussi per tutti i pacchetti</translation>
-    </message>
-    <message>
-        <source>1</source>
-        <translation type="vanished">1</translation>
-    </message>
-    <message>
-        <source>TCP Flows</source>
-        <translation type="vanished">Flussi TCP</translation>
-    </message>
-    <message>
-        <source>Show only TCP flow information</source>
-        <translation type="vanished">Mostra solo le informazioni sui flussi TCP</translation>
-    </message>
-    <message>
-        <source>Save As</source>
-        <oldsource>Save As...</oldsource>
-        <translation type="vanished">Salva come</translation>
-    </message>
     <message numerus="yes">
         <source>%Ln node(s)</source>
-        <translation type="vanished">
-            <numerusform>%n nodo</numerusform>
-            <numerusform>%n nodi</numerusform>
+        <translation type="obsolete">
+            <numerusform>%Ln node</numerusform>
+            <numerusform>%Ln nodes</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln item(s)</source>
-        <translation type="vanished">
-            <numerusform>%n elemento</numerusform>
-            <numerusform>%n elementi</numerusform>
+        <translation type="obsolete">
+            <numerusform>%Ln item</numerusform>
+            <numerusform>%Ln items</numerusform>
         </translation>
-    </message>
-    <message>
-        <source>Portable Document Format (*.pdf)</source>
-        <translation type="vanished">Portable Document Format (*.pdf)</translation>
-    </message>
-    <message>
-        <source>Portable Network Graphics (*.png)</source>
-        <translation type="vanished">Portable Network Graphics (*.png)</translation>
-    </message>
-    <message>
-        <source>Windows Bitmap (*.bmp)</source>
-        <translation type="vanished">Windows Bitmap (*.bmp)</translation>
-    </message>
-    <message>
-        <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="vanished">JPEG File Interchange Format (*.jpeg *.jpg)</translation>
-    </message>
-    <message>
-        <source>ASCII (*.txt)</source>
-        <translation type="vanished">ASCII (*.txt)</translation>
-    </message>
-    <message>
-        <source>Save Graph As</source>
-        <translation type="vanished">Salva grafico come</translation>
     </message>
 </context>
 <context>
@@ -6335,10 +6100,6 @@ a:hover {
         <translation>Flussi</translation>
     </message>
     <message>
-        <source>Stream Flow Graph</source>
-        <translation type="vanished">Grafico dell&apos;andamento del flusso</translation>
-    </message>
-    <message>
         <source>LBT-RM</source>
         <translation>LBT-RM</translation>
     </message>
@@ -7973,7 +7734,7 @@ a:hover {
     </message>
     <message>
         <source>Invalid value.</source>
-        <translation type="unfinished"></translation>
+        <translation>Valore non valido.</translation>
     </message>
 </context>
 <context>
@@ -10808,24 +10569,12 @@ a:hover {
         <translation>&lt;small&gt;&lt;i&gt;Un suggerimento&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <source>Show:</source>
-        <translation type="vanished">Mostra:</translation>
-    </message>
-    <message>
-        <source>All packets</source>
-        <translation type="vanished">Tutti i pacchetti</translation>
-    </message>
-    <message>
-        <source>Displayed packets</source>
-        <translation type="vanished">Pacchetti visualizzati</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show flows matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra solo i flussi che corrispondono al filtro di visualizzazione attuale&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Limit to display filter</source>
-        <translation type="unfinished">Limita al filtro di visualizzazione</translation>
+        <translation>Limita al filtro di visualizzazione</translation>
     </message>
     <message>
         <source>Flow type:</source>
@@ -11419,8 +11168,12 @@ a:hover {
         <translation>zoom</translation>
     </message>
     <message>
+        <source>Display Round Trip Time vs Sequence Number</source>
+        <translation>Visualizza Round Trip Time e numero di sequenza </translation>
+    </message>
+    <message>
         <source>RTT By Sequence Number</source>
-        <translation type="unfinished"></translation>
+        <translation>RTT per numero di sequenza</translation>
     </message>
     <message>
         <source>Display graph of Segment Length vs Time</source>
@@ -11822,10 +11575,6 @@ a:hover {
     <message>
         <source>Save Graph As</source>
         <translation>Salva grafico come</translation>
-    </message>
-    <message>
-        <source>Display Round Trip Time vs Sequence Number</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
