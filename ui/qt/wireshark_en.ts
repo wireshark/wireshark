@@ -14593,6 +14593,11 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="tcp_stream_dialog.ui" line="235"/>
+        <source>Display Round Trip Time vs Sequence Number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="tcp_stream_dialog.ui" line="238"/>
         <source>RTT By Sequence Number</source>
         <translation type="unfinished"></translation>

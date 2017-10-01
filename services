@@ -7630,6 +7630,7 @@ netscript        4118/tcp # Netadmin Systems NETscript service [Goran_Runfeldt] 
 netscript        4118/udp # Netadmin Systems NETscript service [Goran_Runfeldt] [Goran_Runfeldt] 2006-12
 assuria-slm      4119/tcp # Assuria Log Manager [Nick_Connor] [Nick_Connor] 2006-12
 assuria-slm      4119/udp # Assuria Log Manager [Nick_Connor] [Nick_Connor] 2006-12
+minirem          4120/tcp # MiniRem Remote Telemetry and Control [MobilePro_Systems] [Sean_Solberg] 2017-09-28
 e-builder        4121/tcp # e-Builder Application Communication [James_Caza] [James_Caza] 2006-12
 e-builder        4121/udp # e-Builder Application Communication [James_Caza] [James_Caza] 2006-12
 fprams           4122/tcp # Fiber Patrol Alarm Service [Zhizhong_Zhuang] [Zhizhong_Zhuang] 2006-12
