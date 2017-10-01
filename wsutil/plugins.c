@@ -109,13 +109,12 @@ call_plugin_callback(gpointer data, gpointer user_data)
 static void
 plugins_scan_dir(const char *dirname, plugin_load_failure_mode mode)
 {
-#define FILENAME_LEN        1024
     WS_DIR        *dir;             /* scanned directory */
     WS_DIRENT     *file;            /* current file */
     const char    *name;
-    gchar          filename[FILENAME_LEN];   /* current file name */
+    gchar         *filename;        /* current file name */
     GModule       *handle;          /* handle returned by g_module_open */
-    gpointer       gp;
+    gpointer       symbol;
     plugin        *new_plug;
     gchar         *dot;
 
@@ -137,6 +136,7 @@ plugins_scan_dir(const char *dirname, plugin_load_failure_mode mode)
             dot = strrchr(name, '.');
             if (dot == NULL || strcmp(dot+1, G_MODULE_SUFFIX) != 0)
                 continue;
+
 #if WIN32
             if (strncmp(name, "nordic_ble.dll", 14) == 0)
                 /*
@@ -145,8 +145,6 @@ plugins_scan_dir(const char *dirname, plugin_load_failure_mode mode)
                  */
                 continue;
 #endif
-            g_snprintf(filename, FILENAME_LEN, "%s" G_DIR_SEPARATOR_S "%s",
-                       dirname, name);
 
             /*
              * Check if the same name is already registered.
@@ -155,12 +153,15 @@ plugins_scan_dir(const char *dirname, plugin_load_failure_mode mode)
                 /* Yes, it is. */
                 if (mode == REPORT_LOAD_FAILURE) {
                     report_warning("The plugin '%s' was found "
-                            "in multiple directories.\n", name);
+                            "in multiple directories", name);
                 }
                 continue;
             }
 
-            if ((handle = g_module_open(filename, G_MODULE_BIND_LOCAL)) == NULL)
+            filename = g_build_filename(dirname, name, (gchar *)NULL);
+            handle = g_module_open(filename, G_MODULE_BIND_LOCAL);
+            g_free(filename);
+            if (handle == NULL)
             {
                 /*
                  * Only report load failures if we were asked to.
@@ -174,15 +175,16 @@ plugins_scan_dir(const char *dirname, plugin_load_failure_mode mode)
                  * only use libwiretap.
                  */
                 if (mode == REPORT_LOAD_FAILURE) {
-                    report_failure("Couldn't load module %s: %s", filename,
+                    /* g_module_error() provides filename. */
+                    report_failure("Couldn't load plugin '%s': %s", name,
                                    g_module_error());
                 }
                 continue;
             }
 
-            if (!g_module_symbol(handle, "version", &gp))
+            if (!g_module_symbol(handle, "version", &symbol))
             {
-                report_failure("The plugin %s has no version symbol", name);
+                report_failure("The plugin '%s' has no \"version\" symbol", name);
                 g_module_close(handle);
                 continue;
             }
@@ -190,7 +192,7 @@ plugins_scan_dir(const char *dirname, plugin_load_failure_mode mode)
             new_plug = (plugin *)g_malloc(sizeof(plugin));
             new_plug->handle = handle;
             new_plug->name = g_strdup(name);
-            new_plug->version = (char *)gp;
+            new_plug->version = (char *)symbol;
             new_plug->types = g_string_new(NULL);
 
             /*
