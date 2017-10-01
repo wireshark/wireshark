@@ -1,5 +1,5 @@
 #
-SUBDIRS = macosx rpm svr4 nsis wix
+SUBDIRS = macosx rpm nsis wix
 
 MAINTAINERCLEANFILES = \
 	Makefile.in

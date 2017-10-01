@@ -1061,30 +1061,13 @@ update-databases-and-caches-install: update-databases-and-caches-common
 
 update-databases-and-caches-uninstall: update-databases-and-caches-common
 
-# Used by svr4-package and osx-package
+# Used by osx-package
 # We load top_stagedir with an absolute path so that libtool doesn't freak.
 top_stagedir=$(abs_top_builddir)/packaging/staging
 stagedir=$(top_stagedir)/$(PACKAGE).inst
 
 host_cpu=@host_cpu@
 host_os=@host_os@
-
-solaris-package: svr4-package
-
-svr4-package: $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA)
-	@if test x$(HAVE_SVR4_PACKAGING) = xyes ; then \
-		rm -rf $(stagedir) ; \
-		$(MAKE) DESTDIR=$(stagedir) install; \
-		$(srcdir)/packaging/svr4/mkpkg \
-			$(PACKAGE) \
-			$(PACKAGE)-$(VERSION)-$(host_os)-$(host_cpu)-local \
-			$(prefix) \
-			$(top_stagedir) ; \
-	else \
-		echo "Error: SVR4 packaging tools not found." ; \
-		echo "Package build abandoned." ; \
-	fi
-
 
 rpm_topdir=`cd $(top_builddir) && pwd`/packaging/rpm
 if HAVE_RPM

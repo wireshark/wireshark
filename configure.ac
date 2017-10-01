@@ -464,19 +464,6 @@ AC_SUBST(A2X_LYNX)
 #
 AC_PATH_PROG(DESKTOP_FILE_INSTALL, desktop-file-install)
 
-# SVR4/Solaris
-AC_CHECK_PROG(HAVE_PKGPROTO, pkgproto, "yes", "no")
-AC_CHECK_PROG(HAVE_PKGMK, pkgmk, "yes", "no")
-AC_CHECK_PROG(HAVE_PKGTRANS, pkgtrans, "yes", "no")
-
-if test x$HAVE_PKGPROTO = xyes -a x$HAVE_PKGMK = xyes \
-     -a x$HAVE_PKGTRANS = xyes ; then
-  HAVE_SVR4_PACKAGING=yes
-else
-  HAVE_SVR4_PACKAGING=no
-fi
-AC_SUBST(HAVE_SVR4_PACKAGING)
-
 # RPM
 #
 # Looks for the rpmbuild program, and checks to see if we can redefine "_topdir".
@@ -3021,9 +3008,6 @@ AC_CONFIG_FILES(
   packaging/rpm/Makefile
   packaging/rpm/SPECS/Makefile
   packaging/rpm/SPECS/wireshark.spec
-  packaging/svr4/Makefile
-  packaging/svr4/checkinstall
-  packaging/svr4/pkginfo
   packaging/wix/Makefile
   plugins/Makefile
   plugins/docsis/Makefile
