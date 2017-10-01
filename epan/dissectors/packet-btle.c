@@ -395,6 +395,8 @@ static const true_false_string tfs_random_public = {
 void proto_register_btle(void);
 void proto_reg_handoff_btle(void);
 
+static gboolean btle_detect_retransmit = TRUE;
+
 static void
 btle_init(void)
 {
@@ -860,6 +862,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         guint8       control_opcode;
         guint32      direction = BTLE_DIR_UNKNOWN;
         gboolean     add_l2cap_index = FALSE;
+        gboolean     retransmit = FALSE;
 
         if (btle_context) {
             direction = btle_context->direction;
@@ -884,7 +887,6 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             connection_info = (connection_info_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
             if (connection_info) {
                 gchar  *str_addr_src, *str_addr_dst;
-                gint tmp_dir = 0;
                 /* Holds "unknown" + access_address + NULL, which is the longest string */
                 int     str_addr_len = 18 + 1;
 
@@ -897,11 +899,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 sub_item = proto_tree_add_ether(btle_tree, hf_slave_bd_addr, tvb, 0, 0, connection_info->slave_bd_addr);
                 PROTO_ITEM_SET_GENERATED(sub_item);
 
-                if (btle_context) {
-                    tmp_dir = btle_context->direction;
-                }
-
-                switch (tmp_dir) {
+                switch (direction) {
                 case BTLE_DIR_MASTER_SLAVE:
                     g_snprintf(str_addr_src, str_addr_len, "Master_0x%08x", connection_info->access_address);
                     g_snprintf(str_addr_dst, str_addr_len, "Slave_0x%08x", connection_info->access_address);
@@ -979,13 +977,21 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(data_header_tree, hf_data_header_llid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(data_header_tree, hf_data_header_next_expected_sequence_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         seq_item = proto_tree_add_item(data_header_tree, hf_data_header_sequence_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        if (btle_frame_info->retransmit == 0) {
-            proto_item_append_text(seq_item, " [OK]");
+
+        if (direction != BTLE_DIR_UNKNOWN) {
+            /* Unable to check valid SN or retransmission without direction */
+            if (btle_frame_info->retransmit == 0) {
+                proto_item_append_text(seq_item, " [OK]");
+            }
+            else {
+                proto_item_append_text(seq_item, " [Wrong]");
+                if (btle_detect_retransmit) {
+                    expert_add_info(pinfo, seq_item, &ei_retransmit);
+                    retransmit = TRUE;
+                }
+            }
         }
-        else {
-            proto_item_append_text(seq_item, " [Wrong SEQ]");
-            expert_add_info(pinfo, seq_item, &ei_retransmit);
-        }
+
         proto_tree_add_item(data_header_tree, hf_data_header_more_data, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(data_header_tree, hf_data_header_rfu, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         llid = tvb_get_guint8(tvb, offset) & 0x03;
@@ -1002,7 +1008,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 tvbuff_t *new_tvb = NULL;
 
                 pinfo->fragmented = TRUE;
-                if (connection_info && btle_frame_info->retransmit == 0) {
+                if (connection_info && !retransmit) {
                     if (!pinfo->fd->flags.visited) {
                         if (connection_info->direction_info[direction].segmentation_started == 1) {
                             if (connection_info->direction_info[direction].segment_len_rem >= length) {
@@ -1066,7 +1072,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     acl_data->remote_bd_addr_oui = 0;
                     acl_data->remote_bd_addr_id = 0;
                     acl_data->is_btle = TRUE;
-                    acl_data->is_btle_retransmit = (btle_frame_info->retransmit == 1);
+                    acl_data->is_btle_retransmit = retransmit;
 
                     next_tvb = tvb_new_subset_length(tvb, offset, length);
                     if (next_tvb) {
@@ -1092,7 +1098,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 guint le_frame_len = tvb_get_letohs(tvb, offset);
                 if (le_frame_len > length) {
                     pinfo->fragmented = TRUE;
-                    if (connection_info && btle_frame_info->retransmit == 0) {
+                    if (connection_info && !retransmit) {
                         if (!pinfo->fd->flags.visited) {
                             connection_info->direction_info[direction].segmentation_started = 1;
                             /* The first two octets in the L2CAP PDU contain the length of the entire
@@ -1147,7 +1153,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     acl_data->remote_bd_addr_oui = 0;
                     acl_data->remote_bd_addr_id  = 0;
                     acl_data->is_btle = TRUE;
-                    acl_data->is_btle_retransmit = (btle_frame_info->retransmit == 1);
+                    acl_data->is_btle_retransmit = retransmit;
 
                     next_tvb = tvb_new_subset_length(tvb, offset, length);
                     call_dissector_with_data(btl2cap_handle, next_tvb, pinfo, tree, acl_data);
@@ -1451,7 +1457,7 @@ proto_register_btle(void)
         { &hf_advertising_header_rfu_1,
             { "RFU",                             "btle.advertising_header.rfu.1",
             FT_UINT8, BASE_DEC, NULL, 0x10,
-            NULL, HFILL }
+            "Reserved for Future Use", HFILL }
         },
         { &hf_advertising_header_ch_sel,
             { "Channel Selection Algorithm",     "btle.advertising_header.ch_sel",
@@ -1561,7 +1567,7 @@ proto_register_btle(void)
         { &hf_data_header_llid,
             { "LLID",                            "btle.data_header.llid",
             FT_UINT8, BASE_HEX | BASE_EXT_STRING, &llid_codes_vals_ext, 0x03,
-            NULL, HFILL }
+            "Logical Link Identifier", HFILL }
         },
         { &hf_data_header_next_expected_sequence_number,
             { "Next Expected Sequence Number",   "btle.data_header.next_expected_sequence_number",
@@ -1586,7 +1592,7 @@ proto_register_btle(void)
         { &hf_data_header_rfu,
             { "RFU",                             "btle.data_header.rfu",
             FT_UINT8, BASE_DEC, NULL, 0xE0,
-            NULL, HFILL }
+            "Reserved for Future Use", HFILL }
         },
         { &hf_control_opcode,
             { "Control Opcode",                  "btle.control_opcode",
@@ -2056,8 +2062,13 @@ proto_register_btle(void)
 
     module = prefs_register_protocol(proto_btle, NULL);
     prefs_register_static_text_preference(module, "version",
-            "Bluetooth LE LL version: 4.1 (Core)",
+            "Bluetooth LE LL version: 5.0 (Core)",
             "Version of protocol supported by this dissector.");
+
+    prefs_register_bool_preference(module, "detect_retransmit",
+                                   "Detect retransmission",
+                                   "Detect retransmission based on SN (Sequence Number)",
+                                   &btle_detect_retransmit);
 
     reassembly_table_register(&btle_l2cap_msg_reassembly_table,
         &addresses_reassembly_table_functions);
