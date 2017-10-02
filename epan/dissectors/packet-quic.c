@@ -110,6 +110,7 @@ static dissector_handle_t ssl_handle;
 const value_string quic_version_vals[] = {
     { 0xff000004, "draft-04" },
     { 0xff000005, "draft-05" },
+    { 0xff000006, "draft-06" },
     { 0, NULL }
 };
 
