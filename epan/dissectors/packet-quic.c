@@ -153,7 +153,7 @@ static const value_string quic_long_packet_type_vals[] = {
 #define FT_PING             0x07
 #define FT_BLOCKED          0x08
 #define FT_STREAM_BLOCKED   0x09
-#define FT_STREAM_ID_NEEDED 0x0a
+#define FT_STREAM_ID_BLOCKED 0x0a
 #define FT_NEW_CONNECTION_ID 0x0b
 #define FT_STOP_SENDING     0x0c
 #define FT_ACK_MIN          0xa0
@@ -171,7 +171,7 @@ static const range_string quic_frame_type_vals[] = {
     { 0x07, 0x07,   "PING" },
     { 0x08, 0x08,   "BLOCKED" },
     { 0x09, 0x09,   "STREAM_BLOCKED" },
-    { 0x0a, 0x0a,   "STREAM_ID_NEEDED" },
+    { 0x0a, 0x0a,   "STREAM_ID_BLOCKED" },
     { 0x0b, 0x0b,   "NEW_CONNECTION_ID" },
     { 0x0c, 0x0c,   "STOP_SENDING" },
     { 0xa0, 0xbf,   "ACK" },
@@ -611,13 +611,13 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
 
             }
             break;
-            case FT_STREAM_ID_NEEDED:{
+            case FT_STREAM_ID_BLOCKED:{
 
                 /* No Payload */
 
                 proto_item_set_len(ti_ft, 1);
 
-                col_prepend_fstr(pinfo->cinfo, COL_INFO, "Stream ID Needed");
+                col_prepend_fstr(pinfo->cinfo, COL_INFO, "Stream ID Blocked");
             }
             break;
             case FT_NEW_CONNECTION_ID:{
