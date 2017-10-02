@@ -100,6 +100,7 @@ static int hf_pn_dcp_suboption_dhcp_device_id = -1;
 
 static int hf_pn_dcp_suboption_control = -1;
 static int hf_pn_dcp_suboption_control_response = -1;
+static int hf_pn_dcp_suboption_control_signal_value = -1;
 
 static int hf_pn_dcp_suboption_deviceinitiative = -1;
 static int hf_pn_dcp_deviceinitiative_value = -1;
@@ -250,6 +251,11 @@ static const value_string pn_dcp_suboption_ip_block_info[] = {
     { 0x0082, "IP set by DHCP (address conflict detected)" },
     /*0x0003 - 0xffff reserved */
     { 0, NULL }
+};
+
+static const value_string pn_dcp_suboption_control_signal_value[] = {
+    {0x0100, "Flash Once"},
+    {0, NULL}
 };
 
 #define PNDCP_SUBOPTION_DEVICE_MANUF            0x01
@@ -800,6 +806,7 @@ dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint16     block_length;
     guint16     block_qualifier;
     guint16     BlockQualifier;
+    guint16     u16SignalValue;
     gchar      *info_str;
     guint8      block_error;
     proto_item *item = NULL;
@@ -825,7 +832,7 @@ dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_qualifier, &block_qualifier);
         block_length -= 2;
 
-        offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, block_length);
+        offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_control_signal_value, &u16SignalValue);
         break;
     case PNDCP_SUBOPTION_CONTROL_RESPONSE:
         proto_item_append_text(block_item, "Control/Response");
@@ -1324,6 +1331,11 @@ proto_register_pn_dcp (void)
           { "Response", "pn_dcp.suboption_control_response",
             FT_UINT8, BASE_DEC, VALS(pn_dcp_option), 0x0,
             NULL, HFILL }},
+
+        { &hf_pn_dcp_suboption_control_signal_value,
+          { "SignalValue", "pn_dcp.suboption_control_signal_value",
+            FT_UINT16, BASE_HEX, VALS(pn_dcp_suboption_control_signal_value), 0x0,
+            NULL, HFILL } },
 
         { &hf_pn_dcp_suboption_deviceinitiative,
           { "Suboption", "pn_dcp.suboption_deviceinitiative",
