@@ -843,7 +843,7 @@ static const value_string gtpv2_message_type_vals[] = {
 };
 static value_string_ext gtpv2_message_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_message_type_vals);
 
-#define NUM_GTPV2_IES 255
+#define NUM_GTPV2_IES 256
 static gint ett_gtpv2_ies[NUM_GTPV2_IES];
 
 #define GTPV2_IE_RESERVED                 0
@@ -1175,7 +1175,7 @@ static const value_string gtpv2_element_type_vals[] = {
     {197, "Extended Protocol Configuration Options(ePCO)"},                     /* Variable Length / 8.128 */
     {198, "Serving PLMN Rate Control"},                                         /* Extendable / 8.129 */
     {199, "Counter" },                                                          /* Extendable / 8.130 */
-                                                                                /* 1200 to 254    Spare. For future use.    */
+                                                                                /* 200 to 254    Spare. For future use.    */
     {255, "Private Extension"},                                                 /* Variable Length / 8.67 */
     {0, NULL}
 };
