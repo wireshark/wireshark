@@ -20,6 +20,9 @@ libwireshark.so.0 libwireshark0 #MINVER#
  _try_val_to_str_ext_init@Base 1.9.1
  abs_time_secs_to_str@Base 1.99.0
  abs_time_to_str@Base 1.99.0
+ add_conversation_table_data@Base 2.5.0
+ add_conversation_table_data_with_conv_id@Base 2.5.0
+ add_hostlist_table_data@Base 2.5.0
  add_hosts_file@Base 1.9.1
  add_ip_name_from_string@Base 1.9.1
  add_ipv4_name@Base 1.9.1
@@ -1273,6 +1276,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  register_capture_dissector_table@Base 2.1.0
  register_cleanup_routine@Base 1.99.8
  register_conversation_filter@Base 2.0.0
+ register_conversation_table@Base 2.5.0
  register_count@Base 1.9.1
  register_custom_dissector_table@Base 1.99.8
  register_custom_dissector_table@Base 1.99.8

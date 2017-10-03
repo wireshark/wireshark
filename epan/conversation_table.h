@@ -153,7 +153,7 @@ typedef struct _hostlist_talker_t {
  * @param conv_packet_func the registered conversation tap name
  * @param hostlist_func the registered hostlist tap name
  */
-extern void register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_cb conv_packet_func, tap_packet_cb hostlist_func);
+WS_DLL_PUBLIC void register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_cb conv_packet_func, tap_packet_cb hostlist_func);
 
 /** Should port columns be hidden?
  *
@@ -292,9 +292,9 @@ WS_DLL_PUBLIC char *get_hostlist_filter(hostlist_talker_t *host);
  * @param ct_info callback handlers from the dissector
  * @param ptype the port type (e.g. PT_TCP)
  */
-extern void add_conversation_table_data(conv_hash_t *ch, const address *src, const address *dst,
-            guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, nstime_t *ts, nstime_t *abs_ts,
-            ct_dissector_info_t *ct_info, port_type ptype);
+WS_DLL_PUBLIC void add_conversation_table_data(conv_hash_t *ch, const address *src, const address *dst,
+    guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, nstime_t *ts, nstime_t *abs_ts,
+    ct_dissector_info_t *ct_info, port_type ptype);
 
 /** Add some data to the conversation table, passing a value to be used in
  *  addition to the address and port quadruple to uniquely identify the
@@ -313,7 +313,7 @@ extern void add_conversation_table_data(conv_hash_t *ch, const address *src, con
  * @param ptype the port type (e.g. PT_TCP)
  * @param conv_id a value to help differentiate the conversation in case the address and port quadruple is not sufficiently unique
  */
-extern void
+WS_DLL_PUBLIC void
 add_conversation_table_data_with_conv_id(conv_hash_t *ch, const address *src, const address *dst, guint32 src_port,
     guint32 dst_port, conv_id_t conv_id, int num_frames, int num_bytes,
     nstime_t *ts, nstime_t *abs_ts, ct_dissector_info_t *ct_info, port_type ptype);
@@ -329,8 +329,8 @@ add_conversation_table_data_with_conv_id(conv_hash_t *ch, const address *src, co
  * @param host_info conversation information provided by dissector
  * @param port_type_val the port type (e.g. PT_TCP)
  */
-void add_hostlist_table_data(conv_hash_t *ch, const address *addr,
-                             guint32 port, gboolean sender, int num_frames, int num_bytes, hostlist_dissector_info_t *host_info, port_type port_type_val);
+WS_DLL_PUBLIC void add_hostlist_table_data(conv_hash_t *ch, const address *addr,
+    guint32 port, gboolean sender, int num_frames, int num_bytes, hostlist_dissector_info_t *host_info, port_type port_type_val);
 
 #ifdef __cplusplus
 }
