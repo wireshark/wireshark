@@ -13292,19 +13292,19 @@ proto_register_nfs(void)
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_supp_xattr_read,
-			{ "0x020 EXECUTE", "nfs.access_supp_xattr_read",
+			{ "0x040 XATTR READ", "nfs.access_supp_xattr_read",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_supp), NFS_ACCESS_MASK_XATTR_READ,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_supp_xattr_write,
-			{ "0x020 EXECUTE", "nfs.access_supp_xattr_write",
+			{ "0x080 XATTR WRITE", "nfs.access_supp_xattr_write",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_supp), NFS_ACCESS_MASK_XATTR_WRITE,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_supp_xattr_list,
-			{ "0x020 EXECUTE", "nfs.access_supp_xattr_list",
+			{ "0x100 XATTR LIST", "nfs.access_supp_xattr_list",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_supp), NFS_ACCESS_MASK_XATTR_LIST,
 			NULL, HFILL }
@@ -13346,19 +13346,19 @@ proto_register_nfs(void)
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_xattr_read,
-			{ "0x020 XATTR READ", "nfs.access_xattr_read",
+			{ "0x040 XATTR READ", "nfs.access_xattr_read",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_rights), NFS_ACCESS_MASK_XATTR_READ,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_xattr_write,
-			{ "0x020 XATTR WRITE", "nfs.access_xattr_write",
+			{ "0x080 XATTR WRITE", "nfs.access_xattr_write",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_rights), NFS_ACCESS_MASK_XATTR_WRITE,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_xattr_list,
-			{ "0x020 XTATTR LIST", "nfs.access_xattr_list",
+			{ "0x100 XATTR LIST", "nfs.access_xattr_list",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_rights), NFS_ACCESS_MASK_XATTR_LIST,
 			NULL, HFILL }
