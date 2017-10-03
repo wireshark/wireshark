@@ -6995,13 +6995,18 @@ tls_dissect_sct(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo, pro
      *      digitally-signed struct { ... };
      *  } SignedCertificateTimestamp;
      */
+    guint32     sct_version;
     guint64     sct_timestamp_ms;
     nstime_t    sct_timestamp;
     guint32     exts_len;
     const gchar *log_name;
 
-    proto_tree_add_item(tree, hf->hf.sct_sct_version, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint(tree, hf->hf.sct_sct_version, tvb, offset, 1, ENC_NA, &sct_version);
     offset++;
+    if (sct_version != 0) {
+        // TODO expert info about unknown SCT version?
+        return offset;
+    }
     proto_tree_add_item(tree, hf->hf.sct_sct_logid, tvb, offset, 32, ENC_BIG_ENDIAN);
     log_name = bytesval_to_str(tvb_get_ptr(tvb, offset, 32), 32, ct_logids, "Unknown Log");
     proto_item_append_text(tree, " (%s)", log_name);
@@ -8035,7 +8040,8 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             // TODO dissect CertificateStatus for SSL_HND_CERTIFICATE (TLS 1.3)
             break;
         case SSL_HND_HELLO_EXT_SIGNED_CERTIFICATE_TIMESTAMP:
-            if (hnd_type == SSL_HND_SERVER_HELLO || hnd_type == SSL_HND_ENCRYPTED_EXTENSIONS)
+            // TLS 1.3 note: SCT only appears in EE in draft -16 and before.
+            if (hnd_type == SSL_HND_SERVER_HELLO || hnd_type == SSL_HND_ENCRYPTED_EXTENSIONS || hnd_type == SSL_HND_CERTIFICATE)
                 offset = tls_dissect_sct_list(hf, tvb, pinfo, ext_tree, offset, next_offset, session->version);
             break;
         case SSL_HND_HELLO_EXT_CLIENT_CERT_TYPE:
