@@ -66,12 +66,18 @@ static int hf_nfs_access_supp_modify = -1;
 static int hf_nfs_access_supp_extend = -1;
 static int hf_nfs_access_supp_delete = -1;
 static int hf_nfs_access_supp_execute = -1;
+static int hf_nfs_access_supp_xattr_read = -1;
+static int hf_nfs_access_supp_xattr_write = -1;
+static int hf_nfs_access_supp_xattr_list = -1;
 static int hf_nfs_access_read = -1;
 static int hf_nfs_access_lookup = -1;
 static int hf_nfs_access_modify = -1;
 static int hf_nfs_access_extend = -1;
 static int hf_nfs_access_delete = -1;
 static int hf_nfs_access_execute = -1;
+static int hf_nfs_access_xattr_read = -1;
+static int hf_nfs_access_xattr_write = -1;
+static int hf_nfs_access_xattr_list = -1;
 static int hf_nfs_access_denied = -1;
 static int hf_nfs_fh_length = -1;
 static int hf_nfs_fh_hash = -1;
@@ -4510,13 +4516,16 @@ dissect_nfs3_lookup_reply(tvbuff_t *tvb, packet_info *pinfo,
 
 
 static const value_string accvs[] = {
-	{ 0x01,	"RD" },
-	{ 0x02,	"LU" },
-	{ 0x04,	"MD" },
-	{ 0x08,	"XT" },
-	{ 0x10,	"DL" },
-	{ 0x20,	"XE" },
-	{ 0,	NULL }
+	{ 0x001,	"RD" },
+	{ 0x002,	"LU" },
+	{ 0x004,	"MD" },
+	{ 0x008,	"XT" },
+	{ 0x010,	"DL" },
+	{ 0x020,	"XE" },
+	{ 0x040,	"XAR" },
+	{ 0x080,	"XAW" },
+	{ 0x100,	"XAL" },
+	{ 0,		NULL }
 };
 
 static const true_false_string tfs_access_supp	 = { "supported",	"!NOT Supported!"};
@@ -4570,7 +4579,7 @@ display_access_items(tvbuff_t* tvb, int offset, packet_info* pinfo, proto_tree *
 		proto_item_append_text(tree, ", [%s:", label);
 	}
 
-	for (itype=0; itype < 6; itype++) {
+	for (itype=0; itype < 9; itype++) {
 		if (amask & accvs[itype].value) {
 			if (mtype != 'S' && mtype != 'R')	{
 				/* List access type in Info column and tree */
@@ -4612,6 +4621,21 @@ display_access_items(tvbuff_t* tvb, int offset, packet_info* pinfo, proto_tree *
 					case 5:
 						access_subitem = proto_tree_add_item (access_subtree,
 							(mtype == 'S' ? hf_nfs_access_supp_execute : hf_nfs_access_execute),
+							tvb, offset, 4, ENC_BIG_ENDIAN);
+						break;
+					case 6:
+						access_subitem = proto_tree_add_item (access_subtree,
+							(mtype == 'S' ? hf_nfs_access_supp_xattr_read : hf_nfs_access_xattr_read),
+							tvb, offset, 4, ENC_BIG_ENDIAN);
+						break;
+					case 7:
+						access_subitem = proto_tree_add_item (access_subtree,
+							(mtype == 'S' ? hf_nfs_access_supp_xattr_write : hf_nfs_access_xattr_write),
+							tvb, offset, 4, ENC_BIG_ENDIAN);
+						break;
+					case 8:
+						access_subitem = proto_tree_add_item (access_subtree,
+							(mtype == 'S' ? hf_nfs_access_supp_xattr_list : hf_nfs_access_xattr_list),
 							tvb, offset, 4, ENC_BIG_ENDIAN);
 						break;
 				}
@@ -13232,75 +13256,111 @@ proto_register_nfs(void)
 			"Access rights for the types requested", HFILL }
 		},
 		{ &hf_nfs_access_supp_read,
-			{ "0x01 READ", "nfs.access_supp_read",
+			{ "0x001 READ", "nfs.access_supp_read",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_supp), NFS_ACCESS_MASK_READ,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_supp_lookup,
-			{ "0x02 LOOKUP", "nfs.access_supp_lookup",
+			{ "0x002 LOOKUP", "nfs.access_supp_lookup",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_supp), NFS_ACCESS_MASK_LOOKUP,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_supp_modify,
-			{ "0x04 MODIFY", "nfs.access_supp_modify",
+			{ "0x004 MODIFY", "nfs.access_supp_modify",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_supp), NFS_ACCESS_MASK_MODIFY,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_supp_extend,
-			{ "0x08 EXTEND", "nfs.access_supp_extend",
+			{ "0x008 EXTEND", "nfs.access_supp_extend",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_supp), NFS_ACCESS_MASK_EXTEND,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_supp_delete,
-			{ "0x10 DELETE", "nfs.access_supp_delete",
+			{ "0x010 DELETE", "nfs.access_supp_delete",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_supp), NFS_ACCESS_MASK_DELETE,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_supp_execute,
-			{ "0x20 EXECUTE", "nfs.access_supp_execute",
+			{ "0x020 EXECUTE", "nfs.access_supp_execute",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_supp), NFS_ACCESS_MASK_EXECUTE,
 			NULL, HFILL }
 		},
+		{ &hf_nfs_access_supp_xattr_read,
+			{ "0x020 EXECUTE", "nfs.access_supp_xattr_read",
+			FT_BOOLEAN, 8,
+			TFS(&tfs_access_supp), NFS_ACCESS_MASK_XATTR_READ,
+			NULL, HFILL }
+		},
+		{ &hf_nfs_access_supp_xattr_write,
+			{ "0x020 EXECUTE", "nfs.access_supp_xattr_write",
+			FT_BOOLEAN, 8,
+			TFS(&tfs_access_supp), NFS_ACCESS_MASK_XATTR_WRITE,
+			NULL, HFILL }
+		},
+		{ &hf_nfs_access_supp_xattr_list,
+			{ "0x020 EXECUTE", "nfs.access_supp_xattr_list",
+			FT_BOOLEAN, 8,
+			TFS(&tfs_access_supp), NFS_ACCESS_MASK_XATTR_LIST,
+			NULL, HFILL }
+		},
 		{ &hf_nfs_access_read,
-			{ "0x01 READ", "nfs.access_read",
+			{ "0x001 READ", "nfs.access_read",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_rights), NFS_ACCESS_MASK_READ,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_lookup,
-			{ "0x02 LOOKUP", "nfs.access_lookup",
+			{ "0x002 LOOKUP", "nfs.access_lookup",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_rights), NFS_ACCESS_MASK_LOOKUP,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_modify,
-			{ "0x04 MODIFY", "nfs.access_modify",
+			{ "0x004 MODIFY", "nfs.access_modify",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_rights), NFS_ACCESS_MASK_MODIFY,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_extend,
-			{ "0x08 EXTEND", "nfs.access_extend",
+			{ "0x008 EXTEND", "nfs.access_extend",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_rights), NFS_ACCESS_MASK_EXTEND,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_delete,
-			{ "0x10 DELETE", "nfs.access_delete",
+			{ "0x010 DELETE", "nfs.access_delete",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_rights), NFS_ACCESS_MASK_DELETE,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_execute,
-			{ "0x20 EXECUTE", "nfs.access_execute",
+			{ "0x020 EXECUTE", "nfs.access_execute",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_rights), NFS_ACCESS_MASK_EXECUTE,
+			NULL, HFILL }
+		},
+		{ &hf_nfs_access_xattr_read,
+			{ "0x020 XATTR READ", "nfs.access_xattr_read",
+			FT_BOOLEAN, 8,
+			TFS(&tfs_access_rights), NFS_ACCESS_MASK_XATTR_READ,
+			NULL, HFILL }
+		},
+		{ &hf_nfs_access_xattr_write,
+			{ "0x020 XATTR WRITE", "nfs.access_xattr_write",
+			FT_BOOLEAN, 8,
+			TFS(&tfs_access_rights), NFS_ACCESS_MASK_XATTR_WRITE,
+			NULL, HFILL }
+		},
+		{ &hf_nfs_access_xattr_list,
+			{ "0x020 XTATTR LIST", "nfs.access_xattr_list",
+			FT_BOOLEAN, 8,
+			TFS(&tfs_access_rights), NFS_ACCESS_MASK_XATTR_LIST,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_denied,
