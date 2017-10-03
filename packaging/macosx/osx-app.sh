@@ -111,10 +111,6 @@ OPTIONS
 		Specify the path to the libraries Wireshark depends on
 		(typically /sw or /opt/local). By default it is
 		/usr/local.
-	-cb,--create-bundle
-		Create the application bundle (Wireshark.app). This flag
-		should be supplied when building using Autotools. It
-		should not be specified when building using CMake.
 	-bp,--binary-path
 		Specify the path to the Wireshark binaries. By default it
 		is /tmp/inst/bin.
@@ -241,105 +237,11 @@ pkgplugin=$( find "$bundle/Contents/PlugIns/wireshark" -type d -maxdepth 1 -name
 # Set the 'macosx' directory, usually the current directory.
 resdir=`pwd`
 
-# Create the application bundle.
-# This is only used by Autotools. This can be removed if we start using
-# CMake exclusively.
-create_bundle() {
-	# Remove a previously existing bundle if necessary
-	if [ -d $bundle ]; then
-		echo "Removing previous $bundle"
-		rm -Rf $bundle
-	fi
-
-	# Prepare Package
-	#----------------------------------------------------------
-
-	mkdir -p "$pkgexec"
-	mkdir -p "$pkgexec/extcap"
-	mkdir -p "$pkgbin"
-	mkdir -p "$pkgplugin"
-
-	# Copy all files into the bundle
-	#----------------------------------------------------------
-	echo -e "\nFilling app bundle and utility directory...\n"
-
-	# Wireshark executables
-	cp -v "$binary_path/$wireshark_bin_name" "$pkgexec/Wireshark"
-	cs_binary_list="$cs_binary_list $pkgexec/Wireshark"
-	for binary in $cli_binary_list ; do
-		# Copy the binary to the executable directory
-		cp -v "$binary_path/$binary" "$pkgexec"
-		cs_binary_list="$cs_binary_list $pkgexec/$binary"
-	done
-
-	#
-	# extcap binaries
-	#
-	for binary in $extcap_binary_list ; do
-		# Copy the binary to its destination
-		binary=$( basename $binary )
-		bin_dest="$pkgexec/extcap"
-		cp -v "$extcap_path/$binary" "$bin_dest"
-		cs_binary_list="$cs_binary_list $bin_dest/$binary"
-	done
-
-	#
-	# Executable launchers in $pkgbin
-	#
-	# We can't just symbolically link to the executables, as
-	# that means that the executable won't be in Contents/MacOS,
-	# which means that all @executable_path-relative references
-	# will go to the wrong place if we run the executables using
-	# the symlink, which means that the executables could fail
-	# (they *do* fail to find the Cocoa Qt plugin, for example).
-	#
-	cp utility-launcher/wireshark $pkgbin
-	for binary in $cli_binary_list ; do
-		ln -s ./wireshark $pkgbin/$binary
-	done
-
-	# The rest of the Wireshark installation (we handled bin above)
-	rsync -av \
-		--exclude bin/ \
-		--exclude lib/ \
-		"$binary_path/.."/* "$pkgres"
-
-	rsync -av $library_path/*.dylib "$pkglib/"
-
-	# Copy the plugins from the "make install" location for them
-	# to the plugin directory, removing the version number
-	find "$plugin_path" \
-		-type f \
-		\( -name "*.so" -o -name "*.dylib" \) \
-		-exec cp -fv "{}" "$pkgplugin/" \;
-
-	cp "$plist" "$bundle/Contents/Info.plist"
-
-	# Icons and the rest of the script framework
-	res_list="
-		Wireshark.icns
-		Wiresharkdoc.icns
-	"
-
-	for rl_entry in $res_list ; do
-		rsync -av "$resdir"/$rl_entry "$bundle"/Contents/Resources/
-	done
-
-	# PkgInfo must match bundle type and creator code from Info.plist
-	echo "APPLWshk" > $bundle/Contents/PkgInfo
-
-} # create_bundle
-
-if [ "$create_bundle" = "true" ]; then
-	create_bundle
-fi
-
 if [ -z "$cs_binary_list" ]; then
 	for binary in Wireshark $cli_binary_list ; do
 		cs_binary_list="$cs_binary_list $pkgexec/$binary"
 	done
 fi
-
 
 echo -e "\nFixing up $bundle...\n"
 
