@@ -56,6 +56,7 @@
 #include "packet-x509af.h"
 #include "packet-x509if.h"
 #include "packet-ssl-utils.h"
+#include "packet-ocsp.h"
 #include "packet-ssl.h"
 #include "packet-dtls.h"
 #if defined(HAVE_LIBGNUTLS)
@@ -6601,9 +6602,31 @@ ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 }
 
 static gint
-ssl_dissect_hnd_hello_ext_status_request(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
-                                         guint32 offset, gboolean has_length)
+ssl_dissect_hnd_hello_ext_status_request(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                                         proto_tree *tree, guint32 offset, guint32 offset_end,
+                                         gboolean has_length)
 {
+    /* TLS 1.2/1.3 status_request Client Hello Extension.
+     * TLS 1.2 status_request_v2 CertificateStatusRequestItemV2 type.
+     * https://tools.ietf.org/html/rfc6066#section-8 (status_request)
+     * https://tools.ietf.org/html/rfc6961#section-2.2 (status_request_v2)
+     *  struct {
+     *      CertificateStatusType status_type;
+     *      uint16 request_length;  // for status_request_v2
+     *      select (status_type) {
+     *          case ocsp: OCSPStatusRequest;
+     *          case ocsp_multi: OCSPStatusRequest;
+     *      } request;
+     *  } CertificateStatusRequest; // CertificateStatusRequestItemV2
+     *
+     *  enum { ocsp(1), ocsp_multi(2), (255) } CertificateStatusType;
+     *  struct {
+     *      ResponderID responder_id_list<0..2^16-1>;
+     *      Extensions  request_extensions;
+     *  } OCSPStatusRequest;
+     *  opaque ResponderID<1..2^16-1>;
+     *  opaque Extensions<0..2^16-1>;
+     */
     guint    cert_status_type;
 
     cert_status_type = tvb_get_guint8(tvb, offset);
@@ -6621,37 +6644,36 @@ ssl_dissect_hnd_hello_ext_status_request(ssl_common_dissect_t *hf, tvbuff_t *tvb
     case SSL_HND_CERT_STATUS_TYPE_OCSP:
     case SSL_HND_CERT_STATUS_TYPE_OCSP_MULTI:
         {
-            guint16      responder_id_list_len;
-            guint16      request_extensions_len;
-            proto_item  *responder_id;
-            proto_item  *request_extensions;
+            guint32      responder_id_list_len;
+            guint32      request_extensions_len;
 
-            responder_id_list_len = tvb_get_ntohs(tvb, offset);
-            responder_id =
-                proto_tree_add_item(tree,
-                                    hf->hf.hs_ext_cert_status_responder_id_list_len,
-                                    tvb, offset, 2, ENC_BIG_ENDIAN);
+            /* ResponderID responder_id_list<0..2^16-1> */
+            if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &responder_id_list_len,
+                                hf->hf.hs_ext_cert_status_responder_id_list_len, 0, G_MAXUINT16)) {
+                return offset_end;
+            }
             offset += 2;
             if (responder_id_list_len != 0) {
-                expert_add_info_format(NULL, responder_id,
-                                       &hf->ei.hs_ext_cert_status_undecoded,
+                proto_tree_add_expert_format(tree, pinfo, &hf->ei.hs_ext_cert_status_undecoded,
+                                             tvb, offset, responder_id_list_len,
                                        "Responder ID list is not implemented, contact Wireshark"
                                        " developers if you want this to be supported");
-                /* Non-empty responder ID list would mess with extensions. */
-                break;
             }
+            offset += responder_id_list_len;
 
-            request_extensions_len = tvb_get_ntohs(tvb, offset);
-            request_extensions =
-                proto_tree_add_item(tree,
-                                    hf->hf.hs_ext_cert_status_request_extensions_len, tvb, offset,
-                                    2, ENC_BIG_ENDIAN);
+            /* opaque Extensions<0..2^16-1> */
+            if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &request_extensions_len,
+                                hf->hf.hs_ext_cert_status_request_extensions_len, 0, G_MAXUINT16)) {
+                return offset_end;
+            }
             offset += 2;
-            if (request_extensions_len != 0)
-                expert_add_info_format(NULL, request_extensions,
-                                       &hf->ei.hs_ext_cert_status_undecoded,
+            if (request_extensions_len != 0) {
+                proto_tree_add_expert_format(tree, pinfo, &hf->ei.hs_ext_cert_status_undecoded,
+                                             tvb, offset, request_extensions_len,
                                        "Request Extensions are not implemented, contact"
                                        " Wireshark developers if you want this to be supported");
+            }
+            offset += request_extensions_len;
             break;
         }
     }
@@ -6659,19 +6681,101 @@ ssl_dissect_hnd_hello_ext_status_request(ssl_common_dissect_t *hf, tvbuff_t *tvb
     return offset;
 }
 
-static gint
-ssl_dissect_hnd_hello_ext_status_request_v2(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
-                                            guint32 offset)
+static guint
+ssl_dissect_hnd_hello_ext_status_request_v2(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                                            proto_tree *tree, guint32 offset, guint32 offset_end)
 {
-    gint32   list_len;
+    /* https://tools.ietf.org/html/rfc6961#section-2.2
+     *  struct {
+     *    CertificateStatusRequestItemV2 certificate_status_req_list<1..2^16-1>;
+     *  } CertificateStatusRequestListV2;
+     */
+    guint32 req_list_length, next_offset;
 
-    list_len = tvb_get_ntohs(tvb, offset);
+    /* CertificateStatusRequestItemV2 certificate_status_req_list<1..2^16-1> */
+    if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &req_list_length,
+                        hf->hf.hs_ext_cert_status_request_list_len, 1, G_MAXUINT16)) {
+        return offset_end;
+    }
     offset += 2;
+    next_offset = offset + req_list_length;
 
-    while (list_len > 0) {
-        guint32 prev_offset = offset;
-        offset = ssl_dissect_hnd_hello_ext_status_request(hf, tvb, tree, offset, TRUE);
-        list_len -= (offset - prev_offset);
+    while (offset < next_offset) {
+        offset = ssl_dissect_hnd_hello_ext_status_request(hf, tvb, pinfo, tree, offset, next_offset, TRUE);
+    }
+
+    return offset;
+}
+
+static guint32
+tls_dissect_ocsp_response(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                          guint32 offset, guint32 offset_end)
+{
+    guint32     response_length;
+    proto_item *ocsp_resp;
+    proto_tree *ocsp_resp_tree;
+    asn1_ctx_t  asn1_ctx;
+
+    /* opaque OCSPResponse<1..2^24-1>; */
+    if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &response_length,
+                        hf->hf.hs_ocsp_response_len, 1, G_MAXUINT24)) {
+        return offset_end;
+    }
+    offset += 3;
+
+    ocsp_resp = proto_tree_add_item(tree, proto_ocsp, tvb, offset,
+                                    response_length, ENC_BIG_ENDIAN);
+    proto_item_set_text(ocsp_resp, "OCSP Response");
+    ocsp_resp_tree = proto_item_add_subtree(ocsp_resp, hf->ett.ocsp_response);
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+    dissect_ocsp_OCSPResponse(FALSE, tvb, offset, &asn1_ctx, ocsp_resp_tree, -1);
+    offset += response_length;;
+
+    return offset;
+}
+
+guint32
+tls_dissect_hnd_certificate_status(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                                   proto_tree *tree, guint32 offset, guint32 offset_end)
+{
+    /* TLS 1.2 "CertificateStatus" handshake message.
+     * TLS 1.3 "status_request" Certificate extension.
+     *  struct {
+     *    CertificateStatusType status_type;
+     *    select (status_type) {
+     *      case ocsp: OCSPResponse;
+     *      case ocsp_multi: OCSPResponseList;  // status_request_v2
+     *    } response;
+     *  } CertificateStatus;
+     *  opaque OCSPResponse<1..2^24-1>;
+     *  struct {
+     *    OCSPResponse ocsp_response_list<1..2^24-1>;
+     *  } OCSPResponseList;                     // status_request_v2
+     */
+    guint32     status_type, resp_list_length, next_offset;
+
+    proto_tree_add_item_ret_uint(tree, hf->hf.hs_ext_cert_status_type,
+                                 tvb, offset, 1, ENC_BIG_ENDIAN, &status_type);
+    offset += 1;
+
+    switch (status_type) {
+    case SSL_HND_CERT_STATUS_TYPE_OCSP:
+        offset = tls_dissect_ocsp_response(hf, tvb, pinfo, tree, offset, offset_end);
+        break;
+
+    case SSL_HND_CERT_STATUS_TYPE_OCSP_MULTI:
+        /* OCSPResponse ocsp_response_list<1..2^24-1> */
+        if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &resp_list_length,
+                            hf->hf.hs_ocsp_response_list_len, 1, G_MAXUINT24)) {
+            return offset_end;
+        }
+        offset += 3;
+        next_offset = offset + resp_list_length;
+
+        while (offset < next_offset) {
+            offset = tls_dissect_ocsp_response(hf, tvb, pinfo, tree, offset, next_offset);
+        }
+        break;
     }
 
     return offset;
@@ -7744,6 +7848,7 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
     guint32     ext_len;
     guint32     next_offset;
     proto_tree *ext_tree;
+    gboolean    is_tls13 = session->version == TLSV1DOT3_VERSION;
 
     /* Extension extensions<0..2^16-2> (for TLS 1.3 HRR/CR min-length is 2) */
     if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &exts_len,
@@ -7780,9 +7885,11 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             offset = ssl_dissect_hnd_hello_ext_server_name(hf, tvb, pinfo, ext_tree, offset, next_offset);
             break;
         case SSL_HND_HELLO_EXT_STATUS_REQUEST:
-            if (hnd_type == SSL_HND_CLIENT_HELLO)
-                offset = ssl_dissect_hnd_hello_ext_status_request(hf, tvb, ext_tree, offset, FALSE);
-            // TODO dissect CertificateStatus for SSL_HND_CERTIFICATE (TLS 1.3)
+            if (hnd_type == SSL_HND_CLIENT_HELLO) {
+                offset = ssl_dissect_hnd_hello_ext_status_request(hf, tvb, pinfo, ext_tree, offset, next_offset, FALSE);
+            } else if (is_tls13 && hnd_type == SSL_HND_CERTIFICATE) {
+                offset = tls_dissect_hnd_certificate_status(hf, tvb, pinfo, ext_tree, offset, next_offset);
+            }
             break;
         case SSL_HND_HELLO_EXT_CERT_TYPE:
             offset = ssl_dissect_hnd_hello_ext_cert_type(hf, tvb, ext_tree,
@@ -7816,8 +7923,7 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             break;
         case SSL_HND_HELLO_EXT_STATUS_REQUEST_V2:
             if (hnd_type == SSL_HND_CLIENT_HELLO)
-                offset = ssl_dissect_hnd_hello_ext_status_request_v2(hf, tvb, ext_tree, offset);
-            // TODO dissect CertificateStatus for SSL_HND_CERTIFICATE (TLS 1.3)
+                offset = ssl_dissect_hnd_hello_ext_status_request_v2(hf, tvb, pinfo, ext_tree, offset, next_offset);
             break;
         case SSL_HND_HELLO_EXT_SIGNED_CERTIFICATE_TIMESTAMP:
             // TLS 1.3 note: SCT only appears in EE in draft -16 and before.

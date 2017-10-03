@@ -100,7 +100,6 @@
 #include <wsutil/rsa.h>
 #include "packet-tcp.h"
 #include "packet-x509af.h"
-#include "packet-ocsp.h"
 #include "packet-ssl.h"
 #include "packet-ssl-utils.h"
 #include "packet-ber.h"
@@ -143,9 +142,6 @@ static gint hf_ssl_alert_message_description  = -1;
 static gint hf_ssl_handshake_protocol         = -1;
 static gint hf_ssl_handshake_type             = -1;
 static gint hf_ssl_handshake_length           = -1;
-static gint hf_ssl_handshake_cert_status      = -1;
-static gint hf_ssl_handshake_cert_status_type = -1;
-static gint hf_ssl_handshake_cert_status_len  = -1;
 static gint hf_ssl_handshake_npn_selected_protocol_len = -1;
 static gint hf_ssl_handshake_npn_selected_protocol = -1;
 static gint hf_ssl_handshake_npn_padding_len = -1;
@@ -250,8 +246,6 @@ static gint ett_ssl_alert             = -1;
 static gint ett_ssl_handshake         = -1;
 static gint ett_ssl_heartbeat         = -1;
 static gint ett_ssl_certs             = -1;
-static gint ett_ssl_cert_status       = -1;
-static gint ett_ssl_ocsp_resp         = -1;
 static gint ett_pct_cipher_suites     = -1;
 static gint ett_pct_hash_suites       = -1;
 static gint ett_pct_cert_suites       = -1;
@@ -569,11 +563,6 @@ static void dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
                                    proto_tree *tree, guint32 offset,
                                    const SslSession *session, guint32 record_length,
                                    gboolean decrypted);
-
-static void dissect_ssl3_hnd_cert_status(tvbuff_t *tvb,
-                                         proto_tree *tree,
-                                         guint32 offset,
-                                         packet_info *pinfo);
 
 static void dissect_ssl3_hnd_encrypted_exts(tvbuff_t *tvb,
                                             proto_tree *tree,
@@ -2264,7 +2253,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_CERT_STATUS:
-                dissect_ssl3_hnd_cert_status(tvb, ssl_hand_tree, offset, pinfo);
+                tls_dissect_hnd_certificate_status(&dissect_ssl3_hf, tvb, pinfo, ssl_hand_tree, offset, offset + length);
                 break;
 
             case SSL_HND_SUPPLEMENTAL_DATA:
@@ -2380,76 +2369,6 @@ dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
                             val_to_str_const(session->version, ssl_version_short_names, "SSL"));
         proto_item_set_text(tls_heartbeat_tree,
                             "Encrypted Heartbeat Message");
-    }
-}
-
-static guint
-dissect_ssl3_ocsp_response(tvbuff_t *tvb, proto_tree *tree,
-                           guint32 offset, packet_info *pinfo)
-{
-    guint       cert_status_len;
-    proto_item *ti;
-    proto_tree *cert_status_tree;
-
-    cert_status_len  = tvb_get_ntoh24(tvb, offset);
-    ti = proto_tree_add_item(tree, hf_ssl_handshake_cert_status,
-                                    tvb, offset, cert_status_len + 3,
-                                    ENC_NA);
-    cert_status_tree = proto_item_add_subtree(ti, ett_ssl_cert_status);
-
-    proto_tree_add_item(cert_status_tree, hf_ssl_handshake_cert_status_len,
-                        tvb, offset, 3, ENC_BIG_ENDIAN);
-    offset += 3;
-
-    if (cert_status_len > 0) {
-        proto_item *ocsp_resp;
-        proto_tree *ocsp_resp_tree;
-        asn1_ctx_t asn1_ctx;
-
-        ocsp_resp = proto_tree_add_item(cert_status_tree,
-                                        proto_ocsp, tvb, offset,
-                                        cert_status_len, ENC_BIG_ENDIAN);
-        proto_item_set_text(ocsp_resp, "OCSP Response");
-        ocsp_resp_tree = proto_item_add_subtree(ocsp_resp,
-                                                ett_ssl_ocsp_resp);
-        asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-        dissect_ocsp_OCSPResponse(FALSE, tvb, offset, &asn1_ctx,
-                                  ocsp_resp_tree, -1);
-        offset += cert_status_len;
-    }
-
-    return offset;
-}
-
-static void
-dissect_ssl3_hnd_cert_status(tvbuff_t *tvb, proto_tree *tree,
-                             guint32 offset, packet_info *pinfo)
-{
-    guint8      cert_status_type;
-
-    cert_status_type = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_ssl_handshake_cert_status_type,
-                        tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
-
-    switch (cert_status_type) {
-    case SSL_HND_CERT_STATUS_TYPE_OCSP:
-        dissect_ssl3_ocsp_response(tvb, tree, offset, pinfo);
-        break;
-    case SSL_HND_CERT_STATUS_TYPE_OCSP_MULTI:
-        {
-            gint32 list_len;
-
-            list_len = tvb_get_ntoh24(tvb, offset);
-            offset += 3;
-
-            while (list_len > 0) {
-                guint32 prev_offset = offset;
-                offset = dissect_ssl3_ocsp_response(tvb, tree, offset, pinfo);
-                list_len -= offset - prev_offset;
-            }
-            break;
-        }
     }
 }
 
@@ -4011,21 +3930,6 @@ proto_register_ssl(void)
             FT_UINT24, BASE_HEX|BASE_EXT_STRING, &ssl_20_cipher_suites_ext, 0x0,
             "Cipher specification", HFILL }
         },
-        { &hf_ssl_handshake_cert_status,
-          { "Certificate Status", "ssl.handshake.cert_status",
-            FT_NONE, BASE_NONE, NULL, 0x0,
-            "Certificate Status Data", HFILL }
-        },
-        { &hf_ssl_handshake_cert_status_type,
-          { "Certificate Status Type", "ssl.handshake.cert_status_type",
-            FT_UINT8, BASE_DEC, VALS(tls_cert_status_type), 0x0,
-            NULL, HFILL }
-        },
-        { &hf_ssl_handshake_cert_status_len,
-          { "Certificate Status Length", "ssl.handshake.cert_status_len",
-            FT_UINT24, BASE_DEC, NULL, 0x0,
-            "Length of certificate status", HFILL }
-        },
         { &hf_ssl_handshake_npn_selected_protocol_len,
           { "Selected Protocol Length", "ssl.handshake.npn_selected_protocol_len",
             FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -4321,8 +4225,6 @@ proto_register_ssl(void)
         &ett_ssl_handshake,
         &ett_ssl_heartbeat,
         &ett_ssl_certs,
-        &ett_ssl_cert_status,
-        &ett_ssl_ocsp_resp,
         &ett_pct_cipher_suites,
         &ett_pct_hash_suites,
         &ett_pct_cert_suites,

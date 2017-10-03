@@ -1367,8 +1367,11 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                                      0, length, session, NULL);
             break;
 
-          case SSL_HND_CERT_URL:
           case SSL_HND_CERT_STATUS:
+            tls_dissect_hnd_certificate_status(&dissect_dtls_hf, sub_tvb, pinfo, ssl_hand_tree, 0, length);
+            break;
+
+          case SSL_HND_CERT_URL:
           case SSL_HND_SUPPLEMENTAL_DATA:
           case SSL_HND_KEY_UPDATE:
           case SSL_HND_ENCRYPTED_EXTS:
