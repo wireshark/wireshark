@@ -3,6 +3,7 @@
  * Routines to Dissect Appendix C TLV's
  * Copyright 2015, Adrian Simionov <daniel.simionov@gmail.com>
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
+ * Copyright 2017, Bruno Verstuyft <bruno.verstuyft@excentis.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -201,6 +202,16 @@ static int hf_docsis_tlv_ipclsfr_sport_end = -1;
 static int hf_docsis_tlv_ipclsfr_dport_start = -1;
 static int hf_docsis_tlv_ipclsfr_dport_end = -1;
 
+static int hf_docsis_tlv_ip6clsfr_tc_low = -1;
+static int hf_docsis_tlv_ip6clsfr_tc_high = -1;
+static int hf_docsis_tlv_ip6clsfr_tc_mask = -1;
+static int hf_docsis_tlv_ip6clsfr_flow_label = -1;
+static int hf_docsis_tlv_ip6clsfr_next_header = -1;
+static int hf_docsis_tlv_ip6clsfr_src = -1;
+static int hf_docsis_tlv_ip6clsfr_src_prefix_length = -1;
+static int hf_docsis_tlv_ip6clsfr_dst = -1;
+static int hf_docsis_tlv_ip6clsfr_dst_prefix_length = -1;
+
 static int hf_docsis_tlv_ethclsfr_dmac = -1;
 static int hf_docsis_tlv_ethclsfr_smac = -1;
 static int hf_docsis_tlv_ethclsfr_ethertype = -1;
@@ -394,12 +405,16 @@ static int hf_docsis_ch_asgn_rx_freq = -1;
 static int hf_docsis_cmts_mc_sess_enc_grp = -1;
 static int hf_docsis_cmts_mc_sess_enc_src = -1;
 
+static int hf_docsis_tlv_unknown = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_docsis_tlv = -1;
 static gint ett_docsis_tlv_cos = -1;
 static gint ett_docsis_tlv_mcap = -1;
 static gint ett_docsis_tlv_clsfr = -1;
 static gint ett_docsis_tlv_clsfr_ip = -1;
+static gint ett_docsis_tlv_clsfr_ip6 = -1;
+static gint ett_docsis_tlv_clsfr_ip6_tc = -1;
 static gint ett_docsis_tlv_clsfr_eth = -1;
 static gint ett_docsis_tlv_clsfr_err = -1;
 static gint ett_docsis_tlv_phs = -1;
@@ -626,6 +641,19 @@ const value_string docsis_conf_code[] = {
 };
 
 value_string_ext docsis_conf_code_ext = VALUE_STRING_EXT_INIT(docsis_conf_code);
+
+static const value_string next_header_vals[] = {
+  {0, "Hop-by-Hop"},
+  {60, "Destination"},
+  {43, "Routing"},
+  {44, "Fragment"},
+  {51, "Authentication"},
+  {50, "Encapsulation"},
+  {59, "No"},
+  {256, "All IPv6 Traffic"},
+  {257, "All UDP and TCP Traffic"},
+  {0, NULL},
+};
 
 static const value_string us_ch_action_vals[] = {
   {0, "No Action"},
@@ -1666,6 +1694,130 @@ dissect_ip_classifier (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, in
 }
 
 static void
+dissect_ip6_classifier_tc (tvbuff_t * tvb, proto_tree * tree, int start,
+                       guint16 len)
+{
+  proto_tree *ip6clsfr_tc_tree;
+  proto_tree *ip6clsfr_tc_item;
+
+  ip6clsfr_tc_tree = proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_clsfr_ip6_tc, &ip6clsfr_tc_item,
+                                "..1 IPv6 Traffic Class Range and Mask");
+
+  proto_tree_add_item(ip6clsfr_tc_tree, hf_docsis_tlv_ip6clsfr_tc_low, tvb, start, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(ip6clsfr_tc_tree, hf_docsis_tlv_ip6clsfr_tc_high, tvb, start + 1, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(ip6clsfr_tc_tree, hf_docsis_tlv_ip6clsfr_tc_mask, tvb, start + 2, 1, ENC_BIG_ENDIAN);
+
+}
+
+static void
+dissect_ip6_classifier (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start,
+                       guint16 len)
+{
+  guint8 type, length;
+  proto_tree *ip6clsfr_tree;
+  proto_tree *ip6clsfr_item;
+  int pos = start;
+
+
+  ip6clsfr_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_clsfr_ip6, &ip6clsfr_item,
+                                  ".12 IPv6 Classifier (Length = %u)", len);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+        {
+          case CFR_IP6_TRAFFIC_CLASS:
+            if (length == 3)
+              {
+                dissect_ip6_classifier_tc(tvb, ip6clsfr_tree, pos, length);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, ip6clsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case CFR_IP6_FLOW_LABEL:
+            if (length == 4)
+              {
+                proto_tree_add_item (ip6clsfr_tree,
+                                     hf_docsis_tlv_ip6clsfr_flow_label, tvb, pos,
+                                     length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, ip6clsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case CFR_IP6_NEXT_HEADER:
+            if (length == 2)
+              {
+                proto_tree_add_item (ip6clsfr_tree,
+                                     hf_docsis_tlv_ip6clsfr_next_header, tvb, pos,
+                                     length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, ip6clsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case CFR_IP6_SOURCE_ADDR:
+            if (length == 16)
+              {
+                proto_tree_add_item (ip6clsfr_tree,
+                                     hf_docsis_tlv_ip6clsfr_src, tvb, pos,
+                                     length, ENC_NA);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, ip6clsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case CFR_IP6_SOURCE_PREFIX_LENGTH:
+            if (length == 1)
+              {
+                proto_tree_add_item (ip6clsfr_tree,
+                                     hf_docsis_tlv_ip6clsfr_src_prefix_length, tvb, pos,
+                                     length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, ip6clsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case CFR_IP6_DESTINATION_ADDR:
+            if (length == 16)
+              {
+                proto_tree_add_item (ip6clsfr_tree,
+                                     hf_docsis_tlv_ip6clsfr_dst, tvb, pos,
+                                     length, ENC_NA);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, ip6clsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case CFR_IP6_DESTINATION_PREFIX_LENGTH:
+            if (length == 1)
+              {
+                proto_tree_add_item (ip6clsfr_tree,
+                                     hf_docsis_tlv_ip6clsfr_dst_prefix_length, tvb, pos,
+                                     length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, ip6clsfr_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          default: proto_tree_add_item (ip6clsfr_tree, hf_docsis_tlv_unknown, tvb, pos, length, ENC_NA);
+       }                       /* switch */
+       pos = pos + length;
+    }                           /* while */
+}
+
+static void
 dissect_classifiers (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start,
                      guint16 len, guint8 direction)
 {
@@ -1776,6 +1928,9 @@ dissect_classifiers (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int 
           case CFR_IP_CLASSIFIER:
             dissect_ip_classifier (tvb, pinfo, clsfr_tree, pos, length);
             break;
+          case CFR_IP6_CLASSIFIER:
+            dissect_ip6_classifier (tvb, pinfo, clsfr_tree, pos, length);
+            break;
           case CFR_ETH_CLASSIFIER:
             dissect_eth_clsfr (tvb, pinfo, clsfr_tree, pos, length);
             break;
@@ -1786,6 +1941,7 @@ dissect_classifiers (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int 
             proto_tree_add_item (clsfr_tree, hf_docsis_tlv_clsfr_vendor_spc,
                                  tvb, pos, length, ENC_NA);
             break;
+          default: proto_tree_add_item (clsfr_tree, hf_docsis_tlv_unknown, tvb, pos, length, ENC_NA);
         }                       /* switch */
       pos = pos + length;
 
@@ -4888,7 +5044,7 @@ proto_register_docsis_tlv (void)
     {&hf_docsis_tlv_clsfr_err_code,
      {"..2 Error Code", "docsis_tlv.clsfr.err.code",
       FT_UINT8, BASE_DEC|BASE_EXT_STRING, &docsis_conf_code_ext, 0x0,
-      "TCP/UDP Destination Port End", HFILL}
+      "Error Code", HFILL}
     },
     {&hf_docsis_tlv_clsfr_err_msg,
      {"..3 Error Message", "docsis_tlv.clsfr.err.msg",
@@ -4951,6 +5107,51 @@ proto_register_docsis_tlv (void)
      {"..10 Dest Port End", "docsis_tlv.clsfr.ip.dportend",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "TCP/UDP Destination Port End", HFILL}
+    },
+    {&hf_docsis_tlv_ip6clsfr_tc_low,
+     {"tc-low", "docsis_tlv.clsfr.ip6.tc.low",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_ip6clsfr_tc_high,
+     {"tc-high", "docsis_tlv.clsfr.ip6.tc.high",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_ip6clsfr_tc_mask,
+     {"tc-mask", "docsis_tlv.clsfr.ip6.tc.mask",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_ip6clsfr_flow_label,
+     {"..2 Flow Label", "docsis_tlv.clsfr.ip6.flowlabel",
+      FT_UINT32, BASE_HEX, NULL, 0x0,
+      "Flow Label", HFILL}
+    },
+    {&hf_docsis_tlv_ip6clsfr_next_header,
+     {"..3 Next Header", "docsis_tlv.clsfr.ip6.nextheader",
+      FT_UINT16, BASE_DEC, VALS(next_header_vals), 0x0,
+      "Next Header", HFILL}
+    },
+    {&hf_docsis_tlv_ip6clsfr_src,
+     {"..4 Source Address", "docsis_tlv.clsfr.ip6.src",
+      FT_IPv6, BASE_NONE, NULL, 0x0,
+      "Source Address", HFILL}
+    },
+    {&hf_docsis_tlv_ip6clsfr_src_prefix_length,
+     {"..5 Source Prefix Length", "docsis_tlv.clsfr.ip6.src_prefix_length",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Source Prefix Length", HFILL}
+    },
+    {&hf_docsis_tlv_ip6clsfr_dst,
+     {"..6 Destination Address", "docsis_tlv.clsfr.ip6.dst",
+      FT_IPv6, BASE_NONE, NULL, 0x0,
+      "Destination Address", HFILL}
+    },
+    {&hf_docsis_tlv_ip6clsfr_dst_prefix_length,
+     {"..7 Destination Prefix Length", "docsis_tlv.clsfr.ip6.dst_prefix_length",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Destination Prefix Length", HFILL}
     },
 #if 0
     {&hf_docsis_tlv_ethclsfr,
@@ -6043,6 +6244,11 @@ proto_register_docsis_tlv (void)
       FT_IPXNET, BASE_NONE, NULL, 0x0,
       "Source IP Address", HFILL}
     },
+    {&hf_docsis_tlv_unknown,
+      {"Unknown TLV", "docsis_tlv.unknown",
+       FT_BYTES, BASE_NONE, NULL, 0x0,
+       NULL, HFILL}
+    },
   };
 
   static gint *ett[] = {
@@ -6051,6 +6257,8 @@ proto_register_docsis_tlv (void)
     &ett_docsis_tlv_mcap,
     &ett_docsis_tlv_clsfr,
     &ett_docsis_tlv_clsfr_ip,
+    &ett_docsis_tlv_clsfr_ip6,
+    &ett_docsis_tlv_clsfr_ip6_tc,
     &ett_docsis_tlv_clsfr_eth,
     &ett_docsis_tlv_clsfr_err,
     &ett_docsis_tlv_clsfr_dot1q,

@@ -171,6 +171,7 @@
 #define CFR_IP_CLASSIFIER 9
 #define CFR_ETH_CLASSIFIER 10
 #define CFR_8021Q_CLASSIFIER 11
+#define CFR_IP6_CLASSIFIER 12
 #define CFR_VENDOR_SPEC 43
 
 /* Define Classifier Error sub-subtypes
@@ -193,6 +194,17 @@
 #define CFR_IP_SRCPORT_END 8
 #define CFR_IP_DSTPORT_START 9
 #define CFR_IP_DSTPORT_END 10
+
+/* Define IPv6 Classifier sub-subtypes
+ * These are subtypes of CFR_IP_CLASSIFIER ([22/23].12)
+ */
+#define CFR_IP6_TRAFFIC_CLASS 1
+#define CFR_IP6_FLOW_LABEL 2
+#define CFR_IP6_NEXT_HEADER 3
+#define CFR_IP6_SOURCE_ADDR 4
+#define CFR_IP6_SOURCE_PREFIX_LENGTH 5
+#define CFR_IP6_DESTINATION_ADDR 6
+#define CFR_IP6_DESTINATION_PREFIX_LENGTH 7
 
 /* Define Ethertype Classifier sub-subtypes
  * These are subtypes of CFR_ETH_CLASSIFIER ([22/23].10)
