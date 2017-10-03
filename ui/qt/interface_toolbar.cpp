@@ -56,7 +56,7 @@ enum InterfaceControlCommand {
     commandStatusMessage       = 6,
     commandInformationMessage  = 7,
     commandWarningMessage      = 8,
-    commandErrorMessage        = 9,
+    commandErrorMessage        = 9
 };
 
 // To do:
