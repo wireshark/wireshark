@@ -32,7 +32,7 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/tap.h>
 
-void register_tap_listener_follow(void);
+void register_tap_listener_flow(void);
 
 #define STR_FLOW        "flow,"
 #define STR_STANDARD    ",standard"
