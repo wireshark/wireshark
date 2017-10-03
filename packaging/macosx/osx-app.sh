@@ -219,15 +219,9 @@ elif [ ! -d "$bundle" ] ; then
 	exit 1
 fi
 
-for i in 5 ""
-do
-	qt_frameworks_dir=`pkg-config --libs Qt${i}Core | sed -e 's/-F//' -e 's/ -framework.*//'`
-	if [ ! -z "$qt_frameworks_dir" ] ; then
-		# found it
-		break;
-	fi
-done
-if [ -z "$qt_frameworks_dir" ] ; then
+
+qt_frameworks_dir=$( qmake -query QT_INSTALL_LIBS )
+if [ ! -d "$qt_frameworks_dir" ] ; then
 	echo "Can't find the Qt frameworks directory" >&2
 	exit 1
 fi
@@ -242,7 +236,7 @@ pkgexec="$bundle/Contents/MacOS"
 pkgres="$bundle/Contents/Resources"
 pkgbin="$pkgres/bin"
 pkglib="$bundle/Contents/Frameworks"
-pkgplugin="$bundle/Contents/PlugIns/wireshark"
+pkgplugin=$( find "$bundle/Contents/PlugIns/wireshark" -type d -maxdepth 1 -name '[1-9]*' | head -1 )
 
 # Set the 'macosx' directory, usually the current directory.
 resdir=`pwd`
@@ -550,6 +544,7 @@ rpathify_dir () {
 	#
 	if [ -d "$1" ]; then
 		(cd "$1"
+		echo "rpathifying $1"
 		#
 		# Make sure we *have* files to fix
 		#
@@ -624,7 +619,7 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 	done
 
 	echo "Signing plugins"
-	find $pkgplugin -type f -name "*.so" | while read plugin ; do
+	for plugin in $pkgplugin/*.so ; do
 		codesign_file "$plugin"
 	done
 
