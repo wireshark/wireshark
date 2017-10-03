@@ -696,7 +696,7 @@ static int hf_infiniband_segment_number = -1;
 static int hf_infiniband_payload_length32 = -1;
 static int hf_infiniband_transferred_data = -1;
 /* RMPP ACK */
-static int hf_infiniband_new_window_last = -1;;
+static int hf_infiniband_new_window_last = -1;
 /* RMPP ABORT and STOP */
 static int hf_infiniband_optional_extended_error_data = -1;
 /* SMP Data LID Routed */
