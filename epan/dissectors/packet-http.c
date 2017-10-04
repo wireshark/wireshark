@@ -339,7 +339,7 @@ static void process_header(tvbuff_t *tvb, int offset, int next_offset,
 			   const guchar *line, int linelen, int colon_offset,
 			   packet_info *pinfo, proto_tree *tree,
 			   headers_t *eh_ptr, http_conv_t *conv_data,
-			   int http_type);
+			   http_type_t http_type);
 static gint find_header_hf_value(tvbuff_t *tvb, int offset, guint header_len);
 static gboolean check_auth_ntlmssp(proto_item *hdr_item, tvbuff_t *tvb,
 				   packet_info *pinfo, gchar *value);
@@ -1550,9 +1550,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if(have_tap_listener(http_follow_tap)) {
 			tap_queue_packet(http_follow_tap, pinfo, next_tvb);
 		}
-		file_data = tvb_get_string_enc(wmem_packet_scope(), next_tvb, 0, tvb_reported_length(next_tvb), ENC_ASCII);
+		file_data = tvb_get_string_enc(wmem_packet_scope(), next_tvb, 0, tvb_captured_length(next_tvb), ENC_ASCII);
 		proto_tree_add_string_format_value(http_tree, hf_http_file_data,
-			next_tvb, 0, tvb_reported_length(next_tvb), file_data, "%u bytes", tvb_reported_length(next_tvb));
+			next_tvb, 0, tvb_captured_length(next_tvb), file_data, "%u bytes", tvb_captured_length(next_tvb));
 
 		/*
 		 * Do subdissector checks.
@@ -2626,7 +2626,7 @@ static void
 process_header(tvbuff_t *tvb, int offset, int next_offset,
 	       const guchar *line, int linelen, int colon_offset,
 	       packet_info *pinfo, proto_tree *tree, headers_t *eh_ptr,
-	       http_conv_t *conv_data, int http_type)
+	       http_conv_t *conv_data, http_type_t http_type)
 {
 	int len;
 	int line_end_offset;
@@ -3059,7 +3059,7 @@ check_auth_citrixbasic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value, int of
 					    hf_http_citrix, tvb, 0, 0, 1);
 			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-		        if(strncmp(value, "username=\"", 10) == 0) {
+			if(strncmp(value, "username=\"", 10) == 0) {
 				value += 10;
 				offset += 10;
 				ch_ptr = strchr(value, '"');
@@ -3074,7 +3074,7 @@ check_auth_citrixbasic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value, int of
 					offset += data_len;
 				}
 			}
-		        if(strncmp(value, "; domain=\"", 10) == 0) {
+			if(strncmp(value, "; domain=\"", 10) == 0) {
 				value += 10;
 				offset += 10;
 				ch_ptr = strchr(value, '"');
@@ -3089,7 +3089,7 @@ check_auth_citrixbasic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value, int of
 					offset += data_len;
 				}
 			}
-		        if(strncmp(value, "; password=\"", 12) == 0) {
+			if(strncmp(value, "; password=\"", 12) == 0) {
 				value += 12;
 				offset += 12;
 				ch_ptr = strchr(value, '"');
@@ -3104,7 +3104,7 @@ check_auth_citrixbasic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value, int of
 					offset += data_len;
 				}
 			}
-		        if(strncmp(value, "; AGESessionId=\"", 16) == 0) {
+			if(strncmp(value, "; AGESessionId=\"", 16) == 0) {
 				value += 16;
 				offset += 16;
 				ch_ptr = strchr(value, '"');
