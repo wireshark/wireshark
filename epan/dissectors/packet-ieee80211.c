@@ -5625,11 +5625,21 @@ add_mimo_compressed_beamforming_feedback_report(proto_tree *tree, tvbuff_t *tvb,
 
   for (i = 1; i <= mimo_cntrl.nc; i++)
   {
-    guint8 snr;
+    gint8 snr;
+    char edge_sign;
 
-    snr = tvb_get_guint8(tvb, offset);
+    snr = (gint8) tvb_get_guint8(tvb, offset);
+
+    switch(snr) {
+      case -128:
+        edge_sign = '<';
+      case 127:
+        edge_sign = '>';
+      default:
+        edge_sign = ' ';
+    }
     proto_tree_add_uint_format(snr_tree, hf_ieee80211_ff_mimo_csi_snr, tvb, offset, 1,
-                               snr, "Stream %d - Signal to Noise Ratio: 0x%02X", i, snr);
+                               snr, "Stream %d - Signal to Noise Ratio: %c%3.2fdB", i, edge_sign,snr/4.0+22.0);
     offset += 1;
   }
 
@@ -9484,11 +9494,23 @@ add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet
 
   for (i = 1; i <= nc; i++)
   {
-    guint8 snr;
+    gint8 snr;
+    char edge_sign;
 
-    snr = tvb_get_guint8(tvb, offset);
-    proto_tree_add_uint_format(subtree, hf_ieee80211_vht_compressed_beamforming_report_snr, tvb, offset, 1,
-                               snr, "Stream %d - Signal to Noise Ratio: 0x%02X", i, snr);
+    snr = (gint8) tvb_get_guint8(tvb, offset);
+
+    switch(snr) {
+      case -128:
+        edge_sign = '<';
+      case 127:
+        edge_sign = '>';
+      default:
+        edge_sign = ' ';
+    }
+
+    proto_tree_add_int_format(subtree, hf_ieee80211_vht_compressed_beamforming_report_snr, tvb, offset, 1,
+                               snr, "Stream %d - Signal to Noise Ratio: %c%3.2fdB", i, edge_sign,snr/4.0+22.0);
+
     offset += 1;
   }
 
@@ -21715,7 +21737,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_vht_compressed_beamforming_report_snr,
       {"Signal to Noise Ratio (SNR)", "wlan.vht.compressed_beamforming_report.snr",
-       FT_UINT8, BASE_HEX, NULL, 0,
+       FT_INT8, BASE_DEC, NULL, 0,
        NULL, HFILL }},
 
     {&hf_ieee80211_vht_compressed_beamforming_phi_angle,
