@@ -489,19 +489,6 @@ AM_CONDITIONAL(HAVE_RPM, [test "x$have_rpm" = xyes])
 # Debian
 AC_CHECK_PROG(HAVE_DPKG_BUILDPACKAGE, dpkg-buildpackage, "yes", "no")
 
-# macOS
-AC_CHECK_PROG(HAVE_XCODEBUILD, xcodebuild, "yes", "no")
-AC_CHECK_PROG(HAVE_HDIUTIL, hdiutil, "yes", "no")
-AC_CHECK_PROG(HAVE_BLESS, bless, "yes", "no")
-
-if test x$HAVE_XCODEBUILD = xyes -a x$HAVE_HDIUTIL = xyes \
-     -a x$HAVE_BLESS = xyes ; then
-  HAVE_OSX_PACKAGING=yes
-else
-  HAVE_OSX_PACKAGING=no
-fi
-AC_SUBST(HAVE_OSX_PACKAGING)
-
 #
 # Use this as a proxy for "is this macOS" (just in case somebody actually
 # built and installed Darwin as an OS, perhaps with some X11-based GUI,
@@ -1442,8 +1429,6 @@ elif test "$have_gtk" = "yes" -a "$have_qt" = "no" ; then
 	wireshark_bin="wireshark-gtk\$(EXEEXT)"
 	wireshark_man="wireshark.1"
 	wireshark_SUBDIRS="ui/gtk"
-	OSX_APP_FLAGS="$OSX_APP_FLAGS -gtk"
-	OSX_DMG_FLAGS="-gtk"
 elif test "$have_gtk" = "no" -a "$have_qt" = "no" ; then
 	# We have neither GTK+ nor Qt.
 	#
@@ -1607,8 +1592,6 @@ AC_SUBST(wireshark_man)
 AC_SUBST(wireshark_SUBDIRS)
 AM_CONDITIONAL(HAVE_Qt, test "$have_qt" = "yes")
 AM_CONDITIONAL(HAVE_GTK, test "$have_gtk" = "yes")
-AC_SUBST(OSX_APP_FLAGS)
-AC_SUBST(OSX_DMG_FLAGS)
 
 # Enable/disable tshark
 AC_ARG_ENABLE(tshark,
@@ -3006,7 +2989,6 @@ AC_CONFIG_FILES(
   packaging/Makefile
   packaging/macosx/Info.plist
   packaging/macosx/Makefile
-  packaging/macosx/osx-dmg.sh
   packaging/macosx/Wireshark_package.pmdoc/index.xml
   packaging/nsis/Makefile
   packaging/rpm/Makefile

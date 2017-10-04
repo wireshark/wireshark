@@ -215,11 +215,9 @@ README.windows for those instructions.
    working. You must have root privileges in order to capture live data.
 
 10./a. Run 'make install'.  If you're running a system that supports
-   the RPM, OSX, or System V Release 4 packaging systems, you can
-   run one of
+   the RPM packaging systems you can run
 
-        make rpm-package	# Builds a binary package using rpm
-        make osx-package	# Builds a binary package for OSX
+        make rpm-package
 
    to make an installable package for your system.
 

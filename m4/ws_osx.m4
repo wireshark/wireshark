@@ -233,11 +233,6 @@ then
 	WS_LDFLAGS="-mmacosx-version-min=$deploy_target -isysroot $SDKPATH $WS_LDFLAGS"
 
 	#
-	# Add a -sdkroot flag to use with osx-app.sh.
-	#
-	OSX_APP_FLAGS="-sdkroot $SDKPATH"
-
-	#
 	# XXX - do we need this to build the Wireshark wrapper?
 	# XXX - is this still necessary with the -mmacosx-version-min
 	# flag being set?

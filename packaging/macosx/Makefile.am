@@ -21,7 +21,7 @@ EXTRA_DIST = \
 	dmg_set_style.scpt	\
 	Info.plist	\
 	Info.plist.in	\
-	osx-app.sh	\
+	osx-app.sh.in	\
 	osx-dmg.sh.in	\
 	Read_me_first.rtf	\
 	Scripts/chmodbpf-postinstall.sh	\

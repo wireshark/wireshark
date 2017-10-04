@@ -232,7 +232,7 @@ pkgexec="$bundle/Contents/MacOS"
 pkgres="$bundle/Contents/Resources"
 pkgbin="$pkgres/bin"
 pkglib="$bundle/Contents/Frameworks"
-pkgplugin=$( find "$bundle/Contents/PlugIns/wireshark" -type d -maxdepth 1 -name '[1-9]*' | head -1 )
+pkgplugin="$bundle/Contents/PlugIns/wireshark/@VERSION_MAJOR@.@VERSION_MINOR@"
 
 # Set the 'macosx' directory, usually the current directory.
 resdir=`pwd`

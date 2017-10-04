@@ -1492,6 +1492,7 @@ set( IN_FILES
 	image/wiretap.rc.in
 	image/wireshark.exe.manifest.in
 	packaging/macosx/Info.plist.in
+	packaging/macosx/osx-app.sh.in
 	packaging/macosx/osx-dmg.sh.in
 	packaging/macosx/Wireshark_package.pmdoc/index.xml.in
 	randpkt_core/doxygen.cfg.in
@@ -2935,7 +2936,7 @@ if(ENABLE_APPLICATION_BUNDLE)
 	set_target_properties(app_bundle PROPERTIES FOLDER "Copy Tasks")
 	add_custom_command(TARGET app_bundle
 		POST_BUILD
-		COMMAND "${CMAKE_SOURCE_DIR}/packaging/macosx/osx-app.sh"
+		COMMAND "${CMAKE_BINARY_DIR}/packaging/macosx/osx-app.sh"
 		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/run"
 	)
 	add_dependencies(app_bundle ${PROGLIST})

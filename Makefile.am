@@ -1061,11 +1061,6 @@ update-databases-and-caches-install: update-databases-and-caches-common
 
 update-databases-and-caches-uninstall: update-databases-and-caches-common
 
-# Used by osx-package
-# We load top_stagedir with an absolute path so that libtool doesn't freak.
-top_stagedir=$(abs_top_builddir)/packaging/staging
-stagedir=$(top_stagedir)/$(PACKAGE).inst
-
 host_cpu=@host_cpu@
 host_os=@host_os@
 
@@ -1087,45 +1082,8 @@ rpm-package:
 	  false
 endif
 
-# XXX - This assumes we're building from the source directory.
-osx-app: $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA) packaging/macosx/Info.plist
-	@if test x$(HAVE_OSX_PACKAGING) = xyes ; then \
-		rm -rf $(stagedir) ; \
-		$(MAKE) DESTDIR=$(stagedir) install; \
-		cd $(srcdir)/packaging/macosx ; \
-		./osx-app.sh @OSX_APP_FLAGS@ \
-			--create-bundle \
-			--binary-path ../staging/$(PACKAGE).inst$(bindir) \
-			--plugin-path ../staging/$(PACKAGE).inst$(plugindir) \
-			--extcap-path ../staging/$(PACKAGE).inst$(extcapdir) \
-			--library-path ../staging/$(PACKAGE).inst$(libdir) ; \
-	else \
-		echo "Error: macOS packaging tools not found." ; \
-		echo "Package build abandoned." ; \
-	fi
-
-packaging/macosx/COPYING.txt: COPYING
-	(cd packaging/macosx ; \
-	$(MAKE) COPYING.txt ;)
-
-osx-package: osx-app packaging/macosx/COPYING.txt
-	@if test x$(HAVE_OSX_PACKAGING) = xyes ; then \
-		cd $(srcdir)/packaging/macosx ; \
-		chmod +x ./osx-dmg.sh ; \
-		./osx-dmg.sh @OSX_DMG_FLAGS@ ; \
-	fi
-
-osx-install: osx-app
-	@if test x$(HAVE_OSX_PACKAGING) = xyes ; then \
-		echo "Copying Wireshark.app to /Applications" ; \
-		cp -pr $(srcdir)/packaging/macosx/Wireshark.app /Applications ; \
-	fi
-
 test-programs:
 	cd epan && $(MAKE) $@
-
-clean-local:
-	rm -rf $(top_stagedir)
 
 dumpabi:
 	$(MAKE) -C wiretap dumpabi-libwiretap

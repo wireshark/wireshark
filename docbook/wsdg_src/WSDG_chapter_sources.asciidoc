@@ -1059,12 +1059,11 @@ installing the _qt-devel_ package.
 ==== macOS: .dmg packages
 
 The macOS Package is built using macOS packaging tools, based on information
-found in the source tree under 'packaging/macosx'.
-
-In the wireshark directory, type:
+found in the source tree under 'packaging/macosx'. It must be built using
+CMake. In your build directory, type:
 
 ----
-$ make osx-package
+$ make dmg_package
 ----
 
 to build the macOS Package.
