@@ -34,6 +34,7 @@
 #include <wsutil/ws_printf.h>
 
 #include <file.h>
+#include <epan/epan_dissect.h>
 #include <epan/exceptions.h>
 #include <epan/color_filters.h>
 #include <epan/prefs.h>
@@ -637,9 +638,10 @@ struct sharkd_analyse_data
 };
 
 static void
-sharkd_session_process_analyse_cb(packet_info *pi, proto_tree *tree, struct epan_column_info *cinfo, const GSList *data_src, void *data)
+sharkd_session_process_analyse_cb(epan_dissect_t *edt, proto_tree *tree, struct epan_column_info *cinfo, const GSList *data_src, void *data)
 {
 	struct sharkd_analyse_data *analyser = (struct sharkd_analyse_data *) data;
+	packet_info *pi = &edt->pi;
 	frame_data *fdata = pi->fd;
 
 	(void) tree;
@@ -2632,7 +2634,7 @@ sharkd_session_process_follow(char *buf, const jsmntok_t *tokens, int count)
 }
 
 static void
-sharkd_session_process_frame_cb_tree(proto_tree *tree, tvbuff_t **tvbs)
+sharkd_session_process_frame_cb_tree(epan_dissect_t *edt, proto_tree *tree, tvbuff_t **tvbs)
 {
 	proto_node *node;
 	const char *sepa = "";
@@ -2688,6 +2690,8 @@ sharkd_session_process_frame_cb_tree(proto_tree *tree, tvbuff_t **tvbs)
 
 		if (finfo->hfinfo)
 		{
+			char *filter;
+
 			if (finfo->hfinfo->type == FT_PROTOCOL)
 			{
 				printf(",\"t\":\"proto\"");
@@ -2704,6 +2708,14 @@ sharkd_session_process_frame_cb_tree(proto_tree *tree, tvbuff_t **tvbs)
 				json_puts_string(url);
 				wmem_free(NULL, url);
 			}
+
+			filter = proto_construct_match_selected_string(finfo, edt);
+			if (filter)
+			{
+				printf(",\"f\":");
+				json_puts_string(filter);
+				wmem_free(NULL, filter);
+			}
 		}
 
 		if (FI_GET_FLAG(finfo, PI_SEVERITY_MASK))
@@ -2719,7 +2731,7 @@ sharkd_session_process_frame_cb_tree(proto_tree *tree, tvbuff_t **tvbs)
 			if (finfo->tree_type != -1)
 				printf(",\"e\":%d", finfo->tree_type);
 			printf(",\"n\":");
-			sharkd_session_process_frame_cb_tree((proto_tree *) node, tvbs);
+			sharkd_session_process_frame_cb_tree(edt, (proto_tree *) node, tvbs);
 		}
 
 		printf("}");
@@ -2756,8 +2768,9 @@ sharkd_follower_visit_layers_cb(const void *key _U_, void *value, void *user_dat
 }
 
 static void
-sharkd_session_process_frame_cb(packet_info *pi, proto_tree *tree, struct epan_column_info *cinfo, const GSList *data_src, void *data)
+sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct epan_column_info *cinfo, const GSList *data_src, void *data)
 {
+	packet_info *pi = &edt->pi;
 	frame_data *fdata = pi->fd;
 	const char *pkt_comment = NULL;
 
@@ -2800,7 +2813,7 @@ sharkd_session_process_frame_cb(packet_info *pi, proto_tree *tree, struct epan_c
 			tvbs[count] = NULL;
 		}
 
-		sharkd_session_process_frame_cb_tree(tree, tvbs);
+		sharkd_session_process_frame_cb_tree(edt, tree, tvbs);
 
 		g_free(tvbs);
 	}
@@ -3027,6 +3040,7 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
  *   (o) tree  - array of frame nodes with attributes:
  *                  l - label
  *                  t: 'proto', 'framenum', 'url' - type of node
+ *                  f - filter string
  *                  s - severity
  *                  e - subtree ett index
  *                  n - array of subtree nodes
