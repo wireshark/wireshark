@@ -3861,13 +3861,19 @@ sharkd_session_process(char *buf, const jsmntok_t *tokens, int count)
 			return;
 		}
 
+		if (tokens[i + 1].type != JSMN_STRING && tokens[i + 1].type != JSMN_PRIMITIVE)
+		{
+			fprintf(stderr, "sanity check(3a): [%d] wrong type\n", i + 1);
+			return;
+		}
+
 		buf[tokens[i + 0].end] = '\0';
 		buf[tokens[i + 1].end] = '\0';
 
 		/* unescape only value, as keys are simple strings */
-		if (!json_unescape_str(&buf[tokens[i + 1].start]))
+		if (tokens[i + 1].type == JSMN_STRING && !json_unescape_str(&buf[tokens[i + 1].start]))
 		{
-			fprintf(stderr, "sanity check(3a): [%d] cannot unescape string\n", i + 1);
+			fprintf(stderr, "sanity check(3b): [%d] cannot unescape string\n", i + 1);
 			return;
 		}
 	}
