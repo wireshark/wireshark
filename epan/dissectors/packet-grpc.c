@@ -280,7 +280,7 @@ dissect_grpc_message(tvbuff_t *tvb, guint offset, guint length, packet_info *pin
         dissect_body_data(grpc_tree, pinfo, tvb, offset, message_length, TRUE, http2_path, is_request);
     }
 
-    return length;
+    return offset + message_length;
 }
 
 static int
@@ -317,7 +317,7 @@ dissect_grpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             /* remaining bytes are not enough for dissecting the message body */
 
             proto_tree_add_expert_format(grpc_tree, pinfo, &ei_grpc_body_malformed, tvb, offset, -1,
-                     "Malformed message data: only %u bytes left, need at least %u bytes.", tvb_len - offset, GRPC_MESSAGE_HEAD_LEN);
+                     "Malformed message data: only %u bytes left, need at least %u bytes.", tvb_len - offset, GRPC_MESSAGE_HEAD_LEN + message_length);
             break;
         }
         proto_item_set_len(ti, message_length + GRPC_MESSAGE_HEAD_LEN);
@@ -326,7 +326,7 @@ dissect_grpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         http2_path = http2_get_header_value(pinfo, HTTP2_HEADER_PATH, FALSE);
         is_request = (http2_path != NULL);
 
-        if (http2_path == NULL) { /* this reponse, so we get it from http2 request streaam */
+        if (http2_path == NULL) { /* this reponse, so we get it from http2 request stream */
             http2_path = http2_get_header_value(pinfo, HTTP2_HEADER_PATH, TRUE);
         }
 
