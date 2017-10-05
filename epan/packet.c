@@ -767,7 +767,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo
 		 */
 		len = call_dissector_through_handle(handle, tvb, pinfo, tree, data);
 	}
-	if (add_proto_name &&
+	if (handle->protocol != NULL && !proto_is_pino(handle->protocol) && add_proto_name &&
 		(len == 0 || (tree && saved_tree_count == tree->tree_data->count))) {
 		/*
 		 * We've added a layer and either the dissector didn't
@@ -2674,11 +2674,6 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 		pinfo->heur_list_name = hdtbl_entry->list_name;
 
 		len = (hdtbl_entry->dissector)(tvb, pinfo, tree, data);
-		if (len) {
-			*heur_dtbl_entry = hdtbl_entry;
-			status = TRUE;
-			break;
-		}
 		if (hdtbl_entry->protocol != NULL &&
 			(len == 0 || (tree && saved_tree_count == tree->tree_data->count))) {
 			/*
@@ -2690,6 +2685,11 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 				pinfo->curr_layer_num--;
 				wmem_list_remove_frame(pinfo->layers, wmem_list_tail(pinfo->layers));
 			}
+		}
+		if (len) {
+			*heur_dtbl_entry = hdtbl_entry;
+			status = TRUE;
+			break;
 		}
 	}
 
