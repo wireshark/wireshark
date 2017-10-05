@@ -971,11 +971,6 @@ rpm-package: dist
 test-programs:
 	cd epan && $(MAKE) $@
 
-dumpabi:
-	$(MAKE) -C wiretap dumpabi-libwiretap
-	$(MAKE) -C epan dumpabi-libwireshark
-	$(MAKE) -C wsutil dumpabi-libwsutil
-
 checkapi_local:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -build \
 	-sourcedir=$(srcdir) \

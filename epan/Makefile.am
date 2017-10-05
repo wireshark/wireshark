@@ -594,48 +594,6 @@ if HAVE_DOXYGEN
 	(umask 022 ; $(DOXYGEN) doxygen.cfg)
 endif
 
-# ABI compliance checker can be obtained from
-# http://ispras.linux-foundation.org/index.php/ABI_compliance_checker
-# Checked using version 1.21.12
-# TODO: fix wrong headers and select ones providing external API
-dumpabi-libwireshark: all abi-descriptor.xml
-	rm -rf abi-check-headers abi_dumps .libs/*.abi.tar.gz
-	mkdir abi-check-headers
-	cp ../config.h ../register.h abi-check-headers/
-	mkdir abi-check-headers/epan
-	cp *.h abi-check-headers/epan
-	mkdir abi-check-headers/crypt
-	cp crypt/*.h abi-check-headers/crypt
-	mkdir abi-check-headers/compress
-	cp compress/*.h abi-check-headers/compress
-	mkdir abi-check-headers/dfilter
-	cp dfilter/*.h ../tools/lemon/cppmagic.h abi-check-headers/dfilter
-	mkdir abi-check-headers/dissectors
-	cp dissectors/*.h abi-check-headers/dissectors
-	rm \
-		abi-check-headers/*/*_lex.h \
-		abi-check-headers/dissectors/x11-extension-implementation.h \
-		abi-check-headers/dissectors/x11-glx-render-enum.h \
-		abi-check-headers/dissectors/x11-register-info.h \
-		abi-check-headers/dissectors/packet-lb* \
-		abi-check-headers/dissectors/packet-idmp.h
-	mkdir abi-check-headers/ftypes
-	cp ftypes/*.h abi-check-headers/ftypes
-	mkdir abi-check-headers/wmem
-	cp wmem/*.h abi-check-headers/wmem
-	abi-compliance-checker -log-path abi_logs/log.txt -l libwireshark -v1 `readlink .libs/libwireshark.so | sed 's/.*\.so\.//'` \
-		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml || \
-		cat abi_logs/log.txt
-	cp -f abi_dumps/libwireshark/libwireshark_* .libs/
-	cd .libs && ln -sf libwireshark_*.abi.tar.gz libwireshark.abi.tar.gz
-
-maintainer-clean-local: clean-dumpabi-libwireshark
-
-.PHONY: clean-dumpabi-libwireshark
-
-clean-dumpabi-libwireshark:
-	rm -rf abi-check-headers abi_dumps .libs/*.abi.tar.gz abi_logs abi-descriptor.xml
-
 checkapi:
 	$(AM_V_GEN)$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g termoutput -build \
 	-sourcedir=$(srcdir) \

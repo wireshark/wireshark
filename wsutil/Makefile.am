@@ -213,26 +213,6 @@ CLEANFILES = \
 	libwsutil.la	\
 	*~
 
-# ABI compliance checker can be obtained from
-# http://ispras.linux-foundation.org/index.php/ABI_compliance_checker
-# Checked using version 1.21.12
-dumpabi-libwsutil: all abi-descriptor.xml
-	rm -rf abi-check-headers abi_dumps .libs/*.abi.tar.gz
-	mkdir abi-check-headers
-	cp ../config.h ../ws_symbol_export.h $(libwsutil_abi_INCLUDES) abi-check-headers/
-	abi-compliance-checker -log-path abi_logs/log.txt -l libwsutil -v1 `readlink .libs/libwsutil.so | sed 's/.*\.so\.//'` \
-		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml || \
-		cat abi_logs/log.txt
-	cp -f abi_dumps/libwsutil/libwsutil_* .libs/
-	cd .libs && ln -sf libwsutil_*.abi.tar.gz libwsutil.abi.tar.gz
-
-maintainer-clean-local: clean-dumpabi-libwsutil
-
-.PHONY: clean-dumpabi-libwsutil
-
-clean-dumpabi-libwsutil:
-	rm -rf abi-check-headers abi_dumps .libs/*.abi.tar.gz abi_logs abi-descriptor.xml
-
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g termoutput -build \
 	-sourcedir=$(srcdir) \
