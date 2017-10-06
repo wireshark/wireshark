@@ -204,6 +204,7 @@ static guint get_write_list_chunk_count(tvbuff_t *tvb, guint offset)
         chunk_size = get_write_chunk_size(tvb, offset);
         if ((offset + chunk_size) < offset)
             break;
+        offset += chunk_size;
     }
 
    return num_chunks;
