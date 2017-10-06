@@ -12,15 +12,15 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed:
 
-* ws-salink:2017-42[]
+* ws-salink:2017-44[]
 +
-A dissector went awry
-(ws-buglink:xxxx[])
+DMP dissector crash
+(ws-buglink:14068[])
 // cve-idlink:2017-xxxx[]
-// Fixed in master: xxxx
-// Fixed in master-2.4: xxxx
-// Fixed in master-2.2: xxxx
-// Fixed in master-2.0: xxxx
+// Fixed in master: 8dbb21dfde
+// Fixed in master-2.4: 3d8f82c24f
+// Fixed in master-2.2: cd2a1e9a8d
+// Fixed in master-2.0: bf1f1fd864
 
 The following bugs have been fixed:
 
@@ -29,6 +29,12 @@ The following bugs have been fixed:
 //* cve-idlink:2016-7000[]
 //* Wireshark insists on calling you on your land line which is keeping you from abandoning it for cellular. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.0.16rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+// Left off at a7678d2196
+
+* Wireshark crash when end capturing with "Update list of packets in real-time" option off. (ws-buglink:13024[])
+
+* RTP Analysis "save as CSV" saves twice the forward stream, if two streams are selected. (ws-buglink:14040[])
 
 === New and Updated Features
 
@@ -47,6 +53,7 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+DMP
 --sort-and-group--
 
 === New and Updated Capture File Support
