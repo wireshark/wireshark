@@ -16,19 +16,103 @@ The following bugs have been fixed:
 
 * ws-salink:2017-42[]
 +
-A dissector went awry
-(ws-buglink:xxxx[])
+BT ATT dissector crash
+(ws-buglink:14049[])
 // cve-idlink:2017-xxxx[]
-// Fixed in master: xxxx
-// Fixed in master-2.4: xxxx
-// Fixed in master-2.2: xxxx
-// Fixed in master-2.0: xxxx
+// Fixed in master: 3689dc1db3
+// Fixed in master-2.4: bc6f4f898f
+// Fixed in master-2.2: c1d26587c5
+// Fixed in master-2.0: n/a
+
+* ws-salink:2017-43[]
++
+MBIM dissector crash
+(ws-buglink:14056[])
+// cve-idlink:2017-xxxx[]
+// Fixed in master: afb9ff7982
+// Fixed in master-2.4: 9b91a80d4a
+// Fixed in master-2.2: b2f5c773fb
+// Fixed in master-2.0: n/a
+
+* ws-salink:2017-44[]
++
+DMP dissector crash
+(ws-buglink:14068[])
+// cve-idlink:2017-xxxx[]
+// Fixed in master: 8dbb21dfde
+// Fixed in master-2.4: 3d8f82c24f
+// Fixed in master-2.2: cd2a1e9a8d
+// Fixed in master-2.0: bf1f1fd864
+
+* ws-salink:2017-45[]
++
+RTSP dissector crash
+(ws-buglink:14077[])
+// cve-idlink:2017-xxxx[]
+// Fixed in master: e27870eaa6
+// Fixed in master-2.4: 8c8589e9ad
+// Fixed in master-2.2: n/a
+// Fixed in master-2.0: n/a
+
+* ws-salink:2017-46[]
++
+DOCSIS infinite loop
+(ws-buglink:14080[])
+// cve-idlink:2017-xxxx[]
+// Fixed in master: 625bab309d
+// Fixed in master-2.4: 0eb2fb7077
+// Fixed in master-2.2: n/a
+// Fixed in master-2.0: n/a
 
 //* ws-buglink:5000[]
 //* ws-buglink:6000[Wireshark bug]
 //* cve-idlink:2014-2486[]
 //* Wireshark keeps leaving voicemails advertising timeshare condominiums in Fresno. (ws-buglink:0000[])
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.4.2rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.4.3rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+// Left off at ac2ce9f9a0
+
+* Wireshark crash when end capturing with "Update list of packets in real-time" option off. (ws-buglink:13024[])
+
+* Diameter service response time statistics broken in 2.2.4. (ws-buglink:13442[])
+
+* Sequence number isn't shown as the X axis in TCP Stream Graph - RTT. (ws-buglink:13740[])
+
+* Using an SSL subdissector will cause SSL data to not be decoded (related to reassembly of application data). (ws-buglink:13885[])
+
+* Wireshark 2.4.0 doesn't build with Qt 4.8. (ws-buglink:13909[])
+
+* Some Infiniband Connect Req fields are not decoded correctly. (ws-buglink:13997[])
+
+* Voip Flow Sequence button crash. (ws-buglink:14010[])
+
+* wireshark-2.4.1/epan/dissectors/packet-dmp.c:1034: sanity check in wrong place ?. (ws-buglink:14016[])
+
+* wireshark-2.4.1/ui/qt/tcp_stream_dialog.cpp:1206: sanity check in odd place ?. (ws-buglink:14017[])
+
+* [oss-fuzz] ASAN: 232 byte(s) leaked in 4 allocation(s). (ws-buglink:14025[])
+
+* [oss-fuzz] ASAN: 47 byte(s) leaked in 1 allocation(s). (ws-buglink:14032[])
+
+* Own interface toolbar logger dialog for each log command. (ws-buglink:14033[])
+
+* Wireshark crashes when dissecting DOCSIS REGRSPMP which contains UCD. (ws-buglink:14038[])
+
+* Broken installation instructions for Visual Studio Community Edition. (ws-buglink:14039[])
+
+* RTP Analysis "save as CSV" saves twice the forward stream, if two streams are selected. (ws-buglink:14040[])
+
+* VWR file read ends early with vwr: Invalid data length 0. (ws-buglink:14051[])
+
+* reordercap fails with segmentation fault 11 on MacOS. (ws-buglink:14055[])
+
+* Cannot Apply Bitmask to Long Unsigned. (ws-buglink:14063[])
+
+* text2pcap since version 2.4 aborts when there are no arguments. (ws-buglink:14082[])
+
+* gtpprime: Missing in frame.protocols. (ws-buglink:14083[])
+
+* HTTP dissector believes ICY response is a request. (ws-buglink:14091[])
 
 === New and Updated Features
 
@@ -45,13 +129,32 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+6LoWPAN
+BOOTP/DHCP
+Bluetooth
+BT ATT
+BT LE
+DCERPC
+DMP
+DOCSIS
+EPL
+GTP
+H.248
+HTTP
+InfiniBand
+MBIM
+RPC
+RTSP
+SSL
+WSP
 --sort-and-group--
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
-//--sort-and-group--
-//--sort-and-group--
+//There is no new or updated capture file support in this release.
+--sort-and-group--
+Ixia IxVeriWave
+--sort-and-group--
 
 //=== New and Updated Capture Interfaces support
 
