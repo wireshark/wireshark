@@ -958,6 +958,7 @@ set(DISSECTOR_SRC
 	packet-forces.c
 	packet-foundry.c
 	packet-fp_hint.c
+	packet-fp_mux.c
 	packet-fr.c
 	packet-fractalgeneratorprotocol.c
 	packet-frame.c

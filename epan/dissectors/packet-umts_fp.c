@@ -7046,6 +7046,7 @@ void proto_reg_handoff_fp(void)
     mac_fdd_hsdsch_handle     = find_dissector_add_dependency("mac.fdd.hsdsch", proto_fp);
 
     heur_dissector_add("udp", heur_dissect_fp, "FP over UDP", "fp_udp", proto_fp, HEURISTIC_DISABLE);
+    heur_dissector_add("fp_mux", heur_dissect_fp, "FP over FP Mux", "fp_fp_mux", proto_fp, HEURISTIC_ENABLE);
 
     fp_aal2_handle = create_dissector_handle(dissect_fp_aal2, proto_fp);
     dissector_add_uint("atm.aal2.type", TRAF_UMTS_FP, fp_aal2_handle);
