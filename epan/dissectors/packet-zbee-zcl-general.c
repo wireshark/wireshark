@@ -1,3 +1,4 @@
+
 /* packet-zbee-zcl-general.c
  * Dissector routines for the ZigBee ZCL General clusters like
  * Basic, Identify, OnOff ...
@@ -2724,12 +2725,22 @@ proto_reg_handoff_zbee_zcl_scenes(void)
 /*************************/
 
 /* Attributes */
-#define ZBEE_ZCL_ON_OFF_ATTR_ID_ONOFF     0x0000
+#define ZBEE_ZCL_ON_OFF_ATTR_ID_ONOFF               0x0000
+#define ZBEE_ZCL_ON_OFF_ATTR_ID_GLOBALSCENECONTROL  0x4000
+#define ZBEE_ZCL_ON_OFF_ATTR_ID_ONTIME              0x4001
+#define ZBEE_ZCL_ON_OFF_ATTR_ID_OFFWAITTIME         0x4002
 
 /* Server Commands Received */
-#define ZBEE_ZCL_ON_OFF_CMD_OFF           0x00  /* Off */
-#define ZBEE_ZCL_ON_OFF_CMD_ON            0x01  /* On */
-#define ZBEE_ZCL_ON_OFF_CMD_TOGGLE        0x02  /* Toggle */
+#define ZBEE_ZCL_ON_OFF_CMD_OFF                         0x00  /* Off */
+#define ZBEE_ZCL_ON_OFF_CMD_ON                          0x01  /* On */
+#define ZBEE_ZCL_ON_OFF_CMD_TOGGLE                      0x02  /* Toggle */
+#define ZBEE_ZCL_ON_OFF_CMD_OFF_WITH_EFFECT             0x40  /* Off with effect */
+#define ZBEE_ZCL_ON_OFF_CMD_ON_WITH_RECALL_GLOBAL_SCENE 0x41  /* On with recall global scene */
+#define ZBEE_ZCL_ON_OFF_CMD_ON_WITH_TIMED_OFF           0x42  /* On with timed off */
+
+/* On/Off Control Field */
+#define ZBEE_ZCL_ON_OFF_TIMED_OFF_CONTROL_MASK_ACCEPT_ONLY_WHEN_ON   0x01
+#define ZBEE_ZCL_ON_OFF_TIMED_OFF_CONTROL_MASK_RESERVED              0xFE
 
 /*************************/
 /* Function Declarations */
@@ -2752,30 +2763,82 @@ static int proto_zbee_zcl_on_off = -1;
 
 static int hf_zbee_zcl_on_off_attr_id = -1;
 static int hf_zbee_zcl_on_off_attr_onoff = -1;
+static int hf_zbee_zcl_on_off_attr_globalscenecontrol = -1;
+static int hf_zbee_zcl_on_off_attr_ontime = -1;
+static int hf_zbee_zcl_on_off_attr_offwaittime = -1;
 static int hf_zbee_zcl_on_off_srv_rx_cmd_id = -1;
+
+static int hf_zbee_zcl_on_off_effect_identifier = -1;
+static int hf_zbee_zcl_on_off_effect_variant_delayed_all_off = -1;
+static int hf_zbee_zcl_on_off_effect_variant_dying_light = -1;
+static int hf_zbee_zcl_on_off_effect_variant_reserved = -1;
+
+static int hf_zbee_zcl_on_off_timed_off_control_mask = -1;
+static int hf_zbee_zcl_on_off_timed_off_control_mask_accept_only_when_on = -1;
+static int hf_zbee_zcl_on_off_timed_off_control_mask_reserved = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_zbee_zcl_on_off = -1;
+static gint ett_zbee_zcl_on_off_timed_off_control_mask = -1;
 
 /* Attributes */
 static const value_string zbee_zcl_on_off_attr_names[] = {
-    { ZBEE_ZCL_ON_OFF_ATTR_ID_ONOFF,    "OnOff" },
+    { ZBEE_ZCL_ON_OFF_ATTR_ID_ONOFF,                "OnOff" },
+    { ZBEE_ZCL_ON_OFF_ATTR_ID_GLOBALSCENECONTROL,   "GlobalSceneControl" },
+    { ZBEE_ZCL_ON_OFF_ATTR_ID_ONTIME,               "OnTime" },
+    { ZBEE_ZCL_ON_OFF_ATTR_ID_OFFWAITTIME,          "OffWaitTime" },
     { 0, NULL }
 };
 
 /* Server Commands Generated */
 static const value_string zbee_zcl_on_off_srv_rx_cmd_names[] = {
-    { ZBEE_ZCL_ON_OFF_CMD_OFF,          "Off" },
-    { ZBEE_ZCL_ON_OFF_CMD_ON,           "On" },
-    { ZBEE_ZCL_ON_OFF_CMD_TOGGLE,       "Toggle" },
+    { ZBEE_ZCL_ON_OFF_CMD_OFF,                          "Off" },
+    { ZBEE_ZCL_ON_OFF_CMD_ON,                           "On" },
+    { ZBEE_ZCL_ON_OFF_CMD_TOGGLE,                       "Toggle" },
+    { ZBEE_ZCL_ON_OFF_CMD_OFF_WITH_EFFECT,              "Off with effect" },
+    { ZBEE_ZCL_ON_OFF_CMD_ON_WITH_RECALL_GLOBAL_SCENE,  "On with recall global scene" },
+    { ZBEE_ZCL_ON_OFF_CMD_ON_WITH_TIMED_OFF,            "On with timed off" },
     { 0, NULL }
 };
 
 /* OnOff Names */
-static const value_string zbee_zcl_on_off_onoff_names[] = {
+static const value_string zbee_zcl_on_off_timed_off_names[] = {
     { 0, "Off" },
     { 1, "On" },
     { 0, NULL }
+};
+
+/* GlobalSceneControl Names */
+static const value_string zbee_zcl_on_off_globalscenecontrol_names[] = {
+    { 0, "False" },
+    { 1, "True" },
+    { 0, NULL }
+};
+
+static const range_string zbee_zcl_on_off_effect_identifier_names[] = {
+    { 0x00, 0x00, "Delayed All Off" },
+    { 0x01, 0x01, "Dying Light" },
+    { 0x02, 0xFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
+static const range_string zbee_zcl_on_off_effect_variant_delayed_all_off_names[] = {
+    { 0x00, 0x00, "Fade to off in 0.8 seconds" },
+    { 0x01, 0x01, "No fade" },
+    { 0x02, 0x02, "50% dim down in 0.8 seconds then fade to off in 12 seconds" },
+    { 0x03, 0xFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
+static const range_string zbee_zcl_on_off_effect_variant_dying_light_names[] = {
+    { 0x00, 0x00, "20% dim up in 0.5s then fade to off in 1 second" },
+    { 0x01, 0xFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
+static const range_string zbee_zcl_on_off_effect_variant_reserved_names[] = {
+    { 0x00, 0xFF, "Reserved" },
+    { 0, 0, NULL }
 };
 
 /*************************/
@@ -2799,9 +2862,18 @@ static const value_string zbee_zcl_on_off_onoff_names[] = {
 static int
 dissect_zbee_zcl_on_off(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
+    proto_tree       *payload_tree;
     zbee_zcl_packet  *zcl;
     guint   offset = 0;
     guint8  cmd_id;
+    gint    rem_len;
+    guint8  effect_identifier = 0;
+
+    static const int * onoff_control_mask[] = {
+        &hf_zbee_zcl_on_off_timed_off_control_mask_accept_only_when_on,
+        &hf_zbee_zcl_on_off_timed_off_control_mask_reserved,
+        NULL
+    };
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -2818,7 +2890,40 @@ dissect_zbee_zcl_on_off(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
         /* Add the command ID. */
         proto_tree_add_item(tree, hf_zbee_zcl_on_off_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
-        /*offset++;*/
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_on_off, NULL, "Payload");
+
+            switch (cmd_id) {
+                case ZBEE_ZCL_ON_OFF_CMD_OFF_WITH_EFFECT:
+                    proto_tree_add_item(payload_tree, hf_zbee_zcl_on_off_effect_identifier, tvb, offset, 1, ENC_NA);
+                    effect_identifier = tvb_get_guint8(tvb, offset);
+                    offset += 1;
+                    switch (effect_identifier) {
+                        case 0x00:
+                            proto_tree_add_item(payload_tree, hf_zbee_zcl_on_off_effect_variant_delayed_all_off, tvb, offset, 1, ENC_NA);
+                            break;
+                        case 0x01:
+                            proto_tree_add_item(payload_tree, hf_zbee_zcl_on_off_effect_variant_dying_light, tvb, offset, 1, ENC_NA);
+                            break;
+                        default:
+                            proto_tree_add_item(payload_tree, hf_zbee_zcl_on_off_effect_variant_reserved, tvb, offset, 1, ENC_NA);
+                            break;
+                    }
+                    break;
+
+                case ZBEE_ZCL_ON_OFF_CMD_ON_WITH_TIMED_OFF:
+                    proto_tree_add_bitmask(payload_tree, tvb, offset, hf_zbee_zcl_on_off_timed_off_control_mask, ett_zbee_zcl_on_off_timed_off_control_mask, onoff_control_mask, ENC_LITTLE_ENDIAN);
+                    offset += 1;
+
+                    dissect_zcl_on_off_attr_data(payload_tree, tvb, &offset, ZBEE_ZCL_ON_OFF_ATTR_ID_ONTIME, FT_UINT16);
+                    dissect_zcl_on_off_attr_data(payload_tree, tvb, &offset, ZBEE_ZCL_ON_OFF_ATTR_ID_OFFWAITTIME, FT_UINT16);
+                    break;
+
+                default:
+                    break;
+            }
+        }
     }
 
     return tvb_captured_length(tvb);
@@ -2852,6 +2957,21 @@ dissect_zcl_on_off_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, gui
             *offset += 1;
             break;
 
+        case ZBEE_ZCL_ON_OFF_ATTR_ID_GLOBALSCENECONTROL:
+            proto_tree_add_item(tree, hf_zbee_zcl_on_off_attr_globalscenecontrol, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ON_OFF_ATTR_ID_ONTIME:
+            proto_tree_add_item(tree, hf_zbee_zcl_on_off_attr_ontime, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+            *offset += 2;
+            break;
+
+        case ZBEE_ZCL_ON_OFF_ATTR_ID_OFFWAITTIME:
+            proto_tree_add_item(tree, hf_zbee_zcl_on_off_attr_offwaittime, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+            *offset += 2;
+            break;
+
         default:
             dissect_zcl_attr_data(tvb, tree, offset, data_type);
             break;
@@ -2859,6 +2979,11 @@ dissect_zcl_on_off_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, gui
 
 } /*dissect_zcl_on_off_attr_data*/
 
+static void
+zcl_fmt_time_tenths(gchar *s, guint32 v)
+{
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%01d seconds", v / 10, v % 10);
+}
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -2882,8 +3007,48 @@ proto_register_zbee_zcl_on_off(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_on_off_attr_onoff,
-            { "Data Value", "zbee_zcl_general.onoff.attr.onoff", FT_UINT8, BASE_HEX, VALS(zbee_zcl_on_off_onoff_names),
+            { "On/off Control", "zbee_zcl_general.onoff.attr.onoff", FT_UINT8, BASE_HEX, VALS(zbee_zcl_on_off_timed_off_names),
             0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_on_off_attr_globalscenecontrol,
+            { "Global Scene Control", "zbee_zcl_general.onoff.attr.globalscenecontrol", FT_UINT8, BASE_HEX, VALS(zbee_zcl_on_off_globalscenecontrol_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_on_off_attr_ontime,
+            { "On Time", "zbee_zcl_general.onoff.attr.ontime", FT_UINT16, BASE_CUSTOM, CF_FUNC(zcl_fmt_time_tenths),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_on_off_attr_offwaittime,
+            { "Off Wait Time", "zbee_zcl_general.onoff.attr.offwaittime", FT_UINT16, BASE_CUSTOM, CF_FUNC(zcl_fmt_time_tenths),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_on_off_effect_identifier,
+            { "Effect Identifier", "zbee_zcl_general.onoff.effect_identifier", FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_zcl_on_off_effect_identifier_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_on_off_effect_variant_delayed_all_off,
+            { "Effect Variant", "zbee_zcl_general.onoff.effect_variant", FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_zcl_on_off_effect_variant_delayed_all_off_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_on_off_effect_variant_dying_light,
+            { "Effect Variant", "zbee_zcl_general.onoff.effect_variant", FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_zcl_on_off_effect_variant_dying_light_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_on_off_effect_variant_reserved,
+            { "Effect Variant", "zbee_zcl_general.onoff.effect_variant", FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_zcl_on_off_effect_variant_reserved_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_on_off_timed_off_control_mask,
+            { "On/Off Control Mask", "zbee_zcl_general.onoff.onoff_control_mask", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_on_off_timed_off_control_mask_accept_only_when_on,
+            { "Accept Only When On", "zbee_zcl_general.onoff.onoff_control_mask.accept_only_when_on", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_ON_OFF_TIMED_OFF_CONTROL_MASK_ACCEPT_ONLY_WHEN_ON, NULL, HFILL } },
+
+        { &hf_zbee_zcl_on_off_timed_off_control_mask_reserved,
+            { "Reserved", "zbee_zcl_general.onoff.onoff_control_mask.reserved", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_ON_OFF_TIMED_OFF_CONTROL_MASK_RESERVED, NULL, HFILL } },
 
         { &hf_zbee_zcl_on_off_srv_rx_cmd_id,
             { "Command", "zbee_zcl_general.onoff.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_on_off_srv_rx_cmd_names),
@@ -2891,9 +3056,14 @@ proto_register_zbee_zcl_on_off(void)
 
     };
 
+    /* ZCL OnOff subtrees */
+    static gint *ett[] = { &ett_zbee_zcl_on_off,
+                          &ett_zbee_zcl_on_off_timed_off_control_mask };
+
     /* Register the ZigBee ZCL OnOff cluster protocol name and description */
     proto_zbee_zcl_on_off = proto_register_protocol("ZigBee ZCL OnOff", "ZCL OnOff", ZBEE_PROTOABBREV_ZCL_ONOFF);
     proto_register_field_array(proto_zbee_zcl_on_off, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL OnOff dissector. */
     register_dissector(ZBEE_PROTOABBREV_ZCL_ONOFF, dissect_zbee_zcl_on_off, proto_zbee_zcl_on_off);
