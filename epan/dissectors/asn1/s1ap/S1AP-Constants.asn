@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V14.3.0 (2017-06)
+-- 3GPP TS 36.413 V14.4.0 (2017-09)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -249,6 +249,8 @@ id-Unknown-81										ProtocolIE-ID ::= 81
 id-Unknown-82										ProtocolIE-ID ::= 82
 id-cdma2000HOStatus									ProtocolIE-ID ::= 83
 id-cdma2000HORequiredIndication						ProtocolIE-ID ::= 84
+--WS extension
+id-Unknown-85										ProtocolIE-ID ::= 85
 id-E-UTRAN-Trace-ID									ProtocolIE-ID ::= 86
 id-RelativeMMECapacity								ProtocolIE-ID ::= 87
 id-SourceMME-UE-S1AP-ID								ProtocolIE-ID ::= 88
@@ -392,6 +394,8 @@ id-S1-Message										ProtocolIE-ID ::= 225
 id-CSGMembershipInfo								ProtocolIE-ID ::= 226
 id-Paging-eDRXInformation							ProtocolIE-ID ::= 227
 id-UE-RetentionInformation							ProtocolIE-ID ::= 228
+--WS extension
+id-Unknown-229										ProtocolIE-ID ::= 229
 id-UE-Usage-Type									ProtocolIE-ID ::= 230
 id-extended-UEIdentityIndexValue					ProtocolIE-ID ::= 231
 id-RAT-Type											ProtocolIE-ID ::= 232

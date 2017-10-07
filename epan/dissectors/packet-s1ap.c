@@ -30,7 +30,7 @@
  *
  * Based on the RANAP dissector
  *
- * References: 3GPP TS 36.413 V14.3.0 (2017-06)
+ * References: 3GPP TS 36.413 V14.4.0 (2017-09)
  */
 
 #include "config.h"
@@ -269,6 +269,7 @@ typedef enum _ProtocolIE_ID_enum {
   id_Unknown_82 =  82,
   id_cdma2000HOStatus =  83,
   id_cdma2000HORequiredIndication =  84,
+  id_Unknown_85 =  85,
   id_E_UTRAN_Trace_ID =  86,
   id_RelativeMMECapacity =  87,
   id_SourceMME_UE_S1AP_ID =  88,
@@ -412,6 +413,7 @@ typedef enum _ProtocolIE_ID_enum {
   id_CSGMembershipInfo = 226,
   id_Paging_eDRXInformation = 227,
   id_UE_RetentionInformation = 228,
+  id_Unknown_229 = 229,
   id_UE_Usage_Type = 230,
   id_extended_UEIdentityIndexValue = 231,
   id_RAT_Type  = 232,
@@ -2015,6 +2017,7 @@ static const value_string s1ap_ProtocolIE_ID_vals[] = {
   { id_Unknown_82, "id-Unknown-82" },
   { id_cdma2000HOStatus, "id-cdma2000HOStatus" },
   { id_cdma2000HORequiredIndication, "id-cdma2000HORequiredIndication" },
+  { id_Unknown_85, "id-Unknown-85" },
   { id_E_UTRAN_Trace_ID, "id-E-UTRAN-Trace-ID" },
   { id_RelativeMMECapacity, "id-RelativeMMECapacity" },
   { id_SourceMME_UE_S1AP_ID, "id-SourceMME-UE-S1AP-ID" },
@@ -2158,6 +2161,7 @@ static const value_string s1ap_ProtocolIE_ID_vals[] = {
   { id_CSGMembershipInfo, "id-CSGMembershipInfo" },
   { id_Paging_eDRXInformation, "id-Paging-eDRXInformation" },
   { id_UE_RetentionInformation, "id-UE-RetentionInformation" },
+  { id_Unknown_229, "id-Unknown-229" },
   { id_UE_Usage_Type, "id-UE-Usage-Type" },
   { id_extended_UEIdentityIndexValue, "id-extended-UEIdentityIndexValue" },
   { id_RAT_Type, "id-RAT-Type" },
@@ -3486,6 +3490,7 @@ const value_string s1ap_CauseRadioNetwork_vals[] = {
   {  36, "redirection-towards-1xRTT" },
   {  37, "not-supported-QCI-value" },
   {  38, "invalid-CSG-Id" },
+  {  39, "release-due-to-pre-emption" },
   { 0, NULL }
 };
 
@@ -3497,7 +3502,7 @@ dissect_s1ap_CauseRadioNetwork(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 #line 1984 "./asn1/s1ap/s1ap.cnf"
   guint32 value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     36, &value, TRUE, 3, NULL);
+                                     36, &value, TRUE, 4, NULL);
 
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [RadioNetwork-cause=%s]", val_to_str_const(value, s1ap_CauseRadioNetwork_vals, "Unknown"));
 
@@ -6516,8 +6521,8 @@ static const value_string s1ap_OverloadAction_vals[] = {
   {   2, "permit-emergency-sessions-and-mobile-terminated-services-only" },
   {   3, "permit-high-priority-sessions-and-mobile-terminated-services-only" },
   {   4, "reject-delay-tolerant-access" },
-  {   5, "not-accept-mo-data-or-delay-tolerant-access-from-CP-CIoT" },
-  {   6, "permit-high-priority-sessions-and-exception-reporting-and-mobile-terminated-services-only" },
+  {   5, "permit-high-priority-sessions-and-exception-reporting-and-mobile-terminated-services-only" },
+  {   6, "not-accept-mo-data-or-delay-tolerant-access-from-CP-CIoT" },
   { 0, NULL }
 };
 

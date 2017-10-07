@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V14.3.0 (2017-06)
+-- 3GPP TS 36.413 V14.4.0 (2017-09)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -316,7 +316,8 @@ CauseRadioNetwork ::= ENUMERATED {
 	...,
 	redirection-towards-1xRTT,
 	not-supported-QCI-value,
-	invalid-CSG-Id
+	invalid-CSG-Id,
+	release-due-to-pre-emption
 
 }
 
@@ -1341,8 +1342,8 @@ OverloadAction ::= ENUMERATED {
 	...,
 	permit-high-priority-sessions-and-mobile-terminated-services-only,
 	reject-delay-tolerant-access,
-	not-accept-mo-data-or-delay-tolerant-access-from-CP-CIoT,
-	permit-high-priority-sessions-and-exception-reporting-and-mobile-terminated-services-only
+	permit-high-priority-sessions-and-exception-reporting-and-mobile-terminated-services-only,
+	not-accept-mo-data-or-delay-tolerant-access-from-CP-CIoT
 
 }
 
