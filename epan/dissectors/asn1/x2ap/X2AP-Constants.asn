@@ -107,6 +107,8 @@ id-E-RABs-ToBeSetup-Item													ProtocolIE-ID ::= 4
 id-Cause																	ProtocolIE-ID ::= 5
 id-CellInformation															ProtocolIE-ID ::= 6
 id-CellInformation-Item														ProtocolIE-ID ::= 7
+--WS extension
+id-Unknown-8															ProtocolIE-ID ::= 8
 id-New-eNB-UE-X2AP-ID														ProtocolIE-ID ::= 9
 id-Old-eNB-UE-X2AP-ID														ProtocolIE-ID ::= 10
 id-TargetCell-ID															ProtocolIE-ID ::= 11
@@ -171,6 +173,8 @@ id-CompleteFailureCauseInformation-Item										ProtocolIE-ID ::= 69
 id-CSG-Id																	ProtocolIE-ID ::= 70
 id-CSGMembershipStatus														ProtocolIE-ID ::= 71
 id-MDTConfiguration															ProtocolIE-ID ::= 72
+--WS extension
+id-Unknown-73															ProtocolIE-ID ::= 73
 id-ManagementBasedMDTallowed												ProtocolIE-ID ::= 74
 id-RRCConnSetupIndicator													ProtocolIE-ID ::= 75
 id-NeighbourTAC																ProtocolIE-ID ::= 76
@@ -241,6 +245,8 @@ id-E-RABs-ToBeReleased-RelConfItem											ProtocolIE-ID ::= 140
 id-E-RABs-SubjectToCounterCheck-List										ProtocolIE-ID ::= 141
 id-E-RABs-SubjectToCounterCheckItem											ProtocolIE-ID ::= 142
 id-CoverageModificationList													ProtocolIE-ID ::= 143
+--WS extension
+id-Unknown-144															ProtocolIE-ID ::= 144
 id-ReportingPeriodicityCSIR													ProtocolIE-ID ::= 145
 id-CSIReportList															ProtocolIE-ID ::= 146
 id-UEID																		ProtocolIE-ID ::= 147
