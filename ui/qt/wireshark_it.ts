@@ -14805,7 +14805,7 @@ a:hover {
     <message>
         <location filename="tcp_stream_dialog.ui" line="235"/>
         <source>Display Round Trip Time vs Sequence Number</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizza Round Trip Time e numero di sequenza</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="238"/>

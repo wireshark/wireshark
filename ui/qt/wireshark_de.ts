@@ -14811,7 +14811,7 @@ text-decoration: underline;
     <message>
         <location filename="tcp_stream_dialog.ui" line="235"/>
         <source>Display Round Trip Time vs Sequence Number</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeige Round-Trip-Zeit zur Sequenznummer an</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="238"/>
