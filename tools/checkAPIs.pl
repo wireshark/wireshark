@@ -2126,6 +2126,8 @@ if ("$filenamelist" ne "") {
         close(FC);
 }
 
+die "no files to process" unless (scalar @filelist);
+
 # Read through the files; do various checks
 while ($_ = pop @filelist)
 {
