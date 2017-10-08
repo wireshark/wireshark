@@ -245,7 +245,7 @@ clean-dumpabi-libwsutil:
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g termoutput -build \
 	-sourcedir=$(srcdir) \
-	$(LIBWSUTIL_SRC)
+	$(libwsutil_la_SOURCES)
 
 #	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput \
 #	-sourcedir=$(srcdir) \
