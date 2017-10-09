@@ -1343,8 +1343,8 @@ static void dissect_packetresend_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *t
 	{
 		guint64 highid;
 		guint64 lowid;
-		highid = tvb_get_ntoh64(tvb, offset + 12);
-		lowid = tvb_get_ntoh64(tvb, offset + 16);
+		highid = tvb_get_ntohl(tvb, offset + 12);
+		lowid = tvb_get_ntohl(tvb, offset + 16);
 
 		block_id = lowid | (highid << 32);
 	}
@@ -2196,7 +2196,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		offset++;
 
 		/* Add the flags */
-		flags = (gchar) tvb_get_guint8(tvb, offset + 1);
+		flags = (gchar) tvb_get_guint8(tvb, offset);
 		item = proto_tree_add_item(gvcp_tree, hf_gvcp_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
 		gvcp_tree_flag  = proto_item_add_subtree(item, ett_gvcp_flags);
 		if (command == GVCP_ACTION_CMD)
