@@ -1327,7 +1327,6 @@ static const value_string OpCodeMap[] =
     { RC_SEND_LAST_INVAL,           "RC Send Last Invalidate "},
     { RC_SEND_ONLY_INVAL,           "RC Send Only Invalidate " },
 
-
     { RD_SEND_FIRST,                "RD Send First "},
     { RD_SEND_MIDDLE,               "RD Send Middle " },
     { RD_SEND_LAST,                 "RD Send Last "},
@@ -1351,10 +1350,8 @@ static const value_string OpCodeMap[] =
     { RD_FETCH_ADD,                 "RD Fetch Add "},
     { RD_RESYNC,                    "RD RESYNC "},
 
-
     { UD_SEND_ONLY,                 "UD Send Only "},
     { UD_SEND_ONLY_IMM,             "UD Send Only Immediate "},
-
 
     { UC_SEND_FIRST,                "UC Send First "},
     { UC_SEND_MIDDLE,               "UC Send Middle "},
@@ -1363,13 +1360,12 @@ static const value_string OpCodeMap[] =
     { UC_SEND_ONLY,                 "UC Send Only "},
     { UC_SEND_ONLY_IMM,             "UC Send Only Immediate "},
     { UC_RDMA_WRITE_FIRST,          "UC RDMA Write First"},
-    { UC_RDMA_WRITE_MIDDLE,         "Unreliable Connection RDMA Write Middle "},
+    { UC_RDMA_WRITE_MIDDLE,         "UC RDMA Write Middle "},
     { UC_RDMA_WRITE_LAST,           "UC RDMA Write Last "},
     { UC_RDMA_WRITE_LAST_IMM,       "UC RDMA Write Last Immediate "},
     { UC_RDMA_WRITE_ONLY,           "UC RDMA Write Only "},
     { UC_RDMA_WRITE_ONLY_IMM,       "UC RDMA Write Only Immediate "},
     { 0, NULL}
-
 };
 
 /* Mellanox DCT has the same opcodes as RD so will use the same RD macros */
