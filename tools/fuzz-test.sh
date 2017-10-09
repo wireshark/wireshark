@@ -80,6 +80,8 @@ ws_bind_exec_paths
 ws_check_exec "$TSHARK" "$EDITCAP" "$CAPINFOS" "$DATE" "$TMP_DIR"
 
 COMMON_ARGS="${CONFIG_PROFILE}${TWO_PASS}"
+KEEP=
+PACKET_RANGE=
 if [ $VALGRIND -eq 1 ]; then
     RUNNER="`dirname $0`/valgrind-wireshark.sh"
     COMMON_ARGS="-b $WIRESHARK_BIN_DIR $COMMON_ARGS"
@@ -88,6 +90,10 @@ if [ $VALGRIND -eq 1 ]; then
     # (1.5x time is too small for a few large captures in the menagerie)
     MAX_CPU_TIME=`expr 3 \* $MAX_CPU_TIME`
     MAX_VMEM=`expr 3 \* $MAX_VMEM / 2`
+    # Valgrind is slow. Trim captures to the first 100k packets so that
+    # we don't time out.
+    KEEP=-r
+    PACKET_RANGE=1-100000
 else
     # Not using valgrind, use regular tshark.
     # TShark arguments (you won't have to change these)
@@ -180,17 +186,12 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
             ws_exit_error
         fi
 
-        if [ $VALGRIND -eq 1 -a `ls -s $CF | cut -d' ' -f1` -gt 8000 ]; then
-            echo "Too big for valgrind"
-            continue
-        fi
-
         DISSECTOR_BUG=0
         VG_ERR_CNT=0
 
-        "$EDITCAP" -E $ERR_PROB -o $CHANGE_OFFSET "$CF" $TMP_DIR/$TMP_FILE > /dev/null 2>&1
+        "$EDITCAP" -E $ERR_PROB -o $CHANGE_OFFSET $KEEP "$CF" $TMP_DIR/$TMP_FILE $PACKET_RANGE > /dev/null 2>&1
         if [ $? -ne 0 ] ; then
-            "$EDITCAP" -E $ERR_PROB -o $CHANGE_OFFSET -T ether "$CF" $TMP_DIR/$TMP_FILE \
+            "$EDITCAP" -E $ERR_PROB -o $CHANGE_OFFSET $KEEP -T ether "$CF" $TMP_DIR/$TMP_FILE $PACKET_RANGE \
                 > /dev/null 2>&1
             if [ $? -ne 0 ] ; then
                 echo "Invalid format for editcap"
