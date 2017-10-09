@@ -730,13 +730,13 @@ typedef struct
 #define FI_LITTLE_ENDIAN        0x00000008
 /** The protocol field value is in big endian */
 #define FI_BIG_ENDIAN           0x00000010
-/** The protocol field value is a varint */
-#define FI_VARINT               0x00000020
 /** Field value start from nth bit (values from 0x20 - 0x100) */
 #define FI_BITS_OFFSET(n)       (((n) & 7) << 5)
 /** Field value takes n bits (values from 0x100 - 0x4000) */
 /* if 0, it means that field takes fi->length * 8 */
 #define FI_BITS_SIZE(n)         (((n) & 63) << 8)
+/** The protocol field value is a varint */
+#define FI_VARINT               0x00004000
 
 /** convenience macro to get field_info.flags */
 #define FI_GET_FLAG(fi, flag)   ((fi) ? ((fi)->flags & (flag)) : 0)
