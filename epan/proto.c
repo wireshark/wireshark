@@ -7339,6 +7339,7 @@ static const value_string hf_display[] = {
 	{ BASE_PT_TCP,			  "BASE_PT_TCP"			   },
 	{ BASE_PT_DCCP,			  "BASE_PT_DCCP"		   },
 	{ BASE_PT_SCTP,			  "BASE_PT_SCTP"		   },
+	{ BASE_OUI,				  "BASE_OUI"		   },
 	{ 0,				  NULL } };
 
 const char* proto_field_display_to_string(int field_display)
@@ -7562,6 +7563,27 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 				tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Unknown: 0x%x)");
 				if (hfinfo->type != FT_UINT16) {
 					g_error("Field '%s' (%s) has 'display' value %s but it can only be used with FT_UINT16, not %s\n",
+						hfinfo->name, hfinfo->abbrev,
+						tmp_str, ftype_name(hfinfo->type));
+				}
+				if (hfinfo->strings != NULL) {
+					g_error("Field '%s' (%s) is an %s (%s) but has a strings value\n",
+						hfinfo->name, hfinfo->abbrev,
+						ftype_name(hfinfo->type), tmp_str);
+				}
+				if (hfinfo->bitmask != 0) {
+					g_error("Field '%s' (%s) is an %s (%s) but has a bitmask\n",
+						hfinfo->name, hfinfo->abbrev,
+						ftype_name(hfinfo->type), tmp_str);
+				}
+				wmem_free(NULL, tmp_str);
+				break;
+			}
+
+			if (hfinfo->display == BASE_OUI) {
+				tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Unknown: 0x%x)");
+				if (hfinfo->type != FT_UINT24) {
+					g_error("Field '%s' (%s) has 'display' value %s but it can only be used with FT_UINT24, not %s\n",
 						hfinfo->name, hfinfo->abbrev,
 						tmp_str, ftype_name(hfinfo->type));
 				}
@@ -9186,6 +9208,27 @@ hfinfo_number_value_format_display(const header_field_info *hfinfo, int display,
 			port_with_resolution_to_str_buf(buf, 32,
 					display_to_port_type((field_display_e)display), value);
 			return buf;
+		case BASE_OUI:
+			{
+			guint8 p_oui[3];
+			const gchar *manuf_name;
+
+			p_oui[0] = value >> 16 & 0xFF;
+			p_oui[1] = value >> 8 & 0xFF;
+			p_oui[2] = value & 0xFF;
+
+			/* Attempt an OUI lookup. */
+			manuf_name = uint_get_manuf_name_if_known(value);
+			if (manuf_name == NULL) {
+				/* Could not find an OUI. */
+				g_snprintf(buf, 32, "%02x:%02x:%02x", p_oui[0], p_oui[1], p_oui[2]);
+			}
+			else {
+				/* Found an address string. */
+				g_snprintf(buf, 32, "%02x:%02x:%02x (%s)", p_oui[0], p_oui[1], p_oui[2], manuf_name);
+			}
+			return buf;
+			}
 
 		default:
 			g_assert_not_reached();
@@ -9287,6 +9330,8 @@ hfinfo_numeric_value_format(const header_field_info *hfinfo, char buf[32], guint
 
 	if (IS_BASE_PORT(display)) {
 		display = BASE_DEC;
+	} else if (display == BASE_OUI) {
+		display = BASE_HEX;
 	}
 
 	switch (display) {
@@ -10079,6 +10124,7 @@ proto_registrar_dump_fields(void)
 					case BASE_PT_TCP:
 					case BASE_PT_DCCP:
 					case BASE_PT_SCTP:
+					case BASE_OUI:
 						base_name = val_to_str_const(FIELD_DISPLAY(hfinfo->display), hf_display, "????");
 						break;
 					default:

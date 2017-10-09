@@ -909,16 +909,24 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
                 }
                 else {
                     proto_tree *vendor_tree;
-                    gchar manuf[3];
+                    proto_item *vendor_item;
+                    guint32 manuf;
+                    const gchar* oui;
 
-                    tvb_memcpy(tvb, manuf, offset, 3);
-                    vendor_tree = proto_tree_add_subtree_format(nhrp_tree, tvb, offset, len,
-                        ett_nhrp_vendor_ext, NULL, "Extension Data: Vendor ID=%s, Data=%s", get_manuf_name(manuf),
-                        tvb_bytes_to_str(wmem_packet_scope(), tvb, offset + 3, len - 3));
-                    proto_tree_add_bytes_format_value(vendor_tree, hf_nhrp_vendor_ext_id, tvb,
-                        offset, 3, manuf, "%s", get_manuf_name(manuf));
+                    vendor_tree = proto_tree_add_subtree(nhrp_tree, tvb, offset, len,
+                        ett_nhrp_vendor_ext, &vendor_item, "Extension Data:");
+                    proto_tree_add_item_ret_uint(vendor_tree, hf_nhrp_vendor_ext_id, tvb, offset, 3, ENC_BIG_ENDIAN, &manuf);
+                    oui = uint_get_manuf_name_if_known(manuf);
+                    if (oui != NULL) {
+                        proto_item_append_text(vendor_item, " Vendor ID=%s", oui);
+                    } else {
+                        proto_item_append_text(vendor_item, " Vendor ID=Unknown");
+                    }
                     if (len > 3) {
                         proto_tree_add_item(vendor_tree, hf_nhrp_vendor_ext_data, tvb, offset + 3, len - 3, ENC_NA);
+                        proto_item_append_text(vendor_item, ", Data=%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset + 3, len - 3));
+                    } else {
+                        proto_item_append_text(vendor_item, ", Data=<none>");
                     }
                 }
                 break;

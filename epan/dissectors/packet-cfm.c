@@ -890,7 +890,6 @@ static int dissect_cfm_mcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	gint cfm_tlv_offset;
 	proto_item *ti;
 	proto_item *fi;
-	proto_item *oi;
 	proto_tree *cfm_pdu_tree;
 	proto_tree *cfm_flag_tree;
 
@@ -905,8 +904,7 @@ static int dissect_cfm_mcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	oi = proto_tree_add_item(cfm_pdu_tree, hf_tlv_org_spec_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
-	proto_item_append_text(oi, " (%s)", tvb_get_manuf_name(tvb, offset));
+	proto_tree_add_item(cfm_pdu_tree, hf_tlv_org_spec_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
 	offset += 3;
 	proto_tree_add_item(cfm_pdu_tree, hf_tlv_org_spec_subtype, tvb, offset, 1, ENC_NA);
 	offset += 1;
@@ -1072,7 +1070,6 @@ static int dissect_cfm_exm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	gint cfm_tlv_offset;
 	proto_item *ti;
 	proto_item *fi;
-	proto_item *oi;
 	proto_tree *cfm_pdu_tree;
 	proto_tree *cfm_flag_tree;
 
@@ -1087,8 +1084,7 @@ static int dissect_cfm_exm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	oi = proto_tree_add_item(cfm_pdu_tree, hf_tlv_org_spec_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
-	proto_item_append_text(oi, " (%s)", tvb_get_manuf_name(tvb, offset));
+	proto_tree_add_item(cfm_pdu_tree, hf_tlv_org_spec_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
 	offset += 3;
 	proto_tree_add_item(cfm_pdu_tree, hf_tlv_org_spec_subtype, tvb, offset, 1, ENC_NA);
 	offset += 1;
@@ -1112,7 +1108,6 @@ static int dissect_cfm_exr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	gint cfm_tlv_offset;
 	proto_item *ti;
 	proto_item *fi;
-	proto_item *oi;
 	proto_tree *cfm_pdu_tree;
 	proto_tree *cfm_flag_tree;
 
@@ -1127,8 +1122,7 @@ static int dissect_cfm_exr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	oi = proto_tree_add_item(cfm_pdu_tree, hf_tlv_org_spec_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
-	proto_item_append_text(oi, " (%s)", tvb_get_manuf_name(tvb, offset));
+	proto_tree_add_item(cfm_pdu_tree, hf_tlv_org_spec_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
 	offset += 3;
 	proto_tree_add_item(cfm_pdu_tree, hf_tlv_org_spec_subtype, tvb, offset, 1, ENC_NA);
 	offset += 1;
@@ -1152,7 +1146,6 @@ static int dissect_cfm_vsm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	gint cfm_tlv_offset;
 	proto_item *ti;
 	proto_item *fi;
-	proto_item *oi;
 	proto_tree *cfm_pdu_tree;
 	proto_tree *cfm_flag_tree;
 
@@ -1167,8 +1160,7 @@ static int dissect_cfm_vsm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	oi = proto_tree_add_item(cfm_pdu_tree, hf_tlv_org_spec_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
-	proto_item_append_text(oi, " (%s)", tvb_get_manuf_name(tvb, offset));
+	proto_tree_add_item(cfm_pdu_tree, hf_tlv_org_spec_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
 	offset += 3;
 	proto_tree_add_item(cfm_pdu_tree, hf_tlv_org_spec_subtype, tvb, offset, 1, ENC_NA);
 	offset += 1;
@@ -1192,7 +1184,6 @@ static int dissect_cfm_vsr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	gint cfm_tlv_offset;
 	proto_item *ti;
 	proto_item *fi;
-	proto_item *oi;
 	proto_tree *cfm_pdu_tree;
 	proto_tree *cfm_flag_tree;
 
@@ -1207,8 +1198,7 @@ static int dissect_cfm_vsr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	oi = proto_tree_add_item(cfm_pdu_tree, hf_tlv_org_spec_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
-	proto_item_append_text(oi, " (%s)", tvb_get_manuf_name(tvb, offset));
+	proto_tree_add_item(cfm_pdu_tree, hf_tlv_org_spec_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
 	offset += 3;
 	proto_tree_add_item(cfm_pdu_tree, hf_tlv_org_spec_subtype, tvb, offset, 1, ENC_NA);
 	offset += 1;
@@ -1313,7 +1303,6 @@ static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	if (tree) { /* we are being asked for details */
 		gint cfm_tlv_offset;
 		proto_item *ti;
-		proto_item *oi;
 		proto_tree *cfm_tree;
 
 		/* isolate the payload of the packet */
@@ -1593,9 +1582,8 @@ static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 							 * and the subtype.
 							 */
 							if (cfm_tlv_length > 3) {
-								oi = proto_tree_add_item(cfm_tlv_tree, hf_tlv_org_spec_oui,
+								proto_tree_add_item(cfm_tlv_tree, hf_tlv_org_spec_oui,
 									tvb, tlv_data_offset, 3, ENC_BIG_ENDIAN);
-								proto_item_append_text(oi, " (%s)", tvb_get_manuf_name(tvb, tlv_data_offset));
 								tlv_data_offset += 3;
 								proto_tree_add_item(cfm_tlv_tree, hf_tlv_org_spec_subtype,
 								       	tvb, tlv_data_offset, 1, ENC_NA);
@@ -2223,7 +2211,7 @@ void proto_register_cfm(void)
 				/* Organization-Specific TLV */
 		{ &hf_tlv_org_spec_oui,
 			{ "OUI", "cfm.tlv.org.spec.oui", FT_UINT24,
-			BASE_HEX, NULL, 0x0, NULL, HFILL	}
+			BASE_OUI, NULL, 0x0, NULL, HFILL	}
 		},
 		{ &hf_tlv_org_spec_subtype,
 			{ "Sub-Type", "cfm.tlv.org.spec.subtype", FT_BYTES,

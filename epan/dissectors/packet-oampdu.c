@@ -957,10 +957,6 @@ static gint ett_oampdu_lpbk_ctrl = -1;
 
 static expert_field ei_oampdu_event_length_bad = EI_INIT;
 
-#define APPEND_OUI_NAME(item, string, tvb, offset) \
-        string = tvb_get_manuf_name(tvb, offset);  \
-        proto_item_append_text(item, " (%s)", string);
-
 static void
 dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree);
 
@@ -1097,11 +1093,8 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
     guint32   offset;
     guint16   bytes;
 
-    const guint8 *ptr;
-
     proto_tree *info_tree;
     proto_item *info_item;
-    proto_item *oui_item;
 
 
     offset = OAMPDU_HEADER_SIZE;
@@ -1190,10 +1183,8 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
 
             offset += OAMPDU_INFO_OAMPDU_CONFIG_SZ;
 
-            oui_item = proto_tree_add_item(info_tree, hf_oampdu_info_oui,
-                    tvb, offset, 3, ENC_NA);
-
-            APPEND_OUI_NAME(oui_item, ptr, tvb, offset);
+            proto_tree_add_item(info_tree, hf_oampdu_info_oui,
+                    tvb, offset, 3, ENC_BIG_ENDIAN);
 
             offset += OAMPDU_INFO_OUI_SZ;
 
@@ -1211,11 +1202,7 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
 
             offset += OAMPDU_INFO_LENGTH_SZ;
 
-            oui_item = proto_tree_add_item(info_tree, hf_oampdu_info_oui,
-                    tvb, offset, 3, ENC_NA);
-
-            APPEND_OUI_NAME(oui_item, ptr, tvb, offset);
-
+            proto_tree_add_item(info_tree, hf_oampdu_info_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
             offset += OAMPDU_INFO_OUI_SZ;
 
             proto_tree_add_item(info_tree, hf_oampdu_info_vendor,
@@ -1685,7 +1672,6 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, proto_tree *tree)
     guint8    pir_subtype;
     guint8    rr_byte;
 
-    const guint8 *ptr;
     const guint8 oui_cl[] = {OUI_CL_0, OUI_CL_1, OUI_CL_2};
 
     proto_item *oui_item;
@@ -1699,8 +1685,7 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, proto_tree *tree)
     bytes = tvb_captured_length_remaining(tvb, offset);
 
     if (bytes >= 3) {
-        oui_item = proto_tree_add_item(tree, hf_oampdu_info_oui, tvb, offset, 3, ENC_NA);
-        APPEND_OUI_NAME(oui_item, ptr, tvb, offset);
+        oui_item = proto_tree_add_item(tree, hf_oampdu_info_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
 
         if (tvb_memeql(tvb, offset, oui_cl, OUI_SIZE) == 0) {
 
@@ -2062,7 +2047,7 @@ proto_register_oampdu(void)
 
         { &hf_oampdu_info_oui,
             { "Organizationally Unique Identifier", "oampdu.info.oui",
-                FT_BYTES,    BASE_NONE,    NULL,    0x0,
+                FT_UINT24,    BASE_OUI,    NULL,    0x0,
                 NULL, HFILL }},
 
         { &hf_oampdu_info_vendor,

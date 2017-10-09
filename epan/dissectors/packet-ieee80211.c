@@ -6034,8 +6034,7 @@ dissect_advertisement_protocol_common(packet_info *pinfo, proto_tree *tree,
                                "Vendor specific info length error");
         return 2 + tag_len;
       }
-      oui = tvb_get_ntoh24(tvb, offset);
-      proto_tree_add_item(adv_tuple_tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
+      proto_tree_add_item_ret_uint(adv_tuple_tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_BIG_ENDIAN, &oui);
       offset += 3;
       left   -= 3;
       wfa_subtype = tvb_get_guint8(tvb, offset);
@@ -6117,8 +6116,7 @@ dissect_anqp_capab_list(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
         expert_add_info(pinfo, tree, &ei_ieee80211_ff_anqp_capability);
         return;
       }
-      oui = tvb_get_ntoh24(tvb, offset);
-      proto_tree_add_item(vtree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
+      proto_tree_add_item_ret_uint(vtree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_BIG_ENDIAN, &oui);
       offset += 3;
       len    -= 3;
 
@@ -6795,8 +6793,7 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
     dissect_domain_name_list(tree, tvb, offset, offset + len);
     break;
   case ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST:
-    oui = tvb_get_ntoh24(tvb, offset);
-    proto_tree_add_item(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
+    proto_tree_add_item_ret_uint(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_BIG_ENDIAN, &oui);
     offset += 3;
     vendor_tvb = tvb_new_subset_length(tvb, offset, len);
 
@@ -8105,8 +8102,7 @@ add_ff_action_public_fields(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     offset += add_ff_extended_channel_switch_announcement(tree, tvb, pinfo, offset);
     break;
   case PA_VENDOR_SPECIFIC:
-    oui = tvb_get_ntoh24(tvb, offset);
-    proto_tree_add_item(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
+    proto_tree_add_item_ret_uint(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_BIG_ENDIAN, &oui);
     offset += 3;
     switch (oui) {
     case OUI_WFA:
@@ -8674,8 +8670,7 @@ add_ff_action_vendor_specific(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
   int dissected;
 
   offset += add_ff_category_code(tree, tvb, pinfo, offset);
-  oui = tvb_get_ntoh24(tvb, offset);
-  proto_tree_add_item(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
+  proto_tree_add_item_ret_uint(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_BIG_ENDIAN, &oui);
   offset += 3;
 
   vendor_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -9974,14 +9969,14 @@ oui_base_custom(gchar *result, guint32 oui)
   p_oui[2] = oui & 0xFF;
 
   /* Attempt an OUI lookup. */
-  manuf_name = get_manuf_name_if_known(p_oui);
+  manuf_name = uint_get_manuf_name_if_known(oui);
   if (manuf_name == NULL) {
     /* Could not find an OUI. */
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%.2x-%.2x-%.2x", p_oui[0], p_oui[1], p_oui[2]);
+    g_snprintf(result, ITEM_LABEL_LENGTH, "%02x:%02x:%02x", p_oui[0], p_oui[1], p_oui[2]);
   }
   else {
    /* Found an address string. */
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%.2x-%.2x-%.2x (%s)", p_oui[0], p_oui[1], p_oui[2], manuf_name);
+    g_snprintf(result, ITEM_LABEL_LENGTH, "%02x:%02x:%02x (%s)", p_oui[0], p_oui[1], p_oui[2], manuf_name);
   }
 }
 
@@ -12610,7 +12605,7 @@ dissect_wapi_param_set(tvbuff_t *tvb, packet_info *pinfo,
     proto_item_append_text(ti, " Unicast Cipher List:");
     for (loop_cnt = 0; loop_cnt < ucast_cnt; loop_cnt++) {
       subtree = proto_item_add_subtree(item, ett_tag_wapi_param_set_ucast_tree);
-      proto_tree_add_item(subtree, hf_ieee80211_tag_wapi_param_set_ucast_cipher_suite_oui, tvb, offset, 3, ENC_NA);
+      proto_tree_add_item(subtree, hf_ieee80211_tag_wapi_param_set_ucast_cipher_suite_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
       offset += 3;
       ucast_cipher_type = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(subtree, hf_ieee80211_tag_wapi_param_set_ucast_cipher_suite_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -15940,8 +15935,7 @@ ieee80211_tag_vendor_specific_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     return tvb_captured_length(tvb);
   }
 
-  oui = tvb_get_ntoh24(tvb, offset);
-  proto_tree_add_item(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
+  proto_tree_add_item_ret_uint(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_BIG_ENDIAN, &oui);
   proto_item_append_text(field_data->item_tag, ": %s", uint_get_manuf_name_if_known(oui));
   offset += 3;
   tag_vs_len -= 3;
@@ -23523,7 +23517,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_oui,
      {"OUI", "wlan.tag.oui",
-      FT_UINT24, BASE_CUSTOM, CF_FUNC(oui_base_custom), 0,
+      FT_UINT24, BASE_OUI, NULL, 0,
       "OUI of vendor specific IE", HFILL }},
 
     {&hf_ieee80211_tag_oui_wfa_subtype,
@@ -23851,7 +23845,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_rsn_gcs_oui,
      {"Group Cipher Suite OUI", "wlan.rsn.gcs.oui",
-      FT_UINT24, BASE_CUSTOM, CF_FUNC(oui_base_custom), 0,
+      FT_UINT24, BASE_OUI, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_rsn_gcs_type,
@@ -23881,7 +23875,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_rsn_pcs_oui,
      {"Pairwise Cipher Suite OUI", "wlan.rsn.pcs.oui",
-      FT_UINT24, BASE_CUSTOM, CF_FUNC(oui_base_custom), 0,
+      FT_UINT24, BASE_OUI, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_rsn_pcs_type,
@@ -23911,7 +23905,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_rsn_akms_oui,
      {"Auth Key Management (AKM) OUI", "wlan.rsn.akms.oui",
-      FT_UINT24, BASE_CUSTOM, CF_FUNC(oui_base_custom), 0,
+      FT_UINT24, BASE_OUI, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_rsn_akms_type,
@@ -23991,7 +23985,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_rsn_gmcs_oui,
      {"Group Management Cipher Suite OUI", "wlan.rsn.gmcs.oui",
-      FT_UINT24, BASE_CUSTOM, CF_FUNC(oui_base_custom), 0,
+      FT_UINT24, BASE_OUI, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_rsn_gmcs_type,
@@ -26346,7 +26340,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_wfa_ie_wpa_mcs_oui,
      {"Multicast Cipher Suite OUI", "wlan.wfa.ie.wpa.mcs.oui",
-      FT_UINT24, BASE_CUSTOM, CF_FUNC(oui_base_custom), 0,
+      FT_UINT24, BASE_OUI, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_wpa_mcs_type,
@@ -26376,7 +26370,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_wfa_ie_wpa_ucs_oui,
      {"Unicast Cipher Suite OUI", "wlan.wfa.ie.wpau.cs.oui",
-      FT_UINT24, BASE_CUSTOM, CF_FUNC(oui_base_custom), 0,
+      FT_UINT24, BASE_OUI, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_wpa_ucs_type,
@@ -26406,7 +26400,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_wfa_ie_wpa_akms_oui,
      {"Auth Key Management (AKM) OUI", "wlan.wfa.ie.wpa.akms.oui",
-      FT_UINT24, BASE_CUSTOM, CF_FUNC(oui_base_custom), 0,
+      FT_UINT24, BASE_OUI, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_wpa_akms_type,
@@ -27576,7 +27570,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_wapi_param_set_akm_suite_oui,
      {"AKM Suite OUI", "wlan.wapi.akm_suite.oui",
-      FT_UINT24, BASE_CUSTOM, CF_FUNC(oui_base_custom), 0,
+      FT_UINT24, BASE_OUI, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_wapi_param_set_akm_suite_type,
@@ -27591,7 +27585,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_wapi_param_set_ucast_cipher_suite_oui,
      {"Unicast Cipher Suite OUI", "wlan.wapi.unicast_cipher.suite.oui",
-      FT_UINT24, BASE_CUSTOM, CF_FUNC(oui_base_custom), 0,
+      FT_UINT24, BASE_OUI, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_wapi_param_set_ucast_cipher_suite_type,
@@ -27601,7 +27595,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_wapi_param_set_mcast_cipher_suite_oui,
      {"Multicast Cipher Suite OUI", "wlan.wapi.multicast_cipher.suite.oui",
-      FT_UINT24, BASE_CUSTOM, CF_FUNC(oui_base_custom), 0,
+      FT_UINT24, BASE_OUI, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_wapi_param_set_mcast_cipher_suite_type,

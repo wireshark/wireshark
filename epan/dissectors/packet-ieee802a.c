@@ -81,7 +81,6 @@ dissect_ieee802a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	proto_item	*ti;
 	tvbuff_t	*next_tvb;
 	const gchar	*manuf;
-	guint8		oui[3];
 	guint32		oui32;
 	guint16		pid;
 	oui_info_t	*oui_info;
@@ -94,18 +93,13 @@ dissect_ieee802a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	ti = proto_tree_add_item(tree, proto_ieee802a, tvb, 0, 5, ENC_NA);
 	ieee802a_tree = proto_item_add_subtree(ti, ett_ieee802a);
 
-	tvb_memcpy(tvb, oui, 0, 3);
-	oui32 = oui[0] << 16 | oui[1] << 8 | oui[2];
-	manuf = get_manuf_name_if_known(oui);
+	proto_tree_add_item_ret_uint(ieee802a_tree, hf_ieee802a_oui, tvb, 0, 3, ENC_BIG_ENDIAN, &oui32);
+	manuf = uint_get_manuf_name_if_known(oui32);
 	pid = tvb_get_ntohs(tvb, 3);
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "OUI %s (%s), PID 0x%04X",
-	    bytestring_to_str(wmem_packet_scope(), oui, 3, ':'),
-	    manuf ? manuf : "Unknown", pid);
-
-	proto_tree_add_uint_format_value(ieee802a_tree, hf_ieee802a_oui,
-	    tvb, 0, 3, oui32, "%s (%s)",
-	    bytestring_to_str(wmem_packet_scope(), oui, 3, ':'), manuf ? manuf : "Unknown");
+		tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, 0, 3, ':'),
+		manuf ? manuf : "Unknown", pid);
 
 	/*
 	 * Do we have information for this OUI?
@@ -148,7 +142,7 @@ proto_register_ieee802a(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_ieee802a_oui,
-		  { "Organization Code",	"ieee802a.oui", FT_UINT24, BASE_HEX,
+		  { "Organization Code",	"ieee802a.oui", FT_UINT24, BASE_OUI,
 		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_ieee802a_pid,

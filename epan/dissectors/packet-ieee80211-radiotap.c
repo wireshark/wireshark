@@ -909,7 +909,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 
 		if (iter.this_arg_index == IEEE80211_RADIOTAP_VENDOR_NAMESPACE
 		    && tree) {
-			proto_tree *vt, *ven_tree = NULL;
+			proto_tree *ven_tree;
+			proto_item *vt;
 			const gchar *manuf_name;
 			guint8 subns;
 
@@ -924,10 +925,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 							 "%s-%d",
 							 manuf_name, subns);
 			ven_tree = proto_item_add_subtree(vt, ett_radiotap_vendor);
-			proto_tree_add_bytes_format_value(ven_tree,
-						    hf_radiotap_ven_oui, tvb,
-						    offset, 3, NULL,
-						    "%s", manuf_name);
+			proto_tree_add_item(ven_tree, hf_radiotap_ven_oui,
+					    tvb, offset, 3, ENC_BIG_ENDIAN);
 			proto_tree_add_item(ven_tree, hf_radiotap_ven_subns,
 					    tvb, offset + 3, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(ven_tree, hf_radiotap_ven_skip, tvb,
@@ -2777,7 +2776,7 @@ void proto_register_radiotap(void)
 
 		{&hf_radiotap_ven_oui,
 		 {"Vendor OUI", "radiotap.vendor_oui",
-		  FT_BYTES, BASE_NONE, NULL, 0x0,
+		  FT_UINT24, BASE_OUI, NULL, 0x0,
 		  NULL, HFILL}},
 
 		{&hf_radiotap_ven_subns,

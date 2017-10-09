@@ -136,6 +136,10 @@ FIELDDISPLAY    --For FT_UINT{8,16,24,32,40,48,56,64} and
 
                   BASE_PT_UDP, BASE_PT_TCP, BASE_PT_DCCP or BASE_PT_SCTP
 
+                --For FT_UINT24:
+
+                  BASE_OUI
+
                 --For FT_CHAR:
                   BASE_HEX, BASE_OCT, BASE_CUSTOM, or BASE_NONE, possibly
                   ORed with BASE_RANGE_STRING, BASE_EXT_STRING or

@@ -594,7 +594,11 @@ typedef enum {
 	BASE_PT_UDP  = 13,  /**< UDP port */
 	BASE_PT_TCP  = 14,  /**< TCP port */
 	BASE_PT_DCCP = 15,  /**< DCCP port */
-	BASE_PT_SCTP = 16   /**< SCTP port */
+	BASE_PT_SCTP = 16,  /**< SCTP port */
+
+/* OUI types */
+	BASE_OUI     = 17   /**< OUI resolution */
+
 } field_display_e;
 
 #define FIELD_DISPLAY(d) ((d) & FIELD_DISPLAY_E_MASK)
