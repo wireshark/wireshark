@@ -255,6 +255,7 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
                     VG_ERR_CNT=1
                 elif [ "$VG_TOTAL_LEAKED" -gt "$MAX_LEAK" ] ; then
                     echo "Definitely + indirectly ($VG_DEF_LEAKED + $VG_IND_LEAKED) exceeds max ($MAX_LEAK)."
+                    echo "Definitely + indirectly ($VG_DEF_LEAKED + $VG_IND_LEAKED) exceeds max ($MAX_LEAK)." >> $TMP_DIR/$ERR_FILE
                     VG_ERR_CNT=1
                 fi
                 if grep -q "Valgrind cannot continue" $TMP_DIR/$ERR_FILE; then
