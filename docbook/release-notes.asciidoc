@@ -16,8 +16,8 @@ The following vulnerabilities have been fixed:
 +
 DMP dissector crash
 (ws-buglink:14068[])
-// cve-idlink:2017-xxxx[]
-// Fixed in master: 8dbb21dfde
+cve-idlink:2017-15191[]
+// Fixed in master: 8dbb21dfdef
 // Fixed in master-2.4: 3d8f82c24f
 // Fixed in master-2.2: cd2a1e9a8d
 // Fixed in master-2.0: bf1f1fd864
@@ -28,7 +28,7 @@ The following bugs have been fixed:
 //* ws-buglink:6000[Wireshark bug]
 //* cve-idlink:2016-7000[]
 //* Wireshark insists on calling you on your land line which is keeping you from abandoning it for cellular. (ws-buglink:0000[])
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.0.16rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.0.17rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
 // Left off at a7678d2196
 

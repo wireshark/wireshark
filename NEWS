@@ -1,4 +1,4 @@
-                         Wireshark 2.0.15 Release Notes
+                         Wireshark 2.0.16 Release Notes
      __________________________________________________________________
 
 What is Wireshark?
@@ -12,15 +12,14 @@ What's New
   Bug Fixes
 
    The following vulnerabilities have been fixed:
-     * [1]wnpa-sec-2017-38
-       MSDP dissector infinite loop ([2]Bug 13933)
-     * [3]wnpa-sec-2017-41
-       IrCOMM dissector buffer overrun ([4]Bug 13929)
+     * [1]wnpa-sec-2017-44
+       DMP dissector crash ([2]Bug 14068) [3]CVE-2017-15191
 
    The following bugs have been fixed:
-     * Win64 CMake bug - (CYGWIN_INSTALL_PATH redefinition) causing
-       missing packages when using CMake 3.9.0. ([5]Bug 13922)
-     * Crash in Wireshark using Dumper:dump() from Lua. ([6]Bug 13944)
+     * Wireshark crash when end capturing with "Update list of packets in
+       real-time" option off. ([4]Bug 13024)
+     * RTP Analysis "save as CSV" saves twice the forward stream, if two
+       streams are selected. ([5]Bug 14040)
 
   New and Updated Features
 
@@ -36,7 +35,7 @@ What's New
 
   Updated Protocol Support
 
-   IrCOMM, MSDP, and pcapng MIME
+   DMP
 
   New and Updated Capture File Support
 
@@ -51,14 +50,14 @@ What's New
 Getting Wireshark
 
    Wireshark source code and installation packages are available from
-   [7]https://www.wireshark.org/download.html.
+   [6]https://www.wireshark.org/download.html.
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can be
-   found on the [8]download page on the Wireshark web site.
+   found on the [7]download page on the Wireshark web site.
      __________________________________________________________________
 
 File Locations
@@ -71,64 +70,63 @@ File Locations
 
 Known Problems
 
-   Dumpcap might not quit if Wireshark or TShark crashes. ([9]Bug 1419)
+   Dumpcap might not quit if Wireshark or TShark crashes. ([8]Bug 1419)
 
-   The BER dissector might infinitely loop. ([10]Bug 1516)
+   The BER dissector might infinitely loop. ([9]Bug 1516)
 
    Capture filters aren't applied when capturing from named pipes.
-   ([11]Bug 1814)
+   ([10]Bug 1814)
 
    Filtering tshark captures with read filters (-R) no longer works.
-   ([12]Bug 2234)
+   ([11]Bug 2234)
 
-   Application crash when changing real-time option. ([13]Bug 4035)
+   Application crash when changing real-time option. ([12]Bug 4035)
 
    Wireshark and TShark will display incorrect delta times in some cases.
-   ([14]Bug 4985)
+   ([13]Bug 4985)
 
-   Wireshark should let you work with multiple capture files. ([15]Bug
+   Wireshark should let you work with multiple capture files. ([14]Bug
    10488)
 
    Dell Backup and Recovery (DBAR) makes many Windows applications crash,
-   including Wireshark. ([16]Bug 12036)
+   including Wireshark. ([15]Bug 12036)
      __________________________________________________________________
 
 Getting Help
 
-   Community support is available on [17]Wireshark's Q&A site and on the
+   Community support is available on [16]Wireshark's Q&A site and on the
    wireshark-users mailing list. Subscription information and archives for
-   all of Wireshark's mailing lists can be found on [18]the web site.
+   all of Wireshark's mailing lists can be found on [17]the web site.
 
    Official Wireshark training and certification are available from
-   [19]Wireshark University.
+   [18]Wireshark University.
      __________________________________________________________________
 
 Frequently Asked Questions
 
-   A complete FAQ is available on the [20]Wireshark web site.
+   A complete FAQ is available on the [19]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2017-08-29 17:16:09 UTC
+   Last updated 2017-10-10 16:49:27 UTC
 
 References
 
-   1. https://www.wireshark.org/security/wnpa-sec-2017-38.html
-   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13933
-   3. https://www.wireshark.org/security/wnpa-sec-2017-41.html
-   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13929
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13922
-   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13944
-   7. https://www.wireshark.org/download.html
-   8. https://www.wireshark.org/download.html#thirdparty
-   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
-  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
-  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
-  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
-  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
-  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
-  15. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
-  16. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036
-  17. https://ask.wireshark.org/
-  18. https://www.wireshark.org/lists/
-  19. http://www.wiresharktraining.com/
-  20. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/security/wnpa-sec-2017-44.html
+   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14068
+   3. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-15191
+   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13024
+   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14040
+   6. https://www.wireshark.org/download.html
+   7. https://www.wireshark.org/download.html#thirdparty
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
+   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
+  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
+  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
+  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
+  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
+  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
+  15. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036
+  16. https://ask.wireshark.org/
+  17. https://www.wireshark.org/lists/
+  18. http://www.wiresharktraining.com/
+  19. https://www.wireshark.org/faq.html
