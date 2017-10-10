@@ -1678,7 +1678,7 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
     /* General Variables */
     gboolean bthFollows = FALSE;    /* Tracks if we are parsing a BTH.  This is a significant decision point */
-    struct infinibandinfo info = { 0, FALSE, 0, NULL, 0};
+    struct infinibandinfo info = { 0, FALSE, 0, NULL, 0, 0, 0 };
     gint32 nextHeaderSequence = -1; /* defined by this dissector. #define which indicates the upcoming header sequence from OpCode */
     guint8 nxtHdr = 0;              /* Keyed off for header dissection order */
     guint16 packetLength = 0;       /* Packet Length.  We track this as tvb_length - offset.   */
@@ -1857,14 +1857,13 @@ skip_lrh:
             offset += 2;
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_reserved, tvb, offset, 1, ENC_NA);
             offset += 1;
-            proto_tree_add_item(base_transport_header_tree, hf_infiniband_destination_qp, tvb, offset, 3, ENC_BIG_ENDIAN);
-            pinfo->destport = tvb_get_ntoh24(tvb, offset);
+            proto_tree_add_item_ret_uint(base_transport_header_tree, hf_infiniband_destination_qp, tvb, offset, 3, ENC_BIG_ENDIAN, &pinfo->destport);
             col_append_fstr(pinfo->cinfo, COL_INFO, "QP=0x%06x ", pinfo->destport);
             offset += 3;
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_acknowledge_request, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_reserved7, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
-            proto_tree_add_item(base_transport_header_tree, hf_infiniband_packet_sequence_number, tvb, offset, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(base_transport_header_tree, hf_infiniband_packet_sequence_number, tvb, offset, 3, ENC_BIG_ENDIAN, &info.packet_seq_num);
             offset += 3;
             offset += bthSize - 12;
             packetLength -= bthSize; /* Shave bthSize for Base Transport Header */
@@ -2350,7 +2349,8 @@ parse_DCCETH(proto_tree *parentTree _U_, tvbuff_t *tvb _U_, gint *offset)
 * IN: parentTree to add the dissection to - in this code the all_headers_tree
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset
-* OUT: Updated info->reth_remote_key */
+* OUT: Updated info->reth_remote_key
+* OUT: Updated info->reth_dma_length */
 static void
 parse_RETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset,
            struct infinibandinfo *info)
@@ -2368,7 +2368,7 @@ parse_RETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset,
     local_offset += 8;
     proto_tree_add_item_ret_uint(RETH_header_tree, hf_infiniband_remote_key, tvb, local_offset, 4, ENC_BIG_ENDIAN, &info->reth_remote_key);
     local_offset += 4;
-    proto_tree_add_item(RETH_header_tree, hf_infiniband_dma_length, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(RETH_header_tree, hf_infiniband_dma_length, tvb, local_offset, 4, ENC_BIG_ENDIAN, &info->reth_dma_length);
     local_offset += 4;
 
     *offset = local_offset;
@@ -3689,7 +3689,7 @@ static void parse_CM_DRsp(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tv
 static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset, proto_tree* top_tree)
 {
     MAD_Data    MadData;
-    struct infinibandinfo info = { 0, FALSE, 0, NULL, 0};
+    struct infinibandinfo info = { 0, FALSE, 0, NULL, 0, 0, 0 };
     gint        local_offset;
     const char *label;
     proto_item *CM_header_item;
@@ -5804,7 +5804,7 @@ static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     MAD_Data          MadData;
 
     /* BTH - Base Trasport Header */
-    struct infinibandinfo info = { 0, FALSE, 0, NULL, 0};
+    struct infinibandinfo info = { 0, FALSE, 0, NULL, 0, 0, 0 };
     gint bthSize = 12;
     void *src_addr,                 /* the address to be displayed in the source/destination columns */
          *dst_addr;                 /* (lid/gid number) will be stored here */
