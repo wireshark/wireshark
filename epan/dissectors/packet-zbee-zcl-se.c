@@ -50,6 +50,41 @@ static const value_string zbee_zcl_se_reporting_status_names[] = {
     { 0, NULL }
 };
 
+/**
+ *Dissect an octet string by adding a subtree showing length and octets
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to buffer offset
+ *@param idx one of the ett_ array elements registered with proto_register_subtree_array()
+ *@param hfindex_len length field
+ *@param hfindex_data data field
+*/
+static void dissect_zcl_octet_string(tvbuff_t *tvb, proto_tree *tree, guint *offset,
+        gint idx, int hfindex_len, int hfindex_data)
+{
+    guint8 octet_len;
+    proto_tree* subtree;
+
+    /* Add subtree */
+    subtree = proto_tree_add_subtree(tree, tvb, *offset, 0, idx, NULL, proto_registrar_get_name(hfindex_data));
+
+    /* Length */
+    octet_len = tvb_get_guint8(tvb, *offset);
+    if (octet_len == ZBEE_ZCL_INVALID_STR_LENGTH) {
+        octet_len = 0;
+    }
+    proto_tree_add_item(subtree, hfindex_len, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Data */
+    proto_tree_add_item(subtree, hfindex_data, tvb, *offset, octet_len, ENC_NA);
+    *offset += octet_len;
+
+    /* Set length of subtree */
+    proto_item_set_end(proto_tree_get_parent(subtree), tvb, *offset);
+}
+
 /*************************/
 /* Global Variables      */
 /*************************/
@@ -3245,6 +3280,7 @@ static int hf_zbee_zcl_pp_emergency_credit_setup_start_time = -1;
 static int hf_zbee_zcl_pp_emergency_credit_setup_emergency_credit_limit = -1;
 static int hf_zbee_zcl_pp_emergency_credit_setup_emergency_credit_threshold = -1;
 static int hf_zbee_zcl_pp_consumer_top_up_originating_device = -1;
+static int hf_zbee_zcl_pp_consumer_top_up_top_up_code_len = -1;
 static int hf_zbee_zcl_pp_consumer_top_up_top_up_code = -1;
 static int hf_zbee_zcl_pp_credit_adjustment_issuer_event_id = -1;
 static int hf_zbee_zcl_pp_credit_adjustment_start_time = -1;
@@ -3292,6 +3328,7 @@ static int hf_zbee_zcl_pp_consumer_top_up_response_source_of_top_up = -1;
 static int hf_zbee_zcl_pp_consumer_top_up_response_credit_remaining = -1;
 static int hf_zbee_zcl_pp_publish_top_up_log_command_index = -1;
 static int hf_zbee_zcl_pp_publish_top_up_log_total_number_of_commands = -1;
+static int hf_zbee_zcl_pp_publish_top_up_log_top_up_code_len = -1;
 static int hf_zbee_zcl_pp_publish_top_up_log_top_up_code = -1;
 static int hf_zbee_zcl_pp_publish_top_up_log_top_up_amount = -1;
 static int hf_zbee_zcl_pp_publish_top_up_log_top_up_time = -1;
@@ -3303,7 +3340,7 @@ static int hf_zbee_zcl_pp_publish_debt_log_debt_type = -1;
 static int hf_zbee_zcl_pp_publish_debt_log_outstanding_debt = -1;
 
 /* Initialize the subtree pointers */
-#define ZBEE_ZCL_SE_PP_NUM_INDIVIDUAL_ETT             1
+#define ZBEE_ZCL_SE_PP_NUM_INDIVIDUAL_ETT             3
 #define ZBEE_ZCL_SE_PP_NUM_PUBLISH_TOP_UP_LOG_ETT     30
 #define ZBEE_ZCL_SE_PP_NUM_PUBLISH_DEBT_LOG_ETT       30
 #define ZBEE_ZCL_SE_PP_NUM_TOTAL_ETT                  (ZBEE_ZCL_SE_PP_NUM_INDIVIDUAL_ETT + \
@@ -3311,6 +3348,8 @@ static int hf_zbee_zcl_pp_publish_debt_log_outstanding_debt = -1;
                                                        ZBEE_ZCL_SE_PP_NUM_PUBLISH_DEBT_LOG_ETT)
 
 static gint ett_zbee_zcl_pp = -1;
+static gint ett_zbee_zcl_pp_consumer_top_up_top_up_code = -1;
+static gint ett_zbee_zcl_pp_publish_top_up_log_top_up_code = -1;
 static gint ett_zbee_zcl_pp_publish_top_up_entry[ZBEE_ZCL_SE_PP_NUM_PUBLISH_TOP_UP_LOG_ETT];
 static gint ett_zbee_zcl_pp_publish_debt_log_entry[ZBEE_ZCL_SE_PP_NUM_PUBLISH_DEBT_LOG_ETT];
 
@@ -3603,16 +3642,15 @@ dissect_zcl_pp_emergency_credit_setup(tvbuff_t *tvb, proto_tree *tree, guint *of
 static void
 dissect_zcl_pp_consumer_top_up(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    gint rem_len;
-
     /* Originating Device */
     proto_tree_add_item(tree, hf_zbee_zcl_pp_consumer_top_up_originating_device, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* TopUp Code */
-    rem_len = tvb_reported_length_remaining(tvb, *offset);
-    proto_tree_add_item(tree, hf_zbee_zcl_pp_consumer_top_up_top_up_code, tvb, *offset, rem_len, ENC_NA);
-    *offset += rem_len;
+    dissect_zcl_octet_string(tvb, tree, offset,
+            ett_zbee_zcl_pp_consumer_top_up_top_up_code,
+            hf_zbee_zcl_pp_consumer_top_up_top_up_code_len,
+            hf_zbee_zcl_pp_consumer_top_up_top_up_code);
 } /*dissect_zcl_pp_consumer_top_up*/
 
 /**
@@ -3644,7 +3682,6 @@ dissect_zcl_pp_credit_adjustment(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     /* Credit Adjustment Value */
     proto_tree_add_item(tree, hf_zbee_zcl_pp_credit_adjustment_credit_adjustment_value, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
-
 } /*dissect_zcl_pp_credit_adjustment*/
 
 /**
@@ -3680,7 +3717,6 @@ dissect_zcl_pp_change_payment_mode(tvbuff_t *tvb, proto_tree *tree, guint *offse
     /* Cut Off Value */
     proto_tree_add_item(tree, hf_zbee_zcl_pp_change_payment_mode_cut_off_value, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
-
 } /*dissect_zcl_pp_change_payment_mode*/
 
 /**
@@ -3961,9 +3997,7 @@ dissect_zcl_pp_consumer_top_up_response(tvbuff_t *tvb, proto_tree *tree, guint *
 static void
 dissect_zcl_pp_publish_top_up_log(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    gint rem_len;
     guint i = 0;
-    guint8 top_up_length;
     nstime_t top_up_time;
     proto_tree *sub_tree;
 
@@ -3976,29 +4010,29 @@ dissect_zcl_pp_publish_top_up_log(tvbuff_t *tvb, proto_tree *tree, guint *offset
     *offset += 1;
 
     /* Top Up Payload */
-    rem_len = tvb_reported_length_remaining(tvb, *offset);
-    while (rem_len > 0 && i < ZBEE_ZCL_SE_PP_NUM_PUBLISH_TOP_UP_LOG_ETT) {
-        // Create subtree for top up code
-        top_up_length = tvb_get_guint8(tvb, *offset) + 1;
-        sub_tree = proto_tree_add_subtree(tree, tvb, *offset, top_up_length + 4 + 4, ett_zbee_zcl_pp_publish_top_up_entry[i], NULL, "Top Up");
+    while (tvb_reported_length_remaining(tvb, *offset) > 0 && i < ZBEE_ZCL_SE_PP_NUM_PUBLISH_TOP_UP_LOG_ETT) {
+        /* Add subtree */
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, *offset, 0, ett_zbee_zcl_pp_publish_top_up_entry[i], NULL, "TopUp Log %d", i + 1);
         i++;
 
         /* Top Up Code */
-        proto_tree_add_item(sub_tree, hf_zbee_zcl_pp_publish_top_up_log_top_up_code, tvb, *offset, top_up_length, ENC_NA);
-        *offset += top_up_length;
-        rem_len -= top_up_length;
+        dissect_zcl_octet_string(tvb, sub_tree, offset,
+                ett_zbee_zcl_pp_publish_top_up_log_top_up_code,
+                hf_zbee_zcl_pp_publish_top_up_log_top_up_code_len,
+                hf_zbee_zcl_pp_publish_top_up_log_top_up_code);
 
         /* Top Up Amount */
         proto_tree_add_item(sub_tree, hf_zbee_zcl_pp_publish_top_up_log_top_up_amount, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
         *offset += 4;
-        rem_len -= 4;
 
         /* Top Up Time */
         top_up_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
         top_up_time.nsecs = 0;
         proto_tree_add_time(sub_tree, hf_zbee_zcl_pp_publish_top_up_log_top_up_time, tvb, *offset, 4, &top_up_time);
         *offset += 4;
-        rem_len -= 4;
+
+        /* Set length of subtree */
+        proto_item_set_end(proto_tree_get_parent(sub_tree), tvb, *offset);
     }
 } /*dissect_zcl_pp_publish_top_up_log*/
 
@@ -4012,7 +4046,6 @@ dissect_zcl_pp_publish_top_up_log(tvbuff_t *tvb, proto_tree *tree, guint *offset
 static void
 dissect_zcl_pp_publish_debt_log(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    gint rem_len;
     guint i = 0;
     nstime_t collection_time;
     proto_tree *sub_tree;
@@ -4026,10 +4059,9 @@ dissect_zcl_pp_publish_debt_log(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 1;
 
     /* Debt Payload */
-    rem_len = tvb_reported_length_remaining(tvb, *offset);
-    while (rem_len > 0 && i < ZBEE_ZCL_SE_PP_NUM_PUBLISH_DEBT_LOG_ETT) {
-        // Create subtree for debt payload
-        sub_tree = proto_tree_add_subtree(tree, tvb, *offset, 4 + 4 + 1 + 4, ett_zbee_zcl_pp_publish_debt_log_entry[i], NULL, "Debt Payload");
+    while (tvb_reported_length_remaining(tvb, *offset) > 0 && i < ZBEE_ZCL_SE_PP_NUM_PUBLISH_DEBT_LOG_ETT) {
+        /* Add subtree */
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, *offset, 4 + 4 + 1 + 4, ett_zbee_zcl_pp_publish_debt_log_entry[i], NULL, "Debt Log %d", i + 1);
         i++;
 
         /* Collection Time */
@@ -4037,22 +4069,18 @@ dissect_zcl_pp_publish_debt_log(tvbuff_t *tvb, proto_tree *tree, guint *offset)
         collection_time.nsecs = 0;
         proto_tree_add_time(sub_tree, hf_zbee_zcl_pp_publish_debt_log_collection_time, tvb, *offset, 4, &collection_time);
         *offset += 4;
-        rem_len -= 4;
 
         /* Amount Collected */
         proto_tree_add_item(sub_tree, hf_zbee_zcl_pp_publish_debt_log_amount_collected, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
         *offset += 4;
-        rem_len -= 4;
 
         /* Debt Type */
         proto_tree_add_item(sub_tree, hf_zbee_zcl_pp_publish_debt_log_debt_type, tvb, *offset, 1, ENC_NA);
         *offset += 1;
-        rem_len -= 1;
 
         /* Outstanding Debt */
         proto_tree_add_item(sub_tree, hf_zbee_zcl_pp_publish_debt_log_outstanding_debt, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
         *offset += 4;
-        rem_len -= 4;
     }
 } /*dissect_zcl_pp_publish_debt_log*/
 
@@ -4149,8 +4177,12 @@ proto_register_zbee_zcl_pp(void)
             { "Originating Device", "zbee_zcl_se.pp.consumer_top_up.originating_device", FT_UINT8, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
 
+        { &hf_zbee_zcl_pp_consumer_top_up_top_up_code_len,
+            { "Length", "zbee_zcl_se.pp.consumer_top_up.top_up_code_len", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
         { &hf_zbee_zcl_pp_consumer_top_up_top_up_code,
-            { "TopUp Code", "zbee_zcl_se.pp.consumer_top_up.top_up_code", FT_BYTES, BASE_NONE, NULL,
+            { "TopUp Code", "zbee_zcl_se.pp.consumer_top_up.top_up_code", FT_BYTES, SEP_COLON, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_pp_credit_adjustment_issuer_event_id,
@@ -4337,8 +4369,12 @@ proto_register_zbee_zcl_pp(void)
             { "Total Number of Commands", "zbee_zcl_se.pp.publish_top_up_log.total_number_of_commands", FT_UINT8, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
 
+        { &hf_zbee_zcl_pp_publish_top_up_log_top_up_code_len,
+            { "Length", "zbee_zcl_se.pp.publish_top_up_log.top_up_code_len", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
         { &hf_zbee_zcl_pp_publish_top_up_log_top_up_code,
-            { "TopUp Code", "zbee_zcl_se.pp.publish_top_up_log.top_up_code", FT_BYTES, BASE_NONE, NULL,
+            { "TopUp Code", "zbee_zcl_se.pp.publish_top_up_log.top_up_code", FT_BYTES, SEP_COLON, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_pp_publish_top_up_log_top_up_amount,
@@ -4377,6 +4413,8 @@ proto_register_zbee_zcl_pp(void)
     /* ZCL Prepayment subtrees */
     gint *ett[ZBEE_ZCL_SE_PP_NUM_TOTAL_ETT];
     ett[0] = &ett_zbee_zcl_pp;
+    ett[1] = &ett_zbee_zcl_pp_consumer_top_up_top_up_code;
+    ett[2] = &ett_zbee_zcl_pp_publish_top_up_log_top_up_code;
 
     guint j = ZBEE_ZCL_SE_PP_NUM_INDIVIDUAL_ETT;
 
@@ -4769,6 +4807,7 @@ static int hf_zbee_zcl_events_publish_event_log_id = -1;
 static int hf_zbee_zcl_events_publish_event_event_id = -1;
 static int hf_zbee_zcl_events_publish_event_event_time = -1;
 static int hf_zbee_zcl_events_publish_event_event_control = -1;
+static int hf_zbee_zcl_events_publish_event_event_data_len = -1;
 static int hf_zbee_zcl_events_publish_event_event_data = -1;
 static int hf_zbee_zcl_events_publish_event_log_total_number_of_matching_events = -1;
 static int hf_zbee_zcl_events_publish_event_log_command_index = -1;
@@ -4777,15 +4816,18 @@ static int hf_zbee_zcl_events_publish_event_log_number_of_events_log_payload_con
 static int hf_zbee_zcl_events_publish_event_log_log_id = -1;
 static int hf_zbee_zcl_events_publish_event_log_event_id = -1;
 static int hf_zbee_zcl_events_publish_event_log_event_time = -1;
+static int hf_zbee_zcl_events_publish_event_log_event_data_len = -1;
 static int hf_zbee_zcl_events_publish_event_log_event_data = -1;
 static int hf_zbee_zcl_events_clear_event_log_response_cleared_event_logs = -1;
 
 /* Initialize the subtree pointers */
-#define ZBEE_ZCL_SE_EVENTS_NUM_INDIVIDUAL_ETT             1
+#define ZBEE_ZCL_SE_EVENTS_NUM_INDIVIDUAL_ETT             3
 #define ZBEE_ZCL_SE_EVENTS_NUM_PUBLISH_EVENT_LOG_ETT      100 // The Great Britain Companion Specification (GBCS) allows up to 100 even though ZigBee only allows 15
 #define ZBEE_ZCL_SE_EVENTS_NUM_TOTAL_ETT                  (ZBEE_ZCL_SE_EVENTS_NUM_INDIVIDUAL_ETT + ZBEE_ZCL_SE_EVENTS_NUM_PUBLISH_EVENT_LOG_ETT)
 
 static gint ett_zbee_zcl_events = -1;
+static gint ett_zbee_zcl_events_publish_event_event_data = -1;
+static gint ett_zbee_zcl_events_publish_event_log_event_data = -1;
 static gint ett_zbee_zcl_events_publish_event_log_entry[ZBEE_ZCL_SE_EVENTS_NUM_PUBLISH_EVENT_LOG_ETT];
 
 /*************************/
@@ -4976,7 +5018,6 @@ static void
 dissect_zcl_events_publish_event(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
     nstime_t    event_time;
-    guint8      event_data_len;
 
     /* Log ID */
     proto_tree_add_item(tree, hf_zbee_zcl_events_publish_event_log_id, tvb, *offset, 1, ENC_NA);
@@ -4997,9 +5038,10 @@ dissect_zcl_events_publish_event(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 1;
 
     /* Event Data */
-    event_data_len = tvb_get_guint8(tvb, *offset);
-    proto_tree_add_item(tree, hf_zbee_zcl_events_publish_event_event_data, tvb, *offset, event_data_len + 1, ENC_NA);
-    *offset += event_data_len + 1;
+    dissect_zcl_octet_string(tvb, tree, offset,
+            ett_zbee_zcl_events_publish_event_event_data,
+            hf_zbee_zcl_events_publish_event_event_data_len,
+            hf_zbee_zcl_events_publish_event_event_data);
 } /*dissect_zcl_events_publish_event*/
 
 /**
@@ -5014,7 +5056,6 @@ dissect_zcl_events_publish_event_log(tvbuff_t *tvb, proto_tree *tree, guint *off
 {
     proto_tree* event_log_tree;
     nstime_t    event_time;
-    guint8      event_data_len;
 
     /* Total Number of Matching Events */
     proto_tree_add_item(tree, hf_zbee_zcl_events_publish_event_log_total_number_of_matching_events, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
@@ -5034,7 +5075,7 @@ dissect_zcl_events_publish_event_log(tvbuff_t *tvb, proto_tree *tree, guint *off
 
     for (gint i = 0; tvb_reported_length_remaining(tvb, *offset) > 0 && i < ZBEE_ZCL_SE_EVENTS_NUM_PUBLISH_EVENT_LOG_ETT; i++) {
         /* Add subtree */
-        event_log_tree = proto_tree_add_subtree(tree, tvb, *offset, 0, ett_zbee_zcl_events_publish_event_log_entry[i], NULL, "Event Log");
+        event_log_tree = proto_tree_add_subtree_format(tree, tvb, *offset, 0, ett_zbee_zcl_events_publish_event_log_entry[i], NULL, "Event Log %d", i + 1);
 
         /* Log ID */
         proto_tree_add_item(event_log_tree, hf_zbee_zcl_events_publish_event_log_log_id, tvb, *offset, 1, ENC_NA);
@@ -5052,9 +5093,10 @@ dissect_zcl_events_publish_event_log(tvbuff_t *tvb, proto_tree *tree, guint *off
         *offset += 4;
 
         /* Event Data */
-        event_data_len = tvb_get_guint8(tvb, *offset);
-        proto_tree_add_item(event_log_tree, hf_zbee_zcl_events_publish_event_log_event_data, tvb, *offset, event_data_len + 1, ENC_NA);
-        *offset += event_data_len + 1;
+        dissect_zcl_octet_string(tvb, event_log_tree, offset,
+                ett_zbee_zcl_events_publish_event_log_event_data,
+                hf_zbee_zcl_events_publish_event_log_event_data_len,
+                hf_zbee_zcl_events_publish_event_log_event_data);
 
         /* Set length of subtree */
         proto_item_set_end(proto_tree_get_parent(event_log_tree), tvb, *offset);
@@ -5145,8 +5187,12 @@ proto_register_zbee_zcl_events(void)
             { "Event Control", "zbee_zcl_se.events.publish_event.event_control", FT_UINT8, BASE_HEX, NULL,
             0x00, NULL, HFILL } },
 
+        { &hf_zbee_zcl_events_publish_event_event_data_len,
+            { "Length", "zbee_zcl_se.events.publish_event.event_data_len", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
         { &hf_zbee_zcl_events_publish_event_event_data,
-            { "Event Data", "zbee_zcl_se.events.publish_event.event_data", FT_BYTES, BASE_NONE, NULL,
+            { "Event Data", "zbee_zcl_se.events.publish_event.event_data", FT_BYTES, SEP_COLON, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_events_publish_event_log_total_number_of_matching_events,
@@ -5177,8 +5223,12 @@ proto_register_zbee_zcl_events(void)
             { "Event Time", "zbee_zcl_se.events.publish_event_log.event_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
             0x00, NULL, HFILL } },
 
+        { &hf_zbee_zcl_events_publish_event_log_event_data_len,
+            { "Length", "zbee_zcl_se.events.publish_event_log.event_data_len", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
         { &hf_zbee_zcl_events_publish_event_log_event_data,
-            { "Event Data", "zbee_zcl_se.events.publish_event_log.event_data", FT_BYTES, BASE_NONE, NULL,
+            { "Event Data", "zbee_zcl_se.events.publish_event_log.event_data", FT_BYTES, SEP_COLON, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_events_clear_event_log_response_cleared_event_logs,
@@ -5190,6 +5240,8 @@ proto_register_zbee_zcl_events(void)
     /* ZCL Events subtrees */
     gint *ett[ZBEE_ZCL_SE_EVENTS_NUM_TOTAL_ETT];
     ett[0] = &ett_zbee_zcl_events;
+    ett[1] = &ett_zbee_zcl_events_publish_event_event_data;
+    ett[2] = &ett_zbee_zcl_events_publish_event_log_event_data;
 
     guint j = ZBEE_ZCL_SE_EVENTS_NUM_INDIVIDUAL_ETT;
 
