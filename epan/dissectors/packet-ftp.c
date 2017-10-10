@@ -63,6 +63,8 @@ static int hf_ftp_epsv_ipv6 = -1;
 static int hf_ftp_epsv_port = -1;
 static int hf_ftp_command_response_frames = -1;
 static int hf_ftp_command_response_first_frame_num = -1;
+static int hf_ftp_command_response_last_frame_num = -1;
+static int hf_ftp_command_response_duration = -1;
 
 
 static int hf_ftp_data_setup_frame = -1;
@@ -166,9 +168,11 @@ typedef struct ftp_data_conversation_t
     const gchar   *setup_method; /* Type of command used to set up data conversation */
     wmem_strbuf_t *current_working_directory;
 
-    /* Summary details of stream to show in command frame.
-     * Could include last frame, data rate, etc */
+    /* Summary details of stream to show in command frame. */
     guint         first_frame_num;
+    nstime_t      first_frame_time;
+    guint         last_frame_num;
+    nstime_t      last_frame_time;
     guint         frames_seen;
 } ftp_data_conversation_t;
 
@@ -870,7 +874,6 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     guint32         ftp_port_len;
     address         ftp_ip_address;
     gboolean        ftp_nat;
-    conversation_t *data_conversation;
 
     copy_address_shallow(&ftp_ip_address, &pinfo->src);
 
@@ -1124,39 +1127,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                             tvb, 0, 0, ftp_nat);
                 }
 
-                /*
-                 * We use "ftp_ip_address", so that if
-                 * we're NAT'd we look for the un-NAT'd
-                 * connection.
-                 *
-                 * XXX - should this call to
-                 * "find_conversation()" just use
-                 * "ftp_ip_address" and "server_port", and
-                 * wildcard everything else?
-                 */
-                data_conversation = find_conversation(pinfo->num, &ftp_ip_address,
-                    &pinfo->dst, PT_TCP, ftp_port, 0,
-                    NO_PORT_B);
-                if (data_conversation == NULL) {
-                    /*
-                     * XXX - should this call to "conversation_new()"
-                     * just use "ftp_ip_address" and "server_port",
-                     * and wildcard everything else?
-                     *
-                     * XXX - what if we did find a conversation?  As
-                     * we create it only on the first pass through the
-                     * packets, if we find one, it's presumably an
-                     * unrelated conversation.  Should we remove the
-                     * old one from the hash table and put this one in
-                     * its place?  Can the conversation code handle
-                     * conversations not in the hash table?  Or should
-                     * we make conversations support start and end
-                     * frames, as circuits do, and treat this as an
-                     * indication that one conversation was closed and
-                     * a new one was opened?
-                     */
-                    create_and_link_data_conversation(pinfo, &ftp_ip_address, ftp_port, &pinfo->dst, pinfo->destport, "PASV");
-                }
+                create_and_link_data_conversation(pinfo, &ftp_ip_address, ftp_port, &pinfo->dst, pinfo->destport, "PASV");
             }
         }
     }
@@ -1291,6 +1262,26 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             ti = proto_tree_add_uint(tree, hf_ftp_command_response_first_frame_num,
                                      tvb, 0, 0, ftp_data->first_frame_num);
             PROTO_ITEM_SET_GENERATED(ti);
+
+            /* Last frame */
+            ti = proto_tree_add_uint(tree, hf_ftp_command_response_last_frame_num,
+                                     tvb, 0, 0, ftp_data->last_frame_num);
+            PROTO_ITEM_SET_GENERATED(ti);
+
+            /* Length of stream */
+            if (ftp_data->frames_seen > 1) {
+                /* Work out gap between frames */
+                gint seconds = (gint)
+                          (ftp_data->last_frame_time.secs - ftp_data->first_frame_time.secs);
+                gint nseconds =
+                          ftp_data->last_frame_time.nsecs - ftp_data->first_frame_time.nsecs;
+
+                /* Round gap to nearest ms. */
+                gint gap_ms = (seconds*1000) + ((nseconds+500000) / 1000000);
+                ti = proto_tree_add_uint(tree, hf_ftp_command_response_duration,
+                                         tvb, 0, 0, gap_ms);
+                PROTO_ITEM_SET_GENERATED(ti);
+            }
         }
     }
 
@@ -1333,6 +1324,11 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
             if (!pinfo->fd->flags.visited) {
                 if (!p_ftp_data_conv->first_frame_num) {
                     p_ftp_data_conv->first_frame_num = pinfo->num;
+                    p_ftp_data_conv->first_frame_time = pinfo->abs_ts;
+                }
+                if (pinfo->num > p_ftp_data_conv->last_frame_num) {
+                    p_ftp_data_conv->last_frame_num = pinfo->num;
+                    p_ftp_data_conv->last_frame_time = pinfo->abs_ts;
                 }
                 p_ftp_data_conv->frames_seen++;
             }
@@ -1505,6 +1501,16 @@ proto_register_ftp(void)
           { "Command response first frame", "ftp.command-response.first-frame-num",
             FT_FRAMENUM, BASE_NONE, NULL, 0,
             "First frame seen in resulting ftp-data stream", HFILL }},
+
+        { &hf_ftp_command_response_last_frame_num,
+          { "Command response last frame", "ftp.command-response.last-frame-num",
+            FT_FRAMENUM, BASE_NONE, NULL, 0,
+            "Last frame seen in resulting ftp-data stream", HFILL }},
+
+        { &hf_ftp_command_response_duration,
+          { "Response duration", "ftp.command-response.duration",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0,
+            "Duration of command response in ms", HFILL }},
 
         { &hf_ftp_command_response_frames,
           { "Command response frames", "ftp.command-response.frames",
