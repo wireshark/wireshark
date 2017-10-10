@@ -42,6 +42,7 @@
 #include <epan/reassemble.h>
 #include <epan/charsets.h>
 #include <epan/proto_data.h>
+#include "packet-e164.h"
 #include <epan/asn1.h>
 #include "packet-gsm_sms.h"
 #include "packet-gsm_map.h"
@@ -601,7 +602,7 @@ dis_field_addr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *off
     static gchar digit_table[] = {"0123456789*#abc\0"};
     proto_item  *item;
     proto_tree  *subtree;
-    guint8       oct;
+    guint8       oct, nt_mp;
     guint32      offset;
     guint32      numdigocts;
     guint32      length, addrlength;
@@ -633,6 +634,7 @@ dis_field_addr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *off
 
     offset++;
     oct = tvb_get_guint8(tvb, offset);
+    nt_mp = oct & 0x7f;
 
     proto_tree_add_item(subtree, hf_gsm_sms_dis_field_addr_extension, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(subtree, hf_gsm_sms_dis_field_addr_num_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -663,11 +665,19 @@ dis_field_addr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *off
     if (g_ascii_strncasecmp(title, "TP-O", 4) == 0) {
         proto_tree_add_string(subtree, hf_gsm_sms_tp_oa, tvb,
                 offset, numdigocts, addrstr);
+        if (((nt_mp >> 4) == 1) && ((nt_mp & 0x0f) == 1)) {
+            /* if Type of number international and number plan is E.164*/
+            dissect_e164_msisdn(tvb, subtree, offset, numdigocts, E164_ENC_BCD);
+        }
         p_add_proto_data(pinfo->pool, pinfo, proto_gsm_sms, 0,
                          wmem_strdup(pinfo->pool, addrstr));
     } else if (g_ascii_strncasecmp(title, "TP-D", 4) == 0) {
         proto_tree_add_string(subtree, hf_gsm_sms_tp_da, tvb,
                 offset, numdigocts, addrstr);
+        if (((nt_mp >> 4) == 1) && ((nt_mp & 0x0f) == 1)) {
+            /* if Type of number international and number plan is E.164*/
+            dissect_e164_msisdn(tvb, subtree, offset, numdigocts, E164_ENC_BCD);
+        }
         p_add_proto_data(pinfo->pool, pinfo, proto_gsm_sms, 0,
                          wmem_strdup(pinfo->pool, addrstr));
     } else if (g_ascii_strncasecmp(title, "TP-R", 4) == 0) {
