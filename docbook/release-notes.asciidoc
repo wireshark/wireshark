@@ -18,7 +18,7 @@ The following bugs have been fixed:
 +
 BT ATT dissector crash
 (ws-buglink:14049[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-15192[]
 // Fixed in master: 3689dc1db3
 // Fixed in master-2.4: bc6f4f898f
 // Fixed in master-2.2: c1d26587c5
@@ -28,7 +28,7 @@ BT ATT dissector crash
 +
 MBIM dissector crash
 (ws-buglink:14056[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-15193[]
 // Fixed in master: afb9ff7982
 // Fixed in master-2.4: 9b91a80d4a
 // Fixed in master-2.2: b2f5c773fb
@@ -38,7 +38,7 @@ MBIM dissector crash
 +
 DMP dissector crash
 (ws-buglink:14068[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-15191[]
 // Fixed in master: 8dbb21dfde
 // Fixed in master-2.4: 3d8f82c24f
 // Fixed in master-2.2: cd2a1e9a8d
@@ -48,7 +48,7 @@ DMP dissector crash
 +
 RTSP dissector crash
 (ws-buglink:14077[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-15190[]
 // Fixed in master: e27870eaa6
 // Fixed in master-2.4: 8c8589e9ad
 // Fixed in master-2.2: n/a
@@ -58,7 +58,7 @@ RTSP dissector crash
 +
 DOCSIS infinite loop
 (ws-buglink:14080[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-15189[]
 // Fixed in master: 625bab309d
 // Fixed in master-2.4: 0eb2fb7077
 // Fixed in master-2.2: n/a
@@ -69,8 +69,6 @@ DOCSIS infinite loop
 //* cve-idlink:2014-2486[]
 //* Wireshark keeps leaving voicemails advertising timeshare condominiums in Fresno. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.4.3rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-// Left off at ac2ce9f9a0
 
 * Wireshark crash when end capturing with "Update list of packets in real-time" option off. (ws-buglink:13024[])
 
