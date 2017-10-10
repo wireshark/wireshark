@@ -16,7 +16,7 @@ The following vulnerabilities have been fixed:
 +
 BT ATT dissector crash
 (ws-buglink:14049[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-15192[]
 // Fixed in master: 3689dc1db3
 // Fixed in master-2.4: bc6f4f898f
 // Fixed in master-2.2: c1d26587c5
@@ -26,7 +26,7 @@ BT ATT dissector crash
 +
 MBIM dissector crash
 (ws-buglink:14056[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-15193[]
 // Fixed in master: afb9ff7982
 // Fixed in master-2.4: 9b91a80d4a
 // Fixed in master-2.2: b2f5c773fb
@@ -36,7 +36,7 @@ MBIM dissector crash
 +
 DMP dissector crash
 (ws-buglink:14068[])
-// cve-idlink:2017-xxxx[]
+cve-idlink:2017-15191[]
 // Fixed in master: 8dbb21dfde
 // Fixed in master-2.4: 3d8f82c24f
 // Fixed in master-2.2: cd2a1e9a8d
@@ -48,7 +48,7 @@ The following bugs have been fixed:
 //* ws-buglink:6000[Wireshark bug]
 //* cve-idlink:2014-2486[]
 //* Wireshark accepted your prom invitation then cancelled at the last minute. (ws-buglink:0000[])
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.2.10rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.2.11rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
 // Left off at 1539d6f188
 
