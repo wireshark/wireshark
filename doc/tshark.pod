@@ -500,7 +500,9 @@ the type of record.
 
 =item -h
 
-Print the version and options and exits.
+=item --help
+
+Print the version and options and exit.
 
 =item -H  E<lt>input hosts fileE<gt>
 
@@ -659,8 +661,10 @@ promiscuous mode.
 
 =item -P
 
-Decode and display the packet summary, even if writing raw packet data using
-the B<-w> option.
+=item --print
+
+Decode and display the packet summary or details, even if writing raw
+packet data using the B<-w> option.
 
 =item -q
 
@@ -834,6 +838,8 @@ PDUs export, exports PDUs from infile to outfile according to the tap name given
 Enter an empty tap name "" to get a list of available names.
 
 =item -v
+
+=item --version
 
 Print the version and exit.
 

@@ -676,6 +676,7 @@ main(int argc, char *argv[])
     {"version", no_argument, NULL, 'v'},
     LONGOPT_CAPTURE_COMMON
     LONGOPT_DISSECT_COMMON
+    {"print", no_argument, NULL, 'P'},
     {"export-objects", required_argument, NULL, LONGOPT_EXPORT_OBJECTS},
     {"color", no_argument, NULL, LONGOPT_COLOR},
     {"no-duplicate-keys", no_argument, NULL, LONGOPT_NO_DUPLICATE_KEYS},
