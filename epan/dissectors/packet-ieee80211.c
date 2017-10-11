@@ -5633,10 +5633,13 @@ add_mimo_compressed_beamforming_feedback_report(proto_tree *tree, tvbuff_t *tvb,
     switch(snr) {
       case -128:
         edge_sign = '<';
+        break;
       case 127:
         edge_sign = '>';
+        break;
       default:
         edge_sign = ' ';
+        break;
     }
     proto_tree_add_uint_format(snr_tree, hf_ieee80211_ff_mimo_csi_snr, tvb, offset, 1,
                                snr, "Stream %d - Signal to Noise Ratio: %c%3.2fdB", i, edge_sign,snr/4.0+22.0);
@@ -9502,10 +9505,13 @@ add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet
     switch(snr) {
       case -128:
         edge_sign = '<';
+        break;
       case 127:
         edge_sign = '>';
+        break;
       default:
         edge_sign = ' ';
+        break;
     }
 
     proto_tree_add_int_format(subtree, hf_ieee80211_vht_compressed_beamforming_report_snr, tvb, offset, 1,
