@@ -123,8 +123,8 @@ static expert_field ei_wimaxasncp_length_bad = EI_INIT;
 #define WIMAXASNCP_FLAGS_R  WIMAXASNCP_BIT8(7)
 
 typedef struct {
-    GArray* hf;
-    GArray* ett;
+    wmem_array_t* hf;
+    wmem_array_t* ett;
 } wimaxasncp_build_dict_t;
 
 static wimaxasncp_dict_t *wimaxasncp_dict = NULL;
@@ -2460,7 +2460,7 @@ static void add_reg_info(
     hf_register_info hf = {
         hf_ptr, { name, abbrev, type, display, NULL, 0x0, blurb, HFILL } };
 
-    g_array_append_val(wimaxasncp_build_dict.hf, hf);
+    wmem_array_append_one(wimaxasncp_build_dict.hf, hf);
 }
 
 /* ========================================================================= */
@@ -2478,8 +2478,8 @@ static void add_tlv_reg_info(
      * ------------------------------------------------------------------------
      */
 
-    name = g_strdup(tlv->name);
-    abbrev = alnumerize(g_strdup_printf("wimaxasncp.tlv.%s", tlv->name));
+    name = wmem_strdup(wmem_epan_scope(), tlv->name);
+    abbrev = alnumerize(wmem_strdup_printf(wmem_epan_scope(), "wimaxasncp.tlv.%s", tlv->name));
 
     switch (tlv->decoder)
     {
@@ -2487,16 +2487,16 @@ static void add_tlv_reg_info(
         root_blurb = "type=Unknown";
         break;
     case WIMAXASNCP_TLV_TBD:
-        root_blurb = g_strdup_printf("type=%u, TBD", tlv->type);
+        root_blurb = wmem_strdup_printf(wmem_epan_scope(), "type=%u, TBD", tlv->type);
         break;
     case WIMAXASNCP_TLV_COMPOUND:
-        root_blurb = g_strdup_printf("type=%u, Compound", tlv->type);
+        root_blurb = wmem_strdup_printf(wmem_epan_scope(), "type=%u, Compound", tlv->type);
         break;
     case WIMAXASNCP_TLV_FLAG0:
-        root_blurb = g_strdup_printf("type=%u, Value = Null", tlv->type);
+        root_blurb = wmem_strdup_printf(wmem_epan_scope(), "type=%u, Value = Null", tlv->type);
         break;
     default:
-        root_blurb = g_strdup_printf("type=%u", tlv->type);
+        root_blurb = wmem_strdup_printf(wmem_epan_scope(), "type=%u", tlv->type);
         break;
     }
 
@@ -2508,14 +2508,14 @@ static void add_tlv_reg_info(
      * ------------------------------------------------------------------------
      */
 
-    name = g_strdup("Value");
-    abbrev = alnumerize(g_strdup_printf("wimaxasncp.tlv.%s.value", tlv->name));
-    blurb = g_strdup_printf("value for type=%u", tlv->type);
+    name = wmem_strdup(wmem_epan_scope(), "Value");
+    abbrev = alnumerize(wmem_strdup_printf(wmem_epan_scope(), "wimaxasncp.tlv.%s.value", tlv->name));
+    blurb = wmem_strdup_printf(wmem_epan_scope(), "value for type=%u", tlv->type);
 
     switch (tlv->decoder)
     {
     case WIMAXASNCP_TLV_UNKNOWN:
-        g_free(blurb);
+        wmem_free(wmem_epan_scope(), blurb);
 
         add_reg_info(
             &tlv->hf_value, name, abbrev, FT_BYTES, BASE_NONE,
@@ -2529,9 +2529,9 @@ static void add_tlv_reg_info(
 
     case WIMAXASNCP_TLV_COMPOUND:
     case WIMAXASNCP_TLV_FLAG0:
-        g_free(name);
-        g_free(abbrev);
-        g_free(blurb);
+        wmem_free(wmem_epan_scope(), name);
+        wmem_free(wmem_epan_scope(), abbrev);
+        wmem_free(wmem_epan_scope(), blurb);
         break;
 
     case WIMAXASNCP_TLV_BYTES:
@@ -2580,22 +2580,22 @@ static void add_tlv_reg_info(
         break;
 
     case WIMAXASNCP_TLV_ID:
-        g_free(abbrev);
+        wmem_free(wmem_epan_scope(), abbrev);
 
         abbrev = alnumerize(
-            g_strdup_printf("wimaxasncp.tlv.%s.ipv4_value", tlv->name));
+            wmem_strdup_printf(wmem_epan_scope(), "wimaxasncp.tlv.%s.ipv4_value", tlv->name));
 
         add_reg_info(
             &tlv->hf_ipv4, "IPv4 Address", abbrev, FT_IPv4, BASE_NONE, blurb);
 
         abbrev = alnumerize(
-            g_strdup_printf("wimaxasncp.tlv.%s.ipv6_value", tlv->name));
+            wmem_strdup_printf(wmem_epan_scope(), "wimaxasncp.tlv.%s.ipv6_value", tlv->name));
 
         add_reg_info(
             &tlv->hf_ipv6, "IPv6 Address", abbrev, FT_IPv6, BASE_NONE, blurb);
 
         abbrev = alnumerize(
-            g_strdup_printf("wimaxasncp.tlv.%s.bsid_value", tlv->name));
+            wmem_strdup_printf(wmem_epan_scope(), "wimaxasncp.tlv.%s.bsid_value", tlv->name));
 
         add_reg_info(
             &tlv->hf_bsid, "BS ID", abbrev, FT_ETHER, BASE_NONE, blurb);
@@ -2633,16 +2633,16 @@ static void add_tlv_reg_info(
         break;
 
     case WIMAXASNCP_TLV_IP_ADDRESS:
-        g_free(abbrev);
+        wmem_free(wmem_epan_scope(), abbrev);
 
         abbrev = alnumerize(
-            g_strdup_printf("wimaxasncp.tlv.%s.ipv4_value", tlv->name));
+            wmem_strdup_printf(wmem_epan_scope(), "wimaxasncp.tlv.%s.ipv4_value", tlv->name));
 
         add_reg_info(
             &tlv->hf_ipv4, "IPv4 Address", abbrev, FT_IPv4, BASE_NONE, blurb);
 
         abbrev = alnumerize(
-            g_strdup_printf("wimaxasncp.tlv.%s.ipv6_value", tlv->name));
+            wmem_strdup_printf(wmem_epan_scope(), "wimaxasncp.tlv.%s.ipv6_value", tlv->name));
 
         add_reg_info(
             &tlv->hf_ipv6, "IPv6 Address", abbrev, FT_IPv6, BASE_NONE, blurb);
@@ -2658,10 +2658,10 @@ static void add_tlv_reg_info(
         add_reg_info(
             &tlv->hf_value, name, abbrev, FT_BYTES, BASE_NONE, blurb);
 
-        blurb = g_strdup_printf("value component for type=%u", tlv->type);
+        blurb = wmem_strdup_printf(wmem_epan_scope(), "value component for type=%u", tlv->type);
 
         abbrev = alnumerize(
-            g_strdup_printf("wimaxasncp.tlv.%s.value.protocol", tlv->name));
+            wmem_strdup_printf(wmem_epan_scope(), "wimaxasncp.tlv.%s.value.protocol", tlv->name));
 
         add_reg_info(
             &tlv->hf_protocol, "Protocol", abbrev, FT_UINT16, BASE_DEC, blurb);
@@ -2672,16 +2672,16 @@ static void add_tlv_reg_info(
         add_reg_info(
             &tlv->hf_value, name, abbrev, FT_BYTES, BASE_NONE, blurb);
 
-        blurb = g_strdup_printf("value component for type=%u", tlv->type);
+        blurb = wmem_strdup_printf(wmem_epan_scope(), "value component for type=%u", tlv->type);
 
         abbrev = alnumerize(
-            g_strdup_printf("wimaxasncp.tlv.%s.value.port_low", tlv->name));
+            wmem_strdup_printf(wmem_epan_scope(), "wimaxasncp.tlv.%s.value.port_low", tlv->name));
 
         add_reg_info(
             &tlv->hf_port_low, "Port Low", abbrev, FT_UINT16, BASE_DEC, blurb);
 
         abbrev = alnumerize(
-            g_strdup_printf("wimaxasncp.tlv.%s.value.port_high", tlv->name));
+            wmem_strdup_printf(wmem_epan_scope(), "wimaxasncp.tlv.%s.value.port_high", tlv->name));
 
         add_reg_info(
             &tlv->hf_port_high, "Port High", abbrev, FT_UINT16, BASE_DEC, blurb);
@@ -2692,28 +2692,28 @@ static void add_tlv_reg_info(
         add_reg_info(
             &tlv->hf_value, name, abbrev, FT_BYTES, BASE_NONE, blurb);
 
-        blurb = g_strdup_printf("value component for type=%u", tlv->type);
+        blurb = wmem_strdup_printf(wmem_epan_scope(), "value component for type=%u", tlv->type);
 
         abbrev = alnumerize(
-            g_strdup_printf("wimaxasncp.tlv.%s.value.ipv4", tlv->name));
+            wmem_strdup_printf(wmem_epan_scope(), "wimaxasncp.tlv.%s.value.ipv4", tlv->name));
 
         add_reg_info(
             &tlv->hf_ipv4, "IPv4 Address", abbrev, FT_IPv4, BASE_NONE, blurb);
 
         abbrev = alnumerize(
-            g_strdup_printf("wimaxasncp.tlv.%s.value.ipv4_mask", tlv->name));
+            wmem_strdup_printf(wmem_epan_scope(), "wimaxasncp.tlv.%s.value.ipv4_mask", tlv->name));
 
         add_reg_info(
             &tlv->hf_ipv4_mask, "IPv4 Mask", abbrev, FT_IPv4, BASE_NONE, blurb);
 
         abbrev = alnumerize(
-            g_strdup_printf("wimaxasncp.tlv.%s.value.ipv6", tlv->name));
+            wmem_strdup_printf(wmem_epan_scope(), "wimaxasncp.tlv.%s.value.ipv6", tlv->name));
 
         add_reg_info(
             &tlv->hf_ipv6, "IPv6 Address", abbrev, FT_IPv6, BASE_NONE, blurb);
 
         abbrev = alnumerize(
-            g_strdup_printf("wimaxasncp.tlv.%s.value.ipv6_mask", tlv->name));
+            wmem_strdup_printf(wmem_epan_scope(), "wimaxasncp.tlv.%s.value.ipv6_mask", tlv->name));
 
         add_reg_info(
             &tlv->hf_ipv6_mask, "IPv6 Mask", abbrev, FT_IPv6, BASE_NONE, blurb);
@@ -2724,16 +2724,16 @@ static void add_tlv_reg_info(
         add_reg_info(
             &tlv->hf_value, name, abbrev, FT_BYTES, BASE_NONE, blurb);
 
-        blurb = g_strdup_printf("value component for type=%u", tlv->type);
+        blurb = wmem_strdup_printf(wmem_epan_scope(), "value component for type=%u", tlv->type);
 
         abbrev = alnumerize(
-            g_strdup_printf("wimaxasncp.tlv.%s.value.vendor_id", tlv->name));
+            wmem_strdup_printf(wmem_epan_scope(), "wimaxasncp.tlv.%s.value.vendor_id", tlv->name));
 
         add_reg_info(
             &tlv->hf_vendor_id, "Vendor ID", abbrev, FT_UINT24, BASE_DEC, blurb);
 
         abbrev = alnumerize(
-            g_strdup_printf(
+            wmem_strdup_printf(wmem_epan_scope(),
                 "wimaxasncp.tlv.%s.value.vendor_rest_of_info", tlv->name));
 
         add_reg_info(
@@ -2743,7 +2743,7 @@ static void add_tlv_reg_info(
         break;
 
     case WIMAXASNCP_TLV_EAP:
-        blurb = g_strdup_printf("EAP payload embedded in %s", name);
+        blurb = wmem_strdup_printf(wmem_epan_scope(), "EAP payload embedded in %s", name);
 
         add_reg_info(
             &tlv->hf_value, name, abbrev, FT_BYTES, BASE_NONE, blurb);
@@ -3266,15 +3266,15 @@ register_wimaxasncp_fields(const char* unused _U_)
      */
 
     wimaxasncp_build_dict.hf =
-        g_array_new(FALSE, TRUE, sizeof(hf_register_info));
+        wmem_array_new(wmem_epan_scope(), sizeof(hf_register_info));
 
-    g_array_append_vals(
+    wmem_array_append(
         wimaxasncp_build_dict.hf, hf_base, array_length(hf_base));
 
     wimaxasncp_build_dict.ett =
-        g_array_new(FALSE, TRUE, sizeof(gint*));
+        wmem_array_new(wmem_epan_scope(), sizeof(gint*));
 
-    g_array_append_vals(
+    wmem_array_append(
         wimaxasncp_build_dict.ett, ett_base, array_length(ett_base));
 
     if (wimaxasncp_dict)
@@ -3288,17 +3288,18 @@ register_wimaxasncp_fields(const char* unused _U_)
             {
                 /* Create array for enums */
                 wimaxasncp_dict_enum_t *e;
-                GArray* array = g_array_new(TRUE, TRUE, sizeof(value_string));
+                wmem_array_t* array = wmem_array_new(wmem_epan_scope(), sizeof(value_string));
 
                 /* Copy each entry into value_string array */
                 for (e = tlv->enums; e; e = e->next)
                 {
                     value_string item = { e->code, e->name };
-                    g_array_append_val(array, item);
+                    wmem_array_append_one(array, item);
                 }
 
                 /* Set enums to use with this TLV */
-                tlv->enum_vs = (value_string*)(void*)array->data;
+                wmem_array_set_null_terminator(array);
+                tlv->enum_vs = (value_string*)wmem_array_get_raw(array);
             }
 
             add_tlv_reg_info(tlv);
@@ -3362,12 +3363,12 @@ register_wimaxasncp_fields(const char* unused _U_)
          * used */
     proto_register_field_array(
         proto_wimaxasncp,
-        (hf_register_info*)(void *)wimaxasncp_build_dict.hf->data,
-        wimaxasncp_build_dict.hf->len);
+        (hf_register_info*)wmem_array_get_raw(wimaxasncp_build_dict.hf),
+        wmem_array_get_count(wimaxasncp_build_dict.hf));
 
     proto_register_subtree_array(
-        (gint**)(void *)wimaxasncp_build_dict.ett->data,
-        wimaxasncp_build_dict.ett->len);
+        (gint**)wmem_array_get_raw(wimaxasncp_build_dict.ett),
+        wmem_array_get_count(wimaxasncp_build_dict.ett));
 
     expert_wimaxasncp = expert_register_protocol(proto_wimaxasncp);
     expert_register_field_array(expert_wimaxasncp, ei, array_length(ei));

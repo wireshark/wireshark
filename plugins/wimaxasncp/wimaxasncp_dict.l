@@ -370,7 +370,7 @@ since_attr since=\042
 
 
 <GET_ATTR>{ndquot} {
-	*yyextra->attr_str = g_strdup(yytext);
+	*yyextra->attr_str = wmem_strdup(wmem_epan_scope(), yytext);
 	D(("%s\n",yytext));
 	yyextra->attr_str = NULL;
 	BEGIN END_ATTR;
@@ -444,12 +444,7 @@ since_attr since=\042
 <IN_DICT>{tlv_start}	{
 	D(("tlv_start\n"));
 
-	yyextra->tlv = g_new(wimaxasncp_dict_tlv_t,1);
-	yyextra->tlv->type = 0;
-	yyextra->tlv->name = NULL;
-	yyextra->tlv->description = NULL;
-	yyextra->tlv->decoder = 0;
-	yyextra->tlv->since = 0;
+	yyextra->tlv = wmem_new0(wmem_epan_scope(), wimaxasncp_dict_tlv_t);
 	yyextra->tlv->hf_root = -1;
 	yyextra->tlv->hf_value = -1;
 	yyextra->tlv->hf_ipv4 = -1;
@@ -462,9 +457,6 @@ since_attr since=\042
 	yyextra->tlv->hf_ipv6_mask = -1;
 	yyextra->tlv->hf_vendor_id = -1;
 	yyextra->tlv->hf_vendor_rest_of_info = -1;
-	yyextra->tlv->enum_vs = NULL;
-	yyextra->tlv->enums = NULL;
-	yyextra->tlv->next = NULL;
 
 	if (! yyextra->dict->tlvs )
 		yyextra->last_tlv = yyextra->dict->tlvs = yyextra->tlv;
@@ -486,7 +478,7 @@ since_attr since=\042
 <IN_TLV>{enum_start} {
 	D(("enum_start\n"));
 
-	yyextra->enumitem = g_new(wimaxasncp_dict_enum_t,1);
+	yyextra->enumitem = wmem_new(wmem_epan_scope(), wimaxasncp_dict_enum_t);
 	yyextra->enumitem->name = NULL;
 	yyextra->enumitem->code = 0;
 	yyextra->enumitem->next = NULL;
