@@ -1010,27 +1010,27 @@ guint16 calculate_crc(t_solaredge_packet_header *header, const guint8 *data, gin
 static
 void solaredge_decrypt(const guint8 *in, gint length, guint8 *out, gcry_cipher_hd_t cipher)
 {
-	guint8 rand[SOLAREDGE_ENCRYPTION_KEY_LENGTH];
 	guint8 rand1[SOLAREDGE_ENCRYPTION_KEY_LENGTH];
+	guint8 rand2[SOLAREDGE_ENCRYPTION_KEY_LENGTH];
 	gint payload_length = length - SOLAREDGE_ENCRYPTION_KEY_LENGTH;
 	guint8 *payload = (guint8 *) wmem_alloc(wmem_packet_scope(), payload_length);
 	guint8 *intermediate_decrypted_payload = (guint8 *) wmem_alloc(wmem_packet_scope(), payload_length);
 	gint i = 0, posa = 0, posb = 0, posc = 0;
-	memcpy(rand1, in, SOLAREDGE_ENCRYPTION_KEY_LENGTH);
+	memcpy(rand2, in, SOLAREDGE_ENCRYPTION_KEY_LENGTH);
 	memcpy(payload, in + SOLAREDGE_ENCRYPTION_KEY_LENGTH, payload_length);
-	gcry_cipher_encrypt(cipher, rand, SOLAREDGE_ENCRYPTION_KEY_LENGTH, rand1, SOLAREDGE_ENCRYPTION_KEY_LENGTH);
+	gcry_cipher_encrypt(cipher, rand1, SOLAREDGE_ENCRYPTION_KEY_LENGTH, rand2, SOLAREDGE_ENCRYPTION_KEY_LENGTH);
 
 	for (posb = 0; posb < payload_length; posb++) {
-		intermediate_decrypted_payload[posb] = payload[posb] ^ rand[posa++];
+		intermediate_decrypted_payload[posb] = payload[posb] ^ rand1[posa++];
 		if (posa == 16) {
 			posa = 0;
 			for (posc = 15; posc >= 0; posc--) {
-				rand1[posc] = (rand1[posc] + 1) & 0xFF;
-				if (rand1[posc]) {
+				rand2[posc] = (rand2[posc] + 1) & 0xFF;
+				if (rand2[posc]) {
 					break;
 				}
 			}
-			gcry_cipher_encrypt(cipher, rand, SOLAREDGE_ENCRYPTION_KEY_LENGTH, rand1, SOLAREDGE_ENCRYPTION_KEY_LENGTH);
+			gcry_cipher_encrypt(cipher, rand1, SOLAREDGE_ENCRYPTION_KEY_LENGTH, rand2, SOLAREDGE_ENCRYPTION_KEY_LENGTH);
 		}
 	}
 
