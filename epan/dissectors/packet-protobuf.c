@@ -116,14 +116,6 @@ static int protobuf_wire_to_field_type[6][9] = {
       PROTOBUF_TYPE_NONE }
 };
 
-/* request or response message type */
-#define protobuf_message_direction_type_VALUE_STRING_LIST(XXX)    \
-    XXX(PROTOBUF_MESSAGE_REQUEST, 0, "request")  \
-    XXX(PROTOBUF_MESSAGE_RESPONSE, 1, "response")
-
-VALUE_STRING_ENUM(protobuf_message_direction_type);
-VALUE_STRING_ARRAY(protobuf_message_direction_type);
-
 void proto_register_protobuf(void);
 void proto_reg_handoff_protobuf(void);
 
@@ -381,7 +373,7 @@ protobuf_try_dissect_field_value_on_multi_types(proto_tree *value_tree, tvbuff_t
     }
 }
 
-static guint
+static gboolean
 dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_info *pinfo,
     proto_tree *protobuf_tree, void *data)
 {
