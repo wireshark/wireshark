@@ -6032,7 +6032,8 @@ dissect_advertisement_protocol_common(packet_info *pinfo, proto_tree *tree,
       proto_tree_add_item(adv_tuple_tree, hf_ieee80211_tag_adv_vs_len, tvb, offset, 1, ENC_NA);
       offset += 1;
       left   -= 1;
-      *type = ADV_PROTO_ID_VS;
+      if (type)
+        *type = ADV_PROTO_ID_VS;
       if (len > left) {
         expert_add_info_format(pinfo, item, &ei_ieee80211_tag_length,
                                "Vendor specific info length error");
