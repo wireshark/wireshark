@@ -140,7 +140,7 @@ ABRT-apdu/_untag/user-information abrt_user_information
   hf_index = hf_tcap_tid;
   saved_offset = offset;
 %(DEFAULT_BODY)s
-  PROTO_ITEM_SET_HIDDEN(actx->created_item);
+  PROTO_ITEM_SET_GENERATED(actx->created_item);
   offset = saved_offset;
 
   subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_otid, NULL, "Source Transaction ID");
@@ -188,7 +188,7 @@ ABRT-apdu/_untag/user-information abrt_user_information
   hf_index = hf_tcap_tid;
   saved_offset = offset;
 %(DEFAULT_BODY)s
-  PROTO_ITEM_SET_HIDDEN(actx->created_item);
+  PROTO_ITEM_SET_GENERATED(actx->created_item);
   offset = saved_offset;
 
   subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_dtid, NULL, "Destination Transaction ID");
