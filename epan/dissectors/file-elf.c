@@ -887,7 +887,7 @@ dissect_eh_frame_hdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_
     if (efp_length == LENGTH_ULEB128) {
         guint64 value;
 
-        efp_length = dissect_uleb128(tvb, offset, &value);
+        efp_length = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, &value);
     } else if (efp_length == LENGTH_LEB128) {
         gint64 value;
 
@@ -899,7 +899,7 @@ dissect_eh_frame_hdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_
 
 
     if (fde_count_length == LENGTH_ULEB128) {
-        fde_count_length = dissect_uleb128(tvb, offset, &fde_count);
+        fde_count_length = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, &fde_count);
     } else if (fde_count_length == LENGTH_LEB128) {
         gint64 value;
 
@@ -932,7 +932,7 @@ dissect_eh_frame_hdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_
     if (table_entry_length == LENGTH_ULEB128) {
         guint64 value;
 
-        table_entry_length = dissect_uleb128(tvb, offset, &value);
+        table_entry_length = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, &value);
     } else if (table_entry_length == LENGTH_LEB128) {
         gint64 value;
 
@@ -1064,9 +1064,7 @@ dissect_eh_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *segment_tree,
                                 tvb, offset, size, machine_encoding);
             offset += size;
 
-            size = dissect_uleb128(tvb, offset, &unsigned_value);
-            proto_tree_add_uint64(entry_tree, hf_elf_eh_frame_code_alignment_factor,
-                                  tvb, offset, size, unsigned_value);
+            proto_tree_add_item_ret_length(entry_tree, hf_elf_eh_frame_code_alignment_factor, tvb, offset, -1, ENC_LITTLE_ENDIAN|ENC_VARINT_PROTOBUF, &size);
             offset += size;
 
             size = dissect_leb128(tvb, offset, &signed_value);
@@ -1075,9 +1073,7 @@ dissect_eh_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *segment_tree,
             offset += size;
 
             /* according to DWARF v4 this is uLEB128 */
-            size = dissect_uleb128(tvb, offset, &unsigned_value);
-            proto_tree_add_uint64(entry_tree, hf_elf_eh_frame_return_address_register,
-                                  tvb, offset, size, unsigned_value);
+            proto_tree_add_item_ret_length(entry_tree, hf_elf_eh_frame_return_address_register, tvb, offset, -1, ENC_LITTLE_ENDIAN|ENC_VARINT_PROTOBUF, &size);
             offset += size;
         } else {
             proto_tree_add_item(entry_tree, hf_elf_eh_frame_fde_pc_begin, tvb,
@@ -1092,11 +1088,8 @@ dissect_eh_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *segment_tree,
         /* "A 'z' may be present as the first character of the string. If
          * present, the Augmentation Data field shall be present." (LSB 4.1) */
         if (augmentation_string[0] == 'z') {
-            size = dissect_uleb128(tvb, offset, &unsigned_value);
-            proto_tree_add_uint64(entry_tree, is_cie ?
-                                    hf_elf_eh_frame_augmentation_length :
-                                    hf_elf_eh_frame_fde_augmentation_length,
-                                  tvb, offset, size, unsigned_value);
+            proto_tree_add_item_ret_varint(entry_tree, is_cie ? hf_elf_eh_frame_augmentation_length : hf_elf_eh_frame_fde_augmentation_length,
+                                            tvb, offset, -1, ENC_LITTLE_ENDIAN|ENC_VARINT_PROTOBUF, &unsigned_value, &size);
             offset += size;
 
             proto_tree_add_item(entry_tree, is_cie ?

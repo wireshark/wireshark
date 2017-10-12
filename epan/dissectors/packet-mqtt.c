@@ -368,18 +368,16 @@ static gint ett_mqtt_subscription_flags = -1;
 /* Reassemble SMPP TCP segments */
 static gboolean reassemble_mqtt_over_tcp = TRUE;
 
-#define GET_MQTT_PDU_LEN(msg_len, len_offset)    (msg_len + len_offset + MQTT_HDR_SIZE_BEFORE_LEN)
-
 static guint get_mqtt_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                               int offset, void *data _U_)
 {
   guint64 msg_len;
   guint len_offset;
 
-  len_offset = dissect_uleb128(tvb, (offset + MQTT_HDR_SIZE_BEFORE_LEN), &msg_len);
+  len_offset = tvb_get_varint(tvb, (offset + MQTT_HDR_SIZE_BEFORE_LEN), FT_VARINT_MAX_LEN, &msg_len);
 
   /* Explicitly downcast the value, because the length can never be more than 4 bytes */
-  return (guint)(GET_MQTT_PDU_LEN(msg_len, len_offset));
+  return (guint)(msg_len + len_offset + MQTT_HDR_SIZE_BEFORE_LEN);
 }
 
 static void *mqtt_message_decode_copy_cb(void *dest, const void *orig, size_t len _U_)
@@ -509,7 +507,7 @@ static guint dissect_mqtt_properties(tvbuff_t *tvb, proto_tree *mqtt_tree, guint
   proto_item *ti;
   guint64 vbi;
 
-  const guint mqtt_prop_offset = dissect_uleb128(tvb, offset, &vbi);
+  const guint mqtt_prop_offset = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, &vbi);
   /* Property Length field can be stored in uint32 */
   const guint mqtt_prop_len = (gint)vbi;
 
@@ -563,9 +561,9 @@ static guint dissect_mqtt_properties(tvbuff_t *tvb, proto_tree *mqtt_tree, guint
 
       case PROP_SUBSCRIPTION_IDENTIFIER:
       {
-        guint8 vbi_offset = dissect_uleb128(tvb, offset, &vbi);
-        proto_tree_add_uint(mqtt_prop_tree, hf_mqtt_prop_num, tvb, offset, vbi_offset, (guint32)vbi);
-        offset += vbi_offset;
+        gint vbi_len;
+        proto_tree_add_item_ret_length(mqtt_prop_tree, hf_mqtt_prop_num, tvb, offset, -1, ENC_LITTLE_ENDIAN|ENC_VARINT_PROTOBUF, &vbi_len);
+        offset += vbi_len;
         break;
       }
 
@@ -681,7 +679,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     conversation_add_proto_data(conv, proto_mqtt, mqtt);
   }
 
-  mqtt_len_offset = dissect_uleb128(tvb, (offset + MQTT_HDR_SIZE_BEFORE_LEN), &msg_len);
+  mqtt_len_offset = tvb_get_varint(tvb, (offset + MQTT_HDR_SIZE_BEFORE_LEN), FT_VARINT_MAX_LEN, &msg_len);
 
   /* Explicit downcast, typically maximum length of message could be 4 bytes */
   mqtt_msg_len = (gint) msg_len;

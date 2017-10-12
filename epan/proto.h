@@ -525,6 +525,9 @@ WS_DLL_PUBLIC WS_NORETURN void proto_report_dissector_bug(const char *message);
 /* this can't collide with ENC_SEP_* because they can be used simultaneously */
 #define ENC_NUM_PREF    0x00200000
 
+/* Use varint format as described in Protobuf protocol
+ * https://developers.google.cn/protocol-buffers/docs/encoding
+ */
 #define ENC_VARINT_PROTOBUF      0x00000002
 
 /* For cases where a string encoding contains hex, bit-or one or more
