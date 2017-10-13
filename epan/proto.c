@@ -2086,6 +2086,32 @@ tree_data_add_maybe_interesting_field(tree_data_t *tree_data, field_info *fi)
 	}
 }
 
+
+/*
+ * Validates that field length bytes are available starting from
+ * start (pos/neg). Throws an exception if they aren't.
+ */
+static void
+test_length(header_field_info *hfinfo, tvbuff_t *tvb,
+	    gint start, gint length, const guint encoding)
+{
+	gint size = length;
+
+	if (!tvb)
+		return;
+
+	if ((hfinfo->type == FT_STRINGZ) ||
+		((encoding & ENC_VARINT_PROTOBUF) && (IS_FT_UINT(hfinfo->type) ||  IS_FT_UINT(hfinfo->type)))) {
+		/* If we're fetching until the end of the TVB, only validate
+		 * that the offset is within range.
+		 */
+		if (length == -1)
+			size = 0;
+	}
+
+	tvb_ensure_bytes_exist(tvb, start, size);
+}
+
 /* Add an item to a proto_tree, using the text label registered to that item;
    the item is extracted from the tvbuff handed to it. */
 static proto_item *
@@ -2678,6 +2704,233 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	return proto_tree_add_node(tree, new_fi);
 }
 
+/* Gets data from tvbuff, adds it to proto_tree, increments offset,
+ * and returns proto_item* and uint value retreived*/
+proto_item *
+ptvcursor_add_ret_uint(ptvcursor_t *ptvc, int hfindex, gint length,
+	      const guint encoding, guint32 *retval)
+{
+	field_info	  *new_fi;
+	header_field_info *hfinfo;
+	gint		   item_length;
+	int		   offset;
+	guint32		   value;
+
+	offset = ptvc->offset;
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
+
+	switch (hfinfo->type){
+	case FT_CHAR:
+	case FT_UINT8:
+	case FT_UINT16:
+	case FT_UINT24:
+	case FT_UINT32:
+		break;
+	default:
+		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+		    "field %s is not of type FT_CHAR, FT_UINT8, FT_UINT16, FT_UINT24, or FT_UINT32",
+		    hfinfo->abbrev));
+	}
+
+	get_hfi_length(hfinfo, ptvc->tvb, offset, &length, &item_length, encoding);
+	test_length(hfinfo, ptvc->tvb, offset, item_length, encoding);
+
+	/* I believe it's ok if this is called with a NULL tree */
+	/* XXX - modify if we ever support EBCDIC FT_CHAR */
+	value = get_uint_value(ptvc->tree, ptvc->tvb, offset, item_length, encoding);
+
+	if (retval) {
+		*retval = value;
+		if (hfinfo->bitmask) {
+			/* Mask out irrelevant portions */
+			*retval &= (guint32)(hfinfo->bitmask);
+			/* Shift bits */
+			*retval >>= hfinfo_bitshift(hfinfo);
+		}
+	}
+
+	ptvc->offset += get_full_length(hfinfo, ptvc->tvb, offset, length,
+	    item_length, encoding);
+
+	CHECK_FOR_NULL_TREE(ptvc->tree);
+
+	/* Coast clear. Try and fake it */
+	TRY_TO_FAKE_THIS_ITEM(ptvc->tree, hfindex, hfinfo);
+
+	new_fi = new_field_info(ptvc->tree, hfinfo, ptvc->tvb, offset, item_length);
+
+	return proto_tree_new_item(new_fi, ptvc->tree, ptvc->tvb,
+		offset, length, encoding);
+}
+
+/* Gets data from tvbuff, adds it to proto_tree, increments offset,
+ * and returns proto_item* and int value retreived*/
+proto_item *
+ptvcursor_add_ret_int(ptvcursor_t *ptvc, int hfindex, gint length,
+	      const guint encoding, gint32 *retval)
+{
+	field_info	  *new_fi;
+	header_field_info *hfinfo;
+	gint		   item_length;
+	int		   offset;
+	guint32		   value;
+
+	offset = ptvc->offset;
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
+
+	switch (hfinfo->type){
+	case FT_INT8:
+	case FT_INT16:
+	case FT_INT24:
+	case FT_INT32:
+		break;
+	default:
+		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+		    "field %s is not of type FT_CHAR, FT_UINT8, FT_UINT16, FT_UINT24, or FT_UINT32",
+		    hfinfo->abbrev));
+	}
+
+	get_hfi_length(hfinfo, ptvc->tvb, offset, &length, &item_length, encoding);
+	test_length(hfinfo, ptvc->tvb, offset, item_length, encoding);
+
+	/* I believe it's ok if this is called with a NULL tree */
+	/* XXX - modify if we ever support EBCDIC FT_CHAR */
+	value = get_int_value(ptvc->tree, ptvc->tvb, offset, item_length, encoding);
+
+	if (retval) {
+		gint no_of_bits;
+		*retval = value;
+		if (hfinfo->bitmask) {
+			/* Mask out irrelevant portions */
+			*retval &= (guint32)(hfinfo->bitmask);
+			/* Shift bits */
+			*retval >>= hfinfo_bitshift(hfinfo);
+		}
+		no_of_bits = ws_count_ones(hfinfo->bitmask);
+		*retval = ws_sign_ext32(*retval, no_of_bits);
+	}
+
+	ptvc->offset += get_full_length(hfinfo, ptvc->tvb, offset, length,
+	    item_length, encoding);
+
+	CHECK_FOR_NULL_TREE(ptvc->tree);
+
+	/* Coast clear. Try and fake it */
+	TRY_TO_FAKE_THIS_ITEM(ptvc->tree, hfindex, hfinfo);
+
+	new_fi = new_field_info(ptvc->tree, hfinfo, ptvc->tvb, offset, item_length);
+
+	return proto_tree_new_item(new_fi, ptvc->tree, ptvc->tvb,
+		offset, length, encoding);
+}
+
+/* Gets data from tvbuff, adds it to proto_tree, increments offset,
+ * and returns proto_item* and string value retreived */
+proto_item*
+ptvcursor_add_ret_string(ptvcursor_t* ptvc, int hf, gint length, const guint encoding, wmem_allocator_t *scope, const guint8 **retval)
+{
+	header_field_info *hfinfo;
+	field_info		*new_fi;
+	const guint8	*value;
+	gint			item_length;
+	int				offset;
+
+	offset = ptvc->offset;
+
+	PROTO_REGISTRAR_GET_NTH(hf, hfinfo);
+
+	switch (hfinfo->type){
+	case FT_STRING:
+		value = get_string_value(scope, ptvc->tvb, offset, length, &item_length, encoding);
+		break;
+	case FT_STRINGZ:
+		value = get_stringz_value(scope, ptvc->tree, ptvc->tvb, offset, length, &item_length, encoding);
+		break;
+	case FT_UINT_STRING:
+		value = get_uint_string_value(scope, ptvc->tree, ptvc->tvb, offset, length, &item_length, encoding);
+		break;
+	case FT_STRINGZPAD:
+		value = get_stringzpad_value(scope, ptvc->tvb, offset, length, &item_length, encoding);
+		break;
+	default:
+		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+		    "field %s is not of type FT_STRING, FT_STRINGZ, FT_UINT_STRING, or FT_STRINGZPAD",
+		    hfinfo->abbrev));
+	}
+
+	if (retval)
+		*retval = value;
+
+	ptvc->offset += item_length;
+
+	CHECK_FOR_NULL_TREE(ptvc->tree);
+
+	TRY_TO_FAKE_THIS_ITEM(ptvc->tree, hfinfo->id, hfinfo);
+
+	new_fi = new_field_info(ptvc->tree, hfinfo, ptvc->tvb, offset, item_length);
+
+	return proto_tree_new_item(new_fi, ptvc->tree, ptvc->tvb,
+		offset, length, encoding);
+}
+
+/* Gets data from tvbuff, adds it to proto_tree, increments offset,
+ * and returns proto_item* and boolean value retreived */
+proto_item*
+ptvcursor_add_ret_boolean(ptvcursor_t* ptvc, int hfindex, gint length, const guint encoding, gboolean *retval)
+{
+	header_field_info *hfinfo;
+	field_info		*new_fi;
+	gint			item_length;
+	int				offset;
+	guint64			value, bitval;
+
+	offset = ptvc->offset;
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
+
+	if (hfinfo->type != FT_BOOLEAN) {
+		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+		    "field %s is not of type FT_BOOLEAN", hfinfo->abbrev));
+	}
+
+	/* length validation for native number encoding caught by get_uint64_value() */
+	/* length has to be -1 or > 0 regardless of encoding */
+	if (length < -1 || length == 0)
+		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+			"Invalid length %d passed to proto_tree_add_item_ret_uint",
+			length));
+
+	if (encoding & ENC_STRING) {
+		REPORT_DISSECTOR_BUG("wrong encoding");
+	}
+
+	get_hfi_length(hfinfo, ptvc->tvb, offset, &length, &item_length, encoding);
+	test_length(hfinfo, ptvc->tvb, offset, item_length, encoding);
+
+	/* I believe it's ok if this is called with a NULL tree */
+	value = get_uint64_value(ptvc->tree, ptvc->tvb, offset, length, encoding);
+
+	if (retval) {
+		bitval = value;
+		if (hfinfo->bitmask) {
+			/* Mask out irrelevant portions */
+			bitval &= hfinfo->bitmask;
+		}
+		*retval = (bitval != 0);
+	}
+
+	ptvc->offset += get_full_length(hfinfo, ptvc->tvb, offset, length,
+	    item_length, encoding);
+
+	CHECK_FOR_NULL_TREE(ptvc->tree);
+
+	TRY_TO_FAKE_THIS_ITEM(ptvc->tree, hfinfo->id, hfinfo);
+
+	new_fi = new_field_info(ptvc->tree, hfinfo, ptvc->tvb, offset, item_length);
+
+	return proto_tree_new_item(new_fi, ptvc->tree, ptvc->tvb,
+		offset, length, encoding);
+}
+
 proto_item *
 proto_tree_add_item_ret_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     const gint start, gint length, const guint encoding, guint64 *retval)
@@ -2906,30 +3159,6 @@ proto_tree_add_item_ret_string(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	    tvb, start, length, encoding, scope, retval, &length);
 }
 
-/*
- * Validates that field length bytes are available starting from
- * start (pos/neg). Throws an exception if they aren't.
- */
-static void
-test_length(header_field_info *hfinfo, tvbuff_t *tvb,
-	    gint start, gint length, const guint encoding)
-{
-	gint size = length;
-
-	if (!tvb)
-		return;
-
-	if ((hfinfo->type == FT_STRINGZ) ||
-		((encoding & ENC_VARINT_PROTOBUF) && (IS_FT_UINT(hfinfo->type) ||  IS_FT_UINT(hfinfo->type)))) {
-		/* If we're fetching until the end of the TVB, only validate
-		 * that the offset is within range.
-		 */
-		if (length == -1)
-			size = 0;
-	}
-
-	tvb_ensure_bytes_exist(tvb, start, size);
-}
 
 /* Gets data from tvbuff, adds it to proto_tree, increments offset,
    and returns proto_item* */

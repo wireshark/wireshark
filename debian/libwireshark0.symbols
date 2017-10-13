@@ -1223,6 +1223,10 @@ libwireshark.so.0 libwireshark0 #MINVER#
  protocols_module@Base 1.9.1
  ptvcursor_add@Base 1.9.1
  ptvcursor_add_no_advance@Base 1.9.1
+ ptvcursor_add_ret_boolean@Base 2.5.0
+ ptvcursor_add_ret_int@Base 2.5.0
+ ptvcursor_add_ret_string@Base 2.5.0
+ ptvcursor_add_ret_uint@Base 2.5.0
  ptvcursor_add_text_with_subtree@Base 1.9.1
  ptvcursor_add_with_subtree@Base 1.9.1
  ptvcursor_advance@Base 1.9.1
