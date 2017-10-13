@@ -733,12 +733,12 @@ proto_register_docsis_vsif (void)
       "General Extension Information - SAV -Static Prefix Rule", HFILL}
     },
     {&hf_docsis_vsif_gex_sav_static_prefix_addressv4,
-     {"...1 SAV Static Prefix Address", "docsis_vsif.gex.sav.spr.static_prefix_address",
+     {"...1 SAV Static Prefix Address", "docsis_vsif.gex.sav.spr.static_prefix_address4",
       FT_IPv4, BASE_NONE, NULL, 0x0,
       "General Extension Information - SAV -Static Prefix Rule - Static Prefix Address", HFILL}
     },
     {&hf_docsis_vsif_gex_sav_static_prefix_addressv6,
-     {"...1 SAV Static Prefix Address", "docsis_vsif.gex.sav.spr.static_prefix_address",
+     {"...1 SAV Static Prefix Address", "docsis_vsif.gex.sav.spr.static_prefix_address6",
       FT_IPv6, BASE_NONE, NULL, 0x0,
       "General Extension Information - SAV -Static Prefix Rule - Static Prefix Address", HFILL}
     },
@@ -798,12 +798,12 @@ proto_register_docsis_vsif (void)
       "General Extension Information - IP Multicast Join Authorization - IP Multicast Profile Join Authorization Static Session Rule - Rule Priority", HFILL}
     },
     {&hf_docsis_vsif_gex_imja_ssr_source_prefix_addressv4,
-     {"...3 Source Prefix Address", "docsis_vsif.gex.imja.imja_ssr_source_prefix_address",
+     {"...3 Source Prefix Address", "docsis_vsif.gex.imja.imja_ssr_source_prefix_address4",
       FT_IPv4, BASE_NONE, NULL, 0x0,
       "General Extension Information - IP Multicast Join Authorization - IP Multicast Profile Join Authorization Static Session Rule - Source Prefix Address", HFILL}
     },
     {&hf_docsis_vsif_gex_imja_ssr_source_prefix_addressv6,
-     {"...3 Source Prefix Address", "docsis_vsif.gex.imja.imja_ssr_source_prefix_address",
+     {"...3 Source Prefix Address", "docsis_vsif.gex.imja.imja_ssr_source_prefix_address6",
       FT_IPv6, BASE_NONE, NULL, 0x0,
       "General Extension Information - IP Multicast Join Authorization - IP Multicast Profile Join Authorization Static Session Rule - Source Prefix Address", HFILL}
     },
@@ -813,12 +813,12 @@ proto_register_docsis_vsif (void)
       "General Extension Information - IP Multicast Join Authorization - IP Multicast Profile Join Authorization Static Session Rule - Source Prefix Length", HFILL}
     },
     {&hf_docsis_vsif_gex_imja_ssr_group_prefix_addressv4,
-     {"...5 Group Prefix Address", "docsis_vsif.gex.imja.imja_ssr_group_prefix_address",
+     {"...5 Group Prefix Address", "docsis_vsif.gex.imja.imja_ssr_group_prefix_address4",
       FT_IPv4, BASE_NONE, NULL, 0x0,
       "General Extension Information - IP Multicast Join Authorization - IP Multicast Profile Join Authorization Static Session Rule - Group Prefix Address", HFILL}
     },
     {&hf_docsis_vsif_gex_imja_ssr_group_prefix_addressv6,
-     {"...5 Group Prefix Address", "docsis_vsif.gex.imja.imja_ssr_group_prefix_address",
+     {"...5 Group Prefix Address", "docsis_vsif.gex.imja.imja_ssr_group_prefix_address6",
       FT_IPv6, BASE_NONE, NULL, 0x0,
       "General Extension Information - IP Multicast Join Authorization - IP Multicast Profile Join Authorization Static Session Rule - Group Prefix Address", HFILL}
     },
