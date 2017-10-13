@@ -708,7 +708,7 @@ proto_register_docsis_vsif (void)
       "General Extension Information - Extended CMTS MIC Hmac type", HFILL}
     },
     {&hf_docsis_vsif_gex_ecm_extended_cmts_mic_bitmap,
-     {"..2 Extended CMTS MIC Bitmap", "docsis_vsif.gex.extended_cmts_mic_hmac_type",
+     {"..2 Extended CMTS MIC Bitmap", "docsis_vsif.gex.extended_cmts_mic_bitmap",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "General Extension Information - Extended CMTS MIC Bitmap", HFILL}
     },
