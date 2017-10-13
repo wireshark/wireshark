@@ -53,31 +53,22 @@ else()
 	cmake_minimum_required(VERSION 2.8.8)
 endif()
 
-# Needs to be set after cmake_minimum_required or cmake_policy(VERSION)
-# Policy since 2.6.1
-cmake_policy(SET CMP0008 NEW)
-# Policy since 2.6.3
-# Backward compatibility for versions < 2.6.3
-cmake_policy(SET CMP0011 OLD)
-# Policy since 2.8.1
-cmake_policy(SET CMP0015 NEW)
-
 #Where to find local cmake scripts
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
-# Set old behaviour for LOCATION property
+# Set old behaviour for LOCATION property (since 3.0)
 if (POLICY CMP0026)
 	cmake_policy(SET CMP0026 OLD)
 endif()
 
-# Set old behaviour for variable quoting
-if (POLICY CMP0054)
-	cmake_policy(SET CMP0054 OLD)
-endif()
-
-# Set old behaviour for MACOSX_RPATH
+# Set old behaviour for MACOSX_RPATH (since 3.0)
 if (POLICY CMP0042)
 	cmake_policy(SET CMP0042 OLD)
+endif()
+
+# Set old behaviour for variable quoting (since 3.1)
+if (POLICY CMP0054)
+	cmake_policy(SET CMP0054 OLD)
 endif()
 
 # If our target platform is enforced by our generator, set
@@ -2202,11 +2193,6 @@ if(BUILD_wireshark AND QT_FOUND)
 		${NL_LIBRARIES}
 		${WIN_VERSION_LIBRARY}
 	)
-
-	# Policy since 2.8.11
-	if (POLICY CMP0020)
-		cmake_policy(SET CMP0020 NEW)
-	endif()
 
 	add_executable(wireshark WIN32 MACOSX_BUNDLE wireshark-qt.cpp ${wireshark_FILES} ${EXTRA_BUNDLE_FILES})
 	add_dependencies(wireshark version)
