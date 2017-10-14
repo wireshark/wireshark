@@ -36,7 +36,7 @@
 
 #include "file.h"
 
-#include "ui/ui_util.h"
+#include "ui/ws_ui_util.h"
 
 #include <epan/prefs.h>
 #include <epan/plugin_if.h>

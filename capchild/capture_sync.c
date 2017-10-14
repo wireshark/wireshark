@@ -87,7 +87,7 @@
 #include "caputils/capture-wpcap.h"
 #endif
 
-#include "ui/ui_util.h"
+#include "ui/ws_ui_util.h"
 
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>

@@ -31,7 +31,7 @@
 
 #include <caputils/ws80211_utils.h>
 
-#include <ui/ui_util.h>
+#include "ui/ws_ui_util.h"
 #include <wsutil/utf8_entities.h>
 #include <wsutil/frequency-utils.h>
 

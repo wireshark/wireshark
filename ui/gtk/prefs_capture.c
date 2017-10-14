@@ -35,7 +35,7 @@
 #include "ui/capture_globals.h"
 #include "ui/iface_lists.h"
 #include "ui/simple_dialog.h"
-#include "ui/ui_util.h"
+#include "ui/ws_ui_util.h"
 
 #include "ui/gtk/prefs_capture.h"
 #include "ui/gtk/prefs_dlg.h"

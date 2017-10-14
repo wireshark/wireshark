@@ -108,7 +108,7 @@
 #include "ui/recent.h"
 #include "ui/recent_utils.h"
 #include "ui/software_update.h"
-#include "ui/ui_util.h"
+#include "ui/ws_ui_util.h"
 #include "ui/util.h"
 #include "ui/dissect_opts.h"
 #include "ui/commandline.h"

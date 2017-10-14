@@ -23,7 +23,7 @@
 #ifndef __GUI_UTILS_H__
 #define __GUI_UTILS_H__
 
-#include "ui/ui_util.h"
+#include "ui/ws_ui_util.h"
 
 /** @defgroup windows_group Windows
  *

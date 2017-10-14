@@ -57,7 +57,7 @@
 #include <epan/print.h>
 #include <epan/addr_resolv.h>
 #include "ui/util.h"
-#include "ui/ui_util.h"
+#include "ui/ws_ui_util.h"
 #include "ui/decode_as_utils.h"
 #include "ui/filter_files.h"
 #include "ui/tap_export_pdu.h"

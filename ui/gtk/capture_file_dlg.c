@@ -41,7 +41,7 @@
 #include "ui/simple_dialog.h"
 #include "ui/file_dialog.h"
 #include "ui/recent.h"
-#include "ui/ui_util.h"
+#include "ui/ws_ui_util.h"
 
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/old-gtk-compat.h"

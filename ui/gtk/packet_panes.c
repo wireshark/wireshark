@@ -45,7 +45,7 @@
 #include "ui/progress_dlg.h"
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
-#include "ui/ui_util.h"
+#include "ui/ws_ui_util.h"
 
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>

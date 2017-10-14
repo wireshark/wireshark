@@ -30,7 +30,7 @@
 
 #include "time_shift.h"
 
-#include "ui/ui_util.h"
+#include "ui/ws_ui_util.h"
 
 #ifndef HAVE_FLOORL
 #define floorl(x) floor((double)x)

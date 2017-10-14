@@ -48,7 +48,7 @@
 #include "ui/simple_dialog.h"
 #include "ui/ssl_key_export.h"
 #include "ui/util.h"
-#include "ui/ui_util.h"
+#include "ui/ws_ui_util.h"
 #include "ui/all_files_wildcard.h"
 
 #include "file_dlg_win32.h"

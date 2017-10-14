@@ -33,7 +33,7 @@
 #include "ui/capture_ui_utils.h"
 #include "epan/prefs.h"
 #include "epan/to_str.h"
-#include "ui/ui_util.h"
+#include "ui/ws_ui_util.h"
 #include "ui/recent.h"
 
 #include <QMessageBox>

@@ -47,7 +47,7 @@
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
 #include "ui/ssl_key_export.h"
-#include "ui/ui_util.h"
+#include "ui/ws_ui_util.h"
 
 #include "ui/gtk/keys.h"
 #include "ui/gtk/color_utils.h"

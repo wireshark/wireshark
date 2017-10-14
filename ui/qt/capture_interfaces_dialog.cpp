@@ -44,7 +44,7 @@
 #include "ui/iface_lists.h"
 #include "ui/last_open_dir.h"
 
-#include "ui/ui_util.h"
+#include "ui/ws_ui_util.h"
 #include "ui/util.h"
 #include <wsutil/utf8_entities.h>
 #include "ui/preference_utils.h"

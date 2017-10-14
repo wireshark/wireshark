@@ -34,7 +34,7 @@
 #include <QSpacerItem>
 
 #include "ui/capture_ui_utils.h"
-#include "ui/ui_util.h"
+#include "ui/ws_ui_util.h"
 
 #include <epan/prefs-int.h>
 

@@ -62,7 +62,7 @@
 
 #include "ui/rtp_stream.h"
 #include "ui/simple_dialog.h"
-#include "ui/ui_util.h"
+#include "ui/ws_ui_util.h"
 #include "ui/voip_calls.h"
 
 #define DUMP_PTR1(p) printf("#=> %p\n",(void *)p)

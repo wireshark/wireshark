@@ -64,7 +64,7 @@
 #include "ui/simple_dialog.h"
 #include "ui/main_statusbar.h"
 #include "ui/progress_dlg.h"
-#include "ui/ui_util.h"
+#include "ui/ws_ui_util.h"
 
 /* Needed for addrinfo */
 #ifdef HAVE_SYS_TYPES_H

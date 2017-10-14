@@ -86,7 +86,7 @@
 #include "ui/capture_ui_utils.h"
 #endif
 #include "ui/util.h"
-#include "ui/ui_util.h"
+#include "ui/ws_ui_util.h"
 #include "ui/decode_as_utils.h"
 #include "ui/filter_files.h"
 #include "ui/cli/tshark-tap.h"

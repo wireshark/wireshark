@@ -55,7 +55,7 @@
 
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
-#include "ui/ui_util.h"
+#include "ui/ws_ui_util.h"
 
 #include "ui/gtk/font_utils.h"
 #include "ui/gtk/main.h"

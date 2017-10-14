@@ -31,7 +31,7 @@ extern "C" {
 #include <glib.h>
 #include <stdio.h>
 #include "epan/timestamp.h"
-#include "ui/ui_util.h"
+#include "ui/ws_ui_util.h"
 
 /** @file
  *  Recent user interface settings.

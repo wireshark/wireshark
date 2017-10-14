@@ -30,7 +30,7 @@
 
 #include "file.h"
 
-#include "ui/ui_util.h"
+#include "ui/ws_ui_util.h"
 #include "ui/iface_toolbar.h"
 
 #include <epan/prefs.h>

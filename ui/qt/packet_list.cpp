@@ -42,7 +42,7 @@
 #include "ui/preference_utils.h"
 #include "ui/recent.h"
 #include "ui/recent_utils.h"
-#include "ui/ui_util.h"
+#include "ui/ws_ui_util.h"
 #include <wsutil/utf8_entities.h>
 #include "ui/util.h"
 

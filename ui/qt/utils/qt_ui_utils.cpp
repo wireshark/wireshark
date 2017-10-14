@@ -31,7 +31,7 @@
 #include <epan/value_string.h>
 
 #include <ui/recent.h>
-#include <ui/ui_util.h>
+#include "ui/ws_ui_util.h"
 
 #include <wsutil/str_util.h>
 

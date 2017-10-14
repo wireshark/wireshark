@@ -140,7 +140,7 @@ WIRESHARK_UI_INCLUDES = \
 	text_import_scanner.h	\
 	time_shift.h		\
 	traffic_table_ui.h	\
-	ui_util.h		\
+	ws_ui_util.h		\
 	util.h			\
 	voip_calls.h
 

@@ -32,7 +32,7 @@
 #include "wireshark_dialog.h"
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "ui/recent.h"
-#include "ui/ui_util.h"
+#include "ui/ws_ui_util.h"
 
 #include <QMessageBox>
 
