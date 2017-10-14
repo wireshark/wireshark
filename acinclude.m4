@@ -200,9 +200,9 @@ AC_DEFUN([AC_WIRESHARK_PCAP_CHECK],
 	    # "$prefix/include/pcap", in case $prefix is set to
 	    # "/usr/include" or "/usr/local/include".
 	    #
-	    # XXX - should we just add "$prefix/include" to the include
-	    # search path and "$prefix/lib" to the library search path?
-	    #
+	    PCAP_CFLAGS=""
+	    PCAP_LIBS="-lpcap"
+
 	    AC_MSG_CHECKING(for extraneous pcap header directories)
 	    found_pcap_dir=""
 	    pcap_dir_list="/usr/local/include/pcap /usr/include/pcap $prefix/include/pcap $prefix/include"
