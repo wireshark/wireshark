@@ -901,7 +901,6 @@ SUBDIRS = \
 	capchild		\
 	caputils		\
 	@plugins_dir@		\
-	packaging		\
 	help			\
 	ui			\
 	codecs			\
@@ -1034,23 +1033,8 @@ update-databases-and-caches-install: update-databases-and-caches-common
 
 update-databases-and-caches-uninstall: update-databases-and-caches-common
 
-rpm_topdir=`cd $(top_builddir) && pwd`/packaging/rpm
-if HAVE_RPM
 rpm-package: dist
-	@cd $(rpm_topdir) && \
-	  mkdir -p BUILD RPMS SOURCES SRPMS && \
-	  cd SOURCES && \
-	  ln -sf ../../../$(distdir).tar.xz && \
-	  cd .. && \
-	  $(RPMBUILD) --define "_topdir `cd . && pwd`" --define "_prefix $(prefix)" \
-		@RPMBUILD_WITH_ARGS@ --clean -ba SPECS/wireshark.spec && \
-	  echo "Package successfully built in `pwd`/RPMS." ; \
-	  rm -f SOURCES/$(distdir).tar.xz ../../$(distdir).tar.xz
-else
-rpm-package:
-	@echo "'rpmbuild' executable not available." ; \
-	  false
-endif
+	$(MAKE) -C packaging/rpm
 
 test-programs:
 	cd epan && $(MAKE) $@

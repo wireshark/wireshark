@@ -1,5 +1,5 @@
 
-SUBDIRS = macosx rpm nsis wix
+DIST_SUBDIRS = macosx rpm nsis wix
 
 EXTRA_DIST = \
 	portableapps/appinfo.tmpl		\
