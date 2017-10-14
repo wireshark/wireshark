@@ -8,6 +8,7 @@ include(FindCygwin)
 find_program(POD2MAN_EXECUTABLE
 	NAMES
 		pod2man
+		pod2man.bat
 	PATHS
 		${CYGWIN_INSTALL_PATH}/bin
 		/bin
