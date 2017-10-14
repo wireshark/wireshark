@@ -458,16 +458,6 @@ AM_CONDITIONAL(HAVE_A2X_TEXT, [test "x$have_a2x_text" != xno])
 AS_IF([test $have_a2x_text = lynx], [A2X_LYNX="--lynx"])
 AC_SUBST(A2X_LYNX)
 
-# Check for packaging utilities
-# For now, we check to see if the various packaging utilites are in our
-# path.  I'm too lazy to write code to go hunt for them.  -  Gerald
-
-#
-# Source packages.
-# (Lets you install the desktop files.)
-#
-AC_PATH_PROG(DESKTOP_FILE_INSTALL, desktop-file-install)
-
 # RPM
 #
 # Looks for the rpmbuild program, and checks to see if we can redefine "_topdir".

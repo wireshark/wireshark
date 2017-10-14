@@ -984,11 +984,7 @@ if NOT_MACOS
 	mkdir -p $(DESTDIR)$(datadir)/appdata
 	install -m 644 $(srcdir)/wireshark.appdata.xml $(DESTDIR)$(datadir)/appdata/wireshark.appdata.xml
 	mkdir -p $(DESTDIR)$(datadir)/applications
-	if test x$(DESKTOP_FILE_INSTALL) != x ; then \
-		$(DESKTOP_FILE_INSTALL) --dir $(DESTDIR)$(datadir)/applications $(srcdir)/wireshark.desktop  $(srcdir)/wireshark-gtk.desktop ; \
-	else \
-		install -m 644 $(srcdir)/wireshark.desktop $(srcdir)/wireshark-gtk.desktop $(DESTDIR)$(datadir)/applications; \
-	fi
+	install -m 644 $(srcdir)/wireshark.desktop $(srcdir)/wireshark-gtk.desktop $(DESTDIR)$(datadir)/applications
 	for size in 16 24 32 48 64 128 256; \
 	do \
 		mkdir -p $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/apps ; \
