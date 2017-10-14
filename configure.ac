@@ -486,9 +486,6 @@ if test "x$RPMBUILD" != "xfalse" ; then
 fi
 AM_CONDITIONAL(HAVE_RPM, [test "x$have_rpm" = xyes])
 
-# Debian
-AC_CHECK_PROG(HAVE_DPKG_BUILDPACKAGE, dpkg-buildpackage, "yes", "no")
-
 #
 # Use this as a proxy for "is this macOS" (just in case somebody actually
 # built and installed Darwin as an OS, perhaps with some X11-based GUI,

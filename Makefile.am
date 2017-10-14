@@ -1061,9 +1061,6 @@ update-databases-and-caches-install: update-databases-and-caches-common
 
 update-databases-and-caches-uninstall: update-databases-and-caches-common
 
-host_cpu=@host_cpu@
-host_os=@host_os@
-
 rpm_topdir=`cd $(top_builddir) && pwd`/packaging/rpm
 if HAVE_RPM
 rpm-package: dist
