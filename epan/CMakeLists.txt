@@ -331,13 +331,6 @@ set_source_files_properties(
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
-# Cannot use $<$<BOOL:${HAVE_LIBLUA}>:$<TARGET_OBJECTS:wslua>> as that breaks
-# get_target_property(_libwireshark_location epan LOCATION).
-if(HAVE_LIBLUA)
-	set(wslua_sources $<TARGET_OBJECTS:wslua>)
-else()
-	set(wslua_sources)
-endif()
 add_library(epan ${LINK_MODE_LIB}
 	${LIBWIRESHARK_FILES}
 	${GENERATED_FILES}
@@ -349,7 +342,7 @@ add_library(epan ${LINK_MODE_LIB}
 	$<TARGET_OBJECTS:dissectors-corba>
 	$<TARGET_OBJECTS:ftypes>
 	$<TARGET_OBJECTS:wmem>
-	${wslua_sources}
+	$<$<BOOL:${HAVE_LIBLUA}>:$<TARGET_OBJECTS:wslua>>
 	${CMAKE_BINARY_DIR}/image/libwireshark.rc
 )
 

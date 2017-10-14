@@ -56,11 +56,6 @@ endif()
 #Where to find local cmake scripts
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
-# Set old behaviour for LOCATION property (since 3.0)
-if (POLICY CMP0026)
-	cmake_policy(SET CMP0026 OLD)
-endif()
-
 # Set old behaviour for MACOSX_RPATH (since 3.0)
 if (POLICY CMP0042)
 	cmake_policy(SET CMP0042 OLD)
@@ -166,10 +161,9 @@ string(TOUPPER "${CMAKE_BUILD_TYPE}" _build_type)
 message(STATUS "CMAKE_C_FLAGS_${_build_type}: ${CMAKE_C_FLAGS_${_build_type}}")
 message(STATUS "CMAKE_CXX_FLAGS_${_build_type}: ${CMAKE_CXX_FLAGS_${_build_type}}")
 
-# Where to put executables and libraries in the build tree
-# Note: Executables and libraries might end end up in a configuration
-# subdirectory, e.g. run/Debug or run/Release. We try to set DATAFILE_DIR
-# to a corresponding value below.
+# Ensure that all executables and libraries end up in the same directory. Actual
+# files might end up in a configuration subdirectory, e.g. run/Debug or
+# run/Release. We try to set DATAFILE_DIR to actual location below.
 if(NOT ARCHIVE_OUTPUT_PATH)
 	set(ARCHIVE_OUTPUT_PATH ${Wireshark_BINARY_DIR}/run CACHE INTERNAL
 		   "Single output directory for building all archives.")
@@ -1306,9 +1300,12 @@ add_subdirectory( writecap )
 # WIRESHARK_RUN_FROM_BUILD_DIRECTORY is set.
 if(ENABLE_APPLICATION_BUNDLE)
 	set(_datafile_dir "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/Resources/share/wireshark")
+elseif(NOT CMAKE_CFG_INTDIR STREQUAL ".")
+	# Visual Studio, Xcode, etc.
+	set(_datafile_dir "${CMAKE_BINARY_DIR}/run/${CMAKE_CFG_INTDIR}")
 else()
-	get_target_property(_libwireshark_location epan LOCATION)
-	get_filename_component(_datafile_dir "${_libwireshark_location}" PATH)
+	# Makefile, Ninja, etc.
+	set(_datafile_dir "${CMAKE_BINARY_DIR}/run")
 endif()
 
 set(DATAFILE_DIR ${_datafile_dir} CACHE INTERNAL "Build time data file location.")
@@ -1404,9 +1401,7 @@ endif()
 if(ENABLE_APPLICATION_BUNDLE)
 	set(_plugin_dir "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/PlugIns/wireshark/${PROJECT_RELEASE_VERSION}")
 else()
-	get_target_property(_libwireshark_location epan LOCATION)
-	get_filename_component(_plugin_dir "${_libwireshark_location}" PATH)
-	set(_plugin_dir "${_plugin_dir}/${PLUGIN_VERSION_DIR}")
+	set(_plugin_dir "${DATAFILE_DIR}/${PLUGIN_VERSION_DIR}")
 endif()
 set (PLUGIN_DIR ${_plugin_dir} CACHE INTERNAL "Build time plugin location.")
 
@@ -1712,12 +1707,7 @@ set(LIBEPAN_LIBS
 )
 
 if(WIN32)
-	# According to http://stackoverflow.com/questions/14474659/cmake-how-to-have-a-target-for-copying-files
-	# we can't just use "set(_dll_output_dir "$<TARGET_FILE_DIR:epan>")"
-	# DATAFILE_DIR is set using the same property. We could probably
-	# get away with using it here.
-	get_target_property(_libwireshark_location epan LOCATION)
-	get_filename_component(_dll_output_dir "${_libwireshark_location}" PATH)
+	set(_dll_output_dir "${DATAFILE_DIR}")
 	add_custom_target(copy_cli_dlls)
 	set_target_properties(copy_cli_dlls PROPERTIES FOLDER "Copy Tasks")
 	add_custom_command(TARGET copy_cli_dlls PRE_BUILD
@@ -2372,8 +2362,6 @@ if(BUILD_wireshark_gtk AND GTK_FOUND)
 	)
 
 	if(WIN32)
-		get_target_property(_wsgtk_location wireshark-gtk LOCATION)
-		get_filename_component(_dll_output_dir "${_wsgtk_location}" PATH)
 		add_custom_target(copy_gtk_dlls)
 		set_target_properties(copy_gtk_dlls PROPERTIES FOLDER "Copy Tasks")
 		add_custom_command(TARGET copy_gtk_dlls PRE_BUILD
