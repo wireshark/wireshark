@@ -420,6 +420,8 @@ typedef struct _SslSession {
     guchar tls13_draft_version;
     gint8 client_cert_type;
     gint8 server_cert_type;
+    guint32 client_ccs_frame;
+    guint32 server_ccs_frame;
 
     /* The address/proto/port of the server as determined from heuristics
      * (e.g. ClientHello) or set externally (via ssl_set_master_secret()). */

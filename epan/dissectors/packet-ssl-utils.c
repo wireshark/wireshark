@@ -5933,6 +5933,11 @@ ssl_dissect_change_cipher_spec(ssl_common_dissect_t *hf, tvbuff_t *tvb,
             val_to_str_const(SSL_ID_CHG_CIPHER_SPEC, ssl_31_content_type, "unknown"));
     ti = proto_tree_add_item(tree, hf->hf.change_cipher_spec, tvb, offset, 1, ENC_NA);
 
+    /* Remember frame number of first CCS */
+    guint32 *ccs_frame = is_from_server ? &session->server_ccs_frame : &session->client_ccs_frame;
+    if (*ccs_frame == 0)
+        *ccs_frame = pinfo->num;
+
     /* Use heuristics to detect an abbreviated handshake, assume that missing
      * ServerHelloDone implies reusing previously negotiating keys. Then when
      * a Session ID or ticket is present, it must be a resumed session.
