@@ -1697,7 +1697,7 @@ dissect_per_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *
 	int extension_addition_entries;
 	guint32 choice_index;
 	int i, idx, cidx;
-	guint32 ext_length;
+	guint32 ext_length = 0;
 	guint32 old_offset = offset;
 	proto_item *choice_item = NULL;
 	proto_tree *choice_tree = NULL;

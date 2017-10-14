@@ -77,13 +77,13 @@ ssh_session create_ssh_connection(const char* hostname, const guint16 port, cons
 	}
 
 #ifdef HAVE_LIBSSH_USERAUTH_AGENT
-	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, ("Connecting using ssh-agent...");
+	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Connecting using ssh-agent...");
 	/* Try to authenticate using ssh agent */
 	if (ssh_userauth_agent(sshs, NULL) == SSH_AUTH_SUCCESS) {
 		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "done");
 		return sshs;
 	}
-	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, ("failed");
+	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "failed");
 #endif
 
 	/* If a public key path has been provided, try to authenticate using it */
