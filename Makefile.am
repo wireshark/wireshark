@@ -1013,50 +1013,6 @@ if NOT_MACOS
 endif
 endif
 
-install-data-hook: update-databases-and-caches-install
-uninstall-hook: update-databases-and-caches-uninstall
-
-#
-# XXX - which of this stuff can, and should, we do ourselves?
-#
-# If we're "installing" under $(DESTDIR) as part of the process of
-# building a package, we probably don't need to, and shouldn't, do
-# any of this.
-#
-# If we're installing for use, we may need to do some of this; which
-# of them do we need to tell where to search, especially if we're
-# installing somewhere other than under /usr or /usr/local?
-#
-# What if we're installing in the user's home directory?
-#
-# What if we're installing under /opt?
-#
-# We only need to run ldconfig on systems where it's necessary in order
-# to update a shared library cache to know about our shared libraries.
-#
-# We only need to run update-desktop-database and update-mime-database
-# on freedesktop.org desktops.
-#
-# We only need to run gtk-update-icon-cache if we're installing a GTK+
-# version of Wireshark.
-#
-# We neither need nor want any of this on macOS, nor do we want it if
-# we're not building Wireshark (that being the only desktop app).
-#
-update-databases-and-caches-common:
-if BUILDING_WIRESHARK
-if NOT_MACOS
-	@echo "You may need to run \"ldconfig\" as root"
-	@echo "You may need to run \"update-desktop-database $(datadir)/applications\""
-	@echo "You may need to run \"update-mime-database $(datadir)/mime\""
-	@echo "You may need to run \"gtk-update-icon-cache -f -t $(datadir)/icons/hicolor\""
-endif
-endif
-
-update-databases-and-caches-install: update-databases-and-caches-common
-
-update-databases-and-caches-uninstall: update-databases-and-caches-common
-
 rpm_topdir=`cd $(top_builddir) && pwd`/packaging/rpm
 if HAVE_RPM
 rpm-package: dist
