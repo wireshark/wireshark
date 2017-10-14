@@ -437,11 +437,35 @@ esac
 AX_LIBSMI
 
 #
+# Check if we should build the Wireshark User's Guide
+#
+AC_ARG_ENABLE(guides,
+  AC_HELP_STRING( [--disable-guides],
+		  [Don't build the Wireshark User's Guide]),
+		  [want_wsug=$enableval], [want_wsug=if_available])
+
+#
 # Check for programs used when building DocBook documentation.
 #
-AC_CHECK_PROGS(XSLTPROC, xsltproc, xsltproc)
-AC_CHECK_PROGS(A2X, a2x, a2x)
-AC_CHECK_PROGS(FOP, fop, fop)
+have_wsug=yes
+AC_PATH_PROG(XSLTPROC, xsltproc, xsltproc)
+AS_IF([test ! -x "$XSLTPROC"],
+	[
+	  AS_IF([test "x$want_wsug" = xyes],
+		[AC_MSG_ERROR([xlstproc not found but required to build the Wireshark User's Guide])])
+	  have_wsug=no
+	])
+AC_PATH_PROG(A2X, a2x, a2x)
+AS_IF([test ! -x "$A2X"],
+	[
+	  AS_IF([test "x$want_wsug" = xyes],
+		[AC_MSG_ERROR([a2x not found but required to build the Wireshark User's Guide])])
+	  have_wsug=no
+	])
+
+AC_PATH_PROG(FOP, fop, fop)
+
+AM_CONDITIONAL(BUILD_USER_GUIDE, [test "x$have_wsug" = xyes -a "x$want_wsug" != xno])
 
 # HTML to text processor
 AC_MSG_CHECKING([for an HTML to text processor])
@@ -3101,6 +3125,12 @@ else
 	bcg729_message="no"
 fi
 
+if test "x$have_wsug" = xyes -a "x$want_wsug" != xno; then
+	wsug_message="yes"
+else
+	wsug_message="no"
+fi
+
 echo ""
 echo "  CPPFLAGS: $WS_CPPFLAGS $CPPFLAGS"
 echo ""
@@ -3135,6 +3165,7 @@ echo "                      Build sshdump : $enable_sshdump"
 echo "                    Build ciscodump : $enable_ciscodump"
 echo "                  Build randpktdump : $enable_randpktdump"
 echo "                      Build udpdump : $enable_udpdump"
+echo "                 Build User's Guide : $wsug_message"
 echo ""
 echo "   Save files as pcap-ng by default : $enable_pcap_ng_default"
 echo "  Install dumpcap with capabilities : $setcap_message"

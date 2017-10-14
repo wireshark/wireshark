@@ -361,7 +361,14 @@ HTMLHELP_XSLTPROC_ARGS = \
 .fo.pdf:
 	FOP_OPTS=$(FOP_OPTS) JAVA_OPTS=$(FOP_OPTS) $(FOP) $< $@
 
-all: wsug wsdg release-notes
+docbook_all_local_targets =
+if BUILD_USER_GUIDE
+docbook_all_local_targets += wsug_html_chunked
+endif
+
+all-local: $(docbook_all_local_targets)
+
+all-html: wsug wsdg release-notes
 
 all-pdf: wsug-pdf wsdg-pdf release-notes-pdf
 
@@ -540,6 +547,15 @@ release-notes-a4.pdf: $(RELEASE_NOTES_SOURCE) custom_layer_pdf.xsl
 		--xsl-file=$(srcdir)/custom_layer_pdf.xsl \
 		--destination-dir=$(builddir) \
 		$(srcdir)/release-notes.asciidoc
+
+install-data-local:
+if BUILD_USER_GUIDE
+	$(MKDIR_P) $(DESTDIR)$(docdir)/guides
+	cp -rf $(builddir)/wsug_html_chunked $(DESTDIR)$(docdir)/guides
+endif
+
+uninstall-local:
+	rm -rf $(DESTDIR)$(docdir)
 
 clean-local:
 	-rm -rf $(CLEANDIRS)

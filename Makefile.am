@@ -868,8 +868,7 @@ DIST_SUBDIRS = \
 	wiretap		\
 	writecap	\
 	wsutil		\
-	extcap		\
-	docbook
+	extcap
 
 SUBDIRS = \
 	tools			\
@@ -888,7 +887,8 @@ SUBDIRS = \
 	randpkt_core		\
 	$(extcap_subdir)	\
 	.			\
-	doc
+	doc			\
+	docbook
 
 help/faq.txt: $(srcdir)/help/faq.py
 	$(AM_V_GEN)(cd help ; \
