@@ -195,7 +195,8 @@ AC_DEFUN([AC_WIRESHARK_PCAP_CHECK],
 	    # but we may have to look for the header in a "pcap"
 	    # subdirectory of "/usr/include" or "/usr/local/include",
 	    # as some systems apparently put "pcap.h" in a "pcap"
-	    # subdirectory, and we also check "$prefix/include" - and
+	    # subdirectory without also providing a "pcap.h" in the top-level
+	    # include directory, and we also check "$prefix/include" - and
 	    # "$prefix/include/pcap", in case $prefix is set to
 	    # "/usr/include" or "/usr/local/include".
 	    #
