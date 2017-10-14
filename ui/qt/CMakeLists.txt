@@ -556,14 +556,27 @@ include_directories(
 
 SET(CMAKE_AUTOMOC TRUE)
 
-if (QT_VERSION EQUAL 5)
-	QT5_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS})
-	QT5_ADD_RESOURCES(WIRESHARK_QT_QRC_SRC ${WIRESHARK_QT_QRC})
-	QT5_WRAP_UI(WIRESHARK_QT_UI_SRC ${WIRESHARK_QT_UI})
+if(CMAKE_VERSION VERSION_LESS "3.0")
+	# AUTOUIC and AUTORCC are not supported in CMAKE 2.8.x
+	if (QT_VERSION EQUAL 5)
+		QT5_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS})
+		QT5_ADD_RESOURCES(WIRESHARK_QT_QRC_SRC ${WIRESHARK_QT_QRC})
+		QT5_WRAP_UI(WIRESHARK_QT_UI_SRC ${WIRESHARK_QT_UI})
+	else()
+		QT4_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS})
+		QT4_ADD_RESOURCES(WIRESHARK_QT_QRC_SRC ${WIRESHARK_QT_QRC})
+		QT4_WRAP_UI(WIRESHARK_QT_UI_SRC ${WIRESHARK_QT_UI})
+	endif()
 else()
-	QT4_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS})
-	QT4_ADD_RESOURCES(WIRESHARK_QT_QRC_SRC ${WIRESHARK_QT_QRC})
-	QT4_WRAP_UI(WIRESHARK_QT_UI_SRC ${WIRESHARK_QT_UI})
+	SET(CMAKE_AUTOUIC TRUE)
+	SET(CMAKE_AUTORCC TRUE)
+	# Add .qrc files to library dependencies for AUTORCC.
+	set(WIRESHARK_QT_QRC_SRC ${WIRESHARK_QT_QRC})
+	if (QT_VERSION EQUAL 5)
+		QT5_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS})
+	else()
+		QT4_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS})
+	endif()
 endif()
 
 add_custom_target(
@@ -586,10 +599,8 @@ register_tap_files(wireshark-tap-register.c
 	${WIRESHARK_QT_TAP_SRC}
 )
 
-source_group("ui\\moc Source Files" FILES ${WIRESHARK_QT_MOC_SRC})
-source_group("ui\\Header" FILES ${WIRESHARK_QT_UI_SRC})
 source_group("ui\\UIC Files" FILES ${WIRESHARK_QT_UI})
-source_group("ui\\qrc" FILES ${WIRESHARK_QT_QRC_SRC} ${WIRESHARK_QT_QRC})
+source_group("ui\\qrc" FILES ${WIRESHARK_QT_QRC})
 source_group("ui\\Header" FILES ${WIRESHARK_QT_HEADERS})
 source_group("ui\\Widget Header" FILES ${WIRESHARK_WIDGET_HEADERS})
 source_group("ui\\Widget Source" FILES ${WIRESHARK_WIDGET_SRCS})
@@ -612,7 +623,6 @@ add_library(qtui STATIC
 
 	${WIRESHARK_QT_TAP_SRC}
 	${WIRESHARK_QT_UI_SRC}
-	${WIRESHARK_QT_MOC_SRC}
 	${WIRESHARK_QT_QRC_SRC}
 	wireshark-tap-register.c
 )
@@ -621,6 +631,12 @@ set_target_properties(qtui PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "UI"
 )
+if(NOT CMAKE_VERSION VERSION_LESS "3.0")
+	# Ensure .qm files are generated before autogenerating i18n.qrc
+	set_target_properties(qtui PROPERTIES
+		AUTOGEN_TARGET_DEPENDS "${WIRESHARK_QT_QM}"
+	)
+endif()
 
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
