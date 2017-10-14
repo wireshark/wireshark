@@ -4114,7 +4114,7 @@ heur_dissect_fp_dcch_over_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     tfi = tvb_get_guint8(tvb, 2) & 0x1f;
 
     /* Checking if this is a DCH frame with 0 TBs*/
-    if (captured_length == 0x00)
+    if (tfi == 0x00)
     {
         if (reported_length != 5 /* DL */ && reported_length != 7 /* UL */) {
             return FALSE;
