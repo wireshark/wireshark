@@ -17,30 +17,26 @@ of "foo" below should be replaced by the name of your plugin.
 The plugin should be placed in a new plugins/foo directory which should
 contain at least the following files:
 
-AUTHORS
-COPYING
-ChangeLog
 CMakeLists.txt
 Makefile.am
 moduleinfo.h
 plugin.rc.in
+README
+
+The README can be brief but it should provide essential information relevant
+to developers and users. Optionally AUTHORS and ChangeLog files can be added.
 
 And of course the source and header files for your dissector.
 
 Examples of these files can be found in plugins/gryphon.
 
-2.1 AUTHORS, COPYING, and ChangeLog
-
-The AUTHORS, COPYING, and ChangeLog are the standard sort of GPL project
-files.
-
-2.2 CMakeLists.txt
+2.1 CMakeLists.txt
 
 For your plugins/foo/CMakeLists.txt file, see the corresponding file in
 plugins/gryphon.  Replace all occurrences of "gryphon" in those files
 with "foo" and add your source files to the DISSECTOR_SRC variable.
 
-2.3 Makefile.am
+2.2 Makefile.am
 
 For your plugins/foo/Makefile.am file, see the corresponding file in
 plugins/gryphon.  Replace all occurrences of "gryphon" in those files
@@ -54,12 +50,12 @@ The header files for your dissector, if any, must be listed in the
 DISSECTOR_INCLUDES variable.  The DISSECTOR_INCLUDES variable should not
 include moduleinfo.h.
 
-2.4 moduleinfo.h
+2.3 moduleinfo.h
 
 Your plugins/foo/moduleinfo.h file is used to set the version information
 for the plugin.
 
-2.5 plugin.rc.in
+2.4 plugin.rc.in
 
 Your plugins/foo/plugin.rc.in is the Windows resource template file used
 to add the plugin specific information as resources to the DLL.
