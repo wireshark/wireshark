@@ -45,9 +45,6 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
-#ifdef HAVE_GTKOSXAPPLICATION
-#include <gtkmacintegration/gtkosxapplication.h>
-#endif
 
 enum { DND_TARGET_STRING, DND_TARGET_ROOTWIN, DND_TARGET_URL };
 
@@ -283,30 +280,6 @@ dnd_data_received(GtkWidget *widget _U_, GdkDragContext *dc _U_, gint x _U_, gin
     }
 }
 
-#ifdef HAVE_GTKOSXAPPLICATION
-gboolean
-gtk_osx_openFile (GtkosxApplication *app _U_, gchar *path, gpointer user_data _U_)
-{
-    GtkSelectionData selection_data;
-    gchar* selection_path;
-    size_t length = strlen(path);
-
-    selection_path = (gchar *)g_malloc(length + 3);
-    memcpy(selection_path, path, length);
-
-    selection_path[length] = '\r';
-    selection_path[length + 1] = '\n';
-    selection_path[length + 2] = '\0';
-
-    memset(&selection_data, 0, sizeof(selection_data));
-
-    gtk_selection_data_set(&selection_data, gdk_atom_intern_static_string ("text/uri-list"), 8, (guchar*) selection_path, (gint)(length + 2));
-    dnd_data_received(NULL, NULL, 0, 0, &selection_data, DND_TARGET_URL, 0, 0);
-
-    return TRUE;
-}
-#endif
-
 /* init the drag and drop functionality */
 void
 dnd_init(GtkWidget *w)
@@ -326,9 +299,6 @@ dnd_init(GtkWidget *w)
 
     /* get notified, if some dnd coming in */
     g_signal_connect(w, "drag_data_received", G_CALLBACK(dnd_data_received), NULL);
-#ifdef HAVE_GTKOSXAPPLICATION
-    g_signal_connect(g_object_new(GTKOSX_TYPE_APPLICATION, NULL), "NSApplicationOpenFile", G_CALLBACK(gtk_osx_openFile), NULL);
-#endif
 }
 
 /*

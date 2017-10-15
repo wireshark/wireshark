@@ -108,13 +108,6 @@
 #include "capture_opts.h"
 #include "ui/capture_globals.h"
 #endif
-#ifdef HAVE_IGE_MAC_INTEGRATION
-#include <ige-mac-menu.h>
-#endif
-
-#ifdef HAVE_GTKOSXAPPLICATION
-#include <gtkmacintegration/gtkosxapplication.h>
-#endif
 
 static int initialize = TRUE;
 GtkActionGroup    *main_menu_bar_action_group;
@@ -2429,15 +2422,6 @@ GtkWidget *
 main_menu_new(GtkAccelGroup ** table)
 {
     GtkWidget *menubar;
-#ifdef HAVE_IGE_MAC_INTEGRATION
-    GtkWidget *quit_item, *about_item, *preferences_item;
-    IgeMacMenuGroup *group;
-#endif
-#ifdef HAVE_GTKOSXAPPLICATION
-    GtkosxApplication *theApp;
-    GtkWidget * item;
-    GtkWidget * dock_menu;
-#endif
 
     grp = gtk_accel_group_new();
 
@@ -2445,83 +2429,6 @@ main_menu_new(GtkAccelGroup ** table)
         menus_init();
 
     menubar = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar");
-#ifdef HAVE_IGE_MAC_INTEGRATION
-    if(prefs.gui_macosx_style) {
-        ige_mac_menu_set_menu_bar(GTK_MENU_SHELL(menubar));
-        ige_mac_menu_set_global_key_handler_enabled(TRUE);
-
-        /* Create menu items to populate the application menu with.  We have to
-         * do this because we are still using the old GtkItemFactory API for
-         * the main menu. */
-        group = ige_mac_menu_add_app_menu_group();
-        about_item = gtk_menu_item_new_with_label("About");
-        g_signal_connect(about_item, "activate", G_CALLBACK(about_wireshark_cb),
-                         NULL);
-        ige_mac_menu_add_app_menu_item(group, GTK_MENU_ITEM(about_item), NULL);
-
-        group = ige_mac_menu_add_app_menu_group();
-        preferences_item = gtk_menu_item_new_with_label("Preferences");
-        g_signal_connect(preferences_item, "activate", G_CALLBACK(prefs_cb),
-                         NULL);
-        ige_mac_menu_add_app_menu_item(group, GTK_MENU_ITEM(preferences_item),
-                                       NULL);
-    }
-
-    /* The quit item in the application menu shows up whenever ige mac
-     * integration is enabled, even if the macOS UI style in Wireshark isn't
-     * turned on. */
-    quit_item = gtk_menu_item_new_with_label("Quit");
-    g_signal_connect(quit_item, "activate", G_CALLBACK(file_quit_cmd_cb), NULL);
-    ige_mac_menu_set_quit_menu_item(GTK_MENU_ITEM(quit_item));
-#endif
-
-#ifdef HAVE_GTKOSXAPPLICATION
-    theApp = (GtkosxApplication *)g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
-
-    if(prefs.gui_macosx_style) {
-        gtk_widget_hide(menubar);
-
-        gtkosx_application_set_menu_bar(theApp, GTK_MENU_SHELL(menubar));
-        gtkosx_application_set_use_quartz_accelerators(theApp, TRUE);
-
-        /* Construct a conventional looking OSX App menu */
-
-        item = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/HelpMenu/AboutWireshark");
-        gtkosx_application_insert_app_menu_item(theApp, item, 0);
-
-        gtkosx_application_insert_app_menu_item(theApp, gtk_separator_menu_item_new(), 1);
-
-        item = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/EditMenu/Preferences");
-        gtkosx_application_insert_app_menu_item(theApp, item, 2);
-
-        /* Set OSX help menu */
-
-        item = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/HelpMenu");
-        gtkosx_application_set_help_menu(theApp,GTK_MENU_ITEM(item));
-
-        /* Hide the File menu Quit item (a Quit item is automagically placed within the OSX App menu) */
-
-        item = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/FileMenu/Quit");
-        gtk_widget_hide(item);
-    }
-
-    /* generate dock menu */
-    dock_menu = gtk_menu_new();
-
-    item = gtk_menu_item_new_with_label("Start");
-    g_signal_connect(item, "activate", G_CALLBACK (capture_start_cb), NULL);
-    gtk_menu_shell_append(GTK_MENU_SHELL(dock_menu), item);
-
-    item = gtk_menu_item_new_with_label("Stop");
-    g_signal_connect(item, "activate", G_CALLBACK (capture_stop_cb), NULL);
-    gtk_menu_shell_append(GTK_MENU_SHELL(dock_menu), item);
-
-    item = gtk_menu_item_new_with_label("Restart");
-    g_signal_connect(item, "activate", G_CALLBACK (capture_restart_cb), NULL);
-    gtk_menu_shell_append(GTK_MENU_SHELL(dock_menu), item);
-
-    gtkosx_application_set_dock_menu(theApp, GTK_MENU_SHELL(dock_menu));
-#endif
 
     if (table)
         *table = grp;

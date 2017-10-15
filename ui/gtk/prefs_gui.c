@@ -58,10 +58,6 @@ static gint scroll_percent_changed_cb(GtkWidget *recent_df_entry _U_,
 #define GEOMETRY_SIZE_KEY		"geometry_size"
 #define GEOMETRY_MAXIMIZED_KEY		"geometry_maximized"
 
-#if defined(HAVE_IGE_MAC_INTEGRATION) || defined(HAVE_GTKOSXAPPLICATION)
-#define MACOSX_STYLE_KEY		"macosx_style"
-#endif
-
 #ifdef _WIN32
 #define GUI_CONSOLE_OPEN_KEY		"console_open"
 #define ENABLE_UPDATE_KEY		"enable_update"
@@ -151,9 +147,6 @@ gui_prefs_show(void)
 	GtkWidget *auto_scroll_cb, *scroll_percent_te;
 	GtkWidget *webbrowser_te;
 	GtkWidget *save_position_cb, *save_size_cb, *save_maximized_cb;
-#if defined(HAVE_IGE_MAC_INTEGRATION) || defined(HAVE_GTKOSXAPPLICATION)
-	GtkWidget *macosx_style_cb;
-#endif
 	GtkWidget *expert_info_eyecandy_cb;
 	GtkWidget *packet_editor_cb;
 
@@ -201,16 +194,6 @@ gui_prefs_show(void)
 	    "Periodically check for new versions of Wireshark.",
 	    prefs.gui_update_enabled);
 	g_object_set_data(G_OBJECT(main_vb), ENABLE_UPDATE_KEY, enable_update_cb);
-#endif
-
-#if defined(HAVE_IGE_MAC_INTEGRATION) || defined(HAVE_GTKOSXAPPLICATION)
-	macosx_style_cb = create_preference_check_button(main_grid, pos++,
-	    "macOS style",
-	    "Create a macOS look and feel. Checking this box will move the "
-	    "menu bar to the top of the screen instead of the top of the Wireshark window. "
-	    "Requires a restart of Wireshark to take effect.",
-	    prefs.gui_macosx_style);
-	g_object_set_data(G_OBJECT(main_vb), MACOSX_STYLE_KEY, macosx_style_cb);
 #endif
 
 #ifdef _WIN32
@@ -369,11 +352,6 @@ gui_prefs_fetch(GtkWidget *w)
 #ifdef _WIN32
 	prefs.gui_update_enabled =
 		gtk_toggle_button_get_active((GtkToggleButton *)g_object_get_data(G_OBJECT(w), ENABLE_UPDATE_KEY));
-#endif
-
-#if defined(HAVE_IGE_MAC_INTEGRATION) || defined(HAVE_GTKOSXAPPLICATION)
-	prefs.gui_macosx_style =
-		gtk_toggle_button_get_active((GtkToggleButton *)g_object_get_data(G_OBJECT(w), MACOSX_STYLE_KEY));
 #endif
 
 #ifdef _WIN32

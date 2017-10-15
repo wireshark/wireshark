@@ -204,10 +204,6 @@
 #include <epan/crypt/airpdcap_ws.h>
 
 
-#ifdef HAVE_GTKOSXAPPLICATION
-#include <gtkmacintegration/gtkosxapplication.h>
-#endif
-
 #define INVALID_OPTION 1
 #define INIT_FAILED 2
 #define INVALID_CAPABILITY 2
@@ -247,7 +243,7 @@ static gboolean have_capture_file = FALSE; /* XXX - is there an equivalent in cf
 
 static guint  tap_update_timer_id;
 
-static void create_main_window(gint, gint, gint, e_prefs*);
+static void create_main_window(gint, gint, gint);
 static void show_main_window(gboolean);
 static void main_save_window_geometry(GtkWidget *widget);
 
@@ -1769,9 +1765,6 @@ main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
 static void
 main_capture_callback(gint event, capture_session *cap_session, gpointer user_data _U_)
 {
-#ifdef HAVE_GTKOSXAPPLICATION
-    GtkosxApplication *theApp;
-#endif
     switch(event) {
     case(capture_cb_capture_prepared):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture prepared");
@@ -1780,14 +1773,6 @@ main_capture_callback(gint event, capture_session *cap_session, gpointer user_da
     case(capture_cb_capture_update_started):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update started");
         main_capture_cb_capture_update_started(cap_session);
-#ifdef HAVE_GTKOSXAPPLICATION
-        theApp = (GtkosxApplication *)g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
-#ifdef HAVE_GDK_GRESOURCE
-        gtkosx_application_set_dock_icon_pixbuf(theApp, ws_gdk_pixbuf_new_from_resource("/org/wireshark/image/wsicon48.png"));
-#else
-        gtkosx_application_set_dock_icon_pixbuf(theApp, gdk_pixbuf_new_from_inline(-1, wsicon_48_pb_data, FALSE, NULL));
-#endif
-#endif
         break;
     case(capture_cb_capture_update_continue):
         /*g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update continue");*/
@@ -1811,14 +1796,6 @@ main_capture_callback(gint event, capture_session *cap_session, gpointer user_da
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture stopping");
         /* Beware: this state won't be called, if the capture child
          * closes the capturing on its own! */
-#ifdef HAVE_GTKOSXAPPLICATION
-        theApp = (GtkosxApplication *)g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
-#ifdef HAVE_GDK_GRESOURCE
-        gtkosx_application_set_dock_icon_pixbuf(theApp, ws_gdk_pixbuf_new_from_resource("/org/wireshark/image/wsicon64.png"));
-#else
-        gtkosx_application_set_dock_icon_pixbuf(theApp, gdk_pixbuf_new_from_inline(-1, wsicon_64_pb_data, FALSE, NULL));
-#endif
-#endif
         main_capture_cb_capture_stopping(cap_session);
         break;
     case(capture_cb_capture_failed):
@@ -2005,9 +1982,6 @@ main(int argc, char *argv[])
     GtkWidget           *splash_win = NULL;
     dfilter_t           *jump_to_filter = NULL;
     unsigned int         in_file_type = WTAP_TYPE_AUTO;
-#ifdef HAVE_GTKOSXAPPLICATION
-    GtkosxApplication   *theApp;
-#endif
     GString             *comp_info_str = NULL;
     GString             *runtime_info_str = NULL;
 
@@ -2433,7 +2407,7 @@ main(int argc, char *argv[])
     /* Everything is prepared now, preferences and command line was read in */
 
     /* Pop up the main window. */
-    create_main_window(pl_size, tv_size, bv_size, global_commandline_info.prefs_p);
+    create_main_window(pl_size, tv_size, bv_size);
 
     /* Read the dynamic part of the recent file, as we have the gui now ready for it. */
     if (!recent_read_dynamic(&rf_path, &rf_open_errno)) {
@@ -2649,16 +2623,6 @@ main(int argc, char *argv[])
 
     profile_store_persconffiles (FALSE);
 
-#ifdef HAVE_GTKOSXAPPLICATION
-    theApp = (GtkosxApplication *)g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
-#ifdef HAVE_GDK_GRESOURCE
-    gtkosx_application_set_dock_icon_pixbuf(theApp, ws_gdk_pixbuf_new_from_resource("/org/wireshark/image/wsicon64.png"));
-#else
-    gtkosx_application_set_dock_icon_pixbuf(theApp, gdk_pixbuf_new_from_inline(-1, wsicon_64_pb_data, FALSE, NULL));
-#endif
-    gtkosx_application_ready(theApp);
-#endif
-
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Wireshark is up and ready to go");
 
 #ifdef HAVE_LIBPCAP
@@ -2682,10 +2646,6 @@ main(int argc, char *argv[])
 #endif
 
     AirPDcapDestroyContext(&airpdcap_ctx);
-
-#ifdef HAVE_GTKOSXAPPLICATION
-    g_object_unref(theApp);
-#endif
 
 #ifdef _WIN32
     /* hide the (unresponsive) main window, while asking the user to close the console window */
@@ -3054,11 +3014,7 @@ top_level_key_pressed_cb(GtkWidget *w _U_, GdkEventKey *event, gpointer user_dat
 }
 
 static void
-create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs_p
-#if !defined(HAVE_IGE_MAC_INTEGRATION) && !defined (HAVE_GTKOSXAPPLICATION)
-                    _U_
-#endif
-                    )
+create_main_window (gint pl_size, gint tv_size, gint bv_size)
 {
     GtkAccelGroup *accel;
 
@@ -3084,17 +3040,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs_p
     /* Menu bar */
     menubar = main_menu_new(&accel);
 
-#if defined(HAVE_IGE_MAC_INTEGRATION) || defined (HAVE_GTKOSXAPPLICATION)
-    /* macOS native menus are created and displayed by main_menu_new() */
-    if(!prefs_p->gui_macosx_style) {
-#endif
     gtk_window_add_accel_group(GTK_WINDOW(top_level), accel);
     gtk_widget_show(menubar);
-#if defined(HAVE_IGE_MAC_INTEGRATION) || defined(HAVE_GTKOSXAPPLICATION)
-    } else {
-    gtk_widget_hide(menubar);
-    }
-#endif
 
     /* Main Toolbar */
     main_tb = toolbar_new();

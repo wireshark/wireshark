@@ -1515,36 +1515,6 @@ if test "$ac_cv_glib_supports_printf_grouping" = yes ; then
   AC_DEFINE(HAVE_GLIB_PRINTF_GROUPING, 1, [Define if GLib's printf functions support thousands grouping.])
 fi
 
-if test "x$have_gtk" = "xyes"
-then
-    #
-    # We have GTK+; do we want the macOS integration functions and,
-    # if so, do we have them and, if so, which versions do we have,
-    # the old Carbon-based ones or the new Cocoa-based ones?
-    #
-    AC_MSG_CHECKING(whether to use macOS integration functions)
-
-    AC_ARG_WITH(osx-integration,
-      AC_HELP_STRING( [--with-osx-integration],
-		      [use macOS integration functions @<:@default=yes, if available@:>@]),
-    [
-	if test $withval = no
-	then
-	    want_osx_integration=no
-	else
-	    want_osx_integration=yes
-	fi
-    ],[
-	want_osx_integration=yes
-    ])
-    if test "x$want_osx_integration" = "xno"; then
-	AC_MSG_RESULT(no)
-    else
-	AC_MSG_RESULT(yes)
-	AC_WIRESHARK_OSX_INTEGRATION_CHECK
-    fi
-fi
-
 AC_SUBST(wireshark_bin)
 AC_SUBST(wireshark_man)
 AC_SUBST(wireshark_SUBDIRS)
