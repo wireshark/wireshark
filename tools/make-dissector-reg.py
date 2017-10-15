@@ -202,6 +202,8 @@ if registertype == "plugin" or registertype == "plugin_wtap":
 #include "ws_symbol_export.h"
 
 #ifndef ENABLE_STATIC
+WS_DLL_PUBLIC_DEF void plugin_register (void);
+
 WS_DLL_PUBLIC_DEF const gchar plugin_version[] = VERSION;
 WS_DLL_PUBLIC_DEF const gchar plugin_release[] = VERSION_RELEASE;
 
