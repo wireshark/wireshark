@@ -103,7 +103,7 @@ static const char please_report[] =
  * type for the interface.
  */
 
-#if defined(__APPLE__)
+#if defined(HAVE_MACOS_FRAMEWORKS)
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <SystemConfiguration/SystemConfiguration.h>

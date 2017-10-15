@@ -34,10 +34,6 @@ AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) -DWS_BUILD_DLL \
 # Optional headers for ABI checking
 wsutil_optional_abi_includes =
 
-if HAVE_MACOS_FRAMEWORKS
-wsutil_optional_abi_includes += cfutils.h
-endif
-
 # Header files that don't declare replacement functions for functions
 # present in the APIs/ABIs of some, but not all, targets.
 libwsutil_nonrepl_INCLUDES = \
@@ -167,10 +163,6 @@ libwsutil_la_SOURCES = \
 	wsjsmn.c		\
 	xtea.c
 
-if HAVE_MACOS_FRAMEWORKS
-libwsutil_la_SOURCES += cfutils.c cfutils.h
-endif
-
 libwsutil_sse42_la_SOURCES = \
 	ws_mempbrk_sse42.c
 
@@ -181,7 +173,6 @@ libwsutil_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
 
 libwsutil_la_LIBADD = \
 	$(LTLIBOBJS)			\
-	@COREFOUNDATION_FRAMEWORKS@	\
 	@GLIB_LIBS@			\
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@	        \

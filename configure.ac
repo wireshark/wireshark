@@ -1042,48 +1042,6 @@ AC_SUBST(LDFLAGS_BIGSHAREDLIB)
 AC_SUBST(LDFLAGS_SHAREDLIB)
 
 #
-# On "Darwin", which we assume to mean "macOS" rather than "iOS" or
-# "just Darwin" (as we don't currently support iOS, and as I don't
-# think you can build and run "just Darwin" as an OS for PCs), we
-# arrange to build some programs with Application Services so they
-# can launch Web browsers and Finder windows, arrange to build some
-# programs with System Configuration so they can get "friendly names"
-# and other information about interfaces, and build any programs that
-# use either of those frameworks or that report version information
-# with Core Foundation as the frameworks in question use it and as we
-# get version information from plists and thus need Core Foundation
-# to process those plists.
-#
-have_macos_frameworks=no
-case "$host_os" in
-darwin*)
-	have_macos_frameworks=yes
-	AC_DEFINE(HAVE_MACOS_FRAMEWORKS, 1, [Define to 1 if you have macOS frameworks])
-	APPLICATIONSERVICES_FRAMEWORKS="-framework ApplicationServices"
-	SYSTEMCONFIGURATION_FRAMEWORKS="-framework SystemConfiguration"
-	COREFOUNDATION_FRAMEWORKS="-framework CoreFoundation"
-
-	#
-	# OK, so we have the macOS frameworks; do they include
-	# CFPropertyListCreateWithStream, or do we have
-	# to fall back on CFPropertyListCreateFromStream?
-	# (They only differ in the error return, which we
-	# don't care about.  And, no, we shouldn't just
-	# use CFPropertyListCreateFromStream, because it's
-	# deprecated in newer releases.)
-	#
-	ac_save_LIBS="$LIBS"
-	LIBS="$LIBS $COREFOUNDATION_FRAMEWORKS"
-	AC_CHECK_FUNCS(CFPropertyListCreateWithStream)
-	LIBS="$ac_save_LIBS"
-	;;
-esac
-AC_SUBST(APPLICATIONSERVICES_FRAMEWORKS)
-AC_SUBST(SYSTEMCONFIGURATION_FRAMEWORKS)
-AC_SUBST(COREFOUNDATION_FRAMEWORKS)
-AM_CONDITIONAL(HAVE_MACOS_FRAMEWORKS, [test "x$have_macos_frameworks" = "xyes"])
-
-#
 # If we're running Solaris, and LD_LIBRARY_PATH is defined, add it as a
 # link directory.
 #
