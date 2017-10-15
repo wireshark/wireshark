@@ -1017,7 +1017,7 @@ install-data-hook: update-databases-and-caches-install
 uninstall-hook: update-databases-and-caches-uninstall
 
 #
-# ldconfig may be needed to update a shared library. libtool warns about this.
+# ldconfig may be needed to update a shared library cache.
 #
 # update-desktop-database and update-mime-database may be needed on
 # freedesktop.org desktops.
