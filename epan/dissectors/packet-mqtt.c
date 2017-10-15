@@ -1,7 +1,5 @@
 /* packet-mqtt.c
  * Routines for MQTT Protocol dissection
- * http://mqtt.org
- * This dissector dissects MQTT data transfers as per MQTT V3.1 and V3.1.1 Protocol Specification
  *
  * By Lakshmi Narayana Madala  <madalanarayana@outlook.com>
  *    Stig Bjorlykke  <stig@bjorlykke.org>
@@ -23,6 +21,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+/*
+ * Protocol description:
+ *
+ * MQTT is a Client Server publish/subscribe messaging transport
+ * protocol. The protocol runs over TCP/IP, or over other network
+ * protocols that provide ordered, lossless, bi-directional
+ * connections.
+ *
+ * MQTT v3.1 specification:
+ * http://public.dhe.ibm.com/software/dw/webservices/ws-mqtt/mqtt-v3r1.html
+ *
+ * MQTT v3.1.1 specification:
+ * http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/
  */
 
 #include "config.h"
