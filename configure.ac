@@ -226,11 +226,6 @@ if test -z "$PKG_CONFIG"; then
 fi
 
 #
-# Add configure argument to select macOS deployment target.
-#
-AC_WIRESHARK_OSX_DEPLOY_TARGET
-
-#
 # Try to arrange for large file support.
 #
 AC_SYS_LARGEFILE
@@ -460,14 +455,6 @@ AC_SUBST(A2X_LYNX)
 
 # RPM
 AC_CHECK_PROGS(RPMBUILD, [rpmbuild], [rpmbuild])
-
-#
-# Use this as a proxy for "is this macOS" (just in case somebody actually
-# built and installed Darwin as an OS, perhaps with some X11-based GUI,
-# don't look for Darwin).
-#
-AC_CHECK_PROG(have_sw_vers, sw_vers, "yes", "no")
-AM_CONDITIONAL(NOT_MACOS, test "x$have_sw_vers" = "xno")
 
 # Shellcheck
 AC_CHECK_PROGS(SHELLCHECK, shellcheck, shellcheck)
