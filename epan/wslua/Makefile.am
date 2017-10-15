@@ -89,11 +89,6 @@ DISTCLEANFILES = \
 	wslua_register.h \
 	init.lua
 
-MAINTAINERCLEANFILES = \
-	Makefile.in	\
-	register_wslua.c \
-	declare_wslua.h
-
 EXTRA_DIST = \
 	.editorconfig		\
 	declare_wslua.h		\

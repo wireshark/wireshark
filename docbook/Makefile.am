@@ -552,6 +552,3 @@ EXTRA_DIST = \
 	make-wsluarm.pl		\
 	README.txt		\
 	CMakeLists.txt
-
-MAINTAINERCLEANFILES = \
-	Makefile.in

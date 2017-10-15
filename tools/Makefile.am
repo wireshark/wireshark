@@ -116,6 +116,3 @@ CLEANFILES = \
 
 DISTCLEANFILES = \
 	setuid-root.pl
-
-MAINTAINERCLEANFILES = \
-	Makefile.in

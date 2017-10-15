@@ -1,7 +1,4 @@
 SUBDIRS = SPECS
 
-MAINTAINERCLEANFILES = \
-	Makefile.in
-
 clean-local:
 	rm -rf BUILD RPMS SOURCES SRPMS

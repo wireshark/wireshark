@@ -222,9 +222,6 @@ CLEANFILES = \
 	libwsutil.la	\
 	*~
 
-MAINTAINERCLEANFILES = \
-	Makefile.in
-
 # ABI compliance checker can be obtained from
 # http://ispras.linux-foundation.org/index.php/ABI_compliance_checker
 # Checked using version 1.21.12

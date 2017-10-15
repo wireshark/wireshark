@@ -43,9 +43,6 @@ CLEANFILES = \
 	libcapchild.a		\
 	*~
 
-MAINTAINERCLEANFILES = \
-	Makefile.in
-
 doxygen:
 if HAVE_DOXYGEN
 	$(DOXYGEN) doxygen.cfg

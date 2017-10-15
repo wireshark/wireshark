@@ -30,16 +30,10 @@ CLEANFILES = \
 	librandpkt_core.a		\
 	*~
 
-MAINTAINERCLEANFILES = \
-	$(GENERATED_FILES)	\
-	Makefile.in
-
 # All sources that should be put in the source distribution tarball
 librandpkt_core_a_SOURCES = \
 	randpkt_core.c	\
 	randpkt_core.h
-
-librandpkt_core_a_DEPENDENCIES =
 
 doxygen:
 if HAVE_DOXYGEN
@@ -64,6 +58,5 @@ checkapi-todo:
 	$(librandpkt_core_a_SOURCES)
 
 EXTRA_DIST = \
-	$(GENERATOR_FILES)		\
 	CMakeLists.txt			\
 	doxygen.cfg.in

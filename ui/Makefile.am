@@ -180,8 +180,7 @@ CLEANFILES = \
 	*~
 
 MAINTAINERCLEANFILES = \
-	$(GENERATED_FILES)	\
-	Makefile.in
+	$(GENERATED_FILES)
 
 text_import_scanner_lex.h: text_import_scanner.c
 

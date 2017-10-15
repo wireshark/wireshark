@@ -1985,8 +1985,7 @@ DISTCLEANFILES = \
 	register.c
 
 MAINTAINERCLEANFILES =	\
-	$(GENERATED_FILES)	\
-	Makefile.in
+	$(GENERATED_FILES)
 
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build \

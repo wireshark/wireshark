@@ -23,9 +23,6 @@ include ../Makefile.am.inc
 
 AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GLIB_CFLAGS) $(PCAP_CFLAGS)
 
-MAINTAINERCLEANFILES = \
-	Makefile.in
-
 EXTRA_DIST = \
 	.editorconfig
 

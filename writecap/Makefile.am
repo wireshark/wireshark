@@ -30,13 +30,8 @@ CLEANFILES = \
 	libwritecap.a		\
 	*~
 
-MAINTAINERCLEANFILES = \
-	$(GENERATED_FILES)	\
-	Makefile.in
-
 EXTRA_DIST = \
 	.editorconfig		\
-	$(GENERATOR_FILES)	\
 	CMakeLists.txt		\
 	doxygen.cfg.in
 

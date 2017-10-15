@@ -55,9 +55,6 @@ CLEANFILES = \
 	libftypes.la	\
 	*~
 
-MAINTAINERCLEANFILES = \
-	Makefile.in
-
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g termoutput -build \
 	-sourcedir=$(srcdir) \

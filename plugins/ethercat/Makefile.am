@@ -71,9 +71,6 @@ CLEANFILES = \
 DISTCLEANFILES = \
 	plugin.c
 
-MAINTAINERCLEANFILES = \
-	Makefile.in
-
 EXTRA_DIST = \
 	plugin.rc.in		\
 	CMakeLists.txt

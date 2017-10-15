@@ -36,11 +36,6 @@ CLEANFILES = \
 	liblzxpress.la	\
 	*~
 
-DISTCLEANFILES =
-
-MAINTAINERCLEANFILES = \
-	Makefile.in
-
 checkapi:
 	$(PERL) ../../tools/checkAPIs.pl -g termoutput -build \
 	$(liblzxpress_la_SOURCES)

@@ -55,9 +55,6 @@ CLEANFILES = \
 	libcaputils.a		\
 	*~
 
-MAINTAINERCLEANFILES = \
-	Makefile.in
-
 EXTRA_DIST = \
 	.editorconfig		\
 	airpcap.h		\

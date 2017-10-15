@@ -8,8 +8,6 @@
 # remove the entries for this Makefile.am and Info.plist from AC_OUTPUT
 # in ../../configure.in.
 #
-MAINTAINERCLEANFILES = \
-	Makefile.in
 
 EXTRA_DIST = \
 	ChmodBPF/ChmodBPF	\

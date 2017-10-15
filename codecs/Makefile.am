@@ -82,9 +82,6 @@ CLEANFILES = \
 	libwscodec.la	\
 	*~
 
-MAINTAINERCLEANFILES =	\
-	Makefile.in
-
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build \
 	-sourcedir=$(srcdir) \

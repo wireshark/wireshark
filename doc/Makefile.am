@@ -303,9 +303,6 @@ DISTCLEANFILES =		\
 	AUTHORS-SHORT-FORMAT	\
 	*~
 
-MAINTAINERCLEANFILES = \
-	Makefile.in
-
 EXTRA_DIST =				\
 	README.capture			\
 	README.design			\

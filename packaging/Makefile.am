@@ -1,8 +1,5 @@
-#
-SUBDIRS = macosx rpm nsis wix
 
-MAINTAINERCLEANFILES = \
-	Makefile.in
+SUBDIRS = macosx rpm nsis wix
 
 EXTRA_DIST = \
 	portableapps/appinfo.tmpl		\

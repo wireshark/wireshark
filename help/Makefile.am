@@ -39,9 +39,6 @@ EXTRA_DIST = \
 
 CLEANFILES = faq.txt
 
-MAINTAINERCLEANFILES = \
-	Makefile.in
-
 # Convert the FAQ to text.
 faq.txt: $(srcdir)/faq.py
 	$(AM_V_GEN)$(PYTHON) $(srcdir)/faq.py -b >$@.tmp && \

@@ -86,11 +86,6 @@ CLEANFILES = \
 	libwmem.la	\
 	*~
 
-DISTCLEANFILES =
-
-MAINTAINERCLEANFILES = \
-	Makefile.in
-
 EXTRA_DIST = \
 	CMakeLists.txt
 

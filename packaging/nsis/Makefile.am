@@ -1,5 +1,3 @@
-MAINTAINERCLEANFILES = \
-	Makefile.in
 
 EXTRA_DIST = \
 	AdditionalTasksPage.ini \

@@ -721,9 +721,7 @@ DISTCLEANFILES = \
 	i18n.qrc
 
 MAINTAINERCLEANFILES = \
-	$(GENERATED_FILES)		\
-	$(NODIST_GENERATED_FILES)	\
-	Makefile.in
+	$(GENERATED_FILES)
 
 AM_V_MOC = $(am__v_MOC_@AM_V@)
 am__v_MOC_ = $(am__v_MOC_@AM_DEFAULT_V@)

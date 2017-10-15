@@ -41,9 +41,6 @@ EXTRA_DIST = \
 	Custom.make.example \
 	Custom.m4.example
 
-MAINTAINERCLEANFILES = \
-	Makefile.in
-
 checkapi:
 	for i in $(SUBDIRS); do \
 		(cd "$$i"; $(MAKE) checkapi); \

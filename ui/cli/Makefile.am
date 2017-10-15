@@ -101,8 +101,7 @@ CLEANFILES = \
 	*~
 
 MAINTAINERCLEANFILES = \
-	$(GENERATED_FILES)	\
-	Makefile.in
+	$(GENERATED_FILES)
 
 #
 # Build "tshark-tap-register.c", which contains a function

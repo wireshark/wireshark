@@ -53,9 +53,6 @@ CLEANFILES = \
 	stats_tree \
 	*~
 
-MAINTAINERCLEANFILES = \
-	Makefile.in
-
 EXTRA_DIST = \
 	plugin.rc.in		\
 	CMakeLists.txt

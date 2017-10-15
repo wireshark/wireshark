@@ -42,9 +42,6 @@ EXTRA_DIST = \
 	drsuapi/packet-dcerpc-drsuapi-template.c \
 	drsuapi/packet-dcerpc-drsuapi-template.h
 
-MAINTAINERCLEANFILES =  \
-	Makefile.in
-
 bin_PROGRAMS = idl2wrs
 
 idl2wrs_SOURCES = idl2wrs.c
