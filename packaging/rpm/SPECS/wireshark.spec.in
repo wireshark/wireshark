@@ -450,7 +450,7 @@ fi
 %endif
 
 %{_libdir}/lib*.so*
-%exclude %{_libdir}/%{name}/plugins/%{package_version}/*.la
+%exclude %{_libdir}/%{name}/plugins/@VERSION_RELEASE@/*.la
 %exclude %{_libdir}/*.la
 %{_libdir}/wireshark
 %{_libdir}/pkgconfig/wireshark.pc
@@ -463,6 +463,7 @@ fi
 %{_mandir}/man1/*
 %{_mandir}/man4/*
 %{_datadir}/wireshark
+%{_includedir}/wireshark
 %if 0%{?install_ld_so_conf}
 /etc/ld.so.conf.d/wireshark.conf
 %endif
