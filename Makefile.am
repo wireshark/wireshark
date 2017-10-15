@@ -842,6 +842,14 @@ endif
 endif
 
 
+if HAVE_PLUGINS
+plugins_subdir = plugins
+endif
+
+if HAVE_EXTCAP
+extcap_subdir = extcap
+endif
+
 DIST_SUBDIRS = \
 	capchild	\
 	caputils	\
@@ -871,14 +879,14 @@ SUBDIRS = \
 	epan			\
 	capchild		\
 	caputils		\
-	@plugins_dir@		\
+	$(plugins_subdir)	\
 	help			\
 	ui			\
 	codecs			\
 	@wireshark_SUBDIRS@	\
 	ui/cli			\
 	randpkt_core		\
-	@extcap_subdir@		\
+	$(extcap_subdir)	\
 	.			\
 	doc
 

@@ -24,18 +24,10 @@
 include $(top_srcdir)/Makefile.am.inc
 
 if HAVE_LIBLUA
-wslua_lib = wslua/libwslua.la
 wslua_dir = wslua
-wslua_dist_dir =
-else		# HAVE_LIBLUA
-wslua_lib =
-wslua_dir =
-wslua_dist_dir = wslua
-endif		# HAVE_LIBLUA
+endif
 
 SUBDIRS = compress crypt ftypes dfilter dissectors wmem $(wslua_dir)
-
-DIST_SUBDIRS = $(SUBDIRS) $(wslua_dist_dir)
 
 AM_CPPFLAGS = $(INCLUDEDIRS) -I$(builddir)/wslua $(WS_CPPFLAGS) \
 	$(GLIB_CFLAGS) $(PCAP_CFLAGS) $(LUA_CFLAGS) $(LIBGNUTLS_CFLAGS) \
@@ -314,6 +306,10 @@ libwireshark_la_CPPFLAGS = $(AM_CPPFLAGS) -DWS_BUILD_DLL
 
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 libwireshark_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_BIGSHAREDLIB@ @LDFLAGS_SHAREDLIB@
+
+if HAVE_LIBLUA
+wslua_lib = wslua/libwslua.la
+endif
 
 #
 # Add the object files for missing routines, if any.

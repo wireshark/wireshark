@@ -128,12 +128,11 @@ SUBDIRS =		\
 	x509if		\
 	x509sat
 
-# x721 doesn't build
-DONT_BUILD_SUBDIRS = \
-	x721
-
-DIST_SUBDIRS = $(SUBDIRS) $(DONT_BUILD_SUBDIRS)
-
 EXTRA_DIST = \
 	CMakeLists.txt	\
-	Makefile.inc
+	Makefile.inc	\
+	x721/CMakeLists.txt \
+	x721/Attribute-ASN1Module.asn \
+	x721/ManagedObjectClassesDefinitions.asn \
+	x721/Notification-ASN1Module.asn \
+	x721/Parameter-ASN1Module.asn

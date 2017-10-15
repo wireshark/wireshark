@@ -2573,12 +2573,8 @@ AC_ARG_WITH(plugins,
 AM_CONDITIONAL(HAVE_PLUGINS, test "x$have_plugins" = "xyes")
 if test x$have_plugins = xyes
 then
-  plugins_dir="plugins"
   AC_DEFINE(HAVE_PLUGINS, 1, [Define if plugins are enabled])
-else
-  plugins_dir=""
 fi
-AC_SUBST(plugins_dir)
 AC_SUBST(plugindir)
 
 #
@@ -2612,10 +2608,8 @@ AM_CONDITIONAL(HAVE_EXTCAP, test "x$have_extcap" = "xyes")
 if test "x$have_extcap" = "xyes"
 then
   AC_DEFINE(HAVE_EXTCAP, 1, [Define if external capture sources should be enabled])
-  extcap_subdir="extcap"
   extcap_man="extcap.4"
 fi
-AC_SUBST(extcap_subdir)
 AC_SUBST(extcap_man)
 AC_SUBST(extcapdir)
 
@@ -2933,7 +2927,6 @@ AC_CONFIG_FILES(
   epan/dissectors/asn1/x509ce/Makefile
   epan/dissectors/asn1/x509if/Makefile
   epan/dissectors/asn1/x509sat/Makefile
-  epan/dissectors/asn1/x721/Makefile
   capchild/Makefile
   capchild/doxygen.cfg
   caputils/Makefile
