@@ -72,10 +72,12 @@
 #define MQTT_RESERVED_15    15
 
 /* Flag Values to extract fields */
-#define MQTT_MASK_MSG_TYPE      0xF0
-#define MQTT_MASK_QOS           0x06
-#define MQTT_MASK_DUP_FLAG      0x08
-#define MQTT_MASK_RETAIN        0x01
+#define MQTT_MASK_MSG_TYPE          0xF0
+#define MQTT_MASK_HDR_RESERVED      0x0F
+#define MQTT_MASK_HDR_DUP_RESERVED  0x07
+#define MQTT_MASK_QOS               0x06
+#define MQTT_MASK_DUP_FLAG          0x08
+#define MQTT_MASK_RETAIN            0x01
 
 void proto_register_mqtt(void);
 void proto_reg_handoff_mqtt(void);
@@ -159,6 +161,11 @@ static const value_string mqtt_conack_vals[] = {
 #define MQTT_CONACKMASK_RESERVED 0xFE
 #define MQTT_CONACKMASK_SP       0x01
 
+/* The protocol version is present in the CONNECT message. */
+typedef struct {
+    guint8 runtime_proto_version;
+} mqtt_conv;
+
 static dissector_handle_t mqtt_handle;
 
 /* Initialize the protocol and registered fields */
@@ -168,6 +175,8 @@ static int proto_mqtt = -1;
 static int hf_mqtt_hdrflags = -1;
 static int hf_mqtt_msg_len = -1;
 static int hf_mqtt_msg_type = -1;
+static int hf_mqtt_reserved = -1;
+static int hf_mqtt_dup_reserved = -1;
 static int hf_mqtt_dup_flag = -1;
 static int hf_mqtt_qos_level = -1;
 static int hf_mqtt_retain = -1;
@@ -231,35 +240,43 @@ static guint get_mqtt_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 /* Dissect the MQTT message */
 static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  guint8  mqtt_fixed_hdr;
-  guint8  mqtt_msg_type;
-
-  int offset = 0;
-
-  /* Extract the message ID */
-  mqtt_fixed_hdr = tvb_get_guint8(tvb, offset);
-  mqtt_msg_type = mqtt_fixed_hdr >> 4;
-
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "MQTT");
-  col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", val_to_str_ext(mqtt_msg_type, &mqtt_msgtype_vals_ext, "Unknown (0x%02x)"));
-
-  if(tree)
-  {
+    guint8  mqtt_fixed_hdr;
+    guint8  mqtt_msg_type;
     proto_item *ti;
     proto_item *ti_mqtt;
 
     proto_tree *mqtt_tree;
     proto_tree *mqtt_flag_tree;
 
+    guint8      hdr_reserved;
     guint8      mqtt_con_flags;
     guint64     msg_len      = 0;
     gint        mqtt_msg_len = 0;
     guint16     mqtt_str_len;
     guint16     mqtt_len_offset;
+    conversation_t *conv;
+    mqtt_conv   *mqtt;
+
+    int offset = 0;
+
+    /* Extract the message ID */
+    mqtt_fixed_hdr = tvb_get_guint8(tvb, offset);
+    mqtt_msg_type = mqtt_fixed_hdr >> 4;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MQTT");
+    col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", val_to_str_ext(mqtt_msg_type, &mqtt_msgtype_vals_ext, "Unknown (0x%02x)"));
 
     /* Add the MQTT branch to the main tree */
     ti = proto_tree_add_item(tree, proto_mqtt, tvb, 0, -1, ENC_NA);
     mqtt_tree = proto_item_add_subtree(ti, ett_mqtt_hdr);
+
+    conv = find_or_create_conversation(pinfo);
+    mqtt = (mqtt_conv *)conversation_get_proto_data(conv, proto_mqtt);
+    if (mqtt == NULL)
+    {
+        mqtt = wmem_new0(wmem_file_scope(), mqtt_conv);
+        conversation_add_proto_data(conv, proto_mqtt, mqtt);
+    }
 
     mqtt_len_offset = dissect_uleb128(tvb, (offset + MQTT_HDR_SIZE_BEFORE_LEN), &msg_len);
 
@@ -271,11 +288,25 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     ti_mqtt = proto_tree_add_uint_format_value(mqtt_tree, hf_mqtt_hdrflags, tvb, offset, 1, mqtt_fixed_hdr, "0x%02x (%s)",
                                                mqtt_fixed_hdr, val_to_str_ext(mqtt_msg_type, &mqtt_msgtype_vals_ext, "Unknown (0x%02x)"));
+
     mqtt_flag_tree = proto_item_add_subtree(ti_mqtt, ett_mqtt_hdr_flags);
     proto_tree_add_item(mqtt_flag_tree, hf_mqtt_msg_type,  tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(mqtt_flag_tree, hf_mqtt_dup_flag,  tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(mqtt_flag_tree, hf_mqtt_qos_level, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(mqtt_flag_tree, hf_mqtt_retain,    tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    if (mqtt_msg_type == MQTT_PUBLISH) {
+      proto_tree_add_item(mqtt_flag_tree, hf_mqtt_dup_flag,  tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(mqtt_flag_tree, hf_mqtt_qos_level, tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(mqtt_flag_tree, hf_mqtt_retain,    tvb, offset, 1, ENC_BIG_ENDIAN);
+    } else if (mqtt->runtime_proto_version == MQTT_PROTO_V31 &&
+               (mqtt_msg_type == MQTT_PUBREL || mqtt_msg_type == MQTT_SUBSCRIBE ||
+                mqtt_msg_type == MQTT_UNSUBSCRIBE)) {
+        hdr_reserved = mqtt_fixed_hdr & MQTT_MASK_HDR_DUP_RESERVED;
+        proto_tree_add_item(mqtt_flag_tree, hf_mqtt_dup_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_uint(mqtt_flag_tree, hf_mqtt_dup_reserved, tvb, offset, 1, hdr_reserved);
+    } else {
+      hdr_reserved = mqtt_fixed_hdr & MQTT_MASK_HDR_RESERVED;
+      proto_tree_add_uint(mqtt_flag_tree, hf_mqtt_reserved, tvb, offset, 1, hdr_reserved);
+    }
+
     offset += 1;
 
     /* Add the MQTT message length */
@@ -291,6 +322,8 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
         proto_tree_add_item(mqtt_tree, hf_mqtt_proto_name, tvb, offset, mqtt_str_len, ENC_UTF_8|ENC_NA);
         offset += mqtt_str_len;
+
+        mqtt->runtime_proto_version = tvb_get_guint8(tvb, offset);
 
         proto_tree_add_item(mqtt_tree, hf_mqtt_proto_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
@@ -461,8 +494,8 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       case MQTT_DISCONNECT:
         break;
     }
-  }
-  return tvb_captured_length(tvb);
+
+    return tvb_captured_length(tvb);
 }
 
 /**
@@ -510,6 +543,14 @@ void proto_register_mqtt(void)
       { "Message Type", "mqtt.msgtype",
         FT_UINT8, BASE_DEC | BASE_EXT_STRING, &mqtt_msgtype_vals_ext, MQTT_MASK_MSG_TYPE,
         NULL, HFILL }},
+    { &hf_mqtt_reserved,
+      { "Reserved", "mqtt.hdr_reserved",
+        FT_UINT8, BASE_DEC, NULL, MQTT_MASK_HDR_RESERVED,
+        "Fixed Header Reserved Field", HFILL }},
+    { &hf_mqtt_dup_reserved,
+      { "Reserved", "mqtt.hdr_dup_reserved",
+        FT_UINT8, BASE_DEC, NULL, MQTT_MASK_HDR_DUP_RESERVED,
+        "Fixed Header Reserved Field", HFILL }},
     { &hf_mqtt_dup_flag,
       { "DUP Flag", "mqtt.dupflag",
         FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQTT_MASK_DUP_FLAG,
