@@ -2617,6 +2617,10 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         rlcInfoAlreadySet = TRUE;
     }
 
+    /* Setting non-zero UE-ID for RLC reassembly to work, might be
+     * overriden if the optional URNTI tag is present */
+    rlci->urnti[fpi->cur_tb] = 1;
+
     /* Read conditional/optional fields */
     while (tag != RLC_PAYLOAD_TAG) {
         /* Process next tag */
