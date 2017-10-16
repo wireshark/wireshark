@@ -36,6 +36,7 @@ void proto_register_lorawan(void);
 static int proto_lorawan = -1;
 static int hf_lorawan_mac_header_type = -1;
 static int hf_lorawan_mac_header_mtype_type = -1;
+static int hf_lorawan_mac_header_rfu_type = -1;
 static int hf_lorawan_mac_header_major_type = -1;
 static int hf_lorawan_mac_commands_type = -1;
 static int hf_lorawan_mac_command_uplink_type = -1;
@@ -85,9 +86,11 @@ static int hf_lorawan_mac_command_up_new_channel_ans_type = -1;
 static int hf_lorawan_mac_command_up_new_channel_ans_datarate_type = -1;
 static int hf_lorawan_mac_command_up_new_channel_ans_frequency_type = -1;
 static int hf_lorawan_mac_command_down_rx_timing_req_delay_type = -1;
+static int hf_lorawan_join_request_type = -1;
 static int hf_lorawan_join_request_appeui_type = -1;
 static int hf_lorawan_join_request_deveui_type = -1;
 static int hf_lorawan_join_request_devnonce_type = -1;
+static int hf_lorawan_join_accept_type = -1;
 static int hf_lorawan_join_accept_appnonce_type = -1;
 static int hf_lorawan_join_accept_netid_type = -1;
 static int hf_lorawan_join_accept_devaddr_type = -1;
@@ -134,6 +137,8 @@ static gint ett_lorawan_frame_payload_decrypted = -1;
 #define LORAWAN_MAC_MTYPE_CONFIRMEDDATAUP				4
 #define LORAWAN_MAC_MTYPE_CONFIRMEDDATADOWN				5
 #define LORAWAN_MAC_MTYPE_PROPRIETARY					7
+
+#define LORAWAN_MAC_RFU_MASK						0x1C
 
 #define LORAWAN_MAC_MAJOR_MASK						0x03
 #define LORAWAN_MAC_MAJOR(major)					((major) & LORAWAN_MAC_MAJOR_MASK)
@@ -680,7 +685,14 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 	mac_mtype = LORAWAN_MAC_MTYPE(tvb_get_guint8(tvb, current_offset));
 	proto_item_append_text(tf, " (Message Type: %s, Major Version: %s)", val_to_str(mac_mtype, lorawan_mtypenames, "RFU"), val_to_str(LORAWAN_MAC_MAJOR(tvb_get_guint8(tvb, current_offset)), lorawan_majornames, "RFU"));
 
+	field_tree = proto_item_add_subtree(tf, ett_lorawan_mac_header);
+	proto_tree_add_item(field_tree, hf_lorawan_mac_header_mtype_type, tvb, current_offset, 1, ENC_NA);
+	proto_tree_add_item(field_tree, hf_lorawan_mac_header_rfu_type, tvb, current_offset, 1, ENC_NA);
+	proto_tree_add_item(field_tree, hf_lorawan_mac_header_major_type, tvb, current_offset, 1, ENC_NA);
+	current_offset++;
+
 	if (mac_mtype == LORAWAN_MAC_MTYPE_JOINREQUEST) {
+		tf = proto_tree_add_item(lorawan_tree, hf_lorawan_join_request_type, tvb, current_offset, 18, ENC_NA);
 		field_tree = proto_item_add_subtree(tf, ett_lorawan_join_request);
 		proto_tree_add_item(field_tree, hf_lorawan_join_request_appeui_type, tvb, current_offset, 8, ENC_NA);
 		current_offset += 8;
@@ -688,6 +700,7 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 		current_offset += 8;
 		proto_tree_add_item(field_tree, hf_lorawan_join_request_devnonce_type, tvb, current_offset, 2, ENC_NA);
 		current_offset += 2;
+
 		/* MIC
 		 * cmac = aes128_cmac(AppKey, msg)
 		 * MIC = cmac[0..3]
@@ -708,6 +721,7 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 #endif
 		return tvb_captured_length(tvb);
 	} else if (mac_mtype == LORAWAN_MAC_MTYPE_JOINACCEPT) {
+		tf = proto_tree_add_item(lorawan_tree, hf_lorawan_join_accept_type, tvb, current_offset, 12, ENC_NA);
 		field_tree = proto_item_add_subtree(tf, ett_lorawan_join_accept);
 		proto_tree_add_item(field_tree, hf_lorawan_join_accept_appnonce_type, tvb, current_offset, 3, ENC_NA);
 		current_offset += 3;
@@ -724,7 +738,9 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 		if (tvb_captured_length(tvb) - current_offset > 4) {
 			proto_tree_add_item(field_tree, hf_lorawan_join_accept_cflist_type, tvb, current_offset, 16, ENC_NA);
 			current_offset += 16;
+			proto_item_set_len(tf, proto_item_get_len(tf) + 16);
 		}
+
 		/* MIC
 		 * cmac = aes128_cmac(AppKey, msg)
 		 * MIC = cmac[0..3]
@@ -747,11 +763,6 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 		if (mac_mtype & 1) {
 			uplink = FALSE;
 		}
-		field_tree = proto_item_add_subtree(tf, ett_lorawan_mac_header);
-		proto_tree_add_item(field_tree, hf_lorawan_mac_header_major_type, tvb, current_offset, 1, ENC_NA);
-		proto_tree_add_item(field_tree, hf_lorawan_mac_header_mtype_type, tvb, current_offset, 1, ENC_NA);
-		current_offset++;
-
 		fopts_length = (tvb_get_guint8(tvb, current_offset + 4) & LORAWAN_FRAME_FOPTSLEN_MASK);
 		/* Frame header */
 		tf = proto_tree_add_item(lorawan_tree, hf_lorawan_frame_header_type, tvb, current_offset, 7 + fopts_length, ENC_NA);
@@ -864,6 +875,12 @@ proto_register_lorawan(void)
 		FT_UINT8, BASE_DEC,
 		VALS(lorawan_mtypenames), LORAWAN_MAC_MTYPE_MASK,
 		NULL, HFILL }
+	},
+	{ &hf_lorawan_mac_header_rfu_type,
+		{ "RFU", "lorawan.mhdr.rfu",
+		FT_UINT8, BASE_DEC,
+		NULL, LORAWAN_MAC_RFU_MASK,
+		"Reserved for Future Use", HFILL }
 	},
 	{ &hf_lorawan_mac_header_major_type,
 		{ "Major Version", "lorawan.mhdr.major",
@@ -1159,6 +1176,12 @@ proto_register_lorawan(void)
 		&units_seconds, LORAWAN_MAC_COMMAND_DOWN_RX_TIMING_REQ_DELAY_MASK,
 		NULL, HFILL }
 	},
+	{ &hf_lorawan_join_request_type,
+		{ "Join Request", "lorawan.join_request",
+		FT_NONE, BASE_NONE,
+		NULL, 0x0,
+		NULL, HFILL }
+	},
 	{ &hf_lorawan_join_request_appeui_type,
 		{ "AppEUI", "lorawan.join_request.appeui",
 		FT_BYTES, BASE_NONE,
@@ -1174,6 +1197,12 @@ proto_register_lorawan(void)
 	{ &hf_lorawan_join_request_devnonce_type,
 		{ "Device Nonce", "lorawan.join_request.devnonce",
 		FT_BYTES, BASE_NONE,
+		NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_lorawan_join_accept_type,
+		{ "Join Accept", "lorawan.join_accept",
+		FT_NONE, BASE_NONE,
 		NULL, 0x0,
 		NULL, HFILL }
 	},
@@ -1335,6 +1364,8 @@ proto_register_lorawan(void)
 		"LoRaWAN",		/* short name */
 		"lorawan"		/* abbrev */
 	);
+
+	register_dissector("lorawan", dissect_lorawan, proto_lorawan);
 
 	proto_register_field_array(proto_lorawan, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
