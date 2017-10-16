@@ -185,13 +185,13 @@ protobuf_find_field_info(const gchar* call_path_direction_type, int field_number
  * value (for instance, -1) have a small varint encoded value too. (refers to protobuf spec)
  *      sint32 encoded using   (n << 1) ^ (n >> 31)
  */
-gint32
+static gint32
 sint32_decode(guint32 sint32) {
     return (sint32 >> 1) ^ ((gint32)sint32 << 31 >> 31);
 }
 
 /* sint64 encoded using   (n << 1) ^ (n >> 63) */
-gint64
+static gint64
 sint64_decode(guint64 sint64) {
     return (sint64 >> 1) ^ ((gint64)sint64 << 63 >> 63);
 }
