@@ -821,6 +821,7 @@ static gint hf_btcommon_le_channel_map_36 = -1;
 static gint hf_btcommon_le_channel_map_37 = -1;
 static gint hf_btcommon_le_channel_map_38 = -1;
 static gint hf_btcommon_le_channel_map_39 = -1;
+static gint hf_btcommon_eir_ad_mesh_msg = -1;
 
 
 static const int *hfx_btcommon_eir_ad_ips_flags[] = {
@@ -912,6 +913,7 @@ static dissector_handle_t btcommon_eir_handle;
 static dissector_handle_t btcommon_ad_handle;
 static dissector_handle_t btcommon_le_channel_map_handle;
 static dissector_handle_t bthci_cmd_handle;
+static dissector_handle_t btmesh_handle;
 
 static dissector_table_t  bluetooth_eir_ad_manufacturer_company_id;
 static dissector_table_t  bluetooth_eir_ad_tds_organization_id;
@@ -2103,6 +2105,7 @@ static const value_string csb_fragment_vals[] = {
 void proto_register_bthci_cmd(void);
 void proto_reg_handoff_bthci_cmd(void);
 void proto_register_btcommon(void);
+void proto_reg_handoff_btcommon(void);
 
 static void bthci_cmd_vendor_prompt(packet_info *pinfo _U_, gchar* result)
 {
@@ -7287,11 +7290,12 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             end_offset = offset + length;
             while (offset < end_offset) {
                 if (tvb_get_ntohs(tvb, offset) == 0x0000 &&
-                        tvb_get_ntohl(tvb, offset + 4) == 0x1000 &&
-                        tvb_get_ntoh64(tvb, offset + 8) == G_GUINT64_CONSTANT(0x800000805F9B34FB)) {
+                    tvb_get_ntohl(tvb, offset + 4) == 0x1000 &&
+                    tvb_get_ntoh64(tvb, offset + 8) == G_GUINT64_CONSTANT(0x800000805F9B34FB)) {
                     sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_uuid_128, tvb, offset, 16, ENC_NA);
                     proto_item_append_text(sub_item, " (%s)", val_to_str_ext_const(tvb_get_ntohs(tvb, offset + 2), &bluetooth_uuid_vals_ext, "Unknown"));
-                } else {
+                }
+                else {
                     bluetooth_uuid_t  uuid;
 
                     sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_custom_uuid, tvb, offset, 16, ENC_NA);
@@ -7308,7 +7312,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
         case 0x08: /* Device Name (shortened) */
         case 0x09: /* Device Name */
             proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_name, tvb, offset, length, ENC_UTF_8 | ENC_NA);
-            proto_item_append_text(entry_item, ": %s", tvb_format_text(tvb,offset, length));
+            proto_item_append_text(entry_item, ": %s", tvb_format_text(tvb, offset, length));
             if (!name || type == 0x09)
                 name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_UTF_8);
             offset += length;
@@ -7318,7 +7322,8 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             if (length == 16) { /* little heuristic for recognize Security Manager TK Value */
                 sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_data, tvb, offset, 16, ENC_NA);
                 expert_add_info(pinfo, sub_item, &ei_eir_ad_undecoded);
-            } else if (length == 8) { /* DID */
+            }
+            else if (length == 8) { /* DID */
                 guint16       vendor_id_source;
                 guint16       vendor_id;
                 guint16       product_id;
@@ -7330,9 +7335,11 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
 
                 if (vendor_id_source == DID_VENDOR_ID_SOURCE_BLUETOOTH_SIG) {
                     proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_did_vendor_id_bluetooth_sig, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                } else if (vendor_id_source == DID_VENDOR_ID_SOURCE_USB_FORUM) {
+                }
+                else if (vendor_id_source == DID_VENDOR_ID_SOURCE_USB_FORUM) {
                     proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_did_vendor_id_usb_forum, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                } else {
+                }
+                else {
                     proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_did_vendor_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 }
                 vendor_id = tvb_get_letohs(tvb, offset);
@@ -7349,7 +7356,8 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
 
                 proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_did_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
-            } else {
+            }
+            else {
                 sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_data, tvb, offset, length, ENC_NA);
                 expert_add_info(pinfo, sub_item, &ei_command_unknown_command);
             }
@@ -7400,11 +7408,11 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             break;
         case 0x12: /* Slave Connection Interval Range */
             sub_item = proto_tree_add_item(tree, hf_btcommon_eir_ad_connection_interval_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(sub_item, " (%g msec)",  tvb_get_letohs(tvb, offset) * 1.25);
+            proto_item_append_text(sub_item, " (%g msec)", tvb_get_letohs(tvb, offset) * 1.25);
             offset += 2;
 
             sub_item = proto_tree_add_item(tree, hf_btcommon_eir_ad_connection_interval_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(sub_item, " (%g msec)",  tvb_get_letohs(tvb, offset) * 1.25);
+            proto_item_append_text(sub_item, " (%g msec)", tvb_get_letohs(tvb, offset) * 1.25);
             offset += 2;
 
             proto_item_append_text(entry_item, ": %g - %g msec", tvb_get_letohs(tvb, offset - 4) * 1.25, tvb_get_letohs(tvb, offset - 2) * 1.25);
@@ -7423,7 +7431,8 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             if (tvb_get_ntohs(tvb, offset) == 0x0000) {
                 sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_uuid_32, tvb, offset, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(sub_item, " (%s)", val_to_str_ext_const(tvb_get_ntohs(tvb, offset + 2), &bluetooth_uuid_vals_ext, "Unknown"));
-            } else {
+            }
+            else {
                 bluetooth_uuid_t  uuid;
 
                 sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_custom_uuid, tvb, offset, 4, ENC_NA);
@@ -7440,11 +7449,12 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             break;
         case 0x21: /* Service Data - 128 bit UUID */
             if (tvb_get_ntohs(tvb, offset) == 0x0000 &&
-                    tvb_get_ntohl(tvb, offset + 4) == 0x1000 &&
-                    tvb_get_ntoh64(tvb, offset + 8) == G_GUINT64_CONSTANT(0x800000805F9B34FB)) {
+                tvb_get_ntohl(tvb, offset + 4) == 0x1000 &&
+                tvb_get_ntoh64(tvb, offset + 8) == G_GUINT64_CONSTANT(0x800000805F9B34FB)) {
                 sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_uuid_128, tvb, offset, 16, ENC_NA);
                 proto_item_append_text(sub_item, " (%s)", val_to_str_ext_const(tvb_get_ntohs(tvb, offset + 2), &bluetooth_uuid_vals_ext, "Unknown"));
-            } else {
+            }
+            else {
                 bluetooth_uuid_t  uuid;
 
                 sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_custom_uuid, tvb, offset, 16, ENC_NA);
@@ -7469,7 +7479,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             break;
         case 0x19: /* Appearance */
             proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_appearance, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(entry_item,": %s", val_to_str(tvb_get_letohs(tvb, offset), bthci_cmd_appearance_vals, "Unknown"));
+            proto_item_append_text(entry_item, ": %s", val_to_str(tvb_get_letohs(tvb, offset), bthci_cmd_appearance_vals, "Unknown"));
             offset += 2;
 
             break;
@@ -7512,7 +7522,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             if (length == 0)
                 break;
 
-            sub_item =  proto_tree_add_bitmask(entry_tree, tvb, offset, hf_btcommon_eir_ad_ips_flags, ett_eir_ad_entry, hfx_btcommon_eir_ad_ips_flags, ENC_LITTLE_ENDIAN);
+            sub_item = proto_tree_add_bitmask(entry_tree, tvb, offset, hf_btcommon_eir_ad_ips_flags, ett_eir_ad_entry, hfx_btcommon_eir_ad_ips_flags, ENC_LITTLE_ENDIAN);
             flags = tvb_get_guint8(tvb, offset);
             offset += 1;
 
@@ -7615,8 +7625,8 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
                 expert_add_info(pinfo, sub_item, &ei_eir_ad_unknown);
                 offset += sub_length;
             }
-            }
-            break;
+        }
+                   break;
         case 0x28: /* Channel Map Update Indication */
             sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_le_channel_map, tvb, offset, 5, ENC_NA);
             sub_tree = proto_item_add_subtree(sub_item, ett_le_channel_map);
@@ -7639,6 +7649,14 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_3ds_path_loss_threshold, tvb, offset, 1, ENC_NA);
             offset += 1;
 
+            break;
+        case 0x2a:
+            if (btmesh_handle) {
+                call_dissector(btmesh_handle, tvb_new_subset_length(tvb, offset, length), pinfo, proto_tree_get_root(tree));
+            } else {
+                proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_mesh_msg, tvb, offset, length, ENC_NA);
+            }
+            offset += length;
             break;
         case 0xFF: /* Manufacturer Specific */ {
             guint16  company_id;
@@ -8817,7 +8835,13 @@ proto_register_btcommon(void)
             { "RF Channel 1 (2404 MHz - Data - 0)",                  "btcommon.le_channel_map.0",
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
-        }
+        },
+        { &hf_btcommon_eir_ad_mesh_msg,
+        { "Mesh message content",        "btcommon.eir_ad.entry.mesh_msg",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
     };
 
     static gint *ett[] = {
@@ -8864,6 +8888,11 @@ proto_register_btcommon(void)
     register_decode_as(&bluetooth_eir_ad_tds_organization_id_da);
 }
 
+void
+proto_reg_handoff_btcommon(void)
+{
+    btmesh_handle = find_dissector("btmesh.msg");
+}
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
