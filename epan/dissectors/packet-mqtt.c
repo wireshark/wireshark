@@ -47,6 +47,10 @@
 #define MQTT_DEFAULT_PORT     1883 /* IANA registered under service name as mqtt */
 #define MQTT_SSL_DEFAULT_PORT 8883 /* IANA registered under service name secure-mqtt */
 
+/* MQTT Protocol Versions */
+#define MQTT_PROTO_V31      3
+#define MQTT_PROTO_V311     4
+
 #define MQTT_HDR_SIZE_BEFORE_LEN 1
 
 /* MQTT MEssage Types */
@@ -75,6 +79,12 @@
 
 void proto_register_mqtt(void);
 void proto_reg_handoff_mqtt(void);
+
+static const value_string mqtt_protocol_version_vals[] = {
+  { MQTT_PROTO_V31,        "MQTT v3.1" },
+  { MQTT_PROTO_V311,       "MQTT v3.1.1" },
+  { 0,                     NULL }
+};
 
 static const value_string mqtt_msgtype_vals[] = {
   { MQTT_RESERVED,          "Reserved" },
@@ -602,8 +612,8 @@ void proto_register_mqtt(void)
         NULL, HFILL }},
     { &hf_mqtt_proto_ver,
       { "Version", "mqtt.ver",
-        FT_UINT8, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
+        FT_UINT8, BASE_DEC, VALS(mqtt_protocol_version_vals), 0,
+        "MQTT version", HFILL }},
     /* Connect Flags */
     { &hf_mqtt_conflags,
       { "Connect Flags", "mqtt.conflags",
