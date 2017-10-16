@@ -5491,7 +5491,7 @@ proto_register_ptp(void)
             NULL, HFILL }
         },
         { &hf_ptp_as_sig_tlv_flags,
-          { "flags",           "ptp.as.sig.tvl.flags",
+          { "flags",           "ptp.as.sig.tlv.flags",
             FT_UINT8, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
         },
