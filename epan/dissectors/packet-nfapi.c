@@ -3507,7 +3507,7 @@ static void dissect_dl_config_request_dl_dci_pdu_rel12_value(ptvcursor_t * ptvc,
 	}
 
 	// Number of UL / DL configurations
-	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_number_of_ul_dl_configurations, 1, ENC_BIG_ENDIAN, &count);
+	ptvcursor_add_ret_uint(ptvc, hf_nfapi_number_of_ul_dl_configurations, 1, ENC_BIG_ENDIAN, &count);
 
 	dissect_array_value(ptvc, pinfo, "UL/DL Configurations", ett_nfapi_pnf_phy, count, dissect_ul_dl_configuration_index_value);
 }
@@ -4458,10 +4458,10 @@ static void dissect_dl_config_request_mpdpcch_pdu_rel13_value(ptvcursor_t * ptvc
 	ptvcursor_add(ptvc, hf_nfapi_direct_indication, 1, ENC_BIG_ENDIAN);
 
 	// Total DCI length including padding
-	item = ptvcursor_add(ptvc, hf_nfapi_total_dci_length_including_padding, 1, ENC_BIG_ENDIAN);
+	ptvcursor_add(ptvc, hf_nfapi_total_dci_length_including_padding, 1, ENC_BIG_ENDIAN);
 
 	// Number of TX Antenna ports
-	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_number_of_tx_antenna_ports, 1, ENC_BIG_ENDIAN, &count);
+	ptvcursor_add_ret_uint(ptvc, hf_nfapi_number_of_tx_antenna_ports, 1, ENC_BIG_ENDIAN, &count);
 
 	dissect_array_value(ptvc, pinfo, "Precoding", ett_nfapi_precoding, count, dissect_precoding_value);
 }
@@ -6005,7 +6005,7 @@ static void dissect_hi_dci0_mdpcch_dci_ul_rel13_value(ptvcursor_t * ptvc, packet
 	ptvcursor_add(ptvc, hf_nfapi_total_dci_length_include_padding, 1, ENC_BIG_ENDIAN);
 
 	// Number of TX Antenna ports
-	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_number_of_tx_antenna_ports, 1, ENC_BIG_ENDIAN, &count);
+	ptvcursor_add_ret_uint(ptvc, hf_nfapi_number_of_tx_antenna_ports, 1, ENC_BIG_ENDIAN, &count);
 
 	dissect_array_value(ptvc, pinfo, "TX Antenna Ports", ett_nfapi_tx_antenna_ports, count, dissect_precoding_value);
 }
