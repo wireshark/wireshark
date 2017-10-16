@@ -8323,7 +8323,7 @@ static int dissect_p7_dl_node_sync_msg_id(tvbuff_t *tvb, packet_info *pinfo, pro
 	proto_tree_add_item(tree, hf_nfapi_ul_node_sync_t3, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	return tvb_captured_length(tvb);
+	return offset;
 }
 
 static int dissect_p7_ul_node_sync_msg_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -8335,7 +8335,7 @@ static int dissect_p7_ul_node_sync_msg_id(tvbuff_t *tvb, packet_info *pinfo, pro
 	proto_tree_add_item(tree, hf_nfapi_dl_node_sync_delta_sfn_sf, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	return tvb_captured_length(tvb);
+	return offset;
 }
 
 static int dissect_p7_timing_info_msg_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -8370,7 +8370,7 @@ static int dissect_p7_timing_info_msg_id(tvbuff_t *tvb, packet_info *pinfo, prot
 	proto_tree_add_item(tree, hf_nfapi_timing_info_hi_dci0_earliest_arrival, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	return tvb_captured_length(tvb);
+	return offset;
 }
 
 static reassembly_table ul_p7_reassemble_table;
