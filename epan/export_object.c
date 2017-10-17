@@ -90,27 +90,28 @@ void eo_iterate_tables(wmem_foreach_func func, gpointer user_data)
     wmem_tree_foreach(registered_eo_tables, func, user_data);
 }
 
-static GString *eo_rename(GString *gstr, int dupn)
+static GString *eo_rename(GString *gstr, gsize maxlen, int dupn)
 {
     GString *gstr_tmp;
     gchar *tmp_ptr;
     GString *ext_str;
 
-    gstr_tmp = g_string_new("(");
-    g_string_append_printf (gstr_tmp, "%d)", dupn);
-    if ( (tmp_ptr = strrchr(gstr->str, '.')) != NULL ) {
+    gstr_tmp = g_string_new("");
+    if (dupn != 0) {
+        g_string_append_printf (gstr_tmp, "(%d)", dupn);
+    }
+    if ( (tmp_ptr = strrchr(gstr->str, '.')) != NULL && ((ext_str = g_string_new(tmp_ptr))->len + strlen(gstr_tmp->str) < maxlen) ) {
         /* Retain the extension */
-        ext_str = g_string_new(tmp_ptr);
         gstr = g_string_truncate(gstr, gstr->len - ext_str->len);
-        if ( gstr->len >= (EXPORT_OBJECT_MAXFILELEN - (strlen(gstr_tmp->str) + ext_str->len)) )
-            gstr = g_string_truncate(gstr, EXPORT_OBJECT_MAXFILELEN - (strlen(gstr_tmp->str) + ext_str->len));
+        if ( gstr->len >= (maxlen - (strlen(gstr_tmp->str) + ext_str->len)) )
+            gstr = g_string_truncate(gstr, maxlen - (strlen(gstr_tmp->str) + ext_str->len));
         gstr = g_string_append(gstr, gstr_tmp->str);
         gstr = g_string_append(gstr, ext_str->str);
         g_string_free(ext_str, TRUE);
     }
     else {
-        if ( gstr->len >= (EXPORT_OBJECT_MAXFILELEN - strlen(gstr_tmp->str)) )
-            gstr = g_string_truncate(gstr, EXPORT_OBJECT_MAXFILELEN - strlen(gstr_tmp->str));
+        if ( gstr->len >= (maxlen - strlen(gstr_tmp->str)) )
+            gstr = g_string_truncate(gstr, maxlen - strlen(gstr_tmp->str));
         gstr = g_string_append(gstr, gstr_tmp->str);
     }
     g_string_free(gstr_tmp, TRUE);
@@ -130,7 +131,6 @@ eo_massage_str(const gchar *in_str, gsize maxlen, int dupn)
     "\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14"
     "\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f";
     GString *out_str;
-    GString *ext_str;
 
     out_str = g_string_new("");
 
@@ -141,19 +141,8 @@ eo_massage_str(const gchar *in_str, gsize maxlen, int dupn)
         in_str = tmp_ptr + 1;
     }
     out_str = g_string_append(out_str, in_str);
-    if ( out_str->len > maxlen ) {
-        if ( (tmp_ptr = strrchr(out_str->str, '.')) != NULL ) {
-            /* Retain the extension */
-            ext_str = g_string_new(tmp_ptr);
-            out_str = g_string_truncate(out_str, maxlen - ext_str->len);
-            out_str = g_string_append(out_str, ext_str->str);
-            g_string_free(ext_str, TRUE);
-        }
-        else
-            out_str = g_string_truncate(out_str, maxlen);
-    }
-    if ( dupn != 0 )
-        out_str = eo_rename(out_str, dupn);
+    if ( dupn != 0 || out_str->len > maxlen )
+        out_str = eo_rename(out_str, maxlen, dupn);
     return out_str;
 }
 

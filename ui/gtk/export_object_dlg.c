@@ -160,7 +160,7 @@ eo_save_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 		return;
 	}
 
-	safe_filename = eo_massage_str(entry->filename, 256, 0);
+	safe_filename = eo_massage_str(entry->filename, EXPORT_OBJECT_MAXFILELEN, 0);
 
 	/*
 	 * Loop until the user either selects a file or gives up.
