@@ -312,8 +312,10 @@ void ExportObjectDialog::saveCurrentEntry()
         return;
     }
 
+    GString *safe_filename = eo_massage_str(entry->filename, EXPORT_OBJECT_MAXFILELEN-path.canonicalPath().length(), 0);
     file_name = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Object As" UTF8_HORIZONTAL_ELLIPSIS)),
-                                             path.filePath(entry->filename));
+                                             safe_filename->str);
+    g_string_free(safe_filename, TRUE);
 
     if (file_name.length() > 0) {
         eo_save_entry(file_name.toUtf8().constData(), entry, TRUE);
