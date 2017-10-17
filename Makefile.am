@@ -364,12 +364,7 @@ plugin_ldadd = $(_CUSTOM_plugin_ldadd_) \
 	-dlopen plugins/unistim/unistim.la \
 	-dlopen plugins/wimax/wimax.la \
 	-dlopen plugins/wimaxmacphy/wimaxmacphy.la
-
-else		# HAVE_PLUGINS
-
-plugin_ldadd =
-
-endif		# HAVE_PLUGINS
+endif
 
 # "BUILT_SOURCES" are built before any "make all" or "make check" targets.
 BUILT_HEADER_FILES = \
@@ -777,18 +772,7 @@ CLEANFILES = \
 	doxygen-core.tag	\
 	vgcore.*
 
-#
-# We have to remove version.h with "make distclean", as, otherwise,
-# "make distcheck" fails.  We still need to make the tarballs work
-# even if you do "make distclean" and try to rebuild; that's a work in
-# progress.
-#
-# XXX - "ps.c" is distributed in the source tarballs; why is it in the
-# list of files removed by "make distclean"?  (It's deliberately
-# included in that list.)
-#
 DISTCLEANFILES = \
-	ps.c			\
 	version.h
 
 MAINTAINERCLEANFILES = \
@@ -912,63 +896,30 @@ libtool: $(LIBTOOL_DEPS)
 #
 # We use $(datadir).  If the desktop doesn't look for them there,
 # the desktop is broken; the latest XDG Base Directory Specification
-# at
+# can be consulted at
 #
 #    http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
-#
-# says
-#
-# $XDG_DATA_DIRS defines the preference-ordered set of base directories
-# to search for data files in addition to the $XDG_DATA_HOME base
-# directory. The directories in $XDG_DATA_DIRS should be seperated with a
-# colon ':'.
-#
-# If $XDG_DATA_DIRS is either not set or empty, a value equal to
-# /usr/local/share/:/usr/share/ should be used.
-#
-# so:
-#
-#    if this is configured to install under /usr, that should Just Work,
-#    unless XDG_DATA_DIRS is set incorrectly or the desktop isn't
-#    compliant with the latest version of the spec;
-#
-#    if this installs under the default /usr/share, that should Just Work,
-#    unless XDG_DATA_DIRS is set incorrectly or the desktop isn't
-#    compliant with the latest version of the spec;
-#
-#    if this is configured to install somewhere else, whoever configured
-#    it should also have made sure that XDG_DATA_DIRS was set correctly
-#    and, if that doesn't work, the desktop isn't compliant with the
-#    latest version of the spec.
-#
-# We install these as part of the standard installation process, just
-# as, for example, Inkscape does with its icons.  See bug 10737.
-#
-# Do not use the -T flag to the install command, as it's not portable.
-# Some versions of install don't support a -T flag at all, and the
-# FreeBSD install command has a -T flag that takes an argument and
-# that has completely different semantics.
 #
 # We neither need nor want any of this if we're not building Wireshark
 # (that being the only desktop app).
 #
 install-data-local:
 if BUILDING_WIRESHARK
-	mkdir -p $(DESTDIR)$(datadir)/mime/packages
-	install -m 644 $(srcdir)/wireshark-mime-package.xml $(DESTDIR)$(datadir)/mime/packages/wireshark.xml
-	mkdir -p $(DESTDIR)$(datadir)/appdata
-	install -m 644 $(srcdir)/wireshark.appdata.xml $(DESTDIR)$(datadir)/appdata/wireshark.appdata.xml
-	mkdir -p $(DESTDIR)$(datadir)/applications
-	install -m 644 $(srcdir)/wireshark.desktop $(srcdir)/wireshark-gtk.desktop $(DESTDIR)$(datadir)/applications
+	$(MKDIR_P) $(DESTDIR)$(datadir)/mime/packages
+	$(INSTALL) -m 644 $(srcdir)/wireshark-mime-package.xml $(DESTDIR)$(datadir)/mime/packages/wireshark.xml
+	$(MKDIR_P) $(DESTDIR)$(datadir)/appdata
+	$(INSTALL) -m 644 $(srcdir)/wireshark.appdata.xml $(DESTDIR)$(datadir)/appdata/wireshark.appdata.xml
+	$(MKDIR_P) $(DESTDIR)$(datadir)/applications
+	$(INSTALL) -m 644 $(srcdir)/wireshark.desktop $(srcdir)/wireshark-gtk.desktop $(DESTDIR)$(datadir)/applications
 	for size in 16 24 32 48 64 128 256; \
 	do \
-		mkdir -p $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/apps ; \
-		install -m 644 $(srcdir)/image/wsicon$${size}.png $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/apps/wireshark.png ; \
-		mkdir -p $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/mimetypes ; \
-		install -m 644 $(srcdir)/image/WiresharkDoc-$${size}.png $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/mimetypes/application-wireshark-doc.png ; \
+		$(MKDIR_P) $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/apps ; \
+		$(INSTALL) -m 644 $(srcdir)/image/wsicon$${size}.png $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/apps/wireshark.png ; \
+		$(MKDIR_P) $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/mimetypes ; \
+		$(INSTALL) -m 644 $(srcdir)/image/WiresharkDoc-$${size}.png $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/mimetypes/application-wireshark-doc.png ; \
 	done
-	mkdir -p $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps
-	install -m 644 $(srcdir)/image/wsicon.svg $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/wireshark.svg
+	$(MKDIR_P) $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps
+	$(INSTALL) -m 644 $(srcdir)/image/wsicon.svg $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/wireshark.svg
 endif
 
 uninstall-local:
@@ -997,18 +948,18 @@ uninstall-hook: update-databases-and-caches-uninstall
 # gtk-update-icon-cache may be needed only if we're installing a GTK+
 # version of Wireshark.
 #
-# We neither need nor want any of this if we're not building Wireshark
+# Only ldconfig may be needed if we're not building Wireshark
 # (that being the only desktop app).
 #
 update-databases-and-caches-common:
-if BUILDING_WIRESHARK
 	@echo "-------------------------------------------------------------------------------"
 	@echo "You may need to run \"ldconfig\" as root"
+if BUILDING_WIRESHARK
 	@echo "You may need to run \"update-desktop-database $(datadir)/applications\""
 	@echo "You may need to run \"update-mime-database $(datadir)/mime\""
 	@echo "You may need to run \"gtk-update-icon-cache -f -t $(datadir)/icons/hicolor\""
-	@echo "-------------------------------------------------------------------------------"
 endif
+	@echo "-------------------------------------------------------------------------------"
 
 update-databases-and-caches-install: update-databases-and-caches-common
 
