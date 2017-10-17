@@ -335,7 +335,7 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
     case PROTOBUF_TYPE_UINT32:
     case PROTOBUF_TYPE_FIXED32: /* same as UINT32 */
         proto_tree_add_uint(value_tree, hf_protobuf_value_uint32, tvb, offset, length, (guint32)value);
-        proto_item_append_text(ti_field, "%s %lu", prepend_text, value);
+        proto_item_append_text(ti_field, "%s %u", prepend_text, (guint32)value);
         break;
 
     case PROTOBUF_TYPE_SINT32:
