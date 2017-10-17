@@ -291,7 +291,7 @@ if test "x$with_gnutls" = "xyes"; then
 
   if test "x$have_license_compatible_gnutls" != "xyes"; then
     if test "x$want_gnutls" = "xyes"; then
-      AC_MSG_ERROR([GnuTLS crypto library was requested, but is not available])
+      AC_MSG_ERROR([GnuTLS crypto library was requested, but is not installed for development])
     else
       AS_ECHO(["GnuTLS with compatible license not found, disabling SSL decryption"])
     fi
@@ -1236,15 +1236,63 @@ if test "x$enable_wireshark" = "xyes"; then
 				;;
 
 			yes)
-				AC_MSG_ERROR([Qt is not available])
+				case "$host_os" in
+				darwin*)
+					#
+					# This is probably macOS, and the
+					# problem could be that this is a
+					# later version of Qt that doesn't
+					# install .pc files on macOS, so
+					# pkg-config can't find it.
+					#
+					AC_MSG_ERROR([Qt is not installed or may not work with the configure script; try using CMake, instead])
+					;;
+
+				*)
+					#
+					# Qt might be installed, but only
+					# for use by applications, not
+					# for development.
+					#
+					AC_MSG_ERROR([Qt is not installed for development])
+					;;
+				esac
 				;;
 
 			4)
-				AC_MSG_ERROR([Qt 4 is not available])
+				case "$host_os" in
+				darwin*)
+					#
+					# See above.
+					#
+					AC_MSG_ERROR([Qt 4 is not installed or may not work with the configure script; try using CMake, instead])
+					;;
+
+				*)
+					#
+					# See above.
+					#
+					AC_MSG_ERROR([Qt 4 is not installed for development])
+					;;
+				esac
 				;;
 
 			5)
-				AC_MSG_ERROR([Qt 5 is not available])
+				case "$host_os" in
+				darwin*)
+					#
+					# See above.
+					#
+					AC_MSG_ERROR([Qt 5 is not installed or may not work with the configure script; try using CMake, instead])
+					;;
+
+				*)
+					#
+					# See above.
+					#
+					AC_MSG_ERROR([Qt 5 is not installed for development])
+					;;
+				esac
 				;;
 			esac
 		])
@@ -1272,9 +1320,9 @@ if test "x$enable_wireshark" = "xyes"; then
 			[
 			  :
 			])],
-		  [fail3], [AC_MSG_ERROR([GTK+ 3 was requested but is not available])],
-		  [fail2], [AC_MSG_ERROR([GTK+ 2 was requested but is not available])],
-		  [fail],  [AC_MSG_ERROR([GTK+ was requested but is not available])])
+		  [fail3], [AC_MSG_ERROR([GTK+ 3 was requested but is not installed for development])],
+		  [fail2], [AC_MSG_ERROR([GTK+ 2 was requested but is not installed for development])],
+		  [fail],  [AC_MSG_ERROR([GTK+ was requested but is not installed for development])])
 
 		AS_IF([test "x$have_gtk" = xyes], [break])
 	done
@@ -1356,11 +1404,51 @@ elif test "$have_gtk" = "no" -a "$have_qt" = "no" ; then
 	#
 	if test "x$enable_wireshark" = "xyes"; then
 		if test "$with_qt" != "no" -a "$with_gtk" != "no" ; then
-			AC_MSG_ERROR([Neither Qt nor GTK+ are available, so Wireshark can't be compiled])
+			case "$host_os" in
+			darwin*)
+				#
+				# This is probably macOS, and the
+				# problem could be that this is a
+				# later version of Qt that doesn't
+				# install .pc files on macOS, so
+				# pkg-config can't find it.
+				#
+				AC_MSG_ERROR([Neither Qt nor GTK+ are installed for development, or Qt is installed but doesn't work with the configure script, so Wireshark can't be compiled; try using CMake, instead])
+				;;
+
+			*)
+				#
+				# Qt might be installed, but only
+				# for use by applications, not
+				# for development.
+				#
+				AC_MSG_ERROR([Neither Qt nor GTK+ are installed for development, so Wireshark can't be compiled])
+				;;
+			esac
 		elif test "$with_qt" != "no" -a "$with_gtk" = "no" ; then
-			AC_MSG_ERROR([Qt is not available and GTK+ was not requested, so Wireshark can't be compiled])
+			case "$host_os" in
+			darwin*)
+				#
+				# This is probably macOS, and the
+				# problem could be that this is a
+				# later version of Qt that doesn't
+				# install .pc files on macOS, so
+				# pkg-config can't find it.
+				#
+				AC_MSG_ERROR([Qt is not installed or may not work with the configure script, and GTK+ was not requested, so Wireshark cannot be compiled; try using CMake, instead])
+				;;
+
+			*)
+				#
+				# Qt might be installed, but only
+				# for use by applications, not
+				# for development.
+				#
+				AC_MSG_ERROR([Qt is not installed for development and GTK+ was not requested, so Wireshark can't be compiled])
+				;;
+			esac
 		elif test "$with_qt" = "no" -a "$with_gtk" != "no" ; then
-			AC_MSG_ERROR([Qt was not requested and GTK+ is not available, so Wireshark can't be compiled])
+			AC_MSG_ERROR([Qt was not requested and GTK+ is not installed for development, so Wireshark can't be compiled])
 		elif test "$with_qt" = "no" -a "$with_gtk" = "no" ; then
 			AC_MSG_ERROR([Neither Qt nor GTK+ were requested, so Wireshark can't be compiled])
 		fi
@@ -1677,7 +1765,7 @@ AC_ARG_ENABLE(dumpcap,
 if test "x$enable_dumpcap" = "xyes" ; then
 	if test "x$want_pcap" = "xno" ; then
 		enable_dumpcap=no
-		AC_MSG_RESULT(pcap not available - disabling dumpcap)
+		AC_MSG_RESULT(pcap not installed for development - disabling dumpcap)
 	else
 		AC_MSG_RESULT(yes)
 	fi
@@ -1708,7 +1796,7 @@ AC_ARG_ENABLE(rawshark,
 if test "x$enable_rawshark" = "xyes" ; then
 	if test "x$want_pcap" = "xno" ; then
 		enable_rawshark=no
-		AC_MSG_RESULT(pcap not available - disabling rawshark)
+		AC_MSG_RESULT(pcap not installed for development - disabling rawshark)
 	else
 		AC_MSG_RESULT(yes)
 	fi
@@ -1938,7 +2026,7 @@ if test "x$want_lua" != "xno" ; then
 
 	if test "x$want_lua" = "xyes" -a "x$have_lua" = "xno"
 	then
-		AC_MSG_ERROR([Lua support was requested, but is not available])
+		AC_MSG_ERROR([Lua support was requested, but is not installed for development])
 	fi
 fi
 if test "x$have_lua" = "xyes"
@@ -2137,7 +2225,7 @@ if test "x$want_ssl" = "xyes"; then
 		SSL_LIBS=-lcrypto
 	    ],
 	    [
-		AC_MSG_ERROR([SSL crypto library was requested, but is not available])
+		AC_MSG_ERROR([SSL crypto library was requested, but is not installed for development])
 	    ])
 else
 	AC_MSG_RESULT(no)
@@ -2386,7 +2474,7 @@ if test "x$with_sbc" != "xno"; then
 	AC_DEFINE(HAVE_SBC, 1, [Define to support playing SBC by standalone BlueZ SBC library])
     elif test "x$want_sbc" = "xyes"; then
 	# Error out if the user explicitly requested the sbc library
-	AC_MSG_ERROR([SBC codec library was requested, but is not available])
+	AC_MSG_ERROR([SBC codec library was requested, but is not installed for development])
     fi
 else
     have_sbc=no
@@ -2407,7 +2495,7 @@ if test "x$with_spandsp" != "xno"; then
         AC_DEFINE(HAVE_SPANDSP, 1, [Define if you have the SpanDSP library])
     elif test "x$want_spandsp" = "xyes"; then
         # Error out if the user explicitly requested the SpanDSP library
-        AC_MSG_ERROR([SpanDSP library was requested, but is not available])
+        AC_MSG_ERROR([SpanDSP library was requested, but is not installed for development])
     fi
 else
     have_spandsp=no
@@ -2456,7 +2544,7 @@ if test "x$with_libxml2" != "xno"; then
         AC_DEFINE(HAVE_LIBXML2, 1, [Define if you have libxml2])
     elif test "x$want_libxml2" = "xyes"; then
         # Error out if the user explicitly requested libxml2
-        AC_MSG_ERROR([Libxml2 was requested, but is not available])
+        AC_MSG_ERROR([Libxml2 was requested, but is not installed for development])
     fi
 else
     have_libxml2=no
@@ -2579,7 +2667,7 @@ if test "x$have_extcap" != xyes; then
 	AC_MSG_RESULT([no, extcap disabled])
 	enable_sshdump=no
 elif test "x$have_libssh_pointsix" != xyes; then
-	AC_MSG_RESULT([no, libssh >= 0.6.0 not available])
+	AC_MSG_RESULT([no, libssh >= 0.6.0 not installed for development])
 	enable_sshdump=no
 elif test "x$enable_sshdump" = "xyes" ; then
 	AC_MSG_RESULT(yes)
@@ -2609,7 +2697,7 @@ if test "x$have_extcap" != xyes; then
 	AC_MSG_RESULT([no, extcap disabled])
 	enable_ciscodump=no
 elif test "x$have_libssh_pointsix" != xyes; then
-	AC_MSG_RESULT([no, libssh >= 0.6.0 not available])
+	AC_MSG_RESULT([no, libssh >= 0.6.0 not installed for development])
 	enable_ciscodump=no
 elif test "x$enable_ciscodump" = "xyes" ; then
 	AC_MSG_RESULT(yes)
