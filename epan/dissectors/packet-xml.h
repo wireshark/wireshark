@@ -66,6 +66,7 @@ typedef struct _xml_frame_t {
     int start_offset;
     int length;
     packet_info* pinfo;
+    wmem_map_t *decryption_keys;
 } xml_frame_t;
 
 WS_DLL_PUBLIC

@@ -26,8 +26,12 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/iana_charsets.h>
+#include <epan/asn1.h>
 #include <wsutil/str_util.h>
 #include <wsutil/report_message.h>
+#include <wsutil/wsgcrypt.h>
+#include "packet-kerberos.h"
+#include "read_keytab_file.h"
 
 #include "packet-xml.h"
 #include "packet-acdr.h"
@@ -57,6 +61,7 @@ static expert_field ei_xml_unrecognized_text;
 
 /* dissector handles */
 static dissector_handle_t xml_handle;
+static dissector_handle_t gssapi_handle;
 
 /* Port 3702 is IANA-registered for Web Service Discovery, which uses
  * SOAP-over-UDP to send XML */
@@ -354,6 +359,8 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     current_frame->start_offset = 0;
     current_frame->length = tvb_captured_length(decoded);
 
+    current_frame->decryption_keys = wmem_map_new(wmem_packet_scope(), g_str_hash, g_str_equal);
+
     root_ns = NULL;
 
     if (pinfo->match_string)
@@ -479,7 +486,8 @@ static void after_token(void *tvbparse_data, const void *wanted_data _U_, tvbpar
     int          hfid;
     bool         is_cdata      = false;
     proto_item  *pi;
-    xml_frame_t *new_frame;
+    xml_frame_t *new_frame     = NULL;
+    char        *text          = NULL;
 
     if (tok->id == XML_CDATA) {
         hfid = current_frame->ns ? current_frame->ns->hf_cdata : xml_ns.hf_cdata;
@@ -492,8 +500,8 @@ static void after_token(void *tvbparse_data, const void *wanted_data _U_, tvbpar
 
     pi = proto_tree_add_item(current_frame->tree, hfid, tok->tvb, tok->offset, tok->len, ENC_UTF_8|ENC_NA);
 
-    proto_item_set_text(pi, "%s",
-                        tvb_format_text(wmem_packet_scope(), tok->tvb, tok->offset, tok->len));
+    text = tvb_format_text(wmem_packet_scope(), tok->tvb, tok->offset, tok->len);
+    proto_item_set_text(pi, "%s", text);
 
     if (is_cdata) {
         new_frame                 = wmem_new(wmem_packet_scope(), xml_frame_t);
@@ -509,6 +517,28 @@ static void after_token(void *tvbparse_data, const void *wanted_data _U_, tvbpar
         new_frame->length         = tok->len;
         new_frame->ns             = NULL;
         new_frame->pinfo          = current_frame->pinfo;
+    }
+
+    if (new_frame != NULL &&
+        current_frame != NULL &&
+        current_frame->name_orig_case != NULL &&
+        strcmp(current_frame->name_orig_case, "BinarySecurityToken") == 0)
+    {
+        xml_frame_t *value_type   = NULL;
+
+        value_type = xml_get_attrib(current_frame, "ValueType");
+        if (value_type != NULL) {
+            const char *s = "http://docs.oasis-open.org/wss/oasis-wss-kerberos-token-profile-1.1#GSS_Kerberosv5_AP_REQ";
+            size_t l = strlen(s);
+            int c;
+            c = tvb_strneql(value_type->value, 0, s, l);
+            if (c == 0) {
+                tvbuff_t *ssp_tvb = base64_to_tvb(new_frame->value, text);
+                add_new_data_source(current_frame->pinfo, ssp_tvb, "GSSAPI Data");
+                call_dissector(gssapi_handle, ssp_tvb,
+                               current_frame->pinfo, current_frame->tree);
+            }
+        }
     }
 }
 
@@ -672,10 +702,40 @@ static void after_closed_tag(void *tvbparse_data, const void *wanted_data _U_, t
     }
 }
 
+#ifdef HAVE_KERBEROS
+struct decryption_key {
+        char *id;
+        size_t key_length;
+        uint8_t key[HASH_SHA1_LENGTH];
+};
+
+static void P_SHA1(const uint8_t *Secret, size_t Secret_len,
+                   const uint8_t *Seed, size_t Seed_len,
+                   uint8_t Result[HASH_SHA1_LENGTH])
+{
+    gcry_md_hd_t hd = NULL;
+    uint8_t *digest = NULL;
+
+    /*
+     * https://social.microsoft.com/Forums/en-US/c485d98b-6e0b-49e7-ab34-8ecf8d694d31/signing-soap-message-request-via-adfs?forum=crmdevelopment#6cee9fa8-dc24-4524-a5a2-c3d17e05d50e
+     */
+    gcry_md_open(&hd, GCRY_MD_SHA1, GCRY_MD_FLAG_HMAC);
+    gcry_md_setkey(hd, Secret, Secret_len);
+    gcry_md_write(hd, Seed, Seed_len);
+    digest = gcry_md_read(hd, GCRY_MD_SHA1);
+    memcpy(Result, digest, HASH_SHA1_LENGTH);
+
+    gcry_md_close(hd);
+}
+#endif /* HAVE_KERBEROS */
+
 static void after_untag(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok)
 {
     GPtrArray   *stack         = (GPtrArray *)tvbparse_data;
     xml_frame_t *current_frame = (xml_frame_t *)g_ptr_array_index(stack, stack->len - 1);
+#ifdef HAVE_KERBEROS
+    xml_frame_t *top_frame = (xml_frame_t *)g_ptr_array_index(stack, 0);
+#endif /* HAVE_KERBEROS */
 
     proto_item_set_len(current_frame->item, (tok->offset - current_frame->start_offset) + tok->len);
     current_frame->length = (tok->offset - current_frame->start_offset) + tok->len;
@@ -688,6 +748,118 @@ static void after_untag(void *tvbparse_data, const void *wanted_data _U_, tvbpar
         proto_tree_add_expert(current_frame->tree, current_frame->pinfo, &ei_xml_closing_unopened_tag,
             tok->tvb, tok->offset, tok->len);
     }
+
+#ifdef HAVE_KERBEROS
+    if (current_frame->name_orig_case == NULL) {
+        return;
+    }
+
+    if (strcmp(current_frame->name_orig_case, "DerivedKeyToken") == 0) {
+        xml_frame_t *id_frame = xml_get_attrib(current_frame, "u:Id");
+        xml_frame_t *nonce_frame = xml_get_tag(current_frame, "Nonce");
+        xml_frame_t *nonce_cdata = NULL;
+        tvbuff_t *nonce_tvb = NULL;
+        enc_key_t *ek = NULL;
+        uint8_t seed[64];
+        size_t seed_length = 16; // TODO
+        const size_t key_length = 16; //TODO
+
+        if (id_frame != NULL && nonce_frame != NULL) {
+            nonce_cdata = xml_get_cdata(nonce_frame);
+        }
+        if (nonce_cdata != NULL) {
+            char *text = tvb_format_text(wmem_packet_scope(), nonce_cdata->value, 0,
+                                         tvb_reported_length(nonce_cdata->value));
+            nonce_tvb = base64_to_tvb(nonce_cdata->value, text);
+        }
+        if (nonce_tvb != NULL) {
+            seed_length = tvb_reported_length(nonce_tvb);
+            seed_length = MIN(seed_length, sizeof(seed));
+            tvb_memcpy(nonce_tvb, seed, 0, seed_length);
+
+            if (krb_decrypt) {
+                read_keytab_file_from_preferences();
+            }
+
+            for (ek=enc_key_list;ek;ek=ek->next) {
+                if (ek->fd_num == (int)current_frame->pinfo->num) {
+                    break;
+                }
+            }
+        }
+        if (ek != NULL) {
+            struct decryption_key *key;
+            char *id_str;
+
+            id_str = tvb_format_text(wmem_packet_scope(),
+                                     id_frame->value, 0,
+                                     tvb_reported_length(id_frame->value));
+
+            key = wmem_new0(wmem_packet_scope(), struct decryption_key);
+            key->id = wmem_strdup_printf(wmem_packet_scope(), "#%s", id_str);
+            P_SHA1(ek->keyvalue, ek->keylength, seed, seed_length, key->key);
+            key->key_length = key_length;
+
+            wmem_map_insert(top_frame->decryption_keys, key->id, key);
+        }
+    }
+    if (strcmp(current_frame->name_orig_case, "CipherValue") == 0) {
+        xml_frame_t *encrypted_frame = current_frame->parent->parent;
+        xml_frame_t *key_info_frame = NULL;
+        xml_frame_t *token_frame = NULL;
+        xml_frame_t *reference_frame = NULL;
+        xml_frame_t *uri_frame = NULL;
+        const struct decryption_key *key = NULL;
+        xml_frame_t *cdata_frame = NULL;
+        tvbuff_t *crypt_tvb = NULL;
+        tvbuff_t *plain_tvb = NULL;
+
+        key_info_frame = xml_get_tag(encrypted_frame, "KeyInfo");
+        if (key_info_frame != NULL) {
+            token_frame = xml_get_tag(key_info_frame, "SecurityTokenReference");
+        }
+        if (token_frame != NULL) {
+            reference_frame = xml_get_tag(token_frame, "Reference");
+        }
+        if (reference_frame != NULL) {
+            uri_frame = xml_get_attrib(reference_frame, "URI");
+        }
+
+        if (uri_frame != NULL) {
+            char *key_id = tvb_format_text(wmem_packet_scope(), uri_frame->value, 0,
+                                           tvb_reported_length(uri_frame->value));
+
+            key = (const struct decryption_key *)wmem_map_lookup(top_frame->decryption_keys, key_id);
+        }
+        if (key != NULL) {
+            cdata_frame = xml_get_cdata(current_frame);
+        }
+        if (cdata_frame != NULL) {
+            char *text = tvb_format_text(wmem_packet_scope(), cdata_frame->value, 0,
+                                         tvb_reported_length(cdata_frame->value));
+            crypt_tvb = base64_to_tvb(cdata_frame->value, text);
+        }
+        if (crypt_tvb != NULL) {
+            gcry_cipher_hd_t cipher_hd = NULL;
+            uint8_t *data = NULL;
+            unsigned data_length = tvb_reported_length(crypt_tvb);
+
+            data = (uint8_t *)tvb_memdup(wmem_packet_scope(),
+                                         crypt_tvb, 0, data_length);
+
+            /* Open the cipher. */
+            gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CBC, 0);
+
+            gcry_cipher_setkey(cipher_hd, key->key, key->key_length);
+            gcry_cipher_encrypt(cipher_hd, data, data_length, NULL, 0);
+            gcry_cipher_close(cipher_hd);
+
+            plain_tvb = tvb_new_child_real_data(crypt_tvb, data,
+                                                data_length, data_length);
+            add_new_data_source(current_frame->pinfo, plain_tvb, "Decrypted Data");
+        }
+    }
+#endif /* HAVE_KERBEROS */
 }
 
 static void before_dtd_doctype(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok)
@@ -1650,6 +1822,8 @@ proto_reg_handoff_xml(void)
     wmem_map_foreach(media_types, add_dissector_media, NULL);
     dissector_add_uint_range_with_preference("tcp.port", "", xml_handle);
     dissector_add_uint_range_with_preference("udp.port", XML_UDP_PORT_RANGE, xml_handle);
+
+    gssapi_handle = find_dissector_add_dependency("gssapi", xml_ns.hf_tag);
 
     heur_dissector_add("http",  dissect_xml_heur, "XML in HTTP", "xml_http", xml_ns.hf_tag, HEURISTIC_DISABLE);
     heur_dissector_add("sip",   dissect_xml_heur, "XML in SIP", "xml_sip", xml_ns.hf_tag, HEURISTIC_DISABLE);
