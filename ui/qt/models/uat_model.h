@@ -55,6 +55,7 @@ public:
 
     bool copyRow(int dst_row, int src_row);
     bool hasErrors() const;
+    void clearAll();
 
     QModelIndex findRowForColumnContent(QVariant columnContent, int columnToCheckAgainst, int role = Qt::DisplayRole);
 

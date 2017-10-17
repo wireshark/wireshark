@@ -50,6 +50,7 @@ UatDialog::UatDialog(QWidget *parent, epan_uat *uat) :
 
     ui->deleteToolButton->setEnabled(false);
     ui->copyToolButton->setEnabled(false);
+    ui->clearToolButton->setEnabled(false);
     ok_button_ = ui->buttonBox->button(QDialogButtonBox::Ok);
     help_button_ = ui->buttonBox->button(QDialogButtonBox::Help);
 
@@ -57,6 +58,7 @@ UatDialog::UatDialog(QWidget *parent, epan_uat *uat) :
     ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->copyToolButton->setAttribute(Qt::WA_MacSmallSize, true);
+    ui->clearToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->pathLabel->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
@@ -119,6 +121,8 @@ void UatDialog::setUat(epan_uat *uat)
                 this, SLOT(modelDataChanged(QModelIndex)));
         connect(uat_model_, SIGNAL(rowsRemoved(QModelIndex, int, int)),
                 this, SLOT(modelRowsRemoved()));
+        connect(uat_model_, SIGNAL(modelReset()), this, SLOT(modelRowsReset()));
+
         ok_button_->setEnabled(!uat_model_->hasErrors());
 
         if (uat_->help && strlen(uat_->help) > 0) {
@@ -147,15 +151,25 @@ void UatDialog::modelRowsRemoved()
     ok_button_->setEnabled(!uat_model_->hasErrors());
 }
 
+void UatDialog::modelRowsReset()
+{
+    ui->deleteToolButton->setEnabled(false);
+    ui->clearToolButton->setEnabled(false);
+    ui->copyToolButton->setEnabled(false);
+}
+
+
 // Invoked when a different field is selected. Note: when selecting a different
 // field after editing, this event is triggered after modelDataChanged.
 void UatDialog::on_uatTreeView_currentItemChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     if (current.isValid()) {
         ui->deleteToolButton->setEnabled(true);
+        ui->clearToolButton->setEnabled(true);
         ui->copyToolButton->setEnabled(true);
     } else {
         ui->deleteToolButton->setEnabled(false);
+        ui->clearToolButton->setEnabled(false);
         ui->copyToolButton->setEnabled(false);
     }
 
@@ -246,6 +260,13 @@ void UatDialog::on_deleteToolButton_clicked()
 void UatDialog::on_copyToolButton_clicked()
 {
     addRecord(true);
+}
+
+void UatDialog::on_clearToolButton_clicked()
+{
+    if (uat_model_) {
+        uat_model_->clearAll();
+    }
 }
 
 void UatDialog::applyChanges()

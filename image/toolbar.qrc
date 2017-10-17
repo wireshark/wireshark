@@ -7,6 +7,7 @@
         <file>minus-8.png</file>
         <file>plus-8.png</file>
         <file>copy-8.png</file>
+        <file>delete_list.png</file>
     </qresource>
     <qresource prefix="/icons">
         <file>toolbar/14x14/x-capture-comment-update.png</file>

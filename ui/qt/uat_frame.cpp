@@ -53,6 +53,7 @@ UatFrame::UatFrame(QWidget *parent) :
     ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->copyToolButton->setAttribute(Qt::WA_MacSmallSize, true);
+    ui->clearToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->pathLabel->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
@@ -110,6 +111,7 @@ void UatFrame::setUat(epan_uat *uat)
                 this, SLOT(modelDataChanged(QModelIndex)));
         connect(uat_model_, SIGNAL(rowsRemoved(QModelIndex, int, int)),
                 this, SLOT(modelRowsRemoved()));
+        connect(uat_model_, SIGNAL(modelReset()), this, SLOT(modelRowsReset()));
     }
 
     setWindowTitle(title);
@@ -193,9 +195,11 @@ void UatFrame::on_uatTreeView_currentItemChanged(const QModelIndex &current, con
 {
     if (current.isValid()) {
         ui->deleteToolButton->setEnabled(true);
+        ui->clearToolButton->setEnabled(true);
         ui->copyToolButton->setEnabled(true);
     } else {
         ui->deleteToolButton->setEnabled(false);
+        ui->clearToolButton->setEnabled(false);
         ui->copyToolButton->setEnabled(false);
     }
 
@@ -213,6 +217,13 @@ void UatFrame::modelRowsRemoved()
 {
     const QModelIndex &current = ui->uatTreeView->currentIndex();
     checkForErrorHint(current, QModelIndex());
+}
+
+void UatFrame::modelRowsReset()
+{
+    ui->deleteToolButton->setEnabled(false);
+    ui->clearToolButton->setEnabled(false);
+    ui->copyToolButton->setEnabled(false);
 }
 
 // If the current field has errors, show them.
@@ -279,6 +290,12 @@ void UatFrame::on_copyToolButton_clicked()
     addRecord(true);
 }
 
+void UatFrame::on_clearToolButton_clicked()
+{
+    if (uat_model_) {
+        uat_model_->clearAll();
+    }
+}
 /*
  * Editor modelines
  *

@@ -333,6 +333,20 @@ bool UatModel::removeRows(int row, int count, const QModelIndex &/*parent*/)
     return true;
 }
 
+void UatModel::clearAll()
+{
+    if (rowCount() < 1)
+        return;
+
+    beginResetModel();
+    uat_clear(uat_);
+    record_errors.clear();
+    dirty_records.clear();
+    uat_->changed = TRUE;
+    endResetModel();
+}
+
+
 bool UatModel::copyRow(int dst_row, int src_row)
 {
     if (src_row < 0 || src_row >= rowCount() || dst_row < 0 || dst_row >= rowCount()) {

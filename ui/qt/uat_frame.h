@@ -60,10 +60,12 @@ private:
 private slots:
     void modelDataChanged(const QModelIndex &topLeft);
     void modelRowsRemoved();
+    void modelRowsReset();
     void on_uatTreeView_currentItemChanged(const QModelIndex &current, const QModelIndex &previous);
     void on_newToolButton_clicked();
     void on_deleteToolButton_clicked();
     void on_copyToolButton_clicked();
+    void on_clearToolButton_clicked();
 };
 
 #endif // UAT_FRAME_H
