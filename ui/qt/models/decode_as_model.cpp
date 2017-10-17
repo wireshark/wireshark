@@ -236,7 +236,7 @@ bool DecodeAsModel::setData(const QModelIndex &cur_index, const QVariant &value,
         //grab the table values from the Decode As list because they are persistent
         for (GList *cur = decode_as_list; cur; cur = cur->next) {
             decode_as_t *entry = (decode_as_t *) cur->data;
-            if (valueStr.compare(entry->name) == 0) {
+            if (valueStr.compare(get_dissector_table_ui_name(entry->table_name)) == 0) {
                 item->tableName_ = entry->table_name;
                 item->tableUIName_ = get_dissector_table_ui_name(entry->table_name);
 
