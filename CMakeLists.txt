@@ -1152,33 +1152,6 @@ if(SNAPPY_FOUND)
 	set(HAVE_SNAPPY 1)
 endif()
 if (Qt5Widgets_FOUND)
-	#
-	# Qt5CoreConfigExtras.cmake in Qt 5.5.0 sets -fPIC unconditionally:
-	#
-	#    https://bugreports.qt.io/browse/QTBUG-47942
-	#
-	# There's a fix in Gerrit for that:
-	#
-	#     https://codereview.qt-project.org/#/c/139645/
-	#
-	# Do the same check as that fix does and, if the check says we
-	# should *not* add -fPIC, remove it.
-	#
-	# XXX - if that check gets changed in the future, we'll have to
-	# detect that and change it.
-	#
-	if (CMAKE_VERSION VERSION_LESS 2.8.12
-	    AND (CMAKE_CXX_COMPILER_ID STREQUAL \"GNU\"
-	    AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0))
-		#
-		# Yes, it should have been; leave it there.
-		#
-	else()
-		#
-		# No, it shouldn't have been; remove it.
-		#
-		list(REMOVE_ITEM Qt5Widgets_EXECUTABLE_COMPILE_FLAGS "-fPIC")
-	endif()
 	if (Qt5Widgets_VERSION VERSION_GREATER 5.6
 	    AND (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang"))
 		# Qt 5.7 and later require C++ 11. If our minmimu required CMake version
@@ -1190,7 +1163,6 @@ if (Qt5Widgets_FOUND)
 		endif()
 		set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 	endif()
-	set(CMAKE_CXX_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} ${CMAKE_CXX_FLAGS}")
 	set (QT_FOUND ON)
 	set (QT_LIBRARIES ${Qt5Widgets_LIBRARIES} ${Qt5PrintSupport_LIBRARIES})
 	if(Qt5Multimedia_FOUND)
@@ -2187,6 +2159,21 @@ if(BUILD_wireshark AND QT_FOUND)
 	add_executable(wireshark WIN32 MACOSX_BUNDLE wireshark-qt.cpp ${wireshark_FILES} ${EXTRA_BUNDLE_FILES})
 	add_dependencies(wireshark version)
 	set(PROGLIST ${PROGLIST} wireshark)
+	if(CMAKE_VERSION VERSION_LESS "2.8.12"
+	    AND (CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
+	    AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0))
+		#
+		# https://doc.qt.io/qt-5/cmake-manual.html says that for CMake
+		# versions older than 2.8.12,
+		# Qt5<Module>_EXECUTABLE_COMPILE_FLAGS must be added such that
+		# -fPIC is included. We should not do add this to
+		# CMAKE_CXX_FLAGS though since it may end up before the -fPIE
+		# option. Instead, add it to the target COMPILE_FLAGS. This
+		# option is deprecated in newer CMake versions and not necessary
+		# either since Qt uses the INTERFACE_COMPILE_OPTIONS property.
+		#
+		set_target_properties(wireshark PROPERTIES COMPILE_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
+	endif()
 	set_target_properties(wireshark PROPERTIES
 		LINK_FLAGS "${WS_LINK_FLAGS}"
 		FOLDER "Executables"
