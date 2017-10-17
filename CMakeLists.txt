@@ -50,7 +50,7 @@ if(WIN32)
 	# Needed for GREATER_EQUAL operator
 	cmake_minimum_required(VERSION 3.7)
 else()
-	cmake_minimum_required(VERSION 2.8.8)
+	cmake_minimum_required(VERSION 2.8.11)
 endif()
 
 #Where to find local cmake scripts
