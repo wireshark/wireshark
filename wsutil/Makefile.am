@@ -31,12 +31,7 @@ AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) -DWS_BUILD_DLL \
 	$(LIBGCRYPT_CFLAGS)			\
 	$(LIBGNUTLS_CFLAGS)
 
-# Optional headers for ABI checking
-wsutil_optional_abi_includes =
-
-# Header files that don't declare replacement functions for functions
-# present in the APIs/ABIs of some, but not all, targets.
-libwsutil_nonrepl_INCLUDES = \
+WSUTIL_PUBLIC_INCLUDES = \
 	adler32.h		\
 	base32.h		\
 	base64.h		\
@@ -75,6 +70,7 @@ libwsutil_nonrepl_INCLUDES = \
 	privileges.h		\
 	processes.h		\
 	report_message.h	\
+	rsa.h			\
 	sign_ext.h		\
 	sober128.h		\
 	socket.h		\
@@ -91,12 +87,21 @@ libwsutil_nonrepl_INCLUDES = \
 	ws_mempbrk_int.h	\
 	ws_printf.h		\
 	wsjsmn.h		\
+	wsgcrypt.h		\
+	wsgetopt.h		\
+	wspcap.h		\
 	xtea.h
 
-# Header files for functions in libwsutil's ABI on this platform.
-libwsutil_abi_INCLUDES = \
-	$(libwsutil_nonrepl_INCLUDES)	\
-	$(wsutil_optional_abi_includes)
+WSUTIL_PRIVATE_INCLUDES = \
+	inet_addr-int.h
+
+subpkgincludedir = $(pkgincludedir)/wsutil
+
+subpkginclude_HEADERS = \
+	$(WSUTIL_PUBLIC_INCLUDES)
+
+noinst_HEADERS = \
+	$(WSUTIL_PRIVATE_INCLUDES)
 
 # Optional objects that I know how to build. These will be
 # linked into libwsutil if necessary.
@@ -110,10 +115,10 @@ noinst_LTLIBRARIES = libwsutil_sse42.la
 
 lib_LTLIBRARIES = libwsutil.la
 
-subpkgincludedir = $(pkgincludedir)/wsutil
+libwsutil_sse42_la_SOURCES = \
+	ws_mempbrk_sse42.c
 
-subpkginclude_HEADERS = \
-	$(libwsutil_nonrepl_INCLUDES)
+libwsutil_sse42_la_CFLAGS = $(AM_CFLAGS) $(CFLAGS_SSE42)
 
 libwsutil_la_SOURCES = \
 	adler32.c		\
@@ -163,24 +168,21 @@ libwsutil_la_SOURCES = \
 	wsjsmn.c		\
 	xtea.c
 
-libwsutil_sse42_la_SOURCES = \
-	ws_mempbrk_sse42.c
-
-libwsutil_sse42_la_CFLAGS = $(AM_CFLAGS) $(CFLAGS_SSE42)
-
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 libwsutil_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
 
 libwsutil_la_LIBADD = \
 	$(LTLIBOBJS)			\
-	@GLIB_LIBS@			\
-	@LIBGCRYPT_LIBS@		\
-	@LIBGNUTLS_LIBS@	        \
+	$(GLIB_LIBS)			\
+	$(LIBGCRYPT_LIBS)		\
+	$(LIBGNUTLS_LIBS)		\
 	$(wsutil_optional_objects)
 
 EXTRA_libwsutil_la_DEPENDENCIES = \
 	$(wsutil_optional_objects)
 
+# Only source code files that may be built via LTLIBOBJS (besides files not
+# built at all) must be added to EXTRA_DIST
 EXTRA_DIST = \
 	.editorconfig		\
 	cfutils.c		\
@@ -190,23 +192,16 @@ EXTRA_DIST = \
 	file_util.h		\
 	getopt_long.c		\
 	getopt_long.h		\
-	inet_addr-int.h		\
 	inet_aton.c		\
 	inet_aton.h		\
 	inet_ntop.c		\
 	inet_pton.c		\
 	popcount.c		\
 	popcount.h		\
-	rsa.h			\
 	strptime.c		\
 	strptime.h		\
 	win32-utils.c		\
-	win32-utils.h		\
-	ws_mempbrk_sse42.c	\
-	wsgcrypt.h		\
-	wsgetopt.h		\
-	wspcap.h		\
-	xtea.h
+	win32-utils.h
 
 CLEANFILES = \
 	libwsutil.a	\
