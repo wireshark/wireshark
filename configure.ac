@@ -2954,12 +2954,7 @@ AC_OUTPUT
 # Pretty messages
 
 if test "x$have_gtk" = "xyes"; then
-	gtk_lib_message=" (with GTK+ v$GTK_VERSION"
-	if test "x$have_ige_mac" = "xyes"; then
-		gtk_lib_message="$gtk_lib_message and macOS integration)"
-	else
-		gtk_lib_message="$gtk_lib_message)"
-	fi
+	gtk_lib_message=" (with GTK+ v$GTK_VERSION)"
 fi
 
 if test "x$have_qt" = "xyes" ; then
