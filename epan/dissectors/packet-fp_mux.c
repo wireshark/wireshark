@@ -375,7 +375,7 @@ proto_register_fp_mux(void)
 void
 proto_reg_handoff_fp_mux(void)
 {
-    dissector_add_uint_range_with_preference("udp.port", "44955", fp_mux_handle);
+    dissector_add_uint_range_with_preference("udp.port", "", fp_mux_handle);
     heur_dissector_add("udp", heur_dissect_fp_mux, "FP Mux over UDP", "fp_mux_udp", proto_fp_mux, HEURISTIC_ENABLE);
 }
 
