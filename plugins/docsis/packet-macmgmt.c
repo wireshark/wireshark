@@ -5574,7 +5574,7 @@ static void
 dissect_ocd_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree)
 {
   proto_item *it, *tlv_item, *tlv_len_item;
-  proto_tree *tlv_tree;
+  proto_tree *tlv_tree, *tlvtlv_tree;
   guint16 pos = 0;
   guint8 type;
   guint32 length;
@@ -5585,13 +5585,13 @@ dissect_ocd_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree)
   while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
     type = tvb_get_guint8 (tvb, pos);
-    tlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, -1,
+    tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, -1,
                                             ett_docsis_ocd_tlvtlv, &tlv_item,
                                             val_to_str(type, ocd_tlv_vals,
                                                        "Unknown TLV (%u)"));
-    proto_tree_add_uint (tlv_tree, hf_docsis_ocd_type, tvb, pos, 1, type);
+    proto_tree_add_uint (tlvtlv_tree, hf_docsis_ocd_type, tvb, pos, 1, type);
     pos++;
-    tlv_len_item = proto_tree_add_item_ret_uint (tlv_tree, hf_docsis_ocd_length, tvb, pos, 1, ENC_NA, &length);
+    tlv_len_item = proto_tree_add_item_ret_uint (tlvtlv_tree, hf_docsis_ocd_length, tvb, pos, 1, ENC_NA, &length);
     pos++;
     proto_item_set_len(tlv_item, length + 2);
 
@@ -5600,7 +5600,7 @@ dissect_ocd_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree)
     case DISCRETE_FOURIER_TRANSFORM_SIZE:
       if (length == 1)
       {
-        proto_tree_add_item (tlv_tree, hf_docsis_ocd_tlv_four_trans_size, tvb, pos, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tlvtlv_tree, hf_docsis_ocd_tlv_four_trans_size, tvb, pos, 1, ENC_BIG_ENDIAN);
       }
       else
       {
@@ -5610,7 +5610,7 @@ dissect_ocd_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree)
     case CYCLIC_PREFIX:
       if (length == 1)
       {
-        proto_tree_add_item (tlv_tree, hf_docsis_ocd_tlv_cycl_pref, tvb, pos, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tlvtlv_tree, hf_docsis_ocd_tlv_cycl_pref, tvb, pos, 1, ENC_BIG_ENDIAN);
       }
       else
       {
@@ -5620,7 +5620,7 @@ dissect_ocd_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree)
     case ROLL_OFF:
       if (length == 1)
       {
-        proto_tree_add_item (tlv_tree, hf_docsis_ocd_tlv_roll_off, tvb, pos, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tlvtlv_tree, hf_docsis_ocd_tlv_roll_off, tvb, pos, 1, ENC_BIG_ENDIAN);
       }
       else
       {
@@ -5630,7 +5630,7 @@ dissect_ocd_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree)
     case OFDM_SPECTRUM_LOCATION:
       if (length == 4)
       {
-        proto_tree_add_item (tlv_tree, hf_docsis_ocd_tlv_ofdm_spec_loc, tvb, pos, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tlvtlv_tree, hf_docsis_ocd_tlv_ofdm_spec_loc, tvb, pos, 4, ENC_BIG_ENDIAN);
       }
       else
       {
@@ -5640,7 +5640,7 @@ dissect_ocd_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree)
     case TIME_INTERLEAVING_DEPTH:
       if (length == 1)
       {
-        proto_tree_add_item (tlv_tree, hf_docsis_ocd_tlv_time_int_depth, tvb, pos, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tlvtlv_tree, hf_docsis_ocd_tlv_time_int_depth, tvb, pos, 1, ENC_BIG_ENDIAN);
       }
       else
       {
@@ -5650,7 +5650,7 @@ dissect_ocd_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree)
     case SUBCARRIER_ASSIGNMENT_RANGE_LIST:
       if (length >= 5)
       {
-        dissect_subcarrier_assignment_range_list(tvb, pinfo, tlv_tree, pos, length);
+        dissect_subcarrier_assignment_range_list(tvb, pinfo, tlvtlv_tree, pos, length);
       }
       else
       {
@@ -5660,7 +5660,7 @@ dissect_ocd_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree)
     case PRIMARY_CAPABILITY_INDICATOR:
       if (length == 1)
       {
-        proto_tree_add_item (tlv_tree, hf_docsis_ocd_tlv_prim_cap_ind, tvb, pos, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tlvtlv_tree, hf_docsis_ocd_tlv_prim_cap_ind, tvb, pos, 1, ENC_BIG_ENDIAN);
       }
       else
       {
@@ -5668,7 +5668,7 @@ dissect_ocd_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree)
       }
       break;
     default:
-      proto_tree_add_item (tlv_tree, hf_docsis_ocd_tlv_unknown, tvb, pos - 2, length+2, ENC_NA);
+      proto_tree_add_item (tlvtlv_tree, hf_docsis_ocd_tlv_unknown, tvb, pos - 2, length+2, ENC_NA);
       break;
     } /* switch */
     pos += length;
