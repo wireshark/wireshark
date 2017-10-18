@@ -215,9 +215,9 @@ static int dissect_fp_mux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             return total_length;
         }
         if (length > total_length - offset) {
-            /* Length is zero. Showing error and aborting dissection*/
+            /* Length value too big. Showing error and aborting dissection*/
             proto_tree_add_expert_format(fpmux_tree, pinfo, &ei_fpm_bad_length, tvb, offset, length_field_size,
-                "Bad length: total length exceeds remaining data length (%d) ", (total_length - offset));
+                "Bad length: payload length exceeds remaining data length (%d) ", (total_length - offset));
             return total_length;
         }
         if (length < 128 && ext_flag) {
