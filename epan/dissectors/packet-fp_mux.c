@@ -316,9 +316,12 @@ static int heur_dissect_fp_mux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     /* This is FP Mux! */
     /* Set conversation dissector and dissect */
-    conversation = (conversation_t *)find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
-        pinfo->ptype,
-        pinfo->destport, pinfo->srcport, 0);
+    conversation = find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+                                     pinfo->ptype, pinfo->destport, pinfo->srcport, 0);
+    if (!conversation) {
+        conversation = conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+                                        pinfo->ptype, pinfo->destport, pinfo->srcport, 0);
+    }
     conversation_set_dissector(conversation, fp_mux_handle);
     dissect_fp_mux(tvb, pinfo, tree, data);
 
