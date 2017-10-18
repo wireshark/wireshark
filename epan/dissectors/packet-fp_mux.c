@@ -257,6 +257,9 @@ static int heur_dissect_fp_mux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     struct fp_mux_info_t* fp_mux_info;
 
     total_length = tvb_captured_length(tvb);
+    if (total_length == 0) {
+        return FALSE;
+    }
 
     fp_mux_info = (fp_mux_info_t* )p_get_proto_data(wmem_file_scope(), pinfo, proto_fp_mux, 0);
     if (fp_mux_info) {
@@ -325,7 +328,7 @@ static int heur_dissect_fp_mux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     conversation_set_dissector(conversation, fp_mux_handle);
     dissect_fp_mux(tvb, pinfo, tree, data);
 
-    return total_length;
+    return TRUE;
 }
 
 
