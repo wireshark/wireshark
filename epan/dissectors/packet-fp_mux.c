@@ -367,7 +367,7 @@ proto_register_fp_mux(void)
                                  "Whether the UID value should be appended in the protocol tree",
                                  &fp_mux_uid_in_tree);
     prefs_register_bool_preference(fp_mux_module, "call_heur_fp",
-                                 "Call Heuristic FP Dissecotrs",
+                                 "Call Heuristic FP Dissectors",
                                  "Whether to try heuristic FP dissectors for the muxed payloads",
                                  &call_fp_heur);
 }
