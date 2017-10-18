@@ -27,22 +27,20 @@ AM_CPPFLAGS = $(INCLUDEDIRS) -I$(top_srcdir)/epan $(WS_CPPFLAGS) \
 include Custom.common
 
 # "BUILT_SOURCES" are built before any "make all" or "make check" targets.
-BUILT_C_FILES = \
+BUILT_SOURCES = \
 	register.c
 
-BUILT_SOURCES = $(BUILT_C_FILES) $(BUILT_HEADER_FILES)
-
 # Header files generated from source files.
-GENERATED_HEADER_FILES = \
-	$(BUILT_HEADER_FILES)
+NO_DIST_GENERATED_HEADER_FILES =
 
 # C source files generated from source files.
-GENERATED_C_FILES = \
-	$(BUILT_C_FILES)	\
-	packet-ncp2222.c
+NO_DIST_GENERATED_C_FILES = \
+	register.c
 
 # All the generated files.
-GENERATED_FILES = $(GENERATED_HEADER_FILES) $(GENERATED_C_FILES)
+NO_DIST_GENERATED_FILES = \
+	$(NO_DIST_GENERATED_HEADER_FILES)	\
+	$(NO_DIST_GENERATED_C_FILES)
 
 #
 # PIDL-generated DCE RPC dissectors without warnings.
@@ -1847,7 +1845,6 @@ DISSECTOR_INCLUDES = \
 	packet-ziop.h		\
 	read_keytab_file.h	\
 	snort-config.h		\
-	$(GENERATED_HEADER_FILES)	\
 	$(CUSTOM_HEADER_FILES)
 
 # Dissector helpers.  They're included in the source files in this
@@ -1857,8 +1854,7 @@ DISSECTOR_SUPPORT_SRC =	\
 	errno.c			\
 	packet-dcerpc-nt.c	\
 	snort-config.c		\
-	usb.c			\
-	register.c
+	usb.c
 
 ALL_DISSECTORS_SRC = \
 	$(DISSECTOR_SRC)		\
@@ -1886,6 +1882,9 @@ libdissectors_la_SOURCES = \
 	$(CORBA_IDL_DISSECTOR_SRC) \
 	$(PIDL_DISSECTOR_SRC) \
 	$(DISSECTOR_SUPPORT_SRC)
+
+nodist_libdissectors_la_SOURCES = \
+	$(NO_DIST_GENERATED_C_FILES)
 
 subpkgincludedir = $(pkgincludedir)/epan/dissectors
 
@@ -1953,26 +1952,7 @@ register.c: $(plugin_src) $(ALL_DISSECTORS_SRC) Custom.common \
 	@echo Making register.c ; \
 	$(PYTHON) $(top_srcdir)/tools/make-dissector-reg.py $(srcdir) \
 		dissectors $(ALL_DISSECTORS_SRC) ;
-#
-# Currently register.c can be included in the distribution because
-# we always build all protocol dissectors. We used to have to check
-# whether or not to build the snmp dissector. If we again need to
-# variably build something, making register.c non-portable, uncomment
-# the dist-hook line below.
-#
-# Oh, yuk. We don't want to include "register.c" in the distribution, as
-# its contents depend on the configuration, and therefore we want it
-# to be built when the first "make" is done; however, Automake insists
-# on putting *all* source into the distribution.
-#
-# We work around this by having a "dist-hook" rule that deletes
-# "register.c", so that "dist" won't pick it up.
-#
-#dist-hook:
-#	@rm -f $(distdir)/register.c
 
-# XXX - We may want to add register-cache.pkl to the distribution at
-# some point. It should be portable across architectures.
 CLEANFILES = \
 	libdissectors.a			\
 	libdissectors.la		\
@@ -1980,14 +1960,13 @@ CLEANFILES = \
 	libdirtydissectors.la		\
 	register.c-tmp			\
 	register-cache.pkl		\
-	$(GENERATED_HEADER_FILES)	\
 	*~
 
 DISTCLEANFILES = \
-	register.c
+	$(NO_DIST_GENERATED_FILES)
 
-MAINTAINERCLEANFILES =	\
-	$(GENERATED_FILES)
+MAINTAINERCLEANFILES = \
+	packet-ncp2222.c
 
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build \
