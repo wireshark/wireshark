@@ -24,6 +24,9 @@ include ../Makefile.am.inc
 # the name of the plugin
 PLUGIN_NAME = gryphon
 
+BUILT_SOURCES = \
+	plugin.c
+
 # Non-generated sources to be scanned for registration routines
 NONGENERATED_REGISTER_C_FILES = \
 	packet-gryphon.c
@@ -42,10 +45,12 @@ HEADER_FILES = \
 plugin_LTLIBRARIES = gryphon.la
 
 gryphon_la_SOURCES = \
-	plugin.c \
 	moduleinfo.h \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
+
+nodist_gryphon_la_SOURCES = \
+	plugin.c
 
 gryphon_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
 

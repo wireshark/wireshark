@@ -147,7 +147,7 @@ CPP_FILES = \
 	$(NONGENERATED_CPP_FILES)
 
 #
-# Build plugin.c, which contains the plugin version[] string, a
+# Build plugin.c, which contains the plugin_version[] string, a
 # function plugin_register() that calls the register routines for all
 # protocols, and a function plugin_reg_handoff() that calls the handoff
 # registration routines for all protocols.
@@ -178,24 +178,6 @@ plugin.c: $(REGISTER_SRC_FILES) $(top_srcdir)/tools/make-dissector-reg.py
 	@echo Making plugin.c
 	@$(PYTHON) $(top_srcdir)/tools/make-dissector-reg.py $(srcdir) \
 		plugin $(REGISTER_SRC_FILES)
-
-#
-# Currently plugin.c can be included in the distribution because
-# we always build all protocol dissectors. We used to have to check
-# whether or not to build the snmp dissector. If we again need to
-# variably build something, making plugin.c non-portable, uncomment
-# the dist-hook line below.
-#
-# Oh, yuk.  We don't want to include "plugin.c" in the distribution, as
-# its contents depend on the configuration, and therefore we want it
-# to be built when the first "make" is done; however, Automake insists
-# on putting *all* source into the distribution.
-#
-# We work around this by having a "dist-hook" rule that deletes
-# "plugin.c", so that "dist" won't pick it up.
-#
-#dist-hook:
-#	@rm -f $(distdir)/plugin.c
 
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build \

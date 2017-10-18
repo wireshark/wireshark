@@ -24,6 +24,9 @@ include ../Makefile.am.inc
 # the name of the plugin
 PLUGIN_NAME = transum
 
+BUILT_SOURCES = \
+	plugin.c
+
 # Non-generated sources to be scanned for registration routines
 NONGENERATED_REGISTER_C_FILES = \
 	packet-transum.c
@@ -47,10 +50,12 @@ HEADER_FILES = \
 plugin_LTLIBRARIES = transum.la
 
 transum_la_SOURCES = \
-	plugin.c \
 	moduleinfo.h \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
+
+nodist_transum_la_SOURCES = \
+	plugin.c
 
 transum_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
 

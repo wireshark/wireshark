@@ -24,6 +24,9 @@ include ../Makefile.am.inc
 # the name of the plugin
 PLUGIN_NAME = wimax
 
+BUILT_SOURCES = \
+	plugin.c
+
 # Non-generated sources to be scanned for registration routines
 NONGENERATED_REGISTER_C_FILES = \
 	packet-m2m.c	\
@@ -91,10 +94,12 @@ HEADER_FILES = \
 plugin_LTLIBRARIES = wimax.la
 
 wimax_la_SOURCES = \
-	plugin.c \
 	moduleinfo.h \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
+
+nodist_wimax_la_SOURCES = \
+	plugin.c
 
 wimax_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
 

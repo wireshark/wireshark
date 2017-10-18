@@ -24,6 +24,9 @@ include ../Makefile.am.inc
 # the name of the plugin
 PLUGIN_NAME = irda
 
+BUILT_SOURCES = \
+	plugin.c
+
 # Non-generated sources to be scanned for registration routines
 NONGENERATED_REGISTER_C_FILES = \
 	packet-ircomm.c \
@@ -44,10 +47,12 @@ HEADER_FILES = \
 plugin_LTLIBRARIES = irda.la
 
 irda_la_SOURCES = \
-	plugin.c \
 	moduleinfo.h \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
+
+nodist_irda_la_SOURCES = \
+	plugin.c
 
 irda_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
 

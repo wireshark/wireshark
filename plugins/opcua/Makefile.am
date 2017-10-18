@@ -25,6 +25,9 @@ include ../Makefile.am.inc
 # the name of the plugin
 PLUGIN_NAME = opcua
 
+BUILT_SOURCES = \
+	plugin.c
+
 # Non-generated sources to be scanned for registration routines
 NONGENERATED_REGISTER_C_FILES = \
 	opcua.c
@@ -66,10 +69,12 @@ HEADER_FILES = \
 plugin_LTLIBRARIES = opcua.la
 
 opcua_la_SOURCES = \
-	plugin.c \
 	moduleinfo.h \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
+
+nodist_opcua_la_SOURCES = \
+	plugin.c
 
 opcua_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
 
