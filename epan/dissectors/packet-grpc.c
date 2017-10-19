@@ -11,7 +11,7 @@
 
 /*
 * The information used comes from:
-* https://grpc.io/docs/guides/wire.html
+* https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md
 *
 * This GRPC dissector must be invoked by HTTP2 dissector.
 *
@@ -82,6 +82,10 @@ static gboolean grpc_decompress_body = FALSE;
 
 /* detect json automaticlly */
 static gboolean grpc_detect_json_automatically = TRUE;
+/* tell http2 to use streaming mode reassembly for grpc dissector */
+static gboolean grpc_enable_streaming_reassembly_mode = TRUE;
+/* whether embed GRPC messages under HTTP2 protocol tree items */
+static gboolean grpc_embedded_under_http2 = FALSE;
 
 void proto_register_grpc(void);
 void proto_reg_handoff_grpc(void);
@@ -282,33 +286,46 @@ dissect_grpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     gboolean is_request;
     guint tvb_len = tvb_reported_length(tvb);
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "GRPC");
-    col_append_str(pinfo->cinfo, COL_INFO, " (GRPC)");
+    if (!grpc_embedded_under_http2 && proto_tree_get_parent_tree(tree)) {
+        tree = proto_tree_get_parent_tree(tree);
+    }
 
     /* http2 had reassembled the http2.data.data, so we need not reassemble again.
     reassembled http2.data.data may contain one or more grpc messages. */
     while (offset < tvb_len)
     {
-        ti = proto_tree_add_item(tree, proto_grpc, tvb, offset, -1, ENC_NA);
-        grpc_tree = proto_item_add_subtree(ti, ett_grpc_message);
-
         if (tvb_len - offset < GRPC_MESSAGE_HEAD_LEN) {
             /* need at least 5 bytes for dissecting a grpc message */
-
-            proto_tree_add_expert_format(grpc_tree, pinfo, &ei_grpc_body_malformed, tvb, offset, -1,
-                     "Malformed message data: only %u bytes left, need at least %u bytes.", tvb_len - offset, GRPC_MESSAGE_HEAD_LEN);
+            if (pinfo->can_desegment) {
+                pinfo->desegment_offset = offset;
+                pinfo->desegment_len = GRPC_MESSAGE_HEAD_LEN - (tvb_len - offset);
+                return offset;
+            }
+            proto_tree_add_expert_format(tree, pinfo, &ei_grpc_body_malformed, tvb, offset, -1,
+                     "GRPC Malformed message data: only %u bytes left, need at least %u bytes.", tvb_len - offset, GRPC_MESSAGE_HEAD_LEN);
             break;
         }
 
         message_length = tvb_get_ntohl(tvb, offset + 1);
         if (tvb_len - offset < GRPC_MESSAGE_HEAD_LEN + message_length) {
             /* remaining bytes are not enough for dissecting the message body */
-
-            proto_tree_add_expert_format(grpc_tree, pinfo, &ei_grpc_body_malformed, tvb, offset, -1,
-                     "Malformed message data: only %u bytes left, need at least %u bytes.", tvb_len - offset, GRPC_MESSAGE_HEAD_LEN + message_length);
+            if (pinfo->can_desegment) {
+                pinfo->desegment_offset = offset;
+                pinfo->desegment_len = GRPC_MESSAGE_HEAD_LEN + message_length - (tvb_len - offset);
+                return offset;
+            }
+            proto_tree_add_expert_format(tree, pinfo, &ei_grpc_body_malformed, tvb, offset, -1,
+                     "GRPC Malformed message data: only %u bytes left, need at least %u bytes.", tvb_len - offset, GRPC_MESSAGE_HEAD_LEN + message_length);
             break;
         }
-        proto_item_set_len(ti, message_length + GRPC_MESSAGE_HEAD_LEN);
+        /* ready to add information into protocol columns and tree */
+        if (offset == 0) { /* change columns only when there is at least one grpc message will be parsed */
+            col_set_str(pinfo->cinfo, COL_PROTOCOL, "GRPC");
+            col_append_str(pinfo->cinfo, COL_INFO, " (GRPC)");
+            col_set_fence(pinfo->cinfo, COL_PROTOCOL);
+        }
+        ti = proto_tree_add_item(tree, proto_grpc, tvb, offset, message_length + GRPC_MESSAGE_HEAD_LEN, ENC_NA);
+        grpc_tree = proto_item_add_subtree(ti, ett_grpc_message);
 
         /* http2_path contains: "/" Service-Name "/" {method name} */
         http2_path = http2_get_header_value(pinfo, HTTP2_HEADER_PATH, FALSE);
@@ -376,7 +393,7 @@ proto_register_grpc(void)
     proto_register_field_array(proto_grpc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    grpc_module = prefs_register_protocol(proto_grpc, NULL);
+    grpc_module = prefs_register_protocol(proto_grpc, proto_reg_handoff_grpc);
 
     prefs_register_bool_preference(grpc_module, "detect_json_automaticlly",
         "Always check whether the message is JSON regardless of content-type.",
@@ -387,6 +404,24 @@ proto_register_grpc(void)
         "grpc_message_type_subdissector_table settings (which dissect grpc "
         "message according to content-type).",
         &grpc_detect_json_automatically);
+
+    prefs_register_bool_preference(grpc_module, "streaming_reassembly_mode",
+        "Turn on streaming reassembly mode. Required for parsing streaming RPCs.",
+        "If turned on, http2 will reassemble gRPC message as soon as possible. "
+        "Or else the gRPC message will be reassembled at the end of each HTTP2 "
+        "STREAM. If your .proto files contains streaming RPCs (declaring RPC "
+        "operation input/output message type with 'stream' label), you need "
+        "to keep this option on.",
+        &grpc_enable_streaming_reassembly_mode);
+
+    prefs_register_bool_preference(grpc_module, "embeded_under_http2",
+        "Embed gRPC messages under HTTP2 protocol tree items.",
+        "Embed gRPC messages under HTTP2 protocol tree items.",
+        &grpc_embedded_under_http2);
+
+    prefs_register_static_text_preference(grpc_module, "service_definition",
+        "Please refer to preferences of Protobuf for specifying gRPC Service Definitions (*.proto).",
+        "Including specifying .proto files search paths, etc.");
 
     expert_grpc = expert_register_protocol(proto_grpc);
     expert_register_field_array(expert_grpc, ei, array_length(ei));
@@ -405,9 +440,30 @@ proto_register_grpc(void)
 void
 proto_reg_handoff_grpc(void)
 {
-    dissector_add_string("media_type", "application/grpc", grpc_handle);
-    dissector_add_string("media_type", "application/grpc+proto", grpc_handle);
-    dissector_add_string("media_type", "application/grpc+json", grpc_handle);
+    static gboolean initialized = FALSE;
+    char *del_table, *add_table;
+    char *content_types[] = {
+        "application/grpc",
+        "application/grpc+proto",
+        "application/grpc+json",
+        NULL /* end flag */
+    };
+    int i;
+
+    add_table = grpc_enable_streaming_reassembly_mode ? "streaming_content_type" : "media_type";
+    del_table = grpc_enable_streaming_reassembly_mode ? "media_type" : "streaming_content_type";
+
+    /* register/deregister grpc_handle to/from tables */
+    for (i = 0; content_types[i]; i++) {
+        if (initialized) {
+            dissector_delete_string(del_table, content_types[i], grpc_handle);
+        }
+        dissector_add_string(add_table, content_types[i], grpc_handle);
+    }
+
+    if (!initialized) {
+        initialized = TRUE;
+    }
 }
 
 /*
