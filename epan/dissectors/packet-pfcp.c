@@ -2465,7 +2465,7 @@ static const value_string pfcp_pr_time_unit_vals[] = {
     { 1, "6 minutes" },
     { 2, "Hour" },
     { 3, "Day" },
-    { 3, "Week" },
+    { 4, "Week" },
     { 0, NULL }
 };
 
