@@ -373,7 +373,7 @@ static const value_string ue_mode_vals[] = {
 static const value_string csi_rs_class_vals[] = {
 	{ 0, "not used" },
 	{ 1, "Class A" },
-	{ 1, "Class B" },
+	{ 2, "Class B" },
 	{ 0, NULL }
 };
 
