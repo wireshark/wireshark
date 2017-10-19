@@ -398,6 +398,9 @@ AUTHDATA-TYPE PROT_PREFIX UPPER_CASE
 	case KERBEROS_AD_AP_OPTIONS:
 		offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_kerberos_AD_AP_OPTIONS);
 		break;
+	case KERBEROS_AD_TARGET_PRINCIPAL:
+		offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_kerberos_AD_TARGET_PRINCIPAL);
+		break;
 	default:
 		offset=dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 	}

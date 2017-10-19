@@ -186,6 +186,7 @@ static gint hf_krb_pa_supported_enctypes_claims_supported = -1;
 static gint hf_krb_pa_supported_enctypes_resource_sid_compression_disabled = -1;
 static gint hf_krb_ad_ap_options = -1;
 static gint hf_krb_ad_ap_options_cbt = -1;
+static gint hf_krb_ad_target_principal = -1;
 #include "packet-kerberos-hf.c"
 
 /* Initialize the subtree pointers */
@@ -1819,6 +1820,25 @@ dissect_kerberos_AD_AP_OPTIONS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 	return offset;
 }
+
+static int
+dissect_kerberos_AD_TARGET_PRINCIPAL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
+				     int offset _U_, asn1_ctx_t *actx _U_,
+				     proto_tree *tree _U_, int hf_index _U_)
+{
+	int tp_offset, tp_len;
+	guint16 bc;
+
+	bc = tvb_reported_length_remaining(tvb, offset);
+	tp_offset = offset;
+	tp_len = bc;
+	proto_tree_add_item(tree, hf_krb_ad_target_principal, tvb,
+			    tp_offset, tp_len,
+			    ENC_UTF_16 | ENC_LITTLE_ENDIAN);
+
+	return offset;
+}
+
 /* Dissect a GSSAPI checksum as per RFC1964. This is NOT ASN.1 encoded.
  */
 static int
@@ -2685,6 +2705,9 @@ void proto_register_kerberos(void) {
 	{ &hf_krb_ad_ap_options_cbt,
 	  { "ChannelBindings", "kerberos.ad_ap_options.cbt",
 	    FT_BOOLEAN, 32, TFS(&set_tfs), 0x00004000, NULL, HFILL }},
+	{ &hf_krb_ad_target_principal, {
+		"Target Principal", "kerberos.ad_target_principal", FT_STRING, BASE_NONE,
+		NULL, 0, NULL, HFILL }},
 
 #include "packet-kerberos-hfarr.c"
 	};
