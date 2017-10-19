@@ -27,13 +27,14 @@ export docdir = /usr/share/doc/wireshark-doc
 	dh $@ --with python2 --buildsystem cmake --with quilt --parallel
 
 override_dh_auto_configure:
-	dh_auto_configure -- -DBUILD_xxx2deb=ON -DENABLE_HTML_GUIDES=ON -DCMAKE_INSTALL_LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH) \
+	dh_auto_configure -- -DBUILD_xxx2deb=ON -DCMAKE_INSTALL_LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH) \
 	-DBUILD_wireshark_gtk=ON \
 #	-DENABLE_QT5=OFF
 
 override_dh_auto_build:
 	$(MAKE) -C $(CURDIR)/obj-* asn1
 	dh_auto_build
+	$(MAKE) -C $(CURDIR)/obj-* user_guide_html developer_guide_html
 	# fix links in documentation
 	sed -i "s|$(CURDIR)/docbook|..|" obj-*/docbook/ws*g_html_chunked/*.html
 

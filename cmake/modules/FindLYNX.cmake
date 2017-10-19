@@ -1,13 +1,15 @@
 #
-# - Find unix commands from cygwin
-# This module looks for lynx (used by asciidoc)
+# This module looks for an HTML to plain text converter which accepts
+# a "-dump" argument.
+#
+# Lynx is preferred since it generates URL footnotes.
 #
 
 INCLUDE(FindCygwin)
 
 FIND_PROGRAM(LYNX_EXECUTABLE
   NAMES
-    lynx
+    lynx w3m links
   PATHS
     ${CYGWIN_INSTALL_PATH}/bin
     /bin

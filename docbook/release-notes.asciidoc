@@ -22,9 +22,9 @@ Features section below for more details.
 
 //The following bugs have been fixed:
 
-//* ws-buglink:5000[]
-//* ws-buglink:6000[Wireshark bug]
-//* cve-idlink:2014-2486[]
+//* ws_buglink:5000[]
+//* ws_buglink:6000[Wireshark bug]
+//* cve_idlink:2014-2486[]
 //* Wireshark convinced you to switch seats on the plane while neglecting to tell you that its seat was noticeably moist.
 
 //_Non-empty section placeholder._
@@ -75,8 +75,9 @@ since version 2.4.0:
 
 === New Protocol Support
 
-// Add one protocol per line between the --sort-and-group-- delimiters.
---sort-and-group--
+// Add one protocol per line between the -- delimiters.
+[commaize]
+--
 ActiveMQ Artemis Core Protocol
 AMT (Automatic Multicast Tunneling)
 Bluetooth Mesh
@@ -104,7 +105,7 @@ Tibia
 TWAMP and OWAMP
 Wi-Fi Device Provisioning Protocol
 802.11ax (High Efficiency WLAN (HEW))
---sort-and-group--
+--
 
 === Updated Protocol Support
 
@@ -114,16 +115,16 @@ Too many protocols have been updated to list here.
 
 //_Non-empty section placeholder._
 // Add one file type per line between the --sort-and-group-- delimiters.
---sort-and-group--
+[commaize]
 Microsoft Network Monitor
---sort-and-group--
 
 === New and Updated Capture Interfaces support
 
 //_Non-empty section placeholder._
---sort-and-group--
+[commaize]
+--
 LoRaTap
---sort-and-group--
+--
 
 //=== Major API Changes
 

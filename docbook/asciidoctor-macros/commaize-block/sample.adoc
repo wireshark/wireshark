@@ -1,0 +1,31 @@
+= Sorted, delimited, empty lines
+
+[commaize]
+--
+One
+two
+
+red
+
+blue
+Fish
+--
+
+= Unsorted
+
+[commaize, sort=false]
+One
+two
+red
+blue
+Fish
+
+= Two elements
+
+[commaize]
+One
+Two
+
+= One element
+[commaize]
+Just the one

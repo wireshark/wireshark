@@ -1001,7 +1001,6 @@ shellcheck:
 	$(SHELLCHECK) --external-sources \
 	  tools/fuzz-test.sh \
 	  tools/randpkt-test.sh \
-	  tools/runa2x.sh \
 	  tools/test-captures.sh \
 	  tools/valgrind-wireshark.sh
 

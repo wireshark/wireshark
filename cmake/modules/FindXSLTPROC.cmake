@@ -5,13 +5,6 @@
 
 include(FindCygwin)
 
-if(ENABLE_PDF_GUIDES)
-    find_package(FOP)
-    if(${FOP_EXECUTABLE} STREQUAL "FOP_EXECUTABLE-NOTFOUND")
-        message(FATAL_ERROR "fop wasn't found, but is necessary for building PDFs." )
-    endif()
-endif()
-
 find_program(XSLTPROC_EXECUTABLE
   NAMES
     xsltproc
@@ -44,7 +37,6 @@ if (WIN32 AND NOT "${CYGWIN_INSTALL_PATH}" STREQUAL "" AND ${XSLTPROC_EXECUTABLE
         NAMES cygpath
         PATHS ${CYGWIN_INSTALL_PATH}/bin
     )
-    # XXX Duplicate of TO_A2X_COMPATIBLE_PATH
     MACRO( TO_XSLTPROC_COMPATIBLE_PATH _cmake_path _result )
         execute_process(
             COMMAND ${CYGPATH_EXECUTABLE} -u ${_cmake_path}
@@ -103,13 +95,18 @@ MACRO(XML2HTML _target_dep _dir_pfx _mode _dbk_source _gfx_sources)
     # We depend on the docbook target to avoid parallel builds.
     SET(_dbk_dep ${_target_dep}_docbook)
 
+    # We can pass chunker.xxx parameters to customize the chunked output.
+    # We have to use a custom layer to customize the single-page output.
+    # Set the output encoding for both to UTF-8. Indent the single-page
+    # output because we sometimes need to copy and paste the release
+    # note contents.
     IF(${_mode} STREQUAL "chunked")
         SET(_basedir ${_dir_pfx}_html_chunked)
-        SET(_STYLESHEET "http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl")
-        SET(_modeparams --noout)
+        SET(_stylesheet "http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl")
+        SET(_modeparams --stringparam chunker.output.encoding UTF-8)
     ELSE() # single-page
         SET(_basedir ${_dir_pfx}_html)
-        SET(_STYLESHEET "http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl")
+        SET(_stylesheet custom_layer_single_html.xsl)
         SET(_modeparams --output ${_basedir}/index.html)
     ENDIF()
 
@@ -120,11 +117,6 @@ MACRO(XML2HTML _target_dep _dir_pfx _mode _dbk_source _gfx_sources)
     FOREACH(_tmpgfx ${${_gfx_sources}})
         set(_gfx_deps ${CMAKE_CURRENT_SOURCE_DIR}/${_tmpgfx})
     ENDFOREACH()
-
-#    GET_FILENAME_COMPONENT(_GFXDIR ${_gfx} ABSOLUTE)
-#    GET_FILENAME_COMPONENT(_GFXDIR ${_GFXDIR} PATH)
-#    GET_FILENAME_COMPONENT(_OUTDIR ${_output} PATH)
-#    SET(_OUTDIR ${CMAKE_CURRENT_BINARY_DIR}/${_OUTDIR})
 
     SET(_gfx_dir ${_dir_pfx}_graphics)
     ADD_CUSTOM_COMMAND(
@@ -148,12 +140,13 @@ MACRO(XML2HTML _target_dep _dir_pfx _mode _dbk_source _gfx_sources)
             ${_common_xsltproc_args}
             --stringparam admon.graphics.path ${_gfx_dir}/
             ${_modeparams}
-            ${_STYLESHEET}
+            --noout ${_stylesheet}
             ${_dbk_source}
         DEPENDS
             ${_dbk_xml_deps}
             ${_dbk_dep}
             ${_gfx_deps}
+            custom_layer_single_html.xsl
     )
     IF(NOT WIN32)
         ADD_CUSTOM_COMMAND(
@@ -165,41 +158,6 @@ MACRO(XML2HTML _target_dep _dir_pfx _mode _dbk_source _gfx_sources)
         )
     ENDIF()
 ENDMACRO(XML2HTML)
-
-# Translate XML to FO to PDF
-#XML2PDF(
-#       user-guide-a4.fo or user-guide-us.fo
-#       WSUG_SOURCE
-#       custom_layer_pdf.xsl
-#       A4 or letter
-#)
-MACRO(XML2PDF _target_dep _output _dbk_source _stylesheet)
-    # We depend on the docbook target to avoid parallel builds.
-    SET(_dbk_dep ${_target_dep}_docbook)
-    file(RELATIVE_PATH _img_relative_path ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
-    get_docbook_xml_depends(_dbk_xml_deps "${_dbk_source}")
-    ADD_CUSTOM_COMMAND(
-        OUTPUT
-            ${_output}
-            ${_output}.fo
-        COMMAND ${XSLTPROC_EXECUTABLE}
-            --path "${_xsltproc_path}"
-            --stringparam img.src.path ${_img_relative_path}/
-            --stringparam use.id.as.filename 1
-            --stringparam admon.graphics.path ${_img_relative_path}/common_graphics/
-            --nonet
-            --output ${_output}.fo
-            ${_stylesheet}
-            ${_dbk_source}
-        COMMAND ${FOP_EXECUTABLE}
-            ${_output}.fo
-            ${_output}
-        DEPENDS
-            ${_dbk_xml_deps}
-            ${_dbk_dep}
-            ${_stylesheet}
-    )
-ENDMACRO(XML2PDF)
 
 # Translate XML to HHP
 #XML2HHP(

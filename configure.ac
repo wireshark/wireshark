@@ -444,6 +444,15 @@ AC_ARG_ENABLE(guides,
 # Check for programs used when building DocBook documentation.
 #
 have_wsug=yes
+AC_PATH_PROGS(ASCIIDOCTOR, [asciidoctorj asciidoctor])
+AC_CHECK_PROGS(HAVE_ASCIIDOCTOR, [asciidoctorj asciidoctor], "yes", "no")
+AM_CONDITIONAL(HAVE_ASCIIDOCTOR, test x$HAVE_ASCIIDOCTOR = xyes)
+AS_IF([test ! -x "$ASCIIDOCTOR"],
+	[
+	  AS_IF([test "x$want_wsug" = xyes],
+		[AC_MSG_ERROR([Asciidoctor not found. This is required to build the release notes and guides])])
+	  have_wsug=no
+	])
 AC_PATH_PROG(XSLTPROC, xsltproc, xsltproc)
 AS_IF([test ! -x "$XSLTPROC"],
 	[
@@ -451,33 +460,20 @@ AS_IF([test ! -x "$XSLTPROC"],
 		[AC_MSG_ERROR([xlstproc not found but required to build the Wireshark User's Guide])])
 	  have_wsug=no
 	])
-AC_PATH_PROG(A2X, a2x, a2x)
-AS_IF([test ! -x "$A2X"],
-	[
-	  AS_IF([test "x$want_wsug" = xyes],
-		[AC_MSG_ERROR([a2x not found but required to build the Wireshark User's Guide])])
-	  have_wsug=no
-	])
-
-AC_PATH_PROG(FOP, fop, fop)
 
 AM_CONDITIONAL(BUILD_USER_GUIDE, [test "x$have_wsug" = xyes -a "x$want_wsug" != xno])
 
-# HTML to text processor
+# HTML to text processor. Executable must support "-dump".
 AC_MSG_CHECKING([for an HTML to text processor])
-AS_IF([w3m -version >&AS_MESSAGE_LOG_FD 2>&1], [have_a2x_text=w3m],
-	[lynx -version >&AS_MESSAGE_LOG_FD 2>&1], [have_a2x_text=lynx],
-	[have_a2x_text=no])
-AC_MSG_RESULT([$have_a2x_text])
-AM_CONDITIONAL(HAVE_A2X_TEXT, [test "x$have_a2x_text" != xno])
-AS_IF([test $have_a2x_text = lynx], [A2X_LYNX="--lynx"])
-AC_SUBST(A2X_LYNX)
+AC_PATH_PROGS(LYNX, [lynx w3m links])
+AC_CHECK_PROGS(HAVE_LYNX, [lynx w3m links], "yes", "no")
+AM_CONDITIONAL(HAVE_LYNX, test x$HAVE_LYNX = xyes)
 
 # RPM
 AC_CHECK_PROGS(RPMBUILD, [rpmbuild], [rpmbuild])
 
 # Shellcheck
-AC_CHECK_PROGS(SHELLCHECK, shellcheck, shellcheck)
+AC_CHECK_PROG(SHELLCHECK, shellcheck)
 
 #
 # Check compiler vendor. For GCC this will be 'gnu' and for Clang 'clang'.

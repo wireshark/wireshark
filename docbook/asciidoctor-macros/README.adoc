@@ -1,0 +1,5 @@
+Asciidoctor macros.
+
+These files are available under the MIT license to match the
+https://github.com/asciidoctor/asciidoctor-extensions-lab[Asciidoctor Extensions Lab]
+and Asciidoctor itself.

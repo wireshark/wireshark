@@ -95,10 +95,10 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'doc/': [
         'UNKNOWN',
     ],
-    'docbook/custom_layer_pdf.xsl': [
+    'docbook/custom_layer_chm.xsl': [
         'UNKNOWN',
     ],
-    'docbook/custom_layer_chm.xsl': [
+    'docbook/custom_layer_single_html.xsl': [
         'UNKNOWN',
     ],
     'docbook/ws.css' : [

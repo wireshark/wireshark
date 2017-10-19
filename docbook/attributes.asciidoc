@@ -1,10 +1,16 @@
 // Common attributes
 
 :wireshark-version: 2.5.1
+
 // We're migrating from AsciiDoc.
 :compat-mode:
 // Required for btn, kbd:, and menu: macros.
 :experimental:
+
+// Create PA4 (210 × 280mm) pages: https://en.wikipedia.org/wiki/Paper_size#PA4_or_L4
+// This is the approximate intersection of A4 (210 × 297mm) and U.S. Letter
+// (216 × 279mm).
+:pdf-page-size: 210mm x 280mm
 
 //
 // URLs

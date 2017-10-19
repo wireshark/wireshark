@@ -150,8 +150,6 @@ so it shows a version number for:
 
 * Web/wget (not needed if using CMake)
 
-* Text/asciidoc
-
 * Text/docbook-xml45
 
 // Also need: bash/sh, sed
@@ -173,14 +171,14 @@ Alternatively you can install Cygwin and its packages using Chocolatey:
 PS$>choco install cygwin
 PS$>choco install cyg-get
 ----
-//PS$>choco install sed asciidoc [...] -source cygwin
+//PS$>choco install sed [...] -source cygwin
 
 Chocolatey installs Cygwin in _C:\tools\cygwin_ by default.
 
 You can directly download packages via `cyg-get`
 
 ----
-PS$>cyg-get asciidoc patch docbook-xml45 [...]
+PS$>cyg-get docbook-xml45 [...]
 ----
 
 You can use Chocolatey’s Win flex-bison packages rather than the Cygwin
@@ -280,6 +278,20 @@ PS$>choco install cmake.portable
 ----
 
 Chocolatey ensures cmake.exe is on your path.
+
+[[ChSetupAsciidoctor]]
+
+==== Install Asciidoctor
+
+http://asciidoctor.org/[Asciidoctor] can be run directly as a Ruby
+script or via a Java wrapper (AsciidoctorJ). The easiest way to install
+it on Windows is via Chocolatey:
+
+----
+PS$>choco install asciidoctorj
+----
+
+Chocolatey ensures that asciidoctorj.exe is on your path.
 
 ==== Install and Prepare Sources
 
@@ -422,7 +434,7 @@ If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,pre
 
 To generate the build files enter the following at the Visual Studio command prompt:
 ----
-> cmake -DENABLE_CHM_GUIDES=on -G "Visual Studio 14 2015" ..\wireshark
+> cmake -G "Visual Studio 14 2015" ..\wireshark
 ----
 
 Adjusting the paths as required to Python and the wireshark source tree.

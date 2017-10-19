@@ -1,18 +1,8 @@
 #
 # Make the "Wireshark User Guide" and "Wireshark Developer Guide"
 # in several formats.
-# See the Readme.txt file for instructions.
+# See the README.adoc file for instructions.
 #
-
-# formatting objects processor
-# Additional options to fop.
-# This needs to contain at least the argument '-Xmx256m'
-# fop executable is found in configure.ac.
-FOP_OPTS=-Xmx256m
-
-# Asciidoc converter
-A2X_HTML_OPTS="--stylesheet=ws.css"
-A2X_TEXT_OPTS=
 
 ############### YOU SHOULDN'T HAVE TO EDIT ANYTHING BELOW THIS LINE! ################
 
@@ -239,7 +229,7 @@ WSUG_DIST =	\
 	user-guide.asciidoc	\
 	attributes.asciidoc	\
 	custom_layer_chm.xsl	\
-	custom_layer_pdf.xsl	\
+	custom_layer_single_html.xsl	\
 	$(WSUG_FILES)		\
 	$(WSUG_TOOLS_HELP_FILES)	\
 	$(WSUG_GRAPHICS)	\
@@ -253,7 +243,7 @@ WSDG_DIST =	\
 	developer-guide.asciidoc	\
 	attributes.asciidoc	\
 	custom_layer_chm.xsl	\
-	custom_layer_pdf.xsl	\
+	custom_layer_single_html.xsl	\
 	$(WSDG_FILES)		\
 	$(WSDG_GRAPHICS)	\
 	$(COMMON_FILES)		\
@@ -262,10 +252,7 @@ WSDG_DIST =	\
 WSDG_SOURCE = $(WSDG_GENERATED_SOURCE) $(WSDG_DIST)
 
 RELEASE_NOTES_SOURCE = \
-	release-notes.asciidoc	\
-	attributes.asciidoc	\
-	asciidoc.conf		\
-	asciidoctor-asciidoc.conf
+	release-notes.asciidoc
 
 CLEANFILES =	\
 	*.chm			\
@@ -335,61 +322,62 @@ COMMON_XSLTPROC_ARGS = \
 WSUG_XSLTPROC_ARGS = \
 	--stringparam admon.graphics.path wsug_graphics/
 
-WSUG_PDF_XSLTPROC_ARGS = \
-		--stringparam img.src.path $(srcdir)/ \
-		--stringparam admon.graphics.path $(srcdir)/common_graphics/
-
 WSDG_XSLTPROC_ARGS = \
 	--stringparam admon.graphics.path wsdg_graphics/
 
-WSDG_PDF_XSLTPROC_ARGS = \
-		--stringparam img.src.path $(srcdir)/ \
-		--stringparam admon.graphics.path $(srcdir)/common_graphics/
-
 SINGLE_XSLTPROC_ARGS = \
-	--nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl
+	--nonet custom_layer_single_html.xsl
 
 CHUNKED_XSLTPROC_ARGS = \
+	--stringparam chunker.output.encoding UTF-8 \
 	--nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl
 
 HTMLHELP_XSLTPROC_ARGS = \
 	--nonet custom_layer_chm.xsl
 #	--nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl
 
-# Automatically generate .pdf files from .fo files
-# Suse needs FOP_OPTS, Debian needs JAVA_OPTS
-.fo.pdf:
-	FOP_OPTS=$(FOP_OPTS) JAVA_OPTS=$(FOP_OPTS) $(FOP) $< $@
+ASCIIDOCTOR_COMMON_ARGS = \
+	--require $(srcdir)/asciidoctor-macros/commaize-block.rb \
+	--require $(srcdir)/asciidoctor-macros/cve_idlink-inline-macro.rb \
+	--require $(srcdir)/asciidoctor-macros/ws_buglink-inline-macro.rb \
+	--require $(srcdir)/asciidoctor-macros/ws_salink-inline-macro.rb
+
+ASCIIDOCTOR_COMMON_COMMAND = TZ=UTC ASCIIDOCTORJ_OPTS="-Xmx800m ${ASCIIDOCTORJ_OPTS}" \
+	$(ASCIIDOCTOR) \
+	$(ASCIIDOCTOR_COMMON_ARGS)
+
+.asciidoc.pdf:
+	$(ASCIIDOCTOR_COMMON_COMMAND) --backend pdf --out-file $@ $<
+
+.asciidoc.xml:
+	$(ASCIIDOCTOR_COMMON_COMMAND) --backend docbook --out-file $@ $<
 
 docbook_all_local_targets =
 if BUILD_USER_GUIDE
 docbook_all_local_targets += wsug_html_chunked
-endif
 
 all-local: $(docbook_all_local_targets)
 
-all-html: wsug wsdg release-notes
+all-html: wsug wsdg release_notes
 
-all-pdf: wsug-pdf wsdg-pdf
+all-pdf: wsug_pdf wsdg_pdf
 
 # Wireshark User Guide
 wsug: wsug_html_chunked wsug_html
 
-wsug-pdf: wsug user-guide.pdf
+wsug_pdf: wsug user-guide.pdf
 
-user-guide.xml: user-guide.asciidoc $(WSUG_FILES) $(WSUG_TOOLS_HELP_FILES)
-	$(A2X) --verbose \
-		--attribute=docinfo \
-		--asciidoc-opts="--conf-file=$(srcdir)/asciidoc.conf --conf-file=$(srcdir)/asciidoctor-asciidoc.conf" \
-		--no-xmllint \
-		--format=docbook \
-		--destination-dir=$(builddir) \
-		$<
+user-guide.xml: user-guide.asciidoc $(WSUG_FILES)
+
+user-guide.pdf: user-guide.asciidoc $(WSUG_FILES)
+endif
 
 # create html single page file
+if BUILD_USER_GUIDE
 wsug_html: wsug_html/index.html
+endif
 
-wsug_html/index.html: $(WSUG_SOURCE)
+wsug_html/index.html: user-guide.xml
 	@ echo --- WSUG - HTML SINGLE PAGE ---
 	mkdir -p wsug_html/wsug_graphics/toolbar
 	cp $(srcdir)/wsug_graphics/*.* wsug_html/wsug_graphics
@@ -401,9 +389,11 @@ wsug_html/index.html: $(WSUG_SOURCE)
 	-chmod -R og+rX wsug_html
 
 # create html chunked page files
+if BUILD_USER_GUIDE
 wsug_html_chunked: wsug_html_chunked/index.html
+endif
 
-wsug_html_chunked/index.html: $(WSUG_SOURCE)
+wsug_html_chunked/index.html: user-guide.xml
 	@ echo --- WSUG - HTML CHUNKED ---
 	mkdir -p wsug_html_chunked/wsug_graphics/toolbar
 	cp $(srcdir)/wsug_graphics/*.* wsug_html_chunked/wsug_graphics
@@ -414,14 +404,6 @@ wsug_html_chunked/index.html: $(WSUG_SOURCE)
 		    $(WSUG_XSLTPROC_ARGS) $(CHUNKED_XSLTPROC_ARGS) $<
 	-chmod -R og+rX wsug_html_chunked
 
-# create pdf file (through XSL-FO), portrait pages on PA4 (210 x 280 mm) "paper"
-# you will get lots of errors, but that's ok
-user-guide.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl
-	@ echo --- WSUG - PDF PA4 PAPER ---
-	$(XSLTPROC) \
-		$(COMMON_XSLTPROC_ARGS) $(WSUG_PDF_XSLTPROC_ARGS) \
-		--nonet $(srcdir)/custom_layer_pdf.xsl $< > $@
-
 wsluarm: make-wsluarm.pl $(WSLUA_MODULES)
 	mkdir -p wsluarm_src
 	$(PERL) $(srcdir)/make-wsluarm.pl $(WSLUA_MODULES)
@@ -431,22 +413,20 @@ wsluarm: make-wsluarm.pl $(WSLUA_MODULES)
 # Wireshark Developer Guide
 wsdg: wsdg_html_chunked wsdg_html
 
-wsdg-pdf: wsdg developer-guide.pdf
+if BUILD_USER_GUIDE
+wsdg_pdf: developer-guide.pdf
+endif
 
 developer-guide.xml: developer-guide.asciidoc $(WSDG_FILES) wsluarm
-	$(A2X) --verbose \
-		--attribute=docinfo \
-		--attribute=build_dir=$(abs_builddir) \
-		--asciidoc-opts="--conf-file=$(srcdir)/asciidoc.conf --conf-file=$(srcdir)/asciidoctor-asciidoc.conf" \
-		--no-xmllint \
-		--format=docbook \
-		--destination-dir=$(builddir) \
-		$<
+
+developer-guide.pdf: developer-guide.asciidoc $(WSDG_FILES) wsluarm
 
 # create html single page file
+if BUILD_USER_GUIDE
 wsdg_html: wsdg_html/index.html
+endif
 
-wsdg_html/index.html: $(WSDG_SOURCE)
+wsdg_html/index.html: developer-guide.xml
 	@ echo --- WSDG - HTML SINGLE PAGE ---
 	mkdir -p wsdg_html/wsdg_graphics/toolbar
 	cp $(srcdir)/wsdg_graphics/*.* wsdg_html/wsdg_graphics
@@ -459,9 +439,11 @@ wsdg_html/index.html: $(WSDG_SOURCE)
 	-chmod -R og+rX wsdg_html
 
 # create html chunked page files
-wsdg_html_chunked: wsdg_html_chunked/index.html
+if BUILD_USER_GUIDE
+wsdg_html_chunked: developer-guide.xml wsdg_html_chunked/index.html
+endif
 
-wsdg_html_chunked/index.html: $(WSDG_SOURCE)
+wsdg_html_chunked/index.html: developer-guide.xml
 	@ echo --- WSDG - HTML CHUNKED ---
 	mkdir -p wsdg_html_chunked/wsdg_graphics/toolbar
 	cp $(srcdir)/wsdg_graphics/*.* wsdg_html_chunked/wsdg_graphics
@@ -473,37 +455,30 @@ wsdg_html_chunked/index.html: $(WSDG_SOURCE)
 		$(WSDG_XSLTPROC_ARGS) $(CHUNKED_XSLTPROC_ARGS) $<
 	-chmod -R og+rX wsdg_html_chunked
 
-# create pdf file (through XSL-FO), portrait pages on PA4 (210 x 280 mm) "paper"
-# you will get lot's of errors, but that's ok
-developer-guide.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
-	@ echo --- WSDG - PDF PA4 PAPER ---
-	$(XSLTPROC) \
-		    $(COMMON_XSLTPROC_ARGS) $(WSDG_PDF_XSLTPROC_ARGS) \
-		    --path .:wsluarm_src:$(srcdir) \
-		    --nonet $(srcdir)/custom_layer_pdf.xsl $< > $@
-
 # Release notes
-if HAVE_A2X_TEXT
-release-notes: release-notes.html release-notes.txt
-else
-release-notes: release-notes.html
+if HAVE_ASCIIDOCTOR
+release_note_deps = release-notes.html
+if HAVE_LYNX
+release_note_deps += release-notes.txt
 endif
+endif
+release_notes: $(release_note_deps)
 
 # create html single page file
 release-notes.html: $(RELEASE_NOTES_SOURCE)
 	@ echo --- RELEASE NOTES - HTML ---
-	$(A2X) --format=xhtml $(A2X_HTML_OPTS) \
-		--destination-dir=$(builddir) \
+	$(ASCIIDOCTOR_COMMON_COMMAND) \
+		--backend html \
+		--out-file $(builddir)/release-notes.html \
 		$(srcdir)/release-notes.asciidoc
 
 # create txt single page file (through HTML)
-release-notes.txt: $(RELEASE_NOTES_SOURCE)
+release-notes.txt: release-notes.html
 	@ echo --- RELEASE NOTES - TXT ---
-	TZ=UTC $(A2X) --format=text @A2X_LYNX@ $(A2X_TEXT_OPTS) \
-		--xsltproc-opts "--stringparam generate.toc \"article nop\"" \
-		--destination-dir=$(builddir) \
-		$(srcdir)/release-notes.asciidoc && \
-		mv release-notes.text $@
+	$(LYNX) \
+		-dump \
+		$(builddir)/release-notes.html \
+		> $(builddir)/release-notes.txt
 
 news: release-notes.txt
 	cp release-notes.txt ../NEWS
@@ -526,5 +501,5 @@ EXTRA_DIST = \
 	$(WSDG_DIST)		\
 	$(RELEASE_NOTES_SOURCE)	\
 	make-wsluarm.pl		\
-	README.txt		\
+	README.adoc		\
 	CMakeLists.txt

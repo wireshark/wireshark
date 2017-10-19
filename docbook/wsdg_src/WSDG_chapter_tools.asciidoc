@@ -231,8 +231,6 @@ using the `-D` flag. Useful variables and generators include the following:
 
 -DENABLE_GTK3=ON:: Enable GTK+ 3
 
--DENABLE_HTML_GUIDES=ON -DENABLE_PDF_GUIDES=ON:: Build documentation
-
 +++-DCMAKE_C_FLAGS='-Qunused-arguments'+++:: Make ccache and clang work together
 
 -DPYTHON_EXECUTABLE=c:/Python27/python:: Force the Python path. Useful on Windows since Cygwin’s /usrbin/python is a symlink.

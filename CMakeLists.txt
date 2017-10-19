@@ -1037,9 +1037,7 @@ endif()
 
 set(PACKAGELIST ${PACKAGELIST} POD)
 
-if(ENABLE_HTML_GUIDES)
-	set(PACKAGELIST ${PACKAGELIST} DOXYGEN)
-endif()
+set(PACKAGELIST ${PACKAGELIST} DOXYGEN)
 
 set(PROGLIST)
 
@@ -1296,7 +1294,7 @@ add_subdirectory( capchild )
 add_subdirectory( caputils )
 add_subdirectory( codecs )
 add_subdirectory( doc )
-add_subdirectory( docbook )
+add_subdirectory( docbook EXCLUDE_FROM_ALL )
 add_subdirectory( epan )
 add_subdirectory( randpkt_core )
 add_subdirectory( tools/lemon )
@@ -3249,7 +3247,6 @@ if (NOT "${SHELLCHECK_EXECUTABLE}" STREQUAL "SHELLCHECK_EXECUTABLE-NOTFOUND")
 		COMMAND shellcheck --external-sources
 			tools/fuzz-test.sh
 			tools/randpkt-test.sh
-			tools/runa2x.sh
 			tools/test-captures.sh
 			tools/valgrind-wireshark.sh
 		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"

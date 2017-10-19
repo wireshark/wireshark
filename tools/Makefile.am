@@ -83,7 +83,6 @@ EXTRA_DIST = \
 	randpkt-test.sh					\
 	rdps.py						\
 	rpm_setup.sh 					\
-	runa2x.sh					\
 	test-common.sh					\
 	test-captures.sh				\
 	textify.ps1					\

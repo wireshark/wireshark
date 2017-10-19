@@ -7,29 +7,30 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-find_package( LYNX )
-if(ENABLE_HTML_GUIDES OR ENABLE_PDF_GUIDES OR ENABLE_CHM_GUIDES)
-	find_package( ASCIIDOC REQUIRED )
-	find_package( XSLTPROC REQUIRED )
-else()
-	# This is an optional add of the packages
-	find_package( ASCIIDOC )
-	find_package( XSLTPROC )
-endif()
+# To do:
+# - Rename *.asciidoc to *.adoc
+# - Make the build targets top-level on Windows, similar to the NSIS,
+#   WiX, and PortableApps targets?
 
-if(ENABLE_CHM_GUIDES)
-	find_package( HTMLHelp REQUIRED )
+find_package( LYNX )
+find_package( Asciidoctor 1.5 )
+find_package( XSLTPROC )
+
+function(set_docbook_target_properties _target)
+	set_target_properties(${_target} PROPERTIES
+		FOLDER "Docbook"
+		EXCLUDE_FROM_DEFAULT_BUILD True
+		)
+endfunction(set_docbook_target_properties)
+
+if(WIN32)
+	find_package( HTMLHelp )
 	if(HTML_HELP_COMPILER)
 		# We do not need the HTML Help headers and library, just the
 		# compiler. To avoid confusion, report the package as found.
 		# https://gitlab.kitware.com/cmake/cmake/issues/15886
 		set(HTMLHelp_FOUND 1)
-	else()
-		message(FATAL_ERROR "HTML Help Compiler is not installed (required for ENABLE_CHM_GUIDES)")
 	endif()
-endif()
-
-if(WIN32)
 	macro( HHP2CHM _hhpsource )
 		get_filename_component( _source_base_name ${_hhpsource} NAME_WE )
 
@@ -117,6 +118,7 @@ add_custom_command(
 add_custom_target(update_tools_help
 	DEPENDS ${WSUG_TOOLS_PHONY_DEPS}
 )
+set_docbook_target_properties(update_tools_help)
 
 set(WSUG_FILES
 	wsug_src/WSUG_app_files.asciidoc
@@ -371,36 +373,35 @@ ADD_CUSTOM_COMMAND(
 set( WSDG_BUILT_DEPS ws.css wsluarm )
 
 set( ASCIIDOC_CONF_FILES
-	asciidoc.conf
-	asciidoctor-asciidoc.conf
 	attributes.asciidoc
+	# XXX Add macros
 )
 
-if(ENABLE_HTML_GUIDES OR ENABLE_PDF_GUIDES OR ENABLE_CHM_GUIDES)
+if(ASCIIDOCTOR_EXECUTABLE)
 	# Generate the DocBook sources of user and developer guides
 
-	ASCIIDOC2DOCBOOK(user-guide.asciidoc ASCIIDOC_CONF_FILES WSUG_SOURCE WSUG_BUILT_DEPS)
+	ASCIIDOCTOR2DOCBOOK(user-guide.asciidoc ${ASCIIDOC_CONF_FILES} ${WSUG_SOURCE} ${WSUG_BUILT_DEPS})
 	add_custom_target(user_guide_docbook DEPENDS generate_user-guide.xml)
-	set_target_properties(user_guide_docbook PROPERTIES FOLDER "Docbook")
+	set_docbook_target_properties(user_guide_docbook)
 
-	ASCIIDOC2DOCBOOK(developer-guide.asciidoc ASCIIDOC_CONF_FILES WSDG_SOURCE WSDG_BUILT_DEPS)
+	ASCIIDOCTOR2DOCBOOK(developer-guide.asciidoc ${ASCIIDOC_CONF_FILES} ${WSDG_SOURCE} ${WSDG_BUILT_DEPS})
 	add_custom_target(developer_guide_docbook DEPENDS generate_developer-guide.xml)
-	set_target_properties(developer_guide_docbook PROPERTIES FOLDER "Docbook")
+	set_docbook_target_properties(developer_guide_docbook)
 
 	# Top-level guide targets.
 
 	add_custom_target(user_guides DEPENDS user_guide_docbook)
-	set_target_properties(user_guides PROPERTIES FOLDER "Docbook")
+	set_docbook_target_properties(user_guides)
 
 	add_custom_target(developer_guides DEPENDS developer_guide_docbook)
-	set_target_properties(developer_guides PROPERTIES FOLDER "Docbook")
+	set_docbook_target_properties(developer_guides)
 
-	add_custom_target(all_guides ALL DEPENDS user_guides developer_guides )
-	set_target_properties(all_guides PROPERTIES FOLDER "Docbook")
+	add_custom_target(all_guides DEPENDS user_guides developer_guides )
+	set_docbook_target_properties(all_guides)
 endif()
 
 # User's Guide chain.
-if(ENABLE_HTML_GUIDES)
+if(ASCIIDOCTOR_EXECUTABLE AND XSLTPROC_EXECUTABLE)
 	XML2HTML(
 		user_guide
 		wsug
@@ -422,31 +423,23 @@ if(ENABLE_HTML_GUIDES)
 			wsug_html/index.html
 			wsug_html_chunked/index.html
 	)
-	set_target_properties(user_guide_html PROPERTIES FOLDER "Docbook")
+	set_docbook_target_properties(user_guide_html)
 	add_dependencies(user_guides user_guide_html)
 endif()
 
-if(ENABLE_PDF_GUIDES)
-	# To do:
-	# - Generate PDFs using AsciiDoctor.
-
-	XML2PDF(
-		user_guide
-		user-guide.pdf
-		user-guide.xml
-		custom_layer_pdf.xsl
-	)
+if(ASCIIDOCTOR_EXECUTABLE)
+	ASCIIDOCTOR2PDF(user-guide.asciidoc ${WSUG_SOURCE} ${WSUG_BUILT_DEPS})
 
 	add_custom_target(
 		user_guide_pdf
 		DEPENDS
 			user-guide.pdf
 	)
-	set_target_properties(user_guide_pdf PROPERTIES FOLDER "Docbook")
+	set_docbook_target_properties(user_guide_pdf)
 	add_dependencies(user_guides user_guide_pdf)
 endif()
 
-if(ENABLE_CHM_GUIDES)
+if(WIN32 AND ASCIIDOCTOR_EXECUTABLE)
 	XML2HHP(user_guide wsug user-guide.xml)
 	HHP2CHM(user-guide.hhp)
 	add_custom_target(
@@ -454,12 +447,12 @@ if(ENABLE_CHM_GUIDES)
 		DEPENDS
 			user-guide.chm
 	)
-	set_target_properties(user_guide_chm PROPERTIES FOLDER "Docbook")
+	set_docbook_target_properties(user_guide_chm)
 	add_dependencies(user_guides user_guide_chm)
 endif()
 
 # Developer's Guide chain.
-if(ENABLE_HTML_GUIDES)
+if(ASCIIDOCTOR_EXECUTABLE AND XSLTPROC_EXECUTABLE)
 	XML2HTML(
 		developer_guide
 		wsdg
@@ -481,28 +474,23 @@ if(ENABLE_HTML_GUIDES)
 			wsdg_html/index.html
 			wsdg_html_chunked/index.html
 	)
-	set_target_properties(developer_guide_html PROPERTIES FOLDER "Docbook")
+	set_docbook_target_properties(developer_guide_html)
 	add_dependencies(developer_guides developer_guide_html)
 endif()
 
-if(ENABLE_PDF_GUIDES)
-	XML2PDF(
-		developer_guide
-		developer-guide.pdf
-		developer-guide.xml
-		custom_layer_pdf.xsl
-	)
+if(ASCIIDOCTOR_EXECUTABLE)
+	ASCIIDOCTOR2PDF(developer-guide.asciidoc ${WSDG_SOURCE} ${WSDG_BUILT_DEPS})
 
 	add_custom_target(
 		developer_guide_pdf
 		DEPENDS
 			developer-guide.pdf
 	)
-	set_target_properties(developer_guide_pdf PROPERTIES FOLDER "Docbook")
+	set_docbook_target_properties(developer_guide_pdf)
 	add_dependencies(developer_guides developer_guide_pdf)
 endif()
 
-if(ENABLE_CHM_GUIDES)
+if(WIN32 AND ASCIIDOCTOR_EXECUTABLE)
 	XML2HHP(developer_guide	wsdg developer-guide.xml)
 	HHP2CHM(developer-guide.hhp)
 	add_custom_target(
@@ -510,22 +498,23 @@ if(ENABLE_CHM_GUIDES)
 		DEPENDS
 			developer-guide.chm
 	)
-	set_target_properties(developer_guide_chm PROPERTIES FOLDER "Docbook")
+	set_docbook_target_properties(developer_guide_chm)
 	add_dependencies(developer_guides developer_guide_chm)
 endif()
 
 # release_notes: release-notes.html release-notes.txt
 
-add_custom_target( release_notes_html DEPENDS ws.css release-notes.html )
-set_target_properties(release_notes_html PROPERTIES FOLDER "Docbook")
+add_custom_target( release_notes_html DEPENDS release-notes.html )
+set_docbook_target_properties(release_notes_html)
 add_custom_target( release_notes_txt DEPENDS release-notes.txt )
-set_target_properties(release_notes_txt PROPERTIES FOLDER "Docbook")
+set_docbook_target_properties(release_notes_txt)
 
-# Force serial execution so that separate a2x instances don't trip on each other
-add_dependencies ( release_notes_txt release_notes_html )
+# Force serial execution so that separate asciidoctor instances don't
+# trip on each other
+# add_dependencies ( release_notes_txt release_notes_html )
 
 add_custom_target( release_notes )
-set_target_properties(release_notes PROPERTIES FOLDER "Docbook")
+set_docbook_target_properties(release_notes)
 add_dependencies ( release_notes release_notes_txt release_notes_html )
 
 add_custom_target(
@@ -536,20 +525,11 @@ add_custom_target(
 	DEPENDS
 		${CMAKE_CURRENT_BINARY_DIR}/release-notes.txt
 )
-set_target_properties(news PROPERTIES FOLDER "Docbook")
+set_docbook_target_properties(news)
 
-if( ASCIIDOC_FOUND )
-	ASCIIDOC2HTML(
-		release-notes.html
-		release-notes.asciidoc
-		"${ASCIIDOC_CONF_FILES}"
-	)
-
-	ASCIIDOC2TXT(
-		release-notes.txt
-		release-notes.asciidoc
-		"${ASCIIDOC_CONF_FILES}"
-	)
+if( ASCIIDOCTOR_FOUND )
+	ASCIIDOCTOR2HTML( release-notes.asciidoc )
+	ASCIIDOCTOR2TXT( release-notes.asciidoc )
 endif()
 
 #
