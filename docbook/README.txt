@@ -249,16 +249,25 @@ The makefile is written to be run with make on UNIX/Linux platforms.
 AsciiDoctor
 -----------
 
-At the time of this writing (November 2016) the AsciiDoctor project is much
-more active than AsciiDoc. At some point it might be worth the effort to
-migrate to AsciiDoctor. To do so we'd have to do the following at a minimum:
+At the time of this writing (October 2017) the Asciidoctor project is
+much more active than AsciiDoc. It also supports extra features
+including additional markup and diagrams. At some point it might be
+worth the effort to migrate to Asciidoctor. To do so we'd have to do the
+following at a minimum:
 
-- Require Ruby + AsciiDoctor or Java + AsciiDoctorj to build the documentation.
+- Require Ruby + Asciidoctor or Java + AsciidoctorJ to build the
+  documentation.
 
-- Either port the macros in asciidoc.conf to AsciiDoctor or stop using them.
-
-- Restrict ourselves to decimal entities since the PDF renderer doesn't
-  support hexadecimal ones:
-  https://github.com/asciidoctor/asciidoctorj/issues/439
+- Port the macros in asciidoc.conf to Asciidoctor extensions.
+  https://github.com/asciidoctor/asciidoctor-extensions-lab
 
 - Choose a "compat" mode: http://asciidoctor.org/docs/migration/
+
+Targets
+-------
+
+Asciidoctor alone doesn't entirely cover our various build targets. It
+can generate single-page HTML, Docbook, PDF, Epub3, and a few other
+formats. Our current toolchain generates single-page HTML, chunked HTML,
+text, HTMLHelp, and PDF output. We would still depend on DocBook, XSLT,
+and HTMLHelp for most targets.
