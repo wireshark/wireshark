@@ -61,9 +61,6 @@
 void proto_register_lcsap(void);
 void proto_reg_handoff_lcsap(void);
 
-static dissector_handle_t lpp_handle;
-static dissector_handle_t lppa_handle;
-
 #define SCTP_PORT_LCSAP 9082
 
 /*--- Included file: packet-lcsap-val.h ---*/
@@ -114,7 +111,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-lcsap-val.h ---*/
-#line 61 "./asn1/lcsap/packet-lcsap-template.c"
+#line 58 "./asn1/lcsap/packet-lcsap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_lcsap  =   -1;
@@ -242,7 +239,7 @@ static int hf_lcsap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_lcsap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-lcsap-hf.c ---*/
-#line 71 "./asn1/lcsap/packet-lcsap-template.c"
+#line 68 "./asn1/lcsap/packet-lcsap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_lcsap = -1;
@@ -301,7 +298,7 @@ static gint ett_lcsap_SuccessfulOutcome = -1;
 static gint ett_lcsap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-lcsap-ett.c ---*/
-#line 79 "./asn1/lcsap/packet-lcsap-template.c"
+#line 76 "./asn1/lcsap/packet-lcsap-template.c"
 
 static expert_field ei_lcsap_civic_data_not_xml = EI_INIT;
 
@@ -314,6 +311,8 @@ static guint gbl_lcsapSctpPort=SCTP_PORT_LCSAP;
 
 /* Dissector handles */
 static dissector_handle_t lcsap_handle;
+static dissector_handle_t lpp_handle;
+static dissector_handle_t lppa_handle;
 static dissector_handle_t xml_handle;
 
 /* Dissector tables */
@@ -778,13 +777,13 @@ dissect_lcsap_Civic_Address(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
-  if (parameter_tvb) {
+  if (parameter_tvb && xml_handle) {
     proto_tree *subtree;
 
     subtree = proto_item_add_subtree(actx->created_item, ett_lcsap_civic_address);
     if (tvb_strncaseeql(parameter_tvb, 0, "<?xml", 5) == 0) {
       call_dissector(xml_handle, parameter_tvb, actx->pinfo, subtree);
-    }else{
+    } else {
       proto_tree_add_expert(tree, actx->pinfo, &ei_lcsap_civic_data_not_xml, parameter_tvb, 0, -1);
     }
   }
@@ -2357,7 +2356,7 @@ static int dissect_LCS_AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-lcsap-fn.c ---*/
-#line 198 "./asn1/lcsap/packet-lcsap-template.c"
+#line 197 "./asn1/lcsap/packet-lcsap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -2413,6 +2412,7 @@ proto_reg_handoff_lcsap(void)
   if (!Initialized) {
     lpp_handle = find_dissector_add_dependency("lpp", proto_lcsap);
     lppa_handle = find_dissector_add_dependency("lppa", proto_lcsap);
+    xml_handle = find_dissector_add_dependency("xml", proto_lcsap);
     dissector_add_for_decode_as("sctp.port", lcsap_handle);   /* for "decode-as"  */
     dissector_add_uint("sctp.ppi", LCS_AP_PAYLOAD_PROTOCOL_ID,   lcsap_handle);
     Initialized=TRUE;
@@ -3061,9 +3061,6 @@ void proto_register_lcsap(void) {
                                  "Set the SCTP port for LCSAP messages",
                                  10,
                                  &gbl_lcsapSctpPort);
-
-  xml_handle = find_dissector_add_dependency("xml", proto_lcsap);
-
 }
 
 /*
