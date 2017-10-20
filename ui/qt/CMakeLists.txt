@@ -556,7 +556,7 @@ include_directories(
 
 SET(CMAKE_AUTOMOC TRUE)
 
-if(CMAKE_VERSION VERSION_LESS "3.0")
+if(CMAKE_VERSION VERSION_LESS "3.0.2")
 	# AUTOUIC and AUTORCC are not supported in CMAKE 2.8.x
 	if (QT_VERSION EQUAL 5)
 		QT5_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS})
@@ -631,7 +631,7 @@ set_target_properties(qtui PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "UI"
 )
-if(NOT CMAKE_VERSION VERSION_LESS "3.0")
+if(NOT CMAKE_VERSION VERSION_LESS "3.0.2")
 	# Ensure .qm files are generated before autogenerating i18n.qrc
 	set_target_properties(qtui PROPERTIES
 		AUTOGEN_TARGET_DEPENDS "${WIRESHARK_QT_QM}"
