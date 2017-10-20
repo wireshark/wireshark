@@ -210,6 +210,14 @@ ServiceResponseTimeDialog::ServiceResponseTimeDialog(QWidget &parent, CaptureFil
             this, SLOT(statsTreeWidgetItemChanged()));
 }
 
+ServiceResponseTimeDialog::~ServiceResponseTimeDialog()
+{
+    if (srt_data_.srt_array) {
+        free_srt_table(srt_, srt_data_.srt_array, NULL, NULL);
+        g_array_free(srt_data_.srt_array, TRUE);
+    }
+}
+
 TapParameterDialog *ServiceResponseTimeDialog::createSrtDialog(QWidget &parent, const QString cfg_str, const QString filter, CaptureFile &cf)
 {
     if (!cfg_str_to_srt_.contains(cfg_str)) {
@@ -269,6 +277,10 @@ void ServiceResponseTimeDialog::endRetapPackets()
 
 void ServiceResponseTimeDialog::fillTree()
 {
+    if (srt_data_.srt_array) {
+        free_srt_table(srt_, srt_data_.srt_array, NULL, NULL);
+        g_array_free(srt_data_.srt_array, TRUE);
+    }
     srt_data_.srt_array = g_array_new(FALSE, TRUE, sizeof(srt_stat_table*));
     srt_data_.user_data = this;
 
@@ -301,9 +313,6 @@ void ServiceResponseTimeDialog::fillTree()
     statsTreeWidget()->setSortingEnabled(true);
 
     removeTapListeners();
-
-    free_srt_table(srt_, srt_data_.srt_array, NULL, NULL);
-    g_array_free(srt_data_.srt_array, TRUE);
 }
 
 QList<QVariant> ServiceResponseTimeDialog::treeItemData(QTreeWidgetItem *ti) const
