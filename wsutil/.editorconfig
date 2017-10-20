@@ -53,9 +53,6 @@ indent_size = tab
 indent_style = tab
 indent_size = tab
 
-[file_util.[ch]]
-indent_size = 6
-
 [g711.[ch]]
 indent_style = tab
 indent_size = tab
