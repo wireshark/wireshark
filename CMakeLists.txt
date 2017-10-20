@@ -1136,6 +1136,7 @@ endif()
 
 # No matter which version of GTK is present
 if(GTK2_FOUND OR GTK3_FOUND)
+	message(WARNING "The GTK+ UI is deprecated and will be removed in a future release.")
 	set(GTK_FOUND ON)
 endif()
 

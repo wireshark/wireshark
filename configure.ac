@@ -1328,9 +1328,11 @@ if test "x$enable_wireshark" = "xyes"; then
 	done
 
 	if test "$have_gtk" = "yes" ; then
-		# If we have GTK then add flags for it.
+		# If we're building with GTK, complain and then add flags for it
 		#
-		# GLib flags first
+		AC_MSG_WARN([The GTK+ UI is deprecated and will be removed in a future release.])
+
+		# GLib flags
 		#
 		GTK_CONFIG="$GLIB_CONFIG"
 
