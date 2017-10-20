@@ -36,6 +36,7 @@ class ServiceResponseTimeDialog : public TapParameterDialog
 
 public:
     ServiceResponseTimeDialog(QWidget &parent, CaptureFile &cf, struct register_srt *srt, const QString filter, int help_topic = 0);
+    ~ServiceResponseTimeDialog();
     static TapParameterDialog *createSrtDialog(QWidget &parent, const QString cfg_str, const QString filter, CaptureFile &cf);
 
 public slots:
