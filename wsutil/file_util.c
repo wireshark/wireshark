@@ -508,7 +508,7 @@ ws_init_dll_search_path()
     wchar_t *program_path_w;
     wchar_t npcap_path_w[MAX_PATH];
     unsigned int retval;
-    SC_HANDLE h_scm;
+    SC_HANDLE h_scm, h_serv;
 
     typedef BOOL (WINAPI *SetDllDirectoryHandler)(LPCTSTR);
     SetDllDirectoryHandler PSetDllDirectory;
@@ -520,7 +520,9 @@ ws_init_dll_search_path()
             /* Do not systematically add Npcap path as long as we favor WinPcap over Npcap. */
             h_scm = OpenSCManager(NULL, NULL, 0);
             if (h_scm) {
-                if (OpenService(h_scm, _T("npf"), SC_MANAGER_CONNECT|SERVICE_QUERY_STATUS)) {
+                h_serv = OpenService(h_scm, _T("npf"), SC_MANAGER_CONNECT|SERVICE_QUERY_STATUS);
+                if (h_serv) {
+                    CloseServiceHandle(h_serv);
                     npf_found = TRUE;
                 }
                 CloseServiceHandle(h_scm);
