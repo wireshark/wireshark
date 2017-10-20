@@ -8732,12 +8732,12 @@ void proto_register_nfapi(void)
 			"The length in bytes of the message segment including the header", HFILL }
 		},
 		{ &hf_nfapi_p7_message_header_m,
-			{ "More segments", "nfapi.p7_message_header.m_segment_sequence",
+			{ "More segments", "nfapi.p7_message_header.more_segments",
 			FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
 			"A More flag indicating there are more segments to follow to complete the entire message", HFILL }
 		},
 		{ &hf_nfapi_p7_message_header_segment,
-			{ "Segment Number", "nfapi.p7_message_header.m_segment_sequence",
+			{ "Segment Number", "nfapi.p7_message_header.segment_number",
 			FT_UINT8, BASE_DEC, NULL, 0x7F,
 			"The segment number starting at zero and incrementing by one between each segment", HFILL }
 		},
