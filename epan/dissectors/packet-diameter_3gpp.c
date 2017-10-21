@@ -1120,7 +1120,7 @@ dissect_diameter_3gpp_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     if(length < 38)
         return length;
 
-    if (tvb_strncaseeql(tvb, 0, "<?xml", 5) == 0) {
+    if (tvb_strncaseeql(tvb, 0, "<?xml", 5) == 0 && xml_handle) {
         call_dissector(xml_handle, tvb, pinfo, tree);
     }
 
@@ -2182,6 +2182,25 @@ dissect_diameter_3gpp_eutran_positioning_data(tvbuff_t *tvb, packet_info *pinfo,
     return dissect_lcsap_Positioning_Data_PDU(tvb, pinfo, tree, NULL);
 }
 
+/* AVP Code: 2556 Civic-Address */
+static int
+dissect_diameter_3gpp_civic_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    int length = tvb_reported_length(tvb);
+
+    /* If there is less than 38 characters this is not XML
+     * <?xml version="1.0" encoding="UTF-8"?>
+     */
+    if(length < 38)
+        return length;
+
+    if (tvb_strncaseeql(tvb, 0, "<?xml", 5) == 0 && xml_handle) {
+        call_dissector(xml_handle, tvb, pinfo, tree);
+    }
+
+    return length;
+}
+
 /* AVP Code: 2819 RAN-NAS-Release-Cause*/
 
 static const value_string ran_nas_prot_type_vals[] = {
@@ -2537,6 +2556,9 @@ proto_reg_handoff_diameter_3gpp(void)
 
     /* AVP Code: 2516 EUTRAN-Positioning-Data */
     dissector_add_uint("diameter.3gpp", 2516, create_dissector_handle(dissect_diameter_3gpp_eutran_positioning_data, proto_diameter_3gpp));
+
+    /* AVP Code: 2556 Civic-Address */
+    dissector_add_uint("diameter.3gpp", 2556, create_dissector_handle(dissect_diameter_3gpp_civic_address, proto_diameter_3gpp));
 
     /* AVP Code: 2819 RAN-NAS-Release-Cause */
     dissector_add_uint("diameter.3gpp", 2819, create_dissector_handle(dissect_diameter_3gpp_ran_nas_release_cause, proto_diameter_3gpp));
