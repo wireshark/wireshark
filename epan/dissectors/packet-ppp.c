@@ -43,7 +43,6 @@
 #include <epan/crc32-tvb.h>
 #include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
-#include <epan/oui.h>
 #include <epan/reassemble.h>
 #include "packet-sll.h"
 #include "packet-juniper.h"

@@ -24,7 +24,6 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
-#include <epan/oui.h>
 
 #include "packet-ieee80211.h"
 

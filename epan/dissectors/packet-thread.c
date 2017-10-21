@@ -32,7 +32,6 @@
 #include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/range.h>
-#include <epan/oui.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/to_str.h>

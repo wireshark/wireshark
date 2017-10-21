@@ -31,7 +31,6 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/oui.h>
 #include <epan/decode_as.h>
 #include <epan/tap.h>
 #include <epan/proto_data.h>

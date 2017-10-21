@@ -36,7 +36,6 @@
 #include <epan/etypes.h>
 #include <epan/ipproto.h>
 #include <epan/nlpid.h>
-#include <epan/oui.h>
 #include <epan/afn.h>
 #include <epan/in_cksum.h>
 #include "packet-iana-oui.h"

@@ -43,7 +43,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/wmem/wmem.h>
-#include "oui.h"
+#include <epan/oui.h>
 
 
 #define DEFAULT_COLUMN_INFO            1

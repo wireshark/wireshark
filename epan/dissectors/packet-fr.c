@@ -50,7 +50,6 @@
 #include "packet-l2tp.h"
 #include <epan/xdlc.h>
 #include <epan/etypes.h>
-#include <epan/oui.h>
 #include <epan/nlpid.h>
 
 void proto_register_fr(void);
