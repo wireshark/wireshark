@@ -41,6 +41,7 @@
 #include "packet-gsm_a_common.h"
 #include "packet-isup.h"
 #include "packet-s1ap.h"
+#include "packet-rtp.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -82,6 +83,68 @@ static int ett_ranap_TransportLayerAddress = -1;
 static int ett_ranap_TransportLayerAddress_nsap = -1;
 
 #include "packet-ranap-ett.c"
+
+/*****************************************************************************/
+/* Packet private data                                                       */
+/* For this dissector, all access to actx->private_data should be made       */
+/* through this API, which ensures that they will not overwrite each other!! */
+/*****************************************************************************/
+
+
+typedef struct ranap_private_data_t
+{
+  guint32 transportLayerAddress_ipv4;
+  guint16 binding_id_port;
+} ranap_private_data_t;
+
+
+/* Helper function to get or create the private data struct */
+static ranap_private_data_t* ranap_get_private_data(asn1_ctx_t *actx)
+{
+  packet_info *pinfo = actx->pinfo;
+  ranap_private_data_t *private_data = (ranap_private_data_t *)p_get_proto_data(pinfo->pool, pinfo, proto_ranap, 0);
+  if(private_data != NULL ) {
+     return private_data;
+  }
+  else {
+    private_data = wmem_new0(pinfo->pool, ranap_private_data_t);
+    p_add_proto_data(pinfo->pool, pinfo, proto_ranap, 0, private_data);
+    return private_data;
+  }
+}
+
+/* Helper function to reset the the private data struct */
+static void ranap_reset_private_data(packet_info *pinfo)
+{
+  p_remove_proto_data(pinfo->pool, pinfo, proto_ranap, 0);
+}
+
+static guint32 private_data_get_transportLayerAddress_ipv4(asn1_ctx_t *actx)
+{
+  ranap_private_data_t *private_data = (ranap_private_data_t*)ranap_get_private_data(actx);
+  return private_data->transportLayerAddress_ipv4;
+}
+
+static void private_data_set_transportLayerAddress_ipv4(asn1_ctx_t *actx, guint32 transportLayerAddress_ipv4)
+{
+  ranap_private_data_t *private_data = (ranap_private_data_t*)ranap_get_private_data(actx);
+  private_data->transportLayerAddress_ipv4 = transportLayerAddress_ipv4;
+}
+
+static guint16 private_data_get_binding_id_port(asn1_ctx_t *actx)
+{
+  ranap_private_data_t *private_data = (ranap_private_data_t*)ranap_get_private_data(actx);
+  return private_data->binding_id_port;
+}
+
+static void private_data_set_binding_id_port(asn1_ctx_t *actx, guint16 binding_id_port)
+{
+  ranap_private_data_t *private_data = (ranap_private_data_t*)ranap_get_private_data(actx);
+  private_data->binding_id_port = binding_id_port;
+}
+
+/*****************************************************************************/
+
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -245,6 +308,9 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   /* Save the sccp_msg_info_t data (if present) because it can't be passed
      through function calls */
   p_add_proto_data(pinfo->pool, pinfo, proto_ranap, pinfo->curr_layer_num, data);
+
+  /* Clearing any old 'private data' stored */
+  ranap_reset_private_data(pinfo);
 
   dissect_RANAP_PDU_PDU(tvb, pinfo, ranap_tree, NULL);
   if (sccp_msg_lcl) {

@@ -323,6 +323,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
   if (tvb_len==4){
     /* IPv4 */
     proto_tree_add_item(subtree, hf_ranap_transportLayerAddress_ipv4, parameter_tvb, 0, tvb_len, ENC_BIG_ENDIAN);
+    private_data_set_transportLayerAddress_ipv4(actx, tvb_get_ipv4(parameter_tvb, 0));
   }
   if (tvb_len==16){
     /* IPv6 */
@@ -332,6 +333,10 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
   if ((tvb_len==20) || (tvb_len==25)) {
     item = proto_tree_add_item(subtree, hf_ranap_transportLayerAddress_nsap, parameter_tvb, 0, 20, ENC_NA);
     nsap_tree = proto_item_add_subtree(item, ett_ranap_TransportLayerAddress_nsap);
+    if(tvb_get_ntoh24(parameter_tvb,0) == 0x350001){
+        /* IPv4 */
+        private_data_set_transportLayerAddress_ipv4(actx, tvb_get_ipv4(parameter_tvb, 3));
+    }
     dissect_nsap(parameter_tvb, 0, tvb_len, nsap_tree);
   }
 
@@ -392,6 +397,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
   if (tvb_get_ntohs(value_tvb, 2) == 0) {
     /* Will show first 2 bytes as an integer, as very likely to be a UDP port number */
     guint16 port_number = tvb_get_ntohs(value_tvb, 0);
+    private_data_set_binding_id_port(actx, port_number);
     proto_item_append_text(actx->created_item, " (%%u)", port_number);
   }
 
@@ -401,6 +407,40 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 %(DEFAULT_BODY)s
   if (value_tvb)
     dissect_s1ap_UE_HistoryInformation_PDU(value_tvb,  %(ACTX)s->pinfo, tree, NULL);
+
+#.FN_BODY RAB-SetupOrModifyItemFirst
+  address ipv4_addr;
+  guint32 transportLayerAddress_ipv4;
+  guint16 binding_id;
+
+  private_data_set_transportLayerAddress_ipv4(actx, 0);
+  private_data_set_binding_id_port(actx, 0);
+%(DEFAULT_BODY)s
+  transportLayerAddress_ipv4 = private_data_get_transportLayerAddress_ipv4(actx);
+  binding_id = private_data_get_binding_id_port(actx);
+  if (actx->pinfo->fd->flags.visited || transportLayerAddress_ipv4 == 0 || binding_id == 0){
+    return offset;
+  }
+  set_address(&ipv4_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
+  /* Set RTP dissector for the UDP stream of this RAB */
+  rtp_add_address(actx->pinfo, PT_UDP, &ipv4_addr, binding_id, 0, "RANAP", actx->pinfo->num, FALSE, 0);
+
+#.FN_BODY RAB-SetupOrModifiedItem
+  address ipv4_addr;
+  guint32 transportLayerAddress_ipv4;
+  guint16 binding_id;
+
+  private_data_set_transportLayerAddress_ipv4(actx, 0);
+  private_data_set_binding_id_port(actx, 0);
+%(DEFAULT_BODY)s
+  transportLayerAddress_ipv4 = private_data_get_transportLayerAddress_ipv4(actx);
+  binding_id = private_data_get_binding_id_port(actx);
+  if (actx->pinfo->fd->flags.visited || transportLayerAddress_ipv4 == 0 || binding_id == 0){
+    return offset;
+  }
+  set_address(&ipv4_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
+  /* Set RTP dissector for the UDP stream of this RAB */
+  rtp_add_address(actx->pinfo, PT_UDP, &ipv4_addr, binding_id, 0, "RANAP", actx->pinfo->num, FALSE, 0);
 
 # Contains the BSSGP RIM PDU as defined in TS 48.018 [36].
 #.FN_BODY RIMInformation VAL_PTR=&value_tvb
