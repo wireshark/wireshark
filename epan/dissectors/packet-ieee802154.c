@@ -4710,7 +4710,7 @@ void proto_register_ieee802154(void)
         },
 
         { &hf_ieee802159_mpx_kmp_vendor_oui,
-          { "Vendor OUI", "wpan.mpx.kmp.vendor_oui", FT_UINT24, BASE_HEX, VALS(oui_vals), 0x0,
+          { "Vendor OUI", "wpan.mpx.kmp.vendor_oui", FT_UINT24, BASE_OUI, NULL, 0x0,
             NULL, HFILL }
         },
 

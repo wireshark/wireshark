@@ -8520,7 +8520,7 @@ proto_register_bootp(void)
 
 		{ &hf_bootp_option125_tr111_device_manufacturer_oui,
 		  { "DeviceManufacturerOUI", "bootp.option.vi.tr111.device_manufacturer_oui",
-		    FT_UINT24, BASE_HEX, VALS(oui_vals), 0x0,
+		    FT_UINT24, BASE_OUI, NULL, 0x0,
 		    "Option 125:TR 111 1 DeviceManufacturerOUI", HFILL }},
 
 		{ &hf_bootp_option125_tr111_device_serial_number,

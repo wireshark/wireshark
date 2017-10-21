@@ -3645,12 +3645,9 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	if( dissector_try_uint(oui_unique_code_table, oui, tvb, pinfo, tree) ) {
 		return tLength;
 	}
-	/* maintain previous OUI names.  If not included, look in manuf database for OUI */
-	ouiStr = val_to_str_const(oui, oui_vals, "Unknown");
-	if (strcmp(ouiStr, "Unknown")==0) {
-		ouiStr = uint_get_manuf_name_if_known(oui);
-		if(ouiStr==NULL) ouiStr="Unknown";
-	}
+	/* Look in manuf database for OUI */
+	ouiStr = uint_get_manuf_name_if_known(oui);
+	if(ouiStr==NULL) ouiStr="Unknown";
 
 	/* Set a default value */
 	tempTree = ett_org_spc_ProfinetSubTypes_1;
@@ -4170,8 +4167,8 @@ proto_register_lldp(void)
 			NULL, 0, NULL, HFILL }
 		},
 		{ &hf_org_spc_oui,
-			{ "Organization Unique Code", "lldp.orgtlv.oui", FT_UINT24, BASE_HEX,
-			VALS(oui_vals), 0x0, NULL, HFILL }
+			{ "Organization Unique Code", "lldp.orgtlv.oui", FT_UINT24, BASE_OUI,
+			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_dcbx_type,
 			{ "DCBx Protocol", "lldp.dcbx.proto", FT_UINT8, BASE_HEX,

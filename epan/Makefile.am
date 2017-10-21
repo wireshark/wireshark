@@ -86,7 +86,6 @@ LIBWIRESHARK_SRC = \
 	next_tvb.c		\
 	oids.c			\
 	osi-utils.c		\
-	oui.c			\
 	packet.c		\
 	prefs.c			\
 	print.c			\

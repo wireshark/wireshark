@@ -28,6 +28,7 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/oui.h>
+#include <epan/addr_resolv.h>
 
 #include <wsutil/str_util.h>
 
@@ -208,12 +209,9 @@ dissect_vdp_org_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	tempOffset += 2;
 
 	oui = tvb_get_ntoh24(tvb, (tempOffset));
-	/* maintain previous OUI names.  If not included, look in manuf database for OUI */
-	ouiStr = val_to_str_const(oui, oui_vals, "Unknown");
-	if (strcmp(ouiStr, "Unknown")==0) {
-		ouiStr = uint_get_manuf_name_if_known(oui);
-		if(ouiStr==NULL) ouiStr="Unknown";
-	}
+	/* Look in manuf database for OUI */
+	ouiStr = uint_get_manuf_name_if_known(oui);
+	if(ouiStr==NULL) ouiStr="Unknown";
 
 	tempOffset += 3;
 
@@ -385,8 +383,8 @@ void proto_register_ecp_oui(void)
 		},
 #if 0
 		{ &hf_ecp_vdp_oui,
-			{ "Organization Unique Code",	"ecp.vdp.oui", FT_UINT24, BASE_HEX,
-			VALS(oui_vals), 0x0, NULL, HFILL }
+			{ "Organization Unique Code",	"ecp.vdp.oui", FT_UINT24, BASE_OUI,
+			NULL, 0x0, NULL, HFILL }
 		},
 #endif
 		{ &hf_ecp_vdp_mode,

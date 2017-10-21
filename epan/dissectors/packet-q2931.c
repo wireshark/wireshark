@@ -2190,7 +2190,7 @@ proto_register_q2931(void)
 		},
 		{ &hf_q2931_organization_code,
 		  { "Organization Code", "q2931.bband_low_layer_info.organization_code",
-		    FT_UINT24, BASE_HEX, VALS(oui_vals), 0x0,
+		    FT_UINT24, BASE_OUI, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_q2931_ethernet_type,

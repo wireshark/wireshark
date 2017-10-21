@@ -1352,7 +1352,7 @@ proto_register_cdp(void)
       { &hf_cdp_number_of_addresses, { "Number of addresses", "cdp.number_of_addresses", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_cdp_odr_default_gateway, { "ODR Default gateway", "cdp.odr_default_gateway", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_cdp_ip_prefix, { "IP Prefix", "cdp.ip_prefix", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_cdp_oui, { "OUI", "cdp.oui", FT_UINT24, BASE_HEX, VALS(oui_vals), 0x0, NULL, HFILL }},
+      { &hf_cdp_oui, { "OUI", "cdp.oui", FT_UINT24, BASE_OUI, NULL, 0x0, NULL, HFILL }},
       { &hf_cdp_protocol_id, { "Protocol ID", "cdp.protocol_id", FT_UINT16, BASE_HEX, VALS(type_hello_vals), 0x0, NULL, HFILL }},
       { &hf_cdp_cluster_master_ip, { "Cluster Master IP", "cdp.cluster.master_ip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_cdp_cluster_ip, { "IP?", "cdp.cluster.ip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},

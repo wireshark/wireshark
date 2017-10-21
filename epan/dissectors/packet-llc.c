@@ -35,6 +35,7 @@
 #include <epan/ppptypes.h>
 #include <epan/arcnet_pids.h>
 #include <epan/nlpid.h>
+#include <epan/addr_resolv.h>
 #include "packet-fc.h"
 #include "packet-ip.h"
 #include "packet-ipx.h"
@@ -499,6 +500,7 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	     int bridge_pad)
 {
 	guint32		oui;
+	const gchar *oui_str;
 	guint16		etype;
 	tvbuff_t	*next_tvb;
 	oui_info_t	*oui_info;
@@ -509,14 +511,14 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	/*
 	 * XXX - what about non-UI frames?
 	 */
-	oui =	tvb_get_ntoh24(tvb, offset);
 	etype = tvb_get_ntohs(tvb, offset+3);
+
+	proto_tree_add_item_ret_uint(snap_tree, hf_oui, tvb, offset, 3, ENC_BIG_ENDIAN, &oui);
+	oui_str = uint_get_manuf_name_if_known(oui);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO,
 		    "; SNAP, OUI 0x%06X (%s), PID 0x%04X",
-		    oui, val_to_str_const(oui, oui_vals, "Unknown"), etype);
-
-	proto_tree_add_uint(snap_tree, hf_oui, tvb, offset, 3, oui);
+		    oui, oui_str ? oui_str : "Unknown", etype);
 
 	switch (oui) {
 
@@ -792,8 +794,8 @@ proto_register_llc(void)
 			VALS(etype_vals), 0x0, NULL, HFILL }},
 
 		{ &hf_llc_oui,
-		{ "Organization Code",	"llc.oui", FT_UINT24, BASE_HEX,
-			VALS(oui_vals), 0x0, NULL, HFILL }},
+		{ "Organization Code",	"llc.oui", FT_UINT24, BASE_OUI,
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_llc_pid,
 		{ "Protocol ID", "llc.pid", FT_UINT16, BASE_HEX,

@@ -1019,7 +1019,7 @@ proto_register_nhrp(void)
         },
         { &hf_nhrp_hdr_pro_snap_oui,
           { "Protocol Type (long form) - OUI", "nhrp.hdr.pro.snap.oui",
-            FT_UINT24, BASE_HEX, VALS(oui_vals), 0x0,
+            FT_UINT24, BASE_OUI, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nhrp_hdr_pro_snap_pid,

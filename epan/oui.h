@@ -49,6 +49,7 @@
 #define OUI_SONY_ERICSSON   0x000AD9    /* Sony Ericsson Mobile Communications AB */
 #define OUI_ARUBA           0x000B86    /* Aruba Networks */
 #define OUI_MIKROTIK        0x000C42
+#define OUI_MERU            0x000CE6    /* Meru Network (Fortinet) */
 #define OUI_SONY_ERICSSON_2 0x000E07    /* Sony Ericsson Mobile Communications AB */
 #define OUI_PROFINET        0x000ECF    /* PROFIBUS Nutzerorganisation e.V. */
 #define OUI_RSN             0x000FAC    /* Wi-Fi : RSN */
@@ -65,7 +66,7 @@
 #define OUI_SONY_ERICSSON_8 0x001963    /* Sony Ericsson Mobile Communications AB */
 #define OUI_AIROHIVE        0x001977    /* Airohive AP to AP communication */
 #define OUI_DCBX            0x001B21    /* Data Center Bridging Capabilities Exchange Protocol */
-#define OUI_CISCO_UBI       0X001B67    /* Cisco/Ubiquisys */
+#define OUI_CISCO_UBI       0x001B67    /* Cisco/Ubiquisys */
 #define OUI_IEEE_802_1QBG   0x001B3F    /* IEEE 802.1 Qbg */
 #define OUI_NINTENDO        0x001F32
 #define OUI_TURBOCELL       0x0020F6    /* KarlNet, who brought you Turbocell */
@@ -74,23 +75,20 @@
 #define OUI_MARVELL         0x005043    /* Marvell Semiconductor */
 #define OUI_WPAWME          0x0050F2    /* Wi-Fi : WPA / WME */
 #define OUI_ERICSSON_2      0x008037    /* Ericsson Group */
+#define OUI_HP_2            0x00805F    /* Hewlett-Packard */
 #define OUI_IEEE_802_1      0x0080C2    /* IEEE 802.1 Committee */
 #define OUI_PRE11N          0x00904C    /* Wi-Fi : 802.11 Pre-N */
 #define OUI_ATM_FORUM       0x00A03E    /* ATM Forum */
+#define OUI_ZEBRA_EXTREME   0x00A0F8    /* Extreme/WING (Zebra) */
 #define OUI_EXTREME         0x00E02B    /* Extreme EDP/ESRP */
 #define OUI_CABLE_BPDU      0x00E02F    /* DOCSIS spanning tree BPDU */
 #define OUI_FOUNDRY         0x00E052    /* Foundry */
 #define OUI_SIEMENS         0x080006    /* Siemens AG */
 #define OUI_APPLE_ATALK     0x080007    /* Appletalk */
 #define OUI_HP              0x080009    /* Hewlett-Packard */
-#define OUI_HP_2            0x00805F    /* Hewlett-Packard */
 #define OUI_HYTEC_GER       0x30B216    /* Hytec Geraetebau GmbH */
 #define OUI_WFA             0x506F9A    /* Wi-Fi Alliance */
 #define OUI_3GPP2           0xCF0002    /* 3GPP2 */
-#define OUI_MERU            0x000ce6    /* Meru Network (Fortinet) */
-#define OUI_ZEBRA_EXTREME   0x00A0F8    /* Extreme/WING (Zebra) */
-
-extern const value_string oui_vals[];
 
 #endif
 

@@ -893,7 +893,7 @@ proto_register_fr(void)
 
     { &hf_fr_oui,
       { "Organization Code", "fr.snap.oui",
-        FT_UINT24, BASE_HEX, VALS(oui_vals), 0x0,
+        FT_UINT24, BASE_OUI, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_fr_pid,

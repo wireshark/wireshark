@@ -2339,7 +2339,7 @@ proto_register_btavrcp(void)
         },
         { &hf_btavrcp_company_id,
             { "Company ID",                      "btavrcp.company_id",
-            FT_UINT24, BASE_HEX, VALS(oui_vals), 0x00,
+            FT_UINT24, BASE_OUI, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_btavrcp_passthrough_state,
@@ -2364,7 +2364,7 @@ proto_register_btavrcp(void)
         },
         { &hf_btavrcp_passthrough_company_id,
             { "Company ID",                      "btavrcp.passthrough.company_id",
-            FT_UINT24, BASE_HEX, VALS(oui_vals), 0x00,
+            FT_UINT24, BASE_OUI, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_btavrcp_unit_unknown,

@@ -10993,7 +10993,7 @@ proto_register_btatt(void)
         },
         {&hf_btatt_system_id_organizationally_unique_identifier,
             {"Organizationally Unique Identifier", "btatt.system_id.organizationally_unique_identifier",
-            FT_UINT24, BASE_HEX, VALS(oui_vals), 0x0,
+            FT_UINT24, BASE_OUI, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_timezone,

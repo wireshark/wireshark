@@ -4643,12 +4643,6 @@ dissect_cp(tvbuff_t *tvb, int proto_id, int proto_subtree_index,
             manuf = uint_get_manuf_name_if_known(oui);
             if (manuf){
                 proto_item_append_text(ti, "(%s)", manuf);
-            }else{
-                /* check if we have the name in oui_vals */
-                manuf = try_val_to_str(oui,oui_vals);
-                if (manuf){
-                    proto_item_append_text(ti, "(%s)", manuf);
-                }
             }
             proto_tree_add_item(fh_tree, hf_ppp_kind, tvb, offset + 7, 1,
                 ENC_BIG_ENDIAN);
@@ -6455,8 +6449,8 @@ proto_register_ppp(void)
             { "Magic Number", "ppp.magic_number", FT_UINT32, BASE_HEX,
                 NULL, 0x0, NULL, HFILL }},
         { &hf_ppp_oui,
-            { "OUI", "ppp.oui", FT_UINT24, BASE_HEX,
-                VALS(oui_vals), 0x0, NULL, HFILL }},
+            { "OUI", "ppp.oui", FT_UINT24, BASE_OUI,
+                NULL, 0x0, NULL, HFILL }},
         { &hf_ppp_kind,
             { "Kind", "ppp.kind", FT_UINT8, BASE_DEC_HEX,
                 NULL, 0x0, NULL, HFILL }},

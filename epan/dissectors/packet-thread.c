@@ -2786,7 +2786,7 @@ proto_register_thread_mc(void)
         { &hf_thread_mc_tlv_vendor_stack_ver_oui,
             { "OUI",
             "thread_meshcop.tlv.vendor_stack_ver_oui",
-            FT_UINT24, BASE_HEX, VALS(oui_vals), 0x0,
+            FT_UINT24, BASE_OUI, NULL, 0x0,
             NULL,
             HFILL }
         },
