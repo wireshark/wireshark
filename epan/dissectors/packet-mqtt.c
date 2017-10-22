@@ -176,10 +176,11 @@ static int hf_mqtt_hdrflags = -1;
 static int hf_mqtt_msg_len = -1;
 static int hf_mqtt_msg_type = -1;
 static int hf_mqtt_reserved = -1;
-static int hf_mqtt_dup_reserved = -1;
 static int hf_mqtt_dup_flag = -1;
 static int hf_mqtt_qos_level = -1;
 static int hf_mqtt_retain = -1;
+static int hf_mqtt_retain_reserved = -1;
+static int hf_mqtt_conack_reserved = -1;
 static int hf_mqtt_conack_flags = -1;
 static int hf_mqtt_conackflag_reserved = -1;
 static int hf_mqtt_conackflag_sp = -1;
@@ -248,7 +249,6 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     proto_tree *mqtt_tree;
     proto_tree *mqtt_flag_tree;
 
-    guint8      hdr_reserved;
     guint8      mqtt_con_flags;
     guint64     msg_len      = 0;
     gint        mqtt_msg_len = 0;
@@ -274,8 +274,8 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     mqtt = (mqtt_conv *)conversation_get_proto_data(conv, proto_mqtt);
     if (mqtt == NULL)
     {
-        mqtt = wmem_new0(wmem_file_scope(), mqtt_conv);
-        conversation_add_proto_data(conv, proto_mqtt, mqtt);
+      mqtt = wmem_new0(wmem_file_scope(), mqtt_conv);
+      conversation_add_proto_data(conv, proto_mqtt, mqtt);
     }
 
     mqtt_len_offset = dissect_uleb128(tvb, (offset + MQTT_HDR_SIZE_BEFORE_LEN), &msg_len);
@@ -292,19 +292,24 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     mqtt_flag_tree = proto_item_add_subtree(ti_mqtt, ett_mqtt_hdr_flags);
     proto_tree_add_item(mqtt_flag_tree, hf_mqtt_msg_type,  tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    if (mqtt_msg_type == MQTT_PUBLISH) {
+    if (mqtt_msg_type == MQTT_PUBLISH)
+    {
       proto_tree_add_item(mqtt_flag_tree, hf_mqtt_dup_flag,  tvb, offset, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(mqtt_flag_tree, hf_mqtt_qos_level, tvb, offset, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(mqtt_flag_tree, hf_mqtt_retain,    tvb, offset, 1, ENC_BIG_ENDIAN);
-    } else if (mqtt->runtime_proto_version == MQTT_PROTO_V31 &&
-               (mqtt_msg_type == MQTT_PUBREL || mqtt_msg_type == MQTT_SUBSCRIBE ||
-                mqtt_msg_type == MQTT_UNSUBSCRIBE)) {
-        hdr_reserved = mqtt_fixed_hdr & MQTT_MASK_HDR_DUP_RESERVED;
-        proto_tree_add_item(mqtt_flag_tree, hf_mqtt_dup_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_uint(mqtt_flag_tree, hf_mqtt_dup_reserved, tvb, offset, 1, hdr_reserved);
-    } else {
-      hdr_reserved = mqtt_fixed_hdr & MQTT_MASK_HDR_RESERVED;
-      proto_tree_add_uint(mqtt_flag_tree, hf_mqtt_reserved, tvb, offset, 1, hdr_reserved);
+    }
+    else if (mqtt->runtime_proto_version == MQTT_PROTO_V31 &&
+             (mqtt_msg_type == MQTT_PUBREL ||
+              mqtt_msg_type == MQTT_SUBSCRIBE ||
+              mqtt_msg_type == MQTT_UNSUBSCRIBE))
+    {
+      proto_tree_add_item(mqtt_flag_tree, hf_mqtt_dup_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(mqtt_flag_tree, hf_mqtt_qos_level, tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(mqtt_flag_tree, hf_mqtt_retain_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
+    else
+    {
+      proto_tree_add_item(mqtt_flag_tree, hf_mqtt_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
 
     offset += 1;
@@ -389,13 +394,19 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         break;
 
       case MQTT_CONNACK:
-        /* v3.1 Connection Ack only contains a reserved byte and the Return Code.
-         * v3.1.1 Conn Ack contains the Conn Ack Flags and the Return Code.
-         */
-        ti_mqtt = proto_tree_add_item(mqtt_tree, hf_mqtt_conack_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-        mqtt_flag_tree = proto_item_add_subtree(ti_mqtt, ett_mqtt_conack_flags);
-        proto_tree_add_item(mqtt_flag_tree, hf_mqtt_conackflag_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(mqtt_flag_tree, hf_mqtt_conackflag_sp, tvb, offset, 1, ENC_BIG_ENDIAN);
+        if (mqtt->runtime_proto_version == MQTT_PROTO_V31)
+        {
+          /* v3.1 Connection Ack only contains a reserved byte and the Return Code. */
+          proto_tree_add_item(mqtt_tree, hf_mqtt_conack_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+        }
+        else
+        {
+          /* v3.1.1 Conn Ack contains the Conn Ack Flags and the Return Code. */
+          ti_mqtt = proto_tree_add_item(mqtt_tree, hf_mqtt_conack_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+          mqtt_flag_tree = proto_item_add_subtree(ti_mqtt, ett_mqtt_conack_flags);
+          proto_tree_add_item(mqtt_flag_tree, hf_mqtt_conackflag_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+          proto_tree_add_item(mqtt_flag_tree, hf_mqtt_conackflag_sp, tvb, offset, 1, ENC_BIG_ENDIAN);
+        }
         offset += 1;
 
         proto_tree_add_item(mqtt_tree, hf_mqtt_conack_code, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -547,9 +558,9 @@ void proto_register_mqtt(void)
       { "Reserved", "mqtt.hdr_reserved",
         FT_UINT8, BASE_DEC, NULL, MQTT_MASK_HDR_RESERVED,
         "Fixed Header Reserved Field", HFILL }},
-    { &hf_mqtt_dup_reserved,
-      { "Reserved", "mqtt.hdr_dup_reserved",
-        FT_UINT8, BASE_DEC, NULL, MQTT_MASK_HDR_DUP_RESERVED,
+    { &hf_mqtt_retain_reserved,
+      { "Reserved", "mqtt.retain_reserved",
+        FT_UINT8, BASE_DEC, NULL, MQTT_MASK_RETAIN,
         "Fixed Header Reserved Field", HFILL }},
     { &hf_mqtt_dup_flag,
       { "DUP Flag", "mqtt.dupflag",
@@ -564,6 +575,10 @@ void proto_register_mqtt(void)
         FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQTT_MASK_RETAIN,
         NULL, HFILL }},
     /* Conn-Ack */
+    { &hf_mqtt_conack_reserved,
+      { "Reserved", "mqtt.conack.flags.reserved",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0,
+        NULL, HFILL }},
     { &hf_mqtt_conack_flags,
       { "Acknowledge Flags", "mqtt.conack.flags",
         FT_UINT8, BASE_HEX, NULL, 0,
