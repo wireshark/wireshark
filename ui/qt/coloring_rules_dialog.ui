@@ -98,19 +98,6 @@
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
       <widget class="QPushButton" name="fGPushButton">
        <property name="toolTip">
         <string>Set the foreground color for this rule.</string>
@@ -145,6 +132,19 @@
        </property>
        <property name="flat">
         <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="displayFilterPushButton">
+       <property name="toolTip">
+        <string>Set the display filter using this rule.</string>
+       </property>
+       <property name="text">
+        <string>Apply as filter</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
        </property>
       </widget>
      </item>

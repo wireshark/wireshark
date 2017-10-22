@@ -23,6 +23,7 @@
 #define COLORING_RULES_DIALOG_H
 
 #include "geometry_state_dialog.h"
+#include "filter_action.h"
 
 class QAbstractButton;
 class QTreeWidget;
@@ -64,6 +65,9 @@ public:
 
     void addColor(struct _color_filter *colorf);
 
+signals:
+    void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);
+
 protected:
     void showEvent(QShowEvent *);
 
@@ -73,6 +77,7 @@ private slots:
     void on_coloringRulesTreeWidget_itemSelectionChanged();
     void on_fGPushButton_clicked();
     void on_bGPushButton_clicked();
+    void on_displayFilterPushButton_clicked();
     void on_newToolButton_clicked();
     void on_deleteToolButton_clicked();
     void on_copyToolButton_clicked();

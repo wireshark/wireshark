@@ -136,6 +136,7 @@ void ColoringRulesDialog::showEvent(QShowEvent *)
 {
     ui->fGPushButton->setFixedHeight(ui->copyToolButton->geometry().height());
     ui->bGPushButton->setFixedHeight(ui->copyToolButton->geometry().height());
+    ui->displayFilterPushButton->setFixedHeight(ui->copyToolButton->geometry().height());
 }
 
 void ColoringRulesDialog::updateWidgets()
@@ -164,6 +165,7 @@ void ColoringRulesDialog::updateWidgets()
     ui->deleteToolButton->setEnabled(num_selected > 0);
     ui->fGPushButton->setVisible(num_selected == 1);
     ui->bGPushButton->setVisible(num_selected == 1);
+    ui->displayFilterPushButton->setVisible(num_selected == 1);
 
     QString error_text;
     QTreeWidgetItemIterator iter(ui->coloringRulesTreeWidget);
@@ -265,6 +267,16 @@ void ColoringRulesDialog::on_fGPushButton_clicked()
 void ColoringRulesDialog::on_bGPushButton_clicked()
 {
     changeColor(false);
+}
+
+void ColoringRulesDialog::on_displayFilterPushButton_clicked()
+{
+    if (!ui->coloringRulesTreeWidget->currentItem()) return;
+
+    QTreeWidgetItem *ti = ui->coloringRulesTreeWidget->currentItem();
+    QString filter = ti->text(filter_col_);
+
+    emit filterAction(filter, FilterAction::ActionApply, FilterAction::ActionTypePlain);
 }
 
 void ColoringRulesDialog::addColoringRule(bool disabled, QString name, QString filter, QColor foreground, QColor background, bool start_editing, bool at_top)

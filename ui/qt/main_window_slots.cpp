@@ -2498,6 +2498,8 @@ void MainWindow::on_actionViewColoringRules_triggered()
     ColoringRulesDialog coloring_rules_dialog(this);
     connect(&coloring_rules_dialog, SIGNAL(accepted()),
             packet_list_, SLOT(recolorPackets()));
+    connect(&coloring_rules_dialog, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
+            this, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)));
     coloring_rules_dialog.exec();
 }
 
@@ -2520,6 +2522,8 @@ void MainWindow::colorizeConversation(bool create_rule)
             ColoringRulesDialog coloring_rules_dialog(this, filter);
             connect(&coloring_rules_dialog, SIGNAL(accepted()),
                     packet_list_, SLOT(recolorPackets()));
+            connect(&coloring_rules_dialog, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
+                    this, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)));
             coloring_rules_dialog.exec();
         } else {
             gchar *err_msg = NULL;
@@ -2570,6 +2574,8 @@ void MainWindow::colorizeWithFilter(QByteArray filter, int color_number)
         ColoringRulesDialog coloring_rules_dialog(window(), filter);
         connect(&coloring_rules_dialog, SIGNAL(accepted()),
                 packet_list_, SLOT(recolorPackets()));
+        connect(&coloring_rules_dialog, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
+                this, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)));
         coloring_rules_dialog.exec();
     }
     main_ui_->actionViewColorizeResetColorization->setEnabled(tmp_color_filters_used());
