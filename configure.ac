@@ -1485,43 +1485,6 @@ elif test "$have_gtk" = "no" -a "$have_qt" = "no" ; then
 fi
 
 #
-# Check whether GLib modules are supported, to determine whether we
-# can support plugins.
-#
-
-AC_CACHE_CHECK([whether GLib supports loadable modules],
-               [ac_cv_glib_supports_modules], [
-ac_save_CFLAGS="$CFLAGS"
-ac_save_LIBS="$LIBS"
-CFLAGS="$WS_CFLAGS $GLIB_CFLAGS $CFLAGS"
-LIBS="$LIBS $GLIB_LIBS"
-AC_TRY_RUN([
-#include <glib.h>
-#include <gmodule.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-int
-main ()
-{
-  if (g_module_supported())
-    return 0;	/* success */
-  else
-    return 1;	/* failure */
-}
-], ac_cv_glib_supports_modules=yes, ac_cv_glib_supports_modules=no,
-   [echo $ac_n "cross compiling; assumed OK... $ac_c"
-    ac_cv_glib_supports_modules=yes])
-CFLAGS="$ac_save_CFLAGS"
-LIBS="$ac_save_LIBS"
-])
-if test "$ac_cv_glib_supports_modules" = yes ; then
-  have_plugins=yes
-else
-  have_plugins=no
-fi
-
-#
 # If we have <dlfcn.h>, check whether we have dladdr.
 #
 if test "$ac_cv_header_dlfcn_h" = "yes"
@@ -2551,28 +2514,20 @@ AM_CONDITIONAL(HAVE_LIBXML2, test "x$have_libxml2" = "xyes")
 
 
 dnl
-dnl check whether plugins should be enabled and, if they should be,
-dnl check for plugins directory - stolen from Amanda's configure.ac
+dnl check whether plugins should be enabled
 dnl
-dnl we don't wish to expand ${libdir} yet
-plugindir="\${libdir}/wireshark/plugins/$VERSION_RELEASE"
-AC_ARG_WITH(plugins,
-  AC_HELP_STRING( [--with-plugins@<:@=DIR@:>@],
-		  [support plugins (installed in DIR, if supplied) @<:@default=yes, if possible@:>@]),
-[
-  if test "x$withval" = "xno"; then
-    have_plugins=no
-  elif test "x$have_plugins" = "xno"; then
-      AC_MSG_ERROR([GLib on this platform doesn't support loadable modules, so you can't enable plugins.])
-  elif test "x$withval" != "xyes"; then
-      plugindir="$withval"
-  fi
-])
+AC_ARG_ENABLE(plugins,
+  AC_HELP_STRING( [--enable-plugins],
+		  [support plugins (if available on your platform) @<:@default=yes@:>@]),
+		  [have_plugins=$enableval], [have_plugins=yes])
+
 AM_CONDITIONAL(HAVE_PLUGINS, test "x$have_plugins" = "xyes")
 if test x$have_plugins = xyes
 then
   AC_DEFINE(HAVE_PLUGINS, 1, [Define if plugins are enabled])
 fi
+dnl we don't wish to expand ${libdir} yet
+plugindir="\${libdir}/wireshark/plugins/$VERSION_RELEASE"
 AC_SUBST(plugindir)
 
 #

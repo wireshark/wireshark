@@ -50,6 +50,7 @@
 #include <wsutil/copyright_info.h>
 #include <wsutil/os_version_info.h>
 #include <wsutil/ws_printf.h> /* ws_debug_printf */
+#include <wsutil/plugins.h>
 
 /*
  * If the string doesn't end with a newline, append one.
@@ -341,6 +342,16 @@ get_runtime_version_info(void (*additional_info)(GString *))
 	/* zlib */
 #if defined(HAVE_ZLIB) && !defined(_WIN32)
 	g_string_append_printf(str, ", with zlib %s", zlibVersion());
+#endif
+
+	/* plugins */
+#ifdef HAVE_PLUGINS
+	if (g_module_supported()) {
+		g_string_append_printf(str, ", binary plugins supported (%d loaded)", plugins_get_count());
+	}
+	else {
+		g_string_append(str, ", binary plugins not supported");
+	}
 #endif
 
 	g_string_append(str, ".");

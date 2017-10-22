@@ -45,6 +45,7 @@ typedef void (*plugin_description_callback)(const char *name, const char *versio
                                             void *user_data);
 WS_DLL_PUBLIC void plugins_get_descriptions(plugin_description_callback callback, void *user_data);
 WS_DLL_PUBLIC void plugins_dump_all(void);
+WS_DLL_PUBLIC int plugins_get_count(void);
 WS_DLL_PUBLIC void plugins_cleanup(void);
 
 #ifdef __cplusplus

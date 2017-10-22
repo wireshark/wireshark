@@ -304,6 +304,9 @@ scan_plugins_build_dir(plugin_load_failure_mode mode)
 void
 scan_plugins(plugin_load_failure_mode mode)
 {
+    if (!g_module_supported())
+        return; /* nothing to do */
+
     if (plugins_table != NULL)
         return; /* only scan for plugins once */
 
@@ -373,6 +376,9 @@ plugins_get_descriptions(plugin_description_callback callback, void *user_data)
     GPtrArray *descriptions;
     struct description_callback cb;
 
+    if (!plugins_table)
+        return;
+
     descriptions = g_ptr_array_sized_new(g_hash_table_size(plugins_table));
     g_hash_table_foreach(plugins_table, add_plugin_to_descriptions, descriptions);
     g_ptr_array_sort(descriptions, compare_plugins);
@@ -396,10 +402,19 @@ plugins_dump_all(void)
     plugins_get_descriptions(print_plugin_description, NULL);
 }
 
+int
+plugins_get_count(void)
+{
+    if (plugins_table)
+        return g_hash_table_size(plugins_table);
+    return 0;
+}
+
 void
 plugins_cleanup(void)
 {
-    g_hash_table_destroy(plugins_table);
+    if (plugins_table)
+        g_hash_table_destroy(plugins_table);
     g_slist_foreach(plugin_types, free_plugin_type, NULL);
     g_slist_free(plugin_types);
 }
