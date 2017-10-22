@@ -2745,7 +2745,7 @@ static gint tls12_handshake_hash(SslDecryptSession* ssl, gint md, StringInfo* ou
     return 0;
 }
 
-static gboolean
+gboolean
 tls13_hkdf_expand_label(guchar draft_version,
                         int md, const StringInfo *secret, const char *label, const char *hash_value,
                         guint16 out_len, guchar **out)
