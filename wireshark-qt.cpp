@@ -236,12 +236,14 @@ get_gui_compiled_info(GString *str)
     g_string_append(str, "without QtMultimedia");
 #endif
 
+#ifdef _WIN32
     g_string_append(str, ", ");
 #ifdef HAVE_AIRPCAP
     get_compiled_airpcap_version(str);
 #else
     g_string_append(str, "without AirPcap");
 #endif
+#endif /* _WIN32 */
 
     codec_get_compiled_version_info(str);
 }
