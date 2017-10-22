@@ -1096,25 +1096,6 @@ if test x$enable_packet_editor = xyes; then
 	AC_DEFINE(WANT_PACKET_EDITOR, 1, [Support for packet editor])
 fi
 
-AC_ARG_ENABLE(profile-build,
-  AC_HELP_STRING( [--enable-profile-build],
-		  [build profile-ready binaries @<:@default=no@:>@]),
-    enable_profile_build=$enableval,enable_profile_build=no)
-AM_CONDITIONAL(USE_PROFILE_BUILD, test x$enable_profile_build = xyes)
-AC_MSG_CHECKING(if profile builds must be generated)
-if test "x$enable_profile_build" = "xyes" ; then
-	if test "x$GCC" = "xyes" -o "x$CLANG" = "xyes" ; then
-		AC_MSG_RESULT(yes)
-		WS_CFLAGS="-pg $WS_CFLAGS"
-		WS_CXXFLAGS="-pg $WS_CXXFLAGS"
-	else
-		AC_MSG_RESULT(no)
-		echo "Building profile binaries currently only supported for GCC and clang."
-	fi
-else
-	AC_MSG_RESULT(no)
-fi
-
 GLIB_MIN_VERSION=2.22.0
 AC_SUBST(GLIB_MIN_VERSION)
 # GLib checks; we require GLib $GLIB_MIN_VERSION or later, and require gmodule
@@ -3066,7 +3047,6 @@ echo "       Use external capture sources : $have_extcap"
 echo "                    Use Lua library : $lua_message"
 echo "                Build Qt RTP player : $qt_multimedia_message"
 echo "              Build GTK+ RTP player : $portaudio_message"
-echo "             Build profile binaries : $enable_profile_build"
 echo "                   Use pcap library : $want_pcap"
 echo "                   Use zlib library : $zlib_message"
 echo "               Use kerberos library : $krb5_message"
