@@ -392,6 +392,8 @@ static int hf_avaya_ipphone_mask = -1;
 static int hf_avaya_ipphone_gateway = -1;
 static int hf_unknown_subtype = -1;
 static int hf_unknown_subtype_content = -1;
+static int hf_iana_subtype = -1;
+static int hf_iana_mudurl = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_lldp = -1;
@@ -690,6 +692,14 @@ static const value_string avaya_dot1q_subtypes[] = {
 	{ 2, "No Tagging" },
 	{ 0, NULL }
 };
+
+/* IANA Subtypes */
+static const value_string iana_subtypes[] = {
+	{  1, "Manufacturer Usage Description URL" },
+	{  0, NULL }
+};
+
+
 
 /* 802.3 Power Class */
 static const value_string power_class_802_3[] = {
@@ -3618,6 +3628,34 @@ dissect_avaya_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 	}
 }
 
+/* Dissect IANA OUI TLVs */
+static void
+dissect_iana_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
+{
+	guint16 msg_len;
+	guint8  subType;
+
+	/* Get subtype */
+	subType = tvb_get_guint8(tvb, offset);
+
+	proto_tree_add_item(tree, hf_iana_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	msg_len=tvb_reported_length_remaining(tvb, offset);
+	switch (subType)
+	{
+	case 0x01: /* MUDURL */
+		if ( msg_len > 0 )
+			proto_tree_add_item(tree, hf_iana_mudurl, tvb, offset, msg_len, ENC_ASCII|ENC_NA);
+		break;
+
+	default:
+		proto_tree_add_item(tree, hf_unknown_subtype_content, tvb, offset, -1, ENC_NA);
+		break;
+	}
+}
+
+
 /* Dissect Organizational Specific TLV */
 static gint32
 dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, profinet_lldp_column_info *pn_lldp_column_info)
@@ -3768,6 +3806,9 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	case OUI_AVAYA:
 		subTypeStr = val_to_str(subType, avaya_subtypes, "Unknown subtype (0x%x)");
 		break;
+	case OUI_IANA:
+		subTypeStr = val_to_str(subType, iana_subtypes, "Unknown subtype (0x%x)");
+		break;
 	default:
 		subTypeStr = wmem_strdup_printf(wmem_packet_scope(), "Unknown (%d)",subType);
 		break;
@@ -3816,6 +3857,10 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	case OUI_AVAYA:
 		dissect_avaya_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
 		break;
+	case OUI_IANA:
+		dissect_iana_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
+		break;
+
 	default:
 		dissect_oui_default_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
 	}
@@ -5273,6 +5318,14 @@ proto_register_lldp(void)
 		},
 		{ &hf_avaya_ipphone_gateway,
 			{ "Gateway IP", "lldp.avaya.ipphone.gateway", FT_IPv4, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_iana_subtype,
+			{ "IANA Subtype", "lldp.iana.subtype", FT_UINT8, BASE_HEX,
+			  VALS(iana_subtypes), 0x0, NULL, HFILL }
+		},
+		{ &hf_iana_mudurl,
+			{ "Manufacturer Usage Description URL", "lldp.iana.mudurl", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_unknown_subtype,
