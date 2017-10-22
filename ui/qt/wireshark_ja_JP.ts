@@ -11703,6 +11703,10 @@ a:hover {
         <translation>このエントリをコピーします</translation>
     </message>
     <message>
+        <source>Clear all entries.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unknown User Accessible Table</source>
         <translation>ユーザがアクセスできる表が不明</translation>
     </message>
@@ -11728,6 +11732,10 @@ a:hover {
     <message>
         <source>Copy this entry.</source>
         <translation type="unfinished">このエントリをコピーします</translation>
+    </message>
+    <message>
+        <source>Clear all entries.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>

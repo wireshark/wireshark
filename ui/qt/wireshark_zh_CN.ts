@@ -11748,6 +11748,10 @@ text-decoration: underline;
         <translation>复制此项。</translation>
     </message>
     <message>
+        <source>Clear all entries.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unknown User Accessible Table</source>
         <translation>未知用户可访问表</translation>
     </message>
@@ -11773,6 +11777,10 @@ text-decoration: underline;
     <message>
         <source>Copy this entry.</source>
         <translation type="unfinished">复制此项。</translation>
+    </message>
+    <message>
+        <source>Clear all entries.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>

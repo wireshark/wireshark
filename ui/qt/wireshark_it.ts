@@ -11769,6 +11769,10 @@ a:hover {
         <translation>Copia questa voce.</translation>
     </message>
     <message>
+        <source>Clear all entries.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unknown User Accessible Table</source>
         <translation>Tabella accessibile dall&apos;utente sconosciuta</translation>
     </message>
@@ -11794,6 +11798,10 @@ a:hover {
     <message>
         <source>Copy this entry.</source>
         <translation>Copia questa voce.</translation>
+    </message>
+    <message>
+        <source>Clear all entries.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>

@@ -11775,6 +11775,10 @@ text-decoration: underline;
         <translation>Diesen Eintrag kopieren.</translation>
     </message>
     <message>
+        <source>Clear all entries.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unknown User Accessible Table</source>
         <translation>Unbekannte User Accessible Table </translation>
     </message>
@@ -11800,6 +11804,10 @@ text-decoration: underline;
     <message>
         <source>Copy this entry.</source>
         <translation>Diesen Eintrag kopieren.</translation>
+    </message>
+    <message>
+        <source>Clear all entries.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>

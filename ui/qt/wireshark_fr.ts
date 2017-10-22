@@ -11718,6 +11718,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Copier cette entrée.</translation>
     </message>
     <message>
+        <source>Clear all entries.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unknown User Accessible Table</source>
         <translation>inconnu UAT</translation>
     </message>
@@ -11743,6 +11747,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Copy this entry.</source>
         <translation type="unfinished">Copier cette entrée.</translation>
+    </message>
+    <message>
+        <source>Clear all entries.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>
