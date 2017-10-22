@@ -244,12 +244,10 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     guint8  mqtt_fixed_hdr;
     guint8  mqtt_msg_type;
     proto_item *ti;
-    proto_item *ti_mqtt;
 
     proto_tree *mqtt_tree;
-    proto_tree *mqtt_flag_tree;
 
-    guint8      mqtt_con_flags;
+    guint64     mqtt_con_flags;
     guint64     msg_len      = 0;
     gint        mqtt_msg_len = 0;
     guint16     mqtt_str_len;
@@ -258,6 +256,40 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     mqtt_conv   *mqtt;
 
     int offset = 0;
+    static const int *publish_fields[] = {
+        &hf_mqtt_msg_type,
+        &hf_mqtt_dup_flag,
+        &hf_mqtt_qos_level,
+        &hf_mqtt_retain,
+        NULL
+    };
+    static const int *v31_pubrel_sub_unsub_fields[] = {
+        &hf_mqtt_msg_type,
+        &hf_mqtt_dup_flag,
+        &hf_mqtt_qos_level,
+        &hf_mqtt_retain_reserved,
+        NULL
+    };
+    static const int *other_fields[] = {
+        &hf_mqtt_msg_type,
+        &hf_mqtt_reserved,
+        NULL
+    };
+    static const int *connect_flags[] = {
+        &hf_mqtt_conflag_user,
+        &hf_mqtt_conflag_passwd,
+        &hf_mqtt_conflag_will_retain,
+        &hf_mqtt_conflag_will_qos,
+        &hf_mqtt_conflag_will_flag,
+        &hf_mqtt_conflag_clean_sess,
+        &hf_mqtt_conflag_reserved,
+        NULL
+    };
+    static const int *connack_flags[] = {
+        &hf_mqtt_conackflag_reserved,
+        &hf_mqtt_conackflag_sp,
+        NULL
+    };
 
     /* Extract the message ID */
     mqtt_fixed_hdr = tvb_get_guint8(tvb, offset);
@@ -286,30 +318,20 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     /* Add the type to the MQTT tree item */
     proto_item_append_text(mqtt_tree, ", %s", val_to_str_ext(mqtt_msg_type, &mqtt_msgtype_vals_ext, "Unknown (0x%02x)"));
 
-    ti_mqtt = proto_tree_add_uint_format_value(mqtt_tree, hf_mqtt_hdrflags, tvb, offset, 1, mqtt_fixed_hdr, "0x%02x (%s)",
-                                               mqtt_fixed_hdr, val_to_str_ext(mqtt_msg_type, &mqtt_msgtype_vals_ext, "Unknown (0x%02x)"));
-
-    mqtt_flag_tree = proto_item_add_subtree(ti_mqtt, ett_mqtt_hdr_flags);
-    proto_tree_add_item(mqtt_flag_tree, hf_mqtt_msg_type,  tvb, offset, 1, ENC_BIG_ENDIAN);
-
     if (mqtt_msg_type == MQTT_PUBLISH)
     {
-      proto_tree_add_item(mqtt_flag_tree, hf_mqtt_dup_flag,  tvb, offset, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(mqtt_flag_tree, hf_mqtt_qos_level, tvb, offset, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(mqtt_flag_tree, hf_mqtt_retain,    tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_bitmask(mqtt_tree, tvb, offset, hf_mqtt_hdrflags, ett_mqtt_hdr_flags, publish_fields, ENC_BIG_ENDIAN);
     }
     else if (mqtt->runtime_proto_version == MQTT_PROTO_V31 &&
              (mqtt_msg_type == MQTT_PUBREL ||
               mqtt_msg_type == MQTT_SUBSCRIBE ||
               mqtt_msg_type == MQTT_UNSUBSCRIBE))
     {
-      proto_tree_add_item(mqtt_flag_tree, hf_mqtt_dup_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(mqtt_flag_tree, hf_mqtt_qos_level, tvb, offset, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(mqtt_flag_tree, hf_mqtt_retain_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_bitmask(mqtt_tree, tvb, offset, hf_mqtt_hdrflags, ett_mqtt_hdr_flags, v31_pubrel_sub_unsub_fields, ENC_BIG_ENDIAN);
     }
     else
     {
-      proto_tree_add_item(mqtt_flag_tree, hf_mqtt_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_bitmask(mqtt_tree, tvb, offset, hf_mqtt_hdrflags, ett_mqtt_hdr_flags, other_fields, ENC_BIG_ENDIAN);
     }
 
     offset += 1;
@@ -333,17 +355,9 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         proto_tree_add_item(mqtt_tree, hf_mqtt_proto_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        /* Create a new subtree for flags, and add all items under this tree */
-        mqtt_con_flags = tvb_get_guint8(tvb, offset);
-        ti_mqtt = proto_tree_add_item(mqtt_tree, hf_mqtt_conflags, tvb, offset, 1, ENC_BIG_ENDIAN);
-        mqtt_flag_tree = proto_item_add_subtree(ti_mqtt, ett_mqtt_con_flags);
-        proto_tree_add_item(mqtt_flag_tree, hf_mqtt_conflag_user,        tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(mqtt_flag_tree, hf_mqtt_conflag_passwd,      tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(mqtt_flag_tree, hf_mqtt_conflag_will_retain, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(mqtt_flag_tree, hf_mqtt_conflag_will_qos,    tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(mqtt_flag_tree, hf_mqtt_conflag_will_flag,   tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(mqtt_flag_tree, hf_mqtt_conflag_clean_sess,  tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(mqtt_flag_tree, hf_mqtt_conflag_reserved,    tvb, offset, 1, ENC_BIG_ENDIAN);
+
+        proto_tree_add_bitmask_ret_uint64(mqtt_tree, tvb, offset, hf_mqtt_conflags,
+                           ett_mqtt_con_flags, connect_flags, ENC_BIG_ENDIAN, &mqtt_con_flags);
         offset += 1;
 
         proto_tree_add_item(mqtt_tree, hf_mqtt_keep_alive, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -402,10 +416,8 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         else
         {
           /* v3.1.1 Conn Ack contains the Conn Ack Flags and the Return Code. */
-          ti_mqtt = proto_tree_add_item(mqtt_tree, hf_mqtt_conack_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-          mqtt_flag_tree = proto_item_add_subtree(ti_mqtt, ett_mqtt_conack_flags);
-          proto_tree_add_item(mqtt_flag_tree, hf_mqtt_conackflag_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-          proto_tree_add_item(mqtt_flag_tree, hf_mqtt_conackflag_sp, tvb, offset, 1, ENC_BIG_ENDIAN);
+          proto_tree_add_bitmask(mqtt_tree, tvb, offset, hf_mqtt_conack_flags,
+                           ett_mqtt_conack_flags, connack_flags, ENC_BIG_ENDIAN);
         }
         offset += 1;
 
