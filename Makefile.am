@@ -855,6 +855,7 @@ DIST_SUBDIRS = \
 	caputils	\
 	codecs		\
 	doc		\
+	docbook		\
 	epan		\
 	ui		\
 	ui/cli		\
