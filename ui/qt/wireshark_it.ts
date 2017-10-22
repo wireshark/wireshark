@@ -11770,7 +11770,7 @@ a:hover {
     </message>
     <message>
         <source>Clear all entries.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cancella tutte le voci.</translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>
@@ -11801,7 +11801,7 @@ a:hover {
     </message>
     <message>
         <source>Clear all entries.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cancella tutte le voci.</translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>
