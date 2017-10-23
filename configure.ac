@@ -1515,41 +1515,6 @@ then
 	LIBS="$ac_save_LIBS"
 fi
 
-#
-# Check whether GLib's printf supports thousands grouping. (This might
-# be different from the system's printf since GLib can optionally use
-# its own printf implementation.)
-#
-AC_CACHE_CHECK([whether GLib supports POSIX/XSI thousands grouping],
-               [ac_cv_glib_supports_printf_grouping], [
-ac_save_CFLAGS="$CFLAGS"
-ac_save_LIBS="$LIBS"
-CFLAGS="$WS_CFLAGS $GLIB_CFLAGS $CFLAGS"
-LIBS="$LIBS $GLIB_LIBS"
-AC_TRY_RUN([
-#include <glib.h>
-#include <locale.h>
-#include <stdio.h>
-#include <string.h>
-
-int
-main ()
-{
-  gchar *str;
-  setlocale(LC_ALL, "en_US.UTF-8");
-  str = g_strdup_printf("%'u", 123456);
-  return (strcmp (str, "123,456") != 0);
-}
-], ac_cv_glib_supports_printf_grouping=yes, ac_cv_glib_supports_printf_grouping=no,
-   [echo $ac_n "cross compiling; playing it safe... $ac_c"
-    ac_cv_glib_supports_printf_grouping=no])
-CFLAGS="$ac_save_CFLAGS"
-LIBS="$ac_save_LIBS"
-])
-if test "$ac_cv_glib_supports_printf_grouping" = yes ; then
-  AC_DEFINE(HAVE_GLIB_PRINTF_GROUPING, 1, [Define if GLib's printf functions support thousands grouping.])
-fi
-
 AC_SUBST(wireshark_bin)
 AC_SUBST(wireshark_man)
 AC_SUBST(wireshark_SUBDIRS)

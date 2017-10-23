@@ -113,11 +113,21 @@ isdigit_string(guchar *str)
 #define FORMAT_SIZE_UNIT_MASK 0x00ff
 #define FORMAT_SIZE_PFX_MASK 0xff00
 
-#ifdef HAVE_GLIB_PRINTF_GROUPING
-#define GROUP_FLAG "'"
-#else
-#define GROUP_FLAG ""
-#endif
+static const char *thousands_grouping_fmt = NULL;
+
+DIAG_OFF(format)
+static void test_printf_thousands_grouping(void) {
+	/* test whether g_printf works with "'" flag character */
+	gchar *str = g_strdup_printf("%'d", 22);
+	if (g_strcmp0(str, "22") == 0) {
+		thousands_grouping_fmt = "%'"G_GINT64_MODIFIER"d";
+	} else {
+		/* Don't use */
+		thousands_grouping_fmt = "%"G_GINT64_MODIFIER"d";
+	}
+	g_free(str);
+}
+DIAG_ON(format)
 
 /* Given a size, return its value in a human-readable format */
 /* This doesn't handle fractional values. We might want to make size a double. */
@@ -128,28 +138,34 @@ format_size(gint64 size, format_size_flags_e flags)
 	int power = 1000;
 	int pfx_off = 0;
 	gboolean is_small = FALSE;
-	static const gchar *prefix[] = {"T", "G", "M", "k", "Ti", "Gi", "Mi", "Ki"};
+	static const gchar *prefix[] = {" T", " G", " M", " k", " Ti", " Gi", " Mi", " Ki"};
 	gchar *ret_val;
+
+	if (thousands_grouping_fmt == NULL)
+		test_printf_thousands_grouping();
 
 	if ((flags & FORMAT_SIZE_PFX_MASK) == format_size_prefix_iec) {
 		pfx_off = 4;
 		power = 1024;
 	}
 
-DIAG_OFF(format)
 	if (size / power / power / power / power >= 10) {
-		g_string_printf(human_str, "%" GROUP_FLAG G_GINT64_MODIFIER "d %s", size / power / power / power / power, prefix[pfx_off]);
+		g_string_printf(human_str, thousands_grouping_fmt, size / power / power / power / power);
+		g_string_append(human_str, prefix[pfx_off]);
 	} else if (size / power / power / power >= 10) {
-		g_string_printf(human_str, "%" GROUP_FLAG G_GINT64_MODIFIER "d %s", size / power / power / power, prefix[pfx_off+1]);
+		g_string_printf(human_str, thousands_grouping_fmt, size / power / power / power);
+		g_string_append(human_str, prefix[pfx_off+1]);
 	} else if (size / power / power >= 10) {
-		g_string_printf(human_str, "%" GROUP_FLAG G_GINT64_MODIFIER "d %s", size / power / power, prefix[pfx_off+2]);
+		g_string_printf(human_str, thousands_grouping_fmt, size / power / power);
+		g_string_append(human_str, prefix[pfx_off+2]);
 	} else if (size / power >= 10) {
-		g_string_printf(human_str, "%" GROUP_FLAG G_GINT64_MODIFIER "d %s", size / power, prefix[pfx_off+3]);
+		g_string_printf(human_str, thousands_grouping_fmt, size / power);
+		g_string_append(human_str, prefix[pfx_off+3]);
 	} else {
-		g_string_printf(human_str, "%" GROUP_FLAG G_GINT64_MODIFIER "d", size);
+		g_string_printf(human_str, thousands_grouping_fmt, size);
 		is_small = TRUE;
 	}
-DIAG_ON(format)
+
 
 	switch (flags & FORMAT_SIZE_UNIT_MASK) {
 		case format_size_unit_none:

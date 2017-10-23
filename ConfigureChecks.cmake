@@ -185,41 +185,6 @@ if (NL_FOUND)
 endif()
 
 #
-# Check whether GLib's printf supports thousands grouping. (This might
-# be different from the system's printf since GLib can optionally use
-# its own printf implementation.)
-#
-if (CMAKE_CROSSCOMPILING OR WIN32)
-	#
-	# Play it safe when cross-compiling.
-	#
-	# XXX - compiling and trying to run the test below appears
-	# to loop infinitely on Windows, and the locale is wrong in
-	# any case, so we don't do this on Window for now.
-	#
-	set(HAVE_GLIB_PRINTF_GROUPING FALSE)
-else()
-	cmake_push_check_state()
-	set(CMAKE_REQUIRED_INCLUDES ${GLIB2_INCLUDE_DIRS})
-	set(CMAKE_REQUIRED_LIBRARIES ${GLIB2_LIBRARIES})
-	check_c_source_runs(
-		"#include <glib.h>
-		#include <locale.h>
-		#include <stdio.h>
-		#include <string.h>
-
-		int
-		main ()
-		{
-		  gchar *str;
-		  setlocale(LC_ALL, \"en_US.UTF-8\");
-		  str = g_strdup_printf(\"%'u\", 123456);
-		  return (strcmp (str, \"123,456\") != 0);
-		}" HAVE_GLIB_PRINTF_GROUPING)
-	cmake_pop_check_state()
-endif()
-
-#
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
