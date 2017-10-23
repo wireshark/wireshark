@@ -2651,6 +2651,14 @@ else
     DO_MV="sudo mv"
 fi
 
+# This script is meant to be run in the source root.  The following
+# code will attempt to get you there, but is not perfect (particulary
+# if someone copies the script).
+
+dir=`dirname $0`
+cd $dir/..
+
+# 
 #
 # If we have SDKs available, the default target OS is the major version
 # of the one we're running; get that and strip off the third component
