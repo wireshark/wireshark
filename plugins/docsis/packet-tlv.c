@@ -4787,9 +4787,9 @@ proto_register_docsis_tlv (void)
       "Downstream Said Support", HFILL}
     },
     {&hf_docsis_tlv_mcap_up_sid,
-     {".8 # Upstream SAIDs Supported", "docsis_tlv.mcap.upsid",
+     {".8 # Upstream Service Flows Supported", "docsis_tlv.mcap.upsid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Upstream SID Support", HFILL}
+      "Upstream Service Flows Supported", HFILL}
     },
     {&hf_docsis_tlv_mcap_8021P_filter,
      {".9 802.1P Filtering Support", "docsis_tlv.mcap.dot1pfiltering",
