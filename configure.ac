@@ -2439,35 +2439,7 @@ if test "x$ac_cv_func_getopt_long" = xyes; then
 fi
 
 AC_REPLACE_FUNCS(inet_aton)
-
-AC_CHECK_FUNC(inet_pton, [
-  dnl check for pre-BIND82 inet_pton() bug.
-  AC_MSG_CHECKING(for broken inet_pton)
-  AC_TRY_RUN([#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-int main()
-{
-#ifdef AF_INET6
-  char buf[16];
-  /* this should return 0 (error) */
-  return inet_pton(AF_INET6, "0:1:2:3:4:5:6:7:", buf);
-#else
-  return 1;
-#endif
-}], [AC_MSG_RESULT(ok);
-have_inet_pton=yes], [AC_MSG_RESULT(broken);
-have_inet_pton=no], [AC_MSG_RESULT([cross compiling, assume it is broken]);
-have_inet_pton=no])],
-have_inet_pton=no)
-if test "$have_inet_pton" = no; then
-  AC_LIBOBJ(inet_pton)
-else
-  AC_DEFINE(HAVE_INET_PTON, 1, [Define to 1 if you have the `inet_pton' function.])
-fi
-
-AC_REPLACE_FUNCS(inet_ntop)
+AC_REPLACE_FUNCS(inet_pton inet_ntop)
 AC_REPLACE_FUNCS(strptime)
 AC_REPLACE_FUNCS(popcount)
 
