@@ -4156,7 +4156,7 @@ static gboolean parse_SUBA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint
         case 0x0020: /* (LinkRecord) */
             parse_LinkRecord(SUBA_Attribute_header_tree, tvb, offset);
             break;
-        case 0x0030: /* (GuidInforecord) */
+        case 0x0030: /* (GuidInfoRecord) */
             parse_GUIDInfo(SUBA_Attribute_header_tree, tvb, offset);
             break;
         case 0x0031: /*(ServiceRecord) */
@@ -5207,7 +5207,7 @@ static void parse_RID(proto_tree* SA_header_tree, tvbuff_t* tvb, gint *offset, M
                 local_offset += 4;
                 break;
             case 0x0036:
-                /*VLArbitrationTableRecord */
+                /* VLArbitrationTableRecord */
                 proto_tree_add_item(SA_header_tree, hf_infiniband_SA_LID, tvb, local_offset, 2, ENC_BIG_ENDIAN);
                 local_offset += 2;
                 proto_tree_add_item(SA_header_tree, hf_infiniband_SA_OutputPortNum, tvb, local_offset, 1, ENC_BIG_ENDIAN);
