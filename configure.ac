@@ -2366,7 +2366,6 @@ if test "x$ac_cv_func_getopt_long" = xyes; then
   fi
 fi
 
-AC_REPLACE_FUNCS(inet_aton)
 AC_REPLACE_FUNCS(inet_pton inet_ntop)
 AC_REPLACE_FUNCS(strptime)
 AC_REPLACE_FUNCS(popcount)

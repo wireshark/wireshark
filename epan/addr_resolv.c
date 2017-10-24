@@ -103,7 +103,6 @@
 #include <wsutil/report_message.h>
 #include <wsutil/file_util.h>
 #include <wsutil/pint.h>
-#include "wsutil/inet_aton.h"
 #include <wsutil/inet_addr.h>
 
 #include <epan/strutil.h>
@@ -3122,7 +3121,7 @@ c_ares_ghi_cb(void *arg, int status, int timeouts _U_, struct hostent *hp) {
 gboolean
 get_host_ipaddr(const char *host, guint32 *addrp)
 {
-    struct in_addr      ipaddr;
+    guint32 ipaddr;
 #ifdef HAVE_C_ARES
     struct timeval tv = { 0, GHI_TIMEOUT }, *tvp;
     int nfds;
@@ -3130,12 +3129,7 @@ get_host_ipaddr(const char *host, guint32 *addrp)
     async_hostent_t ahe;
 #endif
 
-    /*
-     * don't change it to inet_pton(AF_INET), they are not 100% compatible.
-     * inet_pton(AF_INET) does not support hexadecimal notation nor
-     * less-than-4 octet notation.
-     */
-    if (!inet_aton(host, &ipaddr)) {
+    if (!ws_inet_pton4(host, &ipaddr)) {
 
         /* It's not a valid dotted-quad IP address; is it a valid
          * host name?
@@ -3185,7 +3179,7 @@ get_host_ipaddr(const char *host, guint32 *addrp)
             return FALSE;
     }
 
-    *addrp = ipaddr.s_addr;
+    *addrp = ipaddr;
     return TRUE;
 }
 

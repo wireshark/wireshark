@@ -29,7 +29,6 @@
 #include <epan/conversation.h>
 #include <epan/exceptions.h>
 #include <epan/to_str.h>
-#include <wsutil/inet_aton.h>
 #include <wsutil/pint.h>
 
 /* The Aeron protocol is defined at https://github.com/real-logic/Aeron/wiki/Protocol-Specification */

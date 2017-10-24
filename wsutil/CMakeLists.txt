@@ -213,10 +213,6 @@ if(NOT HAVE_GETOPT_LONG)
 	list(APPEND WSUTIL_FILES getopt_long.c)
 endif()
 
-if(NOT HAVE_INET_ATON)
-	list(APPEND WSUTIL_FILES inet_aton.c)
-endif()
-
 if(NOT HAVE_POPCOUNT)
 	list(APPEND WSUTIL_FILES popcount.c)
 endif()

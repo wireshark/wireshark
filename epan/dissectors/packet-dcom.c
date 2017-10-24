@@ -70,7 +70,6 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/addr_resolv.h>
-#include <wsutil/inet_aton.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include "packet-dcerpc.h"
@@ -1785,7 +1784,7 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	gboolean isPrintable;
 	guint32 first_ip = 0;
 	guint32 curr_ip = 0;
-	struct in_addr		ipaddr;
+	guint32 ipaddr;
 	proto_item *pi;
 
 
@@ -1818,7 +1817,7 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	/* convert ip address (if it is dotted decimal) */
 	/* XXX - this conversion is ugly */
-		if (inet_aton(szStr, &ipaddr)) {
+		if (ws_inet_pton4(szStr, &ipaddr)) {
 			if(get_host_ipaddr(szStr, &curr_ip)) {
 
 				/*expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, "DUALSTRINGARRAY: IP:%s",

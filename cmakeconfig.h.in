@@ -104,9 +104,6 @@
 /* Define to use heimdal kerberos */
 #cmakedefine HAVE_HEIMDAL_KERBEROS 1
 
-/* Define to 1 if you have the `inet_aton' function. */
-#cmakedefine HAVE_INET_ATON 1
-
 /* Define to 1 if you have the `inet_ntop' function. */
 #cmakedefine HAVE_INET_NTOP 1
 

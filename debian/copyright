@@ -67,7 +67,6 @@ License: FSL-Kaz
  contain a copyright notice related to this source.
 
 Files: epan/in_cksum.c
-       wsutil/inet_aton.c
 Copyright: 1988, 1992, 1993 The Regents of the University of California.
 License: BSD-3-clause
  All rights reserved.

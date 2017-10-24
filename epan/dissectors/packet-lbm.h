@@ -94,7 +94,13 @@
 #endif
 #include <stddef.h>
 
-#include <wsutil/inet_aton.h>
+#ifdef HAVE_NETINET_IN_H
+# include <netinet/in.h>
+#endif
+
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>
+#endif
 
 typedef guint8 lbm_uint8_t;
 typedef guint16 lbm_uint16_t;
@@ -112,8 +118,8 @@ typedef guint64 lbm_uint64_t;
 #define UAT_IPV4_CB_DEF(basename,field_name,rec_t) \
     static gboolean basename ## _ ## field_name ## _chk_cb(void * u1 _U_, const char * strptr, unsigned len _U_, const void * u2 _U_, const void * u3 _U_, char ** err) \
     { \
-        struct in_addr addr; \
-        if (inet_aton(strptr, &addr) == 0) \
+        guint32 addr; \
+        if (!ws_inet_pton4(strptr, &addr)) \
         { \
             *err = g_strdup("invalid address"); \
             return (FALSE); \
@@ -122,12 +128,12 @@ typedef guint64 lbm_uint64_t;
     } \
     static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* u1 _U_, const void* u2 _U_) \
     { \
-        struct in_addr addr; \
+        guint32 addr; \
         char* new_buf = g_strndup(buf,len); \
         g_free((((rec_t*)rec)->field_name)); \
         (((rec_t*)rec)->field_name) = new_buf; \
-        inet_aton(new_buf, &addr); \
-        (((rec_t*)rec)->field_name ## _val_h) = g_ntohl(addr.s_addr); \
+        ws_inet_pton4(new_buf, &addr); \
+        (((rec_t*)rec)->field_name ## _val_h) = g_ntohl(addr); \
     } \
     static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* u1 _U_, const void* u2 _U_) \
     {\
@@ -150,13 +156,13 @@ typedef guint64 lbm_uint64_t;
 #define UAT_IPV4_MC_CB_DEF(basename,field_name,rec_t) \
     static gboolean basename ## _ ## field_name ## _chk_cb(void * u1 _U_, const char * strptr, unsigned len _U_, const void * u2 _U_, const void * u3 _U_, char ** err) \
     { \
-        struct in_addr addr; \
-        if (inet_aton(strptr, &addr) == 0) \
+        guint32 addr; \
+        if (!ws_inet_pton4(strptr, &addr)) \
         { \
             *err = g_strdup("invalid address"); \
             return (FALSE); \
         } \
-        if (!IN_MULTICAST(g_ntohl(addr.s_addr)) && (g_ntohl(addr.s_addr) != 0)) \
+        if (!IN_MULTICAST(g_ntohl(addr)) && (g_ntohl(addr) != 0)) \
         { \
             *err = g_strdup("invalid multicast address"); \
             return (FALSE); \
@@ -165,12 +171,12 @@ typedef guint64 lbm_uint64_t;
     } \
     static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* u1 _U_, const void* u2 _U_) \
     { \
-        struct in_addr addr; \
+        guint32 addr; \
         char* new_buf = g_strndup(buf,len); \
         g_free((((rec_t*)rec)->field_name)); \
         (((rec_t*)rec)->field_name) = new_buf; \
-        inet_aton(new_buf, &addr); \
-        (((rec_t*)rec)->field_name ## _val_h) = g_ntohl(addr.s_addr); \
+        ws_inet_pton4(new_buf, &addr); \
+        (((rec_t*)rec)->field_name ## _val_h) = g_ntohl(addr); \
     } \
     static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* u1 _U_, const void* u2 _U_) \
     {\

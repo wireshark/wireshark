@@ -57,10 +57,6 @@ indent_size = tab
 indent_style = tab
 indent_size = tab
 
-[inet_aton.[ch]]
-indent_style = tab
-indent_size = tab
-
 [inet_ntop.[ch]]
 indent_style = tab
 indent_size = tab
