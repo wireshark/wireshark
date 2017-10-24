@@ -2998,7 +2998,7 @@ static void parse_SUBNADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
     local_offset = *offset;
 
     SUBNADMN_header_item = proto_tree_add_item(parentTree, hf_infiniband_SA, tvb, local_offset - 36, 256, ENC_NA);
-    proto_item_set_text(SUBNADMN_header_item, "%s", "SMA");
+    proto_item_set_text(SUBNADMN_header_item, "%s", "SA ");
     SUBNADMN_header_tree = proto_item_add_subtree(SUBNADMN_header_item, ett_subnadmin);
 
     proto_tree_add_item(SUBNADMN_header_tree, hf_infiniband_sm_key, tvb, local_offset, 8, ENC_BIG_ENDIAN);
