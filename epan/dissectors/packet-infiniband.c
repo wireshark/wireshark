@@ -341,6 +341,7 @@ static const value_string RMPP_Packet_Types[] = {
 static const value_string RMPP_Flags[] = {
     { 3, " (Transmission Sequence - First Packet)"},
     { 5, " (Transmission Sequence - Last Packet)"},
+    { 7, " (Transmission Sequence - First and Last Packet)"},
     { 1, " (Transmission Sequence) " },
     { 0, NULL}
 };
