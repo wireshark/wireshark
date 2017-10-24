@@ -7260,7 +7260,8 @@ proto_reg_handoff_sip(void)
         ssl_dissector_delete(saved_sip_tls_port, sip_tcp_handle);
     }
     /* Set our port number for future use */
-    ssl_dissector_add(saved_sip_tls_port, sip_tcp_handle);
+    ssl_dissector_add(sip_tls_port, sip_tcp_handle);
+    saved_sip_tls_port = sip_tls_port;
 
     exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 }
