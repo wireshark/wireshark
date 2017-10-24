@@ -240,9 +240,7 @@ static const value_string SUBM_Methods[] = {
 };
 /* SM Attributes */
 static const value_string SUBM_Attributes[] = {
-    { 0x0001, "Attribute (ClassPortInfo)"},
     { 0x0002, "Attribute (Notice)"},
-    { 0x0003, "Attribute (InformInfo)"},
     { 0x0010, "Attribute (NodeDescription)"},
     { 0x0011, "Attribute (NodeInfo)"},
     { 0x0012, "Attribute (SwitchInfo)"},
