@@ -95,9 +95,6 @@
 /* Define to 1 if you have the <getopt.h> header file. */
 #cmakedefine HAVE_GETOPT_H 1
 
-/* Define if GLib's printf functions support thousands grouping. */
-#cmakedefine HAVE_GLIB_PRINTF_GROUPING 1
-
 /* Define to 1 if you have the `getprotobynumber' function. */
 #cmakedefine HAVE_GETPROTOBYNUMBER 1
 
