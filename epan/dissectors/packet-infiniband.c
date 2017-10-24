@@ -298,7 +298,7 @@ static const value_string SUBA_Attributes[] = {
     { 0x0033, "Attribute (P_KeyTableRecord)"},
     { 0x0035, "Attribute (PathRecord)"},
     { 0x0036, "Attribute (VLArbitrationTableRecord)"},
-    { 0x0038, "Attribute (MCMembersRecord)"},
+    { 0x0038, "Attribute (MCMemberRecord)"},
     { 0x0039, "Attribute (TraceRecord)"},
     { 0x003A, "Attribute (MultiPathRecord)"},
     { 0x003B, "Attribute (ServiceAssociationRecord)"},
