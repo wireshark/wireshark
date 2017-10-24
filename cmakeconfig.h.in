@@ -104,12 +104,6 @@
 /* Define to use heimdal kerberos */
 #cmakedefine HAVE_HEIMDAL_KERBEROS 1
 
-/* Define to 1 if you have the `inet_ntop' function. */
-#cmakedefine HAVE_INET_NTOP 1
-
-/* Define to 1 if you have the `inet_pton' function. */
-#cmakedefine HAVE_INET_PTON 1
-
 /* Define to 1 if you have the `inflatePrime' function. */
 #cmakedefine HAVE_INFLATEPRIME 1
 

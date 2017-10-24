@@ -92,8 +92,7 @@ WSUTIL_PUBLIC_INCLUDES = \
 	wspcap.h		\
 	xtea.h
 
-WSUTIL_PRIVATE_INCLUDES = \
-	inet_addr-int.h
+WSUTIL_PRIVATE_INCLUDES =
 
 subpkgincludedir = $(pkgincludedir)/wsutil
 
@@ -192,8 +191,6 @@ EXTRA_DIST = \
 	file_util.h		\
 	getopt_long.c		\
 	getopt_long.h		\
-	inet_ntop.c		\
-	inet_pton.c		\
 	popcount.c		\
 	popcount.h		\
 	strptime.c		\

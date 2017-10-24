@@ -23,7 +23,24 @@
 
 #include "inet_addr.h"
 
-#include "inet_addr-int.h"
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#endif
+
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>		/* needed to define AF_ values on UNIX */
+#endif
+
+#ifdef _WIN32
+#include <Ws2tcpip.h>	/* indirectly defines AF_ values on Windows */
+#define _NTOP_SRC_CAST_ (PVOID)
+#else
+#define _NTOP_SRC_CAST_
+#endif
 
 static inline gboolean
 _inet_pton(int af, const gchar *src, gpointer dst)
@@ -38,7 +55,7 @@ _inet_pton(int af, const gchar *src, gpointer dst)
 const gchar *
 ws_inet_ntop4(gconstpointer src, gchar *dst, guint dst_size)
 {
-    return inet_ntop(AF_INET, src, dst, dst_size);
+    return inet_ntop(AF_INET, _NTOP_SRC_CAST_ src, dst, dst_size);
 }
 
 gboolean
@@ -50,7 +67,7 @@ ws_inet_pton4(const gchar *src, guint32 *dst)
 const gchar *
 ws_inet_ntop6(gconstpointer src, gchar *dst, guint dst_size)
 {
-    return inet_ntop(AF_INET6, src, dst, dst_size);
+    return inet_ntop(AF_INET6, _NTOP_SRC_CAST_ src, dst, dst_size);
 }
 
 gboolean

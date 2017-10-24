@@ -136,8 +136,6 @@ set(WSUTIL_FILES ${WSUTIL_COMMON_FILES})
 if(WIN32)
 	list(APPEND WSUTIL_FILES
 		file_util.c
-		inet_ntop.c
-		inet_pton.c
 		win32-utils.c
 	)
 ENDIF(WIN32)
