@@ -2347,7 +2347,6 @@ AC_REPLACE_FUNCS(strptime)
 AC_REPLACE_FUNCS(popcount)
 
 AC_CHECK_FUNCS(mkstemps mkdtemp)
-AC_CHECK_FUNCS(getprotobynumber)
 AC_CHECK_FUNCS(issetugid)
 AC_CHECK_FUNCS(sysconf)
 AC_CHECK_FUNCS(getifaddrs)
