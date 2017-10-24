@@ -793,7 +793,7 @@ static int hf_infiniband_PortInfo_CapabilityMask = -1;
 static int hf_infiniband_PortInfo_CapabilityMask_SM = -1;
 static int hf_infiniband_PortInfo_CapabilityMask_NoticeSupported = -1;
 static int hf_infiniband_PortInfo_CapabilityMask_TrapSupported = -1;
-static int hf_infiniband_PortInfo_CapabilityMask_OptionalPDSupported = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_OptionalIPDSupported = -1;
 static int hf_infiniband_PortInfo_CapabilityMask_AutomaticMigrationSupported = -1;
 static int hf_infiniband_PortInfo_CapabilityMask_SLMappingSupported = -1;
 static int hf_infiniband_PortInfo_CapabilityMask_MKeyNVRAM = -1;
@@ -802,7 +802,7 @@ static int hf_infiniband_PortInfo_CapabilityMask_LEDInfoSupported = -1;
 static int hf_infiniband_PortInfo_CapabilityMask_SMdisabled = -1;
 static int hf_infiniband_PortInfo_CapabilityMask_SystemImageGUIDSupported = -1;
 static int hf_infiniband_PortInfo_CapabilityMask_PKeySwitchExternalPortTrapSupported = -1;
-static int hf_infiniband_PortInfo_CapabilityMask_CommunicationsManagementSupported = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_CommunicationManagementSupported = -1;
 static int hf_infiniband_PortInfo_CapabilityMask_SNMPTunnelingSupported = -1;
 static int hf_infiniband_PortInfo_CapabilityMask_ReinitSupported = -1;
 static int hf_infiniband_PortInfo_CapabilityMask_DeviceManagementSupported = -1;
@@ -1283,7 +1283,7 @@ static const value_string bth_opcode_tbl[] = {
 #define PERF 0x04                   /* Performance Management */
 #define BM 0x05                     /* Baseboard Management (Tunneling of IB-ML commands through the IBA subnet) */
 #define DEV_MGT 0x06                /* Device Management */
-#define COM_MGT 0x07                /* Communications Management */
+#define COM_MGT 0x07                /* Communication Management */
 #define SNMP 0x08                   /* SNMP Tunneling (tunneling of the SNMP protocol through the IBA fabric) */
 #define VENDOR_1_START 0x09         /* Start of first Vendor Specific Range */
 #define VENDOR_1_END 0x0F           /* End of first Vendor Specific Range */
@@ -3683,7 +3683,7 @@ static void parse_CM_DRsp(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tv
     *offset = local_offset;
 }
 
-/* Parse Communications Management
+/* Parse Communication Management
 * IN: parentTree to add the dissection to
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
@@ -4616,7 +4616,7 @@ static int parse_PortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
     proto_tree_add_item(PortInfo_CapabilityMask_tree, hf_infiniband_PortInfo_CapabilityMask_SM, tvb, local_offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(PortInfo_CapabilityMask_tree, hf_infiniband_PortInfo_CapabilityMask_NoticeSupported, tvb, local_offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(PortInfo_CapabilityMask_tree, hf_infiniband_PortInfo_CapabilityMask_TrapSupported, tvb, local_offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(PortInfo_CapabilityMask_tree, hf_infiniband_PortInfo_CapabilityMask_OptionalPDSupported, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(PortInfo_CapabilityMask_tree, hf_infiniband_PortInfo_CapabilityMask_OptionalIPDSupported, tvb, local_offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(PortInfo_CapabilityMask_tree, hf_infiniband_PortInfo_CapabilityMask_AutomaticMigrationSupported, tvb, local_offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(PortInfo_CapabilityMask_tree, hf_infiniband_PortInfo_CapabilityMask_SLMappingSupported, tvb, local_offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(PortInfo_CapabilityMask_tree, hf_infiniband_PortInfo_CapabilityMask_MKeyNVRAM, tvb, local_offset, 4, ENC_BIG_ENDIAN);
@@ -4625,7 +4625,7 @@ static int parse_PortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
     proto_tree_add_item(PortInfo_CapabilityMask_tree, hf_infiniband_PortInfo_CapabilityMask_SMdisabled, tvb, local_offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(PortInfo_CapabilityMask_tree, hf_infiniband_PortInfo_CapabilityMask_SystemImageGUIDSupported, tvb, local_offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(PortInfo_CapabilityMask_tree, hf_infiniband_PortInfo_CapabilityMask_PKeySwitchExternalPortTrapSupported, tvb, local_offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(PortInfo_CapabilityMask_tree, hf_infiniband_PortInfo_CapabilityMask_CommunicationsManagementSupported, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(PortInfo_CapabilityMask_tree, hf_infiniband_PortInfo_CapabilityMask_CommunicationManagementSupported, tvb, local_offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(PortInfo_CapabilityMask_tree, hf_infiniband_PortInfo_CapabilityMask_SNMPTunnelingSupported, tvb, local_offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(PortInfo_CapabilityMask_tree, hf_infiniband_PortInfo_CapabilityMask_ReinitSupported, tvb, local_offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(PortInfo_CapabilityMask_tree, hf_infiniband_PortInfo_CapabilityMask_DeviceManagementSupported, tvb, local_offset, 4, ENC_BIG_ENDIAN);
@@ -7080,8 +7080,8 @@ void proto_register_infiniband(void)
                 "TrapSupported", "infiniband.portinfo.capabilitymask.trapsupported",
                 FT_UINT32, BASE_HEX, NULL, 0x00000008, NULL, HFILL}
         },
-        { &hf_infiniband_PortInfo_CapabilityMask_OptionalPDSupported, {
-                "OptionalPDSupported", "infiniband.portinfo.capabilitymask.optionalpdsupported",
+        { &hf_infiniband_PortInfo_CapabilityMask_OptionalIPDSupported, {
+                "OptionalIPDSupported", "infiniband.portinfo.capabilitymask.optionalipdsupported",
                 FT_UINT32, BASE_HEX, NULL, 0x00000010, NULL, HFILL}
         },
         { &hf_infiniband_PortInfo_CapabilityMask_AutomaticMigrationSupported, {
@@ -7116,8 +7116,8 @@ void proto_register_infiniband(void)
                 "PKeySwitchExternalPortTrapSupported", "infiniband.portinfo.capabilitymask.pkeyswitchexternalporttrapsupported",
                 FT_UINT32, BASE_HEX, NULL, 0x00001000, NULL, HFILL}
         },
-        { &hf_infiniband_PortInfo_CapabilityMask_CommunicationsManagementSupported, {
-                "CommunicationsManagementSupported", "infiniband.portinfo.capabilitymask.communicationsmanagementsupported",
+        { &hf_infiniband_PortInfo_CapabilityMask_CommunicationManagementSupported, {
+                "CommunicationManagementSupported", "infiniband.portinfo.capabilitymask.communicationmanagementsupported",
                 FT_UINT32, BASE_HEX, NULL, 0x00010000, NULL, HFILL}
         },
         { &hf_infiniband_PortInfo_CapabilityMask_SNMPTunnelingSupported, {
