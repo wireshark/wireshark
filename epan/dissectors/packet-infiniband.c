@@ -4071,16 +4071,16 @@ static gboolean parse_SUBM_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint
             parse_MulticastForwardingTable(SUBM_Attribute_header_tree , tvb, offset);
             break;
         case 0x001C:
-            parse_SMInfo(SUBM_Attribute_header_tree , tvb, offset);
+            parse_LinkSpeedWidthPairsTable(SUBM_Attribute_header_tree , tvb, offset);
             break;
         case 0x0020:
-            parse_VendorDiag(SUBM_Attribute_header_tree , tvb, offset);
+            parse_SMInfo(SUBM_Attribute_header_tree , tvb, offset);
             break;
         case 0x0030:
-            parse_LedInfo(SUBM_Attribute_header_tree , tvb, offset);
+            parse_VendorDiag(SUBM_Attribute_header_tree , tvb, offset);
             break;
         case 0x0031:
-            parse_LinkSpeedWidthPairsTable(SUBM_Attribute_header_tree , tvb, offset);
+            parse_LedInfo(SUBM_Attribute_header_tree , tvb, offset);
             break;
         default:
             break;
