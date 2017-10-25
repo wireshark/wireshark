@@ -304,7 +304,7 @@ fi
 
 # libgrypt (for decryption, MAC, etc. functionality).
 AM_PATH_LIBGCRYPT(1.4.2, [ ] , [
-  AC_MSG_ERROR([[libgcrypt not found; install libgcrypt-devel package for your system]])
+  AC_MSG_ERROR([[libgcrypt not installed for development; install libgcrypt, including any development package, for your system]])
 ])
 
 AC_ARG_WITH(libnl,
