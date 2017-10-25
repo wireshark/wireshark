@@ -47,8 +47,7 @@ signals:
 
 private slots:
     void captureFileClosing();
-    void setHintText() { QString empty; setHintText(empty); }
-    void setHintText(const QString &hint);
+    void setTvbOffsetHovered(tvbuff_t * tvb, int idx);
     void on_buttonBox_helpRequested();
 
 private:

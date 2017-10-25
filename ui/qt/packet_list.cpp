@@ -505,7 +505,6 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
 
     related_packet_delegate_.clear();
     if (proto_tree_) proto_tree_->clear();
-    if (byte_view_tab_) byte_view_tab_->clear();
 
     emit packetSelectionChanged();
 
@@ -523,20 +522,6 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
             related_packet_delegate_.setConversation(conv);
         }
         viewport()->update();
-    }
-
-    if (byte_view_tab_) {
-        GSList *src_le;
-        struct data_source *source;
-        char* source_name;
-
-        for (src_le = cap_file_->edt->pi.data_src; src_le != NULL; src_le = src_le->next) {
-            source = (struct data_source *)src_le->data;
-            source_name = get_data_source_name(source);
-            byte_view_tab_->addTab(source_name, get_data_source_tvb(source), cap_file_->edt->tree, proto_tree_, (packet_char_enc)cap_file_->current_frame->flags.encoding);
-            wmem_free(NULL, source_name);
-        }
-        byte_view_tab_->setCurrentIndex(0);
     }
 
     if (cap_file_->search_in_progress &&
@@ -944,7 +929,6 @@ void PacketList::freeze()
     // call selectionChanged.
     related_packet_delegate_.clear();
     proto_tree_->clear();
-    byte_view_tab_->clear();
 }
 
 void PacketList::thaw(bool restore_selection)
@@ -970,7 +954,6 @@ void PacketList::clear() {
     selectionModel()->clear();
     packet_list_model_->clear();
     proto_tree_->clear();
-    byte_view_tab_->clear();
     selection_history_.clear();
     cur_history_ = -1;
     in_history_ = false;

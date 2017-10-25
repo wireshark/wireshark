@@ -476,6 +476,9 @@ MainWindow::MainWindow(QWidget *parent) :
     packet_list_->setByteViewTab(byte_view_tab_);
     packet_list_->installEventFilter(this);
 
+    connect(packet_list_, SIGNAL(packetSelectionChanged()),
+            byte_view_tab_, SLOT(packetSelectionChanged()));
+
     main_welcome_ = main_ui_->welcomePage;
 
     // Packet list and proto tree must exist before these are called.
@@ -685,10 +688,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(proto_tree_, SIGNAL(editProtocolPreference(preference*,pref_module*)),
             main_ui_->preferenceEditorFrame, SLOT(editPreference(preference*,pref_module*)));
 
-    connect(byte_view_tab_, SIGNAL(byteFieldHovered(const QString&)),
-            main_ui_->statusBar, SLOT(pushByteStatus(const QString&)));
-    connect(byte_view_tab_, SIGNAL(currentChanged(int)),
-            this, SLOT(byteViewTabChanged(int)));
+    connect(byte_view_tab_, SIGNAL(tvbOffsetHovered(tvbuff_t *, int)),
+            this, SLOT(setTvbOffsetHovered(tvbuff_t *, int)));
 
     connect(main_ui_->statusBar, SIGNAL(showExpertInfo()),
             this, SLOT(on_actionAnalyzeExpertInfo_triggered()));

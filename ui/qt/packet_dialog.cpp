@@ -71,19 +71,7 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
 
     byte_view_tab_ = new ByteViewTab(ui->packetSplitter);
     byte_view_tab_->setCaptureFile(cap_file_.capFile());
-    byte_view_tab_->clear();
-
-    GSList *src_le;
-    for (src_le = edt_.pi.data_src; src_le != NULL; src_le = src_le->next) {
-        struct data_source *source;
-        char* source_name;
-        source = (struct data_source *)src_le->data;
-        source_name = get_data_source_name(source);
-        byte_view_tab_->addTab(source_name, get_data_source_tvb(source), edt_.tree, proto_tree_,
-                               (packet_char_enc)cap_file_.capFile()->current_frame->flags.encoding);
-        wmem_free(NULL, source_name);
-    }
-    byte_view_tab_->setCurrentIndex(0);
+    byte_view_tab_->packetSelectionChanged();
 
     ui->packetSplitter->setStretchFactor(1, 0);
 
@@ -95,7 +83,8 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
                      .arg(cap_file_.capFile()->cinfo.columns[i].col_data);
     }
     col_info_ = col_parts.join(" " UTF8_MIDDLE_DOT " ");
-    setHintText();
+
+    ui->hintLabel->setText(col_info_);
 
     connect(this, SIGNAL(monospaceFontChanged(QFont)),
             proto_tree_, SLOT(setMonospaceFont(QFont)));
@@ -106,6 +95,8 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
             byte_view_tab_, SLOT(protoTreeItemChanged(QTreeWidgetItem*)));
     connect(byte_view_tab_, SIGNAL(byteFieldHovered(const QString&)),
             this, SLOT(setHintText(const QString&)));
+    connect(byte_view_tab_, SIGNAL(tvbOffsetHovered(tvbuff_t *, int)),
+            this, SLOT(setTvbOffsetHovered(tvbuff_t *, int)));
 }
 
 PacketDialog::~PacketDialog()
@@ -120,13 +111,38 @@ void PacketDialog::captureFileClosing()
     QString closed_title = tr("[%1 closed] " UTF8_MIDDLE_DOT " %2")
             .arg(cap_file_.fileName())
             .arg(col_info_);
-    setHintText(closed_title);
+    ui->hintLabel->setText(closed_title);
     WiresharkDialog::captureFileClosing();
 }
 
-void PacketDialog::setHintText(const QString &hint)
+void PacketDialog::setTvbOffsetHovered(tvbuff_t * tvb, int idx)
 {
-    ui->hintLabel->setText(hint.isEmpty() ? col_info_ : hint);
+    QString field_str("");
+
+    if ( tvb && cap_file_.capFile() && cap_file_.capFile()->edt )
+    {
+        proto_tree * tree = cap_file_.capFile()->edt->tree;
+        if ( tree )
+        {
+            field_info * fi = proto_find_field_from_offset(tree, idx, tvb);
+
+            if (fi) {
+                if (fi->length < 2) {
+                    field_str = QString(tr("Byte %1"))
+                            .arg(fi->start);
+                } else {
+                    field_str = QString(tr("Bytes %1-%2"))
+                            .arg(fi->start)
+                            .arg(fi->start + fi->length - 1);
+                }
+                field_str += QString(": %1 (%2)")
+                        .arg(fi->hfinfo->name)
+                        .arg(fi->hfinfo->abbrev);
+            }
+        }
+    }
+
+    ui->hintLabel->setText(field_str);
 }
 
 void PacketDialog::on_buttonBox_helpRequested()

@@ -24,17 +24,14 @@
 
 #include <config.h>
 
-#include <epan/packet.h>
-#include <epan/proto.h>
-#include <epan/tvbuff.h>
-
-#include "proto_tree.h"
 #include "ui/recent.h"
 
 #include <QAbstractScrollArea>
+#include <QString>
+#include <QFont>
+#include <QSize>
 #include <QMenu>
-
-class QActionGroup;
+#include <QMap>
 
 // XXX - Is there any reason we shouldn't add ByteViewImage, etc?
 
@@ -42,24 +39,33 @@ class ByteViewText : public QAbstractScrollArea
 {
     Q_OBJECT
 public:
-    explicit ByteViewText(QWidget *parent = 0, tvbuff_t *tvb = NULL, proto_tree *tree = NULL, QTreeWidget *protoTree = NULL, packet_char_enc encoding = PACKET_CHAR_ENC_CHAR_ASCII);
+
+    explicit ByteViewText(QByteArray data, packet_char_enc encoding = PACKET_CHAR_ENC_CHAR_ASCII, QWidget *parent = 0);
     ~ByteViewText();
+
     virtual QSize minimumSizeHint() const;
 
-    bool hasDataSource(const tvbuff_t *ds_tvb = NULL);
     void setFormat(bytes_view_type format);
-    void setHighlightStyle(bool bold) { bold_highlight_ = bold; }
-    void setProtocolHighlight(int start, int end);
-    void setFieldHighlight(int start, int end, guint32 mask = 0, int mask_le = 0);
-    void setFieldAppendixHighlight(int start, int end);
-    bool isEmpty() { return tvb_ == NULL || proto_tree_ == NULL; }
-    const guint8 *dataAndLength(guint *data_len_ptr);
+    void setHighlightStyle(bool bold);
+    bool isEmpty() const;
+
+    QByteArray viewData();
 
 signals:
-    void byteFieldHovered(const QString &);
+
+    void byteHovered(int pos);
+    void byteSelected(int pos);
 
 public slots:
+    void reset();
+
     void setMonospaceFont(const QFont &mono_font);
+
+    void markProtocol(int start, int end);
+    void markField(int start, int end);
+    void markAppendix(int start, int end);
+
+    void moveToOffset(int pos);
 
 protected:
     virtual void paintEvent(QPaintEvent *);
@@ -80,22 +86,23 @@ private:
         ModeHover
     } HighlightMode;
 
+    QByteArray data_;
+
     void drawOffsetLine(QPainter &painter, const guint offset, const int row_y);
     qreal flushOffsetFragment(QPainter &painter, qreal x, int y, HighlightMode mode, QString &text);
     void scrollToByte(int byte);
+    void updateScrollbars();
+    int byteOffsetAtPixel(QPoint pos);
+
+    void createContextMenu();
+
     int offsetChars();
     int offsetPixels();
     int hexPixels();
     int asciiPixels();
     int totalPixels();
-    void updateScrollbars();
-    int byteOffsetAtPixel(QPoint &pos);
-    field_info *fieldAtPixel(QPoint &pos);
 
     static const int separator_interval_;
-    tvbuff_t *tvb_;
-    proto_tree *proto_tree_;
-    QTreeWidget *tree_widget_;
 
     // Fonts and colors
     QFont mono_font_;
@@ -103,11 +110,9 @@ private:
     QBrush offset_normal_fg_;
     QBrush offset_field_fg_;
 
-    gboolean bold_highlight_;
+    bool bold_highlight_;
 
     // Data
-    QActionGroup *format_actions_;
-    QActionGroup *encoding_actions_;
     packet_char_enc encoding_;  // ASCII or EBCDIC
     QMenu ctx_menu_;
 

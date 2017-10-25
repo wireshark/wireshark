@@ -388,7 +388,7 @@ private slots:
     void openTapParameterDialog(const QString cfg_str, const QString arg, void *userdata);
     void openTapParameterDialog();
 
-    void byteViewTabChanged(int tab_index);
+    void setTvbOffsetHovered(tvbuff_t * tvb, int idx);
 
 #ifdef HAVE_SOFTWARE_UPDATE
     void softwareUpdateRequested();
