@@ -4410,8 +4410,7 @@ static gint parse_NoticeDataDetails(proto_tree* parentTree, tvbuff_t* tvb, gint 
 /* Parse NoticesAndTraps Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
-*       offset - The offset in TVB where the attribute begins
-*       MadHeader - The common MAD header of the current SMP/SMA  */
+*       offset - The offset in TVB where the attribute begins     */
 static void parse_NoticesAndTraps(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint        local_offset = *offset;
@@ -4455,8 +4454,7 @@ static void parse_NoticesAndTraps(proto_tree* parentTree, tvbuff_t* tvb, gint *o
 /* Parse NodeDescription Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
-*       offset - The offset in TVB where the attribute begins
-*       MadHeader - The common MAD header of the current SMP/SMA  */
+*       offset - The offset in TVB where the attribute begins     */
 static void parse_NodeDescription(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint        local_offset = *offset;
@@ -4472,8 +4470,7 @@ static void parse_NodeDescription(proto_tree* parentTree, tvbuff_t* tvb, gint *o
 /* Parse NodeInfo Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
-*       offset - The offset in TVB where the attribute begins
-*       MadHeader - The common MAD header of the current SMP/SMA  */
+*       offset - The offset in TVB where the attribute begins     */
 static int parse_NodeInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint        local_offset = *offset;
@@ -4516,8 +4513,7 @@ static int parse_NodeInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 /* Parse SwitchInfo Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
-*       offset - The offset in TVB where the attribute begins
-*       MadHeader - The common MAD header of the current SMP/SMA  */
+*       offset - The offset in TVB where the attribute begins     */
 static int parse_SwitchInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint        local_offset = *offset;
@@ -4563,8 +4559,7 @@ static int parse_SwitchInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 /* Parse GUIDInfo Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
-*       offset - The offset in TVB where the attribute begins
-*       MadHeader - The common MAD header of the current SMP/SMA  */
+*       offset - The offset in TVB where the attribute begins     */
 static int parse_GUIDInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint        local_offset = *offset;
@@ -4589,8 +4584,7 @@ static int parse_GUIDInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 /* Parse PortInfo Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
-*       offset - The offset in TVB where the attribute begins
-*       MadHeader - The common MAD header of the current SMP/SMA  */
+*       offset - The offset in TVB where the attribute begins     */
 static int parse_PortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint        local_offset = *offset;
@@ -4851,8 +4845,7 @@ static int parse_PortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 /* Parse P_KeyTable Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
-*       offset - The offset in TVB where the attribute begins
-*       MadHeader - The common MAD header of the current SMP/SMA  */
+*       offset - The offset in TVB where the attribute begins     */
 static void parse_P_KeyTable(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint        local_offset = *offset;
@@ -4882,8 +4875,7 @@ static void parse_P_KeyTable(proto_tree* parentTree, tvbuff_t* tvb, gint *offset
 /* Parse SLtoVLMappingTable Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
-*       offset - The offset in TVB where the attribute begins
-*       MadHeader - The common MAD header of the current SMP/SMA  */
+*       offset - The offset in TVB where the attribute begins     */
 static void parse_SLtoVLMappingTable(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint        local_offset = *offset;
@@ -4913,8 +4905,7 @@ static void parse_SLtoVLMappingTable(proto_tree* parentTree, tvbuff_t* tvb, gint
 /* Parse VLArbitrationTable Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
-*       offset - The offset in TVB where the attribute begins
-*       MadHeader - The common MAD header of the current SMP/SMA  */
+*       offset - The offset in TVB where the attribute begins     */
 static void parse_VLArbitrationTable(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint        local_offset = *offset;
@@ -4945,8 +4936,7 @@ static void parse_VLArbitrationTable(proto_tree* parentTree, tvbuff_t* tvb, gint
 /* Parse LinearForwardingTable Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
-*       offset - The offset in TVB where the attribute begins
-*       MadHeader - The common MAD header of the current SMP/SMA  */
+*       offset - The offset in TVB where the attribute begins     */
 static void parse_LinearForwardingTable(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint        i;
@@ -4973,8 +4963,7 @@ static void parse_LinearForwardingTable(proto_tree* parentTree, tvbuff_t* tvb, g
 /* Parse RandomForwardingTable Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
-*       offset - The offset in TVB where the attribute begins
-*       MadHeader - The common MAD header of the current SMP/SMA  */
+*       offset - The offset in TVB where the attribute begins     */
 static void parse_RandomForwardingTable(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint        i;
@@ -5009,8 +4998,7 @@ static void parse_RandomForwardingTable(proto_tree* parentTree, tvbuff_t* tvb, g
 /* Parse NoticesAndTraps Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
-*       offset - The offset in TVB where the attribute begins
-*       MadHeader - The common MAD header of the current SMP/SMA  */
+*       offset - The offset in TVB where the attribute begins     */
 static void parse_MulticastForwardingTable(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint        i;
@@ -5038,8 +5026,7 @@ static void parse_MulticastForwardingTable(proto_tree* parentTree, tvbuff_t* tvb
 /* Parse SMInfo Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
-*       offset - The offset in TVB where the attribute begins
-*       MadHeader - The common MAD header of the current SMP/SMA  */
+*       offset - The offset in TVB where the attribute begins     */
 static int parse_SMInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint        local_offset = *offset;
@@ -5068,8 +5055,7 @@ static int parse_SMInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 /* Parse VendorDiag Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
-*       offset - The offset in TVB where the attribute begins
-*       MadHeader - The common MAD header of the current SMP/SMA  */
+*       offset - The offset in TVB where the attribute begins     */
 static int parse_VendorDiag(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint        local_offset = *offset;
@@ -5094,8 +5080,7 @@ static int parse_VendorDiag(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 /* Parse LedInfo Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
-*       offset - The offset in TVB where the attribute begins
-*       MadHeader - The common MAD header of the current SMP/SMA  */
+*       offset - The offset in TVB where the attribute begins     */
 static void parse_LedInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint        local_offset = *offset;
@@ -5115,8 +5100,7 @@ static void parse_LedInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 /* Parse LinkSpeedWidthPairsTable Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
-*       offset - The offset in TVB where the attribute begins
-*       MadHeader - The common MAD header of the current SMP/SMA  */
+*       offset - The offset in TVB where the attribute begins     */
 static int parse_LinkSpeedWidthPairsTable(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint        local_offset = *offset;
@@ -5144,10 +5128,10 @@ static int parse_LinkSpeedWidthPairsTable(proto_tree* parentTree, tvbuff_t* tvb,
    return local_offset;
 }
 
-/* Parse RID Field from Subnet Administraiton Packets.
+/* Parse RID Field from Subnet Administration Packets.
 * IN: SA_header_tree - the dissection tree of the subnet admin attribute.
 *     tvb - the packet buffer
-*      MadHeader - the Common MAD header from this packet.
+*     MadHeader - the Common MAD header from this packet.
 * IN/OUT:  offset - the current and updated offset in the packet buffer */
 static void parse_RID(proto_tree* SA_header_tree, tvbuff_t* tvb, gint *offset, MAD_Data* MadHeader)
 {
@@ -5302,8 +5286,7 @@ static void parse_RID(proto_tree* SA_header_tree, tvbuff_t* tvb, gint *offset, M
 /* Parse InformInfo Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
-*       offset - The offset in TVB where the attribute begins
-*       MadHeader - The common MAD header of the current SMP/SMA  */
+*       offset - The offset in TVB where the attribute begins     */
 static int parse_InformInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint        local_offset = *offset;
@@ -5348,8 +5331,7 @@ static int parse_InformInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 /* Parse LinkRecord Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
-*       offset - The offset in TVB where the attribute begins
-*       MadHeader - The common MAD header of the current SMP/SMA  */
+*       offset - The offset in TVB where the attribute begins     */
 static int parse_LinkRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint        local_offset = *offset;
@@ -5376,8 +5358,7 @@ static int parse_LinkRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 /* Parse ServiceRecord Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
-*       offset - The offset in TVB where the attribute begins
-*       MadHeader - The common MAD header of the current SMP/SMA  */
+*       offset - The offset in TVB where the attribute begins     */
 static int parse_ServiceRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint        local_offset = *offset;
@@ -5420,8 +5401,7 @@ static int parse_ServiceRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offs
 /* Parse PathRecord Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
-*       offset - The offset in TVB where the attribute begins
-*       MadHeader - The common MAD header of the current SMP/SMA  */
+*       offset - The offset in TVB where the attribute begins     */
 static int parse_PathRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint        local_offset = *offset;
@@ -5478,8 +5458,7 @@ static int parse_PathRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 /* Parse MCMemberRecord Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
-*       offset - The offset in TVB where the attribute begins
-*       MadHeader - The common MAD header of the current SMP/SMA  */
+*       offset - The offset in TVB where the attribute begins   */
 static int parse_MCMemberRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint        local_offset = *offset;
@@ -5529,8 +5508,7 @@ static int parse_MCMemberRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *off
 /* Parse TraceRecord Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
-*       offset - The offset in TVB where the attribute begins
-*       MadHeader - The common MAD header of the current SMP/SMA  */
+*       offset - The offset in TVB where the attribute begins     */
 static int parse_TraceRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint        local_offset = *offset;
@@ -5572,8 +5550,7 @@ static int parse_TraceRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset
 /* Parse MultiPathRecord Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
-*       offset - The offset in TVB where the attribute begins
-*       MadHeader - The common MAD header of the current SMP/SMA  */
+*       offset - The offset in TVB where the attribute begins     */
 static int parse_MultiPathRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint        local_offset = *offset;
@@ -5649,8 +5626,7 @@ static int parse_MultiPathRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *of
 /* Parse ServiceAssociationRecord Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
-*       offset - The offset in TVB where the attribute begins
-*       MadHeader - The common MAD header of the current SMP/SMA  */
+*       offset - The offset in TVB where the attribute begins     */
 static int parse_ServiceAssociationRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint        local_offset = *offset;
