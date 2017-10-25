@@ -3120,7 +3120,6 @@ c_ares_ghi_cb(void *arg, int status, int timeouts _U_, struct hostent *hp) {
 gboolean
 get_host_ipaddr(const char *host, guint32 *addrp)
 {
-    guint32 ipaddr;
 #ifdef HAVE_C_ARES
     struct timeval tv = { 0, GHI_TIMEOUT }, *tvp;
     int nfds;
@@ -3138,7 +3137,7 @@ get_host_ipaddr(const char *host, guint32 *addrp)
      * that's *only* supposed to be an IPv4 address, and where it
      * *shouldn't* translate host names?
      */
-    if (!ws_inet_pton4(host, &ipaddr)) {
+    if (!ws_inet_pton4(host, addrp)) {
 
         /* It's not a valid dotted-quad IP address; is it a valid
          * host name?
@@ -3188,7 +3187,6 @@ get_host_ipaddr(const char *host, guint32 *addrp)
             return FALSE;
     }
 
-    *addrp = ipaddr;
     return TRUE;
 }
 
