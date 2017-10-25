@@ -721,7 +721,7 @@ dissect_x509ce_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_x509ce_INTEGER_0_MAX(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
   return offset;
@@ -746,7 +746,7 @@ dissect_x509ce_BasicConstraintsSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
 int
 dissect_x509ce_BaseDistance(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
   return offset;
@@ -800,7 +800,7 @@ dissect_x509ce_NameConstraintsSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 int
 dissect_x509ce_SkipCerts(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
   return offset;
@@ -825,7 +825,7 @@ dissect_x509ce_PolicyConstraintsSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 int
 dissect_x509ce_CRLNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
   return offset;
@@ -956,7 +956,7 @@ dissect_x509ce_NumberRange(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 int
 dissect_x509ce_CRLStreamIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
   return offset;
@@ -2064,11 +2064,11 @@ void proto_register_x509ce(void) {
         NULL, HFILL }},
     { &hf_x509ce_SkipCerts_PDU,
       { "SkipCerts", "x509ce.SkipCerts",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_x509ce_CRLNumber_PDU,
       { "CRLNumber", "x509ce.CRLNumber",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_x509ce_CRLReason_PDU,
       { "CRLReason", "x509ce.CRLReason",
@@ -2088,7 +2088,7 @@ void proto_register_x509ce(void) {
         NULL, HFILL }},
     { &hf_x509ce_CRLStreamIdentifier_PDU,
       { "CRLStreamIdentifier", "x509ce.CRLStreamIdentifier",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_x509ce_OrderedListSyntax_PDU,
       { "OrderedListSyntax", "x509ce.OrderedListSyntax",
@@ -2108,7 +2108,7 @@ void proto_register_x509ce(void) {
         NULL, HFILL }},
     { &hf_x509ce_BaseCRLNumber_PDU,
       { "BaseCRLNumber", "x509ce.BaseCRLNumber",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_x509ce_ToBeRevokedSyntax_PDU,
       { "ToBeRevokedSyntax", "x509ce.ToBeRevokedSyntax",
@@ -2300,7 +2300,7 @@ void proto_register_x509ce(void) {
         "BOOLEAN", HFILL }},
     { &hf_x509ce_pathLenConstraint,
       { "pathLenConstraint", "x509ce.pathLenConstraint",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "INTEGER_0_MAX", HFILL }},
     { &hf_x509ce_permittedSubtrees,
       { "permittedSubtrees", "x509ce.permittedSubtrees",
@@ -2320,19 +2320,19 @@ void proto_register_x509ce(void) {
         "GeneralName", HFILL }},
     { &hf_x509ce_minimum,
       { "minimum", "x509ce.minimum",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "BaseDistance", HFILL }},
     { &hf_x509ce_maximum,
       { "maximum", "x509ce.maximum",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "BaseDistance", HFILL }},
     { &hf_x509ce_requireExplicitPolicy,
       { "requireExplicitPolicy", "x509ce.requireExplicitPolicy",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "SkipCerts", HFILL }},
     { &hf_x509ce_inhibitPolicyMapping,
       { "inhibitPolicyMapping", "x509ce.inhibitPolicyMapping",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "SkipCerts", HFILL }},
     { &hf_x509ce_CRLScopeSyntax_item,
       { "PerAuthorityScope", "x509ce.PerAuthorityScope_element",
@@ -2384,11 +2384,11 @@ void proto_register_x509ce(void) {
         "INTEGER", HFILL }},
     { &hf_x509ce_cRLStreamIdentifier,
       { "cRLStreamIdentifier", "x509ce.cRLStreamIdentifier",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_x509ce_cRLNumber,
       { "cRLNumber", "x509ce.cRLNumber",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_x509ce_baseThisUpdate,
       { "baseThisUpdate", "x509ce.baseThisUpdate",
@@ -2624,11 +2624,11 @@ void proto_register_x509ce(void) {
         "Time", HFILL }},
     { &hf_x509ce_minCRLNumber,
       { "minCRLNumber", "x509ce.minCRLNumber",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "CRLNumber", HFILL }},
     { &hf_x509ce_maxCRLNumber,
       { "maxCRLNumber", "x509ce.maxCRLNumber",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "CRLNumber", HFILL }},
     { &hf_x509ce_reasonFlags,
       { "reasonFlags", "x509ce.reasonFlags",
@@ -2684,11 +2684,11 @@ void proto_register_x509ce(void) {
         "EntrustInfoFlags", HFILL }},
     { &hf_x509ce_capability,
       { "capability", "x509ce.capability",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "INTEGER_0_MAX", HFILL }},
     { &hf_x509ce_version,
       { "version", "x509ce.version",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "INTEGER_0_MAX", HFILL }},
     { &hf_x509ce_KeyUsage_digitalSignature,
       { "digitalSignature", "x509ce.digitalSignature",

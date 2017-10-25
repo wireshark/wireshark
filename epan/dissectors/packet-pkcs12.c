@@ -970,7 +970,7 @@ dissect_pkcs12_T_saltChoice(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_pkcs12_INTEGER_1_MAX(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
   return offset;
@@ -1384,7 +1384,7 @@ void proto_register_pkcs12(void) {
         "AlgorithmIdentifier", HFILL }},
     { &hf_pkcs12_keyLength,
       { "keyLength", "pkcs12.keyLength",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "INTEGER_1_MAX", HFILL }},
     { &hf_pkcs12_prf,
       { "prf", "pkcs12.prf_element",

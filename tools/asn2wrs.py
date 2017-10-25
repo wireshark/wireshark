@@ -3618,8 +3618,9 @@ class Constraint (Node):
 
     def Needs64b(self, ectx):
         (minv, maxv, ext) = self.GetValue(ectx)
-        if (str(minv).isdigit() or ((str(minv)[0] == "-") and str(minv)[1:].isdigit())) \
-        and str(maxv).isdigit() and (abs(int(maxv) - int(minv)) >= 2**32):
+        if ((str(minv).isdigit() or ((str(minv)[0] == "-") and str(minv)[1:].isdigit())) \
+        and str(maxv).isdigit() and (abs(int(maxv) - int(minv)) >= 2**32)) \
+        or (maxv == 'MAX') or (minv == 'MIN'):
             return True
         return False
 

@@ -2187,7 +2187,7 @@ dissect_p22_ChangeOfAddressAdvice(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_p22_INTEGER_1_MAX(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+  offset = dissect_ber_constrained_integer64(implicit_tag, actx, tree, tvb, offset,
                                                             1U, NO_BOUND, hf_index, NULL);
 
   return offset;
@@ -2197,7 +2197,7 @@ dissect_p22_INTEGER_1_MAX(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_p22_BodyPartNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+  offset = dissect_ber_constrained_integer64(implicit_tag, actx, tree, tvb, offset,
                                                             1U, NO_BOUND, hf_index, NULL);
 
   return offset;
@@ -5473,7 +5473,7 @@ void proto_register_p22(void) {
         "SequenceNumber", HFILL }},
     { &hf_p22_submitted_body_part,
       { "submitted-body-part", "p22.submitted_body_part",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "INTEGER_1_MAX", HFILL }},
     { &hf_p22_stored_body_part,
       { "stored-body-part", "p22.stored_body_part_element",
@@ -5485,7 +5485,7 @@ void proto_register_p22(void) {
         "SequenceNumber", HFILL }},
     { &hf_p22_body_part_number,
       { "body-part-number", "p22.body_part_number",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "BodyPartNumber", HFILL }},
     { &hf_p22_Languages_item,
       { "Language", "p22.Language",
@@ -6013,7 +6013,7 @@ void proto_register_p22(void) {
         NULL, HFILL }},
     { &hf_p22_body_part_sequence_number,
       { "body-part-sequence-number", "p22.body_part_sequence_number",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "BodyPartNumber", HFILL }},
     { &hf_p22_body_part_signature_status,
       { "body-part-signature", "p22.body_part_signature",

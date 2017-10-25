@@ -479,7 +479,7 @@ dissect_pkixac_RFC3281Clearance(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_pkixac_INTEGER_0_MAX(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
   return offset;
@@ -762,7 +762,7 @@ void proto_register_pkixac(void) {
         NULL, HFILL }},
     { &hf_pkixac_pathLenConstraint,
       { "pathLenConstraint", "pkixac.pathLenConstraint",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "INTEGER_0_MAX", HFILL }},
     { &hf_pkixac_permittedAttrs,
       { "permittedAttrs", "pkixac.permittedAttrs",

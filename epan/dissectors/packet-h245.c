@@ -6453,7 +6453,7 @@ dissect_h245_MultiplePayloadStreamCapability(tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_h245_MaxRedundancy(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+  offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
                                                             1U, NO_BOUND, NULL, FALSE);
 
   return offset;
@@ -17452,15 +17452,15 @@ void proto_register_h245(void) {
         "OBJECT_IDENTIFIER", HFILL }},
     { &hf_h245_rfc2733rfc2198,
       { "rfc2733rfc2198", "h245.rfc2733rfc2198",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "MaxRedundancy", HFILL }},
     { &hf_h245_rfc2733sameport,
       { "rfc2733sameport", "h245.rfc2733sameport",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "MaxRedundancy", HFILL }},
     { &hf_h245_rfc2733diffport,
       { "rfc2733diffport", "h245.rfc2733diffport",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "MaxRedundancy", HFILL }},
     { &hf_h245_rfc2733Format,
       { "rfc2733Format", "h245.rfc2733Format",

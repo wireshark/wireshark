@@ -10632,7 +10632,7 @@ void proto_register_inap(void) {
         NULL, HFILL }},
     { &hf_inap_triggerId,
       { "triggerId", "inap.triggerId",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_inap_triggerPar,
       { "triggerPar", "inap.triggerPar_element",

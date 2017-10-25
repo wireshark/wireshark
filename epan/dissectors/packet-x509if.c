@@ -1070,7 +1070,7 @@ dissect_x509if_T_specificExclusions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_x509if_BaseDistance(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
   return offset;
@@ -2316,11 +2316,11 @@ void proto_register_x509if(void) {
         "LocalName", HFILL }},
     { &hf_x509if_minimum,
       { "minimum", "x509if.minimum",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "BaseDistance", HFILL }},
     { &hf_x509if_maximum,
       { "maximum", "x509if.maximum",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "BaseDistance", HFILL }},
     { &hf_x509if_item,
       { "item", "x509if.item",
