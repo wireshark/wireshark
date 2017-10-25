@@ -3128,11 +3128,6 @@ get_host_ipaddr(const char *host, guint32 *addrp)
 #endif
 
     /*
-     * XXX - if there are any places where this needs to support
-     * the hex-address form for IPv4 addresses, or to support
-     * fewer than 4 components for a network address, add that
-     * wherever it's appropriate.
-     *
      * XXX - are there places where this is used to translate something
      * that's *only* supposed to be an IPv4 address, and where it
      * *shouldn't* translate host names?
@@ -3176,15 +3171,6 @@ get_host_ipaddr(const char *host, guint32 *addrp)
         }
         return FALSE;
 #endif
-    } else {
-        /* Does the string really contain dotted-quad IP?
-         * Check against inet_atons that accept strings such as
-         * "130.230" as valid addresses and try to convert them
-         * to some form of a classful (host.net) notation.
-         */
-        unsigned int a0, a1, a2, a3;
-        if (sscanf(host, "%u.%u.%u.%u", &a0, &a1, &a2, &a3) != 4)
-            return FALSE;
     }
 
     return TRUE;
