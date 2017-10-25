@@ -51,8 +51,10 @@ typedef struct _cli_follow_info {
   int           stream_index;
   int           port[2];
   address       addr[2];
-  guint8        addrBuf[2][16];
-
+  union {
+  	guint32	addrBuf_v4;
+  	struct e_in6_addr addrBuf_v6;
+  }		addrBuf[2];
 } cli_follow_info_t;
 
 
@@ -373,19 +375,19 @@ follow_arg_filter(const char **opt_argp, follow_info_t *follow_info)
 
       if (is_ipv6)
       {
-        if (!get_host_ipaddr6(addr, (struct e_in6_addr *)cli_follow_info->addrBuf[ii]))
+        if (!get_host_ipaddr6(addr, &cli_follow_info->addrBuf[ii].addrBuf_v6))
         {
           follow_exit("Can't get IPv6 address");
         }
-        set_address(&cli_follow_info->addr[ii], AT_IPv6, 16, cli_follow_info->addrBuf[ii]);
+        set_address(&cli_follow_info->addr[ii], AT_IPv6, 16, (void *)&cli_follow_info->addrBuf[ii].addrBuf_v6);
       }
       else
       {
-        if (!get_host_ipaddr(addr, (guint32 *)cli_follow_info->addrBuf[ii]))
+        if (!get_host_ipaddr(addr, &cli_follow_info->addrBuf[ii].addrBuf_v4))
         {
           follow_exit("Can't get IPv4 address");
         }
-        set_address(&cli_follow_info->addr[ii], AT_IPv4, 4, cli_follow_info->addrBuf[ii]);
+        set_address(&cli_follow_info->addr[ii], AT_IPv4, 4, (void *)&cli_follow_info->addrBuf[ii].addrBuf_v4);
       }
 
       *opt_argp += len;
