@@ -2330,10 +2330,6 @@ AC_CHECK_MEMBERS([struct sockaddr.sa_len],,,
 # We must know our byte order
 AC_C_BIGENDIAN
 
-# Checks whether "-traditional" is needed when using "ioctl".
-# XXX - do we need this?
-AC_PROG_GCC_TRADITIONAL
-
 AC_REPLACE_FUNCS(getopt_long)
 dnl
 dnl Do we have optreset?
