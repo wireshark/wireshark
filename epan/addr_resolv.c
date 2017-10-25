@@ -3114,10 +3114,9 @@ c_ares_ghi_cb(void *arg, int status, int timeouts _U_, struct hostent *hp) {
 }
 #endif /* HAVE_C_ARES */
 
-/* Translate a string, assumed either to be a dotted-quad IP address or
- * a host name, to a numeric IP address.  Return TRUE if we succeed and
- * set "*addrp" to that numeric IP address; return FALSE if we fail.
- * Used more in the dfilter parser rather than in packet dissectors */
+/* Translate a string, assumed either to be a dotted-quad IPv4 address or
+ * a host name, to a numeric IPv4 address.  Return TRUE if we succeed and
+ * set "*addrp" to that numeric IPv4 address; return FALSE if we fail. */
 gboolean
 get_host_ipaddr(const char *host, guint32 *addrp)
 {
@@ -3129,6 +3128,16 @@ get_host_ipaddr(const char *host, guint32 *addrp)
     async_hostent_t ahe;
 #endif
 
+    /*
+     * XXX - if there are any places where this needs to support
+     * the hex-address form for IPv4 addresses, or to support
+     * fewer than 4 components for a network address, add that
+     * wherever it's appropriate.
+     *
+     * XXX - are there places where this is used to translate something
+     * that's *only* supposed to be an IPv4 address, and where it
+     * *shouldn't* translate host names?
+     */
     if (!ws_inet_pton4(host, &ipaddr)) {
 
         /* It's not a valid dotted-quad IP address; is it a valid
@@ -3184,8 +3193,8 @@ get_host_ipaddr(const char *host, guint32 *addrp)
 }
 
 /*
- * Translate IPv6 numeric address or FQDN hostname, into binary IPv6 address.
- * Return TRUE if we succeed and set "*addrp" to that numeric IP address;
+ * Translate IPv6 numeric address or FQDN hostname into binary IPv6 address.
+ * Return TRUE if we succeed and set "*addrp" to that numeric IPv6 address;
  * return FALSE if we fail.
  */
 gboolean
@@ -3203,6 +3212,10 @@ get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
 
     /* It's not a valid dotted-quad IP address; is it a valid
      * host name?
+     *
+     * XXX - are there places where this is used to translate something
+     * that's *only* supposed to be an IPv6 address, and where it
+     * *shouldn't* translate host names?
      */
 
     /* If we're not allowed to do name resolution, don't do name
