@@ -52,9 +52,9 @@ typedef struct _cli_follow_info {
   int           port[2];
   address       addr[2];
   union {
-  	guint32	addrBuf_v4;
-  	struct e_in6_addr addrBuf_v6;
-  }		addrBuf[2];
+    guint32           addrBuf_v4;
+    struct e_in6_addr addrBuf_v6;
+  }             addrBuf[2];
 } cli_follow_info_t;
 
 
