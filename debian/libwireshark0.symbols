@@ -117,6 +117,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  col_fill_in@Base 1.9.1
  col_fill_in_error@Base 1.9.1
  col_fill_in_frame_data@Base 1.9.1
+ col_finalize@Base 2.5.0
  col_format_desc@Base 1.9.1
  col_format_to_string@Base 1.9.1
  col_get_text@Base 2.0.0
@@ -1763,6 +1764,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  unit_name_string_get_value@Base 2.3.0
  unit_name_string_get_value64@Base 2.3.0
  unit_name_string_get_double@Base 2.3.0
+ units_amp@Base 2.5.0
  units_bit_bits@Base 2.3.0
  units_bit_sec@Base 2.3.0
  units_byte_bytes@Base 2.3.0
@@ -1815,6 +1817,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  units_segment_remaining@Base 2.3.0
  units_tick_ticks@Base 2.3.0
  units_volt@Base 2.3.0
+ units_watt@Base 2.5.0
+ units_watthour@Base 2.5.0
  units_week_weeks@Base 2.3.0
  units_word_words@Base 2.3.0
  unsigned_time_secs_to_str@Base 2.1.0
