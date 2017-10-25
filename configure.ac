@@ -2301,7 +2301,7 @@ dnl LIBSSH Check
 LIBSSH=''
 AC_MSG_CHECKING(whether to use the libssh library if available)
 
-AC_ARG_WITH(ssh,
+AC_ARG_WITH(libssh,
   AC_HELP_STRING( [--with-libssh@<:@=DIR@:>@],
 		  [use libssh (located in directory DIR, if supplied) @<:@default=yes, if present@:>@]),
 [
