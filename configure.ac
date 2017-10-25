@@ -2970,14 +2970,11 @@ fi
 
 if test "x$have_good_libssh" = "xyes" ; then
 	libssh_message="yes"
+	if test "x$have_ssh_userauth_agent" = "xno" ; then
+		ssh_userauth_agent_message=" (without ssh_userauth_agent)"
+	fi
 else
 	libssh_message="no"
-fi
-
-if test "x$have_ssh_userauth_agent" = "xyes" ; then
-	ssh_userauth_agent_message="yes"
-else
-	ssh_userauth_agent_message="no"
 fi
 
 if test "x$have_good_nghttp2" = "xyes" ; then
@@ -3053,8 +3050,7 @@ echo "             Use SSL crypto library : $ssl_message"
 echo "                 Use GnuTLS library : $tls_message"
 echo "     Use POSIX capabilities library : $libcap_message"
 echo "                  Use GeoIP library : $geoip_message"
-echo "                 Use libssh library : $libssh_message"
-echo "            Have ssh_userauth_agent : $ssh_userauth_agent_message"
+echo "                 Use libssh library : ${libssh_message}${ssh_userauth_agent_message}"
 echo "                     Use nl library : $libnl_message"
 echo "              Use SBC codec library : $have_sbc"
 echo "                Use SpanDSP library : $have_spandsp"
