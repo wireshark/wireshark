@@ -523,7 +523,7 @@ dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo, prot
 	if (prefix_len_bytes == 16) {
 		proto_tree_add_item(tree, hf_framed_ipv6_prefix_ipv6, tvb, 2, prefix_len_bytes, ENC_NA);
 	} else if (prefix_len_bytes < 16) {
-		struct e_in6_addr value;
+		ws_in6_addr value;
 		address addr;
 
 		memset(&value.bytes, 0, sizeof(value));

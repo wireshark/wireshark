@@ -616,7 +616,7 @@ static void wimaxasncp_proto_tree_add_tlv_ipv6_value(
     const wimaxasncp_dict_tlv_t *tlv_info)
 {
     int                hf_value;
-    struct e_in6_addr  ip;
+    ws_in6_addr  ip;
     const gchar *addr_res;
 
     if (tlv_info->hf_ipv4 != -1)

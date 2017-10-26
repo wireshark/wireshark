@@ -1092,13 +1092,13 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                     proto_tree_add_item(att_tree, hf_stun_att_xor_ipv6, tvb, offset+4, 16, ENC_NA);
                     {
                         guint32 IPv6[4];
-                        tvb_get_ipv6(tvb, offset+4, (struct e_in6_addr *)IPv6);
+                        tvb_get_ipv6(tvb, offset+4, (ws_in6_addr *)IPv6);
                         IPv6[0] = IPv6[0] ^ g_htonl(magic_cookie_first_word);
                         IPv6[1] = IPv6[1] ^ g_htonl(transaction_id[0]);
                         IPv6[2] = IPv6[2] ^ g_htonl(transaction_id[1]);
                         IPv6[3] = IPv6[3] ^ g_htonl(transaction_id[2]);
                         ti = proto_tree_add_ipv6(att_tree, hf_stun_att_ipv6, tvb, offset+4, 16,
-                                                 (const struct e_in6_addr *)IPv6);
+                                                 (const ws_in6_addr *)IPv6);
                         PROTO_ITEM_SET_GENERATED(ti);
                     }
 

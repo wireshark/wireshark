@@ -163,7 +163,7 @@ dissect_cryptoauth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
         key_tree = proto_item_add_subtree(ti, ett_fc00_key);
 
-        proto_tree_add_ipv6(key_tree, hf_fc00_ip_address, tvb, PUBLIC_KEY_OFF, PUBLIC_KEY_LEN, (struct e_in6_addr*)ip_buf);
+        proto_tree_add_ipv6(key_tree, hf_fc00_ip_address, tvb, PUBLIC_KEY_OFF, PUBLIC_KEY_LEN, (ws_in6_addr*)ip_buf);
     }
 #else
     proto_tree_add_expert(fc00_tree, pinfo, &ei_fc00_chksum_unsupported, tvb, PUBLIC_KEY_OFF, PUBLIC_KEY_LEN);

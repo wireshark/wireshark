@@ -583,7 +583,7 @@ wtap_block_get_ipv4_option_value(wtap_block_t block, guint option_id, guint32* v
 }
 
 wtap_opttype_return_val
-wtap_block_add_ipv6_option(wtap_block_t block, guint option_id, struct e_in6_addr *value)
+wtap_block_add_ipv6_option(wtap_block_t block, guint option_id, ws_in6_addr *value)
 {
     wtap_opttype_return_val ret;
     wtap_option_t *opt;
@@ -596,7 +596,7 @@ wtap_block_add_ipv6_option(wtap_block_t block, guint option_id, struct e_in6_add
 }
 
 wtap_opttype_return_val
-wtap_block_set_ipv6_option_value(wtap_block_t block, guint option_id, struct e_in6_addr *value)
+wtap_block_set_ipv6_option_value(wtap_block_t block, guint option_id, ws_in6_addr *value)
 {
     wtap_opttype_return_val ret;
     wtap_optval_t *optval;
@@ -609,7 +609,7 @@ wtap_block_set_ipv6_option_value(wtap_block_t block, guint option_id, struct e_i
 }
 
 wtap_opttype_return_val
-wtap_block_get_ipv6_option_value(wtap_block_t block, guint option_id, struct e_in6_addr* value)
+wtap_block_get_ipv6_option_value(wtap_block_t block, guint option_id, ws_in6_addr* value)
 {
     wtap_opttype_return_val ret;
     wtap_optval_t *optval;

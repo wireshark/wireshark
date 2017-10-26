@@ -2326,7 +2326,7 @@ decode_prefix6(proto_tree *tree, packet_info *pinfo, int hf_addr, tvbuff_t *tvb,
                guint16 tlen, const char *tag)
 {
     proto_tree          *prefix_tree;
-    struct e_in6_addr   addr;     /* IPv6 address                       */
+    ws_in6_addr   addr;     /* IPv6 address                       */
     address             addr_str;
     int                 plen;     /* prefix length                      */
     int                 length;   /* number of octets needed for prefix */
@@ -2356,7 +2356,7 @@ decode_fspec_match_prefix6(proto_tree *tree, proto_item *parent_item, int hf_add
                            tvbuff_t *tvb, gint offset, guint16 tlen, packet_info *pinfo)
 {
     proto_tree        *prefix_tree;
-    struct e_in6_addr addr;     /* IPv6 address                       */
+    ws_in6_addr addr;     /* IPv6 address                       */
     address           addr_str;
     int               plen;     /* prefix length                      */
     int               length;   /* number of octets needed for prefix */
@@ -4910,7 +4910,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
        guint32 addr;
     } ip4addr;                              /* IPv4 address                 */
     address addr;
-    struct e_in6_addr   ip6addr;            /* IPv6 address                 */
+    ws_in6_addr   ip6addr;            /* IPv6 address                 */
     guint16             rd_type;            /* Route Distinguisher type     */
     guint16             nlri_type;          /* NLRI Type                    */
     guint16             tmp16;

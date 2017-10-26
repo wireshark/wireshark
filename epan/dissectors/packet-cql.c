@@ -702,7 +702,7 @@ static int parse_value(proto_tree* columns_subtree, packet_info *pinfo, tvbuff_t
 	gint32 j = 0;
 	gint offset_metadata_backup = 0;
 	guint32 addr4;
-	struct e_in6_addr addr6;
+	ws_in6_addr addr6;
 	guint32 port_number;
 
 	proto_tree_add_item_ret_int(columns_subtree, hf_cql_bytes_length, tvb, offset, 4, ENC_BIG_ENDIAN, &bytes_length);

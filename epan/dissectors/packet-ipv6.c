@@ -364,9 +364,9 @@ static dissector_handle_t ipv6_handle;
 #define alloc_address_tvb_ipv6(scope, dst, tvb, offset) \
     alloc_address_tvb((scope), (dst), AT_IPv6, IPv6_ADDR_SIZE, (tvb), (offset))
 
-extern const struct e_in6_addr *tvb_get_ptr_ipv6(tvbuff_t tvb, int offset);
+extern const ws_in6_addr *tvb_get_ptr_ipv6(tvbuff_t tvb, int offset);
 #define tvb_get_ptr_ipv6(tvb, offset) \
-    ((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, IPv6_ADDR_SIZE))
+    ((const ws_in6_addr *)tvb_get_ptr(tvb, offset, IPv6_ADDR_SIZE))
 
 ipv6_pinfo_t *p_get_ipv6_pinfo(packet_info *pinfo)
 {
@@ -723,7 +723,7 @@ capture_ipv6_exthdr(const guchar *pd, int offset, int len, capture_packet_info_t
 
 #ifdef HAVE_GEOIP_V6
 static void
-add_geoip_info_entry(proto_tree *geoip_info_tree, proto_item *geoip_info_item, tvbuff_t *tvb, gint offset, const struct e_in6_addr *ip, int isdst)
+add_geoip_info_entry(proto_tree *geoip_info_tree, proto_item *geoip_info_item, tvbuff_t *tvb, gint offset, const ws_in6_addr *ip, int isdst)
 {
     guint       num_dbs  = geoip_db_num_dbs();
     guint       item_cnt = 0;
@@ -803,7 +803,7 @@ add_geoip_info_entry(proto_tree *geoip_info_tree, proto_item *geoip_info_item, t
 }
 
 static void
-add_geoip_info(proto_tree *tree, tvbuff_t *tvb, gint offset, const struct e_in6_addr *src, const struct e_in6_addr *dst)
+add_geoip_info(proto_tree *tree, tvbuff_t *tvb, gint offset, const ws_in6_addr *src, const ws_in6_addr *dst)
 {
     guint       num_dbs;
     proto_item *geoip_info_item;
@@ -865,7 +865,7 @@ ipv6_reassemble_do(tvbuff_t **tvb_ptr, gint *offset_ptr, packet_info *pinfo, pro
 
 static proto_item *
 _proto_tree_add_ipv6_vector_address(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-                            gint length, const struct e_in6_addr *value_ptr, int idx)
+                            gint length, const ws_in6_addr *value_ptr, int idx)
 {
     address addr;
     gchar *str;
@@ -885,7 +885,7 @@ dissect_routing6_rt0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     int offset = 0;
     gint idx;
     gint rt0_addr_count;
-    const struct e_in6_addr *addr = NULL;
+    const ws_in6_addr *addr = NULL;
 
     proto_tree_add_item(tree, hf_ipv6_routing_src_reserved, tvb, offset, 4, ENC_NA);
     offset += 4;
@@ -925,7 +925,7 @@ dissect_routing6_mipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     struct ws_rthdr *rt = (struct ws_rthdr *)data;
     proto_item *ti;
     int offset = 0;
-    const struct e_in6_addr *addr;
+    const ws_in6_addr *addr;
 
     proto_tree_add_item(tree, hf_ipv6_routing_mipv6_reserved, tvb, offset, 4, ENC_NA);
     offset += 4;
@@ -964,8 +964,8 @@ dissect_routing6_rpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     guint32 reserved;
     gint idx;
     gint rpl_addr_count;
-    struct e_in6_addr rpl_fulladdr;
-    const struct e_in6_addr *ip6_dst_addr, *ip6_src_addr;
+    ws_in6_addr rpl_fulladdr;
+    const ws_in6_addr *ip6_dst_addr, *ip6_src_addr;
     wmem_array_t *rpl_addr_vector = NULL;
     guint i;
 
@@ -974,9 +974,9 @@ dissect_routing6_rpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         return 0;
 
     /* IPv6 destination address used for elided bytes */
-    ip6_dst_addr = (const struct e_in6_addr *)pinfo->dst.data;
+    ip6_dst_addr = (const ws_in6_addr *)pinfo->dst.data;
     /* IPv6 source address used for strict checking */
-    ip6_src_addr = (const struct e_in6_addr *)pinfo->src.data;
+    ip6_src_addr = (const ws_in6_addr *)pinfo->src.data;
 
     /* from RFC6554: Multicast addresses MUST NOT appear in the IPv6 Destination Address field */
     if (in6_is_addr_multicast(ip6_dst_addr)) {
@@ -1094,7 +1094,7 @@ dissect_routing6_srh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     gint offlim, offstart;
     gint idx;
     gint srh_first_seg, srh_addr_count;
-    const struct e_in6_addr *addr;
+    const ws_in6_addr *addr;
     proto_tree *rthdr_srh_addr_tree;
     static const int *srh_flags[] = {
         &hf_ipv6_routing_srh_flag_unused1,
@@ -2237,7 +2237,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_item    *ti_ipv6_plen = NULL, *ti_ipv6_version;
     guint8         ip6_tcls, ip6_nxt, ip6_hlim;
     guint32        ip6_flow;
-    const struct e_in6_addr *ip6_src, *ip6_dst;
+    const ws_in6_addr *ip6_src, *ip6_dst;
     guint32        plen;
     int            offset;
     guint          reported_plen;

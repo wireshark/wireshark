@@ -226,7 +226,7 @@ typedef struct _resolved_ipv4
 
 typedef struct _resolved_ipv6
 {
-    struct e_in6_addr  ip6_addr;
+    ws_in6_addr  ip6_addr;
     char               name[MAXNAMELEN];
 } resolved_ipv6_t;
 
@@ -282,7 +282,7 @@ static gboolean
 ipv6_equal(gconstpointer v1, gconstpointer v2)
 {
 
-    if (memcmp(v1, v2, sizeof (struct e_in6_addr)) == 0) {
+    if (memcmp(v1, v2, sizeof (ws_in6_addr)) == 0) {
         return TRUE;
     }
 
@@ -339,7 +339,7 @@ typedef struct _async_dns_queue_msg
 {
     union {
         guint32           ip4;
-        struct e_in6_addr ip6;
+        ws_in6_addr ip6;
     } addr;
     int                 family;
 } async_dns_queue_msg_t;
@@ -910,7 +910,7 @@ host_lookup(const guint addr)
 
 /* --------------- */
 static hashipv6_t *
-new_ipv6(const struct e_in6_addr *addr)
+new_ipv6(const ws_in6_addr *addr)
 {
     hashipv6_t *tp = wmem_new(wmem_epan_scope(), hashipv6_t);
     memcpy(tp->addr, addr->bytes, sizeof tp->addr);
@@ -922,7 +922,7 @@ new_ipv6(const struct e_in6_addr *addr)
 
 /* ------------------------------------ */
 static hashipv6_t *
-host_lookup6(const struct e_in6_addr *addr)
+host_lookup6(const ws_in6_addr *addr)
 {
     hashipv6_t * volatile tp;
 #ifdef HAVE_C_ARES
@@ -935,9 +935,9 @@ host_lookup6(const struct e_in6_addr *addr)
          * We don't already have an entry for this host name; create one,
          * and then try to resolve it.
          */
-        struct e_in6_addr *addr_key;
+        ws_in6_addr *addr_key;
 
-        addr_key = wmem_new(wmem_epan_scope(), struct e_in6_addr);
+        addr_key = wmem_new(wmem_epan_scope(), ws_in6_addr);
         tp = new_ipv6(addr);
         memcpy(addr_key, addr, 16);
         fill_dummy_ip6(tp);
@@ -1938,7 +1938,7 @@ read_hosts_file (const char *hostspath, gboolean store_entries)
     gchar *cp;
     union {
         guint32 ip4_addr;
-        struct e_in6_addr ip6_addr;
+        ws_in6_addr ip6_addr;
     } host_addr;
     gboolean is_ipv6, entry_found = FALSE;
 
@@ -2013,7 +2013,7 @@ add_ip_name_from_string (const char *addr, const char *name)
 {
     union {
         guint32 ip4_addr;
-        struct e_in6_addr ip6_addr;
+        ws_in6_addr ip6_addr;
     } host_addr;
     gboolean is_ipv6;
     resolved_ipv4_t *resolved_ipv4_entry;
@@ -2546,7 +2546,7 @@ host_name_lookup_process(void) {
                     c_ares_ghba_cb, caqm);
             async_dns_in_flight++;
         } else if (caqm->family == AF_INET6) {
-            ares_gethostbyaddr(ghba_chan, &caqm->addr.ip6, sizeof(struct e_in6_addr),
+            ares_gethostbyaddr(ghba_chan, &caqm->addr.ip6, sizeof(ws_in6_addr),
                     AF_INET6, c_ares_ghba_cb, caqm);
             async_dns_in_flight++;
         }
@@ -2619,7 +2619,7 @@ get_hostname(const guint addr)
 /* -------------------------- */
 
 const gchar *
-get_hostname6(const struct e_in6_addr *addr)
+get_hostname6(const ws_in6_addr *addr)
 {
     /* XXX why do we call this if we're not resolving? To create hash entries?
      * Why?
@@ -2662,7 +2662,7 @@ add_ipv4_name(const guint addr, const gchar *name)
 
 /* -------------------------- */
 void
-add_ipv6_name(const struct e_in6_addr *addrp, const gchar *name)
+add_ipv6_name(const ws_in6_addr *addrp, const gchar *name)
 {
     hashipv6_t *tp;
 
@@ -2675,9 +2675,9 @@ add_ipv6_name(const struct e_in6_addr *addrp, const gchar *name)
 
     tp = (hashipv6_t *)wmem_map_lookup(ipv6_hash_table, addrp);
     if (!tp) {
-        struct e_in6_addr *addr_key;
+        ws_in6_addr *addr_key;
 
-        addr_key = wmem_new(wmem_epan_scope(), struct e_in6_addr);
+        addr_key = wmem_new(wmem_epan_scope(), ws_in6_addr);
         tp = new_ipv6(addrp);
         memcpy(addr_key, addrp, 16);
         wmem_map_insert(ipv6_hash_table, addr_key, tp);
@@ -3179,7 +3179,7 @@ get_host_ipaddr(const char *host, guint32 *addrp)
  * return FALSE if we fail.
  */
 gboolean
-get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
+get_host_ipaddr6(const char *host, ws_in6_addr *addrp)
 {
 #ifdef HAVE_C_ARES
     struct timeval tv = { 0, GHI_TIMEOUT }, *tvp;
@@ -3212,7 +3212,7 @@ get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
     if (!async_dns_initialized || name_resolve_concurrency < 1) {
         return FALSE;
     }
-    ahe.addr_size = (int) sizeof (struct e_in6_addr);
+    ahe.addr_size = (int) sizeof (ws_in6_addr);
     ahe.copied = 0;
     ahe.addrp = addrp;
     ares_gethostbyname(ghbn_chan, host, AF_INET6, c_ares_ghi_cb, &ahe);
@@ -3318,7 +3318,7 @@ str_to_ip(const char *str, void *dst)
 gboolean
 str_to_ip6(const char *str, void *dst)
 {
-    return ws_inet_pton6(str, (struct e_in6_addr *)dst);
+    return ws_inet_pton6(str, (ws_in6_addr *)dst);
 }
 
 /*

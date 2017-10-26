@@ -203,7 +203,7 @@ create_endpoint_geoip_map(const GArray *endp_array, gchar **err_str) {
             city = geoip_db_lookup_ipv4(db_city4, pntoh32(endp_item->myaddress.data), "-");
             asn = geoip_db_lookup_ipv4(db_asn4, pntoh32(endp_item->myaddress.data), "-");
         } else if (endp_item->myaddress.type == AT_IPv6) {
-            const struct e_in6_addr *addr = (const struct e_in6_addr *) endp_item->myaddress.data;
+            const ws_in6_addr *addr = (const ws_in6_addr *) endp_item->myaddress.data;
             lon = geoip_db_lookup_ipv6(db_lon, *addr, NULL);
             lat = geoip_db_lookup_ipv6(db_lat, *addr, NULL);
             country = geoip_db_lookup_ipv6(db_country6, *addr, "-");

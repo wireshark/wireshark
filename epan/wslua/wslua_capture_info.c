@@ -156,7 +156,7 @@ static int CaptureInfo_set_hosts(lua_State* L) {
     size_t addr_len = 0;
     size_t name_len = 0;
     guint32 v4_addr = 0;
-    struct e_in6_addr v6_addr = { {0} };
+    ws_in6_addr v6_addr = { {0} };
 
     if (!wth->add_new_ipv4 || !wth->add_new_ipv6) {
         return luaL_error(L, "CaptureInfo wtap has no IPv4 or IPv6 name resolution");

@@ -398,7 +398,7 @@ WS_DLL_PUBLIC guint32 tvb_get_ipv4(tvbuff_t *tvb, const gint offset);
 
 /* Fetch an IPv6 address. */
 WS_DLL_PUBLIC void tvb_get_ipv6(tvbuff_t *tvb, const gint offset,
-    struct e_in6_addr *addr);
+    ws_in6_addr *addr);
 
 /* Fetch a GUID. */
 WS_DLL_PUBLIC void tvb_get_ntohguid(tvbuff_t *tvb, const gint offset,

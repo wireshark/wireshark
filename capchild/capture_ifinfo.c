@@ -184,7 +184,7 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
             if_addr = g_new0(if_addr_t,1);
             if (ws_inet_pton4(addr_parts[j], &if_addr->addr.ip4_addr)) {
                 if_addr->ifat_type = IF_AT_IPv4;
-            } else if (ws_inet_pton6(addr_parts[j], (struct e_in6_addr *)&if_addr->addr.ip6_addr)) {
+            } else if (ws_inet_pton6(addr_parts[j], (ws_in6_addr *)&if_addr->addr.ip6_addr)) {
                 if_addr->ifat_type = IF_AT_IPv6;
             } else {
                 g_free(if_addr);

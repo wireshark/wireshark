@@ -1405,7 +1405,7 @@ typedef struct ansi_a_shared_data_t
 
     address             rtp_src_addr;
     guint32             rtp_ipv4_addr;
-    struct e_in6_addr   rtp_ipv6_addr;
+    ws_in6_addr   rtp_ipv6_addr;
     guint16             rtp_port;
 
     gboolean            meid_configured;

@@ -1164,7 +1164,7 @@ dissect_eigrp_ipv6_addrs (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
 {
     guint8             length;
     int                addr_len;
-    struct e_in6_addr  addr;
+    ws_in6_addr  addr;
     address            addr_str;
     proto_item        *ti_prefixlen, *ti_dst;
     int                first = TRUE;

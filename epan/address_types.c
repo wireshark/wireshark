@@ -247,7 +247,7 @@ static int ipv4_name_res_len(void)
  ******************************************************************************/
 static int ipv6_to_str(const address* addr, gchar *buf, int buf_len)
 {
-    ip6_to_str_buf((const struct e_in6_addr *)addr->data, buf, buf_len);
+    ip6_to_str_buf((const ws_in6_addr *)addr->data, buf, buf_len);
     return (int)(strlen(buf)+1);
 }
 
@@ -271,7 +271,7 @@ static int ipv6_len(void)
 
 static const gchar* ipv6_name_res_str(const address* addr)
 {
-    struct e_in6_addr ip6_addr;
+    ws_in6_addr ip6_addr;
     memcpy(&ip6_addr.bytes, addr->data, sizeof ip6_addr.bytes);
     return get_hostname6(&ip6_addr);
 }

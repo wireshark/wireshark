@@ -511,7 +511,7 @@ parse_sdp_connection_address(const char *connection_type, const char *connection
             alloc_address_wmem(allocator, conn_addr, AT_IPv4, 4, &ip4_addr);
         }
     } else if (strcmp(connection_type, "IP6") == 0) {
-        struct e_in6_addr ip6_addr;
+        ws_in6_addr ip6_addr;
 
         if (str_to_ip6(connection_address, &ip6_addr)) {
             /* connection_address could be converted to a valid ipv6 address*/

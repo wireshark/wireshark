@@ -138,7 +138,7 @@ struct netmonrec_comment_header {
 
 union ip_address {
 	guint32 ipv4;
-	struct e_in6_addr ipv6;
+	ws_in6_addr ipv6;
 };
 
 struct netmonrec_process_info {

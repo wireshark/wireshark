@@ -32,7 +32,7 @@
 #include <wsutil/inet_ipv6.h>
 
 typedef struct {
-	struct e_in6_addr addr;
+	ws_in6_addr addr;
 	guint32 prefix;
 } ipv6_addr_and_prefix;
 

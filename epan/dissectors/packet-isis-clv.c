@@ -371,7 +371,7 @@ void
 isis_dissect_ipv6_int_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, expert_field* expert,
     int offset, int length, int tree_id)
 {
-    struct e_in6_addr addr;
+    ws_in6_addr addr;
 
     if ( length <= 0 ) {
         return;

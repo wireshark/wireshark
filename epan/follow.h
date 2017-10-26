@@ -78,7 +78,7 @@ typedef enum {
 
 typedef union _stream_addr {
   guint32 ipv4;
-  struct e_in6_addr ipv6;
+  ws_in6_addr ipv6;
 } stream_addr;
 
 struct _follow_info;

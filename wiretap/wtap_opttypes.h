@@ -170,7 +170,7 @@ typedef union {
     guint8 uint8val;
     guint64 uint64val;
     guint32 ipv4val;    /* network byte order */
-    struct e_in6_addr ipv6val;
+    ws_in6_addr ipv6val;
     char *stringval;
     struct wtap_opttype_custom customval;
 } wtap_optval_t;
@@ -339,7 +339,7 @@ wtap_block_get_ipv4_option_value(wtap_block_t block, guint option_id, guint32* v
  * error code otherwise
  */
 WS_DLL_PUBLIC wtap_opttype_return_val
-wtap_block_add_ipv6_option(wtap_block_t block, guint option_id, struct e_in6_addr *value);
+wtap_block_add_ipv6_option(wtap_block_t block, guint option_id, ws_in6_addr *value);
 
 /** Set IPv6 option value in a block
  *
@@ -350,7 +350,7 @@ wtap_block_add_ipv6_option(wtap_block_t block, guint option_id, struct e_in6_add
  * error code otherwise
  */
 WS_DLL_PUBLIC wtap_opttype_return_val
-wtap_block_set_ipv6_option_value(wtap_block_t block, guint option_id, struct e_in6_addr *value);
+wtap_block_set_ipv6_option_value(wtap_block_t block, guint option_id, ws_in6_addr *value);
 
 /** Get IPv6 option value from a block
  *
@@ -361,7 +361,7 @@ wtap_block_set_ipv6_option_value(wtap_block_t block, guint option_id, struct e_i
  * error code otherwise
  */
 WS_DLL_PUBLIC wtap_opttype_return_val
-wtap_block_get_ipv6_option_value(wtap_block_t block, guint option_id, struct e_in6_addr* value) G_GNUC_WARN_UNUSED_RESULT;
+wtap_block_get_ipv6_option_value(wtap_block_t block, guint option_id, ws_in6_addr* value) G_GNUC_WARN_UNUSED_RESULT;
 
 /** Add a string option to a block
  *

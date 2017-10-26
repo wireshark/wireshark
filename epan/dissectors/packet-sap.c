@@ -138,7 +138,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     is_comp = vers_flags&MCAST_SAP_BIT_C;
 
     sap_version = (vers_flags&MCAST_SAP_VERSION_MASK)>>MCAST_SAP_VERSION_SHIFT;
-    addr_len = (is_ipv6) ? (int)sizeof(struct e_in6_addr) : 4;
+    addr_len = (is_ipv6) ? (int)sizeof(ws_in6_addr) : 4;
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s (v%u)",
                             (is_del) ? "Deletion" : "Announcement", sap_version);

@@ -3144,7 +3144,7 @@ static void dissect_ospf_v3_address_prefix(tvbuff_t *tvb, packet_info *pinfo, in
 {
 
     int bytes_to_process;
-    struct e_in6_addr prefix;
+    ws_in6_addr prefix;
 
     bytes_to_process=((prefix_length+31)/32)*4;
 

@@ -443,7 +443,7 @@ typedef struct wccp_address_table {
   gint16 version;
   guint16 table_length;
   guint32 *table_ipv4;
-  struct e_in6_addr *table_ipv6;
+  ws_in6_addr *table_ipv6;
 } wccp_address_table;
 
 static int wccp_bucket_info(guint8 bucket_info, proto_tree *bucket_tree,
@@ -635,7 +635,7 @@ static proto_item* wccp_add_ipaddress_item(proto_tree* tree, int hf_index, int h
                                     int offset, gint length, wccp_address_table* addr_table)
 {
     guint32 host_addr;
-    struct e_in6_addr ipv6_zero;
+    ws_in6_addr ipv6_zero;
     guint16 reserv, addr_index;
 
     /* are we using an address table? */
@@ -1498,8 +1498,8 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset, int length,
       break;
     case 2:
       if (wccp_wccp_address_table->table_ipv6 == NULL)
-        wccp_wccp_address_table->table_ipv6 = (struct e_in6_addr *)
-          wmem_alloc0(pinfo->pool, wccp_wccp_address_table->table_length * sizeof(struct e_in6_addr));
+        wccp_wccp_address_table->table_ipv6 = (ws_in6_addr *)
+          wmem_alloc0(pinfo->pool, wccp_wccp_address_table->table_length * sizeof(ws_in6_addr));
       if (address_length != 16) {
         expert_add_info_format(pinfo, tf, &ei_wccp_length_bad,
                                "The Address length must be 16, but I found %d for IPv6 addresses. Correcting this.",

@@ -370,7 +370,7 @@ zebra_route(proto_tree *tree, tvbuff_t *tvb, int offset, guint16 len,
 		tvb_memcpy(tvb, buffer6, offset,
 			   MIN((unsigned) PSIZE(prefixlen), sizeof buffer6));
 		proto_tree_add_ipv6(tree, hf_zebra_prefix6,
-				    tvb, offset, PSIZE(prefixlen), (struct e_in6_addr *)buffer6);
+				    tvb, offset, PSIZE(prefixlen), (ws_in6_addr *)buffer6);
 	}else {
 		prefix4 = 0;
 		tvb_memcpy(tvb, (guint8 *)&prefix4, offset,

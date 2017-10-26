@@ -73,7 +73,7 @@ tvb_get_ipv4_addr_with_prefix_len(tvbuff_t *tvb, int offset, guint8 *addr,
 }
 
 int
-tvb_get_ipv6_addr_with_prefix_len(tvbuff_t *tvb, int offset, struct e_in6_addr *addr,
+tvb_get_ipv6_addr_with_prefix_len(tvbuff_t *tvb, int offset, ws_in6_addr *addr,
     guint32 prefix_len)
 {
 	guint32 addr_len;

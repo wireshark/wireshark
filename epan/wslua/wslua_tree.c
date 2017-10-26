@@ -425,7 +425,7 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
                             return 0;
                         }
 
-                        item = proto_tree_add_ipv6(tree_item->tree, hfid, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len, (struct e_in6_addr *)addr->data);
+                        item = proto_tree_add_ipv6(tree_item->tree, hfid, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len, (ws_in6_addr *)addr->data);
                     }
                     break;
                 case FT_ETHER:

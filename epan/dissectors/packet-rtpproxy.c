@@ -494,7 +494,7 @@ rtpproxy_add_notify_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy
         /* We have ip:port */
         if(ipv6){
             if(str_to_ip6((char*)tvb_get_string_enc(wmem_packet_scope(), tvb, begin, offset - begin, ENC_ASCII), ipaddr))
-                proto_tree_add_ipv6(rtpproxy_tree, hf_rtpproxy_notify_ipv6, tvb, begin, offset - begin, (const struct e_in6_addr*)ipaddr);
+                proto_tree_add_ipv6(rtpproxy_tree, hf_rtpproxy_notify_ipv6, tvb, begin, offset - begin, (const ws_in6_addr*)ipaddr);
             else
                 proto_tree_add_expert(rtpproxy_tree, pinfo, &ei_rtpproxy_bad_ipv6, tvb, begin, offset - begin);
         }
@@ -513,7 +513,7 @@ rtpproxy_add_notify_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy
         if (pinfo->src.type == AT_IPv4)
             ti = proto_tree_add_ipv4(rtpproxy_tree, hf_rtpproxy_notify_ipv4, tvb, begin, 0, *(const guint32*)(pinfo->src.data));
         else
-            ti = proto_tree_add_ipv6(rtpproxy_tree, hf_rtpproxy_notify_ipv6, tvb, begin, 0, (const struct e_in6_addr *)(pinfo->src.data));
+            ti = proto_tree_add_ipv6(rtpproxy_tree, hf_rtpproxy_notify_ipv6, tvb, begin, 0, (const ws_in6_addr *)(pinfo->src.data));
         PROTO_ITEM_SET_GENERATED(ti);
         proto_tree_add_uint(rtpproxy_tree, hf_rtpproxy_notify_port, tvb, begin, end - begin,
             (guint16) g_ascii_strtoull((gchar*)tvb_get_string_enc(wmem_packet_scope(), tvb, begin, end - begin, ENC_ASCII), NULL, 10));
@@ -703,7 +703,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 }
                 else{
                     if(str_to_ip6((char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, new_offset - offset, ENC_ASCII), ipaddr))
-                        proto_tree_add_ipv6(rtpproxy_tree, hf_rtpproxy_ipv6, tvb, offset, new_offset - offset, (const struct e_in6_addr *)ipaddr);
+                        proto_tree_add_ipv6(rtpproxy_tree, hf_rtpproxy_ipv6, tvb, offset, new_offset - offset, (const ws_in6_addr *)ipaddr);
                     else
                         proto_tree_add_expert(rtpproxy_tree, pinfo, &ei_rtpproxy_bad_ipv6, tvb, offset, new_offset - offset);
                 }
@@ -872,7 +872,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                     addr.type = AT_IPv6;
                     addr.len  = 16;
                     addr.data = wmem_memdup(wmem_packet_scope(), ipaddr, 16);
-                    proto_tree_add_ipv6(rtpproxy_tree, hf_rtpproxy_ipv6, tvb, offset, tmp, (const struct e_in6_addr *)ipaddr);
+                    proto_tree_add_ipv6(rtpproxy_tree, hf_rtpproxy_ipv6, tvb, offset, tmp, (const ws_in6_addr *)ipaddr);
                 }
                 else
                     proto_tree_add_expert(rtpproxy_tree, pinfo, &ei_rtpproxy_bad_ipv6, tvb, offset, tmp);

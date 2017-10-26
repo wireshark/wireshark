@@ -205,7 +205,7 @@ WS_DLL_PUBLIC gboolean host_name_lookup_process(void);
 WS_DLL_PUBLIC const gchar *get_hostname(const guint addr);
 
 /* get_hostname6 returns the host name, or numeric addr if not found */
-WS_DLL_PUBLIC const gchar *get_hostname6(const struct e_in6_addr *ad);
+WS_DLL_PUBLIC const gchar *get_hostname6(const ws_in6_addr *ad);
 
 /* get_ether_name returns the logical name if found in ethers files else
    "<vendor>_%02x:%02x:%02x" if the vendor code is known else
@@ -281,7 +281,7 @@ WS_DLL_PUBLIC char* get_hash_manuf_resolved_name(hashmanuf_t* manuf);
 WS_DLL_PUBLIC void add_ipv4_name(const guint addr, const gchar *name);
 
 /* adds a hostname/IPv6 in the hash table */
-WS_DLL_PUBLIC void add_ipv6_name(const struct e_in6_addr *addr, const gchar *name);
+WS_DLL_PUBLIC void add_ipv6_name(const ws_in6_addr *addr, const gchar *name);
 
 /** Add an additional "hosts" file for IPv4 and IPv6 name resolution.
  *
@@ -335,7 +335,7 @@ gboolean get_host_ipaddr(const char *host, guint32 *addrp);
  * @return TRUE on success, FALSE on failure or timeout.
  */
 WS_DLL_PUBLIC
-gboolean get_host_ipaddr6(const char *host, struct e_in6_addr *addrp);
+gboolean get_host_ipaddr6(const char *host, ws_in6_addr *addrp);
 
 WS_DLL_PUBLIC
 wmem_map_t *get_manuf_hashtable(void);

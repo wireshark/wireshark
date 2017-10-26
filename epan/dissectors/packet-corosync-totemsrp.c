@@ -279,21 +279,21 @@ dissect_corosync_totemsrp_ip_address(tvbuff_t *tvb,
   case LINUX_AF_INET6:
   case SOLARIS_AF_INET6:
   case WINSOCK_AF_INET6:
-    len = sizeof(struct e_in6_addr);
+    len = sizeof(ws_in6_addr);
     proto_tree_add_item(tree, hf_corosync_totemsrp_ip_address_addr6, tvb, offset, len, ENC_NA);
     break;
   default:
-    len = sizeof(struct e_in6_addr);
+    len = sizeof(ws_in6_addr);
     proto_tree_add_item(tree, hf_corosync_totemsrp_ip_address_addr, tvb, offset, len, ENC_NA);
     break;
   }
 
   offset += len;
 
-  if (len != sizeof(struct e_in6_addr)) {
+  if (len != sizeof(ws_in6_addr)) {
     gint padding_len;
 
-    padding_len = (gint)(sizeof(struct e_in6_addr) - len);
+    padding_len = (gint)(sizeof(ws_in6_addr) - len);
     proto_tree_add_item (tree, hf_corosync_totemsrp_ip_address_addr4_padding,
                            tvb, offset, padding_len, ENC_NA);
     offset += padding_len;

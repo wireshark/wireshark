@@ -548,7 +548,7 @@ typedef struct {
 typedef struct {
     guint   frame;  /* Frame where the context was discovered. */
     guint8  plen;   /* Prefix length. */
-    struct e_in6_addr prefix;   /* Compression context. */
+    ws_in6_addr prefix;   /* Compression context. */
 } lowpan_context_data;
 
 /* 6LoWPAN contexts. */
@@ -733,7 +733,7 @@ lowpan_context_find(guint8 cid, guint16 pan)
  *---------------------------------------------------------------
  */
 void
-lowpan_context_insert(guint8 cid, guint16 pan, guint8 plen, struct e_in6_addr *prefix, guint frame)
+lowpan_context_insert(guint8 cid, guint16 pan, guint8 plen, ws_in6_addr *prefix, guint frame)
 {
     lowpan_context_key  key;
     lowpan_context_data *data;
@@ -762,7 +762,7 @@ lowpan_context_insert(guint8 cid, guint16 pan, guint8 plen, struct e_in6_addr *p
     data = wmem_new(NULL, lowpan_context_data);
     data->frame = frame;
     data->plen = plen;
-    memset(&data->prefix, 0, sizeof(struct e_in6_addr)); /* Ensure zero paddeding */
+    memset(&data->prefix, 0, sizeof(ws_in6_addr)); /* Ensure zero paddeding */
     lowpan_pfxcpy(&data->prefix, prefix, plen);
     g_hash_table_insert(lowpan_context_table, pkey, data);
 } /* lowpan_context_insert */
@@ -2498,16 +2498,16 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
         if ((udp_flags & LOWPAN_NHC_UDP_CHECKSUM) && tvb_bytes_exist(tvb, offset, length)) {
             vec_t      cksum_vec[3];
             struct {
-                struct e_in6_addr   src;
-                struct e_in6_addr   dst;
+                ws_in6_addr   src;
+                ws_in6_addr   dst;
                 guint32             length;
                 guint8              zero[3];
                 guint8              proto;
             } cksum_phdr;
 
             /* Fill in the pseudo-header. */
-            memcpy(&cksum_phdr.src, pinfo->src.data, sizeof(struct e_in6_addr));
-            memcpy(&cksum_phdr.dst, pinfo->dst.data, sizeof(struct e_in6_addr));
+            memcpy(&cksum_phdr.src, pinfo->src.data, sizeof(ws_in6_addr));
+            memcpy(&cksum_phdr.dst, pinfo->dst.data, sizeof(ws_in6_addr));
             cksum_phdr.length = g_htonl(length + (int)sizeof(struct udp_hdr));
             memset(cksum_phdr.zero, 0, sizeof(cksum_phdr.zero));
             cksum_phdr.proto = IP_PROTO_UDP;
@@ -3381,7 +3381,7 @@ void
 prefs_6lowpan_apply(void)
 {
     int                 i;
-    struct e_in6_addr   prefix;
+    ws_in6_addr   prefix;
     gchar               *prefix_str;
     gchar               *prefix_len_str;
     guint32             prefix_len;

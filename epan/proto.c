@@ -3909,7 +3909,7 @@ proto_tree_set_ipv4(field_info *fi, guint32 value)
 /* Add a FT_IPv6 to a proto_tree */
 proto_item *
 proto_tree_add_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-		    gint length, const struct e_in6_addr *value_ptr)
+		    gint length, const ws_in6_addr *value_ptr)
 {
 	proto_item	  *pi;
 	header_field_info *hfinfo;
@@ -3929,7 +3929,7 @@ proto_tree_add_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 proto_item *
 proto_tree_add_ipv6_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 				 gint start, gint length,
-				 const struct e_in6_addr *value_ptr,
+				 const ws_in6_addr *value_ptr,
 				 const char *format, ...)
 {
 	proto_item	  *pi;
@@ -3948,7 +3948,7 @@ proto_tree_add_ipv6_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 proto_item *
 proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			   gint start, gint length,
-			   const struct e_in6_addr *value_ptr,
+			   const ws_in6_addr *value_ptr,
 			   const char *format, ...)
 {
 	proto_item	  *pi;
@@ -5623,7 +5623,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 	guint64             number64;
 	guint8             *bytes;
 	ipv4_addr_and_mask *ipv4;
-	struct e_in6_addr  *ipv6;
+	ws_in6_addr  *ipv6;
 	address             addr;
 	guint32             n_addr; /* network-order IPv4 address */
 
@@ -5952,8 +5952,8 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 						break;
 
 					case FT_IPv6:
-						ipv6 = (struct e_in6_addr *)fvalue_get(&finfo->value);
-						set_address (&addr, AT_IPv6, sizeof(struct e_in6_addr), ipv6);
+						ipv6 = (ws_in6_addr *)fvalue_get(&finfo->value);
+						set_address (&addr, AT_IPv6, sizeof(ws_in6_addr), ipv6);
 						address_to_str_buf(&addr, result+offset_r, size-offset_r);
 						offset_r = (int)strlen(result);
 						break;

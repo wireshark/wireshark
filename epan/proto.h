@@ -1580,7 +1580,7 @@ proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const struct e_in6_addr *value_ptr);
+	gint length, const ws_in6_addr *value_ptr);
 
 /** Add a formatted FT_IPv6 to a proto_tree, with the format generating
     the string for the value and with the field name being included
@@ -1596,7 +1596,7 @@ proto_tree_add_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_ipv6_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-	gint start, gint length, const struct e_in6_addr *value_ptr, const char *format,
+	gint start, gint length, const ws_in6_addr *value_ptr, const char *format,
 	...) G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_IPv6 to a proto_tree, with the format generating
@@ -1612,7 +1612,7 @@ proto_tree_add_ipv6_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const struct e_in6_addr *value_ptr, const char *format, ...) G_GNUC_PRINTF(7,8);
+	gint length, const ws_in6_addr *value_ptr, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a FT_ETHER to a proto_tree.
  @param tree the tree to append this item to

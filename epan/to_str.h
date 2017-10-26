@@ -92,7 +92,7 @@ WS_DLL_PUBLIC void     address_to_str_buf(const address *addr, gchar *buf, int b
 #define tvb_eui64_to_str(tvb, offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_EUI64, offset)
 
 void	ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len);
-void	ip6_to_str_buf(const struct e_in6_addr *, gchar *, int buf_len);
+void	ip6_to_str_buf(const ws_in6_addr *, gchar *, int buf_len);
 
 extern gchar*	ipxnet_to_str_punct(wmem_allocator_t *scope, const guint32 ad, const char punct);
 WS_DLL_PUBLIC gchar*	eui64_to_str(wmem_allocator_t *scope, const guint64 ad);

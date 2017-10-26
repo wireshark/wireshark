@@ -82,7 +82,7 @@ clear_address(address *addr)
  * @param addr [in,out] The address to initialize.
  * @param addr_type [in] Address type.
  * @param addr_len [in] The length in bytes of the address data. For example, 4 for
- *                     AT_IPv4 or sizeof(struct e_in6_addr) for AT_IPv6.
+ *                     AT_IPv4 or sizeof(ws_in6_addr) for AT_IPv6.
  * @param addr_data [in] Pointer to the address data.
  */
 static inline void
@@ -115,7 +115,7 @@ set_address(address *addr, int addr_type, int addr_len, const void *addr_data) {
  * @param tvb [in] Pointer to the TVB.
  * @param offset [in] Offset within the TVB.
  * @param addr_len [in] The length in bytes of the address data. For example, 4 for
- *                     AT_IPv4 or sizeof(struct e_in6_addr) for AT_IPv6.
+ *                     AT_IPv4 or sizeof(ws_in6_addr) for AT_IPv6.
  */
 static inline void
 set_address_tvb(address *addr, int addr_type, int addr_len, tvbuff_t *tvb, int offset) {
@@ -137,7 +137,7 @@ set_address_tvb(address *addr, int addr_type, int addr_len, tvbuff_t *tvb, int o
  * @param addr [in,out] The address to initialize.
  * @param addr_type [in] Address type.
  * @param addr_len [in] The length in bytes of the address data. For example, 4 for
- *                     AT_IPv4 or sizeof(struct e_in6_addr) for AT_IPv6.
+ *                     AT_IPv4 or sizeof(ws_in6_addr) for AT_IPv6.
  * @param addr_data [in] Pointer to the address data.
  */
 static inline void
@@ -168,7 +168,7 @@ alloc_address_wmem(wmem_allocator_t *scope, address *addr,
  * @param addr [in,out] The address to initialize.
  * @param addr_type [in] Address type.
  * @param addr_len [in] The length in bytes of the address data. For example, 4 for
- *                     AT_IPv4 or sizeof(struct e_in6_addr) for AT_IPv6.
+ *                     AT_IPv4 or sizeof(ws_in6_addr) for AT_IPv6.
  * @param tvb [in] Pointer to the TVB.
  * @param offset [in] Offset within the TVB.
  */

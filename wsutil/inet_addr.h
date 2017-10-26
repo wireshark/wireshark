@@ -41,6 +41,6 @@ WS_DLL_PUBLIC const gchar *
 ws_inet_ntop6(gconstpointer src, gchar *dst, guint dst_size);
 
 WS_DLL_PUBLIC gboolean
-ws_inet_pton6(const gchar *src, struct e_in6_addr *dst);
+ws_inet_pton6(const gchar *src, ws_in6_addr *dst);
 
 #endif

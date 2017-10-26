@@ -60,7 +60,7 @@ WSLUA_CONSTRUCTOR Address_ipv6(lua_State* L) {
 
 #define WSLUA_ARG_Address_ipv6_HOSTNAME 1 /* The address or name of the IP host. */
     Address addr = (Address)g_malloc(sizeof(address));
-    struct e_in6_addr ip_addr;
+    ws_in6_addr ip_addr;
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_Address_ipv6_HOSTNAME);
 
     if (!get_host_ipaddr6(name, &ip_addr)) {

@@ -640,7 +640,7 @@ static gboolean
 dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
                  const char* label, proto_item** ret_item, int hf_ip4, int hf_ip6, int *advance) {
     guint8 af, et, flags, mask_len;
-    struct e_in6_addr ipv6;
+    ws_in6_addr ipv6;
     guint32 ipv4;
     proto_item* ti = NULL;
     int len = 0;

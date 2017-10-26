@@ -1166,8 +1166,8 @@ static gboolean h225_tp_in_tree = TRUE;
 
 /* Global variables */
 static guint32 ipv4_address;
-static struct e_in6_addr ipv6_address;
-static struct e_in6_addr ipv6_address_zeros = {{0}};
+static ws_in6_addr ipv6_address;
+static ws_in6_addr ipv6_address_zeros = {{0}};
 static guint32 ip_port;
 static gboolean contains_faststart = FALSE;
 static e_guid_t *call_id_guid;

@@ -5158,7 +5158,7 @@ dissect_dcerpc_cn_rts(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                offset += 4;
             } break;
             case RTS_IPV6: {
-               struct e_in6_addr addr6;
+               ws_in6_addr addr6;
                tvb_get_ipv6(tvb, offset, &addr6);
                proto_tree_add_ipv6_format_value(cn_rts_command_tree, hf_dcerpc_cmd_client_ipv6, tvb, offset, 16, &addr6, "%s", get_hostname6(&addr6));
                offset += 16;

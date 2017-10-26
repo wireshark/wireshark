@@ -4417,7 +4417,7 @@ dissect_vsncp_pdnaddress_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     case 2:
     {
-        struct e_in6_addr *ad = wmem_new0(wmem_packet_scope(),struct e_in6_addr);
+        ws_in6_addr *ad = wmem_new0(wmem_packet_scope(),ws_in6_addr);
         address addr;
 
         tvb_memcpy(tvb, &ad->bytes[8], offset + 3, 8);
@@ -4430,7 +4430,7 @@ dissect_vsncp_pdnaddress_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     case 3:
     {
-        struct e_in6_addr *ad = wmem_new0(wmem_packet_scope(), struct e_in6_addr);
+        ws_in6_addr *ad = wmem_new0(wmem_packet_scope(), ws_in6_addr);
         address addr;
 
         tvb_memcpy(tvb, &ad->bytes[8], offset + 3, 8);

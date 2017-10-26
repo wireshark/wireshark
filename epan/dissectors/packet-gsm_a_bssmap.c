@@ -3658,7 +3658,7 @@ be_aoip_trans_lay_add(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
     guint32 rtp_ipv4_address;
     guint16 rtp_port;
     address rtp_dst_addr;
-    struct e_in6_addr rtp_addr_ipv6;
+    ws_in6_addr rtp_addr_ipv6;
 
     curr_offset = offset;
 

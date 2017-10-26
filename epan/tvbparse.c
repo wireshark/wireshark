@@ -874,7 +874,7 @@ static int cond_ft(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wanted,
     }
 }
 
-gint ft_lens[] = {-1,-1,-1, 1, 2, 3, 4, 8, 1, 2, 3, 4, 8, 4, 8,-1,-1,-1, 0, -1, 6, -1, -1, 4, sizeof(struct e_in6_addr), -1, -1, -1, -1 };
+gint ft_lens[] = {-1,-1,-1, 1, 2, 3, 4, 8, 1, 2, 3, 4, 8, 4, 8,-1,-1,-1, 0, -1, 6, -1, -1, 4, sizeof(ws_in6_addr), -1, -1, -1, -1 };
 
 tvbparse_wanted_t* tvbparse_ft(int id,
                                const void* data,

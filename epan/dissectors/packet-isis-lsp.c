@@ -1445,7 +1445,7 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree 
     guint8            ctrl_info;
     guint             bit_length;
     int               byte_length;
-    struct e_in6_addr prefix;
+    ws_in6_addr prefix;
     address           prefix_addr;
     guint             len,i;
     guint             subclvs_len;

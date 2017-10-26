@@ -24,6 +24,6 @@
  * discovery protocol, so the ICMPv6 dissector needs to call this routine.
  */
 extern void lowpan_context_insert(guint8 cid, guint16 pan, guint8 plen,
-                        struct e_in6_addr *prefix, guint frame);
+                        ws_in6_addr *prefix, guint frame);
 
 #endif /* __PACKET_6LOWPAN_H__ */

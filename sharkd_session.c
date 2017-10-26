@@ -1243,7 +1243,7 @@ sharkd_session_geoip_addr(address *addr, const char *suffix)
 #ifdef HAVE_GEOIP_V6
 	if (addr->type == AT_IPv6)
 	{
-		const struct e_in6_addr *ip6 = (const struct e_in6_addr *) addr->data;
+		const ws_in6_addr *ip6 = (const ws_in6_addr *) addr->data;
 
 		guint num_dbs = geoip_db_num_dbs();
 		guint dbnum;

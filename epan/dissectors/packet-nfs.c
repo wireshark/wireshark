@@ -7390,7 +7390,7 @@ dissect_nfs4_clientaddr(tvbuff_t *tvb, int offset, proto_tree *tree)
 	guint16 port;
 	int	addr_offset;
 	guint32 ipv4;
-	struct e_in6_addr ipv6;
+	ws_in6_addr ipv6;
 	address addr;
 	proto_item* ti;
 

@@ -3884,7 +3884,7 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
     int                address_len;
     guint16            port_num;
     guint32            address_ipv4;
-    struct e_in6_addr  address_ipv6;
+    ws_in6_addr  address_ipv6;
     address            redir_address;
     conversation_t    *conv;
     guint32            idx            = 0; /* Address index */

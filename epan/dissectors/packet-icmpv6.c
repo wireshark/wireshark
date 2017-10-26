@@ -1437,7 +1437,7 @@ static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tre
 
     if (icmpv6_trans == NULL) {
         if (pinfo->dst.type == AT_IPv6 &&
-                    in6_is_addr_multicast((const struct e_in6_addr *)pinfo->dst.data)) {
+                    in6_is_addr_multicast((const ws_in6_addr *)pinfo->dst.data)) {
             /* XXX We should support multicast echo requests, but we don't currently */
             /* Note the multicast destination and skip transaction tracking */
             col_append_str(pinfo->cinfo, COL_INFO, " (multicast)");
@@ -2081,7 +2081,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 /* RFC 4191 */
                 guint8 prefix_len;
                 guint8 route_preference;
-                struct e_in6_addr prefix;
+                ws_in6_addr prefix;
                 address prefix_addr;
                 static const int * route_flags[] = {
                     &hf_icmpv6_opt_route_info_flag_route_preference,
@@ -2359,7 +2359,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 /* 6lowpan-ND */
                 guint8 context_id;
                 guint8 context_len;
-                struct e_in6_addr context_prefix;
+                ws_in6_addr context_prefix;
                 address context_prefix_addr;
                 static const int * _6lowpan_context_flags[] = {
                     &hf_icmpv6_opt_6co_flag_c,
@@ -2685,7 +2685,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
             }
             case RPL_OPT_ROUTING: {
                 guint8 prefix_len;
-                struct e_in6_addr prefix;
+                ws_in6_addr prefix;
                 address prefix_addr;
                 static const int * rpl_flags[] = {
                     &hf_icmpv6_rpl_opt_route_pref,
@@ -2782,7 +2782,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
             }
             case RPL_OPT_TARGET: {
                 guint8              prefix_len;
-                struct e_in6_addr   target_prefix;
+                ws_in6_addr   target_prefix;
                 address target_prefix_addr;
 
                 /* Flag */
@@ -3021,7 +3021,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                 while (num_of_addr--) {
                     memset(addr, 0, sizeof(addr));
                     tvb_memcpy(tvb, addr + compr, opt_offset, addr_len);
-                    proto_tree_add_ipv6(flag_tree, hf_icmpv6_rpl_opt_route_discovery_addr_vec_addr, tvb, opt_offset, addr_len, (struct e_in6_addr *)addr);
+                    proto_tree_add_ipv6(flag_tree, hf_icmpv6_rpl_opt_route_discovery_addr_vec_addr, tvb, opt_offset, addr_len, (ws_in6_addr *)addr);
                     opt_offset += addr_len;
                 }
 

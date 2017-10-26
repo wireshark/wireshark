@@ -42,7 +42,7 @@ extern int tvb_get_ipv4_addr_with_prefix_len(tvbuff_t *tvb, int offset,
     guint8 *addr, guint32 prefix_len);
 
 extern int tvb_get_ipv6_addr_with_prefix_len(tvbuff_t *tvb, int offset,
-    struct e_in6_addr *addr, guint32 prefix_len);
+    ws_in6_addr *addr, guint32 prefix_len);
 
 guint32 ip_get_subnet_mask(const guint32 mask_length);
 

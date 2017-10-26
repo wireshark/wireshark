@@ -707,7 +707,7 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         break;
       case 1:
         addrValue_item = proto_tree_add_ipv6(addr_tree, hf_packetbb_addr_value[addressType],
-            tvb, mid_index, block_index + block_length - mid_index, (struct e_in6_addr *)addr);
+            tvb, mid_index, block_index + block_length - mid_index, (ws_in6_addr *)addr);
         break;
       case 2:
         addrValue_item = proto_tree_add_ether(addr_tree, hf_packetbb_addr_value[addressType],

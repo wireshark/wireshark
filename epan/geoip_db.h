@@ -87,7 +87,7 @@ WS_DLL_PUBLIC char *geoip_db_lookup_ipv4(guint dbnum, guint32 addr, const char *
  *
  * @return The database entry if found, else not_found. Return value must be freed with wmem_free.
  */
-WS_DLL_PUBLIC char *geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, const char *not_found);
+WS_DLL_PUBLIC char *geoip_db_lookup_ipv6(guint dbnum, ws_in6_addr addr, const char *not_found);
 
 /**
  * Get all configured paths

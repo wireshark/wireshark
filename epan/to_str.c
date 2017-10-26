@@ -1044,7 +1044,7 @@ ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len)
 }
 
 void
-ip6_to_str_buf(const struct e_in6_addr *ad, gchar *buf, int buf_len)
+ip6_to_str_buf(const ws_in6_addr *ad, gchar *buf, int buf_len)
 {
 	if (buf_len < WS_INET6_ADDRSTRLEN) {
 		g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);  /* Let the unexpected value alert user */

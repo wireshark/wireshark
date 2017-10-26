@@ -1135,7 +1135,7 @@ radius_ipv6addr(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_,
 void
 radius_ipv6prefix(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset, int len, proto_item *avp_item)
 {
-	struct e_in6_addr ipv6_buff;
+	ws_in6_addr ipv6_buff;
 	gchar txtbuf[256];
 	guint8 n;
 

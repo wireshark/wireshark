@@ -3361,12 +3361,12 @@ static void parse_CM_Req(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb
     } else {
         local_gid = (guint8 *)wmem_alloc(wmem_packet_scope(), GID_SIZE);
         proto_tree_add_item(CM_header_tree, hf_cm_req_primary_local_gid, tvb, local_offset, 16, ENC_NA);
-        tvb_get_ipv6(tvb, local_offset, (struct e_in6_addr*)local_gid);
+        tvb_get_ipv6(tvb, local_offset, (ws_in6_addr*)local_gid);
         local_offset += 16;
 
         remote_gid = (guint8 *)wmem_alloc(wmem_packet_scope(), GID_SIZE);
         proto_tree_add_item(CM_header_tree, hf_cm_req_primary_remote_gid, tvb, local_offset, 16, ENC_NA);
-        tvb_get_ipv6(tvb, local_offset, (struct e_in6_addr*)remote_gid);
+        tvb_get_ipv6(tvb, local_offset, (ws_in6_addr*)remote_gid);
     }
     local_offset += 16;
 

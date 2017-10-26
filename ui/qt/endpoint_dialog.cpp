@@ -316,7 +316,7 @@ public:
                 if (endp_item->myaddress.type == AT_IPv4) {
                     geoip_str = geoip_db_lookup_ipv4(db, pntoh32(endp_item->myaddress.data), NULL);
                 } else if (endp_item->myaddress.type == AT_IPv6) {
-                    const struct e_in6_addr *addr = (const struct e_in6_addr *) endp_item->myaddress.data;
+                    const ws_in6_addr *addr = (const ws_in6_addr *) endp_item->myaddress.data;
                     geoip_str = geoip_db_lookup_ipv6(db, *addr, NULL);
                 }
                 if (!geoip_str.isEmpty()) {

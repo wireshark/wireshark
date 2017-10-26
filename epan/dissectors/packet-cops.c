@@ -1330,7 +1330,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
     guint16 r_type, m_type, reason, reason_sub, cmd_code, cmd_flags, error, error_sub,
             tcp_port, katimer, accttimer;
     guint32 ifindex;
-    struct e_in6_addr ipv6addr;
+    ws_in6_addr ipv6addr;
     oid_info_t* oid_info = NULL;
     guint32* pprid_subids = NULL;
     guint pprid_subids_len = 0;

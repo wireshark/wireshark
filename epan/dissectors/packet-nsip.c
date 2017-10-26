@@ -523,7 +523,7 @@ static void
 decode_iei_ip_address(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   guint8 addr_type;
   guint32 ip4_addr;
-  struct e_in6_addr ip6_addr;
+  ws_in6_addr ip6_addr;
 
   addr_type = tvb_get_guint8(bi->tvb, bi->offset);
   proto_tree_add_item(bi->nsip_tree, hf_nsip_ip_address_type,

@@ -4324,8 +4324,8 @@ decode_gtp_user_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
             break;
         case 0x8d:
             if (length == 6) {
-                struct e_in6_addr ipv6;
-                memset(&ipv6, 0, sizeof(struct e_in6_addr));
+                ws_in6_addr ipv6;
+                memset(&ipv6, 0, sizeof(ws_in6_addr));
                 proto_tree_add_item(ext_tree_user, hf_gtp_user_ipv4, tvb, offset + 5, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_ipv6_format_value(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 9, 0, &ipv6, "dynamic");
                 proto_item_append_text(te, " : %s / dynamic", tvb_ip_to_str(tvb, offset + 5));

@@ -590,7 +590,7 @@ draw_hostlist_table_data(hostlist_table *hl)
                     wmem_free(NULL, name);
                 } else if (host->myaddress.type == AT_IPv6 && j < geoip_db_num_dbs()) {
                     guchar *name;
-                    const struct e_in6_addr *addr = (const struct e_in6_addr *) host->myaddress.data;
+                    const ws_in6_addr *addr = (const ws_in6_addr *) host->myaddress.data;
 
                     name = geoip_db_lookup_ipv6(j, *addr, "-");
                     geoip[j] = g_strdup(name);

@@ -1664,7 +1664,7 @@ tvb_get_ipv4(tvbuff_t *tvb, const gint offset)
 
 /* Fetch an IPv6 address. */
 void
-tvb_get_ipv6(tvbuff_t *tvb, const gint offset, struct e_in6_addr *addr)
+tvb_get_ipv6(tvbuff_t *tvb, const gint offset, ws_in6_addr *addr)
 {
 	const guint8 *ptr;
 

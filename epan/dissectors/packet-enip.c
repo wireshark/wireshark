@@ -1062,7 +1062,7 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
    conversation_t   *conversation, *conversationTO;
    enip_conv_info_t *enip_info;
    address           dest_address;
-   struct e_in6_addr ipv6_zero;
+   ws_in6_addr ipv6_zero;
 
    if (pinfo->fd->flags.visited)
       return;

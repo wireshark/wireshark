@@ -2329,7 +2329,7 @@ static int dissect_dhcpv6_s46_ipv6_prefix(tvbuff_t *tvb, int hf, int offset, int
 {
 
     int bytes_to_process;
-    struct e_in6_addr prefix;
+    ws_in6_addr prefix;
 
     bytes_to_process = (((prefix_length + 7) & 0xf8) >> 3);
 

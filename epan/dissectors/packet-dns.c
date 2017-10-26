@@ -2387,7 +2387,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       if (gbl_resolv_flags.dns_pkt_addr_resolution && (dns_class & 0x7f) == C_IN &&
           !PINFO_FD_VISITED(pinfo)) {
-        struct e_in6_addr  addr_in6;
+        ws_in6_addr  addr_in6;
         tvb_memcpy(tvb, &addr_in6, cur_offset, sizeof(addr_in6));
         add_ipv6_name(&addr_in6, name);
       }
@@ -2588,7 +2588,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int                pname_len;
       int                a6_offset;
       int                suf_offset;
-      struct e_in6_addr  suffix;
+      ws_in6_addr  suffix;
       address            suffix_addr;
 
       a6_offset = cur_offset;
@@ -2749,7 +2749,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
               case AFNUM_INET6:
               {
                 proto_tree_add_ipv6(rropt_tree, hf_dns_opt_client_addr6, tvb,
-                                    cur_offset, addr_len, (struct e_in6_addr *)&ip_addr);
+                                    cur_offset, addr_len, (ws_in6_addr *)&ip_addr);
               }
               break;
 
@@ -2848,7 +2848,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         } else if (afamily == AFNUM_INET6 && afdpart_len <= 16) {
           addr_copy = (guint8 *)wmem_alloc0(wmem_packet_scope(), 16);
           tvb_memcpy(tvb, (guint8 *)addr_copy, cur_offset, afdpart_len);
-          proto_tree_add_ipv6(rr_tree, hf_dns_apl_afdpart_ipv6, tvb, cur_offset, afdpart_len, (struct e_in6_addr *)addr_copy);
+          proto_tree_add_ipv6(rr_tree, hf_dns_apl_afdpart_ipv6, tvb, cur_offset, afdpart_len, (ws_in6_addr *)addr_copy);
         } else { /* Other... */
            proto_tree_add_item(rr_tree, hf_dns_apl_afdpart_data, tvb, cur_offset, afdpart_len, ENC_NA);
         }

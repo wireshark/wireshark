@@ -462,7 +462,7 @@ geoip_db_lookup_latlon6(geoipv6_t addr _U_, float *lat _U_, float *lon _U_) {
 #endif /* NUM_DB_TYPES */
 
 char *
-geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, const char *not_found) {
+geoip_db_lookup_ipv6(guint dbnum, ws_in6_addr addr, const char *not_found) {
     GeoIP *gi;
     geoipv6_t gaddr;
     char *name;
@@ -560,7 +560,7 @@ geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, const char *not_found)
 #else /* HAVE_GEOIP_V6 */
 
 char *
-geoip_db_lookup_ipv6(guint dbnum _U_, struct e_in6_addr addr _U_, const char *not_found) {
+geoip_db_lookup_ipv6(guint dbnum _U_, ws_in6_addr addr _U_, const char *not_found) {
     if (not_found == NULL)
         return NULL;
 
