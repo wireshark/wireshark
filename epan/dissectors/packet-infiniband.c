@@ -6200,7 +6200,7 @@ void proto_register_infiniband(void)
         },
         { &hf_infiniband_queue_key, {
                 "Queue Key", "infiniband.deth.q_key",
-                FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
+                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_infiniband_source_qp, {
                 "Source Queue Pair", "infiniband.deth.srcqp",
