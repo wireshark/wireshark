@@ -27,15 +27,6 @@ extern "C" {
 #endif /* __cplusplus */
 
 /*
- * If we're running GCC or clang define _U_ to be "__attribute__((unused))"
- * so we can use _U_ to flag unused function parameters and not get warnings
- * about them. Otherwise, define _U_ to be an empty string so that _U_ used
- * to flag an unused function parameters will compile with other compilers.
- *
- * XXX - similar hints for other compilers?
- */
-
-/*
  * This was introduced by Clang:
  *
  *     http://clang.llvm.org/docs/LanguageExtensions.html#has-attribute
@@ -148,6 +139,14 @@ extern "C" {
 	(__HP_aCC >= ((major)*10000 + (minor)*100))
 #endif
 
+/*
+ * If we're running GCC or clang define _U_ to be "__attribute__((unused))"
+ * so we can use _U_ to flag unused function parameters and not get warnings
+ * about them. Otherwise, define _U_ to be an empty string so that _U_ used
+ * to flag an unused function parameters will compile with other compilers.
+ *
+ * XXX - similar hints for other compilers?
+ */
 #if defined(__GNUC__)
   /* This includes clang */
   #define _U_ __attribute__((unused))
@@ -182,7 +181,10 @@ extern "C" {
   #define WS_NORETURN
 #endif
 
-/* Hint to the compiler that the function returns a non-null value */
+/*
+ * WS_RETNONNULL, before a function declaration, means "this function
+ * always returns a non-null pointer".
+ */
 #if __has_attribute(returns_nonnull) \
     || WS_IS_AT_LEAST_GNUC_VERSION(4,9)
   #define WS_RETNONNULL __attribute__((returns_nonnull))
