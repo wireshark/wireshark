@@ -37,63 +37,15 @@
 
 #include <epan/value_string.h>
 
-#include <winsock2.h>    /* Needed here to force a definition of WINVER           */
-                         /* for some (all ?) Microsoft compilers newer than vc6.  */
-                         /* (If windows.h were used instead, there might be       */
-                         /*  issues re winsock.h included before winsock2.h )     */
 #include <windowsx.h>
 #include <Ntddndis.h>
 
 #include "caputils/capture_wpcap_packet.h"
 #include <wsutil/file_util.h>
 
-/* packet32.h requires sockaddr_storage
- * whether sockaddr_storage is defined or not depends on the Platform SDK
- * version installed. The only one not defining it is the SDK that comes
- * with MSVC 6.0 (WINVER 0x0400).
- *
- * copied from RFC2553 (and slightly modified because of datatypes) ...
- * XXX - defined more than once, move this to a header file */
-#ifndef WINVER
-#error WINVER not defined ....
-#endif
-#if (WINVER <= 0x0400) && defined(_MSC_VER)
-typedef unsigned short eth_sa_family_t;
-
-/*
- * Desired design of maximum size and alignment
- */
-#define ETH_SS_MAXSIZE    128  /* Implementation specific max size */
-#define ETH_SS_ALIGNSIZE  (sizeof (gint64 /*int64_t*/))
-                         /* Implementation specific desired alignment */
-/*
- * Definitions used for sockaddr_storage structure paddings design.
- */
-#define ETH_SS_PAD1SIZE   (ETH_SS_ALIGNSIZE - sizeof (eth_sa_family_t))
-#define ETH_SS_PAD2SIZE   (ETH_SS_MAXSIZE - (sizeof (eth_sa_family_t) + \
-                              ETH_SS_PAD1SIZE + ETH_SS_ALIGNSIZE))
-
-struct sockaddr_storage {
-    eth_sa_family_t  __ss_family;     /* address family */
-    /* Following fields are implementation specific */
-    char      __ss_pad1[ETH_SS_PAD1SIZE];
-              /* 6 byte pad, this is to make implementation */
-              /* specific pad up to alignment field that */
-              /* follows explicit in the data structure */
-    gint64 /*int64_t*/   __ss_align;     /* field to force desired structure */
-               /* storage alignment */
-    char      __ss_pad2[ETH_SS_PAD2SIZE];
-              /* 112 byte pad to achieve desired size, */
-              /* _SS_MAXSIZE value minus size of ss_family */
-              /* __ss_pad1, __ss_align fields is 112 */
-};
-/* ... copied from RFC2553 */
-#endif /* WINVER */
-
 #include <Packet32.h>
 
 gboolean has_wpacket = FALSE;
-
 
 /* This module will use the PacketRequest function in packet.dll (coming with WinPcap) to "directly" access
  * the Win32 NDIS network driver(s) and ask for various values (status, statistics, ...).
