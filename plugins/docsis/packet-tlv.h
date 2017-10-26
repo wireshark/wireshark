@@ -154,6 +154,8 @@
 #define CAP_UDC 38
 #define CAP_IPV6 39
 #define CAP_EXT_US_TRNS_PWR 40
+#define CAP_EM 44
+#define CAP_CM_STATUS_ACK 46
 
 /* Define Classifier subtypes
  * These are subtypes of either:

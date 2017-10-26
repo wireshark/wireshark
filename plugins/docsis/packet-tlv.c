@@ -171,7 +171,10 @@ static int hf_docsis_tlv_mcap_map_ucd = -1;
 static int hf_docsis_tlv_mcap_udc = -1;
 static int hf_docsis_tlv_mcap_ipv6 = -1;
 static int hf_docsis_tlv_mcap_ext_us_trans_power = -1;
-
+static int hf_docsis_tlv_mcap_em = -1;
+static int hf_docsis_tlv_mcap_em_1x1 = -1;
+static int hf_docsis_tlv_mcap_em_light_sleep = -1;
+static int hf_docsis_tlv_mcap_cm_status_ack = -1;
 
 static int hf_docsis_tlv_clsfr_ref = -1;
 static int hf_docsis_tlv_clsfr_id = -1;
@@ -411,6 +414,7 @@ static int hf_docsis_tlv_unknown = -1;
 static gint ett_docsis_tlv = -1;
 static gint ett_docsis_tlv_cos = -1;
 static gint ett_docsis_tlv_mcap = -1;
+static gint ett_docsis_tlv_mcap_em = -1;
 static gint ett_docsis_tlv_clsfr = -1;
 static gint ett_docsis_tlv_clsfr_ip = -1;
 static gint ett_docsis_tlv_clsfr_ip6 = -1;
@@ -468,6 +472,17 @@ static const value_string on_off_vals[] = {
 static const true_false_string ena_dis_tfs = {
   "Enable",
   "Disable"
+};
+
+static const value_string sup_unsup_vals[] = {
+  {0, "Unsupported"},
+  {1, "Supported"},
+  {0, NULL},
+};
+
+static const true_false_string sup_unsup_tfs = {
+  "Supported",
+  "Unsupported"
 };
 
 static const value_string docs_ver_vals[] = {
@@ -2480,6 +2495,33 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
             if (length == 1)
               {
                 proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_ext_us_trans_power, tvb,
+                                     pos, length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case CAP_EM:
+            if (length == 4)
+              {
+                static const int * cap_em[] = {
+                  &hf_docsis_tlv_mcap_em_1x1,
+                  &hf_docsis_tlv_mcap_em_light_sleep,
+                  NULL
+                };
+
+                proto_tree_add_bitmask_with_flags(mcap_tree, tvb, pos, hf_docsis_tlv_mcap_em, ett_docsis_tlv_mcap_em, cap_em, ENC_BIG_ENDIAN, BMT_NO_FLAGS);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case CAP_CM_STATUS_ACK:
+            if (length == 1)
+              {
+                proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_cm_status_ack, tvb,
                                      pos, length, ENC_BIG_ENDIAN);
               }
             else
@@ -5020,6 +5062,29 @@ proto_register_docsis_tlv (void)
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Extended Upstream Transmit Power Capability", HFILL}
     },
+    {&hf_docsis_tlv_mcap_em,
+     {".44 Energy Management Capabilities", "docsis_tlv.mcap.em",
+      FT_UINT32, BASE_HEX, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_em_1x1,
+     {"Energy Management 1x1 Feature",
+      "docsis_tlv.mcap.em.1x1",
+      FT_BOOLEAN, 32, TFS (&sup_unsup_tfs), 0x1,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_em_light_sleep,
+     {"DOCSIS Light Sleep Mode",
+      "docsis_tlv.mcap.em.light_sleep",
+      FT_BOOLEAN, 32, TFS (&sup_unsup_tfs), 0x2,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_cm_status_ack,
+     {".46 CM-STATUS_ACK",
+      "docsis_tlv.mcap.cm_status_ack",
+      FT_UINT8, BASE_DEC, VALS (&sup_unsup_vals), 0x0,
+      "CM_STATUS_ACK", HFILL}
+    },
     {&hf_docsis_tlv_cm_mic,
      {"6 CM MIC", "docsis_tlv.cmmic",
       FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -6378,6 +6443,7 @@ proto_register_docsis_tlv (void)
     &ett_docsis_tlv,
     &ett_docsis_tlv_cos,
     &ett_docsis_tlv_mcap,
+    &ett_docsis_tlv_mcap_em,
     &ett_docsis_tlv_clsfr,
     &ett_docsis_tlv_clsfr_ip,
     &ett_docsis_tlv_clsfr_ip6,
