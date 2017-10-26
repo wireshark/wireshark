@@ -3426,6 +3426,7 @@ dissect_pfcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data 
 
     /* Octet 3 - 4 Message Length */
     proto_tree_add_item_ret_uint(sub_tree, hf_pfcp_msg_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
+    offset += 2;
 
     if ((pfcp_flags & 0x1) == 1) {
         /* If S flag is set to 1, then SEID shall be placed into octets 5-12*/
