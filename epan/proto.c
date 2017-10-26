@@ -9682,21 +9682,25 @@ proto_find_field_from_offset(proto_tree *tree, guint offset, tvbuff_t *tvb)
 	return offsearch.finfo;
 }
 
+typedef struct {
+	gint length;
+	gchar *buf;
+} decoded_data_t;
 
 static gboolean
 check_for_undecoded(proto_node *node, gpointer data)
 {
 	field_info *fi = PNODE_FINFO(node);
-	gchar* decoded = (gchar*)data;
+	decoded_data_t* decoded = (decoded_data_t*)data;
 	gint i;
 	guint byte;
 	guint bit;
 
 	if (fi && fi->hfinfo->type != FT_PROTOCOL) {
-		for (i = fi->start; i < fi->start + fi->length; i++) {
+		for (i = fi->start; i < fi->start + fi->length && i < decoded->length; i++) {
 			byte = i / 8;
 			bit = i % 8;
-			decoded[byte] |= (1 << bit);
+			decoded->buf[byte] |= (1 << bit);
 		}
 	}
 
@@ -9706,10 +9710,12 @@ check_for_undecoded(proto_node *node, gpointer data)
 gchar*
 proto_find_undecoded_data(proto_tree *tree, guint length)
 {
-	gchar* decoded = (gchar*)wmem_alloc0(wmem_packet_scope(), length / 8 + 1);
+	decoded_data_t decoded;
+	decoded.length = length;
+	decoded.buf = (gchar*)wmem_alloc0(wmem_packet_scope(), length / 8 + 1);
 
-	proto_tree_traverse_pre_order(tree, check_for_undecoded, decoded);
-	return decoded;
+	proto_tree_traverse_pre_order(tree, check_for_undecoded, &decoded);
+	return decoded.buf;
 }
 
 /* Dumps the protocols in the registration database to stdout.	An independent
