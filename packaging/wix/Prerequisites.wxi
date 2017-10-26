@@ -14,6 +14,11 @@
          to ensure the entire fragment is included. -->
     <Property Id="IncludePrerequisites">1</Property>
 
+    <!-- This should match the following:
+         - The NTDDI_VERSION and _WIN32_WINNT parts of cmakeconfig.h.in
+         - The <compatibility><application> section in image\wireshark.exe.manifest.in
+         - The GetWindowsVersion parts of packaging\nsis\wireshark.nsi
+    -->
     <Condition Message="Windows 2000 is no longer supported. Please install $(var.WiresharkName) 1.2 or 1.0 instead.">
       <![CDATA[Installed OR (VersionNT < 500) OR (VersionNT > 500)]]>
     </Condition>

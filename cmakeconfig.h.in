@@ -406,6 +406,16 @@
 #cmakedefine YYTEXT_POINTER
 
 #if defined(_WIN32)
+   /*
+    * Make sure everyone is using the same API and that it's sufficient
+    * for our needs.
+    * This should match the following:
+    * - The <compatibility><application> section in image\wireshark.exe.manifest.in
+    * - The GetWindowsVersion parts of packaging\nsis\wireshark.nsi
+    * - The VersionNT parts of packaging\wix\Prerequisites.wxi
+    */
+#  define NTDDI_VERSION NTDDI_VISTA
+#  define _WIN32_WINNT _WIN32_WINNT_VISTA
 
    /* WpdPack/INclude/pcap/pcap.h checks for "#if defined(WIN32)" */
 #  ifndef WIN32
@@ -418,19 +428,11 @@
 
    /* FIXME: Detection doesn't work */
 #  define HAVE_NTDDNDIS_H 1
-   /* Visual C 9 (2008), Visual C 10 (2010), Visual C 11 (2012) and Visual C 12 (2013)
-    *  need these prototypes
-    * XXX: Can we use MSC_VER >= 1500 ?? */
-#  if _MSC_VER == 1500 || _MSC_VER == 1600 || _MSC_VER == 1700 || _MSC_VER == 1800
-#    define NTDDI_VERSION NTDDI_WINXPSP3
-#    define _WIN32_WINNT _WIN32_WINNT_WINXP
-#  endif
 
    /*
     * Flex (v 2.5.35) uses this symbol to "exclude" unistd.h
     */
 #  define YY_NO_UNISTD_H
-
 
 #  define strncasecmp strnicmp
 #  define popen       _popen
