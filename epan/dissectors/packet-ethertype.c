@@ -88,6 +88,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_MRP,                  "MRP" },
 	{ ETHERTYPE_IEEE_802_1AD,         "802.1ad Provider Bridge (Q-in-Q)" },
 	{ ETHERTYPE_MACSEC,               "802.1AE (MACsec)" },
+	{ ETHERTYPE_IEEE_1905,		  "1905.1a Convergent Digital Home Network for Heterogenous Technologies" },
 	{ ETHERTYPE_IEEE_802_1AH,         "802.1ah Provider Backbone Bridge (mac-in-mac)" },
 	{ ETHERTYPE_IEEE_802_1BR,         "802.1br Bridge Port Extension E-Tag" },
 	{ ETHERTYPE_EAPOL,                "802.1X Authentication" },

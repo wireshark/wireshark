@@ -76,6 +76,7 @@ SolarEdge monitoring protocol
 Protobuf (Protocol Buffers)
 FP Mux
 Network Functional Application Platform Interface (NFAPI) Protocol
+IEEE 1905.1a
 --sort-and-group--
 
 === Updated Protocol Support

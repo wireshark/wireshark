@@ -1086,6 +1086,7 @@ set(DISSECTOR_SRC
 	packet-iec104.c
 	packet-ieee1722.c
 	packet-ieee17221.c
+	packet-ieee1905.c
 	packet-ieee80211-netmon.c
 	packet-ieee80211-prism.c
 	packet-ieee80211-radio.c

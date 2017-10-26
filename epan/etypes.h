@@ -569,6 +569,10 @@ extern "C" {
 #define ETHERTYPE_HSR			0x892F	/* High-availability Seamless Redundancy (IEC62439 Part 3) */
 #endif
 
+#ifndef ETHERTYPE_IEEE_1905
+#define ETHERTYPE_IEEE_1905		0x893A  /* IEEE 1905 */
+#endif
+
 #ifndef ETHERTYPE_IEEE_802_1BR
 #define ETHERTYPE_IEEE_802_1BR		0x893F	/* IEEE 802.1br E-Tag, Bridge Port Extension */
 #endif
