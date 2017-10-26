@@ -867,7 +867,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ipopt_type_number_vals@Base 1.9.1
  ipproto_val_ext@Base 2.1.0
  ipprotostr@Base 1.9.1
- ipv4_get_net_order_addr@Base 1.9.1
  ipv6extprotostr@Base 2.1.0
  is_big_endian@Base 1.9.1
  is_broadcast_bssid@Base 2.0.0
