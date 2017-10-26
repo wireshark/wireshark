@@ -2541,11 +2541,13 @@ static void parse_PAYLOAD(proto_tree *parentTree,
             || ((management_class >= (guint8)VENDOR_2_START) && (management_class <= (guint8)VENDOR_2_END)))
         {
             /* parse vendor specific */
+            col_set_str(pinfo->cinfo, COL_INFO, "VENDOR (Unknown Attribute)");
             parse_VENDOR_MANAGEMENT(parentTree, tvb, offset);
         }
         else if ((management_class >= (guint8)APPLICATION_START) && (management_class <= (guint8)APPLICATION_END))
         {
             /* parse application specific */
+            col_set_str(pinfo->cinfo, COL_INFO, "APP (Unknown Attribute)");
             parse_APPLICATION_MANAGEMENT(parentTree, tvb, offset);
         }
         else if (((management_class == (guint8)0x00) || (management_class == (guint8)0x02))
@@ -2553,6 +2555,7 @@ static void parse_PAYLOAD(proto_tree *parentTree,
                  || ((management_class >= (guint8)0x82)))
         {
             /* parse reserved classes */
+            col_set_str(pinfo->cinfo, COL_INFO, "RESERVED (Unknown Attribute)");
             parse_RESERVED_MANAGEMENT(parentTree, tvb, offset);
         }
         else /* we have a normal management_class */
@@ -2577,10 +2580,12 @@ static void parse_PAYLOAD(proto_tree *parentTree,
                 break;
                 case BM:
                     /* parse baseboard mgmt */
+                    col_set_str(pinfo->cinfo, COL_INFO, "BM (Unknown Attribute)");
                     parse_BM(parentTree, tvb, &local_offset);
                 break;
                 case DEV_MGT:
                     /* parse device management */
+                    col_set_str(pinfo->cinfo, COL_INFO, "DEV_MGT (Unknown Attribute)");
                     parse_DEV_MGT(parentTree, tvb, &local_offset);
                 break;
                 case COM_MGT:
@@ -2589,6 +2594,7 @@ static void parse_PAYLOAD(proto_tree *parentTree,
                 break;
                 case SNMP:
                     /* parse snmp tunneling */
+                    col_set_str(pinfo->cinfo, COL_INFO, "SNMP (Unknown Attribute)");
                     parse_SNMP(parentTree, tvb, &local_offset);
                 break;
                 default:
