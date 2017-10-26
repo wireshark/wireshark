@@ -42,20 +42,32 @@
 #define _NTOP_SRC_CAST_
 #endif
 
+/*
+ * We only employ and require AF_INET/AF_INET6, so we can
+ * have some stronger checks for correctness and convenience. It is a
+ * programming error to pass a too-small buffer to inet_ntop.
+ */
+
 static inline gboolean
 _inet_pton(int af, const gchar *src, gpointer dst)
 {
-    gint ret;
-
-    ret = inet_pton(af, src, dst);
+    gint ret = inet_pton(af, src, dst);
     g_assert(ret >= 0);
     return ret == 1;
+}
+
+static inline const gchar *
+_inet_ntop(int af, gconstpointer src, gchar *dst, guint dst_size)
+{
+    const gchar *ret = inet_ntop(af, _NTOP_SRC_CAST_ src, dst, dst_size);
+    g_assert(ret != NULL);
+    return ret;
 }
 
 const gchar *
 ws_inet_ntop4(gconstpointer src, gchar *dst, guint dst_size)
 {
-    return inet_ntop(AF_INET, _NTOP_SRC_CAST_ src, dst, dst_size);
+    return _inet_ntop(AF_INET, src, dst, dst_size);
 }
 
 gboolean
@@ -67,7 +79,7 @@ ws_inet_pton4(const gchar *src, guint32 *dst)
 const gchar *
 ws_inet_ntop6(gconstpointer src, gchar *dst, guint dst_size)
 {
-    return inet_ntop(AF_INET6, _NTOP_SRC_CAST_ src, dst, dst_size);
+    return _inet_ntop(AF_INET6, src, dst, dst_size);
 }
 
 gboolean

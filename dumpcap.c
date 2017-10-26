@@ -818,7 +818,6 @@ capture_interface_list(int *err, char **err_str, void(*update_cb)(void) _U_)
     return get_interface_list(err, err_str);
 }
 
-#define ADDRSTRLEN 46 /* Covers IPv4 & IPv6 */
 /*
  * Output a machine readable list of the interfaces
  * This list is retrieved by the sync_interface_list_open() function
@@ -832,7 +831,7 @@ print_machine_readable_interfaces(GList *if_list)
     if_info_t   *if_info;
     GSList      *addr;
     if_addr_t   *if_addr;
-    char        addr_str[ADDRSTRLEN];
+    char        addr_str[WS_INET6_ADDRSTRLEN];
 
     if (capture_child) {
         /* Let our parent know we succeeded. */
@@ -872,20 +871,10 @@ print_machine_readable_interfaces(GList *if_list)
             if_addr = (if_addr_t *)addr->data;
             switch(if_addr->ifat_type) {
             case IF_AT_IPv4:
-                if (ws_inet_ntop4(&if_addr->addr.ip4_addr, addr_str,
-                              ADDRSTRLEN)) {
-                    printf("%s", addr_str);
-                } else {
-                    printf("<unknown IPv4>");
-                }
+                    printf("%s", ws_inet_ntop4(&if_addr->addr.ip4_addr, addr_str, sizeof(addr_str)));
                 break;
             case IF_AT_IPv6:
-                if (ws_inet_ntop6(&if_addr->addr.ip6_addr,
-                              addr_str, ADDRSTRLEN)) {
-                    printf("%s", addr_str);
-                } else {
-                    printf("<unknown IPv6>");
-                }
+                    printf("%s", ws_inet_ntop6(&if_addr->addr.ip6_addr, addr_str, sizeof(addr_str)));
                 break;
             default:
                 printf("<type unknown %i>", if_addr->ifat_type);

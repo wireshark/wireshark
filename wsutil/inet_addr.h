@@ -23,21 +23,23 @@
 #define __WS_INET_ADDR_H__
 
 #include "ws_symbol_export.h"
+#include "ws_attributes.h"
 
 #include <glib.h>
-
 #include "inet_ipv6.h"
 
-#define WS_INET6_ADDRSTRLEN     46
+/* Choose a buffer size big enough for all implementations */
+#define WS_INET_ADDRSTRLEN      30
+#define WS_INET6_ADDRSTRLEN     80
 
 
-WS_DLL_PUBLIC const gchar *
+WS_DLL_PUBLIC WS_RETNONNULL const gchar *
 ws_inet_ntop4(gconstpointer src, gchar *dst, guint dst_size);
 
 WS_DLL_PUBLIC gboolean
 ws_inet_pton4(const gchar *src, guint32 *dst);
 
-WS_DLL_PUBLIC const gchar *
+WS_DLL_PUBLIC WS_RETNONNULL const gchar *
 ws_inet_ntop6(gconstpointer src, gchar *dst, guint dst_size);
 
 WS_DLL_PUBLIC gboolean

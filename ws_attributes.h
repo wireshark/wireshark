@@ -52,6 +52,14 @@ extern "C" {
   #define WS_NORETURN
 #endif
 
+/* Hint to the compiler that the function returns a non-null value */
+#if defined(__GNUC__)
+  /* This includes clang */
+  #define WS_RETNONNULL __attribute__((returns_nonnull))
+#else
+  #define WS_RETNONNULL
+#endif
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

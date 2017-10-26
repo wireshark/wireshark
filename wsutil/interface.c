@@ -64,7 +64,7 @@ static GSList* local_interfaces_to_list_nix(void)
 	struct ifaddrs *ifap;
 	struct ifaddrs *ifa;
 	int family;
-	char ip[INET6_ADDRSTRLEN];
+	char ip[WS_INET6_ADDRSTRLEN];
 
 	if (getifaddrs(&ifap)) {
 		goto end;
@@ -76,7 +76,7 @@ static GSList* local_interfaces_to_list_nix(void)
 
 		family = ifa->ifa_addr->sa_family;
 
-		memset(ip, 0x0, INET6_ADDRSTRLEN);
+		memset(ip, 0x0, WS_INET6_ADDRSTRLEN);
 
 		switch (family) {
 			case AF_INET:

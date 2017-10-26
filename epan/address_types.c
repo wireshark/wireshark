@@ -439,11 +439,14 @@ static int
 ib_addr_to_str( const address *addr, gchar *buf, int buf_len){
     if (addr->len >= 16) { /* GID is 128bits */
         #define PREAMBLE_STR_LEN ((int)(sizeof("GID: ") - 1))
-        g_strlcpy(buf, "GID: ", buf_len);
-        if (buf_len < PREAMBLE_STR_LEN ||
-                ws_inet_ntop6(addr->data, buf + PREAMBLE_STR_LEN,
-                          buf_len - PREAMBLE_STR_LEN) == NULL ) /* Returns NULL if no space and does not touch buf */
+        gchar addr_buf[WS_INET6_ADDRSTRLEN];
+
+        ws_inet_ntop6(addr->data, addr_buf, sizeof(addr_buf));
+        if (buf_len < PREAMBLE_STR_LEN + (int)strlen(addr_buf) + 1) {
             g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len); /* Let the unexpected value alert user */
+        } else {
+            g_snprintf(buf, buf_len, "GID: %s", addr_buf);
+        }
     } else {    /* this is a LID (16 bits) */
         guint16 lid_number;
 
