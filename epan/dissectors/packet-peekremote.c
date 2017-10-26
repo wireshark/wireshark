@@ -116,6 +116,20 @@ static const value_string peekremote_mcs_index_vals[] = {
 
 static value_string_ext peekremote_mcs_index_vals_ext = VALUE_STRING_EXT_INIT(peekremote_mcs_index_vals);
 
+static const value_string peekremote_mcs_index_vals_ac[] = {
+  { 0, "Modulation type: BPSK, Codingrate: 1/2" },
+  { 1, "Modulation type: QPSK, Codingrate: 1/2" },
+  { 2, "Modulation type: QPSK, Codingrate: 3/4" },
+  { 3, "Modulation type: 16-QAM, Codingrate: 1/2" },
+  { 4, "Modulation type: 16-QAM, Codingrate: 3/4" },
+  { 5, "Modulation type: 64-QAM, Codingrate: 2/3" },
+  { 6, "Modulation type: 64-QAM, Codingrate: 3/4" },
+  { 7, "Modulation type: 64-QAM, Codingrate: 5/6" },
+  { 8, "Modulation type: 256-QAM, Codingrate: 3/4" },
+  { 9, "Modulation type: 256-QAM, Codingrate: 5/6" },
+  { 0, NULL }
+};
+
 static const value_string peekremote_type_vals[] = {
   { 6, "kMediaSpecificHdrType_Wireless3" },
   { 0, NULL }
@@ -214,6 +228,10 @@ static header_field_info hfi_peekremote_timestamp THIS_HF_INIT =
 
 static header_field_info hfi_peekremote_mcs_index THIS_HF_INIT =
       { "MCS index",         "peekremote.mcs_index", FT_UINT16,  BASE_DEC|BASE_EXT_STRING, &peekremote_mcs_index_vals_ext,
+        0x0, NULL, HFILL };
+
+static header_field_info hfi_peekremote_mcs_index_ac THIS_HF_INIT =
+      { "11ac MCS index",         "peekremote.mcs_index_ac", FT_UINT16,  BASE_DEC, VALS(peekremote_mcs_index_vals_ac),
         0x0, NULL, HFILL };
 
 static header_field_info hfi_peekremote_signal_percent THIS_HF_INIT =
@@ -452,7 +470,11 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_type, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
       mcs_index = tvb_get_ntohs(tvb, offset);
-      proto_tree_add_item(peekremote_tree, &hfi_peekremote_mcs_index, tvb, offset, 2, ENC_BIG_ENDIAN);
+      extflags = tvb_get_ntohl(tvb, offset+12);
+      if (extflags & EXT_FLAG_802_11ac)
+        proto_tree_add_item(peekremote_tree, &hfi_peekremote_mcs_index_ac, tvb, offset, 2, ENC_BIG_ENDIAN);
+      else
+        proto_tree_add_item(peekremote_tree, &hfi_peekremote_mcs_index, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       phdr.has_channel = TRUE;
       phdr.channel = tvb_get_ntohs(tvb, offset);
@@ -467,14 +489,9 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       offset += 4;
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_band, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset +=4;
-      extflags = tvb_get_ntohl(tvb, offset);
       if (extflags & EXT_FLAG_802_11ac) {
         guint i;
         phdr.phy = PHDR_802_11_PHY_11AC;
-        /*
-         * XXX - this probably has only one user, so only one MCS index
-         * and only one NSS, but where's the NSS?
-         */
         for (i = 0; i < 4; i++) {
           phdr.phy_info.info_11ac.nss[i] = 0;
         }
@@ -637,6 +654,7 @@ proto_register_peekremote(void)
     &hfi_peekremote_header_size,
     &hfi_peekremote_type,
     &hfi_peekremote_mcs_index,
+    &hfi_peekremote_mcs_index_ac,
     &hfi_peekremote_signal_percent,
     &hfi_peekremote_noise_percent,
     &hfi_peekremote_frequency,
