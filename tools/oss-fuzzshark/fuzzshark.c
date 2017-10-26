@@ -42,6 +42,7 @@
 
 #include <wiretap/wtap.h>
 
+#include <epan/color_filters.h>
 #include <epan/timestamp.h>
 #include <epan/prefs.h>
 #include <epan/column.h>
