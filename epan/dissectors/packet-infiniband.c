@@ -3069,7 +3069,7 @@ static void parse_BM(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
     /* Parse the Common MAD Header */
     MAD_Data    MadData;
     gint        local_offset;
-    proto_item *PERF_header_item;
+    proto_item *BM_header_item;
 
     if (!parse_MAD_Common(parentTree, tvb, offset, &MadData))
     {
@@ -3078,9 +3078,9 @@ static void parse_BM(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
     }
     local_offset = *offset;
 
-    PERF_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, MAD_DATA_SIZE, ENC_NA);
+    BM_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, MAD_DATA_SIZE, ENC_NA);
     local_offset += MAD_DATA_SIZE;
-    proto_item_set_text(PERF_header_item, "%s", "BM - Baseboard Management MAD (Dissector Not Implemented)");
+    proto_item_set_text(BM_header_item, "%s", "BM - Baseboard Management MAD (Dissector Not Implemented)");
     *offset = local_offset;
 }
 
@@ -3093,7 +3093,7 @@ static void parse_DEV_MGT(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
     /* Parse the Common MAD Header */
     MAD_Data    MadData;
     gint        local_offset;
-    proto_item *PERF_header_item;
+    proto_item *DEVM_header_item;
 
     if (!parse_MAD_Common(parentTree, tvb, offset, &MadData))
     {
@@ -3101,9 +3101,9 @@ static void parse_DEV_MGT(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
         return;
     }
     local_offset = *offset;
-    PERF_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, MAD_DATA_SIZE, ENC_NA);
+    DEVM_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, MAD_DATA_SIZE, ENC_NA);
     local_offset += MAD_DATA_SIZE;
-    proto_item_set_text(PERF_header_item, "%s", "DEV_MGT - Device Management MAD (Dissector Not Implemented)");
+    proto_item_set_text(DEVM_header_item, "%s", "DEV_MGT - Device Management MAD (Dissector Not Implemented)");
     *offset = local_offset;
 }
 
@@ -3757,7 +3757,7 @@ static void parse_SNMP(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
     /* Parse the Common MAD Header */
     MAD_Data    MadData;
     gint        local_offset;
-    proto_item *PERF_header_item;
+    proto_item *SNMP_header_item;
 
     if (!parse_MAD_Common(parentTree, tvb, offset, &MadData))
     {
@@ -3766,9 +3766,9 @@ static void parse_SNMP(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
     }
     local_offset = *offset;
 
-    PERF_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, MAD_DATA_SIZE, ENC_NA);
+    SNMP_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, MAD_DATA_SIZE, ENC_NA);
     local_offset += MAD_DATA_SIZE;
-    proto_item_set_text(PERF_header_item, "%s", "SNMP - SNMP Tunneling MAD (Dissector Not Implemented)");
+    proto_item_set_text(SNMP_header_item, "%s", "SNMP - SNMP Tunneling MAD (Dissector Not Implemented)");
     *offset = local_offset;
 }
 
@@ -3781,7 +3781,7 @@ static void parse_VENDOR_MANAGEMENT(proto_tree *parentTree, tvbuff_t *tvb, gint 
     /* Parse the Common MAD Header */
     MAD_Data    MadData;
     gint        local_offset;
-    proto_item *PERF_header_item;
+    proto_item *VENDOR_header_item;
 
     if (!parse_MAD_Common(parentTree, tvb, offset, &MadData))
     {
@@ -3790,9 +3790,9 @@ static void parse_VENDOR_MANAGEMENT(proto_tree *parentTree, tvbuff_t *tvb, gint 
     }
     local_offset = *offset;
 
-    PERF_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, MAD_DATA_SIZE, ENC_NA);
+    VENDOR_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, MAD_DATA_SIZE, ENC_NA);
     local_offset += MAD_DATA_SIZE;
-    proto_item_set_text(PERF_header_item, "%s", "VENDOR - Vendor Specific Management MAD (Dissector Not Implemented)");
+    proto_item_set_text(VENDOR_header_item, "%s", "VENDOR - Vendor Specific Management MAD (Dissector Not Implemented)");
     *offset = local_offset;
 }
 
@@ -3805,7 +3805,7 @@ static void parse_APPLICATION_MANAGEMENT(proto_tree *parentTree, tvbuff_t *tvb, 
     /* Parse the Common MAD Header */
     MAD_Data    MadData;
     gint        local_offset;
-    proto_item *PERF_header_item;
+    proto_item *APP_header_item;
 
     if (!parse_MAD_Common(parentTree, tvb, offset, &MadData))
     {
@@ -3813,9 +3813,9 @@ static void parse_APPLICATION_MANAGEMENT(proto_tree *parentTree, tvbuff_t *tvb, 
         return;
     }
     local_offset = *offset;
-    PERF_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, MAD_DATA_SIZE, ENC_NA);
+    APP_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, MAD_DATA_SIZE, ENC_NA);
     local_offset += MAD_DATA_SIZE;
-    proto_item_set_text(PERF_header_item, "%s", "APP - Application Specific MAD (Dissector Not Implemented)");
+    proto_item_set_text(APP_header_item, "%s", "APP - Application Specific MAD (Dissector Not Implemented)");
     *offset = local_offset;
 }
 
@@ -3833,7 +3833,7 @@ static void parse_RESERVED_MANAGEMENT(proto_tree *parentTree, tvbuff_t *tvb, gin
     /* Parse the Common MAD Header */
     MAD_Data    MadData;
     gint        local_offset;
-    proto_item *PERF_header_item;
+    proto_item *RESV_header_item;
 
     if (!parse_MAD_Common(parentTree, tvb, offset, &MadData))
     {
@@ -3841,9 +3841,9 @@ static void parse_RESERVED_MANAGEMENT(proto_tree *parentTree, tvbuff_t *tvb, gin
         return;
     }
     local_offset = *offset;
-    PERF_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, 256, ENC_NA);
+    RESV_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, 256, ENC_NA);
     local_offset += 256;
-    proto_item_set_text(PERF_header_item, "%s", "RESERVED - Reserved MAD Type (Possible Device Error)");
+    proto_item_set_text(RESV_header_item, "%s", "RESERVED - Reserved MAD Type (Possible Device Error)");
     *offset = local_offset;
 }
 
