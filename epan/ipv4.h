@@ -1,7 +1,8 @@
 /* ipv4.h
- *
- * IPv4 address class. They understand how to take netmasks into consideration
- * during equivalence testing.
+ * Definitions of IPv4 address-and-mask structure, which is what an
+ * FT_IPV4 value is (even if there's no mask in a packet, those
+ * values can be compared against an address+mask in a filter
+ * expression).
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -28,7 +29,6 @@
 #define __IPV4_H__
 
 #include <glib.h>
-#include "ws_symbol_export.h"
 
 typedef struct {
 	guint32	addr;	/* stored in host order */

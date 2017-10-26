@@ -1,5 +1,8 @@
 /* ipv6.h
- * Definitions for IPv6 packet disassembly
+ * Definitions of IPv6 address-and-prefix structure, which is what an
+ * FT_IPV6 value is (even if there's no prefix in a packet, those
+ * values can be compared against an address+prefix in a filter
+ * expression).
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
