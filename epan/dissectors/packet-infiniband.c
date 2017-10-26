@@ -6035,6 +6035,13 @@ void proto_register_infiniband(void)
         { 0x06, "Report()" },
         { 0x86, "ReportResp()" },
         { 0x07, "TrapRepress()" },
+        { 0x12, "GetTable()" },
+        { 0x92, "GetTableResp()" },
+        { 0x13, "GetTraceTable()" },
+        { 0x14, "GetMulti()" },
+        { 0x94, "GetMultiResp()" },
+        { 0x15, "Delete()" },
+        { 0x95, "DeleteResp()" },
         { 0,    NULL }
     };
 
