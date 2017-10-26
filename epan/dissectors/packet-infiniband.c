@@ -3050,6 +3050,7 @@ static void parse_PERF(proto_tree *parentTree, tvbuff_t *tvb, packet_info *pinfo
             parse_PERF_PortCountersExtended(parentTree, tvb, pinfo, &local_offset);
             break;
         default:
+            col_set_str(pinfo->cinfo, COL_INFO, "PERF (Unknown Attribute)");
             PERF_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, MAD_DATA_SIZE, ENC_NA);
             local_offset += MAD_DATA_SIZE;
             proto_item_set_text(PERF_header_item, "%s", "PERF - Performance Management MAD (Dissector Not Implemented)");
