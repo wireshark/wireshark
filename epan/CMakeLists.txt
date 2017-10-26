@@ -238,7 +238,6 @@ set(LIBWIRESHARK_FILES
 	iana_charsets.c
 	in_cksum.c
 	ipproto.c
-	ipv4.c
 	media_params.c
 	next_tvb.c
 	oids.c

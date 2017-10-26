@@ -24,14 +24,14 @@
 
 #include <ftypes-int.h>
 #include <epan/ipv4.h>
+#include <epan/addr_and_mask.h>
 #include <epan/addr_resolv.h>
-
 
 static void
 set_uinteger(fvalue_t *fv, guint32 value)
 {
-	ipv4_addr_and_mask_set_net_order_addr(&(fv->value.ipv4), value);
-	ipv4_addr_and_mask_set_netmask_bits(&(fv->value.ipv4), 32);
+	fv->value.ipv4.addr = g_ntohl(value);
+	fv->value.ipv4.nmask = ip_get_subnet_mask(32);
 }
 
 static gpointer
@@ -75,7 +75,7 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 
 	if (addr_str_to_free)
 		wmem_free(NULL, addr_str_to_free);
-	ipv4_addr_and_mask_set_net_order_addr(&(fv->value.ipv4), addr);
+	fv->value.ipv4.addr = g_ntohl(addr);
 
 	/* If CIDR, get netmask bits. */
 	if (slash) {
@@ -97,11 +97,11 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 			}
 			return FALSE;
 		}
-		ipv4_addr_and_mask_set_netmask_bits(&fv->value.ipv4, nmask_bits);
+		fv->value.ipv4.nmask = ip_get_subnet_mask(nmask_bits);
 	}
 	else {
 		/* Not CIDR; mask covers entire address. */
-		ipv4_addr_and_mask_set_netmask_bits(&(fv->value.ipv4), 32);
+		fv->value.ipv4.nmask = ip_get_subnet_mask(32);
 	}
 
 	return TRUE;
@@ -116,46 +116,85 @@ val_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 	return 15;
 }
 
+/* We're assuming the buffer is at least MAX_IP_STR_LEN (16 bytes) */
 static void
 val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size _U_)
 {
-	ipv4_addr_and_mask_str_buf(&fv->value.ipv4, buf);
+	guint32	ipv4_net_order = g_htonl(fv->value.ipv4.addr);
+	ip_to_str_buf((guint8*)&ipv4_net_order, buf, MAX_IP_STR_LEN);
+}
+
+
+/* Compares two ipv4_addr_and_masks, taking into account the less restrictive of the
+ * two netmasks, applying that netmask to both addrs.
+ *
+ * So, for example, w.x.y.z/32 eq w.x.y.0/24 is TRUE.
+ */
+
+static gboolean
+cmp_eq(const fvalue_t *fv_a, const fvalue_t *fv_b)
+{
+	guint32		addr_a, addr_b, nmask;
+
+	nmask = MIN(fv_a->value.ipv4.nmask, fv_b->value.ipv4.nmask);
+	addr_a = fv_a->value.ipv4.addr & nmask;
+	addr_b = fv_b->value.ipv4.addr & nmask;
+	return (addr_a == addr_b);
 }
 
 static gboolean
-cmp_eq(const fvalue_t *a, const fvalue_t *b)
+cmp_ne(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
-	return ipv4_addr_and_mask_eq(&a->value.ipv4, &b->value.ipv4);
+	guint32		addr_a, addr_b, nmask;
+
+	nmask = MIN(fv_a->value.ipv4.nmask, fv_b->value.ipv4.nmask);
+	addr_a = fv_a->value.ipv4.addr & nmask;
+	addr_b = fv_b->value.ipv4.addr & nmask;
+	return (addr_a != addr_b);
 }
 
 static gboolean
-cmp_ne(const fvalue_t *a, const fvalue_t *b)
+cmp_gt(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
-	return ipv4_addr_and_mask_ne(&a->value.ipv4, &b->value.ipv4);
+	guint32		addr_a, addr_b, nmask;
+
+	nmask = MIN(fv_a->value.ipv4.nmask, fv_b->value.ipv4.nmask);
+	addr_a = fv_a->value.ipv4.addr & nmask;
+	addr_b = fv_b->value.ipv4.addr & nmask;
+	return (addr_a > addr_b);
 }
 
 static gboolean
-cmp_gt(const fvalue_t *a, const fvalue_t *b)
+cmp_ge(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
-	return ipv4_addr_and_mask_gt(&a->value.ipv4, &b->value.ipv4);
+	guint32		addr_a, addr_b, nmask;
+
+	nmask = MIN(fv_a->value.ipv4.nmask, fv_b->value.ipv4.nmask);
+	addr_a = fv_a->value.ipv4.addr & nmask;
+	addr_b = fv_b->value.ipv4.addr & nmask;
+	return (addr_a >= addr_b);
 }
 
 static gboolean
-cmp_ge(const fvalue_t *a, const fvalue_t *b)
+cmp_lt(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
-	return ipv4_addr_and_mask_ge(&a->value.ipv4, &b->value.ipv4);
+	guint32		addr_a, addr_b, nmask;
+
+	nmask = MIN(fv_a->value.ipv4.nmask, fv_b->value.ipv4.nmask);
+	addr_a = fv_a->value.ipv4.addr & nmask;
+	addr_b = fv_b->value.ipv4.addr & nmask;
+	return (addr_a < addr_b);
 }
 
 static gboolean
-cmp_lt(const fvalue_t *a, const fvalue_t *b)
+cmp_le(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
-	return ipv4_addr_and_mask_lt(&a->value.ipv4, &b->value.ipv4);
-}
+	guint32		addr_a, addr_b, nmask;
 
-static gboolean
-cmp_le(const fvalue_t *a, const fvalue_t *b)
-{
-	return ipv4_addr_and_mask_le(&a->value.ipv4, &b->value.ipv4);
+	nmask = MIN(fv_a->value.ipv4.nmask, fv_b->value.ipv4.nmask);
+	addr_a = fv_a->value.ipv4.addr & nmask;
+	addr_b = fv_b->value.ipv4.addr & nmask;
+	return (addr_a <= addr_b);
 }
 
 static gboolean

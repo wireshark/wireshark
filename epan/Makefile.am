@@ -81,7 +81,6 @@ LIBWIRESHARK_SRC = \
 	iana_charsets.c		\
 	in_cksum.c		\
 	ipproto.c		\
-	ipv4.c			\
 	media_params.c		\
 	next_tvb.c		\
 	oids.c			\
