@@ -93,12 +93,12 @@ struct ip6_frag {
  * Unicast Scope
  * Note that we must check topmost 10 bits only, not 16 bits (see RFC2373).
  */
-static inline gboolean in6_is_addr_linklocal(const ws_in6_addr *a)
+static inline gboolean in6_addr_is_linklocal(const ws_in6_addr *a)
 {
     return (a->bytes[0] == 0xfe) && ((a->bytes[1] & 0xc0) == 0x80);
 }
 
-static inline gboolean in6_is_addr_sitelocal(const ws_in6_addr *a)
+static inline gboolean in6_addr_is_sitelocal(const ws_in6_addr *a)
 {
     return (a->bytes[0] == 0xfe) && ((a->bytes[1] & 0xc0) == 0xc0);
 }
@@ -106,7 +106,7 @@ static inline gboolean in6_is_addr_sitelocal(const ws_in6_addr *a)
 /**
  * Multicast
  */
-static inline gboolean in6_is_addr_multicast(const ws_in6_addr *a)
+static inline gboolean in6_addr_is_multicast(const ws_in6_addr *a)
 {
     return a->bytes[0] == 0xff;
 }

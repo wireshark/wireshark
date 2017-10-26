@@ -905,7 +905,7 @@ dissect_routing6_rt0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         ti = _proto_tree_add_ipv6_vector_address(tree, hf_ipv6_routing_src_addr, tvb,
                             offset, IPv6_ADDR_SIZE, addr, idx);
         offset += IPv6_ADDR_SIZE;
-        if (in6_is_addr_multicast(addr)) {
+        if (in6_addr_is_multicast(addr)) {
             expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
         }
     }
@@ -942,7 +942,7 @@ dissect_routing6_mipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     addr = tvb_get_ptr_ipv6(tvb, offset);
     ti = _proto_tree_add_ipv6_vector_address(tree, hf_ipv6_routing_mipv6_home_address, tvb,
                         offset, IPv6_ADDR_SIZE, addr, 1);
-    if (in6_is_addr_multicast(addr)) {
+    if (in6_addr_is_multicast(addr)) {
         expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
     }
 
@@ -979,7 +979,7 @@ dissect_routing6_rpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     ip6_src_addr = (const ws_in6_addr *)pinfo->src.data;
 
     /* from RFC6554: Multicast addresses MUST NOT appear in the IPv6 Destination Address field */
-    if (in6_is_addr_multicast(ip6_dst_addr)) {
+    if (in6_addr_is_multicast(ip6_dst_addr)) {
         expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_ipv6_dst_addr_not_multicast);
     }
 
@@ -1055,7 +1055,7 @@ dissect_routing6_rpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             }
 
             /* Multicast addresses MUST NOT appear in the in SRH */
-            if (in6_is_addr_multicast(&rpl_fulladdr)) {
+            if (in6_addr_is_multicast(&rpl_fulladdr)) {
                 expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
             }
 
@@ -1131,7 +1131,7 @@ dissect_routing6_srh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     /* Destination address is the first vector address */
     addr = tvb_get_ptr_ipv6(tvb, offset);
-    if (in6_is_addr_multicast(addr)) {
+    if (in6_addr_is_multicast(addr)) {
         expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
     }
     ti = _proto_tree_add_ipv6_vector_address(tree, hf_ipv6_routing_srh_addr, tvb,
@@ -1147,7 +1147,7 @@ dissect_routing6_srh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     offset += IPv6_ADDR_SIZE;
     for (idx = 1; offset < offlim; offset += IPv6_ADDR_SIZE, idx++) {
         addr = tvb_get_ptr_ipv6(tvb, offset);
-        if (in6_is_addr_multicast(addr)) {
+        if (in6_addr_is_multicast(addr)) {
             expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
         }
         ti = _proto_tree_add_ipv6_vector_address(tree, hf_ipv6_routing_srh_addr, tvb,

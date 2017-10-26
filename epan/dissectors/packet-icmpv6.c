@@ -1437,7 +1437,7 @@ static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tre
 
     if (icmpv6_trans == NULL) {
         if (pinfo->dst.type == AT_IPv6 &&
-                    in6_is_addr_multicast((const ws_in6_addr *)pinfo->dst.data)) {
+                    in6_addr_is_multicast((const ws_in6_addr *)pinfo->dst.data)) {
             /* XXX We should support multicast echo requests, but we don't currently */
             /* Note the multicast destination and skip transaction tracking */
             col_append_str(pinfo->cinfo, COL_INFO, " (multicast)");
