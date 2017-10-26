@@ -34,9 +34,7 @@ extern "C" {
 #include <sys/socket.h>
 #include <netinet/in.h>
 #else
-#ifdef HAVE_WINSOCK2_H
 #include <winsock2.h>
-#endif
 #endif
 
 #define CHUNK_TYPE_LENGTH	      1

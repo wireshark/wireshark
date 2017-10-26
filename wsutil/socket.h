@@ -25,16 +25,9 @@
 #define __SOCKET_H__
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
-	#ifdef HAVE_WINDOWS_H
-		#include <windows.h>
-	#endif
-
+	#include <windows.h>
 	#include <ws2tcpip.h>
-
-	#ifdef HAVE_WINSOCK2_H
-		#include <winsock2.h>
-	#endif
-
+	#include <winsock2.h>
 	#include <process.h>
 
 	#define socket_handle_t SOCKET

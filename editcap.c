@@ -66,9 +66,7 @@
 #ifdef _WIN32
 #include <wsutil/unicode-utils.h>
 #include <process.h>    /* getpid */
-#ifdef HAVE_WINSOCK2_H
 #include <winsock2.h>
-#endif
 #endif
 
 #ifndef HAVE_STRPTIME

@@ -76,12 +76,9 @@
 #include <sys/socket.h>     /* needed to define AF_ values on UNIX */
 #endif
 
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>       /* needed to define AF_ values on Windows */
-#endif
-
 #ifdef _WIN32
-# include <ws2tcpip.h>
+#include <winsock2.h>       /* needed to define AF_ values on Windows */
+#include <ws2tcpip.h>
 #endif
 
 #ifdef HAVE_C_ARES

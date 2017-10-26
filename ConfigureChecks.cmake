@@ -51,8 +51,6 @@ check_include_file("sys/types.h"         HAVE_SYS_TYPES_H)
 check_include_file("sys/utsname.h"       HAVE_SYS_UTSNAME_H)
 check_include_file("sys/wait.h"          HAVE_SYS_WAIT_H)
 check_include_file("unistd.h"            HAVE_UNISTD_H)
-check_include_file("windows.h"           HAVE_WINDOWS_H)
-check_include_file("winsock2.h"          HAVE_WINSOCK2_H)
 
 #
 # On Linux, check for some additional headers, which we need as a

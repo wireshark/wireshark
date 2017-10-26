@@ -83,11 +83,8 @@
 # include <netdb.h>
 #endif
 
-#ifdef HAVE_WINSOCK2_H
-# include <winsock2.h>
-#endif
-
 #ifdef _WIN32
+# include <winsock2.h>
 # include <ws2tcpip.h>
 #endif
 

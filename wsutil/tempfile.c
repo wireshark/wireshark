@@ -26,11 +26,8 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#ifdef HAVE_WINDOWS_H
-#include <windows.h>
-#endif
-
 #ifdef _WIN32
+#include <windows.h>
 #include <process.h>    /* For getpid() */
 #endif
 
