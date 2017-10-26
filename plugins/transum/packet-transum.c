@@ -269,6 +269,10 @@ static RRPD *find_latest_rrpd(RRPD *in_rrpd, int state)
     RRPD *rrpd_index = NULL, *rrpd;
     wmem_list_frame_t* i;
 
+    /* If this is a SYN from C2S there is no point searching the list */
+    if (in_rrpd->c2s && in_rrpd->calculation == RTE_CALC_SYN)
+        return NULL;
+
     for (i = wmem_list_tail(rrpd_list); i != NULL; i = wmem_list_frame_prev(i))
     {
         rrpd = (RRPD*)wmem_list_frame_data(i);
@@ -495,18 +499,23 @@ static void update_rrpd_list_entry_req(RRPD *in_rrpd)
     {
         while (TRUE)
         {
-            match = find_latest_rrpd(in_rrpd, RRPD_STATE_1);
-            if (match != NULL)  /* Check to cover TCP Reassembly enabled */
+            if (preferences.reassembly)
             {
-                update_rrpd_list_entry(match, in_rrpd);
-                break;
+                match = find_latest_rrpd(in_rrpd, RRPD_STATE_1);
+                if (match != NULL)  /* Check to cover TCP Reassembly enabled */
+                {
+                    update_rrpd_list_entry(match, in_rrpd);
+                    break;
+                }
             }
-
-            match = find_latest_rrpd(in_rrpd, RRPD_STATE_4);
-            if (match != NULL)
+            else
             {
-                update_rrpd_list_entry(match, in_rrpd);
-                break;
+                match = find_latest_rrpd(in_rrpd, RRPD_STATE_4);
+                if (match != NULL)
+                {
+                    update_rrpd_list_entry(match, in_rrpd);
+                    break;
+                }
             }
 
             /* No entries and so add one */
