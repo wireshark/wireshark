@@ -97,13 +97,13 @@ extern "C" {
  */
 
 #if !defined(__SUNPRO_C)
-  #define WS_IS_AT_LEAST_SUNC_VERSION(major,minor) 0
+  #define WS_IS_AT_LEAST_SUNC_VERSION(major, minor) 0
 #else
   #define WS_SUNPRO_VERSION_TO_BCD(major, minor) \
 	(((minor) >= 10) ? \
 	    (((major) << 12) | (((minor)/10) << 8) | (((minor)%10) << 4)) : \
 	    (((major) << 8) | ((minor) << 4)))
-  #define WS_IS_AT_LEAST_SUNC_VERSION(major,minor) \
+  #define WS_IS_AT_LEAST_SUNC_VERSION(major, minor) \
 	(__SUNPRO_C >= WS_SUNPRO_VERSION_TO_BCD((major), (minor)))
 #endif
 
@@ -115,7 +115,7 @@ extern "C" {
  */
 
 #if !defined(__xlC__)
-  #define WS_IS_AT_LEAST_XL_C_VERSION(major,minor) 0
+  #define WS_IS_AT_LEAST_XL_C_VERSION(major, minor) 0
 #else
   #define WS_IS_AT_LEAST_XL_C_VERSION(major, minor) \
 	(__xlC__ >= (((major) << 8) | (minor)))
@@ -133,9 +133,9 @@ extern "C" {
  */
 
 #if !defined(__HP_aCC)
-  #define WS_IS_AT_LEAST_HP_C_VERSION(major,minor) 0
+  #define WS_IS_AT_LEAST_HP_C_VERSION(major, minor) 0
 #else
-  #define WS_IS_AT_LEAST_HP_C_VERSION(major,minor) \
+  #define WS_IS_AT_LEAST_HP_C_VERSION(major, minor) \
 	(__HP_aCC >= ((major)*10000 + (minor)*100))
 #endif
 
