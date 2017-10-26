@@ -20,6 +20,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "ws_compiler_tests.h"
+
 /** Reset symbol export behavior.
  * If you {un}define WS_BUILD_DLL on the fly you'll have to define this
  * as well.
@@ -83,13 +85,13 @@
      */
     #ifdef __GNUC__
       /* GCC */
-#define WS_DLL_PUBLIC_DEF __attribute__ ((dllexport))
+      #define WS_DLL_PUBLIC_DEF __attribute__ ((dllexport))
     #else /* ! __GNUC__ */
       /*
        * Presumably MSVC.
        * Note: actually gcc seems to also support this syntax.
        */
-#define WS_DLL_PUBLIC_DEF __declspec(dllexport)
+      #define WS_DLL_PUBLIC_DEF __declspec(dllexport)
     #endif /* __GNUC__ */
   #else /* WS_BUILD_DLL */
     /*
@@ -103,19 +105,19 @@
      */
     #ifdef __GNUC__
       /* GCC */
-#define WS_DLL_PUBLIC_DEF __attribute__ ((dllimport))
+      #define WS_DLL_PUBLIC_DEF __attribute__ ((dllimport))
     #elif ! (defined ENABLE_STATIC) /* ! __GNUC__ */
       /*
        * Presumably MSVC, and we're not building all-static.
        * Note: actually gcc seems to also support this syntax.
        */
-#define WS_DLL_PUBLIC_DEF __declspec(dllimport)
+      #define WS_DLL_PUBLIC_DEF __declspec(dllimport)
     #else /* ! __GNUC__  && ENABLE_STATIC */
       /*
        * Presumably MSVC, and we're building all-static, so we're
        * not building any DLLs.
        */
-#define WS_DLL_PUBLIC_DEF
+      #define WS_DLL_PUBLIC_DEF
     #endif /* __GNUC__ */
   #endif /* WS_BUILD_DLL */
 
@@ -129,42 +131,58 @@
   /*
    * Compiling for UN*X, where the dllimport and dllexport stuff
    * is neither necessary nor supported; just specify the
-   * visibility if we have a compiler that claims compatibility
-   * with GCC 4 or later.
+   * visibility if we have a compiler that supports doing so.
    */
-  #if __GNUC__ >= 4
+  #if WS_IS_AT_LEAST_GNUC_VERSION(3,4) \
+      || WS_IS_AT_LEAST_XL_C_VERSION(12,0)
+    /*
+     * GCC 3.4 or later, or some compiler asserting compatibility with
+     * GCC 3.4 or later, or XL C 13.0 or later, so we have
+     * __attribute__((visibility()).
+     */
+
     /*
      * Symbols exported from libraries.
      */
-#define WS_DLL_PUBLIC_DEF __attribute__ ((visibility ("default")))
+    #define WS_DLL_PUBLIC_DEF __attribute__ ((visibility ("default")))
 
     /*
      * Non-static symbols *not* exported from libraries.
      */
-#define WS_DLL_LOCAL  __attribute__ ((visibility ("hidden")))
-  #else /* ! __GNUC__ >= 4 */
+    #define WS_DLL_LOCAL  __attribute__ ((visibility ("hidden")))
+  #elif WS_IS_AT_LEAST_SUNC_VERSION(5,5)
     /*
-     * We have no way to make stuff not explicitly marked as
-     * visible invisible outside a library, but we might have
-     * a way to make stuff explicitly marked as local invisible
-     * outside the library.
-     *
-     * This was lifted from GLib; see above for why we don't use
-     * G_GNUC_INTERNAL.
+     * Sun C 5.5 or later, so we have __global and __hidden.
+     * (Sun C 5.9 and later also have __attribute__((visibility()),
+     * but there's no reason to prefer it with Sun C.)
      */
-    #if defined(__SUNPRO_C) && (__SUNPRO_C >= 0x590)
-      /* This supports GCC-style __attribute__ ((visibility (XXX))) */
-      #define WS_DLL_PUBLIC_DEF __attribute__ ((visibility ("default")))
-      #define WS_DLL_LOCAL __attribute__ ((visibility ("hidden")))
-    #elif defined(__SUNPRO_C) && (__SUNPRO_C >= 0x550)
-      /* This doesn't, but supports __global and __hidden */
-      #define WS_DLL_PUBLIC_DEF __global
-      #define WS_DLL_LOCAL __hidden
-    #else /* not Sun C with "hidden" support */
-      #define WS_DLL_PUBLIC_DEF
-      #define WS_DLL_LOCAL
-    #endif
-  #endif /* __GNUC__ >= 4 */
+
+    /*
+     * Symbols exported from libraries.
+     */
+    #define WS_DLL_PUBLIC_DEF __global
+
+    /*
+     * Non-static symbols *not* exported from libraries.
+     */
+    #define WS_DLL_LOCAL __hidden
+  #else
+    /*
+     * We have neither a way to make stuff not explicitly marked as
+     * visible invisible outside a library nor a way to make stuff
+     * explicitly marked as local invisible outside the library.
+     */
+
+    /*
+     * Symbols exported from libraries.
+     */
+    #define WS_DLL_PUBLIC_DEF
+
+    /*
+     * Non-static symbols *not* exported from libraries.
+     */
+    #define WS_DLL_LOCAL
+  #endif
 #endif
 
 /*

@@ -2992,12 +2992,13 @@ install(
 set(SHARK_PUBLIC_HEADERS
 	cfile.h
 	file.h
-	register.h
 	globals.h
 	log.h
-	ws_symbol_export.h
+	register.h
 	ws_attributes.h
+	ws_compiler_tests.h
 	ws_diag_control.h
+	ws_symbol_export.h
 )
 
 if(NOT WIN32)
