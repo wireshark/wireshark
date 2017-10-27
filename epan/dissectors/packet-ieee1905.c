@@ -93,7 +93,6 @@ static int hf_ieee1905_searched_role = -1;
 static int hf_ieee1905_supported_role = -1;
 static int hf_ieee1905_auto_config_freq_band = -1;
 static int hf_ieee1905_supported_freq_band = -1;
-static int hf_ieee1905_wsc_frame = -1;
 static int hf_ieee1905_event_notification_media_types = -1;
 static int hf_ieee1905_sender_al_id = -1;
 static int hf_ieee1905_push_button_event_msg_id = -1;
@@ -4624,10 +4623,6 @@ proto_register_ieee1905(void)
         { &hf_ieee1905_supported_freq_band,
           { "Supported frequency band", "ieee1905.supported.freq_band",
             FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-
-        { &hf_ieee1905_wsc_frame,
-          { "WSC frame", "ieee1905.wsc_frame",
-            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_event_notification_media_types,
           { "Media types", "ieee1905.event_notif.media_types",
