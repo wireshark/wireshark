@@ -371,6 +371,26 @@ static const value_string item_areanames[] = {
     { S7COMM_AREA_TIMER200,                 "IEC timers (200 family)" },
     { 0,                                    NULL }
 };
+
+static const value_string item_areanames_short[] = {
+    { S7COMM_AREA_SYSINFO,                  "SI200" },
+    { S7COMM_AREA_SYSFLAGS,                 "SF200" },
+    { S7COMM_AREA_ANAIN,                    "AI200" },
+    { S7COMM_AREA_ANAOUT,                   "AO" },
+    { S7COMM_AREA_P,                        "P" },
+    { S7COMM_AREA_INPUTS,                   "I" },
+    { S7COMM_AREA_OUTPUTS,                  "Q" },
+    { S7COMM_AREA_FLAGS,                    "M" },
+    { S7COMM_AREA_DB,                       "DB" },
+    { S7COMM_AREA_DI,                       "DI" },
+    { S7COMM_AREA_LOCAL,                    "L" },
+    { S7COMM_AREA_V,                        "V" },
+    { S7COMM_AREA_COUNTER,                  "C" },
+    { S7COMM_AREA_TIMER,                    "T" },
+    { S7COMM_AREA_COUNTER200,               "C200" },
+    { S7COMM_AREA_TIMER200,                 "T200" },
+    { 0,                                    NULL }
+};
 /**************************************************************************
  * Transport sizes in item data
  */
@@ -1055,6 +1075,12 @@ static gint hf_s7comm_item_dbread_numareas = -1;            /* Number of areas f
 static gint hf_s7comm_item_dbread_length = -1;              /* length, 1 Byte*/
 static gint hf_s7comm_item_dbread_db = -1;                  /* DB number, 2 Bytes*/
 static gint hf_s7comm_item_dbread_startadr = -1;            /* Start address, 2 Bytes*/
+/* Reading frequency inverter parameters via routing */
+static gint hf_s7comm_item_driveesany_unknown1 = -1;        /* Unknown value 1, 1 Byte */
+static gint hf_s7comm_item_driveesany_unknown2 = -1;        /* Unknown value 2, 2 Bytes */
+static gint hf_s7comm_item_driveesany_unknown3 = -1;        /* Unknown value 3, 2 Bytes */
+static gint hf_s7comm_item_driveesany_parameter_nr = -1;    /* Parameter number, 2 Bytes */
+static gint hf_s7comm_item_driveesany_parameter_idx = -1;   /* Parameter index, 2 Bytes */
 /* NCK access with Syntax-Id 0x82 */
 static gint hf_s7comm_item_nck_areaunit = -1;               /* Bitmask: aaauuuuu: a=area, u=unit */
 static gint hf_s7comm_item_nck_area = -1;
@@ -2361,6 +2387,228 @@ make_registerflag_string(gchar *str, guint8 flags, gint max)
 
 /*******************************************************************************************************
  *
+ * Addressdefinition for Syntax ID S7-ANY (Step 7 Classic 300/400 or 1200/1500 not optimized)
+ * type == 0x12, length == 10, syntax-ID == 0x10
+ *
+ *******************************************************************************************************/
+static guint32
+s7comm_syntaxid_s7any(tvbuff_t *tvb,
+                      guint32 offset,
+                      proto_tree *tree)
+{
+    guint32 t_size = 0;
+    guint32 len = 0;
+    guint32 db = 0;
+    guint32 area = 0;
+    guint32 a_address = 0;
+    guint32 bytepos = 0;
+    guint32 bitpos = 0;
+    proto_item *address_item = NULL;
+    proto_tree *address_item_tree = NULL;
+
+    /* Transport size, 1 byte */
+    proto_tree_add_item_ret_uint(tree, hf_s7comm_item_transport_size, tvb, offset, 1, ENC_BIG_ENDIAN, &t_size);
+    offset += 1;
+    /* Length, 2 bytes */
+    proto_tree_add_item_ret_uint(tree, hf_s7comm_item_length, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+    offset += 2;
+    /* DB number, 2 bytes */
+    proto_tree_add_item_ret_uint(tree, hf_s7comm_item_db, tvb, offset, 2, ENC_BIG_ENDIAN, &db);
+    offset += 2;
+    /* Area, 1 byte */
+    proto_tree_add_item_ret_uint(tree, hf_s7comm_item_area, tvb, offset, 1, ENC_BIG_ENDIAN, &area);
+    offset += 1;
+    /* Address, 3 bytes */
+    address_item = proto_tree_add_item_ret_uint(tree, hf_s7comm_item_address, tvb, offset, 3, ENC_BIG_ENDIAN, &a_address);
+    address_item_tree = proto_item_add_subtree(address_item, ett_s7comm_item_address);
+    bytepos = a_address / 8;
+    bitpos = a_address % 8;
+    /* build a full address to show item data directly beside the item */
+    proto_item_append_text(tree, " (%s", val_to_str(area, item_areanames_short, "unknown area 0x%02x"));
+    if (area == S7COMM_AREA_TIMER || area == S7COMM_AREA_COUNTER) {
+        proto_item_append_text(tree, " %d)", a_address);
+        proto_tree_add_uint(address_item_tree, hf_s7comm_item_address_nr, tvb, offset, 3, a_address);
+    } else {
+        proto_tree_add_uint(address_item_tree, hf_s7comm_item_address_byte, tvb, offset, 3, a_address);
+        proto_tree_add_uint(address_item_tree, hf_s7comm_item_address_bit, tvb, offset, 3, a_address);
+        if (area == S7COMM_AREA_DB) {
+            proto_item_append_text(tree, " %d.DBX", db);
+        } else if (area == S7COMM_AREA_DI) {
+            proto_item_append_text(tree, " %d.DIX", db);
+        }
+        proto_item_append_text(tree, " %d.%d %s %d)",
+            bytepos, bitpos, val_to_str(t_size, item_transportsizenames, "Unknown transport size: 0x%02x"), len);
+    }
+    offset += 3;
+    return offset;
+}
+/*******************************************************************************************************
+ *
+ * Addressdefinition to read a DB area (S7-400 special)
+ * type == 0x12, length >= 7, syntax-ID == 0xb0
+ *
+ *******************************************************************************************************/
+static guint32
+s7comm_syntaxid_dbread(tvbuff_t *tvb,
+                       guint32 offset,
+                       proto_tree *tree)
+{
+    guint32 number_of_areas = 0;
+    guint32 len = 0;
+    guint32 db = 0;
+    guint32 bytepos = 0;
+    guint32 i;
+    proto_item *sub_item = NULL;
+    proto_tree *sub_item_tree = NULL;
+
+    proto_tree_add_item_ret_uint(tree, hf_s7comm_item_dbread_numareas, tvb, offset, 1, ENC_BIG_ENDIAN, &number_of_areas);
+    proto_item_append_text(tree, " (%d Data-Areas of Syntax-Id DBREAD)", number_of_areas);
+    offset += 1;
+    for (i = 1; i <= number_of_areas; i++) {
+        sub_item = proto_tree_add_item(tree, hf_s7comm_param_subitem, tvb, offset, 5, ENC_NA);
+        sub_item_tree = proto_item_add_subtree(sub_item, ett_s7comm_param_subitem);
+        proto_tree_add_item_ret_uint(sub_item_tree, hf_s7comm_item_dbread_length, tvb, offset, 1, ENC_BIG_ENDIAN, &len);
+        offset += 1;
+        proto_tree_add_item_ret_uint(sub_item_tree, hf_s7comm_item_dbread_db, tvb, offset, 2, ENC_BIG_ENDIAN, &db);
+        offset += 2;
+        proto_tree_add_item_ret_uint(sub_item_tree, hf_s7comm_item_dbread_startadr, tvb, offset, 2, ENC_BIG_ENDIAN, &bytepos);
+        offset += 2;
+        /* Display in pseudo S7-Any Format */
+        proto_item_append_text(sub_item, " [%d]: (DB%d.DBB %d BYTE %d)", i, db, bytepos, len);
+    }
+    return offset;
+}
+
+/*******************************************************************************************************
+ *
+ * Addressdefinition for TIA S7 1200 symbolic address mode
+ * type == 0x12, length >= 14, syntax-ID == 0xb2
+ *
+ *******************************************************************************************************/
+static guint32
+s7comm_syntaxid_1200sym(tvbuff_t *tvb,
+                        guint32 offset,
+                        proto_tree *tree,
+                        guint8 var_spec_length)
+{
+    guint32 tia_var_area1 = 0;
+    guint32 tia_var_area2 = 0;
+    guint8 tia_lid_flags = 0;
+    guint32 tia_value = 0;
+    guint16 i;
+    proto_item *sub_item = NULL;
+    proto_tree *sub_item_tree = NULL;
+
+    proto_item_append_text(tree, " 1200 symbolic address");
+    /* first byte in address seems always to be 0xff */
+    proto_tree_add_item(tree, hf_s7comm_tia1200_item_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    /* When Bytes 2/3 == 0, then Bytes 4/5 defines the area as known from classic 300/400 address mode.
+     * When Bytes 2/3 == 0x8a0e then Bytes 4/5 are containing the DB number.
+     */
+    proto_tree_add_item_ret_uint(tree, hf_s7comm_tia1200_item_area1, tvb, offset, 2, ENC_BIG_ENDIAN, &tia_var_area1);
+    offset += 2;
+    tia_var_area2 = tvb_get_ntohs(tvb, offset);
+    if (tia_var_area1 == S7COMM_TIA1200_VAR_ITEM_AREA1_IQMCT) {
+        proto_tree_add_uint(tree, hf_s7comm_tia1200_item_area2, tvb, offset, 2, tia_var_area2);
+        proto_item_append_text(tree, " - Accessing %s", val_to_str(tia_var_area2, tia1200_var_item_area2_names, "Unknown IQMCT Area: 0x%04x"));
+        offset += 2;
+    } else if (tia_var_area1 == S7COMM_TIA1200_VAR_ITEM_AREA1_DB) {
+        proto_tree_add_uint(tree, hf_s7comm_tia1200_item_dbnumber, tvb, offset, 2, tia_var_area2);
+        proto_item_append_text(tree, " - Accessing DB%d", tia_var_area2);
+        offset += 2;
+    } else {
+        /* for current unknown areas */
+        proto_tree_add_uint(tree, hf_s7comm_tia1200_item_area2unknown, tvb, offset, 2, tia_var_area2);
+        proto_item_append_text(tree, " - Unknown area specification");
+        offset += 2;
+    }
+    proto_tree_add_item(tree, hf_s7comm_tia1200_item_crc, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    for (i = 0; i < (var_spec_length - 10) / 4; i++) {
+        sub_item = proto_tree_add_item(tree, hf_s7comm_tia1200_substructure_item, tvb, offset, 4, ENC_NA);
+        sub_item_tree = proto_item_add_subtree(sub_item, ett_s7comm_param_subitem);
+        tia_lid_flags = tvb_get_guint8(tvb, offset) >> 4;
+        proto_tree_add_item(sub_item_tree, hf_s7comm_tia1200_var_lid_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+        tia_value = tvb_get_ntohl(tvb, offset) & 0x0fffffff;
+        proto_item_append_text(sub_item, " [%d]: %s, Value: %u", i + 1,
+            val_to_str(tia_lid_flags, tia1200_var_lid_flag_names, "Unknown flags: 0x%02x"),
+            tia_value
+        );
+        proto_tree_add_item(sub_item_tree, hf_s7comm_tia1200_item_value, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+    return offset;
+}
+
+/*******************************************************************************************************
+ *
+ * Addressdefinition for Sinumeric NCK access
+ * type == 0x12, length == 8, syntax-ID == 0x82
+ *
+ *******************************************************************************************************/
+static guint32
+s7comm_syntaxid_nck(tvbuff_t *tvb,
+                    guint32 offset,
+                    proto_tree *tree)
+{
+    guint32 area = 0;
+    guint32 nck_area = 0;
+    guint32 nck_unit = 0;
+    guint32 nck_column = 0;
+    guint32 nck_line = 0;
+    guint32 nck_module = 0;
+
+    proto_tree_add_item_ret_uint(tree, hf_s7comm_item_nck_areaunit, tvb, offset, 1, ENC_BIG_ENDIAN, &area);
+    nck_area = area >> 5;
+    nck_unit = area & 0x1f;
+    proto_tree_add_item(tree, hf_s7comm_item_nck_area, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_s7comm_item_nck_unit, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item_ret_uint(tree, hf_s7comm_item_nck_column, tvb, offset, 2, ENC_BIG_ENDIAN, &nck_column);
+    offset += 2;
+    proto_tree_add_item_ret_uint(tree, hf_s7comm_item_nck_line, tvb, offset, 2, ENC_BIG_ENDIAN, &nck_line);
+    offset += 2;
+    proto_tree_add_item_ret_uint(tree, hf_s7comm_item_nck_module, tvb, offset, 1, ENC_BIG_ENDIAN, &nck_module);
+    offset += 1;
+    proto_tree_add_item(tree, hf_s7comm_item_nck_linecount, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_item_append_text(tree, " (NCK Area:%d Unit:%d Column:%d Line:%d Module:0x%02x)",
+        nck_area, nck_unit, nck_column, nck_line, nck_module);
+    return offset;
+}
+
+/*******************************************************************************************************
+ *
+ * Addressdefinition for accessing Multimaster / Sinamics frequency convertes via routing from DriveES.
+ * type == 0x12, length == 10, syntax-ID == 0x82
+ *
+ *******************************************************************************************************/
+static guint32
+s7comm_syntaxid_driveesany(tvbuff_t *tvb,
+                           guint32 offset,
+                           proto_tree *tree)
+{
+    guint32 nr = 0;
+    guint32 idx = 0;
+
+    proto_tree_add_item(tree, hf_s7comm_item_driveesany_unknown1, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_s7comm_item_driveesany_unknown2, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(tree, hf_s7comm_item_driveesany_unknown3, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item_ret_uint(tree, hf_s7comm_item_driveesany_parameter_nr, tvb, offset, 2, ENC_BIG_ENDIAN, &nr);
+    offset += 2;
+    proto_tree_add_item_ret_uint(tree, hf_s7comm_item_driveesany_parameter_idx, tvb, offset, 2, ENC_BIG_ENDIAN, &idx);
+    offset += 2;
+    proto_item_append_text(tree, " (DriveES Parameter: %d[%d])", nr, idx);
+    return offset;
+}
+
+/*******************************************************************************************************
+ *
  * Dissect the parameter details of a read/write request (Items)
  *
  *******************************************************************************************************/
@@ -2370,50 +2618,19 @@ s7comm_decode_param_item(tvbuff_t *tvb,
                          proto_tree *sub_tree,
                          guint8 item_no)
 {
-    guint32 a_address = 0;
-    guint32 bytepos = 0;
-    guint32 bitpos = 0;
-    guint8 t_size = 0;
-    guint16 len = 0;
-    guint16 db = 0;
-    guint16 i;
-    guint8 area = 0;
     proto_item *item = NULL;
     proto_tree *item_tree = NULL;
-    proto_tree *sub_item_tree = NULL;
-    proto_item *address_item = NULL;
-    proto_tree *address_item_tree = NULL;
-    guint8 number_of_areas = 0;
-
     guint8 var_spec_type = 0;
     guint8 var_spec_length = 0;
     guint8 var_spec_syntax_id = 0;
-    proto_item *sub_item = NULL;
-    guint16 tia_var_area1 = 0;
-    guint16 tia_var_area2 = 0;
-    guint8 tia_lid_flags = 0;
-    guint32 tia_value = 0;
 
-    guint8 nck_area = 0;
-    guint8 nck_unit = 0;
-    guint16 nck_column = 0;
-    guint16 nck_line = 0;
-    guint8 nck_module = 0;
-
-    /* At first check type and length of variable specification */
     var_spec_type = tvb_get_guint8(tvb, offset);
     var_spec_length = tvb_get_guint8(tvb, offset + 1);
     var_spec_syntax_id = tvb_get_guint8(tvb, offset + 2);
 
-    /* Classic S7:  type = 0x12, len=10, syntax-id=0x10 for ANY-Pointer
-     * TIA S7-1200: type = 0x12, len=14, syntax-id=0xb2 (symbolic addressing??)
-     * Drive-ES Starter with routing: type = 0x12, len=10, syntax-id=0xa2 for ANY-Pointer
-     */
-
     /* Insert a new tree for every item */
     item = proto_tree_add_item(sub_tree, hf_s7comm_param_item, tvb, offset, var_spec_length + 2, ENC_NA);
     item_tree = proto_item_add_subtree(item, ett_s7comm_param_item);
-
     proto_item_append_text(item, " [%d]:", item_no + 1);
 
     /* Item head, constant 3 bytes */
@@ -2424,171 +2641,21 @@ s7comm_decode_param_item(tvbuff_t *tvb,
     proto_tree_add_item(item_tree, hf_s7comm_item_syntax_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    /****************************************************************************/
-    /************************** Step 7 Classic 300 400 **************************/
     if (var_spec_type == 0x12 && var_spec_length == 10 && var_spec_syntax_id == S7COMM_SYNTAXID_S7ANY) {
-        /* Transport size, 1 byte */
-        t_size = tvb_get_guint8(tvb, offset);
-        proto_tree_add_uint(item_tree, hf_s7comm_item_transport_size, tvb, offset, 1, t_size);
-        offset += 1;
-        /* Length, 2 bytes */
-        len = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_uint(item_tree, hf_s7comm_item_length, tvb, offset, 2, len);
-        offset += 2;
-        /* DB number, 2 bytes */
-        db = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_uint(item_tree, hf_s7comm_item_db, tvb, offset, 2, db);
-        offset += 2;
-        /* Area, 1 byte */
-        area = tvb_get_guint8(tvb, offset);
-        proto_tree_add_uint(item_tree, hf_s7comm_item_area, tvb, offset, 1, area);
-        offset += 1;
-        /* Address, 3 bytes */
-        a_address = tvb_get_ntoh24(tvb, offset);
-        address_item = proto_tree_add_uint(item_tree, hf_s7comm_item_address, tvb, offset, 3, a_address);
-        address_item_tree = proto_item_add_subtree(address_item, ett_s7comm_item_address);
-        bytepos = a_address / 8;
-        bitpos = a_address % 8;
-        /* build a full address to show item data directly beside the item */
-        switch (area) {
-            case (S7COMM_AREA_P):
-                proto_item_append_text(item_tree, " (P");
-                break;
-            case (S7COMM_AREA_INPUTS):
-                proto_item_append_text(item_tree, " (I");
-                break;
-            case (S7COMM_AREA_OUTPUTS):
-                proto_item_append_text(item_tree, " (Q");
-                break;
-            case (S7COMM_AREA_FLAGS):
-                proto_item_append_text(item_tree, " (M");
-                break;
-            case (S7COMM_AREA_DB):
-                proto_item_append_text(item_tree, " (DB%d.DBX", db);
-                break;
-            case (S7COMM_AREA_DI):
-                proto_item_append_text(item_tree, " (DI%d.DIX", db);
-                break;
-            case (S7COMM_AREA_LOCAL):
-                proto_item_append_text(item_tree, " (L");
-                break;
-            case (S7COMM_AREA_COUNTER):
-                proto_item_append_text(item_tree, " (C");
-                break;
-            case (S7COMM_AREA_TIMER):
-                proto_item_append_text(item_tree, " (T");
-                break;
-            default:
-                proto_item_append_text(item_tree, " (unknown area");
-                break;
-        }
-        if (area == S7COMM_AREA_TIMER || area == S7COMM_AREA_COUNTER) {
-            proto_item_append_text(item_tree, " %d)", a_address);
-            proto_tree_add_uint(address_item_tree, hf_s7comm_item_address_nr, tvb, offset, 3, a_address);
-        } else {
-            proto_tree_add_uint(address_item_tree, hf_s7comm_item_address_byte, tvb, offset, 3, a_address);
-            proto_tree_add_uint(address_item_tree, hf_s7comm_item_address_bit, tvb, offset, 3, a_address);
-            proto_item_append_text(item_tree, " %d.%d %s %d)",
-                bytepos, bitpos, val_to_str(t_size, item_transportsizenames, "Unknown transport size: 0x%02x"), len);
-        }
-        offset += 3;
-    /****************************************************************************/
-    /******************** S7-400 special address mode (kind of cyclic read) *****/
-    /* The response to this kind of request can't be decoded, because in the response
-     * the data fields don't contain any header information. There is only one byte
-     */
+        /* Step 7 Classic 300 400 */
+        offset = s7comm_syntaxid_s7any(tvb, offset, item_tree);
     } else if (var_spec_type == 0x12 && var_spec_length >= 7 && var_spec_syntax_id == S7COMM_SYNTAXID_DBREAD) {
-        /* Number of data area specifications following, 1 Byte */
-        number_of_areas = tvb_get_guint8(tvb, offset);
-        proto_tree_add_uint(item_tree, hf_s7comm_item_dbread_numareas, tvb, offset, 1, number_of_areas);
-        proto_item_append_text(item_tree, " (%d Data-Areas of Syntax-Id DBREAD)", number_of_areas);
-        offset += 1;
-        for (i = 1; i <= number_of_areas; i++) {
-            sub_item = proto_tree_add_item(item_tree, hf_s7comm_param_subitem, tvb, offset, 5, ENC_NA);
-            sub_item_tree = proto_item_add_subtree(sub_item, ett_s7comm_param_subitem);
-            /* Number of Bytes to read, 1 Byte */
-            len = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint(sub_item_tree, hf_s7comm_item_dbread_length, tvb, offset, 1, len);
-            offset += 1;
-            /* DB number, 2 Bytes */
-            db = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_uint(sub_item_tree, hf_s7comm_item_dbread_db, tvb, offset, 2, db);
-            offset += 2;
-            /* Start address, 2 Bytes */
-            bytepos = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_uint(sub_item_tree, hf_s7comm_item_dbread_startadr, tvb, offset, 2, bytepos);
-            offset += 2;
-            /* Display as pseudo S7-Any Format */
-            proto_item_append_text(sub_item, " [%d]: (DB%d.DBB %d BYTE %d)", i, db, bytepos, len);
-        }
-    /****************************************************************************/
-    /******************** TIA S7 1200 symbolic address mode *********************/
+        /* S7-400 special address mode (kind of cyclic read) */
+        offset = s7comm_syntaxid_dbread(tvb, offset, item_tree);
     } else if (var_spec_type == 0x12 && var_spec_length >= 14 && var_spec_syntax_id == S7COMM_SYNTAXID_1200SYM) {
-        proto_item_append_text(item_tree, " 1200 symbolic address");
-        /* first byte in address seems always be 0xff */
-        proto_tree_add_item(item_tree, hf_s7comm_tia1200_item_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-        /* When Bytes 2/3 == 0, then Bytes 4/5 defines the area as known from classic 300/400 address mode
-         * when Bytes 2/3 == 0x8a0e then bytes 4/5 are containing the DB number
-         */
-        tia_var_area1 = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_uint(item_tree, hf_s7comm_tia1200_item_area1, tvb, offset, 2, tia_var_area1);
-        offset += 2;
-        tia_var_area2 = tvb_get_ntohs(tvb, offset);
-        if (tia_var_area1 == S7COMM_TIA1200_VAR_ITEM_AREA1_IQMCT) {
-            proto_tree_add_uint(item_tree, hf_s7comm_tia1200_item_area2, tvb, offset, 2, tia_var_area2);
-            proto_item_append_text(item_tree, " - Accessing %s", val_to_str(tia_var_area2, tia1200_var_item_area2_names, "Unknown IQMCT Area: 0x%04x"));
-            offset += 2;
-        } else if (tia_var_area1 == S7COMM_TIA1200_VAR_ITEM_AREA1_DB) {
-            proto_tree_add_uint(item_tree, hf_s7comm_tia1200_item_dbnumber, tvb, offset, 2, tia_var_area2);
-            proto_item_append_text(item_tree, " - Accessing DB%d", tia_var_area2);
-            offset += 2;
-        } else {
-            /* for current unknown areas, I don't know if there are other valid areas */
-            proto_tree_add_uint(item_tree, hf_s7comm_tia1200_item_area2unknown, tvb, offset, 2, tia_var_area2);
-            proto_item_append_text(item_tree, " - Unknown area specification");
-            offset += 2;
-        }
-        proto_tree_add_item(item_tree, hf_s7comm_tia1200_item_crc, tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
-
-        for (i = 0; i < (var_spec_length - 10) / 4; i++) {
-            /* Insert a new tree for every sub-struct */
-            sub_item = proto_tree_add_item(item_tree, hf_s7comm_tia1200_substructure_item, tvb, offset, 4, ENC_NA);
-            sub_item_tree = proto_item_add_subtree(sub_item, ett_s7comm_param_subitem);
-            tia_lid_flags = tvb_get_guint8(tvb, offset) >> 4;
-            proto_tree_add_item(sub_item_tree, hf_s7comm_tia1200_var_lid_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-            tia_value = tvb_get_ntohl(tvb, offset) & 0x0fffffff;
-            proto_item_append_text(sub_item, " [%d]: %s, Value: %u", i + 1,
-                val_to_str(tia_lid_flags, tia1200_var_lid_flag_names, "Unknown flags: 0x%02x"),
-                tia_value
-            );
-            proto_tree_add_item(sub_item_tree, hf_s7comm_tia1200_item_value, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
-        }
-    /****************************************************************************/
-    /******************** Sinumerik NCK access **********************************/
+        /* TIA S7 1200 symbolic address mode */
+        offset = s7comm_syntaxid_1200sym(tvb, offset, item_tree, var_spec_length);
     } else if (var_spec_type == 0x12 && var_spec_length == 8 && var_spec_syntax_id == S7COMM_SYNTAXID_NCK) {
-        area = tvb_get_guint8(tvb, offset);
-        nck_area = area >> 5;
-        nck_unit = area & 0x1f;
-        proto_tree_add_item(item_tree, hf_s7comm_item_nck_areaunit, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(item_tree, hf_s7comm_item_nck_area, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(item_tree, hf_s7comm_item_nck_unit, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-        nck_column = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(item_tree, hf_s7comm_item_nck_column, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-        nck_line = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(item_tree, hf_s7comm_item_nck_line, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-        nck_module = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(item_tree, hf_s7comm_item_nck_module, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-        proto_tree_add_item(item_tree, hf_s7comm_item_nck_linecount, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-        proto_item_append_text(item_tree, " (NCK Area:%d Unit:%d Column:%d Line:%d Module:0x%02x)",
-            nck_area, nck_unit, nck_column, nck_line, nck_module);
+        /* Sinumerik NCK access */
+        offset = s7comm_syntaxid_nck(tvb, offset, item_tree);
+    } else if (var_spec_type == 0x12 && var_spec_length == 10 && var_spec_syntax_id == S7COMM_SYNTAXID_DRIVEESANY) {
+        /* Accessing frequency inverter parameters (via routing) */
+        offset = s7comm_syntaxid_driveesany(tvb, offset, item_tree);
     }
     else {
         /* var spec, length and syntax id are still added to tree here */
@@ -5240,6 +5307,22 @@ proto_register_s7comm (void)
           NULL, HFILL }},
         { &hf_s7comm_item_dbread_startadr,
         { "Start address", "s7comm.param.item.dbread.startaddress", FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
+        /* Reading frequency inverter parameters via routing */
+        { &hf_s7comm_item_driveesany_unknown1,
+        { "DriveES Unknown 1", "s7comm.param.item.driveesany.unknown1", FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_item_driveesany_unknown2,
+        { "DriveES Unknown 2", "s7comm.param.item.driveesany.unknown2", FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_item_driveesany_unknown3,
+        { "DriveES Unknown 3", "s7comm.param.item.driveesany.unknown3", FT_UINT16, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_item_driveesany_parameter_nr,
+        { "DriveES Parameter number", "s7comm.param.item.driveesany.parameternr", FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_item_driveesany_parameter_idx,
+        { "DriveES Parameter index", "s7comm.param.item.driveesany.parameteridx", FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }},
         /* NCK access with Syntax-Id 0x82 */
         { &hf_s7comm_item_nck_areaunit,
