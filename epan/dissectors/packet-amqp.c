@@ -2214,14 +2214,26 @@ check_amqp_version(tvbuff_t *tvb, amqp_conv *conn)
 
     /*
      * It's not a protocol header and the AMQP version isn't known. Try to
-     * deduce it from the content. First indicator is the frame length. 0-9
-     * has a 32-bit length in octets 3-7. If the frame length is the same
-     * as the PDU length and there's a frame end where it should be, this
-     * is 0-9. Else, higher version. 0-10 has 5th octet 0x00 while 1.0 has
-     * there at least 2 (DOFF) - use this fact to determine.
+     * deduce it from the content.
+     *
+     * First indicator is the frame length. 0-9 has a 32-bit length in
+     * octets 3-7. In 0-10, those are the second octet of the segment type,
+     * one reserved octet that should always be zero, a four-bit track number
+     * (high bits zero), and the first octet of the 16-bit channel number.
+     * In 1.0, those are the lowest-value octet of the 32-bit frame size,
+     * an octet for data offset (at least 2), a type code octet (0x00 for
+     * an AMQP frame, 0x01 for a SASL frame), and the first of two
+     * type-specific octets in the frame header.
+     *
+     * If the frame fits within the PDU, and there's a frame end byte (0xCE)
+     * where it should be, this is almost certainly 0-9.  (Compare with "less
+     * than or equal to", as there may be more than one frame in a PDU.)
+     *
+     * Else, higher version. 0-10 has 5th octet 0x00 while 1.0
+     * has there at least 2 (DOFF) - use this fact to determine.
      */
     f0_9_length = tvb_get_ntohl(tvb, 3) + 7 + 1; /* Add header and end */
-    if ((f0_9_length == tvb_reported_length(tvb)) &&
+    if ((f0_9_length <= tvb_reported_length(tvb)) &&
         (tvb_get_guint8(tvb, f0_9_length - 1) == 0xCE))
         conn->version = AMQP_V0_9;
     else if (tvb_get_guint8(tvb, 4) == 0x00)
