@@ -29,6 +29,7 @@
 	<!ENTITY Oracle			SYSTEM "Oracle.xml">
 	<!ENTITY Juniper		SYSTEM "Juniper.xml">
 	<!ENTITY Inovar			SYSTEM "Inovar.xml">
+	<!ENTITY Huawei			SYSTEM "Huawei.xml">
 	<!ENTITY Custom			SYSTEM "Custom.xml">
 ]>
 <dictionary>
@@ -7990,5 +7991,6 @@
 	&CiscoSystems;
 	&Juniper;
 	&Inovar;
+	&Huawei;
 	&Custom;
 </dictionary>

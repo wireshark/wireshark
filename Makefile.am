@@ -100,6 +100,7 @@ dist_diameter_DATA = $(_CUSTOM_diameter_xml_files_) \
 	diameter/Nokia.xml \
 	diameter/NokiaSolutionsAndNetworks.xml \
 	diameter/HP.xml \
+	diameter/Huawei.xml \
 	diameter/Oracle.xml
 
 #

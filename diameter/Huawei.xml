@@ -1,0 +1,57 @@
+<vendor vendor-id="Huawei"                    code="2011"      name="Huawei">
+  <avp name="P2PSMS-Information" code="20400" mandatory="no" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="Huawei">
+    <grouped>
+      <gavp name="SMSC-Address"/>
+      <gavp name="SM-Id"/>
+      <gavp name="SM-Length"/>
+    </grouped>
+  </avp>
+  <avp name="SMSC-Address" code="20401" mandatory="no" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="Huawei">
+    <type type-name="UTF8String"/>
+  </avp>
+  <avp name="SM-Id" code="20402" mandatory="no" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="Huawei">
+    <type type-name="UTF8String"/>
+  </avp>
+  <avp name="SM-Length" code="20403" mandatory="no" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="Huawei">
+    <type type-name="Unsigned32"/>
+  </avp>
+  <avp name="MO-MSC-Address" code="20404" mandatory="no" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="Huawei">
+    <type type-name="UTF8String"/>
+  </avp>
+  <avp name="MT-MSC-Address" code="20405" mandatory="no" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="Huawei">
+    <type type-name="UTF8String"/>
+  </avp>
+  <avp name="Source-Addr" code="20406" mandatory="no" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="Huawei">
+    <type type-name="UTF8String"/>
+  </avp>
+  <avp name="Dest-Addr" code="20407" mandatory="no" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="Huawei">
+    <type type-name="UTF8String"/>
+  </avp>
+  <avp name="Fee-Flag" code="20409" mandatory="no" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="Huawei">
+    <type type-name="Enumerated"/>
+    <enum name="Charge in the original mode" code="0"/>
+    <enum name="Charge the calling number" code="1"/>
+    <enum name="Charge the called number" code="2"/>
+    <enum name="Charge the charging number" code="3"/>
+  </avp>
+  <avp name="Fee-Type" code="20410" mandatory="no" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="Huawei">
+    <type type-name="Enumerated"/>
+    <enum name="Charge by default mode" code="0"/>
+    <enum name="Charge by item" code="1"/>
+    <enum name="Charge by month (with authentication and fee deduction)" code="2"/>
+    <enum name="Charge by month (with authentication but no fee deduction)" code="3"/>
+    <enum name="Charge upper limit amount by the number of SMs" code="4"/>
+    <enum name="Charge by month with limited number of SMs (with authentication and fee deduction)" code="5"/>
+    <enum name="Charge by month with limited number of SMs (with authentication but no fee deduction)" code="6"/>
+  </avp>
+  <avp name="Status-Report-Requested" code="20415" mandatory="no" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="Huawei">
+    <type type-name="Enumerated"/>
+    <enum name="No" code="0"/>
+    <enum name="Yes" code="1"/>
+    <enum name="Refund on Failure" code="2"/>
+  </avp>
+  <avp name="Send-Result" code="20418" mandatory="no" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="Huawei">
+    <type type-name="Enumerated"/>
+    <enum name="Delivered" code="0"/>
+  </avp>
+</vendor>
