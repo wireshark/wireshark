@@ -229,6 +229,9 @@ static int parse_ServiceAssociationRecord(proto_tree*, tvbuff_t*, gint *offset);
 /* Subnet Administration */
 static void parse_RID(proto_tree*, tvbuff_t*, gint *offset, MAD_Data*);
 
+/* Common */
+static int parse_ClassPortInfo(proto_tree*, tvbuff_t*, gint *offset);
+
 /* SM Methods */
 static const value_string SUBM_Methods[] = {
     { 0x01, "SubnGet("},
@@ -1040,6 +1043,30 @@ static int hf_infiniband_MultiPathRecord_SGIDCount = -1;
 static int hf_infiniband_MultiPathRecord_DGIDCount = -1;
 static int hf_infiniband_MultiPathRecord_SDGID = -1;
 
+/* ClassPortInfo */
+static int hf_infiniband_ClassPortInfo_BaseVersion = -1;
+static int hf_infiniband_ClassPortInfo_ClassVersion = -1;
+static int hf_infiniband_ClassPortInfo_CapabilityMask = -1;
+static int hf_infiniband_ClassPortInfo_CapabilityMask2 = -1;
+static int hf_infiniband_ClassPortInfo_RespTimeValue = -1;
+static int hf_infiniband_ClassPortInfo_RedirectGID = -1;
+static int hf_infiniband_ClassPortInfo_RedirectTC = -1;
+static int hf_infiniband_ClassPortInfo_RedirectSL = -1;
+static int hf_infiniband_ClassPortInfo_RedirectFL = -1;
+static int hf_infiniband_ClassPortInfo_RedirectLID = -1;
+static int hf_infiniband_ClassPortInfo_RedirectP_Key = -1;
+static int hf_infiniband_ClassPortInfo_Reserved = -1;
+static int hf_infiniband_ClassPortInfo_RedirectQP = -1;
+static int hf_infiniband_ClassPortInfo_RedirectQ_Key = -1;
+static int hf_infiniband_ClassPortInfo_TrapGID = -1;
+static int hf_infiniband_ClassPortInfo_TrapTC = -1;
+static int hf_infiniband_ClassPortInfo_TrapSL = -1;
+static int hf_infiniband_ClassPortInfo_TrapFL = -1;
+static int hf_infiniband_ClassPortInfo_TrapLID = -1;
+static int hf_infiniband_ClassPortInfo_TrapP_Key = -1;
+static int hf_infiniband_ClassPortInfo_TrapQP = -1;
+static int hf_infiniband_ClassPortInfo_TrapQ_Key = -1;
+
 /* Notice */
 static int hf_infiniband_Notice_IsGeneric = -1;
 static int hf_infiniband_Notice_Type = -1;
@@ -1051,6 +1078,9 @@ static int hf_infiniband_Notice_NoticeCount = -1;
 static int hf_infiniband_Notice_DataDetails = -1;
 /* static int hf_infiniband_Notice_IssuerGID = -1;             */
 /* static int hf_infiniband_Notice_ClassTrapSpecificData = -1; */
+
+/* ClassPortInfo attribute in Performance class */
+static int hf_infiniband_PerfMgt_ClassPortInfo = -1;
 
 /* PortCounters attribute in Performance class */
 static int hf_infiniband_PortCounters = -1;
@@ -3047,6 +3077,13 @@ static void parse_PERF(proto_tree *parentTree, tvbuff_t *tvb, packet_info *pinfo
     local_offset = *offset; /* offset now points to the start of the MAD data field */
 
     switch (MadData.attributeID) {
+        case 0x0001: /* (ClassPortInfo) */
+            col_set_str(pinfo->cinfo, COL_INFO, "PERF (ClassPortInfo)");
+            proto_tree_add_item(parentTree, hf_infiniband_PerfMgt_ClassPortInfo, tvb, local_offset, 40, ENC_NA);
+            local_offset += 40;
+            *offset = local_offset;
+            parse_ClassPortInfo(parentTree, tvb, offset);
+            break;
         case ATTR_PORT_COUNTERS:
             parse_PERF_PortCounters(parentTree, tvb, pinfo, &local_offset);
             break;
@@ -4118,7 +4155,7 @@ static gboolean parse_SUBA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint
     switch (MadHeader->attributeID)
     {
         case 0x0001: /* (ClassPortInfo) */
-            parse_PortInfo(SUBA_Attribute_header_tree, tvb, offset);
+            parse_ClassPortInfo(SUBA_Attribute_header_tree, tvb, offset);
             break;
         case 0x0002: /* (Notice) */
             parse_NoticesAndTraps(SUBA_Attribute_header_tree, tvb, offset);
@@ -4202,6 +4239,70 @@ static gboolean parse_SUBA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint
 * The Subnet Admin Parsing methods will call some of these methods when an attribute is present within an SA MAD
 */
 
+
+/* Parse ClassPortInfo Attribute Field
+* IN:   parentTree - The tree to add the dissection to
+*       tvb - The tvbbuff of packet data
+*       offset - The offset in TVB where the attribute begins      */
+static int parse_ClassPortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+{
+    gint        local_offset = *offset;
+    proto_tree *ClassPortInfo_header_tree;
+
+    if (!parentTree)
+        return *offset;
+
+    ClassPortInfo_header_tree = parentTree;
+
+    proto_tree_add_item(ClassPortInfo_header_tree, hf_infiniband_ClassPortInfo_BaseVersion, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    local_offset += 1;
+    proto_tree_add_item(ClassPortInfo_header_tree, hf_infiniband_ClassPortInfo_ClassVersion, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    local_offset += 1;
+    proto_tree_add_item(ClassPortInfo_header_tree, hf_infiniband_ClassPortInfo_CapabilityMask, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+    local_offset += 2;
+    proto_tree_add_item(ClassPortInfo_header_tree, hf_infiniband_ClassPortInfo_CapabilityMask2, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+    local_offset += 3;
+
+    proto_tree_add_item(ClassPortInfo_header_tree, hf_infiniband_ClassPortInfo_RespTimeValue, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    local_offset += 1;
+    proto_tree_add_item(ClassPortInfo_header_tree, hf_infiniband_ClassPortInfo_RedirectGID, tvb, local_offset, 16, ENC_NA);
+    local_offset += 16;
+    proto_tree_add_item(ClassPortInfo_header_tree, hf_infiniband_ClassPortInfo_RedirectTC, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    local_offset += 1;
+    proto_tree_add_item(ClassPortInfo_header_tree, hf_infiniband_ClassPortInfo_RedirectSL, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ClassPortInfo_header_tree, hf_infiniband_ClassPortInfo_RedirectFL, tvb, local_offset, 3, ENC_BIG_ENDIAN);
+    local_offset += 3;
+    proto_tree_add_item(ClassPortInfo_header_tree, hf_infiniband_ClassPortInfo_RedirectLID, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+    local_offset += 2;
+    proto_tree_add_item(ClassPortInfo_header_tree, hf_infiniband_ClassPortInfo_RedirectP_Key, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+    local_offset += 2;
+    proto_tree_add_item(ClassPortInfo_header_tree, hf_infiniband_ClassPortInfo_Reserved, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    local_offset += 1;
+    proto_tree_add_item(ClassPortInfo_header_tree, hf_infiniband_ClassPortInfo_RedirectQP, tvb, local_offset, 3, ENC_BIG_ENDIAN);
+    local_offset += 3;
+    proto_tree_add_item(ClassPortInfo_header_tree, hf_infiniband_ClassPortInfo_RedirectQ_Key, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+    local_offset += 4;
+
+    proto_tree_add_item(ClassPortInfo_header_tree, hf_infiniband_ClassPortInfo_TrapGID, tvb, local_offset, 16, ENC_NA);
+    local_offset += 16;
+    proto_tree_add_item(ClassPortInfo_header_tree, hf_infiniband_ClassPortInfo_TrapTC, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    local_offset += 1;
+    proto_tree_add_item(ClassPortInfo_header_tree, hf_infiniband_ClassPortInfo_TrapSL, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ClassPortInfo_header_tree, hf_infiniband_ClassPortInfo_TrapFL, tvb, local_offset, 3, ENC_BIG_ENDIAN);
+    local_offset += 3;
+    proto_tree_add_item(ClassPortInfo_header_tree, hf_infiniband_ClassPortInfo_TrapLID, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+    local_offset += 2;
+    proto_tree_add_item(ClassPortInfo_header_tree, hf_infiniband_ClassPortInfo_TrapP_Key, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+    local_offset += 2;
+    proto_tree_add_item(ClassPortInfo_header_tree, hf_infiniband_ClassPortInfo_Reserved, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    local_offset += 1;
+    proto_tree_add_item(ClassPortInfo_header_tree, hf_infiniband_ClassPortInfo_TrapQP, tvb, local_offset, 3, ENC_BIG_ENDIAN);
+    local_offset += 3;
+    proto_tree_add_item(ClassPortInfo_header_tree, hf_infiniband_ClassPortInfo_TrapQ_Key, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+    local_offset += 4;
+
+    return local_offset;
+}
 
 /* Parse NoticeDataDetails Attribute Field
 * IN:   parentTree - The tree to add the dissection to
@@ -7921,6 +8022,96 @@ void proto_register_infiniband(void)
                 FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
 
+        /* ClassPortInfo */
+        { &hf_infiniband_ClassPortInfo_BaseVersion, {
+                "BaseVersion", "infiniband.classportinfo.baseversion",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_infiniband_ClassPortInfo_ClassVersion, {
+                "ClassVersion", "infiniband.classportinfo.classversion",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_infiniband_ClassPortInfo_CapabilityMask, {
+                "CapabilityMask", "infiniband.classportinfo.capabilitymask",
+                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_infiniband_ClassPortInfo_CapabilityMask2, {
+                "CapabilityMask2", "infiniband.classportinfo.capabilitymask2",
+                FT_UINT32, BASE_HEX, NULL, 0xFFFFFFE0, NULL, HFILL}
+        },
+        { &hf_infiniband_ClassPortInfo_RespTimeValue, {
+                "RespTimeValue", "infiniband.classportinfo.resptimevalue",
+                FT_UINT8, BASE_HEX, NULL, 0x1F, NULL, HFILL}
+        },
+        { &hf_infiniband_ClassPortInfo_RedirectGID, {
+                "RedirectGID", "infiniband.classportinfo.redirectgid",
+                FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_infiniband_ClassPortInfo_RedirectTC, {
+                "RedirectTC", "infiniband.classportinfo.redirecttc",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_infiniband_ClassPortInfo_RedirectSL, {
+                "RedirectSL", "infiniband.classportinfo.redirectsl",
+                FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL}
+        },
+        { &hf_infiniband_ClassPortInfo_RedirectFL, {
+                "RedirectFL", "infiniband.classportinfo.redirectfl",
+                FT_UINT24, BASE_HEX, NULL, 0xFFFFF, NULL, HFILL}
+        },
+        { &hf_infiniband_ClassPortInfo_RedirectLID, {
+                "RedirectLID", "infiniband.classportinfo.redirectlid",
+                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_infiniband_ClassPortInfo_RedirectP_Key, {
+                "RedirectP_Key", "infiniband.classportinfo.redirectpkey",
+                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_infiniband_ClassPortInfo_Reserved, {
+                "Reserved", "infiniband.classportinfo.reserved",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_infiniband_ClassPortInfo_RedirectQP, {
+                "RedirectQP", "infiniband.classportinfo.redirectqp",
+                FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_infiniband_ClassPortInfo_RedirectQ_Key, {
+                "RedirectQ_Key", "infiniband.classportinfo.redirectqkey",
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_infiniband_ClassPortInfo_TrapGID, {
+                "TrapGID", "infiniband.classportinfo.trapgid",
+                FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_infiniband_ClassPortInfo_TrapTC, {
+                "TrapTC", "infiniband.classportinfo.traptc",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_infiniband_ClassPortInfo_TrapSL, {
+                "TrapSL", "infiniband.classportinfo.trapsl",
+                FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL}
+        },
+        { &hf_infiniband_ClassPortInfo_TrapFL, {
+                "TrapFL", "infiniband.classportinfo.trapfl",
+                FT_UINT24, BASE_HEX, NULL, 0xFFFFF, NULL, HFILL}
+        },
+        { &hf_infiniband_ClassPortInfo_TrapLID, {
+                "TrapLID", "infiniband.classportinfo.traplid",
+                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_infiniband_ClassPortInfo_TrapP_Key, {
+                "TrapP_Key", "infiniband.classportinfo.trappkey",
+                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_infiniband_ClassPortInfo_TrapQP, {
+                "TrapQP", "infiniband.classportinfo.trapqp",
+                FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_infiniband_ClassPortInfo_TrapQ_Key, {
+                "TrapQ_Key", "infiniband.classportinfo.trapqkey",
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+
         /* Notice */
         { &hf_infiniband_Notice_IsGeneric, {
                 "IsGeneric", "infiniband.notice.isgeneric",
@@ -8110,6 +8301,12 @@ void proto_register_infiniband(void)
         { &hf_infiniband_Trap_SWLIDADDR, {
                 "SWLIDADDR", "infiniband.trap.swlidaddr",
                 FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        /* ClassPortInfo in Performance class */
+        { &hf_infiniband_PerfMgt_ClassPortInfo, {
+                "ClassPortInfo (Performance Management MAD)", "infiniband.classportinfo",
+               FT_NONE, BASE_NONE, NULL, 0x0,
+                "Performance class ClassPortInfo packet", HFILL}
         },
         /* PortCounters in Performance class */
         { &hf_infiniband_PortCounters, {
