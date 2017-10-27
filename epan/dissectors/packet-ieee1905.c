@@ -4315,6 +4315,7 @@ dissect_ieee1905_tlv_data(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     case STEERING_REQUEST_TLV:
         offset = dissect_steering_request(tvb, pinfo, tree, offset);
+        break;
 
     case STEERING_BTM_REPORT_TLV:
         offset = dissect_steering_btm_report(tvb, pinfo, tree, offset, tlv_len);
@@ -4330,6 +4331,7 @@ dissect_ieee1905_tlv_data(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     case BACKHAUL_STEERING_RESPONSE_TLV:
         offset = dissect_backhaul_steering_response(tvb, pinfo, tree, offset);
+        break;
 
     case HIGHER_LAYER_DATA_TLV:
         offset = dissect_higher_layer_data(tvb, pinfo, tree, offset, tlv_len);
