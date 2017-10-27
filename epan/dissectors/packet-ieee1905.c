@@ -3556,7 +3556,7 @@ dissect_beacon_metrics_response(tvbuff_t *tvb, packet_info *pinfo _U_,
 
         proto_item_set_len(pi, amount);
 
-        len =- amount;
+        len -= amount;
         offset += amount;
         report_index++;
     }
