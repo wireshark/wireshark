@@ -3904,6 +3904,7 @@ dissect_unassociated_sta_link_metrics_query(tvbuff_t *tvb,
         proto_tree_add_item(sta_mac_list, hf_ieee1905_unassoc_link_metrics_query_mac,
                             tvb, offset, 6, ENC_NA);
         offset += 6;
+        len -= 6;
     }
 
     proto_item_set_len(pi, offset - saved_offset);
