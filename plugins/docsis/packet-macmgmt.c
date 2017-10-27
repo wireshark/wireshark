@@ -5703,11 +5703,13 @@ dissect_dpd_subcarrier_assignment_range_list(tvbuff_t * tvb, packet_info * pinfo
 {
   guint32 i, subcarrier_assignment_type;
   proto_item* type_item;
+  guint modulation;
 
   type_item = proto_tree_add_item_ret_uint (tree, hf_docsis_dpd_tlv_subc_assign_type, tvb, pos, 1, ENC_BIG_ENDIAN, &subcarrier_assignment_type);
   proto_tree_add_item (tree, hf_docsis_dpd_tlv_subc_assign_value, tvb, pos, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item (tree, hf_docsis_dpd_tlv_subc_assign_reserved, tvb, pos, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item (tree, hf_docsis_dpd_tlv_subc_assign_modulation, tvb, pos, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint (tree, hf_docsis_dpd_tlv_subc_assign_modulation, tvb, pos, 1, ENC_BIG_ENDIAN, &modulation);
+  col_append_str(pinfo->cinfo, COL_INFO, val_to_str(modulation, docsis_dpd_subc_assign_modulation_str, "%s"));
   pos++;
 
   switch (subcarrier_assignment_type)
@@ -5757,6 +5759,7 @@ dissect_dpd_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   guint pos = 0;
   guint length;
   guint8 type;
+  guint first_subc_assign_list = 1;
 
   it = proto_tree_add_item(tree, hf_docsis_dpd_tlv_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
   tlv_tree = proto_item_add_subtree (it, ett_docsis_dpd_tlv);
@@ -5782,6 +5785,12 @@ dissect_dpd_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     case SUBCARRIER_ASSIGNMENT_RANGE_LIST:
       if (length >= 5)
       {
+        if(first_subc_assign_list) {
+          col_append_str(pinfo->cinfo, COL_INFO, ", Modulation: ");
+          first_subc_assign_list = 0;
+        } else {
+          col_append_str(pinfo->cinfo, COL_INFO, " | ");
+        }
         dissect_dpd_subcarrier_assignment_range_list(tvb, pinfo, tlv_tree, pos, length);
       }
       else
