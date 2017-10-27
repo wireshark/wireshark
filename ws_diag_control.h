@@ -38,34 +38,41 @@ extern "C" {
 #define DIAG_JOINSTR(x,y) XSTRINGIFY(x ## y)
 #define DIAG_DO_PRAGMA(x) _Pragma (#x)
 
-/* check the gcc or clang version
-
-   pragma GCC diagnostic error/warning/ignored -Wxxx was introduced
-   in gcc 4.2.0
-   pragma GCC diagnostic push/pop was introduced in gcc 4.6.0
-
-   pragma clang diagnostic error/warning/ignored -Wxxx and
-   pragma clang diagnostic push/pop were introduced in clang 2.8 */
-
-#if !defined(__clang__) && WS_IS_AT_LEAST_GNUC_VERSION(4,8)
+#if defined(__clang__)
   /*
-   * This is GCC, or a compiler that 1) claims to be GCC and 2) does
-   * *not* claim to be Clang, and is claiming to be GCC version 4.8.0
-   * or later.
-   * We can use "GCC diagnostic push/pop" *and* gcc supports "-Wpedantic".
+   * Clang, so we'd use _Pragma("clang diagnostic XXX"), if it's
+   * supported.
    */
-  #define DIAG_PRAGMA(x) DIAG_DO_PRAGMA(GCC diagnostic x)
-  #define DIAG_OFF(x) DIAG_PRAGMA(push) DIAG_PRAGMA(ignored DIAG_JOINSTR(-W,x))
-  #define DIAG_ON(x) DIAG_PRAGMA(pop)
-#elif WS_IS_AT_LEAST_CLANG_VERSION(2,8)
+  #if WS_IS_AT_LEAST_CLANG_VERSION(2,8)
+    /*
+     * This is Clang 2.8 or later: we can use "clang diagnostic ignored -Wxxx"
+     * and "clang diagnostic push/pop".
+     */
+    #define DIAG_PRAGMA(x) DIAG_DO_PRAGMA(clang diagnostic x)
+    #define DIAG_OFF(x) DIAG_PRAGMA(push) DIAG_PRAGMA(ignored DIAG_JOINSTR(-W,x))
+    #define DIAG_ON(x) DIAG_PRAGMA(pop)
+  #endif
+#elif defined(__GNUC__)
   /*
-   * This is Clang 2.8 or later: we can use "clang diagnostic ignored -Wxxx"
-   * and "clang diagnostic push/pop".
+   * GCC, or a compiler (other than Clang) that claims to be GCC.
+   * We assume that the compiler accepts _Pragma("GCC diagnostic xxx")
+   * even if it's only claiming to be GCC.
    */
-  #define DIAG_PRAGMA(x) DIAG_DO_PRAGMA(clang diagnostic x)
-  #define DIAG_OFF(x) DIAG_PRAGMA(push) DIAG_PRAGMA(ignored DIAG_JOINSTR(-W,x))
-  #define DIAG_ON(x) DIAG_PRAGMA(pop)
-#else
+  #if WS_IS_AT_LEAST_GNUC_VERSION(4,8)
+    /*
+     * This is GCC 4.8 or later, or a compiler claiming to be that.
+     * We can use "GCC diagnostic ignored -Wxxx" (introduced in 4.2)
+     * and "GCC diagnostic push/pop" (introduced in 4.6), *and* gcc
+     * supports "-Wpedantic" (introduced in 4.8), allowing us to
+     * turn off pedantic warnings with DIAG_OFF().
+     */
+    #define DIAG_PRAGMA(x) DIAG_DO_PRAGMA(GCC diagnostic x)
+    #define DIAG_OFF(x) DIAG_PRAGMA(push) DIAG_PRAGMA(ignored DIAG_JOINSTR(-W,x))
+    #define DIAG_ON(x) DIAG_PRAGMA(pop)
+  #endif
+#endif
+
+#ifndef DIAG_OFF
   /*
    * This is none of the above; we don't have any way to turn diagnostics
    * on or off.
