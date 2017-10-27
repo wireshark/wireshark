@@ -304,24 +304,20 @@ bool DecodeAsModel::insertRows(int row, int count, const QModelIndex &/*parent*/
                     if (IS_FT_STRING(selector_type)) {
 
                         //pick the first value in the packet as the default
-                        if (entry->num_items > 1) {
-                            cap_file_->edt->pi.curr_layer_num = curr_layer_num;
-                            gpointer selector = entry->values[0].build_values[0](&cap_file_->edt->pi);
-                            if (selector != NULL) {
-                                item->selectorString_ = entryString(item->tableName_, selector);
-                                dissector = dissector_get_default_string_handle(entry->table_name, (const gchar*)selector);
-                            } else {
-                                item->selectorString_ = "";
-                            }
+                        cap_file_->edt->pi.curr_layer_num = curr_layer_num;
+                        gpointer selector = entry->values[0].build_values[0](&cap_file_->edt->pi);
+                        if (selector != NULL) {
+                            item->selectorString_ = entryString(item->tableName_, selector);
+                            dissector = dissector_get_default_string_handle(entry->table_name, (const gchar*)selector);
+                        } else {
+                            item->selectorString_ = "";
                         }
 
                     } else if (IS_FT_UINT(selector_type)) {
 
                         //pick the first value in the packet as the default
-                        if (entry->num_items > 1) {
-                            cap_file_->edt->pi.curr_layer_num = curr_layer_num;
-                            item->selectorUint_ = GPOINTER_TO_UINT(entry->values[0].build_values[0](&cap_file_->edt->pi));
-                        }
+                        cap_file_->edt->pi.curr_layer_num = curr_layer_num;
+                        item->selectorUint_ = GPOINTER_TO_UINT(entry->values[0].build_values[0](&cap_file_->edt->pi));
 
                         dissector = dissector_get_default_uint_handle(entry->table_name, item->selectorUint_);
                     } else if (selector_type == FT_NONE) {
