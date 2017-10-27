@@ -447,7 +447,7 @@ dtd_grammar.c : $(LEMON) $(lemon_srcdir)/lempar.c $(srcdir)/dtd_grammar.lemon
 	$(AM_V_LEMON)$(LEMON) T=$(lemon_srcdir)/lempar.c $(srcdir)/dtd_grammar.lemon
 
 ws_version_info.c: $(top_srcdir)/ws_version_info.c
-	$(AM_V_LN_S)$(LN_S) $<
+	$(AM_V_LN_S)$(LN_S) $< $(builddir)
 
 tvbtest.o exntest.o oids_test.o: exceptions.h
 
