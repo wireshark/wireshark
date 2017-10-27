@@ -5979,7 +5979,7 @@ bssgp_perform_loc_request(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     /* IMSI IMSI/11.3.14 M TLV 5-10 */
     ELEM_MAND_TELV(BSSGP_IEI_IMSI, BSSGP_PDU_TYPE, DE_BSSGP_IMSI, NULL, ei_bssgp_missing_mandatory_element);
     /* DRX Parameters (note 1) DRX Parameters/11.3.11 O TLV 4 */
-    ELEM_OPT_TELV(0x86, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID, NULL);
+    ELEM_OPT_TELV(0x0a, GSM_A_PDU_TYPE_GM, DE_DRX_PARAM, NULL);
     /* BVCI (PCU-PTP) BVCI/11.3.6 M TLV 4 */
     ELEM_MAND_TELV(BSSGP_IEI_BVCI, BSSGP_PDU_TYPE, DE_BSSGP_BVCI, " - (PCU-PTP)", ei_bssgp_missing_mandatory_element);
     /* NSEI (PCU-PTP) NSEI/11.3.48 M TLV 4-? */
