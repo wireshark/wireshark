@@ -237,10 +237,6 @@ ascend_scanner_lex.h : ascend_scanner.c
 ascend.h: ascend.c
 
 ascend.c: $(srcdir)/ascend.y ascend_scanner_lex.h
-	@if [ -z "$(YACC)" ]; then \
-		echo "Neither bison nor byacc has been found"; \
-		exit 1; \
-	fi
 	$(AM_V_YACC)$(YACC) -d -p ascend -o ascend.c $(srcdir)/ascend.y
 
 version_info.c: $(top_srcdir)/version_info.c
