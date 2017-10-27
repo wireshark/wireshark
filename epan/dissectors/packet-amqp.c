@@ -43,6 +43,7 @@
 #include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/decode_as.h>
 #include <epan/to_str.h>
 #include <epan/proto_data.h>
 #include <wsutil/str_util.h>
@@ -73,6 +74,8 @@ typedef struct {
     guint8 version;
     wmem_map_t *channels; /* maps channel_num to amqp_channel_t */
 } amqp_conv;
+
+static dissector_table_t version_table;
 
 struct amqp_delivery;
 typedef struct amqp_delivery amqp_delivery;
@@ -684,6 +687,9 @@ format_amqp_0_10_sequence_set(tvbuff_t *tvb, guint offset, guint length,
 /*  Various handles  */
 
 static int proto_amqp = -1;
+static int proto_amqpv0_9 = -1;
+static int proto_amqpv0_10 = -1;
+static int proto_amqpv1_0 = -1;
 
 /* 1.0 handles */
 
@@ -10663,6 +10669,49 @@ format_amqp_0_10_sequence_set(tvbuff_t *tvb, guint offset, guint length,
     proto_item_append_text(item, "]");
 }
 
+static void amqp_prompt(packet_info *pinfo _U_, gchar* result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "AMQP version as");
+}
+
+static gpointer amqp_value(packet_info *pinfo)
+{
+    guint version = AMQP_V1_0;
+    conversation_t *conv = find_conversation_pinfo(pinfo, 0);
+    if (conv != NULL)
+    {
+        amqp_conv *conn = (amqp_conv *)conversation_get_proto_data(conv, proto_amqp);
+        if (conn != NULL)
+            version = conn->version;
+    }
+
+    return GUINT_TO_POINTER(version);
+}
+
+static int
+dissect_amqpv0_9(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 7, get_amqp_0_9_message_len,
+                         dissect_amqp_0_9_frame, data);
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_amqpv0_10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 8, get_amqp_0_10_message_len,
+                         dissect_amqp_0_10_frame, data);
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_amqpv1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 8, get_amqp_1_0_message_len,
+                         dissect_amqp_1_0_frame, data);
+    return tvb_captured_length(tvb);
+}
+
 /*  Main dissection routine  */
 
 static int
@@ -10690,23 +10739,10 @@ dissect_amqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         conversation_add_proto_data(conv, proto_amqp, conn);
     }
     check_amqp_version(tvb, conn);
-    switch(conn->version) {
-    case AMQP_V0_9:
-        tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 7, get_amqp_0_9_message_len,
-                         dissect_amqp_0_9_frame, data);
-        break;
-    case AMQP_V0_10:
-        tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 8, get_amqp_0_10_message_len,
-                         dissect_amqp_0_10_frame, data);
-        break;
-    case AMQP_V1_0:
-        tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 8, get_amqp_1_0_message_len,
-                         dissect_amqp_1_0_frame, data);
-        break;
-    default:
+    if (!dissector_try_uint_new(version_table, conn->version, tvb, pinfo, tree, FALSE, data))
+    {
         col_append_str(pinfo->cinfo, COL_INFO, "AMQP (unknown version)");
         col_set_fence(pinfo->cinfo, COL_INFO);
-        break;
     }
 
     return tvb_captured_length(tvb);
@@ -13353,14 +13389,27 @@ proto_register_amqp(void)
     expert_module_t* expert_amqp;
     module_t *amqp_module;
 
-    proto_amqp = proto_register_protocol(
-        "Advanced Message Queueing Protocol", "AMQP", "amqp");
+    /* Decode As handling */
+    static build_valid_func amqp_da_build_value[1] = {amqp_value};
+    static decode_as_value_t amqp_da_values = {amqp_prompt, 1, amqp_da_build_value};
+    static decode_as_t amqp_da = {"amqp", "AMQP Version", "amqp.version", 1, 0, &amqp_da_values, NULL, NULL,
+                                decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
+    proto_amqp = proto_register_protocol("Advanced Message Queueing Protocol", "AMQP", "amqp");
+
+    /* Allows versions to be handled through Decode As */
+    proto_amqpv0_9 = proto_register_protocol_in_name_only("AMQP Version 0.9", "Version 0.9", "amqp.version.v0_9", proto_amqp, FT_BYTES);
+    proto_amqpv0_10 = proto_register_protocol_in_name_only("AMQP Version 0.10", "Version 0.10", "amqp.version.v0_10", proto_amqp, FT_BYTES);
+    proto_amqpv1_0 = proto_register_protocol_in_name_only("AMQP Version 1.0", "Version 1.0", "amqp.version.v1_0", proto_amqp, FT_BYTES);
+
     amqp_tcp_handle = register_dissector("amqp", dissect_amqp, proto_amqp);
     proto_register_field_array(proto_amqp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     expert_amqp = expert_register_protocol(proto_amqp);
     expert_register_field_array(expert_amqp, ei, array_length(ei));
+
+    version_table = register_dissector_table("amqp.version", "AMQP versions", proto_amqp, FT_UINT8, BASE_DEC);
 
     amqp_module = prefs_register_protocol(proto_amqp, proto_reg_handoff_amqp);
 
@@ -13369,6 +13418,8 @@ proto_register_amqp(void)
                                    "Set the TCP port for AMQP over TLS/SSL"
                                    "(if other than the default of 5671)",
                                    10, &amqps_port);
+
+    register_decode_as(&amqp_da);
 }
 
 void
@@ -13380,6 +13431,11 @@ proto_reg_handoff_amqp(void)
     if (!initialize) {
         /* Register TCP port for dissection */
         dissector_add_uint_with_preference("tcp.port", AMQP_PORT, amqp_tcp_handle);
+
+        dissector_add_uint("amqp.version", AMQP_V0_9, create_dissector_handle( dissect_amqpv0_9, proto_amqpv0_9 ));
+        dissector_add_uint("amqp.version", AMQP_V0_10, create_dissector_handle( dissect_amqpv0_10, proto_amqpv0_10 ));
+        dissector_add_uint("amqp.version", AMQP_V1_0, create_dissector_handle( dissect_amqpv1_0, proto_amqpv1_0 ));
+
         initialize = TRUE;
     }
 
