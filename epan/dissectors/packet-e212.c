@@ -1415,7 +1415,7 @@ static const value_string mcc_mnc_2digits_codes[] = {
     { 36301, "SETAR N.V." },
     { 36302, "DIGICEL ARUBA" },
     { 36439, "Bahamas Telecommunications Company Limited" },
-    { 36449, "NewCo2015 Limited" },
+    { 36449, "Be Aliv Limited" },
     { 36801, "ETECSA" },
     { 37001, "Orange Dominicana, S.A." },
     { 37002, "Verizon Dominicana S.A." },
