@@ -1670,13 +1670,13 @@ dissect_pfcp_node_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
         /* FQDN, the Node ID value encoding shall be identical to the encoding of a FQDN
          * within a DNS message of section 3.1 of IETF RFC 1035 [27] but excluding the trailing zero byte.
          */
-        if (length > 0) {
+        if (length > 1) {
             name_len = tvb_get_guint8(tvb, offset);
 
             if (name_len < 0x20) {
-                fqdn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, length - 1, ENC_ASCII);
+                fqdn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, length - 2, ENC_ASCII);
                 for (;;) {
-                    if (name_len >= length - 1)
+                    if (name_len >= length - 2)
                         break;
                     tmp = name_len;
                     name_len = name_len + fqdn[tmp] + 1;
@@ -1684,11 +1684,11 @@ dissect_pfcp_node_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
                 }
             }
             else {
-                fqdn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
+                fqdn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length -1, ENC_ASCII);
             }
-            proto_tree_add_string(tree, hf_pfcp_node_id_fqdn, tvb, offset, length, fqdn);
+            proto_tree_add_string(tree, hf_pfcp_node_id_fqdn, tvb, offset, length - 1, fqdn);
             proto_item_append_text(item, "%s", fqdn);
-            offset += length;
+            offset += length - 1;
         }
         break;
     default:
