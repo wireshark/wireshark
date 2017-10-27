@@ -145,6 +145,11 @@ WS_DLL_PUBLIC conversation_t *conversation_new(const guint32 setup_frame, const 
 WS_DLL_PUBLIC conversation_t *find_conversation(const guint32 frame_num, const address *addr_a, const address *addr_b,
     const port_type ptype, const guint32 port_a, const guint32 port_b, const guint options);
 
+/**  A helper function that calls find_conversation() using data from pinfo
+ *  The frame number and addresses are taken from pinfo.
+ */
+WS_DLL_PUBLIC conversation_t *find_conversation_pinfo(packet_info *pinfo, const guint options);
+
 /**  A helper function that calls find_conversation() and, if a conversation is
  *  not found, calls conversation_new().
  *  The frame number and addresses are taken from pinfo.

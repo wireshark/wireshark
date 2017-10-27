@@ -2578,10 +2578,24 @@ NO_ADDR_B|NO_PORT_B, the "addr_b" address will be treated as matching
 any "wildcarded" address and the "port_b" port will be treated as
 matching any "wildcarded" port.
 
+2.2.1.4 The find_conversation_pinfo function.
 
-2.2.1.4 The find_or_create_conversation function.
+This convenience function will find an existing conversation (by calling
+find_conversation())
 
-This convenience function will create find an existing conversation (by calling
+The find_conversation_pinfo prototype:
+
+    extern conversation_t *find_conversation_pinfo(packet_info *pinfo);
+
+Where:
+    packet_info *pinfo = the packet_info structure
+
+The frame number and the addresses necessary for find_conversation() are
+taken from the pinfo structure (as is commonly done).
+
+2.2.1.5 The find_or_create_conversation function.
+
+This convenience function will find an existing conversation (by calling
 find_conversation()) and, if a conversation does not already exist, create a
 new conversation by calling conversation_new().
 
@@ -2597,7 +2611,7 @@ conversation_new() are taken from the pinfo structure (as is commonly done)
 and no 'options' are used.
 
 
-2.2.1.5 The conversation_add_proto_data function.
+2.2.1.6 The conversation_add_proto_data function.
 
 Once you have created a conversation with conversation_new, you can
 associate data with it using this function.
@@ -2623,7 +2637,7 @@ Using the protocol number allows several dissectors to
 associate data with a given conversation.
 
 
-2.2.1.6 The conversation_get_proto_data function.
+2.2.1.7 The conversation_get_proto_data function.
 
 After you have located a conversation with find_conversation, you can use
 this function to retrieve any data associated with it.
@@ -2642,7 +2656,7 @@ typically in the proto_register_XXXX portion of a dissector.  The function
 returns a pointer to the data requested, or NULL if no data was found.
 
 
-2.2.1.7 The conversation_delete_proto_data function.
+2.2.1.8 The conversation_delete_proto_data function.
 
 After you are finished with a conversation, you can remove your association
 with this function.  Please note that ONLY the conversation entry is
@@ -2661,7 +2675,7 @@ Where:
 is a unique protocol number created with proto_register_protocol,
 typically in the proto_register_XXXX portion of a dissector.
 
-2.2.1.8 The conversation_set_dissector function
+2.2.1.9 The conversation_set_dissector function
 
 This function sets the protocol dissector to be invoked whenever
 conversation parameters (addresses, port_types, ports, etc) are matched

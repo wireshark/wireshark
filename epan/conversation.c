@@ -1231,6 +1231,33 @@ try_conversation_dissector(const address *addr_a, const address *addr_b, const p
 	return FALSE;
 }
 
+/**  A helper function that calls find_conversation() using data from pinfo
+ *  The frame number and addresses are taken from pinfo.
+ */
+conversation_t *
+find_conversation_pinfo(packet_info *pinfo, const guint options)
+{
+	conversation_t *conv=NULL;
+
+	DPRINT(("called for frame #%d: %s:%d -> %s:%d (ptype=%d)",
+		pinfo->num, address_to_str(wmem_packet_scope(), &pinfo->src), pinfo->srcport,
+		address_to_str(wmem_packet_scope(), &pinfo->dst), pinfo->destport, pinfo->ptype));
+	DINDENT();
+
+	/* Have we seen this conversation before? */
+	if((conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
+				     pinfo->ptype, pinfo->srcport,
+				     pinfo->destport, options)) != NULL) {
+		DPRINT(("found previous conversation for frame #%d (last_frame=%d)",
+				pinfo->num, conv->last_frame));
+		if (pinfo->num > conv->last_frame) {
+			conv->last_frame = pinfo->num;
+		}
+	}
+
+	return conv;
+}
+
 /*  A helper function that calls find_conversation() and, if a conversation is
  *  not found, calls conversation_new().
  *  The frame number and addresses are taken from pinfo.
