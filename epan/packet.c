@@ -3319,6 +3319,11 @@ dissector_dump_dissector_tables_display (gpointer key, gpointer user_data _U_)
 	default:
 		break;
 	}
+	if (table->protocol != NULL) {
+		ws_debug_printf("\t%s",
+		    proto_get_protocol_short_name(table->protocol));
+	} else
+		ws_debug_printf("\t(no protocol)");
 	ws_debug_printf("\tDecode As %ssupported",
 	    table->supports_decode_as ? "" : "not ");
 	ws_debug_printf("\n");
