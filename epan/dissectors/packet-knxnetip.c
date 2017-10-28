@@ -933,7 +933,7 @@ static void dissect_apci(tvbuff_t *tvb, guint32 *offset, proto_tree *insert_tree
         switch (type){
             case(A_ADC_RED):
             case(A_ADC_RES):
-                type = (tvb_get_ntohs(tvb, *offset) & 0x2FF);
+                type = (tvb_get_ntohs(tvb, *offset) & 0x1FF);
                 if (type == A_SYS_RED || type == A_SYS_RES || type == A_SYS_WRT || type == A_SYS_BROAD){
                     proto_tree_add_bits_item(insert_tree, hf_knxnetip_cemi_apci, tvb, (*offset*8)+6, 10, ENC_BIG_ENDIAN);
                 }
