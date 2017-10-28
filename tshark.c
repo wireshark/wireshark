@@ -408,7 +408,7 @@ print_usage(FILE *output)
   fprintf(output, "  -K <keytab>              keytab file to use for kerberos decryption\n");
   fprintf(output, "  -G [report]              dump one of several available reports and exit\n");
   fprintf(output, "                           default report=\"fields\"\n");
-  fprintf(output, "                           use \"-G ?\" for more help\n");
+  fprintf(output, "                           use \"-G help\" for more help\n");
 #ifdef __linux__
   fprintf(output, "\n");
   fprintf(output, "WARNING: dumpcap will enable kernel BPF JIT compiler if available.\n");
@@ -876,12 +876,18 @@ main(int argc, char *argv[])
         proto_registrar_dump_protocols();
       else if (strcmp(argv[2], "values") == 0)
         proto_registrar_dump_values();
+      else if (strcmp(argv[2], "help") == 0)
+        glossary_option_help();
+      /* These are supported only for backwards compatibility and may or may not work
+       * for a given user in a given directory on a given operating system with a given
+       * command-line interpreter.
+       */
       else if (strcmp(argv[2], "?") == 0)
         glossary_option_help();
       else if (strcmp(argv[2], "-?") == 0)
         glossary_option_help();
       else {
-        cmdarg_err("Invalid \"%s\" option for -G flag, enter -G ? for more help.", argv[2]);
+        cmdarg_err("Invalid \"%s\" option for -G flag, enter -G help for more help.", argv[2]);
         return 1;
       }
     }
