@@ -60,6 +60,7 @@
 #include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+#include <epan/decode_as.h>
 
 #include "packet-rtp.h"
 
@@ -314,6 +315,11 @@ static gboolean desegment_rtp = TRUE;
 
 /* RFC2198 Redundant Audio Data */
 static guint rtp_rfc2198_pt = 99;
+
+/* Proto data key values */
+#define RTP_CONVERSATION_PROTO_DATA     0
+#define RTP_DECODE_AS_PROTO_DATA        1
+
 
 /*
  * Fields in the first octet of the RTP header.
@@ -865,6 +871,33 @@ static const value_string srtp_auth_alg_vals[] =
     { 0, NULL },
 };
 #endif
+
+static void rtp_prompt(packet_info *pinfo _U_, gchar* result)
+{
+    guint payload_type = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_rtp, RTP_DECODE_AS_PROTO_DATA));
+
+    /* Dynamic payload range, don't expose value as it may change within conversation */
+    if (payload_type > 95)
+    {
+        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "RTP payload type as");
+    }
+    else
+    {
+        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "RTP payload type %d as", payload_type);
+    }
+}
+
+static gpointer rtp_value(packet_info *pinfo)
+{
+    guint payload_type = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_rtp, RTP_DECODE_AS_PROTO_DATA));
+
+    /* Dynamic payload range, don't use value as it may change within conversation */
+    if (payload_type > 95)
+        return GUINT_TO_POINTER(0);
+
+    /* Used fixed value range */
+    return GUINT_TO_POINTER(payload_type);
+}
 
 #ifdef DEBUG_CONVERSATION
 /* Called for each entry in the rtp_dyn_payload hash table. */
@@ -1444,7 +1477,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
     payload_len = tvb_captured_length_remaining(newtvb, offset);
 
     /* first check if this is added as an SRTP stream - if so, don't try to dissector the payload data for now */
-    p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, 0);
+    p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, RTP_CONVERSATION_PROTO_DATA);
     if (p_conv_data && p_conv_data->srtp_info) {
         srtp_info = p_conv_data->srtp_info;
         payload_len -= srtp_info->mki_len + srtp_info->auth_tag_len;
@@ -1564,7 +1597,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint32 seqno;
 
     /* Retrieve RTPs idea of a converation */
-    p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, 0);
+    p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, RTP_CONVERSATION_PROTO_DATA);
 
     if(p_conv_data != NULL)
         finfo = p_conv_data->rtp_conv_info;
@@ -1760,7 +1793,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     struct _rtp_conversation_info *p_conv_data;
 
     /* Retrieve RTPs idea of a converation */
-    p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, 0);
+    p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, RTP_CONVERSATION_PROTO_DATA);
 
     /* Add try to RFC 2198 data */
     rfc2198_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rtp_rfc2198, NULL, "RFC 2198: Redundant Audio Data");
@@ -1783,6 +1816,9 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         octet1 = tvb_get_guint8(tvb, offset);
         hdr_new->pt = RTP_PAYLOAD_TYPE(octet1);
         hdr_follow = (octet1 & 0x80);
+
+        /* Save the payload type for Decode As */
+        p_add_proto_data(pinfo->pool, pinfo, proto_rtp, RTP_DECODE_AS_PROTO_DATA, GUINT_TO_POINTER(hdr_new->pt));
 
         /* if it is dynamic payload, let use the conv data to see if it is defined */
         if ((hdr_new->pt > 95) && (hdr_new->pt < 128)) {
@@ -2073,6 +2109,9 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     octet2 = tvb_get_guint8( tvb, offset + 1 );
     marker_set = RTP_MARKER( octet2 );
     payload_type = RTP_PAYLOAD_TYPE( octet2 );
+
+    /* Save the payload type for Decode As */
+    p_add_proto_data(pinfo->pool, pinfo, proto_rtp, RTP_DECODE_AS_PROTO_DATA, GUINT_TO_POINTER(payload_type));
 
     if (marker_set && payload_type >= FIRST_RTCP_CONFLICT_PAYLOAD_TYPE && payload_type <=  LAST_RTCP_CONFLICT_PAYLOAD_TYPE) {
         call_dissector(rtcp_handle, tvb, pinfo, tree);
@@ -2725,7 +2764,7 @@ get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
     struct _rtp_conversation_info *p_conv_data;
 
     /* Use existing packet info if available */
-    p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, 0);
+    p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, RTP_CONVERSATION_PROTO_DATA);
 
     if (!p_conv_data)
     {
@@ -2757,7 +2796,7 @@ get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
                 p_conv_packet_data->bta2dp_info = p_conv_data->bta2dp_info;
                 p_conv_packet_data->btvdp_info = p_conv_data->btvdp_info;
                 /* XXX: why is this file pool not pinfo->pool? */
-                p_add_proto_data(wmem_file_scope(), pinfo, proto_rtp, 0, p_conv_packet_data);
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_rtp, RTP_CONVERSATION_PROTO_DATA, p_conv_packet_data);
 
                 /* calculate extended sequence number */
                 seqno = calculate_extended_seqno(p_conv_data->extended_seqno,
@@ -2785,7 +2824,7 @@ show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *ti;
 
     /* Use existing packet info if available */
-    p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, 0);
+    p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, RTP_CONVERSATION_PROTO_DATA);
 
     if (!p_conv_data) return;
 
@@ -3751,11 +3790,17 @@ proto_register_rtp(void)
         { &ei_rtp_padding_missing, { "rtp.padding_missing", PI_MALFORMED, PI_ERROR, "Frame has padding, but not all the frame data was captured", EXPFILL }},
     };
 
+    /* Decode As handling */
+    static build_valid_func rtp_da_build_value[1] = {rtp_value};
+    static decode_as_value_t rtp_da_values = {rtp_prompt, 1, rtp_da_build_value};
+    static decode_as_t rtp_da = {"rtp", "RTP payload type", "rtp.pt", 1, 0, &rtp_da_values, NULL, NULL,
+                                decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
     module_t *rtp_module;
     expert_module_t *expert_rtp;
 
-    proto_rtp = proto_register_protocol("Real-Time Transport Protocol",
-                        "RTP", "rtp");
+    proto_rtp = proto_register_protocol("Real-Time Transport Protocol", "RTP", "rtp");
+
     proto_register_field_array(proto_rtp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_rtp = expert_register_protocol(proto_rtp);
@@ -3812,6 +3857,7 @@ proto_register_rtp(void)
                   &addresses_reassembly_table_functions);
 
     register_init_routine(rtp_dyn_payloads_init);
+    register_decode_as(&rtp_da);
 }
 
 void
