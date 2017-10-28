@@ -3319,6 +3319,8 @@ dissector_dump_dissector_tables_display (gpointer key, gpointer user_data _U_)
 	default:
 		break;
 	}
+	ws_debug_printf("\tDecode As %ssupported",
+	    table->supports_decode_as ? "" : "not ");
 	ws_debug_printf("\n");
 }
 
