@@ -564,7 +564,7 @@ gadu_gadu_get_conversation_data(packet_info *pinfo)
 {
 	conversation_t *conv;
 
-	conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	conv = find_conversation_pinfo(pinfo, 0);
 	if (conv)
 		return (struct gadu_gadu_conv_data *)conversation_get_proto_data(conv, hfi_gadu_gadu->id);
 	return NULL;

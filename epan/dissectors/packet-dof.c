@@ -5892,7 +5892,7 @@ static int dissect_dof_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
      * so we can "mirror" that by attaching our own data to that conversation. If our
      * data cannot be found, then it is a new connection (to us).
      */
-    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+    conversation = find_conversation_pinfo(pinfo, 0);
     {
         /* This should be impossible - the TCP dissector requires this conversation.
          * Bail...
@@ -6099,11 +6099,7 @@ static int dissect_tunnel_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     if (!udp_transport_session)
     udp_transport_session = se_alloc0(sizeof(*udp_transport_session));
 
-    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP, pinfo->srcport, pinfo->destport, 0);
-    if (!conversation)
-    {
-        conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP, pinfo->srcport, pinfo->destport, 0);
-    }
+    conversation = find_or_create_conversation(pinfo);
 
     /* Add the packet data. */
     packet = p_get_proto_data(wmem_file_scope(), proto_2012_1_tunnel, 0);
@@ -6145,7 +6141,7 @@ static int dissect_tunnel_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     * so we can "mirror" that by attaching our own data to that conversation. If our
     * data cannot be found, then it is a new connection (to us).
     */
-    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+    conversation = find_conversation_pinfo(pinfo, 0);
     {
         /* This should be impossible - the TCP dissector requires this conversation.
         * Bail...

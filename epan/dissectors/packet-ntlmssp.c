@@ -1874,9 +1874,7 @@ get_sign_key(packet_info *pinfo, int cryptpeer)
   conversation_t *conversation;
   ntlmssp_info   *conv_ntlmssp_info;
 
-  conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                                   pinfo->ptype, pinfo->srcport,
-                                   pinfo->destport, 0);
+  conversation = find_conversation_pinfo(pinfo, 0);
   if (conversation == NULL) {
     /* We don't have a conversation.  In this case, stop processing
        because we do not have enough info to decrypt the payload */
@@ -1914,9 +1912,7 @@ get_encrypted_state(packet_info *pinfo, int cryptpeer)
   conversation_t *conversation;
   ntlmssp_info   *conv_ntlmssp_info;
 
-  conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                                   pinfo->ptype, pinfo->srcport,
-                                   pinfo->destport, 0);
+  conversation = find_conversation_pinfo(pinfo, 0);
   if (conversation == NULL) {
     /* We don't have a conversation.  In this case, stop processing
        because we do not have enough info to decrypt the payload */
@@ -2041,9 +2037,7 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
     ntlmssp_info   *conv_ntlmssp_info;
 
     /* Pull the challenge info from the conversation */
-    conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                                     pinfo->ptype, pinfo->srcport,
-                                     pinfo->destport, 0);
+    conversation = find_conversation_pinfo(pinfo, 0);
     if (conversation == NULL) {
       /* There is no conversation, thus no encryption state */
       return NULL;
@@ -2249,9 +2243,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
     /* We don't have data for this packet */
     return;
   }
-  conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                                   pinfo->ptype, pinfo->srcport,
-                                   pinfo->destport, 0);
+  conversation = find_conversation_pinfo(pinfo, 0);
   if (conversation == NULL) {
     /* There is no conversation, thus no encryption state */
     return;

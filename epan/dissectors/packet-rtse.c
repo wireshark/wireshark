@@ -774,9 +774,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
          (session->spdu_type == SES_MAJOR_SYNC_POINT)))
     {
         /* Use conversation index as fragment id */
-        conversation  = find_conversation (pinfo->num,
-                           &pinfo->src, &pinfo->dst, pinfo->ptype,
-                           pinfo->srcport, pinfo->destport, 0);
+        conversation  = find_conversation_pinfo(pinfo, 0);
         if (conversation != NULL) {
             rtse_id = conversation->conv_index;
         }
@@ -994,7 +992,7 @@ void proto_register_rtse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-rtse-hfarr.c ---*/
-#line 349 "./asn1/rtse/packet-rtse-template.c"
+#line 347 "./asn1/rtse/packet-rtse-template.c"
   };
 
   /* List of subtrees */
@@ -1016,7 +1014,7 @@ void proto_register_rtse(void) {
     &ett_rtse_CallingSSuserReference,
 
 /*--- End of included file: packet-rtse-ettarr.c ---*/
-#line 358 "./asn1/rtse/packet-rtse-template.c"
+#line 356 "./asn1/rtse/packet-rtse-template.c"
   };
 
   static ei_register_info ei[] = {

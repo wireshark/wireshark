@@ -1269,21 +1269,8 @@ find_or_create_conversation(packet_info *pinfo)
 {
 	conversation_t *conv=NULL;
 
-	DPRINT(("called for frame #%d: %s:%d -> %s:%d (ptype=%d)",
-		pinfo->num, address_to_str(wmem_packet_scope(), &pinfo->src), pinfo->srcport,
-		address_to_str(wmem_packet_scope(), &pinfo->dst), pinfo->destport, pinfo->ptype));
-	DINDENT();
-
 	/* Have we seen this conversation before? */
-	if((conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-				     pinfo->ptype, pinfo->srcport,
-				     pinfo->destport, 0)) != NULL) {
-		DPRINT(("found previous conversation for frame #%d (last_frame=%d)",
-				pinfo->num, conv->last_frame));
-		if (pinfo->num > conv->last_frame) {
-			conv->last_frame = pinfo->num;
-		}
-	} else {
+	if((conv = find_conversation_pinfo(pinfo, 0)) == NULL) {
 		/* No, this is a new conversation. */
 		DPRINT(("did not find previous conversation for frame #%d",
 				pinfo->num));

@@ -1283,9 +1283,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
        * If we have a conversation, try to get the handle,
        * and if we get one, attach it to the frame.
        */
-      conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                                       pinfo->ptype, pinfo->srcport,
-                                       pinfo->destport, 0);
+      conversation = find_conversation_pinfo(pinfo, 0);
 
       if (conversation) {
         next_level_value = (gssapi_oid_value *)conversation_get_proto_data(conversation, proto_spnego);

@@ -228,13 +228,7 @@ dissect_soupbintcp_common(
     if (pkt_type == 'S') {
         if (!PINFO_FD_VISITED(pinfo)) {
             /* Get next expected sequence number from conversation */
-            conv = find_conversation(pinfo->num,
-                                     &pinfo->src,
-                                     &pinfo->dst,
-                                     pinfo->ptype,
-                                     pinfo->srcport,
-                                     pinfo->destport,
-                                     0);
+            conv = find_conversation_pinfo(pinfo, 0);
             if (!conv) {
                 this_seq = 0;
             } else {

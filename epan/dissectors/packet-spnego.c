@@ -1735,9 +1735,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
        * If we have a conversation, try to get the handle,
        * and if we get one, attach it to the frame.
        */
-      conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                                       pinfo->ptype, pinfo->srcport,
-                                       pinfo->destport, 0);
+      conversation = find_conversation_pinfo(pinfo, 0);
 
       if (conversation) {
         next_level_value = (gssapi_oid_value *)conversation_get_proto_data(conversation, proto_spnego);
@@ -1936,7 +1934,7 @@ void proto_register_spnego(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-spnego-hfarr.c ---*/
-#line 1391 "./asn1/spnego/packet-spnego-template.c"
+#line 1389 "./asn1/spnego/packet-spnego-template.c"
   };
 
   /* List of subtrees */
@@ -1959,7 +1957,7 @@ void proto_register_spnego(void) {
     &ett_spnego_InitialContextToken_U,
 
 /*--- End of included file: packet-spnego-ettarr.c ---*/
-#line 1401 "./asn1/spnego/packet-spnego-template.c"
+#line 1399 "./asn1/spnego/packet-spnego-template.c"
   };
 
   static ei_register_info ei[] = {

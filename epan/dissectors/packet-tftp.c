@@ -667,8 +667,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       conversation_set_dissector(conversation, tftp_handle);
     }
   } else {
-    conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                                     pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+    conversation = find_conversation_pinfo(pinfo, 0);
     if( (conversation == NULL) || (conversation_get_dissector(conversation, pinfo->num) != tftp_handle) ){
       conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, PT_UDP,
                                       pinfo->destport, pinfo->srcport, 0);

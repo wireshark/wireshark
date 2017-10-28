@@ -128,8 +128,7 @@ register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, const char *oid)
 	pco=wmem_new(wmem_file_scope(), pres_ctx_oid_t);
 	pco->ctx_id=idx;
 	pco->oid=wmem_strdup(wmem_file_scope(), oid);
-	conversation=find_conversation (pinfo->num, &pinfo->src, &pinfo->dst,
-			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	conversation=find_conversation_pinfo(pinfo, 0);
 	if (conversation) {
 		pco->idx = conversation->conv_index;
 	} else {
@@ -169,8 +168,7 @@ find_oid_by_pres_ctx_id(packet_info *pinfo, guint32 idx)
 	conversation_t *conversation;
 
 	pco.ctx_id=idx;
-	conversation=find_conversation (pinfo->num, &pinfo->src, &pinfo->dst,
-			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	conversation=find_conversation_pinfo(pinfo, 0);
 	if (conversation) {
 		pco.idx = conversation->conv_index;
 	} else {

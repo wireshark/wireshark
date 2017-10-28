@@ -518,8 +518,7 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
         packet_info *pi = &cap_file_->edt->pi;
         related_packet_delegate_.setCurrentFrame(pi->num);
         proto_tree_->fillProtocolTree(cap_file_->edt->tree);
-        conversation_t *conv = find_conversation(pi->num, &pi->src, &pi->dst, pi->ptype,
-                                                pi->srcport, pi->destport, 0);
+        conversation_t *conv = find_conversation_pinfo(pi, 0);
         if (conv) {
             related_packet_delegate_.setConversation(conv);
         }

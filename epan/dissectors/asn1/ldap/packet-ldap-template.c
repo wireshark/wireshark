@@ -1764,8 +1764,7 @@ dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
   /*
    * Do we have a conversation for this connection?
    */
-  conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                                   pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+  conversation = find_conversation_pinfo(pinfo, 0);
   if(conversation){
     ldap_info = (ldap_conv_info_t *)conversation_get_proto_data(conversation, proto_ldap);
   }

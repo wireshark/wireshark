@@ -913,8 +913,7 @@ gchar* tcp_follow_conv_filter(packet_info* pinfo, int* stream)
 
     if (((pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) ||
         (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6))
-        && (conv=find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                pinfo->srcport, pinfo->destport, 0)) != NULL )
+        && (conv=find_conversation_pinfo(pinfo, 0)) != NULL )
     {
         /* TCP over IPv4/6 */
         tcpd=get_tcp_conversation_data(conv, pinfo);
@@ -5320,27 +5319,13 @@ dissect_tcpopt_rvbd_trpy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
      */
     if (sport_handle != NULL) {
         conversation_t *conversation;
-        conversation = find_conversation(pinfo->num,
-            &pinfo->src, &pinfo->dst, pinfo->ptype,
-            pinfo->srcport, pinfo->destport, 0);
-        if (conversation == NULL) {
-            conversation = conversation_new(pinfo->num,
-                &pinfo->src, &pinfo->dst, pinfo->ptype,
-                pinfo->srcport, pinfo->destport, 0);
-        }
+        conversation = find_or_create_conversation(pinfo);
         if (conversation_get_dissector(conversation, pinfo->num) != sport_handle) {
             conversation_set_dissector(conversation, sport_handle);
         }
     } else if (data_handle != NULL) {
         conversation_t *conversation;
-        conversation = find_conversation(pinfo->num,
-            &pinfo->src, &pinfo->dst, pinfo->ptype,
-            pinfo->srcport, pinfo->destport, 0);
-        if (conversation == NULL) {
-            conversation = conversation_new(pinfo->num,
-                &pinfo->src, &pinfo->dst, pinfo->ptype,
-                pinfo->srcport, pinfo->destport, 0);
-        }
+        conversation = find_or_create_conversation(pinfo);
         if (conversation_get_dissector(conversation, pinfo->num) != data_handle) {
             conversation_set_dissector(conversation, data_handle);
         }
@@ -5841,9 +5826,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      * in case a new conversation is found and the previous conversation needs
      * to be adjusted,
      */
-    if((conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                     pinfo->ptype, pinfo->srcport,
-                     pinfo->destport, 0)) != NULL) {
+    if((conv = find_conversation_pinfo(pinfo, 0)) != NULL) {
         /* Update how far the conversation reaches */
         if (pinfo->num > conv->last_frame) {
             save_last_frame = conv->last_frame;

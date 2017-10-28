@@ -487,10 +487,7 @@ find_or_create_call_info_conv(packet_info * pinfo)
     conversation_t *conv;
 
     /* assume we're running atop TCP or RTP; use the conversation support */
-    conv = find_conversation( pinfo->num,
-                              &pinfo->src,&pinfo->dst,
-                              pinfo->ptype,
-                              pinfo->srcport,pinfo->destport, 0 );
+    conv = find_conversation_pinfo(pinfo, 0 );
 
     /* both RTP and TCP track their conversations, so just assert here if
      * we can't find one */

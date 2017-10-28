@@ -1247,9 +1247,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				   to which the call was sent. */
 				if (pinfo->ptype == PT_TCP)
 				{
-					conversation = find_conversation(pinfo->num, &pinfo->src,
-					                                 &pinfo->dst, pinfo->ptype, pinfo->srcport,
-					                                 pinfo->destport, 0);
+					conversation = find_conversation_pinfo(pinfo, 0);
 				}
 				else
 				{
@@ -1349,9 +1347,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				 */
 				if (pinfo->ptype == PT_TCP)
 				{
-					conversation = find_conversation(pinfo->num, &pinfo->src,
-					                                 &pinfo->dst, pinfo->ptype, pinfo->srcport,
-					                                 pinfo->destport, 0);
+					conversation = find_conversation_pinfo(pinfo, 0);
 				}
 				else
 				{

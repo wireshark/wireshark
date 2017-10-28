@@ -6665,8 +6665,7 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (global_dcm_reassemble)
     {
 
-        conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                            pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+        conv = find_conversation_pinfo(pinfo, 0);
 
         /* Try to create somewhat unique ID.
            Include the conversation index, to separate TCP session

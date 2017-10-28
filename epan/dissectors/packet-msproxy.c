@@ -204,8 +204,7 @@ static int msproxy_sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree      *msp_tree;
 	proto_item      *ti;
 
-	conversation = find_conversation( pinfo->num, &pinfo->src, &pinfo->dst,
-		pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	conversation = find_conversation_pinfo(pinfo, 0);
 
 	DISSECTOR_ASSERT( conversation);	/* should always find a conversation */
 

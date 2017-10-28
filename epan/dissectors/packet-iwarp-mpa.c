@@ -384,9 +384,7 @@ is_mpa_rep(tvbuff_t *tvb, packet_info *pinfo)
 		return FALSE;
 	}
 
-	conversation = find_conversation(pinfo->num, &pinfo->src,
-			&pinfo->dst, pinfo->ptype, pinfo->srcport,
-			pinfo->destport, 0);
+	conversation = find_conversation_pinfo(pinfo, 0);
 
 	if (!conversation) {
 		return FALSE;
@@ -420,9 +418,7 @@ is_mpa_fpdu(packet_info *pinfo)
 	conversation_t *conversation = NULL;
 	mpa_state_t *state = NULL;
 
-	conversation = find_conversation(pinfo->num, &pinfo->src,
-			&pinfo->dst, pinfo->ptype, pinfo->srcport,
-			pinfo->destport, 0);
+	conversation = find_conversation_pinfo(pinfo, 0);
 
 	if (!conversation) {
 		return FALSE;
@@ -786,8 +782,7 @@ dissect_iwarp_mpa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	/* FPDU */
 	if (tvb_captured_length(tvb) >= MPA_SMALLEST_FPDU_LEN && is_mpa_fpdu(pinfo)) {
 
-		conversation = find_conversation(pinfo->num, &pinfo->src,
-				&pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+		conversation = find_conversation_pinfo(pinfo, 0);
 
 		state = get_mpa_state(conversation);
 

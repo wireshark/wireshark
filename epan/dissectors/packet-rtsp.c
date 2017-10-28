@@ -390,8 +390,7 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
         length_remaining = rf_len;
     next_tvb = tvb_new_subset_length_caplen(tvb, offset, length_remaining, rf_len);
 
-    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-        pinfo->srcport, pinfo->destport, 0);
+    conv = find_conversation_pinfo(pinfo, 0);
 
     if (conv &&
         (data = (rtsp_conversation_data_t *)conversation_get_proto_data(conv, proto_rtsp)) &&

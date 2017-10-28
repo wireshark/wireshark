@@ -103,10 +103,7 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U
 		/*
 		 * Do we have a conversation for this connection?
 		 */
-		conversation = find_conversation(pinfo->num,
-				&pinfo->src, &pinfo->dst,
-				pinfo->ptype,
-				pinfo->srcport, pinfo->destport, 0);
+		conversation = find_conversation_pinfo(pinfo, 0);
 		if (conversation == NULL) {
 			/* No, so just return the rest of the current packet */
 			return tvb_captured_length(tvb);

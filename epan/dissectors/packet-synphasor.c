@@ -510,11 +510,7 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 			conversation_add_proto_data(conversation, proto_synphasor, frame);
 		}
 		else if (DATA == frame_type) {
-			conversation_t *conversation = find_conversation(pinfo->num,
-									 &pinfo->src, &pinfo->dst,
-									 pinfo->ptype,
-									 pinfo->srcport, pinfo->destport,
-									 0);
+			conversation_t *conversation = find_conversation_pinfo(pinfo, 0);
 
 			if (conversation) {
 				config_frame *conf = (config_frame *)conversation_get_proto_data(conversation, proto_synphasor);

@@ -644,8 +644,7 @@ static int dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-    conv = find_conversation (pinfo->num, &pinfo->src, &pinfo->dst,
-                              pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+    conv = find_conversation_pinfo(pinfo, 0);
     if (conv) {
         /* Found a conversation, also use index for the generated dst_ref */
         dst_ref = conv->conv_index;
@@ -927,7 +926,7 @@ void proto_register_idmp(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-idmp-hfarr.c ---*/
-#line 312 "./asn1/idmp/packet-idmp-template.c"
+#line 311 "./asn1/idmp/packet-idmp-template.c"
     };
 
     /* List of subtrees */
@@ -950,7 +949,7 @@ void proto_register_idmp(void)
     &ett_idmp_InvokeId,
 
 /*--- End of included file: packet-idmp-ettarr.c ---*/
-#line 320 "./asn1/idmp/packet-idmp-template.c"
+#line 319 "./asn1/idmp/packet-idmp-template.c"
     };
     module_t *idmp_module;
 

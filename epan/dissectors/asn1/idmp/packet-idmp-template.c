@@ -158,8 +158,7 @@ static int dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-    conv = find_conversation (pinfo->num, &pinfo->src, &pinfo->dst,
-                              pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+    conv = find_conversation_pinfo(pinfo, 0);
     if (conv) {
         /* Found a conversation, also use index for the generated dst_ref */
         dst_ref = conv->conv_index;

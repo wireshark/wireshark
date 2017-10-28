@@ -1311,9 +1311,7 @@ dissect_rpc_opaque_auth(tvbuff_t* tvb, proto_tree* tree, int offset,
 	rpc_conv_info_t *conv_info = NULL;
 
 	if (pinfo->ptype == PT_TCP)
-		conv = find_conversation(pinfo->num, &pinfo->src,
-				&pinfo->dst, pinfo->ptype, pinfo->srcport,
-				pinfo->destport, 0);
+		conv = find_conversation_pinfo(pinfo, 0);
 
 	if (conv)
 		conv_info = (rpc_conv_info_t *)conversation_get_proto_data(conv,
@@ -1655,9 +1653,7 @@ get_conversation_for_call(packet_info *pinfo)
 	 * the original request.
 	 */
 	if (pinfo->ptype == PT_TCP || pinfo->ptype == PT_IBQP) {
-		conversation = find_conversation(pinfo->num,
-		    &pinfo->src, &pinfo->dst, pinfo->ptype,
-		    pinfo->srcport, pinfo->destport, 0);
+		conversation = find_conversation_pinfo(pinfo, 0);
 	} else {
 		/*
 		 * XXX - you currently still have to pass a non-null
@@ -1709,9 +1705,7 @@ find_conversation_for_reply(packet_info *pinfo)
 	 * might be sent to different ports.
 	 */
 	if (pinfo->ptype == PT_TCP || pinfo->ptype == PT_IBQP) {
-		conversation = find_conversation(pinfo->num,
-		    &pinfo->src, &pinfo->dst, pinfo->ptype,
-		    pinfo->srcport, pinfo->destport, 0);
+		conversation = find_conversation_pinfo(pinfo, 0);
 	} else {
 		/*
 		 * XXX - you currently still have to pass a non-null
@@ -1752,9 +1746,7 @@ get_conversation_for_tcp(packet_info *pinfo)
 	 * not wildcard either address or port, regardless of whether
 	 * this is a call or reply.
 	 */
-	conversation = find_conversation(pinfo->num,
-	    &pinfo->src, &pinfo->dst, pinfo->ptype,
-	    pinfo->srcport, pinfo->destport, 0);
+	conversation = find_conversation_pinfo(pinfo, 0);
 	if (conversation == NULL) {
 		/*
 		 * It's not part of any conversation - create a new one.

@@ -4542,8 +4542,7 @@ dissect_dcerpc_cn_rqst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
      */
     dissect_dcerpc_cn_auth(tvb, offset, pinfo, dcerpc_tree, hdr, &auth_info);
 
-    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                             pinfo->srcport, pinfo->destport, 0);
+    conv = find_conversation_pinfo(pinfo, 0);
     if (!conv)
         show_stub_data(pinfo, tvb, offset, dcerpc_tree, &auth_info, TRUE);
     else {
@@ -4707,8 +4706,7 @@ dissect_dcerpc_cn_resp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
      */
     dissect_dcerpc_cn_auth(tvb, offset, pinfo, dcerpc_tree, hdr, &auth_info);
 
-    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                             pinfo->srcport, pinfo->destport, 0);
+    conv = find_conversation_pinfo(pinfo, 0);
 
     if (!conv) {
         /* no point in creating one here, really */
@@ -4877,8 +4875,7 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         length = reported_length;
     stub_tvb = tvb_new_subset_length_caplen(tvb, offset, length, reported_length);
 
-    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                             pinfo->srcport, pinfo->destport, 0);
+    conv = find_conversation_pinfo(pinfo, 0);
     if (!conv) {
         /* no point in creating one here, really */
     } else {

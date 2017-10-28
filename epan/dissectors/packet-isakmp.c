@@ -4391,9 +4391,7 @@ dissect_ikev2_fragmentation(tvbuff_t *tvb, int offset, proto_tree *tree,
   if (fragment_number == total_fragments) {
     if (!pinfo->fd->flags.visited) {
       /* On first pass, get it from the conversation info */
-      conversation_t *p_conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                                                 pinfo->ptype, pinfo->srcport,
-                                                 pinfo->destport, 0);
+      conversation_t *p_conv = find_conversation_pinfo(pinfo, 0);
       if (p_conv != NULL) {
         ikev2_fragmentation_state_t *p_state = (ikev2_fragmentation_state_t*)conversation_get_proto_data(p_conv, proto_isakmp);
         if (p_state != NULL) {

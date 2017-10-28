@@ -335,8 +335,7 @@ socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     proto_tree         *socks_tree;
     proto_item         *ti;
 
-    conversation = find_conversation( pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-        pinfo->srcport, pinfo->destport, 0);
+    conversation = find_conversation_pinfo( pinfo, 0);
 
     DISSECTOR_ASSERT( conversation);    /* should always find a conversation */
 
@@ -1003,8 +1002,7 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     if (state_info->in_socks_dissector_flag)
         return 0;
 
-    conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                     pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+    conversation = find_conversation_pinfo(pinfo, 0);
     if (conversation == NULL) {
         /* If we don't already have a conversation, make sure the first
            byte is a valid version number */

@@ -975,9 +975,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
         cotp_frame_reset = FALSE;
         cotp_last_fragment = fragment;
         dst_ref = cotp_dst_ref;
-        conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                                 pinfo->ptype, pinfo->srcport, pinfo->destport,
-                                 0);
+        conv = find_conversation_pinfo(pinfo, 0);
         if (conv) {
           /* Found a conversation, also use index for the generated dst_ref */
           dst_ref += (conv->conv_index << 16);

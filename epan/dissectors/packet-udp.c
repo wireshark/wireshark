@@ -428,8 +428,7 @@ static gchar* udp_follow_conv_filter(packet_info *pinfo, int* stream)
 
     if( ((pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) ||
             (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6))
-          && (conv=find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-              pinfo->srcport, pinfo->destport, 0)) != NULL )
+          && (conv=find_conversation_pinfo(pinfo, 0)) != NULL )
     {
         /* UDP over IPv4/6 */
         udpd=get_udp_conversation_data(conv, pinfo);

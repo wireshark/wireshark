@@ -4682,8 +4682,7 @@ dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
   /*
    * Do we have a conversation for this connection?
    */
-  conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                                   pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+  conversation = find_conversation_pinfo(pinfo, 0);
   if(conversation){
     ldap_info = (ldap_conv_info_t *)conversation_get_proto_data(conversation, proto_ldap);
   }
@@ -5639,7 +5638,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2156 "./asn1/ldap/packet-ldap-template.c"
+#line 2155 "./asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5713,7 +5712,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2170 "./asn1/ldap/packet-ldap-template.c"
+#line 2169 "./asn1/ldap/packet-ldap-template.c"
   };
   /* UAT for header fields */
   static uat_field_t custom_attribute_types_uat_fields[] = {
@@ -5901,7 +5900,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2341 "./asn1/ldap/packet-ldap-template.c"
+#line 2340 "./asn1/ldap/packet-ldap-template.c"
 
  dissector_add_uint_range_with_preference("tcp.port", TCP_PORT_RANGE_LDAP, ldap_handle);
 }

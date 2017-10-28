@@ -5125,9 +5125,7 @@ dissect_tn5250(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
   int sna_flag;
 
   /* Do we have a conversation for this connection? */
-  conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                                   pinfo->ptype, pinfo->srcport,
-                                   pinfo->destport, 0);
+  conversation = find_conversation_pinfo(pinfo, 0);
   if (conversation != NULL) {
     /* Do we already have a type and mechanism? */
     tn5250_info = (tn5250_conv_info_t *)conversation_get_proto_data(conversation, proto_tn5250);
@@ -5203,9 +5201,7 @@ find_tn5250_conversation(packet_info *pinfo)
   /*
    * Do we have a conversation for this connection?
    */
-  conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                                   pinfo->ptype, pinfo->srcport,
-                                   pinfo->destport, 0);
+  conversation = find_conversation_pinfo(pinfo, 0);
 
   if (conversation != NULL) {
     tn5250_info = (tn5250_conv_info_t *)conversation_get_proto_data(conversation, proto_tn5250);

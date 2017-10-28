@@ -746,17 +746,8 @@ Common_Exit:
 **/
 static jxta_stream_conversation_data *get_tpt_conversation(packet_info * pinfo)
 {
-    conversation_t *tpt_conversation =
-        find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+    conversation_t *tpt_conversation = find_or_create_conversation(pinfo);
     jxta_stream_conversation_data *tpt_conv_data;
-
-    if (tpt_conversation == NULL) {
-        /*
-         * No conversation exists yet - create one.
-         */
-        tpt_conversation =
-            conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-    }
 
     conversation_set_dissector(tpt_conversation, stream_jxta_handle);
 

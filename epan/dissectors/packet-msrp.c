@@ -426,15 +426,9 @@ dissect_msrp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
          */
         if (pinfo->fd->flags.visited){
             /* Look for existing conversation */
-            conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                pinfo->srcport, pinfo->destport, 0);
-            /* Create new one if not found */
-            if (conversation == NULL){
-                conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
-                    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-                /* Set dissector */
-                conversation_set_dissector(conversation, msrp_handle);
-            }
+            conversation = find_or_create_conversation(pinfo);
+            /* Set dissector */
+            conversation_set_dissector(conversation, msrp_handle);
         }
         dissect_msrp(tvb, pinfo, tree, NULL);
         return TRUE;

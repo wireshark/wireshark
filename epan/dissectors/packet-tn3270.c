@@ -5248,9 +5248,7 @@ dissect_tn3270(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
   pinfo->fd->flags.encoding = PACKET_CHAR_ENC_CHAR_EBCDIC;
 
   /* Do we have a conversation for this connection? */
-  conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                                   pinfo->ptype, pinfo->srcport,
-                                   pinfo->destport, 0);
+  conversation = find_conversation_pinfo(pinfo, 0);
   if (conversation != NULL) {
     /* Do we already have a type and mechanism? */
     tn3270_info = (tn3270_conv_info_t *)conversation_get_proto_data(conversation, proto_tn3270);
@@ -5354,9 +5352,7 @@ find_tn3270_conversation(packet_info *pinfo)
   /*
    * Do we have a conversation for this connection?
    */
-  conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                                   pinfo->ptype, pinfo->srcport,
-                                   pinfo->destport, 0);
+  conversation = find_conversation_pinfo(pinfo, 0);
   if (conversation != NULL) {
     tn3270_info = (tn3270_conv_info_t *)conversation_get_proto_data(conversation, proto_tn3270);
     if (tn3270_info != NULL) {
