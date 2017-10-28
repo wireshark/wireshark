@@ -469,10 +469,15 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       offset += 4;
       mcs_index = tvb_get_ntohs(tvb, offset);
       extflags = tvb_get_ntohl(tvb, offset+12);
-      if (extflags & EXT_FLAG_802_11ac)
+      if (extflags & EXT_FLAG_802_11ac) {
         proto_tree_add_item(peekremote_tree, &hfi_peekremote_mcs_index_ac, tvb, offset, 2, ENC_BIG_ENDIAN);
-      else
+        phdr.phy = PHDR_802_11_PHY_11AC;
+      } else {
         proto_tree_add_item(peekremote_tree, &hfi_peekremote_mcs_index, tvb, offset, 2, ENC_BIG_ENDIAN);
+        phdr.phy = PHDR_802_11_PHY_11N;
+        phdr.phy_info.info_11n.has_mcs_index = TRUE;
+        phdr.phy_info.info_11n.mcs_index = mcs_index;
+      }
       offset += 2;
       phdr.has_channel = TRUE;
       phdr.channel = tvb_get_ntohs(tvb, offset);
@@ -487,17 +492,6 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       offset += 4;
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_band, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset +=4;
-      if (extflags & EXT_FLAG_802_11ac) {
-        guint i;
-        phdr.phy = PHDR_802_11_PHY_11AC;
-        for (i = 0; i < 4; i++) {
-          phdr.phy_info.info_11ac.nss[i] = 0;
-        }
-      } else {
-        phdr.phy = PHDR_802_11_PHY_11N;
-        phdr.phy_info.info_11n.has_mcs_index = TRUE;
-        phdr.phy_info.info_11n.mcs_index = mcs_index;
-      }
       offset += dissect_peekremote_extflags(tvb, pinfo, peekremote_tree, offset);
       phdr.has_signal_percent = TRUE;
       phdr.signal_percent = tvb_get_guint8(tvb, offset);
