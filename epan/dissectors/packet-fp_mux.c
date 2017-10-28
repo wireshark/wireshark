@@ -308,7 +308,7 @@ static int heur_dissect_fp_mux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         chunks++;
     }
 
-    if(total_length > offset) {
+    if(offset > total_length) {
         return FALSE;
     }
 
