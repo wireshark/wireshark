@@ -2063,6 +2063,8 @@ dissect_l2_neighbor_device(tvbuff_t *tvb, packet_info *pinfo _U_,
                 behind_mac_addr_index++;
             }
 
+            neighbor_device_index++;
+
             proto_item_set_len(bmpi, offset - ndt_start_offset);
 
         }
