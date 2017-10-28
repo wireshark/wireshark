@@ -609,7 +609,7 @@ static const value_string q931_repeat_indication_vals[] = {
  * ITU-standardized coding.
  */
 #define Q931_ITU_STANDARDIZED_CODING    0x00
-#define Q931_ISO_IEC_STANDARDIZED_CODING     0x01
+#define Q931_ISO_IEC_STANDARDIZED_CODING     0x20
 
 /*
  * Dissect a Segmented message information element.
