@@ -204,6 +204,8 @@ wmem_map_t * get_conversation_hashtable_no_port2(void);
 WS_DLL_PUBLIC
 wmem_map_t *get_conversation_hashtable_no_addr2_or_port2(void);
 
+WS_DLL_PUBLIC guint
+conversation_hash_exact(gconstpointer v);
 
 #ifdef __cplusplus
 }

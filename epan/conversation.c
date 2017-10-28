@@ -162,7 +162,7 @@ conversation_create_from_template(conversation_t *conversation, const address *a
 /* http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx#existing
  * One-at-a-Time hash
  */
-static guint
+guint
 conversation_hash_exact(gconstpointer v)
 {
 	const conversation_key *key = (const conversation_key *)v;

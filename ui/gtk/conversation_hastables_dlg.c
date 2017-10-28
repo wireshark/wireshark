@@ -40,65 +40,6 @@ static GtkWidget *conversation_hastables_dlg_w = NULL;
 
 #define CONV_STR_BUF_MAX 1024
 
-/*
- * Compute the hash value for two given address/port pairs if the match
- * is to be exact.
- */
-/* http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx#existing
- * One-at-a-Time hash
- */
-static guint
-conversation_hash_exact(gconstpointer v)
-{
-    const conversation_key *key = (const conversation_key *)v;
-    guint hash_val;
-    int i;
-    const guint8 *add_address_to_hash_data;
-
-    hash_val = 0;
-#if 0
-    hash_val = add_address_to_hash(hash_val, &key->addr1);
-    hash_val += key->port1;
-    hash_val = add_address_to_hash(hash_val, &key->addr2);
-    hash_val += key->port2;
-
-    return hash_val;
-#endif
-    for ( i = 0; i < key->addr1.len; i++ ) {
-        add_address_to_hash_data = (const guint8 *)((&key->addr1)->data);
-        hash_val += add_address_to_hash_data[i];
-        hash_val += ( hash_val << 10 );
-        hash_val ^= ( hash_val >> 6 );
-    }
-
-    for ( i = 0; i < 4; i++ ) {
-        add_address_to_hash_data = (const guint8 *)(&key->port1);
-        hash_val += add_address_to_hash_data[i];
-        hash_val += ( hash_val << 10 );
-        hash_val ^= ( hash_val >> 6 );
-    }
-
-    for ( i = 0; i < key->addr2.len; i++ ) {
-        add_address_to_hash_data = (const guint8 *)((&key->addr2)->data);
-        hash_val += add_address_to_hash_data[i];
-        hash_val += ( hash_val << 10 );
-        hash_val ^= ( hash_val >> 6 );
-    }
-
-    for ( i = 0; i < 4; i++ ) {
-        add_address_to_hash_data = (const guint8 *)(&key->port2);
-        hash_val += add_address_to_hash_data[i];
-        hash_val += ( hash_val << 10 );
-        hash_val ^= ( hash_val >> 6 );
-    }
-
-    hash_val += ( hash_val << 3 );
-    hash_val ^= ( hash_val >> 11 );
-    hash_val += ( hash_val << 15 );
-
-    return hash_val;
-}
-
 static guint
 conversation_hash_exact_old(gconstpointer v)
 {

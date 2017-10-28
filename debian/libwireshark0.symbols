@@ -155,6 +155,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  conversation_filter_from_packet@Base 2.2.8
  conversation_get_dissector@Base 2.0.0
  conversation_get_proto_data@Base 1.9.1
+ conversation_hash_exact@Base 2.5.0
  conversation_new@Base 1.9.1
  conversation_set_dissector@Base 1.9.1
  conversation_set_dissector_from_frame_number@Base 2.0.0
