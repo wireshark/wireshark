@@ -1016,21 +1016,28 @@ dissector_add_uint(const char *name, const guint32 pattern, dissector_handle_t h
 
 
 
-void dissector_add_uint_range(const char *abbrev, range_t *range,
+void dissector_add_uint_range(const char *name, range_t *range,
 			      dissector_handle_t handle)
 {
+	dissector_table_t  sub_dissectors;
 	guint32 i, j;
 
 	if (range) {
 		if (range->nranges == 0) {
-			/* Even an empty range would want a chance for Decode As */
-			dissector_add_for_decode_as(abbrev, handle);
+			/*
+			 * Even an empty range would want a chance for
+			 * Decode As, if the dissector table supports
+			 * it.
+			 */
+			sub_dissectors = find_dissector_table(name);
+			if (sub_dissectors->supports_decode_as)
+				dissector_add_for_decode_as(name, handle);
 		}
 		else {
 			for (i = 0; i < range->nranges; i++) {
 				for (j = range->ranges[i].low; j < range->ranges[i].high; j++)
-					dissector_add_uint(abbrev, j, handle);
-				dissector_add_uint(abbrev, range->ranges[i].high, handle);
+					dissector_add_uint(name, j, handle);
+				dissector_add_uint(name, range->ranges[i].high, handle);
 			}
 		}
 	}
@@ -1071,13 +1078,13 @@ void dissector_add_uint_with_preference(const char *name, const guint32 pattern,
 	dissector_add_uint(name, pattern, handle);
 }
 
-void dissector_add_uint_range_with_preference(const char *abbrev, const char* range_str,
+void dissector_add_uint_range_with_preference(const char *name, const char* range_str,
     dissector_handle_t handle)
 {
 	range_t** range;
 	module_t *module;
 	gchar *description, *title;
-	dissector_table_t  pref_dissector_table = find_dissector_table( abbrev);
+	dissector_table_t  pref_dissector_table = find_dissector_table( name);
 	int proto_id = proto_get_id(handle->protocol);
 	guint32 max_value = 0;
 
@@ -1096,7 +1103,7 @@ void dissector_add_uint_range_with_preference(const char *abbrev, const char* ra
 	/* Some preference callback functions use the proto_reg_handoff_
 		routine to apply preferences, which could duplicate the
 		registration of a preference.  Check for that here */
-	if (prefs_find_preference(module, abbrev) == NULL) {
+	if (prefs_find_preference(module, name) == NULL) {
 		description = wmem_strdup_printf(wmem_epan_scope(), "%s %s(s)",
 									    proto_get_protocol_short_name(handle->protocol), pref_dissector_table->ui_name);
 		title = wmem_strdup_printf(wmem_epan_scope(), "%s(s)", pref_dissector_table->ui_name);
@@ -1118,15 +1125,15 @@ void dissector_add_uint_range_with_preference(const char *abbrev, const char* ra
 			break;
 
 		default:
-			g_error("The dissector table %s (%s) is not an integer type - are you using a buggy plugin?", abbrev, pref_dissector_table->ui_name);
+			g_error("The dissector table %s (%s) is not an integer type - are you using a buggy plugin?", name, pref_dissector_table->ui_name);
 			g_assert_not_reached();
 		}
 
 		range_convert_str(wmem_epan_scope(), range, range_str, max_value);
-		prefs_register_decode_as_range_preference(module, abbrev, title, description, range, max_value);
+		prefs_register_decode_as_range_preference(module, name, title, description, range, max_value);
 	}
 
-	dissector_add_uint_range(abbrev, *range, handle);
+	dissector_add_uint_range(name, *range, handle);
 }
 
 /* Delete the entry for a dissector in a uint dissector table
@@ -1161,7 +1168,7 @@ dissector_delete_uint(const char *name, const guint32 pattern,
 	}
 }
 
-void dissector_delete_uint_range(const char *abbrev, range_t *range,
+void dissector_delete_uint_range(const char *name, range_t *range,
 				 dissector_handle_t handle)
 {
 	guint32 i, j;
@@ -1169,8 +1176,8 @@ void dissector_delete_uint_range(const char *abbrev, range_t *range,
 	if (range) {
 		for (i = 0; i < range->nranges; i++) {
 			for (j = range->ranges[i].low; j < range->ranges[i].high; j++)
-				dissector_delete_uint(abbrev, j, handle);
-			dissector_delete_uint(abbrev, range->ranges[i].high, handle);
+				dissector_delete_uint(name, j, handle);
+			dissector_delete_uint(name, range->ranges[i].high, handle);
 		}
 	}
 }
