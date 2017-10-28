@@ -61,15 +61,13 @@ ConversationHashTablesDialog::~ConversationHashTablesDialog()
 static void
 populate_html_table(gpointer data, gpointer user_data)
 {
-    const conversation_key *conv_key = (const conversation_key *)data;
+    const conversation_key_t conv_key = (const conversation_key_t)data;
     QString* html_table = (QString*)user_data;
+    gchar* tmp = conversation_get_html_hash(conv_key);
 
     // XXX Add a column for the hash value.
-    (*html_table) += QString("<tr><td>%1</td><td>%2</td><td>%3</td><td>%4</td></tr>\n")
-                    .arg(address_to_qstring(&conv_key->addr1))
-                    .arg(conv_key->port1)
-                    .arg(address_to_qstring(&conv_key->addr2))
-                    .arg(conv_key->port2);
+    (*html_table) += QString(tmp);
+    wmem_free(NULL, tmp);
 }
 
 const QString ConversationHashTablesDialog::hashTableToHtmlTable(const QString table_name, wmem_map_t *hash_table)

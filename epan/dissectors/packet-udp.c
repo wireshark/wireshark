@@ -490,9 +490,9 @@ add_udp_process_info(guint32 frame_num, address *local_addr, address *remote_add
     return;
   }
 
-  if ((cmp_address(local_addr, &conv->key_ptr->addr1) == 0) && (local_port == conv->key_ptr->port1)) {
+  if ((cmp_address(local_addr, conversation_key_addr1(conv->key_ptr)) == 0) && (local_port == conversation_key_port1(conv->key_ptr))) {
     flow = &udpd->flow1;
-  } else if ((cmp_address(remote_addr, &conv->key_ptr->addr1) == 0) && (remote_port == conv->key_ptr->port1)) {
+  } else if ((cmp_address(remote_addr, conversation_key_addr1(conv->key_ptr)) == 0) && (remote_port == conversation_key_port1(conv->key_ptr))) {
     flow = &udpd->flow2;
   }
   if (!flow || flow->command) {

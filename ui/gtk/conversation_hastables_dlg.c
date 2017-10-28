@@ -45,10 +45,8 @@ conversation_hashtable_exact_to_texbuff(gpointer key, gpointer value _U_, gpoint
 {
     gchar string_buff[CONV_STR_BUF_MAX];
     GtkTextBuffer *buffer = (GtkTextBuffer*)user_data;
-    /*conversation_t *conversation = (conversation_t *)value;*/
-    conversation_key *conv_key = (conversation_key*)key;
 
-    g_snprintf(string_buff, CONV_STR_BUF_MAX, "Key:0x%x\n",conversation_hash_exact(conv_key));
+    g_snprintf(string_buff, CONV_STR_BUF_MAX, "Key:0x%x\n",conversation_hash_exact(key));
 
     gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 

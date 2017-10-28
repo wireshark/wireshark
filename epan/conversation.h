@@ -60,14 +60,8 @@ extern "C" {
 /**
  * Data structure representing a conversation.
  */
-typedef struct conversation_key {
-	struct conversation_key *next;
-	address	addr1;
-	address	addr2;
-	port_type ptype;
-	guint32	port1;
-	guint32	port2;
-} conversation_key;
+struct conversation_key;
+typedef struct conversation_key* conversation_key_t;
 
 typedef struct conversation {
 	struct conversation *next;	/** pointer to next conversation on hash chain */
@@ -82,8 +76,14 @@ typedef struct conversation {
 	wmem_tree_t *dissector_tree;
 								/** tree containing protocol dissector client associated with conversation */
 	guint	options;			/** wildcard flags */
-	conversation_key *key_ptr;	/** pointer to the key for this conversation */
+	conversation_key_t key_ptr;	/** pointer to the key for this conversation */
 } conversation_t;
+
+
+WS_DLL_PUBLIC address* conversation_key_addr1(const conversation_key_t key);
+WS_DLL_PUBLIC address* conversation_key_addr2(const conversation_key_t key);
+WS_DLL_PUBLIC guint32 conversation_key_port1(const conversation_key_t key);
+WS_DLL_PUBLIC guint32 conversation_key_port2(const conversation_key_t key);
 
 /**
  * Create a new hash tables for conversations.
@@ -206,6 +206,10 @@ wmem_map_t *get_conversation_hashtable_no_addr2_or_port2(void);
 
 WS_DLL_PUBLIC guint
 conversation_hash_exact(gconstpointer v);
+
+/* Provide a wmem_alloced (NULL scope) hash string using HTML tags */
+WS_DLL_PUBLIC gchar*
+conversation_get_html_hash(const conversation_key_t key);
 
 #ifdef __cplusplus
 }

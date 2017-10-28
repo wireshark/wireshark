@@ -36,6 +36,15 @@
 int _debug_conversation_indent = 0;
 #endif
 
+struct conversation_key {
+	struct conversation_key *next;
+	address	addr1;
+	address	addr2;
+	port_type ptype;
+	guint32	port1;
+	guint32	port2;
+};
+
 /*
  * Hash table for conversations with no wildcards.
  */
@@ -165,7 +174,7 @@ conversation_create_from_template(conversation_t *conversation, const address *a
 guint
 conversation_hash_exact(gconstpointer v)
 {
-	const conversation_key *key = (const conversation_key *)v;
+	const conversation_key_t key = (const conversation_key_t)v;
 	guint hash_val;
 	address tmp_addr;
 
@@ -195,8 +204,8 @@ conversation_hash_exact(gconstpointer v)
 static gint
 conversation_match_exact(gconstpointer v, gconstpointer w)
 {
-	const conversation_key *v1 = (const conversation_key *)v;
-	const conversation_key *v2 = (const conversation_key *)w;
+	const conversation_key_t v1 = (const conversation_key_t)v;
+	const conversation_key_t v2 = (const conversation_key_t)w;
 
 	if (v1->ptype != v2->ptype)
 		return 0;	/* different types of port */
@@ -248,7 +257,7 @@ conversation_match_exact(gconstpointer v, gconstpointer w)
 static guint
 conversation_hash_no_addr2(gconstpointer v)
 {
-	const conversation_key *key = (const conversation_key *)v;
+	const conversation_key_t key = (const conversation_key_t)v;
 	guint hash_val;
 	address tmp_addr;
 
@@ -279,8 +288,8 @@ conversation_hash_no_addr2(gconstpointer v)
 static gint
 conversation_match_no_addr2(gconstpointer v, gconstpointer w)
 {
-	const conversation_key *v1 = (const conversation_key *)v;
-	const conversation_key *v2 = (const conversation_key *)w;
+	const conversation_key_t v1 = (const conversation_key_t)v;
+	const conversation_key_t v2 = (const conversation_key_t)w;
 
 	if (v1->ptype != v2->ptype)
 		return 0;	/* different types of port */
@@ -313,7 +322,7 @@ conversation_match_no_addr2(gconstpointer v, gconstpointer w)
 static guint
 conversation_hash_no_port2(gconstpointer v)
 {
-	const conversation_key *key = (const conversation_key *)v;
+	const conversation_key_t key = (const conversation_key_t)v;
 	guint hash_val;
 	address tmp_addr;
 
@@ -343,8 +352,8 @@ conversation_hash_no_port2(gconstpointer v)
 static gint
 conversation_match_no_port2(gconstpointer v, gconstpointer w)
 {
-	const conversation_key *v1 = (const conversation_key *)v;
-	const conversation_key *v2 = (const conversation_key *)w;
+	const conversation_key_t v1 = (const conversation_key_t)v;
+	const conversation_key_t v2 = (const conversation_key_t)w;
 
 	if (v1->ptype != v2->ptype)
 		return 0;	/* different types of port */
@@ -377,7 +386,7 @@ conversation_match_no_port2(gconstpointer v, gconstpointer w)
 static guint
 conversation_hash_no_addr2_or_port2(gconstpointer v)
 {
-	const conversation_key *key = (const conversation_key *)v;
+	const conversation_key_t key = (const conversation_key_t)v;
 	guint hash_val;
 	address tmp_addr;
 
@@ -405,8 +414,8 @@ conversation_hash_no_addr2_or_port2(gconstpointer v)
 static gint
 conversation_match_no_addr2_or_port2(gconstpointer v, gconstpointer w)
 {
-	const conversation_key *v1 = (const conversation_key *)v;
-	const conversation_key *v2 = (const conversation_key *)w;
+	const conversation_key_t v1 = (const conversation_key_t)v;
+	const conversation_key_t v2 = (const conversation_key_t)w;
 
 	if (v1->ptype != v2->ptype)
 		return 0;	/* different types of port */
@@ -606,7 +615,7 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 */
 	wmem_map_t* hashtable;
 	conversation_t *conversation=NULL;
-	conversation_key *new_key;
+	conversation_key_t new_key;
 
 	DPRINT(("creating conversation for frame #%d: %s:%d -> %s:%d (ptype=%d)",
 		    setup_frame, address_to_str(wmem_packet_scope(), addr1), port1,
@@ -737,7 +746,7 @@ conversation_lookup_hashtable(wmem_map_t *hashtable, const guint32 frame_num, co
 	conversation_t* convo=NULL;
 	conversation_t* match=NULL;
 	conversation_t* chain_head=NULL;
-	conversation_key key;
+	struct conversation_key key;
 
 	/*
 	 * We don't make a copy of the address data, we just copy the
@@ -1308,6 +1317,45 @@ wmem_map_t *
 get_conversation_hashtable_no_addr2_or_port2(void)
 {
 	return conversation_hashtable_no_addr2_or_port2;
+}
+
+address*
+conversation_key_addr1(const conversation_key_t key)
+{
+	return &key->addr1;
+}
+
+address*
+conversation_key_addr2(const conversation_key_t key)
+{
+	return &key->addr2;
+}
+
+guint32
+conversation_key_port1(const conversation_key_t key)
+{
+	return key->port1;
+}
+
+guint32
+conversation_key_port2(const conversation_key_t key)
+{
+	return key->port2;
+}
+
+gchar*
+conversation_get_html_hash(const conversation_key_t key)
+{
+	gchar *hash, *addr1, *addr2;
+
+	addr1 = address_to_str(NULL, &key->addr1);
+	addr2 = address_to_str(NULL, &key->addr2);
+	hash = wmem_strdup_printf(NULL, "<tr><td>%s</td><td>%d</td><td>%s</td><td>%d</td></tr>\n",
+							addr1, key->port1, addr2, key->port2);
+	wmem_free(NULL, addr1);
+	wmem_free(NULL, addr2);
+
+	return hash;
 }
 
 /*

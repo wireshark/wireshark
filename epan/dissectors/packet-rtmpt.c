@@ -2305,10 +2305,10 @@ dissect_rtmpt_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
                 rconv = rtmpt_init_rconv(conv);
         }
 
-        cdir = (addresses_equal(&conv->key_ptr->addr1, &pinfo->src) &&
-                addresses_equal(&conv->key_ptr->addr2, &pinfo->dst) &&
-                conv->key_ptr->port1 == pinfo->srcport &&
-                conv->key_ptr->port2 == pinfo->destport) ? 0 : 1;
+        cdir = (addresses_equal(conversation_key_addr1(conv->key_ptr), &pinfo->src) &&
+                addresses_equal(conversation_key_addr2(conv->key_ptr), &pinfo->dst) &&
+                conversation_key_port1(conv->key_ptr) == pinfo->srcport &&
+                conversation_key_port2(conv->key_ptr) == pinfo->destport) ? 0 : 1;
 
         dissect_rtmpt_common(tvb, pinfo, tree, rconv, cdir, tcpinfo->seq, tcpinfo->lastackseq);
         return tvb_reported_length(tvb);

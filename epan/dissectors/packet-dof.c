@@ -5667,10 +5667,10 @@ static tcp_session_data* create_tcp_session_data(packet_info *pinfo, conversatio
 {
     tcp_session_data *packet = wmem_new0(wmem_file_scope(), tcp_session_data);
 
-    copy_address_wmem(wmem_file_scope(), &packet->client.addr, &conversation->key_ptr->addr1);
-    packet->client.port = conversation->key_ptr->port1;
-    copy_address_wmem(wmem_file_scope(), &packet->server.addr, &conversation->key_ptr->addr2);
-    packet->server.port = conversation->key_ptr->port2;
+    copy_address_wmem(wmem_file_scope(), &packet->client.addr, conversation_key_addr1(conversation->key_ptr));
+    packet->client.port = conversation_key_port1(conversation->key_ptr);
+    copy_address_wmem(wmem_file_scope(), &packet->server.addr, conversation_key_addr2(conversation->key_ptr));
+    packet->server.port = conversation_key_port2(conversation->key_ptr);
 
     packet->not_dps = FALSE;
 

@@ -8288,14 +8288,14 @@ dissect_ARBlockReq_block(tvbuff_t *tvb, int offset,
             if (apdu_status_switch == NULL) {
                 /* apdu status switch information is valid for whole file*/
                 apdu_status_switch = wmem_new0(wmem_file_scope(), apduStatusSwitch);
-                apdu_status_switch->dl_src = conversation->key_ptr->addr1;
-                apdu_status_switch->dl_dst = conversation->key_ptr->addr2;
+                copy_address_shallow(&apdu_status_switch->dl_src, conversation_key_addr1(conversation->key_ptr));
+                copy_address_shallow(&apdu_status_switch->dl_dst, conversation_key_addr2(conversation->key_ptr));
                 apdu_status_switch->isRedundancyActive = TRUE;
                 conversation_add_proto_data(conversation, proto_pn_io_apdu_status, apdu_status_switch);
             }
             else {
-                apdu_status_switch->dl_src = conversation->key_ptr->addr1;
-                apdu_status_switch->dl_dst = conversation->key_ptr->addr2;
+                copy_address_shallow(&apdu_status_switch->dl_src, conversation_key_addr1(conversation->key_ptr));
+                copy_address_shallow(&apdu_status_switch->dl_dst, conversation_key_addr2(conversation->key_ptr));
                 apdu_status_switch->isRedundancyActive = TRUE;
             }
         }

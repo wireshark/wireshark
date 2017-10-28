@@ -473,7 +473,7 @@ init_t38_info_conv(packet_info *pinfo)
 		p_add_proto_data(wmem_file_scope(), pinfo, proto_t38, 0, p_t38_packet_conv);
 	}
 
-	if (addresses_equal(&p_conv->key_ptr->addr1, &pinfo->net_src)) {
+	if (addresses_equal(conversation_key_addr1(p_conv->key_ptr), &pinfo->net_src)) {
 		p_t38_conv_info = &(p_t38_conv->src_t38_info);
 		p_t38_packet_conv_info = &(p_t38_packet_conv->src_t38_info);
 	} else {

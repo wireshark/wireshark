@@ -439,14 +439,14 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO_PS");    /* set PROFISsafe protocol name */
             }
 
-            if (addresses_equal(&(pinfo->src), &(conversation->key_ptr->addr1)) && addresses_equal(&(pinfo->dst), &(conversation->key_ptr->addr2))) {
+            if (addresses_equal(&(pinfo->src), conversation_key_addr1(conversation->key_ptr)) && addresses_equal(&(pinfo->dst), conversation_key_addr2(conversation->key_ptr))) {
                 inputFlag = TRUE;
                 outputFlag = FALSE;
                 number_io_data_objects_input_cr = station_info->ioDataObjectNr;
                 number_iocs_input_cr = station_info->iocsNr;
             }
 
-            if (addresses_equal(&(pinfo->dst), &(conversation->key_ptr->addr1)) && addresses_equal(&(pinfo->src), &(conversation->key_ptr->addr2))) {
+            if (addresses_equal(&(pinfo->dst), conversation_key_addr1(conversation->key_ptr)) && addresses_equal(&(pinfo->src), conversation_key_addr2(conversation->key_ptr))) {
                 outputFlag = TRUE;
                 inputFlag = FALSE;
                 number_io_data_objects_output_cr = station_info->ioDataObjectNr;

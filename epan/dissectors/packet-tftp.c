@@ -673,7 +673,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                                       pinfo->destport, pinfo->srcport, 0);
       conversation_set_dissector(conversation, tftp_handle);
     } else if (conversation->options & NO_PORT_B) {
-      if (pinfo->destport == conversation->key_ptr->port1)
+      if (pinfo->destport == conversation_key_port1(conversation->key_ptr))
         conversation_set_port2(conversation, pinfo->srcport);
       else
         return 0;
