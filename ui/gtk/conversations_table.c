@@ -1600,8 +1600,8 @@ draw_ct_table_addresses(conversations_table *ct)
         conv_item = &g_array_index(ct->hash.conv_array, conv_item_t, idx);
         src_addr = get_conversation_address(NULL, &conv_item->src_address, ct->resolve_names);
         dst_addr = get_conversation_address(NULL, &conv_item->dst_address, ct->resolve_names);
-        src_port = get_conversation_port(NULL, conv_item->src_port, conv_item->ptype, ct->resolve_names);
-        dst_port = get_conversation_port(NULL, conv_item->dst_port, conv_item->ptype, ct->resolve_names);
+        src_port = get_conversation_port(NULL, conv_item->src_port, conv_item->etype, ct->resolve_names);
+        dst_port = get_conversation_port(NULL, conv_item->dst_port, conv_item->etype, ct->resolve_names);
         gtk_list_store_set (store, &iter,
                   CONV_COLUMN_SRC_ADDR, src_addr,
                   CONV_COLUMN_SRC_PORT, src_port,
@@ -1721,8 +1721,8 @@ draw_ct_table_data(conversations_table *ct)
 
             src_addr = get_conversation_address(NULL, &conv_item->src_address, ct->resolve_names);
             dst_addr = get_conversation_address(NULL, &conv_item->dst_address, ct->resolve_names);
-            src_port = get_conversation_port(NULL, conv_item->src_port, conv_item->ptype, ct->resolve_names);
-            dst_port = get_conversation_port(NULL, conv_item->dst_port, conv_item->ptype, ct->resolve_names);
+            src_port = get_conversation_port(NULL, conv_item->src_port, conv_item->etype, ct->resolve_names);
+            dst_port = get_conversation_port(NULL, conv_item->dst_port, conv_item->etype, ct->resolve_names);
             /* New row. All entries, including fixed ones */
             gtk_list_store_insert_with_values(store, &iter, G_MAXINT,
                     CONV_COLUMN_SRC_ADDR, src_addr,
@@ -2150,11 +2150,11 @@ follow_stream_cb(GtkWidget *follow_stream_bt, gpointer data _U_)
 
     /* Generate and apply a display filter to isolate the conversation.
      */
-    switch (conv->ptype) {
-    case PT_TCP:
+    switch (conv->etype) {
+    case ENDPOINT_TCP:
         filter = g_strdup_printf("tcp.stream eq %d", conv->conv_id);
         break;
-    case PT_UDP:
+    case ENDPOINT_UDP:
         filter = g_strdup_printf("udp.stream eq %d", conv->conv_id);
         break;
     default:

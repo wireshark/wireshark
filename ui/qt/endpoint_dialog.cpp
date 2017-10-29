@@ -286,7 +286,7 @@ public:
         }
         case ENDP_COLUMN_PORT:
             if (resolve_names) {
-                char* port_str = get_conversation_port(NULL, endp_item->port, endp_item->ptype, resolve_names);
+                char* port_str = get_conversation_port(NULL, endp_item->port, endp_item->etype, resolve_names);
                 QString q_port_str(port_str);
                 wmem_free(NULL, port_str);
                 return q_port_str;

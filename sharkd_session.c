@@ -1559,8 +1559,8 @@ sharkd_session_process_tap_conv_cb(void *arg)
 
 			if (proto_with_port)
 			{
-				printf(",\"sport\":\"%s\"", (src_port = get_conversation_port(NULL, iui->src_port, iui->ptype, iu->resolve_port)));
-				printf(",\"dport\":\"%s\"", (dst_port = get_conversation_port(NULL, iui->dst_port, iui->ptype, iu->resolve_port)));
+				printf(",\"sport\":\"%s\"", (src_port = get_conversation_port(NULL, iui->src_port, iui->etype, iu->resolve_port)));
+				printf(",\"dport\":\"%s\"", (dst_port = get_conversation_port(NULL, iui->dst_port, iui->etype, iu->resolve_port)));
 
 				wmem_free(NULL, src_port);
 				wmem_free(NULL, dst_port);
@@ -1607,7 +1607,7 @@ sharkd_session_process_tap_conv_cb(void *arg)
 
 			if (proto_with_port)
 			{
-				printf(",\"port\":\"%s\"", (port_str = get_conversation_port(NULL, host->port, host->ptype, iu->resolve_port)));
+				printf(",\"port\":\"%s\"", (port_str = get_conversation_port(NULL, host->port, host->etype, iu->resolve_port)));
 
 				wmem_free(NULL, port_str);
 			}

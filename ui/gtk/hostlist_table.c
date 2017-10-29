@@ -482,7 +482,7 @@ draw_hostlist_table_addresses(hostlist_table *hl)
         host = &g_array_index(hl->hash.conv_array, hostlist_talker_t, idx);
 
         addr_str = get_conversation_address(NULL, &host->myaddress, hl->resolve_names);
-        port_str = get_conversation_port(NULL, host->port, host->ptype, hl->resolve_names);
+        port_str = get_conversation_port(NULL, host->port, host->etype, hl->resolve_names);
         gtk_list_store_set (store, &iter,
                   ENDP_COLUMN_ADDR, addr_str,
                   ENDP_COLUMN_PORT, port_str,
@@ -602,7 +602,7 @@ draw_hostlist_table_data(hostlist_table *hl)
 #endif /* HAVE_GEOIP */
 
             addr_str = get_conversation_address(NULL, &host->myaddress, hl->resolve_names);
-            port_str = get_conversation_port(NULL, host->port, host->ptype, hl->resolve_names);
+            port_str = get_conversation_port(NULL, host->port, host->etype, hl->resolve_names);
             gtk_list_store_insert_with_values( store, &iter, G_MAXINT,
                   ENDP_COLUMN_ADDR, addr_str,
                   ENDP_COLUMN_PORT, port_str,

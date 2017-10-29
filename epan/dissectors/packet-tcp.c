@@ -758,7 +758,7 @@ tcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_
     const struct tcpheader *tcphdr=(const struct tcpheader *)vip;
 
     add_conversation_table_data_with_conv_id(hash, &tcphdr->ip_src, &tcphdr->ip_dst, tcphdr->th_sport, tcphdr->th_dport, (conv_id_t) tcphdr->th_stream, 1, pinfo->fd->pkt_len,
-                                              &pinfo->rel_ts, &pinfo->abs_ts, &tcp_ct_dissector_info, PT_TCP);
+                                              &pinfo->rel_ts, &pinfo->abs_ts, &tcp_ct_dissector_info, ENDPOINT_TCP);
 
     return 1;
 }
@@ -772,7 +772,7 @@ mptcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _
 
     add_conversation_table_data_with_conv_id(hash, &meta->ip_src, &meta->ip_dst,
         meta->sport, meta->dport, (conv_id_t) tcpd->mptcp_analysis->stream, 1, pinfo->fd->pkt_len,
-                                              &pinfo->rel_ts, &pinfo->abs_ts, &tcp_ct_dissector_info, PT_TCP);
+                                              &pinfo->rel_ts, &pinfo->abs_ts, &tcp_ct_dissector_info, ENDPOINT_TCP);
 
     return 1;
 }
@@ -827,8 +827,8 @@ tcpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, co
     /* Take two "add" passes per packet, adding for each direction, ensures that all
     packets are counted properly (even if address is sending to itself)
     XXX - this could probably be done more efficiently inside hostlist_table */
-    add_hostlist_table_data(hash, &tcphdr->ip_src, tcphdr->th_sport, TRUE, 1, pinfo->fd->pkt_len, &tcp_host_dissector_info, PT_TCP);
-    add_hostlist_table_data(hash, &tcphdr->ip_dst, tcphdr->th_dport, FALSE, 1, pinfo->fd->pkt_len, &tcp_host_dissector_info, PT_TCP);
+    add_hostlist_table_data(hash, &tcphdr->ip_src, tcphdr->th_sport, TRUE, 1, pinfo->fd->pkt_len, &tcp_host_dissector_info, ENDPOINT_TCP);
+    add_hostlist_table_data(hash, &tcphdr->ip_dst, tcphdr->th_dport, FALSE, 1, pinfo->fd->pkt_len, &tcp_host_dissector_info, ENDPOINT_TCP);
 
     return 1;
 }

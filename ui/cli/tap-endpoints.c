@@ -81,7 +81,7 @@ endpoints_draw(void *arg)
 				conversation_str = get_conversation_address(NULL, &host->myaddress, TRUE);
 				if (display_port) {
 					/* XXX - TODO: make port resolution configurable (through gbl_resolv_flags?) */
-					port_str = get_conversation_port(NULL, host->port, host->ptype, TRUE);
+					port_str = get_conversation_port(NULL, host->port, host->etype, TRUE);
 					printf("%-20s      %5s     %6" G_GINT64_MODIFIER "u     %9" G_GINT64_MODIFIER
 					       "u     %6" G_GINT64_MODIFIER "u       %9" G_GINT64_MODIFIER "u      %6"
 					       G_GINT64_MODIFIER "u       %9" G_GINT64_MODIFIER "u   \n",

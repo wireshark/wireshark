@@ -2366,7 +2366,7 @@ bluetooth_conversation_packet(void *pct, packet_info *pinfo,
     conv_hash_t *hash = (conv_hash_t*) pct;
     add_conversation_table_data(hash, &pinfo->dl_src, &pinfo->dl_dst, 0, 0, 1,
             pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts,
-            &bluetooth_ct_dissector_info, PT_NONE);
+            &bluetooth_ct_dissector_info, ENDPOINT_NONE);
 
     return 1;
 }
@@ -2378,8 +2378,8 @@ bluetooth_hostlist_packet(void *pit, packet_info *pinfo,
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
 
-    add_hostlist_table_data(hash, &pinfo->dl_src, 0, TRUE,  1, pinfo->fd->pkt_len, &bluetooth_dissector_info, PT_NONE);
-    add_hostlist_table_data(hash, &pinfo->dl_dst, 0, FALSE, 1, pinfo->fd->pkt_len, &bluetooth_dissector_info, PT_NONE);
+    add_hostlist_table_data(hash, &pinfo->dl_src, 0, TRUE,  1, pinfo->fd->pkt_len, &bluetooth_dissector_info, ENDPOINT_NONE);
+    add_hostlist_table_data(hash, &pinfo->dl_dst, 0, FALSE, 1, pinfo->fd->pkt_len, &bluetooth_dissector_info, ENDPOINT_NONE);
 
     return 1;
 }

@@ -315,17 +315,17 @@ char *get_conversation_address(wmem_allocator_t *allocator, address *addr, gbool
     }
 }
 
-char *get_conversation_port(wmem_allocator_t *allocator, guint32 port, port_type ptype, gboolean resolve_names)
+char *get_conversation_port(wmem_allocator_t *allocator, guint32 port, endpoint_type etype, gboolean resolve_names)
 {
 
-    if(!resolve_names) ptype = PT_NONE;
+    if(!resolve_names) etype = ENDPOINT_NONE;
 
-    switch(ptype) {
-    case(PT_TCP):
+    switch(etype) {
+    case(ENDPOINT_TCP):
         return tcp_port_to_display(allocator, port);
-    case(PT_UDP):
+    case(ENDPOINT_UDP):
         return udp_port_to_display(allocator, port);
-    case(PT_SCTP):
+    case(ENDPOINT_SCTP):
         return sctp_port_to_display(allocator, port);
     default:
         return wmem_strdup_printf(allocator, "%d", port);
@@ -333,7 +333,7 @@ char *get_conversation_port(wmem_allocator_t *allocator, guint32 port, port_type
 }
 
 /* given an address (to distinguish between ipv4 and ipv6 for tcp/udp),
-   a port_type and a name_type (FN_...)
+   a endpoint_type and a name_type (FN_...)
    return a string for the filter name.
 
    Some addresses, like AT_ETHER may actually be any of multiple types
@@ -364,13 +364,13 @@ hostlist_get_filter_name(hostlist_talker_t *host, conv_filter_type_e filter_type
 
 /* Convert a port number into a string or NULL */
 static char *
-ct_port_to_str(port_type ptype, guint32 port)
+ct_port_to_str(endpoint_type etype, guint32 port)
 {
-    switch(ptype){
-    case PT_TCP:
-    case PT_UDP:
-    case PT_SCTP:
-    case PT_NCP:
+    switch(etype){
+    case ENDPOINT_TCP:
+    case ENDPOINT_UDP:
+    case ENDPOINT_SCTP:
+    case ENDPOINT_NCP:
         return g_strdup_printf("%d", port);
     default:
         break;
@@ -389,8 +389,8 @@ char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e direction
     if (usb_address_type == -1)
         usb_address_type = address_type_get_by_name("AT_USB");
 
-    sport = ct_port_to_str(conv_item->ptype, conv_item->src_port);
-    dport = ct_port_to_str(conv_item->ptype, conv_item->dst_port);
+    sport = ct_port_to_str(conv_item->etype, conv_item->src_port);
+    dport = ct_port_to_str(conv_item->etype, conv_item->dst_port);
     src_addr = address_to_str(NULL, &conv_item->src_address);
     dst_addr = address_to_str(NULL, &conv_item->dst_address);
 
@@ -547,7 +547,7 @@ char *get_hostlist_filter(hostlist_talker_t *host)
     if (usb_address_type == -1)
         usb_address_type = address_type_get_by_name("AT_USB");
 
-    sport = ct_port_to_str(host->ptype, host->port);
+    sport = ct_port_to_str(host->etype, host->port);
     src_addr = address_to_str(NULL, &host->myaddress);
     if (host->myaddress.type == AT_STRINGZ || host->myaddress.type == usb_address_type) {
         char *new_addr;
@@ -572,9 +572,9 @@ char *get_hostlist_filter(hostlist_talker_t *host)
 
 void
 add_conversation_table_data(conv_hash_t *ch, const address *src, const address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes,
-        nstime_t *ts, nstime_t *abs_ts, ct_dissector_info_t *ct_info, port_type ptype)
+        nstime_t *ts, nstime_t *abs_ts, ct_dissector_info_t *ct_info, endpoint_type etype)
 {
-    add_conversation_table_data_with_conv_id(ch, src, dst, src_port, dst_port, CONV_ID_UNSET, num_frames, num_bytes, ts, abs_ts, ct_info, ptype);
+    add_conversation_table_data_with_conv_id(ch, src, dst, src_port, dst_port, CONV_ID_UNSET, num_frames, num_bytes, ts, abs_ts, ct_info, etype);
 }
 
 void
@@ -590,7 +590,7 @@ add_conversation_table_data_with_conv_id(
     nstime_t *ts,
     nstime_t *abs_ts,
     ct_dissector_info_t *ct_info,
-    port_type ptype)
+    endpoint_type etype)
 {
     const address *addr1, *addr2;
     guint32 port1, port2;
@@ -652,7 +652,7 @@ add_conversation_table_data_with_conv_id(
         copy_address(&new_conv_item.src_address, addr1);
         copy_address(&new_conv_item.dst_address, addr2);
         new_conv_item.dissector_info = ct_info;
-        new_conv_item.ptype = ptype;
+        new_conv_item.etype = etype;
         new_conv_item.src_port = port1;
         new_conv_item.dst_port = port2;
         new_conv_item.conv_id = conv_id;
@@ -741,7 +741,7 @@ host_match(gconstpointer v, gconstpointer w)
 }
 
 void
-add_hostlist_table_data(conv_hash_t *ch, const address *addr, guint32 port, gboolean sender, int num_frames, int num_bytes, hostlist_dissector_info_t *host_info, port_type port_type_val)
+add_hostlist_table_data(conv_hash_t *ch, const address *addr, guint32 port, gboolean sender, int num_frames, int num_bytes, hostlist_dissector_info_t *host_info, endpoint_type etype)
 {
     hostlist_talker_t *talker=NULL;
     int talker_idx=0;
@@ -777,7 +777,7 @@ add_hostlist_table_data(conv_hash_t *ch, const address *addr, guint32 port, gboo
 
         copy_address(&host.myaddress, addr);
         host.dissector_info = host_info;
-        host.ptype=port_type_val;
+        host.etype=etype;
         host.port=port;
         host.rx_frames=0;
         host.tx_frames=0;

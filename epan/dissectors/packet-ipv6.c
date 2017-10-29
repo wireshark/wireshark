@@ -451,7 +451,7 @@ ipv6_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
 
     add_conversation_table_data(hash, &ip6->ip6_src, &ip6->ip6_dst, 0, 0, 1,
             pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts,
-            &ipv6_ct_dissector_info, PT_NONE);
+            &ipv6_ct_dissector_info, ENDPOINT_NONE);
 
     return 1;
 }
@@ -473,9 +473,9 @@ ipv6_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
     const ipv6_tap_info_t *ip6 = (const ipv6_tap_info_t *)vip;
 
     add_hostlist_table_data(hash, &ip6->ip6_src, 0, TRUE, 1,
-                pinfo->fd->pkt_len, &ipv6_host_dissector_info, PT_NONE);
+                pinfo->fd->pkt_len, &ipv6_host_dissector_info, ENDPOINT_NONE);
     add_hostlist_table_data(hash, &ip6->ip6_dst, 0, FALSE, 1,
-                pinfo->fd->pkt_len, &ipv6_host_dissector_info, PT_NONE);
+                pinfo->fd->pkt_len, &ipv6_host_dissector_info, ENDPOINT_NONE);
 
     return 1;
 }

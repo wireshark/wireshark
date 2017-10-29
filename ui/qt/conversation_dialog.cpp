@@ -213,11 +213,11 @@ void ConversationDialog::followStream()
 
     QString filter;
     follow_type_t ftype = FOLLOW_TCP;
-    switch (conv_item->ptype) {
-    case PT_TCP:
+    switch (conv_item->etype) {
+    case ENDPOINT_TCP:
         filter = QString("tcp.stream eq %1").arg(conv_item->conv_id);
         break;
-    case PT_UDP:
+    case ENDPOINT_UDP:
         filter = QString("udp.stream eq %1").arg(conv_item->conv_id);
         ftype = FOLLOW_UDP;
         break;
@@ -247,7 +247,7 @@ void ConversationDialog::graphTcp()
     // XXX The GTK+ code opens the TCP Stream dialog. We might want
     // to open the IO Graph dialog instead.
     QString filter;
-    if (conv_item->ptype == PT_TCP) {
+    if (conv_item->etype == ENDPOINT_TCP) {
         filter = QString("tcp.stream eq %1").arg(conv_item->conv_id);
     } else {
         return;
@@ -275,11 +275,11 @@ void ConversationDialog::conversationSelectionChanged()
     conv_item_t *conv_item = currentConversation();
 
     if (!file_closed_ && conv_item) {
-        switch (conv_item->ptype) {
-        case PT_TCP:
+        switch (conv_item->etype) {
+        case ENDPOINT_TCP:
             graph_enable = true;
             // Fall through
-        case PT_UDP:
+        case ENDPOINT_UDP:
             follow_enable = true;
             break;
         default:
@@ -470,7 +470,7 @@ public:
             }
         case CONV_COLUMN_SRC_PORT:
             if (resolve_names) {
-                char* port_str = get_conversation_port(NULL, conv_item->src_port, conv_item->ptype, resolve_names);
+                char* port_str = get_conversation_port(NULL, conv_item->src_port, conv_item->etype, resolve_names);
                 QString q_port_str(port_str);
                 wmem_free(NULL, port_str);
                 return q_port_str;
@@ -486,7 +486,7 @@ public:
             }
         case CONV_COLUMN_DST_PORT:
             if (resolve_names) {
-                char* port_str = get_conversation_port(NULL, conv_item->dst_port, conv_item->ptype, resolve_names);
+                char* port_str = get_conversation_port(NULL, conv_item->dst_port, conv_item->etype, resolve_names);
                 QString q_port_str(port_str);
                 wmem_free(NULL, port_str);
                 return q_port_str;
