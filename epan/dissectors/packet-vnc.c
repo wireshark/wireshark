@@ -1069,7 +1069,7 @@ static gboolean test_vnc_protocol(tvbuff_t *tvb, packet_info *pinfo,
 
 	if (vnc_is_client_or_server_version_message(tvb, NULL, NULL)) {
 		conversation = conversation_new(pinfo->num, &pinfo->src,
-						&pinfo->dst, pinfo->ptype,
+						&pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype),
 						pinfo->srcport,
 						pinfo->destport, 0);
 		conversation_set_dissector(conversation, vnc_handle);

@@ -480,7 +480,7 @@ add_udp_process_info(guint32 frame_num, address *local_addr, address *remote_add
     return;
   }
 
-  conv = find_conversation(frame_num, local_addr, remote_addr, PT_UDP, local_port, remote_port, 0);
+  conv = find_conversation(frame_num, local_addr, remote_addr, ENDPOINT_UDP, local_port, remote_port, 0);
   if (!conv) {
     return;
   }
@@ -569,7 +569,7 @@ static void
 handle_export_pdu_conversation(packet_info *pinfo, tvbuff_t *tvb, int uh_dport, int uh_sport)
 {
   if (have_tap_listener(exported_pdu_tap)) {
-    conversation_t *conversation = find_conversation(pinfo->num, &pinfo->dst, &pinfo->src, PT_UDP, uh_dport, uh_sport, 0);
+    conversation_t *conversation = find_conversation(pinfo->num, &pinfo->dst, &pinfo->src, ENDPOINT_UDP, uh_dport, uh_sport, 0);
     if (conversation != NULL)
     {
       dissector_handle_t handle = (dissector_handle_t)wmem_tree_lookup32_le(conversation->dissector_tree, pinfo->num);
@@ -631,7 +631,7 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
   /* determine if this packet is part of a conversation and call dissector */
 /* for the conversation if available */
-  if (try_conversation_dissector(&pinfo->dst, &pinfo->src, PT_UDP,
+  if (try_conversation_dissector(&pinfo->dst, &pinfo->src, ENDPOINT_UDP,
                                  uh_dport, uh_sport, next_tvb, pinfo, tree, NULL)) {
     handle_export_pdu_conversation(pinfo, next_tvb, uh_dport, uh_sport);
     return;

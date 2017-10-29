@@ -681,7 +681,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	 * SPX session using that source port; can that happen?  If so,
 	 * we should probably use the direction, as well as the conversation,
 	 * as part of the hash key; if we do that, we can probably just
-	 * use PT_IPX as the port type, and possibly get rid of PT_NCP.
+	 * use ENDPOINT_IPX as the port type, and possibly get rid of ENDPOINT_NCP.
 	 *
 	 * According to
 	 *
@@ -706,7 +706,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		 */
 		if (!pinfo->fd->flags.visited) {
 			conversation = find_conversation(pinfo->num, &pinfo->src,
-			    &pinfo->dst, PT_NCP, pinfo->srcport,
+			    &pinfo->dst, ENDPOINT_NCP, pinfo->srcport,
 			    pinfo->srcport, 0);
 			if (conversation == NULL) {
 				/*
@@ -714,7 +714,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 				 * a new one.
 				 */
 				conversation = conversation_new(pinfo->num, &pinfo->src,
-				    &pinfo->dst, PT_NCP, pinfo->srcport,
+				    &pinfo->dst, ENDPOINT_NCP, pinfo->srcport,
 				    pinfo->srcport, 0);
 			}
 

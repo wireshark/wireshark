@@ -786,11 +786,11 @@ static conversation_t *get_peer_conversation(packet_info * pinfo, jxta_stream_co
 
     if ((AT_NONE != tpt_conv_data->initiator_address.type) && (AT_NONE != tpt_conv_data->receiver_address.type)) {
         peer_conversation = find_conversation(pinfo->num, &tpt_conv_data->initiator_address, &tpt_conv_data->receiver_address,
-                                               PT_NONE, 0, 0, NO_PORT_B);
+                                               ENDPOINT_NONE, 0, 0, NO_PORT_B);
 
         if (create && (NULL == peer_conversation)) {
             peer_conversation = conversation_new(pinfo->num, &tpt_conv_data->initiator_address,
-                                                  &tpt_conv_data->receiver_address, PT_NONE, 0, 0, NO_PORT_B);
+                                                  &tpt_conv_data->receiver_address, ENDPOINT_NONE, 0, 0, NO_PORT_B);
             conversation_set_dissector(peer_conversation, stream_jxta_handle);
         }
 

@@ -177,14 +177,14 @@ msrp_add_address( packet_info *pinfo,
      * Check if the ip address and port combination is not
      * already registered as a conversation.
      */
-    p_conv = find_conversation( pinfo->num, addr, &null_addr, PT_TCP, port, 0,
+    p_conv = find_conversation( pinfo->num, addr, &null_addr, ENDPOINT_TCP, port, 0,
                                 NO_ADDR_B | NO_PORT_B);
 
     /*
      * If not, create a new conversation.
      */
     if (!p_conv) {
-        p_conv = conversation_new( pinfo->num, addr, &null_addr, PT_TCP,
+        p_conv = conversation_new( pinfo->num, addr, &null_addr, ENDPOINT_TCP,
                                    (guint32)port, 0,
                                    NO_ADDR2 | NO_PORT2);
     }
@@ -231,7 +231,7 @@ show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
         /* First time, get info from conversation */
         p_conv = find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
-                                   PT_TCP,
+                                   ENDPOINT_TCP,
                                    pinfo->destport, pinfo->srcport, 0);
 
         if (p_conv)

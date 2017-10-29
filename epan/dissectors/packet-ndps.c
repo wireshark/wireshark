@@ -4274,13 +4274,13 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, spx_info *spx_i
     {
         /* Lets see if this is a new conversation */
         conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-            PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->srcport, 0);
+            ENDPOINT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->srcport, 0);
 
         if (conversation == NULL)
         {
             /* It's not part of any conversation - create a new one. */
             conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
-                PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->srcport, 0);
+                ENDPOINT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->srcport, 0);
         }
 
         /* So now we need to get the request info for this conversation */
@@ -4466,13 +4466,13 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
         let the user select that conversation to be displayed.) */
 
         conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-            PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->srcport, 0);
+            ENDPOINT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->srcport, 0);
 
         if (conversation == NULL)
         {
             /* It's not part of any conversation - create a new one. */
             conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
-                PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->srcport, 0);
+                ENDPOINT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->srcport, 0);
         }
 
         request_value = ndps_hash_insert(conversation, (guint32) pinfo->srcport);
@@ -6720,7 +6720,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
     if (!pinfo->fd->flags.visited) {
         /* Find the conversation whence the request would have come. */
         conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-            PT_NCP, (guint32) pinfo->destport, (guint32) pinfo->destport, 0);
+            ENDPOINT_NCP, (guint32) pinfo->destport, (guint32) pinfo->destport, 0);
         if (conversation != NULL) {
             /* find the record telling us the request made that caused
             this reply */

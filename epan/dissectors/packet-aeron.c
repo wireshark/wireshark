@@ -288,7 +288,6 @@ typedef struct
 {
     address * addr1;
     address * addr2;
-    port_type ptype;
     guint16 port1;
     guint16 port2;
 } aeron_conversation_info_t;
@@ -397,10 +396,10 @@ static aeron_transport_t * aeron_transport_add(const aeron_conversation_info_t *
     conversation_t * conv;
     wmem_map_t * session_map;
 
-    conv = find_conversation(frame, cinfo->addr1, cinfo->addr2, cinfo->ptype, cinfo->port1, cinfo->port2, 0);
+    conv = find_conversation(frame, cinfo->addr1, cinfo->addr2, ENDPOINT_UDP, cinfo->port1, cinfo->port2, 0);
     if (conv == NULL)
     {
-        conv = conversation_new(frame, cinfo->addr1, cinfo->addr2, cinfo->ptype, cinfo->port1, cinfo->port2, 0);
+        conv = conversation_new(frame, cinfo->addr1, cinfo->addr2, ENDPOINT_UDP, cinfo->port1, cinfo->port2, 0);
     }
     if (frame > conv->last_frame)
     {
@@ -676,17 +675,7 @@ static char * aeron_format_transport_uri(const aeron_conversation_info_t * cinfo
 {
     wmem_strbuf_t * uri;
 
-    uri = wmem_strbuf_new(wmem_packet_scope(), "aeron:");
-    switch (cinfo->ptype)
-    {
-        case PT_UDP:
-            wmem_strbuf_append(uri, "udp");
-            break;
-        default:
-            wmem_strbuf_append(uri, "unknown");
-            break;
-    }
-    wmem_strbuf_append_c(uri, '?');
+    uri = wmem_strbuf_new(wmem_packet_scope(), "aeron:udp?");
     if (aeron_is_address_multicast(cinfo->addr2))
     {
         switch (cinfo->addr2->type)
@@ -858,7 +847,6 @@ static aeron_conversation_info_t * aeron_setup_conversation_info(const packet_in
     int addr_len = pinfo->dst.len;
 
     cinfo = wmem_new0(wmem_packet_scope(), aeron_conversation_info_t);
-    cinfo->ptype = pinfo->ptype;
     switch (pinfo->dst.type)
     {
         case AT_IPv4:

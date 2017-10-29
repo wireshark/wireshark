@@ -505,7 +505,7 @@ find_or_create_call_info_conv(packet_info * pinfo)
          */
         conv2 = find_conversation( pinfo->num,
                                   &pinfo->dst,&pinfo->src,
-                                  pinfo->ptype,
+                                  conversation_pt_to_endpoint_type(pinfo->ptype),
                                   pinfo->destport,pinfo->srcport, 0 );
         if(conv2 != NULL)
             datax = (h223_call_info *)conversation_get_proto_data(conv2, proto_h223);

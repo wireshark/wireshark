@@ -332,9 +332,7 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
   conversation_t *conversation;
 
   /* first see if we have already matched this */
-  conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-				     pinfo->ptype, pinfo->srcport,
-				     pinfo->destport, 0);
+  conversation = find_conversation_pinfo(pinfo, 0);
   if (conversation == NULL)
     return NULL;
 
@@ -1012,7 +1010,7 @@ dissect_ros_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 /*--- End of included file: packet-ros-fn.c ---*/
-#line 377 "./asn1/ros/packet-ros-template.c"
+#line 375 "./asn1/ros/packet-ros-template.c"
 
 /*
 * Dissect ROS PDUs inside a PPDU.
@@ -1208,7 +1206,7 @@ void proto_register_ros(void) {
         "OBJECT_IDENTIFIER", HFILL }},
 
 /*--- End of included file: packet-ros-hfarr.c ---*/
-#line 460 "./asn1/ros/packet-ros-template.c"
+#line 458 "./asn1/ros/packet-ros-template.c"
   };
 
   /* List of subtrees */
@@ -1238,7 +1236,7 @@ void proto_register_ros(void) {
     &ett_ros_Code,
 
 /*--- End of included file: packet-ros-ettarr.c ---*/
-#line 476 "./asn1/ros/packet-ros-template.c"
+#line 474 "./asn1/ros/packet-ros-template.c"
   };
 
   static ei_register_info ei[] = {

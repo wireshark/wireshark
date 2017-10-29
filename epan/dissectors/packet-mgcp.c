@@ -1257,7 +1257,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					 * if you do that.
 					 */
 					conversation = find_conversation(pinfo->num, &null_address,
-					                                 &pinfo->dst, pinfo->ptype, pinfo->srcport,
+					                                 &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport,
 					                                 pinfo->destport, 0);
 				}
 				if (conversation != NULL)
@@ -1358,7 +1358,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					 * if you do that.
 					 */
 					conversation = find_conversation(pinfo->num, &pinfo->src,
-					                                 &null_address, pinfo->ptype, pinfo->srcport,
+					                                 &null_address, conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport,
 					                                 pinfo->destport, 0);
 				}
 				if (conversation == NULL)
@@ -1367,13 +1367,13 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					if (pinfo->ptype == PT_TCP)
 					{
 						conversation = conversation_new(pinfo->num, &pinfo->src,
-						                                &pinfo->dst, pinfo->ptype, pinfo->srcport,
+						                                &pinfo->dst, ENDPOINT_TCP, pinfo->srcport,
 						                                pinfo->destport, 0);
 					}
 					else
 					{
 						conversation = conversation_new(pinfo->num, &pinfo->src,
-						                                &null_address, pinfo->ptype, pinfo->srcport,
+						                                &null_address, conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport,
 						                                pinfo->destport, 0);
 					}
 				}

@@ -57,6 +57,27 @@ extern "C" {
 
 #include "packet.h"		/* for conversation dissector type */
 
+/* Types of port numbers Wireshark knows about. */
+typedef enum {
+	ENDPOINT_NONE,			/* no endpoint */
+	ENDPOINT_SCTP,			/* SCTP */
+	ENDPOINT_TCP,			/* TCP */
+	ENDPOINT_UDP,			/* UDP */
+	ENDPOINT_DCCP,			/* DCCP */
+	ENDPOINT_IPX,			/* IPX sockets */
+	ENDPOINT_NCP,			/* NCP connection */
+	ENDPOINT_EXCHG,			/* Fibre Channel exchange */
+	ENDPOINT_DDP,			/* DDP AppleTalk connection */
+	ENDPOINT_SBCCS,			/* FICON */
+	ENDPOINT_IDP,			/* XNS IDP sockets */
+	ENDPOINT_TIPC,			/* TIPC PORT */
+	ENDPOINT_USB,			/* USB endpoint 0xffff means the host */
+	ENDPOINT_I2C,
+	ENDPOINT_IBQP,			/* Infiniband QP number */
+	ENDPOINT_BLUETOOTH,
+	ENDPOINT_TDMOP
+} endpoint_type;
+
 /**
  * Data structure representing a conversation.
  */
@@ -104,7 +125,7 @@ extern void conversation_epan_reset(void);
  * when searching for this conversation.
  */
 WS_DLL_PUBLIC conversation_t *conversation_new(const guint32 setup_frame, const address *addr1, const address *addr2,
-    const port_type ptype, const guint32 port1, const guint32 port2, const guint options);
+    const endpoint_type etype, const guint32 port1, const guint32 port2, const guint options);
 
 /**
  * Given two address/port pairs for a packet, search for a conversation
@@ -143,7 +164,7 @@ WS_DLL_PUBLIC conversation_t *conversation_new(const guint32 setup_frame, const 
  *	otherwise, we found no matching conversation, and return NULL.
  */
 WS_DLL_PUBLIC conversation_t *find_conversation(const guint32 frame_num, const address *addr_a, const address *addr_b,
-    const port_type ptype, const guint32 port_a, const guint32 port_b, const guint options);
+    const endpoint_type etype, const guint32 port_a, const guint32 port_b, const guint options);
 
 /**  A helper function that calls find_conversation() using data from pinfo
  *  The frame number and addresses are taken from pinfo.
@@ -183,7 +204,7 @@ WS_DLL_PUBLIC dissector_handle_t conversation_get_dissector(conversation_t *conv
  * this function returns FALSE.
  */
 extern gboolean
-try_conversation_dissector(const address *addr_a, const address *addr_b, const port_type ptype,
+try_conversation_dissector(const address *addr_a, const address *addr_b, const endpoint_type etype,
     const guint32 port_a, const guint32 port_b, tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, void* data);
 
@@ -203,6 +224,13 @@ wmem_map_t * get_conversation_hashtable_no_port2(void);
 
 WS_DLL_PUBLIC
 wmem_map_t *get_conversation_hashtable_no_addr2_or_port2(void);
+
+/* Temporary function to handle port_type to endpoint_type conversion
+   For now it's a 1-1 mapping, but the intention is to remove
+   many of the port_type instances in favor of endpoint_type
+*/
+WS_DLL_PUBLIC
+endpoint_type conversation_pt_to_endpoint_type(port_type pt);
 
 WS_DLL_PUBLIC guint
 conversation_hash_exact(gconstpointer v);

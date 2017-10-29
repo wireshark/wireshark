@@ -819,22 +819,22 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    */
   if (!eap_maybe_from_server(pinfo, eap_code, FALSE)) {
     conversation = find_conversation(pinfo->num, &pinfo->dst, &pinfo->src,
-                                     pinfo->ptype, pinfo->destport,
+                                     conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->destport,
                                      0, NO_PORT_B);
   }
   if (conversation == NULL && eap_maybe_from_server(pinfo, eap_code, TRUE)) {
     conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                                     pinfo->ptype, pinfo->srcport,
+                                     conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport,
                                      0, NO_PORT_B);
   }
   if (conversation == NULL) {
     if (!eap_maybe_from_server(pinfo, eap_code, FALSE)) {
       conversation = conversation_new(pinfo->num, &pinfo->dst, &pinfo->src,
-                                      pinfo->ptype, pinfo->destport,
+                                      conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->destport,
                                       0, NO_PORT2);
     } else {
       conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
-                                      pinfo->ptype, pinfo->srcport,
+                                      conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport,
                                       0, NO_PORT2);
     }
   }

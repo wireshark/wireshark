@@ -40,7 +40,7 @@ struct conversation_key {
 	struct conversation_key *next;
 	address	addr1;
 	address	addr2;
-	port_type ptype;
+	endpoint_type etype;
 	guint32	port1;
 	guint32	port2;
 };
@@ -90,7 +90,7 @@ conversation_create_from_template(conversation_t *conversation, const address *a
 	 * CONVERSATION_TEMPLATE bit is set for a connection oriented protocol.
 	 */
 	if(conversation->options & CONVERSATION_TEMPLATE &&
-		conversation->key_ptr->ptype != PT_UDP)
+		conversation->key_ptr->etype != ENDPOINT_UDP)
 	{
 		/*
 		 * Set up a new options mask where the conversation template bit and the
@@ -113,7 +113,7 @@ conversation_create_from_template(conversation_t *conversation, const address *a
 			new_conversation_from_template =
 				conversation_new(conversation->setup_frame,
 						 &conversation->key_ptr->addr1, addr2,
-						 conversation->key_ptr->ptype, conversation->key_ptr->port1,
+						 conversation->key_ptr->etype, conversation->key_ptr->port1,
 						 port2, options);
 		}
 		else if(conversation->options & NO_PORT2)
@@ -125,7 +125,7 @@ conversation_create_from_template(conversation_t *conversation, const address *a
 			new_conversation_from_template =
 				conversation_new(conversation->setup_frame,
 						 &conversation->key_ptr->addr1, &conversation->key_ptr->addr2,
-						 conversation->key_ptr->ptype, conversation->key_ptr->port1,
+						 conversation->key_ptr->etype, conversation->key_ptr->port1,
 						 port2, options);
 		}
 		else if(conversation->options & NO_ADDR2)
@@ -137,7 +137,7 @@ conversation_create_from_template(conversation_t *conversation, const address *a
 			new_conversation_from_template =
 				conversation_new(conversation->setup_frame,
 						 &conversation->key_ptr->addr1, addr2,
-						 conversation->key_ptr->ptype, conversation->key_ptr->port1,
+						 conversation->key_ptr->etype, conversation->key_ptr->port1,
 						 conversation->key_ptr->port2, options);
 		}
 		else
@@ -207,7 +207,7 @@ conversation_match_exact(gconstpointer v, gconstpointer w)
 	const conversation_key_t v1 = (const conversation_key_t)v;
 	const conversation_key_t v2 = (const conversation_key_t)w;
 
-	if (v1->ptype != v2->ptype)
+	if (v1->etype != v2->etype)
 		return 0;	/* different types of port */
 
 	/*
@@ -291,7 +291,7 @@ conversation_match_no_addr2(gconstpointer v, gconstpointer w)
 	const conversation_key_t v1 = (const conversation_key_t)v;
 	const conversation_key_t v2 = (const conversation_key_t)w;
 
-	if (v1->ptype != v2->ptype)
+	if (v1->etype != v2->etype)
 		return 0;	/* different types of port */
 
 	/*
@@ -355,7 +355,7 @@ conversation_match_no_port2(gconstpointer v, gconstpointer w)
 	const conversation_key_t v1 = (const conversation_key_t)v;
 	const conversation_key_t v2 = (const conversation_key_t)w;
 
-	if (v1->ptype != v2->ptype)
+	if (v1->etype != v2->etype)
 		return 0;	/* different types of port */
 
 	/*
@@ -417,7 +417,7 @@ conversation_match_no_addr2_or_port2(gconstpointer v, gconstpointer w)
 	const conversation_key_t v1 = (const conversation_key_t)v;
 	const conversation_key_t v2 = (const conversation_key_t)w;
 
-	if (v1->ptype != v2->ptype)
+	if (v1->etype != v2->etype)
 		return 0;	/* different types of port */
 
 	/*
@@ -606,8 +606,8 @@ conversation_remove_from_hashtable(wmem_map_t *hashtable, conversation_t *conv)
  * when searching for this conversation.
  */
 conversation_t *
-conversation_new(const guint32 setup_frame, const address *addr1, const address *addr2, const port_type ptype,
-    const guint32 port1, const guint32 port2, const guint options)
+conversation_new(const guint32 setup_frame, const address *addr1, const address *addr2,
+    const endpoint_type etype, const guint32 port1, const guint32 port2, const guint options)
 {
 /*
 	DISSECTOR_ASSERT(!(options | CONVERSATION_TEMPLATE) || ((options | (NO_ADDR2 | NO_PORT2 | NO_PORT2_FORCE))) &&
@@ -638,7 +638,7 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 	new_key = wmem_new(wmem_file_scope(), struct conversation_key);
 	copy_address_wmem(wmem_file_scope(), &new_key->addr1, addr1);
 	copy_address_wmem(wmem_file_scope(), &new_key->addr2, addr2);
-	new_key->ptype = ptype;
+	new_key->etype = etype;
 	new_key->port1 = port1;
 	new_key->port2 = port2;
 
@@ -741,7 +741,7 @@ conversation_set_addr2(conversation_t *conv, const address *addr)
  */
 static conversation_t *
 conversation_lookup_hashtable(wmem_map_t *hashtable, const guint32 frame_num, const address *addr1, const address *addr2,
-    const port_type ptype, const guint32 port1, const guint32 port2)
+    const endpoint_type etype, const guint32 port1, const guint32 port2)
 {
 	conversation_t* convo=NULL;
 	conversation_t* match=NULL;
@@ -754,7 +754,7 @@ conversation_lookup_hashtable(wmem_map_t *hashtable, const guint32 frame_num, co
 	 */
 	key.addr1 = *addr1;
 	key.addr2 = *addr2;
-	key.ptype = ptype;
+	key.etype = etype;
 	key.port1 = port1;
 	key.port2 = port2;
 
@@ -820,7 +820,7 @@ conversation_lookup_hashtable(wmem_map_t *hashtable, const guint32 frame_num, co
  *	otherwise, we found no matching conversation, and return NULL.
  */
 conversation_t *
-find_conversation(const guint32 frame_num, const address *addr_a, const address *addr_b, const port_type ptype,
+find_conversation(const guint32 frame_num, const address *addr_a, const address *addr_b, const endpoint_type etype,
     const guint32 port_a, const guint32 port_b, const guint options)
 {
 	conversation_t *conversation;
@@ -836,14 +836,14 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 		DPRINT(("trying exact match"));
 		conversation =
 			conversation_lookup_hashtable(conversation_hashtable_exact,
-			frame_num, addr_a, addr_b, ptype,
+			frame_num, addr_a, addr_b, etype,
 			port_a, port_b);
 		/* Didn't work, try the other direction */
 		if (conversation == NULL) {
 			DPRINT(("trying opposite direction"));
 			conversation =
 				conversation_lookup_hashtable(conversation_hashtable_exact,
-				frame_num, addr_b, addr_a, ptype,
+				frame_num, addr_b, addr_a, etype,
 				port_b, port_a);
 		}
 		if ((conversation == NULL) && (addr_a->type == AT_FC)) {
@@ -852,7 +852,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 			 */
 			conversation =
 				conversation_lookup_hashtable(conversation_hashtable_exact,
-				frame_num, addr_b, addr_a, ptype,
+				frame_num, addr_b, addr_a, etype,
 				port_a, port_b);
 		}
 		DPRINT(("exact match %sfound",conversation?"":"not "));
@@ -877,14 +877,14 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 		DPRINT(("trying wildcarded dest address"));
 		conversation =
 			conversation_lookup_hashtable(conversation_hashtable_no_addr2,
-			frame_num, addr_a, addr_b, ptype, port_a, port_b);
+			frame_num, addr_a, addr_b, etype, port_a, port_b);
 		if ((conversation == NULL) && (addr_a->type == AT_FC)) {
 			/* In Fibre channel, OXID & RXID are never swapped as
 			 * TCP/UDP ports are in TCP/IP.
 			 */
 			conversation =
 				conversation_lookup_hashtable(conversation_hashtable_no_addr2,
-				frame_num, addr_b, addr_a, ptype,
+				frame_num, addr_b, addr_a, etype,
 				port_a, port_b);
 		}
 		if (conversation != NULL) {
@@ -900,7 +900,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 			 * address, unless the CONVERSATION_TEMPLATE option is set.)
 			 */
 			DPRINT(("wildcarded dest address match found"));
-			if (!(conversation->options & NO_ADDR_B) && ptype != PT_UDP)
+			if (!(conversation->options & NO_ADDR_B) && etype != ENDPOINT_UDP)
 			{
 				if(!(conversation->options & CONVERSATION_TEMPLATE))
 				{
@@ -929,7 +929,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 			DPRINT(("trying dest addr:port as source addr:port with wildcarded dest addr"));
 			conversation =
 				conversation_lookup_hashtable(conversation_hashtable_no_addr2,
-				frame_num, addr_b, addr_a, ptype, port_b, port_a);
+				frame_num, addr_b, addr_a, etype, port_b, port_a);
 			if (conversation != NULL) {
 				/*
 				 * If this is for a connection-oriented
@@ -940,7 +940,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 				 * conversation.
 				 */
 				DPRINT(("match found"));
-				if (ptype != PT_UDP) {
+				if (etype != ENDPOINT_UDP) {
 					if(!(conversation->options & CONVERSATION_TEMPLATE))
 					{
 						conversation_set_addr2(conversation, addr_a);
@@ -973,14 +973,14 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 		DPRINT(("trying wildcarded dest port"));
 		conversation =
 			conversation_lookup_hashtable(conversation_hashtable_no_port2,
-			frame_num, addr_a, addr_b, ptype, port_a, port_b);
+			frame_num, addr_a, addr_b, etype, port_a, port_b);
 		if ((conversation == NULL) && (addr_a->type == AT_FC)) {
 			/* In Fibre channel, OXID & RXID are never swapped as
 			 * TCP/UDP ports are in TCP/IP
 			 */
 			conversation =
 				conversation_lookup_hashtable(conversation_hashtable_no_port2,
-				frame_num, addr_b, addr_a, ptype, port_a, port_b);
+				frame_num, addr_b, addr_a, etype, port_a, port_b);
 		}
 		if (conversation != NULL) {
 			/*
@@ -995,7 +995,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 			 * unless the CONVERSATION_TEMPLATE option is set.)
 			 */
 			DPRINT(("match found"));
-			if (!(conversation->options & NO_PORT_B) && ptype != PT_UDP)
+			if (!(conversation->options & NO_PORT_B) && etype != ENDPOINT_UDP)
 			{
 				if(!(conversation->options & CONVERSATION_TEMPLATE))
 				{
@@ -1024,7 +1024,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 			DPRINT(("trying dest addr:port as source addr:port and wildcarded dest port"));
 			conversation =
 				conversation_lookup_hashtable(conversation_hashtable_no_port2,
-				frame_num, addr_b, addr_a, ptype, port_b, port_a);
+				frame_num, addr_b, addr_a, etype, port_b, port_a);
 			if (conversation != NULL) {
 				/*
 				 * If this is for a connection-oriented
@@ -1035,7 +1035,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 				 * conversation.
 				 */
 				DPRINT(("match found"));
-				if (ptype != PT_UDP)
+				if (etype != ENDPOINT_UDP)
 				{
 					if(!(conversation->options & CONVERSATION_TEMPLATE))
 					{
@@ -1063,7 +1063,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 	DPRINT(("trying wildcarding dest addr:port"));
 	conversation =
 		conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
-		frame_num, addr_a, addr_b, ptype, port_a, port_b);
+		frame_num, addr_a, addr_b, etype, port_a, port_b);
 	if (conversation != NULL) {
 		/*
 		 * If this is for a connection-oriented protocol:
@@ -1079,7 +1079,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 		 * second port for this conversation.
 		 */
 		DPRINT(("match found"));
-		if (ptype != PT_UDP)
+		if (etype != ENDPOINT_UDP)
 		{
 			if(!(conversation->options & CONVERSATION_TEMPLATE))
 			{
@@ -1101,7 +1101,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 	 * valid conversation than what is being searched using
 	 * addr_a, port_a.
 	 */
-	if (ptype != PT_IBQP)
+	if (etype != ENDPOINT_IBQP)
 	{
 
 		/*
@@ -1117,11 +1117,11 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 		if (addr_a->type == AT_FC)
 			conversation =
 				conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
-				frame_num, addr_b, addr_a, ptype, port_a, port_b);
+				frame_num, addr_b, addr_a, etype, port_a, port_b);
 		else
 			conversation =
 				conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
-				frame_num, addr_b, addr_a, ptype, port_b, port_a);
+				frame_num, addr_b, addr_a, etype, port_b, port_a);
 		if (conversation != NULL) {
 			/*
 			 * If this is for a connection-oriented protocol, set the
@@ -1133,7 +1133,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 			 * conversation.
 			 */
 			DPRINT(("match found"));
-			if (ptype != PT_UDP)
+			if (etype != ENDPOINT_UDP)
 			{
 				if(!(conversation->options & CONVERSATION_TEMPLATE))
 				{
@@ -1213,13 +1213,13 @@ conversation_get_dissector(conversation_t *conversation, const guint32 frame_num
  * this function returns FALSE.
  */
 gboolean
-try_conversation_dissector(const address *addr_a, const address *addr_b, const port_type ptype,
+try_conversation_dissector(const address *addr_a, const address *addr_b, const endpoint_type etype,
     const guint32 port_a, const guint32 port_b, tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, void* data)
 {
 	conversation_t *conversation;
 
-	conversation = find_conversation(pinfo->num, addr_a, addr_b, ptype, port_a,
+	conversation = find_conversation(pinfo->num, addr_a, addr_b, etype, port_a,
 	    port_b, 0);
 
 	if (conversation != NULL) {
@@ -1255,7 +1255,7 @@ find_conversation_pinfo(packet_info *pinfo, const guint options)
 
 	/* Have we seen this conversation before? */
 	if((conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-				     pinfo->ptype, pinfo->srcport,
+				     conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport,
 				     pinfo->destport, options)) != NULL) {
 		DPRINT(("found previous conversation for frame #%d (last_frame=%d)",
 				pinfo->num, conv->last_frame));
@@ -1285,7 +1285,7 @@ find_or_create_conversation(packet_info *pinfo)
 				pinfo->num));
 		DINDENT();
 		conv = conversation_new(pinfo->num, &pinfo->src,
-					&pinfo->dst, pinfo->ptype,
+					&pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype),
 					pinfo->srcport, pinfo->destport, 0);
 		DENDENT();
 	}
@@ -1341,6 +1341,51 @@ guint32
 conversation_key_port2(const conversation_key_t key)
 {
 	return key->port2;
+}
+
+WS_DLL_PUBLIC
+endpoint_type conversation_pt_to_endpoint_type(port_type pt)
+{
+	switch (pt)
+	{
+	case PT_NONE:
+		return ENDPOINT_NONE;
+	case PT_SCTP:
+		return ENDPOINT_SCTP;
+	case PT_TCP:
+		return ENDPOINT_TCP;
+	case PT_UDP:
+		return ENDPOINT_UDP;
+	case PT_DCCP:
+		return ENDPOINT_DCCP;
+	case PT_IPX:
+		return ENDPOINT_IPX;
+	case PT_NCP:
+		return ENDPOINT_NCP;
+	case PT_EXCHG:
+		return ENDPOINT_EXCHG;
+	case PT_DDP:
+		return ENDPOINT_DDP;
+	case PT_IDP:
+		return ENDPOINT_IDP;
+	case PT_TIPC:
+		return ENDPOINT_TIPC;
+	case PT_USB:
+		return ENDPOINT_USB;
+	case PT_I2C:
+		return ENDPOINT_I2C;
+	case PT_IBQP:
+		return ENDPOINT_IBQP;
+	case PT_SBCCS:
+		return ENDPOINT_SBCCS;
+	case PT_BLUETOOTH:
+		return ENDPOINT_BLUETOOTH;
+	case PT_TDMOP:
+		return ENDPOINT_TDMOP;
+	}
+
+	DISSECTOR_ASSERT(FALSE);
+	return ENDPOINT_NONE;
 }
 
 gchar*

@@ -659,17 +659,17 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
    */
   if (value_is_in_range(global_tftp_port_range, pinfo->destport) ||
       (pinfo->match_uint == pinfo->destport)) {
-    conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, PT_UDP,
+    conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_UDP,
                                      pinfo->srcport, 0, NO_PORT_B);
     if( (conversation == NULL) || (conversation_get_dissector(conversation, pinfo->num) != tftp_handle) ){
-      conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, PT_UDP,
+      conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_UDP,
                                       pinfo->srcport, 0, NO_PORT2);
       conversation_set_dissector(conversation, tftp_handle);
     }
   } else {
     conversation = find_conversation_pinfo(pinfo, 0);
     if( (conversation == NULL) || (conversation_get_dissector(conversation, pinfo->num) != tftp_handle) ){
-      conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, PT_UDP,
+      conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_UDP,
                                       pinfo->destport, pinfo->srcport, 0);
       conversation_set_dissector(conversation, tftp_handle);
     } else if (conversation->options & NO_PORT_B) {

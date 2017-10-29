@@ -767,7 +767,7 @@ dissect_isns_attr_port(tvbuff_t *tvb, guint offset, proto_tree *tree, int hf_ind
     guint16             port  = tvb_get_ntohs(tvb, offset+2);
     gboolean            is_udp = ((tvb_get_ntohs(tvb, offset) & 0x01) == 0x01);
     conversation_t     *conversation;
-    port_type           pt;
+    endpoint_type       et;
     dissector_handle_t  handle;
 
     proto_tree_add_uint(tree, hf_index, tvb, offset, 4, port);
@@ -775,19 +775,19 @@ dissect_isns_attr_port(tvbuff_t *tvb, guint offset, proto_tree *tree, int hf_ind
 
     if ((isns_port_type == ISNS_ESI_PORT) || (isns_port_type == ISNS_SCN_PORT)) {
         if (is_udp) {
-            pt = PT_UDP;
+            et = ENDPOINT_UDP;
             handle = isns_udp_handle;
         }
         else {
-            pt = PT_TCP;
+            et = ENDPOINT_TCP;
             handle = isns_tcp_handle;
         }
 
         conversation = find_conversation(pinfo->num,
-                &pinfo->src, &pinfo->dst, pt, port, 0, NO_PORT_B);
+                &pinfo->src, &pinfo->dst, et, port, 0, NO_PORT_B);
         if (conversation == NULL) {
             conversation = conversation_new(pinfo->num,
-                    &pinfo->src, &pinfo->dst, pt, port, 0, NO_PORT2_FORCE);
+                    &pinfo->src, &pinfo->dst, et, port, 0, NO_PORT2_FORCE);
             conversation_set_dissector(conversation, handle);
         }
     }

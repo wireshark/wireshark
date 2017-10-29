@@ -1661,18 +1661,18 @@ get_conversation_for_call(packet_info *pinfo)
 		 * if you use NO_ADDR_B.
 		 */
 		conversation = find_conversation(pinfo->num,
-		    &pinfo->src, &null_address, pinfo->ptype,
+		    &pinfo->src, &null_address, conversation_pt_to_endpoint_type(pinfo->ptype),
 		    pinfo->destport, 0, NO_ADDR_B|NO_PORT_B);
 	}
 
 	if (conversation == NULL) {
 		if (pinfo->ptype == PT_TCP || pinfo->ptype == PT_IBQP) {
 			conversation = conversation_new(pinfo->num,
-			    &pinfo->src, &pinfo->dst, pinfo->ptype,
+			    &pinfo->src, &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype),
 			    pinfo->srcport, pinfo->destport, 0);
 		} else {
 			conversation = conversation_new(pinfo->num,
-			    &pinfo->src, &null_address, pinfo->ptype,
+			    &pinfo->src, &null_address, conversation_pt_to_endpoint_type(pinfo->ptype),
 			    pinfo->destport, 0, NO_ADDR2|NO_PORT2);
 		}
 	}
@@ -1713,7 +1713,7 @@ find_conversation_for_reply(packet_info *pinfo)
 		 * if you use NO_ADDR_B.
 		 */
 		conversation = find_conversation(pinfo->num,
-		    &pinfo->dst, &null_address, pinfo->ptype,
+		    &pinfo->dst, &null_address, conversation_pt_to_endpoint_type(pinfo->ptype),
 		    pinfo->srcport, 0, NO_ADDR_B|NO_PORT_B);
 	}
 	return conversation;
@@ -1724,36 +1724,23 @@ new_conversation_for_reply(packet_info *pinfo)
 {
 	conversation_t *conversation;
 
-	if (pinfo->ptype == PT_TCP || pinfo->ptype == PT_IBQP) {
+	switch (pinfo->ptype)
+	{
+	case PT_TCP:
 		conversation = conversation_new(pinfo->num,
-		    &pinfo->src, &pinfo->dst, pinfo->ptype,
+		    &pinfo->src, &pinfo->dst, ENDPOINT_TCP,
 		    pinfo->srcport, pinfo->destport, 0);
-	} else {
+		break;
+	case PT_IBQP:
 		conversation = conversation_new(pinfo->num,
-		    &pinfo->dst, &null_address, pinfo->ptype,
+		    &pinfo->src, &pinfo->dst, ENDPOINT_IBQP,
+		    pinfo->srcport, pinfo->destport, 0);
+		break;
+	default:
+		conversation = conversation_new(pinfo->num,
+		    &pinfo->dst, &null_address, conversation_pt_to_endpoint_type(pinfo->ptype),
 		    pinfo->srcport, 0, NO_ADDR2|NO_PORT2);
-	}
-	return conversation;
-}
-
-static conversation_t *
-get_conversation_for_tcp(packet_info *pinfo)
-{
-	conversation_t *conversation;
-
-	/*
-	 * We know this is running over TCP, so the conversation should
-	 * not wildcard either address or port, regardless of whether
-	 * this is a call or reply.
-	 */
-	conversation = find_conversation_pinfo(pinfo, 0);
-	if (conversation == NULL) {
-		/*
-		 * It's not part of any conversation - create a new one.
-		 */
-		conversation = conversation_new(pinfo->num,
-		    &pinfo->src, &pinfo->dst, pinfo->ptype,
-		    pinfo->srcport, pinfo->destport, 0);
+		break;
 	}
 	return conversation;
 }
@@ -3315,7 +3302,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				   it doesn't already exist, and make the
 				   dissector for it the non-heuristic RPC
 				   dissector for RPC-over-TCP. */
-				conversation = get_conversation_for_tcp(pinfo);
+				conversation = find_or_create_conversation(pinfo);
 				conversation_set_dissector(conversation,
 				    rpc_tcp_handle);
 			}
@@ -3379,7 +3366,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * one, create it.
 	 */
 	if (conversation == NULL)
-		conversation = get_conversation_for_tcp(pinfo);
+		conversation = find_or_create_conversation(pinfo);
 	old_rfk.conv_id = conversation->conv_index;
 	old_rfk.seq = seq;
 	old_rfk.port = pinfo->srcport;

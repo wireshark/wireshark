@@ -2393,7 +2393,7 @@ get_conversation(packet_info *pinfo,
 
     conversation = find_conversation(pinfo->num,
                                src_addr, dst_addr,
-                               pinfo->ptype,
+                               ENDPOINT_BLUETOOTH,
                                src_endpoint, dst_endpoint, 0);
     if (conversation) {
         return conversation;
@@ -2401,7 +2401,7 @@ get_conversation(packet_info *pinfo,
 
     conversation = conversation_new(pinfo->num,
                            src_addr, dst_addr,
-                           pinfo->ptype,
+                           ENDPOINT_BLUETOOTH,
                            src_endpoint, dst_endpoint, 0);
     return conversation;
 }

@@ -249,7 +249,7 @@ decode_dccp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
      * determine if this packet is part of a conversation and call dissector
      * for the conversation if available
      */
-    if (try_conversation_dissector(&pinfo->src, &pinfo->dst, PT_DCCP, sport,
+    if (try_conversation_dissector(&pinfo->src, &pinfo->dst, ENDPOINT_DCCP, sport,
                                    dport, next_tvb, pinfo, tree, NULL)) {
         return;
     }

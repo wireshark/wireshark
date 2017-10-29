@@ -3242,10 +3242,10 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	 * wildcarded, and give it the SNMP dissector as a dissector.
 	 */
 	if (pinfo->destport == UDP_PORT_SNMP) {
-		conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, PT_UDP,
+		conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_UDP,
 					   pinfo->srcport, 0, NO_PORT_B);
 		if( (conversation == NULL) || (conversation_get_dissector(conversation, pinfo->num)!=snmp_handle) ) {
-			conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, PT_UDP,
+			conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_UDP,
 					    pinfo->srcport, 0, NO_PORT2);
 			conversation_set_dissector(conversation, snmp_handle);
 		}

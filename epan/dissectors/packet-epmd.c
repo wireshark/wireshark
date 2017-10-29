@@ -258,7 +258,7 @@ dissect_epmd_response(packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree
             }
             col_append_fstr(pinfo->cinfo, COL_INFO, " %s port=%d", name, port);
             if (!pinfo->fd->flags.visited) {
-                conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, PT_TCP, port, 0, NO_PORT2);
+                conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_TCP, port, 0, NO_PORT2);
                 conversation_set_dissector(conv, edp_handle);
             }
             break;

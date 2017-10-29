@@ -1475,14 +1475,14 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 
 		set_address(&dst_addr, AT_IPv4, 4, &GPRS_user_data_ipv4_address);
 
-		conversation = find_conversation(pinfo->num,&dst_addr,
-			&null_addr, PT_UDP, GPRS_user_data_transport_UDP_port,
+		conversation = find_conversation(pinfo->num, &dst_addr,
+			&null_addr, ENDPOINT_UDP, GPRS_user_data_transport_UDP_port,
 			0, NO_ADDR_B|NO_PORT_B);
 
 		if (conversation == NULL) {
 			/* It's not part of any conversation - create a new one. */
 			conversation = conversation_new(pinfo->num, &dst_addr,
-			    &null_addr, PT_UDP,GPRS_user_data_transport_UDP_port ,
+			    &null_addr, ENDPOINT_UDP, GPRS_user_data_transport_UDP_port ,
 			    0, NO_ADDR2|NO_PORT2);
 
 		/* Set dissector */
@@ -1507,14 +1507,14 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 
 		set_address(&dst_addr, AT_IPv4, 4, &unc_ipv4_address);
 
-		conversation = find_conversation(pinfo->num,&dst_addr,
-			&null_addr, PT_TCP, UNC_tcp_port,
+		conversation = find_conversation(pinfo->num, &dst_addr,
+			&null_addr, ENDPOINT_TCP, UNC_tcp_port,
 			0, NO_ADDR_B|NO_PORT_B);
 
 		if (conversation == NULL) {
 			/* It's not part of any conversation - create a new one. */
 			conversation = conversation_new(pinfo->num, &dst_addr,
-			    &null_addr, PT_TCP,UNC_tcp_port ,
+			    &null_addr, ENDPOINT_TCP, UNC_tcp_port,
 			    0, NO_ADDR2|NO_PORT2);
 			/* Set dissector */
 			conversation_set_dissector(conversation, uma_tcp_handle);

@@ -1134,10 +1134,10 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
          /* similar logic to find_or_create_conversation(), but since I/O traffic
          is on UDP, the pinfo parameter doesn't have the correct information */
          if ((conversation = find_conversation(pinfo->num, &pinfo->dst, &dest_address,
-                                              PT_UDP, connInfo->O2T.port, 0, NO_PORT_B)) == NULL) {
+                                              ENDPOINT_UDP, connInfo->O2T.port, 0, NO_PORT_B)) == NULL) {
 
             conversation = conversation_new(pinfo->num, &pinfo->dst, &dest_address,
-                                            PT_UDP, connInfo->O2T.port, 0, NO_PORT2);
+                                            ENDPOINT_UDP, connInfo->O2T.port, 0, NO_PORT2);
          }
 
          enip_info = (enip_conv_info_t *)conversation_get_proto_data(conversation, proto_enip);
@@ -1155,10 +1155,10 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
             or ports aren't equal, a separate conversation must be generated */
          dest_address.data = connInfo->T2O.ipaddress.data;
          if ((conversationTO = find_conversation(pinfo->num, &pinfo->src, &dest_address,
-                                                PT_UDP, connInfo->T2O.port, 0, NO_PORT_B)) == NULL) {
+                                                ENDPOINT_UDP, connInfo->T2O.port, 0, NO_PORT_B)) == NULL) {
 
              conversationTO = conversation_new(pinfo->num, &pinfo->src,
-                                               &dest_address, PT_UDP,
+                                               &dest_address, ENDPOINT_UDP,
                                                connInfo->T2O.port, 0, NO_PORT2);
          }
 
@@ -1317,7 +1317,7 @@ enip_get_io_connid(packet_info *pinfo, guint32 connid, enum enip_connid_type* pc
     */
    conversation = find_conversation(pinfo->num,
             &pinfo->src, &pinfo->dst,
-            pinfo->ptype,
+            conversation_pt_to_endpoint_type(pinfo->ptype),
             pinfo->destport, 0, NO_PORT_B);
 
    if (conversation == NULL)

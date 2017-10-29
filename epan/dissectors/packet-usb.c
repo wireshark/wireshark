@@ -1693,7 +1693,7 @@ get_usb_conversation(packet_info *pinfo,
      */
     conversation = find_conversation(pinfo->num,
                                src_addr, dst_addr,
-                               pinfo->ptype,
+                               conversation_pt_to_endpoint_type(pinfo->ptype),
                                src_endpoint, dst_endpoint, 0);
     if (conversation) {
         return conversation;
@@ -1702,7 +1702,7 @@ get_usb_conversation(packet_info *pinfo,
     /* We don't yet have a conversation, so create one. */
     conversation = conversation_new(pinfo->num,
                            src_addr, dst_addr,
-                           pinfo->ptype,
+                           conversation_pt_to_endpoint_type(pinfo->ptype),
                            src_endpoint, dst_endpoint, 0);
     return conversation;
 }

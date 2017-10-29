@@ -278,9 +278,7 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
   conversation_t *conversation;
 
   /* first see if we have already matched this */
-  conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-				     pinfo->ptype, pinfo->srcport,
-				     pinfo->destport, 0);
+  conversation = find_conversation_pinfo(pinfo, 0);
   if (conversation == NULL)
     return NULL;
 

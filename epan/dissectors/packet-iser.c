@@ -234,14 +234,14 @@ dissect_iser(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        will not work since we do not have the source QP. this WILL succeed when we're still
        in the process of CM negotiations */
     conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                             PT_IBQP, pinfo->srcport, pinfo->destport, 0);
+                             ENDPOINT_IBQP, pinfo->srcport, pinfo->destport, 0);
 
     if (!conv) {
         /* if not, try to find an established RC channel. recall Infiniband conversations are
            registered with one side of the channel. since the packet is only guaranteed to
            contain the qpn of the destination, we'll use this */
         conv = find_conversation(pinfo->num, &pinfo->dst, &pinfo->dst,
-                                 PT_IBQP, pinfo->destport, pinfo->destport, NO_ADDR_B|NO_PORT_B);
+                                 ENDPOINT_IBQP, pinfo->destport, pinfo->destport, NO_ADDR_B|NO_PORT_B);
 
         if (!conv)
             return FALSE;   /* nothing to do with no conversation context */
