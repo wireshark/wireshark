@@ -40,9 +40,6 @@ gboolean dump_v6 = FALSE;
 
 #define TAP_NAME "hosts"
 
-#define HOSTNAME_POS 48
-#define ADDRSTRLEN 46 /* Covers IPv4 & IPv6 */
-
 static void
 ipv4_hash_table_print_resolved(gpointer key _U_, gpointer value, gpointer user_data _U_)
 {
