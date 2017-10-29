@@ -2630,22 +2630,22 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>%1 lista obiektów</translation>
     </message>
     <message>
-        <location filename="export_object_dialog.cpp" line="315"/>
+        <location filename="export_object_dialog.cpp" line="316"/>
         <source>Save Object As</source>
         <translation>Zapisz obiekt jako</translation>
     </message>
     <message>
-        <location filename="export_object_dialog.cpp" line="341"/>
+        <location filename="export_object_dialog.cpp" line="343"/>
         <source>Save All Objects In</source>
         <translation>Zapisz wszystkie obiekty</translation>
     </message>
     <message>
-        <location filename="export_object_dialog.cpp" line="387"/>
+        <location filename="export_object_dialog.cpp" line="389"/>
         <source>Object Export</source>
         <translation>Eksportuj obiekt</translation>
     </message>
     <message>
-        <location filename="export_object_dialog.cpp" line="388"/>
+        <location filename="export_object_dialog.cpp" line="390"/>
         <source>Some files could not be saved.</source>
         <translation>Pewne pliki nie zostały zapisane.</translation>
     </message>
