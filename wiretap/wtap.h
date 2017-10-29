@@ -25,6 +25,7 @@
 #include <time.h>
 #include <wsutil/buffer.h>
 #include <wsutil/nstime.h>
+#include <wsutil/inet_addr.h>
 #include "wtap_opttypes.h"
 #include "ws_symbol_export.h"
 #include "ws_attributes.h"
@@ -1361,14 +1362,14 @@ typedef struct wtapng_if_stats_mandatory_s {
 typedef struct hashipv4 {
     guint             addr;
     guint8            flags;          /* B0 dummy_entry, B1 resolve, B2 If the address is used in the trace */
-    gchar             ip[16];
+    gchar             ip[WS_INET_ADDRSTRLEN];
     gchar             name[MAXNAMELEN];
 } hashipv4_t;
 
 typedef struct hashipv6 {
     guint8            addr[16];
     guint8            flags;          /* B0 dummy_entry, B1 resolve, B2 If the address is used in the trace */
-    gchar             ip6[46];
+    gchar             ip6[WS_INET6_ADDRSTRLEN];
     gchar             name[MAXNAMELEN];
 } hashipv6_t;
 
