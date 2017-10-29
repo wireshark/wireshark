@@ -2826,7 +2826,6 @@ AC_CONFIG_FILES(
   doc/Makefile
   docbook/Makefile
   epan/Makefile
-  epan/compress/Makefile
   epan/crypt/Makefile
   epan/doxygen.cfg
   epan/dfilter/Makefile

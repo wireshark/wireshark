@@ -27,7 +27,7 @@ if HAVE_LIBLUA
 wslua_dir = wslua
 endif
 
-SUBDIRS = compress crypt ftypes dfilter dissectors wmem $(wslua_dir)
+SUBDIRS = crypt ftypes dfilter dissectors wmem $(wslua_dir)
 
 AM_CPPFLAGS = $(INCLUDEDIRS) -I$(builddir)/wslua $(WS_CPPFLAGS) \
 	$(GLIB_CFLAGS) $(PCAP_CFLAGS) $(LUA_CFLAGS) $(LIBGNUTLS_CFLAGS) \
@@ -340,7 +340,6 @@ libwireshark_la_LIBADD = \
 
 libwireshark_la_DEPENDENCIES = \
 	libwireshark_generated.la		\
-	compress/liblzxpress.la			\
 	libwireshark_asmopt.la			\
 	crypt/libairpdcap.la			\
 	ftypes/libftypes.la			\
