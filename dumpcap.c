@@ -63,10 +63,6 @@
 #include "wsutil/wsgetopt.h"
 #endif
 
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-
 #ifdef HAVE_LIBCAP
 # include <sys/prctl.h>
 # include <sys/capability.h>

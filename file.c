@@ -79,10 +79,6 @@
 # include <netinet/in.h>
 #endif
 
-#ifdef HAVE_NETDB_H
-# include <netdb.h>
-#endif
-
 #ifdef _WIN32
 # include <winsock2.h>
 # include <ws2tcpip.h>
