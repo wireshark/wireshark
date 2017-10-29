@@ -247,8 +247,7 @@ static int ipv4_name_res_len(void)
  ******************************************************************************/
 static int ipv6_to_str(const address* addr, gchar *buf, int buf_len)
 {
-    ip6_to_str_buf((const ws_in6_addr *)addr->data, buf, buf_len);
-    return (int)(strlen(buf)+1);
+    return ip6_to_str_buf((const ws_in6_addr *)addr->data, buf, buf_len);
 }
 
 static int ipv6_str_len(const address* addr _U_)
@@ -436,25 +435,19 @@ static int eui64_len(void)
  * AT_IB
  ******************************************************************************/
 static int
-ib_addr_to_str( const address *addr, gchar *buf, int buf_len){
+ib_addr_to_str(const address *addr, gchar *buf, int buf_len)
+{
     if (addr->len >= 16) { /* GID is 128bits */
-        #define PREAMBLE_STR_LEN ((int)(sizeof("GID: ") - 1))
-        gchar addr_buf[WS_INET6_ADDRSTRLEN];
-
-        ws_inet_ntop6(addr->data, addr_buf, sizeof(addr_buf));
-        if (buf_len < PREAMBLE_STR_LEN + (int)strlen(addr_buf) + 1) {
-            g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len); /* Let the unexpected value alert user */
-        } else {
-            g_snprintf(buf, buf_len, "GID: %s", addr_buf);
-        }
-    } else {    /* this is a LID (16 bits) */
-        guint16 lid_number;
-
-        memcpy((void *)&lid_number, addr->data, sizeof lid_number);
-        g_snprintf(buf,buf_len,"LID: %u",lid_number);
+        return ip6_to_str_buf_with_pfx((const ws_in6_addr *)addr->data, buf, buf_len, "GID: ");
     }
 
-    return sizeof(buf) + 1;
+    /* this is a LID (16 bits) */
+    guint16 lid_number;
+
+    memcpy((void *)&lid_number, addr->data, sizeof lid_number);
+    g_snprintf(buf,buf_len,"LID: %u",lid_number);
+
+    return sizeof(buf) + 1; // XXX this looks all kinds of wrong
 }
 
 static int ib_str_len(const address* addr _U_)

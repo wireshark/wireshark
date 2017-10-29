@@ -90,7 +90,12 @@ WS_DLL_PUBLIC void     address_to_str_buf(const address *addr, gchar *buf, int b
 #define tvb_eui64_to_str(tvb, offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_EUI64, offset)
 
 void	ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len);
-void	ip6_to_str_buf(const ws_in6_addr *, gchar *, int buf_len);
+
+/* Returns length of the result. */
+int ip6_to_str_buf(const ws_in6_addr *ad, gchar *buf, int buf_size);
+
+/* Returns length of the result. Takes a prefix to be inserted before the address. */
+int ip6_to_str_buf_with_pfx(const ws_in6_addr *ad, gchar *buf, int buf_size, const char *prefix);
 
 extern gchar*	ipxnet_to_str_punct(wmem_allocator_t *scope, const guint32 ad, const char punct);
 WS_DLL_PUBLIC gchar*	eui64_to_str(wmem_allocator_t *scope, const guint64 ad);
