@@ -549,86 +549,92 @@ find_wccp_address_table(tvbuff_t *tvb, int offset,
    we need to fix that
 */
 
-static void wccp_fmt_ipaddress(gchar *buffer, guint32 host_addr, wccp_address_table* addr_table)
+static const gchar * decode_wccp_encoded_address(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+                        proto_tree *info_tree _U_, wccp_address_table* addr_table)
 {
+  guint32 host_addr;
+  gchar *buffer;
+
   /* are we using an address table? */
   if (!addr_table->in_use)
     {
-      /* no return the IPv4 IP */
-      /* first fix the byte order */
-      guint addr= GUINT32_SWAP_LE_BE(host_addr);
-
-      ip_to_str_buf( (guint8 *) &addr, buffer, ITEM_LABEL_LENGTH);
-      return;
+      /* no; return the IPv4 IP */
+      host_addr = tvb_get_ipv4(tvb,offset);
+      buffer = (char *) wmem_alloc(wmem_packet_scope(), WS_INET_ADDRSTRLEN);
+      ip_to_str_buf( (guint8 *) &host_addr, buffer, WS_INET_ADDRSTRLEN);
     }
   else
     {
-      /* we need to decode the encoded address: */
-      guint16 reserv = (host_addr & 0xFFFF0000) >> 16;
-      guint16 addr_index  = (host_addr & 0x0000FFFF);
+      /* yes; we need to decode the encoded address */
+      guint16 reserv;
+      guint16 addr_index;
+
+      host_addr = tvb_get_ntohl(tvb,offset);
+      reserv = (host_addr & 0xFFFF0000) >> 16;
+      addr_index = (host_addr & 0x0000FFFF);
 
       if (reserv != 0) {
-        g_snprintf(buffer, ITEM_LABEL_LENGTH, "INVALID: reserved part non zero");
-        return;
+        buffer = wmem_strdup(wmem_packet_scope(), "INVALID: reserved part non zero");
       }
+      else {
+        /* now check if it's IPv4 or IPv6 we need to print */
+        switch (addr_table->family) {
+        case 1:
+          /* IPv4 */
 
-      /* now check if it's IPv4 or IPv6 we need to print */
-      switch (addr_table->family) {
-      case 1:
-        /* IPv4 */
+          /* special case: index 0 -> undefined IP */
+          if (addr_index == 0) {
+            buffer = wmem_strdup(wmem_packet_scope(), "0.0.0.0");
+            break;
+          }
+          /* are we be beyond the end of the table? */
+          if (addr_index > addr_table->table_length) {
+            buffer = wmem_strdup_printf(wmem_packet_scope(), "INVALID IPv4 index: %d > %d",
+                       addr_index, addr_table->table_length);
+            break;
+          }
 
-        /* special case: index 0 -> undefined IP */
-        if (addr_index == 0) {
-          g_snprintf(buffer, ITEM_LABEL_LENGTH, "0.0.0.0");
-          return;
-        }
-        /* are we be beyond the end of the table? */
-        if (addr_index > addr_table->table_length) {
-          g_snprintf(buffer, ITEM_LABEL_LENGTH, "INVALID IPv4 index: %d > %d",
-                     addr_index, addr_table->table_length);
-          return;
-        }
+          /* ok get the IP */
+          if (addr_table->table_ipv4 != NULL) {
+            buffer = (char *) wmem_alloc(wmem_packet_scope(), WS_INET_ADDRSTRLEN);
+            ip_to_str_buf( (guint8 *) &(addr_table->table_ipv4[addr_index-1]), buffer, WS_INET_ADDRSTRLEN);
+          }
+          else {
+            buffer = wmem_strdup(wmem_packet_scope(), "INVALID IPv4 table empty!");
+          }
+          break;
+        case 2:
+          /* IPv6 */
+          /* special case: index 0 -> undefined IP */
+          if (addr_index == 0) {
+            buffer = wmem_strdup(wmem_packet_scope(), "::");
+            break;
+          }
 
-        /* ok get the IP */
-        if (addr_table->table_ipv4 != NULL) {
-          ip_to_str_buf( (guint8 *) &(addr_table->table_ipv4[addr_index-1]), buffer, ITEM_LABEL_LENGTH);
-          return;
-        }
-        else {
-          g_snprintf(buffer, ITEM_LABEL_LENGTH, "INVALID IPv4 table empty!");
-          return;
-        }
-        break;
-      case 2:
-        /* IPv6 */
-        /* special case: index 0 -> undefined IP */
-        if (addr_index == 0) {
-          g_snprintf(buffer, ITEM_LABEL_LENGTH, "::");
-          return;
-        }
+          /* are we be beyond the end of the table? */
+          if (addr_index > addr_table->table_length) {
+            buffer = wmem_strdup_printf(wmem_packet_scope(), "INVALID IPv6 index: %d > %d",
+                       addr_index, addr_table->table_length);
+            break;
+          }
 
-        /* are we be beyond the end of the table? */
-        if (addr_index > addr_table->table_length) {
-          g_snprintf(buffer, ITEM_LABEL_LENGTH, "INVALID IPv6 index: %d > %d",
-                     addr_index, addr_table->table_length);
-          return;
+          /* ok get the IP */
+          if (addr_table->table_ipv6 != NULL) {
+            buffer = (char *) wmem_alloc(wmem_packet_scope(), WS_INET6_ADDRSTRLEN);
+            ip6_to_str_buf(&(addr_table->table_ipv6[addr_index-1]), buffer, WS_INET6_ADDRSTRLEN);
+          }
+          else {
+            buffer = wmem_strdup(wmem_packet_scope(), "INVALID IPv6 table empty!");
+          }
+          break;
+        default:
+          buffer = wmem_strdup(wmem_packet_scope(), "INVALID IP family");
+          break;
         }
-
-        /* ok get the IP */
-        if (addr_table->table_ipv6 != NULL) {
-          ip6_to_str_buf(&(addr_table->table_ipv6[addr_index-1]), buffer, ITEM_LABEL_LENGTH);
-          return;
-        }
-        else {
-          g_snprintf(buffer, ITEM_LABEL_LENGTH, "INVALID IPv6 table empty!");
-          return;
-        }
-        break;
-      default:
-        g_snprintf(buffer, ITEM_LABEL_LENGTH, "INVALID IP family");
-        return;
       }
     }
+
+  return buffer;
 }
 
 static proto_item* wccp_add_ipaddress_item(proto_tree* tree, int hf_index, int hf_ipv4, int hf_ipv6, tvbuff_t *tvb,
@@ -702,19 +708,6 @@ static proto_item* wccp_add_ipaddress_item(proto_tree* tree, int hf_index, int h
 
 #define WCCP_IP_MAX_LENGTH (WS_INET_ADDRSTRLEN > 46 ? WS_INET_ADDRSTRLEN : 46)
 
-
-static const gchar * decode_wccp_encoded_address(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                        proto_tree *info_tree _U_, wccp_address_table* addr_table)
-{
-  gchar *buffer;
-  guint32 host_addr;
-
-  buffer= (char *) wmem_alloc(wmem_packet_scope(), WCCP_IP_MAX_LENGTH+1);
-  host_addr = tvb_get_ntohl(tvb,offset);
-
-  wccp_fmt_ipaddress(buffer, host_addr, addr_table);
-  return buffer;
-}
 
 static guint
 dissect_hash_data(tvbuff_t *tvb, int offset, proto_tree *wccp_tree)
