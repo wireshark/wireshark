@@ -25,6 +25,10 @@
 #include "ws_symbol_export.h"
 #include "ws_attributes.h"
 
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
+
 #include <glib.h>
 #include "inet_ipv6.h"
 
@@ -57,15 +61,29 @@
  * buffer for IPv4 addresses and a 46-byte or larger buffer for
  * IPv6 addresses.
  */
-#define WS_INET_ADDRSTRLEN      16
-#define WS_INET6_ADDRSTRLEN     46
+#ifdef INET_ADDRSTRLEN
+  #define WS_INET_ADDRSTRLEN      INET_ADDRSTRLEN
+#else
+  #define WS_INET_ADDRSTRLEN      16
+#endif
+#ifdef INET6_ADDRSTRLEN
+  #define WS_INET6_ADDRSTRLEN     INET6_ADDRSTRLEN
+#else
+  #define WS_INET6_ADDRSTRLEN     46
+#endif
 
+/*
+ * 'dst_size' *must* be greater or equal to WS_INET_ADDRSTRLEN.
+ */
 WS_DLL_PUBLIC WS_RETNONNULL const gchar *
 ws_inet_ntop4(gconstpointer src, gchar *dst, guint dst_size);
 
 WS_DLL_PUBLIC gboolean
 ws_inet_pton4(const gchar *src, guint32 *dst);
 
+/*
+ * 'dst_size' *must* be greater or equal to WS_INET6_ADDRSTRLEN.
+ */
 WS_DLL_PUBLIC WS_RETNONNULL const gchar *
 ws_inet_ntop6(gconstpointer src, gchar *dst, guint dst_size);
 
