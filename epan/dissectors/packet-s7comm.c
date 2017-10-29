@@ -478,6 +478,8 @@ static const value_string item_syntaxid_names[] = {
 #define S7COMM_DATA_TRANSPORT_SIZE_BDINT    6           /* integer access, len is in bytes */
 #define S7COMM_DATA_TRANSPORT_SIZE_BREAL    7           /* real access, len is in bytes */
 #define S7COMM_DATA_TRANSPORT_SIZE_BSTR     9           /* octet string, len is in bytes */
+#define S7COMM_DATA_TRANSPORT_SIZE_NCKADDR1 17          /* NCK address description, fixed length */
+#define S7COMM_DATA_TRANSPORT_SIZE_NCKADDR2 18          /* NCK address description, fixed length */
 
 static const value_string data_transportsizenames[] = {
     { S7COMM_DATA_TRANSPORT_SIZE_NULL,      "NULL" },
@@ -487,6 +489,8 @@ static const value_string data_transportsizenames[] = {
     { S7COMM_DATA_TRANSPORT_SIZE_BDINT,     "DINTEGER" },
     { S7COMM_DATA_TRANSPORT_SIZE_BREAL,     "REAL" },
     { S7COMM_DATA_TRANSPORT_SIZE_BSTR,      "OCTET STRING" },
+    { S7COMM_DATA_TRANSPORT_SIZE_NCKADDR1,  "NCK ADDRESS1" },
+    { S7COMM_DATA_TRANSPORT_SIZE_NCKADDR2,  "NCK ADDRESS2" },
     { 0,                                    NULL }
 };
 /**************************************************************************
@@ -591,6 +595,20 @@ static const value_string blocklanguage_names[] = {
     { 0x11,                                 "SDB (after overall reset)" },  /* another SDB, don't know what it means, in SDB 1 and SDB 2, uncertain*/
     { 0x12,                                 "SDB (Routing)" },              /* another SDB, in SDB 999 and SDB 1000 (routing information), uncertain */
     { 0x29,                                 "ENCRYPT" },                    /* block is encrypted with S7-Block-Privacy */
+    { 0,                                    NULL }
+};
+
+/**************************************************************************
+ * Second request/response in userdata parameter part
+ */
+#define S7COMM_UD_REQRES2_UNDEF             0x00
+#define S7COMM_UD_REQRES2_REQ               0x11
+#define S7COMM_UD_REQRES2_RES               0x12
+
+static const value_string userdata_reqres2_names[] = {
+    { S7COMM_UD_REQRES2_UNDEF,              "Undef" },                      /* only seen in mode transition events */
+    { S7COMM_UD_REQRES2_REQ,                "Req" },
+    { S7COMM_UD_REQRES2_RES,                "Res" },
     { 0,                                    NULL }
 };
 
@@ -762,10 +780,12 @@ static const value_string userdata_prog_subfunc_names[] = {
  */
 #define S7COMM_UD_SUBF_CYCLIC_MEM           0x01
 #define S7COMM_UD_SUBF_CYCLIC_UNSUBSCRIBE   0x04
+#define S7COMM_UD_SUBF_CYCLIC_MEM2          0x05
 
 static const value_string userdata_cyclic_subfunc_names[] = {
     { S7COMM_UD_SUBF_CYCLIC_MEM,            "Memory" },                         /* read data from memory (DB/M/etc.) */
     { S7COMM_UD_SUBF_CYCLIC_UNSUBSCRIBE,    "Unsubscribe" },                    /* Unsubscribe (disable) cyclic data */
+    { S7COMM_UD_SUBF_CYCLIC_MEM2,           "Memory2" },                        /* same as 0x01, but only S7-400 */
     { 0,                                    NULL }
 };
 
@@ -786,6 +806,7 @@ static const value_string userdata_block_subfunc_names[] = {
 /**************************************************************************
  * Names of userdata subfunctions in group 4 (CPU functions)
  */
+#define S7COMM_UD_SUBF_CPU_SCAN_IND         0x09
 
 static const value_string userdata_cpu_subfunc_names[] = {
     { S7COMM_UD_SUBF_CPU_READSZL,           "Read SZL" },
@@ -795,6 +816,7 @@ static const value_string userdata_cpu_subfunc_names[] = {
     { S7COMM_UD_SUBF_CPU_NOTIFY_IND,        "NOTIFY indication" },              /* PLC is indicating a NOTIFY message, using NOTIFY SFBs */
     { S7COMM_UD_SUBF_CPU_ALARM8LOCK,        "ALARM_8 lock" },                   /* Lock an ALARM message from HMI/SCADA */
     { S7COMM_UD_SUBF_CPU_ALARM8UNLOCK,      "ALARM_8 unlock" },                 /* Unlock an ALARM message from HMI/SCADA */
+    { S7COMM_UD_SUBF_CPU_SCAN_IND,          "SCAN indication" },                /* PLC is indicating a SCAN message */
     { S7COMM_UD_SUBF_CPU_ALARMS_IND,        "ALARM_S indication" },             /* PLC is indicating an ALARM message, using ALARM_S/ALARM_D SFCs */
     { S7COMM_UD_SUBF_CPU_ALARMSQ_IND,       "ALARM_SQ indication" },            /* PLC is indicating an ALARM message, using ALARM_SQ/ALARM_DQ SFCs */
     { S7COMM_UD_SUBF_CPU_ALARMQUERY,        "ALARM query" },                    /* HMI/SCADA query of ALARMs */
@@ -1118,7 +1140,7 @@ static gint hf_s7comm_userdata_data = -1;
 
 static gint hf_s7comm_userdata_param_head = -1;
 static gint hf_s7comm_userdata_param_len = -1;
-static gint hf_s7comm_userdata_param_reqres2 = -1;          /* unknown */
+static gint hf_s7comm_userdata_param_reqres2 = -1;
 static gint hf_s7comm_userdata_param_type = -1;
 static gint hf_s7comm_userdata_param_funcgroup = -1;
 static gint hf_s7comm_userdata_param_subfunc_prog = -1;
@@ -1502,6 +1524,8 @@ static gint hf_s7comm_cpu_alarm_message_event_coming = -1;
 static gint hf_s7comm_cpu_alarm_message_event_going = -1;
 static gint hf_s7comm_cpu_alarm_message_event_lastchanged = -1;
 static gint hf_s7comm_cpu_alarm_message_event_reserved = -1;
+static gint hf_s7comm_cpu_alarm_message_scan_unknown1 = -1;
+static gint hf_s7comm_cpu_alarm_message_scan_unknown2 = -1;
 
 static gint hf_s7comm_cpu_alarm_message_signal_sig1 = -1;
 static gint hf_s7comm_cpu_alarm_message_signal_sig2 = -1;
@@ -2734,50 +2758,64 @@ s7comm_decode_response_read_data(tvbuff_t *tvb,
     proto_item *item = NULL;
     proto_tree *item_tree = NULL;
 
-    for (i = 1; i <= item_count; i++) {
-        ret_val = tvb_get_guint8(tvb, offset);
-        if (ret_val == S7COMM_ITEM_RETVAL_RESERVED ||
-            ret_val == S7COMM_ITEM_RETVAL_DATA_OK ||
-            ret_val == S7COMM_ITEM_RETVAL_DATA_ERR
-            ) {
-            tsize = tvb_get_guint8(tvb, offset + 1);
-            len = tvb_get_ntohs(tvb, offset + 2);
-            /* calculate length in bytes */
-            if (tsize == S7COMM_DATA_TRANSPORT_SIZE_BBIT ||
-                tsize == S7COMM_DATA_TRANSPORT_SIZE_BBYTE ||
-                tsize == S7COMM_DATA_TRANSPORT_SIZE_BINT
-                ) {     /* given length is in number of bits */
-                if (len % 8) { /* len is not a multiple of 8, then round up to next number */
-                    len /= 8;
-                    len = len + 1;
+    /* Maybe this is only valid for Sinumerik NCK: Pre-check transport-size
+     * If transport size is 0x11 or 0x12, then an array with requested NCK areas will follow.
+     */
+    tsize = tvb_get_guint8(tvb, offset + 1);
+    if (tsize == S7COMM_DATA_TRANSPORT_SIZE_NCKADDR1 || tsize == S7COMM_DATA_TRANSPORT_SIZE_NCKADDR2) {
+        proto_tree_add_item(tree, hf_s7comm_data_returncode, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_uint(tree, hf_s7comm_data_transport_size, tvb, offset + 1, 1, tsize);
+        offset += 2;
+        for (i = 0; i < item_count; i++) {
+            offset = s7comm_decode_param_item(tvb, offset, tree, i);
+        }
+    } else {
+        /* Standard */
+        for (i = 1; i <= item_count; i++) {
+            ret_val = tvb_get_guint8(tvb, offset);
+            if (ret_val == S7COMM_ITEM_RETVAL_RESERVED ||
+                ret_val == S7COMM_ITEM_RETVAL_DATA_OK ||
+                ret_val == S7COMM_ITEM_RETVAL_DATA_ERR
+                ) {
+                tsize = tvb_get_guint8(tvb, offset + 1);
+                len = tvb_get_ntohs(tvb, offset + 2);
+                /* calculate length in bytes */
+                if (tsize == S7COMM_DATA_TRANSPORT_SIZE_BBIT ||
+                    tsize == S7COMM_DATA_TRANSPORT_SIZE_BBYTE ||
+                    tsize == S7COMM_DATA_TRANSPORT_SIZE_BINT
+                    ) {     /* given length is in number of bits */
+                    if (len % 8) { /* len is not a multiple of 8, then round up to next number */
+                        len /= 8;
+                        len = len + 1;
+                    } else {
+                        len /= 8;
+                    }
+                }
+
+                /* the PLC places extra bytes at the end of all but last result, if length is not a multiple of 2 */
+                if ((len % 2) && (i < item_count)) {
+                    len2 = len + 1;
                 } else {
-                    len /= 8;
+                    len2 = len;
                 }
             }
+            /* Insert a new tree for every item */
+            item = proto_tree_add_item(tree, hf_s7comm_data_item, tvb, offset, len + head_len, ENC_NA);
+            item_tree = proto_item_add_subtree(item, ett_s7comm_data_item);
+            proto_item_append_text(item, " [%d]: (%s)", i, val_to_str(ret_val, s7comm_item_return_valuenames, "Unknown code: 0x%02x"));
 
-            /* the PLC places extra bytes at the end of all but last result, if length is not a multiple of 2 */
-            if ((len % 2) && (i < item_count)) {
-                len2 = len + 1;
-            } else {
-                len2 = len;
-            }
-        }
-        /* Insert a new tree for every item */
-        item = proto_tree_add_item(tree, hf_s7comm_data_item, tvb, offset, len + head_len, ENC_NA);
-        item_tree = proto_item_add_subtree(item, ett_s7comm_data_item);
-        proto_item_append_text(item, " [%d]: (%s)", i, val_to_str(ret_val, s7comm_item_return_valuenames, "Unknown code: 0x%02x"));
+            proto_tree_add_uint(item_tree, hf_s7comm_data_returncode, tvb, offset, 1, ret_val);
+            proto_tree_add_uint(item_tree, hf_s7comm_data_transport_size, tvb, offset + 1, 1, tsize);
+            proto_tree_add_uint(item_tree, hf_s7comm_data_length, tvb, offset + 2, 2, len);
+            offset += head_len;
 
-        proto_tree_add_uint(item_tree, hf_s7comm_data_returncode, tvb, offset, 1, ret_val);
-        proto_tree_add_uint(item_tree, hf_s7comm_data_transport_size, tvb, offset + 1, 1, tsize);
-        proto_tree_add_uint(item_tree, hf_s7comm_data_length, tvb, offset + 2, 2, len);
-        offset += head_len;
-
-        if (ret_val == S7COMM_ITEM_RETVAL_DATA_OK || ret_val == S7COMM_ITEM_RETVAL_RESERVED) {
-            proto_tree_add_item(item_tree, hf_s7comm_readresponse_data, tvb, offset, len, ENC_NA);
-            offset += len;
-            if (len != len2) {
-                proto_tree_add_item(item_tree, hf_s7comm_data_fillbyte, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset += 1;
+            if (ret_val == S7COMM_ITEM_RETVAL_DATA_OK || ret_val == S7COMM_ITEM_RETVAL_RESERVED) {
+                proto_tree_add_item(item_tree, hf_s7comm_readresponse_data, tvb, offset, len, ENC_NA);
+                offset += len;
+                if (len != len2) {
+                    proto_tree_add_item(item_tree, hf_s7comm_data_fillbyte, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset += 1;
+                }
             }
         }
     }
@@ -3952,12 +3990,26 @@ s7comm_decode_ud_cpu_alarm_main(tvbuff_t *tvb,
     msg_item = proto_tree_add_item(data_tree, hf_s7comm_cpu_alarm_message_item, tvb, offset, 0, ENC_NA);
     msg_item_tree = proto_item_add_subtree(msg_item, ett_s7comm_cpu_alarm_message);
 
-    if (subfunc == S7COMM_UD_SUBF_CPU_ALARM8_IND || subfunc == S7COMM_UD_SUBF_CPU_ALARMACK_IND ||
-        subfunc == S7COMM_UD_SUBF_CPU_ALARMSQ_IND || subfunc == S7COMM_UD_SUBF_CPU_ALARMS_IND ||
-        subfunc == S7COMM_UD_SUBF_CPU_NOTIFY_IND || subfunc == S7COMM_UD_SUBF_CPU_NOTIFY8_IND) {
-        msg_work_item = proto_tree_add_item(msg_item_tree, hf_s7comm_cpu_alarm_message_timestamp_coming, tvb, offset, 8, ENC_NA);
-        msg_work_item_tree = proto_item_add_subtree(msg_work_item, ett_s7comm_cpu_alarm_message_timestamp);
-        offset = s7comm_add_timestamp_to_tree(tvb, msg_work_item_tree, offset, TRUE, FALSE);
+    switch (subfunc) {
+        case S7COMM_UD_SUBF_CPU_SCAN_IND:
+            proto_tree_add_item(msg_item_tree, hf_s7comm_cpu_alarm_message_scan_unknown1, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            msg_work_item = proto_tree_add_item(msg_item_tree, hf_s7comm_cpu_alarm_message_timestamp_coming, tvb, offset, 8, ENC_NA);
+            msg_work_item_tree = proto_item_add_subtree(msg_work_item, ett_s7comm_cpu_alarm_message_timestamp);
+            offset = s7comm_add_timestamp_to_tree(tvb, msg_work_item_tree, offset, TRUE, FALSE);
+            proto_tree_add_item(msg_item_tree, hf_s7comm_cpu_alarm_message_scan_unknown2, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            break;
+        case S7COMM_UD_SUBF_CPU_ALARM8_IND:
+        case S7COMM_UD_SUBF_CPU_ALARMACK_IND:
+        case S7COMM_UD_SUBF_CPU_ALARMSQ_IND:
+        case S7COMM_UD_SUBF_CPU_ALARMS_IND:
+        case S7COMM_UD_SUBF_CPU_NOTIFY_IND:
+        case S7COMM_UD_SUBF_CPU_NOTIFY8_IND:
+            msg_work_item = proto_tree_add_item(msg_item_tree, hf_s7comm_cpu_alarm_message_timestamp_coming, tvb, offset, 8, ENC_NA);
+            msg_work_item_tree = proto_item_add_subtree(msg_work_item, ett_s7comm_cpu_alarm_message_timestamp);
+            offset = s7comm_add_timestamp_to_tree(tvb, msg_work_item_tree, offset, TRUE, FALSE);
+            break;
     }
     proto_tree_add_item(msg_item_tree, hf_s7comm_cpu_alarm_message_function, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -4580,6 +4632,7 @@ s7comm_decode_ud_cyclic_subfunc(tvbuff_t *tvb,
     switch (subfunc)
     {
         case S7COMM_UD_SUBF_CYCLIC_MEM:
+        case S7COMM_UD_SUBF_CYCLIC_MEM2:
             item_count = tvb_get_guint8(tvb, offset + 1);     /* first byte reserved??? */
             proto_tree_add_uint(data_tree, hf_s7comm_param_itemcount, tvb, offset, 2, item_count);
             offset += 2;
@@ -4729,7 +4782,7 @@ s7comm_decode_ud(tvbuff_t *tvb,
     guint16 len;
     guint32 errorcode;
     guint32 offset_temp;
-
+    guint32 reqres2;
     guint8 type;
     guint8 funcgroup;
     guint8 subfunc;
@@ -4750,19 +4803,25 @@ s7comm_decode_ud(tvbuff_t *tvb,
     /* 1 byte length of following parameter (8 or 12 bytes) */
     proto_tree_add_item(param_tree, hf_s7comm_userdata_param_len, tvb, offset_temp, 1, ENC_BIG_ENDIAN);
     offset_temp += 1;
-    /* 1 byte unknown, maybe indicating request/response */
-    proto_tree_add_item(param_tree, hf_s7comm_userdata_param_reqres2, tvb, offset_temp, 1, ENC_BIG_ENDIAN);
+    /* 1 byte indicating request/response again, but useful in Push telegrams*/
+    proto_tree_add_item_ret_uint(param_tree, hf_s7comm_userdata_param_reqres2, tvb, offset, 1, ENC_BIG_ENDIAN, &reqres2);
     offset_temp += 1;
     /* High nibble (following/request/response) */
     type = (tvb_get_guint8(tvb, offset_temp) & 0xf0) >> 4;
     funcgroup = (tvb_get_guint8(tvb, offset_temp) & 0x0f);
     proto_tree_add_item(param_tree, hf_s7comm_userdata_param_type, tvb, offset_temp, 1, ENC_BIG_ENDIAN);
-
-    col_append_fstr(pinfo->cinfo, COL_INFO, " Function:[%s] -> [%s]",
-        val_to_str(type, userdata_type_names, "Unknown type: 0x%02x"),
-        val_to_str(funcgroup, userdata_functiongroup_names, "Unknown function: 0x%02x")
-        );
-
+    if (type == S7COMM_UD_TYPE_PUSH || type == S7COMM_UD_TYPE_NCPUSH) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " Function:[%s-%s] -> [%s]",
+            val_to_str(type, userdata_type_names, "Unknown type: 0x%02x"),
+            val_to_str(reqres2, userdata_reqres2_names, "Unknown method: 0x%02x"),
+            val_to_str(funcgroup, userdata_functiongroup_names, "Unknown function: 0x%02x")
+            );
+    } else {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " Function:[%s] -> [%s]",
+            val_to_str(type, userdata_type_names, "Unknown type: 0x%02x"),
+            val_to_str(funcgroup, userdata_functiongroup_names, "Unknown function: 0x%02x")
+            );
+    }
     proto_item_append_text(param_tree, ": (%s)", val_to_str(type, userdata_type_names, "Unknown type: 0x%02x"));
     proto_item_append_text(param_tree, " ->(%s)", val_to_str(funcgroup, userdata_functiongroup_names, "Unknown function: 0x%02x"));
 
@@ -4847,13 +4906,14 @@ s7comm_decode_ud(tvbuff_t *tvb,
      * Add data tree
      */
     offset += plength;          /* set offset to the beginning of the data part */
-    item = proto_tree_add_item(tree, hf_s7comm_data, tvb, offset, dlength, ENC_NA);
-    data_tree = proto_item_add_subtree(item, ett_s7comm_data);
-
-    /* the first 4 bytes of the  data part of a userdata telegram are the same for all types */
+    /* The first 4 bytes of the data part of a userdata telegram are the same for all types.
+     * This is also the minumum length of the data part.
+     */
     if (dlength >= 4) {
-        ret_val = tvb_get_guint8(tvb, offset);
+        item = proto_tree_add_item(tree, hf_s7comm_data, tvb, offset, dlength, ENC_NA);
+        data_tree = proto_item_add_subtree(item, ett_s7comm_data);
 
+        ret_val = tvb_get_guint8(tvb, offset);
         proto_tree_add_uint(data_tree, hf_s7comm_data_returncode, tvb, offset, 1, ret_val);
         offset += 1;
         /* Not definitely known part, kind of "transport size"? constant 0x09, 1 byte
@@ -4870,7 +4930,7 @@ s7comm_decode_ud(tvbuff_t *tvb,
          * decode only when there is a data part length greater 4 bytes
          */
         if (dlength > 4) {
-            switch (funcgroup){
+            switch (funcgroup) {
                 case S7COMM_UD_FUNCGROUP_PROG:
                     offset = s7comm_decode_ud_prog_subfunc(tvb, data_tree, type, subfunc, dlength, offset);
                     break;
@@ -4881,25 +4941,41 @@ s7comm_decode_ud(tvbuff_t *tvb,
                     offset = s7comm_decode_ud_block_subfunc(tvb, pinfo, data_tree, type, subfunc, ret_val, tsize, len, dlength, offset);
                     break;
                 case S7COMM_UD_FUNCGROUP_CPU:
-                    if (subfunc == S7COMM_UD_SUBF_CPU_READSZL) {
-                        offset = s7comm_decode_ud_cpu_szl_subfunc(tvb, pinfo, data_tree, type, ret_val, len, dlength, data_unit_ref, last_data_unit, offset);
-                    } else if (subfunc == S7COMM_UD_SUBF_CPU_NOTIFY_IND || subfunc == S7COMM_UD_SUBF_CPU_NOTIFY8_IND
-                            || subfunc == S7COMM_UD_SUBF_CPU_ALARM8_IND || subfunc == S7COMM_UD_SUBF_CPU_ALARMSQ_IND
-                            || subfunc == S7COMM_UD_SUBF_CPU_ALARMS_IND || subfunc == S7COMM_UD_SUBF_CPU_ALARMACK_IND
-                            || subfunc == S7COMM_UD_SUBF_CPU_ALARMACK
-                            || subfunc == S7COMM_UD_SUBF_CPU_ALARM8LOCK || subfunc == S7COMM_UD_SUBF_CPU_ALARM8LOCK_IND
-                            || subfunc == S7COMM_UD_SUBF_CPU_ALARM8UNLOCK || subfunc == S7COMM_UD_SUBF_CPU_ALARM8UNLOCK_IND
-                            || (subfunc == S7COMM_UD_SUBF_CPU_ALARMQUERY && type != S7COMM_UD_TYPE_RES)) {
-                        offset = s7comm_decode_ud_cpu_alarm_main(tvb, pinfo, data_tree, type, subfunc, offset);
-                    } else if (subfunc == S7COMM_UD_SUBF_CPU_ALARMQUERY && type == S7COMM_UD_TYPE_RES) {
-                        offset = s7comm_decode_ud_cpu_alarm_query_response(tvb, pinfo, data_tree, offset);
-                    } else if (subfunc == S7COMM_UD_SUBF_CPU_DIAGMSG) {
-                        offset = s7comm_decode_ud_cpu_diagnostic_message(tvb, pinfo, TRUE, data_tree, offset);
-                    } else if (subfunc == S7COMM_UD_SUBF_CPU_MSGS) {
-                        offset = s7comm_decode_message_service(tvb, pinfo, data_tree, type, dlength - 4, offset);
-                    } else {
-                        /* print other currently unknown data as raw bytes */
-                        proto_tree_add_item(data_tree, hf_s7comm_userdata_data, tvb, offset, dlength - 4, ENC_NA);
+                    switch (subfunc) {
+                        case S7COMM_UD_SUBF_CPU_READSZL:
+                            offset = s7comm_decode_ud_cpu_szl_subfunc(tvb, pinfo, data_tree, type, ret_val, len, dlength, data_unit_ref, last_data_unit, offset);
+                            break;
+                        case S7COMM_UD_SUBF_CPU_NOTIFY_IND:
+                        case S7COMM_UD_SUBF_CPU_NOTIFY8_IND:
+                        case S7COMM_UD_SUBF_CPU_ALARMSQ_IND:
+                        case S7COMM_UD_SUBF_CPU_ALARMS_IND:
+                        case S7COMM_UD_SUBF_CPU_SCAN_IND:
+                        case S7COMM_UD_SUBF_CPU_ALARMACK:
+                        case S7COMM_UD_SUBF_CPU_ALARMACK_IND:
+                        case S7COMM_UD_SUBF_CPU_ALARM8_IND:
+                        case S7COMM_UD_SUBF_CPU_ALARM8LOCK:
+                        case S7COMM_UD_SUBF_CPU_ALARM8LOCK_IND:
+                        case S7COMM_UD_SUBF_CPU_ALARM8UNLOCK:
+                        case S7COMM_UD_SUBF_CPU_ALARM8UNLOCK_IND:
+                            offset = s7comm_decode_ud_cpu_alarm_main(tvb, pinfo, data_tree, type, subfunc, offset);
+                            break;
+                        case S7COMM_UD_SUBF_CPU_ALARMQUERY:
+                            if (type == S7COMM_UD_TYPE_RES) {
+                                offset = s7comm_decode_ud_cpu_alarm_query_response(tvb, pinfo, data_tree, offset);
+                            } else {
+                                offset = s7comm_decode_ud_cpu_alarm_main(tvb, pinfo, data_tree, type, subfunc, offset);
+                            }
+                            break;
+                        case S7COMM_UD_SUBF_CPU_DIAGMSG:
+                            offset = s7comm_decode_ud_cpu_diagnostic_message(tvb, pinfo, TRUE, data_tree, offset);
+                            break;
+                        case S7COMM_UD_SUBF_CPU_MSGS:
+                            offset = s7comm_decode_message_service(tvb, pinfo, data_tree, type, dlength - 4, offset);
+                            break;
+                        default:
+                            /* print other currently unknown data as raw bytes */
+                            proto_tree_add_item(data_tree, hf_s7comm_userdata_data, tvb, offset, dlength - 4, ENC_NA);
+                            break;
                     }
                     break;
                 case S7COMM_UD_FUNCGROUP_SEC:
@@ -5120,12 +5196,13 @@ dissect_s7comm(tvbuff_t *tvb,
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_S7COMM);
     col_clear(pinfo->cinfo, COL_INFO);
+    col_append_sep_str(pinfo->cinfo, COL_INFO, " | ", "");
 
     rosctr = tvb_get_guint8(tvb, 1);                            /* Get the type byte */
     if (rosctr == 2 || rosctr == 3) hlength = 12;               /* Header 10 Bytes, when type 2 or 3 (response) -> 12 Bytes */
 
     /* display some infos in info-column of wireshark */
-    col_add_fstr(pinfo->cinfo, COL_INFO, "ROSCTR:[%-8s]", val_to_str(rosctr, rosctr_names, "Unknown: 0x%02x"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "ROSCTR:[%-8s]", val_to_str(rosctr, rosctr_names, "Unknown: 0x%02x"));
 
     s7comm_item = proto_tree_add_item(tree, proto_s7comm, tvb, 0, -1, ENC_NA);
     s7comm_tree = proto_item_add_subtree(s7comm_item, ett_s7comm);
@@ -5187,6 +5264,8 @@ dissect_s7comm(tvbuff_t *tvb,
     if (errorcode > 0) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " -> Errorcode:[0x%04x]", errorcode);
     }
+    /* set fence as there may be more than one S7comm PDU in one frame */
+    col_set_fence(pinfo->cinfo, COL_INFO);
     return TRUE;
 }
 
@@ -5383,8 +5462,8 @@ proto_register_s7comm (void)
         { "Parameter length", "s7comm.param.userdata.length", FT_UINT8, BASE_DEC, NULL, 0x0,
           "Length of following parameter data (without head)", HFILL }},
         { &hf_s7comm_userdata_param_reqres2,
-        { "Unknown (Request/Response)", "s7comm.param.userdata.reqres1", FT_UINT8, BASE_HEX, NULL, 0x0,
-          "Unknown part, possible request/response (0x11, 0x12), but not in programmer commands", HFILL }},
+        { "Method (Request/Response)", "s7comm.param.userdata.reqres1", FT_UINT8, BASE_HEX, VALS(userdata_reqres2_names), 0x0,
+          "Unknown part, second request/response (0x00, 0x11, 0x12)", HFILL }},
 
         { &hf_s7comm_userdata_param_type,
         { "Type", "s7comm.param.userdata.type", FT_UINT8, BASE_DEC, VALS(userdata_type_names), 0xf0,
@@ -6040,6 +6119,12 @@ proto_register_s7comm (void)
           NULL, HFILL }},
         { &hf_s7comm_cpu_alarm_message_event_reserved,
         { "Reserved", "s7comm.alarm.event.reserved", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_alarm_message_scan_unknown1,
+        { "SCAN unknown 1", "s7comm.alarm.scan.unknown1", FT_UINT16, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_alarm_message_scan_unknown2,
+        { "SCAN unknown 2", "s7comm.alarm.scan.unknown2", FT_UINT16, BASE_HEX, NULL, 0x0,
           NULL, HFILL }},
         /* Alarm message query */
         { &hf_s7comm_cpu_alarm_query_unknown1,
