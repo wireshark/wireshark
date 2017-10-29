@@ -28,10 +28,37 @@
 #include <glib.h>
 #include "inet_ipv6.h"
 
-/* Choose a buffer size big enough for all implementations */
-#define WS_INET_ADDRSTRLEN      30
-#define WS_INET6_ADDRSTRLEN     80
-
+/*
+ * These are the values specified by RFC 2133 and its successors for
+ * INET_ADDRSTRLEN and INET6_ADDRSTRLEN.
+ *
+ * On UN*X systems, INET_ADDRSTRLEN and INET6_ADDRSTRLEN are defined
+ * to the values from RFC 2133 and its successors.
+ *
+ * However, on Windows:
+ *
+ * There are APIs RtlIpv4AddressToStringEx(), which converts an
+ * IPv4 address *and transport-layer port* to the address in the
+ * standard text form, followed by a colon and the port number,
+ * and RtlIpv6AddressToStringEx(), which converts an IPv6 address
+ * *and scope ID and transport-layer port* to the address in the
+ * standard text form, followed by a percent sign and the scope
+ * ID (with the address and scope ID in square brackets), followed
+ * by a colon and the port number.
+ *
+ * Instead of defining INET_ADDRSTRLEN_EX as 22 and INET6_ADDRSTRLEN_EX
+ * as 65, and saying *those* were the buffer sizes to use for
+ * RtlIpv4AddressToStringEx() and RtlIpv6AddressToStringEx(), they
+ * defined INET_ADDRSTRLEN to be 22 and INET6_ADDRSTRLEN to be 65 - and
+ * recommend using those as the size for the buffers passed to
+ * RtlIpv4AddressToStringEx() and RtlIpv6AddressToStringEx().
+ *
+ * At least they document inet_ntop() as requiring a 16-byte or larger
+ * buffer for IPv4 addresses and a 46-byte or larger buffer for
+ * IPv6 addresses.
+ */
+#define WS_INET_ADDRSTRLEN      16
+#define WS_INET6_ADDRSTRLEN     46
 
 WS_DLL_PUBLIC WS_RETNONNULL const gchar *
 ws_inet_ntop4(gconstpointer src, gchar *dst, guint dst_size);
