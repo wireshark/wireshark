@@ -418,7 +418,7 @@ static int eui64_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
 {
     buf = bytes_to_hexstr_punct(buf, (const guint8 *)addr->data, 8, ':');
     *buf = '\0'; /* NULL terminate */
-    return sizeof(buf) + 1;
+    return (int)(strlen(buf)+1);
 }
 
 static int eui64_str_len(const address* addr _U_)
@@ -442,12 +442,9 @@ ib_addr_to_str(const address *addr, gchar *buf, int buf_len)
     }
 
     /* this is a LID (16 bits) */
-    guint16 lid_number;
+    g_snprintf(buf,buf_len,"LID: %u", *(guint16 *)addr->data);
 
-    memcpy((void *)&lid_number, addr->data, sizeof lid_number);
-    g_snprintf(buf,buf_len,"LID: %u",lid_number);
-
-    return sizeof(buf) + 1; // XXX this looks all kinds of wrong
+    return (int)(strlen(buf)+1);
 }
 
 static int ib_str_len(const address* addr _U_)
