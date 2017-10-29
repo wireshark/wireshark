@@ -110,6 +110,72 @@ static const value_string exported_pdu_tag_vals[] = {
    { 0,        NULL   }
 };
 
+static const value_string exported_pdu_port_type_vals[] = {
+   { OLD_PT_NONE,     "NONE" },
+   { OLD_PT_SCTP,     "SCTP" },
+   { OLD_PT_TCP,      "TCP" },
+   { OLD_PT_UDP,      "UDP" },
+   { OLD_PT_DCCP,     "DCCP" },
+   { OLD_PT_IPX,      "IPX" },
+   { OLD_PT_NCP,      "NCP" },
+   { OLD_PT_EXCHG,    "FC EXCHG" },
+   { OLD_PT_DDP,      "DDP" },
+   { OLD_PT_SBCCS,    "FICON SBCCS" },
+   { OLD_PT_IDP,      "IDP" },
+   { OLD_PT_TIPC,     "TIPC" },
+   { OLD_PT_USB,      "USB" },
+   { OLD_PT_I2C,      "I2C" },
+   { OLD_PT_IBQP,     "IBQP" },
+   { OLD_PT_BLUETOOTH,"BLUETOOTH" },
+   { OLD_PT_TDMOP,    "TDMOP" },
+
+   { 0,        NULL   }
+};
+
+static port_type exp_pdu_old_to_new_port_type(guint type)
+{
+    switch (type)
+    {
+    case OLD_PT_NONE:
+        return PT_NONE;
+    case OLD_PT_SCTP:
+        return PT_SCTP;
+    case OLD_PT_TCP:
+        return PT_TCP;
+    case OLD_PT_UDP:
+        return PT_UDP;
+    case OLD_PT_DCCP:
+        return PT_DCCP;
+    case OLD_PT_IPX:
+        return PT_IPX;
+    case OLD_PT_NCP:
+        return PT_NCP;
+    case OLD_PT_EXCHG:
+        return PT_EXCHG;
+    case OLD_PT_DDP:
+        return PT_DDP;
+    case OLD_PT_SBCCS:
+        return PT_SBCCS;
+    case OLD_PT_IDP:
+        return PT_IDP;
+    case OLD_PT_TIPC:
+        return PT_TIPC;
+    case OLD_PT_USB:
+        return PT_USB;
+    case OLD_PT_I2C:
+        return PT_I2C;
+    case OLD_PT_IBQP:
+        return PT_IBQP;
+    case OLD_PT_BLUETOOTH:
+        return PT_BLUETOOTH;
+    case OLD_PT_TDMOP:
+        return PT_TDMOP;
+    }
+
+    DISSECTOR_ASSERT(FALSE);
+    return PT_NONE;
+}
+
 /* Code to actually dissect the packets */
 static int
 dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -201,9 +267,8 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
                 break;
             case EXP_PDU_TAG_PORT_TYPE:
-                pinfo->ptype = (port_type)tvb_get_ntohl(tvb, offset);
-                proto_tree_add_uint_format_value(tag_tree, hf_exported_pdu_port_type, tvb, offset, 4, pinfo->ptype,
-                                                 "%s (%u)", port_type_to_str(pinfo->ptype), pinfo->ptype);
+                pinfo->ptype = exp_pdu_old_to_new_port_type(tvb_get_ntohl(tvb, offset));
+                proto_tree_add_item(tag_tree, hf_exported_pdu_port_type, tvb, offset, 4, ENC_BIG_ENDIAN);
                 break;
             case EXP_PDU_TAG_SRC_PORT:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_src_port, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -380,7 +445,7 @@ proto_register_exported_pdu(void)
         },
         { &hf_exported_pdu_port_type,
             { "Port Type", "exported_pdu.port_type",
-               FT_UINT32, BASE_DEC, NULL, 0,
+               FT_UINT32, BASE_DEC, VALS(exported_pdu_port_type_vals), 0,
               NULL, HFILL }
         },
         { &hf_exported_pdu_src_port,

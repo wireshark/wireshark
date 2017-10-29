@@ -161,6 +161,29 @@ typedef struct _exp_pdu_data_t {
 
 #define EXP_PDU_TAG_DISSECTOR_TABLE_NUM_VAL_LEN     4
 
+/* Port types are no longer used for conversation/endpoints so
+   many of the enumerated values have been eliminated
+   Since export PDU functionality is serializing them,
+   keep the old values around for conversion */
+#define OLD_PT_NONE         0
+#define OLD_PT_SCTP         1
+#define OLD_PT_TCP          2
+#define OLD_PT_UDP          3
+#define OLD_PT_DCCP         4
+#define OLD_PT_IPX          5
+#define OLD_PT_NCP          6
+#define OLD_PT_EXCHG        7
+#define OLD_PT_DDP          8
+#define OLD_PT_SBCCS        9
+#define OLD_PT_IDP          10
+#define OLD_PT_TIPC         11
+#define OLD_PT_USB          12
+#define OLD_PT_I2C          13
+#define OLD_PT_IBQP         14
+#define OLD_PT_BLUETOOTH    15
+#define OLD_PT_TDMOP        16
+
+
 /** Compute the size (in bytes) of a pdu item
 *
 @param pinfo Packet info that may contain data for the pdu item

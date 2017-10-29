@@ -67,26 +67,29 @@ typedef struct nettrace_3gpp_32_423_file_info {
 	wtap *wth_tmp_file;
 } nettrace_3gpp_32_423_file_info_t;
 
-/* From epan/address.h Types of port numbers Wireshark knows about. */
-typedef enum {
-	PT_NONE,            /* no port number */
-	PT_SCTP,            /* SCTP */
-	PT_TCP,             /* TCP */
-	PT_UDP,             /* UDP */
-	PT_DCCP,            /* DCCP */
-	PT_IPX,             /* IPX sockets */
-	PT_NCP,             /* NCP connection */
-	PT_EXCHG,           /* Fibre Channel exchange */
-	PT_DDP,             /* DDP AppleTalk connection */
-	PT_SBCCS,           /* FICON */
-	PT_IDP,             /* XNS IDP sockets */
-	PT_TIPC,            /* TIPC PORT */
-	PT_USB,             /* USB endpoint 0xffff means the host */
-	PT_I2C,
-	PT_IBQP,            /* Infiniband QP number */
-	PT_BLUETOOTH,
-	PT_TDMOP
-} port_type;
+/* From epan/exported_pdu.h
+   Port types are no longer used for conversation/endpoints so
+   many of the enumerated values have been eliminated
+   Since export PDU functionality is serializing them,
+   keep the old values around for conversion */
+#define OLD_PT_NONE         0
+#define OLD_PT_SCTP         1
+#define OLD_PT_TCP          2
+#define OLD_PT_UDP          3
+#define OLD_PT_DCCP         4
+#define OLD_PT_IPX          5
+#define OLD_PT_NCP          6
+#define OLD_PT_EXCHG        7
+#define OLD_PT_DDP          8
+#define OLD_PT_SBCCS        9
+#define OLD_PT_IDP          10
+#define OLD_PT_TIPC         11
+#define OLD_PT_USB          12
+#define OLD_PT_I2C          13
+#define OLD_PT_IBQP         14
+#define OLD_PT_BLUETOOTH    15
+#define OLD_PT_TDMOP        16
+
 
 typedef struct exported_pdu_info {
 	guint32 precense_flags;
@@ -95,7 +98,7 @@ typedef struct exported_pdu_info {
 	guint8 src_ipv4_d2;
 	guint8 src_ipv4_d3;
 	guint8 src_ipv4_d4;
-	port_type ptype; /* epan/address.h port_type valid for both src and dst*/
+	guint32 ptype; /* Based on epan/address.h port_type valid for both src and dst*/
 	guint32 src_port;
 	guint8 dst_ipv4_d1;
 	guint8 dst_ipv4_d2;
@@ -738,7 +741,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	exported_pdu_info.src_ipv4_d2 = 0;
 	exported_pdu_info.src_ipv4_d3 = 0;
 	exported_pdu_info.src_ipv4_d4 = 0;
-	exported_pdu_info.ptype = PT_NONE;
+	exported_pdu_info.ptype = OLD_PT_NONE;
 	exported_pdu_info.src_port = 0;
 	exported_pdu_info.dst_ipv4_d1 = 0;
 	exported_pdu_info.dst_ipv4_d2 = 0;
@@ -897,7 +900,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 		wtap_open_return_val temp_val;
 		/* Clear for each itteration */
 		exported_pdu_info.precense_flags = 0;
-		exported_pdu_info.ptype = PT_NONE;
+		exported_pdu_info.ptype = OLD_PT_NONE;
 
 		curr_pos = curr_pos + 4;
 		next_msg_pos = strstr(curr_pos, "</msg>");
@@ -970,10 +973,10 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 					exported_pdu_info.src_ipv4_d4 = d4;
 
 					/* Only add port_type once */
-					if(exported_pdu_info.ptype == PT_NONE){
-						if (g_ascii_strncasecmp(transp_str, "udp", 3) == 0)  exported_pdu_info.ptype = PT_UDP;
-						else if (g_ascii_strncasecmp(transp_str, "tcp", 3) == 0)  exported_pdu_info.ptype = PT_TCP;
-						else if (g_ascii_strncasecmp(transp_str, "sctp", 4) == 0)  exported_pdu_info.ptype = PT_SCTP;
+					if(exported_pdu_info.ptype == OLD_PT_NONE){
+						if (g_ascii_strncasecmp(transp_str, "udp", 3) == 0)  exported_pdu_info.ptype = OLD_PT_UDP;
+						else if (g_ascii_strncasecmp(transp_str, "tcp", 3) == 0)  exported_pdu_info.ptype = OLD_PT_TCP;
+						else if (g_ascii_strncasecmp(transp_str, "sctp", 4) == 0)  exported_pdu_info.ptype = OLD_PT_SCTP;
 					}
 					exported_pdu_info.src_port = port;
 				} else {
@@ -1016,10 +1019,10 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 					exported_pdu_info.dst_ipv4_d3 = d3;
 					exported_pdu_info.dst_ipv4_d4 = d4;
 					/* Only add port_type once */
-					if (exported_pdu_info.ptype == PT_NONE) {
-						if (g_ascii_strncasecmp(transp_str, "udp", 3) == 0)  exported_pdu_info.ptype = PT_UDP;
-						else if (g_ascii_strncasecmp(transp_str, "tcp", 3) == 0)  exported_pdu_info.ptype = PT_TCP;
-						else if (g_ascii_strncasecmp(transp_str, "sctp", 4) == 0)  exported_pdu_info.ptype = PT_SCTP;
+					if (exported_pdu_info.ptype == OLD_PT_NONE) {
+						if (g_ascii_strncasecmp(transp_str, "udp", 3) == 0)  exported_pdu_info.ptype = OLD_PT_UDP;
+						else if (g_ascii_strncasecmp(transp_str, "tcp", 3) == 0)  exported_pdu_info.ptype = OLD_PT_TCP;
+						else if (g_ascii_strncasecmp(transp_str, "sctp", 4) == 0)  exported_pdu_info.ptype = OLD_PT_SCTP;
 					}
 					exported_pdu_info.dst_port = port;
 				} else {

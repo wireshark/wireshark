@@ -100,16 +100,63 @@ static int exp_pdu_data_port_type_size(packet_info *pinfo _U_, void* data _U_)
 	return EXP_PDU_TAG_PORT_LEN + 4;
 }
 
+static guint exp_pdu_new_to_old_port_type(port_type pt)
+{
+	switch (pt)
+	{
+	case PT_NONE:
+		return OLD_PT_NONE;
+	case PT_SCTP:
+		return OLD_PT_SCTP;
+	case PT_TCP:
+		return OLD_PT_TCP;
+	case PT_UDP:
+		return OLD_PT_UDP;
+	case PT_DCCP:
+		return OLD_PT_DCCP;
+	case PT_IPX:
+		return OLD_PT_IPX;
+	case PT_NCP:
+		return OLD_PT_NCP;
+	case PT_EXCHG:
+		return OLD_PT_EXCHG;
+	case PT_DDP:
+		return OLD_PT_DDP;
+	case PT_SBCCS:
+		return OLD_PT_SBCCS;
+	case PT_IDP:
+		return OLD_PT_IDP;
+	case PT_TIPC:
+		return OLD_PT_TIPC;
+	case PT_USB:
+		return OLD_PT_USB;
+	case PT_I2C:
+		return OLD_PT_I2C;
+	case PT_IBQP:
+		return OLD_PT_IBQP;
+	case PT_BLUETOOTH:
+		return OLD_PT_BLUETOOTH;
+	case PT_TDMOP:
+		return OLD_PT_TDMOP;
+	}
+
+	DISSECTOR_ASSERT(FALSE);
+	return OLD_PT_NONE;
+}
+
 static int exp_pdu_data_port_type_populate_data(packet_info *pinfo, void* data, guint8 *tlv_buffer, guint32 buffer_size _U_)
 {
+	guint pt;
+
 	tlv_buffer[0] = 0;
 	tlv_buffer[1] = EXP_PDU_TAG_PORT_TYPE;
 	tlv_buffer[2] = 0;
 	tlv_buffer[3] = EXP_PDU_TAG_PORT_TYPE_LEN; /* tag length */
-	tlv_buffer[4] = (pinfo->ptype & 0xff000000) >> 24;
-	tlv_buffer[5] = (pinfo->ptype & 0x00ff0000) >> 16;
-	tlv_buffer[6] = (pinfo->ptype & 0x0000ff00) >> 8;
-	tlv_buffer[7] = (pinfo->ptype & 0x000000ff);
+	pt = exp_pdu_new_to_old_port_type(pinfo->ptype);
+	tlv_buffer[4] = (pt & 0xff000000) >> 24;
+	tlv_buffer[5] = (pt & 0x00ff0000) >> 16;
+	tlv_buffer[6] = (pt & 0x0000ff00) >> 8;
+	tlv_buffer[7] = (pt & 0x000000ff);
 
 	return exp_pdu_data_port_type_size(pinfo, data);
 }
