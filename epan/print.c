@@ -380,24 +380,28 @@ write_ek_proto_tree(output_fields_t* fields,
     if (print_summary)
         write_ek_summary(edt->pi.cinfo, fh);
 
-    fprintf(fh, ", \"layers\" : {");
+    if (edt->tree) {
+        fprintf(fh, ", \"layers\" : {");
 
-    if (fields == NULL || fields->fields == NULL) {
-        /* Write out all fields */
-        data.level    = 0;
-        data.fh       = fh;
-        data.src_list = edt->pi.data_src;
-        data.filter   = protocolfilter;
-        data.filter_flags = protocolfilter_flags;
-        data.print_hex = print_hex;
+        if (fields == NULL || fields->fields == NULL) {
+            /* Write out all fields */
+            data.level    = 0;
+            data.fh       = fh;
+            data.src_list = edt->pi.data_src;
+            data.filter   = protocolfilter;
+            data.filter_flags = protocolfilter_flags;
+            data.print_hex = print_hex;
 
-        proto_tree_write_node_ek(edt->tree, &data);
-    } else {
-        /* Write out specified fields */
-        write_specified_fields(FORMAT_EK, fields, edt, NULL, fh);
+            proto_tree_write_node_ek(edt->tree, &data);
+        } else {
+            /* Write out specified fields */
+            write_specified_fields(FORMAT_EK, fields, edt, NULL, fh);
+        }
+
+        fputs("}", fh);
     }
 
-    fputs("}}\n", fh);
+    fputs("}\n", fh);
 }
 
 void
