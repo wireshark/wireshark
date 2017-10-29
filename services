@@ -10285,6 +10285,7 @@ CardWeb-IO       9060/tcp # CardWeb request-response I/O exchange [Virtual_Elect
 CardWeb-RT       9060/udp # CardWeb realtime device data [Virtual_Electric_Inc] [David_Wyatt] 2016-10-07
 glrpc            9080/tcp # Groove GLRPC [Adrian_Popescu] [Adrian_Popescu] 2002-09
 glrpc            9080/udp # Groove GLRPC [Adrian_Popescu] [Adrian_Popescu] 2002-09
+cisco-aqos       9081/udp # Required for Adaptive Quality of Service [Manish_Surolia] [Manish_Surolia] 2017-10-27
 lcs-ap           9082/sctp # LCS Application Protocol [Kimmo_Kymalainen] [Kimmo_Kymalainen] 2010-06-04
 emc-pp-mgmtsvc   9083/tcp # EMC PowerPath Mgmt Service [Jim_Perreault] [Jim_Perreault] 2010-06-04
 aurora           9084/tcp # IBM AURORA Performance Visualizer [Jeroen_Massar_2] [Jeroen_Massar_2] 2008-08-21
@@ -11067,9 +11068,9 @@ tmophl7mts      20046/tcp # TMOP HL7 Message Transfer Service [Tim_Riley] [Tim_R
 tmophl7mts      20046/udp # TMOP HL7 Message Transfer Service [Tim_Riley] [Tim_Riley] 2009-07-31
 mountd          20048/tcp # NFS mount protocol [Nicolas_Williams] [Nicolas_Williams] 2010-08-09
 mountd          20048/udp # NFS mount protocol [Nicolas_Williams] [Nicolas_Williams] 2010-08-09
-nfsrdma         20049/tcp # Network File System (NFS) over RDMA 2017-09-05 [RFC-ietf-nfsv4-rfc5667bis-13]
-nfsrdma         20049/udp # Network File System (NFS) over RDMA 2017-09-05 [RFC-ietf-nfsv4-rfc5667bis-13]
-nfsrdma         20049/sctp # Network File System (NFS) over RDMA 2017-09-05 [RFC-ietf-nfsv4-rfc5667bis-13]
+nfsrdma         20049/tcp # Network File System (NFS) over RDMA 2017-09-05 [RFC8267]
+nfsrdma         20049/udp # Network File System (NFS) over RDMA 2017-09-05 [RFC8267]
+nfsrdma         20049/sctp # Network File System (NFS) over RDMA 2017-09-05 [RFC8267]
 avesterra       20057/tcp # AvesTerra Hypergraph Transfer Protocol (HGTP) [Georgetown_University] [J.C._Smart] 2016-06-06
 tolfab          20167/tcp # TOLfab Data Change [Pierre_Couderc] [Pierre_Couderc] 2006-03
 tolfab          20167/udp # TOLfab Data Change [Pierre_Couderc] [Pierre_Couderc] 2006-03
