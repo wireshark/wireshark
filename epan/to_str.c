@@ -1137,7 +1137,6 @@ port_type_to_str (port_type type)
 		case PT_UDP:		return "UDP";
 		case PT_DCCP:		return "DCCP";
 		case PT_IPX:		return "IPX";
-		case PT_NCP:		return "NCP";
 		case PT_EXCHG:		return "FC EXCHG";
 		case PT_DDP:		return "DDP";
 		case PT_IDP:		return "IDP";

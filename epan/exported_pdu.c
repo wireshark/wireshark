@@ -116,14 +116,10 @@ static guint exp_pdu_new_to_old_port_type(port_type pt)
 		return OLD_PT_DCCP;
 	case PT_IPX:
 		return OLD_PT_IPX;
-	case PT_NCP:
-		return OLD_PT_NCP;
 	case PT_EXCHG:
 		return OLD_PT_EXCHG;
 	case PT_DDP:
 		return OLD_PT_DDP;
-	case PT_SBCCS:
-		return OLD_PT_SBCCS;
 	case PT_IDP:
 		return OLD_PT_IDP;
 	case PT_TIPC:

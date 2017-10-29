@@ -148,14 +148,10 @@ static port_type exp_pdu_old_to_new_port_type(guint type)
         return PT_DCCP;
     case OLD_PT_IPX:
         return PT_IPX;
-    case OLD_PT_NCP:
-        return PT_NCP;
     case OLD_PT_EXCHG:
         return PT_EXCHG;
     case OLD_PT_DDP:
         return PT_DDP;
-    case OLD_PT_SBCCS:
-        return PT_SBCCS;
     case OLD_PT_IDP:
         return PT_IDP;
     case OLD_PT_TIPC:
@@ -170,6 +166,10 @@ static port_type exp_pdu_old_to_new_port_type(guint type)
         return PT_BLUETOOTH;
     case OLD_PT_TDMOP:
         return PT_TDMOP;
+    case OLD_PT_NCP:
+    case OLD_PT_SBCCS:
+        //no longer supported
+        break;
     }
 
     DISSECTOR_ASSERT(FALSE);

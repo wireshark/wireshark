@@ -1360,8 +1360,6 @@ endpoint_type conversation_pt_to_endpoint_type(port_type pt)
 		return ENDPOINT_DCCP;
 	case PT_IPX:
 		return ENDPOINT_IPX;
-	case PT_NCP:
-		return ENDPOINT_NCP;
 	case PT_EXCHG:
 		return ENDPOINT_EXCHG;
 	case PT_DDP:
@@ -1376,8 +1374,6 @@ endpoint_type conversation_pt_to_endpoint_type(port_type pt)
 		return ENDPOINT_I2C;
 	case PT_IBQP:
 		return ENDPOINT_IBQP;
-	case PT_SBCCS:
-		return ENDPOINT_SBCCS;
 	case PT_BLUETOOTH:
 		return ENDPOINT_BLUETOOTH;
 	case PT_TDMOP:
