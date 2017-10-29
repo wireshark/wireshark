@@ -5359,6 +5359,7 @@ fio-cmgmt	9051/tcp	# Fusion-io Central Manager Service
 CardWeb-IO	9060/tcp	# CardWeb request-response I/O exchange
 CardWeb-RT	9060/udp	# CardWeb realtime device data
 glrpc		9080/tcp/udp	# Groove GLRPC
+cisco-aqos	9081/udp	# Required for Adaptive Quality of Service
 lcs-ap		9082/sctp	# LCS Application Protocol
 emc-pp-mgmtsvc	9083/tcp	# EMC PowerPath Mgmt Service
 aurora		9084/tcp/udp/sctp	# IBM AURORA Performance Visualizer

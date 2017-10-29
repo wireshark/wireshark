@@ -1359,6 +1359,14 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>背景</translation>
     </message>
     <message>
+        <source>Set the display filter using this rule.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply as filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Coloring Rules</source>
         <translation>着色规则</translation>
     </message>

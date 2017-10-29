@@ -1363,6 +1363,14 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Sfondo</translation>
     </message>
     <message>
+        <source>Set the display filter using this rule.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply as filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Coloring Rules</source>
         <translation>Regole di colorazione</translation>
     </message>

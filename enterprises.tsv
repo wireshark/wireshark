@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2017-10-22)
+# (last updated 2017-10-28)
 
 0	Reserved
 1	NxNetworks
@@ -24547,7 +24547,7 @@
 24701	Spitzenverbände der landwirtschaftlichen Sozialversicherung
 24702	CLS Services Ltd
 24703	Sven Meyer IT-Services
-24704	Informatikzentrum Landesverwaltung Baden-Württemberg
+24704	Landesoberbehoerde IT Baden-Wuerttemberg (BITBW)	# formerly 'Informatikzentrum Landesverwaltung Baden-Württemberg'
 24705	Clal Insurance Ltd
 24706	RW Consulting
 24707	Computation Systemhaus GmbH
@@ -45705,7 +45705,7 @@
 45881	2Lconsult
 45882	Global Voice Group, S.A.
 45883	EagleBurgmann Germany GmbH & Co. KG
-45884	AuthClub Inc
+45884	ScaleFT Inc	# formerly 'AuthClub Inc'
 45885	Cesbo Ltd.
 45886	Connect-Omsk, Ltd.
 45887	Arke Telekom Ltd. Sti.
@@ -50703,3 +50703,30 @@
 50883	tolltickets GmbH
 50884	Nochta, Inc.
 50885	King Abdulaziz Center for World Culture
+50886	Chengdu Saturn Technology Co., Ltd.
+50887	RailNetEurope
+50888	Telcoserv
+50889	Buerotechnik Haustein
+50890	Olimpia Management S.A.
+50891	T.CON GmbH & Co. KG
+50892	Ivy Tech Community College - Lifelong Learning - Bedford
+50893	Ethica Data
+50894	RF Creations
+50895	Kajeet Inc.
+50896	LEAF
+50897	Islamic College of Brisbane
+50898	Comtrol Private Limited
+50899	The Steamship Authority
+50900	ALTE OLDENBURGER Krankenversicherung AG
+50901	OBT AG
+50902	Stadt Nuertingen
+50903	ASOCS
+50904	Kemberton Healthcare Services
+50905	Zyrenth
+50906	mediainvent Service GmbH
+50907	Lowe-Martin Company Inc.
+50908	Mystery Ranch Ltd.
+50909	Quick Soft Tecnologia da Informação
+50910	Trusted Shops GmbH
+50911	NSS TECHNOLOGY LIMITED
+50912	Multipart Labs

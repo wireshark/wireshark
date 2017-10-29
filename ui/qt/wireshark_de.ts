@@ -1363,6 +1363,14 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Hintergrund</translation>
     </message>
     <message>
+        <source>Set the display filter using this rule.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply as filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Coloring Rules</source>
         <translation>Einfärbungsregeln</translation>
     </message>
@@ -11776,7 +11784,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Clear all entries.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Einträge löschen.</translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>
@@ -11807,7 +11815,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Clear all entries.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Einträge löschen.</translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>

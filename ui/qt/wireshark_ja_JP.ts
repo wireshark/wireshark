@@ -108,7 +108,7 @@
     </message>
     <message>
         <source>Copy Rows</source>
-        <translation>列をコピー</translation>
+        <translation>行をコピー</translation>
     </message>
     <message>
         <source>Copy All</source>
@@ -247,15 +247,15 @@
     </message>
     <message>
         <source>Copy Cell</source>
-        <translation type="unfinished">セルをコピー</translation>
+        <translation>セルをコピー</translation>
     </message>
     <message>
         <source>Copy Rows</source>
-        <translation type="unfinished">列をコピー</translation>
+        <translation>行をコピー</translation>
     </message>
     <message>
         <source>Copy All</source>
-        <translation type="unfinished">すべてをコピー</translation>
+        <translation>すべてをコピー</translation>
     </message>
     <message>
         <source>Save as image</source>
@@ -362,7 +362,7 @@
     </message>
     <message>
         <source>Copy Rows</source>
-        <translation>列をコピー</translation>
+        <translation>行をコピー</translation>
     </message>
     <message>
         <source>Copy All</source>
@@ -553,7 +553,7 @@
     </message>
     <message>
         <source>Copy Rows</source>
-        <translation>列をコピー</translation>
+        <translation>行をコピー</translation>
     </message>
     <message>
         <source>Copy All</source>
@@ -1358,6 +1358,14 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>背景色</translation>
     </message>
     <message>
+        <source>Set the display filter using this rule.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply as filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Coloring Rules</source>
         <translation>色付けルール</translation>
     </message>
@@ -2156,7 +2164,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">コピー</translation>
+        <translation>コピー</translation>
     </message>
     <message>
         <source>IPv4 source address.</source>
