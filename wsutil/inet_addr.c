@@ -23,6 +23,8 @@
 
 #include "inet_addr.h"
 
+#include <errno.h>
+
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
@@ -44,8 +46,8 @@
 
 /*
  * We only employ and require AF_INET/AF_INET6, so we can
- * have some stronger checks for correctness and convenience. It is a
- * programming error to pass a too-small buffer to inet_ntop.
+ * have some stronger checks for correctness and convenience (namely
+ * assert that EAFNOSUPPORT cannot happen).
  */
 
 static inline gboolean
@@ -60,8 +62,14 @@ static inline const gchar *
 _inet_ntop(int af, gconstpointer src, gchar *dst, guint dst_size)
 {
     const gchar *ret = inet_ntop(af, _NTOP_SRC_CAST_ src, dst, dst_size);
-    g_assert(ret != NULL);
-    return ret;
+    if (ret == NULL) {
+        g_assert(errno == ENOSPC);
+        /* set result to something that can't be confused with a valid conversion */
+        g_strlcpy(dst, "<<ENOSPC>>", dst_size);
+        /* set errno for caller */
+        errno = ENOSPC;
+    }
+    return dst;
 }
 
 const gchar *

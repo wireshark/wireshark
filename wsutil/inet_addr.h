@@ -73,19 +73,17 @@
 #endif
 
 /*
- * 'dst_size' *must* be greater or equal to WS_INET_ADDRSTRLEN.
+ * To check for errors set errno to zero before calling ws_inet_ntop{4,6}.
+ * ENOSPC is set if the result exceeds the given buffer size.
  */
 WS_DLL_PUBLIC WS_RETNONNULL const gchar *
 ws_inet_ntop4(gconstpointer src, gchar *dst, guint dst_size);
 
-WS_DLL_PUBLIC gboolean
-ws_inet_pton4(const gchar *src, guint32 *dst);
-
-/*
- * 'dst_size' *must* be greater or equal to WS_INET6_ADDRSTRLEN.
- */
 WS_DLL_PUBLIC WS_RETNONNULL const gchar *
 ws_inet_ntop6(gconstpointer src, gchar *dst, guint dst_size);
+
+WS_DLL_PUBLIC gboolean
+ws_inet_pton4(const gchar *src, guint32 *dst);
 
 WS_DLL_PUBLIC gboolean
 ws_inet_pton6(const gchar *src, ws_in6_addr *dst);
