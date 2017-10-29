@@ -34,8 +34,6 @@
 #include "wmem/wmem.h"
 
 #define GUID_STR_LEN     37
-#define MAX_IP_STR_LEN   16
-#define MAX_IP6_STR_LEN  WS_INET6_ADDRSTRLEN
 #define MAX_ADDR_STR_LEN 256
 #define VINES_ADDR_LEN   6
 #define EUI64_STR_LEN    24

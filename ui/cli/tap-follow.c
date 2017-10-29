@@ -171,7 +171,7 @@ static void follow_draw(void *contextp)
 
   follow_info_t *follow_info = (follow_info_t*)contextp;
   cli_follow_info_t* cli_follow_info = (cli_follow_info_t*)follow_info->gui_data;
-  gchar             buf[MAX_IP6_STR_LEN];
+  gchar             buf[WS_INET6_ADDRSTRLEN];
   guint32 global_client_pos = 0, global_server_pos = 0;
   guint32 *global_pos;
   guint32           ii, jj;

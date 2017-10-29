@@ -700,7 +700,7 @@ static proto_item* wccp_add_ipaddress_item(proto_tree* tree, int hf_index, int h
     return proto_tree_add_ipv4_format(tree, hf_index, tvb, offset, length, host_addr, "INVALID IP family");
 }
 
-#define WCCP_IP_MAX_LENGTH (MAX_IP_STR_LEN > 46 ? MAX_IP_STR_LEN : 46)
+#define WCCP_IP_MAX_LENGTH (WS_INET_ADDRSTRLEN > 46 ? WS_INET_ADDRSTRLEN : 46)
 
 
 static const gchar * decode_wccp_encoded_address(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,

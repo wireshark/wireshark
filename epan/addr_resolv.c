@@ -786,12 +786,12 @@ fill_dummy_ip4(const guint addr, hashipv4_t* volatile tp)
     if (0 != subnet_entry.mask) {
         /* Print name, then '.' then IP address after subnet mask */
         guint32 host_addr;
-        gchar buffer[MAX_IP_STR_LEN];
+        gchar buffer[WS_INET_ADDRSTRLEN];
         gchar* paddr;
         gsize i;
 
         host_addr = addr & (~(guint32)subnet_entry.mask);
-        ip_to_str_buf((guint8 *)&host_addr, buffer, MAX_IP_STR_LEN);
+        ip_to_str_buf((guint8 *)&host_addr, buffer, WS_INET_ADDRSTRLEN);
         paddr = buffer;
 
         /* Skip to first octet that is not totally masked

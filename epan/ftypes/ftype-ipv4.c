@@ -116,12 +116,12 @@ val_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 	return 15;
 }
 
-/* We're assuming the buffer is at least MAX_IP_STR_LEN (16 bytes) */
+/* We're assuming the buffer is at least WS_INET_ADDRSTRLEN (16 bytes) */
 static void
 val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size _U_)
 {
 	guint32	ipv4_net_order = g_htonl(fv->value.ipv4.addr);
-	ip_to_str_buf((guint8*)&ipv4_net_order, buf, MAX_IP_STR_LEN);
+	ip_to_str_buf((guint8*)&ipv4_net_order, buf, WS_INET_ADDRSTRLEN);
 }
 
 

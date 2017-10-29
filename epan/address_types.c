@@ -214,7 +214,7 @@ static int ipv4_to_str(const address* addr, gchar *buf, int buf_len)
 
 static int ipv4_str_len(const address* addr _U_)
 {
-    return MAX_IP_STR_LEN;
+    return WS_INET_ADDRSTRLEN;
 }
 
 static const char* ipv4_col_filter_str(const address* addr _U_, gboolean is_src)
@@ -253,7 +253,7 @@ static int ipv6_to_str(const address* addr, gchar *buf, int buf_len)
 
 static int ipv6_str_len(const address* addr _U_)
 {
-    return MAX_IP6_STR_LEN;
+    return WS_INET6_ADDRSTRLEN;
 }
 
 static const char* ipv6_col_filter_str(const address* addr _U_, gboolean is_src)

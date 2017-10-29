@@ -94,7 +94,7 @@ ipv6_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 static int
 ipv6_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
-	return MAX_IP6_STR_LEN;
+	return WS_INET6_ADDRSTRLEN;
 }
 
 static void

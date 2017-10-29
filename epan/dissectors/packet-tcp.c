@@ -935,8 +935,8 @@ gchar* tcp_follow_index_filter(int stream)
 gchar* tcp_follow_address_filter(address* src_addr, address* dst_addr, int src_port, int dst_port)
 {
     const gchar  *ip_version = src_addr->type == AT_IPv6 ? "v6" : "";
-    gchar         src_addr_str[MAX_IP6_STR_LEN];
-    gchar         dst_addr_str[MAX_IP6_STR_LEN];
+    gchar         src_addr_str[WS_INET6_ADDRSTRLEN];
+    gchar         dst_addr_str[WS_INET6_ADDRSTRLEN];
 
     address_to_str_buf(src_addr, src_addr_str, sizeof(src_addr_str));
     address_to_str_buf(dst_addr, dst_addr_str, sizeof(dst_addr_str));
