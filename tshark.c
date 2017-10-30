@@ -224,6 +224,8 @@ static capture_options global_capture_opts;
 static capture_session global_capture_session;
 static info_data_t global_info_data;
 
+static e_prefs *prefs_p = NULL;
+
 #ifdef SIGINFO
 static gboolean infodelay;      /* if TRUE, don't print capture info in SIGINFO handler */
 static gboolean infoprint;      /* if TRUE, print capture info after clearing infodelay */
@@ -513,7 +515,7 @@ tshark_log_handler (const gchar *log_domain, GLogLevelFlags log_level,
 {
   /* ignore log message, if log_level isn't interesting based
      upon the console log preferences.
-     If the preferences haven't been loaded loaded yet, display the
+     If the preferences haven't been loaded yet, display the
      message anyway.
 
      The default console_log_level preference value is such that only
@@ -524,8 +526,7 @@ tshark_log_handler (const gchar *log_domain, GLogLevelFlags log_level,
            ERROR and CRITICAL level messages so the current code is a behavioral
            change.  The current behavior is the same as in Wireshark.
   */
-  if ((log_level & G_LOG_LEVEL_MASK & prefs.console_log_level) == 0 &&
-     prefs.console_log_level != 0) {
+  if (prefs_p && (log_level & G_LOG_LEVEL_MASK & prefs.console_log_level) == 0) {
     return;
   }
 
@@ -717,7 +718,6 @@ main(int argc, char *argv[])
   dfilter_t           *rfcode = NULL;
   dfilter_t           *dfcode = NULL;
   gchar               *err_msg;
-  e_prefs             *prefs_p;
   int                  log_flags;
   gchar               *output_only = NULL;
   gchar               *volatile pdu_export_arg = NULL;
