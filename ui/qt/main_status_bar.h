@@ -28,6 +28,7 @@
 
 #include "capchild/capture_session.h"
 
+#include <ui/qt/utils/field_information.h>
 #include <ui/qt/widgets/label_stack.h>
 #include "progress_frame.h"
 #include "wireshark_application.h"
@@ -79,6 +80,8 @@ signals:
 
 public slots:
     void setCaptureFile(capture_file *cf);
+    void selectedFieldChanged(FieldInformation *);
+    void highlightedFieldChanged(FieldInformation *);
     void pushTemporaryStatus(const QString &message);
     void popTemporaryStatus();
     void pushFileStatus(const QString &message, const QString &messagetip = QString());

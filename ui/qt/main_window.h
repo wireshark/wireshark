@@ -54,6 +54,7 @@
 #include "capture_file.h"
 #include "capture_file_dialog.h"
 #include "capture_file_properties_dialog.h"
+#include <ui/qt/utils/field_information.h>
 #include <ui/qt/widgets/display_filter_combo.h>
 #include "filter_action.h"
 #include "follow_stream_dialog.h"
@@ -157,13 +158,13 @@ private:
     CaptureFile capture_file_;
     QFont mono_font_;
     WirelessFrame *wireless_frame_;
-    // XXX - packet_list_, proto_tree_, and byte_view_tab_ should
+    // XXX - packet_list_ and proto_tree_ should
     // probably be full-on values instead of pointers.
     PacketList *packet_list_;
     ProtoTree *proto_tree_;
+    ByteViewTab * byte_view_tab_;
     QWidget *previous_focus_;
     FileSetDialog *file_set_dialog_;
-    ByteViewTab *byte_view_tab_;
     QWidget empty_pane_;
     QActionGroup *show_hide_actions_;
     QActionGroup *time_display_actions_;
@@ -255,16 +256,22 @@ private:
     void goToConversationFrame(bool go_next);
     void colorizeWithFilter(QByteArray filter, int color_number = -1);
 
+    void createByteViewDialog();
+
 signals:
     void setCaptureFile(capture_file *cf);
     void setDissectedCaptureFile(capture_file *cf);
     void displayFilterSuccess(bool success);
-    void monospaceFontChanged(const QFont &mono_font);
     void closePacketDialogs();
     void reloadFields();
     void packetInfoChanged(struct _packet_info *pinfo);
     void fieldFilterChanged(const QByteArray field_filter);
     void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);
+
+    void fieldSelected(FieldInformation *);
+    void fieldHighlight(FieldInformation *);
+
+    void packetSelectionChanged();
 
 public slots:
     // in main_window_slots.cpp
@@ -344,7 +351,7 @@ private slots:
     void updateRecentCaptures();
     void recentActionTriggered();
     void setMenusForSelectedPacket();
-    void setMenusForSelectedTreeRow(field_info *fi = NULL);
+    void setMenusForSelectedTreeRow(FieldInformation *fi = NULL);
     void interfaceSelectionChanged();
     void captureFilterSyntaxChanged(bool valid);
     void redissectPackets();
@@ -395,8 +402,6 @@ private slots:
      */
     void openTapParameterDialog(const QString cfg_str, const QString arg, void *userdata);
     void openTapParameterDialog();
-
-    void setTvbOffsetHovered(tvbuff_t * tvb, int idx);
 
 #ifdef HAVE_SOFTWARE_UPDATE
     void softwareUpdateRequested();

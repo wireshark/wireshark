@@ -35,6 +35,7 @@
 #include "proto_tree.h"
 #include "wireshark_application.h"
 
+#include <ui/qt/utils/field_information.h>
 #include <QTreeWidgetItemIterator>
 
 // To do:
@@ -86,17 +87,17 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
 
     ui->hintLabel->setText(col_info_);
 
-    connect(this, SIGNAL(monospaceFontChanged(QFont)),
+    connect(wsApp, SIGNAL(zoomMonospaceFont(QFont)),
             proto_tree_, SLOT(setMonospaceFont(QFont)));
-    connect(this, SIGNAL(monospaceFontChanged(QFont)),
-            byte_view_tab_, SLOT(setMonospaceFont(QFont)));
 
-    connect(proto_tree_, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
-            byte_view_tab_, SLOT(protoTreeItemChanged(QTreeWidgetItem*)));
-    connect(byte_view_tab_, SIGNAL(byteFieldHovered(const QString&)),
-            this, SLOT(setHintText(const QString&)));
-    connect(byte_view_tab_, SIGNAL(tvbOffsetHovered(tvbuff_t *, int)),
-            this, SLOT(setTvbOffsetHovered(tvbuff_t *, int)));
+    connect(byte_view_tab_, SIGNAL(fieldSelected(FieldInformation *)),
+            proto_tree_, SLOT(selectedFieldChanged(FieldInformation *)));
+    connect(proto_tree_, SIGNAL(fieldSelected(FieldInformation *)),
+            byte_view_tab_, SLOT(selectedFieldChanged(FieldInformation *)));
+
+    connect(byte_view_tab_, SIGNAL(fieldHighlight(FieldInformation *)),
+            this, SLOT(setHintText(FieldInformation *)));
+
 }
 
 PacketDialog::~PacketDialog()
@@ -115,39 +116,30 @@ void PacketDialog::captureFileClosing()
     WiresharkDialog::captureFileClosing();
 }
 
-void PacketDialog::setTvbOffsetHovered(tvbuff_t * tvb, int idx)
-{
-    QString field_str("");
-
-    if ( tvb && cap_file_.capFile() && cap_file_.capFile()->edt )
-    {
-        proto_tree * tree = cap_file_.capFile()->edt->tree;
-        if ( tree )
-        {
-            field_info * fi = proto_find_field_from_offset(tree, idx, tvb);
-
-            if (fi) {
-                if (fi->length < 2) {
-                    field_str = QString(tr("Byte %1"))
-                            .arg(fi->start);
-                } else {
-                    field_str = QString(tr("Bytes %1-%2"))
-                            .arg(fi->start)
-                            .arg(fi->start + fi->length - 1);
-                }
-                field_str += QString(": %1 (%2)")
-                        .arg(fi->hfinfo->name)
-                        .arg(fi->hfinfo->abbrev);
-            }
-        }
-    }
-
-    ui->hintLabel->setText(field_str);
-}
-
 void PacketDialog::on_buttonBox_helpRequested()
 {
     wsApp->helpTopicAction(HELP_NEW_PACKET_DIALOG);
+}
+
+void PacketDialog::setHintText(FieldInformation * finfo)
+{
+    QString hint;
+
+     if ( finfo )
+     {
+         FieldInformation::Position pos = finfo->position();
+         QString field_str;
+
+         if (pos.length < 2) {
+             hint = QString(tr("Byte %1")).arg(pos.start);
+         } else {
+             hint = QString(tr("Bytes %1-%2")).arg(pos.start).arg(pos.start + pos.length - 1);
+         }
+         hint += QString(": %1 (%2)")
+                 .arg(finfo->headerInfo().name)
+                 .arg(finfo->headerInfo().abbreviation);
+     }
+     ui->hintLabel->setText(hint);
 }
 
 /*

@@ -138,6 +138,8 @@ public:
 
     void doTriggerMenuItem(MainMenuItem menuItem);
 
+    void zoomTextFont(int zoomLevel);
+
 private:
     bool initialized_;
     bool is_reloading_lua_;
@@ -199,6 +201,8 @@ signals:
 
     /* Signals activation and stop of a capture. The value provides the number of active captures */
     void captureActive(int);
+
+    void zoomMonospaceFont(const QFont & font);
 
 public slots:
     void clearRecentCaptures();

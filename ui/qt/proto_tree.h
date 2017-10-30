@@ -30,6 +30,7 @@
 
 #include "protocol_preferences_menu.h"
 
+#include <ui/qt/utils/field_information.h>
 #include <QTreeWidget>
 #include <QMenu>
 
@@ -42,7 +43,6 @@ public:
     void fillProtocolTree(proto_tree *protocol_tree);
     void emitRelatedFrame(int related_frame, ft_framenum_type_t framenum_type = FT_FRAMENUM_NONE);
     void goToField(int hf_id);
-    void selectField(field_info *fi);
     void closeContextMenu();
     void clear();
     void saveSelectedField(QTreeWidgetItem *);
@@ -71,8 +71,8 @@ private:
     capture_file *cap_file_;
 
 signals:
-    void protoItemSelected(const QString &);
-    void protoItemSelected(field_info *);
+    void fieldSelected(FieldInformation *);
+
     void openPacketInNewWindow(bool);
     void goToPacket(int);
     void relatedFrame(int, ft_framenum_type_t);
@@ -91,6 +91,8 @@ public slots:
     void expandAll();
     void collapseAll();
     void itemDoubleClick(QTreeWidgetItem *item, int column);
+
+    void selectedFieldChanged(FieldInformation *);
 
 private slots:
     void updateContentWidth();

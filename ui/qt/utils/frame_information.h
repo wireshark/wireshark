@@ -1,4 +1,4 @@
-/* packet_dialog.h
+/* frame_information.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,49 +19,52 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef PACKET_DIALOG_H
-#define PACKET_DIALOG_H
+#ifndef FRAME_INFORMATION_H_
+#define FRAME_INFORMATION_H_
 
-#include "wireshark_dialog.h"
+#include <config.h>
 
-#include "epan/epan_dissect.h"
-#include "wiretap/wtap.h"
+#include <epan/proto.h>
+#include <epan/epan_dissect.h>
+#include "epan/epan.h"
+#include "epan/column.h"
+#include "epan/ftypes/ftypes.h"
 
-#include <ui/qt/utils/field_information.h>
+#include <ui/qt/capture_file.h>
 
-class ByteViewTab;
-class ProtoTree;
+#include <ui/qt/utils/data_printer.h>
 
-namespace Ui {
-class PacketDialog;
-}
+#include <QObject>
 
-class PacketDialog : public WiresharkDialog
+class FrameInformation : public QObject, public IDataPrintable
 {
     Q_OBJECT
+    Q_INTERFACES(IDataPrintable)
 
 public:
-    explicit PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata);
-    ~PacketDialog();
 
-private slots:
-    void on_buttonBox_helpRequested();
+    explicit FrameInformation(CaptureFile * cfile, frame_data * fi, QObject * parent = Q_NULLPTR);
+    virtual ~FrameInformation();
 
-    void captureFileClosing();
-    void setHintText(FieldInformation *);
+    bool isValid();
+
+    frame_data * frameData() const;
+
+    QByteArray printableData();
 
 private:
-    Ui::PacketDialog *ui;
 
-    QString col_info_;
-    ProtoTree *proto_tree_;
-    ByteViewTab *byte_view_tab_;
-    epan_dissect_t edt_;
-    struct wtap_pkthdr phdr_;
+    frame_data * fi_;
+    CaptureFile * cap_file_;
     guint8 *packet_data_;
+    epan_dissect_t edt_;
+
+    void loadFrameTree();
+
 };
 
-#endif // PACKET_DIALOG_H
+
+#endif // FRAME_INFORMATION_H_
 
 /*
  * Editor modelines

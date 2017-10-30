@@ -28,6 +28,7 @@
 #include "proto_tree.h"
 #include "protocol_preferences_menu.h"
 #include <ui/qt/models/related_packet_delegate.h>
+#include <ui/qt/utils/field_information.h>
 
 #include <QMenu>
 #include <QTime>
@@ -60,7 +61,7 @@ public:
     QMenu *conversationMenu() { return &conv_menu_; }
     QMenu *colorizeMenu() { return &colorize_menu_; }
     void setProtoTree(ProtoTree *proto_tree);
-    void setByteViewTab(ByteViewTab *byteViewTab);
+
     /** Disable and clear the packet list.
      *
      * Disable packet list widget updates, clear the detail and byte views,
@@ -105,7 +106,6 @@ protected slots:
 private:
     PacketListModel *packet_list_model_;
     ProtoTree *proto_tree_;
-    ByteViewTab *byte_view_tab_;
     capture_file *cap_file_;
     QMenu ctx_menu_;
     QMenu conv_menu_;
@@ -156,6 +156,9 @@ signals:
     void packetListScrolled(bool at_end);
     void showProtocolPreferences(const QString module_name);
     void editProtocolPreference(struct preference *pref, struct pref_module *module);
+
+    void selectedFrameChanged(int);
+    void fieldSelected(FieldInformation *);
 
 public slots:
     void setCaptureFile(capture_file *cf);

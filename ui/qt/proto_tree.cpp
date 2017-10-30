@@ -317,6 +317,7 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
         conv_menu_.addAction(action);
     }
 
+    FieldInformation * finfo = 0;
     field_info *fi = NULL;
     const char *module_name = NULL;
     if (selectedItems().count() > 0) {
@@ -328,17 +329,19 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
                 module_name = proto_registrar_get_abbrev(fi->hfinfo->parent);
             }
         }
+        finfo = new FieldInformation(fi, this);
     }
     proto_prefs_menu_.setModule(module_name);
 
     foreach (QAction *action, copy_actions_) {
-        action->setData(VariantPointer<field_info>::asQVariant(fi));
+        action->setProperty("idataprintable_",
+                VariantPointer<IDataPrintable>::asQVariant((IDataPrintable *)finfo));
     }
 
     decode_as_->setData(qVariantFromValue(true));
 
     // Set menu sensitivity and action data.
-    emit protoItemSelected(fi);
+    emit fieldSelected(finfo);
     ctx_menu_.exec(event->globalPos());
     decode_as_->setData(QVariant());
 }
@@ -429,29 +432,21 @@ void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item)
         fi = VariantPointer<field_info>::asPtr(item->data(0, Qt::UserRole));
         if (!fi || !fi->hfinfo) return;
 
-        if (fi->hfinfo->blurb != NULL && fi->hfinfo->blurb[0] != '\0') {
-            item_info.append(QString().fromUtf8(fi->hfinfo->blurb));
-        } else {
-            item_info.append(QString().fromUtf8(fi->hfinfo->name));
+        FieldInformation * finfo = new FieldInformation(fi, this);
+
+        // Find and highlight the protocol bytes
+        QTreeWidgetItem * parent = item->parent();
+        while (parent && parent->parent()) {
+            parent = parent->parent();
+        }
+        if (parent) {
+            finfo->setParentField(VariantPointer<field_info>::asPtr(parent->data(0, Qt::UserRole)));
         }
 
-        if (!item_info.isEmpty()) {
-            int finfo_length;
-            item_info.append(" (" + QString().fromUtf8(fi->hfinfo->abbrev) + ")");
-
-            finfo_length = fi->length + fi->appendix_length;
-            if (finfo_length == 1) {
-                item_info.append(tr(", 1 byte"));
-            } else if (finfo_length > 1) {
-                item_info.append(QString(tr(", %1 bytes")).arg(finfo_length));
-            }
-
+        if ( finfo->isValid() )
+        {
             saveSelectedField(item);
-
-            emit protoItemSelected("");
-            emit protoItemSelected(NULL);
-            emit protoItemSelected(item_info);
-            emit protoItemSelected(fi);
+            emit fieldSelected(finfo);
         } // else the GTK+ version pushes an empty string as described below.
         /*
          * Don't show anything if the field name is zero-length;
@@ -473,8 +468,7 @@ void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item)
          */
 
     } else {
-        emit protoItemSelected("");
-        emit protoItemSelected(NULL);
+        emit fieldSelected(NULL);
     }
 }
 
@@ -598,16 +592,21 @@ void ProtoTree::itemDoubleClick(QTreeWidgetItem *item, int) {
     }
 }
 
-void ProtoTree::selectField(field_info *fi)
+void ProtoTree::selectedFieldChanged(FieldInformation * finfo)
 {
-    QTreeWidgetItemIterator iter(this);
-    while (*iter) {
-        if (fi == VariantPointer<field_info>::asPtr((*iter)->data(0, Qt::UserRole))) {
-            setCurrentItem(*iter);
-            scrollToItem(*iter);
-            break;
+    if ( finfo )
+    {
+        field_info * fi = finfo->fieldInfo();
+
+        QTreeWidgetItemIterator iter(this);
+        while (*iter) {
+            if (fi == VariantPointer<field_info>::asPtr((*iter)->data(0, Qt::UserRole))) {
+                setCurrentItem(*iter);
+                scrollToItem(*iter);
+                break;
+            }
+            ++iter;
         }
-        ++iter;
     }
 }
 

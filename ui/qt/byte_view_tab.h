@@ -28,30 +28,21 @@
 #include <epan/proto.h>
 #include <epan/tvbuff.h>
 
+#include <ui/qt/utils/field_information.h>
+
 #include "cfile.h"
 
 #include <QTabWidget>
-#include <QTreeWidget>
-#include <QTreeWidgetItem>
 
-#include <ui/qt/byte_view_text.h>
+
+#include <ui/qt/widgets/byte_view_text.h>
 
 class ByteViewTab : public QTabWidget
 {
     Q_OBJECT
+
 public:
-    enum copyDataType {
-        copyDataHexTextDump,
-        copyDataHexDump,
-        copyDataPrintableText,
-        copyDataHexStream,
-        copyDataBinary,
-        copyDataEscapedString
-    };
-
     explicit ByteViewTab(QWidget *parent = 0);
-
-    void copyData(copyDataType copy_type, field_info *fi = NULL);
 
 public slots:
     /* Set the capture file */
@@ -59,38 +50,33 @@ public slots:
     /* Creates the tabs and data, depends on an dissection which has already run */
     void packetSelectionChanged();
 
-    void protoTreeItemChanged(QTreeWidgetItem *current);
-    void setMonospaceFont(const QFont &mono_font);
+    void selectedFrameChanged(int);
+    void selectedFieldChanged(FieldInformation *);
 
 signals:
-    void monospaceFontChanged(const QFont &mono_font);
-    void byteFieldHovered(const QString &);
-
-    void tvbOffsetHovered(tvbuff_t *, int);
-    void tvbOffsetMarked(tvbuff_t *, int);
+    void fieldSelected(FieldInformation *);
+    void fieldHighlight(FieldInformation *);
 
 private:
     capture_file *cap_file_;
-    QFont mono_font_;
+
+    FieldInformation * curSelected;
 
     void setTabsVisible();
-    void copyHexTextDump(QByteArray data, bool append_text);
-    void copyPrintableText(QByteArray data);
-    void copyHexStream(QByteArray data);
-    void copyBinary(QByteArray data);
-    void copyEscapedString(QByteArray data);
 
     ByteViewText * findByteViewTextForTvb(tvbuff_t * search, int * idx = 0);
 
     void addTab(const char *name = "", tvbuff_t *tvb = NULL);
 
 protected:
-    void tabInserted(int index);
-    void tabRemoved(int index);
+    void tabInserted(int);
+    void tabRemoved(int);
 
 private slots:
     void byteViewTextHovered(int);
     void byteViewTextMarked(int);
+
+    void connectToMainWindow();
 };
 
 #endif // BYTE_VIEW_TAB_H

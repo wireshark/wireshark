@@ -495,26 +495,32 @@ MainWindow::MainWindow(QWidget *parent) :
 
     packet_list_ = new PacketList(&master_split_);
     main_ui_->wirelessTimelineWidget->setPacketList(packet_list_);
+    connect(packet_list_, SIGNAL(fieldSelected(FieldInformation *)),
+            this, SIGNAL(fieldSelected(FieldInformation *)));
     connect(packet_list_, SIGNAL(packetSelectionChanged()),
-            main_ui_->wirelessTimelineWidget, SLOT(packetSelectionChanged()));
+            this, SIGNAL(packetSelectionChanged()));
     connect(packet_list_->packetListModel(), SIGNAL(bgColorizationProgress(int,int)),
             main_ui_->wirelessTimelineWidget, SLOT(bgColorizationProgress(int,int)));
-    connect(packet_list_, SIGNAL(packetSelectionChanged()),
-            main_ui_->statusBar, SLOT(packetSelectionChanged()));
 
     proto_tree_ = new ProtoTree(&master_split_);
     proto_tree_->installEventFilter(this);
 
-    byte_view_tab_ = new ByteViewTab(&master_split_);
-
     packet_list_->setProtoTree(proto_tree_);
-    packet_list_->setByteViewTab(byte_view_tab_);
     packet_list_->installEventFilter(this);
 
-    connect(packet_list_, SIGNAL(packetSelectionChanged()),
-            byte_view_tab_, SLOT(packetSelectionChanged()));
-
     main_welcome_ = main_ui_->welcomePage;
+
+    connect(proto_tree_, SIGNAL(fieldSelected(FieldInformation *)),
+            this, SIGNAL(fieldSelected(FieldInformation *)));
+    connect(this, SIGNAL(fieldSelected(FieldInformation *)),
+            proto_tree_, SLOT(selectedFieldChanged(FieldInformation *)));
+    connect(this, SIGNAL(fieldHighlight(FieldInformation *)),
+            main_ui_->statusBar, SLOT(highlightedFieldChanged(FieldInformation *)));
+    connect(this, SIGNAL(fieldSelected(FieldInformation *)),
+            main_ui_->statusBar, SLOT(selectedFieldChanged(FieldInformation *)));
+
+
+    createByteViewDialog();
 
     // Packet list and proto tree must exist before these are called.
     setMenusForSelectedPacket();
@@ -648,6 +654,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(main_ui_->filterExpressionFrame, SIGNAL(filterExpressionsChanged()),
             this, SLOT(filterExpressionsChanged()));
 
+    /* Connect change of capture file */
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
             main_ui_->searchFrame, SLOT(setCaptureFile(capture_file*)));
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
@@ -656,15 +663,15 @@ MainWindow::MainWindow(QWidget *parent) :
             packet_list_, SLOT(setCaptureFile(capture_file*)));
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
             proto_tree_, SLOT(setCaptureFile(capture_file*)));
-    connect(this, SIGNAL(setCaptureFile(capture_file*)),
-            byte_view_tab_, SLOT(setCaptureFile(capture_file*)));
+    connect(this, SIGNAL(packetSelectionChanged()),
+            main_ui_->wirelessTimelineWidget, SLOT(packetSelectionChanged()));
+    connect(this, SIGNAL(packetSelectionChanged()),
+            main_ui_->statusBar, SLOT(packetSelectionChanged()));
 
-    connect(this, SIGNAL(monospaceFontChanged(QFont)),
+    connect(wsApp, SIGNAL(zoomMonospaceFont(QFont)),
             packet_list_, SLOT(setMonospaceFont(QFont)));
-    connect(this, SIGNAL(monospaceFontChanged(QFont)),
+    connect(wsApp, SIGNAL(zoomMonospaceFont(QFont)),
             proto_tree_, SLOT(setMonospaceFont(QFont)));
-    connect(this, SIGNAL(monospaceFontChanged(QFont)),
-            byte_view_tab_, SLOT(setMonospaceFont(QFont)));
 
     connect(main_ui_->actionGoNextPacket, SIGNAL(triggered()),
             packet_list_, SLOT(goNextPacket()));
@@ -714,19 +721,18 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(packet_list_->packetListModel(), SIGNAL(popProgressStatus()),
             main_ui_->statusBar, SLOT(popProgressStatus()));
 
-    connect(proto_tree_, SIGNAL(protoItemSelected(const QString&)),
-            main_ui_->statusBar, SLOT(pushFieldStatus(const QString&)));
-    connect(proto_tree_, SIGNAL(protoItemSelected(field_info *)),
-            this, SLOT(setMenusForSelectedTreeRow(field_info *)));
+    connect(proto_tree_, SIGNAL(fieldSelected(FieldInformation *)),
+            this, SIGNAL(fieldSelected(FieldInformation *)));
+    connect(this, SIGNAL(fieldSelected(FieldInformation *)),
+            main_ui_->statusBar, SLOT(selectedFieldChanged(FieldInformation *)));
+    connect(this, SIGNAL(fieldSelected(FieldInformation *)),
+            this, SLOT(setMenusForSelectedTreeRow(FieldInformation *)));
     connect(proto_tree_, SIGNAL(openPacketInNewWindow(bool)),
             this, SLOT(openPacketDialog(bool)));
     connect(proto_tree_, SIGNAL(showProtocolPreferences(QString)),
             this, SLOT(showPreferencesDialog(QString)));
     connect(proto_tree_, SIGNAL(editProtocolPreference(preference*,pref_module*)),
             main_ui_->preferenceEditorFrame, SLOT(editPreference(preference*,pref_module*)));
-
-    connect(byte_view_tab_, SIGNAL(tvbOffsetHovered(tvbuff_t *, int)),
-            this, SLOT(setTvbOffsetHovered(tvbuff_t *, int)));
 
     connect(main_ui_->statusBar, SIGNAL(showExpertInfo()),
             this, SLOT(on_actionAnalyzeExpertInfo_triggered()));
@@ -2880,6 +2886,10 @@ void MainWindow::setMwFileName(QString fileName)
     return;
 }
 
+void MainWindow::createByteViewDialog()
+{
+    byte_view_tab_ = new ByteViewTab(&master_split_);
+}
 
 /*
  * Editor modelines

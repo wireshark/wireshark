@@ -1383,7 +1383,7 @@ void MainWindow::setMenusForSelectedPacket()
     main_ui_->actionTelephonyLteRlcGraph->setEnabled(is_lte_rlc);
 }
 
-void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
+void MainWindow::setMenusForSelectedTreeRow(FieldInformation *finfo) {
 
     bool can_match_selected = false;
     bool is_framenum = false;
@@ -1393,6 +1393,10 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
     bool have_packet_bytes = false;
     QByteArray field_filter;
     int field_id = -1;
+
+    field_info * fi = 0;
+    if ( finfo )
+        fi = finfo->fieldInfo();
 
     if (capture_file_.capFile()) {
         capture_file_.capFile()->finfo_selected = fi;
@@ -1780,35 +1784,6 @@ void MainWindow::openTapParameterDialog()
 
     const QString cfg_str = tpa->data().toString();
     openTapParameterDialog(cfg_str, NULL, NULL);
-}
-
-void MainWindow::setTvbOffsetHovered(tvbuff_t * tvb, int idx)
-{
-    QString field_str("");
-
-    if ( tvb && capture_file_.capFile() && capture_file_.capFile()->edt )
-    {
-        proto_tree * tree = capture_file_.capFile()->edt->tree;
-        if ( tree )
-        {
-            field_info * fi = proto_find_field_from_offset(tree, idx, tvb);
-
-            if (fi) {
-                if (fi->length < 2) {
-                    field_str = QString(tr("Byte %1"))
-                            .arg(fi->start);
-                } else {
-                    field_str = QString(tr("Bytes %1-%2"))
-                            .arg(fi->start)
-                            .arg(fi->start + fi->length - 1);
-                }
-                field_str += QString(": %1 (%2)")
-                        .arg(fi->hfinfo->name)
-                        .arg(fi->hfinfo->abbrev);
-            }
-        }
-    }
-    main_ui_->statusBar->pushByteStatus(field_str);
 }
 
 #ifdef HAVE_SOFTWARE_UPDATE
@@ -2482,14 +2457,7 @@ void MainWindow::on_actionViewNameResolutionTransport_triggered()
 
 void MainWindow::zoomText()
 {
-    // Scale by 10%, rounding to nearest half point, minimum 1 point.
-    // XXX Small sizes repeat. It might just be easier to create a map of multipliers.
-    mono_font_ = QFont(wsApp->monospaceFont());
-    qreal zoom_size = wsApp->monospaceFont().pointSize() * 2 * qPow(qreal(1.1), recent.gui_zoom_level);
-    zoom_size = qRound(zoom_size) / qreal(2.0);
-    zoom_size = qMax(zoom_size, qreal(1.0));
-    mono_font_.setPointSizeF(zoom_size);
-    emit monospaceFontChanged(mono_font_);
+    wsApp->zoomTextFont(recent.gui_zoom_level);
 }
 
 void MainWindow::on_actionViewZoomIn_triggered()
@@ -2655,11 +2623,9 @@ void MainWindow::openPacketDialog(bool from_reference)
     if (fdata) {
         PacketDialog *packet_dialog = new PacketDialog(*this, capture_file_, fdata);
 
-        connect(this, SIGNAL(monospaceFontChanged(QFont)),
-                packet_dialog, SIGNAL(monospaceFontChanged(QFont)));
         connect(this, SIGNAL(closePacketDialogs()),
                 packet_dialog, SLOT(close()));
-        zoomText(); // Emits monospaceFontChanged
+        zoomText(); // Emits wsApp->zoomMonospaceFont(QFont)
 
         packet_dialog->show();
     }
@@ -3899,9 +3865,13 @@ void MainWindow::on_actionContextCopyBytesHexTextDump_triggered()
     QAction *ca = qobject_cast<QAction*>(sender());
     if (!ca) return;
 
-    field_info *fi = VariantPointer<field_info>::asPtr(ca->data());
+    IDataPrintable * fieldInfo =
+            VariantPointer<IDataPrintable>::asPtr(ca->property("idataprintable_"));
+    if ( ! fieldInfo )
+        return;
 
-    byte_view_tab_->copyData(ByteViewTab::copyDataHexTextDump, fi);
+    DataPrinter printer;
+    printer.toClipboard(DataPrinter::DP_HexDump, fieldInfo);
 }
 
 void MainWindow::on_actionContextCopyBytesHexDump_triggered()
@@ -3909,9 +3879,13 @@ void MainWindow::on_actionContextCopyBytesHexDump_triggered()
     QAction *ca = qobject_cast<QAction*>(sender());
     if (!ca) return;
 
-    field_info *fi = VariantPointer<field_info>::asPtr(ca->data());
+    IDataPrintable * fieldInfo =
+            VariantPointer<IDataPrintable>::asPtr(ca->property("idataprintable_"));
+    if ( ! fieldInfo )
+        return;
 
-    byte_view_tab_->copyData(ByteViewTab::copyDataHexDump, fi);
+    DataPrinter printer;
+    printer.toClipboard(DataPrinter::DP_HexOnly, fieldInfo);
 }
 
 void MainWindow::on_actionContextCopyBytesPrintableText_triggered()
@@ -3919,9 +3893,13 @@ void MainWindow::on_actionContextCopyBytesPrintableText_triggered()
     QAction *ca = qobject_cast<QAction*>(sender());
     if (!ca) return;
 
-    field_info *fi = VariantPointer<field_info>::asPtr(ca->data());
+    IDataPrintable * fieldInfo =
+            VariantPointer<IDataPrintable>::asPtr(ca->property("idataprintable_"));
+    if ( ! fieldInfo )
+        return;
 
-    byte_view_tab_->copyData(ByteViewTab::copyDataPrintableText, fi);
+    DataPrinter printer;
+    printer.toClipboard(DataPrinter::DP_PrintableText, fieldInfo);
 }
 
 void MainWindow::on_actionContextCopyBytesHexStream_triggered()
@@ -3929,9 +3907,13 @@ void MainWindow::on_actionContextCopyBytesHexStream_triggered()
     QAction *ca = qobject_cast<QAction*>(sender());
     if (!ca) return;
 
-    field_info *fi = VariantPointer<field_info>::asPtr(ca->data());
+    IDataPrintable * fieldInfo =
+            VariantPointer<IDataPrintable>::asPtr(ca->property("idataprintable_"));
+    if ( ! fieldInfo )
+        return;
 
-    byte_view_tab_->copyData(ByteViewTab::copyDataHexStream, fi);
+    DataPrinter printer;
+    printer.toClipboard(DataPrinter::DP_HexStream, fieldInfo);
 }
 
 void MainWindow::on_actionContextCopyBytesBinary_triggered()
@@ -3939,9 +3921,13 @@ void MainWindow::on_actionContextCopyBytesBinary_triggered()
     QAction *ca = qobject_cast<QAction*>(sender());
     if (!ca) return;
 
-    field_info *fi = VariantPointer<field_info>::asPtr(ca->data());
+    IDataPrintable * fieldInfo =
+            VariantPointer<IDataPrintable>::asPtr(ca->property("idataprintable_"));
+    if ( ! fieldInfo )
+        return;
 
-    byte_view_tab_->copyData(ByteViewTab::copyDataBinary, fi);
+    DataPrinter printer;
+    printer.toClipboard(DataPrinter::DP_Binary, fieldInfo);
 }
 
 void MainWindow::on_actionContextCopyBytesEscapedString_triggered()
@@ -3949,9 +3935,13 @@ void MainWindow::on_actionContextCopyBytesEscapedString_triggered()
     QAction *ca = qobject_cast<QAction*>(sender());
     if (!ca) return;
 
-    field_info *fi = VariantPointer<field_info>::asPtr(ca->data());
+    IDataPrintable * fieldInfo =
+            VariantPointer<IDataPrintable>::asPtr(ca->property("idataprintable_"));
+    if ( ! fieldInfo )
+        return;
 
-    byte_view_tab_->copyData(ByteViewTab::copyDataEscapedString, fi);
+    DataPrinter printer;
+    printer.toClipboard(DataPrinter::DP_EscapedString, fieldInfo);
 }
 
 void MainWindow::on_actionContextWikiProtocolPage_triggered()

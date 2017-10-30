@@ -24,6 +24,7 @@ ADD_CUSTOM_CMAKE_INCLUDE()
 set(WIRESHARK_WIDGET_HEADERS
 	widgets/additional_toolbar.h
 	widgets/apply_line_edit.h
+	widgets/byte_view_text.h
 	widgets/capture_filter_combo.h
 	widgets/capture_filter_edit.h
 	widgets/clickable_label.h
@@ -48,6 +49,9 @@ set(WIRESHARK_WIDGET_HEADERS
 
 set(WIRESHARK_UTILS_HEADERS
 	utils/color_utils.h
+	utils/field_information.h
+	utils/frame_information.h
+	utils/data_printer.h
 	utils/stock_icon.h
 	utils/qt_ui_utils.h
 	utils/tango_colors.h
@@ -87,7 +91,6 @@ set(WIRESHARK_QT_HEADERS
 	bluetooth_hci_summary_dialog.h
 	accordion_frame.h
 	byte_view_tab.h
-	byte_view_text.h
 	capture_file.h
 	capture_file_dialog.h
 	capture_file_properties_dialog.h
@@ -226,6 +229,7 @@ file(GLOB EXTRA_QT_HEADERS
 set(WIRESHARK_WIDGET_SRCS
 	widgets/additional_toolbar.cpp
 	widgets/apply_line_edit.cpp
+	widgets/byte_view_text.cpp
 	widgets/capture_filter_combo.cpp
 	widgets/capture_filter_edit.cpp
 	widgets/clickable_label.cpp
@@ -250,6 +254,9 @@ set(WIRESHARK_WIDGET_SRCS
 
 set(WIRESHARK_UTILS_SRCS
 	utils/color_utils.cpp
+	utils/field_information.cpp
+	utils/frame_information.cpp
+	utils/data_printer.cpp
 	utils/stock_icon.cpp
 	utils/wireshark_mime_data.cpp
 	utils/qt_ui_utils.cpp
@@ -285,7 +292,6 @@ set(WIRESHARK_QT_SRC
 	bluetooth_devices_dialog.cpp
 	bluetooth_hci_summary_dialog.cpp
 	byte_view_tab.cpp
-	byte_view_text.cpp
 	capture_file.cpp
 	capture_file_dialog.cpp
 	capture_file_properties_dialog.cpp

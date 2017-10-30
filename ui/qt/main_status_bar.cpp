@@ -289,6 +289,40 @@ void MainStatusBar::setCaptureFile(capture_file *cf)
     comment_button_->setEnabled(cap_file_ != NULL);
 }
 
+void MainStatusBar::selectedFieldChanged(FieldInformation * finfo)
+{
+    QString item_info;
+
+    if ( ! finfo )
+        return;
+
+    FieldInformation::HeaderInfo hInfo = finfo->headerInfo();
+
+    if ( hInfo.isValid )
+    {
+        if ( hInfo.description.length() > 0 ) {
+            item_info.append(hInfo.description);
+        } else {
+            item_info.append(hInfo.name);
+        }
+    }
+
+    if (!item_info.isEmpty()) {
+        int finfo_length;
+        if ( hInfo.isValid )
+            item_info.append(" (" + hInfo.abbreviation + ")");
+
+        finfo_length = finfo->position().length + finfo->appendix().length;
+        if (finfo_length == 1) {
+            item_info.append(tr(", 1 byte"));
+        } else if (finfo_length > 1) {
+            item_info.append(QString(tr(", %1 bytes")).arg(finfo_length));
+        }
+    }
+
+    pushFieldStatus(item_info);
+}
+
 void MainStatusBar::pushTemporaryStatus(const QString &message) {
     info_status_.pushText(message, STATUS_CTX_TEMPORARY);
 }
@@ -318,6 +352,28 @@ void MainStatusBar::pushFieldStatus(const QString &message) {
 
 void MainStatusBar::popFieldStatus() {
     info_status_.popText(STATUS_CTX_FIELD);
+}
+
+void MainStatusBar::highlightedFieldChanged(FieldInformation * finfo)
+{
+    QString hint;
+
+    if ( finfo )
+    {
+        FieldInformation::Position pos = finfo->position();
+        QString field_str;
+
+        if (pos.length < 2) {
+            hint = QString(tr("Byte %1")).arg(pos.start);
+        } else {
+            hint = QString(tr("Bytes %1-%2")).arg(pos.start).arg(pos.start + pos.length - 1);
+        }
+        hint += QString(": %1 (%2)")
+                .arg(finfo->headerInfo().name)
+                .arg(finfo->headerInfo().abbreviation);
+    }
+
+    pushByteStatus(hint);
 }
 
 void MainStatusBar::pushByteStatus(const QString &message)

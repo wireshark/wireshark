@@ -1,4 +1,4 @@
-/* packet_dialog.h
+/* field_information.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,49 +19,63 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef PACKET_DIALOG_H
-#define PACKET_DIALOG_H
+#ifndef FIELD_INFORMATION_H_
+#define FIELD_INFORMATION_H_
 
-#include "wireshark_dialog.h"
+#include <config.h>
 
-#include "epan/epan_dissect.h"
-#include "wiretap/wtap.h"
+#include <epan/proto.h>
 
-#include <ui/qt/utils/field_information.h>
+#include <ui/qt/utils/data_printer.h>
 
-class ByteViewTab;
-class ProtoTree;
+#include <QObject>
 
-namespace Ui {
-class PacketDialog;
-}
-
-class PacketDialog : public WiresharkDialog
+class FieldInformation : public QObject, public IDataPrintable
 {
     Q_OBJECT
+    Q_INTERFACES(IDataPrintable)
 
 public:
-    explicit PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata);
-    ~PacketDialog();
 
-private slots:
-    void on_buttonBox_helpRequested();
+    struct HeaderInfo
+    {
+        QString name;
+        QString description;
+        QString abbreviation;
+        bool isValid;
+    };
 
-    void captureFileClosing();
-    void setHintText(FieldInformation *);
+    struct Position
+    {
+        int start;
+        int end;
+        int length;
+    };
+
+    explicit FieldInformation(field_info * fi, QObject * parent = Q_NULLPTR);
+
+    bool isValid();
+
+    field_info * fieldInfo() const;
+
+    HeaderInfo headerInfo() const;
+    Position position() const;
+    Position appendix() const;
+
+    void setParentField(field_info * fi);
+    FieldInformation * parentField() const;
+    bool tvbContains(FieldInformation *);
+
+    QByteArray printableData();
 
 private:
-    Ui::PacketDialog *ui;
 
-    QString col_info_;
-    ProtoTree *proto_tree_;
-    ByteViewTab *byte_view_tab_;
-    epan_dissect_t edt_;
-    struct wtap_pkthdr phdr_;
-    guint8 *packet_data_;
+    field_info * fi_;
+    field_info * parent_fi_;
 };
 
-#endif // PACKET_DIALOG_H
+
+#endif // FIELD_INFORMATION_H_
 
 /*
  * Editor modelines

@@ -1,4 +1,7 @@
-/* packet_dialog.h
+/* data_printer.h
+ *
+ * Used by ByteView and others, to create data dumps in printable
+ * form
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,49 +22,54 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef PACKET_DIALOG_H
-#define PACKET_DIALOG_H
+#ifndef DATA_PRINTER_H
+#define DATA_PRINTER_H
 
-#include "wireshark_dialog.h"
+#include <config.h>
 
-#include "epan/epan_dissect.h"
-#include "wiretap/wtap.h"
+#include <QObject>
 
-#include <ui/qt/utils/field_information.h>
 
-class ByteViewTab;
-class ProtoTree;
-
-namespace Ui {
-class PacketDialog;
-}
-
-class PacketDialog : public WiresharkDialog
+class IDataPrintable
 {
-    Q_OBJECT
-
 public:
-    explicit PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata);
-    ~PacketDialog();
+    virtual ~IDataPrintable() {}
 
-private slots:
-    void on_buttonBox_helpRequested();
-
-    void captureFileClosing();
-    void setHintText(FieldInformation *);
-
-private:
-    Ui::PacketDialog *ui;
-
-    QString col_info_;
-    ProtoTree *proto_tree_;
-    ByteViewTab *byte_view_tab_;
-    epan_dissect_t edt_;
-    struct wtap_pkthdr phdr_;
-    guint8 *packet_data_;
+    virtual QByteArray printableData() = 0;
 };
 
-#endif // PACKET_DIALOG_H
+class DataPrinter : public QObject
+{
+    Q_OBJECT
+public:
+    explicit DataPrinter(QObject *parent = 0);
+
+    enum DumpType {
+        DP_HexDump,
+        DP_HexOnly,
+        DP_HexStream,
+        DP_PrintableText,
+        DP_EscapedString,
+        DP_Binary
+    };
+
+    void toClipboard(DataPrinter::DumpType type, IDataPrintable * printable);
+
+    void setByteLineLength(int);
+    int byteLineLength() const;
+
+private:
+    QString hexTextDump(QByteArray printData, bool append_text);
+    void binaryDump(QByteArray printData);
+
+    int byteLineLength_;
+};
+
+#define IDataPrintable_iid "org.wireshark.Qt.UI.IDataPrintable"
+
+Q_DECLARE_INTERFACE(IDataPrintable, IDataPrintable_iid)
+
+#endif // DATA_PRINTER_H
 
 /*
  * Editor modelines
