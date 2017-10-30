@@ -35,16 +35,4 @@ typedef struct {
 	guint32	nmask;	/* stored in host order */
 } ipv4_addr_and_mask;
 
-static inline guint32
-ipv4_get_net_order_addr(ipv4_addr_and_mask *ipv4)
-{
-	return g_htonl(ipv4->addr);
-}
-
-static inline guint32
-ipv4_get_host_order_addr(ipv4_addr_and_mask *ipv4)
-{
-	return ipv4->addr;
-}
-
 #endif

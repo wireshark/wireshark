@@ -212,7 +212,7 @@ static void
 slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 {
 	guint8* data;
-	guint32 addr = ipv4_get_net_order_addr(&(fv->value.ipv4));
+	guint32 addr = g_htonl(fv->value.ipv4.addr);
 	data = ((guint8*)&addr)+offset;
 	g_byte_array_append(bytes, data, length);
 }

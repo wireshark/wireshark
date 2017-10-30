@@ -5945,7 +5945,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 
 					case FT_IPv4:
 						ipv4 = (ipv4_addr_and_mask *)fvalue_get(&finfo->value);
-						n_addr = ipv4_get_net_order_addr(ipv4);
+						n_addr = g_ntohl(ipv4->addr);
 						set_address (&addr, AT_IPv4, 4, &n_addr);
 						address_to_str_buf(&addr, result+offset_r, size-offset_r);
 						offset_r = (int)strlen(result);
@@ -8366,7 +8366,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_IPv4:
 			ipv4 = (ipv4_addr_and_mask *)fvalue_get(&fi->value);
-			n_addr = ipv4_get_net_order_addr(ipv4);
+			n_addr = g_htonl(ipv4->addr);
 
 			addr.type = AT_IPv4;
 			addr.len  = 4;
