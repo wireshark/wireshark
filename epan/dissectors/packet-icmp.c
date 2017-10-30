@@ -357,8 +357,7 @@ static const value_string interface_role_str[] = {
 #define MPLS_EXTENDED_PAYLOAD_C_TYPE             1
 
 /* Return true if the address is in the 224.0.0.0/4 network block */
-#define is_a_multicast_addr(a) \
-	((g_ntohl(a) & 0xf0000000) == 0xe0000000)
+#define is_a_multicast_addr(a)	in4_addr_is_multicast(g_ntohl(a))
 
 /* Return true if the address is the 255.255.255.255 broadcast address */
 #define is_a_broadcast_addr(a) \

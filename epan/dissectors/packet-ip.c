@@ -498,14 +498,6 @@ const value_string ip_version_vals[] = {
 #define IPLOCAL_NETWRK_CTRL_BLK_ANY_TTL         0x1000 /* larger than max ttl */
 #define IPLOCAL_NETWRK_CTRL_BLK_DEFAULT_TTL     0X01
 
-/* Return true if the address is in the 224.0.0.0/24 network block */
-#define is_a_local_network_control_block_addr(addr) \
-  ((addr & 0xffffff00) == 0xe0000000)
-
-/* Return true if the address is in the 224.0.0.0/4 network block */
-#define is_a_multicast_addr(addr) \
-  ((addr & 0xf0000000) == 0xe0000000)
-
 static void ip_prompt(packet_info *pinfo, gchar* result)
 {
     g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IP protocol %u as",
@@ -2174,14 +2166,14 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
    * (e.g. 224.0.0.0/4) ... and the payload isn't protocol 103 (PIM).
    * (see http://tools.ietf.org/html/rfc3973#section-4.7).
    */
-  if (is_a_local_network_control_block_addr(dst32)) {
+  if (in4_addr_is_local_network_control_block(dst32)) {
     ttl = local_network_control_block_addr_valid_ttl(dst32);
     if (ttl != iph->ip_ttl && ttl != IPLOCAL_NETWRK_CTRL_BLK_ANY_TTL) {
       expert_add_info_format(pinfo, ttl_item, &ei_ip_ttl_lncb, "\"Time To Live\" != %d for a packet sent to the "
                              "Local Network Control Block (see RFC 3171)",
                              ttl);
     }
-  } else if (!is_a_multicast_addr(dst32) &&
+  } else if (!in4_addr_is_multicast(dst32) &&
 	/* At least BGP should appear here as well */
 	iph->ip_ttl < 5 &&
         iph->ip_proto != IP_PROTO_PIM &&

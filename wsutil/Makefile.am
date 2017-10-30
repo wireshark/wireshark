@@ -59,6 +59,7 @@ WSUTIL_PUBLIC_INCLUDES = \
 	g711.h			\
 	glib-compat.h		\
 	inet_addr.h		\
+	inet_ipv4.h		\
 	inet_ipv6.h		\
 	interface.h		\
 	jsmn.h			\
