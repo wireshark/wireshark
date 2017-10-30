@@ -705,6 +705,7 @@ set(DISSECTOR_SRC
 	packet-btl2cap.c
 	packet-btle.c
 	packet-btle_rf.c
+	packet-btmesh.c
 	packet-btmcap.c
 	packet-btrfcomm.c
 	packet-btsap.c
