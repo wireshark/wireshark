@@ -651,7 +651,8 @@ fvalue_get_uinteger(fvalue_t *fv)
 			fv->ftype->ftype == FT_UINT24 ||
 			fv->ftype->ftype == FT_UINT32 ||
 			fv->ftype->ftype == FT_IPXNET ||
-			fv->ftype->ftype == FT_FRAMENUM);
+			fv->ftype->ftype == FT_FRAMENUM ||
+			fv->ftype->ftype == FT_IPv4);
 	g_assert(fv->ftype->get_value.get_value_uinteger);
 	return fv->ftype->get_value.get_value_uinteger(fv);
 }
