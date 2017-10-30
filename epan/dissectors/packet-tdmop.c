@@ -25,6 +25,7 @@
  */
 #include "config.h"
 #include <epan/packet.h>
+#include <epan/conversation.h>
 #include <epan/prefs.h>
 
 /*Using of ethertype 0x0808(assigned to Frame Realy ARP) was implemented in hardware, when ethertype was not assigned*/
@@ -94,8 +95,7 @@ static int dissect_tdmop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     gint offset;
     proto_item    *ti;
     proto_tree    *tdmop_tree;
-    guint32 dstch;
-    guint32 srcch;
+    guint32 dstch, srcch;
     flags = tvb_get_guint8(tvb, 4);
     offset = 0;
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TDMoP");
@@ -104,21 +104,20 @@ static int dissect_tdmop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     {
         col_add_fstr(pinfo->cinfo, COL_INFO, "Lost Request");
     }
-    /*conversation*/
-    dstch = tvb_get_guint8(tvb, offset + 2);
-    srcch = tvb_get_guint8(tvb, offset + 3);
-    pinfo->destport = dstch;
-    pinfo->srcport = srcch;
-    pinfo->ptype = PT_TDMOP;
+
     ti = proto_tree_add_item(tree, proto_tdmop, tvb, 0, -1, ENC_NA);
     tdmop_tree = proto_item_add_subtree(ti, ett_tdmop);
     /*path info*/
     proto_tree_add_item(tdmop_tree, hf_tdmop_TransferID, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 2;
-    proto_tree_add_item(tdmop_tree, hf_tdmop_DstCh, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(tdmop_tree, hf_tdmop_DstCh, tvb, offset, 1, ENC_LITTLE_ENDIAN, &dstch);
     offset += 1;
-    proto_tree_add_item(tdmop_tree, hf_tdmop_SrcCh, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(tdmop_tree, hf_tdmop_SrcCh, tvb, offset, 1, ENC_LITTLE_ENDIAN, &srcch);
     offset += 1;
+
+    /*conversation*/
+    conversation_create_endpoint(pinfo, &pinfo->src, &pinfo->dst, ENDPOINT_TDMOP, srcch, dstch, 0);
+
     /*flags*/
     proto_tree_add_item(tdmop_tree, hf_tdmop_Flags, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(tdmop_tree, hf_tdmop_Flags_no_data, tvb, offset, 1, ENC_NA);

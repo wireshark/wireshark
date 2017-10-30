@@ -165,7 +165,6 @@ static port_type exp_pdu_old_to_new_port_type(guint type)
     case OLD_PT_BLUETOOTH:
         return PT_BLUETOOTH;
     case OLD_PT_TDMOP:
-        return PT_TDMOP;
     case OLD_PT_NCP:
     case OLD_PT_SBCCS:
         //no longer supported

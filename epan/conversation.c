@@ -36,6 +36,15 @@
 int _debug_conversation_indent = 0;
 #endif
 
+struct endpoint {
+	address addr1;
+	address addr2;
+	endpoint_type etype;
+	guint32 port1;
+	guint32 port2;
+	guint options;
+};
+
 struct conversation_key {
 	struct conversation_key *next;
 	address	addr1;
@@ -1254,13 +1263,26 @@ find_conversation_pinfo(packet_info *pinfo, const guint options)
 	DINDENT();
 
 	/* Have we seen this conversation before? */
-	if((conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-				     conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport,
-				     pinfo->destport, options)) != NULL) {
-		DPRINT(("found previous conversation for frame #%d (last_frame=%d)",
-				pinfo->num, conv->last_frame));
-		if (pinfo->num > conv->last_frame) {
-			conv->last_frame = pinfo->num;
+	if (pinfo->use_endpoint) {
+		DISSECTOR_ASSERT(pinfo->conv_endpoint);
+		if((conv = find_conversation(pinfo->num, &pinfo->conv_endpoint->addr1, &pinfo->conv_endpoint->addr2,
+									pinfo->conv_endpoint->etype, pinfo->conv_endpoint->port1,
+									pinfo->conv_endpoint->port2, options)) != NULL) {
+			DPRINT(("found previous conversation for frame #%d (last_frame=%d)",
+					pinfo->num, conv->last_frame));
+			if (pinfo->num > conv->last_frame) {
+				conv->last_frame = pinfo->num;
+			}
+		}
+		} else {
+		if((conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
+									conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport,
+									pinfo->destport, options)) != NULL) {
+			DPRINT(("found previous conversation for frame #%d (last_frame=%d)",
+					pinfo->num, conv->last_frame));
+			if (pinfo->num > conv->last_frame) {
+				conv->last_frame = pinfo->num;
+			}
 		}
 	}
 
@@ -1293,6 +1315,24 @@ find_or_create_conversation(packet_info *pinfo)
 	DENDENT();
 
 	return conv;
+}
+
+void conversation_create_endpoint(struct _packet_info *pinfo, address* addr1, address* addr2,
+    endpoint_type etype, guint32 port1, guint32	port2, const guint options)
+{
+	pinfo->conv_endpoint = wmem_new0(pinfo->pool, struct endpoint);
+	pinfo->use_endpoint = TRUE;
+
+	if (addr1 != NULL)
+		copy_address_wmem(pinfo->pool, &pinfo->conv_endpoint->addr1, addr1);
+
+	if (addr2 != NULL)
+		copy_address_wmem(pinfo->pool, &pinfo->conv_endpoint->addr2, addr2);
+
+	pinfo->conv_endpoint->etype = etype;
+	pinfo->conv_endpoint->port1 = port1;
+	pinfo->conv_endpoint->port2 = port2;
+	pinfo->conv_endpoint->options = options;
 }
 
 wmem_map_t *
@@ -1376,8 +1416,6 @@ endpoint_type conversation_pt_to_endpoint_type(port_type pt)
 		return ENDPOINT_IBQP;
 	case PT_BLUETOOTH:
 		return ENDPOINT_BLUETOOTH;
-	case PT_TDMOP:
-		return ENDPOINT_TDMOP;
 	}
 
 	DISSECTOR_ASSERT(FALSE);

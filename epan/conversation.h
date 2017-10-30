@@ -101,6 +101,9 @@ typedef struct conversation {
 } conversation_t;
 
 
+struct endpoint;
+typedef struct endpoint* endpoint_t;
+
 WS_DLL_PUBLIC address* conversation_key_addr1(const conversation_key_t key);
 WS_DLL_PUBLIC address* conversation_key_addr2(const conversation_key_t key);
 WS_DLL_PUBLIC guint32 conversation_key_port1(const conversation_key_t key);
@@ -192,6 +195,9 @@ WS_DLL_PUBLIC void conversation_set_dissector_from_frame_number(conversation_t *
 
 WS_DLL_PUBLIC dissector_handle_t conversation_get_dissector(conversation_t *conversation,
     const guint32 frame_num);
+
+WS_DLL_PUBLIC void conversation_create_endpoint(struct _packet_info *pinfo, address* addr1, address* addr2,
+    endpoint_type etype, guint32 port1, guint32	port2, const guint options);
 
 /**
  * Given two address/port pairs for a packet, search for a matching

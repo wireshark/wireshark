@@ -369,8 +369,7 @@ typedef enum {
     PT_USB,             /* USB endpoint 0xffff means the host */
     PT_I2C,
     PT_IBQP,            /* Infiniband QP number */
-    PT_BLUETOOTH,
-    PT_TDMOP
+    PT_BLUETOOTH
 } port_type;
 
 /* Types of circuit IDs Wireshark knows about. */
