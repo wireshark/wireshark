@@ -94,17 +94,17 @@ same_ftype(const enum ftenum ftype)
 		case FT_UINT32:
 			return FT_UINT32;
 
-    case FT_INT40:
-    case FT_INT48:
-    case FT_INT56:
+		case FT_INT40:
+		case FT_INT48:
+		case FT_INT56:
 		case FT_INT64:
-      return FT_INT64;
+			return FT_INT64;
 
 		case FT_UINT40:
 		case FT_UINT48:
 		case FT_UINT56:
 		case FT_UINT64:
-      return FT_UINT64;
+			return FT_UINT64;
 
 		case FT_STRING:
 		case FT_STRINGZ:
