@@ -123,7 +123,7 @@ same_ftype(const enum ftenum ftype)
 		case FT_REL_OID:
 			return FT_OID;
 
-		/* XXX: the folowing are unqiue for now */
+		/* XXX: the folowing are unique for now */
 		case FT_IPv4:
 		case FT_IPv6:
 
@@ -629,7 +629,6 @@ fvalue_get(fvalue_t *fv)
 			fv->ftype->ftype == FT_SYSTEM_ID ||
 			fv->ftype->ftype == FT_FCWWN ||
 			fv->ftype->ftype == FT_GUID ||
-			fv->ftype->ftype == FT_IPv4 ||
 			fv->ftype->ftype == FT_IPv6 ||
 			fv->ftype->ftype == FT_PCRE ||
 			fv->ftype->ftype == FT_PROTOCOL ||
