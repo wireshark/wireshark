@@ -210,6 +210,7 @@ static int hf_bssgp_tunpo_minutes = -1;
 static int hf_bssgp_tunpo_seconds = -1;
 static int hf_bssgp_ec_dl_coveradge_class = -1;
 static int hf_bssgp_ec_ul_coveradge_class = -1;
+static int hf_bssgp_pei = -1;
 static int hf_bssgp_paging_attempt_count = -1;
 static int hf_bssgp_intended_num_of_pag_attempts = -1;
 static int hf_bssgp_extended_feature_bitmap = -1;
@@ -3545,7 +3546,13 @@ de_bssgp_coveradge_class(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 /*
  * 11.3.125 Paging Attempt Information
  */
-    static const value_string bssgp_paging_attempt_count_vals[] = {
+static const value_string bssgp_pei_vals[] = {
+    { 0x0, "Positioning event not triggered" },
+    { 0x1, "Positioning event triggered" },
+    { 0, NULL }
+
+};
+static const value_string bssgp_paging_attempt_count_vals[] = {
     { 0x0, "1st paging attempt" },
     { 0x1, "2nd paging attempt" },
     { 0x2, "3rd paging attempt" },
@@ -3571,6 +3578,7 @@ static const value_string bssgp_intended_num_of_pag_attempts_vals[] = {
     { 0, NULL }
 };
 
+
 static guint16
 de_bssgp_pag_attempt_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -3578,6 +3586,7 @@ de_bssgp_pag_attempt_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 
     curr_offset = offset;
 
+    proto_tree_add_item(tree, hf_bssgp_pei, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_bssgp_intended_num_of_pag_attempts, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_bssgp_paging_attempt_count, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
@@ -7502,6 +7511,11 @@ proto_register_bssgp(void)
         { &hf_bssgp_ggsn_pgw_location,
           { "GGSN/P-GW location", "bssgp.ggsn_pgw_location",
             FT_UINT8, BASE_DEC, VALS(bssgp_ggsn_pgw_location_vals), 0x0,
+            NULL, HFILL } },
+
+        { &hf_bssgp_pei,
+          { "Positioning Event Indicator(PEI)", "bssgp.pei",
+            FT_UINT8, BASE_DEC, VALS(bssgp_pei_vals), 0x80,
             NULL, HFILL } },
 
         { &hf_bssgp_paging_attempt_count,
