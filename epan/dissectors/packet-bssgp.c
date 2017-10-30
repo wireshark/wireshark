@@ -3578,8 +3578,8 @@ de_bssgp_pag_attempt_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 
     curr_offset = offset;
 
-    proto_tree_add_item(tree, hf_bssgp_paging_attempt_count, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_bssgp_intended_num_of_pag_attempts, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_bssgp_paging_attempt_count, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
     return(curr_offset - offset);
@@ -4506,7 +4506,7 @@ bssgp_paging_ps(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
     /* MS Radio Access Capability (note 5) MS Radio Access Capability/11.3.22 O TLV 7-? */
     ELEM_OPT_TELV(BSSGP_IEI_MS_RADIO_ACCESS_CAPABILITY, GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP, NULL);
     /* Paging Attempt Information (note 6)  Paging Attempt Information/11.3.125 O   TLV 3 */
-    ELEM_OPT_TELV(BSSGP_IEI_PAG_ATTEMPT_INFO, BSSGP_PDU_TYPE, DE_BSSGP_CELL_ID, NULL);
+    ELEM_OPT_TELV(BSSGP_IEI_PAG_ATTEMPT_INFO, BSSGP_PDU_TYPE, DE_BSSGP_PAG_ATTEMPT_INFO, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_bssgp_extraneous_data);
 }
