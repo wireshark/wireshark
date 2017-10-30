@@ -3781,7 +3781,7 @@ static const value_string bssgp_elem_strings[] = {
     /* 11.3.50  LCS QoS BSSGP_IEI_LCS_QOS, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCSQOS*/
     /* 11.3.51  LCS Client Type BSSGP_IEI_LCS_CLIENT_TYPE, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CLIENT_TYPE*/
     /* 11.3.52  Requested GPS Assistance Data BSSGP_IEI_REQUESTED_GPS_ASSISTANCE_DATA, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_REQ_GPS_ASSIST_D*/
-    /* 11.3.53  Location Type 0x7c, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_GANSS_LOC_TYPE*/
+    /* 11.3.53  Location Type BSSGP_IEI_LOCATION_TYPE, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_GANSS_LOC_TYPE*/
     /* 11.3.54  Location Estimate BSSGP_IEI_LOCATION_ESTIMATE, GSM_A_PDU_TYPE_BSSMAP, BE_LOC_EST*/
     /* 11.3.55  Positioning Data 0x7d, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_POS_DATA*/
     /* 11.3.56  Deciphering Keys BSSGP_IEI_DECIPHERING_KEYS, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_DECIPH_KEYS */
@@ -5983,9 +5983,9 @@ bssgp_perform_loc_request(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     /* BVCI (PCU-PTP) BVCI/11.3.6 M TLV 4 */
     ELEM_MAND_TELV(BSSGP_IEI_BVCI, BSSGP_PDU_TYPE, DE_BSSGP_BVCI, " - (PCU-PTP)", ei_bssgp_missing_mandatory_element);
     /* NSEI (PCU-PTP) NSEI/11.3.48 M TLV 4-? */
-    ELEM_OPT_TELV(0x3e, GSM_A_PDU_TYPE_RR, DE_BSSGP_NSEI , " - (PCU-PTP)");
+    ELEM_MAND_TELV(BSSGP_IEI_NSEI, BSSGP_PDU_TYPE, DE_BSSGP_NSEI , " - (PCU-PTP)", ei_bssgp_missing_mandatory_element);
     /* Location Type Location Type/11.3.53 M TLV 3-? */
-    ELEM_OPT_TELV(0x7c, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_GANSS_LOC_TYPE, NULL);
+    ELEM_MAND_TELV(BSSGP_IEI_LOCATION_TYPE, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LOC_TYPE, NULL, ei_bssgp_missing_mandatory_element);
     /* Cell Identifier Cell Identifier/11.3.9 M TLV 10 */
     ELEM_OPT_TELV(BSSGP_IEI_CELL_IDENTIFIER, BSSGP_PDU_TYPE, DE_BSSGP_CELL_ID , NULL);
     /* LCS Capability (note 2) LCS Capability/11.3.59 O TLV 3-? */
@@ -6041,7 +6041,7 @@ bssgp_perform_loc_response(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     /* Location Estimate (note 1) Location Estimate/11.3.54 C TLV 3-? */
     ELEM_OPT_TELV(BSSGP_IEI_LOCATION_ESTIMATE, GSM_A_PDU_TYPE_BSSMAP, BE_LOC_EST, NULL);
     /* Positioning Data Positioning Data/11.3.55 O TLV 3-? */
-    ELEM_OPT_TELV(0x7d, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_POS_DATA, NULL);
+    ELEM_OPT_TELV(BSSGP_IEI_POSITIONING_DATA, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_POS_DATA, NULL);
     /* Deciphering Keys (note 2) Deciphering Keys/11.3.56 C TLV 3-? */
     ELEM_OPT_TELV(BSSGP_IEI_DECIPHERING_KEYS, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_DECIPH_KEYS, NULL);
     /* LCS Cause (note 3) LCS Cause/11.3.58 O TLV 3-? */
