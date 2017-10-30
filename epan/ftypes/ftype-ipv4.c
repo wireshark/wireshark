@@ -34,10 +34,10 @@ set_uinteger(fvalue_t *fv, guint32 value)
 	fv->value.ipv4.nmask = ip_get_subnet_mask(32);
 }
 
-static gpointer
+static guint32
 value_get(fvalue_t *fv)
 {
-	return &(fv->value.ipv4);
+	return g_htonl(fv->value.ipv4.addr);
 }
 
 static gboolean
@@ -234,7 +234,7 @@ ftype_register_ipv4(void)
 		val_repr_len,			/* len_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
-		{ .get_value_ptr = value_get },		/* union get_value */
+		{ .get_value_uinteger = value_get },	/* union get_value */
 
 		cmp_eq,
 		cmp_ne,

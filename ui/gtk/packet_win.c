@@ -615,14 +615,13 @@ new_finfo_window(GtkWidget *w, struct FieldinfoWinData *DataPtr)
 		g_signal_connect(fvalue_edit, "toggled", G_CALLBACK(finfo_boolean_changed), DataPtr);
 
 	} else if (finfo_type == FT_IPv4) {
-		ipv4_addr_and_mask *ipv4 = (ipv4_addr_and_mask *)fvalue_get(&finfo->value);
-		guint32 net_addr = g_htonl(ipv4->addr);
+		guint32 ipv4 = fvalue_get_uinteger(&finfo->value);
 #if GTK_CHECK_VERSION(3,0,0)
 		GtkAdjustment *adj;
 #else
 		GtkObject *adj;
 #endif
-		adj = gtk_adjustment_new((double) (GUINT32_FROM_BE(net_addr)), 0.0, 4294967295.0 /* (2^32)-1 */, 1.0, 256.0, 0);
+		adj = gtk_adjustment_new((double) (GUINT32_FROM_BE(ipv4)), 0.0, 4294967295.0 /* (2^32)-1 */, 1.0, 256.0, 0);
 
 		/* XXX, create four gtk_spin_button_new which takes 0..255 */
 		fvalue_edit = gtk_spin_button_new(GTK_ADJUSTMENT(adj), 1.0, 0);
