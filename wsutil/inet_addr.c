@@ -20,10 +20,10 @@
  */
 
 #include "config.h"
-
 #include "inet_addr.h"
 
 #include <errno.h>
+#include <string.h>
 
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
@@ -45,16 +45,29 @@
 #endif
 
 /*
- * We only employ and require AF_INET/AF_INET6, so we can
- * have some stronger checks for correctness and convenience (namely
- * assert that EAFNOSUPPORT cannot happen).
+ * We assume and require an inet_pton/inet_ntop that supports AF_INET
+ * and AF_INET6.
  */
 
 static inline gboolean
 _inet_pton(int af, const gchar *src, gpointer dst)
 {
     gint ret = inet_pton(af, src, dst);
-    g_assert(ret >= 0);
+    if (G_UNLIKELY(ret < 0)) {
+        /* EAFNOSUPPORT */
+        if (af == AF_INET) {
+            memset(dst, 0, sizeof(struct in_addr));
+            g_critical("ws_inet_pton4: EAFNOSUPPORT");
+        }
+        else if (af == AF_INET6) {
+            memset(dst, 0, sizeof(struct in6_addr));
+            g_critical("ws_inet_pton6: EAFNOSUPPORT");
+        }
+        else {
+            g_assert(0);
+        }
+        errno = EAFNOSUPPORT;
+    }
     return ret == 1;
 }
 
@@ -62,12 +75,24 @@ static inline const gchar *
 _inet_ntop(int af, gconstpointer src, gchar *dst, guint dst_size)
 {
     const gchar *ret = inet_ntop(af, _NTOP_SRC_CAST_ src, dst, dst_size);
-    if (ret == NULL) {
-        g_assert(errno == ENOSPC);
+    if (G_UNLIKELY(ret == NULL)) {
+        int saved_errno = errno;
+        gchar *errmsg = "<<ERROR>>";
+        switch (errno) {
+            case EAFNOSUPPORT:
+                errmsg = "<<EAFNOSUPPORT>>";
+                g_critical("ws_inet_ntop: EAFNOSUPPORT");
+                break;
+            case ENOSPC:
+                errmsg = "<<ENOSPC>>";
+                break;
+            default:
+                break;
+        }
         /* set result to something that can't be confused with a valid conversion */
-        g_strlcpy(dst, "<<ENOSPC>>", dst_size);
+        g_strlcpy(dst, errmsg, dst_size);
         /* set errno for caller */
-        errno = ENOSPC;
+        errno = saved_errno;
     }
     return dst;
 }
