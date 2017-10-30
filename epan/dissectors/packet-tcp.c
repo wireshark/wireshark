@@ -4982,7 +4982,6 @@ static const value_string rvbd_probe_type_vs[] = {
     { 0, NULL }
 };
 
-
 #define PROBE_OPTLEN_OFFSET            1
 
 #define PROBE_VERSION_TYPE_OFFSET      2
@@ -5011,6 +5010,14 @@ static const value_string rvbd_probe_type_vs[] = {
 #define RVBD_FLAGS_PROBE_SSLCERT    0x02
 #define RVBD_FLAGS_PROBE            0x10
 
+typedef struct rvbd_option_data
+{
+    gboolean valid;
+    guint8 type;
+    guint8 probe_flags;
+
+} rvbd_option_data;
+
 static void
 rvbd_probe_decode_version_type(const guint8 vt, guint8 *ver, guint8 *type)
 {
@@ -5032,13 +5039,14 @@ rvbd_probe_resp_add_info(proto_item *pitem, packet_info *pinfo, tvbuff_t *tvb, i
 }
 
 static int
-dissect_tcpopt_rvbd_probe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_tcpopt_rvbd_probe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     guint8 ver, type;
     proto_tree *field_tree;
     proto_item *pitem;
     int offset = 0,
         optlen = tvb_reported_length(tvb);
+    struct tcpheader *tcph = (struct tcpheader*)data;
 
     if (optlen < TCPOLEN_RVBD_PROBE_MIN) {
         /* Bogus - option length is less than what it's supposed to be for
@@ -5091,29 +5099,26 @@ dissect_tcpopt_rvbd_probe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         case PROBE_QUERY:
         case PROBE_QUERY_SH:
         case PROBE_TRACE:
+            {
+            rvbd_option_data* option_data;
             proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_appli_ver, tvb,
                                 offset + PROBE_V1_APPLI_VERSION_OFFSET, 2,
                                 ENC_BIG_ENDIAN);
 
             proto_item_append_text(pitem, ", CSH IP: %s", tvb_ip_to_str(tvb, offset + PROBE_V1_PROBER_OFFSET));
 
+            option_data = (rvbd_option_data*)p_get_proto_data(pinfo->pool, pinfo, proto_tcp_option_rvbd_probe, pinfo->curr_layer_num);
+            if (option_data == NULL)
             {
-                /* Small look-ahead hack to distinguish S+ from S+* */
-#define PROBE_V1_QUERY_LEN    10
-                const guint8 qinfo_hdr[] = { 0x4c, 0x04, 0x0c };
-                int not_cfe = 0;
-                /* tvb_memeql seems to be the only API that doesn't throw
-                   an exception in case of an error */
-                if (tvb_memeql(tvb, offset + PROBE_V1_QUERY_LEN,
-                               qinfo_hdr, sizeof(qinfo_hdr)) == 0) {
-                        not_cfe = tvb_get_guint8(tvb, offset + PROBE_V1_QUERY_LEN +
-                                                 (int)sizeof(qinfo_hdr)) & RVBD_FLAGS_PROBE_NCFE;
-                }
-                col_prepend_fstr(pinfo->cinfo, COL_INFO, "S%s, ",
-                                 type == PROBE_TRACE ? "#" :
-                                 not_cfe ? "+*" : "+");
-           }
-           break;
+                option_data = wmem_new0(pinfo->pool, rvbd_option_data);
+                p_add_proto_data(pinfo->pool, pinfo, proto_tcp_option_rvbd_probe, pinfo->curr_layer_num, option_data);
+            }
+
+            option_data->valid = TRUE;
+            option_data->type = type;
+
+            }
+            break;
 
         case PROBE_RESPONSE:
             proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_proxy, tvb,
@@ -5179,19 +5184,37 @@ dissect_tcpopt_rvbd_probe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                                 hf_tcp_option_rvbd_probe_flag_last_notify,
                                 tvb, offset + PROBE_V2_INFO_OFFSET, 1, ENC_BIG_ENDIAN);
 
-            if (type == PROBE_QUERY_INFO_SH)
+            switch (type)
+            {
+            case PROBE_QUERY_INFO:
+                {
+                    rvbd_option_data* option_data = (rvbd_option_data*)p_get_proto_data(pinfo->pool, pinfo, proto_tcp_option_rvbd_probe, pinfo->curr_layer_num);
+                    if (option_data == NULL)
+                    {
+                        option_data = wmem_new0(pinfo->pool, rvbd_option_data);
+                        p_add_proto_data(pinfo->pool, pinfo, proto_tcp_option_rvbd_probe, pinfo->curr_layer_num, option_data);
+                    }
+
+                    option_data->probe_flags = flags;
+                }
+                break;
+            case PROBE_QUERY_INFO_SH:
                 proto_tree_add_item(flag_tree,
                                     hf_tcp_option_rvbd_probe_client, tvb,
                                     offset + PROBE_V2_INFO_CLIENT_ADDR_OFFSET,
                                     4, ENC_BIG_ENDIAN);
-            else if (type == PROBE_QUERY_INFO_SID)
+                break;
+            case PROBE_QUERY_INFO_SID:
                 proto_tree_add_item(flag_tree,
                                     hf_tcp_option_rvbd_probe_storeid, tvb,
                                     offset + PROBE_V2_INFO_STOREID_OFFSET,
                                     4, ENC_BIG_ENDIAN);
+                break;
+            }
 
             if (type != PROBE_QUERY_INFO_SID &&
-                (tvb_get_guint8(tvb, 13) & (TH_SYN|TH_ACK)) == (TH_SYN|TH_ACK) &&
+                tcph != NULL &&
+                (tcph->th_flags & (TH_SYN|TH_ACK)) == (TH_SYN|TH_ACK) &&
                 (flags & RVBD_FLAGS_PROBE_LAST)) {
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "SA++, ");
             }
@@ -6325,9 +6348,25 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     /* Now dissect the options. */
     if (optlen) {
+        rvbd_option_data* option_data;
+
         tcp_dissect_options(tvb, offset + 20, optlen,
                                TCPOPT_EOL, pinfo, options_tree,
                                options_item, tcph);
+
+        /* Do some post evaluation of some Riverbed probe options in the list */
+        option_data = (rvbd_option_data*)p_get_proto_data(pinfo->pool, pinfo, proto_tcp_option_rvbd_probe, pinfo->curr_layer_num);
+        if (option_data != NULL)
+        {
+            if (option_data->valid)
+            {
+                /* Distinguish S+ from S+* */
+                col_prepend_fstr(pinfo->cinfo, COL_INFO, "S%s, ",
+                                     option_data->type == PROBE_TRACE ? "#" :
+                                     (option_data->probe_flags & RVBD_FLAGS_PROBE_NCFE) ? "+*" : "+");
+            }
+        }
+
     }
 
     if(!pinfo->fd->flags.visited) {
