@@ -208,6 +208,7 @@
 #define ZBEE_ZCL_CID_BACNET_MULTISTATE_VALUE_EXT    0x0613
 
 /* ZCL Cluster IDs - Smart Energy */
+#define ZBEE_ZCL_CID_KEEP_ALIVE                     0x0025
 #define ZBEE_ZCL_CID_PRICE                          0x0700
 #define ZBEE_ZCL_CID_DEMAND_RESPONSE_LOAD_CONTROL   0x0701
 #define ZBEE_ZCL_CID_SIMPLE_METERING                0x0702

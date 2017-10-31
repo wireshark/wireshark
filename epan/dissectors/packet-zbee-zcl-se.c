@@ -90,6 +90,159 @@ static void dissect_zcl_octet_string(tvbuff_t *tvb, proto_tree *tree, guint *off
 /*************************/
 
 /* ########################################################################## */
+/* #### (0x0025) KEEP-ALIVE CLUSTER ######################################### */
+/* ########################################################################## */
+
+/* Attributes */
+#define zbee_zcl_keep_alive_attr_names_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_ATTR_ID_KEEP_ALIVE_BASE,                       0x0000, "Keep-Alive Base" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_KEEP_ALIVE_JITTER,                     0x0001, "Keep-Alive Jitter" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_KEEP_ALIVE,      0xFFFE, "Attribute Reporting Status" )
+
+VALUE_STRING_ENUM(zbee_zcl_keep_alive_attr_names);
+VALUE_STRING_ARRAY(zbee_zcl_keep_alive_attr_names);
+static value_string_ext zbee_zcl_keep_alive_attr_names_ext = VALUE_STRING_EXT_INIT(zbee_zcl_keep_alive_attr_names);
+
+/*************************/
+/* Function Declarations */
+/*************************/
+void proto_register_zbee_zcl_keep_alive(void);
+void proto_reg_handoff_zbee_zcl_keep_alive(void);
+
+/* Attribute Dissector Helpers */
+static void dissect_zcl_keep_alive_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+/*************************/
+/* Global Variables      */
+/*************************/
+
+static dissector_handle_t keep_alive_handle;
+
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_keep_alive = -1;
+
+static int hf_zbee_zcl_keep_alive_attr_id = -1;
+static int hf_zbee_zcl_keep_alive_attr_reporting_status = -1;
+static int hf_zbee_zcl_keep_alive_base = -1;
+static int hf_zbee_zcl_keep_alive_jitter = -1;
+
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_keep_alive = -1;
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+ *@param attr_id attribute identifier
+ *@param data_type attribute data type
+*/
+static void
+dissect_zcl_keep_alive_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+{
+    /* Dissect attribute data type and data */
+    switch (attr_id) {
+        /* applies to all SE clusters */
+        case ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_KEEP_ALIVE:
+            proto_tree_add_item(tree, hf_zbee_zcl_keep_alive_attr_reporting_status, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_KEEP_ALIVE_BASE:
+            proto_tree_add_item(tree, hf_zbee_zcl_keep_alive_base, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_KEEP_ALIVE_JITTER:
+            proto_tree_add_item(tree, hf_zbee_zcl_keep_alive_jitter, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+            *offset += 2;
+            break;
+
+        default: /* Catch all */
+            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            break;
+    }
+} /*dissect_zcl_keep_alive_attr_data*/
+
+
+/**
+ *ZigBee ZCL Keep-Alive cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
+static int
+dissect_zbee_zcl_keep_alive(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
+{
+    return tvb_captured_length(tvb);
+} /*dissect_zbee_zcl_keep_alive*/
+
+/**
+ *This function registers the ZCL Keep-Alive dissector
+ *
+*/
+void
+proto_register_zbee_zcl_keep_alive(void)
+{
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_keep_alive_attr_id,
+            { "Attribute", "zbee_zcl_se.keep_alive.attr_id", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &zbee_zcl_keep_alive_attr_names_ext,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_keep_alive_attr_reporting_status,                         /* common to all SE clusters */
+            { "Attribute Reporting Status", "zbee_zcl_se.keep_alive.attr.attr_reporting_status",
+            FT_UINT8, BASE_HEX, VALS(zbee_zcl_se_reporting_status_names), 0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_keep_alive_base,
+            { "Keep-Alive Base", "zbee_zcl_se.keep_alive.attr.base", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_keep_alive_jitter,
+            { "Keep-Alive Jitter", "zbee_zcl_se.keep_alive.attr.jitter", FT_UINT16, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+    };
+
+    /* ZCL Keep-Alive subtrees */
+    gint *ett[] = {
+        &ett_zbee_zcl_keep_alive
+    };
+
+    /* Register the ZigBee ZCL Keep-Alive cluster protocol name and description */
+    proto_zbee_zcl_keep_alive = proto_register_protocol("ZigBee ZCL Keep-Alive", "ZCL Keep-Alive", ZBEE_PROTOABBREV_ZCL_KEEP_ALIVE);
+    proto_register_field_array(proto_zbee_zcl_keep_alive, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL Keep-Alive dissector. */
+    keep_alive_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_KEEP_ALIVE, dissect_zbee_zcl_keep_alive, proto_zbee_zcl_keep_alive);
+} /*proto_register_zbee_zcl_keep_alive*/
+
+/**
+ *Hands off the ZCL Keep-Alive dissector.
+ *
+*/
+void
+proto_reg_handoff_zbee_zcl_keep_alive(void)
+{
+    /* Register our dissector with the ZigBee application dissectors. */
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_KEEP_ALIVE, keep_alive_handle);
+
+    zbee_zcl_init_cluster(  proto_zbee_zcl_keep_alive,
+                            ett_zbee_zcl_keep_alive,
+                            ZBEE_ZCL_CID_KEEP_ALIVE,
+                            hf_zbee_zcl_keep_alive_attr_id,
+                            -1, -1,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_keep_alive_attr_data
+                         );
+} /*proto_reg_handoff_zbee_zcl_keep_alive*/
+
+/* ########################################################################## */
 /* #### (0x0700) PRICE CLUSTER ############################################## */
 /* ########################################################################## */
 

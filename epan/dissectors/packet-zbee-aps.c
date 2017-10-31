@@ -631,6 +631,7 @@ const value_string zbee_aps_cid_names[] = {
     { ZBEE_ZCL_CID_BACNET_MULTISTATE_VALUE_EXT,     "BACnet Multistage Value (Extended)"},
 
 /* ZCL Cluster IDs - Smart Energy */
+    { ZBEE_ZCL_CID_KEEP_ALIVE,                      "Keep-Alive"},
     { ZBEE_ZCL_CID_PRICE,                           "Price"},
     { ZBEE_ZCL_CID_DEMAND_RESPONSE_LOAD_CONTROL,    "Demand Response and Load Control"},
     { ZBEE_ZCL_CID_SIMPLE_METERING,                 "Simple Metering"},
