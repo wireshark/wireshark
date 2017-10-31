@@ -386,6 +386,7 @@ const value_string vals_http_status_code[] = {
 	{ 100, "Continue" },
 	{ 101, "Switching Protocols" },
 	{ 102, "Processing" },                     /* RFC 2518 */
+	{ 103, "Early Hints" },                    /* RFC-ietf-httpbis-early-hints-05 */
 	{ 199, "Informational - Others" },
 
 	{ 200, "OK"},
