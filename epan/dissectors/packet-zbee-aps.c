@@ -643,6 +643,7 @@ const value_string zbee_aps_cid_names[] = {
     { ZBEE_ZCL_CID_DEVICE_MANAGEMENT,               "Device Management"},
     { ZBEE_ZCL_CID_EVENTS,                          "Events"},
     { ZBEE_ZCL_CID_MDU_PAIRING,                     "MDU Pairing"},
+    { ZBEE_ZCL_CID_SUB_GHZ,                         "Sub-Ghz"},
 
 /* ZCL Cluster IDs - Key Establishment */
     { ZBEE_ZCL_CID_KE,                              "Key Establishment"},

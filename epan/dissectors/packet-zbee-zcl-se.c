@@ -5750,6 +5750,263 @@ proto_reg_handoff_zbee_zcl_mdu_pairing(void)
 } /*proto_reg_handoff_zbee_zcl_mdu_pairing*/
 
 /* ########################################################################## */
+/* #### (0x070B) SUB-GHZ CLUSTER ############################################ */
+/* ########################################################################## */
+
+/* Attributes */
+#define zbee_zcl_sub_ghz_attr_names_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_ATTR_ID_SUB_GHZ_CHANNEL_CHANGE,                0x0000, "Channel Change" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_SUB_GHZ_PAGE_28_CHANNEL_MASK,          0x0001, "Page 28 Channel Mask" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_SUB_GHZ_PAGE_29_CHANNEL_MASK,          0x0002, "Page 29 Channel Mask" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_SUB_GHZ_PAGE_30_CHANNEL_MASK,          0x0003, "Page 30 Channel Mask" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_SUB_GHZ_PAGE_31_CHANNEL_MASK,          0x0004, "Page 31 Channel Mask" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_SUB_GHZ,         0xFFFE, "Attribute Reporting Status" )
+
+VALUE_STRING_ENUM(zbee_zcl_sub_ghz_attr_names);
+VALUE_STRING_ARRAY(zbee_zcl_sub_ghz_attr_names);
+static value_string_ext zbee_zcl_sub_ghz_attr_names_ext = VALUE_STRING_EXT_INIT(zbee_zcl_sub_ghz_attr_names);
+
+/* Server Commands Received */
+#define zbee_zcl_sub_ghz_srv_rx_cmd_names_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_CMD_ID_SUB_GHZ_GET_SUSPEND_ZCL_MESSAGES_STATUS,  0x00, "Get Suspend ZCL Messages Status" )
+
+VALUE_STRING_ENUM(zbee_zcl_sub_ghz_srv_rx_cmd_names);
+VALUE_STRING_ARRAY(zbee_zcl_sub_ghz_srv_rx_cmd_names);
+
+/* Server Commands Generated */
+#define zbee_zcl_sub_ghz_srv_tx_cmd_names_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_CMD_ID_SUB_GHZ_SUSPEND_ZCL_MESSAGES,             0x00, "Suspend ZCL Messages" )
+
+VALUE_STRING_ENUM(zbee_zcl_sub_ghz_srv_tx_cmd_names);
+VALUE_STRING_ARRAY(zbee_zcl_sub_ghz_srv_tx_cmd_names);
+
+/*************************/
+/* Function Declarations */
+/*************************/
+void proto_register_zbee_zcl_sub_ghz(void);
+void proto_reg_handoff_zbee_zcl_sub_ghz(void);
+
+/* Attribute Dissector Helpers */
+static void dissect_zcl_sub_ghz_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+/* Command Dissector Helpers */
+static void dissect_zcl_sub_ghz_suspend_zcl_messages(tvbuff_t *tvb, proto_tree *tree, guint *offset);
+
+/*************************/
+/* Global Variables      */
+/*************************/
+
+static dissector_handle_t sub_ghz_handle;
+
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_sub_ghz = -1;
+
+static int hf_zbee_zcl_sub_ghz_srv_tx_cmd_id = -1;
+static int hf_zbee_zcl_sub_ghz_srv_rx_cmd_id = -1;
+static int hf_zbee_zcl_sub_ghz_attr_id = -1;
+static int hf_zbee_zcl_sub_ghz_attr_reporting_status = -1;
+static int hf_zbee_zcl_sub_ghz_zcl_messages_suspension_period = -1;
+
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_sub_ghz = -1;
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+ *@param attr_id attribute identifier
+ *@param data_type attribute data type
+*/
+static void
+dissect_zcl_sub_ghz_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+{
+    /* Dissect attribute data type and data */
+    switch (attr_id) {
+        /* applies to all SE clusters */
+        case ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_SUB_GHZ:
+            proto_tree_add_item(tree, hf_zbee_zcl_sub_ghz_attr_reporting_status, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_SUB_GHZ_CHANNEL_CHANGE:
+        case ZBEE_ZCL_ATTR_ID_SUB_GHZ_PAGE_28_CHANNEL_MASK:
+        case ZBEE_ZCL_ATTR_ID_SUB_GHZ_PAGE_29_CHANNEL_MASK:
+        case ZBEE_ZCL_ATTR_ID_SUB_GHZ_PAGE_30_CHANNEL_MASK:
+        case ZBEE_ZCL_ATTR_ID_SUB_GHZ_PAGE_31_CHANNEL_MASK:
+        default: /* Catch all */
+            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            break;
+    }
+} /*dissect_zcl_sub_ghz_attr_data*/
+
+
+/**
+ *ZigBee ZCL Sub-Ghz cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
+static int
+dissect_zbee_zcl_sub_ghz(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    proto_tree        *payload_tree;
+    zbee_zcl_packet   *zcl;
+    guint             offset = 0;
+    guint8            cmd_id;
+    gint              rem_len;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    zcl = (zbee_zcl_packet *)data;
+    cmd_id = zcl->cmd_id;
+
+    /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
+    if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_sub_ghz_srv_rx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_uint(tree, hf_zbee_zcl_sub_ghz_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_sub_ghz, NULL, "Payload");
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+
+                case ZBEE_ZCL_CMD_ID_SUB_GHZ_GET_SUSPEND_ZCL_MESSAGES_STATUS:
+                    /* No Payload */
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+    else { /* ZBEE_ZCL_FCF_TO_CLIENT */
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_sub_ghz_srv_tx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_uint(tree, hf_zbee_zcl_sub_ghz_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_sub_ghz, NULL, "Payload");
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+
+                case ZBEE_ZCL_CMD_ID_SUB_GHZ_SUSPEND_ZCL_MESSAGES:
+                    dissect_zcl_sub_ghz_suspend_zcl_messages(tvb, payload_tree, &offset);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    return tvb_captured_length(tvb);
+} /*dissect_zbee_zcl_sub_ghz*/
+
+/**
+ *This function manages the Suspend ZCL Messages payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_sub_ghz_suspend_zcl_messages(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* (Optional) Suspension Period */
+    if (tvb_reported_length_remaining(tvb, *offset) > 0) {
+        proto_tree_add_item(tree, hf_zbee_zcl_sub_ghz_zcl_messages_suspension_period, tvb, *offset, 1, ENC_NA);
+        *offset += 1;
+    }
+} /*dissect_zcl_sub_ghz_suspend_zcl_messages*/
+
+/**
+ *This function registers the ZCL Sub-Ghz dissector
+ *
+*/
+void
+proto_register_zbee_zcl_sub_ghz(void)
+{
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_sub_ghz_attr_id,
+            { "Attribute", "zbee_zcl_se.sub_ghz.attr_id", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &zbee_zcl_sub_ghz_attr_names_ext,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_sub_ghz_attr_reporting_status,                         /* common to all SE clusters */
+            { "Attribute Reporting Status", "zbee_zcl_se.sub_ghz.attr.attr_reporting_status",
+            FT_UINT8, BASE_HEX, VALS(zbee_zcl_se_reporting_status_names), 0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_sub_ghz_srv_tx_cmd_id,
+            { "Command", "zbee_zcl_se.sub_ghz.cmd.srv_tx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_sub_ghz_srv_tx_cmd_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_sub_ghz_srv_rx_cmd_id,
+            { "Command", "zbee_zcl_se.sub_ghz.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_sub_ghz_srv_rx_cmd_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_sub_ghz_zcl_messages_suspension_period,
+            { "ZCL Messages Suspension Period", "zbee_zcl_se.sub_ghz.zcl_messages_suspension_period", FT_UINT8, BASE_DEC, NULL,
+            0x0, NULL, HFILL } },
+    };
+
+    /* ZCL Sub-Ghz subtrees */
+    gint *ett[] = {
+        &ett_zbee_zcl_sub_ghz
+    };
+
+    /* Register the ZigBee ZCL Sub-Ghz cluster protocol name and description */
+    proto_zbee_zcl_sub_ghz = proto_register_protocol("ZigBee ZCL Sub-Ghz", "ZCL Sub-Ghz", ZBEE_PROTOABBREV_ZCL_SUB_GHZ);
+    proto_register_field_array(proto_zbee_zcl_sub_ghz, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL Sub-Ghz dissector. */
+    sub_ghz_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_SUB_GHZ, dissect_zbee_zcl_sub_ghz, proto_zbee_zcl_sub_ghz);
+} /*proto_register_zbee_zcl_sub_ghz*/
+
+/**
+ *Hands off the ZCL Sub-Ghz dissector.
+ *
+*/
+void
+proto_reg_handoff_zbee_zcl_sub_ghz(void)
+{
+    /* Register our dissector with the ZigBee application dissectors. */
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_SUB_GHZ, sub_ghz_handle);
+
+    zbee_zcl_init_cluster(  proto_zbee_zcl_sub_ghz,
+                            ett_zbee_zcl_sub_ghz,
+                            ZBEE_ZCL_CID_SUB_GHZ,
+                            hf_zbee_zcl_sub_ghz_attr_id,
+                            hf_zbee_zcl_sub_ghz_srv_rx_cmd_id,
+                            hf_zbee_zcl_sub_ghz_srv_tx_cmd_id,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_sub_ghz_attr_data
+                         );
+} /*proto_reg_handoff_zbee_zcl_sub_ghz*/
+
+/* ########################################################################## */
 /* #### (0x0800) KEY ESTABLISHMENT ########################################## */
 /* ########################################################################## */
 
