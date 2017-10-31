@@ -40,6 +40,8 @@
 
 #include "config.h"
 #include <epan/packet.h>
+#include <epan/strutil.h>
+#include <epan/uat.h>
 #include <epan/dwarf.h>
 #include "packet-tcp.h"
 #include "packet-ssl.h"
@@ -166,6 +168,32 @@ typedef struct {
     guint8 runtime_proto_version;
 } mqtt_conv;
 
+typedef struct _mqtt_message_decode_t {
+  guint   match_criteria;
+  char   *topic_pattern;
+  GRegex *topic_regex;
+  char   *payload_proto_name;
+  dissector_handle_t payload_proto;
+} mqtt_message_decode_t;
+
+#define MATCH_CRITERIA_EQUAL        0
+#define MATCH_CRITERIA_CONTAINS     1
+#define MATCH_CRITERIA_STARTS_WITH  2
+#define MATCH_CRITERIA_ENDS_WITH    3
+#define MATCH_CRITERIA_REGEX        4
+
+static const value_string match_criteria[] = {
+  { MATCH_CRITERIA_EQUAL,       "Equal to" },
+  { MATCH_CRITERIA_CONTAINS,    "Contains" },
+  { MATCH_CRITERIA_STARTS_WITH, "Starts with" },
+  { MATCH_CRITERIA_ENDS_WITH,   "Ends with" },
+  { MATCH_CRITERIA_REGEX,       "Regular Expression" },
+  { 0, NULL }
+};
+
+static mqtt_message_decode_t *mqtt_message_decodes = NULL;
+static guint num_mqtt_message_decodes = 0;
+
 static dissector_handle_t mqtt_handle;
 
 /* Initialize the protocol and registered fields */
@@ -199,6 +227,7 @@ static int hf_mqtt_username = -1;
 static int hf_mqtt_passwd_len = -1;
 static int hf_mqtt_passwd = -1;
 static int hf_mqtt_pubmsg = -1;
+static int hf_mqtt_pubmsg_decoded = -1;
 static int hf_mqtt_proto_len = -1;
 static int hf_mqtt_proto_name = -1;
 static int hf_mqtt_client_id_len = -1;
@@ -238,12 +267,140 @@ static guint get_mqtt_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
   return (guint)(GET_MQTT_PDU_LEN(msg_len, len_offset));
 }
 
+static void *mqtt_message_decode_copy_cb(void *dest, const void *orig, size_t len _U_)
+{
+  const mqtt_message_decode_t *o = (const mqtt_message_decode_t *)orig;
+  mqtt_message_decode_t *d = (mqtt_message_decode_t *)dest;
+
+  d->topic_pattern = g_strdup(o->topic_pattern);
+  d->payload_proto_name = g_strdup(o->payload_proto_name);
+
+  return d;
+}
+
+static gboolean mqtt_message_decode_update_cb(void *record, char **error)
+{
+  mqtt_message_decode_t *u = (mqtt_message_decode_t *)record;
+
+  if (u->topic_pattern == NULL || strlen(u->topic_pattern) == 0)
+  {
+    *error = g_strdup("Missing topic pattern");
+    return FALSE;
+  }
+
+  if (u->match_criteria == MATCH_CRITERIA_REGEX)
+  {
+    u->topic_regex = g_regex_new(u->topic_pattern, (GRegexCompileFlags) G_REGEX_OPTIMIZE, (GRegexMatchFlags) 0, NULL);
+    if (!u->topic_regex)
+    {
+      *error = g_strdup_printf("Invalid regex: %s", u->topic_pattern);
+      return FALSE;
+    }
+  }
+
+  return TRUE;
+}
+
+static void mqtt_message_decode_free_cb(void *record)
+{
+  mqtt_message_decode_t *u = (mqtt_message_decode_t *)record;
+
+  g_free(u->topic_pattern);
+  if (u->topic_regex)
+  {
+    g_regex_unref(u->topic_regex);
+  }
+  g_free(u->payload_proto_name);
+}
+
+UAT_VS_DEF(message_decode, match_criteria, mqtt_message_decode_t, guint, MATCH_CRITERIA_EQUAL, "Equal to")
+UAT_CSTRING_CB_DEF(message_decode, topic_pattern, mqtt_message_decode_t)
+UAT_PROTO_DEF(message_decode, payload_proto, payload_proto, payload_proto_name, mqtt_message_decode_t)
+
+static void mqtt_user_decode_message(proto_tree *tree, proto_tree *mqtt_tree, packet_info *pinfo, const guint8 *topic_str, tvbuff_t *msg_tvb)
+{
+  dissector_handle_t payload_proto = NULL;
+  const gchar *proto_name = NULL;
+  size_t topic_str_len = strlen(topic_str);
+  size_t topic_pattern_len;
+
+  if (topic_str_len == 0)
+  {
+    /* No topic to match */
+    return;
+  }
+
+  for (guint i = 0; i < num_mqtt_message_decodes && !payload_proto; i++)
+  {
+    switch (mqtt_message_decodes[i].match_criteria)
+    {
+      case MATCH_CRITERIA_EQUAL:
+        if (strcmp(topic_str, mqtt_message_decodes[i].topic_pattern) == 0)
+        {
+          proto_name = mqtt_message_decodes[i].payload_proto_name;
+          payload_proto = mqtt_message_decodes[i].payload_proto;
+        }
+        break;
+      case MATCH_CRITERIA_CONTAINS:
+        if (strstr(topic_str, mqtt_message_decodes[i].topic_pattern))
+        {
+          proto_name = mqtt_message_decodes[i].payload_proto_name;
+          payload_proto = mqtt_message_decodes[i].payload_proto;
+        }
+        break;
+      case MATCH_CRITERIA_STARTS_WITH:
+        topic_pattern_len = strlen(mqtt_message_decodes[i].topic_pattern);
+        if ((topic_str_len >= topic_pattern_len) &&
+            strncmp(topic_str, mqtt_message_decodes[i].topic_pattern, topic_pattern_len) == 0)
+        {
+          proto_name = mqtt_message_decodes[i].payload_proto_name;
+          payload_proto = mqtt_message_decodes[i].payload_proto;
+        }
+        break;
+      case MATCH_CRITERIA_ENDS_WITH:
+        topic_pattern_len = strlen(mqtt_message_decodes[i].topic_pattern);
+        if ((topic_str_len >= topic_pattern_len) &&
+            strcmp(topic_str + (topic_str_len - topic_pattern_len), mqtt_message_decodes[i].topic_pattern) == 0)
+        {
+          proto_name = mqtt_message_decodes[i].payload_proto_name;
+          payload_proto = mqtt_message_decodes[i].payload_proto;
+        }
+        break;
+      case MATCH_CRITERIA_REGEX:
+        if (mqtt_message_decodes[i].topic_regex)
+        {
+          GMatchInfo *match_info = NULL;
+          g_regex_match(mqtt_message_decodes[i].topic_regex, topic_str, (GRegexMatchFlags) 0, &match_info);
+          if (g_match_info_matches(match_info))
+          {
+            proto_name = mqtt_message_decodes[i].payload_proto_name;
+            payload_proto = mqtt_message_decodes[i].payload_proto;
+          }
+          g_match_info_free(match_info);
+        }
+        break;
+      default:
+        /* Unknown match criteria */
+        break;
+    }
+  }
+
+  if (payload_proto)
+  {
+    proto_item *ti = proto_tree_add_string(mqtt_tree, hf_mqtt_pubmsg_decoded, msg_tvb, 0, -1, proto_name);
+    PROTO_ITEM_SET_GENERATED(ti);
+
+    call_dissector(payload_proto, msg_tvb, pinfo, tree);
+  }
+}
+
 /* Dissect the MQTT message */
 static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint8  mqtt_fixed_hdr;
     guint8  mqtt_msg_type;
     proto_item *ti;
+    const guint8 *topic_str;
 
     proto_tree *mqtt_tree;
 
@@ -431,7 +588,8 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         offset += 2;
         mqtt_msg_len -= 2;
 
-        proto_tree_add_item(mqtt_tree, hf_mqtt_topic, tvb, offset, mqtt_str_len, ENC_UTF_8|ENC_NA);
+        proto_tree_add_item_ret_string(mqtt_tree, hf_mqtt_topic, tvb, offset, mqtt_str_len, ENC_UTF_8|ENC_NA,
+                                       wmem_epan_scope(), &topic_str);
         offset += mqtt_str_len;
         mqtt_msg_len -= mqtt_str_len;
 
@@ -443,6 +601,12 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
           mqtt_msg_len -= 2;
         }
         proto_tree_add_item(mqtt_tree, hf_mqtt_pubmsg, tvb, offset, mqtt_msg_len, ENC_UTF_8|ENC_NA);
+
+        if (num_mqtt_message_decodes > 0)
+        {
+          tvbuff_t *msg_tvb = tvb_new_subset_length(tvb, offset, mqtt_msg_len);
+          mqtt_user_decode_message(tree, mqtt_tree, pinfo, topic_str, msg_tvb);
+        }
         break;
 
       case MQTT_SUBSCRIBE:
@@ -664,6 +828,10 @@ void proto_register_mqtt(void)
       { "Message", "mqtt.msg",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_mqtt_pubmsg_decoded,
+      { "Message decoded as", "mqtt.msg_decoded_as",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_mqtt_proto_len,
       { "Protocol Name Length", "mqtt.proto_len",
         FT_UINT16, BASE_DEC, NULL, 0,
@@ -732,6 +900,31 @@ void proto_register_mqtt(void)
     &ett_mqtt_conack_flags
   };
 
+  static uat_field_t mqtt_message_decode_flds[] = {
+    UAT_FLD_VS(message_decode, match_criteria, "Match criteria", match_criteria, "Match criteria"),
+    UAT_FLD_CSTRING(message_decode, topic_pattern, "Topic pattern", "Pattern to match for the topic"),
+    UAT_FLD_PROTO(message_decode, payload_proto, "Payload protocol",
+                  "Protocol to be used for the message part of the matching topic"),
+    UAT_END_FIELDS
+  };
+
+  uat_t *message_uat = uat_new("Message Decoding",
+                               sizeof(mqtt_message_decode_t),
+                               "mqtt_message_decoding",
+                               TRUE,
+                               &mqtt_message_decodes,
+                               &num_mqtt_message_decodes,
+                               UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
+                               "ChMQTTMessageDecoding",
+                               mqtt_message_decode_copy_cb,
+                               mqtt_message_decode_update_cb,
+                               mqtt_message_decode_free_cb,
+                               NULL,
+                               NULL,
+                               mqtt_message_decode_flds);
+
+  module_t *mqtt_module;
+
   /* Register protocol names and descriptions */
   proto_mqtt = proto_register_protocol("MQ Telemetry Transport Protocol", "MQTT", "mqtt");
 
@@ -740,6 +933,13 @@ void proto_register_mqtt(void)
 
   proto_register_field_array(proto_mqtt, hf_mqtt, array_length(hf_mqtt));
   proto_register_subtree_array(ett_mqtt, array_length(ett_mqtt));
+
+  mqtt_module = prefs_register_protocol(proto_mqtt, NULL);
+
+  prefs_register_uat_preference(mqtt_module, "message_decode_table",
+                                "Message Decoding",
+                                "A table that enumerates custom message decodes to be used for a certain topic",
+                                message_uat);
 }
 
 /*
