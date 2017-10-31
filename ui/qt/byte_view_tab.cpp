@@ -83,6 +83,8 @@ void ByteViewTab::packetSelectionChanged()
     if ( ! cap_file_ || ! cap_file_->edt )
         return;
 
+    clear();
+
     GSList *src_le;
     for (src_le = cap_file_->edt->pi.data_src; src_le != NULL; src_le = src_le->next) {
         struct data_source *source;
