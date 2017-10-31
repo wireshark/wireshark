@@ -1177,6 +1177,7 @@
 #define ZBEE_PROTOABBREV_ZCL_PRE_PAYMENT    "zbee_zcl_se.pp"
 #define ZBEE_PROTOABBREV_ZCL_CALENDAR       "zbee_zcl_se.calendar"
 #define ZBEE_PROTOABBREV_ZCL_EVENTS         "zbee_zcl_se.events"
+#define ZBEE_PROTOABBREV_ZCL_MDU_PAIRING    "zbee_zcl_se.mdu_pairing"
 #define ZBEE_PROTOABBREV_ZCL_SHADE_CONFIG   "zbee_zcl_closures.shade_config"
 #define ZBEE_PROTOABBREV_ZCL_DOOR_LOCK      "zbee_zcl_closures.door_lock"
 #define ZBEE_PROTOABBREV_ZCL_COLOR_CONTROL  "zbee_zcl_lighting.color_ctrl"
