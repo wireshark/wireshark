@@ -1659,7 +1659,6 @@ else()
 endif()
 
 set(LIBEPAN_LIBS
-#		@SSL_LIBS@	# -lcrypto
 		epan
 #		$(plugin_ldadd)	# in case of static
 		${AIRPCAP_LIBRARIES}

@@ -418,7 +418,6 @@ EXTRALINKFLAGS = -export-dynamic
 endif
 
 EPAN_EXTRA_LIBS = \
-	@SSL_LIBS@			\
 	@C_ARES_LIBS@			\
 	@KRB5_LIBS@			\
 	@LIBGCRYPT_LIBS@		\

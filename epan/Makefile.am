@@ -333,7 +333,6 @@ libwireshark_la_LIBADD = \
 	@LIBSMI_LDFLAGS@	\
 	@LZ4_LIBS@		\
 	@NGHTTP2_LIBS@		\
-	@SSL_LIBS@		\
 	@SNAPPY_LIBS@		\
 	@LIBXML2_LIBS@		\
 	@GLIB_LIBS@
