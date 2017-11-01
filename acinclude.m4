@@ -177,7 +177,7 @@ AC_DEFUN([AC_WIRESHARK_PCAP_CHECK],
 	    # Found it, and it's usable; use it to get the include flags
 	    # for libpcap.
 	    #
-	    PCAP_CFLAGS=`\"$PCAP_CONFIG\" --cflags`
+	    PCAP_CFLAGS="`\"$PCAP_CONFIG\" --cflags`"
 	    #
 	    # We have pcap-config; we assume that means we have libpcap
 	    # installed and that pcap-config will tell us whatever
