@@ -35,7 +35,7 @@
 /*  Define to 1 if we check hf conflict */
 #cmakedefine ENABLE_CHECK_FILTER 1
 
-/* Link plugins statically into Wireshark */
+/* Link Wireshark libraries statically */
 #cmakedefine ENABLE_STATIC 1
 
 /* Enable AirPcap */

@@ -351,22 +351,6 @@ dist_wimaxasncp_DATA = \
 	wimaxasncp/dictionary.xml \
 	wimaxasncp/dictionary.dtd
 
-if HAVE_PLUGINS
--include plugins/Custom.make
-plugin_ldadd = $(_CUSTOM_plugin_ldadd_) \
-	-dlopen plugins/docsis/docsis.la \
-	-dlopen plugins/ethercat/ethercat.la \
-	-dlopen plugins/gryphon/gryphon.la \
-	-dlopen plugins/irda/irda.la \
-	-dlopen plugins/mate/mate.la \
-	-dlopen plugins/opcua/opcua.la \
-	-dlopen plugins/profinet/profinet.la \
-	-dlopen plugins/stats_tree/stats_tree.la \
-	-dlopen plugins/unistim/unistim.la \
-	-dlopen plugins/wimax/wimax.la \
-	-dlopen plugins/wimaxmacphy/wimaxmacphy.la
-endif
-
 # "BUILT_SOURCES" are built before any "make all" or "make check" targets.
 BUILT_HEADER_FILES = \
 	version.h
@@ -412,12 +396,6 @@ if HAVE_EXTCAP
 SHARK_COMMON_SRC += $(EXTCAP_COMMON_SRC)
 endif
 
-if ENABLE_STATIC
-EXTRALINKFLAGS = -Wl,-static -all-static
-else
-EXTRALINKFLAGS = -export-dynamic
-endif
-
 EPAN_EXTRA_LIBS = \
 	@C_ARES_LIBS@			\
 	@KRB5_LIBS@			\
@@ -449,7 +427,7 @@ wireshark_SOURCES = $(WIRESHARK_COMMON_SRC) wireshark-qt.cpp
 
 wireshark_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS) $(Qt_CFLAGS)
 
-wireshark_LDFLAGS = $(AM_LDFLAGS) $(EXTRALINKFLAGS) $(Qt_LDFLAGS)
+wireshark_LDFLAGS = $(AM_LDFLAGS) $(Qt_LDFLAGS)
 
 wireshark_LDADD = \
 	ui/qt/libqtui.a			\
@@ -467,7 +445,7 @@ wireshark_gtk_SOURCES = $(WIRESHARK_COMMON_SRC)
 
 wireshark_gtk_CPPFLAGS = $(AM_CPPFLAGS) $(GTK_CFLAGS)
 
-wireshark_gtk_LDFLAGS = $(AM_LDFLAGS) $(EXTRALINKFLAGS)
+wireshark_gtk_LDFLAGS = $(AM_LDFLAGS)
 
 wireshark_gtk_LDADD = \
 	ui/gtk/libgtkui.a		\
@@ -484,7 +462,7 @@ tshark_SOURCES = \
 
 tshark_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
-tshark_LDFLAGS = $(AM_LDFLAGS) $(EXTRALINKFLAGS)
+tshark_LDFLAGS = $(AM_LDFLAGS)
 
 # Libraries and plugin flags with which to link tshark.
 tshark_LDADD = \
@@ -507,7 +485,7 @@ tfshark_SOURCES = \
 
 tfshark_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
-tfshark_LDFLAGS = $(AM_LDFLAGS) $(EXTRALINKFLAGS)
+tfshark_LDFLAGS = $(AM_LDFLAGS)
 
 # Libraries and plugin flags with which to link tfshark.
 tfshark_LDADD = \
@@ -528,7 +506,7 @@ rawshark_SOURCES = \
 
 rawshark_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
-rawshark_LDFLAGS = $(AM_LDFLAGS) $(EXTRALINKFLAGS)
+rawshark_LDFLAGS = $(AM_LDFLAGS)
 
 # Libraries and plugin flags with which to link rawshark.
 rawshark_LDADD = \
@@ -556,7 +534,7 @@ if HAVE_SPEEXDSP
 sharkd_CPPFLAGS += $(SPEEXDSP_CFLAGS)
 endif
 
-sharkd_LDFLAGS = $(AM_LDFLAGS) $(EXTRALINKFLAGS)
+sharkd_LDFLAGS = $(AM_LDFLAGS)
 
 # Libraries and plugin flags with which to link sharkd.
 sharkd_LDADD = \
@@ -845,7 +823,9 @@ endif
 
 
 if HAVE_PLUGINS
+if !ENABLE_STATIC
 plugins_subdir = plugins
+endif
 endif
 
 if HAVE_EXTCAP

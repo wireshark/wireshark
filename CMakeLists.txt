@@ -638,12 +638,8 @@ include(CheckCXXCompilerFlag)
 
 if(ENABLE_STATIC)
 	set(BUILD_SHARED_LIBS 0)
-	set(LINK_MODE_LIB STATIC)
-	set(LINK_MODE_MODULE STATIC)
 else()
 	set(BUILD_SHARED_LIBS 1)
-	set(LINK_MODE_LIB SHARED)
-	set(LINK_MODE_MODULE MODULE)
 endif()
 
 # Sigh: Have to use THIS_FLAG instead of ${F} for some reason
@@ -1670,7 +1666,6 @@ endif()
 
 set(LIBEPAN_LIBS
 		epan
-#		$(plugin_ldadd)	# in case of static
 		${AIRPCAP_LIBRARIES}
 		${PCAP_LIBRARIES}
 		${CARES_LIBRARIES}

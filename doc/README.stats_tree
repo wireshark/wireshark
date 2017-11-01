@@ -52,11 +52,7 @@ A small example of a very basic stats_tree plugin follows.
 
 #include "config.h"
 
-#ifndef ENABLE_STATIC
 #include <gmodule.h>
-#else
-#include <glib.h>
-#endif
 
 #include <epan/stats_tree.h>
 #include <epan/dissectors/udp.h>
@@ -94,7 +90,6 @@ extern int udp_term_stats_tree_packet(stats_tree *st, /* st as it was passed to 
 	return 1;
 }
 
-#ifndef ENABLE_STATIC
 WS_DLL_PUBLIC_DEF const gchar version[] = "0.0";
 
 WS_DLL_PUBLIC_DEF void plugin_register_tap_listener(void) {
@@ -108,7 +103,6 @@ WS_DLL_PUBLIC_DEF void plugin_register_tap_listener(void) {
                                NULL ); /* the cleanup callback (in this case there isn't) */
 
 }
-#endif
 
 ----- END ------
 

@@ -123,11 +123,6 @@ find_path(MERGE_MODULE_DIR ${MERGE_MODULE}
 
 message(STATUS "Using ${MERGE_MODULE_DIR}/Microsoft_${MSVC_CRT_VERSION}_CRT_${TARGET_MACHINE}.msm for the installer")
 
-if(NOT ENABLE_STATIC)
-	# XXX Replace ENABLE_LIBWIRESHARK with !ENABLE_STATIC everywhere.
-	set(ENABLE_LIBWIRESHARK "-dENABLE_LIBWIRESHARK")
-endif()
-
 # DependentComponents.wxi. Can be created at configure time.
 set(_all_manifest_wix "${CMAKE_CURRENT_BINARY_DIR}/DependentComponents.wxs")
 file(WRITE "${_all_manifest_wix}" "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
@@ -321,7 +316,6 @@ set(WIX_CANDLE_DEFINES
 	-dVCRedistDir=${MERGE_MODULE_DIR}
 	${use_gtk}
 	${use_smi}
-	${ENABLE_LIBWIRESHARK}
 	-arch ${TARGET_MACHINE}
 	-ext WixUIExtension
 	-I${CMAKE_SOURCE_DIR}/packaging/wix

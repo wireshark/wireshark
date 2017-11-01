@@ -27,12 +27,6 @@ androiddump_SOURCES = \
 	androiddump.c	\
 	extcap-base.c
 
-if ENABLE_STATIC
-androiddump_LDFLAGS = -Wl,-static -all-static
-else
-androiddump_LDFLAGS = -export-dynamic
-endif
-
 # Libraries and plugin flags with which to link androiddump.
 androiddump_LDADD = \
 	../ui/libui.a			\
@@ -43,12 +37,6 @@ androiddump_LDADD = \
 randpktdump_SOURCES = \
 	randpktdump.c	\
 	extcap-base.c
-
-if ENABLE_STATIC
-	randpktdump_LDFLAGS = -Wl,-static -all-static
-else
-	randpktdump_LDFLAGS = -export-dynamic
-endif
 
 # Libraries and plugin flags with which to link randpktdump.
 randpktdump_LDADD = \
@@ -63,12 +51,6 @@ sshdump_SOURCES = \
 	extcap-base.c	\
 	ssh-base.c
 
-if ENABLE_STATIC
-	sshdump_LDFLAGS = -Wl,-static -all-static
-else
-	sshdump_LDFLAGS = -export-dynamic
-endif
-
 # Libraries and plugin flags with which to link sshdump.
 sshdump_LDADD = \
 	../wiretap/libwiretap.la	\
@@ -81,12 +63,6 @@ ciscodump_SOURCES = \
 	extcap-base.c	\
 	ssh-base.c
 
-if ENABLE_STATIC
-	ciscodump_LDFLAGS = -Wl,-static -all-static
-else
-	ciscodump_LDFLAGS = -export-dynamic
-endif
-
 # Libraries and plugin flags with which to link ciscodump.
 ciscodump_LDADD = \
 	../writecap/libwritecap.a	\
@@ -97,12 +73,6 @@ ciscodump_LDADD = \
 udpdump_SOURCES = \
 	udpdump.c \
 	extcap-base.c
-
-if ENABLE_STATIC
-	udpdump_LDFLAGS = -Wl,-static -all-static
-else
-	udpdump_LDFLAGS = -export-dynamic
-endif
 
 # Libraries and plugin flags with which to link udpdump.
 udpdump_LDADD = \

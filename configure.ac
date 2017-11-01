@@ -65,7 +65,7 @@ AC_DEFINE_UNQUOTED(VERSION_FLAVOR,
 	["${WIRESHARK_VERSION_FLAVOR:-"Development Build"}"], [Wireshark's package flavor])
 
 LT_PREREQ([2.2.2])
-LT_INIT([disable-static dlopen])
+LT_INIT([disable-static])
 AC_SUBST([LIBTOOL_DEPS])
 
 AC_CONFIG_LIBOBJ_DIR([wsutil])
@@ -2649,11 +2649,10 @@ AC_SUBST(udpdump_bin)
 AC_SUBST(udpdump_man)
 
 AM_CONDITIONAL(ENABLE_STATIC, test x$enable_static = xyes)
-if test x$enable_static = xyes -a x$have_plugins = xyes
+if test x$enable_static = xyes
 then
-  AC_DEFINE(ENABLE_STATIC, 1, [Link plugins statically into Wireshark])
+  AC_DEFINE(ENABLE_STATIC, 1, [Link Wireshark libraries statically])
 fi
-AC_SUBST(ENABLE_STATIC)
 
 # Gather which GUI we're building for rpmbuild
 if test "x$have_gtk" = "xyes"; then

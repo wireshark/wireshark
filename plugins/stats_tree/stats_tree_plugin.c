@@ -21,7 +21,6 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#ifndef ENABLE_STATIC
 #include "config.h"
 
 #include <gmodule.h>
@@ -41,8 +40,6 @@ WS_DLL_PUBLIC_DEF void plugin_register_tap_listener(void)
 {
 	register_pinfo_stat_trees();
 }
-
-#endif
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

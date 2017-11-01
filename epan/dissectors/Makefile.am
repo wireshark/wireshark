@@ -1946,7 +1946,7 @@ x11-dissector: $(top_srcdir)/tools/process-x11-fields.pl $(srcdir)/x11-fields $(
 # a dissectors.c file for libwireshark.
 # All subsequent arguments are the files to scan.
 #
-dissectors.c: $(plugin_src) $(ALL_DISSECTORS_SRC) Custom.common \
+dissectors.c: $(ALL_DISSECTORS_SRC) Custom.common \
 	$(top_srcdir)/tools/make-dissector-reg.py
 	@echo Making dissectors.c ; \
 	$(PYTHON) $(top_srcdir)/tools/make-dissector-reg.py $(srcdir) \

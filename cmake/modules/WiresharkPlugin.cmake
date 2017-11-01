@@ -26,7 +26,7 @@ macro(SET_MODULE_INFO _plugin _ver_major _ver_minor _ver_micro _ver_extra)
 endmacro()
 
 macro(ADD_PLUGIN_LIBRARY _plugin)
-	add_library(${_plugin} ${LINK_MODE_MODULE}
+	add_library(${_plugin} MODULE
 		${PLUGIN_FILES}
 		${CMAKE_CURRENT_BINARY_DIR}/plugin.rc
 	)

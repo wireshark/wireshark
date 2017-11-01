@@ -28,12 +28,8 @@
 
 #include "config.h"
 
-#ifndef ENABLE_STATIC
 #include "moduleinfo.h"
 #include <gmodule.h>
-#else
-#include <glib.h>
-#endif
 
 #include <stdio.h>
 #include <string.h>

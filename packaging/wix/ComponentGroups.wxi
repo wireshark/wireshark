@@ -21,11 +21,9 @@
         <Component Id="cmpWiretap_dll" Guid="*">
           <File Id="filWiretap_dll" KeyPath="yes" Source="$(var.Staging.Dir)\libwiretap.dll" />
         </Component>
-        <?ifdef ENABLE_LIBWIRESHARK?>
-          <Component Id="cmpLibwireshark_dll" Guid="*">
-            <File Id="filLibwireshark_dll" KeyPath="yes" Source="$(var.Staging.Dir)\libwireshark.dll" />
-          </Component>
-        <?endif?>
+        <Component Id="cmpLibwireshark_dll" Guid="*">
+          <File Id="filLibwireshark_dll" KeyPath="yes" Source="$(var.Staging.Dir)\libwireshark.dll" />
+        </Component>
         <Component Id="cmpLibwscodecs_dll" Guid="*">
           <File Id="filLibwscodecs_dll" KeyPath="yes" Source="$(var.Staging.Dir)\libwscodecs.dll" />
         </Component>
@@ -85,9 +83,7 @@
     <Fragment>
       <ComponentGroup Id="CG.WiresharkRequired">
         <ComponentRef Id="cmpWiretap_dll" />
-        <?ifdef ENABLE_LIBWIRESHARK?>
-          <ComponentRef Id="cmpLibwireshark_dll" />
-        <?endif?>
+        <ComponentRef Id="cmpLibwireshark_dll" />
         <ComponentRef Id="cmpLibwscodecs_dll" />
         <ComponentRef Id="cmpLibwsutil_dll" />
         <ComponentRef Id="cmpCOPYING_txt" />

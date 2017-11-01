@@ -129,11 +129,6 @@ if(VCREDIST_EXE)
 	message(STATUS "Using ${VCREDIST_EXE} for the installer")
 endif()
 
-if(NOT ENABLE_STATIC)
-	# XXX Replace ENABLE_LIBWIRESHARK with !ENABLE_STATIC everywhere.
-	set(ENABLE_LIBWIRESHARK 1)
-endif()
-
 # Ideally we would generate this at compile time using a separate cmake
 # module, e.g. cmake/modules/configure_nsis_file.cmake. However we would
 # have to figure out a clean way to pass in the variables above.

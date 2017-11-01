@@ -201,7 +201,6 @@ if registertype == "plugin" or registertype == "plugin_wtap":
 #define WS_BUILD_DLL
 #include "ws_symbol_export.h"
 
-#ifndef ENABLE_STATIC
 WS_DLL_PUBLIC_DEF void plugin_register (void);
 
 WS_DLL_PUBLIC_DEF const gchar plugin_version[] = VERSION;
@@ -236,9 +235,7 @@ plugin_reg_handoff(void)
         reg_code += "    %s();\n" % (symbol)
     reg_code += "}\n"
 
-    if registertype == "plugin":
-        reg_code += "#endif\n"
-    elif registertype == "plugin_wtap":
+    if registertype == "plugin_wtap":
         reg_code += """
 WS_DLL_PUBLIC_DEF void
 register_wtap_module(void)
@@ -248,7 +245,6 @@ register_wtap_module(void)
             reg_code += "    {extern void %s (void); %s ();}\n" % (symbol, symbol)
         reg_code += """
 }
-#endif
 """
 
 else:
