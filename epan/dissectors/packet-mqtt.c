@@ -319,10 +319,10 @@ UAT_PROTO_DEF(message_decode, payload_proto, payload_proto, payload_proto_name, 
 
 static void mqtt_user_decode_message(proto_tree *tree, proto_tree *mqtt_tree, packet_info *pinfo, const guint8 *topic_str, tvbuff_t *msg_tvb)
 {
-  dissector_handle_t payload_proto = NULL;
-  const gchar *proto_name = NULL;
+  mqtt_message_decode_t *message_decode_entry = NULL;
   size_t topic_str_len = strlen(topic_str);
   size_t topic_pattern_len;
+  gboolean match_found = FALSE;
 
   if (topic_str_len == 0)
   {
@@ -330,52 +330,33 @@ static void mqtt_user_decode_message(proto_tree *tree, proto_tree *mqtt_tree, pa
     return;
   }
 
-  for (guint i = 0; i < num_mqtt_message_decodes && !payload_proto; i++)
+  for (guint i = 0; i < num_mqtt_message_decodes && !match_found; i++)
   {
-    switch (mqtt_message_decodes[i].match_criteria)
+    message_decode_entry = &mqtt_message_decodes[i];
+    switch (message_decode_entry->match_criteria)
     {
       case MATCH_CRITERIA_EQUAL:
-        if (strcmp(topic_str, mqtt_message_decodes[i].topic_pattern) == 0)
-        {
-          proto_name = mqtt_message_decodes[i].payload_proto_name;
-          payload_proto = mqtt_message_decodes[i].payload_proto;
-        }
+        match_found = (strcmp(topic_str, message_decode_entry->topic_pattern) == 0);
         break;
       case MATCH_CRITERIA_CONTAINS:
-        if (strstr(topic_str, mqtt_message_decodes[i].topic_pattern))
-        {
-          proto_name = mqtt_message_decodes[i].payload_proto_name;
-          payload_proto = mqtt_message_decodes[i].payload_proto;
-        }
+        match_found = (strstr(topic_str, message_decode_entry->topic_pattern) != NULL);
         break;
       case MATCH_CRITERIA_STARTS_WITH:
-        topic_pattern_len = strlen(mqtt_message_decodes[i].topic_pattern);
-        if ((topic_str_len >= topic_pattern_len) &&
-            strncmp(topic_str, mqtt_message_decodes[i].topic_pattern, topic_pattern_len) == 0)
-        {
-          proto_name = mqtt_message_decodes[i].payload_proto_name;
-          payload_proto = mqtt_message_decodes[i].payload_proto;
-        }
+        topic_pattern_len = strlen(message_decode_entry->topic_pattern);
+        match_found = ((topic_str_len >= topic_pattern_len) &&
+                       (strncmp(topic_str, message_decode_entry->topic_pattern, topic_pattern_len) == 0));
         break;
       case MATCH_CRITERIA_ENDS_WITH:
-        topic_pattern_len = strlen(mqtt_message_decodes[i].topic_pattern);
-        if ((topic_str_len >= topic_pattern_len) &&
-            strcmp(topic_str + (topic_str_len - topic_pattern_len), mqtt_message_decodes[i].topic_pattern) == 0)
-        {
-          proto_name = mqtt_message_decodes[i].payload_proto_name;
-          payload_proto = mqtt_message_decodes[i].payload_proto;
-        }
+        topic_pattern_len = strlen(message_decode_entry->topic_pattern);
+        match_found = ((topic_str_len >= topic_pattern_len) &&
+                       (strcmp(topic_str + (topic_str_len - topic_pattern_len), message_decode_entry->topic_pattern) == 0));
         break;
       case MATCH_CRITERIA_REGEX:
-        if (mqtt_message_decodes[i].topic_regex)
+        if (message_decode_entry->topic_regex)
         {
           GMatchInfo *match_info = NULL;
-          g_regex_match(mqtt_message_decodes[i].topic_regex, topic_str, (GRegexMatchFlags) 0, &match_info);
-          if (g_match_info_matches(match_info))
-          {
-            proto_name = mqtt_message_decodes[i].payload_proto_name;
-            payload_proto = mqtt_message_decodes[i].payload_proto;
-          }
+          g_regex_match(message_decode_entry->topic_regex, topic_str, (GRegexMatchFlags) 0, &match_info);
+          match_found = g_match_info_matches(match_info);
           g_match_info_free(match_info);
         }
         break;
@@ -385,12 +366,13 @@ static void mqtt_user_decode_message(proto_tree *tree, proto_tree *mqtt_tree, pa
     }
   }
 
-  if (payload_proto)
+  if (match_found)
   {
-    proto_item *ti = proto_tree_add_string(mqtt_tree, hf_mqtt_pubmsg_decoded, msg_tvb, 0, -1, proto_name);
+    proto_item *ti = proto_tree_add_string(mqtt_tree, hf_mqtt_pubmsg_decoded, msg_tvb, 0, -1,
+                                           message_decode_entry->payload_proto_name);
     PROTO_ITEM_SET_GENERATED(ti);
 
-    call_dissector(payload_proto, msg_tvb, pinfo, tree);
+    call_dissector(message_decode_entry->payload_proto, msg_tvb, pinfo, tree);
   }
 }
 
