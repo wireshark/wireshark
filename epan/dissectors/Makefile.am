@@ -880,6 +880,7 @@ DISSECTOR_SRC = \
 	packet-lltd.c		\
 	packet-lmi.c		\
 	packet-lmp.c		\
+	packet-lnet.c		\
 	packet-logcat.c		\
 	packet-logcat-text.c	\
 	packet-lon.c		\
@@ -1656,6 +1657,7 @@ DISSECTOR_INCLUDES = \
 	packet-ldp.h		\
 	packet-link16.h		\
 	packet-llc.h		\
+	packet-lnet.h		\
 	packet-logotypecertextn.h	\
 	packet-lpp.h		\
 	packet-lte-rrc.h	\

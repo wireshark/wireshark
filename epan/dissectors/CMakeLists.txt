@@ -416,6 +416,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-ldp.h
 	packet-link16.h
 	packet-llc.h
+	packet-lnet.h
 	packet-logotypecertextn.h
 	packet-lpp.h
 	packet-lte-rrc.h
@@ -1256,6 +1257,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lltd.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lmi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lmp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-lnet.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-logcat.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-logcat-text.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lon.c
