@@ -59,14 +59,27 @@ elsewhere, such as
 
 After you have installed those libraries:
 
-	make a directory in which Wireshark is to be built, separate
+ 1. If you have installed Qt into some non-standard place, as is
+	distinctly possible with the build included with
+	macos-setup.sh, you must inform cmake by either including its
+	"bin" directory as part of the PATH environment variable or
+	setting CMAKE_PREFIX_PATH to the directory above Qt's "lib"
+	directory.  For Qt 5.8 installed into one's home directory,
+	for instance:
+
+	% export CMAKE_PREFIX_PATH=~/Qt5.8.0/5.8/clang_64
+
+	This step is unnecessary if you've used a recent version of
+	Homebrew, as the CMake build scripts will find Qt.
+
+ 2. Make a directory in which Wireshark is to be built, separate
 	from the top-level source directory for Wireshark - it can be a
 	subdirectory of that top-level source directory;
 
-	cd to that directory, and run CMake, with an argument that is a
+ 3. cd to that directory, and run CMake, with an argument that is a
 	path to the top-level source directory;
 
-	when CMake finishes, run make to build Wireshark.
+ 4. When CMake finishes, run make to build Wireshark.
 
 For example, to build Wireshark in a subdirectory of the top-level
 source directory, named "build", do, from the top-level source
