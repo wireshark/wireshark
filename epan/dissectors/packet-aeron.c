@@ -3096,7 +3096,7 @@ void proto_register_aeron(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_aeron = expert_register_protocol(proto_aeron);
     expert_register_field_array(expert_aeron, ei, array_length(ei));
-    aeron_module = prefs_register_protocol(proto_aeron, proto_reg_handoff_aeron);
+    aeron_module = prefs_register_protocol(proto_aeron, NULL);
     aeron_heuristic_subdissector_list = register_heur_dissector_list("aeron_msg_payload", proto_aeron);
 
     prefs_register_bool_preference(aeron_module,

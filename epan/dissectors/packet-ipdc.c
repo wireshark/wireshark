@@ -1066,7 +1066,7 @@ proto_register_ipdc(void)
 	expert_ipdc = expert_register_protocol(proto_ipdc);
 	expert_register_field_array(expert_ipdc, ei, array_length(ei));
 
-	ipdc_module = prefs_register_protocol(proto_ipdc, proto_reg_handoff_ipdc);
+	ipdc_module = prefs_register_protocol(proto_ipdc, NULL);
 	prefs_register_bool_preference(ipdc_module, "desegment_ipdc_messages",
 				       "Reassemble IPDC messages spanning multiple TCP segments",
 				       "Whether the IPDC dissector should reassemble messages spanning multiple TCP segments."
