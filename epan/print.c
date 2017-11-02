@@ -1376,7 +1376,7 @@ ek_write_attr(GSList *attr_instances, write_json_data *pdata)
 {
     GSList *current_node = attr_instances;
     proto_node *pnode    = (proto_node *) current_node->data;
-    field_info *fi       = NULL;
+    field_info *fi       = PNODE_FINFO(pnode);
 
     // Hex dump -x
     if (pdata->print_hex && fi->length > 0 && fi->hfinfo->id != hf_text_only) {
