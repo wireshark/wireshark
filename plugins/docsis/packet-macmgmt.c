@@ -1073,6 +1073,7 @@ static gint ett_docsis_rngreq = -1;
 static gint ett_docsis_rngrsp = -1;
 static gint ett_docsis_rngrsptlv = -1;
 static gint ett_docsis_rngrsp_tlv_transmit_equalization_encodings = -1;
+static gint ett_docsis_rngrsp_tlv_transmit_equalization_encodings_coef = -1;
 static gint ett_docsis_rngrsp_tlv_commanded_power_subtlv = -1;
 static gint ett_docsis_rngrsp_tlv_commanded_power = -1;
 
@@ -1383,8 +1384,6 @@ two_compl_frac(
         "%f",
         frac/16384.0);
 }
-
-
 
 static const value_string rngrsp_tlv_vals[] = {
   {RNGRSP_TIMING,            "Timing Adjust (6.25us/64)"},
@@ -2859,16 +2858,20 @@ dissect_rngrsp_transmit_equalization_encodings(tvbuff_t * tvb, proto_tree * tree
 {
   guint16 i;
   proto_item *it;
-  proto_tree *transmit_equalization_encodings_tree;
+  proto_tree *transmit_equalization_encodings_tree, *coef_tree;
+  guint lowest_subc;
 
   it = proto_tree_add_item(tree, hf_docsis_rngrsp_trans_eq_data, tvb, start-2, len+2, ENC_NA);
   transmit_equalization_encodings_tree = proto_item_add_subtree (it, ett_docsis_rngrsp_tlv_transmit_equalization_encodings);
 
-  proto_tree_add_item (transmit_equalization_encodings_tree, hf_docsis_rngrsp_trans_eq_enc_lowest_subc, tvb, start, 3, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint (transmit_equalization_encodings_tree, hf_docsis_rngrsp_trans_eq_enc_lowest_subc, tvb, start, 3, ENC_BIG_ENDIAN, &lowest_subc);
   proto_tree_add_item (transmit_equalization_encodings_tree, hf_docsis_rngrsp_trans_eq_enc_highest_subc, tvb, start, 3, ENC_BIG_ENDIAN);
   for(i=3; i < len; i+=4) {
-    proto_tree_add_item (transmit_equalization_encodings_tree, hf_docsis_rngrsp_trans_eq_enc_coef_real, tvb, start + i, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item (transmit_equalization_encodings_tree, hf_docsis_rngrsp_trans_eq_enc_coef_imag, tvb, start + i + 2, 2, ENC_BIG_ENDIAN);
+    gint real, imag;
+    coef_tree = proto_tree_add_subtree_format (transmit_equalization_encodings_tree, tvb, start + i, 4, ett_docsis_rngrsp_tlv_transmit_equalization_encodings_coef, NULL, "Subcarrier %d: ", lowest_subc + (i-3)/4);
+    proto_tree_add_item_ret_int (coef_tree, hf_docsis_rngrsp_trans_eq_enc_coef_real, tvb, start + i, 2, ENC_BIG_ENDIAN, &real);
+    proto_tree_add_item_ret_int (coef_tree, hf_docsis_rngrsp_trans_eq_enc_coef_imag, tvb, start + i + 2, 2, ENC_BIG_ENDIAN, &imag);
+    proto_item_append_text(coef_tree, "real: %f, imag: %f", (gint16) real/16384.0, (gint16) imag/16384.0);
   }
 }
 
@@ -8400,6 +8403,7 @@ proto_register_docsis_mgmt (void)
     &ett_docsis_rngrsp,
     &ett_docsis_rngrsptlv,
     &ett_docsis_rngrsp_tlv_transmit_equalization_encodings,
+    &ett_docsis_rngrsp_tlv_transmit_equalization_encodings_coef,
     &ett_docsis_rngrsp_tlv_commanded_power,
     &ett_docsis_rngrsp_tlv_commanded_power_subtlv,
     &ett_docsis_regreq,
