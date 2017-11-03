@@ -347,7 +347,11 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         case EXPORTED_PDU_NEXT_PROTO_STR:
             proto_handle = find_dissector(proto_name);
             if (proto_handle) {
-                col_clear(pinfo->cinfo, COL_PROTOCOL);
+                if (col_proto_str) {
+                    col_add_str(pinfo->cinfo, COL_PROTOCOL, col_proto_str);
+                } else {
+                    col_clear(pinfo->cinfo, COL_PROTOCOL);
+                }
                 call_dissector_with_data(proto_handle, payload_tvb, pinfo, tree, dissector_data);
             }
             break;
@@ -355,7 +359,11 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         {
             heur_dtbl_entry_t *heur_diss = find_heur_dissector_by_unique_short_name(proto_name);
             if (heur_diss) {
-                col_clear(pinfo->cinfo, COL_PROTOCOL);
+                if (col_proto_str) {
+                    col_add_str(pinfo->cinfo, COL_PROTOCOL, col_proto_str);
+                } else {
+                    col_clear(pinfo->cinfo, COL_PROTOCOL);
+                }
                 call_heur_dissector_direct(heur_diss, payload_tvb, pinfo, tree, dissector_data);
             }
             break;
@@ -364,9 +372,10 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         {
             dis_tbl = find_dissector_table(dissector_table);
             if (dis_tbl) {
-                col_clear(pinfo->cinfo, COL_PROTOCOL);
                 if (col_proto_str) {
-                    col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "%s",col_proto_str);
+                    col_add_str(pinfo->cinfo, COL_PROTOCOL, col_proto_str);
+                } else {
+                    col_clear(pinfo->cinfo, COL_PROTOCOL);
                 }
                 dissector_try_uint_new(dis_tbl, dissector_table_val, payload_tvb, pinfo, tree, FALSE, dissector_data);
             }
