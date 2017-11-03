@@ -2141,7 +2141,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	proto_item *ti, *item;
 	proto_tree *tipc_tree, *tipc_data_tree;
 	int offset = 0;
-	guint32 dword;
+	guint32 srcport, destport = 0, dword;
 	guint8  version;
 	guint32 msg_size;
 	guint8  hdr_size;
@@ -2293,16 +2293,14 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 			break;
 	}
 
-	dword = tvb_get_ntohl(tipc_tvb, offset);
-	pinfo->ptype = PT_TIPC;
-	pinfo->srcport = dword;
-	proto_tree_add_item(tipc_tree, hf_tipc_org_port, tipc_tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(tipc_tree, hf_tipc_org_port, tipc_tvb, offset, 4, ENC_BIG_ENDIAN, &srcport);
 	offset = offset + 4;
 	if (user != TIPC_NAME_DISTRIBUTOR) {
-		dword = tvb_get_ntohl(tipc_tvb, offset);
-		pinfo->destport = dword;
-		proto_tree_add_item(tipc_tree, hf_tipc_dst_port, tipc_tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint(tipc_tree, hf_tipc_dst_port, tipc_tvb, offset, 4, ENC_BIG_ENDIAN, &destport);
 	}
+
+	conversation_create_endpoint(pinfo, &pinfo->src, &pinfo->dst, ENDPOINT_TIPC, srcport, destport, 0);
+
 	offset = offset + 4;
 	/* 20 - 24 Bytes
 	   20 bytes: Used in subnetwork local, connection oriented messages, where error code, reroute

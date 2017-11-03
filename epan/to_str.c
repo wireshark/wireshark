@@ -1140,7 +1140,6 @@ port_type_to_str (port_type type)
 		case PT_EXCHG:		return "FC EXCHG";
 		case PT_DDP:		return "DDP";
 		case PT_IDP:		return "IDP";
-		case PT_TIPC:		return "TIPC";
 		case PT_USB:		return "USB";
 		case PT_I2C:		return "I2C";
 		case PT_IBQP:		return "IBQP";
