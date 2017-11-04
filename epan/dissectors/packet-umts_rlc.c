@@ -1381,7 +1381,7 @@ translate_hex_key(gchar * char_key){
     int i,j;
     guint8 * key_in;
 
-    key_in = g_malloc0(sizeof(guint8)*16);
+    key_in = wmem_alloc0(wmem_packet_scope(), sizeof(guint8)*16);
     j= (int)(strlen(char_key)/2)-1;
     /*Translate "hex-string" into a byte aligned block */
     for(i = (int)strlen(char_key); i> 0; i-=2 ){
@@ -1419,7 +1419,6 @@ rlc_decipher_tvb(tvbuff_t *tvb _U_, packet_info *pinfo, guint32 counter _U_,
     return NULL;
 #else
 rlc_decipher_tvb(tvbuff_t *tvb, packet_info *pinfo, guint32 counter, guint8 rbid, gboolean dir, guint8 header_size) {
-    guint i;
     guint8* out=NULL,*key_in = NULL;
     tvbuff_t *t;
 
@@ -1429,25 +1428,15 @@ rlc_decipher_tvb(tvbuff_t *tvb, packet_info *pinfo, guint32 counter, guint8 rbid
     memcpy(out,global_rlc_kasumi_key,strlen(global_rlc_kasumi_key));    /*Copy from prefrence const pointer*/
     key_in = translate_hex_key(out);    /*Translation*/
 
-    /*Location for decrypted data*/
-    out = g_malloc( tvb_captured_length(tvb) );
+    /*Location for decrypted data & original RLC header*/
+    out = tvb_memdup(pinfo->pool, tvb, 0, tvb_captured_length(tvb));
 
-    /*Build data input but don't send the header*/
-    for(i = 0; i< tvb_captured_length(tvb)-header_size; i++ ){
-        out[i+header_size] = tvb_get_guint8(tvb, header_size+i);
-    }
-    /*Call KASUMI confidentiality function, note that rbid is zero indexed*/
+    /*Call f8 confidentiality function, note that rbid is zero indexed*/
     f8( key_in, counter, rbid-1, dir, &out[header_size], (tvb_captured_length(tvb)-header_size)*8 );
-
-    /*Restore header in tvb*/
-    for (i = 0; i < header_size; i++) {
-        out[i] = tvb_get_guint8(tvb, i);
-    }
 
     /*Create new tvb.*/
     t = tvb_new_real_data(out,tvb_captured_length(tvb), tvb_reported_length(tvb));
-    /*add_new_data_source(pinfo, tvb, "Data enciphered");*/
-    add_new_data_source(pinfo, t, "Deciphered data");
+    add_new_data_source(pinfo, t, "Deciphered RLC");
     return t;
 #endif /* HAVE_UMTS_KASUMI */
 }
