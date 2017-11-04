@@ -201,6 +201,27 @@ static const value_string match_criteria[] = {
   { 0, NULL }
 };
 
+#define PROP_PAYLOAD_FORMAT_INDICATOR          0x01
+#define PROP_REQUEST_PROBLEM_INFORMATION       0x17
+#define PROP_REQUEST_RESPONSE_INFORMATION      0x19
+#define PROP_MAXIMUM_QOS                       0x24
+#define PROP_RETAIN_AVAILABLE                  0x25
+#define PROP_WILDCARD_SUBSCRIPTION_AVAILABLE   0x28
+#define PROP_SUBSCRIPTION_IDENTIFIER_AVAILABLE 0x29
+#define PROP_SHARED_SUBSCRIPTION_AVAILABLE     0x2A
+
+static const value_string mqtt_property_vals[] = {
+  { PROP_PAYLOAD_FORMAT_INDICATOR,          "Payload Format Indicator" },
+  { PROP_REQUEST_PROBLEM_INFORMATION,       "Request Problem Information" },
+  { PROP_REQUEST_RESPONSE_INFORMATION,      "Request Response Information" },
+  { PROP_MAXIMUM_QOS,                       "Maximum QoS" },
+  { PROP_RETAIN_AVAILABLE,                  "Retain Available" },
+  { PROP_WILDCARD_SUBSCRIPTION_AVAILABLE,   "Wildcard Subscription Available" },
+  { PROP_SUBSCRIPTION_IDENTIFIER_AVAILABLE, "Subscription Identifier Available" },
+  { PROP_SHARED_SUBSCRIPTION_AVAILABLE,     "Shared Subscription Available" },
+  { 0, NULL }
+};
+
 static mqtt_message_decode_t *mqtt_message_decodes = NULL;
 static guint num_mqtt_message_decodes = 0;
 
@@ -254,8 +275,14 @@ static int hf_mqtt_conflag_reserved = -1;
 static int hf_mqtt_keep_alive = -1;
 static int hf_mqtt_subscription_options = -1;
 static int hf_mqtt_reason_code = -1;
+
+/* MQTT v5.0 Properties */
 static int hf_mqtt_property_len = -1;
 static int hf_mqtt_property = -1;
+static int hf_mqtt_property_id = -1;
+static int hf_mqtt_prop_num = -1;
+static int hf_mqtt_prop_max_qos = -1;
+static int hf_mqtt_prop_unknown = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_mqtt_hdr = -1;
@@ -263,6 +290,7 @@ static gint ett_mqtt_msg = -1;
 static gint ett_mqtt_hdr_flags = -1;
 static gint ett_mqtt_con_flags = -1;
 static gint ett_mqtt_conack_flags = -1;
+static gint ett_mqtt_property = -1;
 
 /* Reassemble SMPP TCP segments */
 static gboolean reassemble_mqtt_over_tcp = TRUE;
@@ -393,18 +421,49 @@ static void mqtt_user_decode_message(proto_tree *tree, proto_tree *mqtt_tree, pa
 /* MQTT v5.0: dissect the MQTT properties */
 static guint32 dissect_mqtt_properties(tvbuff_t *tvb, proto_tree *mqtt_tree, guint32 offset)
 {
-  guint32 mqtt_prop_offset;
-  guint32 mqtt_prop_len;
-  guint64 prop_len;
+  proto_tree *mqtt_prop_tree;
+  proto_item *ti;
+  guint64 vbi;
 
-  mqtt_prop_offset = dissect_uleb128(tvb, offset, &prop_len);
-  mqtt_prop_len = (guint32)prop_len;
+  const guint32 mqtt_prop_offset = dissect_uleb128(tvb, offset, &vbi);
+  /* Property Length field can be stored in uint32 */
+  const guint32 mqtt_prop_len = (guint32)vbi;
 
-  proto_tree_add_item(mqtt_tree, hf_mqtt_property_len, tvb, offset, mqtt_prop_offset, ENC_BIG_ENDIAN);
-  if (mqtt_prop_len > 0)
+  /* Add the MQTT branch to the main tree */
+  ti = proto_tree_add_item(mqtt_tree, hf_mqtt_property, tvb, offset, mqtt_prop_offset + mqtt_prop_len, ENC_NA);
+  mqtt_prop_tree = proto_item_add_subtree(ti, ett_mqtt_property);
+
+  proto_tree_add_item(mqtt_prop_tree, hf_mqtt_property_len, tvb, offset, mqtt_prop_offset, ENC_BIG_ENDIAN);
+  offset += mqtt_prop_offset;
+
+  const guint32 bytes_to_read = offset + mqtt_prop_len;
+  while (offset < bytes_to_read)
   {
-    proto_tree_add_item(mqtt_tree, hf_mqtt_property, tvb, offset + mqtt_prop_offset, mqtt_prop_len, ENC_UTF_8|ENC_NA);
-    /* In this iteration we don't dissect the MQTT properties section */
+    guint8 prop_id = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint(mqtt_prop_tree, hf_mqtt_property_id, tvb, offset, 1, prop_id);
+    offset += 1;
+
+    switch (prop_id)
+    {
+      case PROP_PAYLOAD_FORMAT_INDICATOR:
+      case PROP_REQUEST_PROBLEM_INFORMATION:
+      case PROP_REQUEST_RESPONSE_INFORMATION:
+      case PROP_RETAIN_AVAILABLE:
+      case PROP_WILDCARD_SUBSCRIPTION_AVAILABLE:
+      case PROP_SUBSCRIPTION_IDENTIFIER_AVAILABLE:
+      case PROP_SHARED_SUBSCRIPTION_AVAILABLE:
+        proto_tree_add_item(mqtt_prop_tree, hf_mqtt_prop_num, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        break;
+      case PROP_MAXIMUM_QOS:
+        proto_tree_add_item(mqtt_prop_tree, hf_mqtt_prop_max_qos, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        break;
+      default:
+        proto_tree_add_item(mqtt_prop_tree, hf_mqtt_prop_unknown, tvb, offset, bytes_to_read - offset, ENC_UTF_8|ENC_NA);
+        offset += (bytes_to_read - offset);
+        break;
+    }
   }
 
   return mqtt_prop_offset + mqtt_prop_len;
@@ -986,13 +1045,31 @@ void proto_register_mqtt(void)
     { &hf_mqtt_reason_code,
       { "Reason Code", "mqtt.reason_code",
         FT_UINT8, BASE_DEC, NULL, 0,
+        "MQTT Reason Code", HFILL }},
+
+    /* Properties */
+    { &hf_mqtt_property,
+      { "Properties", "mqtt.properties",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_mqtt_property_len,
-      { "Property Length", "mqtt.property_len",
+      { "Total Length", "mqtt.property_len",
         FT_UINT64, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_mqtt_property,
-      { "Property", "mqtt.property",
+    { &hf_mqtt_property_id,
+      { "ID", "mqtt.property_id",
+        FT_UINT8, BASE_HEX, VALS(mqtt_property_vals), 0,
+        "Property Id", HFILL }},
+    { &hf_mqtt_prop_num,
+      { "Value", "mqtt.prop_number",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mqtt_prop_max_qos,
+      { "QoS", "mqtt.prop_max_qos_value",
+        FT_UINT8, BASE_DEC, VALS(mqtt_qos_vals), 0,
+        NULL, HFILL }},
+    { &hf_mqtt_prop_unknown,
+      { "Unknown Property", "mqtt.prop_unknown",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
   };
@@ -1003,7 +1080,8 @@ void proto_register_mqtt(void)
     &ett_mqtt_msg,
     &ett_mqtt_hdr_flags,
     &ett_mqtt_con_flags,
-    &ett_mqtt_conack_flags
+    &ett_mqtt_conack_flags,
+    &ett_mqtt_property,
   };
 
   static uat_field_t mqtt_message_decode_flds[] = {
