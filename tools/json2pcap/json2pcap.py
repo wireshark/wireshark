@@ -33,6 +33,25 @@ import argparse
 import subprocess
 from collections import OrderedDict
 
+def make_unique(key, dct):
+    counter = 0
+    unique_key = key
+
+    while unique_key in dct:
+        counter += 1
+        unique_key = '{}_{}'.format(key, counter)
+    return unique_key
+
+
+def parse_object_pairs(pairs):
+    dct = OrderedDict()
+    for key, value in pairs:
+        if key in dct:
+            key = make_unique(key, dct)
+        dct[key] = value
+
+    return dct
+
 #
 # ********* PY TEMPLATES *********
 #
@@ -92,73 +111,10 @@ py_footer = py_footer + read_py_function("hex_to_txt")
 py_footer = py_footer + read_py_function("to_bytes")
 py_footer = py_footer + read_py_function("lsb")
 py_footer = py_footer + read_py_function("rewrite_frame")
+py_footer = py_footer + read_py_function("assemble_frame")
+py_footer = py_footer + read_py_function("generate_pcap")
 
 py_footer = py_footer + """
-def assemble_frame(d):
-    input = d['frame_raw'][1]
-    isFlat = False
-    linux_cooked_header = False;
-    while(isFlat == False):
-        isFlat = True
-        for key, val in d.items():
-            h = str(val[1])     # hex
-            p = val[2] * 2      # position
-            l = val[3] * 2      # length
-            b = val[4]          # bitmask
-            t = val[5]          # type
-
-            if (key == "sll_raw"):
-                linux_cooked_header = True;
-
-            # only if the node is not parent
-            isParent = False
-            for k, v in d.items():
-                if (v[0] == key):
-                    isParent = True
-                    isFlat = False
-                    break
-
-            if (isParent == False and val[0] is not None):
-                d[val[0]][1] = rewrite_frame(d[val[0]][1], h, p, l, b, t)
-                del d[key]
-
-    output = d['frame_raw'][1]
-
-    # for Linux cooked header replace dest MAC and remove two bytes to reconstruct normal frame using text2pcap
-    if (linux_cooked_header):
-        output = "000000000000" + output[6*2:] # replce dest MAC
-        output = output[:12*2] + "" + output[14*2:] # remove two bytes before Protocol
-
-    return output
-
-def generate_pcap(d):
-    # 1. Assemble frame
-    input = d['frame_raw'][1]
-    output = assemble_frame(d)
-    print(input)
-    print(output)
-
-    # 2. Testing: compare input and output for not modified json
-    if (input != output):
-        print("Modified frames: ")
-        s1 = input
-        s2 = output
-        print(s1)
-        print(s2)
-        if (len(s1) == len(s2)):
-            d = [i for i in xrange(len(s1)) if s1[i] != s2[i]]
-            print(d)
-
-    # 3. Open TMP file used by text2pcap
-    file = sys.argv[0] + '.tmp'
-    f = open(file,'w')
-    hex_to_txt(output, file)
-    f.close()
-
-    # 4. Generate pcap
-    to_pcap_file(sys.argv[0] + '.tmp', sys.argv[0] + '.pcap')
-    print("Generated " + sys.argv[0] + ".tmp")
-    print("Generated " + sys.argv[0] + ".pcap")
 
 if __name__ == '__main__':
     main()
@@ -212,25 +168,54 @@ def py_generator(d, r, frame_name='frame_raw', frame_position=0):
 
     if hasattr(d, 'items'):
         for k, v in d.items():
+
             # no recursion
-            if k.endswith("_raw"):
-                h = v[0]
-                p = v[1]
-                l = v[2] * 2
-                b = v[3]
-                t = v[4]
-                if (len(h) != l):
-                    l = len(h)
+            if ( k.endswith("_raw") or ("_raw_" in k) ):
+                if (isinstance(v[1], (list, tuple)) or isinstance(v[2], (list, tuple)) ):
+                    #i = 1;
+                    for _v in v:
+                        h = _v[0]
+                        p = _v[1]
+                        l = _v[2] * 2
+                        b = _v[3]
+                        t = _v[4]
+                        if (len(h) != l):
+                            l = len(h)
 
-                p = p - frame_position
+                        p = p - frame_position
 
-                # Add into result dictionary
-                key = str(k).replace('.', '_')
-                fn = frame_name.replace('.', '_')
-                if (fn == key):
-                    fn = None
-                value = [fn , h, p, l, b, t]
-                r[key] = value
+                        # Add into result dictionary
+                        key = str(k).replace('.', '_')
+                        key = make_unique(key, r)
+
+                        fn = frame_name.replace('.', '_')
+                        if (fn == key):
+                            fn = None
+                        value = [fn , h, p, l, b, t]
+
+                        r[key] = value
+
+                else:
+                    h = v[0]
+                    p = v[1]
+                    l = v[2] * 2
+                    b = v[3]
+                    t = v[4]
+                    if (len(h) != l):
+                        l = len(h)
+
+                    p = p - frame_position
+
+                    # Add into result dictionary
+                    key = str(k).replace('.', '_')
+                    key = make_unique(key, r)
+
+                    fn = frame_name.replace('.', '_')
+                    if (fn == key):
+                        fn = None
+                    value = [fn , h, p, l, b, t]
+
+                    r[key] = value
 
             # recursion
             else:
@@ -241,15 +226,39 @@ def py_generator(d, r, frame_name='frame_raw', frame_position=0):
                     # if there is also preceding raw protocol frame use it
                     # remove tree suffix
                     key = k
-                    if key.endswith("_tree"):
-                        key = key[:-5]
+                    if (key.endswith("_tree") or ("_tree_" in key)):
+                        key = key.replace('_tree', '')
+
                     raw_key = key + "_raw"
                     if (raw_key in d):
                         # f =  d[raw_key][0]
                         fn = raw_key
                         fp = d[raw_key][1]
 
+
                     py_generator(v, r, fn, fp)
+
+                elif isinstance(v, (list, tuple)):
+
+                    fn = frame_name
+                    fp = frame_position
+
+                    # if there is also preceding raw protocol frame use it
+                    # remove tree suffix
+                    key = k
+                    if (key.endswith("_tree") or ("_tree_" in key)):
+                        key = key.replace('_tree', '')
+
+                    raw_key = key + "_raw"
+                    if (raw_key in d):
+                        fn = raw_key
+                        fp = d[raw_key][1]
+
+                    for _v in v:
+                        py_generator(_v, r, frame_name, frame_position)
+
+
+
 
 # To emulate Python 3.2
 def to_bytes(n, length, endianess='big'):
@@ -325,6 +334,73 @@ def rewrite_frame(frame_raw, h, p, l, b, t):
 
         return frame_raw[:p] + masked_h + frame_raw[p + l:]
 
+
+def assemble_frame(d):
+    input = d['frame_raw'][1]
+    isFlat = False
+    linux_cooked_header = False;
+    while(isFlat == False):
+        isFlat = True
+        for key, val in d.items():
+            h = str(val[1])     # hex
+            p = val[2] * 2      # position
+            l = val[3] * 2      # length
+            b = val[4]          # bitmask
+            t = val[5]          # type
+
+            if (key == "sll_raw"):
+                linux_cooked_header = True;
+
+            # only if the node is not parent
+            isParent = False
+            for k, v in d.items():
+                if (v[0] == key):
+                    isParent = True
+                    isFlat = False
+                    break
+
+            if (isParent == False and val[0] is not None):
+                d[val[0]][1] = rewrite_frame(d[val[0]][1], h, p, l, b, t)
+                del d[key]
+
+    output = d['frame_raw'][1]
+
+    # for Linux cooked header replace dest MAC and remove two bytes to reconstruct normal frame using text2pcap
+    if (linux_cooked_header):
+        output = "000000000000" + output[6*2:] # replce dest MAC
+        output = output[:12*2] + "" + output[14*2:] # remove two bytes before Protocol
+
+    return output
+
+def generate_pcap(d):
+    # 1. Assemble frame
+    input = d['frame_raw'][1]
+    output = assemble_frame(d)
+    print(input)
+    print(output)
+
+    # 2. Testing: compare input and output for not modified json
+    if (input != output):
+        print("Modified frames: ")
+        s1 = input
+        s2 = output
+        print(s1)
+        print(s2)
+        if (len(s1) == len(s2)):
+            d = [i for i in xrange(len(s1)) if s1[i] != s2[i]]
+            print(d)
+
+    # 3. Open TMP file used by text2pcap
+    file = sys.argv[0] + '.tmp'
+    f = open(file,'w')
+    hex_to_txt(output, file)
+    f.close()
+
+    # 4. Generate pcap
+    to_pcap_file(sys.argv[0] + '.tmp', sys.argv[0] + '.pcap')
+    print("Generated " + sys.argv[0] + ".tmp")
+    print("Generated " + sys.argv[0] + ".pcap")
+
 #
 # ************ MAIN **************
 #
@@ -361,7 +437,8 @@ args = parser.parse_args()
 infile = args.infile[0]
 
 with open(infile) as data_file:
-    json = json.load(data_file, object_pairs_hook=OrderedDict)
+    #json = json.load(data_file, object_pairs_hook=OrderedDict)
+    json = json.load(data_file, object_pairs_hook=parse_object_pairs)
 
 input_frame_raw = ''
 frame_raw = ''
@@ -374,21 +451,21 @@ if args.python == False:
 
     # Iterate over packets in JSON
     for packet in json:
-        list = []
+        _list = []
         linux_cooked_header = False;
 
-        # get flat raw fields into list
+        # get flat raw fields into _list
         for raw in raw_flat_collector(packet['_source']['layers']):
             if (raw[0] == "frame_raw"):
                 frame_raw = raw[1][0]
                 input_frame_raw = copy.copy(frame_raw)
             else:
-                list.append(raw[1])
+                _list.append(raw[1])
             if (raw[0] == "sll_raw"):
                 linux_cooked_header = True
 
-        # sort list
-        sorted_list = sorted(list, key=operator.itemgetter(1), reverse=False)
+        # sort _list
+        sorted_list = sorted(_list, key=operator.itemgetter(1), reverse=False)
         sorted_list = sorted(sorted_list, key=operator.itemgetter(2), reverse=True)
         # print("Debug: " + str(sorted_list))
 
@@ -400,8 +477,19 @@ if args.python == False:
             b = raw[3]  # bitmask
             t = raw[4]  # type
 
-            # print("Debug: " + str(raw))
-            frame_raw = rewrite_frame(frame_raw, h, p, l, b, t)
+            if (isinstance(p, (list, tuple)) or isinstance(l, (list, tuple))):
+                for r in raw:
+                    _h = str(r[0])  # hex
+                    _p = r[1] * 2  # position
+                    _l = r[2] * 2  # length
+                    _b = r[3]  # bitmask
+                    _t = r[4]  # type
+                    # print("Debug: " + str(raw))
+                    frame_raw = rewrite_frame(frame_raw, _h, _p, _l, _b, _t)
+
+            else:
+                # print("Debug: " + str(raw))
+                frame_raw = rewrite_frame(frame_raw, h, p, l, b, t)
 
         # for Linux cooked header replace dest MAC and remove two bytes to reconstruct normal frame using text2pcap
         if (linux_cooked_header):
@@ -434,6 +522,8 @@ else:
         f.write(py_header)
 
         r = OrderedDict({})
+
+        #print "packet = " + str(packet['_source']['layers'])
         py_generator(packet['_source']['layers'], r)
 
         for key, value in r.iteritems() :
