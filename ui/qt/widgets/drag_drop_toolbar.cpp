@@ -60,6 +60,10 @@ void DragDropToolBar::childEvent(QChildEvent * event)
     {
         if ( event->child()->isWidgetType() )
         {
+            /* Reset if it has moved underneath lower limit */
+            if ( childCounter < 0 )
+                childCounter = 0;
+
             ((QWidget *)event->child())->installEventFilter(this);
             event->child()->setProperty(drag_drop_toolbar_action_, qVariantFromValue(childCounter));
             childCounter++;
@@ -67,7 +71,16 @@ void DragDropToolBar::childEvent(QChildEvent * event)
     }
     else if ( event->type() == QEvent::ChildRemoved )
     {
-         childCounter--;
+        childCounter--;
+    }
+    else if ( event->type() == QEvent::ChildPolished )
+    {
+        /* Polish is called every time a child is added or removed. This is implemented by adding
+         * all childs again as hidden elements, and afterwards removing the existing ones. Therefore
+         * we have to reset child counter here, if a widget is being polished. If this is not being
+         * done, crashes will occur after an item has been removed and other items are moved afterwards */
+        if ( event->child()->isWidgetType() )
+            childCounter = 0;
     }
 }
 
@@ -93,7 +106,7 @@ bool DragDropToolBar::eventFilter(QObject * obj, QEvent * event)
         if ( ( ev->buttons() & Qt::LeftButton ) && (ev->pos() - dragStartPosition).manhattanLength()
                  > QApplication::startDragDistance())
         {
-            QDrag * drag = new QDrag(elem);
+            QDrag * drag = new QDrag(this);
             QMimeData *mimeData = new QMimeData;
             mimeData->setData("application/x-wireshark-toolbar-entry",
                     elem->property(drag_drop_toolbar_action_).toByteArray());
@@ -109,10 +122,7 @@ bool DragDropToolBar::eventFilter(QObject * obj, QEvent * event)
             elem->render(&pixmap);
             drag->setPixmap(pixmap);
 
-            Qt::DropAction dropAction = drag->exec(Qt::CopyAction | Qt::MoveAction);
-
-            if (dropAction == Qt::MoveAction)
-                elem->setVisible(false);
+            drag->exec(Qt::CopyAction | Qt::MoveAction);
 
             return true;
         }
