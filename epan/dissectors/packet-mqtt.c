@@ -36,6 +36,10 @@
  *
  * MQTT v3.1.1 specification:
  * http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/
+ *
+ * MQTT v5.0 specification:
+ * http://docs.oasis-open.org/mqtt/mqtt/v5.0/
+ *
  */
 
 #include "config.h"
@@ -52,6 +56,7 @@
 /* MQTT Protocol Versions */
 #define MQTT_PROTO_V31      3
 #define MQTT_PROTO_V311     4
+#define MQTT_PROTO_V50      5
 
 #define MQTT_HDR_SIZE_BEFORE_LEN 1
 
@@ -71,7 +76,8 @@
 #define MQTT_PINGREQ        12
 #define MQTT_PINGRESP       13
 #define MQTT_DISCONNECT     14
-#define MQTT_RESERVED_15    15
+#define MQTT_AUTH           15
+#define MQTT_RESERVED_16    16
 
 /* Flag Values to extract fields */
 #define MQTT_MASK_MSG_TYPE          0xF0
@@ -87,6 +93,7 @@ void proto_reg_handoff_mqtt(void);
 static const value_string mqtt_protocol_version_vals[] = {
   { MQTT_PROTO_V31,        "MQTT v3.1" },
   { MQTT_PROTO_V311,       "MQTT v3.1.1" },
+  { MQTT_PROTO_V50,        "MQTT v5.0" },
   { 0,                     NULL }
 };
 
@@ -106,7 +113,8 @@ static const value_string mqtt_msgtype_vals[] = {
   { MQTT_PINGREQ,           "Ping Request" },
   { MQTT_PINGRESP,          "Ping Response" },
   { MQTT_DISCONNECT,        "Disconnect Req" },
-  { MQTT_RESERVED_15,       "Reserved" },
+  { MQTT_AUTH,              "Authentication Exchange" },
+  { MQTT_RESERVED_16,       "Reserved" },
   { 0,                      NULL }
 };
 static value_string_ext mqtt_msgtype_vals_ext = VALUE_STRING_EXT_INIT(mqtt_msgtype_vals);
@@ -242,6 +250,10 @@ static int hf_mqtt_conflag_will_flag = -1;
 static int hf_mqtt_conflag_clean_sess = -1;
 static int hf_mqtt_conflag_reserved = -1;
 static int hf_mqtt_keep_alive = -1;
+static int hf_mqtt_subscription_options = -1;
+static int hf_mqtt_reason_code = -1;
+static int hf_mqtt_property_len = -1;
+static int hf_mqtt_property = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_mqtt_hdr = -1;
@@ -376,12 +388,33 @@ static void mqtt_user_decode_message(proto_tree *tree, proto_tree *mqtt_tree, pa
   }
 }
 
+/* MQTT v5.0: dissect the MQTT properties */
+static guint32 dissect_mqtt_properties(tvbuff_t *tvb, proto_tree *mqtt_tree, guint32 offset)
+{
+  guint32 mqtt_prop_offset;
+  guint32 mqtt_prop_len;
+  guint64 prop_len;
+
+  mqtt_prop_offset = dissect_uleb128(tvb, offset, &prop_len);
+  mqtt_prop_len = (guint32)prop_len;
+
+  proto_tree_add_item(mqtt_tree, hf_mqtt_property_len, tvb, offset, mqtt_prop_offset, ENC_BIG_ENDIAN);
+  if (mqtt_prop_len > 0)
+  {
+    proto_tree_add_item(mqtt_tree, hf_mqtt_property, tvb, offset + mqtt_prop_offset, mqtt_prop_len, ENC_UTF_8|ENC_NA);
+    /* In this iteration we don't dissect the MQTT properties section */
+  }
+
+  return mqtt_prop_offset + mqtt_prop_len;
+}
+
 /* Dissect the MQTT message */
 static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint8  mqtt_fixed_hdr;
     guint8  mqtt_msg_type;
     proto_item *ti;
+    int hf_version_selector;
     const guint8 *topic_str;
 
     proto_tree *mqtt_tree;
@@ -394,7 +427,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     conversation_t *conv;
     mqtt_conv   *mqtt;
 
-    int offset = 0;
+    guint32 offset = 0;
     static const int *publish_fields[] = {
         &hf_mqtt_msg_type,
         &hf_mqtt_dup_flag,
@@ -502,6 +535,11 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         proto_tree_add_item(mqtt_tree, hf_mqtt_keep_alive, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
+        if (mqtt->runtime_proto_version == MQTT_PROTO_V50)
+        {
+          offset += dissect_mqtt_properties(tvb, mqtt_tree, offset);
+        }
+
         mqtt_str_len = tvb_get_ntohs(tvb, offset);
         proto_tree_add_item(mqtt_tree, hf_mqtt_client_id_len, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
@@ -561,8 +599,13 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         offset += 1;
 
         proto_tree_add_item(mqtt_tree, hf_mqtt_conack_code, tvb, offset, 1, ENC_BIG_ENDIAN);
-        break;
+        offset += 1;
 
+        if (mqtt->runtime_proto_version == MQTT_PROTO_V50)
+        {
+          offset += dissect_mqtt_properties(tvb, mqtt_tree, offset);
+        }
+        break;
       case MQTT_PUBLISH:
         /* TopicName|MsgID|Message| */
         mqtt_str_len = tvb_get_ntohs(tvb, offset);
@@ -582,6 +625,15 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
           offset += 2;
           mqtt_msg_len -= 2;
         }
+
+        if (mqtt->runtime_proto_version == MQTT_PROTO_V50)
+        {
+          guint32 mqtt_prop_offset = dissect_mqtt_properties(tvb, mqtt_tree, offset);
+          offset += mqtt_prop_offset;
+
+          mqtt_msg_len -= mqtt_prop_offset;
+        }
+
         proto_tree_add_item(mqtt_tree, hf_mqtt_pubmsg, tvb, offset, mqtt_msg_len, ENC_UTF_8|ENC_NA);
 
         if (num_mqtt_message_decodes > 0)
@@ -598,6 +650,17 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
          */
         proto_tree_add_item(mqtt_tree, hf_mqtt_msgid, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
+
+        if (mqtt->runtime_proto_version == MQTT_PROTO_V50)
+        {
+          offset += dissect_mqtt_properties(tvb, mqtt_tree, offset);
+          hf_version_selector = hf_mqtt_subscription_options;
+        }
+        else
+        {
+          hf_version_selector = hf_mqtt_sub_qos;
+        }
+
         for(mqtt_msg_len -= 2; mqtt_msg_len > 0;)
         {
           mqtt_str_len = tvb_get_ntohs(tvb, offset);
@@ -609,7 +672,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
           offset += mqtt_str_len;
           mqtt_msg_len -= mqtt_str_len;
 
-          proto_tree_add_item(mqtt_tree, hf_mqtt_sub_qos, tvb, offset, 1, ENC_BIG_ENDIAN);
+          proto_tree_add_item(mqtt_tree, hf_version_selector, tvb, offset, 1, ENC_BIG_ENDIAN);
           offset += 1;
           mqtt_msg_len -= 1;
         }
@@ -641,6 +704,12 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
          */
         proto_tree_add_item(mqtt_tree, hf_mqtt_msgid, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
+
+        if (mqtt->runtime_proto_version == MQTT_PROTO_V50)
+        {
+          offset += dissect_mqtt_properties(tvb, mqtt_tree, offset);
+        }
+
         for(mqtt_msg_len -= 2; mqtt_msg_len > 0; mqtt_msg_len--)
         {
           proto_tree_add_item(mqtt_tree, hf_mqtt_suback_qos, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -648,19 +717,51 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         }
         break;
 
-      /* The following response code contains only msg-id */
       case MQTT_PUBACK:
       case MQTT_PUBREC:
       case MQTT_PUBREL:
       case MQTT_PUBCOMP:
+        proto_tree_add_item(mqtt_tree, hf_mqtt_msgid, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        /* FALLTHROUGH */
+      case MQTT_DISCONNECT:
+        if (mqtt->runtime_proto_version == MQTT_PROTO_V50)
+        {
+          proto_tree_add_item(mqtt_tree, hf_mqtt_reason_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+          offset += 1;
+
+          offset += dissect_mqtt_properties(tvb, mqtt_tree, offset);
+        }
+        break;
+
       case MQTT_UNSUBACK:
         proto_tree_add_item(mqtt_tree, hf_mqtt_msgid, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        if (mqtt->runtime_proto_version == MQTT_PROTO_V50)
+        {
+          offset += dissect_mqtt_properties(tvb, mqtt_tree, offset);
+        }
         break;
 
       /* The following messages don't have variable header */
       case MQTT_PINGREQ:
       case MQTT_PINGRESP:
-      case MQTT_DISCONNECT:
+        break;
+
+      case MQTT_AUTH:
+        /* MQTT v5.0: The Reason Code and Property Length can be omitted if
+         * the Reason Code is 0x00 (Success) and there are no Properties.
+         * In this case the AUTH has a Remaining Length of 0.
+         */
+        if (mqtt->runtime_proto_version == MQTT_PROTO_V50 && mqtt_msg_len > 0)
+        {
+          proto_tree_add_item(mqtt_tree, hf_mqtt_reason_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+          offset += 1;
+
+          offset += dissect_mqtt_properties(tvb, mqtt_tree, offset);
+        }
+
         break;
     }
 
@@ -870,7 +971,24 @@ void proto_register_mqtt(void)
     { &hf_mqtt_keep_alive,
       { "Keep Alive", "mqtt.kalive",
         FT_UINT16, BASE_DEC, NULL, 0,
-        NULL, HFILL }}
+        NULL, HFILL }},
+    /* xxx */
+    { &hf_mqtt_subscription_options,
+      { "Subscription Options", "mqtt.subscription_options",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mqtt_reason_code,
+      { "Reason Code", "mqtt.reason_code",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mqtt_property_len,
+      { "Property Length", "mqtt.property_len",
+        FT_UINT64, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mqtt_property,
+      { "Property", "mqtt.property",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
   };
 
   /* Setup protocol subtree arrays */
