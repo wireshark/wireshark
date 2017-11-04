@@ -1,6 +1,8 @@
 /* packet-mqtt.c
  * Routines for MQTT Protocol dissection
  *
+ * MQTT v5.0 support sponsored by 1byt3 <customers at 1byt3.com>
+ *
  * By Lakshmi Narayana Madala  <madalanarayana@outlook.com>
  *    Stig Bjorlykke  <stig@bjorlykke.org>
  *
