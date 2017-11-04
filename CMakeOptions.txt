@@ -46,25 +46,24 @@ option(ENABLE_QT5        "Use Qt5 instead of Qt4 to build wireshark" ON)
 option(ENABLE_PCAP       "Enable libpcap support (required for capturing)" ON)
 option(WANT_PACKET_EDITOR	"Enable packet editor (experimental)" ON)
 #
-# Do not make this the default on UN*X; AirPcap support is available
-# only on Windows.  It might be nice to have it, on Windows, check
-# whether the AirPcap SDK is available, and turn AirPcap support on
+# AirPcap support is available only on Windows.  It might be nice to have it
+# check whether the AirPcap SDK is available, and turn AirPcap support on
 # only if it is.
 #
 if(WIN32)
 	option(ENABLE_AIRPCAP    "Enable AirPcap support" ON)
-else()
-	option(ENABLE_AIRPCAP    "Enable AirPcap support" OFF)
 endif()
-# todo
-option(ENABLE_STATIC     "Build a static version of Wireshark (not yet working)" OFF)
-option(ENABLE_PLUGINS    "Build with plugins" ON)
-option(ENABLE_PLUGIN_IFDEMO    "Build with plugin interface demo" OFF)
-option(ENABLE_EXTCAP     "Build with extcap hooks" ON)
+# XXX Static build not working
+option(ENABLE_STATIC            "Build a static version of Wireshark (not yet working)" OFF)
+option(ENABLE_PLUGINS           "Build with plugins" ON)
+option(ENABLE_PLUGIN_IFDEMO     "Build with plugin interface demo" OFF)
+option(ENABLE_EXTCAP            "Build with extcap hooks" ON)
 option(ENABLE_HTML_GUIDES       "Build HTML User & Developer Guides" OFF)
 option(ENABLE_PDF_GUIDES        "Build PDF User & Developer Guides" OFF)
-option(ENABLE_CHM_GUIDES        "Build HTML Help User & Developer Guides" OFF)
-option(ENABLE_PCAP_NG_DEFAULT	"Enable pcap-ng as default file format" ON)
+if(WIN32)
+	option(ENABLE_CHM_GUIDES        "Build HTML Help User & Developer Guides" OFF)
+endif()
+option(ENABLE_PCAP_NG_DEFAULT   "Enable pcap-ng as default file format" ON)
 
 option(ENABLE_PORTAUDIO  "Build with PortAudio support" ON)
 option(ENABLE_ZLIB       "Build with zlib compression support" ON)
@@ -77,20 +76,16 @@ option(ENABLE_GNUTLS     "Build with GNU TLS support" ON)
 option(ENABLE_GEOIP      "Build with GeoIP support" ON)
 if(WIN32)
 	option(ENABLE_WINSPARKLE "Enable WinSparkle support" ON)
-else()
-	option(ENABLE_WINSPARKLE "Enable WinSparkle support" OFF)
 endif()
 option(ENABLE_CAP        "Build with Posix capabilities support" ON)
 option(ENABLE_CARES      "Build with c-ares support" ON)
-#
-# Libnl is Linux-specific.
-#
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-	option(ENABLE_NETLINK    "Build with libnl support" ON)
-else()
-	option(ENABLE_NETLINK    "Build with libnl support" OFF)
+if(UNIX)
+	# Libnl is Linux-specific.
+	if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+		set(_enable_libnl ON)
+	endif()
+	option(ENABLE_NETLINK    "Build with libnl support" ${_enable_libnl})
 endif()
-# todo Mostly hardcoded
 option(ENABLE_KERBEROS   "Build with Kerberos support" ON)
 option(ENABLE_SBC        "Build with SBC Codec support in RTP Player" ON)
 option(ENABLE_SPANDSP    "Build with G.722/G.726 codecs support in RTP Player" ON)
@@ -102,6 +97,4 @@ set(DUMPCAP_INST_VALS "normal" "suid" "capabilities")
 set_property(CACHE DUMPCAP_INSTALL_OPTION PROPERTY STRINGS ${DUMPCAP_INST_VALS})
 if(APPLE)
 	option(ENABLE_APPLICATION_BUNDLE "Build a macOS application bundle (Wireshark.app)" ON)
-else()
-	option(ENABLE_APPLICATION_BUNDLE "Build a macOS application bundle (Wireshark.app)" OFF)
 endif()
