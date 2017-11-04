@@ -224,7 +224,6 @@ static int hf_tcp_option_rvbd_probe_version1 = -1;
 static int hf_tcp_option_rvbd_probe_version2 = -1;
 static int hf_tcp_option_rvbd_probe_type1 = -1;
 static int hf_tcp_option_rvbd_probe_type2 = -1;
-static int hf_tcp_option_rvbd_probe_optlen = -1;
 static int hf_tcp_option_rvbd_probe_prober = -1;
 static int hf_tcp_option_rvbd_probe_proxy = -1;
 static int hf_tcp_option_rvbd_probe_client = -1;
@@ -5075,8 +5074,6 @@ dissect_tcpopt_rvbd_probe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                         offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_tcp_option_len, tvb,
                         offset + PROBE_OPTLEN_OFFSET, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_optlen, tvb,
-                        offset + PROBE_OPTLEN_OFFSET, 1, ENC_BIG_ENDIAN);
 
     if (ver == PROBE_VERSION_1) {
         guint16 port;
@@ -5304,8 +5301,6 @@ dissect_tcpopt_rvbd_trpy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                         offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_tcp_option_len, tvb,
                         offset + PROBE_OPTLEN_OFFSET, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_optlen, tvb,
-                        offset + PROBE_OPTLEN_OFFSET, 1, ENC_BIG_ENDIAN);
 
     flags = tvb_get_ntohs(tvb, offset + TRPY_OPTIONS_OFFSET);
     proto_tree_add_bitmask_with_flags(field_tree, tvb, offset + TRPY_OPTIONS_OFFSET, hf_tcp_option_rvbd_trpy_flags,
@@ -5325,7 +5320,7 @@ dissect_tcpopt_rvbd_trpy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     proto_tree_add_item(field_tree, hf_tcp_option_rvbd_trpy_dst_port,
                         tvb, offset + TRPY_DST_PORT_OFFSET, 2, ENC_BIG_ENDIAN);
 
-    proto_item_append_text(pitem, "%s:%u -> %s:%u",
+    proto_item_append_text(pitem, " %s:%u -> %s:%u",
                            tvb_ip_to_str(tvb, offset + TRPY_SRC_ADDR_OFFSET), sport,
                            tvb_ip_to_str(tvb, offset + TRPY_DST_ADDR_OFFSET), dport);
 
@@ -7059,10 +7054,6 @@ proto_register_tcp(void)
         { &hf_tcp_option_rvbd_probe_version2,
           { "Version", "tcp.options.rvbd.probe.version_raw",
             FT_UINT8, BASE_DEC, NULL, 0x01, "Version 2 Raw Value", HFILL }},
-
-        { &hf_tcp_option_rvbd_probe_optlen,
-          { "Length", "tcp.options.rvbd.probe.len",
-            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_tcp_option_rvbd_probe_prober,
           { "CSH IP", "tcp.options.rvbd.probe.prober",
