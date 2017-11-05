@@ -291,7 +291,7 @@ WS_DLL_PUBLIC char *get_hostlist_filter(hostlist_talker_t *host);
  * @param ts timestamp
  * @param abs_ts absolute timestamp
  * @param ct_info callback handlers from the dissector
- * @param eptype the port type (e.g. PT_TCP)
+ * @param etype the port type (e.g. PT_TCP)
  */
 WS_DLL_PUBLIC void add_conversation_table_data(conv_hash_t *ch, const address *src, const address *dst,
     guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, nstime_t *ts, nstime_t *abs_ts,
@@ -311,7 +311,7 @@ WS_DLL_PUBLIC void add_conversation_table_data(conv_hash_t *ch, const address *s
  * @param ts timestamp
  * @param abs_ts absolute timestamp
  * @param ct_info callback handlers from the dissector
- * @param eptype the port type (e.g. PT_TCP)
+ * @param etype the port type (e.g. PT_TCP)
  * @param conv_id a value to help differentiate the conversation in case the address and port quadruple is not sufficiently unique
  */
 WS_DLL_PUBLIC void
@@ -328,7 +328,7 @@ add_conversation_table_data_with_conv_id(conv_hash_t *ch, const address *src, co
  * @param num_frames number of packets
  * @param num_bytes number of bytes
  * @param host_info conversation information provided by dissector
- * @param eport the port type (e.g. PT_TCP)
+ * @param etype the port type (e.g. PT_TCP)
  */
 WS_DLL_PUBLIC void add_hostlist_table_data(conv_hash_t *ch, const address *addr,
     guint32 port, gboolean sender, int num_frames, int num_bytes, hostlist_dissector_info_t *host_info, endpoint_type etype);
