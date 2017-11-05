@@ -422,7 +422,7 @@ EPAN_EXTRA_LIBS = \
 	@KRB5_LIBS@			\
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\
-	@LIBSMI_LDFLAGS@
+	@LIBSMI_LIBS@
 
 # Libraries and plugin flags with which to link wireshark.
 #
