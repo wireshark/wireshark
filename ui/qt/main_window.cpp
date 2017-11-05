@@ -179,30 +179,63 @@ static void plugin_if_mainwindow_get_ws_info(gconstpointer user_data)
 
     ws_info->ws_info_supported = true;
 
-    if (cf) {
-        ws_info->cf_state = cf->state;
-        ws_info->cf_count = cf->count;
-
+    /* If we have a filename attached to ws_info clear it */
+    if (ws_info->cf_filename != NULL)
+    {
         g_free(ws_info->cf_filename);
-        ws_info->cf_filename = g_strdup(cf->filename);
+        ws_info->cf_filename = NULL;
+    }
+
+    /* Determine the true state of the capture file.  We return the true state in
+    the ws_info structure and DON'T CHANGE the cf->state as we don't want to cause problems
+    with code that follows this. */
+    if (cf)
+    {
+        if (cf->filename)
+        {
+            /* As we have a cf->filename we'll use the name and the state */
+            ws_info->cf_filename = g_strdup(cf->filename);
+            ws_info->cf_state = cf->state;
+        }
+        else
+        {
+            /* When we come through here the cf->state can show FILE_READ_DONE even though the
+            file is actually closed (no filename). A better fix would be to have a
+            FILE_CLOSE_PENDING state but that involves a lot of code change elsewhere. */
+            ws_info->cf_state = FILE_CLOSED;
+        }
+    }
+
+    if (!ws_info->cf_filename)
+    {
+        /* We may have a filename associated with the main window so let's use it */
+        QString fileNameString = gbl_cur_main_window_->getMwFileName();
+        if (fileNameString.length())
+        {
+            QByteArray ba = fileNameString.toLatin1();
+            const char *c_file_name = ba.data();
+            ws_info->cf_filename = g_strdup(c_file_name);
+        }
+    }
+
+    if (cf) {
+        ws_info->cf_count = cf->count;
 
         if (cf->state == FILE_READ_DONE && cf->current_frame) {
             ws_info->cf_framenr = cf->current_frame->num;
             ws_info->frame_passed_dfilter = (cf->current_frame->flags.passed_dfilter == 1);
-        } else {
+        }
+        else {
             ws_info->cf_framenr = 0;
             ws_info->frame_passed_dfilter = FALSE;
         }
-    } else if (ws_info->cf_state != FILE_CLOSED) {
-        /* Initialise the ws_info structure */
+    }
+    else
+    {
+        /* Initialise the other ws_info structure values */
         ws_info->cf_count = 0;
-
-        g_free(ws_info->cf_filename);
-        ws_info->cf_filename = NULL;
-
         ws_info->cf_framenr = 0;
         ws_info->frame_passed_dfilter = FALSE;
-        ws_info->cf_state = FILE_CLOSED;
     }
 }
 
@@ -1890,6 +1923,9 @@ bool MainWindow::testCaptureFileClose(QString before_what, FileCloseContext cont
             return true;
         }
 #endif
+        /* Clear MainWindow file name details */
+        gbl_cur_main_window_->setMwFileName("");
+
         /* captureStop() will close the file if not having any packets */
         if (capture_file_.capFile() && context != Restart && context != Reload)
             // Don't really close if Restart or Reload
@@ -2827,6 +2863,17 @@ void MainWindow::removeAdditionalToolbar(QString toolbarName)
         }
     }
 
+}
+
+QString MainWindow::getMwFileName()
+{
+    return mwFileName_;
+}
+
+void MainWindow::setMwFileName(QString fileName)
+{
+    mwFileName_ = fileName;
+    return;
 }
 
 

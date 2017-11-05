@@ -109,6 +109,9 @@ public:
     void addInterfaceToolbar(const iface_toolbar *toolbar_entry);
     void removeInterfaceToolbar(const gchar *menu_title);
 
+    QString getMwFileName();
+    void setMwFileName(QString fileName);
+
 protected:
     virtual bool eventFilter(QObject *obj, QEvent *event);
     virtual void keyPressEvent(QKeyEvent *event);
@@ -172,6 +175,10 @@ private:
     QMap<QAction *, ts_precision> tp_actions;
     DragDropToolBar *filter_expression_toolbar_;
     bool was_maximized_;
+
+    /* the following values are maintained so that the capture file name and status
+    is available when there is no cf structure available */
+    QString mwFileName_;
 
     bool capture_stopping_;
     bool capture_filter_valid_;

@@ -242,6 +242,9 @@ bool MainWindow::openCaptureFile(QString cf_path, QString read_filter, unsigned 
             }
         }
 
+        /* Make the file name available via MainWindow */
+        setMwFileName(cf_path);
+
         /* Try to open the capture file. This closes the current file if it succeeds. */
         CaptureFile::globalCapFile()->window = this;
         if (cf_open(CaptureFile::globalCapFile(), cf_path.toUtf8().constData(), type, is_tempfile, &err) != CF_OK) {
