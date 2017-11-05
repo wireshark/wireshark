@@ -615,11 +615,11 @@
     </message>
     <message>
         <source>Byte %1</source>
-        <translation>Byte %1</translation>
+        <translation type="vanished">Byte %1</translation>
     </message>
     <message>
         <source>Bytes %1-%2</source>
-        <translation>Byte %1-%2</translation>
+        <translation type="vanished">Byte %1-%2</translation>
     </message>
 </context>
 <context>
@@ -1364,11 +1364,11 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Set the display filter using this rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>Imposta il filtro di visualizzazione utilizzando questa regola.</translation>
     </message>
     <message>
         <source>Apply as filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Applica come filtro</translation>
     </message>
     <message>
         <source>Coloring Rules</source>
@@ -7085,6 +7085,14 @@ a:hover {
         <translation>Unisci i file</translation>
     </message>
     <message>
+        <source>Byte %1</source>
+        <translation type="unfinished">Byte %1</translation>
+    </message>
+    <message>
+        <source>Bytes %1-%2</source>
+        <translation type="unfinished">Byte %1-%2</translation>
+    </message>
+    <message>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>Chiavi di sessione SSL (*.keys *.txt);;Any File (</translation>
     </message>
@@ -7563,6 +7571,14 @@ a:hover {
     <message>
         <source>[%1 closed] </source>
         <translation> [%1 chiuso]</translation>
+    </message>
+    <message>
+        <source>Byte %1</source>
+        <translation type="unfinished">Byte %1</translation>
+    </message>
+    <message>
+        <source>Bytes %1-%2</source>
+        <translation type="unfinished">Byte %1-%2</translation>
     </message>
 </context>
 <context>

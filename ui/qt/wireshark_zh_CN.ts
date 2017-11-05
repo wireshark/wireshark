@@ -615,11 +615,11 @@
     </message>
     <message>
         <source>Byte %1</source>
-        <translation>字节 %1</translation>
+        <translation type="vanished">字节 %1</translation>
     </message>
     <message>
         <source>Bytes %1-%2</source>
-        <translation>字节 %1-%2</translation>
+        <translation type="vanished">字节 %1-%2</translation>
     </message>
 </context>
 <context>
@@ -7068,6 +7068,14 @@ text-decoration: underline;
         <translation>合并文件</translation>
     </message>
     <message>
+        <source>Byte %1</source>
+        <translation type="unfinished">字节 %1</translation>
+    </message>
+    <message>
+        <source>Bytes %1-%2</source>
+        <translation type="unfinished">字节 %1-%2</translation>
+    </message>
+    <message>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>SSL 会话密钥 (*.keys *.txt);;所有文件 (</translation>
     </message>
@@ -7546,6 +7554,14 @@ text-decoration: underline;
     <message>
         <source>[%1 closed] </source>
         <translation>[%1 已关闭] </translation>
+    </message>
+    <message>
+        <source>Byte %1</source>
+        <translation type="unfinished">字节 %1</translation>
+    </message>
+    <message>
+        <source>Bytes %1-%2</source>
+        <translation type="unfinished">字节 %1-%2</translation>
     </message>
 </context>
 <context>

@@ -615,11 +615,11 @@
     </message>
     <message>
         <source>Byte %1</source>
-        <translation>Bytes %1</translation>
+        <translation type="vanished">Bytes %1</translation>
     </message>
     <message>
         <source>Bytes %1-%2</source>
-        <translation>Bytes %1-%2</translation>
+        <translation type="vanished">Bytes %1-%2</translation>
     </message>
 </context>
 <context>
@@ -1364,11 +1364,11 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Set the display filter using this rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>Anzeigefilter nach dieser Regel setzen.</translation>
     </message>
     <message>
         <source>Apply as filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Als Filter anwenden</translation>
     </message>
     <message>
         <source>Coloring Rules</source>
@@ -7086,6 +7086,14 @@ text-decoration: underline;
         <translation>Dateien zusammenfügen</translation>
     </message>
     <message>
+        <source>Byte %1</source>
+        <translation type="unfinished">Bytes %1</translation>
+    </message>
+    <message>
+        <source>Bytes %1-%2</source>
+        <translation type="unfinished">Bytes %1-%2</translation>
+    </message>
+    <message>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>SSL Sitzungsschlüssel (*.keys *.txt);; Alle Dateien (</translation>
     </message>
@@ -7564,6 +7572,14 @@ text-decoration: underline;
     <message>
         <source>[%1 closed] </source>
         <translation>[%1 geschlossen] </translation>
+    </message>
+    <message>
+        <source>Byte %1</source>
+        <translation type="unfinished">Bytes %1</translation>
+    </message>
+    <message>
+        <source>Bytes %1-%2</source>
+        <translation type="unfinished">Bytes %1-%2</translation>
     </message>
 </context>
 <context>

@@ -615,11 +615,11 @@
     </message>
     <message>
         <source>Byte %1</source>
-        <translation>Octets %1</translation>
+        <translation type="vanished">Octets %1</translation>
     </message>
     <message>
         <source>Bytes %1-%2</source>
-        <translation>Octets %1-%2</translation>
+        <translation type="vanished">Octets %1-%2</translation>
     </message>
 </context>
 <context>
@@ -7055,6 +7055,14 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Byte %1</source>
+        <translation type="unfinished">Octets %1</translation>
+    </message>
+    <message>
+        <source>Bytes %1-%2</source>
+        <translation type="unfinished">Octets %1-%2</translation>
+    </message>
+    <message>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7535,6 +7543,14 @@ a:hover {
     <message>
         <source>[%1 closed] </source>
         <translation>[%1 fermé]</translation>
+    </message>
+    <message>
+        <source>Byte %1</source>
+        <translation type="unfinished">Octets %1</translation>
+    </message>
+    <message>
+        <source>Bytes %1-%2</source>
+        <translation type="unfinished">Octets %1-%2</translation>
     </message>
 </context>
 <context>

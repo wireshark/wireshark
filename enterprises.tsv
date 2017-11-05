@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2017-10-28)
+# (last updated 2017-11-03)
 
 0	Reserved
 1	NxNetworks
@@ -6286,7 +6286,7 @@
 6299	SUNY Cortland
 6300	Karl Miller
 6301	Packet Dynamics Ltd
-6302	Emerson Energy Systems
+6302	Vertiv	# formerly 'Emerson Energy Systems'
 6303	Cityspace Ltd
 6304	fogcity
 6305	Flextronics International
@@ -49647,7 +49647,7 @@
 49827	Digital imaging
 49828	City of York Council
 49829	VTTEK - Viettel Group
-49830	eDoc Group
+49830	eDoc Group - Tiers de Confiance
 49831	Expression Networks LLC
 49832	Nero Blanco IT Ltd
 49833	Sierra View Medical Center
@@ -49914,8 +49914,6 @@
 50094	SEC 1.01 AG
 50095	Private-Network.com, Inc.
 50096	Scoop Publishing Limited
-50097	SCA Östrand
-50098	SCA Graphic Sundsvall Aktiebolag
 50099	PRZEDSIĘBIORSTWO WIELOBRANŻOWE DMS BOGDAN DARZECKI MAREK MAŚLANKA S.C.
 50100	energy & meteo systems GmbH
 50101	NEOCHROM, ltd
@@ -50730,3 +50728,40 @@
 50910	Trusted Shops GmbH
 50911	NSS TECHNOLOGY LIMITED
 50912	Multipart Labs
+50913	Ponte Technologies Ltd
+50914	Cyberstack Limited
+50915	Lacroix Traffic
+50916	IMDEA Software
+50917	Berufsförderungswerk Leipzig gGmbH
+50918	KBR GmbH
+50919	KONICA MINOLTA, INC.
+50920	Harold Masenya
+50921	DPS Electronics, Inc.
+50922	bdcj
+50923	DHBW Heilbronn
+50924	NthPermutation Security
+50925	Advance Financial
+50926	Farmers Bank & Trust Co.
+50927	Tapestry Solutions, Inc.
+50928	Ambu A/S
+50929	AS Globitex Holding
+50930	ZhenSen Optical Communication
+50931	Onlearn-tech kft
+50932	Sensio AS
+50933	Szkoła Podstawowa im. Kornela Makuszyńskiego w Giewartowie
+50934	Erre Elle Net s.r.l.
+50935	Oneida Health System
+50936	TV2 Consulting
+50937	Epic Networks S.r.l.
+50938	Apprenda Inc
+50939	Magic Leap, Inc
+50940	SMARTNES S.r.l.s.
+50941	Nocsys
+50942	Tubbesing Services
+50943	BelWü-Koordination
+50944	Deutsche Telekom AG Innovation Laboratories
+50945	Lamb Weston Belaya Dacha
+50946	Restaurant Brands International
+50947	Shanghai Gotell Communication Technology Holdings Co., Ltd.
+50948	BlockArray
+50949	Varner Retail AS

@@ -615,11 +615,11 @@
     </message>
     <message>
         <source>Byte %1</source>
-        <translation>バイト %1</translation>
+        <translation type="vanished">バイト %1</translation>
     </message>
     <message>
         <source>Bytes %1-%2</source>
-        <translation>バイト %1-%2</translation>
+        <translation type="vanished">バイト %1-%2</translation>
     </message>
 </context>
 <context>
@@ -7041,6 +7041,14 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Byte %1</source>
+        <translation type="unfinished">バイト %1</translation>
+    </message>
+    <message>
+        <source>Bytes %1-%2</source>
+        <translation type="unfinished">バイト %1-%2</translation>
+    </message>
+    <message>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>SSLセッション鍵 (*.keys *.txt);;すべてのファイル (</translation>
     </message>
@@ -7519,6 +7527,14 @@ a:hover {
     <message>
         <source>[%1 closed] </source>
         <translation>[%1 を綴じました] </translation>
+    </message>
+    <message>
+        <source>Byte %1</source>
+        <translation type="unfinished">バイト %1</translation>
+    </message>
+    <message>
+        <source>Bytes %1-%2</source>
+        <translation type="unfinished">バイト %1-%2</translation>
     </message>
 </context>
 <context>

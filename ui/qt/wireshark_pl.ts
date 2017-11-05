@@ -615,11 +615,11 @@
     </message>
     <message>
         <source>Byte %1</source>
-        <translation>Bajt %1</translation>
+        <translation type="vanished">Bajt %1</translation>
     </message>
     <message>
         <source>Bytes %1-%2</source>
-        <translation>Bajty %1-%2</translation>
+        <translation type="vanished">Bajty %1-%2</translation>
     </message>
 </context>
 <context>
@@ -7088,6 +7088,14 @@ text-decoration: underline;
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Byte %1</source>
+        <translation type="unfinished">Bajt %1</translation>
+    </message>
+    <message>
+        <source>Bytes %1-%2</source>
+        <translation type="unfinished">Bajty %1-%2</translation>
+    </message>
+    <message>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>Klucze sesji SSL (*.keys *.txt);; Dowolny plik (</translation>
     </message>
@@ -7566,6 +7574,14 @@ text-decoration: underline;
     <message>
         <source>[%1 closed] </source>
         <translation>[%1 zamknięty]</translation>
+    </message>
+    <message>
+        <source>Byte %1</source>
+        <translation type="unfinished">Bajt %1</translation>
+    </message>
+    <message>
+        <source>Bytes %1-%2</source>
+        <translation type="unfinished">Bajty %1-%2</translation>
     </message>
 </context>
 <context>

@@ -613,14 +613,6 @@
         <source>Show bytes as hexadecimal</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Byte %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Bytes %1-%2</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>CaptureFile</name>
@@ -6996,6 +6988,14 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Byte %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bytes %1-%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7473,6 +7473,14 @@ a:hover {
     </message>
     <message>
         <source>[%1 closed] </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Byte %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bytes %1-%2</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
