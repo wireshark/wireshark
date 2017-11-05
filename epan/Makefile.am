@@ -44,7 +44,6 @@ LIBWIRESHARK_SRC = \
 	afn.c			\
 	aftypes.c		\
 	app_mem_usage.c		\
-	asm_utils.c		\
 	asn1.c			\
 	capture_dissectors.c	\
 	charsets.c		\
@@ -285,7 +284,6 @@ LIBWIRESHARK_INCLUDES_PUBLIC = \
 	xdlc.h
 
 LIBWIRESHARK_INCLUDES_PRIVATE = \
-	asm_utils.h		\
 	epan-int.h		\
 	to_str-int.h
 
@@ -362,7 +360,6 @@ libwireshark_generated_la_CFLAGS = $(GENERATED_CFLAGS)
 
 EXTRA_DIST = \
 	.editorconfig		\
-	asm_utils_win32_x86.asm	\
 	diam_dict.l		\
 	dtd_grammar.lemon	\
 	dtd_parse.l		\

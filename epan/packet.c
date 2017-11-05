@@ -49,7 +49,6 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/range.h>
-#include <epan/asm_utils.h>
 
 #include <wsutil/str_util.h>
 #include <wsutil/ws_printf.h> /* ws_debug_printf */
@@ -215,7 +214,7 @@ packet_init(void)
 	heur_dissector_lists = g_hash_table_new_full(g_str_hash, g_str_equal,
 			NULL, destroy_heuristic_dissector_list);
 
-	heuristic_short_names  = g_hash_table_new(wrs_str_hash, g_str_equal);
+	heuristic_short_names  = g_hash_table_new(g_str_hash, g_str_equal);
 }
 
 void

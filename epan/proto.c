@@ -46,7 +46,6 @@
 #include "tvbuff.h"
 #include "wmem/wmem.h"
 #include "charsets.h"
-#include "asm_utils.h"
 #include "column-utils.h"
 #include "to_str-int.h"
 #include "to_str.h"
@@ -421,6 +420,18 @@ proto_compare_name(gconstpointer p1_arg, gconstpointer p2_arg)
 	return g_ascii_strcasecmp(p1->short_name, p2->short_name);
 }
 
+static inline guchar
+check_charset(const guint8 table[256], const char *str)
+{
+    const char *p = str;
+    guchar c;
+
+    do {
+      c = *(p++);
+    } while (table[c]);
+    return c;
+}
+
 #ifdef HAVE_PLUGINS
 /*
  * List of dissector plugins.
@@ -525,9 +536,9 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 {
 	proto_cleanup_base();
 
-	proto_names        = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, NULL);
-	proto_short_names  = g_hash_table_new(wrs_str_hash, g_str_equal);
-	proto_filter_names = g_hash_table_new(wrs_str_hash, g_str_equal);
+	proto_names        = g_hash_table_new(g_str_hash, g_str_equal);
+	proto_short_names  = g_hash_table_new(g_str_hash, g_str_equal);
+	proto_filter_names = g_hash_table_new(g_str_hash, g_str_equal);
 
 	gpa_hfinfo.len           = 0;
 	gpa_hfinfo.allocated_len = 0;
@@ -6504,8 +6515,6 @@ proto_register_protocol(const char *name, const char *short_name,
 	const protocol_t *existing_protocol = NULL;
 	header_field_info *hfinfo;
 	int proto_id;
-	const char *existing_name;
-	gint *key;
 	guint i;
 	gchar c;
 	gboolean found_invalid;
@@ -6516,26 +6525,14 @@ proto_register_protocol(const char *name, const char *short_name,
 	 * or an inappropriate plugin.
 	 * This situation has to be fixed to not register more than one
 	 * protocol with the same name.
-	 *
-	 * This is done by reducing the number of strcmp (and alike) calls
-	 * as much as possible, as this significally slows down startup time.
-	 *
-	 * Drawback: As a hash value is used to reduce insert time,
-	 * this might lead to a hash collision.
-	 * However, although we have somewhat over 1000 protocols, we're using
-	 * a 32 bit int so this is very, very unlikely.
 	 */
 
-	key  = (gint *)g_malloc (sizeof(gint));
-	*key = wrs_str_hash(name);
-
-	existing_name = (const char *)g_hash_table_lookup(proto_names, key);
-	if (existing_name != NULL) {
+	existing_protocol = (const protocol_t *)g_hash_table_lookup(proto_names, name);
+	if (existing_protocol != NULL) {
 		/* g_error will terminate the program */
 		g_error("Duplicate protocol name \"%s\"!"
 			" This might be caused by an inappropriate plugin or a development error.", name);
 	}
-	g_hash_table_insert(proto_names, key, (gpointer)name);
 
 	existing_protocol = (const protocol_t *)g_hash_table_lookup(proto_short_names, short_name);
 	if (existing_protocol != NULL) {
@@ -6577,6 +6574,7 @@ proto_register_protocol(const char *name, const char *short_name,
 	protocol->heur_list = NULL;
 	/* list will be sorted later by name, when all protocols completed registering */
 	protocols = g_list_prepend(protocols, protocol);
+	g_hash_table_insert(proto_names, (gpointer)name, protocol);
 	g_hash_table_insert(proto_filter_names, (gpointer)filter_name, protocol);
 	g_hash_table_insert(proto_short_names, (gpointer)short_name, protocol);
 
@@ -6674,7 +6672,6 @@ proto_deregister_protocol(const char *short_name)
 	protocol_t *protocol;
 	header_field_info *hfinfo;
 	int proto_id;
-	gint key;
 	guint i;
 
 	proto_id = proto_get_id_by_short_name(short_name);
@@ -6682,9 +6679,7 @@ proto_deregister_protocol(const char *short_name)
 	if (protocol == NULL)
 		return FALSE;
 
-	key = wrs_str_hash(protocol->name);
-	g_hash_table_remove(proto_names, &key);
-
+	g_hash_table_remove(proto_names, protocol->name);
 	g_hash_table_remove(proto_short_names, (gpointer)short_name);
 	g_hash_table_remove(proto_filter_names, (gpointer)protocol->filter_name);
 
@@ -6811,12 +6806,9 @@ proto_get_id(const protocol_t *protocol)
 gboolean
 proto_name_already_registered(const gchar *name)
 {
-	gint key;
-
 	DISSECTOR_ASSERT_HINT(name, "No name present");
 
-	key = wrs_str_hash(name);
-	if (g_hash_table_lookup(proto_names, &key) != NULL)
+	if (g_hash_table_lookup(proto_names, name) != NULL)
 		return TRUE;
 	return FALSE;
 }
@@ -7931,7 +7923,7 @@ proto_register_field_init(header_field_info *hfinfo, const int parent)
 
 		/* Check that the filter name (abbreviation) is legal;
 		 * it must contain only alphanumerics, '-', "_", and ".". */
-		c = wrs_check_charset(fld_abbrev_chars, hfinfo->abbrev);
+		c = check_charset(fld_abbrev_chars, hfinfo->abbrev);
 		if (c) {
 			if (g_ascii_isprint(c))
 				fprintf(stderr, "Invalid character '%c' in filter name '%s'\n", c, hfinfo->abbrev);
@@ -11892,7 +11884,7 @@ proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const guint offset,
 guchar
 proto_check_field_name(const gchar *field_name)
 {
-	return wrs_check_charset(fld_abbrev_chars, field_name);
+	return check_charset(fld_abbrev_chars, field_name);
 }
 
 gboolean

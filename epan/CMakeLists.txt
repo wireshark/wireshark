@@ -41,21 +41,6 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-set(LIBWIRESHARK_ASM_FILES
-	asm_utils.c
-# todo
-#	!IFDEF NASM
-#	asm_utils_win32_x86.obj: asm_utils_win32_x86.asm
-#	        $(NASM) -f $(WIRESHARK_TARGET_PLATFORM) -o $@ $?
-#	!ENDIF
-#	...
-#	!IF defined(NASM) && "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
-#	        asm_utils_win32_x86.obj
-#	!ELSE
-#	        asm_utils.obj
-#	!ENDIF
-)
-
 add_custom_command(
 	OUTPUT ps.c
 	COMMAND ${PYTHON_EXECUTABLE}
@@ -314,7 +299,6 @@ set(epan_LIBS
 
 set(CLEAN_FILES
 	${LIBWIRESHARK_CLEAN_FILES}
-	${LIBWIRESHARK_ASM_FILES}
 )
 
 set_source_files_properties(
@@ -333,7 +317,6 @@ endif()
 add_library(epan ${LINK_MODE_LIB}
 	${LIBWIRESHARK_FILES}
 	${GENERATED_FILES}
-	${LIBWIRESHARK_ASM_FILES}
 	$<TARGET_OBJECTS:crypt>
 	$<TARGET_OBJECTS:dfilter>
 	$<TARGET_OBJECTS:dissectors>

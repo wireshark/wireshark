@@ -117,7 +117,6 @@ $Win64Archives = @{
     "libxml2-2.9.4-win64ws.zip" = "";
     "lua-5.2.4_Win64_dllw4_lib.zip" = "lua5.2.4";
     "lz4-1.7.5-win64ws.zip" = "";
-    "nasm-2.09.08-win32.zip" = "";
     "nghttp2-1.14.0-1-win64ws.zip" = "";
     "portaudio_v19_2.zip" = "";
     "sbc-1.3-1-win64ws.zip" = "";
@@ -142,7 +141,6 @@ $Win32Archives = @{
     "libxml2-2.9.4-win32ws.zip" = "";
     "lua-5.2.4_Win32_dllw4_lib.zip" = "lua5.2.4";
     "lz4-1.7.5-win32ws.zip" = "";
-    "nasm-2.09.08-win32.zip" = "";
     "nghttp2-1.14.0-1-win32ws.zip" = "";
     "portaudio_v19_2.zip" = "";
     "sbc-1.3-1-win32ws.zip" = "";
@@ -195,7 +193,6 @@ $CleanupItems = @(
     "lua5.1.4"
     "lua5.2.?"
     "lz4-*-win??ws"
-    "nasm-2.09.08"
     "nghttp2-*-win??ws"
     "portaudio_v19"
     "portaudio_v19_2"
