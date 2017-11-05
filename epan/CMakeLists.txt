@@ -314,7 +314,6 @@ set(epan_LIBS
 
 set(CLEAN_FILES
 	${LIBWIRESHARK_CLEAN_FILES}
-	${COMPRESS_FILES}
 	${LIBWIRESHARK_ASM_FILES}
 )
 
@@ -334,7 +333,6 @@ endif()
 add_library(epan ${LINK_MODE_LIB}
 	${LIBWIRESHARK_FILES}
 	${GENERATED_FILES}
-	${COMPRESS_FILES}
 	${LIBWIRESHARK_ASM_FILES}
 	$<TARGET_OBJECTS:crypt>
 	$<TARGET_OBJECTS:dfilter>
@@ -397,11 +395,10 @@ add_custom_command(OUTPUT libwireshark.abi.tar.gz
 	COMMAND rm -rf ${ABICHECK_TMPDIR} ${CMAKE_CURRENT_BINARY_DIR}/abi_dumps
 #	COMMAND rm -rf ${CMAKE_CURRENT_BINARY_DIR}/abi_dumps ${ABICHECK_TMPDIR}/config.h
 #		${ABICHECK_TMPDIR}/epan/* ${ABICHECK_TMPDIR}/crypt/*
-#		${ABICHECK_TMPDIR}/epan/* ${ABICHECK_TMPDIR}/compress/*
 #		${ABICHECK_TMPDIR}/dfilter/* ${ABICHECK_TMPDIR}/dissectors/*
 #		${ABICHECK_TMPDIR}/ftypes/* ${ABICHECK_TMPDIR}/wmem/*
 	DEPENDS ${HEADERS}
-		${CRYPT_HEADERS} ${COMPRESS_HEADERS} ${DFILTER_HEADERS} ${D_HEADERS}
+		${CRYPT_HEADERS} ${DFILTER_HEADERS} ${D_HEADERS}
 		${FTYPES_HEADERS} ${WMEM_HEADERS} epan)
 
 # By default the name for a library with target name epan will be libepan,
