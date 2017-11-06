@@ -202,28 +202,36 @@ static const value_string match_criteria[] = {
 };
 
 #define PROP_PAYLOAD_FORMAT_INDICATOR          0x01
+#define PROP_PUBLICATION_EXPIRY_INTERVAL       0x02
+#define PROP_SESSION_EXPIRY_INTERVAL           0x11
 #define PROP_SERVER_KEEP_ALIVE                 0x13
 #define PROP_REQUEST_PROBLEM_INFORMATION       0x17
+#define PROP_WILL_DELAY_INTERVAL               0x18
 #define PROP_REQUEST_RESPONSE_INFORMATION      0x19
 #define PROP_RECEIVE_MAXIMUM                   0x21
 #define PROP_TOPIC_ALIAS_MAXIMUM               0x22
 #define PROP_TOPIC_ALIAS                       0x23
 #define PROP_MAXIMUM_QOS                       0x24
 #define PROP_RETAIN_AVAILABLE                  0x25
+#define PROP_MAXIMUM_PACKET_SIZE               0x27
 #define PROP_WILDCARD_SUBSCRIPTION_AVAILABLE   0x28
 #define PROP_SUBSCRIPTION_IDENTIFIER_AVAILABLE 0x29
 #define PROP_SHARED_SUBSCRIPTION_AVAILABLE     0x2A
 
 static const value_string mqtt_property_vals[] = {
   { PROP_PAYLOAD_FORMAT_INDICATOR,          "Payload Format Indicator" },
+  { PROP_PUBLICATION_EXPIRY_INTERVAL,       "Publication Expiry Interval" },
+  { PROP_SESSION_EXPIRY_INTERVAL,           "Session Expiry Interval" },
   { PROP_SERVER_KEEP_ALIVE,                 "Server Keep Alive" },
   { PROP_REQUEST_PROBLEM_INFORMATION,       "Request Problem Information" },
+  { PROP_WILL_DELAY_INTERVAL,               "Will Delay Interval" },
   { PROP_REQUEST_RESPONSE_INFORMATION,      "Request Response Information" },
   { PROP_RECEIVE_MAXIMUM,                   "Receive Maximum" },
   { PROP_TOPIC_ALIAS_MAXIMUM,               "Topic Alias Maximum" },
   { PROP_TOPIC_ALIAS,                       "Topic Alias" },
   { PROP_MAXIMUM_QOS,                       "Maximum QoS" },
   { PROP_RETAIN_AVAILABLE,                  "Retain Available" },
+  { PROP_MAXIMUM_PACKET_SIZE,               "Maximum Packet Size" },
   { PROP_WILDCARD_SUBSCRIPTION_AVAILABLE,   "Wildcard Subscription Available" },
   { PROP_SUBSCRIPTION_IDENTIFIER_AVAILABLE, "Subscription Identifier Available" },
   { PROP_SHARED_SUBSCRIPTION_AVAILABLE,     "Shared Subscription Available" },
@@ -472,6 +480,13 @@ static guint32 dissect_mqtt_properties(tvbuff_t *tvb, proto_tree *mqtt_tree, gui
       case PROP_TOPIC_ALIAS:
         proto_tree_add_item(mqtt_prop_tree, hf_mqtt_prop_num, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
+        break;
+      case PROP_PUBLICATION_EXPIRY_INTERVAL:
+      case PROP_SESSION_EXPIRY_INTERVAL:
+      case PROP_WILL_DELAY_INTERVAL:
+      case PROP_MAXIMUM_PACKET_SIZE:
+        proto_tree_add_item(mqtt_prop_tree, hf_mqtt_prop_num, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
         break;
       default:
         proto_tree_add_item(mqtt_prop_tree, hf_mqtt_prop_unknown, tvb, offset, bytes_to_read - offset, ENC_UTF_8|ENC_NA);
