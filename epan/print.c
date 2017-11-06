@@ -1379,7 +1379,7 @@ ek_write_attr(GSList *attr_instances, write_json_data *pdata)
     field_info *fi       = PNODE_FINFO(pnode);
 
     // Hex dump -x
-    if (pdata->print_hex && fi->length > 0 && fi->hfinfo->id != hf_text_only) {
+    if (pdata->print_hex && fi && fi->length > 0 && fi->hfinfo->id != hf_text_only) {
         ek_write_attr_hex(attr_instances, pdata);
 
         fputs("\",", pdata->fh);
