@@ -210,12 +210,21 @@ static const value_string match_criteria[] = {
 
 #define PROP_PAYLOAD_FORMAT_INDICATOR          0x01
 #define PROP_PUBLICATION_EXPIRY_INTERVAL       0x02
+#define PROP_CONTENT_TYPE                      0x03
+#define PROP_RESPONSE_TOPIC                    0x08
+#define PROP_CORRELATION_DATA                  0x09
 #define PROP_SUBSCRIPTION_IDENTIFIER           0x0B
 #define PROP_SESSION_EXPIRY_INTERVAL           0x11
+#define PROP_ASSIGNED_CLIENT_IDENTIFIER        0x12
 #define PROP_SERVER_KEEP_ALIVE                 0x13
+#define PROP_AUTH_METHOD                       0x15
+#define PROP_AUTH_DATA                         0x16
 #define PROP_REQUEST_PROBLEM_INFORMATION       0x17
 #define PROP_WILL_DELAY_INTERVAL               0x18
 #define PROP_REQUEST_RESPONSE_INFORMATION      0x19
+#define PROP_RESPONSE_INFORMATION              0x1A
+#define PROP_SERVER_REFERENCE                  0x1C
+#define PROP_REASON_STRING                     0x1F
 #define PROP_RECEIVE_MAXIMUM                   0x21
 #define PROP_TOPIC_ALIAS_MAXIMUM               0x22
 #define PROP_TOPIC_ALIAS                       0x23
@@ -229,12 +238,21 @@ static const value_string match_criteria[] = {
 static const value_string mqtt_property_vals[] = {
   { PROP_PAYLOAD_FORMAT_INDICATOR,          "Payload Format Indicator" },
   { PROP_PUBLICATION_EXPIRY_INTERVAL,       "Publication Expiry Interval" },
+  { PROP_CONTENT_TYPE,                      "Content Type" },
+  { PROP_RESPONSE_TOPIC,                    "Response Topic" },
+  { PROP_CORRELATION_DATA,                  "Correlation Data" },
   { PROP_SUBSCRIPTION_IDENTIFIER,           "Subscription Identifier" },
   { PROP_SESSION_EXPIRY_INTERVAL,           "Session Expiry Interval" },
+  { PROP_ASSIGNED_CLIENT_IDENTIFIER,        "Assigned Client Identifier" },
   { PROP_SERVER_KEEP_ALIVE,                 "Server Keep Alive" },
+  { PROP_AUTH_METHOD,                       "Authentication Method" },
+  { PROP_AUTH_DATA,                         "Authentication Data" },
   { PROP_REQUEST_PROBLEM_INFORMATION,       "Request Problem Information" },
   { PROP_WILL_DELAY_INTERVAL,               "Will Delay Interval" },
   { PROP_REQUEST_RESPONSE_INFORMATION,      "Request Response Information" },
+  { PROP_RESPONSE_INFORMATION,              "Response Information" },
+  { PROP_SERVER_REFERENCE,                  "Server Reference" },
+  { PROP_REASON_STRING,                     "Reason String" },
   { PROP_RECEIVE_MAXIMUM,                   "Receive Maximum" },
   { PROP_TOPIC_ALIAS_MAXIMUM,               "Topic Alias Maximum" },
   { PROP_TOPIC_ALIAS,                       "Topic Alias" },
@@ -315,6 +333,8 @@ static int hf_mqtt_property_id = -1;
 static int hf_mqtt_prop_num = -1;
 static int hf_mqtt_prop_max_qos = -1;
 static int hf_mqtt_prop_unknown = -1;
+static int hf_mqtt_prop_string_len = -1;
+static int hf_mqtt_prop_string = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_mqtt_hdr = -1;
@@ -451,6 +471,17 @@ static void mqtt_user_decode_message(proto_tree *tree, proto_tree *mqtt_tree, pa
   }
 }
 
+static guint32 dissect_string(tvbuff_t *tvb, proto_tree *tree, guint32 offset, int hf_len, int hf_value)
+{
+  guint16 prop_len;
+
+  prop_len = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+  proto_tree_add_uint(tree, hf_len, tvb, offset, 2, prop_len);
+  proto_tree_add_item(tree, hf_value, tvb, offset + 2, prop_len, ENC_UTF_8|ENC_NA);
+
+  return 2 + prop_len;
+}
+
 /* MQTT v5.0: dissect the MQTT properties */
 static guint32 dissect_mqtt_properties(tvbuff_t *tvb, proto_tree *mqtt_tree, guint32 offset)
 {
@@ -513,6 +544,17 @@ static guint32 dissect_mqtt_properties(tvbuff_t *tvb, proto_tree *mqtt_tree, gui
         offset += vbi_offset;
         break;
       }
+      case PROP_CONTENT_TYPE:
+      case PROP_RESPONSE_TOPIC:
+      case PROP_CORRELATION_DATA:
+      case PROP_ASSIGNED_CLIENT_IDENTIFIER:
+      case PROP_AUTH_METHOD:
+      case PROP_AUTH_DATA:
+      case PROP_RESPONSE_INFORMATION:
+      case PROP_SERVER_REFERENCE:
+      case PROP_REASON_STRING:
+        offset += dissect_string(tvb, mqtt_prop_tree, offset, hf_mqtt_prop_string_len, hf_mqtt_prop_string);
+        break;
       default:
         proto_tree_add_item(mqtt_prop_tree, hf_mqtt_prop_unknown, tvb, offset, bytes_to_read - offset, ENC_UTF_8|ENC_NA);
         offset += (bytes_to_read - offset);
@@ -1164,6 +1206,14 @@ void proto_register_mqtt(void)
         NULL, HFILL }},
     { &hf_mqtt_prop_unknown,
       { "Unknown Property", "mqtt.prop_unknown",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mqtt_prop_string_len,
+      { "Length", "mqtt.prop_string_len",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mqtt_prop_string,
+      { "Value", "mqtt.prop_string",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
   };
