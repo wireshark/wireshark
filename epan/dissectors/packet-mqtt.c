@@ -203,6 +203,7 @@ static const value_string match_criteria[] = {
 
 #define PROP_PAYLOAD_FORMAT_INDICATOR          0x01
 #define PROP_PUBLICATION_EXPIRY_INTERVAL       0x02
+#define PROP_SUBSCRIPTION_IDENTIFIER           0x0B
 #define PROP_SESSION_EXPIRY_INTERVAL           0x11
 #define PROP_SERVER_KEEP_ALIVE                 0x13
 #define PROP_REQUEST_PROBLEM_INFORMATION       0x17
@@ -221,6 +222,7 @@ static const value_string match_criteria[] = {
 static const value_string mqtt_property_vals[] = {
   { PROP_PAYLOAD_FORMAT_INDICATOR,          "Payload Format Indicator" },
   { PROP_PUBLICATION_EXPIRY_INTERVAL,       "Publication Expiry Interval" },
+  { PROP_SUBSCRIPTION_IDENTIFIER,           "Subscription Identifier" },
   { PROP_SESSION_EXPIRY_INTERVAL,           "Session Expiry Interval" },
   { PROP_SERVER_KEEP_ALIVE,                 "Server Keep Alive" },
   { PROP_REQUEST_PROBLEM_INFORMATION,       "Request Problem Information" },
@@ -489,6 +491,13 @@ static guint32 dissect_mqtt_properties(tvbuff_t *tvb, proto_tree *mqtt_tree, gui
         proto_tree_add_item(mqtt_prop_tree, hf_mqtt_prop_num, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         break;
+      case PROP_SUBSCRIPTION_IDENTIFIER:
+      {
+        guint8 vbi_offset = dissect_uleb128(tvb, offset, &vbi);
+        proto_tree_add_uint64(mqtt_prop_tree, hf_mqtt_prop_num, tvb, offset, vbi_offset, vbi);
+        offset += vbi_offset;
+        break;
+      }
       default:
         proto_tree_add_item(mqtt_prop_tree, hf_mqtt_prop_unknown, tvb, offset, bytes_to_read - offset, ENC_UTF_8|ENC_NA);
         offset += (bytes_to_read - offset);
