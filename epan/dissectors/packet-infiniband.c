@@ -3457,13 +3457,15 @@ static void parse_CM_Req(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb
     if (ip_cm_sid) {
         /* decode IP CM service specific private data */
         parse_IP_CM_Req_Msg(CM_header_tree, tvb, local_offset);
+        /* ip_cm.req is 36 in length */
+        next_tvb = tvb_new_subset_length(tvb, local_offset+36, 56);
     } else {
         /* Add the undecoded private data anyway as RDMA CM private data */
         proto_tree_add_item(CM_header_tree, hf_cm_req_private_data, tvb, local_offset, 92, ENC_NA);
+        next_tvb = tvb_new_subset_length(tvb, local_offset, 92);
     }
 
     /* give a chance for subdissectors to analyze the private data */
-    next_tvb = tvb_new_subset_length(tvb, local_offset, 92);
     dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, top_tree, &hdtbl_entry, info);
 
     local_offset += 92;
