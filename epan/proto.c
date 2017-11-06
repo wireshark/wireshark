@@ -7335,7 +7335,7 @@ static const value_string hf_display[] = {
 	{ BASE_PT_TCP,			  "BASE_PT_TCP"			   },
 	{ BASE_PT_DCCP,			  "BASE_PT_DCCP"		   },
 	{ BASE_PT_SCTP,			  "BASE_PT_SCTP"		   },
-	{ BASE_OUI,				  "BASE_OUI"		   },
+	{ BASE_OUI,			  "BASE_OUI"			   },
 	{ 0,				  NULL } };
 
 const char* proto_field_display_to_string(int field_display)
