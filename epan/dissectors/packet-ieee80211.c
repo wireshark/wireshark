@@ -7429,8 +7429,8 @@ static guint
 add_ff_measurement_pilot_int(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
   proto_tree_add_item(tree, hf_ieee80211_ff_measurement_pilot_int, tvb, offset,
-                      2, ENC_LITTLE_ENDIAN);
-  return 2;
+                      1, ENC_NA);
+  return 1;
 }
 
 static guint
@@ -13058,6 +13058,42 @@ dissect_rsni_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
   proto_tree_add_item(tree, hf_ieee80211_tag_rsni, tvb,
                       offset, 1, ENC_LITTLE_ENDIAN);
+
+  return tvb_captured_length(tvb);
+}
+
+static int
+dissect_measurement_pilot_trans_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+  int tag_len = tvb_reported_length(tvb);
+  int offset = 0;
+  const guint8 ids[] = { TAG_VENDOR_SPECIFIC_IE };
+
+  /* The tag len can be 1 or more if there are sub-elements */
+
+  proto_tree_add_item(tree, hf_ieee80211_ff_measurement_pilot_int, tvb, offset,
+                      1, ENC_NA);
+
+  tag_len--;
+  offset++;
+
+  /* Also handle the optional sub-elements */
+
+  if (tag_len > 0) {
+    while (tag_len > 0) {
+      gint8 elt_len = 0;
+
+      elt_len = tvb_get_guint8(tvb, offset + 1);
+
+      if(add_tagged_field(pinfo, tree, tvb, offset + 2, 0, ids, G_N_ELEMENTS(ids), NULL) == 0){
+        /* TODO: Add an expert info here and skip the field. */
+        break;
+      }
+
+      tag_len -= elt_len + 2;
+      offset += elt_len + 2;
+    }
+  }
 
   return tvb_captured_length(tvb);
 }
@@ -22163,7 +22199,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_measurement_pilot_int,
      {"Measurement Pilot Interval", "wlan.fixed.msmtpilotint",
-      FT_UINT16, BASE_HEX, 0, 0,
+      FT_UINT8, BASE_HEX, 0, 0,
       "Measurement Pilot Interval Fixed Field", HFILL }},
 
     {&hf_ieee80211_ff_country_str,
@@ -28777,6 +28813,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.tag.number", TAG_BSS_AVG_ACCESS_DELAY, create_dissector_handle(dissect_bss_avg_access_delay_ie, -1));
   dissector_add_uint("wlan.tag.number", TAG_ANTENNA, create_dissector_handle(dissect_antenna_ie, -1));
   dissector_add_uint("wlan.tag.number", TAG_RSNI, create_dissector_handle(dissect_rsni_ie, -1));
+  dissector_add_uint("wlan.tag.number", TAG_MEASURE_PILOT_TRANS, create_dissector_handle(dissect_measurement_pilot_trans_ie, -1));
   dissector_add_uint("wlan.tag.number", TAG_BSS_AVB_ADM_CAPACITY, create_dissector_handle(dissect_bss_available_admission_capacity_ie, -1));
   dissector_add_uint("wlan.tag.number", TAG_IE_68_CONFLICT, create_dissector_handle(ieee80211_tag_ie_68_conflict, -1));
   dissector_add_uint("wlan.tag.number", TAG_BSS_MAX_IDLE_PERIOD, create_dissector_handle(dissect_bss_max_idle_period, -1));
