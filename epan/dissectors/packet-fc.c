@@ -733,8 +733,9 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     if(!is_ifcp){
         set_address_tvb (&pinfo->dst, AT_FC, 3, tvb, offset+1);
         set_address_tvb (&pinfo->src, AT_FC, 3, tvb, offset+5);
-        pinfo->srcport=0;
-        pinfo->destport=0;
+        conversation_create_endpoint(pinfo, &pinfo->src, &pinfo->dst, ENDPOINT_EXCHG, 0, 0, 0);
+    } else {
+        conversation_create_endpoint(pinfo, &pinfo->src, &pinfo->dst, ENDPOINT_EXCHG, pinfo->srcport, pinfo->destport, 0);
     }
     set_address(&fchdr->d_id, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
     set_address(&fchdr->s_id, pinfo->src.type, pinfo->src.len, pinfo->src.data);
@@ -748,8 +749,6 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     fchdr->relative_offset=0;
     param = tvb_get_ntohl (tvb, offset+20);
     seq_id = tvb_get_guint8 (tvb, offset+12);
-
-    pinfo->ptype = PT_EXCHG;
 
     /* set up a conversation and conversation data */
     /* TODO treat the fc address  s_id==00.00.00 as a wildcard matching anything */

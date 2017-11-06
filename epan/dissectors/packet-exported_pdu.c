@@ -148,8 +148,6 @@ static port_type exp_pdu_old_to_new_port_type(guint type)
         return PT_DCCP;
     case OLD_PT_IPX:
         return PT_IPX;
-    case OLD_PT_EXCHG:
-        return PT_EXCHG;
     case OLD_PT_DDP:
         return PT_DDP;
     case OLD_PT_IDP:
@@ -162,6 +160,7 @@ static port_type exp_pdu_old_to_new_port_type(guint type)
         return PT_IBQP;
     case OLD_PT_BLUETOOTH:
         return PT_BLUETOOTH;
+    case OLD_PT_EXCHG:
     case OLD_PT_TIPC:
     case OLD_PT_TDMOP:
     case OLD_PT_NCP:
