@@ -3040,7 +3040,7 @@ dissect_higher_layer_data(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     proto_tree_add_item(tree, hf_ieee1905_higher_layer_data, tvb,
                         offset, len - 1, ENC_NA);
-    offset += len;
+    offset += len - 1;
 
     return offset;
 }

@@ -265,6 +265,7 @@ static const value_string eapwps_tlv_types[] = {
 #define WPS_WFA_EXT_NETWORK_KEY_SHAREABLE 0x02
 #define WPS_WFA_EXT_REQUEST_TO_ENROLL     0x03
 #define WPS_WFA_EXT_SETTINGS_DELAY_TIME   0x04
+#define WPS_WFA_EXT_MULTI_AP              0x06
 
 static const value_string eapwps_wfa_ext_types[] = {
   { WPS_WFA_EXT_VERSION2,              "Version2" },
@@ -272,6 +273,7 @@ static const value_string eapwps_wfa_ext_types[] = {
   { WPS_WFA_EXT_NETWORK_KEY_SHAREABLE, "Network Key Shareable" },
   { WPS_WFA_EXT_REQUEST_TO_ENROLL,     "Request to Enroll" },
   { WPS_WFA_EXT_SETTINGS_DELAY_TIME,   "Settings Delay Time" },
+  { WPS_WFA_EXT_MULTI_AP,              "Multi-AP Extension" },
   { 0, NULL }
 };
 #define WFA_OUI             0x0050F204
@@ -432,6 +434,12 @@ static int hf_eapwps_wfa_ext_authorizedmacs = -1;
 static int hf_eapwps_wfa_ext_network_key_shareable = -1;
 static int hf_eapwps_wfa_ext_request_to_enroll = -1;
 static int hf_eapwps_wfa_ext_settings_delay_time = -1;
+static int hf_multi_ap_backhaul_sta = -1;
+static int hf_multi_ap_backhaul_bss = -1;
+static int hf_multi_ap_fronthaul_bss = -1;
+static int hf_multi_ap_teardown_bsses = -1;
+static int hf_multi_ap_reserved = -1;
+static int hf_multi_ap_flags = -1;
 
 static gint ett_wps_tlv = -1;
 static gint ett_eap_wps_ap_channel = -1;
@@ -521,6 +529,7 @@ static gint ett_eap_wps_8021x_enabled = -1;
 static gint ett_eap_wps_appsessionkey = -1;
 static gint ett_eap_wps_weptransmitkey = -1;
 static gint ett_wps_wfa_ext = -1;
+static gint ett_multi_ap_flags = -1;
 
 static const value_string eapwps_tlv_association_state_vals[] = {
   { 0, "Not associated" },
@@ -800,6 +809,14 @@ add_wps_wfa_ext(guint8 id, proto_tree *tree, tvbuff_t *tvb,
   proto_item *item;
   proto_tree *elem;
   guint8      val8;
+  static const int *flags[] = {
+    &hf_multi_ap_backhaul_sta,
+    &hf_multi_ap_backhaul_bss,
+    &hf_multi_ap_fronthaul_bss,
+    &hf_multi_ap_teardown_bsses,
+    &hf_multi_ap_reserved,
+    NULL
+  };
 
   elem = proto_tree_add_subtree(tree, tvb, offset - 2, 2 + size, ett_wps_wfa_ext, &item,
                              val_to_str(id, eapwps_wfa_ext_types, "Unknown (%u)"));
@@ -835,6 +852,10 @@ add_wps_wfa_ext(guint8 id, proto_tree *tree, tvbuff_t *tvb,
     proto_tree_add_item(elem, hf_eapwps_wfa_ext_settings_delay_time,
                         tvb, offset, 1, ENC_BIG_ENDIAN);
     break;
+  case WPS_WFA_EXT_MULTI_AP:
+    proto_tree_add_bitmask(elem, tvb, offset, hf_multi_ap_flags, ett_multi_ap_flags,
+                           flags, ENC_NA);
+    offset++;
   default:
     break;
   }
@@ -2383,6 +2404,30 @@ proto_register_wps(void)
     { &hf_eapwps_wfa_ext_settings_delay_time,
       { "Settings Delay Time", "wps.ext.settings_delay_time",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_multi_ap_backhaul_sta,
+      { "Backhaul STA", "wps.ext.multi_ap.backhaul_sta",
+        FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x80, NULL, HFILL }},
+
+    { &hf_multi_ap_backhaul_bss,
+      { "Backhaul BSS", "wps.ext.multi_ap.backhaul_bss",
+        FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x40, NULL, HFILL }},
+
+    { &hf_multi_ap_fronthaul_bss,
+      { "Fronthaul BSS", "wps.ext.multi_ap.fronthaul_bss",
+        FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20, NULL, HFILL }},
+
+    { &hf_multi_ap_teardown_bsses,
+      { "Teardown", "wps.ext.multi_ap.teardown",
+        FT_BOOLEAN, 8, TFS(&tfs_required_not_required), 0x10, NULL, HFILL }},
+
+    { &hf_multi_ap_reserved,
+      { "Reserved", "wps.ext.multi_ap.reserved",
+        FT_UINT8, BASE_HEX, NULL, 0x0f, NULL, HFILL }},
+
+    { &hf_multi_ap_flags,
+      { "Multi-AP Flags", "wps.ext.multi_ap_flags",
+        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_eap_wps_attr,
@@ -2476,6 +2521,7 @@ proto_register_wps(void)
     &ett_eap_wps_appsessionkey,
     &ett_eap_wps_weptransmitkey,
     &ett_wps_wfa_ext,
+    &ett_multi_ap_flags,
   };
 
   static ei_register_info ei[] = {
