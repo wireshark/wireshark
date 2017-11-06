@@ -230,6 +230,7 @@ static const value_string match_criteria[] = {
 #define PROP_TOPIC_ALIAS                       0x23
 #define PROP_MAXIMUM_QOS                       0x24
 #define PROP_RETAIN_AVAILABLE                  0x25
+#define PROP_USER_PROPERTY                     0x26
 #define PROP_MAXIMUM_PACKET_SIZE               0x27
 #define PROP_WILDCARD_SUBSCRIPTION_AVAILABLE   0x28
 #define PROP_SUBSCRIPTION_IDENTIFIER_AVAILABLE 0x29
@@ -258,6 +259,7 @@ static const value_string mqtt_property_vals[] = {
   { PROP_TOPIC_ALIAS,                       "Topic Alias" },
   { PROP_MAXIMUM_QOS,                       "Maximum QoS" },
   { PROP_RETAIN_AVAILABLE,                  "Retain Available" },
+  { PROP_USER_PROPERTY,                     "User Property" },
   { PROP_MAXIMUM_PACKET_SIZE,               "Maximum Packet Size" },
   { PROP_WILDCARD_SUBSCRIPTION_AVAILABLE,   "Wildcard Subscription Available" },
   { PROP_SUBSCRIPTION_IDENTIFIER_AVAILABLE, "Subscription Identifier Available" },
@@ -335,6 +337,10 @@ static int hf_mqtt_prop_max_qos = -1;
 static int hf_mqtt_prop_unknown = -1;
 static int hf_mqtt_prop_string_len = -1;
 static int hf_mqtt_prop_string = -1;
+static int hf_mqtt_prop_key_len = -1;
+static int hf_mqtt_prop_key = -1;
+static int hf_mqtt_prop_value_len = -1;
+static int hf_mqtt_prop_value = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_mqtt_hdr = -1;
@@ -554,6 +560,10 @@ static guint32 dissect_mqtt_properties(tvbuff_t *tvb, proto_tree *mqtt_tree, gui
       case PROP_SERVER_REFERENCE:
       case PROP_REASON_STRING:
         offset += dissect_string(tvb, mqtt_prop_tree, offset, hf_mqtt_prop_string_len, hf_mqtt_prop_string);
+        break;
+      case PROP_USER_PROPERTY:
+        offset += dissect_string(tvb, mqtt_prop_tree, offset, hf_mqtt_prop_key_len, hf_mqtt_prop_key);
+        offset += dissect_string(tvb, mqtt_prop_tree, offset, hf_mqtt_prop_value_len, hf_mqtt_prop_value);
         break;
       default:
         proto_tree_add_item(mqtt_prop_tree, hf_mqtt_prop_unknown, tvb, offset, bytes_to_read - offset, ENC_UTF_8|ENC_NA);
@@ -1214,6 +1224,22 @@ void proto_register_mqtt(void)
         NULL, HFILL }},
     { &hf_mqtt_prop_string,
       { "Value", "mqtt.prop_string",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mqtt_prop_key_len,
+      { "Key Length", "mqtt.prop_key_len",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mqtt_prop_key,
+      { "Key", "mqtt.prop_key",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mqtt_prop_value_len,
+      { "Value Length", "mqtt.prop_value_len",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mqtt_prop_value,
+      { "Value", "mqtt.prop_value",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
   };
