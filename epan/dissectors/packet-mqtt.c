@@ -202,8 +202,12 @@ static const value_string match_criteria[] = {
 };
 
 #define PROP_PAYLOAD_FORMAT_INDICATOR          0x01
+#define PROP_SERVER_KEEP_ALIVE                 0x13
 #define PROP_REQUEST_PROBLEM_INFORMATION       0x17
 #define PROP_REQUEST_RESPONSE_INFORMATION      0x19
+#define PROP_RECEIVE_MAXIMUM                   0x21
+#define PROP_TOPIC_ALIAS_MAXIMUM               0x22
+#define PROP_TOPIC_ALIAS                       0x23
 #define PROP_MAXIMUM_QOS                       0x24
 #define PROP_RETAIN_AVAILABLE                  0x25
 #define PROP_WILDCARD_SUBSCRIPTION_AVAILABLE   0x28
@@ -212,8 +216,12 @@ static const value_string match_criteria[] = {
 
 static const value_string mqtt_property_vals[] = {
   { PROP_PAYLOAD_FORMAT_INDICATOR,          "Payload Format Indicator" },
+  { PROP_SERVER_KEEP_ALIVE,                 "Server Keep Alive" },
   { PROP_REQUEST_PROBLEM_INFORMATION,       "Request Problem Information" },
   { PROP_REQUEST_RESPONSE_INFORMATION,      "Request Response Information" },
+  { PROP_RECEIVE_MAXIMUM,                   "Receive Maximum" },
+  { PROP_TOPIC_ALIAS_MAXIMUM,               "Topic Alias Maximum" },
+  { PROP_TOPIC_ALIAS,                       "Topic Alias" },
   { PROP_MAXIMUM_QOS,                       "Maximum QoS" },
   { PROP_RETAIN_AVAILABLE,                  "Retain Available" },
   { PROP_WILDCARD_SUBSCRIPTION_AVAILABLE,   "Wildcard Subscription Available" },
@@ -458,6 +466,12 @@ static guint32 dissect_mqtt_properties(tvbuff_t *tvb, proto_tree *mqtt_tree, gui
       case PROP_MAXIMUM_QOS:
         proto_tree_add_item(mqtt_prop_tree, hf_mqtt_prop_max_qos, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
+      case PROP_SERVER_KEEP_ALIVE:
+      case PROP_RECEIVE_MAXIMUM:
+      case PROP_TOPIC_ALIAS_MAXIMUM:
+      case PROP_TOPIC_ALIAS:
+        proto_tree_add_item(mqtt_prop_tree, hf_mqtt_prop_num, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
         break;
       default:
         proto_tree_add_item(mqtt_prop_tree, hf_mqtt_prop_unknown, tvb, offset, bytes_to_read - offset, ENC_UTF_8|ENC_NA);
