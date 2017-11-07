@@ -89,6 +89,13 @@
 #define MQTT_MASK_DUP_FLAG          0x08
 #define MQTT_MASK_RETAIN            0x01
 
+/* MQTT v5.0 Flag Values for the Subscription Options @ Subscribe Packet */
+#define MQTT_MASK_SUBS_QOS          0x03
+#define MQTT_MASK_SUBS_NL           0x04
+#define MQTT_MASK_SUBS_RAP          0x08
+#define MQTT_MASK_SUBS_RETAIN       0x30
+#define MQTT_MASK_SUBS_RESERVED     0xC0
+
 void proto_register_mqtt(void);
 void proto_reg_handoff_mqtt(void);
 
@@ -294,6 +301,13 @@ static int hf_mqtt_keep_alive = -1;
 static int hf_mqtt_subscription_options = -1;
 static int hf_mqtt_reason_code = -1;
 
+/* MQTT v5.0 Subscribe Options */
+static int hf_mqtt_subscription_qos = -1;
+static int hf_mqtt_subscription_nl = -1;
+static int hf_mqtt_subscription_rap = -1;
+static int hf_mqtt_subscription_retain = -1;
+static int hf_mqtt_subscription_reserved = -1;
+
 /* MQTT v5.0 Properties */
 static int hf_mqtt_property_len = -1;
 static int hf_mqtt_property = -1;
@@ -309,6 +323,7 @@ static gint ett_mqtt_hdr_flags = -1;
 static gint ett_mqtt_con_flags = -1;
 static gint ett_mqtt_conack_flags = -1;
 static gint ett_mqtt_property = -1;
+static gint ett_mqtt_subscription_flags = -1;
 
 /* Reassemble SMPP TCP segments */
 static gboolean reassemble_mqtt_over_tcp = TRUE;
@@ -514,7 +529,6 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     guint8  mqtt_fixed_hdr;
     guint8  mqtt_msg_type;
     proto_item *ti;
-    int hf_version_selector;
     const guint8 *topic_str;
 
     proto_tree *mqtt_tree;
@@ -561,6 +575,14 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         &hf_mqtt_conackflag_reserved,
         &hf_mqtt_conackflag_sp,
         NULL
+    };
+    static const int *v50_subscription_flags[] = {
+      &hf_mqtt_subscription_reserved,
+      &hf_mqtt_subscription_retain,
+      &hf_mqtt_subscription_rap,
+      &hf_mqtt_subscription_nl,
+      &hf_mqtt_subscription_qos,
+      NULL
     };
 
     /* Extract the message ID */
@@ -754,11 +776,6 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         if (mqtt->runtime_proto_version == MQTT_PROTO_V50)
         {
           offset += dissect_mqtt_properties(tvb, mqtt_tree, offset);
-          hf_version_selector = hf_mqtt_subscription_options;
-        }
-        else
-        {
-          hf_version_selector = hf_mqtt_sub_qos;
         }
 
         for(mqtt_msg_len -= 2; mqtt_msg_len > 0;)
@@ -772,7 +789,17 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
           offset += mqtt_str_len;
           mqtt_msg_len -= mqtt_str_len;
 
-          proto_tree_add_item(mqtt_tree, hf_version_selector, tvb, offset, 1, ENC_BIG_ENDIAN);
+          if (mqtt->runtime_proto_version == MQTT_PROTO_V50)
+          {
+            proto_tree_add_bitmask(mqtt_tree, tvb, offset, hf_mqtt_subscription_options,
+                                   ett_mqtt_subscription_flags, v50_subscription_flags, ENC_BIG_ENDIAN);
+
+          }
+          else
+          {
+            proto_tree_add_item(mqtt_tree, hf_mqtt_sub_qos, tvb, offset, 1, ENC_BIG_ENDIAN);
+          }
+
           offset += 1;
           mqtt_msg_len -= 1;
         }
@@ -1084,10 +1111,30 @@ void proto_register_mqtt(void)
       { "Keep Alive", "mqtt.kalive",
         FT_UINT16, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    /* xxx */
     { &hf_mqtt_subscription_options,
       { "Subscription Options", "mqtt.subscription_options",
         FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mqtt_subscription_qos,
+      { "QoS", "mqtt.subscription_options_qos",
+        FT_UINT8, BASE_DEC, VALS(mqtt_qos_vals), MQTT_MASK_SUBS_QOS,
+        NULL, HFILL }},
+    { &hf_mqtt_subscription_nl,
+      { "No Local", "mqtt.subscription_options_nl",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQTT_MASK_SUBS_NL,
+        NULL, HFILL }},
+    { &hf_mqtt_subscription_rap,
+      { "Retain As Published", "mqtt.subscription_options_rap",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQTT_MASK_SUBS_RAP,
+        NULL, HFILL }},
+    /* xxx */
+    { &hf_mqtt_subscription_retain,
+      { "Retain Handling", "mqtt.subscription_options_retain",
+        FT_UINT8, BASE_HEX, NULL, MQTT_MASK_SUBS_RETAIN,
+        NULL, HFILL }},
+    { &hf_mqtt_subscription_reserved,
+      { "Reserved", "mqtt.subscription_options_reserved",
+        FT_UINT8, BASE_HEX, NULL, MQTT_MASK_SUBS_RESERVED,
         NULL, HFILL }},
     { &hf_mqtt_reason_code,
       { "Reason Code", "mqtt.reason_code",
@@ -1129,6 +1176,7 @@ void proto_register_mqtt(void)
     &ett_mqtt_con_flags,
     &ett_mqtt_conack_flags,
     &ett_mqtt_property,
+    &ett_mqtt_subscription_flags,
   };
 
   static uat_field_t mqtt_message_decode_flds[] = {
