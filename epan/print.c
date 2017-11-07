@@ -1382,7 +1382,7 @@ ek_write_attr(GSList *attr_instances, write_json_data *pdata)
     if (pdata->print_hex && fi && fi->length > 0 && fi->hfinfo->id != hf_text_only) {
         ek_write_attr_hex(attr_instances, pdata);
 
-        fputs("\",", pdata->fh);
+        fputs(",", pdata->fh);
     }
 
     // Print attr name
