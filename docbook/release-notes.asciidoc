@@ -84,6 +84,7 @@ FP Mux
 Network Functional Application Platform Interface (NFAPI) Protocol
 IEEE 1905.1a
 Bluetooth Mesh
+TWAMP and OWAMP
 --sort-and-group--
 
 === Updated Protocol Support

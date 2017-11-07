@@ -1328,6 +1328,7 @@ DISSECTOR_SRC = \
 	packet-turbocell.c	\
 	packet-turnchannel.c	\
 	packet-tuxedo.c		\
+	packet-twamp.c		\
 	packet-tzsp.c		\
 	packet-u3v.c		\
 	packet-ua.c		\
