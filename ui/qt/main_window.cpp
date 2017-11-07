@@ -420,6 +420,8 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(filterToolbarCustomMenuHandler(QPoint)));
     connect(filter_expression_toolbar_, SIGNAL(actionMoved(QAction*, int, int)),
             this, SLOT(filterToolbarActionMoved(QAction*, int, int)));
+    connect(filter_expression_toolbar_, SIGNAL(newFilterDropped(QString, QString)),
+            this, SLOT(filterDropped(QString, QString)));
 
     main_ui_->displayFilterToolBar->addWidget(filter_expression_toolbar_);
 
@@ -652,6 +654,8 @@ MainWindow::MainWindow(QWidget *parent) :
             main_ui_->statusBar, SLOT(setCaptureFile(capture_file*)));
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
             packet_list_, SLOT(setCaptureFile(capture_file*)));
+    connect(this, SIGNAL(setCaptureFile(capture_file*)),
+            proto_tree_, SLOT(setCaptureFile(capture_file*)));
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
             byte_view_tab_, SLOT(setCaptureFile(capture_file*)));
 

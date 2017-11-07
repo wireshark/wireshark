@@ -27,8 +27,9 @@
 #include <epan/prefs.h>
 
 #include <ui/qt/utils/color_utils.h>
-
 #include <ui/qt/utils/variant_pointer.h>
+#include <ui/qt/utils/wireshark_mime_data.h>
+#include <ui/qt/widgets/drag_label.h>
 
 #include <QApplication>
 #include <QContextMenuEvent>
@@ -37,6 +38,11 @@
 #include <QScrollBar>
 #include <QTreeWidgetItemIterator>
 #include <QUrl>
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#include <QWindow>
+#endif
+
 
 // To do:
 // - Fix "apply as filter" behavior.
@@ -286,6 +292,8 @@ ProtoTree::ProtoTree(QWidget *parent) :
     // have scrolled to an area with a different width at this point.
     connect(verticalScrollBar(), SIGNAL(sliderReleased()),
             this, SLOT(updateContentWidth()));
+
+    viewport()->installEventFilter(this);
 }
 
 void ProtoTree::closeContextMenu()
@@ -689,6 +697,70 @@ void ProtoTree::restoreSelectedField()
         ++iter;
     }
 }
+
+void ProtoTree::setCaptureFile(capture_file *cf)
+{
+    cap_file_ = cf;
+}
+
+bool ProtoTree::eventFilter(QObject * obj, QEvent * event)
+{
+    if ( cap_file_ && event->type() != QEvent::MouseButtonPress && event->type() != QEvent::MouseMove )
+        return QTreeWidget::eventFilter(obj, event);
+
+    QMouseEvent * ev = (QMouseEvent *)event;
+
+    if ( event->type() == QEvent::MouseButtonPress )
+    {
+        if ( ev->buttons() & Qt::LeftButton )
+        {
+            dragStartPosition = ev->pos();
+        }
+    }
+    else if ( event->type() == QEvent::MouseMove )
+    {
+        if ( ( ev->buttons() & Qt::LeftButton ) && (ev->pos() - dragStartPosition).manhattanLength()
+                 > QApplication::startDragDistance())
+        {
+            QTreeWidgetItem * item = itemAt(dragStartPosition);
+            if ( item )
+            {
+                field_info * fi = VariantPointer<field_info>::asPtr(item->data(0, Qt::UserRole));
+                if ( fi )
+                {
+                    QString description = QString(fi->hfinfo->name);
+                    QString filter = QString(proto_construct_match_selected_string(fi, cap_file_->edt));
+
+                    if ( filter.length() > 0 )
+                    {
+                        QDrag * drag = new QDrag(this);
+                        drag->setMimeData(new DisplayFilterMimeData(description, filter));
+
+                        QString cmt = QString("%1 - ( %2 )").arg(description, filter);
+                        DragLabel * content = new DragLabel(cmt, this);
+
+    #if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
+                        qreal dpr = window()->windowHandle()->devicePixelRatio();
+                        QPixmap pixmap(content->size() * dpr);
+                        pixmap.setDevicePixelRatio(dpr);
+    #else
+                        QPixmap pixmap(content->size());
+    #endif
+                        content->render(&pixmap);
+                        drag->setPixmap(pixmap);
+
+                        drag->exec(Qt::CopyAction);
+
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+    return QTreeWidget::eventFilter(obj, event);
+}
+
 
 /*
  * Editor modelines

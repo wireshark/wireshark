@@ -30,6 +30,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/display_filter_combo.h
 	widgets/display_filter_edit.h
 	widgets/drag_drop_toolbar.h
+	widgets/drag_label.h
 	widgets/editor_color_dialog.h
 	widgets/editor_file_dialog.h
 	widgets/elided_label.h
@@ -50,6 +51,7 @@ set(WIRESHARK_UTILS_HEADERS
 	utils/stock_icon.h
 	utils/qt_ui_utils.h
 	utils/tango_colors.h
+	utils/wireshark_mime_data.h
 	utils/variant_pointer.h
 )
 
@@ -230,6 +232,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/display_filter_combo.cpp
 	widgets/display_filter_edit.cpp
 	widgets/drag_drop_toolbar.cpp
+	widgets/drag_label.cpp
 	widgets/editor_color_dialog.cpp
 	widgets/editor_file_dialog.cpp
 	widgets/elided_label.cpp
@@ -248,6 +251,7 @@ set(WIRESHARK_WIDGET_SRCS
 set(WIRESHARK_UTILS_SRCS
 	utils/color_utils.cpp
 	utils/stock_icon.cpp
+	utils/wireshark_mime_data.cpp
 	utils/qt_ui_utils.cpp
 )
 

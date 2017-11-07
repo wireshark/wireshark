@@ -22,6 +22,8 @@
 #ifndef DISPLAYFILTEREDIT_H
 #define DISPLAYFILTEREDIT_H
 
+#include <QDrag>
+
 #include <ui/qt/preferences_dialog.h>
 #include <ui/qt/widgets/syntax_line_edit.h>
 
@@ -46,6 +48,10 @@ protected:
     void keyPressEvent(QKeyEvent *event) { completionKeyPressEvent(event); }
     void focusInEvent(QFocusEvent *event) { completionFocusInEvent(event); }
     void focusOutEvent(QFocusEvent *event);
+
+    virtual void dragEnterEvent(QDragEnterEvent *event);
+    virtual void dragMoveEvent(QDragMoveEvent *event);
+    virtual void dropEvent(QDropEvent *event);
 
 public slots:
     bool checkFilter();

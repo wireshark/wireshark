@@ -4074,6 +4074,21 @@ void MainWindow::filterToolbarEditFilter()
     delete uatModel;
 }
 
+void MainWindow::filterDropped(QString description, QString filter)
+{
+    gchar* err = NULL;
+    if ( filter.length() == 0 )
+        return;
+
+    filter_expression_new(description.toUtf8().constData(),
+            filter.toUtf8().constData(), description.toUtf8().constData(), TRUE);
+
+    uat_save(uat_get_table_by_name("Display expressions"), &err);
+    g_free(err);
+
+    filterExpressionsChanged();
+}
+
 void MainWindow::filterToolbarDisableFilter()
 {
     gchar* err = NULL;

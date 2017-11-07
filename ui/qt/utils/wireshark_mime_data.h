@@ -1,4 +1,4 @@
-/* drag_drop_toolbar.h
+/* wireshark_mime_data.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,45 +19,28 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef DRAG_DROP_TOOLBAR_H
-#define DRAG_DROP_TOOLBAR_H
+#ifndef UI_QT_UTILS_WIRESHARK_MIME_DATA_H_
+#define UI_QT_UTILS_WIRESHARK_MIME_DATA_H_
 
-#include <QToolBar>
-#include <QPoint>
-#include <ui/qt/utils/qt_ui_utils.h>
+#include <QMimeData>
 
-class DragDropToolBar : public QToolBar
-{
+class DisplayFilterMimeData: public QMimeData {
     Q_OBJECT
 public:
-    explicit DragDropToolBar(const QString &title, QWidget *parent = Q_NULLPTR);
-    explicit DragDropToolBar(QWidget *parent = Q_NULLPTR);
-    ~DragDropToolBar();
 
-Q_SIGNALS:
-    void actionMoved(QAction * action, int oldPos, int newPos);
+    DisplayFilterMimeData(QString description, QString filter);
 
-    void newFilterDropped(QString description, QString filter);
-
-protected:
-
-    virtual void childEvent(QChildEvent * event);
-
-    virtual bool eventFilter(QObject * obj, QEvent * ev);
-    virtual void dragEnterEvent(QDragEnterEvent *event);
-    virtual void dragMoveEvent(QDragMoveEvent *event);
-    virtual void dropEvent(QDropEvent *event);
+    QString description() const;
+    QString filter() const;
 
 private:
 
-    QPoint dragStartPosition;
-    int childCounter;
-
-    void moveToolbarItems(int fromPos, int toPos);
+    QString description_;
+    QString filter_;
 
 };
 
-#endif // DRAG_DROP_TOOLBAR_H
+#endif /* UI_QT_UTILS_WIRESHARK_MIME_DATA_H_ */
 
 /*
  * Editor modelines
@@ -71,3 +54,4 @@ private:
  * ex: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
+

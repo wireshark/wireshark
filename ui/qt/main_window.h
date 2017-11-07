@@ -367,6 +367,7 @@ private slots:
     void filterToolbarDisableFilter();
     void filterToolbarRemoveFilter();
     void filterToolbarActionMoved(QAction * action, int oldPos, int newPos);
+    void filterDropped(QString description, QString filter);
 
     void startInterfaceCapture(bool valid, const QString capture_filter);
 

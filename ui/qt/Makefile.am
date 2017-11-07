@@ -172,6 +172,7 @@ MOC_WIDGET_HDRS = \
 	widgets/stock_icon_tool_button.h		\
 	widgets/tabnav_tree_view.h			\
 	widgets/drag_drop_toolbar.h			\
+	widgets/drag_label.h			\
 	widgets/qcustomplot.h
 
 # Files that are utility classes with multi-purpose, but no widgets
@@ -179,6 +180,7 @@ MOC_UTILS_HDRS = \
 	utils/color_utils.h				\
 	utils/stock_icon.h				\
 	utils/qt_ui_utils.h				\
+	utils/wireshark_mime_data.h		\
 	utils/variant_pointer.h
 
 # Files for delegates and models
@@ -486,11 +488,13 @@ WIRESHARK_QT_WIDGET_SRC = \
 	widgets/syntax_line_edit.cpp			\
 	widgets/tabnav_tree_view.cpp			\
 	widgets/drag_drop_toolbar.cpp			\
+	widgets/drag_label.cpp			\
 	widgets/qcustomplot.cpp
 
 WIRESHARK_QT_UTILS_SRC = \
 	utils/color_utils.cpp				\
 	utils/stock_icon.cpp				\
+	utils/wireshark_mime_data.cpp		\
 	utils/qt_ui_utils.cpp
 
 WIRESHARK_QT_MODELS_SRCS = \

@@ -1,4 +1,4 @@
-/* drag_drop_toolbar.h
+/* drag_label.cpp
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,45 +19,25 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef DRAG_DROP_TOOLBAR_H
-#define DRAG_DROP_TOOLBAR_H
+#include <ui/qt/widgets/drag_label.h>
 
-#include <QToolBar>
-#include <QPoint>
-#include <ui/qt/utils/qt_ui_utils.h>
+#include <QLayout>
 
-class DragDropToolBar : public QToolBar
+DragLabel::DragLabel(QString txt, QWidget * parent)
+: QLabel(txt, parent)
 {
-    Q_OBJECT
-public:
-    explicit DragDropToolBar(const QString &title, QWidget *parent = Q_NULLPTR);
-    explicit DragDropToolBar(QWidget *parent = Q_NULLPTR);
-    ~DragDropToolBar();
+    setAutoFillBackground(true);
+    setFrameShape(QFrame::Panel);
+    setFrameShadow(QFrame::Raised);
+    setAttribute(Qt::WA_DeleteOnClose);
+    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
-Q_SIGNALS:
-    void actionMoved(QAction * action, int oldPos, int newPos);
+    adjustSize();
+}
 
-    void newFilterDropped(QString description, QString filter);
-
-protected:
-
-    virtual void childEvent(QChildEvent * event);
-
-    virtual bool eventFilter(QObject * obj, QEvent * ev);
-    virtual void dragEnterEvent(QDragEnterEvent *event);
-    virtual void dragMoveEvent(QDragMoveEvent *event);
-    virtual void dropEvent(QDropEvent *event);
-
-private:
-
-    QPoint dragStartPosition;
-    int childCounter;
-
-    void moveToolbarItems(int fromPos, int toPos);
-
-};
-
-#endif // DRAG_DROP_TOOLBAR_H
+DragLabel::~DragLabel() {
+    // TODO Auto-generated destructor stub
+}
 
 /*
  * Editor modelines

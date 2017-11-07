@@ -26,6 +26,8 @@
 
 #include <epan/proto.h>
 
+#include "cfile.h"
+
 #include "protocol_preferences_menu.h"
 
 #include <QTreeWidget>
@@ -51,6 +53,8 @@ protected:
     virtual void timerEvent(QTimerEvent *event);
     virtual void keyReleaseEvent(QKeyEvent *event);
 
+    virtual bool eventFilter(QObject * obj, QEvent * ev);
+
 private:
     QMenu ctx_menu_;
     QMenu conv_menu_;
@@ -62,6 +66,10 @@ private:
     int column_resize_timer_;
     QList<int> selected_field_path_;
 
+    QPoint dragStartPosition;
+
+    capture_file *cap_file_;
+
 signals:
     void protoItemSelected(const QString &);
     void protoItemSelected(field_info *);
@@ -72,6 +80,9 @@ signals:
     void editProtocolPreference(struct preference *pref, struct pref_module *module);
 
 public slots:
+
+    /* Set the capture file */
+    void setCaptureFile(capture_file *cf);
     void setMonospaceFont(const QFont &mono_font);
     void updateSelectionStatus(QTreeWidgetItem*);
     void expand(const QModelIndex & index);

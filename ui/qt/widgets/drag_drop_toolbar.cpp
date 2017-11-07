@@ -20,6 +20,7 @@
  */
 
 #include <ui/qt/widgets/drag_drop_toolbar.h>
+#include <ui/qt/utils/wireshark_mime_data.h>
 
 #include <QAction>
 #include <QApplication>
@@ -141,6 +142,14 @@ void DragDropToolBar::dragEnterEvent(QDragEnterEvent *event)
         } else {
             event->acceptProposedAction();
         }
+    } else if (qobject_cast<const DisplayFilterMimeData *>(event->mimeData())) {
+        if ( event->source() != this )
+        {
+            event->setDropAction(Qt::CopyAction);
+            event->accept();
+        } else {
+            event->acceptProposedAction();
+        }
     } else {
         event->ignore();
     }
@@ -167,6 +176,14 @@ void DragDropToolBar::dragMoveEvent(QDragMoveEvent *event)
                 widgetForAction(action)->setStyleSheet("QWidget { border: 2px dotted grey; };");
             }
         }
+    } else if (qobject_cast<const DisplayFilterMimeData *>(event->mimeData())) {
+        if ( event->source() != this )
+        {
+            event->setDropAction(Qt::CopyAction);
+            event->accept();
+        } else {
+            event->acceptProposedAction();
+        }
     } else {
         event->ignore();
     }
@@ -174,6 +191,7 @@ void DragDropToolBar::dragMoveEvent(QDragMoveEvent *event)
 
 void DragDropToolBar::dropEvent(QDropEvent *event)
 {
+    /* Moving items around */
     if (event->mimeData()->hasFormat("application/x-wireshark-toolbar-entry"))
     {
         int oldPos = event->mimeData()->data("application/x-wireshark-toolbar-entry").toInt();
@@ -190,6 +208,20 @@ void DragDropToolBar::dropEvent(QDropEvent *event)
         if (event->source() == this) {
             event->setDropAction(Qt::MoveAction);
             event->accept();
+        } else {
+            event->acceptProposedAction();
+        }
+
+    } else if (qobject_cast<const DisplayFilterMimeData *>(event->mimeData())) {
+        const DisplayFilterMimeData * data = qobject_cast<const DisplayFilterMimeData *>(event->mimeData());
+
+        if ( event->source() != this )
+        {
+            event->setDropAction(Qt::CopyAction);
+            event->accept();
+
+            emit newFilterDropped(data->description(), data->filter());
+
         } else {
             event->acceptProposedAction();
         }

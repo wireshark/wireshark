@@ -33,18 +33,21 @@
 #include "filter_dialog.h"
 #include <ui/qt/widgets/stock_icon_tool_button.h>
 #include <ui/qt/widgets/syntax_line_edit.h>
+#include <ui/qt/utils/wireshark_mime_data.h>
 
 #include <QAction>
 #include <QAbstractItemView>
 #include <QComboBox>
 #include <QCompleter>
-#include <QEvent>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPainter>
 #include <QStringListModel>
-
-#include <wsutil/utf8_entities.h>
+#include <QWidget>
+#include <QObject>
+#include <QDrag>
+#include <QDropEvent>
+#include <QMimeData>
 
 // To do:
 // - Get rid of shortcuts and replace them with "n most recently applied filters"?
@@ -164,6 +167,7 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
 
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(updateBookmarkMenu()));
     connect(wsApp, SIGNAL(displayFilterListChanged()), this, SLOT(updateBookmarkMenu()));
+
 }
 
 void DisplayFilterEdit::setDefaultPlaceholderText()
@@ -528,6 +532,63 @@ void DisplayFilterEdit::applyOrPrepareFilter()
     // Holding down the Shift key will only prepare filter.
     if (!(QApplication::keyboardModifiers() & Qt::ShiftModifier)) {
         applyDisplayFilter();
+    }
+}
+
+void DisplayFilterEdit::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (event && qobject_cast<const DisplayFilterMimeData *>(event->mimeData())) {
+        if ( event->source() != this )
+        {
+            event->setDropAction(Qt::CopyAction);
+            event->accept();
+        } else {
+            event->acceptProposedAction();
+        }
+    } else {
+        event->ignore();
+    }
+}
+
+void DisplayFilterEdit::dragMoveEvent(QDragMoveEvent *event)
+{
+    if (event && qobject_cast<const DisplayFilterMimeData *>(event->mimeData())) {
+        if ( event->source() != this )
+        {
+            event->setDropAction(Qt::CopyAction);
+            event->accept();
+        } else {
+            event->acceptProposedAction();
+        }
+    } else {
+        event->ignore();
+    }
+}
+
+void DisplayFilterEdit::dropEvent(QDropEvent *event)
+{
+    /* Moving items around */
+    if (event && qobject_cast<const DisplayFilterMimeData *>(event->mimeData())) {
+        const DisplayFilterMimeData * data = qobject_cast<const DisplayFilterMimeData *>(event->mimeData());
+
+        if ( event->source() != this )
+        {
+            event->setDropAction(Qt::CopyAction);
+            event->accept();
+
+            setText(data->filter());
+
+            // Holding down the Shift key will only prepare filter.
+            if (!(QApplication::keyboardModifiers() & Qt::ShiftModifier)) {
+                applyDisplayFilter();
+            }
+
+        } else {
+            event->acceptProposedAction();
+        }
+
+    } else {
+        event->ignore();
     }
 }
 
