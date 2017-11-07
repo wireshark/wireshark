@@ -853,7 +853,15 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
           proto_tree_add_item(mqtt_tree, hf_mqtt_reason_code, tvb, offset, 1, ENC_BIG_ENDIAN);
           offset += 1;
 
-          offset += dissect_mqtt_properties(tvb, mqtt_tree, offset);
+          /* 3.14.2.2 DISCONNECT Properties:
+           * If the Remaining Length is less than 2, a value of 0 is used.
+           * Let's assume that it also applies to AUTH, why? DISCONNECT and AUTH
+           * share the same structure with no payload.
+           */
+          if (mqtt_msg_len >= 2)
+          {
+            offset += dissect_mqtt_properties(tvb, mqtt_tree, offset);
+          }
         }
 
         break;
