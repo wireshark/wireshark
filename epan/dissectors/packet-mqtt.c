@@ -267,6 +267,20 @@ static const value_string mqtt_property_vals[] = {
   { 0, NULL }
 };
 
+/* MQTT v5.0 Subscription Options, Retain Handling option */
+#define SUBSCRIPTION_RETAIN_SEND            0x00
+#define SUBSCRIPTION_RETAIN_SEND_DONT_EXIST 0x01
+#define SUBSCRIPTION_RETAIN_DONT_SEND       0x02
+#define SUBSCRIPTION_RETAIN_RESERVED        0x03
+
+static const value_string mqtt_subscription_retain_handling[] = {
+  { SUBSCRIPTION_RETAIN_SEND,            "Send msgs at subscription time" },
+  { SUBSCRIPTION_RETAIN_SEND_DONT_EXIST, "Send msgs if subscription does not exist" },
+  { SUBSCRIPTION_RETAIN_DONT_SEND,       "Do not send msgs at subscription time" },
+  { SUBSCRIPTION_RETAIN_RESERVED,        "Reserved" },
+  { 0, NULL }
+};
+
 static mqtt_message_decode_t *mqtt_message_decodes = NULL;
 static guint num_mqtt_message_decodes = 0;
 
@@ -1179,10 +1193,9 @@ void proto_register_mqtt(void)
       { "Retain As Published", "mqtt.subscription_options_rap",
         FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQTT_MASK_SUBS_RAP,
         NULL, HFILL }},
-    /* xxx */
     { &hf_mqtt_subscription_retain,
       { "Retain Handling", "mqtt.subscription_options_retain",
-        FT_UINT8, BASE_HEX, NULL, MQTT_MASK_SUBS_RETAIN,
+        FT_UINT8, BASE_DEC, VALS(mqtt_subscription_retain_handling), MQTT_MASK_SUBS_RETAIN,
         NULL, HFILL }},
     { &hf_mqtt_subscription_reserved,
       { "Reserved", "mqtt.subscription_options_reserved",
