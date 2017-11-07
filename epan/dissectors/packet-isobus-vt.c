@@ -4390,6 +4390,8 @@ static void read_object_id_file(void)
         item_count++;
     }
 
+    fclose(file);
+
     object_id_strings[item_count].value = 0;
     object_id_strings[item_count].strptr = NULL;
 }
