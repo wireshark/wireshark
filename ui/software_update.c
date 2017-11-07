@@ -23,6 +23,7 @@
 #include "config.h"
 
 #include "software_update.h"
+#include "language.h"
 #include "../epan/prefs.h"
 
 /*
@@ -105,6 +106,9 @@ software_update_init(void) {
     win_sparkle_set_update_check_interval(prefs.gui_update_interval);
     win_sparkle_set_can_shutdown_callback(software_update_can_shutdown_callback);
     win_sparkle_set_shutdown_request_callback(software_update_shutdown_request_callback);
+    if (strcmp(language, "system") != 0) {
+        win_sparkle_set_lang(language);
+        }
     win_sparkle_init();
 }
 
