@@ -725,8 +725,6 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       case MQTT_PUBCOMP:
         proto_tree_add_item(mqtt_tree, hf_mqtt_msgid, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-        /* FALLTHROUGH */
-      case MQTT_DISCONNECT:
         if (mqtt->runtime_proto_version == MQTT_PROTO_V50)
         {
           proto_tree_add_item(mqtt_tree, hf_mqtt_reason_code, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -751,6 +749,12 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       case MQTT_PINGRESP:
         break;
 
+      case MQTT_DISCONNECT:
+        /* MQTT v5.0: Byte 1 in the Variable Header is the Disconnect Reason Code.
+         * If the Remaining Length is less than 1 the value of 0x00
+         * (Normal disconnection) is used.
+         */
+         /* FALLTHROUGH */
       case MQTT_AUTH:
         /* MQTT v5.0: The Reason Code and Property Length can be omitted if
          * the Reason Code is 0x00 (Success) and there are no Properties.
