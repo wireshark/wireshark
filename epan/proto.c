@@ -5052,7 +5052,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 							(guint32) fvalue_get_sinteger(&finfo->value) :
 							fvalue_get_uinteger(&finfo->value);
 
-						if ((hfinfo->display & FIELD_DISPLAY_E_MASK) == BASE_CUSTOM) {
+						if (FIELD_DISPLAY(hfinfo->display) == BASE_CUSTOM) {
 							gchar tmp[ITEM_LABEL_LENGTH];
 							custom_fmt_func_t fmtfunc = (custom_fmt_func_t)hfinfo->strings;
 
@@ -5075,7 +5075,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 							offset_r += protoo_strlcpy(result+offset_r, number_out, size-offset_r);
 						}
 
-						if (hf_str_val && (hfinfo->display & FIELD_DISPLAY_E_MASK) == BASE_NONE) {
+						if (hf_str_val && FIELD_DISPLAY(hfinfo->display) == BASE_NONE) {
 							g_snprintf(expr+offset_e, size-offset_e, "\"%s\"", hf_str_val);
 						} else {
 							number_out = hfinfo_numeric_value_format(hfinfo, number_buf, number);
@@ -5099,7 +5099,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 							(guint64) fvalue_get_sinteger64(&finfo->value) :
 							fvalue_get_uinteger64(&finfo->value);
 
-						if ((hfinfo->display & FIELD_DISPLAY_E_MASK) == BASE_CUSTOM) {
+						if (FIELD_DISPLAY(hfinfo->display) == BASE_CUSTOM) {
 							gchar tmp[ITEM_LABEL_LENGTH];
 							custom_fmt_func_64_t fmtfunc64 = (custom_fmt_func_64_t)hfinfo->strings;
 
@@ -5120,7 +5120,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 							offset_r += protoo_strlcpy(result+offset_r, number_out, size-offset_r);
 						}
 
-						if (hf_str_val && (hfinfo->display & FIELD_DISPLAY_E_MASK) == BASE_NONE) {
+						if (hf_str_val && FIELD_DISPLAY(hfinfo->display) == BASE_NONE) {
 							g_snprintf(expr+offset_e, size-offset_e, "\"%s\"", hf_str_val);
 						} else {
 							number_out = hfinfo_numeric_value_format64(hfinfo, number_buf, number64);
@@ -6459,7 +6459,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 	   report those that have same value but different string. */
 	if ((hfinfo->strings != NULL) &&
 	    !(hfinfo->display & BASE_RANGE_STRING) &&
-	    !((hfinfo->display & FIELD_DISPLAY_E_MASK) == BASE_CUSTOM) &&
+	    !(FIELD_DISPLAY(hfinfo->display) == BASE_CUSTOM) &&
 	    (
 		    (hfinfo->type == FT_UINT8)  ||
 		    (hfinfo->type == FT_UINT16) ||
@@ -6519,7 +6519,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 			 *	signed field to be displayed unsigned.  (Else how would
 			 *	we display negative values?)
 			 */
-			switch (hfinfo->display & FIELD_DISPLAY_E_MASK) {
+			switch (FIELD_DISPLAY(hfinfo->display)) {
 				case BASE_HEX:
 				case BASE_OCT:
 				case BASE_DEC_HEX:
@@ -6570,7 +6570,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 			 *  meaningless; we'll avoid showing the value to the
 			 *  user.
 			 */
-			switch (hfinfo->display & FIELD_DISPLAY_E_MASK) {
+			switch (FIELD_DISPLAY(hfinfo->display)) {
 				case BASE_DEC:
 				case BASE_HEX:
 				case BASE_OCT:
@@ -6599,7 +6599,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 			/*  Require bytes to have a "display type" that could
 			 *  add a character between displayed bytes.
 			 */
-			switch (hfinfo->display & FIELD_DISPLAY_E_MASK) {
+			switch (FIELD_DISPLAY(hfinfo->display)) {
 				case BASE_NONE:
 				case SEP_DOT:
 				case SEP_DASH:
@@ -7741,7 +7741,7 @@ hfinfo_number_value_format_display(const header_field_info *hfinfo, int display,
 
 	*ptr = '\0';
 	/* Properly format value */
-	switch (display & FIELD_DISPLAY_E_MASK) {
+	switch (FIELD_DISPLAY(display)) {
 		case BASE_DEC:
 			return isint ? int_to_str_back(ptr, (gint32) value) : uint_to_str_back(ptr, value);
 
@@ -7789,7 +7789,7 @@ hfinfo_number_value_format_display64(const header_field_info *hfinfo, int displa
 
 	*ptr = '\0';
 	/* Properly format value */
-		switch (display) {
+		switch (FIELD_DISPLAY(display)) {
 			case BASE_DEC:
 				return isint ? int64_to_str_back(ptr, (gint64) value) : uint64_to_str_back(ptr, value);
 
@@ -7855,7 +7855,7 @@ static const char *
 hfinfo_numeric_value_format(const header_field_info *hfinfo, char buf[32], guint32 value)
 {
 	/* Get the underlying BASE_ value */
-	int display = hfinfo->display & FIELD_DISPLAY_E_MASK;
+	int display = FIELD_DISPLAY(hfinfo->display);
 
 	if (hfinfo->type == FT_FRAMENUM) {
 		/*
@@ -7890,7 +7890,7 @@ static const char *
 hfinfo_numeric_value_format64(const header_field_info *hfinfo, char buf[64], guint64 value)
 {
 	/* Get the underlying BASE_ value */
-	int display = hfinfo->display & FIELD_DISPLAY_E_MASK;
+	int display = FIELD_DISPLAY(hfinfo->display);
 
 	if (hfinfo->type == FT_FRAMENUM) {
 		/*
@@ -7921,7 +7921,7 @@ static const char *
 hfinfo_number_vals_format(const header_field_info *hfinfo, char buf[32], guint32 value)
 {
 	/* Get the underlying BASE_ value */
-	int display = hfinfo->display & FIELD_DISPLAY_E_MASK;
+	int display = FIELD_DISPLAY(hfinfo->display);
 
 	if (display == BASE_NONE)
 		return NULL;
@@ -7938,7 +7938,7 @@ static const char *
 hfinfo_number_vals_format64(const header_field_info *hfinfo, char buf[64], guint64 value)
 {
 	/* Get the underlying BASE_ value */
-	int display = hfinfo->display & FIELD_DISPLAY_E_MASK;
+	int display = FIELD_DISPLAY(hfinfo->display);
 
 	if (display == BASE_NONE)
 		return NULL;
@@ -8321,7 +8321,7 @@ proto_registrar_dump_values(void)
 		tfs    = NULL;
 
 		if (hfinfo->strings != NULL) {
-			if ((hfinfo->display & FIELD_DISPLAY_E_MASK) != BASE_CUSTOM &&
+			if (FIELD_DISPLAY(hfinfo->display) != BASE_CUSTOM &&
 			    (hfinfo->type == FT_UINT8  ||
 			     hfinfo->type == FT_UINT16 ||
 			     hfinfo->type == FT_UINT24 ||
@@ -8403,7 +8403,7 @@ proto_registrar_dump_values(void)
 			vi = 0;
 			while (range[vi].strptr) {
 				/* Print in the proper base */
-				if ((hfinfo->display & FIELD_DISPLAY_E_MASK) == BASE_HEX) {
+				if (FIELD_DISPLAY(hfinfo->display) == BASE_HEX) {
 					printf("R\t%s\t0x%x\t0x%x\t%s\n",
 					       hfinfo->abbrev,
 					       range[vi].value_min,
@@ -8657,7 +8657,7 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 	DISSECTOR_ASSERT(hfinfo);
 	abbrev_len = (int) strlen(hfinfo->abbrev);
 
-	if (hfinfo->strings && (hfinfo->display & FIELD_DISPLAY_E_MASK) == BASE_NONE) {
+	if (hfinfo->strings && FIELD_DISPLAY(hfinfo->display) == BASE_NONE) {
 		const gchar *str = NULL;
 
 		switch (hfinfo->type) {
