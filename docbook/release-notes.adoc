@@ -69,6 +69,7 @@ FTDI FT USB Bridging Devices (FTDI FT)
 CableLabs Layer-3 Protocol IEEE EtherType 0xb4e3 (CL3)
 Dual Channel Wi-Fi (CL3DCW)
 NR Positioning Protocol A (NRPPa) TS 38.455
+Network Controller Sideband Interface (NCSI)
 --
 
 === Updated Protocol Support
