@@ -660,10 +660,9 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                                             fcp_iu_val, "Unknown 0x%02x"));
     fcp_tree = proto_item_add_subtree(ti, ett_fcp);
 
-    fc_conv = find_conversation_pinfo(pinfo, 0);
-    if (fc_conv != NULL) {
-        fcp_conv_data = (fcp_conv_data_t *)conversation_get_proto_data(fc_conv, proto_fcp);
-    }
+    fc_conv = find_or_create_conversation(pinfo);
+    fcp_conv_data = (fcp_conv_data_t *)conversation_get_proto_data(fc_conv, proto_fcp);
+
     if (!fcp_conv_data) {
         fcp_conv_data = wmem_new(wmem_file_scope(), fcp_conv_data_t);
         fcp_conv_data->luns = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
