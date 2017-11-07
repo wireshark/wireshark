@@ -42,6 +42,13 @@ if(WIN32)
     PATH_SUFFIXES "HTML Help Workshop/lib"
     )
 
+  # handle the QUIETLY and REQUIRED arguments and set HTMLHelp_FOUND to TRUE if
+  # all listed variables are TRUE
+  INCLUDE(FindPackageHandleStandardArgs)
+  FIND_PACKAGE_HANDLE_STANDARD_ARGS(HTMLHelp
+    REQUIRED_VARS HTML_HELP_COMPILER HTML_HELP_INCLUDE_PATH HTML_HELP_LIBRARY
+   )
+
   mark_as_advanced(
     HTML_HELP_COMPILER
     HTML_HELP_INCLUDE_PATH
