@@ -108,10 +108,7 @@ bool DragDropToolBar::eventFilter(QObject * obj, QEvent * event)
                  > QApplication::startDragDistance())
         {
             QDrag * drag = new QDrag(this);
-            QMimeData *mimeData = new QMimeData;
-            mimeData->setData("application/x-wireshark-toolbar-entry",
-                    elem->property(drag_drop_toolbar_action_).toByteArray());
-            drag->setMimeData(mimeData);
+            drag->setMimeData(new ToolbarEntryMimeData(elem->property(drag_drop_toolbar_action_).toInt()));
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
             qreal dpr = window()->windowHandle()->devicePixelRatio();
@@ -134,10 +131,18 @@ bool DragDropToolBar::eventFilter(QObject * obj, QEvent * event)
 
 void DragDropToolBar::dragEnterEvent(QDragEnterEvent *event)
 {
-    if (event->mimeData()->hasFormat("application/x-wireshark-toolbar-entry"))
+    if (qobject_cast<const ToolbarEntryMimeData *>(event->mimeData()))
     {
         if (event->source() == this) {
             event->setDropAction(Qt::MoveAction);
+            event->accept();
+        } else {
+            event->acceptProposedAction();
+        }
+    } else if (qobject_cast<const DisplayFilterMimeData *>(event->mimeData())) {
+        if ( event->source() != this )
+        {
+            event->setDropAction(Qt::CopyAction);
             event->accept();
         } else {
             event->acceptProposedAction();
@@ -157,7 +162,7 @@ void DragDropToolBar::dragEnterEvent(QDragEnterEvent *event)
 
 void DragDropToolBar::dragMoveEvent(QDragMoveEvent *event)
 {
-    if (event->mimeData()->hasFormat("application/x-wireshark-toolbar-entry"))
+    if (qobject_cast<const ToolbarEntryMimeData *>(event->mimeData()))
     {
         if (event->source() == this) {
             event->setDropAction(Qt::MoveAction);
@@ -192,9 +197,11 @@ void DragDropToolBar::dragMoveEvent(QDragMoveEvent *event)
 void DragDropToolBar::dropEvent(QDropEvent *event)
 {
     /* Moving items around */
-    if (event->mimeData()->hasFormat("application/x-wireshark-toolbar-entry"))
+    if (qobject_cast<const ToolbarEntryMimeData *>(event->mimeData()))
     {
-        int oldPos = event->mimeData()->data("application/x-wireshark-toolbar-entry").toInt();
+        const ToolbarEntryMimeData * data = qobject_cast<const ToolbarEntryMimeData *>(event->mimeData());
+
+        int oldPos = data->position();
         int newPos = -1;
         QAction * action = actionAt(event->pos());
         if ( action && actions().at(oldPos) )

@@ -25,8 +25,7 @@ DisplayFilterMimeData::DisplayFilterMimeData(QString description, QString filter
 QMimeData(),
 description_(description),
 filter_(filter)
-{
-}
+{}
 
 QString DisplayFilterMimeData::description() const
 {
@@ -36,6 +35,16 @@ QString DisplayFilterMimeData::description() const
 QString DisplayFilterMimeData::filter() const
 {
     return filter_;
+}
+
+ToolbarEntryMimeData::ToolbarEntryMimeData(int pos) :
+    QMimeData(),
+    pos_(pos)
+{}
+
+int ToolbarEntryMimeData::position() const
+{
+    return pos_;
 }
 
 /*

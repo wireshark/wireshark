@@ -40,6 +40,20 @@ private:
 
 };
 
+class ToolbarEntryMimeData: public QMimeData {
+    Q_OBJECT
+public:
+
+    ToolbarEntryMimeData(int pos);
+
+    int position() const;
+
+private:
+
+    int pos_;
+
+};
+
 #endif /* UI_QT_UTILS_WIRESHARK_MIME_DATA_H_ */
 
 /*
