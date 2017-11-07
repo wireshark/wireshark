@@ -3892,8 +3892,8 @@ dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
             msg_tvb = tvb_new_subset_remaining(tvb, offset);
             if (!msg_tvb)
                 break;
-            if (dvbci_dissect_lsc_msg && circuit && circuit->dissector_handle) {
-                msg_handle = circuit->dissector_handle;
+            if (dvbci_dissect_lsc_msg && circuit_get_dissector(circuit)) {
+                msg_handle = circuit_get_dissector(circuit);
                 col_append_str(pinfo->cinfo, COL_INFO, ", ");
                 col_set_fence(pinfo->cinfo, COL_INFO);
                 col_append_str(pinfo->cinfo, COL_PROTOCOL, ", ");
@@ -4133,8 +4133,9 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
                     tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             msg_tvb = tvb_new_subset_length(tvb, offset, msg_len);
-            msg_handle = (circuit && circuit->dissector_handle) ?
-                circuit->dissector_handle : data_handle;
+            msg_handle = circuit_get_dissector(circuit);
+            if (msg_handle == NULL)
+                msg_handle = data_handle;
             call_dissector(msg_handle, msg_tvb, pinfo, tree);
             break;
         default:

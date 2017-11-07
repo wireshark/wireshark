@@ -26,6 +26,11 @@
 #include "packet.h"
 #include "circuit.h"
 
+struct circuit_key {
+	circuit_type ctype;
+	guint32 circuit_id;
+};
+
 /*
  * Hash table for circuits.
  */
@@ -34,21 +39,12 @@ static GHashTable *circuit_hashtable = NULL;
 static guint32 new_index;
 
 /*
- * Protocol-specific data attached to a circuit_t structure - protocol
- * index and opaque pointer.
- */
-typedef struct _circuit_proto_data {
-	int	proto;
-	void	*proto_data;
-} circuit_proto_data;
-
-/*
  * Compute the hash value for a circuit.
  */
 static guint
 circuit_hash(gconstpointer v)
 {
-	const circuit_key *key = (const circuit_key *)v;
+	const circuit_key_t key = (const circuit_key_t)v;
 
 	return key->ctype ^ key->circuit_id;
 }
@@ -59,8 +55,8 @@ circuit_hash(gconstpointer v)
 static gint
 circuit_match(gconstpointer v, gconstpointer w)
 {
-	const circuit_key *v1 = (const circuit_key *)v;
-	const circuit_key *v2 = (const circuit_key *)w;
+	const circuit_key_t v1 = (const circuit_key_t)v;
+	const circuit_key_t v2 = (const circuit_key_t)w;
 
 	return v1->ctype == v2->ctype && v1->circuit_id == v2->circuit_id;
 }
@@ -110,7 +106,7 @@ circuit_t *
 circuit_new(circuit_type ctype, guint32 circuit_id, guint32 first_frame)
 {
 	circuit_t *circuit, *old_circuit;
-	circuit_key *new_key;
+	circuit_key_t new_key;
 
 	new_key = wmem_new(wmem_file_scope(), struct circuit_key);
 	new_key->ctype = ctype;
@@ -122,7 +118,7 @@ circuit_new(circuit_type ctype, guint32 circuit_id, guint32 first_frame)
 	circuit->last_frame = 0;	/* not known yet */
 	circuit->circuit_index = new_index;
 	circuit->data_list = NULL;
-	circuit->dissector_handle = NULL;
+	circuit->dissector_tree = wmem_tree_new(wmem_file_scope());
 	circuit->key_ptr = new_key;
 
 	new_index++;
@@ -166,7 +162,7 @@ circuit_new(circuit_type ctype, guint32 circuit_id, guint32 first_frame)
 circuit_t *
 find_circuit(circuit_type ctype, guint32 circuit_id, guint32 frame)
 {
-	circuit_key key;
+	struct circuit_key key;
 	circuit_t *circuit;
 
 	key.ctype = ctype;
@@ -207,80 +203,46 @@ close_circuit(circuit_t *circuit, guint32 last_frame)
 		circuit->last_frame = last_frame;
 }
 
-static gint
-p_compare(gconstpointer a, gconstpointer b)
-{
-	const circuit_proto_data *ap = (const circuit_proto_data *)a;
-	const circuit_proto_data *bp = (const circuit_proto_data *)b;
-
-	if (ap->proto > bp->proto)
-		return 1;
-	else if (ap->proto == bp->proto)
-		return 0;
-	else
-		return -1;
-}
-
 void
 circuit_add_proto_data(circuit_t *conv, int proto, void *proto_data)
 {
-	circuit_proto_data *p1 = wmem_new(wmem_file_scope(), circuit_proto_data);
+	/* Add it to the list of items for this conversation. */
+	if (conv->data_list == NULL)
+		conv->data_list = wmem_tree_new(wmem_file_scope());
 
-	p1->proto = proto;
-	p1->proto_data = proto_data;
-
-	/* Add it to the list of items for this circuit. */
-
-	conv->data_list = g_slist_insert_sorted(conv->data_list, (gpointer *)p1,
-	    p_compare);
+	wmem_tree_insert32(conv->data_list, proto, proto_data);
 }
 
 void *
 circuit_get_proto_data(circuit_t *conv, int proto)
 {
-	circuit_proto_data temp, *p1;
-	GSList *item;
+	/* No tree created yet */
+	if (conv->data_list == NULL)
+		return NULL;
 
-	temp.proto = proto;
-	temp.proto_data = NULL;
-
-	item = g_slist_find_custom(conv->data_list, (gpointer *)&temp,
-	    p_compare);
-
-	if (item != NULL) {
-		p1 = (circuit_proto_data *)item->data;
-		return p1->proto_data;
-	}
-
-	return NULL;
+	return wmem_tree_lookup32(conv->data_list, proto);
 }
 
 void
 circuit_delete_proto_data(circuit_t *conv, int proto)
 {
-	circuit_proto_data temp;
-	GSList *item;
-
-	temp.proto = proto;
-	temp.proto_data = NULL;
-
-	item = g_slist_find_custom(conv->data_list, (gpointer *)&temp,
-	    p_compare);
-
-	if (item != NULL)
-		conv->data_list = g_slist_remove(conv->data_list, item);
+	if (conv->data_list != NULL)
+		wmem_tree_remove32(conv->data_list, proto);
 }
 
 void
 circuit_set_dissector(circuit_t *circuit, dissector_handle_t handle)
 {
-	circuit->dissector_handle = handle;
+	wmem_tree_insert32(circuit->dissector_tree, 0, (void *)handle);
 }
 
 dissector_handle_t
 circuit_get_dissector(circuit_t *circuit)
 {
-	return circuit->dissector_handle;
+	if (circuit == NULL)
+		return NULL;
+
+	return (dissector_handle_t)wmem_tree_lookup32_le(circuit->dissector_tree, 0);
 }
 
 /*
@@ -293,14 +255,15 @@ try_circuit_dissector(circuit_type ctype, guint32 circuit_id, guint32 frame,
 		      tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	circuit_t *circuit;
+	dissector_handle_t handle;
 
 	circuit = find_circuit(ctype, circuit_id, frame);
 
 	if (circuit != NULL) {
-		if (circuit->dissector_handle == NULL)
+		handle = circuit_get_dissector(circuit);
+		if (handle == NULL)
 			return FALSE;
-		call_dissector_with_data(circuit->dissector_handle, tvb, pinfo,
-		    tree, data);
+		call_dissector_with_data(handle, tvb, pinfo, tree, data);
 		return TRUE;
 	}
 	return FALSE;

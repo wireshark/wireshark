@@ -33,20 +33,18 @@ extern "C" {
 /**
  * Data structure representing a circuit.
  */
-typedef struct circuit_key {
-	circuit_type ctype;
-	guint32 circuit_id;
-} circuit_key;
+struct circuit_key;
+typedef struct circuit_key* circuit_key_t;
 
 typedef struct circuit {
 	struct circuit *next;			/**< pointer to next circuit with given circuit ID */
 	guint32 first_frame;			/**< # of first frame for that circuit */
 	guint32 last_frame;			/**< # of last frame for that circuit */
 	guint32 circuit_index;			/**< unique ID for circuit */
-	GSList *data_list;			/**< list of data associated with circuit */
-	dissector_handle_t dissector_handle;	/**< handle for protocol dissector client associated with circuit */
+	wmem_tree_t *data_list;			/**< list of data associated with circuit */
+	wmem_tree_t *dissector_tree; /** tree containing protocol dissector client associated with circuit */
 	guint options;				/**< wildcard flags */
-	circuit_key *key_ptr;			/**< pointer to the key for this circuit */
+	circuit_key_t key_ptr;			/**< pointer to the key for this circuit */
 } circuit_t;
 
 /**
