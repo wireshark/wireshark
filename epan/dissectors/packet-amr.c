@@ -49,6 +49,7 @@ static dissector_handle_t amr_wb_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_amr = -1;
+static int proto_amr_wb = -1;
 static int hf_amr_nb_cmr = -1;
 static int hf_amr_wb_cmr = -1;
 static int hf_amr_payload_decoded_as = -1;
@@ -788,6 +789,7 @@ proto_register_amr(void)
 
 /* Register the protocol name and description */
     proto_amr = proto_register_protocol("Adaptive Multi-Rate","AMR", "amr");
+    proto_amr_wb = proto_register_protocol_in_name_only("Adaptive Multi-Rate WB","AMR WB", "amr_wb", proto_amr, FT_PROTOCOL);
 
 /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_amr, hf, array_length(hf));
@@ -821,7 +823,7 @@ proto_register_amr(void)
                        &pref_amr_mode, modes, AMR_NB);
 
     amr_handle = register_dissector("amr", dissect_amr, proto_amr);
-    amr_wb_handle = register_dissector("amr-wb", dissect_amr_wb, proto_amr);
+    amr_wb_handle = register_dissector("amr-wb", dissect_amr_wb, proto_amr_wb);
     register_dissector("amr_if1_nb", dissect_amr_nb_if1, proto_amr);
     register_dissector("amr_if1_wb", dissect_amr_wb_if1, proto_amr);
     register_dissector("amr_if2_nb", dissect_amr_nb_if2, proto_amr);
