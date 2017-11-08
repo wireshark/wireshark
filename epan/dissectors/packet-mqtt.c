@@ -474,6 +474,7 @@ static guint32 dissect_mqtt_properties(tvbuff_t *tvb, proto_tree *mqtt_tree, gui
       case PROP_MAXIMUM_QOS:
         proto_tree_add_item(mqtt_prop_tree, hf_mqtt_prop_max_qos, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
+        break;
       case PROP_SERVER_KEEP_ALIVE:
       case PROP_RECEIVE_MAXIMUM:
       case PROP_TOPIC_ALIAS_MAXIMUM:
