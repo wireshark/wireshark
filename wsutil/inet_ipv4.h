@@ -26,6 +26,12 @@
 
 typedef guint32 ws_in4_addr;	/* 32 bit IPv4 address, in network byte order */
 
+/*
+ * We define these in *network byte order*, unlike the C library. Therefore
+ * it uses a different prefix than INADDR_* to make the distinction more obvious.
+ */
+#define WS_IN4_LOOPBACK ((ws_in4_addr)GUINT32_TO_BE(0x7f000001))
+
 /**
  * Unicast Local
  * Returns true if the address is in the 224.0.0.0/24 local network

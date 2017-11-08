@@ -41,10 +41,7 @@
 #endif
 
 #include <wsutil/socket.h>
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
+#include <wsutil/inet_addr.h>
 
 #ifndef _WIN32
 #include <sys/un.h>
@@ -145,7 +142,7 @@ socket_init(char *path)
 			return INVALID_SOCKET;
 
 		s_in.sin_family = AF_INET;
-		s_in.sin_addr.s_addr = inet_addr(path);
+		ws_inet_pton4(path, &(s_in.sin_addr.s_addr));
 		s_in.sin_port = g_htons(port);
 		*port_sep = ':';
 

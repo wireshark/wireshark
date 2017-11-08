@@ -30,6 +30,7 @@
 #endif
 
 #include <glib.h>
+#include "inet_ipv4.h"
 #include "inet_ipv6.h"
 
 /*
@@ -83,7 +84,7 @@ WS_DLL_PUBLIC WS_RETNONNULL const gchar *
 ws_inet_ntop6(gconstpointer src, gchar *dst, guint dst_size);
 
 WS_DLL_PUBLIC gboolean
-ws_inet_pton4(const gchar *src, guint32 *dst);
+ws_inet_pton4(const gchar *src, ws_in4_addr *dst);
 
 WS_DLL_PUBLIC gboolean
 ws_inet_pton6(const gchar *src, ws_in6_addr *dst);
