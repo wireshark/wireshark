@@ -357,7 +357,6 @@ k2(uat_btmesh_record_t * net_key_set, guint8 *p, size_t plen)
         return FALSE;
     }
     net_key_set->nid = (t1[15] & 0x7f);
-    g_warning("NID %x", net_key_set->nid);
     /* T2 = AES-CMAC_T(T1 || P || 0x02)
      * (EncryptionKey)
      */
