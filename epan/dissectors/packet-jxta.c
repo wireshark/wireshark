@@ -1,7 +1,7 @@
 /* packet-jxta.c
  *
  * Routines for JXTA packet dissection
- * JXTA specification from https://jxta-spec.dev.java.net
+ * JXTA specification from https://jxta-spec.dev.java.net (now at https://github.com/chaupal/jxta-spec ?)
  *
  * Copyright 2004-08, Mike Duigou <bondolo@dev.java.net>
  *
@@ -39,6 +39,7 @@
 #include <epan/prefs.h>
 #include <epan/to_str.h>
 #include <epan/address_types.h>
+#include <epan/expert.h>
 #include <wsutil/str_util.h>
 
 #include "packet-jxta.h"
@@ -147,21 +148,7 @@ static gint ett_jxta_elem = -1;
 static gint ett_jxta_elem_1_flags = -1;
 static gint ett_jxta_elem_2_flags = -1;
 
-/**
-*   JXTA Protocol subtree array
-**/
-static gint *const ett[] = {
-    &ett_jxta,
-    &ett_jxta_welcome,
-    &ett_jxta_udp,
-    &ett_jxta_framing,
-    &ett_jxta_framing_header,
-    &ett_jxta_msg,
-    &ett_jxta_msg_flags,
-    &ett_jxta_elem,
-    &ett_jxta_elem_1_flags,
-    &ett_jxta_elem_2_flags
-};
+static expert_field ei_media_too_short = EI_INIT;
 
 static int uri_address_type = -1;
 
@@ -528,34 +515,34 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "JXTA");
 
-    {
-        guint tree_offset = 0;
-        proto_item *jxta_tree_item =
-            proto_tree_add_protocol_format(tree, proto_jxta, tvb, tree_offset, -1, "JXTA" );
-        proto_tree *jxta_tree = proto_item_add_subtree(jxta_tree_item, ett_jxta);
-        proto_item *jxta_udp_tree_item =
-            proto_tree_add_none_format(jxta_tree, hf_jxta_udp, tvb, tree_offset, -1, "JXTA UDP Message");
-        proto_tree *jxta_udp_tree = proto_item_add_subtree(jxta_udp_tree_item, ett_jxta_udp);
-        tvbuff_t *jxta_message_framing_tvb;
-        guint64 content_length = -1;
-        gchar *content_type = NULL;
-        tvbuff_t *jxta_message_tvb;
+    guint tree_offset = 0;
+    proto_item *jxta_tree_item =
+        proto_tree_add_protocol_format(tree, proto_jxta, tvb, tree_offset, -1, "JXTA" );
+    proto_tree *jxta_tree = proto_item_add_subtree(jxta_tree_item, ett_jxta);
+    proto_item *jxta_udp_tree_item =
+        proto_tree_add_none_format(jxta_tree, hf_jxta_udp, tvb, tree_offset, -1, "JXTA UDP Message");
+    proto_tree *jxta_udp_tree = proto_item_add_subtree(jxta_udp_tree_item, ett_jxta_udp);
+    tvbuff_t *jxta_message_framing_tvb;
+    guint64 content_length = -1;
+    gchar *content_type = NULL;
+    tvbuff_t *jxta_message_tvb;
 
-        proto_tree_add_item(jxta_udp_tree, hf_jxta_udpsig, tvb, tree_offset, (int)sizeof(JXTA_UDP_SIG), ENC_ASCII|ENC_NA);
-        tree_offset += (int)sizeof(JXTA_UDP_SIG);
+    proto_tree_add_item(jxta_udp_tree, hf_jxta_udpsig, tvb, tree_offset, (int)sizeof(JXTA_UDP_SIG), ENC_ASCII|ENC_NA);
+    tree_offset += (int)sizeof(JXTA_UDP_SIG);
 
-        jxta_message_framing_tvb = tvb_new_subset_remaining(tvb, tree_offset);
+    jxta_message_framing_tvb = tvb_new_subset_remaining(tvb, tree_offset);
 
-        tree_offset += dissect_jxta_message_framing(jxta_message_framing_tvb, pinfo, jxta_tree, &content_length, &content_type);
+    tree_offset += dissect_jxta_message_framing(jxta_message_framing_tvb, pinfo, jxta_tree, &content_length, &content_type);
 
-        jxta_message_tvb = tvb_new_subset_length(tvb, tree_offset, (gint) content_length);
+    jxta_message_tvb = tvb_new_subset_length(tvb, tree_offset, (gint) content_length);
 
-        tree_offset += dissect_media(content_type, jxta_message_tvb, pinfo, tree);
+    tree_offset += dissect_media(content_type, jxta_message_tvb, pinfo, tree);
 
-        proto_item_set_end(jxta_udp_tree_item, tvb, tree_offset);
+    proto_item_set_end(jxta_udp_tree_item, tvb, tree_offset);
 
-        DISSECTOR_ASSERT(offset == tree_offset);
-    }
+    // offset is based on reported lengths. tree_offset is based on captured lengths via dissect_media.
+    // Comment this out for now in favor of dissect_media's expert warning.
+    // DISSECTOR_ASSERT(tree_offset == offset);
 
     return offset;
 }
@@ -1636,84 +1623,84 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
         return -needed;
     }
 
-    /* Second (optional) pass : build the proto tree */
-    {
-        guint tree_offset = 0;
-        proto_item *jxta_elem_tree_item = proto_tree_add_item(tree, hf_jxta_element, tvb, tree_offset, -1, ENC_NA);
-        proto_tree *jxta_elem_tree = proto_item_add_subtree(jxta_elem_tree_item, ett_jxta_elem);
-        guint8 namespaceID;
-        proto_item *namespace_ti;
-        guint16 name_len;
-        guint32 content_len;
-        gchar *mediatype = NULL;
-        tvbuff_t *element_content_tvb;
-        static const int * element_flags[] = {
-            &hf_jxta_element1_flag_hasType,
-            &hf_jxta_element1_flag_hasEncoding,
-            &hf_jxta_element1_flag_hasSignature,
-            NULL
-        };
+    /* Second pass : build the proto tree */
+    guint tree_offset = 0;
+    proto_item *jxta_elem_tree_item = proto_tree_add_item(tree, hf_jxta_element, tvb, tree_offset, -1, ENC_NA);
+    proto_tree *jxta_elem_tree = proto_item_add_subtree(jxta_elem_tree_item, ett_jxta_elem);
+    guint8 namespaceID;
+    proto_item *namespace_ti;
+    guint16 name_len;
+    guint32 content_len;
+    gchar *mediatype = NULL;
+    tvbuff_t *element_content_tvb;
+    static const int * element_flags[] = {
+        &hf_jxta_element1_flag_hasType,
+        &hf_jxta_element1_flag_hasEncoding,
+        &hf_jxta_element1_flag_hasSignature,
+        NULL
+    };
 
-        proto_tree_add_item(jxta_elem_tree, hf_jxta_element_sig, tvb, tree_offset, (int)sizeof(JXTA_MSGELEM_SIG), ENC_ASCII|ENC_NA);
-        tree_offset += (int)sizeof(JXTA_MSGELEM_SIG);
+    proto_tree_add_item(jxta_elem_tree, hf_jxta_element_sig, tvb, tree_offset, (int)sizeof(JXTA_MSGELEM_SIG), ENC_ASCII|ENC_NA);
+    tree_offset += (int)sizeof(JXTA_MSGELEM_SIG);
 
-        namespaceID = tvb_get_guint8(tvb, tree_offset);
-        namespace_ti =
-            proto_tree_add_uint(jxta_elem_tree, hf_jxta_element1_namespaceid, tvb, tree_offset, 1, namespaceID);
-        if (namespaceID < ns_count) {
-            proto_item_append_text(namespace_ti, " (%s)", names_table[namespaceID]);
-        } else {
-            proto_item_append_text(namespace_ti, " * BAD *");
-        }
-        tree_offset += 1;
-
-        flags = tvb_get_guint8(tvb, tree_offset);
-        proto_tree_add_bitmask(jxta_elem_tree, tvb, tree_offset, hf_jxta_element_flags, ett_jxta_elem_1_flags, element_flags, ENC_NA);
-        tree_offset += 1;
-
-        name_len = tvb_get_ntohs(tvb, tree_offset);
-        proto_item_append_text(jxta_elem_tree_item, " \"%s\"", tvb_format_text(tvb, tree_offset + 2, name_len));
-        proto_tree_add_item(jxta_elem_tree, hf_jxta_element_name, tvb, tree_offset, 2, ENC_ASCII|ENC_BIG_ENDIAN);
-        tree_offset += 2 + name_len;
-
-        /* process type */
-        if ((flags & JXTAMSG1_ELMFLAG_TYPE) != 0) {
-            guint16 type_len = tvb_get_ntohs(tvb, tree_offset);
-            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_type, tvb, tree_offset, 2, ENC_ASCII|ENC_BIG_ENDIAN);
-            tree_offset += 2;
-
-            mediatype = tvb_get_string_enc(wmem_packet_scope(), tvb, tree_offset, type_len, ENC_ASCII);
-
-            tree_offset += type_len;
-        }
-
-        /* process encoding */
-        if ((flags & JXTAMSG1_ELMFLAG_ENCODING) != 0) {
-            guint16 encoding_len = tvb_get_ntohs(tvb, tree_offset);
-            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_encoding, tvb, tree_offset, 2, ENC_ASCII|ENC_BIG_ENDIAN);
-            tree_offset += 2 + encoding_len;
-        }
-
-        /* content */
-        content_len = tvb_get_ntohl(tvb, tree_offset);
-        proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len, tvb, tree_offset, 4, ENC_BIG_ENDIAN);
-        tree_offset += 4;
-
-        element_content_tvb = tvb_new_subset_length(tvb, tree_offset, content_len);
-
-        tree_offset += dissect_media(mediatype, element_content_tvb, pinfo, jxta_elem_tree);
-
-        /* process the signature element */
-        if ((flags & JXTAMSG1_ELMFLAG_SIGNATURE) != 0) {
-            tvbuff_t *jxta_message_element_tvb = tvb_new_subset_remaining(tvb, tree_offset);
-
-            tree_offset += dissect_jxta_message_element_1(jxta_message_element_tvb, pinfo, jxta_elem_tree, ns_count, names_table);
-        }
-
-        proto_item_set_end(jxta_elem_tree_item, tvb, tree_offset);
-
-        DISSECTOR_ASSERT(tree_offset == offset);
+    namespaceID = tvb_get_guint8(tvb, tree_offset);
+    namespace_ti =
+        proto_tree_add_uint(jxta_elem_tree, hf_jxta_element1_namespaceid, tvb, tree_offset, 1, namespaceID);
+    if (namespaceID < ns_count) {
+        proto_item_append_text(namespace_ti, " (%s)", names_table[namespaceID]);
+    } else {
+        proto_item_append_text(namespace_ti, " * BAD *");
     }
+    tree_offset += 1;
+
+    flags = tvb_get_guint8(tvb, tree_offset);
+    proto_tree_add_bitmask(jxta_elem_tree, tvb, tree_offset, hf_jxta_element_flags, ett_jxta_elem_1_flags, element_flags, ENC_NA);
+    tree_offset += 1;
+
+    name_len = tvb_get_ntohs(tvb, tree_offset);
+    proto_item_append_text(jxta_elem_tree_item, " \"%s\"", tvb_format_text(tvb, tree_offset + 2, name_len));
+    proto_tree_add_item(jxta_elem_tree, hf_jxta_element_name, tvb, tree_offset, 2, ENC_ASCII|ENC_BIG_ENDIAN);
+    tree_offset += 2 + name_len;
+
+    /* process type */
+    if ((flags & JXTAMSG1_ELMFLAG_TYPE) != 0) {
+        guint16 type_len = tvb_get_ntohs(tvb, tree_offset);
+        proto_tree_add_item(jxta_elem_tree, hf_jxta_element_type, tvb, tree_offset, 2, ENC_ASCII|ENC_BIG_ENDIAN);
+        tree_offset += 2;
+
+        mediatype = tvb_get_string_enc(wmem_packet_scope(), tvb, tree_offset, type_len, ENC_ASCII);
+
+        tree_offset += type_len;
+    }
+
+    /* process encoding */
+    if ((flags & JXTAMSG1_ELMFLAG_ENCODING) != 0) {
+        guint16 encoding_len = tvb_get_ntohs(tvb, tree_offset);
+        proto_tree_add_item(jxta_elem_tree, hf_jxta_element_encoding, tvb, tree_offset, 2, ENC_ASCII|ENC_BIG_ENDIAN);
+        tree_offset += 2 + encoding_len;
+    }
+
+    /* content */
+    content_len = tvb_get_ntohl(tvb, tree_offset);
+    proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len, tvb, tree_offset, 4, ENC_BIG_ENDIAN);
+    tree_offset += 4;
+
+    element_content_tvb = tvb_new_subset_length(tvb, tree_offset, content_len);
+
+    tree_offset += dissect_media(mediatype, element_content_tvb, pinfo, jxta_elem_tree);
+
+    /* process the signature element */
+    if ((flags & JXTAMSG1_ELMFLAG_SIGNATURE) != 0) {
+        tvbuff_t *jxta_message_element_tvb = tvb_new_subset_remaining(tvb, tree_offset);
+
+        tree_offset += dissect_jxta_message_element_1(jxta_message_element_tvb, pinfo, jxta_elem_tree, ns_count, names_table);
+    }
+
+    proto_item_set_end(jxta_elem_tree_item, tvb, tree_offset);
+
+    // offset is based on reported lengths. tree_offset is based on captured lengths via dissect_media.
+    // Comment this out for now in favor of dissect_media's expert warning.
+    // DISSECTOR_ASSERT(tree_offset == offset);
 
     return offset;
 }
@@ -1894,124 +1881,124 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
     }
 
     /* Second (optional) pass : build the proto tree */
-    {
-        guint tree_offset = 0;
-        proto_item *jxta_elem_tree_item = proto_tree_add_item(tree, hf_jxta_element, tvb, tree_offset, -1, ENC_NA);
-        proto_tree *jxta_elem_tree = proto_item_add_subtree(jxta_elem_tree_item, ett_jxta_elem);
-        guint16 namespaceID;
-        proto_item *namespace_ti;
-        guint16 nameID;
-        proto_item *name_ti;
-        guint64 content_len;
-        const gchar *mediatype = NULL;
-        tvbuff_t *element_content_tvb;
-        static const int * element_flags[] = {
-            &hf_jxta_element2_flag_64bitlens,
-            &hf_jxta_element2_flag_nameLiteral,
-            &hf_jxta_element2_flag_hasType,
-            &hf_jxta_element2_flag_hasSignature,
-            &hf_jxta_element2_flag_hasEncoding,
-            &hf_jxta_element2_flag_sigOfEncoded,
-            NULL
-        };
+    guint tree_offset = 0;
+    proto_item *jxta_elem_tree_item = proto_tree_add_item(tree, hf_jxta_element, tvb, tree_offset, -1, ENC_NA);
+    proto_tree *jxta_elem_tree = proto_item_add_subtree(jxta_elem_tree_item, ett_jxta_elem);
+    guint16 namespaceID;
+    proto_item *namespace_ti;
+    guint16 nameID;
+    proto_item *name_ti;
+    guint64 content_len;
+    const gchar *mediatype = NULL;
+    tvbuff_t *element_content_tvb;
+    static const int * element_flags[] = {
+        &hf_jxta_element2_flag_64bitlens,
+        &hf_jxta_element2_flag_nameLiteral,
+        &hf_jxta_element2_flag_hasType,
+        &hf_jxta_element2_flag_hasSignature,
+        &hf_jxta_element2_flag_hasEncoding,
+        &hf_jxta_element2_flag_sigOfEncoded,
+        NULL
+    };
 
-        proto_tree_add_item(jxta_elem_tree, hf_jxta_element_sig, tvb, tree_offset, (int)sizeof(JXTA_MSGELEM_SIG), ENC_ASCII|ENC_NA);
-        tree_offset += (int)sizeof(JXTA_MSGELEM_SIG);
+    proto_tree_add_item(jxta_elem_tree, hf_jxta_element_sig, tvb, tree_offset, (int)sizeof(JXTA_MSGELEM_SIG), ENC_ASCII|ENC_NA);
+    tree_offset += (int)sizeof(JXTA_MSGELEM_SIG);
 
-        flags = tvb_get_guint8(tvb, tree_offset);
-        proto_tree_add_bitmask(jxta_elem_tree, tvb, tree_offset, hf_jxta_element_flags, ett_jxta_elem_2_flags, element_flags, ENC_NA);
-        tree_offset += 1;
+    flags = tvb_get_guint8(tvb, tree_offset);
+    proto_tree_add_bitmask(jxta_elem_tree, tvb, tree_offset, hf_jxta_element_flags, ett_jxta_elem_2_flags, element_flags, ENC_NA);
+    tree_offset += 1;
 
-        /* Namespace */
-        namespaceID = tvb_get_ntohs(tvb, tree_offset);
-        namespace_ti =
-            proto_tree_add_uint(jxta_elem_tree, hf_jxta_element2_namespaceid, tvb, tree_offset, 2, namespaceID);
-        if (namespaceID < names_count) {
-            proto_item_append_text(namespace_ti, " (%s)", names_table[namespaceID]);
+    /* Namespace */
+    namespaceID = tvb_get_ntohs(tvb, tree_offset);
+    namespace_ti =
+        proto_tree_add_uint(jxta_elem_tree, hf_jxta_element2_namespaceid, tvb, tree_offset, 2, namespaceID);
+    if (namespaceID < names_count) {
+        proto_item_append_text(namespace_ti, " (%s)", names_table[namespaceID]);
+    } else {
+        proto_item_append_text(namespace_ti, " * BAD *");
+    }
+    tree_offset += 2;
+
+    /* Name */
+    if ((flags & JXTAMSG2_ELMFLAG_NAME_LITERAL) == 0) {
+        nameID = tvb_get_ntohs(tvb, tree_offset);
+        name_ti =
+            proto_tree_add_uint(jxta_elem_tree, hf_jxta_element2_nameid, tvb, tree_offset, 2, nameID);
+        if (nameID < names_count) {
+            proto_item_append_text(name_ti, " (%s)", names_table[nameID]);
         } else {
-            proto_item_append_text(namespace_ti, " * BAD *");
+            proto_item_append_text(name_ti, " * BAD *");
         }
         tree_offset += 2;
-
-        /* Name */
-        if ((flags & JXTAMSG2_ELMFLAG_NAME_LITERAL) == 0) {
-            nameID = tvb_get_ntohs(tvb, tree_offset);
-            name_ti =
-                proto_tree_add_uint(jxta_elem_tree, hf_jxta_element2_nameid, tvb, tree_offset, 2, nameID);
-            if (nameID < names_count) {
-                proto_item_append_text(name_ti, " (%s)", names_table[nameID]);
-            } else {
-                proto_item_append_text(name_ti, " * BAD *");
-            }
-            tree_offset += 2;
-        } else {
-            /* literal name */
-            guint16 name_len = tvb_get_ntohs(tvb, tree_offset);
-            proto_item_append_text(jxta_elem_tree_item, " \"%s\"", tvb_format_text(tvb, tree_offset + 2, name_len));
-            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_name, tvb, tree_offset, 2, ENC_ASCII|ENC_BIG_ENDIAN);
-            tree_offset += 2 + name_len;
-        }
-
-        /* process type */
-        if ((flags & JXTAMSG2_ELMFLAG_TYPE) != 0) {
-            guint16 mimeID = tvb_get_ntohs(tvb, tree_offset);
-            proto_item *mime_ti =
-                proto_tree_add_uint(jxta_elem_tree, hf_jxta_element2_mimeid, tvb, tree_offset, 2, mimeID);
-
-            if (mimeID < names_count) {
-                proto_item_append_text(mime_ti, " (%s)", names_table[mimeID]);
-                mediatype = wmem_strdup( wmem_packet_scope(), names_table[mimeID] );
-            } else {
-                proto_item_append_text(mime_ti, " * BAD *");
-            }
-
-            tree_offset += 2;
-        } else {
-            mediatype = "application/octet-stream";
-        }
-
-        /* process encoding */
-        if ((flags & JXTAMSG2_ELMFLAG_ENCODINGS) != 0) {
-            guint16 encodingID = tvb_get_ntohs(tvb, tree_offset);
-            proto_item *encoding_ti =
-                proto_tree_add_uint(jxta_elem_tree, hf_jxta_element2_encodingid, tvb, tree_offset, 2, encodingID);
-
-            if (encodingID < names_count) {
-                proto_item_append_text(encoding_ti, " (%s)", names_table[encodingID]);
-            } else {
-                proto_item_append_text(encoding_ti, " * BAD *");
-            }
-
-            tree_offset += 2;
-        }
-
-
-        if ((flags & JXTAMSG2_ELMFLAG_UINT64_LENS) != 0) {
-            content_len = tvb_get_ntoh64(tvb, tree_offset);
-            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len64, tvb, tree_offset, 8, ENC_BIG_ENDIAN);
-            tree_offset += 8;
-        } else {
-            content_len = tvb_get_ntohl(tvb, tree_offset);
-            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len, tvb, tree_offset, 4, ENC_BIG_ENDIAN);
-            tree_offset += 4;
-        }
-
-        /* content */
-        element_content_tvb = tvb_new_subset_length(tvb, tree_offset, (gint)content_len);
-
-        tree_offset += dissect_media(mediatype, element_content_tvb, pinfo, jxta_elem_tree);
-
-        /* process the signature element */
-        if ((flags & JXTAMSG2_ELMFLAG_SIGNATURE) != 0) {
-            tvbuff_t *jxta_message_element_tvb = tvb_new_subset_remaining(tvb, tree_offset);
-
-            tree_offset += dissect_jxta_message_element_1(jxta_message_element_tvb, pinfo, jxta_elem_tree, names_count, names_table);
-        }
-
-        proto_item_set_end(jxta_elem_tree_item, tvb, tree_offset);
-
-        DISSECTOR_ASSERT(tree_offset == offset);
+    } else {
+        /* literal name */
+        guint16 name_len = tvb_get_ntohs(tvb, tree_offset);
+        proto_item_append_text(jxta_elem_tree_item, " \"%s\"", tvb_format_text(tvb, tree_offset + 2, name_len));
+        proto_tree_add_item(jxta_elem_tree, hf_jxta_element_name, tvb, tree_offset, 2, ENC_ASCII|ENC_BIG_ENDIAN);
+        tree_offset += 2 + name_len;
     }
+
+    /* process type */
+    if ((flags & JXTAMSG2_ELMFLAG_TYPE) != 0) {
+        guint16 mimeID = tvb_get_ntohs(tvb, tree_offset);
+        proto_item *mime_ti =
+            proto_tree_add_uint(jxta_elem_tree, hf_jxta_element2_mimeid, tvb, tree_offset, 2, mimeID);
+
+        if (mimeID < names_count) {
+            proto_item_append_text(mime_ti, " (%s)", names_table[mimeID]);
+            mediatype = wmem_strdup( wmem_packet_scope(), names_table[mimeID] );
+        } else {
+            proto_item_append_text(mime_ti, " * BAD *");
+        }
+
+        tree_offset += 2;
+    } else {
+        mediatype = "application/octet-stream";
+    }
+
+    /* process encoding */
+    if ((flags & JXTAMSG2_ELMFLAG_ENCODINGS) != 0) {
+        guint16 encodingID = tvb_get_ntohs(tvb, tree_offset);
+        proto_item *encoding_ti =
+            proto_tree_add_uint(jxta_elem_tree, hf_jxta_element2_encodingid, tvb, tree_offset, 2, encodingID);
+
+        if (encodingID < names_count) {
+            proto_item_append_text(encoding_ti, " (%s)", names_table[encodingID]);
+        } else {
+            proto_item_append_text(encoding_ti, " * BAD *");
+        }
+
+        tree_offset += 2;
+    }
+
+
+    if ((flags & JXTAMSG2_ELMFLAG_UINT64_LENS) != 0) {
+        content_len = tvb_get_ntoh64(tvb, tree_offset);
+        proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len64, tvb, tree_offset, 8, ENC_BIG_ENDIAN);
+        tree_offset += 8;
+    } else {
+        content_len = tvb_get_ntohl(tvb, tree_offset);
+        proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len, tvb, tree_offset, 4, ENC_BIG_ENDIAN);
+        tree_offset += 4;
+    }
+
+    /* content */
+    element_content_tvb = tvb_new_subset_length(tvb, tree_offset, (gint)content_len);
+
+    tree_offset += dissect_media(mediatype, element_content_tvb, pinfo, jxta_elem_tree);
+
+    /* process the signature element */
+    if ((flags & JXTAMSG2_ELMFLAG_SIGNATURE) != 0) {
+        tvbuff_t *jxta_message_element_tvb = tvb_new_subset_remaining(tvb, tree_offset);
+
+        tree_offset += dissect_jxta_message_element_1(jxta_message_element_tvb, pinfo, jxta_elem_tree, names_count, names_table);
+    }
+
+    proto_item_set_end(jxta_elem_tree_item, tvb, tree_offset);
+
+    // offset is based on reported lengths. tree_offset is based on captured lengths via dissect_media.
+    // Comment this out for now in favor of dissect_media's expert warning.
+    // DISSECTOR_ASSERT(tree_offset == offset);
 
     return offset;
 }
@@ -2095,6 +2082,10 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
         dissected = call_data_dissector(tvb, pinfo, tree);
     }
 
+    if (dissected < (int) tvb_reported_length(tvb)) {
+        proto_item *item = proto_tree_add_expert(tree, pinfo, &ei_media_too_short, tvb, 0, dissected);
+        PROTO_ITEM_SET_GENERATED(item);
+    }
     return dissected;
 }
 
@@ -2104,6 +2095,7 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
 void proto_register_jxta(void)
 {
     module_t *jxta_module;
+    expert_module_t *expert_jxta;
 
     /** our header fields */
     static hf_register_info hf[] = {
@@ -2327,6 +2319,26 @@ void proto_register_jxta(void)
 #endif
     };
 
+  static ei_register_info ei[] = {
+     { &ei_media_too_short, { "jxta.media_too_short", PI_PROTOCOL, PI_WARN, "Media length less than expected", EXPFILL }},
+  };
+
+    /**
+    *   JXTA Protocol subtree array
+    **/
+    static gint *ett[] = {
+        &ett_jxta,
+        &ett_jxta_welcome,
+        &ett_jxta_udp,
+        &ett_jxta_framing,
+        &ett_jxta_framing_header,
+        &ett_jxta_msg,
+        &ett_jxta_msg_flags,
+        &ett_jxta_elem,
+        &ett_jxta_elem_1_flags,
+        &ett_jxta_elem_2_flags
+    };
+
     proto_jxta = proto_register_protocol("JXTA P2P", "JXTA", "jxta");
 
     jxta_tap = register_tap("jxta");
@@ -2341,6 +2353,9 @@ void proto_register_jxta(void)
 
     /* Register JXTA Sub-tree */
     proto_register_subtree_array(ett, array_length(ett));
+
+  expert_jxta = expert_register_protocol(proto_jxta);
+  expert_register_field_array(expert_jxta, ei, array_length(ei));
 
     uri_address_type = address_type_dissector_register("AT_URI", "URI/URL/URN", uri_to_str, uri_str_len, NULL, uri_col_filter_str, NULL, NULL, NULL);
 
