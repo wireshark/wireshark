@@ -35,6 +35,11 @@ void proto_reg_handoff_gvsp(void);
 
 #define GVSP_MIN_PACKET_SIZE         8
 #define GVSP_V2_MIN_PACKET_SIZE     20
+#define GVSP_EXTENDED_ID_BIT      0x80
+#define GVSP_EXTENDED_CHUNK_BIT 0x4000
+
+#define GVSP_SIZE_OF_PART_INFO_LEADER  ( 48 )
+#define GVSP_SIZE_OF_PART_INFO_TRAILER ( 16 )
 
 /*
   Payload types
@@ -44,11 +49,12 @@ void proto_reg_handoff_gvsp(void);
 #define GVSP_PAYLOAD_RAWDATA             ( 0x0002 )
 #define GVSP_PAYLOAD_FILE                ( 0x0003 )
 #define GVSP_PAYLOAD_CHUNKDATA           ( 0x0004 )
-#define GVSP_PAYLOAD_EXTENDEDCHUNKDATA   ( 0x0005 ) /* Deprecated */
-#define GVSP_PAYLOAD_JPEG                ( 0x0006 )
-#define GVSP_PAYLOAD_JPEG2000            ( 0x0007 )
-#define GVSP_PAYLOAD_H264                ( 0x0008 )
-#define GVSP_PAYLOAD_MULTIZONEIMAGE      ( 0x0009 )
+#define GVSP_PAYLOAD_EXTENDEDCHUNKDATA   ( 0x0005 ) /* Deprecated with GEV 2.0 */
+#define GVSP_PAYLOAD_JPEG                ( 0x0006 ) /* GEV 2.0 */
+#define GVSP_PAYLOAD_JPEG2000            ( 0x0007 ) /* GEV 2.0 */
+#define GVSP_PAYLOAD_H264                ( 0x0008 ) /* GEV 2.0 */
+#define GVSP_PAYLOAD_MULTIZONEIMAGE      ( 0x0009 ) /* GEV 2.0 */
+#define GVSP_PAYLOAD_MULTIPART           ( 0x000A ) /* GEV 2.1 */
 #define GVSP_PAYLOAD_DEVICEPSECIFICSTART ( 0x8000 )
 
 
@@ -62,6 +68,26 @@ void proto_reg_handoff_gvsp(void);
 #define GVSP_PACKET_ALLIN             ( 4 )
 #define GVSP_PACKET_PAYLOAD_H264      ( 5 )
 #define GVSP_PACKET_PAYLOAD_MULTIZONE ( 6 )
+#define GVSP_PACKET_PAYLOAD_MULTIPART ( 7 ) /* GEV 2.1 */
+#define GVSP_PACKET_PAYLOAD_LAST      ( 7 )
+
+/*
+   GVSP Multi-Part data types (GEV 2.1)
+ */
+
+#define GVSP_MULTIPART_DATA_TYPE_2DIMAGE            ( 0x0001 )
+#define GVSP_MULTIPART_DATA_TYPE_2DPLANEBIPLANAR    ( 0x0002 )
+#define GVSP_MULTIPART_DATA_TYPE_2DPLANETRIPLANAR   ( 0x0003 )
+#define GVSP_MULTIPART_DATA_TYPE_2DPLANEQUADPLANAR  ( 0x0004 )
+#define GVSP_MULTIPART_DATA_TYPE_3DIMAGE            ( 0x0005 )
+#define GVSP_MULTIPART_DATA_TYPE_3DPLANEBIPLANAR    ( 0x0006 )
+#define GVSP_MULTIPART_DATA_TYPE_3DPLANETRIPLANAR   ( 0x0007 )
+#define GVSP_MULTIPART_DATA_TYPE_3DPLANEQUADPLANAR  ( 0x0008 )
+#define GVSP_MULTIPART_DATA_TYPE_CONFIDENCEMAP      ( 0x0009 )
+#define GVSP_MULTIPART_DATA_TYPE_CHUNKDATA          ( 0x000A )
+#define GVSP_MULTIPART_DATA_TYPE_JPEG               ( 0x000B )
+#define GVSP_MULTIPART_DATA_TYPE_JPEG2000           ( 0x000C )
+#define GVSP_MULTIPART_DATA_TYPE_DEVICESPECIFIC     ( 0x8000 )
 
 
 /*
@@ -88,6 +114,12 @@ void proto_reg_handoff_gvsp(void);
 #define GEV_STATUS_PACKET_NOT_YET_AVAILABLE            (0x8010)
 #define GEV_STATUS_PACKET_AND_PREV_REMOVED_FROM_MEMORY (0x8011)
 #define GEV_STATUS_PACKET_REMOVED_FROM_MEMORY          (0x8012)
+#define GEV_STATUS_NO_REF_TIME                         (0x8013) /* GEV 2.0 */
+#define GEV_STATUS_PACKET_TEMPORARILY_UNAVAILABLE      (0x8014) /* GEV 2.0 */
+#define GEV_STATUS_OVERFLOW                            (0x8015) /* GEV 2.0 */
+#define GEV_STATUS_ACTION_LATE                         (0x8016) /* GEV 2.0 */
+#define GEV_STATUS_LEADER_TRAILER_OVERFLOW             (0x8017) /* GEV 2.1 */
+#define GEV_STATUS_LAST                                (0x8017)
 #define GEV_STATUS_ERROR                               (0x8FFF)
 
 
@@ -363,7 +395,9 @@ static int ett_gvsp_fieldinfo = -1;
 static int ett_gvsp_cs = -1;
 static int ett_gvsp_sc_zone_direction = -1;
 static int ett_gvsp_zoneinfo = -1;
-
+static int ett_gvsp_zoneinfo_multipart = -1;
+static int ett_gvsp_partinfo_leader = -1;
+static int ett_gvsp_partinfo_trailer = -1;
 
 static const value_string statusnames[] = {
     { GEV_STATUS_SUCCESS,                             "GEV_STATUS_SUCCESS" },
@@ -386,6 +420,11 @@ static const value_string statusnames[] = {
     { GEV_STATUS_PACKET_NOT_YET_AVAILABLE,            "GEV_STATUS_PACKET_NOT_YET_AVAILABLE" },
     { GEV_STATUS_PACKET_AND_PREV_REMOVED_FROM_MEMORY, "GEV_STATUS_PACKET_AND_PREV_REMOVED_FROM_MEMORY" },
     { GEV_STATUS_PACKET_REMOVED_FROM_MEMORY,          "GEV_STATUS_PACKET_REMOVED_FROM_MEMORY" },
+    { GEV_STATUS_NO_REF_TIME,                         "GEV_STATUS_NO_REF_TIME" },
+    { GEV_STATUS_PACKET_TEMPORARILY_UNAVAILABLE,      "GEV_STATUS_PACKET_TEMPORARILY_UNAVAILABLE" },
+    { GEV_STATUS_OVERFLOW,                            "GEV_STATUS_OVERFLOW" },
+    { GEV_STATUS_ACTION_LATE,                         "GEV_STATUS_ACTION_LATE" },
+    { GEV_STATUS_LEADER_TRAILER_OVERFLOW,             "GEV_STATUS_LEADER_TRAILER_OVERFLOW" },
     { GEV_STATUS_ERROR,                               "GEV_STATUS_ERROR" },
     { 0, NULL },
 };
@@ -393,44 +432,67 @@ static const value_string statusnames[] = {
 static value_string_ext statusnames_ext = VALUE_STRING_EXT_INIT(statusnames);
 
 static const value_string formatnames[] = {
-    { GVSP_PACKET_LEADER,                   "LEADER" },
-    { GVSP_PACKET_TRAILER,                  "TRAILER" },
-    { GVSP_PACKET_PAYLOAD,                  "PAYLOAD" },
-    { GVSP_PACKET_ALLIN,                    "ALLIN" },
-    { GVSP_PACKET_PAYLOAD_H264,             "H264" },
-    { GVSP_PACKET_PAYLOAD_MULTIZONE,        "MULTIZONE" },
-    { 0x80 | GVSP_PACKET_LEADER,            "LEADER (ext IDs)" },
-    { 0x80 | GVSP_PACKET_TRAILER,           "TRAILER (ext IDs)" },
-    { 0x80 | GVSP_PACKET_PAYLOAD,           "PAYLOAD (ext IDs)" },
-    { 0x80 | GVSP_PACKET_ALLIN,             "ALLIN (ext IDs)" },
-    { 0x80 | GVSP_PACKET_PAYLOAD_H264,      "H264 (ext IDs)" },
-    { 0x80 | GVSP_PACKET_PAYLOAD_MULTIZONE, "MULTIZONE (ext IDs)" },
+    { GVSP_PACKET_LEADER,                                   "LEADER" },
+    { GVSP_PACKET_TRAILER,                                  "TRAILER" },
+    { GVSP_PACKET_PAYLOAD,                                  "PAYLOAD" },
+    { GVSP_PACKET_ALLIN,                                    "ALLIN" },
+    { GVSP_PACKET_PAYLOAD_H264,                             "H264" },
+    { GVSP_PACKET_PAYLOAD_MULTIZONE,                        "MULTI-ZONE" },
+    { GVSP_PACKET_PAYLOAD_MULTIPART,                        "MULTI-PART" },
+    { GVSP_EXTENDED_ID_BIT | GVSP_PACKET_LEADER,            "LEADER (ext IDs)" },
+    { GVSP_EXTENDED_ID_BIT | GVSP_PACKET_TRAILER,           "TRAILER (ext IDs)" },
+    { GVSP_EXTENDED_ID_BIT | GVSP_PACKET_PAYLOAD,           "PAYLOAD (ext IDs)" },
+    { GVSP_EXTENDED_ID_BIT | GVSP_PACKET_ALLIN,             "ALL-IN (ext IDs)" },
+    { GVSP_EXTENDED_ID_BIT | GVSP_PACKET_PAYLOAD_H264,      "H264 (ext IDs)" },
+    { GVSP_EXTENDED_ID_BIT | GVSP_PACKET_PAYLOAD_MULTIZONE, "MULTI-ZONE (ext IDs)" },
+    { GVSP_EXTENDED_ID_BIT | GVSP_PACKET_PAYLOAD_MULTIPART, "MULTI-PART (ext IDs)" },
     { 0, NULL },
 };
 
 static const value_string payloadtypenames[] = {
-    { GVSP_PAYLOAD_IMAGE,                      "IMAGE" },
-    { GVSP_PAYLOAD_RAWDATA,                    "RAWDATA" },
-    { GVSP_PAYLOAD_FILE,                       "FILE" },
-    { GVSP_PAYLOAD_CHUNKDATA,                  "CHUNKDATA" },
-    { GVSP_PAYLOAD_EXTENDEDCHUNKDATA,          "EXTENDEDCHUNKDATA (obsolete with v2.0)" },
-    { GVSP_PAYLOAD_JPEG,                       "JPEG" },
-    { GVSP_PAYLOAD_JPEG2000,                   "JPEG2000" },
-    { GVSP_PAYLOAD_H264,                       "H264" },
-    { GVSP_PAYLOAD_MULTIZONEIMAGE,             "MUTLIZONEIAMGE" },
-    { 0x4000 | GVSP_PAYLOAD_IMAGE,             "IMAGE (v2.0 chunks)" },
-    { 0x4000 | GVSP_PAYLOAD_RAWDATA,           "RAWDATA (v2.0 Chunks)" },
-    { 0x4000 | GVSP_PAYLOAD_FILE,              "FILE (v2.0 Chunks)" },
-    { 0x4000 | GVSP_PAYLOAD_CHUNKDATA,         "CHUNKDATA (v2.0 Chunks)" },
-    { 0x4000 | GVSP_PAYLOAD_EXTENDEDCHUNKDATA, "EXTENDEDCHUNKDATA (v2.0 chunks?)" },
-    { 0x4000 | GVSP_PAYLOAD_JPEG,              "JPEG (v2.0 Chunks)" },
-    { 0x4000 | GVSP_PAYLOAD_JPEG2000,          "JPEG2000 (v2.0 Chunks)" },
-    { 0x4000 | GVSP_PAYLOAD_H264,              "H264 (v2.0 Chunks)" },
-    { 0x4000 | GVSP_PAYLOAD_MULTIZONEIMAGE,    "MULTIZONEIMAGE (v2.0 Chunks)" },
+    { GVSP_PAYLOAD_IMAGE,                                       "IMAGE" },
+    { GVSP_PAYLOAD_RAWDATA,                                     "RAW DATA" },
+    { GVSP_PAYLOAD_FILE,                                        "FILE" },
+    { GVSP_PAYLOAD_CHUNKDATA,                                   "CHUNK DATA" },
+    { GVSP_PAYLOAD_EXTENDEDCHUNKDATA,                           "EXTENDED CHUNK DATA (obsolete with v2.0)" },
+    { GVSP_PAYLOAD_JPEG,                                        "JPEG" },
+    { GVSP_PAYLOAD_JPEG2000,                                    "JPEG 2000" },
+    { GVSP_PAYLOAD_H264,                                        "H264" },
+    { GVSP_PAYLOAD_MULTIZONEIMAGE,                              "MULTI-ZONE IMAGE" },
+    { GVSP_PAYLOAD_MULTIPART,                                   "MULTI-PART" },
+    { GVSP_EXTENDED_CHUNK_BIT | GVSP_PAYLOAD_IMAGE,             "IMAGE (v2.0 chunks)" },
+    { GVSP_EXTENDED_CHUNK_BIT | GVSP_PAYLOAD_RAWDATA,           "RAW DATA (v2.0 Chunks)" },
+    { GVSP_EXTENDED_CHUNK_BIT | GVSP_PAYLOAD_FILE,              "FILE (v2.0 Chunks)" },
+    { GVSP_EXTENDED_CHUNK_BIT | GVSP_PAYLOAD_CHUNKDATA,         "CHUNK DATA (v2.0 Chunks)" },
+    { GVSP_EXTENDED_CHUNK_BIT | GVSP_PAYLOAD_EXTENDEDCHUNKDATA, "EXTENDED CHUNK DATA (v2.0 chunks?)" },
+    { GVSP_EXTENDED_CHUNK_BIT | GVSP_PAYLOAD_JPEG,              "JPEG (v2.0 Chunks)" },
+    { GVSP_EXTENDED_CHUNK_BIT | GVSP_PAYLOAD_JPEG2000,          "JPEG 2000 (v2.0 Chunks)" },
+    { GVSP_EXTENDED_CHUNK_BIT | GVSP_PAYLOAD_H264,              "H264 (v2.0 Chunks)" },
+    { GVSP_EXTENDED_CHUNK_BIT | GVSP_PAYLOAD_MULTIZONEIMAGE,    "MULTI-ZONE IMAGE (v2.0 Chunks)" },
+    { GVSP_EXTENDED_CHUNK_BIT | GVSP_PAYLOAD_MULTIPART,         "MULTI-PART (v2.0 Chunks)" },
     { 0, NULL },
 };
 
 static value_string_ext payloadtypenames_ext = VALUE_STRING_EXT_INIT(payloadtypenames);
+
+static const value_string multipartdatatypenames[] = {
+    { GVSP_MULTIPART_DATA_TYPE_2DIMAGE,             "2D IMAGE" },
+    { GVSP_MULTIPART_DATA_TYPE_2DPLANEBIPLANAR,     "2D PLANE BI-PLANAR" },
+    { GVSP_MULTIPART_DATA_TYPE_2DPLANETRIPLANAR,    "2D PLANE TRI-PLANAR" },
+    { GVSP_MULTIPART_DATA_TYPE_2DPLANEQUADPLANAR,   "2D PLANE QUAD-PLANAR" },
+    { GVSP_MULTIPART_DATA_TYPE_3DIMAGE,             "3D IMAGE" },
+    { GVSP_MULTIPART_DATA_TYPE_3DPLANEBIPLANAR,     "3D PLANE BI-PLANAR" },
+    { GVSP_MULTIPART_DATA_TYPE_3DPLANETRIPLANAR,    "3D PLANE TRI-PLANAR" },
+    { GVSP_MULTIPART_DATA_TYPE_3DPLANEQUADPLANAR,   "3D PLANE QUAD-PLANAR" },
+    { GVSP_MULTIPART_DATA_TYPE_CONFIDENCEMAP,       "CONFIDENCE MAP" },
+    { GVSP_MULTIPART_DATA_TYPE_CHUNKDATA,           "CHUNK DATA" },
+    { GVSP_MULTIPART_DATA_TYPE_JPEG,                "JPEG" },
+    { GVSP_MULTIPART_DATA_TYPE_JPEG2000,            "JPEG 2000" },
+    { GVSP_MULTIPART_DATA_TYPE_DEVICESPECIFIC,      "DEVICE SPECIFIC" },
+    { 0, NULL },
+};
+
+static value_string_ext multipartdatatypenames_ext = VALUE_STRING_EXT_INIT(multipartdatatypenames);
 
 static const value_string pixeltypenames[] = {
     { GVSP_PIX_MONO1P, "Monochrome 1-bit packed" },
@@ -671,9 +733,9 @@ static const value_string colornames[] = {
     { 0, NULL },
 };
 
-static const true_false_string directionnames = {
-    "Receiver",
-    "Transmitter"
+static const true_false_string zonedirectionnames = {
+    "Bottom Up",
+    "Top-Down"
 };
 
 
@@ -730,11 +792,11 @@ static int hf_gvsp_sropinterleavingdepth = -1;
 static int hf_gvsp_sropmaxdondiff = -1;
 static int hf_gvsp_sropdeintbufreq = -1;
 static int hf_gvsp_sropinitbuftime = -1;
+static int hf_gvsp_add_zones = -1;
 static int hf_gvsp_zoneinfo = -1;
 static int hf_gvsp_zoneid = -1;
 static int hf_gvsp_endofzone = -1;
-static int hf_gvsp_addressoffsethigh = -1;
-static int hf_gvsp_addressoffsetlow = -1;
+static int hf_gvsp_addressoffset = -1;
 static int hf_gvsp_sc_zone_direction = -1;
 static int hf_gvsp_sc_zone0_direction = -1;
 static int hf_gvsp_sc_zone1_direction = -1;
@@ -768,6 +830,17 @@ static int hf_gvsp_sc_zone28_direction = -1;
 static int hf_gvsp_sc_zone29_direction = -1;
 static int hf_gvsp_sc_zone30_direction = -1;
 static int hf_gvsp_sc_zone31_direction = -1;
+static int hf_gvsp_numparts = -1;
+static int hf_gvsp_multipartdatatype = -1;
+static int hf_gvsp_partlength = -1;
+static int hf_gvsp_multi_part_source_id = -1;
+static int hf_gvsp_data_purpose_id = -1;
+static int hf_gvsp_region_id = -1;
+static int hf_gvsp_endofpart = -1;
+static int hf_gvsp_add_zones_multipart = -1;
+static int hf_gvsp_zoneinfo_multipart = -1;
+static int hf_gvsp_multi_part_part_id = -1;
+static int hf_gvsp_data_type_specific = -1;
 static int hf_gvsp_chunkdatapayloadlengthex = -1;
 static int hf_gvsp_chunklayoutidex = -1;
 
@@ -835,6 +908,13 @@ static const int *zoneinfo_fields[] = {
     NULL
 };
 
+static const int *zoneinfo_multipart_fields[] = {
+    &hf_gvsp_endofpart,
+    &hf_gvsp_zoneid,
+    &hf_gvsp_endofzone,
+    NULL
+};
+
 static const int *flags_fields[] = {
     &hf_gvsp_flagdevicespecific0,
     &hf_gvsp_flagdevicespecific1,
@@ -849,6 +929,31 @@ static const int *flags_fields[] = {
     &hf_gvsp_flagpacketresend,
     NULL
 };
+
+/*
+    \brief Dissects the image AOI
+ */
+
+static void dissect_image_aoi(proto_tree *gvsp_tree, tvbuff_t *tvb, gint offset)
+{
+    /* Size X */
+    proto_tree_add_item(gvsp_tree, hf_gvsp_sizex, tvb, offset, 4, ENC_BIG_ENDIAN);
+
+    /* Size Y */
+    proto_tree_add_item(gvsp_tree, hf_gvsp_sizey, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+
+    /* Offset X */
+    proto_tree_add_item(gvsp_tree, hf_gvsp_offsetx, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
+
+    /* Offset Y */
+    proto_tree_add_item(gvsp_tree, hf_gvsp_offsety, tvb, offset + 12, 4, ENC_BIG_ENDIAN);
+
+    /* Padding X */
+    proto_tree_add_item(gvsp_tree, hf_gvsp_paddingx, tvb, offset + 16, 2, ENC_BIG_ENDIAN);
+
+    /* Padding Y */
+    proto_tree_add_item(gvsp_tree, hf_gvsp_paddingy, tvb, offset + 18, 2, ENC_BIG_ENDIAN);
+}
 
 /*
     \brief Dissects the image leader
@@ -870,23 +975,8 @@ static gint dissect_image_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_in
     proto_tree_add_bitmask(gvsp_tree, tvb, offset + 12, hf_gvsp_pixelformat, ett_gvsp_pixelformat,
                                   pixelformat_fields, ENC_BIG_ENDIAN);
 
-    /* Size X */
-    proto_tree_add_item(gvsp_tree, hf_gvsp_sizex, tvb, offset + 16, 4, ENC_BIG_ENDIAN);
-
-    /* Size Y */
-    proto_tree_add_item(gvsp_tree, hf_gvsp_sizey, tvb, offset + 20, 4, ENC_BIG_ENDIAN);
-
-    /* Offset X */
-    proto_tree_add_item(gvsp_tree, hf_gvsp_offsetx, tvb, offset + 24, 4, ENC_BIG_ENDIAN);
-
-    /* Offset Y */
-    proto_tree_add_item(gvsp_tree, hf_gvsp_offsety, tvb, offset + 28, 4, ENC_BIG_ENDIAN);
-
-    /* Padding X */
-    proto_tree_add_item(gvsp_tree, hf_gvsp_paddingx, tvb, offset + 32, 2, ENC_BIG_ENDIAN);
-
-    /* Padding Y */
-    proto_tree_add_item(gvsp_tree, hf_gvsp_paddingy, tvb, offset + 34, 2, ENC_BIG_ENDIAN);
+    /* AOI */
+    dissect_image_aoi(gvsp_tree, tvb, offset + 16);
 
     /* Return dissected byte count (for all-in dissection) */
     return 36;
@@ -905,8 +995,63 @@ static gint dissect_image_trailer(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_i
     /* Size Y */
     proto_tree_add_item(gvsp_tree, hf_gvsp_sizey, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
 
-    /* Return dissected byte count (for all-in dissection) */
+    /* Return dissected byte count (for all-in and extended chunk mode dissection) */
     return 8;
+}
+
+
+/*
+    \brief Dissects the multi-part trailer
+ */
+
+static gint dissect_multi_part_trailer(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
+{
+    gint part_count = tvb_reported_length_remaining(tvb, offset + 4) / GVSP_SIZE_OF_PART_INFO_TRAILER;
+    gint i = 0;
+    gint j = 0;
+
+    /* Payload type */
+    proto_tree_add_item(gvsp_tree, hf_gvsp_payloadtype, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+
+    for (i = 0; i < part_count; i++)
+    {
+        guint16 multi_part_data_type = tvb_get_ntohs(tvb, offset + 4 + i * GVSP_SIZE_OF_PART_INFO_TRAILER);
+
+        /* Add a tree per part */
+        proto_tree* gvsp_part_tree = proto_tree_add_subtree(gvsp_tree, tvb, offset + 4 + i * GVSP_SIZE_OF_PART_INFO_TRAILER, GVSP_SIZE_OF_PART_INFO_TRAILER, ett_gvsp_partinfo_trailer, NULL, "Part Specific Data");
+
+        /* Multi-Part data type */
+        proto_tree_add_item(gvsp_part_tree, hf_gvsp_multipartdatatype, tvb, offset + 4 + i * GVSP_SIZE_OF_PART_INFO_TRAILER, 2, ENC_BIG_ENDIAN);
+
+        /* Part Length */
+        proto_tree_add_item(gvsp_part_tree, hf_gvsp_partlength, tvb, offset + 6 + i * GVSP_SIZE_OF_PART_INFO_TRAILER, 6, ENC_BIG_ENDIAN);
+
+        switch( multi_part_data_type )
+        {
+        case GVSP_MULTIPART_DATA_TYPE_2DIMAGE:
+        case GVSP_MULTIPART_DATA_TYPE_2DPLANEBIPLANAR:
+        case GVSP_MULTIPART_DATA_TYPE_2DPLANETRIPLANAR:
+        case GVSP_MULTIPART_DATA_TYPE_2DPLANEQUADPLANAR:
+        case GVSP_MULTIPART_DATA_TYPE_3DIMAGE:
+        case GVSP_MULTIPART_DATA_TYPE_3DPLANEBIPLANAR:
+        case GVSP_MULTIPART_DATA_TYPE_3DPLANETRIPLANAR:
+        case GVSP_MULTIPART_DATA_TYPE_3DPLANEQUADPLANAR:
+        case GVSP_MULTIPART_DATA_TYPE_CONFIDENCEMAP:
+            /* Size Y */
+            proto_tree_add_item(gvsp_part_tree, hf_gvsp_sizey, tvb, offset + 12 + i * GVSP_SIZE_OF_PART_INFO_TRAILER, 4, ENC_BIG_ENDIAN);
+            break;
+        default:
+            /* 2 DWORDS of data type specific data */
+            for (j = 0; j < 2; j++)
+            {
+                proto_tree_add_item(gvsp_part_tree, hf_gvsp_data_type_specific, tvb, offset + 12 + i * GVSP_SIZE_OF_PART_INFO_TRAILER + 4 * j, 4, ENC_BIG_ENDIAN);
+            }
+            break;
+        }
+    }
+
+    /* Return dissected byte count (for all-in and extended chunk mode dissection) */
+    return 4 + part_count * GVSP_SIZE_OF_PART_INFO_TRAILER;
 }
 
 
@@ -1015,23 +1160,8 @@ static gint dissect_extended_chunk_data_leader(proto_tree *gvsp_tree, tvbuff_t *
     proto_tree_add_bitmask(gvsp_tree, tvb, offset + 12, hf_gvsp_pixelformat, ett_gvsp_pixelformat,
                                   pixelformat_fields, ENC_BIG_ENDIAN);
 
-    /* Size X */
-    proto_tree_add_item(gvsp_tree, hf_gvsp_sizex, tvb, offset + 16, 4, ENC_BIG_ENDIAN);
-
-    /* Size Y */
-    proto_tree_add_item(gvsp_tree, hf_gvsp_sizey, tvb, offset + 20, 4, ENC_BIG_ENDIAN);
-
-    /* Offset X */
-    proto_tree_add_item(gvsp_tree, hf_gvsp_offsetx, tvb, offset + 24, 4, ENC_BIG_ENDIAN);
-
-    /* Offset Y */
-    proto_tree_add_item(gvsp_tree, hf_gvsp_offsety, tvb, offset + 28, 4, ENC_BIG_ENDIAN);
-
-    /* Padding X */
-    proto_tree_add_item(gvsp_tree, hf_gvsp_paddingx, tvb, offset + 32, 2, ENC_BIG_ENDIAN);
-
-    /* Padding Y */
-    proto_tree_add_item(gvsp_tree, hf_gvsp_paddingy, tvb, offset + 34, 2, ENC_BIG_ENDIAN);
+    /* AOI */
+    dissect_image_aoi(gvsp_tree, tvb, offset + 16);
 
     /* Return dissected byte count (for all-in dissection) */
     return 36;
@@ -1144,7 +1274,7 @@ static gint dissect_h264_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_inf
 
 
 /*
-    \brief Dissects the multizone image leader
+    \brief Dissects the multi-zone image leader
  */
 
 static gint dissect_multizone_image_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
@@ -1166,26 +1296,121 @@ static gint dissect_multizone_image_leader(proto_tree *gvsp_tree, tvbuff_t *tvb,
     proto_tree_add_bitmask(gvsp_tree, tvb, offset + 16, hf_gvsp_pixelformat, ett_gvsp_pixelformat,
                                   pixelformat_fields, ENC_BIG_ENDIAN);
 
-    /* Size X */
-    proto_tree_add_item(gvsp_tree, hf_gvsp_sizex, tvb, offset + 20, 4, ENC_BIG_ENDIAN);
-
-    /* Size Y */
-    proto_tree_add_item(gvsp_tree, hf_gvsp_sizey, tvb, offset + 24, 4, ENC_BIG_ENDIAN);
-
-    /* Offset X */
-    proto_tree_add_item(gvsp_tree, hf_gvsp_offsetx, tvb, offset + 28, 4, ENC_BIG_ENDIAN);
-
-    /* Offset Y */
-    proto_tree_add_item(gvsp_tree, hf_gvsp_offsety, tvb, offset + 32, 4, ENC_BIG_ENDIAN);
-
-    /* Padding X */
-    proto_tree_add_item(gvsp_tree, hf_gvsp_paddingx, tvb, offset + 36, 2, ENC_BIG_ENDIAN);
-
-    /* Padding Y */
-    proto_tree_add_item(gvsp_tree, hf_gvsp_paddingy, tvb, offset + 38, 2, ENC_BIG_ENDIAN);
+    /* AOI */
+    dissect_image_aoi(gvsp_tree, tvb, offset + 20);
 
     /* Return dissected byte count (for all-in dissection) */
     return 40;
+}
+
+
+/*
+    \brief Dissects the multi-part leader
+ */
+
+static gint dissect_multi_part_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
+{
+    /* Get the number of parts from the header. As we are already looking at the beginning of the sixth DWORD here we must step back */
+    gint part_count_from_leader = tvb_get_guint8(tvb, offset - 13);
+    gint part_count_from_remaining_bytes = tvb_reported_length_remaining(tvb, offset + 12) / GVSP_SIZE_OF_PART_INFO_LEADER;
+    /* In case the leader contains incorrect data rely on the number of reported bytes instead */
+    gint part_count = part_count_from_leader <= part_count_from_remaining_bytes ? part_count_from_leader : part_count_from_remaining_bytes;
+    gint i = 0;
+    gint j = 0;
+
+    /* Payload type */
+    proto_tree_add_item(gvsp_tree, hf_gvsp_payloadtype, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+
+    /* Timestamp */
+    proto_tree_add_item(gvsp_tree, hf_gvsp_timestamp, tvb, offset + 4, 8, ENC_BIG_ENDIAN);
+
+    for (i = 0; i < part_count; i++)
+    {
+        guint16 multi_part_data_type = tvb_get_ntohs(tvb, offset + 12 + i * GVSP_SIZE_OF_PART_INFO_LEADER);
+        /* Add a tree per part */
+        proto_tree* gvsp_part_tree = proto_tree_add_subtree(gvsp_tree, tvb, offset + 12 + i * GVSP_SIZE_OF_PART_INFO_LEADER, GVSP_SIZE_OF_PART_INFO_LEADER,
+            ett_gvsp_partinfo_leader, NULL, "Part Specific Data");
+
+        /* Multi-Part data type */
+        proto_tree_add_item(gvsp_part_tree, hf_gvsp_multipartdatatype, tvb, offset + 12 + i * GVSP_SIZE_OF_PART_INFO_LEADER, 2, ENC_BIG_ENDIAN);
+
+        /* Part Length */
+        proto_tree_add_item(gvsp_part_tree, hf_gvsp_partlength, tvb, offset + 14 + i * GVSP_SIZE_OF_PART_INFO_LEADER, 6, ENC_BIG_ENDIAN);
+
+        switch( multi_part_data_type )
+        {
+        case GVSP_MULTIPART_DATA_TYPE_2DIMAGE:
+        case GVSP_MULTIPART_DATA_TYPE_2DPLANEBIPLANAR:
+        case GVSP_MULTIPART_DATA_TYPE_2DPLANETRIPLANAR:
+        case GVSP_MULTIPART_DATA_TYPE_2DPLANEQUADPLANAR:
+        case GVSP_MULTIPART_DATA_TYPE_3DIMAGE:
+        case GVSP_MULTIPART_DATA_TYPE_3DPLANEBIPLANAR:
+        case GVSP_MULTIPART_DATA_TYPE_3DPLANETRIPLANAR:
+        case GVSP_MULTIPART_DATA_TYPE_3DPLANEQUADPLANAR:
+        case GVSP_MULTIPART_DATA_TYPE_CONFIDENCEMAP:
+            /* Pixel format */
+            proto_tree_add_bitmask(gvsp_part_tree, tvb, offset + 20 + i * GVSP_SIZE_OF_PART_INFO_LEADER, hf_gvsp_pixelformat, ett_gvsp_pixelformat, pixelformat_fields, ENC_BIG_ENDIAN);
+            break;
+        case GVSP_MULTIPART_DATA_TYPE_JPEG:
+        case GVSP_MULTIPART_DATA_TYPE_JPEG2000:
+        default:
+            /* Data Format */
+            proto_tree_add_item(gvsp_part_tree, hf_gvsp_dataformat, tvb, offset + 20 + i * GVSP_SIZE_OF_PART_INFO_LEADER, 4, ENC_BIG_ENDIAN);
+            break;
+        }
+
+        /* Source ID */
+        proto_tree_add_item(gvsp_part_tree, hf_gvsp_multi_part_source_id, tvb, offset + 26 + i * GVSP_SIZE_OF_PART_INFO_LEADER, 1, ENC_BIG_ENDIAN);
+
+        /* Additional Zones */
+        proto_tree_add_item(gvsp_part_tree, hf_gvsp_add_zones_multipart, tvb, offset + 27 + i * GVSP_SIZE_OF_PART_INFO_LEADER, 1, ENC_BIG_ENDIAN);
+
+        /* Zone direction */
+        proto_tree_add_bitmask(gvsp_part_tree, tvb, offset + 28 + i * GVSP_SIZE_OF_PART_INFO_LEADER, hf_gvsp_sc_zone_direction,
+                               ett_gvsp_sc_zone_direction, sc_zone_direction_fields, ENC_BIG_ENDIAN);
+
+        /* Data Purpose */
+        proto_tree_add_item(gvsp_part_tree, hf_gvsp_data_purpose_id, tvb, offset + 32 + i * GVSP_SIZE_OF_PART_INFO_LEADER, 2, ENC_BIG_ENDIAN);
+
+        /* Region ID */
+        proto_tree_add_item(gvsp_part_tree, hf_gvsp_region_id, tvb, offset + 34 + i * GVSP_SIZE_OF_PART_INFO_LEADER, 2, ENC_BIG_ENDIAN);
+
+        switch( multi_part_data_type )
+        {
+        case GVSP_MULTIPART_DATA_TYPE_2DIMAGE:
+        case GVSP_MULTIPART_DATA_TYPE_2DPLANEBIPLANAR:
+        case GVSP_MULTIPART_DATA_TYPE_2DPLANETRIPLANAR:
+        case GVSP_MULTIPART_DATA_TYPE_2DPLANEQUADPLANAR:
+        case GVSP_MULTIPART_DATA_TYPE_3DIMAGE:
+        case GVSP_MULTIPART_DATA_TYPE_3DPLANEBIPLANAR:
+        case GVSP_MULTIPART_DATA_TYPE_3DPLANETRIPLANAR:
+        case GVSP_MULTIPART_DATA_TYPE_3DPLANEQUADPLANAR:
+        case GVSP_MULTIPART_DATA_TYPE_CONFIDENCEMAP:
+            dissect_image_aoi(gvsp_part_tree, tvb, offset + 36 + i * GVSP_SIZE_OF_PART_INFO_LEADER);
+            break;
+        case GVSP_MULTIPART_DATA_TYPE_JPEG:
+        case GVSP_MULTIPART_DATA_TYPE_JPEG2000:
+            /* Generic flags */
+            proto_tree_add_item(gvsp_part_tree, hf_gvsp_genericflags, tvb, offset + 36 + i * GVSP_SIZE_OF_PART_INFO_LEADER, 1, ENC_BIG_ENDIAN);
+
+            /* Timestamp tick frequency */
+            proto_tree_add_item(gvsp_part_tree, hf_gvsp_timestamptickfrequency, tvb, offset + 36 + i * GVSP_SIZE_OF_PART_INFO_LEADER + 4, 8, ENC_BIG_ENDIAN);
+
+            /* Data format */
+            proto_tree_add_item(gvsp_part_tree, hf_gvsp_dataformat, tvb, offset + 36 + i * GVSP_SIZE_OF_PART_INFO_LEADER + 12, 4, ENC_BIG_ENDIAN);
+            break;
+        default:
+            /* 6 DWORDS of data type specific data */
+            for (j = 0; j < 6; j++)
+            {
+                proto_tree_add_item(gvsp_part_tree, hf_gvsp_data_type_specific, tvb, offset + 36 + i * GVSP_SIZE_OF_PART_INFO_LEADER + 4 * j, 4, ENC_BIG_ENDIAN);
+            }
+            break;
+        }
+    }
+
+    /* Return dissected byte count (for all-in dissection) */
+    return 12 + part_count * GVSP_SIZE_OF_PART_INFO_LEADER;
 }
 
 
@@ -1212,7 +1437,7 @@ static gint dissect_extra_chunk_info(proto_tree *gvsp_tree, tvbuff_t *tvb, packe
     /* Chunk data payload length */
     proto_tree_add_item(gvsp_tree, hf_gvsp_chunkdatapayloadlengthex, tvb, offset, 4, ENC_BIG_ENDIAN);
 
-    /* Chunk layoud id */
+    /* Chunk layout id */
     proto_tree_add_item(gvsp_tree, hf_gvsp_chunklayoutidex, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
 
     /* Return dissected byte count (for all-in dissection) */
@@ -1258,7 +1483,7 @@ static void dissect_packet_payload_h264(proto_tree *gvsp_tree, tvbuff_t *tvb, pa
 
 
 /*
-    \brief Dissects a packet payload for multizone
+    \brief Dissects a packet payload for multi-zone
  */
 
 static void dissect_packet_payload_multizone(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, gvsp_packet_info *info)
@@ -1269,17 +1494,37 @@ static void dissect_packet_payload_multizone(proto_tree *gvsp_tree, tvbuff_t *tv
         proto_tree_add_bitmask(gvsp_tree, tvb, offset + 1, hf_gvsp_zoneinfo,
                                ett_gvsp_zoneinfo, zoneinfo_fields, ENC_BIG_ENDIAN);
 
-        /* Address offset high */
-        proto_tree_add_item(gvsp_tree, hf_gvsp_addressoffsethigh, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-
-        /* Address offset low */
-        proto_tree_add_item(gvsp_tree, hf_gvsp_addressoffsetlow, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+        /* Address offset */
+        proto_tree_add_item(gvsp_tree, hf_gvsp_addressoffset, tvb, offset + 2, 6, ENC_BIG_ENDIAN);
 
         /* Data */
         proto_tree_add_item(gvsp_tree, hf_gvsp_payloaddata, tvb, offset + 8, -1, ENC_NA);
     }
 }
 
+
+/*
+    \brief Dissects a packet payload for multi-part
+ */
+
+static void dissect_packet_payload_multipart(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, gvsp_packet_info *info)
+{
+    if (status_with_payload(info) && tvb_reported_length_remaining(tvb, offset))
+    {
+        /* Part ID */
+        proto_tree_add_item(gvsp_tree, hf_gvsp_multi_part_part_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+        /* Zone information */
+        proto_tree_add_bitmask(gvsp_tree, tvb, offset + 1, hf_gvsp_zoneinfo_multipart,
+                               ett_gvsp_zoneinfo_multipart, zoneinfo_multipart_fields, ENC_BIG_ENDIAN);
+
+        /* Address offset high */
+        proto_tree_add_item(gvsp_tree, hf_gvsp_addressoffset, tvb, offset + 2, 6, ENC_BIG_ENDIAN);
+
+        /* Data */
+        proto_tree_add_item(gvsp_tree, hf_gvsp_payloaddata, tvb, offset + 8, -1, ENC_NA);
+    }
+}
 
 /*
     \brief Dissects an all in packet
@@ -1374,6 +1619,11 @@ static void dissect_packet_all_in(proto_tree *gvsp_tree, tvbuff_t *tvb, gint off
         }
         dissect_packet_payload_multizone(gvsp_tree, tvb, pinfo, offset, info);
         break;
+
+    /* case GVSP_PAYLOAD_MULTIPART: */
+    /* By definition, Multi-part cannot support All-in Packet since it requires at least one data packet per part. */
+    /* Therefore, it is not possible to use All-in Transmission mode for Multi-part payload type. */
+
     }
 }
 
@@ -1419,6 +1669,10 @@ static void dissect_packet_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, gint off
         dissect_multizone_image_leader(gvsp_tree, tvb, pinfo, offset);
         break;
 
+    case GVSP_PAYLOAD_MULTIPART:
+        dissect_multi_part_leader(gvsp_tree, tvb, pinfo, offset);
+        break;
+
     default:
         break;
     }
@@ -1454,6 +1708,10 @@ static void dissect_packet_trailer(proto_tree *gvsp_tree, tvbuff_t *tvb, gint of
         offset += dissect_generic_trailer(gvsp_tree, tvb, pinfo, offset);
         break;
 
+    case GVSP_PAYLOAD_MULTIPART:
+        offset += dissect_multi_part_trailer(gvsp_tree, tvb, pinfo, offset);
+        break;
+
     default:
         break;
     }
@@ -1476,7 +1734,7 @@ static int dissect_gvsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     proto_tree *gvsp_tree = NULL;
     gvsp_packet_info info;
 
-    if ((tvb_reported_length(tvb) <  GVSP_MIN_PACKET_SIZE) ||
+    if ((tvb_reported_length(tvb) < GVSP_MIN_PACKET_SIZE) ||
         (tvb_captured_length(tvb) < 5))
     {
         return 0;
@@ -1486,7 +1744,7 @@ static int dissect_gvsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     info.format = tvb_get_guint8(tvb, 4);
 
-    if ((info.format & 0x80) && tvb_reported_length(tvb) < GVSP_V2_MIN_PACKET_SIZE)
+    if ((info.format & GVSP_EXTENDED_ID_BIT) && tvb_reported_length(tvb) < GVSP_V2_MIN_PACKET_SIZE)
     {
         return 0;
     }
@@ -1503,7 +1761,7 @@ static int dissect_gvsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     gvsp_tree = proto_item_add_subtree(ti, ett_gvsp);
 
     /* Look for extended ID flag and then clear it */
-    info.enhanced = info.format & 0x80;
+    info.enhanced = info.format & GVSP_EXTENDED_ID_BIT;
     info.format &= 0x7F;
 
     /* Add packet format to info string */
@@ -1536,14 +1794,31 @@ static int dissect_gvsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     proto_tree_add_item(gvsp_tree, hf_gvsp_format, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
+    info.packetid = tvb_get_ntohl(tvb, offset - 1);
+    info.packetid &= 0x00FFFFFF;
     if (info.enhanced == 0)
     {
-        info.packetid = tvb_get_ntohl(tvb, offset - 1);
-        info.packetid &= 0x00FFFFFF;
         proto_tree_add_item(gvsp_tree, hf_gvsp_packetid24, tvb, offset, 3, ENC_BIG_ENDIAN);
+        offset += 3;
     }
-
-    offset += 3;
+    else
+    {
+        offset += 2;
+        if (info.format == GVSP_PACKET_LEADER)
+        {
+            if (tvb_get_guint8(tvb, 23) == GVSP_PAYLOAD_MULTIZONEIMAGE)
+            {
+                /* packet id contains the number of additional zones for multi-zone */
+                proto_tree_add_item(gvsp_tree, hf_gvsp_add_zones, tvb, offset, 1, ENC_BIG_ENDIAN);
+            }
+            else if (tvb_get_guint8(tvb, 23) == GVSP_PAYLOAD_MULTIPART)
+            {
+                /* packet id contains the number of parts for multi-part */
+                proto_tree_add_item(gvsp_tree, hf_gvsp_numparts, tvb, offset, 1, ENC_BIG_ENDIAN);
+            }
+        }
+        offset += 1;
+    }
 
     if (info.enhanced != 0)
     {
@@ -1594,6 +1869,10 @@ static int dissect_gvsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     case GVSP_PACKET_PAYLOAD_MULTIZONE:
         dissect_packet_payload_multizone(gvsp_tree, tvb, pinfo, offset, &info);
+        return tvb_captured_length(tvb);
+
+    case GVSP_PACKET_PAYLOAD_MULTIPART:
+        dissect_packet_payload_multipart(gvsp_tree, tvb, pinfo, offset, &info);
         return tvb_captured_length(tvb);
 
     default:
@@ -1647,7 +1926,7 @@ static gboolean dissect_gvsp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     /* Larger packet size if Extended ID flag is set */
     format = tvb_get_guint8(tvb, 4);
 
-    if ((format & 0x80) && tvb_reported_length(tvb) < GVSP_V2_MIN_PACKET_SIZE)
+    if ((format & GVSP_EXTENDED_ID_BIT) && tvb_reported_length(tvb) < GVSP_V2_MIN_PACKET_SIZE)
     {
         return FALSE;
     }
@@ -1655,15 +1934,15 @@ static gboolean dissect_gvsp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     /* Check for valid status codes */
     status_code = tvb_get_ntohs(tvb, 0);
 
-    if (status_code == 0x0000 ||
-        status_code == 0x0100 ||
-        (status_code >= 0x8001 && status_code <= 0x8016) ||
-        status_code == 0x8FFF)
+    if (status_code == GEV_STATUS_SUCCESS ||
+        status_code == GEV_STATUS_PACKET_RESEND ||
+        (status_code >= GEV_STATUS_NOT_IMPLEMENTED && status_code <= GEV_STATUS_LAST) ||
+        status_code == GEV_STATUS_ERROR)
     {
         format &= 0x7F;
 
         /* Check for valid format types */
-        if (format >= 1 && format <= 6)
+        if (format >= GVSP_PACKET_LEADER && format <= GVSP_PACKET_PAYLOAD_LAST)
         {
             if(format == GVSP_PACKET_LEADER && tvb_captured_length_remaining(tvb, 8) >= 2)
             {
@@ -1762,7 +2041,7 @@ void proto_register_gvsp(void)
         }},
 
         {& hf_gvsp_flagresendrangeerror,
-        { "Flag Resend Range Error 7", "gvsp.flag.resendrangeerror",
+        { "Flag Resend Range Error", "gvsp.flag.resendrangeerror",
         FT_UINT16, BASE_HEX, NULL, 0x0004,
         NULL, HFILL
         }},
@@ -1925,7 +2204,7 @@ void proto_register_gvsp(void)
 
         {& hf_gvsp_timestamptickfrequency ,
         { "Timestamp Tick Frequency", "gvsp.timestamptickfrequency",
-        FT_UINT64, BASE_HEX, NULL, 0x0,
+        FT_UINT64, BASE_HEX_DEC, NULL, 0x0,
         NULL, HFILL
         }},
 
@@ -2013,8 +2292,14 @@ void proto_register_gvsp(void)
         NULL, HFILL
         }},
 
+        {& hf_gvsp_add_zones,
+        { "Additional Zones (Multi-Zone)", "gvsp.addzones",
+        FT_UINT8, BASE_HEX, NULL, 0x1F,
+        NULL, HFILL
+        }},
+
         {& hf_gvsp_zoneinfo,
-        { "Zone Info", "gvsp.zoneinfo",
+        { "Zone Info (Multi-Zone)", "gvsp.multizoneinfo",
         FT_UINT8, BASE_HEX, NULL, 0,
         NULL, HFILL
         }},
@@ -2027,217 +2312,277 @@ void proto_register_gvsp(void)
 
         {& hf_gvsp_endofzone,
         { "End of Zone", "gvsp.endofzone",
-        FT_UINT8, BASE_HEX, NULL, 0x01,
+        FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_addressoffsethigh,
-        { "Address Offset High", "gvsp.addressoffsethigh",
-        FT_UINT16, BASE_HEX, NULL, 0,
-        NULL, HFILL
-        }},
-
-        {& hf_gvsp_addressoffsetlow,
-        { "Address Offset Low", "gvsp.addressoffsetlow",
-        FT_UINT32, BASE_HEX, NULL, 0,
+        {& hf_gvsp_addressoffset,
+        { "Address Offset", "gvsp.addressoffset",
+        FT_UINT64, BASE_HEX_DEC, NULL, 0,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone_direction,
         { "Zone Directions Mask", "gvsp.zonedirection",
-        FT_UINT32, BASE_HEX, NULL, 0,
+        FT_UINT32, BASE_HEX_DEC, NULL, 0,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone0_direction,
         { "Zone 0 Direction", "gvsp.zone0direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x80000000,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x80000000,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone1_direction,
         { "Zone 1 Direction", "gvsp.zone1direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x40000000,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x40000000,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone2_direction,
         { "Zone 2 Direction", "gvsp.zone2direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x20000000,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x20000000,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone3_direction,
         { "Zone 3 Direction", "gvsp.zone3direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x10000000,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x10000000,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone4_direction,
         { "Zone 4 Direction", "gvsp.zone4direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x08000000,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x08000000,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone5_direction,
         { "Zone 5 Direction", "gvsp.zone5direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x04000000,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x04000000,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone6_direction,
         { "Zone 6 Direction", "gvsp.zone6direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x02000000,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x02000000,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone7_direction,
         { "Zone 7 Direction", "gvsp.zone7direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x01000000,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x01000000,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone8_direction,
         { "Zone 8 Direction", "gvsp.zone8direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x00800000,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00800000,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone9_direction,
         { "Zone 9 Direction", "gvsp.zone9direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x00400000,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00400000,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone10_direction,
         { "Zone 10 Direction", "gvsp.zone10direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x00200000,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00200000,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone11_direction,
         { "Zone 11 Direction", "gvsp.zone1direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x00100000,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00100000,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone12_direction,
         { "Zone 12 Direction", "gvsp.zone12direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x00080000,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00080000,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone13_direction,
         { "Zone 13 Direction", "gvsp.zone13direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x00040000,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00040000,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone14_direction,
         { "Zone 14 Direction", "gvsp.zone14direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x00020000,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00020000,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone15_direction,
         { "Zone 15 Direction", "gvsp.zone15direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x00010000,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00010000,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone16_direction,
         { "Zone 16 Direction", "gvsp.zone16direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x00008000,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00008000,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone17_direction,
         { "Zone 17 Direction", "gvsp.zone17direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x00004000,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00004000,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone18_direction,
         { "Zone 18 Direction", "gvsp.zone18direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x00002000,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00002000,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone19_direction,
         { "Zone 19 Direction", "gvsp.zone19direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x00001000,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00001000,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone20_direction,
         { "Zone 20 Direction", "gvsp.zone20direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x00000800,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000800,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone21_direction,
         { "Zone 21 Direction", "gvsp.zone21direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x00000400,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000400,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone22_direction,
         { "Zone 22 Direction", "gvsp.zone22direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x00000200,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000200,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone23_direction,
         { "Zone 23 Direction", "gvsp.zone23direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x00000100,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000100,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone24_direction,
         { "Zone 24 Direction", "gvsp.zone24direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x00000080,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000080,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone25_direction,
         { "Zone 25 Direction", "gvsp.zone25direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x00000040,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000040,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone26_direction,
         { "Zone 26 Direction", "gvsp.zone26direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x00000020,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000020,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone27_direction,
         { "Zone 27 Direction", "gvsp.zone27direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x00000010,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000010,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone28_direction,
         { "Zone 28 Direction", "gvsp.zone28direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x00000008,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000008,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone29_direction,
         { "Zone 29 Direction", "gvsp.zone29direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x00000004,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000004,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone30_direction,
         { "Zone 30 Direction", "gvsp.zone30direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x00000002,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000002,
         NULL, HFILL
         }},
 
         {& hf_gvsp_sc_zone31_direction,
         { "Zone 31 Direction", "gvsp.zone31direction",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0x00000001,
+        FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000001,
+        NULL, HFILL
+        }},
+
+        {& hf_gvsp_numparts,
+        { "Multi-part number of parts", "gvsp.numparts",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL
+        }},
+
+        {& hf_gvsp_multipartdatatype,
+        { "Data Type", "gvsp.multipartdatatype",
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &multipartdatatypenames_ext, 0,
+        NULL, HFILL
+        }},
+
+        {& hf_gvsp_partlength,
+        { "Part Length", "gvsp.partlength",
+        FT_UINT64, BASE_HEX_DEC, NULL, 0,
+        NULL, HFILL
+        }},
+
+        {& hf_gvsp_multi_part_source_id,
+        { "Source ID", "gvsp.sourceid",
+        FT_UINT8, BASE_HEX_DEC, NULL, 0,
+        NULL, HFILL
+        }},
+
+        {& hf_gvsp_data_purpose_id,
+        { "Data Purpose ID", "gvsp.datapurposeid",
+        FT_UINT16, BASE_HEX_DEC, NULL, 0,
+        NULL, HFILL
+        }},
+
+        {& hf_gvsp_region_id,
+        { "Region ID", "gvsp.regionid",
+        FT_UINT16, BASE_HEX_DEC, NULL, 0,
+        NULL, HFILL
+        }},
+
+        {& hf_gvsp_data_type_specific,
+        { "Data Type Specific", "gvsp.datatypespecific",
+        FT_UINT32, BASE_HEX_DEC, NULL, 0,
+        NULL, HFILL
+        }},
+
+        {& hf_gvsp_endofpart,
+        { "End of Part", "gvsp.endofpart",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL
+        }},
+
+        {& hf_gvsp_add_zones_multipart,
+        { "Additional Zones (Multi-Part)", "gvsp.multipartaddzones",
+        FT_UINT8, BASE_HEX, NULL, 0x1F,
+        NULL, HFILL
+        }},
+
+        {& hf_gvsp_zoneinfo_multipart,
+        { "Zone Info (Multi-Part)", "gvsp.multipartzoneinfo",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL
+        }},
+
+        {& hf_gvsp_multi_part_part_id,
+        { "Part ID", "gvsp.partid",
+        FT_UINT8, BASE_HEX_DEC, NULL, 0,
         NULL, HFILL
         }},
 
@@ -2264,7 +2609,10 @@ void proto_register_gvsp(void)
         &ett_gvsp_fieldinfo,
         &ett_gvsp_cs,
         &ett_gvsp_sc_zone_direction,
-        &ett_gvsp_zoneinfo
+        &ett_gvsp_zoneinfo,
+        &ett_gvsp_zoneinfo_multipart,
+        &ett_gvsp_partinfo_leader,
+        &ett_gvsp_partinfo_trailer
     };
 
     proto_gvsp = proto_register_protocol("GigE Vision Streaming Protocol", "GVSP", "gvsp");
