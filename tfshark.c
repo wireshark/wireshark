@@ -107,6 +107,8 @@ static frame_data prev_dis_frame;
 static frame_data *prev_cap;
 static frame_data prev_cap_frame;
 
+static gboolean prefs_loaded = FALSE;
+
 static gboolean perform_two_pass_analysis;
 
 /*
@@ -157,7 +159,6 @@ static void failure_message_cont(const char *msg_format, va_list ap);
 capture_file cfile;
 
 static GHashTable *output_only_tables = NULL;
-static e_prefs *prefs_p = NULL;
 
 #if 0
 struct string_elem {
@@ -288,7 +289,7 @@ tfshark_log_handler (const gchar *log_domain, GLogLevelFlags log_level,
            ERROR and CRITICAL level messages so the current code is a behavioral
            change.  The current behavior is the same as in Wireshark.
   */
-  if (prefs_p && (log_level & G_LOG_LEVEL_MASK & prefs.console_log_level) == 0) {
+  if (prefs_loaded && (log_level & G_LOG_LEVEL_MASK & prefs.console_log_level) == 0) {
     return;
   }
 
@@ -345,6 +346,7 @@ main(int argc, char *argv[])
   dfilter_t           *rfcode = NULL;
   dfilter_t           *dfcode = NULL;
   gchar               *err_msg;
+  e_prefs             *prefs_p;
   int                  log_flags;
   gchar               *output_only = NULL;
 
@@ -600,6 +602,7 @@ main(int argc, char *argv[])
 
   /* Load libwireshark settings from the current profile. */
   prefs_p = epan_load_settings();
+  prefs_loaded = TRUE;
 
   cap_file_init(&cfile);
 
