@@ -13,6 +13,12 @@ used for troubleshooting, analysis, development and education.
 
 == What's New
 
+* Display filter buttons can now be edited / removed / disabled via a context
+  menu directly from the toolbar
+
+* Drag&Drop filter fields to the display filter toolbar or edit to create
+  a button on the fly or apply the filter as a display filter.
+
 * The installation step for Wireshark will now install headers required to
   build plugins. A pkg-config file is provided to help with this
   (see doc/plugins.example for details). Note you must still rebuild all

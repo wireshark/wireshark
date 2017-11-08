@@ -713,9 +713,7 @@ bool ProtoTree::eventFilter(QObject * obj, QEvent * event)
     if ( event->type() == QEvent::MouseButtonPress )
     {
         if ( ev->buttons() & Qt::LeftButton )
-        {
             dragStartPosition = ev->pos();
-        }
     }
     else if ( event->type() == QEvent::MouseMove )
     {
@@ -736,7 +734,7 @@ bool ProtoTree::eventFilter(QObject * obj, QEvent * event)
                         QDrag * drag = new QDrag(this);
                         drag->setMimeData(new DisplayFilterMimeData(description, filter));
 
-                        QString cmt = QString("%1 - ( %2 )").arg(description, filter);
+                        QString cmt = QString("%1\n%2").arg(description, filter);
                         DragLabel * content = new DragLabel(cmt, this);
 
     #if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
