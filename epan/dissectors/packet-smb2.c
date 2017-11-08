@@ -855,6 +855,11 @@ smb2stat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 	if(!(si->flags&SMB2_FLAGS_RESPONSE)){
 		return 0;
 	}
+	/* We should not include cancel and oplock break requests either */
+	if (si->opcode == SMB2_COM_CANCEL || si->opcode == SMB2_COM_BREAK) {
+		return 0;
+	}
+
 	/* if we haven't seen the request, just ignore it */
 	if(!si->saved){
 		return 0;
