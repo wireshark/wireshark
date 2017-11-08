@@ -183,7 +183,7 @@ static const value_string mqtt_conack_vals[] = {
 /* The protocol version is present in the CONNECT message. */
 typedef struct {
     guint8 runtime_proto_version;
-} mqtt_conv;
+} mqtt_conv_t;
 
 typedef struct _mqtt_message_decode_t {
   guint   match_criteria;
@@ -281,8 +281,8 @@ static const value_string mqtt_subscription_retain_handling[] = {
   { 0, NULL }
 };
 
-static mqtt_message_decode_t *mqtt_message_decodes = NULL;
-static guint num_mqtt_message_decodes = 0;
+static mqtt_message_decode_t *mqtt_message_decodes;
+static guint num_mqtt_message_decodes;
 
 static dissector_handle_t mqtt_handle;
 
@@ -605,7 +605,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     guint16     mqtt_str_len;
     guint16     mqtt_len_offset;
     conversation_t *conv;
-    mqtt_conv   *mqtt;
+    mqtt_conv_t *mqtt;
 
     guint32 offset = 0;
     static const int *publish_fields[] = {
@@ -663,10 +663,10 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     mqtt_tree = proto_item_add_subtree(ti, ett_mqtt_hdr);
 
     conv = find_or_create_conversation(pinfo);
-    mqtt = (mqtt_conv *)conversation_get_proto_data(conv, proto_mqtt);
+    mqtt = (mqtt_conv_t *)conversation_get_proto_data(conv, proto_mqtt);
     if (mqtt == NULL)
     {
-      mqtt = wmem_new0(wmem_file_scope(), mqtt_conv);
+      mqtt = wmem_new0(wmem_file_scope(), mqtt_conv_t);
       conversation_add_proto_data(conv, proto_mqtt, mqtt);
     }
 
