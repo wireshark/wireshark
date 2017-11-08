@@ -1605,8 +1605,8 @@ void MainWindow::showColumnEditor(int column)
 {
     previous_focus_ = wsApp->focusWidget();
     connect(previous_focus_, SIGNAL(destroyed()), this, SLOT(resetPreviousFocus()));
-    showAccordionFrame(main_ui_->columnEditorFrame);
     main_ui_->columnEditorFrame->editColumn(column);
+    showAccordionFrame(main_ui_->columnEditorFrame);
 }
 
 void MainWindow::showPreferenceEditor()
