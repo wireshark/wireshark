@@ -20,6 +20,10 @@
 # You should have received a copy of the GNU General Public License along
 # with this program. If not, see <https://www.gnu.org/licenses/>.
 
+# Originally copied from Debian's devscripts. A more modern version of
+# this can be found at
+# https://anonscm.debian.org/git/pkg-perl/packages/licensecheck.git/
+
 =head1 NAME
 
 licensecheck - simple license checker for source files
@@ -552,7 +556,7 @@ sub clean_cruft_and_spaces {
     tr/\t\r\n/ /;
 
     # this also removes quotes
-    tr% A-Za-z.,@;0-9\(\)/-%%cd;
+    tr% A-Za-z.+,@:;0-9\(\)/-%%cd;
     tr/ //s;
 
     return $_;
@@ -622,8 +626,11 @@ sub parselicense {
 	$gplver = " (v$1 or later)";
     } elsif ($licensetext =~ /GPL\sas\spublished\sby\sthe\sFree\sSoftware\sFoundation,\sversion\s([\d.]+)/i ) {
 	$gplver = " (v$1)";
+    } elsif ($licensetext =~ /SPDX-License-Identifier:\s+GPL-([1-9])\.0[^+]/i ) {
+	$gplver = " (v$1)";
+    } elsif ($licensetext =~ /SPDX-License-Identifier:\s+GPL-([1-9])\.0\+/i ) {
+	$gplver = " (v$1 or later)";
     }
-
 
     if ($licensetext =~ /(?:675 Mass Ave|59 Temple Place|51 Franklin Steet|02139|02111-1307)/i) {
 	$extrainfo = " (with incorrect FSF address)$extrainfo";
@@ -662,6 +669,11 @@ sub parselicense {
 
 
     if ($licensetext =~ /is distributed under the terms of the GNU General Public License,/
+	and length $gplver) {
+	$license = "GPL$gplver$extrainfo $license";
+    }
+
+    if ($licensetext =~ /SPDX-License-Identifier:\s+GPL/i
 	and length $gplver) {
 	$license = "GPL$gplver$extrainfo $license";
     }
