@@ -81,6 +81,7 @@
 #define EXP_PDU_TAG_DST_PORT	26
 
 static gboolean run_loop = TRUE;
+static uint32_t localhost = 0;
 
 enum {
 	EXTCAP_BASE_OPTIONS_ENUM,
@@ -283,7 +284,7 @@ static int dump_packet(const char* proto_name, const guint16 listenport, const c
 
 	add_proto_name(mbuf, &offset, proto_name);
 	add_ip_source_address(mbuf, &offset, clientaddr.sin_addr.s_addr);
-	add_ip_dest_address(mbuf, &offset, inet_addr("127.0.0.1"));
+	add_ip_dest_address(mbuf, &offset, localhost);
 	add_udp_source_port(mbuf, &offset, clientaddr.sin_port);
 	add_udp_dst_port(mbuf, &offset, listenport);
 	add_end_options(mbuf, &offset);
@@ -328,6 +329,7 @@ static void run_listener(const char* fifo, const guint16 port, const char* proto
 	g_debug("Listener running on port %u", port);
 
 	buf = (char*)g_malloc(PKT_BUF_SIZE);
+	localhost = inet_addr("127.0.0.1");
 	while(run_loop == TRUE) {
 		memset(buf, 0x0, PKT_BUF_SIZE);
 
