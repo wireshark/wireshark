@@ -168,6 +168,14 @@ void PreferenceEditorFrame::rangeLineEditTextEdited(const QString &new_str)
     }
 }
 
+void PreferenceEditorFrame::showEvent(QShowEvent *event)
+{
+    ui->preferenceLineEdit->setFocus();
+    ui->preferenceLineEdit->selectAll();
+
+    AccordionFrame::showEvent(event);
+}
+
 void PreferenceEditorFrame::on_modulePreferencesToolButton_clicked()
 {
     if (module_) {

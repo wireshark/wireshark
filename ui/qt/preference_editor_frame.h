@@ -48,6 +48,7 @@ signals:
     void pushFilterSyntaxStatus(const QString&);
 
 protected:
+    virtual void showEvent(QShowEvent *event);
     void keyPressEvent(QKeyEvent *event);
 
 private slots:
