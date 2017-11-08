@@ -3877,12 +3877,12 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_apply_action_b2_buff,
         { "BUFF (Buffer)", "pfcp.apply_action.buff",
-            FT_BOOLEAN, 8, NULL, 0x03,
+            FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
         { &hf_pfcp_apply_action_b3_nocp,
         { "NOCP (Notify the CP function)", "pfcp.apply_action.nocp",
-            FT_BOOLEAN, 8, NULL, 0x04,
+            FT_BOOLEAN, 8, NULL, 0x08,
             NULL, HFILL }
         },
         { &hf_pfcp_apply_action_b4_dupl,
