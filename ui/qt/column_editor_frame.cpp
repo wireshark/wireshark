@@ -99,6 +99,14 @@ void ColumnEditorFrame::editColumn(int column)
     setFields(ui->typeComboBox->currentIndex());
 }
 
+void ColumnEditorFrame::showEvent(QShowEvent *event)
+{
+    ui->titleLineEdit->setFocus();
+    ui->titleLineEdit->selectAll();
+
+    AccordionFrame::showEvent(event);
+}
+
 void ColumnEditorFrame::on_typeComboBox_activated(int index)
 {
     setFields(index);
