@@ -721,6 +721,7 @@ static const value_string wfa_subtype_vals[] = {
   { WFA_SUBTYPE_HS20_INDICATION, "Hotspot 2.0 Indication" },
   { WFA_SUBTYPE_HS20_ANQP, "Hotspot 2.0 ANQP" },
   { WFA_SUBTYPE_DPP, "Device Provisioning Protocol" },
+  { WFA_SUBTYPE_IEEE1905_MULTI_AP, "IEEE1905 Multi-AP" },
   { 0, NULL }
 };
 
@@ -10610,7 +10611,7 @@ dissect_vendor_ie_wfa(packet_info *pinfo, proto_item *item, tvbuff_t *tag_tvb)
 
   subtype = tvb_get_guint8(tag_tvb, 3);
   proto_item_append_text(item, ": %s", val_to_str_const(subtype, wfa_subtype_vals, "Unknown"));
-  vendor_tvb = tvb_new_subset_length(tag_tvb, offset, tag_len - 4);
+  vendor_tvb = tvb_new_subset_length(tag_tvb, offset + 4, tag_len - 4);
   dissector_try_uint_new(wifi_alliance_ie_table, subtype, vendor_tvb, pinfo, item, FALSE, NULL);
 }
 
@@ -28830,7 +28831,6 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.anqp.vendor_specific", OUI_WFA, create_dissector_handle(dissect_vendor_wifi_alliance_anqp, -1));
   dissector_add_uint("wlan.anqp.wifi_alliance.subtype", WFA_SUBTYPE_HS20_ANQP, create_dissector_handle(dissect_hs20_anqp, -1));
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_HS20_INDICATION, create_dissector_handle(dissect_hs20_indication, -1));
-
 }
 
 /*

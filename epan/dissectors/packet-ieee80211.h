@@ -278,12 +278,12 @@ typedef struct anqp_info_dissector_data {
 } anqp_info_dissector_data_t;
 
 /* WFA vendor specific subtypes */
-#define WFA_SUBTYPE_P2P 9
-#define WFA_SUBTYPE_WIFI_DISPLAY 10
-#define WFA_SUBTYPE_HS20_INDICATION 16
-#define WFA_SUBTYPE_HS20_ANQP 17
-#define WFA_SUBTYPE_DPP 26
-
+#define WFA_SUBTYPE_P2P                9
+#define WFA_SUBTYPE_WIFI_DISPLAY      10
+#define WFA_SUBTYPE_HS20_INDICATION   16
+#define WFA_SUBTYPE_HS20_ANQP         17
+#define WFA_SUBTYPE_DPP               26
+#define WFA_SUBTYPE_IEEE1905_MULTI_AP 27 /* ox1B */
 
 /*
  * Editor modelines

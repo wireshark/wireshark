@@ -39,6 +39,7 @@
 #include <epan/sminmpec.h>
 
 #include "packet-wps.h"
+#include "packet-ieee80211.h"
 
 void proto_register_wps(void);
 
@@ -878,6 +879,17 @@ dissect_wps_wfa_ext(proto_tree *tree, tvbuff_t *tvb,
     add_wps_wfa_ext(id, tree, tvb, pos, len);
     pos += len;
   }
+}
+
+static int
+dissect_wps_wfa_ext_via_dt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+        void *data _U_)
+{
+  gint size = tvb_reported_length(tvb);
+
+  dissect_wps_wfa_ext(tree, tvb, 0, size);
+
+  return size;
 }
 
 static void
@@ -2538,6 +2550,12 @@ proto_register_wps(void)
   proto_register_subtree_array(ett, array_length(ett));
   expert_wps = expert_register_protocol(proto_wps);
   expert_register_field_array(expert_wps, ei, array_length(ei));
+}
+
+void
+proto_reg_handoff_wps(void)
+{
+  dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_IEEE1905_MULTI_AP, create_dissector_handle(dissect_wps_wfa_ext_via_dt, -1));
 }
 
 /*
