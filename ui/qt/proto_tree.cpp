@@ -160,7 +160,8 @@ proto_tree_draw_node(proto_node *node, gpointer data)
 ProtoTree::ProtoTree(QWidget *parent) :
     QTreeWidget(parent),
     decode_as_(NULL),
-    column_resize_timer_(0)
+    column_resize_timer_(0),
+    cap_file_(NULL)
 {
     setAccessibleName(tr("Packet details"));
     // Leave the uniformRowHeights property as-is (false) since items might
