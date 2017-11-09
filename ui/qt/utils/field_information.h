@@ -26,7 +26,7 @@
 
 #include <epan/proto.h>
 
-#include <ui/qt/utils/data_printer.h>
+#include "data_printer.h"
 
 #include <QObject>
 
