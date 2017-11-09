@@ -1277,6 +1277,32 @@ try_conversation_dissector(const address *addr_a, const address *addr_b, const e
 	return FALSE;
 }
 
+gboolean
+try_conversation_dissector_simple(const endpoint_type etype, const guint32 port_a, tvbuff_t *tvb,
+    packet_info *pinfo, proto_tree *tree, void* data)
+{
+	conversation_t *conversation;
+
+	conversation = find_conversation_simple(pinfo->num, etype, port_a, 0);
+
+	if (conversation != NULL) {
+		int ret;
+		dissector_handle_t handle = (dissector_handle_t)wmem_tree_lookup32_le(conversation->dissector_tree, pinfo->num);
+		if (handle == NULL)
+			return FALSE;
+		ret=call_dissector_only(handle, tvb, pinfo, tree, data);
+		if(!ret) {
+			/* this packet was rejected by the dissector
+			 * so return FALSE in case our caller wants
+			 * to do some cleaning up.
+			 */
+			return FALSE;
+		}
+		return TRUE;
+	}
+	return FALSE;
+}
+
 /**  A helper function that calls find_conversation() using data from pinfo
  *  The frame number and addresses are taken from pinfo.
  */

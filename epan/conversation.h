@@ -77,7 +77,8 @@ typedef enum {
 	ENDPOINT_BLUETOOTH,
 	ENDPOINT_TDMOP,
 	ENDPOINT_DVBCI,
-	ENDPOINT_ISO14443
+	ENDPOINT_ISO14443,
+	ENDPOINT_ISDN			/* ISDN channel number */
 } endpoint_type;
 
 /**
@@ -219,6 +220,10 @@ extern gboolean
 try_conversation_dissector(const address *addr_a, const address *addr_b, const endpoint_type etype,
     const guint32 port_a, const guint32 port_b, tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, void* data);
+
+extern gboolean
+try_conversation_dissector_simple(const endpoint_type etype, const guint32 port_a, tvbuff_t *tvb,
+    packet_info *pinfo, proto_tree *tree, void* data);
 
 /* These routines are used to set undefined values for a conversation */
 
