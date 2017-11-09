@@ -40,7 +40,7 @@
 #include <math.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/circuit.h>
+#include <epan/conversation.h>
 #include <epan/tfs.h>
 #include <epan/reassemble.h>
 #include <wiretap/wtap.h>
@@ -683,7 +683,7 @@ static int dissect_iso14443_ats(tvbuff_t *tvb, gint offset,
         packet_info *pinfo, proto_tree *tree, gboolean crc_dropped)
 {
     proto_item *ti = proto_tree_get_parent(tree);
-    circuit_t *circuit;
+    conversation_t *conv;
     guint8 tl, t0 = 0, fsci, fwi, sfgi;
     proto_item *t0_it, *tb1_it, *tc1_it, *pi;
     proto_tree *t0_tree, *tb1_tree, *tc1_tree;
@@ -693,9 +693,8 @@ static int dissect_iso14443_ats(tvbuff_t *tvb, gint offset,
     col_set_str(pinfo->cinfo, COL_INFO, "ATS");
     proto_item_append_text(ti, ": ATS");
 
-    circuit = circuit_new(CT_ISO14443, ISO14443_CIRCUIT_ID, pinfo->num);
-    circuit_add_proto_data(circuit,
-            proto_iso14443, GUINT_TO_POINTER((guint)ISO14443_A));
+    conv = conversation_new_simple(pinfo->num, ENDPOINT_ISO14443, ISO14443_CIRCUIT_ID, 0);
+    conversation_add_proto_data(conv, proto_iso14443, GUINT_TO_POINTER((guint)ISO14443_A));
 
     offset_tl = offset;
     tl = tvb_get_guint8(tvb, offset);
@@ -910,7 +909,7 @@ dissect_iso14443_cmd_type_attrib(tvbuff_t *tvb, packet_info *pinfo,
     gint offset = 0;
     guint8 mbli, cid;
     gint hl_resp_len;
-    circuit_t *circuit;
+    conversation_t *conv;
 
     if (pinfo->p2p_dir == P2P_DIR_SENT) {
         offset = dissect_iso14443_attrib(
@@ -920,9 +919,8 @@ dissect_iso14443_cmd_type_attrib(tvbuff_t *tvb, packet_info *pinfo,
         col_set_str(pinfo->cinfo, COL_INFO, "Response to Attrib");
         proto_item_append_text(ti, ": Response to Attrib");
 
-        circuit = circuit_new(CT_ISO14443, ISO14443_CIRCUIT_ID, pinfo->num);
-        circuit_add_proto_data(circuit,
-                proto_iso14443, GUINT_TO_POINTER((guint)ISO14443_B));
+        conv = conversation_new_simple(pinfo->num, ENDPOINT_ISO14443, ISO14443_CIRCUIT_ID, 0);
+        conversation_add_proto_data(conv, proto_iso14443, GUINT_TO_POINTER((guint)ISO14443_B));
 
         mbli = tvb_get_guint8(tvb, offset) >> 4;
         proto_tree_add_uint_bits_format_value(tree, hf_iso14443_mbli,
@@ -1091,12 +1089,11 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
 
     if (!crc_dropped) {
         iso14443_type_t t;
-        circuit_t *circuit;
+        conversation_t *conv;
 
-        circuit = find_circuit(CT_ISO14443, ISO14443_CIRCUIT_ID, pinfo->num);
-        if (circuit) {
-            t = (iso14443_type_t)GPOINTER_TO_UINT(
-                    (gpointer)circuit_get_proto_data(circuit, proto_iso14443));
+        conv = find_conversation_simple(pinfo->num, ENDPOINT_ISO14443, ISO14443_CIRCUIT_ID, 0);
+        if (conv) {
+            t = (iso14443_type_t)GPOINTER_TO_UINT(conversation_get_proto_data(conv, proto_iso14443));
 
             proto_tree_add_checksum(tree, tvb, offset,
                     hf_iso14443_crc, hf_iso14443_crc_status, &ei_iso14443_wrong_crc, pinfo,
@@ -1324,7 +1321,7 @@ static int dissect_iso14443(tvbuff_t *tvb,
     proto_item *tree_ti;
     proto_tree *iso14443_tree, *hdr_tree;
     tvbuff_t    *payload_tvb;
-    circuit_t   *circuit;
+    conversation_t *conv;
 
     if (tvb_captured_length(tvb) < 4)
         return 0;
@@ -1377,9 +1374,9 @@ static int dissect_iso14443(tvbuff_t *tvb,
 
         /* all events that are not data transfers close the connection
            to the card (e.g. the field is switched on or off) */
-        circuit = find_circuit(CT_ISO14443, ISO14443_CIRCUIT_ID, pinfo->num);
-        if (circuit)
-                close_circuit(circuit, pinfo->num);
+        conv = find_conversation_simple(pinfo->num, ENDPOINT_ISO14443, ISO14443_CIRCUIT_ID, 0);
+        if (conv)
+            conv->last_frame = pinfo->num;
     }
 
     return offset;

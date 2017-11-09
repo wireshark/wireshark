@@ -76,7 +76,8 @@ typedef enum {
 	ENDPOINT_IBQP,			/* Infiniband QP number */
 	ENDPOINT_BLUETOOTH,
 	ENDPOINT_TDMOP,
-	ENDPOINT_DVBCI
+	ENDPOINT_DVBCI,
+	ENDPOINT_ISO14443
 } endpoint_type;
 
 /**
