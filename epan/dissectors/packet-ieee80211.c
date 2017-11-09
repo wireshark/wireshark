@@ -4361,6 +4361,7 @@ static int hf_ieee80211_wfa_ie_wme_tspec_medium = -1;
 
 static int hf_ieee80211_aironet_ie_type = -1;
 static int hf_ieee80211_aironet_ie_dtpc = -1;
+static int hf_ieee80211_aironet_ie_dtpc_unknown = -1;
 static int hf_ieee80211_aironet_ie_version = -1;
 static int hf_ieee80211_aironet_ie_data = -1;
 static int hf_ieee80211_aironet_ie_qos_reserved = -1;
@@ -10860,8 +10861,11 @@ dissect_vendor_ie_aironet(proto_item *aironet_item, proto_tree *ietree,
 
   switch (type) {
   case AIRONET_IE_DTPC:
-    proto_tree_add_item(ietree, hf_ieee80211_aironet_ie_dtpc, tvb, offset, 2, ENC_NA);
-    proto_item_append_text(aironet_item, ": Aironet DTPC Powerlevel 0x%02X", tvb_get_guint8(tvb, offset));
+    proto_tree_add_item(ietree, hf_ieee80211_aironet_ie_dtpc, tvb, offset, 1, ENC_NA);
+    proto_item_append_text(aironet_item, ": Aironet DTPC Powerlevel %ddBm", tvb_get_guint8(tvb, offset));
+    offset += 1;
+    proto_tree_add_item(ietree, hf_ieee80211_aironet_ie_dtpc_unknown, tvb, offset, 1, ENC_NA);
+    offset += 1;
     dont_change = TRUE;
     break;
   case AIRONET_IE_VERSION:
@@ -26788,6 +26792,11 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_aironet_ie_dtpc,
      {"Aironet IE CCX DTCP", "wlan.aironet.dtpc",
+      FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_aironet_ie_dtpc_unknown,
+     {"Aironet IE CCX DTCP Unknown", "wlan.aironet.dtpc_unknown",
       FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
