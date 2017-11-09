@@ -89,9 +89,11 @@ static int hf_pfcp_precedence = -1;
 static int hf_pfcp_source_interface = -1;
 static int hf_pfcp_f_teid_flags = -1;
 static int hf_pfcp_fteid_flg_spare = -1;
+static int hf_pfcp_fteid_flg_b3_ch_id = -1;
 static int hf_pfcp_fteid_flg_b2_ch = -1;
 static int hf_pfcp_fteid_flg_b1_v6 = -1;
 static int hf_pfcp_fteid_flg_b0_v4 = -1;
+static int hf_pfcp_f_teid_ch_id = -1;
 static int hf_pfcp_f_teid_ipv4 = -1;
 static int hf_pfcp_f_teid_ipv6 = -1;
 static int hf_pfcp_pdn_instance = -1;
@@ -641,7 +643,7 @@ dissect_pfcp_source_interface(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     }
 
 }
- /*
+/*
  * 8.2.3    F-TEID
  */
 static void
@@ -652,12 +654,13 @@ dissect_pfcp_f_teid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
 
     static const int * pfcp_fteid_flags[] = {
         &hf_pfcp_fteid_flg_spare,
+        &hf_pfcp_fteid_flg_b3_ch_id,
         &hf_pfcp_fteid_flg_b2_ch,
         &hf_pfcp_fteid_flg_b1_v6,
         &hf_pfcp_fteid_flg_b0_v4,
         NULL
     };
-    /* Octet 5  Spare   CH  V6  V4*/
+    /* Octet 5  Spare  Spare  Spare  CHID  CH  V6  V4*/
     proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_f_teid_flags,
         ett_f_teid_flags, pfcp_fteid_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS, &fteid_flags_val);
     offset += 1;
@@ -668,20 +671,34 @@ dissect_pfcp_f_teid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
      *         otherwise the IPv6 address field shall not be present.
      * Bit 3 - CH (CHOOSE): If this bit is set to "1", then the TEID, IPv4 address and IPv6 address fields shall not be
      *         present and the UP function shall assign an F-TEID with an IP4 or an IPv6 address if the V4 or V6 bit is set respectively.
-               This bit shall only be set by the CP function.
+     *         This bit shall only be set by the CP function.
+     * Bit 4 - CHID (CHOOSE_ID):If this bit is set to "1", then the UP function shall assign the same F-TEID to the
+     *         PDRs requested to be created in a Sx Session Establishment Request or Sx Session Modification Request with
+     *         the same CHOOSE ID value.
+     *         This bit may only be set to "1" if the CH bit is set to "1".
+     *         This bit shall only be set by the CP function.
      */
-    if ((fteid_flags_val & 0x4) == 0) {
-        return;
-    }
-    if ((fteid_flags_val & 0x1) == 1) {
-        /* m to (m+3)    IPv4 address */
-        proto_tree_add_item(tree, hf_pfcp_f_teid_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
-    }
-    if ((fteid_flags_val & 0x2) == 2) {
-        /* p to (p+15)   IPv6 address */
-        proto_tree_add_item(tree, hf_pfcp_f_teid_ipv6, tvb, offset, 16, ENC_NA);
-        offset += 16;
+
+    if ((fteid_flags_val & 0x4) == 4) {
+        if ((fteid_flags_val & 0x8) == 8) {
+            proto_tree_add_item(tree, hf_pfcp_f_teid_ch_id, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+    } else {
+        if ((fteid_flags_val & 0x1) == 1) {
+            /* m to (m+3)    IPv4 address */
+            proto_tree_add_item(tree, hf_pfcp_f_teid_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+        }
+        if ((fteid_flags_val & 0x2) == 2) {
+            /* p to (p+15)   IPv6 address */
+            proto_tree_add_item(tree, hf_pfcp_f_teid_ipv6, tvb, offset, 16, ENC_NA);
+            offset += 16;
+        }
+        /* If the value of CH bit is set to "0", but the value of CHID bit is "1" */
+        if ((fteid_flags_val & 0x8) == 8) {
+            proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_encoding_error, tvb, 0, 1);
+        }
     }
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
@@ -3705,6 +3722,11 @@ proto_register_pfcp(void)
             FT_UINT8, BASE_DEC, NULL, 0xf8,
             NULL, HFILL }
         },
+        { &hf_pfcp_fteid_flg_b3_ch_id,
+        { "CHID (CHOOSE_ID)", "pfcp.f_teid_flags.ch_id",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
         { &hf_pfcp_fteid_flg_b2_ch,
         { "CH (CHOOSE)", "pfcp.f_teid_flags.ch",
             FT_BOOLEAN, 8, NULL, 0x04,
@@ -3718,6 +3740,11 @@ proto_register_pfcp(void)
         { &hf_pfcp_fteid_flg_b0_v4,
         { "V4", "pfcp.f_teid_flags.v4",
             FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_f_teid_ch_id,
+        { "Choose Id", "pfcp.f_teid.choose_id",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_f_teid_ipv4,
