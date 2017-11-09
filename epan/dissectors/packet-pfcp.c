@@ -1646,8 +1646,8 @@ dissect_pfcp_f_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
     }
 }
 
- /*
- * 8.2.38   Node ID
+/*
+ *   8.2.38   Node ID
  */
 
 static const value_string pfcp_node_id_type_vals[] = {
@@ -1671,45 +1671,47 @@ dissect_pfcp_node_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
     offset++;
 
     switch (node_id_type) {
-    case 0:
-        /* IPv4 address */
-        proto_tree_add_item(tree, hf_pfcp_node_id_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_item_append_text(item, "IPv4 %s", tvb_ip_to_str(tvb, offset));
-        offset += 4;
-        break;
-    case 1:
-        /* IPv4 address */
-        proto_tree_add_item(tree, hf_pfcp_node_id_ipv6, tvb, offset, 16, ENC_NA);
-        proto_item_append_text(item, "IPv6 %s", tvb_ip6_to_str(tvb, offset));
-        offset += 16;
-        break;
-    case 2:
-        /* FQDN, the Node ID value encoding shall be identical to the encoding of a FQDN
-         * within a DNS message of section 3.1 of IETF RFC 1035 [27] but excluding the trailing zero byte.
-         */
-        if (length > 1) {
-            name_len = tvb_get_guint8(tvb, offset);
-
-            if (name_len < 0x20) {
-                fqdn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, length - 2, ENC_ASCII);
-                for (;;) {
-                    if (name_len >= length - 2)
-                        break;
-                    tmp = name_len;
-                    name_len = name_len + fqdn[tmp] + 1;
-                    fqdn[tmp] = '.';
+        case 0:
+            /* IPv4 address */
+            proto_tree_add_item(tree, hf_pfcp_node_id_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_item_append_text(item, "IPv4 %s", tvb_ip_to_str(tvb, offset));
+            offset += 4;
+            break;
+        case 1:
+            /* IPv6 address */
+            proto_tree_add_item(tree, hf_pfcp_node_id_ipv6, tvb, offset, 16, ENC_NA);
+            proto_item_append_text(item, "IPv6 %s", tvb_ip6_to_str(tvb, offset));
+            offset += 16;
+            break;
+        case 2:
+            /* FQDN, the Node ID value encoding shall be identical to the encoding of a FQDN
+             * within a DNS message of section 3.1 of IETF RFC 1035 [27] but excluding the trailing zero byte.
+             */
+            if (length > 1) {
+                name_len = tvb_get_guint8(tvb, offset);
+                /* NOTE 1: The FQDN field in the IE is not encoded as a dotted string as commonly used in DNS master zone files. */
+                if (name_len < 0x20) {
+                    fqdn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, length - 2, ENC_ASCII);
+                    for (;;) {
+                        if (name_len >= length - 2)
+                            break;
+                        tmp = name_len;
+                        name_len = name_len + fqdn[tmp] + 1;
+                        fqdn[tmp] = '.';
+                    }
                 }
+                /* In case the FQDN field is incorrectly in dotted string form.*/
+                else {
+                    fqdn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length - 1, ENC_ASCII);
+                    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_encoding_error, tvb, offset, length - 1);
+                }
+                proto_tree_add_string(tree, hf_pfcp_node_id_fqdn, tvb, offset, length - 1, fqdn);
+                proto_item_append_text(item, "%s", fqdn);
+                offset += length - 1;
             }
-            else {
-                fqdn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length -1, ENC_ASCII);
-            }
-            proto_tree_add_string(tree, hf_pfcp_node_id_fqdn, tvb, offset, length - 1, fqdn);
-            proto_item_append_text(item, "%s", fqdn);
-            offset += length - 1;
-        }
-        break;
-    default:
-        break;
+            break;
+        default:
+            break;
     }
 
     if (offset < length) {
@@ -3719,7 +3721,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_fteid_flg_spare,
         { "Spare", "pfcp.fteid_flg.spare",
-            FT_UINT8, BASE_DEC, NULL, 0xf8,
+            FT_UINT8, BASE_DEC, NULL, 0xf0,
             NULL, HFILL }
         },
         { &hf_pfcp_fteid_flg_b3_ch_id,
