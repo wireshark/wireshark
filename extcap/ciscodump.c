@@ -43,7 +43,7 @@
 /* The read timeout in msec */
 #define CISCODUMP_READ_TIMEOUT 3000
 
-#define CISCODUMP_EXTCAP_INTERFACE "cisco"
+#define CISCODUMP_EXTCAP_INTERFACE "ciscodump"
 #define SSH_READ_BLOCK_SIZE 1024
 #define SSH_READ_TIMEOUT 10000
 

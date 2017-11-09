@@ -40,7 +40,7 @@
 #define SSHDUMP_VERSION_MINOR "0"
 #define SSHDUMP_VERSION_RELEASE "0"
 
-#define SSH_EXTCAP_INTERFACE "ssh"
+#define SSH_EXTCAP_INTERFACE "sshdump"
 #define SSH_READ_BLOCK_SIZE 256
 
 enum {
