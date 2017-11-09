@@ -839,12 +839,19 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         proto_tree_add_item(mqtt_tree, hf_mqtt_msgid, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
+        /* Subtract the Packet Id size to compute the Payload length */
+        mqtt_msg_len -= 2;
+
         if (mqtt->runtime_proto_version == MQTT_PROTO_V50)
         {
-          offset += dissect_mqtt_properties(tvb, mqtt_tree, offset);
+          guint32 mqtt_prop_offset = dissect_mqtt_properties(tvb, mqtt_tree, offset);
+          offset += mqtt_prop_offset;
+
+          /* Subtract the Property offset to compute the Payload length */
+          mqtt_msg_len -= mqtt_prop_offset;
         }
 
-        for(mqtt_msg_len -= 2; mqtt_msg_len > 0;)
+        while (mqtt_msg_len > 0)
         {
           mqtt_str_len = tvb_get_ntohs(tvb, offset);
           proto_tree_add_item(mqtt_tree, hf_mqtt_topic_len, tvb, offset, 2, ENC_BIG_ENDIAN);
