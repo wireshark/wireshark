@@ -560,7 +560,7 @@ static guint32 dissect_mqtt_properties(tvbuff_t *tvb, proto_tree *mqtt_tree, gui
       case PROP_SUBSCRIPTION_IDENTIFIER:
       {
         guint8 vbi_offset = dissect_uleb128(tvb, offset, &vbi);
-        proto_tree_add_uint64(mqtt_prop_tree, hf_mqtt_prop_num, tvb, offset, vbi_offset, vbi);
+        proto_tree_add_uint(mqtt_prop_tree, hf_mqtt_prop_num, tvb, offset, vbi_offset, (guint32)vbi);
         offset += vbi_offset;
         break;
       }
