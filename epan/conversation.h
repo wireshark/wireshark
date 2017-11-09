@@ -75,7 +75,8 @@ typedef enum {
 	ENDPOINT_I2C,
 	ENDPOINT_IBQP,			/* Infiniband QP number */
 	ENDPOINT_BLUETOOTH,
-	ENDPOINT_TDMOP
+	ENDPOINT_TDMOP,
+	ENDPOINT_DVBCI
 } endpoint_type;
 
 /**
@@ -130,6 +131,8 @@ extern void conversation_epan_reset(void);
 WS_DLL_PUBLIC conversation_t *conversation_new(const guint32 setup_frame, const address *addr1, const address *addr2,
     const endpoint_type etype, const guint32 port1, const guint32 port2, const guint options);
 
+WS_DLL_PUBLIC conversation_t *conversation_new_simple(const guint32 setup_frame, const endpoint_type etype, const guint32 port1, const guint options);
+
 /**
  * Given two address/port pairs for a packet, search for a conversation
  * containing packets between those address/port pairs.  Returns NULL if
@@ -168,6 +171,8 @@ WS_DLL_PUBLIC conversation_t *conversation_new(const guint32 setup_frame, const 
  */
 WS_DLL_PUBLIC conversation_t *find_conversation(const guint32 frame_num, const address *addr_a, const address *addr_b,
     const endpoint_type etype, const guint32 port_a, const guint32 port_b, const guint options);
+
+WS_DLL_PUBLIC conversation_t *find_conversation_simple(const guint32 frame, const endpoint_type etype, const guint32 port1, const guint options);
 
 /**  A helper function that calls find_conversation() using data from pinfo
  *  The frame number and addresses are taken from pinfo.

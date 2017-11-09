@@ -33,7 +33,7 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include <epan/circuit.h>
+#include <epan/conversation.h>
 #include <epan/dvb_chartbl.h>
 #include <epan/exported_pdu.h>
 #include <epan/reassemble.h>
@@ -445,65 +445,65 @@ typedef struct _apdu_info_t {
     guint16 res_class;
     guint8  res_min_ver;
     void (*dissect_payload)(guint32, gint,
-            tvbuff_t *, gint, circuit_t *, packet_info *, proto_tree *);
+            tvbuff_t *, gint, conversation_t *, packet_info *, proto_tree *);
 } apdu_info_t;
 
 
 static void
 dissect_dvbci_payload_rm(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *circuit _U_,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_ap(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *circuit _U_,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_ca(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *circuit _U_,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_aut(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *circuit _U_,
         packet_info *pinfo _U_, proto_tree *tree);
 static void
 dissect_dvbci_payload_hc(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *circuit _U_,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_dt(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *circuit _U_,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *circuit _U_,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_hlc(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *circuit _U_,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_cup(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *circuit _U_,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *circuit _U_,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *circuit _U_,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit,
+        tvbuff_t *tvb, gint offset, conversation_t *circuit,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *circuit _U_,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit,
+        tvbuff_t *tvb, gint offset, conversation_t *circuit,
         packet_info *pinfo, proto_tree *tree);
 
 
@@ -1840,11 +1840,11 @@ dissect_rating(tvbuff_t *tvb, gint offset,
 /* if there's a dissector for the protocol and target port of our
     lsc connection, store it in the lsc session's circuit */
 static void
-store_lsc_msg_dissector(circuit_t *circuit, guint8 ip_proto, guint16 port)
+store_lsc_msg_dissector(conversation_t *conv, guint8 ip_proto, guint16 port)
 {
     dissector_handle_t msg_handle = NULL;
 
-    if (!circuit)
+    if (!conv)
         return;
 
     if (ip_proto==LSC_TCP)
@@ -1852,14 +1852,14 @@ store_lsc_msg_dissector(circuit_t *circuit, guint8 ip_proto, guint16 port)
     else if (ip_proto==LSC_UDP)
         msg_handle = dissector_get_uint_handle(udp_dissector_table, port);
 
-    circuit_set_dissector(circuit, msg_handle);
+    conversation_set_dissector(conv, msg_handle);
 }
 
 
 /* dissect a connection_descriptor for the lsc resource
    returns its length or -1 for error */
 static gint
-dissect_conn_desc(tvbuff_t *tvb, gint offset,  circuit_t *circuit,
+dissect_conn_desc(tvbuff_t *tvb, gint offset, conversation_t *conv,
         packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti;
@@ -1938,7 +1938,7 @@ dissect_conn_desc(tvbuff_t *tvb, gint offset,  circuit_t *circuit,
                         udp_port_to_display(wmem_packet_scope(), port));
             }
         }
-        store_lsc_msg_dissector(circuit, ip_proto, port);
+        store_lsc_msg_dissector(conv, ip_proto, port);
 
     } else if (conn_desc_type == CONN_DESC_HOSTNAME) {
         proto_tree_add_item(conn_desc_tree, hf_dvbci_lsc_media_tag,
@@ -1965,7 +1965,7 @@ dissect_conn_desc(tvbuff_t *tvb, gint offset,  circuit_t *circuit,
                         udp_port_to_display(wmem_packet_scope(), port));
             }
         }
-        store_lsc_msg_dissector(circuit, ip_proto, port);
+        store_lsc_msg_dissector(conv, ip_proto, port);
 
         /* everything from here to the descriptor's end is a hostname */
         hostname_len = (offset_body+len_field)-offset;
@@ -2671,7 +2671,7 @@ dissect_res_id(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 /* dissect the body of a resource manager apdu */
 static void
 dissect_dvbci_payload_rm(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
         packet_info *pinfo, proto_tree *tree)
 {
     const gchar *tag_str;
@@ -2694,7 +2694,7 @@ dissect_dvbci_payload_rm(guint32 tag, gint len_field,
 
 static void
 dissect_dvbci_payload_ap(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
         packet_info *pinfo, proto_tree *tree)
 {
     guint8          menu_str_len;
@@ -2740,7 +2740,7 @@ dissect_dvbci_payload_ap(guint32 tag, gint len_field _U_,
 
 static void
 dissect_dvbci_payload_ca(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
         packet_info *pinfo, proto_tree *tree)
 {
     const gchar *tag_str;
@@ -2855,7 +2855,7 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
 
 static void
 dissect_dvbci_payload_aut(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
         packet_info *pinfo _U_, proto_tree *tree)
 {
     gint bytes_len;
@@ -2881,7 +2881,7 @@ dissect_dvbci_payload_aut(guint32 tag, gint len_field _U_,
 
 static void
 dissect_dvbci_payload_hc(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
         packet_info *pinfo, proto_tree *tree)
 {
     proto_item *pi;
@@ -2983,7 +2983,7 @@ dissect_dvbci_payload_hc(guint32 tag, gint len_field _U_,
 
 static void
 dissect_dvbci_payload_dt(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
         packet_info *pinfo, proto_tree *tree)
 {
     nstime_t     resp_intv;
@@ -3045,7 +3045,7 @@ dissect_dvbci_payload_dt(guint32 tag, gint len_field,
 
 static void
 dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
         packet_info *pinfo, proto_tree *tree)
 {
     gint            offset_start;
@@ -3222,7 +3222,7 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
 
 static void
 dissect_dvbci_payload_hlc(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
         packet_info *pinfo, proto_tree *tree)
 {
   guint8 *str;
@@ -3249,7 +3249,7 @@ dissect_dvbci_payload_hlc(guint32 tag, gint len_field _U_,
 
 static void
 dissect_dvbci_payload_cup(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
         packet_info *pinfo, proto_tree *tree)
 {
   guint8      upgrade_type;
@@ -3468,7 +3468,7 @@ dissect_dvbci_exported_sac_msg(
 
 static void
 dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
         packet_info *pinfo, proto_tree *tree)
 {
     guint8      status;
@@ -3672,7 +3672,7 @@ dissect_dvbci_ami_file_ack(tvbuff_t *tvb, gint offset,
 
 static void
 dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
         packet_info *pinfo, proto_tree *tree)
 {
     guint8  app_dom_id_len, init_obj_len;
@@ -3756,7 +3756,7 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
 
 static void
 dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit,
+        tvbuff_t *tvb, gint offset, conversation_t *conv,
         packet_info *pinfo, proto_tree *tree)
 {
     gint                offset_start;
@@ -3782,7 +3782,7 @@ dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
             switch(id) {
                 case COMMS_CMD_ID_CONNECT_ON_CHANNEL:
                     conn_desc_len = dissect_conn_desc(tvb, offset,
-                            circuit, pinfo, tree);
+                            conv, pinfo, tree);
                     if (conn_desc_len < 0)
                         break;
                     offset += conn_desc_len;
@@ -3892,8 +3892,8 @@ dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
             msg_tvb = tvb_new_subset_remaining(tvb, offset);
             if (!msg_tvb)
                 break;
-            if (dvbci_dissect_lsc_msg && circuit_get_dissector(circuit)) {
-                msg_handle = circuit_get_dissector(circuit);
+            if (dvbci_dissect_lsc_msg && conversation_get_dissector(conv, 0)) {
+                msg_handle = conversation_get_dissector(conv, 0);
                 col_append_str(pinfo->cinfo, COL_INFO, ", ");
                 col_set_fence(pinfo->cinfo, COL_INFO);
                 col_append_str(pinfo->cinfo, COL_PROTOCOL, ", ");
@@ -3913,7 +3913,7 @@ dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
 
 static void
 dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
         packet_info *pinfo, proto_tree *tree)
 {
     guint16         nit_loop_len, nit_loop_offset;
@@ -4083,7 +4083,7 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
 
 static void
 dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit,
+        tvbuff_t *tvb, gint offset, conversation_t *conv,
         packet_info *pinfo, proto_tree *tree)
 {
     gchar   app_id_str[2+16+1]; /* "0x", string of 16 hex digits, trailing 0 */
@@ -4109,16 +4109,16 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
                          "Ok" : "Error"));
                 proto_tree_add_item(tree, hf_dvbci_sas_sess_state,
                         tvb, offset, 1, ENC_BIG_ENDIAN);
-                if (!circuit)
+                if (!conv)
                     break;
                 if (sas_status == SAS_SESS_STATE_CONNECTED) {
                     msg_handle = dissector_get_string_handle(
                             sas_msg_dissector_table, app_id_str);
                     /* this clears the dissector for msg_handle==NULL */
-                    circuit_set_dissector(circuit, msg_handle);
+                    conversation_set_dissector(conv, msg_handle);
                 }
                 else
-                    circuit_set_dissector(circuit, NULL);
+                    conversation_set_dissector(conv, NULL);
             }
             break;
         case T_SAS_ASYNC_MSG:
@@ -4133,7 +4133,7 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
                     tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             msg_tvb = tvb_new_subset_length(tvb, offset, msg_len);
-            msg_handle = circuit_get_dissector(circuit);
+            msg_handle = conversation_get_dissector(conv, 0);
             if (msg_handle == NULL)
                 msg_handle = data_handle;
             call_dissector(msg_handle, msg_tvb, pinfo, tree);
@@ -4145,7 +4145,7 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
 
 
 static void
-dissect_dvbci_apdu(tvbuff_t *tvb, circuit_t *circuit,
+dissect_dvbci_apdu(tvbuff_t *tvb, conversation_t *conv,
         packet_info *pinfo, proto_tree *tree, guint8 direction)
 {
     proto_tree  *app_tree;
@@ -4211,9 +4211,8 @@ dissect_dvbci_apdu(tvbuff_t *tvb, circuit_t *circuit,
                 "Invalid APDU length field, length field for %s must be %d", tag_str, ai->len_field);
         return;
     }
-    if (circuit) {
-        apdu_res_id = GPOINTER_TO_UINT(
-                (gpointer)circuit_get_proto_data(circuit, proto_dvbci));
+    if (conv) {
+        apdu_res_id = GPOINTER_TO_UINT(conversation_get_proto_data(conv, proto_dvbci));
 
         ai_res_class_str = val_to_str_const(ai->res_class, dvbci_res_class, "Unknown");
 
@@ -4236,7 +4235,7 @@ dissect_dvbci_apdu(tvbuff_t *tvb, circuit_t *circuit,
             return;
         }
         ai->dissect_payload(
-                tag, len_field, tvb, offset, circuit, pinfo, app_tree);
+                tag, len_field, tvb, offset, conv, pinfo, app_tree);
     }
 }
 
@@ -4249,7 +4248,7 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree        *sess_tree;
     guint8             tag;
     const gchar       *tag_str;
-    circuit_t         *circuit     = NULL;
+    conversation_t    *conv     = NULL;
     proto_item        *pi;
     gint               offset;
     guint32            len_field;
@@ -4323,13 +4322,10 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
             }
             col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Session opened");
-            circuit = circuit_new(CT_DVBCI, CT_ID(ssnb, tcid), pinfo->num);
-            if (circuit) {
-                /* we always add the resource id immediately after the circuit
-                   was created */
-                circuit_add_proto_data(
-                        circuit, proto_dvbci, GUINT_TO_POINTER(res_id));
-            }
+            conv = conversation_new_simple(pinfo->num, ENDPOINT_DVBCI, CT_ID(ssnb, tcid), 0);
+            /* we always add the resource id immediately after the circuit
+                was created */
+            conversation_add_proto_data(conv, proto_dvbci, GUINT_TO_POINTER(res_id));
             break;
         case T_CLOSE_SESSION_REQUEST:
             ssnb = tvb_get_ntohs(tvb, offset);
@@ -4347,9 +4343,9 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             ssnb = tvb_get_ntohs(tvb, offset+1);
             proto_tree_add_item(sess_tree, hf_dvbci_sess_nb,
                     tvb, offset+1, 2, ENC_BIG_ENDIAN);
-            circuit = find_circuit(CT_DVBCI, CT_ID(ssnb, tcid), pinfo->num);
-            if (circuit)
-                close_circuit(circuit, pinfo->num);
+            conv = find_conversation_simple(pinfo->num, ENDPOINT_DVBCI, CT_ID(ssnb, tcid), 0);
+            if (conv)
+                conv->last_frame = pinfo->num;
             break;
         case T_SESSION_NUMBER:
             ssnb = tvb_get_ntohs(tvb, offset);
@@ -4363,23 +4359,22 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
     }
 
-    if (ssnb && !circuit)
-        circuit = find_circuit(CT_DVBCI, CT_ID(ssnb, tcid), pinfo->num);
+    if (ssnb && !conv)
+        conv = find_conversation_simple(pinfo->num, ENDPOINT_DVBCI, CT_ID(ssnb, tcid), 0);
 
     /* if the packet contains no resource id, we add the cached id from
        the circuit so that each packet has a resource id that can be
        used for filtering */
-    if (circuit && !res_id_it) {
+    if (conv&& !res_id_it) {
         /* when a circuit is found, it always contains a valid resource id */
-        res_id = GPOINTER_TO_UINT(
-                (gpointer)circuit_get_proto_data(circuit, proto_dvbci));
+        res_id = GPOINTER_TO_UINT(conversation_get_proto_data(conv, proto_dvbci));
         res_id_it = dissect_res_id(NULL, 0, pinfo, sess_tree, res_id, TRUE);
         PROTO_ITEM_SET_GENERATED(res_id_it);
     }
 
     if (payload_tvb) {
         proto_item_set_len(ti, spdu_len-tvb_reported_length(payload_tvb));
-        dissect_dvbci_apdu(payload_tvb, circuit, pinfo, tree, direction);
+        dissect_dvbci_apdu(payload_tvb, conv, pinfo, tree, direction);
     }
     else {
         proto_item_set_len(ti, spdu_len);

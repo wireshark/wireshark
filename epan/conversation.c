@@ -645,8 +645,16 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 	}
 
 	new_key = wmem_new(wmem_file_scope(), struct conversation_key);
-	copy_address_wmem(wmem_file_scope(), &new_key->addr1, addr1);
-	copy_address_wmem(wmem_file_scope(), &new_key->addr2, addr2);
+	if (addr1 != NULL) {
+		copy_address_wmem(wmem_file_scope(), &new_key->addr1, addr1);
+	} else {
+		clear_address(&new_key->addr1);
+	}
+	if (addr2 != NULL) {
+		copy_address_wmem(wmem_file_scope(), &new_key->addr2, addr2);
+	} else {
+		clear_address(&new_key->addr2);
+	}
 	new_key->etype = etype;
 	new_key->port1 = port1;
 	new_key->port2 = port2;
@@ -671,6 +679,12 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 	DENDENT();
 
 	return conversation;
+}
+
+conversation_t *conversation_new_simple(const guint32 setup_frame, const endpoint_type etype, const guint32 port1, const guint options)
+{
+	/* Force the lack of an address or port 2 */
+	return conversation_new(setup_frame, NULL, NULL, etype, port1, 0, options | NO_ADDR2 | NO_PORT2);
 }
 
 /*
@@ -761,8 +775,16 @@ conversation_lookup_hashtable(wmem_map_t *hashtable, const guint32 frame_num, co
 	 * We don't make a copy of the address data, we just copy the
 	 * pointer to it, as "key" disappears when we return.
 	 */
-	key.addr1 = *addr1;
-	key.addr2 = *addr2;
+	if (addr1 != NULL) {
+		key.addr1 = *addr1;
+	} else {
+		clear_address(&key.addr1);
+	}
+	if (addr2 != NULL) {
+		key.addr2 = *addr2;
+	} else {
+		clear_address(&key.addr2);
+	}
 	key.etype = etype;
 	key.port1 = port1;
 	key.port2 = port2;
@@ -1123,7 +1145,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 		 * (Neither "addr_a" nor "port_a" take part in this lookup.)
 		 */
 		DPRINT(("trying dest addr:port as source addr:port and wildcarding dest addr:port"));
-		if (addr_a->type == AT_FC)
+		if ((addr_a != NULL) && (addr_a->type == AT_FC))
 			conversation =
 				conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
 				frame_num, addr_b, addr_a, etype, port_a, port_b);
@@ -1163,6 +1185,12 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 	 * We found no conversation.
 	 */
 	return NULL;
+}
+
+conversation_t *find_conversation_simple(const guint32 frame, const endpoint_type etype, const guint32 port1, const guint options)
+{
+	/* Force the lack of a address or port B */
+	return find_conversation(frame, NULL, NULL, etype, port1, 0, options|NO_ADDR_B|NO_PORT_B);
 }
 
 void
