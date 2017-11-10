@@ -926,6 +926,12 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         if (mqtt->runtime_proto_version == MQTT_PROTO_V50)
         {
           offset += dissect_mqtt_properties(tvb, mqtt_tree, offset);
+
+          while (offset < tvb_reported_length(tvb))
+          {
+            proto_tree_add_item(mqtt_tree, hf_mqtt_reason_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+          }
         }
         break;
 
