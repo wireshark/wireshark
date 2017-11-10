@@ -22,6 +22,8 @@
 #ifndef PACKET_COMMENT_DIALOG_H
 #define PACKET_COMMENT_DIALOG_H
 
+#include <glib.h>
+
 #include "geometry_state_dialog.h"
 
 namespace Ui {
@@ -33,7 +35,7 @@ class PacketCommentDialog : public GeometryStateDialog
     Q_OBJECT
 
 public:
-    explicit PacketCommentDialog(QWidget *parent = 0, QString comment = QString());
+    explicit PacketCommentDialog(guint32 frame, QWidget *parent = 0, QString comment = QString());
     ~PacketCommentDialog();
     QString text();
 

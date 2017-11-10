@@ -24,13 +24,17 @@
 
 #include "wireshark_application.h"
 
-PacketCommentDialog::PacketCommentDialog(QWidget *parent, QString comment) :
+PacketCommentDialog::PacketCommentDialog(guint32 frame, QWidget *parent, QString comment) :
     GeometryStateDialog(parent),
     pc_ui_(new Ui::PacketCommentDialog)
 {
+
+    QString title = QString(tr("Packet %1 Comment"))
+                              .arg(frame);
+
     pc_ui_->setupUi(this);
     loadGeometry();
-    setWindowTitle(wsApp->windowTitleString(tr("Packet Comment")));
+    setWindowTitle(wsApp->windowTitleString(title));
 
     pc_ui_->commentTextEdit->setPlainText(comment);
 }

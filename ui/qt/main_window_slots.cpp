@@ -2237,7 +2237,7 @@ void MainWindow::on_actionEditTimeShift_triggered()
 
 void MainWindow::on_actionEditPacketComment_triggered()
 {
-    PacketCommentDialog pc_dialog(this, packet_list_->packetComment());
+    PacketCommentDialog pc_dialog(capture_file_.capFile()->current_frame->num, this, packet_list_->packetComment());
     if (pc_dialog.exec() == QDialog::Accepted) {
         packet_list_->setPacketComment(pc_dialog.text());
         updateForUnsavedChanges();
