@@ -97,6 +97,7 @@ static int hf_pfcp_f_teid_ch_id = -1;
 static int hf_pfcp_f_teid_ipv4 = -1;
 static int hf_pfcp_f_teid_ipv6 = -1;
 static int hf_pfcp_pdn_instance = -1;
+static int hf_pfcp_pdn_type = -1;
 static int hf_pfcp_ue_ip_address_flags = -1;
 static int hf_pfcp_ue_ip_address_flag_b0 = -1;
 static int hf_pfcp_ue_ip_address_flag_b1 = -1;
@@ -571,7 +572,8 @@ static const value_string pfcp_ie_type[] = {
     { 110, "OCI Flags" },                                           /* Extendable / Subclause 8.2.76 */
     { 111, "Sx Association Release Request" },                      /* Extendable / Subclause 8.2.77 */
     { 112, "Graceful Release Period" },                             /* Extendable / Subclause 8.2.78 */
-    //113 to 65535	Spare. For future use.
+    { 113, "PDN Type" },                                            /* Fixed Length / Subclause 8.2.79 */
+    //114 to 65535	Spare. For future use.
     {0, NULL}
 };
 
@@ -835,15 +837,22 @@ static void
 dissect_pfcp_mbr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
 {
     int offset = 0;
+    int len1 = (length != 10) ? length/2 : 5;
+
+    /* In case length is not in accordance with documentation */
+    if ( length != 10) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_encoding_error, tvb, 0, 1);
+    }
+
     /* 5 to 9   UL MBR
     * The UL/DL MBR fields shall be encoded as kilobits per second (1 kbps = 1000 bps) in binary value
     */
-    proto_tree_add_item(tree, hf_pfcp_ul_mbr, tvb, 5, length, ENC_BIG_ENDIAN);
-    offset += 5;
+    proto_tree_add_item(tree, hf_pfcp_ul_mbr, tvb, offset, len1, ENC_BIG_ENDIAN);
+    offset += len1;
 
     /* 10 to 14 DL MBR */
-    proto_tree_add_item(tree, hf_pfcp_dl_mbr, tvb, 5, length, ENC_BIG_ENDIAN);
-    offset += 5;
+    proto_tree_add_item(tree, hf_pfcp_dl_mbr, tvb, offset, len1, ENC_BIG_ENDIAN);
+    offset += len1;
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
@@ -858,15 +867,22 @@ static void
 dissect_pfcp_gbr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
 {
     int offset = 0;
-    /* 5 to 9   UL MBR
+    int len1 = (length != 10) ? length/2 : 5;
+
+    /* In case length is not in accordance with documentation */
+    if ( length != 10) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_encoding_error, tvb, 0, 1);
+    }
+
+    /* 5 to 9   UL GBR
     * The UL/DL MBR fields shall be encoded as kilobits per second (1 kbps = 1000 bps) in binary value
     */
-    proto_tree_add_item(tree, hf_pfcp_ul_gbr, tvb, 5, length, ENC_BIG_ENDIAN);
-    offset += 5;
+    proto_tree_add_item(tree, hf_pfcp_ul_gbr, tvb, offset, len1, ENC_BIG_ENDIAN);
+    offset += len1;
 
-    /* 10 to 14 DL MBR */
-    proto_tree_add_item(tree, hf_pfcp_dl_gbr, tvb, 5, length, ENC_BIG_ENDIAN);
-    offset += 5;
+    /* 10 to 14 DL GBR */
+    proto_tree_add_item(tree, hf_pfcp_dl_gbr, tvb, offset, len1, ENC_BIG_ENDIAN);
+    offset += len1;
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
@@ -2460,15 +2476,16 @@ dissect_pfcp_ue_ip_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         ett_pfcp_ue_ip_address_flags, pfcp_ue_ip_address_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &ue_ip_address_flags);
     offset += 1;
 
-    /* IPv4 address (if present)*/
-    if ((ue_ip_address_flags & 0x1) == 1) {
-        proto_tree_add_item(tree, hf_pfcp_ue_ip_addr_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
-    }
     /* IPv6 address (if present)*/
-    if ((ue_ip_address_flags & 0x2) == 2) {
+    if ((ue_ip_address_flags & 0x1) == 1) {
         proto_tree_add_item(tree, hf_pfcp_ue_ip_add_ipv6, tvb, offset, 16, ENC_NA);
         offset += 16;
+    }
+
+    /* IPv4 address (if present)*/
+    if ((ue_ip_address_flags & 0x2) == 2) {
+        proto_tree_add_item(tree, hf_pfcp_ue_ip_addr_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
     }
 
     if (offset < length) {
@@ -2951,6 +2968,35 @@ dissect_pfcp_graceful_release_period(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     }
 
 }
+/*
+ * 8.2.79    PDN Type
+ */
+static const value_string pfcp_pdn_type_vals[] = {
+    { 0, "Reserved" },
+    { 1, "IPv4" },
+    { 2, "IPv6" },
+    { 3, "IPv4V6" },
+    { 4, "Non-IP" },
+    { 0, NULL }
+};
+
+static void
+dissect_pfcp_pdn_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+{
+    int offset = 0;
+    guint32 value;
+    /* Octet 5 to (n+4) Application Identifier
+    * The Application Identifier shall be encoded as an OctetString (see 3GPP TS 29.212)
+    */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_pdn_type, tvb, offset, 1, ENC_BIG_ENDIAN, &value);
+    offset++;
+
+    proto_item_append_text(item, "%s", val_to_str_const(value, pfcp_pdn_type_vals, "Unknown"));
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
 
 
 /* Array of functions to dissect IEs
@@ -3074,6 +3120,7 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    110 */    { dissect_pfcp_oci_flags },                                     /* OCI Flags                                       Extendable / Subclause 8.2.76 */
 /*    111 */    { dissect_pfcp_sx_assoc_rel_req },                              /* Sx Association Release Request                  Extendable / Subclause 8.2.77 */
 /*    112 */    { dissect_pfcp_graceful_release_period },                       /* Graceful Release Period                         Extendable / Subclause 8.2.78 */
+/*    113 */    { dissect_pfcp_pdn_type },                                      /* PDN Type                                        Fixed Length / Subclause 8.2.79 */
     { NULL },                                                        /* End of List */
 };
 
@@ -3762,6 +3809,11 @@ proto_register_pfcp(void)
         { &hf_pfcp_pdn_instance,
         { "PDN Instance", "pfcp.pdn_instance",
             FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_pdn_type,
+        { "PDN Type", "pfcp.pdn_type",
+            FT_UINT8, BASE_DEC, VALS(pfcp_pdn_type_vals), 0x7,
             NULL, HFILL }
         },
         { &hf_pfcp_ue_ip_address_flags,
