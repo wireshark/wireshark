@@ -433,7 +433,7 @@ wireshark_common_ldadd = \
 	capchild/libcapchild.a		\
 	caputils/libcaputils.a		\
 	ui/libui.a			\
-	ui/libui_dirty.a		\
+	ui/libui_generated.a		\
 	codecs/libwscodecs.la		\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
