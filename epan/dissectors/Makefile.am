@@ -31,16 +31,16 @@ BUILT_SOURCES = \
 	register.c
 
 # Header files generated from source files.
-NO_DIST_GENERATED_HEADER_FILES =
+NODIST_GENERATED_HEADER_FILES =
 
 # C source files generated from source files.
-NO_DIST_GENERATED_C_FILES = \
+NODIST_GENERATED_C_FILES = \
 	register.c
 
 # All the generated files.
-NO_DIST_GENERATED_FILES = \
-	$(NO_DIST_GENERATED_HEADER_FILES)	\
-	$(NO_DIST_GENERATED_C_FILES)
+NODIST_GENERATED_FILES = \
+	$(NODIST_GENERATED_HEADER_FILES)	\
+	$(NODIST_GENERATED_C_FILES)
 
 #
 # PIDL-generated DCE RPC dissectors without warnings.
@@ -1888,7 +1888,7 @@ libdissectors_la_SOURCES = \
 	$(DISSECTOR_SUPPORT_SRC)
 
 nodist_libdissectors_la_SOURCES = \
-	$(NO_DIST_GENERATED_C_FILES)
+	$(NODIST_GENERATED_C_FILES)
 
 subpkgincludedir = $(pkgincludedir)/epan/dissectors
 
@@ -1967,7 +1967,7 @@ CLEANFILES = \
 	*~
 
 DISTCLEANFILES = \
-	$(NO_DIST_GENERATED_FILES)
+	$(NODIST_GENERATED_FILES)
 
 MAINTAINERCLEANFILES = \
 	packet-ncp2222.c
