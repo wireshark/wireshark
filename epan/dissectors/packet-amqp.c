@@ -13440,8 +13440,11 @@ proto_reg_handoff_amqp(void)
     }
 
     /* Register for TLS/SSL payload dissection */
-    if (old_amqps_port != 0 && old_amqps_port != amqps_port){
-        ssl_dissector_delete(old_amqps_port, amqp_tcp_handle);
+    if (old_amqps_port != amqps_port) {
+        if (old_amqps_port != 0)
+            ssl_dissector_delete(old_amqps_port, amqp_tcp_handle);
+        ssl_dissector_add(amqps_port, amqp_tcp_handle);
+        old_amqps_port = amqps_port;
     }
 }
 
