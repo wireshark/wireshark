@@ -1402,6 +1402,7 @@ DISSECTOR_SRC = \
 	packet-wifi-p2p.c	\
 	packet-windows-common.c	\
 	packet-winsrepl.c	\
+	packet-wisun.c		\
 	packet-wlccp.c		\
 	packet-wol.c		\
 	packet-wow.c		\
