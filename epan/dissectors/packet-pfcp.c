@@ -2311,20 +2311,29 @@ dissect_pfcp_outer_header_creation(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         offset += 4;
     }
 
-    /* The IPv4 Address field shall be present if the Outer Header Creation Description requests the creation of a IPv4 header */
+    /*
+    * p to (p+3)   IPv4
+    * The IPv4 Address field shall be present if the Outer Header Creation Description requests the creation of a IPv4 header
+    */
     if ((value == 0) || (value == 2)) {
         proto_tree_add_item(tree, hf_pfcp_outer_hdr_creation_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }
 
-    /* The IPv6 Address field shall be present if the Outer Header Creation Description requests the creation of a IPv6 header */
+    /*
+    * q to (q+15)   IPv6
+    * The IPv6 Address field shall be present if the Outer Header Creation Description requests the creation of a IPv6 header
+    */
     if ((value == 1) || (value == 3)) {
         proto_tree_add_item(tree, hf_pfcp_outer_hdr_creation_ipv6, tvb, offset, 16, ENC_NA);
         offset += 16;
     }
 
-    /* The Port Number field shall be present if the Outer Header Creation Description requests the creation of a UDP/IP header */
-    if ((value == 0) || (value == 2)) {
+    /*
+    * r to (r+1)   Port Number
+    * The Port Number field shall be present if the Outer Header Creation Description requests the creation of a UDP/IP header
+    */
+    if ((value == 2) || (value == 3)) {
         proto_tree_add_item(tree, hf_pfcp_outer_hdr_creation_port, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     }
