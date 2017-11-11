@@ -3560,7 +3560,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_msg_length,
         { "Length", "pfcp.length",
-        FT_UINT8, BASE_HEX, NULL, 0x0,
+        FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
         },
         { &hf_pfcp_hdr_flags,
@@ -3665,7 +3665,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_seid,
         { "SEID", "pfcp.seid",
-        FT_UINT64, BASE_DEC, NULL, 0x0,
+        FT_UINT64, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
         },
         { &hf_pfcp_seqno,
@@ -3693,7 +3693,7 @@ proto_register_pfcp(void)
         NULL, HFILL }
         },
         { &hf_pfcp2_ie_len,
-        { "Length", "pfcp.ie_len",
+        { "IE Length", "pfcp.ie_len",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
         },
@@ -4074,7 +4074,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_outer_hdr_creation_teid,
         { "TEID", "pfcp.outer_hdr_creation.teid",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_outer_hdr_creation_ipv4,
