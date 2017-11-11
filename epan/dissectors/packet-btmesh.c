@@ -555,7 +555,6 @@ dissect_btmesh_transport_constrol_message(tvbuff_t *tvb, packet_info *pinfo, pro
         offset++;
         /* FriendCounter 2 octets */
         proto_tree_add_item(sub_tree, hf_btmesh_friendcounter, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset+= 2;
         break;
     case 5:
         /* 3.6.5.5 Friend Clear */
@@ -564,7 +563,6 @@ dissect_btmesh_transport_constrol_message(tvbuff_t *tvb, packet_info *pinfo, pro
         offset += 2;
         /* LPNCounter 2 octets */
         proto_tree_add_item(sub_tree, hf_btmesh_lpncounter, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 2;
         break;
     case 6:
         /* 3.6.5.6 Friend Clear Confirm */
@@ -573,7 +571,7 @@ dissect_btmesh_transport_constrol_message(tvbuff_t *tvb, packet_info *pinfo, pro
         offset += 2;
         /* LPNCounter 2 octets */
         proto_tree_add_item(sub_tree, hf_btmesh_lpncounter, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 2;
+
         break;
     case 7:
         /* 3.6.5.7 Friend Subscription List Add */
