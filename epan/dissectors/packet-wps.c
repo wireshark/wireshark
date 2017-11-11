@@ -42,6 +42,7 @@
 #include "packet-ieee80211.h"
 
 void proto_register_wps(void);
+void proto_reg_handoff_wps(void);
 
 static int  hf_eapwps_opcode     = -1;
 static int  hf_eapwps_flags      = -1;
