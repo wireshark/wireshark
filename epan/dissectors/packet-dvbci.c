@@ -3892,7 +3892,7 @@ dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
             msg_tvb = tvb_new_subset_remaining(tvb, offset);
             if (!msg_tvb)
                 break;
-            if (dvbci_dissect_lsc_msg && conversation_get_dissector(conv, 0)) {
+            if (dvbci_dissect_lsc_msg && conv && conversation_get_dissector(conv, 0)) {
                 msg_handle = conversation_get_dissector(conv, 0);
                 col_append_str(pinfo->cinfo, COL_INFO, ", ");
                 col_set_fence(pinfo->cinfo, COL_INFO);
@@ -4133,7 +4133,7 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
                     tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             msg_tvb = tvb_new_subset_length(tvb, offset, msg_len);
-            msg_handle = conversation_get_dissector(conv, 0);
+            msg_handle = conv ? conversation_get_dissector(conv, 0) : NULL;
             if (msg_handle == NULL)
                 msg_handle = data_handle;
             call_dissector(msg_handle, msg_tvb, pinfo, tree);
