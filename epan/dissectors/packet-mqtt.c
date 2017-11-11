@@ -491,7 +491,7 @@ static void mqtt_user_decode_message(proto_tree *tree, proto_tree *mqtt_tree, pa
   }
 }
 
-static guint32 dissect_string(tvbuff_t *tvb, proto_tree *tree, guint32 offset, int hf_len, int hf_value)
+static guint dissect_string(tvbuff_t *tvb, proto_tree *tree, guint offset, int hf_len, int hf_value)
 {
   guint16 prop_len;
 
@@ -503,15 +503,15 @@ static guint32 dissect_string(tvbuff_t *tvb, proto_tree *tree, guint32 offset, i
 }
 
 /* MQTT v5.0: dissect the MQTT properties */
-static guint32 dissect_mqtt_properties(tvbuff_t *tvb, proto_tree *mqtt_tree, guint32 offset)
+static guint dissect_mqtt_properties(tvbuff_t *tvb, proto_tree *mqtt_tree, guint offset)
 {
   proto_tree *mqtt_prop_tree;
   proto_item *ti;
   guint64 vbi;
 
-  const guint32 mqtt_prop_offset = dissect_uleb128(tvb, offset, &vbi);
+  const guint mqtt_prop_offset = dissect_uleb128(tvb, offset, &vbi);
   /* Property Length field can be stored in uint32 */
-  const guint32 mqtt_prop_len = (guint32)vbi;
+  const guint mqtt_prop_len = (gint)vbi;
 
   /* Add the MQTT branch to the main tree */
   ti = proto_tree_add_item(mqtt_tree, hf_mqtt_property, tvb, offset, mqtt_prop_offset + mqtt_prop_len, ENC_NA);
@@ -520,7 +520,7 @@ static guint32 dissect_mqtt_properties(tvbuff_t *tvb, proto_tree *mqtt_tree, gui
   proto_tree_add_item(mqtt_prop_tree, hf_mqtt_property_len, tvb, offset, mqtt_prop_offset, ENC_BIG_ENDIAN);
   offset += mqtt_prop_offset;
 
-  const guint32 bytes_to_read = offset + mqtt_prop_len;
+  const guint bytes_to_read = offset + mqtt_prop_len;
   while (offset < bytes_to_read)
   {
     guint8 prop_id = tvb_get_guint8(tvb, offset);
@@ -608,7 +608,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     conversation_t *conv;
     mqtt_conv_t *mqtt;
 
-    guint32 offset = 0;
+    guint offset = 0;
     static const int *publish_fields[] = {
         &hf_mqtt_msg_type,
         &hf_mqtt_dup_flag,
@@ -814,8 +814,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
         if (mqtt->runtime_proto_version == MQTT_PROTO_V50)
         {
-          guint32 mqtt_prop_offset = dissect_mqtt_properties(tvb, mqtt_tree, offset);
-          offset += mqtt_prop_offset;
+          offset += dissect_mqtt_properties(tvb, mqtt_tree, offset);
         }
 
         mqtt_payload_len = tvb_reported_length(tvb) - offset;
@@ -838,11 +837,10 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
         if (mqtt->runtime_proto_version == MQTT_PROTO_V50)
         {
-          guint32 mqtt_prop_offset = dissect_mqtt_properties(tvb, mqtt_tree, offset);
-          offset += mqtt_prop_offset;
+          offset += dissect_mqtt_properties(tvb, mqtt_tree, offset);
         }
 
-        while (offset < (guint32)tvb_reported_length(tvb))
+        while (offset < tvb_reported_length(tvb))
         {
           mqtt_str_len = tvb_get_ntohs(tvb, offset);
           proto_tree_add_item(mqtt_tree, hf_mqtt_topic_len, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -874,7 +872,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         proto_tree_add_item(mqtt_tree, hf_mqtt_msgid, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        while (offset < (guint32)tvb_reported_length(tvb))
+        while (offset < tvb_reported_length(tvb))
         {
           mqtt_str_len = tvb_get_ntohs(tvb, offset);
           proto_tree_add_item(mqtt_tree, hf_mqtt_topic_len, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -897,7 +895,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
           offset += dissect_mqtt_properties(tvb, mqtt_tree, offset);
         }
 
-        while (offset < (guint32)tvb_reported_length(tvb))
+        while (offset < tvb_reported_length(tvb))
         {
           proto_tree_add_item(mqtt_tree, hf_mqtt_suback_qos, tvb, offset, 1, ENC_BIG_ENDIAN);
           offset += 1;
