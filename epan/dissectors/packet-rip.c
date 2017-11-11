@@ -40,6 +40,7 @@
 #define RIPv2   2
 
 void proto_register_rip(void);
+void proto_reg_handoff_rip(void);
 
 static const value_string version_vals[] = {
     { RIPv1, "RIPv1" },
