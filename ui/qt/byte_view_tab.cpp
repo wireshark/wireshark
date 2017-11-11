@@ -102,7 +102,9 @@ void ByteViewTab::packetSelectionChanged()
     if ( ! cap_file_ || ! cap_file_->edt )
         return;
 
+    // Remove tabs (as these refer to stale tvbs) and free resources.
     clear();
+    qDeleteAll(findChildren<ByteViewText *>());
 
     GSList *src_le;
     for (src_le = cap_file_->edt->pi.data_src; src_le != NULL; src_le = src_le->next) {
