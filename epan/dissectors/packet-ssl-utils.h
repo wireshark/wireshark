@@ -678,6 +678,10 @@ extern gboolean
 ssl_is_valid_handshake_type(guint8 hs_type, gboolean is_dtls);
 
 extern void
+tls_scan_server_hello(tvbuff_t *tvb, guint32 offset, guint32 offset_end,
+                      guint16 *server_version, gboolean *is_hrr);
+
+extern void
 ssl_try_set_version(SslSession *session, SslDecryptSession *ssl,
                     guint8 content_type, guint8 handshake_type,
                     gboolean is_dtls, guint16 version);
@@ -734,7 +738,7 @@ typedef struct ssl_common_dissect {
         gint hs_ext_psk_binders;
         gint hs_ext_psk_identity_selected;
         gint hs_ext_supported_versions_len;
-        gint hs_ext_supported_versions;
+        gint hs_ext_supported_version;
         gint hs_ext_cookie_len;
         gint hs_ext_cookie;
         gint hs_ext_server_name;
@@ -950,7 +954,7 @@ extern void
 ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info* pinfo,
                           proto_tree *tree, guint32 offset, guint32 offset_end,
                           SslSession *session, SslDecryptSession *ssl,
-                          gboolean is_dtls);
+                          gboolean is_dtls, gboolean is_hrr);
 
 extern void
 ssl_dissect_hnd_hello_retry_request(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info* pinfo,
@@ -1197,8 +1201,8 @@ ssl_common_dissect_t name = {   \
         FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
         NULL, HFILL }                                                   \
     },                                                                  \
-    { & name .hf.hs_ext_supported_versions,                             \
-      { "Supported Versions", prefix ".handshake.extensions.supported_versions",    \
+    { & name .hf.hs_ext_supported_version,                              \
+      { "Supported Version", prefix ".handshake.extensions.supported_version", \
         FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,                   \
         NULL, HFILL }                                                   \
     },                                                                  \

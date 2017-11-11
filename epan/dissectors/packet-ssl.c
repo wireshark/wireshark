@@ -1704,7 +1704,8 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 
     switch ((ContentType) content_type) {
     case SSL_ID_CHG_CIPHER_SPEC:
-        if (version == TLSV1DOT3_VERSION) {
+        if (version == TLSV1DOT3_VERSION && session->tls13_draft_version > 0 && session->tls13_draft_version < 22) {
+            /* CCS was reintroduced in TLS 1.3 draft -22 */
             expert_add_info_format(pinfo, ct_pi, &ei_tls_unexpected_message,
                                    "Record type is not allowed in TLS 1.3");
             break;
@@ -1713,6 +1714,10 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         ssl_dissect_change_cipher_spec(&dissect_ssl3_hf, tvb, pinfo,
                                        ssl_record_tree, offset, session,
                                        is_from_server, ssl);
+        if (version == TLSV1DOT3_VERSION) {
+            /* CCS is a dummy message in TLS 1.3, do not try to load keys. */
+            break;
+        }
         if (ssl) {
             ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file,
                              &ssl_master_key_map);
@@ -1955,6 +1960,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
     while (offset < record_length)
     {
         guint32 hs_offset = offset;
+        gboolean is_hrr = FALSE;
 
         msg_type = tvb_get_guint8(tvb, offset);
         length   = tvb_get_ntoh24(tvb, offset + 1);
@@ -1979,6 +1985,16 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
              * or they're a valid message type
              */
             return;
+        }
+
+        if (first_iteration && msg_type == SSL_HND_SERVER_HELLO && length > 2) {
+            guint16 server_version;
+
+            tls_scan_server_hello(tvb, offset + 4, offset + 4 + length, &server_version, &is_hrr);
+            ssl_try_set_version(session, ssl, SSL_ID_HANDSHAKE, SSL_HND_SERVER_HELLO, FALSE, server_version);
+            if (is_hrr) {
+                msg_type_str = "Hello Retry Request";
+            }
         }
 
         /*
@@ -2068,7 +2084,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
             case SSL_HND_SERVER_HELLO:
                 ssl_dissect_hnd_srv_hello(&dissect_ssl3_hf, tvb, pinfo, ssl_hand_tree,
-                        offset, offset + length, session, ssl, FALSE);
+                        offset, offset + length, session, ssl, FALSE, is_hrr);
                 if (ssl) {
                     ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file, &ssl_master_key_map);
                     /* Create client and server decoders for TLS 1.3. */
@@ -2100,7 +2116,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 }
                 break;
 
-            case SSL_HND_HELLO_RETRY_REQUEST:
+            case SSL_HND_HELLO_RETRY_REQUEST: /* TLS 1.3 draft -21 and before */
                 ssl_dissect_hnd_hello_retry_request(&dissect_ssl3_hf, tvb, pinfo, ssl_hand_tree,
                                                     offset, offset + length, session, ssl, FALSE);
                 break;

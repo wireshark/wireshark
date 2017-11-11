@@ -1296,8 +1296,11 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
           case SSL_HND_SERVER_HELLO:
+            ssl_try_set_version(session, ssl, SSL_ID_HANDSHAKE, SSL_HND_SERVER_HELLO, TRUE,
+                                tvb_get_ntohs(sub_tvb, 0));
+
             ssl_dissect_hnd_srv_hello(&dissect_dtls_hf, sub_tvb, pinfo, ssl_hand_tree,
-                                      0, length, session, ssl, TRUE);
+                                      0, length, session, ssl, TRUE, FALSE);
             break;
 
           case SSL_HND_HELLO_VERIFY_REQUEST:
