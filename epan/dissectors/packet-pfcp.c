@@ -94,6 +94,7 @@ static int hf_pfcp_fteid_flg_b2_ch = -1;
 static int hf_pfcp_fteid_flg_b1_v6 = -1;
 static int hf_pfcp_fteid_flg_b0_v4 = -1;
 static int hf_pfcp_f_teid_ch_id = -1;
+static int hf_pfcp_f_teid_teid = -1;
 static int hf_pfcp_f_teid_ipv4 = -1;
 static int hf_pfcp_f_teid_ipv6 = -1;
 static int hf_pfcp_pdn_instance = -1;
@@ -662,7 +663,7 @@ dissect_pfcp_f_teid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
         &hf_pfcp_fteid_flg_b0_v4,
         NULL
     };
-    /* Octet 5  Spare  Spare  Spare  CHID  CH  V6  V4*/
+    /* Octet 5  Spare  Spare  Spare  Spare  CHID  CH  V6  V4*/
     proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_f_teid_flags,
         ett_f_teid_flags, pfcp_fteid_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS, &fteid_flags_val);
     offset += 1;
@@ -687,6 +688,11 @@ dissect_pfcp_f_teid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
             offset += 1;
         }
     } else {
+
+        /* Octet 6 to 9    TEID */
+        proto_tree_add_item(tree, hf_pfcp_f_teid_teid, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
         if ((fteid_flags_val & 0x1) == 1) {
             /* m to (m+3)    IPv4 address */
             proto_tree_add_item(tree, hf_pfcp_f_teid_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -3794,6 +3800,11 @@ proto_register_pfcp(void)
         { &hf_pfcp_f_teid_ch_id,
         { "Choose Id", "pfcp.f_teid.choose_id",
             FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_f_teid_teid,
+        { "TEID", "pfcp.f_teid.teid",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_f_teid_ipv4,
