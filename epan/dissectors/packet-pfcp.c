@@ -99,9 +99,9 @@ static int hf_pfcp_f_teid_ipv6 = -1;
 static int hf_pfcp_pdn_instance = -1;
 static int hf_pfcp_pdn_type = -1;
 static int hf_pfcp_ue_ip_address_flags = -1;
-static int hf_pfcp_ue_ip_address_flag_b0 = -1;
-static int hf_pfcp_ue_ip_address_flag_b1 = -1;
-static int hf_pfcp_ue_ip_address_flag_b2 = -1;
+static int hf_pfcp_ue_ip_address_flag_b0_v6 = -1;
+static int hf_pfcp_ue_ip_address_flag_b1_v4 = -1;
+static int hf_pfcp_ue_ip_address_flag_b2_sd = -1;
 static int hf_pfcp_ue_ip_addr_ipv4 = -1;
 static int hf_pfcp_ue_ip_add_ipv6 = -1;
 static int hf_pfcp_application_id = -1;
@@ -287,8 +287,8 @@ static int hf_pfcp_b1_inam = -1;
 static int hf_pfcp_node_report_type = -1;
 static int hf_pfcp_b0_upfr = -1;
 static int hf_pfcp_remote_gtp_u_peer = -1;
-static int hf_pfcp_gtp_u_peer_flag_b0 = -1;
-static int hf_pfcp_gtp_u_peer_flag_b1 = -1;
+static int hf_pfcp_gtp_u_peer_flag_b0_v6 = -1;
+static int hf_pfcp_gtp_u_peer_flag_b1_v4 = -1;
 static int hf_pfcp_remote_gtp_u_peer_ipv4 = -1;
 static int hf_pfcp_remote_gtp_u_peer_ipv6 = -1;
 static int hf_pfcp_ur_seqn = -1;
@@ -1637,7 +1637,7 @@ dissect_pfcp_f_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
     };
     /* Octet 5  Spare   Spare   Spare   Spare   Spare   Spare   V4  V6*/
     proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_f_seid_flags,
-        ett_pfcp_f_seid_flags, pfcp_f_seid_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &f_seid_flags);
+        ett_pfcp_f_seid_flags, pfcp_f_seid_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS, &f_seid_flags);
     offset += 1;
 
     if ((f_seid_flags & 0x3) == 0) {
@@ -2466,14 +2466,14 @@ dissect_pfcp_ue_ip_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     static const int * pfcp_ue_ip_address_flags[] = {
         &hf_pfcp_spare_b7_b3,
-        &hf_pfcp_ue_ip_address_flag_b2,
-        &hf_pfcp_ue_ip_address_flag_b1,
-        &hf_pfcp_ue_ip_address_flag_b0,
+        &hf_pfcp_ue_ip_address_flag_b2_sd,
+        &hf_pfcp_ue_ip_address_flag_b1_v4,
+        &hf_pfcp_ue_ip_address_flag_b0_v6,
         NULL
     };
     /* Octet 5  Spare   S/D V4  V6*/
     proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_ue_ip_address_flags,
-        ett_pfcp_ue_ip_address_flags, pfcp_ue_ip_address_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &ue_ip_address_flags);
+        ett_pfcp_ue_ip_address_flags, pfcp_ue_ip_address_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS, &ue_ip_address_flags);
     offset += 1;
 
     /* IPv6 address (if present)*/
@@ -2749,13 +2749,13 @@ dissect_pfcp_remote_gtp_u_peer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     static const int * pfcp_remote_gtp_u_peer_flags[] = {
         &hf_pfcp_spare_b7_b2,
-        &hf_pfcp_gtp_u_peer_flag_b1,
-        &hf_pfcp_gtp_u_peer_flag_b0,
+        &hf_pfcp_gtp_u_peer_flag_b1_v4,
+        &hf_pfcp_gtp_u_peer_flag_b0_v6,
         NULL
     };
     /* Octet 5  Spare   V4  V6*/
     proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_remote_gtp_u_peer,
-        ett_pfcp_remote_gtp_u_peer, pfcp_remote_gtp_u_peer_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &flags);
+        ett_pfcp_remote_gtp_u_peer, pfcp_remote_gtp_u_peer_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS, &flags);
     offset += 1;
 
     /* IPv6 address (if present)*/
@@ -3727,13 +3727,13 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_b0_v6,
-        { "V6", "pfcp.f_seid_flags.v6",
-            FT_BOOLEAN, 8, NULL, 0x01,
+        { "V6 (IPv6)", "pfcp.f_seid_flags.v6",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
             NULL, HFILL }
         },
         { &hf_pfcp_b1_v4,
-        { "V4", "pfcp.f_seid_flags.v4",
-            FT_BOOLEAN, 8, NULL, 0x02,
+        { "V4 (IPv4)", "pfcp.f_seid_flags.v4",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
             NULL, HFILL }
         },
         { &hf_pfcp_f_seid_ipv4,
@@ -3782,13 +3782,13 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_fteid_flg_b1_v6,
-        { "V6", "pfcp.f_teid_flags.v6",
-            FT_BOOLEAN, 8, NULL, 0x02,
+        { "V6 (IPv6)", "pfcp.f_teid_flags.v6",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
             NULL, HFILL }
         },
         { &hf_pfcp_fteid_flg_b0_v4,
-        { "V4", "pfcp.f_teid_flags.v4",
-            FT_BOOLEAN, 8, NULL, 0x01,
+        { "V4 (IPv4)", "pfcp.f_teid_flags.v4",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
             NULL, HFILL }
         },
         { &hf_pfcp_f_teid_ch_id,
@@ -3821,17 +3821,17 @@ proto_register_pfcp(void)
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_pfcp_ue_ip_address_flag_b0,
-        { "V6", "pfcp.ue_ip_address_flag.v6",
-            FT_BOOLEAN, 8, NULL, 0x01,
+        { &hf_pfcp_ue_ip_address_flag_b0_v6,
+        { "V6 (IPv6)", "pfcp.ue_ip_address_flag.v6",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
             NULL, HFILL }
         },
-        { &hf_pfcp_ue_ip_address_flag_b1,
-        { "V4", "pfcp.ue_ip_address_flag.v4",
-            FT_BOOLEAN, 8, NULL, 0x02,
+        { &hf_pfcp_ue_ip_address_flag_b1_v4,
+        { "V4 (IPv4)", "pfcp.ue_ip_address_flag.v4",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
             NULL, HFILL }
         },
-        { &hf_pfcp_ue_ip_address_flag_b2,
+        { &hf_pfcp_ue_ip_address_flag_b2_sd,
         { "S/D", "pfcp.ue_ip_address_flag.sd",
             FT_BOOLEAN, 8, TFS(&pfcp_ue_ip_add_sd_flag_vals), 0x04,
             NULL, HFILL }
@@ -4747,14 +4747,14 @@ proto_register_pfcp(void)
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_pfcp_gtp_u_peer_flag_b0,
-        { "V6", "pfcp.gtp_u_peer_flag.v6",
-            FT_BOOLEAN, 8, NULL, 0x01,
+        { &hf_pfcp_gtp_u_peer_flag_b0_v6,
+        { "V6 (IPv6)", "pfcp.gtp_u_peer_flag.v6",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
             NULL, HFILL }
         },
-        { &hf_pfcp_gtp_u_peer_flag_b1,
-        { "V6", "pfcp.gtp_u_peer_flag.v4",
-            FT_BOOLEAN, 8, NULL, 0x02,
+        { &hf_pfcp_gtp_u_peer_flag_b1_v4,
+        { "V4 (IPv4)", "pfcp.gtp_u_peer_flag.v4",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
             NULL, HFILL }
         },
         { &hf_pfcp_remote_gtp_u_peer_ipv4,
