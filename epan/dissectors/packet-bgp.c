@@ -1569,6 +1569,7 @@ static int hf_bgp_evpn_nlri_esi_lacp_mac = -1;
 static int hf_bgp_evpn_nlri_esi_portk = -1;
 static int hf_bgp_evpn_nlri_esi_remain = -1;
 static int hf_bgp_evpn_nlri_esi_value = -1;
+static int hf_bgp_evpn_nlri_esi_value_type0 = -1;
 static int hf_bgp_evpn_nlri_esi_rb_mac = -1;
 static int hf_bgp_evpn_nlri_esi_rbprio = -1;
 static int hf_bgp_evpn_nlri_esi_sys_mac = -1;
@@ -4437,12 +4438,11 @@ static int decode_evpn_nlri_esi(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
     esi_tree = proto_item_add_subtree(ti, ett_bgp_evpn_nlri_esi);
     proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     esi_type = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_value, tvb, offset+1, 9, ENC_NA);
     switch (esi_type) {
         case BGP_NLRI_EVPN_ESI_VALUE :
-            proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_value, tvb,
+            proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_value_type0, tvb,
                                 offset+1, 9, ENC_NA);
-            proto_item_append_text(ti, ": %s",
-                                   tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset + 1, 9, ' '));
             break;
         case BGP_NLRI_EVPN_ESI_LACP :
             proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_lacp_mac, tvb,
@@ -4451,9 +4451,6 @@ static int decode_evpn_nlri_esi(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
                                 offset+7, 2, ENC_NA);
             proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_remain, tvb,
                                 offset+9, 1, ENC_NA);
-            proto_item_append_text(ti, ": %s, Key: %s",
-                                   tvb_ether_to_str(tvb,offset+1),
-                                   tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset + 7, 2, ' '));
             break;
         case BGP_NLRI_EVPN_ESI_MSTP :
             proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_rb_mac, tvb,
@@ -4462,9 +4459,6 @@ static int decode_evpn_nlri_esi(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
                                 offset+7, 2, ENC_NA);
             proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_remain, tvb,
                                 offset+9, 1, ENC_NA);
-            proto_item_append_text(ti, ": %s, Priority: %s",
-                                   tvb_ether_to_str(tvb,offset+1),
-                                   tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset + 7, 2, ' '));
             break;
         case BGP_NLRI_EVPN_ESI_MAC :
             proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_sys_mac, tvb,
@@ -4473,9 +4467,6 @@ static int decode_evpn_nlri_esi(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
                                 offset+7, 2, ENC_NA);
             proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_remain, tvb,
                                 offset+9, 1, ENC_NA);
-            proto_item_append_text(ti, ": %s, Discriminator: %s",
-                                   tvb_ether_to_str(tvb,offset+1),
-                                   tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset + 7, 2, ' '));
             break;
         case BGP_NLRI_EVPN_ESI_RID :
             proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_router_id, tvb,
@@ -4484,9 +4475,6 @@ static int decode_evpn_nlri_esi(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
                                 offset+5, 4, ENC_NA);
             proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_remain, tvb,
                                 offset+9, 1, ENC_NA);
-            proto_item_append_text(ti, ": %s, Discriminator: %s",
-                                   tvb_ip_to_str(tvb,offset+1),
-                                   tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset + 5, 4, ' '));
             break;
         case BGP_NLRI_EVPN_ESI_ASN :
             proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_asn, tvb,
@@ -4495,9 +4483,6 @@ static int decode_evpn_nlri_esi(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
                                 offset+5, 4, ENC_NA);
             proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_remain, tvb,
                                 offset+9, 1, ENC_NA);
-            proto_item_append_text(ti, ": %u, Discriminator: %s",
-                                   tvb_get_ntohl(tvb,offset+1),
-                                   tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset + 5, 4, ' '));
             break;
         case BGP_NLRI_EVPN_ESI_RES :
             proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_reserved, tvb,
@@ -9642,8 +9627,8 @@ proto_register_bgp(void)
         { "Route Distinguisher", "bgp.evpn.nlri.rd", FT_BYTES,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_evpn_nlri_esi,
-        { "ESI", "bgp.evpn.nlri.esi", FT_NONE,
-          BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { "ESI", "bgp.evpn.nlri.esi", FT_BYTES,
+          SEP_COLON, NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_evpn_nlri_esi_type,
         { "ESI Type", "bgp.evpn.nlri.esi.type", FT_UINT8,
           BASE_DEC, VALS(evpn_nlri_esi_type), 0x0, "EVPN ESI type", HFILL }},
@@ -9660,7 +9645,10 @@ proto_register_bgp(void)
         { "Reserved value all 0xff", "bgp.evpn.nlri.esi.reserved", FT_BYTES,
          BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_evpn_nlri_esi_value,
-        { "ESI 9 bytes value", "bgp.evpn.nlri.esi.arbitrary_bytes", FT_BYTES,
+        { "ESI Value", "bgp.evpn.nlri.esi.value", FT_BYTES,
+          SEP_SPACE, NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_evpn_nlri_esi_value_type0,
+        { "ESI 9 bytes value", "bgp.evpn.nlri.esi.type0", FT_BYTES,
           SEP_SPACE, NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_evpn_nlri_esi_rb_mac,
         { "ESI root bridge MAC", "bgp.evpn.nlri.esi.root_brige", FT_ETHER,
