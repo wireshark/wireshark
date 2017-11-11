@@ -564,7 +564,6 @@ EXTRA_DIST = \
 	$(WSUG_DIST)		\
 	$(WSDG_DIST)		\
 	$(RELEASE_NOTES_SOURCE)	\
-	dfilter2xml.pl		\
 	make-wsluarm.pl		\
 	README.txt		\
 	CMakeLists.txt
