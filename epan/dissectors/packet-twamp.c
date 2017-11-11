@@ -528,7 +528,7 @@ dissect_owamp_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         offset += padding;
     }
 
-    return tvb_reported_length(tvb);
+    return offset;
 }
 
 static int
@@ -590,7 +590,7 @@ dissect_twamp_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     }
 
     /* Return the total length */
-    return tvb_reported_length(tvb);
+    return offset;
 }
 
 void proto_register_twamp(void)
