@@ -102,6 +102,7 @@ const value_string ssl_versions[] = {
     { 0x7F13,               "TLS 1.3 (draft 19)" },
     { 0x7F14,               "TLS 1.3 (draft 20)" },
     { 0x7F15,               "TLS 1.3 (draft 21)" },
+    { 0x7F16,               "TLS 1.3 (draft 22)" },
     { DTLSV1DOT0_OPENSSL_VERSION, "DTLS 1.0 (OpenSSL pre 0.9.8f)" },
     { DTLSV1DOT0_VERSION,   "DTLS 1.0" },
     { DTLSV1DOT2_VERSION,   "DTLS 1.2" },
@@ -5565,6 +5566,11 @@ ssl_dissect_change_cipher_spec(ssl_common_dissect_t *hf, tvbuff_t *tvb,
             val_to_str_const(SSL_ID_CHG_CIPHER_SPEC, ssl_31_content_type, "unknown"));
     ti = proto_tree_add_item(tree, hf->hf.change_cipher_spec, tvb, offset, 1, ENC_NA);
 
+    if (session->version == TLSV1DOT3_VERSION) {
+        /* CCS is a dummy message in TLS 1.3, do not parse it further. */
+        return;
+    }
+
     /* Remember frame number of first CCS */
     guint32 *ccs_frame = is_from_server ? &session->server_ccs_frame : &session->client_ccs_frame;
     if (*ccs_frame == 0)
@@ -6102,7 +6108,7 @@ ssl_dissect_hnd_hello_ext_supported_versions(ssl_common_dissect_t *hf, tvbuff_t 
     next_offset = offset + versions_length;
 
     while (offset + 2 <= next_offset) {
-        proto_tree_add_item(tree, hf->hf.hs_ext_supported_versions, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf->hf.hs_ext_supported_version, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     }
     if (!ssl_end_vector(hf, tvb, pinfo, tree, offset, next_offset)) {
@@ -6532,12 +6538,13 @@ static gint
 ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                              proto_tree *tree, guint32 offset,
                              SslSession *session, SslDecryptSession *ssl,
-                             gboolean from_server)
+                             gboolean from_server, gboolean is_hrr)
 {
     nstime_t     gmt_unix_time;
     guint8       sessid_length;
     proto_tree  *rnd_tree;
     proto_tree  *ti_rnd;
+    guint8       draft_version = session->tls13_draft_version;
 
     /* Prepare for renegotiation by resetting the state. */
     ssl_reset_session(session, ssl, !from_server);
@@ -6577,10 +6584,15 @@ ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                 tvb, offset, 28, ENC_NA);
         offset += 28;
     } else {
+        if (is_hrr) {
+            proto_item_append_text(ti_rnd, " (HelloRetryRequest magic)");
+        }
+
         offset += 32;
     }
 
-    if (from_server == 0 || session->version != TLSV1DOT3_VERSION) { /* No Session ID with TLS 1.3 on Server Hello */
+    /* No Session ID with TLS 1.3 on Server Hello before draft -22 */
+    if (from_server == 0 || !(session->version == TLSV1DOT3_VERSION && draft_version > 0 && draft_version < 22)) {
         /* show the session id (length followed by actual Session ID) */
         sessid_length = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tree, hf->hf.hs_session_id_len,
@@ -7022,14 +7034,75 @@ ssl_is_authoritative_version_message(guint8 content_type, guint8 handshake_type,
             ssl_is_valid_content_type(content_type));
 }
 
+/**
+ * Scan a Server Hello handshake message for the negotiated version. For TLS 1.3
+ * draft 22 and newer, it also checks whether it is a HelloRetryRequest.
+ */
+void
+tls_scan_server_hello(tvbuff_t *tvb, guint32 offset, guint32 offset_end,
+                      guint16 *server_version, gboolean *is_hrr)
+{
+    /* SHA256("HelloRetryRequest") */
+    static const guint8 tls13_hrr_random_magic[] = {
+        0xcf, 0x21, 0xad, 0x74, 0xe5, 0x9a, 0x61, 0x11, 0xbe, 0x1d, 0x8c, 0x02, 0x1e, 0x65, 0xb8, 0x91,
+        0xc2, 0xa2, 0x11, 0x16, 0x7a, 0xbb, 0x8c, 0x5e, 0x07, 0x9e, 0x09, 0xe2, 0xc8, 0xa8, 0x33, 0x9c
+    };
+    guint8  session_id_length;
+
+    *server_version = tvb_get_ntohs(tvb, offset);
+
+    /*
+     * Try to look for supported_versions extension. Minimum length:
+     * 2 + 32 + 1 = 35 (version, random, session id length)
+     * 2 + 1 + 2 = 5 (cipher suite, compression method, extensions length)
+     * 2 + 2 + 2 = 6 (ext type, ext len, version)
+     */
+    if (*server_version == TLSV1DOT2_VERSION && offset_end - offset >= 46) {
+        offset += 2;
+        *is_hrr = tvb_memeql(tvb, offset, tls13_hrr_random_magic, sizeof(tls13_hrr_random_magic)) == 0;
+        offset += 32;
+        session_id_length = tvb_get_guint8(tvb, offset);
+        offset++;
+        if (offset_end - offset < session_id_length + 5u) {
+            return;
+        }
+        offset += session_id_length + 5;
+
+        while (offset_end - offset >= 6) {
+            guint16 ext_type = tvb_get_ntohs(tvb, offset);
+            guint16 ext_len = tvb_get_ntohs(tvb, offset + 2);
+            if (offset_end - offset < 4u + ext_len) {
+                break;  /* not enough data for type, length and data */
+            }
+            if (ext_type == SSL_HND_HELLO_EXT_SUPPORTED_VERSIONS && ext_len == 2) {
+                *server_version = tvb_get_ntohs(tvb, offset + 4);
+                return;
+            }
+            offset += 4 + ext_len;
+        }
+    } else {
+        *is_hrr = FALSE;
+    }
+}
+
 void
 ssl_try_set_version(SslSession *session, SslDecryptSession *ssl,
                     guint8 content_type, guint8 handshake_type,
                     gboolean is_dtls, guint16 version)
 {
+    guint8 tls13_draft = 0;
+
     if (!ssl_is_authoritative_version_message(content_type, handshake_type,
                 is_dtls))
         return;
+
+    if (handshake_type == SSL_HND_SERVER_HELLO) {
+        tls13_draft = tls13_draft_version(version);
+        if (tls13_draft != 0) {
+            /* This is TLS 1.3 (a draft version). */
+            version = TLSV1DOT3_VERSION;
+        }
+    }
 
     switch (version) {
     case SSLV3_VERSION:
@@ -7052,6 +7125,7 @@ ssl_try_set_version(SslSession *session, SslDecryptSession *ssl,
         return;
     }
 
+    session->tls13_draft_version = tls13_draft;
     session->version = version;
     if (ssl) {
         ssl->state |= SSL_VERSION;
@@ -7137,7 +7211,7 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     offset += 2;
 
     /* dissect fields that are also present in ClientHello */
-    offset = ssl_dissect_hnd_hello_common(hf, tvb, tree, offset, session, ssl, FALSE);
+    offset = ssl_dissect_hnd_hello_common(hf, tvb, tree, offset, session, ssl, FALSE, FALSE);
 
     /* fields specific for DTLS (cookie_len, cookie) */
     if (dtls_hfs != NULL) {
@@ -7228,7 +7302,7 @@ void
 ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                           packet_info* pinfo, proto_tree *tree, guint32 offset, guint32 offset_end,
                           SslSession *session, SslDecryptSession *ssl,
-                          gboolean is_dtls)
+                          gboolean is_dtls, gboolean is_hrr)
 {
     /* struct {
      *     ProtocolVersion server_version;
@@ -7239,19 +7313,10 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
      *     Extension server_hello_extension_list<0..2^16-1>;
      * } ServerHello;
      */
-    guint16 server_version;
+    guint8  draft_version = session->tls13_draft_version;
 
-    /* This version is always better than the guess at the Record Layer */
-    server_version = tvb_get_ntohs(tvb, offset);
-    session->tls13_draft_version = tls13_draft_version(server_version);
-    if (session->tls13_draft_version != 0) {
-        /* This is TLS 1.3 (a draft version). */
-        server_version = TLSV1DOT3_VERSION;
-    }
-    ssl_try_set_version(session, ssl, SSL_ID_HANDSHAKE, SSL_HND_SERVER_HELLO,
-            is_dtls, server_version);
     col_set_str(pinfo->cinfo, COL_PROTOCOL,
-                val_to_str_const(server_version, ssl_version_short_names, "SSL"));
+                val_to_str_const(session->version, ssl_version_short_names, "SSL"));
 
     /* Initially assume that the session is resumed. If this is not the case, a
      * ServerHelloDone will be observed before the ChangeCipherSpec message
@@ -7264,7 +7329,7 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     offset += 2;
 
     /* dissect fields that are also present in ClientHello */
-    offset = ssl_dissect_hnd_hello_common(hf, tvb, tree, offset, session, ssl, TRUE);
+    offset = ssl_dissect_hnd_hello_common(hf, tvb, tree, offset, session, ssl, TRUE, is_hrr);
 
     if (ssl) {
         /* store selected cipher suite for decryption */
@@ -7276,7 +7341,8 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                         tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    if (session->version != TLSV1DOT3_VERSION) { /* No compression with TLS 1.3 */
+    /* No compression with TLS 1.3 before draft -22 */
+    if (!(session->version == TLSV1DOT3_VERSION && draft_version > 0 && draft_version < 22)) {
         if (ssl) {
             /* store selected compression method for decryption */
             ssl->session.compression = tvb_get_guint8(tvb, offset);
@@ -7290,7 +7356,8 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     /* SSL v3.0 has no extensions, so length field can indeed be missing. */
     if (offset < offset_end) {
         ssl_dissect_hnd_extension(hf, tvb, tree, pinfo, offset,
-                                  offset_end, SSL_HND_SERVER_HELLO,
+                                  offset_end,
+                                  is_hrr ? SSL_HND_HELLO_RETRY_REQUEST : SSL_HND_SERVER_HELLO,
                                   session, ssl, is_dtls);
     }
 }
@@ -7313,7 +7380,7 @@ ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_i
      *  struct {
      *      uint32 ticket_lifetime;
      *      uint32 ticket_age_add;
-     *      opaque ticket_nonce<1..255>; #add in TLS 1.3 draft 21 (Section 4.6.1)
+     *      opaque ticket_nonce<0..255>;    // new in draft -21, updated in -22
      *      opaque ticket<1..2^16-1>;
      *      Extension extensions<0..2^16-2>;
      *  } NewSessionTicket;
@@ -7344,7 +7411,7 @@ ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_i
             guint32 ticket_nonce_len;
 
             if (!ssl_add_vector(hf, tvb, pinfo, subtree, offset, offset_end, &ticket_nonce_len,
-                                hf->hf.hs_session_ticket_nonce_len, 1, 255)) {
+                                hf->hf.hs_session_ticket_nonce_len, 0, 255)) {
                 return;
             }
             offset++;
@@ -7983,7 +8050,16 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             offset = ssl_dissect_hnd_hello_ext_early_data(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type, ssl);
             break;
         case SSL_HND_HELLO_EXT_SUPPORTED_VERSIONS:
-            offset = ssl_dissect_hnd_hello_ext_supported_versions(hf, tvb, pinfo, ext_tree, offset, next_offset);
+            switch (hnd_type) {
+            case SSL_HND_CLIENT_HELLO:
+                offset = ssl_dissect_hnd_hello_ext_supported_versions(hf, tvb, pinfo, ext_tree, offset, next_offset);
+                break;
+            case SSL_HND_SERVER_HELLO:
+            case SSL_HND_HELLO_RETRY_REQUEST:
+                proto_tree_add_item(ext_tree, hf->hf.hs_ext_supported_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                break;
+            }
             break;
         case SSL_HND_HELLO_EXT_COOKIE:
             offset = ssl_dissect_hnd_hello_ext_cookie(hf, tvb, pinfo, ext_tree, offset, next_offset);
