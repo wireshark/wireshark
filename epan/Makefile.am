@@ -47,7 +47,6 @@ LIBWIRESHARK_SRC = \
 	asn1.c			\
 	capture_dissectors.c	\
 	charsets.c		\
-	circuit.c		\
 	color_filters.c		\
 	column.c		\
 	column-utils.c		\
@@ -177,7 +176,6 @@ LIBWIRESHARK_INCLUDES_PUBLIC = \
 	capture_dissectors.h	\
 	charsets.h		\
 	chdlctypes.h		\
-	circuit.h		\
 	color_filters.h		\
 	column.h		\
 	column-info.h		\

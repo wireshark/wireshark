@@ -681,10 +681,10 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 	return conversation;
 }
 
-conversation_t *conversation_new_simple(const guint32 setup_frame, const endpoint_type etype, const guint32 port1, const guint options)
+conversation_t *conversation_new_by_id(const guint32 setup_frame, const endpoint_type etype, const guint32 id, const guint options)
 {
 	/* Force the lack of an address or port 2 */
-	return conversation_new(setup_frame, NULL, NULL, etype, port1, 0, options | NO_ADDR2 | NO_PORT2);
+	return conversation_new(setup_frame, NULL, NULL, etype, id, 0, options | NO_ADDR2 | NO_PORT2);
 }
 
 /*
@@ -1187,10 +1187,10 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 	return NULL;
 }
 
-conversation_t *find_conversation_simple(const guint32 frame, const endpoint_type etype, const guint32 port1, const guint options)
+conversation_t *find_conversation_by_id(const guint32 frame, const endpoint_type etype, const guint32 id, const guint options)
 {
 	/* Force the lack of a address or port B */
-	return find_conversation(frame, NULL, NULL, etype, port1, 0, options|NO_ADDR_B|NO_PORT_B);
+	return find_conversation(frame, NULL, NULL, etype, id, 0, options|NO_ADDR_B|NO_PORT_B);
 }
 
 void
@@ -1278,12 +1278,12 @@ try_conversation_dissector(const address *addr_a, const address *addr_b, const e
 }
 
 gboolean
-try_conversation_dissector_simple(const endpoint_type etype, const guint32 port_a, tvbuff_t *tvb,
+try_conversation_dissector_by_id(const endpoint_type etype, const guint32 id, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree, void* data)
 {
 	conversation_t *conversation;
 
-	conversation = find_conversation_simple(pinfo->num, etype, port_a, 0);
+	conversation = find_conversation_by_id(pinfo->num, etype, id, 0);
 
 	if (conversation != NULL) {
 		int ret;
@@ -1321,7 +1321,7 @@ find_conversation_pinfo(packet_info *pinfo, const guint options)
 		DISSECTOR_ASSERT(pinfo->conv_endpoint);
 		if((conv = find_conversation(pinfo->num, &pinfo->conv_endpoint->addr1, &pinfo->conv_endpoint->addr2,
 									pinfo->conv_endpoint->etype, pinfo->conv_endpoint->port1,
-									pinfo->conv_endpoint->port2, options)) != NULL) {
+									pinfo->conv_endpoint->port2, pinfo->conv_endpoint->options)) != NULL) {
 			DPRINT(("found previous conversation for frame #%d (last_frame=%d)",
 					pinfo->num, conv->last_frame));
 			if (pinfo->num > conv->last_frame) {
@@ -1387,6 +1387,25 @@ void conversation_create_endpoint(struct _packet_info *pinfo, address* addr1, ad
 	pinfo->conv_endpoint->port1 = port1;
 	pinfo->conv_endpoint->port2 = port2;
 	pinfo->conv_endpoint->options = options;
+}
+
+void conversation_create_endpoint_by_id(struct _packet_info *pinfo,
+    endpoint_type etype, guint32 id, const guint options)
+{
+	/* Force the lack of a address or port B */
+	conversation_create_endpoint(pinfo, NULL, NULL, etype, id, 0, options|NO_ADDR_B|NO_PORT_B);
+}
+
+guint32 conversation_get_endpoint_by_id(struct _packet_info *pinfo, endpoint_type etype, const guint options)
+{
+	if (pinfo->conv_endpoint == NULL)
+		return 0;
+
+	if ((pinfo->conv_endpoint->etype != etype) &&
+		((options & USE_LAST_ENDPOINT) != USE_LAST_ENDPOINT))
+		return 0;
+
+	return pinfo->conv_endpoint->port1;
 }
 
 wmem_map_t *

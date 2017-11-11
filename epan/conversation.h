@@ -55,6 +55,9 @@ extern "C" {
 #define NO_ADDR_B 0x01
 #define NO_PORT_B 0x02
 
+/* Flags to handle endpoints */
+#define USE_LAST_ENDPOINT 0x08      /* Use last endpoint created, regardless of type */
+
 #include "packet.h"		/* for conversation dissector type */
 
 /* Types of port numbers Wireshark knows about. */
@@ -78,7 +81,15 @@ typedef enum {
 	ENDPOINT_TDMOP,
 	ENDPOINT_DVBCI,
 	ENDPOINT_ISO14443,
-	ENDPOINT_ISDN			/* ISDN channel number */
+	ENDPOINT_ISDN,			/* ISDN channel number */
+	ENDPOINT_H223,			/* H.223 logical channel number */
+	ENDPOINT_X25,			/* X.25 logical channel number */
+	ENDPOINT_IAX2,			/* IAX2 call id */
+	ENDPOINT_DLCI,			/* Frame Relay DLCI */
+	ENDPOINT_ISUP,			/* ISDN User Part CIC */
+	ENDPOINT_BICC,			/* BICC Circuit identifier */
+	ENDPOINT_GSMTAP,
+	ENDPOINT_IUUP
 } endpoint_type;
 
 /**
@@ -133,7 +144,7 @@ extern void conversation_epan_reset(void);
 WS_DLL_PUBLIC conversation_t *conversation_new(const guint32 setup_frame, const address *addr1, const address *addr2,
     const endpoint_type etype, const guint32 port1, const guint32 port2, const guint options);
 
-WS_DLL_PUBLIC conversation_t *conversation_new_simple(const guint32 setup_frame, const endpoint_type etype, const guint32 port1, const guint options);
+WS_DLL_PUBLIC conversation_t *conversation_new_by_id(const guint32 setup_frame, const endpoint_type etype, const guint32 id, const guint options);
 
 /**
  * Given two address/port pairs for a packet, search for a conversation
@@ -174,7 +185,7 @@ WS_DLL_PUBLIC conversation_t *conversation_new_simple(const guint32 setup_frame,
 WS_DLL_PUBLIC conversation_t *find_conversation(const guint32 frame_num, const address *addr_a, const address *addr_b,
     const endpoint_type etype, const guint32 port_a, const guint32 port_b, const guint options);
 
-WS_DLL_PUBLIC conversation_t *find_conversation_simple(const guint32 frame, const endpoint_type etype, const guint32 port1, const guint options);
+WS_DLL_PUBLIC conversation_t *find_conversation_by_id(const guint32 frame, const endpoint_type etype, const guint32 id, const guint options);
 
 /**  A helper function that calls find_conversation() using data from pinfo
  *  The frame number and addresses are taken from pinfo.
@@ -206,6 +217,12 @@ WS_DLL_PUBLIC dissector_handle_t conversation_get_dissector(conversation_t *conv
 WS_DLL_PUBLIC void conversation_create_endpoint(struct _packet_info *pinfo, address* addr1, address* addr2,
     endpoint_type etype, guint32 port1, guint32	port2, const guint options);
 
+WS_DLL_PUBLIC void conversation_create_endpoint_by_id(struct _packet_info *pinfo,
+    endpoint_type etype, guint32 id, const guint options);
+
+WS_DLL_PUBLIC guint32 conversation_get_endpoint_by_id(struct _packet_info *pinfo,
+    endpoint_type etype, const guint options);
+
 /**
  * Given two address/port pairs for a packet, search for a matching
  * conversation and, if found and it has a conversation dissector,
@@ -222,7 +239,7 @@ try_conversation_dissector(const address *addr_a, const address *addr_b, const e
     proto_tree *tree, void* data);
 
 extern gboolean
-try_conversation_dissector_simple(const endpoint_type etype, const guint32 port_a, tvbuff_t *tvb,
+try_conversation_dissector_by_id(const endpoint_type etype, const guint32 id, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree, void* data);
 
 /* These routines are used to set undefined values for a conversation */

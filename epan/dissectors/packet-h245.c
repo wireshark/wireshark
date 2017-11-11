@@ -9084,7 +9084,7 @@ dissect_h245_MultiplexEntryDescriptor(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
                                    ett_h245_MultiplexEntryDescriptor, MultiplexEntryDescriptor_sequence);
 
   if(h223_set_mc_handle)
-    (*h223_set_mc_handle)(actx->pinfo, h223_mc, h223_me, actx->pinfo->ctype, actx->pinfo->circuit_id);
+    (*h223_set_mc_handle)(actx->pinfo, h223_mc, h223_me);
  /* stuff */
 
 
@@ -11114,9 +11114,9 @@ dissect_h245_OpenLogicalChannelAck(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 	DISSECTOR_ASSERT( ( h223_rev_lc_num &&  pend->rev_channel_params)
 				   || (!h223_rev_lc_num && !pend->rev_channel_params) );
 	if(h223_add_lc_handle) {
-	  (*h223_add_lc_handle)( actx->pinfo, h223_fw_lc_num, pend->fw_channel_params, actx->pinfo->ctype, actx->pinfo->circuit_id );
+	  (*h223_add_lc_handle)( actx->pinfo, h223_fw_lc_num, pend->fw_channel_params);
 	  if(h223_rev_lc_num)
-		(*h223_add_lc_handle)( actx->pinfo, h223_rev_lc_num, pend->rev_channel_params, actx->pinfo->ctype, actx->pinfo->circuit_id );
+		(*h223_add_lc_handle)( actx->pinfo, h223_rev_lc_num, pend->rev_channel_params);
 	}
   } else {
 	/* we missed the OpenLogicalChannel packet */

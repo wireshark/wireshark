@@ -19,10 +19,6 @@ indent_size = tab
 [asn1.[ch]]
 indent_size = 2
 
-[circuit.[ch]]
-indent_style = tab
-indent_size = tab
-
 [column-utils.[ch]]
 indent_size = 2
 

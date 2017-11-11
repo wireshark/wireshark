@@ -45,6 +45,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/conversation.h>
 
 #include "packet-gsmtap.h"
 #include "packet-lapdm.h"
@@ -501,7 +502,7 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
 	/* Try to build an identifier of different 'streams' */
 	/* (AFCN _cant_ be used because of hopping */
-	pinfo->circuit_id = (timeslot << 3) | subslot;
+	conversation_create_endpoint_by_id(pinfo, ENDPOINT_GSMTAP, (timeslot << 3) | subslot, 0);
 
 	if (tree) {
 		guint8 channel;

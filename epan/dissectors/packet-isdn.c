@@ -108,9 +108,7 @@ dissect_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "Network");
 	}
 
-    /* XXX - Are these still needed? We've used other values where necessary */
-	pinfo->ctype = CT_ISDN;
-	pinfo->circuit_id = pinfo->pseudo_header->isdn.channel;
+	conversation_create_endpoint_by_id(pinfo, ENDPOINT_ISDN, pinfo->pseudo_header->isdn.channel, 0);
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_isdn, tvb, 0, 0, ENC_NA);
@@ -123,9 +121,7 @@ dissect_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	/*
 	 * Set up a circuit for this channel, and assign it a dissector.
 	 */
-	conv = find_conversation_simple(pinfo->num, ENDPOINT_ISDN, pinfo->pseudo_header->isdn.channel, 0);
-	if (conv == NULL)
-		conv = conversation_new_simple(pinfo->num, ENDPOINT_ISDN, pinfo->pseudo_header->isdn.channel, 0);
+	conv = find_or_create_conversation(pinfo);
 
 	if (conversation_get_dissector(conv, 0) == NULL) {
 		/*
@@ -196,7 +192,7 @@ dissect_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		}
 	}
 
-	if (!try_conversation_dissector_simple(ENDPOINT_ISDN, pinfo->pseudo_header->isdn.channel,
+	if (!try_conversation_dissector_by_id(ENDPOINT_ISDN, pinfo->pseudo_header->isdn.channel,
 		tvb, pinfo, tree, NULL))
 		call_data_dissector(tvb, pinfo, tree);
 

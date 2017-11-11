@@ -56,6 +56,7 @@
 #include <epan/prefs.h>
 #include <epan/xdlc.h>
 #include <epan/reassemble.h>
+#include <epan/conversation.h>
 
 void proto_register_lapdm(void);
 
@@ -326,7 +327,7 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         pinfo->fragmented = m;
 
         /* Rely on caller to provide a way to group fragments */
-        fragment_id = (pinfo->circuit_id << 4) | (sapi << 1) | pinfo->p2p_dir;
+        fragment_id =  (conversation_get_endpoint_by_id(pinfo, ENDPOINT_GSMTAP, USE_LAST_ENDPOINT) << 4) | (sapi << 1) | pinfo->p2p_dir;
 
         if (!PINFO_FD_VISITED(pinfo)) {
             /* Check if new N(S) is equal to previous N(S) (to avoid adding retransmissions in reassembly table)
@@ -380,7 +381,7 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     {
         if (!PINFO_FD_VISITED(pinfo) && ((control & XDLC_S_U_MASK) == XDLC_U) && ((control & XDLC_U_MODIFIER_MASK) == XDLC_SABM)) {
             /* SABM frame; reset the last N(S) to an invalid value */
-            guint32 fragment_id = (pinfo->circuit_id << 4) | (sapi << 1) | pinfo->p2p_dir;
+            guint32 fragment_id = (conversation_get_endpoint_by_id(pinfo, ENDPOINT_GSMTAP, USE_LAST_ENDPOINT) << 4) | (sapi << 1) | pinfo->p2p_dir;
             wmem_map_insert(lapdm_last_n_s_map, GUINT_TO_POINTER(fragment_id), GUINT_TO_POINTER(0));
         }
 

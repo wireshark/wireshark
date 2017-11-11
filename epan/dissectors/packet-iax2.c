@@ -32,7 +32,7 @@
 
 
 #include <epan/packet.h>
-#include <epan/circuit.h>
+#include <epan/conversation.h>
 #include <epan/exceptions.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
@@ -743,12 +743,12 @@ typedef struct iax_call_data {
 
 
 
-/* creates a new CT_IAX2 circuit with a specified circuit id for a call
+/* creates a new ENDPOINT_IAX2 circuit with a specified circuit id for a call
  *
  * typically a call has up to three associated circuits: an original source, an
  * original destination, and the result of a transfer.
  *
- * For each endpoint, a CT_IAX2 circuit is created and added to the call_data
+ * For each endpoint, a ENDPOINT_IAX2 circuit is created and added to the call_data
  * by this function
  *
  * 'reversed' should be true if this end is the one which would have _received_
@@ -756,11 +756,11 @@ typedef struct iax_call_data {
  * transferred.
  *
  */
-static circuit_t *iax2_new_circuit_for_call(packet_info *pinfo, proto_item * item,
+static conversation_t *iax2_new_circuit_for_call(packet_info *pinfo, proto_item * item,
                                             guint circuit_id, guint framenum,
                                             iax_call_data *iax_call, gboolean reversed)
 {
-  circuit_t *res;
+  conversation_t *conv;
 
   if(!iax_call){
     return NULL;
@@ -771,18 +771,18 @@ static circuit_t *iax2_new_circuit_for_call(packet_info *pinfo, proto_item * ite
     return NULL;
   }
 
-  res = circuit_new(CT_IAX2,
+  conv = conversation_new_by_id(framenum, ENDPOINT_IAX2,
                     circuit_id,
                     framenum);
 
-  circuit_add_proto_data(res, proto_iax2, iax_call);
+  conversation_add_proto_data(conv, proto_iax2, iax_call);
 
   if (reversed)
     iax_call -> reverse_circuit_ids[iax_call->n_reverse_circuit_ids++] = circuit_id;
   else
     iax_call -> forward_circuit_ids[iax_call->n_forward_circuit_ids++] = circuit_id;
 
-  return res;
+  return conv;
 }
 
 
@@ -821,15 +821,13 @@ static iax_call_data *iax_lookup_call_from_dest(packet_info *pinfo, proto_item *
                                                  guint framenum,
                                                  gboolean *reversed_p)
 {
-  circuit_t     *dst_circuit;
+  conversation_t  *dst_conv;
   iax_call_data *iax_call;
   gboolean       reversed = FALSE;
 
-  dst_circuit = find_circuit(CT_IAX2,
-                             dst_circuit_id,
-                             framenum);
+  dst_conv = find_conversation_by_id(framenum, ENDPOINT_IAX2, dst_circuit_id, 0);
 
-  if (!dst_circuit) {
+  if (!dst_conv) {
 #ifdef DEBUG_HASHING
     g_debug("++ destination circuit not found, must have missed NEW packet");
 #endif
@@ -842,9 +840,9 @@ static iax_call_data *iax_lookup_call_from_dest(packet_info *pinfo, proto_item *
   g_debug("++ found destination circuit");
 #endif
 
-  iax_call = (iax_call_data *)circuit_get_proto_data(dst_circuit, proto_iax2);
+  iax_call = (iax_call_data *)conversation_get_proto_data(dst_conv, proto_iax2);
 
-  /* there's no way we can create a CT_IAX2 circuit without adding
+  /* there's no way we can create a ENDPOINT_IAX2 circuit without adding
      iax call data to it; assert this */
   DISSECTOR_ASSERT(iax_call);
 
@@ -950,21 +948,19 @@ static iax_call_data *iax_lookup_call( packet_info *pinfo,
     iax_call = iax_lookup_call_from_dest(pinfo, NULL, src_circuit_id, dst_circuit_id,
                                          pinfo->num, &reversed);
   } else {
-    circuit_t *src_circuit;
+    conversation_t *src_conv;
 
     /* in all other circumstances, the source circuit should already
      * exist: its absence indicates that we missed the all-important NEW
      * packet.
      */
 
-    src_circuit = find_circuit(CT_IAX2,
-                               src_circuit_id,
-                               pinfo->num);
+    src_conv = find_conversation_by_id(pinfo->num, ENDPOINT_IAX2, src_circuit_id, 0);
 
-    if (src_circuit) {
-      iax_call = (iax_call_data *)circuit_get_proto_data(src_circuit, proto_iax2);
+    if (src_conv) {
+      iax_call = (iax_call_data *)conversation_get_proto_data(src_conv, proto_iax2);
 
-      /* there's no way we can create a CT_IAX2 circuit without adding
+      /* there's no way we can create a ENDPOINT_IAX2 circuit without adding
          iax call data to it; assert this */
       DISSECTOR_ASSERT(iax_call);
 
@@ -2175,7 +2171,7 @@ static void process_iax_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       * tbd what the best thing to do here is. */
       memset(&dissector_info, 0, sizeof(dissector_info));
     } else {
-      dissector_info.ctype = CT_IAX2;
+      dissector_info.etype = ENDPOINT_IAX2;
       dissector_info.circuit_id = (guint32)iax_packet->call_data->forward_circuit_ids[0];
     }
 

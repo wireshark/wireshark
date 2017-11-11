@@ -238,10 +238,6 @@ WSLUA_ATTRIBUTE_BLOCK_NUMBER_GETTER(Pinfo,delta_ts,lua_delta_nstime_to_sec(obj, 
 /* WSLUA_ATTRIBUTE Pinfo_delta_dis_ts RO Number of seconds passed since the last displayed packet. */
 WSLUA_ATTRIBUTE_BLOCK_NUMBER_GETTER(Pinfo,delta_dis_ts,lua_delta_nstime_to_sec(obj, obj->ws_pinfo->fd, obj->ws_pinfo->fd->prev_dis_num));
 
-/* WSLUA_ATTRIBUTE Pinfo_circuit_id RW For circuit based protocols. */
-PINFO_NUMBER_GETTER(circuit_id);
-PINFO_NUMBER_SETTER(circuit_id,guint32);
-
 /* WSLUA_ATTRIBUTE Pinfo_curr_proto RO Which Protocol are we dissecting. */
 WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(Pinfo,curr_proto,ws_pinfo->current_proto);
 
@@ -456,7 +452,6 @@ WSLUA_ATTRIBUTES Pinfo_attributes[] = {
     WSLUA_ATTRIBUTE_ROREG(Pinfo,port_type),
     WSLUA_ATTRIBUTE_RWREG(Pinfo,src_port),
     WSLUA_ATTRIBUTE_RWREG(Pinfo,dst_port),
-    WSLUA_ATTRIBUTE_RWREG(Pinfo,circuit_id),
     WSLUA_ATTRIBUTE_ROREG(Pinfo,match),
     WSLUA_ATTRIBUTE_ROREG(Pinfo,curr_proto),
     WSLUA_ATTRIBUTE_ROREG(Pinfo,columns),

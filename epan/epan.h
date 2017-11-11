@@ -121,19 +121,6 @@ void epan_cleanup(void);
  */
 void epan_conversation_init(void);
 
-/**
- * Initialize the table of circuits.  Circuits are identified by a
- * circuit ID; they are used for protocols where packets *do* contain
- * a circuit ID value indicating to which flow the packet belongs.
- *
- * We might want to make a superclass for both endpoint-specified
- * conversations and circuit ID-specified circuits, so we can attach
- * information either to a circuit or a conversation with common
- * code.
- */
-void epan_circuit_init(void);
-void epan_circuit_cleanup(void);
-
 /** A client will create one epan_t for an entire dissection session.
  * A single epan_t will be used to analyze the entire sequence of packets,
  * sequentially, in a single session. A session corresponds to a single

@@ -35,6 +35,7 @@
 
 #include <epan/packet.h>
 #include <epan/reassemble.h>
+#include <epan/conversation.h>
 
 void proto_register_lapsat(void);
 
@@ -516,7 +517,7 @@ dissect_lapsat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissec
 		pinfo->fragmented = !!(addr & LAPSAT_SI);
 
 		/* Rely on caller to provide a way to group fragments */
-		fragment_id = (pinfo->circuit_id << 3) | (sapi << 1) | pinfo->p2p_dir;
+		fragment_id = (conversation_get_endpoint_by_id(pinfo, ENDPOINT_GSMTAP, USE_LAST_ENDPOINT) << 3) | (sapi << 1) | pinfo->p2p_dir;
 
 		/* Fragment reconstruction helpers */
 		fd_m = fragment_add_seq_next(

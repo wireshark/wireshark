@@ -34,8 +34,6 @@
 
 #include <glib.h>
 
-#include <epan/circuit.h>
-
 #include <epan/dissectors/packet-iax2.h>
 
 #include "tap-iax2-analysis.h"

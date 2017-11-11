@@ -26,6 +26,7 @@
 #define __PACKET_IAX2_H__
 
 #include <epan/tap-voip.h>
+#include <epan/conversation.h>
 
 /* Max version of IAX protocol we support */
 #define IAX_PROTO_VERSION	2
@@ -255,7 +256,7 @@ typedef struct _iax2_info_t
 /* Container for passing data between dissectors */
 typedef struct _iax2_dissector_info_t
 {
-	circuit_type ctype;
+	endpoint_type etype;
 	guint32 circuit_id;
 } iax2_dissector_info_t;
 

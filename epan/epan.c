@@ -43,7 +43,6 @@
 #include "epan_dissect.h"
 
 #include "conversation.h"
-#include "circuit.h"
 #include "except.h"
 #include "packet.h"
 #include "prefs.h"
@@ -351,18 +350,6 @@ void
 epan_conversation_init(void)
 {
 	conversation_epan_reset();
-}
-
-void
-epan_circuit_init(void)
-{
-	circuit_init();
-}
-
-void
-epan_circuit_cleanup(void)
-{
-	circuit_cleanup();
 }
 
 /* Overrides proto_tree_visible i epan_dissect_init to make all fields visible.

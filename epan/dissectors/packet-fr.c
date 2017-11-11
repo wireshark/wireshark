@@ -38,6 +38,7 @@
 #include <epan/capture_dissectors.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/conversation.h>
 #include <wiretap/wtap.h>
 
 #include "packet-llc.h"
@@ -507,9 +508,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       proto_tree_add_uint(fr_tree, hf_fr_dlci, tvb, 0, offset, addr);
     }
 
-    pinfo->ctype = CT_DLCI;
-    pinfo->circuit_id = addr;
-
+    conversation_create_endpoint_by_id(pinfo, ENDPOINT_DLCI, addr, 0);
     col_add_fstr(pinfo->cinfo, COL_INFO, "DLCI %u", addr);
   }
 

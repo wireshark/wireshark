@@ -325,9 +325,6 @@ init_dissection(void)
 	/* Initialize the table of conversations. */
 	epan_conversation_init();
 
-	/* Initialize the table of circuits. */
-	epan_circuit_init();
-
 	/* Initialize protocol-specific variables. */
 	g_slist_foreach(init_routines, &call_routine, NULL);
 
@@ -341,9 +338,6 @@ init_dissection(void)
 void
 cleanup_dissection(void)
 {
-	/* Cleanup the table of circuits. */
-	epan_circuit_cleanup();
-
 	/* Cleanup protocol-specific variables. */
 	g_slist_foreach(cleanup_routines, &call_routine, NULL);
 
@@ -540,7 +534,6 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 	clear_address(&edt->pi.net_dst);
 	clear_address(&edt->pi.src);
 	clear_address(&edt->pi.dst);
-	edt->pi.ctype = CT_NONE;
 	edt->pi.noreassembly_reason = "";
 	edt->pi.ptype = PT_NONE;
 	edt->pi.use_endpoint = FALSE;
@@ -608,7 +601,6 @@ dissect_file(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 	clear_address(&edt->pi.net_dst);
 	clear_address(&edt->pi.src);
 	clear_address(&edt->pi.dst);
-	edt->pi.ctype = CT_NONE;
 	edt->pi.noreassembly_reason = "";
 	edt->pi.ptype = PT_NONE;
 	edt->pi.use_endpoint = FALSE;

@@ -68,7 +68,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	capture_dissectors.h
 	charsets.h
 	chdlctypes.h
-	circuit.h
 	color_filters.h
 	column.h
 	column-info.h
@@ -184,7 +183,6 @@ set(LIBWIRESHARK_FILES
 	asn1.c
 	capture_dissectors.c
 	charsets.c
-	circuit.c
 	color_filters.c
 	column.c
 	column-utils.c
