@@ -708,15 +708,17 @@ bool ProtoTree::eventFilter(QObject * obj, QEvent * event)
     if ( cap_file_ && event->type() != QEvent::MouseButtonPress && event->type() != QEvent::MouseMove )
         return QTreeWidget::eventFilter(obj, event);
 
-    QMouseEvent * ev = (QMouseEvent *)event;
-
     if ( event->type() == QEvent::MouseButtonPress )
     {
+        QMouseEvent * ev = (QMouseEvent *)event;
+
         if ( ev->buttons() & Qt::LeftButton )
             dragStartPosition = ev->pos();
     }
     else if ( event->type() == QEvent::MouseMove )
     {
+        QMouseEvent * ev = (QMouseEvent *)event;
+
         if ( ( ev->buttons() & Qt::LeftButton ) && (ev->pos() - dragStartPosition).manhattanLength()
                  > QApplication::startDragDistance())
         {
