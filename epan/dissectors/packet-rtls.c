@@ -22,8 +22,7 @@
  */
 
 /*
- * (A short description of the protocol including links to specifications,
- *  detailed documentation, etc.)
+ * http://community.arubanetworks.com/aruba/attachments/aruba/unified-wired-wireless-access/23715/1/RTLS_integrationv6.docx
  */
 
 #include <config.h>
