@@ -10865,7 +10865,6 @@ dissect_vendor_ie_aironet(proto_item *aironet_item, proto_tree *ietree,
     proto_item_append_text(aironet_item, ": Aironet DTPC Powerlevel %ddBm", tvb_get_guint8(tvb, offset));
     offset += 1;
     proto_tree_add_item(ietree, hf_ieee80211_aironet_ie_dtpc_unknown, tvb, offset, 1, ENC_NA);
-    offset += 1;
     dont_change = TRUE;
     break;
   case AIRONET_IE_VERSION:
