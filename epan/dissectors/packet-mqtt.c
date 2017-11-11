@@ -968,7 +968,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         break;
     }
 
-    return tvb_captured_length(tvb);
+    return offset;
 }
 
 /**
