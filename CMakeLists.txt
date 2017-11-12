@@ -2654,13 +2654,14 @@ if(ENABLE_EXTCAP AND BUILD_androiddump)
 				${PCAP_LIBRARIES}
 			)
 		else()
-			message(FATAL_ERROR "You try to build androiddump with libpcap but do not have it")
+			message(FATAL_ERROR "You are trying to build androiddump with libpcap but do not have it")
 		endif()
 	else()
 		set(androiddump_LIBS
 			ui
 			wiretap
 			${GLIB2_LIBRARIES}
+			${ZLIB_LIBRARIES}
 			${CMAKE_DL_LIBS}
 		)
 	endif()
@@ -2751,6 +2752,7 @@ if(ENABLE_EXTCAP AND BUILD_randpktdump)
 		ui
 		wiretap
 		${GLIB2_LIBRARIES}
+		${ZLIB_LIBRARIES}
 		${CMAKE_DL_LIBS}
 	)
 	set(randpktdump_FILES
