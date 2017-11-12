@@ -49,7 +49,7 @@ public:
     bool isValid();
 
     frame_data * frameData() const;
-    unsigned int frameNum() const;
+    int frameNum() const;
 
     QByteArray printableData();
 

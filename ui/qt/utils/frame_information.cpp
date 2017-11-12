@@ -89,10 +89,10 @@ frame_data * FrameInformation::frameData() const
     return fi_;
 }
 
-unsigned int FrameInformation::frameNum() const
+int FrameInformation::frameNum() const
 {
     if ( ! fi_ )
-        return 0;
+        return -1;
     return fi_->num;
 }
 

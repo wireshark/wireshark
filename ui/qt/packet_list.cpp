@@ -484,7 +484,7 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
 
     if (!cap_file_) return;
 
-    int row = 0;
+    int row = -1;
 
     if (selected.isEmpty()) {
         cf_unselect_packet(cap_file_);
@@ -593,7 +593,7 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     if ( frameData )
         emit frameSelected(frameData->frameNum());
     else
-        emit frameSelected(0);
+        emit frameSelected(-1);
 
     ctx_menu_.exec(event->globalPos());
     ctx_column_ = -1;
