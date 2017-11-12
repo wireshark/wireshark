@@ -208,7 +208,7 @@ void ByteViewTab::selectedFrameChanged(int frameNum)
     clear();
     qDeleteAll(findChildren<ByteViewText *>());
 
-    if ( frameNum > 0 )
+    if ( frameNum >= 0 )
     {
         if ( ! cap_file_ || ! cap_file_->edt )
             return;
