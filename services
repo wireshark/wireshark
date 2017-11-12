@@ -11574,3 +11574,4 @@ robotraconteur  48653/udp # Robot Raconteur transport [Wason_Technology_LLC] [Jo
 matahari        49000/tcp # Matahari Broker [Matahari_Project] [Zane_Bitter] 2011-08-31
 nusrp           49001/tcp # Nuance Unity Service Request Protocol [Nuance_Communications_Inc3] [Andrew_Andrews] 2017-04-20
 nusdp-disc      49001/udp # Nuance Unity Service Discovery Protocol [Nuance_Communications_Inc3] [Andrew_Andrews] 2017-04-20
+inspider        49150/tcp # InSpider System [AnRobot] [Zhang_Xinnan] 2017-11-06
