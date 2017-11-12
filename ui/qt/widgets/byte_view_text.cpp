@@ -165,6 +165,7 @@ void ByteViewText::markProtocol(int start, int end)
 void ByteViewText::markField(int start, int end)
 {
     f_bound_ = QPair<guint, guint>(qMax(0, start), qMax(0, end));
+    scrollToByte(start);
     f_bound_save_ = f_bound_;
     viewport()->update();
 }

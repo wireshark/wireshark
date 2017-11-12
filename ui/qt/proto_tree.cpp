@@ -469,8 +469,6 @@ void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item)
          * also require special checks for -1 to be added.
          */
 
-    } else {
-        emit fieldSelected(NULL);
     }
 }
 

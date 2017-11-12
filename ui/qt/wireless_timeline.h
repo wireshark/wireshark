@@ -78,7 +78,7 @@ protected:
 
 public slots:
     void bgColorizationProgress(int first, int last);
-    void packetSelectionChanged();
+    void selectedFrameChanged(int frameNum);
     void appInitialized();
 
 protected:

@@ -89,6 +89,13 @@ frame_data * FrameInformation::frameData() const
     return fi_;
 }
 
+unsigned int FrameInformation::frameNum() const
+{
+    if ( ! fi_ )
+        return 0;
+    return fi_->num;
+}
+
 QByteArray FrameInformation::printableData()
 {
     QByteArray data;

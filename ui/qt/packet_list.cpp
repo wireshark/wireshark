@@ -484,10 +484,13 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
 
     if (!cap_file_) return;
 
+    int row = 0;
+
     if (selected.isEmpty()) {
         cf_unselect_packet(cap_file_);
     } else {
-        int row = selected.first().top();
+        /* Framenumbers should allways reflect real frame numbers (can't start at 0) */
+        row = selected.first().top() + 1;
         cf_select_packet(cap_file_, row);
     }
 
@@ -501,7 +504,7 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
     related_packet_delegate_.clear();
     if (proto_tree_) proto_tree_->clear();
 
-    emit packetSelectionChanged();
+    emit frameSelected(row);
 
     if (!cap_file_->edt) {
         viewport()->update();
@@ -537,7 +540,7 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
                                               cap_file_->edt->tvb);
         }
 
-        if (fi && proto_tree_) {
+        if (fi) {
             emit fieldSelected(new FieldInformation(fi, this));
         }
     } else if (!cap_file_->search_in_progress && proto_tree_) {
@@ -588,7 +591,10 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     ctx_column_ = columnAt(event->x());
 
     // Set menu sensitivity for the current column and set action data.
-    emit packetSelectionChanged();
+    if ( frameData )
+        emit frameSelected(frameData->frameNum());
+    else
+        emit frameSelected(0);
 
     ctx_menu_.exec(event->globalPos());
     ctx_column_ = -1;

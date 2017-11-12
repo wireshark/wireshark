@@ -271,7 +271,7 @@ signals:
     void fieldSelected(FieldInformation *);
     void fieldHighlight(FieldInformation *);
 
-    void packetSelectionChanged();
+    void frameSelected(int);
 
 public slots:
     // in main_window_slots.cpp

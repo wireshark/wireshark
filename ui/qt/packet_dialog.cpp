@@ -72,7 +72,7 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
 
     byte_view_tab_ = new ByteViewTab(ui->packetSplitter);
     byte_view_tab_->setCaptureFile(cap_file_.capFile());
-    byte_view_tab_->packetSelectionChanged();
+    byte_view_tab_->selectedFrameChanged(0);
 
     ui->packetSplitter->setStretchFactor(1, 0);
 

@@ -150,14 +150,13 @@ private:
 
 signals:
     void packetDissectionChanged();
-    void packetSelectionChanged();
     void showColumnPreferences(PreferencesDialog::PreferencesPane start_pane);
     void editColumn(int column);
     void packetListScrolled(bool at_end);
     void showProtocolPreferences(const QString module_name);
     void editProtocolPreference(struct preference *pref, struct pref_module *module);
 
-    void selectedFrameChanged(int);
+    void frameSelected(int frameNum);
     void fieldSelected(FieldInformation *);
 
 public slots:

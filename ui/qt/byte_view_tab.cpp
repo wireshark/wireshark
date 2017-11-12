@@ -62,60 +62,43 @@ void ByteViewTab::connectToMainWindow()
             wsApp->mainWindow(), SIGNAL(fieldHighlight(FieldInformation *)));
 
     /* Connect change of packet selection */
-    connect(wsApp->mainWindow(), SIGNAL(packetSelectionChanged()), this, SLOT(packetSelectionChanged()));
+    connect(wsApp->mainWindow(), SIGNAL(frameSelected(int)), this, SLOT(selectedFrameChanged(int)));
     connect(wsApp->mainWindow(), SIGNAL(setCaptureFile(capture_file*)), this, SLOT(setCaptureFile(capture_file*)));
     connect(wsApp->mainWindow(), SIGNAL(fieldSelected(FieldInformation *)), this, SLOT(selectedFieldChanged(FieldInformation *)));
 }
 
 void ByteViewTab::addTab(const char *name, tvbuff_t *tvb) {
-    if ( ! tvb || ! cap_file_ )
-        return;
-
     if (count() == 1) { // Remove empty placeholder.
         ByteViewText *cur_text = qobject_cast<ByteViewText *>(currentWidget());
         if (cur_text && cur_text->isEmpty()) delete currentWidget();
     }
 
-    packet_char_enc encoding = (packet_char_enc)cap_file_->current_frame->flags.encoding;
+    packet_char_enc encoding = PACKET_CHAR_ENC_CHAR_ASCII;
+    if ( cap_file_ && cap_file_->current_frame )
+        encoding = (packet_char_enc)cap_file_->current_frame->flags.encoding;
 
-    QByteArray data((const char *) tvb_memdup(wmem_file_scope(), tvb, 0, -1), tvb_captured_length(tvb));
+    QByteArray data;
+    if ( tvb )
+        data = QByteArray((const char *) tvb_memdup(wmem_file_scope(), tvb, 0, -1), tvb_captured_length(tvb));
 
     ByteViewText * byte_view_text = new ByteViewText(data, encoding, this);
     byte_view_text->setAccessibleName(name);
     byte_view_text->setMonospaceFont(wsApp->monospaceFont());
 
-    byte_view_text->setProperty(tvb_data_property, VariantPointer<tvbuff_t>::asQVariant(tvb));
+    if ( tvb )
+    {
+        byte_view_text->setProperty(tvb_data_property, VariantPointer<tvbuff_t>::asQVariant(tvb));
 
-    connect(wsApp, SIGNAL(zoomMonospaceFont(QFont)), byte_view_text, SLOT(setMonospaceFont(QFont)));
+        connect(wsApp, SIGNAL(zoomMonospaceFont(QFont)), byte_view_text, SLOT(setMonospaceFont(QFont)));
 
-    connect(byte_view_text, SIGNAL(byteHovered(int)), this, SLOT(byteViewTextHovered(int)));
-    connect(byte_view_text, SIGNAL(byteSelected(int)), this, SLOT(byteViewTextMarked(int)));
+        connect(byte_view_text, SIGNAL(byteHovered(int)), this, SLOT(byteViewTextHovered(int)));
+        connect(byte_view_text, SIGNAL(byteSelected(int)), this, SLOT(byteViewTextMarked(int)));
+    }
 
     int idx = QTabWidget::addTab(byte_view_text, name);
     byte_view_text->setProperty("tab_index", qVariantFromValue(idx));
 
     QTabWidget::setTabToolTip(idx, name);
-}
-
-void ByteViewTab::packetSelectionChanged()
-{
-    if ( ! cap_file_ || ! cap_file_->edt )
-        return;
-
-    // Remove tabs (as these refer to stale tvbs) and free resources.
-    clear();
-    qDeleteAll(findChildren<ByteViewText *>());
-
-    GSList *src_le;
-    for (src_le = cap_file_->edt->pi.data_src; src_le != NULL; src_le = src_le->next) {
-        struct data_source *source;
-        char* source_name;
-        source = (struct data_source *)src_le->data;
-        source_name = get_data_source_name(source);
-        addTab(source_name, get_data_source_tvb(source));
-        wmem_free(NULL, source_name);
-    }
-    setCurrentIndex(0);
 }
 
 void ByteViewTab::byteViewTextHovered(int idx)
@@ -179,7 +162,7 @@ ByteViewText * ByteViewTab::findByteViewTextForTvb(tvbuff_t * search_tvb, int * 
         {
             found = true;
         }
-        else
+        else if ( stored )
         {
             if ( stored->length >= length && tvb_memeql(search_tvb, 0, stored->real_data, length ) == 0 )
             {
@@ -222,10 +205,35 @@ void ByteViewTab::setTabsVisible() {
 
 void ByteViewTab::selectedFrameChanged(int frameNum)
 {
-    Q_UNUSED(frameNum);
+    clear();
+    qDeleteAll(findChildren<ByteViewText *>());
+
+    if ( frameNum > 0 )
+    {
+        if ( ! cap_file_ || ! cap_file_->edt )
+            return;
+
+        /* This code relies on a dissection, which had happened somewhere else. It also does not
+         * really check, if the dissection happened for the correct frame. In the future we might
+         * rewrite this for directly calling the dissection engine here. */
+        GSList *src_le;
+        for (src_le = cap_file_->edt->pi.data_src; src_le != NULL; src_le = src_le->next) {
+            struct data_source *source;
+            char* source_name;
+            source = (struct data_source *)src_le->data;
+            source_name = get_data_source_name(source);
+            addTab(source_name, get_data_source_tvb(source));
+            wmem_free(NULL, source_name);
+        }
+    }
+    else
+        addTab("PlaceHolder", 0);
+
+    setCurrentIndex(0);
 }
 
-void ByteViewTab::selectedFieldChanged(FieldInformation *selected) {
+void ByteViewTab::selectedFieldChanged(FieldInformation *selected)
+{
 
     ByteViewText * byte_view_text = 0;
 

@@ -48,9 +48,8 @@ public slots:
     /* Set the capture file */
     void setCaptureFile(capture_file *cf);
     /* Creates the tabs and data, depends on an dissection which has already run */
-    void packetSelectionChanged();
-
     void selectedFrameChanged(int);
+    /* Selects or marks a field */
     void selectedFieldChanged(FieldInformation *);
 
 signals:

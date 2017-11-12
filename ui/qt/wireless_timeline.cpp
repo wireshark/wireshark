@@ -199,8 +199,10 @@ void WirelessTimeline::clip_tsf()
 }
 
 
-void WirelessTimeline::packetSelectionChanged()
+void WirelessTimeline::selectedFrameChanged(int frameNum)
 {
+    Q_UNUSED(frameNum);
+
     if (isHidden())
         return;
 
@@ -302,7 +304,7 @@ void WirelessTimeline::captureFileReadFinished()
     zoom_level = 0;
 
     show();
-    packetSelectionChanged();
+    selectedFrameChanged(0);
     // TODO: show or ungrey the toolbar controls
     update();
 }

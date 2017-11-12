@@ -471,8 +471,9 @@ void MainStatusBar::popProgressStatus()
     progress_frame_.hide();
 }
 
-void MainStatusBar::packetSelectionChanged()
+void MainStatusBar::selectedFrameChanged(int frameNum)
 {
+    Q_UNUSED(frameNum);
     showCaptureStatistics();
 }
 
