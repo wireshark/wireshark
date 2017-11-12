@@ -489,8 +489,7 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
     if (selected.isEmpty()) {
         cf_unselect_packet(cap_file_);
     } else {
-        /* Framenumbers should allways reflect real frame numbers (can't start at 0) */
-        row = selected.first().top() + 1;
+        row = selected.first().top();
         cf_select_packet(cap_file_, row);
     }
 
