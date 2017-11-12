@@ -611,15 +611,7 @@
     <name>ByteViewText</name>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation>Afficher les octets en hexadécimal</translation>
-    </message>
-    <message>
-        <source>Byte %1</source>
-        <translation type="vanished">Octets %1</translation>
-    </message>
-    <message>
-        <source>Bytes %1-%2</source>
-        <translation type="vanished">Octets %1-%2</translation>
+        <translation type="vanished">Afficher les octets en hexadécimal</translation>
     </message>
 </context>
 <context>
@@ -4888,6 +4880,22 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <translation>Pas d&apos;information expert</translation>
     </message>
     <message>
+        <source>, 1 byte</source>
+        <translation type="unfinished">, 1 octet</translation>
+    </message>
+    <message>
+        <source>, %1 bytes</source>
+        <translation type="unfinished">, %1 octets</translation>
+    </message>
+    <message>
+        <source>Byte %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bytes %1-%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Profile: </source>
         <translation>Profil: </translation>
     </message>
@@ -7055,14 +7063,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Byte %1</source>
-        <translation type="unfinished">Octets %1</translation>
-    </message>
-    <message>
-        <source>Bytes %1-%2</source>
-        <translation type="unfinished">Octets %1-%2</translation>
-    </message>
-    <message>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7523,7 +7523,11 @@ a:hover {
     <name>PacketCommentDialog</name>
     <message>
         <source>Packet Comment</source>
-        <translation>Commentaire du paquet</translation>
+        <translation type="vanished">Commentaire du paquet</translation>
+    </message>
+    <message>
+        <source>Packet %1 Comment</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7546,11 +7550,11 @@ a:hover {
     </message>
     <message>
         <source>Byte %1</source>
-        <translation type="unfinished">Octets %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Bytes %1-%2</source>
-        <translation type="unfinished">Octets %1-%2</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7927,11 +7931,11 @@ a:hover {
     </message>
     <message>
         <source>, 1 byte</source>
-        <translation>, 1 octet</translation>
+        <translation type="vanished">, 1 octet</translation>
     </message>
     <message>
         <source>, %1 bytes</source>
-        <translation>, %1 octets</translation>
+        <translation type="vanished">, %1 octets</translation>
     </message>
 </context>
 <context>

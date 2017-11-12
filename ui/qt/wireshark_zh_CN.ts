@@ -611,15 +611,7 @@
     <name>ByteViewText</name>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation>以十六进制显示字节</translation>
-    </message>
-    <message>
-        <source>Byte %1</source>
-        <translation type="vanished">字节 %1</translation>
-    </message>
-    <message>
-        <source>Bytes %1-%2</source>
-        <translation type="vanished">字节 %1-%2</translation>
+        <translation type="vanished">以十六进制显示字节</translation>
     </message>
 </context>
 <context>
@@ -4873,6 +4865,22 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>无专家信息</translation>
     </message>
     <message>
+        <source>, 1 byte</source>
+        <translation type="unfinished">, 1 字节</translation>
+    </message>
+    <message>
+        <source>, %1 bytes</source>
+        <translation type="unfinished">, %1 字节</translation>
+    </message>
+    <message>
+        <source>Byte %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bytes %1-%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Profile: </source>
         <translation>配置文件: </translation>
     </message>
@@ -7068,14 +7076,6 @@ text-decoration: underline;
         <translation>合并文件</translation>
     </message>
     <message>
-        <source>Byte %1</source>
-        <translation type="unfinished">字节 %1</translation>
-    </message>
-    <message>
-        <source>Bytes %1-%2</source>
-        <translation type="unfinished">字节 %1-%2</translation>
-    </message>
-    <message>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>SSL 会话密钥 (*.keys *.txt);;所有文件 (</translation>
     </message>
@@ -7534,7 +7534,11 @@ text-decoration: underline;
     <name>PacketCommentDialog</name>
     <message>
         <source>Packet Comment</source>
-        <translation>分组注释</translation>
+        <translation type="vanished">分组注释</translation>
+    </message>
+    <message>
+        <source>Packet %1 Comment</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7557,11 +7561,11 @@ text-decoration: underline;
     </message>
     <message>
         <source>Byte %1</source>
-        <translation type="unfinished">字节 %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Bytes %1-%2</source>
-        <translation type="unfinished">字节 %1-%2</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7937,11 +7941,11 @@ text-decoration: underline;
     </message>
     <message>
         <source>, 1 byte</source>
-        <translation>, 1 字节</translation>
+        <translation type="vanished">, 1 字节</translation>
     </message>
     <message>
         <source>, %1 bytes</source>
-        <translation>, %1 字节</translation>
+        <translation type="vanished">, %1 字节</translation>
     </message>
 </context>
 <context>

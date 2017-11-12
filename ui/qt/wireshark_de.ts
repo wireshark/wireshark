@@ -611,15 +611,7 @@
     <name>ByteViewText</name>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation>Bytes in Hexadezimal anzeigen</translation>
-    </message>
-    <message>
-        <source>Byte %1</source>
-        <translation type="vanished">Bytes %1</translation>
-    </message>
-    <message>
-        <source>Bytes %1-%2</source>
-        <translation type="vanished">Bytes %1-%2</translation>
+        <translation type="vanished">Bytes in Hexadezimal anzeigen</translation>
     </message>
 </context>
 <context>
@@ -4889,6 +4881,22 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Keine Experten-Informationen</translation>
     </message>
     <message>
+        <source>, 1 byte</source>
+        <translation type="unfinished">, 1 Byte</translation>
+    </message>
+    <message>
+        <source>, %1 bytes</source>
+        <translation type="unfinished">, %1 Bytes</translation>
+    </message>
+    <message>
+        <source>Byte %1</source>
+        <translation type="unfinished">Byte %1</translation>
+    </message>
+    <message>
+        <source>Bytes %1-%2</source>
+        <translation type="unfinished">Bytes %1-%2</translation>
+    </message>
+    <message>
         <source>Profile: </source>
         <translation>Profil:</translation>
     </message>
@@ -7087,11 +7095,11 @@ text-decoration: underline;
     </message>
     <message>
         <source>Byte %1</source>
-        <translation type="unfinished">Bytes %1</translation>
+        <translation type="vanished">Byte %1</translation>
     </message>
     <message>
         <source>Bytes %1-%2</source>
-        <translation type="unfinished">Bytes %1-%2</translation>
+        <translation type="vanished">Bytes %1-%2</translation>
     </message>
     <message>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
@@ -7552,7 +7560,11 @@ text-decoration: underline;
     <name>PacketCommentDialog</name>
     <message>
         <source>Packet Comment</source>
-        <translation>Paketkommentar</translation>
+        <translation type="vanished">Paketkommentar</translation>
+    </message>
+    <message>
+        <source>Packet %1 Comment</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7575,11 +7587,11 @@ text-decoration: underline;
     </message>
     <message>
         <source>Byte %1</source>
-        <translation type="unfinished">Bytes %1</translation>
+        <translation>Byte %1</translation>
     </message>
     <message>
         <source>Bytes %1-%2</source>
-        <translation type="unfinished">Bytes %1-%2</translation>
+        <translation>Bytes %1-%2</translation>
     </message>
 </context>
 <context>
@@ -7956,11 +7968,11 @@ text-decoration: underline;
     </message>
     <message>
         <source>, 1 byte</source>
-        <translation>, 1 Byte</translation>
+        <translation type="vanished">, 1 Byte</translation>
     </message>
     <message>
         <source>, %1 bytes</source>
-        <translation>, %1 Bytes</translation>
+        <translation type="vanished">, %1 Bytes</translation>
     </message>
 </context>
 <context>

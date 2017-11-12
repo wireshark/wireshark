@@ -611,15 +611,7 @@
     <name>ByteViewText</name>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation>16進数でバイト列を表示</translation>
-    </message>
-    <message>
-        <source>Byte %1</source>
-        <translation type="vanished">バイト %1</translation>
-    </message>
-    <message>
-        <source>Bytes %1-%2</source>
-        <translation type="vanished">バイト %1-%2</translation>
+        <translation type="vanished">16進数でバイト列を表示</translation>
     </message>
 </context>
 <context>
@@ -4876,6 +4868,22 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>エキスパート情報はありません</translation>
     </message>
     <message>
+        <source>, 1 byte</source>
+        <translation type="unfinished">, 1 バイト</translation>
+    </message>
+    <message>
+        <source>, %1 bytes</source>
+        <translation type="unfinished">, %1 バイト</translation>
+    </message>
+    <message>
+        <source>Byte %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bytes %1-%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Profile: </source>
         <translation>プロファイル:</translation>
     </message>
@@ -7041,14 +7049,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Byte %1</source>
-        <translation type="unfinished">バイト %1</translation>
-    </message>
-    <message>
-        <source>Bytes %1-%2</source>
-        <translation type="unfinished">バイト %1-%2</translation>
-    </message>
-    <message>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>SSLセッション鍵 (*.keys *.txt);;すべてのファイル (</translation>
     </message>
@@ -7507,7 +7507,11 @@ a:hover {
     <name>PacketCommentDialog</name>
     <message>
         <source>Packet Comment</source>
-        <translation>パケットコメント</translation>
+        <translation type="vanished">パケットコメント</translation>
+    </message>
+    <message>
+        <source>Packet %1 Comment</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7530,11 +7534,11 @@ a:hover {
     </message>
     <message>
         <source>Byte %1</source>
-        <translation type="unfinished">バイト %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Bytes %1-%2</source>
-        <translation type="unfinished">バイト %1-%2</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7911,11 +7915,11 @@ a:hover {
     </message>
     <message>
         <source>, 1 byte</source>
-        <translation>, 1 バイト</translation>
+        <translation type="vanished">, 1 バイト</translation>
     </message>
     <message>
         <source>, %1 bytes</source>
-        <translation>, %1 バイト</translation>
+        <translation type="vanished">, %1 バイト</translation>
     </message>
 </context>
 <context>

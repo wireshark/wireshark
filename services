@@ -6131,3 +6131,4 @@ robotraconteur	48653/tcp/udp	# Robot Raconteur transport
 matahari	49000/tcp	# Matahari Broker
 nusrp		49001/tcp	# Nuance Unity Service Request Protocol
 nusdp-disc	49001/udp	# Nuance Unity Service Discovery Protocol
+inspider	49150/tcp	# InSpider System
