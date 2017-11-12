@@ -569,6 +569,12 @@ ssl_find_appdata_dissector(const char *name);
 extern void
 ssl_data_set(StringInfo* buf, const guchar* src, guint len);
 
+/** alloc the data with the specified len for the stringInfo buffer.
+ @param src the data source
+ @param len the source data len */
+extern gint
+ssl_data_alloc(StringInfo* str, size_t len);
+
 extern gint
 ssl_cipher_setiv(SSL_CIPHER_CTX *cipher, guchar* iv, gint iv_len);
 

@@ -1780,7 +1780,7 @@ gint ssl_get_keyex_alg(gint cipher)
 
 /* StringInfo structure (len + data) functions {{{ */
 
-static gint
+gint
 ssl_data_alloc(StringInfo* str, size_t len)
 {
     str->data = (guchar *)g_malloc(len);
