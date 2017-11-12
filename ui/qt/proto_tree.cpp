@@ -38,6 +38,7 @@
 #include <QScrollBar>
 #include <QTreeWidgetItemIterator>
 #include <QUrl>
+#include <QItemSelectionModel>
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QWindow>
@@ -708,6 +709,10 @@ bool ProtoTree::eventFilter(QObject * obj, QEvent * event)
     if ( cap_file_ && event->type() != QEvent::MouseButtonPress && event->type() != QEvent::MouseMove )
         return QTreeWidget::eventFilter(obj, event);
 
+    /* Mouse was over scrollbar, ignoring */
+    if ( qobject_cast<QScrollBar *>(obj) )
+        return QTreeWidget::eventFilter(obj, event);
+
     if ( event->type() == QEvent::MouseButtonPress )
     {
         QMouseEvent * ev = (QMouseEvent *)event;
@@ -728,6 +733,12 @@ bool ProtoTree::eventFilter(QObject * obj, QEvent * event)
                 field_info * fi = VariantPointer<field_info>::asPtr(item->data(0, Qt::UserRole));
                 if ( fi )
                 {
+                    /* Hack to prevent QItemSelection taking the item which has been dragged over at start
+                     * of drag-drop operation. selectionModel()->blockSignals could have done the trick, but
+                     * it does not take in a QTreeWidget (maybe View) */
+                    QModelIndex idx = indexFromItem(item, 0);
+                    emit fieldSelected(new FieldInformation(fi, this));
+                    selectionModel()->select(idx, QItemSelectionModel::ClearAndSelect);
 
                     QString filter = QString(proto_construct_match_selected_string(fi, cap_file_->edt));
 
