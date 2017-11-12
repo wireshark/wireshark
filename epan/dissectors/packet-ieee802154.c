@@ -2845,12 +2845,12 @@ static int
 dissect_pie_mlme(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ies_tree, void *data)
 {
     proto_tree *tree = ieee802154_create_pie_tree(tvb, ies_tree, hf_ieee802154_mlme, ett_ieee802154_mlme);
-    guint offset = 2;
+    volatile guint offset = 2;
 
     while (tvb_reported_length_remaining(tvb, offset) > 1) {
         guint16             psie_ie = tvb_get_letohs(tvb, offset);
         volatile guint16    psie_id;
-        tvbuff_t *          psie_tvb;
+        tvbuff_t *volatile  psie_tvb;
 
         if (psie_ie & IEEE802154_PSIE_TYPE_MASK) {
             /* long format: Table 7-17-Sub-ID allocation for long format */
