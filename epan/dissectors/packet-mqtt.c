@@ -493,10 +493,9 @@ static void mqtt_user_decode_message(proto_tree *tree, proto_tree *mqtt_tree, pa
 
 static guint dissect_string(tvbuff_t *tvb, proto_tree *tree, guint offset, int hf_len, int hf_value)
 {
-  guint16 prop_len;
+  guint32 prop_len;
 
-  prop_len = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
-  proto_tree_add_uint(tree, hf_len, tvb, offset, 2, prop_len);
+  proto_tree_add_item_ret_uint(tree, hf_len, tvb, offset, 2, ENC_BIG_ENDIAN, &prop_len);
   proto_tree_add_item(tree, hf_value, tvb, offset + 2, prop_len, ENC_UTF_8|ENC_NA);
 
   return 2 + prop_len;
@@ -523,8 +522,8 @@ static guint dissect_mqtt_properties(tvbuff_t *tvb, proto_tree *mqtt_tree, guint
   const guint bytes_to_read = offset + mqtt_prop_len;
   while (offset < bytes_to_read)
   {
-    guint8 prop_id = tvb_get_guint8(tvb, offset);
-    proto_tree_add_uint(mqtt_prop_tree, hf_mqtt_property_id, tvb, offset, 1, prop_id);
+    guint32 prop_id;
+    proto_tree_add_item_ret_uint(mqtt_prop_tree, hf_mqtt_property_id, tvb, offset, 1, ENC_BIG_ENDIAN, &prop_id);
     offset += 1;
 
     switch (prop_id)
@@ -607,7 +606,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   guint64     mqtt_con_flags;
   guint64     msg_len      = 0;
   gint        mqtt_msg_len = 0;
-  guint16     mqtt_str_len;
+  guint32     mqtt_str_len;
   guint16     mqtt_len_offset;
   gint        mqtt_payload_len;
   conversation_t *conv;
@@ -714,8 +713,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   switch (mqtt_msg_type)
   {
     case MQTT_CONNECT:
-      mqtt_str_len = tvb_get_ntohs(tvb, offset);
-      proto_tree_add_item(mqtt_tree, hf_mqtt_proto_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item_ret_uint(mqtt_tree, hf_mqtt_proto_len, tvb, offset, 2, ENC_BIG_ENDIAN, &mqtt_str_len);
       offset += 2;
 
       proto_tree_add_item(mqtt_tree, hf_mqtt_proto_name, tvb, offset, mqtt_str_len, ENC_UTF_8|ENC_NA);
@@ -738,8 +736,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         offset += dissect_mqtt_properties(tvb, mqtt_tree, offset);
       }
 
-      mqtt_str_len = tvb_get_ntohs(tvb, offset);
-      proto_tree_add_item(mqtt_tree, hf_mqtt_client_id_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item_ret_uint(mqtt_tree, hf_mqtt_client_id_len, tvb, offset, 2, ENC_BIG_ENDIAN, &mqtt_str_len);
       offset += 2;
 
       proto_tree_add_item(mqtt_tree, hf_mqtt_client_id, tvb, offset, mqtt_str_len, ENC_UTF_8|ENC_NA);
@@ -747,8 +744,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
       if (mqtt_con_flags & MQTT_CONMASK_WILLFLAG)
       {
-        mqtt_str_len = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(mqtt_tree, hf_mqtt_will_topic_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(mqtt_tree, hf_mqtt_will_topic_len, tvb, offset, 2, ENC_BIG_ENDIAN, &mqtt_str_len);
         offset += 2;
 
         proto_tree_add_item(mqtt_tree, hf_mqtt_will_topic, tvb, offset, mqtt_str_len, ENC_UTF_8|ENC_NA);
@@ -757,8 +753,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
       if (mqtt_con_flags & MQTT_CONMASK_WILLFLAG)
       {
-        mqtt_str_len = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(mqtt_tree, hf_mqtt_will_msg_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(mqtt_tree, hf_mqtt_will_msg_len, tvb, offset, 2, ENC_BIG_ENDIAN, &mqtt_str_len);
         offset += 2;
 
         proto_tree_add_item(mqtt_tree, hf_mqtt_will_msg, tvb, offset, mqtt_str_len, ENC_UTF_8|ENC_NA);
@@ -767,8 +762,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
       if ((mqtt_con_flags & MQTT_CONMASK_USER) && (tvb_reported_length_remaining(tvb, offset) > 0))
       {
-        mqtt_str_len = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(mqtt_tree, hf_mqtt_username_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(mqtt_tree, hf_mqtt_username_len, tvb, offset, 2, ENC_BIG_ENDIAN, &mqtt_str_len);
         offset += 2;
 
         proto_tree_add_item(mqtt_tree, hf_mqtt_username, tvb, offset, mqtt_str_len, ENC_UTF_8|ENC_NA);
@@ -777,8 +771,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
       if ((mqtt_con_flags & MQTT_CONMASK_PASSWD) && (tvb_reported_length_remaining(tvb, offset) > 0))
       {
-        mqtt_str_len = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(mqtt_tree, hf_mqtt_passwd_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(mqtt_tree, hf_mqtt_passwd_len, tvb, offset, 2, ENC_BIG_ENDIAN, &mqtt_str_len);
         offset += 2;
 
         proto_tree_add_item(mqtt_tree, hf_mqtt_passwd, tvb, offset, mqtt_str_len, ENC_UTF_8|ENC_NA);
@@ -810,8 +803,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     case MQTT_PUBLISH:
       /* TopicName|MsgID|Message| */
-      mqtt_str_len = tvb_get_ntohs(tvb, offset);
-      proto_tree_add_item(mqtt_tree, hf_mqtt_topic_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item_ret_uint(mqtt_tree, hf_mqtt_topic_len, tvb, offset, 2, ENC_BIG_ENDIAN, &mqtt_str_len);
       offset += 2;
 
       proto_tree_add_item_ret_string(mqtt_tree, hf_mqtt_topic, tvb, offset, mqtt_str_len, ENC_UTF_8|ENC_NA,
@@ -855,8 +847,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
       while (offset < tvb_reported_length(tvb))
       {
-        mqtt_str_len = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(mqtt_tree, hf_mqtt_topic_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(mqtt_tree, hf_mqtt_topic_len, tvb, offset, 2, ENC_BIG_ENDIAN, &mqtt_str_len);
         offset += 2;
 
         proto_tree_add_item(mqtt_tree, hf_mqtt_topic, tvb, offset, mqtt_str_len, ENC_UTF_8|ENC_NA);
@@ -885,8 +876,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
       while (offset < tvb_reported_length(tvb))
       {
-        mqtt_str_len = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(mqtt_tree, hf_mqtt_topic_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(mqtt_tree, hf_mqtt_topic_len, tvb, offset, 2, ENC_BIG_ENDIAN, &mqtt_str_len);
         offset += 2;
 
         proto_tree_add_item(mqtt_tree, hf_mqtt_topic, tvb, offset, mqtt_str_len, ENC_UTF_8|ENC_NA);
