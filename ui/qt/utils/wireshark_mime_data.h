@@ -48,12 +48,16 @@ class ToolbarEntryMimeData: public QMimeData {
     Q_OBJECT
 public:
 
-    ToolbarEntryMimeData(int pos);
+    ToolbarEntryMimeData(QString element, int pos);
 
     int position() const;
+    QString element() const;
+
+    QString labelText() const;
 
 private:
 
+    QString element_;
     int pos_;
 
 };

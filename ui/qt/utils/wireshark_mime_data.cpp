@@ -48,10 +48,21 @@ QString DisplayFilterMimeData::labelText() const
     return QString("%1\n%2").arg(description_, filter_);
 }
 
-ToolbarEntryMimeData::ToolbarEntryMimeData(int pos) :
+ToolbarEntryMimeData::ToolbarEntryMimeData(QString element, int pos) :
     QMimeData(),
+    element_(element),
     pos_(pos)
 {}
+
+QString ToolbarEntryMimeData::element() const
+{
+    return element_;
+}
+
+QString ToolbarEntryMimeData::labelText() const
+{
+    return QString("%1").arg(element_);
+}
 
 int ToolbarEntryMimeData::position() const
 {
