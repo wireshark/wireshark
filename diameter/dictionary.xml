@@ -2369,7 +2369,7 @@
 				<gavp name="OC-Feature-Vector"/>
 			</grouped>
 		</avp>
-		<avp name="OC-Feature-Vector" code="624" mandatory="may">
+		<avp name="OC-Feature-Vector" code="622s" mandatory="may">
 			<type type-name="Unsigned64"/>
 		</avp>
 		<avp name="OC-OLR" code="623" mandatory="may">
