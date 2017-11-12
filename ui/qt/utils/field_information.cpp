@@ -88,7 +88,7 @@ bool FieldInformation::tvbContains(FieldInformation *child)
 FieldInformation::Position FieldInformation::position() const
 {
     Position pos = {-1, -1, -1};
-    if ( fi_ )
+    if ( fi_ && fi_->ds_tvb )
     {
         guint len = tvb_captured_length(fi_->ds_tvb);
 
@@ -118,7 +118,7 @@ FieldInformation::Position FieldInformation::position() const
 FieldInformation::Position FieldInformation::appendix() const
 {
     Position pos = {-1, -1, -1};
-    if ( fi_ )
+    if ( fi_ && fi_->ds_tvb )
     {
         guint len = tvb_captured_length(fi_->ds_tvb);
 
