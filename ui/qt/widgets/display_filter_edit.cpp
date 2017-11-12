@@ -537,7 +537,10 @@ void DisplayFilterEdit::applyOrPrepareFilter()
 
 void DisplayFilterEdit::dragEnterEvent(QDragEnterEvent *event)
 {
-    if (event && qobject_cast<const DisplayFilterMimeData *>(event->mimeData())) {
+    if ( ! event )
+        return;
+
+    if (qobject_cast<const DisplayFilterMimeData *>(event->mimeData())) {
         if ( event->source() != this )
         {
             event->setDropAction(Qt::CopyAction);
@@ -552,7 +555,10 @@ void DisplayFilterEdit::dragEnterEvent(QDragEnterEvent *event)
 
 void DisplayFilterEdit::dragMoveEvent(QDragMoveEvent *event)
 {
-    if (event && qobject_cast<const DisplayFilterMimeData *>(event->mimeData())) {
+    if ( ! event )
+        return;
+
+    if (qobject_cast<const DisplayFilterMimeData *>(event->mimeData())) {
         if ( event->source() != this )
         {
             event->setDropAction(Qt::CopyAction);
@@ -567,8 +573,11 @@ void DisplayFilterEdit::dragMoveEvent(QDragMoveEvent *event)
 
 void DisplayFilterEdit::dropEvent(QDropEvent *event)
 {
+    if ( ! event )
+        return;
+
     /* Moving items around */
-    if (event && qobject_cast<const DisplayFilterMimeData *>(event->mimeData())) {
+    if (qobject_cast<const DisplayFilterMimeData *>(event->mimeData())) {
         const DisplayFilterMimeData * data = qobject_cast<const DisplayFilterMimeData *>(event->mimeData());
 
         if ( event->source() != this )
@@ -576,7 +585,10 @@ void DisplayFilterEdit::dropEvent(QDropEvent *event)
             event->setDropAction(Qt::CopyAction);
             event->accept();
 
-            setText(data->filter());
+            if ((QApplication::keyboardModifiers() & Qt::AltModifier))
+                setText(data->field());
+            else
+                setText(data->filter());
 
             // Holding down the Shift key will only prepare filter.
             if (!(QApplication::keyboardModifiers() & Qt::ShiftModifier)) {

@@ -28,15 +28,19 @@ class DisplayFilterMimeData: public QMimeData {
     Q_OBJECT
 public:
 
-    DisplayFilterMimeData(QString description, QString filter);
+    DisplayFilterMimeData(QString description, QString field, QString filter);
 
     QString description() const;
+    QString field() const;
     QString filter() const;
+
+    QString labelText() const;
 
 private:
 
     QString description_;
     QString filter_;
+    QString field_;
 
 };
 

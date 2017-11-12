@@ -728,16 +728,17 @@ bool ProtoTree::eventFilter(QObject * obj, QEvent * event)
                 field_info * fi = VariantPointer<field_info>::asPtr(item->data(0, Qt::UserRole));
                 if ( fi )
                 {
-                    QString description = QString(fi->hfinfo->name);
+
                     QString filter = QString(proto_construct_match_selected_string(fi, cap_file_->edt));
 
                     if ( filter.length() > 0 )
                     {
+                        DisplayFilterMimeData * dfmd =
+                                new DisplayFilterMimeData(QString(fi->hfinfo->name), QString(fi->hfinfo->abbrev), filter);
                         QDrag * drag = new QDrag(this);
-                        drag->setMimeData(new DisplayFilterMimeData(description, filter));
+                        drag->setMimeData(dfmd);
 
-                        QString cmt = QString("%1\n%2").arg(description, filter);
-                        DragLabel * content = new DragLabel(cmt, this);
+                        DragLabel * content = new DragLabel(dfmd->labelText(), this);
 
     #if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
                         qreal dpr = window()->windowHandle()->devicePixelRatio();
