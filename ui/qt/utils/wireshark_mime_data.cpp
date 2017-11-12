@@ -45,7 +45,7 @@ QString DisplayFilterMimeData::field() const
 
 QString DisplayFilterMimeData::labelText() const
 {
-    return QString("%1\n%2: %3\n%4: %5").arg(description_, tr("Field"), field_, tr("Filter"), filter_);
+    return QString("%1\n%2").arg(description_, filter_);
 }
 
 ToolbarEntryMimeData::ToolbarEntryMimeData(int pos) :
