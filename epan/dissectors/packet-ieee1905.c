@@ -2397,7 +2397,7 @@ dissect_ap_radio_basic_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
     while (class_index < classes) {
         proto_tree *class_tree = NULL;
         proto_tree *non_op_channel_list = NULL;
-        proto_item *cpi = NULL, *lpi = NULL;
+        proto_item *cpi = NULL;
         guint class_offset = offset;
         guint8 non_op_channel_count = 0;
 
@@ -2411,9 +2411,8 @@ dissect_ap_radio_basic_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
                             offset, 1, ENC_NA);
         offset++;
 
-        lpi = proto_tree_add_item(class_tree, hf_ieee1905_ap_radio_eirp,
+        proto_tree_add_item(class_tree, hf_ieee1905_ap_radio_eirp,
                             tvb, offset, 1, ENC_NA);
-        proto_item_append_text(lpi, "dBm");
         offset++;
 
         non_op_channel_count = tvb_get_guint8(tvb, offset);
@@ -2654,10 +2653,9 @@ dissect_steering_policy(tvbuff_t *tvb, packet_info *pinfo _U_,
                                 tvb, offset, 1, ENC_NA);
             offset++;
 
-            pi = proto_tree_add_item(policy_tree,
+            proto_tree_add_item(policy_tree,
                                 hf_ieee1905_steering_policy_rssi_threshold,
                                 tvb, offset, 1, ENC_NA);
-            proto_item_append_text(pi, "dBm");
             offset++;
 
             radio_index++;
@@ -2703,8 +2701,6 @@ dissect_metric_reporting_policy(tvbuff_t *tvb, packet_info *pinfo _U_,
     saved_offset = offset;
 
     while (radio_index < radio_count) {
-        proto_item *lpi = NULL;
-
         radio_tree = proto_tree_add_subtree_format(radio_list,
                                 tvb, offset, 8,
                                 ett_metric_reporting_policy_tree, NULL,
@@ -2715,9 +2711,8 @@ dissect_metric_reporting_policy(tvbuff_t *tvb, packet_info *pinfo _U_,
                             tvb, offset, 6, ENC_NA);
         offset += 6;
 
-        lpi = proto_tree_add_item(radio_tree, hf_ieee1905_metrics_rssi_threshold, tvb,
+        proto_tree_add_item(radio_tree, hf_ieee1905_metrics_rssi_threshold, tvb,
                             offset, 1, ENC_NA);
-        proto_item_append_text(lpi, "dBm");
         offset++;
 
         proto_tree_add_item(radio_tree, hf_ieee1905_metrics_channel_util_threshold,
@@ -2928,15 +2923,12 @@ static int
 dissect_transmit_power_limit(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, guint offset)
 {
-    proto_item *pi = NULL;
-
     proto_tree_add_item(tree, hf_ieee1905_trans_power_limit_radio_id,
                         tvb, offset, 6, ENC_NA);
     offset += 6;
 
-    pi = proto_tree_add_item(tree, hf_ieee1905_trans_power_limit_eirp,
+    proto_tree_add_item(tree, hf_ieee1905_trans_power_limit_eirp,
                         tvb, offset, 1, ENC_NA);
-    proto_item_append_text(pi, "dBm");
     offset++;
 
     return offset;
@@ -2977,7 +2969,6 @@ dissect_operating_channel_report(tvbuff_t *tvb, packet_info *pinfo _U_,
 {
     guint8 class_count = 0, class_index = 0;
     proto_tree *class_list = NULL, *class_tree = NULL;
-    proto_item *pi = NULL;
 
     proto_tree_add_item(tree, hf_ieee1905_op_channel_report_radio_id,
                         tvb, offset, 6, ENC_NA);
@@ -2991,7 +2982,7 @@ dissect_operating_channel_report(tvbuff_t *tvb, packet_info *pinfo _U_,
     if (class_count > 0) {
 
         class_list = proto_tree_add_subtree(tree, tvb, offset, 2 * class_count,
-                                ett_op_channel_report_class_list, &pi,
+                                ett_op_channel_report_class_list, NULL,
                                 "Operating classes list");
 
         while (class_index < class_count) {
@@ -3011,9 +3002,8 @@ dissect_operating_channel_report(tvbuff_t *tvb, packet_info *pinfo _U_,
         }
     }
 
-    pi = proto_tree_add_item(tree, hf_ieee1905_op_channel_eirp, tvb,
+    proto_tree_add_item(tree, hf_ieee1905_op_channel_eirp, tvb,
                              offset, 1, ENC_NA);
-    proto_item_append_text(pi, "dBm");
     offset++;
 
     return offset;
@@ -3069,7 +3059,6 @@ dissect_unassociated_sta_link_metric_response(tvbuff_t *tvb, packet_info *pinfo 
 
     while (sta_index < sta_count) {
         proto_tree *sta_tree = NULL;
-        proto_item *pi = NULL;
 
         sta_tree = proto_tree_add_subtree_format(sta_list, tvb,
                                 offset, 12, ett_unassoc_sta_link_metric_tree,
@@ -3087,9 +3076,8 @@ dissect_unassociated_sta_link_metric_response(tvbuff_t *tvb, packet_info *pinfo 
                             tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        pi = proto_tree_add_item(sta_tree, hf_ieee1905_unassoc_link_metric_uplink_rssi,
+        proto_tree_add_item(sta_tree, hf_ieee1905_unassoc_link_metric_uplink_rssi,
                             tvb, offset, 1, ENC_NA);
-        proto_item_append_text(pi, "dBm");
         offset++;
 
         sta_index++;
@@ -3822,8 +3810,6 @@ dissect_associated_sta_link_metrics(tvbuff_t *tvb, packet_info *pinfo _U_,
                             "BSS list");
 
     while (bss_list_index < bss_list_count) {
-        proto_item *pi = NULL;
-
         bss_tree = proto_tree_add_subtree_format(bss_list, tvb,
                                 offset, 19, ett_sta_list_metrics_bss_tree,
                                 NULL, "BSS %u", bss_list_index);
@@ -3844,9 +3830,8 @@ dissect_associated_sta_link_metrics(tvbuff_t *tvb, packet_info *pinfo _U_,
                             tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        pi = proto_tree_add_item(bss_tree, hf_ieee1905_assoc_sta_link_metrics_rssi,
+        proto_tree_add_item(bss_tree, hf_ieee1905_assoc_sta_link_metrics_rssi,
                             tvb, offset, 1, ENC_NA);
-        proto_item_append_text(pi, "dBm");
         offset++;
 
         bss_list_index++;
@@ -5017,7 +5002,7 @@ proto_register_ieee1905(void)
 
         { &hf_ieee1905_ap_radio_eirp,
           { "Maximum transmit power EIRP", "ieee1905.radio_basic.max_power",
-            FT_INT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+            FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0, NULL, HFILL }},
 
         { &hf_ieee1905_ap_radio_non_op_count,
           { "Number of non-operable channels", "ieee1905.radio_basic.non_op_channels",
@@ -5160,7 +5145,7 @@ proto_register_ieee1905(void)
 
         { &hf_ieee1905_trans_power_limit_eirp,
           { "Transmit power limit EIRP per 20MHz", "ieee1905.transmit_power.eirp",
-            FT_INT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+            FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0, NULL, HFILL }},
 
         { &hf_ieee1905_channel_select_resp_radio_id,
           { "Radio unique ID", "ieee1905.channel_select.radio_id",
@@ -5188,7 +5173,7 @@ proto_register_ieee1905(void)
 
         { &hf_ieee1905_op_channel_eirp,
           { "Current transmit power EIRP", "ieee1905.operating_channel.eirp",
-            FT_INT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+            FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0, NULL, HFILL }},
 
         { &hf_ieee1905_ap_he_cap_radio_id,
           { "Radio unique ID", "ieee1905.ap_he_capability.radio_id",
@@ -5224,7 +5209,7 @@ proto_register_ieee1905(void)
 
         { &hf_ieee1905_metrics_channel_util_threshold,
           { "Utilization threshold", "ieee1905.sta_metric_policy.utilization_threshold",
-            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0, NULL, HFILL }},
 
         { &hf_ieee1905_ap_metric_query_bssid,
           { "Query BSSID", "ieee1905.ap_metrics_query.bssid",
@@ -5260,7 +5245,7 @@ proto_register_ieee1905(void)
 
         { &hf_ieee1905_assoc_sta_link_metrics_rssi,
           { "Uplink RSSI", "ieee1905.assoc_sta_link_metrics.rssi",
-            FT_INT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+            FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0, NULL, HFILL }},
 
         { &hf_ieee1905_unassoc_sta_link_metrics_class,
           { "Operating class", "ieee1905.unassoc_sta_link_metrics.operaring_class",
@@ -5356,7 +5341,7 @@ proto_register_ieee1905(void)
 
         { &hf_ieee1905_steering_policy_rssi_threshold,
           { "RSSI steering threshold", "ieee1905.steering_policy.rssi_threshold",
-            FT_INT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+            FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0, NULL, HFILL }},
 
         { &hf_ieee1905_radio_restriction_radio_id,
           { "Radio unique ID", "ieee1905.radio_restriction.radio_id",
@@ -5432,7 +5417,7 @@ proto_register_ieee1905(void)
 
         { &hf_ieee1905_unassoc_link_metric_uplink_rssi,
           { "Uplink RSSI", "ieee1905.unassoc_sta_link_metrics.rssi",
-            FT_INT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+            FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0, NULL, HFILL }},
 
         { &hf_ieee1905_beacon_metrics_query_mac_addr,
           { "Associated STA MAC address", "ieee1905.beacon_metrics.assoc_sta_mac",
