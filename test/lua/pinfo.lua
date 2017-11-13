@@ -138,7 +138,6 @@ silently accept being set (though nothing happens) Blech!!
     test("Pinfo.net_dst-set-1",not pcall(setPinfo,pinfo,"net_dst","foobar"))
     test("Pinfo.src_port-set-1",not pcall(setPinfo,pinfo,"src_port","foobar"))
     test("Pinfo.dst_port-set-1",not pcall(setPinfo,pinfo,"dst_port","foobar"))
-    test("Pinfo.circuit_id-set-1",not pcall(setPinfo,pinfo,"circuit_id","foobar"))
     if major > 1 or minor > 10 then
         test("Pinfo.can_desegment-set-1",not pcall(setPinfo,pinfo,"can_desegment","foobar"))
     end
@@ -205,7 +204,6 @@ again, these *should* pass, but Pinfo silently allows it!
     test("Pinfo.net_dst-get-2",typeof(pinfo.net_dst) == "Address")
     test("Pinfo.src_port-get-1",pinfo.src_port == srcport)
     test("Pinfo.dst_port-get-1",pinfo.dst_port == dstport)
-    test("Pinfo.circuit_id-get-1",pinfo.circuit_id == 0)
     if major > 1 or minor > 10 then
         test("Pinfo.can_desegment-get-1",pinfo.can_desegment == 0)
     end
@@ -267,9 +265,6 @@ again, these *should* pass, but Pinfo silently allows it!
 --]]
     pinfo.src_port = pinfo.dst_port
     test("Pinfo.src_port-set-1",pinfo.src_port == dstport)
-
-    pinfo.circuit_id = 42
-    test("Pinfo.circuit_id-set-1",pinfo.circuit_id == 42)
 
     if major > 1 or minor > 10 then
         pinfo.can_desegment = 12
