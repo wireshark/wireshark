@@ -8712,7 +8712,6 @@ static int hf_zbee_zcl_part_opt_res = -1;
 static int hf_zbee_zcl_part_first_frame_id = -1;
 static int hf_zbee_zcl_part_part_indicator = -1;
 static int hf_zbee_zcl_part_part_frame = -1;
-static int hf_zbee_zcl_part_part_frame_len = -1;
 static int hf_zbee_zcl_part_partitioned_cluster_id = -1;
 static int hf_zbee_zcl_part_ack_opt = -1;
 static int hf_zbee_zcl_part_ack_opt_nack_id_len = -1;
@@ -8880,8 +8879,7 @@ static void dissect_zcl_part_trasfpartframe(tvbuff_t *tvb, proto_tree *tree, gui
 {
 
     guint8    options;
-    guint16   u16len;
-    guint8    frame_len;
+    gint      frame_len;
 
     static const int * part_opt[] = {
         &hf_zbee_zcl_part_opt_first_block,
@@ -8899,26 +8897,17 @@ static void dissect_zcl_part_trasfpartframe(tvbuff_t *tvb, proto_tree *tree, gui
     if ((options & ZBEE_ZCL_PART_OPT_INDIC_LEN) ==  0)
     {
         /* 1-byte length */
-        u16len = (guint16)tvb_get_guint8(tvb, *offset);
-        proto_tree_add_item(tree, hf_zbee_zcl_part_part_indicator, tvb, *offset, 1, (u16len & 0xFF));
+        proto_tree_add_item(tree, hf_zbee_zcl_part_part_indicator, tvb, *offset, 1, ENC_NA);
         *offset += 1;
     }
     else {
         /* 2-bytes length */
-        u16len = tvb_get_letohs(tvb, *offset);
-        proto_tree_add_item(tree, hf_zbee_zcl_part_part_indicator, tvb, *offset, 2, u16len);
+        proto_tree_add_item(tree, hf_zbee_zcl_part_part_indicator, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
         *offset += 2;
     }
 
-    /* Retrieve PartitionedFrame length field */
-    frame_len = tvb_get_guint8(tvb, *offset); /* string length */
-    if (frame_len == ZBEE_ZCL_INVALID_STR_LENGTH)
-        frame_len = 0;
-    proto_tree_add_item(tree, hf_zbee_zcl_part_part_frame_len, tvb, *offset, 1, ENC_NA);
-    *offset += 1;
-
     /* Retrieve "PartitionedFrame" field */
-    proto_tree_add_item(tree, hf_zbee_zcl_part_part_frame, tvb, *offset, frame_len, ENC_NA);
+    proto_tree_add_item_ret_length(tree, hf_zbee_zcl_part_part_frame, tvb, *offset, 1, ENC_NA|ENC_ZIGBEE, &frame_len);
     *offset += frame_len;
 
 } /*dissect_zcl_part_trasfpartframe*/
@@ -9131,12 +9120,8 @@ void proto_register_zbee_zcl_part(void)
             { "Partition Indicator", "zbee_zcl_general.part.part_indicator", FT_UINT16, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
 
-        { &hf_zbee_zcl_part_part_frame_len,
-            { "Partition Frame Length", "zbee_zcl_general.part.part_frame_length", FT_UINT8, BASE_DEC, NULL,
-            0x00, NULL, HFILL } },
-
         { &hf_zbee_zcl_part_part_frame,
-            { "Partition Frame", "zbee_zcl_general.part.part_frame", FT_BYTES, SEP_COLON, NULL,
+            { "Partition Frame", "zbee_zcl_general.part.part_frame", FT_UINT_BYTES, SEP_COLON, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_part_partitioned_cluster_id,

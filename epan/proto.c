@@ -1426,11 +1426,21 @@ get_uint_value(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, const 
 
 	case 1:
 		value = tvb_get_guint8(tvb, offset);
+		if (encoding & ENC_ZIGBEE) {
+			if (value == 0xFF) { /* Invalid Zigbee length, set to 0 */
+				value = 0;
+			}
+		}
 		break;
 
 	case 2:
 		value = (encoding & ENC_LITTLE_ENDIAN) ? tvb_get_letohs(tvb, offset)
 						       : tvb_get_ntohs(tvb, offset);
+		if (encoding & ENC_ZIGBEE) {
+			if (value == 0xFFFF) { /* Invalid Zigbee length, set to 0 */
+				value = 0;
+			}
+		}
 		break;
 
 	case 3:
@@ -1667,7 +1677,11 @@ get_uint_string_value(wmem_allocator_t *scope, proto_tree *tree,
 	const guint8 *value;
 
 	/* I believe it's ok if this is called with a NULL tree */
-	n = get_uint_value(tree, tvb, start, length, encoding & ~ENC_CHARENCODING_MASK);
+	if (encoding & ENC_ZIGBEE) {
+		n = get_uint_value(tree, tvb, start, length, encoding);
+	} else {
+		n = get_uint_value(tree, tvb, start, length, encoding & ~ENC_CHARENCODING_MASK);
+	}
 	value = tvb_get_string_enc(scope, tvb, start + length, n, encoding);
 	length += n;
 	*ret_length = length;
@@ -2153,12 +2167,6 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_UINT_BYTES:
-			/*
-			 * Map all non-zero values to little-endian for
-			 * backwards compatibility.
-			 */
-			if (encoding)
-				encoding = ENC_LITTLE_ENDIAN;
 			n = get_uint_value(tree, tvb, start, length, encoding);
 			proto_tree_set_bytes_tvb(new_fi, tvb, start + length, n);
 
@@ -5347,12 +5355,7 @@ get_full_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start,
 		break;
 
 	case FT_UINT_BYTES:
-		/*
-		 * Map all non-zero values to little-endian for
-		 * backwards compatibility.
-		 */
-		n = get_uint_value(NULL, tvb, start, length,
-		    encoding ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+		n = get_uint_value(NULL, tvb, start, length, encoding);
 		item_length += n;
 		break;
 
@@ -5431,7 +5434,11 @@ get_full_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start,
 		break;
 
 	case FT_UINT_STRING:
-		n = get_uint_value(NULL, tvb, start, length, encoding & ~ENC_CHARENCODING_MASK);
+		if (encoding & ENC_ZIGBEE) {
+			n = get_uint_value(NULL, tvb, start, length, encoding);
+		} else {
+			n = get_uint_value(NULL, tvb, start, length, encoding & ~ENC_CHARENCODING_MASK);
+		}
 		item_length += n;
 		break;
 

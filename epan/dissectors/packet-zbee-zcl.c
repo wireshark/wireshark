@@ -124,7 +124,6 @@ static int hf_zbee_zcl_attr_dir = -1;
 static int hf_zbee_zcl_attr_dis = -1;
 static int hf_zbee_zcl_attr_start = -1;
 static int hf_zbee_zcl_attr_maxnum = -1;
-static int hf_zbee_zcl_attr_str_len = -1;
 static int hf_zbee_zcl_attr_str = -1;
 static int hf_zbee_zcl_attr_ostr = -1;
 static int hf_zbee_zcl_attr_array_elements_type = -1;
@@ -1457,7 +1456,7 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
 {
     guint     attr_uint;
     gint      attr_int;
-    guint8   *attr_string;
+    const guint8   *attr_string;
     guint8    attr_uint8[4];
     guint8    elements_type;
     guint16   elements_num;
@@ -1713,50 +1712,30 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
 
         case ZBEE_ZCL_OCTET_STRING:
             /* Display octet string */
-            attr_uint = tvb_get_guint8(tvb, *offset); /* string length */
-            if (attr_uint == ZBEE_ZCL_INVALID_STR_LENGTH) attr_uint = 0;
-            proto_tree_add_uint(tree, hf_zbee_zcl_attr_str_len, tvb, *offset, 1,
-                        attr_uint);
-            *offset += 1;
-            proto_tree_add_item(tree, hf_zbee_zcl_attr_ostr, tvb, *offset, attr_uint, ENC_NA);
-            proto_item_append_text(tree, ", Octets: %s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, *offset, attr_uint, ':'));
-            *offset += attr_uint;
+            proto_tree_add_item_ret_length(tree, hf_zbee_zcl_attr_ostr, tvb, *offset, 1, ENC_NA|ENC_ZIGBEE, &attr_int);
+            proto_item_append_text(tree, ", Octets: %s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, (*offset)+1, attr_int-1, ':'));
+            *offset += attr_int;
             break;
 
         case ZBEE_ZCL_CHAR_STRING:
             /* Display string */
-            attr_uint = tvb_get_guint8(tvb, *offset); /* string length */
-            if (attr_uint == ZBEE_ZCL_INVALID_STR_LENGTH) attr_uint = 0;
-            proto_tree_add_uint(tree, hf_zbee_zcl_attr_str_len, tvb, *offset, 1, attr_uint);
-            *offset += 1;
-            attr_string = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, attr_uint, ENC_ASCII);
+            proto_tree_add_item_ret_string_and_length(tree, hf_zbee_zcl_attr_str, tvb, *offset, 1, ENC_NA|ENC_ZIGBEE, wmem_packet_scope(), &attr_string, &attr_int);
             proto_item_append_text(tree, ", String: %s", attr_string);
-            proto_tree_add_string(tree, hf_zbee_zcl_attr_str, tvb, *offset, attr_uint, attr_string);
-            *offset += attr_uint;
+            *offset += attr_int;
             break;
 
         case ZBEE_ZCL_LONG_OCTET_STRING:
             /* Display long octet string */
-            attr_uint = tvb_get_letohs(tvb, *offset); /* string length */
-            if (attr_uint == ZBEE_ZCL_INVALID_LONG_STR_LENGTH) attr_uint = 0;
-            proto_tree_add_uint(tree, hf_zbee_zcl_attr_str_len, tvb, *offset, 2, attr_uint);
-            *offset += 2;
-            proto_tree_add_item(tree, hf_zbee_zcl_attr_ostr, tvb, *offset, attr_uint, ENC_NA);
-            proto_item_append_text(tree, ", Octets: %s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, *offset, attr_uint, ':'));
-            *offset += attr_uint;
+            proto_tree_add_item_ret_length(tree, hf_zbee_zcl_attr_ostr, tvb, *offset, 2, ENC_LITTLE_ENDIAN|ENC_ZIGBEE, &attr_int);
+            proto_item_append_text(tree, ", Octets: %s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, (*offset)+2, attr_int-2, ':'));
+            *offset += attr_int;
             break;
 
         case ZBEE_ZCL_LONG_CHAR_STRING:
-
             /* Display long string */
-            attr_uint = tvb_get_letohs(tvb, *offset); /* string length */
-            if (attr_uint == ZBEE_ZCL_INVALID_LONG_STR_LENGTH) attr_uint = 0;
-            proto_tree_add_uint(tree, hf_zbee_zcl_attr_str_len, tvb, *offset, 2, attr_uint);
-            *offset += 2;
-            attr_string = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, attr_uint, ENC_ASCII);
+            proto_tree_add_item_ret_string_and_length(tree, hf_zbee_zcl_attr_str, tvb, *offset, 2, ENC_LITTLE_ENDIAN|ENC_ZIGBEE, wmem_packet_scope(), &attr_string, &attr_int);
             proto_item_append_text(tree, ", String: %s", attr_string);
-            proto_tree_add_string(tree, hf_zbee_zcl_attr_str, tvb, *offset, attr_uint, attr_string);
-            *offset += attr_uint;
+            *offset += attr_int;
             break;
 
         case ZBEE_ZCL_ARRAY:
@@ -2230,16 +2209,12 @@ void proto_register_zbee_zcl(void)
             { "Maximum Number", "zbee_zcl.attr.maxnum", FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
 
-        { &hf_zbee_zcl_attr_str_len,
-            { "Length", "zbee_zcl.attr.str.len", FT_UINT8, BASE_DEC, NULL, 0x0,
-                NULL, HFILL }},
-
         { &hf_zbee_zcl_attr_str,
-            { "String", "zbee_zcl.attr.str", FT_STRING, BASE_NONE, NULL, 0x0,
+            { "String", "zbee_zcl.attr.str", FT_UINT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_ostr,
-            { "Octet String",   "zbee_zcl.attr.ostr", FT_BYTES, SEP_COLON, NULL, 0x0,
+            { "Octet String",   "zbee_zcl.attr.ostr", FT_UINT_BYTES, SEP_COLON, NULL, 0x0,
                 NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_array_elements_type,

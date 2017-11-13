@@ -484,6 +484,8 @@ WS_DLL_PUBLIC WS_NORETURN void proto_report_dissector_bug(const char *message);
 #define ENC_ASCII_7BITS			0x00000034
 #define ENC_T61				0x00000036
 #define ENC_EBCDIC_CP037		0x00000038
+#define ENC_ZIGBEE			0x0000003A
+
 
 /*
  * TODO:
