@@ -614,7 +614,7 @@ static const value_string pfcp_cause_vals[] = {
 
     {  0, "Reserved" },
     {  1, "Request accepted(success)" },
-/* 2 - 63	Spare. */
+    /* 2 - 63 Spare. */
     { 64, "Request rejected(reason not specified)" },
     { 65, "Session context not found" },
     { 66, "Mandatory IE missing" },
@@ -629,7 +629,7 @@ static const value_string pfcp_cause_vals[] = {
     { 75, "No resources available" },
     { 76, "Service not supported" },
     { 77, "System failure" },
-    /* 78 to 255	Spare for future use in a response message.See NOTE 2. */
+    /* 78 to 255 Spare for future use in a response message. */
     {0, NULL}
 };
 
@@ -809,9 +809,12 @@ dissect_pfcp_sdf_filter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
          * The bits 8 to 5 of the octet "v" shall be spare and set to zero, and the remaining 20 bits shall
          * contain the IPv6 flow label.*/
         proto_tree_add_item(tree, hf_pfcp_fl, tvb, offset, 3, ENC_NA);
-        /*offset += 3;*/
+        offset += 3;
     }
 
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
 }
 /*
  * 8.2.6    Application ID
@@ -2741,7 +2744,7 @@ dissect_pfcp_header_enrichment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     /* 7 to m Header Field Name
      * Header Field Name shall be encoded as an OctetString
      */
-    proto_tree_add_item(tree, hf_pfcp_hf_name, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_hf_name, tvb, offset, len, ENC_NA);
     offset+= len;
 
     /* p    Length of Header Field Value*/
@@ -2749,7 +2752,7 @@ dissect_pfcp_header_enrichment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     offset++;
 
     /* (p+1) to q   Header Field Value */
-    proto_tree_add_item(tree, hf_pfcp_hf_val, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_hf_val, tvb, offset, len, ENC_NA);
     offset += len;
 
     if (offset < length) {
@@ -3189,7 +3192,7 @@ dissect_pfcp_user_plane_ip_resource_infomation(tvbuff_t *tvb, packet_info *pinfo
     /* Octet 5  Spare  Spare  ASSONI  TEIDRI  TEIDRI  TEIDRI  V6  V4*/
     proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_upiri_flags,
         ett_pfcp_upiri_flags, pfcp_upiri_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS, &upiri_flags_val);
-    offset += 1;
+
     /* The following flags are coded within Octet 5:
      * Bit 1   - V4: If this bit is set to "1" and the CH bit is not set, then the IPv4 address field shall be present,
      *           otherwise the IPv4 address field shall not be present.
@@ -3205,7 +3208,8 @@ dissect_pfcp_user_plane_ip_resource_infomation(tvbuff_t *tvb, packet_info *pinfo
      */
 
     /* Octet 5, bit 3-5, TEID Range Indication */
-    proto_tree_add_item_ret_uint(tree, hf_pfcp_upiri_teidri, tvb, offset, 0, ENC_BIG_ENDIAN, &upiri_teid_range);
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_upiri_teidri, tvb, offset, 1, ENC_BIG_ENDIAN, &upiri_teid_range);
+    offset += 1;
 
     if (upiri_teid_range > 0)
     {
