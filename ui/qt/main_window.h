@@ -325,6 +325,9 @@ public slots:
                         guint16 channelType, guint16 channelId, guint8 direction);
 
     void on_actionViewFullScreen_triggered(bool checked);
+
+    int uatRowIndexForFilterExpression(QString label, QString expression);
+
 private slots:
     // Manually connected slots (no "on_<object>_<signal>").
 

@@ -189,6 +189,8 @@ DIAG_ON(frame-larger-than=)
 //
 
 static const char *dfe_property_ = "display filter expression"; //TODO : Fix Translate
+static const char *dfe_property_label_ = "display_filter_expression_label";
+static const char *dfe_property_expression_ = "display_filter_expression_expr";
 
 bool MainWindow::openCaptureFile(QString cf_path, QString read_filter, unsigned int type, gboolean is_tempfile)
 {
@@ -924,6 +926,9 @@ gboolean MainWindow::filter_expression_add_action(const void *key _U_, void *val
     }
     dfb_action->setData(fe->expression);
     dfb_action->setProperty(dfe_property_, true);
+    dfb_action->setProperty(dfe_property_label_, QString(fe->label));
+    dfb_action->setProperty(dfe_property_expression_, QString(fe->expression));
+
     data->window->filter_expression_toolbar_->addAction(dfb_action);
     connect(dfb_action, SIGNAL(triggered()), data->window, SLOT(displayFilterButtonClicked()));
     data->actions_added = true;
@@ -4033,16 +4038,24 @@ void MainWindow::filterToolbarCustomMenuHandler(const QPoint& pos)
 
     QAction *actFilter = filterMenu->addAction(tr("Filter Button Preferences..."));
     connect(actFilter, SIGNAL(triggered()), this, SLOT(filterToolbarShowPreferences()));
+    actFilter->setProperty(dfe_property_label_, filterAction->property(dfe_property_label_));
+    actFilter->setProperty(dfe_property_expression_, filterAction->property(dfe_property_expression_));
     actFilter->setData(filterAction->data());
     filterMenu->addSeparator();
     QAction * actEdit = filterMenu->addAction(tr("Edit"));
     connect(actEdit, SIGNAL(triggered()), this, SLOT(filterToolbarEditFilter()));
+    actEdit->setProperty(dfe_property_label_, filterAction->property(dfe_property_label_));
+    actEdit->setProperty(dfe_property_expression_, filterAction->property(dfe_property_expression_));
     actEdit->setData(filterAction->data());
     QAction * actDisable = filterMenu->addAction(tr("Disable"));
     connect(actDisable, SIGNAL(triggered()), this, SLOT(filterToolbarDisableFilter()));
+    actDisable->setProperty(dfe_property_label_, filterAction->property(dfe_property_label_));
+    actDisable->setProperty(dfe_property_expression_, filterAction->property(dfe_property_expression_));
     actDisable->setData(filterAction->data());
     QAction * actRemove = filterMenu->addAction(tr("Remove"));
     connect(actRemove, SIGNAL(triggered()), this, SLOT(filterToolbarRemoveFilter()));
+    actRemove->setProperty(dfe_property_label_, filterAction->property(dfe_property_label_));
+    actRemove->setProperty(dfe_property_expression_, filterAction->property(dfe_property_expression_));
     actRemove->setData(filterAction->data());
 
     filterMenu->exec(filter_expression_toolbar_->mapToGlobal(pos));
@@ -4053,15 +4066,53 @@ void MainWindow::filterToolbarShowPreferences()
     emit showPreferencesDialog(PreferencesDialog::ppFilterExpressions);
 }
 
-void MainWindow::filterToolbarEditFilter()
+int MainWindow::uatRowIndexForFilterExpression(QString label, QString expression)
 {
+    int result = -1;
+
+    if ( expression.length() == 0 )
+        return result;
+
     UatModel * uatModel = new UatModel(this, "Display expressions");
 
-    QModelIndex rowIndex = uatModel->findRowForColumnContent(((QAction *)sender())->data(), 2);
+    QModelIndex rowIndex;
+
+    if ( label.length() > 0 )
+    {
+        for ( int cnt = 0; cnt < uatModel->rowCount() && ! rowIndex.isValid(); cnt++ )
+        {
+            if ( uatModel->data(uatModel->index(cnt, 1), Qt::DisplayRole).toString().compare(label) == 0 &&
+                    uatModel->data(uatModel->index(cnt, 2), Qt::DisplayRole).toString().compare(expression) == 0 )
+            {
+                rowIndex = uatModel->index(cnt, 2);
+            }
+        }
+    }
+    else
+    {
+        rowIndex = uatModel->findRowForColumnContent(((QAction *)sender())->data(), 2);
+    }
+
     if ( rowIndex.isValid() )
-        main_ui_->filterExpressionFrame->editExpression(rowIndex.row());
+        result = rowIndex.row();
 
     delete uatModel;
+
+    return result;
+}
+
+void MainWindow::filterToolbarEditFilter()
+{
+    if ( ! sender() )
+        return;
+
+    QString label = ((QAction *)sender())->property(dfe_property_label_).toString();
+    QString expr = ((QAction *)sender())->property(dfe_property_expression_).toString();
+
+    int idx = uatRowIndexForFilterExpression(label, expr);
+
+    if ( idx > -1 )
+        main_ui_->filterExpressionFrame->editExpression(idx);
 }
 
 void MainWindow::filterDropped(QString description, QString filter)
@@ -4082,11 +4133,16 @@ void MainWindow::filterDropped(QString description, QString filter)
 void MainWindow::filterToolbarDisableFilter()
 {
     gchar* err = NULL;
+
+    QString label = ((QAction *)sender())->property(dfe_property_label_).toString();
+    QString expr = ((QAction *)sender())->property(dfe_property_expression_).toString();
+
+    int idx = uatRowIndexForFilterExpression(label, expr);
     UatModel * uatModel = new UatModel(this, "Display expressions");
 
-    QModelIndex rowIndex = uatModel->findRowForColumnContent(((QAction *)sender())->data(), 2);
+    QModelIndex rowIndex = uatModel->index(idx, 0);
     if ( rowIndex.isValid() ) {
-        uatModel->setData(uatModel->index(rowIndex.row(), 0), QVariant::fromValue(false));
+        uatModel->setData(rowIndex, QVariant::fromValue(false));
 
         uat_save(uat_get_table_by_name("Display expressions"), &err);
         g_free(err);
@@ -4099,7 +4155,12 @@ void MainWindow::filterToolbarRemoveFilter()
     gchar* err = NULL;
     UatModel * uatModel = new UatModel(this, "Display expressions");
 
-    QModelIndex rowIndex = uatModel->findRowForColumnContent(((QAction *)sender())->data(), 2);
+    QString label = ((QAction *)sender())->property(dfe_property_label_).toString();
+    QString expr = ((QAction *)sender())->property(dfe_property_expression_).toString();
+
+    int idx = uatRowIndexForFilterExpression(label, expr);
+
+    QModelIndex rowIndex = uatModel->index(idx, 0);
     if ( rowIndex.isValid() ) {
         uatModel->removeRow(rowIndex.row());
 
@@ -4115,9 +4176,12 @@ void MainWindow::filterToolbarActionMoved(QAction* action, int oldPos, int newPo
     if ( oldPos == newPos )
         return;
 
-    UatModel * uatModel = new UatModel(this, "Display expressions");
-    QModelIndex rowIndex = uatModel->findRowForColumnContent(action->data(), 2);
-    if ( rowIndex.isValid() )
+    QString label = action->property(dfe_property_label_).toString();
+    QString expr = action->property(dfe_property_expression_).toString();
+
+    int idx = uatRowIndexForFilterExpression(label, expr);
+
+    if ( idx > -1 && oldPos > -1 && newPos > -1 )
     {
         uat_t * table = uat_get_table_by_name("Display expressions");
         uat_move_index(table, oldPos, newPos);
