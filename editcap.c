@@ -1047,7 +1047,7 @@ main(int argc, char *argv[])
 #endif
 
     /* Process the options */
-    while ((opt = getopt_long(argc, argv, "a:A:B:c:C:dD:E:F:hi:I:Lo:rs:S:t:T:vVw:", long_options, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, ":a:A:B:c:C:dD:E:F:hi:I:Lo:rs:S:t:T:vVw:", long_options, NULL)) != -1) {
         switch (opt) {
         case 0x8100:
         {
@@ -1279,6 +1279,7 @@ main(int argc, char *argv[])
             break;
 
         case '?':              /* Bad options if GNU getopt */
+        case ':':              /* missing option argument */
             switch(optopt) {
             case'F':
                 list_capture_types(stdout);
@@ -1287,6 +1288,11 @@ main(int argc, char *argv[])
                 list_encap_types(stdout);
                 break;
             default:
+                if (opt == '?') {
+                    fprintf(stderr, "editcap: invalid option -- '%c'\n", optopt);
+                } else {
+                    fprintf(stderr, "editcap: option requires an argument -- '%c'\n", optopt);
+                }
                 print_usage(stderr);
                 ret = INVALID_OPTION;
                 break;
