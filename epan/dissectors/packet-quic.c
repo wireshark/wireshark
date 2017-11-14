@@ -86,6 +86,9 @@ static int hf_quic_frame_type_rsts_final_offset = -1;
 static int hf_quic_frame_type_cc_error_code = -1;
 static int hf_quic_frame_type_cc_reason_phrase_length = -1;
 static int hf_quic_frame_type_cc_reason_phrase = -1;
+static int hf_quic_frame_type_ac_error_code = -1;
+static int hf_quic_frame_type_ac_reason_phrase_length = -1;
+static int hf_quic_frame_type_ac_reason_phrase = -1;
 static int hf_quic_frame_type_md_maximum_data = -1;
 static int hf_quic_frame_type_msd_stream_id = -1;
 static int hf_quic_frame_type_msd_maximum_stream_data = -1;
@@ -153,6 +156,7 @@ static const value_string quic_long_packet_type_vals[] = {
 #define FT_PADDING          0x00
 #define FT_RST_STREAM       0x01
 #define FT_CONNECTION_CLOSE 0x02
+#define FT_APPLICATION_CLOSE 0x03 /* Add in draft07 */
 #define FT_MAX_DATA         0x04
 #define FT_MAX_STREAM_DATA  0x05
 #define FT_MAX_STREAM_ID    0x06
@@ -171,6 +175,7 @@ static const range_string quic_frame_type_vals[] = {
     { 0x00, 0x00,   "PADDING" },
     { 0x01, 0x01,   "RST_STREAM" },
     { 0x02, 0x02,   "CONNECTION_CLOSE" },
+    { 0x03, 0x03,   "APPLICATION_CLOSE" },
     { 0x04, 0x04,   "MAX_DATA" },
     { 0x05, 0x05,   "MAX_STREAM_DATA" },
     { 0x06, 0x06,   "MAX_STREAM_ID" },
@@ -550,6 +555,23 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
                 proto_item_set_len(ti_ft, 1 + 4 + 2 + len_reason);
 
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "Connection Close");
+
+            }
+            break;
+            case FT_APPLICATION_CLOSE:{
+                guint32 len_reason, error_code;
+
+                proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_ac_error_code, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
+                offset += 2;
+                proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_ac_reason_phrase_length, tvb, offset, 2, ENC_BIG_ENDIAN, &len_reason);
+                offset += 2;
+                proto_tree_add_item(ft_tree, hf_quic_frame_type_ac_reason_phrase, tvb, offset, len_reason, ENC_ASCII|ENC_NA);
+                offset += len_reason;
+
+                proto_item_append_text(ti_ft, " Error code: %s", val_to_str_ext(error_code, &quic_error_code_vals_ext, "Unknown (%d)"));
+                proto_item_set_len(ti_ft, 1 + 2 + 2 + len_reason);
+
+                col_prepend_fstr(pinfo->cinfo, COL_INFO, "Application Close");
 
             }
             break;
@@ -1036,6 +1058,22 @@ proto_register_quic(void)
             { "Reason phrase", "quic.frame_type.cc.reason_phrase",
               FT_STRING, BASE_NONE, NULL, 0x0,
               "A human-readable explanation for why the connection was closed", HFILL }
+        },
+        /* APPLICATION_CLOSE */
+        { &hf_quic_frame_type_ac_error_code,
+            { "Application Error code", "quic.frame_type.ac.error_code",
+              FT_UINT16, BASE_DEC|BASE_EXT_STRING, &quic_error_code_vals_ext, 0x0,
+              "Indicates the reason for closing this application", HFILL }
+        },
+        { &hf_quic_frame_type_ac_reason_phrase_length,
+            { "Reason phrase Length", "quic.frame_type.ac.reason_phrase.length",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              "Specifying the length of the reason phrase", HFILL }
+        },
+        { &hf_quic_frame_type_ac_reason_phrase,
+            { "Reason phrase", "quic.frame_type.ac.reason_phrase",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              "A human-readable explanation for why the application was closed", HFILL }
         },
         /* MAX_DATA */
         { &hf_quic_frame_type_md_maximum_data,
