@@ -387,6 +387,7 @@ static void *mqtt_message_decode_copy_cb(void *dest, const void *orig, size_t le
   const mqtt_message_decode_t *o = (const mqtt_message_decode_t *)orig;
   mqtt_message_decode_t *d = (mqtt_message_decode_t *)dest;
 
+  d->match_criteria = o->match_criteria;
   d->topic_pattern = g_strdup(o->topic_pattern);
   d->payload_proto_name = g_strdup(o->payload_proto_name);
 
