@@ -30,6 +30,7 @@
 
 #include "packet-zbee.h"
 #include "packet-zbee-zdp.h"
+#include "packet-zbee-aps.h"
 
 
 /**************************************
@@ -168,7 +169,7 @@ dissect_zbee_zdp_req_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     guint   offset = 0;
     guint64 src64;
     /*guint8  src_ep;*/
-    /*guint16 cluster;*/
+    guint16 cluster;
     guint8  dst_mode;
     guint16 dst = 0;
     guint64 dst64 = 0;
@@ -176,7 +177,9 @@ dissect_zbee_zdp_req_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     src64    = zbee_parse_eui64(tree, hf_zbee_zdp_bind_src64, tvb, &offset, (int)sizeof(guint64), NULL);
     /*src_ep   =*/ zbee_parse_uint(tree, hf_zbee_zdp_bind_src_ep, tvb, &offset, (int)sizeof(guint8), NULL);
-    /*cluster  =*/ zbee_parse_uint(tree, hf_zbee_zdp_cluster, tvb, &offset, ZBEE_HAS_2006(version)?(int)sizeof(guint16):(int)sizeof(guint8), NULL);
+    cluster  = zbee_parse_uint(tree, hf_zbee_zdp_cluster, tvb, &offset, ZBEE_HAS_2006(version)?(int)sizeof(guint16):(int)sizeof(guint8), &ti);
+    proto_item_append_text(ti, " (%s)", val_to_str(cluster, zbee_aps_cid_names, "Unknown Cluster"));
+
     if (version >= ZBEE_VERSION_2007) {
         dst_mode = zbee_parse_uint(tree, hf_zbee_zdp_addr_mode, tvb, &offset, (int)sizeof(guint8), &ti);
         if (tree) {
@@ -207,6 +210,8 @@ dissect_zbee_zdp_req_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     else {
         zbee_append_info(tree, pinfo, ", Dst: %s", eui64_to_display(wmem_packet_scope(), dst64));
     }
+
+    zbee_append_info(tree, pinfo, ", %s (Cluster ID: 0x%04x)", val_to_str(cluster, zbee_aps_cid_names, "Unknown Cluster"), cluster);
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -227,7 +232,7 @@ dissect_zbee_zdp_req_unbind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint   offset = 0;
     guint64 src64;
     /*guint8  src_ep;*/
-    /*guint16 cluster;*/
+    guint16 cluster;
     guint8  dst_mode;
     guint16 dst = 0;
     guint64 dst64 = 0;
@@ -235,7 +240,9 @@ dissect_zbee_zdp_req_unbind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     src64    = zbee_parse_eui64(tree, hf_zbee_zdp_bind_src64, tvb, &offset, (int)sizeof(guint64), NULL);
     /*src_ep   =*/ zbee_parse_uint(tree, hf_zbee_zdp_bind_src_ep, tvb, &offset, (int)sizeof(guint8), NULL);
-    /*cluster  =*/ zbee_parse_uint(tree, hf_zbee_zdp_cluster, tvb, &offset, (version >= ZBEE_VERSION_2007)?(int)sizeof(guint16):(int)sizeof(guint8), NULL);
+    cluster  = zbee_parse_uint(tree, hf_zbee_zdp_cluster, tvb, &offset, (version >= ZBEE_VERSION_2007)?(int)sizeof(guint16):(int)sizeof(guint8), &ti);
+    proto_item_append_text(ti, " (%s)", val_to_str(cluster, zbee_aps_cid_names, "Unknown Cluster"));
+
     if (version >= ZBEE_VERSION_2007) {
         dst_mode = zbee_parse_uint(tree, hf_zbee_zdp_addr_mode, tvb, &offset, (int)sizeof(guint8), &ti);
         if (tree) {
@@ -266,6 +273,8 @@ dissect_zbee_zdp_req_unbind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     else {
         zbee_append_info(tree, pinfo, ", Dst: %s", eui64_to_display(wmem_packet_scope(), dst64));
     }
+
+    zbee_append_info(tree, pinfo, ", %s (Cluster ID: 0x%04x)", val_to_str(cluster, zbee_aps_cid_names, "Unknown Cluster"), cluster);
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -340,7 +349,8 @@ dissect_zbee_zdp_req_store_bak_bind_entry(tvbuff_t *tvb, packet_info *pinfo, pro
 
     src64    = zbee_parse_eui64(tree, hf_zbee_zdp_bind_src64, tvb, &offset, (int)sizeof(guint64), NULL);
     src_ep   = zbee_parse_uint(tree, hf_zbee_zdp_bind_src_ep, tvb, &offset, (int)sizeof(guint8), NULL);
-    cluster  = zbee_parse_uint(tree, hf_zbee_zdp_cluster, tvb, &offset, (version >= ZBEE_VERSION_2007)?(int)sizeof(guint16):(int)sizeof(guint8), NULL);
+    cluster  = zbee_parse_uint(tree, hf_zbee_zdp_cluster, tvb, &offset, (version >= ZBEE_VERSION_2007)?(int)sizeof(guint16):(int)sizeof(guint8), &ti);
+    proto_item_append_text(ti, " (%s)", val_to_str(cluster, zbee_aps_cid_names, "Unknown Cluster"));
     dst_mode = zbee_parse_uint(tree, hf_zbee_zdp_addr_mode, tvb, &offset, (int)sizeof(guint8), &ti);
 
     if (dst_mode == ZBEE_ZDP_ADDR_MODE_GROUP) {
@@ -359,7 +369,7 @@ dissect_zbee_zdp_req_store_bak_bind_entry(tvbuff_t *tvb, packet_info *pinfo, pro
 
     zbee_append_info(tree, pinfo, ", Src: %s", eui64_to_display(wmem_packet_scope(), src64));
     zbee_append_info(tree, pinfo, ", Src Endpoint: %d", src_ep);
-    zbee_append_info(tree, pinfo, ", Cluster: %d", cluster);
+    zbee_append_info(tree, pinfo, ", %s (Cluster ID: 0x%04x)", val_to_str(cluster, zbee_aps_cid_names, "Unknown Cluster"), cluster);
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -385,7 +395,8 @@ dissect_zbee_zdp_req_remove_bak_bind_entry(tvbuff_t *tvb, packet_info *pinfo, pr
 
     src64    = zbee_parse_eui64(tree, hf_zbee_zdp_bind_src64, tvb, &offset, (int)sizeof(guint64), NULL);
     src_ep   = zbee_parse_uint(tree, hf_zbee_zdp_bind_src_ep, tvb, &offset, (int)sizeof(guint8), NULL);
-    cluster  = zbee_parse_uint(tree, hf_zbee_zdp_cluster, tvb, &offset, (version >= ZBEE_VERSION_2007)?(int)sizeof(guint16):(int)sizeof(guint8), NULL);
+    cluster  = zbee_parse_uint(tree, hf_zbee_zdp_cluster, tvb, &offset, (version >= ZBEE_VERSION_2007)?(int)sizeof(guint16):(int)sizeof(guint8), &ti);
+    proto_item_append_text(ti, " (%s)", val_to_str(cluster, zbee_zdp_cluster_names, "Unknown Device Profile Cluster"));
     dst_mode = zbee_parse_uint(tree, hf_zbee_zdp_addr_mode, tvb, &offset, (int)sizeof(guint8), &ti);
 
     if (dst_mode == ZBEE_ZDP_ADDR_MODE_GROUP) {
@@ -404,7 +415,7 @@ dissect_zbee_zdp_req_remove_bak_bind_entry(tvbuff_t *tvb, packet_info *pinfo, pr
 
     zbee_append_info(tree, pinfo, ", Src: %s", eui64_to_display(wmem_packet_scope(), src64));
     zbee_append_info(tree, pinfo, ", Src Endpoint: %d", src_ep);
-    zbee_append_info(tree, pinfo, ", Cluster: %d", cluster);
+    zbee_append_info(tree, pinfo, ", %s (Cluster ID: 0x%04x)", val_to_str(cluster, zbee_zdp_cluster_names, "Unknown Device Profile Cluster"), cluster);
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);

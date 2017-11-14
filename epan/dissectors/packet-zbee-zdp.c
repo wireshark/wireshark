@@ -1366,7 +1366,7 @@ void proto_register_zbee_zdp(void)
             NULL, HFILL }},
 
         { &hf_zbee_zdp_cluster,
-        { "Cluster",                    "zbee_zdp.cluster", FT_UINT16, BASE_DEC, NULL, 0x0,
+        { "Cluster",                    "zbee_zdp.cluster", FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_table_size,

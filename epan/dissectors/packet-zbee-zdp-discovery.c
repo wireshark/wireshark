@@ -29,6 +29,7 @@
 #include <epan/addr_resolv.h>
 #include "packet-zbee.h"
 #include "packet-zbee-zdp.h"
+#include "packet-zbee-aps.h"
 
 /**************************************
  * DISCOVERY REQUESTS
@@ -182,12 +183,14 @@ dissect_zbee_zdp_req_active_ep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 void
 dissect_zbee_zdp_req_match_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
 {
+    proto_item      *ti;
     proto_tree      *field_tree = NULL;
     guint           offset = 0, i;
     guint           sizeof_cluster = (version >= ZBEE_VERSION_2007)?(int)sizeof(guint16):(int)sizeof(guint8);
 
     guint16 device;
     guint16 profile;
+    guint16 cluster;
     guint8  in_count;
     guint8  out_count;
 
@@ -200,14 +203,20 @@ dissect_zbee_zdp_req_match_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         field_tree = proto_tree_add_subtree(tree, tvb, offset, in_count*sizeof_cluster,
                         ett_zbee_zdp_match_in, NULL, "Input Cluster List");
     }
-    for (i=0; i<in_count; i++) zbee_parse_uint(field_tree, hf_zbee_zdp_in_cluster, tvb, &offset, sizeof_cluster, NULL);
+    for (i=0; i<in_count; i++) {
+        cluster = zbee_parse_uint(field_tree, hf_zbee_zdp_in_cluster, tvb, &offset, sizeof_cluster, &ti);
+        proto_item_append_text(ti, " (%s)", val_to_str(cluster, zbee_aps_cid_names, "Unknown Cluster"));
+    }
 
     /* Add the output cluster list. */
     out_count = zbee_parse_uint(tree, hf_zbee_zdp_out_count, tvb, &offset, (int)sizeof(guint8), NULL);
     if (tree && out_count) {
         field_tree = proto_tree_add_subtree(tree, tvb, offset, out_count*sizeof_cluster, ett_zbee_zdp_match_out, NULL, "Output Cluster List");
     }
-    for (i=0; i<out_count; i++) zbee_parse_uint(field_tree, hf_zbee_zdp_out_cluster, tvb, &offset, sizeof_cluster, NULL);
+    for (i=0; i<out_count; i++) {
+        cluster = zbee_parse_uint(field_tree, hf_zbee_zdp_out_cluster, tvb, &offset, sizeof_cluster, &ti);
+        proto_item_append_text(ti, " (%s)", val_to_str(cluster, zbee_aps_cid_names, "Unknown Cluster"));
+    }
 
     zbee_append_info(tree, pinfo, ", Nwk Addr: 0x%04x, Profile: 0x%04x", device, profile);
 
@@ -1237,12 +1246,14 @@ dissect_zbee_zdp_rsp_find_node_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 void
 dissect_zbee_zdp_rsp_ext_simple_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+    proto_item      *ti;
     guint       offset = 0;
     guint       i;
     guint       sizeof_cluster = (int)sizeof(guint16);
 
     guint8      status;
     guint16     device;
+    guint16     cluster;
     /*guint8      endpt;*/
     guint8      in_count;
     guint8      out_count;
@@ -1257,10 +1268,12 @@ dissect_zbee_zdp_rsp_ext_simple_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     /* Display the input cluster list. */
     for (i=idx; (i<in_count) && tvb_bytes_exist(tvb, offset, sizeof_cluster); i++) {
-        zbee_parse_uint(tree, hf_zbee_zdp_in_cluster, tvb, &offset, sizeof_cluster, NULL);
+        cluster = zbee_parse_uint(tree, hf_zbee_zdp_in_cluster, tvb, &offset, sizeof_cluster, &ti);
+        proto_item_append_text(ti, " (%s)", val_to_str(cluster, zbee_aps_cid_names, "Unknown Cluster"));
     } /* for */
     for (i-=in_count; (i<out_count) && tvb_bytes_exist(tvb, offset, sizeof_cluster); i++) {
-        zbee_parse_uint(tree, hf_zbee_zdp_out_cluster, tvb, &offset, sizeof_cluster, NULL);
+        cluster = zbee_parse_uint(tree, hf_zbee_zdp_out_cluster, tvb, &offset, sizeof_cluster, &ti);
+        proto_item_append_text(ti, " (%s)", val_to_str(cluster, zbee_aps_cid_names, "Unknown Cluster"));
     } /* for */
 
     zbee_append_info(tree, pinfo, ", Nwk Addr: 0x%04x", device);
