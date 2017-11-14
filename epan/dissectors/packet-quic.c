@@ -83,6 +83,7 @@ static int hf_quic_frame_type_padding = -1;
 static int hf_quic_frame_type_rsts_stream_id = -1;
 static int hf_quic_frame_type_rsts_error_code = -1;
 static int hf_quic_frame_type_rsts_final_offset = -1;
+static int hf_quic_frame_type_cc_old_error_code = -1;
 static int hf_quic_frame_type_cc_error_code = -1;
 static int hf_quic_frame_type_cc_reason_phrase_length = -1;
 static int hf_quic_frame_type_cc_reason_phrase = -1;
@@ -238,27 +239,58 @@ static const value_string len_ack_block_vals[] = {
     { 0, NULL }
 };
 
-#define QUIC_NO_ERROR                   0x80000000
-#define QUIC_INTERNAL_ERROR             0x80000001
-#define QUIC_CANCELLED                  0x80000002
-#define QUIC_FLOW_CONTROL_ERROR         0x80000003
-#define QUIC_STREAM_ID_ERROR            0x80000004
-#define QUIC_STREAM_STATE_ERROR         0x80000005
-#define QUIC_FINAL_OFFSET_ERROR         0x80000006
-#define QUIC_FRAME_FORMAT_ERROR         0x80000007
-#define QUIC_TRANSPORT_PARAMETER_ERROR  0x80000008
-#define QUIC_VERSION_NEGOTIATION_ERROR  0x80000009
-#define QUIC_PROTOCOL_VIOLATION         0x8000000A
+/* draft05-06 */
+#define QUIC_OLD_NO_ERROR                   0x80000000
+#define QUIC_OLD_INTERNAL_ERROR             0x80000001
+#define QUIC_OLD_CANCELLED                  0x80000002
+#define QUIC_OLD_FLOW_CONTROL_ERROR         0x80000003
+#define QUIC_OLD_STREAM_ID_ERROR            0x80000004
+#define QUIC_OLD_STREAM_STATE_ERROR         0x80000005
+#define QUIC_OLD_FINAL_OFFSET_ERROR         0x80000006
+#define QUIC_OLD_FRAME_FORMAT_ERROR         0x80000007
+#define QUIC_OLD_TRANSPORT_PARAMETER_ERROR  0x80000008
+#define QUIC_OLD_VERSION_NEGOTIATION_ERROR  0x80000009
+#define QUIC_OLD_PROTOCOL_VIOLATION         0x8000000A
 
 /* QUIC TLS Error */
-#define QUIC_TLS_HANDSHAKE_FAILED       0xC000001C
-#define QUIC_TLS_FATAL_ALERT_GENERATED  0xC000001D
-#define QUIC_TLS_FATAL_ALERT_RECEIVED   0xC000001E
+#define QUIC_OLD_TLS_HANDSHAKE_FAILED       0xC000001C
+#define QUIC_OLD_TLS_FATAL_ALERT_GENERATED  0xC000001D
+#define QUIC_OLD_TLS_FATAL_ALERT_RECEIVED   0xC000001E
+
+static const value_string quic_old_error_code_vals[] = {
+    { QUIC_OLD_NO_ERROR, "NO_ERROR (An endpoint uses this with CONNECTION_CLOSE to signal that the connection is being closed abruptly in the absence of any error)" },
+    { QUIC_OLD_INTERNAL_ERROR, "INTERNAL_ERROR (The endpoint encountered an internal error and cannot continue with the connection)" },
+    { QUIC_OLD_CANCELLED, "CANCELLED (An endpoint sends this with RST_STREAM to indicate that the stream is not wanted and that no application action was taken for the stream)" },
+    { QUIC_OLD_FLOW_CONTROL_ERROR, "FLOW_CONTROL_ERROR (An endpoint received more data than An endpoint received more data tha)" },
+    { QUIC_OLD_STREAM_ID_ERROR, "STREAM_ID_ERROR (An endpoint received a frame for a stream identifier that exceeded its advertised maximum stream ID)" },
+    { QUIC_OLD_STREAM_STATE_ERROR, "STREAM_STATE_ERROR (An endpoint received a frame for a stream that was not in a state that permitted that frame)" },
+    { QUIC_OLD_FINAL_OFFSET_ERROR, "FINAL_OFFSET_ERROR (An endpoint received a STREAM frame containing data that exceeded the previously established final offset)" },
+    { QUIC_OLD_FRAME_FORMAT_ERROR, "FRAME_FORMAT_ERROR (An endpoint received a frame that was badly formatted)" },
+    { QUIC_OLD_TRANSPORT_PARAMETER_ERROR, "TRANSPORT_PARAMETER_ERROR (An endpoint received transport parameters that were badly formatted)" },
+    { QUIC_OLD_VERSION_NEGOTIATION_ERROR, "VERSION_NEGOTIATION_ERROR (An endpoint received transport parameters that contained version negotiation parameters that disagreed with the version negotiation that it performed)" },
+    { QUIC_OLD_PROTOCOL_VIOLATION, "PROTOCOL_VIOLATION (An endpoint detected an error with protocol compliance that was not covered by more specific error codes)" },
+    { QUIC_OLD_TLS_HANDSHAKE_FAILED, "TLS_HANDSHAKE_FAILED (The TLS handshake failed)" },
+    { QUIC_OLD_TLS_FATAL_ALERT_GENERATED, "TLS_FATAL_ALERT_GENERATED (A TLS fatal alert was sent, causing the TLS connection to end prematurel)" },
+    { QUIC_OLD_TLS_FATAL_ALERT_RECEIVED, "TLS_FATAL_ALERT_RECEIVED (A TLS fatal alert was received, causing the TLS connection to end prematurely)" },
+    { 0, NULL }
+};
+static value_string_ext quic_old_error_code_vals_ext = VALUE_STRING_EXT_INIT(quic_old_error_code_vals);
+
+/* > draft 07 */
+#define QUIC_NO_ERROR                   0x0000
+#define QUIC_INTERNAL_ERROR             0x0001
+#define QUIC_FLOW_CONTROL_ERROR         0x0003
+#define QUIC_STREAM_ID_ERROR            0x0004
+#define QUIC_STREAM_STATE_ERROR         0x0005
+#define QUIC_FINAL_OFFSET_ERROR         0x0006
+#define QUIC_FRAME_FORMAT_ERROR         0x0007
+#define QUIC_TRANSPORT_PARAMETER_ERROR  0x0008
+#define QUIC_VERSION_NEGOTIATION_ERROR  0x0009
+#define QUIC_PROTOCOL_VIOLATION         0x000A
 
 static const value_string quic_error_code_vals[] = {
-    { QUIC_NO_ERROR, "NO_ERROR (An endpoint uses this with CONNECTION_CLOSE to signal that the connection is being closed abruptly in the absence of any error)" },
+    { QUIC_NO_ERROR, "NO_ERROR (An endpoint uses this with CONNECTION_CLOSE to signal that the connection is being closed abruptly in the absence of any error.)" },
     { QUIC_INTERNAL_ERROR, "INTERNAL_ERROR (The endpoint encountered an internal error and cannot continue with the connection)" },
-    { QUIC_CANCELLED, "CANCELLED (An endpoint sends this with RST_STREAM to indicate that the stream is not wanted and that no application action was taken for the stream)" },
     { QUIC_FLOW_CONTROL_ERROR, "FLOW_CONTROL_ERROR (An endpoint received more data than An endpoint received more data tha)" },
     { QUIC_STREAM_ID_ERROR, "STREAM_ID_ERROR (An endpoint received a frame for a stream identifier that exceeded its advertised maximum stream ID)" },
     { QUIC_STREAM_STATE_ERROR, "STREAM_STATE_ERROR (An endpoint received a frame for a stream that was not in a state that permitted that frame)" },
@@ -267,9 +299,6 @@ static const value_string quic_error_code_vals[] = {
     { QUIC_TRANSPORT_PARAMETER_ERROR, "TRANSPORT_PARAMETER_ERROR (An endpoint received transport parameters that were badly formatted)" },
     { QUIC_VERSION_NEGOTIATION_ERROR, "VERSION_NEGOTIATION_ERROR (An endpoint received transport parameters that contained version negotiation parameters that disagreed with the version negotiation that it performed)" },
     { QUIC_PROTOCOL_VIOLATION, "PROTOCOL_VIOLATION (An endpoint detected an error with protocol compliance that was not covered by more specific error codes)" },
-    { QUIC_TLS_HANDSHAKE_FAILED, "TLS_HANDSHAKE_FAILED (The TLS handshake failed)" },
-    { QUIC_TLS_FATAL_ALERT_GENERATED, "TLS_FATAL_ALERT_GENERATED (A TLS fatal alert was sent, causing the TLS connection to end prematurel)" },
-    { QUIC_TLS_FATAL_ALERT_RECEIVED, "TLS_FATAL_ALERT_RECEIVED (A TLS fatal alert was received, causing the TLS connection to end prematurely)" },
     { 0, NULL }
 };
 static value_string_ext quic_error_code_vals_ext = VALUE_STRING_EXT_INIT(quic_error_code_vals);
@@ -376,7 +405,7 @@ static guint32 get_len_packet_number(guint8 short_packet_type){
 }
 
 static int
-dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_tree, guint offset){
+dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info){
     proto_item *ti_ft, *ti_ftflags;
     proto_tree *ft_tree, *ftflags_tree;
     guint32 frame_type;
@@ -544,16 +573,24 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
             case FT_CONNECTION_CLOSE:{
                 guint32 len_reason, error_code;
 
-                proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_cc_error_code, tvb, offset, 4, ENC_BIG_ENDIAN, &error_code);
-                offset += 4;
+                if(quic_info->version == 0xff000005 || quic_info->version == 0xff000006) {
+                    proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_cc_old_error_code, tvb, offset, 4, ENC_BIG_ENDIAN, &error_code);
+                    offset += 4;
+                } else { /* Only 2 bytes with draft07 */
+                    proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_cc_error_code, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
+                    offset += 2;
+                }
                 proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_cc_reason_phrase_length, tvb, offset, 2, ENC_BIG_ENDIAN, &len_reason);
                 offset += 2;
                 proto_tree_add_item(ft_tree, hf_quic_frame_type_cc_reason_phrase, tvb, offset, len_reason, ENC_ASCII|ENC_NA);
                 offset += len_reason;
 
-                proto_item_append_text(ti_ft, " Error code: %s", val_to_str_ext(error_code, &quic_error_code_vals_ext, "Unknown (%d)"));
-                proto_item_set_len(ti_ft, 1 + 4 + 2 + len_reason);
-
+                proto_item_append_text(ti_ft, " Error code: %s", val_to_str_ext(error_code, &quic_old_error_code_vals_ext, "Unknown (%d)"));
+                if(quic_info->version == 0xff000005 || quic_info->version == 0xff000006) {
+                    proto_item_set_len(ti_ft, 1 + 4 + 2 + len_reason);
+                } else {
+                    proto_item_set_len(ti_ft, 1 + 2 + 2 + len_reason);
+                }
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "Connection Close");
 
             }
@@ -730,7 +767,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
             payload_tvb = tvb_new_subset_length(tvb, 0, tvb_reported_length(tvb) - 8);
 
             while(tvb_reported_length_remaining(payload_tvb, offset) > 0){
-                offset = dissect_quic_frame_type(payload_tvb, pinfo, quic_tree, offset);
+                offset = dissect_quic_frame_type(payload_tvb, pinfo, quic_tree, offset, quic_info);
             }
 
             /* FNV-1a hash, TODO: Add check and expert info ? */
@@ -1044,9 +1081,14 @@ proto_register_quic(void)
               "Indicating the absolute byte offset of the end of data written on this stream", HFILL }
         },
         /* CONNECTION_CLOSE */
-        { &hf_quic_frame_type_cc_error_code,
+        { &hf_quic_frame_type_cc_old_error_code, /* draft05-06 */
             { "Error code", "quic.frame_type.cc.error_code",
-              FT_UINT32, BASE_DEC|BASE_EXT_STRING, &quic_error_code_vals_ext, 0x0,
+              FT_UINT32, BASE_DEC|BASE_EXT_STRING, &quic_old_error_code_vals_ext, 0x0,
+              "Indicates the reason for closing this connection", HFILL }
+        },
+        { &hf_quic_frame_type_cc_error_code, /* >= draft07 */
+            { "Error code", "quic.frame_type.cc.error_code",
+              FT_UINT16, BASE_DEC|BASE_EXT_STRING, &quic_error_code_vals_ext, 0x0,
               "Indicates the reason for closing this connection", HFILL }
         },
         { &hf_quic_frame_type_cc_reason_phrase_length,
