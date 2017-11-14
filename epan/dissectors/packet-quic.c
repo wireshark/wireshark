@@ -48,6 +48,7 @@ static int hf_quic_version = -1;
 static int hf_quic_short_cid_flag = -1;
 static int hf_quic_short_kp_flag = -1;
 static int hf_quic_short_packet_type = -1;
+static int hf_quic_cleartext_protected_payload = -1;
 static int hf_quic_protected_payload = -1;
 
 static int hf_quic_frame = -1;
@@ -106,6 +107,10 @@ static gint ett_quic_ftflags = -1;
 
 static dissector_handle_t quic_handle;
 static dissector_handle_t ssl_handle;
+
+typedef struct quic_info_data {
+    guint32 version;
+} quic_info_data_t;
 
 const value_string quic_version_vals[] = {
     { 0xff000004, "draft-04" },
@@ -662,7 +667,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
 }
 
 static int
-dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset){
+dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info){
     guint32 long_packet_type, pkn;
     guint64 cid;
     tvbuff_t *payload_tvb;
@@ -676,7 +681,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     proto_tree_add_item_ret_uint(quic_tree, hf_quic_packet_number, tvb, offset, 4, ENC_BIG_ENDIAN, &pkn);
     offset += 4;
 
-    proto_tree_add_item(quic_tree, hf_quic_version, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(quic_tree, hf_quic_version, tvb, offset, 4, ENC_BIG_ENDIAN, &quic_info->version);
     offset += 4;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s, PKN: %u, CID: 0x%" G_GINT64_MODIFIER "x", val_to_str(long_packet_type, quic_long_packet_type_vals, "Unknown Packet Type"), pkn, cid);
@@ -698,16 +703,21 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     /*  Client Initial (0x02), Server Stateless Retry (0x03), Server ClearText (0x04),
         Client ClearText (0x05) and Public Reset (0x09) */
     } else if(long_packet_type <= 0x05 || long_packet_type == 0x09) {
-        /* All Unprotected have 8 bytes with FNV-1a has (See QUIC-TLS) */
-        payload_tvb = tvb_new_subset_length(tvb, 0, tvb_reported_length(tvb) - 8);
+        if(quic_info->version == 0xff000005 || quic_info->version == 0xff000006) { /* draft05 and draft06 use FNV Protection */
+            /* All Unprotected have 8 bytes with FNV-1a has (See QUIC-TLS) */
+            payload_tvb = tvb_new_subset_length(tvb, 0, tvb_reported_length(tvb) - 8);
 
-        while(tvb_reported_length_remaining(payload_tvb, offset) > 0){
-            offset = dissect_quic_frame_type(payload_tvb, pinfo, quic_tree, offset);
+            while(tvb_reported_length_remaining(payload_tvb, offset) > 0){
+                offset = dissect_quic_frame_type(payload_tvb, pinfo, quic_tree, offset);
+            }
+
+            /* FNV-1a hash, TODO: Add check and expert info ? */
+            proto_tree_add_item(quic_tree, hf_quic_hash, tvb, offset, 8, ENC_NA);
+            offset += 8;
+        } else { /* Now use Clear Text AEAD */
+            proto_tree_add_item(quic_tree, hf_quic_cleartext_protected_payload, tvb, offset, -1, ENC_NA);
+            offset += tvb_reported_length_remaining(tvb, offset);
         }
-
-        /* FNV-1a hash, TODO: Add check and expert info ? */
-        proto_tree_add_item(quic_tree, hf_quic_hash, tvb, offset, 8, ENC_NA);
-        offset += 8;
     } else {
 
         /* 0-RTT (0x06)/ 1-RTT Key Phase 0 (0x07), 1-RTT Key Phase 1 (0x08) Protected Payload */
@@ -720,7 +730,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
 }
 
 static int
-dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset){
+dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info _U_){
     guint8 short_flags;
     guint64 cid = 0;
     guint32 pkn_len, pkn;
@@ -763,8 +773,22 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *quic_tree;
     guint       offset = 0;
     guint32     header_form;
+    conversation_t  *conv;
+    quic_info_data_t  *quic_info;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUIC");
+
+    /* get conversation, create if necessary*/
+    conv = find_or_create_conversation(pinfo);
+
+    /* get associated state information, create if necessary */
+    quic_info = (quic_info_data_t *)conversation_get_proto_data(conv, proto_quic);
+
+    if (!quic_info) {
+        quic_info = wmem_new(wmem_file_scope(), quic_info_data_t);
+        quic_info->version = 0;
+        conversation_add_proto_data(conv, proto_quic, quic_info);
+    }
 
     ti = proto_tree_add_item(tree, proto_quic, tvb, 0, -1, ENC_NA);
 
@@ -773,10 +797,10 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item_ret_uint(quic_tree, hf_quic_header_form, tvb, offset, 1, ENC_NA, &header_form);
     if(header_form) {
         col_set_str(pinfo->cinfo, COL_INFO, "LH, ");
-        offset = dissect_quic_long_header(tvb, pinfo, quic_tree, offset);
+        offset = dissect_quic_long_header(tvb, pinfo, quic_tree, offset, quic_info);
     } else {
         col_set_str(pinfo->cinfo, COL_INFO, "SH, ");
-        offset = dissect_quic_short_header(tvb, pinfo, quic_tree, offset);
+        offset = dissect_quic_short_header(tvb, pinfo, quic_tree, offset, quic_info);
     }
 
     return offset;
@@ -830,6 +854,12 @@ proto_register_quic(void)
             FT_UINT8, BASE_DEC, VALS(quic_short_packet_type_vals), SH_PT,
             "Short Header Packet Type", HFILL }
         },
+        { &hf_quic_cleartext_protected_payload,
+          { "Cleartext Protected Payload", "quic.cleartext_protected_payload",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
         { &hf_quic_protected_payload,
           { "Protected Payload", "quic.protected_payload",
             FT_BYTES, BASE_NONE, NULL, 0x0,
