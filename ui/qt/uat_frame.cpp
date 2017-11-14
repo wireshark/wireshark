@@ -106,6 +106,7 @@ void UatFrame::setUat(epan_uat *uat)
         uat_delegate_ = new UatDelegate;
         ui->uatTreeView->setModel(uat_model_);
         ui->uatTreeView->setItemDelegate(uat_delegate_);
+        ui->clearToolButton->setEnabled(uat_model_->rowCount() != 0);
 
         connect(uat_model_, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                 this, SLOT(modelDataChanged(QModelIndex)));
