@@ -211,7 +211,9 @@ WS_DLL_PUBLIC_DEF const gchar plugin_release[] = VERSION_RELEASE;
 else:
     reg_code += """
 #include "register.h"
+#include "ws_attributes.h"
 
+#include <glib.h>
 """
 
 for symbol in regs['proto_reg']:
@@ -227,19 +229,61 @@ plugin_register (void)
 """
 else:
     reg_code += """
-#define CALLBACK_REGISTER(proto, data) \\
-    if (cb) cb(RA_REGISTER, proto, data)
+static const char *cur_cb_name = NULL;
+//static GMutex register_cb_mtx;
+static GAsyncQueue *register_cb_done_q;
+
+#define CB_WAIT_TIME (150 * 1000) // microseconds
+
+static void set_cb_name(const char *proto) {
+    // g_mutex_lock(register_cb_mtx);
+    cur_cb_name = proto;
+    // g_mutex_unlock(register_cb_mtx);
+}
+
+static void *register_all_protocols_worker(void *arg _U_);
 
 void
 register_all_protocols(register_cb cb, gpointer cb_data)
+{
+    const char *cb_name;
+    register_cb_done_q = g_async_queue_new();
+    gboolean called_back = FALSE;
+
+#if GLIB_CHECK_VERSION(2,31,0)
+    g_thread_new("register_all_protocols_worker", &register_all_protocols_worker, NULL);
+#else
+    g_thread_create(&register_all_protocols_worker, TRUE, FALSE, NULL);
+#endif
+    while (!g_async_queue_timeout_pop(register_cb_done_q, CB_WAIT_TIME)) {
+        // g_mutex_lock(register_cb_mtx);
+        cb_name = cur_cb_name;
+        // g_mutex_unlock(register_cb_mtx);
+        if (cb && cb_name) {
+            cb(RA_REGISTER, cb_name, cb_data);
+            called_back = TRUE;
+        }
+    }
+    if (cb && !called_back) {
+            cb(RA_REGISTER, "Registration finished", cb_data);
+    }
+}
+
+void
+*register_all_protocols_worker(void *arg _U_)
 {
 """
 
 for symbol in regs['proto_reg']:
     if registertype != "plugin" and registertype != "plugin_wtap":
-        reg_code += "    CALLBACK_REGISTER(\"%s\", cb_data);\n" % (symbol)
+        reg_code += "    set_cb_name(\"%s\");\n" % (symbol)
     reg_code += "    %s();\n" % (symbol)
 
+if registertype != "plugin" and registertype != "plugin_wtap":
+    reg_code += """
+    g_async_queue_push(register_cb_done_q, GINT_TO_POINTER(TRUE));
+    return NULL;
+"""
 reg_code += "}\n\n"
 
 
@@ -258,19 +302,51 @@ plugin_reg_handoff(void)
 """
 else:
     reg_code += """
-#define CALLBACK_HANDOFF(proto, data) \\
-    if (cb) cb(RA_HANDOFF, proto, data)
+static void *register_all_protocol_handoffs_worker(void *arg _U_);
 
 void
 register_all_protocol_handoffs(register_cb cb, gpointer cb_data)
+{
+    cur_cb_name = NULL;
+    const char *cb_name;
+    gboolean called_back = FALSE;
+
+#if GLIB_CHECK_VERSION(2,31,0)
+    g_thread_new("register_all_protocol_hadoffss_worker", &register_all_protocol_handoffs_worker, NULL);
+#else
+    g_thread_create(&register_all_protocol_handoffs_worker, TRUE, FALSE, NULL);
+#endif
+    while (!g_async_queue_timeout_pop(register_cb_done_q, CB_WAIT_TIME)) {
+        // g_mutex_lock(register_cb_mtx);
+        cb_name = cur_cb_name;
+        // g_mutex_unlock(register_cb_mtx);
+        if (cb && cb_name) {
+            cb(RA_HANDOFF, cb_name, cb_data);
+            called_back = TRUE;
+        }
+    }
+    if (cb && !called_back) {
+            cb(RA_HANDOFF, "Registration finished", cb_data);
+    }
+
+    g_async_queue_unref(register_cb_done_q);
+}
+
+void
+*register_all_protocol_handoffs_worker(void *arg _U_)
 {
 """
 
 for symbol in regs['handoff_reg']:
     if registertype != "plugin" and registertype != "plugin_wtap":
-        reg_code += "    CALLBACK_HANDOFF(\"%s\", cb_data);\n" % (symbol)
+        reg_code += "    set_cb_name(\"%s\");\n" % (symbol)
     reg_code += "    %s();\n" % (symbol)
 
+if registertype != "plugin" and registertype != "plugin_wtap":
+    reg_code += """
+    g_async_queue_push(register_cb_done_q, GINT_TO_POINTER(TRUE));
+    return NULL;
+"""
 reg_code += "}\n"
 
 if registertype == "plugin":
