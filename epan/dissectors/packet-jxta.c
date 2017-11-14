@@ -1032,12 +1032,12 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
         guint16 headervalue_offset;
 
         available = tvb_reported_length_remaining(tvb, offset);
-        if (available < sizeof(guint8)) {
-            needed = (gint) (sizeof(guint8) - available);
+        if (available < 1) {
+            needed = 1;
             break;
         } else {
             headername_len = tvb_get_guint8(tvb, offset);
-            offset += (int)sizeof(guint8);
+            offset++;
             headername_offset = offset;
 
             available = tvb_reported_length_remaining(tvb, offset);
@@ -1053,8 +1053,8 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
         }
 
         available = tvb_reported_length_remaining(tvb, offset);
-        if (available < sizeof(guint16)) {
-            needed = (gint) (sizeof(guint16) - available);
+        if (available < 2) {
+            needed = (gint) (2 - available);
             break;
         } else {
             headervalue_len = tvb_get_ntohs(tvb, offset);
@@ -1120,10 +1120,10 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
              */
             if (headernamelen > 0) {
                 proto_item_append_text(framing_header_tree_item, " \"%s\"",
-                                       tvb_format_text(tvb, tree_offset + (int)sizeof(guint8), headernamelen));
+                                       tvb_format_text(tvb, tree_offset + 1, headernamelen));
             }
 
-            tree_offset += (int)sizeof(guint8) + headernamelen;
+            tree_offset += 1 + headernamelen;
 
             if (headernamelen > 0) {
                 guint16 headervaluelen = tvb_get_ntohs(tvb, tree_offset);
@@ -1205,13 +1205,13 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         offset += (int)sizeof(JXTA_MSG_SIG);
 
         available = tvb_reported_length_remaining(tvb, offset);
-        if (available < sizeof(guint8)) {
-            needed = (gint) (sizeof(guint8) - available);
+        if (available < 1) {
+            needed = 1;
             break;
         } else {
             message_version = tvb_get_guint8(tvb, offset);
 
-            offset += (int)sizeof(guint8);
+            offset++;
 
             if ((JXTA_MSG_VERSION_1 != message_version) && (JXTA_MSG_VERSION_2 != message_version)) {
                 /* Sort of a lie, we say that we don't recognize it at all. */
@@ -1222,18 +1222,18 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         /* Read the flags (Version 2 and later) */
         if(message_version > 0) {
             available = tvb_reported_length_remaining(tvb, offset);
-            if (available < sizeof(guint8)) {
-                needed = (gint) (sizeof(guint8) - available);
+            if (available < 1) {
+                needed = 1;
                 break;
             } else {
-                offset += (int)sizeof(guint8);
+                offset++;
             }
         }
 
         /* Read names table */
         available = tvb_reported_length_remaining(tvb, offset);
-        if (available < sizeof(guint16)) {
-            needed = (gint) (sizeof(guint16) - available);
+        if (available < 2) {
+            needed = (gint) (2 - available);
             break;
         } else {
             guint16 msg_names_count = tvb_get_ntohs(tvb, offset);
@@ -1264,8 +1264,8 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
         /* parse element count */
         available = tvb_reported_length_remaining(tvb, offset);
-        if (available < sizeof(guint16)) {
-            needed = (gint) (sizeof(guint16) - available);
+        if (available < 2) {
+            needed = (gint) (2 - available);
             break;
         } else {
             guint16 elem_count = tvb_get_ntohs(tvb, offset);
@@ -1508,27 +1508,27 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
 
         /* namespace id field */
         available = tvb_reported_length_remaining(tvb, offset);
-        if (available < sizeof(guint8)) {
-            needed = (gint) (sizeof(guint8) - available);
+        if (available < 1) {
+            needed = 1;
             break;
         }
 
-        offset += (int)sizeof(guint8);
+        offset++;
 
         /* flags field */
         available = tvb_reported_length_remaining(tvb, offset);
-        if (available < sizeof(guint8)) {
-            needed = (gint) (sizeof(guint8) - available);
+        if (available < 1) {
+            needed = 1;
             break;
         } else {
             flags = tvb_get_guint8(tvb, offset);
-            offset += (int)sizeof(guint8);
+            offset++;
         }
 
         /* name field */
         available = tvb_reported_length_remaining(tvb, offset);
-        if (available < sizeof(guint16)) {
-            needed = (gint) (sizeof(guint16) - available);
+        if (available < 2) {
+            needed = (gint) (2 - available);
             break;
         } else {
             guint16 name_len = tvb_get_ntohs(tvb, offset);
@@ -1548,8 +1548,8 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
             guint16 type_len;
 
             available = tvb_reported_length_remaining(tvb, offset);
-            if (available < sizeof(guint16)) {
-                needed = (gint) (sizeof(guint16) - available);
+            if (available < 2) {
+                needed = (gint) (2 - available);
                 break;
             }
 
@@ -1570,8 +1570,8 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
             guint16 encoding_len;
 
             available = tvb_reported_length_remaining(tvb, offset);
-            if (available < sizeof(guint16)) {
-                needed = (gint) (sizeof(guint16) - available);
+            if (available < 2) {
+                needed = (gint) (2 - available);
                 break;
             }
 
@@ -1589,12 +1589,12 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
 
         /* content field */
         available = tvb_reported_length_remaining(tvb, offset);
-        if (available < sizeof(guint16)) {
-            needed = (gint) (sizeof(guint16) - available);
+        if (available < 2) {
+            needed = (gint) (2 - available);
             break;
         } else {
             guint32 content_len = tvb_get_ntohl(tvb, offset);
-            offset += (int)sizeof(guint32);
+            offset += 4;
 
             available = tvb_reported_length_remaining(tvb, offset);
             if (available < content_len) {
@@ -1756,18 +1756,18 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
 
         /* flags field */
         available = tvb_reported_length_remaining(tvb, offset);
-        if (available < sizeof(guint8)) {
-            needed = (gint) (sizeof(guint8) - available);
+        if (available < 1) {
+            needed = 1;
             break;
         } else {
             flags = tvb_get_guint8(tvb, offset);
-            offset += (int)sizeof(guint8);
+            offset++;
         }
 
         /* namespace id field */
         available = tvb_reported_length_remaining(tvb, offset);
-        if (available < sizeof(guint16)) {
-            needed = (gint) (sizeof(guint16) - available);
+        if (available < 2) {
+            needed = (gint) (2 - available);
             break;
         }
 
@@ -1776,8 +1776,8 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
         /* name field */
         if ((flags & JXTAMSG2_ELMFLAG_NAME_LITERAL) == 0) {
             available = tvb_reported_length_remaining(tvb, offset);
-            if (available < sizeof(guint16)) {
-                needed = (gint) (sizeof(guint16) - available);
+            if (available < 2) {
+                needed = (gint) (2 - available);
                 break;
             }
 
@@ -1785,8 +1785,8 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
         } else {
             /* literal name field */
             available = tvb_reported_length_remaining(tvb, offset);
-            if (available < sizeof(guint16)) {
-                needed = (gint) (sizeof(guint16) - available);
+            if (available < 2) {
+                needed = (gint) (2 - available);
                 break;
             } else {
                 guint16 name_len = tvb_get_ntohs(tvb, offset);
@@ -1805,8 +1805,8 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
         /* type field */
         if ((flags & JXTAMSG2_ELMFLAG_TYPE) != 0) {
             available = tvb_reported_length_remaining(tvb, offset);
-            if (available < sizeof(guint16)) {
-                needed = (gint) (sizeof(guint16) - available);
+            if (available < 2) {
+                needed = (gint) (2 - available);
                 break;
             }
 
@@ -1816,8 +1816,8 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
         /* encoding field */
         if ((flags & JXTAMSG2_ELMFLAG_ENCODINGS) != 0) {
             available = tvb_reported_length_remaining(tvb, offset);
-            if (available < sizeof(guint16)) {
-                needed = (gint) (sizeof(guint16) - available);
+            if (available < 2) {
+                needed = (gint) (2 - available);
                 break;
             }
 
@@ -1845,12 +1845,12 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
             }
         } else {
             available = tvb_reported_length_remaining(tvb, offset);
-            if (available < sizeof(guint32)) {
-                needed = (gint) (sizeof(guint32) - available);
+            if (available < 4) {
+                needed = (gint) (4 - available);
                 break;
             } else {
                 guint64 content_len = tvb_get_ntohl(tvb, offset);
-                offset += (int)sizeof(guint32);
+                offset += 4;
 
                 available = tvb_reported_length_remaining(tvb, offset);
                 if (available < content_len) {
