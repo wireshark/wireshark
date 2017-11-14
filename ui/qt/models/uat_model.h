@@ -54,6 +54,8 @@ public:
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
 
     bool copyRow(int dst_row, int src_row);
+    bool moveRow(int src_row, int dst_row);
+
     bool hasErrors() const;
     void clearAll();
 

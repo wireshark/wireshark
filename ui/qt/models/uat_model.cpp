@@ -382,6 +382,22 @@ bool UatModel::copyRow(int dst_row, int src_row)
     return true;
 }
 
+bool UatModel::moveRow(int src_row, int dst_row)
+{
+    if (src_row < 0 || src_row >= rowCount() || dst_row < 0 || dst_row >= rowCount())
+        return false;
+
+    int dst = src_row < dst_row ? dst_row + 1 : dst_row;
+
+    beginMoveRows(QModelIndex(), src_row, src_row, QModelIndex(), dst);
+    uat_move_index(uat_, src_row, dst_row);
+    record_errors.move(src_row, dst_row);
+    dirty_records.move(src_row, dst_row);
+    uat_->changed = TRUE;
+    endMoveRows();
+
+    return true;
+}
 
 bool UatModel::hasErrors() const
 {

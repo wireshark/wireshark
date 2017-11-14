@@ -65,6 +65,8 @@ private slots:
     void on_newToolButton_clicked();
     void on_deleteToolButton_clicked();
     void on_copyToolButton_clicked();
+    void on_moveUpToolButton_clicked();
+    void on_moveDownToolButton_clicked();
     void on_clearToolButton_clicked();
 };
 

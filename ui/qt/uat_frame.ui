@@ -96,6 +96,36 @@
           </widget>
         </item>
         <item>
+          <widget class="QToolButton" name="moveUpToolButton">
+            <property name="toolTip">
+              <string>Move entry up.</string>
+            </property>
+            <property name="text">
+              <string/>
+            </property>
+            <property name="icon">
+              <iconset resource="../../image/toolbar.qrc">
+                <normaloff>:/stock/arrow_up.png</normaloff>:/stock/arrow_up.png
+              </iconset>
+            </property>
+          </widget>
+        </item>
+        <item>
+          <widget class="QToolButton" name="moveDownToolButton">
+            <property name="toolTip">
+              <string>Move entry down.</string>
+            </property>
+            <property name="text">
+              <string/>
+            </property>
+            <property name="icon">
+              <iconset resource="../../image/toolbar.qrc">
+                <normaloff>:/stock/arrow_down.png</normaloff>:/stock/arrow_down.png
+              </iconset>
+            </property>
+          </widget>
+        </item>
+        <item>
           <widget class="QToolButton" name="clearToolButton">
             <property name="toolTip">
               <string>Clear all entries.</string>

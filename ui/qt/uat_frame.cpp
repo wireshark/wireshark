@@ -53,6 +53,8 @@ UatFrame::UatFrame(QWidget *parent) :
     ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->copyToolButton->setAttribute(Qt::WA_MacSmallSize, true);
+    ui->moveUpToolButton->setAttribute(Qt::WA_MacSmallSize, true);
+    ui->moveDownToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->clearToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->pathLabel->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
@@ -198,10 +200,14 @@ void UatFrame::on_uatTreeView_currentItemChanged(const QModelIndex &current, con
         ui->deleteToolButton->setEnabled(true);
         ui->clearToolButton->setEnabled(true);
         ui->copyToolButton->setEnabled(true);
+        ui->moveUpToolButton->setEnabled(current.row() != 0);
+        ui->moveDownToolButton->setEnabled(current.row() != (uat_model_->rowCount() - 1));
     } else {
         ui->deleteToolButton->setEnabled(false);
         ui->clearToolButton->setEnabled(false);
         ui->copyToolButton->setEnabled(false);
+        ui->moveUpToolButton->setEnabled(false);
+        ui->moveDownToolButton->setEnabled(false);
     }
 
     checkForErrorHint(current, previous);
@@ -217,6 +223,17 @@ void UatFrame::modelDataChanged(const QModelIndex &topLeft)
 void UatFrame::modelRowsRemoved()
 {
     const QModelIndex &current = ui->uatTreeView->currentIndex();
+
+    // Because currentItemChanged() is called before the row is removed from the model
+    // we also need to check for button enabling here.
+    if (current.isValid()) {
+        ui->moveUpToolButton->setEnabled(current.row() != 0);
+        ui->moveDownToolButton->setEnabled(current.row() != (uat_model_->rowCount() - 1));
+    } else {
+        ui->moveUpToolButton->setEnabled(false);
+        ui->moveDownToolButton->setEnabled(false);
+    }
+
     checkForErrorHint(current, QModelIndex());
 }
 
@@ -225,6 +242,8 @@ void UatFrame::modelRowsReset()
     ui->deleteToolButton->setEnabled(false);
     ui->clearToolButton->setEnabled(false);
     ui->copyToolButton->setEnabled(false);
+    ui->moveUpToolButton->setEnabled(false);
+    ui->moveDownToolButton->setEnabled(false);
 }
 
 // If the current field has errors, show them.
@@ -289,6 +308,36 @@ void UatFrame::on_deleteToolButton_clicked()
 void UatFrame::on_copyToolButton_clicked()
 {
     addRecord(true);
+}
+
+void UatFrame::on_moveUpToolButton_clicked()
+{
+    const QModelIndex &current = ui->uatTreeView->currentIndex();
+    int current_row = current.row();
+    if (uat_model_ && current.isValid() && current_row > 0) {
+        if (!uat_model_->moveRow(current_row, current_row - 1)) {
+            qDebug() << "Failed to move row up";
+            return;
+        }
+        current_row--;
+        ui->moveUpToolButton->setEnabled(current_row > 0);
+        ui->moveDownToolButton->setEnabled(current_row < (uat_model_->rowCount() - 1));
+    }
+}
+
+void UatFrame::on_moveDownToolButton_clicked()
+{
+    const QModelIndex &current = ui->uatTreeView->currentIndex();
+    int current_row = current.row();
+    if (uat_model_ && current.isValid() && current_row < (uat_model_->rowCount() - 1)) {
+        if (!uat_model_->moveRow(current_row, current_row + 1)) {
+            qDebug() << "Failed to move row down";
+            return;
+        }
+        current_row++;
+        ui->moveUpToolButton->setEnabled(current_row > 0);
+        ui->moveDownToolButton->setEnabled(current_row < (uat_model_->rowCount() - 1));
+    }
 }
 
 void UatFrame::on_clearToolButton_clicked()
