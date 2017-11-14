@@ -26,6 +26,7 @@
 #include <epan/crc32-tvb.h>
 #include <wsutil/str_util.h>
 #include "packet-nfs.h"
+#include "packet-rpcrdma.h"
 
 void proto_register_nfs(void);
 void proto_reg_handoff_nfs(void);
@@ -952,6 +953,17 @@ static wmem_tree_t *nfs_file_handles = NULL;
 
 static gboolean nfs_display_v4_tag = TRUE;
 static gboolean display_major_nfs4_ops = TRUE;
+
+/* Types of RDMA reduced opaque data */
+typedef enum {
+	R_UTF8STRING,
+	R_NFS2_PATH,
+	R_NFS3_PATH,
+	R_NFSDATA,
+} rdma_reduce_type_t;
+
+static int dissect_nfsdata_reduced(rdma_reduce_type_t rtype, tvbuff_t *tvb,
+			int offset, proto_tree *tree, int hf, const char **name);
 
 static int dissect_nfs4_stateid(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *hash);
 
@@ -3039,7 +3051,7 @@ dissect_nfs2_readlink_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
 	offset = dissect_nfs2_status(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_path(tvb, offset, tree, hf_nfs2_readlink_data, &name);
+			offset = dissect_nfsdata_reduced(R_NFS2_PATH, tvb, offset, tree, hf_nfs2_readlink_data, &name);
 			col_append_fstr(pinfo->cinfo, COL_INFO, " Path: %s", name);
 			proto_item_append_text(tree, ", READLINK Reply Path: %s", name);
 		break;
@@ -3097,7 +3109,7 @@ dissect_nfs2_read_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
 		case 0:
 			offset = dissect_nfs2_fattr(tvb, offset, tree, "attributes");
 			proto_item_append_text(tree, ", READ Reply");
-			offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_data);
+			offset = dissect_nfsdata_reduced(R_NFSDATA, tvb, offset, tree, hf_nfs_data, NULL);
 		break;
 		default:
 			err = val_to_str_ext(status, &names_nfs2_stat_ext, "Unknown error: %u");
@@ -4808,7 +4820,7 @@ dissect_nfs3_readlink_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
 		case 0:
 			offset = dissect_nfs3_post_op_attr(tvb, offset, pinfo, tree,
 				"symlink_attributes");
-			offset = dissect_nfs3_path(tvb, offset, tree,
+			offset = dissect_nfsdata_reduced(R_NFS3_PATH, tvb, offset, tree,
 				hf_nfs2_readlink_data, &name);
 
 			col_append_fstr(pinfo->cinfo, COL_INFO, " Path: %s", name);
@@ -4878,7 +4890,7 @@ dissect_nfs3_read_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
 				offset);
 			col_append_fstr(pinfo->cinfo, COL_INFO, " Len: %d", len);
 			proto_item_append_text(tree, ", READ Reply Len: %d", len);
-			offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_data);
+			offset = dissect_nfsdata_reduced(R_NFSDATA, tvb, offset, tree, hf_nfs_data, NULL);
 		break;
 		default:
 			offset = dissect_nfs3_post_op_attr(tvb, offset, pinfo, tree,
@@ -6154,6 +6166,49 @@ dissect_nfs_utf8string(tvbuff_t *tvb, int offset,
 {
 	/* TODO: this dissector is subject to change; do not remove */
 	return dissect_rpc_string(tvb, tree, hf, offset, string_ret);
+}
+
+
+/*
+ * When using RPC-over-RDMA, certain opaque data are eligible for DDP
+ * (direct data placement), so these must be reduced by sending just
+ * the opaque length with the rest of the NFS packet and the opaque
+ * data is sent separately using RDMA (RFC 8267).
+ */
+static int
+dissect_nfsdata_reduced(rdma_reduce_type_t rtype, tvbuff_t *tvb, int offset,
+			proto_tree *tree, int hf, const char **name)
+{
+	if (rpcrdma_is_reduced()) {
+		/*
+		 * The opaque data is reduced so just increment the offset
+		 * since there is no actual data yet.
+		 */
+		offset += 4;
+		/* Add offset (from the end) where the opaque data should be */
+		rpcrdma_insert_offset(tvb_reported_length_remaining(tvb, offset));
+		if (name) {
+			/* Return non-NULL string */
+			*name = "";
+		}
+	} else {
+		/* No data reduction, dissect the opaque data */
+		switch (rtype) {
+			case R_UTF8STRING:
+				offset = dissect_nfs_utf8string(tvb, offset, tree, hf, name);
+				break;
+			case R_NFS2_PATH:
+				offset = dissect_path(tvb, offset, tree, hf, name);
+				break;
+			case R_NFS3_PATH:
+				offset = dissect_nfs3_path(tvb, offset, tree, hf, name);
+				break;
+			case R_NFSDATA:
+				offset = dissect_nfsdata(tvb, offset, tree, hf);
+				break;
+		}
+	}
+	return offset;
 }
 
 
@@ -10530,7 +10585,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 		case NFS4_OP_READ:
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_eof, offset);
 			dissect_rpc_uint32(tvb, newftree, hf_nfs4_read_data_length, offset); /* don't change offset */
-			offset = dissect_nfsdata(tvb, offset, newftree, hf_nfs_data);
+			offset = dissect_nfsdata_reduced(R_NFSDATA, tvb, offset, newftree, hf_nfs_data, NULL);
 			break;
 
 		case NFS4_OP_READDIR:
@@ -10539,7 +10594,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 			break;
 
 		case NFS4_OP_READLINK:
-			offset = dissect_nfs_utf8string(tvb, offset, newftree, hf_nfs4_linktext, NULL);
+			offset = dissect_nfsdata_reduced(R_UTF8STRING, tvb, offset, newftree, hf_nfs4_linktext, NULL);
 			break;
 
 		case NFS4_OP_RECLAIM_COMPLETE:

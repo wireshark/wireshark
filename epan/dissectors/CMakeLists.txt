@@ -493,6 +493,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-rohc.h
 	packet-ros.h
 	packet-rpc.h
+	packet-rpcrdma.h
 	packet-rquota.h
 	packet-rrc.h
 	packet-rsvp.h
