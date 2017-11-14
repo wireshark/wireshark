@@ -444,6 +444,9 @@ wireshark_capture_suite() {
 		return
 	fi
 
+	# Debugging info
+	test_remark_add "Language: $LANG"
+
 	DUT="$WIRESHARK_CMD"
 	test_step_add "Capture 10 packets" capture_step_10packets
 	# piping to stdout doesn't work with Wireshark and capturing!
