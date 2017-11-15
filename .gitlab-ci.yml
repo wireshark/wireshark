@@ -2,87 +2,101 @@ before_script:
   - apt-get update -qq
   - apt-get install ninja-build -y
   - ./tools/debian-setup.sh --install-optional -y
+  - mkdir build
+  - cd build
 gcc-4:
   image: gcc:4
   script:
-    - mkdir build
-    - cd build
     - cmake -GNinja ..
     - ninja
 gcc-4-noextcap:
   image: gcc:4
   script:
-    - mkdir build
-    - cd build
     - cmake -GNinja -DENABLE_EXTCAP=OFF ..
     - ninja
 gcc-4-nopcap:
   image: gcc:4
   script:
-    - mkdir build
-    - cd build
     - cmake -GNinja -DENABLE_PCAP=OFF ..
     - ninja
 gcc-5:
   image: gcc:5
   script:
-    - mkdir build
-    - cd build
     - cmake -GNinja ..
     - ninja
 gcc-5-noextcap:
   image: gcc:5
   script:
-    - mkdir build
-    - cd build
     - cmake -GNinja -DENABLE_EXTCAP=OFF ..
     - ninja
 gcc-5-nopcap:
   image: gcc:5
   script:
-    - mkdir build
-    - cd build
     - cmake -GNinja -DENABLE_PCAP=OFF ..
     - ninja
 gcc-6:
   image: gcc:6
   script:
-    - mkdir build
-    - cd build
     - cmake -GNinja ..
     - ninja
 gcc-6-noextcap:
   image: gcc:6
   script:
-    - mkdir build
-    - cd build
     - cmake -GNinja -DENABLE_EXTCAP=OFF ..
     - ninja
 gcc-6-nopcap:
   image: gcc:6
   script:
-    - mkdir build
-    - cd build
     - cmake -GNinja -DENABLE_PCAP=OFF ..
     - ninja
 gcc-7:
   image: gcc:7
   script:
-    - mkdir build
-    - cd build
     - cmake -GNinja ..
     - ninja
 gcc-7-noextcap:
   image: gcc:7
   script:
-    - mkdir build
-    - cd build
     - cmake -GNinja -DENABLE_EXTCAP=OFF ..
     - ninja
 gcc-7-nopcap:
   image: gcc:7
   script:
-    - mkdir build
-    - cd build
     - cmake -GNinja -DENABLE_PCAP=OFF ..
+    - ninja
+clang-3.5:
+  image: ubuntu:16.04
+  script:
+    - apt install clang-3.5 -y
+    - cmake -GNinja -DCMAKE_C_COMPILER=clang-3.5 -DCMAKE_CXX_COMPILER=clang++-3.5 ..
+    - ninja
+clang-3.6:
+  image: ubuntu:16.04
+  script:
+    - apt install clang-3.6 -y
+    - cmake -GNinja -DCMAKE_C_COMPILER=clang-3.6 -DCMAKE_CXX_COMPILER=clang++-3.6 ..
+    - ninja
+clang-3.7:
+  image: ubuntu:16.04
+  script:
+    - apt install clang-3.7 -y
+    - cmake -GNinja -DCMAKE_C_COMPILER=clang-3.7 -DCMAKE_CXX_COMPILER=clang++-3.7 ..
+    - ninja
+clang-3.8:
+  image: ubuntu:16.04
+  script:
+    - apt install clang-3.8 -y
+    - cmake -GNinja -DCMAKE_C_COMPILER=clang-3.8 -DCMAKE_CXX_COMPILER=clang++-3.8 ..
+    - ninja
+clang-3.9:
+  image: ubuntu:16.04
+  script:
+    - apt install clang-3.9 -y
+    - cmake -GNinja -DCMAKE_C_COMPILER=clang-3.9 -DCMAKE_CXX_COMPILER=clang++-3.9 ..
+    - ninja
+clang-4.0:
+  image: ubuntu:16.04
+  script:
+    - apt install clang-4.0 -y
+    - cmake -GNinja -DCMAKE_C_COMPILER=clang-4.0 -DCMAKE_CXX_COMPILER=clang++-4.0 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
     - ninja
