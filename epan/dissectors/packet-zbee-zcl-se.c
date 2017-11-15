@@ -641,6 +641,246 @@ proto_reg_handoff_zbee_zcl_price(void)
 } /*proto_reg_handoff_zbee_zcl_price*/
 
 /* ########################################################################## */
+/* #### (0x0701) DEMAND RESPONSE AND LOAD CONTROL CLUSTER ################### */
+/* ########################################################################## */
+
+/* Attributes */
+#define zbee_zcl_drlc_attr_names_VALUE_STRING_LIST(XXX) \
+/* Demand Response Client Cluster */ \
+    XXX(ZBEE_ZCL_ATTR_ID_DRLC_UTILITY_ENROLLMENT_GROUP,        0x0000, "Utility Enrollment Group" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DRLC_START_RANDOMIZATION_MINUTES,     0x0001, "Start Randomization Minutes" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DRLC_DURATION_RANDOMIZATION_MINUTES,  0x0002, "Duration Randomization Minutes" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DRLC_DEVICE_CLASS_VALUE,              0x0003, "Device Class Value" ) \
+/* Smart Energy */ \
+    XXX(ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_DRLC,           0xFFFE, "Attribute Reporting Status" )
+
+VALUE_STRING_ENUM(zbee_zcl_drlc_attr_names);
+VALUE_STRING_ARRAY(zbee_zcl_drlc_attr_names);
+
+/* Server Commands Received */
+#define zbee_zcl_drlc_srv_rx_cmd_names_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_CMD_ID_DRLC_REPORT_EVENT_STATUS,        0x00, "Report Event Status" ) \
+    XXX(ZBEE_ZCL_CMD_ID_DRLC_GET_SCHEDULED_EVENTS,       0x01, "Get Scheduled Events" )
+
+VALUE_STRING_ENUM(zbee_zcl_drlc_srv_rx_cmd_names);
+VALUE_STRING_ARRAY(zbee_zcl_drlc_srv_rx_cmd_names);
+
+/* Server Commands Generated */
+#define zbee_zcl_drlc_srv_tx_cmd_names_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_CMD_ID_DRLC_LOAD_CONTROL_EVENT,               0x00, "Load Control Event" ) \
+    XXX(ZBEE_ZCL_CMD_ID_DRLC_CANCEL_LOAD_CONTROL_EVENT,        0x01, "Cancel Load Control Event" ) \
+    XXX(ZBEE_ZCL_CMD_ID_DRLC_CANCEL_ALL_LOAD_CONTROL_EVENTS,   0x02, "Cancel All Load Control Events" )
+
+VALUE_STRING_ENUM(zbee_zcl_drlc_srv_tx_cmd_names);
+VALUE_STRING_ARRAY(zbee_zcl_drlc_srv_tx_cmd_names);
+
+/*************************/
+/* Function Declarations */
+/*************************/
+void proto_register_zbee_zcl_drlc(void);
+void proto_reg_handoff_zbee_zcl_drlc(void);
+
+/* Attribute Dissector Helpers */
+static void dissect_zcl_drlc_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+/*************************/
+/* Global Variables      */
+/*************************/
+
+static dissector_handle_t drlc_handle;
+
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_drlc = -1;
+
+static int hf_zbee_zcl_drlc_srv_tx_cmd_id = -1;
+static int hf_zbee_zcl_drlc_srv_rx_cmd_id = -1;
+static int hf_zbee_zcl_drlc_attr_id = -1;
+static int hf_zbee_zcl_drlc_attr_reporting_status = -1;
+
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_drlc = -1;
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+ *@param attr_id attribute identifier
+ *@param data_type attribute data type
+*/
+static void
+dissect_zcl_drlc_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+{
+    switch (attr_id) {
+        /* applies to all SE clusters */
+        case ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_DRLC:
+            proto_tree_add_item(tree, hf_zbee_zcl_drlc_attr_reporting_status, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+
+        default: /* Catch all */
+            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            break;
+    }
+} /*dissect_zcl_drlc_attr_data*/
+
+/**
+ *ZigBee ZCL DRLC cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
+static int
+dissect_zbee_zcl_drlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    zbee_zcl_packet   *zcl;
+    guint             offset = 0;
+    guint8            cmd_id;
+    gint              rem_len;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    zcl = (zbee_zcl_packet *)data;
+    cmd_id = zcl->cmd_id;
+
+    /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
+    if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_drlc_srv_rx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_uint(tree, hf_zbee_zcl_drlc_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_drlc, NULL, "Payload");
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+
+                case ZBEE_ZCL_CMD_ID_DRLC_REPORT_EVENT_STATUS:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_DRLC_GET_SCHEDULED_EVENTS:
+                    /* Add function to dissect payload */
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+    else { /* ZBEE_ZCL_FCF_TO_CLIENT */
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_drlc_srv_tx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_uint(tree, hf_zbee_zcl_drlc_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_drlc, NULL, "Payload");
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+
+                case ZBEE_ZCL_CMD_ID_DRLC_LOAD_CONTROL_EVENT:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_DRLC_CANCEL_LOAD_CONTROL_EVENT:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_DRLC_CANCEL_ALL_LOAD_CONTROL_EVENTS:
+                    /* Add function to dissect payload */
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    return tvb_captured_length(tvb);
+} /*dissect_zbee_zcl_drlc*/
+
+/**
+ *This function registers the ZCL DRLC dissector
+ *
+*/
+void
+proto_register_zbee_zcl_drlc(void)
+{
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_drlc_attr_id,
+            { "Attribute", "zbee_zcl_se.drlc.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_drlc_attr_names),
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_drlc_attr_reporting_status,                         /* common to all SE clusters */
+            { "Attribute Reporting Status", "zbee_zcl_se.drlc.attr.attr_reporting_status",
+            FT_UINT8, BASE_HEX, VALS(zbee_zcl_se_reporting_status_names), 0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_drlc_srv_tx_cmd_id,
+            { "Command", "zbee_zcl_se.drlc.cmd.srv_tx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_drlc_srv_tx_cmd_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_drlc_srv_rx_cmd_id,
+            { "Command", "zbee_zcl_se.drlc.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_drlc_srv_rx_cmd_names),
+            0x00, NULL, HFILL } },
+
+    };
+
+    /* ZCL DRLC subtrees */
+    gint *ett[] = {
+        &ett_zbee_zcl_drlc,
+    };
+
+    /* Register the ZigBee ZCL DRLC cluster protocol name and description */
+    proto_zbee_zcl_drlc = proto_register_protocol("ZigBee ZCL DLRC", "ZCL DLRC", ZBEE_PROTOABBREV_ZCL_DRLC);
+    proto_register_field_array(proto_zbee_zcl_drlc, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL DRLC dissector. */
+    drlc_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_DRLC, dissect_zbee_zcl_drlc, proto_zbee_zcl_drlc);
+} /*proto_register_zbee_zcl_drlc*/
+
+/**
+ *Hands off the ZCL DRLC dissector.
+ *
+*/
+void
+proto_reg_handoff_zbee_zcl_drlc(void)
+{
+    /* Register our dissector with the ZigBee application dissectors. */
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_DEMAND_RESPONSE_LOAD_CONTROL, drlc_handle);
+
+    zbee_zcl_init_cluster(  proto_zbee_zcl_drlc,
+                            ett_zbee_zcl_drlc,
+                            ZBEE_ZCL_CID_DEMAND_RESPONSE_LOAD_CONTROL,
+                            hf_zbee_zcl_drlc_attr_id,
+                            hf_zbee_zcl_drlc_srv_rx_cmd_id,
+                            hf_zbee_zcl_drlc_srv_tx_cmd_id,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_drlc_attr_data
+                         );
+} /*proto_reg_handoff_zbee_zcl_drlc*/
+
+/* ########################################################################## */
 /* #### (0x0702) METERING CLUSTER ########################################## */
 /* ########################################################################## */
 

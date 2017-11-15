@@ -1171,6 +1171,7 @@
 #define ZBEE_PROTOABBREV_ZCL_OCCSEN            "zbee_zcl_meas_sensing.occsen"
 #define ZBEE_PROTOABBREV_ZCL_KEEP_ALIVE        "zbee_zcl_se.keep_alive"
 #define ZBEE_PROTOABBREV_ZCL_PRICE             "zbee_zcl_se.price"
+#define ZBEE_PROTOABBREV_ZCL_DRLC              "zbee_zcl_se.drlc"
 #define ZBEE_PROTOABBREV_ZCL_KE                "zbee_zcl_se.ke"
 #define ZBEE_PROTOABBREV_ZCL_MET               "zbee_zcl_se.met"
 #define ZBEE_PROTOABBREV_ZCL_MSG               "zbee_zcl_se.msg"
