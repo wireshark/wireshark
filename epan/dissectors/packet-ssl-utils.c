@@ -2091,6 +2091,7 @@ ssl_cipher_cleanup(gcry_cipher_hd_t *cipher)
         gcry_cipher_close(*cipher);
     *cipher = NULL;
 }
+/* }}} */
 
 /* Digests, Ciphers and Cipher Suites registry {{{ */
 static const SslDigestAlgo digests[]={
@@ -3000,6 +3001,65 @@ ssl_decoder_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U
 #endif
 
     return FALSE;
+}
+
+static gboolean
+tls13_cipher_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data)
+{
+    tls13_cipher *cipher = (tls13_cipher *) user_data;
+
+    gcry_cipher_close(cipher->hd);
+
+    return FALSE;
+}
+
+tls13_cipher *
+tls13_cipher_create(guint8 tls13_draft_version, int cipher_algo, int cipher_mode, int hash_algo, StringInfo *secret, const gchar **error)
+{
+    tls13_cipher       *cipher = NULL;
+    guchar             *write_key = NULL, *write_iv = NULL;
+    guint               key_length, iv_length;
+    gcry_cipher_hd_t    hd = NULL;
+    gcry_error_t        err;
+
+    /*
+     * Calculate traffic keys based on
+     * https://tools.ietf.org/html/draft-ietf-tls-tls13-21#section-7
+     */
+    key_length = (guint) gcry_cipher_get_algo_keylen(cipher_algo);
+    iv_length = TLS13_AEAD_NONCE_LENGTH;
+
+    if (!tls13_hkdf_expand_label(tls13_draft_version, hash_algo, secret, "key", "", key_length, &write_key)) {
+        *error = "Key expansion (key) failed";
+        return NULL;
+    }
+    if (!tls13_hkdf_expand_label(tls13_draft_version, hash_algo, secret, "iv", "", iv_length, &write_iv)) {
+        *error = "Key expansion (IV) failed";
+        goto end;
+    }
+
+    err = gcry_cipher_open(&hd, cipher_algo, cipher_mode, 0);
+    if (err) {
+        *error = wmem_strdup_printf(wmem_packet_scope(), "Decryption (initialization) failed: %s", gcry_strerror(err));
+        goto end;
+    }
+    err = gcry_cipher_setkey(hd, write_key, key_length);
+    if (err) {
+        *error = wmem_strdup_printf(wmem_packet_scope(), "Decryption (setkey) failed: %s", gcry_strerror(err));
+        gcry_cipher_close(hd);
+        goto end;
+    }
+
+    cipher = wmem_new(wmem_file_scope(), tls13_cipher);
+    wmem_register_callback(wmem_file_scope(), tls13_cipher_destroy_cb, cipher);
+    cipher->hd = hd;
+    memcpy(cipher->iv, write_iv, iv_length);
+    *error = NULL;
+
+end:
+    wmem_free(NULL, write_key);
+    wmem_free(NULL, write_iv);
+    return cipher;
 }
 /* }}} */
 
@@ -4209,6 +4269,7 @@ skip_mac:
 
 #if defined(HAVE_LIBGNUTLS)
 
+/* RSA private key file processing {{{ */
 static void
 ssl_find_private_key_by_pubkey(SslDecryptSession *ssl, GHashTable *key_hash,
                                gnutls_datum_t *subjectPublicKeyInfo)
@@ -4255,7 +4316,6 @@ end:
 
 /* RSA private key file processing }}} */
 #endif /* ! defined(HAVE_LIBGNUTLS) */
-
 
 /*--- Start of dissector-related code below ---*/
 

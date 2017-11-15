@@ -32,7 +32,12 @@
 #include <epan/expert.h>
 #include "packet-ssl-utils.h"
 #include <epan/prefs.h>
+#include <wsutil/pint.h>
 
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
+/* Whether to provide support for authentication in addition to decryption. */
+#define HAVE_LIBGCRYPT_AEAD
+#endif
 
 /* Prototypes */
 void proto_reg_handoff_quic(void);
@@ -745,6 +750,175 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
 
     return offset;
 }
+
+/* TLS 1.3 draft used by the draft-ietf-quic-tls-07 */
+#define QUIC_TLS13_VERSION          21
+#define QUIC_LONG_HEADER_LENGTH     17
+
+#ifdef HAVE_LIBGCRYPT_AEAD
+/**
+ * Given a QUIC message (header + non-empty payload), the actual packet number,
+ * try to decrypt it using the cipher.
+ *
+ * The actual packet number must be constructed according to
+ * https://tools.ietf.org/html/draft-ietf-quic-transport-07#section-5.7
+ *
+ * If decryption succeeds, the decrypted buffer is added as data source and
+ * returned. Otherwise NULL is returned and an error message is set.
+ */
+static tvbuff_t *
+quic_decrypt_message(tls13_cipher *cipher, tvbuff_t *head, packet_info *pinfo, guint header_length, guint64 packet_number, const gchar **error)
+{
+    gcry_error_t    err;
+    guint8          header[QUIC_LONG_HEADER_LENGTH];
+    guint8          nonce[TLS13_AEAD_NONCE_LENGTH];
+    guint8         *buffer;
+    guint8         *atag[16];
+    guint           buffer_length;
+    tvbuff_t       *decrypted;
+
+    DISSECTOR_ASSERT(cipher != NULL);
+    DISSECTOR_ASSERT(header_length <= sizeof(header));
+    tvb_memcpy(head, header, 0, header_length);
+
+    /* Input is "header || ciphertext (buffer) || auth tag (16 bytes)" */
+    buffer_length = tvb_captured_length_remaining(head, header_length + 16);
+    if (buffer_length == 0) {
+        *error = "Decryption not possible, ciphertext is too short";
+        return NULL;
+    }
+    buffer = (guint8 *)tvb_memdup(pinfo->pool, head, header_length, buffer_length);
+    tvb_memcpy(head, atag, header_length + buffer_length, 16);
+
+    memcpy(nonce, cipher->iv, TLS13_AEAD_NONCE_LENGTH);
+    /* Packet number is left-padded with zeroes and XORed with write_iv */
+    phton64(nonce + sizeof(nonce) - 8, pntoh64(nonce + sizeof(nonce) - 8) ^ packet_number);
+
+    gcry_cipher_reset(cipher->hd);
+    err = gcry_cipher_setiv(cipher->hd, nonce, TLS13_AEAD_NONCE_LENGTH);
+    if (err) {
+        *error = wmem_strdup_printf(wmem_packet_scope(), "Decryption (setiv) failed: %s", gcry_strerror(err));
+        return NULL;
+    }
+
+    /* associated data (A) is the contents of QUIC header */
+    err = gcry_cipher_authenticate(cipher->hd, header, header_length);
+    if (err) {
+        *error = wmem_strdup_printf(wmem_packet_scope(), "Decryption (authenticate) failed: %s", gcry_strerror(err));
+        return NULL;
+    }
+
+    /* Output ciphertext (C) */
+    err = gcry_cipher_decrypt(cipher->hd, buffer, buffer_length, NULL, 0);
+    if (err) {
+        *error = wmem_strdup_printf(wmem_packet_scope(), "Decryption (decrypt) failed: %s", gcry_strerror(err));
+        return NULL;
+    }
+
+    err = gcry_cipher_checktag(cipher->hd, atag, 16);
+    if (err) {
+        *error = wmem_strdup_printf(wmem_packet_scope(), "Decryption (checktag) failed: %s", gcry_strerror(err));
+        return NULL;
+    }
+
+    decrypted = tvb_new_child_real_data(head, buffer, buffer_length, buffer_length);
+    add_new_data_source(pinfo, decrypted, "Decrypted QUIC");
+
+    *error = NULL;
+    return decrypted;
+}
+
+/**
+ * Compute the client and server cleartext secrets given Connection ID "cid".
+ *
+ * On success TRUE is returned and the two cleartext secrets are returned (these
+ * must be freed with wmem_free(NULL, ...)). FALSE is returned on error.
+ */
+static gboolean
+quic_derive_cleartext_secrets(guint64 cid,
+                              guint8 **client_cleartext_secret,
+                              guint8 **server_cleartext_secret,
+                              const gchar **error)
+{
+    /*
+     * https://tools.ietf.org/html/draft-ietf-quic-tls-07#section-5.2.1
+     *
+     * quic_version_1_salt = afc824ec5fc77eca1e9d36f37fb2d46518c36639
+     *
+     * cleartext_secret = HKDF-Extract(quic_version_1_salt,
+     *                                 client_connection_id)
+     *
+     * client_cleartext_secret =
+     *                    HKDF-Expand-Label(cleartext_secret,
+     *                                      "QUIC client cleartext Secret",
+     *                                      "", Hash.length)
+     * server_cleartext_secret =
+     *                    HKDF-Expand-Label(cleartext_secret,
+     *                                      "QUIC server cleartext Secret",
+     *                                      "", Hash.length)
+     * Hash for cleartext packets is SHA-256 (output size 32).
+     */
+    static const guint8 quic_version_1_salt[20] = {
+        0xaf, 0xc8, 0x24, 0xec, 0x5f, 0xc7, 0x7e, 0xca, 0x1e, 0x9d,
+        0x36, 0xf3, 0x7f, 0xb2, 0xd4, 0x65, 0x18, 0xc3, 0x66, 0x39
+    };
+    guint           tls13_draft_version = QUIC_TLS13_VERSION;
+    gcry_error_t    err;
+    guint8          secret_bytes[HASH_SHA2_256_LENGTH];
+    StringInfo      secret = { (guchar *) &secret_bytes, HASH_SHA2_256_LENGTH };
+    guint8          cid_bytes[8];
+
+    phton64(cid_bytes, cid);
+    err = hkdf_extract(GCRY_MD_SHA256, quic_version_1_salt, sizeof(quic_version_1_salt),
+                       cid_bytes, sizeof(cid_bytes), secret.data);
+    if (err) {
+        *error = wmem_strdup_printf(wmem_packet_scope(), "Failed to extract secrets: %s", gcry_strerror(err));
+        return FALSE;
+    }
+
+    if (!tls13_hkdf_expand_label(tls13_draft_version, GCRY_MD_SHA256, &secret, "QUIC client cleartext Secret",
+                                 "", HASH_SHA2_256_LENGTH, client_cleartext_secret)) {
+        *error = "Key expansion (client) failed";
+        return FALSE;
+    }
+
+    if (!tls13_hkdf_expand_label(tls13_draft_version, GCRY_MD_SHA256, &secret, "QUIC server cleartext Secret",
+                                 "", HASH_SHA2_256_LENGTH, server_cleartext_secret)) {
+        wmem_free(NULL, client_cleartext_secret);
+        *client_cleartext_secret = NULL;
+        *error = "Key expansion (server) failed";
+        return FALSE;
+    }
+
+    *error = NULL;
+    return TRUE;
+}
+
+static gboolean
+quic_create_cleartext_decoders(guint64 cid, const gchar **error)
+{
+    tls13_cipher   *client_cipher, *server_cipher;
+    StringInfo      client_secret = { NULL, HASH_SHA2_256_LENGTH };
+    StringInfo      server_secret = { NULL, HASH_SHA2_256_LENGTH };
+
+    /* TODO extract from packet/conversation */
+    if (!quic_derive_cleartext_secrets(cid, &client_secret.data, &server_secret.data, error)) {
+        /* TODO handle error (expert info) */
+        return FALSE;
+    }
+
+    /* Cleartext packets are protected with AEAD_AES_128_GCM */
+    client_cipher = tls13_cipher_create(QUIC_TLS13_VERSION, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, GCRY_MD_SHA256, &client_secret, error);
+    server_cipher = tls13_cipher_create(QUIC_TLS13_VERSION, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, GCRY_MD_SHA256, &server_secret, error);
+    if (!client_cipher || !server_cipher) {
+        return FALSE;
+    }
+
+    /* TODO store ciphers in conversation, handle errors (expert info) */
+    return TRUE;
+}
+#endif /* HAVE_LIBGCRYPT_AEAD */
+
 
 static int
 dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info){

@@ -313,6 +313,7 @@ typedef enum {
 /* Explicit and implicit nonce length (RFC 5116 - Section 3.2.1) */
 #define IMPLICIT_NONCE_LEN  4
 #define EXPLICIT_NONCE_LEN  8
+#define TLS13_AEAD_NONCE_LENGTH     12
 
 /* TLS 1.3 Record type for selecting the appropriate secret. */
 typedef enum {
@@ -357,6 +358,15 @@ typedef struct _SslDecoder {
     SslFlow *flow;
     StringInfo app_traffic_secret;  /**< TLS 1.3 application traffic secret (if applicable), wmem file scope. */
 } SslDecoder;
+
+/*
+ * TLS 1.3 Cipher context. Simpler than SslDecoder since no compression is
+ * required and all keys are calculated internally.
+ */
+typedef struct {
+    gcry_cipher_hd_t    hd;
+    guint8              iv[TLS13_AEAD_NONCE_LENGTH];
+} tls13_cipher;
 
 #define KEX_DHE_DSS     0x10
 #define KEX_DHE_PSK     0x11
@@ -621,6 +631,25 @@ ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server);
 extern gint
 ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint16 record_version,
         const guchar *in, guint16 inl, StringInfo *comp_str, StringInfo *out_str, guint *outl);
+
+/**
+ * Given a cipher algorithm and its mode, a hash algorithm and the secret (with
+ * the same length as the hash algorithm), try to build a cipher. The algorithms
+ * and mode are Libgcrypt identifiers.
+ */
+tls13_cipher *
+tls13_cipher_create(guint8 tls13_draft_version, int cipher_algo, int cipher_mode, int hash_algo, StringInfo *secret, const gchar **error);
+
+/*
+ * Calculate HKDF-Extract(salt, IKM) -> PRK according to RFC 5869.
+ * Caller must ensure that 'prk' is large enough to store the digest.
+ */
+static inline gcry_error_t
+hkdf_extract(int algo, const guint8 *salt, size_t salt_len, const guint8 *ikm, size_t ikm_len, guint8 *prk)
+{
+    /* PRK = HMAC-Hash(salt, IKM) where salt is key, and IKM is input. */
+    return ws_hmac_buffer(algo, prk, ikm, ikm_len, salt, salt_len);
+}
 
 
 /* Common part bitween SSL and DTLS dissectors */
