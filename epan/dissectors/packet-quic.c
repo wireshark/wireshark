@@ -101,6 +101,7 @@ static int hf_quic_frame_type_nci_connection_id = -1;
 static int hf_quic_frame_type_nci_stateless_reset_token = -1;
 static int hf_quic_frame_type_ss_stream_id = -1;
 static int hf_quic_frame_type_ss_error_code = -1;
+static int hf_quic_frame_type_ss_application_error_code = -1;
 
 static int hf_quic_hash = -1;
 
@@ -721,11 +722,17 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
                 proto_tree_add_item(ft_tree, hf_quic_frame_type_ss_stream_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
 
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_ss_error_code, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
+                if(quic_info->version == 0xff000005 || quic_info->version == 0xff000006) {
+                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ss_error_code, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    offset += 4;
 
-                proto_item_set_len(ti_ft, 1 + 4 + 4);
+                    proto_item_set_len(ti_ft, 1 + 4 + 4);
+                } else {
+                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ss_application_error_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
 
+                    proto_item_set_len(ti_ft, 1 + 4 + 2);
+                }
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "Stop Sending");
 
             }
@@ -1190,6 +1197,11 @@ proto_register_quic(void)
         { &hf_quic_frame_type_ss_error_code,
             { "Error code", "quic.frame_type.ss.error_code",
               FT_UINT32, BASE_DEC|BASE_EXT_STRING, &quic_error_code_vals_ext, 0x0,
+              "Indicates why the sender is ignoring the stream", HFILL }
+        },
+        { &hf_quic_frame_type_ss_application_error_code,
+            { "Application Error code", "quic.frame_type.ss.application_error_code",
+              FT_UINT16, BASE_DEC|BASE_EXT_STRING, &quic_error_code_vals_ext, 0x0,
               "Indicates why the sender is ignoring the stream", HFILL }
         },
 
