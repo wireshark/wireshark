@@ -1485,9 +1485,12 @@ static int dissect_SuppLangTagsValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 #line 72 "./asn1/cmp/packet-cmp-template.c"
 
 static int
-dissect_cmp_pdu(tvbuff_t *tvb, proto_tree *tree, asn1_ctx_t *actx)
+dissect_cmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	return dissect_cmp_PKIMessage(FALSE, tvb, 0, actx,tree, -1);
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+
+	return dissect_cmp_PKIMessage(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 #define CMP_TYPE_PKIMSG		0
@@ -1519,13 +1522,9 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 	proto_item *ti=NULL;
 	proto_tree *tree=NULL;
 	proto_tree *tcptrans_tree=NULL;
-	asn1_ctx_t asn1_ctx;
 	int offset=0;
 
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CMP");
-
 	col_set_str(pinfo->cinfo, COL_INFO, "PKIXCMP");
 
 	if(parent_tree){
@@ -1559,7 +1558,7 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 	switch(pdu_type){
 		case CMP_TYPE_PKIMSG:
 			next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_reported_length_remaining(tvb, offset), pdu_len);
-			dissect_cmp_pdu(next_tvb, tree, &asn1_ctx);
+			dissect_cmp_pdu(next_tvb, pinfo, tree, NULL);
 			offset += tvb_reported_length_remaining(tvb, offset);
 			break;
 		case CMP_TYPE_POLLREP:
@@ -1587,12 +1586,12 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 			offset += 4;
 
 			next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_reported_length_remaining(tvb, offset), pdu_len);
-			dissect_cmp_pdu(next_tvb, tree, &asn1_ctx);
+			dissect_cmp_pdu(next_tvb, pinfo, tree, NULL);
 			offset += tvb_reported_length_remaining(tvb, offset);
 			break;
 		case CMP_TYPE_FINALMSGREP:
 			next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_reported_length_remaining(tvb, offset), pdu_len);
-			dissect_cmp_pdu(next_tvb, tree, &asn1_ctx);
+			dissect_cmp_pdu(next_tvb, pinfo, tree, NULL);
 			offset += tvb_reported_length_remaining(tvb, offset);
 			break;
 		case CMP_TYPE_ERRORMSGREP:
@@ -1680,12 +1679,8 @@ dissect_cmp_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
-	asn1_ctx_t asn1_ctx;
-
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CMP");
-
 	col_set_str(pinfo->cinfo, COL_INFO, "PKIXCMP");
 
 	if(parent_tree){
@@ -1693,7 +1688,7 @@ dissect_cmp_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 		tree = proto_item_add_subtree(item, ett_cmp);
 	}
 
-	return dissect_cmp_pdu(tvb, tree, &asn1_ctx);
+	return dissect_cmp_pdu(tvb, pinfo, tree, NULL);
 }
 
 
@@ -2367,7 +2362,7 @@ void proto_register_cmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cmp-hfarr.c ---*/
-#line 324 "./asn1/cmp/packet-cmp-template.c"
+#line 319 "./asn1/cmp/packet-cmp-template.c"
 	};
 
 	/* List of subtrees */
@@ -2425,7 +2420,7 @@ void proto_register_cmp(void) {
     &ett_cmp_PollRepContent_item,
 
 /*--- End of included file: packet-cmp-ettarr.c ---*/
-#line 330 "./asn1/cmp/packet-cmp-template.c"
+#line 325 "./asn1/cmp/packet-cmp-template.c"
 	};
 	module_t *cmp_module;
 
@@ -2456,6 +2451,8 @@ void proto_register_cmp(void) {
 			"Use this if the Content-Type is not set correctly.",
 			10,
 			&cmp_alternate_tcp_style_http_port);
+
+	register_ber_syntax_dissector("PKIMessage", proto_cmp, dissect_cmp_pdu);
 }
 
 
@@ -2510,7 +2507,7 @@ void proto_reg_handoff_cmp(void) {
 
 
 /*--- End of included file: packet-cmp-dis-tab.c ---*/
-#line 393 "./asn1/cmp/packet-cmp-template.c"
+#line 390 "./asn1/cmp/packet-cmp-template.c"
 		inited = TRUE;
 	}
 
