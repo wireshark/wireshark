@@ -111,6 +111,7 @@ static int hf_quic_frame_type_ss_application_error_code = -1;
 static int hf_quic_hash = -1;
 
 static expert_field ei_quic_ft_unknown = EI_INIT;
+static expert_field ei_quic_decryption_failed = EI_INIT;
 
 static gint ett_quic = -1;
 static gint ett_quic_ft = -1;
@@ -121,6 +122,8 @@ static dissector_handle_t ssl_handle;
 
 typedef struct quic_info_data {
     guint32 version;
+    tls13_cipher *client_cleartext_cipher;
+    tls13_cipher *server_cleartext_cipher;
 } quic_info_data_t;
 
 const value_string quic_version_vals[] = {
@@ -895,7 +898,7 @@ quic_derive_cleartext_secrets(guint64 cid,
 }
 
 static gboolean
-quic_create_cleartext_decoders(guint64 cid, const gchar **error)
+quic_create_cleartext_decoders(guint64 cid, const gchar **error, quic_info_data_t *quic_info)
 {
     tls13_cipher   *client_cipher, *server_cipher;
     StringInfo      client_secret = { NULL, HASH_SHA2_256_LENGTH };
@@ -914,7 +917,9 @@ quic_create_cleartext_decoders(guint64 cid, const gchar **error)
         return FALSE;
     }
 
-    /* TODO store ciphers in conversation, handle errors (expert info) */
+    quic_info->client_cleartext_cipher = client_cipher;
+    quic_info->server_cleartext_cipher = server_cipher;
+
     return TRUE;
 }
 #endif /* HAVE_LIBGCRYPT_AEAD */
@@ -969,8 +974,51 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
             proto_tree_add_item(quic_tree, hf_quic_hash, tvb, offset, 8, ENC_NA);
             offset += 8;
         } else { /* Now use Clear Text AEAD */
-            proto_tree_add_item(quic_tree, hf_quic_cleartext_protected_payload, tvb, offset, -1, ENC_NA);
+            proto_item *ti;
+
+            /* quic_decrypt_message expects exactly one header + ciphertext as tvb. */
+            DISSECTOR_ASSERT(offset == QUIC_LONG_HEADER_LENGTH);
+
+            ti = proto_tree_add_item(quic_tree, hf_quic_cleartext_protected_payload, tvb, offset, -1, ENC_NA);
             offset += tvb_reported_length_remaining(tvb, offset);
+
+#ifdef HAVE_LIBGCRYPT_AEAD
+            tls13_cipher *cipher = NULL;
+            const gchar *error = NULL;
+            tvbuff_t *decrypted_tvb;
+
+            switch (long_packet_type) {
+            case 0x02: /* Client Initial Packet */
+                /* Create new decryption context based on the Client Connection
+                 * ID from the Client Initial packet. */
+                if (!quic_create_cleartext_decoders(cid, &error, quic_info)) {
+                    expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Failed to create decryption context: %s", error);
+                    return offset;
+                }
+                /* FALLTHROUGH */
+            case 0x05: /* Client Cleartext Packet */
+                cipher = quic_info->client_cleartext_cipher;
+                break;
+            case 0x03: /* Server Stateless Retry Packet */
+            case 0x04: /* Server Cleartext Packet */
+                cipher = quic_info->server_cleartext_cipher;
+                break;
+            }
+
+            if (cipher) {
+                decrypted_tvb = quic_decrypt_message(cipher, tvb, pinfo, QUIC_LONG_HEADER_LENGTH, pkn, &error);
+                if (decrypted_tvb) {
+                    guint decrypted_offset = 0;
+                    while (tvb_reported_length_remaining(decrypted_tvb, decrypted_offset) > 0){
+                        decrypted_offset = dissect_quic_frame_type(decrypted_tvb, pinfo, quic_tree, decrypted_offset, quic_info);
+                    }
+                } else {
+                    expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Failed to decrypt handshake: %s", error);
+                }
+            }
+#else /* !HAVE_LIBGCRYPT_AEAD */
+            expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Libgcrypt >= 1.6.0 is required for QUIC decryption");
+#endif /* !HAVE_LIBGCRYPT_AEAD */
         }
     } else {
 
@@ -1039,7 +1087,7 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     quic_info = (quic_info_data_t *)conversation_get_proto_data(conv, proto_quic);
 
     if (!quic_info) {
-        quic_info = wmem_new(wmem_file_scope(), quic_info_data_t);
+        quic_info = wmem_new0(wmem_file_scope(), quic_info_data_t);
         quic_info->version = 0;
         conversation_add_proto_data(conv, proto_quic, quic_info);
     }
@@ -1397,7 +1445,11 @@ proto_register_quic(void)
         { &ei_quic_ft_unknown,
           { "quic.ft.unknown", PI_UNDECODED, PI_NOTE,
             "Unknown Frame Type", EXPFILL }
-        }
+        },
+        { &ei_quic_decryption_failed,
+          { "quic.decryption_failed", PI_DECRYPTION, PI_WARN,
+            "Failed to decrypt handshake", EXPFILL }
+        },
     };
 
     proto_quic = proto_register_protocol("QUIC (Quick UDP Internet Connections) IETF", "QUIC", "quic");
