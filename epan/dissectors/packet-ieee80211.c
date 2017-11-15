@@ -3182,6 +3182,13 @@ static int hf_ieee80211_ff_bss_transition_candidate_list_entries = -1;
 static int hf_ieee80211_ff_sa_query_action_code = -1;
 static int hf_ieee80211_ff_transaction_id = -1;
 
+static int hf_ieee80211_ff_send_confirm = -1;
+static int hf_ieee80211_ff_anti_clogging_token = -1;
+static int hf_ieee80211_ff_scalar = -1;
+static int hf_ieee80211_ff_finite_field_element = -1;
+static int hf_ieee80211_ff_confirm = -1;
+static int hf_ieee80211_ff_finite_cyclic_group = -1;
+
 /* Vendor specific */
 static int hf_ieee80211_ff_marvell_action_type = -1;
 static int hf_ieee80211_ff_marvell_mesh_mgt_action_code = -1;
@@ -8382,6 +8389,164 @@ add_ff_vht_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int o
   proto_tree_add_item(tree, hf_ieee80211_ff_vht_action, tvb, offset, 1,
                       ENC_LITTLE_ENDIAN);
   return 1;
+}
+
+static guint
+get_ff_auth_sae_len(tvbuff_t *tvb)
+{
+  guint alg, seq, status_code;
+  alg = tvb_get_letohs(tvb, 0);
+
+  /* SAE authentication is alg 3 (cf auth_alg) */
+  if (alg != 3)
+    return 0;
+
+  seq = tvb_get_letohs(tvb, 2);
+  status_code = tvb_get_letohs(tvb, 4);
+
+  /* 82: Rejected with Suggested BSS Transition (cf ieee80211_status_code) */
+  if ((seq == 2) && (status_code == 82))
+    return 0;
+
+  /* everything is fixed size fields */
+  return tvb_reported_length_remaining(tvb, 6);
+}
+
+static void
+add_ff_auth_sae(proto_tree *tree, tvbuff_t *tvb)
+{
+  guint alg, seq, status_code, len;
+  alg = tvb_get_letohs(tvb, 0);
+
+  /* SAE authentication is alg 3 (cf auth_alg) */
+  if (alg != 3)
+    return;
+
+  seq = tvb_get_letohs(tvb, 2);
+  status_code = tvb_get_letohs(tvb, 4);
+
+  if (seq == 1)
+  {
+    /* 76: Authentication is rejected because an Anti-Clogging Token is required (cf ieee80211_status_code) */
+    if (status_code == 76)
+    {
+      proto_tree_add_item(tree, hf_ieee80211_ff_finite_cyclic_group, tvb, 6, 2,
+                          ENC_LITTLE_ENDIAN);
+      len = tvb_reported_length_remaining(tvb, 8);
+      proto_tree_add_item(tree, hf_ieee80211_ff_anti_clogging_token, tvb, 8, len,
+                          ENC_NA);
+    }
+    else if (status_code == 0)
+    {
+      guint group = tvb_get_letohs(tvb, 6);
+      guint sc_len, elt_len, offset;
+      proto_tree_add_item(tree, hf_ieee80211_ff_finite_cyclic_group, tvb, 6, 2,
+                          ENC_LITTLE_ENDIAN);
+      offset = 8;
+      len = tvb_reported_length_remaining(tvb, offset);
+      switch (group)
+      {
+        /* Diffie-Hellman groups */
+        case 1:
+          sc_len = elt_len = 96;
+          break;
+        case 2:
+          sc_len = elt_len = 128;
+          break;
+        case 5:
+          sc_len = elt_len = 192;
+          break;
+        case 14:
+          sc_len = elt_len = 256;
+          break;
+        case 15:
+          sc_len = elt_len = 384;
+          break;
+        case 16:
+          sc_len = elt_len = 512;
+          break;
+        case 17:
+          sc_len = elt_len = 768;
+          break;
+        case 18:
+          sc_len = elt_len = 1024;
+          break;
+        case 22:
+          sc_len = 20;
+          elt_len = 128;
+          break;
+        case 23:
+          sc_len = 28;
+          elt_len = 256;
+          break;
+        case 24:
+          sc_len = 32;
+          elt_len = 256;
+          break;
+        /* ECC groups */
+        case 19:
+        case 28:
+          sc_len = 32;
+          elt_len = 64;
+          break;
+        case 20:
+        case 29:
+          sc_len = 48;
+          elt_len = 96;
+          break;
+        case 21:
+          sc_len = 66;
+          elt_len = 132;
+          break;
+        case 25:
+          sc_len = 24;
+          elt_len = 48;
+          break;
+        case 26:
+          sc_len = 28;
+          elt_len = 56;
+          break;
+        case 30:
+          sc_len = 64;
+          elt_len = 128;
+          break;
+        default:
+          /* assume no anti-clogging token */
+          if (!(len % 3))
+          {
+            sc_len = len / 3;
+          }
+          else
+          {
+            sc_len = len / 2;
+          }
+          elt_len = len - sc_len;
+          break;
+      }
+
+      if ((sc_len + elt_len) < len)
+      {
+        len = len - (sc_len + elt_len);
+        proto_tree_add_item(tree, hf_ieee80211_ff_anti_clogging_token, tvb, offset,
+                            len, ENC_NA);
+        offset += len;
+      }
+      proto_tree_add_item(tree, hf_ieee80211_ff_scalar, tvb, offset,
+                          sc_len, ENC_NA);
+      offset += sc_len;
+      proto_tree_add_item(tree, hf_ieee80211_ff_finite_field_element, tvb, offset,
+                          elt_len, ENC_NA);
+    }
+  }
+  /* 82: Rejected with Suggested BSS Transition (cf ieee80211_status_code) */
+  else if ((seq == 2) && (status_code != 82))
+  {
+    proto_tree_add_item(tree, hf_ieee80211_ff_send_confirm, tvb, 6, 2,
+                        ENC_LITTLE_ENDIAN);
+    len = tvb_reported_length_remaining(tvb, 8);
+    proto_tree_add_item(tree, hf_ieee80211_ff_confirm, tvb, 8, len,
+                        ENC_NA);
+  };
 }
 
 static guint
@@ -17368,11 +17533,14 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
       break;
 
     case MGT_AUTHENTICATION:
-      fixed_tree = get_fixed_parameter_tree(mgt_tree, tvb, 0, 6);
+      offset = 6;  /* Size of fixed fields */
+      offset += get_ff_auth_sae_len(tvb);
+
+      fixed_tree = get_fixed_parameter_tree(mgt_tree, tvb, 0, offset);
       add_ff_auth_alg(fixed_tree, tvb, pinfo, 0);
       add_ff_auth_trans_seq(fixed_tree, tvb, pinfo, 2);
       add_ff_status_code(fixed_tree, tvb, pinfo, 4);
-      offset = 6;  /* Size of fixed fields */
+      add_ff_auth_sae(fixed_tree, tvb);
 
       tagged_parameter_tree_len =
         tvb_reported_length_remaining(tvb, offset);
@@ -23414,6 +23582,36 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_ff_transaction_id,
      {"Transaction Id", "wlan.fixed.transaction_id",
       FT_UINT16, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_send_confirm,
+     {"Send-Confirm", "wlan.fixed.send_confirm",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_anti_clogging_token,
+     {"Anti-Clogging Token", "wlan.fixed.anti_clogging_token",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_scalar,
+     {"Scalar", "wlan.fixed.scalar",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_finite_field_element,
+     {"Finite Field Element", "wlan.fixed.finite_field_element",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_confirm,
+     {"Confirm", "wlan.fixed.confirm",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_finite_cyclic_group,
+     {"Group Id", "wlan.fixed.finite_cyclic_group",
+      FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_anqp_wfa_subtype,
