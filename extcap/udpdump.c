@@ -371,7 +371,7 @@ int main(int argc, char *argv[])
 #endif  /* _WIN32 */
 
 	help_url = data_file_url("udpdump.html");
-	extcap_base_set_util_info(extcap_conf, argv[0], UDPDUMP_VERSION_MAJOR, UDPDUMP_VERSION_MINOR,UDPDUMP_VERSION_RELEASE,
+	extcap_base_set_util_info(extcap_conf, argv[0], UDPDUMP_VERSION_MAJOR, UDPDUMP_VERSION_MINOR, UDPDUMP_VERSION_RELEASE,
 		help_url);
 	g_free(help_url);
 	extcap_base_register_interface(extcap_conf, UDPDUMP_EXTCAP_INTERFACE, "UDP Listener remote capture", 252, "Exported PDUs");
