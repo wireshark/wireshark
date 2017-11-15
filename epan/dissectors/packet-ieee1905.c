@@ -877,7 +877,7 @@ static const value_string channel_preference_reason_vals[] = {
   { 0x2, "Intra-network 802.11 OBSS interfernece management" },
   { 0x3, "External network 802.11 OBSS interference management" },
   { 0x4, "Reduced coverage (e.g. due to limited transmit power" },
-  { 0x5, "Reduced throughput (e.g. due to limited channel bandwith..." },
+  { 0x5, "Reduced throughput (e.g. due to limited channel bandwidth..." },
   { 0x6, "In-device interference within AP" },
   { 0x7, "Operation disallowed due to radar detection on a DFS channel" },
   { 0x8, "Operation would prevent backhaul operatoon uding shared radio" },
