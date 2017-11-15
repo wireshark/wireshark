@@ -646,7 +646,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
                 proto_tree_add_item(ft_tree, hf_quic_frame_type_ss_error_code, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
 
-                proto_item_set_len(ti_ft, 1 + 4 + 4 + 16);
+                proto_item_set_len(ti_ft, 1 + 4 + 4);
 
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "Stop Sending");
 
