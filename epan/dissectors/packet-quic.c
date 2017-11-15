@@ -82,6 +82,7 @@ static int hf_quic_frame_type_padding_length = -1;
 static int hf_quic_frame_type_padding = -1;
 static int hf_quic_frame_type_rsts_stream_id = -1;
 static int hf_quic_frame_type_rsts_error_code = -1;
+static int hf_quic_frame_type_rsts_application_error_code = -1;
 static int hf_quic_frame_type_rsts_final_offset = -1;
 static int hf_quic_frame_type_cc_old_error_code = -1;
 static int hf_quic_frame_type_cc_error_code = -1;
@@ -562,13 +563,22 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *quic_
                 guint32 stream_id, error_code;
                 proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_rsts_stream_id, tvb, offset, 4, ENC_BIG_ENDIAN, &stream_id);
                 offset += 4;
-                proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_rsts_error_code, tvb, offset, 4, ENC_BIG_ENDIAN, &error_code);
-                offset += 4;
+                if(quic_info->version == 0xFF000005 || quic_info->version == 0xFF000006) {
+                    proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_rsts_error_code, tvb, offset, 4, ENC_BIG_ENDIAN, &error_code);
+                    offset += 4;
+                } else {
+                    proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_rsts_application_error_code, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
+                    offset += 2;
+                }
                 proto_tree_add_item(ft_tree, hf_quic_frame_type_rsts_final_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
                 offset += 8;
 
                 proto_item_append_text(ti_ft, " Stream ID: %u, Error code: %s", stream_id, val_to_str_ext(error_code, &quic_error_code_vals_ext, "Unknown (%d)"));
-                proto_item_set_len(ti_ft, 1 + 4 + 4 + 8);
+                if(quic_info->version == 0xFF000005 || quic_info->version == 0xFF000006) {
+                    proto_item_set_len(ti_ft, 1 + 4 + 4 + 8);
+                } else {
+                    proto_item_set_len(ti_ft, 1 + 4 + 2 + 8);
+                }
 
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "RST STREAM, ");
 
@@ -1077,6 +1087,11 @@ proto_register_quic(void)
         { &hf_quic_frame_type_rsts_error_code,
             { "Error code", "quic.frame_type.rsts.error_code",
               FT_UINT32, BASE_DEC|BASE_EXT_STRING, &quic_error_code_vals_ext, 0x0,
+              "Indicates why the stream is being closed", HFILL }
+        },
+        { &hf_quic_frame_type_rsts_application_error_code,
+            { "Application Error code", "quic.frame_type.rsts.application_error_code",
+              FT_UINT16, BASE_DEC|BASE_EXT_STRING, &quic_error_code_vals_ext, 0x0,
               "Indicates why the stream is being closed", HFILL }
         },
         { &hf_quic_frame_type_rsts_final_offset,
