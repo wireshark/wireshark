@@ -48,6 +48,10 @@
 /* This needs to match NUM_GEOIP_COLS in hostlist_table.h */
 #define MAX_GEOIP_DBS 13
 
+/*
+ * GeoIP_free is patched into our GeoIP distribution on Windows.
+ * See bug 13598.
+ */
 #ifndef HAVE_GEOIP_FREE
 #define GeoIP_free  free
 #endif
