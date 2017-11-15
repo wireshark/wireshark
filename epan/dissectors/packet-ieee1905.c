@@ -576,7 +576,7 @@ static value_string_ext ieee1905_message_type_vals_ext = VALUE_STRING_EXT_INIT(i
 static const value_string ieee1905_tlv_types_vals[] = {
   { EOM_TLV,                                 "End of message" },
   { AL_MAC_ADDRESS_TYPE_TLV,                 "1905 AL MAC address type" },
-  { MAC_ADDRESS_TYPE_TLV,                    "MAC addres type" },
+  { MAC_ADDRESS_TYPE_TLV,                    "MAC address type" },
   { DEVICE_INFORMATION_TYPE_TLV,             "1905 device information type" },
   { DEVICE_BRIDGING_CAPABILITY_TLV,          "Device bridging capability" },
   { NON_1905_NEIGHBOR_DEVICE_LIST_TLV,       "Non-1905 neighbor device list" },
