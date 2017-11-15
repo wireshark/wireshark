@@ -4613,6 +4613,235 @@ proto_reg_handoff_zbee_zcl_pp(void)
 } /*proto_reg_handoff_zbee_zcl_pp*/
 
 /* ########################################################################## */
+/* #### (0x0706) ENERGY MANAGEMENT CLUSTER ################################## */
+/* ########################################################################## */
+
+/* Attributes */
+#define zbee_zcl_energy_management_attr_names_VALUE_STRING_LIST(XXX) \
+/* Block Threshold (Delivered) Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_ENERGY_MANAGEMENT_LOAD_CONTROL_STATE,              0x0000, "Load Control State" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_ENERGY_MANAGEMENT_CURRENT_EVENT_ID,                0x0001, "Current Event ID" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_ENERGY_MANAGEMENT_CURRENT_EVENT_STATUS,            0x0002, "Current Event Status" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_ENERGY_MANAGEMENT_CONFORMANCE_LEVEL,               0x0003, "Conformance Level" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_ENERGY_MANAGEMENT_MINIMUM_OFF_TIME,                0x0004, "Minimum Off Time" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_ENERGY_MANAGEMENT_MINIMUM_ON_TIME,                 0x0005, "Minimum On Time" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_ENERGY_MANAGEMENT_MINIMUM_CYCLE_PERIOD,            0x0006, "Minimum Cycle Period" ) \
+/* Smart Energy */ \
+    XXX(ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_ENERGY_MANAGEMENT,           0xFFFE, "Attribute Reporting Status" )
+
+VALUE_STRING_ENUM(zbee_zcl_energy_management_attr_names);
+VALUE_STRING_ARRAY(zbee_zcl_energy_management_attr_names);
+
+/* Server Commands Received */
+#define zbee_zcl_energy_management_srv_rx_cmd_names_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_CMD_ID_ENERGY_MANAGEMENT_MANAGE_EVENT,                0x00, "Manage Event" )
+
+VALUE_STRING_ENUM(zbee_zcl_energy_management_srv_rx_cmd_names);
+VALUE_STRING_ARRAY(zbee_zcl_energy_management_srv_rx_cmd_names);
+
+/* Server Commands Generated */
+#define zbee_zcl_energy_management_srv_tx_cmd_names_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_CMD_ID_ENERGY_MANAGEMENT_REPORT_EVENT_STATUS,              0x00, "Report Event Status" )
+
+VALUE_STRING_ENUM(zbee_zcl_energy_management_srv_tx_cmd_names);
+VALUE_STRING_ARRAY(zbee_zcl_energy_management_srv_tx_cmd_names);
+
+/*************************/
+/* Function Declarations */
+/*************************/
+void proto_register_zbee_zcl_energy_management(void);
+void proto_reg_handoff_zbee_zcl_energy_management(void);
+
+/* Attribute Dissector Helpers */
+static void dissect_zcl_energy_management_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+/*************************/
+/* Global Variables      */
+/*************************/
+
+static dissector_handle_t energy_management_handle;
+
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_energy_management = -1;
+
+static int hf_zbee_zcl_energy_management_srv_tx_cmd_id = -1;
+static int hf_zbee_zcl_energy_management_srv_rx_cmd_id = -1;
+static int hf_zbee_zcl_energy_management_attr_id = -1;
+static int hf_zbee_zcl_energy_management_attr_reporting_status = -1;
+
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_energy_management = -1;
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+ *@param attr_id attribute identifier
+ *@param data_type attribute data type
+*/
+static void
+dissect_zcl_energy_management_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+{
+    switch (attr_id) {
+        /* applies to all SE clusters */
+        case ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_ENERGY_MANAGEMENT:
+            proto_tree_add_item(tree, hf_zbee_zcl_energy_management_attr_reporting_status, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+
+        default: /* Catch all */
+            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            break;
+    }
+} /*dissect_zcl_energy_management_attr_data*/
+
+/**
+ *ZigBee ZCL Energy Management cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
+static int
+dissect_zbee_zcl_energy_management(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    zbee_zcl_packet   *zcl;
+    guint             offset = 0;
+    guint8            cmd_id;
+    gint              rem_len;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    zcl = (zbee_zcl_packet *)data;
+    cmd_id = zcl->cmd_id;
+
+    /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
+    if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_energy_management_srv_rx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_uint(tree, hf_zbee_zcl_energy_management_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_energy_management, NULL, "Payload");
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+
+                case ZBEE_ZCL_CMD_ID_ENERGY_MANAGEMENT_MANAGE_EVENT:
+                    /* Add function to dissect payload */
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+    else { /* ZBEE_ZCL_FCF_TO_CLIENT */
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_energy_management_srv_tx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_uint(tree, hf_zbee_zcl_energy_management_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_energy_management, NULL, "Payload");
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+
+                case ZBEE_ZCL_CMD_ID_ENERGY_MANAGEMENT_REPORT_EVENT_STATUS:
+                    /* Add function to dissect payload */
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    return tvb_captured_length(tvb);
+} /*dissect_zbee_zcl_energy_management*/
+
+/**
+ *This function registers the ZCL Energy_Management dissector
+ *
+*/
+void
+proto_register_zbee_zcl_energy_management(void)
+{
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_energy_management_attr_id,
+            { "Attribute", "zbee_zcl_se.energy_management.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_energy_management_attr_names),
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_attr_reporting_status,                         /* common to all SE clusters */
+            { "Attribute Reporting Status", "zbee_zcl_se.energy_management.attr.attr_reporting_status",
+            FT_UINT8, BASE_HEX, VALS(zbee_zcl_se_reporting_status_names), 0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_srv_tx_cmd_id,
+            { "Command", "zbee_zcl_se.energy_management.cmd.srv_tx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_energy_management_srv_tx_cmd_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_srv_rx_cmd_id,
+            { "Command", "zbee_zcl_se.energy_management.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_energy_management_srv_rx_cmd_names),
+            0x00, NULL, HFILL } },
+
+    };
+
+    /* ZCL Energy_Management subtrees */
+    gint *ett[] = {
+        &ett_zbee_zcl_energy_management,
+    };
+
+    /* Register the ZigBee ZCL Energy Management cluster protocol name and description */
+    proto_zbee_zcl_energy_management = proto_register_protocol("ZigBee ZCL Energy Management", "ZCL Energy Management", ZBEE_PROTOABBREV_ZCL_ENERGY_MANAGEMENT);
+    proto_register_field_array(proto_zbee_zcl_energy_management, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL Energy Management dissector. */
+    energy_management_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_ENERGY_MANAGEMENT, dissect_zbee_zcl_energy_management, proto_zbee_zcl_energy_management);
+} /*proto_register_zbee_zcl_energy_management*/
+
+/**
+ *Hands off the ZCL Energy_Management dissector.
+ *
+*/
+void
+proto_reg_handoff_zbee_zcl_energy_management(void)
+{
+    /* Register our dissector with the ZigBee application dissectors. */
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_ENERGY_MANAGEMENT, energy_management_handle);
+
+    zbee_zcl_init_cluster(  proto_zbee_zcl_energy_management,
+                            ett_zbee_zcl_energy_management,
+                            ZBEE_ZCL_CID_ENERGY_MANAGEMENT,
+                            hf_zbee_zcl_energy_management_attr_id,
+                            hf_zbee_zcl_energy_management_srv_rx_cmd_id,
+                            hf_zbee_zcl_energy_management_srv_tx_cmd_id,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_energy_management_attr_data
+                         );
+} /*proto_reg_handoff_zbee_zcl_energy_management*/
+
+
+/* ########################################################################## */
 /* #### (0x0707) CALENDAR CLUSTER ########################################### */
 /* ########################################################################## */
 
