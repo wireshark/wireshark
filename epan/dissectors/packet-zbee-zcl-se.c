@@ -322,7 +322,7 @@ VALUE_STRING_ARRAY(zbee_zcl_price_srv_rx_cmd_names);
     XXX(ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_BLOCK_THRESHOLDS,         0x06, "Publish Block Thresholds" ) \
     XXX(ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_CO2_VALUE,                0x07, "Publish CO2 Value" ) \
     XXX(ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_TIER_LABELS,              0x08, "Publish Tier Labels" ) \
-    XXX(ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_BILLING_PERIOD,           0x09, "PublishBillingPeriod" ) \
+    XXX(ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_BILLING_PERIOD,           0x09, "Publish Billing Period" ) \
     XXX(ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_CONSOLIDATED_BILL,        0x0A, "Publish Consolidated Bill" ) \
     XXX(ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_CPP_EVENT,                0x0B, "Publish CPP Event" ) \
     XXX(ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_CREDIT_PAYMENT,           0x0C, "Publish Credit Payment" ) \
@@ -332,6 +332,58 @@ VALUE_STRING_ARRAY(zbee_zcl_price_srv_rx_cmd_names);
 VALUE_STRING_ENUM(zbee_zcl_price_srv_tx_cmd_names);
 VALUE_STRING_ARRAY(zbee_zcl_price_srv_tx_cmd_names);
 
+/* Tariff Type */
+#define ZBEE_ZCL_PRICE_TARIFF_TYPE 0x0F
+
+/* Trailing Digit and Price Tier */
+#define ZBEE_ZCL_PRICE_TIER           0x0F
+#define ZBEE_ZCL_PRICE_TRAILING_DIGIT 0xF0
+
+/* Number of Price Tiers and Register Tier */
+#define ZBEE_ZCL_PRICE_REGISTER_TIER           0x0F
+#define ZBEE_ZCL_PRICE_NUMBER_OF_PRICE_TIERS   0xF0
+
+/* Alternate Cost Trailing Digit */
+#define ZBEE_ZCL_PRICE_ALTERNATE_COST_TRAILING_DIGIT      0xF0
+
+/* Block Period Duration Type */
+#define ZBEE_ZCL_PRICE_BLOCK_PERIOD_DURATION_TIMEBASE  0x0F
+#define ZBEE_ZCL_PRICE_BLOCK_PERIOD_DURATION_CONTROL   0xF0
+
+/* Conversion Factor Trailing Digit */
+#define ZBEE_ZCL_PRICE_CONVERSION_FACTOR_TRAILING_DIGIT      0xF0
+
+/* Calorific Value Trailing Digit */
+#define ZBEE_ZCL_PRICE_CALORIFIC_VALUE_TRAILING_DIGIT      0xF0
+
+/* Tariff Type / Charging Scheme */
+#define ZBEE_ZCL_PRICE_TARIFF_INFORMATION_TYPE            0x0F
+#define ZBEE_ZCL_PRICE_TARIFF_INFORMATION_CHARGING_SCHEME 0xF0
+
+/* Tariff Information Price Trailing Digit */
+#define ZBEE_ZCL_PRICE_TARIFF_INFORMATION_PRICE_TRAILING_DIGIT      0xF0
+
+/* Price Matrix Tier/Block ID */
+#define ZBEE_ZCL_PRICE_PRICE_MATRIX_TIER_BLOCK_ID_BLOCK     0x0F
+#define ZBEE_ZCL_PRICE_PRICE_MATRIX_TIER_BLOCK_ID_TIER      0xF0
+
+/* Block Thresholds Tier/Number of Block Thresholds */
+#define ZBEE_ZCL_PRICE_BLOCK_THRESHOLDS_NUMBER_OF_BLOCK_THRESHOLDS     0x0F
+#define ZBEE_ZCL_PRICE_BLOCK_THRESHOLDS_TIER                           0xF0
+
+/* CO2 Value Trailing Digit */
+#define ZBEE_ZCL_PRICE_CO2_VALUE_TRAILING_DIGIT      0xF0
+
+/* Billing Period Duration Type */
+#define ZBEE_ZCL_PRICE_BILLING_PERIOD_DURATION_TIME_BASE      0x0F
+#define ZBEE_ZCL_PRICE_BILLING_PERIOD_DURATION_CONTROL      0xF0
+
+/* Billign Period Tariff Type */
+#define ZBEE_ZCL_PRICE_BILLING_PERIOD_TARIFF_TYPE 0x0F
+
+/* Consolidated Bill Trailing Digit */
+#define ZBEE_ZCL_PRICE_CONSOLIDATED_BILL_TRAILING_DIGIT      0xF0
+
 /*************************/
 /* Function Declarations */
 /*************************/
@@ -340,6 +392,38 @@ void proto_reg_handoff_zbee_zcl_price(void);
 
 /* Attribute Dissector Helpers */
 static void dissect_zcl_price_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+/* Command Dissector Helpers */
+static void dissect_zcl_price_get_current_price              (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_get_scheduled_prices           (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_get_price_acknowledgement      (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_get_block_period               (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_get_conversion_factor          (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_get_calorific_value            (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_get_tariff_information         (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_get_price_matrix               (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_get_block_thresholds           (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_get_co2_value                  (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_get_tier_labels                (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_get_billing_period             (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_get_consolidated_bill          (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_get_cpp_event                  (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_get_credit_payment             (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_publish_price                  (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_publish_block_period           (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_publish_conversion_factor      (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_publish_calorific_value        (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_publish_tariff_information     (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_publish_price_matrix           (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_publish_block_thresholds       (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_publish_co2_value              (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_publish_tier_labels            (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_publish_billing_period         (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_publish_consolidated_bill      (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_publish_cpp_event              (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_publish_credit_payment         (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_publish_currency_conversion    (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_price_publish_cancel_tariff          (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 
 /*************************/
 /* Global Variables      */
@@ -354,9 +438,134 @@ static int hf_zbee_zcl_price_srv_tx_cmd_id = -1;
 static int hf_zbee_zcl_price_srv_rx_cmd_id = -1;
 static int hf_zbee_zcl_price_attr_id = -1;
 static int hf_zbee_zcl_price_attr_reporting_status = -1;
+static int hf_zbee_zcl_price_provider_id = -1;
+static int hf_zbee_zcl_price_issuer_event_id = -1;
+static int hf_zbee_zcl_price_min_issuer_event_id = -1;
+static int hf_zbee_zcl_price_issuer_tariff_id = -1;
+static int hf_zbee_zcl_price_command_index = -1;
+static int hf_zbee_zcl_price_total_number_of_commands = -1;
+static int hf_zbee_zcl_price_number_of_commands = -1;
+static int hf_zbee_zcl_price_number_of_events = -1;
+static int hf_zbee_zcl_price_number_of_records = -1;
+static int hf_zbee_zcl_price_number_of_block_thresholds = -1;
+static int hf_zbee_zcl_price_number_of_generation_tiers = -1;
+static int hf_zbee_zcl_price_extended_number_of_price_tiers = -1;
+static int hf_zbee_zcl_price_command_options = -1;
+static int hf_zbee_zcl_price_control = -1;
+static int hf_zbee_zcl_price_tier = -1;
+static int hf_zbee_zcl_price_tariff_type_mask = -1;
+static int hf_zbee_zcl_price_tariff_type = -1;
+static int hf_zbee_zcl_price_tariff_resolution_period = -1;
+static int hf_zbee_zcl_price_cpp_auth = -1;
+static int hf_zbee_zcl_price_cpp_price_tier= -1;
+static int hf_zbee_zcl_price_rate_label = -1;
+static int hf_zbee_zcl_price_rate_label_length = -1;
+static int hf_zbee_zcl_price_unit_of_measure = -1;
+static int hf_zbee_zcl_price_currency = -1;
+static int hf_zbee_zcl_price_trailing_digit_and_price_tier = -1;
+static int hf_zbee_zcl_price_trailing_digit = -1;
+static int hf_zbee_zcl_price_extended_price_tier = -1;
+static int hf_zbee_zcl_price_number_of_price_tiers_and_register_tier = -1;
+static int hf_zbee_zcl_price_register_tier = -1;
+static int hf_zbee_zcl_price_number_of_price_tiers = -1;
+static int hf_zbee_zcl_price_extended_register_tier = -1;
+static int hf_zbee_zcl_price_duration_in_minutes = -1;
+static int hf_zbee_zcl_price = -1;
+static int hf_zbee_zcl_price_ratio = -1;
+static int hf_zbee_zcl_price_generation_price = -1;
+static int hf_zbee_zcl_price_generation_price_ratio = -1;
+static int hf_zbee_zcl_price_generation_tier = -1;
+static int hf_zbee_zcl_price_alternate_cost_delivered = -1;
+static int hf_zbee_zcl_price_alternate_cost_unit = -1;
+static int hf_zbee_zcl_price_alternate_cost_trailing_digit_mask = -1;
+static int hf_zbee_zcl_price_alternate_cost_trailing_digit = -1;
+static int hf_zbee_zcl_price_start_time = -1;
+static int hf_zbee_zcl_price_earliest_start_time = -1;
+static int hf_zbee_zcl_price_latest_end_time = -1;
+static int hf_zbee_zcl_price_current_time = -1;
+static int hf_zbee_zcl_price_price_ack_time = -1;
+static int hf_zbee_zcl_price_block_period_start_time = -1;
+static int hf_zbee_zcl_price_block_period_duration = -1;
+static int hf_zbee_zcl_price_block_period_duration_type = -1;
+static int hf_zbee_zcl_price_block_period_duration_timebase = -1;
+static int hf_zbee_zcl_price_block_period_duration_control = -1;
+static int hf_zbee_zcl_price_block_period_control = -1;
+static int hf_zbee_zcl_price_conversion_factor = -1;
+static int hf_zbee_zcl_price_conversion_factor_trailing_digit_mask = -1;
+static int hf_zbee_zcl_price_conversion_factor_trailing_digit = -1;
+static int hf_zbee_zcl_price_calorific_value = -1;
+static int hf_zbee_zcl_price_calorific_value_unit = -1;
+static int hf_zbee_zcl_price_calorific_value_trailing_digit_mask = -1;
+static int hf_zbee_zcl_price_calorific_value_trailing_digit = -1;
+static int hf_zbee_zcl_price_tariff_information_type_and_charging_scheme = -1;
+static int hf_zbee_zcl_price_tariff_information_type = -1;
+static int hf_zbee_zcl_price_tariff_information_charging_scheme = -1;
+static int hf_zbee_zcl_price_tariff_information_tariff_label = -1;
+static int hf_zbee_zcl_price_tariff_information_number_of_price_tiers_in_use = -1;
+static int hf_zbee_zcl_price_tariff_information_number_of_block_thresholds_in_use = -1;
+static int hf_zbee_zcl_price_tariff_information_price_trailing_digit_mask = -1;
+static int hf_zbee_zcl_price_tariff_information_price_trailing_digit = -1;
+static int hf_zbee_zcl_price_tariff_information_standing_charge = -1;
+static int hf_zbee_zcl_price_tariff_information_tier_block_mode = -1;
+static int hf_zbee_zcl_price_tariff_information_block_threshold_multiplier = -1;
+static int hf_zbee_zcl_price_tariff_information_block_threshold_divisor = -1;
+static int hf_zbee_zcl_price_price_matrix_sub_payload_control = -1;
+static int hf_zbee_zcl_price_price_matrix_tier_block_id = -1;
+static int hf_zbee_zcl_price_price_matrix_tier_block_id_block = -1;
+static int hf_zbee_zcl_price_price_matrix_tier_block_id_tier = -1;
+static int hf_zbee_zcl_price_price_matrix_tier_block_id_tou_tier = -1;
+static int hf_zbee_zcl_price_price_matrix_price = -1;
+static int hf_zbee_zcl_price_block_thresholds_sub_payload_control = -1;
+static int hf_zbee_zcl_price_block_thresholds_tier_number_of_block_thresholds = -1;
+static int hf_zbee_zcl_price_block_thresholds_tier = -1;
+static int hf_zbee_zcl_price_block_thresholds_number_of_block_thresholds = -1;
+static int hf_zbee_zcl_price_block_thresholds_block_threshold = -1;
+static int hf_zbee_zcl_price_co2_value = -1;
+static int hf_zbee_zcl_price_co2_unit = -1;
+static int hf_zbee_zcl_price_co2_value_trailing_digit_mask = -1;
+static int hf_zbee_zcl_price_co2_value_trailing_digit = -1;
+static int hf_zbee_zcl_price_tier_labels_number_of_labels = -1;
+static int hf_zbee_zcl_price_tier_labels_tier_id = -1;
+static int hf_zbee_zcl_price_tier_labels_tier_label = -1;
+static int hf_zbee_zcl_price_billing_period_start_time = -1;
+static int hf_zbee_zcl_price_billing_period_duration = -1;
+static int hf_zbee_zcl_price_billing_period_duration_type = -1;
+static int hf_zbee_zcl_price_billing_period_duration_time_base = -1;
+static int hf_zbee_zcl_price_billing_period_duration_control = -1;
+static int hf_zbee_zcl_price_consolidated_bill = -1;
+static int hf_zbee_zcl_price_consolidated_bill_trailing_digit_mask = -1;
+static int hf_zbee_zcl_price_consolidated_bill_trailing_digit = -1;
+static int hf_zbee_zcl_price_credit_payment_due_date = -1;
+static int hf_zbee_zcl_price_credit_payment_overdue_amount = -1;
+static int hf_zbee_zcl_price_credit_payment_status = -1;
+static int hf_zbee_zcl_price_credit_payment = -1;
+static int hf_zbee_zcl_price_credit_payment_date = -1;
+static int hf_zbee_zcl_price_credit_payment_ref = -1;
+static int hf_zbee_zcl_price_old_currency = -1;
+static int hf_zbee_zcl_price_new_currency = -1;
+static int hf_zbee_zcl_price_currency_change_control_flags = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_zbee_zcl_price = -1;
+static gint ett_zbee_zcl_price_tariff_type = -1;
+static gint ett_zbee_zcl_price_trailing_digit_and_price_tier = -1;
+static gint ett_zbee_zcl_price_number_of_price_tiers_and_register_tier = -1;
+static gint ett_zbee_zcl_price_alternate_cost_trailing_digit = -1;
+static gint ett_zbee_zcl_price_block_period_duration_type = -1;
+static gint ett_zbee_zcl_price_conversion_factor_trailing_digit = -1;
+static gint ett_zbee_zcl_price_calorific_value_trailing_digit = -1;
+static gint ett_zbee_zcl_price_tariff_information_tariff_type_and_charging_scheme = -1;
+static gint ett_zbee_zcl_price_tariff_information_price_trailing_digit = -1;
+static gint ett_zbee_zcl_price_price_matrix_tier_block_id = -1;
+static gint ett_zbee_zcl_price_block_thresholds_tier_number_of_block_thresholds = -1;
+static gint ett_zbee_zcl_price_co2_value_trailing_digit = -1;
+static gint ett_zbee_zcl_price_billing_period_duration_type = -1;
+static gint ett_zbee_zcl_price_consolidated_bill_trailing_digit = -1;
+
+static const int * ett_zbee_zcl_price_tariff_type_mask[] = {
+    &hf_zbee_zcl_price_tariff_type,
+    NULL
+};
 
 /*************************/
 /* Function Bodies       */
@@ -397,6 +606,7 @@ dissect_zcl_price_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guin
 static int
 dissect_zbee_zcl_price(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
+    proto_tree        *payload_tree;
     zbee_zcl_packet   *zcl;
     guint             offset = 0;
     guint8            cmd_id;
@@ -421,77 +631,77 @@ dissect_zbee_zcl_price(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
         if (rem_len > 0) {
-            proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_price, NULL, "Payload");
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_price, NULL, "Payload");
 
             /* Call the appropriate command dissector */
             switch (cmd_id) {
 
                 case ZBEE_ZCL_CMD_ID_PRICE_GET_CURRENT_PRICE:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_get_current_price(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_GET_SCHEDULED_PRICES:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_get_scheduled_prices(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_GET_PRICE_ACKNOWLEDGEMENT:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_get_price_acknowledgement(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_GET_BLOCK_PERIOD:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_get_block_period(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_GET_CONVERSION_FACTOR:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_get_conversion_factor(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_GET_CALORIFIC_VALUE:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_get_calorific_value(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_GET_TARIFF_INFORMATION:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_get_tariff_information(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_GET_PRICE_MATRIX:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_get_price_matrix(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_GET_BLOCK_THRESHOLDS:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_get_block_thresholds(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_GET_CO2_VALUE:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_get_co2_value(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_GET_TIER_LABELS:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_get_tier_labels(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_GET_BILLING_PERIOD:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_get_billing_period(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_GET_CONSOLIDATED_BILL:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_get_consolidated_bill(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_CPP_EVENT_RESPONSE:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_get_cpp_event(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_GET_CREDIT_PAYMENT:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_get_credit_payment(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_GET_CURRENCY_CONVERSION:
-                    /* Add function to dissect payload */
+                    /* No Payload */
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_GET_TARIFF_CANCELLATION:
-                    /* Add function to dissect payload */
+                    /* No Payload */
                     break;
 
                 default:
@@ -511,69 +721,69 @@ dissect_zbee_zcl_price(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
         if (rem_len > 0) {
-            proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_price, NULL, "Payload");
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_price, NULL, "Payload");
 
             /* Call the appropriate command dissector */
             switch (cmd_id) {
 
                 case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_PRICE:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_publish_price(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_BLOCK_PERIOD:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_publish_block_period(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_CONVERSION_FACTOR:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_publish_conversion_factor(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_CALORIFIC_VALUE:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_publish_calorific_value(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_TARIFF_INFORMATION:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_publish_tariff_information(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_PRICE_MATRIX:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_publish_price_matrix(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_BLOCK_THRESHOLDS:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_publish_block_thresholds(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_CO2_VALUE:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_publish_co2_value(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_TIER_LABELS:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_publish_tier_labels(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_BILLING_PERIOD:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_publish_billing_period(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_CONSOLIDATED_BILL:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_publish_consolidated_bill(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_CPP_EVENT:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_publish_cpp_event(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_CREDIT_PAYMENT:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_publish_credit_payment(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_PUBLISH_CURRENCY_CONVERSION:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_publish_currency_conversion(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_PRICE_CANCEL_TARIFF:
-                    /* Add function to dissect payload */
+                    dissect_zcl_price_publish_cancel_tariff(tvb, payload_tree, &offset);
                     break;
 
                 default:
@@ -584,6 +794,1252 @@ dissect_zbee_zcl_price(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_price*/
+
+/**
+ *This function manages the Get Current Price payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_get_current_price(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Command Options */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_command_options, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+} /*dissect_zcl_price_get_current_price*/
+
+/**
+ *This function manages the Get Scheduled Prices payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_get_scheduled_prices(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t start_time;
+
+    /* Start Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_price_start_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    /* Number of Events */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_number_of_events, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+} /*dissect_zcl_price_get_scheduled_prices*/
+
+/**
+ *This function manages the Get Price Acknowledgement payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_get_price_acknowledgement(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t price_ack_time;
+
+    /* Provider ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Price Ack Time */
+    price_ack_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    price_ack_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_price_price_ack_time, tvb, *offset, 4, &price_ack_time);
+    *offset += 4;
+
+    /* Price Control */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_control, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+} /*dissect_zcl_price_get_price_acknowledgement*/
+
+/**
+ *This function manages the Get Block Period payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_get_block_period(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t start_time;
+
+    /* Start Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_price_start_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    /* Number of Events */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_number_of_events, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* (Optional) Tariff Type */
+    if (tvb_reported_length_remaining(tvb, *offset) > 0) {
+        proto_tree_add_item(tree, hf_zbee_zcl_price_tariff_type, tvb, *offset, 1, ENC_NA);
+        *offset += 1;
+    }
+} /*dissect_zcl_price_get_block_period*/
+
+/**
+ *This function manages the Get Conversion Factor payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_get_conversion_factor(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t earliest_start_time;
+
+    /* Earliest Start Time */
+    earliest_start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    earliest_start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_price_earliest_start_time, tvb, *offset, 4, &earliest_start_time);
+    *offset += 4;
+
+    /* Min Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_min_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Number of Commands */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_number_of_commands, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+} /*dissect_zcl_price_get_conversion_factor*/
+
+/**
+ *This function manages the Get Calorific Value payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_get_calorific_value(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t earliest_start_time;
+
+    /* Earliest Start Time */
+    earliest_start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    earliest_start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_price_earliest_start_time, tvb, *offset, 4, &earliest_start_time);
+    *offset += 4;
+
+    /* Min Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_min_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Number of Commands */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_number_of_commands, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+} /*dissect_zcl_price_get_calorific_value*/
+
+/**
+ *This function manages the Get Tariff Information payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_get_tariff_information(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t earliest_start_time;
+
+    /* Earliest Start Time */
+    earliest_start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    earliest_start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_price_earliest_start_time, tvb, *offset, 4, &earliest_start_time);
+    *offset += 4;
+
+    /* Min Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_min_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Number of Commands */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_number_of_commands, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Tariff Type */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_tariff_type, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+} /*dissect_zcl_price_get_tariff_information*/
+
+/**
+ *This function manages the Get Price Matrix payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_get_price_matrix(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Issuer Tariff ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_issuer_tariff_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+} /*dissect_zcl_price_get_price_matrix*/
+
+/**
+ *This function manages the Get Block Thresholds payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_get_block_thresholds(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Issuer Tariff ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_issuer_tariff_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+} /*dissect_zcl_price_get_block_thresholds*/
+
+/**
+ *This function manages the Get CO2 Value payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_get_co2_value(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t earliest_start_time;
+
+    /* Earliest Start Time */
+    earliest_start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    earliest_start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_price_earliest_start_time, tvb, *offset, 4, &earliest_start_time);
+    *offset += 4;
+
+    /* Min Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_min_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Number of Commands */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_number_of_commands, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* (Optional) Tariff Type */
+    if (tvb_reported_length_remaining(tvb, *offset) > 0) {
+        proto_tree_add_item(tree, hf_zbee_zcl_price_tariff_type, tvb, *offset, 1, ENC_NA);
+        *offset += 1;
+    }
+} /*dissect_zcl_price_get_co2_value*/
+
+/**
+ *This function manages the Get Tier Labels payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_get_tier_labels(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Issuer Tariff ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_issuer_tariff_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+} /*dissect_zcl_price_get_tier_labels*/
+
+/**
+ *This function manages the Get Billing Period payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_get_billing_period(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t earliest_start_time;
+
+    /* Earliest Start Time */
+    earliest_start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    earliest_start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_price_earliest_start_time, tvb, *offset, 4, &earliest_start_time);
+    *offset += 4;
+
+    /* Min Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_min_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Number of Commands */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_number_of_commands, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* (Optional) Tariff Type */
+    if (tvb_reported_length_remaining(tvb, *offset) > 0) {
+        proto_tree_add_item(tree, hf_zbee_zcl_price_tariff_type, tvb, *offset, 1, ENC_NA);
+        *offset += 1;
+    }
+
+} /*dissect_zcl_price_get_billing_period*/
+
+/**
+ *This function manages the Get Consolidated Bill payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_get_consolidated_bill(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t earliest_start_time;
+
+    /* Earliest Start Time */
+    earliest_start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    earliest_start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_price_earliest_start_time, tvb, *offset, 4, &earliest_start_time);
+    *offset += 4;
+
+    /* Min Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_min_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Number of Commands */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_number_of_commands, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* (Optional) Tariff Type */
+    if (tvb_reported_length_remaining(tvb, *offset) > 0) {
+        proto_tree_add_item(tree, hf_zbee_zcl_price_tariff_type, tvb, *offset, 1, ENC_NA);
+        *offset += 1;
+    }
+
+} /*dissect_zcl_price_get_consolidated_bill*/
+
+/**
+ *This function manages the Get CPP Event Response payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_get_cpp_event(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* CPP Auth */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_cpp_auth, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+} /*dissect_zcl_price_get_event_response*/
+
+/**
+ *This function manages the Get Credit Payment payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_get_credit_payment(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t latest_end_time;
+
+    /* Latest End Time */
+    latest_end_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    latest_end_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_price_latest_end_time, tvb, *offset, 4, &latest_end_time);
+    *offset += 4;
+
+    /* Number of Records */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_number_of_records, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+} /*dissect_zcl_price_get_credit_payment*/
+
+/**
+ *This function manages the Publish Price payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_publish_price(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    guint   rate_label_len;
+    guint8 *rate_label_data;
+    nstime_t start_time;
+    nstime_t current_time;
+
+    static const int * trailing_digit[] = {
+        &hf_zbee_zcl_price_tier,
+        &hf_zbee_zcl_price_trailing_digit,
+        NULL
+    };
+
+    static const int * number_of_price_tiers_and_register_tier[] = {
+        &hf_zbee_zcl_price_register_tier,
+        &hf_zbee_zcl_price_number_of_price_tiers,
+        NULL
+    };
+
+    static const int * alternate_cost_trailing_digit[] = {
+        &hf_zbee_zcl_price_alternate_cost_trailing_digit,
+        NULL
+    };
+
+    /* Provider ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Rate Label Length */
+    rate_label_len = tvb_get_guint8(tvb, *offset); /* string length */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_rate_label_length, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Rate Label */
+    rate_label_data = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, rate_label_len, ENC_LITTLE_ENDIAN);
+    proto_tree_add_string(tree, hf_zbee_zcl_price_rate_label, tvb, *offset, rate_label_len, rate_label_data);
+    *offset += rate_label_len;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Current Time */
+    current_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    current_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_price_current_time, tvb, *offset, 4, &current_time);
+    *offset += 4;
+
+    /* Unit of Measure */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_unit_of_measure, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Currency */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_currency, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Price Trailing Digit and Price Tier */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_trailing_digit_and_price_tier, ett_zbee_zcl_price_trailing_digit_and_price_tier, trailing_digit, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Number of Price Tiers and Register Tier */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_number_of_price_tiers_and_register_tier, ett_zbee_zcl_price_number_of_price_tiers_and_register_tier, number_of_price_tiers_and_register_tier, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Start Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_price_start_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    /* Duration in Minutes */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_duration_in_minutes, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Price */
+    proto_tree_add_item(tree, hf_zbee_zcl_price, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* (Optional) Price Ratio */
+    if ( tvb_reported_length_remaining(tvb, *offset) <= 0 ) return;
+    proto_tree_add_item(tree, hf_zbee_zcl_price_ratio, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* (Optional) Generation Price */
+    if ( tvb_reported_length_remaining(tvb, *offset) <= 0 ) return;
+    proto_tree_add_item(tree, hf_zbee_zcl_price_generation_price, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* (Optional) Generation Price Ratio */
+    if ( tvb_reported_length_remaining(tvb, *offset) <= 0 ) return;
+    proto_tree_add_item(tree, hf_zbee_zcl_price_generation_price_ratio, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* (Optional) Alternate Cost Delivered */
+    if ( tvb_reported_length_remaining(tvb, *offset) <= 0 ) return;
+    proto_tree_add_item(tree, hf_zbee_zcl_price_alternate_cost_delivered, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* (Optional) Alternate Cost Unit */
+    if ( tvb_reported_length_remaining(tvb, *offset) <= 0 ) return;
+    proto_tree_add_item(tree, hf_zbee_zcl_price_alternate_cost_unit, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* (Optional) Alternate Cost Trailing Digit */
+    if ( tvb_reported_length_remaining(tvb, *offset) <= 0 ) return;
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_alternate_cost_trailing_digit_mask, ett_zbee_zcl_price_alternate_cost_trailing_digit, alternate_cost_trailing_digit, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* (Optional) Number of Block Thresholds */
+    if ( tvb_reported_length_remaining(tvb, *offset) <= 0 ) return;
+    proto_tree_add_item(tree, hf_zbee_zcl_price_number_of_block_thresholds, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* (Optional) Price Control */
+    if ( tvb_reported_length_remaining(tvb, *offset) <= 0 ) return;
+    proto_tree_add_item(tree, hf_zbee_zcl_price_control, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* (Optional) Number of Generation Tiers */
+    if ( tvb_reported_length_remaining(tvb, *offset) <= 0 ) return;
+    proto_tree_add_item(tree, hf_zbee_zcl_price_number_of_generation_tiers, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* (Optional) Generation Tier */
+    if ( tvb_reported_length_remaining(tvb, *offset) <= 0 ) return;
+    proto_tree_add_item(tree, hf_zbee_zcl_price_generation_tier, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* (Optional) Extended Number of Price Tiers */
+    if ( tvb_reported_length_remaining(tvb, *offset) <= 0 ) return;
+    proto_tree_add_item(tree, hf_zbee_zcl_price_extended_number_of_price_tiers, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* (Optional) Extended Price Tier */
+    if ( tvb_reported_length_remaining(tvb, *offset) <= 0 ) return;
+    proto_tree_add_item(tree, hf_zbee_zcl_price_extended_price_tier, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* (Optional) Extended Register Tier */
+    if ( tvb_reported_length_remaining(tvb, *offset) <= 0 ) return;
+    proto_tree_add_item(tree, hf_zbee_zcl_price_extended_register_tier, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+} /*dissect_zcl_price_publish_price*/
+
+/**
+ *This function manages the Publish Block Period payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_publish_block_period(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t block_period_start_time;
+
+    static const int * duration_type[] = {
+        &hf_zbee_zcl_price_block_period_duration_timebase,
+        &hf_zbee_zcl_price_block_period_duration_control,
+        NULL
+    };
+
+    /* Provider ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Block Period Start Time */
+    block_period_start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    block_period_start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_price_block_period_start_time, tvb, *offset, 4, &block_period_start_time);
+    *offset += 4;
+
+    /* Block Period Duration */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_block_period_duration, tvb, *offset, 3, ENC_NA);
+    *offset += 1;
+
+    /* Block Period Control */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_block_period_control, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Block Period Duration Type */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_block_period_duration_type, ett_zbee_zcl_price_block_period_duration_type, duration_type, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Tariff Type */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_tariff_type_mask, ett_zbee_zcl_price_tariff_type, ett_zbee_zcl_price_tariff_type_mask, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Tariff Resolution Period */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_tariff_resolution_period, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+} /*dissect_zcl_price_publish_block_period*/
+
+/**
+ *This function manages the Publish Conversion Factor payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_publish_conversion_factor(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t start_time;
+
+    static const int * conversion_factor_trailing_digit[] = {
+        &hf_zbee_zcl_price_conversion_factor_trailing_digit,
+        NULL
+    };
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Start Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_price_start_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    /* Conversion Factor */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_conversion_factor, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Conversion Factor Trailing digit */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_conversion_factor_trailing_digit_mask, ett_zbee_zcl_price_conversion_factor_trailing_digit, conversion_factor_trailing_digit, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+} /*dissect_zcl_price_publish_conversion_factor*/
+
+/**
+ *This function manages the Publish Calorific Value payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_publish_calorific_value(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t start_time;
+
+    static const int * calorific_value_trailing_digit[] = {
+        &hf_zbee_zcl_price_calorific_value_trailing_digit,
+        NULL
+    };
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Start Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_price_start_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    /* Calorific Value */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_calorific_value, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Calorific Value Unit */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_calorific_value_unit, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Calorific Value Trailing digit */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_calorific_value_trailing_digit_mask, ett_zbee_zcl_price_calorific_value_trailing_digit, calorific_value_trailing_digit, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+} /*dissect_zcl_price_publish_calorific_value*/
+
+/**
+ *This function manages the Publish Tariff Information payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_publish_tariff_information(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    int length;
+    nstime_t start_time;
+
+    static const int * price_trailing_digit[] = {
+        &hf_zbee_zcl_price_tariff_information_price_trailing_digit,
+        NULL
+    };
+
+    static const int * type_and_charging_scheme[] = {
+        &hf_zbee_zcl_price_tariff_information_type,
+        &hf_zbee_zcl_price_tariff_information_charging_scheme,
+        NULL
+    };
+
+    /* Provider ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Issuer Tariff ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_issuer_tariff_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Start Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_price_start_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    /* Tariff Type / Charging Scheme */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_tariff_information_type_and_charging_scheme, ett_zbee_zcl_price_tariff_information_tariff_type_and_charging_scheme, type_and_charging_scheme, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Tariff Label */
+    proto_tree_add_item_ret_length(tree, hf_zbee_zcl_price_tariff_information_tariff_label, tvb, *offset, 1, ENC_NA|ENC_ZIGBEE, &length);
+    *offset += length;
+
+    /* Number of Price Tiers in Use */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_tariff_information_number_of_price_tiers_in_use, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Number of Block Thresholds in Use */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_tariff_information_number_of_block_thresholds_in_use, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Unit of Measure */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_unit_of_measure, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Currency */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_currency, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Price Trailing Digit */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_tariff_information_price_trailing_digit_mask, ett_zbee_zcl_price_tariff_information_price_trailing_digit, price_trailing_digit, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Standing Charge */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_tariff_information_standing_charge, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Tier Block Mode */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_tariff_information_tier_block_mode, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Block Threshold Multiplier */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_tariff_information_block_threshold_multiplier, tvb, *offset, 3, ENC_LITTLE_ENDIAN);
+    *offset += 3;
+
+    /* Block Threshold Divisor */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_tariff_information_block_threshold_divisor, tvb, *offset, 3, ENC_LITTLE_ENDIAN);
+    *offset += 3;
+} /*dissect_zcl_price_publish_tariff_information*/
+
+/**
+ *This function manages the Publish Price Matrix payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_publish_price_matrix(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    guint8 sub_payload_control;
+    nstime_t start_time;
+
+    static const int * tier_block_id[] = {
+        &hf_zbee_zcl_price_price_matrix_tier_block_id_block,
+        &hf_zbee_zcl_price_price_matrix_tier_block_id_tier,
+        NULL
+    };
+
+    /* Provider ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Start Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_price_start_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    /* Issuer Tariff ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_issuer_tariff_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Command Index */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_command_index, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Total Number of Commands */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_total_number_of_commands, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Sub-Payload Control */
+    sub_payload_control = tvb_get_guint8(tvb, *offset) && 0x01; /* First bit determines Tier/Block ID field type */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_price_matrix_sub_payload_control, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    while (tvb_reported_length_remaining(tvb, *offset) > 0) {
+        /* Tier/Block ID */
+        if (sub_payload_control == 0)
+            proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_price_matrix_tier_block_id, ett_zbee_zcl_price_price_matrix_tier_block_id, tier_block_id, ENC_LITTLE_ENDIAN);
+        else
+            proto_tree_add_item(tree, hf_zbee_zcl_price_price_matrix_tier_block_id_tou_tier, tvb, *offset, 1, ENC_NA);
+        *offset += 1;
+
+        /* Price */
+        proto_tree_add_item(tree, hf_zbee_zcl_price_price_matrix_price, tvb, *offset, 4, ENC_NA);
+        *offset += 4;
+    }
+} /*dissect_zcl_price_publish_price_matrix*/
+
+/**
+ *This function manages the Publish Block Thresholds payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_publish_block_thresholds(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    guint8 sub_payload_control;
+    nstime_t start_time;
+
+    static const int * tier_number_of_block_thresholds[] = {
+        &hf_zbee_zcl_price_block_thresholds_number_of_block_thresholds,
+        &hf_zbee_zcl_price_block_thresholds_tier,
+        NULL
+    };
+
+    static const int * number_of_block_thresholds[] = {
+        &hf_zbee_zcl_price_block_thresholds_number_of_block_thresholds,
+        NULL
+    };
+
+    /* Provider ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Start Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_price_start_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    /* Issuer Tariff ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_issuer_tariff_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Command Index */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_command_index, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Total Number of Commands */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_total_number_of_commands, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Sub-Payload Control */
+    sub_payload_control = tvb_get_guint8(tvb, *offset) && 0x01; /* First bit determines Tier/Number of Block Thresholds field type */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_block_thresholds_sub_payload_control, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    while (tvb_reported_length_remaining(tvb, *offset) > 0) {
+        /* Tier/Number of Block Thresholds */
+        if (sub_payload_control == 0)
+            proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_block_thresholds_tier_number_of_block_thresholds, ett_zbee_zcl_price_block_thresholds_tier_number_of_block_thresholds, tier_number_of_block_thresholds, ENC_LITTLE_ENDIAN);
+        else
+            proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_block_thresholds_tier_number_of_block_thresholds, ett_zbee_zcl_price_block_thresholds_tier_number_of_block_thresholds, number_of_block_thresholds, ENC_LITTLE_ENDIAN);
+        *offset += 1;
+
+        /* Block Threshold */
+        proto_tree_add_item(tree, hf_zbee_zcl_price_block_thresholds_block_threshold, tvb, *offset, 6, ENC_NA);
+        *offset += 6;
+    }
+} /*dissect_zcl_price_publish_block_thresholds*/
+
+/**
+ *This function manages the Publish CO2 Value payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_publish_co2_value(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t start_time;
+
+    static const int * co2_value_trailing_digit[] = {
+        &hf_zbee_zcl_price_co2_value_trailing_digit,
+        NULL
+    };
+
+    /* Provider ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Start Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_price_start_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    /* Tariff Type */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_tariff_type_mask, ett_zbee_zcl_price_tariff_type, ett_zbee_zcl_price_tariff_type_mask, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* CO2 Value */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_co2_value, tvb, *offset, 4, ENC_NA);
+    *offset += 4;
+
+    /* CO2 Unit */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_co2_unit, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* CO2 Value Trailing Digit */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_co2_value_trailing_digit_mask, ett_zbee_zcl_price_co2_value_trailing_digit, co2_value_trailing_digit, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+} /*dissect_zcl_price_publish_co2_value*/
+
+/**
+ *This function manages the Publish Tier Labels payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_publish_tier_labels(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    guint8 number_of_labels;
+    int length;
+
+    /* Provider ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Issuer Tariff ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_issuer_tariff_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Command Index */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_command_index, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Total Number of Commands */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_total_number_of_commands, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Number of Labels */
+    number_of_labels = tvb_get_guint8(tvb, *offset);
+    proto_tree_add_item(tree, hf_zbee_zcl_price_tier_labels_number_of_labels, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    for (gint i = 0; tvb_reported_length_remaining(tvb, *offset) >= 0 && i < number_of_labels; i++) {
+        /* Tier ID */
+        proto_tree_add_item(tree, hf_zbee_zcl_price_tier_labels_tier_id, tvb, *offset, 1, ENC_NA);
+        *offset += 1;
+
+        /* Tier Label */
+        proto_tree_add_item_ret_length(tree, hf_zbee_zcl_price_tier_labels_tier_label, tvb, *offset, 1, ENC_NA|ENC_ZIGBEE, &length);
+        *offset += length;
+    }
+} /*dissect_zcl_price_publish_tier_labels*/
+
+/**
+ *This function manages the Publish Consolidated Bill payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_publish_billing_period(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t start_time;
+
+    static const int * duration_type[] = {
+        &hf_zbee_zcl_price_billing_period_duration_time_base,
+        &hf_zbee_zcl_price_billing_period_duration_control,
+        NULL
+    };
+
+    /* Provider ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Billing Period Start Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_price_billing_period_start_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    /* Billing Period Duration */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_billing_period_duration, tvb, *offset, 3, ENC_NA);
+    *offset += 3;
+
+    /* Billing Period Duration Type */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_billing_period_duration_type, ett_zbee_zcl_price_billing_period_duration_type, duration_type, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Tariff Type */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_tariff_type_mask, ett_zbee_zcl_price_tariff_type, ett_zbee_zcl_price_tariff_type_mask, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+} /*dissect_zcl_price_publish_billing_period*/
+
+/**
+ *This function manages the Publish Consolidated Bill payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_publish_consolidated_bill(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t start_time;
+
+    static const int * bill_trailing_digit[] = {
+        &hf_zbee_zcl_price_consolidated_bill_trailing_digit,
+        NULL
+    };
+
+    static const int * duration_type[] = {
+        &hf_zbee_zcl_price_billing_period_duration_time_base,
+        &hf_zbee_zcl_price_billing_period_duration_control,
+        NULL
+    };
+
+    /* Provider ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Billing Period Start Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_price_start_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    /* Billing Period Duration */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_billing_period_duration, tvb, *offset, 3, ENC_NA);
+    *offset += 3;
+
+    /* Billing Period Duration Type */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_billing_period_duration_type, ett_zbee_zcl_price_billing_period_duration_type, duration_type, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Tariff Type */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_tariff_type_mask, ett_zbee_zcl_price_tariff_type, ett_zbee_zcl_price_tariff_type_mask, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Consolidated Bill */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_consolidated_bill, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Currency */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_currency, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Bill Trailing Digit */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_consolidated_bill_trailing_digit_mask, ett_zbee_zcl_price_consolidated_bill_trailing_digit, bill_trailing_digit, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+} /*dissect_zcl_price_publish_consolidated_bill*/
+/**
+ *This function manages the Publish CPP Event payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_publish_cpp_event(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t start_time;
+
+    /* Provider ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Start Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_price_start_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    /* Duration in Minutes */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_duration_in_minutes, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Tariff Type */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_tariff_type_mask, ett_zbee_zcl_price_tariff_type, ett_zbee_zcl_price_tariff_type_mask, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* CPP Price Tier */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_cpp_price_tier, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* CPP Auth */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_cpp_auth, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+} /*dissect_zcl_price_publish_cpp_event*/
+
+
+/**
+ *This function manages the Publish Credit Payment payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_publish_credit_payment(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t credit_payment_due_date;
+    nstime_t credit_payment_date;
+    int length;
+
+    /* Provider ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Credit Payment Due Date */
+    credit_payment_due_date.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    credit_payment_due_date.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_price_credit_payment_due_date, tvb, *offset, 4, &credit_payment_due_date);
+    *offset += 4;
+
+    /* Credit Payment Overdue Amount */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_credit_payment_overdue_amount, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Credit Payment Status */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_credit_payment_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Credit Payment */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_credit_payment, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Credit Payment Date */
+    credit_payment_date.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    credit_payment_date.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_price_credit_payment_date, tvb, *offset, 4, &credit_payment_date);
+    *offset += 4;
+
+    /* Credit Payment Ref */
+    proto_tree_add_item_ret_length(tree, hf_zbee_zcl_price_credit_payment_ref, tvb, *offset, 1, ENC_NA|ENC_ZIGBEE, &length);
+    *offset += length;
+} /*dissect_zcl_price_publish_credit_payment*/
+
+/**
+ *This function manages the Publish Currency Conversion payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_publish_currency_conversion(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t start_time;
+
+    static const int * conversion_factor_trailing_digit[] = {
+        &hf_zbee_zcl_price_conversion_factor_trailing_digit,
+        NULL
+    };
+
+    /* Provider ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Start Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_price_start_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    /* Old Currency */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_old_currency, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* New Currency */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_new_currency, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Conversion Factor */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_conversion_factor, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Conversion Factor Trailing digit */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_conversion_factor_trailing_digit_mask, ett_zbee_zcl_price_conversion_factor_trailing_digit, conversion_factor_trailing_digit, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Currency Change Control Flags */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_currency_change_control_flags, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+} /*dissect_zcl_price_publish_currency_conversion*/
+
+/**
+ *This function manages the Publish Cancel Tariff payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_price_publish_cancel_tariff(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Provider ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_price_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Tariff Type */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_tariff_type_mask, ett_zbee_zcl_price_tariff_type, ett_zbee_zcl_price_tariff_type_mask, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+} /*dissect_zcl_price_publish_cancel_tariff*/
 
 /**
  *This function registers the ZCL Price dissector
@@ -610,11 +2066,476 @@ proto_register_zbee_zcl_price(void)
             { "Command", "zbee_zcl_se.price.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_price_srv_rx_cmd_names),
             0x00, NULL, HFILL } },
 
-    };
+        { &hf_zbee_zcl_price_provider_id,
+            { "Provider ID", "zbee_zcl_se.price.provider_id", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_issuer_event_id,
+            { "Issuer Event ID", "zbee_zcl_se.price.issuer_event_id", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_min_issuer_event_id,
+            { "Min Issuer Event ID", "zbee_zcl_se.price.min_issuer_event_id", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_issuer_tariff_id,
+            { "Issuer Tariff ID", "zbee_zcl_se.price.issuer_tariff_id", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_command_index,
+            { "Command Index", "zbee_zcl_se.price.command_index", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_total_number_of_commands,
+            { "Total Number of Commands", "zbee_zcl_se.price.total_number_of_commands", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_number_of_commands,
+            { "Number of Commands", "zbee_zcl_se.price.number_of_commands", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_number_of_events,
+            { "Number of Events", "zbee_zcl_se.price.number_of_events", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_number_of_records,
+            { "Number of Records", "zbee_zcl_se.price.number_of_records", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_number_of_block_thresholds,
+            { "Number of Block Thresholds", "zbee_zcl_se.price.number_of_block_thresholds", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_number_of_generation_tiers,
+            { "Number of Generation Tiers", "zbee_zcl_se.price.number_of_generation_tiers", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_extended_number_of_price_tiers,
+            { "Extended Number of Price Tiers", "zbee_zcl_se.price.extended_number_of_price_tiers", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_command_options,
+            { "Command Options", "zbee_zcl_se.price.command_options", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_control,
+            { "Price Control", "zbee_zcl_se.price.control", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        /* start Tariff Information Type/Charging Scheme fields */
+        { &hf_zbee_zcl_price_tariff_type_mask,
+            { "Tariff Type", "zbee_zcl_se.price.tariff.type", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+         { &hf_zbee_zcl_price_tariff_type,
+            { "Tariff Type", "zbee_zcl_se.price.tariff.type", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_PRICE_TARIFF_TYPE, NULL, HFILL } },
+         /* end Tariff Information Type/Charging Scheme fields */
+
+        { &hf_zbee_zcl_price_tariff_resolution_period,
+            { "Tariff Resolution Period", "zbee_zcl_se.price.tariff.resolution_period", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_cpp_price_tier,
+            { "CPP Price Tier", "zbee_zcl_se.price.cpp_price_tier", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_cpp_auth,
+            { "CPP Auth", "zbee_zcl_se.price.cpp_auth", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_rate_label_length,
+            { "Rate Label Length", "zbee_zcl_se.price.rate_label.length", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_rate_label,
+            { "Rate Label", "zbee_zcl_se.price.rate_label", FT_STRING, BASE_NONE, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_unit_of_measure,
+            { "Unit of Measure", "zbee_zcl_se.price.unit_of_measure", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_currency,
+            { "Currency", "zbee_zcl_se.price.currency", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        /* start Trailing Digit and Price Tier fields */
+        { &hf_zbee_zcl_price_trailing_digit_and_price_tier,
+            { "Trailing Digit and Price Tier", "zbee_zcl_se.price.trailing_digit_and_price_tier", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_tier,
+            { "Price Tier", "zbee_zcl_se.price.tier", FT_UINT8, BASE_HEX, NULL,
+            ZBEE_ZCL_PRICE_TIER, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_trailing_digit,
+            { "Trailing Digit", "zbee_zcl_se.price.trailing_digit", FT_UINT8, BASE_HEX, NULL,
+            ZBEE_ZCL_PRICE_TRAILING_DIGIT, NULL, HFILL } },
+         /* end Trailing Digit and Price Tier fields */
+
+        /* start Number of Price Tiers and Register Tier fields */
+        { &hf_zbee_zcl_price_number_of_price_tiers_and_register_tier,
+            { "Number of Price Tiers and Register Tier", "zbee_zcl_se.price.number_of_price_tiers_and_register_tier", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_register_tier,
+            { "Register Tier", "zbee_zcl_se.price.register_tier", FT_UINT8, BASE_HEX, NULL,
+            ZBEE_ZCL_PRICE_REGISTER_TIER, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_number_of_price_tiers,
+            { "Number of Price Tiers", "zbee_zcl_se.price.number_of_price_tiers", FT_UINT8, BASE_HEX, NULL,
+            ZBEE_ZCL_PRICE_NUMBER_OF_PRICE_TIERS, NULL, HFILL } },
+        /* end Number of Price Tiers and Register Tier fields */
+
+        { &hf_zbee_zcl_price_extended_price_tier,
+            { "Extended Price Tier", "zbee_zcl_se.price.extended_price_tier", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_extended_register_tier,
+            { "Extended Register Tier", "zbee_zcl_se.price.extended_register_tier", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_duration_in_minutes,
+            { "Duration in Minutes", "zbee_zcl_se.price.duration_in_minutes", FT_UINT16, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price,
+            { "Price", "zbee_zcl_se.price.price", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_ratio,
+            { "Price Ratio", "zbee_zcl_se.price.price.ratio", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_generation_price,
+            { "Generation Price", "zbee_zcl_se.price.generation_price", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_generation_price_ratio,
+            { "Generation Price Ratio", "zbee_zcl_se.price.generation_price.ratio", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_generation_tier,
+            { "Generation Tier", "zbee_zcl_se.price.generation_tier", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_alternate_cost_delivered,
+            { "Alternate Cost Delivered", "zbee_zcl_se.price.alternate_cost_delivered", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_alternate_cost_unit,
+            { "Alternate Cost Unit", "zbee_zcl_se.price.alternate_cost.unit", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        /* start Alternate Cost Trailing Digit */
+        { &hf_zbee_zcl_price_alternate_cost_trailing_digit_mask,
+            { "Alternate Cost Trailing Digit", "zbee_zcl_se.price.alternate_cost.trailing_digit", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_alternate_cost_trailing_digit,
+            { "Alternate Cost Trailing Digit", "zbee_zcl_se.price.alternate_cost.trailing_digit", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_PRICE_ALTERNATE_COST_TRAILING_DIGIT, NULL, HFILL } },
+        /* end Alternate Cost Trailing Digit */
+
+        { &hf_zbee_zcl_price_start_time,
+            { "Start Time", "zbee_zcl_se.price.start_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_earliest_start_time,
+            { "Earliest Start Time", "zbee_zcl_se.price.earliest_start_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_latest_end_time,
+            { "Latest End Time", "zbee_zcl_se.price.latest_end_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_current_time,
+            { "Current Time", "zbee_zcl_se.price.current_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_price_ack_time,
+            { "Price Ack Time", "zbee_zcl_se.price.price_ack_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_block_period_start_time,
+            { "Block Period Start Time", "zbee_zcl_se.price.block_period.start_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_block_period_duration,
+            { "Block Period Duration", "zbee_zcl_se.price.block_period.duration", FT_UINT24, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_block_period_control,
+            { "Block Period Control", "zbee_zcl_se.price.block_period.control", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        /* start Block Period Duration Type fields */
+        { &hf_zbee_zcl_price_block_period_duration_type,
+            { "Block Period Duration Type", "zbee_zcl_se.price.block_period.duration.type", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_block_period_duration_timebase,
+            { "Block Period Duration Timebase", "zbee_zcl_se.price.block_period.duration.timebase", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_PRICE_BLOCK_PERIOD_DURATION_TIMEBASE, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_block_period_duration_control,
+            { "Block Period Duration Control", "zbee_zcl_se.price.block_period.duration.control", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_PRICE_BLOCK_PERIOD_DURATION_CONTROL, NULL, HFILL } },
+        /* end Block Period Duration Type fields */
+
+        { &hf_zbee_zcl_price_conversion_factor,
+            { "Conversion Factor", "zbee_zcl_se.price.conversion_factor", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        /* start Conversion Factor Trailing Digit fields */
+        { &hf_zbee_zcl_price_conversion_factor_trailing_digit_mask,
+            { "Conversion Factor Trailing Digit", "zbee_zcl_se.price.conversion_factor_trailing_digit", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+         { &hf_zbee_zcl_price_conversion_factor_trailing_digit,
+            { "Conversion Factor Trailing Digit", "zbee_zcl_se.price.conversion_factor.trailing_digit", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_PRICE_CONVERSION_FACTOR_TRAILING_DIGIT, NULL, HFILL } },
+        /* end Conversion Factor Trailing Digit fields */
+
+        { &hf_zbee_zcl_price_calorific_value,
+            { "Calorific Value", "zbee_zcl_se.price.calorific_value", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_calorific_value_unit,
+            { "Calorific Value Unit", "zbee_zcl_se.price.calorific_value.unit", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        /* start Calorific Value Trailing Digit fields */
+        { &hf_zbee_zcl_price_calorific_value_trailing_digit_mask,
+            { "Calorific Value Trailing Digit", "zbee_zcl_se.price.calorific_value.trailing_digit", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+         { &hf_zbee_zcl_price_calorific_value_trailing_digit,
+            { "Calorific Value Trailing Digit", "zbee_zcl_se.price.calorific_value.trailing_digit", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_PRICE_CALORIFIC_VALUE_TRAILING_DIGIT, NULL, HFILL } },
+        /* end Calorific Value Trailing Digit fields */
+
+        /* start Tariff Information Type/Charging Scheme fields */
+        { &hf_zbee_zcl_price_tariff_information_type_and_charging_scheme,
+            { "Tariff Type/Charging Scheme", "zbee_zcl_se.price.tariff_information.type_and_charging_scheme", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+         { &hf_zbee_zcl_price_tariff_information_type,
+            { "Tariff Type", "zbee_zcl_se.price.tariff_information.type", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_PRICE_TARIFF_INFORMATION_TYPE, NULL, HFILL } },
+
+         { &hf_zbee_zcl_price_tariff_information_charging_scheme,
+            { "Charging Scheme", "zbee_zcl_se.price.tariff_information.charging_scheme", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_PRICE_TARIFF_INFORMATION_CHARGING_SCHEME, NULL, HFILL } },
+         /* end Tariff Information Type/Charging Scheme fields */
+
+        { &hf_zbee_zcl_price_tariff_information_tariff_label,
+            { "Tariff Label", "zbee_zcl_se.price.tariff_information.tariff_label", FT_STRING, BASE_NONE, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_tariff_information_number_of_price_tiers_in_use,
+            { "Number of Price Tiers in Use", "zbee_zcl_se.price.tariff_information.number_of_price_tiers_in_use", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_tariff_information_number_of_block_thresholds_in_use,
+            { "Number of Block Thresholds in Use", "zbee_zcl_se.price.tariff_information.number_of_block_thresholds_in_use", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        /* start Price Trailing Digit fields */
+        { &hf_zbee_zcl_price_tariff_information_price_trailing_digit_mask,
+            { "Price Trailing Digit", "zbee_zcl_se.price.tariff_information.price.trailing_digit", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_tariff_information_price_trailing_digit,
+            { "Price Trailing Digit", "zbee_zcl_se.price.tariff_information.price.trailing_digit", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_PRICE_TARIFF_INFORMATION_PRICE_TRAILING_DIGIT, NULL, HFILL } },
+        /* start Price Trailing Digit fields */
+
+        { &hf_zbee_zcl_price_tariff_information_standing_charge,
+            { "Standing Charge", "zbee_zcl_se.price.tariff_information.standing_charge", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_tariff_information_tier_block_mode,
+            { "Tier Block Mode", "zbee_zcl_se.price.tariff_information.tier_block_mode", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_block_thresholds_number_of_block_thresholds,
+            { "Number of Block Thresholds", "zbee_zcl_se.price.tariff_information.number_of_block_thresholds", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_PRICE_BLOCK_THRESHOLDS_NUMBER_OF_BLOCK_THRESHOLDS, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_tariff_information_block_threshold_multiplier,
+            { "Block Threshold Multiplier", "zbee_zcl_se.price.tariff_information.block_threshold_multiplier", FT_UINT24, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_tariff_information_block_threshold_divisor,
+            { "Block Threshold Divisor", "zbee_zcl_se.price.tariff_information.block_threshold_divisor", FT_UINT24, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_price_matrix_sub_payload_control,
+            { "Sub Payload Control", "zbee_zcl_se.price.price_matrix.sub_payload_control", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        /* start Tier/Block ID fields */
+        { &hf_zbee_zcl_price_price_matrix_tier_block_id,
+            { "Tier/Block ID", "zbee_zcl_se.price.price_matrix.tier_block_id", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_price_matrix_tier_block_id_block,
+            { "Block", "zbee_zcl_se.price.price_matrix.block", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_PRICE_PRICE_MATRIX_TIER_BLOCK_ID_BLOCK, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_price_matrix_tier_block_id_tier,
+            { "Tier", "zbee_zcl_se.price.price_matrix.tier", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_PRICE_PRICE_MATRIX_TIER_BLOCK_ID_TIER, NULL, HFILL } },
+        /* end Tier/Block ID fields */
+
+        { &hf_zbee_zcl_price_price_matrix_tier_block_id_tou_tier,
+            { "Tier", "zbee_zcl_se.price.price_matrix.tier", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_price_matrix_price,
+            { "Price", "zbee_zcl_se.price.price_matrix.price", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_block_thresholds_sub_payload_control,
+            { "Sub Payload Control", "zbee_zcl_se.price.block_thresholds.sub_payload_control", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        /* start Tier/Number of Block Thresholds fields */
+        { &hf_zbee_zcl_price_block_thresholds_tier_number_of_block_thresholds,
+            { "Tier/Number of Block Thresholds", "zbee_zcl_se.price.block_thresholds.tier_number_of_block_thresholds", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_block_thresholds_tier,
+            { "Tier", "zbee_zcl_se.price.block_thresholds.tier", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_PRICE_BLOCK_THRESHOLDS_TIER, NULL, HFILL } },
+        /* end Tier/Number of Block Thresholds fields */
+
+        { &hf_zbee_zcl_price_block_thresholds_block_threshold,
+            { "Block Threshold", "zbee_zcl_se.price.block_threshold", FT_UINT48, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_co2_value,
+            { "CO2 Value", "zbee_zcl_se.price.co2.value", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_co2_unit,
+            { "CO2 Unit", "zbee_zcl_se.price.co2.unit", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        /* start CO2 Trailing Digit fields */
+        { &hf_zbee_zcl_price_co2_value_trailing_digit_mask,
+            { "CO2 Value Trailing Digit", "zbee_zcl_se.price.co2.value.trailing_digit", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_co2_value_trailing_digit,
+            { "CO2 Value Trailing Digit", "zbee_zcl_se.price.co2.value.trailing_digit", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_PRICE_CO2_VALUE_TRAILING_DIGIT, NULL, HFILL } },
+        /* end CO2 Trailing Digit fields */
+
+        { &hf_zbee_zcl_price_tier_labels_number_of_labels,
+            { "Number of Labels", "zbee_zcl_se.price.tier_labels.number_of_labels", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_tier_labels_tier_id,
+            { "Tier ID", "zbee_zcl_se.price.tier_labels.tier_id", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_tier_labels_tier_label,
+            { "Tariff Label", "zbee_zcl_se.price.tier_labels.tier_label", FT_STRING, BASE_NONE, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_billing_period_start_time,
+            { "Billing Period Start Time", "zbee_zcl_se.price.billing_period.start_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_billing_period_duration,
+            { "Billing Period Duration", "zbee_zcl_se.price.billing_period.duration", FT_UINT24, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        /* start Billing Period Duration Type fields */
+        { &hf_zbee_zcl_price_billing_period_duration_type,
+            { "Billing Period Duration Type", "zbee_zcl_se.price.billing_period.duration.type", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_billing_period_duration_time_base,
+            { "Time Base", "zbee_zcl_se.price.billing_period.duration.time_base", FT_UINT8, BASE_HEX, NULL,
+            ZBEE_ZCL_PRICE_BILLING_PERIOD_DURATION_TIME_BASE, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_billing_period_duration_control,
+            { "Duration Control", "zbee_zcl_se.price.billing_period.duration.control", FT_UINT8, BASE_HEX, NULL,
+            ZBEE_ZCL_PRICE_BILLING_PERIOD_DURATION_CONTROL, NULL, HFILL } },
+        /* end Billing Period Duration Type fields */
+
+        { &hf_zbee_zcl_price_consolidated_bill,
+            { "Consolidated Bill", "zbee_zcl_se.price.consolidated_bill", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        /* start Consolidated Bill Trailing Digit fields */
+        { &hf_zbee_zcl_price_consolidated_bill_trailing_digit_mask,
+            { "Bill Trailing Digit", "zbee_zcl_se.price.consolidated_bill.trailing_digit", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_consolidated_bill_trailing_digit,
+            { "Bill Trailing Digit", "zbee_zcl_se.price.consolidated_bill.trailing_digit", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_PRICE_CONSOLIDATED_BILL_TRAILING_DIGIT, NULL, HFILL } },
+        /* end Consolidated Bill Trailing Digit fields */
+
+        { &hf_zbee_zcl_price_credit_payment_due_date,
+            { "Credit Payment Due Date", "zbee_zcl_se.price.credit_payment.due_date", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_credit_payment_date,
+            { "Credit Payment Date", "zbee_zcl_se.price.credit_payment.date", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_credit_payment_overdue_amount,
+            { "Credit Payment Overdue Amount", "zbee_zcl_se.price.credit_payment.overdue_amount", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_credit_payment_status,
+            { "Credit Payment Status", "zbee_zcl_se.price.credit_payment.status", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_credit_payment,
+            { "Credit Payment", "zbee_zcl_se.price.credit_payment", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_credit_payment_ref,
+            { "Credit Payment Ref", "zbee_zcl_se.price.credit_payment.ref", FT_STRING, BASE_NONE, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_old_currency,
+            { "Old Currency", "zbee_zcl_se.price.old_currency", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_new_currency,
+            { "New Currency", "zbee_zcl_se.price.new_currency", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_currency_change_control_flags,
+            { "Currency Change Control Flags", "zbee_zcl_se.price.currency_change_control_flags", FT_UINT32, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+   };
 
     /* ZCL Price subtrees */
     gint *ett[] = {
         &ett_zbee_zcl_price,
+        &ett_zbee_zcl_price_tariff_type,
+        &ett_zbee_zcl_price_trailing_digit_and_price_tier,
+        &ett_zbee_zcl_price_number_of_price_tiers_and_register_tier,
+        &ett_zbee_zcl_price_alternate_cost_trailing_digit,
+        &ett_zbee_zcl_price_block_period_duration_type,
+        &ett_zbee_zcl_price_conversion_factor_trailing_digit,
+        &ett_zbee_zcl_price_calorific_value_trailing_digit,
+        &ett_zbee_zcl_price_tariff_information_tariff_type_and_charging_scheme,
+        &ett_zbee_zcl_price_tariff_information_price_trailing_digit,
+        &ett_zbee_zcl_price_price_matrix_tier_block_id,
+        &ett_zbee_zcl_price_block_thresholds_tier_number_of_block_thresholds,
+        &ett_zbee_zcl_price_co2_value_trailing_digit,
+        &ett_zbee_zcl_price_billing_period_duration_type,
+        &ett_zbee_zcl_price_consolidated_bill_trailing_digit,
     };
 
     /* Register the ZigBee ZCL Price cluster protocol name and description */
