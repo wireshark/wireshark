@@ -45,7 +45,7 @@ static dissector_handle_t mongo_handle;
 #define TCP_PORT_MONGO 27017
 
 #define OP_REPLY           1
-#define OP_MSG          1000
+#define OP_MESSAGE      1000
 #define OP_UPDATE       2001
 #define OP_INSERT       2002
 #define OP_RESERVED     2003
@@ -55,13 +55,14 @@ static dissector_handle_t mongo_handle;
 #define OP_KILL_CURSORS 2007
 #define OP_COMMAND      2010
 #define OP_COMMANDREPLY 2011
+#define OP_MSG          2013
 
 /**************************************************************************/
 /*                      OpCode                                            */
 /**************************************************************************/
 static const value_string opcode_vals[] = {
   { OP_REPLY,  "Reply" },
-  { OP_MSG,  "Message" },
+  { OP_MESSAGE, "Message" },
   { OP_UPDATE,  "Update document" },
   { OP_INSERT,  "Insert document" },
   { OP_RESERVED,"Reserved" },
@@ -71,6 +72,19 @@ static const value_string opcode_vals[] = {
   { OP_KILL_CURSORS,  "Kill Cursors" },
   { OP_COMMAND,  "Command Request (Cluster internal)" },
   { OP_COMMANDREPLY,  "Command Reply (Cluster internal)" },
+  { OP_MSG,  "Extensible Message Format" },
+  { 0,  NULL }
+};
+
+#define KIND_BODY               0
+#define KIND_DOCUMENT_SEQUENCE  1
+
+/**************************************************************************/
+/*                      Section Kind                                      */
+/**************************************************************************/
+static const value_string section_kind_vals[] = {
+  { KIND_BODY, "Body" },
+  { KIND_DOCUMENT_SEQUENCE, "Document Sequence" },
   { 0,  NULL }
 };
 
@@ -213,6 +227,18 @@ static int hf_mongo_commandargs = -1;
 static int hf_mongo_commandreply = -1;
 static int hf_mongo_outputdocs = -1;
 static int hf_mongo_unknown = -1;
+static int hf_mongo_msg_flags = -1;
+static int hf_mongo_msg_flags_checksumpresent = -1;
+static int hf_mongo_msg_flags_moretocome = -1;
+static int hf_mongo_msg_flags_exhaustallowed = -1;
+static int hf_mongo_msg_sections = -1;
+static int hf_mongo_msg_sections_section = -1;
+static int hf_mongo_msg_sections_section_kind = -1;
+static int hf_mongo_msg_sections_section_body = -1;
+static int hf_mongo_msg_sections_section_doc_sequence = -1;
+static int hf_mongo_msg_sections_section_size = -1;
+static int hf_mongo_msg_sections_section_doc_sequence_id = -1;
+static int hf_mongo_msg_sections_section_doc_sequence_documents = -1;
 
 static gint ett_mongo = -1;
 static gint ett_mongo_doc = -1;
@@ -222,6 +248,10 @@ static gint ett_mongo_objectid = -1;
 static gint ett_mongo_code = -1;
 static gint ett_mongo_fcn = -1;
 static gint ett_mongo_flags = -1;
+static gint ett_mongo_sections = -1;
+static gint ett_mongo_section = -1;
+static gint ett_mongo_msg_flags = -1;
+static gint ett_mongo_doc_sequence= -1;
 
 static expert_field ei_mongo_document_recursion_exceeded = EI_INIT;
 static expert_field ei_mongo_document_length_bad = EI_INIT;
@@ -621,6 +651,78 @@ dissect_mongo_op_commandreply(tvbuff_t *tvb, packet_info *pinfo, guint offset, p
 }
 
 static int
+dissect_op_msg_section(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree)
+{
+  proto_item *ti;
+  proto_tree *section_tree;
+  guint8 e_type;
+  gint section_len = -1;   /* Section length */
+
+  e_type = tvb_get_guint8(tvb, offset);
+  section_len = tvb_get_letohl(tvb, offset+1);
+
+  ti = proto_tree_add_item(tree, hf_mongo_msg_sections_section, tvb, offset, 1 + section_len, ENC_NA);
+  section_tree = proto_item_add_subtree(ti, ett_mongo_section);
+  proto_tree_add_item(section_tree, hf_mongo_msg_sections_section_kind, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset += 1;
+
+  switch (e_type) {
+    case KIND_BODY:
+      dissect_bson_document(tvb, pinfo, offset, section_tree, hf_mongo_msg_sections_section_body, 1);
+      break;
+    case KIND_DOCUMENT_SEQUENCE: {
+      gint32 dsi_length;
+      gint32 to_read = section_len;
+      proto_item *documents;
+      proto_tree *documents_tree;
+
+      proto_tree_add_item(section_tree, hf_mongo_msg_sections_section_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      offset += 4;
+      to_read -= 4;
+
+      dsi_length = tvb_strsize(tvb, offset);
+      ti = proto_tree_add_item(section_tree, hf_mongo_msg_sections_section_doc_sequence_id, tvb, offset, dsi_length, ENC_ASCII|ENC_NA);
+      offset += dsi_length;
+      to_read -= dsi_length;
+
+      documents = proto_tree_add_item(section_tree, hf_mongo_msg_sections_section_doc_sequence, tvb, offset, to_read, ENC_NA);
+      documents_tree = proto_item_add_subtree(documents, ett_mongo_doc_sequence);
+
+      while (to_read > 0){
+        gint32 doc_size = dissect_bson_document(tvb, pinfo, offset, documents_tree, hf_mongo_document, 1);
+        to_read -= doc_size;
+        offset += doc_size;
+      }
+
+    } break;
+    default:
+      expert_add_info_format(pinfo, tree, &ei_mongo_unknown, "Unknown section type: %u", e_type);
+  }
+
+  return 1 + section_len;
+}
+
+static int
+dissect_mongo_op_msg(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree)
+{
+  static const int * mongo_msg_flags[] = {
+    &hf_mongo_msg_flags_checksumpresent,
+    &hf_mongo_msg_flags_moretocome,
+    &hf_mongo_msg_flags_exhaustallowed,
+    NULL
+  };
+
+  proto_tree_add_bitmask(tree, tvb, offset, hf_mongo_msg_flags, ett_mongo_msg_flags, mongo_msg_flags, ENC_LITTLE_ENDIAN);
+  offset += 4;
+
+  while (tvb_reported_length_remaining(tvb, offset) > 0){
+    offset += dissect_op_msg_section(tvb, pinfo, offset, tree);
+  }
+
+  return offset;
+}
+
+static int
 dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
@@ -661,7 +763,7 @@ dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     case OP_REPLY:
       offset = dissect_mongo_reply(tvb, pinfo, offset, mongo_tree);
       break;
-    case OP_MSG:
+    case OP_MESSAGE:
       offset = dissect_mongo_msg(tvb, offset, mongo_tree);
       break;
     case OP_UPDATE:
@@ -687,6 +789,9 @@ dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
       break;
     case OP_COMMANDREPLY:
       offset = dissect_mongo_op_commandreply(tvb, pinfo, offset, mongo_tree);
+      break;
+    case OP_MSG:
+      offset = dissect_mongo_op_msg(tvb, pinfo, offset, mongo_tree);
       break;
     default:
       /* No default Action */
@@ -940,6 +1045,66 @@ proto_register_mongo(void)
       "If set, the database will remove only the first matching document in the"
         " collection. Otherwise all matching documents will be removed", HFILL }
     },
+    { &hf_mongo_msg_flags,
+      { "Message Flags", "mongo.msg.flags",
+      FT_UINT32, BASE_HEX, NULL, 0x0,
+      "Bit vector of msg options.", HFILL }
+    },
+    { &hf_mongo_msg_flags_checksumpresent,
+      { "ChecksumPresent", "mongo.msg.flags.checksumpresent",
+      FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000001,
+      "The message ends with 4 bytes containing a CRC-32C [1] checksum", HFILL }
+    },
+    { &hf_mongo_msg_flags_moretocome,
+      { "MoreToCome", "mongo.msg.flags.moretocome",
+      FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000002,
+      "Another message will follow this one without further action from the receiver", HFILL }
+    },
+    { &hf_mongo_msg_flags_exhaustallowed,
+      { "ExhaustAllowed", "mongo.msg.flags.exhaustallowed",
+      FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00010000,
+      "The client is prepared for multiple replies to this request using the moreToCome bit.", HFILL }
+    },
+    { &hf_mongo_msg_sections,
+      { "Sections", "mongo.msg.sections",
+      FT_NONE, BASE_NONE, NULL, 0x0,
+      "Message body sections", HFILL }
+    },
+    { &hf_mongo_msg_sections_section,
+      { "Section", "mongo.msg.sections.section",
+      FT_NONE, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }
+    },
+    { &hf_mongo_msg_sections_section_kind,
+      { "Kind", "mongo.msg.sections.section.kind",
+      FT_INT32, BASE_DEC, VALS(section_kind_vals), 0x0,
+      "Type of section", HFILL }
+    },
+    { &hf_mongo_msg_sections_section_body,
+      { "BodyDocument", "mongo.msg.sections.section.body",
+      FT_NONE, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }
+    },
+    { &hf_mongo_msg_sections_section_doc_sequence,
+      { "DocumentSequence", "mongo.msg.sections.section.doc_sequence",
+      FT_NONE, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }
+    },
+    { &hf_mongo_msg_sections_section_size,
+      { "Size", "mongo.msg.sections.section.size",
+      FT_INT32, BASE_DEC, NULL, 0x0,
+      "Size (in bytes) of document sequence", HFILL }
+    },
+    { &hf_mongo_msg_sections_section_doc_sequence_id,
+      { "SeqID", "mongo.msg.sections.section.doc_sequence_id",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      "Document sequence identifier", HFILL }
+    },
+    { &hf_mongo_msg_sections_section_doc_sequence_documents,
+      { "Documents", "mongo.msg.sections.section.doc_sequence_documents",
+      FT_NONE, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }
+    },
     { &hf_mongo_number_of_cursor_ids,
       { "Number of Cursor IDS", "mongo.number_to_cursor_ids",
       FT_INT32, BASE_DEC, NULL, 0x0,
@@ -1100,7 +1265,11 @@ proto_register_mongo(void)
     &ett_mongo_objectid,
     &ett_mongo_code,
     &ett_mongo_fcn,
-    &ett_mongo_flags
+    &ett_mongo_flags,
+    &ett_mongo_sections,
+    &ett_mongo_section,
+    &ett_mongo_msg_flags,
+    &ett_mongo_doc_sequence
   };
 
   static ei_register_info ei[] = {
