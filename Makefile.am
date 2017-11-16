@@ -395,6 +395,7 @@ EXTCAP_COMMON_SRC = \
 SHARK_COMMON_SRC = \
 	cfile.c			\
 	frame_tvbuff.c		\
+	register.c		\
 	sync_pipe_write.c
 
 # wireshark specifics
@@ -677,7 +678,8 @@ randpkt_LDADD = \
 	@C_ARES_LIBS@
 
 dftest_SOURCES = \
-	dftest.c
+	dftest.c \
+	register.c
 
 dftest_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -723,7 +725,6 @@ pkginclude_HEADERS = \
 	file.h			\
 	globals.h		\
 	log.h			\
-	register.h		\
 	ws_attributes.h		\
 	ws_compiler_tests.h	\
 	ws_diag_control.h	\
@@ -740,6 +741,7 @@ noinst_HEADERS = \
 	extcap_spawn.h		\
 	fileset.h		\
 	frame_tvbuff.h		\
+	register.h		\
 	ringbuffer.h		\
 	summary.h		\
 	sync_pipe.h		\

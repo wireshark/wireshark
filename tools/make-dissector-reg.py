@@ -41,8 +41,8 @@ if registertype in ("plugin", "plugin_wtap"):
  */
 """ % (sys.argv[0])
 elif registertype in ("dissectors", "dissectorsinfile"):
-    final_filename = "register.c"
-    cache_filename = "register-cache.pkl"
+    final_filename = "dissectors.c"
+    cache_filename = "dissectors-cache.pkl"
     preamble = """\
 /*
  * Do not modify this file. Changes will be overwritten.
@@ -208,91 +208,23 @@ WS_DLL_PUBLIC_DEF const gchar plugin_version[] = VERSION;
 WS_DLL_PUBLIC_DEF const gchar plugin_release[] = VERSION_RELEASE;
 
 """
-else:
+    for symbol in regs['proto_reg']:
+        reg_code += "extern void %s(void);\n" % (symbol)
+
     reg_code += """
-#include "register.h"
-#include "ws_attributes.h"
-
-#include <glib.h>
-"""
-
-for symbol in regs['proto_reg']:
-    reg_code += "extern void %s(void);\n" % (symbol)
-
-if registertype == "plugin" or registertype == "plugin_wtap":
-    reg_code += """
-/* Start the functions we need for the plugin stuff */
-
 WS_DLL_PUBLIC_DEF void
 plugin_register (void)
 {
 """
-else:
-    reg_code += """
-static const char *cur_cb_name = NULL;
-//static GMutex register_cb_mtx;
-static GAsyncQueue *register_cb_done_q;
 
-#define CB_WAIT_TIME (150 * 1000) // microseconds
+    for symbol in regs['proto_reg']:
+        reg_code += "    %s();\n" % (symbol)
 
-static void set_cb_name(const char *proto) {
-    // g_mutex_lock(register_cb_mtx);
-    cur_cb_name = proto;
-    // g_mutex_unlock(register_cb_mtx);
-}
+    reg_code += "}\n\n"
 
-static void *register_all_protocols_worker(void *arg _U_);
+    for symbol in regs['handoff_reg']:
+        reg_code += "extern void %s(void);\n" % (symbol)
 
-void
-register_all_protocols(register_cb cb, gpointer cb_data)
-{
-    const char *cb_name;
-    register_cb_done_q = g_async_queue_new();
-    gboolean called_back = FALSE;
-
-#if GLIB_CHECK_VERSION(2,31,0)
-    g_thread_new("register_all_protocols_worker", &register_all_protocols_worker, NULL);
-#else
-    g_thread_create(&register_all_protocols_worker, TRUE, FALSE, NULL);
-#endif
-    while (!g_async_queue_timeout_pop(register_cb_done_q, CB_WAIT_TIME)) {
-        // g_mutex_lock(register_cb_mtx);
-        cb_name = cur_cb_name;
-        // g_mutex_unlock(register_cb_mtx);
-        if (cb && cb_name) {
-            cb(RA_REGISTER, cb_name, cb_data);
-            called_back = TRUE;
-        }
-    }
-    if (cb && !called_back) {
-            cb(RA_REGISTER, "Registration finished", cb_data);
-    }
-}
-
-void
-*register_all_protocols_worker(void *arg _U_)
-{
-"""
-
-for symbol in regs['proto_reg']:
-    if registertype != "plugin" and registertype != "plugin_wtap":
-        reg_code += "    set_cb_name(\"%s\");\n" % (symbol)
-    reg_code += "    %s();\n" % (symbol)
-
-if registertype != "plugin" and registertype != "plugin_wtap":
-    reg_code += """
-    g_async_queue_push(register_cb_done_q, GINT_TO_POINTER(TRUE));
-    return NULL;
-"""
-reg_code += "}\n\n"
-
-
-# Make the routine to register all protocol handoffs
-
-for symbol in regs['handoff_reg']:
-    reg_code += "extern void %s(void);\n" % (symbol)
-
-if registertype == "plugin" or registertype == "plugin_wtap":
     reg_code += """
 WS_DLL_PUBLIC_DEF void plugin_reg_handoff(void);
 
@@ -300,94 +232,67 @@ WS_DLL_PUBLIC_DEF void
 plugin_reg_handoff(void)
 {
 """
-else:
-    reg_code += """
-static void *register_all_protocol_handoffs_worker(void *arg _U_);
+    for symbol in regs['handoff_reg']:
+        reg_code += "    %s();\n" % (symbol)
+    reg_code += "}\n"
 
-void
-register_all_protocol_handoffs(register_cb cb, gpointer cb_data)
-{
-    cur_cb_name = NULL;
-    const char *cb_name;
-    gboolean called_back = FALSE;
-
-#if GLIB_CHECK_VERSION(2,31,0)
-    g_thread_new("register_all_protocol_hadoffss_worker", &register_all_protocol_handoffs_worker, NULL);
-#else
-    g_thread_create(&register_all_protocol_handoffs_worker, TRUE, FALSE, NULL);
-#endif
-    while (!g_async_queue_timeout_pop(register_cb_done_q, CB_WAIT_TIME)) {
-        // g_mutex_lock(register_cb_mtx);
-        cb_name = cur_cb_name;
-        // g_mutex_unlock(register_cb_mtx);
-        if (cb && cb_name) {
-            cb(RA_HANDOFF, cb_name, cb_data);
-            called_back = TRUE;
-        }
-    }
-    if (cb && !called_back) {
-            cb(RA_HANDOFF, "Registration finished", cb_data);
-    }
-
-    g_async_queue_unref(register_cb_done_q);
-}
-
-void
-*register_all_protocol_handoffs_worker(void *arg _U_)
-{
-"""
-
-for symbol in regs['handoff_reg']:
-    if registertype != "plugin" and registertype != "plugin_wtap":
-        reg_code += "    set_cb_name(\"%s\");\n" % (symbol)
-    reg_code += "    %s();\n" % (symbol)
-
-if registertype != "plugin" and registertype != "plugin_wtap":
-    reg_code += """
-    g_async_queue_push(register_cb_done_q, GINT_TO_POINTER(TRUE));
-    return NULL;
-"""
-reg_code += "}\n"
-
-if registertype == "plugin":
-    reg_code += "#endif\n"
-elif registertype == "plugin_wtap":
-    reg_code += """
+    if registertype == "plugin":
+        reg_code += "#endif\n"
+    elif registertype == "plugin_wtap":
+        reg_code += """
 WS_DLL_PUBLIC_DEF void
 register_wtap_module(void)
 {
 """
-
-    for symbol in regs['wtap_register']:
-        line = "    {extern void %s (void); %s ();}\n" % (symbol, symbol)
-        reg_code += line
-
-    reg_code += """
+        for symbol in regs['wtap_register']:
+            reg_code += "    {extern void %s (void); %s ();}\n" % (symbol, symbol)
+        reg_code += """
 }
 #endif
 """
 
 else:
+
+    reg_code += "\n#include <ws_symbol_export.h>"
+    reg_code += "\n#include <dissectors.h>"
+    reg_code += "\n"
+
+    for i in range(len(regs['proto_reg'])):
+        reg_code += "\nvoid %s(void);" % regs['proto_reg'][i]
+
+    reg_code += "\n\ndissector_reg_t dissector_reg_proto[] = {\n"
+
+    reg_code += "    { \"%s\", %s }" % (regs['proto_reg'][0], regs['proto_reg'][0])
+    for i in range(1, len(regs['proto_reg'])):
+        reg_code += ",\n    { \"%s\", %s }" % (regs['proto_reg'][i], regs['proto_reg'][i])
+
+    reg_code += "\n};\n"
+
+    for i in range(len(regs['handoff_reg'])):
+        reg_code += "\nvoid %s(void);" % regs['handoff_reg'][i]
+
+    reg_code += "\n\n\ndissector_reg_t dissector_reg_handoff[] = {\n"
+
+    reg_code += "    { \"%s\", %s }" % (regs['handoff_reg'][0], regs['handoff_reg'][0])
+    for i in range(1, len(regs['handoff_reg'])):
+        reg_code += ",\n    { \"%s\", %s }" % (regs['handoff_reg'][i], regs['handoff_reg'][i])
+
+    reg_code += "\n};\n"
+
     reg_code += """
-static gulong proto_reg_count(void)
+gulong dissector_reg_proto_count(void)
 {
     return %(proto_reg_len)d;
 }
 
-static gulong handoff_reg_count(void)
+gulong dissector_reg_handoff_count(void)
 {
     return %(handoff_reg_len)d;
 }
-
-gulong register_count(void)
-{
-    return proto_reg_count() + handoff_reg_count();
-}
 """ % {
-    'proto_reg_len': len(regs['proto_reg']),
-    'handoff_reg_len': len(regs['handoff_reg'])
-  }
-
+        'proto_reg_len': len(regs['proto_reg']),
+        'handoff_reg_len': len(regs['handoff_reg'])
+      }
 
 # Compare current and new content and update the file if anything has changed.
 

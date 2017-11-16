@@ -1552,6 +1552,7 @@ endif()
 set(SHARK_COMMON_SRC
 	cfile.c
 	frame_tvbuff.c
+	register.c
 	sync_pipe_write.c
 	version_info.c
 )
@@ -2523,6 +2524,7 @@ if(BUILD_dftest)
 	)
 	set(dftest_FILES
 		dftest.c
+		register.c
 	)
 	add_executable(dftest ${dftest_FILES})
 	add_dependencies(dftest version)
@@ -3003,7 +3005,6 @@ set(SHARK_PUBLIC_HEADERS
 	file.h
 	globals.h
 	log.h
-	register.h
 	ws_attributes.h
 	ws_compiler_tests.h
 	ws_diag_control.h

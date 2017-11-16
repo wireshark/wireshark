@@ -210,6 +210,7 @@ set(NCP2222_DISSECTOR_SRC
 source_group(dissectors-ncp2222 FILES ${NCP2222_DISSECTOR_SRC})
 
 set(DISSECTOR_PUBLIC_HEADERS
+	dissectors.h
 	packet-6lowpan.h
 	packet-a21.h
 	packet-acp133.h
@@ -1814,7 +1815,7 @@ set(DISSECTOR_SUPPORT_SRC
 	packet-dcerpc-nt.c
 	usb.c
 	snort-config.c
-	register.c
+	dissectors.c
 )
 source_group(dissector-support FILES ${DISSECTOR_SUPPORT_SRC})
 
@@ -1834,7 +1835,7 @@ set(ALL_DISSECTOR_SRC
 	${CORBA_IDL_DISSECTOR_SRC}
 )
 
-register_dissector_files(register.c
+register_dissector_files(dissectors.c
 	dissectors
 	${ALL_DISSECTOR_SRC}
 )

@@ -28,14 +28,14 @@ include Custom.common
 
 # "BUILT_SOURCES" are built before any "make all" or "make check" targets.
 BUILT_SOURCES = \
-	register.c
+	dissectors.c
 
 # Header files generated from source files.
 NODIST_GENERATED_HEADER_FILES =
 
 # C source files generated from source files.
 NODIST_GENERATED_C_FILES = \
-	register.c
+	dissectors.c
 
 # All the generated files.
 NODIST_GENERATED_FILES = \
@@ -1474,6 +1474,7 @@ FILE_DISSECTOR_INCLUDES = \
 #
 DISSECTOR_INCLUDES = \
 	$(PIDL_DISSECTOR_INCLUDES)	\
+	dissectors.h		\
 	packet-6lowpan.h	\
 	packet-a21.h		\
 	packet-acp133.h		\
@@ -1853,7 +1854,7 @@ DISSECTOR_INCLUDES = \
 
 # Dissector helpers.  They're included in the source files in this
 # directory, but they're not dissectors themselves, i.e. they're not
-# used to generate "register.c").
+# used to generate "dissectors.c").
 DISSECTOR_SUPPORT_SRC =	\
 	errno.c			\
 	packet-dcerpc-nt.c	\
@@ -1924,10 +1925,9 @@ x11-dissector: $(top_srcdir)/tools/process-x11-fields.pl $(srcdir)/x11-fields $(
 	$(PERL) $(top_srcdir)/tools/process-x11-xcb.pl $(srcdir)
 
 #
-# Build register.c, which contains a function register_all_protocols()
-# that calls the register routines for all protocols and a function
-# register_all_protocol_handoffs() that calls the handoff registration
-# routines for all protocols.
+# Build dissectors.c, which contains a function pointer array
+# with the register routines for all protocols and a function pointer array
+# with the handoff registration routines for all protocols.
 #
 # We do this by scanning through sources. If that turns out to be too slow,
 # maybe we could just require every .o file to have an register routine
@@ -1940,20 +1940,15 @@ x11-dissector: $(top_srcdir)/tools/process-x11-fields.pl $(srcdir)/x11-fields $(
 #
 # ALL_DISSECTORS_SRC is assumed to have all the files that need to be scanned.
 #
-# For some unknown reason, having a big "for" loop in the Makefile
-# to scan all the files doesn't work with some "make"s; they seem to
-# pass only the first few names in the list to the shell, for some
-# reason.
-#
-# Therefore, we use a script to generate the register.c file.
+# We use a script to generate the dissectors.c file.
 # The first argument is the directory in which the source files live.
 # The second argument is "dissectors", to indicate that we should build
-# a register.c file for libwireshark.
+# a dissectors.c file for libwireshark.
 # All subsequent arguments are the files to scan.
 #
-register.c: $(plugin_src) $(ALL_DISSECTORS_SRC) Custom.common \
+dissectors.c: $(plugin_src) $(ALL_DISSECTORS_SRC) Custom.common \
 	$(top_srcdir)/tools/make-dissector-reg.py
-	@echo Making register.c ; \
+	@echo Making dissectors.c ; \
 	$(PYTHON) $(top_srcdir)/tools/make-dissector-reg.py $(srcdir) \
 		dissectors $(ALL_DISSECTORS_SRC) ;
 
@@ -1962,8 +1957,7 @@ CLEANFILES = \
 	libdissectors.la		\
 	libdirtydissectors.a		\
 	libdirtydissectors.la		\
-	register.c-tmp			\
-	register-cache.pkl		\
+	dissectors-cache.pkl	\
 	*~
 
 DISTCLEANFILES = \
