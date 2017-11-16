@@ -39,6 +39,8 @@ void proto_reg_handoff_pfcp(void);
 static dissector_handle_t pfcp_handle;
 static dissector_handle_t pfcp_3gpp_ies_handle;
 
+#define UDP_PORT_PFCP  8805
+
 static int proto_pfcp = -1;
 
 static int hf_pfcp_msg_type = -1;
@@ -5207,8 +5209,7 @@ proto_register_pfcp(void)
 void
 proto_reg_handoff_pfcp(void)
 {
-
-    dissector_add_for_decode_as_with_preference("udp.port", pfcp_handle);
+    dissector_add_uint_with_preference("udp.port", UDP_PORT_PFCP, pfcp_handle);
     /* Register 3GPP in the table to give expert info and serve as an example how to add decoding of enterprise IEs*/
     dissector_add_uint("pfcp.enterprise_ies", VENDOR_THE3GPP, pfcp_3gpp_ies_handle);
 
