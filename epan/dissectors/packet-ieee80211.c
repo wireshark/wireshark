@@ -961,6 +961,30 @@ static const value_string ieee80211_status_code[] = {
 };
 static value_string_ext ieee80211_status_code_ext = VALUE_STRING_EXT_INIT(ieee80211_status_code);
 
+static const value_string ieee80211_transition_reasons[] = {
+  { 0, "Unspecified" },
+  { 1, "Excessive frame loss rates and/or poor conditions" },
+  { 2, "Excessive delay for current traffic streams" },
+  { 3, "Insufficient QoS capacity for current traffic streams (TSPEC rejected)" },
+  { 4, "First association to ESS (the association initiated by an Association Request frame instead of a Reassociation Request frame)" },
+  { 5, "Load balancing" },
+  { 6, "Better AP found" },
+  { 7, "Deauthenticated or Disassociated from the previous AP" },
+  { 8, "AP failed IEEE 802.1X EAP Authentication" },
+  { 9, "AP failed 4-way handshake" },
+  { 10, "Received too many replay counter failures" },
+  { 11, "Received too many data MIC failures" },
+  { 12, "Exceeded maximum number of retransmissions" },
+  { 13, "Received too many broadcast disassociations" },
+  { 14, "Received too many broadcast deauthentications" },
+  { 15, "Previous transition failed" },
+  { 16, "Low RSSI" },
+  { 17, "Roam from a non-IEEE-802.11 system" },
+  { 18, "Transition due to received BSS Transition Request frame" },
+  { 19, "Preferred BSS transition candidate list included" },
+  { 20, "Leaving ESS" },
+  { 0,    NULL}
+};
 /* ************************************************************************* */
 /*                         Frame types, and their names                      */
 /* ************************************************************************* */
@@ -3150,6 +3174,7 @@ static int hf_ieee80211_ff_bss_termination_duration = -1;
 static int hf_ieee80211_ff_url_len = -1;
 static int hf_ieee80211_ff_url = -1;
 static int hf_ieee80211_ff_target_bss = -1;
+static int hf_ieee80211_ff_bss_transition_query_reason = -1;
 static int hf_ieee80211_ff_bss_transition_status_code = -1;
 static int hf_ieee80211_ff_bss_termination_delay = -1;
 static int hf_ieee80211_ff_bss_transition_candidate_list_entries = -1;
@@ -8359,6 +8384,39 @@ add_ff_vht_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int o
   return 1;
 }
 
+static guint
+wnm_bss_trans_mgmt_query(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  int    start = offset;
+  gint   left;
+  int tmp_sublen;
+  const guint8 ids[] = { TAG_NEIGHBOR_REPORT };
+
+
+  offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
+
+  proto_tree_add_item(tree, hf_ieee80211_ff_bss_transition_query_reason, tvb, offset, 1,
+                      ENC_NA);
+  offset += 1;
+
+  left = tvb_reported_length_remaining(tvb, offset);
+  if (left > 0) {
+    proto_tree_add_item(tree, hf_ieee80211_ff_bss_transition_candidate_list_entries,
+                        tvb, offset, left, ENC_NA);
+
+    while (left > 0){
+      tmp_sublen = tvb_get_guint8(tvb, offset + 1);
+      if(add_tagged_field(pinfo, tree, tvb, offset, 0, ids, G_N_ELEMENTS(ids), NULL) == 0){
+        break;
+      }
+      left -= (tmp_sublen + 2);
+      offset += (tmp_sublen + 2);
+    }
+  }
+
+  return offset - start;
+}
+
 
 static guint
 wnm_bss_trans_mgmt_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
@@ -8527,6 +8585,9 @@ add_ff_action_wnm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
   code    = tvb_get_guint8(tvb, offset);
   offset += add_ff_wnm_action_code(tree, tvb, pinfo, offset);
   switch (code) {
+  case WNM_BSS_TRANS_MGMT_QUERY:
+    offset += wnm_bss_trans_mgmt_query(tree, tvb, pinfo, offset);
+    break;
   case WNM_BSS_TRANS_MGMT_REQ:
     offset += wnm_bss_trans_mgmt_req(tree, tvb, pinfo, offset);
     break;
@@ -20530,6 +20591,11 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_ff_target_bss,
      {"BSS Transition Target BSS", "wlan.fixed.bss_transition_target_bss",
       FT_ETHER, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_bss_transition_query_reason,
+     {"BSS Transition Query Reason", "wlan.fixed.bss_transition_query_reason",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_transition_reasons), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_bss_transition_candidate_list_entries,
