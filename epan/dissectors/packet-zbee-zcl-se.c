@@ -4892,6 +4892,306 @@ proto_reg_handoff_zbee_zcl_calendar(void)
 } /*proto_reg_handoff_zbee_zcl_calendar*/
 
 /* ########################################################################## */
+/* #### (0x0708) DEVICE_MANAGEMENT CLUSTER ############################################## */
+/* ########################################################################## */
+
+/* Attributes */
+#define zbee_zcl_device_management_attr_names_VALUE_STRING_LIST(XXX) \
+/* Supplier Control Attribute Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_PROVIDER_ID,                                 0x0100, "Provider ID" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_PROVIDER_NAME,                               0x0101, "Provider Name" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_PROVIDER_CONTACT_DETAILS,                    0x0102, "Provider Contact Details" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_PROPOSED_PROVIDER_ID,                        0x0110, "Proposed Provider ID" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_PROPOSED_PROVIDER_NAME,                      0x0111, "Proposed Provider Name" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_PROPOSED_PROVIDER_CHANGE_DATE_TIME,          0x0112, "Proposed Provider Change Date/Time" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_PROPOSED_PROVIDER_CHANGE_CONTROL,            0x0113, "Proposed Provider Change Control" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_PROPOSED_PROVIDER_CONTACT_DETAILS,           0x0114, "Proposed Provider Contact Details" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_RECEIVED_PROVIDER_ID,                        0x0120, "Received Provider ID" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_RECEIVED_PROVIDER_NAME,                      0x0121, "Received Provider Name" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_RECEIVED_PROVIDER_CONTACT_DETAILS,           0x0122, "Received Provider Contact Details" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_RECEIVED_PROPOSED_PROVIDER_ID,               0x0130, "Received Proposed Provider ID" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_RECEIVED_PROPOSED_PROVIDER_NAME,             0x0131, "Received Proposed Provider Name" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_RECEIVED_PROPOSED_PROVIDER_CHANGE_DATE_TIME, 0x0132, "Received Proposed Provider Change Date/Time" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_RECEIVED_PROPOSED_PROVIDER_CHANGE_CONTROL,   0x0133, "Received Proposed Provider Change Control" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_RECEIVED_PROPOSED_PROVIDER_CONTACT_DETAILS,  0x0134, "Received Proposed Provider Contact Details" ) \
+  /* Tenancy Control Attribute Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_CHANGE_OF_TENANCY_UPDATE_DATE_TIME,          0x0200, "Change of Tenancy Update Date/Time" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_PROPOSED_TENANCY_CHANGE_CONTROL,             0x0201, "Proposed Tenancy Change control" ) \
+/* Backhaul Control Attribute Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_WAN_STATUS,                                  0x0300, "WAN Status" ) \
+/* HAN Control Attribute Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_LOW_MEDIUM_THRESHOLD,                        0x0400, "Low Medium Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DEVICE_MANAGEMENT_MEDIUM_HIGH_THRESHOLD,                       0x0401, "Medium High Threshold" ) \
+/* Add client attribute sets */ \
+/* Smart Energy */ \
+    XXX(ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_DEVICE_MANAGEMENT,                       0xFFFE, "Attribute Reporting Status" )
+
+VALUE_STRING_ENUM(zbee_zcl_device_management_attr_names);
+VALUE_STRING_ARRAY(zbee_zcl_device_management_attr_names);
+
+/* Server Commands Received */
+#define zbee_zcl_device_management_srv_rx_cmd_names_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_GET_CHANGE_OF_TENANCY,           0x00, "Get Change Of Tenancy" ) \
+    XXX(ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_GET_CHANGE_OF_SUPPLIER,          0x01, "Get Change Of Supplier" ) \
+    XXX(ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_REQUEST_NEW_PASSWORD,            0x02, "Request New Password" ) \
+    XXX(ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_GET_SITE_ID,                     0x03, "Get Site ID" ) \
+    XXX(ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_REPORT_EVENT_CONFIGURATION,      0x04, "Report Event Configuration" ) \
+    XXX(ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_GET_CIN,                         0x05, "Get CIN" )
+
+VALUE_STRING_ENUM(zbee_zcl_device_management_srv_rx_cmd_names);
+VALUE_STRING_ARRAY(zbee_zcl_device_management_srv_rx_cmd_names);
+
+/* Server Commands Generated */
+#define zbee_zcl_device_management_srv_tx_cmd_names_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_PUBLISH_CHANGE_OF_TENANCY,           0x00, "Publish Change Of Tenancy" ) \
+    XXX(ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_PUBLISH_CHANGE_OF_SUPPLIER,          0x01, "Publish Change Of Supplier" ) \
+    XXX(ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_REQUEST_NEW_PASSWORD_RESPONSE,       0x02, "Request New Password Response" ) \
+    XXX(ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_UPDATE_SITE_ID,                      0x03, "Update Site ID" ) \
+    XXX(ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_SET_EVENT_CONFIGURATION,             0x04, "Set Event Configuration" ) \
+    XXX(ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_GET_EVENT_CONFIGURATION,             0x05, "Get Event Configuration" ) \
+    XXX(ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_UPDATE_CIN,                          0x06, "Update CIN" )
+
+VALUE_STRING_ENUM(zbee_zcl_device_management_srv_tx_cmd_names);
+VALUE_STRING_ARRAY(zbee_zcl_device_management_srv_tx_cmd_names);
+
+/*************************/
+/* Function Declarations */
+/*************************/
+void proto_register_zbee_zcl_device_management(void);
+void proto_reg_handoff_zbee_zcl_device_management(void);
+
+/* Attribute Dissector Helpers */
+static void dissect_zcl_device_management_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+/*************************/
+/* Global Variables      */
+/*************************/
+
+static dissector_handle_t device_management_handle;
+
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_device_management = -1;
+
+static int hf_zbee_zcl_device_management_srv_tx_cmd_id = -1;
+static int hf_zbee_zcl_device_management_srv_rx_cmd_id = -1;
+static int hf_zbee_zcl_device_management_attr_id = -1;
+static int hf_zbee_zcl_device_management_attr_reporting_status = -1;
+
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_device_management = -1;
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+ *@param attr_id attribute identifier
+ *@param data_type attribute data type
+*/
+static void
+dissect_zcl_device_management_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+{
+    switch (attr_id) {
+        /* applies to all SE clusters */
+        case ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_DEVICE_MANAGEMENT:
+            proto_tree_add_item(tree, hf_zbee_zcl_device_management_attr_reporting_status, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+
+        default: /* Catch all */
+            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            break;
+    }
+} /*dissect_zcl_device_management_attr_data*/
+
+/**
+ *ZigBee ZCL Device Management cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
+static int
+dissect_zbee_zcl_device_management(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    zbee_zcl_packet   *zcl;
+    guint             offset = 0;
+    guint8            cmd_id;
+    gint              rem_len;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    zcl = (zbee_zcl_packet *)data;
+    cmd_id = zcl->cmd_id;
+
+    /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
+    if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_device_management_srv_rx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_uint(tree, hf_zbee_zcl_device_management_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_device_management, NULL, "Payload");
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+
+               case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_GET_CHANGE_OF_TENANCY:
+                    /* Add function to dissect payload */
+                    break;
+               case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_GET_CHANGE_OF_SUPPLIER:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_REQUEST_NEW_PASSWORD:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_GET_SITE_ID:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_REPORT_EVENT_CONFIGURATION:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_GET_CIN:
+                    /* Add function to dissect payload */
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+    else { /* ZBEE_ZCL_FCF_TO_CLIENT */
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_device_management_srv_tx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_uint(tree, hf_zbee_zcl_device_management_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_device_management, NULL, "Payload");
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+
+               case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_PUBLISH_CHANGE_OF_TENANCY:
+                    /* Add function to dissect payload */
+                    break;
+               case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_PUBLISH_CHANGE_OF_SUPPLIER:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_REQUEST_NEW_PASSWORD_RESPONSE:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_UPDATE_SITE_ID:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_SET_EVENT_CONFIGURATION:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_GET_EVENT_CONFIGURATION:
+                    /* Add function to dissect payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_UPDATE_CIN:
+                    /* Add function to dissect payload */
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    return tvb_captured_length(tvb);
+} /*dissect_zbee_zcl_device_management*/
+
+/**
+ *This function registers the ZCL Device Management dissector
+ *
+*/
+void
+proto_register_zbee_zcl_device_management(void)
+{
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_device_management_attr_id,
+            { "Attribute", "zbee_zcl_se.device_management.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_device_management_attr_names),
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_attr_reporting_status,                         /* common to all SE clusters */
+            { "Attribute Reporting Status", "zbee_zcl_se.device_management.attr.attr_reporting_status",
+            FT_UINT8, BASE_HEX, VALS(zbee_zcl_se_reporting_status_names), 0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_srv_tx_cmd_id,
+            { "Command", "zbee_zcl_se.device_management.cmd.srv_tx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_device_management_srv_tx_cmd_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_srv_rx_cmd_id,
+            { "Command", "zbee_zcl_se.device_management.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_device_management_srv_rx_cmd_names),
+            0x00, NULL, HFILL } },
+
+    };
+
+    /* ZCL Device Management subtrees */
+    gint *ett[] = {
+        &ett_zbee_zcl_device_management,
+    };
+
+    /* Register the ZigBee ZCL Device Management cluster protocol name and description */
+    proto_zbee_zcl_device_management = proto_register_protocol("ZigBee ZCL Device Management", "ZCL Device Management", ZBEE_PROTOABBREV_ZCL_DEVICE_MANAGEMENT);
+    proto_register_field_array(proto_zbee_zcl_device_management, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL Device Management dissector. */
+    device_management_handle = register_dissector(ZBEE_PROTOABBREV_ZCL_DEVICE_MANAGEMENT, dissect_zbee_zcl_device_management, proto_zbee_zcl_device_management);
+} /*proto_register_zbee_zcl_device_management*/
+
+/**
+ *Hands off the ZCL Device Management dissector.
+ *
+*/
+void
+proto_reg_handoff_zbee_zcl_device_management(void)
+{
+    /* Register our dissector with the ZigBee application dissectors. */
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_DEVICE_MANAGEMENT, device_management_handle);
+
+    zbee_zcl_init_cluster(  proto_zbee_zcl_device_management,
+                            ett_zbee_zcl_device_management,
+                            ZBEE_ZCL_CID_DEVICE_MANAGEMENT,
+                            hf_zbee_zcl_device_management_attr_id,
+                            hf_zbee_zcl_device_management_srv_rx_cmd_id,
+                            hf_zbee_zcl_device_management_srv_tx_cmd_id,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_device_management_attr_data
+                         );
+} /*proto_reg_handoff_zbee_zcl_device_management*/
+
+
+/* ########################################################################## */
 /* #### (0x0709) EVENTS CLUSTER ############################################# */
 /* ########################################################################## */
 
