@@ -13146,7 +13146,7 @@ dissect_measurement_pilot_trans_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
   if (tag_len > 0) {
     while (tag_len > 0) {
-      gint8 elt_len = 0;
+      guint8 elt_len;
 
       elt_len = tvb_get_guint8(tvb, offset + 1);
 
