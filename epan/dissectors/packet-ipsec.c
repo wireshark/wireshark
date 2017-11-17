@@ -557,8 +557,6 @@ static gboolean g_esp_do_sequence_analysis = TRUE;
 
 
 
-#if 0
-
 /*
    Name : static int get_ipv6_suffix(char* ipv6_suffix, char *ipv6_address)
    Description : Get the extended IPv6 Suffix of an IPv6 Address
@@ -673,12 +671,25 @@ get_full_ipv6_addr(char* ipv6_addr_expanded, char *ipv6_addr)
   int prefix_remaining = 0;
   int prefix_len = 0;
   int j = 0;
+  guint i = 0;
+  guint addr_byte = 0;
+  guint mask = IPSEC_IPV6_ADDR_LEN;
+  char* mask_begin = NULL;
 
 
   if((ipv6_addr == NULL) || (strcmp(ipv6_addr, "") == 0))  return -1;
+
+  mask_begin = strchr(ipv6_addr, '/');
+  if(mask_begin)
+  {
+    if(sscanf(mask_begin, "/%u", &mask) == EOF)
+      mask = IPSEC_IPV6_ADDR_LEN;
+    mask_begin[0] = '\0';
+  }
+
   if((strlen(ipv6_addr) == 1) && (ipv6_addr[0] == IPSEC_SA_WILDCARDS_ANY))
     {
-      for(j = 0; j <= IPSEC_STRLEN_IPV6; j++)
+      for(j = 0; j < IPSEC_STRLEN_IPV6; j++)
         {
           ipv6_addr_expanded[j] = IPSEC_SA_WILDCARDS_ANY;
         }
@@ -704,6 +715,22 @@ get_full_ipv6_addr(char* ipv6_addr_expanded, char *ipv6_addr)
     }
 
   memcpy(ipv6_addr_expanded + IPSEC_STRLEN_IPV6 - suffix_len, suffix,suffix_len + 1);
+
+  for(i = 0; i < IPSEC_STRLEN_IPV6; i++)
+  {
+    if(4 * (i + 1) > mask)
+    {
+      if(mask <= 4 * i || ipv6_addr_expanded[i] == '*')
+        ipv6_addr_expanded[i] = '*';
+      else {
+        if(sscanf(ipv6_addr_expanded + i, "%X", &addr_byte) == EOF)
+           break;
+        addr_byte &= (0x0F << (4 * (i + 1) - mask));
+        addr_byte &= 0x0F;
+        g_snprintf(ipv6_addr_expanded + i, 4, "%X", addr_byte);
+      }
+    }
+  }
 
   if(suffix_len < IPSEC_STRLEN_IPV6)
     return (prefix_len - prefix_remaining);
@@ -738,8 +765,18 @@ get_full_ipv4_addr(char* ipv4_address_expanded, char *ipv4_address)
   guint k = 0;
   guint cpt = 0;
   gboolean done_flag = FALSE;
+  guint mask = IPSEC_IPV4_ADDR_LEN;
+  char* mask_begin = NULL;
 
   if((ipv4_address == NULL) || (strcmp(ipv4_address, "") == 0))  return done_flag;
+
+  mask_begin = strchr(ipv4_address, '/');
+  if(mask_begin)
+  {
+    if(sscanf(mask_begin, "/%u", &mask) == EOF)
+      mask = IPSEC_IPV4_ADDR_LEN;
+    mask_begin[0] = '\0';
+  }
 
   if((strlen(ipv4_address) == 1) && (ipv4_address[0] == IPSEC_SA_WILDCARDS_ANY))
   {
@@ -834,12 +871,26 @@ get_full_ipv4_addr(char* ipv4_address_expanded, char *ipv4_address)
 
     }
 
+    for(i = 0; i < IPSEC_STRLEN_IPV4; i++)
+    {
+      if(4 * (i + 1) > mask)
+      {
+        if(mask <= 4 * i || ipv4_address_expanded[i] == '*')
+          ipv4_address_expanded[i] = '*';
+        else {
+          if(sscanf(ipv4_address_expanded + i, "%X", &addr_byte) == EOF)
+             return FALSE;
+          addr_byte &= (0x0F << (4 * (i + 1) - mask));
+          addr_byte &= 0x0F;
+          g_snprintf(ipv4_address_expanded + i, 4, "%X", addr_byte);
+        }
+      }
+    }
     ipv4_address_expanded[cpt] = '\0';
   }
 
   return done_flag;
 }
-#endif
 
 /*
    Name : static goolean filter_address_match(gchar *addr, gchar *filter, gint len, gint typ)
@@ -854,62 +905,47 @@ static gboolean
 filter_address_match(gchar *addr, gchar *filter, gint typ)
 {
   guint i;
-  guint filter_tmp = 0;
-  guint addr_tmp = 0;
-  char filter_string_tmp[3];
-  char addr_string_tmp[3];
+  char addr_hex[IPSEC_STRLEN_IPV6 + 1];
+  char filter_hex[IPSEC_STRLEN_IPV6 + 1];
   guint addr_len;
-  guint filter_len = (guint)strlen(filter);
+  guint filter_len;
 
-  if((filter_len == 1) && (filter[0] == IPSEC_SA_WILDCARDS_ANY))
-      return TRUE;
-
-  addr_len = (guint)strlen(addr);
-  if(addr_len != filter_len)
+  if (typ == IPSEC_SA_IPV4) {
+      if (!get_full_ipv4_addr(addr_hex, addr))
           return FALSE;
+      if (!get_full_ipv4_addr(filter_hex, filter))
+          return FALSE;
+  } else {
+      if (get_full_ipv6_addr(addr_hex, addr))
+          return FALSE;
+      if (get_full_ipv6_addr(filter_hex, filter))
+          return FALSE;
+  }
+
+  addr_len = (guint)strlen(addr_hex);
+  filter_len = (guint)strlen(filter_hex);
+
+  if((filter_len == 1) && (filter[0] == IPSEC_SA_WILDCARDS_ANY)){
+      return TRUE;
+  }
+
+  if(addr_len != filter_len)
+      return FALSE;
 
   /* No length specified */
-   if( ((typ == IPSEC_SA_IPV6) && (filter_len > IPSEC_IPV6_ADDR_LEN)) ||
-       ((typ == IPSEC_SA_IPV4) && (filter_len > IPSEC_IPV4_ADDR_LEN)))
+   if( ((typ == IPSEC_SA_IPV6) && (filter_len == IPSEC_STRLEN_IPV6)) ||
+       ((typ == IPSEC_SA_IPV4) && (filter_len == IPSEC_STRLEN_IPV4)))
    {
-      /* Filter is longer than address can be... */
+      /* Check byte by byte ... */
       for(i = 0; i < addr_len; i++)
       {
-         if((filter[i] != IPSEC_SA_WILDCARDS_ANY) && (filter[i] != addr[i]))
+         if((filter_hex[i] != IPSEC_SA_WILDCARDS_ANY) && (filter_hex[i] != addr_hex[i]))
             return FALSE;
       }
       return TRUE;
    }
    else
-   {
-      for(i = 0; i < (filter_len/4); i++)
-      {
-         if((filter[i] != IPSEC_SA_WILDCARDS_ANY) && (filter[i] != addr[i]))
-            return FALSE;
-      }
-
-      if(filter[i] == IPSEC_SA_WILDCARDS_ANY)
-         return TRUE;
-      else if (filter_len  % 4 != 0)
-      {
-         /* take the end of the Netmask/Prefixlen into account */
-         filter_string_tmp[0] = filter[i];
-         filter_string_tmp[1] = '\0';
-         addr_string_tmp[0] = addr[i];
-         addr_string_tmp[1] = '\0';
-
-         if (sscanf(filter_string_tmp,"%x",&filter_tmp) == EOF)
-             return FALSE;
-         if (sscanf(addr_string_tmp,"%x",&addr_tmp) == EOF)
-             return FALSE;
-         for(i = 0; i < (filter_len % 4); i++)
-         {
-            if(((filter_tmp >> (4 -i -1)) & 1) != ((addr_tmp >> (4 -i -1)) & 1))
-               return FALSE;
-         }
-      }
-   }
-
+      return FALSE;
   return TRUE;
 
 }
