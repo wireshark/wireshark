@@ -2874,7 +2874,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
                 }
             } else {
                 /* Try to open/create the specified file for use as a capture buffer. */
-                *save_file_fd = ws_open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT,
+                *save_file_fd = ws_open(capfile_name, O_WRONLY|O_BINARY|O_TRUNC|O_CREAT,
                                         (capture_opts->group_read_access) ? 0640 : 0600);
             }
         }
