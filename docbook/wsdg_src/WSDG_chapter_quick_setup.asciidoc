@@ -65,14 +65,19 @@ You need to install, in exactly this order:
 
 . C compiler:
 https://go.microsoft.com/fwlink/?LinkId=532606&clcid=0x409[Download]
-and install "Microsoft Visual Studio 2015 Community Edition." This is a small download that then downloads all the other required parts (which are quite large).
+and install "Microsoft Visual Studio 2015 Community Edition." This is a small
+download that then downloads all the other required parts (which are quite large).
 
-Uncheck all the optional components (unless you want to use them for purposes other than Wireshark).
+Select the "Custom" install and then uncheck all the optional components other
+than "Common Tools for Visual C++ 2015" (unless you want to use them for purposes
+other than Wireshark).
 
-You can use Chocolatey to install Visual Studio:
+You can use Chocolatey to install Visual Studio, to correctly configure the
+installation, copy the deployment XML file https://code.wireshark.org/review/gitweb?p=wireshark.git;a=blob_plain;f=tools/msvc2015AdminDeployment.xml;hb=HEAD[msvc2015AdminDeployment.xml] from the source code tools directory
+and pass the path the file to the chocolatey install command:
 
 ----
-PS$>choco install VisualStudio2015Community
+PS$>choco install VisualStudio2015Community --timeout 0 -package-parameters "--AdminFile path\to\msvc2015AdminDeployment.xml"
 ----
 
 You can use other Microsoft C compiler variants, but VS2015 is used to
