@@ -2797,6 +2797,11 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
                 /* set output pipe to binary mode to avoid Windows text-mode processing (eg: for CR/LF)  */
                 _setmode(1, O_BINARY);
 #endif
+            } else {
+                /* Try to open the specified FIFO for use as a capture buffer.
+                   Do *not* create it if it doesn't exist.  There's nothing
+                   to truncate. If we need to read it, We Have A Problem. */
+                *save_file_fd = ws_open(capfile_name, O_WRONLY|O_BINARY, 0);
             }
         } /* if (...output_to_pipe ... */
 
