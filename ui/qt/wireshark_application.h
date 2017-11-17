@@ -119,8 +119,8 @@ public:
     bool isInitialized() { return initialized_; }
     void setReloadingLua(bool is_reloading) { is_reloading_lua_ = is_reloading; }
     bool isReloadingLua() { return is_reloading_lua_; }
-    const QIcon &normalIcon() const { return normal_icon_; }
-    const QIcon &captureIcon() const { return capture_icon_; }
+    const QIcon &normalIcon();
+    const QIcon &captureIcon();
     const QString &windowTitleSeparator() const { return window_title_separator_; }
     const QString windowTitleString(QStringList title_parts);
     const QString windowTitleString(QString title_part) { return windowTitleString(QStringList() << title_part); }
@@ -164,6 +164,7 @@ private:
     void checkForDbar();
 #endif
     void clearDynamicMenuGroupItems();
+    void initializeIcons();
 
 protected:
     bool event(QEvent *event);

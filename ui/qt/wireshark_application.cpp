@@ -438,6 +438,25 @@ void WiresharkApplication::reloadLuaPluginsDelayed()
     QTimer::singleShot(0, this, SIGNAL(reloadLuaPlugins()));
 }
 
+// This should be the first icon we fetch. We delay loading it as much as
+// possible in order to allow time for MimeDatabaseInitThread in
+// wireshark-qt.cpp to do its work.
+const QIcon &WiresharkApplication::normalIcon()
+{
+    if (normal_icon_.isNull()) {
+        initializeIcons();
+    }
+    return normal_icon_;
+}
+
+const QIcon &WiresharkApplication::captureIcon()
+{
+    if (capture_icon_.isNull()) {
+        initializeIcons();
+    }
+    return capture_icon_;
+}
+
 const QString WiresharkApplication::windowTitleString(QStringList title_parts)
 {
     QMutableStringListIterator tii(title_parts);
@@ -727,15 +746,6 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
     setAttribute(Qt::AA_UseHighDpiPixmaps);
 #endif
-
-    QList<int> icon_sizes = QList<int>() << 16 << 24 << 32 << 48 << 64 << 128 << 256 << 512 << 1024;
-    foreach (int icon_size, icon_sizes) {
-        QString icon_path = QString(":/wsicon/wsicon%1.png").arg(icon_size);
-        normal_icon_.addFile(icon_path);
-        icon_path = QString(":/wsicon/wsiconcap%1.png").arg(icon_size);
-        capture_icon_.addFile(icon_path);
-    }
-
     //
     // XXX - this means we try to check for the existence of all files
     // in the recent list every 2 seconds; that causes noticeable network
@@ -976,6 +986,19 @@ void WiresharkApplication::clearDynamicMenuGroupItems()
 {
     foreach (int group, dynamic_menu_groups_.uniqueKeys()) {
         dynamic_menu_groups_[group].clear();
+    }
+}
+
+void WiresharkApplication::initializeIcons()
+{
+    // Do this as late as possible in order to allow time for
+    // MimeDatabaseInitThread in wireshark-qt.cpp to do its work.
+    QList<int> icon_sizes = QList<int>() << 16 << 24 << 32 << 48 << 64 << 128 << 256 << 512 << 1024;
+    foreach (int icon_size, icon_sizes) {
+        QString icon_path = QString(":/wsicon/wsicon%1.png").arg(icon_size);
+        normal_icon_.addFile(icon_path);
+        icon_path = QString(":/wsicon/wsiconcap%1.png").arg(icon_size);
+        capture_icon_.addFile(icon_path);
     }
 }
 
