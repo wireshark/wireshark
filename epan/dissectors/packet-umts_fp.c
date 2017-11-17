@@ -2914,8 +2914,8 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         tvbuff_t *next_tvb;
                         pinfo->fd->subnum = macd_idx; /* set subframe number to current TB */
                         /* create new TVB and pass further on */
-                        next_tvb = tvb_new_subset_length_caplen(tvb, offset + bit_offset/8,
-                                ((bit_offset % 8) + size + 7) / 8, -1);
+                        next_tvb = tvb_new_subset_length(tvb, offset + bit_offset/8,
+                                ((bit_offset % 8) + size + 7) / 8);
 
 
                         /*This was all previously stored in [0] rather than [macd_idx] and cur_tb wasn't updated!*/
