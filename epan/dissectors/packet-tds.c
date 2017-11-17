@@ -863,6 +863,7 @@ static dissector_handle_t gssapi_handle;
 
 typedef struct {
     gint tds7_version;
+    gboolean tds_packets_in_order;
 } tds_conv_info_t;
 
 /* TDS protocol type preference */
@@ -977,7 +978,14 @@ static const value_string header_type_names[] = {
 };
 
 /* The status field */
-#define is_valid_tds_status(x) ((x) <= STATUS_EVENT_NOTIFICATION)
+#define is_valid_tds_status(x) ((x) == 0x00 || /* Normal, not last buffer */ \
+                                (x) == 0x01 || /* Normal, last buffer */     \
+                                (x) == 0x02 || /* TDS7: Attention ack, but not last buffer. TDS45 invalid. */ \
+                                (x) == 0x03 || /* TDS7: Attention Ack, last buffer. */ \
+                                (x) == 0x05 || /* TDS45: Attention, last buffer */ \
+                                (x) == 0x09 || /* TDS45: Event, last buffer. TDS7: Reset connection, last buffer */ \
+                                (x) == 0x11 || /* TDS45: Seal, last buffer. TDS7: Reset connection skip tran, last buffer */ \
+                                (x) == 0x21)   /* TDS45: Encrypt, last buffer. */
 
 #define STATUS_LAST_BUFFER              0x01
 #define STATUS_IGNORE_EVENT             0x02
@@ -3833,6 +3841,7 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (!tds_info) {
         tds_info = wmem_new(wmem_file_scope(), tds_conv_info_t);
         tds_info->tds7_version = TDS_PROTOCOL_NOT_SPECIFIED;
+        tds_info->tds_packets_in_order = 0;
         conversation_add_proto_data(conv, proto_tds, tds_info);
     }
 
@@ -3857,39 +3866,89 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * Deal with fragmentation.
      *
-     * TODO: handle case where netlib headers 'packet-number'.is always 0
-     *       use fragment_add_seq_next in this case ?
-     *
      */
     save_fragmented = pinfo->fragmented;
 
-    if (tds_defragment && (packet_number > 1 || (status & STATUS_LAST_BUFFER) == 0)) {
+    /*
+     * Don't even try to defragment if it's not a valid TDS type, because we're probably
+     * not looking at a valid Netlib header. This can occur for partial captures.
+     */
+    if (tds_defragment && is_valid_tds_type(type) && is_valid_tds_status(status)) {
+         if (((!(status & STATUS_LAST_BUFFER)) &&
+                (packet_number == 0) &&
+                (channel == 0)) ||
+             tds_info->tds_packets_in_order) {
+            /*
+             * Assumptions:
+             * Packet number of zero on a fragment typically will occur only when
+             * going to appear in order. This will happen with DB-Library or CT-Library.
+             * Exception:
+             * When a more modern stream has a large number of fragments and the packet
+             * number wraps back to zero.
+             * Heuristic:
+             * In the exception case, the channel number will be non-zero. This is what
+             * has been observed, but it's probably not guaranteed.
+             */
 
-        if (((status & STATUS_LAST_BUFFER) == 0)) {
-            col_append_str(pinfo->cinfo, COL_INFO, " (Not last buffer)");
+            tds_info->tds_packets_in_order = 1;
+
+            if (!(status & STATUS_LAST_BUFFER)) {
+                col_append_str(pinfo->cinfo, COL_INFO, " (Not last buffer)");
+            }
+            len = tvb_reported_length_remaining(tvb, offset);
+
+            last_buffer = ((status & STATUS_LAST_BUFFER) == STATUS_LAST_BUFFER);
+            fd_head = fragment_add_seq_next(&tds_reassembly_table, tvb, offset,
+                                             pinfo, channel, NULL,
+                                             len, !last_buffer);
+            next_tvb = process_reassembled_data(tvb, offset, pinfo,
+                                                "Reassembled TDS", fd_head, &tds_frag_items, NULL,
+                                                tds_tree);
         }
-        len = tvb_reported_length_remaining(tvb, offset);
-        /*
-         * XXX - I've seen captures that start with a login
-         * packet with a sequence number of 2.
-         */
+        else if (packet_number > 1 || !(status & STATUS_LAST_BUFFER)) {
+            /*
+             * Assumptions:
+             * This is TDS7, and the packets are correctly numbered from 1.
+             * This is either a first fragment, or one of a group of fragments.
+             *
+             * XXX - This might not work if the packet number wraps to zero on
+             * the very last buffer of a sequence.
+             */
 
-        last_buffer = ((status & STATUS_LAST_BUFFER) == 1);
-        /*
-        if(tvb_reported_length(tvb) == tvb_captured_length(tvb))
-        {
-            last_buffer = TRUE;
+            if (!(status & STATUS_LAST_BUFFER)) {
+                col_append_str(pinfo->cinfo, COL_INFO, " (Not last buffer)");
+            }
+            len = tvb_reported_length_remaining(tvb, offset);
+            /*
+             * XXX - I've seen captures that start with a login
+             * packet with a sequence number of 2.
+             */
+
+            last_buffer = ((status & STATUS_LAST_BUFFER) == STATUS_LAST_BUFFER);
+            /*
+            if(tvb_reported_length(tvb) == tvb_captured_length(tvb))
+            {
+                last_buffer = TRUE;
+            }
+            */
+
+            fd_head = fragment_add_seq_check(&tds_reassembly_table, tvb, offset,
+                                             pinfo, channel, NULL,
+                                             packet_number - 1, len, !last_buffer);
+            next_tvb = process_reassembled_data(tvb, offset, pinfo,
+                                                "Reassembled TDS", fd_head, &tds_frag_items, NULL,
+                                                tds_tree);
         }
-        */
+        else {
+            /* We're defragmenting, but this isn't a fragment. */
+            next_tvb = tvb_new_subset_remaining(tvb, offset);
+        }
 
-        fd_head = fragment_add_seq_check(&tds_reassembly_table, tvb, offset,
-                                         pinfo, channel, NULL,
-                                         packet_number - 1, len, !last_buffer);
-        next_tvb = process_reassembled_data(tvb, offset, pinfo,
-                                            "Reassembled TDS", fd_head, &tds_frag_items, NULL,
-                                            tds_tree);
-    } else {
+    }
+    else {
         /*
+         * We're not defragmenting, or this is an invalid Netlib header.
+         *
          * If this isn't the last buffer, just show it as a fragment.
          * (XXX - it'd be nice to dissect it if it's the first
          * buffer, but we'd need to do reassembly in order to
