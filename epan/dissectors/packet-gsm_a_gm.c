@@ -94,7 +94,7 @@
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"
 #include "packet-ppp.h"
-#include "packet-gsm_map.h"
+#include "packet-e164.h"
 
 void proto_register_gsm_a_gm(void);
 void proto_reg_handoff_gsm_a_gm(void);
@@ -4598,8 +4598,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 				break;
 			case 0x000E:
 				if ((link_dir == P2P_DIR_DL) && (e_len > 0)) {
-					l3_tvb = tvb_new_subset_length(tvb, curr_offset, e_len);
-					dissect_gsm_map_msisdn(l3_tvb, pinfo, pco_tree);
+					dissect_e164_msisdn(tvb, pco_tree, curr_offset, e_len, E164_ENC_BCD);
 				}
 				break;
 			case 0x0010:
