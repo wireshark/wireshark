@@ -1015,10 +1015,10 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
   rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_umts_rlc, 0);
   if (fpinf && macinf && rlcinf) {
     switch(macinf->content[fpinf->cur_tb]){
-      case MAC_DCCH:
+      case MAC_CONTENT_DCCH:
         u_rnti = rlcinf->ueid[fpinf->cur_tb];
         break;
-      case MAC_CCCH:
+      case MAC_CONTENT_CCCH:
       default:
         u_rnti = private_data_get_current_u_rnti(actx);
         break;
