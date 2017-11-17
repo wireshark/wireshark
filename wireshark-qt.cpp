@@ -97,7 +97,7 @@
 
 #include <QMessageBox>
 #include <QMimeDatabase>
-#include <QThread>
+#include <QThreadPool>
 
 #ifdef _WIN32
 #  include "caputils/capture-wpcap.h"
@@ -143,7 +143,7 @@
 // QMimeDatabase can be slow to initialize. Do so in a worker thread
 // as early as possible.
 // https://github.com/lxde/pcmanfm-qt/issues/415
-class MimeDatabaseInitThread : public QThread
+class MimeDatabaseInitThread : public QRunnable
 {
 private:
     void run()
@@ -395,8 +395,8 @@ int main(int argc, char *qt_argv[])
     QTextCodec::setCodecForTr(utf8codec);
 #endif
 
-    MimeDatabaseInitThread mime_db_init_thread;
-    mime_db_init_thread.start();
+    MimeDatabaseInitThread *mime_db_init_thread = new(MimeDatabaseInitThread);
+    QThreadPool::globalInstance()->start(mime_db_init_thread);
 
     /* Set the C-language locale to the native environment. */
     setlocale(LC_ALL, "");
