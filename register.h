@@ -45,7 +45,7 @@ typedef void (*register_cb)(register_action_e action, const char *message, gpoin
  * thread safe, such as wmem_alloc. Callbacks should handle themselves
  * accordingly.
  *
- * @param register_cb Callback routine which is called for each protocol.
+ * @param cb Callback routine which is called for each protocol.
  * Messages have the format "proto_register_XXX".
  * @param client_data Data pointer for the callback.
  */
@@ -57,7 +57,7 @@ WS_DLL_PUBLIC void register_all_protocols(register_cb cb, gpointer client_data);
  * might call any number of routines which are not thread safe, such as
  * wmem_alloc. Callbacks should handle themselves accordingly.
  *
- * @param register_cb Callback routine which is called for each protocol.
+ * @param cb Callback routine which is called for each protocol.
  * Messages have the format "proto_reg_handoff_XXX".
  * @param client_data Data pointer for the callback.
  */
