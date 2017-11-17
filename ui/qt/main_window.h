@@ -272,6 +272,7 @@ signals:
     void fieldHighlight(FieldInformation *);
 
     void frameSelected(int);
+    void captureActive(int);
 
 public slots:
     // in main_window_slots.cpp

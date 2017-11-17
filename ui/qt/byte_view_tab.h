@@ -76,6 +76,8 @@ private slots:
     void byteViewTextMarked(int);
 
     void connectToMainWindow();
+
+    void captureActive(int);
 };
 
 #endif // BYTE_VIEW_TAB_H

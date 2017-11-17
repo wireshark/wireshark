@@ -65,6 +65,24 @@ void ByteViewTab::connectToMainWindow()
     connect(wsApp->mainWindow(), SIGNAL(frameSelected(int)), this, SLOT(selectedFrameChanged(int)));
     connect(wsApp->mainWindow(), SIGNAL(setCaptureFile(capture_file*)), this, SLOT(setCaptureFile(capture_file*)));
     connect(wsApp->mainWindow(), SIGNAL(fieldSelected(FieldInformation *)), this, SLOT(selectedFieldChanged(FieldInformation *)));
+
+    connect(wsApp->mainWindow(), SIGNAL(captureActive(int)), this, SLOT(captureActive(int)));
+}
+
+void ByteViewTab::captureActive(int cap)
+{
+    if ( cap == 0 )
+    {
+        QList<ByteViewText *> allBVTs = findChildren<ByteViewText *>();
+        if ( allBVTs.count() > 0 )
+        {
+            ByteViewText * bvt = allBVTs.at(0);
+            tvbuff_t * stored = VariantPointer<tvbuff_t>::asPtr(bvt->property(tvb_data_property));
+
+            if ( ! stored )
+                selectedFrameChanged(-1);
+        }
+    }
 }
 
 void ByteViewTab::addTab(const char *name, tvbuff_t *tvb) {
@@ -273,6 +291,8 @@ void ByteViewTab::selectedFieldChanged(FieldInformation *selected)
 
 void ByteViewTab::setCaptureFile(capture_file *cf)
 {
+    selectedFrameChanged(-1);
+
     cap_file_ = cf;
 }
 

@@ -518,7 +518,7 @@ MainWindow::MainWindow(QWidget *parent) :
             main_ui_->statusBar, SLOT(highlightedFieldChanged(FieldInformation *)));
     connect(this, SIGNAL(fieldSelected(FieldInformation *)),
             main_ui_->statusBar, SLOT(selectedFieldChanged(FieldInformation *)));
-
+    connect(wsApp, SIGNAL(captureActive(int)), this, SIGNAL(captureActive(int)));
 
     createByteViewDialog();
 
