@@ -82,10 +82,6 @@ opcua_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
 
 opcua_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
-CLEANFILES = \
-	opcua \
-	*~
-
 DISTCLEANFILES = \
 	plugin.c
 

@@ -168,10 +168,7 @@ BUILT_SOURCES = $(GENERATED_HEADER_FILES)
 libui_a_CFLAGS = $(AM_CFLAGS) $(PIE_CFLAGS)
 
 CLEANFILES = \
-	doxygen-ui.tag	\
-	libui.a		\
-	libui_generated.a	\
-	*~
+	doxygen-ui.tag
 
 MAINTAINERCLEANFILES = \
 	$(GENERATED_FILES)

@@ -207,13 +207,6 @@ subpkgincludedir = $(pkgincludedir)/wiretap
 
 subpkginclude_HEADERS = $(PUBLIC_HEADER_FILES)
 
-CLEANFILES = \
-	libwiretap.a		\
-	libwiretap.la		\
-	libwiretap_generated.a	\
-	libwiretap_generated.la	\
-	*~
-
 DISTCLEANFILES = \
 	version_info.c
 

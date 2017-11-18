@@ -131,13 +131,6 @@ EXTRA_DIST = \
 	$(GENERATOR_FILES)	\
 	CMakeLists.txt
 
-CLEANFILES = \
-	libdfilter.a		\
-	libdfilter.la		\
-	libdfilter_generated.a 	\
-	libdfilter_generated.la \
-	*~
-
 DISTCLEANFILES = \
 	grammar.out	\
 	$(NODIST_GENERATED_FILES)

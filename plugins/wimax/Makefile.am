@@ -107,10 +107,6 @@ wimax_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
 
 wimax_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
-CLEANFILES = \
-	wimax \
-	*~
-
 DISTCLEANFILES = \
 	plugin.c
 

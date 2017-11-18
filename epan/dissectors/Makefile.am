@@ -1953,12 +1953,7 @@ dissectors.c: $(plugin_src) $(ALL_DISSECTORS_SRC) Custom.common \
 		dissectors $(ALL_DISSECTORS_SRC) ;
 
 CLEANFILES = \
-	libdissectors.a			\
-	libdissectors.la		\
-	libdirtydissectors.a		\
-	libdirtydissectors.la		\
-	dissectors-cache.pkl	\
-	*~
+	dissectors-cache.pkl
 
 DISTCLEANFILES = \
 	$(NODIST_GENERATED_FILES)

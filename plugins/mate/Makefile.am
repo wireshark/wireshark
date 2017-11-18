@@ -92,10 +92,6 @@ mate_la_CFLAGS = $(GENERATED_CFLAGS) $(PLUGIN_CFLAGS)
 
 mate_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
-CLEANFILES = \
-	mate \
-	*~
-
 DISTCLEANFILES = \
 	mate_grammar.out \
 	$(NODIST_SRC_FILES) \

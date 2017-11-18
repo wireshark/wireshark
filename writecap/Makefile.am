@@ -26,9 +26,7 @@ AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GLIB_CFLAGS)
 noinst_LIBRARIES = libwritecap.a
 
 CLEANFILES = \
-	doxygen-writecap.tag	\
-	libwritecap.a		\
-	*~
+	doxygen-writecap.tag
 
 EXTRA_DIST = \
 	.editorconfig		\

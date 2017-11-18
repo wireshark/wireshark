@@ -36,9 +36,6 @@ AM_CFLAGS = $(WS_CFLAGS_FOR_BUILD)
 
 noinst_PROGRAMS = lemon
 
-CLEANFILES = \
-	*~
-
 EXTRA_DIST = \
 	cppmagic.h		\
 	lemon.html		\

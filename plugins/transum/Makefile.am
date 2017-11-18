@@ -63,10 +63,6 @@ transum_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
 
 transum_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
-CLEANFILES = \
-	transum \
-	*~
-
 DISTCLEANFILES = \
 	plugin.c
 

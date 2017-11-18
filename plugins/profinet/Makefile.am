@@ -68,10 +68,6 @@ profinet_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
 
 profinet_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
-CLEANFILES = \
-	profinet \
-	*~
-
 DISTCLEANFILES = \
 	plugin.c
 

@@ -78,10 +78,6 @@ EXTRA_DIST = \
 	CMakeLists.txt			\
 	speex/README.txt
 
-CLEANFILES = \
-	libwscodec.la	\
-	*~
-
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build \
 	-sourcedir=$(srcdir) \

@@ -51,9 +51,7 @@ libcaputils_a_CFLAGS = $(AM_CFLAGS) $(PIE_CFLAGS)
 libcaputils_a_DEPENDENCIES =
 
 CLEANFILES = \
-	doxygen-caputils.tag	\
-	libcaputils.a		\
-	*~
+	doxygen-caputils.tag
 
 EXTRA_DIST = \
 	.editorconfig		\

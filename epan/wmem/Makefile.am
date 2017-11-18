@@ -81,11 +81,6 @@ wmem_test_LDADD = \
 
 test-programs: wmem_test
 
-CLEANFILES = \
-	libwmem.a	\
-	libwmem.la	\
-	*~
-
 EXTRA_DIST = \
 	CMakeLists.txt
 

@@ -80,9 +80,6 @@ dist_pkgdata_DATA = \
 nodist_pkgdata_DATA = \
 	init.lua
 
-CLEANFILES = \
-	*~
-
 DISTCLEANFILES = \
 	$(BUILT_SOURCES) \
 	taps.txt \

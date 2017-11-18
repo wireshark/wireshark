@@ -270,10 +270,8 @@ AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GTK_CFLAGS) \
 	$(PORTAUDIO_INCLUDES)
 
 CLEANFILES = \
-	libgtkui.a				\
 	wireshark-tap-register.c-tmp		\
-	wireshark-tap-register-cache.pkl	\
-	*~
+	wireshark-tap-register-cache.pkl
 
 DISTCLEANFILES = \
 	$(NODIST_GENERATED_FILES)

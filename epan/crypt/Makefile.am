@@ -54,11 +54,6 @@ EXTRA_DIST = \
 	CMakeLists.txt	\
 	CMakeListsCustom.txt.example
 
-CLEANFILES = \
-	libairpdcap.a	\
-	libairpdcap.la	\
-	*~
-
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g termoutput -build \
 	-sourcedir=$(srcdir) \

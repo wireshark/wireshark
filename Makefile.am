@@ -771,7 +771,6 @@ services:
 	$(PYTHON) $(srcdir)/tools/make-services.py
 
 CLEANFILES = \
-	*~		\
 	doxygen-core.tag	\
 	vgcore.*
 

@@ -58,10 +58,6 @@ wimaxmacphy_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
 
 wimaxmacphy_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
-CLEANFILES = \
-	wimaxmacphy \
-	*~
-
 DISTCLEANFILES = \
 	plugin.c
 

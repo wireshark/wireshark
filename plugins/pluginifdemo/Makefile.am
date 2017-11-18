@@ -58,10 +58,6 @@ pluginifdemo_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
 
 pluginifdemo_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
-CLEANFILES = \
-	pluginifdemo \
-	*~
-
 DISTCLEANFILES = \
 	plugin.c
 

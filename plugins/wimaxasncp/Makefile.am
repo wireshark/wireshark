@@ -77,10 +77,6 @@ wimaxasncp_la_CFLAGS = $(GENERATED_CFLAGS) $(PLUGIN_CFLAGS)
 
 wimaxasncp_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
-CLEANFILES = \
-	wimaxasncp \
-	*~
-
 DISTCLEANFILES = \
 	plugin.c
 

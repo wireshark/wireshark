@@ -95,10 +95,8 @@ EXTRA_DIST = \
 	$(GENERATOR_FILES)
 
 CLEANFILES = \
-	libcliui.a			\
 	tshark-tap-register.c-tmp	\
-	tshark-tap-register-cache.pkl	\
-	*~
+	tshark-tap-register-cache.pkl
 
 MAINTAINERCLEANFILES = \
 	$(GENERATED_FILES)

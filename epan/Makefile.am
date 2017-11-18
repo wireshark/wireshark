@@ -370,12 +370,7 @@ EXTRA_DIST = \
 	print.ps
 
 CLEANFILES = \
-	doxygen-epan.tag		\
-	libwireshark.a			\
-	libwireshark.la			\
-	libwireshark_generated.a	\
-	libwireshark_generated.la	\
-	*~
+	doxygen-epan.tag
 
 DISTCLEANFILES = \
 	$(NODIST_LIBWIRESHARK_GENERATED_C_FILES) \

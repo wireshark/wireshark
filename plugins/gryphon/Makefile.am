@@ -58,10 +58,6 @@ gryphon_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
 
 gryphon_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
-CLEANFILES = \
-	gryphon \
-	*~
-
 DISTCLEANFILES = \
 	plugin.c
 

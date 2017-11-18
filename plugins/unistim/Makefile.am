@@ -67,10 +67,6 @@ unistim_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
 
 unistim_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
-CLEANFILES = \
-	unistim \
-	*~
-
 DISTCLEANFILES = \
 	plugin.c
 

@@ -49,10 +49,6 @@ stats_tree_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
 
 stats_tree_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
-CLEANFILES = \
-	stats_tree \
-	*~
-
 EXTRA_DIST = \
 	plugin.rc.in		\
 	CMakeLists.txt

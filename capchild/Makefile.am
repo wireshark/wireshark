@@ -39,9 +39,7 @@ EXTRA_DIST = \
 	doxygen.cfg.in
 
 CLEANFILES = \
-	doxygen-capchild.tag	\
-	libcapchild.a		\
-	*~
+	doxygen-capchild.tag
 
 doxygen:
 if HAVE_DOXYGEN

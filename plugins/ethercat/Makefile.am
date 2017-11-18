@@ -69,10 +69,6 @@ ethercat_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
 
 ethercat_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
-CLEANFILES = \
-	ethercat \
-	*~
-
 DISTCLEANFILES = \
 	plugin.c
 

@@ -50,11 +50,6 @@ EXTRA_DIST = \
 	.editorconfig		\
 	CMakeLists.txt
 
-CLEANFILES = \
-	libftypes.a	\
-	libftypes.la	\
-	*~
-
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g termoutput -build \
 	-sourcedir=$(srcdir) \

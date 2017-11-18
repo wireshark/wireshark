@@ -62,10 +62,6 @@ docsis_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
 
 docsis_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
-CLEANFILES = \
-	docsis \
-	*~
-
 DISTCLEANFILES = \
 	plugin.c
 

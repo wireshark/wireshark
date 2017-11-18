@@ -717,13 +717,11 @@ nodist_libqtui_a_SOURCES = \
 libqtui_a_DEPENDENCIES =
 
 CLEANFILES = \
-	libqtui.a			\
 	wireshark-tap-register.c-tmp	\
 	wireshark-tap-register-cache.pkl \
 	*.moc.cpp			\
 	qrc_*.cpp			\
-	ui_*.h				\
-	*~
+	ui_*.h
 
 DISTCLEANFILES = \
 	$(NODIST_GENERATED_FILES)	\
