@@ -2840,7 +2840,6 @@ dissect_radio_operation_restriction(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, guint offset, guint16 len _U_)
 {
     guint8 op_class_count = 0, op_class_index = 0;
-    guint8 channel_count = 0, channel_index = 0;
     proto_tree *op_class_list = NULL, *op_class_tree = NULL;
     proto_item *pi = NULL;
     guint saved_offset = 0;
@@ -2854,6 +2853,9 @@ dissect_radio_operation_restriction(tvbuff_t *tvb, packet_info *pinfo _U_,
                         tvb, offset, 1, ENC_NA);
     offset++;
 
+    if (op_class_count == 0)
+        return offset;
+
     op_class_list = proto_tree_add_subtree(tree, tvb, offset, -1,
                         ett_radio_restriction_op_class_list, &pi,
                         "Restricted operating class list");
@@ -2862,6 +2864,8 @@ dissect_radio_operation_restriction(tvbuff_t *tvb, packet_info *pinfo _U_,
     while (op_class_index < op_class_count) {
         proto_item *ocpi = NULL;
         proto_tree *channel_list = NULL, *channel_tree = NULL;
+        guint start_offset = offset;
+        guint8 channel_count = 0, channel_index = 0;
 
         op_class_tree = proto_tree_add_subtree_format(op_class_list,
                                 tvb, offset, -1,
@@ -2878,8 +2882,10 @@ dissect_radio_operation_restriction(tvbuff_t *tvb, packet_info *pinfo _U_,
                             tvb, offset, 1, ENC_NA);
         offset++;
 
+        if (channel_count == 0)
+            continue;
 
-        channel_list = proto_tree_add_subtree(tree, tvb, offset, channel_count * 2,
+        channel_list = proto_tree_add_subtree(op_class_tree, tvb, offset, channel_count * 2,
                         ett_radio_restriction_channel_list, NULL,
                         "Restricted channel(s) list");
 
@@ -2890,8 +2896,8 @@ dissect_radio_operation_restriction(tvbuff_t *tvb, packet_info *pinfo _U_,
             channel_tree = proto_tree_add_subtree_format(channel_list,
                                 tvb, offset, 2,
                                 ett_radio_restriction_channel_tree, NULL,
-                                "Operating class %u",
-                                op_class_index);
+                                "Channel restriction %u",
+                                channel_index);
 
             proto_tree_add_item(channel_tree, hf_ieee1905_radio_restriction_channel,
                                 tvb, offset, 1, ENC_NA);
@@ -2908,6 +2914,7 @@ dissect_radio_operation_restriction(tvbuff_t *tvb, packet_info *pinfo _U_,
             channel_index++;
         }
 
+        proto_item_set_len(ocpi, offset - start_offset);
         op_class_index++;
     }
 
