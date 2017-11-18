@@ -29,6 +29,9 @@
  *
  *            by S. P. Miller, B. C. Neuman, J. I. Schiller, and J. H. Saltzer
  *
+ *                                         7. Appendix I Design Specifications
+ *
+ * http://web.mit.edu/Saltzer/www/publications/athenaplan/e.2.1.pdf
  */
 
 #include "config.h"
