@@ -20,8 +20,8 @@ extern "C" {
 #include <glib.h>
 
 typedef struct _dissector_reg {
-  const char *cb_name;
-  void (*cb_func)(void);
+    const char *cb_name;
+    void (*cb_func)(void);
 } dissector_reg_t;
 
 WS_DLL_PUBLIC dissector_reg_t dissector_reg_proto[];
@@ -46,6 +46,6 @@ WS_DLL_PUBLIC gulong dissector_reg_handoff_count(void);
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=2 tabstop=8 expandtab:
- * :indentSize=2:tabSize=8:noTabs=true:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
