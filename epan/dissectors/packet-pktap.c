@@ -81,15 +81,25 @@ static dissector_handle_t pktap_handle;
 static capture_dissector_handle_t eth_cap_handle;
 
 /*
- * XXX - these are little-endian in the captures I've seen, but Apple
- * no longer make any big-endian machines (Macs use x86, iOS machines
- * use ARM and run it little-endian), so that might be by definition
- * or they might be host-endian.
+ * XXX - these are only little-endian because they've been created on
+ * little-endian machines; the code in bsd/net/pktap.c in XNU writes
+ * the structure out in host byte order.
  *
- * If a big-endian PKTAP file ever shows up, and it comes from a
- * big-endian machine, presumably these are host-endian, and we need
- * to just fetch the fields in host byte order here but byte-swap them
- * to host byte order in libwiretap.
+ * We haven't been treating it as host-endian in libpcap and libwiretap,
+ * i.e. we haven't been byte-swapping its members when reading it on
+ * a machine whose byte order differs from the byte order of the machine
+ * on which the file is being read.
+ *
+ * Furthermore, the header is extensible, so we don't necessarily know
+ * what fields to swap.
+ *
+ * Fortunately, the length of the PKTAP header is a 32-bit field and is
+ * *presumably* never going to be 65536 or greater, so if any of the upper
+ * 16 bits appear to be set, it means we're looking at it in the wrong
+ * byte order, and it's never going to be zero, so those bits *will* be
+ * set if it's >= 65536, so we can determine its byte order.
+ *
+ * We should do that here.
  */
 
 static gboolean
