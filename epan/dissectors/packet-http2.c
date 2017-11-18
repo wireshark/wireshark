@@ -46,7 +46,10 @@
 #include <epan/dissectors/packet-http2.h>
 
 #ifdef HAVE_NGHTTP2
+#include <epan/uat.h>
+
 #include <nghttp2/nghttp2.h>
+
 #endif
 
 #include "packet-tcp.h"
@@ -55,6 +58,7 @@
 #include <epan/reassemble.h>
 
 #include "wsutil/pint.h"
+#include "wsutil/strtoi.h"
 
 #ifdef HAVE_NGHTTP2
 #define http2_header_repr_type_VALUE_STRING_LIST(XXX)                   \
@@ -321,6 +325,59 @@ static int hf_http2_continuation_padding = -1;
 static int hf_http2_altsvc_origin_len = -1;
 static int hf_http2_altsvc_origin = -1;
 static int hf_http2_altsvc_field_value = -1;
+#if HAVE_NGHTTP2
+/* HTTP2 header static fields */
+static int hf_http2_headers_status = -1;
+static int hf_http2_headers_path = -1;
+static int hf_http2_headers_method = -1;
+static int hf_http2_headers_scheme = -1;
+static int hf_http2_headers_accept = -1;
+static int hf_http2_headers_accept_charset = -1;
+static int hf_http2_headers_accept_encoding = -1;
+static int hf_http2_headers_accept_language = -1;
+static int hf_http2_headers_accept_ranges = -1;
+static int hf_http2_headers_access_control_allow_origin = -1;
+static int hf_http2_headers_age = -1;
+static int hf_http2_headers_allow = -1;
+static int hf_http2_headers_authorization = -1;
+static int hf_http2_headers_authority = -1;
+static int hf_http2_headers_cache_control = -1;
+static int hf_http2_headers_content_disposition = -1;
+static int hf_http2_headers_content_encoding = -1;
+static int hf_http2_headers_content_language = -1;
+static int hf_http2_headers_content_length = -1;
+static int hf_http2_headers_content_location = -1;
+static int hf_http2_headers_content_range = -1;
+static int hf_http2_headers_content_type = -1;
+static int hf_http2_headers_cookie = -1;
+static int hf_http2_headers_date = -1;
+static int hf_http2_headers_etag = -1;
+static int hf_http2_headers_expect = -1;
+static int hf_http2_headers_expires = -1;
+static int hf_http2_headers_from = -1;
+static int hf_http2_headers_if_match = -1;
+static int hf_http2_headers_if_modified_since = -1;
+static int hf_http2_headers_if_none_match = -1;
+static int hf_http2_headers_if_range = -1;
+static int hf_http2_headers_if_unmodified_since = -1;
+static int hf_http2_headers_last_modified = -1;
+static int hf_http2_headers_link = -1;
+static int hf_http2_headers_location = -1;
+static int hf_http2_headers_max_forwards = -1;
+static int hf_http2_headers_proxy_authenticate = -1;
+static int hf_http2_headers_proxy_authorization = -1;
+static int hf_http2_headers_range = -1;
+static int hf_http2_headers_referer = -1;
+static int hf_http2_headers_refresh = -1;
+static int hf_http2_headers_retry_after = -1;
+static int hf_http2_headers_server = -1;
+static int hf_http2_headers_set_cookie = -1;
+static int hf_http2_headers_strict_transport_security = -1;
+static int hf_http2_headers_user_agent = -1;
+static int hf_http2_headers_vary = -1;
+static int hf_http2_headers_via = -1;
+static int hf_http2_headers_www_authenticate = -1;
+#endif
 /* Blocked */
 
 /*
@@ -383,6 +440,472 @@ static wmem_map_t *http2_hdrcache_map = NULL;
 /* Header name_length + name + value_length + value */
 static char *http2_header_pstr = NULL;
 #endif
+
+#ifdef HAVE_NGHTTP2
+/* Stuff for generation/handling of fields for HTTP2 headers */
+
+enum header_field_type {
+    val_string,
+    val_uint64
+};
+
+typedef struct _header_field_t {
+    gchar* header_name;
+    enum header_field_type header_type;
+    gchar* header_desc;
+} header_field_t;
+
+static header_field_t* header_fields = NULL;
+static guint num_header_fields = 0;
+static guint num_header_fields_cleanup = 0;
+
+static GHashTable* header_fields_hash = NULL;
+
+static gboolean
+header_fields_update_cb(void *r, char **err)
+{
+    header_field_t *rec = (header_field_t *)r;
+    char c;
+
+    if (rec->header_name == NULL) {
+        *err = g_strdup("Header name can't be empty");
+        return FALSE;
+    }
+
+    g_strstrip(rec->header_name);
+    if (rec->header_name[0] == 0) {
+        *err = g_strdup("Header name can't be empty");
+        return FALSE;
+    }
+
+    /* Check for invalid characters (to avoid asserting out when
+     * registering the field).
+     */
+    c = proto_check_field_name(rec->header_name);
+    if (c) {
+        *err = g_strdup_printf("Header name can't contain '%c'", c);
+        return FALSE;
+    }
+
+    /* If the hash table is empty(e.g. on startup), do not try to check a value */
+    if (header_fields_hash != NULL) {
+        const gint *entry = (const gint *) g_hash_table_lookup(header_fields_hash, rec->header_name);
+        if (entry != NULL) {
+            *err = g_strdup_printf("This header field is already defined in UAT or it is a static header field");
+            return FALSE;
+        }
+    }
+
+    *err = NULL;
+    return TRUE;
+}
+
+static void *
+header_fields_copy_cb(void* n, const void* o, size_t siz _U_)
+{
+    header_field_t* new_rec = (header_field_t*)n;
+    const header_field_t* old_rec = (const header_field_t*)o;
+
+    new_rec->header_name = g_strdup(old_rec->header_name);
+    new_rec->header_type = old_rec->header_type;
+    new_rec->header_desc = g_strdup(old_rec->header_desc);
+
+    return new_rec;
+}
+
+static void
+header_fields_free_cb(void*r)
+{
+    header_field_t* rec = (header_field_t*)r;
+
+    g_hash_table_remove(header_fields_hash, rec->header_name);
+
+    g_free(rec->header_name);
+    g_free(rec->header_desc);
+
+}
+
+static void
+register_static_headers(void) {
+    header_fields_hash = g_hash_table_new_full(g_str_hash, g_str_equal,
+                                               g_free, NULL);
+
+    /* Here hf[x].hfinfo.name is a header method which is used as key
+     * for matching ids while processing HTTP2 packets */
+    static hf_register_info hf[] = {
+        {
+            &hf_http2_headers_authority,
+            {":authority", "http2.headers.authority",
+                FT_STRING, STR_UNICODE, NULL, 0x0,
+                "Authority portion of the target URI", HFILL}
+        },
+        {
+            &hf_http2_headers_status,
+                {":status", "http2.headers.status",
+                 FT_UINT16, BASE_DEC, NULL, 0x0,
+                 NULL, HFILL}
+        },
+        {
+            &hf_http2_headers_path,
+                {":path", "http2.headers.path",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 NULL, HFILL}
+        },
+        {
+            &hf_http2_headers_method,
+                {":method", "http2.headers.method",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 NULL, HFILL}
+        },
+        {
+            &hf_http2_headers_scheme,
+                {":scheme", "http2.headers.scheme",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 NULL, HFILL}
+        },
+        {
+            &hf_http2_headers_accept,
+                {"accept", "http2.headers.accept",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Media types that are acceptable to the user agent", HFILL}
+        },
+        {
+            &hf_http2_headers_accept_charset,
+                {"accept_charset", "http2.headers.accept_charset",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Acceptable charsets in textual responses for the user agent", HFILL}
+        },
+        {
+            &hf_http2_headers_accept_encoding,
+                {"accept_encoding", "http2.headers.accept_encoding",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Acceptable content codings (like compression) in responses for the user agent", HFILL}
+        },
+        {
+            &hf_http2_headers_accept_language,
+                {"accept_language", "http2.headers.accept_language",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Preferred natural languages for the user agent", HFILL}
+        },
+        {
+            &hf_http2_headers_accept_ranges,
+                {"accept_ranges", "http2.headers.accept_ranges",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Bytes range which server may use for partial data transfer", HFILL}
+        },
+        {
+            &hf_http2_headers_access_control_allow_origin,
+                {"access_control_allow_origin", "http2.headers.access_control_allow_origin",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Origin control for cross-origin resource sharing", HFILL}
+        },
+        {
+            &hf_http2_headers_age,
+                {"age", "http2.headers.age",
+                 FT_UINT64, BASE_DEC, NULL, 0x0,
+                 "Time in seconds which was spent for transferring data through proxy", HFILL}
+        },
+        {
+            &hf_http2_headers_allow,
+                {"allow", "http2.headers.allow",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "List of allowed methods for request", HFILL}
+        },
+        {
+            &hf_http2_headers_authorization,
+                {"authorization", "http2.headers.authorization",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Credentials for a server-side authorization", HFILL}
+        },
+        {
+            &hf_http2_headers_cache_control,
+                {"cache_control", "http2.headers.cache_control",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Request or response directives for a cache control", HFILL}
+        },
+        {
+            &hf_http2_headers_content_disposition,
+                {"content_disposition", "http2.headers.content_disposition",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Indicates that response will be displayed as page or downloaded with dialog box", HFILL}
+        },
+        {
+            &hf_http2_headers_content_encoding,
+                {"content_encoding", "http2.headers.content_encoding",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 NULL, HFILL}
+        },
+        {
+            &hf_http2_headers_content_language,
+                {"content_language", "http2.headers.content_language",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 NULL, HFILL}
+        },
+        {
+            &hf_http2_headers_content_length,
+                {"content_length", "http2.headers.content_length",
+                 FT_UINT64, BASE_DEC, NULL, 0x0,
+                 "Size of body in bytes", HFILL}
+        },
+        {
+            &hf_http2_headers_content_location,
+                {"content_location", "http2.headers.content_location",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Alternative URL for a response data", HFILL}
+        },
+        {
+            &hf_http2_headers_content_range,
+                {"content_range", "http2.headers.content_range",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Range of bytes which was sent by server for partial data transfer", HFILL}
+        },
+        {
+            &hf_http2_headers_content_type,
+                {"content_type", "http2.headers.content_type",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "MIME type of response", HFILL}
+        },
+        {
+            &hf_http2_headers_cookie,
+                {"cookie", "http2.headers.cookie",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Stored cookies", HFILL}
+        },
+        {
+            &hf_http2_headers_date,
+                {"date", "http2.headers.date",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Date and time at which the data was originated", HFILL}
+        },
+        {
+            &hf_http2_headers_etag,
+                {"etag", "http2.headers.etag",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Directive for version indication of resource", HFILL}
+        },
+        {
+            &hf_http2_headers_expect,
+                {"expect", "http2.headers.expect",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Expectations that need to be fulfilled for correct request", HFILL}
+        },
+        {
+            &hf_http2_headers_expires,
+                {"expires", "http2.headers.expires",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Data after which resource will be stale", HFILL}
+        },
+        {
+            &hf_http2_headers_from,
+                {"from", "http2.headers.from",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Email of a person who responsible for a requesting data", HFILL}
+        },
+        {
+            &hf_http2_headers_if_match,
+                {"if_match", "http2.headers.if_match",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Mechanism for requesting data matched by a list of ETags", HFILL}
+        },
+        {
+            &hf_http2_headers_if_modified_since,
+                {"if_modified_since", "http2.headers.if_modified_since",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Resource will be sent with status code 200 if it was modified otherwise with status code 304", HFILL}
+        },
+        {
+            &hf_http2_headers_if_none_match,
+                {"if_none_match", "http2.headers.if_none_match",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Mechanism for requesting data not matched by a list of ETags", HFILL}
+        },
+        {
+            &hf_http2_headers_if_range,
+                {"if_range", "http2.headers.if_range",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Mechanism for a range request which is used to check if a resource was modified", HFILL}
+        },
+        {
+            &hf_http2_headers_if_unmodified_since,
+                {"if_unmodified_since", "http2.headers.if_unmodified_since",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Resource will be processed if it was not modified otherwise 412 error will be returned", HFILL}
+        },
+        {
+            &hf_http2_headers_last_modified,
+                {"last_modified", "http2.headers.last_modified",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Date and time at which the origin server believes the resource was last modified", HFILL}
+        },
+        {
+            &hf_http2_headers_link,
+                {"link", "http2.headers.link",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Mechanism for indicating that resource will be preloaded", HFILL}
+        },
+        {
+            &hf_http2_headers_location,
+                {"location", "http2.headers.location",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Mechanism for indicating that client will be redirected", HFILL}
+        },
+        {
+            &hf_http2_headers_max_forwards,
+                {"max_forwards", "http2.headers.max_forwards",
+                 FT_UINT64, BASE_DEC, NULL, 0x0,
+                 "Mechanism for limiting the number of proxies", HFILL}
+        },
+        {
+            &hf_http2_headers_proxy_authenticate,
+                {"proxy_authenticate", "http2.headers.proxy_authenticate",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Authentication method that should be used to gain access to a resource behind a proxy server", HFILL}
+        },
+        {
+            &hf_http2_headers_proxy_authorization,
+                {"proxy_authorization", "http2.headers.proxy_authorization",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Credentials for a proxy-side authorization", HFILL}
+        },
+        {
+            &hf_http2_headers_range,
+                {"range", "http2.headers.range",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Range of resource bytes that server should return", HFILL}
+        },
+        {
+            &hf_http2_headers_referer,
+                {"referer", "http2.headers.referer",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Address of the previous web page", HFILL}
+        },
+        {
+            &hf_http2_headers_refresh,
+                {"refresh", "http2.headers.refresh",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Time in seconds after which client will be redirected by given url", HFILL}
+        },
+        {
+            &hf_http2_headers_retry_after,
+                {"retry_after", "http2.headers.retry_after",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Mechanism to indicate when resource expected to be available", HFILL}
+        },
+        {
+            &hf_http2_headers_server,
+                {"server", "http2.headers.server",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Information about server software", HFILL}
+        },
+        {
+            &hf_http2_headers_set_cookie,
+                {"set_cookie", "http2.headers.set_cookie",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Send a cookie to the client", HFILL}
+        },
+        {
+            &hf_http2_headers_strict_transport_security,
+                {"strict_transport_security", "http2.headers.strict_transport_security",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "HSTS indicates that resource should be accessed only using HTTPS", HFILL}
+        },
+        {
+            &hf_http2_headers_user_agent,
+                {"user_agent", "http2.headers.user_agent",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Information about client software", HFILL}
+        },
+        {
+            &hf_http2_headers_vary,
+                {"vary", "http2.headers.vary",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Mechanism for selecting which header will be used for content negotiation algorithm", HFILL}
+        },
+        {
+            &hf_http2_headers_via,
+                {"via", "http2.headers.via",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Additional information for loop detection and protocol capabilities in proxy requests", HFILL}
+        },
+        {
+            &hf_http2_headers_www_authenticate,
+                {"www_authenticate", "http2.headers.www_authenticate",
+                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 "Authentication method that should be used to gain access to a resource", HFILL}
+        }
+    };
+    gchar* header_name;
+    for (guint i = 0; i < G_N_ELEMENTS(hf); ++i) {
+        header_name = g_strdup(hf[i].hfinfo.name);
+
+        g_hash_table_insert(header_fields_hash, header_name, &hf[i].hfinfo.id);
+    }
+    proto_register_field_array(proto_http2, hf, G_N_ELEMENTS(hf));
+}
+
+UAT_CSTRING_CB_DEF(header_fields, header_name, header_field_t)
+UAT_VS_DEF(header_fields, header_type, header_field_t, enum header_field_type, val_string, "string")
+UAT_CSTRING_CB_DEF(header_fields, header_desc, header_field_t)
+
+static hf_register_info* hf_uat = NULL;
+#endif
+
+static void
+http2_init_protocol(void)
+{
+#if HAVE_NGHTTP2
+    gint* hf_id;
+    guint i;
+    gchar* header_name;
+    gchar* header_name_key;
+
+    /* Add to hash table headers from UAT */
+    if (num_header_fields) {
+        hf_uat = g_new0(hf_register_info, num_header_fields);
+        num_header_fields_cleanup = num_header_fields;
+
+        for (i = 0; i < num_header_fields; i++) {
+            hf_id = g_new(gint,1);
+            *hf_id = -1;
+            header_name = g_strdup(header_fields[i].header_name);
+            header_name_key = g_ascii_strdown(header_name, -1);
+
+            hf_uat[i].p_id = hf_id;
+            hf_uat[i].hfinfo.name = header_name;
+            hf_uat[i].hfinfo.abbrev = g_strdup_printf("http2.headers.%s", header_name);
+            switch(header_fields[i].header_type) {
+                case val_uint64:
+                    hf_uat[i].hfinfo.type = FT_UINT64;
+                    hf_uat[i].hfinfo.display = BASE_DEC;
+                    break;
+                default: // string
+                    hf_uat[i].hfinfo.type = FT_STRING;
+                    hf_uat[i].hfinfo.display = BASE_NONE;
+                    break;
+            }
+            hf_uat[i].hfinfo.strings = NULL;
+            hf_uat[i].hfinfo.bitmask = 0;
+            hf_uat[i].hfinfo.blurb = g_strdup(header_fields[i].header_desc);
+            HFILL_INIT(hf_uat[i]);
+
+            g_hash_table_insert(header_fields_hash, header_name_key, hf_id);
+        }
+
+        proto_register_field_array(proto_http2, hf_uat, num_header_fields);
+    }
+#endif
+}
+
+static void
+http2_cleanup_protocol(void) {
+#if HAVE_NGHTTP2
+    for (guint i = 0; i < num_header_fields_cleanup; ++i) {
+        proto_deregister_field(proto_http2, *(hf_uat[i].p_id));
+    }
+    proto_add_deregistered_data(hf_uat);
+    proto_free_deregistered_fields();
+#endif
+}
 
 static dissector_handle_t http2_handle;
 
@@ -1007,6 +1530,37 @@ try_append_method_path_info(packet_info *pinfo, proto_tree *tree,
 }
 
 static void
+try_add_named_header_field(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 length, const char *header_name, const char *header_value)
+{
+    int hf_id = -1;
+    header_field_info *hfi;
+
+    const gint *entry = (const gint*) g_hash_table_lookup(header_fields_hash, header_name);
+    if (entry == NULL) {
+        return;
+    }
+
+    hf_id = *entry;
+
+    hfi = proto_registrar_get_nth(hf_id);
+    DISSECTOR_ASSERT(hfi != NULL);
+
+    if (IS_FT_UINT32(hfi->type)) {
+        guint32 value;
+        if (ws_strtou32(header_value, NULL, &value)) {
+            proto_tree_add_uint(tree, hf_id, tvb, offset, length, value);
+        }
+    } else if (IS_FT_UINT(hfi->type)) {
+        guint64 value;
+        if (ws_strtou64(header_value, NULL, &value)) {
+            proto_tree_add_uint64(tree, hf_id, tvb, offset, length, value);
+        }
+    } else {
+        proto_tree_add_item(tree, hf_id, tvb, offset, length, ENC_BIG_ENDIAN);
+    }
+}
+
+static void
 inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
                            proto_tree *tree, size_t headlen,
                            http2_session_t *h2session, guint8 flags)
@@ -1243,6 +1797,8 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
 
         /* Add header value. */
         proto_tree_add_item_ret_string(header_tree, hf_http2_header_value, header_tvb, hoffset, header_value_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &header_value);
+        // check if field is http2 header https://tools.ietf.org/html/rfc7541#appendix-A
+        try_add_named_header_field(header_tree, header_tvb, hoffset, header_value_length, header_name, header_value);
         hoffset += header_value_length;
 
         /* Only track HEADER and CONTINUATION frames part there of. Don't look at PUSH_PROMISE and trailing CONTINUATION.
@@ -1347,7 +1903,6 @@ dissect_http2_header_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
             proto_tree_add_item(flags_tree, hf_http2_flags_unused, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
     }
-
 
     return flags;
 }
@@ -2703,6 +3258,51 @@ proto_register_http2(void)
     expert_register_field_array(expert_http2, ei, array_length(ei));
 
     prefs_register_obsolete_preference(http2_module, "heuristic_http2");
+
+#ifdef HAVE_NGHTTP2
+    uat_t* headers_uat;
+
+    static const value_string http2_custom_type_vals[] = {
+        { val_string,   "string" },
+        { val_uint64,   "unsigned 64-bit integer" },
+        { 0x00, NULL }
+    };
+
+    static uat_field_t custom_header_uat_fields[] = {
+        UAT_FLD_CSTRING(header_fields, header_name, "Header name", "HTTP2 header name"),
+        UAT_FLD_VS(header_fields, header_type, "Header type", http2_custom_type_vals, "Field type"),
+        UAT_FLD_CSTRING(header_fields, header_desc, "Field desc", "Description of the value contained in the header"),
+        UAT_END_FIELDS
+    };
+
+    headers_uat = uat_new("Custom HTTP2 Header Fields",
+                          sizeof(header_field_t),
+                          "custom_http2_header_fields",
+                          TRUE,
+                          &header_fields,
+                          &num_header_fields,
+                          /* specifies named fields, so affects dissection
+                             and the set of named fields */
+                          UAT_AFFECTS_DISSECTION|UAT_AFFECTS_FIELDS,
+                          NULL,
+                          header_fields_copy_cb,
+                          header_fields_update_cb,
+                          header_fields_free_cb,
+                          NULL,
+                          NULL,
+                          custom_header_uat_fields
+    );
+
+    prefs_register_uat_preference(http2_module, "custom_http2_header_fields", "Custom HTTP2 header fields",
+        "A table to define custom HTTP2 header for which fields can be setup and used for filtering/data extraction etc.",
+        headers_uat);
+
+    /* Fill hash table with static headers */
+    register_static_headers();
+#endif
+
+    register_init_routine(&http2_init_protocol);
+    register_cleanup_routine(&http2_cleanup_protocol);
 
     http2_handle = register_dissector("http2", dissect_http2, proto_http2);
 
