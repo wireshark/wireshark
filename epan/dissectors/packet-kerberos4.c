@@ -22,16 +22,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 /*
- * PDU structure based on the document :
- *                                                              Section E.2.1
+ * PDU structure based on the document:
  *
- *                            Kerberos Authentication and Authorization System
- *
- *            by S. P. Miller, B. C. Neuman, J. I. Schiller, and J. H. Saltzer
- *
- *                                         7. Appendix I Design Specifications
+ * Athena Technical Plan
+ * Section E.2.1
+ * Kerberos Authentication and Authorization System
+ * by S. P. Miller, B. C. Neuman, J. I. Schiller, and J. H. Saltzer
  *
  * http://web.mit.edu/Saltzer/www/publications/athenaplan/e.2.1.pdf
+ *
+ * 7. Appendix I Design Specifications
  */
 
 #include "config.h"
