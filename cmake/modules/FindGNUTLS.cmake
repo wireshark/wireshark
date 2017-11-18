@@ -17,8 +17,10 @@ ENDIF (GNUTLS_INCLUDE_DIRS)
 INCLUDE(FindWSWinLibs)
 FindWSWinLibs("gnutls-.*" "GNUTLS_HINTS")
 
-find_package(PkgConfig)
-pkg_search_module(GNUTLS gnutls)
+if (NOT WIN32)
+  find_package(PkgConfig)
+  pkg_search_module(GNUTLS gnutls)
+endif()
 
 # sources include gnutls/gnutls.h, look for that location instead of gnutls.h.
 FIND_PATH(GNUTLS_INCLUDE_DIR

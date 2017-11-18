@@ -19,8 +19,10 @@ endif()
 include(FindWSWinLibs)
 FindWSWinLibs("kfw-.*" "KERBEROS_HINTS")
 
-find_package(PkgConfig)
-pkg_search_module(KERBEROS krb5 mit-krb5 heimdal-krb5)
+if(NOT WIN32)
+  find_package(PkgConfig)
+  pkg_search_module(KERBEROS krb5 mit-krb5 heimdal-krb5)
+endif()
 
 if(NOT KERBEROS_FOUND)
   # Fallback detection if pkg-config files are not installed.

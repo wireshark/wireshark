@@ -9,8 +9,10 @@
 include( FindWSWinLibs )
 FindWSWinLibs( "nghttp2-.*" "NGHTTP2_HINTS" )
 
-find_package(PkgConfig)
-pkg_search_module(NGHTTP2 libnghttp2)
+if( NOT WIN32)
+  find_package(PkgConfig)
+  pkg_search_module(NGHTTP2 libnghttp2)
+endif()
 
 find_path( NGHTTP2_INCLUDE_DIR
   NAMES nghttp2/nghttp2.h

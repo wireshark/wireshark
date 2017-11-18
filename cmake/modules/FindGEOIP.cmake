@@ -17,8 +17,10 @@ ENDIF (GEOIP_INCLUDE_DIRS)
 INCLUDE(FindWSWinLibs)
 FindWSWinLibs("GeoIP-.*" "GEOIP_HINTS")
 
-find_package(PkgConfig)
-pkg_search_module(GEOIP geoip)
+IF (NOT WIN32)
+  find_package(PkgConfig)
+  pkg_search_module(GEOIP geoip)
+endif()
 
 FIND_PATH(GEOIP_INCLUDE_DIR GeoIP.h
   HINTS

@@ -11,8 +11,10 @@
 include( FindWSWinLibs )
 FindWSWinLibs( "lz4-.*" "LZ4_HINTS" )
 
-find_package(PkgConfig)
-pkg_search_module(LZ4 lz4 liblz4)
+if( NOT WIN32)
+  find_package(PkgConfig)
+  pkg_search_module(LZ4 lz4 liblz4)
+endif()
 
 find_path(LZ4_INCLUDE_DIR
   NAMES lz4.h

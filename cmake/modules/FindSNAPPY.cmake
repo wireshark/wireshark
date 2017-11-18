@@ -11,8 +11,10 @@
 include( FindWSWinLibs )
 FindWSWinLibs( "snappy-.*" "SNAPPY_HINTS" )
 
-find_package(PkgConfig)
-pkg_search_module(SNAPPY libsnappy)
+if( NOT WIN32)
+  find_package(PkgConfig)
+  pkg_search_module(SNAPPY libsnappy)
+endif()
 
 find_path(SNAPPY_INCLUDE_DIR
   NAMES snappy.h

@@ -13,12 +13,14 @@
 #  For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 #
 
-include( FindPkgConfig )
+if( NOT WIN32 )
+	include( FindPkgConfig )
 
-if( GTHREAD2_MIN_VERSION )
-	PKG_SEARCH_MODULE( GTHREAD2 gthread-2.0>=${GTHREAD2_MIN_VERSION} )
-else()
-	PKG_SEARCH_MODULE( GTHREAD2 gthread-2.0 )
+	if( GTHREAD2_MIN_VERSION )
+		PKG_SEARCH_MODULE( GTHREAD2 gthread-2.0>=${GTHREAD2_MIN_VERSION} )
+	else()
+		PKG_SEARCH_MODULE( GTHREAD2 gthread-2.0 )
+	endif()
 endif()
 
 if( GTHREAD2_FOUND )

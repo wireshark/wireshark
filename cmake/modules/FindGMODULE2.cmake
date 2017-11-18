@@ -13,18 +13,20 @@
 #  For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 #
 
-include( FindPkgConfig )
+if( NOT WIN32 )
+	include( FindPkgConfig )
 
-if( GMODULE2_FIND_REQUIRED )
-	set( _pkgconfig_REQUIRED "REQUIRED" )
-else()
-	set( _pkgconfig_REQUIRED "" )
-endif()
+	if( GMODULE2_FIND_REQUIRED )
+		set( _pkgconfig_REQUIRED "REQUIRED" )
+	else()
+		set( _pkgconfig_REQUIRED "" )
+	endif()
 
-if( GMODULE2_MIN_VERSION )
-	pkg_search_module( GMODULE2 ${_pkgconfig_REQUIRED} gmodule-2.0>=${GMODULE2_MIN_VERSION} )
-else()
-	pkg_search_module( GMODULE2 ${_pkgconfig_REQUIRED} gmodule-2.0 )
+	if( GMODULE2_MIN_VERSION )
+		pkg_search_module( GMODULE2 ${_pkgconfig_REQUIRED} gmodule-2.0>=${GMODULE2_MIN_VERSION} )
+	else()
+		pkg_search_module( GMODULE2 ${_pkgconfig_REQUIRED} gmodule-2.0 )
+	endif()
 endif()
 
 if( GMODULE2_FOUND  )
