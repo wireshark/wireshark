@@ -29,7 +29,6 @@ endif()
 
 if (NOT WIN32)
 	find_package(PkgConfig)
-	pkg_search_module(GEOIP geoip)
 
 	if( GLIB2_MIN_VERSION )
 		pkg_search_module( GLIB2 glib-2.0>=${GLIB2_MIN_VERSION} )
