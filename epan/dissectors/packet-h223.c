@@ -575,7 +575,8 @@ h223_set_mc( packet_info* pinfo, guint8 mc, h223_mux_element* me)
      * the new mux entry */
     if(circ) {
         vc_info = (h223_vc_info *)conversation_get_proto_data(circ, proto_h223);
-        add_h223_mux_element( &(vc_info->call_info->direction_data[pinfo->p2p_dir ? 0 : 1]), mc, me, pinfo->num );
+        if (vc_info != NULL)
+            add_h223_mux_element( &(vc_info->call_info->direction_data[pinfo->p2p_dir ? 0 : 1]), mc, me, pinfo->num );
     }
 }
 
@@ -590,7 +591,8 @@ h223_add_lc( packet_info* pinfo, guint16 lc, h223_lc_params* params )
      * the new channel */
     if(circ) {
         vc_info = (h223_vc_info *)conversation_get_proto_data(circ, proto_h223);
-        init_logical_channel( pinfo->num, vc_info->call_info, lc, pinfo->p2p_dir, params );
+        if (vc_info != NULL)
+            init_logical_channel( pinfo->num, vc_info->call_info, lc, pinfo->p2p_dir, params );
     }
 }
 
