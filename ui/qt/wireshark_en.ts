@@ -11587,6 +11587,14 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Move entry up.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move entry down.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Clear all entries.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11615,6 +11623,14 @@ a:hover {
     </message>
     <message>
         <source>Copy this entry.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move entry up.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move entry down.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

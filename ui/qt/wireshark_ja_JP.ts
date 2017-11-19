@@ -608,13 +608,6 @@
     </message>
 </context>
 <context>
-    <name>ByteViewText</name>
-    <message>
-        <source>Show bytes as hexadecimal</source>
-        <translation type="vanished">16進数でバイト列を表示</translation>
-    </message>
-</context>
-<context>
     <name>CaptureFile</name>
     <message>
         <source> [closing]</source>
@@ -4869,11 +4862,11 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>, 1 byte</source>
-        <translation type="unfinished">, 1 バイト</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>, %1 bytes</source>
-        <translation type="unfinished">, %1 バイト</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Byte %1</source>
@@ -7506,10 +7499,6 @@ a:hover {
 <context>
     <name>PacketCommentDialog</name>
     <message>
-        <source>Packet Comment</source>
-        <translation type="vanished">パケットコメント</translation>
-    </message>
-    <message>
         <source>Packet %1 Comment</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7912,14 +7901,6 @@ a:hover {
     <message>
         <source>Colorize with Filter</source>
         <translation>フィルタで色付け</translation>
-    </message>
-    <message>
-        <source>, 1 byte</source>
-        <translation type="vanished">, 1 バイト</translation>
-    </message>
-    <message>
-        <source>, %1 bytes</source>
-        <translation type="vanished">, %1 バイト</translation>
     </message>
 </context>
 <context>
@@ -11731,6 +11712,14 @@ a:hover {
         <translation>このエントリをコピーします</translation>
     </message>
     <message>
+        <source>Move entry up.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move entry down.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Clear all entries.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11760,6 +11749,14 @@ a:hover {
     <message>
         <source>Copy this entry.</source>
         <translation type="unfinished">このエントリをコピーします</translation>
+    </message>
+    <message>
+        <source>Move entry up.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move entry down.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all entries.</source>

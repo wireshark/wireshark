@@ -608,13 +608,6 @@
     </message>
 </context>
 <context>
-    <name>ByteViewText</name>
-    <message>
-        <source>Show bytes as hexadecimal</source>
-        <translation type="vanished">Mostra byte in esadecimale</translation>
-    </message>
-</context>
-<context>
     <name>CaptureFile</name>
     <message>
         <source> [closing]</source>
@@ -4881,19 +4874,19 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>, 1 byte</source>
-        <translation type="unfinished">, 1 byte</translation>
+        <translation>, 1 byte</translation>
     </message>
     <message>
         <source>, %1 bytes</source>
-        <translation type="unfinished">, %1 byte</translation>
+        <translation>, %1 byte</translation>
     </message>
     <message>
         <source>Byte %1</source>
-        <translation type="unfinished">Byte %1</translation>
+        <translation>Byte %1</translation>
     </message>
     <message>
         <source>Bytes %1-%2</source>
-        <translation type="unfinished">Byte %1-%2</translation>
+        <translation>Byte %1-%2</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -7093,14 +7086,6 @@ a:hover {
         <translation>Unisci i file</translation>
     </message>
     <message>
-        <source>Byte %1</source>
-        <translation type="vanished">Byte %1</translation>
-    </message>
-    <message>
-        <source>Bytes %1-%2</source>
-        <translation type="vanished">Byte %1-%2</translation>
-    </message>
-    <message>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>Chiavi di sessione SSL (*.keys *.txt);;Any File (</translation>
     </message>
@@ -7558,12 +7543,8 @@ a:hover {
 <context>
     <name>PacketCommentDialog</name>
     <message>
-        <source>Packet Comment</source>
-        <translation type="vanished">Commento del Pacchetto</translation>
-    </message>
-    <message>
         <source>Packet %1 Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Commento del pacchetto %1</translation>
     </message>
 </context>
 <context>
@@ -7964,14 +7945,6 @@ a:hover {
     <message>
         <source>Colorize with Filter</source>
         <translation>Colora con filtro</translation>
-    </message>
-    <message>
-        <source>, 1 byte</source>
-        <translation type="vanished">, 1 byte</translation>
-    </message>
-    <message>
-        <source>, %1 bytes</source>
-        <translation type="vanished">, %1 byte</translation>
     </message>
 </context>
 <context>
@@ -11805,6 +11778,14 @@ a:hover {
         <translation>Copia questa voce.</translation>
     </message>
     <message>
+        <source>Move entry up.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move entry down.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Clear all entries.</source>
         <translation>Cancella tutte le voci.</translation>
     </message>
@@ -11834,6 +11815,14 @@ a:hover {
     <message>
         <source>Copy this entry.</source>
         <translation>Copia questa voce.</translation>
+    </message>
+    <message>
+        <source>Move entry up.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move entry down.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all entries.</source>

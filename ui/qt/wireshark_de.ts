@@ -608,13 +608,6 @@
     </message>
 </context>
 <context>
-    <name>ByteViewText</name>
-    <message>
-        <source>Show bytes as hexadecimal</source>
-        <translation type="vanished">Bytes in Hexadezimal anzeigen</translation>
-    </message>
-</context>
-<context>
     <name>CaptureFile</name>
     <message>
         <source> [closing]</source>
@@ -4882,19 +4875,19 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>, 1 byte</source>
-        <translation type="unfinished">, 1 Byte</translation>
+        <translation>, 1 Byte</translation>
     </message>
     <message>
         <source>, %1 bytes</source>
-        <translation type="unfinished">, %1 Bytes</translation>
+        <translation>, %1 Bytes</translation>
     </message>
     <message>
         <source>Byte %1</source>
-        <translation type="unfinished">Byte %1</translation>
+        <translation>Byte %1</translation>
     </message>
     <message>
         <source>Bytes %1-%2</source>
-        <translation type="unfinished">Bytes %1-%2</translation>
+        <translation>Bytes %1-%2</translation>
     </message>
     <message>
         <source>Profile: </source>
@@ -7094,14 +7087,6 @@ text-decoration: underline;
         <translation>Dateien zusammenfügen</translation>
     </message>
     <message>
-        <source>Byte %1</source>
-        <translation type="vanished">Byte %1</translation>
-    </message>
-    <message>
-        <source>Bytes %1-%2</source>
-        <translation type="vanished">Bytes %1-%2</translation>
-    </message>
-    <message>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>SSL Sitzungsschlüssel (*.keys *.txt);; Alle Dateien (</translation>
     </message>
@@ -7559,12 +7544,8 @@ text-decoration: underline;
 <context>
     <name>PacketCommentDialog</name>
     <message>
-        <source>Packet Comment</source>
-        <translation type="vanished">Paketkommentar</translation>
-    </message>
-    <message>
         <source>Packet %1 Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket %1 Kommentar</translation>
     </message>
 </context>
 <context>
@@ -7965,14 +7946,6 @@ text-decoration: underline;
     <message>
         <source>Colorize with Filter</source>
         <translation>Mit Filter einfärben</translation>
-    </message>
-    <message>
-        <source>, 1 byte</source>
-        <translation type="vanished">, 1 Byte</translation>
-    </message>
-    <message>
-        <source>, %1 bytes</source>
-        <translation type="vanished">, %1 Bytes</translation>
     </message>
 </context>
 <context>
@@ -11811,6 +11784,14 @@ text-decoration: underline;
         <translation>Diesen Eintrag kopieren.</translation>
     </message>
     <message>
+        <source>Move entry up.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move entry down.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Clear all entries.</source>
         <translation>Alle Einträge löschen.</translation>
     </message>
@@ -11840,6 +11821,14 @@ text-decoration: underline;
     <message>
         <source>Copy this entry.</source>
         <translation>Diesen Eintrag kopieren.</translation>
+    </message>
+    <message>
+        <source>Move entry up.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move entry down.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all entries.</source>

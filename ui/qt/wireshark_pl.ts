@@ -608,13 +608,6 @@
     </message>
 </context>
 <context>
-    <name>ByteViewText</name>
-    <message>
-        <source>Show bytes as hexadecimal</source>
-        <translation type="vanished">Pokaż szesnastkowo</translation>
-    </message>
-</context>
-<context>
     <name>CaptureFile</name>
     <message>
         <source> [closing]</source>
@@ -4882,11 +4875,11 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>, 1 byte</source>
-        <translation type="unfinished">, 1 bajt</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>, %1 bytes</source>
-        <translation type="unfinished">, %1 bajtów</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Byte %1</source>
@@ -7553,10 +7546,6 @@ text-decoration: underline;
 <context>
     <name>PacketCommentDialog</name>
     <message>
-        <source>Packet Comment</source>
-        <translation type="vanished">Komentarz pakietu</translation>
-    </message>
-    <message>
         <source>Packet %1 Comment</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7958,14 +7947,6 @@ text-decoration: underline;
     <message>
         <source>Colorize with Filter</source>
         <translation>Koloruj z filtrem</translation>
-    </message>
-    <message>
-        <source>, 1 byte</source>
-        <translation type="vanished">, 1 bajt</translation>
-    </message>
-    <message>
-        <source>, %1 bytes</source>
-        <translation type="vanished">, %1 bajtów</translation>
     </message>
 </context>
 <context>
@@ -11803,6 +11784,14 @@ text-decoration: underline;
         <translation>Kopiuj wpis.</translation>
     </message>
     <message>
+        <source>Move entry up.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move entry down.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Clear all entries.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11832,6 +11821,14 @@ text-decoration: underline;
     <message>
         <source>Copy this entry.</source>
         <translation type="unfinished">Kopiuj wpis.</translation>
+    </message>
+    <message>
+        <source>Move entry up.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move entry down.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all entries.</source>

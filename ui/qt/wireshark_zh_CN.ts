@@ -608,13 +608,6 @@
     </message>
 </context>
 <context>
-    <name>ByteViewText</name>
-    <message>
-        <source>Show bytes as hexadecimal</source>
-        <translation type="vanished">以十六进制显示字节</translation>
-    </message>
-</context>
-<context>
     <name>CaptureFile</name>
     <message>
         <source> [closing]</source>
@@ -4866,11 +4859,11 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>, 1 byte</source>
-        <translation type="unfinished">, 1 字节</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>, %1 bytes</source>
-        <translation type="unfinished">, %1 字节</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Byte %1</source>
@@ -7533,10 +7526,6 @@ text-decoration: underline;
 <context>
     <name>PacketCommentDialog</name>
     <message>
-        <source>Packet Comment</source>
-        <translation type="vanished">分组注释</translation>
-    </message>
-    <message>
         <source>Packet %1 Comment</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7938,14 +7927,6 @@ text-decoration: underline;
     <message>
         <source>Colorize with Filter</source>
         <translation>用过滤器着色</translation>
-    </message>
-    <message>
-        <source>, 1 byte</source>
-        <translation type="vanished">, 1 字节</translation>
-    </message>
-    <message>
-        <source>, %1 bytes</source>
-        <translation type="vanished">, %1 字节</translation>
     </message>
 </context>
 <context>
@@ -11776,6 +11757,14 @@ text-decoration: underline;
         <translation>复制此项。</translation>
     </message>
     <message>
+        <source>Move entry up.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move entry down.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Clear all entries.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11805,6 +11794,14 @@ text-decoration: underline;
     <message>
         <source>Copy this entry.</source>
         <translation type="unfinished">复制此项。</translation>
+    </message>
+    <message>
+        <source>Move entry up.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move entry down.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear all entries.</source>
