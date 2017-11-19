@@ -29,7 +29,7 @@ static void set_cb_name(const char *proto) {
 static void *
 register_all_protocols_worker(void *arg _U_)
 {
-    for (gulong i = 0; i < dissector_reg_proto_count(); i++) {
+    for (gulong i = 0; i < dissector_reg_proto_count; i++) {
         set_cb_name(dissector_reg_proto[i].cb_name);
         dissector_reg_proto[i].cb_func();
     }
@@ -67,7 +67,7 @@ register_all_protocols(register_cb cb, gpointer cb_data)
 static void *
 register_all_protocol_handoffs_worker(void *arg _U_)
 {
-    for (gulong i = 0; i < dissector_reg_handoff_count(); i++) {
+    for (gulong i = 0; i < dissector_reg_handoff_count; i++) {
         set_cb_name(dissector_reg_handoff[i].cb_name);
         dissector_reg_handoff[i].cb_func();
     }
@@ -106,7 +106,7 @@ register_all_protocol_handoffs(register_cb cb, gpointer cb_data)
 
 gulong register_count(void)
 {
-    return dissector_reg_proto_count() + dissector_reg_handoff_count();
+    return dissector_reg_proto_count + dissector_reg_handoff_count;
 }
 
 /*

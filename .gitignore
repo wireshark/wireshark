@@ -32,8 +32,8 @@ epan/dissectors/dcerpc/*/packet-dcerpc-*.[hc]
 epan/dissectors/mesa
 epan/dissectors/xcbproto
 epan/dissectors/packet-ncp2222.c
-epan/dissectors/dissectors-cache.pkl
 epan/dissectors/dissectors.c
+epan/dissectors/make-dissectors
 epan/dtd_parse.c
 epan/dtd_preparse.c
 epan/packet-ncp2222.c

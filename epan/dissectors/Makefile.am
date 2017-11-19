@@ -1900,6 +1900,12 @@ subpkginclude_HEADERS = \
 noinst_HEADERS =	\
 	$(FILE_DISSECTOR_INCLUDES)
 
+noinst_PROGRAMS = make-dissectors
+
+make_dissectors_CFLAGS = $(WS_CPPFLAGS) $(GLIB_CFLAGS)
+
+make_dissectors_LDADD = $(GLIB_LIBS)
+
 # include asn1 in the source tarball. But nothing to build...
 DIST_SUBDIRS = asn1 dcerpc
 
@@ -1929,31 +1935,13 @@ x11-dissector: $(top_srcdir)/tools/process-x11-fields.pl $(srcdir)/x11-fields $(
 # with the register routines for all protocols and a function pointer array
 # with the handoff registration routines for all protocols.
 #
-# We do this by scanning through sources. If that turns out to be too slow,
-# maybe we could just require every .o file to have an register routine
-# of a given name (packet-aarp.o -> proto_register_aarp, etc.).
-#
-# Formatting conventions: The name of the proto_register_* routines an
-# proto_reg_handoff_* routines must start in column zero, or must be
-# preceded only by "void " starting in column zero, and must not be
-# inside #if.
-#
 # ALL_DISSECTORS_SRC is assumed to have all the files that need to be scanned.
 #
-# We use a script to generate the dissectors.c file.
-# The first argument is the directory in which the source files live.
-# The second argument is "dissectors", to indicate that we should build
-# a dissectors.c file for libwireshark.
-# All subsequent arguments are the files to scan.
-#
-dissectors.c: $(ALL_DISSECTORS_SRC) Custom.common \
-	$(top_srcdir)/tools/make-dissector-reg.py
-	@echo Making dissectors.c ; \
-	$(PYTHON) $(top_srcdir)/tools/make-dissector-reg.py $(srcdir) \
-		dissectors $(ALL_DISSECTORS_SRC) ;
-
-CLEANFILES = \
-	dissectors-cache.pkl
+dissectors.c: make-dissectors $(ALL_DISSECTORS_SRC)
+	@echo Making dissectors.c
+	$(file >$@.in,$(filter %.c,$^))
+	$(builddir)/make-dissectors @$@.in > $@
+	@rm $@.in
 
 DISTCLEANFILES = \
 	$(NODIST_GENERATED_FILES)

@@ -174,9 +174,9 @@ CPP_FILES = \
 # a plugin.c file for a plugin.
 # All subsequent arguments are the files to scan.
 #
-plugin.c: $(REGISTER_SRC_FILES) $(top_srcdir)/tools/make-dissector-reg.py
+plugin.c: $(REGISTER_SRC_FILES) $(top_srcdir)/tools/make-plugin-reg.py
 	@echo Making plugin.c
-	@$(PYTHON) $(top_srcdir)/tools/make-dissector-reg.py $(srcdir) \
+	@$(PYTHON) $(top_srcdir)/tools/make-plugin-reg.py $(srcdir) \
 		plugin $(REGISTER_SRC_FILES)
 
 checkapi:

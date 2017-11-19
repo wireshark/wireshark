@@ -27,9 +27,8 @@ typedef struct _dissector_reg {
 WS_DLL_PUBLIC dissector_reg_t dissector_reg_proto[];
 WS_DLL_PUBLIC dissector_reg_t dissector_reg_handoff[];
 
-WS_DLL_PUBLIC gulong dissector_reg_proto_count(void);
-
-WS_DLL_PUBLIC gulong dissector_reg_handoff_count(void);
+WS_DLL_PUBLIC const gulong dissector_reg_proto_count;
+WS_DLL_PUBLIC const gulong dissector_reg_handoff_count;
 
 #ifdef __cplusplus
 }
