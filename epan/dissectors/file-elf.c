@@ -1514,7 +1514,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         } else if (sh_type >= 0x70000000 && sh_type <= 0x7FFFFFFF) {
             proto_item_append_text(sh_entry_item, "Processor Specific (0x%08x)", sh_type);
             proto_tree_add_item(sh_entry_tree, hf_elf_sh_type_processor_specific, tvb, offset, 4, machine_encoding);
-        } else if (sh_type >= 0x80000000 && sh_type <= 0xFFFFFFFF) {
+        } else if (sh_type >= 0x80000000) {
             proto_item_append_text(sh_entry_item, "User Specific (0x%08x)", sh_type);
             proto_tree_add_item(sh_entry_tree, hf_elf_sh_type_user_specific, tvb, offset, 4, machine_encoding);
         }else {
