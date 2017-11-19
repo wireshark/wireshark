@@ -499,6 +499,8 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SIGNAL(fieldSelected(FieldInformation *)));
     connect(packet_list_, SIGNAL(frameSelected(int)),
             this, SIGNAL(frameSelected(int)));
+    connect(this, SIGNAL(frameSelected(int)),
+            this, SLOT(setMenusForSelectedPacket()));
     connect(packet_list_->packetListModel(), SIGNAL(bgColorizationProgress(int,int)),
             main_ui_->wirelessTimelineWidget, SLOT(bgColorizationProgress(int,int)));
 
