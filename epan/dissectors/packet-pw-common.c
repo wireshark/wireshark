@@ -28,7 +28,6 @@
 #include "packet-pw-common.h"
 
 void proto_register_pw_padding(void);
-void proto_reg_handoff_pw_padding(void);
 
 static const char string_ok[] = "Ok";
 

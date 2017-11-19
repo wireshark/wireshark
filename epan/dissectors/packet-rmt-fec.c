@@ -44,7 +44,6 @@
 #include "packet-rmt-common.h"
 
 void proto_register_rmt_fec(void);
-void proto_reg_handoff_rmt_fec(void);
 
 static int proto_rmt_fec = -1;
 

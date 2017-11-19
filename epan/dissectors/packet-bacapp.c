@@ -2292,12 +2292,6 @@ fBitStringTagVS(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
 void
 proto_register_bacapp(void);
 
-/**
- * proto_reg_handoff_bacapp
- */
-void
-proto_reg_handoff_bacapp(void);
-
 /* <<<< formerly bacapp.h */
 
 /* reassembly table for segmented messages */

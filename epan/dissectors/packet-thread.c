@@ -44,7 +44,6 @@
 
 /* Forward declarations */
 void proto_register_thread_coap(void);
-void proto_reg_handoff_thread_coap(void);
 
 void proto_register_thread_address(void);
 void proto_reg_handoff_thread_address(void);

@@ -34,7 +34,6 @@
 #include "packet-t30.h"
 
 void proto_register_t30(void);
-void proto_reg_handoff_t30(void);
 
 /* T30 */
 static int proto_t30 = -1;

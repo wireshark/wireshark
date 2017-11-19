@@ -34,7 +34,6 @@
 #include "packet-windows-common.h"
 #include "packet-scsi.h"
 
-void proto_reg_handoff_rsvd(void);
 void proto_register_rsvd(void);
 
 static int proto_rsvd = -1;

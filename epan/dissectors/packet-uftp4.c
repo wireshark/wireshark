@@ -220,7 +220,6 @@
 #define EC_BLOB_LEN 4
 
 void proto_register_uftp4(void);
-void proto_reg_handoff_uftp4(void);
 
 static int proto_uftp = -1;
 

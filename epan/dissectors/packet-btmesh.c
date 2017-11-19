@@ -31,7 +31,6 @@
 #include <stdio.h>
 #include <epan/uat.h>
 
-void proto_reg_handoff_btmesh(void);
 void proto_register_btmesh(void);
 
 gint net_mic_size_chosen = 1;

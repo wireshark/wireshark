@@ -33,7 +33,6 @@
 #include <epan/packet.h>
 
 void proto_register_mifare(void);
-void proto_reg_handoff_mifare(void);
 
 static int proto_mifare = -1;
 

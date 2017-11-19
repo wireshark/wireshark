@@ -40,7 +40,6 @@
 #include "packet-gmr1_rr.h"
 
 void proto_register_gmr1_rr(void);
-void proto_reg_handoff_gmr1_rr(void);
 
 /* GMR-1 RR and CCCH proto */
 static int proto_gmr1_rr = -1;

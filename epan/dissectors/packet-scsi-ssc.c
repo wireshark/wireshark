@@ -39,7 +39,6 @@
 #include "packet-scsi-smc.h"
 
 void proto_register_scsi_ssc(void);
-void proto_reg_handoff_scsi_ssc(void);
 
 static int proto_scsi_ssc               = -1;
 int hf_scsi_ssc_opcode                  = -1;

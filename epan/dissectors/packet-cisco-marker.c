@@ -32,7 +32,6 @@
 
 void proto_register_erspan_marker(void);
 void proto_reg_handoff_erspan_marker(void);
-void proto_register_erpsan_marker(void);
 
 
 static dissector_handle_t marker_handle;
@@ -166,7 +165,7 @@ dissect_marker(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
 
 void
-proto_register_erpsan_marker(void)
+proto_register_erspan_marker(void)
 {
 
 
