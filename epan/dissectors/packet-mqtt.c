@@ -48,7 +48,6 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/uat.h>
-#include <epan/dwarf.h>
 #include "packet-tcp.h"
 #include "packet-ssl.h"
 

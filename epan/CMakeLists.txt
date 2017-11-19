@@ -88,7 +88,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	dtd.h
 	dtd_parse.h
 	dvb_chartbl.h
-	dwarf.h
 	eap.h
 	eapol_keydes_types.h
 	epan.h
@@ -197,7 +196,6 @@ set(LIBWIRESHARK_FILES
 	disabled_protos.c
 	dissector_filters.c
 	dvb_chartbl.c
-	dwarf.c
 	epan.c
 	ex-opt.c
 	except.c

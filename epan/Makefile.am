@@ -61,7 +61,6 @@ LIBWIRESHARK_SRC = \
 	disabled_protos.c	\
 	dissector_filters.c	\
 	dvb_chartbl.c		\
-	dwarf.c			\
 	epan.c			\
 	ex-opt.c		\
 	except.c		\
@@ -196,7 +195,6 @@ LIBWIRESHARK_INCLUDES_PUBLIC = \
 	dtd.h			\
 	dtd_parse.h		\
 	dvb_chartbl.h		\
-	dwarf.h			\
 	eap.h			\
 	eapol_keydes_types.h	\
 	epan.h			\
