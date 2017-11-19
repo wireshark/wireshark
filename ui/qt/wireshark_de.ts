@@ -1896,17 +1896,17 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <location filename="column_editor_frame.cpp" line="176"/>
         <source>Missing fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlende Felder.</translation>
     </message>
     <message>
         <location filename="column_editor_frame.cpp" line="178"/>
         <source>Invalid fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige Felder.</translation>
     </message>
     <message>
         <location filename="column_editor_frame.cpp" line="180"/>
         <source>Invalid occurrence value.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Wert.</translation>
     </message>
 </context>
 <context>
@@ -10426,7 +10426,7 @@ text-decoration: underline;
     <message>
         <location filename="preference_editor_frame.cpp" line="260"/>
         <source>Invalid value.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Wert.</translation>
     </message>
 </context>
 <context>

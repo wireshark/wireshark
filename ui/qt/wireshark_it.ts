@@ -1896,17 +1896,17 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <location filename="column_editor_frame.cpp" line="176"/>
         <source>Missing fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>Campi mancanti.</translation>
     </message>
     <message>
         <location filename="column_editor_frame.cpp" line="178"/>
         <source>Invalid fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>Campi non validi.</translation>
     </message>
     <message>
         <location filename="column_editor_frame.cpp" line="180"/>
         <source>Invalid occurrence value.</source>
-        <translation type="unfinished"></translation>
+        <translation>Valore dell&apos;occorrenza non valido.</translation>
     </message>
 </context>
 <context>
@@ -10425,7 +10425,7 @@ a:hover {
     <message>
         <location filename="preference_editor_frame.cpp" line="260"/>
         <source>Invalid value.</source>
-        <translation type="unfinished"></translation>
+        <translation>Valore non valido.</translation>
     </message>
 </context>
 <context>
