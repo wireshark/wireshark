@@ -115,7 +115,6 @@ bool DragDropToolBar::eventFilter(QObject * obj, QEvent * event)
                  > QApplication::startDragDistance())
         {
             bool success = false;
-            int element = elem->property(drag_drop_toolbar_action_).toInt(&success);
             if ( ! success )
                 return false;
 
