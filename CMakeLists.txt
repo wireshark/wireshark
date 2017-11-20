@@ -212,7 +212,7 @@ set(RC_VERSION ${PROJECT_MAJOR_VERSION},${PROJECT_MINOR_VERSION},${PROJECT_PATCH
 message(STATUS "V: ${PROJECT_VERSION}, MaV: ${PROJECT_MAJOR_VERSION}, MiV: ${PROJECT_MINOR_VERSION}, PL: ${PROJECT_PATCH_VERSION}, EV: ${PROJECT_VERSION_EXTENSION}.")
 
 include(UseLemon)
-include(UseMakeDissectorReg)
+include(UseMakePluginReg)
 include(UseMakeTapReg)
 include(UseAsn2Wrs)
 
@@ -3077,7 +3077,7 @@ install(
 		${CMAKE_MODULE_PATH}/FindWSWinLibs.cmake
 		${CMAKE_MODULE_PATH}/UseAsn2Wrs.cmake
 		${CMAKE_MODULE_PATH}/LocatePythonModule.cmake
-		${CMAKE_MODULE_PATH}/UseMakeDissectorReg.cmake
+		${CMAKE_MODULE_PATH}/UseMakePluginReg.cmake
 		${CMAKE_BINARY_DIR}/WiresharkConfig.cmake
 		${CMAKE_BINARY_DIR}/WiresharkConfigVersion.cmake
 	DESTINATION
