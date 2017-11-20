@@ -1566,6 +1566,10 @@ FT_AX25, FT_VINES, FT_SYSTEM_ID, FT_FCWWN fields, and 'protocol' fields
 the encoding is not relevant; the 'encoding' argument should be
 ENC_NA (Not Applicable).
 
+For FT_UINT_BYTES fields, the byte order of the count must be specified
+as well as the 'encoding' for bytes which should be ENC_NA,
+i.e. ENC_LITTLE_ENDIAN|ENC_NA
+
 For integral, floating-point, Boolean, FT_GUID, and FT_EUI64 fields,
 the encoding specifies the byte order of the value; the 'encoding'
 argument should be ENC_LITTLE_ENDIAN if the value is little-endian
