@@ -96,8 +96,6 @@
 #include "caputils/capture-pcap-util.h"
 
 #include <QMessageBox>
-#include <QMimeDatabase>
-#include <QThreadPool>
 
 #ifdef _WIN32
 #  include "caputils/capture-wpcap.h"
@@ -139,19 +137,6 @@
 
 */
 #define DEBUG_STARTUP_TIME_LOGLEVEL 252
-
-// QMimeDatabase can be slow to initialize. Do so in a worker thread
-// as early as possible.
-// https://github.com/lxde/pcmanfm-qt/issues/415
-class MimeDatabaseInitThread : public QRunnable
-{
-private:
-    void run()
-    {
-        QMimeDatabase mime_db;
-        mime_db.mimeTypeForData(QByteArray());
-    }
-};
 
 /* update the main window */
 void main_window_update(void)
@@ -394,9 +379,6 @@ int main(int argc, char *qt_argv[])
     // XXX - QObject doesn't *have* a tr method in 5.0, as far as I can see...
     QTextCodec::setCodecForTr(utf8codec);
 #endif
-
-    MimeDatabaseInitThread *mime_db_init_thread = new(MimeDatabaseInitThread);
-    QThreadPool::globalInstance()->start(mime_db_init_thread);
 
     /* Set the C-language locale to the native environment. */
     setlocale(LC_ALL, "");

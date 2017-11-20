@@ -93,10 +93,14 @@
 #include <QMainWindow>
 #include <QMutableListIterator>
 #include <QSocketNotifier>
-#include <QThread>
 #include <QUrl>
 #include <QColorDialog>
 #include <qmath.h>
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#include <QMimeDatabase>
+#include <QThreadPool>
+#endif
 
 #ifdef _MSC_VER
 #pragma warning(pop)
@@ -114,6 +118,22 @@ static QHash<int, QList<QAction *> > added_menu_groups_;
 static QHash<int, QList<QAction *> > removed_menu_groups_;
 
 QString WiresharkApplication::window_title_separator_ = QString::fromUtf8(" " UTF8_MIDDLE_DOT " ");
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+
+// QMimeDatabase parses a large-ish XML file and can be slow to initialize.
+// Do so in a worker thread as early as possible.
+// https://github.com/lxde/pcmanfm-qt/issues/415
+class MimeDatabaseInitThread : public QRunnable
+{
+private:
+    void run()
+    {
+        QMimeDatabase mime_db;
+        mime_db.mimeTypeForData(QByteArray());
+    }
+};
+#endif
 
 void
 topic_action(topic_action_e action)
@@ -438,9 +458,6 @@ void WiresharkApplication::reloadLuaPluginsDelayed()
     QTimer::singleShot(0, this, SIGNAL(reloadLuaPlugins()));
 }
 
-// This should be the first icon we fetch. We delay loading it as much as
-// possible in order to allow time for MimeDatabaseInitThread in
-// wireshark-qt.cpp to do its work.
 const QIcon &WiresharkApplication::normalIcon()
 {
     if (normal_icon_.isNull()) {
@@ -731,6 +748,11 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     wsApp = this;
     setApplicationName("Wireshark");
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    MimeDatabaseInitThread *mime_db_init_thread = new(MimeDatabaseInitThread);
+    QThreadPool::globalInstance()->start(mime_db_init_thread);
+#endif
+
     Q_INIT_RESOURCE(about);
     Q_INIT_RESOURCE(i18n);
     Q_INIT_RESOURCE(layout);
@@ -992,7 +1014,7 @@ void WiresharkApplication::clearDynamicMenuGroupItems()
 void WiresharkApplication::initializeIcons()
 {
     // Do this as late as possible in order to allow time for
-    // MimeDatabaseInitThread in wireshark-qt.cpp to do its work.
+    // MimeDatabaseInitThread to do its work.
     QList<int> icon_sizes = QList<int>() << 16 << 24 << 32 << 48 << 64 << 128 << 256 << 512 << 1024;
     foreach (int icon_size, icon_sizes) {
         QString icon_path = QString(":/wsicon/wsicon%1.png").arg(icon_size);
