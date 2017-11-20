@@ -472,9 +472,9 @@ else()
 	#
 	# Code that may be worth looking into (coding practices)
 	#
-	if((NOT ENABLE_ASAN) AND (NOT ENABLE_UBSAN) AND (NOT DISABLE_FRAME_LARGER_THAN_WARNING))
+	if((NOT ENABLE_ASAN) AND (NOT ENABLE_TSAN) AND (NOT ENABLE_UBSAN) AND (NOT DISABLE_FRAME_LARGER_THAN_WARNING))
 		#
-		# Only do this if neither ASan nor UBSan are
+		# Only do this if none of ASan, TSan, and UBSan are
 		# enabled; the instrumentation they add increases
 		# the stack usage - we only care about stack
 		# usage in normal operation.
@@ -712,7 +712,23 @@ if(ENABLE_ASAN)
 	endif()
 endif()
 
+if(ENABLE_TSAN)
+	# Available since Clang >= 3.2 and GCC >= 4.8
+	cmake_push_check_state()
+	set(CMAKE_REQUIRED_LIBRARIES "-fsanitize=thread")
+	check_c_compiler_flag(-fsanitize=thread C__fsanitize_thread_VALID)
+	check_cxx_compiler_flag(-fsanitize=thread CXX__fsanitize_thread_VALID)
+	cmake_pop_check_state()
+	if(NOT C__fsanitize_thread_VALID OR NOT CXX__fsanitize_thread_VALID)
+		message(FATAL_ERROR "ENABLE_TSAN was requested, but not supported!")
+	endif()
+	set(CMAKE_C_FLAGS "-fsanitize=thread ${CMAKE_C_FLAGS}")
+	set(CMAKE_CXX_FLAGS "-fsanitize=thread ${CMAKE_CXX_FLAGS}")
+	set(WS_LINK_FLAGS "-fsanitize=thread ${WS_LINK_FLAGS}")
+endif()
+
 if(ENABLE_UBSAN)
+	# Available since Clang >= 3.3 and GCC >= 4.9
 	cmake_push_check_state()
 	set(CMAKE_REQUIRED_LIBRARIES "-fsanitize=undefined")
 	check_c_compiler_flag(-fsanitize=undefined C__fsanitize_undefined_VALID)

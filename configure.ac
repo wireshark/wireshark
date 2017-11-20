@@ -759,6 +759,20 @@ AC_ARG_ENABLE(asan,
 AC_SUBST(NO_SANITIZE_CFLAGS)
 AC_SUBST(NO_SANITIZE_LDFLAGS)
 
+# Try to enable ThreadSanitizer.
+#
+AC_ARG_ENABLE(tsan,
+  AC_HELP_STRING( [--enable-tsan],
+		  [Enable ThreadSanitizer (TSan) for debugging@<:@default=no@:>@]),
+[
+	#
+	# Available since Clang >= 3.2 and GCC >= 4.8
+	#
+	AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fsanitize=thread)
+	AC_WIRESHARK_LDFLAGS_CHECK(-fsanitize=thread)
+
+])
+
 # Try to enable UndefinedBehaviorSanitizer.
 #
 AC_ARG_ENABLE(ubsan,
