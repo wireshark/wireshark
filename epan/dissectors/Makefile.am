@@ -1939,7 +1939,7 @@ x11-dissector: $(top_srcdir)/tools/process-x11-fields.pl $(srcdir)/x11-fields $(
 #
 dissectors.c: make-dissectors $(ALL_DISSECTORS_SRC)
 	@echo Making dissectors.c
-	$(file >$@.in,$(filter %.c,$^))
+	$(file >$@.in) $(foreach O,$(filter %.c,$^),$(file >>$@.in,$O))
 	$(builddir)/make-dissectors @$@.in > $@
 	@rm $@.in
 

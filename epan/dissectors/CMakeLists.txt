@@ -1848,7 +1848,6 @@ source_group(dissector-support FILES ${DISSECTOR_SUPPORT_SRC})
 set(DISSECTOR_FILES
 	${DISSECTOR_SRC}
 	${PIDL_DISSECTOR_SRC}
-	${PIDL_DISSECTOR_AUTOGEN_SRC}
 	${ASN1_DISSECTOR_SRC}
 	${NCP2222_DISSECTOR_SRC}
 	${CUSTOM_DISSECTOR_SRC}
@@ -1866,7 +1865,7 @@ target_link_libraries(make-dissectors ${GLIB2_LIBRARIES})
 
 file(GENERATE
 	OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/dissectors.c.in"
-	CONTENT "$<JOIN:${ALL_DISSECTOR_SRC}, >"
+	CONTENT "$<JOIN:${ALL_DISSECTOR_SRC},\n>\n"
 )
 add_custom_command(
 	OUTPUT dissectors.c
