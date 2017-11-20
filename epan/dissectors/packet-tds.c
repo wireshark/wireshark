@@ -3136,7 +3136,7 @@ dissect_tds7_colmetadata_token(tvbuff_t *tvb, struct _netlib_data *nl_data, guin
                 }
                 case TDS_DATA_TYPE_UDT:
                 {
-                    proto_tree_add_item(col_tree, hf_tds_colmetadata_maxbytesize, tvb, cur, 2, ENC_NA|ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(col_tree, hf_tds_colmetadata_maxbytesize, tvb, cur, 2, ENC_LITTLE_ENDIAN);
                     cur += 2;
 
                     msg_len = tvb_get_guint8(tvb, cur);
