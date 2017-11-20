@@ -714,6 +714,38 @@ static guint dissect_string(tvbuff_t *tvb, proto_tree *tree, guint offset, int h
   return 2 + prop_len;
 }
 
+/* MQTT v5.0: Reason Codes */
+static void dissect_mqtt_reason_code(proto_tree *mqtt_tree, tvbuff_t *tvb, guint offset, guint8 mqtt_msg_type)
+{
+  static const int *hf_rcode[] = {
+    NULL, /* RESERVED */
+    NULL, /* CONNECT */
+    &hf_mqtt_reason_code_connack,
+    NULL, /* PUBLISH */
+    &hf_mqtt_reason_code_puback,
+    &hf_mqtt_reason_code_pubrec,
+    &hf_mqtt_reason_code_pubrel,
+    &hf_mqtt_reason_code_pubcomp,
+    NULL, /* SUBSCRIBE */
+    &hf_mqtt_reason_code_suback,
+    NULL, /* UNSUBSCRIBE */
+    &hf_mqtt_reason_code_unsuback,
+    NULL, /* PINGREQ */
+    NULL, /* PINGRESP */
+    &hf_mqtt_reason_code_disconnect,
+    &hf_mqtt_reason_code_auth
+  };
+
+  if (mqtt_msg_type < (sizeof hf_rcode / sizeof hf_rcode[0]))
+  {
+    const int *hfindex = hf_rcode[mqtt_msg_type];
+    if (hfindex)
+    {
+      proto_tree_add_item(mqtt_tree, *hfindex, tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
+  }
+}
+
 /* MQTT v5.0: dissect the MQTT properties */
 static guint dissect_mqtt_properties(tvbuff_t *tvb, proto_tree *mqtt_tree, guint offset)
 {
@@ -825,7 +857,6 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   conversation_t *conv;
   mqtt_conv_t *mqtt;
   guint       offset = 0;
-  int         hf_selector;
 
   static const int *publish_fields[] = {
     &hf_mqtt_msg_type,
@@ -873,28 +904,6 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     &hf_mqtt_subscription_nl,
     &hf_mqtt_subscription_qos,
     NULL
-  };
-
-  /* For v3.1/v3.1.1 versions, column 0 is "Return Code"
-   * For v5.0, column 1 is "Reason Code"
-   */
-  static const int *hf_rcode[MQTT_RESERVED_16][2] = {
-    { NULL, NULL },
-    { NULL, NULL }, /* CONNECT */
-    { &hf_mqtt_conack_code, &hf_mqtt_reason_code_connack },
-    { NULL, NULL },
-    { NULL, &hf_mqtt_reason_code_puback },
-    { NULL, &hf_mqtt_reason_code_pubrec },
-    { NULL, &hf_mqtt_reason_code_pubrel },
-    { NULL, &hf_mqtt_reason_code_pubcomp },
-    { NULL, NULL },
-    { &hf_mqtt_suback_qos, &hf_mqtt_reason_code_suback },
-    { NULL, NULL },
-    { NULL, &hf_mqtt_reason_code_unsuback },
-    { NULL, NULL },
-    { NULL, NULL },
-    { NULL, &hf_mqtt_reason_code_disconnect },
-    { NULL, &hf_mqtt_reason_code_auth },
   };
 
   /* Extract the message ID */
@@ -945,12 +954,6 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   /* Add the MQTT message length */
   proto_tree_add_uint64(mqtt_tree, hf_mqtt_msg_len, tvb, offset, mqtt_len_offset, msg_len);
   offset += mqtt_len_offset;
-
-  /* mqtt->runtime_proto_version is only modified by CONNECT.
-   * CONNECT does not require hf_selector, so we assign it
-   * here to be used later by CONNACK and SUBACK.
-   */
-  hf_selector = (mqtt->runtime_proto_version == MQTT_PROTO_V50 ? 1 : 0);
 
   switch (mqtt_msg_type)
   {
@@ -1034,7 +1037,15 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       }
       offset += 1;
 
-      proto_tree_add_item(mqtt_tree, *hf_rcode[MQTT_CONNACK][hf_selector], tvb, offset, 1, ENC_BIG_ENDIAN);
+      if ((mqtt->runtime_proto_version == MQTT_PROTO_V31) ||
+          (mqtt->runtime_proto_version == MQTT_PROTO_V311))
+      {
+        proto_tree_add_item(mqtt_tree, hf_mqtt_conack_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        dissect_mqtt_reason_code(mqtt_tree, tvb, offset, mqtt_msg_type);
+      }
       offset += 1;
 
       if (mqtt->runtime_proto_version == MQTT_PROTO_V50)
@@ -1140,7 +1151,15 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
       while (offset < tvb_reported_length(tvb))
       {
-        proto_tree_add_item(mqtt_tree, *hf_rcode[MQTT_SUBACK][hf_selector], tvb, offset, 1, ENC_BIG_ENDIAN);
+        if ((mqtt->runtime_proto_version == MQTT_PROTO_V31) ||
+            (mqtt->runtime_proto_version == MQTT_PROTO_V311))
+        {
+          proto_tree_add_item(mqtt_tree, hf_mqtt_suback_qos, tvb, offset, 1, ENC_BIG_ENDIAN);
+        }
+        else
+        {
+          dissect_mqtt_reason_code(mqtt_tree, tvb, offset, mqtt_msg_type);
+        }
         offset += 1;
       }
       break;
@@ -1154,7 +1173,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
       if (mqtt->runtime_proto_version == MQTT_PROTO_V50)
       {
-        proto_tree_add_item(mqtt_tree, *hf_rcode[mqtt_msg_type][1], tvb, offset, 1, ENC_BIG_ENDIAN);
+        dissect_mqtt_reason_code(mqtt_tree, tvb, offset, mqtt_msg_type);
         offset += 1;
 
         offset += dissect_mqtt_properties(tvb, mqtt_tree, offset);
@@ -1171,7 +1190,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
         while (offset < tvb_reported_length(tvb))
         {
-          proto_tree_add_item(mqtt_tree, *hf_rcode[MQTT_UNSUBACK][1], tvb, offset, 1, ENC_BIG_ENDIAN);
+          dissect_mqtt_reason_code(mqtt_tree, tvb, offset, mqtt_msg_type);
           offset += 1;
         }
       }
@@ -1195,7 +1214,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
        */
       if (mqtt->runtime_proto_version == MQTT_PROTO_V50 && mqtt_msg_len > 0)
       {
-        proto_tree_add_item(mqtt_tree, *hf_rcode[mqtt_msg_type][1], tvb, offset, 1, ENC_BIG_ENDIAN);
+        dissect_mqtt_reason_code(mqtt_tree, tvb, offset, mqtt_msg_type);
         offset += 1;
 
         /* 3.14.2.2 DISCONNECT Properties:
