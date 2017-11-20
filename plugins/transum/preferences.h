@@ -50,4 +50,5 @@ typedef struct _TSUM_PREFERENCES
     gboolean summarisers_enabled;
     gboolean summarise_tds;
     gboolean summarisers_escape_quotes;
+    gboolean debug_enabled;
 } TSUM_PREFERENCES;

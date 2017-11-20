@@ -44,13 +44,11 @@ int decode_syn(packet_info *pinfo _U_, proto_tree *tree _U_, PKT_INFO* pkt_info)
     else
     {
         pkt_info->rrpd.c2s = TRUE;
-        pkt_info->rrpd.state = RRPD_STATE_4;
         add_detected_tcp_svc(pkt_info->dstport);
     }
 
-    pkt_info->rrpd.session_id = 1;
-    pkt_info->rrpd.msg_id = 1;
-    pkt_info->rrpd.suffix = 1;
+    pkt_info->rrpd.session_id = 1;  /* Fake session ID */
+    pkt_info->rrpd.msg_id = 1;  /* Fake message ID */
     pkt_info->rrpd.decode_based = TRUE;
     pkt_info->rrpd.calculation = RTE_CALC_SYN;
     pkt_info->pkt_of_interest = TRUE;
@@ -132,7 +130,6 @@ int decode_dcerpc(packet_info *pinfo _U_, proto_tree *tree, PKT_INFO* pkt_info)
         wmem_map_insert(preferences.tcp_svc_ports, GUINT_TO_POINTER(pkt_info->srcport), GUINT_TO_POINTER(RTE_CALC_DCERPC)); /* make sure we have this DCE-RPC service port set */
     }
 
-    pkt_info->rrpd.suffix = 1;
     pkt_info->rrpd.decode_based = TRUE;
     pkt_info->rrpd.calculation = RTE_CALC_DCERPC;
     pkt_info->pkt_of_interest = TRUE;
@@ -169,7 +166,6 @@ int decode_smb(packet_info *pinfo _U_, proto_tree *tree, PKT_INFO* pkt_info, PKT
     /* Default in case we don't have header information */
     pkt_info->rrpd.session_id = 0;
     pkt_info->rrpd.msg_id = 0;
-    pkt_info->rrpd.suffix = 1;
     pkt_info->rrpd.decode_based = TRUE;
     pkt_info->rrpd.calculation = RTE_CALC_SMB2;
     pkt_info->pkt_of_interest = TRUE;
@@ -187,7 +183,6 @@ int decode_smb(packet_info *pinfo _U_, proto_tree *tree, PKT_INFO* pkt_info, PKT
 
             subpackets[i].rrpd.session_id = ses_id[i];
             subpackets[i].rrpd.msg_id = msg_id[i];
-            subpackets[i].rrpd.suffix = 1;
 
             subpackets[i].rrpd.decode_based = TRUE;
             subpackets[i].rrpd.calculation = RTE_CALC_SMB2;
@@ -244,18 +239,28 @@ int decode_gtcp(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt_info)
             pkt_info->tcp_keep_alive = field_bool[0];
     }
 
-    if (((wmem_map_lookup(preferences.tcp_svc_ports, GUINT_TO_POINTER(pkt_info->dstport)) != NULL) ||
-         (wmem_map_lookup(preferences.tcp_svc_ports, GUINT_TO_POINTER(pkt_info->srcport)) != NULL)) &&
-        (pkt_info->len > 0))
+    /* we use the SSL Content Type to detect SSL Alerts */
+    if (!extract_uint(tree, hf_of_interest[HF_INTEREST_SSL_CONTENT_TYPE].hf, field_uint, &field_value_count))
+    {
+        if (field_value_count)
+            pkt_info->ssl_content_type = field_uint[0];
+        else
+            pkt_info->ssl_content_type = 0;
+    }
+
+    if (wmem_map_lookup(preferences.tcp_svc_ports, GUINT_TO_POINTER(pkt_info->dstport)) != NULL ||
+         wmem_map_lookup(preferences.tcp_svc_ports, GUINT_TO_POINTER(pkt_info->srcport)) != NULL)
     {
         if (wmem_map_lookup(preferences.tcp_svc_ports, GUINT_TO_POINTER(pkt_info->dstport)) != NULL)
             pkt_info->rrpd.c2s = TRUE;
 
-        pkt_info->rrpd.session_id = 1;
-        pkt_info->rrpd.msg_id = 1;
+        pkt_info->rrpd.is_retrans = pkt_info->tcp_retran;
+        pkt_info->rrpd.session_id = 0;
+        pkt_info->rrpd.msg_id = 0;
         pkt_info->rrpd.calculation = RTE_CALC_GTCP;
         pkt_info->rrpd.decode_based = FALSE;
-        pkt_info->pkt_of_interest = TRUE;
+        if (pkt_info->len > 0)
+            pkt_info->pkt_of_interest = TRUE;
 
         return 1;
     }
@@ -275,7 +280,6 @@ int decode_dns(packet_info *pinfo _U_, proto_tree *tree, PKT_INFO* pkt_info)
     }
 
     pkt_info->rrpd.session_id = 1;
-    pkt_info->rrpd.suffix = 1;  /* need to do something tricky here as dns.id gets reused */
     pkt_info->rrpd.decode_based = TRUE;
     pkt_info->rrpd.calculation = RTE_CALC_DNS;
     pkt_info->pkt_of_interest = TRUE;
@@ -308,9 +312,8 @@ int decode_gudp(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt_info)
         if (wmem_map_lookup(preferences.udp_svc_ports, GUINT_TO_POINTER(pkt_info->dstport)) != NULL)
             pkt_info->rrpd.c2s = TRUE;
 
-        pkt_info->rrpd.session_id = 1;
-        pkt_info->rrpd.msg_id = 1;
-        pkt_info->rrpd.suffix = 1;
+        pkt_info->rrpd.session_id = 0;
+        pkt_info->rrpd.msg_id = 0;
         pkt_info->rrpd.decode_based = FALSE;
         pkt_info->rrpd.calculation = RTE_CALC_GUDP;
         pkt_info->pkt_of_interest = TRUE;
