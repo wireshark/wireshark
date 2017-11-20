@@ -1869,7 +1869,7 @@ target_link_libraries(make-dissectors ${GLIB2_LIBRARIES})
 #
 file(GENERATE
 	OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/dissectors.c.in"
-	CONTENT "$<JOIN:${ALL_DISSECTOR_SRC}, >"
+	CONTENT "$<JOIN:${ALL_DISSECTOR_SRC},\n>\n"
 )
 add_custom_command(
 	OUTPUT dissectors.c

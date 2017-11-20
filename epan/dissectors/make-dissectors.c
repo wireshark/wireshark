@@ -17,6 +17,12 @@
 
 #define ARRAY_RESERVED_SIZE     2048
 
+#ifdef _WIN32
+  #define SEP   "\r\n"
+#else
+  #define SEP   "\n"
+#endif
+
 GRegex *protos_regex, *handoffs_regex;
 
 static int
@@ -59,7 +65,7 @@ scan_list(const char *list, GPtrArray *protos, GPtrArray *handoffs)
 
     if (!g_file_get_contents(list, &contents, NULL, NULL))
         return;
-    for (arg = strtok(contents, " \n"); arg != NULL; arg = strtok(NULL, " \n")) {
+    for (arg = strtok(contents, SEP); arg != NULL; arg = strtok(NULL, SEP)) {
         scan_file(arg, protos, handoffs);
     }
     g_free(contents);

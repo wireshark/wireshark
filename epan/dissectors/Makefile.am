@@ -1942,7 +1942,7 @@ x11-dissector: $(top_srcdir)/tools/process-x11-fields.pl $(srcdir)/x11-fields $(
 #
 dissectors.c: make-dissectors $(ALL_DISSECTORS_SRC)
 	@echo Making dissectors.c
-	@echo $(filter %.c,$^) > $@.in && \
+	@echo $(filter %.c,$^) | tr ' ' '\n' > $@.in && \
 	    $(builddir)/make-dissectors $@ @$@.in
 
 MOSTLYCLEANFILES = \
