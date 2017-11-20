@@ -63,6 +63,9 @@ void FilterExpressionFrame::addExpression(const QString filter_text)
 
     editExpression_ = -1;
     ui->displayFilterLineEdit->setText(filter_text);
+
+    if (! isVisible())
+        animatedShow();
 }
 
 void FilterExpressionFrame::editExpression(int exprIdx)

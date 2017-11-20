@@ -34,6 +34,8 @@ public:
     explicit DragDropToolBar(QWidget *parent = Q_NULLPTR);
     ~DragDropToolBar();
 
+    virtual void clear();
+
 Q_SIGNALS:
     void actionMoved(QAction * action, int oldPos, int newPos);
 

@@ -86,6 +86,12 @@ void DragDropToolBar::childEvent(QChildEvent * event)
     }
 }
 
+void DragDropToolBar::clear()
+{
+    QToolBar::clear();
+    childCounter = 0;
+}
+
 bool DragDropToolBar::eventFilter(QObject * obj, QEvent * event)
 {
     if ( ! obj->isWidgetType() )
@@ -108,6 +114,11 @@ bool DragDropToolBar::eventFilter(QObject * obj, QEvent * event)
         if ( ( ev->buttons() & Qt::LeftButton ) && (ev->pos() - dragStartPosition).manhattanLength()
                  > QApplication::startDragDistance())
         {
+            bool success = false;
+            int element = elem->property(drag_drop_toolbar_action_).toInt(&success);
+            if ( ! success )
+                return false;
+
             ToolbarEntryMimeData * temd =
                     new ToolbarEntryMimeData(((QToolButton *)elem)->text(), elem->property(drag_drop_toolbar_action_).toInt());
             DragLabel * lbl = new DragLabel(temd->labelText(), this);
@@ -154,14 +165,6 @@ void DragDropToolBar::dragEnterEvent(QDragEnterEvent *event)
         } else {
             event->acceptProposedAction();
         }
-    } else if (qobject_cast<const DisplayFilterMimeData *>(event->mimeData())) {
-        if ( event->source() != this )
-        {
-            event->setDropAction(Qt::CopyAction);
-            event->accept();
-        } else {
-            event->acceptProposedAction();
-        }
     } else {
         event->ignore();
     }
@@ -174,6 +177,22 @@ void DragDropToolBar::dragMoveEvent(QDragMoveEvent *event)
 
     if (qobject_cast<const ToolbarEntryMimeData *>(event->mimeData()))
     {
+        QAction * actionAtPos = actionAt(event->pos() );
+        if ( actionAtPos )
+        {
+            QWidget * widget = widgetForAction(actionAtPos);
+            if ( widget )
+            {
+                bool success = false;
+                widget->property(drag_drop_toolbar_action_).toInt(&success);
+                if ( ! success )
+                {
+                    event->ignore();
+                    return;
+                }
+            }
+        }
+
         if (event->source() == this) {
             event->setDropAction(Qt::MoveAction);
             event->accept();
@@ -211,7 +230,9 @@ void DragDropToolBar::dropEvent(QDropEvent *event)
             widgetForAction(action)->setStyleSheet("QWidget { border: none; };");
             newPos = widgetForAction(action)->property(drag_drop_toolbar_action_).toInt();
             moveToolbarItems(oldPos, newPos);
-            emit actionMoved(actions().at(oldPos), oldPos, newPos);
+            QAction * moveAction = actions().at(oldPos);
+
+            emit actionMoved(moveAction, oldPos, newPos);
         }
 
         if (event->source() == this) {

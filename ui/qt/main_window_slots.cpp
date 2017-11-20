@@ -1744,7 +1744,6 @@ void MainWindow::on_actionDisplayFilterExpression_triggered()
 void MainWindow::on_actionNewDisplayFilterExpression_triggered()
 {
     main_ui_->filterExpressionFrame->addExpression(df_combo_box_->lineEdit()->text());
-    showAccordionFrame(main_ui_->filterExpressionFrame);
 }
 
 // On Qt4 + macOS with unifiedTitleAndToolBarOnMac set it's possible to make
