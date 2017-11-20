@@ -48,13 +48,6 @@ static dissector_handle_t transum_handle;
 #define RTE_TIME_MSEC 1000
 #define RTE_TIME_USEC 1000000
 
-#define CONTINUE_PROCESSING TRUE
-
-#define RRPD_REQUIRES_SUFFIX TRUE
-#define RRPD_NEEDS_NO_SUFFIX FALSE;
-
-#define SMB2_CMD_SESSION_SETUP 1
-
 /* The following are the field ids for the protocol values used by TRANSUM.
     Make sure they line up with ehf_of_interest order */
 HF_OF_INTEREST_INFO hf_of_interest[HF_INTEREST_END_OF_LIST] = {
@@ -77,6 +70,8 @@ HF_OF_INTEREST_INFO hf_of_interest[HF_INTEREST_END_OF_LIST] = {
     { -1, "udp.dstport" },
     { -1, "udp.stream" },
     { -1, "udp.length" },
+
+    { -1, "ssl.record.content_type" },
 
     { -1, "tds.type" },
     { -1, "tds.length" },
@@ -107,6 +102,8 @@ static wmem_map_t *detected_tcp_svc;  /* this array is used to track services de
 
 static wmem_map_t *dcerpc_req_pkt_type;  /* used to indicate if a DCE-RPC pkt_type is a request */
 
+static wmem_map_t *dcerpc_streams = NULL;  /* used to record TCP stream numbers that are carrying DCE-RPC data */
+
 /*
 This array contains calls and returns that have no TRUE context_id
 This is needed to overcome an apparent bug in Wireshark where
@@ -114,11 +111,6 @@ the field name of context id in parameters is the same as context id
 in a message header
 */
 static wmem_map_t *dcerpc_context_zero;
-
-#if 0
-/* rrpd-related globals */
-guint32 rrpd_suffix = 0;
-#endif
 
 /*
     The rrpd_list holds information about all of the APDU Request-Response Pairs seen in the trace.
@@ -134,12 +126,18 @@ static wmem_map_t *output_rrpd;
 
 /*
     The temp_rsp_rrpd_list holds RRPDs for APDUs where we have not yet seen the header information and so we can't
-    fully qualify the identification of the RRPD (the identification being ip_proto:stream_no:session_id:msg_id:suffix).
+    fully qualify the identification of the RRPD (the identification being ip_proto:stream_no:session_id:msg_id).
     This only occurs when a) we are using one of the decode_based calculations (such as SMB2), and b) when we have
     TCP Reassembly enabled.  Once we receive a header packet for an APDU we migrate the entry from this array to the
     main rrpd_list.
  */
 static wmem_list_t *temp_rsp_rrpd_list = NULL;  /* Reuse these for speed and efficient memory use - issue a warning if we run out */
+
+/* Optimisation data - the following is used for various optimisation measures */
+static int highest_tcp_stream_no;
+static int highest_udp_stream_no;
+wmem_map_t *tcp_stream_exceptions;
+
 
 /*
  * GArray of the hfids of all fields we're interested in.
@@ -165,6 +163,8 @@ static int hf_tsum_rsp_spread = -1;
 static int hf_tsum_clip_filter = -1;
 static int hf_tsum_calculation = -1;
 static int hf_tsum_summary = -1;
+static int hf_tsum_req_search = -1;
+static int hf_tsum_rsp_search = -1;
 
 static const enum_val_t capture_position_vals[] = {
     { "TRACE_CAP_CLIENT", "Client", TRACE_CAP_CLIENT },
@@ -209,6 +209,11 @@ static void init_dcerpc_data(void)
     wmem_map_insert(dcerpc_context_zero, GUINT_TO_POINTER(15), GUINT_TO_POINTER(15));
 }
 
+static void register_dcerpc_stream(guint32 stream_no)
+{
+    wmem_map_insert(dcerpc_streams, GUINT_TO_POINTER(stream_no), GUINT_TO_POINTER(1));
+}
+
 /* This function should be called before any change to RTE data. */
 static void null_output_rrpd_entries(RRPD *in_rrpd)
 {
@@ -239,21 +244,6 @@ static RRPD* append_to_rrpd_list(RRPD *in_rrpd)
 {
     RRPD *next_rrpd = (RRPD*)wmem_memdup(wmem_file_scope(), in_rrpd, sizeof(RRPD));
 
-    if (preferences.reassembly)
-    {
-        if (next_rrpd->msg_id)
-            next_rrpd->state = RRPD_STATE_3;
-        else
-            next_rrpd->state = RRPD_STATE_1;
-    }
-    else
-    {
-        if (next_rrpd->msg_id)
-            next_rrpd->state = RRPD_STATE_4;
-        else
-            next_rrpd->state = RRPD_STATE_2;
-    }
-
     update_output_rrpd(next_rrpd);
 
     wmem_list_append(rrpd_list, next_rrpd);
@@ -261,233 +251,352 @@ static RRPD* append_to_rrpd_list(RRPD *in_rrpd)
     return next_rrpd;
 }
 
-/*
-This function finds the latest entry in the rrpd_list that matches the
-ip_proto, stream_no, session_id, msg_id and suffix values.
-
-An input state value of 0 means that we don't care about state.
-
-Returns the rrpd_list index value of the match or -1 if no match is found.
-*/
-static RRPD *find_latest_rrpd(RRPD *in_rrpd, int state)
+static RRPD *find_latest_rrpd_dcerpc(RRPD *in_rrpd)
 {
-    RRPD *rrpd_index = NULL, *rrpd;
+    RRPD *rrpd;
     wmem_list_frame_t* i;
-
-    /* If this is a SYN from C2S there is no point searching the list */
-    if (in_rrpd->c2s && in_rrpd->calculation == RTE_CALC_SYN)
-        return NULL;
 
     for (i = wmem_list_tail(rrpd_list); i != NULL; i = wmem_list_frame_prev(i))
     {
         rrpd = (RRPD*)wmem_list_frame_data(i);
+
+        if (rrpd->calculation != RTE_CALC_DCERPC && rrpd->calculation != RTE_CALC_SYN)
+            continue;
+
+        /* if the input 5-tuple doesn't match the rrpd_list_entry 5-tuple -> go find the next list entry */
         if (rrpd->ip_proto == in_rrpd->ip_proto && rrpd->stream_no == in_rrpd->stream_no)
         {
-            if (in_rrpd->decode_based)
-            {
-                /* If this is decode-based and we are checking for entries in RRPD_STATE_1 we need to match on ip_proto and stream_no alone. */
-                if (state == RRPD_STATE_1)
-                {
-                    if (rrpd->session_id == 0 && rrpd->msg_id == 0 && rrpd->suffix == 1)
-                    {
-                        rrpd_index = rrpd;
-                        break;
-                    }
-                }
+            /* if we can match on session_id and msg_id must be a retransmission of the last request packet or the response */
+            /* this logic works whether or not we are using reassembly */
+            if (rrpd->session_id == in_rrpd->session_id && rrpd->msg_id == in_rrpd->msg_id)
+                return rrpd;
 
-                /* if this stream is decode_based we need to take into account the session_id, msg_id and suffix */
-                if (rrpd->session_id == in_rrpd->session_id && rrpd->msg_id == in_rrpd->msg_id && rrpd->suffix == in_rrpd->suffix)
+            /* If this is a retransmission, we assume it relates to this rrpd_list entry.
+               This is a bit of a kludge and not ideal but a compromise.*/
+            /* ToDo: look at using TCP sequence number to allocate a retransmission to the correct APDU */
+            if (in_rrpd->is_retrans)
+                return rrpd;
+
+            if (preferences.reassembly)
+            {
+                if (in_rrpd->c2s)
                 {
-                    if (state == RRPD_STATE_DONT_CARE || rrpd->state == state)
+                    /* if the input rrpd is for c2s and the one we have found already has response information, then the
+                    in_rrpd represents a new RR Pair. */
+                    if (rrpd->rsp_first_frame)
+                        return NULL;
+
+                    /* If the current rrpd_list entry doesn't have a msg_id then we assume we are mid Request APDU and so we have a match. */
+                    if (!rrpd->msg_id)
+                        return rrpd;
+                }
+                else  /* The in_rrpd relates to a packet going s2c */
+                {
+                    /* When reassembly is enabled, multi-packet response information is actually migrated from the temp_rsp_rrpd_list
+                    to the rrpd_list and so we won't come through here. */
+                    ;
+                }
+            }
+            else /* we are not using reassembly */
+            {
+                if (in_rrpd->c2s)
+                {
+                    if (in_rrpd->msg_id)
+                        /* if we have a message id this is a new Request APDU */
+                        return NULL;
+                    else  /* No msg_id */
                     {
-                        rrpd_index = rrpd;
-                        break;
+                        return rrpd;  /* add this packet to the matching stream */
                     }
                 }
-            }
-            else
-            {
-                /* if this stream is not decode_based we don't need to take into account the session_id, msg_id and suffix */
-                if (state == RRPD_STATE_DONT_CARE || rrpd->state == state)
+                else  /* this packet is going s2c */
                 {
-                    rrpd_index = rrpd;
-                    break;
+                    if (!in_rrpd->msg_id && rrpd->rsp_first_frame)
+                        /* we need to add this frame to the response APDU of the most recent rrpd_list entry that has already had response packets */
+                        return rrpd;
                 }
             }
-        }
+        }  /* this is the end of the 5-tuple check */
+
+        if (in_rrpd->c2s)
+            in_rrpd->req_search_total++;
+        else
+            in_rrpd->rsp_search_total++;
+    } /* end of the for loop */
+
+    return NULL;
+}
+
+static RRPD *find_latest_rrpd_dns(RRPD *in_rrpd)
+{
+    RRPD *rrpd;
+    wmem_list_frame_t* i;
+
+    for (i = wmem_list_tail(rrpd_list); i != NULL; i = wmem_list_frame_prev(i))
+    {
+        rrpd = (RRPD*)wmem_list_frame_data(i);
+
+        if (rrpd->calculation != RTE_CALC_DNS)
+            continue;
+
+        /* if the input 5-tuple doesn't match the rrpd_list_entry 5-tuple -> go find the next list entry */
+        if (rrpd->ip_proto == in_rrpd->ip_proto && rrpd->stream_no == in_rrpd->stream_no)
+        {
+            if (rrpd->session_id == in_rrpd->session_id && rrpd->msg_id == in_rrpd->msg_id)
+            {
+                if (in_rrpd->c2s && rrpd->rsp_first_frame)
+                    return NULL;  /* this is new */
+                else
+                    return rrpd;
+            }
+        }  /* this is the end of the 5-tuple check */
+
+        if (in_rrpd->c2s)
+            in_rrpd->req_search_total++;
+        else
+            in_rrpd->rsp_search_total++;
+    } /* this is the end of the for loop */
+
+    return NULL;
+}
+
+static RRPD *find_latest_rrpd_gtcp(RRPD *in_rrpd)
+{
+    RRPD *rrpd;
+    wmem_list_frame_t* i;
+
+    for (i = wmem_list_tail(rrpd_list); i != NULL; i = wmem_list_frame_prev(i))
+    {
+        rrpd = (RRPD*)wmem_list_frame_data(i);
+
+        if (rrpd->calculation != RTE_CALC_GTCP && rrpd->calculation != RTE_CALC_SYN)
+            continue;
+
+        /* if the input 5-tuple doesn't match the rrpd_list_entry 5-tuple -> go find the next list entry */
+        if (rrpd->ip_proto == in_rrpd->ip_proto && rrpd->stream_no == in_rrpd->stream_no)
+        {
+            if (in_rrpd->c2s && rrpd->rsp_first_frame)
+                return NULL;  /* this is new */
+            else
+                return rrpd;
+        }  /* this is the end of the 5-tuple check */
+
+        if (in_rrpd->c2s)
+            in_rrpd->req_search_total++;
+        else
+            in_rrpd->rsp_search_total++;
+    } /* this is the end of the for loop */
+
+    return NULL;
+}
+
+static RRPD *find_latest_rrpd_gudp(RRPD *in_rrpd)
+{
+    RRPD *rrpd;
+    wmem_list_frame_t* i;
+
+    for (i = wmem_list_tail(rrpd_list); i != NULL; i = wmem_list_frame_prev(i))
+    {
+        rrpd = (RRPD*)wmem_list_frame_data(i);
+
+        if (rrpd->calculation != RTE_CALC_GUDP)
+            continue;
+
+        /* if the input 5-tuple doesn't match the rrpd_list_entry 5-tuple -> go find the next list entry */
+        if (rrpd->ip_proto == in_rrpd->ip_proto && rrpd->stream_no == in_rrpd->stream_no)
+        {
+            if (in_rrpd->c2s && rrpd->rsp_first_frame)
+                return NULL;  /* this is new */
+            else
+                return rrpd;
+        }  /* this is the end of the 5-tuple check */
+
+        if (in_rrpd->c2s)
+            in_rrpd->req_search_total++;
+        else
+            in_rrpd->rsp_search_total++;
+    } /* this is the end of the for loop */
+
+    return NULL;
+}
+
+static RRPD *find_latest_rrpd_smb2(RRPD *in_rrpd)
+{
+    RRPD *rrpd;
+    wmem_list_frame_t* i;
+
+    for (i = wmem_list_tail(rrpd_list); i != NULL; i = wmem_list_frame_prev(i))
+    {
+        rrpd = (RRPD*)wmem_list_frame_data(i);
+
+        if (rrpd->calculation != RTE_CALC_SMB2 && rrpd->calculation != RTE_CALC_SYN)
+            continue;
+
+        /* if the input 5-tuple doesn't match the rrpd_list_entry 5-tuple -> go find the next list entry */
+        if (rrpd->ip_proto == in_rrpd->ip_proto && rrpd->stream_no == in_rrpd->stream_no)
+        {
+            /* if we can match on session_id and msg_id must be a retransmission of the last request packet or the response */
+            /* this logic works whether or not we are using reassembly */
+            if (rrpd->session_id == in_rrpd->session_id && rrpd->msg_id == in_rrpd->msg_id)
+                return rrpd;
+
+            /* If this is a retransmission, we assume it relates to this rrpd_list entry.
+            This is a bit of a kludge and not ideal but a compromise.*/
+            /* ToDo: look at using TCP sequence number to allocate a retransmission to the correct APDU */
+            if (in_rrpd->is_retrans)
+                return rrpd;
+
+            if (preferences.reassembly)
+            {
+                if (in_rrpd->c2s)
+                {
+                    /* if the input rrpd is for c2s and the one we have found already has response information, then the
+                    in_rrpd represents a new RR Pair. */
+                    if (rrpd->rsp_first_frame)
+                        return NULL;
+
+                    /* If the current rrpd_list entry doesn't have a msg_id then we assume we are mid Request APDU and so we have a match. */
+                    if (!rrpd->msg_id)
+                        return rrpd;
+                }
+                else  /* The in_rrpd relates to a packet going s2c */
+                {
+                    /* When reassembly is enabled, multi-packet response information is actually migrated from the temp_rsp_rrpd_list
+                    to the rrpd_list and so we won't come through here. */
+                    ;
+                }
+            }
+            else /* we are not using reassembly */
+            {
+                if (in_rrpd->c2s)
+                {
+                    if (in_rrpd->msg_id)
+                        /* if we have a message id this is a new Request APDU */
+                        return NULL;
+                    else  /* No msg_id */
+                    {
+                        return rrpd;  /* add this packet to the matching stream */
+                    }
+                }
+                else  /* this packet is going s2c */
+                {
+                    if (!in_rrpd->msg_id && rrpd->rsp_first_frame)
+                        /* we need to add this frame to the response APDU of the most recent rrpd_list entry that has already had response packets */
+                        return rrpd;
+                }
+            }
+        }  /* this is the end of the 5-tuple check */
+
+        if (in_rrpd->c2s)
+            in_rrpd->req_search_total++;
+        else
+            in_rrpd->rsp_search_total++;
+    } /* end of the for loop */
+
+    return NULL;
+}
+
+static RRPD *find_latest_rrpd_syn(RRPD *in_rrpd)
+{
+    RRPD *rrpd;
+    wmem_list_frame_t* i;
+
+    for (i = wmem_list_tail(rrpd_list); i != NULL; i = wmem_list_frame_prev(i))
+    {
+        rrpd = (RRPD*)wmem_list_frame_data(i);
+
+        if (rrpd->calculation != RTE_CALC_SYN)
+            continue;
+
+        /* if the input 5-tuple doesn't match the rrpd_list_entry 5-tuple -> go find the next list entry */
+        if (rrpd->ip_proto == in_rrpd->ip_proto && rrpd->stream_no == in_rrpd->stream_no)
+        {
+            return rrpd;
+        }  /* this is the end of the 5-tuple check */
+
+        if (in_rrpd->c2s)
+            in_rrpd->req_search_total++;
+        else
+            in_rrpd->rsp_search_total++;
+    } /* this is the end of the for loop */
+
+    return NULL;
+}
+
+static RRPD *find_latest_rrpd(RRPD *in_rrpd)
+{
+    /* Optimisation Code */
+    if (in_rrpd->ip_proto == IP_PROTO_TCP && (int)in_rrpd->stream_no > highest_tcp_stream_no)
+    {
+        highest_tcp_stream_no = in_rrpd->stream_no;
+        return NULL;
     }
-    return rrpd_index;
+    else if (in_rrpd->ip_proto == IP_PROTO_UDP && (int)in_rrpd->stream_no > highest_udp_stream_no)
+    {
+        highest_udp_stream_no = in_rrpd->stream_no;
+        return NULL;
+    }
+    /* End of Optimisation Code */
+
+    switch (in_rrpd->calculation)
+    {
+    case RTE_CALC_DCERPC:
+        return find_latest_rrpd_dcerpc(in_rrpd);
+        break;
+
+    case RTE_CALC_DNS:
+        return find_latest_rrpd_dns(in_rrpd);
+        break;
+
+    case RTE_CALC_GTCP:
+        return find_latest_rrpd_gtcp(in_rrpd);
+        break;
+
+    case RTE_CALC_GUDP:
+        return find_latest_rrpd_gudp(in_rrpd);
+        break;
+
+    case RTE_CALC_SMB2:
+        return find_latest_rrpd_smb2(in_rrpd);
+        break;
+
+    case RTE_CALC_SYN:
+        return find_latest_rrpd_syn(in_rrpd);
+        break;
+    }
+
+    return NULL;
 }
 
 static void update_rrpd_list_entry(RRPD *match, RRPD *in_rrpd)
 {
     null_output_rrpd_entries(match);
 
-    switch (match->state)
+    if (preferences.debug_enabled)
     {
-    case RRPD_STATE_1:
-        if (in_rrpd->c2s)
+        match->req_search_total += in_rrpd->req_search_total;
+        match->rsp_search_total += in_rrpd->rsp_search_total;
+    }
+
+    if (in_rrpd->c2s)
+    {
+        match->req_last_frame = in_rrpd->req_last_frame;
+        match->req_last_rtime = in_rrpd->req_last_rtime;
+        if (in_rrpd->msg_id)
         {
-            match->req_last_frame = in_rrpd->req_last_frame;
-            match->req_last_rtime = in_rrpd->req_last_rtime;
-            if (in_rrpd->msg_id)
-            {
-                match->session_id = in_rrpd->session_id;
-                match->msg_id = in_rrpd->msg_id;
-                match->suffix = in_rrpd->suffix;
-                match->state = RRPD_STATE_3;
-            }
+            match->session_id = in_rrpd->session_id;
+            match->msg_id = in_rrpd->msg_id;
         }
-        else
+    }
+    else
+    {
+        if (!match->rsp_first_frame)
         {
             match->rsp_first_frame = in_rrpd->rsp_first_frame;
             match->rsp_first_rtime = in_rrpd->rsp_first_rtime;
-            match->rsp_last_frame = in_rrpd->rsp_last_frame;
-            match->rsp_last_rtime = in_rrpd->rsp_last_rtime;
-            if (in_rrpd->msg_id)
-                match->state = RRPD_STATE_7;
-            else
-                match->state = RRPD_STATE_5;
         }
-        break;
-
-    case RRPD_STATE_2:
-        if (in_rrpd->c2s)
-        {
-            match->req_last_frame = in_rrpd->req_last_frame;
-            match->req_last_rtime = in_rrpd->req_last_rtime;
-            if (in_rrpd->msg_id)
-            {
-                match->session_id = in_rrpd->session_id;
-                match->msg_id = in_rrpd->msg_id;
-                match->suffix = in_rrpd->suffix;
-                match->state = RRPD_STATE_4;
-            }
-        }
-        else
-        {
-            match->rsp_first_frame = in_rrpd->rsp_first_frame;
-            match->rsp_first_rtime = in_rrpd->rsp_first_rtime;
-            match->rsp_last_frame = in_rrpd->rsp_last_frame;
-            match->rsp_last_rtime = in_rrpd->rsp_last_rtime;
-            if (in_rrpd->msg_id)
-                match->state = RRPD_STATE_8;
-            else
-                match->state = RRPD_STATE_6;
-        }
-        break;
-
-    case RRPD_STATE_3:
-        if (in_rrpd->c2s)
-        {
-            match->req_last_frame = in_rrpd->req_last_frame;
-            match->req_last_rtime = in_rrpd->req_last_rtime;
-            if (in_rrpd->msg_id)
-            {
-                match->session_id = in_rrpd->session_id;
-                match->msg_id = in_rrpd->msg_id;
-                match->suffix = in_rrpd->suffix;
-                match->state = RRPD_STATE_3;
-            }
-        }
-        else
-        {
-            match->rsp_first_frame = in_rrpd->rsp_first_frame;
-            match->rsp_first_rtime = in_rrpd->rsp_first_rtime;
-            match->rsp_last_frame = in_rrpd->rsp_last_frame;
-            match->rsp_last_rtime = in_rrpd->rsp_last_rtime;
-            if (in_rrpd->msg_id)
-                match->state = RRPD_STATE_7;
-            else
-                match->state = RRPD_STATE_5;
-        }
-        break;
-
-    case RRPD_STATE_4:
-        if (in_rrpd->c2s)
-        {
-            match->req_last_frame = in_rrpd->req_last_frame;
-            match->req_last_rtime = in_rrpd->req_last_rtime;
-            if (in_rrpd->msg_id)
-            {
-                match->session_id = in_rrpd->session_id;
-                match->msg_id = in_rrpd->msg_id;
-                match->suffix = in_rrpd->suffix;
-                match->state = RRPD_STATE_4;
-            }
-        }
-        else
-        {
-            match->rsp_first_frame = in_rrpd->rsp_first_frame;
-            match->rsp_first_rtime = in_rrpd->rsp_first_rtime;
-            match->rsp_last_frame = in_rrpd->rsp_last_frame;
-            match->rsp_last_rtime = in_rrpd->rsp_last_rtime;
-            if (in_rrpd->msg_id)
-                match->state = RRPD_STATE_8;
-            else
-                match->state = RRPD_STATE_6;
-        }
-        break;
-
-    case RRPD_STATE_5:
-        if (in_rrpd->c2s)
-        {
-            /*  we've change direction */
-            ;
-        }
-        else
-        {
-            match->rsp_last_frame = in_rrpd->rsp_last_frame;
-            match->rsp_last_rtime = in_rrpd->rsp_last_rtime;
-            if (in_rrpd->msg_id)
-                match->state = RRPD_STATE_7;
-            else
-                match->state = RRPD_STATE_5;
-        }
-        break;
-
-    case RRPD_STATE_6:
-        if (in_rrpd->c2s)
-        {
-            /*  we've change direction */
-            ;
-        }
-        else
-        {
-            match->rsp_last_frame = in_rrpd->rsp_last_frame;
-            match->rsp_last_rtime = in_rrpd->rsp_last_rtime;
-            if (in_rrpd->msg_id)
-                match->state = RRPD_STATE_8;
-            else
-                match->state = RRPD_STATE_6;
-        }
-        break;
-
-    case RRPD_STATE_7:
-        if (in_rrpd->c2s)
-        {
-            /*  we've change direction */
-            ;
-        }
-        else
-        {
-            match->rsp_last_frame = in_rrpd->rsp_last_frame;
-            match->rsp_last_rtime = in_rrpd->rsp_last_rtime;
-        }
-        break;
-
-    case RRPD_STATE_8:
-        if (in_rrpd->c2s)
-        {
-            /*  we've change direction */
-            ;
-        }
-        else
-        {
-            match->rsp_last_frame = in_rrpd->rsp_last_frame;
-            match->rsp_last_rtime = in_rrpd->rsp_last_rtime;
-        }
-        break;
+        match->rsp_last_frame = in_rrpd->rsp_last_frame;
+        match->rsp_last_rtime = in_rrpd->rsp_last_rtime;
     }
 
     update_output_rrpd(match);
@@ -500,61 +609,17 @@ static void update_rrpd_list_entry_req(RRPD *in_rrpd)
 {
     RRPD *match;
 
-    if (in_rrpd->decode_based)
-    {
-        while (TRUE)
-        {
-            if (preferences.reassembly)
-            {
-                match = find_latest_rrpd(in_rrpd, RRPD_STATE_1);
-                if (match != NULL)  /* Check to cover TCP Reassembly enabled */
-                {
-                    update_rrpd_list_entry(match, in_rrpd);
-                    break;
-                }
-            }
-            else
-            {
-                match = find_latest_rrpd(in_rrpd, RRPD_STATE_4);
-                if (match != NULL)
-                {
-                    update_rrpd_list_entry(match, in_rrpd);
-                    break;
-                }
-            }
+    match = find_latest_rrpd(in_rrpd);
 
-            /* No entries and so add one */
-            append_to_rrpd_list(in_rrpd);
-            break;
-        }
-    }
+    if (match != NULL)
+        update_rrpd_list_entry(match, in_rrpd);
     else
-    {
-        /*
-        This is not a decode_based calculation and so a change from s2c to c2s
-        means that this packets starts of a new APDU RR pair.
-        */
-        match = find_latest_rrpd(in_rrpd, RRPD_STATE_DONT_CARE);
-        if (match != NULL)
-        {
-            if (match->state > RRPD_STATE_4 && in_rrpd->c2s)
-            {
-                append_to_rrpd_list(in_rrpd);
-            }
-            else
-                /* no change of direction so just update the RTE data */
-                update_rrpd_list_entry(match, in_rrpd);
-        }
-        else
-        {
-            append_to_rrpd_list(in_rrpd);
-        }
-    }
+        append_to_rrpd_list(in_rrpd);
 }
 
 /*
     This function inserts an RRPD into the temp_rsp_rrpd_list.  If this is
-    successful return the index of the entry.  If there is no space return -1.
+    successful return a pointer to the entry, else return NULL.
  */
 static RRPD* insert_into_temp_rsp_rrpd_list(RRPD *in_rrpd)
 {
@@ -592,12 +657,6 @@ static void migrate_temp_rsp_rrpd(RRPD *main_list, RRPD *temp_list)
     update_rrpd_list_entry(main_list, temp_list);
 
     wmem_list_remove(temp_rsp_rrpd_list, temp_list);
-
-    /* Update the state to 7 or 8 based on reassembly */
-    if (preferences.reassembly)
-        main_list->state = RRPD_STATE_7;
-    else
-        main_list->state = RRPD_STATE_8;
 }
 
 static void update_rrpd_list_entry_rsp(RRPD *in_rrpd)
@@ -618,13 +677,13 @@ static void update_rrpd_list_entry_rsp(RRPD *in_rrpd)
                     update_temp_rsp_rrpd(temp_list, in_rrpd);
 
                     /* Migrate the temp_rsp_rrpd_list entry to the main rrpd_list */
-                    match = find_latest_rrpd(in_rrpd, RRPD_STATE_3);
+                    match = find_latest_rrpd(in_rrpd);
                     if (match != NULL)
                         migrate_temp_rsp_rrpd(match, temp_list);
                 }
                 else
                 {
-                    match = find_latest_rrpd(in_rrpd, RRPD_STATE_3);
+                    match = find_latest_rrpd(in_rrpd);
                     /* There isn't an entry in the temp_rsp_rrpd_list so update the master rrpd_list entry */
                     if (match != NULL)
                         update_rrpd_list_entry(match, in_rrpd);
@@ -638,13 +697,27 @@ static void update_rrpd_list_entry_rsp(RRPD *in_rrpd)
                 if (temp_list != NULL)
                     update_temp_rsp_rrpd(temp_list, in_rrpd);
                 else
-                    insert_into_temp_rsp_rrpd_list(in_rrpd);
+                {
+                    /* If this is a retransmission we need to add it to the last completed rrpd_list entry for this stream */
+                    if (in_rrpd->is_retrans)
+                    {
+                        match = find_latest_rrpd(in_rrpd);
+
+                        if (match != NULL)
+                            update_rrpd_list_entry(match, in_rrpd);
+                        else
+                            insert_into_temp_rsp_rrpd_list(in_rrpd);
+                    }
+                    else
+                        /* As it's not a retransmission, just create a new entry on the temp list */
+                        insert_into_temp_rsp_rrpd_list(in_rrpd);
+                }
             }
         }
         else
         {
             /* Reassembly isn't set and so just go ahead and use the list function */
-            match = find_latest_rrpd(in_rrpd, RRPD_STATE_8);
+            match = find_latest_rrpd(in_rrpd);
             if (match != NULL)
                 update_rrpd_list_entry(match, in_rrpd);
         }
@@ -652,7 +725,7 @@ static void update_rrpd_list_entry_rsp(RRPD *in_rrpd)
     else
     {
         /* if this isn't decode_based then just go ahead and update the RTE data */
-        match = find_latest_rrpd(in_rrpd, RRPD_STATE_DONT_CARE);
+        match = find_latest_rrpd(in_rrpd);
         if (match != NULL)
             update_rrpd_list_entry(match, in_rrpd);
     }
@@ -675,21 +748,6 @@ static void update_rrpd_rte_data(RRPD *in_rrpd)
         update_rrpd_list_entry_rsp(in_rrpd);
 }
 
-#if 0
-void set_pkt_rrpd(PKT_INFO *current_pkt, guint8 ip_proto, guint32 stream_no, guint64 session_id, guint64 msg_id, gboolean requires_suffix)
-{
-    current_pkt->rrpd.ip_proto = ip_proto;
-    current_pkt->rrpd.stream_no = stream_no;
-    current_pkt->rrpd.session_id = session_id;
-    current_pkt->rrpd.msg_id = msg_id;
-
-    if (requires_suffix)
-        current_pkt->rrpd.suffix = ++rrpd_suffix;
-    else
-        current_pkt->rrpd.suffix = 0;
-}
-#endif
-
 gboolean is_dcerpc_context_zero(guint32 pkt_type)
 {
     return (wmem_map_lookup(dcerpc_context_zero, GUINT_TO_POINTER(pkt_type)) != NULL);
@@ -700,6 +758,10 @@ gboolean is_dcerpc_req_pkt_type(guint32 pkt_type)
     return (wmem_map_lookup(dcerpc_req_pkt_type, GUINT_TO_POINTER(pkt_type)) != NULL);
 }
 
+gboolean is_dcerpc_stream(guint32 stream_no)
+{
+    return (wmem_map_lookup(dcerpc_streams, GUINT_TO_POINTER(stream_no)) != NULL);
+}
 
 /*
     This function initialises the global variables and populates the
@@ -710,7 +772,11 @@ static void init_globals(void)
     if (!proto_is_protocol_enabled(find_protocol_by_id(proto_transum)))
         return;
 
+    highest_tcp_stream_no = -1;
+    highest_udp_stream_no = -1;
+
     /* Create and initialise some dynamic memory areas */
+    tcp_stream_exceptions = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
     detected_tcp_svc = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
     rrpd_list = wmem_list_new(wmem_file_scope());
     temp_rsp_rrpd_list = wmem_list_new(wmem_file_scope());
@@ -747,6 +813,7 @@ static void init_globals(void)
     /* create arrays to hold some DCE-RPC values */
     dcerpc_context_zero = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
     dcerpc_req_pkt_type = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+    dcerpc_streams      = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
     init_dcerpc_data();
 
     wmem_map_insert(preferences.tcp_svc_ports, GUINT_TO_POINTER(445), GUINT_TO_POINTER(RTE_CALC_SMB2));
@@ -847,6 +914,14 @@ static void write_rte(RRPD *in_rrpd, tvbuff_t *tvb, proto_tree *tree, char *summ
                 }
             }
         }
+
+        if (preferences.debug_enabled)
+        {
+            pi = proto_tree_add_uint(rte_tree, hf_tsum_req_search, tvb, 0, 0, in_rrpd->req_search_total);
+            PROTO_ITEM_SET_GENERATED(pi);
+            pi = proto_tree_add_uint(rte_tree, hf_tsum_rsp_search, tvb, 0, 0, in_rrpd->rsp_search_total);
+            PROTO_ITEM_SET_GENERATED(pi);
+        }
     }
 }
 
@@ -879,6 +954,32 @@ static void set_proto_values(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt
         /* decode_gtcp may return 0 but we need to keep processing because we
         calculate RTE figures for all SYNs and also we may detect DCE-RPC later
         (even though we don't currently have an entry in the tcp_svc_ports list). */
+
+        /* Optimisation code */
+        if (pkt_info->len || pkt_info->tcp_flags_syn)
+        {
+            if (pkt_info->ssl_content_type == 21)  /* this is an SSL Alert */
+            {
+                pkt_info->pkt_of_interest = FALSE;
+                return;
+            }
+
+            if ((int)pkt_info->rrpd.stream_no > highest_tcp_stream_no && !pkt_info->rrpd.c2s)
+            {
+                /* first packet on the stream is s2c and so add to exception list */
+                if (wmem_map_lookup(tcp_stream_exceptions, GUINT_TO_POINTER(pkt_info->rrpd.stream_no)) == NULL)
+                    wmem_map_insert(tcp_stream_exceptions, GUINT_TO_POINTER(pkt_info->rrpd.stream_no), GUINT_TO_POINTER(1));
+            }
+
+            if (wmem_map_lookup(tcp_stream_exceptions, GUINT_TO_POINTER(pkt_info->rrpd.stream_no)) != NULL)
+            {
+                if (pkt_info->rrpd.c2s)
+                    wmem_map_remove(tcp_stream_exceptions, GUINT_TO_POINTER(pkt_info->rrpd.stream_no));
+                else
+                    pkt_info->pkt_of_interest = FALSE;
+            }
+        }
+        /* End of Optimisation Code */
 
         if (pkt_info->tcp_retran)
         {
@@ -927,11 +1028,27 @@ static void set_proto_values(packet_info *pinfo, proto_tree *tree, PKT_INFO* pkt
             if (pkt_info->dstport == 445 || pkt_info->srcport == 445)
                 number_sub_pkts_of_interest = decode_smb(pinfo, tree, pkt_info, subpackets);
 
-            /* check if DCE-RPC */
-            else if (!extract_uint(tree, hf_of_interest[HF_INTEREST_DCERPC_VER].hf, field_uint, &field_value_count))
+            else
             {
-                if (field_value_count)
-                    number_sub_pkts_of_interest = decode_dcerpc(pinfo, tree, pkt_info);
+                /* check if DCE-RPC */
+                /* We need to set RTE_CALC_DCERPC even when we don't have header info. */
+                if (is_dcerpc_stream(pkt_info->rrpd.stream_no))
+                {
+                    pkt_info->rrpd.calculation = RTE_CALC_DCERPC;
+                    pkt_info->rrpd.decode_based = TRUE;
+                    pkt_info->pkt_of_interest = TRUE;
+                }
+
+                if (!extract_uint(tree, hf_of_interest[HF_INTEREST_DCERPC_VER].hf, field_uint, &field_value_count))
+                {
+                    if (field_value_count)
+                    {
+                        if (pkt_info->rrpd.calculation != RTE_CALC_DCERPC)
+                            register_dcerpc_stream(pkt_info->rrpd.stream_no);
+
+                        number_sub_pkts_of_interest = decode_dcerpc(pinfo, tree, pkt_info);
+                    }
+                }
             }
         }
 
@@ -1094,7 +1211,20 @@ proto_register_transum(void)
         { "Summary", "transum.summary",
         FT_STRING, BASE_NONE, NULL, 0x0,
         "Summarizer information", HFILL }
+        },
+
+        { &hf_tsum_req_search,
+        { "Req Search Count", "transum.req_search",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "rrpd_list search total for the request packets", HFILL }
+        },
+
+        { &hf_tsum_rsp_search,
+        { "Rsp Search Counts", "transum.rsp_search",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "rrpd_list search total for the reponse packets", HFILL }
         }
+
     };
 
     /* Setup protocol subtree array */
@@ -1123,6 +1253,8 @@ proto_register_transum(void)
     preferences.rte_on_last_req = TRUE;
     preferences.rte_on_first_rsp = FALSE;
     preferences.rte_on_last_rsp = FALSE;
+
+    preferences.debug_enabled = FALSE;
 
     /* no start registering stuff */
     proto_register_field_array(proto_transum, hf, array_length(hf));
@@ -1200,6 +1332,12 @@ proto_register_transum(void)
         "Add RTE data to the last response segment",
         "RTE data will be added to the last response packet",
         &preferences.rte_on_last_rsp);
+
+    prefs_register_bool_preference(transum_module,
+        "debug_enabled",
+        "Enable debug info",
+        "Set this only to troubleshoot problems",
+        &preferences.debug_enabled);
 
     transum_handle = register_dissector("transum", dissect_transum, proto_transum);
 

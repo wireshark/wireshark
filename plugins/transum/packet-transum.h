@@ -28,17 +28,6 @@
 #define IP_PROTO_TCP 6
 #define IP_PROTO_UDP 17
 
-#define RRPD_STATE_DONT_CARE 0
-#define RRPD_STATE_INIT 0
-#define RRPD_STATE_1 1
-#define RRPD_STATE_2 2
-#define RRPD_STATE_3 3
-#define RRPD_STATE_4 4
-#define RRPD_STATE_5 5
-#define RRPD_STATE_6 6
-#define RRPD_STATE_7 7
-#define RRPD_STATE_8 8
-
 #define RTE_CALC_SYN    1
 #define RTE_CALC_GTCP   2
 #define RTE_CALC_GUDP   3
@@ -68,7 +57,6 @@ typedef struct _RRPD
     guint32  stream_no;
     guint64  session_id;
     guint64  msg_id;
-    guint32  suffix;
 
     /*
         Some request-response pairs are demarked simple by a change in direction on a
@@ -79,7 +67,7 @@ typedef struct _RRPD
      */
     gboolean decode_based;
 
-    int      state;
+    gboolean is_retrans;
 
     guint32  req_first_frame;
     nstime_t req_first_rtime;
@@ -92,6 +80,10 @@ typedef struct _RRPD
     nstime_t rsp_last_rtime;
 
     guint    calculation;
+
+    /* The following numbers are for tuning purposes */
+    guint32  req_search_total;  /* The total number of steps back through the rrpd_list when matching requests to this entry */
+    guint32  rsp_search_total;  /* The total number of steps back through the rrpd_list when matching responses to this entry */
 } RRPD;
 
 typedef struct _PKT_INFO
@@ -111,6 +103,8 @@ typedef struct _PKT_INFO
     guint16 srcport;  /* tcp.srcport or udp.srcport*/
     guint16 dstport;  /* tcp.dstport or udp.dstport*/
     guint16 len;  /* tcp.len or udp.len */
+
+    guint8  ssl_content_type;  /*ssl.record.content_type */
 
     guint8  tds_type;  /*tds.type */
     guint16 tds_length;  /* tds.length */
@@ -157,6 +151,8 @@ typedef enum {
     HF_INTEREST_UDP_DSTPORT,
     HF_INTEREST_UDP_STREAM,
     HF_INTEREST_UDP_LENGTH,
+
+    HF_INTEREST_SSL_CONTENT_TYPE,
 
     HF_INTEREST_TDS_TYPE,
     HF_INTEREST_TDS_LENGTH,
