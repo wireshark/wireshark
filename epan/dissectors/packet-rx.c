@@ -374,7 +374,8 @@ dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int 
 	 *
 	 * RX as a protocol seems to be completely undefined and seems to lack
 	 * any sort of documentation other than "read the source of any of the
-	 * (compatible?) implementations.
+	 * (compatible?) implementations.  The OpenAFS source indicates that
+	 * 3 bytes of padding are written after the acks.
 	 */
 	if (tvb_reported_length_remaining(tvb, offset)>3) {
 		offset += 3;	/* guess. some implementations add 3 bytes */
