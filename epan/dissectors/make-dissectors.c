@@ -15,10 +15,6 @@
 
 #define ARRAY_RESERVED_SIZE     2048
 
-#ifndef SEP
-  #define SEP     "\n"
-#endif
-
 GRegex *protos_regex, *handoffs_regex;
 
 static int
@@ -61,7 +57,7 @@ scan_list(const char *list, GPtrArray *protos, GPtrArray *handoffs)
 
     if (!g_file_get_contents(list, &contents, NULL, NULL))
         return;
-    for (arg = strtok(contents, SEP); arg != NULL; arg = strtok(NULL, SEP)) {
+    for (arg = strtok(contents, " \n"); arg != NULL; arg = strtok(NULL, " \n")) {
         scan_file(arg, protos, handoffs);
     }
     g_free(contents);
@@ -108,6 +104,7 @@ int main(int argc, char **argv)
            " * \"make-dissectors\".\n"
            " */\n"
            "\n"
+           "#include <ws_symbol_export.h>\n"
            "#include <dissectors.h>\n"
            "\n");
 

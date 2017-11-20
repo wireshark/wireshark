@@ -66,6 +66,8 @@ foreach(PROTOCOL_NAME IN LISTS PIDL_DISSECTOR_NAMES)
 	)
 endforeach()
 
+set(PIDL_DISSECTOR_AUTOGEN_SRC ${PIDL_DISSECTOR_SRC} PARENT_SCOPE)
+
 # TODO should probably just merge this into pidl-dissectors
 add_custom_target(idl2wrs-dissectors ALL DEPENDS ${PIDL_DISSECTOR_TARGETS})
 set_target_properties(idl2wrs-dissectors
