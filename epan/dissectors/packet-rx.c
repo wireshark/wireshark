@@ -730,7 +730,7 @@ proto_register_rx(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_abortcode, {
-			"Abort Code", "rx.abort_code", FT_UINT32, BASE_DEC,
+			"Abort Code", "rx.abort_code", FT_INT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 
 	};
