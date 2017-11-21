@@ -1324,7 +1324,7 @@ handle_export_pdu_conversation(packet_info *pinfo, tvbuff_t *tvb, int src_port, 
 static gboolean tcp_analyze_seq           = TRUE;
 static gboolean tcp_relative_seq          = TRUE;
 static gboolean tcp_track_bytes_in_flight = TRUE;
-static gboolean tcp_calculate_ts          = FALSE;
+static gboolean tcp_calculate_ts          = TRUE;
 
 static gboolean tcp_analyze_mptcp                   = TRUE;
 static gboolean mptcp_relative_seq                  = TRUE;
