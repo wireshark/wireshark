@@ -61,12 +61,7 @@ foreach(PROTOCOL_NAME IN LISTS PIDL_DISSECTOR_NAMES)
 	list(APPEND PIDL_DISSECTOR_TARGETS
 		generate_dissector-dcerpc-${PROTOCOL_NAME}
 	)
-	list(APPEND PIDL_DISSECTOR_SRC
-		packet-dcerpc-${PROTOCOL_NAME}.c
-	)
 endforeach()
-
-set(PIDL_DISSECTOR_AUTOGEN_SRC ${PIDL_DISSECTOR_SRC} PARENT_SCOPE)
 
 # TODO should probably just merge this into pidl-dissectors
 add_custom_target(idl2wrs-dissectors ALL DEPENDS ${PIDL_DISSECTOR_TARGETS})
