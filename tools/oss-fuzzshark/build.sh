@@ -43,7 +43,7 @@ generate_fuzzer()
       -c -o $WORK/${fuzzer_name}.o \
       $fuzzer_cflags
 
-  $CXX $CXXFLAGS $WORK/${fuzzer_name}.o \
+  $CXX $CXXFLAGS $WORK/register.o $WORK/${fuzzer_name}.o \
       -o $OUT/${fuzzer_name} \
       ${WIRESHARK_FUZZERS_COMMON_FLAGS}
 
@@ -56,6 +56,10 @@ generate_fuzzer()
 WIRESHARK_FUZZERS_COMMON_FLAGS="-lFuzzingEngine \
     -L"$WIRESHARK_INSTALL_PATH/lib" -lwireshark -lwiretap -lwsutil \
     -Wl,-Bstatic `pkg-config --libs glib-2.0` -pthread -lpcre -lgcrypt -lgpg-error -lz -Wl,-Bdynamic"
+
+$CC $CFLAGS -I $SRC/wireshark/ `pkg-config --cflags glib-2.0` \
+    $SRC/wireshark/register.c \
+    -c -o $WORK/register.o
 
 for dissector in $FUZZ_DISSECTORS; do
   generate_fuzzer "${dissector}" -DFUZZ_DISSECTOR_TARGET=\"$dissector\"
