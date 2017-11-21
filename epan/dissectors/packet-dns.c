@@ -340,6 +340,8 @@ static int hf_dns_tsig_other_len = -1;
 static int hf_dns_tsig_other_data = -1;
 static int hf_dns_response_in = -1;
 static int hf_dns_response_to = -1;
+static int hf_dns_retransmit_request_in = -1;
+static int hf_dns_retransmit_response_in = -1;
 static int hf_dns_time = -1;
 static int hf_dns_sshfp_algorithm = -1;
 static int hf_dns_sshfp_fingerprint_type = -1;
@@ -426,6 +428,8 @@ static expert_field ei_ttl_negative = EI_INIT;
 static expert_field ei_dns_tsig_alg = EI_INIT;
 static expert_field ei_dns_undecoded_option = EI_INIT;
 static expert_field ei_dns_key_id_buffer_too_short = EI_INIT;
+static expert_field ei_dns_retransmit_request = EI_INIT;
+static expert_field ei_dns_retransmit_response = EI_INIT;
 
 static dissector_table_t dns_tsig_dissector_table=NULL;
 
@@ -433,6 +437,11 @@ static dissector_handle_t dns_handle;
 
 /* desegmentation of DNS over TCP */
 static gboolean dns_desegment = TRUE;
+
+/* Maximum number of elapsed seconds between messages with the same
+ * transaction ID to be considered as a retransmission
+ */
+static guint32 retransmission_timer = 5;
 
 /* Dissector handle for GSSAPI */
 static dissector_handle_t gssapi_handle;
@@ -3646,7 +3655,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   int                offset   = is_tcp ? 2 : 0;
   int                dns_data_offset;
   proto_tree        *dns_tree, *field_tree;
-  proto_item        *ti, *tf;
+  proto_item        *ti, *tf, *transaction_item;
   guint16            flags, opcode, rcode, quest, ans, auth, add;
   guint              id;
   int                cur_off;
@@ -3658,6 +3667,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   struct DnsTap     *dns_stats;
   guint              qtype = 0;
   guint              qclass = 0;
+  gboolean           retransmission = FALSE;
   const guchar      *name;
   int                name_len;
 
@@ -3729,30 +3739,65 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (!pinfo->fd->flags.visited) {
     if (!(flags&F_RESPONSE)) {
       /* This is a request */
-      dns_trans=wmem_new(wmem_file_scope(), dns_transaction_t);
-      dns_trans->req_frame=pinfo->num;
-      dns_trans->rep_frame=0;
-      dns_trans->req_time=pinfo->abs_ts;
-      dns_trans->id = id;
-      wmem_tree_insert32_array(dns_info->pdus, key, (void *)dns_trans);
+      gboolean new_transaction = FALSE;
+
+      /* Check if we've seen this transaction before */
+      dns_trans=(dns_transaction_t *)wmem_tree_lookup32_array_le(dns_info->pdus, key);
+      if ((dns_trans == NULL) || (dns_trans->id != id) || (dns_trans->rep_frame > 0)) {
+        new_transaction = TRUE;
+      } else {
+        nstime_t request_delta;
+
+        /* Has not enough time elapsed that we consider this request a retransmission? */
+        nstime_delta(&request_delta, &pinfo->abs_ts, &dns_trans->req_time);
+        if ((guint32)nstime_to_sec(&request_delta) < retransmission_timer) {
+          retransmission = TRUE;
+        } else {
+          new_transaction = TRUE;
+        }
+      }
+
+      if (new_transaction) {
+        dns_trans=wmem_new(wmem_file_scope(), dns_transaction_t);
+        dns_trans->req_frame=pinfo->num;
+        dns_trans->rep_frame=0;
+        dns_trans->req_time=pinfo->abs_ts;
+        dns_trans->id = id;
+        wmem_tree_insert32_array(dns_info->pdus, key, (void *)dns_trans);
+      }
     } else {
       dns_trans=(dns_transaction_t *)wmem_tree_lookup32_array_le(dns_info->pdus, key);
       if (dns_trans) {
         if (dns_trans->id != id) {
           dns_trans = NULL;
-        } else {
+        } else if (dns_trans->rep_frame == 0) {
           dns_trans->rep_frame=pinfo->num;
+        } else {
+          retransmission = TRUE;
         }
       }
     }
   } else {
     dns_trans=(dns_transaction_t *)wmem_tree_lookup32_array_le(dns_info->pdus, key);
-    if (dns_trans && dns_trans->id != id) {
-      dns_trans = NULL;
+    if (dns_trans) {
+      if (dns_trans->id != id) {
+        dns_trans = NULL;
+      } else if ((!(flags & F_RESPONSE)) && (dns_trans->req_frame != pinfo->num)) {
+        /* This is a request retransmission, create a "fake" dns_trans structure*/
+        dns_transaction_t *retrans_dns = wmem_new(wmem_packet_scope(), dns_transaction_t);
+        retrans_dns->req_frame=dns_trans->req_frame;
+        retrans_dns->rep_frame=0;
+        retrans_dns->req_time=pinfo->abs_ts;
+        dns_trans = retrans_dns;
+
+        retransmission = TRUE;
+      } else if ((flags & F_RESPONSE) && (dns_trans->rep_frame != pinfo->num)) {
+        retransmission = TRUE;
+      }
     }
   }
   if (!dns_trans) {
-    /* create a "fake" pana_trans structure */
+    /* create a "fake" dns_trans structure */
     dns_trans=wmem_new(wmem_packet_scope(), dns_transaction_t);
     dns_trans->req_frame=0;
     dns_trans->rep_frame=0;
@@ -3764,7 +3809,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(dns_tree, hf_dns_length, tvb, offset - 2, 2, ENC_BIG_ENDIAN);
   }
 
-  proto_tree_add_uint(dns_tree, hf_dns_transaction_id, tvb,
+  transaction_item = proto_tree_add_uint(dns_tree, hf_dns_transaction_id, tvb,
                 offset + DNS_ID, 2, id);
 
   tf = proto_tree_add_item(dns_tree, hf_dns_flags, tvb,
@@ -3888,9 +3933,14 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* print state tracking in the tree */
   if (!(flags&F_RESPONSE)) {
+    proto_item *it;
     /* This is a request */
-    if (dns_trans->rep_frame) {
-      proto_item *it;
+    if ((retransmission) && (dns_trans->req_frame)) {
+      expert_add_info_format(pinfo, transaction_item, &ei_dns_retransmit_request, "DNS query retransmission. Original request in frame %d", dns_trans->req_frame);
+
+      it=proto_tree_add_uint(dns_tree, hf_dns_retransmit_request_in, tvb, 0, 0, dns_trans->req_frame);
+      PROTO_ITEM_SET_GENERATED(it);
+    } else if (dns_trans->rep_frame) {
 
       it=proto_tree_add_uint(dns_tree, hf_dns_response_in, tvb, 0, 0, dns_trans->rep_frame);
       PROTO_ITEM_SET_GENERATED(it);
@@ -3899,14 +3949,21 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* This is a reply */
     if (dns_trans->req_frame) {
       proto_item *it;
-      nstime_t ns;
+      if ((retransmission) && (dns_trans->rep_frame)) {
+        expert_add_info_format(pinfo, transaction_item, &ei_dns_retransmit_response, "DNS response retransmission. Original response in frame %d", dns_trans->rep_frame);
 
-      it=proto_tree_add_uint(dns_tree, hf_dns_response_to, tvb, 0, 0, dns_trans->req_frame);
-      PROTO_ITEM_SET_GENERATED(it);
+        it=proto_tree_add_uint(dns_tree, hf_dns_retransmit_response_in, tvb, 0, 0, dns_trans->rep_frame);
+        PROTO_ITEM_SET_GENERATED(it);
+      } else {
+        nstime_t ns;
 
-      nstime_delta(&ns, &pinfo->abs_ts, &dns_trans->req_time);
-      it=proto_tree_add_time(dns_tree, hf_dns_time, tvb, 0, 0, &ns);
-      PROTO_ITEM_SET_GENERATED(it);
+        it=proto_tree_add_uint(dns_tree, hf_dns_response_to, tvb, 0, 0, dns_trans->req_frame);
+        PROTO_ITEM_SET_GENERATED(it);
+
+        nstime_delta(&ns, &pinfo->abs_ts, &dns_trans->req_time);
+        it=proto_tree_add_time(dns_tree, hf_dns_time, tvb, 0, 0, &ns);
+        PROTO_ITEM_SET_GENERATED(it);
+      }
     }
   }
 
@@ -5257,6 +5314,16 @@ proto_register_dns(void)
         FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
         "This is a response to the DNS query in this frame", HFILL }},
 
+    { &hf_dns_retransmit_request_in,
+      { "Retransmitted request. Original request in", "dns.retransmit_request_in",
+        FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+        "This is a retransmitted DNS query", HFILL }},
+
+    { &hf_dns_retransmit_response_in,
+      { "Retransmitted response. Original response in", "dns.retransmit_response_in",
+        FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+        "This is a retransmitted DNS response", HFILL }},
+
     { &hf_dns_time,
       { "Time", "dns.time",
         FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
@@ -5575,6 +5642,8 @@ proto_register_dns(void)
      { &ei_ttl_negative, { "dns.ttl.negative", PI_PROTOCOL, PI_WARN, "TTL can't be negative", EXPFILL }},
      { &ei_dns_tsig_alg, { "dns.tsig.noalg", PI_UNDECODED, PI_WARN, "No dissector for algorithm", EXPFILL }},
      { &ei_dns_key_id_buffer_too_short, { "dns.key_id_buffer_too_short", PI_PROTOCOL, PI_WARN, "Buffer too short to compute a key id", EXPFILL }},
+     { &ei_dns_retransmit_request, { "dns.retransmit_request", PI_PROTOCOL, PI_WARN, "DNS query retransmission", EXPFILL }},
+     { &ei_dns_retransmit_response, { "dns.retransmit_response", PI_PROTOCOL, PI_WARN, "DNS response retransmission", EXPFILL }},
   };
 
   static gint *ett[] = {
@@ -5612,6 +5681,12 @@ proto_register_dns(void)
     "Whether the DNS dissector should reassemble messages spanning multiple TCP segments."
     " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &dns_desegment);
+
+  prefs_register_uint_preference(dns_module, "retransmission_timer",
+                                  "Number of seconds allowed between retransmissions",
+                                  "Number of seconds allowed between DNS requests with the same transaction ID to consider it a retransmission."
+                                  " Otherwise its considered a new request.",
+                                  10, &retransmission_timer);
 
   prefs_register_obsolete_preference(dns_module, "use_for_addr_resolution");
 
