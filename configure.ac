@@ -145,7 +145,7 @@ if test "x$have_gnu_make" = xmaybe; then
 		[have_gnu_make=yes])
 fi
 if test "x$have_gnu_make" != xyes; then
-	AC_MSG_ERROR([GNU Make version 4.0 or greater is required to build Wireshark])
+	AC_MSG_WARN([GNU Make >= 4.0 not found; building Wireshark without it will probably fail])
 fi
 
 AC_PATH_PROG(PERL, perl)
