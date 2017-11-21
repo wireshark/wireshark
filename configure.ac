@@ -135,6 +135,19 @@ AC_PROG_SED
 AC_PROG_LN_S
 AC_PROG_MKDIR_P
 
+#
+# Check for GNU Make
+#
+have_gnu_make=no
+AX_CHECK_GNU_MAKE([have_gnu_make=maybe])
+if test "x$have_gnu_make" = xmaybe; then
+	AX_COMPARE_VERSION([$ax_check_gnu_make_version], [ge], [4.0],
+		[have_gnu_make=yes])
+fi
+if test "x$have_gnu_make" != xyes; then
+	AC_MSG_ERROR([GNU Make version 4.0 or greater is required to build Wireshark])
+fi
+
 AC_PATH_PROG(PERL, perl)
 
 # Check for Python.
