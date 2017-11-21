@@ -58,7 +58,7 @@
 #include "ui/util.h"
 #include "ui/decode_as_utils.h"
 #include "ui/dissect_opts.h"
-#include "register.h"
+#include "epan/register.h"
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>

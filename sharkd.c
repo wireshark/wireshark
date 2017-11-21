@@ -50,7 +50,7 @@
 #include "ui/filter_files.h"
 #include "ui/tap_export_pdu.h"
 #include "ui/failure_message.h"
-#include "register.h"
+#include "epan/register.h"
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 

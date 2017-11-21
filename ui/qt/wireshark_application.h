@@ -26,7 +26,7 @@
 
 #include <glib.h>
 
-#include "register.h"
+#include "epan/register.h"
 
 #include "ui/help_url.h"
 

@@ -139,6 +139,7 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	range.h
 	reassemble.h
 	reedsolomon.h
+	register.h
 	req_resp_hdrs.h
 	rtd_table.h
 	rtp_pt.h
@@ -228,6 +229,7 @@ set(LIBWIRESHARK_FILES
 	range.c
 	reassemble.c
 	reedsolomon.c
+	register.c
 	req_resp_hdrs.c
 	rtd_table.c
 	sequence_analysis.c

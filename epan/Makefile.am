@@ -93,6 +93,7 @@ LIBWIRESHARK_SRC = \
 	reassemble.c		\
 	reedsolomon.c		\
 	req_resp_hdrs.c		\
+	register.c		\
 	rtd_table.c		\
 	sequence_analysis.c	\
 	show_exception.c	\
@@ -246,6 +247,7 @@ LIBWIRESHARK_INCLUDES_PUBLIC = \
 	range.h			\
 	reassemble.h		\
 	reedsolomon.h		\
+	register.h		\
 	req_resp_hdrs.h		\
 	rtd_table.h		\
 	rtp_pt.h		\

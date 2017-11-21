@@ -33,7 +33,7 @@
 #include <wiretap/wtap.h>
 
 #include "ui/util.h"
-#include "register.h"
+#include "epan/register.h"
 
 static void failure_warning_message(const char *msg_format, va_list ap);
 static void open_failure_message(const char *filename, int err,

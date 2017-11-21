@@ -38,7 +38,7 @@
 #endif
 
 #include "log.h"
-#include "register.h"
+#include "epan/register.h"
 
 #include "ui/alert_box.h"
 #include "ui/last_open_dir.h"

@@ -92,7 +92,7 @@
 #include "../../frame_tvbuff.h"
 #include "../../summary.h"
 #include <epan/color_filters.h>
-#include "../../register.h"
+#include "epan/register.h"
 #include "../../ringbuffer.h"
 #include "../../log.h"
 

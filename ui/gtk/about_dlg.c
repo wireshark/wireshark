@@ -44,7 +44,7 @@
 #endif
 
 #include "../../log.h"
-#include "../../register.h"
+#include "epan/register.h"
 
 #include "ui/last_open_dir.h"
 

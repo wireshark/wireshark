@@ -154,7 +154,7 @@ reg_code.write("/* Generated automatically from %s  */\n" % (sys.argv[0]))
 
 # Make the routine to register all taps
 reg_code.write("""
-#include "register.h"
+#include "epan/register.h"
 void register_all_tap_listeners(void) {
 """);
 

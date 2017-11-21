@@ -71,7 +71,7 @@
 #include "ui/util.h"
 #include "ui/dissect_opts.h"
 #include "ui/failure_message.h"
-#include "register.h"
+#include "epan/register.h"
 #include "conditions.h"
 #include "capture_stop_conditions.h"
 #include <epan/epan_dissect.h>

@@ -88,7 +88,7 @@
 #if defined(HAVE_GEOIP)
 #include "epan/geoip_db.h"
 #endif
-#include "register.h"
+#include "epan/register.h"
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
