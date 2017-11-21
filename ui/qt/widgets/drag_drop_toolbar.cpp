@@ -114,10 +114,6 @@ bool DragDropToolBar::eventFilter(QObject * obj, QEvent * event)
         if ( ( ev->buttons() & Qt::LeftButton ) && (ev->pos() - dragStartPosition).manhattanLength()
                  > QApplication::startDragDistance())
         {
-            bool success = false;
-            if ( ! success )
-                return false;
-
             ToolbarEntryMimeData * temd =
                     new ToolbarEntryMimeData(((QToolButton *)elem)->text(), elem->property(drag_drop_toolbar_action_).toInt());
             DragLabel * lbl = new DragLabel(temd->labelText(), this);
