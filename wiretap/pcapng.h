@@ -25,6 +25,12 @@
 #include "wtap.h"
 #include "ws_symbol_export.h"
 
+#define PCAPNG_MAGIC         0x1A2B3C4D
+#define PCAPNG_SWAPPED_MAGIC 0xD4C3B2A1
+
+#define PCAPNG_MAJOR_VERSION 1
+#define PCAPNG_MINOR_VERSION 0
+
 /* pcapng: common block header file encoding for every block type */
 typedef struct pcapng_block_header_s {
     guint32 block_type;

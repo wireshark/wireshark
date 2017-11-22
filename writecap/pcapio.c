@@ -284,6 +284,34 @@ pcapng_write_string_option(FILE* pfile,
         return TRUE;
 }
 
+/* Write a pre-formatted pcapng block directly to the output file */
+gboolean
+pcapng_write_block(FILE* pfile,
+                   const guint8 *data,
+                   guint32 length,
+                   guint64 *bytes_written,
+                   int *err)
+{
+    guint32 block_length, end_lenth;
+    /* Check
+     * - length and data are aligned to 4 bytes
+     * - block_total_length field is the same at the start and end of the block
+     *
+     * The block_total_length is not checked against the provided length but
+     * getting the trailing block_total_length from the length argument gives
+     * us an implicit check of correctness without needing to do an endian swap
+     */
+    if (((length & 3) != 0) || (((gintptr)data & 3) != 0)) {
+        return FALSE;
+    }
+    memcpy(&block_length, data+sizeof(guint32), sizeof(guint32));
+    memcpy(&end_lenth, data+length-sizeof(guint32), sizeof(guint32));
+    if (block_length != end_lenth) {
+        return FALSE;
+    }
+    return write_to_file(pfile, data, length, bytes_written, err);
+}
+
 gboolean
 pcapng_write_session_header_block(FILE* pfile,
                                   const char *comment,

@@ -43,6 +43,14 @@ libpcap_write_packet(FILE* pfile,
 
 /* Writing pcap-ng files */
 
+/* Write a pre-formatted pcapng block */
+extern gboolean
+pcapng_write_block(FILE* pfile,
+                  const guint8 *data,
+                  guint32 block_total_length,
+                  guint64 *bytes_written,
+                  int *err);
+
 /** Write a section header block (SHB)
  *
  */
