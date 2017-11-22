@@ -164,6 +164,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QTableView" name="tblAuthors">
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPlainTextEdit" name="pte_Authors">
          <property name="readOnly">
           <bool>true</bool>
@@ -177,6 +184,20 @@
        <string>Folders</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QLineEdit" name="searchFolders">
+         <property name="placeholderText">
+          <string>Filter by path</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTableView" name="tblFolders">
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+        </widget>
+       </item>
        <item>
         <widget class="QLabel" name="label_folders">
          <property name="text">
@@ -204,12 +225,30 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
-        <widget class="QTextEdit" name="te_plugins">
-         <property name="tabChangesFocus">
-          <bool>true</bool>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLineEdit" name="searchPlugins">
+           <property name="placeholderText">
+            <string>Search plugins</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Filter by type:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="cmbType"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QTableView" name="tblPlugins">
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
          </property>
         </widget>
        </item>
@@ -221,12 +260,16 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_shortcuts">
        <item>
-        <widget class="QTextEdit" name="te_shortcuts">
-         <property name="tabChangesFocus">
-          <bool>true</bool>
+        <widget class="QLineEdit" name="searchShortcuts">
+         <property name="placeholderText">
+          <string>Search Shortcuts</string>
          </property>
-         <property name="readOnly">
-          <bool>true</bool>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTableView" name="tblShortcuts">
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
          </property>
         </widget>
        </item>

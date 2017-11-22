@@ -1,0 +1,92 @@
+/* astringlist_list_model.h
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0+
+ */
+
+#ifndef ASTRINGLIST_LIST_MODEL_H
+#define ASTRINGLIST_LIST_MODEL_H
+
+#include <config.h>
+
+#include <QAbstractItemModel>
+#include <QModelIndex>
+#include <QList>
+#include <QStringList>
+#include <QSortFilterProxyModel>
+
+class AStringListListModel : public QAbstractItemModel
+{
+    Q_OBJECT
+
+public:
+    explicit AStringListListModel(QObject * parent = Q_NULLPTR);
+    virtual ~AStringListListModel();
+
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+
+    virtual QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const;
+    virtual QModelIndex parent(const QModelIndex & parent = QModelIndex()) const;
+
+protected:
+    virtual void appendRow(const QStringList &, const QModelIndex &parent = QModelIndex());
+
+    virtual QStringList headerColumns() const = 0;
+
+private:
+    QList<QStringList> modelData;
+};
+
+class AStringListListSortFilterProxyModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+public:
+
+    enum AStringListListFilterType
+    {
+        FilterByContains = 0,
+        FilterByStart = 1
+    };
+
+    explicit AStringListListSortFilterProxyModel(QObject * parent = Q_NULLPTR);
+
+    virtual bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
+    virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+
+    void setFilterType(AStringListListFilterType type);
+
+    void setColumnToFilter(int);
+    void clearColumnsToFilter();
+
+public slots:
+    void setFilter(const QString&);
+
+private:
+
+    QString filter_;
+    AStringListListFilterType type_;
+    QList<int> columnsToFilter_;
+};
+
+
+
+#endif // ASTRINGLIST_LIST_MODEL_H
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

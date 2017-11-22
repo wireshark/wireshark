@@ -189,9 +189,11 @@ MOC_UTILS_HDRS = \
 
 # Files for delegates and models
 MOC_MODELS_HDRS = \
+	models/astringlist_list_model.h			\
 	models/cache_proxy_model.h			\
 	models/decode_as_delegate.h			\
 	models/decode_as_model.h			\
+	models/html_text_delegate.h			\
 	models/interface_sort_filter_model.h		\
 	models/interface_tree_cache_model.h		\
 	models/interface_tree_model.h			\
@@ -205,6 +207,7 @@ MOC_MODELS_HDRS = \
 	models/sparkline_delegate.h			\
 	models/uat_delegate.h				\
 	models/uat_model.h				\
+	models/url_link_delegate.h			\
 	models/voip_calls_info_model.h
 
 
@@ -505,9 +508,11 @@ WIRESHARK_QT_UTILS_SRC = \
 	utils/qt_ui_utils.cpp
 
 WIRESHARK_QT_MODELS_SRCS = \
+	models/astringlist_list_model.cpp		\
 	models/cache_proxy_model.cpp			\
 	models/decode_as_delegate.cpp			\
 	models/decode_as_model.cpp			\
+	models/html_text_delegate.cpp			\
 	models/interface_sort_filter_model.cpp		\
 	models/interface_tree_cache_model.cpp		\
 	models/interface_tree_model.cpp			\
@@ -521,6 +526,7 @@ WIRESHARK_QT_MODELS_SRCS = \
 	models/timeline_delegate.cpp			\
 	models/uat_model.cpp				\
 	models/uat_delegate.cpp				\
+	models/url_link_delegate.cpp			\
 	models/voip_calls_info_model.cpp
 
 WIRESHARK_QT_SRC = \
