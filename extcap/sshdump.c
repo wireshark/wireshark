@@ -482,11 +482,6 @@ int main(int argc, char **argv)
 	for (i = 0; i < argc; i++)
 		g_debug("%s", argv[i]);
 
-	if (optind != argc) {
-		g_warning("Unexpected extra option: %s", argv[optind]);
-		goto end;
-	}
-
 	if (extcap_base_handle_interface(extcap_conf)) {
 		ret = EXIT_SUCCESS;
 		goto end;
