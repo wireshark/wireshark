@@ -2118,7 +2118,7 @@ ieee802154_create_pie_tree(tvbuff_t *tvb, proto_tree *tree, int hf, gint ett)
  * @param ett tree index
  * @returns the tree created for the Payload IE
  */
-proto_tree*
+static proto_tree*
 ieee802154_create_psie_tree(tvbuff_t *tvb, proto_tree *tree, int hf, gint ett)
 {
     proto_item *subitem;
