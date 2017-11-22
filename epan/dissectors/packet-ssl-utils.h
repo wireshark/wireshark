@@ -570,7 +570,7 @@ extern void
 ssl_data_set(StringInfo* buf, const guchar* src, guint len);
 
 /** alloc the data with the specified len for the stringInfo buffer.
- @param src the data source
+ @param str the data source
  @param len the source data len */
 extern gint
 ssl_data_alloc(StringInfo* str, size_t len);
