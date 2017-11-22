@@ -136,6 +136,8 @@ int main(int argc, char **argv)
     printf("    { NULL, NULL }\n"
            "};\n");
 
+    fprintf(stderr, "Found %u registrations and %u handoffs.\n", protos->len, handoffs->len);
+
     g_regex_unref(protos_regex);
     g_regex_unref(handoffs_regex);
 
