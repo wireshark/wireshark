@@ -1939,9 +1939,9 @@ x11-dissector: $(top_srcdir)/tools/process-x11-fields.pl $(srcdir)/x11-fields $(
 #
 dissectors.c: make-dissectors $(ALL_DISSECTORS_SRC)
 	@echo Making dissectors.c
-	$(file >$@.in,$(filter %.c,$^))
-	$(builddir)/make-dissectors @$@.in > $@
-	@rm $@.in
+	@echo $(filter %.c,$^) > $@.in ; \
+		$(builddir)/make-dissectors @$@.in > $@ ; \
+		rm $@.in
 
 DISTCLEANFILES = \
 	$(NODIST_GENERATED_FILES)
