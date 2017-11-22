@@ -37,6 +37,9 @@
 
 #include "packet-ieee802154.h"
 
+void proto_register_wisun(void);
+void proto_reg_handoff_wisun(void);
+
 /* Wi-SUN Header IE Sub-ID Values. */
 #define WISUN_SUBID_UTT     1
 #define WISUN_SUBID_BT      2
