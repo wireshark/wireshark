@@ -332,7 +332,6 @@ extern gint ett_zbee_zdp_table_entry;
  */
 extern const gchar  *zdp_status_name       (guint8 status);
 extern void     zdp_dump_excess            (tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree);
-extern guint    zbee_parse_uint            (proto_tree *tree, int hfindex, tvbuff_t *tvb, guint *offset, guint length, proto_item **ti);
 extern guint64  zbee_parse_eui64           (proto_tree *tree, int hfindex, tvbuff_t *tvb, guint *offset, guint length, proto_item **ti);
 extern void     zbee_append_info           (proto_item *item, packet_info *pinfo, const gchar *format, ...) G_GNUC_PRINTF(3, 4);
 
