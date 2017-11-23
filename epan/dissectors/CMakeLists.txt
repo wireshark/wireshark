@@ -1863,6 +1863,10 @@ set(ALL_DISSECTOR_SRC
 add_executable(make-dissectors make-dissectors.c)
 target_link_libraries(make-dissectors ${GLIB2_LIBRARIES})
 
+#
+# We pass the arguments to make-dissectors in a file to avoid limitations
+# with the number of arguments handled by main().
+#
 file(GENERATE
 	OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/dissectors.c.in"
 	CONTENT "$<JOIN:${ALL_DISSECTOR_SRC}, >"

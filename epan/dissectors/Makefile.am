@@ -1937,6 +1937,9 @@ x11-dissector: $(top_srcdir)/tools/process-x11-fields.pl $(srcdir)/x11-fields $(
 #
 # ALL_DISSECTORS_SRC is assumed to have all the files that need to be scanned.
 #
+# We pass the arguments to make-dissectors in a file to avoid limitations
+# with the number of arguments handled by main().
+#
 dissectors.c: make-dissectors $(ALL_DISSECTORS_SRC)
 	@echo Making dissectors.c
 	@echo $(filter %.c,$^) > $@.in ; \
