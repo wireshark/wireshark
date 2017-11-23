@@ -2133,8 +2133,14 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
         /*
          * Add handshake message (including type, length, etc.) to hash (for
          * Extended Master Secret).
+         * Hash ClientHello up to and including ClientKeyExchange. As the
+         * premaster secret is looked up during ChangeCipherSpec processing (an
+         * implementation detail), we must skip the CertificateVerify message
+         * which can appear between CKE and CCS when mutual auth is enabled.
          */
-        ssl_calculate_handshake_hash(ssl, tvb, hs_offset, 4 + length);
+        if (msg_type != SSL_HND_CERT_VERIFY) {
+            ssl_calculate_handshake_hash(ssl, tvb, hs_offset, 4 + length);
+        }
 
         /* now dissect the handshake message, if necessary */
         switch ((HandshakeType) msg_type) {
