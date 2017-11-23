@@ -1141,6 +1141,25 @@ QString PacketList::allPacketComments()
     return buf_str;
 }
 
+void PacketList::deleteAllPacketComments()
+{
+    guint32 framenum;
+    frame_data *fdata;
+    QString buf_str;
+
+    if (!cap_file_)
+        return;
+
+    for (framenum = 1; framenum <= cap_file_->count ; framenum++) {
+        fdata = frame_data_sequence_find(cap_file_->frames, framenum);
+
+        cf_set_user_packet_comment(cap_file_, fdata, NULL);
+    }
+
+    redrawVisiblePackets();
+}
+
+
 // Slots
 
 void PacketList::setCaptureFile(capture_file *cf)

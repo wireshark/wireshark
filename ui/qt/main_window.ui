@@ -656,6 +656,7 @@
     <addaction name="actionEditTimeShift"/>
     <addaction name="separator"/>
     <addaction name="actionEditPacketComment"/>
+    <addaction name="actionDeleteAllPacketComments"/>
     <addaction name="separator"/>
     <addaction name="actionEditConfigurationProfiles"/>
     <addaction name="actionEditPreferences"/>
@@ -1633,6 +1634,14 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+C</string>
+   </property>
+  </action>
+  <action name="actionDeleteAllPacketComments">
+   <property name="text">
+    <string>Delete All Packet Comments</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove all packet comments in the capture file</string>
    </property>
   </action>
   <action name="actionEditConfigurationProfiles">

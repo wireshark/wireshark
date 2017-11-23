@@ -1322,6 +1322,7 @@ void MainWindow::setMenusForSelectedPacket()
 //                         frame_selected);
 #endif // WANT_PACKET_EDITOR
     main_ui_->actionEditPacketComment->setEnabled(frame_selected && wtap_dump_can_write(capture_file_.capFile()->linktypes, WTAP_COMMENT_PER_PACKET));
+    main_ui_->actionDeleteAllPacketComments->setEnabled((capture_file_.capFile() != NULL) && wtap_dump_can_write(capture_file_.capFile()->linktypes, WTAP_COMMENT_PER_PACKET));
 
     main_ui_->actionEditIgnorePacket->setEnabled(frame_selected);
     main_ui_->actionEditIgnoreAllDisplayed->setEnabled(have_filtered);
@@ -2244,6 +2245,24 @@ void MainWindow::on_actionEditPacketComment_triggered()
     PacketCommentDialog pc_dialog(capture_file_.capFile()->current_frame->num, this, packet_list_->packetComment());
     if (pc_dialog.exec() == QDialog::Accepted) {
         packet_list_->setPacketComment(pc_dialog.text());
+        updateForUnsavedChanges();
+    }
+}
+
+void MainWindow::on_actionDeleteAllPacketComments_triggered()
+{
+    QMessageBox msg_dialog;
+
+    msg_dialog.setIcon(QMessageBox::Question);
+    msg_dialog.setText(tr("Are you sure you want to remove all packet comments?"));
+
+    msg_dialog.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+    msg_dialog.setDefaultButton(QMessageBox::Ok);
+
+    if (msg_dialog.exec() == QMessageBox::Ok)
+    {
+        /* XXX Do we need a wait/hourglass for large files? */
+        packet_list_->deleteAllPacketComments();
         updateForUnsavedChanges();
     }
 }

@@ -471,6 +471,7 @@ private slots:
     void on_actionEditPreviousTimeReference_triggered();
     void on_actionEditTimeShift_triggered();
     void on_actionEditPacketComment_triggered();
+    void on_actionDeleteAllPacketComments_triggered();
     void on_actionEditConfigurationProfiles_triggered();
     void showPreferencesDialog(PreferencesDialog::PreferencesPane start_pane = PreferencesDialog::ppAppearance);
     void showPreferencesDialog(QString module_name);
