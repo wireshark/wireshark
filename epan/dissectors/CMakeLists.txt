@@ -1873,8 +1873,7 @@ file(GENERATE
 )
 add_custom_command(
 	OUTPUT dissectors.c
-	COMMAND make-dissectors @dissectors.c.in
-		> dissectors.c
+	COMMAND make-dissectors dissectors.c @dissectors.c.in
 	DEPENDS make-dissectors ${ALL_DISSECTOR_SRC}
 	COMMENT "Making dissectors.c"
 )

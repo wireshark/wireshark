@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 #include <glib.h>
 
 #define ARRAY_RESERVED_SIZE     2048
@@ -68,6 +69,12 @@ int main(int argc, char **argv)
     GPtrArray *protos = NULL, *handoffs = NULL;
     GError *err = NULL;
     guint i;
+    FILE *out;
+
+    if (argc < 3) {
+        fprintf(stderr, "Usage: %s <outfile> <infiles...>\n", argv[0]);
+        exit(1);
+    }
 
 #if GLIB_CHECK_VERSION(2, 30, 0)
     protos = g_ptr_array_new_full(ARRAY_RESERVED_SIZE, g_free);
@@ -92,7 +99,7 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    for (int arg = 1; arg < argc; arg++) {
+    for (int arg = 2; arg < argc; arg++) {
         if (argv[arg][0] == '@') {
             scan_list(&argv[arg][1], protos, handoffs);
         }
@@ -101,10 +108,22 @@ int main(int argc, char **argv)
         }
     }
 
+    if (protos->len == 0) {
+        fprintf(stderr, "No protocol registrations found.\n");
+        exit(1);
+    }
+
+    out = fopen(argv[1], "w");
+    if (out == NULL) {
+        fprintf(stderr, "Error opening file: %s: %s\n", argv[1], strerror(errno));
+        exit(1);
+    }
+
     g_ptr_array_sort(protos, compare_symbols);
     g_ptr_array_sort(handoffs, compare_symbols);
 
-    printf("/*\n"
+    fprintf(out,
+           "/*\n"
            " * Do not modify this file. Changes will be overwritten.\n"
            " *\n"
            " * Generated automatically by the \"dissectors.c\" target using\n"
@@ -115,35 +134,42 @@ int main(int argc, char **argv)
            "#include <dissectors.h>\n"
            "\n");
 
-    printf("const gulong dissector_reg_proto_count = %d;\n"
+    fprintf(out,
+           "const gulong dissector_reg_proto_count = %d;\n"
            "const gulong dissector_reg_handoff_count = %d;\n"
            "\n",
             protos->len, handoffs->len);
 
     for (i = 0; i < protos->len; i++) {
-        printf("void %s(void);\n", (char *)protos->pdata[i]);
+        fprintf(out, "void %s(void);\n", (char *)protos->pdata[i]);
     }
-    printf("\n"
+    fprintf(out,
+           "\n"
            "dissector_reg_t dissector_reg_proto[] = {\n");
     for (i = 0; i < protos->len; i++) {
-        printf("    { \"%s\", %s },\n", (char *)protos->pdata[i], (char *)protos->pdata[i]);
+        fprintf(out, "    { \"%s\", %s },\n", (char *)protos->pdata[i], (char *)protos->pdata[i]);
     }
-    printf("    { NULL, NULL }\n"
+    fprintf(out,
+           "    { NULL, NULL }\n"
            "};\n"
            "\n");
 
     for (i = 0; i < handoffs->len; i++) {
-        printf("void %s(void);\n", (char *)handoffs->pdata[i]);
+        fprintf(out, "void %s(void);\n", (char *)handoffs->pdata[i]);
     }
-    printf("\n"
+    fprintf(out,
+           "\n"
            "dissector_reg_t dissector_reg_handoff[] = {\n");
     for (i = 0; i < handoffs->len; i++) {
-        printf("    { \"%s\", %s },\n", (char *)handoffs->pdata[i], (char *)handoffs->pdata[i]);
+        fprintf(out, "    { \"%s\", %s },\n", (char *)handoffs->pdata[i], (char *)handoffs->pdata[i]);
     }
-    printf("    { NULL, NULL }\n"
+    fprintf(out,
+           "    { NULL, NULL }\n"
            "};\n");
 
-    fprintf(stderr, "Found %u registrations and %u handoffs.\n", protos->len, handoffs->len);
+    fclose(out);
+
+    printf("Found %u registrations and %u handoffs.\n", protos->len, handoffs->len);
 
     g_regex_unref(protos_regex);
     g_regex_unref(handoffs_regex);
