@@ -2322,33 +2322,38 @@ decode_prefix4(proto_tree *tree, packet_info *pinfo, proto_item *parent_item, in
  * Decode an IPv6 prefix.
  */
 static int
-decode_prefix6(proto_tree *tree, packet_info *pinfo, int hf_addr, tvbuff_t *tvb, gint offset,
-               guint16 tlen, const char *tag)
+decode_path_prefix6(proto_tree *tree, packet_info *pinfo, int hf_path_id, int hf_addr, tvbuff_t *tvb, gint offset,
+               const char *tag)
 {
     proto_tree          *prefix_tree;
+    guint32 path_identifier;
     ws_in6_addr   addr;     /* IPv6 address                       */
     address             addr_str;
     int                 plen;     /* prefix length                      */
     int                 length;   /* number of octets needed for prefix */
 
     /* snarf length and prefix */
-    plen = tvb_get_guint8(tvb, offset);
-    length = tvb_get_ipv6_addr_with_prefix_len(tvb, offset + 1, &addr, plen);
+    path_identifier = tvb_get_ntohl(tvb, offset);
+    plen = tvb_get_guint8(tvb, offset + 4);
+    length = tvb_get_ipv6_addr_with_prefix_len(tvb, offset + 4 + 1, &addr, plen);
     if (length < 0) {
-        proto_tree_add_expert_format(tree, pinfo, &ei_bgp_length_invalid, tvb, offset, 1, "%s length %u invalid",
+        proto_tree_add_expert_format(tree, pinfo, &ei_bgp_length_invalid, tvb, offset + 4, 1, "%s length %u invalid",
             tag, plen);
         return -1;
     }
 
     /* put prefix into protocol tree */
     set_address(&addr_str, AT_IPv6, 16, addr.bytes);
-    prefix_tree = proto_tree_add_subtree_format(tree, tvb, offset,
-            tlen != 0 ? tlen : 1 + length, ett_bgp_prefix, NULL, "%s/%u",
-            address_to_str(wmem_packet_scope(), &addr_str), plen);
-    proto_tree_add_uint_format(prefix_tree, hf_bgp_prefix_length, tvb, offset, 1, plen, "%s prefix length: %u",
+    prefix_tree = proto_tree_add_subtree_format(tree, tvb, offset,  4 + 1 + length,
+                            ett_bgp_prefix, NULL, "%s/%u PathId %u ",
+                            address_to_str(wmem_packet_scope(), &addr_str), plen, path_identifier);
+
+    proto_tree_add_item(prefix_tree, hf_path_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_uint_format(prefix_tree, hf_bgp_prefix_length, tvb, offset + 4, 1, plen, "%s prefix length: %u",
         tag, plen);
-    proto_tree_add_ipv6(prefix_tree, hf_addr, tvb, offset + 1, length, &addr);
-    return(1 + length);
+    proto_tree_add_ipv6(prefix_tree, hf_addr, tvb, offset + 4 + 1, length, &addr);
+
+    return(4 + 1 + length);
 }
 
 static int
@@ -4887,7 +4892,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
  * Decode a multiprotocol prefix
  */
 static int
-decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
+decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                  guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset,
                  const char *tag, packet_info *pinfo)
 {
@@ -5139,7 +5144,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             case SAFNUM_UNICAST:
             case SAFNUM_MULCAST:
             case SAFNUM_UNIMULC:
-                total_length = decode_prefix6(tree, pinfo, hf_addr6, tvb, offset, 0, tag);
+                total_length = decode_path_prefix6(tree, pinfo, hf_path_id, hf_addr6, tvb, offset, tag);
                 if (total_length < 0)
                     return -1;
                 break;
@@ -7214,6 +7219,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                     } else {
                         while (tlen > 0) {
                             advance = decode_prefix_MP(subtree3,
+                                                       hf_bgp_nlri_path_id,
                                                        hf_bgp_mp_reach_nlri_ipv4_prefix,
                                                        hf_bgp_mp_reach_nlri_ipv6_prefix,
                                                        af, saf,
@@ -7246,6 +7252,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
 
                     while (tlen > 0) {
                         advance = decode_prefix_MP(subtree3,
+                                                   hf_bgp_nlri_path_id,
                                                    hf_bgp_mp_unreach_nlri_ipv4_prefix,
                                                    hf_bgp_mp_unreach_nlri_ipv6_prefix,
                                                    af, saf,
