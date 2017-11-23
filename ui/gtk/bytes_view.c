@@ -98,9 +98,6 @@ static void bytes_view_adjustment_set(BytesView *);
 static void
 bytes_view_init(BytesView *bv)
 {
-#ifdef WANT_PACKET_EDITOR
-	gtk_widget_set_can_focus(GTK_WIDGET(bv), TRUE);
-#endif
 	bv->context = NULL;
 
 	bv->encoding = PACKET_CHAR_ENC_CHAR_ASCII;

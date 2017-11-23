@@ -718,18 +718,6 @@ guint32 cf_comment_types(capture_file *cf);
  */
 gboolean cf_add_ip_name_from_string(capture_file *cf, const char *addr, const char *name);
 
-#ifdef WANT_PACKET_EDITOR
-/**
- * Give a frame new, edited data.
- *
- * @param cf the capture file
- * @param fd frame_data structure for the frame
- * @param phdr the struct wtap_pkthdr for the frame
- * @param pd the raw packet data for the frame
- */
-void cf_set_frame_edited(capture_file *cf, frame_data *fd, struct wtap_pkthdr *phdr, guint8 *pd);
-#endif
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

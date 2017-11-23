@@ -1098,14 +1098,6 @@ AC_ARG_ENABLE(wireshark,
     enable_wireshark=$enableval,enable_wireshark=yes)
 AM_CONDITIONAL(BUILDING_WIRESHARK, test x$enable_wireshark = xyes)
 
-AC_ARG_ENABLE(packet-editor,
-  AC_HELP_STRING( [--enable-packet-editor],
-		  [add support for packet editor in Wireshark @<:@default=yes@:>@]),
-    enable_packet_editor=$enableval,enable_packet_editor=yes)
-if test x$enable_packet_editor = xyes; then
-	AC_DEFINE(WANT_PACKET_EDITOR, 1, [Support for packet editor])
-fi
-
 GLIB_MIN_VERSION=2.22.0
 AC_SUBST(GLIB_MIN_VERSION)
 # GLib checks; we require GLib $GLIB_MIN_VERSION or later, and require gmodule

@@ -59,6 +59,7 @@ since version 2.4.0:
 * Add Flow Graph functionality to TShark using -z
 * Capinfos now prints SHA256 hashes in addition to RIPEMD160 and SHA1. MD5 output
   has been removed.
+* Packet editor has been removed (GTK only experimental feature).
 
 //=== Removed Dissectors
 

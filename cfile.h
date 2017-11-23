@@ -43,14 +43,6 @@ typedef enum {
   SD_BACKWARD
 } search_direction;
 
-#ifdef WANT_PACKET_EDITOR
-/* XXX, where this struct should go? */
-typedef struct {
-  struct wtap_pkthdr phdr; /**< Modified packet header */
-  char *pd;                /**< Modified packet data */
-} modified_frame_data;
-#endif
-
 typedef struct _capture_file {
   epan_t      *epan;
   file_state   state;                /* Current state of capture file */
@@ -108,9 +100,6 @@ typedef struct _capture_file {
   gint         current_row;          /* Row number for current frame */
   epan_dissect_t *edt;               /* Protocol dissection for currently selected packet */
   field_info  *finfo_selected;       /* Field info for currently selected field */
-#ifdef WANT_PACKET_EDITOR
-  GTree       *edited_frames;        /* BST with modified frames */
-#endif
   gpointer     window;               /* Top-level window associated with file */
   GTree       *frames_user_comments; /* BST with user comments for frames (key = frame_data) */
   gulong       computed_elapsed;     /* Elapsed time to load the file (in msec). */

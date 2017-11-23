@@ -413,12 +413,6 @@ cf_close(capture_file *cf)
     free_frame_data_sequence(cf->frames);
     cf->frames = NULL;
   }
-#ifdef WANT_PACKET_EDITOR
-  if (cf->edited_frames) {
-    g_tree_destroy(cf->edited_frames);
-    cf->edited_frames = NULL;
-  }
-#endif
   if (cf->frames_user_comments) {
     g_tree_destroy(cf->frames_user_comments);
     cf->frames_user_comments = NULL;
@@ -1496,23 +1490,6 @@ cf_read_record_r(capture_file *cf, const frame_data *fdata,
 {
   int    err;
   gchar *err_info;
-
-#ifdef WANT_PACKET_EDITOR
-  /* if fdata->file_off == -1 it means packet was edited, and we must find data inside edited_frames tree */
-  if (G_UNLIKELY(fdata->file_off == -1)) {
-    const modified_frame_data *frame = (const modified_frame_data *) g_tree_lookup(cf->edited_frames, GINT_TO_POINTER(fdata->num));
-
-    if (!frame) {
-      simple_error_message_box("fdata->file_off == -1, but can't find modified frame.");
-      return FALSE;
-    }
-
-    *phdr = frame->phdr;
-    ws_buffer_assure_space(buf, frame->phdr.caplen);
-    memcpy(ws_buffer_start_ptr(buf), frame->pd, frame->phdr.caplen);
-    return TRUE;
-  }
-#endif
 
   if (!wtap_seek_read(cf->wth, fdata->file_off, phdr, buf, &err, &err_info)) {
     cfile_read_failure_alert_box(cf->filename, err, err_info);
@@ -3952,50 +3929,6 @@ cf_add_ip_name_from_string(capture_file *cf, const char *addr, const char *name)
   cf->unsaved_changes = TRUE;
   return TRUE;
 }
-
-#ifdef WANT_PACKET_EDITOR
-static gint
-g_direct_compare_func(gconstpointer a, gconstpointer b, gpointer user_data _U_)
-{
-  if (a > b)
-    return 1;
-  else if (a < b)
-    return -1;
-  else
-    return 0;
-}
-
-static void
-modified_frame_data_free(gpointer data)
-{
-  modified_frame_data *mfd = (modified_frame_data *)data;
-
-  g_free(mfd->pd);
-  g_free(mfd);
-}
-
-/*
- * Give a frame new, edited data.
- */
-void
-cf_set_frame_edited(capture_file *cf, frame_data *fd,
-                    struct wtap_pkthdr *phdr, guint8 *pd)
-{
-  modified_frame_data *mfd = (modified_frame_data *)g_malloc(sizeof(modified_frame_data));
-
-  mfd->phdr = *phdr;
-  mfd->pd = (char *)pd;
-
-  if (cf->edited_frames == NULL)
-    cf->edited_frames = g_tree_new_full(g_direct_compare_func, NULL, NULL,
-                                        modified_frame_data_free);
-  g_tree_insert(cf->edited_frames, GINT_TO_POINTER(fd->num), mfd);
-  fd->file_off = -1;
-
-  /* Mark the file as having unsaved changes */
-  cf->unsaved_changes = TRUE;
-}
-#endif
 
 typedef struct {
   wtap_dumper *pdh;
