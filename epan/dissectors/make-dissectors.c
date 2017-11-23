@@ -13,6 +13,7 @@
 #include <string.h>
 #include <errno.h>
 #include <glib.h>
+#include <wsutil/glib-compat.h>
 
 #define ARRAY_RESERVED_SIZE     2048
 
@@ -76,15 +77,8 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-#if GLIB_CHECK_VERSION(2, 30, 0)
     protos = g_ptr_array_new_full(ARRAY_RESERVED_SIZE, g_free);
     handoffs = g_ptr_array_new_full(ARRAY_RESERVED_SIZE, g_free);
-#else
-    protos = g_ptr_array_sized_new(ARRAY_RESERVED_SIZE);
-    g_ptr_array_set_free_func(protos, g_free);
-    handoffs = g_ptr_array_sized_new(ARRAY_RESERVED_SIZE);
-    g_ptr_array_set_free_func(handoffs, g_free);
-#endif /* GLIB_CHECK_VERSION(2, 30, 0)*/
 
     protos_regex = g_regex_new("void\\s+(proto_register_[[:alnum:]_]+)\\s*\\(\\s*void\\s*\\)\\s*{",
                                     G_REGEX_OPTIMIZE, G_REGEX_MATCH_NOTEMPTY, &err);
