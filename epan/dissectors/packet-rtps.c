@@ -497,6 +497,7 @@ static gint ett_rtps_product_version                            = -1;
 static gint ett_rtps_property_list                              = -1;
 static gint ett_rtps_property                                   = -1;
 static gint ett_rtps_topic_info                                 = -1;
+static gint ett_rtps_topic_info_dw_qos                          = -1;
 static gint ett_rtps_type_object                                = -1;
 static gint ett_rtps_type_library                               = -1;
 static gint ett_rtps_type_element                               = -1;
@@ -1562,12 +1563,19 @@ typedef struct _endpoint_guid {
   guint32 entity_id;
 } endpoint_guid;
 
+typedef struct _datawriter_qos {
+  guint32 reliability_kind;
+  guint32 durability_kind;
+  guint32 ownership_kind;
+} datawriter_qos;
+
 #define MAX_TOPIC_AND_TYPE_LENGTH 256
 typedef struct _type_mapping {
   endpoint_guid guid;
   gchar type_name[MAX_TOPIC_AND_TYPE_LENGTH];
   gchar topic_name[MAX_TOPIC_AND_TYPE_LENGTH];
   gint fields_visited;
+  datawriter_qos dw_qos;
 } type_mapping;
 
 static wmem_map_t * registry = NULL;
@@ -3804,7 +3812,7 @@ static int rtps_util_add_fragment_number_set(proto_tree *tree, packet_info *pinf
 
 static void rtps_util_store_type_mapping(tvbuff_t *tvb, gint offset,
         type_mapping * type_mapping_object, const gchar * value,
-        gint topic_info_add_id) {
+        gint topic_info_add_id, const guint encoding) {
   if (enable_topic_info && type_mapping_object) {
     switch (topic_info_add_id) {
       case TOPIC_INFO_ADD_GUID: {
@@ -3827,6 +3835,27 @@ static void rtps_util_store_type_mapping(tvbuff_t *tvb, gint offset,
         type_mapping_object->fields_visited =
                 type_mapping_object->fields_visited | TOPIC_INFO_ADD_TYPE_NAME;
         break;
+      }
+      case TOPIC_INFO_ADD_RELIABILITY: {
+          type_mapping_object->dw_qos.reliability_kind =
+              tvb_get_guint32(tvb, offset, encoding);
+          type_mapping_object->fields_visited =
+              type_mapping_object->fields_visited | TOPIC_INFO_ADD_RELIABILITY;
+          break;
+      }
+      case TOPIC_INFO_ADD_DURABILITY: {
+          type_mapping_object->dw_qos.durability_kind =
+              tvb_get_guint32(tvb, offset, encoding);
+          type_mapping_object->fields_visited =
+              type_mapping_object->fields_visited | TOPIC_INFO_ADD_DURABILITY;
+          break;
+      }
+      case TOPIC_INFO_ADD_OWNERSHIP: {
+          type_mapping_object->dw_qos.ownership_kind =
+              tvb_get_guint32(tvb, offset, encoding);
+          type_mapping_object->fields_visited =
+              type_mapping_object->fields_visited | TOPIC_INFO_ADD_OWNERSHIP;
+          break;
       }
       default:
         break;
@@ -3875,7 +3904,7 @@ static void rtps_util_format_typename(gchar * type_name, gchar ** output) {
 static void rtps_util_topic_info_add_tree(proto_tree *tree, tvbuff_t *tvb,
   gint offset, endpoint_guid * guid) {
   if (enable_topic_info) {
-    proto_tree * topic_info_tree;
+    proto_tree * topic_info_tree, * dw_qos_tree;
     proto_item * ti;
     type_mapping * type_mapping_object = rtps_util_get_topic_info(guid);
     if (type_mapping_object != NULL) {
@@ -3887,6 +3916,12 @@ static void rtps_util_topic_info_add_tree(proto_tree *tree, tvbuff_t *tvb,
       ti = proto_tree_add_string(topic_info_tree, hf_rtps_param_type_name, tvb, offset, 0,
                 type_mapping_object->type_name);
       PROTO_ITEM_SET_GENERATED(ti);
+      dw_qos_tree = proto_tree_add_subtree_format(topic_info_tree, tvb, 0, 0,
+          ett_rtps_topic_info_dw_qos, NULL, "DataWriter QoS: %s, %s, %s",
+          val_to_str(type_mapping_object->dw_qos.reliability_kind, reliability_qos_vals, "%02x"),
+          val_to_str(type_mapping_object->dw_qos.durability_kind, durability_qos_vals, "%02x"),
+          val_to_str(type_mapping_object->dw_qos.ownership_kind, ownership_qos_vals, "%02x"));
+      PROTO_ITEM_SET_GENERATED(dw_qos_tree);
     }
   }
 }
@@ -4740,7 +4775,8 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
 
       retVal = (gchar*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, str_size, ENC_ASCII);
 
-      rtps_util_store_type_mapping(tvb, offset, type_mapping_object, retVal, TOPIC_INFO_ADD_TOPIC_NAME);
+      rtps_util_store_type_mapping(tvb, offset, type_mapping_object,
+          retVal, TOPIC_INFO_ADD_TOPIC_NAME, encoding);
 
       rtps_util_add_string(rtps_parameter_tree, tvb, offset, hf_rtps_param_topic_name, encoding);
       break;
@@ -4775,7 +4811,8 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
 
       retVal = (gchar*) tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, str_size, ENC_ASCII);
 
-      rtps_util_store_type_mapping(tvb, offset, type_mapping_object, retVal, TOPIC_INFO_ADD_TYPE_NAME);
+      rtps_util_store_type_mapping(tvb, offset, type_mapping_object,
+          retVal, TOPIC_INFO_ADD_TYPE_NAME, encoding);
 
       rtps_util_add_string(rtps_parameter_tree, tvb, offset, hf_rtps_param_type_name, encoding);
       break;
@@ -4857,7 +4894,8 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
     case PID_RELIABILITY:
       ENSURE_LENGTH(4);
       proto_tree_add_item(rtps_parameter_tree, hf_rtps_reliability_kind, tvb, offset, 4, encoding);
-
+      rtps_util_store_type_mapping(tvb, offset, type_mapping_object, NULL,
+          TOPIC_INFO_ADD_RELIABILITY, encoding);
       /* Older version of the protocol (and for PID_RELIABILITY_OFFERED)
        * this parameter was carrying also a NtpTime called
        * 'maxBlockingTime'.
@@ -4897,6 +4935,8 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
     case PID_DURABILITY:
       ENSURE_LENGTH(4);
       proto_tree_add_item(rtps_parameter_tree, hf_rtps_durability, tvb, offset, 4, encoding);
+      rtps_util_store_type_mapping(tvb, offset, type_mapping_object, NULL,
+          TOPIC_INFO_ADD_DURABILITY, encoding);
       break;
 
     /* 0...2...........7...............15.............23...............31
@@ -4934,6 +4974,8 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
     case PID_OWNERSHIP:
       ENSURE_LENGTH(4);
       proto_tree_add_item(rtps_parameter_tree, hf_rtps_ownership, tvb, offset, 4, encoding);
+      rtps_util_store_type_mapping(tvb, offset, type_mapping_object, NULL,
+          TOPIC_INFO_ADD_OWNERSHIP, encoding);
       break;
 
     /* 0...2...........7...............15.............23...............31
@@ -5862,7 +5904,8 @@ static gboolean dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, p
      */
     case PID_ENDPOINT_GUID:
       ENSURE_LENGTH(16);
-      rtps_util_store_type_mapping(tvb, offset, type_mapping_object, NULL, TOPIC_INFO_ADD_GUID);
+      rtps_util_store_type_mapping(tvb, offset, type_mapping_object,
+          NULL, TOPIC_INFO_ADD_GUID, encoding);
       rtps_util_add_generic_guid_v2(rtps_parameter_tree, tvb, offset,
                     hf_rtps_endpoint_guid, hf_rtps_param_host_id, hf_rtps_param_app_id,
                     hf_rtps_param_instance_id, hf_rtps_param_entity, hf_rtps_param_entity_key,
@@ -11832,6 +11875,7 @@ void proto_register_rtps(void) {
     &ett_rtps_property_list,
     &ett_rtps_property,
     &ett_rtps_topic_info,
+    &ett_rtps_topic_info_dw_qos,
     &ett_rtps_type_object,
     &ett_rtps_type_library,
     &ett_rtps_type_element,

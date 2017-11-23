@@ -558,12 +558,14 @@ typedef struct _rtps_dissector_data {
 #define NDDS_TRANSPORT_CLASSID_ITP                  (13)
 #define NDDS_TRANSPORT_CLASSID_SHMEM                (0x01000000)
 
-#define TOPIC_INFO_ADD_GUID                      (1)
-#define TOPIC_INFO_ADD_TYPE_NAME                 (2)
-#define TOPIC_INFO_ADD_TOPIC_NAME                (4)
-#define TOPIC_INFO_ALL_SET                       (TOPIC_INFO_ADD_GUID | \
-                                                  TOPIC_INFO_ADD_TYPE_NAME | \
-                                                  TOPIC_INFO_ADD_TOPIC_NAME)
+#define TOPIC_INFO_ADD_GUID                      (0x01)
+#define TOPIC_INFO_ADD_TYPE_NAME                 (0x02)
+#define TOPIC_INFO_ADD_TOPIC_NAME                (0x04)
+#define TOPIC_INFO_ADD_RELIABILITY               (0x08)
+#define TOPIC_INFO_ADD_DURABILITY                (0x10)
+#define TOPIC_INFO_ADD_OWNERSHIP                 (0x20)
+#define TOPIC_INFO_ALL_SET                       (0x3f)
+
 /* Utilities to add elements to the protocol tree for packet-rtps.h and packet-rtps2.h */
 extern guint16 rtps_util_add_protocol_version(proto_tree *tree, tvbuff_t* tvb, gint offset);
 extern guint16 rtps_util_add_vendor_id(proto_tree *tree, tvbuff_t * tvb, gint offset);
