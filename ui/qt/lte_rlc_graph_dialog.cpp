@@ -325,7 +325,6 @@ void LteRlcGraphDialog::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Minus:
     case Qt::Key_Underscore:    // Shifted minus on U.S. keyboards
     case Qt::Key_O:             // GTK+
-    case Qt::Key_R:
         zoomAxes(false);
         break;
     case Qt::Key_Plus:
@@ -380,6 +379,7 @@ void LteRlcGraphDialog::keyPressEvent(QKeyEvent *event)
     case Qt::Key_0:
     case Qt::Key_ParenRight:    // Shifted 0 on U.S. keyboards
     case Qt::Key_Home:
+	case Qt::Key_R:
         resetAxes();
         break;
 
