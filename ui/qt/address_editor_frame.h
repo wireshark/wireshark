@@ -48,12 +48,15 @@ signals:
     void editAddressStatus(const QString &status);
     void redissectPackets();
 
+protected:
+    virtual void showEvent(QShowEvent *event);
+    virtual void keyPressEvent(QKeyEvent *event);
+
 private slots:
     void updateWidgets();
     void on_nameResolutionPreferencesToolButton_clicked();
     void on_addressComboBox_currentIndexChanged(const QString &);
     void on_nameLineEdit_textEdited(const QString &);
-    void on_nameLineEdit_returnPressed();
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
 
