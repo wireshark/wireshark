@@ -135,14 +135,6 @@ AC_PROG_SED
 AC_PROG_LN_S
 AC_PROG_MKDIR_P
 
-#
-# Check for GNU Make
-#
-AX_CHECK_GNU_MAKE([have_gnu_make=yes])
-if test "x$have_gnu_make" != xyes; then
-	AC_MSG_WARN([GNU Make not found; building Wireshark without it will probably fail])
-fi
-
 AC_PATH_PROG(PERL, perl)
 
 # Check for Python.
