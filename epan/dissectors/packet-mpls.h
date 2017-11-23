@@ -62,6 +62,8 @@ enum {
 #define PW_ACH_TYPE_ONDEMAND_CV       0x0025
 /* As per RFC 6478 */
 #define PW_ACH_TYPE_PW_OAM            0x0027
+/* As per RFC 7769 */
+#define PW_ACH_TYPE_MAC               0x0028
 /* As per RFC 4385 clause 6 */
 #define PW_ACH_TYPE_IPV6              0x0057
 /* As per RFC 6427 */

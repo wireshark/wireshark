@@ -189,6 +189,7 @@ static const value_string mpls_pwac_types[] = {
     { 0x0025, "On-Demand CV"},
     { 0x0026, "LI"},
     { 0x0027, "Pseudo-Wire OAM"},
+    { 0x0028, "MAC Withdraw OAM Msg"},
     { 0x0057, "IPv6 packet" },
     { 0x0058, "Fault OAM"},
     { 0x7FF8, "Reserved for Experimental Use"},

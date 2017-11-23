@@ -1318,6 +1318,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mpeg-sect.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mpeg1.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mpls-echo.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-mpls-mac.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mpls-pm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mpls-psc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mplstp-oam.c
