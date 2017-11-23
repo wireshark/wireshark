@@ -47,7 +47,7 @@ const int stat_update_interval_ = 1000; // ms
 #endif
 
 InterfaceFrame::InterfaceFrame(QWidget * parent)
-: AccordionFrame(parent),
+: QFrame(parent),
   ui(new Ui::InterfaceFrame)
 #ifdef HAVE_LIBPCAP
   ,stat_timer_(NULL)

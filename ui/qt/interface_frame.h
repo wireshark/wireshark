@@ -28,8 +28,6 @@
 
 #include <glib.h>
 
-#include "ui/qt/accordion_frame.h"
-
 #include <ui/qt/models/interface_tree_model.h>
 #include <ui/qt/models/interface_sort_filter_model.h>
 
@@ -44,7 +42,7 @@ namespace Ui {
 class InterfaceFrame;
 }
 
-class InterfaceFrame : public AccordionFrame
+class InterfaceFrame : public QFrame
 {
     Q_OBJECT
 public:
