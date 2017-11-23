@@ -34,4 +34,8 @@ WS_DLL_PUBLIC gint64 g_get_monotonic_time (void);
 WS_DLL_PUBLIC GPtrArray* g_ptr_array_new_full(guint reserved_size, GDestroyNotify element_free_func);
 #endif /* !GLIB_CHECK_VERSION(2, 30, 0) */
 
+#if !GLIB_CHECK_VERSION(2,31,18)
+WS_DLL_PUBLIC gpointer g_async_queue_timeout_pop(GAsyncQueue *queue, guint64 timeout);
+#endif /* !GLIB_CHECK_VERSION(2,31,18) */
+
 #endif /* GLIB_COMPAT_H */

@@ -110,6 +110,25 @@ g_ptr_array_new_full(guint          reserved_size,
 }
 #endif /* GLIB_CHECK_VERSION(2, 30, 0)*/
 
+#if !GLIB_CHECK_VERSION(2,31,18)
+/**
+Code copied from dumpcap.c
+*/
+gpointer
+g_async_queue_timeout_pop(GAsyncQueue *queue,
+    guint64      timeout)
+{
+    GTimeVal  wait_time;
+    gpointer  q_status;
+
+    g_get_current_time(&wait_time);
+    g_time_val_add(&wait_time, timeout);
+    q_status = g_async_queue_timed_pop(queue, &wait_time);
+
+    return q_status;
+}
+
+#endif /* GLIB_CHECK_VERSION(2,31,18)*/
 /*
 * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
 *
