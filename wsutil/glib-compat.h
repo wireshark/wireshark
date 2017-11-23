@@ -28,6 +28,10 @@
 WS_DLL_PUBLIC void g_slist_free_full(GSList *list, GDestroyNotify  free_func);
 WS_DLL_PUBLIC void g_list_free_full(GList *list, GDestroyNotify free_func);
 WS_DLL_PUBLIC gint64 g_get_monotonic_time (void);
-#endif
+#endif /* !GLIB_CHECK_VERSION(2, 28, 0) */
+
+#if !GLIB_CHECK_VERSION(2, 30, 0)
+WS_DLL_PUBLIC GPtrArray* g_ptr_array_new_full(guint reserved_size, GDestroyNotify element_free_func);
+#endif /* !GLIB_CHECK_VERSION(2, 30, 0) */
 
 #endif /* GLIB_COMPAT_H */

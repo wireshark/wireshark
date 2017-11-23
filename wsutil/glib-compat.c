@@ -76,7 +76,40 @@ gint64 g_get_monotonic_time (void)
     return result.tv_sec*1000000 + result.tv_usec;
 }
 
-#endif
+#endif /* GLIB_CHECK_VERSION(2, 28, 0)*/
+
+#if !GLIB_CHECK_VERSION(2, 30, 0)
+/**
+* g_ptr_array_new_full:
+* @reserved_size: number of pointers preallocated
+* @element_free_func: (allow-none): A function to free elements with
+*     destroy @array or %NULL
+*
+* Creates a new #GPtrArray with @reserved_size pointers preallocated
+* and a reference count of 1. This avoids frequent reallocation, if
+* you are going to add many pointers to the array. Note however that
+* the size of the array is still 0. It also set @element_free_func
+* for freeing each element when the array is destroyed either via
+* g_ptr_array_unref(), when g_ptr_array_free() is called with
+* @free_segment set to %TRUE or when removing elements.
+*
+* Returns: A new #GPtrArray
+*
+* Since: 2.30
+*/
+GPtrArray*
+g_ptr_array_new_full(guint          reserved_size,
+    GDestroyNotify element_free_func)
+{
+    GPtrArray *array;
+
+    array = g_ptr_array_sized_new(reserved_size);
+    g_ptr_array_set_free_func(array, element_free_func);
+
+    return array;
+}
+#endif /* GLIB_CHECK_VERSION(2, 30, 0)*/
+
 /*
 * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
 *
