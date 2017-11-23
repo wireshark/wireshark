@@ -34,6 +34,7 @@
 #include <ui_address_editor_frame.h>
 
 #include <QPushButton>
+#include <QKeyEvent>
 
 #include "qt_ui_utils.h"
 
@@ -104,6 +105,29 @@ void AddressEditorFrame::editAddresses(CaptureFile &cf, int column)
     updateWidgets();
 }
 
+void AddressEditorFrame::showEvent(QShowEvent *event)
+{
+    ui->nameLineEdit->setFocus();
+    ui->nameLineEdit->selectAll();
+
+    AccordionFrame::showEvent(event);
+}
+
+void AddressEditorFrame::keyPressEvent(QKeyEvent *event)
+{
+    if (event->modifiers() == Qt::NoModifier) {
+        if (event->key() == Qt::Key_Escape) {
+            on_buttonBox_rejected();
+        } else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
+            if (ui->buttonBox->button(QDialogButtonBox::Ok)->isEnabled()) {
+                on_buttonBox_accepted();
+            }
+        }
+    }
+
+    AccordionFrame::keyPressEvent(event);
+}
+
 void AddressEditorFrame::updateWidgets()
 {
     bool ok_enable = false;
@@ -129,13 +153,6 @@ void AddressEditorFrame::on_addressComboBox_currentIndexChanged(const QString &)
 void AddressEditorFrame::on_nameLineEdit_textEdited(const QString &)
 {
     updateWidgets();
-}
-
-void AddressEditorFrame::on_nameLineEdit_returnPressed()
-{
-    if (ui->buttonBox->button(QDialogButtonBox::Ok)->isEnabled()) {
-        on_buttonBox_accepted();
-    }
 }
 
 void AddressEditorFrame::on_buttonBox_accepted()
