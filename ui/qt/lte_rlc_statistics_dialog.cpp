@@ -82,8 +82,7 @@ static float calculate_bw(nstime_t *start_time, nstime_t *stop_time, guint32 byt
             // Very small values aren't interesting/useful, and would rather see 0 than scientific notation.
             return 0.0f;
         }
-        else
-        {
+        else {
             return bw;
         }
     }
@@ -239,6 +238,7 @@ public:
         }
     }
 
+    // Draw channel entry.
     void draw() {
         // Calculate bandwidth.
         float UL_bw = calculate_bw(&stats_.UL_time_start,
@@ -254,7 +254,7 @@ public:
         // Uplink.
         setText(col_ul_frames_,  QString::number(stats_.UL_frames));
         setText(col_ul_bytes_,   QString::number(stats_.UL_bytes));
-        setText(col_ul_mb_s_,    bits_s_to_qstring(UL_bw));
+        setText(col_ul_mb_s_,    QString::number(UL_bw));
         setText(col_ul_acks_,    QString::number(stats_.UL_acks));
         setText(col_ul_nacks_,   QString::number(stats_.UL_nacks));
         setText(col_ul_missing_, QString::number(stats_.UL_missing));
@@ -262,7 +262,7 @@ public:
         // Downlink.
         setText(col_dl_frames_,  QString::number(stats_.DL_frames));
         setText(col_dl_bytes_,   QString::number(stats_.DL_bytes));
-        setText(col_ul_mb_s_,    bits_s_to_qstring(DL_bw));
+        setText(col_dl_mb_s_,    QString::number(DL_bw));
         setText(col_dl_acks_,    QString::number(stats_.DL_acks));
         setText(col_dl_nacks_,   QString::number(stats_.DL_nacks));
         setText(col_dl_missing_, QString::number(stats_.DL_missing));
@@ -289,6 +289,7 @@ public:
         return QTreeWidgetItem::operator< (other);
     }
 
+    // Filter expression for channel.
     const QString filterExpression(bool showSR, bool showRACH) {
         // Create an expression to match with all traffic for this UE.
         QString filter_expr;
@@ -410,6 +411,7 @@ public:
         }
     }
 
+    // Does UE match?
     bool isMatch(const rlc_lte_tap_info *rlt_info) {
         return ueid_ == rlt_info->ueid;
     }
@@ -518,7 +520,7 @@ public:
         }
     }
 
-
+    // Draw UE entry
     void draw() {
         // Fixed fields only drawn once from constructor so don't redraw here.
 
@@ -533,7 +535,7 @@ public:
         // Uplink.
         setText(col_ul_frames_,  QString::number(stats_.UL_frames));
         setText(col_ul_bytes_,   QString::number(stats_.UL_total_bytes));
-        setText(col_ul_mb_s_,    bits_s_to_qstring(UL_bw));
+        setText(col_ul_mb_s_,    QString::number(UL_bw));
         setText(col_ul_acks_,    QString::number(stats_.UL_total_acks));
         setText(col_ul_nacks_,   QString::number(stats_.UL_total_nacks));
         setText(col_ul_missing_, QString::number(stats_.UL_total_missing));
@@ -541,7 +543,7 @@ public:
         // Downlink.
         setText(col_dl_frames_,  QString::number(stats_.DL_frames));
         setText(col_dl_bytes_,   QString::number(stats_.DL_total_bytes));
-        setText(col_dl_mb_s_,    bits_s_to_qstring(DL_bw));
+        setText(col_dl_mb_s_,    QString::number(DL_bw));
         setText(col_dl_acks_,    QString::number(stats_.DL_total_acks));
         setText(col_dl_nacks_,   QString::number(stats_.DL_total_nacks));
         setText(col_dl_missing_, QString::number(stats_.DL_total_missing));
@@ -577,6 +579,7 @@ public:
         return QTreeWidgetItem::operator< (other);
     }
 
+    // Filter expression for UE.
     const QString filterExpression(bool showSR, bool showRACH) {
         // Create an expression to match with all traffic for this UE.
         QString filter_expr;
