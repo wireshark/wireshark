@@ -736,6 +736,10 @@ LteRlcStatisticsDialog::LteRlcStatisticsDialog(QWidget &parent, CaptureFile &cf,
     // Set handler for when the tree item changes to set the appropriate labels.
     connect(statsTreeWidget(), SIGNAL(itemSelectionChanged()),
             this, SLOT(updateItemSelectionChanged()));
+
+    // Set handler for when display filter string is changed.
+    connect(this, SIGNAL(updateFilter(QString)),
+            this, SLOT(filterUpdated(QString)));
 }
 
 // Destructor.
@@ -847,7 +851,7 @@ void LteRlcStatisticsDialog::fillTree()
 {
     if (!registerTapListener("rlc-lte",
                              this,
-                             NULL,
+                             displayFilter_.toLatin1().data(),
                              TL_REQUIRES_NOTHING,
                              tapReset,
                              tapPacket,
@@ -931,6 +935,14 @@ void LteRlcStatisticsDialog::launchDLGraphButtonClicked()
                             DIRECTION_DOWNLINK);
     }
 }
+
+// Store filter from signal.
+void LteRlcStatisticsDialog::filterUpdated(QString filter)
+{
+    displayFilter_ = filter;
+}
+
+
 
 // Stat command + args
 

@@ -52,6 +52,7 @@ private:
     QCheckBox *showRACHFilterCheckBox_;
     QPushButton *launchULGraph_;
     QPushButton *launchDLGraph_;
+    QString     displayFilter_;
 
     CaptureFile &cf_;
     int packet_count_;
@@ -74,6 +75,7 @@ private slots:
     void useRLCFramesFromMacCheckBoxToggled(bool state);
     void launchULGraphButtonClicked();
     void launchDLGraphButtonClicked();
+    void filterUpdated(QString filter);
 };
 
 #endif // __LTE_RLC_STATISTICS_DIALOG_H__
