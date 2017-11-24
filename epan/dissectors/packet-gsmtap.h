@@ -47,7 +47,11 @@
 #define GSMTAP_TYPE_UMTS_RLC_MAC	0x0b
 #define GSMTAP_TYPE_UMTS_RRC		0x0c
 #define GSMTAP_TYPE_LTE_RRC		0x0d	/* LTE interface */
+#define GSMTAP_TYPE_LTE_MAC		0x0e	/* LTE MAC interface */
+#define GSMTAP_TYPE_LTE_MAC_FRAMED	0x0f	/* LTE MAC with context hdr */
 #define GSMTAP_TYPE_OSMOCORE_LOG	0x10	/* libosmocore logging */
+#define GSMTAP_TYPE_QC_DIAG		0x11	/* Qualcomm DIAG frame */
+#define GSMTAP_TYPE_LTE_NAS		0x12	/* LTE Non-Access Stratum */
 
 /* ====== DO NOT MAKE UNAPPROVED MODIFICATIONS HERE ===== */
 #define GSMTAP_BURST_UNKNOWN		0x00
