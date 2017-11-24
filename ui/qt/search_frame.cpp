@@ -134,16 +134,15 @@ void SearchFrame::findFrameWithFilter(QString &filter)
 
 void SearchFrame::keyPressEvent(QKeyEvent *event)
 {
-    if (wsApp->focusWidget() == sf_ui_->searchLineEdit) {
-        if (event->modifiers() == Qt::NoModifier) {
-            if (event->key() == Qt::Key_Escape) {
-                on_cancelButton_clicked();
-            } else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
-                on_findButton_clicked();
-            }
+    if (event->modifiers() == Qt::NoModifier) {
+        if (event->key() == Qt::Key_Escape) {
+            on_cancelButton_clicked();
+        } else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
+            on_findButton_clicked();
         }
-        return; // searchLineEdit didn't want it and we don't either.
     }
+
+    AccordionFrame::keyPressEvent(event);
 }
 
 bool SearchFrame::regexCompile()

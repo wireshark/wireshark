@@ -130,7 +130,10 @@ void FilterExpressionFrame::keyPressEvent(QKeyEvent *event)
             }
         }
     }
+
+    AccordionFrame::keyPressEvent(event);
 }
+
 /*
  * Editor modelines
  *
