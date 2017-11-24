@@ -3102,6 +3102,7 @@ void call_heur_dissector_direct(heur_dtbl_entry_t *heur_dtbl_entry, tvbuff_t *tv
 	const char        *saved_curr_proto;
 	const char        *saved_heur_list_name;
 	guint16            saved_can_desegment;
+	guint              saved_layers_len = 0;
 
 	g_assert(heur_dtbl_entry);
 
@@ -3121,6 +3122,8 @@ void call_heur_dissector_direct(heur_dtbl_entry_t *heur_dtbl_entry, tvbuff_t *tv
 	saved_curr_proto = pinfo->current_proto;
 	saved_heur_list_name = pinfo->heur_list_name;
 
+	saved_layers_len = wmem_list_count(pinfo->layers);
+
 	if (!heur_dtbl_entry->enabled ||
 		(heur_dtbl_entry->protocol != NULL && !proto_is_protocol_enabled(heur_dtbl_entry->protocol))) {
 		g_assert(data_handle->protocol != NULL);
@@ -3132,14 +3135,26 @@ void call_heur_dissector_direct(heur_dtbl_entry_t *heur_dtbl_entry, tvbuff_t *tv
 		/* do NOT change this behavior - wslua uses the protocol short name set here in order
 			to determine which Lua-based heuristic dissector to call */
 		pinfo->current_proto = proto_get_protocol_short_name(heur_dtbl_entry->protocol);
+		pinfo->curr_layer_num++;
 		wmem_list_append(pinfo->layers, GINT_TO_POINTER(proto_get_id(heur_dtbl_entry->protocol)));
 	}
 
 	pinfo->heur_list_name = heur_dtbl_entry->list_name;
 
 	/* call the dissector, in case of failure call data handle (might happen with exported PDUs) */
-	if(!(*heur_dtbl_entry->dissector)(tvb, pinfo, tree, data))
+	if(!(*heur_dtbl_entry->dissector)(tvb, pinfo, tree, data)) {
 		call_dissector_work(data_handle, tvb, pinfo, tree, TRUE, NULL);
+
+		/*
+		 * We added a protocol layer above. The dissector
+		 * didn't accept the packet or it didn't add any
+		 * items to the tree so remove it from the list.
+		 */
+		while (wmem_list_count(pinfo->layers) > saved_layers_len) {
+			pinfo->curr_layer_num--;
+			wmem_list_remove_frame(pinfo->layers, wmem_list_tail(pinfo->layers));
+		}
+	}
 
 	/* Restore info from caller */
 	pinfo->can_desegment = saved_can_desegment;
