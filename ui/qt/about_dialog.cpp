@@ -61,6 +61,7 @@
 #include <QDesktopServices>
 #include <QClipboard>
 #include <QMenu>
+#include <QFileInfo>
 
 AuthorListModel::AuthorListModel(QObject * parent) :
 AStringListListModel(parent)
@@ -78,16 +79,16 @@ AStringListListModel(parent)
     while (!ReadFile_authors.atEnd()) {
         QString line = ReadFile_authors.readLine();
 
-        if ( ! readAck )
-        {
-            if ( line.trimmed().length() == 0 )
+        if ( ! readAck && line.trimmed().length() == 0 )
                 continue;
-            if ( line.startsWith("------") )
-                continue;
-        }
+        if ( line.startsWith("------") )
+            continue;
 
         if ( line.compare(QStringLiteral("Acknowledgements") ) == 0 )
+        {
             readAck = true;
+            continue;
+        }
         else if ( rx.indexIn(line) != -1 )
             appendRow( QStringList() << rx.cap(1).trimmed() << rx.cap(2).trimmed());
 
@@ -289,16 +290,17 @@ AboutDialog::AboutDialog(QWidget *parent) :
     AuthorListModel * authorModel = new AuthorListModel(this);
     AStringListListSortFilterProxyModel * proxyAuthorModel = new AStringListListSortFilterProxyModel(this);
     proxyAuthorModel->setSourceModel(authorModel);
+    proxyAuthorModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     proxyAuthorModel->setColumnToFilter(0);
     proxyAuthorModel->setColumnToFilter(1);
     ui->tblAuthors->setModel(proxyAuthorModel);
+    ui->tblAuthors->setRootIsDecorated(false);
     ui->pte_Authors->clear();
     ui->pte_Authors->appendPlainText(authorModel->acknowledgment());
     ui->pte_Authors->moveCursor(QTextCursor::Start);
 
-    ui->tblAuthors->horizontalHeader()->setStretchLastSection(true);
     ui->tblAuthors->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->tblAuthors, &QTableView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
+    connect(ui->tblAuthors, &QTreeView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
     connect(ui->searchAuthors, SIGNAL(textChanged(QString)), proxyAuthorModel, SLOT(setFilter(QString)));
 
     /* Wireshark tab */
@@ -332,13 +334,17 @@ AboutDialog::AboutDialog(QWidget *parent) :
     folderProxyModel->setSourceModel(folderModel);
     folderProxyModel->setColumnToFilter(1);
     folderProxyModel->setFilterType(AStringListListSortFilterProxyModel::FilterByStart);
-    ui->tblFolders->setModel(folderProxyModel);
+    AStringListListUrlProxyModel * folderDisplayModel = new AStringListListUrlProxyModel(this);
+    folderDisplayModel->setSourceModel(folderProxyModel);
+    folderDisplayModel->setUrlColumn(1);
+    ui->tblFolders->setModel(folderDisplayModel);
+    ui->tblFolders->setRootIsDecorated(false);
     ui->tblFolders->setItemDelegateForColumn(1, new UrlLinkDelegate(this));
     ui->tblFolders->setItemDelegateForColumn(2, new HTMLTextDelegate(this));
     ui->tblFolders->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->tblFolders, &QTableView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
+    connect(ui->tblFolders, &QTreeView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
     connect(ui->searchFolders, SIGNAL(textChanged(QString)), folderProxyModel, SLOT(setFilter(QString)));
-    connect(ui->tblFolders, &QTableView::clicked, this, &AboutDialog::urlClicked );
+    connect(ui->tblFolders, &QTreeView::clicked, this, &AboutDialog::urlClicked );
 
 
     /* Plugins */
@@ -352,13 +358,12 @@ AboutDialog::AboutDialog(QWidget *parent) :
     pluginTypeModel->setSourceModel(pluginFilterModel);
     pluginTypeModel->setColumnToFilter(2);
     ui->tblPlugins->setModel(pluginTypeModel);
-    ui->tblPlugins->setItemDelegateForColumn(3, new UrlLinkDelegate(this));
+    ui->tblPlugins->setRootIsDecorated(false);
     ui->cmbType->addItems(pluginModel->typeNames());
     ui->tblPlugins->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->tblPlugins, &QTableView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
+    connect(ui->tblPlugins, &QTreeView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
     connect(ui->searchPlugins, SIGNAL(textChanged(QString)), pluginFilterModel, SLOT(setFilter(QString)));
     connect(ui->cmbType, SIGNAL(currentIndexChanged(QString)), pluginTypeModel, SLOT(setFilter(QString)));
-    connect(ui->tblFolders, &QTableView::clicked, this, &AboutDialog::urlClicked );
 
 #else
     ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tab_plugins));
@@ -368,15 +373,16 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ShortcutListModel * shortcutModel = new ShortcutListModel(this);
     AStringListListSortFilterProxyModel * shortcutProxyModel = new AStringListListSortFilterProxyModel(this);
     shortcutProxyModel->setSourceModel(shortcutModel);
+    shortcutProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     shortcutProxyModel->setColumnToFilter(1);
     shortcutProxyModel->setColumnToFilter(2);
     ui->tblShortcuts->setModel(shortcutProxyModel);
+    ui->tblShortcuts->setRootIsDecorated(false);
     ui->tblShortcuts->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->tblShortcuts, &QTableView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
+    connect(ui->tblShortcuts, &QTreeView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
     connect(ui->searchShortcuts, SIGNAL(textChanged(QString)), shortcutProxyModel, SLOT(setFilter(QString)));
 
     /* License */
-
 #if defined(_WIN32)
     f_license.setFileName(get_datafile_path("COPYING.txt"));
 #else
@@ -405,16 +411,16 @@ void AboutDialog::resizeEvent(QResizeEvent * event)
 
     foreach ( QWidget * tabPage, pages )
     {
-        QList<QTableView *> childs = tabPage->findChildren<QTableView*>();
+        QList<QTreeView *> childs = tabPage->findChildren<QTreeView*>();
         if ( childs.count() == 0 )
             continue;
 
-        QTableView * table = childs.at(0);
+        QTreeView * tree = childs.at(0);
 
-        int columnCount = table->model()->columnCount();
+        int columnCount = tree->model()->columnCount();
         for ( int cnt = 0; cnt < columnCount; cnt++ )
-            table->setColumnWidth(cnt, tabPage->width() / columnCount);
-        table->horizontalHeader()->setStretchLastSection(true);
+            tree->setColumnWidth(cnt, tabPage->width() / columnCount);
+        tree->header()->setStretchLastSection(true);
     }
 
     QDialog::resizeEvent(event);
@@ -422,7 +428,7 @@ void AboutDialog::resizeEvent(QResizeEvent * event)
 
 void AboutDialog::urlClicked(const QModelIndex &idx)
 {
-    QTableView * table = qobject_cast<QTableView *>(sender());
+    QTreeView * table = qobject_cast<QTreeView *>(sender());
     if ( ! table )
         return;
 
@@ -430,44 +436,70 @@ void AboutDialog::urlClicked(const QModelIndex &idx)
     if ( urlText.isEmpty() )
         return;
 
-    QUrl url = QUrl(urlText, QUrl::StrictMode);
-    if ( url.isValid() )
-        QDesktopServices::openUrl(url);
+    QFileInfo fi (urlText);
+    if ( fi.isDir() && fi.exists() )
+    {
+        QUrl url = QUrl::fromLocalFile(urlText);
+        if ( url.isValid() )
+            QDesktopServices::openUrl(url);
+    }
 }
 
 void AboutDialog::handleCopyMenu(QPoint pos)
 {
-    QTableView * table = qobject_cast<QTableView *>(sender());
-    if ( ! table )
+    QTreeView * tree = qobject_cast<QTreeView *>(sender());
+    if ( ! tree )
         return;
 
-    QModelIndex index = table->indexAt(pos);
+    QModelIndex index = tree->indexAt(pos);
     if ( ! index.isValid() )
         return;
 
-    QAction * copyAction = new QAction("Copy to Clipboard", this);
-    copyAction->setData(VariantPointer<QTableView>::asQVariant(table));
-    connect(copyAction, &QAction::triggered, this, &AboutDialog::copyActionTriggered);
-
     QMenu * menu = new QMenu(this);
-    menu->addAction(copyAction);
-    menu->popup(table->viewport()->mapToGlobal(pos));
+
+    QAction * copyColumnAction = menu->addAction(tr("Copy"));
+    copyColumnAction->setData(VariantPointer<QTreeView>::asQVariant(tree));
+    connect(copyColumnAction, &QAction::triggered, this, &AboutDialog::copyActionTriggered);
+
+    QAction * copyRowAction = menu->addAction(tr("Copy Row(s)"));
+    copyRowAction->setData(VariantPointer<QTreeView>::asQVariant(tree));
+    connect(copyRowAction, &QAction::triggered, this, &AboutDialog::copyRowActionTriggered);
+
+    menu->popup(tree->viewport()->mapToGlobal(pos));
 }
 
-void AboutDialog::copyActionTriggered()
+void AboutDialog::copyRowActionTriggered()
+{
+    copyActionTriggered(true);
+}
+
+void AboutDialog::copyActionTriggered(bool copyRow)
 {
     QAction * sendingAction = qobject_cast<QAction *>(sender());
     if ( ! sendingAction )
         return;
 
-    QTableView * table = VariantPointer<QTableView>::asPtr(sendingAction->data());
+    QTreeView * tree = VariantPointer<QTreeView>::asPtr(sendingAction->data());
 
-    QModelIndexList selIndeces = table->selectionModel()->selectedIndexes();
+    QModelIndexList selIndeces = tree->selectionModel()->selectedIndexes();
+
+    int copyColumn = -1;
+    if ( ! copyRow )
+    {
+        QMenu * menu = qobject_cast<QMenu *>(sendingAction->parentWidget());
+        if ( menu )
+        {
+            QPoint menuPosOnTable = tree->mapFromGlobal(menu->pos());
+            QModelIndex clickedIndex = tree->indexAt(menuPosOnTable);
+            if ( clickedIndex.isValid() )
+                copyColumn = clickedIndex.column();
+        }
+    }
 
     QString clipdata;
     if ( selIndeces.count() > 0 )
     {
-        int columnCount = table->model()->columnCount();
+        int columnCount = tree->model()->columnCount();
         QList<int> visitedRows;
 
         foreach(QModelIndex index, selIndeces)
@@ -476,11 +508,23 @@ void AboutDialog::copyActionTriggered()
                 continue;
 
             QStringList row;
-            for ( int cnt = 0; cnt < columnCount; cnt++ )
+            if ( copyRow )
             {
-                QModelIndex dataIdx = table->model()->index(index.row(), cnt);
-                row << table->model()->data(dataIdx).toString();
+                for ( int cnt = 0; cnt < columnCount; cnt++ )
+                {
+                    QModelIndex dataIdx = tree->model()->index(index.row(), cnt);
+                    row << tree->model()->data(dataIdx).toString();
+                }
             }
+            else
+            {
+                if ( copyColumn < 0 )
+                    copyColumn = index.column();
+
+                QModelIndex dataIdx = tree->model()->index(index.row(), copyColumn);
+                row << tree->model()->data(dataIdx).toString();
+            }
+
             clipdata.append(row.join("\t\t").append("\n"));
 
             visitedRows << index.row();

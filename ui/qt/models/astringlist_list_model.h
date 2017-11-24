@@ -12,13 +12,14 @@
 
 #include <config.h>
 
-#include <QAbstractItemModel>
+#include <QAbstractTableModel>
 #include <QModelIndex>
 #include <QList>
 #include <QStringList>
 #include <QSortFilterProxyModel>
+#include <QIdentityProxyModel>
 
-class AStringListListModel : public QAbstractItemModel
+class AStringListListModel : public QAbstractTableModel
 {
     Q_OBJECT
 
@@ -30,9 +31,6 @@ public:
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-
-    virtual QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const;
-    virtual QModelIndex parent(const QModelIndex & parent = QModelIndex()) const;
 
 protected:
     virtual void appendRow(const QStringList &, const QModelIndex &parent = QModelIndex());
@@ -74,7 +72,20 @@ private:
     QList<int> columnsToFilter_;
 };
 
+class AStringListListUrlProxyModel : public QIdentityProxyModel
+{
+    Q_OBJECT
+public:
+    explicit AStringListListUrlProxyModel(QObject * parent = Q_NULLPTR);
 
+    void setUrlColumn(int);
+    bool isUrlColumn(int) const;
+
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+
+private:
+    QList<int> urls_;
+};
 
 #endif // ASTRINGLIST_LIST_MODEL_H
 

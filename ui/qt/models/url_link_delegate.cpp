@@ -1,4 +1,4 @@
-/* url_link.cpp
+/* url_link_delegate.cpp
  * Delegates for displaying links as links, including elide model
  *
  * Wireshark - Network traffic analyzer
@@ -28,41 +28,16 @@ void UrlLinkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
     QStyleOptionViewItem options = option;
     initStyleOption(&options, index);
 
-    QString text = options.text;
-    if (text.isEmpty())
-        return;
+    QStyleOptionViewItem opt = option;
+    initStyleOption(&opt, index);
 
-    int one_em = option.fontMetrics.height();
-    QString short_dir = option.fontMetrics.elidedText(text, Qt::ElideMiddle, one_em * 10);
+    opt.font.setUnderline(true);
 
-    painter->save();
-    QFont font = option.font;
-    font.setUnderline(true);
-    painter->setFont(font);
-    painter->setPen(option.palette.link().color());
-    painter->drawText(option.rect, Qt::AlignLeft | Qt::AlignVCenter, short_dir);
-
-    painter->restore();
+    QStyledItemDelegate::paint(painter, opt, index);
 }
 
-QSize UrlLinkDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const {
-    QStyleOptionViewItem options = option;
-    initStyleOption(&options, index);
-
-    QString text = options.text;
-    if (text.isEmpty())
-        return QStyledItemDelegate::sizeHint(option, index);
-
-    int one_em = option.fontMetrics.height();
-    QString short_dir = option.fontMetrics.elidedText(text, Qt::ElideMiddle, one_em * 10);
-
-    QTextDocument doc;
-    doc.setHtml(short_dir);
-    doc.setTextWidth(options.rect.width());
-    return QSize(doc.idealWidth(), doc.size().height());
-}
-
-/* * Editor modelines
+/*
+ * Editor modelines
  *
  * Local Variables:
  * c-basic-offset: 4

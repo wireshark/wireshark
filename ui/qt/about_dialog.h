@@ -95,7 +95,8 @@ private:
 private slots:
     void urlClicked(const QModelIndex &);
     void handleCopyMenu(QPoint);
-    void copyActionTriggered();
+    void copyActionTriggered(bool row = false);
+    void copyRowActionTriggered();
 
 };
 
