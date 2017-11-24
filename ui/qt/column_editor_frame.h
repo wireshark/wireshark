@@ -43,7 +43,7 @@ signals:
 
 protected:
     virtual void showEvent(QShowEvent *event);
-    void keyPressEvent(QKeyEvent *event);
+    virtual void keyPressEvent(QKeyEvent *event);
 
 private slots:
     void on_typeComboBox_activated(int index);

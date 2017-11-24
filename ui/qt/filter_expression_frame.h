@@ -47,7 +47,7 @@ signals:
 
 protected:
     virtual void showEvent(QShowEvent *event);
-    void keyPressEvent(QKeyEvent *event);
+    virtual void keyPressEvent(QKeyEvent *event);
 
 private:
     Ui::FilterExpressionFrame *ui;

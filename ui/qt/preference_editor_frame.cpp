@@ -261,6 +261,8 @@ void PreferenceEditorFrame::keyPressEvent(QKeyEvent *event)
             }
         }
     }
+
+    AccordionFrame::keyPressEvent(event);
 }
 
 /*
