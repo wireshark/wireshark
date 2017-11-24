@@ -46,6 +46,7 @@
 #endif
 
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/models/astringlist_list_model.h>
 #include <ui/qt/models/url_link_delegate.h>
 #include <ui/qt/models/html_text_delegate.h>
@@ -57,6 +58,9 @@
 #include <QRegExp>
 #include <QAbstractItemModel>
 #include <QHash>
+#include <QDesktopServices>
+#include <QClipboard>
+#include <QMenu>
 
 AuthorListModel::AuthorListModel(QObject * parent) :
 AStringListListModel(parent)
@@ -293,6 +297,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->pte_Authors->moveCursor(QTextCursor::Start);
 
     ui->tblAuthors->horizontalHeader()->setStretchLastSection(true);
+    ui->tblAuthors->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->tblAuthors, &QTableView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
     connect(ui->searchAuthors, SIGNAL(textChanged(QString)), proxyAuthorModel, SLOT(setFilter(QString)));
 
     /* Wireshark tab */
@@ -329,7 +335,10 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->tblFolders->setModel(folderProxyModel);
     ui->tblFolders->setItemDelegateForColumn(1, new UrlLinkDelegate(this));
     ui->tblFolders->setItemDelegateForColumn(2, new HTMLTextDelegate(this));
+    ui->tblFolders->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->tblFolders, &QTableView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
     connect(ui->searchFolders, SIGNAL(textChanged(QString)), folderProxyModel, SLOT(setFilter(QString)));
+    connect(ui->tblFolders, &QTableView::clicked, this, &AboutDialog::urlClicked );
 
 
     /* Plugins */
@@ -345,8 +354,11 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->tblPlugins->setModel(pluginTypeModel);
     ui->tblPlugins->setItemDelegateForColumn(3, new UrlLinkDelegate(this));
     ui->cmbType->addItems(pluginModel->typeNames());
+    ui->tblPlugins->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->tblPlugins, &QTableView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
     connect(ui->searchPlugins, SIGNAL(textChanged(QString)), pluginFilterModel, SLOT(setFilter(QString)));
     connect(ui->cmbType, SIGNAL(currentIndexChanged(QString)), pluginTypeModel, SLOT(setFilter(QString)));
+    connect(ui->tblFolders, &QTableView::clicked, this, &AboutDialog::urlClicked );
 
 #else
     ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tab_plugins));
@@ -359,6 +371,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
     shortcutProxyModel->setColumnToFilter(1);
     shortcutProxyModel->setColumnToFilter(2);
     ui->tblShortcuts->setModel(shortcutProxyModel);
+    ui->tblShortcuts->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->tblShortcuts, &QTableView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
     connect(ui->searchShortcuts, SIGNAL(textChanged(QString)), shortcutProxyModel, SLOT(setFilter(QString)));
 
     /* License */
@@ -404,6 +418,76 @@ void AboutDialog::resizeEvent(QResizeEvent * event)
     }
 
     QDialog::resizeEvent(event);
+}
+
+void AboutDialog::urlClicked(const QModelIndex &idx)
+{
+    QTableView * table = qobject_cast<QTableView *>(sender());
+    if ( ! table )
+        return;
+
+    QString urlText = table->model()->data(idx).toString();
+    if ( urlText.isEmpty() )
+        return;
+
+    QUrl url = QUrl(urlText, QUrl::StrictMode);
+    if ( url.isValid() )
+        QDesktopServices::openUrl(url);
+}
+
+void AboutDialog::handleCopyMenu(QPoint pos)
+{
+    QTableView * table = qobject_cast<QTableView *>(sender());
+    if ( ! table )
+        return;
+
+    QModelIndex index = table->indexAt(pos);
+    if ( ! index.isValid() )
+        return;
+
+    QAction * copyAction = new QAction("Copy to Clipboard", this);
+    copyAction->setData(VariantPointer<QTableView>::asQVariant(table));
+    connect(copyAction, &QAction::triggered, this, &AboutDialog::copyActionTriggered);
+
+    QMenu * menu = new QMenu(this);
+    menu->addAction(copyAction);
+    menu->popup(table->viewport()->mapToGlobal(pos));
+}
+
+void AboutDialog::copyActionTriggered()
+{
+    QAction * sendingAction = qobject_cast<QAction *>(sender());
+    if ( ! sendingAction )
+        return;
+
+    QTableView * table = VariantPointer<QTableView>::asPtr(sendingAction->data());
+
+    QModelIndexList selIndeces = table->selectionModel()->selectedIndexes();
+
+    QString clipdata;
+    if ( selIndeces.count() > 0 )
+    {
+        int columnCount = table->model()->columnCount();
+        QList<int> visitedRows;
+
+        foreach(QModelIndex index, selIndeces)
+        {
+            if ( visitedRows.contains(index.row()) )
+                continue;
+
+            QStringList row;
+            for ( int cnt = 0; cnt < columnCount; cnt++ )
+            {
+                QModelIndex dataIdx = table->model()->index(index.row(), cnt);
+                row << table->model()->data(dataIdx).toString();
+            }
+            clipdata.append(row.join("\t\t").append("\n"));
+
+            visitedRows << index.row();
+        }
+    }
+    QClipboard * clipBoard = QApplication::clipboard();
+    clipBoard->setText(clipdata);
 }
 
 /*

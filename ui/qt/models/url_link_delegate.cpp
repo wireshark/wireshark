@@ -32,8 +32,8 @@ void UrlLinkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
     if (text.isEmpty())
         return;
 
-    int one_em = painter->fontMetrics().height();
-    QString short_dir = painter->fontMetrics().elidedText(text, Qt::ElideMiddle, one_em * 10);
+    int one_em = option.fontMetrics.height();
+    QString short_dir = option.fontMetrics.elidedText(text, Qt::ElideMiddle, one_em * 10);
 
     painter->save();
     QFont font = option.font;
@@ -49,8 +49,15 @@ QSize UrlLinkDelegate::sizeHint(const QStyleOptionViewItem &option, const QModel
     QStyleOptionViewItem options = option;
     initStyleOption(&options, index);
 
+    QString text = options.text;
+    if (text.isEmpty())
+        return QStyledItemDelegate::sizeHint(option, index);
+
+    int one_em = option.fontMetrics.height();
+    QString short_dir = option.fontMetrics.elidedText(text, Qt::ElideMiddle, one_em * 10);
+
     QTextDocument doc;
-    doc.setHtml(options.text);
+    doc.setHtml(short_dir);
     doc.setTextWidth(options.rect.width());
     return QSize(doc.idealWidth(), doc.size().height());
 }

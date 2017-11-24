@@ -91,6 +91,12 @@ protected:
 
 private:
     Ui::AboutDialog *ui;
+
+private slots:
+    void urlClicked(const QModelIndex &);
+    void handleCopyMenu(QPoint);
+    void copyActionTriggered();
+
 };
 
 #endif // ABOUT_DIALOG_H
