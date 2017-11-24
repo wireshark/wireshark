@@ -208,7 +208,6 @@ typedef struct nbap_private_data_t
   guint32 com_context_id;
   gint num_dch_in_flow;
   gint hrnti;
-  guint node_b_com_context_id;
   guint32 protocol_ie_id;
   guint32 dd_mode;
   guint32 transaction_id;
@@ -394,18 +393,6 @@ static void private_data_set_hrnti(packet_info *pinfo, gint hrnti)
 {
   nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
   private_data->hrnti = hrnti;
-}
-
-static guint private_data_get_node_b_com_context_id(packet_info *pinfo)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  return private_data->node_b_com_context_id;
-}
-
-static void private_data_set_node_b_com_context_id(packet_info *pinfo, guint node_b_com_context_id)
-{
-  nbap_private_data_t *private_data = (nbap_private_data_t*)nbap_get_private_data(pinfo);
-  private_data->node_b_com_context_id = node_b_com_context_id;
 }
 
 static guint32 private_data_get_protocol_ie_id(packet_info *pinfo)

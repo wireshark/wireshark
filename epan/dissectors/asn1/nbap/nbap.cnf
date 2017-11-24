@@ -1448,12 +1448,7 @@ private_data_set_binding_id_port(actx->pinfo, 0);
                 if(private_data_get_crnc_context_present(actx->pinfo)){
                     umts_fp_conversation_info->com_context_id = private_data_get_com_context_id(actx->pinfo);
                 }else{
-                    nbap_com_context_id_t *cur_val;
-                    if((cur_val=(nbap_com_context_id_t *)wmem_tree_lookup32(com_context_map,private_data_get_node_b_com_context_id(actx->pinfo))) != NULL){
-                        umts_fp_conversation_info->com_context_id = cur_val->crnc_context;
-                    }else{
-                        expert_add_info(actx->pinfo, NULL, &ei_nbap_no_set_comm_context_id);
-                    }
+                    expert_add_info(actx->pinfo, NULL, &ei_nbap_no_set_comm_context_id);
                 }
 
 
@@ -1631,13 +1626,7 @@ private_data_set_binding_id_port(actx->pinfo, 0);
                 if(private_data_get_crnc_context_present(actx->pinfo)){
                     umts_fp_conversation_info->com_context_id = private_data_get_com_context_id(actx->pinfo);
                 }else{
-                    nbap_com_context_id_t * cur_val;
-
-                    if((cur_val=(nbap_com_context_id_t *)wmem_tree_lookup32(com_context_map,private_data_get_node_b_com_context_id(actx->pinfo))) != NULL){
-                        umts_fp_conversation_info->com_context_id = cur_val->crnc_context;
-                    }else{
-                        expert_add_info(actx->pinfo, NULL, &ei_nbap_no_set_comm_context_id);
-                    }
+                    expert_add_info(actx->pinfo, NULL, &ei_nbap_no_set_comm_context_id);
                 }
 
                 /* Set address for collection of DDI entries */
@@ -1681,12 +1670,7 @@ private_data_set_num_items(actx->pinfo, 1);
     if(private_data_get_crnc_context_present(actx->pinfo)){
         /*umts_fp_conversation_info->com_context_id = private_data_get_com_context_id(actx->pinfo);*/
     }else{
-        nbap_com_context_id_t * cur_val;
-        if((cur_val=(nbap_com_context_id_t *)wmem_tree_lookup32(com_context_map,private_data_get_node_b_com_context_id(actx->pinfo))) != NULL){
-            private_data_set_com_context_id(actx->pinfo, cur_val->crnc_context);
-        }else{
-            expert_add_info(actx->pinfo, NULL, &ei_nbap_no_find_comm_context_id);
-        }
+        expert_add_info(actx->pinfo, NULL, &ei_nbap_no_set_comm_context_id);
     }
 
     /*This should not happen*/
@@ -2315,26 +2299,36 @@ private_data_set_com_context_id(actx->pinfo, com_context_id);
 private_data_set_crnc_context_present(actx->pinfo, TRUE);
 
 #.FN_BODY NodeB-CommunicationContextID VAL_PTR = &node_b_com_context_id
+  gboolean crnc_context_present;
   guint node_b_com_context_id;
-/*Set up and map that maps Node-B ids to CRNC ids, since often you only have one of them present in nbap*/
   nbap_com_context_id_t *cur_val;
 
 %(DEFAULT_BODY)s
 
-  private_data_set_node_b_com_context_id(actx->pinfo, node_b_com_context_id);
-  if (actx->pinfo->fd->flags.visited){
-      return offset;
-  }
+  /* Checking if CRNC context is present in this frame */
+  crnc_context_present = private_data_get_crnc_context_present(actx->pinfo);
+  if(crnc_context_present) {
+    /* This message contains both context fields. Updaaing the contexts map if needed. */
+    if (actx->pinfo->fd->flags.visited){
+        return offset;
+    }
 
-  /*If both are avaible we can update the map*/
-  if(private_data_get_crnc_context_present(actx->pinfo)){
-    if( wmem_tree_lookup32(com_context_map, node_b_com_context_id) == NULL ){
-
+    /* Making sure this Node B context isn't already mapped to a CRNC context */
+    if(wmem_tree_lookup32(com_context_map, node_b_com_context_id) == NULL) {
+       /* Creating new mapping and adding to map */
        cur_val = wmem_new(wmem_file_scope(), nbap_com_context_id_t);
        cur_val->crnc_context = private_data_get_com_context_id(actx->pinfo);
        cur_val->frame_num = actx->pinfo->num;
        wmem_tree_insert32(com_context_map, node_b_com_context_id, cur_val);
-       private_data_set_com_context_id(actx->pinfo, -1);
+    }
+  }
+  else {
+    /* No CRNC context field in this message, check if Node B context is already mapped to CRNC context. */
+    cur_val = (nbap_com_context_id_t *)wmem_tree_lookup32(com_context_map,node_b_com_context_id);
+    if(cur_val != NULL){
+      /* A mapping was found. Adding to prvivate data. */
+      private_data_set_com_context_id(actx->pinfo,cur_val->crnc_context);
+      private_data_set_crnc_context_present(actx->pinfo, TRUE);
     }
   }
 
