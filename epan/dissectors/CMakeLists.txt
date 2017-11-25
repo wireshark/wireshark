@@ -659,6 +659,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-arcnet.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-armagetronad.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-arp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-artemis.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-artnet.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-aruba-adp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-aruba-erm.c

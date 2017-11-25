@@ -285,6 +285,7 @@ DISSECTOR_SRC = \
 	packet-arcnet.c		\
 	packet-armagetronad.c	\
 	packet-arp.c		\
+	packet-artemis.c        \
 	packet-artnet.c		\
 	packet-aruba-adp.c	\
 	packet-aruba-erm.c	\
