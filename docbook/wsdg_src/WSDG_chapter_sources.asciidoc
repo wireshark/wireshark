@@ -802,12 +802,26 @@ can easily be put into "the big pile", while some are ASN.1 based which takes a
 different approach, and some multiple source file dissectors are more suitable to
 be placed separately as plugins.
 
-* 'Verify that your dissector code does not use prohibited or deprecated APIs.'
-  This can be done as follows:
+* 'Ensure Wireshark Git Pre-Commit Hook is in the repository.'  In your local
+repository directory, there will be a .git/hooks/ directory, with sample git hooks
+for running automatic actions before and after git commands. You can also
+optionally install other hooks that you find useful.
 +
-----
-$ perl <wireshark_root>/tools/checkAPIs.pl <source filename(s)>
-----
+In particular, the pre-commit hook will run every time you commit a change and can
+be used to automatically check for various errors in your code. The sample git
+pre-commit hook simply detects whitespace errors such as mixed tabs and spaces;
+to install it just remove the .sample suffice from the existing pre-commit.sample file.
++
+Wireshark provides a custom pre-commit hook which does additional Wireshark-specific API
+and formatting checks, but it might return false positives. If you want to install it,
+copy the pre-commit file from the tools directory (cp ./tools/pre-commit .git/hooks/)
+and make sure it is executable or it will not be run.
++
+If the pre-commit hook is preventing you from committing what you believe is a valid
+change, you can run git commit --no-verify to skip running the hooks. Warning: using
+--no-verify avoids the commit-msg hook, and thus will not automatically add the required
+Change-ID to your commit. In case you are not updating an existing patch you may generate
+a Change-ID by running git review -i (or git commit --amend if don't use git review).
 
 * 'Fuzz test your changes!' Fuzz testing is a very
 effective way to automatically find a lot of dissector related bugs.
