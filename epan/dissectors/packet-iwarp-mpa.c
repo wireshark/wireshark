@@ -687,8 +687,6 @@ dissect_mpa_fpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* get ULPDU length of this FPDU */
 	ulpdu_length = (guint16) tvb_get_ntohs(tvb, offset);
 
-	mpa_packetlist(pinfo, MPA_FPDU);
-
 	if (state->minfo[endpoint].valid) {
 		num_of_m = number_of_markers(state, tcpinfo, endpoint);
 	}
@@ -707,11 +705,10 @@ dissect_mpa_fpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		pad_length = fpdu_pad_length(ulpdu_length);
 		exp_ulpdu_length = expected_ulpdu_length(state, tcpinfo, endpoint);
 		if (!exp_ulpdu_length || exp_ulpdu_length != (ulpdu_length + pad_length)) {
-			proto_tree_add_expert_format(tree, pinfo, &ei_mpa_bad_length, tvb, offset,
-				MPA_ULPDU_LENGTH_LEN,
-				"[ULPDU length [%u] field does not contain the expected length[%u]]",
-				exp_ulpdu_length, ulpdu_length + pad_length);
+			return 0;
 		}
+
+		mpa_packetlist(pinfo, MPA_FPDU);
 
 		mpa_item = proto_tree_add_item(tree, proto_iwarp_mpa, tvb, 0,
 				-1, ENC_NA);
