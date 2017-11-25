@@ -574,6 +574,10 @@ LteMacStatisticsDialog::LteMacStatisticsDialog(QWidget &parent, CaptureFile &cf,
     // Set handler for when the tree item changes to set the appropriate labels.
     connect(statsTreeWidget(), SIGNAL(itemSelectionChanged()),
             this, SLOT(updateHeaderLabels()));
+
+    // Set handler for when display filter string is changed.
+    connect(this, SIGNAL(updateFilter(QString)),
+            this, SLOT(filterUpdated(QString)));
 }
 
 // Destructor.
@@ -786,7 +790,7 @@ void LteMacStatisticsDialog::fillTree()
 {
     if (!registerTapListener("mac-lte",
                              this,
-                             NULL,
+                             displayFilter_.toLatin1().data(),
                              TL_REQUIRES_NOTHING,
                              tapReset,
                              tapPacket,
@@ -831,6 +835,13 @@ void LteMacStatisticsDialog::captureFileClosing()
 
     WiresharkDialog::captureFileClosing();
 }
+
+// Store filter from signal.
+void LteMacStatisticsDialog::filterUpdated(QString filter)
+{
+    displayFilter_ = filter;
+}
+
 
 // Stat command + args
 

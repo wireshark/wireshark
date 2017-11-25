@@ -60,6 +60,7 @@ private:
     QLabel *commonStatsLabel_;
     QCheckBox *showSRFilterCheckBox_;
     QCheckBox *showRACHFilterCheckBox_;
+    QString   displayFilter_;
 
     // Callbacks for register_tap_listener
     static void tapReset(void *ws_dlg_ptr);
@@ -81,6 +82,7 @@ private slots:
     virtual void fillTree();
     void updateHeaderLabels();
     void captureFileClosing();
+    void filterUpdated(QString filter);
 };
 
 #endif // __LTE_MAC_STATISTICS_DIALOG_H__
