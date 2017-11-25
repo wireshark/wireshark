@@ -2253,13 +2253,13 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
                       offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
-  proto_tree_add_item(tree, hf_artnet_poll_reply_style, tvb,
-                      offset, 1, ENC_BIG_ENDIAN);
-  offset += 1;
-
   proto_tree_add_item(tree, hf_artnet_spare, tvb,
                       offset, 3, ENC_NA);
   offset += 3;
+
+  proto_tree_add_item(tree, hf_artnet_poll_reply_style, tvb,
+                      offset, 1, ENC_BIG_ENDIAN);
+  offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_poll_reply_mac,
                         tvb, offset, 6, ENC_NA);
