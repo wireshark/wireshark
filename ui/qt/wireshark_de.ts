@@ -36,12 +36,28 @@
         <translation>Ordner</translation>
     </message>
     <message>
+        <source>Filter by path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Plugins</source>
         <translation>Plugins</translation>
     </message>
     <message>
+        <source>Search plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter by type:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Keyboard Shortcuts</source>
         <translation>Tastaturkürzel</translation>
+    </message>
+    <message>
+        <source>Search Shortcuts</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>License</source>
@@ -70,6 +86,17 @@
     <message>
         <source>Can&apos;t assign %1 to %2</source>
         <translation>Kann %1 nicht an %2 zuweisen</translation>
+    </message>
+</context>
+<context>
+    <name>AuthorListModel</name>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Name</translation>
+    </message>
+    <message>
+        <source>E-Mail</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2202,6 +2229,21 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Unable to save %1</source>
         <translation>Kann %1 nicht sichern</translation>
+    </message>
+</context>
+<context>
+    <name>FolderListModel</name>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Name</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Typical Files</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5810,6 +5852,14 @@ text-decoration: underline;
         <translation>Paketkommentar hinzufügen oder ändern</translation>
     </message>
     <message>
+        <source>Delete All Packet Comments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove all packet comments in the capture file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Configuration profiles</source>
         <translation>Profile konfigurieren</translation>
     </message>
@@ -7095,6 +7145,10 @@ text-decoration: underline;
         <translation>Text konnte nicht kopiert werden. Probieren sie einen anderen Eintrag.</translation>
     </message>
     <message>
+        <source>Are you sure you want to remove all packet comments?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unable to build conversation filter.</source>
         <translation>Verbindungsfilter kann nicht erstellt werden.</translation>
     </message>
@@ -7730,6 +7784,25 @@ text-decoration: underline;
     <message>
         <source>Captured</source>
         <translation>Aufgezeichnet</translation>
+    </message>
+</context>
+<context>
+    <name>PluginListModel</name>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Name</translation>
+    </message>
+    <message>
+        <source>Version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Typ</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10756,6 +10829,21 @@ text-decoration: underline;
     </message>
 </context>
 <context>
+    <name>ShortcutListModel</name>
+    <message>
+        <source>Shortcut</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Name</translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <translation type="unfinished">Beschreibung</translation>
+    </message>
+</context>
+<context>
     <name>ShowPacketBytesDialog</name>
     <message>
         <source>Show Packet Bytes</source>
@@ -11785,11 +11873,11 @@ text-decoration: underline;
     </message>
     <message>
         <source>Move entry up.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eintrag nach oben verschieben.</translation>
     </message>
     <message>
         <source>Move entry down.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eintrag nach unten verschieben.</translation>
     </message>
     <message>
         <source>Clear all entries.</source>
@@ -11824,11 +11912,11 @@ text-decoration: underline;
     </message>
     <message>
         <source>Move entry up.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eintrag nach oben verschieben.</translation>
     </message>
     <message>
         <source>Move entry down.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eintrag nach unten verschieben.</translation>
     </message>
     <message>
         <source>Clear all entries.</source>

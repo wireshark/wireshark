@@ -36,12 +36,28 @@
         <translation>フォルダ</translation>
     </message>
     <message>
+        <source>Filter by path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Plugins</source>
         <translation>プラグイン</translation>
     </message>
     <message>
+        <source>Search plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter by type:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Keyboard Shortcuts</source>
         <translation>キーボードショートカット</translation>
+    </message>
+    <message>
+        <source>Search Shortcuts</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>License</source>
@@ -70,6 +86,17 @@
     <message>
         <source>Can&apos;t assign %1 to %2</source>
         <translation>%1 を %2 に割り当てることができません</translation>
+    </message>
+</context>
+<context>
+    <name>AuthorListModel</name>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">名前</translation>
+    </message>
+    <message>
+        <source>E-Mail</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2194,6 +2221,21 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Unable to save %1</source>
         <translation type="unfinished">%1を保存できません</translation>
+    </message>
+</context>
+<context>
+    <name>FolderListModel</name>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">名前</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Typical Files</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5766,6 +5808,14 @@ a:hover {
         <translation>パケットのコメントを追加または変更します</translation>
     </message>
     <message>
+        <source>Delete All Packet Comments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove all packet comments in the capture file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Configuration profiles</source>
         <translation>設定プロファイル</translation>
     </message>
@@ -7050,6 +7100,10 @@ a:hover {
         <translation>テキストをコピーできません 別の項目を試してみてください</translation>
     </message>
     <message>
+        <source>Are you sure you want to remove all packet comments?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unable to build conversation filter.</source>
         <translation>会話フィルタを作成できません</translation>
     </message>
@@ -7685,6 +7739,25 @@ a:hover {
     <message>
         <source>Captured</source>
         <translation>キャプチャされたパケット</translation>
+    </message>
+</context>
+<context>
+    <name>PluginListModel</name>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">名前</translation>
+    </message>
+    <message>
+        <source>Version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">種別</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10683,6 +10756,21 @@ a:hover {
     <message>
         <source>P</source>
         <translation type="unfinished">P</translation>
+    </message>
+</context>
+<context>
+    <name>ShortcutListModel</name>
+    <message>
+        <source>Shortcut</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">名前</translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <translation type="unfinished">記述</translation>
     </message>
 </context>
 <context>

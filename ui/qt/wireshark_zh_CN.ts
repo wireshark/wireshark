@@ -36,12 +36,28 @@
         <translation>文件夹</translation>
     </message>
     <message>
+        <source>Filter by path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Plugins</source>
         <translation>插件</translation>
     </message>
     <message>
+        <source>Search plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter by type:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Keyboard Shortcuts</source>
         <translation>快捷键</translation>
+    </message>
+    <message>
+        <source>Search Shortcuts</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>License</source>
@@ -70,6 +86,17 @@
     <message>
         <source>Can&apos;t assign %1 to %2</source>
         <translation>不能分配 %1 到 %2</translation>
+    </message>
+</context>
+<context>
+    <name>AuthorListModel</name>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">名称</translation>
+    </message>
+    <message>
+        <source>E-Mail</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2195,6 +2222,21 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Unable to save %1</source>
         <translation>无法保存 %1</translation>
+    </message>
+</context>
+<context>
+    <name>FolderListModel</name>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">名称</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Typical Files</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5793,6 +5835,14 @@ text-decoration: underline;
         <translation>添加或更改分组注释</translation>
     </message>
     <message>
+        <source>Delete All Packet Comments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove all packet comments in the capture file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Configuration profiles</source>
         <translation>配置文件</translation>
     </message>
@@ -7077,6 +7127,10 @@ text-decoration: underline;
         <translation>无法复制文本。请尝试其他对象。</translation>
     </message>
     <message>
+        <source>Are you sure you want to remove all packet comments?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unable to build conversation filter.</source>
         <translation>无法建立对话过滤器。</translation>
     </message>
@@ -7711,6 +7765,25 @@ text-decoration: underline;
     <message>
         <source>Captured</source>
         <translation>已捕获</translation>
+    </message>
+</context>
+<context>
+    <name>PluginListModel</name>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">名称</translation>
+    </message>
+    <message>
+        <source>Version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">类型</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10732,6 +10805,21 @@ text-decoration: underline;
     <message>
         <source>P</source>
         <translation>P</translation>
+    </message>
+</context>
+<context>
+    <name>ShortcutListModel</name>
+    <message>
+        <source>Shortcut</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">名称</translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <translation type="unfinished">描述</translation>
     </message>
 </context>
 <context>
