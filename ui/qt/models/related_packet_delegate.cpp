@@ -162,6 +162,7 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
         // Request and response arrows are moved forward one pixel in order to
         // maximize white space between the heads and the conversation line.
         case FT_FRAMENUM_REQUEST:
+        case FT_FRAMENUM_RETRANS_PREV:
         {
             int hh = height / 2;
             QPoint tail(2 - en_w, hh);
@@ -170,6 +171,7 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
             break;
         }
         case FT_FRAMENUM_RESPONSE:
+        case FT_FRAMENUM_RETRANS_NEXT:
         {
             int hh = height / 2;
             QPoint tail(en_w - 1, hh);

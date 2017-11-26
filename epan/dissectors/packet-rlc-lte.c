@@ -3515,7 +3515,7 @@ void proto_register_rlc_lte(void)
         },
         { &hf_rlc_lte_sequence_analysis_repeated_nack_original_frame,
             { "Frame with previous status PDU",
-              "rlc-lte.sequence-analysis.repeated-nack.original-frame",  FT_FRAMENUM, BASE_NONE, 0, 0x0,
+              "rlc-lte.sequence-analysis.repeated-nack.original-frame",  FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_DUP_ACK), 0x0,
               NULL, HFILL
             }
         },
@@ -3528,7 +3528,7 @@ void proto_register_rlc_lte(void)
         },
         { &hf_rlc_lte_sequence_analysis_ack_out_of_range_opposite_frame,
             { "Frame with most recent SN",
-              "rlc-lte.sequence-analysis.ack-out-of-range.last-sn-frame",  FT_FRAMENUM, BASE_NONE, 0, 0x0,
+              "rlc-lte.sequence-analysis.ack-out-of-range.last-sn-frame",  FT_FRAMENUM, BASE_NONE, NULL, 0x0,
               NULL, HFILL
             }
         },
@@ -3566,7 +3566,7 @@ void proto_register_rlc_lte(void)
         },
         { &hf_rlc_lte_reassembly_source_segment_framenum,
             { "Frame",
-              "rlc-lte.reassembly-info.segment.frame", FT_FRAMENUM, BASE_NONE, 0, 0x0,
+              "rlc-lte.reassembly-info.segment.frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
               NULL, HFILL
             }
         },

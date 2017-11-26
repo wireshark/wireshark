@@ -2831,7 +2831,7 @@ void proto_register_pdcp(void)
         },
         { &hf_pdcp_lte_security_setup_frame,
             { "Configuration frame",
-              "pdcp-lte.security-config.setup-frame", FT_FRAMENUM, BASE_NONE, 0, 0x0,
+              "pdcp-lte.security-config.setup-frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
               NULL, HFILL
             }
         },
