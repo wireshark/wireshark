@@ -82,7 +82,7 @@
         <translation>Name:</translation>
     </message>
     <message>
-        <location filename="address_editor_frame.cpp" line="149"/>
+        <location filename="address_editor_frame.cpp" line="166"/>
         <source>Can&apos;t assign %1 to %2</source>
         <translation>Kann %1 nicht an %2 zuweisen</translation>
     </message>
@@ -2882,9 +2882,24 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Filter:</translation>
     </message>
     <message>
-        <location filename="filter_expression_frame.cpp" line="58"/>
+        <location filename="filter_expression_frame.cpp" line="59"/>
         <source>Apply this filter</source>
         <translation>Diesen Filter anwenden</translation>
+    </message>
+    <message>
+        <location filename="filter_expression_frame.cpp" line="125"/>
+        <source>Missing label.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="filter_expression_frame.cpp" line="127"/>
+        <source>Missing filter expression.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="filter_expression_frame.cpp" line="129"/>
+        <source>Invalid filter expression.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9363,27 +9378,27 @@ text-decoration: underline;
         <translation>Nach Aktualisierungen suchen</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="928"/>
+        <location filename="main_window.cpp" line="930"/>
         <source> before quitting</source>
         <translation> vor dem Schließen</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1164"/>
+        <location filename="main_window.cpp" line="1166"/>
         <source>Save packets before merging?</source>
         <translation>Pakete vor dem Zusammenführen speichern?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1165"/>
+        <location filename="main_window.cpp" line="1167"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>Eine temporäre Mitschnittdatei kann nicht zusammengeführt werden.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1171"/>
+        <location filename="main_window.cpp" line="1173"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>Vor der Zusammenführung Änderungen in &quot;%1&quot; speichern?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1173"/>
+        <location filename="main_window.cpp" line="1175"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>Änderungen müssen vor dem Zusammenführen gespeichert werden.</translation>
     </message>
@@ -9393,128 +9408,128 @@ text-decoration: underline;
         <translation>Ungültiger Anzeigefilter</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1210"/>
+        <location filename="main_window.cpp" line="1212"/>
         <source>Invalid Read Filter</source>
         <translation>Ungültiger Lesefilter</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1211"/>
+        <location filename="main_window.cpp" line="1213"/>
         <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
         <translation>Der Filterausdruck %1 ist kein gültiger Lesefilter. (%2).</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1300"/>
+        <location filename="main_window.cpp" line="1302"/>
         <source> before importing a capture</source>
         <oldsource> before importing a new capture</oldsource>
         <translation> vor dem Importieren einer Aufzeichnung</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1576"/>
+        <location filename="main_window.cpp" line="1578"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>Kann nicht nach &quot;%1&quot; exportieren.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1577"/>
+        <location filename="main_window.cpp" line="1579"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>Pakete können nicht in die aktuelle Mitschnittdatei exportiert werden.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1665"/>
-        <location filename="main_window.cpp" line="1690"/>
+        <location filename="main_window.cpp" line="1667"/>
+        <location filename="main_window.cpp" line="1692"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1735"/>
+        <location filename="main_window.cpp" line="1737"/>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>Wollen Sie die durchgeführten Änderungen speichern%1?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1731"/>
-        <location filename="main_window.cpp" line="1739"/>
+        <location filename="main_window.cpp" line="1733"/>
+        <location filename="main_window.cpp" line="1741"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>Die aufgezeichneten Pakete gehen verloren wenn sie nicht gespeichert werden.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1744"/>
+        <location filename="main_window.cpp" line="1746"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>Sollen die Änderungen an der Mitschnittdatei &quot;%1&quot;%2 gespeichert werden?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1736"/>
-        <location filename="main_window.cpp" line="1745"/>
+        <location filename="main_window.cpp" line="1738"/>
+        <location filename="main_window.cpp" line="1747"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>Änderungen gehen verloren, wenn sie nicht gesichert werden.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="965"/>
+        <location filename="main_window.cpp" line="967"/>
         <source>Unable to drop files during capture.</source>
         <translation>Dateien können während dem Mitschnitt nicht verworfen werden.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1730"/>
+        <location filename="main_window.cpp" line="1732"/>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
         <translation>Wollen Sie die Aufzeichnung stoppen und die aufgezeichneten Pakete speichern%1?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1738"/>
+        <location filename="main_window.cpp" line="1740"/>
         <source>Do you want to save the captured packets%1?</source>
         <translation>Wollen Sie die aufgezeichneten Pakete speichern%1?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1762"/>
+        <location filename="main_window.cpp" line="1764"/>
         <source>Save before Continue</source>
         <translation>Vor dem Fortsetzen speichern</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1764"/>
+        <location filename="main_window.cpp" line="1766"/>
         <source>Stop and Save</source>
         <translation>Stoppen und speichern</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1776"/>
+        <location filename="main_window.cpp" line="1778"/>
         <source>Stop and Quit &amp;without Saving</source>
         <oldsource>Stop and Quit without Saving</oldsource>
         <translation>Stoppen und beenden &amp;ohne zu speichern</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1788"/>
+        <location filename="main_window.cpp" line="1790"/>
         <source>Quit &amp;without Saving</source>
         <oldsource>Quit without Saving</oldsource>
         <translation>&amp;Ohne speichern beenden</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="771"/>
-        <location filename="main_window.cpp" line="2738"/>
+        <location filename="main_window.cpp" line="773"/>
+        <location filename="main_window.cpp" line="2740"/>
         <source>Show or hide the toolbar</source>
         <translation>Werkzeugleise anzeigen oder verstecken</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1779"/>
-        <location filename="main_window.cpp" line="1792"/>
+        <location filename="main_window.cpp" line="1781"/>
+        <location filename="main_window.cpp" line="1794"/>
         <source>Continue &amp;without Saving</source>
         <oldsource>Continue without Saving</oldsource>
         <translation>Fortsetzen &amp;ohne zu Speichern</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1782"/>
+        <location filename="main_window.cpp" line="1784"/>
         <source>Stop and Continue &amp;without Saving</source>
         <oldsource>Stop and Continue without Saving</oldsource>
         <translation>Stoppen und Fortsetzen &amp;ohne zu Speichern</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2160"/>
+        <location filename="main_window.cpp" line="2162"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>(Dateiname kann nicht auf UTF-8 angewendet werden)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2181"/>
+        <location filename="main_window.cpp" line="2183"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>Die Wireshark Netzwerk Analysesoftware</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2206"/>
+        <location filename="main_window.cpp" line="2208"/>
         <source>Capturing from %1</source>
         <translation>Aufzeichnen von %1</translation>
     </message>
@@ -13865,62 +13880,62 @@ text-decoration: underline;
         <translation>Abbrechen</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="324"/>
+        <location filename="search_frame.cpp" line="323"/>
         <source>No valid search type selected. Please report this to the development team.</source>
         <translation>Kein gültiger Suchtyp ausgewählt. Bitte melden Sie dies dem Entwickler-Team.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="276"/>
+        <location filename="search_frame.cpp" line="275"/>
         <source>Invalid filter.</source>
         <translation>Ungültiger Filter.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="282"/>
+        <location filename="search_frame.cpp" line="281"/>
         <source>That filter doesn&apos;t test anything.</source>
         <translation>Dieser Filter hat keine Auswirkung.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="290"/>
+        <location filename="search_frame.cpp" line="289"/>
         <source>That&apos;s not a valid hex string.</source>
         <translation>Keine gültige Hex-Zeichenkette.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="299"/>
+        <location filename="search_frame.cpp" line="298"/>
         <source>You didn&apos;t specify any text for which to search.</source>
         <translation>Es wurde kein Text zum Suchen angegeben.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="317"/>
+        <location filename="search_frame.cpp" line="316"/>
         <source>No valid character set selected. Please report this to the development team.</source>
         <translation>Kein gültiger Zeichensatz ausgewählt. Bitte melden Sie dies dem Entwickler-Team.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="340"/>
+        <location filename="search_frame.cpp" line="339"/>
         <source>No valid search area selected. Please report this to the development team.</source>
         <translation>Keinen gültigen Suchbereich ausgewählt. Bitte melden Sie dies dem Entwickler-Team.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="354"/>
+        <location filename="search_frame.cpp" line="353"/>
         <source>No packet contained those bytes.</source>
         <translation>Keine Pakete mit dieser Bytefolge gefunden.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="368"/>
+        <location filename="search_frame.cpp" line="367"/>
         <source>No packet contained that string in its Info column.</source>
         <translation>Keine Pakete mit dieser Zeichenkette in der Infospalte gefunden.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="377"/>
+        <location filename="search_frame.cpp" line="376"/>
         <source>No packet contained that string in its dissected display.</source>
         <translation>Keine Pakete mit dieser Zeichenkette in der Beschreibung gefunden.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="386"/>
+        <location filename="search_frame.cpp" line="385"/>
         <source>No packet contained that string in its converted data.</source>
         <translation>Keine Pakete mit dieser Zeichenkette in den Rohdaten gefunden.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="396"/>
+        <location filename="search_frame.cpp" line="395"/>
         <source>No packet matched that filter.</source>
         <translation>Keine Pakete entsprechen dem Filter.</translation>
     </message>

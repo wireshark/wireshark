@@ -82,7 +82,7 @@
         <translation>Nome:</translation>
     </message>
     <message>
-        <location filename="address_editor_frame.cpp" line="149"/>
+        <location filename="address_editor_frame.cpp" line="166"/>
         <source>Can&apos;t assign %1 to %2</source>
         <translation>Impossibile assegnare %1 a %2</translation>
     </message>
@@ -2882,9 +2882,24 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Filtro</translation>
     </message>
     <message>
-        <location filename="filter_expression_frame.cpp" line="58"/>
+        <location filename="filter_expression_frame.cpp" line="59"/>
         <source>Apply this filter</source>
         <translation>Applica questo filtro</translation>
+    </message>
+    <message>
+        <location filename="filter_expression_frame.cpp" line="125"/>
+        <source>Missing label.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="filter_expression_frame.cpp" line="127"/>
+        <source>Missing filter expression.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="filter_expression_frame.cpp" line="129"/>
+        <source>Invalid filter expression.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9362,27 +9377,27 @@ a:hover {
         <translation>Verifica aggiornamenti</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="928"/>
+        <location filename="main_window.cpp" line="930"/>
         <source> before quitting</source>
         <translation>prima di uscire</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1164"/>
+        <location filename="main_window.cpp" line="1166"/>
         <source>Save packets before merging?</source>
         <translation>Salvare i pacchetti prima di unire?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1165"/>
+        <location filename="main_window.cpp" line="1167"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>Un file di cattura temporaneo non può essere unito.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1171"/>
+        <location filename="main_window.cpp" line="1173"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>Salvare le modifiche a &quot;%1&quot; prima di unire?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1173"/>
+        <location filename="main_window.cpp" line="1175"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>Le modifiche devono essere salvate prima di unire.</translation>
     </message>
@@ -9392,128 +9407,128 @@ a:hover {
         <translation>Filtro di visualizzazione non valido</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1210"/>
+        <location filename="main_window.cpp" line="1212"/>
         <source>Invalid Read Filter</source>
         <translation>Filtro di lettura non valido</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1211"/>
+        <location filename="main_window.cpp" line="1213"/>
         <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
         <translation>L&apos;espressione %1 non è un filtro di lettura valido. (%2).</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1300"/>
+        <location filename="main_window.cpp" line="1302"/>
         <source> before importing a capture</source>
         <oldsource> before importing a new capture</oldsource>
         <translation>prima di importare una cattura</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1576"/>
+        <location filename="main_window.cpp" line="1578"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>Impossibile esportare su &quot;%1&quot;.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1577"/>
+        <location filename="main_window.cpp" line="1579"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>Non puoi esportare pacchetti sul file di cattura attuale.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1665"/>
-        <location filename="main_window.cpp" line="1690"/>
+        <location filename="main_window.cpp" line="1667"/>
+        <location filename="main_window.cpp" line="1692"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1735"/>
+        <location filename="main_window.cpp" line="1737"/>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>Vuoi salvare le modifiche che hai apportato%1?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1731"/>
-        <location filename="main_window.cpp" line="1739"/>
+        <location filename="main_window.cpp" line="1733"/>
+        <location filename="main_window.cpp" line="1741"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>I pacchetti catturati saranno persi se non li salvi.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1744"/>
+        <location filename="main_window.cpp" line="1746"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>Vuoi salvare le modifiche che hai apportato al file di cattura &quot;%1&quot;%2?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1736"/>
-        <location filename="main_window.cpp" line="1745"/>
+        <location filename="main_window.cpp" line="1738"/>
+        <location filename="main_window.cpp" line="1747"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>Le modifiche saranno perse se non le salvi.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="965"/>
+        <location filename="main_window.cpp" line="967"/>
         <source>Unable to drop files during capture.</source>
         <translation>Impossibile scartare file durante la cattura.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1730"/>
+        <location filename="main_window.cpp" line="1732"/>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
         <translation>Vuoi interrompere la cattura e salvare i pacchetti catturati%1?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1738"/>
+        <location filename="main_window.cpp" line="1740"/>
         <source>Do you want to save the captured packets%1?</source>
         <translation>Vuoi salvare i pacchetti catturati%1?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1762"/>
+        <location filename="main_window.cpp" line="1764"/>
         <source>Save before Continue</source>
         <translation>Salva prima di continuare</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1764"/>
+        <location filename="main_window.cpp" line="1766"/>
         <source>Stop and Save</source>
         <translation>Ferma e salva</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1776"/>
+        <location filename="main_window.cpp" line="1778"/>
         <source>Stop and Quit &amp;without Saving</source>
         <oldsource>Stop and Quit without Saving</oldsource>
         <translation>Ferma ed esci senza sal&amp;vare</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1788"/>
+        <location filename="main_window.cpp" line="1790"/>
         <source>Quit &amp;without Saving</source>
         <oldsource>Quit without Saving</oldsource>
         <translation>Esci senza sal&amp;vare</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="771"/>
-        <location filename="main_window.cpp" line="2738"/>
+        <location filename="main_window.cpp" line="773"/>
+        <location filename="main_window.cpp" line="2740"/>
         <source>Show or hide the toolbar</source>
         <translation>Mostra o nascondi la barra degli strumenti</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1779"/>
-        <location filename="main_window.cpp" line="1792"/>
+        <location filename="main_window.cpp" line="1781"/>
+        <location filename="main_window.cpp" line="1794"/>
         <source>Continue &amp;without Saving</source>
         <oldsource>Continue without Saving</oldsource>
         <translation>Continua senza sal&amp;vare</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1782"/>
+        <location filename="main_window.cpp" line="1784"/>
         <source>Stop and Continue &amp;without Saving</source>
         <oldsource>Stop and Continue without Saving</oldsource>
         <translation>Ferma e continua senza sal&amp;vare</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2160"/>
+        <location filename="main_window.cpp" line="2162"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>(Il nome del file non può essere associato in UTF-8)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2181"/>
+        <location filename="main_window.cpp" line="2183"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>Wireshark l&apos;analizzatore di rete</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="2206"/>
+        <location filename="main_window.cpp" line="2208"/>
         <source>Capturing from %1</source>
         <translation>Cattura da %1</translation>
     </message>
@@ -13864,62 +13879,62 @@ a:hover {
         <translation>Annulla</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="324"/>
+        <location filename="search_frame.cpp" line="323"/>
         <source>No valid search type selected. Please report this to the development team.</source>
         <translation>Nessun tipo di ricerca valida selezionata. Segnala il problema alla squadra di sviluppo.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="276"/>
+        <location filename="search_frame.cpp" line="275"/>
         <source>Invalid filter.</source>
         <translation>Filtro non valido.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="282"/>
+        <location filename="search_frame.cpp" line="281"/>
         <source>That filter doesn&apos;t test anything.</source>
         <translation>Il filtro non verifica niente.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="290"/>
+        <location filename="search_frame.cpp" line="289"/>
         <source>That&apos;s not a valid hex string.</source>
         <translation>Questa non è una stringa esadecimale valida.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="299"/>
+        <location filename="search_frame.cpp" line="298"/>
         <source>You didn&apos;t specify any text for which to search.</source>
         <translation>Non hai specificato alcun testo da ricercare.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="317"/>
+        <location filename="search_frame.cpp" line="316"/>
         <source>No valid character set selected. Please report this to the development team.</source>
         <translation>Nessun gruppo di caratteri valido selezionato. Segnala il problema alla squadra di sviluppo.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="340"/>
+        <location filename="search_frame.cpp" line="339"/>
         <source>No valid search area selected. Please report this to the development team.</source>
         <translation>Nessuna area di ricerca valida selezionata. Segnala il problema alla squadra di sviluppo.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="354"/>
+        <location filename="search_frame.cpp" line="353"/>
         <source>No packet contained those bytes.</source>
         <translation>Nessun pacchetto contiene questi byte.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="368"/>
+        <location filename="search_frame.cpp" line="367"/>
         <source>No packet contained that string in its Info column.</source>
         <translation>Nessun pacchetto contiene questa stringa nella colonna delle informazioni.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="377"/>
+        <location filename="search_frame.cpp" line="376"/>
         <source>No packet contained that string in its dissected display.</source>
         <translation>Nessun pacchetto contiene questa stringa nella sua visualizzazione decodificata.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="386"/>
+        <location filename="search_frame.cpp" line="385"/>
         <source>No packet contained that string in its converted data.</source>
         <translation>Nessun pacchetto contiene questa stringa nei suoi dati convertiti.</translation>
     </message>
     <message>
-        <location filename="search_frame.cpp" line="396"/>
+        <location filename="search_frame.cpp" line="395"/>
         <source>No packet matched that filter.</source>
         <translation>Nessun pacchetto corrisponde a questo filtro.</translation>
     </message>
