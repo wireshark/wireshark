@@ -688,14 +688,14 @@ decode_simple (GtkWidget *notebook_pg)
         guint8 saved_curr_layer_num = cfile.edt->pi.curr_layer_num;
         cfile.edt->pi.curr_layer_num = (guint8)GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_CURR_LAYER_NUM));
         value_ptr = entry->values[requested_index].build_values[value_loop](&cfile.edt->pi);
-        /* Find the handle currently associated with the value */
-        temp_handle = dissector_get_uint_handle(sub_dissectors, GPOINTER_TO_UINT(value_ptr));
         if (abbrev != NULL && strcmp(abbrev, "(default)") == 0) {
 
             add_reset_list = entry->reset_value(table_name, value_ptr);
 
             /* For now, only numeric dissector tables can use preferences */
             if (IS_FT_UINT(dissector_table_get_type(sub_dissectors))) {
+                /* Find the handle currently associated with the value */
+                temp_handle = dissector_get_uint_handle(sub_dissectors, GPOINTER_TO_UINT(value_ptr));
                 if (temp_handle != NULL) {
                     module = prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(temp_handle)));
                     pref_value = prefs_find_preference(module, table_name);
@@ -719,6 +719,8 @@ decode_simple (GtkWidget *notebook_pg)
                     }
                 }
                 else {
+                    /* Find the handle currently associated with the value */
+                    temp_handle = dissector_get_uint_handle(sub_dissectors, GPOINTER_TO_UINT(value_ptr));
                     if (temp_handle != NULL) {
                         module = prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(temp_handle)));
                         pref_value = prefs_find_preference(module, table_name);
