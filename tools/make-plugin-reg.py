@@ -7,8 +7,6 @@
 import os
 import sys
 import re
-import hashlib
-from stat import *
 
 #
 # The first argument is the directory in which the source files live.
@@ -72,7 +70,6 @@ patterns = [
 # Grep
 for filename in filenames:
     file = open(filename)
-    cur_mtime = os.fstat(file.fileno())[ST_MTIME]
     # Read the whole file into memory
     contents = file.read()
     for action in patterns:
@@ -157,30 +154,11 @@ register_wtap_module(void)
         reg_code += "    {extern void %s (void); %s ();}\n" % (symbol, symbol)
     reg_code += "}"
 
-# Compare current and new content and update the file if anything has changed.
-
-try:    # Python >= 2.6, >= 3.0
-    reg_code_bytes = bytes(reg_code.encode('utf-8'))
-except:
-    reg_code_bytes = reg_code
-
-new_hash = hashlib.sha1(reg_code_bytes).hexdigest()
-
 try:
-    fh = open(final_filename, 'rb')
-    cur_hash = hashlib.sha1(fh.read()).hexdigest()
+    print(('Updating ' + final_filename))
+    fh = open(final_filename, 'w')
+    fh.write(reg_code)
     fh.close()
-except:
-    cur_hash = ''
-
-try:
-    if new_hash != cur_hash:
-        print(('Updating ' + final_filename))
-        fh = open(final_filename, 'w')
-        fh.write(reg_code)
-        fh.close()
-    else:
-        print((final_filename + ' unchanged.'))
 except OSError:
     sys.exit('Unable to write ' + final_filename + '.\n')
 
