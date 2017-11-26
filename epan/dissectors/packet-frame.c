@@ -232,6 +232,18 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 	case REC_TYPE_PACKET:
 		pinfo->current_proto = "Frame";
+		if (pinfo->phdr->presence_flags & WTAP_HAS_PACK_FLAGS) {
+			if (pinfo->phdr->pack_flags & 0x00000001)
+				pinfo->p2p_dir = P2P_DIR_RECV;
+			if (pinfo->phdr->pack_flags & 0x00000002)
+				pinfo->p2p_dir = P2P_DIR_SENT;
+		}
+
+		/*
+		 * If the pseudo-header *and* the packet record both
+		 * have direction information, the pseudo-header
+		 * overrides the packet record.
+		 */
 		if (pinfo->pseudo_header != NULL) {
 			switch (pinfo->pkt_encap) {
 
@@ -364,14 +376,10 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			    pinfo->phdr->interface_id);
 		}
 		if (pinfo->phdr->presence_flags & WTAP_HAS_PACK_FLAGS) {
-			if (pinfo->phdr->pack_flags & 0x00000001) {
+			if (pinfo->phdr->pack_flags & 0x00000001)
 				proto_item_append_text(ti, " (inbound)");
-				pinfo->p2p_dir = P2P_DIR_RECV;
-			}
-			if (pinfo->phdr->pack_flags & 0x00000002) {
+			if (pinfo->phdr->pack_flags & 0x00000002)
 				proto_item_append_text(ti, " (outbound)");
-				pinfo->p2p_dir = P2P_DIR_SENT;
-			}
 		}
 
 		fh_tree = proto_item_add_subtree(ti, ett_frame);
