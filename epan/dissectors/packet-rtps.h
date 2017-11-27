@@ -508,6 +508,7 @@ typedef struct _rtps_dissector_data {
 #define LOCATOR_KIND_TLSV4_LAN          (10)
 #define LOCATOR_KIND_TLSV4_WAN          (11)
 #define LOCATOR_KIND_SHMEM              (0x01000000)
+#define LOCATOR_KIND_TUDPV4             (0x01001001)
 
 /* History Kind */
 #define HISTORY_KIND_KEEP_LAST          (0)

@@ -654,6 +654,7 @@ static const value_string rtps_locator_kind_vals[] = {
   { LOCATOR_KIND_TLSV4_LAN,    "LOCATOR_KIND_TLSV4_LAN" },
   { LOCATOR_KIND_TLSV4_WAN,    "LOCATOR_KIND_TLSV4_WAN" },
   { LOCATOR_KIND_SHMEM,        "LOCATOR_KIND_SHMEM" },
+  { LOCATOR_KIND_TUDPV4,       "LOCATOR_KIND_TUDPV4" },
   { LOCATOR_KIND_RESERVED,     "LOCATOR_KIND_RESERVED" },
   { 0, NULL }
 };
@@ -1737,7 +1738,8 @@ void rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb
 
   proto_tree_add_item_ret_uint(locator_tree, hf_rtps_locator_kind, tvb, offset, 4, encoding, &kind);
   switch (kind) {
-    case LOCATOR_KIND_UDPV4: {
+    case LOCATOR_KIND_UDPV4:
+    case LOCATOR_KIND_TUDPV4: {
       ti = proto_tree_add_item_ret_int(locator_tree, hf_rtps_locator_port, tvb, offset+4, 4, encoding, &port);
       proto_tree_add_item(locator_tree, hf_rtps_locator_ipv4, tvb, offset+20, 4,
               ENC_BIG_ENDIAN);
@@ -2348,7 +2350,7 @@ void rtps_util_add_liveliness_qos(proto_tree *tree, tvbuff_t *tvb, gint offset, 
 /* Insert in the protocol tree the next bytes interpreted as Liveliness
  * QoS Policy structure.
  */
-static void rtps_util_add_product_version(proto_tree *tree, tvbuff_t *tvb, gint offset) {
+static void rtps_util_add_product_version(proto_tree *tree, tvbuff_t *tvb, gint offset, gint vendor_id) {
 
   proto_tree *subtree;
   guint8 major, minor, release, revision;
@@ -2358,21 +2360,28 @@ static void rtps_util_add_product_version(proto_tree *tree, tvbuff_t *tvb, gint 
   release = tvb_get_guint8(tvb, offset+2);
   revision = tvb_get_guint8(tvb, offset+3);
 
-  if (major < 5 && revision == 0) {
+  if (vendor_id == RTPS_VENDOR_RTI_DDS) {
+    if (major < 5 && revision == 0) {
+      subtree = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_rtps_product_version, NULL,
+              "Product version: %d.%d%c", major, minor, release);
+    } else if (major < 5 && revision > 0) {
+          subtree = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_rtps_product_version, NULL,
+              "Product version: %d.%d%c rev%d", major, minor, release, revision);
+    } else {
+          subtree = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_rtps_product_version, NULL,
+              "Product version: %d.%d.%d.%d", major, minor, release, revision);
+    }
+  } else if (vendor_id == RTPS_VENDOR_RTI_DDS_MICRO) {
     subtree = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_rtps_product_version, NULL,
-            "Product version: %d.%d%c", major, minor, release);
-  } else if (major < 5 && revision > 0) {
-    subtree = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_rtps_product_version, NULL,
-            "Product version: %d.%d%c rev%d", major, minor, release, revision);
+        "Product version: %d.%d.%d", major, minor, revision);
   } else {
-    subtree = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_rtps_product_version, NULL,
-            "Product version: %d.%d.%d.%d", major, minor, release, revision);
+      return;
   }
   proto_tree_add_item(subtree, hf_rtps_param_product_version_major,
       tvb, offset, 1, ENC_NA);
   proto_tree_add_item(subtree, hf_rtps_param_product_version_minor,
       tvb, offset+1, 1, ENC_NA);
-  if (major < 5) { /* If major revision is smaller than 5, release interpreted as char */
+  if (vendor_id == RTPS_VENDOR_RTI_DDS && major < 5) { /* If major revision is smaller than 5, release interpreted as char */
     proto_tree_add_item(subtree, hf_rtps_param_product_version_release_as_char,
         tvb, offset+2, 1, ENC_ASCII|ENC_NA);
   } else {
@@ -4102,9 +4111,9 @@ static gint rtps_util_add_rti_service_request(proto_tree * tree, packet_info *pi
           break;                                                                     \
         }
 
-static gboolean dissect_parameter_sequence_rti(proto_tree *rtps_parameter_tree, packet_info *pinfo, tvbuff_t *tvb,
+static gboolean dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tree, packet_info *pinfo, tvbuff_t *tvb,
   proto_item *parameter_item, proto_item * param_len_item, gint offset,
-  const guint encoding, int param_length, guint16 parameter, gboolean is_inline_qos) {
+  const guint encoding, int param_length, guint16 parameter, gboolean is_inline_qos, guint vendor_id) {
 
   switch(parameter) {
     case PID_SAMPLE_SIGNATURE:
@@ -4314,7 +4323,7 @@ static gboolean dissect_parameter_sequence_rti(proto_tree *rtps_parameter_tree, 
     */
     case PID_PRODUCT_VERSION: {
       ENSURE_LENGTH(4);
-      rtps_util_add_product_version(rtps_parameter_tree, tvb, offset);
+      rtps_util_add_product_version(rtps_parameter_tree, tvb, offset, vendor_id);
       break;
     }
 
@@ -5917,7 +5926,8 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
     } else {
       gboolean goto_default = TRUE;
       switch(vendor_id) {
-        case RTPS_VENDOR_RTI_DDS: {
+        case RTPS_VENDOR_RTI_DDS:
+        case RTPS_VENDOR_RTI_DDS_MICRO: {
           if (is_inline_qos) {
             param_name = try_val_to_str(parameter, parameter_id_inline_qos_rti);
             if (param_name != NULL) {
@@ -5998,9 +6008,10 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
 
     /* This way, we can include vendor specific dissections without modifying the main ones */
     switch (vendor_id) {
-      case RTPS_VENDOR_RTI_DDS: {
-        dissect_return_value = dissect_parameter_sequence_rti(rtps_parameter_tree, pinfo, tvb,
-            param_item, param_len_item, offset, encoding, param_length, parameter, is_inline_qos);
+      case RTPS_VENDOR_RTI_DDS:
+      case RTPS_VENDOR_RTI_DDS_MICRO: {
+        dissect_return_value = dissect_parameter_sequence_rti_dds(rtps_parameter_tree, pinfo, tvb,
+            param_item, param_len_item, offset, encoding, param_length, parameter, is_inline_qos, vendor_id);
         break;
       }
       case RTPS_VENDOR_TOC: {
