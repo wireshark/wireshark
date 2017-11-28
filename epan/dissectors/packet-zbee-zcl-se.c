@@ -2830,7 +2830,7 @@ proto_reg_handoff_zbee_zcl_drlc(void)
     XXX(ZBEE_ZCL_ATTR_ID_MET_DAILY_CON_TARGET,                  0x000D, "Daily Consumption Target" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_BLOCK,                     0x000E, "Current Block" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PROFILE_INTERVAL_PERIOD,           0x000F, "Profile Interval Period" ) \
-/*     XXX(ZBEE_ZCL_ATTR_ID_MET_DEPRECATED,                        0x0010, "Deprecated" }, */ \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_DEPRECATED,                        0x0010, "Deprecated" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PRESET_READING_TIME,               0x0011, "Preset Reading Time" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_VOLUME_PER_REPORT,                 0x0012, "Volume Per Report" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_FLOW_RESTRICTION,                  0x0013, "Flow Restriction" ) \
@@ -2851,11 +2851,109 @@ proto_reg_handoff_zbee_zcl_drlc(void)
     XXX(ZBEE_ZCL_ATTR_ID_MET_LAST_BLOCK_SWITCH_TIME,            0x0022, "Last Block Switch Time" ) \
 /* Summation TOU Information Set */ \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_1_SUM_DEL,            0x0100, "Current Tier 1 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_1_SUM_RECV,           0x0101, "Current Tier 1 Summation Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_2_SUM_DEL,            0x0102, "Current Tier 2 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_2_SUM_RECV,           0x0103, "Current Tier 2 Summation Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_3_SUM_DEL,            0x0104, "Current Tier 3 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_3_SUM_RECV,           0x0105, "Current Tier 3 Summation Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_4_SUM_DEL,            0x0106, "Current Tier 4 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_4_SUM_RECV,           0x0107, "Current Tier 4 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_5_SUM_DEL,            0x0108, "Current Tier 5 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_5_SUM_RECV,           0x0109, "Current Tier 5 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_6_SUM_DEL,            0x010A, "Current Tier 6 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_6_SUM_RECV,           0x010B, "Current Tier 6 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_7_SUM_DEL,            0x010C, "Current Tier 7 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_7_SUM_RECV,           0x010D, "Current Tier 7 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_8_SUM_DEL,            0x010E, "Current Tier 8 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_8_SUM_RECV,           0x010F, "Current Tier 8 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_9_SUM_DEL,            0x0110, "Current Tier 9 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_9_SUM_RECV,           0x0111, "Current Tier 9 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_10_SUM_DEL,           0x0112, "Current Tier 10 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_10_SUM_RECV,          0x0113, "Current Tier 10 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_11_SUM_DEL,           0x0114, "Current Tier 11 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_11_SUM_RECV,          0x0115, "Current Tier 11 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_12_SUM_DEL,           0x0116, "Current Tier 12 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_12_SUM_RECV,          0x0117, "Current Tier 12 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_13_SUM_DEL,           0x0118, "Current Tier 13 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_13_SUM_RECV,          0x0119, "Current Tier 13 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_14_SUM_DEL,           0x011A, "Current Tier 14 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_14_SUM_RECV,          0x011B, "Current Tier 14 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_15_SUM_DEL,           0x011C, "Current Tier 15 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_15_SUM_RECV,          0x011D, "Current Tier 15 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_16_SUM_DEL,           0x011E, "Current Tier 16 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_16_SUM_RECV,          0x011F, "Current Tier 16 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_17_SUM_DEL,           0x0120, "Current Tier 17 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_17_SUM_RECV,          0x0121, "Current Tier 17 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_18_SUM_DEL,           0x0122, "Current Tier 18 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_18_SUM_RECV,          0x0123, "Current Tier 18 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_19_SUM_DEL,           0x0124, "Current Tier 19 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_19_SUM_RECV,          0x0125, "Current Tier 19 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_20_SUM_DEL,           0x0126, "Current Tier 20 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_20_SUM_RECV,          0x0127, "Current Tier 20 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_21_SUM_DEL,           0x0128, "Current Tier 21 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_21_SUM_RECV,          0x0129, "Current Tier 21 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_22_SUM_DEL,           0x012A, "Current Tier 22 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_22_SUM_RECV,          0x012B, "Current Tier 22 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_23_SUM_DEL,           0x012C, "Current Tier 23 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_23_SUM_RECV,          0x012D, "Current Tier 23 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_24_SUM_DEL,           0x012E, "Current Tier 24 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_24_SUM_RECV,          0x012F, "Current Tier 24 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_25_SUM_DEL,           0x0130, "Current Tier 25 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_25_SUM_RECV,          0x0131, "Current Tier 25 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_26_SUM_DEL,           0x0132, "Current Tier 26 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_26_SUM_RECV,          0x0133, "Current Tier 26 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_27_SUM_DEL,           0x0134, "Current Tier 27 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_27_SUM_RECV,          0x0135, "Current Tier 27 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_28_SUM_DEL,           0x0136, "Current Tier 28 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_28_SUM_RECV,          0x0137, "Current Tier 28 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_29_SUM_DEL,           0x0138, "Current Tier 29 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_29_SUM_RECV,          0x0139, "Current Tier 29 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_30_SUM_DEL,           0x013A, "Current Tier 30 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_30_SUM_RECV,          0x013B, "Current Tier 30 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_31_SUM_DEL,           0x013C, "Current Tier 31 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_31_SUM_RECV,          0x013D, "Current Tier 31 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_32_SUM_DEL,           0x013E, "Current Tier 32 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_32_SUM_RECV,          0x013F, "Current Tier 32 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_33_SUM_DEL,           0x0140, "Current Tier 33 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_33_SUM_RECV,          0x0141, "Current Tier 33 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_34_SUM_DEL,           0x0142, "Current Tier 34 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_34_SUM_RECV,          0x0143, "Current Tier 34 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_35_SUM_DEL,           0x0144, "Current Tier 35 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_35_SUM_RECV,          0x0145, "Current Tier 35 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_36_SUM_DEL,           0x0146, "Current Tier 36 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_36_SUM_RECV,          0x0147, "Current Tier 36 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_37_SUM_DEL,           0x0148, "Current Tier 37 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_37_SUM_RECV,          0x0149, "Current Tier 37 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_38_SUM_DEL,           0x014A, "Current Tier 38 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_38_SUM_RECV,          0x014B, "Current Tier 38 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_39_SUM_DEL,           0x014C, "Current Tier 39 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_39_SUM_RECV,          0x014D, "Current Tier 39 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_40_SUM_DEL,           0x014E, "Current Tier 40 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_40_SUM_RECV,          0x014F, "Current Tier 40 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_41_SUM_DEL,           0x0150, "Current Tier 41 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_41_SUM_RECV,          0x0151, "Current Tier 41 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_42_SUM_DEL,           0x0152, "Current Tier 42 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_42_SUM_RECV,          0x0153, "Current Tier 42 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_43_SUM_DEL,           0x0154, "Current Tier 43 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_43_SUM_RECV,          0x0155, "Current Tier 43 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_44_SUM_DEL,           0x0156, "Current Tier 44 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_44_SUM_RECV,          0x0157, "Current Tier 44 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_45_SUM_DEL,           0x0158, "Current Tier 45 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_45_SUM_RECV,          0x0159, "Current Tier 45 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_46_SUM_DEL,           0x015A, "Current Tier 46 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_46_SUM_RECV,          0x015B, "Current Tier 46 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_47_SUM_DEL,           0x015C, "Current Tier 47 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_47_SUM_RECV,          0x015D, "Current Tier 47 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_48_SUM_DEL,           0x015E, "Current Tier 48 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_TIER_48_SUM_RECV,          0x015F, "Current Tier 48 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CPP1_SUMMATION_DELIVERED,          0x01FC, "CPP1 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CPP2_SUMMATION_DELIVERED,          0x01FE, "CPP2 Summation Delivered" ) \
 /* Meter Status Attribute Set */ \
     XXX(ZBEE_ZCL_ATTR_ID_MET_STATUS,                            0x0200, "Status" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_REMAIN_BAT_LIFE,                   0x0201, "Remaining Battery Life" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_HOURS_IN_OPERATION,                0x0202, "Hours in Operation" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_HOURS_IN_FAULT,                    0x0203, "Hours in Fault" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_EXTENDED_STATUS,                   0x0204, "Extended Status" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_REMAIN_BAT_LIFE_DAYS,              0x0205, "Remaining Battery Life in Days" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_METER_ID,                  0x0206, "Current Meter ID" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_AMBIENT_CON_IND,                   0x0207, "Ambient Consumption Indicator" ) \
@@ -2864,100 +2962,730 @@ proto_reg_handoff_zbee_zcl_drlc(void)
     XXX(ZBEE_ZCL_ATTR_ID_MET_MULTIPLIER,                        0x0301, "Multiplier" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_DIVISOR,                           0x0302, "Divisor" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_SUMMATION_FORMATTING,              0x0303, "Summation Formatting" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_DEMAND_FORMATTING,                 0x0304, "Demand Formatting" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_HISTORICAL_CON_FORMATTING,         0x0305, "Historical Consumption Formatting" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_METERING_DEVICE_TYPE,              0x0306, "Metering Device Type" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_SITE_ID,                           0x0307, "Site ID" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_METER_SERIAL_NUMBER,               0x0308, "Meter Serial Number" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_ENERGY_CARRIER_UNIT_OF_MEASURE,    0x0309, "Energy Carrier Unit of Measure" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_ENERGY_CARRIER_SUMMATION_FORMAT,   0x030A, "Energy Carrier Summation Formatting" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_ENERGY_CARRIER_DEMAND_FORMAT,      0x030B, "Energy Carrier Demand Formatting" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_TEMPERATURE_UNIT_OF_MEASURE,       0x030C, "Temperature Unit of Measure" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_TEMPERATURE_FORMATTING,            0x030D, "Temperature Formatting" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_MODULE_SERIAL_NUMBER,              0x030E, "Module Serial Number" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_OPERATING_TARIFF_LABEL_DELIVERED,  0x030F, "Operating Tariff Label Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_OPERATING_TARIFF_LABEL_RECEIVED,   0x0310, "Operating Tariff Label Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUSTOMER_ID_NUMBER,                0x0311, "Customer ID Number" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_ALT_UNIT_OF_MEASURE,               0x0312, "Alternative Unit of Measure" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_ALT_DEMAND_FORMATTING,             0x0313, "Alternative Demand Formatting" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_ALT_CON_FORMATTING,                0x0314, "Alternative Consumption Formatting" ) \
 /* Historical Consumption Attribute */ \
     XXX(ZBEE_ZCL_ATTR_ID_MET_INSTANT_DEMAND,                    0x0400, "Instantaneous Demand" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_DAY_CON_DEL,                   0x0401, "Current Day Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_DAY_CON_RECV,                  0x0402, "Current Day Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_CON_DEL,                  0x0403, "Previous Day Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_CON_RECV,                 0x0404, "Previous Day Consumption Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_PAR_PROF_INT_START_DEL,    0x0405, "Current Partial Profile Interval Start Time Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_PAR_PROF_INT_START_RECV,   0x0406, "Current Partial Profile Interval Start Time Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_PAR_PROF_INT_VALUE_DEL,    0x0407, "Current Partial Profile Interval Value Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_PAR_PROF_INT_VALUE_RECV,   0x0408, "Current Partial Profile Interval Value Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_DAY_MAX_PRESSURE,          0x0409, "Current Day Max Pressure" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_DAY_MIN_PRESSURE,          0x040A, "Current Day Min Pressure" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREVIOUS_DAY_MAX_PRESSURE,         0x040B, "Previous Day Max Pressure" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREVIOUS_DAY_MIN_PRESSURE,         0x040C, "Previous Day Min Pressure" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_DAY_MAX_DEMAND,            0x040D, "Current Day Max Demand" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREVIOUS_DAY_MAX_DEMAND,           0x040E, "Previous Day Max Demand" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_MONTH_MAX_DEMAND,          0x040F, "Current Month Max Demand" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_YEAR_MAX_DEMAND,           0x0410, "Current Year Max Demand" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_DAY_MAX_ENERGY_CARR_DEM,   0x0411, "Current Day Max Energy Carrier Demand" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREVIOUS_DAY_MAX_ENERGY_CARR_DEM,  0x0412, "Previous Day Max Energy Carrier Demand" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_MONTH_MAX_ENERGY_CARR_DEM, 0x0413, "Current Month Max Energy Carrier Demand" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_MONTH_MIN_ENERGY_CARR_DEM, 0x0414, "Current Month Min Energy Carrier Demand" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_YEAR_MAX_ENERGY_CARR_DEM,  0x0415, "Current Year Max Energy Carrier Demand" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_YEAR_MIN_ENERGY_CARR_DEM,  0x0415, "Current Year Min Energy Carrier Demand" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_2_DAY_CON_DEL,                0x0420, "Previous Day 2 Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_2_DAY_CON_RECV,               0x0421, "Previous Day 2 Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_3_DAY_CON_DEL,                0x0422, "Previous Day 3 Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_3_DAY_CON_RECV,               0x0423, "Previous Day 3 Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_4_DAY_CON_DEL,                0x0424, "Previous Day 4 Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_4_DAY_CON_RECV,               0x0425, "Previous Day 4 Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_5_DAY_CON_DEL,                0x0426, "Previous Day 5 Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_5_DAY_CON_RECV,               0x0427, "Previous Day 5 Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_6_DAY_CON_DEL,                0x0428, "Previous Day 6 Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_6_DAY_CON_RECV,               0x0429, "Previous Day 6 Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_7_DAY_CON_DEL,                0x042A, "Previous Day 7 Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_7_DAY_CON_RECV,               0x042B, "Previous Day 7 Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_8_DAY_CON_DEL,                0x042C, "Previous Day 8 Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_8_DAY_CON_RECV,               0x042D, "Previous Day 8 Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_WEEK_CON_DEL,                  0x0430, "Current Week Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_WEEK_CON_RECV,                 0x0431, "Current Week Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_CON_DEL,                 0x0432, "Previous Week Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_CON_RECV,                0x0433, "Previous Week Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_2_CON_DEL,               0x0434, "Previous Week 2 Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_2_CON_RECV,              0x0435, "Previous Week 2 Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_3_CON_DEL,               0x0436, "Previous Week 3 Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_3_CON_RECV,              0x0437, "Previous Week 3 Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_4_CON_DEL,               0x0438, "Previous Week 4 Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_4_CON_RECV,              0x0439, "Previous Week 4 Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_5_CON_DEL,               0x043A, "Previous Week 5 Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_5_CON_RECV,              0x043B, "Previous Week 5 Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_MONTH_CON_DEL,                 0x0440, "Current Month Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_MONTH_CON_RECV,                0x0441, "Current Month Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_CON_DEL,                0x0442, "Previous Month Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_CON_RECV,               0x0443, "Previous Month Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_2_CON_DEL,              0x0444, "Previous Month 2 Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_2_CON_RECV,             0x0445, "Previous Month 2 Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_3_CON_DEL,              0x0446, "Previous Month 3 Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_3_CON_RECV,             0x0447, "Previous Month 3 Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_4_CON_DEL,              0x0448, "Previous Month 4 Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_4_CON_RECV,             0x0449, "Previous Month 4 Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_5_CON_DEL,              0x044A, "Previous Month 5 Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_5_CON_RECV,             0x044B, "Previous Month 5 Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_6_CON_DEL,              0x044C, "Previous Month 6 Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_6_CON_RECV,             0x044D, "Previous Month 6 Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_7_CON_DEL,              0x044E, "Previous Month 7 Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_7_CON_RECV,             0x044F, "Previous Month 7 Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_8_CON_DEL,              0x0450, "Previous Month 8 Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_8_CON_RECV,             0x0451, "Previous Month 8 Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_9_CON_DEL,              0x0452, "Previous Month 9 Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_9_CON_RECV,             0x0453, "Previous Month 9 Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_10_CON_DEL,             0x0454, "Previous Month 10 Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_10_CON_RECV,            0x0455, "Previous Month 10 Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_11_CON_DEL,             0x0456, "Previous Month 11 Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_11_CON_RECV,            0x0457, "Previous Month 11 Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_12_CON_DEL,             0x0458, "Previous Month 12 Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_12_CON_RECV,            0x0459, "Previous Month 12 Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_13_CON_DEL,             0x045A, "Previous Month 13 Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_13_CON_RECV,            0x045B, "Previous Month 13 Consumption Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_HISTORICAL_FREEZE_TIME,            0x045C, "Historical Freeze Time" ) \
+/* Load Profile Configuration */ \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_MAX_NUMBER_OF_PERIODS_DELIVERED,   0x0500, "Max Number of Periods Delivered" ) \
 /* Supply Limit Attributes */ \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_DEMAND_DELIVERED,          0x0600, "Current Demand Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_DEMAND_LIMIT,                      0x0601, "Demand Limit" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_DEMAND_INTEGRATION_PERIOD,         0x0602, "Demand Integration Period" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_NUMBER_OF_DEMAND_SUBINTERVALS,     0x0603, "Number of Demand Subintervals" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_DEMAND_LIMIT_ARM_DURATION,         0x0604, "Demand Limit Arm Duration" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_LOAD_LIMIT_SUPPLY_STATE,           0x0605, "Load Limit Supply State" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_LOAD_LIMIT_COUNTER,                0x0606, "Load Limit Counter" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_SUPPLY_TAMPER_STATE,               0x0607, "Supply Tamper State" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_SUPPLY_DEPLETION_STATE,            0x0608, "Supply Depletion State" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_SUPPLY_UNCONTROLLED_FLOW_STATE,    0x0609, "Supply Uncontrolled Flow State" ) \
 /* Block Information Attribute Set (Delivered) */ \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_1_SUM_DEL,       0x0700, "Current No Tier Block 1 Summation Delivered" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_2_SUM_DEL,       0x0701, "Current No Tier Block 2 Summation Delivered" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_3_SUM_DEL,       0x0702, "Current No Tier Block 3 Summation Delivered" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_4_SUM_DEL,       0x0703, "Current No Tier Block 4 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_5_SUM_DEL,       0x0704, "Current No Tier Block 5 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_6_SUM_DEL,       0x0705, "Current No Tier Block 6 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_7_SUM_DEL,       0x0706, "Current No Tier Block 7 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_8_SUM_DEL,       0x0707, "Current No Tier Block 8 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_9_SUM_DEL,       0x0708, "Current No Tier Block 9 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_10_SUM_DEL,      0x0709, "Current No Tier Block 10 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_11_SUM_DEL,      0x070A, "Current No Tier Block 11 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_12_SUM_DEL,      0x070B, "Current No Tier Block 12 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_13_SUM_DEL,      0x070C, "Current No Tier Block 13 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_14_SUM_DEL,      0x070D, "Current No Tier Block 14 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_15_SUM_DEL,      0x070E, "Current No Tier Block 15 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_16_SUM_DEL,      0x070F, "Current No Tier Block 16 Summation Delivered" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_1_SUM_DEL,        0x0710, "Current Tier 1 Block 1 Summation Delivered" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_2_SUM_DEL,        0x0711, "Current Tier 1 Block 2 Summation Delivered" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_3_SUM_DEL,        0x0712, "Current Tier 1 Block 3 Summation Delivered" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_4_SUM_DEL,        0x0713, "Current Tier 1 Block 4 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_5_SUM_DEL,        0x0714, "Current Tier 1 Block 5 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_6_SUM_DEL,        0x0715, "Current Tier 1 Block 6 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_7_SUM_DEL,        0x0716, "Current Tier 1 Block 7 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_8_SUM_DEL,        0x0717, "Current Tier 1 Block 8 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_9_SUM_DEL,        0x0718, "Current Tier 1 Block 9 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_10_SUM_DEL,       0x0719, "Current Tier 1 Block 10 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_11_SUM_DEL,       0x071A, "Current Tier 1 Block 11 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_12_SUM_DEL,       0x071B, "Current Tier 1 Block 12 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_13_SUM_DEL,       0x071C, "Current Tier 1 Block 13 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_14_SUM_DEL,       0x071D, "Current Tier 1 Block 14 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_15_SUM_DEL,       0x071E, "Current Tier 1 Block 15 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_16_SUM_DEL,       0x071F, "Current Tier 1 Block 16 Summation Delivered" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_1_SUM_DEL,        0x0720, "Current Tier 2 Block 1 Summation Delivered" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_2_SUM_DEL,        0x0721, "Current Tier 2 Block 2 Summation Delivered" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_3_SUM_DEL,        0x0722, "Current Tier 2 Block 3 Summation Delivered" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_4_SUM_DEL,        0x0723, "Current Tier 2 Block 4 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_5_SUM_DEL,        0x0724, "Current Tier 2 Block 5 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_6_SUM_DEL,        0x0725, "Current Tier 2 Block 6 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_7_SUM_DEL,        0x0726, "Current Tier 2 Block 7 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_8_SUM_DEL,        0x0727, "Current Tier 2 Block 8 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_9_SUM_DEL,        0x0728, "Current Tier 2 Block 9 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_10_SUM_DEL,       0x0729, "Current Tier 2 Block 10 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_11_SUM_DEL,       0x072A, "Current Tier 2 Block 11 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_12_SUM_DEL,       0x072B, "Current Tier 2 Block 12 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_13_SUM_DEL,       0x072C, "Current Tier 2 Block 13 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_14_SUM_DEL,       0x072D, "Current Tier 2 Block 14 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_15_SUM_DEL,       0x072E, "Current Tier 2 Block 15 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_16_SUM_DEL,       0x072F, "Current Tier 2 Block 16 Summation Delivered" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_1_SUM_DEL,        0x0730, "Current Tier 3 Block 1 Summation Delivered" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_2_SUM_DEL,        0x0731, "Current Tier 3 Block 2 Summation Delivered" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_3_SUM_DEL,        0x0732, "Current Tier 3 Block 3 Summation Delivered" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_4_SUM_DEL,        0x0733, "Current Tier 3 Block 4 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_5_SUM_DEL,        0x0734, "Current Tier 3 Block 5 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_6_SUM_DEL,        0x0735, "Current Tier 3 Block 6 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_7_SUM_DEL,        0x0736, "Current Tier 3 Block 7 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_8_SUM_DEL,        0x0737, "Current Tier 3 Block 8 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_9_SUM_DEL,        0x0738, "Current Tier 3 Block 9 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_10_SUM_DEL,       0x0739, "Current Tier 3 Block 10 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_11_SUM_DEL,       0x073A, "Current Tier 3 Block 11 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_12_SUM_DEL,       0x073B, "Current Tier 3 Block 12 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_13_SUM_DEL,       0x073C, "Current Tier 3 Block 13 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_14_SUM_DEL,       0x073D, "Current Tier 3 Block 14 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_15_SUM_DEL,       0x073E, "Current Tier 3 Block 15 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_16_SUM_DEL,       0x073F, "Current Tier 3 Block 16 Summation Delivered" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_1_SUM_DEL,        0x0740, "Current Tier 4 Block 1 Summation Delivered" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_2_SUM_DEL,        0x0741, "Current Tier 4 Block 2 Summation Delivered" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_3_SUM_DEL,        0x0742, "Current Tier 4 Block 3 Summation Delivered" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_4_SUM_DEL,        0x0743, "Current Tier 4 Block 4 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_5_SUM_DEL,        0x0744, "Current Tier 4 Block 5 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_6_SUM_DEL,        0x0745, "Current Tier 4 Block 6 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_7_SUM_DEL,        0x0746, "Current Tier 4 Block 7 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_8_SUM_DEL,        0x0747, "Current Tier 4 Block 8 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_9_SUM_DEL,        0x0748, "Current Tier 4 Block 9 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_10_SUM_DEL,       0x0749, "Current Tier 4 Block 10 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_11_SUM_DEL,       0x074A, "Current Tier 4 Block 11 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_12_SUM_DEL,       0x074B, "Current Tier 4 Block 12 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_13_SUM_DEL,       0x074C, "Current Tier 4 Block 13 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_14_SUM_DEL,       0x074D, "Current Tier 4 Block 14 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_15_SUM_DEL,       0x074E, "Current Tier 4 Block 15 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_16_SUM_DEL,       0x074F, "Current Tier 4 Block 16 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_1_SUM_DEL,        0x0750, "Current Tier 5 Block 1 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_2_SUM_DEL,        0x0751, "Current Tier 5 Block 2 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_3_SUM_DEL,        0x0752, "Current Tier 5 Block 3 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_4_SUM_DEL,        0x0753, "Current Tier 5 Block 4 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_5_SUM_DEL,        0x0754, "Current Tier 5 Block 5 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_6_SUM_DEL,        0x0755, "Current Tier 5 Block 6 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_7_SUM_DEL,        0x0756, "Current Tier 5 Block 7 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_8_SUM_DEL,        0x0757, "Current Tier 5 Block 8 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_9_SUM_DEL,        0x0758, "Current Tier 5 Block 9 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_10_SUM_DEL,       0x0759, "Current Tier 5 Block 10 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_11_SUM_DEL,       0x075A, "Current Tier 5 Block 11 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_12_SUM_DEL,       0x075B, "Current Tier 5 Block 12 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_13_SUM_DEL,       0x075C, "Current Tier 5 Block 13 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_14_SUM_DEL,       0x075D, "Current Tier 5 Block 14 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_15_SUM_DEL,       0x075E, "Current Tier 5 Block 15 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_16_SUM_DEL,       0x075F, "Current Tier 5 Block 16 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_1_SUM_DEL,        0x0760, "Current Tier 6 Block 1 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_2_SUM_DEL,        0x0761, "Current Tier 6 Block 2 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_3_SUM_DEL,        0x0762, "Current Tier 6 Block 3 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_4_SUM_DEL,        0x0763, "Current Tier 6 Block 4 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_5_SUM_DEL,        0x0764, "Current Tier 6 Block 5 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_6_SUM_DEL,        0x0765, "Current Tier 6 Block 6 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_7_SUM_DEL,        0x0766, "Current Tier 6 Block 7 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_8_SUM_DEL,        0x0767, "Current Tier 6 Block 8 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_9_SUM_DEL,        0x0768, "Current Tier 6 Block 9 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_10_SUM_DEL,       0x0769, "Current Tier 6 Block 10 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_11_SUM_DEL,       0x076A, "Current Tier 6 Block 11 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_12_SUM_DEL,       0x076B, "Current Tier 6 Block 12 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_13_SUM_DEL,       0x076C, "Current Tier 6 Block 13 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_14_SUM_DEL,       0x076D, "Current Tier 6 Block 14 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_15_SUM_DEL,       0x076E, "Current Tier 6 Block 15 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_16_SUM_DEL,       0x076F, "Current Tier 6 Block 16 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_1_SUM_DEL,        0x0770, "Current Tier 7 Block 1 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_2_SUM_DEL,        0x0771, "Current Tier 7 Block 2 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_3_SUM_DEL,        0x0772, "Current Tier 7 Block 3 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_4_SUM_DEL,        0x0773, "Current Tier 7 Block 4 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_5_SUM_DEL,        0x0774, "Current Tier 7 Block 5 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_6_SUM_DEL,        0x0775, "Current Tier 7 Block 6 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_7_SUM_DEL,        0x0776, "Current Tier 7 Block 7 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_8_SUM_DEL,        0x0777, "Current Tier 7 Block 8 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_9_SUM_DEL,        0x0778, "Current Tier 7 Block 9 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_10_SUM_DEL,       0x0779, "Current Tier 7 Block 10 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_11_SUM_DEL,       0x077A, "Current Tier 7 Block 11 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_12_SUM_DEL,       0x077B, "Current Tier 7 Block 12 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_13_SUM_DEL,       0x077C, "Current Tier 7 Block 13 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_14_SUM_DEL,       0x077D, "Current Tier 7 Block 14 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_15_SUM_DEL,       0x077E, "Current Tier 7 Block 15 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_16_SUM_DEL,       0x077F, "Current Tier 7 Block 16 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_1_SUM_DEL,        0x0780, "Current Tier 8 Block 1 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_2_SUM_DEL,        0x0781, "Current Tier 8 Block 2 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_3_SUM_DEL,        0x0782, "Current Tier 8 Block 3 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_4_SUM_DEL,        0x0783, "Current Tier 8 Block 4 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_5_SUM_DEL,        0x0784, "Current Tier 8 Block 5 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_6_SUM_DEL,        0x0785, "Current Tier 8 Block 6 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_7_SUM_DEL,        0x0786, "Current Tier 8 Block 7 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_8_SUM_DEL,        0x0787, "Current Tier 8 Block 8 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_9_SUM_DEL,        0x0788, "Current Tier 8 Block 9 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_10_SUM_DEL,       0x0789, "Current Tier 8 Block 10 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_11_SUM_DEL,       0x078A, "Current Tier 8 Block 11 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_12_SUM_DEL,       0x078B, "Current Tier 8 Block 12 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_13_SUM_DEL,       0x078C, "Current Tier 8 Block 13 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_14_SUM_DEL,       0x078D, "Current Tier 8 Block 14 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_15_SUM_DEL,       0x078E, "Current Tier 8 Block 15 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_16_SUM_DEL,       0x078F, "Current Tier 8 Block 16 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_1_SUM_DEL,        0x0790, "Current Tier 9 Block 1 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_2_SUM_DEL,        0x0791, "Current Tier 9 Block 2 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_3_SUM_DEL,        0x0792, "Current Tier 9 Block 3 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_4_SUM_DEL,        0x0793, "Current Tier 9 Block 4 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_5_SUM_DEL,        0x0794, "Current Tier 9 Block 5 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_6_SUM_DEL,        0x0795, "Current Tier 9 Block 6 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_7_SUM_DEL,        0x0796, "Current Tier 9 Block 7 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_8_SUM_DEL,        0x0797, "Current Tier 9 Block 8 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_9_SUM_DEL,        0x0798, "Current Tier 9 Block 9 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_10_SUM_DEL,       0x0799, "Current Tier 9 Block 10 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_11_SUM_DEL,       0x079A, "Current Tier 9 Block 11 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_12_SUM_DEL,       0x079B, "Current Tier 9 Block 12 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_13_SUM_DEL,       0x079C, "Current Tier 9 Block 13 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_14_SUM_DEL,       0x079D, "Current Tier 9 Block 14 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_15_SUM_DEL,       0x079E, "Current Tier 9 Block 15 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_16_SUM_DEL,       0x079F, "Current Tier 9 Block 16 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_1_SUM_DEL,       0x07A0, "Current Tier 10 Block 1 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_2_SUM_DEL,       0x07A1, "Current Tier 10 Block 2 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_3_SUM_DEL,       0x07A2, "Current Tier 10 Block 3 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_4_SUM_DEL,       0x07A3, "Current Tier 10 Block 4 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_5_SUM_DEL,       0x07A4, "Current Tier 10 Block 5 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_6_SUM_DEL,       0x07A5, "Current Tier 10 Block 6 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_7_SUM_DEL,       0x07A6, "Current Tier 10 Block 7 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_8_SUM_DEL,       0x07A7, "Current Tier 10 Block 8 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_9_SUM_DEL,       0x07A8, "Current Tier 10 Block 9 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_10_SUM_DEL,      0x07A9, "Current Tier 10 Block 10 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_11_SUM_DEL,      0x07AA, "Current Tier 10 Block 11 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_12_SUM_DEL,      0x07AB, "Current Tier 10 Block 12 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_13_SUM_DEL,      0x07AC, "Current Tier 10 Block 13 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_14_SUM_DEL,      0x07AD, "Current Tier 10 Block 14 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_15_SUM_DEL,      0x07AE, "Current Tier 10 Block 15 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_16_SUM_DEL,      0x07AF, "Current Tier 10 Block 16 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_1_SUM_DEL,       0x07B0, "Current Tier 11 Block 1 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_2_SUM_DEL,       0x07B1, "Current Tier 11 Block 2 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_3_SUM_DEL,       0x07B2, "Current Tier 11 Block 3 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_4_SUM_DEL,       0x07B3, "Current Tier 11 Block 4 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_5_SUM_DEL,       0x07B4, "Current Tier 11 Block 5 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_6_SUM_DEL,       0x07B5, "Current Tier 11 Block 6 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_7_SUM_DEL,       0x07B6, "Current Tier 11 Block 7 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_8_SUM_DEL,       0x07B7, "Current Tier 11 Block 8 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_9_SUM_DEL,       0x07B8, "Current Tier 11 Block 9 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_10_SUM_DEL,      0x07B9, "Current Tier 11 Block 10 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_11_SUM_DEL,      0x07BA, "Current Tier 11 Block 11 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_12_SUM_DEL,      0x07BB, "Current Tier 11 Block 12 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_13_SUM_DEL,      0x07BC, "Current Tier 11 Block 13 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_14_SUM_DEL,      0x07BD, "Current Tier 11 Block 14 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_15_SUM_DEL,      0x07BE, "Current Tier 11 Block 15 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_16_SUM_DEL,      0x07BF, "Current Tier 11 Block 16 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_1_SUM_DEL,       0x07C0, "Current Tier 12 Block 1 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_2_SUM_DEL,       0x07C1, "Current Tier 12 Block 2 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_3_SUM_DEL,       0x07C2, "Current Tier 12 Block 3 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_4_SUM_DEL,       0x07C3, "Current Tier 12 Block 4 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_5_SUM_DEL,       0x07C4, "Current Tier 12 Block 5 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_6_SUM_DEL,       0x07C5, "Current Tier 12 Block 6 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_7_SUM_DEL,       0x07C6, "Current Tier 12 Block 7 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_8_SUM_DEL,       0x07C7, "Current Tier 12 Block 8 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_9_SUM_DEL,       0x07C8, "Current Tier 12 Block 9 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_10_SUM_DEL,      0x07C9, "Current Tier 12 Block 10 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_11_SUM_DEL,      0x07CA, "Current Tier 12 Block 11 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_12_SUM_DEL,      0x07CB, "Current Tier 12 Block 12 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_13_SUM_DEL,      0x07CC, "Current Tier 12 Block 13 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_14_SUM_DEL,      0x07CD, "Current Tier 12 Block 14 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_15_SUM_DEL,      0x07CE, "Current Tier 12 Block 15 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_16_SUM_DEL,      0x07CF, "Current Tier 12 Block 16 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_1_SUM_DEL,       0x07D0, "Current Tier 13 Block 1 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_2_SUM_DEL,       0x07D1, "Current Tier 13 Block 2 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_3_SUM_DEL,       0x07D2, "Current Tier 13 Block 3 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_4_SUM_DEL,       0x07D3, "Current Tier 13 Block 4 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_5_SUM_DEL,       0x07D4, "Current Tier 13 Block 5 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_6_SUM_DEL,       0x07D5, "Current Tier 13 Block 6 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_7_SUM_DEL,       0x07D6, "Current Tier 13 Block 7 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_8_SUM_DEL,       0x07D7, "Current Tier 13 Block 8 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_9_SUM_DEL,       0x07D8, "Current Tier 13 Block 9 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_10_SUM_DEL,      0x07D9, "Current Tier 13 Block 10 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_11_SUM_DEL,      0x07DA, "Current Tier 13 Block 11 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_12_SUM_DEL,      0x07DB, "Current Tier 13 Block 12 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_13_SUM_DEL,      0x07DC, "Current Tier 13 Block 13 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_14_SUM_DEL,      0x07DD, "Current Tier 13 Block 14 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_15_SUM_DEL,      0x07DE, "Current Tier 13 Block 15 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_16_SUM_DEL,      0x07DF, "Current Tier 13 Block 16 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_1_SUM_DEL,       0x07E0, "Current Tier 14 Block 1 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_2_SUM_DEL,       0x07E1, "Current Tier 14 Block 2 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_3_SUM_DEL,       0x07E2, "Current Tier 14 Block 3 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_4_SUM_DEL,       0x07E3, "Current Tier 14 Block 4 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_5_SUM_DEL,       0x07E4, "Current Tier 14 Block 5 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_6_SUM_DEL,       0x07E5, "Current Tier 14 Block 6 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_7_SUM_DEL,       0x07E6, "Current Tier 14 Block 7 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_8_SUM_DEL,       0x07E7, "Current Tier 14 Block 8 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_9_SUM_DEL,       0x07E8, "Current Tier 14 Block 9 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_10_SUM_DEL,      0x07E9, "Current Tier 14 Block 10 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_11_SUM_DEL,      0x07EA, "Current Tier 14 Block 11 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_12_SUM_DEL,      0x07EB, "Current Tier 14 Block 12 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_13_SUM_DEL,      0x07EC, "Current Tier 14 Block 13 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_14_SUM_DEL,      0x07ED, "Current Tier 14 Block 14 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_15_SUM_DEL,      0x07EE, "Current Tier 14 Block 15 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_16_SUM_DEL,      0x07EF, "Current Tier 14 Block 16 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_1_SUM_DEL,       0x07F0, "Current Tier 15 Block 1 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_2_SUM_DEL,       0x07F1, "Current Tier 15 Block 2 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_3_SUM_DEL,       0x07F2, "Current Tier 15 Block 3 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_4_SUM_DEL,       0x07F3, "Current Tier 15 Block 4 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_5_SUM_DEL,       0x07F4, "Current Tier 15 Block 5 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_6_SUM_DEL,       0x07F5, "Current Tier 15 Block 6 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_7_SUM_DEL,       0x07F6, "Current Tier 15 Block 7 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_8_SUM_DEL,       0x07F7, "Current Tier 15 Block 8 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_9_SUM_DEL,       0x07F8, "Current Tier 15 Block 9 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_10_SUM_DEL,      0x07F9, "Current Tier 15 Block 10 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_11_SUM_DEL,      0x07FA, "Current Tier 15 Block 11 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_12_SUM_DEL,      0x07FB, "Current Tier 15 Block 12 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_13_SUM_DEL,      0x07FC, "Current Tier 15 Block 13 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_14_SUM_DEL,      0x07FD, "Current Tier 15 Block 14 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_15_SUM_DEL,      0x07FE, "Current Tier 15 Block 15 Summation Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_16_SUM_DEL,      0x07FF, "Current Tier 15 Block 16 Summation Delivered" ) \
+/* Alarms Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_GENERIC_ALARM_MASK,                0x0800, "Generic Alarm Mask" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_ELECTRICITY_ALARM_MASK,            0x0801, "Electricity Alarm Mask" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_GENERIC_FLOW_PRESS_ALARM_MASK,     0x0802, "Generic Flow/Pressure Alarm Mask" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_WATER_SPECIFIC_ALARM_MASK,         0x0803, "Water Specific Alarm Mask" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_HEAT_COOLING_SPECIFIC_ALARM_MASK,  0x0804, "Heat and Cooling Specific Alarm Mask" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_GAS_SPECIFIC_ALARM_MASK,           0x0805, "Gas Specific Alarm Mask" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_EXTENDED_GENERIC_ALARM_MASK,       0x0806, "Extended Generic Alarm Mask" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_MANUFACTURER_ALARM_MASK,           0x0807, "Manufacturer Alarm Mask" ) \
+/* Block Information Attribute Set (Received) */ \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_1_SUM_RECV,      0x0900, "Current No Tier Block 1 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_2_SUM_RECV,      0x0901, "Current No Tier Block 2 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_3_SUM_RECV,      0x0902, "Current No Tier Block 3 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_4_SUM_RECV,      0x0903, "Current No Tier Block 4 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_5_SUM_RECV,      0x0904, "Current No Tier Block 5 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_6_SUM_RECV,      0x0905, "Current No Tier Block 6 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_7_SUM_RECV,      0x0906, "Current No Tier Block 7 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_8_SUM_RECV,      0x0907, "Current No Tier Block 8 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_9_SUM_RECV,      0x0908, "Current No Tier Block 9 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_10_SUM_RECV,     0x0909, "Current No Tier Block 10 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_11_SUM_RECV,     0x090A, "Current No Tier Block 11 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_12_SUM_RECV,     0x090B, "Current No Tier Block 12 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_13_SUM_RECV,     0x090C, "Current No Tier Block 13 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_14_SUM_RECV,     0x090D, "Current No Tier Block 14 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_15_SUM_RECV,     0x090E, "Current No Tier Block 15 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_NO_TIER_BLOCK_16_SUM_RECV,     0x090F, "Current No Tier Block 16 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_1_SUM_RECV,       0x0910, "Current Tier 1 Block 1 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_2_SUM_RECV,       0x0911, "Current Tier 1 Block 2 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_3_SUM_RECV,       0x0912, "Current Tier 1 Block 3 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_4_SUM_RECV,       0x0913, "Current Tier 1 Block 4 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_5_SUM_RECV,       0x0914, "Current Tier 1 Block 5 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_6_SUM_RECV,       0x0915, "Current Tier 1 Block 6 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_7_SUM_RECV,       0x0916, "Current Tier 1 Block 7 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_8_SUM_RECV,       0x0917, "Current Tier 1 Block 8 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_9_SUM_RECV,       0x0918, "Current Tier 1 Block 9 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_10_SUM_RECV,      0x0919, "Current Tier 1 Block 10 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_11_SUM_RECV,      0x091A, "Current Tier 1 Block 11 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_12_SUM_RECV,      0x091B, "Current Tier 1 Block 12 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_13_SUM_RECV,      0x091C, "Current Tier 1 Block 13 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_14_SUM_RECV,      0x091D, "Current Tier 1 Block 14 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_15_SUM_RECV,      0x091E, "Current Tier 1 Block 15 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_1_BLOCK_16_SUM_RECV,      0x091F, "Current Tier 1 Block 16 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_1_SUM_RECV,       0x0920, "Current Tier 2 Block 1 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_2_SUM_RECV,       0x0921, "Current Tier 2 Block 2 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_3_SUM_RECV,       0x0922, "Current Tier 2 Block 3 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_4_SUM_RECV,       0x0923, "Current Tier 2 Block 4 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_5_SUM_RECV,       0x0924, "Current Tier 2 Block 5 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_6_SUM_RECV,       0x0925, "Current Tier 2 Block 6 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_7_SUM_RECV,       0x0926, "Current Tier 2 Block 7 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_8_SUM_RECV,       0x0927, "Current Tier 2 Block 8 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_9_SUM_RECV,       0x0928, "Current Tier 2 Block 9 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_10_SUM_RECV,      0x0929, "Current Tier 2 Block 10 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_11_SUM_RECV,      0x092A, "Current Tier 2 Block 11 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_12_SUM_RECV,      0x092B, "Current Tier 2 Block 12 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_13_SUM_RECV,      0x092C, "Current Tier 2 Block 13 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_14_SUM_RECV,      0x092D, "Current Tier 2 Block 14 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_15_SUM_RECV,      0x092E, "Current Tier 2 Block 15 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_2_BLOCK_16_SUM_RECV,      0x092F, "Current Tier 2 Block 16 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_1_SUM_RECV,       0x0930, "Current Tier 3 Block 1 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_2_SUM_RECV,       0x0931, "Current Tier 3 Block 2 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_3_SUM_RECV,       0x0932, "Current Tier 3 Block 3 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_4_SUM_RECV,       0x0933, "Current Tier 3 Block 4 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_5_SUM_RECV,       0x0934, "Current Tier 3 Block 5 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_6_SUM_RECV,       0x0935, "Current Tier 3 Block 6 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_7_SUM_RECV,       0x0936, "Current Tier 3 Block 7 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_8_SUM_RECV,       0x0937, "Current Tier 3 Block 8 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_9_SUM_RECV,       0x0938, "Current Tier 3 Block 9 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_10_SUM_RECV,      0x0939, "Current Tier 3 Block 10 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_11_SUM_RECV,      0x093A, "Current Tier 3 Block 11 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_12_SUM_RECV,      0x093B, "Current Tier 3 Block 12 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_13_SUM_RECV,      0x093C, "Current Tier 3 Block 13 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_14_SUM_RECV,      0x093D, "Current Tier 3 Block 14 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_15_SUM_RECV,      0x093E, "Current Tier 3 Block 15 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_3_BLOCK_16_SUM_RECV,      0x093F, "Current Tier 3 Block 16 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_1_SUM_RECV,       0x0940, "Current Tier 4 Block 1 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_2_SUM_RECV,       0x0941, "Current Tier 4 Block 2 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_3_SUM_RECV,       0x0942, "Current Tier 4 Block 3 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_4_SUM_RECV,       0x0943, "Current Tier 4 Block 4 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_5_SUM_RECV,       0x0944, "Current Tier 4 Block 5 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_6_SUM_RECV,       0x0945, "Current Tier 4 Block 6 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_7_SUM_RECV,       0x0946, "Current Tier 4 Block 7 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_8_SUM_RECV,       0x0947, "Current Tier 4 Block 8 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_9_SUM_RECV,       0x0948, "Current Tier 4 Block 9 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_10_SUM_RECV,      0x0949, "Current Tier 4 Block 10 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_11_SUM_RECV,      0x094A, "Current Tier 4 Block 11 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_12_SUM_RECV,      0x094B, "Current Tier 4 Block 12 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_13_SUM_RECV,      0x094C, "Current Tier 4 Block 13 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_14_SUM_RECV,      0x094D, "Current Tier 4 Block 14 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_15_SUM_RECV,      0x094E, "Current Tier 4 Block 15 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_4_BLOCK_16_SUM_RECV,      0x094F, "Current Tier 4 Block 16 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_1_SUM_RECV,       0x0950, "Current Tier 5 Block 1 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_2_SUM_RECV,       0x0951, "Current Tier 5 Block 2 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_3_SUM_RECV,       0x0952, "Current Tier 5 Block 3 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_4_SUM_RECV,       0x0953, "Current Tier 5 Block 4 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_5_SUM_RECV,       0x0954, "Current Tier 5 Block 5 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_6_SUM_RECV,       0x0955, "Current Tier 5 Block 6 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_7_SUM_RECV,       0x0956, "Current Tier 5 Block 7 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_8_SUM_RECV,       0x0957, "Current Tier 5 Block 8 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_9_SUM_RECV,       0x0958, "Current Tier 5 Block 9 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_10_SUM_RECV,      0x0959, "Current Tier 5 Block 10 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_11_SUM_RECV,      0x095A, "Current Tier 5 Block 11 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_12_SUM_RECV,      0x095B, "Current Tier 5 Block 12 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_13_SUM_RECV,      0x095C, "Current Tier 5 Block 13 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_14_SUM_RECV,      0x095D, "Current Tier 5 Block 14 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_15_SUM_RECV,      0x095E, "Current Tier 5 Block 15 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_5_BLOCK_16_SUM_RECV,      0x095F, "Current Tier 5 Block 16 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_1_SUM_RECV,       0x0960, "Current Tier 6 Block 1 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_2_SUM_RECV,       0x0961, "Current Tier 6 Block 2 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_3_SUM_RECV,       0x0962, "Current Tier 6 Block 3 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_4_SUM_RECV,       0x0963, "Current Tier 6 Block 4 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_5_SUM_RECV,       0x0964, "Current Tier 6 Block 5 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_6_SUM_RECV,       0x0965, "Current Tier 6 Block 6 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_7_SUM_RECV,       0x0966, "Current Tier 6 Block 7 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_8_SUM_RECV,       0x0967, "Current Tier 6 Block 8 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_9_SUM_RECV,       0x0968, "Current Tier 6 Block 9 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_10_SUM_RECV,      0x0969, "Current Tier 6 Block 10 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_11_SUM_RECV,      0x096A, "Current Tier 6 Block 11 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_12_SUM_RECV,      0x096B, "Current Tier 6 Block 12 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_13_SUM_RECV,      0x096C, "Current Tier 6 Block 13 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_14_SUM_RECV,      0x096D, "Current Tier 6 Block 14 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_15_SUM_RECV,      0x096E, "Current Tier 6 Block 15 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_6_BLOCK_16_SUM_RECV,      0x096F, "Current Tier 6 Block 16 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_1_SUM_RECV,       0x0970, "Current Tier 7 Block 1 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_2_SUM_RECV,       0x0971, "Current Tier 7 Block 2 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_3_SUM_RECV,       0x0972, "Current Tier 7 Block 3 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_4_SUM_RECV,       0x0973, "Current Tier 7 Block 4 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_5_SUM_RECV,       0x0974, "Current Tier 7 Block 5 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_6_SUM_RECV,       0x0975, "Current Tier 7 Block 6 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_7_SUM_RECV,       0x0976, "Current Tier 7 Block 7 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_8_SUM_RECV,       0x0977, "Current Tier 7 Block 8 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_9_SUM_RECV,       0x0978, "Current Tier 7 Block 9 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_10_SUM_RECV,      0x0979, "Current Tier 7 Block 10 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_11_SUM_RECV,      0x097A, "Current Tier 7 Block 11 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_12_SUM_RECV,      0x097B, "Current Tier 7 Block 12 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_13_SUM_RECV,      0x097C, "Current Tier 7 Block 13 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_14_SUM_RECV,      0x097D, "Current Tier 7 Block 14 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_15_SUM_RECV,      0x097E, "Current Tier 7 Block 15 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_7_BLOCK_16_SUM_RECV,      0x097F, "Current Tier 7 Block 16 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_1_SUM_RECV,       0x0980, "Current Tier 8 Block 1 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_2_SUM_RECV,       0x0981, "Current Tier 8 Block 2 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_3_SUM_RECV,       0x0982, "Current Tier 8 Block 3 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_4_SUM_RECV,       0x0983, "Current Tier 8 Block 4 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_5_SUM_RECV,       0x0984, "Current Tier 8 Block 5 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_6_SUM_RECV,       0x0985, "Current Tier 8 Block 6 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_7_SUM_RECV,       0x0986, "Current Tier 8 Block 7 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_8_SUM_RECV,       0x0987, "Current Tier 8 Block 8 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_9_SUM_RECV,       0x0988, "Current Tier 8 Block 9 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_10_SUM_RECV,      0x0989, "Current Tier 8 Block 10 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_11_SUM_RECV,      0x098A, "Current Tier 8 Block 11 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_12_SUM_RECV,      0x098B, "Current Tier 8 Block 12 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_13_SUM_RECV,      0x098C, "Current Tier 8 Block 13 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_14_SUM_RECV,      0x098D, "Current Tier 8 Block 14 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_15_SUM_RECV,      0x098E, "Current Tier 8 Block 15 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_8_BLOCK_16_SUM_RECV,      0x098F, "Current Tier 8 Block 16 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_1_SUM_RECV,       0x0990, "Current Tier 9 Block 1 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_2_SUM_RECV,       0x0991, "Current Tier 9 Block 2 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_3_SUM_RECV,       0x0992, "Current Tier 9 Block 3 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_4_SUM_RECV,       0x0993, "Current Tier 9 Block 4 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_5_SUM_RECV,       0x0994, "Current Tier 9 Block 5 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_6_SUM_RECV,       0x0995, "Current Tier 9 Block 6 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_7_SUM_RECV,       0x0996, "Current Tier 9 Block 7 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_8_SUM_RECV,       0x0997, "Current Tier 9 Block 8 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_9_SUM_RECV,       0x0998, "Current Tier 9 Block 9 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_10_SUM_RECV,      0x0999, "Current Tier 9 Block 10 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_11_SUM_RECV,      0x099A, "Current Tier 9 Block 11 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_12_SUM_RECV,      0x099B, "Current Tier 9 Block 12 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_13_SUM_RECV,      0x099C, "Current Tier 9 Block 13 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_14_SUM_RECV,      0x099D, "Current Tier 9 Block 14 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_15_SUM_RECV,      0x099E, "Current Tier 9 Block 15 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_9_BLOCK_16_SUM_RECV,      0x099F, "Current Tier 9 Block 16 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_1_SUM_RECV,      0x09A0, "Current Tier 10 Block 1 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_2_SUM_RECV,      0x09A1, "Current Tier 10 Block 2 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_3_SUM_RECV,      0x09A2, "Current Tier 10 Block 3 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_4_SUM_RECV,      0x09A3, "Current Tier 10 Block 4 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_5_SUM_RECV,      0x09A4, "Current Tier 10 Block 5 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_6_SUM_RECV,      0x09A5, "Current Tier 10 Block 6 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_7_SUM_RECV,      0x09A6, "Current Tier 10 Block 7 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_8_SUM_RECV,      0x09A7, "Current Tier 10 Block 8 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_9_SUM_RECV,      0x09A8, "Current Tier 10 Block 9 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_10_SUM_RECV,     0x09A9, "Current Tier 10 Block 10 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_11_SUM_RECV,     0x09AA, "Current Tier 10 Block 11 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_12_SUM_RECV,     0x09AB, "Current Tier 10 Block 12 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_13_SUM_RECV,     0x09AC, "Current Tier 10 Block 13 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_14_SUM_RECV,     0x09AD, "Current Tier 10 Block 14 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_15_SUM_RECV,     0x09AE, "Current Tier 10 Block 15 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_10_BLOCK_16_SUM_RECV,     0x09AF, "Current Tier 10 Block 16 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_1_SUM_RECV,      0x09B0, "Current Tier 11 Block 1 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_2_SUM_RECV,      0x09B1, "Current Tier 11 Block 2 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_3_SUM_RECV,      0x09B2, "Current Tier 11 Block 3 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_4_SUM_RECV,      0x09B3, "Current Tier 11 Block 4 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_5_SUM_RECV,      0x09B4, "Current Tier 11 Block 5 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_6_SUM_RECV,      0x09B5, "Current Tier 11 Block 6 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_7_SUM_RECV,      0x09B6, "Current Tier 11 Block 7 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_8_SUM_RECV,      0x09B7, "Current Tier 11 Block 8 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_9_SUM_RECV,      0x09B8, "Current Tier 11 Block 9 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_10_SUM_RECV,     0x09B9, "Current Tier 11 Block 10 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_11_SUM_RECV,     0x09BA, "Current Tier 11 Block 11 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_12_SUM_RECV,     0x09BB, "Current Tier 11 Block 12 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_13_SUM_RECV,     0x09BC, "Current Tier 11 Block 13 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_14_SUM_RECV,     0x09BD, "Current Tier 11 Block 14 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_15_SUM_RECV,     0x09BE, "Current Tier 11 Block 15 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_11_BLOCK_16_SUM_RECV,     0x09BF, "Current Tier 11 Block 16 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_1_SUM_RECV,      0x09C0, "Current Tier 12 Block 1 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_2_SUM_RECV,      0x09C1, "Current Tier 12 Block 2 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_3_SUM_RECV,      0x09C2, "Current Tier 12 Block 3 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_4_SUM_RECV,      0x09C3, "Current Tier 12 Block 4 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_5_SUM_RECV,      0x09C4, "Current Tier 12 Block 5 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_6_SUM_RECV,      0x09C5, "Current Tier 12 Block 6 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_7_SUM_RECV,      0x09C6, "Current Tier 12 Block 7 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_8_SUM_RECV,      0x09C7, "Current Tier 12 Block 8 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_9_SUM_RECV,      0x09C8, "Current Tier 12 Block 9 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_10_SUM_RECV,     0x09C9, "Current Tier 12 Block 10 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_11_SUM_RECV,     0x09CA, "Current Tier 12 Block 11 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_12_SUM_RECV,     0x09CB, "Current Tier 12 Block 12 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_13_SUM_RECV,     0x09CC, "Current Tier 12 Block 13 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_14_SUM_RECV,     0x09CD, "Current Tier 12 Block 14 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_15_SUM_RECV,     0x09CE, "Current Tier 12 Block 15 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_12_BLOCK_16_SUM_RECV,     0x09CF, "Current Tier 12 Block 16 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_1_SUM_RECV,      0x09D0, "Current Tier 13 Block 1 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_2_SUM_RECV,      0x09D1, "Current Tier 13 Block 2 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_3_SUM_RECV,      0x09D2, "Current Tier 13 Block 3 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_4_SUM_RECV,      0x09D3, "Current Tier 13 Block 4 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_5_SUM_RECV,      0x09D4, "Current Tier 13 Block 5 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_6_SUM_RECV,      0x09D5, "Current Tier 13 Block 6 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_7_SUM_RECV,      0x09D6, "Current Tier 13 Block 7 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_8_SUM_RECV,      0x09D7, "Current Tier 13 Block 8 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_9_SUM_RECV,      0x09D8, "Current Tier 13 Block 9 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_10_SUM_RECV,     0x09D9, "Current Tier 13 Block 10 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_11_SUM_RECV,     0x09DA, "Current Tier 13 Block 11 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_12_SUM_RECV,     0x09DB, "Current Tier 13 Block 12 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_13_SUM_RECV,     0x09DC, "Current Tier 13 Block 13 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_14_SUM_RECV,     0x09DD, "Current Tier 13 Block 14 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_15_SUM_RECV,     0x09DE, "Current Tier 13 Block 15 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_13_BLOCK_16_SUM_RECV,     0x09DF, "Current Tier 13 Block 16 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_1_SUM_RECV,      0x09E0, "Current Tier 14 Block 1 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_2_SUM_RECV,      0x09E1, "Current Tier 14 Block 2 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_3_SUM_RECV,      0x09E2, "Current Tier 14 Block 3 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_4_SUM_RECV,      0x09E3, "Current Tier 14 Block 4 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_5_SUM_RECV,      0x09E4, "Current Tier 14 Block 5 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_6_SUM_RECV,      0x09E5, "Current Tier 14 Block 6 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_7_SUM_RECV,      0x09E6, "Current Tier 14 Block 7 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_8_SUM_RECV,      0x09E7, "Current Tier 14 Block 8 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_9_SUM_RECV,      0x09E8, "Current Tier 14 Block 9 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_10_SUM_RECV,     0x09E9, "Current Tier 14 Block 10 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_11_SUM_RECV,     0x09EA, "Current Tier 14 Block 11 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_12_SUM_RECV,     0x09EB, "Current Tier 14 Block 12 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_13_SUM_RECV,     0x09EC, "Current Tier 14 Block 13 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_14_SUM_RECV,     0x09ED, "Current Tier 14 Block 14 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_15_SUM_RECV,     0x09EE, "Current Tier 14 Block 15 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_14_BLOCK_16_SUM_RECV,     0x09EF, "Current Tier 14 Block 16 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_1_SUM_RECV,      0x09F0, "Current Tier 15 Block 1 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_2_SUM_RECV,      0x09F1, "Current Tier 15 Block 2 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_3_SUM_RECV,      0x09F2, "Current Tier 15 Block 3 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_4_SUM_RECV,      0x09F3, "Current Tier 15 Block 4 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_5_SUM_RECV,      0x09F4, "Current Tier 15 Block 5 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_6_SUM_RECV,      0x09F5, "Current Tier 15 Block 6 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_7_SUM_RECV,      0x09F6, "Current Tier 15 Block 7 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_8_SUM_RECV,      0x09F7, "Current Tier 15 Block 8 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_9_SUM_RECV,      0x09F8, "Current Tier 15 Block 9 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_10_SUM_RECV,     0x09F9, "Current Tier 15 Block 10 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_11_SUM_RECV,     0x09FA, "Current Tier 15 Block 11 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_12_SUM_RECV,     0x09FB, "Current Tier 15 Block 12 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_13_SUM_RECV,     0x09FC, "Current Tier 15 Block 13 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_14_SUM_RECV,     0x09FD, "Current Tier 15 Block 14 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_15_SUM_RECV,     0x09FE, "Current Tier 15 Block 15 Summation Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_TIER_15_BLOCK_16_SUM_RECV,     0x09FF, "Current Tier 15 Block 16 Summation Received" ) \
 /* Meter Billing Attribute Set */ \
-    XXX(ZBEE_ZCL_ATTR_ID_MET_BILL_TO_DATE_DELIVERED,            0x0A00, "Bill To Date Delivered" ) \
-    XXX(ZBEE_ZCL_ATTR_ID_MET_BILL_TO_DATE_TIMESTAMP_DEL,        0x0A01, "BillToDateTimeStampDelivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_BILL_TO_DATE_DELIVERED,            0x0A00, "Bill to Date Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_BILL_TO_DATE_TIMESTAMP_DEL,        0x0A01, "Bill to Date Time Stamp Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PROJECTED_BILL_DELIVERED,          0x0A02, "Projected Bill Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PROJECTED_BILL_TIME_STAMP_DEL,     0x0A03, "Projected Bill Time Stamp Delivered" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_BILL_DELIVERED_TRAILING_DIGIT,     0x0A04, "Bill Delivered Trailing Digit" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_BILL_TO_DATE_RECEIVED,             0x0A10, "Bill to Date Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_BILL_TO_DATE_TIMESTAMP_RECEIVED,   0x0A11, "Bill to Date Time Stamp Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PROJECTED_BILL_RECEIVED,           0x0A12, "Projected Bill Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PROJECTED_BILL_TIME_STAMP_RECV,    0x0A13, "Projected Bill Time Stamp Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_BILL_RECEIVED_TRAILING_DIGIT,      0x0A14, "Bill Received Trailing Digit" ) \
+/* Supply Control Attribute Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PROPOSED_CHANGE_SUPPLY_IMP_TIME,   0x0B00, "Proposed Change Supply Implementation Time" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PROPOSED_CHANGE_SUPPLY_STATUS,     0x0B01, "Proposed Change Supply Status" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_UNCONTROLLED_FLOW_THRESHOLD,       0x0B10, "Uncontrolled Flow Threshold" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_UNCONTROLLED_FLOW_UNIT_OF_MEAS,    0x0B11, "Uncontrolled Flow Unit of Measure" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_UNCONTROLLED_FLOW_MULTIPLIER,      0x0B12, "Uncontrolled Flow Multiplier" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_UNCONTROLLED_FLOW_DIVISOR,         0x0B13, "Uncontrolled Flow Divisor" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_FLOW_STABILISATION_PERIOD,         0x0B14, "Flow Stabilisation Period" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_FLOW_MEASUREMENT_PERIOD,           0x0B15, "Flow Measurement Period" ) \
 /* Alternative Historical Consumption Attribute Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_ALTERNATIVE_INSTANT_DEMAND,        0x0C00, "Alternative Instantaneous Demand" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_DAY_ALT_CON_DEL,               0x0C01, "Current Day Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_DAY_ALT_CON_RECV,              0x0C02, "Current Day Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_ALT_CON_DEL,              0x0C03, "Previous Day Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_ALT_CON_RECV,             0x0C04, "Previous Day Alternative Consumption Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_ALT_PAR_PROF_INT_DEL,      0x0C05, "Current Alternative Partial Profile Interval Start Time Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_ALT_PAR_PROF_INT_RECV,     0x0C06, "Current Alternative Partial Profile Interval Start Time Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_ALT_PAR_PROF_INT_VAL_DEL,  0x0C07, "Current Alternative Partial Profile Interval Value Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_ALT_PAR_PROF_INT_VAL_RECV, 0x0C08, "Current Alternative Partial Profile Interval Value Received" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_DAY_ALT_MAX_PRESS,         0x0C09, "Current Day Alternative Max Pressure" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_DAY_ALT_MIN_PRESS,         0x0C0A, "Current Day Alternative Min Pressure" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREVIOUS_DAY_ALT_MAX_PRESS,        0x0C0B, "Previous Day Alternative Max Pressure" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREVIOUS_DAY_ALT_MIN_PRESS,        0x0C0C, "Previous Day Alternative Min Pressure" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_DAY_ALT_MAX_DEMAND,        0x0C0D, "Current Day Alternative Max Demand" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREVIOUS_DAY_ALT_MAX_DEMAND,       0x0C0E, "Previous Day Alternative Max Demand" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_MONTH_ALT_MAX_DEMAND,      0x0C0F, "Current Month Alternative Max Demand" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CURRENT_YEAR_ALT_MAX_DEMAND,       0x0C10, "Current Year Alternative Max Demand" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_2_ALT_CON_DEL,            0x0C20, "Previous Day 2 Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_2_ALT_CON_RECV,           0x0C21, "Previous Day 2 Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_3_ALT_CON_DEL,            0x0C22, "Previous Day 3 Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_3_ALT_CON_RECV,           0x0C23, "Previous Day 3 Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_4_ALT_CON_DEL,            0x0C24, "Previous Day 4 Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_4_ALT_CON_RECV,           0x0C25, "Previous Day 4 Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_5_ALT_CON_DEL,            0x0C26, "Previous Day 5 Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_5_ALT_CON_RECV,           0x0C27, "Previous Day 5 Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_6_ALT_CON_DEL,            0x0C28, "Previous Day 6 Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_6_ALT_CON_RECV,           0x0C29, "Previous Day 6 Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_7_ALT_CON_DEL,            0x0C2A, "Previous Day 7 Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_7_ALT_CON_RECV,           0x0C2B, "Previous Day 7 Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_8_ALT_CON_DEL,            0x0C2C, "Previous Day 8 Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_DAY_8_ALT_CON_RECV,           0x0C2D, "Previous Day 8 Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_WEEK_ALT_CON_DEL,              0x0C30, "Current Week Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_WEEK_ALT_CON_RECV,             0x0C31, "Current Week Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_ALT_CON_DEL,             0x0C32, "Previous Week Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_ALT_CON_RECV,            0x0C33, "Previous Week Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_2_ALT_CON_DEL,           0x0C34, "Previous Week 2 Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_2_ALT_CON_RECV,          0x0C35, "Previous Week 2 Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_3_ALT_CON_DEL,           0x0C36, "Previous Week 3 Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_3_ALT_CON_RECV,          0x0C37, "Previous Week 3 Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_4_ALT_CON_DEL,           0x0C38, "Previous Week 4 Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_4_ALT_CON_RECV,          0x0C39, "Previous Week 4 Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_5_ALT_CON_DEL,           0x0C3A, "Previous Week 5 Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_WEEK_5_ALT_CON_RECV,          0x0C3B, "Previous Week 5 Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_MONTH_ALT_CON_DEL,             0x0C40, "Current Month Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_CUR_MONTH_ALT_CON_RECV,            0x0C41, "Current Month Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_ALT_CON_DEL,            0x0C42, "Previous Month Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_ALT_CON_RECV,           0x0C43, "Previous Month Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_2_ALT_CON_DEL,          0x0C44, "Previous Month 2 Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_2_ALT_CON_RECV,         0x0C45, "Previous Month 2 Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_3_ALT_CON_DEL,          0x0C46, "Previous Month 3 Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_3_ALT_CON_RECV,         0x0C47, "Previous Month 3 Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_4_ALT_CON_DEL,          0x0C48, "Previous Month 4 Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_4_ALT_CON_RECV,         0x0C49, "Previous Month 4 Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_5_ALT_CON_DEL,          0x0C4A, "Previous Month 5 Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_5_ALT_CON_RECV,         0x0C4B, "Previous Month 5 Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_6_ALT_CON_DEL,          0x0C4C, "Previous Month 6 Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_6_ALT_CON_RECV,         0x0C4D, "Previous Month 6 Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_7_ALT_CON_DEL,          0x0C4E, "Previous Month 7 Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_7_ALT_CON_RECV,         0x0C4F, "Previous Month 7 Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_8_ALT_CON_DEL,          0x0C50, "Previous Month 8 Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_8_ALT_CON_RECV,         0x0C51, "Previous Month 8 Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_9_ALT_CON_DEL,          0x0C52, "Previous Month 9 Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_9_ALT_CON_RECV,         0x0C53, "Previous Month 9 Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_10_ALT_CON_DEL,         0x0C54, "Previous Month 10 Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_10_ALT_CON_RECV,        0x0C55, "Previous Month 10 Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_11_ALT_CON_DEL,         0x0C56, "Previous Month 11 Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_11_ALT_CON_RECV,        0x0C57, "Previous Month 11 Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_12_ALT_CON_DEL,         0x0C58, "Previous Month 12 Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_12_ALT_CON_RECV,        0x0C59, "Previous Month 12 Alternative Consumption Received" ) \
     XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_13_ALT_CON_DEL,         0x0C5A, "Previous Month 13 Alternative Consumption Delivered" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_MET_PREV_MONTH_13_ALT_CON_RECV,        0x0C5B, "Previous Month 13 Alternative Consumption Received" ) \
 /* Smart Energy */ \
     XXX(ZBEE_ZCL_ATTR_ID_SE_ATTR_REPORT_STATUS_MET,             0xFFFE, "Attribute Reporting Status" )
 
