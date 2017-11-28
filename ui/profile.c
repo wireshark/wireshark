@@ -313,6 +313,9 @@ init_profile_list(void)
     WS_DIR        *dir;             /* scanned directory */
     WS_DIRENT     *file;            /* current file */
     const gchar   *name;
+    GList         *local_profiles = NULL;
+    GList         *global_profiles = NULL;
+    GList         *iter;
     gchar         *profiles_dir, *filename;
 
     empty_profile_list(TRUE);
@@ -328,13 +331,20 @@ init_profile_list(void)
             filename = g_strdup_printf ("%s%s%s", profiles_dir, G_DIR_SEPARATOR_S, name);
 
             if (test_for_directory(filename) == EISDIR) {
-                /*fl_entry =*/ add_to_profile_list(name, name, PROF_STAT_EXISTS, FALSE, FALSE);
+                local_profiles = g_list_prepend(local_profiles, g_strdup(name));
             }
             g_free (filename);
         }
         ws_dir_close (dir);
     }
     g_free(profiles_dir);
+
+    local_profiles = g_list_sort(local_profiles, (GCompareFunc)g_ascii_strcasecmp);
+    for (iter = g_list_first(local_profiles); iter; iter = g_list_next(iter)) {
+        name = (gchar *)iter->data;
+        add_to_profile_list(name, name, PROF_STAT_EXISTS, FALSE, FALSE);
+    }
+    g_list_free_full(local_profiles, g_free);
 
     /* Global profiles */
     profiles_dir = get_global_profiles_dir();
@@ -344,14 +354,20 @@ init_profile_list(void)
             filename = g_strdup_printf ("%s%s%s", profiles_dir, G_DIR_SEPARATOR_S, name);
 
             if (test_for_directory(filename) == EISDIR) {
-                /*fl_entry =*/ add_to_profile_list(name, name, PROF_STAT_EXISTS, TRUE, TRUE);
-                /*profile = (profile_def *) fl_entry->data;*/
+                global_profiles = g_list_prepend(global_profiles, g_strdup(name));
             }
             g_free (filename);
         }
         ws_dir_close (dir);
     }
     g_free(profiles_dir);
+
+    global_profiles = g_list_sort(global_profiles, (GCompareFunc)g_ascii_strcasecmp);
+    for (iter = g_list_first(global_profiles); iter; iter = g_list_next(iter)) {
+        name = (gchar *)iter->data;
+        add_to_profile_list(name, name, PROF_STAT_EXISTS, TRUE, TRUE);
+    }
+    g_list_free_full(global_profiles, g_free);
 
     /* Make the current list and the edited list equal */
     copy_profile_list ();
