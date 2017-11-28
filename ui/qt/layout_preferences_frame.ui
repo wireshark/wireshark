@@ -345,9 +345,16 @@
     </spacer>
    </item>
    <item>
+    <widget class="QLabel" name="packetListSettings">
+     <property name="text">
+      <string>Packet List settings:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QCheckBox" name="packetListSeparatorCheckBox">
      <property name="text">
-      <string>Show packet separator on Packet List</string>
+      <string>Show packet separator</string>
      </property>
     </widget>
    </item>
@@ -375,22 +382,18 @@
     </widget>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="statusBarSettingsVerticalLayout">
-     <item>
-      <widget class="QCheckBox" name="statusBarShowSelectedPacketCheckBox">
-       <property name="text">
-        <string>Show selected packet number</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="statusBarShowFileLoadTimeCheckBox">
-       <property name="text">
-        <string>Show file load time</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QCheckBox" name="statusBarShowSelectedPacketCheckBox">
+     <property name="text">
+      <string>Show selected packet number</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="statusBarShowFileLoadTimeCheckBox">
+     <property name="text">
+      <string>Show file load time</string>
+     </property>
+    </widget>
    </item>
    <item>
     <spacer name="verticalSpacer">

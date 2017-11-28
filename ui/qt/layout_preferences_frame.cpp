@@ -54,6 +54,7 @@ LayoutPreferencesFrame::LayoutPreferencesFrame(QWidget *parent) :
              "  margin-left: %1px;"
              "}"
              ).arg(ui->packetListSeparatorCheckBox->style()->subElementRect(QStyle::SE_CheckBoxContents, &style_opt).left());
+    ui->packetListSeparatorCheckBox->setStyleSheet(indent_ss);
     ui->statusBarShowSelectedPacketCheckBox->setStyleSheet(indent_ss);
     ui->statusBarShowFileLoadTimeCheckBox->setStyleSheet(indent_ss);
 
