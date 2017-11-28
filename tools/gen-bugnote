@@ -53,10 +53,11 @@ bug_title=$(
     curl -s -o - "https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=$bug_id" \
     | grep -i '<title>' \
     | sed \
+        -e 's/{/\\{/' \
         -e 's:.*<title>.*ndash; ::' \
         -e 's:</title>.*::' \
         -e 's/[^\.]$/&./' \
-        -e 's/{/\\{/' \
+        -e 's/\\/{backslash}/' \
     )
 
 echo -e "* $bug_title (ws-buglink:$bug_id[])\n" \
