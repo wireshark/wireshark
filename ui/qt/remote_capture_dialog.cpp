@@ -127,10 +127,15 @@ void RemoteCaptureDialog::apply_remote()
                                               global_remote_opts.remote_host_opts.auth_username,
                                               global_remote_opts.remote_host_opts.auth_password,
                                               &err, &err_str);
-    if (rlist == NULL &&
-        (err == CANT_GET_INTERFACE_LIST || err == DONT_HAVE_PCAP)) {
-        QMessageBox::warning(this, tr("Error"),
-                             (err == CANT_GET_INTERFACE_LIST?tr("No remote interfaces found."):tr("PCAP not found")));
+    if (rlist == NULL) {
+        if (err == 0)
+            QMessageBox::warning(this, tr("Error"), tr("No remote interfaces found."));
+        else if (err == CANT_GET_INTERFACE_LIST)
+            QMessageBox::critical(this, tr("Error"), err_str);
+        else if (err == DONT_HAVE_PCAP)
+            QMessageBox::critical(this, tr("Error"), tr("PCAP not found"));
+        else
+            QMessageBox::critical(this, tr("Error"), "Unknown error");
         return;
     }
     if (ui->hostCombo->count() == 0) {
