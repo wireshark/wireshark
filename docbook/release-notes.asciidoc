@@ -14,12 +14,12 @@ The following vulnerabilities have been fixed:
 
 * ws-salink:2017-47[]
 +
-A dissector went awry.
-(ws-buglink:xxxx[])
+The IWARP_MPA dissector could crash.
+(ws-buglink:14236[])
 // cve-idlink:2017-xxxx[]
-// Fixed in master: xxxx
-// Fixed in master-2.4: xxxx
-// Fixed in master-2.2: xxxx
+// Fixed in master: f23a6e193f
+// Fixed in master-2.4: 8502fe94ef
+// Fixed in master-2.2: 53cf81d4f2
 
 The following bugs have been fixed:
 
@@ -27,7 +27,32 @@ The following bugs have been fixed:
 //* ws-buglink:6000[Wireshark bug]
 //* cve-idlink:2014-2486[]
 //* Wireshark accepted your prom invitation then cancelled at the last minute. (ws-buglink:0000[])
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.2.11rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.2.12rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* &quot;tshark -G ?&quot; doesn't provide expected help. (ws-buglink:13984[])
+
+* packet-knxnetip.c:936: bad bitmask ?. (ws-buglink:14115[])
+
+* packet-q931.c:1306: bad compare ?. (ws-buglink:14116[])
+
+* Wireshark crashes when exporting various files to .csv, txt and other ‘non-capture file’ formats. (ws-buglink:14128[])
+
+* Wireshark prefers packet.dll in System32{backslash}Npcap over the one in System32. (ws-buglink:14134[])
+
+* PEEKREMOTE dissector does not decode 11ac MCS rates properly. (ws-buglink:14136[])
+
+* Wireshark Crash when trying to use Preferences | Advanced. (ws-buglink:14157[])
+
+* Right click on SMB2 Message ID and then Apply as Column causes Runtime Error!. (ws-buglink:14169[])
+
+* Wireshark crashes if &quot;rip.display_routing_domain&quot; is set to TRUE in preferences file. (ws-buglink:14197[])
+
+* Entry point inflatePrime not found for androiddump.exe and randpktdump.exe. (ws-buglink:14207[])
+
+* Frame direction isn't always set if it comes from the pcapng record header rather than the packet pseudo-header. (ws-buglink:14245[])
+
+// Left off at a689f0c2d6
+
 
 === New and Updated Features
 
@@ -46,6 +71,12 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+3GPP NAS
+IWARP_MPA
+KNXnet/IP
+RIP
+PEEKREMOTE
+Q.931
 --sort-and-group--
 
 === New and Updated Capture File Support
