@@ -653,12 +653,8 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label, GObject *men
     g_signal_connect(w, "destroy", G_CALLBACK(welcome_filename_destroy_cb), ri_stat);
     g_free(str_escaped);
 
-#if GLIB_CHECK_VERSION(2,31,0)
     /* XXX - Add the filename here? */
     g_thread_new("Recent item status", get_recent_item_status, ri_stat);
-#else
-    g_thread_create(get_recent_item_status, ri_stat, FALSE, NULL);
-#endif
     ri_stat->timer = g_timeout_add(200, update_recent_items, ri_stat);
 
     /* event box */

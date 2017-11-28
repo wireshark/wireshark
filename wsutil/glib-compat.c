@@ -129,6 +129,15 @@ g_async_queue_timeout_pop(GAsyncQueue *queue,
 }
 
 #endif /* GLIB_CHECK_VERSION(2,31,18)*/
+
+
+#if !GLIB_CHECK_VERSION(2,31,0)
+GThread *g_thread_new(const gchar *name _U_, GThreadFunc func, gpointer data)
+{
+    return g_thread_create(func, data, TRUE, NULL);
+}
+#endif /* GLIB_CHECK_VERSION(2,31,0)*/
+
 /*
 * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
 *

@@ -16,15 +16,12 @@
 #include "epan/dissectors/dissectors.h"
 
 static const char *cur_cb_name = NULL;
-//static GMutex register_cb_mtx;
 static GAsyncQueue *register_cb_done_q;
 
 #define CB_WAIT_TIME (150 * 1000) // microseconds
 
 static void set_cb_name(const char *proto) {
-    // g_mutex_lock(register_cb_mtx);
     cur_cb_name = proto;
-    // g_mutex_unlock(register_cb_mtx);
 }
 
 static void *
@@ -45,21 +42,17 @@ register_all_protocols(register_cb cb, gpointer cb_data)
     const char *cb_name;
     register_cb_done_q = g_async_queue_new();
     gboolean called_back = FALSE;
+    GThread *rapw_thread;
 
-#if GLIB_CHECK_VERSION(2,31,0)
-    g_thread_new("register_all_protocols_worker", &register_all_protocols_worker, NULL);
-#else
-    g_thread_create(&register_all_protocols_worker, TRUE, FALSE, NULL);
-#endif
+    rapw_thread = g_thread_new("register_all_protocols_worker", &register_all_protocols_worker, NULL);
     while (!g_async_queue_timeout_pop(register_cb_done_q, CB_WAIT_TIME)) {
-        // g_mutex_lock(register_cb_mtx);
         cb_name = cur_cb_name;
-        // g_mutex_unlock(register_cb_mtx);
         if (cb && cb_name) {
             cb(RA_REGISTER, cb_name, cb_data);
             called_back = TRUE;
         }
     }
+    g_thread_join(rapw_thread);
     if (cb && !called_back) {
             cb(RA_REGISTER, "Registration finished", cb_data);
     }
@@ -83,25 +76,20 @@ register_all_protocol_handoffs(register_cb cb, gpointer cb_data)
     cur_cb_name = NULL;
     const char *cb_name;
     gboolean called_back = FALSE;
+    GThread *raphw_thread;
 
-#if GLIB_CHECK_VERSION(2,31,0)
-    g_thread_new("register_all_protocol_handoffs_worker", &register_all_protocol_handoffs_worker, NULL);
-#else
-    g_thread_create(&register_all_protocol_handoffs_worker, TRUE, FALSE, NULL);
-#endif
+    raphw_thread = g_thread_new("register_all_protocol_handoffs_worker", &register_all_protocol_handoffs_worker, NULL);
     while (!g_async_queue_timeout_pop(register_cb_done_q, CB_WAIT_TIME)) {
-        // g_mutex_lock(register_cb_mtx);
         cb_name = cur_cb_name;
-        // g_mutex_unlock(register_cb_mtx);
         if (cb && cb_name) {
             cb(RA_HANDOFF, cb_name, cb_data);
             called_back = TRUE;
         }
     }
+    g_thread_join(raphw_thread);
     if (cb && !called_back) {
             cb(RA_HANDOFF, "Registration finished", cb_data);
     }
-
     g_async_queue_unref(register_cb_done_q);
 }
 

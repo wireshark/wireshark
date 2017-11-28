@@ -1715,11 +1715,7 @@ cap_pipe_open_live(char *pipename,
     }
 #ifdef _WIN32
     else {
-#if GLIB_CHECK_VERSION(2,31,0)
         g_thread_new("cap_pipe_open_live", &cap_thread_read, pcap_src);
-#else
-        g_thread_create(&cap_thread_read, pcap_src, FALSE, NULL);
-#endif
 
         pcap_src->cap_pipe_buf = (char *) &magic;
         pcap_src->cap_pipe_bytes_read = 0;
@@ -3238,12 +3234,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
         pcap_queue_packets = 0;
         for (i = 0; i < global_ld.pcaps->len; i++) {
             pcap_src = g_array_index(global_ld.pcaps, capture_src *, i);
-#if GLIB_CHECK_VERSION(2,31,0)
             /* XXX - Add an interface name here? */
             pcap_src->tid = g_thread_new("Capture read", pcap_read_handler, pcap_src);
-#else
-            pcap_src->tid = g_thread_create(pcap_read_handler, pcap_src, TRUE, NULL);
-#endif
         }
     }
     while (global_ld.go) {
