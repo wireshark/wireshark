@@ -231,6 +231,10 @@ dissect_ehdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 		ctei = (hdr2 >> 9) & 0xF;
 		tei = tei_from_ctei(ctei);
 
+		/* Add TEI to INFO column */
+		col_append_fstr(pinfo->cinfo, COL_INFO, " | TEI:1%u | ", tei);
+		col_set_fence(pinfo->cinfo, COL_INFO);
+
 		if (tree) {
 			/* Use MIN(...,...) in the following to prevent a premature */
 			/* exception before we try to dissect whatever is available. */
@@ -243,12 +247,15 @@ dissect_ehdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 					    tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(ehdlc_tree, hf_ehdlc_ctei,
 					    tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_uint(ehdlc_tree, hf_ehdlc_c_r,
+			ti = proto_tree_add_uint(ehdlc_tree, hf_ehdlc_c_r,
 							 tvb, offset, 1, c_r);
-			proto_tree_add_uint(ehdlc_tree, hf_ehdlc_sapi,
+			PROTO_ITEM_SET_GENERATED(ti);
+			ti = proto_tree_add_uint(ehdlc_tree, hf_ehdlc_sapi,
 							 tvb, offset, 1, sapi);
-			proto_tree_add_uint(ehdlc_tree, hf_ehdlc_tei,
+			PROTO_ITEM_SET_GENERATED(ti);
+			ti = proto_tree_add_uint(ehdlc_tree, hf_ehdlc_tei,
 							 tvb, offset, 1, tei);
+			PROTO_ITEM_SET_GENERATED(ti);
 			proto_tree_add_item(ehdlc_tree, hf_ehdlc_data_len,
 					    tvb, offset, 2, ENC_BIG_ENDIAN);
 		}
