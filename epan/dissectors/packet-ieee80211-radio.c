@@ -468,7 +468,8 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
   /* durations in microseconds */
   guint preamble = 0, agg_preamble = 0; /* duration of plcp */
-  guint duration = G_MAXUINT; /* duration of whole frame (plcp + mac data + any trailing parts) */
+  gboolean have_duration = FALSE;
+  guint duration = 0; /* duration of whole frame (plcp + mac data + any trailing parts) */
   guint prior_duration = 0; /* duration of previous part of aggregate */
 
   struct wlan_radio *wlan_radio_info;
@@ -944,6 +945,7 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
        * - rate
        */
       /* round up to whole microseconds */
+      have_duration = TRUE;
       duration = (guint) ceil(preamble + frame_length * 8 / data_rate);
       break;
 
@@ -964,6 +966,7 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
       guint bits = 16 + 8 * frame_length + 6;
       guint symbols = (guint) ceil(bits / (data_rate * 4));
 
+      have_duration = TRUE;
       duration = preamble + symbols * 4;
       break;
     }
@@ -1072,10 +1075,12 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
           preamble = 0;
         }
         prior_duration = calculate_11n_duration(wlan_radio_info->prior_aggregate_data, info_n, stbc_streams);
+        have_duration = TRUE;
         duration = preamble +
           calculate_11n_duration(frame_length + wlan_radio_info->prior_aggregate_data, info_n, stbc_streams)
           - prior_duration;
       } else {
+        have_duration = TRUE;
         duration = preamble + calculate_11n_duration(frame_length, info_n, stbc_streams);
       }
       break;
@@ -1096,17 +1101,19 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
           preamble = 0;
         }
         prior_duration = calculate_11ac_duration(wlan_radio_info->prior_aggregate_data, data_rate);
+        have_duration = TRUE;
         duration = preamble +
           calculate_11ac_duration(wlan_radio_info->prior_aggregate_data + frame_length, data_rate)
           - prior_duration;
       } else {
+        have_duration = TRUE;
         duration = preamble + calculate_11ac_duration(frame_length, data_rate);
       }
       break;
     }
     }
 
-    if (!pinfo->fd->flags.visited && duration != G_MAXUINT && phdr->has_tsf_timestamp) {
+    if (!pinfo->fd->flags.visited && have_duration && phdr->has_tsf_timestamp) {
       if (current_aggregate) {
         current_aggregate->duration = agg_preamble + prior_duration + duration;
         if (previous_frame.radio_info && previous_frame.radio_info->aggregate == current_aggregate)
@@ -1154,7 +1161,7 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
       }
     }
 
-    if (duration != G_MAXUINT) {
+    if (have_duration) {
       proto_item *item = proto_tree_add_uint(radio_tree, hf_wlan_radio_duration, tvb, 0, 0, duration);
       proto_tree *d_tree = proto_item_add_subtree(item, ett_wlan_radio_duration);
       PROTO_ITEM_SET_GENERATED(item);
