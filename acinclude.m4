@@ -309,7 +309,7 @@ and did you also install that package?]])
 	# Check whether various variables and functions are defined by
 	# libpcap.
 	#
-	AC_CHECK_FUNCS(pcap_open_dead pcap_freecode)
+	AC_CHECK_FUNCS(pcap_open_dead pcap_freecode pcap_open pcap_setsampling)
 	#
 	# pcap_breakloop may be present in the library but not declared
 	# in the pcap.h header file.  If it's not declared in the header
@@ -423,19 +423,6 @@ install a newer version of the header file.])
 
 	AC_WIRESHARK_POP_FLAGS
 	LIBS="$ws_ac_save_LIBS"
-])
-
-AC_DEFUN([AC_WIRESHARK_PCAP_REMOTE_CHECK],
-[
-    ac_save_LIBS="$LIBS"
-    LIBS="$PCAP_LIBS $LIBS"
-    AC_CHECK_FUNCS(pcap_open)
-    if test $ac_cv_func_pcap_open = "yes" ; then
-        AC_DEFINE(HAVE_PCAP_REMOTE, 1,
-            [Define to 1 if you have libpcap/WinPcap remote capturing support and prefer to use these new API features.])
-    fi
-    AC_CHECK_FUNCS(pcap_setsampling)
-    LIBS="$ac_save_LIBS"
 ])
 
 #

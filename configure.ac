@@ -1791,29 +1791,6 @@ if test x$enable_pcap_ng_default = xyes; then
 	AC_DEFINE(PCAP_NG_DEFAULT, 1, [Support for pcap-ng])
 fi
 
-dnl pcap remote check
-AC_MSG_CHECKING(whether to use libpcap remote capturing feature)
-
-AC_ARG_WITH(pcap-remote,
-    AC_HELP_STRING([--with-pcap-remote],
-		   [use libpcap remote capturing (requires libpcap)]),
-[
-    if test $withval = no
-    then
-	want_pcap_remote=no
-    else
-	want_pcap_remote=yes
-    fi
-],[
-    want_pcap_remote=no
-])
-if test "x$want_pcap_remote" = "xno" -o "x$want_pcap" = "xno" ; then
-    AC_MSG_RESULT(no)
-else
-    AC_MSG_RESULT(yes)
-    AC_WIRESHARK_PCAP_REMOTE_CHECK
-fi
-
 dnl zlib check
 AC_MSG_CHECKING(whether to use zlib for gzip compression and decompression)
 
