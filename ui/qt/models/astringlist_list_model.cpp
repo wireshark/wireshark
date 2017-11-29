@@ -175,7 +175,7 @@ QVariant AStringListListUrlProxyModel::data(const QModelIndex &index, int role) 
 
     if ( urls_.contains(index.column()) )
     {
-        if ( Qt::ForegroundRole )
+        if ( role == Qt::ForegroundRole )
         {
             if ( result.canConvert(QVariant::Brush) )
             {
@@ -183,7 +183,7 @@ QVariant AStringListListUrlProxyModel::data(const QModelIndex &index, int role) 
                 selected.setColor(QApplication::palette().link().color());
                 return selected;
             }
-        } else if ( Qt::TextColorRole ) {
+        } else if ( role == Qt::TextColorRole ) {
             return QApplication::palette().link().color();
         }
     }
