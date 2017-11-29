@@ -793,7 +793,8 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 
   /* Extracing the string collected in the strbuf */
   string_len = (guint32)wmem_strbuf_get_len(mcc_mnc_strbuf);
-  mcc_mnc_string = wmem_strbuf_finalize(mcc_mnc_strbuf);
+  mcc_mnc_string = wmem_strdup(actx->pinfo->pool, wmem_strbuf_get_str(mcc_mnc_strbuf));
+  wmem_strbuf_truncate(mcc_mnc_strbuf, 0);
 
   /* Creating TVB from extracted string*/
   mcc_mnc_tvb = tvb_new_child_real_data(tvb, (guint8*)mcc_mnc_string, string_len, string_len);
@@ -821,7 +822,8 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 
   /* Extracing the string collected in the strbuf */
   string_len = (guint32)wmem_strbuf_get_len(imsi_strbuf);
-  imsi_string = wmem_strbuf_finalize(imsi_strbuf);
+  imsi_string = wmem_strdup(actx->pinfo->pool, wmem_strbuf_get_str(imsi_strbuf));
+  wmem_strbuf_truncate(imsi_strbuf, 0);
 
   /* Creating TVB from extracted string*/
   imsi_tvb = tvb_new_child_real_data(tvb, (guint8*)imsi_string, string_len, string_len);
