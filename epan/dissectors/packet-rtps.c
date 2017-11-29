@@ -359,6 +359,7 @@ static int hf_rtps_pl_cdr_member_id                             = -1;
 static int hf_rtps_pl_cdr_member_length                         = -1;
 static int hf_rtps_pl_cdr_member_id_ext                         = -1;
 static int hf_rtps_pl_cdr_member_length_ext                     = -1;
+static int hf_rtps_dcps_publication_data_frame_number           = -1;
 
 /* Flag bits */
 static int hf_rtps_flag_reserved80                              = -1;
@@ -1581,6 +1582,7 @@ typedef struct _type_mapping {
   gchar topic_name[MAX_TOPIC_AND_TYPE_LENGTH];
   gint fields_visited;
   datawriter_qos dw_qos;
+  guint32 dcps_publication_frame_number;
 } type_mapping;
 
 static wmem_map_t * registry = NULL;
@@ -3811,7 +3813,7 @@ static int rtps_util_add_fragment_number_set(proto_tree *tree, packet_info *pinf
   return offset;
 }
 
-static void rtps_util_store_type_mapping(tvbuff_t *tvb, gint offset,
+static void rtps_util_store_type_mapping(packet_info *pinfo, tvbuff_t *tvb, gint offset,
         type_mapping * type_mapping_object, const gchar * value,
         gint topic_info_add_id, const guint encoding) {
   if (enable_topic_info && type_mapping_object) {
@@ -3865,6 +3867,7 @@ static void rtps_util_store_type_mapping(tvbuff_t *tvb, gint offset,
             !wmem_map_lookup(registry, &(type_mapping_object->guid))) {
       if (((type_mapping_object->guid.entity_id & 0x02) == 0x02)){
         /* If it is an application defined writer matches 0x02 */
+        type_mapping_object->dcps_publication_frame_number = pinfo->num;
         wmem_map_insert(registry, &(type_mapping_object->guid), type_mapping_object);
       }
     }
@@ -3923,6 +3926,9 @@ static void rtps_util_topic_info_add_tree(proto_tree *tree, tvbuff_t *tvb,
           val_to_str(type_mapping_object->dw_qos.durability_kind, durability_qos_vals, "%02x"),
           val_to_str(type_mapping_object->dw_qos.ownership_kind, ownership_qos_vals, "%02x"));
       PROTO_ITEM_SET_GENERATED(dw_qos_tree);
+      ti = proto_tree_add_uint(topic_info_tree, hf_rtps_dcps_publication_data_frame_number,
+          tvb, 0, 0, type_mapping_object->dcps_publication_frame_number);
+      PROTO_ITEM_SET_GENERATED(ti);
     }
   }
 }
@@ -4776,7 +4782,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
 
       retVal = (gchar*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, str_size, ENC_ASCII);
 
-      rtps_util_store_type_mapping(tvb, offset, type_mapping_object,
+      rtps_util_store_type_mapping(pinfo, tvb, offset, type_mapping_object,
           retVal, TOPIC_INFO_ADD_TOPIC_NAME, encoding);
 
       rtps_util_add_string(rtps_parameter_tree, tvb, offset, hf_rtps_param_topic_name, encoding);
@@ -4812,7 +4818,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
 
       retVal = (gchar*) tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, str_size, ENC_ASCII);
 
-      rtps_util_store_type_mapping(tvb, offset, type_mapping_object,
+      rtps_util_store_type_mapping(pinfo, tvb, offset, type_mapping_object,
           retVal, TOPIC_INFO_ADD_TYPE_NAME, encoding);
 
       rtps_util_add_string(rtps_parameter_tree, tvb, offset, hf_rtps_param_type_name, encoding);
@@ -4895,7 +4901,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
     case PID_RELIABILITY:
       ENSURE_LENGTH(4);
       proto_tree_add_item(rtps_parameter_tree, hf_rtps_reliability_kind, tvb, offset, 4, encoding);
-      rtps_util_store_type_mapping(tvb, offset, type_mapping_object, NULL,
+      rtps_util_store_type_mapping(pinfo, tvb, offset, type_mapping_object, NULL,
           TOPIC_INFO_ADD_RELIABILITY, encoding);
       /* Older version of the protocol (and for PID_RELIABILITY_OFFERED)
        * this parameter was carrying also a NtpTime called
@@ -4936,7 +4942,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
     case PID_DURABILITY:
       ENSURE_LENGTH(4);
       proto_tree_add_item(rtps_parameter_tree, hf_rtps_durability, tvb, offset, 4, encoding);
-      rtps_util_store_type_mapping(tvb, offset, type_mapping_object, NULL,
+      rtps_util_store_type_mapping(pinfo, tvb, offset, type_mapping_object, NULL,
           TOPIC_INFO_ADD_DURABILITY, encoding);
       break;
 
@@ -4975,7 +4981,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
     case PID_OWNERSHIP:
       ENSURE_LENGTH(4);
       proto_tree_add_item(rtps_parameter_tree, hf_rtps_ownership, tvb, offset, 4, encoding);
-      rtps_util_store_type_mapping(tvb, offset, type_mapping_object, NULL,
+      rtps_util_store_type_mapping(pinfo, tvb, offset, type_mapping_object, NULL,
           TOPIC_INFO_ADD_OWNERSHIP, encoding);
       break;
 
@@ -5905,7 +5911,7 @@ static gboolean dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, p
      */
     case PID_ENDPOINT_GUID:
       ENSURE_LENGTH(16);
-      rtps_util_store_type_mapping(tvb, offset, type_mapping_object,
+      rtps_util_store_type_mapping(pinfo, tvb, offset, type_mapping_object,
           NULL, TOPIC_INFO_ADD_GUID, encoding);
       rtps_util_add_generic_guid_v2(rtps_parameter_tree, tvb, offset,
                     hf_rtps_endpoint_guid, hf_rtps_param_host_id, hf_rtps_param_app_id,
@@ -11836,6 +11842,11 @@ void proto_register_rtps(void) {
     { &hf_rtps_pl_cdr_member_length_ext,
       { "Member length", "rtps.data.member_length",
         FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+    },
+    { &hf_rtps_dcps_publication_data_frame_number,{
+        "DCPSPublicationData n", "rtps.dcps_publication_data_frame_number",
+        FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+        "This is a submessage sent by the DataWriter described in the DCPSPublicationData found in this frame", HFILL }
     },
   };
 
