@@ -2538,7 +2538,7 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     int         idx         = *pIdx;
     int         sid;
-    guint32      oam_cell   = 0;
+    guint32     oam_cell    = 0;
     proto_tree *l2_specific = NULL;
     proto_item *ti          = NULL;
     tvbuff_t   *next_tvb;
@@ -2583,17 +2583,18 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (cookie_len == -1)
         cookie_len = L2TPv3_COOKIE_DEFAULT;
 
-    col_add_fstr(pinfo->cinfo,COL_INFO,
-                    "%s            (session id=%u)",
-                    data_msg, sid);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "D[S:0x%02X]", sid);
+    col_set_fence(pinfo->cinfo, COL_INFO);
 
     if (tree) {
         proto_tree_add_item(l2tp_tree, hf_l2tp_sid, tvb, idx-4, 4, ENC_BIG_ENDIAN);
         proto_item_set_len(l2tp_item, idx);
-        if (!(tvb_offset_exists(tvb, idx)))
+        if (!(tvb_offset_exists(tvb, idx))) {
             return;
-        if (cookie_len != 0)
+        }
+        if (cookie_len != 0) {
             proto_tree_add_item(l2tp_tree, hf_l2tp_cookie, tvb, idx, cookie_len, ENC_NA);
+        }
     }
 
     switch(l2_spec){
