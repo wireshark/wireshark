@@ -6,19 +6,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * SPDX-License-Identifier: GPL-2.0+
  */
 
 #ifndef __RECENT_H__
@@ -64,8 +52,8 @@ typedef struct _col_width_data {
 #define COLUMN_XALIGN_RIGHT   'R'
 
 typedef enum {
-  BYTES_HEX,
-  BYTES_BITS
+    BYTES_HEX,
+    BYTES_BITS
 } bytes_view_type;
 
 /** Recent settings. */
@@ -278,7 +266,7 @@ extern void capture_remote_combo_recent_write_all(FILE *rf);
 #endif /* recent.h */
 
 /*
- * Editor modelines
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 4

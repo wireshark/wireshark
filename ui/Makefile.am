@@ -151,7 +151,6 @@ libui_generated_a_SOURCES = $(GENERATED_FILES)
 libui_generated_a_CFLAGS = $(GENERATED_CFLAGS)
 
 EXTRA_DIST = \
-	.editorconfig			\
 	$(GENERATOR_FILES)		\
 	CMakeLists.txt			\
 	doxygen.cfg.in			\
