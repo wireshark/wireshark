@@ -298,6 +298,7 @@ process_netbios_name(const guchar *name_ptr, char *name_ret, int name_ret_len)
 	int    i;
 	int    name_type = *(name_ptr + NETBIOS_NAME_LEN - 1);
 	guchar name_char;
+	char  *name_ret_orig = name_ret;
 	static const char hex_digits[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
 
 	for (i = 0; i < NETBIOS_NAME_LEN - 1; i++) {
@@ -324,7 +325,7 @@ process_netbios_name(const guchar *name_ptr, char *name_ret, int name_ret_len)
 
 	name_ret--;
 
-	for (i = 0; i < NETBIOS_NAME_LEN - 1; i++) {
+	while (name_ret >= name_ret_orig) {
 		if (*name_ret != ' ') {
 			*(name_ret + 1) = 0;
 			break;
